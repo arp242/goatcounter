@@ -1,0 +1,399 @@
+
+/* FILE: ./aside.css */
+aside {
+  hyphens: auto;
+}
+aside {
+  position: absolute;
+  left: -15em;
+  width: 14em;
+  text-align: right;
+  font-size: .9em;
+}
+@media (max-width: 83em) {
+  aside {
+    position: static;
+    width: auto;
+    text-align: left;
+    background-color: #f7f7f7;
+    padding: .4em 2em;
+    border: 1px solid #b7b7b7;
+    hyphens: none;
+  }
+}
+
+/* FILE: ./base.css */
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 400;
+  font-display: fallback;
+  src: local('Libre Baskerville'), local('LibreBaskerville-Regular'),
+    url(/fonts/libre-baskerville.woff2) format('woff2'),
+    url(./fonts/libre-baskerville.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 700;
+  font-display: fallback;
+  src: local('Libre Baskerville Bold'), local('LibreBaskerville-Bold'),
+    url(/fonts/libre-baskerville-bold.woff2) format('woff2'),
+    url(./fonts/libre-baskerville-bold.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: italic;
+  font-weight: 400;
+  font-display: fallback;
+  src: local('Libre Baskerville Italic'), local('LibreBaskerville-Italic'),
+    url(/fonts/libre-baskerville-italic.woff2) format('woff2'),
+    url(./fonts/libre-baskerville-italic.woff2) format('woff2');
+}
+html {
+  font: 16px/180% 'Libre Baskerville', 'DejaVu Serif', 'Bitstream Vera Serif', 'Georgia', serif;
+          text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+}
+@media (max-width: 54rem) {
+  html { font-size: 14px; line-height: 160%; }
+}
+@media (max-width: 26rem) {
+  html { font-size: 12px; line-height: 150%; }
+}
+pre, code {
+  font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', monospace;
+}
+pre {
+  font-size: 14px;
+  line-height: 130%;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+  font-feature-settings: 'liga' on, 'dlig' on;
+}
+* {
+  box-sizing: border-box;
+}
+*:target {
+  background-color: #ff6;
+}
+html {
+  background-color: #eee;
+  color: #252525;
+       tab-size: 4;
+  -moz-tab-size: 4;
+}
+html, body {
+  margin: 0;
+}
+.center, .page {
+  max-width: 54rem;
+  margin: .5rem auto;
+  position: relative;
+}
+.page {
+  padding: 1rem 4rem;
+  background-color: #fff;
+  box-shadow: 0 0 6px rgba(0,0,0,.2);
+}
+@media (max-width: 54rem) {
+  .page, .center {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+}
+@page {
+  margin: 0;
+}
+@media print {
+  body {
+    background-color: #fff;
+  }
+  .page, .center {
+    box-shadow: none;
+    padding: 0 1cm;
+    margin: 0;
+    max-width: none;
+  }
+  .page:first-child, .center:first-child {
+    padding-top: 5mm;
+  }
+}
+.page-a4, .page.page-a4 {
+  width: 21cm;
+  height: 29.7cm;
+}
+.page-letter, .page.page-letter {
+  width: 8.5in;
+  height: 11in;
+}
+a,
+a code,
+.link {
+  color: #00f;
+  text-decoration: none;
+  transition: color .2s;
+}
+a:hover, .link:hover {
+  text-decoration: underline;
+  color: #6491ff;
+}
+a:hover code  {
+  color: #6491ff;
+}
+form {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+.link {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1rem;
+  display: inline;
+  -moz-user-select: inherit;
+  -webkit-appearance: none;
+}
+h1 {
+  text-align: center;
+  padding: .5em 0;
+  font-size: 1.7em;
+}
+h2 {
+  border-bottom: 1px solid #252525;
+  padding-bottom: .2em;
+  font-size: 1.5em;
+}
+h3 {
+  font-size: 1.3em;
+}
+h4 {
+  font-size: 1.1em;
+}
+h5, h6 {
+  font-size: 1em;
+}
+blockquote {
+  font-style: italic;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  text-align: center;
+  margin: 1rem 0;
+}
+figure.border {
+  border: 1px solid #bbb;
+  padding: 5px;
+  margin: -5px;
+}
+@media (min-width: 54rem) {
+  figure.full {
+    margin-left: -4rem;
+    width: calc(100% + 8rem);
+  }
+  figure.full.border {
+    border-left: none;
+    border-right: none;
+  }
+}
+code, pre, kbd, samp {
+  background-color: #f5f5f5;
+  color: #000;
+}
+pre {
+  overflow: auto;
+  max-height: 500px;
+  padding: .5em 1em;
+  border-radius: 2px;
+  border-top: 1px solid #d5d5d5;
+  border-bottom: 1px solid #d5d5d5;
+}
+@media (min-width: 54rem) {
+  pre.full {
+    margin-left: -4rem;
+    width: calc(100% + 8rem);
+  }
+}
+code, kbd, samp {
+  padding: 1px 2px;
+}
+pre > code {
+  padding: 0;
+  box-shadow: none;
+  border: none;
+}
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
+  background-color: transparent;
+  box-shadow: none;
+  color: inherit;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+table + table {
+  margin-top: 2em;
+}
+@media (min-width: 54rem) {
+  table.full {
+    margin-left: -3.5rem;
+    width: calc(100% + 7rem);
+  }
+}
+caption {
+  font-weight: bold;
+}
+tr {
+  border-bottom: 1px solid #ddd;
+}
+table > tr:last-child, tbody tr:last-child, tfoot tr:last-child {
+  border-bottom: none;
+}
+tfoot tr:first-child {
+  border-top: 1px solid #ddd;
+}
+td, th {
+  padding: .2em .5em;
+  hyphens: none;
+}
+td.left, th.left  {
+  text-align: left;
+}
+td.right, th.right {
+  text-align: right;
+}
+table td.right {
+    font-feature-settings: 'tnum' on;
+    font-variant-numeric: tabular-nums;
+    font-family: sans-serif;
+}
+hr {
+  border: none;
+  text-align: center;
+  font-size: 60px;
+  color: #252525;
+  opacity: .9;
+}
+hr:before {
+  content: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMC4yIDkuMiIgaGVpZ2h0PSIzNC44IiB3aWR0aD0iMTE0LjMiPjxwYXRoIGQ9Ik0xMy4yIDBxMS4xIDAgMS4zIDEuMiAwIDEtLjcgMS4yLTEuOC40LTIgLjggMi42LjMgMy4yIDMuMWguMmwuMi44LS40LjFxLS4yIDEuOC0xLjggMS45LTEgMC0xLjMtMSAwLS44LjItLjguMi40LjguNC44IDAgMS0uOFExMSA2LjEgMTEgMy43cS0xLjQgMC0yLjEgMSAxLjQuNyAxLjQgMS44LS4xIDIuNS0zLjYgMi43US41IDkuMiAwIDUuNXEwLS42LjctLjcuNSAwIC42LjV2LjJsLS4xLjRxMCAxIDEuMSAxIDEgMCAxLS43UTQgMS4yIDcgMXEyIC4xIDIgMS43di4xcTAgLjQtLjQgMS41IDEtLjggMi0xIC42IDAgLjYtLjQuOC0xIDEuNi0xLjMuNi0uNC42LS44bC0uMi0uNHEtLjItLjMgMC0uNHptLTEuNiAzLjd2LjFxMCAxLjQgMi4zIDIuMi0uMy0yLTIuMy0yLjN6Ii8+PHBhdGggZD0iTTE3IDBxLTEgMC0xLjMgMS4yIDAgMSAuOCAxLjIgMS44LjQgMiAuOC0yLjcuMy0zLjIgMy4xSDE1bC0uMi44LjUuMXEuMiAxLjggMS44IDEuOSAxIDAgMS4yLTEgMC0uOC0uMi0uOC0uMS40LS43LjQtLjkgMC0xLS44IDIuNy0uOCAyLjgtMy4yIDEuNCAwIDIgMS0xLjMuNy0xLjMgMS44IDAgMi41IDMuNSAyLjcgNi40IDAgNi44LTMuNyAwLS42LS42LS43LS42IDAtLjcuNXYuMmwuMi40cTAgMS0xLjIgMS0uOSAwLTEtLjctLjYtNS0zLjctNS4yLTIgLjEtMiAxLjd2LjFxMCAuNC40IDEuNS0xLS44LTItMS0uNiAwLS42LS40LS43LTEtMS41LTEuMy0uNi0uNC0uNi0uOGwuMi0uNHEuMi0uMyAwLS40em0xLjcgMy43di4xcTAgMS40LTIuNCAyLjIuMy0yIDIuNC0yLjN6Ii8+PC9zdmc+);
+}
+
+/* FILE: ./blockquote.css */
+blockquote {
+  font-style: italic;
+  position: relative;
+}
+blockquote:before  {
+  position: absolute;
+  color: #dbdbdb;
+  font-size: 5em;
+}
+blockquote:before {
+  content: "“";
+  left: -.6em;
+  top: .25em;
+}
+
+/* FILE: ./form.css */
+input[type="text"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="month"],
+input[type="week"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="range"],
+input[type="number"],
+textarea,
+select {
+  font: 1rem/100% sans-serif;
+  display: block;
+  min-width: 20rem;
+  padding: .3em .2em;
+}
+input[type="number"] {
+  min-width: 10rem;
+  width: 10rem;
+}
+label  {
+  display: block;
+  margin-top: .5em;
+}
+textarea {
+  width: 100%;
+  height: 10rem;
+  line-height: 130%;
+}
+form > div, fieldset > div {
+  float: left;
+  margin-right: 1em;
+}
+form > strong, fieldset > strong {
+  display: inline-block;
+  margin-top: .5em;
+}
+form.horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+form.horizontal label {
+  width: 25%;
+}
+form.horizontal input {
+  width: 75%;
+}
+
+/* FILE: ./permalink.css */
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  font-size: .7em;
+  line-height: 0;
+  color: #999;
+}
+h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
+  content: "¶";
+}
+
+/* FILE: ./postscript.css */
+.postscript {
+  margin-top: 3em;
+  border-top: 1px solid #bbb;
+  font-size: .9em;
+  position: relative;
+}
+.postscript + .postscript {
+  margin-top: 2em;
+}
+.postscript > strong {
+  font-style: normal;
+  position: absolute;
+  top: -1em;
+  left: 1em;
+  background-color: #fff;
+  padding: 0 .5em;
+}
+.postscript > p {
+  margin: 1em 2em
+}
+@media (min-width: 54rem) {
+  .postscript {
+    margin-left: -4em;
+    width: calc(100% + 8em);
+    padding: 0 4em;
+  }
+  .postscript > strong {
+    left: 6em;
+  }
+}

@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Simulate some subscribes/unsubscribes for dev purposes.
+
+set -euC
+
+for i in $(seq 1 20); do
+	n="$( date +%Y-%m-0$(( ( RANDOM % 10 ) + 1)) )"
+	sqlite3 ./db/db.sqlite3 \
+		"insert into subscribes (site, email, created_at, secret) values (1, 'test$i@example.com', '$n', 'x')"
+done
+
+for i in $(seq 1 15); do
+	n="$( date +%Y-%m-0$(( ( RANDOM % 10 ) + 1)) )"
+	sqlite3 ./db/db.sqlite3 \
+		"insert into unsubscribes (site, created_at) values (1, '$n')"
+done

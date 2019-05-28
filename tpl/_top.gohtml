@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>GoatCounter – Website statistics for regular folks</title>
+	<link rel="shortcut icon" href="//{{.Static}}/favicon.ico">
+	{{/*<link rel="canonical" href="{{.Domain}}">*/}}
+	<link rel="stylesheet" href="//{{.Static}}/all.min.css">
+	<link rel="stylesheet" href="//{{.Static}}/style.css">
+</head>
+
+<body>
+	<nav class="center">
+		<a href="/">Index</a>
+		<div style="float: right">
+			{{if .User.ID}}
+				Signed in as {{.User.Name}} |
+				{{if eq .User.Role "a"}}<a href="/admin">Admin</a> |{{end}}
+				<form method="post" action="/user/logout">
+					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+					<button class="link">Sign out</button>
+				</form>
+			{{else}}
+				<a href="/user/new">Sign in</a>
+			{{end}}
+		</div>
+	</nav>
+
+	<div class="page">
+	{{if .Flash}}<div class="flash">{{.Flash}}</div>{{end}}

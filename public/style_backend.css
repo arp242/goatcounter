@@ -1,0 +1,7 @@
+.page, .center {
+	/* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
+	 * width. .page has a 1em padding on either side.
+	 * The last 10mm is needede because magic (1mm will work, this just looks
+	 * more even). */
+	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
+}

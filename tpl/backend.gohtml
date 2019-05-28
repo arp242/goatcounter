@@ -1,0 +1,51 @@
+{{template "_top_backend.gohtml" .}}
+{{if not .User.ID}}
+<p>This is the management panel for the {{.Site.Name}} newsletter.
+	<a href="/user/new">Sign in</a> or go to the
+	<a href="https://{{.Domain}}">home page</a></p>
+{{else}}
+
+<h2>Latest hits</h2>
+<table>
+<tbody>
+	{{range $h := .Hits}}
+		<tr>
+			<td>{{$h.Path}}</td>
+			<td>{{if $h.Ref}}from {{$h.Ref}}{{end}}</td>
+			<td>{{$h.CreatedAt}}</td>
+		</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>Statistics</h2>
+Select range
+<div style="width: 50%;">
+{{/*
+	<h3 style="text-align: center">{{.SubCount}} active subscribers</h3>
+	<div class="chart" data-chart='{{.Subscribes}}'></div>
+*/}}
+</div>
+
+<h2>Refering pages</h2>
+
+<h2>Site code</h2>
+<pre>
+&lt;script&gt;
+	(function(src) {
+		var script = document.createElement('script');
+		window.count = 'https://{{.Site.Code}}.{{.Domain}}/count'
+		script.async = 1;
+		script.src = '/{{.Static}}/count-nodata.js';
+
+		var ins = document.getElementsByTagName('script')[0];
+		ins.parentNode.insertBefore(script, ins)
+	})();
+&lt;/script&gt;
+</pre>
+
+<h2>Users</h2>
+Add users, manage (temporary) tokens for sending.
+
+{{end}}
+{{template "_bottom_backend.gohtml" .}}

@@ -1,0 +1,22 @@
+{{template "_top_backend.gohtml" .}}
+
+<h1>Sign in</h1>
+
+<form method="post" action="/user/requestlogin" id="request-login">
+	<label for="email">Email address</label>
+	<input type="email" name="email" id="email" required>
+	<button>Sign in</button>
+</form>
+
+{{/*
+<p>You need to sign in at <strong>example</strong>.{{.Domain}}, rather than on
+the website.</p>
+
+<form>
+	<input style="display: inline" type="text" name="code" id="code" required>
+	<label for="code" style="display: inline">.{{.Domain}}</label><br>
+	<button>Go there (TODO)</button>
+</form>
+*/}}
+
+{{template "_bottom_backend.gohtml" .}}

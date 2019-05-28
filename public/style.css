@@ -1,0 +1,67 @@
+html {
+	/*
+	font: 18px/140% Lato, sans-serif;
+	*/
+}
+
+/*
+html {
+	background-color: #d1d2b7;
+	background-color: #68fee8;
+	background-color: #ccc;
+}
+.page {
+	background-color: transparent;
+	box-shadow: none;
+}
+*/
+
+.page, .center {
+	/*max-width: calc(88mm * 3);*/
+
+	/*
+	max-width: calc(98mm * 3);
+	*/
+
+	/* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
+	 * width. .page has a 1em padding on either side.
+	 * The last 10mm is needede because magic (1mm will work, this just looks
+	 * more even). */
+	/*
+	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
+	*/
+}
+
+.center {
+	/*
+	background-color: #fff;
+	*/
+}
+
+.page {
+	padding: 1em;
+	/*
+	max-width: none;
+	padding-top: 2em;
+	padding-bottom: 2em;
+	*/
+}
+
+/*
+label[for] { font-weight: bold; }
+*/
+
+/*
+input, select {
+	min-width: 10rem !important;
+	width: 10rem;
+}
+*/
+
+/***** ******/
+
+.flash {
+	text-align: center;
+	background-color: #68fee8;
+	padding: 10px;
+}
