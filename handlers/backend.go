@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -53,26 +54,27 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
-	// days := 20
-	// if d := r.URL.Query().Get("days"); d != "" {
-	// 	dd, _ := strconv.ParseInt(d, 10, 32)
-	// 	days = int(dd)
-	// }
+	days := 7
+	if d := r.URL.Query().Get("days"); d != "" {
+		dd, _ := strconv.ParseInt(d, 10, 32)
+		days = int(dd)
+	}
 
-	// var s goatcounter.SubscribeStats
-	// scount, err := s.Daily(r.Context(), days)
-	// if err != nil {
-	// 	return err
-	// }
+	var hits goatcounter.HitStats
+	_, err := hits.Hourly(r.Context(), days)
+	if err != nil {
+		return err
+	}
 
-	var hits goatcounter.Hits
-	err := hits.List(r.Context())
+	var refs goatcounter.RefStats
+	err = refs.List(r.Context())
 	if err != nil {
 		return err
 	}
 
 	return zhttp.Template(w, "backend.gohtml", struct {
 		Globals
-		Hits goatcounter.Hits
-	}{newGlobals(w, r), hits})
+		HitStats goatcounter.HitStats
+		RefStats goatcounter.RefStats
+	}{newGlobals(w, r), hits, refs})
 }

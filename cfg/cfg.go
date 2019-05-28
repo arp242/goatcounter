@@ -27,7 +27,7 @@ func Set() {
 	flag.StringVar(&Domain, "domain", "localhost:8081", "Base domain")
 	flag.StringVar(&DomainStatic, "domainstatic", "static.localhost:8081", "Domain to serve static files from.")
 	flag.StringVar(&Listen, "listen", "localhost:8081", "Address to listen on.")
-	flag.StringVar(&DBConnect, "dbconnect", "db/db.sqlite3", "Database connection string.")
+	flag.StringVar(&DBConnect, "dbconnect", "db/goatcounter.sqlite3", "Database connection string.")
 	flag.StringVar(&SMTP, "smtp", "smtps://b42bfac68fec83:f8dd7327e3e8b3@smtp.mailtrap.io:465", "SMTP connection string.")
 	flag.StringVar(&Sentry, "sentry", "", "Sentry connection string")
 	flag.Parse()

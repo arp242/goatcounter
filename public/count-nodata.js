@@ -18,7 +18,8 @@
 		return {
 			//h: host,
 			p: (vars.path     || (loc.pathname + loc.search) || '/'),
-			r:  (vars.referrer || (document.referrer.indexOf(host) > -1 ? document.referrer : '') || ''),
+			//r: (vars.referrer || (document.referrer.indexOf(host) > -1 ? document.referrer : '') || ''),
+			r: (vars.referrer || document.referrer),
 		};
 	};
 

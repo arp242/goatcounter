@@ -6,6 +6,7 @@
 {{else}}
 
 <h2>Latest hits</h2>
+{{/*
 <table>
 <tbody>
 	{{range $h := .Hits}}
@@ -17,17 +18,24 @@
 	{{end}}
 </tbody>
 </table>
+*/}}
 
 <h2>Statistics</h2>
 Select range
 <div style="width: 50%;">
-{{/*
-	<h3 style="text-align: center">{{.SubCount}} active subscribers</h3>
-	<div class="chart" data-chart='{{.Subscribes}}'></div>
-*/}}
+<div class="chart" data-chart='{{.HitStats}}'></div>
 </div>
 
 <h2>Refering pages</h2>
+<table>
+<tbody>
+	{{range $h := .RefStats}}
+		<tr>
+			<td>{{$h}}</td>
+		</tr>
+	{{end}}
+</tbody>
+</table>
 
 <h2>Site code</h2>
 <pre>
