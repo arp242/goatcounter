@@ -15,9 +15,10 @@ create table sites (
 	updated_at     datetime
 );
 insert into sites (domain, code, name) values
-	("arp242.net",     "arp242",    "arp242.net"),
-	("zgo.at",         "zgoat",      "zGoat"),
-	("goatletter.com", "goatletter", "GoatLetter");
+	("arp242.net",      "arp242",      "arp242.net"),
+	("zgo.at",          "zgoat",       "zGoat"),
+	("goatletter.com",  "goatletter",  "GoatLetter"),
+	("goatcounter.com", "goatcounter", "GoatCounter");
 
 drop table if exists users;
 create table users (
@@ -49,6 +50,7 @@ create table hits (
 
 	path           varchar        not null,
 	ref            varchar        not null,
+	ref_params     varchar,
 
 	created_at     datetime       null default current_timestamp,
 

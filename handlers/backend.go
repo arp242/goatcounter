@@ -21,7 +21,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
 		addctx(db, true),
-		zhttp.Headers,
+		zhttp.Headers(nil),
 		zhttp.Log(true, ""))
 
 	r.Get("/count", zhttp.Wrap(h.count))
@@ -43,6 +43,8 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	// TODO: filter stuff from localhost
+
 	err = t.Insert(r.Context())
 	if err != nil {
 		zlog.Error(err)
@@ -59,22 +61,49 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		dd, _ := strconv.ParseInt(d, 10, 32)
 		days = int(dd)
 	}
+	_ = days
 
-	var hits goatcounter.HitStats
-	_, err := hits.Hourly(r.Context(), days)
+	var pages goatcounter.HitStats
+	err := pages.List(r.Context())
 	if err != nil {
 		return err
 	}
 
-	var refs goatcounter.RefStats
-	err = refs.List(r.Context())
-	if err != nil {
-		return err
+	sr := r.URL.Query().Get("showrefs")
+	var refs goatcounter.HitStats
+	if sr != "" {
+		err := refs.ListPath(r.Context(), sr)
+		if err != nil {
+			return err
+		}
 	}
+
+	/*
+		var top goatcounter.HitList
+		err := top.List(r.Context())
+		if err != nil {
+			return err
+		}
+
+		var hits goatcounter.HitStats
+		_, err = hits.Hourly(r.Context(), days)
+		if err != nil {
+			return err
+		}
+
+		var refs goatcounter.RefStats
+		err = refs.List(r.Context())
+		if err != nil {
+			return err
+		}
+	*/
 
 	return zhttp.Template(w, "backend.gohtml", struct {
 		Globals
-		HitStats goatcounter.HitStats
-		RefStats goatcounter.RefStats
-	}{newGlobals(w, r), hits, refs})
+		ShowRefs string
+		Pages    goatcounter.HitStats
+		Refs     goatcounter.HitStats
+		//HitStats goatcounter.HitStats
+		//RefStats goatcounter.RefStats
+	}{newGlobals(w, r), sr, pages, refs})
 }

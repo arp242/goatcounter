@@ -16,7 +16,7 @@ var flags = []flag{
 	{"string", "Domain", "domain", "localhost:8081", "Base domain"},
 	{"string", "DomainStatic", "domainstatic", "static.localhost:8081", "Domain to serve static files from."},
 	{"string", "Listen", "listen", "localhost:8081", "Address to listen on."},
-	{"string", "DBConnect", "dbconnect", "db/goatcounter.sqlite3", "Database connection string."},
+	{"string", "DBFile", "dbconnect", "db/goatcounter.sqlite3", "Database connection string."},
 	{"string", "SMTP", "smtp", "smtps://b42bfac68fec83:f8dd7327e3e8b3@smtp.mailtrap.io:465", "SMTP connection string."},
 	{"string", "Sentry", "sentry", "", "Sentry connection string"},
 }

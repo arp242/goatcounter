@@ -2,9 +2,9 @@ module zgo.at/goatcounter
 
 go 1.12
 
-// replace zgo.at/zhttp => ../zhttp
+replace zgo.at/zhttp => ../zhttp
 
-// replace zgo.at/zlog => ../zlog
+replace zgo.at/zlog => ../zlog
 
 require (
 	github.com/Strum355/go-difflib v1.1.0 // indirect

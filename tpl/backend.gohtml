@@ -20,18 +20,34 @@
 </table>
 */}}
 
+{{/*
 <h2>Statistics</h2>
 Select range
 <div style="width: 50%;">
 <div class="chart" data-chart='{{.HitStats}}'></div>
 </div>
+*/}}
 
-<h2>Refering pages</h2>
+<style>td { vertical-align: top; }</style>
+<h2>Pages</h2>
 <table>
 <tbody>
-	{{range $h := .RefStats}}
-		<tr>
-			<td>{{$h}}</td>
+	{{range $h := .Pages}}
+		<tr id="{{$h.Path}}">
+            <td>{{$h.Count | nformat}}</td>
+			<td><a href="?showrefs={{$h.Path}}#{{$h.Path}}">{{$h.Path}}</a></td>
+            <td>
+                {{if and $.Refs (eq $.ShowRefs $h.Path)}}
+                    <table><tbody>
+                    {{range $r := $.Refs}}
+                        <tr>
+                            <td>{{$r.Count | nformat}}</td>
+                            <td>{{if $r.Path}}<a href="{{$r.Path}}" target="_blank">{{$r.Path}}</a>{{else}}(no data){{end}}</td>
+                        </tr>
+                    {{end}}
+                    </table></tbody>
+                {{end}}
+            </td>
 		</tr>
 	{{end}}
 </tbody>

@@ -2,11 +2,9 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
-	"github.com/jinzhu/now"
 	"github.com/pkg/errors"
 	"github.com/teamwork/validate"
 )
@@ -14,9 +12,10 @@ import (
 type Hit struct {
 	Site int64 `db:"site" json:"-"`
 
-	Path      string    `db:"path" json:"p"`
-	Ref       string    `db:"ref" json:"r"`
-	CreatedAt time.Time `db:"created_at"`
+	Path      string    `db:"path" json:"p,omitempty"`
+	Ref       string    `db:"ref" json:"r,omitempty"`
+	RefParams *string   `db:"ref_params" json:"ref_params,omitempty"`
+	CreatedAt time.Time `db:"created_at" json:"-"`
 }
 
 // Defaults sets fields to default values, unless they're already set.
@@ -27,6 +26,17 @@ func (h *Hit) Defaults(ctx context.Context) {
 	if h.CreatedAt.IsZero() {
 		h.CreatedAt = time.Now().UTC()
 	}
+
+	if h.Ref != "" {
+		i := strings.Index(h.Ref, "?")
+		if i > 0 {
+			rp := h.Ref[i+1:]
+			h.RefParams = &rp
+			h.Ref = h.Ref[:i]
+		}
+	}
+
+	h.Path = "/" + strings.TrimLeft(h.Path, "/")
 }
 
 // Validate the object.
@@ -48,8 +58,8 @@ func (h *Hit) Insert(ctx context.Context) error {
 		return err
 	}
 
-	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref) values ($1, $2, $3)`,
-		h.Site, h.Path, h.Ref)
+	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params)
+		values ($1, $2, $3, $4)`, h.Site, h.Path, h.Ref, h.RefParams)
 	return errors.Wrap(err, "Site.Insert")
 }
 
@@ -63,14 +73,49 @@ func (h *Hits) List(ctx context.Context) error {
 	return errors.Wrap(err, "Hits.List")
 }
 
-type HitStat struct {
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
+/*
+type HitList struct {
+	Page  string `db:"page" json:"page"`
+	Count int    `db:"count" json:"count"`
+
+	//CreatedAt time.Time `db:"created_at" json:"created_at"`
 	//CreatedAt string `db:"created_at" json:"created_at"`
-	Count int `db:"count" json:"count"`
+}
+*/
+
+type HitStats []struct {
+	Count int
+	Path  string
 }
 
-type HitStats []HitStat
+func (h *HitStats) List(ctx context.Context) error {
+	db := MustGetDB(ctx)
+	site := MustGetSite(ctx)
+	err := db.SelectContext(ctx, h, `
+		select path, count(path) as count
+		from hits where site=$1
+		group by path
+		order by count desc
+		limit 500`, site.ID)
+	return errors.Wrap(err, "HitStats.List")
+}
 
+func (h *HitStats) ListPath(ctx context.Context, path string) error {
+	db := MustGetDB(ctx)
+	site := MustGetSite(ctx)
+
+	err := db.SelectContext(ctx, h, `
+		select ref as path, count(ref) as count
+		from hits
+		where site=$1 and path=$2
+		group by ref
+		order by count(*) desc
+		limit 50
+	`, site.ID, path)
+	return errors.Wrap(err, "RefStats.ListPath")
+}
+
+/*
 func (h HitStats) String() string {
 	if len(h) == 0 {
 		return "[]"
@@ -81,11 +126,27 @@ func (h HitStats) String() string {
 	for i, st := range h {
 		b.WriteString(fmt.Sprintf(`["%s", %d]`, st.CreatedAt, st.Count))
 		if len(h) > i+1 {
-			b.WriteString(`,`)
+			b.WriteString(",")
 		}
 	}
 	b.WriteString("]")
 	return b.String()
+}
+*/
+
+/*
+func (h *HitList) List(ctx context.Context) error {
+	db := MustGetDB(ctx)
+	site := MustGetSite(ctx)
+
+	err := db.SelectContext(ctx, h, `
+		select count(*) || " " || path
+		from hits
+		where site=$1
+		group by path
+		order by count(*) desc
+	`, site.ID)
+	return err
 }
 
 func (h *HitStats) Hourly(ctx context.Context, days int) (int, error) {
@@ -93,7 +154,8 @@ func (h *HitStats) Hourly(ctx context.Context, days int) (int, error) {
 	site := MustGetSite(ctx)
 
 	// Get day relative to user TZ.
-	usertz, err := time.LoadLocation("Pacific/Auckland") // TODO
+	//usertz, err := time.LoadLocation("Pacific/Auckland") // TODO
+	usertz, err := time.LoadLocation("Europe/Amsterdam") // TODO
 	if err != nil {
 		panic(err)
 	}
@@ -106,7 +168,7 @@ func (h *HitStats) Hourly(ctx context.Context, days int) (int, error) {
 		created_at
 		from hits
 		where
-			site=$1 and 
+			site=$1 and
 			created_at >= $2 and created_at <= $3
 		group by strftime("%H", created_at)
 		order by created_at asc
@@ -135,19 +197,21 @@ func (h *HitStats) Daily(ctx context.Context, days int) (int, error) {
 
 	return 0, err
 }
+*/
 
 type RefStats []string
 
-func (r *RefStats) List(ctx context.Context) error {
+func (r *RefStats) ListPath(ctx context.Context, path string) error {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 
 	err := db.SelectContext(ctx, r, `
 		select count(*) || " " || ref
 		from hits
-		where site=$1
+		where site=$1 and path=$2
 		group by ref
 		order by count(*) desc
-	`, site.ID)
-	return err
+		limit 50
+	`, site.ID, path)
+	return errors.Wrap(err, "RefStats.ListPath")
 }

@@ -16,7 +16,7 @@ var (
 	Domain       string // Base domain
 	DomainStatic string // Domain to serve static files from.
 	Listen       string // Address to listen on.
-	DBConnect    string // Database connection string.
+	DBFile       string // Database connection string.
 	SMTP         string // SMTP connection string.
 	Sentry       string // Sentry connection string
 )
@@ -27,7 +27,7 @@ func Set() {
 	flag.StringVar(&Domain, "domain", "localhost:8081", "Base domain")
 	flag.StringVar(&DomainStatic, "domainstatic", "static.localhost:8081", "Domain to serve static files from.")
 	flag.StringVar(&Listen, "listen", "localhost:8081", "Address to listen on.")
-	flag.StringVar(&DBConnect, "dbconnect", "db/goatcounter.sqlite3", "Database connection string.")
+	flag.StringVar(&DBFile, "dbconnect", "db/goatcounter.sqlite3", "Database connection string.")
 	flag.StringVar(&SMTP, "smtp", "smtps://b42bfac68fec83:f8dd7327e3e8b3@smtp.mailtrap.io:465", "SMTP connection string.")
 	flag.StringVar(&Sentry, "sentry", "", "Sentry connection string")
 	flag.Parse()
@@ -39,7 +39,7 @@ func Print() {
 	fmt.Printf("Domain         %#v\n", Domain)
 	fmt.Printf("DomainStatic   %#v\n", DomainStatic)
 	fmt.Printf("Listen         %#v\n", Listen)
-	fmt.Printf("DBConnect      %#v\n", DBConnect)
+	fmt.Printf("DBFile         %#v\n", DBFile)
 	fmt.Printf("SMTP           %#v\n", SMTP)
 	fmt.Printf("Sentry         %#v\n", Sentry)
 }

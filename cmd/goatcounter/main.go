@@ -16,6 +16,7 @@ import (
 	"zgo.at/zlog"
 
 	"zgo.at/goatcounter/cfg"
+	dbinit "zgo.at/goatcounter/db"
 	"zgo.at/goatcounter/handlers"
 )
 
@@ -60,9 +61,20 @@ func main() {
 	}
 
 	// Connect to DB.
-	db, err := sqlx.Connect("sqlite3", cfg.DBConnect)
+	// Connect to DB.
+	exists := true
+	if _, err := os.Stat(cfg.DBFile); os.IsNotExist(err) {
+		zlog.Printf("database %q doesn't exist; loading new schema", cfg.DBFile)
+		exists = false
+	}
+	db, err := sqlx.Connect("sqlite3", cfg.DBFile)
 	must(errors.Wrap(err, "sqlx.Connect"))
 	defer db.Close()
+
+	if !exists {
+		_, err := db.Exec(string(dbinit.Schema))
+		must(errors.Wrap(err, "database schema init"))
+	}
 
 	// Set up HTTP handler and servers.
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(map[string]chi.Router{

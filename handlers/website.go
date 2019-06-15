@@ -20,7 +20,7 @@ func (h Website) Mount(r *chi.Mux, db *sqlx.DB) {
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
 		addctx(db, false),
-		zhttp.Headers,
+		zhttp.Headers(nil),
 		zhttp.Log(true, ""),
 		keyAuth)
 
