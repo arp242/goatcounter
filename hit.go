@@ -9,6 +9,15 @@ import (
 	"github.com/teamwork/validate"
 )
 
+// var groups = map[string]string{
+// 	"https://news.ycombinator.com/": "Hacker News",
+// 	"https://hn.algolia.com/":       "Hacker News",
+//
+// 	"https://www.google./": "Google",
+//
+// 	//"https://t.co/CZIy0OlYQn": "Twitter",
+// }
+
 type Hit struct {
 	Site int64 `db:"site" json:"-"`
 
@@ -36,7 +45,8 @@ func (h *Hit) Defaults(ctx context.Context) {
 		}
 	}
 
-	h.Path = "/" + strings.TrimLeft(h.Path, "/")
+	h.Ref = strings.TrimRight(h.Ref, "/")
+	h.Path = "/" + strings.Trim(h.Path, "/")
 }
 
 // Validate the object.
