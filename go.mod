@@ -6,6 +6,8 @@ replace zgo.at/zhttp => ../zhttp
 
 replace zgo.at/zlog => ../zlog
 
+replace github.com/monoculum/formam => ../formam
+
 require (
 	github.com/Strum355/go-difflib v1.1.0 // indirect
 	github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713 // indirect
@@ -26,5 +28,5 @@ require (
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/appengine v1.6.0 // indirect
 	zgo.at/zhttp v0.0.0-20190528021741-eab1fa8ef720
-	zgo.at/zlog v0.0.0-20190523041148-f390666cc115
+	zgo.at/zlog v0.0.0-20190618174655-2641de0fc4bf
 )

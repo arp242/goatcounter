@@ -9,13 +9,40 @@ import (
 	"github.com/teamwork/validate"
 )
 
+// Normalize:
+//
+// - Group by domain, and related domains.
+// - Then display specific "deep links" as sublevels
+
 // var groups = map[string]string{
-// 	"https://news.ycombinator.com/": "Hacker News",
-// 	"https://hn.algolia.com/":       "Hacker News",
+// 	"https://news.ycombinator.com": "Hacker News",
+// 	"https://hn.algolia.com":       "Hacker News",
+// 	"http://hckrnews.com":          "Hacker News",
+// 	"android-app://com.stefandekanski.hackernews.free": "Hacker News",
 //
-// 	"https://www.google./": "Google",
+// 	"https://www.google.*": "Google",
 //
-// 	//"https://t.co/CZIy0OlYQn": "Twitter",
+//  // https://twitter.com/search?lang=en&q=%22https%3A%2F%2Ft.co%2FCZIy0OlYQn%22&src=typed_query
+// 	"https://t.co/*": "Twitter",
+// 	"android-app://com.twitpane": "Twitter",
+//
+// 	"https://www.reddit.com/*": "Reddit",
+// 	"https://old.reddit.com/*": "Reddit",
+// 	"android-app://com.laurencedawson.reddit_sync": "Reddit",
+// 	"android-app://com.laurencedawson.reddit_sync.pro": "Reddit",
+// 	"android-app://com.laurencedawson.reddit_sync.dev": "Reddit",
+// 	"android-app://com.andrewshu.android.reddit": "Reddit",
+//
+// 	"https://mail.google.com/mail/u/0": "Gmail",
+// 	"android-app://com.google.android.gm": "Gmail",
+//
+// 	android-app://org.telegram.messenger
+// 	android-app://io.github.hidroh.materialistic
+// 	android-app://com.Slack
+// 	android-app://com.linkedin.android
+// 	android-app://m.facebook.com
+// 	android-app://com.noinnion.android.greader.reader
+//
 // }
 
 type Hit struct {

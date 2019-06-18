@@ -39,7 +39,6 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 	var t goatcounter.Hit
 	_, err := zhttp.Decode(r, &t)
 	if err != nil {
-		zlog.Error(err)
 		return err
 	}
 

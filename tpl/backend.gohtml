@@ -5,8 +5,8 @@
 	<a href="https://{{.Domain}}">home page</a></p>
 {{else}}
 
-<h2>Latest hits</h2>
 {{/*
+<h2>Latest hits</h2>
 <table>
 <tbody>
 	{{range $h := .Hits}}
@@ -30,7 +30,7 @@ Select range
 
 <style>td { vertical-align: top; }</style>
 <h2>Pages</h2>
-<table>
+<table class="count-list">
 <tbody>
 	{{range $h := .Pages}}
 		<tr id="{{$h.Path}}">
@@ -38,7 +38,7 @@ Select range
 			<td><a href="?showrefs={{$h.Path}}#{{$h.Path}}">{{$h.Path}}</a></td>
             <td>
                 {{if and $.Refs (eq $.ShowRefs $h.Path)}}
-                    <table><tbody>
+                    <table class="count-list"><tbody>
                     {{range $r := $.Refs}}
                         <tr>
                             <td>{{$r.Count | nformat}}</td>
@@ -56,7 +56,11 @@ Select range
 <h2>Site code</h2>
 <pre>
 &lt;script&gt;
-	(function(src) {
+	(function() {
+		if (window.location.hostname.indexOf('localhost') &gt; -1) {
+			return;
+		}
+
 		var script = document.createElement('script');
 		window.count = 'https://{{.Site.Code}}.{{.Domain}}/count'
 		script.async = 1;
@@ -68,8 +72,10 @@ Select range
 &lt;/script&gt;
 </pre>
 
+{{/*
 <h2>Users</h2>
 Add users, manage (temporary) tokens for sending.
+*/}}
 
 {{end}}
 {{template "_bottom_backend.gohtml" .}}

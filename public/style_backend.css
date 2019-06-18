@@ -5,3 +5,17 @@
 	 * more even). */
 	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
 }
+
+.count-list td:first-child {
+	text-align: red;
+	width: 6em;
+}
+
+.count-list tr:target {
+	background-color: inherit;
+}
+
+.count-list tr:target > td:nth-child(2) a {
+	font-weight: bold;
+	border-bottom: 4px solid yellow;
+}
