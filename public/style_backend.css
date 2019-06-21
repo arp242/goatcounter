@@ -7,7 +7,7 @@
 }
 
 .count-list td:first-child {
-	text-align: red;
+	text-align: right;
 	width: 6em;
 }
 
