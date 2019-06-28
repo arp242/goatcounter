@@ -1,0 +1,15 @@
+<div class="chart chart-bar">
+	<span class="max">{{.Max}}</span>
+	<span class="half"></span>
+
+	{{range $day, $stat := .Stats}}
+		{{/* Double div so that the title is on the entire column, instead of just the coloured area. */}}
+		{{range $s := $stat}}
+			<div title="{{$day}} {{index $s 0}}:00 – {{index $s 0}}:59, {{index $s 1}} views">
+				<div style="height: {{div (index $s 1) $.Max 0.01}}%;"></div>
+			</div>
+		{{end}}
+	{{end}}
+</div>
+
+

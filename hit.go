@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
 )
 
@@ -19,6 +20,9 @@ import (
 // 	"https://hn.algolia.com":       "Hacker News",
 // 	"http://hckrnews.com":          "Hacker News",
 // 	"android-app://com.stefandekanski.hackernews.free": "Hacker News",
+//
+// 	"https://en.m.wikipedia.org": "Wikipedia",
+// 	"https://en.wikipedia.org": "Wikipedia",
 //
 // 	"https://www.google.*": "Google",
 //
@@ -100,155 +104,96 @@ func (h *Hit) Insert(ctx context.Context) error {
 	return errors.Wrap(err, "Site.Insert")
 }
 
-type Hits []Hit
-
-func (h *Hits) List(ctx context.Context) error {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-	err := db.SelectContext(ctx, h, `select * from hits
-		where site=$1 order by created_at desc limit 500;`, site.ID)
-	return errors.Wrap(err, "Hits.List")
-}
-
-/*
-type HitList struct {
-	Page  string `db:"page" json:"page"`
-	Count int    `db:"count" json:"count"`
-
-	//CreatedAt time.Time `db:"created_at" json:"created_at"`
-	//CreatedAt string `db:"created_at" json:"created_at"`
-}
-*/
-
 type HitStats []struct {
-	Count int
-	Path  string
+	Count int    `db:"count"`
+	Max   int    `db:"-"`
+	Path  string `db:"path"`
+	Stats map[string][][]int
 }
 
-func (h *HitStats) List(ctx context.Context) error {
+func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 	err := db.SelectContext(ctx, h, `
 		select path, count(path) as count
-		from hits where site=$1
+		from hits
+		where
+			site=$1 and
+			date(created_at) >= $2 and
+			date(created_at) <= $3
 		group by path
 		order by count desc
-		limit 500`, site.ID)
-	return errors.Wrap(err, "HitStats.List")
+		limit 500`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	if err != nil {
+		return errors.Wrap(err, "HitStats.List")
+	}
+
+	// Add stats
+	type stats struct {
+		Path  string    `json:"path"`
+		Day   time.Time `json:"day"`
+		Stats []byte    `json:"stats"`
+	}
+	var st []stats
+	err = db.SelectContext(ctx, &st, `
+		select path, day, stats
+		from hit_stats
+		where
+			site=$1 and
+			kind="h" and
+			date(day) >= $2 and
+			date(day) <= $3
+		`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	if err != nil {
+		return errors.Wrap(err, "HitStats.List")
+	}
+
+	// TODO: meh...
+	hh := *h
+	for i := range hh {
+		hh[i].Stats = map[string][][]int{}
+
+		for _, s := range st { // []stats
+			if s.Path == hh[i].Path {
+				var x [][]int
+				jsonutil.MustUnmarshal(s.Stats, &x)
+				hh[i].Stats[s.Day.Format("2006-01-02")] = x
+
+				// Get max.
+				// TODO: should maybe store this?
+				for j := range x {
+					if x[j][1] > hh[i].Max {
+						hh[i].Max = x[j][1]
+					}
+				}
+			}
+		}
+
+		if hh[i].Max < 10 {
+			hh[i].Max = 10
+		}
+	}
+
+	return nil
 }
 
-func (h *HitStats) ListPath(ctx context.Context, path string) error {
+// ListRefs lists all references for a path.
+func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Time) error {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 
 	err := db.SelectContext(ctx, h, `
 		select ref as path, count(ref) as count
 		from hits
-		where site=$1 and path=$2
-		group by ref
-		order by count(*) desc
-		limit 50
-	`, site.ID, path)
-	return errors.Wrap(err, "RefStats.ListPath")
-}
-
-/*
-func (h HitStats) String() string {
-	if len(h) == 0 {
-		return "[]"
-	}
-
-	var b strings.Builder
-	b.WriteString("[")
-	for i, st := range h {
-		b.WriteString(fmt.Sprintf(`["%s", %d]`, st.CreatedAt, st.Count))
-		if len(h) > i+1 {
-			b.WriteString(",")
-		}
-	}
-	b.WriteString("]")
-	return b.String()
-}
-*/
-
-/*
-func (h *HitList) List(ctx context.Context) error {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-
-	err := db.SelectContext(ctx, h, `
-		select count(*) || " " || path
-		from hits
-		where site=$1
-		group by path
-		order by count(*) desc
-	`, site.ID)
-	return err
-}
-
-func (h *HitStats) Hourly(ctx context.Context, days int) (int, error) {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-
-	// Get day relative to user TZ.
-	//usertz, err := time.LoadLocation("Pacific/Auckland") // TODO
-	usertz, err := time.LoadLocation("Europe/Amsterdam") // TODO
-	if err != nil {
-		panic(err)
-	}
-	t := now.New(time.Now().In(usertz)).BeginningOfDay().UTC()
-	start := t.Format(time.RFC3339)
-	end := t.Add(24 * time.Hour).Format(time.RFC3339)
-
-	err = db.SelectContext(ctx, h, `
-		select count(*) as count,
-		created_at
-		from hits
 		where
 			site=$1 and
-			created_at >= $2 and created_at <= $3
-		group by strftime("%H", created_at)
-		order by created_at asc
-	`, site.ID, start, end)
-
-	hh := *h
-	for i := range hh {
-		hh[i].CreatedAt = now.New(hh[i].CreatedAt.In(usertz)).BeginningOfHour()
-	}
-
-	return 0, err
-}
-
-func (h *HitStats) Daily(ctx context.Context, days int) (int, error) {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-
-	err := db.SelectContext(ctx, h, `
-		select count(*) as count,
-		strftime("%Y-%m-%d", created_at) as created_at
-		from hits
-		where site=$1
-		group by strftime("%Y-%m-%d", created_at)
-		order by created_at asc
-	`, site.ID)
-
-	return 0, err
-}
-*/
-
-type RefStats []string
-
-func (r *RefStats) ListPath(ctx context.Context, path string) error {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-
-	err := db.SelectContext(ctx, r, `
-		select count(*) || " " || ref
-		from hits
-		where site=$1 and path=$2
+			path=$2S and
+			date(created_at) >= $3 and
+			date(created_at) <= $4
 		group by ref
 		order by count(*) desc
 		limit 50
-	`, site.ID, path)
-	return errors.Wrap(err, "RefStats.ListPath")
+	`, site.ID, path, start.Format("2006-01-02"), end.Format("2006-01-02"))
+
+	return errors.Wrap(err, "RefStats.ListRefs")
 }

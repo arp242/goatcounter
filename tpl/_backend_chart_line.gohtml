@@ -1,0 +1,19 @@
+<svg class="chart chart-line">
+	{{/* TODO
+	http://rvlasveld.github.io/blog/2013/07/02/creating-interactive-graphs-with-svg-part-1/
+	https://web.archive.org/web/20190115014742/https://css-tricks.com/how-to-make-charts-with-svg/
+	*/}}
+
+	{{range $day, $stat := .Stats}}
+		{{range $s := $stat}}
+				{{/*
+			<line
+				x1="0"  y1="0"
+				x2="10" y2="10"
+				style="stroke:rgb(255,0,0); stroke-width:1"
+				/>
+					<div style="height: {{div (index $s 1) $.Max 0.01}}%;"></div>
+				*/}}
+		{{end}}
+	{{end}}
+</svg>

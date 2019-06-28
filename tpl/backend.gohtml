@@ -5,48 +5,42 @@
 	<a href="https://{{.Domain}}">home page</a></p>
 {{else}}
 
-{{/*
-<h2>Latest hits</h2>
-<table>
-<tbody>
-	{{range $h := .Hits}}
-		<tr>
-			<td>{{$h.Path}}</td>
-			<td>{{if $h.Ref}}from {{$h.Ref}}{{end}}</td>
-			<td>{{$h.CreatedAt}}</td>
-		</tr>
-	{{end}}
-</tbody>
-</table>
-*/}}
+<form>
+	<input type="hidden" name="showrefs" value="{{.ShowRefs}}">	
+	<input type="text" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+	<input type="text" id="period-end" name="period-end" value="{{tformat .PeriodEnd ""}}">
+	<button type="submit">Go</button>
+	<br>
+	<span class="period-select">
+		select last
+		<button class="link" name="period" value="day">day</button>,
+		<button class="link" name="period" value="week">week</button>,
+		<button class="link" name="period" value="month">month</button>,
+		<button class="link" name="period" value="quarter">quarter</button>,
+		<button class="link" name="period" value="half-year">half year</button>,
+		<button class="link" name="period" value="year">year</button>,
+		<button class="link" name="period" value="all">all time</button>.
+	</span>
+</form>
 
-{{/*
-<h2>Statistics</h2>
-Select range
-<div style="width: 50%;">
-<div class="chart" data-chart='{{.HitStats}}'></div>
-</div>
-*/}}
-
-<style>td { vertical-align: top; }</style>
 <h2>Pages</h2>
 <table class="count-list">
 <tbody>
 	{{range $h := .Pages}}
 		<tr id="{{$h.Path}}">
             <td>{{$h.Count | nformat}}</td>
-			<td><a href="?showrefs={{$h.Path}}#{{$h.Path}}">{{$h.Path}}</a></td>
-            <td>
-                {{if and $.Refs (eq $.ShowRefs $h.Path)}}
-                    <table class="count-list"><tbody>
-                    {{range $r := $.Refs}}
-                        <tr>
-                            <td>{{$r.Count | nformat}}</td>
-                            <td>{{if $r.Path}}<a href="{{$r.Path}}" target="_blank">{{$r.Path}}</a>{{else}}(no data){{end}}</td>
-                        </tr>
-                    {{end}}
-                    </table></tbody>
-                {{end}}
+			<td><a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a></td>
+			<td>
+				{{template "_backend_chart_bar.gohtml" $h}}
+				{{/*
+				{{template "_backend_chart_line.gohtml" $h}}
+				*/}}
+
+				<div class="refs">
+					{{if and $.Refs (eq $.ShowRefs $h.Path)}}
+						{{template "_backend_refs.gohtml" $.Refs}}
+					{{end}}
+				</div>
             </td>
 		</tr>
 	{{end}}
@@ -54,6 +48,7 @@ Select range
 </table>
 
 <h2>Site code</h2>
+<p>Add to your <code>&lt;head&gt;</code> tag:</p>
 <pre>
 &lt;script&gt;
 	(function() {

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -30,6 +30,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 
 	// Backend interface.
 	a.Get("/", zhttp.Wrap(h.index))
+	a.Get("/refs", zhttp.Wrap(h.refs))
 
 	// Backend.
 	user{}.mount(a)
@@ -54,55 +55,71 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.String(w, "")
 }
 
+const day = 24 * time.Hour
+
 func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
-	days := 7
-	if d := r.URL.Query().Get("days"); d != "" {
-		dd, _ := strconv.ParseInt(d, 10, 32)
-		days = int(dd)
+	// TODO: Use period first as fallback when there's no JS.
+	// p := r.URL.Query().Get("period")
+
+	start := time.Now().Add(-7 * day)
+	if s := r.URL.Query().Get("period-start"); s != "" {
+		var err error
+		start, err = time.Parse("2006-01-02", s)
+		if err != nil {
+			return err
+		}
 	}
-	_ = days
+	end := time.Now()
+	if s := r.URL.Query().Get("period-end"); s != "" {
+		var err error
+		end, err = time.Parse("2006-01-02", s)
+		if err != nil {
+			return err
+		}
+	}
 
 	var pages goatcounter.HitStats
-	err := pages.List(r.Context())
+	err := pages.List(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
 
+	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
 	var refs goatcounter.HitStats
 	if sr != "" {
-		err := refs.ListPath(r.Context(), sr)
+		err := refs.ListRefs(r.Context(), sr, start, end)
 		if err != nil {
 			return err
 		}
 	}
 
-	/*
-		var top goatcounter.HitList
-		err := top.List(r.Context())
-		if err != nil {
-			return err
-		}
-
-		var hits goatcounter.HitStats
-		_, err = hits.Hourly(r.Context(), days)
-		if err != nil {
-			return err
-		}
-
-		var refs goatcounter.RefStats
-		err = refs.List(r.Context())
-		if err != nil {
-			return err
-		}
-	*/
-
 	return zhttp.Template(w, "backend.gohtml", struct {
 		Globals
-		ShowRefs string
-		Pages    goatcounter.HitStats
-		Refs     goatcounter.HitStats
-		//HitStats goatcounter.HitStats
-		//RefStats goatcounter.RefStats
-	}{newGlobals(w, r), sr, pages, refs})
+		ShowRefs    string
+		PeriodStart time.Time
+		PeriodEnd   time.Time
+		Pages       goatcounter.HitStats
+		Refs        goatcounter.HitStats
+	}{newGlobals(w, r), sr, start, end, pages, refs})
+}
+
+func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var refs goatcounter.HitStats
+	err = refs.ListRefs(r.Context(), r.URL.Query().Get("showrefs"), start, end)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "_backend_refs.gohtml", refs)
 }

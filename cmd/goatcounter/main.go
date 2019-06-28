@@ -16,6 +16,7 @@ import (
 	"zgo.at/zlog"
 
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/cron"
 	dbinit "zgo.at/goatcounter/db"
 	"zgo.at/goatcounter/handlers"
 )
@@ -75,6 +76,9 @@ func main() {
 		_, err := db.Exec(string(dbinit.Schema))
 		must(errors.Wrap(err, "database schema init"))
 	}
+
+	// Run background tasks.
+	cron.Run(db)
 
 	// Set up HTTP handler and servers.
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(map[string]chi.Router{

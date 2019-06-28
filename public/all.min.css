@@ -55,10 +55,10 @@ html {
           text-size-adjust: none;
   -webkit-text-size-adjust: none;
 }
-@media (max-width: 54rem) {
+@media (max-width: 54em) {
   html { font-size: 14px; line-height: 160%; }
 }
-@media (max-width: 26rem) {
+@media (max-width: 26em) {
   html { font-size: 12px; line-height: 150%; }
 }
 pre, code {
@@ -97,7 +97,7 @@ html, body {
   background-color: #fff;
   box-shadow: 0 0 6px rgba(0,0,0,.2);
 }
-@media (max-width: 54rem) {
+@media (max-width: 54em) {
   .page, .center {
     max-width: 100%;
     padding: 0 1rem;
@@ -194,7 +194,7 @@ figure.border {
   padding: 5px;
   margin: -5px;
 }
-@media (min-width: 54rem) {
+@media (min-width: 54em) {
   figure.full {
     margin-left: -4rem;
     width: calc(100% + 8rem);
@@ -216,7 +216,7 @@ pre {
   border-top: 1px solid #d5d5d5;
   border-bottom: 1px solid #d5d5d5;
 }
-@media (min-width: 54rem) {
+@media (min-width: 54em) {
   pre.full {
     margin-left: -4rem;
     width: calc(100% + 8rem);
@@ -242,7 +242,7 @@ table {
 table + table {
   margin-top: 2em;
 }
-@media (min-width: 54rem) {
+@media (min-width: 54em) {
   table.full {
     margin-left: -3.5rem;
     width: calc(100% + 7rem);
@@ -274,6 +274,18 @@ table td.right {
     font-feature-settings: 'tnum' on;
     font-variant-numeric: tabular-nums;
     font-family: sans-serif;
+}
+sup, sub {
+  height: 0;
+  line-height: 1;
+  vertical-align: baseline;
+  position: relative;
+}
+sup {
+  bottom: 1ex;
+}
+sub {
+  top: .5ex;
 }
 hr {
   border: none;
@@ -319,29 +331,45 @@ input[type="number"],
 textarea,
 select {
   font: 1rem/100% sans-serif;
-  display: block;
-  min-width: 20rem;
   padding: .3em .2em;
-}
-input[type="number"] {
-  min-width: 10rem;
-  width: 10rem;
-}
-label  {
-  display: block;
-  margin-top: .5em;
 }
 textarea {
   width: 100%;
   height: 10rem;
   line-height: 130%;
 }
+form > strong, fieldset > strong {
+  display: inline-block;
+  margin-top: .5em;
+}
 form > div, fieldset > div {
   float: left;
   margin-right: 1em;
 }
-form > strong, fieldset > strong {
-  display: inline-block;
+.vertical input[type="text"],
+.vertical input[type="search"],
+.vertical input[type="tel"],
+.vertical input[type="url"],
+.vertical input[type="email"],
+.vertical input[type="password"],
+.vertical input[type="date"],
+.vertical input[type="month"],
+.vertical input[type="week"],
+.vertical input[type="time"],
+.vertical input[type="datetime-local"],
+.vertical input[type="range"],
+.vertical input[type="number"],
+.vertical textarea,
+.vertical select {
+  display: block;
+  min-width: 20rem;
+}
+.vertical input[type="number"] {
+  min-width: 10rem;
+  width: 10rem;
+}
+.vertical label  {
+  display: block;
   margin-top: .5em;
 }
 form.horizontal {

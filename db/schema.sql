@@ -36,23 +36,39 @@ create table users (
 	created_at     datetime       not null default current_timestamp,
 	updated_at     datetime,
 
-	unique(email, site)
+	unique(email, site),
 	foreign key (site) references sites(id)
 );
 insert into users (site, name, email, role) values
 	(1, "Martin Tournoij", "martin@arp242.net", "a");
 
--- List of all subscribed emails.
 drop table if exists hits;
 create table hits (
-	--id             integer        primary key autoincrement,
 	site           integer        not null check(site > 0),
 
 	path           varchar        not null,
 	ref            varchar        not null,
 	ref_params     varchar,
 
-	created_at     datetime       null default current_timestamp,
+	created_at     datetime       null default current_timestamp
 
-	foreign key (site) references sites(id)
+	-- no fkey for performance
+	-- foreign key (site) references sites(id)
+);
+
+drop table if exists hit_stats;
+create table hit_stats (
+	site           integer        not null check(site > 0),
+
+	kind           varchar        not null check(kind in ("h", "d")), -- hourly, daily
+	day            date           not null,  -- "2019-06-22"
+	path           varchar        not null,  -- /foo.html
+	stats          varchar        not null,  -- hourly or daily hits [20, 30, ...]
+
+	created_at     datetime       null default current_timestamp,
+	updated_at     datetime
+
+	-- no fkey for performance
+	--unique(site, kind, day, path)
+	--foreign key (site) references sites(id)
 );

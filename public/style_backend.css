@@ -6,9 +6,17 @@
 	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
 }
 
-.count-list td:first-child {
+.count-list td {
+	vertical-align: top;
+}
+
+.count-list td:first-child {  /* Count */
 	text-align: right;
-	width: 6em;
+	width: 5em;
+}
+
+.count-list td:nth-child(2) {  /* Path */
+	width: 20em;
 }
 
 .count-list tr:target {
@@ -18,4 +26,71 @@
 .count-list tr:target > td:nth-child(2) a {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
+}
+
+.chart {
+	border: 1px solid #ccc;
+	height: 50px;
+	width: 100%;
+	position: relative;
+	display: flex;
+}
+.chart > .max {
+	color: #888;
+	font-size: 12px;
+	line-height: 1;
+	position: absolute;
+	background-color: #fff;
+	left: -3.3em;
+	width: 3em;
+	top: 0;
+	text-align: right;
+}
+.chart > .half {
+	border-top: 1px solid #eee;
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+}
+
+/* Bar char */
+.chart-bar > div {
+	position: relative;
+	flex-grow: 1;
+}
+.chart-bar > div > div {
+	background-color: #db1212;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+
+	/*
+	border: 1px solid #db1212;
+	border-bottom: 0;
+	background-color: #fff;
+	*/
+
+}
+.chart-bar > div:hover > div {
+	background-color: #6b1818;
+}
+
+/* Line chart */
+.chart-line > div {
+	position: relative;
+	flex-grow: 1;
+}
+.chart-line > div > div {
+	position: absolute;
+	left: calc(50% - 1px);
+	width: 2px;
+	height: 2px;
+	border-radius: 2px;
+
+	background-color: #db1212;
+}
+.chart-line > div:hover {
+	background-color: #6b1818;
 }
