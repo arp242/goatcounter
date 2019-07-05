@@ -1,6 +1,13 @@
 -- TODO: deal with casing; this should work: where email = "MARTIN@ARP242.NET"
 -- TODO: validate the dates
+-- TODO: test postgresql
 -- check(strftime('%Y-%m-%d', created_at) = created_at)
+
+drop table if exists version;
+create table version (
+	name varchar
+);
+insert into version values ("2019-06-29 init");
 
 drop table if exists sites;
 create table sites (
@@ -48,6 +55,7 @@ create table hits (
 
 	path           varchar        not null,
 	ref            varchar        not null,
+	ref_original   varchar,
 	ref_params     varchar,
 
 	created_at     datetime       null default current_timestamp

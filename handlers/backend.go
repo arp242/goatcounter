@@ -9,8 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/zhttp"
-	"zgo.at/zlog"
 
+	"github.com/mssola/user_agent"
 	"zgo.at/goatcounter/cfg"
 )
 
@@ -37,21 +37,26 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 }
 
 func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
-	var t goatcounter.Hit
-	_, err := zhttp.Decode(r, &t)
-	if err != nil {
-		return err
-	}
-
-	// TODO: filter stuff from localhost
-
-	err = t.Insert(r.Context())
-	if err != nil {
-		zlog.Error(err)
-		return err
-	}
-
 	w.Header().Set("Cache-Control", "no-store,no-cache")
+
+	// Don't track pages fetched with the browser's prefetch algorithm.
+	// See https://github.com/usefathom/fathom/issues/13
+	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
+		return zhttp.String(w, "")
+	}
+	if user_agent.New(r.UserAgent()).Bot() {
+		return zhttp.String(w, "")
+	}
+
+	var hit goatcounter.Hit
+	_, err := zhttp.Decode(r, &hit)
+	if err != nil {
+		return err
+	}
+
+	hit.Site = goatcounter.MustGetSite(r.Context()).ID
+	goatcounter.Memstore.Append(hit)
+
 	return zhttp.String(w, "")
 }
 
@@ -66,7 +71,8 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		var err error
 		start, err = time.Parse("2006-01-02", s)
 		if err != nil {
-			return err
+			zhttp.Flash(w, "start date: %s", err.Error())
+			start = time.Now().Add(-7 * day)
 		}
 	}
 	end := time.Now()
@@ -74,7 +80,8 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		var err error
 		end, err = time.Parse("2006-01-02", s)
 		if err != nil {
-			return err
+			zhttp.Flash(w, "end date: %s", err.Error())
+			end = time.Now()
 		}
 	}
 

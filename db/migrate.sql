@@ -38,3 +38,22 @@ create table hit_stats (
 	created_at     datetime       null default current_timestamp,
 	updated_at     datetime
 );
+
+-- 20190629: clean up ref_params
+update hits set ref_params = null where ref_params = "";
+update hits set ref_params = null where ref like "https://mail.google.com/%";
+update hits set ref_params = null where ref_params = "amp=1";
+update hits set ref_params = null where ref_params like "%utm_source=%"; -- Not 100% accurate as it removes everything, but that's okay.
+update hits set ref_params = null where ref_params like "%utm_medium=%";
+update hits set ref_params = null where ref_params like "%utm_term=%";
+update hits set ref_params = null where ref_params like "%utm_campaign=%";
+
+-- 20190629: add ref_original
+alter table hits add column ref_original varchar;
+
+-- update hits set
+-- 	ref = case ref_params
+-- 	      when null then ref
+-- 	      when "" then ref
+-- 	      else ref || "?" || ref_params
+-- 	      end;

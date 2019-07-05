@@ -74,7 +74,7 @@
 
 		return date.getFullYear() + '-' +
 			(m >= 10 ? m : ('0' + m)) + '-' +
-			(d >= 10 ? d : ('0' + m));
+			(d >= 10 ? d : ('0' + d));
 	};
 
 	$(document).ready(init);

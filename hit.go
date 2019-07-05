@@ -2,13 +2,27 @@ package goatcounter
 
 import (
 	"context"
+	"net/url"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
+	"zgo.at/zlog"
 )
+
+type Hit struct {
+	Site int64 `db:"site" json:"-"`
+
+	Path        string    `db:"path" json:"p,omitempty"`
+	Ref         string    `db:"ref" json:"r,omitempty"`
+	RefParams   *string   `db:"ref_params" json:"ref_params,omitempty"`
+	RefOriginal *string   `db:"ref_url" json:"ref_params,omitempty"`
+	CreatedAt   time.Time `db:"created_at" json:"-"`
+
+	refURL *url.URL `db:"-" json:"-"`
+}
 
 // Normalize:
 //
@@ -49,31 +63,64 @@ import (
 //
 // }
 
-type Hit struct {
-	Site int64 `db:"site" json:"-"`
+// TODO:
+// If the reference is "hn.algolia.com" then set it to "news.ycombinator.com",
+// and set the RefOriginal to "hn.algolia.com".
+//
+// 	"https://news.ycombinator.com": "Hacker News",
+// 	"https://hn.algolia.com":       "Hacker News",
+//
+func cleanURL(ref string, refURL *url.URL) (string, *string) {
+	i := strings.Index(ref, "?")
+	if i == -1 {
+		return ref, nil
+	}
 
-	Path      string    `db:"path" json:"p,omitempty"`
-	Ref       string    `db:"ref" json:"r,omitempty"`
-	RefParams *string   `db:"ref_params" json:"ref_params,omitempty"`
-	CreatedAt time.Time `db:"created_at" json:"-"`
+	eq := ref[i+1:]
+	ref = ref[:i]
+
+	// Ignore params for gmail; it's never useful.
+	if refURL.Host == "mail.google.com" {
+		return ref, nil
+	}
+	// Twitter's t.co links add this.
+	if eq == "amp=1" {
+		return ref, nil
+	}
+
+	q := refURL.Query()
+
+	// Google analytics tracking parameters.
+	q.Del("utm_source")
+	q.Del("utm_medium")
+	q.Del("utm_campaign")
+	q.Del("utm_term")
+
+	// ref = https://getpocket.com/redirect
+	// ref_params = url=https%3A%2F%2Fjavascriptweekly.com%2Flink%2F64733%2F2609d695ae&h=3aafa9fcffe6a8536ed5998028273ebc34ad670c2328e66948e90de570ca0224
+
+	// ref = https://www.google.se/url
+	// ref_params = sa=t&rct=j&q=&esrc=s&source=web&cd=3&ved=2ahUKEwi76qzW0_LiAhWu1aYKHbqKB70QFjACegQIAxAB&url=https%3A%2F%2Farp242.net%2Fphp-fopen-is-broken.html&usg=AOvVaw0OUYrWh-k8Suse9hHDfdeW
+
+	if len(q) == 0 {
+		return ref, nil
+	}
+
+	eq = q.Encode()
+	return ref, &eq
 }
 
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
-	site := MustGetSite(ctx)
-	h.Site = site.ID
+	// site := MustGetSite(ctx)
+	// h.Site = site.ID
 
 	if h.CreatedAt.IsZero() {
 		h.CreatedAt = time.Now().UTC()
 	}
 
-	if h.Ref != "" {
-		i := strings.Index(h.Ref, "?")
-		if i > 0 {
-			rp := h.Ref[i+1:]
-			h.RefParams = &rp
-			h.Ref = h.Ref[:i]
-		}
+	if h.Ref != "" && h.refURL != nil {
+		h.Ref, h.RefParams = cleanURL(h.Ref, h.refURL)
 	}
 
 	h.Ref = strings.TrimRight(h.Ref, "/")
@@ -92,13 +139,29 @@ func (h *Hit) Validate(ctx context.Context) error {
 
 // Insert a new row.
 func (h *Hit) Insert(ctx context.Context) error {
-	db := MustGetDB(ctx)
+	var err error
+	h.refURL, err = url.Parse(h.Ref)
+	if err != nil {
+		zlog.Fields(zlog.F{"ref": h.Ref}).Errorf("could not parse ref: %s", err)
+	}
+
+	// Ignore spammers.
+	if _, ok := blacklist[h.refURL.Host]; ok {
+		return nil
+	}
+
 	h.Defaults(ctx)
-	err := h.Validate(ctx)
+	err = h.Validate(ctx)
 	if err != nil {
 		return err
 	}
 
+	// TODO: don't insert right away, cache in memory for 5s or so and then insert.
+	// Memstore.Lock()
+	// Memstore = append(Memstore, ...)
+	// Memstore.Unlock()
+
+	db := MustGetDB(ctx)
 	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params)
 		values ($1, $2, $3, $4)`, h.Site, h.Path, h.Ref, h.RefParams)
 	return errors.Wrap(err, "Site.Insert")

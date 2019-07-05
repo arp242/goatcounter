@@ -31,6 +31,12 @@
 	};
 
 	var count = function() {
+		// Don't track pages fetched with the browser's prefetch algorithm.
+		// See https://github.com/usefathom/fathom/issues/13
+		if ('visibilityState' in document && document.visibilityState === 'prerender') {
+			return;
+		}
+
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');

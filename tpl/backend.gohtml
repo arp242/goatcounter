@@ -29,7 +29,9 @@
 	{{range $h := .Pages}}
 		<tr id="{{$h.Path}}">
             <td>{{$h.Count | nformat}}</td>
-			<td><a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a></td>
+			<td><a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+				<sup><a target="_blank" href="https://{{$.Site.Domain}}{{$h.Path}}">🔗</a></sup>
+				</td>
 			<td>
 				{{template "_backend_chart_bar.gohtml" $h}}
 				{{/*
@@ -67,10 +69,8 @@
 &lt;/script&gt;
 </pre>
 
-{{/*
 <h2>Users</h2>
 Add users, manage (temporary) tokens for sending.
-*/}}
 
 {{end}}
 {{template "_bottom_backend.gohtml" .}}

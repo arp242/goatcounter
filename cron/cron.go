@@ -9,18 +9,36 @@ import (
 	"github.com/jinzhu/now"
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/utils/jsonutil"
+	"zgo.at/goatcounter"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 )
 
 // Run stat updates in the background.
 func Run(db *sqlx.DB) {
+	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
+	//ctx = context.WithValue(ctx, ctxkey.Site, &Site{ID: 1}) // TODO
+
+	l := zlog.Module("cron")
+
+	// Persist hits to DB.
 	go func() {
-		ctx := context.WithValue(context.Background(), ctxkey.DB, db)
+		for {
+			err := goatcounter.Memstore.Persist(ctx)
+			if err != nil {
+				l.Error(err)
+			}
+
+			time.Sleep(10 * time.Second)
+		}
+	}()
+
+	// Update hit_stats table.
+	go func() {
 		for {
 			err := updateStats(ctx, db)
 			if err != nil {
-				zlog.Error(err)
+				l.Error(err)
 			}
 
 			//time.Sleep(5 * time.Minute)
