@@ -3,7 +3,6 @@ package goatcounter
 // Blacklist from https://github.com/matomo-org/referrer-spam-blacklist
 //
 //:'<,'>s/.*/\t"\0": struct{}{},
-
 var blacklist = map[string]struct{}{
 	// Not spam, but we never really want to accept requests from localhost.
 	"localhost": struct{}{},

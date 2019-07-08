@@ -51,9 +51,53 @@ update hits set ref_params = null where ref_params like "%utm_campaign=%";
 -- 20190629: add ref_original
 alter table hits add column ref_original varchar;
 
--- update hits set
--- 	ref = case ref_params
--- 	      when null then ref
--- 	      when "" then ref
--- 	      else ref || "?" || ref_params
--- 	      end;
+-- 20190705: group URLs
+update hits set ref_original=ref, ref="Google" where
+	ref like "https://www.google.%" or
+	ref like "http://www.google.%" or ref in (
+	"android-app://com.google.android.googlequicksearchbox",
+	"android-app://com.google.android.googlequicksearchbox/https/www.google.com");
+
+update hits set ref_original=ref, ref="Hacker News" where ref in (
+	"https://news.ycombinator.com",
+	"https://hn.algolia.com",
+	"https://hckrnews.com",
+	"https://hn.premii.com",
+	"android-app://com.stefandekanski.hackernews.free");
+
+update hits set ref_original=ref, ref="Gmail" where
+	ref like "https://mail.google.com%" or
+	ref in (
+	"android-app://com.google.android.gm");
+
+update hits set ref_original=ref, ref="https://www.reddit.com" where ref in (
+	"android-app://com.andrewshu.android.reddit",
+	"android-app://com.laurencedawson.reddit_sync",
+	"android-app://com.laurencedawson.reddit_sync.dev",
+	"android-app://com.laurencedawson.reddit_sync.pro",
+	"https://old.reddit.com");
+
+update hits set ref_original=ref, ref="https://link.oreilly.com" where ref like "https://link.oreilly.com%";
+update hits set ref_original=ref, ref="https://link.oreilly.com" where ref like "http://link.oreilly.com%";
+
+update hits set ref_original=ref, ref=replace(ref, "https://old.reddit.com", "https://www.reddit.com")
+where ref like "https://old.reddit.com%";
+
+update hits set ref_original=ref, ref=replace(ref, "https://en.m.wikipedia.org", "https://en.wikipedia.org")
+where ref like "https://en.m.wikipedia.org%";
+
+update hits set ref_original=ref, ref=replace(ref, "https://m.habr.com", "https://habr.com")
+where ref like "https://m.habr.com%";
+
+update hits set ref_original=ref, ref="https://www.facebook.com" where ref in (
+	"android-app://m.facebook.com",
+	"https://m.facebook.com",
+	"http://m.facebook.com",
+	"https://l.facebook.com",
+	"https://lm.facebook.com");
+
+update hits set ref_original=ref, ref="Telegram Messenger" where ref in (
+	"android-app://org.telegram.messenger");
+
+update hits set ref_original=ref, ref="Slack Chat" where ref in (
+	"android-app://com.Slack");

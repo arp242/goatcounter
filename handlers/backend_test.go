@@ -69,20 +69,25 @@ func TestHit(t *testing.T) {
 				return
 			}
 
-			// var hits goatcounter.Hits
-			// err := hits.List(r.Context())
-			// if err != nil {
-			// 	t.Fatal(err)
-			// }
-			// if len(hits) != 1 {
-			// 	t.Fatalf("len(hits) = %d: %#v", len(hits), hits)
-			// }
+			err := goatcounter.Memstore.Persist(r.Context())
+			if err != nil {
+				t.Fatal(err)
+			}
 
-			// h := hits[0]
-			// err = h.Validate(r.Context())
-			// if err != nil {
-			// 	t.Errorf("Validate failed after get: %s", err)
-			// }
+			var hits []goatcounter.Hit
+			err = goatcounter.MustGetDB(r.Context()).SelectContext(r.Context(), &hits, `select * from hits`)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(hits) != 1 {
+				t.Fatalf("len(hits) = %d: %#v", len(hits), hits)
+			}
+
+			h := hits[0]
+			err = h.Validate(r.Context())
+			if err != nil {
+				t.Errorf("Validate failed after get: %s", err)
+			}
 		})
 	}
 }

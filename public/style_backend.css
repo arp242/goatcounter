@@ -73,9 +73,8 @@
 	*/
 
 }
-.chart-bar > div:hover, .chart-bar > div:hover > div {
-	background-color: #6b1818;
-}
+.chart-bar > div:hover       { background-color: #aaa; }
+.chart-bar > div:hover > div { background-color: #6b1818; }
 
 /* Line chart */
 .chart-line > div {

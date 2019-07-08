@@ -18,77 +18,86 @@ type Hit struct {
 	Path        string    `db:"path" json:"p,omitempty"`
 	Ref         string    `db:"ref" json:"r,omitempty"`
 	RefParams   *string   `db:"ref_params" json:"ref_params,omitempty"`
-	RefOriginal *string   `db:"ref_url" json:"ref_params,omitempty"`
+	RefOriginal *string   `db:"ref_original" json:"ref_original,omitempty"`
 	CreatedAt   time.Time `db:"created_at" json:"-"`
 
 	refURL *url.URL `db:"-" json:"-"`
 }
 
-// Normalize:
-//
-// - Group by domain, and related domains.
-// - Then display specific "deep links" as sublevels
+var groups = map[string]string{
+	"news.ycombinator.com":               "Hacker News",
+	"hn.algolia.com":                     "Hacker News",
+	"hckrnews.com":                       "Hacker News",
+	"hn.premii.com":                      "Hacker News",
+	"com.stefandekanski.hackernews.free": "Hacker News",
 
-// var groups = map[string]string{
-// 	"https://news.ycombinator.com": "Hacker News",
-// 	"https://hn.algolia.com":       "Hacker News",
-// 	"http://hckrnews.com":          "Hacker News",
-// 	"android-app://com.stefandekanski.hackernews.free": "Hacker News",
-//
-// 	"https://en.m.wikipedia.org": "Wikipedia",
-// 	"https://en.wikipedia.org": "Wikipedia",
-//
-// 	"https://www.google.*": "Google",
-//
-//  // https://twitter.com/search?lang=en&q=%22https%3A%2F%2Ft.co%2FCZIy0OlYQn%22&src=typed_query
-// 	"https://t.co/*": "Twitter",
-// 	"android-app://com.twitpane": "Twitter",
-//
-// 	"https://www.reddit.com/*": "Reddit",
-// 	"https://old.reddit.com/*": "Reddit",
-// 	"android-app://com.laurencedawson.reddit_sync": "Reddit",
-// 	"android-app://com.laurencedawson.reddit_sync.pro": "Reddit",
-// 	"android-app://com.laurencedawson.reddit_sync.dev": "Reddit",
-// 	"android-app://com.andrewshu.android.reddit": "Reddit",
-//
-// 	"https://mail.google.com/mail/u/0": "Gmail",
-// 	"android-app://com.google.android.gm": "Gmail",
-//
-// 	android-app://org.telegram.messenger
-// 	android-app://io.github.hidroh.materialistic
-// 	android-app://com.Slack
-// 	android-app://com.linkedin.android
-// 	android-app://m.facebook.com
-// 	android-app://com.noinnion.android.greader.reader
-//
-// }
+	"mail.google.com":       "Gmail",
+	"com.google.android.gm": "Gmail",
 
-// TODO:
-// If the reference is "hn.algolia.com" then set it to "news.ycombinator.com",
-// and set the RefOriginal to "hn.algolia.com".
-//
-// 	"https://news.ycombinator.com": "Hacker News",
-// 	"https://hn.algolia.com":       "Hacker News",
-//
-func cleanURL(ref string, refURL *url.URL) (string, *string) {
-	i := strings.Index(ref, "?")
-	if i == -1 {
-		return ref, nil
+	"com.google.android.googlequicksearchbox":                      "Google",
+	"com.google.android.googlequicksearchbox/https/www.google.com": "Google",
+
+	"com.andrewshu.android.reddit":       "www.reddit.com",
+	"com.laurencedawson.reddit_sync":     "www.reddit.com",
+	"com.laurencedawson.reddit_sync.dev": "www.reddit.com",
+	"com.laurencedawson.reddit_sync.pro": "www.reddit.com",
+
+	"m.facebook.com":  "www.facebook.com",
+	"l.facebook.com":  "www.facebook.com",
+	"lm.facebook.com": "www.facebook.com",
+
+	"org.telegram.messenger": "Telegram Messenger",
+
+	"com.Slack": "Slack Chat",
+}
+
+var hostAlias = map[string]string{
+	"en.m.wikipedia.org": "en.wikipedia.org",
+	"old.reddit.com":     "www.reddit.com",
+	"m.facebook.com":     "www.facebook.com",
+	"m.habr.com":         "habr.com",
+}
+
+func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
+	// I'm not sure where these links are generated, but there are *a lot* of
+	// them.
+	if refURL.Host == "link.oreilly.com" {
+		return "https://link.oreilly.com", nil, true
 	}
 
+	changed := false
+
+	// Normalize some hosts.
+	if a, ok := hostAlias[refURL.Host]; ok {
+		changed = true
+		refURL.Host = a
+	}
+
+	// Group based on URL.
+	if strings.HasPrefix(refURL.Host, "https://www.google.") {
+		return "Google", nil, true
+	}
+	if g, ok := groups[refURL.Host]; ok {
+		return g, nil, true
+	}
+
+	// Clean query parameters.
+	i := strings.Index(ref, "?")
+	if i == -1 {
+		// No parameters so no work.
+		return refURL.String(), nil, changed
+	}
 	eq := ref[i+1:]
 	ref = ref[:i]
 
-	// Ignore params for gmail; it's never useful.
-	if refURL.Host == "mail.google.com" {
-		return ref, nil
-	}
 	// Twitter's t.co links add this.
-	if eq == "amp=1" {
-		return ref, nil
+	if refURL.Host == "t.co" && eq == "amp=1" {
+		return ref, nil, false
 	}
 
 	q := refURL.Query()
+	refURL.RawQuery = ""
+	start := len(q)
 
 	// Google analytics tracking parameters.
 	q.Del("utm_source")
@@ -96,18 +105,11 @@ func cleanURL(ref string, refURL *url.URL) (string, *string) {
 	q.Del("utm_campaign")
 	q.Del("utm_term")
 
-	// ref = https://getpocket.com/redirect
-	// ref_params = url=https%3A%2F%2Fjavascriptweekly.com%2Flink%2F64733%2F2609d695ae&h=3aafa9fcffe6a8536ed5998028273ebc34ad670c2328e66948e90de570ca0224
-
-	// ref = https://www.google.se/url
-	// ref_params = sa=t&rct=j&q=&esrc=s&source=web&cd=3&ved=2ahUKEwi76qzW0_LiAhWu1aYKHbqKB70QFjACegQIAxAB&url=https%3A%2F%2Farp242.net%2Fphp-fopen-is-broken.html&usg=AOvVaw0OUYrWh-k8Suse9hHDfdeW
-
 	if len(q) == 0 {
-		return ref, nil
+		return refURL.String(), nil, changed || len(q) != start
 	}
-
 	eq = q.Encode()
-	return ref, &eq
+	return refURL.String(), &eq, changed || len(q) != start
 }
 
 // Defaults sets fields to default values, unless they're already set.
@@ -120,7 +122,12 @@ func (h *Hit) Defaults(ctx context.Context) {
 	}
 
 	if h.Ref != "" && h.refURL != nil {
-		h.Ref, h.RefParams = cleanURL(h.Ref, h.refURL)
+		var store bool
+		r := h.Ref
+		h.Ref, h.RefParams, store = cleanURL(h.Ref, h.refURL)
+		if store {
+			h.RefOriginal = &r
+		}
 	}
 
 	h.Ref = strings.TrimRight(h.Ref, "/")
@@ -156,14 +163,9 @@ func (h *Hit) Insert(ctx context.Context) error {
 		return err
 	}
 
-	// TODO: don't insert right away, cache in memory for 5s or so and then insert.
-	// Memstore.Lock()
-	// Memstore = append(Memstore, ...)
-	// Memstore.Unlock()
-
 	db := MustGetDB(ctx)
-	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params)
-		values ($1, $2, $3, $4)`, h.Site, h.Path, h.Ref, h.RefParams)
+	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params, ref_original)
+		values ($1, $2, $3, $4, $5)`, h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal)
 	return errors.Wrap(err, "Site.Insert")
 }
 
