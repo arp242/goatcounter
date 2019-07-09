@@ -1,7 +1,7 @@
 (function() { 
 	'use strict';
 
-	var vars = vars || {};
+	var vars = window.vars || {};
 
 	// Find canonical location of the current page.
 	var get_location = function() {
@@ -14,11 +14,8 @@
 			loc = a;
 		}
 
-		var host = (vars.host || loc.hostname);
 		return {
-			//h: host,
 			p: (vars.path     || (loc.pathname + loc.search) || '/'),
-			//r: (vars.referrer || (document.referrer.indexOf(host) > -1 ? document.referrer : '') || ''),
 			r: (vars.referrer || document.referrer),
 		};
 	};
@@ -40,7 +37,7 @@
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = counter + to_params(get_location());
+		img.src = window.counter + to_params(get_location());
 		img.addEventListener('load', function() {
 			document.body.removeChild(img)
 		}, false);

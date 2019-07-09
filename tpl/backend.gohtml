@@ -1,4 +1,5 @@
 {{template "_top_backend.gohtml" .}}
+
 {{if not .User.ID}}
 <p>This is the management panel for the {{.Site.Name}} newsletter.
 	<a href="/user/new">Sign in</a> or go to the
@@ -59,9 +60,9 @@
 		}
 
 		var script = document.createElement('script');
-		window.count = 'https://{{.Site.Code}}.{{.Domain}}/count'
+		window.counter = 'https://{{.Site.Code}}.{{.Domain}}/count'
 		script.async = 1;
-		script.src = '/{{.Static}}/count-nodata.js';
+		script.src = '/{{.Static}}/count.js';
 
 		var ins = document.getElementsByTagName('script')[0];
 		ins.parentNode.insertBefore(script, ins)
@@ -69,8 +70,25 @@
 &lt;/script&gt;
 </pre>
 
-<h2>Users</h2>
-Add users, manage (temporary) tokens for sending.
+<p><code>window.counter</code> is the endpoint which records the path and referer.</p>
+
+<p><code>window.vars</code> is an optional setting to set the <code>path</code>
+and/or <code>referrer</code>:
+</p>
+
+<pre>
+(function() {
+	if (window.location.hostname.indexOf('localhost') &gt; -1) {
+		return;
+	}
+
+	window.vars = {
+		path: my_own_function_to_get_the_path(),
+	};
+
+	// ...
+})();
+</pre>
 
 {{end}}
 {{template "_bottom_backend.gohtml" .}}

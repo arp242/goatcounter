@@ -14,37 +14,47 @@ import (
 	"zgo.at/zlog"
 )
 
+type task struct {
+	fun    func(context.Context) error
+	period time.Duration
+}
+
+var tasks = []task{
+	{goatcounter.Memstore.Persist, 10 * time.Second},
+	{updateStats, 2 * time.Hour},
+}
+
 // Run stat updates in the background.
 func Run(db *sqlx.DB) {
 	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
-	//ctx = context.WithValue(ctx, ctxkey.Site, &Site{ID: 1}) // TODO
-
 	l := zlog.Module("cron")
 
-	// Persist hits to DB.
-	go func() {
-		for {
-			err := goatcounter.Memstore.Persist(ctx)
-			if err != nil {
-				l.Error(err)
+	for _, t := range tasks {
+		go func(t task) {
+			for {
+				err := t.fun(ctx)
+				if err != nil {
+					l.Error(err)
+				}
+				time.Sleep(t.period)
 			}
+		}(t)
+	}
+}
 
-			time.Sleep(10 * time.Second)
+// Wait for all tasks to finish and run all tasks for consistency on shutdown.
+func Wait(db *sqlx.DB) {
+	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
+	l := zlog.Module("cron")
+
+	// TODO: wait for existing.
+
+	for _, t := range tasks {
+		err := t.fun(ctx)
+		if err != nil {
+			l.Error(err)
 		}
-	}()
-
-	// Update hit_stats table.
-	go func() {
-		for {
-			err := updateStats(ctx, db)
-			if err != nil {
-				l.Error(err)
-			}
-
-			//time.Sleep(5 * time.Minute)
-			time.Sleep(4 * time.Hour)
-		}
-	}()
+	}
 }
 
 type stat struct {
@@ -59,7 +69,9 @@ type stat struct {
 //   where created_at >= "2019-06-01"
 // and/or split in paths to prevent too much locking
 // (already 250ms for just me).
-func updateStats(ctx context.Context, db *sqlx.DB) error {
+func updateStats(ctx context.Context) error {
+	db := goatcounter.MustGetDB(ctx)
+
 	{
 		_, err := db.ExecContext(ctx, `delete from hit_stats`)
 		if err != nil {

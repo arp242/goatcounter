@@ -17,6 +17,7 @@
 
 .count-list td:nth-child(2) {  /* Path */
 	width: 20em;
+	padding-right: 2em;
 }
 
 .count-list tr:target {
@@ -26,6 +27,11 @@
 .count-list tr:target > td:nth-child(2) a {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
+}
+
+.period-select .active {
+	font-weight: bold;
+	text-decoration: underline;
 }
 
 .chart {
@@ -92,4 +98,27 @@
 }
 .chart-line > div:hover {
 	background-color: #6b1818;
+}
+
+#popup {
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-size: 14px;
+	font-family: sans-serif;
+
+	padding: 0 .5em;
+	border-radius: 2px;
+	background-color: #fff;
+	border: 1px solid #eee;
+	box-shadow: 0 0 2px rgba(0, 0, 0, .5);
+}
+
+#drag-box {
+	position: absolute;
+	background-color: red;
+	border: 1px solid blue;
+
+	min-width: 4px;
+	min-height: 4px;
 }

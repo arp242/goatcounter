@@ -85,7 +85,10 @@ func main() {
 		cfg.Domain:        handlers.NewSite(db),
 		cfg.DomainStatic:  handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
 		"*." + cfg.Domain: handlers.NewBackend(db),
-	})}, raven.Wait)
+	})}, func() {
+		cron.Wait(db)
+		raven.Wait()
+	})
 }
 
 func must(err error) {
