@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"runtime/pprof"
 
 	"github.com/getsentry/raven-go"
 	"github.com/go-chi/chi"
@@ -27,6 +28,15 @@ func main() {
 	cfg.Set()
 	fmt.Printf("Goatcounter version %s\n", version)
 	cfg.Print()
+
+	if cfg.CPUProfile != "" {
+		fp, err := os.Create(cfg.CPUProfile)
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(fp)
+		defer pprof.StopCPUProfile()
+	}
 
 	zlog.Config.StackFilter = errorutil.FilterPattern(
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
@@ -88,6 +98,15 @@ func main() {
 	})}, func() {
 		cron.Wait(db)
 		raven.Wait()
+
+		if cfg.MemProfile != "" {
+			fp, err := os.Create(cfg.MemProfile)
+			if err != nil {
+				panic(err)
+			}
+			pprof.WriteHeapProfile(fp)
+			fp.Close()
+		}
 	})
 }
 

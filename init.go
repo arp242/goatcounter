@@ -5,12 +5,36 @@ package goatcounter
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mattn/go-sqlite3"
+	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 )
+
+func init() {
+	// Implemented as function for performance.
+	//
+	// TODO: we can pre-generate this per day; then we just have to fetch the
+	// HTML.
+	zhttp.FuncMap["bar_chart"] = func(stats []HitStat, max int) template.HTML {
+		var b strings.Builder
+		for _, stat := range stats {
+			for _, s := range stat.Days {
+				// Double div so that the title is on the entire column, instead
+				// of just the coloured area.
+				b.WriteString(fmt.Sprintf(`
+					<div title="%[1]s %[2]d:00 – %[2]d:59, %[3]d views">
+						<div style="height: %[4]f%%;"></div>
+					</div>`, stat.Day, s[0], s[1], float64(s[1])/float64(max)/0.01))
+			}
+		}
+
+		return template.HTML(b.String())
+	}
+}
 
 // State column values.
 const (

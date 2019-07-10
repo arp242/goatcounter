@@ -19,6 +19,8 @@ var (
 	DBFile       string // Database connection string.
 	SMTP         string // SMTP connection string.
 	Sentry       string // Sentry connection string
+	CPUProfile   string // Write CPU profile to this file.
+	MemProfile   string // Write memory profile to this file.
 )
 
 // Set configuration variables from os.Args.
@@ -30,6 +32,8 @@ func Set() {
 	flag.StringVar(&DBFile, "dbconnect", "db/goatcounter.sqlite3", "Database connection string.")
 	flag.StringVar(&SMTP, "smtp", "smtps://b42bfac68fec83:f8dd7327e3e8b3@smtp.mailtrap.io:465", "SMTP connection string.")
 	flag.StringVar(&Sentry, "sentry", "", "Sentry connection string")
+	flag.StringVar(&CPUProfile, "cpuprofile", "", "Write CPU profile to this file.")
+	flag.StringVar(&MemProfile, "memprofile", "", "Write memory profile to this file.")
 	flag.Parse()
 }
 
@@ -42,4 +46,6 @@ func Print() {
 	fmt.Printf("DBFile         %#v\n", DBFile)
 	fmt.Printf("SMTP           %#v\n", SMTP)
 	fmt.Printf("Sentry         %#v\n", Sentry)
+	fmt.Printf("CPUProfile     %#v\n", CPUProfile)
+	fmt.Printf("MemProfile     %#v\n", MemProfile)
 }

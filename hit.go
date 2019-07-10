@@ -169,16 +169,22 @@ func (h *Hit) Insert(ctx context.Context) error {
 	return errors.Wrap(err, "Site.Insert")
 }
 
+type HitStat struct {
+	Day  string
+	Days [][]int
+}
+
 type HitStats []struct {
 	Count int    `db:"count"`
 	Max   int    `db:"-"`
 	Path  string `db:"path"`
-	Stats map[string][][]int
+	Stats []HitStat
 }
 
 func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
+
 	err := db.SelectContext(ctx, h, `
 		select path, count(path) as count
 		from hits
@@ -208,6 +214,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 			kind="h" and
 			date(day) >= $2 and
 			date(day) <= $3
+		order by day asc
 		`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
 		return errors.Wrap(err, "HitStats.List")
@@ -216,13 +223,13 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 	// TODO: meh...
 	hh := *h
 	for i := range hh {
-		hh[i].Stats = map[string][][]int{}
+		hh[i].Stats = make([]HitStat, len(st))
 
-		for _, s := range st { // []stats
+		for j, s := range st {
 			if s.Path == hh[i].Path {
 				var x [][]int
 				jsonutil.MustUnmarshal(s.Stats, &x)
-				hh[i].Stats[s.Day.Format("2006-01-02")] = x
+				hh[i].Stats[j] = HitStat{Day: s.Day.Format("2006-01-02"), Days: x}
 
 				// Get max.
 				// TODO: should maybe store this?

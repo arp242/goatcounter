@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/zhttp"
+	"zgo.at/zlog"
 
 	"github.com/mssola/user_agent"
 	"zgo.at/goatcounter/cfg"
@@ -85,6 +86,8 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	l := zlog.Debug("backend").Module("backend")
+
 	var pages goatcounter.HitStats
 	err := pages.List(r.Context(), start, end)
 	if err != nil {
@@ -101,7 +104,8 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return zhttp.Template(w, "backend.gohtml", struct {
+	l = l.Since("template")
+	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
 		ShowRefs    string
 		PeriodStart time.Time
@@ -109,6 +113,8 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		Pages       goatcounter.HitStats
 		Refs        goatcounter.HitStats
 	}{newGlobals(w, r), sr, start, end, pages, refs})
+	l = l.Since("end")
+	return x
 }
 
 func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
