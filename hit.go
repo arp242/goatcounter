@@ -74,7 +74,7 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 	}
 
 	// Group based on URL.
-	if strings.HasPrefix(refURL.Host, "https://www.google.") {
+	if strings.HasPrefix(refURL.Host, "www.google.") {
 		return "Google", nil, true
 	}
 	if g, ok := groups[refURL.Host]; ok {
