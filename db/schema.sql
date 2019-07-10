@@ -38,6 +38,7 @@ create table users (
 	login_req      datetime       null,
 	login_key      varchar        null unique,
 	csrf_token     varchar        null,
+	preferences    varchar        not null default "{}",
 
 	state          varchar        not null default "a" check(state in ("a", "d")),
 	created_at     datetime       not null default current_timestamp,

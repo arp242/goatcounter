@@ -3,6 +3,8 @@ package goatcounter
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
 	"time"
 
 	"github.com/pkg/errors"
@@ -18,19 +20,34 @@ const (
 
 // User entry.
 type User struct {
-	ID   int64 `db:"id"`
-	Site int64 `db:"site"`
+	ID   int64 `db:"id" json:"-"`
+	Site int64 `db:"site" json:"-"`
 
-	Name      string     `db:"name"`
-	Email     string     `db:"email"`
-	Role      string     `db:"role"`
-	LoginReq  *time.Time `db:"login_req"`
-	LoginKey  *string    `db:"login_key"`
-	CSRFToken *string    `db:"csrf_token"`
+	Name        string          `db:"name" json:"name"`
+	Email       string          `db:"email" json:"email"`
+	Role        string          `db:"role" json:"-"`
+	LoginReq    *time.Time      `db:"login_req" json:"-"`
+	LoginKey    *string         `db:"login_key" json:"-"`
+	CSRFToken   *string         `db:"csrf_token" json:"-"`
+	Preferences UserPreferences `db:"preferences" json:"preferences"`
 
-	State     string     `db:"state"`
-	CreatedAt time.Time  `db:"created_at"`
-	UpdatedAt *time.Time `db:"updated_at"`
+	State     string     `db:"state" json:"-"`
+	CreatedAt time.Time  `db:"created_at" json:"-"`
+	UpdatedAt *time.Time `db:"updated_at" json:"-"`
+}
+
+type UserPreferences struct {
+	TimeFormat string `json:"time_format"`
+}
+
+// Value implements the SQL Value function to determine what to store in the DB.
+func (up UserPreferences) Value() (driver.Value, error) {
+	return json.Marshal(up)
+}
+
+// Scan converts the data returned from the DB into the struct.
+func (up *UserPreferences) Scan(v interface{}) error {
+	return json.Unmarshal(v.([]byte), up)
 }
 
 // Defaults sets fields to default values, unless they're already set.

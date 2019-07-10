@@ -1,0 +1,86 @@
+	//r.Post("/user/create", zhttp.Wrap(h.create))
+	// a = r.With(zhttp.Filter(func(r *http.Request) bool {
+	// 	u := goatcounter.GetUser(r.Context())
+	// 	return u != nil && u.ID > 0 && u.Role == goatcounter.UserRoleAdmin
+	// }))
+	// a.Get("/admin", zhttp.Wrap(h.admin))
+
+
+func (h user) create(w http.ResponseWriter, r *http.Request) error {
+	args := struct {
+		Email      string `json:"email"`
+		Name       string `json:"name"`
+		SiteName   string `json:"site_name"`
+		SiteDomain string `json:"site_domain"`
+		SiteCode   string `json:"site_domain"`
+	}{}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	var s goatcounter.Site
+	s.Code = args.SiteCode
+	s.Name = args.SiteName
+	s.Domain = args.SiteDomain
+	err = s.Insert(r.Context())
+	if err != nil {
+		return err
+	}
+
+	var u goatcounter.User
+	u.Email = args.Email
+	u.Name = args.Name
+	err = u.Insert(r.Context())
+	if err != nil {
+		return err
+	}
+
+	err = u.RequestLogin(r.Context())
+	if err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("https://%s.%s/user/login/%s", s.Code, cfg.Domain, *u.LoginKey)
+	go func() {
+		err := smail.Send("Your login URL",
+			mail.Address{Name: "", Address: "TODO@example.com"},
+			[]mail.Address{{Name: u.Name, Address: u.Email}},
+			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  %s\n\nGo to it to log in.\n", url))
+		if err != nil {
+			zlog.Errorf("smail: %s", err)
+		}
+	}()
+
+	if cfg.Prod {
+		zhttp.Flash(w,
+			"All good. Login URL emailed to %q; please click it in the next 15 minutes to continue.",
+			u.Email)
+	} else {
+		zhttp.Flash(w, url)
+	}
+	return zhttp.SeeOther(w, "/")
+}
+
+
+
+func (h user) admin(w http.ResponseWriter, r *http.Request) error {
+	var sites goatcounter.Sites
+	err := sites.List(r.Context())
+	if err != nil {
+		return err
+	}
+
+	var users goatcounter.Users
+	err = users.ListAllSites(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "admin.gohtml", struct {
+		Globals
+		Sites goatcounter.Sites
+		Users goatcounter.Users
+	}{newGlobals(w, r), sites, users})
+}
+

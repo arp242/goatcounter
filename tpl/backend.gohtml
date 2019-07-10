@@ -1,7 +1,7 @@
 {{template "_top_backend.gohtml" .}}
 
 {{if not .User.ID}}
-<p>This is the management panel for the {{.Site.Name}} newsletter.
+<p>This is the management panel for the {{.Site.Name}} visitor counter.
 	<a href="/user/new">Sign in</a> or go to the
 	<a href="https://{{.Domain}}">home page</a></p>
 {{else}}
@@ -89,6 +89,24 @@ and/or <code>referrer</code>:
 	// ...
 })();
 </pre>
+
+{{/*
+<h2>Preferences</h2>
+
+<form method="post" action="/user/save" class="horizontal">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<label for="time_format">Time format</label>
+	<select>
+		<option>year-month-day (2006-01-02)</option>
+		<option>day-month-year (01-02-2006)</option>
+		<option>month/day/year (02/01/06)</option>
+		<option>Text (2 Jan 06)</option>
+		<option>Text with day (Mon Jan 2 2006)</option>
+	</select>
+	<input type="text" name="preferences.time_format" id="time_format">
+	<button type="submit">Save</button>
+</form>
+*/}}
 
 {{end}}
 {{template "_bottom_backend.gohtml" .}}

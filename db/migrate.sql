@@ -101,3 +101,7 @@ update hits set ref_original=ref, ref="Telegram Messenger" where ref in (
 
 update hits set ref_original=ref, ref="Slack Chat" where ref in (
 	"android-app://com.Slack");
+
+
+-- 20190709: user preferences.
+alter table users add column preferences varchar not null default "{}";
