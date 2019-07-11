@@ -21,7 +21,7 @@ type Site struct {
 
 	Domain string `db:"domain"` // Domain for which the service is (arp242.net)
 	Name   string `db:"name"`   // Site name, for humans (arp242.net: Martin's website)
-	Code   string `db:"code"`   // Domain code (arp242.goatcounter.com)
+	Code   string `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
 
 	State     string     `db:"state"`
 	CreatedAt time.Time  `db:"created_at"`
@@ -83,6 +83,13 @@ func (s *Site) Insert(ctx context.Context) error {
 
 	s.ID, err = res.LastInsertId()
 	return errors.Wrap(err, "Site.Insert")
+}
+
+// ByID gets a site by ID.
+func (s *Site) ByID(ctx context.Context, id int64) error {
+	db := MustGetDB(ctx)
+	return errors.Wrap(db.GetContext(ctx, s, `select * from sites where id=$1 and state=$2`,
+		id, StateActive), "Site.ByID")
 }
 
 // ByCode gets a site by subdomain code.

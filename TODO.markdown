@@ -3,6 +3,7 @@
 - Cache HTML
 - Remove # from refs? Or put in ref_params?
 - signin from multiple browsers/locations?
+- Limit urls and add link to view more: same for refs
 
 https://github.com/SlinSo/goTemplateBenchmark
 

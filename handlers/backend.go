@@ -104,7 +104,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	l = l.Since("template")
+	l = l.Since("fetch data")
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
 		ShowRefs    string
@@ -113,7 +113,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		Pages       goatcounter.HitStats
 		Refs        goatcounter.HitStats
 	}{newGlobals(w, r), sr, start, end, pages, refs})
-	l = l.Since("end")
+	l = l.Since("exec template")
 	return x
 }
 

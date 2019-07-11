@@ -102,6 +102,18 @@ update hits set ref_original=ref, ref="Telegram Messenger" where ref in (
 update hits set ref_original=ref, ref="Slack Chat" where ref in (
 	"android-app://com.Slack");
 
-
 -- 20190709: user preferences.
 alter table users add column preferences varchar not null default "{}";
+
+-- 20190711: more ref cleaning.
+update hits set ref_original=ref, ref="https://www.feedly.com" where ref in (
+	"https://feedly.com/i/latest",
+	"https://feedly.com/i/my",
+	"https://feedly.com/i/saved"
+) or
+	ref like "https://feedly.com/i/collection/%" or 
+	ref like "https://feedly.com/i/tag/%" or
+	ref like "https://feedly.com/i/category/%";
+
+update hits set ref_original=ref, ref="https://lobste.rs"
+	where ref like "https://lobste.rs/%" and ref not like "https://lobste.rs/s/%";

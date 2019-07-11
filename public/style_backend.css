@@ -17,7 +17,34 @@
 
 .count-list td:nth-child(2) {  /* Path */
 	width: 20em;
-	padding-right: 2em;
+}
+.count-list.count-list-refs td:nth-child(2) {
+	width: auto;
+	word-break: break-all; /* don't make it wider for very long urls */
+}
+
+.count-list td:first-child,
+.count-list td:nth-child(2) {
+	/* Same as .chart, so it sits in middle when collapsed. */
+	/* TODO
+	height: 60px;
+	vertical-align: middle;
+	*/
+}
+
+.rlink {
+	max-width: 17.5em;
+	display: inline-block;	
+
+	/* TODO: ideally I'd like the … to be in the centre, rather than at the end.
+	 * Need JS solution for that though :-/ */
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.count-list tr {
+	border: none;
 }
 
 .count-list tr:target,
@@ -25,8 +52,8 @@
 	background-color: inherit;
 }
 
-.count-list tr:target > td:nth-child(2) a,
-.count-list tr.target > td:nth-child(2) a {
+.count-list tr:target > td:nth-child(2) .rlink,
+.count-list tr.target > td:nth-child(2) .rlink {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }
@@ -39,23 +66,24 @@
 .chart {
 	border: 1px solid #ccc;
 	height: 50px;
+	margin: 5px 0;
 	width: 100%;
 	position: relative;
 	display: flex;
 }
 .chart > .max {
-	color: #888;
+	color: #555;
 	font-size: 12px;
 	line-height: 1;
 	position: absolute;
 	background-color: #fff;
-	left: -3.3em;
-	width: 3em;
-	top: 0;
+	left: .5em;
+	top: -.5em;
+	padding: 0 .3em;
 	text-align: right;
 }
 .chart > .half {
-	border-top: 1px solid #eee;
+	border-top: 1px solid #ddd;
 	position: absolute;
 	top: 50%;
 	left: 0;

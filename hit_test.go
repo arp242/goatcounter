@@ -37,6 +37,10 @@ func TestHitDefaults(t *testing.T) {
 		// Host aliases.
 		{"https://en.m.wikipedia.org/wiki/Foo", "https://en.wikipedia.org/wiki/Foo", nil, set},
 		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "https://en.wikipedia.org/wiki/Foo", test.SP("a=b"), set},
+
+		// Reddit Cleaning.
+		{"https://www.reddit.com/r/programming/top", "https://www.reddit.com/r/programming", nil, set},
+		{"https://np.reddit.com/r/programming/.compact", "https://www.reddit.com/r/programming", nil, set},
 	}
 
 	ctx := context.WithValue(context.Background(), ctxkey.Site, &Site{ID: 1})

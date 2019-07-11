@@ -1,9 +1,12 @@
-<table class="count-list"><tbody>
+<table class="count-list count-list-refs"><tbody>
 {{range $r := .}}
 	<tr>
 		<td>{{$r.Count | nformat}}</td>
 		{{/* Don't link groups? */}}
-		<td>{{if $r.Path}}<a href="{{$r.Path}}" target="_blank">{{$r.Path}}</a>{{else}}(no data){{end}}</td>
+		<td>
+			{{if $r.Path}}{{$r.Path}}{{else}}(no data){{end}}
+			{{if has_prefix $r.Path "http"}}<sup><a href="{{$r.Path}}" target="_blank">go</a></sup>{{end}}
+		</td>
 	</tr>
 {{end}}
 </table></tbody>

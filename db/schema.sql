@@ -35,6 +35,8 @@ create table users (
 	name           varchar        not null check(length(name) <= 200),
 	email          varchar        not null check(length(email) <= 255),
 	role           varchar        not null default "" check(role in ("", "a")),
+	-- TODO: the login_req and login_key should be in a new table, so we can
+	-- support multiple logins per user.
 	login_req      datetime       null,
 	login_key      varchar        null unique,
 	csrf_token     varchar        null,

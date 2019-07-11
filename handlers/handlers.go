@@ -52,7 +52,11 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 	if !prod {
 		packPublic = nil
 	}
-	r.Get("/*", zhttp.NewStatic(dir, domain, packPublic).ServeHTTP)
+	cache := 0
+	if cfg.Prod {
+		cache = 86400 * 30
+	}
+	r.Get("/*", zhttp.NewStatic(dir, domain, cache, packPublic).ServeHTTP)
 	return r
 }
 

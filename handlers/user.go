@@ -57,12 +57,19 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var url = fmt.Sprintf("%s/user/login/%s", cfg.Domain, *u.LoginKey)
+	var site goatcounter.Site
+	err = site.ByID(r.Context(), u.Site)
+	if err != nil {
+		return err
+	}
+
+	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
 	go func() {
 		err := smail.Send("Your login URL",
-			mail.Address{Name: "", Address: "TODO@example.com"},
+			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
 			[]mail.Address{{Name: u.Name, Address: u.Email}},
-			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  %s\n\nGo to it to log in.\n", url))
+			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  https://%s\n\nGo to it to log in.\n",
+				url))
 		if err != nil {
 			zlog.Errorf("smail: %s", err)
 		}
@@ -73,7 +80,8 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 			"All good. Login URL emailed to %q; please click it in the next 15 minutes to continue.",
 			u.Email)
 	} else {
-		zhttp.Flash(w, url)
+		// Show URL on dev for convenience.
+		zhttp.Flash(w, "<a href='http://%s'>http://%[1]s</a>", url)
 	}
 	return zhttp.SeeOther(w, "/")
 }

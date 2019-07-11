@@ -8,8 +8,8 @@
 
 <form>
 	<input type="hidden" name="showrefs" value="{{.ShowRefs}}">	
-	<input type="text" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-	<input type="text" id="period-end" name="period-end" value="{{tformat .PeriodEnd ""}}">
+	<input type="text" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+	<input type="text" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 	<button type="submit">Go</button>
 	<br>
 	<span class="period-select">
@@ -30,9 +30,12 @@
 	{{range $h := .Pages}}
 		<tr id="{{$h.Path}}">
             <td>{{$h.Count | nformat}}</td>
-			<td><a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-				<sup><a target="_blank" href="https://{{$.Site.Domain}}{{$h.Path}}">🔗</a></sup>
-				</td>
+			<td>
+				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+				{{/* TODO: vertical alignment is messed up because of the ellipsis on .rlink :-/
+				<sup><a target="_blank" href="https://{{$.Site.Domain}}{{$h.Path}}">go</a></sup>
+				*/}}
+			</td>
 			<td>
 				{{template "_backend_chart_bar.gohtml" $h}}
 				{{/*

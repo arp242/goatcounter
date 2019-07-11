@@ -1,4 +1,4 @@
-//go:generate go run pack.go
+//go:generate go run gen.go
 
 package goatcounter
 
