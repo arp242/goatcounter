@@ -12,20 +12,22 @@ import (
 )
 
 type Globals struct {
-	User   *goatcounter.User
-	Site   *goatcounter.Site
-	Flash  template.HTML
-	Static string
-	Domain string
+	User    *goatcounter.User
+	Site    *goatcounter.Site
+	Flash   template.HTML
+	Static  string
+	Domain  string
+	Version string
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	g := Globals{
-		User:   goatcounter.GetUser(r.Context()),
-		Site:   goatcounter.GetSite(r.Context()),
-		Flash:  zhttp.ReadFlash(w, r),
-		Static: cfg.DomainStatic,
-		Domain: cfg.Domain,
+		User:    goatcounter.GetUser(r.Context()),
+		Site:    goatcounter.GetSite(r.Context()),
+		Flash:   zhttp.ReadFlash(w, r),
+		Static:  cfg.DomainStatic,
+		Domain:  cfg.Domain,
+		Version: cfg.Version,
 	}
 	// TODO: not sure why this is needed?
 	if g.User == nil {

@@ -26,6 +26,9 @@ var version = "dev"
 
 func main() {
 	cfg.Set()
+	if cfg.Version == "" {
+		cfg.Version = version
+	}
 	fmt.Printf("Goatcounter version %s\n", version)
 	cfg.Print()
 

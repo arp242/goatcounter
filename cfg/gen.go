@@ -13,6 +13,7 @@ import (
 
 var flags = []flag{
 	{"bool", "Prod", "prod", false, "Production mode: hide errors, don't reload."},
+	{"string", "Version", "version", "", "Version tag; normally set during compile"},
 	{"string", "Domain", "domain", "localhost:8081", "Base domain"},
 	{"string", "DomainStatic", "domainstatic", "static.localhost:8081", "Domain to serve static files from."},
 	{"string", "Listen", "listen", "localhost:8081", "Address to listen on."},

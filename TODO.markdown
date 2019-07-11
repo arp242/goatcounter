@@ -1,7 +1,8 @@
 - Front page
 - PostgreSQL
 - Cache HTML
-- Remove #?
+- Remove # from refs? Or put in ref_params?
+- signin from multiple browsers/locations?
 
 https://github.com/SlinSo/goTemplateBenchmark
 

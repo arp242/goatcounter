@@ -13,6 +13,7 @@ import (
 // Configuration variables.
 var (
 	Prod         bool   // Production mode: hide errors, don't reload.
+	Version      string // Version tag; normally set during compile
 	Domain       string // Base domain
 	DomainStatic string // Domain to serve static files from.
 	Listen       string // Address to listen on.
@@ -26,6 +27,7 @@ var (
 // Set configuration variables from os.Args.
 func Set() {
 	flag.BoolVar(&Prod, "prod", false, "Production mode: hide errors, don't reload.")
+	flag.StringVar(&Version, "version", "", "Version tag; normally set during compile")
 	flag.StringVar(&Domain, "domain", "localhost:8081", "Base domain")
 	flag.StringVar(&DomainStatic, "domainstatic", "static.localhost:8081", "Domain to serve static files from.")
 	flag.StringVar(&Listen, "listen", "localhost:8081", "Address to listen on.")
@@ -40,6 +42,7 @@ func Set() {
 // Print out all configuration values.
 func Print() {
 	fmt.Printf("Prod           %#v\n", Prod)
+	fmt.Printf("Version        %#v\n", Version)
 	fmt.Printf("Domain         %#v\n", Domain)
 	fmt.Printf("DomainStatic   %#v\n", DomainStatic)
 	fmt.Printf("Listen         %#v\n", Listen)
