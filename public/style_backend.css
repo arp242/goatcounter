@@ -20,11 +20,13 @@
 	padding-right: 2em;
 }
 
-.count-list tr:target {
+.count-list tr:target,
+.count-list tr.target {
 	background-color: inherit;
 }
 
-.count-list tr:target > td:nth-child(2) a {
+.count-list tr:target > td:nth-child(2) a,
+.count-list tr.target > td:nth-child(2) a {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }

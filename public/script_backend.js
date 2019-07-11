@@ -2,6 +2,13 @@
 	'use strict';
 
 	var init = function() {
+		// Global ajax error handler.
+		$(document).ajaxError(function(e, xhr, settings, err) {
+			var msg = 'Could not load ' + settings.url + ': ' + err;
+			console.error(msg);
+			alert(msg);
+		});
+
 		period_select();
 		drag_timeframe();
 		load_refs();
@@ -86,12 +93,21 @@
 			var hash = decodeURIComponent(location.hash.substr(1)),
 				link = this,
 				row = $(this).closest('tr');
-			if (hash !== '') {
-				$(document.getElementById(hash)).closest('tr').find('.refs').html('');
 
-				console.log(hash, row.attr('id'));
-				if (hash === row.attr('id'))
+			// Close existing.
+			if (hash !== '') {
+				var t = $(document.getElementById(hash));
+				t.removeClass('target');
+				t.closest('tr').find('.refs').html('');
+ 
+				if (hash === row.attr('id')) {
+					var nl = link.href.substr(0, link.href.indexOf('#'));
+					nl = nl.replace(/showrefs=.*?&/, '&'); // TODO: do better!
+					history.pushState(null, "", nl);
+
+					location.hash = '_'; // '_' and not '' so we won't scroll to top.
 					return;
+				}
 			}
 
 			jQuery.ajax({
@@ -100,15 +116,11 @@
 				success: function(data) {
 					row.find('.refs').html(data);
 
-					// TODO: set target?
-					// TODO: make back button work!
+					// TODO: make back button work by hooking in to hashchange
+					// or something.
 					history.pushState(null, "", link.href);
-					location.hash = link.hash;
+					row.addClass('target');
 				},
-				// TODO: global error handler?
-				// error: ( jqXHR jqXHR, String textStatus, String errorThrown ) {
-				// window.location = ...
-				// }
 			});
 		})
 	};
