@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{.Site.Domain}} – GoatCounter</title>
+	<link rel="shortcut icon" href="//{{.Static}}/favicon.ico">
+	{{/*<link rel="canonical" href="{{.Domain}}">*/}}
+	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="//{{.Static}}/style.css?v={{.Version}}">
+	<link rel="stylesheet" href="//{{.Static}}/style_backend.css?v={{.Version}}">
+</head>
+
+<body>
+	{{if .User.ID}}
+		<div class="center" style="display: flex; justify-content: space-between;">
+			<div>{{if eq .Path "/settings"}}<strong><a href="/">← Back</a></strong>{{end}}</div>
+			<div>
+				Signed in as {{.User.Name}} |
+				{{if ne .Path "/settings"}}<a href="/settings">Settings</a> |{{end}}
+				<form method="post" action="/user/logout">
+					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+					<button class="link">Sign out</button>
+				</form>
+			</div>
+		</div>
+	{{else if .Site.Settings.Public}}
+		<div class="center" style="text-align: right">
+			Viewing as guest | <a href="/user/new">Sign in</a>
+		</div>
+	{{end}}
+
+	<div class="page">
+	{{if .Flash}}<div class="flash">{{.Flash}}</div>{{end}}

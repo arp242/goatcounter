@@ -1,9 +1,9 @@
-{{template "_top_backend.gohtml" .}}
+{{template "_backend_top.gohtml" .}}
 
-{{if not .User.ID}}
+{{if and (not .User.ID) (not .Site.Settings.Public)}}
 <p>This is the management panel for the {{.Site.Name}} visitor counter.
-	<a href="/user/new">Sign in</a> or go to the
-	<a href="https://{{.Domain}}">home page</a></p>
+	Sign in or go to the <a href="https://{{.Domain}}">home page</a></p>
+	{{template "_backend_signin.gohtml" .}}
 {{else}}
 
 <form>
@@ -53,63 +53,5 @@
 </tbody>
 </table>
 
-<h2>Site code</h2>
-<p>Add to your <code>&lt;head&gt;</code> tag:</p>
-<pre>
-&lt;script&gt;
-	(function() {
-		if (window.location.hostname.indexOf('localhost') &gt; -1) {
-			return;
-		}
-
-		var script = document.createElement('script');
-		window.counter = 'https://{{.Site.Code}}.{{.Domain}}/count'
-		script.async = 1;
-		script.src = '/{{.Static}}/count.js';
-
-		var ins = document.getElementsByTagName('script')[0];
-		ins.parentNode.insertBefore(script, ins)
-	})();
-&lt;/script&gt;
-</pre>
-
-<p><code>window.counter</code> is the endpoint which records the path and referer.</p>
-
-<p><code>window.vars</code> is an optional setting to set the <code>path</code>
-and/or <code>referrer</code>:
-</p>
-
-<pre>
-(function() {
-	if (window.location.hostname.indexOf('localhost') &gt; -1) {
-		return;
-	}
-
-	window.vars = {
-		path: my_own_function_to_get_the_path(),
-	};
-
-	// ...
-})();
-</pre>
-
-{{/*
-<h2>Preferences</h2>
-
-<form method="post" action="/user/save" class="horizontal">
-	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<label for="time_format">Time format</label>
-	<select>
-		<option>year-month-day (2006-01-02)</option>
-		<option>day-month-year (01-02-2006)</option>
-		<option>month/day/year (02/01/06)</option>
-		<option>Text (2 Jan 06)</option>
-		<option>Text with day (Mon Jan 2 2006)</option>
-	</select>
-	<input type="text" name="preferences.time_format" id="time_format">
-	<button type="submit">Save</button>
-</form>
-*/}}
-
 {{end}}
-{{template "_bottom_backend.gohtml" .}}
+{{template "_backend_bottom.gohtml" .}}

@@ -20,7 +20,7 @@
 		$('.period-select').on('click', 'button', function(e) {
 			e.preventDefault();
 
-			// TODO: also set on load.
+			// TODO(v1): also set on load.
 			//$('.period-select button').removeClass('active');
 			//$(this).addClass('active');
 
@@ -43,7 +43,7 @@
 			$('#period-end').val(format_date(new Date()));
 		})
 
-		// TODO: still selects text in Firefox...
+		// TODO(v1): still selects text in Firefox...
 		$('.period-select').on('dblclick', 'button', function(e) {
 			e.preventDefault();
 			$(this).closest('form').trigger('submit');
@@ -52,7 +52,7 @@
 
 	// Select a period by dragging the mouse over a timeframe.
 	var drag_timeframe = function() {
-		// TODO: finish.
+		// TODO(v1): finish.
 		return;
 
 		var down, box;
@@ -102,7 +102,7 @@
  
 				if (hash === row.attr('id')) {
 					var nl = link.href.substr(0, link.href.indexOf('#'));
-					nl = nl.replace(/showrefs=.*?&/, '&'); // TODO: do better!
+					nl = nl.replace(/showrefs=.*?&/, '&'); // TODO(v1): do better!
 					history.pushState(null, "", nl);
 
 					location.hash = '_'; // '_' and not '' so we won't scroll to top.
@@ -116,7 +116,7 @@
 				success: function(data) {
 					row.find('.refs').html(data);
 
-					// TODO: make back button work by hooking in to hashchange
+					// TODO(v1): make back button work by hooking in to hashchange
 					// or something.
 					history.pushState(null, "", link.href);
 					row.addClass('target');
@@ -137,10 +137,11 @@
 			else
 				var t = $(e.target);
 
+			// TODO(v1): reformat date and time according to site settings.
 			var p = $('<div id="popup"></div>').
 				html(t.attr('title') || t.attr('data-title')).
 				css({
-					// TODO: move to left of cursor if there isn't enough space.
+					// TODO(v1): move to left of cursor if there isn't enough space.
 					left: (e.pageX + 8) + 'px',
 					top: (t.parent().position().top) + 'px',
 				});
@@ -154,7 +155,7 @@
 	};
 
 	// Format a date as year-month-day
-	// TODO: user config!
+	// TODO: user config
 	var format_date = function(date) {
 		var m = date.getMonth() + 1;
 		var d = date.getDate();

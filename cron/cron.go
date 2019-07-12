@@ -47,7 +47,7 @@ func Wait(db *sqlx.DB) {
 	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
 	l := zlog.Module("cron")
 
-	// TODO: wait for existing.
+	// TODO(v1): wait for existing.
 
 	for _, t := range tasks {
 		err := t.fun(ctx)
@@ -63,9 +63,9 @@ type stat struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-// TODO: scope to per-site!
+// TODO(v1): scope to per-site!
 //
-// TODO: can optimize by not regenerating everything all the time, but adding
+// TODO(v1): can optimize by not regenerating everything all the time, but adding
 //   where created_at >= "2019-06-01"
 // and/or split in paths to prevent too much locking
 // (already 250ms for just me).
@@ -193,7 +193,7 @@ func updateStats(ctx context.Context) error {
 		for day, st := range dayst {
 			var err error
 			if upd {
-				// TODO
+				// TODO(v1)
 				// _, err = db.ExecContext(ctx, `update hit_stats
 				// 		set stats=$1`, jsonutil.MustMarshal(st))
 			} else {

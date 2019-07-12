@@ -1,0 +1,79 @@
+{{template "_backend_top.gohtml" .}}
+
+{{if not .User.ID}}
+<p>This is the management panel for the {{.Site.Name}} visitor counter.
+	Sign in or go to the <a href="https://{{.Domain}}">home page</a></p>
+	{{template "_backend_signin.gohtml" .}}
+{{else}}
+
+<h2>Settings</h2>
+<div style="max-width: 20em;">
+<form method="post" action="/save" class="vertical">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	<label for="domain">Domain</label>
+	<input type="text" name="domain" id="domain" value="{{.Site.Domain}}">
+	<span>Your site’s domain, e.g. <em>example.com</em>.</span>
+
+	<label>{{checkbox .Site.Settings.Public "settings.public"}}
+		Make stats publicly viewable</label>
+
+	<label for="time_format">Time format</label>
+	<select name="settings.time_format" id="time_format">
+		<option {{option_value .Site.Settings.TimeFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+		<option {{option_value .Site.Settings.TimeFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+		<option {{option_value .Site.Settings.TimeFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+		<option {{option_value .Site.Settings.TimeFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
+		<option {{option_value .Site.Settings.TimeFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+	</select>
+	<span>Display time format; examples formatted as January 2nd, 2006.</span>
+
+	<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
+		24-hour clock</label>
+
+	<button type="submit">Save</button>
+</form>
+</div>
+
+<h2>Site code</h2>
+<p>Add to your <code>&lt;head&gt;</code> tag:</p>
+<pre>
+&lt;script&gt;
+	(function() {
+		if (window.location.hostname.indexOf('localhost') &gt; -1) {
+			return;
+		}
+
+		var script = document.createElement('script');
+		window.counter = 'https://{{.Site.Code}}.{{.Domain}}/count'
+		script.async = 1;
+		script.src = '/{{.Static}}/count.js';
+
+		var ins = document.getElementsByTagName('script')[0];
+		ins.parentNode.insertBefore(script, ins)
+	})();
+&lt;/script&gt;
+</pre>
+
+<p><code>window.counter</code> is the endpoint which records the path and referer.</p>
+
+<p><code>window.vars</code> is an optional setting to set the <code>path</code>
+and/or <code>referrer</code>:
+</p>
+
+<pre>
+(function() {
+	if (window.location.hostname.indexOf('localhost') &gt; -1) {
+		return;
+	}
+
+	window.vars = {
+		path: my_own_function_to_get_the_path(),
+	};
+
+	// ...
+})();
+</pre>
+
+{{end}}
+{{template "_backend_bottom.gohtml" .}}

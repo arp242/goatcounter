@@ -52,7 +52,7 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 			r = r.WithContext(context.WithValue(ctx, ctxkey.DB, db))
 
 			// Load site from subdomain
-			// TODO: better errors
+			// TODO(v1): better errors
 			if loadSite {
 				i := strings.Index(r.Host, ".")
 				if i == -1 {

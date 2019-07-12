@@ -1,6 +1,6 @@
--- TODO: deal with casing; this should work: where email = "MARTIN@ARP242.NET"
--- TODO: validate the dates
--- TODO: test postgresql
+-- TODO(v1): deal with casing; this should work: where email = "MARTIN@ARP242.NET"
+-- TODO(v1): validate the dates
+-- TODO(v1): test postgresql
 -- check(strftime('%Y-%m-%d', created_at) = created_at)
 
 drop table if exists version;
@@ -13,19 +13,19 @@ drop table if exists sites;
 create table sites (
 	id             integer        primary key autoincrement,
 
-	name           varchar        not null check(length(name) <= 100),
 	domain         varchar        not null unique check(length(domain) <= 255),
 	code           varchar        not null unique check(length(domain) <= 50),
+	settings       varchar        not null default "{}",
 
 	state          varchar        not null default "a" check(state in ("a", "d")),
 	created_at     datetime       not null default current_timestamp,
 	updated_at     datetime
 );
-insert into sites (domain, code, name) values
-	("arp242.net",      "arp242",      "arp242.net"),
-	("zgo.at",          "zgoat",       "zGoat"),
-	("goatletter.com",  "goatletter",  "GoatLetter"),
-	("goatcounter.com", "goatcounter", "GoatCounter");
+insert into sites (domain, code) values
+	("arp242.net",      "arp242"),
+	("zgo.at",          "zgoat"),
+	("goatletter.com",  "goatletter"),
+	("goatcounter.com", "goatcounter");
 
 drop table if exists users;
 create table users (
@@ -35,7 +35,7 @@ create table users (
 	name           varchar        not null check(length(name) <= 200),
 	email          varchar        not null check(length(email) <= 255),
 	role           varchar        not null default "" check(role in ("", "a")),
-	-- TODO: the login_req and login_key should be in a new table, so we can
+	-- TODO(v1): the login_req and login_key should be in a new table, so we can
 	-- support multiple logins per user.
 	login_req      datetime       null,
 	login_key      varchar        null unique,

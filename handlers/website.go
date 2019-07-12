@@ -14,8 +14,8 @@ import (
 type Website struct{}
 
 func (h Website) Mount(r *chi.Mux, db *sqlx.DB) {
-	// TODO: remove trailing slashes (/foo/ won't work).
-	// TODO: rate limit to some degree: https://github.com/Teamwork/middleware/tree/master/ratelimit
+	// TODO(v1): remove trailing slashes (/foo/ won't work).
+	// TODO(v1): rate limit to some degree: https://github.com/Teamwork/middleware/tree/master/ratelimit
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),

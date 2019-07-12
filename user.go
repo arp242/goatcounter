@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
+	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
 )
@@ -40,15 +41,13 @@ type UserPreferences struct {
 	TimeFormat string `json:"time_format"`
 }
 
+func (up UserPreferences) String() string { return string(jsonutil.MustMarshal(up)) }
+
 // Value implements the SQL Value function to determine what to store in the DB.
-func (up UserPreferences) Value() (driver.Value, error) {
-	return json.Marshal(up)
-}
+func (up UserPreferences) Value() (driver.Value, error) { return json.Marshal(up) }
 
 // Scan converts the data returned from the DB into the struct.
-func (up *UserPreferences) Scan(v interface{}) error {
-	return json.Unmarshal(v.([]byte), up)
-}
+func (up *UserPreferences) Scan(v interface{}) error { return json.Unmarshal(v.([]byte), up) }
 
 // Defaults sets fields to default values, unless they're already set.
 func (u *User) Defaults(ctx context.Context) {

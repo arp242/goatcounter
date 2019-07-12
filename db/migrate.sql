@@ -117,3 +117,6 @@ update hits set ref_original=ref, ref="https://www.feedly.com" where ref in (
 
 update hits set ref_original=ref, ref="https://lobste.rs"
 	where ref like "https://lobste.rs/%" and ref not like "https://lobste.rs/s/%";
+
+-- 20190712: site settings
+alter table sites add column settings varchar not null default "{}";
