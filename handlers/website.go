@@ -25,6 +25,7 @@ func (h Website) Mount(r *chi.Mux, db *sqlx.DB) {
 		keyAuth)
 
 	r.Get("/", zhttp.Wrap(h.home))
+	r.Get("/status", zhttp.Wrap(h.status))
 	user{}.mount(r)
 }
 
@@ -32,4 +33,10 @@ func (h Website) home(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "home.gohtml", struct {
 		Globals
 	}{newGlobals(w, r)})
+}
+
+func (h Website) status(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.JSON(w, map[string]string{
+		"version": cfg.Version,
+	})
 }
