@@ -65,3 +65,9 @@ input, select {
 	background-color: #68fee8;
 	padding: 10px;
 }
+
+form.vertical input + span {
+	display: block;
+	font-size: 14px;
+	text-align: right;
+}

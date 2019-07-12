@@ -7,6 +7,7 @@
 
 https://github.com/SlinSo/goTemplateBenchmark
 
+- Measure bounce rate/time on page?
 
 - better ref filtering/parsing; possible get rid of ref_params?
 - User preferences

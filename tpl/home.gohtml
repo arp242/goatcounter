@@ -1,21 +1,120 @@
 {{template "_top.gohtml" .}}
 
-<h1>GoatCounter Beta</h1>
-<p>GoatCounter helps you understand which pages are visited and where your
-visitors are coming from.</p>
+<h1 style="background-color: #fff;">GoatCounter <sup><i>Beta</i></sup></h1>
 
+<style>
+.iframe {
+	position: relative;
+	width: 100%;
+	height: 0;
+	padding-bottom: 56.25%;
+}
+
+iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+</style>
+
+<div style="display: flex">
+	<div style="text-align: justify">
+		<p style="margin-top: 0;">GoatCounter helps you understand which pages are visited and where
+		your visitors are coming from.</p>
+
+		<p>More text asdsadasd Easy and no-frills. If you've been confused by
+		the myriad of options and flexibility of Google Analystics and Matomo.</p>
+
+		<img src="//{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface"
+			style="border: 1px solid #ddd; padding: 5px">
+	
+		<div class="iframe">
+			<iframe width="448" height="252"
+				src="https://www.youtube-nocookie.com/embed/T6pkhNWD76o"
+				frameborder="0"
+				allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+				allowfullscreen></iframe>
+		</div>
+	</div>
+
+	<div style="margin-left: 1em; width: 22rem;">
+		<form class="vertical" style="
+			display: block;
+			width: 100%;
+			border: 1px solid #999;
+			border-bottom: 0;
+			padding: 1em;
+			padding-top: 0;
+
+			background-color: #f6f3da;
+			background: linear-gradient(#f6f3da 90%, #ebe7c3);
+		">
+			<h2 style="border: none; margin-bottom: 0; text-align: center; margin-left: -10px;">
+				<span style="font-size: 55px; line-height: 1rem; vertical-align: middle; margin-right: 10px;">☞</span>
+				Sign up</h2>
+			<label for="domain">Domain</label>
+			<input type="text" name="domain" id="domain">
+			<span>Your site’s domain, e.g. <em>example.com</em>.</span>
+
+			<label for="code">Code</label>
+			<input type="text" name="code" id="code">
+			<span>You will access your account at https://<em>code</em>.{{.Domain}}.</span>
+			<!--
+			<span>Access your account at https://<em>code</em>.{{.Domain}}.</span>
+			-->
+
+			<label for="email">Email address</label>
+			<input type="email" name="email" id="email">
+			<span>You will need this to sign in.</span>
+
+			<button>Sign up</button>
+		</form>
+
+		<form class="verticalX" style="
+			display: block;
+			width: 100%;
+			border: 1px solid #999;
+			border-top: 0;
+			padding: 1em;
+			background-color: #ebe7c3;
+		">
+			<p style="margin: 0">
+				<h2 style="border: none; margin-bottom: 0; text-align: center; font-size: 1em; display: inline;">Sign in</h2>
+			Already have an account? Sign in at https://<em>code</em>.{{.Domain}}. Here's a shortcut for that:</p>
+
+			<input type="text" name="code" id="code" placeholder="code" style="width: 5em">
+			.{{.Domain}}
+			<button>Go</button>
+		</form>
+	</div>
+</div>
+
+<div style="clear: both"></div>
 <h2>Features</h2>
 <ul>
 	<li>Lightweight; works with screen readers, lynx.</li>
-	<li>Open source.</li>
+	<li>No JavaScript required </li>
+	<li>100% open source; see <a href="https://github.com/zgo/goatcounter">the GitHub page</a>.</li>
 	<li>Self-contained binary.</li>
 	<li>Easy and no-frills.
 
 	If you've been confused by the myriad of options and flexibility of Google
-	Analystics and Matomo.
+	Analytics and Matomo.
 	</li>
-	<li>Doesn't collect data or track users. Probably doesn't beed a GDPR
-	notice.</li>
+
+	<li>Doesn't collect data or track users; doesn't need a GDPR notice
+	(probably).</li>
+
+	<li>Very low footprint: just a 1.6KB JavaScript file (1KB minified &amp; compressed).</li>
+
+	<li>Very fast: can handle TODO requests/second on a $5 Linode VPS with the
+	default settings and SQLite. Can easily scale to much more with PostgreSQL
+	or some tweaking.</li>
 </ul>
+
+<h2>Pricing</h2>
+<p>$2/month per domain.</p>
 
 {{template "_bottom.gohtml" .}}
