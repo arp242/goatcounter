@@ -295,7 +295,7 @@ type HitStats []struct {
 	Stats []HitStat
 }
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
+func (h *HitStats) List(ctx context.Context, start, end time.Time) (error, int) {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 
@@ -310,7 +310,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 		order by count desc
 		limit 500`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return errors.Wrap(err, "HitStats.List")
+		return errors.Wrap(err, "HitStats.List"), 0
 	}
 
 	// Add stats
@@ -331,11 +331,12 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 		order by day asc
 		`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return errors.Wrap(err, "HitStats.List")
+		return errors.Wrap(err, "HitStats.List"), 0
 	}
 
 	// TODO: meh...
 	hh := *h
+	total := 0
 	for i := range hh {
 		hh[i].Stats = make([]HitStat, len(st))
 
@@ -348,6 +349,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 				// Get max.
 				// TODO: should maybe store this?
 				for j := range x {
+					total += x[j][1]
 					if x[j][1] > hh[i].Max {
 						hh[i].Max = x[j][1]
 					}
@@ -360,7 +362,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) error {
 		}
 	}
 
-	return nil
+	return nil, total
 }
 
 // ListRefs lists all references for a path.

@@ -94,7 +94,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	l := zlog.Debug("backend").Module("backend")
 
 	var pages goatcounter.HitStats
-	err := pages.List(r.Context(), start, end)
+	err, total := pages.List(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,8 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		PeriodEnd   time.Time
 		Pages       goatcounter.HitStats
 		Refs        goatcounter.HitStats
-	}{newGlobals(w, r), sr, start, end, pages, refs})
+		Total       int
+	}{newGlobals(w, r), sr, start, end, pages, refs, total})
 	l = l.Since("exec template")
 	return x
 }
