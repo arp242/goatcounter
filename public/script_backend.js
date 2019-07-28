@@ -2,6 +2,9 @@
 	'use strict';
 
 	var init = function() {
+		// Load settings.
+		window.settings = JSON.parse(document.getElementById('settings').innerHTML);
+
 		// Global ajax error handler.
 		$(document).ajaxError(function(e, xhr, settings, err) {
 			var msg = 'Could not load ' + settings.url + ': ' + err;
@@ -51,6 +54,7 @@
 		// TODO(v1): finish.
 		return;
 
+		/*
 		var down, box;
 		$('.chart').on('mousedown', function(e) {
 			down = e;
@@ -79,6 +83,7 @@
 
 			down = null;
 		});
+		*/
 	};
 
 	// Load references as an AJAX request.

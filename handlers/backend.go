@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -22,7 +23,16 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
 		addctx(db, true),
-		zhttp.Headers(nil),
+		zhttp.Headers(http.Header{
+			"Strict-Transport-Security": []string{"max-age=2592000"},
+			"X-Frame-Options":           []string{"SAMEORIGIN"},
+			"X-Content-Type-Options":    []string{"nosniff"},
+			// unsafe-inline on style is needed because we set style="height: .."
+			// on the charts.
+			"Content-Security-Policy": []string{fmt.Sprintf(
+				"default-src %s; connect-src 'self'; style-src %[1]s 'unsafe-inline'",
+				cfg.DomainStatic)},
+		}),
 		zhttp.Log(true, ""))
 
 	// Counter that the script on the website calls.

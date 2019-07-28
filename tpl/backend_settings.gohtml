@@ -7,33 +7,33 @@
 {{else}}
 
 <h2>Settings</h2>
-<div style="max-width: 20em;">
-<form method="post" action="/save" class="vertical">
-	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+<div class="form-wrap">
+	<form method="post" action="/save" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-	<label for="domain">Domain</label>
-	<input type="text" name="domain" id="domain" value="{{.Site.Domain}}">
-	<span>Your site’s domain, e.g. <em>example.com</em>.</span>
+		<label for="domain">Domain</label>
+		<input type="text" name="domain" id="domain" value="{{.Site.Domain}}">
+		<span>Your site’s domain, e.g. <em>example.com</em>.</span>
 
-	<label>{{checkbox .Site.Settings.Public "settings.public"}}
-		Make stats publicly viewable</label>
-	<span>By default you can only view the statistics if you’re signed in. With
-	this enabled anyone can view the statistics at {{.Domain}}.</span>
+		<label>{{checkbox .Site.Settings.Public "settings.public"}}
+			Make stats publicly viewable</label>
+		<span>By default you can only view the statistics if you’re signed in. With
+		this enabled anyone can view the statistics at {{.Domain}}.</span>
 
-	<label for="date_format">Date format</label>
-	<select name="settings.date_format" id="date_format">
-		<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-		<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-		<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-		<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
-		<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
-	</select>
+		<label for="date_format">Date format</label>
+		<select name="settings.date_format" id="date_format">
+			<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+			<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+			<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+			<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
+			<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+		</select>
 
-	<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-		24-hour clock</label>
+		<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
+			24-hour clock</label>
 
-	<button type="submit">Save</button>
-</form>
+		<button type="submit">Save</button>
+	</form>
 </div>
 
 <h2>Site code</h2>
@@ -75,6 +75,12 @@ and/or <code>referrer</code>:
 	// ...
 })();
 </pre>
+
+{{/*
+<h2>Custom domain</h2>
+<p>Add a <code>CNAME</code> record to your GoatCounter domain:</p>
+<pre>stats   IN CNAME    {{.Site.Code}}.{{.Domain}}.</pre>
+*/}}
 
 {{end}}
 {{template "_backend_bottom.gohtml" .}}

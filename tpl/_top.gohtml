@@ -11,23 +11,5 @@
 </head>
 
 <body>
-	{{/*
-	<nav class="center">
-		<a href="/">Index</a>
-		<div style="float: right">
-			{{if .User.ID}}
-				Signed in as {{.User.Name}} |
-				{{if eq .User.Role "a"}}<a href="/admin">Admin</a> |{{end}}
-				<form method="post" action="/user/logout">
-					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-					<button class="link">Sign out</button>
-				</form>
-			{{else}}
-				<a href="/user/new">Sign in</a>
-			{{end}}
-		</div>
-	</nav>
-	*/}}
-
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}

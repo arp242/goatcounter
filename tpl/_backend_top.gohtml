@@ -12,8 +12,8 @@
 </head>
 
 <body>
-	{{- if .User.ID}}
-		<div class="center" style="display: flex; justify-content: space-between;">
+	<nav class="center">
+		{{- if .User.ID}}
 			<div>{{if eq .Path "/settings"}}<strong><a href="/">← Back</a></strong>{{end}}</div>
 			<div>
 				Signed in as {{.User.Name}} |
@@ -23,12 +23,11 @@
 					<button class="link">Sign out</button>
 				</form>
 			</div>
-		</div>
-	{{else if .Site.Settings.Public}}
-		<div class="center" style="text-align: right">
-			Viewing as guest | <a href="/user/new">Sign in</a>
-		</div>
-	{{- end -}}
+		{{else if .Site.Settings.Public}}
+			<div></div>
+			<div>Viewing as guest | <a href="/user/new">Sign in</a></div>
+		{{- end -}}
+	</nav>
 
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}

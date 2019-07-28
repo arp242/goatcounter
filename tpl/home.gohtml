@@ -1,34 +1,16 @@
 {{template "_top.gohtml" .}}
 
-<h1 style="background-color: #fff;">GoatCounter <sup><i>Beta</i></sup></h1>
+<h1>GoatCounter <sup><i>Beta</i></sup></h1>
 
-<style>
-.iframe {
-	position: relative;
-	width: 100%;
-	height: 0;
-	padding-bottom: 56.25%;
-}
-
-iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-</style>
-
-<div style="display: flex">
-	<div style="text-align: justify">
-		<p style="margin-top: 0;">GoatCounter helps you understand which pages are visited and where
+<div class="home-top">
+	<div class="home-top-left">
+		<p>GoatCounter helps you understand which pages are visited and where
 		your visitors are coming from.</p>
 
 		<p>More text asdsadasd Easy and no-frills. If you've been confused by
 		the myriad of options and flexibility of Google Analystics and Matomo.</p>
 
-		<img src="//{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface"
-			style="border: 1px solid #ddd; padding: 5px">
+		<img src="//{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
 	
 		<div class="iframe">
 			<iframe width="448" height="252"
@@ -39,21 +21,9 @@ iframe {
 		</div>
 	</div>
 
-	<div style="margin-left: 1em; width: 22rem;">
-		<form class="vertical" style="
-			display: block;
-			width: 100%;
-			border: 1px solid #999;
-			border-bottom: 0;
-			padding: 1em;
-			padding-top: 0;
-
-			background-color: #f6f3da;
-			background: linear-gradient(#f6f3da 90%, #ebe7c3);
-		">
-			<h2 style="border: none; margin-bottom: 0; text-align: center; margin-left: -10px;">
-				<span style="font-size: 55px; line-height: 1rem; vertical-align: middle; margin-right: 10px;">☞</span>
-				Sign up</h2>
+	<div class="home-top-right">
+		<form class="vertical">
+			<h2><span>☞</span> Sign up</h2>
 			<label for="domain">Domain</label>
 			<input type="text" name="domain" id="domain">
 			<span>Your site’s domain, e.g. <em>example.com</em>.</span>
@@ -72,26 +42,19 @@ iframe {
 			<button>Sign up</button>
 		</form>
 
-		<form class="verticalX" style="
-			display: block;
-			width: 100%;
-			border: 1px solid #999;
-			border-top: 0;
-			padding: 1em;
-			background-color: #ebe7c3;
-		">
-			<p style="margin: 0">
-				<h2 style="border: none; margin-bottom: 0; text-align: center; font-size: 1em; display: inline;">Sign in</h2>
-			Already have an account? Sign in at https://<em>code</em>.{{.Domain}}. Here's a shortcut for that:</p>
-
-			<input type="text" name="code" id="code" placeholder="code" style="width: 5em">
+		<form class="vertical2">
+			<h2 class="inline">Sign in</h2>
+			<p>Already have an account? Sign in at https://<em>code</em>.{{.Domain}}. Here's a shortcut for that:</p>
+			<br>
+			<input type="text" name="code" id="code" placeholder="code">
 			.{{.Domain}}
 			<button>Go</button>
 		</form>
 	</div>
 </div>
 
-<div style="clear: both"></div>
+<div class="clearfix"></div>
+
 <h2>Features</h2>
 <ul>
 	<li>Lightweight; works with screen readers, lynx.</li>

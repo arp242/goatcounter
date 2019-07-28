@@ -6,8 +6,6 @@
 - Measure bounce rate/time on page?
 - Consider using another template engine?
   https://github.com/SlinSo/goTemplateBenchmark
-- Highlight referrers from own domain.
-- Document custom domain
 
 After v1
 --------
@@ -21,3 +19,6 @@ After v1
 - Redo chart with SVG, quite large filesuze now, and the many DOM nodes aren't
   great for render performance either.
   "All time" is already 6.2M (251K compressed)
+- Custom domain support: not hard but needs support for CSP etc. so needs to be
+  a setting.
+- Highlight referrers from own domain.

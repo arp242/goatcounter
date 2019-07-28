@@ -68,3 +68,59 @@ form.vertical label + span {
 	text-align: right;
 	margin-bottom: 1.2em;
 }
+
+/*** Home page design ***/
+
+.clearfix { clear: both; }
+.iframe {
+	position: relative;
+	width: 100%;
+	height: 0;
+	padding-bottom: 56.25%;
+}
+
+iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.home-top {
+	display: flex;
+}
+
+.home-top-left { text-align: justify; }
+.home-top-left p { margin-top: 0; }
+.home-top-left img { border: 1px solid #ddd; padding: 5px; }
+
+.home-top-right { margin-left: 1em; width: 22rem; }
+.home-top-right form {
+	display: block;
+	width: 100%;
+	border: 1px solid #999;
+	padding: 1em;
+}
+
+.home-top-right form.vertical {
+	border-bottom: 0;
+	padding-top: 0;
+	background-color: #f6f3da;
+	background: linear-gradient(#f6f3da 90%, #ebe7c3);
+}
+
+.home-top-right form.vertical2 {
+	border-top: 0;
+	background-color: #ebe7c3;
+}
+
+.home-top-right h2 { border: none; margin-bottom: 0; text-align: center; margin-left: -10px; }
+.home-top-right h2 span { font-size: 55px; line-height: 1rem; vertical-align: middle; margin-right: 10px; }
+.home-top-right h2.inline { font-size: 1em; display: inline; margin-left: 0; }
+
+.home-top-right .vertical2 p { margin: 0; display: inline; }
+
+#code { width: 5em; }
+</style>
+
