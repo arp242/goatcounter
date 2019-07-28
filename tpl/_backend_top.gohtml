@@ -12,7 +12,7 @@
 </head>
 
 <body>
-	{{if .User.ID}}
+	{{- if .User.ID}}
 		<div class="center" style="display: flex; justify-content: space-between;">
 			<div>{{if eq .Path "/settings"}}<strong><a href="/">← Back</a></strong>{{end}}</div>
 			<div>
@@ -28,7 +28,7 @@
 		<div class="center" style="text-align: right">
 			Viewing as guest | <a href="/user/new">Sign in</a>
 		</div>
-	{{end}}
+	{{- end -}}
 
 	<div class="page">
-	{{if .Flash}}<div class="flash">{{.Flash}}</div>{{end}}
+	{{- if .Flash}}<div class="flash">{{.Flash}}</div>{{end -}}

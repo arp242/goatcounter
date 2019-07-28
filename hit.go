@@ -31,6 +31,9 @@ var groups = map[string]string{
 	"hn.premii.com":                      "Hacker News",
 	"com.stefandekanski.hackernews.free": "Hacker News",
 
+	// TODO: http://www.elegantreader.com/item/17358103
+	// https://www.daemonology.net/hn-daily/2019-05.html
+
 	"mail.google.com":       "Gmail",
 	"com.google.android.gm": "Gmail",
 

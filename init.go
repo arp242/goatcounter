@@ -25,13 +25,30 @@ func init() {
 			for _, s := range stat.Days {
 				// Double div so that the title is on the entire column, instead
 				// of just the coloured area.
-				b.WriteString(fmt.Sprintf(`
-					<div title="%[1]s %[2]d:00 – %[2]d:59, %[3]d views">
-						<div style="height: %[4]f%%;"></div>
-					</div>`, stat.Day, s[0], s[1], float64(s[1])/float64(max)/0.01))
+				b.WriteString(fmt.Sprintf(`<div title="%[1]s %[2]d:00 – %[2]d:59, %[3]d views">`+
+					`<div style="height: %.2[4]f%%;"></div></div>`,
+					stat.Day, s[0], s[1], float64(s[1])/float64(max)/0.01))
 			}
 		}
 
+		return template.HTML(b.String())
+	}
+
+	zhttp.FuncMap["line_chart"] = func(stats []HitStat, max int) template.HTML {
+		var b strings.Builder
+		b.WriteString("0,50 ") // so fill works as expected.
+		c := 1
+		for _, stat := range stats {
+			for _, s := range stat.Days {
+				heightPercentage := float64(s[1]) / float64(max) / 0.01
+				heightPixels := heightPercentage / 2
+				// TODO: print 50 and 40.1 instead of 50.00 and 40.10 (saves bytes)
+				b.WriteString(fmt.Sprintf("%d,%.2f ", c, 50-heightPixels))
+				c += 5
+			}
+		}
+
+		b.WriteString(fmt.Sprintf("%d,50 ", c)) // so fill works as expected.
 		return template.HTML(b.String())
 	}
 }
