@@ -3,11 +3,15 @@ package cron
 
 import (
 	"context"
+	"fmt"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jinzhu/now"
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
 	"zgo.at/goatcounter"
 	"zgo.at/zhttp/ctxkey"
@@ -21,8 +25,10 @@ type task struct {
 
 var tasks = []task{
 	{goatcounter.Memstore.Persist, 10 * time.Second},
-	{updateStats, 2 * time.Hour},
+	{updateAllStats, 10 * time.Minute},
 }
+
+var wg sync.WaitGroup
 
 // Run stat updates in the background.
 func Run(db *sqlx.DB) {
@@ -31,8 +37,15 @@ func Run(db *sqlx.DB) {
 
 	for _, t := range tasks {
 		go func(t task) {
+			defer zlog.Recover()
+
 			for {
-				err := t.fun(ctx)
+				var err error
+				func() {
+					wg.Add(1)
+					defer wg.Done()
+					err = t.fun(ctx)
+				}()
 				if err != nil {
 					l.Error(err)
 				}
@@ -42,12 +55,13 @@ func Run(db *sqlx.DB) {
 	}
 }
 
-// Wait for all tasks to finish and run all tasks for consistency on shutdown.
+// Wait for all running tasks to finish and then run all tasks for consistency
+// on shutdown.
 func Wait(db *sqlx.DB) {
 	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
 	l := zlog.Module("cron")
 
-	// TODO(v1): wait for existing.
+	wg.Wait()
 
 	for _, t := range tasks {
 		err := t.fun(ctx)
@@ -63,26 +77,35 @@ type stat struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-// TODO(v1): scope to per-site!
-//
-// TODO(v1): can optimize by not regenerating everything all the time, but adding
-//   where created_at >= "2019-06-01"
-// and/or split in paths to prevent too much locking
-// (already 250ms for just me).
-func updateStats(ctx context.Context) error {
-	db := goatcounter.MustGetDB(ctx)
-
-	{
-		_, err := db.ExecContext(ctx, `delete from hit_stats`)
-		if err != nil {
-			return err
-		}
+func updateAllStats(ctx context.Context) error {
+	var sites goatcounter.Sites
+	err := sites.List(ctx)
+	if err != nil {
+		return err
 	}
 
-	l := zlog.Module("stat")
-	l.Print("start")
+	for _, s := range sites {
+		err := updateSiteStat(ctx, s)
+		if err != nil {
+			return errors.Wrapf(err, "site %d", s.ID)
+		}
+	}
+	return nil
+}
 
-	// Select everything and group by hourly created.
+func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
+	db := goatcounter.MustGetDB(ctx)
+	start := time.Now().Format("2006-01-02")
+	l := zlog.Debug("stat").Module("stat")
+
+	// Select everything since last update.
+	var last string
+	if site.LastStat == nil {
+		last = "1970-01-01"
+	} else {
+		last = site.LastStat.Format("2006-01-02")
+	}
+
 	var stats []stat
 	err := db.SelectContext(ctx, &stats, `
 		select
@@ -90,13 +113,111 @@ func updateStats(ctx context.Context) error {
 			count(path) as count,
 			created_at
 		from hits
+		where
+			site=$1 and
+			created_at >= $2
 		group by path, strftime("%Y-%m-%d %H", created_at)
 		order by path, strftime("%Y-%m-%d %H", created_at)
-	`)
+	`, site.ID, last)
+	if err != nil {
+		fmt.Println("XXX", err)
+		return err
+	}
+
+	l = l.Since(fmt.Sprintf("fetch from SQL for %d since %s",
+		site.ID, last))
+
+	hourly := fillBlanks(stats)
+	l = l.Since("Correct data")
+
+	// No data received.
+	if len(hourly) == 0 {
+		return nil
+	}
+
+	// List all paths we already have so we can update them, rather than
+	// inserting new.
+	var have []string
+	err = db.SelectContext(ctx, &have,
+		`select path from hit_stats where site=$1 and kind="h"`,
+		site.ID)
 	if err != nil {
 		return err
 	}
 
+	insert := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
+		Insert("hit_stats").Columns("site", "kind", "day", "path", "stats")
+	rows := 0
+
+	// Run insert.
+	doInsert := func() error {
+		query, args, err := insert.ToSql()
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		_, err = db.ExecContext(ctx, query, args...)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		insert = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
+			Insert("hit_stats").Columns("site", "kind", "day", "path", "stats")
+		rows = 0
+		return nil
+	}
+
+	for path, dayst := range hourly {
+		exists := false
+		for _, h := range have {
+			if h == path {
+				exists = true
+				break
+			}
+		}
+
+		var del []string
+		for day, st := range dayst {
+			insert = insert.Values(site.ID, "h", day, path, jsonutil.MustMarshal(st))
+			if exists {
+				del = append(del, `"`+day+`"`)
+			}
+			rows++
+		}
+
+		// Delete existing.
+		_, err = db.ExecContext(ctx, `delete from hit_stats where
+			site=$1 and path=$2 and day in (`+strings.Join(del, ",")+`)`,
+			site.ID, path)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		if rows >= 100 {
+			err := doInsert()
+			if err != nil {
+				return errors.WithStack(err)
+			}
+		}
+	}
+
+	if rows > 0 {
+		err = doInsert()
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	l = l.Since("Insert in db")
+
+	// Record last update.
+	_, err = db.ExecContext(ctx,
+		`update sites set last_stat=$1 where id=$2`,
+		start, site.ID)
+	return errors.WithStack(err)
+}
+
+func fillBlanks(stats []stat) map[string]map[string][][]int {
+	// Convert data to easier structure:
 	// {
 	//   "jquery.html": map[string][][]int{
 	//     "2019-06-22": []{
@@ -123,8 +244,6 @@ func updateStats(ctx context.Context) error {
 		hourly[s.Path][day] = append(hourly[s.Path][day],
 			[]int{s.CreatedAt.Hour(), s.Count})
 	}
-
-	l.Print("correct")
 
 	// Fill in blank days.
 	n := now.BeginningOfDay()
@@ -169,49 +288,5 @@ func updateStats(ctx context.Context) error {
 		}
 	}
 
-	var have []string
-	err = db.SelectContext(ctx, &have, `select path from hit_stats where kind="h"`)
-	if err != nil {
-		return err
-	}
-
-	l.Print("insert")
-	squirrel := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-	for path, dayst := range hourly {
-		upd := false
-		for _, h := range have {
-			if h == path {
-				upd = true
-				break
-			}
-		}
-
-		sq := squirrel.Insert("hit_stats").Columns("site", "kind", "day", "path", "stats")
-		//sq := squirrel.Update("hit_stats")
-		//
-
-		for day, st := range dayst {
-			var err error
-			if upd {
-				// TODO(v1)
-				// _, err = db.ExecContext(ctx, `update hit_stats
-				// 		set stats=$1`, jsonutil.MustMarshal(st))
-			} else {
-				sq = sq.Values(1, "h", day, path, jsonutil.MustMarshal(st))
-			}
-			if err != nil {
-				return err
-			}
-		}
-
-		query, args, err := sq.ToSql()
-		if err != nil {
-			return err
-		}
-
-		_, err = db.ExecContext(ctx, query, args...)
-	}
-
-	l.Print("done")
-	return nil
+	return hourly
 }

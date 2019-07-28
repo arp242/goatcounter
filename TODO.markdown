@@ -1,11 +1,13 @@
-- Front page
-- PostgreSQL
-- Cache HTML
-- Remove # from refs? Or put in ref_params?
 - Paginate urls and add link to view more: same for refs
 - Measure bounce rate/time on page?
-- Consider using another template engine?
-  https://github.com/SlinSo/goTemplateBenchmark
+
+- record User-Agent in seperate count db:
+
+user_agent  varchar
+number      int
+
+- Front page
+- PostgreSQL
 
 After v1
 --------
@@ -22,3 +24,8 @@ After v1
 - Custom domain support: not hard but needs support for CSP etc. so needs to be
   a setting.
 - Highlight referrers from own domain.
+- Consider using another template engine?
+  https://github.com/SlinSo/goTemplateBenchmark
+- Remove # from refs? Or put in ref_params?
+- Cache HTML for stats. We don't need to regen data from last month every time
+  since it's always the same.

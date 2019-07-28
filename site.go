@@ -25,6 +25,7 @@ type Site struct {
 	Domain   string       `db:"domain"` // Domain for which the service is (arp242.net)
 	Code     string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
 	Settings SiteSettings `db:"settings"`
+	LastStat *time.Time   `db:"last_stat"`
 
 	State     string     `db:"state"`
 	CreatedAt time.Time  `db:"created_at"`

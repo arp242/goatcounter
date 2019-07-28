@@ -120,3 +120,6 @@ update hits set ref_original=ref, ref="https://lobste.rs"
 
 -- 20190712: site settings
 alter table sites add column settings varchar not null default "{}";
+
+-- 20190728: add last_stat
+alter table sites add column last_stat datetime null;

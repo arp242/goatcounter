@@ -77,8 +77,9 @@ const day = 24 * time.Hour
 func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	// TODO(v1): cache much more aggresively for public displays. Don't care so
 	// much if it's outdated by an hour.
+	//
 	// TODO(v1): also rate limit more for public.
-
+	//
 	// TODO(v1): Use period first as fallback when there's no JS.
 	// p := r.URL.Query().Get("period")
 
@@ -104,6 +105,9 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	l := zlog.Debug("backend").Module("backend")
 
 	var pages goatcounter.HitStats
+	// TODO: for caching, we only need to fetch the last day, and then just
+	// fetch the HTML for the older pages.
+	// We can generate the HTML in the cron job.
 	err, total := pages.List(r.Context(), start, end)
 	if err != nil {
 		return err

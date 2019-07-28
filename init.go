@@ -17,9 +17,6 @@ import (
 
 func init() {
 	// Implemented as function for performance.
-	//
-	// TODO(v1): we can pre-generate this per day; then we just have to fetch the
-	// HTML.
 	zhttp.FuncMap["bar_chart"] = func(stats []HitStat, max int) template.HTML {
 		var b strings.Builder
 		for _, stat := range stats {

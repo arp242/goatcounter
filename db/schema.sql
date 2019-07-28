@@ -16,6 +16,7 @@ create table sites (
 	domain         varchar        not null unique check(length(domain) <= 255),
 	code           varchar        not null unique check(length(domain) <= 50),
 	settings       varchar        not null default "{}",
+	last_stat       datetime      null, -- When stats ran last.
 
 	state          varchar        not null default "a" check(state in ("a", "d")),
 	created_at     datetime       not null default current_timestamp,
