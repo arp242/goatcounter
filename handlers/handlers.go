@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -15,7 +14,7 @@ type Globals struct {
 	User    *goatcounter.User
 	Site    *goatcounter.Site
 	Path    string
-	Flash   template.HTML
+	Flash   *zhttp.FlashMessage
 	Static  string
 	Domain  string
 	Version string

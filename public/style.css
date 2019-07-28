@@ -60,12 +60,6 @@ input, select {
 
 /***** ******/
 
-.flash {
-	text-align: center;
-	background-color: #68fee8;
-	padding: 10px;
-}
-
 form.vertical input + span,
 form.vertical select + span,
 form.vertical label + span {

@@ -77,7 +77,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		var err error
 		start, err = time.Parse("2006-01-02", s)
 		if err != nil {
-			zhttp.Flash(w, "start date: %s", err.Error())
+			zhttp.FlashError(w, "start date: %s", err.Error())
 			start = time.Now().Add(-7 * day)
 		}
 	}
@@ -86,7 +86,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		var err error
 		end, err = time.Parse("2006-01-02", s)
 		if err != nil {
-			zhttp.Flash(w, "end date: %s", err.Error())
+			zhttp.FlashError(w, "end date: %s", err.Error())
 			end = time.Now()
 		}
 	}
@@ -165,7 +165,7 @@ func (h Backend) save(w http.ResponseWriter, r *http.Request) error {
 
 	err = site.Update(r.Context())
 	if err != nil {
-		zhttp.Flash(w, "%v", err)
+		zhttp.FlashError(w, "%v", err)
 	} else {
 		zhttp.Flash(w, "Saved!")
 	}

@@ -6,6 +6,22 @@
 	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
 }
 
+.flash {
+	text-align: center;
+	padding: 10px;
+	border-radius: 2px;
+	border: 2px solid #fff;
+	margin-bottom: 1em;
+}
+.flash-i {
+	background-color: #c9f0ff;
+	border-color: #a1a1ff;
+}
+.flash-e {
+	background-color: #fff0f0;
+	border-color: #f00;
+}
+
 .count-list td {
 	vertical-align: top;
 }

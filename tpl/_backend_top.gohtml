@@ -31,4 +31,4 @@
 	{{- end -}}
 
 	<div class="page">
-	{{- if .Flash}}<div class="flash">{{.Flash}}</div>{{end -}}
+	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}

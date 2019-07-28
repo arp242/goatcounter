@@ -7,7 +7,7 @@
 - Consider using another template engine?
   https://github.com/SlinSo/goTemplateBenchmark
 - Highlight referrers from own domain.
-- flash: colour errors different
+- Document custom domain
 
 After v1
 --------
