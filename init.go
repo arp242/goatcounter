@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"math"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -26,8 +27,8 @@ func init() {
 				// Double div so that the title is on the entire column, instead
 				// of just the coloured area.
 				b.WriteString(fmt.Sprintf(`<div title="%[1]s %[2]d:00 – %[2]d:59, %[3]d views">`+
-					`<div style="height: %.2[4]f%%;"></div></div>`,
-					stat.Day, s[0], s[1], float64(s[1])/float64(max)/0.01))
+					`<div style="height: %.0[4]f%%;"></div></div>`,
+					stat.Day, s[0], s[1], math.Round(float64(s[1])/float64(max)/0.01)))
 			}
 		}
 
