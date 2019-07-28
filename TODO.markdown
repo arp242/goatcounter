@@ -3,7 +3,7 @@
 - Cache HTML
 - Remove # from refs? Or put in ref_params?
 - signin from multiple browsers/locations?
-- Limit urls and add link to view more: same for refs
+- Paginate urls and add link to view more: same for refs
 - Redo chart with SVG, far too large now. Make line chart maybe?
 - Measure bounce rate/time on page?
 - Consider using another template engine?

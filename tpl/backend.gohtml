@@ -6,23 +6,25 @@
 	{{template "_backend_signin.gohtml" .}}
 {{else}}
 
-<form>
-	<input type="hidden" name="showrefs" value="{{.ShowRefs}}">	
-	<input type="text" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-	<input type="text" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
-	<button type="submit">Go</button>
-	<br>
-	<span class="period-select">
-		select last
-		<button class="link" name="period" value="day">day</button>,
-		<button class="link" name="period" value="week">week</button>,
-		<button class="link" name="period" value="month">month</button>,
-		<button class="link" name="period" value="quarter">quarter</button>,
-		<button class="link" name="period" value="half-year">half year</button>,
-		<button class="link" name="period" value="year">year</button>,
-		<button class="link" name="period" value="all">all time</button>.
-	</span>
-</form>
+<div class="count-list-opt">
+	<form>
+		<span class="period-select">
+			Select last
+			<button class="link" name="period" value="day">day</button>,
+			<button class="link" name="period" value="week">week</button>,
+			<button class="link" name="period" value="month">month</button>,
+			<button class="link" name="period" value="quarter">quarter</button>,
+			<button class="link" name="period" value="half-year">half year</button>,
+			<button class="link" name="period" value="year">year</button>,
+			<button class="link" name="period" value="all">all time</button>.
+		</span><br>
+
+		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
+		<input type="text" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+		<input type="text" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+		<button type="submit">Go</button>
+	</form>
+</div>
 
 <h2>Pages <sup style="font-size: .9rem; font-weight: normal">(total {{nformat .Total}} hits)</sup></h2>
 

@@ -41,13 +41,9 @@
 
 			$('#period-start').val(format_date(start));
 			$('#period-end').val(format_date(new Date()));
-		})
 
-		// TODO(v1): still selects text in Firefox...
-		$('.period-select').on('dblclick', 'button', function(e) {
-			e.preventDefault();
 			$(this).closest('form').trigger('submit');
-		});
+		})
 	};
 
 	// Select a period by dragging the mouse over a timeframe.

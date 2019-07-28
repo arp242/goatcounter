@@ -58,9 +58,21 @@
 	border-bottom: 4px solid yellow;
 }
 
+.count-list-opt {
+	padding: 1em;
+	background-color: #f8f8d9;
+	border: 1px solid #dede89;
+	border-radius: 2px;
+}
+
 .period-select .active {
 	font-weight: bold;
 	text-decoration: underline;
+}
+
+.count-list-opt input {
+	width: 8em;
+	text-align: center;
 }
 
 .chart {
