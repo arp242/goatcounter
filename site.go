@@ -35,7 +35,7 @@ type Site struct {
 
 type SiteSettings struct {
 	Public          bool   `json:"public"`
-	TimeFormat      string `json:"time_format"`
+	DateFormat      string `json:"date_format"`
 	TwentyFourHours bool   `json:"twenty_four_hours"`
 }
 
@@ -53,8 +53,8 @@ func (s *Site) Defaults(ctx context.Context) {
 		s.State = StateActive
 	}
 
-	if s.Settings.TimeFormat == "" {
-		s.Settings.TimeFormat = "2006-01-02"
+	if s.Settings.DateFormat == "" {
+		s.Settings.DateFormat = "2006-01-02"
 	}
 
 	if s.CreatedAt.IsZero() {

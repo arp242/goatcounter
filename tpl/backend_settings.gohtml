@@ -17,16 +17,17 @@
 
 	<label>{{checkbox .Site.Settings.Public "settings.public"}}
 		Make stats publicly viewable</label>
+	<span>By default you can only view the statistics if you’re signed in. With
+	this enabled anyone can view the statistics at {{.Domain}}.</span>
 
-	<label for="time_format">Time format</label>
-	<select name="settings.time_format" id="time_format">
-		<option {{option_value .Site.Settings.TimeFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-		<option {{option_value .Site.Settings.TimeFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-		<option {{option_value .Site.Settings.TimeFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-		<option {{option_value .Site.Settings.TimeFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
-		<option {{option_value .Site.Settings.TimeFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+	<label for="date_format">Date format</label>
+	<select name="settings.date_format" id="date_format">
+		<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+		<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+		<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+		<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
+		<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
 	</select>
-	<span>Display time format; examples formatted as January 2nd, 2006.</span>
 
 	<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
 		24-hour clock</label>

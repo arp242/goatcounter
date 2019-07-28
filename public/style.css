@@ -67,8 +67,10 @@ input, select {
 }
 
 form.vertical input + span,
-form.vertical select + span {
+form.vertical select + span,
+form.vertical label + span {
 	display: block;
 	font-size: 14px;
 	text-align: right;
+	margin-bottom: 1.2em;
 }

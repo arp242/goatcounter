@@ -38,7 +38,7 @@ type User struct {
 }
 
 type UserPreferences struct {
-	TimeFormat string `json:"time_format"`
+	DateFormat string `json:"date_format"`
 }
 
 func (up UserPreferences) String() string { return string(jsonutil.MustMarshal(up)) }

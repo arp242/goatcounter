@@ -6,6 +6,8 @@
 - Measure bounce rate/time on page?
 - Consider using another template engine?
   https://github.com/SlinSo/goTemplateBenchmark
+- Highlight referrers from own domain.
+- flash: colour errors different
 
 After v1
 --------

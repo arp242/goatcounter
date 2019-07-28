@@ -39,8 +39,8 @@
 					break;
 			}
 
-			$('#period-start').val(format_date(start));
-			$('#period-end').val(format_date(new Date()));
+			$('#period-start').val(format_date_ymd(start));
+			$('#period-end').val(format_date_ymd(new Date()));
 
 			$(this).closest('form').trigger('submit');
 		})
@@ -133,33 +133,114 @@
 			else
 				var t = $(e.target);
 
-			// TODO(v1): reformat date and time according to site settings.
+			// Reformat date and time according to site settings. This won't
+			// work for non-JS users, but doing this on the template site would
+			// make caching harder. It's a fair compromise.
+			var title = t.attr('title');
+			if (!title)
+				title = t.attr('data-title')
+			else {
+				// 2019-07-22 22:00 – 22:59, 5 views
+				// 2019-07-24 7:00 – 7:59, 4 views
+				var split = title.split(' ');
+				var date  = split[0],
+					start = split[1],
+					end   = split[3].replace(',', ''),
+					views = ', ' + split[4] + ' ' + split[5];
+
+				if (!window.settings.twenty_four_hours) {
+					start = un24(start);
+					end = un24(end);
+				}
+
+				if (window.settings.date_format !== '2006-01-02') {
+					var d = new Date(),
+						ds = date.split('-');
+					d.setFullYear(ds[0]);
+					d.setMonth(parseInt(ds[1], 10) - 1);
+					d.setDate(ds[2]);
+					date = format_date(d);
+				}
+
+				title = date + ' ' + start + ' – ' + end + views;
+			}
+
 			var p = $('<div id="popup"></div>').
-				html(t.attr('title') || t.attr('data-title')).
+				html(title).
 				css({
-					// TODO(v1): move to left of cursor if there isn't enough space.
 					left: (e.pageX + 8) + 'px',
 					top: (t.parent().position().top) + 'px',
 				});
 
-			t.attr('data-title', t.attr('title'));
+			t.attr('data-title', title);
 			t.removeAttr('title');
 
 			$('#popup').remove();
 			$(document.body).append(p);
+
+			// Move to left of cursor if there isn't enough space.
+			if (p.height() > 30)
+				p.css('left', 0).css('left', (e.pageX - p.width() - 8) + 'px');
 		});
 	};
 
-	// Format a date as year-month-day
-	// TODO: user config
-	var format_date = function(date) {
-		var m = date.getMonth() + 1;
-		var d = date.getDate();
+	// Convert "23:45" to "11:45 pm".
+	var un24 = function(t) {
+		var hour = parseInt(t.substr(0, 2), 10);
+		if (hour < 12)
+			return t + ' am';
+		else if (hour == 12)
+			return t + ' pm';
+		else
+			return (hour - 12) + t.substr(2) + ' pm';
+	};
 
+	var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+		          "Sep", "Oct", "Nov", "Dec"];
+	var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+	// Format a date according to user configuration.
+	var format_date = function(date) {
+		var m = date.getMonth() + 1,
+			d = date.getDate(),
+			items = window.settings.date_format.split(/[-/\s]/),
+			new_date = [];
+
+		// Simple implementation of Go's time format. We only offer the current
+		// formatters, so that's all we support:
+		//   "2006-01-02"
+		//   "02-01-2006"
+		//   "01/02/06"
+		//   "2 Jan 06"
+		//   "Mon Jan 2 2006"
+		for (var i = 0; i < items.length; i++) {
+			switch (items[i]) {
+				case '2006': new_date.push(date.getFullYear());                  break;
+				case '06':   new_date.push((date.getFullYear() + '').substr(2)); break;
+				case '01':   new_date.push(m >= 10 ? m : ('0' + m));             break;
+				case '02':   new_date.push(d >= 10 ? d : ('0' + d));             break;
+				case '2':    new_date.push(d);                                   break;
+				case 'Jan':  new_date.push(months[date.getMonth()]);             break;
+				case 'Mon':  new_date.push(days[date.getDay()]);                 break;
+			}
+		}
+
+		var joiner = '-';
+		if (window.settings.date_format.indexOf('/') > -1)
+			joiner = '/';
+		else if (window.settings.date_format.indexOf(' ') > -1)
+			joiner = ' ';
+		return new_date.join(joiner);
+	};
+
+	// Format a date at year-month-day.
+	var format_date_ymd = function(date) {
+		var m = date.getMonth() + 1,
+			d = date.getDate();
 		return date.getFullYear() + '-' +
 			(m >= 10 ? m : ('0' + m)) + '-' +
 			(d >= 10 ? d : ('0' + d));
-	};
+	}
 
 	$(document).ready(init);
 })();
