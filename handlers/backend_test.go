@@ -61,7 +61,7 @@ func TestHit(t *testing.T) {
 
 	zhttp.TplPath = "../tpl"
 	zhttp.InitTpl(nil)
-	zlog.Config.Output = func(zlog.Log) {} // Don't care about logs; don't spam.
+	zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
