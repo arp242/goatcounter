@@ -231,6 +231,7 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
+	// TODO: not doing this as it's not set from memstore.
 	// site := MustGetSite(ctx)
 	// h.Site = site.ID
 
@@ -270,6 +271,7 @@ func (h *Hit) Insert(ctx context.Context) error {
 	}
 
 	// Ignore spammers.
+	// TODO: move to handler?
 	if _, ok := blacklist[h.refURL.Host]; ok {
 		return nil
 	}
@@ -281,8 +283,8 @@ func (h *Hit) Insert(ctx context.Context) error {
 	}
 
 	db := MustGetDB(ctx)
-	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params, ref_original)
-		values ($1, $2, $3, $4, $5)`, h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal)
+	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params, ref_original, created_at)
+		values ($1, $2, $3, $4, $5, $6)`, h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, h.CreatedAt)
 	return errors.Wrap(err, "Site.Insert")
 }
 

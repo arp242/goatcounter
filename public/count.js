@@ -20,6 +20,9 @@
 		};
 	};
 
+	// Convert parameters to urlencoded string, starting with a ?
+	//
+	// e.g. ?foo=bar&a=b
 	var to_params = function(obj) {
 		var p = [];
 		for (var k in obj)
@@ -27,6 +30,7 @@
 		return '?' + p.join('&');
 	};
 
+	// Count a hit.
 	var count = function() {
 		// Don't track pages fetched with the browser's prefetch algorithm.
 		// See https://github.com/usefathom/fathom/issues/13
@@ -34,6 +38,7 @@
 			return;
 		}
 
+		// Add image to send request.
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
@@ -42,15 +47,14 @@
 			document.body.removeChild(img)
 		}, false);
 
-		// Remove the image if the onload event is never fired.
+		// Remove the image after 3s if the onload event is never fired.
 		window.setTimeout(function() {
 			if (!img.parentNode)
 				return;
 			img.src = ''; 
 			document.body.removeChild(img)
-		}, 1500);
+		}, 3000);
 
-		console.log('append');
 		document.body.appendChild(img);  
 	};
 

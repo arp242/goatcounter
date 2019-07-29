@@ -26,8 +26,7 @@
 	</form>
 </div>
 
-<h2>Pages <sup>(total {{nformat .Total}} hits)</sup></h2>
-
+<h2>Pages <sup>(total {{nformat .TotalHits}} hits)</sup></h2>
 <table class="count-list">
 <tbody>
 	{{range $h := .Pages}}
@@ -54,6 +53,18 @@
             </td>
 		</tr>
 	{{- end}}
+</tbody>
+</table>
+
+<h2>Browsers</h2>
+<table>
+<tbody>
+	{{range $b := .Browsers}}
+		<tr>
+			<td>{{$b.Count}}</td>
+			<td>{{$b.Browser}}</td>
+		</tr>
+	{{end}}
 </tbody>
 </table>
 

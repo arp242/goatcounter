@@ -84,3 +84,14 @@ create table hit_stats (
 	--unique(site, kind, day, path)
 	--foreign key (site) references sites(id)
 );
+
+drop table if exists browser_stats;
+create table browser_stats (
+	site           integer        not null check(site > 0),
+
+	browser        varchar        not null,
+	created_at     datetime       not null default current_timestamp
+
+	-- no fkey for performance
+	--foreign key (site) references sites(id)
+);

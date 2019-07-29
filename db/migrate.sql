@@ -123,3 +123,11 @@ alter table sites add column settings varchar not null default "{}";
 
 -- 20190728: add last_stat
 alter table sites add column last_stat datetime null;
+
+-- 20190729: record browser stats.
+create table browser_stats (
+	site           integer        not null check(site > 0),
+
+	browser        varchar        not null,
+	created_at     datetime       not null default current_timestamp
+);

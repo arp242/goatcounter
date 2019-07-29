@@ -9,14 +9,16 @@ import (
 
 type ms struct {
 	sync.RWMutex
-	hits []Hit
+	hits     []Hit
+	browsers []BrowserStat
 }
 
 var Memstore = ms{}
 
-func (m *ms) Append(hit Hit) {
+func (m *ms) Append(hit Hit, browser BrowserStat) {
 	m.Lock()
 	m.hits = append(m.hits, hit)
+	m.browsers = append(m.browsers, browser)
 	m.Unlock()
 }
 
@@ -29,18 +31,27 @@ func (m *ms) Persist(ctx context.Context) error {
 
 	m.Lock()
 	hits := make([]Hit, len(m.hits))
+	browsers := make([]BrowserStat, len(m.browsers))
 	copy(hits, m.hits)
+	copy(browsers, m.browsers)
 	m.hits = []Hit{}
+	m.browsers = []BrowserStat{}
 	m.Unlock()
 
-	l.Printf("persisting %d", len(hits))
+	l.Printf("persisting %d hits and %d User-Agents", len(hits), len(browsers))
 	for _, h := range hits {
 		err := h.Insert(ctx)
 		if err != nil {
-			l.Error(err)
+			l.Errorf("inserting hit %v: %s", h, err)
 		}
 	}
-	l.Print("done")
+
+	for _, b := range browsers {
+		err := b.Insert(ctx)
+		if err != nil {
+			l.Errorf("inserting browser %v: %s", b, err)
+		}
+	}
 
 	return nil
 }

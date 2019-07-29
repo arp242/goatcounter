@@ -73,9 +73,16 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-
 	hit.Site = goatcounter.MustGetSite(r.Context()).ID
-	goatcounter.Memstore.Append(hit)
+	hit.CreatedAt = time.Now().UTC()
+
+	browser := goatcounter.BrowserStat{
+		Site:      hit.Site,
+		Browser:   r.UserAgent(),
+		CreatedAt: hit.CreatedAt,
+	}
+
+	goatcounter.Memstore.Append(hit, browser)
 
 	return zhttp.String(w, "")
 }
@@ -83,7 +90,7 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 const day = 24 * time.Hour
 
 func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
-	// TODO(v1): cache much more aggresively for public displays. Don't care so
+	// TODO(v1): cache much more aggressively for public displays. Don't care so
 	// much if it's outdated by an hour.
 	//
 	// TODO(v1): also rate limit more for public.
@@ -121,6 +128,12 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	var browsers goatcounter.BrowserStats
+	err = browsers.List(r.Context(), start, end)
+	if err != nil {
+		return err
+	}
+
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
 	var refs goatcounter.HitStats
@@ -139,8 +152,9 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		PeriodEnd   time.Time
 		Pages       goatcounter.HitStats
 		Refs        goatcounter.HitStats
-		Total       int
-	}{newGlobals(w, r), sr, start, end, pages, refs, total})
+		TotalHits   int
+		Browsers    goatcounter.BrowserStats
+	}{newGlobals(w, r), sr, start, end, pages, refs, total, browsers})
 	l = l.Since("exec template")
 	return x
 }
