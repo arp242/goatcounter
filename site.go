@@ -46,6 +46,11 @@ func (ss SiteSettings) String() string { return string(jsonutil.MustMarshal(ss))
 func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
 
 // Scan converts the data returned from the DB into the struct.
+//
+// TODO: go-sqlite 1.11.0 regression:
+//   10:57:14 panic: ERROR: interface conversion: interface {} is []uint8, not string
+//   10:57:53 panic: ERROR: interface conversion: interface {} is string, not []uint8
+// Not sure if bug of if we're doing something wrong here
 func (ss *SiteSettings) Scan(v interface{}) error { return json.Unmarshal(v.([]byte), ss) }
 
 // Defaults sets fields to default values, unless they're already set.

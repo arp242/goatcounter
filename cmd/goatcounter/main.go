@@ -15,6 +15,7 @@ import (
 	"github.com/teamwork/utils/errorutil"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zlog_sentry"
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
@@ -46,24 +47,7 @@ func main() {
 
 	// Log to Sentry.
 	if cfg.Sentry != "" {
-		err := raven.SetDSN(cfg.Sentry)
-		must(errors.Wrap(err, "raven.SetDSN"))
-
-		raven.SetRelease(version)
-
-		zlog.Config.Output = func(l zlog.Log) {
-			if l.Err == nil {
-				fmt.Fprintln(os.Stdout, zlog.Config.Format(l))
-				return
-			}
-			fmt.Fprintln(os.Stderr, zlog.Config.Format(l))
-
-			data := make(map[string]string)
-			for k, v := range l.Data {
-				data[k] = fmt.Sprintf("%v", v)
-			}
-			raven.CaptureError(l.Err, data)
-		}
+		zlog.Config.Outputs = append(zlog.Config.Outputs, zlog_sentry.Report(cfg.Sentry, version))
 	}
 
 	// Reload on changes.

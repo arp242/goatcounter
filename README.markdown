@@ -4,8 +4,11 @@ There are two ways to run this: as **hosted service for $3/month**, or run it
 on your own server. Check out [https://GoatCounter.com](https://GoatCounter.com)
 for the hosted service and user documentation.
 
+
 Running your own
 ----------------
+
+You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
 
 1. Install it with `go get zgo.at/goatcounter/cmd/goatcounter`. This will put a
    self-contained binary at `~/go/goatcounter`.
