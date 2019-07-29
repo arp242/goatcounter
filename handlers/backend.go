@@ -1,13 +1,17 @@
 package handlers
 
 import (
+	"encoding/csv"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
+	"github.com/teamwork/guru"
+	"github.com/teamwork/utils/httputilx/header"
 	"zgo.at/goatcounter"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -52,6 +56,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	a.Get("/refs", zhttp.Wrap(h.refs))
 	a.Get("/settings", zhttp.Wrap(h.settings))
 	a.Post("/save", zhttp.Wrap(h.save))
+	a.Get("/export/{file}", zhttp.Wrap(h.export))
 
 	user{}.mount(a)
 }
@@ -76,7 +81,7 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 	hit.Site = goatcounter.MustGetSite(r.Context()).ID
 	hit.CreatedAt = time.Now().UTC()
 
-	browser := goatcounter.BrowserStat{
+	browser := goatcounter.Browser{
 		Site:      hit.Site,
 		Browser:   r.UserAgent(),
 		CreatedAt: hit.CreatedAt,
@@ -207,4 +212,57 @@ func (h Backend) save(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.SeeOther(w, "/settings")
+}
+
+func (h Backend) export(w http.ResponseWriter, r *http.Request) error {
+	file := strings.ToLower(chi.URLParam(r, "file"))
+
+	w.Header().Set("Content-Type", "text/csv")
+	err := header.SetContentDisposition(w.Header(), header.DispositionArgs{
+		Type:     header.TypeAttachment,
+		Filename: file,
+	})
+	if err != nil {
+		return err
+	}
+
+	c := csv.NewWriter(w)
+	switch file {
+	default:
+		return guru.Errorf(400, "unknown export file: %#v", file)
+
+	case "hits.csv":
+		var hits goatcounter.Hits
+		err := hits.List(r.Context())
+		if err != nil {
+			return err
+		}
+		c.Write([]string{"Path", "Referrer (sanitized)", "Referrer query params", "Original Referrer", "Date (RFC 3339/ISO 8601)"})
+		for _, hit := range hits {
+			rp := ""
+			if hit.RefParams != nil {
+				rp = *hit.RefParams
+			}
+			ro := ""
+			if hit.RefOriginal != nil {
+				ro = *hit.RefOriginal
+			}
+			c.Write([]string{hit.Path, hit.Ref, rp, ro, hit.CreatedAt.Format(time.RFC3339)})
+		}
+
+	case "browsers.csv":
+		var browsers goatcounter.Browsers
+		err := browsers.List(r.Context())
+		if err != nil {
+			return err
+		}
+
+		c.Write([]string{"User-Agent string", "Date (RFC 3339/ISO 8601)"})
+		for _, browser := range browsers {
+			c.Write([]string{browser.Browser, browser.CreatedAt.Format(time.RFC3339)})
+		}
+	}
+
+	c.Flush()
+	return c.Error()
 }

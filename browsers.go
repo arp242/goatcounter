@@ -8,14 +8,14 @@ import (
 	"github.com/teamwork/validate"
 )
 
-type BrowserStat struct {
+type Browser struct {
 	Site      int64     `db:"site"`
 	Browser   string    `db:"browser"`
 	CreatedAt time.Time `db:"created_at"`
 }
 
 // Defaults sets fields to default values, unless they're already set.
-func (b *BrowserStat) Defaults(ctx context.Context) {
+func (b *Browser) Defaults(ctx context.Context) {
 	// TODO: not doing this as it's not set from memstore.
 	// site := MustGetSite(ctx)
 	// b.Site = site.ID
@@ -26,7 +26,7 @@ func (b *BrowserStat) Defaults(ctx context.Context) {
 }
 
 // Validate the object.
-func (b *BrowserStat) Validate(ctx context.Context) error {
+func (b *Browser) Validate(ctx context.Context) error {
 	v := validate.New()
 
 	v.Required("site", b.Site)
@@ -36,7 +36,7 @@ func (b *BrowserStat) Validate(ctx context.Context) error {
 }
 
 // Insert a new row.
-func (b *BrowserStat) Insert(ctx context.Context) error {
+func (b *Browser) Insert(ctx context.Context) error {
 	b.Defaults(ctx)
 	err := b.Validate(ctx)
 	if err != nil {
@@ -46,7 +46,15 @@ func (b *BrowserStat) Insert(ctx context.Context) error {
 	db := MustGetDB(ctx)
 	_, err = db.ExecContext(ctx, `insert into browser_stats (site, browser, created_at)
 		values ($1, $2, $3)`, b.Site, b.Browser, b.CreatedAt)
-	return errors.Wrap(err, "BrowserStat.Insert")
+	return errors.Wrap(err, "Browser.Insert")
+}
+
+type Browsers []Browser
+
+func (b *Browsers) List(ctx context.Context) error {
+	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, b,
+		`select * from browser_stats where site=$1`, MustGetSite(ctx).ID),
+		"Browsers.List")
 }
 
 type BrowserStats []struct {

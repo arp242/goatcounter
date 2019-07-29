@@ -10,12 +10,12 @@ import (
 type ms struct {
 	sync.RWMutex
 	hits     []Hit
-	browsers []BrowserStat
+	browsers []Browser
 }
 
 var Memstore = ms{}
 
-func (m *ms) Append(hit Hit, browser BrowserStat) {
+func (m *ms) Append(hit Hit, browser Browser) {
 	m.Lock()
 	m.hits = append(m.hits, hit)
 	m.browsers = append(m.browsers, browser)
@@ -31,11 +31,11 @@ func (m *ms) Persist(ctx context.Context) error {
 
 	m.Lock()
 	hits := make([]Hit, len(m.hits))
-	browsers := make([]BrowserStat, len(m.browsers))
+	browsers := make([]Browser, len(m.browsers))
 	copy(hits, m.hits)
 	copy(browsers, m.browsers)
 	m.hits = []Hit{}
-	m.browsers = []BrowserStat{}
+	m.browsers = []Browser{}
 	m.Unlock()
 
 	l.Printf("persisting %d hits and %d User-Agents", len(hits), len(browsers))

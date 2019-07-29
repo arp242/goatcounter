@@ -1,8 +1,9 @@
+- Export data
+
 - Paginate urls and add link to view more: same for refs
-- Measure bounce rate/time on page?
+- Better mobile.
 
 - PostgreSQL
-- Export data
 - Front page
 
 After v1
@@ -27,9 +28,10 @@ After v1
   since it's always the same.
 - Don't use double-quoted literals in SQL: https://sqlite.org/quirks.html#dblquote
 - Record unique hits, we can do this by setting a short-lived cookie of 30 mins
-  or so (this is what Fathom does).
+  or so (this is what Fathom does). This would also enable reporting bounce rate.
 - Browser stats could be better. Right now it's just a quick list (mostly for
   myself so I can see if people are using bots and such). We already import the
   github.com/mssola/user_agent package.
+- Measure average time on page?
 - The current day is always shown in full on the stats, so if it's 04:00 it'll
   show 20 more hours for the rest of the day.

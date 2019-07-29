@@ -82,5 +82,14 @@ and/or <code>referrer</code>:
 <pre>stats   IN CNAME    {{.Site.Code}}.{{.Domain}}.</pre>
 */}}
 
+<h2>Export</h2>
+<p>Export all data as CSV, for backups, or if you want to import somewhere else.
+	The first line is a header with the field descriptions.</p>
+
+<ul>
+	<li><a href="/export/hits.csv">hits.csv</a></li>
+	<li><a href="/export/browsers.csv">browsers.csv</a></li>
+</ul>
+
 {{end}}
 {{template "_backend_bottom.gohtml" .}}

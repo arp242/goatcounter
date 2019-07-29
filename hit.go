@@ -288,6 +288,14 @@ func (h *Hit) Insert(ctx context.Context) error {
 	return errors.Wrap(err, "Site.Insert")
 }
 
+type Hits []Hit
+
+func (h *Hits) List(ctx context.Context) error {
+	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, h,
+		`select * from hits where site=$1`, MustGetSite(ctx).ID),
+		"Hits.List")
+}
+
 type HitStat struct {
 	Day  string
 	Days [][]int
