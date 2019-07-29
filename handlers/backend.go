@@ -35,6 +35,14 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		}),
 		zhttp.Log(true, ""))
 
+	// Don't allow any indexing of the backend interface by search engines.
+	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Cache-Control", "public, max-age=31536000")
+		w.WriteHeader(200)
+		w.Write([]byte("User-agent: *\nDisallow: /\n"))
+	})
+
 	// Counter that the script on the website calls.
 	r.Get("/count", zhttp.Wrap(h.count))
 
