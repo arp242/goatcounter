@@ -16,9 +16,9 @@
 		<span>Your site’s domain, e.g. <em>example.com</em>.</span>
 
 		<label>{{checkbox .Site.Settings.Public "settings.public"}}
-			Make stats publicly viewable</label>
-		<span>By default you can only view the statistics if you’re signed in. With
-		this enabled anyone can view the statistics at {{.Domain}}.</span>
+			Make statistics publicly viewable</label>
+		<span>By default you can only view the statistics if you’re signed in.
+			With this enabled anyone can view the statistics.</span>
 
 		<label for="date_format">Date format</label>
 		<select name="settings.date_format" id="date_format">
@@ -37,30 +37,14 @@
 </div>
 
 <h2>Site code</h2>
-<p>Add to your <code>&lt;head&gt;</code> tag:</p>
-<pre>
-&lt;script&gt;
-	(function() {
-		if (window.location.hostname.indexOf('localhost') &gt; -1) {
-			return;
-		}
+<p>Add in your site’s <code>&lt;head&gt;</code> tag:</p>
+<pre>{{template "_backend_sitecode.gohtml" .}}</pre>
 
-		var script = document.createElement('script');
-		window.counter = 'https://{{.Site.Code}}.{{.Domain}}/count'
-		script.async = 1;
-		script.src = '/{{.Static}}/count.js';
-
-		var ins = document.getElementsByTagName('script')[0];
-		ins.parentNode.insertBefore(script, ins)
-	})();
-&lt;/script&gt;
-</pre>
-
-<p><code>window.counter</code> is the endpoint which records the path and referer.</p>
+<p><code>window.counter</code> is the endpoint which records the path and
+referrer.</p>
 
 <p><code>window.vars</code> is an optional setting to set the <code>path</code>
-and/or <code>referrer</code>:
-</p>
+and/or <code>referrer</code>; for example:</p>
 
 <pre>
 (function() {
@@ -68,9 +52,6 @@ and/or <code>referrer</code>:
 		return;
 	}
 
-	window.vars = {
-		path: my_own_function_to_get_the_path(),
-	};
 
 	// ...
 })();

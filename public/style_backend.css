@@ -30,6 +30,7 @@ h2 sup {
 	border: 2px solid #fff;
 	margin-bottom: 1em;
 }
+.flash pre { text-align: left; margin: 0 auto; display: inline-block; }
 .flash-i {
 	background-color: #c9f0ff;
 	border-color: #a1a1ff;
@@ -186,4 +187,10 @@ h2 sup {
 
 	min-width: 4px;
 	min-height: 4px;
+}
+
+.show-mobile { display: none; }
+@media (max-width: 55rem) {
+	.hide-mobile { display: none; }
+	.show-mobile { display: block; }
 }

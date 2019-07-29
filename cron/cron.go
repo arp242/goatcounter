@@ -211,7 +211,7 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 
 	// Record last update.
 	_, err = db.ExecContext(ctx,
-		`update sites set last_stat=$1 where id=$2`,
+		`update sites set last_stat=$1, received_data=1 where id=$2`,
 		start, site.ID)
 	return errors.WithStack(err)
 }

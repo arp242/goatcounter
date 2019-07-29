@@ -22,10 +22,11 @@ var reserved = []string{
 type Site struct {
 	ID int64 `db:"id"`
 
-	Domain   string       `db:"domain"` // Domain for which the service is (arp242.net)
-	Code     string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
-	Settings SiteSettings `db:"settings"`
-	LastStat *time.Time   `db:"last_stat"`
+	Domain       string       `db:"domain"` // Domain for which the service is (arp242.net)
+	Code         string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
+	Settings     SiteSettings `db:"settings"`
+	LastStat     *time.Time   `db:"last_stat"`
+	ReceivedData bool         `db:"received_data"`
 
 	State     string     `db:"state"`
 	CreatedAt time.Time  `db:"created_at"`

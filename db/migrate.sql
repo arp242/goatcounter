@@ -131,3 +131,6 @@ create table browser_stats (
 	browser        varchar        not null,
 	created_at     datetime       not null default current_timestamp
 );
+
+-- 20190729: show site code when there's no data yet.
+alter table sites add column received_data int not null default 0;

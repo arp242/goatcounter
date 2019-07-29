@@ -1,0 +1,15 @@
+&lt;script&gt;
+	(function() {
+		if (window.location.hostname.indexOf('localhost') &gt; -1) {
+			return;
+		}
+
+		var script = document.createElement('script');
+		window.counter = 'https://{{.Site.Code}}.{{.Domain}}/count'
+		script.async = 1;
+		script.src = '/{{.Static}}/count.js';
+
+		var ins = document.getElementsByTagName('script')[0];
+		ins.parentNode.insertBefore(script, ins)
+	})();
+&lt;/script&gt;

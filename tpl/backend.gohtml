@@ -6,6 +6,20 @@
 	{{template "_backend_signin.gohtml" .}}
 {{else}}
 
+{{if and .User.ID (not .Site.ReceivedData)}}
+	<div class="flash flash-i">
+		<p><strong>No data received</strong> – GoatCounter didn’t receive any
+		data yet.<br>
+		Make sure the site is set up correctly with the below code inserted
+		inside the &lt;head&gt; tag:</p>
+		<pre>{{template "_backend_sitecode.gohtml" .}}</pre>
+
+		<p><small>This message will disappear once we receive data; you will
+		still be able to see the site code in <a href="/settings">settings</a>.</small></p>
+	</div>
+{{end}}
+
+
 <div class="count-list-opt">
 	<form>
 		<span class="period-select">
@@ -32,13 +46,16 @@
 	{{range $h := .Pages}}
 		<tr id="{{$h.Path}}">
 			<td>{{$h.Count | nformat}}</td>
-			<td>
+			<td class="hide-mobile">
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 				{{- /* TODO: vertical alignment is messed up because of the ellipsis on .rlink :-/
 				<sup><a target="_blank" href="https://{{$.Site.Domain}}{{$h.Path}}">go</a></sup>
 				*/ -}}
 			</td>
 			<td>
+				<div class="show-mobile">
+					<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+				</div>
 				<div class="chart chart-bar"><span class="max">{{.Max}}</span><span class="half"></span>{{bar_chart .Stats .Max}}</div>
 				{{/*<div class="chart chart-line">
 					<span class="max">{{.Max}}</span>
@@ -69,4 +86,4 @@
 </table>
 
 {{end}} {{/* User ID check */}}
-{{- template "_backend_bottom.gohtml" . -}}
+{{- template "_backend_bottom.gohtml" . }}

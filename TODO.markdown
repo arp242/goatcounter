@@ -1,7 +1,4 @@
-- Export data
-
 - Paginate urls and add link to view more: same for refs
-- Better mobile.
 
 - PostgreSQL
 - Front page

@@ -7,6 +7,7 @@ drop table if exists version;
 create table version (
 	name varchar
 );
+-- TODO(v1): check on startup and refuse to run if out of date.
 insert into version values ("2019-06-29 init");
 
 drop table if exists sites;
@@ -16,17 +17,13 @@ create table sites (
 	domain         varchar        not null unique check(length(domain) <= 255),
 	code           varchar        not null unique check(length(domain) <= 50),
 	settings       varchar        not null default "{}",
-	last_stat       datetime      null, -- When stats ran last.
+	last_stat      datetime       null,               -- When stats ran last.
+	received_data  int            not null default 0, -- Set when we receive one event.
 
 	state          varchar        not null default "a" check(state in ("a", "d")),
 	created_at     datetime       not null default current_timestamp,
 	updated_at     datetime
 );
-insert into sites (domain, code) values
-	("arp242.net",      "arp242"),
-	("zgo.at",          "zgoat"),
-	("goatletter.com",  "goatletter"),
-	("goatcounter.com", "goatcounter");
 
 drop table if exists users;
 create table users (
@@ -50,8 +47,6 @@ create table users (
 	unique(email, site),
 	foreign key (site) references sites(id)
 );
-insert into users (site, name, email, role) values
-	(1, "Martin Tournoij", "martin@arp242.net", "a");
 
 drop table if exists hits;
 create table hits (
