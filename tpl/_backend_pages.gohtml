@@ -12,13 +12,6 @@
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 			</div>
 			<div class="chart chart-bar"><span class="max">{{.Max}}</span><span class="half"></span>{{bar_chart .Stats .Max}}</div>
-			{{/*<div class="chart chart-line">
-				<span class="max">{{.Max}}</span>
-				<svg version="1.1">
-					<line x1="0" x2="99999" y1="25" y2="25" stroke="#ddd" stroke-width="1"/>
-					<polyline fill="#db1212" stroke="#db1212" stroke-width="1" points="{{line_chart .Stats .Max}}"/>
-				</svg>
-			</div>*/}}
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" $.Refs}}
 				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">load more</a>{{end}}

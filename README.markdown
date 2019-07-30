@@ -37,3 +37,10 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
 
 2. Use a proxy for https (e.g. Caddy); you'll need to forward `example.com` and
    `*.example.com`
+
+Patch bounty
+------------
+
+- Patch bounty: every non-trivial patch (bugfix, feature) gets one month free.
+  - It's fair, after all, I make money off it
+  - Encourages patches (maybe?)

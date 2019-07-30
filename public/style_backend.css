@@ -160,12 +160,6 @@ h2 sup {
 .chart-bar > div:hover       { background-color: #aaa; }
 .chart-bar > div:hover > div { background-color: #6b1818; }
 
-/* Line chart */
-.chart-line > svg {
-	width: 100%;
-	height: 50px;
-}
-
 #popup {
 	position: absolute;
 	left: 0;
