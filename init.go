@@ -21,11 +21,18 @@ func init() {
 		var b strings.Builder
 		for _, stat := range stats {
 			for _, s := range stat.Days {
+				h := math.Round(float64(s[1]) / float64(max) / 0.01)
+
 				// Double div so that the title is on the entire column, instead
 				// of just the coloured area.
-				b.WriteString(fmt.Sprintf(`<div title="%[1]s %[2]d:00 – %[2]d:59, %[3]d views">`+
-					`<div style="height: %.0[4]f%%;"></div></div>`,
-					stat.Day, s[0], s[1], math.Round(float64(s[1])/float64(max)/0.01)))
+				// No need to add the inner one if there's no data – saves quite
+				// a bit in the total filesize.
+				inner := ""
+				if h > 0 {
+					inner = fmt.Sprintf(`<div style="height: %.0f%%;"></div>`, h)
+				}
+				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %d views">%s</div>`,
+					stat.Day, s[0], s[1], inner))
 			}
 		}
 
