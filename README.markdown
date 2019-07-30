@@ -28,10 +28,12 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
 
 1. For a production environment run something like:
 
-       goatcounter \
-           -prod \
-           -domain example.com \
-           -domainstatic static.example.com
+       goatcounter -prod \
+           -sentry "https://...:...@sentry.io/..." \
+           -domain "goatcounter.com" \
+           -domainstatic "static.goatcounter.com" \
+           -smtp "smtp://localhost:25" \
+           "$@"
 
 2. Use a proxy for https (e.g. Caddy); you'll need to forward `example.com` and
    `*.example.com`

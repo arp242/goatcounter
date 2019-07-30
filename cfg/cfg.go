@@ -18,7 +18,7 @@ var (
 	DomainStatic string // Domain to serve static files from.
 	Listen       string // Address to listen on.
 	DBFile       string // Database connection string.
-	SMTP         string // SMTP connection string.
+	SMTP         string // SMTP connection string; outputs to stdout when empty.
 	Sentry       string // Sentry connection string
 	CPUProfile   string // Write CPU profile to this file.
 	MemProfile   string // Write memory profile to this file.
@@ -32,7 +32,7 @@ func Set() {
 	flag.StringVar(&DomainStatic, "domainstatic", "static.localhost:8081", "Domain to serve static files from.")
 	flag.StringVar(&Listen, "listen", "localhost:8081", "Address to listen on.")
 	flag.StringVar(&DBFile, "dbconnect", "db/goatcounter.sqlite3", "Database connection string.")
-	flag.StringVar(&SMTP, "smtp", "smtps://b42bfac68fec83:f8dd7327e3e8b3@smtp.mailtrap.io:465", "SMTP connection string.")
+	flag.StringVar(&SMTP, "smtp", "", "SMTP connection string; outputs to stdout when empty.")
 	flag.StringVar(&Sentry, "sentry", "", "Sentry connection string")
 	flag.StringVar(&CPUProfile, "cpuprofile", "", "Write CPU profile to this file.")
 	flag.StringVar(&MemProfile, "memprofile", "", "Write memory profile to this file.")

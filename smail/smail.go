@@ -27,6 +27,14 @@ var reNL = regexp.MustCompile(`(\r\n){2,}`)
 func Send(subject string, from mail.Address, to []mail.Address, body string) error {
 	msg := Format(subject, from, to, body)
 
+	if cfg.SMTP == "" {
+		l := strings.Repeat("═", 50)
+		fmt.Println("╔═══ EMAIL " + l + "\n║ " +
+			strings.Replace(strings.TrimSpace(string(msg)), "\r\n", "\r\n║ ", -1) +
+			"\n╚══════════" + l + "\n")
+		return nil
+	}
+
 	srv, err := url.Parse(cfg.SMTP)
 	if err != nil {
 		return err

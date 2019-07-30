@@ -33,6 +33,10 @@ func main() {
 	fmt.Printf("Goatcounter version %s\n", version)
 	cfg.Print()
 
+	if cfg.Prod && cfg.SMTP == "" {
+		panic("-prod enabled and -smtp not given")
+	}
+
 	if cfg.CPUProfile != "" {
 		fp, err := os.Create(cfg.CPUProfile)
 		if err != nil {
