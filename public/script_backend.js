@@ -16,7 +16,58 @@
 		drag_timeframe();
 		load_refs();
 		chart_hover();
+		paginate_pages();
+		paginate_refs();
 	};
+
+	var paginate_pages = function() {
+		$('.pages-list .load-more').on('click', function(e) {
+			e.preventDefault();
+
+			jQuery.ajax({
+				url: $(this).attr('data-href'),
+				dataType: 'json',
+				success: function(data) {
+					$('.pages-list .count-list tbody').append(data.rows);
+
+					var b = $('.pages-list .load-more');
+					b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
+
+					var td = $('.pages-list .total-display');
+					td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
+
+					if (!data.more)
+						$('.pages-list .load-more').remove()
+				},
+			});
+		});
+	};
+
+	var paginate_refs = function() {
+		// TODO: won't work w/o JS.
+		$('.pages-list').on('click', '.load-more-refs', function(e) {
+			e.preventDefault();
+
+			var btn = $(this);
+			jQuery.ajax({
+				url: '/refs',
+				data: {
+					'showrefs': btn.closest('tr').attr('id'),
+					'period-start': $('#period-start').val(),
+					'period-end': $('#period-end').val(),
+					'offset': btn.prev().find('tr').length,
+				},
+				dataType: 'json',
+				success: function(data) {
+					console.log(data);
+					btn.prev().find('tbody').append($(data.rows).find('tr'));
+
+					if (!data.more)
+						btn.remove()
+				},
+			});
+		});
+	}
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
@@ -113,14 +164,17 @@
 
 			jQuery.ajax({
 				url: '/refs' + this.search,
-				dataType: 'text',
+				dataType: 'json',
 				success: function(data) {
-					row.find('.refs').html(data);
+					row.find('.refs').html(data.rows);
 
 					// TODO(v1): make back button work by hooking in to hashchange
 					// or something.
 					history.pushState(null, "", link.href);
 					row.addClass('target');
+
+					if (data.more)
+						row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
 				},
 			});
 		})

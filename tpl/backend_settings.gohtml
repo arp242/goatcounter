@@ -32,6 +32,20 @@
 		<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
 			24-hour clock</label>
 
+		<label for="limits_page">Page size</label>
+		<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
+		<span>Page size; a smaller size means faster load times.</span>
+
+		<label for="limits_ref">Referrers page size</label>
+		<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
+		<span>Page size for referrers overview.</span>
+
+		{{/*
+		<label for="limits_browser">Browser page size</label>
+		<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
+		*/}}
+
+		<br>
 		<button type="submit">Save</button>
 	</form>
 </div>

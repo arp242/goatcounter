@@ -75,6 +75,8 @@ func (h *BrowserStats) List(ctx context.Context, start, end time.Time) error {
 			date(created_at) <= $3
 		group by browser
 		order by count desc
-		limit 50`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+		limit $4`,
+		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"),
+		site.Settings.Limits.Ref)
 	return errors.Wrap(err, "BrowserStats.List")
 }

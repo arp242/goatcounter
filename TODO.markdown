@@ -1,7 +1,6 @@
-- Paginate urls and add link to view more: same for refs
-
 - PostgreSQL
 - Front page
+- Option for sans-serif font?
 
 After v1
 --------
@@ -32,3 +31,12 @@ After v1
 - Measure average time on page?
 - The current day is always shown in full on the stats, so if it's 04:00 it'll
   show 20 more hours for the rest of the day.
+- Not sure what this is, but I think we probably shouldn't count it?
+
+      Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b
+
+- Option for sans-serif font?
+
+- Patch bounty: every non-trivial patch (bugfix, feature) gets one month free.
+  - It's fair, after all, I make money off it
+  - Encourages patches (maybe?)

@@ -40,39 +40,17 @@
 	</form>
 </div>
 
-<h2>Pages <sup>(total {{nformat .TotalHits}} hits)</sup></h2>
-<table class="count-list">
-<tbody>
-	{{range $h := .Pages}}
-		<tr id="{{$h.Path}}">
-			<td>{{$h.Count | nformat}}</td>
-			<td class="hide-mobile">
-				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-				{{- /* TODO: vertical alignment is messed up because of the ellipsis on .rlink :-/
-				<sup><a target="_blank" href="https://{{$.Site.Domain}}{{$h.Path}}">go</a></sup>
-				*/ -}}
-			</td>
-			<td>
-				<div class="show-mobile">
-					<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-				</div>
-				<div class="chart chart-bar"><span class="max">{{.Max}}</span><span class="half"></span>{{bar_chart .Stats .Max}}</div>
-				{{/*<div class="chart chart-line">
-					<span class="max">{{.Max}}</span>
-					<svg version="1.1">
-						<line x1="0" x2="99999" y1="25" y2="25" stroke="#ddd" stroke-width="1"/>
-						<polyline fill="#db1212" stroke="#db1212" stroke-width="1" points="{{line_chart .Stats .Max}}"/>
-					</svg>
-				</div>*/}}
-				<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{template "_backend_refs.gohtml" $.Refs}}
-				{{end}}</div>
-            </td>
-		</tr>
-	{{- end}}
-</tbody>
-</table>
+<div class="pages-list">
+	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
+	<table class="count-list">
+		<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
+	</table>
 
+	{{/* TODO: make it work w/o JS */}}
+	{{if gt .TotalHits .TotalHitsDisplay}}<a href="#_", data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}" class="load-more">load more</a>{{end}}
+</div>
+
+{{/*
 <h2>Browsers</h2>
 <table>
 <tbody>
@@ -84,6 +62,7 @@
 	{{end}}
 </tbody>
 </table>
+*/}}
 
 {{end}} {{/* User ID check */}}
 {{- template "_backend_bottom.gohtml" . }}

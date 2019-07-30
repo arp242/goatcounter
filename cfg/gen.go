@@ -18,6 +18,7 @@ var flags = []flag{
 	{"string", "DomainStatic", "domainstatic", "static.localhost:8081", "Domain to serve static files from."},
 	{"string", "Listen", "listen", "localhost:8081", "Address to listen on."},
 	{"string", "DBFile", "dbconnect", "db/goatcounter.sqlite3", "Database connection string."},
+	// TODO(v1): remove sensitive info.
 	{"string", "SMTP", "smtp", "smtps://b42bfac68fec83:f8dd7327e3e8b3@smtp.mailtrap.io:465", "SMTP connection string."},
 	{"string", "Sentry", "sentry", "", "Sentry connection string"},
 	{"string", "CPUProfile", "cpuprofile", "", "Write CPU profile to this file."},

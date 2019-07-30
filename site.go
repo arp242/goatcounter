@@ -39,6 +39,11 @@ type SiteSettings struct {
 	Public          bool   `json:"public"`
 	DateFormat      string `json:"date_format"`
 	TwentyFourHours bool   `json:"twenty_four_hours"`
+	Limits          struct {
+		Page    int `json:"page"`
+		Ref     int `json:"ref"`
+		Browser int `json:"browser"`
+	} `json:"limits"`
 }
 
 func (ss SiteSettings) String() string { return string(jsonutil.MustMarshal(ss)) }
@@ -62,6 +67,16 @@ func (s *Site) Defaults(ctx context.Context) {
 
 	if s.Settings.DateFormat == "" {
 		s.Settings.DateFormat = "2006-01-02"
+	}
+
+	if s.Settings.Limits.Page == 0 {
+		s.Settings.Limits.Page = 20
+	}
+	if s.Settings.Limits.Ref == 0 {
+		s.Settings.Limits.Ref = 10
+	}
+	if s.Settings.Limits.Browser == 0 {
+		s.Settings.Limits.Browser = 20
 	}
 
 	if s.CreatedAt.IsZero() {

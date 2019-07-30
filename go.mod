@@ -2,11 +2,10 @@ module zgo.at/goatcounter
 
 go 1.12
 
-// https://github.com/monoculum/formam/pull/23
-replace github.com/monoculum/formam => github.com/arp242/formam v0.0.0-20190729162452-0087be4a57de
+//replace zgo.at/zhttp => ../zhttp
 
-// This fork has fewer dependencies (mail branch); hard to update to upstream
-// due to compatibility.
+// This fork doesn't depend on mailaddress and its transient dependencies.
+// Hard to update to upstream due to compatibility.
 replace github.com/teamwork/validate => github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287
 
 require (
@@ -20,6 +19,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
+	github.com/monoculum/formam v0.0.0-20190729212750-672dd3f9bc55
 	github.com/mssola/user_agent v0.5.0
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.3.0 // indirect
@@ -31,7 +31,7 @@ require (
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
 	google.golang.org/appengine v1.6.1 // indirect
-	zgo.at/zhttp v0.0.0-20190728161810-3323eaf9196c
+	zgo.at/zhttp v0.0.0-20190730000030-73c8e3ca269a
 	zgo.at/zlog v0.0.0-20190729101808-11a778095e52
 	zgo.at/zlog_sentry v1.0.0
 )

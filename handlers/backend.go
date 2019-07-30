@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -54,6 +55,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	a := r.With(keyAuth)
 	a.Get("/", zhttp.Wrap(h.index))
 	a.Get("/refs", zhttp.Wrap(h.refs))
+	a.Get("/pages", zhttp.Wrap(h.pages))
 	a.Get("/settings", zhttp.Wrap(h.settings))
 	a.Post("/save", zhttp.Wrap(h.save))
 	a.Get("/export/{file}", zhttp.Wrap(h.export))
@@ -128,22 +130,26 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	// TODO: for caching, we only need to fetch the last day, and then just
 	// fetch the HTML for the older pages.
 	// We can generate the HTML in the cron job.
-	err, total := pages.List(r.Context(), start, end)
+	err, total, totalDisplay, _ := pages.List(r.Context(), start, end, nil)
 	if err != nil {
 		return err
 	}
 
 	var browsers goatcounter.BrowserStats
-	err = browsers.List(r.Context(), start, end)
-	if err != nil {
-		return err
-	}
+	// TODO: need more processing to be truly useful, so disable for now.
+	// Collect it anyway for my own purpose: sniff out any bots or other "weird"
+	// stuff that we don't want to count.
+	// err = browsers.List(r.Context(), start, end)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
 	var refs goatcounter.HitStats
+	var moreRefs bool
 	if sr != "" {
-		err := refs.ListRefs(r.Context(), sr, start, end)
+		moreRefs, err = refs.ListRefs(r.Context(), sr, start, end, 0)
 		if err != nil {
 			return err
 		}
@@ -152,14 +158,16 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	l = l.Since("fetch data")
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
-		ShowRefs    string
-		PeriodStart time.Time
-		PeriodEnd   time.Time
-		Pages       goatcounter.HitStats
-		Refs        goatcounter.HitStats
-		TotalHits   int
-		Browsers    goatcounter.BrowserStats
-	}{newGlobals(w, r), sr, start, end, pages, refs, total, browsers})
+		ShowRefs         string
+		PeriodStart      time.Time
+		PeriodEnd        time.Time
+		Pages            goatcounter.HitStats
+		Refs             goatcounter.HitStats
+		MoreRefs         bool
+		TotalHits        int
+		TotalHitsDisplay int
+		Browsers         goatcounter.BrowserStats
+	}{newGlobals(w, r), sr, start, end, pages, refs, moreRefs, total, totalDisplay, browsers})
 	l = l.Since("exec template")
 	return x
 }
@@ -175,13 +183,75 @@ func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	offset := 0
+	if o := r.URL.Query().Get("offset"); o != "" {
+		o2, err := strconv.ParseInt(o, 10, 32)
+		if err != nil {
+			return err
+		}
+		offset = int(o2)
+	}
+
 	var refs goatcounter.HitStats
-	err = refs.ListRefs(r.Context(), r.URL.Query().Get("showrefs"), start, end)
+	more, err := refs.ListRefs(r.Context(), r.URL.Query().Get("showrefs"), start, end, offset)
 	if err != nil {
 		return err
 	}
 
-	return zhttp.Template(w, "_backend_refs.gohtml", refs)
+	tpl, err := zhttp.ExecuteTpl("_backend_refs.gohtml", refs)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"rows": string(tpl),
+		"more": more,
+	})
+}
+
+func (h Backend) pages(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var pages goatcounter.HitStats
+	err, _, totalDisplay, more := pages.List(r.Context(), start, end,
+		strings.Split(r.URL.Query().Get("exclude"), ","))
+	if err != nil {
+		return err
+	}
+
+	tpl, err := zhttp.ExecuteTpl("_backend_pages.gohtml", struct {
+		Pages       goatcounter.HitStats
+		PeriodStart time.Time
+		PeriodEnd   time.Time
+
+		// Dummy values so template won't error out.
+		// TODO: meh
+		Refs     bool
+		ShowRefs string
+	}{pages, start, end, false, ""})
+	if err != nil {
+		return err
+	}
+
+	paths := make([]string, len(pages))
+	for i := range pages {
+		paths[i] = pages[i].Path
+	}
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"rows":          string(tpl),
+		"paths":         paths,
+		"total_display": totalDisplay,
+		"more":          more,
+	})
 }
 
 func (h Backend) settings(w http.ResponseWriter, r *http.Request) error {

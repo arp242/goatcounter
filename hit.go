@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
@@ -301,29 +302,63 @@ type HitStat struct {
 	Days [][]int
 }
 
-type HitStats []struct {
+type hs struct {
 	Count int    `db:"count"`
 	Max   int    `db:"-"`
 	Path  string `db:"path"`
 	Stats []HitStat
 }
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time) (error, int) {
+type HitStats []hs
+
+func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []string) (error, int, int, bool) {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 
-	err := db.SelectContext(ctx, h, `
+	limit := site.Settings.Limits.Page
+	more := false
+	if len(exclude) > 0 {
+		// Get one page more so we can detect if there are more pages after
+		// this.
+		more = true
+		limit++
+	}
+
+	// Dummy value so SQL is valid.
+	if len(exclude) == 0 {
+		exclude = []string{"_"}
+	}
+
+	query, args, err := sqlx.In(`
 		select path, count(path) as count
 		from hits
 		where
-			site=$1 and
-			date(created_at) >= $2 and
-			date(created_at) <= $3
+			site=? and
+			date(created_at) >= ? and
+			date(created_at) <= ? and
+			path not in (?)
 		group by path
 		order by count desc
-		limit 500`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+		limit ?`,
+		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"),
+		exclude, limit)
 	if err != nil {
-		return errors.Wrap(err, "HitStats.List"), 0
+		return errors.Wrap(err, "HitStats.List"), 0, 0, false
+	}
+
+	err = db.SelectContext(ctx, h, db.Rebind(query), args...)
+	if err != nil {
+		return errors.Wrap(err, "HitStats.List"), 0, 0, false
+	}
+
+	if more {
+		if len(*h) == limit {
+			x := *h
+			x = x[:len(x)-1]
+			*h = x
+		} else {
+			more = false
+		}
 	}
 
 	// Add stats
@@ -344,12 +379,12 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) (error, int) 
 		order by day asc
 		`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return errors.Wrap(err, "HitStats.List"), 0
+		return errors.Wrap(err, "HitStats.List"), 0, 0, false
 	}
 
 	// TODO: meh...
 	hh := *h
-	total := 0
+	totalDisplay := 0
 	for i := range hh {
 		hh[i].Stats = make([]HitStat, len(st))
 
@@ -362,7 +397,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) (error, int) 
 				// Get max.
 				// TODO: should maybe store this?
 				for j := range x {
-					total += x[j][1]
+					totalDisplay += x[j][1]
 					if x[j][1] > hh[i].Max {
 						hh[i].Max = x[j][1]
 					}
@@ -375,14 +410,29 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time) (error, int) 
 		}
 	}
 
-	return nil, total
+	// Get total.
+	total := 0
+	err = db.GetContext(ctx, &total, `
+		select count(path)
+		from hits
+		where
+			site=$1 and
+			date(created_at) >= $2 and
+			date(created_at) <= $3`,
+		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+
+	return errors.Wrap(err, "HitStats.List"), total, totalDisplay, more
 }
 
 // ListRefs lists all references for a path.
-func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Time) error {
+func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Time, offset int) (bool, error) {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 
+	// TODO: using offset for pagination is not ideal:
+	// data can change in the meanwhile, and it still gets the first N rows,
+	// which is more expensive than it needs to be.
+	// It's "good enough" for now, though.
 	err := db.SelectContext(ctx, h, `
 		select ref as path, count(ref) as count
 		from hits
@@ -393,8 +443,17 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 			date(created_at) <= $4
 		group by ref
 		order by count(*) desc
-		limit 50
-	`, site.ID, path, start.Format("2006-01-02"), end.Format("2006-01-02"))
+		limit $5 offset $6`,
+		site.ID, path, start.Format("2006-01-02"), end.Format("2006-01-02"),
+		site.Settings.Limits.Ref+1, offset)
 
-	return errors.Wrap(err, "RefStats.ListRefs")
+	more := false
+	if len(*h) > site.Settings.Limits.Ref {
+		more = true
+		x := *h
+		x = x[:len(x)-1]
+		*h = x
+	}
+
+	return more, errors.Wrap(err, "RefStats.ListRefs")
 }

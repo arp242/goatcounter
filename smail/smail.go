@@ -86,14 +86,7 @@ func Format(subject string, from mail.Address, to []mail.Address, body string) [
 	w.Write([]byte(body))
 	w.Close()
 
-	m := []byte(msg.String())
-	//sig, err := Sign(m, TestPublicKey, TestPrivateKey)
-	//if err != nil {
-	//	log.Error(err)
-	//}
-	//fmt.Println("sig", sig)
-
-	return m
+	return []byte(msg.String())
 }
 
 func e(s string) string {
