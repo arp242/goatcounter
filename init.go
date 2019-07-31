@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mattn/go-sqlite3"
@@ -84,20 +85,6 @@ func uniqueErr(err error) bool {
 	return ok && sqlErr.ExtendedCode == sqlite3.ErrConstraintUnique
 }
 
-func insert(cols ...string) string {
-	c := strings.Join(cols, ",")
-
-	for i := range cols {
-		cols[i] = ":" + cols[i]
-	}
-	v := strings.Join(cols, ",")
-
-	return fmt.Sprintf(" (%s) values (%s) ", c, v)
-}
-
-func update(cols ...string) string {
-	for i := range cols {
-		cols[i] = fmt.Sprintf("%s=:%[1]s", cols[i])
-	}
-	return " set " + strings.Join(cols, ",") + " "
-}
+func sqlDate(t time.Time) string  { return t.Format("2006-01-02 15:04:05") }
+func dayStart(t time.Time) string { return t.Format("2006-01-02") + " 00:00:00" }
+func dayEnd(t time.Time) string   { return t.Format("2006-01-02") + " 23:59:59" }

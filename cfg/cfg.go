@@ -18,6 +18,7 @@ var (
 	DomainStatic string // Domain to serve static files from.
 	Listen       string // Address to listen on.
 	DBFile       string // Database connection string.
+	PgSQL        bool   // Use PostgreSQL instead of SQLite
 	SMTP         string // SMTP connection string; outputs to stdout when empty.
 	Sentry       string // Sentry connection string
 	CPUProfile   string // Write CPU profile to this file.
@@ -32,6 +33,7 @@ func Set() {
 	flag.StringVar(&DomainStatic, "domainstatic", "static.localhost:8081", "Domain to serve static files from.")
 	flag.StringVar(&Listen, "listen", "localhost:8081", "Address to listen on.")
 	flag.StringVar(&DBFile, "dbconnect", "db/goatcounter.sqlite3", "Database connection string.")
+	flag.BoolVar(&PgSQL, "pgsql", false, "Use PostgreSQL instead of SQLite")
 	flag.StringVar(&SMTP, "smtp", "", "SMTP connection string; outputs to stdout when empty.")
 	flag.StringVar(&Sentry, "sentry", "", "Sentry connection string")
 	flag.StringVar(&CPUProfile, "cpuprofile", "", "Write CPU profile to this file.")
@@ -47,6 +49,7 @@ func Print() {
 	fmt.Printf("DomainStatic   %#v\n", DomainStatic)
 	fmt.Printf("Listen         %#v\n", Listen)
 	fmt.Printf("DBFile         %#v\n", DBFile)
+	fmt.Printf("PgSQL          %#v\n", PgSQL)
 	fmt.Printf("SMTP           %#v\n", SMTP)
 	fmt.Printf("Sentry         %#v\n", Sentry)
 	fmt.Printf("CPUProfile     %#v\n", CPUProfile)

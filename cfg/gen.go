@@ -18,6 +18,7 @@ var flags = []flag{
 	{"string", "DomainStatic", "domainstatic", "static.localhost:8081", "Domain to serve static files from."},
 	{"string", "Listen", "listen", "localhost:8081", "Address to listen on."},
 	{"string", "DBFile", "dbconnect", "db/goatcounter.sqlite3", "Database connection string."},
+	{"bool", "PgSQL", "pgsql", false, "Use PostgreSQL instead of SQLite"},
 	{"string", "SMTP", "smtp", "", "SMTP connection string; outputs to stdout when empty."},
 	{"string", "Sentry", "sentry", "", "Sentry connection string"},
 	{"string", "CPUProfile", "cpuprofile", "", "Write CPU profile to this file."},

@@ -52,11 +52,10 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 			r = r.WithContext(context.WithValue(ctx, ctxkey.DB, db))
 
 			// Load site from subdomain
-			// TODO(v1): better errors
 			if loadSite {
 				i := strings.Index(r.Host, ".")
 				if i == -1 {
-					http.Error(w, fmt.Sprintf("no subdomain in host %q", r.Host), 400)
+					zhttp.ErrPage(w, r, 400, fmt.Errorf("no subdomain in host %q", r.Host))
 					return
 				}
 
@@ -64,7 +63,7 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 				err := s.ByCode(r.Context(), r.Host[:i])
 				if err != nil {
 					if errors.Cause(err) == sql.ErrNoRows {
-						http.Error(w, fmt.Sprintf("no site at this domain (%q)", r.Host[:i]), 404)
+						zhttp.ErrPage(w, r, 400, fmt.Errorf("no site at this domain (%q)", r.Host[:i]))
 						return
 					}
 

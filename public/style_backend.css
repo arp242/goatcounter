@@ -183,6 +183,7 @@ h2 sup {
 	min-height: 4px;
 }
 
+.hide        { display: none; }
 .show-mobile { display: none; }
 @media (max-width: 55rem) {
 	.hide-mobile { display: none; }

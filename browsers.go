@@ -44,8 +44,8 @@ func (b *Browser) Insert(ctx context.Context) error {
 	}
 
 	db := MustGetDB(ctx)
-	_, err = db.ExecContext(ctx, `insert into browser_stats (site, browser, created_at)
-		values ($1, $2, $3)`, b.Site, b.Browser, b.CreatedAt)
+	_, err = db.ExecContext(ctx, `insert into browsers (site, browser, created_at)
+		values ($1, $2, $3)`, b.Site, b.Browser, sqlDate(b.CreatedAt))
 	return errors.Wrap(err, "Browser.Insert")
 }
 
@@ -53,7 +53,7 @@ type Browsers []Browser
 
 func (b *Browsers) List(ctx context.Context) error {
 	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, b,
-		`select * from browser_stats where site=$1`, MustGetSite(ctx).ID),
+		`select * from browsers where site=$1`, MustGetSite(ctx).ID),
 		"Browsers.List")
 }
 
@@ -68,15 +68,14 @@ func (h *BrowserStats) List(ctx context.Context, start, end time.Time) error {
 
 	err := db.SelectContext(ctx, h, `
 		select browser, count(browser) as count
-		from browser_stats
+		from browsers
 		where
 			site=$1 and
-			date(created_at) >= $2 and
-			date(created_at) <= $3
+			created_at >= $2 and
+			created_at <= $3
 		group by browser
 		order by count desc
 		limit $4`,
-		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"),
-		site.Settings.Limits.Ref)
+		site.ID, dayStart(start), dayEnd(end), site.Settings.Limits.Ref)
 	return errors.Wrap(err, "BrowserStats.List")
 }

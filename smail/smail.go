@@ -1,3 +1,4 @@
+// Package smail is a simple mail sender.
 package smail
 
 import (
@@ -86,7 +87,7 @@ func Format(subject string, from mail.Address, to []mail.Address, body string) [
 	fmt.Fprintf(&msg, "Date: %s\r\n", t.Format(time.RFC1123Z))
 	fmt.Fprintf(&msg, "Content-Type: text/plain;charset=utf-8\r\n")
 	fmt.Fprintf(&msg, "Content-Transfer-Encoding: quoted-printable\r\n")
-	fmt.Fprintf(&msg, "Message-ID: <login-%s-%s@arp242.net>\r\n", h(body), r())
+	fmt.Fprintf(&msg, "Message-ID: <login-%s-%s@goatcounter.com>\r\n", h(body), r())
 	fmt.Fprintf(&msg, "Subject: %s\r\n", e(subject))
 	msg.WriteString("\r\n")
 

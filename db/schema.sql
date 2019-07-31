@@ -1,92 +1,85 @@
--- TODO(v1): deal with casing; this should work: where email = "MARTIN@ARP242.NET"
--- TODO(v1): validate the dates
--- TODO(v1): test postgresql
--- check(strftime('%Y-%m-%d', created_at) = created_at)
-
 drop table if exists version;
 create table version (
 	name varchar
 );
--- TODO(v1): check on startup and refuse to run if out of date.
-insert into version values ("2019-06-29 init");
+insert into version values ("0000-00-00 00:00:00 init");
 
 drop table if exists sites;
 create table sites (
 	id             integer        primary key autoincrement,
 
-	domain         varchar        not null unique check(length(domain) <= 255),
-	code           varchar        not null unique check(length(domain) <= 50),
-	settings       varchar        not null default "{}",
-	last_stat      datetime       null,               -- When stats ran last.
-	received_data  int            not null default 0, -- Set when we receive one event.
+	domain         varchar        not null collate nocase  check(length(domain) <= 255),
+	code           varchar        not null collate nocase  check(length(domain) <= 50),
+	settings       varchar        not null,
+	last_stat      datetime       null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
+	received_data  int            not null default 0,
 
-	state          varchar        not null default "a" check(state in ("a", "d")),
-	created_at     datetime       not null default current_timestamp,
-	updated_at     datetime
+	state          varchar        not null default "a"     check(state in ("a", "d")),
+	created_at     datetime       not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	updated_at     datetime                                check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
 );
+create unique index "sites#code"   on sites(code);
+create unique index "sites#domain" on sites(domain);
 
 drop table if exists users;
 create table users (
 	id             integer        primary key autoincrement,
-	site           integer        not null check(site > 0),
+	site           integer        not null                 check(site > 0),
 
-	name           varchar        not null check(length(name) <= 200),
-	email          varchar        not null check(length(email) <= 255),
-	role           varchar        not null default "" check(role in ("", "a")),
-	-- TODO(v1): the login_req and login_key should be in a new table, so we can
-	-- support multiple logins per user.
-	login_req      datetime       null,
-	login_key      varchar        null unique,
+	name           varchar        not null                 check(length(name) <= 200),
+	email          varchar        not null collate nocase  check(length(email) <= 255),
+	role           varchar        not null default ""      check(role in ("", "a")),
+	login_req      datetime       null                     check(login_req = strftime('%Y-%m-%d %H:%M:%S', login_req)),
+	login_key      varchar        null,
 	csrf_token     varchar        null,
 	preferences    varchar        not null default "{}",
 
-	state          varchar        not null default "a" check(state in ("a", "d")),
-	created_at     datetime       not null default current_timestamp,
-	updated_at     datetime,
+	state          varchar        not null default "a"     check(state in ("a", "d")),
+	created_at     datetime       not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	updated_at     datetime                                check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
 
-	unique(email, site),
-	foreign key (site) references sites(id)
+	foreign key (site) references sites(id) on delete restrict on update restrict
 );
+create unique index "users#login_key"  on users(login_key);
+create        index "users#site"       on users(site);
+create unique index "users#site#email" on users(site, email);
 
 drop table if exists hits;
 create table hits (
-	site           integer        not null check(site > 0),
+	-- No foreign key on site for performance.
+	site           integer        not null                 check(site > 0),
 
-	path           varchar        not null,
-	ref            varchar        not null,
+	path           varchar        not null collate nocase,
+	ref            varchar        not null collate nocase,
 	ref_original   varchar,
 	ref_params     varchar,
 
-	created_at     datetime       null default current_timestamp
-
-	-- no fkey for performance
-	-- foreign key (site) references sites(id)
+	created_at     datetime       not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
+create index "hits#site#created_at"      on hits(site, created_at);
+create index "hits#site#path#created_at" on hits(site, path, created_at);
 
 drop table if exists hit_stats;
 create table hit_stats (
-	site           integer        not null check(site > 0),
+	site           integer        not null                 check(site > 0),
 
-	kind           varchar        not null check(kind in ("h", "d")), -- hourly, daily
-	day            date           not null,  -- "2019-06-22"
-	path           varchar        not null,  -- /foo.html
-	stats          varchar        not null,  -- hourly or daily hits [20, 30, ...]
+	day            date           not null,
+	path           varchar        not null collate nocase,
+	stats          varchar        not null,
 
-	created_at     datetime       null default current_timestamp,
-	updated_at     datetime
+	created_at     datetime       null                     check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	updated_at     datetime                                check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
 
-	-- no fkey for performance
-	--unique(site, kind, day, path)
-	--foreign key (site) references sites(id)
+	foreign key (site) references sites(id) on delete restrict on update restrict
 );
+create index "hit_stats#site#day"      on hit_stats(site, day);
 
-drop table if exists browser_stats;
-create table browser_stats (
-	site           integer        not null check(site > 0),
+drop table if exists browsers;
+create table browsers (
+	-- No foreign key on site for performance.
+	site           integer        not null                 check(site > 0),
 
-	browser        varchar        not null,
-	created_at     datetime       not null default current_timestamp
-
-	-- no fkey for performance
-	--foreign key (site) references sites(id)
+	browser        varchar        not null collate nocase,
+	created_at     datetime       not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
+create index "browsers#site#created_at" on browsers(site, created_at);

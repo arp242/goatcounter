@@ -31,8 +31,6 @@ type Site struct {
 	State     string     `db:"state"`
 	CreatedAt time.Time  `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
-
-	Name string `db:"name"` // TODO(v1): remove, just here for compat since we can't remove cols from SQLite
 }
 
 type SiteSettings struct {
@@ -52,11 +50,6 @@ func (ss SiteSettings) String() string { return string(jsonutil.MustMarshal(ss))
 func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
 
 // Scan converts the data returned from the DB into the struct.
-//
-// TODO: go-sqlite 1.11.0 regression:
-//   10:57:14 panic: ERROR: interface conversion: interface {} is []uint8, not string
-//   10:57:53 panic: ERROR: interface conversion: interface {} is string, not []uint8
-// Not sure if bug of if we're doing something wrong here
 func (ss *SiteSettings) Scan(v interface{}) error { return json.Unmarshal(v.([]byte), ss) }
 
 // Defaults sets fields to default values, unless they're already set.
@@ -115,8 +108,8 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	res, err := MustGetDB(ctx).ExecContext(ctx,
-		`insert into sites (code, domain, settings) values ($1, $2, $3, $4)`,
-		s.Code, s.Domain, s.Settings)
+		`insert into sites (code, domain, settings, created_at) values ($1, $2, $3, $4)`,
+		s.Code, s.Domain, s.Settings, sqlDate(s.CreatedAt))
 	if err != nil {
 		if uniqueErr(err) {
 			return guru.New(400, "this site already exists")
@@ -142,7 +135,7 @@ func (s *Site) Update(ctx context.Context) error {
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
 		`update sites set domain=$1, settings=$2, updated_at=$3 where id=$4`,
-		s.Domain, s.Settings, s.UpdatedAt, s.ID)
+		s.Domain, s.Settings, sqlDate(*s.UpdatedAt), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 

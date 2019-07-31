@@ -20,12 +20,15 @@ import (
 type user struct{}
 
 func (h user) mount(r chi.Router) {
+	// Rate limit login attempts.
+	rate := zhttp.Ratelimit(zhttp.RatelimitIP, zhttp.NewRatelimitMemory(), 20, 60)
+
 	r.Get("/user/new", zhttp.Wrap(h.new))
-	r.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
-	r.Get("/user/login/{key}", zhttp.Wrap(h.login))
+	r.With(rate).Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
+	r.With(rate).Get("/user/login/{key}", zhttp.Wrap(h.login))
 	a := r.With(filterLoggedIn)
 	a.Post("/user/logout", zhttp.Wrap(h.logout))
-	a.Post("/user/save", zhttp.Wrap(h.save))
+	//a.Post("/user/save", zhttp.Wrap(h.save))
 }
 
 func (h user) new(w http.ResponseWriter, r *http.Request) error {

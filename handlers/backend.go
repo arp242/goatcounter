@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/csv"
-	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -27,25 +27,38 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
+		middleware.RedirectSlashes,
 		addctx(db, true),
 		zhttp.Headers(http.Header{
 			"Strict-Transport-Security": []string{"max-age=2592000"},
-			"X-Frame-Options":           []string{"SAMEORIGIN"},
+			"X-Frame-Options":           []string{"deny"},
 			"X-Content-Type-Options":    []string{"nosniff"},
-			// unsafe-inline on style is needed because we set style="height: .."
-			// on the charts.
-			"Content-Security-Policy": []string{fmt.Sprintf(
-				"default-src %s; connect-src 'self'; style-src %[1]s 'unsafe-inline'",
-				cfg.DomainStatic)},
+			"Content-Security-Policy": {header.CSP{
+				header.CSPDefaultSrc: {header.CSPSourceNone},
+				header.CSPImgSrc:     {cfg.DomainStatic},
+				header.CSPScriptSrc:  {cfg.DomainStatic},
+				header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
+				header.CSPFontSrc:    {cfg.DomainStatic},
+				header.CSPFormAction: {header.CSPSourceSelf},
+				header.CSPConnectSrc: {header.CSPSourceSelf},
+				header.CSPReportURI:  {"/csp"},
+			}.String()},
 		}),
 		zhttp.Log(true, ""))
 
 	// Don't allow any indexing of the backend interface by search engines.
 	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
-		w.Header().Set("Cache-Control", "public, max-age=31536000")
+		w.Header().Set("Cache-Control", "public,max-age=31536000")
 		w.WriteHeader(200)
 		w.Write([]byte("User-agent: *\nDisallow: /\n"))
+	})
+
+	// CSP errors.
+	r.Post("/csp", func(w http.ResponseWriter, r *http.Request) {
+		d, _ := ioutil.ReadAll(r.Body)
+		zlog.Errorf("CSP error: %s", string(d))
+		w.WriteHeader(202)
 	})
 
 	// Counter that the script on the website calls.
@@ -97,39 +110,58 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 const day = 24 * time.Hour
 
 func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
-	// TODO(v1): cache much more aggressively for public displays. Don't care so
-	// much if it's outdated by an hour.
-	//
-	// TODO(v1): also rate limit more for public.
-	//
-	// TODO(v1): Use period first as fallback when there's no JS.
-	// p := r.URL.Query().Get("period")
-
-	start := time.Now().Add(-7 * day)
-	if s := r.URL.Query().Get("period-start"); s != "" {
-		var err error
-		start, err = time.Parse("2006-01-02", s)
-		if err != nil {
-			zhttp.FlashError(w, "start date: %s", err.Error())
-			start = time.Now().Add(-7 * day)
-		}
+	// Cache much more aggressively for public displays. Don't care so much if
+	// it's outdated by an hour.
+	if goatcounter.MustGetSite(r.Context()).Settings.Public &&
+		goatcounter.GetUser(r.Context()).ID == 0 {
+		w.Header().Set("Cache-Control", "public,max-age=3600")
+		w.Header().Set("Vary", "Cookie")
 	}
-	end := time.Now()
-	if s := r.URL.Query().Get("period-end"); s != "" {
-		var err error
-		end, err = time.Parse("2006-01-02", s)
-		if err != nil {
-			zhttp.FlashError(w, "end date: %s", err.Error())
-			end = time.Now()
+
+	var (
+		start = time.Now().Add(-7 * day)
+		end   = time.Now()
+	)
+	// Use period first as fallback when there's no JS.
+	if p := r.URL.Query().Get("period"); p != "" {
+		switch p {
+		case "day":
+			// Do nothing.
+		case "week":
+			start = start.Add(-7 * day)
+		case "month":
+			start = start.Add(-30 * day)
+		case "quarter":
+			start = start.Add(-91 * day)
+		case "half-year":
+			start = start.Add(-183 * day)
+		case "year":
+			start = start.Add(-365 * day)
+		case "all":
+			start = start.Add(-365 * day * 20) // TODO: set to 1970
+		}
+	} else {
+		if s := r.URL.Query().Get("period-start"); s != "" {
+			var err error
+			start, err = time.Parse("2006-01-02", s)
+			if err != nil {
+				zhttp.FlashError(w, "start date: %s", err.Error())
+				start = time.Now().Add(-7 * day)
+			}
+		}
+		if s := r.URL.Query().Get("period-end"); s != "" {
+			var err error
+			end, err = time.Parse("2006-01-02", s)
+			if err != nil {
+				zhttp.FlashError(w, "end date: %s", err.Error())
+				end = time.Now()
+			}
 		}
 	}
 
 	l := zlog.Debug("backend").Module("backend")
 
 	var pages goatcounter.HitStats
-	// TODO: for caching, we only need to fetch the last day, and then just
-	// fetch the HTML for the older pages.
-	// We can generate the HTML in the cron job.
 	err, total, totalDisplay, _ := pages.List(r.Context(), start, end, nil)
 	if err != nil {
 		return err
@@ -233,7 +265,6 @@ func (h Backend) pages(w http.ResponseWriter, r *http.Request) error {
 		PeriodEnd   time.Time
 
 		// Dummy values so template won't error out.
-		// TODO: meh
 		Refs     bool
 		ShowRefs string
 	}{pages, start, end, false, ""})

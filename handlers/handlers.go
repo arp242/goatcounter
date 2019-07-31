@@ -30,7 +30,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Domain:  cfg.Domain,
 		Version: cfg.Version,
 	}
-	// TODO: not sure why this is needed?
 	if g.User == nil {
 		g.User = &goatcounter.User{}
 	}
@@ -57,7 +56,9 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 	if cfg.Prod {
 		cache = 86400 * 30
 	}
-	r.Get("/*", zhttp.NewStatic(dir, domain, cache, packPublic).ServeHTTP)
+	// Use * for Access-Control-Allow-Origin as we can't use *.domain, which is
+	// needed to allow "code.domain", "code2.domain", etc.
+	r.Get("/*", zhttp.NewStatic(dir, "*", cache, packPublic).ServeHTTP)
 	return r
 }
 

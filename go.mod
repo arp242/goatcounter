@@ -8,6 +8,9 @@ go 1.12
 // Hard to update to upstream due to compatibility.
 replace github.com/teamwork/validate => github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287
 
+// csp branch
+replace github.com/teamwork/utils => github.com/arp242/utils v0.0.0-20190730172204-a58ffeb611c6
+
 require (
 	github.com/Masterminds/squirrel v1.1.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
@@ -17,9 +20,9 @@ require (
 	github.com/google/go-cmp v0.3.0 // indirect
 	github.com/jinzhu/now v1.0.1
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/lib/pq v1.2.0 // indirect
+	github.com/lib/pq v1.2.0
 	github.com/mattn/go-sqlite3 v1.10.0
-	github.com/monoculum/formam v0.0.0-20190729212750-672dd3f9bc55
+	github.com/monoculum/formam v0.0.0-20190730134247-0612307a4099 // indirect
 	github.com/mssola/user_agent v0.5.0
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.3.0 // indirect
@@ -31,7 +34,7 @@ require (
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
 	google.golang.org/appengine v1.6.1 // indirect
-	zgo.at/zhttp v0.0.0-20190730000030-73c8e3ca269a
+	zgo.at/zhttp v0.0.0-20190731104029-94672fd22994
 	zgo.at/zlog v0.0.0-20190729101808-11a778095e52
 	zgo.at/zlog_sentry v1.0.0
 )

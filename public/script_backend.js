@@ -74,13 +74,13 @@
 		$('.period-select').on('click', 'button', function(e) {
 			e.preventDefault();
 
-			// TODO(v1): also set on load.
+			// TODO(public): also set on load.
 			//$('.period-select button').removeClass('active');
 			//$(this).addClass('active');
 
 			var start = new Date();
 			switch (this.value) {
-				case 'day':       start.setDate(start.getDate() - 1); break;
+				case 'day':       /* Do nothing */; break;
 				case 'week':      start.setDate(start.getDate() - 7); break;
 				case 'month':     start.setMonth(start.getMonth() - 1); break;
 				case 'quarter':   start.setMonth(start.getMonth() - 3); break;
@@ -102,7 +102,7 @@
 
 	// Select a period by dragging the mouse over a timeframe.
 	var drag_timeframe = function() {
-		// TODO(v1): finish.
+		// TODO(public): finish.
 		return;
 
 		/*
@@ -154,7 +154,7 @@
  
 				if (hash === row.attr('id')) {
 					var nl = link.href.substr(0, link.href.indexOf('#'));
-					nl = nl.replace(/showrefs=.*?&/, '&'); // TODO(v1): do better!
+					nl = nl.replace(/showrefs=.*?&/, '&'); // TODO(public): do better!
 					history.pushState(null, "", nl);
 
 					location.hash = '_'; // '_' and not '' so we won't scroll to top.
@@ -168,7 +168,7 @@
 				success: function(data) {
 					row.find('.refs').html(data.rows);
 
-					// TODO(v1): make back button work by hooking in to hashchange
+					// TODO(public): make back button work by hooking in to hashchange
 					// or something.
 					history.pushState(null, "", link.href);
 					row.addClass('target');

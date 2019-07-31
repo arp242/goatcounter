@@ -31,8 +31,7 @@ var groups = map[string]string{
 	"hckrnews.com":                       "Hacker News",
 	"hn.premii.com":                      "Hacker News",
 	"com.stefandekanski.hackernews.free": "Hacker News",
-
-	// TODO: http://www.elegantreader.com/item/17358103
+	// http://www.elegantreader.com/item/17358103
 	// https://www.daemonology.net/hn-daily/2019-05.html
 
 	"mail.google.com":       "Gmail",
@@ -285,7 +284,7 @@ func (h *Hit) Insert(ctx context.Context) error {
 
 	db := MustGetDB(ctx)
 	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params, ref_original, created_at)
-		values ($1, $2, $3, $4, $5, $6)`, h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, h.CreatedAt)
+		values ($1, $2, $3, $4, $5, $6)`, h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt))
 	return errors.Wrap(err, "Site.Insert")
 }
 
@@ -324,32 +323,36 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		limit++
 	}
 
-	// Dummy value so SQL is valid.
-	if len(exclude) == 0 {
-		exclude = []string{"_"}
-	}
-
-	query, args, err := sqlx.In(`
+	query := `
 		select path, count(path) as count
 		from hits
 		where
 			site=? and
-			date(created_at) >= ? and
-			date(created_at) <= ? and
-			path not in (?)
+			created_at >= ? and
+			created_at <= ?`
+	args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
+
+	// Quite a bit faster to not check path.
+	if len(exclude) > 0 {
+		args = append(args, exclude)
+		query += ` and path not in (?) `
+	}
+
+	query, args, err := sqlx.In(query+`
 		group by path
 		order by count desc
-		limit ?`,
-		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"),
-		exclude, limit)
+		limit ?`, append(args, limit)...)
 	if err != nil {
 		return errors.Wrap(err, "HitStats.List"), 0, 0, false
 	}
+
+	l := zlog.Debug("HitStats.List").Module("HitStats.List")
 
 	err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 	if err != nil {
 		return errors.Wrap(err, "HitStats.List"), 0, 0, false
 	}
+	l = l.Since("select hits")
 
 	if more {
 		if len(*h) == limit {
@@ -373,14 +376,14 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		from hit_stats
 		where
 			site=$1 and
-			kind="h" and
-			date(day) >= $2 and
-			date(day) <= $3
-		order by day asc
-		`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+			day >= $2 and
+			day <= $3
+		order by day asc`,
+		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
 		return errors.Wrap(err, "HitStats.List"), 0, 0, false
 	}
+	l = l.Since("select hits_stats")
 
 	// TODO: meh...
 	hh := *h
@@ -395,7 +398,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 				hh[i].Stats[j] = HitStat{Day: s.Day.Format("2006-01-02"), Days: x}
 
 				// Get max.
-				// TODO: should maybe store this?
 				for j := range x {
 					totalDisplay += x[j][1]
 					if x[j][1] > hh[i].Max {
@@ -410,6 +412,8 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		}
 	}
 
+	l = l.Since("reorder data")
+
 	// Get total.
 	total := 0
 	err = db.GetContext(ctx, &total, `
@@ -417,10 +421,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		from hits
 		where
 			site=$1 and
-			date(created_at) >= $2 and
-			date(created_at) <= $3`,
-		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+			created_at >= $2 and
+			created_at <= $3`,
+		site.ID, dayStart(start), dayEnd(end))
 
+	l = l.Since("get total")
 	return errors.Wrap(err, "HitStats.List"), total, totalDisplay, more
 }
 
@@ -438,14 +443,13 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		from hits
 		where
 			site=$1 and
-			path=$2S and
-			date(created_at) >= $3 and
-			date(created_at) <= $4
+			path=$2 and
+			created_at >= $3 and
+			created_at <= $4
 		group by ref
 		order by count(*) desc
 		limit $5 offset $6`,
-		site.ID, path, start.Format("2006-01-02"), end.Format("2006-01-02"),
-		site.Settings.Limits.Ref+1, offset)
+		site.ID, path, dayStart(start), dayEnd(end), site.Settings.Limits.Ref+1, offset)
 
 	more := false
 	if len(*h) > site.Settings.Limits.Ref {

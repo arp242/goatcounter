@@ -38,6 +38,10 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
 2. Use a proxy for https (e.g. Caddy); you'll need to forward `example.com` and
    `*.example.com`
 
+https://godoc.org/github.com/lib/pq
+
+https://godoc.org/github.com/mattn/go-sqlite3#SQLiteDriver.Open
+
 Patch bounty
 ------------
 

@@ -4,7 +4,6 @@ package cron
 import (
 	"context"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -95,7 +94,7 @@ func updateAllStats(ctx context.Context) error {
 
 func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 	db := goatcounter.MustGetDB(ctx)
-	start := time.Now().Format("2006-01-02")
+	start := time.Now().Format("2006-01-02 15:04:05")
 	l := zlog.Debug("stat").Module("stat")
 
 	// Select everything since last update.
@@ -116,11 +115,10 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		where
 			site=$1 and
 			created_at >= $2
-		group by path, strftime("%Y-%m-%d %H", created_at)
-		order by path, strftime("%Y-%m-%d %H", created_at)
+		group by path, strftime('%Y-%m-%d %H', created_at)
+		order by path, strftime('%Y-%m-%d %H', created_at)
 	`, site.ID, last)
 	if err != nil {
-		fmt.Println("XXX", err)
 		return err
 	}
 
@@ -139,14 +137,14 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 	// inserting new.
 	var have []string
 	err = db.SelectContext(ctx, &have,
-		`select path from hit_stats where site=$1 and kind="h"`,
+		`select path from hit_stats where site=$1`,
 		site.ID)
 	if err != nil {
 		return err
 	}
 
 	insert := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-		Insert("hit_stats").Columns("site", "kind", "day", "path", "stats")
+		Insert("hit_stats").Columns("site", "day", "path", "stats")
 	rows := 0
 
 	// Run insert.
@@ -161,7 +159,7 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		}
 
 		insert = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-			Insert("hit_stats").Columns("site", "kind", "day", "path", "stats")
+			Insert("hit_stats").Columns("site", "day", "path", "stats")
 		rows = 0
 		return nil
 	}
@@ -177,17 +175,20 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 
 		var del []string
 		for day, st := range dayst {
-			insert = insert.Values(site.ID, "h", day, path, jsonutil.MustMarshal(st))
+			insert = insert.Values(site.ID, day, path, jsonutil.MustMarshal(st))
 			if exists {
-				del = append(del, `"`+day+`"`)
+				del = append(del, day)
 			}
 			rows++
 		}
 
 		// Delete existing.
-		_, err = db.ExecContext(ctx, `delete from hit_stats where
-			site=$1 and path=$2 and day in (`+strings.Join(del, ",")+`)`,
-			site.ID, path)
+		query, args, err := sqlx.In(`delete from hit_stats where
+			site=? and path=? and day in (?)`, site.ID, path, del)
+		if err != nil {
+			return err
+		}
+		_, err = db.ExecContext(ctx, query, args...)
 		if err != nil {
 			return errors.WithStack(err)
 		}

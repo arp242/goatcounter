@@ -95,8 +95,8 @@ func (u *User) Insert(ctx context.Context) error {
 		return err
 	}
 
-	res, err := db.ExecContext(ctx, `insert into users (site, name, email) values ($1, $2, $3)`,
-		u.Site, u.Name, u.Email)
+	res, err := db.ExecContext(ctx, `insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
+		u.Site, u.Name, u.Email, sqlDate(u.CreatedAt))
 	if err != nil {
 		if uniqueErr(err) {
 			return guru.New(400, "this user already exists")

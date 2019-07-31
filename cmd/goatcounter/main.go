@@ -9,6 +9,7 @@ import (
 	"github.com/getsentry/raven-go"
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 	"github.com/teamwork/reload"
@@ -63,19 +64,31 @@ func main() {
 	}
 
 	// Connect to DB.
-	// Connect to DB.
-	exists := true
-	if _, err := os.Stat(cfg.DBFile); os.IsNotExist(err) {
-		zlog.Printf("database %q doesn't exist; loading new schema", cfg.DBFile)
-		exists = false
-	}
-	db, err := sqlx.Connect("sqlite3", cfg.DBFile)
-	must(errors.Wrap(err, "sqlx.Connect"))
-	defer db.Close()
+	var (
+		db     *sqlx.DB
+		exists = true
+	)
+	if cfg.PgSQL {
+		var err error
+		db, err = sqlx.Connect("postgres", "user=martin dbname=goatcounter sslmode=disable")
+		must(errors.Wrap(err, "sqlx.Connect pgsql"))
+		defer db.Close()
 
+		db.MustExec(string(dbinit.Schema))
+
+		// TODO(pg): check if exists
+	} else {
+		if _, err := os.Stat(cfg.DBFile); os.IsNotExist(err) {
+			zlog.Printf("database %q doesn't exist; loading new schema", cfg.DBFile)
+			exists = false
+		}
+		var err error
+		db, err = sqlx.Connect("sqlite3", cfg.DBFile)
+		must(errors.Wrap(err, "sqlx.Connect sqlite"))
+		defer db.Close()
+	}
 	if !exists {
-		_, err := db.Exec(string(dbinit.Schema))
-		must(errors.Wrap(err, "database schema init"))
+		db.MustExec(string(dbinit.Schema))
 	}
 
 	// Run background tasks.
@@ -83,9 +96,10 @@ func main() {
 
 	// Set up HTTP handler and servers.
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(map[string]chi.Router{
-		cfg.Domain:        handlers.NewSite(db),
-		cfg.DomainStatic:  handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
-		"*." + cfg.Domain: handlers.NewBackend(db),
+		cfg.Domain:          zhttp.RedirectHost("//www." + cfg.Domain),
+		"www." + cfg.Domain: handlers.NewSite(db),
+		cfg.DomainStatic:    handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
+		"*." + cfg.Domain:   handlers.NewBackend(db),
 	})}, func() {
 		cron.Wait(db)
 		raven.Wait()
