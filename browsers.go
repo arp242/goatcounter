@@ -30,7 +30,6 @@ func (b *Browser) Validate(ctx context.Context) error {
 	v := validate.New()
 
 	v.Required("site", b.Site)
-	v.Required("browser", b.Browser)
 
 	return v.ErrorOrNil()
 }

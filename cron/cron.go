@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/jinzhu/now"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/bulk"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 )
@@ -24,12 +24,15 @@ type task struct {
 
 var tasks = []task{
 	{goatcounter.Memstore.Persist, 10 * time.Second},
-	{updateAllStats, 10 * time.Minute},
+	{updateAllStats, 1 * time.Minute},
 }
 
 var wg sync.WaitGroup
 
 // Run stat updates in the background.
+//
+// TODO: If a cron job takes longer than the period it might get run twice. Not
+// sure if we want that.
 func Run(db *sqlx.DB) {
 	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
 	l := zlog.Module("cron")
@@ -143,27 +146,8 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		return err
 	}
 
-	insert := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-		Insert("hit_stats").Columns("site", "day", "path", "stats")
-	rows := 0
-
-	// Run insert.
-	doInsert := func() error {
-		query, args, err := insert.ToSql()
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		_, err = db.ExecContext(ctx, query, args...)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		insert = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-			Insert("hit_stats").Columns("site", "day", "path", "stats")
-		rows = 0
-		return nil
-	}
-
+	ins := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx),
+		"hit_stats", []string{"site", "day", "path", "stats"})
 	for path, dayst := range hourly {
 		exists := false
 		for _, h := range have {
@@ -175,37 +159,28 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 
 		var del []string
 		for day, st := range dayst {
-			insert = insert.Values(site.ID, day, path, jsonutil.MustMarshal(st))
+			ins.Values(site.ID, day, path, jsonutil.MustMarshal(st))
 			if exists {
 				del = append(del, day)
 			}
-			rows++
 		}
 
 		// Delete existing.
-		query, args, err := sqlx.In(`delete from hit_stats where
-			site=? and path=? and day in (?)`, site.ID, path, del)
-		if err != nil {
-			return err
-		}
-		_, err = db.ExecContext(ctx, query, args...)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		if rows >= 100 {
-			err := doInsert()
+		if len(del) > 0 {
+			query, args, err := sqlx.In(`delete from hit_stats where
+				site=? and path=? and day in (?)`, site.ID, path, del)
+			if err != nil {
+				return err
+			}
+			_, err = db.ExecContext(ctx, query, args...)
 			if err != nil {
 				return errors.WithStack(err)
 			}
 		}
 	}
-
-	if rows > 0 {
-		err = doInsert()
-		if err != nil {
-			return errors.WithStack(err)
-		}
+	err = ins.Finish()
+	if err != nil {
+		return err
 	}
 
 	l = l.Since("Insert in db")

@@ -44,7 +44,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 				header.CSPReportURI:  {"/csp"},
 			}.String()},
 		}),
-		zhttp.Log(true, ""))
+		zhttp.Log(true, "", "/count"))
 
 	// Don't allow any indexing of the backend interface by search engines.
 	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {

@@ -32,8 +32,8 @@ func init() {
 				if h > 0 {
 					inner = fmt.Sprintf(`<div style="height: %.0f%%;"></div>`, h)
 				}
-				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %d views">%s</div>`,
-					stat.Day, s[0], s[1], inner))
+				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
+					stat.Day, s[0], zhttp.Tnformat(s[1]), inner))
 			}
 		}
 

@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# https://github.com/wg/wrk
+
+set -euC
+
+# SQLite
+# wrk -t12 -c400 -d120s -H 'User-Agent: wrk' 'https://arp242.goatcounter.com/count?p=%2Fbenchmark&r=https://wrk.example.com'
+#     Running 2m test @ https://arp242.goatcounter.com/count?p=%2Fbenchmark&r=https://wrk.example.com
+#       12 threads and 400 connections
+#       Thread Stats   Avg      Stdev     Max   +/- Stdev
+#         Latency   495.56ms  237.21ms   2.00s    77.01%
+#         Req/Sec    68.34     39.51   310.00     70.47%
+#       93935 requests in 2.00m, 50.04MB read
+#       Socket errors: connect 0, read 0, write 0, timeout 92
+#     Requests/sec:    782.20
+#     Transfer/sec:    426.67KB
