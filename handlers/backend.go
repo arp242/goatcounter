@@ -28,7 +28,30 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
 		middleware.RedirectSlashes,
-		addctx(db, true),
+		addctx(db, true))
+
+	rr := r.With(zhttp.Headers(nil))
+
+	// Don't allow any indexing of the backend interface by search engines.
+	rr.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Cache-Control", "public,max-age=31536000")
+		w.WriteHeader(200)
+		w.Write([]byte("User-agent: *\nDisallow: /\n"))
+	})
+
+	// CSP errors.
+	rr.Post("/csp", func(w http.ResponseWriter, r *http.Request) {
+		d, _ := ioutil.ReadAll(r.Body)
+		zlog.Errorf("CSP error: %s", string(d))
+		w.WriteHeader(202)
+	})
+
+	// Counter that the script on the website calls.
+	rr.Get("/count", zhttp.Wrap(h.count))
+
+	// Backend interface.
+	a := r.With(
 		zhttp.Headers(http.Header{
 			"Strict-Transport-Security": []string{"max-age=2592000"},
 			"X-Frame-Options":           []string{"deny"},
@@ -44,28 +67,9 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 				header.CSPReportURI:  {"/csp"},
 			}.String()},
 		}),
-		zhttp.Log(true, "", "/count"))
+		zhttp.Log(true, ""),
+		keyAuth)
 
-	// Don't allow any indexing of the backend interface by search engines.
-	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Header().Set("Cache-Control", "public,max-age=31536000")
-		w.WriteHeader(200)
-		w.Write([]byte("User-agent: *\nDisallow: /\n"))
-	})
-
-	// CSP errors.
-	r.Post("/csp", func(w http.ResponseWriter, r *http.Request) {
-		d, _ := ioutil.ReadAll(r.Body)
-		zlog.Errorf("CSP error: %s", string(d))
-		w.WriteHeader(202)
-	})
-
-	// Counter that the script on the website calls.
-	r.Get("/count", zhttp.Wrap(h.count))
-
-	// Backend interface.
-	a := r.With(keyAuth)
 	a.Get("/", zhttp.Wrap(h.index))
 	a.Get("/refs", zhttp.Wrap(h.refs))
 	a.Get("/pages", zhttp.Wrap(h.pages))
@@ -76,35 +80,39 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	user{}.mount(a)
 }
 
+// Gif is the smallest filesize (PNG is 116 bytes, vs 43).
+var gif = []byte{0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x1, 0x0, 0x1, 0x0, 0x80,
+	0x1, 0x0, 0x0, 0x0, 0x0, 0xff, 0xff, 0xff, 0x21, 0xf9, 0x4, 0x1, 0xa, 0x0,
+	0x1, 0x0, 0x2c, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x1, 0x0, 0x0, 0x2, 0x2, 0x4c,
+	0x1, 0x0, 0x3b}
+
 func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Cache-Control", "no-store,no-cache")
 
 	// Don't track pages fetched with the browser's prefetch algorithm.
 	// See https://github.com/usefathom/fathom/issues/13
-	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
-		return zhttp.String(w, "")
-	}
-	if user_agent.New(r.UserAgent()).Bot() {
-		return zhttp.String(w, "")
+	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" || user_agent.New(r.UserAgent()).Bot() {
+		w.Header().Set("Content-Type", "image/gif")
+		return zhttp.Bytes(w, gif)
 	}
 
 	var hit goatcounter.Hit
 	_, err := zhttp.Decode(r, &hit)
 	if err != nil {
+		w.Header().Set("Content-Type", "text/plain")
 		return err
 	}
 	hit.Site = goatcounter.MustGetSite(r.Context()).ID
 	hit.CreatedAt = time.Now().UTC()
 
-	browser := goatcounter.Browser{
+	goatcounter.Memstore.Append(hit, goatcounter.Browser{
 		Site:      hit.Site,
 		Browser:   r.UserAgent(),
 		CreatedAt: hit.CreatedAt,
-	}
+	})
 
-	goatcounter.Memstore.Append(hit, browser)
-
-	return zhttp.String(w, "")
+	w.Header().Set("Content-Type", "image/gif")
+	return zhttp.Bytes(w, gif)
 }
 
 const day = 24 * time.Hour

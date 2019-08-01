@@ -86,6 +86,8 @@ zgo.at/zhttp v0.0.0-20190731104029-94672fd22994 h1:PuNMyb2nfMruWm62IhXipj4evh7dK
 zgo.at/zhttp v0.0.0-20190731104029-94672fd22994/go.mod h1:3FnNTC9ToanDE67HWFzk+XnOktIIb9KBJhhzNM82EY4=
 zgo.at/zhttp v0.0.0-20190801110444-9c8bddcf1061 h1:dNOuEXKlUtAkAap/Ps5wdWwpvPwlzVcZCOhsGgU7fVs=
 zgo.at/zhttp v0.0.0-20190801110444-9c8bddcf1061/go.mod h1:3FnNTC9ToanDE67HWFzk+XnOktIIb9KBJhhzNM82EY4=
+zgo.at/zhttp v0.0.0-20190801115539-6c927734c247 h1:pPRgvvTIUiesJaf6PUixqFg4V1C0iBUC2FxyhNf+CGM=
+zgo.at/zhttp v0.0.0-20190801115539-6c927734c247/go.mod h1:3FnNTC9ToanDE67HWFzk+XnOktIIb9KBJhhzNM82EY4=
 zgo.at/zlog v0.0.0-20190618174655-2641de0fc4bf/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=
 zgo.at/zlog v0.0.0-20190729093532-0cf8690f4f9e h1:NHNSNFdtQT43gQ6I6WLK/k3yLAfvWC8DODouCQhjoIo=
 zgo.at/zlog v0.0.0-20190729093532-0cf8690f4f9e/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=

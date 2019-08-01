@@ -4,8 +4,8 @@ go 1.12
 
 //replace zgo.at/zhttp => ../zhttp
 
-// This fork doesn't depend on mailaddress and its transient dependencies.
-// Hard to update to upstream due to compatibility.
+// This fork doesn't depend on the github.com/teamwork/mailaddress package and
+// its transient dependencies. Hard to update to upstream due to compatibility.
 replace github.com/teamwork/validate => github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287
 
 // csp branch
@@ -34,7 +34,7 @@ require (
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
 	google.golang.org/appengine v1.6.1 // indirect
-	zgo.at/zhttp v0.0.0-20190801110444-9c8bddcf1061
+	zgo.at/zhttp v0.0.0-20190801115539-6c927734c247
 	zgo.at/zlog v0.0.0-20190729101808-11a778095e52
 	zgo.at/zlog_sentry v1.0.0
 )
