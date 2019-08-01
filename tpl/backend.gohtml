@@ -18,7 +18,7 @@
 	</div>
 {{end}}
 
-{{if .Site.Settings.Public}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
+{{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
 <div class="count-list-opt">
 	<form>
