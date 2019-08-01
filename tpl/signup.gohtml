@@ -1,0 +1,32 @@
+{{template "_top.gohtml" .}}
+
+<h1>Sign up for GoatCounter</h1>
+<div id="signup">
+	<p id="signup-intro">Sign up for the {{.PlanName}} plan.
+		<a href="/#pricing">Choose a different plan</a>.
+	</p>
+
+	<div id="signup-form">
+		<form class="vertical" method="post" action="/signup/{{.PlanName}}">
+			<label for="domain">Domain</label>
+			<input type="text" name="domain" id="domain" maxlength="255">
+			<span class="help">Your site’s domain, e.g. <em>example.com</em>.</span>
+			{{validate "domain" .Validate}}
+
+			<label for="code">Code</label>
+			<input type="text" name="code" id="code" maxlength="50">
+			<span class="help">You will access your account at https://<em>code</em>.{{.Domain}}.</span>
+			{{validate "code" .Validate}}
+
+			<label for="email">Email address</label>
+			<input type="email" name="email" id="email">
+			<span class="help">You will need this to sign in.</span>
+			{{validate "email" .Validate}}
+
+			<button type="submit">Sign up</button>
+		</form>
+	</div>
+
+</div>
+
+{{template "_bottom.gohtml" .}}

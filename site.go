@@ -8,6 +8,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -15,6 +16,15 @@ import (
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
 )
+
+// Plan column values.
+const (
+	PlanPersonal   = "p"
+	PlanBusiness   = "b"
+	PlanEnterprise = "e"
+)
+
+var Plans = []string{PlanPersonal, PlanBusiness, PlanEnterprise}
 
 var reserved = []string{
 	"goatcounter", "goatcounters",
@@ -28,6 +38,7 @@ type Site struct {
 
 	Domain       string       `db:"domain"` // Domain for which the service is (arp242.net)
 	Code         string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
+	Plan         string       `db:"plan"`
 	Settings     SiteSettings `db:"settings"`
 	LastStat     *time.Time   `db:"last_stat"`
 	ReceivedData bool         `db:"received_data"`
@@ -76,6 +87,8 @@ func (s *Site) Defaults(ctx context.Context) {
 		s.Settings.Limits.Browser = 20
 	}
 
+	s.Code = strings.ToLower(s.Code)
+
 	if s.CreatedAt.IsZero() {
 		s.CreatedAt = time.Now().UTC()
 	} else {
@@ -89,12 +102,22 @@ func (s *Site) Validate(ctx context.Context) error {
 	v := validate.New()
 
 	v.Required("domain", s.Domain)
+	v.Required("code", s.Code)
 	v.Required("state", s.State)
+	v.Required("plan", s.Plan)
 	v.Include("state", s.State, States)
+	v.Include("plan", s.Plan, Plans)
 
+	v.Len("code", s.Code, 0, 50)
 	v.Len("domain", s.Domain, 0, 255)
 	v.Domain("domain", s.Domain)
 	v.Exclude("domain", s.Domain, reserved)
+
+	for _, c := range s.Code {
+		if c == 95 || (c >= 48 && c <= 57) || (c >= 97 && c <= 122) {
+			v.Append("code", "characters are limited to '_', a to z, and numbers")
+		}
+	}
 
 	return v.ErrorOrNil()
 }

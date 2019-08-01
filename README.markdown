@@ -4,6 +4,12 @@ There are two ways to run this: as **hosted service for $3/month**, or run it
 on your own server. Check out [https://GoatCounter.com](https://GoatCounter.com)
 for the hosted service and user documentation.
 
+- Fast: can handle about 800 hits/second on a $5/month Linode
+  VPS with the default settings and SQLite. Can easily scale to much more by
+  running Hitch and Varnish on a separate machine or using PostgreSQL.
+
+- Self-contained binary. Everything (including static assets) is in a single 5M
+  statically compiled binary.
 
 Running your own
 ----------------
@@ -45,6 +51,9 @@ https://godoc.org/github.com/mattn/go-sqlite3#SQLiteDriver.Open
 Patch bounty
 ------------
 
-- Patch bounty: every non-trivial patch (bugfix, feature) gets one month free.
-  - It's fair, after all, I make money off it
-  - Encourages patches (maybe?)
+Every non-trivial patch (bugfix, feature) gets one month free.
+
+- It's fair, after all, I make money off it
+- Encourages patches (maybe?)
+
+Please mention your email address in the PR to claim this.

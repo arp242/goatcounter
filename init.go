@@ -21,6 +21,18 @@ import (
 )
 
 func init() {
+	zhttp.FuncMap["validate"] = func(k string, v map[string][]string) template.HTML {
+		if v == nil {
+			return template.HTML("")
+		}
+		e, ok := v[k]
+		if !ok {
+			return template.HTML("")
+		}
+		return template.HTML(fmt.Sprintf(`<span class="err">Error: %s</span>`,
+			template.HTMLEscapeString(strings.Join(e, ", "))))
+	}
+
 	// Implemented as function for performance.
 	zhttp.FuncMap["bar_chart"] = func(stats []HitStat, max int) template.HTML {
 		var b strings.Builder

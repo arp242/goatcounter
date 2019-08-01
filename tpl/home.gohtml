@@ -1,47 +1,19 @@
 {{template "_top.gohtml" .}}
 
-<h1>GoatCounter <sup><i>Beta</i></sup></h1>
-
-<div class="home-top">
-	<div class="home-top-left">
-		<p>GoatCounter helps you understand which pages are visited and where
-		your visitors are coming from.</p>
-
-		<p>More text asdsadasd Easy and no-frills. If you've been confused by
-		the myriad of options and flexibility of Google Analystics and Matomo.</p>
-
-		<img src="//{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
-	
-		<div class="iframe">
-			<iframe width="448" height="252"
-				src="https://www.youtube-nocookie.com/embed/T6pkhNWD76o"
-				frameborder="0"
-				allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-				allowfullscreen></iframe>
-		</div>
+<div id="home-top">
+	<h1>GoatCounter <sup><i>Beta</i></sup></h1>
+	<div id="home-intro">
+		<p><span>Simple</span> web statistics. <span>No tracking</span> of personal data.</p>
 	</div>
+	<br>
 
-	<div class="home-top-right">
-		<form class="vertical">
-			<h2><span>☞</span> Sign up</h2>
-			<label for="domain">Domain</label>
-			<input type="text" name="domain" id="domain">
-			<span>Your site’s domain, e.g. <em>example.com</em>.</span>
+	<div id="home-demo">
+		{{/* TODO(public): use SVG for ☞ to ensure it doens't look shit */}}
+		<a class="hlink" href="https://arp242.goatcounter.com" target="_blank"><span>☞</span> Live demo</a>
+	</div>
+	<br><br>
 
-			<label for="code">Code</label>
-			<input type="text" name="code" id="code">
-			<span>You will access your account at https://<em>code</em>.{{.Domain}}.</span>
-			<!--
-			<span>Access your account at https://<em>code</em>.{{.Domain}}.</span>
-			-->
-
-			<label for="email">Email address</label>
-			<input type="email" name="email" id="email">
-			<span>You will need this to sign in.</span>
-
-			<button>Sign up</button>
-		</form>
-
+{{/*
 		<form class="vertical2">
 			<h2 class="inline">Sign in</h2>
 			<p>Already have an account? Sign in at https://<em>code</em>.{{.Domain}}. Here's a shortcut for that:</p>
@@ -51,34 +23,92 @@
 			<button>Go</button>
 		</form>
 	</div>
+*/}}
+
+	<div id="home-screens">
+		<div style="height: 255px">
+			<img class="zoom" src="//{{.Static}}/screenshot-small.png"
+				data-large="//{{.Static}}/screenshot.png"
+				alt="Screenshot of the GoatCounter interface">
+		</div>
+
+		<div>
+			<div class="iframe">
+				<iframe width="448" height="252"
+					src="https://www.youtube-nocookie.com/embed/T6pkhNWD76o"
+					frameborder="0"
+					allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+					allowfullscreen></iframe>
+			</div>
+		</div>
+	</div>
 </div>
 
-<div class="clearfix"></div>
+<!--
+<h2 id="features">Features</h2>
+-->
+<br><hr><br>
+<div id="home-features">
+	<div>
+		<p><strong>Privacy-aware</strong>; doesn’t track users; doesn't need a
+			GDPR notice (probably, see <a href="/privacy">Privacy</a>).</p>
+		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
+			0.8KB of extra data to your site.</p>
+	</div>
 
-<h2>Features</h2>
-<ul>
-	<li>Lightweight; works with screen readers, lynx.</li>
-	<li>No JavaScript required </li>
-	<li>100% open source; see <a href="https://github.com/zgo/goatcounter">the GitHub page</a>.</li>
-	<li>Self-contained binary.</li>
-	<li>Easy and no-frills.
+	<div>
+		<p><strong>Easy</strong>; if you've been confused by the myriad of
+			options and flexibility of Google Analytics and Matomo than you
+			don't need then GoatCounter will be a breath of fresh air.</p> 
+		<p><strong>Accessibility</strong> is a high-priority
+			feature, and the interface works well with screen readers, no
+			JavaScript, and even text browsers.</p>
+	</div>
 
-	If you've been confused by the myriad of options and flexibility of Google
-	Analytics and Matomo.
-	</li>
+	<div>
+		<p>100% committed to <strong>open source</strong>; you can see exactly
+			what the code does and make improvements. See
+			<a href="https://github.com/zgo/goatcounter">the GitHub page</a>.</p>
+		<p><strong>Own your data</strong>; you can always export all data and
+			<strong>cancel at any time</strong>.</p>
+	</div>
+</div>
 
-	<li>Doesn't collect data or track users; doesn't need a GDPR notice
-	(probably).</li>
+<!--
+<h2 id="pricing">Pricing</h2>
+-->
+<br><hr><br>
+<div id="home-pricing">
+	<div>
+		<h3>Personal</h3>
+		<ul>
+			<li>$3/month per domain</li>
+			<li>250k hits/months</li>
+			<li>&nbsp;</li>
+		</ul>
+		<a class="hlink" href="/signup/personal"><span>☞</span> Sign up</a>
+	</div>
 
-	<li>Low footprint: just a 1.7KB JavaScript file (0.8KB minified &amp;
-	compressed).</li>
+	<div>
+		<h3>Business</h3>
+		<ul>
+			<li>$30/month per domain</li>
+			<li>5M hits/months</li>
+			<li>Custom domain</li>
+		</ul>
+		<a class="hlink" href="/signup/business"><span>☞</span> Sign up</a>
+	</div>
 
-	<li>Fast: can handle about 800 hits/second on a $5/month Linode VPS
-	with the default settings and SQLite. Can easily scale to much more by
-	running Hitch and Varnish on a separate machine or using PostgreSQL.</li>
-</ul>
-
-<h2>Pricing</h2>
-<p>$2/month per domain.</p>
+	<div>
+		<h3>Enterprise</h3>
+		<ul>
+			<li>$100/month per domain</li>
+			<li>Unlimited hits/month</li>
+			<li>Private installation</li>
+		</ul>
+		<a class="hlink" href="/signup/enterprise"><span>☞</span> Sign up</a>
+	</div>
+</div>
+<br><br>
 
 {{template "_bottom.gohtml" .}}

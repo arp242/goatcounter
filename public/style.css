@@ -2,94 +2,117 @@
    This file is part of GoatCounter and published under the terms of the AGPLv3,
    which can be found in the LICENSE file or at gnu.org/licenses/agpl.html */
 
-html {
-	/*
-	font: 18px/140% Lato, sans-serif;
-	*/
+.page, .center { max-width: 60em; }
+.page-home, .page-signup { padding: 0; box-shadow: none; background-color: transparent; }
+h1             { margin-top: 2em; font-size: 2em; }
+h2 {
+	text-align: center;
+	font-size: 2em;
+	padding: .5em 0;
+	margin-top: 1.5em;
+	margin-bottom: 1em;
+	border-bottom: none;
 }
 
-/*
-html {
-	background-color: #d1d2b7;
-	background-color: #68fee8;
-	background-color: #ccc;
-}
-.page {
-	background-color: transparent;
-	box-shadow: none;
-}
-*/
-
-.page, .center {
-	/*max-width: calc(88mm * 3);*/
-
-	/*
-	max-width: calc(98mm * 3);
-	*/
-
-	/* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
-	 * width. .page has a 1em padding on either side.
-	 * The last 10mm is needede because magic (1mm will work, this just looks
-	 * more even). */
-	/*
-	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
-	*/
+.hlink       { font-weight: bold; box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
+.hlink:hover { text-decoration: none; background-color: #fffded; color: #252525; }
+.hlink span {
+	font-weight: normal;
+	font-size: 45px;
+	line-height: 1rem;
+	vertical-align: middle;
+	margin: 0 5px;
 }
 
-.center {
-	/*
+footer   { padding: 1em; text-align: center; background-color: #004c7e; color: #f9f9f9; }
+footer a { color: #f9f9f9; font-weight: bold; }
+
+/*** Home top ***/
+#home-top        { padding: 0 1em; }
+#home-intro      { margin: 1em 0; text-align: center; font-size: 1.8em; line-height: 1.5em; }
+#home-intro span { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
+
+#home-demo   { text-align: center; margin: 2.5em 0; }
+#home-demo a { padding: 1em 3em; }
+
+@media (min-width: 45rem) {
+	#home-screens       { display: flex; justify-content: space-between; align-items: center; }
+	#home-screens > div { width: 49%; }
+}
+@media (max-width: 45rem) {
+	#home-screens > div { margin-bottom: 1em; }
+}
+.iframe { position: relative; width: 100%; height: 0; padding-bottom: 56.25%; }
+iframe  { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+img.imgzoom-loading { cursor: wait !important; }
+.imgzoom-large { cursor: pointer; box-shadow: 0 0 8px rgba(0, 0, 0, .3); transition: all .4s; }
+
+/*** Home pricing ***/
+#home-pricing       { display: flex; justify-content: space-between; text-align: center; }
+#home-pricing > div { width: 30%; box-shadow: 0 0 4px #cdc8a4; background-color: #fff; }
+#home-pricing h3    { margin: .5em 0; }
+#home-pricing ul    { list-style: none; padding: 0; line-height: 2.5em; }
+#home-pricing a     { padding: 1em; display: block; border-top: 1px solid #cdc8a4; box-shadow: 0 3px 3px #cdc8a4; }
+
+@media (max-width: 45rem) {
+	#home-pricing > div { width: 32.5%; }
+}
+@media (max-width: 40rem) {
+	#home-pricing       { display: block; }
+	#home-pricing > div { margin-bottom: 1em; width: auto; }
+	#home-pricing ul    { line-height: 2em; }
+	#home-pricing h3    { padding-top: .5em; }
+}
+
+/*** Home features ***/
+#home-features div { display: flex; justify-content: space-between; }
+#home-features p   { width: 49%; padding: .5em 1em; background-color: #fff; box-shadow: 0 0 4px #cdc8a4; }
+#home-features div:first-child p { margin-top: 0; }
+#home-features strong { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
+
+@media (max-width: 45rem) {
+	#home-features div { flex-wrap: wrap; }
+	#home-features p   { width: 100%; margin-top: .5em; }
+	#home-features div:first-child p { margin-top: .5em; }
+}
+
+
+/*** Signup page ******/
+#signup-intro {
+	text-align: center;
+	font-size: 1em;
+}
+#signup-form {
 	background-color: #fff;
-	*/
-}
-
-.page {
 	padding: 1em;
+	box-shadow: 0 0 4px #cdc8a4;
+}
+
+form.vertical .err {
+	color: red;
+}
+
+form.vertical .help {
 	/*
-	max-width: none;
-	padding-top: 2em;
-	padding-bottom: 2em;
-	*/
-}
-
-/*
-label[for] { font-weight: bold; }
-*/
-
-/*
-input, select {
-	min-width: 10rem !important;
-	width: 10rem;
-}
-*/
-
-/***** ******/
-
-form.vertical input + span,
-form.vertical select + span,
-form.vertical label + span {
 	display: block;
-	font-size: 14px;
 	text-align: right;
+	*/
+	font-size: 14px;
 	margin-bottom: 1.2em;
 }
 
-/*** Home page design ***/
+button {
+	display: block;
+}
 
+input, select {
+	background-color: #fff; /* The default grey for select is rather meh. */
+	border: 1px solid #ccc;
+	border-radius: 2px;
+}
+
+/*
 .clearfix { clear: both; }
-.iframe {
-	position: relative;
-	width: 100%;
-	height: 0;
-	padding-bottom: 56.25%;
-}
-
-iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
 
 .home-top {
 	display: flex;
@@ -126,5 +149,7 @@ iframe {
 .home-top-right .vertical2 p { margin: 0; display: inline; }
 
 #code { width: 5em; }
-</style>
+*/
 
+/*** Help page ***/
+dt { font-weight: bold; }
