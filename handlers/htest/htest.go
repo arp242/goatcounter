@@ -1,3 +1,7 @@
+// Copyright © 2019 Martin Tournoij <martin@arp242.net>
+// This file is part of GoatCounter and published under the terms of the AGPLv3,
+// which can be found in the LICENSE file or at gnu.org/licenses/agpl.html
+
 package htest
 
 import (
