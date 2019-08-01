@@ -35,7 +35,7 @@ func TestHitDefaults(t *testing.T) {
 		{"https://arp242.net?utm_source=asd&a=b", a, test.SP("a=b"), set},
 
 		// Groups
-		{"https://mail.google.com?a=b&c=d", "Gmail", nil, set},
+		{"https://mail.google.com?a=b&c=d", "Email", nil, set},
 		{"android-app://com.laurencedawson.reddit_sync.pro", "www.reddit.com", nil, set},
 
 		// Host aliases.

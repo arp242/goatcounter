@@ -38,7 +38,7 @@ type Site struct {
 
 	Domain       string       `db:"domain"` // Domain for which the service is (arp242.net)
 	Code         string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
-	Plan         string       `db:"plan"`
+	Plan         *string      `db:"plan"`   // TODO(public): only a ptr because of migration.
 	Settings     SiteSettings `db:"settings"`
 	LastStat     *time.Time   `db:"last_stat"`
 	ReceivedData bool         `db:"received_data"`
@@ -106,7 +106,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Required("state", s.State)
 	v.Required("plan", s.Plan)
 	v.Include("state", s.State, States)
-	v.Include("plan", s.Plan, Plans)
+	v.Include("plan", *s.Plan, Plans)
 
 	v.Len("code", s.Code, 0, 50)
 	v.Len("domain", s.Domain, 0, 255)

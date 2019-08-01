@@ -10,7 +10,7 @@ create table sites (
 
 	domain         varchar        not null collate nocase  check(length(domain) <= 255),
 	code           varchar        not null collate nocase  check(length(domain) <= 50),
-	plan           varchar        not null check(plan in ('p', 'b', 'e')),
+	plan           varchar        not null                 check(plan in ('p', 'b', 'e')),
 	settings       varchar        not null,
 	last_stat      datetime       null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
 	received_data  int            not null default 0,

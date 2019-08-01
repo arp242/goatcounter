@@ -95,7 +95,7 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	s := goatcounter.Site{
 		Domain: args.Domain,
 		Code:   args.Code,
-		Plan:   plan,
+		Plan:   &plan,
 	}
 
 	s.Defaults(r.Context())

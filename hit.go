@@ -38,8 +38,10 @@ var groups = map[string]string{
 	// http://www.elegantreader.com/item/17358103
 	// https://www.daemonology.net/hn-daily/2019-05.html
 
-	"mail.google.com":       "Gmail",
-	"com.google.android.gm": "Gmail",
+	"mail.google.com":       "Email",
+	"com.google.android.gm": "Email",
+	"mail.yahoo.com":        "Email",
+	//  https://mailchi.mp
 
 	"com.google.android.googlequicksearchbox":                      "Google",
 	"com.google.android.googlequicksearchbox/https/www.google.com": "Google",
