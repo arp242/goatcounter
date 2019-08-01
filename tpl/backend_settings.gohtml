@@ -1,8 +1,7 @@
 {{template "_backend_top.gohtml" .}}
 
 {{if not .User.ID}}
-<p>This is the management panel for the {{.Site.Name}} visitor counter.
-	Sign in or go to the <a href="https://{{.Domain}}">home page</a></p>
+<p>Sign in or go to the <a href="https://{{.Domain}}">home page</a></p>
 	{{template "_backend_signin.gohtml" .}}
 {{else}}
 
