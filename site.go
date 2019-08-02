@@ -125,7 +125,8 @@ func (s *Site) Validate(ctx context.Context) error {
 	if !v.HasErrors() {
 		var code, domain uint8
 		err := MustGetDB(ctx).GetContext(ctx, &code,
-			`select 1 from sites where code=$1 limit 1`, s.Code)
+			`select 1 from sites where code = $1 and id != $2 limit 1`,
+			s.Code, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
 		}
@@ -134,7 +135,8 @@ func (s *Site) Validate(ctx context.Context) error {
 		}
 
 		err = MustGetDB(ctx).GetContext(ctx, &domain,
-			`select 1 from sites where domain=$1 limit 1`, s.Domain)
+			`select 1 from sites where domain = $1 and id != $2 limit 1`,
+			s.Domain, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
 		}
