@@ -2,8 +2,9 @@
    This file is part of GoatCounter and published under the terms of the AGPLv3,
    which can be found in the LICENSE file or at gnu.org/licenses/agpl.html */
 
+*:target { background-color: inherit; }
 .page, .center { max-width: 60em; }
-.page-home, .page-signup { padding: 0; box-shadow: none; background-color: transparent; }
+.page-home     { padding: 0; box-shadow: none; background-color: transparent; }
 h1             { margin-top: 2em; font-size: 2em; }
 h2 {
 	text-align: center;
@@ -16,13 +17,7 @@ h2 {
 
 .hlink       { font-weight: bold; box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
 .hlink:hover { text-decoration: none; background-color: #fffded; color: #252525; }
-.hlink span {
-	font-weight: normal;
-	font-size: 45px;
-	line-height: 1rem;
-	vertical-align: middle;
-	margin: 0 5px;
-}
+.hlink img   { vertical-align: middle; margin: 0 5px; height: 1.1em; }
 
 footer   { padding: 1em; text-align: center; background-color: #004c7e; color: #f9f9f9; }
 footer a { color: #f9f9f9; font-weight: bold; }
@@ -83,13 +78,26 @@ img.imgzoom-loading { cursor: wait !important; }
 	font-size: 1em;
 }
 #signup-form {
-	background-color: #fff;
+	background-color: #f7f7f7;
 	padding: 1em;
 	box-shadow: 0 0 4px #cdc8a4;
 }
 
+#signup-form fieldset.two {
+	margin: 0;
+	padding: 0;
+	border: none;
+	display: flex;
+	justify-content: space-between; 
+	margin-bottom: 1em;
+}
+#signup-form fieldset.two div {
+	width: 50%;
+}
+
 form.vertical .err {
 	color: red;
+	display: block;
 }
 
 form.vertical .help {
@@ -136,19 +144,6 @@ input, select {
 	background-color: #f6f3da;
 	background: linear-gradient(#f6f3da 90%, #ebe7c3);
 }
-
-.home-top-right form.vertical2 {
-	border-top: 0;
-	background-color: #ebe7c3;
-}
-
-.home-top-right h2 { border: none; margin-bottom: 0; text-align: center; margin-left: -10px; }
-.home-top-right h2 span { font-size: 55px; line-height: 1rem; vertical-align: middle; margin-right: 10px; }
-.home-top-right h2.inline { font-size: 1em; display: inline; margin-left: 0; }
-
-.home-top-right .vertical2 p { margin: 0; display: inline; }
-
-#code { width: 5em; }
 */
 
 /*** Help page ***/

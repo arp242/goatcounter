@@ -8,22 +8,9 @@
 	<br>
 
 	<div id="home-demo">
-		{{/* TODO(public): use SVG for ☞ to ensure it doens't look shit */}}
-		<a class="hlink" href="https://arp242.goatcounter.com" target="_blank"><span>☞</span> Live demo</a>
+		<a class="hlink" href="https://arp242.goatcounter.com" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
 	</div>
 	<br><br>
-
-{{/*
-		<form class="vertical2">
-			<h2 class="inline">Sign in</h2>
-			<p>Already have an account? Sign in at https://<em>code</em>.{{.Domain}}. Here's a shortcut for that:</p>
-			<br>
-			<input type="text" name="code" id="code" placeholder="code">
-			.{{.Domain}}
-			<button>Go</button>
-		</form>
-	</div>
-*/}}
 
 	<div id="home-screens">
 		<div style="height: 255px">
@@ -47,7 +34,7 @@
 <!--
 <h2 id="features">Features</h2>
 -->
-<br><hr><br>
+<br><hr id="features"><br>
 <div id="home-features">
 	<div>
 		<p><strong>Privacy-aware</strong>; doesn’t track users; doesn't need a
@@ -77,7 +64,7 @@
 <!--
 <h2 id="pricing">Pricing</h2>
 -->
-<br><hr><br>
+<br><hr id="pricing"><br>
 <div id="home-pricing">
 	<div>
 		<h3>Personal</h3>
@@ -86,7 +73,7 @@
 			<li>250k hits/months</li>
 			<li>&nbsp;</li>
 		</ul>
-		<a class="hlink" href="/signup/personal"><span>☞</span> Sign up</a>
+		<a class="hlink" href="/signup/personal"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 
 	<div>
@@ -96,7 +83,7 @@
 			<li>5M hits/months</li>
 			<li>Custom domain</li>
 		</ul>
-		<a class="hlink" href="/signup/business"><span>☞</span> Sign up</a>
+		<a class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 
 	<div>
@@ -106,7 +93,7 @@
 			<li>Unlimited hits/month</li>
 			<li>Private installation</li>
 		</ul>
-		<a class="hlink" href="/signup/enterprise"><span>☞</span> Sign up</a>
+		<a class="hlink" href="/signup/enterprise"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 </div>
 <br><br>

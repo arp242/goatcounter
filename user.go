@@ -55,8 +55,9 @@ func (up *UserPreferences) Scan(v interface{}) error { return json.Unmarshal(v.(
 
 // Defaults sets fields to default values, unless they're already set.
 func (u *User) Defaults(ctx context.Context) {
-	site := MustGetSite(ctx)
-	u.Site = site.ID
+	// TODO: not set in website
+	// site := MustGetSite(ctx)
+	// u.Site = site.ID
 
 	if u.State == "" {
 		u.State = StateRequest

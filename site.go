@@ -6,8 +6,10 @@ package goatcounter
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -38,7 +40,7 @@ type Site struct {
 
 	Domain       string       `db:"domain"` // Domain for which the service is (arp242.net)
 	Code         string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
-	Plan         *string      `db:"plan"`   // TODO(public): only a ptr because of migration.
+	Plan         string       `db:"plan"`
 	Settings     SiteSettings `db:"settings"`
 	LastStat     *time.Time   `db:"last_stat"`
 	ReceivedData bool         `db:"received_data"`
@@ -106,7 +108,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Required("state", s.State)
 	v.Required("plan", s.Plan)
 	v.Include("state", s.State, States)
-	v.Include("plan", *s.Plan, Plans)
+	v.Include("plan", s.Plan, Plans)
 
 	v.Len("code", s.Code, 0, 50)
 	v.Len("domain", s.Domain, 0, 255)
@@ -114,8 +116,30 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Exclude("domain", s.Domain, reserved)
 
 	for _, c := range s.Code {
-		if c == 95 || (c >= 48 && c <= 57) || (c >= 97 && c <= 122) {
-			v.Append("code", "characters are limited to '_', a to z, and numbers")
+		if !(c == 95 || (c >= 48 && c <= 57) || (c >= 97 && c <= 122)) {
+			v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', a to z, and numbers", c))
+			break
+		}
+	}
+
+	if !v.HasErrors() {
+		var code, domain uint8
+		err := MustGetDB(ctx).GetContext(ctx, &code,
+			`select 1 from sites where code=$1 limit 1`, s.Code)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+		if code == 1 {
+			v.Append("code", "already exists")
+		}
+
+		err = MustGetDB(ctx).GetContext(ctx, &domain,
+			`select 1 from sites where domain=$1 limit 1`, s.Domain)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+		if domain == 1 {
+			v.Append("domain", "already exists")
 		}
 	}
 
@@ -135,11 +159,11 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	res, err := MustGetDB(ctx).ExecContext(ctx,
-		`insert into sites (code, domain, settings, created_at) values ($1, $2, $3, $4)`,
-		s.Code, s.Domain, s.Settings, sqlDate(s.CreatedAt))
+		`insert into sites (code, domain, settings, plan, created_at) values ($1, $2, $3, $4, $5)`,
+		s.Code, s.Domain, s.Settings, s.Plan, sqlDate(s.CreatedAt))
 	if err != nil {
 		if uniqueErr(err) {
-			return guru.New(400, "this site already exists")
+			return guru.New(400, "this site already exists: domain and code must be unique")
 		}
 		return errors.Wrap(err, "Site.Insert")
 	}

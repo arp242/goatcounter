@@ -1,32 +1,66 @@
 {{template "_top.gohtml" .}}
 
+{{if eq .Plan "e"}}
+	<p>Please email <a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+	if you’re interested in the Enterprise plan to discus your needs.</p>
+
+	<p><a href="/#pricing">Choose a different plan</a>.</p>
+{{else}}
 <h1>Sign up for GoatCounter</h1>
-<div id="signup">
-	<p id="signup-intro">Sign up for the {{.PlanName}} plan.
-		<a href="/#pricing">Choose a different plan</a>.
-	</p>
+<div id="signup-form">
+	<form class="vertical" method="post" action="/signup/{{.PlanName}}">
+		<fieldset class="two">
+			<div>
+				<label for="domain">Domain</label>
+				<input type="text" name="site_domain" id="domain" maxlength="255" value="{{.Site.Domain}}">
+				{{validate "site.domain" .Validate}}
+				<span class="help">Your site’s domain, e.g. <em>example.com</em>.</span>
+			</div>
 
-	<div id="signup-form">
-		<form class="vertical" method="post" action="/signup/{{.PlanName}}">
-			<label for="domain">Domain</label>
-			<input type="text" name="domain" id="domain" maxlength="255">
-			<span class="help">Your site’s domain, e.g. <em>example.com</em>.</span>
-			{{validate "domain" .Validate}}
+			<div>
+				<label for="code">Code</label>
+				<input type="text" name="site_code" id="code" maxlength="50" value="{{.Site.Code}}">
+				{{validate "site.code" .Validate}}
+				<span class="help">You will access your account at https://<em>code</em>.{{.Domain}}.</span>
+			</div>
+		</fieldset>
 
-			<label for="code">Code</label>
-			<input type="text" name="code" id="code" maxlength="50">
-			<span class="help">You will access your account at https://<em>code</em>.{{.Domain}}.</span>
-			{{validate "code" .Validate}}
+		<fieldset class="two">
+			<div>
+				<label for="name">Name</label>
+				<input type="text" name="user_name" id="name" value="{{.User.Name}}">
+				{{validate "user.name" .Validate}}
+				<span class="help">Your name.</span>
+			</div>
+			<div>
+				<label for="email">Email address</label>
+				<input type="email" name="user_email" id="email" value="{{.User.Email}}">
+				{{validate "user.email" .Validate}}
+				<span class="help">You will need this to sign in.</span>
+			</div>
+		</fieldset>
 
-			<label for="email">Email address</label>
-			<input type="email" name="email" id="email">
-			<span class="help">You will need this to sign in.</span>
-			{{validate "email" .Validate}}
+		<fieldset>
+			<p id="signup-intro">
+				Sign up for the {{.PlanName}} plan. You will be billed
+				${{if eq .Plan "p"}}3{{else}}20{{end}} every month, cancellable every
+				month.
+				<a href="/#pricing">Choose a different plan</a>.
+			</p>
 
-			<button type="submit">Sign up</button>
-		</form>
-	</div>
+			<label for="card">Card number</label>
+			<input type="text" name="card" id="card">
 
+			<label for="exp">Expiry</label>
+			<input type="text" name="exp" id="exp">
+
+			<label for="cvc">CVC</label>
+			<input type="text" name="cvc" id="cvc">
+		</fieldset>
+
+		<button type="submit">Sign up</button>
+	</form>
 </div>
+{{end}}
 
 {{template "_bottom.gohtml" .}}

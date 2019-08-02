@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/validate"
 
@@ -72,44 +73,85 @@ func (h Website) signup(w http.ResponseWriter, r *http.Request) error {
 		Page     string
 		Plan     string
 		PlanName string
+		Site     goatcounter.Site
+		User     goatcounter.User
 		Validate map[string][]string
-	}{newGlobals(w, r), "signup", plan, planName, map[string][]string{}})
+	}{newGlobals(w, r), "signup", plan, planName, goatcounter.Site{},
+		goatcounter.User{}, map[string][]string{}})
 }
 
 func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
+	if cfg.Prod { // TODO(public)
+		return errors.New("signups not on production yet")
+	}
+
 	plan, planName, err := getPlan(r)
 	if err != nil {
 		return err
 	}
 
 	args := struct {
-		Domain string `json:"domain"`
-		Code   string `json:"code"`
-		Email  string `json:"email"`
+		Domain string `json:"site_domain"`
+		Code   string `json:"site_code"`
+		Email  string `json:"user_email"`
+		Name   string `json:"user_name"`
 	}{}
 	_, err = zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
 
-	s := goatcounter.Site{
+	v := validate.New()
+
+	// Create site.
+	site := goatcounter.Site{
 		Domain: args.Domain,
 		Code:   args.Code,
-		Plan:   &plan,
+		Plan:   plan,
+	}
+	site.Defaults(r.Context())
+	err = site.Validate(r.Context())
+	if err != nil {
+		if _, ok := err.(*validate.Validator); !ok {
+			return err
+		}
+		v.Sub("site", "", err)
 	}
 
-	s.Defaults(r.Context())
-	err = s.Validate(r.Context())
+	// Create user.
+	user := goatcounter.User{
+		Name:  args.Name,
+		Email: args.Email,
+	}
+	user.Defaults(r.Context())
+	err = user.Validate(r.Context())
 	if err != nil {
-		if v, ok := err.(*validate.Validator); ok {
-			return zhttp.Template(w, "signup.gohtml", struct {
-				Globals
-				Page     string
-				Plan     string
-				PlanName string
-				Validate map[string][]string
-			}{newGlobals(w, r), "signup", plan, planName, v.Errors})
+		if _, ok := err.(*validate.Validator); !ok {
+			return err
 		}
+		v.Sub("user", "", err)
+	}
+
+	if v.HasErrors() {
+		return zhttp.Template(w, "signup.gohtml", struct {
+			Globals
+			Page     string
+			Plan     string
+			PlanName string
+			Site     goatcounter.Site
+			User     goatcounter.User
+			Validate map[string][]string
+		}{newGlobals(w, r), "signup", plan, planName, site, user, v.Errors})
+	}
+
+	// Insert data.
+	err = site.Insert(r.Context())
+	if err != nil {
+		return err
+	}
+	user.Site = site.ID
+	err = user.Insert(r.Context())
+	if err != nil {
 		return err
 	}
 
