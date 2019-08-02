@@ -6,6 +6,7 @@ package goatcounter
 
 import (
 	"context"
+	"net/url"
 	"sync"
 
 	"zgo.at/goatcounter/bulk"
@@ -48,8 +49,20 @@ func (m *ms) Persist(ctx context.Context) error {
 	ins := bulk.NewInsert(ctx, MustGetDB(ctx),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original", "created_at"})
 	for _, h := range hits {
+		var err error
+		h.refURL, err = url.Parse(h.Ref)
+		if err != nil {
+			zlog.Fields(zlog.F{"ref": h.Ref}).Errorf("could not parse ref: %s", err)
+			continue
+		}
+
+		// Ignore spammers.
+		if _, ok := blacklist[h.refURL.Host]; ok {
+			continue
+		}
+
 		h.Defaults(ctx)
-		err := h.Validate(ctx)
+		err = h.Validate(ctx)
 		if err != nil {
 			zlog.Error(err)
 			continue
