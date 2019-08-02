@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"sync"
 
+	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter/bulk"
 	"zgo.at/zlog"
 )
@@ -46,7 +47,7 @@ func (m *ms) Persist(ctx context.Context) error {
 
 	l.Printf("persisting %d hits and %d User-Agents", len(hits), len(browsers))
 
-	ins := bulk.NewInsert(ctx, MustGetDB(ctx),
+	ins := bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original", "created_at"})
 	for _, h := range hits {
 		var err error
@@ -77,7 +78,7 @@ func (m *ms) Persist(ctx context.Context) error {
 
 	l = l.Since("hits done")
 
-	ins = bulk.NewInsert(ctx, MustGetDB(ctx),
+	ins = bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
 		"browsers", []string{"site", "browser", "created_at"})
 	for _, b := range browsers {
 		b.Defaults(ctx)

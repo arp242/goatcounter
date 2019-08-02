@@ -26,6 +26,7 @@ require (
 	github.com/mssola/user_agent v0.5.0
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/stripe/stripe-go v61.25.0+incompatible
 	github.com/teamwork/guru v0.0.0-20180416195845-617a8909cb7f
 	github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46

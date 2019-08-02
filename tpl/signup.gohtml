@@ -36,11 +36,11 @@
 				<label for="email">Email address</label>
 				<input type="email" name="user_email" id="email" value="{{.User.Email}}">
 				{{validate "user.email" .Validate}}
-				<span class="help">You will need this to sign in.</span>
+				<span class="help">You will need access to the inbox to sign in.</span>
 			</div>
 		</fieldset>
 
-		<fieldset>
+		<fieldset class="cc">
 			<p id="signup-intro">
 				Sign up for the {{.PlanName}} plan. You will be billed
 				${{if eq .Plan "p"}}3{{else}}20{{end}} every month, cancellable every
@@ -48,14 +48,20 @@
 				<a href="/#pricing">Choose a different plan</a>.
 			</p>
 
-			<label for="card">Card number</label>
-			<input type="text" name="card" id="card">
+			<div class="cc">
+				<label for="card">Card number</label>
+				<input type="text" name="card" id="card">
+			</div>
 
-			<label for="exp">Expiry</label>
-			<input type="text" name="exp" id="exp">
+			<div class="exp">
+				<label for="exp">Expiry</label>
+				<input type="text" name="exp" id="exp">
+			</div>
 
-			<label for="cvc">CVC</label>
-			<input type="text" name="cvc" id="cvc">
+			<div class="cvc">
+				<label for="cvc">CVC</label>
+				<input type="text" name="cvc" id="cvc">
+			</div>
 		</fieldset>
 
 		<button type="submit">Sign up</button>

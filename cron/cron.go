@@ -150,7 +150,7 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		return err
 	}
 
-	ins := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx),
+	ins := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
 		"hit_stats", []string{"site", "day", "path", "stats"})
 	for path, dayst := range hourly {
 		exists := false

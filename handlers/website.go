@@ -17,6 +17,7 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/stripe"
 	"zgo.at/zhttp"
 )
 
@@ -95,11 +96,20 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		Code   string `json:"site_code"`
 		Email  string `json:"user_email"`
 		Name   string `json:"user_name"`
+		Card   string `json:"card"`
+		Exp    string `json:"exp"`
+		CVC    string `json:"cvc"`
 	}{}
 	_, err = zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
+
+	txctx, tx, err := goatcounter.Begin(r.Context())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
 	v := validate.New()
 
@@ -109,8 +119,7 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		Code:   args.Code,
 		Plan:   plan,
 	}
-	site.Defaults(r.Context())
-	err = site.Validate(r.Context())
+	err = site.Insert(txctx)
 	if err != nil {
 		if _, ok := err.(*validate.Validator); !ok {
 			return err
@@ -122,9 +131,9 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	user := goatcounter.User{
 		Name:  args.Name,
 		Email: args.Email,
+		Site:  site.ID,
 	}
-	user.Defaults(r.Context())
-	err = user.Validate(r.Context())
+	err = user.Insert(txctx)
 	if err != nil {
 		if _, ok := err.(*validate.Validator); !ok {
 			return err
@@ -144,18 +153,17 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), "signup", plan, planName, site, user, v.Errors})
 	}
 
-	// Insert data.
-	err = site.Insert(r.Context())
-	if err != nil {
-		return err
-	}
-	user.Site = site.ID
-	err = user.Insert(r.Context())
+	err = tx.Commit()
 	if err != nil {
 		return err
 	}
 
-	return zhttp.SeeOther(w, "/signup/"+plan)
+	err = stripe.Create(r.Context(), site, user)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.SeeOther(w, "/signup/"+planName)
 }
 
 func getPlan(r *http.Request) (string, string, error) {

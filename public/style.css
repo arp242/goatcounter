@@ -4,23 +4,17 @@
 
 *:target { background-color: inherit; }
 .page, .center { max-width: 60em; }
+
+footer   { padding: 1em; text-align: center; background-color: #004c7e; color: #f9f9f9; }
+footer a { color: #f9f9f9; font-weight: bold; }
+
+/*** Home page ***/
 .page-home     { padding: 0; box-shadow: none; background-color: transparent; }
-h1             { margin-top: 2em; font-size: 2em; }
-h2 {
-	text-align: center;
-	font-size: 2em;
-	padding: .5em 0;
-	margin-top: 1.5em;
-	margin-bottom: 1em;
-	border-bottom: none;
-}
+.page-home h1  { margin-top: 2em; font-size: 2em; }
 
 .hlink       { font-weight: bold; box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
 .hlink:hover { text-decoration: none; background-color: #fffded; color: #252525; }
 .hlink img   { vertical-align: middle; margin: 0 5px; height: 1.1em; }
-
-footer   { padding: 1em; text-align: center; background-color: #004c7e; color: #f9f9f9; }
-footer a { color: #f9f9f9; font-weight: bold; }
 
 /*** Home top ***/
 #home-top        { padding: 0 1em; }
@@ -95,56 +89,21 @@ img.imgzoom-loading { cursor: wait !important; }
 	width: 50%;
 }
 
-form.vertical .err {
-	color: red;
-	display: block;
-}
+#signup-form .exp { width: 4em; }
+#signup-form .cvc { width: 4em; }
 
-form.vertical .help {
-	/*
-	display: block;
-	text-align: right;
-	*/
-	font-size: 14px;
-	margin-bottom: 1.2em;
-}
-
-button {
-	display: block;
-}
-
-input, select {
-	background-color: #fff; /* The default grey for select is rather meh. */
-	border: 1px solid #ccc;
-	border-radius: 2px;
-}
-
-/*
-.clearfix { clear: both; }
-
-.home-top {
-	display: flex;
-}
-
-.home-top-left { text-align: justify; }
-.home-top-left p { margin-top: 0; }
-.home-top-left img { border: 1px solid #ddd; padding: 5px; }
-
-.home-top-right { margin-left: 1em; width: 22rem; }
-.home-top-right form {
-	display: block;
+#signup-form .exp input,
+#signup-form .cvc input {
+	min-width: 1em;
 	width: 100%;
-	border: 1px solid #999;
-	padding: 1em;
 }
 
-.home-top-right form.vertical {
-	border-bottom: 0;
-	padding-top: 0;
-	background-color: #f6f3da;
-	background: linear-gradient(#f6f3da 90%, #ebe7c3);
-}
-*/
+form.vertical .err  { color: red; display: block; }
+form.vertical .help { font-size: 14px; margin-bottom: 1.2em; }
+
+input, select { background-color: #fff; border: 1px solid #ccc; border-radius: 2px; }
+button        { display: block; }
+
 
 /*** Help page ***/
 dt { font-weight: bold; }

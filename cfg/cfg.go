@@ -21,6 +21,7 @@ var (
 	PgSQL        bool   // Use PostgreSQL instead of SQLite
 	SMTP         string // SMTP connection string; outputs to stdout when empty.
 	Sentry       string // Sentry connection string
+	StripeKey    string // Stripe API key
 	CPUProfile   string // Write CPU profile to this file.
 	MemProfile   string // Write memory profile to this file.
 )
@@ -36,6 +37,7 @@ func Set() {
 	flag.BoolVar(&PgSQL, "pgsql", false, "Use PostgreSQL instead of SQLite")
 	flag.StringVar(&SMTP, "smtp", "", "SMTP connection string; outputs to stdout when empty.")
 	flag.StringVar(&Sentry, "sentry", "", "Sentry connection string")
+	flag.StringVar(&StripeKey, "stripekey", "", "Stripe API key")
 	flag.StringVar(&CPUProfile, "cpuprofile", "", "Write CPU profile to this file.")
 	flag.StringVar(&MemProfile, "memprofile", "", "Write memory profile to this file.")
 	flag.Parse()
@@ -52,6 +54,7 @@ func Print() {
 	fmt.Printf("PgSQL          %#v\n", PgSQL)
 	fmt.Printf("SMTP           %#v\n", SMTP)
 	fmt.Printf("Sentry         %#v\n", Sentry)
+	fmt.Printf("StripeKey      %#v\n", StripeKey)
 	fmt.Printf("CPUProfile     %#v\n", CPUProfile)
 	fmt.Printf("MemProfile     %#v\n", MemProfile)
 }

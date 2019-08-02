@@ -41,6 +41,7 @@ type Site struct {
 	Domain       string       `db:"domain"` // Domain for which the service is (arp242.net)
 	Code         string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
 	Plan         string       `db:"plan"`
+	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
 	LastStat     *time.Time   `db:"last_stat"`
 	ReceivedData bool         `db:"received_data"`
@@ -115,6 +116,10 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Domain("domain", s.Domain)
 	v.Exclude("domain", s.Domain, reserved)
 
+	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
+		v.Append("stripe", "not a valid Stripe Customer ID")
+	}
+
 	for _, c := range s.Code {
 		if !(c == 95 || (c >= 48 && c <= 57) || (c >= 97 && c <= 122)) {
 			v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', a to z, and numbers", c))
@@ -157,7 +162,7 @@ func (s *Site) Insert(ctx context.Context) error {
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
-		return err
+		//return err
 	}
 
 	res, err := MustGetDB(ctx).ExecContext(ctx,
@@ -190,6 +195,24 @@ func (s *Site) Update(ctx context.Context) error {
 		`update sites set domain=$1, settings=$2, updated_at=$3 where id=$4`,
 		s.Domain, s.Settings, sqlDate(*s.UpdatedAt), s.ID)
 	return errors.Wrap(err, "Site.Update")
+}
+
+// UpdateStripe sets the Stripe customer ID.
+func (s *Site) UpdateStripe(ctx context.Context) error {
+	if s.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	s.Defaults(ctx)
+	err := s.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = MustGetDB(ctx).ExecContext(ctx,
+		`update sites set stripe=$1, updated_at=$2 where id=$3`,
+		s.Stripe, sqlDate(*s.UpdatedAt), s.ID)
+	return errors.Wrap(err, "Site.UpdateStripe")
 }
 
 // ByID gets a site by ID.

@@ -8,6 +8,7 @@ package goatcounter
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"html/template"
 	"math"
@@ -66,13 +67,35 @@ const (
 
 var States = []string{StateActive, StateRequest, StateDeleted}
 
+var _ DB = &sqlx.DB{}
+var _ DB = &sqlx.Tx{}
+
+// DB wraps sqlx.DB so we can add transactions and logging.
+type DB interface {
+	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
+	Rebind(query string) string
+	SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
+
+	//BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
+
+	// Rollback() error
+	// Commit() error
+}
+
 // MustGetDB gets the DB from the context, panicking if this fails.
-func MustGetDB(ctx context.Context) *sqlx.DB {
-	db, ok := ctx.Value(ctxkey.DB).(*sqlx.DB)
+func MustGetDB(ctx context.Context) DB {
+	db, ok := ctx.Value(ctxkey.DB).(DB)
 	if !ok {
 		panic("MustGetDB: no dbKey value")
 	}
 	return db
+}
+
+// Begin a new transaction.
+func Begin(ctx context.Context) (context.Context, *sqlx.Tx, error) {
+	tx, err := MustGetDB(ctx).(*sqlx.DB).BeginTxx(ctx, nil)
+	return context.WithValue(ctx, ctxkey.DB, tx), tx, err
 }
 
 // GetSite gets the current site.

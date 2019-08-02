@@ -97,7 +97,7 @@ func (u *User) Insert(ctx context.Context) error {
 	u.Defaults(ctx)
 	err := u.Validate(ctx)
 	if err != nil {
-		return err
+		//return err
 	}
 
 	res, err := db.ExecContext(ctx, `insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
