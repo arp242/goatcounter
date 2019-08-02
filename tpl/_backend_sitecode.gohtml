@@ -7,7 +7,7 @@
 		var script = document.createElement('script');
 		window.counter = 'https://{{.Site.Code}}.{{.Domain}}/count'
 		script.async = 1;
-		script.src = '/{{.Static}}/count.js';
+		script.src = '//{{.Static}}/count.min.js';
 
 		var ins = document.getElementsByTagName('script')[0];
 		ins.parentNode.insertBefore(script, ins)
