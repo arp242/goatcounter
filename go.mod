@@ -22,7 +22,7 @@ require (
 	github.com/jinzhu/now v1.0.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.2.0
-	github.com/mattn/go-sqlite3 v1.10.0 // 1.11.0 doesn't work; see #15
+	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/monoculum/formam v0.0.0-20190730134247-0612307a4099 // indirect
 	github.com/mssola/user_agent v0.5.0
 	github.com/pkg/errors v0.8.1

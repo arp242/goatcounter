@@ -1,5 +1,4 @@
 - PostgreSQL
-- Benchmark count
 
 - ag TODO
 - README

@@ -68,7 +68,16 @@ func (ss SiteSettings) String() string { return string(jsonutil.MustMarshal(ss))
 func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
 
 // Scan converts the data returned from the DB into the struct.
-func (ss *SiteSettings) Scan(v interface{}) error { return json.Unmarshal(v.([]byte), ss) }
+func (ss *SiteSettings) Scan(v interface{}) error {
+	switch vv := v.(type) {
+	case []byte:
+		return json.Unmarshal(vv, ss)
+	case string:
+		return json.Unmarshal([]byte(vv), ss)
+	default:
+		panic(fmt.Sprintf("unsupported type: %T", v))
+	}
+}
 
 // Defaults sets fields to default values, unless they're already set.
 func (s *Site) Defaults(ctx context.Context) {

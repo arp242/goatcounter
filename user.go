@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -51,7 +52,16 @@ func (up UserPreferences) String() string { return string(jsonutil.MustMarshal(u
 func (up UserPreferences) Value() (driver.Value, error) { return json.Marshal(up) }
 
 // Scan converts the data returned from the DB into the struct.
-func (up *UserPreferences) Scan(v interface{}) error { return json.Unmarshal(v.([]byte), up) }
+func (up *UserPreferences) Scan(v interface{}) error {
+	switch vv := v.(type) {
+	case []byte:
+		return json.Unmarshal(vv, up)
+	case string:
+		return json.Unmarshal([]byte(vv), up)
+	default:
+		panic(fmt.Sprintf("unsupported type: %T", v))
+	}
+}
 
 // Defaults sets fields to default values, unless they're already set.
 func (u *User) Defaults(ctx context.Context) {
