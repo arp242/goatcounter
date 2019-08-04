@@ -13,6 +13,7 @@ replace github.com/teamwork/utils => github.com/arp242/utils v0.0.0-201907301722
 
 require (
 	github.com/Masterminds/squirrel v1.1.0
+	github.com/arp242/utils v0.0.0-20190114034940-d6a1f27ce92c
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/getsentry/raven-go v0.2.0
 	github.com/go-chi/chi v4.0.2+incompatible
@@ -21,7 +22,7 @@ require (
 	github.com/jinzhu/now v1.0.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.2.0
-	github.com/mattn/go-sqlite3 v1.10.0
+	github.com/mattn/go-sqlite3 v1.10.0 // 1.11.0 doesn't work; see #15
 	github.com/monoculum/formam v0.0.0-20190730134247-0612307a4099 // indirect
 	github.com/mssola/user_agent v0.5.0
 	github.com/pkg/errors v0.8.1
@@ -30,10 +31,10 @@ require (
 	github.com/teamwork/guru v0.0.0-20180416195845-617a8909cb7f
 	github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46
-	github.com/teamwork/utils v0.0.0-20190627114848-ce85986393df
+	github.com/teamwork/utils v0.0.0-20190802180115-518a4b2aa845
 	github.com/teamwork/validate v0.0.0-20190729141223-08bcdb8d6ba0
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
-	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
+	golang.org/x/sys v0.0.0-20190801041406-cbf593c0f2f3 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	zgo.at/zhttp v0.0.0-20190801115539-6c927734c247
 	zgo.at/zlog v0.0.0-20190729101808-11a778095e52

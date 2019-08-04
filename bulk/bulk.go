@@ -2,7 +2,7 @@
 // This file is part of GoatCounter and published under the terms of the AGPLv3,
 // which can be found in the LICENSE file or at gnu.org/licenses/agpl.html
 
-// package bulk provides helpers for bulk SQL operations.
+// Package bulk provides helpers for bulk SQL operations.
 package bulk
 
 import (

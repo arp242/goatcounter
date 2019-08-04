@@ -467,3 +467,11 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 
 	return more, errors.Wrap(err, "RefStats.ListRefs")
 }
+
+// ListPaths lists all paths we have statistics for.
+func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
+	var paths []string
+	err := MustGetDB(ctx).SelectContext(ctx, &paths,
+		`select path from hit_stats where site=$1`, MustGetSite(ctx).ID)
+	return paths, errors.Wrap(err, "Hits.ListPaths")
+}

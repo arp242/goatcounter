@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/arp242/utils/sliceutil"
 	"github.com/jinzhu/now"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -100,6 +101,7 @@ func updateAllStats(ctx context.Context) error {
 }
 
 func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
+	ctx = context.WithValue(ctx, ctxkey.Site, &site)
 	db := goatcounter.MustGetDB(ctx)
 	start := time.Now().Format("2006-01-02 15:04:05")
 	l := zlog.Debug("stat").Module("stat")
@@ -132,7 +134,12 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 	l = l.Since(fmt.Sprintf("fetch from SQL for %d since %s",
 		site.ID, last))
 
-	hourly := fillBlanks(stats)
+	existing, err := (&goatcounter.HitStats{}).ListPaths(ctx)
+	if err != nil {
+		return err
+	}
+
+	hourly := fillBlanks(stats, existing, site.CreatedAt)
 	l = l.Since("Correct data")
 
 	// No data received.
@@ -196,7 +203,7 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 	return errors.WithStack(err)
 }
 
-func fillBlanks(stats []stat) map[string]map[string][][]int {
+func fillBlanks(stats []stat, existing []string, siteCreated time.Time) map[string]map[string][][]int {
 	// Convert data to easier structure:
 	// {
 	//   "jquery.html": map[string][][]int{
@@ -240,6 +247,21 @@ func fillBlanks(stats []stat) map[string]map[string][][]int {
 		for _, day := range alldays {
 			_, ok := days[day]
 			if !ok {
+				hourly[path][day] = allhours
+			}
+		}
+
+		// Backlog new paths since site start.
+		// TODO: would be better to modify display logic, instead of storing
+		// heaps of data we don't use.
+		if !sliceutil.InStringSlice(existing, path) {
+			ndays := int(time.Now().Sub(siteCreated) / time.Hour / 24)
+			daysSinceCreated := make([]string, ndays)
+			for i := 0; i < ndays; i++ {
+				daysSinceCreated[i] = siteCreated.Add(24 * time.Duration(i) * time.Hour).Format("2006-01-02")
+			}
+
+			for _, day := range daysSinceCreated {
 				hourly[path][day] = allhours
 			}
 		}
