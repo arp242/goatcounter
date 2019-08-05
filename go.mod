@@ -9,11 +9,10 @@ go 1.12
 replace github.com/teamwork/validate => github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287
 
 // csp branch
-replace github.com/teamwork/utils => github.com/arp242/utils v0.0.0-20190730172204-a58ffeb611c6
+replace github.com/teamwork/utils => github.com/arp242/utils v0.0.0-20190801113154-2663876b51f4
 
 require (
 	github.com/Masterminds/squirrel v1.1.0
-	github.com/arp242/utils v0.0.0-20190114034940-d6a1f27ce92c
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/getsentry/raven-go v0.2.0
 	github.com/go-chi/chi v4.0.2+incompatible
@@ -34,7 +33,7 @@ require (
 	github.com/teamwork/utils v0.0.0-20190802180115-518a4b2aa845
 	github.com/teamwork/validate v0.0.0-20190729141223-08bcdb8d6ba0
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
-	golang.org/x/sys v0.0.0-20190801041406-cbf593c0f2f3 // indirect
+	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	zgo.at/zhttp v0.0.0-20190801115539-6c927734c247
 	zgo.at/zlog v0.0.0-20190729101808-11a778095e52
