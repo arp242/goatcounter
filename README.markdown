@@ -1,15 +1,29 @@
 GoatCounter is a web counter.
 
 There are two ways to run this: as **hosted service starting at $3/month**, or
-run it on your own server.
-Check out [https://GoatCounter.com](https://GoatCounter.com) for the hosted
-service and user documentation.
+run it on your own server. Check out [https://www.goatcounter.com][www] for the
+hosted service and user documentation. *Note: not yet online; come back in a few
+days if you managed to find this repo somehow*.
+
+There's a live demo at [https://arp242.goatcounter.com][demo].
+
+The current status is *public beta*, or "MVP" (Minimum Viable Product) to get
+feedback from others. That being sad, it should be stable and useful. It just
+doesn't have all the features I'd like it to have (yet).
+
+---
+
+Please consider donating if you run your own instance of GoatCounter.
+
+Basically I quit my day job to try and make a living from creating open source
+software full-time (or free software, if you prefer). So supporting isn't just a
+nice way to say "thanks mate", it's directly supporting future development.
 
 Features
 --------
 
-- **Privacy-aware**; doesn’t track users; doesn't need a GDPR notice (probably,
-  see [privacy](https://goatcounter.com/privacy)).
+- **Privacy-aware**; doesn't track users; doesn't need a GDPR notice (probably,
+  see [privacy][privacy]).
 
 - **Lightweight** and **fast**; adds just 0.8KB of extra data to your site.
 
@@ -24,7 +38,6 @@ Features
   make improvements.
 
 - **Own your data**; you can always export all data and **cancel at any time**.
-
 
 ### Technical
 
@@ -67,9 +80,8 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
 2. Use a proxy for https (e.g. Caddy); you'll need to forward `example.com` and
    `*.example.com`
 
-You can see the [goathost repo](https://github.com/zgoat/goathost) for the
-server configuration of goatcounter.com, although that is just one way of
-running it.
+You can see the [goathost repo][goathost] for the server configuration of
+goatcounter.com, although that is just one way of running it.
 
 ### PostgreSQL
 
@@ -93,5 +105,11 @@ To use it:
 
        $ goatconter -pgsql -dbconnect 'user=goatcounter dbname=goatcounter sslmode=disable'
 
-   See the [pq docs](https://godoc.org/github.com/lib/pq) for more details on
-   the connection string.
+   See the [pq docs][pq] for more details on the connection string.
+
+
+[www]: https://www.goatcounter.com
+[demo]: https://arp242.goatcounter.com
+[privacy]: https://goatcounter.com/privacy
+[pq]: https://godoc.org/github.com/lib/pq
+[goathost]: https://github.com/zgoat/goathost
