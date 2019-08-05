@@ -17,6 +17,8 @@ import (
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
+
+	"zgo.at/goatcounter/cfg"
 )
 
 const (
@@ -89,8 +91,8 @@ func (u *User) Validate(ctx context.Context) error {
 	v.Required("name", u.Name)
 	v.Required("email", u.Email)
 
-	v.Len("name", u.Name, 0, 200)
-	v.Len("email", u.Email, 0, 255)
+	v.Len("name", u.Name, 1, 200)
+	v.Len("email", u.Email, 5, 255)
 	v.Email("email", u.Email)
 	v.Include("state", u.State, States)
 
@@ -103,14 +105,14 @@ func (u *User) Insert(ctx context.Context) error {
 		return errors.New("ID > 0")
 	}
 
-	db := MustGetDB(ctx)
 	u.Defaults(ctx)
 	err := u.Validate(ctx)
 	if err != nil {
-		//return err
+		return err
 	}
 
-	res, err := db.ExecContext(ctx, `insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
+	res, err := MustGetDB(ctx).ExecContext(ctx,
+		`insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
 		u.Site, u.Name, u.Email, sqlDate(u.CreatedAt))
 	if err != nil {
 		if uniqueErr(err) {
@@ -125,20 +127,16 @@ func (u *User) Insert(ctx context.Context) error {
 
 // ByID gets a user by ID.
 func (u *User) ByID(ctx context.Context, id int64) error {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-	return errors.Wrap(db.GetContext(ctx, u,
+	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u,
 		`select * from users where id=$1 and site=$2 and state=$3`,
-		id, site.ID, StateActive), "User.ByID")
+		id, MustGetSite(ctx).ID, StateActive), "User.ByID")
 }
 
 // ByEmail gets a user by email address.
 func (u *User) ByEmail(ctx context.Context, email string) error {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-	return errors.Wrap(db.GetContext(ctx, u,
-		`select * from users where email=$1 and site=$2 and state=$3`,
-		email, site.ID, StateActive), "User.ByEmail")
+	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u,
+		`select * from users where lower(email)=lower($1) and site=$2 and state=$3`,
+		email, MustGetSite(ctx).ID, StateActive), "User.ByEmail")
 }
 
 // ByKey gets a user by login key.
@@ -148,23 +146,27 @@ func (u *User) ByKey(ctx context.Context, key string) error {
 		return sql.ErrNoRows
 	}
 
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-	return errors.Wrap(db.GetContext(ctx, u, `select * from users
-		where login_key=$1 and site=$2 and state=$3
-		and (login_req is null or datetime(login_req, '+15 minutes') > datetime())`,
-		key, site.ID, StateActive), "User.ByKey")
+	query := `select * from users
+		where login_key=$1 and site=$2 and state=$3 and
+		(login_req is null or `
+
+	if cfg.PgSQL {
+		query += `login_req + interval '15 minutes' > now())`
+	} else {
+		query += `datetime(login_req, '+15 minutes') > datetime())`
+	}
+
+	return errors.Wrap(MustGetDB(ctx).GetContext(
+		ctx, u, query, key, MustGetSite(ctx).ID, StateActive), "User.ByKey")
 }
 
 // RequestLogin generates a new login Key.
 func (u *User) RequestLogin(ctx context.Context) error {
 	u.LoginKey = zhttp.SecretP()
 
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-	_, err := db.ExecContext(ctx, `update users set
+	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
 		login_key=$1, login_req=current_timestamp
-		where id=$2 and site=$3`, *u.LoginKey, u.ID, site.ID)
+		where id=$2 and site=$3`, *u.LoginKey, u.ID, MustGetSite(ctx).ID)
 	return errors.Wrap(err, "User.RequestLogin")
 }
 
@@ -173,20 +175,16 @@ func (u *User) Login(ctx context.Context) error {
 	u.LoginKey = zhttp.SecretP()
 	u.CSRFToken = zhttp.SecretP()
 
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-	_, err := db.ExecContext(ctx, `update users set
+	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
 			login_key=$1, login_req=null, csrf_token=$2
-			where id=$3 and site=$4`, *u.LoginKey, *u.CSRFToken, u.ID, site.ID)
+			where id=$3 and site=$4`, *u.LoginKey, *u.CSRFToken, u.ID, MustGetSite(ctx).ID)
 	return errors.Wrap(err, "User.Login")
 }
 
 func (u *User) Logout(ctx context.Context) error {
-	db := MustGetDB(ctx)
-	site := MustGetSite(ctx)
-	_, err := db.ExecContext(ctx,
+	_, err := MustGetDB(ctx).ExecContext(ctx,
 		`update users set login_key=null, login_req=null where id=$1 and site=$2`,
-		u.ID, site.ID)
+		u.ID, MustGetSite(ctx).ID)
 	return errors.Wrap(err, "User.Logout")
 }
 
@@ -200,8 +198,7 @@ func (u *User) GetToken() string {
 type Users []User
 
 func (u *Users) ListAllSites(ctx context.Context) error {
-	db := MustGetDB(ctx)
-	return errors.Wrap(db.SelectContext(ctx, u,
+	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
 		`select * from users order by created_at desc`),
 		"Users.List")
 }

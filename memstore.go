@@ -10,8 +10,9 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
-	"zgo.at/goatcounter/bulk"
 	"zgo.at/zlog"
+
+	"zgo.at/goatcounter/bulk"
 )
 
 type ms struct {

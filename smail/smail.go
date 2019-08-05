@@ -22,8 +22,9 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zlog"
+
+	"zgo.at/goatcounter/cfg"
 )
 
 var reNL = regexp.MustCompile(`(\r\n){2,}`)

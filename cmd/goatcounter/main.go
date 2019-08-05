@@ -13,8 +13,8 @@ import (
 	"github.com/getsentry/raven-go"
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"           // PostgreSQL database driver.
+	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"github.com/pkg/errors"
 	"github.com/teamwork/reload"
 	"github.com/teamwork/utils/errorutil"
@@ -68,20 +68,18 @@ func main() {
 	}
 
 	// Connect to DB.
-	var (
-		db     *sqlx.DB
-		exists = true
-	)
+	var db *sqlx.DB
 	if cfg.PgSQL {
 		var err error
-		db, err = sqlx.Connect("postgres", "user=martin dbname=goatcounter sslmode=disable")
+		db, err = sqlx.Connect("postgres", cfg.DBFile)
 		must(errors.Wrap(err, "sqlx.Connect pgsql"))
 		defer db.Close()
 
-		db.MustExec(string(dbinit.Schema))
-
-		// TODO(pg): check if exists
+		// db.SetConnMaxLifetime()
+		db.SetMaxIdleConns(25) // Default 2
+		db.SetMaxOpenConns(25) // Default 0
 	} else {
+		exists := true
 		if _, err := os.Stat(cfg.DBFile); os.IsNotExist(err) {
 			zlog.Printf("database %q doesn't exist; loading new schema", cfg.DBFile)
 			exists = false
@@ -90,9 +88,10 @@ func main() {
 		db, err = sqlx.Connect("sqlite3", cfg.DBFile)
 		must(errors.Wrap(err, "sqlx.Connect sqlite"))
 		defer db.Close()
-	}
-	if !exists {
-		db.MustExec(string(dbinit.Schema))
+
+		if !exists {
+			db.MustExec(string(dbinit.Schema))
+		}
 	}
 
 	// Run background tasks.

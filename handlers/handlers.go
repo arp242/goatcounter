@@ -9,9 +9,10 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
+	"zgo.at/zhttp"
+
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/zhttp"
 )
 
 type Globals struct {

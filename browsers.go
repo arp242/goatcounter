@@ -46,8 +46,7 @@ func (b *Browser) Insert(ctx context.Context) error {
 		return err
 	}
 
-	db := MustGetDB(ctx)
-	_, err = db.ExecContext(ctx, `insert into browsers (site, browser, created_at)
+	_, err = MustGetDB(ctx).ExecContext(ctx, `insert into browsers (site, browser, created_at)
 		values ($1, $2, $3)`, b.Site, b.Browser, sqlDate(b.CreatedAt))
 	return errors.Wrap(err, "Browser.Insert")
 }
@@ -66,10 +65,8 @@ type BrowserStats []struct {
 }
 
 func (h *BrowserStats) List(ctx context.Context, start, end time.Time) error {
-	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
-
-	err := db.SelectContext(ctx, h, `
+	err := MustGetDB(ctx).SelectContext(ctx, h, `
 		select browser, count(browser) as count
 		from browsers
 		where

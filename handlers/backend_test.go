@@ -9,9 +9,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"zgo.at/goatcounter"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+
+	"zgo.at/goatcounter"
 )
 
 func TestHit(t *testing.T) {

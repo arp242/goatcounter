@@ -16,8 +16,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/test"
 	"github.com/teamwork/utils/jsonutil"
-	"zgo.at/goatcounter"
 	"zgo.at/zhttp/ctxkey"
+
+	"zgo.at/goatcounter"
 )
 
 var schema string

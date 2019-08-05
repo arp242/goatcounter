@@ -11,15 +11,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/arp242/utils/sliceutil"
 	"github.com/jinzhu/now"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/bulk"
+	"github.com/teamwork/utils/sliceutil"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
+
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/bulk"
 )
 
 type task struct {
@@ -29,7 +30,7 @@ type task struct {
 
 var tasks = []task{
 	{goatcounter.Memstore.Persist, 10 * time.Second},
-	{updateAllStats, 1 * time.Minute},
+	{updateAllStats, 60 * time.Second},
 }
 
 var wg sync.WaitGroup
@@ -123,12 +124,12 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		from hits
 		where
 			site=$1 and
-			created_at >= $2
-		group by path, strftime('%Y-%m-%d %H', created_at)
-		order by path, strftime('%Y-%m-%d %H', created_at)
+			created_at>=$2
+		group by path, created_at, substr(cast(created_at as varchar), 0, 14)
+		order by path, substr(cast(created_at as varchar), 0, 14)
 	`, site.ID, last)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "fetch data")
 	}
 
 	l = l.Since(fmt.Sprintf("fetch from SQL for %d since %s",
@@ -154,7 +155,7 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		`select path from hit_stats where site=$1`,
 		site.ID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "have")
 	}
 
 	ins := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
@@ -179,13 +180,13 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		// Delete existing.
 		if len(del) > 0 {
 			query, args, err := sqlx.In(`delete from hit_stats where
-				site=? and path=? and day in (?)`, site.ID, path, del)
+				site=? and lower(path)=lower(?) and day in (?)`, site.ID, path, del)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "delete 1")
 			}
-			_, err = db.ExecContext(ctx, query, args...)
+			_, err = db.ExecContext(ctx, db.Rebind(query), args...)
 			if err != nil {
-				return errors.WithStack(err)
+				return errors.Wrap(err, "delete 2")
 			}
 		}
 	}

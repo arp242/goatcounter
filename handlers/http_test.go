@@ -15,8 +15,9 @@ import (
 
 	"github.com/teamwork/test"
 	"github.com/teamwork/utils/jsonutil"
-	"zgo.at/goatcounter/handlers/htest"
 	"zgo.at/zhttp"
+
+	"zgo.at/goatcounter/handlers/htest"
 )
 
 type handlerTest struct {

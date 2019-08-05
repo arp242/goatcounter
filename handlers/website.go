@@ -11,14 +11,13 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/validate"
+	"zgo.at/zhttp"
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/stripe"
-	"zgo.at/zhttp"
 )
 
 type Website struct{}
@@ -82,10 +81,6 @@ func (h Website) signup(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
-	if cfg.Prod { // TODO(public)
-		return errors.New("signups not on production yet")
-	}
-
 	plan, planName, err := getPlan(r)
 	if err != nil {
 		return err

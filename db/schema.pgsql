@@ -6,39 +6,39 @@ insert into version values ('0000-00-00 00:00:00 init');
 
 drop table if exists sites;
 create table sites (
-	id             integer        primary key autoincrement,
+	id             serial         primary key,
 
 	domain         varchar        not null                 check(length(domain) >= 4 and length(domain) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
 	plan           varchar        not null                 check(plan in ('p', 'b', 'e')),
 	stripe         varchar        null,
 	settings       varchar        not null,
-	last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
+	last_stat      timestamp      null,
 	received_data  int            not null default 0,
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
-	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+	created_at     timestamp      not null,
+	updated_at     timestamp
 );
 create unique index "sites#code"   on sites(lower(code));
 create unique index "sites#domain" on sites(lower(domain));
 
 drop table if exists users;
 create table users (
-	id             integer        primary key autoincrement,
+	id             serial         primary key,
 	site           integer        not null                 check(site > 0),
 
 	name           varchar        not null                 check(length(name) > 1  and length(name) <= 200),
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
 	role           varchar        not null default ''      check(role in ('', 'a')),
-	login_req      timestamp      null                     check(login_req = strftime('%Y-%m-%d %H:%M:%S', login_req)),
+	login_req      timestamp      null,
 	login_key      varchar        null,
 	csrf_token     varchar        null,
 	preferences    varchar        not null default '{}',
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
-	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+	created_at     timestamp      not null,
+	updated_at     timestamp,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -56,7 +56,7 @@ create table hits (
 	ref_original   varchar,
 	ref_params     varchar,
 
-	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
+	created_at     timestamp      not null
 );
 create index "hits#site#created_at"      on hits(site, created_at);
 create index "hits#site#path#created_at" on hits(site, lower(path), created_at);
@@ -65,12 +65,12 @@ drop table if exists hit_stats;
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
-	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	day            date           not null,
 	path           varchar        not null,
 	stats          varchar        not null,
 
-	created_at     timestamp      null                     check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+	created_at     timestamp      null,
+	updated_at     timestamp,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -82,6 +82,6 @@ create table browsers (
 	site           integer        not null                 check(site > 0),
 
 	browser        varchar        not null,
-	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
+	created_at     timestamp      not null
 );
 create index "browsers#site#created_at" on browsers(site, created_at);

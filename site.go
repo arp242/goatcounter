@@ -120,8 +120,8 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Include("state", s.State, States)
 	v.Include("plan", s.Plan, Plans)
 
-	v.Len("code", s.Code, 0, 50)
-	v.Len("domain", s.Domain, 0, 255)
+	v.Len("code", s.Code, 1, 50)
+	v.Len("domain", s.Domain, 4, 255)
 	v.Domain("domain", s.Domain)
 	v.Exclude("domain", s.Domain, reserved)
 
@@ -139,7 +139,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	if !v.HasErrors() {
 		var code, domain uint8
 		err := MustGetDB(ctx).GetContext(ctx, &code,
-			`select 1 from sites where code = $1 and id != $2 limit 1`,
+			`select 1 from sites where lower(code)=lower($1) and id!=$2 limit 1`,
 			s.Code, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
@@ -149,7 +149,7 @@ func (s *Site) Validate(ctx context.Context) error {
 		}
 
 		err = MustGetDB(ctx).GetContext(ctx, &domain,
-			`select 1 from sites where domain = $1 and id != $2 limit 1`,
+			`select 1 from sites where lower(domain)=lower($1) and id!=$2 limit 1`,
 			s.Domain, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
@@ -226,15 +226,15 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
-	db := MustGetDB(ctx)
-	return errors.Wrap(db.GetContext(ctx, s, `select * from sites where id=$1 and state=$2`,
+	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, s,
+		`select * from sites where id=$1 and state=$2`,
 		id, StateActive), "Site.ByID")
 }
 
 // ByCode gets a site by subdomain code.
 func (s *Site) ByCode(ctx context.Context, code string) error {
-	db := MustGetDB(ctx)
-	return errors.Wrap(db.GetContext(ctx, s, `select * from sites where code=$1 and state=$2`,
+	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, s,
+		`select * from sites where lower(code)=lower($1) and state=$2`,
 		code, StateActive), "Site.ByCode")
 }
 
@@ -243,8 +243,7 @@ type Sites []Site
 
 // List all sites.
 func (u *Sites) List(ctx context.Context) error {
-	db := MustGetDB(ctx)
-	return errors.Wrap(db.SelectContext(ctx, u,
+	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
 		`select * from sites order by created_at desc`),
 		"Sites.List")
 }

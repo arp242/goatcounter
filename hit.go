@@ -288,9 +288,10 @@ func (h *Hit) Insert(ctx context.Context) error {
 		return err
 	}
 
-	db := MustGetDB(ctx)
-	_, err = db.ExecContext(ctx, `insert into hits (site, path, ref, ref_params, ref_original, created_at)
-		values ($1, $2, $3, $4, $5, $6)`, h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt))
+	_, err = MustGetDB(ctx).ExecContext(ctx,
+		`insert into hits (site, path, ref, ref_params, ref_original, created_at)
+		values ($1, $2, $3, $4, $5, $6)`,
+		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt))
 	return errors.Wrap(err, "Site.Insert")
 }
 
@@ -437,19 +438,18 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 
 // ListRefs lists all references for a path.
 func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Time, offset int) (bool, error) {
-	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 
 	// TODO: using offset for pagination is not ideal:
 	// data can change in the meanwhile, and it still gets the first N rows,
 	// which is more expensive than it needs to be.
 	// It's "good enough" for now, though.
-	err := db.SelectContext(ctx, h, `
+	err := MustGetDB(ctx).SelectContext(ctx, h, `
 		select ref as path, count(ref) as count
 		from hits
 		where
 			site=$1 and
-			path=$2 and
+			lower(path)=lower($2) and
 			created_at >= $3 and
 			created_at <= $4
 		group by ref

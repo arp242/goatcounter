@@ -14,10 +14,11 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"zgo.at/goatcounter"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
+
+	"zgo.at/goatcounter"
 )
 
 var (

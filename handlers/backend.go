@@ -15,13 +15,13 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
+	"github.com/mssola/user_agent"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/utils/httputilx/header"
-	"zgo.at/goatcounter"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 
-	"github.com/mssola/user_agent"
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 )
 
