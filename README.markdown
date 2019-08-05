@@ -54,8 +54,14 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
 
 ### Development
 
-1. Install it with `GO111MODULE=on go get zgo.at/goatcounter/cmd/goatcounter`.
-   This will put a self-contained binary at `~/go/goatcounter`.
+1. Install it with:
+
+       $ git clone git@github.com:zgoat/goatcounter.git
+       $ cd goatcounter
+       $ go build ./cmd/goatcounter
+
+   This will put a self-contained binary at `goatcounter`. You can optionally
+   reduce the binary size a bit (from ~18M to ~5M) with `strip` and/or `upx`.
 
 2. Run `~/go/goatcounter`. This will run a development environment on
    http://localhost:8081
