@@ -126,7 +126,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Exclude("domain", s.Domain, reserved)
 
 	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
-		v.Append("stripe", "not a valid Stripe Customer ID")
+		v.Append("stripe", "not a valid Stripe customer ID")
 	}
 
 	for _, c := range s.Code {
@@ -134,6 +134,9 @@ func (s *Site) Validate(ctx context.Context) error {
 			v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', a to z, and numbers", c))
 			break
 		}
+	}
+	if len(s.Code) > 0 && s.Code[0] == '_' { // Special domains, like _acme-challenge.
+		v.Append("code", "cannot start with underscore (_)")
 	}
 
 	if !v.HasErrors() {

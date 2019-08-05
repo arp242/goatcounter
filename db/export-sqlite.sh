@@ -17,16 +17,18 @@
 set -euC
 
 db="$1"
+r=$(cd "$(dirname "$0")" && pwd)
 
 exp() {
 	local tbl="$1"
 	sqlite3 "$db" '.headers on' '.mode insert' "select * from $tbl" |
 		sed -E 's/INSERT INTO "table"/INSERT INTO "'"$tbl"'" /' |
 		sed -E 's/;$/,/; $s/,$/;/; 2,$s/INSERT INTO .*? VALUES//; 1s/ VALUES\(/ VALUES\n\t(/; s/^\(/\t(/;' |
-		./debin.py
+		"$r/debin.py"
 	echo
 }
 
+exp 'version'
 exp 'sites'
 exp 'users'
 exp 'hits'

@@ -48,7 +48,9 @@ func NewSite(db *sqlx.DB) chi.Router {
 	zhttp.InitTpl(packTpl)
 
 	r := chi.NewRouter()
-	Website{}.Mount(r, db)
+	if !cfg.Prod { // TODO(public): just for now.
+		Website{}.Mount(r, db)
+	}
 	return r
 }
 
