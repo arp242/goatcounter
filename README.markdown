@@ -1,5 +1,6 @@
 GoatCounter is a web counter.
 
+
 There are two ways to run this: as **hosted service starting at $3/month**, or
 run it on your own server. Check out [https://www.goatcounter.com][www] for the
 hosted service and user documentation. *Note: not yet online; come back in a few
