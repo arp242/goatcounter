@@ -21,8 +21,6 @@ func init() {
 
 // Create a new Stripe customer and subscription.
 func Create(ctx context.Context, site goatcounter.Site, user goatcounter.User) error {
-	return nil // TODO
-
 	params := &stripe.CustomerParams{
 		Name:  &user.Name,
 		Email: &user.Email,

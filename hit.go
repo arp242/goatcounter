@@ -26,7 +26,7 @@ type Hit struct {
 	RefOriginal *string   `db:"ref_original" json:"ref_original,omitempty"`
 	CreatedAt   time.Time `db:"created_at" json:"-"`
 
-	refURL *url.URL `db:"-" json:"-"`
+	refURL *url.URL `db:"-"`
 }
 
 var groups = map[string]string{
@@ -317,7 +317,7 @@ type hs struct {
 
 type HitStats []hs
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []string) (error, int, int, bool) {
+func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []string) (int, int, bool, error) {
 	db := MustGetDB(ctx)
 	site := MustGetSite(ctx)
 
@@ -350,14 +350,14 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		order by count desc
 		limit ?`, append(args, limit)...)
 	if err != nil {
-		return errors.Wrap(err, "HitStats.List"), 0, 0, false
+		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
 
 	l := zlog.Module("HitStats.List")
 
 	err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 	if err != nil {
-		return errors.Wrap(err, "HitStats.List"), 0, 0, false
+		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
 	l = l.Since("select hits")
 
@@ -388,7 +388,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		order by day asc`,
 		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return errors.Wrap(err, "HitStats.List"), 0, 0, false
+		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
 	l = l.Since("select hits_stats")
 
@@ -433,7 +433,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		site.ID, dayStart(start), dayEnd(end))
 
 	l = l.Since("get total")
-	return errors.Wrap(err, "HitStats.List"), total, totalDisplay, more
+	return total, totalDisplay, more, errors.Wrap(err, "HitStats.List")
 }
 
 // ListRefs lists all references for a path.
