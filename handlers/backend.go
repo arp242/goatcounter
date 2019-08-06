@@ -171,7 +171,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	l := zlog.Debug("backend").Module("backend")
+	l := zlog.Module("backend")
 
 	var pages goatcounter.HitStats
 	err, total, totalDisplay, _ := pages.List(r.Context(), start, end, nil)

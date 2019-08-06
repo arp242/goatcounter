@@ -21,6 +21,7 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bulk"
+	"zgo.at/goatcounter/cfg"
 )
 
 type task struct {
@@ -115,25 +116,41 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		last = site.LastStat.Format("2006-01-02")
 	}
 
+	var query string
+	if cfg.PgSQL {
+		query = `
+			select
+				path,
+				count(path) as count,
+				cast(substr(cast(created_at as varchar), 0, 14) || ':00:00' as timestamp) as created_at
+			from hits
+			where
+				site=$1 and
+				created_at>=$2
+			group by path, substr(cast(created_at as varchar), 0, 14)
+			order by path, substr(cast(created_at as varchar), 0, 14)`
+	} else {
+		query = `
+			select
+				path,
+				count(path) as count,
+				created_at
+			from hits
+			where
+				site=$1 and
+				created_at>=$2
+			group by path, strftime('%Y-%m-%d %H', created_at)
+			order by path, strftime('%Y-%m-%d %H', created_at)`
+	}
+
 	var stats []stat
-	err := db.SelectContext(ctx, &stats, `
-		select
-			path,
-			count(path) as count,
-			created_at
-		from hits
-		where
-			site=$1 and
-			created_at>=$2
-		group by path, created_at, substr(cast(created_at as varchar), 0, 14)
-		order by path, substr(cast(created_at as varchar), 0, 14)
-	`, site.ID, last)
+	err := db.SelectContext(ctx, &stats, query, site.ID, last)
 	if err != nil {
 		return errors.Wrap(err, "fetch data")
 	}
 
-	l = l.Since(fmt.Sprintf("fetch from SQL for %d since %s",
-		site.ID, last))
+	l = l.Since(fmt.Sprintf("fetch from SQL for %d since %s (%d hits)",
+		site.ID, last, len(stats)))
 
 	existing, err := (&goatcounter.HitStats{}).ListPaths(ctx)
 	if err != nil {
@@ -141,7 +158,8 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 	}
 
 	hourly := fillBlanks(stats, existing, site.CreatedAt)
-	l = l.Since("Correct data")
+
+	//l = l.Since("Correct data")
 
 	// No data received.
 	if len(hourly) == 0 {
@@ -263,7 +281,9 @@ func fillBlanks(stats []stat, existing []string, siteCreated time.Time) map[stri
 			}
 
 			for _, day := range daysSinceCreated {
-				hourly[path][day] = allhours
+				if _, ok := hourly[path][day]; !ok {
+					hourly[path][day] = allhours
+				}
 			}
 		}
 	}

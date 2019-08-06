@@ -353,7 +353,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		return errors.Wrap(err, "HitStats.List"), 0, 0, false
 	}
 
-	l := zlog.Debug("HitStats.List").Module("HitStats.List")
+	l := zlog.Module("HitStats.List")
 
 	err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 	if err != nil {

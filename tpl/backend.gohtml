@@ -50,7 +50,11 @@
 	</table>
 
 	{{/* TODO: make it work w/o JS */}}
-	{{if gt .TotalHits .TotalHitsDisplay}}<a href="#_", data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}" class="load-more">load more</a>{{end}}
+	{{if gt .TotalHits .TotalHitsDisplay}}
+		<a href="#_", class="load-more"
+			data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+		>load more</a>
+	{{end}}
 </div>
 
 {{/*
