@@ -20,11 +20,12 @@
 		drag_timeframe();
 		load_refs();
 		chart_hover();
-		paginate_pages();
+		paginate_paths();
 		paginate_refs();
 	};
 
-	var paginate_pages = function() {
+	// Paginate the main path overview.
+	var paginate_paths = function() {
 		$('.pages-list .load-more').on('click', function(e) {
 			e.preventDefault();
 
@@ -47,6 +48,7 @@
 		});
 	};
 
+	// Paginate the referrers.
 	var paginate_refs = function() {
 		// TODO: won't work w/o JS.
 		$('.pages-list').on('click', '.load-more-refs', function(e) {
@@ -56,10 +58,10 @@
 			jQuery.ajax({
 				url: '/refs',
 				data: {
-					'showrefs': btn.closest('tr').attr('id'),
+					'showrefs':     btn.closest('tr').attr('id'),
 					'period-start': $('#period-start').val(),
-					'period-end': $('#period-end').val(),
-					'offset': btn.prev().find('tr').length,
+					'period-end':   $('#period-end').val(),
+					'offset':       btn.prev().find('tr').length,
 				},
 				dataType: 'json',
 				success: function(data) {
@@ -71,16 +73,12 @@
 				},
 			});
 		});
-	}
+	};
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
 		$('.period-select').on('click', 'button', function(e) {
 			e.preventDefault();
-
-			// TODO(public): also set on load.
-			//$('.period-select button').removeClass('active');
-			//$(this).addClass('active');
 
 			var start = new Date();
 			switch (this.value) {
@@ -99,9 +97,9 @@
 
 			$('#period-start').val(format_date_ymd(start));
 			$('#period-end').val(format_date_ymd(new Date()));
-
+			$('#hl-period').val(this.value);
 			$(this).closest('form').trigger('submit');
-		})
+		});
 	};
 
 	// Select a period by dragging the mouse over a timeframe.
@@ -141,42 +139,76 @@
 		*/
 	};
 
+	// Get all query parameters as an object.
+	var get_params = function() {
+		var s = window.location.search;
+		if (s.length === 0)
+			return {};
+		if (s[0] === '?')
+			s = s.substr(1);
+
+		var split = s.split('&'),
+			obj = {};
+		for (var i = 0; i < split.length; i++) {
+			var item = split[i].split('=');
+			obj[item[0]] = decodeURIComponent(item[1]);
+		}
+		return obj;
+	};
+
+	// Set query parameters to the provided object.
+	var set_params = function(obj) {
+		var s = [];
+		for (var k in obj)
+			s.push(k + '=' + encodeURIComponent(obj[k]));
+		history.pushState(null, '', s.length === 0 ? '/' : ('?' + s.join('&')));
+	};
+
+	// Set one query parameter, leaving the others alone.
+	var set_param = function(k, v) {
+		var params = get_params();
+		if (v === null)
+			delete params[k];
+		else
+			params[k] = v;
+		set_params(params);
+	};
+
 	// Load references as an AJAX request.
 	var load_refs = function() {
 		$('.count-list').on('click', '.rlink', function(e) {
 			e.preventDefault();
 
-			var hash = decodeURIComponent(location.hash.substr(1)),
+			var params = get_params(),
 				link = this,
-				row = $(this).closest('tr');
+				row = $(this).closest('tr'),
+				path = row.attr('id');
 
-			// Close existing.
-			if (hash !== '') {
-				var t = $(document.getElementById(hash));
+
+			var close = function() {
+				var t = $(document.getElementById(params['showrefs']));
 				t.removeClass('target');
 				t.closest('tr').find('.refs').html('');
- 
-				if (hash === row.attr('id')) {
-					var nl = link.href.substr(0, link.href.indexOf('#'));
-					nl = nl.replace(/showrefs=.*?&/, '&'); // TODO(public): do better!
-					history.pushState(null, "", nl);
+			};
 
-					location.hash = '_'; // '_' and not '' so we won't scroll to top.
-					return;
-				}
+			// Clicked on row that's already open, so just close and stop. Don't
+			// close anything yet if we're going to load another path, since
+			// that gives a somewhat yanky effect (close, wait on xhr, open).
+			if (params['showrefs'] === path) {
+				close();
+				return set_param('showrefs', null);
 			}
 
 			jQuery.ajax({
-				url: '/refs' + this.search,
+				url: '/refs' + link.search,
 				dataType: 'json',
 				success: function(data) {
-					row.find('.refs').html(data.rows);
-
-					// TODO(public): make back button work by hooking in to hashchange
-					// or something.
-					history.pushState(null, "", link.href);
+					set_param('showrefs', path);
 					row.addClass('target');
 
+					if (params['showrefs'])
+						close();
+					row.find('.refs').html(data.rows);
 					if (data.more)
 						row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
 				},

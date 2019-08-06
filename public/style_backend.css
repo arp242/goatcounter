@@ -106,7 +106,13 @@ h2 sup {
 	border-radius: 2px;
 }
 
-.period-select .active {
+.period-day [value=day],
+.period-week [value=week],
+.period-month [value=month],
+.period-quarter [value=quarter],
+.period-half-year [value=half-year],
+.period-year [value=year],
+.period-all [value=all] {
 	font-weight: bold;
 	text-decoration: underline;
 }

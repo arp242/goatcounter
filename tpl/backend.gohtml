@@ -25,7 +25,7 @@
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" class="hide"></button>
 
-		<span class="period-select">
+		<span class="period-select period-{{.Period}}">
 			Select last
 			<button class="link" name="period" value="day">day</button>,
 			<button class="link" name="period" value="week">week</button>,
@@ -39,6 +39,7 @@
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
 		<input type="text" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
 		<input type="text" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+		<input type="hidden" id="hl-period" name="hl-period" value="">
 		<button type="submit">Go</button>
 	</form>
 </div>

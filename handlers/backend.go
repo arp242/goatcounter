@@ -203,6 +203,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
 		ShowRefs         string
+		Period           string
 		PeriodStart      time.Time
 		PeriodEnd        time.Time
 		Pages            goatcounter.HitStats
@@ -211,7 +212,8 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		TotalHits        int
 		TotalHitsDisplay int
 		Browsers         goatcounter.BrowserStats
-	}{newGlobals(w, r), sr, start, end, pages, refs, moreRefs, total, totalDisplay, browsers})
+	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, pages,
+		refs, moreRefs, total, totalDisplay, browsers})
 	l = l.Since("exec template")
 	return x
 }

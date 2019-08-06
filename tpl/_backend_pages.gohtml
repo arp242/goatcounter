@@ -1,5 +1,5 @@
 {{range $h := .Pages}}
-	<tr id="{{$h.Path}}">
+	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td>{{$h.Count | nformat}}</td>
 		<td class="hide-mobile">
 			<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
