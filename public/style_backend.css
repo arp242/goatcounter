@@ -73,6 +73,7 @@ h2 sup {
 }
 
 .rlink {
+	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
 	max-width: 17.5em;
 	display: inline-block;	
 
