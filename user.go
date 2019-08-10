@@ -10,6 +10,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"net/mail"
 	"time"
 
 	"github.com/pkg/errors"
@@ -17,8 +18,11 @@ import (
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zlog"
 
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/smail"
 )
 
 const (
@@ -121,8 +125,14 @@ func (u *User) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "User.Insert")
 	}
 
-	u.ID, err = res.LastInsertId()
-	return errors.Wrap(err, "User.Insert")
+	if cfg.PgSQL {
+		var nu User
+		err = nu.ByEmail(context.WithValue(ctx, ctxkey.Site, &Site{ID: u.Site}), u.Email)
+		u.ID = nu.ID
+	} else {
+		u.ID, err = res.LastInsertId()
+	}
+	return nil
 }
 
 // ByID gets a user by ID.
@@ -193,6 +203,20 @@ func (u *User) GetToken() string {
 		return ""
 	}
 	return *u.CSRFToken
+}
+
+func (u *User) SendLoginMail(ctx context.Context, site Site) {
+	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
+	go func() {
+		err := smail.Send("Your login URL",
+			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
+			[]mail.Address{{Name: u.Name, Address: u.Email}},
+			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  https://%s\n\nGo to it to log in.\n",
+				url))
+		if err != nil {
+			zlog.Errorf("smail: %s", err)
+		}
+	}()
 }
 
 type Users []User

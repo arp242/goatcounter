@@ -122,6 +122,12 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 const day = 24 * time.Hour
 
 func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
+	// During login we can't set the flash cookie as the domain is different, so
+	// pass it by query.
+	if e := r.URL.Query().Get("mailed"); e != "" {
+		zhttp.Flash(w, "All good. Login URL emailed to %q; please click it in the next 15 minutes to continue.", e)
+	}
+
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
 	if goatcounter.MustGetSite(r.Context()).Settings.Public &&

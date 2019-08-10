@@ -7,6 +7,10 @@
 	<p><a href="/#pricing">Choose a different plan</a>.</p>
 {{else}}
 <h1>Sign up for GoatCounter</h1>
+<p>
+<br>The GoatCounter.com service is free during the initial beta for testing and
+gathering feedback, but will be <u>$3 per month per domain</u> afterwards.
+</p>
 <div id="signup-form">
 	<form class="vertical" method="post" action="/signup/{{.PlanName}}">
 		<fieldset class="two">
@@ -40,6 +44,7 @@
 			</div>
 		</fieldset>
 
+		{{/*
 		<fieldset class="cc">
 			<p id="signup-intro">
 				Sign up for the {{.PlanName}} plan. You will be billed
@@ -63,6 +68,7 @@
 				<input type="text" name="cvc" id="cvc">
 			</div>
 		</fieldset>
+		*/}}
 
 		<button type="submit">Sign up</button>
 	</form>

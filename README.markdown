@@ -22,13 +22,12 @@ nice way to say "thanks mate", it's directly supporting future development.
 Features
 --------
 
-- **Privacy-aware**; doesn't track users; doesn't need a GDPR notice (probably,
-  see [privacy][privacy]).
+- **Privacy-aware**; doesn't track users; doesn't need a GDPR notice.
 
 - **Lightweight** and **fast**; adds just 0.8KB of extra data to your site.
 
 - **Easy**; if you've been confused by the myriad of options and flexibility of
-  Google Analytics and Matomo than you don't need then GoatCounter will be a
+  Google Analytics and Matomo that you don't need then GoatCounter will be a
   breath of fresh air. 
 
 - **Accessibility** is a high-priority feature, and the interface works well

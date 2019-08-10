@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/mattn/go-sqlite3"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
@@ -120,8 +121,13 @@ func GetUser(ctx context.Context) *User {
 }
 
 func uniqueErr(err error) bool {
-	sqlErr, ok := err.(sqlite3.Error)
-	return ok && sqlErr.ExtendedCode == sqlite3.ErrConstraintUnique
+	if sqlErr, ok := err.(sqlite3.Error); ok && sqlErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+		return true
+	}
+	if pqErr, ok := err.(pq.Error); ok && pqErr.Code == "23505" {
+		return true
+	}
+	return false
 }
 
 func sqlDate(t time.Time) string  { return t.Format("2006-01-02 15:04:05") }

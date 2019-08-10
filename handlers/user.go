@@ -5,10 +5,10 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
-	"net/mail"
 
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
@@ -18,7 +18,6 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/smail"
 )
 
 type user struct{}
@@ -70,17 +69,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
-	go func() {
-		err := smail.Send("Your login URL",
-			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
-			[]mail.Address{{Name: u.Name, Address: u.Email}},
-			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  https://%s\n\nGo to it to log in.\n",
-				url))
-		if err != nil {
-			zlog.Errorf("smail: %s", err)
-		}
-	}()
+	go u.SendLoginMail(context.Background(), site)
 
 	if cfg.Prod {
 		zhttp.Flash(w,
@@ -88,7 +77,8 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 			u.Email)
 	} else {
 		// Show URL on dev for convenience.
-		zhttp.Flash(w, "<a href='http://%s'>http://%[1]s</a>", url)
+		zhttp.Flash(w, "<a href='http://%s'>http://%[1]s</a>",
+			fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey))
 	}
 	return zhttp.SeeOther(w, "/")
 }

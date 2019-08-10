@@ -17,6 +17,7 @@ import (
 	"github.com/teamwork/guru"
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
+	"zgo.at/goatcounter/cfg"
 )
 
 // Plan column values.
@@ -174,7 +175,7 @@ func (s *Site) Insert(ctx context.Context) error {
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
-		//return err
+		return err
 	}
 
 	res, err := MustGetDB(ctx).ExecContext(ctx,
@@ -187,7 +188,13 @@ func (s *Site) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "Site.Insert")
 	}
 
-	s.ID, err = res.LastInsertId()
+	if cfg.PgSQL {
+		var ns Site
+		err = ns.ByCode(ctx, s.Code)
+		s.ID = ns.ID
+	} else {
+		s.ID, err = res.LastInsertId()
+	}
 	return errors.Wrap(err, "Site.Insert")
 }
 

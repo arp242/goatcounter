@@ -4,7 +4,7 @@
 
 (function() {
 	var init = function() {
-		setup_imgzoom();
+		//setup_imgzoom();
 		fill_code();
 	};
 

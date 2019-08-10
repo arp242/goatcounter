@@ -12,13 +12,17 @@
 	</div>
 	<br><br>
 
-	<div id="home-screens">
+	<div id="home-screens" class="one">
+		<div>
+			<img src="//{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
+		</div>
+
+		{{/*
 		<div style="height: 255px">
 			<img class="zoom" src="//{{.Static}}/screenshot-small.png"
 				data-large="//{{.Static}}/screenshot.png"
 				alt="Screenshot of the GoatCounter interface">
 		</div>
-
 		<div>
 			<div class="iframe">
 				<iframe width="448" height="252"
@@ -28,24 +32,22 @@
 					allowfullscreen></iframe>
 			</div>
 		</div>
+		*/}}
 	</div>
 </div>
 
-<!--
-<h2 id="features">Features</h2>
--->
-<br><hr id="features"><br>
+<hr id="features">
 <div id="home-features">
 	<div>
 		<p><strong>Privacy-aware</strong>; doesn’t track users; doesn't need a
-			GDPR notice (probably, see <a href="/privacy">Privacy</a>).</p>
+			GDPR notice.</p>
 		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
 			0.8KB of extra data to your site.</p>
 	</div>
 
 	<div>
 		<p><strong>Easy</strong>; if you've been confused by the myriad of
-			options and flexibility of Google Analytics and Matomo than you
+			options and flexibility of Google Analytics and Matomo that you
 			don't need then GoatCounter will be a breath of fresh air.</p> 
 		<p><strong>Accessibility</strong> is a high-priority
 			feature, and the interface works well with screen readers, no
@@ -61,17 +63,14 @@
 	</div>
 </div>
 
-<!--
-<h2 id="pricing">Pricing</h2>
--->
-<br><hr id="pricing"><br>
+<hr id="pricing">
 <div id="home-pricing">
 	<div>
 		<h3>Personal</h3>
 		<ul>
-			<li>$3/month per domain</li>
+			<li>Free during initial beta</li>
+			<li>$3/month per domain afterwards</li>
 			<li>250k hits/months</li>
-			<li>&nbsp;</li>
 		</ul>
 		<a class="hlink" href="/signup/personal"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
@@ -80,22 +79,36 @@
 		<h3>Business</h3>
 		<ul>
 			<li>$30/month per domain</li>
-			<li>5M hits/months</li>
+			<li>2.5M hits/months</li>
 			<li>Custom domain</li>
 		</ul>
+		{{/*
 		<a class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+		*/}}
+		<span class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Soon</span>
 	</div>
 
 	<div>
-		<h3>Enterprise</h3>
+		<h3>Custom</h3>
 		<ul>
-			<li>$100/month per domain</li>
+			<li>Contact for pricing</li>
 			<li>Unlimited hits/month</li>
 			<li>Private installation</li>
 		</ul>
-		<a class="hlink" href="/signup/enterprise"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+		<a class="hlink" href="mailto:support@goatconter.com"><img src="//{{.Static}}/index.svg" alt=""> Contact</a>
 	</div>
 </div>
+
+<hr id="newsletter">
+<div id="home-newsletter">
+	<form method="POST" action="https://goatcounter.goatletter.com/request">
+		<label for="nl-email">Get notified of updates:</label>
+		<input type="email" name="email" id="nl-email" placeholder="Email address"><button type="submit">Subscribe</button>
+		<input type="text" id="nl-turing-test" name="website" placeholder="Do NOT fill in this field, it's here as an anti-spam meassure">
+		<p>We’ll email on significant updates (such as full launch) and major additions, at most once a month.</p>
+	</form>
+</div>
+
 <br><br>
 
 {{template "_bottom.gohtml" .}}

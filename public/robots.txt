@@ -1,4 +1,2 @@
-User-agent: *
-Disallow: /user
 User-agent: Terminator
 Disallow: /sarah-connor

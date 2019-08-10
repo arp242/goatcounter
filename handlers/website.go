@@ -5,7 +5,10 @@
 package handlers // import "zgo.at/goatcounter/handlers"
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -14,10 +17,10 @@ import (
 	"github.com/teamwork/guru"
 	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/ctxkey"
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/stripe"
 )
 
 type Website struct{}
@@ -100,11 +103,12 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	txctx, tx, err := goatcounter.Begin(r.Context())
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+	txctx := r.Context()
+	// txctx, tx, err := goatcounter.Begin(r.Context())
+	// if err != nil {
+	// 	return err
+	// }
+	// defer tx.Rollback()
 
 	v := validate.New()
 
@@ -148,17 +152,24 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), "signup", plan, planName, site, user, v.Errors})
 	}
 
-	err = tx.Commit()
+	// err = tx.Commit()
+	// if err != nil {
+	// 	return err
+	// }
+
+	ctx := context.WithValue(r.Context(), ctxkey.Site, &site)
+	err = user.RequestLogin(ctx)
 	if err != nil {
 		return err
 	}
+	go user.SendLoginMail(context.Background(), site)
 
-	err = stripe.Create(r.Context(), site, user)
-	if err != nil {
-		return err
+	p := "https"
+	if !cfg.Prod {
+		p = "http"
 	}
-
-	return zhttp.SeeOther(w, "/signup/"+planName)
+	return zhttp.SeeOther(w, fmt.Sprintf("%s://%s.%s?mailed=%s",
+		p, site.Code, cfg.Domain, url.QueryEscape(user.Email)))
 }
 
 func getPlan(r *http.Request) (string, string, error) {
@@ -166,10 +177,10 @@ func getPlan(r *http.Request) (string, string, error) {
 	switch name {
 	case "personal":
 		return "p", name, nil
-	case "business":
-		return "b", name, nil
-	case "enterprise":
-		return "e", name, nil
+	//case "business":
+	//	return "b", name, nil
+	//case "enterprise":
+	//	return "e", name, nil
 	default:
 		return "", name, guru.Errorf(400, "unknown plan: %q", name)
 	}
