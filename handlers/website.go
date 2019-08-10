@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -73,14 +74,15 @@ func (h Website) signup(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "signup.gohtml", struct {
 		Globals
-		Page     string
-		Plan     string
-		PlanName string
-		Site     goatcounter.Site
-		User     goatcounter.User
-		Validate map[string][]string
+		Page       string
+		Plan       string
+		PlanName   string
+		Site       goatcounter.Site
+		User       goatcounter.User
+		Validate   map[string][]string
+		TuringTest string
 	}{newGlobals(w, r), "signup", plan, planName, goatcounter.Site{},
-		goatcounter.User{}, map[string][]string{}})
+		goatcounter.User{}, map[string][]string{}, ""})
 }
 
 func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
@@ -90,27 +92,30 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := struct {
-		Domain string `json:"site_domain"`
-		Code   string `json:"site_code"`
-		Email  string `json:"user_email"`
-		Name   string `json:"user_name"`
-		Card   string `json:"card"`
-		Exp    string `json:"exp"`
-		CVC    string `json:"cvc"`
+		Domain     string `json:"site_domain"`
+		Code       string `json:"site_code"`
+		Email      string `json:"user_email"`
+		Name       string `json:"user_name"`
+		TuringTest string `json:"turing_test"`
+		//Card   string `json:"card"`
+		//Exp    string `json:"exp"`
+		//CVC    string `json:"cvc"`
 	}{}
 	_, err = zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
 
-	txctx := r.Context()
-	// txctx, tx, err := goatcounter.Begin(r.Context())
-	// if err != nil {
-	// 	return err
-	// }
-	// defer tx.Rollback()
+	txctx, tx, err := goatcounter.Begin(r.Context())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
 	v := validate.New()
+	if strings.TrimSpace(args.TuringTest) != "9" {
+		v.Append("turing_test", "must fill in correct value")
+	}
 
 	// Create site.
 	site := goatcounter.Site{
@@ -143,19 +148,20 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if v.HasErrors() {
 		return zhttp.Template(w, "signup.gohtml", struct {
 			Globals
-			Page     string
-			Plan     string
-			PlanName string
-			Site     goatcounter.Site
-			User     goatcounter.User
-			Validate map[string][]string
-		}{newGlobals(w, r), "signup", plan, planName, site, user, v.Errors})
+			Page       string
+			Plan       string
+			PlanName   string
+			Site       goatcounter.Site
+			User       goatcounter.User
+			Validate   map[string][]string
+			TuringTest string
+		}{newGlobals(w, r), "signup", plan, planName, site, user, v.Errors, args.TuringTest})
 	}
 
-	// err = tx.Commit()
-	// if err != nil {
-	// 	return err
-	// }
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 
 	ctx := context.WithValue(r.Context(), ctxkey.Site, &site)
 	err = user.RequestLogin(ctx)

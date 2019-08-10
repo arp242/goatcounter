@@ -1,9 +1,9 @@
 GoatCounter is a web counter.
 
-There are two ways to run this: as **hosted service starting at $3/month**, or
-run it on your own server. Check out [https://www.goatcounter.com][www] for the
-hosted service and user documentation. *Note: not yet online; come back in a few
-days if you managed to find this repo somehow*.
+There are two ways to run this: as **hosted service starting at $3/month**
+(*free* during initial beta!) or run it on your own server. Check out
+[https://www.goatcounter.com][www] for the hosted service and user
+documentation.
 
 There's a live demo at [https://arp242.goatcounter.com][demo].
 

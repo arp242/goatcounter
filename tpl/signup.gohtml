@@ -44,6 +44,15 @@ gathering feedback, but will be <u>$3 per month per domain</u> afterwards.
 			</div>
 		</fieldset>
 
+		<fieldset class="two">
+			<div>
+				<label for="turing_test">Fill in 9 here</label>
+				<input type="text" name="turing_test" id="turing_test" value="{{.TuringTest}}">
+				{{validate "turing_test" .Validate}}
+				<span class="help">Just a little verification that you’re human :-)</span>
+			</div>
+		</fieldset>
+
 		{{/*
 		<fieldset class="cc">
 			<p id="signup-intro">
