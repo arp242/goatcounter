@@ -17,6 +17,14 @@ import (
 	"zgo.at/zlog"
 )
 
+func ptr(s string) *string { return &s }
+
+// ref_scheme column
+var (
+	RefSchemeHTTP      = ptr("h")
+	RefSchemeGenerated = ptr("g")
+)
+
 type Hit struct {
 	Site int64 `db:"site" json:"-"`
 
@@ -24,6 +32,7 @@ type Hit struct {
 	Ref         string    `db:"ref" json:"r,omitempty"`
 	RefParams   *string   `db:"ref_params" json:"ref_params,omitempty"`
 	RefOriginal *string   `db:"ref_original" json:"ref_original,omitempty"`
+	RefScheme   *string   `db:"ref_scheme" json:"ref_scheme,omitempty"`
 	CreatedAt   time.Time `db:"created_at" json:"-"`
 
 	refURL *url.URL `db:"-"`
@@ -70,11 +79,17 @@ var hostAlias = map[string]string{
 	"fr.reddit.com":      "www.reddit.com",
 }
 
-func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
+func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	// I'm not sure where these links are generated, but there are *a lot* of
 	// them.
 	if refURL.Host == "link.oreilly.com" {
-		return "https://link.oreilly.com", nil, true
+		return "link.oreilly.com", nil, true, false
+	}
+
+	// Always remove protocol.
+	refURL.Scheme = ""
+	if p := strings.Index(ref, ":"); p > -1 && p < 7 {
+		ref = ref[p+3:]
 	}
 
 	changed := false
@@ -88,10 +103,10 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 	// Group based on URL.
 	if strings.HasPrefix(refURL.Host, "www.google.") {
 		// Group all "google.co.nz", "google.nl", etc. as "Google".
-		return "Google", nil, true
+		return "Google", nil, true, true
 	}
 	if g, ok := groups[refURL.Host]; ok {
-		return g, nil, true
+		return g, nil, true, true
 	}
 
 	// Special-fu for Feedly.
@@ -108,7 +123,7 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 			strings.HasPrefix(refURL.Path, "/i/collection/") ||
 			strings.HasPrefix(refURL.Path, "/i/tag/") ||
 			strings.HasPrefix(refURL.Path, "/i/category/") {
-			return "https://feedly.com", nil, true
+			return "feedly.com", nil, true, false
 		}
 
 		// Subscriptions:
@@ -140,7 +155,7 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 			if err != nil {
 				zlog.Error(err)
 			} else {
-				return p, nil, true
+				return p, nil, false, false
 			}
 		}
 
@@ -185,7 +200,7 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 	// Not really: https://lobste.rs/newest/page/8, https://lobste.rs/page/7
 	//             https://lobste.rs/search, https://lobste.rs/t/javascript
 	if refURL.Host == "lobste.rs" && !strings.HasPrefix(refURL.Path, "/s/") {
-		return "https://lobste.rs", nil, true
+		return "lobste.rs", nil, true, false
 	}
 
 	// Reddit
@@ -208,14 +223,14 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 	i := strings.Index(ref, "?")
 	if i == -1 {
 		// No parameters so no work.
-		return refURL.String(), nil, changed
+		return refURL.String()[2:], nil, changed, false
 	}
 	eq := ref[i+1:]
 	ref = ref[:i]
 
 	// Twitter's t.co links add this.
 	if refURL.Host == "t.co" && eq == "amp=1" {
-		return ref, nil, false
+		return ref, nil, false, false
 	}
 
 	q := refURL.Query()
@@ -229,10 +244,10 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool) {
 	q.Del("utm_term")
 
 	if len(q) == 0 {
-		return refURL.String(), nil, changed || len(q) != start
+		return refURL.String()[2:], nil, changed || len(q) != start, false
 	}
 	eq = q.Encode()
-	return refURL.String(), &eq, changed || len(q) != start
+	return refURL.String()[2:], &eq, changed || len(q) != start, false
 }
 
 // Defaults sets fields to default values, unless they're already set.
@@ -246,11 +261,16 @@ func (h *Hit) Defaults(ctx context.Context) {
 	}
 
 	if h.Ref != "" && h.refURL != nil {
-		var store bool
+		var store, generated bool
 		r := h.Ref
-		h.Ref, h.RefParams, store = cleanURL(h.Ref, h.refURL)
+		h.Ref, h.RefParams, store, generated = cleanURL(h.Ref, h.refURL)
 		if store {
 			h.RefOriginal = &r
+		}
+
+		h.RefScheme = RefSchemeHTTP
+		if generated {
+			h.RefScheme = RefSchemeGenerated
 		}
 	}
 
@@ -290,8 +310,8 @@ func (h *Hit) Insert(ctx context.Context) error {
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
 		`insert into hits (site, path, ref, ref_params, ref_original, created_at)
-		values ($1, $2, $3, $4, $5, $6)`,
-		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt))
+		values ($1, $2, $3, $4, $5, $6, $7)`,
+		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme)
 	return errors.Wrap(err, "Site.Insert")
 }
 
@@ -309,10 +329,11 @@ type HitStat struct {
 }
 
 type hs struct {
-	Count int    `db:"count"`
-	Max   int    `db:"-"`
-	Path  string `db:"path"`
-	Stats []HitStat
+	Count     int     `db:"count"`
+	Max       int     `db:"-"`
+	Path      string  `db:"path"`
+	RefScheme *string `db:"ref_scheme"`
+	Stats     []HitStat
 }
 
 type HitStats []hs
@@ -331,7 +352,8 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 	}
 
 	query := `
-		select path, count(path) as count
+		select
+			path, count(path) as count
 		from hits
 		where
 			site=? and
@@ -445,14 +467,17 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 	// which is more expensive than it needs to be.
 	// It's "good enough" for now, though.
 	err := MustGetDB(ctx).SelectContext(ctx, h, `
-		select ref as path, count(ref) as count
+		select
+			ref as path,
+			count(ref) as count,
+			ref_scheme
 		from hits
 		where
 			site=$1 and
 			lower(path)=lower($2) and
 			created_at >= $3 and
 			created_at <= $4
-		group by ref
+		group by ref, ref_scheme
 		order by count(*) desc
 		limit $5 offset $6`,
 		site.ID, path, dayStart(start), dayEnd(end), site.Settings.Limits.Ref+1, offset)

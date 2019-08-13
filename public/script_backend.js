@@ -65,7 +65,6 @@
 				},
 				dataType: 'json',
 				success: function(data) {
-					console.log(data);
 					btn.prev().find('tbody').append($(data.rows).find('tr'));
 
 					if (!data.more)
@@ -199,11 +198,11 @@
 				return set_param('showrefs', null);
 			}
 
+			set_param('showrefs', path);
 			jQuery.ajax({
 				url: '/refs' + link.search,
 				dataType: 'json',
 				success: function(data) {
-					set_param('showrefs', path);
 					row.addClass('target');
 
 					if (params['showrefs'])

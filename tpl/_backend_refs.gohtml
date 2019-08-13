@@ -3,9 +3,10 @@
 	<tr>
 		<td>{{$r.Count | nformat}}</td>
 		{{/* Don't link groups? */}}
-		<td>
-			{{if $r.Path}}{{$r.Path}}{{else}}(no data){{end}}
-			{{if has_prefix $r.Path "http"}}<sup><a href="{{$r.Path}}" target="_blank">go</a></sup>{{end}}
+		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
+			{{if $r.Path}}{{$r.Path}}
+			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a href="http://{{$r.Path}}" target="_blank">go</a></sup>{{end}}
+			{{else}}(no data){{end}}
 		</td>
 	</tr>
 {{end}}

@@ -15,7 +15,7 @@ import (
 )
 
 func TestHitDefaults(t *testing.T) {
-	a := "https://arp242.net"
+	a := "arp242.net"
 	set := test.SP("_")
 
 	tests := []struct {
@@ -30,7 +30,7 @@ func TestHitDefaults(t *testing.T) {
 		{"https://arp242.net?a=b&c=d", a, test.SP("a=b&c=d"), nil},
 
 		// Clean up query parameters.
-		{"https://t.co/asd?amp=1", "https://t.co/asd", nil, nil},
+		{"https://t.co/asd?amp=1", "t.co/asd", nil, nil},
 		{"https://arp242.net?utm_source=asd", a, nil, set},
 		{"https://arp242.net?utm_source=asd&a=b", a, test.SP("a=b"), set},
 
@@ -39,12 +39,12 @@ func TestHitDefaults(t *testing.T) {
 		{"android-app://com.laurencedawson.reddit_sync.pro", "www.reddit.com", nil, set},
 
 		// Host aliases.
-		{"https://en.m.wikipedia.org/wiki/Foo", "https://en.wikipedia.org/wiki/Foo", nil, set},
-		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "https://en.wikipedia.org/wiki/Foo", test.SP("a=b"), set},
+		{"https://en.m.wikipedia.org/wiki/Foo", "en.wikipedia.org/wiki/Foo", nil, set},
+		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "en.wikipedia.org/wiki/Foo", test.SP("a=b"), set},
 
 		// Reddit Cleaning.
-		{"https://www.reddit.com/r/programming/top", "https://www.reddit.com/r/programming", nil, set},
-		{"https://np.reddit.com/r/programming/.compact", "https://www.reddit.com/r/programming", nil, set},
+		{"https://www.reddit.com/r/programming/top", "www.reddit.com/r/programming", nil, set},
+		{"https://np.reddit.com/r/programming/.compact", "www.reddit.com/r/programming", nil, set},
 	}
 
 	ctx := context.WithValue(context.Background(), ctxkey.Site, &Site{ID: 1})
