@@ -11,6 +11,9 @@ The current status is *public beta*, or "MVP" (Minimum Viable Product) to get
 feedback from others. That being sad, it should be stable and useful. It just
 doesn't have all the features I'd like it to have (yet).
 
+Please consider [donating][patreon] if you're self-hosting GoatCounter so I can
+pay my rent :-) Also see the [announcement post][launch].
+
 ---
 
 Please consider donating if you run your own instance of GoatCounter.
@@ -119,3 +122,5 @@ To use it:
 [privacy]: https://goatcounter.com/privacy
 [pq]: https://godoc.org/github.com/lib/pq
 [goathost]: https://github.com/zgoat/goathost
+[patreon]: https://www.patreon.com/arp242
+[launch]: https://arp242.net/goatcounter.html
