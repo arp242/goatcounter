@@ -289,6 +289,8 @@ func (h *Hit) Validate(ctx context.Context) error {
 }
 
 // Insert a new row.
+//
+// Note: this is also in memstore.go
 func (h *Hit) Insert(ctx context.Context) error {
 	var err error
 	h.refURL, err = url.Parse(h.Ref)

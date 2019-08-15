@@ -49,7 +49,7 @@ func (m *ms) Persist(ctx context.Context) error {
 	l.Printf("persisting %d hits and %d User-Agents", len(hits), len(browsers))
 
 	ins := bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
-		"hits", []string{"site", "path", "ref", "ref_params", "ref_original", "created_at"})
+		"hits", []string{"site", "path", "ref", "ref_params", "ref_original", "ref_scheme", "created_at"})
 	for _, h := range hits {
 		var err error
 		h.refURL, err = url.Parse(h.Ref)
@@ -70,7 +70,7 @@ func (m *ms) Persist(ctx context.Context) error {
 			continue
 		}
 
-		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt))
+		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, h.RefScheme, sqlDate(h.CreatedAt))
 	}
 	err := ins.Finish()
 	if err != nil {
