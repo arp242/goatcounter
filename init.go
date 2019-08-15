@@ -38,8 +38,15 @@ func init() {
 	// Implemented as function for performance.
 	zhttp.FuncMap["bar_chart"] = func(stats []HitStat, max int) template.HTML {
 		var b strings.Builder
+		now := time.Now().UTC()
+		today := now.Format("2006-01-02")
+		hour := now.Hour()
 		for _, stat := range stats {
 			for _, s := range stat.Days {
+				// Don't show stuff in the future.
+				if stat.Day == today && s[0] > hour {
+					break
+				}
 				h := math.Round(float64(s[1]) / float64(max) / 0.01)
 
 				// Double div so that the title is on the entire column, instead

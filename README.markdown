@@ -16,8 +16,6 @@ pay my rent :-) Also see the [announcement post][launch].
 
 ---
 
-Please consider donating if you run your own instance of GoatCounter.
-
 Basically I quit my day job to try and make a living from creating open source
 software full-time (or free software, if you prefer). So supporting isn't just a
 nice way to say "thanks mate", it's directly supporting future development.
@@ -112,7 +110,7 @@ To use it:
 
 3. Run with `-pgsql` and `-dbconnect`, for example:
 
-       $ goatconter -pgsql -dbconnect 'user=goatcounter dbname=goatcounter sslmode=disable'
+       $ goatcounter -pgsql -dbconnect 'user=goatcounter dbname=goatcounter sslmode=disable'
 
    See the [pq docs][pq] for more details on the connection string.
 
