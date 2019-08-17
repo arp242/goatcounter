@@ -24,34 +24,34 @@ aside {
 
 /* FILE: ./base.css */
 @font-face {
-  font-family: 'Libre Baskerville';
-  font-style: normal;
-  font-weight: 400;
-  font-display: fallback;
-  src: local('Libre Baskerville'), local('LibreBaskerville-Regular'),
-    url(/fonts/libre-baskerville.woff2) format('woff2'),
-    url(./fonts/libre-baskerville.woff2) format('woff2');
+	font-family: 'Lato';
+	font-style: normal;
+	font-weight: 400;
+	font-display: fallback;
+	src: local('Lato'), local('Lato Regular'),
+		url('/fonts/latolatin.woff2') format('woff2');
+		url('./fonts/latolatin.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Libre Baskerville';
-  font-style: normal;
-  font-weight: 700;
-  font-display: fallback;
-  src: local('Libre Baskerville Bold'), local('LibreBaskerville-Bold'),
-    url(/fonts/libre-baskerville-bold.woff2) format('woff2'),
-    url(./fonts/libre-baskerville-bold.woff2) format('woff2');
+	font-family: 'Lato';
+	font-style: normal;
+	font-weight: 700;
+	font-display: fallback;
+	src: local('Lato Bold'), local('Lato Bold'),
+		url('/fonts/latolatin-bold.woff2') format('woff2');
+		url('./fonts/latolatin-bold.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Libre Baskerville';
-  font-style: italic;
-  font-weight: 400;
-  font-display: fallback;
-  src: local('Libre Baskerville Italic'), local('LibreBaskerville-Italic'),
-    url(/fonts/libre-baskerville-italic.woff2) format('woff2'),
-    url(./fonts/libre-baskerville-italic.woff2) format('woff2');
+	font-family: 'Lato';
+	font-style: italic;
+	font-weight: 400;
+	font-display: fallback;
+	src: local('Lato Italic'), local('Lato Italic'),
+		url('/fonts/latolatin-italic.woff2') format('woff2');
+		url('./fonts/latolatin-italic.woff2') format('woff2');
 }
 html {
-  font: 16px/180% 'Libre Baskerville', 'DejaVu Serif', 'Bitstream Vera Serif', 'Georgia', serif;
+  font: 16px/150% 'Lato', sans-serif;
           text-size-adjust: none;
   -webkit-text-size-adjust: none;
 }
@@ -342,10 +342,12 @@ form > strong, fieldset > strong {
   display: inline-block;
   margin-top: .5em;
 }
+/* ... why?
 form > div, fieldset > div {
   float: left;
   margin-right: 1em;
 }
+*/
 .vertical input[type="text"],
 .vertical input[type="search"],
 .vertical input[type="tel"],

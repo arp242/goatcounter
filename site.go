@@ -54,8 +54,8 @@ type Site struct {
 
 type SiteSettings struct {
 	Public          bool   `json:"public"`
-	DateFormat      string `json:"date_format"`
 	TwentyFourHours bool   `json:"twenty_four_hours"`
+	DateFormat      string `json:"date_format"`
 	Limits          struct {
 		Page    int `json:"page"`
 		Ref     int `json:"ref"`
