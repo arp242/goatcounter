@@ -144,6 +144,7 @@ h2 sup {
 	top: -.5em;
 	padding: 0 .3em;
 	text-align: right;
+	z-index: 1;  /* Above the actual bars */
 }
 
 /* Bar char */
