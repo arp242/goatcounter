@@ -55,7 +55,7 @@ create table hits (
 	ref            varchar        not null,
 	ref_original   varchar,
 	ref_params     varchar,
-	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g')),
+	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
 
 	created_at     timestamp      not null
 );

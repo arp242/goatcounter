@@ -22,6 +22,7 @@ func ptr(s string) *string { return &s }
 // ref_scheme column
 var (
 	RefSchemeHTTP      = ptr("h")
+	RefSchemeOther     = ptr("o")
 	RefSchemeGenerated = ptr("g")
 )
 
@@ -44,6 +45,10 @@ var groups = map[string]string{
 	"hckrnews.com":                       "Hacker News",
 	"hn.premii.com":                      "Hacker News",
 	"com.stefandekanski.hackernews.free": "Hacker News",
+	"io.github.hidroh.materialistic":     "Hacker News",
+	"hackerweb.app":                      "Hacker News",
+	"www.daemonology.net/hn-daily":       "Hacker News",
+	"quiethn.com":                        "Hacker News",
 	// http://www.elegantreader.com/item/17358103
 	// https://www.daemonology.net/hn-daily/2019-05.html
 
@@ -261,6 +266,12 @@ func (h *Hit) Defaults(ctx context.Context) {
 	}
 
 	if h.Ref != "" && h.refURL != nil {
+		if h.refURL.Scheme == "http" || h.refURL.Scheme == "https" {
+			h.RefScheme = RefSchemeHTTP
+		} else {
+			h.RefScheme = RefSchemeOther
+		}
+
 		var store, generated bool
 		r := h.Ref
 		h.Ref, h.RefParams, store, generated = cleanURL(h.Ref, h.refURL)
@@ -268,7 +279,6 @@ func (h *Hit) Defaults(ctx context.Context) {
 			h.RefOriginal = &r
 		}
 
-		h.RefScheme = RefSchemeHTTP
 		if generated {
 			h.RefScheme = RefSchemeGenerated
 		}

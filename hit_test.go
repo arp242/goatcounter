@@ -23,28 +23,31 @@ func TestHitDefaults(t *testing.T) {
 		wantRef      string
 		wantParams   *string
 		wantOriginal *string
+		wantScheme   string
 	}{
 		// Split out query parameters.
-		{"https://arp242.net", a, nil, nil},
-		{"https://arp242.net?a=b", a, test.SP("a=b"), nil},
-		{"https://arp242.net?a=b&c=d", a, test.SP("a=b&c=d"), nil},
+		{"https://arp242.net", a, nil, nil, "h"},
+		{"https://arp242.net?a=b", a, test.SP("a=b"), nil, "h"},
+		{"https://arp242.net?a=b&c=d", a, test.SP("a=b&c=d"), nil, "h"},
 
 		// Clean up query parameters.
-		{"https://t.co/asd?amp=1", "t.co/asd", nil, nil},
-		{"https://arp242.net?utm_source=asd", a, nil, set},
-		{"https://arp242.net?utm_source=asd&a=b", a, test.SP("a=b"), set},
+		{"https://t.co/asd?amp=1", "t.co/asd", nil, nil, "h"},
+		{"https://arp242.net?utm_source=asd", a, nil, set, "h"},
+		{"https://arp242.net?utm_source=asd&a=b", a, test.SP("a=b"), set, "h"},
 
 		// Groups
-		{"https://mail.google.com?a=b&c=d", "Email", nil, set},
-		{"android-app://com.laurencedawson.reddit_sync.pro", "www.reddit.com", nil, set},
+		{"https://mail.google.com?a=b&c=d", "Email", nil, set, "g"},
+		{"android-app://com.laurencedawson.reddit_sync.pro", "www.reddit.com", nil, set, "g"},
 
 		// Host aliases.
-		{"https://en.m.wikipedia.org/wiki/Foo", "en.wikipedia.org/wiki/Foo", nil, set},
-		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "en.wikipedia.org/wiki/Foo", test.SP("a=b"), set},
+		{"https://en.m.wikipedia.org/wiki/Foo", "en.wikipedia.org/wiki/Foo", nil, set, "h"},
+		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "en.wikipedia.org/wiki/Foo", test.SP("a=b"), set, "h"},
 
 		// Reddit Cleaning.
-		{"https://www.reddit.com/r/programming/top", "www.reddit.com/r/programming", nil, set},
-		{"https://np.reddit.com/r/programming/.compact", "www.reddit.com/r/programming", nil, set},
+		{"https://www.reddit.com/r/programming/top", "www.reddit.com/r/programming", nil, set, "h"},
+		{"https://np.reddit.com/r/programming/.compact", "www.reddit.com/r/programming", nil, set, "h"},
+
+		{"android-app://com.example.android", "com.example.android", nil, nil, "o"},
 	}
 
 	ctx := context.WithValue(context.Background(), ctxkey.Site, &Site{ID: 1})
@@ -70,6 +73,10 @@ func TestHitDefaults(t *testing.T) {
 			if !CmpString(h.RefOriginal, tt.wantOriginal) {
 				t.Fatalf("wrong RefOriginal\nout:  %#v\nwant: %#v\n",
 					PSP(h.RefOriginal), PSP(tt.wantOriginal))
+			}
+			if *h.RefScheme != tt.wantScheme {
+				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n",
+					PSP(h.RefScheme), tt.wantScheme)
 			}
 		})
 	}
