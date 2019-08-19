@@ -6,6 +6,7 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"sync"
 
@@ -46,8 +47,6 @@ func (m *ms) Persist(ctx context.Context) error {
 	m.browsers = []Browser{}
 	m.Unlock()
 
-	l.Printf("persisting %d hits and %d User-Agents", len(hits), len(browsers))
-
 	ins := bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original", "ref_scheme", "created_at"})
 	for _, h := range hits {
@@ -77,8 +76,6 @@ func (m *ms) Persist(ctx context.Context) error {
 		zlog.Error(err)
 	}
 
-	l = l.Since("hits done")
-
 	ins = bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
 		"browsers", []string{"site", "browser", "created_at"})
 	for _, b := range browsers {
@@ -95,7 +92,8 @@ func (m *ms) Persist(ctx context.Context) error {
 	if err != nil {
 		zlog.Error(err)
 	}
-	l = l.Since("browsers done")
+
+	l.Since(fmt.Sprintf("persisted %d hits and %d User-Agents", len(hits), len(browsers)))
 
 	return nil
 }
