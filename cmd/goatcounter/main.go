@@ -30,7 +30,7 @@ import (
 
 var (
 	version         = "dev"
-	requiredVersion = "0000-00-00 00:00:00 init"
+	requiredVersion = ""
 )
 
 func main() {
@@ -97,12 +97,14 @@ func main() {
 		}
 	}
 
-	var version string
-	must(db.Get(&version,
-		`select name from version order by name desc limit 1`))
-	if version != requiredVersion {
-		panic(fmt.Sprintf("current DB version is %q, but need version %q; run migrations from ./db/migrate directory",
-			version, requiredVersion))
+	if requiredVersion != "" {
+		var version string
+		must(db.Get(&version,
+			`select name from version order by name desc limit 1`))
+		if version != requiredVersion {
+			zlog.Errorf("current DB version is %q, but need version %q; run migrations from ./db/migrate directory",
+				version, requiredVersion)
+		}
 	}
 
 	// Run background tasks.
