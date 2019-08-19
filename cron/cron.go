@@ -7,7 +7,6 @@ package cron
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -93,12 +92,14 @@ func updateAllStats(ctx context.Context) error {
 		return err
 	}
 
+	l := zlog.Debug("stat").Module("stat")
 	for _, s := range sites {
 		err := updateSiteStat(ctx, s)
 		if err != nil {
 			return errors.Wrapf(err, "site %d", s.ID)
 		}
 	}
+	l.Since("updateAllStats")
 	return nil
 }
 
@@ -106,7 +107,6 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 	ctx = context.WithValue(ctx, ctxkey.Site, &site)
 	db := goatcounter.MustGetDB(ctx)
 	start := time.Now().Format("2006-01-02 15:04:05")
-	l := zlog.Debug("stat").Module("stat")
 
 	// Select everything since last update.
 	var last string
@@ -149,17 +149,12 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		return errors.Wrap(err, "fetch data")
 	}
 
-	l = l.Since(fmt.Sprintf("fetch from SQL for %d since %s (%d hits)",
-		site.ID, last, len(stats)))
-
 	existing, err := (&goatcounter.HitStats{}).ListPaths(ctx)
 	if err != nil {
 		return err
 	}
 
 	hourly := fillBlanks(stats, existing, site.CreatedAt)
-
-	//l = l.Since("Correct data")
 
 	// No data received.
 	if len(hourly) == 0 {
@@ -212,8 +207,6 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 	if err != nil {
 		return err
 	}
-
-	l = l.Since("Insert in db")
 
 	// Record last update.
 	_, err = db.ExecContext(ctx,
