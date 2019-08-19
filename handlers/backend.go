@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -45,9 +46,25 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	})
 
 	// CSP errors.
+	type CSPError struct {
+		Report struct {
+			ColumnNumber int    `json:"column-number"`
+			LineNumber   int    `json:"line-number"`
+			BlockedURI   string `json:"blocked-uri"`
+			Violated     string `json:"violated-directive"`
+		} `json:"csp-report"`
+	}
 	rr.Post("/csp", func(w http.ResponseWriter, r *http.Request) {
 		d, _ := ioutil.ReadAll(r.Body)
-		zlog.Errorf("CSP error: %s", string(d))
+		var csp CSPError
+		err := json.Unmarshal(d, &csp)
+
+		rp := csp.Report
+		// Probably an extension or something.
+		if !(err == nil && rp.ColumnNumber == 1 && rp.LineNumber == 1 && rp.BlockedURI == "inline" && rp.Violated == "script-src") {
+			zlog.Errorf("CSP error: %s", string(d))
+		}
+
 		w.WriteHeader(202)
 	})
 
