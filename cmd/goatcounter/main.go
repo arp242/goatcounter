@@ -28,7 +28,10 @@ import (
 	"zgo.at/goatcounter/handlers"
 )
 
-var version = "dev"
+var (
+	version         = "dev"
+	requiredVersion = "0000-00-00 00:00:00 init"
+)
 
 func main() {
 	cfg.Set()
@@ -92,6 +95,14 @@ func main() {
 		if !exists {
 			db.MustExec(string(dbinit.Schema))
 		}
+	}
+
+	var version string
+	must(db.Get(&version,
+		`select name from version order by name desc limit 1`))
+	if version != requiredVersion {
+		panic(fmt.Sprintf("current DB version is %q, but need version %q; run migrations from ./db/migrate directory",
+			version, requiredVersion))
 	}
 
 	// Run background tasks.
