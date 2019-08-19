@@ -52,6 +52,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 			LineNumber   int    `json:"line-number"`
 			BlockedURI   string `json:"blocked-uri"`
 			Violated     string `json:"violated-directive"`
+			SourceFile   string `json:"source-file"`
 		} `json:"csp-report"`
 	}
 	rr.Post("/csp", func(w http.ResponseWriter, r *http.Request) {
@@ -59,10 +60,13 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		var csp CSPError
 		err := json.Unmarshal(d, &csp)
 
-		rp := csp.Report
 		// Probably an extension or something.
-		if !(err == nil && rp.ColumnNumber == 1 && rp.LineNumber == 1 && rp.BlockedURI == "inline" && rp.Violated == "script-src") {
-			zlog.Errorf("CSP error: %s", string(d))
+		if err == nil {
+			rp := csp.Report
+			if !((rp.ColumnNumber == 1 && rp.LineNumber == 1 && rp.BlockedURI == "inline" && rp.Violated == "script-src") ||
+				strings.HasPrefix(rp.SourceFile, "safari-extension://")) {
+				zlog.Errorf("CSP error: %s", string(d))
+			}
 		}
 
 		w.WriteHeader(202)
