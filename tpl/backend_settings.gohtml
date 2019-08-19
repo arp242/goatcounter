@@ -10,41 +10,46 @@
 	<form method="post" action="/save" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-		<label for="domain">Domain</label>
-		<input type="text" name="domain" id="domain" value="{{.Site.Domain}}">
-		<span>Your site’s domain, e.g. <em>example.com</em>.</span>
+		<fieldset>
+			<legend>Site settings</legend>
+			<label for="domain">Domain</label>
+			<input type="text" name="domain" id="domain" value="{{.Site.Domain}}">
+			<span>Your site’s domain, e.g. <em>example.com</em>.</span>
 
-		<label>{{checkbox .Site.Settings.Public "settings.public"}}
-			Make statistics publicly viewable</label>
-		<span>By default you can only view the statistics if you’re signed in.
-			With this enabled anyone can view the statistics.</span>
+			<label>{{checkbox .Site.Settings.Public "settings.public"}}
+				Make statistics publicly viewable</label>
+			<span>By default you can only view the statistics if you’re signed in.
+				With this enabled anyone can view the statistics.</span>
+		</fieldset>
 
-		<label for="date_format">Date format</label>
-		<select name="settings.date_format" id="date_format">
-			<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-			<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-			<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-			<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
-			<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
-		</select>
+		<fieldset>
+			<legend>Preferences</legend>
+			<label for="date_format">Date format</label>
+			<select name="settings.date_format" id="date_format">
+				<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+				<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+				<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+				<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
+				<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+			</select>
 
-		<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-			24-hour clock</label>
+			<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
+				24-hour clock</label>
 
-		<label for="limits_page">Page size</label>
-		<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
-		<span>Page size; a smaller size means faster load times.</span>
+			<label for="limits_page">Page size</label>
+			<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
+			<span>Page size; a smaller size means faster load times.</span>
 
-		<label for="limits_ref">Referrers page size</label>
-		<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-		<span>Page size for referrers overview.</span>
+			<label for="limits_ref">Referrers page size</label>
+			<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
+			<span>Page size for referrers overview.</span>
 
-		{{/*
-		<label for="limits_browser">Browser page size</label>
-		<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
-		*/}}
+			{{/*
+			<label for="limits_browser">Browser page size</label>
+			<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
+			*/}}
+		</fieldset>
 
-		<br>
 		<button type="submit">Save</button>
 	</form>
 </div>

@@ -1,6 +1,7 @@
 /* Copyright © 2019 Martin Tournoij <martin@arp242.net>
    This file is part of GoatCounter and published under the terms of the AGPLv3,
    which can be found in the LICENSE file or at gnu.org/licenses/agpl.html */
+
 .page  { padding: 1em; }
 footer { text-align: right; padding-right: .5em; }
 
@@ -25,8 +26,9 @@ h2 sup {
 	font-weight: normal;
 }
 
-.form-wrap {
-	max-width: 20em;
+@media (min-width: 55rem) {
+	.form-wrap form          { display: flex; flex-wrap: wrap; }
+	.form-wrap form fieldset { width: 48%; }
 }
 
 .flash {
@@ -205,3 +207,6 @@ h2 sup {
 	.hide-mobile { display: none; }
 	.show-mobile { display: block; }
 }
+
+fieldset { margin-bottom: 1em; }
+legend   { font-weight: bold; }
