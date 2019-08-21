@@ -119,9 +119,9 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	// Create site.
 	site := goatcounter.Site{
-		Domain: args.Domain,
-		Code:   args.Code,
-		Plan:   plan,
+		//Domain: args.Domain,
+		Code: args.Code,
+		Plan: plan,
 	}
 	err = site.Insert(txctx)
 	if err != nil {

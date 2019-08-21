@@ -8,7 +8,6 @@ drop table if exists sites;
 create table sites (
 	id             integer        primary key autoincrement,
 
-	domain         varchar        not null                 check(length(domain) >= 4 and length(domain) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
 	plan           varchar        not null                 check(plan in ('p', 'b', 'e')),
 	stripe         varchar        null,
@@ -20,8 +19,26 @@ create table sites (
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
 );
-create unique index "sites#code"   on sites(lower(code));
-create unique index "sites#domain" on sites(lower(domain));
+create unique index "sites#code" on sites(lower(code));
+
+drop table if exists domains;
+create table domains (
+	id             integer        primary key autoincrement,
+	site           integer        not null                 check(site > 0),
+
+	domain         varchar        not null                 check(length(domain) >= 4 and length(domain) <= 255),
+	display_order  integer        not null default 0,
+	bg_color       varchar        null,
+	color          varchar        null,
+
+	state          varchar        not null default 'a'     check(state in ('a', 'd')),
+	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+create index        "domains#site"        on domains(site);
+create unique index "domains#site#domain" on domains(site, lower(domain));
 
 drop table if exists users;
 create table users (
@@ -69,9 +86,6 @@ create table hit_stats (
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	path           varchar        not null,
 	stats          varchar        not null,
-
-	created_at     timestamp      null                     check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );

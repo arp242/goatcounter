@@ -10,19 +10,33 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/teamwork/validate"
+	"zgo.at/zlog"
 )
 
 type Browser struct {
-	Site      int64     `db:"site"`
-	Browser   string    `db:"browser"`
+	Site   int64 `db:"site"`
+	Domain int64 `db:"domain"`
+
+	DomainName string `db:"-"`
+	Browser    string `db:"browser"`
+
 	CreatedAt time.Time `db:"created_at"`
 }
 
 // Defaults sets fields to default values, unless they're already set.
 func (b *Browser) Defaults(ctx context.Context) {
-	// TODO: not doing this as it's not set from memstore.
-	// site := MustGetSite(ctx)
-	// b.Site = site.ID
+	site := MustGetSite(ctx)
+	b.Site = site.ID
+
+	// Load domain.
+	if b.Domain == 0 {
+		var d Domain
+		err := d.ByNameOrFirst(ctx, b.DomainName)
+		if err != nil {
+			zlog.Error(err)
+		}
+		b.Domain = d.ID
+	}
 
 	if b.CreatedAt.IsZero() {
 		b.CreatedAt = time.Now().UTC()

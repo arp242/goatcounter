@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/utils/jsonutil"
@@ -29,18 +30,12 @@ const (
 
 var Plans = []string{PlanPersonal, PlanBusiness, PlanEnterprise}
 
-var reserved = []string{
-	"goatcounter", "goatcounters",
-	"www", "mail", "smtp", "imap", "static",
-	"admin", "ns1", "ns2", "m", "mobile", "api",
-}
-
 // Site is a single site which is sending newsletters (i.e. it's a "customer").
 type Site struct {
-	ID int64 `db:"id"`
+	ID      int64   `db:"id"`
+	Domains Domains `db:"domains"`
 
-	Domain       string       `db:"domain"` // Domain for which the service is (arp242.net)
-	Code         string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
+	Code         string       `db:"code"` // Domain code (arp242, which makes arp242.goatcounter.com)
 	Plan         string       `db:"plan"`
 	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
@@ -114,7 +109,6 @@ func (s *Site) Defaults(ctx context.Context) {
 func (s *Site) Validate(ctx context.Context) error {
 	v := validate.New()
 
-	v.Required("domain", s.Domain)
 	v.Required("code", s.Code)
 	v.Required("state", s.State)
 	v.Required("plan", s.Plan)
@@ -122,9 +116,10 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Include("plan", s.Plan, Plans)
 
 	v.Len("code", s.Code, 1, 50)
-	v.Len("domain", s.Domain, 4, 255)
-	v.Domain("domain", s.Domain)
-	v.Exclude("domain", s.Domain, reserved)
+
+	if len(s.Domains) < 1 {
+		v.Append("domains", "must have at least one domain")
+	}
 
 	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
 		v.Append("stripe", "not a valid Stripe customer ID")
@@ -141,7 +136,8 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 
 	if !v.HasErrors() {
-		var code, domain uint8
+		// Make sure the code is unique.
+		var code uint8
 		err := MustGetDB(ctx).GetContext(ctx, &code,
 			`select 1 from sites where lower(code)=lower($1) and id!=$2 limit 1`,
 			s.Code, s.ID)
@@ -152,18 +148,25 @@ func (s *Site) Validate(ctx context.Context) error {
 			v.Append("code", "already exists")
 		}
 
-		err = MustGetDB(ctx).GetContext(ctx, &domain,
-			`select 1 from sites where lower(domain)=lower($1) and id!=$2 limit 1`,
-			s.Domain, s.ID)
-		if err != nil && err != sql.ErrNoRows {
-			return err
-		}
-		if domain == 1 {
-			v.Append("domain", "already exists")
-		}
+		//var domain uint8
+		// err = MustGetDB(ctx).GetContext(ctx, &domain,
+		// 	`select 1 from sites where lower(domain)=lower($1) and id!=$2 limit 1`,
+		// 	s.Domain, s.ID)
+		// if err != nil && err != sql.ErrNoRows {
+		// 	return err
+		// }
+		// if domain == 1 {
+		// 	v.Append("domain", "already exists")
+		// }
 	}
 
 	return v.ErrorOrNil()
+}
+
+// Load all dependencies.
+func (s *Site) Load(ctx context.Context) error {
+	return errors.Wrap(s.Domains.List(ctx, s.ID),
+		"Site.Load")
 }
 
 // Insert a new row.
@@ -178,16 +181,23 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
+	ctx, tx, err := Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	res, err := MustGetDB(ctx).ExecContext(ctx,
-		`insert into sites (code, domain, settings, plan, created_at) values ($1, $2, $3, $4, $5)`,
-		s.Code, s.Domain, s.Settings, s.Plan, sqlDate(s.CreatedAt))
+		`insert into sites (code, settings, plan, created_at) values ($1, $2, $3, $4)`,
+		s.Code, s.Settings, s.Plan, sqlDate(s.CreatedAt))
 	if err != nil {
 		if uniqueErr(err) {
-			return guru.New(400, "this site already exists: domain and code must be unique")
+			return guru.New(400, "this site already exists: code must be unique")
 		}
 		return errors.Wrap(err, "Site.Insert")
 	}
 
+	// Get last ID.
 	if cfg.PgSQL {
 		var ns Site
 		err = ns.ByCode(ctx, s.Code)
@@ -195,7 +205,20 @@ func (s *Site) Insert(ctx context.Context) error {
 	} else {
 		s.ID, err = res.LastInsertId()
 	}
-	return errors.Wrap(err, "Site.Insert")
+	if err != nil {
+		return errors.Wrap(err, "Site.Insert")
+	}
+
+	// Insert domains.
+	for i := range s.Domains {
+		s.Domains[i].Site = s.ID
+		err := s.Domains[i].Insert(ctx)
+		if err != nil {
+			return errors.Wrap(err, "Site.Insert")
+		}
+	}
+
+	return tx.Commit()
 }
 
 // Update existing.
@@ -210,10 +233,55 @@ func (s *Site) Update(ctx context.Context) error {
 		return err
 	}
 
-	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`update sites set domain=$1, settings=$2, updated_at=$3 where id=$4`,
-		s.Domain, s.Settings, sqlDate(*s.UpdatedAt), s.ID)
-	return errors.Wrap(err, "Site.Update")
+	ctx, tx, err := Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.ExecContext(ctx,
+		`update sites set settings=$1, updated_at=$2 where id=$3`,
+		s.Settings, sqlDate(*s.UpdatedAt), s.ID)
+	if err != nil {
+		return errors.Wrap(err, "Site.Update")
+	}
+
+	// Update domains
+	var keep []int64
+	for i := range s.Domains {
+		if s.Domains[i].ID > 0 {
+			keep = append(keep, s.Domains[i].ID)
+		}
+	}
+
+	// Delete old ones
+	query, args, err := sqlx.In(
+		`delete from domains where site=? and id not in (?)`,
+		s.ID, keep)
+	if err != nil {
+		return errors.Wrap(err, "Site.Update")
+	}
+	_, err = tx.ExecContext(ctx, tx.Rebind(query), args...)
+	if err != nil {
+		return errors.Wrap(err, "Site.Update")
+	}
+
+	// Update existing and insert new.
+	for i := range s.Domains {
+		s.Domains[i].Site = s.ID
+
+		var err error
+		if s.Domains[i].ID == 0 {
+			err = s.Domains[i].Insert(ctx)
+		} else {
+			err = s.Domains[i].Update(ctx)
+		}
+		if err != nil {
+			return errors.Wrap(err, "Site.Update")
+		}
+	}
+
+	return tx.Commit()
 }
 
 // UpdateStripe sets the Stripe customer ID.
@@ -236,24 +304,46 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, s,
+	err := MustGetDB(ctx).GetContext(ctx, s,
 		`select * from sites where id=$1 and state=$2`,
-		id, StateActive), "Site.ByID")
+		id, StateActive)
+	if err != nil {
+		return errors.Wrap(err, "Site.ByID")
+	}
+
+	return errors.Wrap(s.Load(ctx), "Site.ByID")
 }
 
 // ByCode gets a site by subdomain code.
 func (s *Site) ByCode(ctx context.Context, code string) error {
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, s,
+	err := MustGetDB(ctx).GetContext(ctx, s,
 		`select * from sites where lower(code)=lower($1) and state=$2`,
-		code, StateActive), "Site.ByCode")
+		code, StateActive)
+	if err != nil {
+		errors.Wrap(err, "Site.ByCode")
+	}
+
+	return errors.Wrap(s.Load(ctx), "Site.ByCode")
 }
 
 // Sites is a list of sites.
 type Sites []Site
 
 // List all sites.
-func (u *Sites) List(ctx context.Context) error {
-	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
-		`select * from sites order by created_at desc`),
-		"Sites.List")
+func (s *Sites) List(ctx context.Context) error {
+	err := MustGetDB(ctx).SelectContext(ctx, s,
+		`select * from sites order by created_at desc`)
+	if err != nil {
+		errors.Wrap(err, "Sites.List")
+	}
+
+	ss := *s
+	for i := range ss {
+		err := ss[i].Load(ctx)
+		if err != nil {
+			return errors.Wrap(err, "Sites.List")
+		}
+	}
+
+	return nil
 }

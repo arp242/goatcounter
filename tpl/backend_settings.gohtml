@@ -12,9 +12,11 @@
 
 		<fieldset>
 			<legend>Site settings</legend>
+			{{/*
 			<label for="domain">Domain</label>
 			<input type="text" name="domain" id="domain" value="{{.Site.Domain}}">
 			<span>Your site’s domain, e.g. <em>example.com</em>.</span>
+			*/}}
 
 			<label>{{checkbox .Site.Settings.Public "settings.public"}}
 				Make statistics publicly viewable</label>

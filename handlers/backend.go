@@ -200,6 +200,21 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 
 	l := zlog.Module("backend")
 
+	// var domains goatcounter.Domains
+	// err := domains.List(r.Context())
+	// if err != nil {
+	// 	return err
+	// }
+
+	// var allpages map[string]goatcounter.HitStats
+	// for _, d := range domains {
+	// 	var pages goatcounter.HitStats
+	// 	total, totalDisplay, _, err := pages.List(r.Context(), start, end, nil)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
 	var pages goatcounter.HitStats
 	total, totalDisplay, _, err := pages.List(r.Context(), start, end, nil)
 	if err != nil {
@@ -343,7 +358,7 @@ func (h Backend) save(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site := goatcounter.MustGetSite(r.Context())
-	site.Domain = args.Domain
+	//site.Domain = args.Domain
 	site.Settings = args.Settings
 
 	err = site.Update(r.Context())

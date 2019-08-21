@@ -27,8 +27,10 @@ var (
 )
 
 type Hit struct {
-	Site int64 `db:"site" json:"-"`
+	Site   int64 `db:"site" json:"-"`
+	Domain int64 `db:"domain" json:"-"`
 
+	DomainName  string    `db:"-" json:"d,omitempty"`
 	Path        string    `db:"path" json:"p,omitempty"`
 	Ref         string    `db:"ref" json:"r,omitempty"`
 	RefParams   *string   `db:"ref_params" json:"ref_params,omitempty"`
@@ -257,14 +259,24 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
-	// TODO: not doing this as it's not set from memstore.
-	// site := MustGetSite(ctx)
-	// h.Site = site.ID
+	site := MustGetSite(ctx)
+	h.Site = site.ID
 
 	if h.CreatedAt.IsZero() {
 		h.CreatedAt = time.Now().UTC()
 	}
 
+	// Load domain.
+	if h.Domain == 0 {
+		var d Domain
+		err := d.ByNameOrFirst(ctx, h.DomainName)
+		if err != nil {
+			zlog.Error(err)
+		}
+		h.Domain = d.ID
+	}
+
+	// Normalize ref
 	if h.Ref != "" && h.refURL != nil {
 		if h.refURL.Scheme == "http" || h.refURL.Scheme == "https" {
 			h.RefScheme = RefSchemeHTTP
@@ -293,6 +305,7 @@ func (h *Hit) Validate(ctx context.Context) error {
 	v := validate.New()
 
 	v.Required("site", h.Site)
+	v.Required("domain", h.Domain)
 	v.Required("path", h.Path)
 
 	return v.ErrorOrNil()
@@ -321,9 +334,9 @@ func (h *Hit) Insert(ctx context.Context) error {
 	}
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`insert into hits (site, path, ref, ref_params, ref_original, created_at)
-		values ($1, $2, $3, $4, $5, $6, $7)`,
-		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme)
+		`insert into hits (site, domain, path, ref, ref_params, ref_original, created_at)
+		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		h.Site, h.Domain, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme)
 	return errors.Wrap(err, "Site.Insert")
 }
 

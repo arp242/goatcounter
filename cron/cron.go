@@ -30,7 +30,7 @@ type task struct {
 
 var tasks = []task{
 	{goatcounter.Memstore.Persist, 10 * time.Second},
-	{updateAllStats, 60 * time.Second},
+	//{updateAllStats, 60 * time.Second},
 }
 
 var wg sync.WaitGroup
@@ -171,6 +171,7 @@ func updateSiteStat(ctx context.Context, site goatcounter.Site) error {
 		return errors.Wrap(err, "have")
 	}
 
+	// TODO: add domain
 	ins := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
 		"hit_stats", []string{"site", "day", "path", "stats"})
 	for path, dayst := range hourly {

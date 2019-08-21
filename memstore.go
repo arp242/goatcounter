@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 
 	"zgo.at/goatcounter/bulk"
@@ -48,7 +49,7 @@ func (m *ms) Persist(ctx context.Context) error {
 	m.Unlock()
 
 	ins := bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
-		"hits", []string{"site", "path", "ref", "ref_params", "ref_original", "ref_scheme", "created_at"})
+		"hits", []string{"site", "domain", "path", "ref", "ref_params", "ref_original", "ref_scheme", "created_at"})
 	for _, h := range hits {
 		var err error
 		h.refURL, err = url.Parse(h.Ref)
@@ -62,14 +63,15 @@ func (m *ms) Persist(ctx context.Context) error {
 			continue
 		}
 
-		h.Defaults(ctx)
-		err = h.Validate(ctx)
+		sctx := context.WithValue(ctx, ctxkey.Site, &Site{ID: h.Site})
+		h.Defaults(sctx)
+		err = h.Validate(sctx)
 		if err != nil {
 			zlog.Error(err)
 			continue
 		}
 
-		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, h.RefScheme, sqlDate(h.CreatedAt))
+		ins.Values(h.Site, h.Domain, h.Path, h.Ref, h.RefParams, h.RefOriginal, h.RefScheme, sqlDate(h.CreatedAt))
 	}
 	err := ins.Finish()
 	if err != nil {
@@ -77,16 +79,17 @@ func (m *ms) Persist(ctx context.Context) error {
 	}
 
 	ins = bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
-		"browsers", []string{"site", "browser", "created_at"})
+		"browsers", []string{"site", "domain", "browser", "created_at"})
 	for _, b := range browsers {
-		b.Defaults(ctx)
-		err := b.Validate(ctx)
+		sctx := context.WithValue(ctx, ctxkey.Site, &Site{ID: b.Site})
+		b.Defaults(sctx)
+		err := b.Validate(sctx)
 		if err != nil {
 			zlog.Error(err)
 			continue
 		}
 
-		ins.Values(b.Site, b.Browser, sqlDate(b.CreatedAt))
+		ins.Values(b.Site, b.Domain, b.Browser, sqlDate(b.CreatedAt))
 	}
 	err = ins.Finish()
 	if err != nil {

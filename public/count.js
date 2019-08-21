@@ -21,7 +21,9 @@
 		return {
 			p: (vars.path     || (loc.pathname + loc.search) || '/'),
 			r: (vars.referrer || document.referrer),
+			d: (vars.domain   || loc.host),
 		};
+		return l;
 	};
 
 	// Convert parameters to urlencoded string, starting with a ?

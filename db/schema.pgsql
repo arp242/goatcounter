@@ -8,7 +8,6 @@ drop table if exists sites;
 create table sites (
 	id             serial         primary key,
 
-	domain         varchar        not null                 check(length(domain) >= 4 and length(domain) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
 	plan           varchar        not null                 check(plan in ('p', 'b', 'e')),
 	stripe         varchar        null,
@@ -20,8 +19,26 @@ create table sites (
 	created_at     timestamp      not null,
 	updated_at     timestamp
 );
-create unique index "sites#code"   on sites(lower(code));
-create unique index "sites#domain" on sites(lower(domain));
+create unique index "sites#code" on sites(lower(code));
+
+drop table if exists domains;
+create table domains (
+	id             serial         primary key,
+	site           integer        not null                 check(site > 0),
+
+	domain         varchar        not null                 check(length(domain) >= 4 and length(domain) <= 255),
+	display_order  integer        not null default 0,
+	bg_color       varchar        null,
+	color          varchar        null,
+
+	state          varchar        not null default 'a'     check(state in ('a', 'd')),
+	created_at     timestamp      not null,
+	updated_at     timestamp,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+create index        "domains#site"        on domains(site);
+create unique index "domains#site#domain" on domains(site, lower(domain));
 
 drop table if exists users;
 create table users (
@@ -50,6 +67,7 @@ drop table if exists hits;
 create table hits (
 	-- No foreign key on site for performance.
 	site           integer        not null                 check(site > 0),
+	domain         integer        not null                 check(domain > 0),
 
 	path           varchar        not null,
 	ref            varchar        not null,
@@ -65,13 +83,11 @@ create index "hits#site#path#created_at" on hits(site, lower(path), created_at);
 drop table if exists hit_stats;
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
+	domain         integer        not null                 check(domain > 0),
 
 	day            date           not null,
 	path           varchar        not null,
 	stats          varchar        not null,
-
-	created_at     timestamp      null,
-	updated_at     timestamp,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -81,6 +97,7 @@ drop table if exists browsers;
 create table browsers (
 	-- No foreign key on site for performance.
 	site           integer        not null                 check(site > 0),
+	domain         integer        not null                 check(domain > 0),
 
 	browser        varchar        not null,
 	created_at     timestamp      not null
