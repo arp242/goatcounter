@@ -2,6 +2,8 @@ github.com/Masterminds/squirrel v1.1.0 h1:baP1qLdoQCeTw3ifCdOq2dkYc6vGcmRdaociKL
 github.com/Masterminds/squirrel v1.1.0/go.mod h1:yaPeOnPG5ZRwL9oKdTsO/prlkPbXWZlRVMQ/gGlzIuA=
 github.com/Strum355/go-difflib v1.1.0 h1:+rR2X3UuvIbe1Jmhx8WA7gkgjMNRscFWbHchk2RB8I4=
 github.com/Strum355/go-difflib v1.1.0/go.mod h1:r1cVg1JkGsTWkaR7At56v7hfuMgiUL8meTLwxFzOmvE=
+github.com/arp242/utils v0.0.0-20190114034940-d6a1f27ce92c h1:312fHweG/DZ9sY3/aISXVzLT29C1lVdpehrg47bIBtI=
+github.com/arp242/utils v0.0.0-20190114034940-d6a1f27ce92c/go.mod h1:EoalRZ8UMEqpyN6xXFSi9AoYOxRIomUE0kKaLnVyqII=
 github.com/arp242/utils v0.0.0-20190801113154-2663876b51f4 h1:5MEwGiJwyn2AGUuGDvfkyuzgZ/1eGg3UXdO+bWeZEUs=
 github.com/arp242/utils v0.0.0-20190801113154-2663876b51f4/go.mod h1:jG4RMFyBmHspPqegj1xdhywa36IzO9HjvQXUv1mcbtM=
 github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287 h1:zdaLm/PAFGC8R8hufeNxtqUl4UTYXBhkC8PPtQGuNjk=
@@ -65,12 +67,14 @@ golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACk
 golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5 h1:58fnuSXlxZmFdJyvtTFVmVhcMLU6v5fEb/ok4wyqtNU=
 golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
+golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/net v0.0.0-20190311183353-d8887717615a/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=
 golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=
 golang.org/x/net v0.0.0-20190603091049-60506f45cf65/go.mod h1:HSz+uSET+XFnRR8LxR5pz3Of3rY3CfYBVs4xY44aLks=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 h1:Ao/3l156eZf2AW5wK8a7/smtodRU+gha3+BeqJ69lRk=
 golang.org/x/net v0.0.0-20190724013045-ca1201d0de80/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
+golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/sync v0.0.0-20190423024810-112230192c58 h1:8gQV6CLnAEikrhgkHFbMAEhagSSnXWGV915qUMm9mrU=
 golang.org/x/sync v0.0.0-20190423024810-112230192c58/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sys v0.0.0-20171121202757-82aafbf43bf8/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
@@ -86,6 +90,7 @@ golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGm
 golang.org/x/tools v0.0.0-20190606124116-d0a3d012864b h1:mSUCVIwDx4hfXJfWsOPfdzEHxzb2Xjl6BQ8YgPnazQA=
 golang.org/x/tools v0.0.0-20190606124116-d0a3d012864b/go.mod h1:/rFqwRUd4F7ZHNgwSSTFct+R/Kf4OFW1sUzUTQQTgfc=
 golang.org/x/tools v0.0.0-20190813034749-528a2984e271/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
+golang.org/x/tools v0.0.0-20190821162956-65e3620a7ae7/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 google.golang.org/appengine v1.6.1 h1:QzqyMA1tlu6CgqCDUtU9V+ZKhLFT2dkJuANu5QaxI3I=
 google.golang.org/appengine v1.6.1/go.mod h1:i06prIuMbXzDqacNJfV5OdTW448YApPu5ww/cMBSeb0=
@@ -93,6 +98,8 @@ zgo.at/zhttp v0.0.0-20190801115539-6c927734c247 h1:pPRgvvTIUiesJaf6PUixqFg4V1C0i
 zgo.at/zhttp v0.0.0-20190801115539-6c927734c247/go.mod h1:3FnNTC9ToanDE67HWFzk+XnOktIIb9KBJhhzNM82EY4=
 zgo.at/zhttp v0.0.0-20190813133347-04e1620b6a0b h1:FscSiptuLYW4IIizGTlxQZbZ4eabhJiYEXlUkT3/XOQ=
 zgo.at/zhttp v0.0.0-20190813133347-04e1620b6a0b/go.mod h1:ijiiTt5LEkl2hAT5H9JScgNV6q8eodYN9jercm3DUZ0=
+zgo.at/zhttp v0.0.0-20190821163123-a52a562de55c h1:LHthMtCC+ARa7QY0Z+L25q0MwrARZYyqRMbpdxWGpSY=
+zgo.at/zhttp v0.0.0-20190821163123-a52a562de55c/go.mod h1:uxPLk+wF+Bmd7ox4l8f73AdG2O4pzCiZtJD2D15X/G0=
 zgo.at/zlog v0.0.0-20190618174655-2641de0fc4bf/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=
 zgo.at/zlog v0.0.0-20190729101808-11a778095e52 h1:PNcITo7xj7lKr7AUtEhZRlUnhLJrk2+q+XMtEUexH68=
 zgo.at/zlog v0.0.0-20190729101808-11a778095e52/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=

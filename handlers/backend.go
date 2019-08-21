@@ -19,6 +19,7 @@ import (
 	"github.com/mssola/user_agent"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/utils/httputilx/header"
+	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 
@@ -103,6 +104,8 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	af.Get("/settings", zhttp.Wrap(h.settings))
 	af.Post("/save", zhttp.Wrap(h.save))
 	af.Get("/export/{file}", zhttp.Wrap(h.export))
+	af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
+	af.Post("/remove/{id}", zhttp.Wrap(h.remove))
 
 	user{}.mount(a)
 }
@@ -228,6 +231,11 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	subs, err := goatcounter.MustGetSite(r.Context()).ListSubs(r.Context())
+	if err != nil {
+		return err
+	}
+
 	l = l.Since("fetch data")
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
@@ -241,8 +249,9 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		TotalHits        int
 		TotalHitsDisplay int
 		Browsers         goatcounter.BrowserStats
+		SubSites         []string
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, pages,
-		refs, moreRefs, total, totalDisplay, browsers})
+		refs, moreRefs, total, totalDisplay, browsers, subs})
 	l = l.Since("exec template")
 	return x
 }
@@ -339,14 +348,21 @@ func (h Backend) pages(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h Backend) settings(w http.ResponseWriter, r *http.Request) error {
+	var sites goatcounter.Sites
+	err := sites.ListSubs(r.Context())
+	if err != nil {
+		return err
+	}
+
 	return zhttp.Template(w, "backend_settings.gohtml", struct {
 		Globals
-	}{newGlobals(w, r)})
+		SubSites goatcounter.Sites
+	}{newGlobals(w, r), sites})
 }
 
 func (h Backend) save(w http.ResponseWriter, r *http.Request) error {
 	args := struct {
-		Domain   string                   `json:"domain"`
+		Name     string                   `json:"name"`
 		Settings goatcounter.SiteSettings `json:"settings"`
 	}{}
 	_, err := zhttp.Decode(r, &args)
@@ -355,7 +371,7 @@ func (h Backend) save(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site := goatcounter.MustGetSite(r.Context())
-	site.Domain = args.Domain
+	site.Name = args.Name
 	site.Settings = args.Settings
 
 	err = site.Update(r.Context())
@@ -419,4 +435,45 @@ func (h Backend) export(w http.ResponseWriter, r *http.Request) error {
 
 	c.Flush()
 	return c.Error()
+}
+
+func (h Backend) removeConfirm(w http.ResponseWriter, r *http.Request) error {
+	v := validate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var s goatcounter.Site
+	err := s.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_remove.gohtml", struct {
+		Globals
+		Site goatcounter.Site
+	}{newGlobals(w, r), s})
+}
+
+func (h Backend) remove(w http.ResponseWriter, r *http.Request) error {
+	v := validate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var s goatcounter.Site
+	err := s.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	err = s.Delete(r.Context())
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Site removed")
+	return zhttp.SeeOther(w, "/settings#additional-sites")
 }

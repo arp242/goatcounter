@@ -33,8 +33,7 @@ func (h Website) Mount(r *chi.Mux, db *sqlx.DB) {
 		middleware.RedirectSlashes,
 		addctx(db, false),
 		zhttp.Headers(nil),
-		zhttp.Log(true, ""),
-		keyAuth) // TODO: keyAuth can brick www. site when cookie is wrong
+		zhttp.Log(true, ""))
 
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup/{plan}", zhttp.Wrap(h.signup))
@@ -92,10 +91,10 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := struct {
-		Domain     string `json:"site_domain"`
+		Name       string `json:"site_name"`
 		Code       string `json:"site_code"`
 		Email      string `json:"user_email"`
-		Name       string `json:"user_name"`
+		UserName   string `json:"user_name"`
 		TuringTest string `json:"turing_test"`
 		//Card   string `json:"card"`
 		//Exp    string `json:"exp"`
@@ -119,9 +118,9 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	// Create site.
 	site := goatcounter.Site{
-		Domain: args.Domain,
-		Code:   args.Code,
-		Plan:   plan,
+		Name: args.Name,
+		Code: args.Code,
+		Plan: plan,
 	}
 	err = site.Insert(txctx)
 	if err != nil {

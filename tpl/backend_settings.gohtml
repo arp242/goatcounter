@@ -1,20 +1,20 @@
 {{template "_backend_top.gohtml" .}}
 
 {{if not .User.ID}}
-<p>Sign in or go to the <a href="https://{{.Domain}}">home page</a></p>
+<p>Sign in or go to the <a href="//{{.Domain}}">home page</a></p>
 	{{template "_backend_signin.gohtml" .}}
 {{else}}
 
-<h2>Settings</h2>
+<h2 id="settings">Settings</h2>
 <div class="form-wrap">
 	<form method="post" action="/save" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
 			<legend>Site settings</legend>
-			<label for="domain">Domain</label>
-			<input type="text" name="domain" id="domain" value="{{.Site.Domain}}">
-			<span>Your site’s domain, e.g. <em>example.com</em>.</span>
+			<label for="name">Name</label>
+			<input type="text" name="name" id="name" value="{{.Site.Name}}">
+			<span>Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em>.</span>
 
 			<label>{{checkbox .Site.Settings.Public "settings.public"}}
 				Make statistics publicly viewable</label>
@@ -54,7 +54,30 @@
 	</form>
 </div>
 
-<h2>Site code</h2>
+<h2 id="additional-sites">Additional sites</h2>
+{{if .Site.Parent}}
+	This site has a parent, and can't have additional sites of its own.
+{{else}}
+	<table class="auto">
+		<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
+		<tbody>
+		{{range $s := .SubSites}}
+		<tr>
+			<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+			<td>{{$s.Name}}</td>
+			<td><a href="/remove/{{$s.ID}}">remove</a></td>
+		</tr>
+		{{end}}
+	</tbody></table>
+
+	{{/*
+	<form>
+		<button type="submit">Add new</button>
+	</form>
+	*/}}
+{{end}}
+
+<h2 id="code">Site code</h2>
 <p>Add in your site’s <code>&lt;head&gt;</code> tag:</p>
 <pre>{{template "_backend_sitecode.gohtml" .}}</pre>
 
@@ -76,12 +99,12 @@ and/or <code>referrer</code>; for example:</p>
 </pre>
 
 {{/*
-<h2>Custom domain</h2>
+<h2 id="domain">Custom domain</h2>
 <p>Add a <code>CNAME</code> record to your GoatCounter domain:</p>
 <pre>stats   IN CNAME    {{.Site.Code}}.{{.Domain}}.</pre>
 */}}
 
-<h2>Export</h2>
+<h2 id="export">Export</h2>
 <p>Export all data as CSV, for backups, or if you want to import somewhere else.
 	The first line is a header with the field descriptions.</p>
 

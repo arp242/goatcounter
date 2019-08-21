@@ -152,13 +152,14 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 // ByKey gets a user by login key.
 func (u *User) ByKey(ctx context.Context, key string) error {
 	if key == "" { // Quick exit when called from zhttp.Auth()
-		//u = &User{}
 		return sql.ErrNoRows
 	}
 
-	query := `select * from users
-		where login_key=$1 and site=$2 and state=$3 and
-		(login_req is null or `
+	query := `select users.* from users
+		where login_key=$1 and
+			(users.site=$2 or ((select 1 from sites where id=$2 and parent=users.id) = 1)) and
+			users.state=$3 and
+			(login_req is null or `
 
 	if cfg.PgSQL {
 		query += `login_req + interval '15 minutes' > now())`

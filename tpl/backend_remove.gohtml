@@ -1,0 +1,21 @@
+{{template "_backend_top.gohtml" .}}
+
+{{if not .User.ID}}
+<p>Sign in or go to the <a href="//{{.Domain}}">home page</a></p>
+	{{template "_backend_signin.gohtml" .}}
+{{else}}
+
+<p>Are you sure you want to remove the site {{.Site.Name}}
+	(<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>)?<br>
+	This will <strong>remove all associated data</strong>.
+</p>
+<p>Contact <a href="">support@goatcounter.com</a> if you want to do something
+	else, like merge it in to the parent site, or decouple it from the parent
+	site.</p>
+
+<form method="post">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<button>Yes, delete it</button></form>
+
+{{end}}
+{{template "_backend_bottom.gohtml" .}}

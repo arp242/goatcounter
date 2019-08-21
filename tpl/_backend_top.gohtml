@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{{.Site.Domain}} – GoatCounter</title>
+	<title>{{.Site.Name}} – GoatCounter</title>
 	<link rel="shortcut icon" href="//{{.Static}}/favicon.ico">
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/style_backend.css?v={{.Version}}">
@@ -12,7 +12,21 @@
 <body>
 	<nav class="center">
 		{{- if .User.ID}}
-			<div>{{if eq .Path "/settings"}}<strong><a href="/">← Back</a></strong>{{end}}</div>
+			<div>
+				{{if eq .Path "/"}}
+					{{if gt (len .SubSites) 1}}
+						Switch site:
+						{{range $i, $s := .SubSites}}
+							{{if gt $i 0}}|{{end}}
+							<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}">{{$s}}</a>
+						{{end}}
+					{{end}}
+				{{else if  has_prefix .Path "/remove/"}}
+					<strong><a href="/settings#additional-sites">← Back</a></strong>
+				{{else}}
+					<strong><a href="/">← Back</a></strong>
+				{{end}}
+			</div>
 			<div>
 				Signed in as {{.User.Name}} |
 				{{if ne .Path "/settings"}}<a href="/settings">Settings</a> |{{end}}

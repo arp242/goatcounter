@@ -64,13 +64,13 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
    reduce the binary size a bit (from ~18M to ~5M) with `strip` and/or `upx`.
 
 2. Run `~/go/goatcounter`. This will run a development environment on
-   http://localhost:8081
+   http://goatcounter.localhost:8081
 
    The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will be
    created if it doesn't exist). See the `-dbconnect` flag to customize this.
 
-3. You can sign up your new site at http://localhost:8081, which can then be
-   accessed at http://test.localhost:8081
+3. You can sign up your new site at http://goatcounter.localhost:8081, which can
+   then be accessed at http://test.goatcounter.localhost:8081
 
 ### Production
 

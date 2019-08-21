@@ -25,6 +25,7 @@ const (
 	PlanPersonal   = "p"
 	PlanBusiness   = "b"
 	PlanEnterprise = "e"
+	PlanChild      = "c" // Special plan for child sites.
 )
 
 var Plans = []string{PlanPersonal, PlanBusiness, PlanEnterprise}
@@ -33,14 +34,16 @@ var reserved = []string{
 	"goatcounter", "goatcounters",
 	"www", "mail", "smtp", "imap", "static",
 	"admin", "ns1", "ns2", "m", "mobile", "api",
+	"dev", "test", "beta", "staging",
 }
 
 // Site is a single site which is sending newsletters (i.e. it's a "customer").
 type Site struct {
-	ID int64 `db:"id"`
+	ID     int64  `db:"id"`
+	Parent *int64 `db:"parent"`
 
-	Domain       string       `db:"domain"` // Domain for which the service is (arp242.net)
-	Code         string       `db:"code"`   // Domain code (arp242, which makes arp242.goatcounter.com)
+	Name         string       `db:"name"` // Any name for the website.
+	Code         string       `db:"code"` // Domain code (arp242, which makes arp242.goatcounter.com)
 	Plan         string       `db:"plan"`
 	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
@@ -114,7 +117,7 @@ func (s *Site) Defaults(ctx context.Context) {
 func (s *Site) Validate(ctx context.Context) error {
 	v := validate.New()
 
-	v.Required("domain", s.Domain)
+	v.Required("name", s.Name)
 	v.Required("code", s.Code)
 	v.Required("state", s.State)
 	v.Required("plan", s.Plan)
@@ -122,9 +125,8 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Include("plan", s.Plan, Plans)
 
 	v.Len("code", s.Code, 1, 50)
-	v.Len("domain", s.Domain, 4, 255)
-	v.Domain("domain", s.Domain)
-	v.Exclude("domain", s.Domain, reserved)
+	v.Len("name", s.Name, 4, 255)
+	v.Exclude("code", s.Code, reserved)
 
 	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
 		v.Append("stripe", "not a valid Stripe customer ID")
@@ -141,7 +143,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 
 	if !v.HasErrors() {
-		var code, domain uint8
+		var code, name uint8
 		err := MustGetDB(ctx).GetContext(ctx, &code,
 			`select 1 from sites where lower(code)=lower($1) and id!=$2 limit 1`,
 			s.Code, s.ID)
@@ -152,14 +154,14 @@ func (s *Site) Validate(ctx context.Context) error {
 			v.Append("code", "already exists")
 		}
 
-		err = MustGetDB(ctx).GetContext(ctx, &domain,
-			`select 1 from sites where lower(domain)=lower($1) and id!=$2 limit 1`,
-			s.Domain, s.ID)
+		err = MustGetDB(ctx).GetContext(ctx, &name,
+			`select 1 from sites where lower(name)=lower($1) and id!=$2 limit 1`,
+			s.Name, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
 		}
-		if domain == 1 {
-			v.Append("domain", "already exists")
+		if name == 1 {
+			v.Append("name", "already exists")
 		}
 	}
 
@@ -179,11 +181,11 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	res, err := MustGetDB(ctx).ExecContext(ctx,
-		`insert into sites (code, domain, settings, plan, created_at) values ($1, $2, $3, $4, $5)`,
-		s.Code, s.Domain, s.Settings, s.Plan, sqlDate(s.CreatedAt))
+		`insert into sites (parent, code, name, settings, plan, created_at) values ($1, $2, $3, $4, $5, $6)`,
+		s.Parent, s.Code, s.Name, s.Settings, s.Plan, sqlDate(s.CreatedAt))
 	if err != nil {
 		if uniqueErr(err) {
-			return guru.New(400, "this site already exists: domain and code must be unique")
+			return guru.New(400, "this site already exists: name and code must be unique")
 		}
 		return errors.Wrap(err, "Site.Insert")
 	}
@@ -211,8 +213,8 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`update sites set domain=$1, settings=$2, updated_at=$3 where id=$4`,
-		s.Domain, s.Settings, sqlDate(*s.UpdatedAt), s.ID)
+		`update sites set name=$1, settings=$2, updated_at=$3 where id=$4`,
+		s.Name, s.Settings, sqlDate(*s.UpdatedAt), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 
@@ -234,6 +236,23 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 	return errors.Wrap(err, "Site.UpdateStripe")
 }
 
+// Delete a site.
+func (s *Site) Delete(ctx context.Context) error {
+	if s.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	_, err := MustGetDB(ctx).ExecContext(ctx,
+		`update sites set state=$1 where id=$2`,
+		StateDeleted, s.ID)
+	if err != nil {
+		return errors.Wrap(err, "Site.Delete")
+	}
+	s.ID = 0
+	s.State = StateDeleted
+	return nil
+}
+
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
 	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, s,
@@ -248,12 +267,33 @@ func (s *Site) ByCode(ctx context.Context, code string) error {
 		code, StateActive), "Site.ByCode")
 }
 
+// ListSubs lists all subsites, including the current site and parent.
+func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
+	var codes []string
+	err := MustGetDB(ctx).SelectContext(ctx, &codes, `
+		select code from sites
+		where state=$2 and (parent=$1 or id=$1) or (
+			parent = (select parent from sites where id=$1) or
+			id     = (select parent from sites where id=$1)
+		) and state=$2
+		order by code
+	`, s.ID, StateActive)
+	return codes, errors.Wrap(err, "Site.ListSubs")
+}
+
 // Sites is a list of sites.
 type Sites []Site
 
 // List all sites.
 func (u *Sites) List(ctx context.Context) error {
 	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
-		`select * from sites order by created_at desc`),
-		"Sites.List")
+		`select * from sites where state=$1 order by created_at desc`,
+		StateActive), "Sites.List")
+}
+
+// ListSubs lists all subsites for the current site.
+func (u *Sites) ListSubs(ctx context.Context) error {
+	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
+		`select * from sites where parent=$1 and state=$2 order by code`,
+		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
 }
