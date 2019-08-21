@@ -102,7 +102,14 @@ func MustGetDB(ctx context.Context) DB {
 
 // Begin a new transaction.
 func Begin(ctx context.Context) (context.Context, *sqlx.Tx, error) {
-	tx, err := MustGetDB(ctx).(*sqlx.DB).BeginTxx(ctx, nil)
+	// TODO: to supported nested transactions we need to wrap it.
+	// Also see: https://github.com/heetch/sqalx/blob/master/sqalx.go
+	db := MustGetDB(ctx)
+	if tx, ok := db.(*sqlx.Tx); ok {
+		return ctx, tx, nil
+	}
+
+	tx, err := db.(*sqlx.DB).BeginTxx(ctx, nil)
 	return context.WithValue(ctx, ctxkey.DB, tx), tx, err
 }
 

@@ -59,7 +59,7 @@ func (m *Insert) Finish() error {
 		return nil
 	}
 
-	return fmt.Errorf("%d errors: %#v", len(m.errors), m.errors)
+	return fmt.Errorf("%d errors: %v", len(m.errors), m.errors)
 }
 
 func (m *Insert) doInsert() {

@@ -17,6 +17,7 @@ import (
 	"github.com/teamwork/utils/jsonutil"
 	"zgo.at/zhttp"
 
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/handlers/htest"
 )
 
@@ -39,10 +40,10 @@ func runTest(
 ) {
 	t.Run(tt.name, func(t *testing.T) {
 		t.Run("json", func(t *testing.T) {
-			db, clean := htest.Start(t)
+			ctx, clean := goatcounter.StartTest(t)
 			defer clean()
 
-			r, rr := htest.New(db, "POST", "/", bytes.NewReader(jsonutil.MustMarshal(tt.body)))
+			r, rr := htest.New(ctx, "POST", "/", bytes.NewReader(jsonutil.MustMarshal(tt.body)))
 			if tt.setup != nil {
 				tt.setup(r.Context())
 			}
@@ -60,11 +61,11 @@ func runTest(
 		})
 
 		t.Run("form", func(t *testing.T) {
-			db, clean := htest.Start(t)
+			ctx, clean := goatcounter.StartTest(t)
 			defer clean()
 
 			form := htest.Form(tt.body)
-			r, rr := htest.New(db, "POST", "/", strings.NewReader(form))
+			r, rr := htest.New(ctx, "POST", "/", strings.NewReader(form))
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			r.Header.Set("Content-Length", fmt.Sprintf("%d", len(form)))
 			if tt.setup != nil {

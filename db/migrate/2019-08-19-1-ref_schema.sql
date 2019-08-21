@@ -1,4 +1,3 @@
--- 20190819
 alter table hits drop constraint hits_ref_scheme_check;
 alter table hits add  constraint hits_ref_scheme_check check(ref_scheme in ('h', 'g', 'o'));
 
