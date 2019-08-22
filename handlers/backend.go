@@ -100,7 +100,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	a.Get("/pages", zhttp.Wrap(h.pages))
 	a.Get("/settings", zhttp.Wrap(h.settings))
 	a.Post("/save", zhttp.Wrap(h.save))
-	a.Get("/export/{file}", zhttp.Wrap(h.export))
+	a.With(filterLoggedIn).Get("/export/{file}", zhttp.Wrap(h.export))
 
 	user{}.mount(a)
 }

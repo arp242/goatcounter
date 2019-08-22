@@ -34,7 +34,7 @@ func (h Website) Mount(r *chi.Mux, db *sqlx.DB) {
 		addctx(db, false),
 		zhttp.Headers(nil),
 		zhttp.Log(true, ""),
-		keyAuth)
+		keyAuth) // TODO: keyAuth can brick www. site when cookie is wrong
 
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup/{plan}", zhttp.Wrap(h.signup))
