@@ -96,10 +96,10 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		keyAuth)
 
 	a.Get("/", zhttp.Wrap(h.index))
+	a.Get("/refs", zhttp.Wrap(h.refs))
+	a.Get("/pages", zhttp.Wrap(h.pages))
 
 	af := a.With(filterLoggedIn)
-	af.Get("/refs", zhttp.Wrap(h.refs))
-	af.Get("/pages", zhttp.Wrap(h.pages))
 	af.Get("/settings", zhttp.Wrap(h.settings))
 	af.Post("/save", zhttp.Wrap(h.save))
 	af.Get("/export/{file}", zhttp.Wrap(h.export))
@@ -248,6 +248,11 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
+	if u := goatcounter.GetUser(r.Context()); (u == nil || u.ID == 0) &&
+		!goatcounter.MustGetSite(r.Context()).Settings.Public {
+		return guru.New(http.StatusForbidden, "need to log in")
+	}
+
 	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
 	if err != nil {
 		return err
@@ -285,6 +290,11 @@ func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h Backend) pages(w http.ResponseWriter, r *http.Request) error {
+	if u := goatcounter.GetUser(r.Context()); (u == nil || u.ID == 0) &&
+		!goatcounter.MustGetSite(r.Context()).Settings.Public {
+		return guru.New(http.StatusForbidden, "need to log in")
+	}
+
 	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
 	if err != nil {
 		return err
