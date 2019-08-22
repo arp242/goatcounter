@@ -13,11 +13,11 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 )
 
 type user struct{}
@@ -70,16 +70,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	go u.SendLoginMail(context.Background(), site)
-
-	if cfg.Prod {
-		zhttp.Flash(w,
-			"All good. Login URL emailed to %q; please click it in the next 15 minutes to continue.",
-			u.Email)
-	} else {
-		// Show URL on dev for convenience.
-		zhttp.Flash(w, "<a href='http://%s'>http://%[1]s</a>",
-			fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey))
-	}
+	flashLoginKey(r.Context(), w, u.Email)
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -125,4 +116,26 @@ func (h user) save(w http.ResponseWriter, r *http.Request) error {
 	fmt.Println(u)
 
 	return zhttp.SeeOther(w, "/")
+}
+
+func flashLoginKey(ctx context.Context, w http.ResponseWriter, email string) {
+	msg := fmt.Sprintf(
+		"All good. Login URL emailed to %q; please click it in the next 15 minutes to continue.",
+		email)
+
+	if !cfg.Prod {
+		site := goatcounter.MustGetSite(ctx)
+		var u goatcounter.User
+		err := u.ByEmail(ctx, email)
+		if err != nil {
+			zlog.Error(err)
+		} else {
+			url := fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
+			msg += fmt.Sprintf(
+				"<br>\n<small>URL on dev for convenience: <a href='//%s'>%[1]s</a></small>",
+				url)
+		}
+	}
+
+	zhttp.Flash(w, msg)
 }
