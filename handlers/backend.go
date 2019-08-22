@@ -96,11 +96,13 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		keyAuth)
 
 	a.Get("/", zhttp.Wrap(h.index))
-	a.Get("/refs", zhttp.Wrap(h.refs))
-	a.Get("/pages", zhttp.Wrap(h.pages))
-	a.Get("/settings", zhttp.Wrap(h.settings))
-	a.Post("/save", zhttp.Wrap(h.save))
-	a.With(filterLoggedIn).Get("/export/{file}", zhttp.Wrap(h.export))
+
+	af := a.With(filterLoggedIn)
+	af.Get("/refs", zhttp.Wrap(h.refs))
+	af.Get("/pages", zhttp.Wrap(h.pages))
+	af.Get("/settings", zhttp.Wrap(h.settings))
+	af.Post("/save", zhttp.Wrap(h.save))
+	af.Get("/export/{file}", zhttp.Wrap(h.export))
 
 	user{}.mount(a)
 }
