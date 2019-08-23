@@ -20,8 +20,8 @@
 		var modified = false;
 		$('#code').on('change', function() { modified = true; })
 
-		$('#domain').on('blur', function() {
-			// Remove protocol from domain.
+		$('#name').on('blur', function() {
+			// Remove protocol from URL.
 			$(this).val($(this).val().replace(/^https?:\/\//, ''));
 
 			var code = $('#code')

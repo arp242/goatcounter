@@ -30,11 +30,12 @@ require (
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46
 	github.com/teamwork/utils v0.0.0-20190802180115-518a4b2aa845
 	github.com/teamwork/validate v0.0.0-20190729141223-08bcdb8d6ba0
-	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
+	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586 // indirect
+	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7 // indirect
 	golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a // indirect
-	golang.org/x/tools v0.0.0-20190813034749-528a2984e271 // indirect
+	golang.org/x/tools v0.0.0-20190821162956-65e3620a7ae7 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
-	zgo.at/zhttp v0.0.0-20190813133347-04e1620b6a0b
+	zgo.at/zhttp v0.0.0-20190821163123-a52a562de55c
 	zgo.at/zlog v0.0.0-20190729101808-11a778095e52
 	zgo.at/zlog_sentry v1.0.0
 )

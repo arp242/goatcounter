@@ -30,8 +30,8 @@ var (
 func Set() {
 	flag.BoolVar(&Prod, "prod", false, "Production mode: hide errors, don't reload.")
 	flag.StringVar(&Version, "version", "", "Version tag; normally set during compile")
-	flag.StringVar(&Domain, "domain", "localhost:8081", "Base domain")
-	flag.StringVar(&DomainStatic, "domainstatic", "static.localhost:8081", "Domain to serve static files from.")
+	flag.StringVar(&Domain, "domain", "goatcounter.localhost:8081", "Base domain")
+	flag.StringVar(&DomainStatic, "domainstatic", "static.goatcounter.localhost:8081", "Domain to serve static files from.")
 	flag.StringVar(&Listen, "listen", "localhost:8081", "Address to listen on.")
 	flag.StringVar(&DBFile, "dbconnect", "db/goatcounter.sqlite3", "Database connection string.")
 	flag.BoolVar(&PgSQL, "pgsql", false, "Use PostgreSQL instead of SQLite")

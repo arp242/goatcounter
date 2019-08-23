@@ -7,8 +7,9 @@ insert into version values ('0000-00-00 00:00:00 init');
 drop table if exists sites;
 create table sites (
 	id             serial         primary key,
+	parent         integer        null                     check(parent is null or parent>0),
 
-	domain         varchar        not null                 check(length(domain) >= 4 and length(domain) <= 255),
+	name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
 	plan           varchar        not null                 check(plan in ('p', 'b', 'e')),
 	stripe         varchar        null,
@@ -20,8 +21,8 @@ create table sites (
 	created_at     timestamp      not null,
 	updated_at     timestamp
 );
-create unique index "sites#code"   on sites(lower(code));
-create unique index "sites#domain" on sites(lower(domain));
+create unique index "sites#code" on sites(lower(code));
+create unique index "sites#name" on sites(lower(name));
 
 drop table if exists users;
 create table users (

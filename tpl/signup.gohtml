@@ -9,17 +9,17 @@
 <h1>Sign up for GoatCounter</h1>
 <p>
 <br>The GoatCounter.com service is free during the initial beta for testing and
-gathering feedback, but will be <u>$3 per month per domain</u> afterwards. The
-initial beta is expected to last about three months.</p>
+gathering feedback, but will be <u>$3 per month</u> afterwards. The initial beta
+is expected to last about three months.</p>
 
 <div id="signup-form">
 	<form class="vertical" method="post" action="/signup/{{.PlanName}}">
 		<fieldset class="two">
 			<div>
-				<label for="domain">Domain</label>
-				<input type="text" name="site_domain" id="domain" maxlength="255" value="{{.Site.Domain}}">
-				{{validate "site.domain" .Validate}}
-				<span class="help">Your site’s domain, e.g. <em>example.com</em>.</span>
+				<label for="name">Site name</label>
+				<input type="text" name="site_name" id="name" maxlength="255" value="{{.Site.Name}}">
+				{{validate "site.name" .Validate}}
+				<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
 			</div>
 
 			<div>
@@ -32,10 +32,9 @@ initial beta is expected to last about three months.</p>
 
 		<fieldset class="two">
 			<div>
-				<label for="name">Name</label>
-				<input type="text" name="user_name" id="name" value="{{.User.Name}}">
+				<label for="user_name">Your name</label>
+				<input type="text" name="user_name" id="user_name" value="{{.User.Name}}">
 				{{validate "user.name" .Validate}}
-				<span class="help">Your name.</span>
 			</div>
 			<div>
 				<label for="email">Email address</label>

@@ -27,13 +27,6 @@ var (
 		return u != nil && u.ID > 0
 	})
 
-	// emailAuth = zhttp.Auth(func(ctx context.Context, email string) (zhttp.User, error) {
-	// 	u := &goatcounter.User{}
-	// 	err := u.ByEmail(ctx, email)
-	// 	return u, err
-
-	// })
-
 	keyAuth = zhttp.Auth(func(ctx context.Context, key string) (zhttp.User, error) {
 		u := &goatcounter.User{}
 		err := u.ByKey(ctx, key)

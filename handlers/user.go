@@ -89,7 +89,7 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.SetCookie(w, *u.LoginKey)
+	zhttp.SetCookie(w, *u.LoginKey, cfg.Domain)
 	zhttp.Flash(w, "Welcome %s", u.Name)
 	return zhttp.SeeOther(w, "/")
 }

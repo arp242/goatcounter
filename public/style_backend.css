@@ -211,3 +211,7 @@ h2 sup {
 
 fieldset { margin-bottom: 1em; }
 legend   { font-weight: bold; }
+
+.active { font-weight: bold; text-decoration: underline; }
+
+table.auto { width: auto; }
