@@ -20,5 +20,5 @@ begin;
 	-- update browsers  set site=1 where site=7;
 	-- delete from sites where id=7;
 
-	insert into version values ('2019-08-31-1-parent');
+	insert into version values ('2019-08-21-1-parent');
 commit;
