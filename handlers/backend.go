@@ -84,7 +84,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 			"X-Content-Type-Options":    []string{"nosniff"},
 			"Content-Security-Policy": {header.CSP{
 				header.CSPDefaultSrc: {header.CSPSourceNone},
-				header.CSPImgSrc:     {cfg.DomainStatic},
+				header.CSPImgSrc:     {cfg.DomainStatic, "https://static.goatcounter.com"},
 				header.CSPScriptSrc:  {cfg.DomainStatic},
 				header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
 				header.CSPFontSrc:    {cfg.DomainStatic},

@@ -2,7 +2,7 @@ module zgo.at/goatcounter
 
 go 1.12
 
-//replace zgo.at/zhttp => ../zhttp
+// replace zgo.at/zhttp => ../zhttp
 
 // This fork doesn't depend on the github.com/teamwork/mailaddress package and
 // its transient dependencies. Hard to update to upstream due to compatibility.

@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
@@ -37,7 +38,8 @@ func (h user) mount(r chi.Router) {
 func (h user) new(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "user.gohtml", struct {
 		Globals
-	}{newGlobals(w, r)})
+		Email string
+	}{newGlobals(w, r), r.URL.Query().Get("email")})
 }
 
 func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
@@ -52,10 +54,12 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	var u goatcounter.User
 	err = u.ByEmail(r.Context(), args.Email)
 	if err != nil {
-		if errors.Cause(err) != sql.ErrNoRows {
-			zlog.Error(err)
+		if errors.Cause(err) == sql.ErrNoRows {
+			zhttp.FlashError(w, "Not an account on this site: %q", args.Email)
+			return zhttp.SeeOther(w, fmt.Sprintf("/user/new?email=%s", url.QueryEscape(args.Email)))
 		}
-		return guru.New(http.StatusForbidden, "Can't log you in. Sorry :-(")
+
+		return err
 	}
 
 	err = u.RequestLogin(r.Context())
