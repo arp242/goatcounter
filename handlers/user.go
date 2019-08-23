@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
@@ -92,6 +93,15 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	// Temporary Set-Cookie to remove previous "code.goatcounter.com" cookie,
+	// which takes priority over the ".goatcounter.com" cookie.
+	http.SetCookie(w, &http.Cookie{
+		Name:    "key",
+		Value:   "",
+		Path:    "/",
+		Expires: time.Now().Add(-100 * time.Hour),
+	})
 
 	zhttp.SetCookie(w, *u.LoginKey, cfg.Domain)
 	zhttp.Flash(w, "Welcome %s", u.Name)
