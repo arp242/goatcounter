@@ -6,8 +6,6 @@ package handlers
 
 import (
 	"encoding/csv"
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -38,40 +36,8 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 
 	rr := r.With(zhttp.Headers(nil))
 
-	// Don't allow any indexing of the backend interface by search engines.
-	rr.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Header().Set("Cache-Control", "public,max-age=31536000")
-		w.WriteHeader(200)
-		w.Write([]byte("User-agent: *\nDisallow: /\n"))
-	})
-
-	// CSP errors.
-	type CSPError struct {
-		Report struct {
-			ColumnNumber int    `json:"column-number"`
-			LineNumber   int    `json:"line-number"`
-			BlockedURI   string `json:"blocked-uri"`
-			Violated     string `json:"violated-directive"`
-			SourceFile   string `json:"source-file"`
-		} `json:"csp-report"`
-	}
-	rr.Post("/csp", func(w http.ResponseWriter, r *http.Request) {
-		d, _ := ioutil.ReadAll(r.Body)
-		var csp CSPError
-		err := json.Unmarshal(d, &csp)
-
-		// Probably an extension or something.
-		if err == nil {
-			rp := csp.Report
-			if !((rp.ColumnNumber == 1 && rp.LineNumber == 1 && rp.BlockedURI == "inline" && rp.Violated == "script-src") ||
-				strings.HasPrefix(rp.SourceFile, "safari-extension://")) {
-				zlog.Errorf("CSP error: %s", string(d))
-			}
-		}
-
-		w.WriteHeader(202)
-	})
+	rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
+	rr.Post("/csp", zhttp.HandlerCSP())
 
 	// Counter that the script on the website calls.
 	rr.Get("/count", zhttp.Wrap(h.count))
@@ -96,14 +62,16 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		zhttp.Log(true, ""),
 		keyAuth)
 
-	a.Get("/", zhttp.Wrap(h.index))
-	a.Get("/refs", zhttp.Wrap(h.refs))
-	a.Get("/pages", zhttp.Wrap(h.pages))
+	ap := a.With(loggedInOrPublic)
+	ap.Get("/", zhttp.Wrap(h.index))
+	ap.Get("/refs", zhttp.Wrap(h.refs))
+	ap.Get("/pages", zhttp.Wrap(h.pages))
 
-	af := a.With(filterLoggedIn)
+	af := a.With(loggedIn)
 	af.Get("/settings", zhttp.Wrap(h.settings))
 	af.Post("/save", zhttp.Wrap(h.save))
 	af.Get("/export/{file}", zhttp.Wrap(h.export))
+	af.Post("/add", zhttp.Wrap(h.add))
 	af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
 	af.Post("/remove/{id}", zhttp.Wrap(h.remove))
 
@@ -148,12 +116,6 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 const day = 24 * time.Hour
 
 func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
-	// During login we can't set the flash cookie as the domain is different, so
-	// pass it by query.
-	if e := r.URL.Query().Get("mailed"); e != "" {
-		flashLoginKey(r.Context(), w, e)
-	}
-
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
 	if goatcounter.MustGetSite(r.Context()).Settings.Public &&
@@ -257,11 +219,6 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
-	if u := goatcounter.GetUser(r.Context()); (u == nil || u.ID == 0) &&
-		!goatcounter.MustGetSite(r.Context()).Settings.Public {
-		return guru.New(http.StatusForbidden, "need to log in")
-	}
-
 	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
 	if err != nil {
 		return err
@@ -299,11 +256,6 @@ func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h Backend) pages(w http.ResponseWriter, r *http.Request) error {
-	if u := goatcounter.GetUser(r.Context()); (u == nil || u.ID == 0) &&
-		!goatcounter.MustGetSite(r.Context()).Settings.Public {
-		return guru.New(http.StatusForbidden, "need to log in")
-	}
-
 	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
 	if err != nil {
 		return err
@@ -475,5 +427,31 @@ func (h Backend) remove(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Site removed")
-	return zhttp.SeeOther(w, "/settings#additional-sites")
+	return zhttp.SeeOther(w, "/settings")
+}
+
+func (h Backend) add(w http.ResponseWriter, r *http.Request) error {
+	args := struct {
+		Name string `json:"name"`
+		Code string `json:"code"`
+	}{}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	site := goatcounter.Site{
+		Code:   args.Code,
+		Name:   args.Name,
+		Parent: &goatcounter.MustGetSite(r.Context()).ID,
+		Plan:   goatcounter.PlanChild,
+	}
+	err = site.Insert(r.Context())
+	if err != nil {
+		zhttp.FlashError(w, err.Error())
+		return zhttp.SeeOther(w, "/settings")
+	}
+
+	zhttp.Flash(w, "Site added")
+	return zhttp.SeeOther(w, "/settings")
 }

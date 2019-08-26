@@ -14,6 +14,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	"github.com/teamwork/guru"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
@@ -22,9 +23,25 @@ import (
 )
 
 var (
-	filterLoggedIn = zhttp.Filter(func(r *http.Request) bool {
+	redirect = func(w http.ResponseWriter, r *http.Request) error {
+		zhttp.Flash(w, "Need to log in")
+		return guru.Errorf(303, "/user/new")
+	}
+
+	loggedIn = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		u := goatcounter.GetUser(r.Context())
-		return u != nil && u.ID > 0
+		if u != nil && u.ID > 0 {
+			return nil
+		}
+		return redirect(w, r)
+	})
+
+	loggedInOrPublic = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+		u := goatcounter.GetUser(r.Context())
+		if (u != nil && u.ID > 0) || goatcounter.MustGetSite(r.Context()).Settings.Public {
+			return nil
+		}
+		return redirect(w, r)
 	})
 
 	keyAuth = zhttp.Auth(func(ctx context.Context, key string) (zhttp.User, error) {

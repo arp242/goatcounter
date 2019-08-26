@@ -145,8 +145,11 @@ func (u *User) ByID(ctx context.Context, id int64) error {
 // ByEmail gets a user by email address.
 func (u *User) ByEmail(ctx context.Context, email string) error {
 	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u,
-		`select * from users where lower(email)=lower($1) and site=$2 and state=$3`,
-		email, MustGetSite(ctx).ID, StateActive), "User.ByEmail")
+		`select * from users where
+			lower(email)=lower($1) and
+			state=$3 and
+			(site=$2 or site=(select parent from sites where id=$2))
+		`, email, MustGetSite(ctx).ID, StateActive), "User.ByEmail")
 }
 
 // ByKey gets a user by login key.
@@ -157,7 +160,7 @@ func (u *User) ByKey(ctx context.Context, key string) error {
 
 	query := `select users.* from users
 		where login_key=$1 and
-			(users.site=$2 or ((select 1 from sites where id=$2 and parent=users.id) = 1)) and
+			users.site=$2 and
 			users.state=$3 and
 			(login_req is null or `
 
@@ -167,8 +170,8 @@ func (u *User) ByKey(ctx context.Context, key string) error {
 		query += `datetime(login_req, '+15 minutes') > datetime())`
 	}
 
-	return errors.Wrap(MustGetDB(ctx).GetContext(
-		ctx, u, query, key, MustGetSite(ctx).ID, StateActive), "User.ByKey")
+	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u, query,
+		key, MustGetSite(ctx).IDOrParent(), StateActive), "User.ByKey")
 }
 
 // RequestLogin generates a new login Key.
@@ -177,7 +180,7 @@ func (u *User) RequestLogin(ctx context.Context) error {
 
 	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
 		login_key=$1, login_req=current_timestamp
-		where id=$2 and site=$3`, *u.LoginKey, u.ID, MustGetSite(ctx).ID)
+		where id=$2 and site=$3`, *u.LoginKey, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.RequestLogin")
 }
 
@@ -188,14 +191,15 @@ func (u *User) Login(ctx context.Context) error {
 
 	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
 			login_key=$1, login_req=null, csrf_token=$2
-			where id=$3 and site=$4`, *u.LoginKey, *u.CSRFToken, u.ID, MustGetSite(ctx).ID)
+			where id=$3 and site=$4`,
+		*u.LoginKey, *u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Login")
 }
 
 func (u *User) Logout(ctx context.Context) error {
 	_, err := MustGetDB(ctx).ExecContext(ctx,
 		`update users set login_key=null, login_req=null where id=$1 and site=$2`,
-		u.ID, MustGetSite(ctx).ID)
+		u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Logout")
 }
 

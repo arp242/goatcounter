@@ -5,6 +5,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -16,6 +17,7 @@ import (
 )
 
 type Globals struct {
+	Context context.Context
 	User    *goatcounter.User
 	Site    *goatcounter.Site
 	Path    string
@@ -27,6 +29,7 @@ type Globals struct {
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	g := Globals{
+		Context: r.Context(),
 		User:    goatcounter.GetUser(r.Context()),
 		Site:    goatcounter.GetSite(r.Context()),
 		Path:    r.URL.Path,

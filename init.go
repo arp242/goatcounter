@@ -18,11 +18,24 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/mattn/go-sqlite3"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zlog"
 )
 
 func init() {
+	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) template.HTML {
+		var s Site
+		err := s.ByID(ctx, *id)
+		if err != nil {
+			zlog.Error(err)
+			return template.HTML("")
+		}
+		return template.HTML(fmt.Sprintf(`<a href="//%s.%s">%[1]s</a>`,
+			s.Code, cfg.Domain))
+	}
+
 	zhttp.FuncMap["validate"] = func(k string, v map[string][]string) template.HTML {
 		if v == nil {
 			return template.HTML("")
