@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -21,7 +20,7 @@ type Insert struct {
 	db      *sqlx.DB
 	table   string
 	columns []string
-	insert  squirrel.InsertBuilder
+	insert  builder
 	errors  []error
 }
 
@@ -34,14 +33,13 @@ func NewInsert(ctx context.Context, db *sqlx.DB, table string, columns []string)
 		limit:   uint16(999/len(columns) - 1),
 		table:   table,
 		columns: columns,
-		insert: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-			Insert(table).Columns(columns...),
+		insert:  newBuilder(table, columns...),
 	}
 }
 
 // Values adds a set of values.
 func (m *Insert) Values(values ...interface{}) {
-	m.insert = m.insert.Values(values...)
+	m.insert.values(values...)
 	m.rows++
 
 	if m.rows >= m.limit {
@@ -63,20 +61,15 @@ func (m *Insert) Finish() error {
 }
 
 func (m *Insert) doInsert() {
-	query, args, err := m.insert.ToSql()
-	if err != nil {
-		m.errors = append(m.errors, err)
-		goto reset
-	}
-
-	_, err = m.db.ExecContext(m.ctx, query, args...)
+	query, args := m.insert.SQL()
+	_, err := m.db.ExecContext(m.ctx, query, args...)
 	if err != nil {
 		m.errors = append(m.errors, err)
 		goto reset
 	}
 
 reset:
-	m.insert = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-		Insert(m.table).Columns(m.columns...)
+
+	m.insert = newBuilder(m.table, m.columns...)
 	m.rows = 0
 }
