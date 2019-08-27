@@ -40,6 +40,7 @@ type Hit struct {
 }
 
 var groups = map[string]string{
+	// HN has <meta name="referrer" content="origin"> so we only get the domain.
 	"news.ycombinator.com":               "Hacker News",
 	"hn.algolia.com":                     "Hacker News",
 	"hckrnews.com":                       "Hacker News",

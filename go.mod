@@ -12,7 +12,7 @@ replace github.com/teamwork/validate => github.com/arp242/validate v0.0.0-201907
 replace github.com/teamwork/utils => github.com/arp242/utils v0.0.0-20190801113154-2663876b51f4
 
 require (
-	github.com/Masterminds/squirrel v1.1.0
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/getsentry/raven-go v0.2.0
 	github.com/go-chi/chi v4.0.2+incompatible
@@ -24,7 +24,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/mssola/user_agent v0.5.0
 	github.com/pkg/errors v0.8.1
-	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/teamwork/guru v0.0.0-20180416195845-617a8909cb7f
 	github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46
