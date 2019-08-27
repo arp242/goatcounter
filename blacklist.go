@@ -1,8 +1,10 @@
 package goatcounter
 
 // Blacklist from https://github.com/matomo-org/referrer-spam-blacklist
+// Last update: e29c7c1 26 Sug 2019
 //
-//:'<,'>s/.*/\t"\0": struct{}{},
+// curl -s https://raw.githubusercontent.com/matomo-org/referrer-spam-blacklist/master/spammers.txt |
+//      sed 's/.*/\t"\0": struct{}{},/'
 var blacklist = map[string]struct{}{
 	// Not spam, but we never really want to accept requests from localhost.
 	"localhost": struct{}{},
@@ -111,6 +113,7 @@ var blacklist = map[string]struct{}{
 	"artdeko.info":                         struct{}{},
 	"artpaint-market.ru":                   struct{}{},
 	"artparquet.ru":                        struct{}{},
+	"artpress.top":                         struct{}{},
 	"aruplighting.com":                     struct{}{},
 	"ask-yug.com":                          struct{}{},
 	"atleticpharm.org":                     struct{}{},
@@ -130,6 +133,7 @@ var blacklist = map[string]struct{}{
 	"avkzarabotok.info":                    struct{}{},
 	"avtointeres.ru":                       struct{}{},
 	"avtovykup.kz":                         struct{}{},
+	"axcus.top":                            struct{}{},
 	"azartclub.org":                        struct{}{},
 	"azbukafree.com":                       struct{}{},
 	"azlex.uz":                             struct{}{},
@@ -339,6 +343,7 @@ var blacklist = map[string]struct{}{
 	"ecomp3.ru":                            struct{}{},
 	"econom.co":                            struct{}{},
 	"edakgfvwql.ru":                        struct{}{},
+	"edmed-sonline.com":                    struct{}{},
 	"edudocs.net":                          struct{}{},
 	"eduinfosite.com":                      struct{}{},
 	"eduserver.net":                        struct{}{},
@@ -592,12 +597,14 @@ var blacklist = map[string]struct{}{
 	"lipidofobia.com.br":                   struct{}{},
 	"littleberry.ru":                       struct{}{},
 	"livefixer.com":                        struct{}{},
+	"livejournal.top":                      struct{}{},
 	"livia-pache.ru":                       struct{}{},
 	"livingroomdecoratingideas.website":    struct{}{},
 	"lk-gosuslugi.ru":                      struct{}{},
 	"local-seo-for-multiple-locations.com": struct{}{},
 	"login-tinkoff.ru":                     struct{}{},
 	"loveorganic.ch":                       struct{}{},
+	"lowpricesiterx.com":                   struct{}{},
 	"lsex.xyz":                             struct{}{},
 	"luckybull.io":                         struct{}{},
 	"lukoilcard.ru":                        struct{}{},
@@ -715,6 +722,7 @@ var blacklist = map[string]struct{}{
 	"painting-planet.com":                  struct{}{},
 	"palvira.com.ua":                       struct{}{},
 	"pc-services.ru":                       struct{}{},
+	"penzu.xyz":                            struct{}{},
 	"perform-like-alibabaity.info":         struct{}{},
 	"perform-likeism-alibaba.info":         struct{}{},
 	"perm.dienai.ru":                       struct{}{},
@@ -757,6 +765,7 @@ var blacklist = map[string]struct{}{
 	"pornoslave.net":                       struct{}{},
 	"portnoff.od.ua":                       struct{}{},
 	"pospektr.ru":                          struct{}{},
+	"posteezy.xyz":                         struct{}{},
 	"pozdravleniya-c.ru":                   struct{}{},
 	"predmety.in.ua":                       struct{}{},
 	"priceg.com":                           struct{}{},
@@ -1044,6 +1053,7 @@ var blacklist = map[string]struct{}{
 	"w2mobile-za.com":                      struct{}{},
 	"w3javascript.com":                     struct{}{},
 	"wakeupseoconsultant.com":              struct{}{},
+	"wallinside.top":                       struct{}{},
 	"wallpaperdesk.info":                   struct{}{},
 	"wdss.com.ua":                          struct{}{},
 	"we-ping-for-youic.info":               struct{}{},
@@ -1100,6 +1110,7 @@ var blacklist = map[string]struct{}{
 	"xn--d1aifoe0a9a.top":                                              struct{}{},
 	"xn--e1aaajzchnkg.ru.com":                                          struct{}{},
 	"xn--e1agf4c.xn--80adxhks":                                         struct{}{},
+	"xtraffic.plus":                                                    struct{}{},
 	"xtrafficplus.com":                                                 struct{}{},
 	"xz618.com":                                                        struct{}{},
 	"yaderenergy.ru":                                                   struct{}{},
@@ -1123,4 +1134,5 @@ var blacklist = map[string]struct{}{
 	"zelena-mriya.com.ua":                                              struct{}{},
 	"zoominfo.com":                                                     struct{}{},
 	"zvetki.ru":                                                        struct{}{},
+	"super-seo-guru.com":                                               struct{}{},
 }
