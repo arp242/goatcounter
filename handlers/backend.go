@@ -75,6 +75,8 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
 	af.Post("/remove/{id}", zhttp.Wrap(h.remove))
 
+	af.Get("/admin", zhttp.Wrap(h.admin))
+
 	user{}.mount(a)
 }
 
@@ -216,6 +218,23 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 		refs, moreRefs, total, totalDisplay, browsers, subs})
 	l = l.Since("exec template")
 	return x
+}
+
+func (h Backend) admin(w http.ResponseWriter, r *http.Request) error {
+	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	var a goatcounter.AdminStats
+	err := a.List(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_admin.gohtml", struct {
+		Globals
+		Stats goatcounter.AdminStats
+	}{newGlobals(w, r), a})
 }
 
 func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {

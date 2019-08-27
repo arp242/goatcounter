@@ -1,0 +1,15 @@
+{{template "_backend_top.gohtml" .}}
+
+<h2>Admin</h2>
+<table><tbody>
+	{{range $s := .Stats}}
+		<tr>
+			<td>{{nformat $s.Count}}</td>
+			<td>{{$s.Code}}</td>
+			<td>{{$s.Name}}</td>
+			<td>{{tformat $s.CreatedAt ""}}</td>
+		</tr>
+	{{end}}
+</tbody></table>
+
+{{template "_backend_bottom.gohtml" .}}
