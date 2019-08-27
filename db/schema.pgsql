@@ -87,3 +87,31 @@ create table browsers (
 	created_at     timestamp      not null
 );
 create index "browsers#site#created_at" on browsers(site, created_at);
+
+drop table if exists browser_stats;
+create table browser_stats (
+	site           integer        not null                 check(site > 0),
+
+	day            date           not null,
+	browser        varchar        not null,
+	count          int            not null,
+
+	created_at     timestamp      null,
+	updated_at     timestamp,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+
+drop table if exists platform_stats;
+create table platform_stats (
+	site           integer        not null                 check(site > 0),
+
+	day            date           not null,
+	platform       varchar        not null,
+	count          int            not null,
+
+	created_at     timestamp      null,
+	updated_at     timestamp,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);

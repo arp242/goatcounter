@@ -13,8 +13,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
-
-	"zgo.at/goatcounter"
 )
 
 type task struct {
@@ -23,8 +21,9 @@ type task struct {
 }
 
 var tasks = []task{
-	{goatcounter.Memstore.Persist, 10 * time.Second},
-	{updateAllHitStats, 60 * time.Second},
+	// {goatcounter.Memstore.Persist, 10 * time.Second},
+	// {updateAllHitStats, 60 * time.Second},
+	{updateAllBrowserStats, 60 * time.Second},
 }
 
 var wg sync.WaitGroup
