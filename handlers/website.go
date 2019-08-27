@@ -173,7 +173,7 @@ func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if !cfg.Prod {
 		p = "http"
 	}
-	return zhttp.SeeOther(w, fmt.Sprintf("%s://%s.%s?mailed=%s",
+	return zhttp.SeeOther(w, fmt.Sprintf("%s://%s.%s/user/new?mailed=%s",
 		p, site.Code, cfg.Domain, url.QueryEscape(user.Email)))
 }
 

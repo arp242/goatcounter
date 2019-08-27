@@ -1,10 +1,5 @@
 {{template "_backend_top.gohtml" .}}
 
-{{if not .User.ID}}
-<p>Sign in or go to the <a href="//{{.Domain}}">home page</a></p>
-	{{template "_backend_signin.gohtml" .}}
-{{else}}
-
 <h2 id="settings">Settings</h2>
 <div class="form-wrap">
 	<form method="post" action="/save" class="vertical">
@@ -56,25 +51,28 @@
 
 <h2 id="additional-sites">Additional sites</h2>
 {{if .Site.Parent}}
-	This site has a parent, and can't have additional sites of its own.
+	This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
 {{else}}
-	<table class="auto">
-		<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
-		<tbody>
-		{{range $s := .SubSites}}
-		<tr>
-			<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-			<td>{{$s.Name}}</td>
-			<td><a href="/remove/{{$s.ID}}">remove</a></td>
-		</tr>
-		{{end}}
-	</tbody></table>
+	<p>You can add an unlimited number of additional sites which inherit the plan and users. You won't be charged extra.</p>
+	<form method="post" action="/add">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<table class="auto">
+			<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
+			<tbody>
+				{{range $s := .SubSites}}<tr>
+					<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+					<td>{{$s.Name}}</td>
+					<td><a href="/remove/{{$s.ID}}">remove</a></td>
+				</tr>{{end}}
 
-	{{/*
-	<form>
-		<button type="submit">Add new</button>
+				<tr>
+					<td><input type="text" id="code" name="code" placeholder="Subdomain"></td>
+					<td><input type="text" id="name" name="name" placeholder="Name"></td>
+					<td><button type="submit">Add new</button></td>
+				</tr>
+		</tbody></table>
 	</form>
-	*/}}
+
 {{end}}
 
 <h2 id="code">Site code</h2>
@@ -113,5 +111,4 @@ and/or <code>referrer</code>; for example:</p>
 	<li><a href="/export/browsers.csv">browsers.csv</a></li>
 </ul>
 
-{{end}}
 {{template "_backend_bottom.gohtml" .}}

@@ -122,7 +122,11 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Required("state", s.State)
 	v.Required("plan", s.Plan)
 	v.Include("state", s.State, States)
-	v.Include("plan", s.Plan, Plans)
+	if s.Parent == nil {
+		v.Include("plan", s.Plan, Plans)
+	} else {
+		v.Include("plan", s.Plan, []string{PlanChild})
+	}
 
 	v.Len("code", s.Code, 1, 50)
 	v.Len("name", s.Name, 4, 255)
@@ -279,6 +283,21 @@ func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 		order by code
 	`, s.ID, StateActive)
 	return codes, errors.Wrap(err, "Site.ListSubs")
+}
+
+// URL to this site.
+func (s Site) URL() string {
+	return fmt.Sprintf("http%s://%s.%s",
+		map[bool]string{true: "s", false: ""}[cfg.Prod],
+		s.Code, cfg.Domain)
+}
+
+// IDOrParent gets this site's ID or the parent ID if that's set.
+func (s Site) IDOrParent() int64 {
+	if s.Parent != nil {
+		return *s.Parent
+	}
+	return s.ID
 }
 
 // Sites is a list of sites.

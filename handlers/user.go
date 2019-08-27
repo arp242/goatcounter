@@ -25,18 +25,24 @@ import (
 type user struct{}
 
 func (h user) mount(r chi.Router) {
-	// Rate limit login attempts.
-	rate := zhttp.Ratelimit(zhttp.RatelimitIP, zhttp.NewRatelimitMemory(), 20, 60)
-
 	r.Get("/user/new", zhttp.Wrap(h.new))
-	r.With(rate).Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
-	r.With(rate).Get("/user/login/{key}", zhttp.Wrap(h.login))
-	a := r.With(filterLoggedIn)
-	a.Post("/user/logout", zhttp.Wrap(h.logout))
-	//a.Post("/user/save", zhttp.Wrap(h.save))
+
+	// Rate limit login attempts.
+	rate := r.With(zhttp.Ratelimit(zhttp.RatelimitIP, zhttp.NewRatelimitMemory(), 20, 60))
+	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
+	rate.Get("/user/login/{key}", zhttp.Wrap(h.login))
+
+	auth := r.With(loggedIn)
+	auth.Post("/user/logout", zhttp.Wrap(h.logout))
 }
 
 func (h user) new(w http.ResponseWriter, r *http.Request) error {
+	// During login we can't set the flash cookie as the domain is different, so
+	// pass it by query.
+	if m := r.URL.Query().Get("mailed"); m != "" {
+		flashLoginKey(r.Context(), w, m)
+	}
+
 	return zhttp.Template(w, "user.gohtml", struct {
 		Globals
 		Email string
@@ -76,7 +82,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 
 	go u.SendLoginMail(context.Background(), site)
 	flashLoginKey(r.Context(), w, u.Email)
-	return zhttp.SeeOther(w, "/")
+	return zhttp.SeeOther(w, "/user/new")
 }
 
 func (h user) login(w http.ResponseWriter, r *http.Request) error {
@@ -117,18 +123,6 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.ClearCookie(w)
 	zhttp.Flash(w, "&#x1f44b;")
-	return zhttp.SeeOther(w, "/")
-}
-
-func (h user) save(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
-	_, err := zhttp.Decode(r, u)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(u)
-
 	return zhttp.SeeOther(w, "/")
 }
 
