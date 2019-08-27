@@ -2,7 +2,6 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 	"testing"
 )
 
@@ -11,7 +10,6 @@ func TestMemstore(t *testing.T) {
 	defer clean()
 
 	for i := 0; i < 2000; i++ {
-		fmt.Println(i)
 		Memstore.Append(gen(ctx))
 	}
 
