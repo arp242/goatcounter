@@ -2,15 +2,6 @@ module zgo.at/goatcounter
 
 go 1.12
 
-// replace zgo.at/zhttp => ../zhttp
-
-// This fork doesn't depend on the github.com/teamwork/mailaddress package and
-// its transient dependencies. Hard to update to upstream due to compatibility.
-replace github.com/teamwork/validate => github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287
-
-// csp branch
-replace github.com/teamwork/utils => github.com/arp242/utils v0.0.0-20190801113154-2663876b51f4
-
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
@@ -27,12 +18,16 @@ require (
 	github.com/teamwork/guru v0.0.0-20180416195845-617a8909cb7f
 	github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46
-	github.com/teamwork/utils v0.0.0-20190802180115-518a4b2aa845
-	github.com/teamwork/validate v0.0.0-20190729141223-08bcdb8d6ba0
-	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7 // indirect
+	github.com/teamwork/utils v0.0.0-20190828152106-44bedcdc1400 // csp branch
+	github.com/teamwork/validate v0.0.0-20190828120429-6967b7fc2615
+	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
 	golang.org/x/sys v0.0.0-20190826190057-c7b8b68b1456 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	zgo.at/zhttp v0.0.0-20190827140750-7e240747ece5
 	zgo.at/zlog v0.0.0-20190729101808-11a778095e52
 	zgo.at/zlog_sentry v1.0.0
 )
+
+// This fork doesn't depend on the github.com/teamwork/mailaddress package and
+// its transient dependencies. Hard to update to upstream due to compatibility.
+replace github.com/teamwork/validate => github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287

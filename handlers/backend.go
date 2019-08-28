@@ -43,22 +43,24 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	rr.Get("/count", zhttp.Wrap(h.count))
 
 	// Backend interface.
+	headers := http.Header{
+		"Strict-Transport-Security": []string{"max-age=2592000"},
+		"X-Frame-Options":           []string{"deny"},
+		"X-Content-Type-Options":    []string{"nosniff"},
+	}
+	header.SetCSP(headers, header.CSPArgs{
+		header.CSPDefaultSrc: {header.CSPSourceNone},
+		header.CSPImgSrc:     {cfg.DomainStatic, "https://static.goatcounter.com"},
+		header.CSPScriptSrc:  {cfg.DomainStatic},
+		header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
+		header.CSPFontSrc:    {cfg.DomainStatic},
+		header.CSPFormAction: {header.CSPSourceSelf},
+		header.CSPConnectSrc: {header.CSPSourceSelf},
+		header.CSPReportURI:  {"/csp"},
+	})
+
 	a := r.With(
-		zhttp.Headers(http.Header{
-			"Strict-Transport-Security": []string{"max-age=2592000"},
-			"X-Frame-Options":           []string{"deny"},
-			"X-Content-Type-Options":    []string{"nosniff"},
-			"Content-Security-Policy": {header.CSP{
-				header.CSPDefaultSrc: {header.CSPSourceNone},
-				header.CSPImgSrc:     {cfg.DomainStatic, "https://static.goatcounter.com"},
-				header.CSPScriptSrc:  {cfg.DomainStatic},
-				header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
-				header.CSPFontSrc:    {cfg.DomainStatic},
-				header.CSPFormAction: {header.CSPSourceSelf},
-				header.CSPConnectSrc: {header.CSPSourceSelf},
-				header.CSPReportURI:  {"/csp"},
-			}.String()},
-		}),
+		zhttp.Headers(headers),
 		zhttp.Log(true, ""),
 		keyAuth)
 
