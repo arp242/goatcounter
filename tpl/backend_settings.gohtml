@@ -91,8 +91,12 @@ and/or <code>referrer</code>; for example:</p>
 		return;
 	}
 
+	window.vars = {
+		path:     '/foo',
+		referrer: 'bar',
+	};
 
-	// ...
+	// .. code above ..
 })();
 </pre>
 

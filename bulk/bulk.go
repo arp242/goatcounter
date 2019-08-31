@@ -65,10 +65,7 @@ func (m *Insert) doInsert() {
 	_, err := m.db.ExecContext(m.ctx, query, args...)
 	if err != nil {
 		m.errors = append(m.errors, err)
-		goto reset
 	}
-
-reset:
 
 	m.insert = newBuilder(m.table, m.columns...)
 	m.rows = 0
