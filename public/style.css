@@ -120,4 +120,4 @@ button        { display: block; }
 
 
 /*** Help page ***/
-dt { font-weight: bold; }
+dt { font-weight: bold; margin-top: 1em; }

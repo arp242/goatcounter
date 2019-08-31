@@ -41,7 +41,7 @@ func updateAllHitStats(ctx context.Context) error {
 			return errors.Wrapf(err, "site %d", s.ID)
 		}
 	}
-	l.Since("updateAllStats")
+	l.Since("updateAllHitStats")
 	return nil
 }
 

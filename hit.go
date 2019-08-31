@@ -322,10 +322,10 @@ func (h *Hit) Insert(ctx context.Context) error {
 	}
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`insert into hits (site, path, ref, ref_params, ref_original, created_at)
+		`insert into hits (site, path, ref, ref_params, ref_original, created_at, ref_scheme)
 		values ($1, $2, $3, $4, $5, $6, $7)`,
 		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme)
-	return errors.Wrap(err, "Site.Insert")
+	return errors.Wrap(err, "Hit.Insert")
 }
 
 type Hits []Hit
@@ -356,6 +356,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 	site := MustGetSite(ctx)
 
 	limit := site.Settings.Limits.Page
+	if limit == 0 {
+		limit = 20
+	}
 	more := false
 	if len(exclude) > 0 {
 		// Get one page more so we can detect if there are more pages after
@@ -431,13 +434,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 	hh := *h
 	totalDisplay := 0
 	for i := range hh {
-		hh[i].Stats = make([]HitStat, len(st))
-
-		for j, s := range st {
+		for _, s := range st {
 			if s.Path == hh[i].Path {
 				var x [][]int
 				jsonutil.MustUnmarshal(s.Stats, &x)
-				hh[i].Stats[j] = HitStat{Day: s.Day.Format("2006-01-02"), Days: x}
+				hh[i].Stats = append(hh[i].Stats, HitStat{Day: s.Day.Format("2006-01-02"), Days: x})
 
 				// Get max.
 				for j := range x {
@@ -475,6 +476,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Time, offset int) (bool, error) {
 	site := MustGetSite(ctx)
 
+	limit := site.Settings.Limits.Ref
+	if limit == 0 {
+		limit = 10
+	}
+
 	// TODO: using offset for pagination is not ideal:
 	// data can change in the meanwhile, and it still gets the first N rows,
 	// which is more expensive than it needs to be.
@@ -493,10 +499,10 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		group by ref, ref_scheme
 		order by count(*) desc
 		limit $5 offset $6`,
-		site.ID, path, dayStart(start), dayEnd(end), site.Settings.Limits.Ref+1, offset)
+		site.ID, path, dayStart(start), dayEnd(end), limit+1, offset)
 
 	more := false
-	if len(*h) > site.Settings.Limits.Ref {
+	if len(*h) > limit {
 		more = true
 		x := *h
 		x = x[:len(x)-1]
