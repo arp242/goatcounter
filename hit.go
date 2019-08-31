@@ -497,7 +497,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 			created_at >= $3 and
 			created_at <= $4
 		group by ref, ref_scheme
-		order by count(*) desc
+		order by count(*) desc, path desc
 		limit $5 offset $6`,
 		site.ID, path, dayStart(start), dayEnd(end), limit+1, offset)
 
