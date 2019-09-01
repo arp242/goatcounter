@@ -135,12 +135,12 @@ h2 sup {
 	position: relative;
 }
 .chart > .max {
-	color: #555;
-	font-size: 12px;
+	font-size: 13px;
 	line-height: 1;
 	position: absolute;
 	background-color: #fff;
-	left: .5em;
+	font-weight: bold;
+	right: .5em;
 	top: -.5em;
 	padding: 0 .3em;
 	text-align: right;
