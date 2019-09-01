@@ -27,9 +27,9 @@ func (a *AdminStats) List(ctx context.Context) error {
 			sites.code,
 			sites.name,
 			sites.created_at,
-			count(*) as count
-		from hits
-		join sites on hits.site=sites.id
+			count(*) - 1 as count
+		from sites
+		left join hits on hits.site=sites.id
 		group by sites.code, sites.name, sites.created_at
 		order by count desc`)
 	return errors.Wrap(err, "AdminStats.List")

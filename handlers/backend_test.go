@@ -5,68 +5,63 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
-
-	"zgo.at/zhttp"
-	"zgo.at/zlog"
 
 	"zgo.at/goatcounter"
 )
 
-func TestHit(t *testing.T) {
+func TestCount(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name:         "basic",
-			setup:        nil,
+			method:       "POST",
 			handler:      Backend{}.count,
 			body:         &goatcounter.Hit{Path: "/foo.html"},
 			wantErr:      "",
-			wantJSONCode: 200,
+			wantCode:     200,
 			wantFormCode: 200,
-			wantJSONBody: "",
+			wantBody:     "",
 			wantFormBody: "",
 		},
 		{
 			name:         "params",
-			setup:        nil,
+			method:       "POST",
 			handler:      Backend{}.count,
 			body:         &goatcounter.Hit{Path: "/foo.html?param=xxx"},
 			wantErr:      "",
-			wantJSONCode: 200,
+			wantCode:     200,
 			wantFormCode: 200,
-			wantJSONBody: "",
+			wantBody:     "",
 			wantFormBody: "",
 		},
 
 		{
 			name:         "ref",
-			setup:        nil,
+			method:       "POST",
 			handler:      Backend{}.count,
 			body:         &goatcounter.Hit{Path: "/foo.html", Ref: "https://example.com"},
 			wantErr:      "",
-			wantJSONCode: 200,
+			wantCode:     200,
 			wantFormCode: 200,
-			wantJSONBody: "",
+			wantBody:     "",
 			wantFormBody: "",
 		},
 		{
 			name:         "ref_params",
-			setup:        nil,
+			method:       "POST",
 			handler:      Backend{}.count,
 			body:         &goatcounter.Hit{Path: "/foo.html", Ref: "https://example.com?p=xxx"},
 			wantErr:      "",
-			wantJSONCode: 200,
+			wantCode:     200,
 			wantFormCode: 200,
-			wantJSONBody: "",
+			wantBody:     "",
 			wantFormBody: "",
 		},
 	}
-
-	zhttp.TplPath = "../tpl"
-	zhttp.InitTpl(nil)
-	zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
@@ -92,6 +87,38 @@ func TestHit(t *testing.T) {
 			err = h.Validate(r.Context())
 			if err != nil {
 				t.Errorf("Validate failed after get: %s", err)
+			}
+		})
+	}
+}
+
+func TestAdmin(t *testing.T) {
+	tests := []handlerTest{
+		{
+			setup: func(ctx context.Context) {
+				site := goatcounter.Site{Name: "new site", Code: "newsite", Plan: "p"}
+				err := site.Insert(ctx)
+				if err != nil {
+					panic(err)
+				}
+			},
+			handler:  Backend{}.admin,
+			path:     "/admin",
+			body:     nil,
+			wantErr:  "",
+			wantCode: 200,
+			wantBody: "<table>",
+		},
+	}
+
+	for _, tt := range tests {
+		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+			b := rr.Body.String()
+			if !strings.Contains(b, "<td>example.com</td>") {
+				t.Errorf("no example.com")
+			}
+			if !strings.Contains(b, "<td>new site</td>") {
+				t.Errorf("no new site")
 			}
 		})
 	}
