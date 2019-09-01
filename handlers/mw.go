@@ -64,7 +64,7 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 			}()
 
 			// Add database.
-			r = r.WithContext(context.WithValue(ctx, ctxkey.DB, db))
+			*r = *r.WithContext(context.WithValue(ctx, ctxkey.DB, db))
 
 			// Load site from subdomain
 			if loadSite {
@@ -86,7 +86,7 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 					return
 				}
 
-				r = r.WithContext(context.WithValue(r.Context(), ctxkey.Site, &s))
+				*r = *r.WithContext(context.WithValue(r.Context(), ctxkey.Site, &s))
 			}
 
 			next.ServeHTTP(w, r)

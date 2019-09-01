@@ -15,6 +15,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/test"
 	"github.com/teamwork/utils/jsonutil"
 	"zgo.at/zhttp"
@@ -68,10 +69,11 @@ func runTest(
 
 			r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(jsonutil.MustMarshal(tt.body)))
 			if tt.setup != nil {
-				tt.setup(r.Context())
+				tt.setup(ctx)
 			}
 
-			zhttp.Wrap(tt.handler)(rr, r)
+			handler := addctx(goatcounter.MustGetDB(ctx).(*sqlx.DB), true)(zhttp.Wrap(tt.handler))
+			handler.ServeHTTP(rr, r)
 			test.Code(t, rr, tt.wantCode)
 
 			if !strings.Contains(rr.Body.String(), tt.wantBody) {
@@ -79,7 +81,8 @@ func runTest(
 			}
 
 			if fun != nil {
-				fun(t, rr, r)
+				// Don't use request context as it'll get cancelled.
+				fun(t, rr, r.WithContext(ctx))
 			}
 		})
 
@@ -96,10 +99,11 @@ func runTest(
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			r.Header.Set("Content-Length", fmt.Sprintf("%d", len(form)))
 			if tt.setup != nil {
-				tt.setup(r.Context())
+				tt.setup(ctx)
 			}
 
-			zhttp.Wrap(tt.handler)(rr, r)
+			handler := addctx(goatcounter.MustGetDB(ctx).(*sqlx.DB), true)(zhttp.Wrap(tt.handler))
+			handler.ServeHTTP(rr, r)
 			test.Code(t, rr, tt.wantFormCode)
 
 			if !strings.Contains(rr.Body.String(), tt.wantFormBody) {
@@ -107,13 +111,13 @@ func runTest(
 			}
 
 			if fun != nil {
-				fun(t, rr, r)
+				// Don't use request context as it'll get cancelled.
+				fun(t, rr, r.WithContext(ctx))
 			}
 		})
 	})
 }
 
-// TODO: use actual middleware.
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
 	return test.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
 }
