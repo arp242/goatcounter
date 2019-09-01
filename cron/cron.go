@@ -38,10 +38,18 @@ func Run(db *sqlx.DB) {
 	l := zlog.Module("cron")
 
 	for _, t := range tasks {
+		// Run everything on startup immediately.
+		err := t.fun(ctx)
+		if err != nil {
+			l.Error(err)
+		}
+
 		go func(t task) {
 			defer zlog.Recover()
 
 			for {
+				time.Sleep(t.period)
+
 				var err error
 				func() {
 					wg.Add(1)
@@ -51,7 +59,6 @@ func Run(db *sqlx.DB) {
 				if err != nil {
 					l.Error(err)
 				}
-				time.Sleep(t.period)
 			}
 		}(t)
 	}

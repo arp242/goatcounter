@@ -11,7 +11,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cron"
 )
 
 func TestCount(t *testing.T) {
@@ -120,6 +122,42 @@ func TestAdmin(t *testing.T) {
 			if !strings.Contains(b, "<td>new site</td>") {
 				t.Errorf("no new site")
 			}
+		})
+	}
+}
+
+func TestIndex(t *testing.T) {
+	tests := []handlerTest{
+		{
+			name:     "no-data",
+			handler:  Backend{}.index,
+			body:     nil,
+			wantErr:  "",
+			wantCode: 200,
+			wantBody: "<strong>No data received</strong>",
+		},
+
+		{
+			name: "basic",
+			setup: func(ctx context.Context) {
+				h := goatcounter.Hit{Path: "/asdfghjkl", Site: 1}
+				err := h.Insert(ctx)
+				if err != nil {
+					panic(err)
+				}
+				db := goatcounter.MustGetDB(ctx).(*sqlx.DB)
+				cron.Run(db)
+			},
+			handler:  Backend{}.index,
+			body:     nil,
+			wantErr:  "",
+			wantCode: 200,
+			wantBody: "<h2>Pages <sup>(total 1 hits)</sup></h2>",
+		},
+	}
+
+	for _, tt := range tests {
+		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 		})
 	}
 }
