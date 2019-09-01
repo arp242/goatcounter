@@ -44,6 +44,13 @@ var (
 		return redirect(w, r)
 	})
 
+	admin = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+		if goatcounter.MustGetSite(r.Context()).ID == 1 {
+			return nil
+		}
+		return guru.Errorf(404, "")
+	})
+
 	keyAuth = zhttp.Auth(func(ctx context.Context, key string) (zhttp.User, error) {
 		u := &goatcounter.User{}
 		err := u.ByKey(ctx, key)

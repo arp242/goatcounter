@@ -7,6 +7,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -30,6 +31,10 @@ func TestMain(t *testing.T) {
 		"-dbconnect", tmpdb,
 		"-listen", "localhost:31874"}
 
-	go main()
-	time.Sleep(500 * time.Millisecond)
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	}()
+
+	main()
 }

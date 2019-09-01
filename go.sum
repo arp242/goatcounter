@@ -93,5 +93,7 @@ zgo.at/zhttp v0.0.0-20190827140750-7e240747ece5 h1:QidjYczM3EzmFFkxCgsWABXTUztOe
 zgo.at/zhttp v0.0.0-20190827140750-7e240747ece5/go.mod h1:uxPLk+wF+Bmd7ox4l8f73AdG2O4pzCiZtJD2D15X/G0=
 zgo.at/zlog v0.0.0-20190729101808-11a778095e52 h1:PNcITo7xj7lKr7AUtEhZRlUnhLJrk2+q+XMtEUexH68=
 zgo.at/zlog v0.0.0-20190729101808-11a778095e52/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=
+zgo.at/zlog v0.0.0-20190901025635-056660557d15 h1:hxpIPsemHQFmE1xh1OND8IrukH2YYE9wgIdDAF48K1U=
+zgo.at/zlog v0.0.0-20190901025635-056660557d15/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=
 zgo.at/zlog_sentry v1.0.0 h1:B6VDicSthhp0x7pGuhRkq2Ai6ucCPMGAVHjktuZQc0Y=
 zgo.at/zlog_sentry v1.0.0/go.mod h1:XSCjfgpwHgRAGybTBUpmHXDwChQC65Yp8vZX7ru0itg=

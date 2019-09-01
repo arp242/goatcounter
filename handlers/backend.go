@@ -7,6 +7,7 @@ package handlers
 import (
 	"encoding/csv"
 	"net/http"
+	"net/http/pprof"
 	"strconv"
 	"strings"
 	"time"
@@ -64,20 +65,32 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 		zhttp.Log(true, ""),
 		keyAuth)
 
-	ap := a.With(loggedInOrPublic)
-	ap.Get("/", zhttp.Wrap(h.index))
-	ap.Get("/refs", zhttp.Wrap(h.refs))
-	ap.Get("/pages", zhttp.Wrap(h.pages))
+	{
+		ap := a.With(loggedInOrPublic)
+		ap.Get("/", zhttp.Wrap(h.index))
+		ap.Get("/refs", zhttp.Wrap(h.refs))
+		ap.Get("/pages", zhttp.Wrap(h.pages))
+	}
 
-	af := a.With(loggedIn)
-	af.Get("/settings", zhttp.Wrap(h.settings))
-	af.Post("/save", zhttp.Wrap(h.save))
-	af.Get("/export/{file}", zhttp.Wrap(h.export))
-	af.Post("/add", zhttp.Wrap(h.add))
-	af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
-	af.Post("/remove/{id}", zhttp.Wrap(h.remove))
+	{
+		af := a.With(loggedIn)
+		af.Get("/settings", zhttp.Wrap(h.settings))
+		af.Post("/save", zhttp.Wrap(h.save))
+		af.Get("/export/{file}", zhttp.Wrap(h.export))
+		af.Post("/add", zhttp.Wrap(h.add))
+		af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
+		af.Post("/remove/{id}", zhttp.Wrap(h.remove))
 
-	af.Get("/admin", zhttp.Wrap(h.admin))
+		{
+			aa := af.With(admin)
+			aa.Get("/admin", zhttp.Wrap(h.admin))
+			aa.Get("/debug/pprof*", pprof.Index)
+			aa.Get("/debug/pprof/cmdline", pprof.Cmdline)
+			aa.Get("/debug/pprof/profile", pprof.Profile)
+			aa.Get("/debug/pprof/symbol", pprof.Symbol)
+			aa.Get("/debug/pprof/trace", pprof.Trace)
+		}
+	}
 
 	user{}.mount(a)
 }
