@@ -18,12 +18,13 @@ func TestHitStat(t *testing.T) {
 	defer clean()
 
 	site := goatcounter.MustGetSite(ctx)
+	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
 	// Insert some hits.
 	hits := []goatcounter.Hit{
-		{Path: "/asd"},
-		{Path: "/asd"},
-		{Path: "/zxc"},
+		{Path: "/asd", CreatedAt: now},
+		{Path: "/asd", CreatedAt: now},
+		{Path: "/zxc", CreatedAt: now},
 	}
 	for _, h := range hits {
 		h.Site = site.ID
@@ -38,7 +39,6 @@ func TestHitStat(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 	var stats goatcounter.HitStats
 	total, display, more, err := stats.List(ctx, now, now, nil)
 	if err != nil {
