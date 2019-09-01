@@ -1,6 +1,11 @@
 {{template "_backend_top.gohtml" .}}
 
 <h2>Admin</h2>
+
+<p><a href="/debug/pprof">pprof</a></p>
+
+<h3>Sites</h3>
+
 <table><tbody>
 	{{range $s := .Stats}}
 		<tr>

@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"encoding/csv"
+	"fmt"
 	"net/http"
 	"net/http/pprof"
 	"strconv"
@@ -32,67 +33,68 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
-		middleware.RedirectSlashes,
-		addctx(db, true))
-
-	rr := r.With(zhttp.Headers(nil))
-
-	rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
-	rr.Post("/csp", zhttp.HandlerCSP())
-
-	// Counter that the script on the website calls.
-	rr.Get("/count", zhttp.Wrap(h.count))
-
-	// Backend interface.
-	headers := http.Header{
-		"Strict-Transport-Security": []string{"max-age=2592000"},
-		"X-Frame-Options":           []string{"deny"},
-		"X-Content-Type-Options":    []string{"nosniff"},
-	}
-	header.SetCSP(headers, header.CSPArgs{
-		header.CSPDefaultSrc: {header.CSPSourceNone},
-		header.CSPImgSrc:     {cfg.DomainStatic, "https://static.goatcounter.com"},
-		header.CSPScriptSrc:  {cfg.DomainStatic},
-		header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
-		header.CSPFontSrc:    {cfg.DomainStatic},
-		header.CSPFormAction: {header.CSPSourceSelf},
-		header.CSPConnectSrc: {header.CSPSourceSelf},
-		header.CSPReportURI:  {"/csp"},
-	})
-
-	a := r.With(
-		zhttp.Headers(headers),
-		zhttp.Log(true, ""),
-		keyAuth)
+		addctx(db, true),
+		middleware.RedirectSlashes)
 
 	{
-		ap := a.With(loggedInOrPublic)
-		ap.Get("/", zhttp.Wrap(h.index))
-		ap.Get("/refs", zhttp.Wrap(h.refs))
-		ap.Get("/pages", zhttp.Wrap(h.pages))
+		rr := r.With(zhttp.Headers(nil))
+		rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
+		rr.Post("/csp", zhttp.HandlerCSP())
+		rr.Get("/count", zhttp.Wrap(h.count))
 	}
 
 	{
-		af := a.With(loggedIn)
-		af.Get("/settings", zhttp.Wrap(h.settings))
-		af.Post("/save", zhttp.Wrap(h.save))
-		af.Get("/export/{file}", zhttp.Wrap(h.export))
-		af.Post("/add", zhttp.Wrap(h.add))
-		af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
-		af.Post("/remove/{id}", zhttp.Wrap(h.remove))
+		headers := http.Header{
+			"Strict-Transport-Security": []string{"max-age=2592000"},
+			"X-Frame-Options":           []string{"deny"},
+			"X-Content-Type-Options":    []string{"nosniff"},
+		}
+		header.SetCSP(headers, header.CSPArgs{
+			header.CSPDefaultSrc: {header.CSPSourceNone},
+			header.CSPImgSrc:     {cfg.DomainStatic, "https://static.goatcounter.com"},
+			header.CSPScriptSrc:  {cfg.DomainStatic},
+			header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
+			header.CSPFontSrc:    {cfg.DomainStatic},
+			header.CSPFormAction: {header.CSPSourceSelf},
+			header.CSPConnectSrc: {header.CSPSourceSelf},
+			header.CSPReportURI:  {"/csp"},
+		})
 
+		a := r.With(zhttp.Headers(headers), zhttp.Log(true, ""), keyAuth)
+		user{}.mount(a)
 		{
-			aa := af.With(admin)
-			aa.Get("/admin", zhttp.Wrap(h.admin))
-			aa.Get("/debug/pprof*", pprof.Index)
-			aa.Get("/debug/pprof/cmdline", pprof.Cmdline)
-			aa.Get("/debug/pprof/profile", pprof.Profile)
-			aa.Get("/debug/pprof/symbol", pprof.Symbol)
-			aa.Get("/debug/pprof/trace", pprof.Trace)
+			ap := a.With(loggedInOrPublic)
+			ap.Get("/", zhttp.Wrap(h.index))
+			ap.Get("/refs", zhttp.Wrap(h.refs))
+			ap.Get("/pages", zhttp.Wrap(h.pages))
+		}
+		{
+			af := a.With(loggedIn)
+			af.Get("/settings", zhttp.Wrap(h.settings))
+			af.Post("/save", zhttp.Wrap(h.save))
+			af.Get("/export/{file}", zhttp.Wrap(h.export))
+			af.Post("/add", zhttp.Wrap(h.add))
+			af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
+			af.Post("/remove/{id}", zhttp.Wrap(h.remove))
+			af.With(admin).Get("/admin", zhttp.Wrap(h.admin))
 		}
 	}
 
-	user{}.mount(a)
+	{
+		aa := r.With(zhttp.Log(true, ""), keyAuth, admin)
+		//aa.Get("/debug/pprof/*", pprof.Index)
+		aa.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/debug/pprof") {
+				pprof.Index(w, r)
+			}
+			zhttp.SeeOther(w, fmt.Sprintf("/debug/pprof/%s?%s",
+				r.URL.Path[7:], r.URL.Query().Encode()))
+		})
+		aa.Get("/debug/pprof/cmdline", pprof.Cmdline)
+		aa.Get("/debug/pprof/profile", pprof.Profile)
+		aa.Get("/debug/pprof/symbol", pprof.Symbol)
+		aa.Get("/debug/pprof/trace", pprof.Trace)
+	}
 }
 
 // Use GIF because it's the smallest filesize (PNG is 116 bytes, vs 43 for GIF).
