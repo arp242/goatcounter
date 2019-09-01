@@ -1,6 +1,6 @@
 {{template "_backend_top.gohtml" .}}
 
-<h2 id="settings">Settings</h2>
+<h2>Settings</h2>
 <div class="form-wrap">
 	<form method="post" action="/save" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -75,30 +75,9 @@
 
 {{end}}
 
-<h2 id="code">Site code</h2>
+<h2 id="site-code">Site code</h2>
 <p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
-<pre>{{template "_backend_sitecode.gohtml" .}}</pre>
-
-<p><code>window.counter</code> is the endpoint which records the path and
-referrer.</p>
-
-<p><code>window.vars</code> is an optional setting to set the <code>path</code>
-and/or <code>referrer</code>; for example:</p>
-
-<pre>
-(function() {
-	if (window.location.hostname.indexOf('localhost') &gt; -1) {
-		return;
-	}
-
-	window.vars = {
-		path:     '/foo',
-		referrer: 'bar',
-	};
-
-	// .. code above ..
-})();
-</pre>
+{{template "_backend_sitecode.gohtml" .}}
 
 {{/*
 <h2 id="domain">Custom domain</h2>

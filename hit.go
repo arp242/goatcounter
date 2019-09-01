@@ -229,7 +229,7 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	i := strings.Index(ref, "?")
 	if i == -1 {
 		// No parameters so no work.
-		return refURL.String()[2:], nil, changed, false
+		return strings.TrimLeft(refURL.String(), "/"), nil, changed, false
 	}
 	eq := ref[i+1:]
 	ref = ref[:i]
