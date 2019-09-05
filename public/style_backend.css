@@ -134,17 +134,18 @@ h2 sup {
 	width: 100%;
 	position: relative;
 }
+/* Add a bit extra space between the charts, mostly so it's clearer where the
+ * .max belongs to when you're scrolled down. */
+@media (min-width: 55rem) {
+	.chart { margin-bottom: 1em; }
+}
 .chart > .max {
 	font-size: 13px;
 	line-height: 1;
 	position: absolute;
-	background-color: #fff;
 	font-weight: bold;
-	right: .5em;
-	top: -.5em;
-	padding: 0 .3em;
-	text-align: right;
-	z-index: 1;  /* Above the actual bars */
+	right: .2em;
+	top: -1.2em;
 }
 
 /* Bar char */
