@@ -151,6 +151,7 @@ func updateSiteHitStat(ctx context.Context, site goatcounter.Site) error {
 	}
 
 	// Record last update.
+	// TODO: combine with browser_stat and update after running both
 	_, err = db.ExecContext(ctx,
 		`update sites set last_stat=$1, received_data=1 where id=$2`,
 		start, site.ID)

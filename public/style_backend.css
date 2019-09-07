@@ -216,3 +216,34 @@ legend   { font-weight: bold; }
 .active { font-weight: bold; text-decoration: underline; }
 
 table.auto { width: auto; }
+
+.chart-pie {
+	border-radius: 100%;
+	background-color: #000;
+	position: relative;
+	overflow: hidden;
+
+	width: 400px;
+	height: 400px;
+}
+
+.chart-pie div {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	transform-origin: 50% 100%;
+
+	transform: translate(0, -50%) rotate(90deg) /*offset:*/rotate(0deg)
+}
+
+.chart-pie div:before {
+	content: '';
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	background-color: blue;
+	transform-origin: 50% 0;
+
+	transform: translate(0, 100%) /*size:*/ rotate(30deg);
+}

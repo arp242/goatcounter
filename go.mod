@@ -3,6 +3,7 @@ module zgo.at/goatcounter
 go 1.12
 
 require (
+	github.com/arp242/utils v0.0.0-20190828150527-30c4fd9a8203
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/getsentry/raven-go v0.2.0

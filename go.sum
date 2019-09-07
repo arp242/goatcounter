@@ -1,5 +1,7 @@
 github.com/Strum355/go-difflib v1.1.0 h1:+rR2X3UuvIbe1Jmhx8WA7gkgjMNRscFWbHchk2RB8I4=
 github.com/Strum355/go-difflib v1.1.0/go.mod h1:r1cVg1JkGsTWkaR7At56v7hfuMgiUL8meTLwxFzOmvE=
+github.com/arp242/utils v0.0.0-20190828150527-30c4fd9a8203 h1:xKn60WR/Pg8r346NDRL8dzRxmyMcupnk/QtQv4i+bPQ=
+github.com/arp242/utils v0.0.0-20190828150527-30c4fd9a8203/go.mod h1:ddoE2jA7T/8V8lqBISjRRY6epy5Lr20g0W+sC6HWydo=
 github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287 h1:zdaLm/PAFGC8R8hufeNxtqUl4UTYXBhkC8PPtQGuNjk=
 github.com/arp242/validate v0.0.0-20190729142258-60cbc0aff287/go.mod h1:mMLc2+Q6udR2HRt/TqrYYSqM4tYOqcm1cOjAx6CZIMw=
 github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713 h1:UNOqI3EKhvbqV8f1Vm3NIwkrhq388sGCeAH2Op7w0rc=

@@ -1,8 +1,11 @@
+// Copyright © 2019 Martin Tournoij <martin@arp242.net>
+// This file is part of GoatCounter and published under the terms of the AGPLv3,
+// which can be found in the LICENSE file or at gnu.org/licenses/agpl.html
+
 package cron
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -46,7 +49,6 @@ type bstat struct {
 func updateSiteBrowserStat(ctx context.Context, site goatcounter.Site) error {
 	ctx = context.WithValue(ctx, ctxkey.Site, &site)
 	db := goatcounter.MustGetDB(ctx)
-	//start := time.Now().Format("2006-01-02 15:04:05")
 
 	// Select everything since last update.
 	var last string
@@ -80,35 +82,57 @@ func updateSiteBrowserStat(ctx context.Context, site goatcounter.Site) error {
 	// new.
 	var have []string
 	err = db.SelectContext(ctx, &have,
-		`select browser from hit_stats where site=$1`,
+		`select day||browser from browser_stats where site=$1`,
 		site.ID)
 	if err != nil {
 		return errors.Wrap(err, "have")
 	}
 
 	insBrowser := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
-		"browser_stats", []string{"site", "day", "browser", "count"})
+		"browser_stats", []string{"site", "day", "browser", "version", "count"})
+	update := map[string]int{}
 	for _, s := range stats {
 		ua := user_agent.New(s.Browser)
-		b, v := ua.Browser()
-		browser := fmt.Sprintf("%s %s", b, v)
+		browser, version := ua.Browser()
 		//os := ua.OSInfo()
+		day := s.CreatedAt.Format("2006-01-02")
+		key := day + browser + " " + version
 
 		exists := false
 		for _, h := range have {
-			if h == browser {
+			if h == key {
 				exists = true
 				break
 			}
 		}
 
-		_ = exists // TODO
-		insBrowser.Values(site.ID, s.CreatedAt.Format("2006-01-02"), browser, s.Count)
+		if exists {
+			update[key] += s.Count
+		} else {
+			insBrowser.Values(site.ID, day, browser, version, s.Count)
+			have = append(have, key)
+		}
+
+		// wtf := []string{"(Macintosh;", "Python-urllib", "Mozilla", "Ubuntu"}
+		// if sliceutil.InStringSlice(wtf, browser) {
+		// 	fmt.Println(browser, "->", s.Browser)
+		// }
 	}
 	err = insBrowser.Finish()
 	if err != nil {
 		return err
 	}
+
+	// TODO: updates everything double!
+	// for k, count := range update {
+	// 	day := k[:10]
+	// 	browser := k[10:]
+	// 	_, err := db.ExecContext(ctx, `update browser_stats set count=count+$1
+	// 		where site=$2 and day=$3 and browser=$4`, count, site.ID, day, browser)
+	// 	if err != nil {
+	// 		return errors.Wrap(err, "update existing")
+	// 	}
+	// }
 
 	return nil
 }

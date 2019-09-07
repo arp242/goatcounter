@@ -64,18 +64,21 @@ type BrowserStats []struct {
 	Count   int
 }
 
-func (h *BrowserStats) List(ctx context.Context, start, end time.Time) error {
+func (h *BrowserStats) List(ctx context.Context, start, end time.Time, version bool) (uint64, error) {
 	site := MustGetSite(ctx)
 	err := MustGetDB(ctx).SelectContext(ctx, h, `
-		select browser, count(browser) as count
-		from browsers
-		where
-			site=$1 and
-			created_at >= $2 and
-			created_at <= $3
+		select browser, sum(count) as count from browser_stats
+		where site=$1 and day >= $2 and day <= $3
 		group by browser
 		order by count desc
-		limit $4`,
-		site.ID, dayStart(start), dayEnd(end), site.Settings.Limits.Ref)
-	return errors.Wrap(err, "BrowserStats.List")
+	`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	if err != nil {
+		return 0, errors.Wrap(err, "BrowserStats.List")
+	}
+
+	var total uint64
+	for _, b := range *h {
+		total += uint64(b.Count)
+	}
+	return total, nil
 }

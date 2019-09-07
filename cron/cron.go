@@ -23,7 +23,7 @@ type task struct {
 var tasks = []task{
 	// {goatcounter.Memstore.Persist, 10 * time.Second},
 	// {updateAllHitStats, 60 * time.Second},
-	{updateAllBrowserStats, 60 * time.Second},
+	//{updateAllBrowserStats, 60 * time.Second},
 }
 
 var wg sync.WaitGroup
