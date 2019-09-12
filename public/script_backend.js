@@ -22,6 +22,36 @@
 		chart_hover();
 		paginate_paths();
 		paginate_refs();
+		browser_detail();
+	};
+
+	// Show detail for a browser (version breakdown)
+	var browser_detail = function() {
+		$('.browsers-list').on('click', 'a', function(e) {
+			e.preventDefault();
+			var bar = $(this).closest('.browsers-list')
+			if (bar.attr('data-save')) {
+				bar.html(bar.attr('data-save'));
+				bar.attr('data-save', '');
+				return;
+			}
+
+			bar.attr('data-save', bar.html());
+
+			jQuery.ajax({
+				url: '/browsers',
+				data: {
+					'period-start': $('#period-start').val(),
+					'period-end':   $('#period-end').val(),
+					'browser':      $(this).attr('data-browser'),
+				},
+				dataType: 'json',
+				success: function(data) {
+					bar.html(data.html);
+				},
+			});
+
+		});
 	};
 
 	// Paginate the main path overview.

@@ -56,28 +56,8 @@
 </div>
 
 <h2>Browsers</h2>
-{{pie_chart .Browsers .TotalBrowsers}}
-
-<div id="chart-circle">
-	<div title="40%"></div>
-	<!--
-	<div title="30%"></div>
-	<div title="20%"></div>
-	<div title="10%"></div>
-	-->
+<div class="browsers-list">
+	{{vbar_chart .Browsers .TotalBrowsers}}
 </div>
-
-{{/*
-<table>
-<tbody>
-	{{range $b := .Browsers}}
-		<tr>
-			<td>{{$b.Count}}</td>
-			<td>{{$b.Browser}}</td>
-		</tr>
-	{{end}}
-</tbody>
-</table>
-*/}}
 
 {{- template "_backend_bottom.gohtml" . }}

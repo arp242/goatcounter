@@ -7,6 +7,7 @@ package handlers
 import (
 	"encoding/csv"
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/http/pprof"
 	"strconv"
@@ -67,6 +68,7 @@ func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
 			ap.Get("/", zhttp.Wrap(h.index))
 			ap.Get("/refs", zhttp.Wrap(h.refs))
 			ap.Get("/pages", zhttp.Wrap(h.pages))
+			ap.Get("/browsers", zhttp.Wrap(h.browsers))
 		}
 		{
 			af := a.With(loggedIn)
@@ -193,7 +195,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var browsers goatcounter.BrowserStats
-	totalBrowsers, err := browsers.List(r.Context(), start, end, false)
+	totalBrowsers, err := browsers.List(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
@@ -286,6 +288,30 @@ func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.JSON(w, map[string]interface{}{
 		"rows": string(tpl),
 		"more": more,
+	})
+}
+
+func (h Backend) browsers(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var browsers goatcounter.BrowserStats
+	total, err := browsers.ListBrowser(r.Context(), r.URL.Query().Get("browser"), start, end)
+	if err != nil {
+		return err
+	}
+
+	tpl := zhttp.FuncMap["vbar_chart"].(func(goatcounter.BrowserStats, uint64) template.HTML)(browsers, total)
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"html": string(tpl),
 	})
 }
 

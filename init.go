@@ -79,52 +79,40 @@ func init() {
 		return template.HTML(b.String())
 	}
 
-	zhttp.FuncMap["pie_chart"] = func(stats BrowserStats, total uint64) template.HTML {
-		var (
-			css    strings.Builder
-			html   strings.Builder
-			offset float32
-		)
-		css.WriteString("<style>")
-		html.WriteString(`<div class="chart-pie">`)
-		for i, s := range stats {
-			if offset >= 360 {
-				fmt.Println("OVER 360!!!!", i, s)
+	zhttp.FuncMap["vbar_chart"] = func(stats BrowserStats, total uint64) template.HTML {
+		var b strings.Builder
+		b.WriteString(`<div class="chart-vbar">`)
+		for _, s := range stats {
+			perc := float32(s.Count) / float32(total) * 100
+			if perc < .5 {
+				// Less than 0.5%: don't bother.
 				break
 			}
-
-			perc := float32(s.Count) / float32(total)
-			size := 360 * perc
 
 			browser := s.Browser
 			if browser == "" {
 				browser = "(unknown)"
 			}
 
-			// hash := fnv.New32a()
-			hash := md5.New()
-			hash.Write([]byte(browser))
-			color := string(hash.Sum(nil))
-			color = fmt.Sprintf("#%x%x%x", color[0], color[1], color[2])
-
-			css.WriteString(fmt.Sprintf(`
-				.chart-pie div:nth-child(%[1]d) {
-					transform: translate(0, -50%%) rotate(90deg) rotate(%[3]fdeg);
-				}
-				.chart-pie div:nth-child(%[1]d):before { background-color: %[4]s;
-					transform: translate(0, 100%%) /*size:*/ rotate(%[2]fdeg);
-				}`, i+1, size, offset, color))
-			// TODO: title doens't work well.
-			html.WriteString(fmt.Sprintf(`<div title="%s: %.1f%%"></div>`, browser, perc*100))
-
-			offset += size
+			text := fmt.Sprintf("%s: %.1f%%", template.HTMLEscapeString(browser), perc)
+			b.WriteString(fmt.Sprintf(
+				`<a href="#_" title="%[1]s" style="width: %[2]f%%; background-color: %[3]s" data-browser="%[4]s">%[1]s</a>`,
+				text, perc, colorHash(browser), browser))
 		}
 
-		css.WriteString("</style>")
-		html.WriteString(`</div>`)
+		// TODO: add "(other)" part.
 
-		return template.HTML(css.String() + html.String())
+		b.WriteString(`</div>`)
+		return template.HTML(b.String())
 	}
+}
+
+func colorHash(s string) string {
+	hash := md5.New()
+	hash.Write([]byte(s))
+	color := string(hash.Sum(nil))
+	return fmt.Sprintf("#%x%x%x", color[0], color[1], color[2])
+
 }
 
 // State column values.
