@@ -29,21 +29,25 @@
 	var browser_detail = function() {
 		$('.browsers-list').on('click', 'a', function(e) {
 			e.preventDefault();
-			var bar = $(this).closest('.browsers-list')
+
+			var bar = $(this).closest('.chart')
 			if (bar.attr('data-save')) {
 				bar.html(bar.attr('data-save'));
 				bar.attr('data-save', '');
 				return;
 			}
 
-			bar.attr('data-save', bar.html());
+			var browser = $(this).attr('data-browser');
+			if (!browser)
+				return;
 
+			bar.attr('data-save', bar.html());
 			jQuery.ajax({
 				url: '/browsers',
 				data: {
 					'period-start': $('#period-start').val(),
 					'period-end':   $('#period-end').val(),
-					'browser':      $(this).attr('data-browser'),
+					'browser':      browser,
 				},
 				dataType: 'json',
 				success: function(data) {
@@ -251,19 +255,21 @@
 			$('#popup').remove();
 		});
 
-		$('.chart').on('mouseenter', '> div', function(e) {
-			if (e.target.style.length > 0)
+		$('.chart').on('mouseenter', '> *', function(e) {
+			var hbar = e.target.tagName.toLowerCase() === 'div';
+			if (hbar && e.target.style.length > 0)
 				var t = $(e.target.parentNode);
 			else
 				var t = $(e.target);
 
-			// Reformat date and time according to site settings. This won't
-			// work for non-JS users, but doing this on the template site would
-			// make caching harder. It's a fair compromise.
 			var title = t.attr('title');
 			if (!title)
-				title = t.attr('data-title')
-			else {
+				title = t.attr('data-title');
+			else if (hbar) {
+				// Reformat date and time according to site settings. This won't
+				// work for non-JS users, but doing this on the template site
+				// would make caching harder. It's a fair compromise.
+				//
 				// 2019-07-22 22:00 – 22:59, 5 views
 				// 2019-07-24 7:00 – 7:59, 4 views
 				var split = title.split(' ');
@@ -289,10 +295,11 @@
 				title = date + ' ' + start + ' – ' + end + views;
 			}
 
+			var x = t.offset().left
 			var p = $('<div id="popup"></div>').
 				html(title).
 				css({
-					left: (e.pageX + 8) + 'px',
+					left: (x + 8) + 'px',
 					top: (t.parent().position().top) + 'px',
 				});
 
@@ -304,7 +311,7 @@
 
 			// Move to left of cursor if there isn't enough space.
 			if (p.height() > 30)
-				p.css('left', 0).css('left', (e.pageX - p.width() - 8) + 'px');
+				p.css('left', 0).css('left', (x - p.width() - 8) + 'px');
 		});
 	};
 

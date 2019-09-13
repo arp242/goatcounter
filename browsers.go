@@ -85,9 +85,7 @@ func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (uint64, 
 
 // ListBrowser lists all the versions for one browser.
 func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (uint64, error) {
-
 	site := MustGetSite(ctx)
-	// TODO: index
 	err := MustGetDB(ctx).SelectContext(ctx, h, `
 		select
 			version as browser,

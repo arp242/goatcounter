@@ -6,6 +6,7 @@ package cron
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -34,11 +35,6 @@ func updateAllBrowserStats(ctx context.Context) error {
 	l.Since("updateAllBrowserStats")
 	return nil
 }
-
-/*
-- Browser       "Firefox 64", "Internet Explorer 11"
-- Platform      "Windows 10", "macOS 10.3", "Android 4.2"
-*/
 
 type bstat struct {
 	Browser   string    `db:"browser"`
@@ -72,67 +68,79 @@ func updateSiteBrowserStat(ctx context.Context, site goatcounter.Site) error {
 		order by count desc`
 
 	var stats []bstat
-	last = "1970-01-01"
 	err := db.SelectContext(ctx, &stats, query, site.ID, last)
 	if err != nil {
 		return errors.Wrap(err, "fetch data")
 	}
 
-	// List what we already have so we can update them, rather than inserting
-	// new.
-	var have []string
-	err = db.SelectContext(ctx, &have,
-		`select day||browser from browser_stats where site=$1`,
-		site.ID)
+	// Remove everything we'll update; it's faster than running many updates.
+	_, err = db.ExecContext(ctx, `delete from browser_stats where site=$1 and day>=$2`,
+		site.ID, last)
 	if err != nil {
-		return errors.Wrap(err, "have")
+		return errors.Wrap(err, "delete")
+	}
+
+	// Group properly
+	grouped := map[string]int{}
+	for _, s := range stats {
+		browser, version := getBrowser(s.Browser)
+		if browser == "" {
+			continue
+		}
+		grouped[s.CreatedAt.Format("2006-01-02")+browser+" "+version] += s.Count
 	}
 
 	insBrowser := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
 		"browser_stats", []string{"site", "day", "browser", "version", "count"})
-	update := map[string]int{}
-	for _, s := range stats {
-		ua := user_agent.New(s.Browser)
-		browser, version := ua.Browser()
-		//os := ua.OSInfo()
-		day := s.CreatedAt.Format("2006-01-02")
-		key := day + browser + " " + version
-
-		exists := false
-		for _, h := range have {
-			if h == key {
-				exists = true
-				break
-			}
-		}
-
-		if exists {
-			update[key] += s.Count
-		} else {
-			insBrowser.Values(site.ID, day, browser, version, s.Count)
-			have = append(have, key)
-		}
-
-		// wtf := []string{"(Macintosh;", "Python-urllib", "Mozilla", "Ubuntu"}
-		// if sliceutil.InStringSlice(wtf, browser) {
-		// 	fmt.Println(browser, "->", s.Browser)
-		// }
-	}
-	err = insBrowser.Finish()
-	if err != nil {
-		return err
+	for k, count := range grouped {
+		day := k[:10]
+		browser := k[10:]
+		s := strings.Index(browser, " ")
+		version := browser[s:]
+		browser = browser[:s]
+		insBrowser.Values(site.ID, day, browser, version, count)
 	}
 
-	// TODO: updates everything double!
-	// for k, count := range update {
-	// 	day := k[:10]
-	// 	browser := k[10:]
-	// 	_, err := db.ExecContext(ctx, `update browser_stats set count=count+$1
-	// 		where site=$2 and day=$3 and browser=$4`, count, site.ID, day, browser)
-	// 	if err != nil {
-	// 		return errors.Wrap(err, "update existing")
-	// 	}
-	// }
+	return insBrowser.Finish()
+}
 
-	return nil
+func getBrowser(uaHeader string) (string, string) {
+	ua := user_agent.New(uaHeader)
+	browser, version := ua.Browser()
+
+	// A lot of this is wrong, so just skip for now.
+	if browser == "Android" {
+		return "", ""
+	}
+
+	if browser == "Chromium" {
+		browser = "Chrome"
+	}
+
+	// Correct some wrong data.
+	if browser == "Safari" && strings.Count(version, ".") == 3 {
+		browser = "Chrome"
+	}
+	// Note: Safari still shows Chrome and Firefox wrong.
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent/Firefox
+	// https://developer.chrome.com/multidevice/user-agent#chrome_for_ios_user_agent
+
+	// The "build" and "patch" aren't interesting for us, and "minor" hasn't
+	// been non-0 since 2010.
+	// https://www.chromium.org/developers/version-numbers
+	if browser == "Chrome" || browser == "Opera" {
+		if i := strings.Index(version, "."); i > -1 {
+			version = version[:i]
+		}
+	}
+
+	// Don't include patch version.
+	if browser == "Safari" {
+		v := strings.Split(version, ".")
+		if len(v) > 2 {
+			version = v[0] + "." + v[1]
+		}
+	}
+
+	return browser, version
 }
