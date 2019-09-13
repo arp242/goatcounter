@@ -117,12 +117,10 @@ func colorHash(s string) (string, string) {
 	hash.Write([]byte(s))
 	color := string(hash.Sum(nil))
 	fg := "#000"
-	// https://weblogs.asp.net/george_v_reilly/contrasting-colors-for-text-and-background
-	if .3*float32(color[0])+.59*float32(color[1])+.11*float32(color[2]) < 150 {
+	if .299*float32(color[0])+.587*float32(color[1])+.114*float32(color[2]) < 150 {
 		fg = "#fff"
 	}
 	return fmt.Sprintf("#%.2x%.2x%.2x", color[0], color[1], color[2]), fg
-
 }
 
 // State column values.
