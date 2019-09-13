@@ -14,6 +14,7 @@ begin;
 
 	-- Make sure all stats are re-run
 	update sites set last_stat=null;
+	delete from hit_stats;
 
 	-- 20 is too much when browsers are at the end.
 	update sites set settings = replace(replace(settings, ',"browser":20', ''), '"page":20', '"page":10');

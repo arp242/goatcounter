@@ -158,8 +158,6 @@ func fillHitBlanks(stats []stat, existing []string, siteCreated time.Time) map[s
 	}
 
 	// Fill in blank days.
-
-	// TODO: doesn't always work? Sometimes days are skipped?
 	n := now.BeginningOfDay()
 	alldays := []string{first.Format("2006-01-02")}
 	for first.Before(n) {
