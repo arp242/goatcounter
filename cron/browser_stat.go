@@ -14,27 +14,9 @@ import (
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bulk"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zhttp/ctxkey"
-	"zgo.at/zlog"
 )
-
-func updateAllBrowserStats(ctx context.Context) error {
-	var sites goatcounter.Sites
-	err := sites.List(ctx)
-	if err != nil {
-		return err
-	}
-
-	l := zlog.Debug("stat").Module("stat")
-	for _, s := range sites {
-		err := updateSiteBrowserStat(ctx, s)
-		if err != nil {
-			return errors.Wrapf(err, "site %d", s.ID)
-		}
-	}
-	l.Since("updateAllBrowserStats")
-	return nil
-}
 
 type bstat struct {
 	Browser   string    `db:"browser"`
@@ -42,7 +24,7 @@ type bstat struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func updateSiteBrowserStat(ctx context.Context, site goatcounter.Site) error {
+func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 	ctx = context.WithValue(ctx, ctxkey.Site, &site)
 	db := goatcounter.MustGetDB(ctx)
 
@@ -55,17 +37,31 @@ func updateSiteBrowserStat(ctx context.Context, site goatcounter.Site) error {
 	}
 
 	var query string
-	query = `
-		select
-			browser,
-			count(browser) as count,
-			cast(substr(cast(created_at as varchar), 0, 14) || ':00:00' as timestamp) as created_at
-		from browsers
-		where
-			site=$1 and
-			created_at>=$2
-		group by browser, substr(cast(created_at as varchar), 0, 14)
-		order by count desc`
+	if cfg.PgSQL {
+		query = `
+			select
+				browser,
+				count(browser) as count,
+				cast(substr(cast(created_at as varchar), 0, 14) || ':00:00' as timestamp) as created_at
+			from browsers
+			where
+				site=$1 and
+				created_at>=$2
+			group by browser, substr(cast(created_at as varchar), 0, 14)
+			order by count desc`
+	} else {
+		query = `
+			select
+				browser,
+				count(browser) as count,
+				created_at
+			from browsers
+			where
+				site=$1 and
+				created_at>=$2
+			group by browser, strftime('%Y-%m-%d %H', created_at)
+			order by count desc`
+	}
 
 	var stats []bstat
 	err := db.SelectContext(ctx, &stats, query, site.ID, last)

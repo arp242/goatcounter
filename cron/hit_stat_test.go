@@ -13,7 +13,7 @@ import (
 	"zgo.at/goatcounter"
 )
 
-func TestHitStat(t *testing.T) {
+func TestHitStats(t *testing.T) {
 	ctx, clean := goatcounter.StartTest(t)
 	defer clean()
 
@@ -34,7 +34,7 @@ func TestHitStat(t *testing.T) {
 		}
 	}
 
-	err := updateAllHitStats(ctx)
+	err := updateStats(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

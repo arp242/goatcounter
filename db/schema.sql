@@ -94,6 +94,7 @@ create table browser_stats (
 
 	day            date           not null,
 	browser        varchar        not null,
+	version        varchar        not null,
 	count          int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict

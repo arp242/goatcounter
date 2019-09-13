@@ -14,7 +14,6 @@ import (
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/utils/sliceutil"
 	"zgo.at/zhttp/ctxkey"
-	"zgo.at/zlog"
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bulk"
@@ -27,28 +26,9 @@ type stat struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func updateAllHitStats(ctx context.Context) error {
-	var sites goatcounter.Sites
-	err := sites.List(ctx)
-	if err != nil {
-		return err
-	}
-
-	l := zlog.Debug("stat").Module("stat")
-	for _, s := range sites {
-		err := updateSiteHitStat(ctx, s)
-		if err != nil {
-			return errors.Wrapf(err, "site %d", s.ID)
-		}
-	}
-	l.Since("updateAllHitStats")
-	return nil
-}
-
-func updateSiteHitStat(ctx context.Context, site goatcounter.Site) error {
+func updateHitStats(ctx context.Context, site goatcounter.Site) error {
 	ctx = context.WithValue(ctx, ctxkey.Site, &site)
 	db := goatcounter.MustGetDB(ctx)
-	start := time.Now().Format("2006-01-02 15:04:05")
 
 	// Select everything since last update.
 	var last string
@@ -145,17 +125,7 @@ func updateSiteHitStat(ctx context.Context, site goatcounter.Site) error {
 			}
 		}
 	}
-	err = ins.Finish()
-	if err != nil {
-		return err
-	}
-
-	// Record last update.
-	// TODO: combine with browser_stat and update after running both
-	_, err = db.ExecContext(ctx,
-		`update sites set last_stat=$1, received_data=1 where id=$2`,
-		start, site.ID)
-	return errors.WithStack(err)
+	return ins.Finish()
 }
 
 func fillHitBlanks(stats []stat, existing []string, siteCreated time.Time) map[string]map[string][][]int {
@@ -188,6 +158,8 @@ func fillHitBlanks(stats []stat, existing []string, siteCreated time.Time) map[s
 	}
 
 	// Fill in blank days.
+
+	// TODO: doesn't always work?
 	n := now.BeginningOfDay()
 	alldays := []string{first.Format("2006-01-02")}
 	for first.Before(n) {

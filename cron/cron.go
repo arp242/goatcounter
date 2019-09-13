@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
+	"zgo.at/goatcounter"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 )
@@ -21,9 +23,8 @@ type task struct {
 }
 
 var tasks = []task{
-	// {goatcounter.Memstore.Persist, 10 * time.Second},
-	// {updateAllHitStats, 60 * time.Second},
-	{updateAllBrowserStats, 60 * time.Second},
+	{goatcounter.Memstore.Persist, 10 * time.Second},
+	{updateStats, 60 * time.Second},
 }
 
 var wg sync.WaitGroup
@@ -77,4 +78,37 @@ func Wait(db *sqlx.DB) {
 			l.Error(err)
 		}
 	}
+}
+func updateStats(ctx context.Context) error {
+	l := zlog.Debug("stat").Module("stat")
+
+	var sites goatcounter.Sites
+	err := sites.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range sites {
+		start := time.Now().Format("2006-01-02 15:04:05")
+
+		err := updateHitStats(ctx, s)
+		if err != nil {
+			return errors.Wrapf(err, "hit_stat: site %d", s.ID)
+		}
+
+		err = updateBrowserStats(ctx, s)
+		if err != nil {
+			return errors.Wrapf(err, "browser_stat: site %d", s.ID)
+		}
+
+		// Record last update.
+		_, err = goatcounter.MustGetDB(ctx).ExecContext(ctx,
+			`update sites set last_stat=$1, received_data=1 where id=$2`,
+			start, s.ID)
+		if err != nil {
+			return errors.Wrapf(err, "update last_stat: site %d", s.ID)
+		}
+	}
+	l.Since("updateAllStats")
+	return nil
 }

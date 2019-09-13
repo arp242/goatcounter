@@ -60,9 +60,8 @@ type SiteSettings struct {
 	TwentyFourHours bool   `json:"twenty_four_hours"`
 	DateFormat      string `json:"date_format"`
 	Limits          struct {
-		Page    int `json:"page"`
-		Ref     int `json:"ref"`
-		Browser int `json:"browser"`
+		Page int `json:"page"`
+		Ref  int `json:"ref"`
 	} `json:"limits"`
 }
 
@@ -94,13 +93,10 @@ func (s *Site) Defaults(ctx context.Context) {
 	}
 
 	if s.Settings.Limits.Page == 0 {
-		s.Settings.Limits.Page = 20
+		s.Settings.Limits.Page = 10
 	}
 	if s.Settings.Limits.Ref == 0 {
 		s.Settings.Limits.Ref = 10
-	}
-	if s.Settings.Limits.Browser == 0 {
-		s.Settings.Limits.Browser = 20
 	}
 
 	s.Code = strings.ToLower(s.Code)
