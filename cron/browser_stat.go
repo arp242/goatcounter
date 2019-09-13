@@ -92,7 +92,7 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 		day := k[:10]
 		browser := k[10:]
 		s := strings.Index(browser, " ")
-		version := browser[s:]
+		version := browser[s+1:]
 		browser = browser[:s]
 		insBrowser.Values(site.ID, day, browser, version, count)
 	}
