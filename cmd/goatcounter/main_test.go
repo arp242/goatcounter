@@ -5,6 +5,7 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"os"
 	"syscall"
@@ -15,10 +16,12 @@ import (
 func TestMain(t *testing.T) {
 	// Just ensure the app can start with the default settings, creating a new
 	// DB file.
+	cwd, _ := os.Getwd()
 	err := os.Chdir("../../")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.Chdir(cwd)
 
 	tmpdir, err := ioutil.TempDir("", "goatcounter")
 	if err != nil {
@@ -27,12 +30,14 @@ func TestMain(t *testing.T) {
 	tmpdb := tmpdir + "/goatcounter.sqlite3"
 	defer os.RemoveAll(tmpdir)
 
+	// Reset flags in case of -count 2
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	os.Args = []string{"goatcounter",
 		"-dbconnect", tmpdb,
 		"-listen", "localhost:31874"}
 
 	go func() {
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 	}()
 
