@@ -15,10 +15,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/test"
 	"github.com/teamwork/utils/jsonutil"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 
 	"zgo.at/goatcounter"
@@ -27,11 +29,11 @@ import (
 type handlerTest struct {
 	name         string
 	setup        func(context.Context)
-	handler      func(http.ResponseWriter, *http.Request) error
+	router       func(*sqlx.DB) chi.Router
 	path         string
 	method       string
+	auth         bool
 	body         interface{}
-	wantErr      string
 	wantCode     int
 	wantFormCode int
 	wantBody     string
@@ -71,11 +73,12 @@ func runTest(
 			if tt.setup != nil {
 				tt.setup(ctx)
 			}
+			if tt.auth {
+				login(t, rr, r)
+			}
 
-			handler := addctx(goatcounter.MustGetDB(ctx).(*sqlx.DB), true)(zhttp.Wrap(tt.handler))
-			handler.ServeHTTP(rr, r)
+			tt.router(goatcounter.MustGetDB(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
 			test.Code(t, rr, tt.wantCode)
-
 			if !strings.Contains(rr.Body.String(), tt.wantBody) {
 				t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
 			}
@@ -95,17 +98,18 @@ func runTest(
 			defer clean()
 
 			form := formBody(tt.body)
-			r, rr := newTest(ctx, "POST", "/", strings.NewReader(form))
+			r, rr := newTest(ctx, tt.method, tt.path, strings.NewReader(form))
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			r.Header.Set("Content-Length", fmt.Sprintf("%d", len(form)))
 			if tt.setup != nil {
 				tt.setup(ctx)
 			}
+			if tt.auth {
+				login(t, rr, r)
+			}
 
-			handler := addctx(goatcounter.MustGetDB(ctx).(*sqlx.DB), true)(zhttp.Wrap(tt.handler))
-			handler.ServeHTTP(rr, r)
+			tt.router(goatcounter.MustGetDB(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
 			test.Code(t, rr, tt.wantFormCode)
-
 			if !strings.Contains(rr.Body.String(), tt.wantFormBody) {
 				t.Errorf("wrong body\nwant: %q\ngot:  %q", tt.wantFormBody, rr.Body.String())
 			}
@@ -116,6 +120,26 @@ func runTest(
 			}
 		})
 	})
+}
+
+func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+	t.Helper()
+
+	// Insert user
+	u := goatcounter.User{Site: 1, Name: "Example", Email: "test@example.com"}
+	err := u.Insert(r.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Login user
+	err = u.Login(r.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r.Header.Set("Cookie", "key="+*u.LoginKey)
+	*r = *r.WithContext(context.WithValue(r.Context(), ctxkey.User, u))
 }
 
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
