@@ -32,7 +32,7 @@
 				{{if eq .Site.ID 1}}<a href="/admin">Admin</a> |{{end}}
 				{{if ne .Path "/settings"}}<a href="/settings">Settings</a> |{{end}}
 				<form method="post" action="/user/logout">
-					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+					<input type="hidden" name="csrf" value="{{.User.Key.CSRFToken}}">
 					<button class="link">Sign out</button>
 				</form>
 			</div>

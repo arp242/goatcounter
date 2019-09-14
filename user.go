@@ -38,14 +38,20 @@ type User struct {
 	Name        string          `db:"name" json:"name"`
 	Email       string          `db:"email" json:"email"`
 	Role        string          `db:"role" json:"-"`
-	LoginReq    *time.Time      `db:"login_req" json:"-"`
-	LoginKey    *string         `db:"login_key" json:"-"`
-	CSRFToken   *string         `db:"csrf_token" json:"-"`
 	Preferences UserPreferences `db:"preferences" json:"preferences"`
+	Key         UserKey         `db:"-" json:"-"`
 
 	State     string     `db:"state" json:"-"`
 	CreatedAt time.Time  `db:"created_at" json:"-"`
 	UpdatedAt *time.Time `db:"updated_at" json:"-"`
+}
+
+type UserKey struct {
+	Site      int64      `db:"site" json:"-"`
+	User      int64      `db:"user" json:"-"`
+	LoginReq  *time.Time `db:"login_req" json:"-"`
+	LoginKey  *string    `db:"login_key" json:"-"`
+	CSRFToken *string    `db:"csrf_token" json:"-"`
 }
 
 type UserPreferences struct {
@@ -159,59 +165,66 @@ func (u *User) ByKey(ctx context.Context, key string) error {
 	}
 
 	query := `select users.* from users
-		where login_key=$1 and
-			users.site=$2 and
+		join user_keys on user_keys.user = users.id
+		where user_keys.login_key=$1 and
+			user_keys.site=$2 and
 			users.state=$3 and
-			(login_req is null or `
+			(user_keys.login_req is null or `
 
 	if cfg.PgSQL {
-		query += `login_req + interval '15 minutes' > now())`
+		query += `user_keys.login_req + interval '15 minutes' > now())`
 	} else {
-		query += `datetime(login_req, '+15 minutes') > datetime())`
+		query += `datetime(user_keys.login_req, '+15 minutes') > datetime())`
 	}
 
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u, query,
-		key, MustGetSite(ctx).IDOrParent(), StateActive), "User.ByKey")
+	err := MustGetDB(ctx).GetContext(ctx, u, query,
+		key, MustGetSite(ctx).IDOrParent(), StateActive)
+	if err != nil {
+		return errors.Wrap(err, "User.ByKey")
+	}
+
+	err = MustGetDB(ctx).GetContext(ctx, &u.Key.CSRFToken,
+		`select csrf_token from user_keys where "user"=$1`, u.ID)
+	return errors.Wrap(err, "User.ByKey")
 }
 
 // RequestLogin generates a new login Key.
 func (u *User) RequestLogin(ctx context.Context) error {
-	u.LoginKey = zhttp.SecretP()
+	u.Key = UserKey{LoginKey: zhttp.SecretP()}
 
-	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
-		login_key=$1, login_req=current_timestamp
-		where id=$2 and site=$3`, *u.LoginKey, u.ID, MustGetSite(ctx).IDOrParent())
+	_, err := MustGetDB(ctx).ExecContext(ctx, `insert into user_keys
+		("user", site, login_key, login_req) values($1, $2, $3, current_timestamp)`,
+		u.ID, MustGetSite(ctx).IDOrParent(), *u.Key.LoginKey)
 	return errors.Wrap(err, "User.RequestLogin")
 }
 
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
-	u.LoginKey = zhttp.SecretP()
-	u.CSRFToken = zhttp.SecretP()
+	u.Key = UserKey{LoginKey: zhttp.SecretP(), CSRFToken: zhttp.SecretP()}
 
-	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
+	_, err := MustGetDB(ctx).ExecContext(ctx, `update user_keys set
 			login_key=$1, login_req=null, csrf_token=$2
-			where id=$3 and site=$4`,
-		*u.LoginKey, *u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
+			where "user"=$3 and site=$4`,
+		*u.Key.LoginKey, *u.Key.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Login")
 }
 
 func (u *User) Logout(ctx context.Context) error {
 	_, err := MustGetDB(ctx).ExecContext(ctx,
-		`update users set login_key=null, login_req=null where id=$1 and site=$2`,
+		`update user_keys set login_key=null, login_req=null where "user"=$1 and site=$2`,
 		u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Logout")
 }
 
 func (u *User) GetToken() string {
-	if u.CSRFToken == nil {
+	if u.Key.CSRFToken == nil {
 		return ""
 	}
-	return *u.CSRFToken
+	return *u.Key.CSRFToken
 }
 
 func (u *User) SendLoginMail(ctx context.Context, site Site) {
-	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
+	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.Key.LoginKey)
 	go func() {
 		err := smail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},

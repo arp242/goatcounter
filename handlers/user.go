@@ -109,7 +109,7 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 		Expires: time.Now().Add(-100 * time.Hour),
 	})
 
-	zhttp.SetCookie(w, *u.LoginKey, cfg.Domain)
+	zhttp.SetCookie(w, *u.Key.LoginKey, cfg.Domain)
 	zhttp.Flash(w, "Welcome %s", u.Name)
 	return zhttp.SeeOther(w, "/")
 }
@@ -133,12 +133,16 @@ func flashLoginKey(ctx context.Context, w http.ResponseWriter, email string) {
 
 	if !cfg.Prod {
 		site := goatcounter.MustGetSite(ctx)
-		var u goatcounter.User
-		err := u.ByEmail(ctx, email)
+		var key *string
+		err := goatcounter.MustGetDB(ctx).GetContext(ctx, &key, `
+			select login_key from user_keys
+			join users on users.id=user_keys.user
+			where user_keys.site=$1 and lower(users.email)=lower($2) and login_req is not null
+			order by login_req desc limit 1`, site.ID, email)
 		if err != nil {
 			zlog.Error(err)
 		} else {
-			url := fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
+			url := fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *key)
 			msg += fmt.Sprintf(
 				"<br>\n<small>URL on dev for convenience: <a href='//%s'>%[1]s</a></small>",
 				url)

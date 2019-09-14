@@ -138,7 +138,7 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 		t.Fatal(err)
 	}
 
-	r.Header.Set("Cookie", "key="+*u.LoginKey)
+	r.Header.Set("Cookie", "key="+*u.Key.LoginKey)
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxkey.User, u))
 }
 

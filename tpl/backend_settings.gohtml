@@ -3,7 +3,7 @@
 <h2>Settings</h2>
 <div class="form-wrap">
 	<form method="post" action="/save" class="vertical">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<input type="hidden" name="csrf" value="{{.User.Key.CSRFToken}}">
 
 		<fieldset>
 			<legend>Site settings</legend>
@@ -55,7 +55,7 @@
 {{else}}
 	<p>You can add an unlimited number of additional sites which inherit the plan and users. You won't be charged extra.</p>
 	<form method="post" action="/add">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<input type="hidden" name="csrf" value="{{.User.Key.CSRFToken}}">
 		<table class="auto">
 			<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
 			<tbody>

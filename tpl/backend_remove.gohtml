@@ -9,7 +9,7 @@
 	site.</p>
 
 <form method="post">
-	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<input type="hidden" name="csrf" value="{{.User.Key.CSRFToken}}">
 	<button>Yes, delete it</button></form>
 
 {{template "_backend_bottom.gohtml" .}}
