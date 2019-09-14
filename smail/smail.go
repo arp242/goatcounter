@@ -29,11 +29,14 @@ import (
 
 var reNL = regexp.MustCompile(`(\r\n){2,}`)
 
+// Print emails to stdout if cfg.SMTP if empty.
+var Print = true
+
 // Send an email.
 func Send(subject string, from mail.Address, to []mail.Address, body string) error {
 	msg := Format(subject, from, to, body)
 
-	if cfg.SMTP == "" {
+	if cfg.SMTP == "" && Print {
 		l := strings.Repeat("═", 50)
 		fmt.Println("╔═══ EMAIL " + l + "\n║ " +
 			strings.Replace(strings.TrimSpace(string(msg)), "\r\n", "\r\n║ ", -1) +

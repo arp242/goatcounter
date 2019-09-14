@@ -176,9 +176,18 @@ func (u *User) ByKey(ctx context.Context, key string) error {
 
 // RequestLogin generates a new login Key.
 func (u *User) RequestLogin(ctx context.Context) error {
-	u.LoginKey = zhttp.SecretP()
+	// Re-use existing key.
+	err := MustGetDB(ctx).GetContext(ctx, &u.LoginKey, `
+		select login_key from users where id=$1`, u.ID)
+	if err != nil {
+		zlog.Error(err)
+	}
+	if u.LoginKey != nil {
+		return nil
+	}
 
-	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
+	u.LoginKey = zhttp.SecretP()
+	_, err = MustGetDB(ctx).ExecContext(ctx, `update users set
 		login_key=$1, login_req=current_timestamp
 		where id=$2 and site=$3`, *u.LoginKey, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.RequestLogin")
@@ -186,13 +195,11 @@ func (u *User) RequestLogin(ctx context.Context) error {
 
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
-	u.LoginKey = zhttp.SecretP()
 	u.CSRFToken = zhttp.SecretP()
-
 	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
-			login_key=$1, login_req=null, csrf_token=$2
-			where id=$3 and site=$4`,
-		*u.LoginKey, *u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
+			login_req=null, csrf_token=$1
+			where id=$2 and site=$3`,
+		*u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Login")
 }
 
