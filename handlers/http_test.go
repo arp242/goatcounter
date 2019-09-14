@@ -19,6 +19,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/test"
 	"github.com/teamwork/utils/jsonutil"
+	"zgo.at/goatcounter/smail"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
@@ -44,6 +45,7 @@ func init() {
 	zhttp.TplPath = "../tpl"
 	zhttp.InitTpl(nil)
 	zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
+	smail.Print = false
 }
 
 func runTest(
@@ -133,9 +135,17 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 	}
 
 	// Login user
+	err = u.RequestLogin(r.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = u.Login(r.Context())
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if u.LoginKey == nil {
+		t.Fatal("u.LoginKey is nil? Should never happen!")
 	}
 
 	r.Header.Set("Cookie", "key="+*u.LoginKey)
