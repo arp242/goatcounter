@@ -1,8 +1,8 @@
-# Don't count generated files.
-# https://docs.codecov.io/docs/ignoring-paths
 ignore: ["pack.go"]
 comment: off
 coverage:
   range: 50..90
   round: down
   precision: 2
+status:
+  patch: no
