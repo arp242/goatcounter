@@ -1,0 +1,20 @@
+{{template "_backend_top.gohtml" .}}
+
+{{if eq (len .List) 0}}
+	<p>Nothing matches <code>{{.Path}}</code>.</p>
+{{else}}
+	<p>The following paths match <code>{{.Path}}</code>:</p>
+	<table><tbody>
+	{{range $s := .List}}
+		<tr><td>{{nformat $s.Count}}</td><td>{{$s.Path}}</td></tr>
+	{{end}}
+	</tbody></table>
+
+	<form method="post">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<button>Yes, purge them all!</button>
+		<strong>This is a destructive operation, and cannot be undone!</strong>
+	</form>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

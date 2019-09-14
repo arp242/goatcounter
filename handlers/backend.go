@@ -76,9 +76,11 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			af.Get("/settings", zhttp.Wrap(h.settings))
 			af.Post("/save", zhttp.Wrap(h.save))
 			af.Get("/export/{file}", zhttp.Wrap(h.export))
-			af.Post("/add", zhttp.Wrap(h.add))
-			af.Get("/remove/{id}", zhttp.Wrap(h.removeConfirm))
-			af.Post("/remove/{id}", zhttp.Wrap(h.remove))
+			af.Post("/add", zhttp.Wrap(h.addSubsite))
+			af.Get("/remove/{id}", zhttp.Wrap(h.removeSubsiteConfirm))
+			af.Post("/remove/{id}", zhttp.Wrap(h.removeSubsite))
+			af.Get("/purge", zhttp.Wrap(h.purgeConfirm))
+			af.Post("/purge", zhttp.Wrap(h.purge))
 			af.With(admin).Get("/admin", zhttp.Wrap(h.admin))
 		}
 	}
@@ -438,7 +440,7 @@ func (h backend) export(w http.ResponseWriter, r *http.Request) error {
 	return c.Error()
 }
 
-func (h backend) removeConfirm(w http.ResponseWriter, r *http.Request) error {
+func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {
 	v := validate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -457,7 +459,7 @@ func (h backend) removeConfirm(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), s})
 }
 
-func (h backend) remove(w http.ResponseWriter, r *http.Request) error {
+func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 	v := validate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -479,7 +481,7 @@ func (h backend) remove(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings")
 }
 
-func (h backend) add(w http.ResponseWriter, r *http.Request) error {
+func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 	args := struct {
 		Name string `json:"name"`
 		Code string `json:"code"`
@@ -502,5 +504,31 @@ func (h backend) add(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Site added")
+	return zhttp.SeeOther(w, "/settings")
+}
+
+func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
+	path := strings.TrimSpace(r.URL.Query().Get("path"))
+	var list goatcounter.HitStats
+	err := list.ListPathsLike(r.Context(), path)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_purge.gohtml", struct {
+		Globals
+		Path string
+		List goatcounter.HitStats
+	}{newGlobals(w, r), path, list})
+}
+
+func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
+	var list goatcounter.Hits
+	err := list.Purge(r.Context(), r.Form.Get("path"))
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Hits purged")
 	return zhttp.SeeOther(w, "/settings")
 }

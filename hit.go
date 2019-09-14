@@ -333,10 +333,33 @@ func (h *Hit) Insert(ctx context.Context) error {
 
 type Hits []Hit
 
+// List all hits for a site.
 func (h *Hits) List(ctx context.Context) error {
 	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, h,
 		`select * from hits where site=$1`, MustGetSite(ctx).ID),
 		"Hits.List")
+}
+
+// Purge all paths matching the like pattern.
+func (h *Hits) Purge(ctx context.Context, path string) error {
+	_, err := MustGetDB(ctx).ExecContext(ctx,
+		`delete from hits where site=$1 and lower(path) like lower($2)`,
+		MustGetSite(ctx).ID, path)
+	if err != nil {
+		return errors.Wrap(err, "Hits.Purge")
+	}
+
+	_, err = MustGetDB(ctx).ExecContext(ctx,
+		`delete from hit_stats where site=$1 and path ilike $2`,
+		MustGetSite(ctx).ID, path)
+	if err != nil {
+		return errors.Wrap(err, "Hits.Purge")
+	}
+
+	_, err = MustGetDB(ctx).ExecContext(ctx,
+		`delete from browser_stats where site=$1 and path ilike $2`,
+		MustGetSite(ctx).ID, path)
+	return errors.Wrap(err, "Hits.Purge")
 }
 
 type HitStat struct {
@@ -519,8 +542,20 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
 	var paths []string
 	err := MustGetDB(ctx).SelectContext(ctx, &paths,
-		`select path from hit_stats where site=$1`, MustGetSite(ctx).ID)
+		`select path from hit_stats where site=$1 group by path`,
+		MustGetSite(ctx).ID)
 	return paths, errors.Wrap(err, "Hits.ListPaths")
+}
+
+// ListPathsLike lists all paths matching the like pattern.
+func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
+	err := MustGetDB(ctx).SelectContext(ctx, h, `
+		select path, count(path) as count from hits
+		where site=$1 and lower(path) like lower($2)
+		group by path
+		order by count desc
+		`, MustGetSite(ctx).ID, path)
+	return errors.Wrap(err, "Hits.ListPaths")
 }
 
 type BrowserStats []struct {

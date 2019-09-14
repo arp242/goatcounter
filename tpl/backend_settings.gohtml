@@ -72,7 +72,6 @@
 				</tr>
 		</tbody></table>
 	</form>
-
 {{end}}
 
 <h2 id="site-code">Site code</h2>
@@ -84,6 +83,23 @@
 <p>Add a <code>CNAME</code> record to your GoatCounter domain:</p>
 <pre>stats   IN CNAME    {{.Site.Code}}.{{.Domain}}.</pre>
 */}}
+
+<h2 id="purge">Purge</h2>
+<p>Remove all instances of a page.</p>
+
+<p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
+	<code>/page%.html</code> matches everything starting with <code>/page</code> and
+	ending with <code>.html</code>. <code>_</code> matches any character; e.g.
+	<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
+	<code>\%</code> and <code>\_</code> for the literal characters without special
+	meaning.</p>
+</p>
+
+<form method="get" action="/purge">
+	<input type="text" name="path" placeholder="Path" required>
+	<button type="submit">Purge</button>
+	<span>You will see a preview of matches before anything is deleted</span>
+</form>
 
 <h2 id="export">Export</h2>
 <p>Export all data as CSV, for backups, or if you want to import somewhere else.
