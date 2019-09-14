@@ -24,9 +24,9 @@ import (
 	"zgo.at/goatcounter/cfg"
 )
 
-type Website struct{}
+type website struct{}
 
-func (h Website) Mount(r *chi.Mux, db *sqlx.DB) {
+func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
@@ -44,7 +44,7 @@ func (h Website) Mount(r *chi.Mux, db *sqlx.DB) {
 	user{}.mount(r)
 }
 
-func (h Website) tpl(w http.ResponseWriter, r *http.Request) error {
+func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 	t := r.URL.Path[1:]
 	if t == "" {
 		t = "home"
@@ -55,7 +55,7 @@ func (h Website) tpl(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), t})
 }
 
-func (h Website) status() func(w http.ResponseWriter, r *http.Request) error {
+func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
 	started := time.Now()
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.JSON(w, map[string]string{
@@ -65,7 +65,7 @@ func (h Website) status() func(w http.ResponseWriter, r *http.Request) error {
 	}
 }
 
-func (h Website) signup(w http.ResponseWriter, r *http.Request) error {
+func (h website) signup(w http.ResponseWriter, r *http.Request) error {
 	plan, planName, err := getPlan(r)
 	if err != nil {
 		return err
@@ -84,22 +84,24 @@ func (h Website) signup(w http.ResponseWriter, r *http.Request) error {
 		goatcounter.User{}, map[string][]string{}, ""})
 }
 
-func (h Website) doSignup(w http.ResponseWriter, r *http.Request) error {
+type signupArgs struct {
+	Name       string `json:"site_name"`
+	Code       string `json:"site_code"`
+	Email      string `json:"user_email"`
+	UserName   string `json:"user_name"`
+	TuringTest string `json:"turing_test"`
+	//Card   string `json:"card"`
+	//Exp    string `json:"exp"`
+	//CVC    string `json:"cvc"`
+}
+
+func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	plan, planName, err := getPlan(r)
 	if err != nil {
 		return err
 	}
 
-	args := struct {
-		Name       string `json:"site_name"`
-		Code       string `json:"site_code"`
-		Email      string `json:"user_email"`
-		UserName   string `json:"user_name"`
-		TuringTest string `json:"turing_test"`
-		//Card   string `json:"card"`
-		//Exp    string `json:"exp"`
-		//CVC    string `json:"cvc"`
-	}{}
+	var args signupArgs
 	_, err = zhttp.Decode(r, &args)
 	if err != nil {
 		return err

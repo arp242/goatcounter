@@ -28,9 +28,9 @@ import (
 	"zgo.at/goatcounter/cfg"
 )
 
-type Backend struct{}
+type backend struct{}
 
-func (h Backend) Mount(r chi.Router, db *sqlx.DB) {
+func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
@@ -105,7 +105,7 @@ var gif = []byte{0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x1, 0x0, 0x1, 0x0, 0x80,
 	0x1, 0x0, 0x2c, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x1, 0x0, 0x0, 0x2, 0x2, 0x4c,
 	0x1, 0x0, 0x3b}
 
-func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
+func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Cache-Control", "no-store,no-cache")
 
 	// Don't track pages fetched with the browser's prefetch algorithm.
@@ -136,7 +136,7 @@ func (h Backend) count(w http.ResponseWriter, r *http.Request) error {
 
 const day = 24 * time.Hour
 
-func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
+func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
 	if goatcounter.MustGetSite(r.Context()).Settings.Public &&
@@ -237,7 +237,7 @@ func (h Backend) index(w http.ResponseWriter, r *http.Request) error {
 	return x
 }
 
-func (h Backend) admin(w http.ResponseWriter, r *http.Request) error {
+func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.MustGetSite(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -254,7 +254,7 @@ func (h Backend) admin(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), a})
 }
 
-func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
+func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
 	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
 	if err != nil {
 		return err
@@ -291,7 +291,7 @@ func (h Backend) refs(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-func (h Backend) browsers(w http.ResponseWriter, r *http.Request) error {
+func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
 	if err != nil {
 		return err
@@ -315,7 +315,7 @@ func (h Backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-func (h Backend) pages(w http.ResponseWriter, r *http.Request) error {
+func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
 	if err != nil {
 		return err
@@ -359,7 +359,7 @@ func (h Backend) pages(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-func (h Backend) settings(w http.ResponseWriter, r *http.Request) error {
+func (h backend) settings(w http.ResponseWriter, r *http.Request) error {
 	var sites goatcounter.Sites
 	err := sites.ListSubs(r.Context())
 	if err != nil {
@@ -372,7 +372,7 @@ func (h Backend) settings(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), sites})
 }
 
-func (h Backend) save(w http.ResponseWriter, r *http.Request) error {
+func (h backend) save(w http.ResponseWriter, r *http.Request) error {
 	args := struct {
 		Name     string                   `json:"name"`
 		Settings goatcounter.SiteSettings `json:"settings"`
@@ -396,7 +396,7 @@ func (h Backend) save(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings")
 }
 
-func (h Backend) export(w http.ResponseWriter, r *http.Request) error {
+func (h backend) export(w http.ResponseWriter, r *http.Request) error {
 	file := strings.ToLower(chi.URLParam(r, "file"))
 
 	w.Header().Set("Content-Type", "text/csv")
@@ -449,7 +449,7 @@ func (h Backend) export(w http.ResponseWriter, r *http.Request) error {
 	return c.Error()
 }
 
-func (h Backend) removeConfirm(w http.ResponseWriter, r *http.Request) error {
+func (h backend) removeConfirm(w http.ResponseWriter, r *http.Request) error {
 	v := validate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -468,7 +468,7 @@ func (h Backend) removeConfirm(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), s})
 }
 
-func (h Backend) remove(w http.ResponseWriter, r *http.Request) error {
+func (h backend) remove(w http.ResponseWriter, r *http.Request) error {
 	v := validate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -490,7 +490,7 @@ func (h Backend) remove(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings")
 }
 
-func (h Backend) add(w http.ResponseWriter, r *http.Request) error {
+func (h backend) add(w http.ResponseWriter, r *http.Request) error {
 	args := struct {
 		Name string `json:"name"`
 		Code string `json:"code"`

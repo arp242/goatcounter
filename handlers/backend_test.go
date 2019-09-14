@@ -10,67 +10,52 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
 )
 
-func TestCount(t *testing.T) {
+func TestBackendCount(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name:         "basic",
-			method:       "POST",
-			handler:      Backend{}.count,
+			router:       NewBackend,
+			path:         "/count",
 			body:         &goatcounter.Hit{Path: "/foo.html"},
-			wantErr:      "",
 			wantCode:     200,
 			wantFormCode: 200,
-			wantBody:     "",
-			wantFormBody: "",
 		},
 		{
 			name:         "params",
-			method:       "POST",
-			handler:      Backend{}.count,
+			router:       NewBackend,
+			path:         "/count",
 			body:         &goatcounter.Hit{Path: "/foo.html?param=xxx"},
-			wantErr:      "",
 			wantCode:     200,
 			wantFormCode: 200,
-			wantBody:     "",
-			wantFormBody: "",
 		},
 
 		{
 			name:         "ref",
-			method:       "POST",
-			handler:      Backend{}.count,
+			router:       NewBackend,
+			path:         "/count",
 			body:         &goatcounter.Hit{Path: "/foo.html", Ref: "https://example.com"},
-			wantErr:      "",
 			wantCode:     200,
 			wantFormCode: 200,
-			wantBody:     "",
-			wantFormBody: "",
 		},
 		{
 			name:         "ref_params",
-			method:       "POST",
-			handler:      Backend{}.count,
+			router:       NewBackend,
+			path:         "/count",
 			body:         &goatcounter.Hit{Path: "/foo.html", Ref: "https://example.com?p=xxx"},
-			wantErr:      "",
 			wantCode:     200,
 			wantFormCode: 200,
-			wantBody:     "",
-			wantFormBody: "",
 		},
 	}
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			if tt.wantErr != "" {
-				return
-			}
-
 			err := goatcounter.Memstore.Persist(r.Context())
 			if err != nil {
 				t.Fatal(err)
@@ -94,7 +79,7 @@ func TestCount(t *testing.T) {
 	}
 }
 
-func TestAdmin(t *testing.T) {
+func TestBackendAdmin(t *testing.T) {
 	tests := []handlerTest{
 		{
 			setup: func(ctx context.Context) {
@@ -104,10 +89,9 @@ func TestAdmin(t *testing.T) {
 					panic(err)
 				}
 			},
-			handler:  Backend{}.admin,
+			router:   NewBackend,
 			path:     "/admin",
-			body:     nil,
-			wantErr:  "",
+			auth:     true,
 			wantCode: 200,
 			wantBody: "<table>",
 		},
@@ -126,13 +110,12 @@ func TestAdmin(t *testing.T) {
 	}
 }
 
-func TestIndex(t *testing.T) {
+func TestBackendIndex(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name:     "no-data",
-			handler:  Backend{}.index,
-			body:     nil,
-			wantErr:  "",
+			router:   NewBackend,
+			auth:     true,
 			wantCode: 200,
 			wantBody: "<strong>No data received</strong>",
 		},
@@ -148,16 +131,70 @@ func TestIndex(t *testing.T) {
 				db := goatcounter.MustGetDB(ctx).(*sqlx.DB)
 				cron.Run(db)
 			},
-			handler:  Backend{}.index,
-			body:     nil,
-			wantErr:  "",
+			router:   NewBackend,
+			auth:     true,
 			wantCode: 200,
 			wantBody: "<h2>Pages <sup>(total 1 hits)</sup></h2>",
 		},
 	}
 
 	for _, tt := range tests {
-		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-		})
+		runTest(t, tt, nil)
+	}
+}
+
+func TestBackendExport(t *testing.T) {
+	tests := []handlerTest{
+		{
+			setup: func(ctx context.Context) {
+				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
+				hits := []goatcounter.Hit{
+					{Path: "/asd", CreatedAt: now},
+					{Path: "/asd", CreatedAt: now},
+					{Path: "/zxc", CreatedAt: now},
+				}
+				for _, h := range hits {
+					h.Site = 1
+					err := h.Insert(ctx)
+					if err != nil {
+						panic(err)
+					}
+				}
+
+			},
+			router:   NewBackend,
+			path:     "/export/hits.csv",
+			auth:     true,
+			wantCode: 200,
+			wantBody: "/zxc",
+		},
+
+		{
+			setup: func(ctx context.Context) {
+				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
+				browsers := []goatcounter.Browser{
+					{Browser: "Firefox/68.0", CreatedAt: now},
+					{Browser: "Chrome/77.0.123.666", CreatedAt: now},
+					{Browser: "Firefox/69.0", CreatedAt: now},
+				}
+				for _, b := range browsers {
+					b.Site = 1
+					err := b.Insert(ctx)
+					if err != nil {
+						t.Fatal(err)
+					}
+				}
+
+			},
+			router:   NewBackend,
+			path:     "/export/browsers.csv",
+			auth:     true,
+			wantCode: 200,
+			wantBody: "Firefox",
+		},
+	}
+
+	for _, tt := range tests {
+		runTest(t, tt, nil)
 	}
 }

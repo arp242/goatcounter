@@ -105,7 +105,7 @@ func main() {
 	// Set up HTTP handler and servers.
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(map[string]chi.Router{
 		cfg.Domain:          zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + cfg.Domain: handlers.NewSite(db),
+		"www." + cfg.Domain: handlers.NewWebsite(db),
 		cfg.DomainStatic:    handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
 		"*." + cfg.Domain:   handlers.NewBackend(db),
 	})}, func() {

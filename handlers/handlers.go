@@ -44,14 +44,14 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	return g
 }
 
-func NewSite(db *sqlx.DB) chi.Router {
+func NewWebsite(db *sqlx.DB) chi.Router {
 	if !cfg.Prod {
 		packTpl = nil
 	}
 	zhttp.InitTpl(packTpl)
 
 	r := chi.NewRouter()
-	Website{}.Mount(r, db)
+	website{}.Mount(r, db)
 	return r
 }
 
@@ -72,6 +72,6 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 
 func NewBackend(db *sqlx.DB) chi.Router {
 	r := chi.NewRouter()
-	Backend{}.Mount(r, db)
+	backend{}.Mount(r, db)
 	return r
 }

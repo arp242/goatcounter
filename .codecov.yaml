@@ -4,5 +4,5 @@ coverage:
   range: 50..90
   round: down
   precision: 2
-status:
-  patch: no
+  status:
+    patch: false
