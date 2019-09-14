@@ -147,9 +147,9 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u,
 		`select * from users where
 			lower(email)=lower($1) and
-			state=$3 and
-			(site=$2 or site=(select parent from sites where id=$2))
-		`, email, MustGetSite(ctx).ID, StateActive), "User.ByEmail")
+			state=$2 and
+			(site=$3 or site=(select parent from sites where id=$3))
+		`, email, StateActive, MustGetSite(ctx).ID), "User.ByEmail")
 }
 
 // ByKey gets a user by login key.
