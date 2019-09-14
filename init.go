@@ -8,6 +8,7 @@ package goatcounter
 
 import (
 	"context"
+	"crypto/md5"
 	"database/sql"
 	"fmt"
 	"html/template"
@@ -77,6 +78,49 @@ func init() {
 
 		return template.HTML(b.String())
 	}
+
+	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total uint64) template.HTML {
+		totalPerc := float32(0.0)
+		var b strings.Builder
+		for _, s := range stats {
+			perc := float32(s.Count) / float32(total) * 100
+			if perc < .5 {
+				// Less than 0.5%: don't bother.
+				break
+			}
+			totalPerc += perc
+
+			browser := s.Browser
+			if browser == "" {
+				browser = "(unknown)"
+			}
+
+			bg, fg := colorHash(browser)
+			text := fmt.Sprintf("%s: %.1f%%", template.HTMLEscapeString(browser), perc)
+			b.WriteString(fmt.Sprintf(
+				`<a href="#_" title="%[1]s" style="width: %[2]f%%; background-color: %[3]s; color: %[4]s" data-browser="%[5]s">%[1]s</a>`,
+				text, perc, bg, fg, browser))
+		}
+
+		// Add "(other)" part.
+		if totalPerc < 100 {
+			b.WriteString(fmt.Sprintf(
+				`<a href="#_" title="Other: %.1[1]f%%" style="width: %[1]f%%">Other: %.1[1]f%%</a>`, 100-totalPerc))
+		}
+
+		return template.HTML(b.String())
+	}
+}
+
+func colorHash(s string) (string, string) {
+	hash := md5.New()
+	hash.Write([]byte(s))
+	color := string(hash.Sum(nil))
+	fg := "#000"
+	if .299*float32(color[0])+.587*float32(color[1])+.114*float32(color[2]) < 150 {
+		fg = "#fff"
+	}
+	return fmt.Sprintf("#%.2x%.2x%.2x", color[0], color[1], color[2]), fg
 }
 
 // State column values.

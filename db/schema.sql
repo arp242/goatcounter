@@ -87,3 +87,17 @@ create table browsers (
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
 create index "browsers#site#created_at" on browsers(site, created_at);
+
+drop table if exists browser_stats;
+create table browser_stats (
+	site           integer        not null                 check(site > 0),
+
+	day            date           not null,
+	browser        varchar        not null,
+	version        varchar        not null,
+	count          int            not null,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+create index "browser_stats#site#day"         on browser_stats(site, day);
+create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
