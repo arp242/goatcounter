@@ -18,7 +18,7 @@ require (
 	github.com/teamwork/guru v0.0.0-20180416195845-617a8909cb7f
 	github.com/teamwork/reload v0.0.0-20190319183701-e8d47ccac39e
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46
-	github.com/teamwork/utils v0.0.0-20190915160242-daddbd98be57 // mtext branch
+	github.com/teamwork/utils v0.0.0-20190915210805-dd84b3a50562 // mtext branch
 	github.com/teamwork/validate v0.0.0-20190828120429-6967b7fc2615
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
 	golang.org/x/sys v0.0.0-20190830080133-08d80c9d36de // indirect

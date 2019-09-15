@@ -30,13 +30,13 @@ var (
 type Hit struct {
 	Site int64 `db:"site" json:"-"`
 
-	Path        string          `db:"path" json:"p,omitempty"`
-	Ref         string          `db:"ref" json:"r,omitempty"`
-	RefParams   *string         `db:"ref_params" json:"ref_params,omitempty"`
-	RefOriginal *string         `db:"ref_original" json:"ref_original,omitempty"`
-	RefScheme   *string         `db:"ref_scheme" json:"ref_scheme,omitempty"`
-	Size        sqlutil.IntList `db:"size" json:"s"`
-	CreatedAt   time.Time       `db:"created_at" json:"-"`
+	Path        string            `db:"path" json:"p,omitempty"`
+	Ref         string            `db:"ref" json:"r,omitempty"`
+	RefParams   *string           `db:"ref_params" json:"ref_params,omitempty"`
+	RefOriginal *string           `db:"ref_original" json:"ref_original,omitempty"`
+	RefScheme   *string           `db:"ref_scheme" json:"ref_scheme,omitempty"`
+	Size        sqlutil.FloatList `db:"size" json:"s"`
+	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
 	refURL *url.URL `db:"-"`
 }

@@ -65,7 +65,7 @@
 				return;
 
 		var loc = get_location();
-		loc.s = [window.screen.width, window.screen.height];
+		loc.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
 
 		// null returned from user callback.
 		if (loc.p === null)
