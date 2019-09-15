@@ -23,9 +23,9 @@ require (
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
 	golang.org/x/sys v0.0.0-20190830080133-08d80c9d36de // indirect
 	google.golang.org/appengine v1.6.2 // indirect
-	zgo.at/zhttp v0.0.0-20190915010959-3a9188049bc1
-	zgo.at/zlog v0.0.0-20190915010658-04c369a7b887
-	zgo.at/zlog_sentry v1.0.0
+	zgo.at/zhttp v0.0.0-20190915115045-e8088560373f
+	zgo.at/zlog v1.0.0
+	zgo.at/zlog_sentry v1.0.1
 )
 
 // This fork doesn't depend on the github.com/teamwork/mailaddress package and
