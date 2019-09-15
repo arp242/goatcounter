@@ -44,7 +44,7 @@ func main() {
 		panic("-prod enabled and -smtp not given")
 	}
 
-	defer zlog.CPUProfile(cfg.CPUProfile)()
+	defer zlog.ProfileCPU(cfg.CPUProfile)()
 
 	zlog.Config.StackFilter = errorutil.FilterPattern(
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
@@ -111,7 +111,7 @@ func main() {
 	})}, func() {
 		cron.Wait(db)
 		raven.Wait()
-		zlog.MemProfile(cfg.MemProfile)
+		zlog.ProfileHeap(cfg.MemProfile)
 	})
 }
 
