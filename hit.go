@@ -13,6 +13,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
+	"github.com/teamwork/utils/sqlutil"
 	"github.com/teamwork/validate"
 	"zgo.at/zlog"
 )
@@ -29,12 +30,13 @@ var (
 type Hit struct {
 	Site int64 `db:"site" json:"-"`
 
-	Path        string    `db:"path" json:"p,omitempty"`
-	Ref         string    `db:"ref" json:"r,omitempty"`
-	RefParams   *string   `db:"ref_params" json:"ref_params,omitempty"`
-	RefOriginal *string   `db:"ref_original" json:"ref_original,omitempty"`
-	RefScheme   *string   `db:"ref_scheme" json:"ref_scheme,omitempty"`
-	CreatedAt   time.Time `db:"created_at" json:"-"`
+	Path        string          `db:"path" json:"p,omitempty"`
+	Ref         string          `db:"ref" json:"r,omitempty"`
+	RefParams   *string         `db:"ref_params" json:"ref_params,omitempty"`
+	RefOriginal *string         `db:"ref_original" json:"ref_original,omitempty"`
+	RefScheme   *string         `db:"ref_scheme" json:"ref_scheme,omitempty"`
+	Size        sqlutil.IntList `db:"size" json:"s"`
+	CreatedAt   time.Time       `db:"created_at" json:"-"`
 
 	refURL *url.URL `db:"-"`
 }
@@ -322,9 +324,9 @@ func (h *Hit) Insert(ctx context.Context) error {
 	}
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`insert into hits (site, path, ref, ref_params, ref_original, created_at, ref_scheme)
-		values ($1, $2, $3, $4, $5, $6, $7)`,
-		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme)
+		`insert into hits (site, path, ref, ref_params, ref_original, created_at, ref_scheme, size)
+		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme, h.Size)
 	return errors.Wrap(err, "Hit.Insert")
 }
 
