@@ -80,7 +80,7 @@ func Wait(db *sqlx.DB) {
 	}
 }
 func updateStats(ctx context.Context) error {
-	l := zlog.Debug("stat").Module("stat")
+	l := zlog.SetDebug("stat").Module("stat")
 
 	var sites goatcounter.Sites
 	err := sites.List(ctx)

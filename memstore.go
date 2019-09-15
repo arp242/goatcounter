@@ -36,7 +36,7 @@ func (m *ms) Persist(ctx context.Context) error {
 		return nil
 	}
 
-	l := zlog.Debug("memstore").Module("memstore")
+	l := zlog.SetDebug("memstore").Module("memstore")
 
 	m.Lock()
 	hits := make([]Hit, len(m.hits))

@@ -28,7 +28,7 @@ require (
 	golang.org/x/tools v0.0.0-20190830082254-f340ed3ae274 // indirect
 	google.golang.org/appengine v1.6.2 // indirect
 	zgo.at/zhttp v0.0.0-20190827140750-7e240747ece5
-	zgo.at/zlog v0.0.0-20190901025635-056660557d15
+	zgo.at/zlog v0.0.0-20190915001042-15885bfca737
 	zgo.at/zlog_sentry v1.0.0
 )
 
