@@ -168,30 +168,6 @@ func TestBackendExport(t *testing.T) {
 			wantCode: 200,
 			wantBody: "/zxc",
 		},
-
-		{
-			setup: func(ctx context.Context) {
-				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				browsers := []goatcounter.Browser{
-					{Browser: "Firefox/68.0", CreatedAt: now},
-					{Browser: "Chrome/77.0.123.666", CreatedAt: now},
-					{Browser: "Firefox/69.0", CreatedAt: now},
-				}
-				for _, b := range browsers {
-					b.Site = 1
-					err := b.Insert(ctx)
-					if err != nil {
-						t.Fatal(err)
-					}
-				}
-
-			},
-			router:   NewBackend,
-			path:     "/export/browsers.csv",
-			auth:     true,
-			wantCode: 200,
-			wantBody: "Firefox",
-		},
 	}
 
 	for _, tt := range tests {

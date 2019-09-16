@@ -20,7 +20,7 @@ func TestBrowserStats(t *testing.T) {
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
 	// Insert some browsers.
-	browsers := []goatcounter.Browser{
+	browsers := []goatcounter.Hit{
 		{Browser: "Firefox/68.0", CreatedAt: now},
 		{Browser: "Chrome/77.0.123.666", CreatedAt: now},
 		{Browser: "Firefox/69.0", CreatedAt: now},

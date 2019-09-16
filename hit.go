@@ -32,9 +32,10 @@ type Hit struct {
 
 	Path        string            `db:"path" json:"p,omitempty"`
 	Ref         string            `db:"ref" json:"r,omitempty"`
-	RefParams   *string           `db:"ref_params" json:"ref_params,omitempty"`
-	RefOriginal *string           `db:"ref_original" json:"ref_original,omitempty"`
-	RefScheme   *string           `db:"ref_scheme" json:"ref_scheme,omitempty"`
+	RefParams   *string           `db:"ref_params" json:"-"`
+	RefOriginal *string           `db:"ref_original" json:"-"`
+	RefScheme   *string           `db:"ref_scheme" json:"-"`
+	Browser     string            `db:"browser" json:"-"`
 	Size        sqlutil.FloatList `db:"size" json:"s"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
@@ -324,9 +325,9 @@ func (h *Hit) Insert(ctx context.Context) error {
 	}
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`insert into hits (site, path, ref, ref_params, ref_original, created_at, ref_scheme, size)
-		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme, h.Size)
+		`insert into hits (site, path, ref, ref_params, ref_original, created_at, ref_scheme, size, browser)
+		values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme, h.Size, h.Browser)
 	return errors.Wrap(err, "Hit.Insert")
 }
 
@@ -520,4 +521,51 @@ func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
 	err := MustGetDB(ctx).SelectContext(ctx, &paths,
 		`select path from hit_stats where site=$1`, MustGetSite(ctx).ID)
 	return paths, errors.Wrap(err, "Hits.ListPaths")
+}
+
+type BrowserStats []struct {
+	Browser string
+	Count   int
+}
+
+func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (uint64, error) {
+	site := MustGetSite(ctx)
+	err := MustGetDB(ctx).SelectContext(ctx, h, `
+		select browser, sum(count) as count from browser_stats
+		where site=$1 and day >= $2 and day <= $3
+		group by browser
+		order by count desc
+	`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	if err != nil {
+		return 0, errors.Wrap(err, "BrowserStats.List")
+	}
+
+	var total uint64
+	for _, b := range *h {
+		total += uint64(b.Count)
+	}
+	return total, nil
+}
+
+// ListBrowser lists all the versions for one browser.
+func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (uint64, error) {
+	site := MustGetSite(ctx)
+	err := MustGetDB(ctx).SelectContext(ctx, h, `
+		select
+			version as browser,
+			sum(count) as count
+		from browser_stats
+		where site=$1 and day >= $2 and day <= $3 and lower(browser)=lower($4)
+		group by browser, version
+		order by count desc
+	`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), browser)
+	if err != nil {
+		return 0, errors.Wrap(err, "BrowserStats.ListBrowser")
+	}
+
+	var total uint64
+	for _, b := range *h {
+		total += uint64(b.Count)
+	}
+	return total, nil
 }

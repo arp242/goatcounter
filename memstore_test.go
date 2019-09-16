@@ -32,15 +32,12 @@ func TestMemstore(t *testing.T) {
 	}
 }
 
-func gen(ctx context.Context) (Hit, Browser) {
+func gen(ctx context.Context) Hit {
 	s := MustGetSite(ctx)
-
 	return Hit{
-			Site: s.ID,
-			Path: "/test",
-			Ref:  "https://example.com/test",
-		}, Browser{
-			Site:    s.ID,
-			Browser: "test",
-		}
+		Site:    s.ID,
+		Path:    "/test",
+		Ref:     "https://example.com/test",
+		Browser: "test",
+	}
 }

@@ -18,16 +18,14 @@ import (
 
 type ms struct {
 	sync.RWMutex
-	hits     []Hit
-	browsers []Browser
+	hits []Hit
 }
 
 var Memstore = ms{}
 
-func (m *ms) Append(hit Hit, browser Browser) {
+func (m *ms) Append(hit Hit) {
 	m.Lock()
 	m.hits = append(m.hits, hit)
-	m.browsers = append(m.browsers, browser)
 	m.Unlock()
 }
 
@@ -40,15 +38,13 @@ func (m *ms) Persist(ctx context.Context) error {
 
 	m.Lock()
 	hits := make([]Hit, len(m.hits))
-	browsers := make([]Browser, len(m.browsers))
 	copy(hits, m.hits)
-	copy(browsers, m.browsers)
 	m.hits = []Hit{}
-	m.browsers = []Browser{}
 	m.Unlock()
 
 	ins := bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
-		"hits", []string{"site", "path", "ref", "ref_params", "ref_original", "ref_scheme", "created_at", "size"})
+		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
+			"ref_scheme", "browser", "size", "created_at"})
 	for _, h := range hits {
 		var err error
 		h.refURL, err = url.Parse(h.Ref)
@@ -70,31 +66,13 @@ func (m *ms) Persist(ctx context.Context) error {
 		}
 
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
-			h.RefScheme, sqlDate(h.CreatedAt), h.Size)
+			h.RefScheme, h.Browser, h.Size, sqlDate(h.CreatedAt))
 	}
 	err := ins.Finish()
 	if err != nil {
 		zlog.Error(err)
 	}
 
-	ins = bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
-		"browsers", []string{"site", "browser", "created_at"})
-	for _, b := range browsers {
-		b.Defaults(ctx)
-		err := b.Validate(ctx)
-		if err != nil {
-			zlog.Error(err)
-			continue
-		}
-
-		ins.Values(b.Site, b.Browser, sqlDate(b.CreatedAt))
-	}
-	err = ins.Finish()
-	if err != nil {
-		zlog.Error(err)
-	}
-
-	l.Since(fmt.Sprintf("persisted %d hits and %d User-Agents", len(hits), len(browsers)))
-
+	l.Since(fmt.Sprintf("persisted %d hits", len(hits)))
 	return nil
 }

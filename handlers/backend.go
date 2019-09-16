@@ -20,6 +20,7 @@ import (
 	"github.com/mssola/user_agent"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/utils/httputilx/header"
+	"github.com/teamwork/utils/sliceutil"
 	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -115,20 +116,17 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
-	var hit goatcounter.Hit
+	hit := goatcounter.Hit{
+		Site:      goatcounter.MustGetSite(r.Context()).ID,
+		Browser:   r.UserAgent(),
+		CreatedAt: time.Now().UTC(),
+	}
 	_, err := zhttp.Decode(r, &hit)
 	if err != nil {
 		w.Header().Set("Content-Type", "text/plain")
 		return err
 	}
-	hit.Site = goatcounter.MustGetSite(r.Context()).ID
-	hit.CreatedAt = time.Now().UTC()
-
-	goatcounter.Memstore.Append(hit, goatcounter.Browser{
-		Site:      hit.Site,
-		Browser:   r.UserAgent(),
-		CreatedAt: hit.CreatedAt,
-	})
+	goatcounter.Memstore.Append(hit)
 
 	w.Header().Set("Content-Type", "image/gif")
 	return zhttp.Bytes(w, gif)
@@ -419,7 +417,9 @@ func (h backend) export(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		c.Write([]string{"Path", "Referrer (sanitized)", "Referrer query params", "Original Referrer", "Date (RFC 3339/ISO 8601)"})
+		c.Write([]string{"Path", "Referrer (sanitized)",
+			"Referrer query params", "Original Referrer", "Browser",
+			"Screen size", "Date (RFC 3339/ISO 8601)"})
 		for _, hit := range hits {
 			rp := ""
 			if hit.RefParams != nil {
@@ -429,19 +429,8 @@ func (h backend) export(w http.ResponseWriter, r *http.Request) error {
 			if hit.RefOriginal != nil {
 				ro = *hit.RefOriginal
 			}
-			c.Write([]string{hit.Path, hit.Ref, rp, ro, hit.CreatedAt.Format(time.RFC3339)})
-		}
-
-	case "browsers.csv":
-		var browsers goatcounter.Browsers
-		err := browsers.List(r.Context())
-		if err != nil {
-			return err
-		}
-
-		c.Write([]string{"User-Agent string", "Date (RFC 3339/ISO 8601)"})
-		for _, browser := range browsers {
-			c.Write([]string{browser.Browser, browser.CreatedAt.Format(time.RFC3339)})
+			c.Write([]string{hit.Path, hit.Ref, rp, ro, hit.Browser,
+				sliceutil.JoinFloat(hit.Size), hit.CreatedAt.Format(time.RFC3339)})
 		}
 	}
 
