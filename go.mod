@@ -23,7 +23,7 @@ require (
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
 	golang.org/x/sys v0.0.0-20190830080133-08d80c9d36de // indirect
 	google.golang.org/appengine v1.6.2 // indirect
-	zgo.at/zhttp v0.0.0-20190915115045-e8088560373f
+	zgo.at/zhttp v0.0.0-20190916181610-f8d0eef9753d
 	zgo.at/zlog v1.0.1
 	zgo.at/zlog_sentry v1.0.1
 )
