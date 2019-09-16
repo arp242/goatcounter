@@ -32,9 +32,10 @@ type Hit struct {
 
 	Path        string            `db:"path" json:"p,omitempty"`
 	Ref         string            `db:"ref" json:"r,omitempty"`
-	RefParams   *string           `db:"ref_params" json:"ref_params,omitempty"`
-	RefOriginal *string           `db:"ref_original" json:"ref_original,omitempty"`
-	RefScheme   *string           `db:"ref_scheme" json:"ref_scheme,omitempty"`
+	RefParams   *string           `db:"ref_params" json:"-"`
+	RefOriginal *string           `db:"ref_original" json:"-"`
+	RefScheme   *string           `db:"ref_scheme" json:"-"`
+	Browser     string            `db:"browser" json:"-"`
 	Size        sqlutil.FloatList `db:"size" json:"s"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
@@ -324,9 +325,9 @@ func (h *Hit) Insert(ctx context.Context) error {
 	}
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`insert into hits (site, path, ref, ref_params, ref_original, created_at, ref_scheme, size)
-		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme, h.Size)
+		`insert into hits (site, path, ref, ref_params, ref_original, created_at, ref_scheme, size, browser)
+		values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+		h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal, sqlDate(h.CreatedAt), h.RefScheme, h.Size, h.Browser)
 	return errors.Wrap(err, "Hit.Insert")
 }
 

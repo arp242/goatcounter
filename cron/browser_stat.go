@@ -43,7 +43,7 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 				browser,
 				count(browser) as count,
 				cast(substr(cast(created_at as varchar), 0, 14) || ':00:00' as timestamp) as created_at
-			from browsers
+			from hits
 			where
 				site=$1 and
 				created_at>=$2
@@ -55,7 +55,7 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 				browser,
 				count(browser) as count,
 				created_at
-			from browsers
+			from hits
 			where
 				site=$1 and
 				created_at>=$2

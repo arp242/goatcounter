@@ -56,7 +56,8 @@ create table hits (
 	ref_original   varchar,
 	ref_params     varchar,
 	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
-	size           varchar        not null default '0,0',
+	size           varchar        not null default '',
+	browser        varchar        not null,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
@@ -77,15 +78,6 @@ create table hit_stats (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 create index "hit_stats#site#day" on hit_stats(site, day);
-
-drop table if exists browsers;
-create table browsers (
-	site           integer        not null                 check(site > 0),
-
-	browser        varchar        not null,
-	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
-);
-create index "browsers#site#created_at" on browsers(site, created_at);
 
 drop table if exists browser_stats;
 create table browser_stats (
