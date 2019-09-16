@@ -174,3 +174,99 @@ func TestBackendExport(t *testing.T) {
 		runTest(t, tt, nil)
 	}
 }
+
+func TestBackendTpl(t *testing.T) {
+	tests := []handlerTest{
+		{
+			setup: func(ctx context.Context) {
+				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
+				hits := []goatcounter.Hit{
+					{Path: "/asd", CreatedAt: now},
+					{Path: "/asd", CreatedAt: now},
+					{Path: "/zxc", CreatedAt: now},
+				}
+				for _, h := range hits {
+					h.Site = 1
+					err := h.Insert(ctx)
+					if err != nil {
+						panic(err)
+					}
+				}
+
+			},
+			router:   NewBackend,
+			path:     "/purge?path=/asd",
+			auth:     true,
+			wantCode: 200,
+			wantBody: "<tr><td>2</td><td>/asd</td></tr>",
+		},
+
+		{
+			setup: func(ctx context.Context) {
+				one := int64(1)
+				ss := goatcounter.Site{
+					Name:   "Subsite",
+					Code:   "subsite",
+					Parent: &one,
+					Plan:   goatcounter.PlanChild,
+				}
+				err := ss.Insert(ctx)
+				if err != nil {
+					panic(err)
+				}
+			},
+			router:   NewBackend,
+			path:     "/remove/2",
+			auth:     true,
+			wantCode: 200,
+			wantBody: "Are you sure you want to remove the site Subsite",
+		},
+	}
+
+	for _, tt := range tests {
+		runTest(t, tt, nil)
+	}
+}
+
+func TestBackendPurge(t *testing.T) {
+	tests := []handlerTest{
+		{
+			setup: func(ctx context.Context) {
+				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
+				hits := []goatcounter.Hit{
+					{Path: "/asd", CreatedAt: now},
+					{Path: "/asd", CreatedAt: now},
+					{Path: "/zxc", CreatedAt: now},
+				}
+				for _, h := range hits {
+					h.Site = 1
+					err := h.Insert(ctx)
+					if err != nil {
+						panic(err)
+					}
+				}
+
+			},
+			router:       NewBackend,
+			path:         "/purge",
+			body:         map[string]string{"path": "/asd"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 303,
+		},
+	}
+
+	for _, tt := range tests {
+		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+			var hits goatcounter.Hits
+			err := hits.List(r.Context())
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if len(hits) != 1 {
+				t.Fatalf("len is %d:\n%#v", len(hits), hits)
+			}
+		})
+	}
+}

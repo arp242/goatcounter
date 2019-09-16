@@ -350,7 +350,7 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 	}
 
 	_, err = MustGetDB(ctx).ExecContext(ctx,
-		`delete from hit_stats where site=$1 and path ilike $2`,
+		`delete from hit_stats where site=$1 and lower(path) like lower($2)`,
 		MustGetSite(ctx).ID, path)
 	return errors.Wrap(err, "Hits.Purge")
 }

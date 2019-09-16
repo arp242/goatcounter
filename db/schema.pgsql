@@ -11,7 +11,7 @@ create table sites (
 
 	name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
-	plan           varchar        not null                 check(plan in ('p', 'b', 'e')),
+	plan           varchar        not null                 check(plan in ('p', 'b', 'e', 'c')),
 	stripe         varchar        null,
 	settings       varchar        not null,
 	last_stat      timestamp      null,
