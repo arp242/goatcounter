@@ -32,8 +32,9 @@ create table users (
 	name           varchar        not null                 check(length(name) > 1  and length(name) <= 200),
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
 	role           varchar        not null default ''      check(role in ('', 'a')),
-	login_req      timestamp      null,
-	login_key      varchar        null,
+	login_at       timestamp      null,
+	login_request  varchar        null,
+	login_token    varchar        null,
 	csrf_token     varchar        null,
 
 	created_at     timestamp      not null,
@@ -41,9 +42,10 @@ create table users (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create unique index "users#login_key"  on users(login_key);
-create        index "users#site"       on users(site);
-create unique index "users#site#email" on users(site, lower(email));
+create unique index "users#login_request" on users(login_request);
+create unique index "users#login_token"   on users(login_token);
+create        index "users#site"          on users(site);
+create unique index "users#site#email"    on users(site, lower(email));
 
 drop table if exists hits;
 create table hits (

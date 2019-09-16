@@ -86,8 +86,8 @@ func TestUserLogin(t *testing.T) {
 				}
 
 				_, err = goatcounter.MustGetDB(ctx).ExecContext(ctx, `update users set
-				login_key='asdf', login_req=current_timestamp
-				where id=$2 and site=1`, user.ID)
+					login_request='asdf', login_at=current_timestamp
+					where id=$2 and site=1`, user.ID)
 				if err != nil {
 					panic(err)
 				}
