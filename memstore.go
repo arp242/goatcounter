@@ -6,7 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"sync"
 
@@ -29,12 +28,17 @@ func (m *ms) Append(hit Hit) {
 	m.Unlock()
 }
 
+func (m *ms) Len() int {
+	m.Lock()
+	l := len(m.hits)
+	m.Unlock()
+	return l
+}
+
 func (m *ms) Persist(ctx context.Context) error {
 	if len(m.hits) == 0 {
 		return nil
 	}
-
-	l := zlog.SetDebug("memstore").Module("memstore")
 
 	m.Lock()
 	hits := make([]Hit, len(m.hits))
@@ -68,11 +72,5 @@ func (m *ms) Persist(ctx context.Context) error {
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
 			h.RefScheme, h.Browser, h.Size, sqlDate(h.CreatedAt))
 	}
-	err := ins.Finish()
-	if err != nil {
-		zlog.Error(err)
-	}
-
-	l.Since(fmt.Sprintf("persisted %d hits", len(hits)))
-	return nil
+	return ins.Finish()
 }

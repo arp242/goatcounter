@@ -23,8 +23,9 @@ type task struct {
 }
 
 var tasks = []task{
-	{goatcounter.Memstore.Persist, 10 * time.Second},
-	{updateStats, 60 * time.Second},
+	//{goatcounter.Memstore.Persist, 10 * time.Second},
+	//{updateStats, 60 * time.Second},
+	{persistAndStat, 10 * time.Second},
 }
 
 var wg sync.WaitGroup
@@ -68,20 +69,33 @@ func Run(db *sqlx.DB) {
 // on shutdown.
 func Wait(db *sqlx.DB) {
 	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
-	l := zlog.Module("cron")
 
 	wg.Wait()
 
 	for _, t := range tasks {
 		err := t.fun(ctx)
 		if err != nil {
-			l.Error(err)
+			zlog.Module("cron").Error(err)
 		}
 	}
 }
-func updateStats(ctx context.Context) error {
-	l := zlog.SetDebug("stat").Module("stat")
 
+func persistAndStat(ctx context.Context) error {
+	l := zlog.Module("cron")
+
+	hl := goatcounter.Memstore.Len()
+	err := goatcounter.Memstore.Persist(ctx)
+	if err != nil {
+		return err
+	}
+	l = l.Since("memstore")
+
+	err = updateStats(ctx)
+	l.Since("stats").FieldsSince().Printf("persisted %d hits", hl)
+	return err
+}
+
+func updateStats(ctx context.Context) error {
 	var sites goatcounter.Sites
 	err := sites.List(ctx)
 	if err != nil {
@@ -109,6 +123,5 @@ func updateStats(ctx context.Context) error {
 			return errors.Wrapf(err, "update last_stat: site %d", s.ID)
 		}
 	}
-	l.Since("updateAllStats")
 	return nil
 }
