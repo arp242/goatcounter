@@ -517,8 +517,8 @@ func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "backend_purge.gohtml", struct {
 		Globals
-		Path string
-		List goatcounter.HitStats
+		PurgePath string
+		List      goatcounter.HitStats
 	}{newGlobals(w, r), path, list})
 }
 

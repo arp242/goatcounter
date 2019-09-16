@@ -21,8 +21,10 @@
 							<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}">{{$s}}</a>
 						{{end}}
 					{{end}}
-				{{else if  has_prefix .Path "/remove/"}}
+				{{else if has_prefix .Path "/remove/"}}
 					<strong><a href="/settings#additional-sites">← Back</a></strong>
+				{{else if has_prefix .Path "/purge"}}
+					<strong><a href="/settings#purge">← Back</a></strong>
 				{{else}}
 					<strong><a href="/">← Back</a></strong>
 				{{end}}
