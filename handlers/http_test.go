@@ -67,29 +67,31 @@ func runTest(
 			sn = "html"
 		}
 
-		t.Run(sn, func(t *testing.T) {
-			ctx, clean := goatcounter.StartTest(t)
-			defer clean()
+		if tt.wantCode > 0 {
+			t.Run(sn, func(t *testing.T) {
+				ctx, clean := goatcounter.StartTest(t)
+				defer clean()
 
-			r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(jsonutil.MustMarshal(tt.body)))
-			if tt.setup != nil {
-				tt.setup(ctx)
-			}
-			if tt.auth {
-				login(t, rr, r)
-			}
+				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(jsonutil.MustMarshal(tt.body)))
+				if tt.setup != nil {
+					tt.setup(ctx)
+				}
+				if tt.auth {
+					login(t, rr, r)
+				}
 
-			tt.router(goatcounter.MustGetDB(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
-			test.Code(t, rr, tt.wantCode)
-			if !strings.Contains(rr.Body.String(), tt.wantBody) {
-				t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
-			}
+				tt.router(goatcounter.MustGetDB(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
+				test.Code(t, rr, tt.wantCode)
+				if !strings.Contains(rr.Body.String(), tt.wantBody) {
+					t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
+				}
 
-			if fun != nil {
-				// Don't use request context as it'll get cancelled.
-				fun(t, rr, r.WithContext(ctx))
-			}
-		})
+				if fun != nil {
+					// Don't use request context as it'll get cancelled.
+					fun(t, rr, r.WithContext(ctx))
+				}
+			})
+		}
 
 		if tt.method == "GET" {
 			return
@@ -147,6 +149,15 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 	if u.LoginKey == nil {
 		t.Fatal("u.LoginKey is nil? Should never happen!")
 	}
+
+	// Set CSRF token.
+	// TODO: only works for form requests, which is okay as zhttp csrf checking
+	// only works for forms for now.
+	err = r.ParseForm()
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Form.Set("csrf", *u.CSRFToken)
 
 	r.Header.Set("Cookie", "key="+*u.LoginKey)
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxkey.User, u))
