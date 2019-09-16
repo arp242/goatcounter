@@ -76,25 +76,34 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 		return errors.Wrap(err, "delete")
 	}
 
-	// Group properly
-	grouped := map[string]int{}
+	// Group properly.
+	type gt struct {
+		count   int
+		day     string
+		browser string
+		version string
+	}
+	grouped := map[string]gt{}
 	for _, s := range stats {
 		browser, version := getBrowser(s.Browser)
 		if browser == "" {
 			continue
 		}
-		grouped[s.CreatedAt.Format("2006-01-02")+browser+" "+version] += s.Count
+		k := s.CreatedAt.Format("2006-01-02") + browser + " " + version
+		v := grouped[k]
+		if v.count == 0 {
+			v.day = s.CreatedAt.Format("2006-01-02")
+			v.browser = browser
+			v.version = version
+		}
+		v.count += s.Count
+		grouped[k] = v
 	}
 
 	insBrowser := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
 		"browser_stats", []string{"site", "day", "browser", "version", "count"})
-	for k, count := range grouped {
-		day := k[:10]
-		browser := k[10:]
-		s := strings.Index(browser, " ")
-		version := browser[s+1:]
-		browser = browser[:s]
-		insBrowser.Values(site.ID, day, browser, version, count)
+	for _, v := range grouped {
+		insBrowser.Values(site.ID, v.day, v.browser, v.version, v.count)
 	}
 
 	return insBrowser.Finish()
