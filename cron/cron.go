@@ -91,7 +91,9 @@ func persistAndStat(ctx context.Context) error {
 	l = l.Since("memstore")
 
 	err = updateStats(ctx)
-	l.Since("stats").FieldsSince().Printf("persisted %d hits", hl)
+	if hl > 0 {
+		l.Since("stats").FieldsSince().Printf("persisted %d hits", hl)
+	}
 	return err
 }
 
