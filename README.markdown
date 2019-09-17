@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/zgoat/goatcounter.svg?branch=master)](https://travis-ci.org/zgoat/goatcounter)
+[![codecov](https://codecov.io/gh/zgoat/goatcounter/branch/master/graph/badge.svg)](https://codecov.io/gh/zgoat/goatcounter)
+
 GoatCounter is a web counter.
 
 There are two ways to run this: as **hosted service starting at $3/month**
