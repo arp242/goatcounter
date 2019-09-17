@@ -7,15 +7,12 @@ package goatcounter
 import (
 	"context"
 	"database/sql"
-	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"net/mail"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
-	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
@@ -35,38 +32,15 @@ type User struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
 
-	Name        string          `db:"name" json:"name"`
-	Email       string          `db:"email" json:"email"`
-	Role        string          `db:"role" json:"-"`
-	LoginReq    *time.Time      `db:"login_req" json:"-"`
-	LoginKey    *string         `db:"login_key" json:"-"`
-	CSRFToken   *string         `db:"csrf_token" json:"-"`
-	Preferences UserPreferences `db:"preferences" json:"preferences"`
+	Name      string     `db:"name" json:"name"`
+	Email     string     `db:"email" json:"email"`
+	Role      string     `db:"role" json:"-"`
+	LoginReq  *time.Time `db:"login_req" json:"-"`
+	LoginKey  *string    `db:"login_key" json:"-"`
+	CSRFToken *string    `db:"csrf_token" json:"-"`
 
-	State     string     `db:"state" json:"-"`
 	CreatedAt time.Time  `db:"created_at" json:"-"`
 	UpdatedAt *time.Time `db:"updated_at" json:"-"`
-}
-
-type UserPreferences struct {
-	DateFormat string `json:"date_format"`
-}
-
-func (up UserPreferences) String() string { return string(jsonutil.MustMarshal(up)) }
-
-// Value implements the SQL Value function to determine what to store in the DB.
-func (up UserPreferences) Value() (driver.Value, error) { return json.Marshal(up) }
-
-// Scan converts the data returned from the DB into the struct.
-func (up *UserPreferences) Scan(v interface{}) error {
-	switch vv := v.(type) {
-	case []byte:
-		return json.Unmarshal(vv, up)
-	case string:
-		return json.Unmarshal([]byte(vv), up)
-	default:
-		panic(fmt.Sprintf("unsupported type: %T", v))
-	}
 }
 
 // Defaults sets fields to default values, unless they're already set.
@@ -74,10 +48,6 @@ func (u *User) Defaults(ctx context.Context) {
 	// TODO: not set in website
 	// site := MustGetSite(ctx)
 	// u.Site = site.ID
-
-	if u.State == "" {
-		u.State = StateRequest
-	}
 
 	if u.CreatedAt.IsZero() {
 		u.CreatedAt = time.Now().UTC()
@@ -98,7 +68,6 @@ func (u *User) Validate(ctx context.Context) error {
 	v.Len("name", u.Name, 1, 200)
 	v.Len("email", u.Email, 5, 255)
 	v.Email("email", u.Email)
-	v.Include("state", u.State, States)
 
 	return v.ErrorOrNil()
 }
@@ -132,14 +101,7 @@ func (u *User) Insert(ctx context.Context) error {
 	} else {
 		u.ID, err = res.LastInsertId()
 	}
-	return nil
-}
-
-// ByID gets a user by ID.
-func (u *User) ByID(ctx context.Context, id int64) error {
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u,
-		`select * from users where id=$1 and site=$2 and state=$3`,
-		id, MustGetSite(ctx).ID, StateActive), "User.ByID")
+	return errors.Wrap(err, "User.Insert")
 }
 
 // ByEmail gets a user by email address.
@@ -147,9 +109,8 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u,
 		`select * from users where
 			lower(email)=lower($1) and
-			state=$2 and
-			(site=$3 or site=(select parent from sites where id=$3))
-		`, email, StateActive, MustGetSite(ctx).ID), "User.ByEmail")
+			(site=$2 or site=(select parent from sites where id=$2))
+		`, email, MustGetSite(ctx).ID), "User.ByEmail")
 }
 
 // ByKey gets a user by login key.
@@ -161,7 +122,6 @@ func (u *User) ByKey(ctx context.Context, key string) error {
 	query := `select users.* from users
 		where login_key=$1 and
 			users.site=$2 and
-			users.state=$3 and
 			(login_req is null or `
 
 	if cfg.PgSQL {
@@ -171,7 +131,7 @@ func (u *User) ByKey(ctx context.Context, key string) error {
 	}
 
 	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u, query,
-		key, MustGetSite(ctx).IDOrParent(), StateActive), "User.ByKey")
+		key, MustGetSite(ctx).IDOrParent()), "User.ByKey")
 }
 
 // RequestLogin generates a new login Key.
@@ -203,6 +163,7 @@ func (u *User) Login(ctx context.Context) error {
 	return errors.Wrap(err, "User.Login")
 }
 
+// Logout a user.
 func (u *User) Logout(ctx context.Context) error {
 	_, err := MustGetDB(ctx).ExecContext(ctx,
 		`update users set login_key=null, login_req=null where id=$1 and site=$2`,
@@ -210,6 +171,7 @@ func (u *User) Logout(ctx context.Context) error {
 	return errors.Wrap(err, "User.Logout")
 }
 
+// GetToken gets the CSRF token.
 func (u *User) GetToken() string {
 	if u.CSRFToken == nil {
 		return ""
@@ -217,6 +179,7 @@ func (u *User) GetToken() string {
 	return *u.CSRFToken
 }
 
+// SendLoginMail sends the login email.
 func (u *User) SendLoginMail(ctx context.Context, site Site) {
 	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
 	go func() {
@@ -229,12 +192,4 @@ func (u *User) SendLoginMail(ctx context.Context, site Site) {
 			zlog.Errorf("zmail: %s", err)
 		}
 	}()
-}
-
-type Users []User
-
-func (u *Users) ListAllSites(ctx context.Context) error {
-	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
-		`select * from users order by created_at desc`),
-		"Users.List")
 }

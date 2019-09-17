@@ -21,20 +21,17 @@ func TestHitStats(t *testing.T) {
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
 	// Insert some hits.
-	hits := []goatcounter.Hit{
-		{Path: "/asd", CreatedAt: now},
-		{Path: "/asd", CreatedAt: now},
-		{Path: "/zxc", CreatedAt: now},
-	}
-	for _, h := range hits {
-		h.Site = site.ID
-		err := h.Insert(ctx)
-		if err != nil {
-			t.Fatal(err)
-		}
+	goatcounter.Memstore.Append([]goatcounter.Hit{
+		{Site: site.ID, Path: "/asd", CreatedAt: now},
+		{Site: site.ID, Path: "/asd", CreatedAt: now},
+		{Site: site.ID, Path: "/zxc", CreatedAt: now},
+	}...)
+	err := goatcounter.Memstore.Persist(ctx)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	err := updateStats(ctx)
+	err = updateStats(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

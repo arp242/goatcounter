@@ -35,9 +35,7 @@ create table users (
 	login_req      timestamp      null                     check(login_req = strftime('%Y-%m-%d %H:%M:%S', login_req)),
 	login_key      varchar        null,
 	csrf_token     varchar        null,
-	preferences    varchar        not null default '{}',
 
-	state          varchar        not null default 'a'     check(state in ('a', 'd')),
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
 

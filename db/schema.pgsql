@@ -35,9 +35,7 @@ create table users (
 	login_req      timestamp      null,
 	login_key      varchar        null,
 	csrf_token     varchar        null,
-	preferences    varchar        not null default '{}',
 
-	state          varchar        not null default 'a'     check(state in ('a', 'd')),
 	created_at     timestamp      not null,
 	updated_at     timestamp,
 
