@@ -56,8 +56,10 @@
 </div>
 
 <h2>Browsers</h2>
-<div class="browsers-list">
-	<div class="chart chart-hbar">{{hbar_chart .Browsers .TotalBrowsers}}</div>
-</div>
+{{if gt .TotalBrowsers 0}}
+	<div class="browsers-list">
+		<div class="chart chart-hbar">{{hbar_chart .Browsers .TotalBrowsers}}</div>
+	</div>
+{{end}}
 
 {{- template "_backend_bottom.gohtml" . }}
