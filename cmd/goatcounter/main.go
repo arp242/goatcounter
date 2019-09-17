@@ -7,8 +7,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/mail"
 
-	"github.com/getsentry/raven-go"
 	"github.com/go-chi/chi"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
@@ -19,7 +19,6 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
-	"zgo.at/zlog_sentry"
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
@@ -44,12 +43,23 @@ func main() {
 
 	defer zlog.ProfileCPU(cfg.CPUProfile)()
 
+	// Setup logging.
 	zlog.Config.StackFilter = errorutil.FilterPattern(
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
+	if cfg.EmailErrors != "" {
+		zlog.Config.Outputs = append(zlog.Config.Outputs, func(l zlog.Log) {
+			if l.Level != zlog.LevelErr {
+				return
+			}
 
-	// Log to Sentry.
-	if cfg.Sentry != "" {
-		zlog.Config.Outputs = append(zlog.Config.Outputs, zlog_sentry.Report(cfg.Sentry, version))
+			err := zmail.Send("GoatCounter Error",
+				mail.Address{Address: "errors@zgo.at"},
+				[]mail.Address{{Address: cfg.EmailErrors}},
+				zlog.Config.Format(l))
+			if err != nil {
+				fmt.Println(err)
+			}
+		})
 	}
 
 	// Reload on changes.
@@ -76,7 +86,6 @@ func main() {
 		"*." + cfg.Domain:   handlers.NewBackend(db),
 	})}, func() {
 		cron.Wait(db)
-		raven.Wait()
 		zlog.ProfileHeap(cfg.MemProfile)
 	})
 }

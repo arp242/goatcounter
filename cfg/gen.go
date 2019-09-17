@@ -24,7 +24,7 @@ var flags = []flag{
 	{"string", "DBFile", "dbconnect", "db/goatcounter.sqlite3", "Database connection string."},
 	{"bool", "PgSQL", "pgsql", false, "Use PostgreSQL instead of SQLite"},
 	{"string", "SMTP", "smtp", "", "SMTP connection string; outputs to stdout when empty."},
-	{"string", "Sentry", "sentry", "", "Sentry connection string"},
+	{"string", "EmailErrors", "emailerrors", "", "Email errors to this address"},
 	{"string", "StripeKey", "stripekey", "", "Stripe API key"},
 	{"string", "CPUProfile", "cpuprofile", "", "Write CPU profile to this file."},
 	{"string", "MemProfile", "memprofile", "", "Write memory profile to this file."},

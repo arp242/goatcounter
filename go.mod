@@ -3,7 +3,6 @@ module zgo.at/goatcounter
 go 1.13
 
 require (
-	github.com/getsentry/raven-go v0.2.0
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/jinzhu/now v1.0.1
 	github.com/jmoiron/sqlx v1.2.0
@@ -16,10 +15,9 @@ require (
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46
 	github.com/teamwork/utils v0.0.0-20190915210805-dd84b3a50562 // mtext branch
 	github.com/teamwork/validate v0.0.0-20190828120429-6967b7fc2615
-	zgo.at/zdb v0.0.0-20190917152044-8aed1297f33b
+	zgo.at/zdb v0.0.0-20190917160525-a0516a62bb5a
 	zgo.at/zhttp v0.0.0-20190917152157-db68fd907685
 	zgo.at/zlog v1.0.1
-	zgo.at/zlog_sentry v1.0.1
 	zgo.at/zpack v0.0.0-20190917143429-094a951f1124
 )
 
