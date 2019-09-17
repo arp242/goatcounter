@@ -11,4 +11,3 @@ begin;
 
 	insert into version values ('2019-09-16-2-users-token');
 commit;
-

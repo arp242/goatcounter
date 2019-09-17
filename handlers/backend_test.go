@@ -15,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
+	"zgo.at/zdb"
 )
 
 func TestBackendCount(t *testing.T) {
@@ -62,7 +63,7 @@ func TestBackendCount(t *testing.T) {
 			}
 
 			var hits []goatcounter.Hit
-			err = goatcounter.MustGetDB(r.Context()).SelectContext(r.Context(), &hits, `select * from hits`)
+			err = zdb.MustGet(r.Context()).SelectContext(r.Context(), &hits, `select * from hits`)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -128,7 +129,7 @@ func TestBackendIndex(t *testing.T) {
 				if err != nil {
 					panic(err)
 				}
-				db := goatcounter.MustGetDB(ctx).(*sqlx.DB)
+				db := zdb.MustGet(ctx).(*sqlx.DB)
 				cron.Run(db)
 			},
 			router:   NewBackend,

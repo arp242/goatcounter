@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/validate"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
@@ -85,11 +86,11 @@ func (u *User) Insert(ctx context.Context) error {
 		return err
 	}
 
-	res, err := MustGetDB(ctx).ExecContext(ctx,
+	res, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
-		u.Site, u.Name, u.Email, sqlDate(u.CreatedAt))
+		u.Site, u.Name, u.Email, zdb.Date(u.CreatedAt))
 	if err != nil {
-		if uniqueErr(err) {
+		if zdb.UniqueErr(err) {
 			return guru.New(400, "this user already exists")
 		}
 		return errors.Wrap(err, "User.Insert")
@@ -107,7 +108,7 @@ func (u *User) Insert(ctx context.Context) error {
 
 // ByEmail gets a user by email address.
 func (u *User) ByEmail(ctx context.Context, email string) error {
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u,
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
 		`select * from users where
 			lower(email)=lower($1) and
 			(site=$2 or site=(select parent from sites where id=$2))
@@ -129,7 +130,7 @@ func (u *User) ByLoginRequest(ctx context.Context, key string) error {
 		query += `datetime(login_at, '+15 minutes') > datetime()`
 	}
 
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u, query,
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, query,
 		key, MustGetSite(ctx).IDOrParent()), "User.ByLoginRequest")
 }
 
@@ -139,7 +140,7 @@ func (u *User) ByToken(ctx context.Context, token string) error {
 		return sql.ErrNoRows
 	}
 
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u, `
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, `
 		select users.* from users
 		where login_token=$1 and users.site=$2`,
 		token, MustGetSite(ctx).IDOrParent()), "User.ByToken")
@@ -148,7 +149,7 @@ func (u *User) ByToken(ctx context.Context, token string) error {
 // RequestLogin generates a new login Key.
 func (u *User) RequestLogin(ctx context.Context) error {
 	u.LoginRequest = zhttp.SecretP()
-	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
+	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set
 		login_request=$1, login_at=current_timestamp
 		where id=$2 and site=$3`, *u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.RequestLogin")
@@ -158,7 +159,7 @@ func (u *User) RequestLogin(ctx context.Context) error {
 func (u *User) Login(ctx context.Context) error {
 	u.CSRFToken = zhttp.SecretP()
 	u.LoginToken = zhttp.SecretP()
-	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
+	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set
 			login_request=null, login_token=$1, csrf_token=$2
 			where id=$3 and site=$4`,
 		u.LoginToken, u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
@@ -170,7 +171,7 @@ func (u *User) Logout(ctx context.Context) error {
 	u.LoginToken = nil
 	u.LoginRequest = nil
 	u.LoginAt = nil
-	_, err := MustGetDB(ctx).ExecContext(ctx,
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update users set login_token=null, login_request=null where id=$1 and site=$2`,
 		u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Logout")

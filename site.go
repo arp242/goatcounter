@@ -18,6 +18,7 @@ import (
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/validate"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/zdb"
 )
 
 // Plan column values.
@@ -144,7 +145,7 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	if !v.HasErrors() {
 		var code, name uint8
-		err := MustGetDB(ctx).GetContext(ctx, &code,
+		err := zdb.MustGet(ctx).GetContext(ctx, &code,
 			`select 1 from sites where lower(code)=lower($1) and id!=$2 limit 1`,
 			s.Code, s.ID)
 		if err != nil && err != sql.ErrNoRows {
@@ -154,7 +155,7 @@ func (s *Site) Validate(ctx context.Context) error {
 			v.Append("code", "already exists")
 		}
 
-		err = MustGetDB(ctx).GetContext(ctx, &name,
+		err = zdb.MustGet(ctx).GetContext(ctx, &name,
 			`select 1 from sites where lower(name)=lower($1) and id!=$2 limit 1`,
 			s.Name, s.ID)
 		if err != nil && err != sql.ErrNoRows {
@@ -180,11 +181,11 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	res, err := MustGetDB(ctx).ExecContext(ctx,
+	res, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`insert into sites (parent, code, name, settings, plan, created_at) values ($1, $2, $3, $4, $5, $6)`,
-		s.Parent, s.Code, s.Name, s.Settings, s.Plan, sqlDate(s.CreatedAt))
+		s.Parent, s.Code, s.Name, s.Settings, s.Plan, zdb.Date(s.CreatedAt))
 	if err != nil {
-		if uniqueErr(err) {
+		if zdb.UniqueErr(err) {
 			return guru.New(400, "this site already exists: name and code must be unique")
 		}
 		return errors.Wrap(err, "Site.Insert")
@@ -212,9 +213,9 @@ func (s *Site) Update(ctx context.Context) error {
 		return err
 	}
 
-	_, err = MustGetDB(ctx).ExecContext(ctx,
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set name=$1, settings=$2, updated_at=$3 where id=$4`,
-		s.Name, s.Settings, sqlDate(*s.UpdatedAt), s.ID)
+		s.Name, s.Settings, zdb.Date(*s.UpdatedAt), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 
@@ -230,9 +231,9 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 		return err
 	}
 
-	_, err = MustGetDB(ctx).ExecContext(ctx,
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set stripe=$1, updated_at=$2 where id=$3`,
-		s.Stripe, sqlDate(*s.UpdatedAt), s.ID)
+		s.Stripe, zdb.Date(*s.UpdatedAt), s.ID)
 	return errors.Wrap(err, "Site.UpdateStripe")
 }
 
@@ -242,7 +243,7 @@ func (s *Site) Delete(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
-	_, err := MustGetDB(ctx).ExecContext(ctx,
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set state=$1 where id=$2`,
 		StateDeleted, s.ID)
 	if err != nil {
@@ -255,14 +256,14 @@ func (s *Site) Delete(ctx context.Context) error {
 
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, s,
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 		`select * from sites where id=$1 and state=$2`,
 		id, StateActive), "Site.ByID")
 }
 
 // ByCode gets a site by subdomain code.
 func (s *Site) ByCode(ctx context.Context, code string) error {
-	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, s,
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 		`select * from sites where lower(code)=lower($1) and state=$2`,
 		code, StateActive), "Site.ByCode")
 }
@@ -270,7 +271,7 @@ func (s *Site) ByCode(ctx context.Context, code string) error {
 // ListSubs lists all subsites, including the current site and parent.
 func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 	var codes []string
-	err := MustGetDB(ctx).SelectContext(ctx, &codes, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, &codes, `
 		select code from sites
 		where state=$2 and (parent=$1 or id=$1) or (
 			parent = (select parent from sites where id=$1) or
@@ -301,14 +302,14 @@ type Sites []Site
 
 // List all sites.
 func (u *Sites) List(ctx context.Context) error {
-	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
 		`select * from sites where state=$1 order by created_at desc`,
 		StateActive), "Sites.List")
 }
 
 // ListSubs lists all subsites for the current site.
 func (u *Sites) ListSubs(ctx context.Context) error {
-	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, u,
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
 		`select * from sites where parent=$1 and state=$2 order by code`,
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
 }

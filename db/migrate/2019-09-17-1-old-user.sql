@@ -4,4 +4,3 @@ begin;
 
 	insert into version values ('2019-09-17-1-old-user');
 commit;
-

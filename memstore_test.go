@@ -7,6 +7,8 @@ package goatcounter
 import (
 	"context"
 	"testing"
+
+	"zgo.at/zdb"
 )
 
 func TestMemstore(t *testing.T) {
@@ -23,7 +25,7 @@ func TestMemstore(t *testing.T) {
 	}
 
 	var count int
-	err = MustGetDB(ctx).GetContext(ctx, &count, `select count(*) from hits`)
+	err = zdb.MustGet(ctx).GetContext(ctx, &count, `select count(*) from hits`)
 	if err != nil {
 		t.Fatal(err)
 	}

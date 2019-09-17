@@ -3,12 +3,8 @@ module zgo.at/goatcounter
 go 1.13
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/getsentry/raven-go v0.2.0
 	github.com/go-chi/chi v4.0.2+incompatible
-	github.com/go-sql-driver/mysql v1.4.1 // indirect
-	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/jinzhu/now v1.0.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.2.0
@@ -20,13 +16,11 @@ require (
 	github.com/teamwork/test v0.0.0-20190410143529-8897d82f8d46
 	github.com/teamwork/utils v0.0.0-20190915210805-dd84b3a50562 // mtext branch
 	github.com/teamwork/validate v0.0.0-20190828120429-6967b7fc2615
-	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
-	golang.org/x/sys v0.0.0-20190830080133-08d80c9d36de // indirect
-	google.golang.org/appengine v1.6.2 // indirect
-	zgo.at/zhttp v0.0.0-20190917124350-6d68fa00b1d0
+	zgo.at/zdb v0.0.0-20190917152044-8aed1297f33b
+	zgo.at/zhttp v0.0.0-20190917152157-db68fd907685
 	zgo.at/zlog v1.0.1
 	zgo.at/zlog_sentry v1.0.1
-	zgo.at/zpack v0.0.0-20190917124150-d1ffe63af511
+	zgo.at/zpack v0.0.0-20190917143429-094a951f1124
 )
 
 // This fork doesn't depend on the github.com/teamwork/mailaddress package and

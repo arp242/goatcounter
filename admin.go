@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"zgo.at/zdb"
 )
 
 type AdminStat struct {
@@ -22,7 +23,7 @@ type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
 func (a *AdminStats) List(ctx context.Context) error {
-	err := MustGetDB(ctx).SelectContext(ctx, a, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
 		select
 			sites.code,
 			sites.name,

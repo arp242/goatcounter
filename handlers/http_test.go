@@ -19,6 +19,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/test"
 	"github.com/teamwork/utils/jsonutil"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
@@ -80,7 +81,7 @@ func runTest(
 					login(t, rr, r)
 				}
 
-				tt.router(goatcounter.MustGetDB(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
+				tt.router(zdb.MustGet(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
 				test.Code(t, rr, tt.wantCode)
 				if !strings.Contains(rr.Body.String(), tt.wantBody) {
 					t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
@@ -112,7 +113,7 @@ func runTest(
 				login(t, rr, r)
 			}
 
-			tt.router(goatcounter.MustGetDB(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
+			tt.router(zdb.MustGet(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
 			test.Code(t, rr, tt.wantFormCode)
 			if !strings.Contains(rr.Body.String(), tt.wantFormBody) {
 				t.Errorf("wrong body\nwant: %q\ngot:  %q", tt.wantFormBody, rr.Body.String())

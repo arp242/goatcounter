@@ -13,7 +13,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
 
@@ -35,7 +35,7 @@ var wg sync.WaitGroup
 // TODO: If a cron job takes longer than the period it might get run twice. Not
 // sure if we want that.
 func Run(db *sqlx.DB) {
-	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
+	ctx := zdb.With(context.Background(), db)
 	l := zlog.Module("cron")
 
 	for _, t := range tasks {
@@ -68,7 +68,7 @@ func Run(db *sqlx.DB) {
 // Wait for all running tasks to finish and then run all tasks for consistency
 // on shutdown.
 func Wait(db *sqlx.DB) {
-	ctx := context.WithValue(context.Background(), ctxkey.DB, db)
+	ctx := zdb.With(context.Background(), db)
 
 	wg.Wait()
 
@@ -118,7 +118,7 @@ func updateStats(ctx context.Context) error {
 		}
 
 		// Record last update.
-		_, err = goatcounter.MustGetDB(ctx).ExecContext(ctx,
+		_, err = zdb.MustGet(ctx).ExecContext(ctx,
 			`update sites set last_stat=$1, received_data=1 where id=$2`,
 			start, s.ID)
 		if err != nil {

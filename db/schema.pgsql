@@ -1,8 +1,5 @@
 drop table if exists version;
-create table version (
-	name varchar
-);
-insert into version values ('0000-00-00 00:00:00 init');
+create table version (name varchar);
 
 drop table if exists sites;
 create table sites (

@@ -10,9 +10,9 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/zdb"
+	"zgo.at/zdb/bulk"
 	"zgo.at/zlog"
-
-	"zgo.at/goatcounter/bulk"
 )
 
 type ms struct {
@@ -46,7 +46,7 @@ func (m *ms) Persist(ctx context.Context) error {
 	m.hits = []Hit{}
 	m.Unlock()
 
-	ins := bulk.NewInsert(ctx, MustGetDB(ctx).(*sqlx.DB),
+	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
 			"ref_scheme", "browser", "size", "created_at"})
 	for _, h := range hits {
@@ -70,7 +70,7 @@ func (m *ms) Persist(ctx context.Context) error {
 		}
 
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
-			h.RefScheme, h.Browser, h.Size, sqlDate(h.CreatedAt))
+			h.RefScheme, h.Browser, h.Size, zdb.Date(h.CreatedAt))
 	}
 	return ins.Finish()
 }
