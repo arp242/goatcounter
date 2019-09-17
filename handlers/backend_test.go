@@ -123,8 +123,8 @@ func TestBackendIndex(t *testing.T) {
 		{
 			name: "basic",
 			setup: func(ctx context.Context) {
-				h := goatcounter.Hit{Path: "/asdfghjkl", Site: 1}
-				err := h.Insert(ctx)
+				goatcounter.Memstore.Append(goatcounter.Hit{Path: "/asdfghjkl", Site: 1})
+				err := goatcounter.Memstore.Persist(ctx)
 				if err != nil {
 					panic(err)
 				}
@@ -148,19 +148,15 @@ func TestBackendExport(t *testing.T) {
 		{
 			setup: func(ctx context.Context) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				hits := []goatcounter.Hit{
-					{Path: "/asd", CreatedAt: now},
-					{Path: "/asd", CreatedAt: now},
-					{Path: "/zxc", CreatedAt: now},
+				goatcounter.Memstore.Append([]goatcounter.Hit{
+					{Site: 1, Path: "/asd", CreatedAt: now},
+					{Site: 1, Path: "/asd", CreatedAt: now},
+					{Site: 1, Path: "/zxc", CreatedAt: now},
+				}...)
+				err := goatcounter.Memstore.Persist(ctx)
+				if err != nil {
+					panic(err)
 				}
-				for _, h := range hits {
-					h.Site = 1
-					err := h.Insert(ctx)
-					if err != nil {
-						panic(err)
-					}
-				}
-
 			},
 			router:   NewBackend,
 			path:     "/export/hits.csv",
@@ -180,19 +176,15 @@ func TestBackendTpl(t *testing.T) {
 		{
 			setup: func(ctx context.Context) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				hits := []goatcounter.Hit{
-					{Path: "/asd", CreatedAt: now},
-					{Path: "/asd", CreatedAt: now},
-					{Path: "/zxc", CreatedAt: now},
+				goatcounter.Memstore.Append([]goatcounter.Hit{
+					{Site: 1, Path: "/asd", CreatedAt: now},
+					{Site: 1, Path: "/asd", CreatedAt: now},
+					{Site: 1, Path: "/zxc", CreatedAt: now},
+				}...)
+				err := goatcounter.Memstore.Persist(ctx)
+				if err != nil {
+					panic(err)
 				}
-				for _, h := range hits {
-					h.Site = 1
-					err := h.Insert(ctx)
-					if err != nil {
-						panic(err)
-					}
-				}
-
 			},
 			router:   NewBackend,
 			path:     "/purge?path=/asd",
@@ -233,19 +225,15 @@ func TestBackendPurge(t *testing.T) {
 		{
 			setup: func(ctx context.Context) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				hits := []goatcounter.Hit{
-					{Path: "/asd", CreatedAt: now},
-					{Path: "/asd", CreatedAt: now},
-					{Path: "/zxc", CreatedAt: now},
+				goatcounter.Memstore.Append([]goatcounter.Hit{
+					{Site: 1, Path: "/asd", CreatedAt: now},
+					{Site: 1, Path: "/asd", CreatedAt: now},
+					{Site: 1, Path: "/zxc", CreatedAt: now},
+				}...)
+				err := goatcounter.Memstore.Persist(ctx)
+				if err != nil {
+					panic(err)
 				}
-				for _, h := range hits {
-					h.Site = 1
-					err := h.Insert(ctx)
-					if err != nil {
-						panic(err)
-					}
-				}
-
 			},
 			router:       NewBackend,
 			path:         "/purge",

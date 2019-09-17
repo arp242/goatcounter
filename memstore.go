@@ -22,9 +22,9 @@ type ms struct {
 
 var Memstore = ms{}
 
-func (m *ms) Append(hit Hit) {
+func (m *ms) Append(hit ...Hit) {
 	m.Lock()
-	m.hits = append(m.hits, hit)
+	m.hits = append(m.hits, hit...)
 	m.Unlock()
 }
 
