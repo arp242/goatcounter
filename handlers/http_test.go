@@ -146,8 +146,8 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 		t.Fatal(err)
 	}
 
-	if u.LoginKey == nil {
-		t.Fatal("u.LoginKey is nil? Should never happen!")
+	if u.LoginToken == nil {
+		t.Fatal("u.LoginToken is nil? Should never happen!")
 	}
 
 	// Set CSRF token.
@@ -159,7 +159,7 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 	}
 	r.Form.Set("csrf", *u.CSRFToken)
 
-	r.Header.Set("Cookie", "key="+*u.LoginKey)
+	r.Header.Set("Cookie", "key="+*u.LoginToken)
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxkey.User, u))
 }
 

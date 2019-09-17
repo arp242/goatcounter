@@ -32,12 +32,13 @@ type User struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
 
-	Name      string     `db:"name" json:"name"`
-	Email     string     `db:"email" json:"email"`
-	Role      string     `db:"role" json:"-"`
-	LoginReq  *time.Time `db:"login_req" json:"-"`
-	LoginKey  *string    `db:"login_key" json:"-"`
-	CSRFToken *string    `db:"csrf_token" json:"-"`
+	Name         string     `db:"name" json:"name"`
+	Email        string     `db:"email" json:"email"`
+	Role         string     `db:"role" json:"-"`
+	LoginAt      *time.Time `db:"login_at" json:"-"`
+	LoginRequest *string    `db:"login_request" json:"-"`
+	LoginToken   *string    `db:"login_token" json:"-"`
+	CSRFToken    *string    `db:"csrf_token" json:"-"`
 
 	CreatedAt time.Time  `db:"created_at" json:"-"`
 	UpdatedAt *time.Time `db:"updated_at" json:"-"`
@@ -113,60 +114,64 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 		`, email, MustGetSite(ctx).ID), "User.ByEmail")
 }
 
-// ByKey gets a user by login key.
-func (u *User) ByKey(ctx context.Context, key string) error {
+// ByLoginRequest gets a user by login request key.
+func (u *User) ByLoginRequest(ctx context.Context, key string) error {
 	if key == "" { // Quick exit when called from zhttp.Auth()
 		return sql.ErrNoRows
 	}
 
 	query := `select users.* from users
-		where login_key=$1 and
-			users.site=$2 and
-			(login_req is null or `
+		where login_request=$1 and users.site=$2 and `
 
 	if cfg.PgSQL {
-		query += `login_req + interval '15 minutes' > now())`
+		query += `login_at + interval '15 minutes' > now()`
 	} else {
-		query += `datetime(login_req, '+15 minutes') > datetime())`
+		query += `datetime(login_at, '+15 minutes') > datetime()`
 	}
 
 	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u, query,
-		key, MustGetSite(ctx).IDOrParent()), "User.ByKey")
+		key, MustGetSite(ctx).IDOrParent()), "User.ByLoginRequest")
+}
+
+// ByToken gets a user by auth token.
+func (u *User) ByToken(ctx context.Context, token string) error {
+	if token == "" { // Quick exit when called from zhttp.Auth()
+		return sql.ErrNoRows
+	}
+
+	return errors.Wrap(MustGetDB(ctx).GetContext(ctx, u, `
+		select users.* from users
+		where login_token=$1 and users.site=$2`,
+		token, MustGetSite(ctx).IDOrParent()), "User.ByToken")
 }
 
 // RequestLogin generates a new login Key.
 func (u *User) RequestLogin(ctx context.Context) error {
-	// Re-use existing key.
-	err := MustGetDB(ctx).GetContext(ctx, &u.LoginKey, `
-		select login_key from users where id=$1`, u.ID)
-	if err != nil {
-		zlog.Error(err)
-	}
-	if u.LoginKey != nil {
-		return nil
-	}
-
-	u.LoginKey = zhttp.SecretP()
-	_, err = MustGetDB(ctx).ExecContext(ctx, `update users set
-		login_key=$1, login_req=current_timestamp
-		where id=$2 and site=$3`, *u.LoginKey, u.ID, MustGetSite(ctx).IDOrParent())
+	u.LoginRequest = zhttp.SecretP()
+	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
+		login_request=$1, login_at=current_timestamp
+		where id=$2 and site=$3`, *u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.RequestLogin")
 }
 
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
 	u.CSRFToken = zhttp.SecretP()
+	u.LoginToken = zhttp.SecretP()
 	_, err := MustGetDB(ctx).ExecContext(ctx, `update users set
-			login_req=null, csrf_token=$1
-			where id=$2 and site=$3`,
-		*u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
+			login_request=null, login_token=$1, csrf_token=$2
+			where id=$3 and site=$4`,
+		u.LoginToken, u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Login")
 }
 
 // Logout a user.
 func (u *User) Logout(ctx context.Context) error {
+	u.LoginToken = nil
+	u.LoginRequest = nil
+	u.LoginAt = nil
 	_, err := MustGetDB(ctx).ExecContext(ctx,
-		`update users set login_key=null, login_req=null where id=$1 and site=$2`,
+		`update users set login_token=null, login_request=null where id=$1 and site=$2`,
 		u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Logout")
 }
@@ -181,7 +186,7 @@ func (u *User) GetToken() string {
 
 // SendLoginMail sends the login email.
 func (u *User) SendLoginMail(ctx context.Context, site Site) {
-	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
+	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginRequest)
 	go func() {
 		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
