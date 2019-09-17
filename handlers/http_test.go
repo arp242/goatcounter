@@ -19,9 +19,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/test"
 	"github.com/teamwork/utils/jsonutil"
-	"zgo.at/goatcounter/smail"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 
 	"zgo.at/goatcounter"
@@ -45,7 +45,7 @@ func init() {
 	zhttp.TplPath = "../tpl"
 	zhttp.InitTpl(nil)
 	zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
-	smail.Print = false
+	zmail.Print = false
 }
 
 func runTest(

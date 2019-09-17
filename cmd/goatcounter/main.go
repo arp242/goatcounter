@@ -18,6 +18,7 @@ import (
 	"github.com/teamwork/reload"
 	"github.com/teamwork/utils/errorutil"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zlog_sentry"
 
@@ -37,6 +38,7 @@ func main() {
 	if cfg.Version == "" {
 		cfg.Version = version
 	}
+	zmail.SMTP = cfg.SMTP
 	fmt.Printf("Goatcounter version %s\n", version)
 	cfg.Print()
 

@@ -19,10 +19,10 @@ import (
 	"github.com/teamwork/validate"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/smail"
 )
 
 const (
@@ -220,13 +220,13 @@ func (u *User) GetToken() string {
 func (u *User) SendLoginMail(ctx context.Context, site Site) {
 	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginKey)
 	go func() {
-		err := smail.Send("Your login URL",
+		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
 			[]mail.Address{{Name: u.Name, Address: u.Email}},
 			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  https://%s\n\nGo to it to log in.\n",
 				url))
 		if err != nil {
-			zlog.Errorf("smail: %s", err)
+			zlog.Errorf("zmail: %s", err)
 		}
 	}()
 }
