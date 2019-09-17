@@ -13,10 +13,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/utils/sliceutil"
+	"zgo.at/zdb"
+	"zgo.at/zdb/bulk"
 	"zgo.at/zhttp/ctxkey"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/bulk"
 	"zgo.at/goatcounter/cfg"
 )
 
@@ -28,7 +29,7 @@ type stat struct {
 
 func updateHitStats(ctx context.Context, site goatcounter.Site) error {
 	ctx = context.WithValue(ctx, ctxkey.Site, &site)
-	db := goatcounter.MustGetDB(ctx)
+	db := zdb.MustGet(ctx)
 
 	// Select everything since last update.
 	var last string
@@ -93,7 +94,7 @@ func updateHitStats(ctx context.Context, site goatcounter.Site) error {
 		return errors.Wrap(err, "have")
 	}
 
-	ins := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
+	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
 		"hit_stats", []string{"site", "day", "path", "stats"})
 	for path, dayst := range hourly {
 		exists := false

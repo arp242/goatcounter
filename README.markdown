@@ -28,7 +28,7 @@ Features
 
 - **Privacy-aware**; doesn't track users; doesn't need a GDPR notice.
 
-- **Lightweight** and **fast**; adds just 0.8KB of extra data to your site.
+- **Lightweight** and **fast**; adds just 1KB of extra data to your site.
 
 - **Easy**; if you've been confused by the myriad of options and flexibility of
   Google Analytics and Matomo that you don't need then GoatCounter will be a
@@ -53,7 +53,8 @@ Features
 Running your own
 ----------------
 
-You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
+Go 1.12 and newer are supported (it follows the [Go release policy][rp]). You
+will need a C compiler (for SQLite) or PostgreSQL.
 
 ### Development
 
@@ -66,11 +67,11 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
    This will put a self-contained binary at `goatcounter`. You can optionally
    reduce the binary size a bit (from ~18M to ~5M) with `strip` and/or `upx`.
 
-2. Run `~/go/goatcounter`. This will run a development environment on
+2. Run `./goatcounter`. This will run a development environment on
    http://goatcounter.localhost:8081
 
-   The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will be
-   created if it doesn't exist). See the `-dbconnect` flag to customize this.
+   The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will
+   be created if it doesn't exist). See the `-dbconnect` flag to customize this.
 
 3. You can sign up your new site at http://goatcounter.localhost:8081, which can
    then be accessed at http://test.goatcounter.localhost:8081
@@ -87,11 +88,28 @@ You will need Go 1.10 or newer and a C compiler (for SQLite) or PostgreSQL.
            -smtp "smtp://localhost:25" \
            "$@"
 
-2. Use a proxy for https (e.g. Caddy); you'll need to forward `example.com` and
-   `*.example.com`
+2. Use a proxy for https (e.g. [hitch][hitch] or [caddy][caddy]); you'll need to
+   forward `example.com` and `*.example.com`
 
 You can see the [goathost repo][goathost] for the server configuration of
 goatcounter.com, although that is just one way of running it.
+
+### Updating
+
+1. `git pull` and build a new version as per above.
+
+2. Database migrations are *not* run automatically, but the app will warn on
+   startup if there are migrations that need to be run.
+
+3. Right now I'm only writing migrations for PostgreSQL, as that's what
+   goatcounter.com is using. Run with `psql < ./db/migrate/file.sql`.
+
+   If you're running on SQLite then you'll need to hack the files a bit. Open an
+   issue if you need help.
+
+   After the 1.0 "proper" release I'll make real database migrations for SQLite.
+   It's just not a good time/investment right now as it's early beta days and
+   probably not many people are actually running this.
 
 ### PostgreSQL
 
@@ -125,3 +143,6 @@ To use it:
 [goathost]: https://github.com/zgoat/goathost
 [patreon]: https://www.patreon.com/arp242
 [launch]: https://arp242.net/goatcounter.html
+[rp]: https://golang.org/doc/devel/release.html#policy
+[hitch]: https://github.com/varnish/hitch
+[caddy]: https://caddyserver.com/

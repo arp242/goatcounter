@@ -7,16 +7,15 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/getsentry/raven-go"
 	"github.com/go-chi/chi"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"github.com/pkg/errors"
 	"github.com/teamwork/reload"
 	"github.com/teamwork/utils/errorutil"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
@@ -28,10 +27,7 @@ import (
 	"zgo.at/goatcounter/handlers"
 )
 
-var (
-	version         = "dev"
-	requiredVersion = ""
-)
+var version = "dev"
 
 func main() {
 	cfg.Set()
@@ -65,41 +61,9 @@ func main() {
 	}
 
 	// Connect to DB.
-	var db *sqlx.DB
-	if cfg.PgSQL {
-		var err error
-		db, err = sqlx.Connect("postgres", cfg.DBFile)
-		must(errors.Wrap(err, "sqlx.Connect pgsql"))
-		defer db.Close()
-
-		// db.SetConnMaxLifetime()
-		db.SetMaxIdleConns(25) // Default 2
-		db.SetMaxOpenConns(25) // Default 0
-	} else {
-		exists := true
-		if _, err := os.Stat(cfg.DBFile); os.IsNotExist(err) {
-			zlog.Printf("database %q doesn't exist; loading new schema", cfg.DBFile)
-			exists = false
-		}
-		var err error
-		db, err = sqlx.Connect("sqlite3", cfg.DBFile)
-		must(errors.Wrap(err, "sqlx.Connect sqlite"))
-		defer db.Close()
-
-		if !exists {
-			db.MustExec(string(dbinit.Schema))
-		}
-	}
-
-	if requiredVersion != "" {
-		var version string
-		must(db.Get(&version,
-			`select name from version order by name desc limit 1`))
-		if version != requiredVersion {
-			zlog.Errorf("current DB version is %q, but need version %q; run migrations from ./db/migrate directory",
-				version, requiredVersion)
-		}
-	}
+	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, dbinit.Schema, dbinit.Migrations)
+	must(err)
+	defer db.Close()
 
 	// Run background tasks.
 	cron.Run(db)

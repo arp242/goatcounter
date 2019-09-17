@@ -15,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
@@ -71,7 +72,7 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 			}()
 
 			// Add database.
-			*r = *r.WithContext(context.WithValue(ctx, ctxkey.DB, db))
+			*r = *r.WithContext(zdb.With(ctx, db))
 
 			// Load site from subdomain
 			if loadSite {

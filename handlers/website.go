@@ -17,6 +17,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/validate"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 
@@ -107,7 +108,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	txctx, tx, err := goatcounter.Begin(r.Context())
+	txctx, tx, err := zdb.Begin(r.Context())
 	if err != nil {
 		return err
 	}

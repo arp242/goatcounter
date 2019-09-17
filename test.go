@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 )
 
@@ -59,8 +60,7 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		t.Fatal(err)
 	}
 
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, ctxkey.DB, db)
+	ctx := zdb.With(context.Background(), db)
 	ctx = context.WithValue(ctx, ctxkey.Site, &Site{ID: 1})
 	ctx = context.WithValue(ctx, ctxkey.User, &User{ID: 1, Site: 1})
 

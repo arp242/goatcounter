@@ -12,10 +12,12 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mssola/user_agent"
 	"github.com/pkg/errors"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/bulk"
-	"zgo.at/goatcounter/cfg"
+	"zgo.at/zdb"
+	"zgo.at/zdb/bulk"
 	"zgo.at/zhttp/ctxkey"
+
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 )
 
 type bstat struct {
@@ -26,7 +28,7 @@ type bstat struct {
 
 func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 	ctx = context.WithValue(ctx, ctxkey.Site, &site)
-	db := goatcounter.MustGetDB(ctx)
+	db := zdb.MustGet(ctx)
 
 	// Select everything since last update.
 	var last string
@@ -100,7 +102,7 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 		grouped[k] = v
 	}
 
-	insBrowser := bulk.NewInsert(ctx, goatcounter.MustGetDB(ctx).(*sqlx.DB),
+	insBrowser := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
 		"browser_stats", []string{"site", "day", "browser", "version", "count"})
 	for _, v := range grouped {
 		insBrowser.Values(site.ID, v.day, v.browser, v.version, v.count)

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"zgo.at/goatcounter"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 )
 
@@ -85,7 +86,7 @@ func TestUserLogin(t *testing.T) {
 					panic(err)
 				}
 
-				_, err = goatcounter.MustGetDB(ctx).ExecContext(ctx, `update users set
+				_, err = zdb.MustGet(ctx).ExecContext(ctx, `update users set
 					login_request='asdf', login_at=current_timestamp
 					where id=$2 and site=1`, user.ID)
 				if err != nil {

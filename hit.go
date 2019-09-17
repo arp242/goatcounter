@@ -15,6 +15,7 @@ import (
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/utils/sqlutil"
 	"github.com/teamwork/validate"
+	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
 
@@ -256,21 +257,21 @@ type Hits []Hit
 
 // List all hits for a site.
 func (h *Hits) List(ctx context.Context) error {
-	return errors.Wrap(MustGetDB(ctx).SelectContext(ctx, h,
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, h,
 		`select * from hits where site=$1`, MustGetSite(ctx).ID),
 		"Hits.List")
 }
 
 // Purge all paths matching the like pattern.
 func (h *Hits) Purge(ctx context.Context, path string) error {
-	_, err := MustGetDB(ctx).ExecContext(ctx,
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`delete from hits where site=$1 and lower(path) like lower($2)`,
 		MustGetSite(ctx).ID, path)
 	if err != nil {
 		return errors.Wrap(err, "Hits.Purge")
 	}
 
-	_, err = MustGetDB(ctx).ExecContext(ctx,
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`delete from hit_stats where site=$1 and lower(path) like lower($2)`,
 		MustGetSite(ctx).ID, path)
 	return errors.Wrap(err, "Hits.Purge")
@@ -292,7 +293,7 @@ type hs struct {
 type HitStats []hs
 
 func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []string) (int, int, bool, error) {
-	db := MustGetDB(ctx)
+	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 
 	limit := site.Settings.Limits.Page
@@ -425,7 +426,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 	// data can change in the meanwhile, and it still gets the first N rows,
 	// which is more expensive than it needs to be.
 	// It's "good enough" for now, though.
-	err := MustGetDB(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
 			ref as path,
 			count(ref) as count,
@@ -455,7 +456,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 // ListPaths lists all paths we have statistics for.
 func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
 	var paths []string
-	err := MustGetDB(ctx).SelectContext(ctx, &paths,
+	err := zdb.MustGet(ctx).SelectContext(ctx, &paths,
 		`select path from hit_stats where site=$1 group by path`,
 		MustGetSite(ctx).ID)
 	return paths, errors.Wrap(err, "Hits.ListPaths")
@@ -463,7 +464,7 @@ func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
 
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
-	err := MustGetDB(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select path, count(path) as count from hits
 		where site=$1 and lower(path) like lower($2)
 		group by path
@@ -480,7 +481,7 @@ type BrowserStats []struct {
 // List all browser statistics for the given time period.
 func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (uint64, error) {
 	site := MustGetSite(ctx)
-	err := MustGetDB(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select browser, sum(count) as count from browser_stats
 		where site=$1 and day >= $2 and day <= $3
 		group by browser
@@ -500,7 +501,7 @@ func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (uint64, 
 // ListBrowser lists all the versions for one browser.
 func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (uint64, error) {
 	site := MustGetSite(ctx)
-	err := MustGetDB(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
 			version as browser,
 			sum(count) as count
