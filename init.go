@@ -75,7 +75,7 @@ func init() {
 		return template.HTML(b.String())
 	}
 
-	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total uint64) template.HTML {
+	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total, parentTotal uint64) template.HTML {
 		totalPerc := float32(0.0)
 		var b strings.Builder
 		for _, s := range stats {
@@ -92,7 +92,14 @@ func init() {
 			}
 
 			bg, fg := colorHash(browser)
-			text := fmt.Sprintf("%s: %.1f%%", template.HTMLEscapeString(browser), perc)
+			text := fmt.Sprintf("%s: %.1f%% – ", template.HTMLEscapeString(browser), perc)
+			if parentTotal > 0 {
+				text += fmt.Sprintf("%.1f%% of total, %s hits",
+					float32(s.Count)/float32(parentTotal)*100, zhttp.Tnformat(s.Count))
+			} else {
+				text += fmt.Sprintf("%s hits in total", zhttp.Tnformat(s.Count))
+			}
+
 			b.WriteString(fmt.Sprintf(
 				`<a href="#_" title="%[1]s" style="width: %[2]f%%; background-color: %[3]s; color: %[4]s" data-browser="%[5]s">%[1]s</a>`,
 				text, perc, bg, fg, browser))

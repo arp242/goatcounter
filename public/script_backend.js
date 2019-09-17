@@ -48,6 +48,7 @@
 					'period-start': $('#period-start').val(),
 					'period-end':   $('#period-end').val(),
 					'browser':      browser,
+					'total':        bar.attr('data-total'),
 				},
 				dataType: 'json',
 				success: function(data) {

@@ -308,7 +308,9 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tpl := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, uint64) template.HTML)(browsers, total)
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, uint64, uint64) template.HTML)
+	t, _ := strconv.ParseUint(r.URL.Query().Get("total"), 10, 64)
+	tpl := f(browsers, total, t)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
