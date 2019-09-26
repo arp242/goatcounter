@@ -81,13 +81,14 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 	// Group properly.
 	type gt struct {
 		count   int
+		mobile  bool
 		day     string
 		browser string
 		version string
 	}
 	grouped := map[string]gt{}
 	for _, s := range stats {
-		browser, version := getBrowser(s.Browser)
+		browser, version, mobile := getBrowser(s.Browser)
 		if browser == "" {
 			continue
 		}
@@ -97,27 +98,28 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 			v.day = s.CreatedAt.Format("2006-01-02")
 			v.browser = browser
 			v.version = version
+			v.mobile = mobile
 		}
 		v.count += s.Count
 		grouped[k] = v
 	}
 
 	insBrowser := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
-		"browser_stats", []string{"site", "day", "browser", "version", "count"})
+		"browser_stats", []string{"site", "day", "browser", "version", "count", "mobile"})
 	for _, v := range grouped {
-		insBrowser.Values(site.ID, v.day, v.browser, v.version, v.count)
+		insBrowser.Values(site.ID, v.day, v.browser, v.version, v.count, v.mobile)
 	}
 
 	return insBrowser.Finish()
 }
 
-func getBrowser(uaHeader string) (string, string) {
+func getBrowser(uaHeader string) (string, string, bool) {
 	ua := user_agent.New(uaHeader)
 	browser, version := ua.Browser()
 
 	// A lot of this is wrong, so just skip for now.
 	if browser == "Android" {
-		return "", ""
+		return "", "", false
 	}
 
 	if browser == "Chromium" {
@@ -149,5 +151,6 @@ func getBrowser(uaHeader string) (string, string) {
 		}
 	}
 
-	return browser, version
+	mobile := ua.Mobile()
+	return browser, version, mobile
 }

@@ -53,8 +53,8 @@ create table hits (
 	ref_original   varchar,
 	ref_params     varchar,
 	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
-	size           varchar        not null default '',
 	browser        varchar        not null,
+	size           varchar        not null default '',
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
@@ -84,6 +84,7 @@ create table browser_stats (
 	browser        varchar        not null,
 	version        varchar        not null,
 	count          int            not null,
+	mobile         int default 0  not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );

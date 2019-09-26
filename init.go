@@ -75,13 +75,13 @@ func init() {
 		return template.HTML(b.String())
 	}
 
-	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total, parentTotal uint64) template.HTML {
+	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total, parentTotal int, cutoff float32) template.HTML {
 		totalPerc := float32(0.0)
 		var b strings.Builder
 		for _, s := range stats {
 			perc := float32(s.Count) / float32(total) * 100
-			if perc < .5 {
-				// Less than 0.5%: don't bother.
+			if perc < cutoff {
+				// Less than cutoff percentage: group as "Other" later.
 				break
 			}
 			totalPerc += perc

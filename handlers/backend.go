@@ -193,12 +193,22 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	l = l.Since("pages.List")
 
 	var browsers goatcounter.BrowserStats
-	totalBrowsers, err := browsers.List(r.Context(), start, end)
+	totalBrowsers, totalMobile, err := browsers.List(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
+	l = l.Since("browsers.List")
+
+	var sizeStat goatcounter.BrowserStats
+	err = sizeStat.ListSize(r.Context(), start, end)
+	if err != nil {
+		return err
+	}
+
+	l = l.Since("sizeStat.ListSize")
 
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
@@ -209,6 +219,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
+		l = l.Since("refs.ListRefs")
 	}
 
 	subs, err := goatcounter.MustGetSite(r.Context()).ListSubs(r.Context())
@@ -216,7 +227,6 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	l = l.Since("fetch data")
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
 		ShowRefs         string
@@ -229,11 +239,16 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TotalHits        int
 		TotalHitsDisplay int
 		Browsers         goatcounter.BrowserStats
-		TotalBrowsers    uint64
+		TotalBrowsers    int
+		TotalMobile      string
 		SubSites         []string
+		SizeStat         goatcounter.BrowserStats
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, pages,
-		refs, moreRefs, total, totalDisplay, browsers, totalBrowsers, subs})
-	l = l.Since("exec template")
+		refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
+		fmt.Sprintf("%.1f", float32(totalMobile)/float32(totalBrowsers)*100), subs,
+		sizeStat})
+	l = l.Since("zhttp.Template")
+	l.FieldsSince().Print("")
 	return x
 }
 
@@ -308,9 +323,9 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, uint64, uint64) template.HTML)
-	t, _ := strconv.ParseUint(r.URL.Query().Get("total"), 10, 64)
-	tpl := f(browsers, total, t)
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32) template.HTML)
+	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
+	tpl := f(browsers, total, int(t), .5)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),

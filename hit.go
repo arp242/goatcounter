@@ -7,6 +7,7 @@ package goatcounter
 import (
 	"context"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -475,32 +476,47 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
 
 type BrowserStats []struct {
 	Browser string
+	Mobile  bool
 	Count   int
 }
 
 // List all browser statistics for the given time period.
-func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (uint64, error) {
-	site := MustGetSite(ctx)
+func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (int, int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select browser, sum(count) as count from browser_stats
 		where site=$1 and day >= $2 and day <= $3
-		group by browser
+		group by browser 
 		order by count desc
-	`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return 0, errors.Wrap(err, "BrowserStats.List")
+		return 0, 0, errors.Wrap(err, "BrowserStats.List browsers")
 	}
 
-	var total uint64
+	var total int
 	for _, b := range *h {
-		total += uint64(b.Count)
+		total += b.Count
 	}
-	return total, nil
+
+	// List number of mobile browsers.
+	var m *int
+	err = zdb.MustGet(ctx).GetContext(ctx, &m, `
+		select sum(count) from browser_stats
+		where site=$1 and day >= $2 and day <= $3 and mobile=true
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "BrowserStats.List mobile")
+	}
+
+	mobile := 0
+	if m != nil {
+		mobile = *m
+	}
+
+	return total, mobile, nil
 }
 
 // ListBrowser lists all the versions for one browser.
-func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (uint64, error) {
-	site := MustGetSite(ctx)
+func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
 			version as browser,
@@ -509,14 +525,80 @@ func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, e
 		where site=$1 and day >= $2 and day <= $3 and lower(browser)=lower($4)
 		group by browser, version
 		order by count desc
-	`, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), browser)
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), browser)
 	if err != nil {
 		return 0, errors.Wrap(err, "BrowserStats.ListBrowser")
 	}
 
-	var total uint64
+	var total int
 	for _, b := range *h {
-		total += uint64(b.Count)
+		total += b.Count
 	}
 	return total, nil
+}
+
+// ListSize lists all device sizes.
+func (h *BrowserStats) ListSize(ctx context.Context, start, end time.Time) error {
+	// TODO: just store better; all of this is ugly.
+	// select split_part(size, ',', 1) || ',' || split_part(size, ',', 2) as browser,
+	// order by cast(split_part(size, ',', 1) as int) asc
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select size as browser, count(size) as count
+		from hits
+		where
+			site=$1 and
+			created_at >= $2 and created_at <= $3
+		group by size
+	`, MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
+	if err != nil {
+		return errors.Wrap(err, "BrowserStats.ListSize")
+	}
+
+	// hh := *h
+	// for i := range hh {
+	// 	s := strings.Split(hh[i].Browser, ", ")
+	// 	hh[i].Browser = fmt.Sprintf("%s×%s", s[0], s[1])
+	// }
+
+	// sort.Slice(hh, func(i int, j int) bool {
+	// 	p1, _ := strconv.ParseInt(hh[i].Browser[:strings.Index(hh[i].Browser, "×")], 10, 32)
+	// 	p2, _ := strconv.ParseInt(hh[j].Browser[:strings.Index(hh[j].Browser, "×")], 10, 32)
+	// 	return p1 < p2
+	// })
+
+	// TODO: group a bit; ideally I'd like to make a line chart in the future,
+	// in which case this should no longer be needed.
+	ns := BrowserStats{
+		{"≤ 384×800", false, 0},
+		{"≤ 1024×768", false, 0},
+		{"≤ 1440×900", false, 0},
+		{"≤ 1920×1080", false, 0},
+		{"≤ 2560×1440", false, 0},
+		{"> 2560×1440", false, 0},
+		{"Unknown", false, 0},
+	}
+	hh := *h
+	for i := range hh {
+		x, _ := strconv.ParseInt(strings.Split(hh[i].Browser, ", ")[0], 10, 16)
+		// TODO: apply scaling?
+		switch {
+		case x == 0:
+			ns[6].Count += hh[i].Count
+		case x <= 384:
+			ns[0].Count += hh[i].Count
+		case x <= 1024:
+			ns[1].Count += hh[i].Count
+		case x <= 1440:
+			ns[2].Count += hh[i].Count
+		case x <= 1920:
+			ns[3].Count += hh[i].Count
+		case x <= 2560:
+			ns[4].Count += hh[i].Count
+		default:
+			ns[5].Count += hh[i].Count
+		}
+	}
+	*h = ns
+	//_ = ns
+	return nil
 }
