@@ -57,7 +57,16 @@
 
 <h2>Browsers</h2>
 {{if gt .TotalBrowsers 0}}
-	<div class="browsers-list chart chart-hbar" data-total="{{.TotalBrowsers}}">{{hbar_chart .Browsers .TotalBrowsers 0}}</div>
+	<h3>Browsers</h3>
+	<div class="browsers-list chart chart-hbar" data-total="{{.TotalBrowsers}}">{{hbar_chart .Browsers .TotalBrowsers 0 .5}}</div>
+
+	<h3>Screen size</h3>
+	<p>Collected since 16 Sept 2019</p>
+	<div class="size-list chart chart-hbar" data-total="{{.TotalBrowsers}}">{{hbar_chart .SizeStat .TotalBrowsers 0 0}}</div>
+
+	<h3>Mobile browsers</h3>
+	<p>Approximately {{.TotalMobile}}% of visitors are using a mobile browser
+	(e.g. phone, tablet).</p>
 {{end}}
 
 {{- template "_backend_bottom.gohtml" . }}
