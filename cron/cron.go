@@ -23,8 +23,6 @@ type task struct {
 }
 
 var tasks = []task{
-	//{goatcounter.Memstore.Persist, 10 * time.Second},
-	//{updateStats, 60 * time.Second},
 	{persistAndStat, 10 * time.Second},
 }
 

@@ -7,7 +7,8 @@ create table sites (
 	parent         integer        null                     check(parent is null or parent>0),
 
 	name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
-	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+	code           varchar        not null                 check(length(code) >= 2 and length(code) <= 50),
+	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
 	plan           varchar        not null                 check(plan in ('p', 'b', 'e', 'c')),
 	stripe         varchar        null,
 	settings       varchar        not null,
@@ -18,8 +19,9 @@ create table sites (
 	created_at     timestamp      not null,
 	updated_at     timestamp
 );
-create unique index "sites#code" on sites(lower(code));
-create unique index "sites#name" on sites(lower(name));
+create unique index "sites#code"  on sites(lower(code));
+create unique index "sites#name"  on sites(lower(name));
+create unique index "sites#cname" on sites(lower(cname));
 
 drop table if exists users;
 create table users (

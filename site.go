@@ -16,9 +16,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/utils/jsonutil"
+	"github.com/teamwork/utils/netutil"
 	"github.com/teamwork/validate"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
+	"zgo.at/zlog"
 )
 
 // Plan column values.
@@ -43,8 +45,9 @@ type Site struct {
 	ID     int64  `db:"id"`
 	Parent *int64 `db:"parent"`
 
-	Name         string       `db:"name"` // Any name for the website.
-	Code         string       `db:"code"` // Domain code (arp242, which makes arp242.goatcounter.com)
+	Name         string       `db:"name"`  // Any name for the website.
+	Cname        *string      `db:"cname"` // Custom domain, e.g. "stats.example.com"
+	Code         string       `db:"code"`  // Domain code (arp242, which makes arp242.goatcounter.com)
 	Plan         string       `db:"plan"`
 	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
@@ -128,6 +131,13 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Len("code", s.Code, 1, 50)
 	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)
+	if s.Cname != nil {
+		v.Len("cname", *s.Cname, 4, 255)
+		v.Domain("cname", *s.Cname)
+		if strings.HasSuffix(*s.Cname, cfg.Domain) {
+			v.Append("cname", "cannot end with %q", cfg.Domain)
+		}
+	}
 
 	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
 		v.Append("stripe", "not a valid Stripe customer ID")
@@ -193,7 +203,7 @@ func (s *Site) Insert(ctx context.Context) error {
 
 	if cfg.PgSQL {
 		var ns Site
-		err = ns.ByCode(ctx, s.Code)
+		err = ns.ByHost(ctx, s.Code+"."+cfg.Domain)
 		s.ID = ns.ID
 	} else {
 		s.ID, err = res.LastInsertId()
@@ -214,8 +224,8 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set name=$1, settings=$2, updated_at=$3 where id=$4`,
-		s.Name, s.Settings, zdb.Date(*s.UpdatedAt), s.ID)
+		`update sites set name=$1, settings=$2, cname=$3, updated_at=$4 where id=$5`,
+		s.Name, s.Settings, s.Cname, zdb.Date(*s.UpdatedAt), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 
@@ -261,11 +271,24 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 		id, StateActive), "Site.ByID")
 }
 
-// ByCode gets a site by subdomain code.
-func (s *Site) ByCode(ctx context.Context, code string) error {
+// ByHost gets a site by host name.
+func (s *Site) ByHost(ctx context.Context, host string) error {
+	// Custom domain.
+	if !strings.HasSuffix(host, cfg.Domain) {
+		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
+			`select * from sites where lower(cname)=lower($1) and state=$2`,
+			netutil.RemovePort(host), StateActive), "site.ByHost: from custom domain")
+	}
+
+	// Get from code (e.g. "arp242" in "arp242.goatcounter.com").
+	p := strings.Index(host, ".")
+	if p == -1 {
+		return fmt.Errorf("Site.ByHost: no subdomain in host %q", host)
+	}
+
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 		`select * from sites where lower(code)=lower($1) and state=$2`,
-		code, StateActive), "Site.ByCode")
+		host[:p], StateActive), "site.ByHost: from code")
 }
 
 // ListSubs lists all subsites, including the current site and parent.
@@ -282,11 +305,42 @@ func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 	return codes, errors.Wrap(err, "Site.ListSubs")
 }
 
+// Domain gets the global default domain, or this site's configured custom
+// domain.
+func (s Site) Domain() string {
+	if s.Cname != nil {
+		return *s.Cname
+	}
+	return cfg.Domain
+}
+
 // URL to this site.
 func (s Site) URL() string {
+	if s.Cname != nil {
+		return fmt.Sprintf("http%s://%s",
+			map[bool]string{true: "s", false: ""}[cfg.Prod],
+			*s.Cname)
+	}
+
 	return fmt.Sprintf("http%s://%s.%s",
 		map[bool]string{true: "s", false: ""}[cfg.Prod],
 		s.Code, cfg.Domain)
+}
+
+// PlanBusiness reports if this site is on the Business or Enterprise plan.
+func (s Site) PlanBusiness(ctx context.Context) bool {
+	if s.Parent != nil {
+		var ps Site
+		err := ps.ByID(ctx, *s.Parent)
+		if err != nil {
+			zlog.Error(err)
+			return false
+		}
+
+		return ps.PlanBusiness(ctx)
+	}
+
+	return s.Plan == PlanBusiness || s.Plan == PlanEnterprise
 }
 
 // IDOrParent gets this site's ID or the parent ID if that's set.

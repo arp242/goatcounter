@@ -12,12 +12,11 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mssola/user_agent"
 	"github.com/pkg/errors"
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zhttp/ctxkey"
-
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 )
 
 type bstat struct {

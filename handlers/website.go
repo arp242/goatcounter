@@ -17,12 +17,11 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/validate"
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
-
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 )
 
 type website struct{}
@@ -172,12 +171,8 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 	go user.SendLoginMail(context.Background(), site)
 
-	p := "https"
-	if !cfg.Prod {
-		p = "http"
-	}
-	return zhttp.SeeOther(w, fmt.Sprintf("%s://%s.%s/user/new?mailed=%s",
-		p, site.Code, cfg.Domain, url.QueryEscape(user.Email)))
+	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new?mailed=%s",
+		site.URL(), url.QueryEscape(user.Email)))
 }
 
 func getPlan(r *http.Request) (string, string, error) {

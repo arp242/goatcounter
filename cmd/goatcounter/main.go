@@ -15,15 +15,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/reload"
 	"github.com/teamwork/utils/errorutil"
-	"zgo.at/zdb"
-	"zgo.at/zhttp"
-	"zgo.at/zhttp/zmail"
-	"zgo.at/zlog"
-
+	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	dbinit "zgo.at/goatcounter/db"
 	"zgo.at/goatcounter/handlers"
+	"zgo.at/zdb"
+	"zgo.at/zhttp"
+	"zgo.at/zhttp/zmail"
+	"zgo.at/zlog"
 )
 
 var version = "dev"
@@ -77,6 +77,7 @@ func main() {
 
 	// Run background tasks.
 	cron.Run(db)
+	acme.Run()
 
 	// Set up HTTP handler and servers.
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(map[string]chi.Router{
@@ -86,6 +87,7 @@ func main() {
 		"*":                 handlers.NewBackend(db),
 	})}, func() {
 		cron.Wait(db)
+		acme.Wait()
 		zlog.ProfileHeap(cfg.MemProfile)
 	})
 }

@@ -15,6 +15,14 @@
 				Make statistics publicly viewable</label>
 			<span>By default you can only view the statistics if you’re signed in.
 				With this enabled anyone can view the statistics.</span>
+
+			{{if .Site.PlanBusiness .Context}}
+				<label for="cname">Custom domain</label>
+				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+				<span>Custom domain, e.g. <em>stats.example.com</em>; set as a
+					CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>;
+					<a href="http://www.{{.Domain}}/help#custom-domain">more detailed instructions</a>.</span>
+			{{end}}
 		</fieldset>
 
 		<fieldset>
@@ -77,12 +85,6 @@
 <h2 id="site-code">Site code</h2>
 <p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
 {{template "_backend_sitecode.gohtml" .}}
-
-{{/*
-<h2 id="domain">Custom domain</h2>
-<p>Add a <code>CNAME</code> record to your GoatCounter domain:</p>
-<pre>stats   IN CNAME    {{.Site.Code}}.{{.Domain}}.</pre>
-*/}}
 
 <h2 id="purge">Purge</h2>
 <p>Remove all instances of a page.</p>
