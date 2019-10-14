@@ -73,7 +73,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			header.CSPFontSrc:    {cfg.DomainStatic},
 			header.CSPFormAction: {header.CSPSourceSelf},
 			header.CSPConnectSrc: {header.CSPSourceSelf},
-			header.CSPReportURI:  {"/csp"},
+			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})
 
 		a := r.With(zhttp.Headers(headers), zhttp.Log(true, ""), keyAuth)
