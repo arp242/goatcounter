@@ -8,6 +8,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"net/http/pprof"
 	"strconv"
@@ -43,6 +44,19 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
 		rr.Post("/csp", zhttp.HandlerCSP())
 		rr.Get("/count", zhttp.Wrap(h.count))
+
+		// ACME http-01 verification.
+		tr := strings.NewReplacer(".", "", "/", "", `\`, "")
+		rr.Get("/.well-known/acme-challenge/{key}", func(w http.ResponseWriter, r *http.Request) {
+			path := fmt.Sprintf("/home/martin/.well-known/acme-challenge/%s",
+				tr.Replace(chi.URLParam(r, "key")))
+			data, err := ioutil.ReadFile(path)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("can't read %q: %s", path, err), 400)
+				return
+			}
+			w.Write(data)
+		})
 	}
 
 	{

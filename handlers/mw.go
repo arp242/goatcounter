@@ -76,17 +76,25 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 
 			// Load site from subdomain
 			if loadSite {
-				i := strings.Index(r.Host, ".")
-				if i == -1 {
+				p := strings.Index(r.Host, ".")
+				if p == -1 {
 					zhttp.ErrPage(w, r, 400, fmt.Errorf("no subdomain in host %q", r.Host))
 					return
 				}
 
-				var s goatcounter.Site
-				err := s.ByCode(r.Context(), r.Host[:i])
+				var (
+					s   goatcounter.Site
+					err error
+				)
+				if !strings.HasSuffix(r.Host, "goatcounter.com") {
+					// TODO: TEMPORARY for testing CNAME/acme.
+					err = s.ByID(r.Context(), 1)
+				} else {
+					err = s.ByCode(r.Context(), r.Host[:p])
+				}
 				if err != nil {
 					if errors.Cause(err) == sql.ErrNoRows {
-						zhttp.ErrPage(w, r, 400, fmt.Errorf("no site at this domain (%q)", r.Host[:i]))
+						zhttp.ErrPage(w, r, 400, fmt.Errorf("no site at this domain (%q)", r.Host[:p]))
 						return
 					}
 

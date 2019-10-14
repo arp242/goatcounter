@@ -77,6 +77,10 @@ zgo.at/zhttp v0.0.0-20190926190831-c60fc78e7f85 h1:nKksNkzu2ODah26lULts3QgvvzGBg
 zgo.at/zhttp v0.0.0-20190926190831-c60fc78e7f85/go.mod h1:MqXfkj0gJ3kD3N7Iw20QquA2ShVFluU7BFm5shEnhLM=
 zgo.at/zhttp v0.0.0-20191009224150-0cdc56c2c0ef h1:tnlImtQNASnDHDVpksnsxJSnKbA1lxWKfUr83UuW7Q8=
 zgo.at/zhttp v0.0.0-20191009224150-0cdc56c2c0ef/go.mod h1:MqXfkj0gJ3kD3N7Iw20QquA2ShVFluU7BFm5shEnhLM=
+zgo.at/zhttp v0.0.0-20191011081705-9e1e89dd3812 h1:PiIuzPt2OL0rs2X34v9OKtku+7JokavGjrpzAqZgtKc=
+zgo.at/zhttp v0.0.0-20191011081705-9e1e89dd3812/go.mod h1:MqXfkj0gJ3kD3N7Iw20QquA2ShVFluU7BFm5shEnhLM=
+zgo.at/zhttp v0.0.0-20191014021759-89e9d115dbb7 h1:FjIsORSd5Kmgv4MJm+biQDiciZoDH3LH7s6e7buzLpk=
+zgo.at/zhttp v0.0.0-20191014021759-89e9d115dbb7/go.mod h1:MqXfkj0gJ3kD3N7Iw20QquA2ShVFluU7BFm5shEnhLM=
 zgo.at/zlog v1.0.0 h1:5r5ARbp6hbeMB1AmpppJZIxlRfE0Fp0OzqNlxVFagvQ=
 zgo.at/zlog v1.0.0/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=
 zgo.at/zlog v1.0.1 h1:jK4gxr49m5GP8O5ay8QJFZ7qINvVRG0m7eW6z8qg51Q=

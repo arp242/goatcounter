@@ -83,7 +83,7 @@ func main() {
 		cfg.Domain:          zhttp.RedirectHost("//www." + cfg.Domain),
 		"www." + cfg.Domain: handlers.NewWebsite(db),
 		cfg.DomainStatic:    handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
-		"*." + cfg.Domain:   handlers.NewBackend(db),
+		"*":                 handlers.NewBackend(db),
 	})}, func() {
 		cron.Wait(db)
 		zlog.ProfileHeap(cfg.MemProfile)

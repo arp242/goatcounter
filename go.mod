@@ -16,7 +16,7 @@ require (
 	github.com/teamwork/utils v0.0.0-20190915210805-dd84b3a50562 // mtext branch
 	github.com/teamwork/validate v0.0.0-20190828120429-6967b7fc2615
 	zgo.at/zdb v0.0.0-20190917160525-a0516a62bb5a
-	zgo.at/zhttp v0.0.0-20191009224150-0cdc56c2c0ef
+	zgo.at/zhttp v0.0.0-20191014021759-89e9d115dbb7
 	zgo.at/zlog v1.0.1
 	zgo.at/zpack v0.0.0-20190917143429-094a951f1124
 )
