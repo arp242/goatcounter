@@ -18,7 +18,7 @@ require (
 	zgo.at/zdb v0.0.0-20190917160525-a0516a62bb5a
 	zgo.at/zhttp v0.0.0-20191014021759-89e9d115dbb7
 	zgo.at/zlog v1.0.1
-	zgo.at/zpack v0.0.0-20191015130826-b8a5b2c4cf7a
+	zgo.at/zpack v0.0.0-20191015131843-cdc512b37c68
 )
 
 // This fork doesn't depend on the github.com/teamwork/mailaddress package and
