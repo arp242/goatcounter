@@ -15,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
@@ -29,8 +28,7 @@ func init() {
 			zlog.Error(err)
 			return template.HTML("")
 		}
-		return template.HTML(fmt.Sprintf(`<a href="//%s.%s">%[1]s</a>`,
-			s.Code, cfg.Domain))
+		return template.HTML(fmt.Sprintf(`<a href="%s">%[1]s</a>`, s.URL()))
 	}
 
 	zhttp.FuncMap["validate"] = func(k string, v map[string][]string) template.HTML {

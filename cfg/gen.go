@@ -28,6 +28,7 @@ var flags = []flag{
 	{"string", "StripeKey", "stripekey", "", "Stripe API key"},
 	{"string", "CPUProfile", "cpuprofile", "", "Write CPU profile to this file."},
 	{"string", "MemProfile", "memprofile", "", "Write memory profile to this file."},
+	{"string", "CertDir", "certdir", "", "Directory to store ACME-generated certificates for custom domains"},
 }
 
 type flag struct {

@@ -16,20 +16,32 @@
 
 <h2>FAQ</h2>
 <dl>
-	<dt>I don’t see my pageviews?</dt>
+	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
 	<dd>For reasons of efficiency the statistics are updated once every minute.</dd>
 
-	<dt>What happens if I go over the amount of pageviews for my plan?</dt>
+	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
 	<dd>We’ll be in touch if you consistently go over the number over pageviews,
 		but there is no automated process to shut down accounts or anything like
 		that.</dd>
 
-	<dt>How are bots and crawlers counted?</dt>
+	<dt id="bots">How are bots and crawlers counted? <a href="#bots">§</a></dt>
 	<dd>They’re not; all bots and crawlers that identify themselves as such are ignored.<br>
 		It’s not hard for a malicious script to disguise itself as
 		Firefox or Chrome, and it’s hard to reliably detect this, so in
 		practice it’s unlikely that 100% of all bots are ignored (this is a
 		general problem with analytics, and not specific to GoatCounter).</dd>
+
+	<dt id="custom-domain">How do I set up a custom domain? <a href="#custom-domain">§</a></dt>
+	<dd>
+		Add a <code>CNAME</code> record pointing to your GoatCounter subdomain:
+		<pre>stats   IN CNAME    mine.{{.Domain}}.</pre>
+
+		Then update the GoatCounter settings with your custom domain. It might
+		take a few hours for everything to work. <code>mine.{{.Domain}}</code>
+		will continue to work.<br><br>
+
+		You will need the Business plan to set up a custom domain.
+	</dd>
 </dl>
 
 {{template "_bottom.gohtml" .}}

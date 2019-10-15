@@ -14,13 +14,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"github.com/teamwork/validate"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
-
-	"zgo.at/goatcounter/cfg"
 )
 
 const (
@@ -187,13 +186,12 @@ func (u *User) GetToken() string {
 
 // SendLoginMail sends the login email.
 func (u *User) SendLoginMail(ctx context.Context, site Site) {
-	var url = fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginRequest)
 	go func() {
 		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
 			[]mail.Address{{Name: u.Name, Address: u.Email}},
-			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  https://%s\n\nGo to it to log in.\n",
-				url))
+			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  %s/user/login/%s\n\nGo to it to log in.\n",
+				site.URL(), *u.LoginRequest))
 		if err != nil {
 			zlog.Errorf("zmail: %s", err)
 		}

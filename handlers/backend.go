@@ -23,11 +23,11 @@ import (
 	"github.com/teamwork/utils/httputilx/header"
 	"github.com/teamwork/utils/sliceutil"
 	"github.com/teamwork/validate"
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/acme"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
-
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 )
 
 type backend struct{}
@@ -48,8 +48,13 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		// ACME http-01 verification.
 		tr := strings.NewReplacer(".", "", "/", "", `\`, "")
 		rr.Get("/.well-known/acme-challenge/{key}", func(w http.ResponseWriter, r *http.Request) {
-			path := fmt.Sprintf("/home/martin/.well-known/acme-challenge/%s",
-				tr.Replace(chi.URLParam(r, "key")))
+			if cfg.CertDir == "" {
+				http.Error(w, "cfg.CertDir is empty", 500)
+				return
+			}
+
+			path := fmt.Sprintf("%s/.well-known/acme-challenge/%s",
+				cfg.CertDir, tr.Replace(chi.URLParam(r, "key")))
 			data, err := ioutil.ReadFile(path)
 			if err != nil {
 				http.Error(w, fmt.Sprintf("can't read %q: %s", path, err), 400)
@@ -406,6 +411,7 @@ func (h backend) settings(w http.ResponseWriter, r *http.Request) error {
 func (h backend) save(w http.ResponseWriter, r *http.Request) error {
 	args := struct {
 		Name     string                   `json:"name"`
+		Cname    string                   `json:"cname"`
 		Settings goatcounter.SiteSettings `json:"settings"`
 	}{}
 	_, err := zhttp.Decode(r, &args)
@@ -416,6 +422,18 @@ func (h backend) save(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 	site.Name = args.Name
 	site.Settings = args.Settings
+	if args.Cname != "" && !site.PlanBusiness(r.Context()) {
+		return guru.New(400, "need business plan to set custom domain")
+	}
+
+	if args.Cname == "" {
+		site.Cname = nil
+	} else {
+		if site.Cname == nil || *site.Cname != args.Cname {
+			acme.Domains <- args.Cname
+		}
+		site.Cname = &args.Cname
+	}
 
 	err = site.Update(r.Context())
 	if err != nil {

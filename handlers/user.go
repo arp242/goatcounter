@@ -15,11 +15,10 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
-
-	"zgo.at/goatcounter"
 )
 
 type user struct{}
@@ -109,7 +108,7 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 		Expires: time.Now().Add(-100 * time.Hour),
 	})
 
-	zhttp.SetCookie(w, *u.LoginToken, cfg.Domain)
+	zhttp.SetCookie(w, *u.LoginToken, goatcounter.MustGetSite(r.Context()).Domain())
 	zhttp.Flash(w, "Welcome %s", u.Name)
 	return zhttp.SeeOther(w, "/")
 }
@@ -138,9 +137,9 @@ func flashLoginKey(ctx context.Context, w http.ResponseWriter, email string) {
 		if err != nil {
 			zlog.Error(err)
 		} else {
-			url := fmt.Sprintf("%s.%s/user/login/%s", site.Code, cfg.Domain, *u.LoginRequest)
+			url := fmt.Sprintf("%s/user/login/%s", site.URL(), *u.LoginRequest)
 			msg += fmt.Sprintf(
-				"<br>\n<small>URL on dev for convenience: <a href='//%s'>%[1]s</a></small>",
+				"<br>\n<small>URL on dev for convenience: <a href='%s'>%[1]s</a></small>",
 				url)
 		}
 	}

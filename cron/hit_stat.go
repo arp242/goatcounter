@@ -13,12 +13,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/utils/jsonutil"
 	"github.com/teamwork/utils/sliceutil"
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zhttp/ctxkey"
-
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 )
 
 type stat struct {
