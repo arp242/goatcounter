@@ -87,3 +87,5 @@ zgo.at/zlog v1.0.1 h1:jK4gxr49m5GP8O5ay8QJFZ7qINvVRG0m7eW6z8qg51Q=
 zgo.at/zlog v1.0.1/go.mod h1:/+tHzt+nRogoJkSjzSgmd9OeDFlTbjKnQUuEkald8pw=
 zgo.at/zpack v0.0.0-20190917143429-094a951f1124 h1:s5GJgnPfTVhzMEgnw/UTOufOdle4TbhicFHdDsUNngY=
 zgo.at/zpack v0.0.0-20190917143429-094a951f1124/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
+zgo.at/zpack v0.0.0-20191015130826-b8a5b2c4cf7a h1:vqzJjk9eYzLGRYfyEyaiPFEVN9gZhJWzz/1Z+r66KjQ=
+zgo.at/zpack v0.0.0-20191015130826-b8a5b2c4cf7a/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
