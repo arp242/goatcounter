@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/http/pprof"
 	"strconv"
@@ -19,10 +20,12 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/mssola/user_agent"
+	"github.com/oschwald/geoip2-golang"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/validate"
@@ -131,6 +134,24 @@ var gif = []byte{0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x1, 0x0, 0x1, 0x0, 0x80,
 	0x1, 0x0, 0x2c, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x1, 0x0, 0x0, 0x2, 0x2, 0x4c,
 	0x1, 0x0, 0x3b}
 
+var geodb *geoip2.Reader
+
+func init() {
+	var err error
+	geodb, err = geoip2.FromBytes(pack.GeoDB)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func geo(ip string) string {
+	loc, err := geodb.Country(net.ParseIP(ip))
+	if err != nil {
+		zlog.Module("geo").Field("ip", ip).Error(err)
+	}
+	return loc.Country.IsoCode
+}
+
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Cache-Control", "no-store,no-cache")
 
@@ -144,6 +165,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	hit := goatcounter.Hit{
 		Site:      goatcounter.MustGetSite(r.Context()).ID,
 		Browser:   r.UserAgent(),
+		Location:  geo(r.RemoteAddr),
 		CreatedAt: time.Now().UTC(),
 	}
 	_, err := zhttp.Decode(r, &hit)

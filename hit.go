@@ -39,6 +39,7 @@ type Hit struct {
 	RefScheme   *string           `db:"ref_scheme" json:"-"`
 	Browser     string            `db:"browser" json:"-"`
 	Size        sqlutil.FloatList `db:"size" json:"s"`
+	Location    string            `db:"location"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
 	refURL *url.URL `db:"-"`
