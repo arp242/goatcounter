@@ -10,13 +10,13 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/teamwork/test"
 	"zgo.at/zhttp/ctxkey"
+	"zgo.at/ztest"
 )
 
 func TestHitDefaults(t *testing.T) {
 	a := "arp242.net"
-	set := test.SP("_")
+	set := ztest.SP("_")
 
 	tests := []struct {
 		in           string
@@ -27,13 +27,13 @@ func TestHitDefaults(t *testing.T) {
 	}{
 		// Split out query parameters.
 		{"https://arp242.net", a, nil, nil, "h"},
-		{"https://arp242.net?a=b", a, test.SP("a=b"), nil, "h"},
-		{"https://arp242.net?a=b&c=d", a, test.SP("a=b&c=d"), nil, "h"},
+		{"https://arp242.net?a=b", a, ztest.SP("a=b"), nil, "h"},
+		{"https://arp242.net?a=b&c=d", a, ztest.SP("a=b&c=d"), nil, "h"},
 
 		// Clean up query parameters.
 		{"https://t.co/asd?amp=1", "t.co/asd", nil, nil, "h"},
 		{"https://arp242.net?utm_source=asd", a, nil, set, "h"},
-		{"https://arp242.net?utm_source=asd&a=b", a, test.SP("a=b"), set, "h"},
+		{"https://arp242.net?utm_source=asd&a=b", a, ztest.SP("a=b"), set, "h"},
 
 		// Groups
 		{"https://mail.google.com?a=b&c=d", "Email", nil, set, "g"},
@@ -41,7 +41,7 @@ func TestHitDefaults(t *testing.T) {
 
 		// Host aliases.
 		{"https://en.m.wikipedia.org/wiki/Foo", "en.wikipedia.org/wiki/Foo", nil, set, "h"},
-		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "en.wikipedia.org/wiki/Foo", test.SP("a=b"), set, "h"},
+		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "en.wikipedia.org/wiki/Foo", ztest.SP("a=b"), set, "h"},
 
 		// Reddit Cleaning.
 		{"https://www.reddit.com/r/programming/top", "www.reddit.com/r/programming", nil, set, "h"},

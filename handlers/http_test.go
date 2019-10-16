@@ -17,14 +17,14 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
-	"github.com/teamwork/test"
-	"github.com/teamwork/utils/jsonutil"
 	"zgo.at/goatcounter"
+	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
+	"zgo.at/ztest"
 )
 
 type handlerTest struct {
@@ -81,7 +81,7 @@ func runTest(
 				}
 
 				tt.router(zdb.MustGet(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
-				test.Code(t, rr, tt.wantCode)
+				ztest.Code(t, rr, tt.wantCode)
 				if !strings.Contains(rr.Body.String(), tt.wantBody) {
 					t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
 				}
@@ -113,7 +113,7 @@ func runTest(
 			}
 
 			tt.router(zdb.MustGet(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
-			test.Code(t, rr, tt.wantFormCode)
+			ztest.Code(t, rr, tt.wantFormCode)
 			if !strings.Contains(rr.Body.String(), tt.wantFormBody) {
 				t.Errorf("wrong body\nwant: %q\ngot:  %q", tt.wantFormBody, rr.Body.String())
 			}
@@ -164,7 +164,7 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 }
 
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
-	return test.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
+	return ztest.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
 }
 
 // Convert anything to an "application/x-www-form-urlencoded" form.

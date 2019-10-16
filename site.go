@@ -15,11 +15,11 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
-	"github.com/teamwork/utils/jsonutil"
-	"github.com/teamwork/utils/netutil"
-	"github.com/teamwork/validate"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/utils/jsonutil"
+	"zgo.at/validate"
 	"zgo.at/zdb"
+	"zgo.at/zhttp"
 	"zgo.at/zlog"
 )
 
@@ -277,7 +277,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	if !strings.HasSuffix(host, cfg.Domain) {
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`select * from sites where lower(cname)=lower($1) and state=$2`,
-			netutil.RemovePort(host), StateActive), "site.ByHost: from custom domain")
+			zhttp.RemovePort(host), StateActive), "site.ByHost: from custom domain")
 	}
 
 	// Get from code (e.g. "arp242" in "arp242.goatcounter.com").

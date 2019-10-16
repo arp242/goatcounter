@@ -14,12 +14,12 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"github.com/pkg/errors"
 	"github.com/teamwork/reload"
-	"github.com/teamwork/utils/errorutil"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	dbinit "zgo.at/goatcounter/db"
 	"zgo.at/goatcounter/handlers"
+	"zgo.at/utils/errorutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"

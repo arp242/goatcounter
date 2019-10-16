@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/teamwork/utils/jsonutil"
 	"zgo.at/goatcounter"
+	"zgo.at/utils/jsonutil"
 )
 
 func TestHitStats(t *testing.T) {

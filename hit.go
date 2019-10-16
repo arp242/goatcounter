@@ -13,9 +13,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"github.com/teamwork/utils/jsonutil"
-	"github.com/teamwork/utils/sqlutil"
-	"github.com/teamwork/validate"
+	"zgo.at/utils/jsonutil"
+	"zgo.at/utils/sqlutil"
+	"zgo.at/validate"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )

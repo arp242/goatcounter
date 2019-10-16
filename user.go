@@ -13,8 +13,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
-	"github.com/teamwork/validate"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/validate"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
