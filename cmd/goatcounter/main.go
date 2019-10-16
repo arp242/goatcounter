@@ -71,7 +71,11 @@ func main() {
 	}
 
 	// Connect to DB.
-	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, dbinit.Schema, dbinit.Migrations)
+	m := dbinit.MigrationsSQLite
+	if cfg.PgSQL {
+		m = dbinit.MigrationsPgSQL
+	}
+	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, dbinit.Schema, m)
 	must(err)
 	defer db.Close()
 

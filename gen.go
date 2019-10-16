@@ -16,8 +16,9 @@ import (
 func main() {
 	err := zpack.Pack(map[string]map[string]string{
 		"./db/pack.go": map[string]string{
-			"Schema":     "./db/schema.sql",
-			"Migrations": "./db/migrate",
+			"Schema":           "./db/schema.sql",
+			"MigrationsPgSQL":  "./db/migrate/pgsql",
+			"MigrationsSQLite": "./db/migrate/sqlite",
 		},
 		"./handlers/pack.go": map[string]string{
 			"packPublic": "./public",
