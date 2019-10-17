@@ -13,7 +13,10 @@ import (
 	"zgo.at/zhttp/ctxkey"
 )
 
-var schema string
+var (
+	schema     string
+	migrations []string
+)
 
 // StartTest a new database test.
 func StartTest(t *testing.T) (context.Context, func()) {
@@ -47,11 +50,30 @@ func StartTest(t *testing.T) (context.Context, func()) {
 			t.Fatal(err)
 		}
 		schema = string(schemaB)
+
+		migs, err := ioutil.ReadDir(top + "/db/migrate/sqlite")
+		if err != nil {
+			t.Fatalf("read migration directory: %s", err)
+		}
+
+		for _, m := range migs {
+			mb, err := ioutil.ReadFile(fmt.Sprintf("%s/db/migrate/sqlite/%s", top, m.Name()))
+			if err != nil {
+				t.Fatalf("read migration: %s", err)
+			}
+			migrations = append(migrations, string(mb))
+		}
 	}
 
 	_, err = db.Exec(schema)
 	if err != nil {
 		t.Fatal(err)
+	}
+	for _, m := range migrations {
+		_, err = db.Exec(m)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	_, err = db.Exec(`insert into sites (code, name, plan, settings, created_at) values
