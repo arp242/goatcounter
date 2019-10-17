@@ -12,6 +12,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/pack"
 	"zgo.at/zhttp"
 )
 
@@ -45,9 +46,9 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 
 func NewWebsite(db *sqlx.DB) chi.Router {
 	if !cfg.Prod {
-		packTpl = nil
+		pack.Templates = nil
 	}
-	zhttp.InitTpl(packTpl)
+	zhttp.InitTpl(pack.Templates)
 
 	r := chi.NewRouter()
 	website{}.Mount(r, db)
@@ -57,7 +58,7 @@ func NewWebsite(db *sqlx.DB) chi.Router {
 func NewStatic(dir, domain string, prod bool) chi.Router {
 	r := chi.NewRouter()
 	if !prod {
-		packPublic = nil
+		pack.Public = nil
 	}
 	cache := 0
 	if cfg.Prod {
@@ -65,7 +66,7 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 	}
 	// Use * for Access-Control-Allow-Origin as we can't use *.domain, which is
 	// needed to allow "code.domain", "code2.domain", etc.
-	r.Get("/*", zhttp.NewStatic(dir, "*", cache, packPublic).ServeHTTP)
+	r.Get("/*", zhttp.NewStatic(dir, "*", cache, pack.Public).ServeHTTP)
 	return r
 }
 

@@ -15,18 +15,29 @@ import (
 
 func main() {
 	err := zpack.Pack(map[string]map[string]string{
-		"./db/pack.go": map[string]string{
-			"Schema":           "./db/schema.sql",
+		"./pack/pack.go": map[string]string{
+			"Public":           "./public",
+			"Templates":        "./tpl",
+			"SchemaSQLite":     "./db/schema.sql",
 			"MigrationsPgSQL":  "./db/migrate/pgsql",
 			"MigrationsSQLite": "./db/migrate/sqlite",
 		},
-		"./handlers/pack.go": map[string]string{
-			"packPublic": "./public",
-			"packTpl":    "./tpl",
-		},
-	})
+	}, "/.keep", "public/fonts/LICENSE")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+
+	// Don't need to commit this.
+	if _, err := os.Stat("./GeoLite2-Country.mmdb"); err == nil {
+		err := zpack.Pack(map[string]map[string]string{
+			"./pack/geodb.go": map[string]string{
+				"GeoDB": "./GeoLite2-Country.mmdb",
+			},
+		})
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 	}
 }

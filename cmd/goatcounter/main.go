@@ -17,8 +17,8 @@ import (
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
-	dbinit "zgo.at/goatcounter/db"
 	"zgo.at/goatcounter/handlers"
+	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/errorutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -71,11 +71,13 @@ func main() {
 	}
 
 	// Connect to DB.
-	m := dbinit.MigrationsSQLite
+	m := pack.MigrationsSQLite
+	p := "db/migrate/sqlite"
 	if cfg.PgSQL {
-		m = dbinit.MigrationsPgSQL
+		m = pack.MigrationsPgSQL
+		p = "db/migrate/pgsql"
 	}
-	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, dbinit.Schema, m)
+	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, pack.SchemaSQLite, m, p)
 	must(err)
 	defer db.Close()
 
