@@ -40,8 +40,10 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 		zhttp.Unpanic(cfg.Prod),
 		middleware.RedirectSlashes,
 		addctx(db, false),
-		zhttp.Headers(nil),
-		zhttp.Log(true, ""))
+		zhttp.Headers(nil))
+	if !cfg.Prod {
+		zhttp.Log(true, "")
+	}
 
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup/{plan}", zhttp.Wrap(h.signup))

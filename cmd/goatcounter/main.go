@@ -44,6 +44,9 @@ func main() {
 	defer zlog.ProfileCPU(cfg.CPUProfile)()
 
 	// Setup logging.
+	if cfg.Prod {
+		zlog.Config.FmtTime = "Jan _2 15:04:05 "
+	}
 	zlog.Config.StackFilter = errorutil.FilterPattern(
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
 	if cfg.EmailErrors != "" {

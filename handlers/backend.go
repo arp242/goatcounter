@@ -81,7 +81,11 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})
 
-		a := r.With(zhttp.Headers(headers), zhttp.Log(true, ""), keyAuth)
+		a := r.With(zhttp.Headers(headers), keyAuth)
+		if !cfg.Prod {
+			a = a.With(zhttp.Log(true, ""))
+		}
+
 		user{}.mount(a)
 		{
 			ap := a.With(loggedInOrPublic)
