@@ -10285,17 +10285,29 @@ will be ignored if the return value from the <code>path</code> callback is
 <p><a href="/debug/pprof">pprof</a></p>
 
 <h3>Sites</h3>
-
 <table><tbody>
+	<tr>
+		<th># hits</th>
+		<th>Code</th>
+		<th>Name</th>
+		<th>User</th>
+		<th>Created at</th>
+	</tr>
 	{{range $s := .Stats}}
 		<tr>
 			<td>{{nformat $s.Count}}</td>
 			<td>{{$s.Code}}</td>
 			<td>{{$s.Name}}</td>
+			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
 			<td>{{tformat $s.CreatedAt ""}}</td>
 		</tr>
 	{{end}}
 </tbody></table>
+
+<h3>Contacts</h3>
+{{range $s := .Stats}}
+	{{$s.Email}},
+{{end}}
 
 {{template "_backend_bottom.gohtml" .}}
 `),

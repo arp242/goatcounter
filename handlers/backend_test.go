@@ -89,6 +89,12 @@ func TestBackendAdmin(t *testing.T) {
 				if err != nil {
 					panic(err)
 				}
+
+				user := goatcounter.User{Site: site.ID, Name: "Martin", Email: "martin@arp242.net"}
+				err = user.Insert(ctx)
+				if err != nil {
+					panic(err)
+				}
 			},
 			router:   NewBackend,
 			path:     "/admin",
