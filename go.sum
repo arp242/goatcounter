@@ -62,6 +62,8 @@ zgo.at/validate v0.0.0-20191016030913-12666f2cd0d7 h1:syoP+etBl2iuz9KgPFSv+BagZV
 zgo.at/validate v0.0.0-20191016030913-12666f2cd0d7/go.mod h1:DQJZiijwvoDqG2x8Dlv6h0TiLR8ZgVOnLjmmiKTjlmQ=
 zgo.at/zdb v0.0.0-20191016110057-185a3089adb1 h1:G8jzFD9xcbS3zksI0c0dpfbGmOu77SfdBDcvd0AouOs=
 zgo.at/zdb v0.0.0-20191016110057-185a3089adb1/go.mod h1:lKJV2kqV0wDJFnOxlcnGezvhi6k8JLViNB4yM0zCYbs=
+zgo.at/zdb v0.0.0-20191104065344-b275c8066da2 h1:hcsboChky5tEqTdmEKbn8txV/1Iq0hnPg08CjCj4DHM=
+zgo.at/zdb v0.0.0-20191104065344-b275c8066da2/go.mod h1:lKJV2kqV0wDJFnOxlcnGezvhi6k8JLViNB4yM0zCYbs=
 zgo.at/zhttp v0.0.0-20191016110155-3f03574a8867 h1:ytkssqtYYWSHHZ8iHFW0Yvo+BDpaI5u5TqW3wen1wgk=
 zgo.at/zhttp v0.0.0-20191016110155-3f03574a8867/go.mod h1:kLieg15WPcQf2bqVgZ9dUDaXla6PrrqqxBcldGnRPYc=
 zgo.at/zlog v1.0.3 h1:VARDTSzp2tP0S0xYuITAlU/occFWEAbli7LM3ol/c+s=
