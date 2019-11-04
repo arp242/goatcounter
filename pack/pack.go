@@ -2,7 +2,14 @@
 
 package pack
 
-import "encoding/base64"
+import (
+	"bytes"
+	"compress/zlib"
+	"encoding/base64"
+	"io/ioutil"
+)
+
+var _, _, _, _ = zlib.BestSpeed, base64.NoPadding, ioutil.Discard, bytes.Join
 
 var MigrationsPgSQL = map[string][]byte{}
 
