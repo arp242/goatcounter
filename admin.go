@@ -15,6 +15,8 @@ import (
 type AdminStat struct {
 	Code      string    `db:"code"`
 	Name      string    `db:"name"`
+	User      string    `db:"user"`
+	Email     string    `db:"email"`
 	CreatedAt time.Time `db:"created_at"`
 	Count     int       `db:"count"`
 }
@@ -28,10 +30,13 @@ func (a *AdminStats) List(ctx context.Context) error {
 			sites.code,
 			sites.name,
 			sites.created_at,
+			users.name as user,
+			users.email,
 			count(*) - 1 as count
 		from sites
 		left join hits on hits.site=sites.id
-		group by sites.code, sites.name, sites.created_at
+		join users on users.site=sites.id
+		group by sites.code, sites.name, sites.created_at, users.name, users.email
 		order by count desc`)
 	return errors.Wrap(err, "AdminStats.List")
 }
