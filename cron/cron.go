@@ -13,6 +13,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
@@ -26,12 +27,11 @@ var tasks = []task{
 	{persistAndStat, 10 * time.Second},
 }
 
+var stopped = syncutil.NewAtomicInt(0)
+
 var wg sync.WaitGroup
 
 // Run stat updates in the background.
-//
-// TODO: If a cron job takes longer than the period it might get run twice. Not
-// sure if we want that.
 func Run(db *sqlx.DB) {
 	ctx := zdb.With(context.Background(), db)
 	l := zlog.Module("cron")
@@ -48,6 +48,9 @@ func Run(db *sqlx.DB) {
 
 			for {
 				time.Sleep(t.period)
+				if stopped.Value() == 1 {
+					return
+				}
 
 				var err error
 				func() {
@@ -66,6 +69,7 @@ func Run(db *sqlx.DB) {
 // Wait for all running tasks to finish and then run all tasks for consistency
 // on shutdown.
 func Wait(db *sqlx.DB) {
+	stopped.Set(1)
 	ctx := zdb.With(context.Background(), db)
 
 	wg.Wait()
