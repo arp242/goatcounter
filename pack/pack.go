@@ -9312,7 +9312,6 @@ return jQuery;
 
 	// Select a period by dragging the mouse over a timeframe.
 	var drag_timeframe = function() {
-		// TODO(public): finish.
 		return;
 
 		/*
@@ -9438,8 +9437,11 @@ return jQuery;
 				var t = $(e.target);
 
 			var title = t.attr('title');
-			if (!title)
+			if (!title) {
 				title = t.attr('data-title');
+				if (!title)
+					return;
+			}
 			else if (hbar) {
 				// Reformat date and time according to site settings. This won't
 				// work for non-JS users, but doing this on the template site
@@ -9748,22 +9750,13 @@ h3 + p { margin-top: 0; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
-.count-list td:first-child,
-.count-list td:nth-child(2) {
-	/* Same as .chart, so it sits in middle when collapsed. */
-	/* TODO
-	height: 60px;
-	vertical-align: middle;
-	*/
-}
-
 .rlink {
 	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
 	max-width: 17.5em;
 	display: inline-block;	
 
-	/* TODO: ideally I'd like the … to be in the centre, rather than at the end.
-	 * Need JS solution for that though :-/ */
+	/* Ideally I'd like the … to be in the centre, rather than at the end. Need
+	 * JS solution for that though :-/ */
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
@@ -9819,13 +9812,23 @@ h3 + p { margin-top: 0; }
 @media (min-width: 55rem) {
 	.chart { margin-bottom: 1em; }
 }
-.chart > .max {
+
+.go:after {
+	content: "🡭";
+}
+
+.chart > .top {
 	font-size: 13px;
 	line-height: 1;
 	position: absolute;
+	top: -1.2em;
+}
+.chart > .go {
+	left: .2em;
+}
+.chart > .max {
 	font-weight: bold;
 	right: .2em;
-	top: -1.2em;
 }
 
 /* Bar char */
@@ -10033,15 +10036,17 @@ var Templates = map[string][]byte{
 		<td>{{$h.Count | nformat}}</td>
 		<td class="hide-mobile">
 			<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-			{{- /* TODO: vertical alignment is messed up because of the ellipsis on .rlink :-/
-			<sup><a target="_blank" href="https://{{$.Site.Name}}{{$h.Path}}">go</a></sup>
-			*/ -}}
 		</td>
 		<td>
 			<div class="show-mobile">
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 			</div>
-			<div class="chart chart-bar"><span class="max">{{nformat .Max}}</span><span class="half"></span>{{bar_chart .Stats .Max}}</div>
+			<div class="chart chart-bar">
+				<a class="top go" target="_blank" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
+				<span class="top max">{{nformat .Max}}</span>
+				<span class="half"></span>
+				{{bar_chart .Stats .Max}}
+			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" $.Refs}}
 				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">load more</a>{{end}}
@@ -10054,10 +10059,9 @@ var Templates = map[string][]byte{
 {{range $r := .}}
 	<tr>
 		<td>{{$r.Count | nformat}}</td>
-		{{/* Don't link groups? */}}
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path}}{{$r.Path}}
-			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a href="http://{{$r.Path}}" target="_blank">go</a></sup>{{end}}
+			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank">go</a></sup>{{end}}
 			{{else}}(no data){{end}}
 		</td>
 	</tr>

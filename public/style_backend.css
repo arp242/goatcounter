@@ -71,22 +71,13 @@ h3 + p { margin-top: 0; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
-.count-list td:first-child,
-.count-list td:nth-child(2) {
-	/* Same as .chart, so it sits in middle when collapsed. */
-	/* TODO
-	height: 60px;
-	vertical-align: middle;
-	*/
-}
-
 .rlink {
 	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
 	max-width: 17.5em;
 	display: inline-block;	
 
-	/* TODO: ideally I'd like the … to be in the centre, rather than at the end.
-	 * Need JS solution for that though :-/ */
+	/* Ideally I'd like the … to be in the centre, rather than at the end. Need
+	 * JS solution for that though :-/ */
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
@@ -142,13 +133,23 @@ h3 + p { margin-top: 0; }
 @media (min-width: 55rem) {
 	.chart { margin-bottom: 1em; }
 }
-.chart > .max {
+
+.go:after {
+	content: "🡭";
+}
+
+.chart > .top {
 	font-size: 13px;
 	line-height: 1;
 	position: absolute;
+	top: -1.2em;
+}
+.chart > .go {
+	left: .2em;
+}
+.chart > .max {
 	font-weight: bold;
 	right: .2em;
-	top: -1.2em;
 }
 
 /* Bar char */

@@ -138,7 +138,6 @@
 
 	// Select a period by dragging the mouse over a timeframe.
 	var drag_timeframe = function() {
-		// TODO(public): finish.
 		return;
 
 		/*
@@ -264,8 +263,11 @@
 				var t = $(e.target);
 
 			var title = t.attr('title');
-			if (!title)
+			if (!title) {
 				title = t.attr('data-title');
+				if (!title)
+					return;
+			}
 			else if (hbar) {
 				// Reformat date and time according to site settings. This won't
 				// work for non-JS users, but doing this on the template site
