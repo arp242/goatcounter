@@ -10554,7 +10554,7 @@ will be ignored if the return value from the <code>path</code> callback is
 	<br>
 
 	<div id="home-demo">
-		<a class="hlink" href="https://arp242.goatcounter.com" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
+		<a class="hlink" href="https://stats.arp242.net" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
 	</div>
 	<br><br>
 
