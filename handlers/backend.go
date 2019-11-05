@@ -188,7 +188,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		case "year":
 			start = start.Add(-365 * day)
 		case "all":
-			start = start.Add(-365 * day * 20) // TODO: set to 1970
+			start = time.Date(1970, 1, 1, 0, 0, 0, 0, start.Location())
 		}
 	} else {
 		if s := r.URL.Query().Get("period-start"); s != "" {

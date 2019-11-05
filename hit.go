@@ -213,9 +213,9 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
-	// TODO: not doing this as it's not set from memstore.
-	// site := MustGetSite(ctx)
-	// h.Site = site.ID
+	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set from memstore.
+		h.Site = s.ID
+	}
 
 	if h.CreatedAt.IsZero() {
 		h.CreatedAt = time.Now().UTC()
@@ -372,7 +372,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 	}
 	l = l.Since("select hits_stats")
 
-	// TODO: meh...
+	// Get max amount and totals.
 	hh := *h
 	totalDisplay := 0
 	for i := range hh {

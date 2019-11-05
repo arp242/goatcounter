@@ -16,6 +16,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
+	"zgo.at/zhttp/ctxkey"
 )
 
 func TestBackendCount(t *testing.T) {
@@ -91,7 +92,7 @@ func TestBackendAdmin(t *testing.T) {
 				}
 
 				user := goatcounter.User{Site: site.ID, Name: "Martin", Email: "martin@arp242.net"}
-				err = user.Insert(ctx)
+				err = user.Insert(context.WithValue(ctx, ctxkey.Site, site))
 				if err != nil {
 					panic(err)
 				}

@@ -46,9 +46,9 @@ type User struct {
 
 // Defaults sets fields to default values, unless they're already set.
 func (u *User) Defaults(ctx context.Context) {
-	// TODO: not set in website
-	// site := MustGetSite(ctx)
-	// u.Site = site.ID
+	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set in website.
+		u.Site = s.ID
+	}
 
 	if u.CreatedAt.IsZero() {
 		u.CreatedAt = time.Now().UTC()

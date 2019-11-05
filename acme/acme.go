@@ -39,7 +39,6 @@ func makecert(domain string) {
 		return
 	}
 
-	// TODO: a Go solution would be better, but this is easier for now.
 	out, err := exec.Command("acme.sh",
 		"--home", fmt.Sprintf("%s/acme.sh", cfg.CertDir),
 		"--webroot", cfg.CertDir,
