@@ -160,10 +160,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 const day = 24 * time.Hour
 
 func (h backend) index(w http.ResponseWriter, r *http.Request) error {
+	site := goatcounter.MustGetSite(r.Context())
+
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
-	if goatcounter.MustGetSite(r.Context()).Settings.Public &&
-		goatcounter.GetUser(r.Context()).ID == 0 {
+	if site.Settings.Public && goatcounter.GetUser(r.Context()).ID == 0 {
 		w.Header().Set("Cache-Control", "public,max-age=3600")
 		w.Header().Set("Vary", "Cookie")
 	}
@@ -209,7 +210,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	l := zlog.Module("backend")
+	l := zlog.Module("backend").Field("site", site.ID)
 
 	var pages goatcounter.HitStats
 	total, totalDisplay, _, err := pages.List(r.Context(), start, end, nil)
@@ -245,7 +246,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		l = l.Since("refs.ListRefs")
 	}
 
-	subs, err := goatcounter.MustGetSite(r.Context()).ListSubs(r.Context())
+	subs, err := site.ListSubs(r.Context())
 	if err != nil {
 		return err
 	}

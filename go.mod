@@ -16,7 +16,7 @@ require (
 	zgo.at/validate v0.0.0-20191016030913-12666f2cd0d7
 	zgo.at/zdb v0.0.0-20191104065344-b275c8066da2
 	zgo.at/zhttp v0.0.0-20191016110155-3f03574a8867
-	zgo.at/zlog v1.0.4
+	zgo.at/zlog v1.0.5
 	zgo.at/zpack v0.0.0-20191017081413-891e9f24a4d3
 	zgo.at/ztest v0.0.0-20191016022435-f3e360521191
 )

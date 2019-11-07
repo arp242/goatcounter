@@ -10042,7 +10042,9 @@ var Templates = map[string][]byte{
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 			</div>
 			<div class="chart chart-bar">
+				{{/* We don't have the site domain, so can't link to it.
 				<a class="top go" target="_blank" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
+				*/}}
 				<span class="top max">{{nformat .Max}}</span>
 				<span class="half"></span>
 				{{bar_chart .Stats .Max}}
