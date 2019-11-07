@@ -9258,7 +9258,7 @@ return jQuery;
 				url: $(this).attr('data-href'),
 				dataType: 'json',
 				success: function(data) {
-					$('.pages-list .count-list tbody').append(data.rows);
+					$('.pages-list .count-list-pages > tbody').append(data.rows);
 
 					var b = $('.pages-list .load-more');
 					b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
@@ -9399,7 +9399,7 @@ return jQuery;
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list').on('click', '.rlink', function(e) {
+		$('.count-list-pages').on('click', '.rlink', function(e) {
 			e.preventDefault();
 
 			var params = get_params(),
@@ -10279,7 +10279,7 @@ will be ignored if the return value from the <code>path</code> callback is
 
 <div class="pages-list">
 	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
-	<table class="count-list">
+	<table class="count-list count-list-pages">
 		<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 	</table>
 

@@ -68,7 +68,7 @@
 				url: $(this).attr('data-href'),
 				dataType: 'json',
 				success: function(data) {
-					$('.pages-list .count-list tbody').append(data.rows);
+					$('.pages-list .count-list-pages > tbody').append(data.rows);
 
 					var b = $('.pages-list .load-more');
 					b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
@@ -209,7 +209,7 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list').on('click', '.rlink', function(e) {
+		$('.count-list-pages').on('click', '.rlink', function(e) {
 			e.preventDefault();
 
 			var params = get_params(),

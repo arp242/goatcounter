@@ -43,7 +43,7 @@
 
 <div class="pages-list">
 	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
-	<table class="count-list">
+	<table class="count-list count-list-pages">
 		<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 	</table>
 
