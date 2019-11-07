@@ -9441,11 +9441,11 @@ return jQuery;
 
 	// Display popup when hovering a chart.
 	var chart_hover = function() {
-		$('.chart').on('mouseleave', function(e) {
+		$(document.body).on('mouseleave', '.chart', function(e) {
 			$('#popup').remove();
 		});
 
-		$('.chart').on('mouseenter', '> *', function(e) {
+		$(document.body).on('mouseenter', '.chart > *', function(e) {
 			var hbar = e.target.tagName.toLowerCase() === 'div';
 			if (hbar && e.target.style.length > 0)
 				var t = $(e.target.parentNode);
