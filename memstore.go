@@ -48,7 +48,7 @@ func (m *ms) Persist(ctx context.Context) error {
 
 	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
-			"ref_scheme", "browser", "size", "created_at"})
+			"ref_scheme", "browser", "size", "location", "created_at"})
 	for _, h := range hits {
 		var err error
 		h.refURL, err = url.Parse(h.Ref)
@@ -70,7 +70,7 @@ func (m *ms) Persist(ctx context.Context) error {
 		}
 
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
-			h.RefScheme, h.Browser, h.Size, zdb.Date(h.CreatedAt))
+			h.RefScheme, h.Browser, h.Size, h.Location, zdb.Date(h.CreatedAt))
 	}
 	return ins.Finish()
 }

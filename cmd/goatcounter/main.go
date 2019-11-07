@@ -80,6 +80,12 @@ func main() {
 		m = pack.MigrationsPgSQL
 		p = "db/migrate/pgsql"
 	}
+	// TODO: I'd like a switch to run these migrations:
+	//   Show migration status and exit:             ./goatcounter -migrate
+	//   Migrate all pending migrations and exit:    ./goatcounter -migrate all
+	//   Migrate one and exit:                       ./goatcounter -migrate 2019-10-16-1-geoip
+	//   Rollback last migration:                    ./goatcounter -rollback last
+	//   Rollback specific migration:                ./goatcounter -rollback 2019-10-16-1-geoip
 	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, pack.SchemaSQLite, m, p)
 	must(err)
 	defer db.Close()

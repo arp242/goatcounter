@@ -81,7 +81,7 @@ drop table if exists browser_stats;
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
-	day            date           not null,
+	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	browser        varchar        not null,
 	version        varchar        not null,
 	count          int            not null,

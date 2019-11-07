@@ -9,6 +9,8 @@ require (
 	github.com/lib/pq v1.2.0
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/mssola/user_agent v0.5.0
+	github.com/oschwald/geoip2-golang v1.3.0
+	github.com/oschwald/maxminddb-golang v1.5.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.2.0

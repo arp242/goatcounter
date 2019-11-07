@@ -11,9 +11,25 @@ import (
 
 var _, _, _, _ = zlib.BestSpeed, base64.NoPadding, ioutil.Discard, bytes.Join
 
-var MigrationsPgSQL = map[string][]byte{}
+var MigrationsPgSQL = map[string][]byte{
+	"db/migrate/pgsql/2019-10-16-1-geoip.sql": []byte(`begin;
+	alter table hits
+		add column location varchar not null default '';
 
-var MigrationsSQLite = map[string][]byte{}
+	insert into version values ('2019-10-16-1-geoip');
+commit;
+`),
+}
+
+var MigrationsSQLite = map[string][]byte{
+	"db/migrate/sqlite/2019-10-16-1-geoip.sql": []byte(`begin;
+	alter table hits
+		add column location varchar not null default '';
+
+	insert into version values ('2019-10-16-1-geoip');
+commit;
+`),
+}
 
 var Public = map[string][]byte{
 	"public/all.min.css": []byte(`
@@ -10008,7 +10024,7 @@ drop table if exists browser_stats;
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
-	day            date           not null,
+	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	browser        varchar        not null,
 	version        varchar        not null,
 	count          int            not null,
