@@ -205,11 +205,9 @@ h3 + p { margin-top: 0; }
 
 #drag-box {
 	position: absolute;
-	background-color: red;
-	border: 1px solid blue;
 
-	min-width: 4px;
-	min-height: 4px;
+	background-color: #99f;
+	opacity: .5;
 }
 
 .hide        { display: none; }
