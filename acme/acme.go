@@ -28,7 +28,7 @@ func makecert(domain string) {
 	wg.Add(1)
 	defer wg.Done()
 
-	l := zlog.Module("makecert").Fields(zlog.F{"domain": domain})
+	l := zlog.Module("makecert").Field("domain", domain)
 	if !cfg.Prod {
 		l.Print("skipping on dev")
 		return
@@ -44,7 +44,7 @@ func makecert(domain string) {
 		"--webroot", cfg.CertDir,
 		"--issue", "-d", domain).CombinedOutput()
 	if err != nil {
-		l.Fields(zlog.F{"out": string(out)}).Error(errors.Wrap(err, "acme.sh"))
+		l.Field("out", string(out)).Error(errors.Wrap(err, "acme.sh"))
 		return
 	}
 

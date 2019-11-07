@@ -53,7 +53,7 @@ func (m *ms) Persist(ctx context.Context) error {
 		var err error
 		h.refURL, err = url.Parse(h.Ref)
 		if err != nil {
-			zlog.Fields(zlog.F{"ref": h.Ref}).Errorf("could not parse ref: %s", err)
+			zlog.Field("ref", h.Ref).Errorf("could not parse ref: %s", err)
 			continue
 		}
 
