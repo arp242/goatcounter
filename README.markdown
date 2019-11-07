@@ -8,7 +8,7 @@ There are two ways to run this: as **hosted service starting at $3/month**
 [https://www.goatcounter.com][www] for the hosted service and user
 documentation.
 
-There's a live demo at [https://arp242.goatcounter.com][demo].
+There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
 The current status is *public beta*, or "MVP" (Minimum Viable Product) to get
 feedback from others. That being sad, it should be stable and useful. It just
@@ -137,7 +137,6 @@ To use it:
 
 
 [www]: https://www.goatcounter.com
-[demo]: https://arp242.goatcounter.com
 [privacy]: https://goatcounter.com/privacy
 [pq]: https://godoc.org/github.com/lib/pq
 [goathost]: https://github.com/zgoat/goathost
