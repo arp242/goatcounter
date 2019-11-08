@@ -4,14 +4,14 @@
 <p>To get support:</p>
 <ul>
 	<li>Open a <a href="https://github.com/zgoat/goatcounter/issues/new">GitHub
-		issue</a>. It's fine to use this for support requests, as GitHub
+		issue</a>. It’s fine to use this for support requests, as GitHub
 		issues are public and the answers may be useful for others in the
 		future.</li>
 
 	<li>You can also send an email if you prefer:
 		<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>.</li>
 
-	<li>For chat there's a <a href="https://t.me/goatcounter">Public Telegram Group</a>.</li>
+	<li>For chat there’s a <a href="https://t.me/goatcounter">Public Telegram Group</a>.</li>
 </ul>
 
 <h2>FAQ</h2>
@@ -30,6 +30,52 @@
 		Firefox or Chrome, and it’s hard to reliably detect this, so in
 		practice it’s unlikely that 100% of all bots are ignored (this is a
 		general problem with analytics, and not specific to GoatCounter).</dd>
+
+	<dt id="dnt">How is the <code>Do-Not-Track</code> header handled? <a href="#dnt">§</a></dt>
+	<dd>It’s ignored for two reasons:
+		<ol>
+			<li>It has very low adoption across the internet in the first
+				place. Setting it
+				<a href="https://www.digitaltrends.com/computing/do-not-tracking-tools-do-nothing/">
+				probably makes you <em>more</em> identifiable by trackers</a>. I
+				don’t recommend setting it if you care about not being tracked.</li>
+			<li>I don’t think that DNT is really intended for the kind of
+				statistics that GoatCounter collects. While
+				<a href="https://www.ietf.org/archive/id/draft-mayer-do-not-track-00.txt">the specification</a>
+				defines “tracking” as <em>“collection, retention, and use of all
+				data related to the request and response”</em>, it’s clear
+				from the introduction that this is primarily intended to combat
+				invasive and persist cross-site tracking. From the introduction:
+				<blockquote><p>In the status quo: A user navigates a sequence of popular websites,
+					many of which incorporate content from a major advertising
+					network. In addition to delivering advertisements, the
+					advertising network assigns a unique cookie to the user agent
+					and compiles observations of the user’s browsing habits.</p>
+
+					<p>With Do Not Track: A user enables Do Not Track in her web
+					browser. She navigates a sequence of popular websites, many of
+					which incorporate content from a major advertising network.  The
+					advertising network delivers advertisements, but refrains from
+					THIRD- PARTY TRACKING of the user.</p>
+				</blockquote>
+
+				GoatCounter doesn’t do any of this, it just collects some basic
+				statistics about how many people visit your site. Adhering to
+				the strict definition of “tracking” is virtually impossible for
+				any site: access logs, error logs, binding a cookie to IP, and
+				other common and sensible features could be considered
+				“tracking”.</li>
+		</ol>
+	</dd>
+
+	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
+	<dd>GoatCounter does not collect data which can be used to identify a
+		person, and the GDPR almost certainly doesn’t apply. See Recital 26,
+		<em>“Not applicable to anonymous data”</em>.<br><br>
+
+		That being said, this is <em>not</em> legal advice, and it’s advised you
+		consult a lawyer if you want detailed legal advice.
+	</dd>
 
 	<dt id="custom-domain">How do I set up a custom domain? <a href="#custom-domain">§</a></dt>
 	<dd>
