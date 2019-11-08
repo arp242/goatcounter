@@ -56,6 +56,8 @@ var groups = map[string]string{
 	"hackerweb.app":                      "Hacker News",
 	"www.daemonology.net/hn-daily":       "Hacker News",
 	"quiethn.com":                        "Hacker News",
+	"hnews.xyz":                          "Hacker News",
+	"hackernewsmobile.com":               "Hacker News",
 	// http://www.elegantreader.com/item/17358103
 	// https://www.daemonology.net/hn-daily/2019-05.html
 
@@ -63,6 +65,12 @@ var groups = map[string]string{
 	"com.google.android.gm": "Email",
 	"mail.yahoo.com":        "Email",
 	//  https://mailchi.mp
+
+	"org.fox.ttrss":            "RSS",
+	"www.inoreader.com":        "RSS",
+	"com.innologica.inoreader": "RSS",
+	"usepanda.com":             "RSS",
+	"feedly.com":               "RSS",
 
 	"com.google.android.googlequicksearchbox":                      "Google",
 	"com.google.android.googlequicksearchbox/https/www.google.com": "Google",
@@ -121,59 +129,29 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 		return g, nil, true, true
 	}
 
-	// Special-fu for Feedly.
-	if strings.HasPrefix(refURL.Host, "feedly.com") {
-		// These URLs are all private, and we can't get any informatio from
-		// them. Just list as "Feedly".
-		//
-		// https://feedly.com/i/collection/content/user/e5b84827-c85e-47db-81e6-15edd38e48f6/category/os-news
-		// https://feedly.com/i/tag/user/34270c99-ef32-4b69-9e66-91f647b26247/tag/Test
-		// https://feedly.com/i/category/programming
-		if refURL.Path == "/i/latest" ||
-			refURL.Path == "/i/my" ||
-			refURL.Path == "/i/saved" ||
-			strings.HasPrefix(refURL.Path, "/i/collection/") ||
-			strings.HasPrefix(refURL.Path, "/i/tag/") ||
-			strings.HasPrefix(refURL.Path, "/i/category/") {
-			return "feedly.com", nil, true, false
-		}
-
-		// Subscriptions:
-		// https://feedly.com/i/subscription/feed%2Fhttp%3A%2F%2Fafreshcup.com%2Ffeed%2F
-		// https://feedly.com/i/subscription/feed%2Fhttp%3A%2F%2Fafreshcup.com%2Fhome%2Frss.xml
-		// https://feedly.com/i/subscription/feed%2Fhttp%3A%2F%2Ffeeds.feedburner.com%2FCodrops
-		// https://feedly.com/i/subscription/feed%2Fhttps%3A%2F%2Fnews.ycombinator.com%2Frss
-		if strings.HasPrefix(refURL.Path, "/i/subscription/feed%2F") {
-			p, err := url.PathUnescape(refURL.Path[23:])
-			if err != nil {
-				zlog.Error(err)
-			} else {
-				return p, nil, false, false
-			}
-		}
-
-		// TODO: get feed from this too.
-		// https://feedly.com/i/entry/+XHjch7MQtkDE3jVoUKNd7EXkxgLP+qd5d/qDPKdWEI=_16b1e5448ca:a8305:2a7e54a4
-		// https://feedly.com/i/entry/1gOA8sgsyIN6Fa4oaXZX0qh2K2SOUMLVRi6qwkvVFZQ=_16a9fa31a3c:ac380:2a7e54a4
-		// https://feedly.com/i/entry/5Td+U2A0pKfHcMqAZWYZgKWgpIItLeNiq7cfP1bAozw=_16b0df5c298:11e19b3:fe3711f1
-	}
-
 	// Useful: https://lobste.rs/s/tslw6k/why_i_m_still_using_jquery_2019
 	// Not really: https://lobste.rs/newest/page/8, https://lobste.rs/page/7
 	//             https://lobste.rs/search, https://lobste.rs/t/javascript
 	if refURL.Host == "lobste.rs" && !strings.HasPrefix(refURL.Path, "/s/") {
 		return "lobste.rs", nil, true, false
 	}
+	if refURL.Host == "gambe.ro" && !strings.HasPrefix(refURL.Path, "/s/") {
+		return "lobste.rs", nil, true, false
+	}
 
 	// Reddit
-	// https://www.reddit.com/r/programming/top
-	// https://www.reddit.com/r/programming/.compact
-	// https://www.reddit.com/r/programming.compact
-	// https://www.reddit.com/r/webdev/new
+	// www.reddit.com/r/programming/top
+	// www.reddit.com/r/programming/.compact
+	// www.reddit.com/r/programming.compact
+	// www.reddit.com/r/webdev/new
+	// www.reddit.com/r/vim/search
 	if refURL.Host == "www.reddit.com" {
 		switch {
 		case strings.HasSuffix(refURL.Path, "/top") || strings.HasSuffix(refURL.Path, "/new"):
 			refURL.Path = refURL.Path[:len(refURL.Path)-4]
+			changed = true
+		case strings.HasSuffix(refURL.Path, "/search"):
+			refURL.Path = refURL.Path[:len(refURL.Path)-7]
 			changed = true
 		case strings.HasSuffix(refURL.Path, ".compact"):
 			refURL.Path = refURL.Path[:len(refURL.Path)-8]
