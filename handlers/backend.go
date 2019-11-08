@@ -28,9 +28,9 @@ import (
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/sliceutil"
-	"zgo.at/validate"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zvalidate"
 )
 
 type backend struct{}
@@ -517,7 +517,7 @@ func (h backend) export(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {
-	v := validate.New()
+	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v
@@ -536,7 +536,7 @@ func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) er
 }
 
 func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
-	v := validate.New()
+	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v

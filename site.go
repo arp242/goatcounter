@@ -17,10 +17,10 @@ import (
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/validate"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zvalidate"
 )
 
 // Plan column values.
@@ -115,7 +115,7 @@ func (s *Site) Defaults(ctx context.Context) {
 
 // Validate the object.
 func (s *Site) Validate(ctx context.Context) error {
-	v := validate.New()
+	v := zvalidate.New()
 
 	v.Required("name", s.Name)
 	v.Required("code", s.Code)

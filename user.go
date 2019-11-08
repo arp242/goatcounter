@@ -14,12 +14,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/validate"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
+	"zgo.at/zvalidate"
 )
 
 const (
@@ -60,7 +60,7 @@ func (u *User) Defaults(ctx context.Context) {
 
 // Validate the object.
 func (u *User) Validate(ctx context.Context) error {
-	v := validate.New()
+	v := zvalidate.New()
 
 	v.Required("site", u.Site)
 	v.Required("name", u.Name)

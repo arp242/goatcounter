@@ -15,9 +15,9 @@ import (
 	"github.com/pkg/errors"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"
-	"zgo.at/validate"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zvalidate"
 )
 
 func ptr(s string) *string { return &s }
@@ -225,7 +225,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 
 // Validate the object.
 func (h *Hit) Validate(ctx context.Context) error {
-	v := validate.New()
+	v := zvalidate.New()
 
 	v.Required("site", h.Site)
 	v.Required("path", h.Path)

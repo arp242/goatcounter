@@ -18,10 +18,10 @@ import (
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/validate"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zvalidate"
 )
 
 type website struct{}
@@ -123,7 +123,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 	defer tx.Rollback()
 
-	v := validate.New()
+	v := zvalidate.New()
 	if strings.TrimSpace(args.TuringTest) != "9" {
 		v.Append("turing_test", "must fill in correct value")
 	}
@@ -136,7 +136,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 	err = site.Insert(txctx)
 	if err != nil {
-		if _, ok := err.(*validate.Validator); !ok {
+		if _, ok := err.(*zvalidate.Validator); !ok {
 			return err
 		}
 		v.Sub("site", "", err)
@@ -150,7 +150,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 	err = user.Insert(txctx)
 	if err != nil {
-		if _, ok := err.(*validate.Validator); !ok {
+		if _, ok := err.(*zvalidate.Validator); !ok {
 			return err
 		}
 		v.Sub("user", "", err)
