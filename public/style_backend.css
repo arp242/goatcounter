@@ -21,7 +21,7 @@ nav {
 	padding-right: .5em;
 }
 
-h2 sup {
+h2 sup, h2 small {
 	font-size: .9rem;
 	font-weight: normal;
 }
@@ -167,8 +167,16 @@ h3 + p { margin-top: 0; }
 	position: relative;
 	flex-grow: 1;
 }
+
+/* Chart colours
+ * TODO: color scheme setting?
+#77f / #99f
+#db1212 / #6b1818
+*/
+.chart-bar > div > div, .chart-hbar span               { background-color: #9a15a4; }
+.chart-bar > div:hover > div, .chart-hbar a:hover span { background-color: #b11abc; }
+
 .chart-bar > div > div {
-	background-color: #db1212;
 	position: absolute;
 	left: 0;
 	bottom: 0;
@@ -182,7 +190,6 @@ h3 + p { margin-top: 0; }
 
 }
 .chart-bar > div:hover       { background-color: #aaa; }
-.chart-bar > div:hover > div { background-color: #6b1818; }
 
 #popup {
 	position: absolute;
@@ -221,25 +228,42 @@ legend   { font-weight: bold; }
 
 table.auto { width: auto; }
 
-.chart-hbar {
-	width: 100%;
-	height: 4em;
-	line-height: 4em;
-	background-color: #ddd;
-	border: 1px solid #666;
-	display: flex;
+.browser-charts       { display: flex; justify-content: space-between; }
+.browser-charts > div { width: 32%; }
+.browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
+
+@media (max-width: 45rem) {
+	.browser-charts       { display: block; }
+	.browser-charts > div { width: auto; }
 }
 
 .chart-hbar a {
-	padding-left: .2em;
-	color: #000;
-	overflow: hidden;
-	word-break: break-all;
-	/*
-	text-shadow: 1px 2px rgba(0, 0, 0, .5);
-	*/
+	position: relative;
+	margin-bottom: .3em;
+	display: block;
+	font-size: 1rem;
+
+	color: #252525;
+}
+.chart-hbar a:hover { text-decoration: none; color: #555; }
+.chart-hbar small {
+	display: block;
+	font-size: 1rem;
+}
+.chart-hbar span {
+	display: inline-block;
+	color: #fff;
+	padding: .1em .5em;
+
+	/* So the text is readable if it's smaller than the chart.
+	 * TODO: It's 'good enough' for now, but I am not too happy with this. */
+	text-shadow: 2px 1px rgba(0, 0, 0, .5);
 }
 
-.size-list a { cursor: default; }
-
-.chart-hbar a:hover { filter: brightness(90%); }
+/* Don't make things appear clickable that aren't. */
+.location-list a            { cursor: default; }
+.location-list a:hover      { color: #252525; }
+.location-list a:hover span { background-color: #9a15a4; }
+.chart-hbar > a[title^="(other): "],       .chart-hbar > a[title^="(unknown): "]       { cursor: default; font-style: italic; }
+.chart-hbar > a[title^="(other): "]:hover, .chart-hbar > a[title^="(unknown): "]:hover { color: #252525; }
+.chart-hbar > a[title^="(other): "]:hover span, .chart-hbar > a[title^="(unknown): "]:hover span { background-color: #9a15a4; }

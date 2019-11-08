@@ -43,9 +43,13 @@
 
 <div class="pages-list">
 	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
-	<table class="count-list count-list-pages">
-		<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
-	</table>
+	{{if eq .TotalHits 0}}
+		<em>Nothing to display</em>
+	{{else}}
+		<table class="count-list count-list-pages">
+			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
+		</table>
+	{{end}}
 
 	{{/* TODO: make it work w/o JS */}}
 	{{if gt .TotalHits .TotalHitsDisplay}}
@@ -55,18 +59,34 @@
 	{{end}}
 </div>
 
-<h2>Browsers</h2>
-{{if gt .TotalBrowsers 0}}
-	<h3>Browsers</h3>
-	<div class="browsers-list chart chart-hbar" data-total="{{.TotalBrowsers}}">{{hbar_chart .Browsers .TotalBrowsers 0 .5}}</div>
-
-	<h3>Screen size</h3>
-	<p>Collected since 16 Sept 2019</p>
-	<div class="size-list chart chart-hbar" data-total="{{.TotalBrowsers}}">{{hbar_chart .SizeStat .TotalBrowsers 0 0}}</div>
-
-	<h3>Mobile browsers</h3>
-	<p>Approximately {{.TotalMobile}}% of visitors are using a mobile browser
-	(e.g. phone, tablet).</p>
-{{end}}
+<div class="browser-charts">
+	<div>
+		<h2>Browsers</h2>
+		{{if eq .TotalBrowsers 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Browsers .TotalBrowsers 0 .5}}</div>
+		{{end}}
+	</div>
+	<div>
+		<h2>Screen size{{if beforeSize .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0}}</div>
+			<p><small>The screen sizes are an indication, and are influenced by DPI,
+				zoom levels, etc. Approximately {{.TotalMobile}}% advertised the
+				usage of a mobile browser.</small></p>
+		{{end}}
+	</div>
+	<div>
+		<h2>Locations{{if beforeLoc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="chart-hbar location-list">{{hbar_chart .LocationStat .TotalHits 0 3}}</div>
+		{{end}}
+	</div>
+</div>
 
 {{- template "_backend_bottom.gohtml" . }}

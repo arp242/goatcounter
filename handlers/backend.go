@@ -80,6 +80,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			ap.Get("/refs", zhttp.Wrap(h.refs))
 			ap.Get("/pages", zhttp.Wrap(h.pages))
 			ap.Get("/browsers", zhttp.Wrap(h.browsers))
+			ap.Get("/sizes", zhttp.Wrap(h.sizes))
 		}
 		{
 			af := a.With(loggedIn)
@@ -233,11 +234,11 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l = l.Since("browsers.List")
 
 	var sizeStat goatcounter.BrowserStats
-	err = sizeStat.ListSize(r.Context(), start, end)
+	err = sizeStat.ListSizes(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
-	l = l.Since("sizeStat.ListSize")
+	l = l.Since("sizeStat.ListSizes")
 
 	var locStat goatcounter.BrowserStats
 	_, err = locStat.ListLocations(r.Context(), start, end)
@@ -355,7 +356,7 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var browsers goatcounter.BrowserStats
-	total, err := browsers.ListBrowser(r.Context(), r.URL.Query().Get("browser"), start, end)
+	total, err := browsers.ListBrowser(r.Context(), r.URL.Query().Get("name"), start, end)
 	if err != nil {
 		return err
 	}
@@ -363,6 +364,32 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
 	tpl := f(browsers, total, int(t), .5)
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"html": string(tpl),
+	})
+}
+
+func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var sizeStat goatcounter.BrowserStats
+	total, err := sizeStat.ListSize(r.Context(), r.URL.Query().Get("name"), start, end)
+	if err != nil {
+		return err
+	}
+
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32) template.HTML)
+	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
+	tpl := f(sizeStat, total, int(t), .5)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),

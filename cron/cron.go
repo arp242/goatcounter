@@ -99,6 +99,8 @@ func persistAndStat(ctx context.Context) error {
 	return err
 }
 
+// Regen all stats:
+// delete from hit_stats; delete from browser_stats; delete from location_stats; update sites set last_stat=null;
 func updateStats(ctx context.Context) error {
 	var sites goatcounter.Sites
 	err := sites.List(ctx)

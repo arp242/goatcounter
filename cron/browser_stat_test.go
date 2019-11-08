@@ -52,7 +52,7 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `2 -> [{68.0 false 1} {69.0 false 1}]`
+	want = `2 -> [{Firefox 68.0 false 1} {Firefox 69.0 false 1}]`
 	out = fmt.Sprintf("%d -> %v", total, stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)

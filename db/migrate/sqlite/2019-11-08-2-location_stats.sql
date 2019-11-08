@@ -17,6 +17,8 @@ begin;
 	);
 	create index "iso_3166_1#alpha2" on iso_3166_1(alpha2);
 	insert into iso_3166_1 (name, alpha2) values
+		('(unknown)', ''),
+
 		('Ascension Island', 'AC'),
 		('Andorra', 'AD'),
 		('United Arab Emirates', 'AE'),
@@ -283,7 +285,7 @@ begin;
 		('United Kingdom', 'UK'),
 		('United States Minor Outlying Islands', 'UM'),
 		('United Nations', 'UN'),
-		('United States of America', 'US'),
+		('United States', 'US'),
 		('Uruguay', 'UY'),
 		('Uzbekistan', 'UZ'),
 		('Holy See', 'VA'),

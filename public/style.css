@@ -39,9 +39,9 @@ footer a { font-weight: bold; color: #252525; }
 /*
 .iframe { position: relative; width: 100%; height: 0; padding-bottom: 56.25%; }
 iframe  { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+*/
 img.imgzoom-loading { cursor: wait !important; }
 .imgzoom-large { cursor: pointer; box-shadow: 0 0 8px rgba(0, 0, 0, .3); transition: all .4s; }
-*/
 
 /*** Home pricing ***/
 #home-pricing        { display: flex; justify-content: space-between; text-align: center; align-items: flex-start; }

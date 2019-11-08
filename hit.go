@@ -6,13 +6,16 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
@@ -453,6 +456,7 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
 	return errors.Wrap(err, "Hits.ListPaths")
 }
 
+// TODO: rename to just "Stats" or something, as it's used for much more now.
 type BrowserStats []struct {
 	Browser string
 	Mobile  bool
@@ -498,7 +502,7 @@ func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (int, int
 func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
-			version as browser,
+			browser || ' ' || version as browser,
 			sum(count) as count
 		from browser_stats
 		where site=$1 and day >= $2 and day <= $3 and lower(browser)=lower($4)
@@ -516,8 +520,17 @@ func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, e
 	return total, nil
 }
 
-// ListSize lists all device sizes.
-func (h *BrowserStats) ListSize(ctx context.Context, start, end time.Time) error {
+const (
+	sizePhones      = "Phones"
+	sizeLargePhones = "Large phones, small tablets"
+	sizeTablets     = "Tablets and small laptops"
+	sizeDesktop     = "Computer monitors"
+	sizeDesktopHD   = "Computer monitors larger than HD"
+	sizeUnknown     = "(unknown)"
+)
+
+// ListSizes lists all device sizes.
+func (h *BrowserStats) ListSizes(ctx context.Context, start, end time.Time) error {
 	// TODO: just store better; all of this is ugly.
 	// select split_part(size, ',', 1) || ',' || split_part(size, ',', 2) as browser,
 	// order by cast(split_part(size, ',', 1) as int) asc
@@ -538,7 +551,6 @@ func (h *BrowserStats) ListSize(ctx context.Context, start, end time.Time) error
 	// 	s := strings.Split(hh[i].Browser, ", ")
 	// 	hh[i].Browser = fmt.Sprintf("%s×%s", s[0], s[1])
 	// }
-
 	// sort.Slice(hh, func(i int, j int) bool {
 	// 	p1, _ := strconv.ParseInt(hh[i].Browser[:strings.Index(hh[i].Browser, "×")], 10, 32)
 	// 	p2, _ := strconv.ParseInt(hh[j].Browser[:strings.Index(hh[j].Browser, "×")], 10, 32)
@@ -548,21 +560,21 @@ func (h *BrowserStats) ListSize(ctx context.Context, start, end time.Time) error
 	// TODO: group a bit; ideally I'd like to make a line chart in the future,
 	// in which case this should no longer be needed.
 	ns := BrowserStats{
-		{"≤ 384×800", false, 0},
-		{"≤ 1024×768", false, 0},
-		{"≤ 1440×900", false, 0},
-		{"≤ 1920×1080", false, 0},
-		{"≤ 2560×1440", false, 0},
-		{"> 2560×1440", false, 0},
-		{"Unknown", false, 0},
+		{sizePhones, false, 0},
+		{sizeLargePhones, false, 0},
+		{sizeTablets, false, 0},
+		{sizeDesktop, false, 0},
+		{sizeDesktopHD, false, 0},
+		{sizeUnknown, false, 0},
 	}
+
 	hh := *h
 	for i := range hh {
 		x, _ := strconv.ParseInt(strings.Split(hh[i].Browser, ", ")[0], 10, 16)
 		// TODO: apply scaling?
 		switch {
 		case x == 0:
-			ns[6].Count += hh[i].Count
+			ns[5].Count += hh[i].Count
 		case x <= 384:
 			ns[0].Count += hh[i].Count
 		case x <= 1024:
@@ -571,15 +583,74 @@ func (h *BrowserStats) ListSize(ctx context.Context, start, end time.Time) error
 			ns[2].Count += hh[i].Count
 		case x <= 1920:
 			ns[3].Count += hh[i].Count
-		case x <= 2560:
-			ns[4].Count += hh[i].Count
 		default:
-			ns[5].Count += hh[i].Count
+			ns[4].Count += hh[i].Count
 		}
 	}
 	*h = ns
-	//_ = ns
 	return nil
+}
+
+// ListSize lists all sizes for one grouping.
+func (h *BrowserStats) ListSize(ctx context.Context, name string, start, end time.Time) (int, error) {
+	var where string
+	switch name {
+	case sizePhones:
+		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 384"
+	case sizeLargePhones:
+		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 1024 and cast(split_part(size, ',', 1) as int) > 384"
+	case sizeTablets:
+		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 1440 and cast(split_part(size, ',', 1) as int) > 1024"
+	case sizeDesktop:
+		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 1920 and cast(split_part(size, ',', 1) as int) > 1440"
+	case sizeDesktopHD:
+		where = "size != '' and cast(split_part(size, ',', 1) as int) > 1920"
+	case sizeUnknown:
+		where = " size = ''"
+	}
+
+	if !cfg.PgSQL {
+		where = strings.Replace(where,
+			"split_part(size, ',', 1)",
+			"substr(size, 0, instr(size, ','))",
+			-1)
+	}
+
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`
+		select size as browser, count(size) as count
+		from hits
+		where
+			site=$1 and
+			created_at >= $2 and created_at <= $3 and
+			%s
+		group by size
+	`, where), MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
+	if err != nil {
+		return 0, errors.Wrap(err, "BrowserStats.ListSize")
+	}
+
+	grouped := make(map[string]int)
+	hh := *h
+	for i := range hh {
+		// TODO: apply scaling?
+		scaleless := strings.Join(strings.Split(hh[i].Browser, ", ")[:2], "×")
+		grouped[scaleless] += hh[i].Count
+	}
+
+	ns := BrowserStats{}
+	total := 0
+	for size, count := range grouped {
+		total += count
+		ns = append(ns, struct {
+			Browser string
+			Mobile  bool
+			Count   int
+		}{size, false, count})
+	}
+	sort.Slice(ns, func(i int, j int) bool { return ns[i].Count > ns[j].Count })
+	*h = ns
+
+	return total, nil
 }
 
 // List all location statistics for the given time period.

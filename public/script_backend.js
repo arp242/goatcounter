@@ -27,27 +27,32 @@
 
 	// Show detail for a browser (version breakdown)
 	var browser_detail = function() {
-		$('.browsers-list').on('click', 'a', function(e) {
+		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).closest('.chart')
+			var bar = $(this).closest('.chart-hbar')
+			// Already open.
 			if (bar.attr('data-save')) {
 				bar.html(bar.attr('data-save'));
 				bar.attr('data-save', '');
 				return;
 			}
 
-			var browser = $(this).attr('data-browser');
-			if (!browser)
+			var name = $(this).find('small').text();
+			if (!name || name === '(other)' || name === '(unknown)')
+				return;
+
+			var url = bar.attr('data-detail');
+			if (!url)
 				return;
 
 			bar.attr('data-save', bar.html());
 			jQuery.ajax({
-				url: '/browsers',
+				url: url,
 				data: {
 					'period-start': $('#period-start').val(),
 					'period-end':   $('#period-end').val(),
-					'browser':      browser,
+					'name':         name,
 					'total':        bar.attr('data-total'),
 				},
 				dataType: 'json',
@@ -55,7 +60,6 @@
 					bar.html(data.html);
 				},
 			});
-
 		});
 	};
 
@@ -255,20 +259,16 @@
 			$('#popup').remove();
 		});
 
-		$(document.body).on('mouseenter', '.chart > *', function(e) {
-			var hbar = e.target.tagName.toLowerCase() === 'div';
-			if (hbar && e.target.style.length > 0)
-				var t = $(e.target.parentNode);
-			else
-				var t = $(e.target);
+		// Pages chart.
+		$(document.body).on('mouseenter', '.chart > div', function(e) {
+			var t = $(e.target);
+			if (e.target.style.length > 0)  // Inner bar (the coloured part).
+				t = t.parent();
 
 			var title = t.attr('title');
-			if (!title) {
-				title = t.attr('data-title');
-				if (!title)
-					return;
-			}
-			else if (hbar) {
+			if (!title)  // Already active.
+				return;
+			else {
 				// Reformat date and time according to site settings. This won't
 				// work for non-JS users, but doing this on the template site
 				// would make caching harder. It's a fair compromise.

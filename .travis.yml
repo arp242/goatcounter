@@ -15,6 +15,6 @@ before_cache:
 script:
   - 'go vet ./...'
   - 'go generate ./... && [ $(git status -s | wc -l) -gt 1 ] && git diff && exit 1 || true'
-  - 'go test -v -race -coverprofile=coverage.txt -coverpkg=./... ./...'
+  - 'go test -race -coverprofile=coverage.txt -coverpkg=./... ./...'
 after_success:
   - 'bash <(curl -s https://codecov.io/bash)'

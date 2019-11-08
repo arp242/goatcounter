@@ -8,7 +8,6 @@ package goatcounter
 
 import (
 	"context"
-	"crypto/md5"
 	"fmt"
 	"html/template"
 	"math"
@@ -21,6 +20,13 @@ import (
 )
 
 func init() {
+	var (
+		ss = time.Date(2019, 9, 16, 0, 0, 0, 0, time.UTC)
+		sl = time.Date(2019, 11, 7, 0, 0, 0, 0, time.UTC)
+	)
+	zhttp.FuncMap["beforeSize"] = func(createdAt time.Time) bool { return createdAt.Before(ss) }
+	zhttp.FuncMap["beforeLoc"] = func(createdAt time.Time) bool { return createdAt.Before(sl) }
+
 	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) template.HTML {
 		var s Site
 		err := s.ByID(ctx, *id)
@@ -78,8 +84,7 @@ func init() {
 		var b strings.Builder
 		for _, s := range stats {
 			perc := float32(s.Count) / float32(total) * 100
-			if perc < cutoff {
-				// Less than cutoff percentage: group as "Other" later.
+			if perc < cutoff { // Group as "Other" later.
 				break
 			}
 			totalPerc += perc
@@ -89,39 +94,28 @@ func init() {
 				browser = "(unknown)"
 			}
 
-			bg, fg := colorHash(browser)
-			text := fmt.Sprintf("%s: %.1f%% – ", template.HTMLEscapeString(browser), perc)
+			title := fmt.Sprintf("%s: %.1f%% – ", template.HTMLEscapeString(browser), perc)
 			if parentTotal > 0 {
-				text += fmt.Sprintf("%.1f%% of total, %s hits",
+				title += fmt.Sprintf("%.1f%% of total, %s hits",
 					float32(s.Count)/float32(parentTotal)*100, zhttp.Tnformat(s.Count))
 			} else {
-				text += fmt.Sprintf("%s hits in total", zhttp.Tnformat(s.Count))
+				title += fmt.Sprintf("%s hits in total", zhttp.Tnformat(s.Count))
 			}
 
 			b.WriteString(fmt.Sprintf(
-				`<a href="#_" title="%[1]s" style="width: %[2]f%%; background-color: %[3]s; color: %[4]s" data-browser="%[5]s">%[1]s</a>`,
-				text, perc, bg, fg, browser))
+				`<a href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></a>`,
+				title, template.HTMLEscapeString(browser), perc))
 		}
 
 		// Add "(other)" part.
 		if totalPerc < 100 {
 			b.WriteString(fmt.Sprintf(
-				`<a href="#_" title="Other: %.1[1]f%%" style="width: %[1]f%%">Other: %.1[1]f%%</a>`, 100-totalPerc))
+				`<a href="#_" title="(other): %.1[1]f%%" class="other"><small>(other)</small> <span style="width: %[1]f%%">%.1[1]f%%</span></a>`,
+				100-totalPerc))
 		}
 
 		return template.HTML(b.String())
 	}
-}
-
-func colorHash(s string) (string, string) {
-	hash := md5.New()
-	hash.Write([]byte(s))
-	color := string(hash.Sum(nil))
-	fg := "#000"
-	if .299*float32(color[0])+.587*float32(color[1])+.114*float32(color[2]) < 150 {
-		fg = "#fff"
-	}
-	return fmt.Sprintf("#%.2x%.2x%.2x", color[0], color[1], color[2]), fg
 }
 
 // State column values.
