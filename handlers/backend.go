@@ -8,7 +8,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -47,24 +46,9 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
 		rr.Post("/csp", zhttp.HandlerCSP())
 		rr.Get("/count", zhttp.Wrap(h.count))
-
-		// ACME http-01 verification.
-		tr := strings.NewReplacer(".", "", "/", "", `\`, "")
-		rr.Get("/.well-known/acme-challenge/{key}", func(w http.ResponseWriter, r *http.Request) {
-			if cfg.CertDir == "" {
-				http.Error(w, "cfg.CertDir is empty", 500)
-				return
-			}
-
-			path := fmt.Sprintf("%s/.well-known/acme-challenge/%s",
-				cfg.CertDir, tr.Replace(chi.URLParam(r, "key")))
-			data, err := ioutil.ReadFile(path)
-			if err != nil {
-				http.Error(w, fmt.Sprintf("can't read %q: %s", path, err), 400)
-				return
-			}
-			w.Write(data)
-		})
+		if cfg.CertDir != "" {
+			zhttp.MountACME(rr, cfg.CertDir)
+		}
 	}
 
 	{
