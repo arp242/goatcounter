@@ -95,11 +95,13 @@ func main() {
 	acme.Run()
 
 	// Set up HTTP handler and servers.
+	d := zhttp.RemovePort(cfg.Domain)
+	ds := zhttp.RemovePort(cfg.DomainStatic)
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(map[string]chi.Router{
-		cfg.Domain:          zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + cfg.Domain: handlers.NewWebsite(db),
-		cfg.DomainStatic:    handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
-		"*":                 handlers.NewBackend(db),
+		d:          zhttp.RedirectHost("//www." + cfg.Domain),
+		"www." + d: handlers.NewWebsite(db),
+		ds:         handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
+		"*":        handlers.NewBackend(db),
 	})}, func() {
 		cron.Wait(db)
 		acme.Wait()
