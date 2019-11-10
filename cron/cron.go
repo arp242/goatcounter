@@ -119,6 +119,11 @@ func updateStats(ctx context.Context) error {
 			return errors.Wrapf(err, "browser_stat: site %d", s.ID)
 		}
 
+		err = updateLocationStats(ctx, s)
+		if err != nil {
+			return errors.Wrapf(err, "location_stat: site %d", s.ID)
+		}
+
 		// Record last update.
 		_, err = zdb.MustGet(ctx).ExecContext(ctx,
 			`update sites set last_stat=$1, received_data=1 where id=$2`,

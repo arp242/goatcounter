@@ -581,3 +581,27 @@ func (h *BrowserStats) ListSize(ctx context.Context, start, end time.Time) error
 	//_ = ns
 	return nil
 }
+
+// List all location statistics for the given time period.
+func (h *BrowserStats) ListLocations(ctx context.Context, start, end time.Time) (int, error) {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select
+			iso_3166_1.name as browser,
+			sum(count) as count
+		from location_stats
+		join iso_3166_1 on iso_3166_1.alpha2=location
+		where site=$1 and day >= $2 and day <= $3
+		group by location, iso_3166_1.name
+		order by count desc
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	if err != nil {
+		return 0, errors.Wrap(err, "BrowserStats.ListLocations")
+	}
+
+	var total int
+	for _, b := range *h {
+		total += b.Count
+	}
+
+	return total, nil
+}

@@ -253,8 +253,14 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-
 	l = l.Since("sizeStat.ListSize")
+
+	var locStat goatcounter.BrowserStats
+	_, err = locStat.ListLocations(r.Context(), start, end)
+	if err != nil {
+		return err
+	}
+	l = l.Since("locStat.List")
 
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
@@ -289,10 +295,11 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TotalMobile      string
 		SubSites         []string
 		SizeStat         goatcounter.BrowserStats
+		LocationStat     goatcounter.BrowserStats
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, pages,
 		refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
 		fmt.Sprintf("%.1f", float32(totalMobile)/float32(totalBrowsers)*100), subs,
-		sizeStat})
+		sizeStat, locStat})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x

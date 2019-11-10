@@ -84,5 +84,7 @@ zgo.at/zpack v0.0.0-20191017081413-891e9f24a4d3 h1:ukk6cQoZ9x3do1xVtDCDz48o4ulKX
 zgo.at/zpack v0.0.0-20191017081413-891e9f24a4d3/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
 zgo.at/ztest v0.0.0-20191016022435-f3e360521191 h1:OWHdZobQysBEpa01t+/xOeMO0ZrsI6viJa+4nLILJGI=
 zgo.at/ztest v0.0.0-20191016022435-f3e360521191/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
+zgo.at/ztest v0.0.0-20191108073241-44bac275c1ec h1:3H3+2zlDQ+dnlD6I9Tdmqds/HfnsHzlNAZiPiXNXS4c=
+zgo.at/ztest v0.0.0-20191108073241-44bac275c1ec/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
 zgo.at/zvalidate v0.0.0-20191108080508-3d70543655cf h1:+wcZrxQ3ro75lanLr28ExqBPwWwdmQ4+uT0mwewqzLg=
 zgo.at/zvalidate v0.0.0-20191108080508-3d70543655cf/go.mod h1:3w++OX5k3nkvwwf7OkdYnjpzF+U4OGJ5xmP7SphmUuk=
