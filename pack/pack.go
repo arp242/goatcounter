@@ -10497,9 +10497,7 @@ h3 + p { margin-top: 0; }
 	.chart { margin-bottom: 1em; }
 }
 
-.go:after {
-	content: "🡭";
-}
+/* TODO: doesn't show well on iPhone :-/ .go:after { content: "🡭"; } */
 
 .chart > .top {
 	font-size: 13px;
