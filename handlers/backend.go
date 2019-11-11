@@ -130,7 +130,7 @@ func init() {
 
 func geo(ip string) string {
 	loc, err := geodb.Country(net.ParseIP(ip))
-	if err != nil {
+	if err != nil && cfg.Prod {
 		zlog.Module("geo").Field("ip", ip).Error(err)
 	}
 	return loc.Country.IsoCode
