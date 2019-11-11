@@ -126,8 +126,7 @@ func updateStats(ctx context.Context) error {
 
 		// Record last update.
 		_, err = zdb.MustGet(ctx).ExecContext(ctx,
-			`update sites set last_stat=$1, received_data=1 where id=$2`,
-			start, s.ID)
+			`update sites set last_stat=$1 where id=$2`, start, s.ID)
 		if err != nil {
 			return errors.Wrapf(err, "update last_stat: site %d", s.ID)
 		}
