@@ -73,8 +73,13 @@ will need a C compiler (for SQLite) or PostgreSQL.
    The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will
    be created if it doesn't exist). See the `-dbconnect` flag to customize this.
 
-3. You can sign up your new site at http://goatcounter.localhost:8081, which can
-   then be accessed at http://test.goatcounter.localhost:8081
+4. You can sign up your new site at http://www.goatcounter.localhost:8081, which
+   can then be accessed at http://[code].goatcounter.localhost:8081
+
+   Note: some systems require `/etc/hosts` entries `*.goatcounter.localhost`,
+   whereas others work fine without. If you can't connect try adding this:
+
+       127.0.0.1 www.goatcounter.localhost static.goatcounter.localhost code.goatcounter.localhost
 
 ### Production
 

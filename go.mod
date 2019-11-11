@@ -14,8 +14,8 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.2.0
-	zgo.at/utils v0.0.0-20191105050800-0bd55a7ff246
-	zgo.at/zdb v0.0.0-20191104065344-b275c8066da2
+	zgo.at/utils v0.0.0-20191111042735-db96561b7fab
+	zgo.at/zdb v0.0.0-20191111044120-fca4c0a247fd
 	zgo.at/zhttp v0.0.0-20191110150335-5c47c32983d4
 	zgo.at/zlog v1.0.6
 	zgo.at/zpack v0.0.0-20191110113459-aab2cde4af0f
