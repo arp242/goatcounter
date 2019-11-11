@@ -11037,7 +11037,13 @@ will be ignored if the return value from the <code>path</code> callback is
 	{{range $s := .Stats}}
 		<tr>
 			<td>{{nformat $s.Count}}</td>
-			<td>{{$s.Code}}</td>
+			<td>
+				{{if $s.Public}}
+					<a href="https://{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a>
+				{{else}}
+					{{$s.Code}}
+				{{end}}
+			</td>
 			<td>{{$s.Name}}</td>
 			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
 			<td>{{tformat $s.CreatedAt ""}}</td>

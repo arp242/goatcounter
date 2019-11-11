@@ -6,9 +6,11 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 )
 
@@ -26,19 +28,26 @@ type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
 func (a *AdminStats) List(ctx context.Context) error {
-	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
+	// Needs --tags json1: too much work.
+	//js := "json_extract(settings, '$.public')"
+	js := "'0'"
+	if cfg.PgSQL {
+		js = "settings::json->>'public'"
+	}
+
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
 		select
 			sites.code,
 			sites.name,
 			sites.created_at,
 			users.name as user,
 			users.email,
-			settings::json->>'public' as public,
+			%s as public,
 			count(*) - 1 as count
 		from sites
 		left join hits on hits.site=sites.id
 		join users on users.site=sites.id
 		group by sites.code, sites.name, sites.created_at, users.name, users.email, public
-		order by count desc`)
+		order by count desc`, js))
 	return errors.Wrap(err, "AdminStats.List")
 }
