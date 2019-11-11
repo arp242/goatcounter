@@ -361,9 +361,9 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32) template.HTML)
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := f(browsers, total, int(t), .5)
+	tpl := f(browsers, total, int(t), .5, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -387,9 +387,9 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32) template.HTML)
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := f(sizeStat, total, int(t), .5)
+	tpl := f(sizeStat, total, int(t), .5, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),

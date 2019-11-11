@@ -65,7 +65,7 @@
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Browsers .TotalBrowsers 0 .5}}</div>
+			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Browsers .TotalBrowsers 0 .5 true}}</div>
 		{{end}}
 	</div>
 	<div>
@@ -73,7 +73,7 @@
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0 true}}</div>
 			<p><small>The screen sizes are an indication, and are influenced by DPI,
 				zoom levels, etc. Approximately {{.TotalMobile}}% advertised the
 				usage of a mobile browser.</small></p>
@@ -84,7 +84,7 @@
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar location-list">{{hbar_chart .LocationStat .TotalHits 0 3}}</div>
+			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalHits 0 3 false}}</div>
 		{{end}}
 	</div>
 </div>

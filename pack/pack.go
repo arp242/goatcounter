@@ -10600,8 +10600,9 @@ table.auto { width: auto; }
 	.browser-charts > div { width: auto; }
 }
 
-.chart-hbar a {
+.chart-hbar a, .chart-hbar > p {
 	position: relative;
+	margin: 0;
 	margin-bottom: .3em;
 	display: block;
 	font-size: 1rem;
@@ -10623,13 +10624,10 @@ table.auto { width: auto; }
 	text-shadow: 2px 1px rgba(0, 0, 0, .5);
 }
 
-/* Don't make things appear clickable that aren't. */
-.location-list a            { cursor: default; }
-.location-list a:hover      { color: #252525; }
-.location-list a:hover span { background-color: #9a15a4; }
-.chart-hbar > a[title^="(other): "],       .chart-hbar > a[title^="(unknown): "]       { cursor: default; font-style: italic; }
-.chart-hbar > a[title^="(other): "]:hover, .chart-hbar > a[title^="(unknown): "]:hover { color: #252525; }
-.chart-hbar > a[title^="(other): "]:hover span, .chart-hbar > a[title^="(unknown): "]:hover span { background-color: #9a15a4; }
+/* Don't make things appear clickable that aren't */
+.chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
+.chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
+.chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
 `),
 }
 
@@ -10993,7 +10991,7 @@ will be ignored if the return value from the <code>path</code> callback is
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Browsers .TotalBrowsers 0 .5}}</div>
+			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Browsers .TotalBrowsers 0 .5 true}}</div>
 		{{end}}
 	</div>
 	<div>
@@ -11001,7 +10999,7 @@ will be ignored if the return value from the <code>path</code> callback is
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0 true}}</div>
 			<p><small>The screen sizes are an indication, and are influenced by DPI,
 				zoom levels, etc. Approximately {{.TotalMobile}}% advertised the
 				usage of a mobile browser.</small></p>
@@ -11012,7 +11010,7 @@ will be ignored if the return value from the <code>path</code> callback is
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar location-list">{{hbar_chart .LocationStat .TotalHits 0 3}}</div>
+			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalHits 0 3 false}}</div>
 		{{end}}
 	</div>
 </div>

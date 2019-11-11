@@ -79,7 +79,12 @@ func init() {
 		return template.HTML(b.String())
 	}
 
-	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total, parentTotal int, cutoff float32) template.HTML {
+	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total, parentTotal int, cutoff float32, link bool) template.HTML {
+		tag := "p"
+		if link {
+			tag = "a"
+		}
+
 		totalPerc := float32(0.0)
 		var b strings.Builder
 		for _, s := range stats {
@@ -103,15 +108,15 @@ func init() {
 			}
 
 			b.WriteString(fmt.Sprintf(
-				`<a href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></a>`,
-				title, template.HTMLEscapeString(browser), perc))
+				`<%[4]s href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></%[4]s>`,
+				title, template.HTMLEscapeString(browser), perc, tag))
 		}
 
 		// Add "(other)" part.
 		if totalPerc < 100 {
 			b.WriteString(fmt.Sprintf(
-				`<a href="#_" title="(other): %.1[1]f%%" class="other"><small>(other)</small> <span style="width: %[1]f%%">%.1[1]f%%</span></a>`,
-				100-totalPerc))
+				`<%[2]s href="#_" title="(other): %.1[1]f%%" class="other"><small>(other)</small> <span style="width: %[1]f%%">%.1[1]f%%</span></%[2]s>`,
+				100-totalPerc, tag))
 		}
 
 		return template.HTML(b.String())

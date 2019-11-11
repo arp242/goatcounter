@@ -237,8 +237,9 @@ table.auto { width: auto; }
 	.browser-charts > div { width: auto; }
 }
 
-.chart-hbar a {
+.chart-hbar a, .chart-hbar > p {
 	position: relative;
+	margin: 0;
 	margin-bottom: .3em;
 	display: block;
 	font-size: 1rem;
@@ -260,10 +261,7 @@ table.auto { width: auto; }
 	text-shadow: 2px 1px rgba(0, 0, 0, .5);
 }
 
-/* Don't make things appear clickable that aren't. */
-.location-list a            { cursor: default; }
-.location-list a:hover      { color: #252525; }
-.location-list a:hover span { background-color: #9a15a4; }
-.chart-hbar > a[title^="(other): "],       .chart-hbar > a[title^="(unknown): "]       { cursor: default; font-style: italic; }
-.chart-hbar > a[title^="(other): "]:hover, .chart-hbar > a[title^="(unknown): "]:hover { color: #252525; }
-.chart-hbar > a[title^="(other): "]:hover span, .chart-hbar > a[title^="(unknown): "]:hover span { background-color: #9a15a4; }
+/* Don't make things appear clickable that aren't */
+.chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
+.chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
+.chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
