@@ -188,7 +188,7 @@ func fillHitBlanks(stats []stat, existing []string, siteCreated time.Time) map[s
 		// TODO: would be better to modify display logic, instead of storing
 		// heaps of data we don't use.
 		if !sliceutil.InStringSlice(existing, path) {
-			ndays := int(time.Now().Sub(siteCreated) / time.Hour / 24)
+			ndays := int(time.Now().UTC().Sub(siteCreated) / time.Hour / 24)
 			daysSinceCreated := make([]string, ndays)
 			for i := 0; i < ndays; i++ {
 				daysSinceCreated[i] = siteCreated.Add(24 * time.Duration(i) * time.Hour).Format("2006-01-02")

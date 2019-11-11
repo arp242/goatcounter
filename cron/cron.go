@@ -109,7 +109,7 @@ func updateStats(ctx context.Context) error {
 	}
 
 	for _, s := range sites {
-		start := time.Now().Format("2006-01-02 15:04:05")
+		start := time.Now().UTC().Format("2006-01-02 15:04:05")
 
 		err := updateHitStats(ctx, s)
 		if err != nil {

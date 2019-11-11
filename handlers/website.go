@@ -66,10 +66,10 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
-	started := time.Now()
+	started := time.Now().UTC()
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.JSON(w, map[string]string{
-			"uptime":  time.Now().Sub(started).String(),
+			"uptime":  time.Now().UTC().Sub(started).String(),
 			"version": cfg.Version,
 		})
 	}

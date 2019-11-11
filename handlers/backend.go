@@ -177,8 +177,8 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var (
-		start = time.Now().Add(-7 * day)
-		end   = time.Now()
+		start = time.Now().UTC().Add(-7 * day)
+		end   = time.Now().UTC()
 	)
 	// Use period first as fallback when there's no JS.
 	if p := r.URL.Query().Get("period"); p != "" {
@@ -204,7 +204,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 			start, err = time.Parse("2006-01-02", s)
 			if err != nil {
 				zhttp.FlashError(w, "start date: %s", err.Error())
-				start = time.Now().Add(-7 * day)
+				start = time.Now().UTC().Add(-7 * day)
 			}
 		}
 		if s := r.URL.Query().Get("period-end"); s != "" {
@@ -212,7 +212,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 			end, err = time.Parse("2006-01-02", s)
 			if err != nil {
 				zhttp.FlashError(w, "end date: %s", err.Error())
-				end = time.Now()
+				end = time.Now().UTC()
 			}
 		}
 	}
