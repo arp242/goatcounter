@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/arp242/geoip2-golang"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/mssola/user_agent"
-	"github.com/oschwald/geoip2-golang"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
