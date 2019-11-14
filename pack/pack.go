@@ -11028,6 +11028,7 @@ will be ignored if the return value from the <code>path</code> callback is
 		<th>Code</th>
 		<th>Name</th>
 		<th>User</th>
+		<th>Plan</th>
 		<th>Created at</th>
 	</tr>
 	{{range $s := .Stats}}
@@ -11042,6 +11043,7 @@ will be ignored if the return value from the <code>path</code> callback is
 			</td>
 			<td>{{$s.Name}}</td>
 			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
+			<td>{{$s.Plan}}</td>
 			<td>{{tformat $s.CreatedAt ""}}</td>
 		</tr>
 	{{end}}

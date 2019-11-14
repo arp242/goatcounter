@@ -21,6 +21,7 @@ type AdminStat struct {
 	Email     string    `db:"email"`
 	Public    bool      `db:"public"`
 	CreatedAt time.Time `db:"created_at"`
+	Plan      string    `db:"plan"`
 	Count     int       `db:"count"`
 }
 
@@ -40,6 +41,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 			sites.code,
 			sites.name,
 			sites.created_at,
+			sites.plan,
 			users.name as user,
 			users.email,
 			%s as public,
@@ -47,7 +49,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 		from sites
 		left join hits on hits.site=sites.id
 		join users on users.site=sites.id
-		group by sites.code, sites.name, sites.created_at, users.name, users.email, public
+		group by sites.code, sites.name, sites.created_at, users.name, users.email, public, plan
 		order by count desc`, js))
 	return errors.Wrap(err, "AdminStats.List")
 }
