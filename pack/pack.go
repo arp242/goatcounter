@@ -11206,7 +11206,6 @@ will be ignored if the return value from the <code>path</code> callback is
 
 <ul>
 	<li><a href="/export/hits.csv">hits.csv</a></li>
-	<li><a href="/export/browsers.csv">browsers.csv</a></li>
 </ul>
 
 {{template "_backend_bottom.gohtml" .}}
