@@ -9881,6 +9881,42 @@ return jQuery;
 		paginate_paths();
 		paginate_refs();
 		browser_detail();
+		settings_tabs();
+	};
+
+	// Set up the tabbed navigation in the settings.
+	var settings_tabs = function() {
+		var nav = $('.tab-nav');
+		if (!nav.length)
+			return;
+
+		var tabs = '',
+			active = window.location.hash.substr(5) || 'setting';
+		$('.page > div').each(function(i, elem) {
+			elem = $(elem);
+			var h2 = elem.find('h2');
+			if (!h2.length)
+				return;
+			
+			var klass = '';
+			if (h2.attr('id') !== active)
+				elem.css('display', 'none');
+			else
+				klass = 'active';
+
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + $(h2).text() + '</a>';
+		});
+
+		nav.html(tabs);
+		nav.on('click', 'a', function(e) {
+			nav.find('a').removeClass('active');
+			$(this).addClass('active');
+		});
+
+		$(window).on('hashchange', function(e) {
+			$('.page > div').css('display', 'none');
+			$('#' + window.location.hash.substr(5)).parent().css('display', 'block');
+		});
 	};
 
 	// Show detail for a browser (version breakdown)
@@ -10582,7 +10618,7 @@ h3 + p { margin-top: 0; }
 	.show-mobile { display: block; }
 }
 
-fieldset { margin-bottom: 1em; }
+fieldset { margin-bottom: 1em; border: 1px solid #666; }
 legend   { font-weight: bold; }
 
 .active { font-weight: bold; text-decoration: underline; }
@@ -10626,6 +10662,17 @@ table.auto { width: auto; }
 .chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
 .chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
+
+.tab-nav {
+	padding: 1em;
+	background-color: #f8f8d9;
+	border: 1px solid #dede89;
+	border-radius: 2px;
+	justify-content: left;
+}
+.tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
+.tab-nav a:first-child { padding-left: 0; }
+.tab-nav a:last-child  { border-right: none; padding-right: 0; }
 `),
 }
 
@@ -10799,7 +10846,7 @@ var Templates = map[string][]byte{
 	<li><code>path</code> – Path to the current page that's recorded, without
 		domain (e.g. <code>/path/page.html</code>).</li>
 
-	<li><code>referrer</code> – Referrer value; can be URL
+	<li><code>referrer</code> – Referrer value; can be an URL
 		(<code>https://example.com</code>) or any string
 		(<code>June Newsletter</code>). Default is to use the Referer
 		header.</li>
@@ -10807,9 +10854,9 @@ var Templates = map[string][]byte{
 
 <p>The default value will be used if the value is <code>null</code> or
 <code>undefined</code> (but <em>not</em> on empty string!) The value can be used
-as a callback too: the default value is passed and the return is used. The view
-will be ignored if the return value from the <code>path</code> callback is
-<code>null</code>.</p>
+as a callback too: the default value is passed and the return value is sent to
+the server. Nothing is sent if the return value from the <code>path</code>
+callback is <code>null</code>.</p>
 
 <p>Example:</p>
 
@@ -11099,116 +11146,125 @@ will be ignored if the return value from the <code>path</code> callback is
 `),
 	"tpl/backend_settings.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
-<h2>Settings</h2>
-<div class="form-wrap">
-	<form method="post" action="/save" class="vertical">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+<nav class="tab-nav"></nav>
 
-		<fieldset>
-			<legend>Site settings</legend>
-			<label for="name">Name</label>
-			<input type="text" name="name" id="name" value="{{.Site.Name}}">
-			<span>Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em>.</span>
+<div>
+	<h2 id="setting">Settings</h2>
+	<div class="form-wrap">
+		<form method="post" action="/save" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-			<label>{{checkbox .Site.Settings.Public "settings.public"}}
-				Make statistics publicly viewable</label>
-			<span>By default you can only view the statistics if you’re signed in.
-				With this enabled anyone can view the statistics.</span>
+			<fieldset>
+				<legend>Site settings</legend>
+				<label for="name">Name</label>
+				<input type="text" name="name" id="name" value="{{.Site.Name}}">
+				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
 
-			{{if .Site.PlanBusiness .Context}}
-				<label for="cname">Custom domain</label>
-				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-				<span>Custom domain, e.g. <em>stats.example.com</em>; set as a
-					CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>;
-					<a href="http://www.{{.Domain}}/help#custom-domain">more detailed instructions</a>.</span>
-			{{end}}
-		</fieldset>
+				<label>{{checkbox .Site.Settings.Public "settings.public"}}
+					Make statistics publicly viewable</label>
+				<span>Anyone can view the statistics without logging in.</span>
 
-		<fieldset>
-			<legend>Preferences</legend>
-			<label for="date_format">Date format</label>
-			<select name="settings.date_format" id="date_format">
-				<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-				<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-				<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-				<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
-				<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
-			</select>
+				{{if .Site.PlanBusiness .Context}}
+					<label for="cname">Custom domain</label>
+					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
+						CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
+						<a href="http://www.{{.Domain}}/help#custom-domain">Detailed instructions</a>.</span>
+				{{end}}
+			</fieldset>
 
-			<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-				24-hour clock</label>
+			<fieldset>
+				<legend>Preferences</legend>
+				<label for="date_format">Date format</label>
+				<select name="settings.date_format" id="date_format">
+					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+					<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+					<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+					<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
+					<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+				</select>
 
-			<label for="limits_page">Page size</label>
-			<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
-			<span>Page size; a smaller size means faster load times.</span>
+				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
+					24-hour clock</label>
 
-			<label for="limits_ref">Referrers page size</label>
-			<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-			<span>Page size for referrers overview.</span>
+				<label for="limits_page">Page size</label>
+				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
 
-			{{/*
-			<label for="limits_browser">Browser page size</label>
-			<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
-			*/}}
-		</fieldset>
+				<label for="limits_ref">Referrers page size</label>
+				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
 
-		<button type="submit">Save</button>
+				{{/*
+				<label for="limits_browser">Browser page size</label>
+				<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
+				*/}}
+			</fieldset>
+
+			<button type="submit">Save</button>
+		</form>
+	</div>
+</div>
+
+<div>
+	<h2 id="additional-sites">Additional sites</h2>
+	{{if .Site.Parent}}
+		This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
+	{{else}}
+		<p>You can add an unlimited number of sites which inherit the plan and users. You won't be charged extra.</p>
+		<form method="post" action="/add">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+			<table class="auto">
+				<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
+				<tbody>
+					{{range $s := .SubSites}}<tr>
+						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+						<td>{{$s.Name}}</td>
+						<td><a href="/remove/{{$s.ID}}">remove</a></td>
+					</tr>{{end}}
+
+					<tr>
+						<td><input type="text" id="code" name="code" placeholder="Subdomain"></td>
+						<td><input type="text" id="name" name="name" placeholder="Name"></td>
+						<td><button type="submit">Add new</button></td>
+					</tr>
+			</tbody></table>
+		</form>
+	{{end}}
+</div>
+
+<div>
+	<h2 id="site-code">Site code</h2>
+	<p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
+	{{template "_backend_sitecode.gohtml" .}}
+</div>
+
+<div>
+	<h2 id="purge">Purge</h2>
+	<p>Remove all instances of a page.</p>
+
+	<p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
+		<code>/page%.html</code> matches everything starting with <code>/page</code> and
+		ending with <code>.html</code>. <code>_</code> matches any character; e.g.
+		<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
+		<code>\%</code> and <code>\_</code> for the literal characters without special
+		meaning.</p>
+	</p>
+
+	<form method="get" action="/purge">
+		<input type="text" name="path" placeholder="Path" required>
+		<button type="submit">Purge</button>
+		<span>You will see a preview of matches before anything is deleted</span>
 	</form>
 </div>
 
-<h2 id="additional-sites">Additional sites</h2>
-{{if .Site.Parent}}
-	This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
-{{else}}
-	<p>You can add an unlimited number of additional sites which inherit the plan and users. You won't be charged extra.</p>
-	<form method="post" action="/add">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<table class="auto">
-			<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
-			<tbody>
-				{{range $s := .SubSites}}<tr>
-					<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-					<td>{{$s.Name}}</td>
-					<td><a href="/remove/{{$s.ID}}">remove</a></td>
-				</tr>{{end}}
+<div>
+	<h2 id="export">Export</h2>
+	<p>Export all data as CSV, for backups, or if you want to import somewhere else.
+		The first line is a header with the field descriptions.</p>
 
-				<tr>
-					<td><input type="text" id="code" name="code" placeholder="Subdomain"></td>
-					<td><input type="text" id="name" name="name" placeholder="Name"></td>
-					<td><button type="submit">Add new</button></td>
-				</tr>
-		</tbody></table>
-	</form>
-{{end}}
-
-<h2 id="site-code">Site code</h2>
-<p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
-{{template "_backend_sitecode.gohtml" .}}
-
-<h2 id="purge">Purge</h2>
-<p>Remove all instances of a page.</p>
-
-<p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
-	<code>/page%.html</code> matches everything starting with <code>/page</code> and
-	ending with <code>.html</code>. <code>_</code> matches any character; e.g.
-	<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
-	<code>\%</code> and <code>\_</code> for the literal characters without special
-	meaning.</p>
-</p>
-
-<form method="get" action="/purge">
-	<input type="text" name="path" placeholder="Path" required>
-	<button type="submit">Purge</button>
-	<span>You will see a preview of matches before anything is deleted</span>
-</form>
-
-<h2 id="export">Export</h2>
-<p>Export all data as CSV, for backups, or if you want to import somewhere else.
-	The first line is a header with the field descriptions.</p>
-
-<ul>
-	<li><a href="/export/hits.csv">hits.csv</a></li>
-</ul>
+	<ul>
+		<li><a href="/export/hits.csv">hits.csv</a></li>
+	</ul>
+</div>
 
 {{template "_backend_bottom.gohtml" .}}
 `),

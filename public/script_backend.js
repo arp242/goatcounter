@@ -23,6 +23,42 @@
 		paginate_paths();
 		paginate_refs();
 		browser_detail();
+		settings_tabs();
+	};
+
+	// Set up the tabbed navigation in the settings.
+	var settings_tabs = function() {
+		var nav = $('.tab-nav');
+		if (!nav.length)
+			return;
+
+		var tabs = '',
+			active = window.location.hash.substr(5) || 'setting';
+		$('.page > div').each(function(i, elem) {
+			elem = $(elem);
+			var h2 = elem.find('h2');
+			if (!h2.length)
+				return;
+			
+			var klass = '';
+			if (h2.attr('id') !== active)
+				elem.css('display', 'none');
+			else
+				klass = 'active';
+
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + $(h2).text() + '</a>';
+		});
+
+		nav.html(tabs);
+		nav.on('click', 'a', function(e) {
+			nav.find('a').removeClass('active');
+			$(this).addClass('active');
+		});
+
+		$(window).on('hashchange', function(e) {
+			$('.page > div').css('display', 'none');
+			$('#' + window.location.hash.substr(5)).parent().css('display', 'block');
+		});
 	};
 
 	// Show detail for a browser (version breakdown)

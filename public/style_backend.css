@@ -219,7 +219,7 @@ h3 + p { margin-top: 0; }
 	.show-mobile { display: block; }
 }
 
-fieldset { margin-bottom: 1em; }
+fieldset { margin-bottom: 1em; border: 1px solid #666; }
 legend   { font-weight: bold; }
 
 .active { font-weight: bold; text-decoration: underline; }
@@ -263,3 +263,14 @@ table.auto { width: auto; }
 .chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
 .chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
+
+.tab-nav {
+	padding: 1em;
+	background-color: #f8f8d9;
+	border: 1px solid #dede89;
+	border-radius: 2px;
+	justify-content: left;
+}
+.tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
+.tab-nav a:first-child { padding-left: 0; }
+.tab-nav a:last-child  { border-right: none; padding-right: 0; }

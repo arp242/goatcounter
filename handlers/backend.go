@@ -572,7 +572,7 @@ func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Site removed")
-	return zhttp.SeeOther(w, "/settings")
+	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 }
 
 func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
@@ -594,11 +594,11 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 	err = site.Insert(r.Context())
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, "/settings")
+		return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 	}
 
 	zhttp.Flash(w, "Site added")
-	return zhttp.SeeOther(w, "/settings")
+	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 }
 
 func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
@@ -624,5 +624,5 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Hits purged")
-	return zhttp.SeeOther(w, "/settings")
+	return zhttp.SeeOther(w, "/settings#tab-purge")
 }

@@ -17,7 +17,7 @@
 	<li><code>path</code> – Path to the current page that's recorded, without
 		domain (e.g. <code>/path/page.html</code>).</li>
 
-	<li><code>referrer</code> – Referrer value; can be URL
+	<li><code>referrer</code> – Referrer value; can be an URL
 		(<code>https://example.com</code>) or any string
 		(<code>June Newsletter</code>). Default is to use the Referer
 		header.</li>
@@ -25,9 +25,9 @@
 
 <p>The default value will be used if the value is <code>null</code> or
 <code>undefined</code> (but <em>not</em> on empty string!) The value can be used
-as a callback too: the default value is passed and the return is used. The view
-will be ignored if the return value from the <code>path</code> callback is
-<code>null</code>.</p>
+as a callback too: the default value is passed and the return value is sent to
+the server. Nothing is sent if the return value from the <code>path</code>
+callback is <code>null</code>.</p>
 
 <p>Example:</p>
 

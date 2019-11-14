@@ -1,114 +1,123 @@
 {{template "_backend_top.gohtml" .}}
 
-<h2>Settings</h2>
-<div class="form-wrap">
-	<form method="post" action="/save" class="vertical">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+<nav class="tab-nav"></nav>
 
-		<fieldset>
-			<legend>Site settings</legend>
-			<label for="name">Name</label>
-			<input type="text" name="name" id="name" value="{{.Site.Name}}">
-			<span>Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em>.</span>
+<div>
+	<h2 id="setting">Settings</h2>
+	<div class="form-wrap">
+		<form method="post" action="/save" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-			<label>{{checkbox .Site.Settings.Public "settings.public"}}
-				Make statistics publicly viewable</label>
-			<span>By default you can only view the statistics if you’re signed in.
-				With this enabled anyone can view the statistics.</span>
+			<fieldset>
+				<legend>Site settings</legend>
+				<label for="name">Name</label>
+				<input type="text" name="name" id="name" value="{{.Site.Name}}">
+				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
 
-			{{if .Site.PlanBusiness .Context}}
-				<label for="cname">Custom domain</label>
-				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-				<span>Custom domain, e.g. <em>stats.example.com</em>; set as a
-					CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>;
-					<a href="http://www.{{.Domain}}/help#custom-domain">more detailed instructions</a>.</span>
-			{{end}}
-		</fieldset>
+				<label>{{checkbox .Site.Settings.Public "settings.public"}}
+					Make statistics publicly viewable</label>
+				<span>Anyone can view the statistics without logging in.</span>
 
-		<fieldset>
-			<legend>Preferences</legend>
-			<label for="date_format">Date format</label>
-			<select name="settings.date_format" id="date_format">
-				<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-				<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-				<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-				<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
-				<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
-			</select>
+				{{if .Site.PlanBusiness .Context}}
+					<label for="cname">Custom domain</label>
+					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
+						CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
+						<a href="http://www.{{.Domain}}/help#custom-domain">Detailed instructions</a>.</span>
+				{{end}}
+			</fieldset>
 
-			<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-				24-hour clock</label>
+			<fieldset>
+				<legend>Preferences</legend>
+				<label for="date_format">Date format</label>
+				<select name="settings.date_format" id="date_format">
+					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+					<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+					<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+					<option {{option_value .Site.Settings.DateFormat "2 Jan 06"}}>Short text (2 Jan 06)</option>
+					<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+				</select>
 
-			<label for="limits_page">Page size</label>
-			<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
-			<span>Page size; a smaller size means faster load times.</span>
+				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
+					24-hour clock</label>
 
-			<label for="limits_ref">Referrers page size</label>
-			<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-			<span>Page size for referrers overview.</span>
+				<label for="limits_page">Page size</label>
+				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
 
-			{{/*
-			<label for="limits_browser">Browser page size</label>
-			<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
-			*/}}
-		</fieldset>
+				<label for="limits_ref">Referrers page size</label>
+				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
 
-		<button type="submit">Save</button>
+				{{/*
+				<label for="limits_browser">Browser page size</label>
+				<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
+				*/}}
+			</fieldset>
+
+			<button type="submit">Save</button>
+		</form>
+	</div>
+</div>
+
+<div>
+	<h2 id="additional-sites">Additional sites</h2>
+	{{if .Site.Parent}}
+		This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
+	{{else}}
+		<p>You can add an unlimited number of sites which inherit the plan and users. You won't be charged extra.</p>
+		<form method="post" action="/add">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+			<table class="auto">
+				<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
+				<tbody>
+					{{range $s := .SubSites}}<tr>
+						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+						<td>{{$s.Name}}</td>
+						<td><a href="/remove/{{$s.ID}}">remove</a></td>
+					</tr>{{end}}
+
+					<tr>
+						<td><input type="text" id="code" name="code" placeholder="Subdomain"></td>
+						<td><input type="text" id="name" name="name" placeholder="Name"></td>
+						<td><button type="submit">Add new</button></td>
+					</tr>
+			</tbody></table>
+		</form>
+	{{end}}
+</div>
+
+<div>
+	<h2 id="site-code">Site code</h2>
+	<p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
+	{{template "_backend_sitecode.gohtml" .}}
+</div>
+
+<div>
+	<h2 id="purge">Purge</h2>
+	<p>Remove all instances of a page.</p>
+
+	<p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
+		<code>/page%.html</code> matches everything starting with <code>/page</code> and
+		ending with <code>.html</code>. <code>_</code> matches any character; e.g.
+		<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
+		<code>\%</code> and <code>\_</code> for the literal characters without special
+		meaning.</p>
+	</p>
+
+	<form method="get" action="/purge">
+		<input type="text" name="path" placeholder="Path" required>
+		<button type="submit">Purge</button>
+		<span>You will see a preview of matches before anything is deleted</span>
 	</form>
 </div>
 
-<h2 id="additional-sites">Additional sites</h2>
-{{if .Site.Parent}}
-	This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
-{{else}}
-	<p>You can add an unlimited number of additional sites which inherit the plan and users. You won't be charged extra.</p>
-	<form method="post" action="/add">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<table class="auto">
-			<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
-			<tbody>
-				{{range $s := .SubSites}}<tr>
-					<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-					<td>{{$s.Name}}</td>
-					<td><a href="/remove/{{$s.ID}}">remove</a></td>
-				</tr>{{end}}
+<div>
+	<h2 id="export">Export</h2>
+	<p>Export all data as CSV, for backups, or if you want to import somewhere else.
+		The first line is a header with the field descriptions.</p>
 
-				<tr>
-					<td><input type="text" id="code" name="code" placeholder="Subdomain"></td>
-					<td><input type="text" id="name" name="name" placeholder="Name"></td>
-					<td><button type="submit">Add new</button></td>
-				</tr>
-		</tbody></table>
-	</form>
-{{end}}
-
-<h2 id="site-code">Site code</h2>
-<p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
-{{template "_backend_sitecode.gohtml" .}}
-
-<h2 id="purge">Purge</h2>
-<p>Remove all instances of a page.</p>
-
-<p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
-	<code>/page%.html</code> matches everything starting with <code>/page</code> and
-	ending with <code>.html</code>. <code>_</code> matches any character; e.g.
-	<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
-	<code>\%</code> and <code>\_</code> for the literal characters without special
-	meaning.</p>
-</p>
-
-<form method="get" action="/purge">
-	<input type="text" name="path" placeholder="Path" required>
-	<button type="submit">Purge</button>
-	<span>You will see a preview of matches before anything is deleted</span>
-</form>
-
-<h2 id="export">Export</h2>
-<p>Export all data as CSV, for backups, or if you want to import somewhere else.
-	The first line is a header with the field descriptions.</p>
-
-<ul>
-	<li><a href="/export/hits.csv">hits.csv</a></li>
-</ul>
+	<ul>
+		<li><a href="/export/hits.csv">hits.csv</a></li>
+	</ul>
+</div>
 
 {{template "_backend_bottom.gohtml" .}}
