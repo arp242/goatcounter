@@ -11139,8 +11139,9 @@ window.addEventListener('hashchange', function(e) {
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
-				{{if eq .Site.ID 1}}<a href="/admin">Admin</a> |{{end}}
-				{{if ne .Path "/settings"}}<a href="/settings">Settings</a> |{{end}}
+				{{if eq .Site.ID 1}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
+				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
+				<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 					<button class="link">Sign out</button>
@@ -11497,6 +11498,36 @@ window.addEventListener('hashchange', function(e) {
 		<li><a href="/export/hits.csv">hits.csv</a></li>
 	</ul>
 </div>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/billing.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h1>Billing</h1>
+Plan: {{.Site.Plan}}<br>
+Stripe: {{.Site.Stripe}}<br>
+
+<form method="post" action="/billing/start">
+	<label>Plan</label>
+	<select>
+		<option value="p">Personal</option>
+		<option value="b">Business</option>
+	</select><br>
+
+	<label>CC</label>
+	<input name="number"><br>
+
+	<label>Exp Month</label>
+	<input name="exp_month"><br>
+
+	<label>Exp Year</label>
+	<input name="exp_year"><br>
+
+	<label>CVC</label>
+	<input name="cvc"><br>
+
+	<button>Subscribe</button>
+</form>
 
 {{template "_backend_bottom.gohtml" .}}
 `),

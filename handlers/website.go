@@ -107,9 +107,6 @@ type signupArgs struct {
 	Email      string `json:"user_email"`
 	UserName   string `json:"user_name"`
 	TuringTest string `json:"turing_test"`
-	//Card   string `json:"card"`
-	//Exp    string `json:"exp"`
-	//CVC    string `json:"cvc"`
 }
 
 func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
@@ -181,6 +178,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	// Login
 	ctx := context.WithValue(r.Context(), ctxkey.Site, &site)
 	err = user.RequestLogin(ctx)
 	if err != nil {
@@ -197,8 +195,8 @@ func getPlan(r *http.Request) (string, string, error) {
 	switch name {
 	case "personal":
 		return "p", name, nil
-	//case "business":
-	//	return "b", name, nil
+	case "business":
+		return "b", name, nil
 	//case "enterprise":
 	//	return "e", name, nil
 	default:

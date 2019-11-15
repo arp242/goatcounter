@@ -33,8 +33,9 @@
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
-				{{if eq .Site.ID 1}}<a href="/admin">Admin</a> |{{end}}
-				{{if ne .Path "/settings"}}<a href="/settings">Settings</a> |{{end}}
+				{{if eq .Site.ID 1}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
+				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
+				<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 					<button class="link">Sign out</button>

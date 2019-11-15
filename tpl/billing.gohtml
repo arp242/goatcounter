@@ -1,0 +1,29 @@
+{{template "_backend_top.gohtml" .}}
+
+<h1>Billing</h1>
+Plan: {{.Site.Plan}}<br>
+Stripe: {{.Site.Stripe}}<br>
+
+<form method="post" action="/billing/start">
+	<label>Plan</label>
+	<select>
+		<option value="p">Personal</option>
+		<option value="b">Business</option>
+	</select><br>
+
+	<label>CC</label>
+	<input name="number"><br>
+
+	<label>Exp Month</label>
+	<input name="exp_month"><br>
+
+	<label>Exp Year</label>
+	<input name="exp_year"><br>
+
+	<label>CVC</label>
+	<input name="cvc"><br>
+
+	<button>Subscribe</button>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}

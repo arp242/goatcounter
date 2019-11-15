@@ -94,6 +94,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		}
 		{
 			af := a.With(loggedIn)
+			billing{}.mount(af)
 			af.Get("/settings", zhttp.Wrap(h.settings))
 			af.Post("/save", zhttp.Wrap(h.save))
 			af.Get("/export/{file}", zhttp.Wrap(h.export))
