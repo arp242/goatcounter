@@ -73,7 +73,7 @@ func updateHitStats(ctx context.Context, site goatcounter.Site) error {
 
 	if !site.ReceivedData && len(stats) > 0 {
 		_, err = zdb.MustGet(ctx).ExecContext(ctx,
-			`update sites set received_data=1 where id=$2`, site.ID)
+			`update sites set received_data=1 where id=$1`, site.ID)
 		if err != nil {
 			return errors.Wrapf(err, "update received_data: site %d", site.ID)
 		}
