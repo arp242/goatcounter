@@ -24,6 +24,27 @@
 		paginate_refs();
 		browser_detail();
 		settings_tabs();
+		paginate_locations();
+	};
+
+	// Paginate the location chart.
+	var paginate_locations = function() {
+		$('.location-chart .show-all').on('click', function(e) {
+			e.preventDefault();
+			var bar = $(this).parent().find('.chart-hbar')
+
+			jQuery.ajax({
+				url: '/locations',
+				data: {
+					'period-start': $('#period-start').val(),
+					'period-end':   $('#period-end').val(),
+				},
+				dataType: 'json',
+				success: function(data) {
+					bar.html(data.html);
+				},
+			});
+		});
 	};
 
 	// Set up the tabbed navigation in the settings.

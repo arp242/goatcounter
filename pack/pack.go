@@ -9882,6 +9882,27 @@ return jQuery;
 		paginate_refs();
 		browser_detail();
 		settings_tabs();
+		paginate_locations();
+	};
+
+	// Paginate the location chart.
+	var paginate_locations = function() {
+		$('.location-chart .show-all').on('click', function(e) {
+			e.preventDefault();
+			var bar = $(this).parent().find('.chart-hbar')
+
+			jQuery.ajax({
+				url: '/locations',
+				data: {
+					'period-start': $('#period-start').val(),
+					'period-end':   $('#period-end').val(),
+				},
+				dataType: 'json',
+				success: function(data) {
+					bar.html(data.html);
+				},
+			});
+		});
 	};
 
 	// Set up the tabbed navigation in the settings.
@@ -11050,12 +11071,13 @@ callback is <code>null</code>.</p>
 				usage of a mobile browser.</small></p>
 		{{end}}
 	</div>
-	<div>
+	<div class="location-chart">
 		<h2>Locations{{if beforeLoc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalHits 0 3 false}}</div>
+			<a href="#" class="show-all">Show all</a>
 		{{end}}
 	</div>
 </div>

@@ -81,6 +81,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			ap.Get("/pages", zhttp.Wrap(h.pages))
 			ap.Get("/browsers", zhttp.Wrap(h.browsers))
 			ap.Get("/sizes", zhttp.Wrap(h.sizes))
+			ap.Get("/locations", zhttp.Wrap(h.locations))
 		}
 		{
 			af := a.With(loggedIn)
@@ -391,6 +392,30 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
 	tpl := f(sizeStat, total, int(t), .5, true)
 
+	return zhttp.JSON(w, map[string]interface{}{
+		"html": string(tpl),
+	})
+}
+
+func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var locStat goatcounter.BrowserStats
+	total, err := locStat.ListLocations(r.Context(), start, end)
+	if err != nil {
+		return err
+	}
+
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32, bool) template.HTML)
+	tpl := f(locStat, total, total, 0, true)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
 	})
