@@ -10851,7 +10851,7 @@ var Templates = map[string][]byte{
 	"tpl/_backend_sitecode.gohtml": []byte(`<pre>&lt;script&gt;
 	(function() {
 		var script = document.createElement('script');
-		window.counter = 'https://{{.Site.Code}}.{{.Domain}}/count'
+		window.counter = '{{.Site.URL}}/count'
 		script.async = 1;
 		script.src = '//{{.Static}}/count.min.js';
 
@@ -10861,10 +10861,16 @@ var Templates = map[string][]byte{
 &lt;/script&gt;</pre>
 
 {{if eq .Path "/settings"}}
+
+<p>The script is quite small and you can inline it if you want for slightly
+	better performance. You won’t get any updates, but it’s expected to remain
+	compatible in the foreseeable future. Just be sure to set
+	<code>window.counter</code> as in the above snippet.</p>
+
 <p>You can optionally pass variables manually by using the <code>vars</code> object. Supported keys:</p>
 
 <ul>
-	<li><code>path</code> – Path to the current page that's recorded, without
+	<li><code>path</code> – Path to the current page that’s recorded, without
 		domain (e.g. <code>/path/page.html</code>).</li>
 
 	<li><code>referrer</code> – Referrer value; can be an URL
