@@ -179,7 +179,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	go user.SendLoginMail(context.Background(), site)
+	go user.SendLoginMail(context.Background(), &site)
 
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new?mailed=%s",
 		site.URL(), url.QueryEscape(user.Email)))

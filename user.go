@@ -196,7 +196,7 @@ func (u *User) GetToken() string {
 }
 
 // SendLoginMail sends the login email.
-func (u *User) SendLoginMail(ctx context.Context, site Site) {
+func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 	go func() {
 		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},

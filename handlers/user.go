@@ -73,13 +73,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var site goatcounter.Site
-	err = site.ByID(r.Context(), u.Site)
-	if err != nil {
-		return err
-	}
-
-	go u.SendLoginMail(context.Background(), site)
+	go u.SendLoginMail(context.Background(), goatcounter.MustGetSite(r.Context()))
 	flashLoginKey(r.Context(), w, u.Email)
 	return zhttp.SeeOther(w, "/user/new")
 }
