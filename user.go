@@ -133,7 +133,7 @@ func (u *User) ByLoginRequest(ctx context.Context, key string) error {
 		key, MustGetSite(ctx).IDOrParent()), "User.ByLoginRequest")
 }
 
-// ByToken gets a user by auth token.
+// ByToken gets a user by login token.
 func (u *User) ByToken(ctx context.Context, token string) error {
 	if token == "" { // Quick exit when called from zhttp.Auth()
 		return sql.ErrNoRows
@@ -155,9 +155,20 @@ func (u *User) RequestLogin(ctx context.Context) error {
 }
 
 // Login a user; create a new key, CSRF token, and reset the request date.
+//
+// How logins work:
+//
+//   1. login_request is set to a temporary token that expires in 15 mins.
+//   2. User goes to /user/login/<login_request> via email.
+//   3. If there already is a login_token, set the cookie to that. Otherwise
+//      generate a new one.
 func (u *User) Login(ctx context.Context) error {
 	u.CSRFToken = zhttp.SecretP()
-	u.LoginToken = zhttp.SecretP()
+	if u.LoginToken == nil {
+		s := time.Now().Format("20060102") + "-" + zhttp.Secret()
+		u.LoginToken = &s
+	}
+
 	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set
 			login_request=null, login_token=$1, csrf_token=$2
 			where id=$3 and site=$4`,
