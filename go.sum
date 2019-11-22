@@ -71,6 +71,8 @@ zgo.at/zdb v0.0.0-20191111044120-fca4c0a247fd h1:1z7V7jOiR3slihIxoP1OQVKQKF8EjuT
 zgo.at/zdb v0.0.0-20191111044120-fca4c0a247fd/go.mod h1:RpJ68emyVHmzMKjSfGwFo5iOF1gTstlhprxoMOJcZqY=
 zgo.at/zhttp v0.0.0-20191110150335-5c47c32983d4 h1:nWdJTpdgcukx8TStU0x0a0t4Jg3GJ2ogaWbP1eOUxtk=
 zgo.at/zhttp v0.0.0-20191110150335-5c47c32983d4/go.mod h1:+wMD/vcuw9TRv/LT3+J8Z9cXs9/PkSh7zJ+lhf7woCs=
+zgo.at/zhttp v0.0.0-20191122070009-2fc615a2d005 h1:uUlTsYd+ZSB1aml632c3S9Y1O8bcqn7d6jmhJmGpRM0=
+zgo.at/zhttp v0.0.0-20191122070009-2fc615a2d005/go.mod h1:+wMD/vcuw9TRv/LT3+J8Z9cXs9/PkSh7zJ+lhf7woCs=
 zgo.at/zlog v1.0.3 h1:VARDTSzp2tP0S0xYuITAlU/occFWEAbli7LM3ol/c+s=
 zgo.at/zlog v1.0.3/go.mod h1:V3ytbwhdFfmcUglEwnvlJ0VKoFocxpfhRUAISEERmZ8=
 zgo.at/zlog v1.0.6 h1:0LN5DIYbajUNSZrTa7pt3UgRxiG5R5NZoiR0OjDQVnU=

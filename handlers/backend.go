@@ -20,6 +20,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/mssola/user_agent"
+	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
@@ -40,6 +41,13 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		zhttp.Unpanic(cfg.Prod),
 		addctx(db, true),
 		middleware.RedirectSlashes)
+
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
+	})
+	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
+		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
+	})
 
 	{
 		rr := r.With(zhttp.Headers(nil))

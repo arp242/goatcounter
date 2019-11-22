@@ -26,6 +26,7 @@ func init() {
 	)
 	zhttp.FuncMap["beforeSize"] = func(createdAt time.Time) bool { return createdAt.Before(ss) }
 	zhttp.FuncMap["beforeLoc"] = func(createdAt time.Time) bool { return createdAt.Before(sl) }
+	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
 
 	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) template.HTML {
 		var s Site

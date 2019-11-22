@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
@@ -44,6 +45,13 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	if !cfg.Prod {
 		zhttp.Log(true, "")
 	}
+
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
+	})
+	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
+		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
+	})
 
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup/{plan}", zhttp.Wrap(h.signup))
