@@ -32,7 +32,6 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	//       /robots.txt
 	//       /ads.txt               https://en.wikipedia.org/wiki/Ads.txt
 	//       /security.txt          https://en.wikipedia.org/wiki/Security.txt
-	//       /favicon.ico
 	//       /apple-touch-icon.png
 	//       /sitemap.xml
 

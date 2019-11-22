@@ -1231,8 +1231,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 `),
 	"public/count.min.js": []byte(`(function(){"use strict";var a=window.vars||{};var b=function(){var e={p:a.path,r:a.referrer};var f,g;if(typeof e.r==="function")f=e.r;if(typeof e.p==="function")g=e.p;if(e.r===null||e.r===undefined)e.r=document.referrer;if(f)e.r=f(e.r);if(e.p===null||e.p===undefined){var h=window.location,i=document.querySelector('link[rel="canonical"][href]');if(i){var j=document.createElement("a");j.href=i.href;h=j}e.p=h.pathname+h.search||"/"}if(g)e.p=g(e.p);return e};var c=function(k){var l=[];for(var m in k)l.push(encodeURIComponent(m)+"="+encodeURIComponent(k[m]));return"?"+l.join("&")};var d=function(){if("visibilityState"in document&&document.visibilityState==="prerender")return;if(window.location.hostname.match(/localhost$/)||window.location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))return;var n=b();n.s=[window.screen.width,window.screen.height,window.devicePixelRatio||1];if(n.p===null)return;var o=document.createElement("img");o.setAttribute("alt","");o.setAttribute("aria-hidden","true");o.src=window.counter+c(n);o.addEventListener("load",function(){document.body.removeChild(o)},false);window.setTimeout(function(){if(!o.parentNode)return;o.src="";document.body.removeChild(o)},3e3);document.body.appendChild(o)};if(document.body===null)document.addEventListener("DOMContentLoaded",function(){d()},false);else d()})();
 `),
-	"public/favicon.ico": func() []byte {
-		s, err := base64.StdEncoding.DecodeString("AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAcACQgIAAgJBwAGCQgACQkHAAgJCAAJCQgACgkIAAsJCAAKCQkACgoIAAgKCQALCggACQoJAAoKCQALCgkACwoKAAoLCQALCwkADAsJAAoLCgALCwoACQsLAAwLCgAKCwsACwsLAAwLCwAKCwwACwwKAAwMCgANDAoACwwLAAwMCwANDAsADAwMAA0MDAAMDA0ADQ0LAAwNDAANDQwADA0NAA0NDQAMDQ4ADQ4NAA4ODQAPDg0ADQ4OAA8ODgAPDwwAEA8MAA0PDgAODw4ADg8PAA8PDwAQEA4ADhAPABEQDwANEBEADhASAA4RDwAPERAAEREQABEREQASEhAAFBIQABISEQAQEhIAExIRABISEgAREhMAExITABQTEQAVExEAFBMSABITEwAYFBAAExQUABQVEwAUFRQAFhYUABYWFQAYFhUAGRcTABcXFgAYFxYAFhcXABcXFwAYGBYAFxgXABcYGQAXGRcAHxkWABoZGgAeGxoAHhwbAB4dGgAnHRgAHB0cACIeGwAiHxwAHR8eACAfHQAhHx0AJCAdAB8gIAAsIRsAICIiAC4jGgAlIiEAJCMfACMkJgAkJSUAJyYmACwoJwArKykAKiwrADAuLAA2NjQAQDw3AEU/OQBBPzwAPEBEAERFRABGRUUAT0pFAEZLTQBPTUoAU1BLAFJVVQBeWVQAV1pdAGJdWABbXV0AY19ZAGRfWgBpamoAZmpvAHBtaQB7enkAh4aGAI+UmwCVoa4Ar7nAAMLQ3ADL1+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDMIExIdFxcPDAcPCg4PIB4SHhIXHQ4PDw8JDw4OEBkxICUgLThQFxAJIw4VFRAaSyclNj1JUz4jCU0JFBUXF1EwJUNbXUZMLxkJDxUgIDRhPyxIYHFwblwqIhAgISA5X1RBQGl7gn15aiYmIyEZFUdiV0Rrh46EjI1zRzUmHyASUmNeZ4aPeoiQimVWOyQgDxxPZmx2i3dZgImBaDwmJgoODTdOWG1aQldkf4NyNygABQYBDQsDFjI0LkV1hXhVBgAGBgINDhEgJyYuLm9+fAAEFwoGBgYOICIZHx8YSnQGBgYGBQYJDg8ZFRkgIiYrBgYNDg0NCRsQGRoiKCApOgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+	"public/favicon.png": func() []byte {
+		s, err := base64.StdEncoding.DecodeString("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAACaFaTDJ85gZz+OAAAAAXRSTlMAQObYZgAAAAFiS0dEAmYLfGQAAAAaSURBVAhbY2DABrgakIkQOBEa1RCCQkxFJwBWTg5ET9yxYgAAAABJRU5ErkJggg==")
 		if err != nil {
 			panic(err)
 		}
@@ -10935,7 +10935,7 @@ callback is <code>null</code>.</p>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{.Site.Name}} – GoatCounter</title>
-	<link rel="shortcut icon" href="//{{.Static}}/favicon.ico">
+	<link rel="icon" type="image/png" href="//{{.Static}}/favicon.png">
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/style_backend.css?v={{.Version}}">
 </head>
@@ -11013,7 +11013,7 @@ callback is <code>null</code>.</p>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>GoatCounter – Website statistics for regular folks</title>
-	<link rel="shortcut icon" href="//{{.Static}}/favicon.ico">
+	<link rel="icon" type="image/png" href="//{{.Static}}/favicon.png">
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/style.css?v={{.Version}}">
 </head>
@@ -11335,7 +11335,7 @@ callback is <code>null</code>.</p>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>GoatCounter – Error!</title>
-	<link rel="shortcut icon" href="data:base64,">
+	<link rel="icon" type="image/png" href="data:base64,">
 	<style>
 html {
   font: 16px/150% sans-serif;
