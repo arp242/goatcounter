@@ -195,6 +195,22 @@
 			$('#hl-period').val(this.value);
 			$(this).closest('form').trigger('submit');
 		});
+
+		$('.period-move').on('click', 'button', function(e) {
+			e.preventDefault();
+			var start = get_date($('#period-start').val()),
+				end = get_date($('#period-end').val());
+
+			switch (this.value) {
+				case 'week':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
+				case 'month':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
+				case 'quarter': start.setMonth(start.getMonth() - 3); end.setMonth(end.getMonth() - 3); break;
+			}
+
+			$('#period-start').val(format_date_ymd(start));
+			$('#period-end').val(format_date_ymd(end));
+			$(this).closest('form').trigger('submit');
+		});
 	};
 
 	// Select a period by dragging the mouse over a timeframe.
@@ -431,7 +447,17 @@
 		return date.getFullYear() + '-' +
 			(m >= 10 ? m : ('0' + m)) + '-' +
 			(d >= 10 ? d : ('0' + d));
-	}
+	};
+
+	// Create Date() object from year-month-day string.
+	var get_date = function(str) {
+		var d = new Date(),
+			s = str.split('-');
+		d.setFullYear(s[0]);
+		d.setMonth(parseInt(s[1], 10) - 1);
+		d.setDate(s[2]);
+		return d
+	};
 
 	$(document).ready(init);
 })();
