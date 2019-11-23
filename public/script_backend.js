@@ -338,38 +338,37 @@
 			if (e.target.style.length > 0)  // Inner bar (the coloured part).
 				t = t.parent();
 
-			var title = t.attr('title');
-			if (!title)  // Already active.
+			var title = t.attr('title') || t.attr('data-title');
+			if (!title)
 				return;
-			else {
-				// Reformat date and time according to site settings. This won't
-				// work for non-JS users, but doing this on the template site
-				// would make caching harder. It's a fair compromise.
-				//
-				// 2019-07-22 22:00 – 22:59, 5 views
-				// 2019-07-24 7:00 – 7:59, 4 views
-				var split = title.split(' ');
-				var date  = split[0],
-					start = split[1],
-					end   = split[3].replace(',', ''),
-					views = ', ' + split[4] + ' ' + split[5];
 
-				if (!window.settings.twenty_four_hours) {
-					start = un24(start);
-					end = un24(end);
-				}
+			// Reformat date and time according to site settings. This won't
+			// work for non-JS users, but doing this on the template site would
+			// make caching harder. It's a fair compromise.
+			//
+			// 2019-07-22 22:00 – 22:59, 5 views
+			// 2019-07-24 7:00 – 7:59, 4 views
+			var split = title.split(' ');
+			var date  = split[0],
+				start = split[1],
+				end   = split[3].replace(',', ''),
+				views = ', ' + split[4] + ' ' + split[5];
 
-				if (window.settings.date_format !== '2006-01-02') {
-					var d = new Date(),
-						ds = date.split('-');
-					d.setFullYear(ds[0]);
-					d.setMonth(parseInt(ds[1], 10) - 1);
-					d.setDate(ds[2]);
-					date = format_date(d);
-				}
-
-				title = date + ' ' + start + ' – ' + end + views;
+			if (!window.settings.twenty_four_hours) {
+				start = un24(start);
+				end = un24(end);
 			}
+
+			if (window.settings.date_format !== '2006-01-02') {
+				var d = new Date(),
+					ds = date.split('-');
+				d.setFullYear(ds[0]);
+				d.setMonth(parseInt(ds[1], 10) - 1);
+				d.setDate(ds[2]);
+				date = format_date(d);
+			}
+
+			title = date + ' ' + start + ' – ' + end + views;
 
 			var x = t.offset().left
 			var p = $('<div id="popup"></div>').
