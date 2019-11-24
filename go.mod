@@ -14,11 +14,11 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.2.1
-	zgo.at/utils v0.0.0-20191111042735-db96561b7fab
+	zgo.at/utils v1.0.0
 	zgo.at/zdb v0.0.0-20191111044120-fca4c0a247fd
 	zgo.at/zhttp v0.0.0-20191122070009-2fc615a2d005
 	zgo.at/zlog v1.0.6
-	zgo.at/zpack v0.0.0-20191110113459-aab2cde4af0f
-	zgo.at/ztest v0.0.0-20191108073241-44bac275c1ec
-	zgo.at/zvalidate v0.0.0-20191108080924-899e27aee0d1
+	zgo.at/zpack v1.0.0
+	zgo.at/ztest v1.0.0
+	zgo.at/zvalidate v1.0.0
 )
