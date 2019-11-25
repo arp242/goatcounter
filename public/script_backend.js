@@ -5,44 +5,35 @@
 (function() {
 	'use strict';
 
-	var init = function() {
-		// Load settings.
-		window.settings = JSON.parse(document.getElementById('settings').innerHTML);
+	var SETTINGS = {};
 
-		// Global ajax error handler.
+	$(document).ready(function() {
+		SETTINGS = JSON.parse(document.getElementById('settings').innerHTML);
+
 		$(document).ajaxError(function(e, xhr, settings, err) {
 			var msg = 'Could not load ' + settings.url + ': ' + err;
 			console.error(msg);
 			alert(msg);
 		});
 
-		period_select();
-		drag_timeframe();
-		load_refs();
-		chart_hover();
-		paginate_paths();
-		paginate_refs();
-		browser_detail();
-		settings_tabs();
-		paginate_locations();
-	};
+		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
+			paginate_refs, browser_detail, settings_tabs, paginate_locations,
+		].forEach(function(f) { f.call(); });
+	});
 
 	// Paginate the location chart.
 	var paginate_locations = function() {
 		$('.location-chart .show-all').on('click', function(e) {
 			e.preventDefault();
-			var bar = $(this).parent().find('.chart-hbar')
 
+			var bar = $(this).parent().find('.chart-hbar')
 			jQuery.ajax({
 				url: '/locations',
 				data: {
 					'period-start': $('#period-start').val(),
 					'period-end':   $('#period-end').val(),
 				},
-				dataType: 'json',
-				success: function(data) {
-					bar.html(data.html);
-				},
+				success: function(data) { bar.html(data.html); },
 			});
 		});
 	};
@@ -56,14 +47,13 @@
 		var tabs = '',
 			active = window.location.hash.substr(5) || 'setting';
 		$('.page > div').each(function(i, elem) {
-			elem = $(elem);
-			var h2 = elem.find('h2');
+			var h2 = $(elem).find('h2');
 			if (!h2.length)
 				return;
-			
+
 			var klass = '';
 			if (h2.attr('id') !== active)
-				elem.css('display', 'none');
+				$(elem).css('display', 'none');
 			else
 				klass = 'active';
 
@@ -112,10 +102,7 @@
 					'name':         name,
 					'total':        bar.attr('data-total'),
 				},
-				dataType: 'json',
-				success: function(data) {
-					bar.html(data.html);
-				},
+				success: function(data) { bar.html(data.html); },
 			});
 		});
 	};
@@ -127,7 +114,6 @@
 
 			jQuery.ajax({
 				url: $(this).attr('data-href'),
-				dataType: 'json',
 				success: function(data) {
 					$('.pages-list .count-list-pages > tbody').append(data.rows);
 
@@ -153,15 +139,13 @@
 			jQuery.ajax({
 				url: '/refs',
 				data: {
-					'showrefs':     btn.closest('tr').attr('id'),
 					'period-start': $('#period-start').val(),
 					'period-end':   $('#period-end').val(),
+					'showrefs':     btn.closest('tr').attr('id'),
 					'offset':       btn.prev().find('tr').length,
 				},
-				dataType: 'json',
 				success: function(data) {
 					btn.prev().find('tbody').append($(data.rows).find('tr'));
-
 					if (!data.more)
 						btn.remove()
 				},
@@ -248,59 +232,22 @@
 		*/
 	};
 
-	// Get all query parameters as an object.
-	var get_params = function() {
-		var s = window.location.search;
-		if (s.length === 0)
-			return {};
-		if (s[0] === '?')
-			s = s.substr(1);
-
-		var split = s.split('&'),
-			obj = {};
-		for (var i = 0; i < split.length; i++) {
-			var item = split[i].split('=');
-			obj[item[0]] = decodeURIComponent(item[1]);
-		}
-		return obj;
-	};
-
-	// Set query parameters to the provided object.
-	var set_params = function(obj) {
-		var s = [];
-		for (var k in obj)
-			s.push(k + '=' + encodeURIComponent(obj[k]));
-		history.pushState(null, '', s.length === 0 ? '/' : ('?' + s.join('&')));
-	};
-
-	// Set one query parameter, leaving the others alone.
-	var set_param = function(k, v) {
-		var params = get_params();
-		if (v === null)
-			delete params[k];
-		else
-			params[k] = v;
-		set_params(params);
-	};
-
 	// Load references as an AJAX request.
 	var load_refs = function() {
 		$('.count-list-pages').on('click', '.rlink', function(e) {
 			e.preventDefault();
 
 			var params = get_params(),
-				link = this,
-				row = $(this).closest('tr'),
-				path = row.attr('id');
+				link   = this,
+				row    = $(this).closest('tr'),
+				path   = row.attr('id'),
+				close  = function() {
+					var t = $(document.getElementById(params['showrefs']));
+					t.removeClass('target');
+					t.closest('tr').find('.refs').html('');
+				};
 
-
-			var close = function() {
-				var t = $(document.getElementById(params['showrefs']));
-				t.removeClass('target');
-				t.closest('tr').find('.refs').html('');
-			};
-
-			// Clicked on row that's already open, so just close and stop. Don't
+			// Clicked on row that's already open, so close and stop. Don't
 			// close anything yet if we're going to load another path, since
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
 			if (params['showrefs'] === path) {
@@ -311,7 +258,6 @@
 			set_param('showrefs', path);
 			jQuery.ajax({
 				url: '/refs' + link.search,
-				dataType: 'json',
 				success: function(data) {
 					row.addClass('target');
 
@@ -353,12 +299,12 @@
 				end   = split[3].replace(',', ''),
 				views = ', ' + split[4] + ' ' + split[5];
 
-			if (!window.settings.twenty_four_hours) {
+			if (!SETTINGS.twenty_four_hours) {
 				start = un24(start);
 				end = un24(end);
 			}
 
-			if (window.settings.date_format !== '2006-01-02') {
+			if (SETTINGS.date_format !== '2006-01-02') {
 				var d = new Date(),
 					ds = date.split('-');
 				d.setFullYear(ds[0]);
@@ -389,6 +335,41 @@
 		});
 	};
 
+	// Get all query parameters as an object.
+	var get_params = function() {
+		var s = window.location.search;
+		if (s.length === 0)
+			return {};
+		if (s[0] === '?')
+			s = s.substr(1);
+
+		var split = s.split('&'),
+			obj = {};
+		for (var i = 0; i < split.length; i++) {
+			var item = split[i].split('=');
+			obj[item[0]] = decodeURIComponent(item[1]);
+		}
+		return obj;
+	};
+
+	// Set query parameters to the provided object.
+	var set_params = function(obj) {
+		var s = [];
+		for (var k in obj)
+			s.push(k + '=' + encodeURIComponent(obj[k]));
+		history.pushState(null, '', s.length === 0 ? '/' : ('?' + s.join('&')));
+	};
+
+	// Set one query parameter, leaving the others alone.
+	var set_param = function(k, v) {
+		var params = get_params();
+		if (v === null)
+			delete params[k];
+		else
+			params[k] = v;
+		set_params(params);
+	};
+
 	// Convert "23:45" to "11:45 pm".
 	var un24 = function(t) {
 		var hour = parseInt(t.substr(0, 2), 10);
@@ -408,7 +389,7 @@
 	var format_date = function(date) {
 		var m = date.getMonth() + 1,
 			d = date.getDate(),
-			items = window.settings.date_format.split(/[-/\s]/),
+			items = SETTINGS.date_format.split(/[-/\s]/),
 			new_date = [];
 
 		// Simple implementation of Go's time format. We only offer the current
@@ -431,9 +412,9 @@
 		}
 
 		var joiner = '-';
-		if (window.settings.date_format.indexOf('/') > -1)
+		if (SETTINGS.date_format.indexOf('/') > -1)
 			joiner = '/';
-		else if (window.settings.date_format.indexOf(' ') > -1)
+		else if (SETTINGS.date_format.indexOf(' ') > -1)
 			joiner = ' ';
 		return new_date.join(joiner);
 	};
@@ -456,6 +437,4 @@
 		d.setDate(s[2]);
 		return d
 	};
-
-	$(document).ready(init);
 })();
