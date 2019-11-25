@@ -274,3 +274,11 @@ table.auto { width: auto; }
 .tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
+
+noscript {
+	display: block;
+	padding: .4em;
+	text-align: center;
+	background-color: #ffcfcf;
+	border-bottom: 1px solid #f88;
+}

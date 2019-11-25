@@ -146,7 +146,6 @@
 
 	// Paginate the referrers.
 	var paginate_refs = function() {
-		// TODO: won't work w/o JS.
 		$('.pages-list').on('click', '.load-more-refs', function(e) {
 			e.preventDefault();
 

@@ -10004,7 +10004,6 @@ return jQuery;
 
 	// Paginate the referrers.
 	var paginate_refs = function() {
-		// TODO: won't work w/o JS.
 		$('.pages-list').on('click', '.load-more-refs', function(e) {
 			e.preventDefault();
 
@@ -10719,6 +10718,14 @@ table.auto { width: auto; }
 .tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
+
+noscript {
+	display: block;
+	padding: .4em;
+	text-align: center;
+	background-color: #ffcfcf;
+	border-bottom: 1px solid #f88;
+}
 `),
 }
 
@@ -10940,6 +10947,8 @@ callback is <code>null</code>.</p>
 </head>
 
 <body>
+	<noscript>Only basic features work without JavaScript; for the best experience use JavaScript.</noscript>
+
 	<nav class="center">
 		{{- if .User.ID}}
 			<div>
@@ -11081,7 +11090,6 @@ callback is <code>null</code>.</p>
 		</table>
 	{{end}}
 
-	{{/* TODO: make it work w/o JS */}}
 	{{if gt .TotalHits .TotalHitsDisplay}}
 		<a href="#_", class="load-more"
 			data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
@@ -11656,9 +11664,9 @@ sub {
 		<p><strong>Easy</strong>; if you've been confused by the myriad of
 			options and flexibility of Google Analytics and Matomo that you
 			don't need then GoatCounter will be a breath of fresh air.</p>
-		<p><strong>Accessibility</strong> is a high-priority
-			feature, and the interface works well with screen readers, no
-			JavaScript, and even text browsers.</p>
+		<p><strong>Accessibility</strong> is a high-priority feature, and the
+		interface works well with assistive technology such as screen
+		readers.</p>
 	</div>
 
 	<div>
