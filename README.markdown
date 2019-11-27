@@ -73,7 +73,7 @@ will need a C compiler (for SQLite) or PostgreSQL.
    The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will
    be created if it doesn't exist). See the `-dbconnect` flag to customize this.
 
-4. You can sign up your new site at http://www.goatcounter.localhost:8081, which
+3. You can sign up your new site at http://www.goatcounter.localhost:8081, which
    can then be accessed at http://[code].goatcounter.localhost:8081
 
    Note: some systems require `/etc/hosts` entries `*.goatcounter.localhost`,
@@ -87,10 +87,10 @@ will need a C compiler (for SQLite) or PostgreSQL.
 
        goatcounter \
            -prod \
-           -sentry "https://...:...@sentry.io/..." \
            -domain "goatcounter.com" \
            -domainstatic "static.goatcounter.com" \
            -smtp "smtp://localhost:25" \
+           -emailerrors 'me@example.com' \
            "$@"
 
 2. Use a proxy for https (e.g. [hitch][hitch] or [caddy][caddy]); you'll need to
@@ -106,15 +106,8 @@ goatcounter.com, although that is just one way of running it.
 2. Database migrations are *not* run automatically, but the app will warn on
    startup if there are migrations that need to be run.
 
-3. Right now I'm only writing migrations for PostgreSQL, as that's what
-   goatcounter.com is using. Run with `psql < ./db/migrate/file.sql`.
-
-   If you're running on SQLite then you'll need to hack the files a bit. Open an
-   issue if you need help.
-
-   After the 1.0 "proper" release I'll make real database migrations for SQLite.
-   It's just not a good time/investment right now as it's early beta days and
-   probably not many people are actually running this.
+3. Run migrations from `db/migrate/<engine>` with the `sqlite` or `psql`
+   commandline tool.
 
 ### PostgreSQL
 

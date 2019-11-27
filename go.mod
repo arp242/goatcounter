@@ -1,6 +1,6 @@
 module zgo.at/goatcounter
 
-go 1.13
+go 1.12
 
 require (
 	github.com/arp242/geoip2-golang v1.4.0
