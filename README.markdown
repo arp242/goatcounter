@@ -28,7 +28,8 @@ Features
 
 - **Privacy-aware**; doesn't track users; doesn't need a GDPR notice.
 
-- **Lightweight** and **fast**; adds just 1KB of extra data to your site.
+- **Lightweight** and **fast**; adds just 1.5KB (0.7KB compressed) of extra data
+  to your site.
 
 - **Easy**; if you've been confused by the myriad of options and flexibility of
   Google Analytics and Matomo that you don't need then GoatCounter will be a
