@@ -8,6 +8,9 @@ There are two ways to run this: as **hosted service starting at $3/month**
 [https://www.goatcounter.com][www] for the hosted service and user
 documentation.
 
+See [docs/rationale.markdown](docs/rationale.markdown) for some more details on
+the *"why?"* of this project.
+
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
 The current status is *public beta*, or "MVP" (Minimum Viable Product) to get
