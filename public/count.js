@@ -6,11 +6,18 @@
 (function() { 
 	'use strict';
 
-	var vars = window.vars || {};
+	var vars = {};
+	if (window.goatcounter)
+		vars = window.goatcounter.vars || {};
+	else if (window.vars)  // TODO: temporary compatibility.
+		vars = window.vars || {};
 
 	// Find canonical location of the current page.
-	var get_location = function() {
-		var results = {p: vars.path, r: vars.referrer};
+	var get_location = function(count_vars) {
+		var results = {
+			p: count_vars.path     || vars.path,
+			r: count_vars.referrer || vars.referrer,
+		};
 
 		var rcb, pcb;
 		if (typeof(results.r) === 'function')
@@ -26,7 +33,7 @@
 
 		// Get path.
 		if (results.p === null || results.p === undefined) {
-			var loc = window.location,
+			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
 			if (c) {
@@ -53,18 +60,18 @@
 	};
 
 	// Count a hit.
-	var count = function() {
+	var count = function(count_vars) {
 		// Don't track pages fetched with the browser's prefetch algorithm.
 		// See https://github.com/usefathom/fathom/issues/13
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
 		// Don't track private networks.
-		if (window.location.hostname.match(/localhost$/) ||
-			window.location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
+		if (location.hostname.match(/localhost$/) ||
+			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
 				return;
 
-		var loc = get_location();
+		var loc = get_location(count_vars);
 		loc.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
 
 		// null returned from user callback.
@@ -76,12 +83,10 @@
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
 		img.src = window.counter + to_params(loc);
-		img.addEventListener('load', function() {
-			document.body.removeChild(img)
-		}, false);
+		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
-		// Remove the image after 3s if the onload event is never fired.
-		window.setTimeout(function() {
+		// Remove the image after 3s if the onload event is never triggered.
+		setTimeout(function() {
 			if (!img.parentNode)
 				return;
 			img.src = ''; 
@@ -91,8 +96,15 @@
 		document.body.appendChild(img);  
 	};
 
-	if (document.body === null)
-		document.addEventListener('DOMContentLoaded', function() { count(); }, false);
-	else
-		count();
+	// Expose public API.
+	if (!window.goatcounter)
+		window.goatcounter = {};
+	window.goatcounter.count = count;
+
+	if (!vars.no_onload) {
+		if (document.body === null)
+			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
+		else
+			count();
+	}
 })();

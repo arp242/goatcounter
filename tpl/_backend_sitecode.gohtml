@@ -17,7 +17,8 @@
 	compatible in the foreseeable future. Just be sure to set
 	<code>window.counter</code> as in the above snippet.</p>
 
-<p>You can optionally pass variables manually by using the <code>vars</code> object. Supported keys:</p>
+<p>You can optionally pass variables manually by using the
+<code>window.goatcounter.vars</code> object. Supported keys:</p>
 
 <ul>
 	<li><code>path</code> – Path to the current page that’s recorded, without
@@ -27,6 +28,17 @@
 		(<code>https://example.com</code>) or any string
 		(<code>June Newsletter</code>). Default is to use the Referer
 		header.</li>
+
+	<li><code>no_onload</code> – Don’t do anything on page load; if you want to
+		call <code>count()</code> manually.</li>
+</ul>
+
+<p>Callable methods:</p>
+
+<ul>
+	<li><code>window.goatcounter.count(vars)</code> – count an event. The
+		<code>vars</code> parameter is an object as described above, and wil
+		take precedence over the global <code>window.goatcounter.vars</code>.</li>
 </ul>
 
 <p>The default value will be used if the value is <code>null</code> or
@@ -36,8 +48,8 @@ the server. Nothing is sent if the return value from the <code>path</code>
 callback is <code>null</code>.</p>
 
 <p>Example:</p>
-
-<pre>window.vars = {
+<pre>window.goatcounter = window.goatcounter || {};
+window.goatcounter.vars = {
 	path: function(p) {
 		// Don't track the home page.
 		if (p === '/')
@@ -50,5 +62,16 @@ callback is <code>null</code>.</p>
 	// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
 	referrer: (window.location.search ? window.location.search.split('=')[1] : null),
 };</pre>
+
+<p>Custom <code>count()</code> example for hooking in to an SPA:</p>
+<pre>window.goatcounter = window.goatcounter || {};
+window.goatcounter.vars = {no_onload: true}
+
+window.addEventListener('hashchange', function(e) {
+	window.goatcounter.count({
+		page: window.location.pathname + window.location.search + window.location.hash
+	});
+});
+</pre>
 
 {{end}}

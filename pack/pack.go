@@ -1138,11 +1138,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 (function() { 
 	'use strict';
 
-	var vars = window.vars || {};
+	var vars = {};
+	if (window.goatcounter)
+		vars = window.goatcounter.vars || {};
+	else if (window.vars)  // TODO: temporary compatibility.
+		vars = window.vars || {};
 
 	// Find canonical location of the current page.
-	var get_location = function() {
-		var results = {p: vars.path, r: vars.referrer};
+	var get_location = function(count_vars) {
+		var results = {
+			p: count_vars.path     || vars.path,
+			r: count_vars.referrer || vars.referrer,
+		};
 
 		var rcb, pcb;
 		if (typeof(results.r) === 'function')
@@ -1158,7 +1165,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 		// Get path.
 		if (results.p === null || results.p === undefined) {
-			var loc = window.location,
+			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
 			if (c) {
@@ -1185,18 +1192,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	};
 
 	// Count a hit.
-	var count = function() {
+	var count = function(count_vars) {
 		// Don't track pages fetched with the browser's prefetch algorithm.
 		// See https://github.com/usefathom/fathom/issues/13
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
 		// Don't track private networks.
-		if (window.location.hostname.match(/localhost$/) ||
-			window.location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
+		if (location.hostname.match(/localhost$/) ||
+			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
 				return;
 
-		var loc = get_location();
+		var loc = get_location(count_vars);
 		loc.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
 
 		// null returned from user callback.
@@ -1208,12 +1215,10 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
 		img.src = window.counter + to_params(loc);
-		img.addEventListener('load', function() {
-			document.body.removeChild(img)
-		}, false);
+		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
-		// Remove the image after 3s if the onload event is never fired.
-		window.setTimeout(function() {
+		// Remove the image after 3s if the onload event is never triggered.
+		setTimeout(function() {
 			if (!img.parentNode)
 				return;
 			img.src = ''; 
@@ -1223,13 +1228,20 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		document.body.appendChild(img);  
 	};
 
-	if (document.body === null)
-		document.addEventListener('DOMContentLoaded', function() { count(); }, false);
-	else
-		count();
+	// Expose public API.
+	if (!window.goatcounter)
+		window.goatcounter = {};
+	window.goatcounter.count = count;
+
+	if (!vars.no_onload) {
+		if (document.body === null)
+			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
+		else
+			count();
+	}
 })();
 `),
-	"public/count.min.js": []byte(`(function(){"use strict";var a=window.vars||{};var b=function(){var e={p:a.path,r:a.referrer};var f,g;if(typeof e.r==="function")f=e.r;if(typeof e.p==="function")g=e.p;if(e.r===null||e.r===undefined)e.r=document.referrer;if(f)e.r=f(e.r);if(e.p===null||e.p===undefined){var h=window.location,i=document.querySelector('link[rel="canonical"][href]');if(i){var j=document.createElement("a");j.href=i.href;h=j}e.p=h.pathname+h.search||"/"}if(g)e.p=g(e.p);return e};var c=function(k){var l=[];for(var m in k)l.push(encodeURIComponent(m)+"="+encodeURIComponent(k[m]));return"?"+l.join("&")};var d=function(){if("visibilityState"in document&&document.visibilityState==="prerender")return;if(window.location.hostname.match(/localhost$/)||window.location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))return;var n=b();n.s=[window.screen.width,window.screen.height,window.devicePixelRatio||1];if(n.p===null)return;var o=document.createElement("img");o.setAttribute("alt","");o.setAttribute("aria-hidden","true");o.src=window.counter+c(n);o.addEventListener("load",function(){document.body.removeChild(o)},false);window.setTimeout(function(){if(!o.parentNode)return;o.src="";document.body.removeChild(o)},3e3);document.body.appendChild(o)};if(document.body===null)document.addEventListener("DOMContentLoaded",function(){d()},false);else d()})();
+	"public/count.min.js": []byte(`(function(){"use strict";var a={};if(window.goatcounter)a=window.goatcounter.vars||{};else if(window.vars)a=window.vars||{};var b=function(e){var f={p:e.path||a.path,r:e.referrer||a.referrer};var g,h;if(typeof f.r==="function")g=f.r;if(typeof f.p==="function")h=f.p;if(f.r===null||f.r===undefined)f.r=document.referrer;if(g)f.r=g(f.r);if(f.p===null||f.p===undefined){var i=location,j=document.querySelector('link[rel="canonical"][href]');if(j){var k=document.createElement("a");k.href=j.href;i=k}f.p=i.pathname+i.search||"/"}if(h)f.p=h(f.p);return f};var c=function(l){var m=[];for(var n in l)m.push(encodeURIComponent(n)+"="+encodeURIComponent(l[n]));return"?"+m.join("&")};var d=function(o){if("visibilityState"in document&&document.visibilityState==="prerender")return;if(location.hostname.match(/localhost$/)||location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))return;var p=b(o);p.s=[window.screen.width,window.screen.height,window.devicePixelRatio||1];if(p.p===null)return;var q=document.createElement("img");q.setAttribute("alt","");q.setAttribute("aria-hidden","true");q.src=window.counter+c(p);q.addEventListener("load",function(){document.body.removeChild(q)},false);setTimeout(function(){if(!q.parentNode)return;q.src="";document.body.removeChild(q)},3e3);document.body.appendChild(q)};if(!window.goatcounter)window.goatcounter={};window.goatcounter.count=d;if(!a.no_onload){if(document.body===null)document.addEventListener("DOMContentLoaded",function(){d()},false);else d()}})();
 `),
 	"public/favicon.png": func() []byte {
 		s, err := base64.StdEncoding.DecodeString("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEUAAACaFaTDJ85gZz+OAAAAAXRSTlMAQObYZgAAAAFiS0dEAmYLfGQAAAAaSURBVAhbY2DABrgakIkQOBEa1RCCQkxFJwBWTg5ET9yxYgAAAABJRU5ErkJggg==")
@@ -10878,7 +10890,8 @@ var Templates = map[string][]byte{
 	compatible in the foreseeable future. Just be sure to set
 	<code>window.counter</code> as in the above snippet.</p>
 
-<p>You can optionally pass variables manually by using the <code>vars</code> object. Supported keys:</p>
+<p>You can optionally pass variables manually by using the
+<code>window.goatcounter.vars</code> object. Supported keys:</p>
 
 <ul>
 	<li><code>path</code> – Path to the current page that’s recorded, without
@@ -10888,6 +10901,17 @@ var Templates = map[string][]byte{
 		(<code>https://example.com</code>) or any string
 		(<code>June Newsletter</code>). Default is to use the Referer
 		header.</li>
+
+	<li><code>no_onload</code> – Don’t do anything on page load; if you want to
+		call <code>count()</code> manually.</li>
+</ul>
+
+<p>Callable methods:</p>
+
+<ul>
+	<li><code>window.goatcounter.count(vars)</code> – count an event. The
+		<code>vars</code> parameter is an object as described above, and wil
+		take precedence over the global <code>window.goatcounter.vars</code>.</li>
 </ul>
 
 <p>The default value will be used if the value is <code>null</code> or
@@ -10897,8 +10921,8 @@ the server. Nothing is sent if the return value from the <code>path</code>
 callback is <code>null</code>.</p>
 
 <p>Example:</p>
-
-<pre>window.vars = {
+<pre>window.goatcounter = window.goatcounter || {};
+window.goatcounter.vars = {
 	path: function(p) {
 		// Don't track the home page.
 		if (p === '/')
@@ -10911,6 +10935,17 @@ callback is <code>null</code>.</p>
 	// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
 	referrer: (window.location.search ? window.location.search.split('=')[1] : null),
 };</pre>
+
+<p>Custom <code>count()</code> example for hooking in to an SPA:</p>
+<pre>window.goatcounter = window.goatcounter || {};
+window.goatcounter.vars = {no_onload: true}
+
+window.addEventListener('hashchange', function(e) {
+	window.goatcounter.count({
+		page: window.location.pathname + window.location.search + window.location.hash
+	});
+});
+</pre>
 
 {{end}}
 `),

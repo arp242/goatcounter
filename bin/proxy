@@ -4,7 +4,7 @@
 # the live version. It's the easiest way to test it manually for now (I need to
 # figure out how to unit test this stuff in a way that I like).
 #
-# Start with: ~/mitproxy -s ./proxy
+# Start with: ~/mitmproxy -s ./bin/proxy
 #
 # Can also use mitmweb with the same arguments for a web interface.
 #
@@ -16,6 +16,7 @@ import mitmproxy.ctx
 
 REPLACE = {
         'static.goatcounter.com/count.min.js': './public/count.js',
+        'gc.zgo.at/count.min.js':              './public/count.js',
         'zgo.at/':                             '../zgo.at/index.html',
 }
 
