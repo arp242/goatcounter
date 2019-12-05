@@ -111,6 +111,44 @@ Existing solutions
   on the commit log from the last few years I don't expect major changes or
   additions.
 
+### KISSS
+
+https://github.com/kis3/kis3; new project, first commit at around the same time
+as GoatCounter.
+
+- No hosted option.
+
+- Didn't investigate in-depth, but seems very simplistic from looking at the
+  code?
+
+### Ackee
+
+https://github.com/electerious/Ackee
+
+- No hosted version.
+
+- Doesn't display refers per-page; charts don't give a lot of insight; dark UI
+  is annoying.
+
+- IMHO dubious tech stack (NodeJS, MongoDB).
+
+### Countly
+
+https://count.ly/
+
+- Has hosted option, but with unclear pricing.
+
+- Seems to be "open core", with quite a few things missing in thet "community
+  edition".
+
+- 32K tracking script (which doesn't seem compressed?)
+
+- Loading the backend means loading almost 12M of data(!!!) It took 2 mins and
+  45 seconds to finish loading everything(!!!)
+
+- Find it kind of tricky to get useful data out of it.
+
+- IMHO dubious tech stack (NodeJS, MongoDB).
 
 ### Analysing log files
 
