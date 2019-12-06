@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+	"strings"
 
 	"github.com/go-chi/chi"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
@@ -95,15 +96,22 @@ func main() {
 	acme.Run()
 
 	// Set up HTTP handler and servers.
-	d := zhttp.RemovePort(cfg.Domain)
-	ds := zhttp.RemovePort(cfg.DomainStatic)
-	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(map[string]chi.Router{
-		d:                        zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + d:               handlers.NewWebsite(db),
-		ds:                       handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
-		"static.goatcounter.com": handlers.NewStatic("./public", cfg.Domain, cfg.Prod),
-		"*":                      handlers.NewBackend(db),
-	})}, func() {
+	domain := zhttp.RemovePort(cfg.Domain)
+	hosts := map[string]chi.Router{
+		domain:          zhttp.RedirectHost("//www." + cfg.Domain),
+		"www." + domain: handlers.NewWebsite(db),
+		"*":             handlers.NewBackend(db),
+	}
+
+	static := handlers.NewStatic("./public", cfg.Domain, cfg.Prod)
+	for i, ds := range strings.Split(cfg.DomainStatic, ",") {
+		if i == 0 {
+			cfg.DomainStatic = ds
+		}
+		hosts[zhttp.RemovePort(ds)] = static
+	}
+
+	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(hosts)}, func() {
 		cron.Wait(db)
 		acme.Wait()
 		zlog.ProfileHeap(cfg.MemProfile)

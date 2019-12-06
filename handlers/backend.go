@@ -67,7 +67,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		}
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
-			header.CSPImgSrc:     {cfg.DomainStatic, "https://static.goatcounter.com"},
+			header.CSPImgSrc:     {cfg.DomainStatic, "https://gc.zgo.at", "https://static.goatcounter.com"},
 			header.CSPScriptSrc:  {cfg.DomainStatic},
 			header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
 			header.CSPFontSrc:    {cfg.DomainStatic},

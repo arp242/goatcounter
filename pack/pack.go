@@ -11013,14 +11013,10 @@ window.addEventListener('hashchange', function(e) {
 	</footer>
 	<script>
 		(function() {
-			if (window.location.hostname.indexOf('localhost') > -1) {
-				return;
-			}
-
 			var script = document.createElement('script');
 			window.counter = 'https://goatcounter.goatcounter.com/count'
 			script.async = 1;
-			script.src = '//static.goatcounter.com/count.min.js';
+			script.src = '//gc.zgo.at/count.min.js';
 
 			var ins = document.getElementsByTagName('script')[0];
 			ins.parentNode.insertBefore(script, ins)
