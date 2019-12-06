@@ -29,10 +29,7 @@
 			var bar = $(this).parent().find('.chart-hbar')
 			jQuery.ajax({
 				url: '/locations',
-				data: {
-					'period-start': $('#period-start').val(),
-					'period-end':   $('#period-end').val(),
-				},
+				data: append_period(),
 				success: function(data) { bar.html(data.html); },
 			});
 		});
@@ -57,16 +54,16 @@
 			else
 				klass = 'active';
 
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + $(h2).text() + '</a>';
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
 		});
 
 		nav.html(tabs);
-		nav.on('click', 'a', function(e) {
+		nav.on('click', 'a', function() {
 			nav.find('a').removeClass('active');
 			$(this).addClass('active');
 		});
 
-		$(window).on('hashchange', function(e) {
+		$(window).on('hashchange', function() {
 			$('.page > div').css('display', 'none');
 			$('#' + window.location.hash.substr(5)).parent().css('display', 'block');
 		});
@@ -96,12 +93,10 @@
 			bar.attr('data-save', bar.html());
 			jQuery.ajax({
 				url: url,
-				data: {
-					'period-start': $('#period-start').val(),
-					'period-end':   $('#period-end').val(),
-					'name':         name,
-					'total':        bar.attr('data-total'),
-				},
+				data: append_period({
+					name:  name,
+					total: bar.attr('data-total'),
+				}),
 				success: function(data) { bar.html(data.html); },
 			});
 		});
@@ -117,14 +112,15 @@
 				success: function(data) {
 					$('.pages-list .count-list-pages > tbody').append(data.rows);
 
-					var b = $('.pages-list .load-more');
-					b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
+					if (!data.more)
+						$('.pages-list .load-more').remove()
+					else {
+						var b = $('.pages-list .load-more');
+						b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
+					}
 
 					var td = $('.pages-list .total-display');
 					td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
-
-					if (!data.more)
-						$('.pages-list .load-more').remove()
 				},
 			});
 		});
@@ -138,12 +134,10 @@
 			var btn = $(this);
 			jQuery.ajax({
 				url: '/refs',
-				data: {
-					'period-start': $('#period-start').val(),
-					'period-end':   $('#period-end').val(),
-					'showrefs':     btn.closest('tr').attr('id'),
-					'offset':       btn.prev().find('tr').length,
-				},
+				data: append_period({
+					showrefs: btn.closest('tr').attr('id'),
+					offset:   btn.prev().find('tr').length,
+				}),
 				success: function(data) {
 					btn.prev().find('tbody').append($(data.rows).find('tr'));
 					if (!data.more)
@@ -160,7 +154,7 @@
 
 			var start = new Date();
 			switch (this.value) {
-				case 'day':       /* Do nothing */; break;
+				case 'day':       /* Do nothing */ break;
 				case 'week':      start.setDate(start.getDate() - 7); break;
 				case 'month':     start.setMonth(start.getMonth() - 1); break;
 				case 'quarter':   start.setMonth(start.getMonth() - 3); break;
@@ -173,10 +167,8 @@
 					break;
 			}
 
-			$('#period-start').val(format_date_ymd(start));
-			$('#period-end').val(format_date_ymd(new Date()));
 			$('#hl-period').val(this.value);
-			$(this).closest('form').trigger('submit');
+			set_period(start, new Date())
 		});
 
 		$('.period-move').on('click', 'button', function(e) {
@@ -190,15 +182,13 @@
 				case 'quarter': start.setMonth(start.getMonth() - 3); end.setMonth(end.getMonth() - 3); break;
 			}
 
-			$('#period-start').val(format_date_ymd(start));
-			$('#period-end').val(format_date_ymd(end));
-			$(this).closest('form').trigger('submit');
+			set_period(start, end);
 		});
 	};
 
 	// Select a period by dragging the mouse over a timeframe.
 	var drag_timeframe = function() {
-		var box, startX, startY;
+		var box, startX;
 
 		var setpos = function(e) {
 			// +1 on the right to make sure the tooltip is always visible.
@@ -212,7 +202,6 @@
 				return;
 
 			startX = e.pageX
-			startY = e.pageY
 			box = $('<span id="drag-box"></span>').css({
 				left:   e.pageX,
 				right:  $(document.body).width() - e.pageX,
@@ -265,9 +254,8 @@
 			box = null;
 			$(document).off('.timeframe');
 
-			$('#period-start').val((start.title || start.dataset.title).split(' ')[0]);
-			$('#period-end').val((end.title || end.dataset.title).split(' ')[0]);
-			$('#period-form').trigger('submit');
+			set_period((start.title || start.dataset.title).split(' ')[0],
+				(end.title || end.dataset.title).split(' ')[0]);
 		});
 	};
 
@@ -312,7 +300,7 @@
 
 	// Display popup when hovering a chart.
 	var chart_hover = function() {
-		$(document.body).on('mouseleave', '.chart', function(e) {
+		$(document.body).on('mouseleave', '.chart', function() {
 			$('#popup').remove();
 		});
 
@@ -326,9 +314,7 @@
 			if (!title)
 				return;
 
-			// Reformat date and time according to site settings. This won't
-			// work for non-JS users, but doing this on the template site would
-			// make caching harder. It's a fair compromise.
+			// Reformat date and time according to site settings.
 			//
 			// 2019-07-22 22:00 – 22:59, 5 views
 			// 2019-07-24 7:00 – 7:59, 4 views
@@ -458,8 +444,10 @@
 		return new_date.join(joiner);
 	};
 
-	// Format a date at year-month-day.
+	// Format a date as year-month-day.
 	var format_date_ymd = function(date) {
+		if (typeof date === 'string')
+			return date;
 		var m = date.getMonth() + 1,
 			d = date.getDate();
 		return date.getFullYear() + '-' +
@@ -475,5 +463,20 @@
 		d.setMonth(parseInt(s[1], 10) - 1);
 		d.setDate(s[2]);
 		return d
+	};
+
+	// Append period-start and period-end values to the data object.
+	var append_period = function(data) {
+		data = data || {};
+		data['period-start'] = $('#period-start').val();
+		data['period-end']   = $('#period-end').val();
+		return data;
+	};
+
+	// Set the start and end period and submit the form.
+	var set_period = function(start, end) {
+		$('#period-start').val(format_date_ymd(start));
+		$('#period-end').val(format_date_ymd(end));
+		$('#period-form').trigger('submit');
 	};
 })();
