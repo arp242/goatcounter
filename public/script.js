@@ -15,6 +15,7 @@
 		}
 	};
 
+	// TODO: not too hard to just remove jQuery here.
 	var fill_code = function() {
 		// Don't set the code if the user modified it.
 		var modified = false;
