@@ -65,12 +65,13 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			"X-Frame-Options":           []string{"deny"},
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
+		st := strings.Split(cfg.DomainStatic, ",")
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
-			header.CSPImgSrc:     {cfg.DomainStatic, "https://gc.zgo.at", "https://static.goatcounter.com"},
-			header.CSPScriptSrc:  {cfg.DomainStatic},
-			header.CSPStyleSrc:   {cfg.DomainStatic, header.CSPSourceUnsafeInline}, // style="height: " on the charts.
-			header.CSPFontSrc:    {cfg.DomainStatic},
+			header.CSPImgSrc:     st,
+			header.CSPScriptSrc:  st,
+			header.CSPStyleSrc:   append(st, header.CSPSourceUnsafeInline), // style="height: " on the charts.
+			header.CSPFontSrc:    st,
 			header.CSPFormAction: {header.CSPSourceSelf},
 			header.CSPConnectSrc: {header.CSPSourceSelf},
 			// Too much noise: header.CSPReportURI:  {"/csp"},

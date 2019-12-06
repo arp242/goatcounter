@@ -104,10 +104,7 @@ func main() {
 	}
 
 	static := handlers.NewStatic("./public", cfg.Domain, cfg.Prod)
-	for i, ds := range strings.Split(cfg.DomainStatic, ",") {
-		if i == 0 {
-			cfg.DomainStatic = ds
-		}
+	for _, ds := range strings.Split(cfg.DomainStatic, ",") {
 		hosts[zhttp.RemovePort(ds)] = static
 	}
 

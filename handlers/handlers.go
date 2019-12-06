@@ -7,6 +7,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
@@ -34,7 +35,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Site:    goatcounter.GetSite(r.Context()),
 		Path:    r.URL.Path,
 		Flash:   zhttp.ReadFlash(w, r),
-		Static:  cfg.DomainStatic,
+		Static:  strings.Split(cfg.DomainStatic, ",")[0],
 		Domain:  cfg.Domain,
 		Version: cfg.Version,
 	}
