@@ -11861,11 +11861,13 @@ sub {
 
 	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
 	<dd>GoatCounter does not collect data which can be used to identify a
-		person, and the GDPR almost certainly doesn’t apply. See Recital 26,
-		<em>“Not applicable to anonymous data”</em>.<br><br>
+		person, and you almost certainly don’t need to ask for consent
+		See Recital 26, <em>“Not applicable to anonymous data”</em>.<br><br>
 
-		That being said, this is <em>not</em> legal advice, and it’s advised you
-		consult a lawyer if you want detailed legal advice.
+		That being said, EU Regulations such as the GDPR are interpreted and
+		enforced different across member states, and national laws may also
+		apply. It’s advised you consult a lawyer if you want detailed legal
+		advice specific to your situation.
 	</dd>
 
 	<dt id="custom-domain">How do I set up a custom domain? <a href="#custom-domain">§</a></dt>
