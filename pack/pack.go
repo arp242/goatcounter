@@ -9835,32 +9835,37 @@ return jQuery;
 		}
 	};
 
-	// TODO: not too hard to just remove jQuery here.
 	var fill_code = function() {
+		var code = document.getElementById('code'),
+			name = document.getElementById('name');
+		if (!code || !name)
+			return;
+
 		// Don't set the code if the user modified it.
 		var modified = false;
-		$('#code').on('change', function() { modified = true; })
+		code.addEventListener('change', function(e) {
+			modified = true;
+		}, false);
 
-		$('#name').on('blur', function() {
+		name.addEventListener('blur', function() {
 			// Remove protocol from URL.
-			$(this).val($(this).val().replace(/^https?:\/\//, ''));
+			this.value = this.value.replace(/^https?:\/\//, '');
 
-			var code = $('#code')
-			if (modified && code.val().length > 0)
+			if (modified && code.value.length > 0)
 				return;
 
-			code.val($(this).val().
+			code.value = this.value.
 				replace(/^www\./, '').        // www.
 				replace(/\.\w+$/, '').        // Remove tld
 				replace(/\.co$/, '').         // .co.uk, .co.nz
 				replace('.', '_').            // . -> _
 				replace(/[^a-zA-Z0-9_]/, ''). // Remove anything else
-				toLowerCase());
-		});
+				toLowerCase();
+		}, false);
 
-		$('#code').on('blur', function() {
-			$(this).val($(this).val().toLowerCase());
-		})
+		code.addEventListener('blur', function() {
+			this.value = this.value.toLowerCase();
+		}, false);
 	};
 
 	if (document.readyState === 'complete')
@@ -11038,8 +11043,7 @@ window.addEventListener('hashchange', function(e) {
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_bottom.gohtml": []byte(`	<script src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
-	<script src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
+	"tpl/_bottom.gohtml": []byte(`	<script src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
 	<script src="//{{.Static}}/script.js?v={{.Version}}"></script>
 </div> {{/* .page */}}
 	<footer class="center">
