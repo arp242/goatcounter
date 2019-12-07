@@ -3,7 +3,7 @@
 		var script = document.createElement('script');
 		window.counter = '{{.Site.URL}}/count'
 		script.async = 1;
-		script.src = '//{{.Static}}/count.min.js';
+		script.src = '//{{.Static}}/count.js';
 
 		var ins = document.getElementsByTagName('script')[0];
 		ins.parentNode.insertBefore(script, ins)

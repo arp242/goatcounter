@@ -6,17 +6,17 @@
 (function() { 
 	'use strict';
 
-	var vars = {};
+	var VARS = {};
 	if (window.goatcounter)
-		vars = window.goatcounter.vars || {};
+		VARS = window.goatcounter.vars || {};
 	else if (window.vars)  // TODO: temporary compatibility.
-		vars = window.vars || {};
+		VARS = window.vars || {};
 
 	// Find canonical location of the current page.
 	var get_location = function(count_vars) {
 		var results = {
-			p: count_vars.path     || vars.path,
-			r: count_vars.referrer || vars.referrer,
+			p: count_vars.path     || VARS.path,
+			r: count_vars.referrer || VARS.referrer,
 		};
 
 		var rcb, pcb;
@@ -71,7 +71,7 @@
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
 				return;
 
-		var loc = get_location(count_vars);
+		var loc = get_location(count_vars || {});
 		loc.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
 
 		// null returned from user callback.
@@ -101,7 +101,7 @@
 		window.goatcounter = {};
 	window.goatcounter.count = count;
 
-	if (!vars.no_onload) {
+	if (!VARS.no_onload) {
 		if (document.body === null)
 			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
 		else
