@@ -1,27 +1,34 @@
 {{template "_backend_top.gohtml" .}}
 
 <h1>Billing</h1>
-Plan: {{.Site.Plan}}<br>
-Stripe: {{.Site.Stripe}}<br>
+
+<p>Current plan: {{.Info.Plan}}</p>
+<p>{{.Info.Payment}}</p>
 
 <form method="post" action="/billing/start">
-	<label>Plan</label>
-	<select>
-		<option value="p">Personal</option>
-		<option value="b">Business</option>
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	<label for="plan">Plan</label>
+	<select name="plan" id="plan">
+		<option value="p" {{if eq .Site.Plan "p"}}selected{{end}}>Personal</option>
+		<option value="b" {{if eq .Site.Plan "b"}}selected{{end}}>Business</option>
 	</select><br>
 
-	<label>CC</label>
-	<input name="number"><br>
+	<div id="pay-optional">
+		Can be free, but please pay.
+		<input name="optional">
+	</div>
 
-	<label>Exp Month</label>
-	<input name="exp_month"><br>
+	<div id="cc-details">
+		<label>Card number</label>
+		<input name="number">
 
-	<label>Exp Year</label>
-	<input name="exp_year"><br>
+		<label>Expiry</label>
+		<input name="expiry" size="5">
 
-	<label>CVC</label>
-	<input name="cvc"><br>
+		<label>CVC</label>
+		<input name="cvc" size="5">
+	</div>
 
 	<button>Subscribe</button>
 </form>

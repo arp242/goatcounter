@@ -37,6 +37,12 @@ func main() {
 	}
 	zmail.SMTP = cfg.SMTP
 	zstripe.SecretKey = cfg.StripeKey
+	if !cfg.Prod {
+		zstripe.DebugURL = true
+		zstripe.DebugReqBody = true
+		zstripe.DebugRespBody = true
+	}
+
 	fmt.Printf("Goatcounter version %s\n", version)
 	cfg.Print()
 

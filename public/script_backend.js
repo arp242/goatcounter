@@ -18,8 +18,23 @@
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
+			billing,
 		].forEach(function(f) { f.call(); });
 	});
+
+	// Set up the billing page.
+	var billing = function() {
+		$('#plan').on('change', function(e) {
+			if (this.value === 'p') {
+				$('#pay-optional').css('display', 'block')
+				$('#cc-details').css('display', 'none')
+			}
+			else {
+				$('#pay-optional').css('display', 'none')
+				$('#cc-details').css('display', 'block')
+			}
+		});
+	};
 
 	// Paginate the location chart.
 	var paginate_locations = function() {
