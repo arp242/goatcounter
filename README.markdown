@@ -127,11 +127,7 @@ To use it:
        $ createdb goatcounter
        $ psql goatcounter -c '\i db/schema.pgsql'
 
-2. Optionally convert the SQLite database:
-
-       $ ./db/export-sqlite.sh ./db/goatcounter.sqlite3 | psql goatcounter
-
-3. Run with `-pgsql` and `-dbconnect`, for example:
+2. Run with `-pgsql` and `-dbconnect`, for example:
 
        $ goatcounter -pgsql -dbconnect 'user=goatcounter dbname=goatcounter sslmode=disable'
 
