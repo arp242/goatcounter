@@ -35,9 +35,7 @@ type BillingInfo struct {
 func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 
-	info := BillingInfo{
-		Plan: map[string]string{"b": "Business", "p": "Personal", "f": "Personal (free)"}[site.Plan],
-	}
+	info := BillingInfo{Plan: site.PlanName(r.Context())}
 	if site.Stripe != nil {
 		var methods struct {
 			Data []struct {

@@ -17,6 +17,7 @@ import (
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
+	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -25,13 +26,14 @@ import (
 
 // Plan column values.
 const (
-	PlanPersonal   = "p"
-	PlanBusiness   = "b"
-	PlanEnterprise = "e"
-	PlanChild      = "c" // Special plan for child sites.
+	PlanPersonalFree = "personal-free"
+	PlanPersonal     = "personal"
+	PlanStarter      = "starter"
+	PlanPro          = "pro"
+	PlanChild        = "child"
 )
 
-var Plans = []string{PlanPersonal, PlanBusiness, PlanEnterprise}
+var Plans = []string{PlanPersonalFree, PlanPersonal, PlanStarter, PlanPro}
 
 var reserved = []string{
 	"goatcounter", "goatcounters",
@@ -327,8 +329,26 @@ func (s Site) URL() string {
 		s.Code, cfg.Domain)
 }
 
-// PlanBusiness reports if this site is on the Business or Enterprise plan.
-func (s Site) PlanBusiness(ctx context.Context) bool {
+// PlanName returns a human-readable plan name.
+func (s Site) PlanName(ctx context.Context) string {
+	if s.Parent != nil {
+		var ps Site
+		err := ps.ByID(ctx, *s.Parent)
+		if err != nil {
+			zlog.Error(err)
+			return ""
+		}
+		return ps.PlanName(ctx)
+	}
+
+	if s.Plan == PlanPersonalFree {
+		return "Personal (free)"
+	}
+	return stringutil.UpperFirst(s.Plan)
+}
+
+// PlanCustomDomain reports if this site's plan allows custom domains.
+func (s Site) PlanCustomDomain(ctx context.Context) bool {
 	if s.Parent != nil {
 		var ps Site
 		err := ps.ByID(ctx, *s.Parent)
@@ -337,10 +357,9 @@ func (s Site) PlanBusiness(ctx context.Context) bool {
 			return false
 		}
 
-		return ps.PlanBusiness(ctx)
+		return ps.PlanCustomDomain(ctx)
 	}
-
-	return s.Plan == PlanBusiness || s.Plan == PlanEnterprise
+	return s.Plan == PlanStarter || s.Plan == PlanPro
 }
 
 // IDOrParent gets this site's ID or the parent ID if that's set.
