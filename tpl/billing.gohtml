@@ -2,9 +2,50 @@
 
 <h1>Billing</h1>
 
-<p>Current plan: {{.Info.Plan}}</p>
-<p>{{.Info.Payment}}</p>
+{{if .Site.Stripe}}
+	<p>Currently on the <em>{{.Info.Plan}}</em> plan; paying with a {{.Info.Payment}}.</p>
+{{else}}
+	No plan yet; TODO days remaining on trail.
+{{end}}
 
+<form method="post" action="/billing/start">
+	<fieldset class="plan">
+		<legend>Plan</legend>
+		<label><input type="radio" name="plan" value="p">
+			Personal – free for personal non-commercial use, limited to 
+				100k pageviews/months (~3.3k/day).</label><br>
+		<label><input type="radio" name="plan" value="b">
+			Business – €30/month for commercial use.</label><br>
+		<label><input type="radio" name="plan" value="c">
+			Custom – Contact.</label>
+	</fieldset>
+
+	<fieldset class="free">
+		<legend>Optional payments</legend>
+
+		<p>GoatCounter is free for personal non-commercial use, but a donation
+		is recommended.</p>
+
+		$<input name="optional">
+	</fieldset>
+
+	<fieldset class="card">
+		<legend>Card details</legend>
+
+		<label for="number">Number</label>
+		<input name="number" id="number"
+			style="margin-right: 1em; padding: 0; line-height: 1; height: 1em; ">
+
+		<label for="expiry">Expiry</label>
+		<input name="expiry" id="expiry" size="5"
+			style="margin-right: 1em">
+
+		<label for="cvc">CVC</label>
+		<input name="cvc" id="cvc" size="5">
+	</fieldset>
+</form>
+
+<!--
 <form method="post" action="/billing/start">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
@@ -32,5 +73,12 @@
 
 	<button>Subscribe</button>
 </form>
+-->
+
+{{if .Site.Stripe}}
+	<h2>Invoices</h2>
+	Next invoice will be at ...
+{{end}}
+
 
 {{template "_backend_bottom.gohtml" .}}
