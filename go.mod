@@ -2,6 +2,8 @@ module zgo.at/goatcounter
 
 go 1.12
 
+replace zgo.at/zhttp => ../zhttp
+
 require (
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect

@@ -145,6 +145,18 @@ func (u *User) ByToken(ctx context.Context, token string) error {
 		token, MustGetSite(ctx).IDOrParent()), "User.ByToken")
 }
 
+// BySite gets a user by site.
+func (u *User) BySite(ctx context.Context, id int64) error {
+	var s Site
+	err := s.ByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
+		`select * from users where site=$1`, s.IDOrParent()), "User.ByID")
+}
+
 // RequestLogin generates a new login Key.
 func (u *User) RequestLogin(ctx context.Context) error {
 	u.LoginRequest = zhttp.SecretP()

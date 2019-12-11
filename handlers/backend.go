@@ -103,6 +103,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			af.Get("/purge", zhttp.Wrap(h.purgeConfirm))
 			af.Post("/purge", zhttp.Wrap(h.purge))
 			af.With(admin).Get("/admin", zhttp.Wrap(h.admin))
+			af.With(admin).Get("/admin/{id}", zhttp.Wrap(h.adminSite))
 		}
 	}
 
@@ -312,6 +313,29 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "backend_admin.gohtml", struct {
 		Globals
 		Stats goatcounter.AdminStats
+	}{newGlobals(w, r), a})
+}
+
+func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
+	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var a goatcounter.AdminSiteStat
+	err := a.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_admin_site.gohtml", struct {
+		Globals
+		Stat goatcounter.AdminSiteStat
 	}{newGlobals(w, r), a})
 }
 

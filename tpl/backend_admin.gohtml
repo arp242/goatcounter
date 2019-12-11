@@ -7,6 +7,7 @@
 <h3>Sites</h3>
 <table><tbody>
 	<tr>
+		<th>ID</th>
 		<th># hits</th>
 		<th>Code</th>
 		<th>Name</th>
@@ -16,6 +17,7 @@
 	</tr>
 	{{range $s := .Stats}}
 		<tr>
+			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
 			<td>{{nformat $s.Count}}</td>
 			<td>
 				{{if $s.Public}}

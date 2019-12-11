@@ -15,6 +15,7 @@ import (
 )
 
 type AdminStat struct {
+	ID        int64     `db:"id"`
 	Code      string    `db:"code"`
 	Name      string    `db:"name"`
 	User      string    `db:"user"`
@@ -29,7 +30,7 @@ type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
 func (a *AdminStats) List(ctx context.Context) error {
-	// Needs --tags json1: too much work.
+	// TODO: needs --tags json1: too much work for now.
 	//js := "json_extract(settings, '$.public')"
 	js := "'0'"
 	if cfg.PgSQL {
@@ -38,6 +39,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
 		select
+			sites.id,
 			sites.code,
 			sites.name,
 			sites.created_at,
@@ -49,7 +51,42 @@ func (a *AdminStats) List(ctx context.Context) error {
 		from sites
 		left join hits on hits.site=sites.id
 		join users on users.site=sites.id
-		group by sites.code, sites.name, sites.created_at, users.name, users.email, public, plan
+		where hits.created_at >= now() - interval '30 days'
+		group by sites.id, sites.code, sites.name, sites.created_at, users.name, users.email, public, plan
 		order by count desc`, js))
+	return errors.Wrap(err, "AdminStats.List")
+}
+
+type AdminSiteStat struct {
+	Site           Site `db:"-"`
+	User           User `db:"-"`
+	CountTotal     int  `db:"count_total"`
+	CountLastMonth int  `db:"count_last_month"`
+	CountPrevMonth int  `db:"count_prev_month"`
+}
+
+// ByID gets stats for a single site.
+func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
+	err := a.Site.ByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	err = a.User.BySite(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	err = zdb.MustGet(ctx).GetContext(ctx, a, `
+		select
+			(select count(*) from hits where site=$1) as count_total,
+			(select count(*) from hits where site=$1
+				and created_at >= now() - interval '30 days') as count_last_month,
+			(select count(*) from hits where site=$1
+				and created_at >= now() - interval '60 days'
+				and created_at <= now() - interval '30 days'
+			) as count_prev_month
+		`, id)
+
 	return errors.Wrap(err, "AdminStats.List")
 }

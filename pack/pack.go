@@ -11351,6 +11351,7 @@ window.addEventListener('hashchange', function(e) {
 <h3>Sites</h3>
 <table><tbody>
 	<tr>
+		<th>ID</th>
 		<th># hits</th>
 		<th>Code</th>
 		<th>Name</th>
@@ -11360,6 +11361,7 @@ window.addEventListener('hashchange', function(e) {
 	</tr>
 	{{range $s := .Stats}}
 		<tr>
+			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
 			<td>{{nformat $s.Count}}</td>
 			<td>
 				{{if $s.Public}}
@@ -11380,6 +11382,22 @@ window.addEventListener('hashchange', function(e) {
 {{range $s := .Stats}}
 	{{$s.Email}},
 {{end}}
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/backend_admin_site.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h2>Admin</h2>
+
+<table>
+	<tr><td>Total</td><td>{{.Stat.CountTotal | nformat}}</td></tr>
+	<tr><td>Last month</td><td>{{.Stat.CountLastMonth | nformat}}</td></tr>
+	<tr><td>Previous month</td><td>{{.Stat.CountPrevMonth | nformat}}</td></tr>
+	</tr>
+</table>
+
+<pre>{{pp .Stat.Site}}</pre>
+<pre>{{pp .Stat.User}}</pre>
 
 {{template "_backend_bottom.gohtml" .}}
 `),
