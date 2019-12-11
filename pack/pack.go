@@ -11363,7 +11363,7 @@ window.addEventListener('hashchange', function(e) {
 <p><a href="/debug/pprof">pprof</a></p>
 
 <h3>Sites</h3>
-<table><tbody>
+<table>
 	<tr>
 		<th>ID</th>
 		<th># hits</th>
@@ -11390,7 +11390,23 @@ window.addEventListener('hashchange', function(e) {
 			<td>{{tformat $s.CreatedAt ""}}</td>
 		</tr>
 	{{end}}
-</tbody></table>
+</table>
+
+<h3>Count refs</h3>
+<table>
+	<tr>
+		<th>Site</th>
+		<th>Count</th>
+		<th>Ref</th>
+	</tr>
+	{{range $s := .CountRefs}}
+		<tr>
+			<td><a href="/admin/{{$s.Site}}">{{$s.Site}}</a></td>
+			<td>{{$s.Count}}</td>
+			<td>{{$s.CountRef}}</td>
+		</tr>
+	{{end}}
+</table>
 
 <h3>Contacts</h3>
 {{range $s := .Stats}}

@@ -315,10 +315,17 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	var cs goatcounter.AdminCountRefs
+	err = cs.List(r.Context())
+	if err != nil {
+		return err
+	}
+
 	return zhttp.Template(w, "backend_admin.gohtml", struct {
 		Globals
-		Stats goatcounter.AdminStats
-	}{newGlobals(w, r), a})
+		Stats     goatcounter.AdminStats
+		CountRefs goatcounter.AdminCountRefs
+	}{newGlobals(w, r), a, cs})
 }
 
 func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {

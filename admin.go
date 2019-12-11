@@ -88,5 +88,21 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 			) as count_prev_month
 		`, id)
 
-	return errors.Wrap(err, "AdminStats.List")
+	return errors.Wrap(err, "AdminSiteStats.ByID")
+}
+
+type AdminCountRef struct {
+	Site     int64  `db:"site"`
+	CountRef string `db:"count_ref"`
+	Count    int    `db:"count"`
+}
+
+type AdminCountRefs []AdminCountRef
+
+func (a *AdminCountRefs) List(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, `
+		select site, count_ref, count(*) as count
+		from hits where count_ref != ''
+		group by site, count_ref
+		order by count desc`), "AdminCountRefs")
 }
