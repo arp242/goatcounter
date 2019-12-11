@@ -45,6 +45,11 @@ type Hit struct {
 	Location    string            `db:"location"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
+	// Tracks referer of the /count request; this is not a statistic, just so we
+	// can get an indication on which domains people are using GoatCounter, to
+	// help track down abuse.
+	CountRef string `db:"count_ref" json:"-"`
+
 	refURL *url.URL `db:"-"`
 }
 

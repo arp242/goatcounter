@@ -160,6 +160,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		Site:      goatcounter.MustGetSite(r.Context()).ID,
 		Browser:   r.UserAgent(),
 		Location:  geo(r.RemoteAddr),
+		CountRef:  r.Referer(),
 		CreatedAt: time.Now().UTC(),
 	}
 	_, err := zhttp.Decode(r, &hit)
@@ -304,6 +305,10 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(403, "yeah nah")
 	}
 
+	if !cfg.PgSQL { // TODO
+		return guru.New(400, "not implemented in SQLite yet")
+	}
+
 	var a goatcounter.AdminStats
 	err := a.List(r.Context())
 	if err != nil {
@@ -319,6 +324,10 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.MustGetSite(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
+	}
+
+	if !cfg.PgSQL { // TODO
+		return guru.New(400, "not implemented in SQLite yet")
 	}
 
 	v := zvalidate.New()
