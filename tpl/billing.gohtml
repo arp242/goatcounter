@@ -8,25 +8,29 @@
 	No plan yet; TODO days remaining on trail.
 {{end}}
 
-<form method="post" action="/billing/start">
+<form method="post" action="/billing/start" id="billing-form">
 	<fieldset class="plan">
 		<legend>Plan</legend>
 		<label><input type="radio" name="plan" value="personal">
-			Personal – free for personal non-commercial use, limited to 
-				100k pageviews/months (~3.3k/day).</label><br>
+			<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
 		<label><input type="radio" name="plan" value="starter">
-			Starter – €15/month for commercial use.</label><br>
+			<span>Starter</span> €15/month; 500k pageviews/month; custom domain.</label><br>
 		<label><input type="radio" name="plan" value="pro">
-			Pro – €30/month for commercial use.</label><br>
+			<span>Pro</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
+
+		<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
 	</fieldset>
 
 	<fieldset class="free">
 		<legend>Optional payments</legend>
 
-		<p>GoatCounter is free for personal non-commercial use, but a donation
-		is recommended.</p>
+		<p>GoatCounter is free for personal non-commercial use, but a small
+			monthly donation is encouraged so I can pay my rent and such 😅</p>
+		<p>Even just a small €1/month would be greatly appreciated!</p>
 
-		$<input name="optional">
+		€<input type="number" name="optional" size="2">
+
+		<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>.</p>
 	</fieldset>
 
 	<fieldset class="card">
@@ -43,6 +47,8 @@
 		<label for="cvc">CVC</label>
 		<input name="cvc" id="cvc" size="5">
 	</fieldset>
+
+	<button type="submit">Subscribe</button>
 </form>
 
 <!--

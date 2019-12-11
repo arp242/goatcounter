@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"net/mail"
 	"strings"
+	"time"
 
+	"arp242.net/alwayscache"
 	"github.com/go-chi/chi"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
@@ -39,8 +41,12 @@ func main() {
 	zstripe.SecretKey = cfg.StripeKey
 	if !cfg.Prod {
 		zstripe.DebugURL = true
-		zstripe.DebugReqBody = true
-		zstripe.DebugRespBody = true
+		//zstripe.DebugReqBody = true
+		//zstripe.DebugRespBody = true
+		zstripe.Client = http.Client{
+			Timeout:   10 * time.Second,
+			Transport: alwayscache.NewTransport(),
+		}
 	}
 
 	fmt.Printf("Goatcounter version %s\n", version)

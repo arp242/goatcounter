@@ -77,7 +77,7 @@ func StartTest(t *testing.T) (context.Context, func()) {
 	}
 
 	_, err = db.Exec(`insert into sites (code, name, plan, settings, created_at) values
-		('test', 'example.com', 'p', '{}', datetime());`)
+		('test', 'example.com', 'personal', '{}', datetime());`)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -5,6 +5,7 @@ go 1.12
 //replace zgo.at/zvalidate => ../zvalidate
 
 require (
+	arp242.net/alwayscache v0.0.0-20191211170334-d5e91edfddb1
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
@@ -21,7 +22,7 @@ require (
 	zgo.at/zhttp v0.0.0-20191125071106-ac5d22e065c6
 	zgo.at/zlog v1.0.6
 	zgo.at/zpack v1.0.0
-	zgo.at/zstripe v0.0.0-20191209171316-d983ab142257
+	zgo.at/zstripe v0.0.0-20191211163500-4ccbf079eba6
 	zgo.at/ztest v1.0.0
 	zgo.at/zvalidate v1.0.0
 )

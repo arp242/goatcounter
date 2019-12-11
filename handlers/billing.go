@@ -37,6 +37,28 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 
 	info := BillingInfo{Plan: site.PlanName(r.Context())}
 	if site.Stripe != nil {
+		var customer struct {
+			Subscriptions struct {
+				Data []struct {
+					//ID string
+					CancelAtPeriodEnd bool `json:"cancel_at_period_end"`
+					//DaysUntilDue       string `json:"days_until_due"`
+					//LatestInvoice      string `json:"latest_invoice"`
+					//BillingCycleAnchor string `json:"billing_cycle_anchor"`
+				} `json:"data"`
+			} `json:"subscriptions"`
+		}
+		_, err := zstripe.Request(&customer, "GET",
+			fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%#v\n", customer)
+
+		// https://stripe.com/docs/api/invoices/upcoming
+		//https://stripe.com/docs/api/invoices/list
+
 		var methods struct {
 			Data []struct {
 				Card struct {
@@ -45,7 +67,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				} `json:"card"`
 			} `json:"data"`
 		}
-		_, err := zstripe.Request(&methods, "GET", "/v1/payment_methods", zstripe.Body{
+		_, err = zstripe.Request(&methods, "GET", "/v1/payment_methods", zstripe.Body{
 			"customer": *site.Stripe,
 			"type":     "card",
 		}.Encode())

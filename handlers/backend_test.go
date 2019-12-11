@@ -85,7 +85,7 @@ func TestBackendAdmin(t *testing.T) {
 	tests := []handlerTest{
 		{
 			setup: func(ctx context.Context) {
-				site := goatcounter.Site{Name: "new site", Code: "newsite", Plan: "p"}
+				site := goatcounter.Site{Name: "new site", Code: "newsite", Plan: goatcounter.PlanPersonal}
 				err := site.Insert(ctx)
 				if err != nil {
 					panic(err)
