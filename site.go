@@ -356,9 +356,9 @@ func (s Site) PlanCustomDomain(ctx context.Context) bool {
 			zlog.Error(err)
 			return false
 		}
-
 		return ps.PlanCustomDomain(ctx)
 	}
+
 	return s.Plan == PlanStarter || s.Plan == PlanPro
 }
 

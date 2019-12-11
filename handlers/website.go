@@ -83,6 +83,7 @@ func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
 
 func (h website) signup(w http.ResponseWriter, r *http.Request) error {
 	plan := chi.URLParam(r, "plan")
+	planName := plan
 
 	return zhttp.Template(w, "signup.gohtml", struct {
 		Globals
@@ -106,13 +107,14 @@ type signupArgs struct {
 }
 
 func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
-	plan := chi.URLParam(r, "plan")
-
 	var args signupArgs
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
+
+	plan := chi.URLParam(r, "plan")
+	planName := plan
 
 	txctx, tx, err := zdb.Begin(r.Context())
 	if err != nil {

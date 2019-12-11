@@ -1,16 +1,9 @@
 {{template "_top.gohtml" .}}
 
-{{if eq .Plan "e"}}
-	<p>Please email <a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-	if you’re interested in the Enterprise plan to discus your needs.</p>
-
-	<p><a href="/#pricing">Choose a different plan</a>.</p>
-{{else}}
 <h1>Sign up for GoatCounter</h1>
-<p>
-<br>The GoatCounter.com service is free during the initial beta for testing and
-gathering feedback, but will be <u>$3 per month</u> afterwards. The initial beta
-is expected to last about three months.</p>
+<p><br>
+The GoatCounter.com service is free for non-commercial use <em>only</em>.
+The option to pay for commercial use should arrive Soon™.</p>
 
 <div id="signup-form">
 	<form class="vertical" method="post" action="/signup/{{.PlanName}}">
@@ -82,6 +75,5 @@ is expected to last about three months.</p>
 		<button type="submit">Sign up</button>
 	</form>
 </div>
-{{end}}
 
 {{template "_bottom.gohtml" .}}

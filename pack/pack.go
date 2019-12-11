@@ -353,6 +353,20 @@ commit;
 	insert into version values ('2019-11-08-2-location_stats');
 commit;
 `),
+	"db/migrate/pgsql/2019-12-10-1-plans.sql": []byte(`begin;
+	alter table sites
+		drop constraint sites_plan_check;
+
+	update sites set plan = 'personal-free' where plan = 'p';
+	update sites set plan = 'pro' where plan = 'b';
+	update sites set plan = 'child' where plan = 'c';
+
+	alter table sites
+		add constraint sites_plan_check check(plan in ('personal-free', 'personal', 'starter', 'pro', 'child', 'custom'));
+
+	insert into version values ('2019-12-10-1-plans');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -695,6 +709,38 @@ commit;
 		('Zimbabwe', 'ZW');
 
 	insert into version values ('2019-11-08-2-location_stats');
+commit;
+`),
+	"db/migrate/sqlite/2019-12-10-1-plans.sql": []byte(`begin;
+	create table sites2 (
+		id             integer        primary key autoincrement,
+		parent         integer        null                     check(parent is null or parent>0),
+
+		name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
+		code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+		cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
+		plan           varchar        not null                 check(plan in ('personal-free', 'personal', 'starter', 'pro', 'child', 'custom')),
+		stripe         varchar        null,
+		settings       varchar        not null,
+		last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
+		received_data  int            not null default 0,
+
+		state          varchar        not null default 'a'     check(state in ('a', 'd')),
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+	);
+
+	pragma ignore_check_constraints=on;
+	insert into sites2 select * from sites;
+	pragma ignore_check_constraints=off;
+
+	update sites2 set plan = 'personal-free' where plan = 'p';
+	update sites2 set plan = 'pro' where plan = 'b';
+	update sites2 set plan = 'child' where plan = 'c';
+	drop table sites;
+	alter table sites2 rename to sites;
+
+	insert into version values ('2019-12-10-1-plans');
 commit;
 `),
 }
@@ -10003,8 +10049,23 @@ return jQuery;
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
+			billing,
 		].forEach(function(f) { f.call(); });
 	});
+
+	// Set up the billing page.
+	var billing = function() {
+		$('#plan').on('change', function(e) {
+			if (this.value === 'p') {
+				$('#pay-optional').css('display', 'block')
+				$('#cc-details').css('display', 'none')
+			}
+			else {
+				$('#pay-optional').css('display', 'none')
+				$('#cc-details').css('display', 'block')
+			}
+		});
+	};
 
 	// Paginate the location chart.
 	var paginate_locations = function() {
@@ -10517,6 +10578,7 @@ img.imgzoom-loading { cursor: wait !important; }
 #home-pricing h3     { margin: .5em 0; }
 #home-pricing ul     { list-style: none; padding: 0; line-height: 2.5em; }
 #home-pricing .hlink { padding: 1em; display: block; border-top: 1px solid #cdc8a4; box-shadow: 0 3px 3px #cdc8a4; }
+#home-pricing-custom { box-shadow: 0 0 4px #cdc8a4; background-color: #fff; text-align: center; margin-top: 2em; padding: 1em; }
 
 @media (max-width: 45rem) {
 	#home-pricing > div { width: 32.5%; }
@@ -10872,6 +10934,15 @@ noscript {
 	background-color: #ffcfcf;
 	border-bottom: 1px solid #f88;
 }
+
+/*** Billing ***/
+#billing-form .plan span {
+	display: inline-block;
+	min-width: 5em;
+}
+
+#billing-form fieldset legend+p { margin-top: 0; }
+#billing-form fieldset p:last-child { margin-bottom: 0; }
 `),
 }
 
@@ -11161,7 +11232,9 @@ window.addEventListener('hashchange', function(e) {
 </div> {{/* .page */}}
 	<footer class="center">
 		<a href="/">Home</a> |
+		<a href="/contact">Contact</a> |
 		<a href="/help">Help</a> |
+ 		<a href="/contact">Contact</a> |
 		<a href="/privacy">Privacy</a> |
 		<a href="/terms">Terms</a> |
 		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a>
@@ -11179,6 +11252,20 @@ window.addEventListener('hashchange', function(e) {
 	</script>
 </body>
 </html>
+`),
+	"tpl/_contact.gohtml": []byte(`<ul>
+	<li>Open a <a href="https://github.com/zgoat/goatcounter/issues/new">GitHub
+		issue</a>. It’s fine to use this for support requests or general
+		questions, as GitHub issues are public and the answers may be useful for
+		others in the future.</li>
+
+	<li>You can also send an email if you prefer:
+		<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>.</li>
+
+	<li>For chat there’s a
+		<a href="https://t.me/goatcounter" target="_blank">Public Telegram Group</a>.</li>
+</ul>
+
 `),
 	"tpl/_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">
@@ -11397,7 +11484,7 @@ window.addEventListener('hashchange', function(e) {
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
 
-				{{if .Site.PlanBusiness .Context}}
+				{{if .Site.PlanCustomDomain .Context}}
 					<label for="cname">Custom domain</label>
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
@@ -11504,32 +11591,117 @@ window.addEventListener('hashchange', function(e) {
 	"tpl/billing.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <h1>Billing</h1>
-Plan: {{.Site.Plan}}<br>
-Stripe: {{.Site.Stripe}}<br>
 
+{{if .Site.Stripe}}
+	<p>Currently on the <em>{{.Info.Plan}}</em> plan; paying with a {{.Info.Payment}}.</p>
+{{else}}
+	No plan yet; TODO days remaining on trail.
+{{end}}
+
+<form method="post" action="/billing/start" id="billing-form">
+	<fieldset class="plan">
+		<legend>Plan</legend>
+		<label><input type="radio" name="plan" value="personal">
+			<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+		<label><input type="radio" name="plan" value="starter">
+			<span>Starter</span> €15/month; 500k pageviews/month; custom domain.</label><br>
+		<label><input type="radio" name="plan" value="pro">
+			<span>Pro</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
+
+		<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
+	</fieldset>
+
+	<fieldset class="free">
+		<legend>Optional payments</legend>
+
+		<p>GoatCounter is free for personal non-commercial use, but a small
+			monthly donation is encouraged so I can pay my rent and such 😅</p>
+		<p>Even just a small €1/month would be greatly appreciated!</p>
+
+		€<input type="number" name="optional" size="2">
+
+		<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>.</p>
+	</fieldset>
+
+	<fieldset class="card">
+		<legend>Card details</legend>
+
+		<label for="number">Number</label>
+		<input name="number" id="number"
+			style="margin-right: 1em; padding: 0; line-height: 1; height: 1em; ">
+
+		<label for="expiry">Expiry</label>
+		<input name="expiry" id="expiry" size="5"
+			style="margin-right: 1em">
+
+		<label for="cvc">CVC</label>
+		<input name="cvc" id="cvc" size="5">
+	</fieldset>
+
+	<button type="submit">Subscribe</button>
+</form>
+
+<!--
 <form method="post" action="/billing/start">
-	<label>Plan</label>
-	<select>
-		<option value="p">Personal</option>
-		<option value="b">Business</option>
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	<label for="plan">Plan</label>
+	<select name="plan" id="plan">
+		<option value="p" {{if eq .Site.Plan "p"}}selected{{end}}>Personal</option>
+		<option value="b" {{if eq .Site.Plan "b"}}selected{{end}}>Business</option>
 	</select><br>
 
-	<label>CC</label>
-	<input name="number"><br>
+	<div id="pay-optional">
+		Can be free, but please pay.
+		<input name="optional">
+	</div>
 
-	<label>Exp Month</label>
-	<input name="exp_month"><br>
+	<div id="cc-details">
+		<label>Card number</label>
+		<input name="number">
 
-	<label>Exp Year</label>
-	<input name="exp_year"><br>
+		<label>Expiry</label>
+		<input name="expiry" size="5">
 
-	<label>CVC</label>
-	<input name="cvc"><br>
+		<label>CVC</label>
+		<input name="cvc" size="5">
+	</div>
 
 	<button>Subscribe</button>
 </form>
+-->
+
+{{if .Site.Stripe}}
+	<h2>Invoices</h2>
+	Next invoice will be at ...
+{{end}}
+
 
 {{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/contact.gohtml": []byte(`{{template "_top.gohtml" .}}
+
+<h1>GoatCounter contact</h1>
+<p>There are a few ways to contact me:</p>
+<<<<<<< HEAD
+{{template "_contact.gohtml" .}}
+=======
+
+<ul>
+	<li>Open a <a href="https://github.com/zgoat/goatcounter/issues/new">GitHub
+		issue</a>. It’s fine to use this for support requests or general
+		questions, as GitHub issues are public and the answers may be useful for
+		others in the future.</li>
+
+	<li>You can also send an email if you prefer:
+		<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>.</li>
+
+	<li>For chat there’s a
+		<a href="https://t.me/goatcounter" target="_blank">Public Telegram Group</a>.</li>
+</ul>
+>>>>>>> master
+
+{{template "_bottom.gohtml" .}}
 `),
 	"tpl/error.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">
@@ -11674,20 +11846,6 @@ sub {
 	"tpl/help.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <h1>GoatCounter help</h1>
-<p>To get support:</p>
-<ul>
-	<li>Open a <a href="https://github.com/zgoat/goatcounter/issues/new">GitHub
-		issue</a>. It’s fine to use this for support requests, as GitHub
-		issues are public and the answers may be useful for others in the
-		future.</li>
-
-	<li>You can also send an email if you prefer:
-		<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>.</li>
-
-	<li>For chat there’s a <a href="https://t.me/goatcounter">Public Telegram Group</a>.</li>
-</ul>
-
-<h2>FAQ</h2>
 <dl>
 	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
 	<dd>For reasons of efficiency the statistics are updated once every minute.</dd>
@@ -11759,7 +11917,7 @@ sub {
 		take a few hours for everything to work. <code>mine.{{.Domain}}</code>
 		will continue to work.<br><br>
 
-		You will need the Business plan to set up a custom domain.
+		You will need the Starter or Pro plan to set up a custom domain.
 	</dd>
 </dl>
 
@@ -11808,43 +11966,53 @@ sub {
 	<div>
 		<h3>Personal</h3>
 		<ul>
-			<li><strong><u>Free during initial beta</u></strong>;<br>
-			$3/month afterwards</li>
+			<li>Free but donation recommended</li>
 			<li>For non-commercial use</li>
 			<li>Unlimited sites</li>
 			<li title="3.3k/day">100k pageviews/months</li>
+			<li>&nbsp;</li>
+			<li>&nbsp;</li>
 		</ul>
 		<a class="hlink" href="/signup/personal"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 
 	<div>
-		<h3>Business</h3>
+		<h3>Starter</h3>
 		<ul>
-			<li>$30/month</li>
+			<li>€15/month</li>
 			<li>Commercial use</li>
 			<li>Unlimited sites</li>
-			<li title="64k/day">2M pageviews/month</li>
+			<li title="16.6k/day">500k pageviews/month</li>
 			<li>Custom domain (stats.mine.com)</li>
+			<li>&nbsp;</li>
 		</ul>
 		{{/*
-		<a class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+		<a class="hlink" href="/signup/starter"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 		*/}}
 		<span class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Soon</span>
 	</div>
 
 	<div>
-		<h3>Custom</h3>
+		<h3>Pro</h3>
 		<ul>
-			<li>Contact for pricing</li>
-			<li>Unlimited pageviews/month</li>
+			<li>€30/month</li>
+			<li>Commercial use</li>
 			<li>Unlimited sites</li>
-			<li>Private installation</li>
-			<li>&nbsp;</li>
+			<li title="64k/day">1M pageviews/month</li>
+			<li>Custom domain (stats.mine.com)</li>
+			<li>Phone support</li>
 		</ul>
-		<a class="hlink" href="mailto:support@goatcounter.com"><img src="//{{.Static}}/index.svg" alt=""> Contact</a>
+		{{/*
+		<a class="hlink" href="/signup/pro"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+		*/}}
+		<span class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Soon</span>
 	</div>
 </div>
 
+<div id="home-pricing-custom">
+	<a href="/contact">Contact</a> if you need more pageviews or want a
+	privately installed hosted option.
+</div>
 
 <hr id="features">
 <div id="home-features">
@@ -11852,7 +12020,7 @@ sub {
 		<p><strong>Privacy-aware</strong>; doesn’t track users; doesn't need a
 			GDPR notice.</p>
 		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
-			0.8KB of extra data to your site.</p>
+			1.5KB of extra data to your site.</p>
 	</div>
 
 	<div>
@@ -11889,7 +12057,7 @@ sub {
 `),
 	"tpl/privacy.gohtml": []byte(`{{template "_top.gohtml" .}}
 
-<h1>Privacy policy</h1>
+<h1>GoatCounter privacy policy</h1>
 
 <p><em>8 November 2019</em></p>
 
@@ -11941,17 +12109,10 @@ information.</p>
 `),
 	"tpl/signup.gohtml": []byte(`{{template "_top.gohtml" .}}
 
-{{if eq .Plan "e"}}
-	<p>Please email <a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-	if you’re interested in the Enterprise plan to discus your needs.</p>
-
-	<p><a href="/#pricing">Choose a different plan</a>.</p>
-{{else}}
 <h1>Sign up for GoatCounter</h1>
-<p>
-<br>The GoatCounter.com service is free during the initial beta for testing and
-gathering feedback, but will be <u>$3 per month</u> afterwards. The initial beta
-is expected to last about three months.</p>
+<p><br>
+The GoatCounter.com service is free for non-commercial use <em>only</em>.
+The option to pay for commercial use should arrive Soon™.</p>
 
 <div id="signup-form">
 	<form class="vertical" method="post" action="/signup/{{.PlanName}}">
@@ -12023,13 +12184,12 @@ is expected to last about three months.</p>
 		<button type="submit">Sign up</button>
 	</form>
 </div>
-{{end}}
 
 {{template "_bottom.gohtml" .}}
 `),
 	"tpl/terms.gohtml": []byte(`{{template "_top.gohtml" .}}
 
-<h1>Terms of service</h1>
+<h1>GoatCounter terms of service</h1>
 
 <p><em>10 August 2019</em></p>
 

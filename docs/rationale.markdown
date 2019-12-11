@@ -1,9 +1,20 @@
 This document describes the rationale for developing GoatCounter, its goals, and
 a comparison with existing solutions.
 
-tl;dr ("elevator pitch"): give meaningful privacy-friendly analytics for
-business purposes, while still staying usable for non-technical users to use on
-personal websites. It should be free or low-cost for personal use.
+tl;dr ("elevator pitch"):
+
+> GoatCounter aims to give meaningful privacy-friendly analytics for business
+> purposes, while still staying usable for non-technical users to use on
+> personal websites. The choices that currently exist are between freely
+> hosted but with problematic privacy (Google Analytics), hosting your own
+> complex software or paying $19/month (Matomo), or extremely simplistic
+> "vanity statistics" (Fathom).
+> 
+> GoatCounter attempts to strike a good balance between various interests.
+> Major features include a free hosted version so people can easily add
+> analytics to their personal website, an easy to run hosted option, an
+> intuitive user interface, and meaningful statistics that go beyond "vanity
+> stats" but still respect your users' privacy.
 
 
 Background
