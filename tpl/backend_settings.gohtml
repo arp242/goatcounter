@@ -18,7 +18,7 @@
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
 
-				{{if .Site.PlanBusiness .Context}}
+				{{if .Site.PlanCustomDomain .Context}}
 					<label for="cname">Custom domain</label>
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a

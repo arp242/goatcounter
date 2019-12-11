@@ -16,7 +16,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
@@ -55,7 +54,7 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup/{plan}", zhttp.Wrap(h.signup))
 	r.Post("/signup/{plan}", zhttp.Wrap(h.doSignup))
-	for _, t := range []string{"", "help", "privacy", "terms"} {
+	for _, t := range []string{"", "help", "privacy", "terms", "contact"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
 	user{}.mount(r)
@@ -83,10 +82,8 @@ func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h website) signup(w http.ResponseWriter, r *http.Request) error {
-	plan, planName, err := getPlan(r)
-	if err != nil {
-		return err
-	}
+	plan := chi.URLParam(r, "plan")
+	planName := plan
 
 	return zhttp.Template(w, "signup.gohtml", struct {
 		Globals
@@ -107,22 +104,17 @@ type signupArgs struct {
 	Email      string `json:"user_email"`
 	UserName   string `json:"user_name"`
 	TuringTest string `json:"turing_test"`
-	//Card   string `json:"card"`
-	//Exp    string `json:"exp"`
-	//CVC    string `json:"cvc"`
 }
 
 func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
-	plan, planName, err := getPlan(r)
+	var args signupArgs
+	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
 
-	var args signupArgs
-	_, err = zhttp.Decode(r, &args)
-	if err != nil {
-		return err
-	}
+	plan := chi.URLParam(r, "plan")
+	planName := plan
 
 	txctx, tx, err := zdb.Begin(r.Context())
 	if err != nil {
@@ -190,18 +182,4 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new?mailed=%s",
 		site.URL(), url.QueryEscape(user.Email)))
-}
-
-func getPlan(r *http.Request) (string, string, error) {
-	name := chi.URLParam(r, "plan")
-	switch name {
-	case "personal":
-		return "p", name, nil
-	//case "business":
-	//	return "b", name, nil
-	//case "enterprise":
-	//	return "e", name, nil
-	default:
-		return "", name, guru.Errorf(400, "unknown plan: %q", name)
-	}
 }
