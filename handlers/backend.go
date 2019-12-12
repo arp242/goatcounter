@@ -104,6 +104,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			af.Get("/purge", zhttp.Wrap(h.purgeConfirm))
 			af.Post("/purge", zhttp.Wrap(h.purge))
 			af.With(admin).Get("/admin", zhttp.Wrap(h.admin))
+			af.With(admin).Get("/admin/{id}", zhttp.Wrap(h.adminSite))
 		}
 	}
 
@@ -160,6 +161,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		Site:      goatcounter.MustGetSite(r.Context()).ID,
 		Browser:   r.UserAgent(),
 		Location:  geo(r.RemoteAddr),
+		CountRef:  r.Referer(),
 		CreatedAt: time.Now().UTC(),
 	}
 	_, err := zhttp.Decode(r, &hit)
@@ -304,15 +306,53 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(403, "yeah nah")
 	}
 
+	if !cfg.PgSQL { // TODO
+		return guru.New(400, "not implemented in SQLite yet")
+	}
+
 	var a goatcounter.AdminStats
 	err := a.List(r.Context())
 	if err != nil {
 		return err
 	}
 
+	var cs goatcounter.AdminCountRefs
+	err = cs.List(r.Context())
+	if err != nil {
+		return err
+	}
+
 	return zhttp.Template(w, "backend_admin.gohtml", struct {
 		Globals
-		Stats goatcounter.AdminStats
+		Stats     goatcounter.AdminStats
+		CountRefs goatcounter.AdminCountRefs
+	}{newGlobals(w, r), a, cs})
+}
+
+func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
+	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	if !cfg.PgSQL { // TODO
+		return guru.New(400, "not implemented in SQLite yet")
+	}
+
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var a goatcounter.AdminSiteStat
+	err := a.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_admin_site.gohtml", struct {
+		Globals
+		Stat goatcounter.AdminSiteStat
 	}{newGlobals(w, r), a})
 }
 

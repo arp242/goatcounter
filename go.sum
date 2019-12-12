@@ -73,10 +73,14 @@ zgo.at/utils v0.0.0-20191111042735-db96561b7fab h1:phUhuEpqqHOXVC0G4lZhFedyJJxCD
 zgo.at/utils v0.0.0-20191111042735-db96561b7fab/go.mod h1:PET0dez1GVYYmyI5x/+eJGbyOOF9s2YW8U+gRv7Looo=
 zgo.at/utils v1.0.0 h1:/7SEKiHr71EjegKaEVOe/9axJ/EjCj3GwTHz+TPiAa4=
 zgo.at/utils v1.0.0/go.mod h1:PET0dez1GVYYmyI5x/+eJGbyOOF9s2YW8U+gRv7Looo=
+zgo.at/utils v1.1.0 h1:RdKIioiDK+tuOFXMhtnUHzcGxdWfGbOhsZeP+zfXmXk=
+zgo.at/utils v1.1.0/go.mod h1:7acz1AfMZAOOC1wTi6QbYFie+eA0LRSHE38TwLZsFcA=
 zgo.at/zdb v0.0.0-20191111044120-fca4c0a247fd h1:1z7V7jOiR3slihIxoP1OQVKQKF8EjuTSxSqw8NS5yXE=
 zgo.at/zdb v0.0.0-20191111044120-fca4c0a247fd/go.mod h1:RpJ68emyVHmzMKjSfGwFo5iOF1gTstlhprxoMOJcZqY=
 zgo.at/zhttp v0.0.0-20191125071106-ac5d22e065c6 h1:yUEBKQo0PfXjuMDgTI9tL5hGAHRTcAhNoFvbhRBkLVM=
 zgo.at/zhttp v0.0.0-20191125071106-ac5d22e065c6/go.mod h1:+wMD/vcuw9TRv/LT3+J8Z9cXs9/PkSh7zJ+lhf7woCs=
+zgo.at/zhttp v0.0.0-20191211182637-d99b56ea9f13 h1:bGQduxwVeOSYLd1UXhv44BU89HX4riQSQAS1DCd3eAk=
+zgo.at/zhttp v0.0.0-20191211182637-d99b56ea9f13/go.mod h1:imK4gXI3K0p6OT4MnNuDfOp5IDky8tET1Ik5EaChAkg=
 zgo.at/zlog v1.0.3 h1:VARDTSzp2tP0S0xYuITAlU/occFWEAbli7LM3ol/c+s=
 zgo.at/zlog v1.0.3/go.mod h1:V3ytbwhdFfmcUglEwnvlJ0VKoFocxpfhRUAISEERmZ8=
 zgo.at/zlog v1.0.6 h1:0LN5DIYbajUNSZrTa7pt3UgRxiG5R5NZoiR0OjDQVnU=

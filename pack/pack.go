@@ -367,6 +367,13 @@ commit;
 	insert into version values ('2019-12-10-1-plans');
 commit;
 `),
+	"db/migrate/pgsql/2019-12-10-2-count_ref.sql": []byte(`begin;
+	alter table hits
+		add column count_ref varchar not null default '';
+	insert into version values ('2019-12-10-2-count_ref');
+commit;
+
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -742,6 +749,13 @@ commit;
 
 	insert into version values ('2019-12-10-1-plans');
 commit;
+`),
+	"db/migrate/sqlite/2019-12-10-2-count_ref.sql": []byte(`begin;
+	alter table hits
+		add column count_ref varchar not null default '';
+	insert into version values ('2019-12-10-2-count_ref');
+commit;
+
 `),
 }
 
@@ -11234,7 +11248,6 @@ window.addEventListener('hashchange', function(e) {
 		<a href="/">Home</a> |
 		<a href="/contact">Contact</a> |
 		<a href="/help">Help</a> |
- 		<a href="/contact">Contact</a> |
 		<a href="/privacy">Privacy</a> |
 		<a href="/terms">Terms</a> |
 		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a>
@@ -11389,8 +11402,9 @@ window.addEventListener('hashchange', function(e) {
 <p><a href="/debug/pprof">pprof</a></p>
 
 <h3>Sites</h3>
-<table><tbody>
+<table>
 	<tr>
+		<th>ID</th>
 		<th># hits</th>
 		<th>Code</th>
 		<th>Name</th>
@@ -11400,6 +11414,7 @@ window.addEventListener('hashchange', function(e) {
 	</tr>
 	{{range $s := .Stats}}
 		<tr>
+			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
 			<td>{{nformat $s.Count}}</td>
 			<td>
 				{{if $s.Public}}
@@ -11414,12 +11429,44 @@ window.addEventListener('hashchange', function(e) {
 			<td>{{tformat $s.CreatedAt ""}}</td>
 		</tr>
 	{{end}}
-</tbody></table>
+</table>
+
+<h3>Count refs</h3>
+<table>
+	<tr>
+		<th>Site</th>
+		<th>Count</th>
+		<th>Ref</th>
+	</tr>
+	{{range $s := .CountRefs}}
+		<tr>
+			<td><a href="/admin/{{$s.Site}}">{{$s.Site}}</a></td>
+			<td>{{$s.Count}}</td>
+			<td>{{$s.CountRef}}</td>
+		</tr>
+	{{end}}
+</table>
 
 <h3>Contacts</h3>
 {{range $s := .Stats}}
 	{{$s.Email}},
 {{end}}
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/backend_admin_site.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h2>Admin</h2>
+
+<table>
+	<tr><td>Total</td><td>{{.Stat.CountTotal | nformat}}</td></tr>
+	<tr><td>Last month</td><td>{{.Stat.CountLastMonth | nformat}}</td></tr>
+	<tr><td>Previous month</td><td>{{.Stat.CountPrevMonth | nformat}}</td></tr>
+	</tr>
+</table>
+
+<pre>{{pp .Stat.Site}}</pre>
+<pre>{{pp .Stat.User}}</pre>
 
 {{template "_backend_bottom.gohtml" .}}
 `),
@@ -11529,11 +11576,18 @@ window.addEventListener('hashchange', function(e) {
 	{{if .Site.Parent}}
 		This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
 	{{else}}
-		<p>You can add an unlimited number of sites which inherit the plan and users. You won't be charged extra.</p>
+		<p>You can add GoatCounter to multiple websites by creating a "subsite",
+			which is a separate GoatCounter installation which inherits the plan,
+			users, and logins from the current site. You can add as many as you
+			want.</p>
+
+		<p>You just have to choose a code on which to access the site (e.g.
+			https://<em>[my_code]</em>.goatcounter.com) and a name.</p>
+
 		<form method="post" action="/add">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 			<table class="auto">
-				<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
+				<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
 				<tbody>
 					{{range $s := .SubSites}}<tr>
 						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
@@ -11542,7 +11596,7 @@ window.addEventListener('hashchange', function(e) {
 					</tr>{{end}}
 
 					<tr>
-						<td><input type="text" id="code" name="code" placeholder="Subdomain"></td>
+						<td><input type="text" id="code" name="code" placeholder="Code"></td>
 						<td><input type="text" id="name" name="name" placeholder="Name"></td>
 						<td><button type="submit">Add new</button></td>
 					</tr>
@@ -11683,9 +11737,6 @@ window.addEventListener('hashchange', function(e) {
 
 <h1>GoatCounter contact</h1>
 <p>There are a few ways to contact me:</p>
-<<<<<<< HEAD
-{{template "_contact.gohtml" .}}
-=======
 
 <ul>
 	<li>Open a <a href="https://github.com/zgoat/goatcounter/issues/new">GitHub
@@ -11699,7 +11750,6 @@ window.addEventListener('hashchange', function(e) {
 	<li>For chat there’s a
 		<a href="https://t.me/goatcounter" target="_blank">Public Telegram Group</a>.</li>
 </ul>
->>>>>>> master
 
 {{template "_bottom.gohtml" .}}
 `),
