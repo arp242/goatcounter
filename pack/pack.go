@@ -11221,8 +11221,8 @@ window.addEventListener('hashchange', function(e) {
 </div> {{/* .page */}}
 	<footer class="center">
 		<a href="/">Home</a> |
-		<a href="/help">Help</a> |
  		<a href="/contact">Contact</a> |
+		<a href="/help">Help</a> |
 		<a href="/privacy">Privacy</a> |
 		<a href="/terms">Terms</a> |
 		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a>
@@ -11537,11 +11537,18 @@ window.addEventListener('hashchange', function(e) {
 	{{if .Site.Parent}}
 		This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
 	{{else}}
-		<p>You can add an unlimited number of sites which inherit the plan and users. You won't be charged extra.</p>
+		<p>You can add GoatCounter to multiple websites by creating a "subsite",
+			which is a separate GoatCounter installation which inherits the plan,
+			users, and logins from the current site. You can add as many as you
+			want.</p>
+
+		<p>You just have to choose a code on which to access the site (e.g.
+			https://<em>[my_code]</em>.goatcounter.com) and a name.</p>
+
 		<form method="post" action="/add">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 			<table class="auto">
-				<thead><tr><th>Subdomain</th><th>Name</th><th></th></tr></thead>
+				<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
 				<tbody>
 					{{range $s := .SubSites}}<tr>
 						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
@@ -11550,7 +11557,7 @@ window.addEventListener('hashchange', function(e) {
 					</tr>{{end}}
 
 					<tr>
-						<td><input type="text" id="code" name="code" placeholder="Subdomain"></td>
+						<td><input type="text" id="code" name="code" placeholder="Code"></td>
 						<td><input type="text" id="name" name="name" placeholder="Name"></td>
 						<td><button type="submit">Add new</button></td>
 					</tr>
