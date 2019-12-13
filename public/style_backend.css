@@ -7,6 +7,9 @@ footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shad
            display: flex; justify-content: space-between; }
 footer a { font-weight: bold; color: #252525; }
 
+#trail-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
+                 background-color: #fff0f0; border-top: 1px solid #f00; }
+
 #settings { display: none; }
 
 .page, .center {
@@ -282,3 +285,9 @@ noscript {
 	background-color: #ffcfcf;
 	border-bottom: 1px solid #f88;
 }
+
+
+/*** Billing ***/
+#billing-form .plan span            { display: inline-block; min-width: 5em; }
+#billing-form fieldset legend+p     { margin-top: 0; }
+#billing-form fieldset p:last-child { margin-bottom: 0; }

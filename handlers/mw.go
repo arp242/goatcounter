@@ -43,6 +43,15 @@ var (
 		return redirect(w, r)
 	})
 
+	noSubSites = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+		if goatcounter.MustGetSite(r.Context()).Parent == nil ||
+			*goatcounter.MustGetSite(r.Context()).Parent == 0 {
+			return nil
+		}
+		zlog.FieldsRequest(r).Errorf("noSubSites")
+		return guru.Errorf(403, "child sites can't access this")
+	})
+
 	admin = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		if goatcounter.MustGetSite(r.Context()).ID == 1 {
 			return nil

@@ -21,7 +21,7 @@ var (
 	PgSQL        bool   // Use PostgreSQL instead of SQLite
 	SMTP         string // SMTP connection string; outputs to stdout when empty.
 	EmailErrors  string // Email errors to this address
-	Stripe       string // Stripe API key
+	Stripe       string // Stripe keys: need secret, publishable, and webhook (sk_*, pk_*, whsec_*) keys as colon-separated
 	CPUProfile   string // Write CPU profile to this file.
 	MemProfile   string // Write memory profile to this file.
 	CertDir      string // Directory to store ACME-generated certificates for custom domains
@@ -39,7 +39,7 @@ func Set() {
 	flag.BoolVar(&PgSQL, "pgsql", false, "Use PostgreSQL instead of SQLite")
 	flag.StringVar(&SMTP, "smtp", "", "SMTP connection string; outputs to stdout when empty.")
 	flag.StringVar(&EmailErrors, "emailerrors", "", "Email errors to this address")
-	flag.StringVar(&Stripe, "stripe", "", "Stripe API key")
+	flag.StringVar(&Stripe, "stripe", "", "Stripe keys: need secret, publishable, and webhook (sk_*, pk_*, whsec_*) keys as colon-separated")
 	flag.StringVar(&CPUProfile, "cpuprofile", "", "Write CPU profile to this file.")
 	flag.StringVar(&MemProfile, "memprofile", "", "Write memory profile to this file.")
 	flag.StringVar(&CertDir, "certdir", "", "Directory to store ACME-generated certificates for custom domains")

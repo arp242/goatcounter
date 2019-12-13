@@ -30,6 +30,7 @@ import (
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
 
@@ -66,14 +67,16 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
 		st := strings.Split(cfg.DomainStatic, ",")
+		// https://stripe.com/docs/security#content-security-policy
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
 			header.CSPImgSrc:     st,
-			header.CSPScriptSrc:  st,
+			header.CSPScriptSrc:  append(st, "https://js.stripe.com"),
 			header.CSPStyleSrc:   append(st, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:    st,
 			header.CSPFormAction: {header.CSPSourceSelf},
-			header.CSPConnectSrc: {header.CSPSourceSelf},
+			header.CSPConnectSrc: {header.CSPSourceSelf, "https://api.stripe.com"},
+			header.CSPFrameSrc:   {"https://js.stripe.com", "https://hooks.stripe.com"},
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})
 
@@ -94,6 +97,9 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		}
 		{
 			af := a.With(loggedIn)
+			if zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "" {
+				billing{}.mount(a, af)
+			}
 			af.Get("/settings", zhttp.Wrap(h.settings))
 			af.Post("/save", zhttp.Wrap(h.save))
 			af.Get("/export/{file}", zhttp.Wrap(h.export))

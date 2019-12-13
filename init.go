@@ -28,14 +28,14 @@ func init() {
 	zhttp.FuncMap["beforeLoc"] = func(createdAt time.Time) bool { return createdAt.Before(sl) }
 	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
 
-	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) template.HTML {
+	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) string {
 		var s Site
 		err := s.ByID(ctx, *id)
 		if err != nil {
 			zlog.Error(err)
-			return template.HTML("")
+			return ""
 		}
-		return template.HTML(fmt.Sprintf(`<a href="%s">%[1]s</a>`, s.URL()))
+		return s.URL()
 	}
 
 	zhttp.FuncMap["validate"] = func(k string, v map[string][]string) template.HTML {

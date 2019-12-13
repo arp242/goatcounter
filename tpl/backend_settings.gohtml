@@ -61,7 +61,9 @@
 <div>
 	<h2 id="additional-sites">Additional sites</h2>
 	{{if .Site.Parent}}
-		This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
+		This site has a parent
+		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+		and can't have additional sites of its own.
 	{{else}}
 		<p>You can add GoatCounter to multiple websites by creating a "subsite",
 			which is a separate GoatCounter installation which inherits the plan,

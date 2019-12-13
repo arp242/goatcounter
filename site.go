@@ -230,7 +230,7 @@ func (s *Site) Update(ctx context.Context) error {
 }
 
 // UpdateStripe sets the Stripe customer ID.
-func (s *Site) UpdateStripe(ctx context.Context) error {
+func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan string) error {
 	if s.ID == 0 {
 		return errors.New("ID == 0")
 	}
@@ -241,9 +241,11 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 		return err
 	}
 
+	s.Stripe = &stripeID
+	s.Plan = plan
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set stripe=$1, updated_at=$2 where id=$3`,
-		s.Stripe, zdb.Date(*s.UpdatedAt), s.ID)
+		`update sites set stripe=$1, plan=$2, updated_at=$3 where id=$4`,
+		s.Stripe, s.Plan, zdb.Date(*s.UpdatedAt), s.ID)
 	return errors.Wrap(err, "Site.UpdateStripe")
 }
 
@@ -348,6 +350,29 @@ func (s Site) IDOrParent() int64 {
 		return *s.Parent
 	}
 	return s.ID
+}
+
+var trailPeriod = time.Hour * 24 * 14
+
+func (s Site) ShowPayBanner(ctx context.Context) bool {
+	if s.Parent != nil {
+		var ps Site
+		err := ps.ByID(ctx, *s.Parent)
+		if err != nil {
+			zlog.Error(err)
+			return false
+		}
+		return ps.ShowPayBanner(ctx)
+	}
+
+	if s.Stripe != nil {
+		return false
+	}
+	return -time.Now().UTC().Sub(s.CreatedAt.Add(trailPeriod)) < 0
+}
+
+func (s Site) FreePlan() bool {
+	return s.Stripe != nil && strings.HasPrefix(*s.Stripe, "cus_free_")
 }
 
 // Sites is a list of sites.

@@ -1,5 +1,23 @@
 	</div> {{- /* .page */}}
 	{{template "_bottom_links.gohtml" .}}
+	{{if and .User.ID .Billing (.Site.ShowPayBanner .Context)}}
+		<div id="trail-expired">
+			<p>Hey hey; you’ve been using GoatCounter for more than 14 days.
+			Please consider making a small donation to cover development costs,
+			or subscribe to a plan if you’re using it for commercial
+			websites.</p>
+
+			<p>Select an option on the
+			{{if .Site.Parent}}
+				<a href="{{parent_site .Context .Site.Parent}}/billing">the parent’s billing page</a>
+			{{else}}
+				<a href="/billing">billing page</a>
+			{{end}}
+			to make this banner go away and you’ll never be asked again.
+			<a href="https://www.goatcounter.com/contact" target="_blank">Let me
+				know</a> if you have any questions or comments.</p>
+		</div>
+	{{end}}
 	<span id="settings">{{.Site.Settings.String | unsafe_js}}</span>
 	<script src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
 	<script src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
