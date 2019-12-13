@@ -1,14 +1,9 @@
-	<script src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
-	<script src="//{{.Static}}/script.js?v={{.Version}}"></script>
-</div> {{/* .page */}}
-	<footer class="center">
-		<a href="/">Home</a> |
- 		<a href="/contact">Contact</a> |
-		<a href="/help">Help</a> |
-		<a href="/privacy">Privacy</a> |
-		<a href="/terms">Terms</a> |
-		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a>
-	</footer>
+		<script src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
+		<script src="//{{.Static}}/script.js?v={{.Version}}"></script>
+	</div> {{/* .page */}}
+
+	{{template "_bottom_links.gohtml" .}}
+
 	<script>
 		(function() {
 			var script = document.createElement('script');

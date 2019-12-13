@@ -6,7 +6,8 @@
 hr             { margin: 1em 0; }
 u              { text-decoration: none; box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
 
-footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
+footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
+           display: flex; justify-content: space-between; }
 footer a { font-weight: bold; color: #252525; }
 
 /*** Home page ***/

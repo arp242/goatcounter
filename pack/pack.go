@@ -10534,7 +10534,8 @@ return jQuery;
 hr             { margin: 1em 0; }
 u              { text-decoration: none; box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
 
-footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
+footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
+           display: flex; justify-content: space-between; }
 footer a { font-weight: bold; color: #252525; }
 
 /*** Home page ***/
@@ -10655,8 +10656,10 @@ dt { font-weight: bold; margin-top: 1em; }
    This file is part of GoatCounter and published under the terms of the AGPLv3,
    which can be found in the LICENSE file or at gnu.org/licenses/agpl.html */
 
-.page  { padding: 1em; }
-footer { text-align: right; padding-right: .5em; }
+.page    { padding: 1em; }
+footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
+           display: flex; justify-content: space-between; }
+footer a { font-weight: bold; color: #252525; }
 
 #settings { display: none; }
 
@@ -11032,10 +11035,7 @@ create index "browser_stats#site#day#browser" on browser_stats(site, day, browse
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
-	<footer class="center">
-		<a href="https://www.goatcounter.com">GoatCounter</a> |
-		<a href="https://github.com/zgoat/goatcounter">Source</a>
-	</footer>
+	{{template "_bottom_links.gohtml" .}}
 	<span id="settings">{{.Site.Settings.String | unsafe_js}}</span>
 	<script src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
 	<script src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
@@ -11216,17 +11216,12 @@ window.addEventListener('hashchange', function(e) {
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_bottom.gohtml": []byte(`	<script src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
-	<script src="//{{.Static}}/script.js?v={{.Version}}"></script>
-</div> {{/* .page */}}
-	<footer class="center">
-		<a href="/">Home</a> |
- 		<a href="/contact">Contact</a> |
-		<a href="/help">Help</a> |
-		<a href="/privacy">Privacy</a> |
-		<a href="/terms">Terms</a> |
-		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a>
-	</footer>
+	"tpl/_bottom.gohtml": []byte(`		<script src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
+		<script src="//{{.Static}}/script.js?v={{.Version}}"></script>
+	</div> {{/* .page */}}
+
+	{{template "_bottom_links.gohtml" .}}
+
 	<script>
 		(function() {
 			var script = document.createElement('script');
@@ -11240,6 +11235,21 @@ window.addEventListener('hashchange', function(e) {
 	</script>
 </body>
 </html>
+`),
+	"tpl/_bottom_links.gohtml": []byte(`<footer class="center">
+	<div>
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a> |
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a> |
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a> |
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a> |
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
+	</div>
+	<div>
+		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a> |
+		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank">Product Hunt</a> |
+		<a href="https://patreon.com/arp242">Patreon</a>
+	</div>
+</footer>
 `),
 	"tpl/_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">
