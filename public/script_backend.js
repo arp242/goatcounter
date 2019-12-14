@@ -42,17 +42,19 @@
 			return;
 
 		var tabs = '',
-			active = window.location.hash.substr(5) || 'setting';
+			active = window.location.hash.substr(5) || 'setting',
+			valid = !!$('#' + active).length;
 		$('.page > div').each(function(i, elem) {
 			var h2 = $(elem).find('h2');
 			if (!h2.length)
 				return;
 
 			var klass = '';
-			if (h2.attr('id') !== active)
-				$(elem).css('display', 'none');
-			else
-				klass = 'active';
+			if (valid)
+				if (h2.attr('id') !== active)
+					$(elem).css('display', 'none');
+				else
+					klass = 'active';
 
 			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
 		});
@@ -64,8 +66,11 @@
 		});
 
 		$(window).on('hashchange', function() {
+			var tab = $('#' + window.location.hash.substr(5)).parent()
+			if (!tab.length)
+				return;
 			$('.page > div').css('display', 'none');
-			$('#' + window.location.hash.substr(5)).parent().css('display', 'block');
+			tab.css('display', 'block');
 		});
 	};
 

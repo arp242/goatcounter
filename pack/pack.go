@@ -10087,17 +10087,19 @@ return jQuery;
 			return;
 
 		var tabs = '',
-			active = window.location.hash.substr(5) || 'setting';
+			active = window.location.hash.substr(5) || 'setting',
+			valid = !!$('#' + active).length;
 		$('.page > div').each(function(i, elem) {
 			var h2 = $(elem).find('h2');
 			if (!h2.length)
 				return;
 
 			var klass = '';
-			if (h2.attr('id') !== active)
-				$(elem).css('display', 'none');
-			else
-				klass = 'active';
+			if (valid)
+				if (h2.attr('id') !== active)
+					$(elem).css('display', 'none');
+				else
+					klass = 'active';
 
 			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
 		});
@@ -10109,8 +10111,11 @@ return jQuery;
 		});
 
 		$(window).on('hashchange', function() {
+			var tab = $('#' + window.location.hash.substr(5)).parent()
+			if (!tab.length)
+				return;
 			$('.page > div').css('display', 'none');
-			$('#' + window.location.hash.substr(5)).parent().css('display', 'block');
+			tab.css('display', 'block');
 		});
 	};
 
@@ -11191,9 +11196,9 @@ window.addEventListener('hashchange', function(e) {
 						{{end}}
 					{{end}}
 				{{else if has_prefix .Path "/remove/"}}
-					<strong><a href="/settings#additional-sites">← Back</a></strong>
+					<strong><a href="/settings#tab-additional-sites">← Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
-					<strong><a href="/settings#purge">← Back</a></strong>
+					<strong><a href="/settings#tab-purge">← Back</a></strong>
 				{{else}}
 					<strong><a href="/">← Back</a></strong>
 				{{end}}
@@ -11278,7 +11283,7 @@ window.addEventListener('hashchange', function(e) {
 
 		<p><small>This message will disappear once we receive data; you will
 			still be able to see the site code in
-			<a href="/settings#site-code">settings</a>, which also contains
+			<a href="/settings#tab-site-code">settings</a>, which also contains
 			further documentation.</small></p>
 	</div>
 {{end}}
