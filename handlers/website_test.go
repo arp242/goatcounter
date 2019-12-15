@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 )
 
 func TestWebsiteTpl(t *testing.T) {
@@ -52,7 +55,7 @@ func TestWebsiteTpl(t *testing.T) {
 		{
 			name:     "signup",
 			router:   NewWebsite,
-			path:     "/signup/personal",
+			path:     "/signup",
 			wantCode: 200,
 			wantBody: `<label for="name">Site name</label>`,
 		},
@@ -69,7 +72,7 @@ func TestWebsiteSignup(t *testing.T) {
 			name:         "basic",
 			method:       "POST",
 			router:       NewWebsite,
-			path:         "/signup/personal",
+			path:         "/signup",
 			body:         signupArgs{Name: "Example", Code: "example", Email: "m@example.com", UserName: "Example user", TuringTest: "9"},
 			wantCode:     303,
 			wantFormCode: 303,
@@ -79,7 +82,7 @@ func TestWebsiteSignup(t *testing.T) {
 			name:         "no-code",
 			method:       "POST",
 			router:       NewWebsite,
-			path:         "/signup/personal",
+			path:         "/signup",
 			body:         signupArgs{Name: "Example", Email: "m@example.com", UserName: "Example user", TuringTest: "9"},
 			wantCode:     200,
 			wantBody:     "", // TODO: should return JSON
@@ -88,6 +91,7 @@ func TestWebsiteSignup(t *testing.T) {
 		},
 	}
 
+	cfg.Plan = goatcounter.PlanPersonal
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 			// TODO: test state

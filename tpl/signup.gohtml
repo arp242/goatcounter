@@ -1,12 +1,9 @@
 {{template "_top.gohtml" .}}
 
 <h1>Sign up for GoatCounter</h1>
-<p><br>
-The GoatCounter.com service is free for non-commercial use <em>only</em>.
-The option to pay for commercial use should arrive Soon™.</p>
 
 <div id="signup-form">
-	<form class="vertical" method="post" action="/signup/{{.PlanName}}">
+	<form class="vertical" method="post" action="/signup">
 		<fieldset class="two">
 			<div>
 				<label for="name">Site name</label>
@@ -45,32 +42,6 @@ The option to pay for commercial use should arrive Soon™.</p>
 				<span class="help">Just a little verification that you’re human :-)</span>
 			</div>
 		</fieldset>
-
-		{{/*
-		<fieldset class="cc">
-			<p id="signup-intro">
-				Sign up for the {{.PlanName}} plan. You will be billed
-				${{if eq .Plan "p"}}3{{else}}20{{end}} every month, cancellable every
-				month.
-				<a href="/#pricing">Choose a different plan</a>.
-			</p>
-
-			<div class="cc">
-				<label for="card">Card number</label>
-				<input type="text" name="card" id="card">
-			</div>
-
-			<div class="exp">
-				<label for="exp">Expiry</label>
-				<input type="text" name="exp" id="exp">
-			</div>
-
-			<div class="cvc">
-				<label for="cvc">CVC</label>
-				<input type="text" name="cvc" id="cvc">
-			</div>
-		</fieldset>
-		*/}}
 
 		<button type="submit">Sign up</button>
 	</form>

@@ -17,7 +17,6 @@ import (
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -26,14 +25,13 @@ import (
 
 // Plan column values.
 const (
-	PlanPersonalFree = "personal-free"
-	PlanPersonal     = "personal"
-	PlanStarter      = "starter"
-	PlanPro          = "pro"
-	PlanChild        = "child"
+	PlanPersonal = "personal"
+	PlanStarter  = "starter"
+	PlanPro      = "pro"
+	PlanChild    = "child"
 )
 
-var Plans = []string{PlanPersonalFree, PlanPersonal, PlanStarter, PlanPro}
+var Plans = []string{PlanPersonal, PlanStarter, PlanPro}
 
 var reserved = []string{
 	"goatcounter", "goatcounters",
@@ -327,24 +325,6 @@ func (s Site) URL() string {
 	return fmt.Sprintf("http%s://%s.%s",
 		map[bool]string{true: "s", false: ""}[cfg.Prod],
 		s.Code, cfg.Domain)
-}
-
-// PlanName returns a human-readable plan name.
-func (s Site) PlanName(ctx context.Context) string {
-	if s.Parent != nil {
-		var ps Site
-		err := ps.ByID(ctx, *s.Parent)
-		if err != nil {
-			zlog.Error(err)
-			return ""
-		}
-		return ps.PlanName(ctx)
-	}
-
-	if s.Plan == PlanPersonalFree {
-		return "Personal (free)"
-	}
-	return stringutil.UpperFirst(s.Plan)
 }
 
 // PlanCustomDomain reports if this site's plan allows custom domains.

@@ -373,6 +373,17 @@ commit;
 	insert into version values ('2019-12-10-2-count_ref');
 commit;
 `),
+	"db/migrate/pgsql/2019-12-15-1-personal-free.sql": []byte(`begin;
+	update sites set plan = 'personal' where plan = 'personal-free';
+
+	alter table sites
+		drop constraint sites_plan_check;
+	alter table sites
+		add constraint sites_plan_check check(plan in ('personal', 'starter', 'pro', 'child', 'custom'));
+
+	insert into version values ('2019-12-15-1-personal-free');
+commit;
+`),
 	"db/migrate/pgsql/2019-12-15-2-old.sql": []byte(`begin;
 	alter table hit_stats drop column updated_at;
 	alter table hit_stats drop column created_at;
@@ -761,6 +772,36 @@ commit;
 	insert into version values ('2019-12-10-2-count_ref');
 commit;
 
+`),
+	"db/migrate/sqlite/2019-12-15-1-personal-free.sql": []byte(`begin;
+	create table sites2 (
+		id             integer        primary key autoincrement,
+		parent         integer        null                     check(parent is null or parent>0),
+
+		name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
+		code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+		cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
+		plan           varchar        not null                 check(plan in ('personal', 'starter', 'pro', 'child', 'custom')),
+		stripe         varchar        null,
+		settings       varchar        not null,
+		last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
+		received_data  int            not null default 0,
+
+		state          varchar        not null default 'a'     check(state in ('a', 'd')),
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+	);
+
+	pragma ignore_check_constraints=on;
+	insert into sites2 select * from sites;
+	pragma ignore_check_constraints=off;
+
+	update sites2 set plan = 'personal' where plan = 'personal';
+	drop table sites;
+	alter table sites2 rename to sites;
+
+	insert into version values ('2019-12-15-1-personal-free');
+commit;
 `),
 	"db/migrate/sqlite/2019-12-15-2-old.sql": []byte(`begin;
 	create temporary table hit_stats2 (
@@ -10607,8 +10648,9 @@ img.imgzoom-loading { cursor: wait !important; }
 #home-pricing > div  { width: 30%; box-shadow: 0 0 4px #cdc8a4; background-color: #fff; }
 #home-pricing h3     { margin: .5em 0; }
 #home-pricing ul     { list-style: none; padding: 0; line-height: 2.5em; }
-#home-pricing .hlink { padding: 1em; display: block; border-top: 1px solid #cdc8a4; box-shadow: 0 3px 3px #cdc8a4; }
-#home-pricing-custom { box-shadow: 0 0 4px #cdc8a4; background-color: #fff; text-align: center; margin-top: 2em; padding: 1em; }
+#home-signup         { text-align: center; margin-top: 2em; }
+#home-signup a       { padding: 1em; display: block; width: 30%; margin: auto; }
+#home-pricing-custom { text-align: center; margin-top: 1em; }
 
 @media (max-width: 45rem) {
 	#home-pricing > div { width: 32.5%; }
@@ -11935,7 +11977,6 @@ sub {
 			<li>&nbsp;</li>
 			<li>&nbsp;</li>
 		</ul>
-		<a class="hlink" href="/signup/personal"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 
 	<div>
@@ -11948,10 +11989,6 @@ sub {
 			<li>Custom domain (stats.mine.com)</li>
 			<li>&nbsp;</li>
 		</ul>
-		{{/*
-		<a class="hlink" href="/signup/starter"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
-		*/}}
-		<span class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Soon</span>
 	</div>
 
 	<div>
@@ -11964,13 +12001,11 @@ sub {
 			<li>Custom domain (stats.mine.com)</li>
 			<li>Phone support</li>
 		</ul>
-		{{/*
-		<a class="hlink" href="/signup/pro"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
-		*/}}
-		<span class="hlink" href="/signup/business"><img src="//{{.Static}}/index.svg" alt=""> Soon</span>
 	</div>
 </div>
-
+<div id="home-signup">
+	<a class="hlink" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+</div>
 <div id="home-pricing-custom">
 	<a href="/contact">Contact</a> if you need more pageviews or want a
 	privately installed hosted option.
@@ -12072,12 +12107,9 @@ information.</p>
 	"tpl/signup.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <h1>Sign up for GoatCounter</h1>
-<p><br>
-The GoatCounter.com service is free for non-commercial use <em>only</em>.
-The option to pay for commercial use should arrive Soon™.</p>
 
 <div id="signup-form">
-	<form class="vertical" method="post" action="/signup/{{.PlanName}}">
+	<form class="vertical" method="post" action="/signup">
 		<fieldset class="two">
 			<div>
 				<label for="name">Site name</label>
@@ -12116,32 +12148,6 @@ The option to pay for commercial use should arrive Soon™.</p>
 				<span class="help">Just a little verification that you’re human :-)</span>
 			</div>
 		</fieldset>
-
-		{{/*
-		<fieldset class="cc">
-			<p id="signup-intro">
-				Sign up for the {{.PlanName}} plan. You will be billed
-				${{if eq .Plan "p"}}3{{else}}20{{end}} every month, cancellable every
-				month.
-				<a href="/#pricing">Choose a different plan</a>.
-			</p>
-
-			<div class="cc">
-				<label for="card">Card number</label>
-				<input type="text" name="card" id="card">
-			</div>
-
-			<div class="exp">
-				<label for="exp">Expiry</label>
-				<input type="text" name="exp" id="exp">
-			</div>
-
-			<div class="cvc">
-				<label for="cvc">CVC</label>
-				<input type="text" name="cvc" id="cvc">
-			</div>
-		</fieldset>
-		*/}}
 
 		<button type="submit">Sign up</button>
 	</form>

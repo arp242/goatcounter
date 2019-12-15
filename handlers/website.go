@@ -52,8 +52,8 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	})
 
 	r.Get("/status", zhttp.Wrap(h.status()))
-	r.Get("/signup/{plan}", zhttp.Wrap(h.signup))
-	r.Post("/signup/{plan}", zhttp.Wrap(h.doSignup))
+	r.Get("/signup", zhttp.Wrap(h.signup))
+	r.Post("/signup", zhttp.Wrap(h.doSignup))
 	for _, t := range []string{"", "help", "privacy", "terms", "contact"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
@@ -82,19 +82,14 @@ func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h website) signup(w http.ResponseWriter, r *http.Request) error {
-	plan := chi.URLParam(r, "plan")
-	planName := plan
-
 	return zhttp.Template(w, "signup.gohtml", struct {
 		Globals
 		Page       string
-		Plan       string
-		PlanName   string
 		Site       goatcounter.Site
 		User       goatcounter.User
 		Validate   map[string][]string
 		TuringTest string
-	}{newGlobals(w, r), "signup", plan, planName, goatcounter.Site{},
+	}{newGlobals(w, r), "signup", goatcounter.Site{},
 		goatcounter.User{}, map[string][]string{}, ""})
 }
 
@@ -113,9 +108,6 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	plan := chi.URLParam(r, "plan")
-	planName := plan
-
 	txctx, tx, err := zdb.Begin(r.Context())
 	if err != nil {
 		return err
@@ -128,11 +120,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Create site.
-	site := goatcounter.Site{
-		Name: args.Name,
-		Code: args.Code,
-		Plan: plan,
-	}
+	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan}
 	err = site.Insert(txctx)
 	if err != nil {
 		if _, ok := err.(*zvalidate.Validator); !ok {
@@ -159,13 +147,11 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Template(w, "signup.gohtml", struct {
 			Globals
 			Page       string
-			Plan       string
-			PlanName   string
 			Site       goatcounter.Site
 			User       goatcounter.User
 			Validate   map[string][]string
 			TuringTest string
-		}{newGlobals(w, r), "signup", plan, planName, site, user, v.Errors, args.TuringTest})
+		}{newGlobals(w, r), "signup", site, user, v.Errors, args.TuringTest})
 	}
 
 	err = tx.Commit()
