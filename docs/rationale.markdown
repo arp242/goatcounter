@@ -3,12 +3,12 @@ a comparison with existing solutions.
 
 tl;dr ("elevator pitch"):
 
-> GoatCounter aims to give meaningful privacy-friendly analytics for business
-> purposes, while still staying usable for non-technical users to use on
-> personal websites. The choices that currently exist are between freely
+> GoatCounter aims to give meaningful privacy-friendly web analytics for
+> business purposes, while still staying usable for non-technical users to use
+> on personal websites. The choices that currently exist are between freely
 > hosted but with problematic privacy (Google Analytics), hosting your own
-> complex software or paying $19/month (Matomo), or extremely simplistic
-> "vanity statistics" (Fathom).
+> complex software or paying $19/month (Matomo), or extremely simplistic "vanity
+> statistics" (Fathom).
 > 
 > GoatCounter attempts to strike a good balance between various interests.
 > Major features include a free hosted version so people can easily add

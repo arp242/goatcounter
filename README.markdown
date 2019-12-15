@@ -1,35 +1,28 @@
 [![Build Status](https://travis-ci.org/zgoat/goatcounter.svg?branch=master)](https://travis-ci.org/zgoat/goatcounter)
 [![codecov](https://codecov.io/gh/zgoat/goatcounter/branch/master/graph/badge.svg)](https://codecov.io/gh/zgoat/goatcounter)
 
-GoatCounter is a web counter.
+GoatCounter aims to give meaningful privacy-friendly web analytics for business
+purposes, while still staying usable for non-technical users to use on personal
+websites. The choices that currently exist are between freely hosted but with
+problematic privacy (e.g. Google Analytics), hosting your own complex software
+or paying $19/month (e.g. Matomo), or extremely simplistic "vanity statistics".
 
-There are two ways to run this: as **hosted service starting at $3/month**
-(*free* during initial beta!) or run it on your own server. Check out
-[https://www.goatcounter.com][www] for the hosted service and user
-documentation.
+There are two ways to run this: as **hosted service**, *free* for non-commercial
+use, or run it on your own server. Check out [https://www.goatcounter.com][www]
+for the hosted service and user documentation.
 
 See [docs/rationale.markdown](docs/rationale.markdown) for some more details on
 the *"why?"* of this project.
 
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
-The current status is *public beta*, or "MVP" (Minimum Viable Product) to get
-feedback from others. That being sad, it should be stable and useful. It just
-doesn't have all the features I'd like it to have (yet).
-
 Please consider [donating][patreon] if you're self-hosting GoatCounter so I can
 pay my rent :-) Also see the [announcement post][launch].
-
----
-
-Basically I quit my day job to try and make a living from creating open source
-software full-time (or free software, if you prefer). So supporting isn't just a
-nice way to say "thanks mate", it's directly supporting future development.
 
 Features
 --------
 
-- **Privacy-aware**; doesn't track users; doesn't need a GDPR notice.
+- **Privacy-aware**; doesn't track users; doesn't need a GDPR consent notice.
 
 - **Lightweight** and **fast**; adds just 1.5KB (0.7KB compressed) of extra data
   to your site.
@@ -48,11 +41,12 @@ Features
 
 ### Technical
 
-- Fast: can handle about 800 hits/second on a $5/month Linode VPS – which is
-  also running hitch and varnish – using the default settings.
+- Fast: can handle about 800 hits/second on a $5/month Linode VPS using the
+  default settings.
 
 - Self-contained binary: everything (including static assets) is in a single 5M
-  statically compiled binary.
+  statically compiled binary. The only other thing you need is a SQLite database
+  file or PostgreSQL connection.
 
 Running your own
 ----------------
@@ -69,7 +63,7 @@ will need a C compiler (for SQLite) or PostgreSQL.
        $ go build ./cmd/goatcounter
 
    This will put a self-contained binary at `goatcounter`. You can optionally
-   reduce the binary size a bit (from ~18M to ~5M) with `strip` and/or `upx`.
+   reduce the binary size a bit (from ~19M to ~7M) with `strip` and/or `upx`.
 
 2. Run `./goatcounter`. This will run a development environment on
    http://goatcounter.localhost:8081
@@ -83,7 +77,7 @@ will need a C compiler (for SQLite) or PostgreSQL.
    Note: some systems require `/etc/hosts` entries `*.goatcounter.localhost`,
    whereas others work fine without. If you can't connect try adding this:
 
-       127.0.0.1 www.goatcounter.localhost static.goatcounter.localhost code.goatcounter.localhost
+       127.0.0.1 goatcounter.localhost www.goatcounter.localhost static.goatcounter.localhost code.goatcounter.localhost
 
 ### Production
 
@@ -91,10 +85,11 @@ will need a C compiler (for SQLite) or PostgreSQL.
 
        goatcounter \
            -prod \
-           -domain "goatcounter.com" \
-           -domainstatic "static.goatcounter.com" \
-           -smtp "smtp://localhost:25" \
-           -emailerrors 'me@example.com' \
+           -plan         'pro' \
+           -domain       'goatcounter.com' \
+           -domainstatic 'static.goatcounter.com' \
+           -smtp         'smtp://localhost:25' \
+           -emailerrors  'me@example.com' \
            "$@"
 
 2. Use a proxy for https (e.g. [hitch][hitch] or [caddy][caddy]); you'll need to
