@@ -35,11 +35,9 @@
 				return;
 
 			code.value = this.value.
-				replace(/^www\./, '').        // www.
-				replace(/\.\w+$/, '').        // Remove tld
-				replace(/\.co$/, '').         // .co.uk, .co.nz
-				replace('.', '_').            // . -> _
-				replace(/[^a-zA-Z0-9_]/, ''). // Remove anything else
+				replace(/^www\./, '').         // www.
+				replace(/\./g, '_').           // . -> _
+				replace(/[^a-zA-Z0-9_]/g, ''). // Remove anything else
 				toLowerCase();
 		}, false);
 
