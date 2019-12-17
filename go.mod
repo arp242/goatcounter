@@ -14,7 +14,7 @@ require (
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.2.1
 	zgo.at/utils v1.2.0
-	zgo.at/zdb v0.0.0-20191217115710-4a6a7376dd60
+	zgo.at/zdb v0.0.0-20191217202423-1e2b0f907b05
 	zgo.at/zhttp v0.0.0-20191211182637-d99b56ea9f13
 	zgo.at/zlog v1.0.7
 	zgo.at/zpack v1.0.0
