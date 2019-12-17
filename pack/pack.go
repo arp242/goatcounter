@@ -11418,9 +11418,9 @@ window.addEventListener('hashchange', function(e) {
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0 true}}</div>
-			<p><small>The screen sizes are an indication, and are influenced by DPI,
-				zoom levels, etc. Approximately {{.TotalMobile}}% advertised the
-				usage of a mobile browser.</small></p>
+			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
+				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
+			</small></p>
 		{{end}}
 	</div>
 	<div class="location-chart">
