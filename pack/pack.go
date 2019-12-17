@@ -11429,7 +11429,7 @@ window.addEventListener('hashchange', function(e) {
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalHits 0 3 false}}</div>
-			<a href="#" class="show-all">Show all</a>
+			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>
 </div>

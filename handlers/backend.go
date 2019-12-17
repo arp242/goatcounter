@@ -251,10 +251,11 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l = l.Since("sizeStat.ListSizes")
 
 	var locStat goatcounter.BrowserStats
-	_, err = locStat.ListLocations(r.Context(), start, end)
+	totalLoc, err := locStat.ListLocations(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
+	showMoreLoc := len(locStat) > 0 && float32(locStat[len(locStat)-1].Count)/float32(totalLoc)*100 < 3.0
 	l = l.Since("locStat.List")
 
 	// Add refers.
@@ -276,25 +277,26 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
-		ShowRefs         string
-		Period           string
-		PeriodStart      time.Time
-		PeriodEnd        time.Time
-		Pages            goatcounter.HitStats
-		Refs             goatcounter.HitStats
-		MoreRefs         bool
-		TotalHits        int
-		TotalHitsDisplay int
-		Browsers         goatcounter.BrowserStats
-		TotalBrowsers    int
-		TotalMobile      string
-		SubSites         []string
-		SizeStat         goatcounter.BrowserStats
-		LocationStat     goatcounter.BrowserStats
+		ShowRefs          string
+		Period            string
+		PeriodStart       time.Time
+		PeriodEnd         time.Time
+		Pages             goatcounter.HitStats
+		Refs              goatcounter.HitStats
+		MoreRefs          bool
+		TotalHits         int
+		TotalHitsDisplay  int
+		Browsers          goatcounter.BrowserStats
+		TotalBrowsers     int
+		TotalMobile       string
+		SubSites          []string
+		SizeStat          goatcounter.BrowserStats
+		LocationStat      goatcounter.BrowserStats
+		ShowMoreLocations bool
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, pages,
 		refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
 		fmt.Sprintf("%.1f", float32(totalMobile)/float32(totalBrowsers)*100), subs,
-		sizeStat, locStat})
+		sizeStat, locStat, showMoreLoc})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
