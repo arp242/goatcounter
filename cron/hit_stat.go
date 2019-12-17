@@ -30,7 +30,7 @@ import (
 // TODO: need to fill in blank days.
 // TODO: this can either just assume hour by index, or not store all the hours.
 // TODO: rename "stats" to "hourly" and add a daily int count.
-func updateHitStats(ctx context.Context, phits map[string][]goatcounter.Hit) error {
+func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
 		return err
@@ -44,24 +44,22 @@ func updateHitStats(ctx context.Context, phits map[string][]goatcounter.Hit) err
 		path  string
 	}
 	grouped := map[string]gt{}
-	for _, hits := range phits {
-		for _, h := range hits {
-			day := h.CreatedAt.Format("2006-01-02")
-			k := day + h.Path
-			v := grouped[k]
-			if len(v.count) == 0 {
-				v.day = day
-				v.path = h.Path
-				v.count, err = existingHitStats(ctx, tx, h.Site, day, v.path)
-				if err != nil {
-					return err
-				}
+	for _, h := range hits {
+		day := h.CreatedAt.Format("2006-01-02")
+		k := day + h.Path
+		v := grouped[k]
+		if len(v.count) == 0 {
+			v.day = day
+			v.path = h.Path
+			v.count, err = existingHitStats(ctx, tx, h.Site, day, v.path)
+			if err != nil {
+				return err
 			}
-
-			h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
-			v.count[h][1] += 1
-			grouped[k] = v
 		}
+
+		h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
+		v.count[h][1] += 1
+		grouped[k] = v
 	}
 
 	siteID := goatcounter.MustGetSite(ctx).ID

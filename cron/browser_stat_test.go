@@ -19,7 +19,7 @@ func TestBrowserStats(t *testing.T) {
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	err := updateStats(ctx, []goatcounter.Hit{
+	err := updateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/68.0"},
 		{Site: site.ID, CreatedAt: now, Browser: "Chrome/77.0.123.666"},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
@@ -42,7 +42,7 @@ func TestBrowserStats(t *testing.T) {
 	}
 
 	// Update existing.
-	err = updateStats(ctx, []goatcounter.Hit{
+	err = updateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/70.0"},
