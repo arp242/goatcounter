@@ -4,7 +4,14 @@
 
 package cron
 
-/*
+import (
+	"testing"
+	"time"
+
+	"zgo.at/goatcounter"
+	"zgo.at/utils/jsonutil"
+)
+
 func TestHitStats(t *testing.T) {
 	ctx, clean := goatcounter.StartTest(t)
 	defer clean()
@@ -12,18 +19,17 @@ func TestHitStats(t *testing.T) {
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	// Insert some hits.
 	goatcounter.Memstore.Append([]goatcounter.Hit{
-		{Site: site.ID, Path: "/asd", CreatedAt: now},
-		{Site: site.ID, Path: "/asd", CreatedAt: now},
-		{Site: site.ID, Path: "/zxc", CreatedAt: now},
+		{Site: site.ID, CreatedAt: now, Path: "/asd"},
+		{Site: site.ID, CreatedAt: now, Path: "/asd"},
+		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
 	}...)
-	_, err := goatcounter.Memstore.Persist(ctx)
+	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
 
-	err = updateStats(ctx)
+	err = updateStats(ctx, hits)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,11 +41,10 @@ func TestHitStats(t *testing.T) {
 	}
 
 	if total != 3 || display != 3 || more {
-		t.Errorf("wrong return\nwant: 3, 3, false\ngot:  %v, %v, %v", total, display, more)
+		t.Fatalf("wrong return\nwant: 3, 3, false\ngot:  %v, %v, %v", total, display, more)
 	}
-
 	if len(stats) != 2 {
-		fmt.Printf("len(stats) is not 2: %d", len(stats))
+		t.Fatalf("len(stats) is not 2: %d", len(stats))
 	}
 
 	want0 := `{"Count":2,"Max":10,"Path":"/asd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,2],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]}]}`
@@ -54,4 +59,3 @@ func TestHitStats(t *testing.T) {
 		t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)
 	}
 }
-*/

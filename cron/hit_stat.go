@@ -27,16 +27,15 @@ import (
 //                 [9,0],[10,2],[11,2],[12,2],[13,5],[14,4],[15,3],[16,0],
 //                 [17,1],[18,2],[19,0],[20,0],[21,1],[22,4],[23,2]]
 //
-// TODO: this can either just assume hour by index, or not store all the hours.
 // TODO: need to fill in blank days.
+// TODO: this can either just assume hour by index, or not store all the hours.
+// TODO: rename "stats" to "hourly" and add a daily int count.
 func updateHitStats(ctx context.Context, phits map[string][]goatcounter.Hit) error {
 	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
-
-	_ = txctx
 
 	// Group by day + path.
 	type gt struct {
@@ -53,32 +52,9 @@ func updateHitStats(ctx context.Context, phits map[string][]goatcounter.Hit) err
 			if len(v.count) == 0 {
 				v.day = day
 				v.path = h.Path
-
-				// Append existing and delete from DB; this will be faster than
-				// running an update for every row.
-				var c []byte
-				err := tx.GetContext(txctx, &c,
-					`select stats from hit_stats where site=$1 and day=$2 and path=$3`,
-					h.Site, day, v.path)
-				if err != sql.ErrNoRows {
-					if err != nil {
-						return errors.Wrap(err, "existing")
-					}
-					_, err = tx.ExecContext(txctx,
-						`delete from hit_stats where site=$1 and day=$2 and path=$3`,
-						h.Site, day, v.path)
-					if err != nil {
-						return errors.Wrap(err, "delete")
-					}
-				}
-
-				if c != nil {
-					jsonutil.MustUnmarshal(c, &v.count)
-				} else {
-					v.count = make([][]int, 24)
-					for i := range v.count {
-						v.count[i] = []int{i, 0}
-					}
+				v.count, err = existingHitStats(ctx, tx, h.Site, day, v.path)
+				if err != nil {
+					return err
 				}
 			}
 
@@ -89,7 +65,7 @@ func updateHitStats(ctx context.Context, phits map[string][]goatcounter.Hit) err
 	}
 
 	siteID := goatcounter.MustGetSite(ctx).ID
-	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
+	ins := bulk.NewInsert(txctx, tx,
 		"hit_stats", []string{"site", "day", "path", "stats"})
 	for _, v := range grouped {
 		ins.Values(siteID, v.day, v.path, jsonutil.MustMarshal(v.count))
@@ -100,4 +76,39 @@ func updateHitStats(ctx context.Context, phits map[string][]goatcounter.Hit) err
 	}
 
 	return tx.Commit()
+}
+
+func existingHitStats(
+	txctx context.Context, tx zdb.DB, siteID int64,
+	day, path string,
+) ([][]int, error) {
+
+	var c []byte
+	err := tx.GetContext(txctx, &c,
+		`select stats from hit_stats where site=$1 and day=$2 and path=$3`,
+		siteID, day, path)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, errors.Wrap(err, "existing")
+	}
+
+	if err != sql.ErrNoRows {
+		_, err = tx.ExecContext(txctx,
+			`delete from hit_stats where site=$1 and day=$2 and path=$3`,
+			siteID, day, path)
+		if err != nil {
+			return nil, errors.Wrap(err, "delete")
+		}
+	}
+
+	var r [][]int
+	if c != nil {
+		jsonutil.MustUnmarshal(c, &r)
+		return r, nil
+	}
+
+	r = make([][]int, 24)
+	for i := range r {
+		r[i] = []int{i, 0}
+	}
+	return r, nil
 }
