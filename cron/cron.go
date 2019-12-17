@@ -25,7 +25,7 @@ type task struct {
 }
 
 var tasks = []task{
-	{persistAndStat, 10 * time.Second},
+	{persistAndStat, 2 * time.Second},
 }
 
 var stopped = syncutil.NewAtomicInt(0)
