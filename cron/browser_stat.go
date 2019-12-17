@@ -25,7 +25,7 @@ import (
 //     1 | 2019-12-17 | Opera   | 9       |     1 | f
 //
 // TODO: mobile counts are inaccurate as it's not grouped by that.
-func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit) error {
+func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
 		return err
@@ -41,30 +41,28 @@ func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit)
 		version string
 	}
 	grouped := map[string]gt{}
-	for _, hits := range phits {
-		for _, h := range hits {
-			browser, version, mobile := getBrowser(h.Browser)
-			if browser == "" {
-				continue
-			}
-
-			day := h.CreatedAt.Format("2006-01-02")
-			k := day + browser + " " + version
-			v := grouped[k]
-			if v.count == 0 {
-				v.day = day
-				v.browser = browser
-				v.version = version
-				v.mobile = mobile
-				v.count, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
-				if err != nil {
-					return err
-				}
-			}
-
-			v.count += 1
-			grouped[k] = v
+	for _, h := range hits {
+		browser, version, mobile := getBrowser(h.Browser)
+		if browser == "" {
+			continue
 		}
+
+		day := h.CreatedAt.Format("2006-01-02")
+		k := day + browser + " " + version
+		v := grouped[k]
+		if v.count == 0 {
+			v.day = day
+			v.browser = browser
+			v.version = version
+			v.mobile = mobile
+			v.count, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
+			if err != nil {
+				return err
+			}
+		}
+
+		v.count += 1
+		grouped[k] = v
 	}
 
 	siteID := goatcounter.MustGetSite(ctx).ID

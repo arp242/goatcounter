@@ -20,7 +20,7 @@ import (
 //     1 | 2019-11-30 | ET       |     1
 //     1 | 2019-11-30 | GR       |     2
 //     1 | 2019-11-30 | MX       |     4
-func updateLocationStats(ctx context.Context, phits map[string][]goatcounter.Hit) error {
+func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
 		return err
@@ -34,23 +34,21 @@ func updateLocationStats(ctx context.Context, phits map[string][]goatcounter.Hit
 		location string
 	}
 	grouped := map[string]gt{}
-	for _, hits := range phits {
-		for _, h := range hits {
-			day := h.CreatedAt.Format("2006-01-02")
-			k := day + h.Location
-			v := grouped[k]
-			if v.count == 0 {
-				v.day = day
-				v.location = h.Location
-				v.count, err = existingLocationStats(ctx, tx, h.Site, day, v.location)
-				if err != nil {
-					return err
-				}
+	for _, h := range hits {
+		day := h.CreatedAt.Format("2006-01-02")
+		k := day + h.Location
+		v := grouped[k]
+		if v.count == 0 {
+			v.day = day
+			v.location = h.Location
+			v.count, err = existingLocationStats(ctx, tx, h.Site, day, v.location)
+			if err != nil {
+				return err
 			}
-
-			v.count += 1
-			grouped[k] = v
 		}
+
+		v.count += 1
+		grouped[k] = v
 	}
 
 	siteID := goatcounter.MustGetSite(ctx).ID

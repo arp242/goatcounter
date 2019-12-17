@@ -29,7 +29,7 @@ func TestHitStats(t *testing.T) {
 		panic(err)
 	}
 
-	err = updateStats(ctx, hits)
+	err = updateStats(ctx, site.ID, hits)
 	if err != nil {
 		t.Fatal(err)
 	}
