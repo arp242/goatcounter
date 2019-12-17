@@ -59,21 +59,22 @@ func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit)
 
 				// Append existing and delete from DB; this will be faster than
 				// running an update for every row.
-				var c int
-				err := tx.GetContext(txctx, &c, `select count from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+				err := tx.GetContext(txctx, &v.count,
+					`select count from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
 					h.Site, day, v.browser, v.version)
 				if err != sql.ErrNoRows {
 					if err != nil {
 						return errors.Wrap(err, "existing")
 					}
-					_, err = tx.ExecContext(txctx, `delete from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+					_, err = tx.ExecContext(txctx,
+						`delete from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
 						h.Site, day, v.browser, v.version)
 					if err != nil {
 						return errors.Wrap(err, "delete")
 					}
 				}
-				v.count = c
 			}
+
 			v.count += 1
 			grouped[k] = v
 		}

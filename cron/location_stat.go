@@ -45,21 +45,20 @@ func updateLocationStats(ctx context.Context, phits map[string][]goatcounter.Hit
 
 				// Append existing and delete from DB; this will be faster than
 				// running an update for every row.
-				var c int
-				err := tx.GetContext(txctx, &c, `select count from location_stats where site=$1 and day=$2 and location=$3`,
+				err := tx.GetContext(txctx, &v.count,
+					`select count from location_stats where site=$1 and day=$2 and location=$3`,
 					h.Site, day, v.location)
 				if err != sql.ErrNoRows {
 					if err != nil {
 						return errors.Wrap(err, "existing")
 					}
-					_, err = tx.ExecContext(txctx, `delete from location_stats where site=$1 and day=$2 and location=$3`,
+					_, err = tx.ExecContext(txctx,
+						`delete from location_stats where site=$1 and day=$2 and location=$3`,
 						h.Site, day, v.location)
 					if err != nil {
 						return errors.Wrap(err, "delete")
 					}
 				}
-
-				v.count = c
 			}
 
 			v.count += 1
