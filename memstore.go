@@ -35,9 +35,9 @@ func (m *ms) Len() int {
 	return l
 }
 
-func (m *ms) Persist(ctx context.Context) error {
+func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	if m.Len() == 0 {
-		return nil
+		return nil, nil
 	}
 
 	m.Lock()
@@ -81,5 +81,6 @@ func (m *ms) Persist(ctx context.Context) error {
 			h.RefScheme, h.Browser, h.Size, h.Location, zdb.Date(h.CreatedAt),
 			countRef)
 	}
-	return ins.Finish()
+
+	return hits, ins.Finish()
 }

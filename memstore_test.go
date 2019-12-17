@@ -19,7 +19,7 @@ func TestMemstore(t *testing.T) {
 		Memstore.Append(gen(ctx))
 	}
 
-	err := Memstore.Persist(ctx)
+	_, err := Memstore.Persist(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

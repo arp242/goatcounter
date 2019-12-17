@@ -9,15 +9,11 @@ import (
 	"time"
 
 	"github.com/jinzhu/now"
-	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
-	"zgo.at/zhttp/ctxkey"
 )
 
 type stat struct {
@@ -26,114 +22,87 @@ type stat struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func updateHitStats(ctx context.Context, site goatcounter.Site) error {
-	ctx = context.WithValue(ctx, ctxkey.Site, &site)
-	db := zdb.MustGet(ctx)
-
-	// Select everything since last update.
-	var last string
-	if site.LastStat == nil {
-		last = "1970-01-01"
-	} else {
-		last = site.LastStat.Format("2006-01-02")
-	}
-
-	var query string
-	if cfg.PgSQL {
-		query = `
-			select
-				path,
-				count(path) as count,
-				cast(substr(cast(created_at as varchar), 0, 14) || ':00:00' as timestamp) as created_at
-			from hits
-			where
-				site=$1 and
-				created_at>=$2
-			group by path, substr(cast(created_at as varchar), 0, 14)
-			order by path, substr(cast(created_at as varchar), 0, 14)`
-	} else {
-		query = `
-			select
-				path,
-				count(path) as count,
-				created_at
-			from hits
-			where
-				site=$1 and
-				created_at>=$2
-			group by path, strftime('%Y-%m-%d %H', created_at)
-			order by path, strftime('%Y-%m-%d %H', created_at)`
-	}
-
-	var stats []stat
-	err := db.SelectContext(ctx, &stats, query, site.ID, last)
+// Hit stats are stored per day/path, the value is a 2-tuple: it lists the
+// counts for every hour. The first is the hour, second the number of hits in
+// that hour:
+//
+//   site       | 1
+//   day        | 2019-12-05
+//   path       | /jquery.html
+//   stats      | [[0,0],[1,2],[2,2],[3,0],[4,0],[5,0],[6,1],[7,2],[8,3],
+//                 [9,0],[10,2],[11,2],[12,2],[13,5],[14,4],[15,3],[16,0],
+//                 [17,1],[18,2],[19,0],[20,0],[21,1],[22,4],[23,2]]
+func updateHitStats(ctx context.Context, phits map[string][]goatcounter.Hit) error {
+	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
-		return errors.Wrap(err, "fetch data")
+		return err
 	}
+	defer tx.Rollback()
 
-	if !site.ReceivedData && len(stats) > 0 {
-		_, err = zdb.MustGet(ctx).ExecContext(ctx,
-			`update sites set received_data=1 where id=$1`, site.ID)
-		if err != nil {
-			return errors.Wrapf(err, "update received_data: site %d", site.ID)
+	_ = txctx
+
+	// Group by day + path.
+	type gt struct {
+		// TODO: count should be [][]int
+		count int
+		day   string
+		path  string
+	}
+	grouped := map[string]gt{}
+	for _, hits := range phits {
+		for _, h := range hits {
+			day := h.CreatedAt.Format("2006-01-02")
+			k := day + h.Path
+			v := grouped[k]
+			if v.count == 0 {
+				v.day = day
+				v.path = h.Path
+
+				// TODO
+				// Append existing and delete from DB; this will be faster than
+				// running an update for every row.
+				// var c int
+				// err := tx.GetContext(txctx, &c, `select count from location_stats where site=$1 and day=$2 and location=$3`,
+				// 	h.Site, day, v.location)
+				// if err != sql.ErrNoRows {
+				// 	if err != nil {
+				// 		return errors.Wrap(err, "existing")
+				// 	}
+				// 	_, err = tx.ExecContext(txctx, `delete from location_stats where site=$1 and day=$2 and location=$3`,
+				// 		h.Site, day, v.location)
+				// 	if err != nil {
+				// 		return errors.Wrap(err, "delete")
+				// 	}
+				// }
+
+				//v.count = c
+			}
+
+			v.count += 1
+			grouped[k] = v
 		}
 	}
 
-	existing, err := (&goatcounter.HitStats{}).ListPaths(ctx)
+	// TODO
+	// hourly := fillHitBlanks(stats, existing, site.CreatedAt)
+
+	// // No data received.
+	// if len(hourly) == 0 {
+	// 	return nil
+	// }
+
+	siteID := goatcounter.MustGetSite(ctx).ID
+	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
+		"hit_stats", []string{"site", "day", "path", "stats"})
+	for _, v := range grouped {
+		ins.Values(siteID, v.day, v.path, jsonutil.MustMarshal(v.count))
+	}
+	err = ins.Finish()
 	if err != nil {
 		return err
 	}
 
-	hourly := fillHitBlanks(stats, existing, site.CreatedAt)
-
-	// No data received.
-	if len(hourly) == 0 {
-		return nil
-	}
-
-	// List all paths we already have so we can update them, rather than
-	// inserting new.
-	var have []string
-	err = db.SelectContext(ctx, &have,
-		`select path from hit_stats where site=$1`,
-		site.ID)
-	if err != nil {
-		return errors.Wrap(err, "have")
-	}
-
-	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
-		"hit_stats", []string{"site", "day", "path", "stats"})
-	for path, dayst := range hourly {
-		exists := false
-		for _, h := range have {
-			if h == path {
-				exists = true
-				break
-			}
-		}
-
-		var del []string
-		for day, st := range dayst {
-			ins.Values(site.ID, day, path, jsonutil.MustMarshal(st))
-			if exists {
-				del = append(del, day)
-			}
-		}
-
-		// Delete existing.
-		if len(del) > 0 {
-			query, args, err := sqlx.In(`delete from hit_stats where
-				site=? and lower(path)=lower(?) and day in (?)`, site.ID, path, del)
-			if err != nil {
-				return errors.Wrap(err, "delete 1")
-			}
-			_, err = db.ExecContext(ctx, db.Rebind(query), args...)
-			if err != nil {
-				return errors.Wrap(err, "delete 2")
-			}
-		}
-	}
-	return ins.Finish()
+	return tx.Commit()
 }
 
 func fillHitBlanks(stats []stat, existing []string, siteCreated time.Time) map[string]map[string][][]int {
