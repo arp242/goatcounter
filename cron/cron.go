@@ -15,6 +15,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
+	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 )
 
@@ -24,7 +25,7 @@ type task struct {
 }
 
 var tasks = []task{
-	{persistAndStat, 10 * time.Second},
+	{persistAndStat, 3 * time.Second},
 }
 
 var stopped = syncutil.NewAtomicInt(0)
@@ -85,53 +86,67 @@ func Wait(db *sqlx.DB) {
 func persistAndStat(ctx context.Context) error {
 	l := zlog.Module("cron")
 
-	hl := goatcounter.Memstore.Len()
-	err := goatcounter.Memstore.Persist(ctx)
+	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {
 		return err
 	}
 	l = l.Since("memstore")
 
-	err = updateStats(ctx)
-	if hl > 0 {
-		l.Since("stats").FieldsSince().Printf("persisted %d hits", hl)
+	err = updateStats(ctx, hits)
+	if len(hits) > 0 {
+		l.Since("stats").FieldsSince().Printf("persisted %d hits", len(hits))
 	}
 	return err
 }
 
-// Regen all stats:
-// delete from hit_stats; delete from browser_stats; delete from location_stats; update sites set last_stat=null;
-func updateStats(ctx context.Context) error {
-	var sites goatcounter.Sites
-	err := sites.List(ctx)
-	if err != nil {
-		return err
+func updateStats(ctx context.Context, hits []goatcounter.Hit) error {
+	// Group by site and path.
+	grouped := make(map[int64]map[string][]goatcounter.Hit)
+	for _, h := range hits {
+		_, ok := grouped[h.Site]
+		if !ok {
+			grouped[h.Site] = make(map[string][]goatcounter.Hit)
+		}
+
+		grouped[h.Site][h.Path] = append(grouped[h.Site][h.Path], h)
 	}
 
-	for _, s := range sites {
+	for siteID, paths := range grouped {
 		start := time.Now().UTC().Format("2006-01-02 15:04:05")
-
-		err := updateHitStats(ctx, s)
+		var site goatcounter.Site
+		err := site.ByID(ctx, siteID)
 		if err != nil {
-			return errors.Wrapf(err, "hit_stat: site %d", s.ID)
+			return err
 		}
+		ctx = context.WithValue(ctx, ctxkey.Site, &site)
 
-		err = updateBrowserStats(ctx, s)
+		err = updateHitStats(ctx, paths)
 		if err != nil {
-			return errors.Wrapf(err, "browser_stat: site %d", s.ID)
+			return errors.Wrapf(err, "hit_stat: site %d", siteID)
 		}
-
-		err = updateLocationStats(ctx, s)
+		err = updateBrowserStats(ctx, paths)
 		if err != nil {
-			return errors.Wrapf(err, "location_stat: site %d", s.ID)
+			return errors.Wrapf(err, "browser_stat: site %d", siteID)
+		}
+		err = updateLocationStats(ctx, paths)
+		if err != nil {
+			return errors.Wrapf(err, "location_stat: site %d", siteID)
 		}
 
 		// Record last update.
 		_, err = zdb.MustGet(ctx).ExecContext(ctx,
-			`update sites set last_stat=$1 where id=$2`, start, s.ID)
+			`update sites set last_stat=$1 where id=$2`, start, siteID)
 		if err != nil {
-			return errors.Wrapf(err, "update last_stat: site %d", s.ID)
+			return errors.Wrapf(err, "update last_stat: site %d", siteID)
+		}
+		if !site.ReceivedData {
+			_, err = zdb.MustGet(ctx).ExecContext(ctx,
+				`update sites set received_data=1 where id=$1`, siteID)
+			if err != nil {
+				return errors.Wrapf(err, "update received_data: site %d", siteID)
+			}
 		}
 	}
+
 	return nil
 }

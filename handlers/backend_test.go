@@ -58,7 +58,7 @@ func TestBackendCount(t *testing.T) {
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			err := goatcounter.Memstore.Persist(r.Context())
+			_, err := goatcounter.Memstore.Persist(r.Context())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -134,7 +134,7 @@ func TestBackendIndex(t *testing.T) {
 			name: "basic",
 			setup: func(ctx context.Context) {
 				goatcounter.Memstore.Append(goatcounter.Hit{Path: "/asdfghjkl", Site: 1})
-				err := goatcounter.Memstore.Persist(ctx)
+				_, err := goatcounter.Memstore.Persist(ctx)
 				if err != nil {
 					panic(err)
 				}
@@ -163,7 +163,7 @@ func TestBackendExport(t *testing.T) {
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				err := goatcounter.Memstore.Persist(ctx)
+				_, err := goatcounter.Memstore.Persist(ctx)
 				if err != nil {
 					panic(err)
 				}
@@ -191,7 +191,7 @@ func TestBackendTpl(t *testing.T) {
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				err := goatcounter.Memstore.Persist(ctx)
+				_, err := goatcounter.Memstore.Persist(ctx)
 				if err != nil {
 					panic(err)
 				}
@@ -240,7 +240,7 @@ func TestBackendPurge(t *testing.T) {
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				err := goatcounter.Memstore.Persist(ctx)
+				_, err := goatcounter.Memstore.Persist(ctx)
 				if err != nil {
 					panic(err)
 				}

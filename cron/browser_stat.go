@@ -6,78 +6,33 @@ package cron
 
 import (
 	"context"
+	"database/sql"
 	"strings"
-	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/mssola/user_agent"
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
-	"zgo.at/zhttp/ctxkey"
 )
 
-type bstat struct {
-	Browser   string    `db:"browser"`
-	Count     int       `db:"count"`
-	CreatedAt time.Time `db:"created_at"`
-}
-
-func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
-	ctx = context.WithValue(ctx, ctxkey.Site, &site)
-	db := zdb.MustGet(ctx)
-
-	// Select everything since last update.
-	var last string
-	if site.LastStat == nil {
-		last = "1970-01-01"
-	} else {
-		last = site.LastStat.Format("2006-01-02")
-	}
-
-	var query string
-	if cfg.PgSQL {
-		query = `
-			select
-				browser,
-				count(browser) as count,
-				cast(substr(cast(created_at as varchar), 0, 14) || ':00:00' as timestamp) as created_at
-			from hits
-			where
-				site=$1 and
-				created_at>=$2
-			group by browser, substr(cast(created_at as varchar), 0, 14)
-			order by count desc`
-	} else {
-		query = `
-			select
-				browser,
-				count(browser) as count,
-				created_at
-			from hits
-			where
-				site=$1 and
-				created_at>=$2
-			group by browser, strftime('%Y-%m-%d %H', created_at)
-			order by count desc`
-	}
-
-	var stats []bstat
-	err := db.SelectContext(ctx, &stats, query, site.ID, last)
+// Browser are stored as a count per browser/version/mobile per day:
+//
+//  site |    day     | browser | version | count | mobile
+// ------+------------+---------+---------+-------+--------
+//     1 | 2019-12-17 | Chrome  | 38      |    13 | t
+//     1 | 2019-12-17 | Chrome  | 77      |     2 | f
+//     1 | 2019-12-17 | Opera   | 9       |     1 | f
+//
+// TODO: mobile counts are inaccurate as it's not grouped by that.
+func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit) error {
+	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
-		return errors.Wrap(err, "fetch data")
+		return err
 	}
+	defer tx.Rollback()
 
-	// Remove everything we'll update; it's faster than running many updates.
-	_, err = db.ExecContext(ctx, `delete from browser_stats where site=$1 and day>=$2`,
-		site.ID, last)
-	if err != nil {
-		return errors.Wrap(err, "delete")
-	}
-
-	// Group properly.
+	// Group by day + browser + mobile.
 	type gt struct {
 		count   int
 		mobile  bool
@@ -86,30 +41,56 @@ func updateBrowserStats(ctx context.Context, site goatcounter.Site) error {
 		version string
 	}
 	grouped := map[string]gt{}
-	for _, s := range stats {
-		browser, version, mobile := getBrowser(s.Browser)
-		if browser == "" {
-			continue
+	for _, hits := range phits {
+		for _, h := range hits {
+			browser, version, mobile := getBrowser(h.Browser)
+			if browser == "" {
+				continue
+			}
+
+			day := h.CreatedAt.Format("2006-01-02")
+			k := day + browser + " " + version
+			v := grouped[k]
+			if v.count == 0 {
+				v.day = day
+				v.browser = browser
+				v.version = version
+				v.mobile = mobile
+
+				// Append existing and delete from DB; this will be faster than
+				// running an update for every row.
+				var c int
+				err := tx.GetContext(txctx, &c, `select count from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+					h.Site, day, v.browser, v.version)
+				if err != sql.ErrNoRows {
+					if err != nil {
+						return errors.Wrap(err, "existing")
+					}
+					_, err = tx.ExecContext(txctx, `delete from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+						h.Site, day, v.browser, v.version)
+					if err != nil {
+						return errors.Wrap(err, "delete")
+					}
+				}
+				v.count = c
+			}
+			v.count += 1
+			grouped[k] = v
 		}
-		k := s.CreatedAt.Format("2006-01-02") + browser + " " + version
-		v := grouped[k]
-		if v.count == 0 {
-			v.day = s.CreatedAt.Format("2006-01-02")
-			v.browser = browser
-			v.version = version
-			v.mobile = mobile
-		}
-		v.count += s.Count
-		grouped[k] = v
 	}
 
-	insBrowser := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
+	siteID := goatcounter.MustGetSite(ctx).ID
+	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
 		"browser_stats", []string{"site", "day", "browser", "version", "count", "mobile"})
 	for _, v := range grouped {
-		insBrowser.Values(site.ID, v.day, v.browser, v.version, v.count, v.mobile)
+		ins.Values(siteID, v.day, v.browser, v.version, v.count, v.mobile)
+	}
+	err = ins.Finish()
+	if err != nil {
+		return err
 	}
 
-	return insBrowser.Finish()
+	return tx.Commit()
 }
 
 func getBrowser(uaHeader string) (string, string, bool) {
