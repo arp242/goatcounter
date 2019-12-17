@@ -150,3 +150,19 @@ func updateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	}
 	return nil
 }
+
+func ReindexStats(ctx context.Context, hits []goatcounter.Hit) error {
+	grouped := make(map[int64][]goatcounter.Hit)
+	for _, h := range hits {
+		grouped[h.Site] = append(grouped[h.Site], h)
+	}
+
+	for siteID, hits := range grouped {
+		err := updateStats(ctx, siteID, hits)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
