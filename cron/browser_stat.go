@@ -32,7 +32,7 @@ func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit)
 	}
 	defer tx.Rollback()
 
-	// Group by day + browser + mobile.
+	// Group by day + browser.
 	type gt struct {
 		count   int
 		mobile  bool
@@ -56,22 +56,9 @@ func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit)
 				v.browser = browser
 				v.version = version
 				v.mobile = mobile
-
-				// Append existing and delete from DB; this will be faster than
-				// running an update for every row.
-				err := tx.GetContext(txctx, &v.count,
-					`select count from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
-					h.Site, day, v.browser, v.version)
-				if err != sql.ErrNoRows {
-					if err != nil {
-						return errors.Wrap(err, "existing")
-					}
-					_, err = tx.ExecContext(txctx,
-						`delete from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
-						h.Site, day, v.browser, v.version)
-					if err != nil {
-						return errors.Wrap(err, "delete")
-					}
+				v.count, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
+				if err != nil {
+					return err
 				}
 			}
 
@@ -81,7 +68,7 @@ func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit)
 	}
 
 	siteID := goatcounter.MustGetSite(ctx).ID
-	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
+	ins := bulk.NewInsert(txctx, tx,
 		"browser_stats", []string{"site", "day", "browser", "version", "count", "mobile"})
 	for _, v := range grouped {
 		ins.Values(siteID, v.day, v.browser, v.version, v.count, v.mobile)
@@ -92,6 +79,31 @@ func updateBrowserStats(ctx context.Context, phits map[string][]goatcounter.Hit)
 	}
 
 	return tx.Commit()
+}
+
+func existingBrowserStats(
+	txctx context.Context, tx zdb.DB, siteID int64,
+	day, browser, version string,
+) (int, error) {
+
+	var c int
+	err := tx.GetContext(txctx, &c,
+		`select count from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+		siteID, day, browser, version)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, errors.Wrap(err, "existing")
+	}
+
+	if err != sql.ErrNoRows {
+		_, err = tx.ExecContext(txctx,
+			`delete from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+			siteID, day, browser, version)
+		if err != nil {
+			return 0, errors.Wrap(err, "delete")
+		}
+	}
+
+	return c, nil
 }
 
 func getBrowser(uaHeader string) (string, string, bool) {
@@ -132,6 +144,6 @@ func getBrowser(uaHeader string) (string, string, bool) {
 		}
 	}
 
-	mobile := ua.Mobile()
-	return browser, version, mobile
+	//mobile := ua.Mobile()
+	return browser, version, false
 }

@@ -4,7 +4,14 @@
 
 package cron
 
-/*
+import (
+	"fmt"
+	"testing"
+	"time"
+
+	"zgo.at/goatcounter"
+)
+
 func TestBrowserStats(t *testing.T) {
 	ctx, clean := goatcounter.StartTest(t)
 	defer clean()
@@ -12,17 +19,12 @@ func TestBrowserStats(t *testing.T) {
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	goatcounter.Memstore.Append([]goatcounter.Hit{
-		{Site: site.ID, Browser: "Firefox/68.0", CreatedAt: now},
-		{Site: site.ID, Browser: "Chrome/77.0.123.666", CreatedAt: now},
-		{Site: site.ID, Browser: "Firefox/69.0", CreatedAt: now},
-	}...)
-	_, err := goatcounter.Memstore.Persist(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = updateStats(ctx)
+	err := updateStats(ctx, []goatcounter.Hit{
+		{Site: site.ID, CreatedAt: now, Browser: "Firefox/68.0"},
+		{Site: site.ID, CreatedAt: now, Browser: "Chrome/77.0.123.666"},
+		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
+		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,22 +35,44 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `3 -> 0 -> [{Firefox false 2} {Chrome false 1}]`
+	want := `4 -> 0 -> [{Firefox false 3} {Chrome false 1}]`
 	out := fmt.Sprintf("%d -> %d -> %v", total, totalMobile, stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
 	}
 
+	// Update existing.
+	err = updateStats(ctx, []goatcounter.Hit{
+		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
+		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
+		{Site: site.ID, CreatedAt: now, Browser: "Firefox/70.0"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stats = goatcounter.BrowserStats{}
+	total, totalMobile, err = stats.List(ctx, now, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want = `7 -> 0 -> [{Firefox false 6} {Chrome false 1}]`
+	out = fmt.Sprintf("%d -> %d -> %v", total, totalMobile, stats)
+	if want != out {
+		t.Errorf("\nwant: %s\nout:  %s", want, out)
+	}
+
+	// List just Firefox.
 	stats = goatcounter.BrowserStats{}
 	total, err = stats.ListBrowser(ctx, "Firefox", now, now)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want = `2 -> [{Firefox 68.0 false 1} {Firefox 69.0 false 1}]`
+	want = `6 -> [{Firefox 69.0 false 4} {Firefox 68.0 false 1} {Firefox 70.0 false 1}]`
 	out = fmt.Sprintf("%d -> %v", total, stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
 	}
 }
-*/

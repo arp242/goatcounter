@@ -42,22 +42,9 @@ func updateLocationStats(ctx context.Context, phits map[string][]goatcounter.Hit
 			if v.count == 0 {
 				v.day = day
 				v.location = h.Location
-
-				// Append existing and delete from DB; this will be faster than
-				// running an update for every row.
-				err := tx.GetContext(txctx, &v.count,
-					`select count from location_stats where site=$1 and day=$2 and location=$3`,
-					h.Site, day, v.location)
-				if err != sql.ErrNoRows {
-					if err != nil {
-						return errors.Wrap(err, "existing")
-					}
-					_, err = tx.ExecContext(txctx,
-						`delete from location_stats where site=$1 and day=$2 and location=$3`,
-						h.Site, day, v.location)
-					if err != nil {
-						return errors.Wrap(err, "delete")
-					}
+				v.count, err = existingLocationStats(ctx, tx, h.Site, day, v.location)
+				if err != nil {
+					return err
 				}
 			}
 
@@ -78,4 +65,29 @@ func updateLocationStats(ctx context.Context, phits map[string][]goatcounter.Hit
 	}
 
 	return tx.Commit()
+}
+
+func existingLocationStats(
+	txctx context.Context, tx zdb.DB, siteID int64,
+	day, location string,
+) (int, error) {
+
+	var c int
+	err := tx.GetContext(txctx, &c,
+		`select count from location_stats where site=$1 and day=$2 and location=$3`,
+		siteID, day, location)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, errors.Wrap(err, "existing")
+	}
+
+	if err != sql.ErrNoRows {
+		_, err = tx.ExecContext(txctx,
+			`delete from location_stats where site=$1 and day=$2 and location=$3`,
+			siteID, day, location)
+		if err != nil {
+			return 0, errors.Wrap(err, "delete")
+		}
+	}
+
+	return c, nil
 }
