@@ -542,7 +542,7 @@ func (h backend) save(w http.ResponseWriter, r *http.Request) error {
 	site.Name = args.Name
 	site.Settings = args.Settings
 	if args.Cname != "" && !site.PlanCustomDomain(r.Context()) {
-		return guru.New(http.StatusForbidden, "need starter or pro plan to set custom domain")
+		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
 	}
 
 	if args.Cname == "" {
