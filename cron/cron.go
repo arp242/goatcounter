@@ -25,7 +25,7 @@ type task struct {
 }
 
 var tasks = []task{
-	{persistAndStat, 2 * time.Second},
+	{persistAndStat, 10 * time.Second},
 }
 
 var stopped = syncutil.NewAtomicInt(0)
@@ -92,11 +92,15 @@ func persistAndStat(ctx context.Context) error {
 	}
 	l = l.Since("memstore")
 
+	err = fillBlanksForToday(ctx)
+	if err != nil {
+		return errors.Wrapf(err, "fillBlanks")
+	}
+
 	grouped := make(map[int64][]goatcounter.Hit)
 	for _, h := range hits {
 		grouped[h.Site] = append(grouped[h.Site], h)
 	}
-
 	for siteID, hits := range grouped {
 		err := updateStats(ctx, siteID, hits)
 		if err != nil {
