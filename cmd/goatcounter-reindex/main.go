@@ -11,6 +11,7 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
+	"zgo.at/zdb/bulk"
 )
 
 func main() {
@@ -42,7 +43,6 @@ func main() {
 	db.MustExecContext(ctx, `update sites set last_stat=null`)
 	prog("Stats deleted")
 
-	// Create slice for every day.
 	var first string
 	err = db.GetContext(ctx, &first, `select created_at from hits order by created_at asc limit 1`)
 	if err != nil {
@@ -55,8 +55,40 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Prefill every day with empty entry.
+	var allpaths []struct {
+		Site int64
+		Path string
+	}
+	err = zdb.MustGet(ctx).SelectContext(ctx, &allpaths,
+		`select site, path from hits group by site, path`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
+		"hit_stats", []string{"site", "day", "path", "stats"})
 	for {
-		prog(fmt.Sprintf("%s", day.Format("2006-01-02")))
+		prog(fmt.Sprintf("blanks %s", day.Format("2006-01-02")))
+		for _, p := range allpaths {
+			ins.Values(p.Site, day.Format("2006-01-02"), p.Path, allDays)
+		}
+
+		day = day.Add(24 * time.Hour)
+		if day.After(now) {
+			break
+		}
+	}
+
+	err = ins.Finish()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Insert paths.
+	day, _ = time.Parse("2006-01-02", first[:10])
+	for {
+		prog(fmt.Sprintf("data %s", day.Format("2006-01-02")))
 
 		var hits []goatcounter.Hit
 		err := db.SelectContext(ctx, &hits, `
@@ -79,6 +111,8 @@ func main() {
 	}
 	fmt.Println("")
 }
+
+const allDays = `[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]`
 
 func prog(msg string) {
 	fmt.Printf("\r\x1b[0K")

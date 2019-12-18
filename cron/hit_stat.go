@@ -7,13 +7,14 @@ package cron
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/utils/jsonutil"
+	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -74,11 +75,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		return err
 	}
 
-	err = fillBlanks(txctx, tx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "fillBlanks")
-	}
-
 	return tx.Commit()
 }
 
@@ -119,77 +115,46 @@ func existingHitStats(
 
 const allDays = `[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]`
 
+var ranDay int
+
 // Every path must have a row for every day since the start of the site, even if
-// there are not hits. This makes the SQL queries and chart generation a lot
-// easier and faster later on, at the expensive of storing more "useless" data.
-func fillBlanks(txctx context.Context, tx zdb.DB, hits []goatcounter.Hit) error {
-	site := goatcounter.MustGetSite(txctx)
-
-	var s string
-	err := tx.GetContext(txctx, &s,
-		`select created_at from hits where site=$1 order by created_at asc limit 1`,
-		site.ID)
-	if err != nil && err != sql.ErrNoRows {
-		return errors.Wrap(err, "site created")
+// there are no hits. This makes the SQL queries and chart generation a lot
+// easier and faster later on, at the expense of storing more "useless" data.
+func fillBlanksForToday(ctx context.Context) error {
+	// Run once a day only (it's okay to run more than once, just a waste of
+	// time).
+	if time.Now().UTC().Day() == ranDay {
+		return nil
 	}
-	var started time.Time
-	if err == sql.ErrNoRows {
-		started = site.CreatedAt
-	} else {
-		started, err = time.Parse("2006-01-02", s[:10])
-		if err != nil {
-			return err
-		}
-	}
+	ranDay = time.Now().UTC().Day()
 
-	var (
-		paths []string
-		seen  = make(map[string]struct{})
-	)
-	for _, h := range hits {
-		_, ok := seen[h.Path]
-		if !ok {
-			paths = append(paths, h.Path)
-			seen[h.Path] = struct{}{}
-		}
+	var allpaths []struct {
+		Site int64
+		Path string
 	}
-
-	query, args, err := sqlx.In(`
-		select path, min(day) as day from hit_stats
-		where site=? and path in (?)
-		group by path`, site.ID, paths)
+	err := zdb.MustGet(ctx).SelectContext(ctx, &allpaths,
+		`select site, path from hits group by site, path`)
 	if err != nil {
 		return err
 	}
-	var first []struct{ Path, Day string }
-	err = tx.SelectContext(txctx, &first, tx.Rebind(query), args...)
+
+	today := time.Now().UTC().Format("2006-01-02")
+
+	var have []string
+	err = zdb.MustGet(ctx).SelectContext(ctx, &have,
+		`select site || path from hit_stats where day=$1`, today)
 	if err != nil {
-		return errors.Wrap(err, "find paths")
+		return err
 	}
 
-	ins := bulk.NewInsert(txctx, tx,
+	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
 		"hit_stats", []string{"site", "day", "path", "stats"})
-
-	for _, path := range first {
-		stop, err := time.Parse("2006-01-02", path.Day[:10])
-		if err != nil {
-			return err
+	for _, p := range allpaths {
+		if sliceutil.InStringSlice(have, fmt.Sprintf("%d%s", p.Site, p.Path)) {
+			continue
 		}
-		//stop = stop.Add(-24 * time.Hour)
 
-		// TODO: some paths are dupes (after reindex):
-		// 1 | 2019-11-21 | /go-last-resort.html | [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]
-		// 1 | 2019-11-21 | /go-last-resort.html | [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,124],[8,151],[9,125],[10,128],[11,122],[12,217],[13,309],[14,490],[15,492],[16,525],[17,425],[18,401],[19,355],[20,404],[21,375],[22,309],[23,352]]
-
-		day := started
-		for {
-			day = day.Add(24 * time.Hour)
-			if day.After(stop) {
-				break
-			}
-
-			ins.Values(site.ID, day.Format("2006-01-02"), path.Path, allDays)
-		}
+		ins.Values(p.Site, today, p.Path, allDays)
 	}
 
 	return ins.Finish()
