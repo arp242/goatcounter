@@ -45,11 +45,14 @@ func StartTest(t *testing.T) (context.Context, func()) {
 	}
 
 	if schema == "" {
-		schemaB, err := ioutil.ReadFile(top + "/db/schema.sql")
+		schema, err := ioutil.ReadFile(top + "/db/schema.sql")
 		if err != nil {
 			t.Fatal(err)
 		}
-		schema = string(schemaB)
+		_, err = db.Exec(string(schema))
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		migs, err := ioutil.ReadDir(top + "/db/migrate/sqlite")
 		if err != nil {
@@ -57,6 +60,12 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		}
 
 		for _, m := range migs {
+			var ran bool
+			db.Get(&ran, `select 1 from version where name=$1`, m.Name()[:len(m.Name())-4])
+			if ran {
+				continue
+			}
+
 			mb, err := ioutil.ReadFile(fmt.Sprintf("%s/db/migrate/sqlite/%s", top, m.Name()))
 			if err != nil {
 				t.Fatalf("read migration: %s", err)
@@ -65,15 +74,12 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		}
 	}
 
-	_, err = db.Exec(schema)
-	if err != nil {
-		t.Fatal(err)
-	}
 	for _, m := range migrations {
 		_, err = db.Exec(m)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 	}
 
 	_, err = db.Exec(`insert into sites (code, name, plan, settings, created_at) values
