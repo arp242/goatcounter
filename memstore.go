@@ -36,7 +36,7 @@ func (m *ms) Len() int {
 }
 
 func (m *ms) Persist(ctx context.Context) error {
-	if len(m.hits) == 0 {
+	if m.Len() == 0 {
 		return nil
 	}
 
