@@ -54,6 +54,8 @@ zgo.at/zdb v0.0.0-20191224164219-424522de06ec h1:qkL+IYNatMz0FRqb2hWVj/06XRPvlhI
 zgo.at/zdb v0.0.0-20191224164219-424522de06ec/go.mod h1:GT5Nyrxb9H6JszZtd7o0m5CPEd3C7DFqAeJt98nyNQI=
 zgo.at/zhttp v0.0.0-20200102134311-4b12f952b072 h1:/AIY68MoqEcuz3osyNFtD0Ki61eV4GG6pQKVYqfbq8o=
 zgo.at/zhttp v0.0.0-20200102134311-4b12f952b072/go.mod h1:7PO/E4nqxbstyxX95cqKJOpZAVKNKoohk5utWZIdKz0=
+zgo.at/zhttp v0.0.0-20200102162201-594096b8150f h1:LYYsg/zjRaHaQb3JOy19MwmBnK4RuwKoeWFsoT4XwbY=
+zgo.at/zhttp v0.0.0-20200102162201-594096b8150f/go.mod h1:7PO/E4nqxbstyxX95cqKJOpZAVKNKoohk5utWZIdKz0=
 zgo.at/zlog v1.0.7 h1:Ppjb9VOBheqENQ28TWsOddG2qIVO4nGb0b/TPh/5sXc=
 zgo.at/zlog v1.0.7/go.mod h1:0RldP/sQzWwOCPsJogZcxnJneFt56T1zfDtIN/LcYec=
 zgo.at/zpack v1.0.0 h1:gcew5c1Bhh6uzi22nfsr/ztXT7UVVbb4Rw4gv0btHao=

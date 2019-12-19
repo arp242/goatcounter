@@ -10,6 +10,7 @@ insert into version values
 	('2019-12-15-2-old'),
 	('2019-12-17-1-business'),
 	('2019-12-20-1-dailystat'),
+	('2019-12-19-1-updates'),
 	('2020-01-02-1-bot');
 
 drop table if exists sites;
@@ -45,6 +46,7 @@ create table users (
 	login_request  varchar        null,
 	login_token    varchar        null,
 	csrf_token     varchar        null,
+	seen_updates_at timestamp     not null default '1970-01-01 00:00:00' check(seen_updates_at = strftime('%Y-%m-%d %H:%M:%S', seen_updates_at)),
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
@@ -413,3 +415,12 @@ insert into iso_3166_1 (name, alpha2) values
 	('Zambia', 'ZM'),
 	('Zaire', 'ZR'),
 	('Zimbabwe', 'ZW');
+
+create table updates (
+	id             integer        primary key autoincrement,
+	subject        varchar        not null,
+	body           varchar        not null,
+
+	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	show_at        timestamp      not null                 check(show_at = strftime('%Y-%m-%d %H:%M:%S', show_at))
+);

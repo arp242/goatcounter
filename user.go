@@ -32,13 +32,14 @@ type User struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
 
-	Name         string     `db:"name" json:"name"`
-	Email        string     `db:"email" json:"email"`
-	Role         string     `db:"role" json:"-"`
-	LoginAt      *time.Time `db:"login_at" json:"-"`
-	LoginRequest *string    `db:"login_request" json:"-"`
-	LoginToken   *string    `db:"login_token" json:"-"`
-	CSRFToken    *string    `db:"csrf_token" json:"-"`
+	Name          string     `db:"name" json:"name"`
+	Email         string     `db:"email" json:"email"`
+	Role          string     `db:"role" json:"-"`
+	LoginAt       *time.Time `db:"login_at" json:"-"`
+	LoginRequest  *string    `db:"login_request" json:"-"`
+	LoginToken    *string    `db:"login_token" json:"-"`
+	CSRFToken     *string    `db:"csrf_token" json:"-"`
+	SeenUpdatesAt time.Time  `db:"seen_updates_at" json:"-"`
 
 	CreatedAt time.Time  `db:"created_at" json:"-"`
 	UpdatedAt *time.Time `db:"updated_at" json:"-"`
@@ -236,6 +237,14 @@ func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 			zlog.Errorf("zmail: %s", err)
 		}
 	}()
+}
+
+// SeenUpdates marks this user as having seen all updates up until now.
+func (u *User) SeenUpdates(ctx context.Context) error {
+	u.SeenUpdatesAt = time.Now().UTC()
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+		`update users set seen_updates_at=$1 where id=$2`, u.SeenUpdatesAt, u.ID)
+	return errors.Wrap(err, "User.SeenUpdatesAt")
 }
 
 type Users []User

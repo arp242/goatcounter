@@ -1,0 +1,12 @@
+{{template "_backend_top.gohtml" .}}
+
+<h1>Updates</h1>
+
+{{range $u := .Updates}}
+	<div class="update">
+		<strong>{{$u.Subject}}</strong> – <em>{{$u.ShowAt.Format $.Site.Settings.DateFormat}}</em>
+		{{$u.Body|unsafe}}
+	</div>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}
