@@ -13,10 +13,9 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.2.1
-	google.golang.org/appengine v1.6.5 // indirect
 	zgo.at/utils v1.2.0
 	zgo.at/zdb v0.0.0-20191224164219-424522de06ec
-	zgo.at/zhttp v0.0.0-20200102134311-4b12f952b072
+	zgo.at/zhttp v0.0.0-20200102162201-594096b8150f
 	zgo.at/zlog v1.0.7
 	zgo.at/zpack v1.0.0
 	zgo.at/zstripe v1.0.0

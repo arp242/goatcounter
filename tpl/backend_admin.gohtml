@@ -1,10 +1,10 @@
 {{template "_backend_top.gohtml" .}}
 
-<h2>Admin</h2>
+<h1>Admin</h1>
 
 <p><a href="/debug/pprof">pprof</a></p>
 
-<h3>Sites</h3>
+<h2>Sites</h2>
 <table>
 	<tr>
 		<th>ID</th>
@@ -34,7 +34,7 @@
 	{{end}}
 </table>
 
-<h3>Count refs</h3>
+<h2>Count refs</h2>
 <table>
 	<tr>
 		<th>Site</th>
@@ -50,7 +50,7 @@
 	{{end}}
 </table>
 
-<h3>Contacts</h3>
+<h2>Contacts</h2>
 {{range $s := .Stats}}
 	{{$s.Email}},
 {{end}}

@@ -85,7 +85,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
 			header.CSPImgSrc:     st,
-			header.CSPScriptSrc:  append(st, []string{"https://chat.goatcounter.com", "https://js.stripe.com"}...),
+			header.CSPScriptSrc:  append(st, "data:", "https://chat.goatcounter.com", "https://js.stripe.com"),
 			header.CSPStyleSrc:   append(st, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:    st,
 			header.CSPFormAction: {header.CSPSourceSelf},
@@ -114,6 +114,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			if zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "" {
 				billing{}.mount(a, af)
 			}
+			af.Get("/updates", zhttp.Wrap(h.updates))
 			af.Get("/settings", zhttp.Wrap(h.settings))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
@@ -549,6 +550,26 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		"total_display": totalDisplay,
 		"more":          more,
 	})
+}
+
+func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
+	u := goatcounter.GetUser(r.Context())
+
+	var up goatcounter.Updates
+	err := up.List(r.Context(), u.SeenUpdatesAt)
+	if err != nil {
+		return err
+	}
+
+	err = u.SeenUpdates(r.Context())
+	if err != nil {
+		zlog.Field("user", fmt.Sprintf("%d", u.ID)).Error(err)
+	}
+
+	return zhttp.Template(w, "backend_updates.gohtml", struct {
+		Globals
+		Updates goatcounter.Updates
+	}{newGlobals(w, r), up})
 }
 
 func (h backend) settings(w http.ResponseWriter, r *http.Request) error {

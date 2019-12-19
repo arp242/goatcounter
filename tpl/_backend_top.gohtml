@@ -34,6 +34,7 @@
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
+				<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |
 				{{if eq .Site.ID 1}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}

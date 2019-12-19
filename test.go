@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/jmoiron/sqlx"
@@ -64,6 +65,9 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		}
 
 		for _, m := range migs {
+			if !strings.HasSuffix(m.Name(), ".sql") {
+				continue
+			}
 			var ran bool
 			db.Get(&ran, `select 1 from version where name=$1`, m.Name()[:len(m.Name())-4])
 			if ran {
@@ -83,7 +87,6 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		if err != nil {
 			t.Fatal(err)
 		}
-
 	}
 
 	_, err = db.Exec(`insert into sites (code, name, plan, settings, created_at) values
