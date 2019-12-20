@@ -1,3 +1,4 @@
 /goatcounter
-/goatcounter.upx
+/goatcounter-reindex
+/*.upx
 /db/*.sqlite3*
