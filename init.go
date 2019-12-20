@@ -57,12 +57,12 @@ func init() {
 		today := now.Format("2006-01-02")
 		hour := now.Hour()
 		for _, stat := range stats {
-			for _, s := range stat.Days {
+			for shour, s := range stat.Days {
 				// Don't show stuff in the future.
-				if stat.Day == today && s[0] > hour {
+				if stat.Day == today && shour > hour {
 					break
 				}
-				h := math.Round(float64(s[1]) / float64(max) / 0.01)
+				h := math.Round(float64(s) / float64(max) / 0.01)
 
 				// Double div so that the title is on the entire column, instead
 				// of just the coloured area.
@@ -73,7 +73,7 @@ func init() {
 					inner = fmt.Sprintf(`<div style="height: %.0f%%;"></div>`, h)
 				}
 				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
-					stat.Day, s[0], zhttp.Tnformat(s[1]), inner))
+					stat.Day, shour, zhttp.Tnformat(s), inner))
 			}
 		}
 

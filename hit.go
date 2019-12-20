@@ -267,7 +267,7 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 
 type HitStat struct {
 	Day  string
-	Days [][]int
+	Days []int
 }
 
 type hs struct {
@@ -365,15 +365,15 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 	for i := range hh {
 		for _, s := range st {
 			if s.Path == hh[i].Path {
-				var x [][]int
+				var x []int
 				jsonutil.MustUnmarshal(s.Stats, &x)
 				hh[i].Stats = append(hh[i].Stats, HitStat{Day: s.Day.Format("2006-01-02"), Days: x})
 
 				// Get max.
 				for j := range x {
-					totalDisplay += x[j][1]
-					if x[j][1] > hh[i].Max {
-						hh[i].Max = x[j][1]
+					totalDisplay += x[j]
+					if x[j] > hh[i].Max {
+						hh[i].Max = x[j]
 					}
 				}
 			}
