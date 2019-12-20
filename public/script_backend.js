@@ -360,31 +360,37 @@
 			if (!title)
 				return;
 
-			// Reformat date and time according to site settings.
-			//
-			// 2019-07-22 22:00 – 22:59, 5 views
-			// 2019-07-24 7:00 – 7:59, 4 views
-			var split = title.split(' ');
-			var date  = split[0],
-				start = split[1],
-				end   = split[3].replace(',', ''),
-				views = ', ' + split[4] + ' ' + split[5];
+			if (t.attr('data-title'))
+				title = t.attr('data-title');
+			else {
+				// Reformat date and time according to site settings.
+				//
+				// 2019-07-22 22:00 – 22:59, 5 views
+				// 2019-07-24 7:00 – 7:59, 4 views
+				var split = title.split(' ');
+				var date  = split[0],
+					start = split[1],
+					end   = split[3].replace(',', ''),
+					views = ', ' + split[4] + ' ' + split[5];
 
-			if (!SETTINGS.twenty_four_hours) {
-				start = un24(start);
-				end = un24(end);
+				if (!SETTINGS.twenty_four_hours) {
+					start = un24(start);
+					end = un24(end);
+				}
+
+				if (SETTINGS.date_format !== '2006-01-02') {
+					var d = new Date(),
+						ds = date.split('-');
+					d.setFullYear(ds[0]);
+					d.setMonth(parseInt(ds[1], 10) - 1);
+					d.setDate(ds[2]);
+					date = format_date(d);
+				}
+
+				title = date + ' ' + start + ' – ' + end + views;
+				t.attr('data-title', title);
+				t.removeAttr('title');
 			}
-
-			if (SETTINGS.date_format !== '2006-01-02') {
-				var d = new Date(),
-					ds = date.split('-');
-				d.setFullYear(ds[0]);
-				d.setMonth(parseInt(ds[1], 10) - 1);
-				d.setDate(ds[2]);
-				date = format_date(d);
-			}
-
-			title = date + ' ' + start + ' – ' + end + views;
 
 			var x = t.offset().left
 			var p = $('<div id="popup"></div>').
@@ -393,9 +399,6 @@
 					left: (x + 8) + 'px',
 					top: (t.parent().position().top) + 'px',
 				});
-
-			t.attr('data-title', title);
-			t.removeAttr('title');
 
 			$('#popup').remove();
 			$(document.body).append(p);
