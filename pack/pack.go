@@ -10159,7 +10159,7 @@ return jQuery;
 	var SETTINGS = {};
 
 	$(document).ready(function() {
-		SETTINGS = JSON.parse(document.getElementById('settings').innerHTML);
+		SETTINGS = JSON.parse($('#settings').html());
 
 		$(document).ajaxError(function(e, xhr, settings, err) {
 			var msg = 'Could not load ' + settings.url + ': ' + err;
@@ -10169,8 +10169,49 @@ return jQuery;
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
+			billing_subscribe,
 		].forEach(function(f) { f.call(); });
 	});
+
+	// Subscribe with Stripe.
+	var billing_subscribe = function() {
+		var form = $('#billing-form')
+		if (!form.length)
+			return;
+
+		// Show/hide donation options.
+		$('.plan input, .free input').on('change', function() {
+			var personal = $('input[name="plan"]:checked').val() === 'personal',
+				quantity = parseInt($('#quantity').val(), 10);
+
+			$('.free').css('display', personal ? 'block' : 'none');
+			$('.ask-cc').css('display', personal && quantity === 0 ? 'none' : 'block');
+		}).trigger('change');
+
+		form.on('submit', function(e) {
+			e.preventDefault();
+			form.find('button').attr('disabled', true).text('Redirecting...');
+
+			var err = function(e) { $('#stripe-error').text(e); },
+				plan = $('input[name="plan"]:checked').val(),
+				quantity = (plan === 'personal' ? (parseInt($('#quantity').val(), 10) || 0) : 1);
+			jQuery.ajax({
+				url:    '/billing/start',
+				method: 'POST',
+				data:    {csrf: $('#csrf').val(), plan: plan, quantity: quantity},
+				success: function(data) {
+					Stripe(form.attr('data-key')).redirectToCheckout({sessionId: data.id}).
+						then(function(result) { err(result.error ? result.error.message : ''); });
+				},
+				error: function(xhr, settings, e) {
+					err(err);
+				},
+				complete: function() {
+					form.find('button').attr('disabled', false).text('Continue');
+				},
+			});
+		});
+	};
 
 	// Paginate the location chart.
 	var paginate_locations = function() {
@@ -10773,6 +10814,9 @@ footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shad
            display: flex; justify-content: space-between; }
 footer a { font-weight: bold; color: #252525; }
 
+#trail-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
+                 background-color: #fff0f0; border-top: 1px solid #f00; }
+
 #settings { display: none; }
 
 .page, .center {
@@ -11048,6 +11092,12 @@ noscript {
 	background-color: #ffcfcf;
 	border-bottom: 1px solid #f88;
 }
+
+
+/*** Billing ***/
+#billing-form .plan span            { display: inline-block; min-width: 5em; }
+#billing-form fieldset legend+p     { margin-top: 0; }
+#billing-form fieldset p:last-child { margin-bottom: 0; }
 `),
 }
 
@@ -11465,6 +11515,24 @@ insert into iso_3166_1 (name, alpha2) values
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
 	{{template "_bottom_links.gohtml" .}}
+	{{if and .User.ID .Billing (.Site.ShowPayBanner .Context)}}
+		<div id="trail-expired">
+			<p>Hey hey; you’ve been using GoatCounter for more than 14 days.
+			Please consider making a small donation to cover development costs,
+			or subscribe to a plan if you’re using it for commercial
+			websites.</p>
+
+			<p>Select an option on the
+			{{if .Site.Parent}}
+				<a href="{{parent_site .Context .Site.Parent}}/billing">the parent’s billing page</a>
+			{{else}}
+				<a href="/billing">billing page</a>
+			{{end}}
+			to make this banner go away and you’ll never be asked again.
+			<a href="https://www.goatcounter.com/contact" target="_blank">Let me
+				know</a> if you have any questions or comments.</p>
+		</div>
+	{{end}}
 	<span id="settings">{{.Site.Settings.String | unsafe_js}}</span>
 	<script src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
 	<script src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
@@ -11629,8 +11697,9 @@ window.addEventListener('hashchange', function(e) {
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
-				{{if eq .Site.ID 1}}<a href="/admin">Admin</a> |{{end}}
-				{{if ne .Path "/settings"}}<a href="/settings">Settings</a> |{{end}}
+				{{if eq .Site.ID 1}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
+				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
+				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 					<button class="link">Sign out</button>
@@ -11974,7 +12043,9 @@ window.addEventListener('hashchange', function(e) {
 <div>
 	<h2 id="additional-sites">Additional sites</h2>
 	{{if .Site.Parent}}
-		This site has a parent ({{parent_site .Context .Site.Parent}}), and can't have additional sites of its own.
+		This site has a parent
+		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+		and can't have additional sites of its own.
 	{{else}}
 		<p>You can add GoatCounter to multiple websites by creating a "subsite",
 			which is a separate GoatCounter installation which inherits the plan,
@@ -12039,6 +12110,59 @@ window.addEventListener('hashchange', function(e) {
 		<li><a href="/export/hits.csv">hits.csv</a></li>
 	</ul>
 </div>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/billing.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{if and .Site.Stripe .Subscribed}}
+	{{if .FreePlan}}
+		<p>Currently using the <em>Personal free</em> plan for non-commercial usage.</p>
+	{{else}}
+		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
+		<p>{{.Next}}</p>
+		<form method="post" action="/billing/cancel">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+			<button class="link" type="submit">Cancel</button>
+		</form>
+	{{end}}
+{{else}}
+	<script src="https://js.stripe.com/v3"></script>
+	<div id="stripe-error"></div>
+	<form method="post" action="/billing/start" id="billing-form" data-key="{{.StripePublicKey}}">
+		<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset class="plan">
+			<legend>Plan</legend>
+			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
+				<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
+				<span>Business</span> €15/month; 500k pageviews/month; custom domain.</label><br>
+			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
+				<span>Business plus</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
+
+			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
+		</fieldset>
+
+		<fieldset class="free">
+			<legend>Optional payments</legend>
+
+			<p>GoatCounter is free for personal non-commercial use, but a small
+				monthly donation is encouraged so I can pay my rent and such 😅</p>
+			<p>Even just a small €1/month would be greatly appreciated! Fill in
+				0 to disable the banner without a donation.</p>
+
+			€ <input type="number" name="quantity" id="quantity" value="2" min="0">
+
+			<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>.</p>
+		</fieldset>
+
+		<p class="ask-cc">You’ll be asked for credit card details on the next page.
+			<a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you
+			need a payment option other than credit card (e.g. IBAN transfer).</p>
+		<button type="submit">Continue</button>
+	</form>
+{{end}}
 
 {{template "_backend_bottom.gohtml" .}}
 `),

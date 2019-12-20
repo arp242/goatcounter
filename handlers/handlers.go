@@ -15,6 +15,7 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/zhttp"
+	"zgo.at/zstripe"
 )
 
 type Globals struct {
@@ -26,6 +27,7 @@ type Globals struct {
 	Static  string
 	Domain  string
 	Version string
+	Billing bool
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
@@ -38,6 +40,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Static:  strings.Split(cfg.DomainStatic, ",")[0],
 		Domain:  cfg.Domain,
 		Version: cfg.Version,
+		Billing: zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
 	}
 	if g.User == nil {
 		g.User = &goatcounter.User{}

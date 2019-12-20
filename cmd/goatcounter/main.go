@@ -21,10 +21,12 @@ import (
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/errorutil"
+	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
+	"zgo.at/zstripe"
 )
 
 var version = "dev"
@@ -34,9 +36,29 @@ func main() {
 	if cfg.Version == "" {
 		cfg.Version = version
 	}
-	zmail.SMTP = cfg.SMTP
 	fmt.Printf("Goatcounter version %s\n", version)
 	cfg.Print()
+
+	if cfg.Stripe != "" {
+		for _, k := range stringutil.Fields(cfg.Stripe, ":") {
+			switch {
+			case strings.HasPrefix(k, "sk_"):
+				zstripe.SecretKey = k
+			case strings.HasPrefix(k, "pk_"):
+				zstripe.PublicKey = k
+			case strings.HasPrefix(k, "whsec_"):
+				zstripe.SignSecret = k
+			}
+		}
+	}
+	if zstripe.SecretKey == "" || zstripe.SignSecret == "" || zstripe.PublicKey == "" {
+		zstripe.SecretKey = ""
+		zstripe.SignSecret = ""
+		zstripe.PublicKey = ""
+		zlog.Print("-stripe not given or doesn't contain all keys; billing disabled")
+	}
+
+	zmail.SMTP = cfg.SMTP
 
 	if cfg.Prod && cfg.SMTP == "" {
 		panic("-prod enabled and -smtp not given")

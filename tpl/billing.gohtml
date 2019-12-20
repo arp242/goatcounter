@@ -1,0 +1,52 @@
+{{template "_backend_top.gohtml" .}}
+
+{{if and .Site.Stripe .Subscribed}}
+	{{if .FreePlan}}
+		<p>Currently using the <em>Personal free</em> plan for non-commercial usage.</p>
+	{{else}}
+		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
+		<p>{{.Next}}</p>
+		<form method="post" action="/billing/cancel">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+			<button class="link" type="submit">Cancel</button>
+		</form>
+	{{end}}
+{{else}}
+	<script src="https://js.stripe.com/v3"></script>
+	<div id="stripe-error"></div>
+	<form method="post" action="/billing/start" id="billing-form" data-key="{{.StripePublicKey}}">
+		<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset class="plan">
+			<legend>Plan</legend>
+			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
+				<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
+				<span>Business</span> €15/month; 500k pageviews/month; custom domain.</label><br>
+			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
+				<span>Business plus</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
+
+			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
+		</fieldset>
+
+		<fieldset class="free">
+			<legend>Optional payments</legend>
+
+			<p>GoatCounter is free for personal non-commercial use, but a small
+				monthly donation is encouraged so I can pay my rent and such 😅</p>
+			<p>Even just a small €1/month would be greatly appreciated! Fill in
+				0 to disable the banner without a donation.</p>
+
+			€ <input type="number" name="quantity" id="quantity" value="2" min="0">
+
+			<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>.</p>
+		</fieldset>
+
+		<p class="ask-cc">You’ll be asked for credit card details on the next page.
+			<a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you
+			need a payment option other than credit card (e.g. IBAN transfer).</p>
+		<button type="submit">Continue</button>
+	</form>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

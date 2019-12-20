@@ -25,7 +25,7 @@ var flags = []flag{
 	{"bool", "PgSQL", "pgsql", false, "Use PostgreSQL instead of SQLite"},
 	{"string", "SMTP", "smtp", "", "SMTP connection string; outputs to stdout when empty."},
 	{"string", "EmailErrors", "emailerrors", "", "Email errors to this address"},
-	{"string", "Stripe", "stripe", "", "Stripe API key"},
+	{"string", "Stripe", "stripe", "", "Stripe keys: need secret, publishable, and webhook (sk_*, pk_*, whsec_*) keys as colon-separated"},
 	{"string", "CPUProfile", "cpuprofile", "", "Write CPU profile to this file."},
 	{"string", "MemProfile", "memprofile", "", "Write memory profile to this file."},
 	{"string", "CertDir", "certdir", "", "Directory to store ACME-generated certificates for custom domains"},

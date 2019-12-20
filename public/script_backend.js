@@ -8,7 +8,7 @@
 	var SETTINGS = {};
 
 	$(document).ready(function() {
-		SETTINGS = JSON.parse(document.getElementById('settings').innerHTML);
+		SETTINGS = JSON.parse($('#settings').html());
 
 		$(document).ajaxError(function(e, xhr, settings, err) {
 			var msg = 'Could not load ' + settings.url + ': ' + err;
@@ -18,8 +18,49 @@
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
+			billing_subscribe,
 		].forEach(function(f) { f.call(); });
 	});
+
+	// Subscribe with Stripe.
+	var billing_subscribe = function() {
+		var form = $('#billing-form')
+		if (!form.length)
+			return;
+
+		// Show/hide donation options.
+		$('.plan input, .free input').on('change', function() {
+			var personal = $('input[name="plan"]:checked').val() === 'personal',
+				quantity = parseInt($('#quantity').val(), 10);
+
+			$('.free').css('display', personal ? 'block' : 'none');
+			$('.ask-cc').css('display', personal && quantity === 0 ? 'none' : 'block');
+		}).trigger('change');
+
+		form.on('submit', function(e) {
+			e.preventDefault();
+			form.find('button').attr('disabled', true).text('Redirecting...');
+
+			var err = function(e) { $('#stripe-error').text(e); },
+				plan = $('input[name="plan"]:checked').val(),
+				quantity = (plan === 'personal' ? (parseInt($('#quantity').val(), 10) || 0) : 1);
+			jQuery.ajax({
+				url:    '/billing/start',
+				method: 'POST',
+				data:    {csrf: $('#csrf').val(), plan: plan, quantity: quantity},
+				success: function(data) {
+					Stripe(form.attr('data-key')).redirectToCheckout({sessionId: data.id}).
+						then(function(result) { err(result.error ? result.error.message : ''); });
+				},
+				error: function(xhr, settings, e) {
+					err(err);
+				},
+				complete: function() {
+					form.find('button').attr('disabled', false).text('Continue');
+				},
+			});
+		});
+	};
 
 	// Paginate the location chart.
 	var paginate_locations = function() {
