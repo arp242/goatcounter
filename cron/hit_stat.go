@@ -29,9 +29,6 @@ import (
 //   stats      | [[0,0],[1,2],[2,2],[3,0],[4,0],[5,0],[6,1],[7,2],[8,3],
 //                 [9,0],[10,2],[11,2],[12,2],[13,5],[14,4],[15,3],[16,0],
 //                 [17,1],[18,2],[19,0],[20,0],[21,1],[22,4],[23,2]]
-//
-// TODO: this can either just assume hour by index, or not store all the hours.
-// TODO: rename "stats" to "hourly" and add a daily int count.
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
@@ -41,7 +38,8 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 	// Group by day + path.
 	type gt struct {
-		count [][]int
+		count []int
+		total int
 		day   string
 		path  string
 	}
@@ -57,18 +55,22 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			if err != nil {
 				return err
 			}
+			for _, c := range v.count {
+				v.total += c
+			}
 		}
 
 		h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
-		v.count[h][1] += 1
+		v.count[h] += 1
+		v.total += 1
 		grouped[k] = v
 	}
 
 	siteID := goatcounter.MustGetSite(ctx).ID
 	ins := bulk.NewInsert(txctx, tx,
-		"hit_stats", []string{"site", "day", "path", "stats"})
+		"hit_stats", []string{"site", "day", "path", "stats", "total"})
 	for _, v := range grouped {
-		ins.Values(siteID, v.day, v.path, jsonutil.MustMarshal(v.count))
+		ins.Values(siteID, v.day, v.path, jsonutil.MustMarshal(v.count), v.total)
 	}
 	err = ins.Finish()
 	if err != nil {
@@ -81,7 +83,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 func existingHitStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
 	day, path string,
-) ([][]int, error) {
+) ([]int, error) {
 
 	var c []byte
 	err := tx.GetContext(txctx, &c,
@@ -100,20 +102,20 @@ func existingHitStats(
 		}
 	}
 
-	var r [][]int
+	var r []int
 	if c != nil {
 		jsonutil.MustUnmarshal(c, &r)
 		return r, nil
 	}
 
-	r = make([][]int, 24)
+	r = make([]int, 24)
 	for i := range r {
-		r[i] = []int{i, 0}
+		r[i] = 0 // TODO: not needed?
 	}
 	return r, nil
 }
 
-const allDays = `[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]`
+const allDays = `[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]`
 
 var ranDay int
 

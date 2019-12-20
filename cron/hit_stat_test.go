@@ -47,13 +47,13 @@ func TestHitStats(t *testing.T) {
 		t.Fatalf("len(stats) is not 2: %d", len(stats))
 	}
 
-	want0 := `{"Count":2,"Max":10,"Path":"/asd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,2],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]}]}`
+	want0 := `{"Count":2,"Max":10,"Path":"/asd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0]}]}`
 	got0 := string(jsonutil.MustMarshal(stats[0]))
 	if got0 != want0 {
 		t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
 	}
 
-	want1 := `{"Count":1,"Max":10,"Path":"/zxc","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,1],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]}]}`
+	want1 := `{"Count":1,"Max":10,"Path":"/zxc","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]}]}`
 	got1 := string(jsonutil.MustMarshal(stats[1]))
 	if got1 != want1 {
 		t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)

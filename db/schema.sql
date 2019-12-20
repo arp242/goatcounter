@@ -8,7 +8,8 @@ insert into version values
 	('2019-12-10-2-count_ref'),
 	('2019-12-15-1-personal-free'),
 	('2019-12-15-2-old'),
-	('2019-12-17-1-business');
+	('2019-12-17-1-business'),
+	('2019-12-20-1-dailystat');
 
 drop table if exists sites;
 create table sites (
@@ -79,6 +80,7 @@ create table hit_stats (
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	path           varchar        not null,
 	stats          varchar        not null,
+	total          integer        not null default 0,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
