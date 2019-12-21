@@ -168,7 +168,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 		zhttp.Flash(w, "Saved!")
-		return zhttp.SeeOther(w, "/billing")
+		return zhttp.JSON(w, "")
 	}
 
 	body := zstripe.Body{
@@ -180,7 +180,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		"subscription_data[items][][plan]":     stripePlans[cfg.Prod][args.Plan],
 		"subscription_data[items][][quantity]": args.Quantity,
 	}
-	if site.Stripe != nil {
+	if site.Stripe != nil && !site.FreePlan() {
 		body["customer"] = *site.Stripe
 	} else {
 		body["customer_email"] = goatcounter.GetUser(r.Context()).Email

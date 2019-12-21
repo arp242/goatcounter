@@ -18,13 +18,21 @@
 	<code>window.counter</code> as in the above snippet.</p>
 
 <p>You can optionally pass variables manually by using the
-<code>window.goatcounter.vars</code> object. Supported keys:</p>
+<code>window.goatcounter.vars</code> object.
+
+The default value will be used if the value is <code>null</code> or
+<code>undefined</code> (but <em>not</em> on empty string!) The value can be used
+as a callback too: the default value is passed and the return value is sent to
+the server. Nothing is sent if the return value from the <code>path</code>
+callback is <code>null</code>.</p>
+
+<p>Supported keys:</p>
 
 <ul>
-	<li><code>path</code> – Path to the current page that’s recorded, without
-		domain (e.g. <code>/path/page.html</code>).</li>
+	<li><code>path</code> – Current page that’s recorded, without domain (e.g.
+		<code>/path/page.html</code>).</li>
 
-	<li><code>referrer</code> – Referrer value; can be an URL
+	<li><code>referrer</code> – Where the user came from; can be an URL
 		(<code>https://example.com</code>) or any string
 		(<code>June Newsletter</code>). Default is to use the Referer
 		header.</li>
@@ -34,29 +42,22 @@
 </ul>
 
 <p>Callable methods:</p>
-
 <ul>
-	<li><code>window.goatcounter.count(vars)</code> – count an event. The
+	<li><code>window.goatcounter.count(vars)</code> – Count an event. The
 		<code>vars</code> parameter is an object as described above, and wil
 		take precedence over the global <code>window.goatcounter.vars</code>.</li>
 </ul>
 
-<p>The default value will be used if the value is <code>null</code> or
-<code>undefined</code> (but <em>not</em> on empty string!) The value can be used
-as a callback too: the default value is passed and the return value is sent to
-the server. Nothing is sent if the return value from the <code>path</code>
-callback is <code>null</code>.</p>
-
-<p>Example:</p>
+<p>Examples:</p>
 <pre>window.goatcounter = window.goatcounter || {};
 window.goatcounter.vars = {
 	path: function(p) {
 		// Don't track the home page.
 		if (p === '/')
 			return null;
+
 		// Remove .html from all other page links.
-		else
-			return p.replace(/\.html$/, '');
+		return p.replace(/\.html$/, '');
 	},
 
 	// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
@@ -69,7 +70,7 @@ window.goatcounter.vars = {no_onload: true}
 
 window.addEventListener('hashchange', function(e) {
 	window.goatcounter.count({
-		page: window.location.pathname + window.location.search + window.location.hash
+		page: window.location.pathname + window.location.search + window.location.hash,
 	});
 });
 </pre>

@@ -10214,6 +10214,8 @@ return jQuery;
 				method: 'POST',
 				data:    {csrf: $('#csrf').val(), plan: plan, quantity: quantity},
 				success: function(data) {
+					if (data === '')
+						return window.location.reload();
 					Stripe(form.attr('data-key')).redirectToCheckout({sessionId: data.id}).
 						then(function(result) { err(result.error ? result.error.message : ''); });
 				},
@@ -10795,13 +10797,11 @@ img.imgzoom-loading { cursor: wait !important; }
 	margin: 0;
 	padding: 0;
 	border: none;
-	display: flex;
-	justify-content: space-between; 
 	margin-bottom: 1em;
 }
-#signup-form fieldset.two div {
-	width: 50%;
-}
+/* Extra div needed because Chrome doesn't support flexbox on fieldsets :-/ */
+#signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
+#signup-form fieldset.two > div > div { width: 50%; }
 
 #signup-form .exp { width: 4em; }
 #signup-form .cvc { width: 4em; }
@@ -10830,6 +10830,9 @@ dt { font-weight: bold; margin-top: 1em; }
 footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
            display: flex; justify-content: space-between; }
 footer a { font-weight: bold; color: #252525; }
+
+/* Don't make various explanatory texts too wide. */
+.page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
 
 #trail-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
@@ -11112,7 +11115,7 @@ noscript {
 
 
 /*** Billing ***/
-#billing-form .plan span            { display: inline-block; min-width: 5em; }
+#billing-form .plan span            { display: inline-block; min-width: 8em; }
 #billing-form fieldset legend+p     { margin-top: 0; }
 #billing-form fieldset p:last-child { margin-bottom: 0; }
 `),
@@ -11623,13 +11626,21 @@ var Templates = map[string][]byte{
 	<code>window.counter</code> as in the above snippet.</p>
 
 <p>You can optionally pass variables manually by using the
-<code>window.goatcounter.vars</code> object. Supported keys:</p>
+<code>window.goatcounter.vars</code> object.
+
+The default value will be used if the value is <code>null</code> or
+<code>undefined</code> (but <em>not</em> on empty string!) The value can be used
+as a callback too: the default value is passed and the return value is sent to
+the server. Nothing is sent if the return value from the <code>path</code>
+callback is <code>null</code>.</p>
+
+<p>Supported keys:</p>
 
 <ul>
-	<li><code>path</code> – Path to the current page that’s recorded, without
-		domain (e.g. <code>/path/page.html</code>).</li>
+	<li><code>path</code> – Current page that’s recorded, without domain (e.g.
+		<code>/path/page.html</code>).</li>
 
-	<li><code>referrer</code> – Referrer value; can be an URL
+	<li><code>referrer</code> – Where the user came from; can be an URL
 		(<code>https://example.com</code>) or any string
 		(<code>June Newsletter</code>). Default is to use the Referer
 		header.</li>
@@ -11639,29 +11650,22 @@ var Templates = map[string][]byte{
 </ul>
 
 <p>Callable methods:</p>
-
 <ul>
-	<li><code>window.goatcounter.count(vars)</code> – count an event. The
+	<li><code>window.goatcounter.count(vars)</code> – Count an event. The
 		<code>vars</code> parameter is an object as described above, and wil
 		take precedence over the global <code>window.goatcounter.vars</code>.</li>
 </ul>
 
-<p>The default value will be used if the value is <code>null</code> or
-<code>undefined</code> (but <em>not</em> on empty string!) The value can be used
-as a callback too: the default value is passed and the return value is sent to
-the server. Nothing is sent if the return value from the <code>path</code>
-callback is <code>null</code>.</p>
-
-<p>Example:</p>
+<p>Examples:</p>
 <pre>window.goatcounter = window.goatcounter || {};
 window.goatcounter.vars = {
 	path: function(p) {
 		// Don't track the home page.
 		if (p === '/')
 			return null;
+
 		// Remove .html from all other page links.
-		else
-			return p.replace(/\.html$/, '');
+		return p.replace(/\.html$/, '');
 	},
 
 	// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
@@ -11674,7 +11678,7 @@ window.goatcounter.vars = {no_onload: true}
 
 window.addEventListener('hashchange', function(e) {
 	window.goatcounter.count({
-		page: window.location.pathname + window.location.search + window.location.hash
+		page: window.location.pathname + window.location.search + window.location.hash,
 	});
 });
 </pre>
@@ -11988,13 +11992,13 @@ window.addEventListener('hashchange', function(e) {
 	(<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>)?<br>
 	This will <strong>remove all associated data</strong>.
 </p>
-<p>Contact <a href="">support@goatcounter.com</a> if you want to do something
-	else, like merge it in to the parent site, or decouple it from the parent
-	site.</p>
+<p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
+	something else, like merge it in to the parent site, or decouple it from the
+	parent site.</p>
 
 <form method="post">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<button>Yes, delete it</button>
+	<button>Yes, delete everything</button>
 </form>
 
 {{template "_backend_bottom.gohtml" .}}
@@ -12024,7 +12028,7 @@ window.addEventListener('hashchange', function(e) {
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
 						CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-						<a href="http://www.{{.Domain}}/help#custom-domain">Detailed instructions</a>.</span>
+						<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
 				{{end}}
 			</fieldset>
 
@@ -12066,13 +12070,10 @@ window.addEventListener('hashchange', function(e) {
 		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
 		and can't have additional sites of its own.
 	{{else}}
-		<p>You can add GoatCounter to multiple websites by creating a "subsite",
-			which is a separate GoatCounter installation which inherits the plan,
-			users, and logins from the current site. You can add as many as you
-			want.</p>
-
-		<p>You just have to choose a code on which to access the site (e.g.
-			https://<em>[my_code]</em>.goatcounter.com) and a name.</p>
+		<p>Add GoatCounter to multiple websites by creating a “child site”,
+			which is a separate GoatCounter site which inherits the plan, users,
+			and logins from the current site, but is otherwise completely
+			separate. You can add as many as you want.</p>
 
 		<form method="post" action="/add">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -12086,8 +12087,19 @@ window.addEventListener('hashchange', function(e) {
 					</tr>{{end}}
 
 					<tr>
-						<td><input type="text" id="code" name="code" placeholder="Code"></td>
-						<td><input type="text" id="name" name="name" placeholder="Name"></td>
+						<td>
+							<input type="text" id="code" name="code" placeholder="Code"><br>
+							<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+						</td>
+						<td>
+							<input type="text" id="name" name="name" placeholder="Name"><br>
+							<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
+						</td>
+
+		<!--
+		<p>You just have to choose a code on which to access the site (e.g.
+			https://<em>[my_code]</em>.goatcounter.com) and a name.</p>
+		-->
 						<td><button type="submit">Add new</button></td>
 					</tr>
 			</tbody></table>
@@ -12111,7 +12123,9 @@ window.addEventListener('hashchange', function(e) {
 		<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
 		<code>\%</code> and <code>\_</code> for the literal characters without special
 		meaning.</p>
-	</p>
+
+	<p>This won’t adjust the browser or location statistics, as they’re not
+		stored per-path.</p>
 
 	<form method="get" action="/purge">
 		<input type="text" name="path" placeholder="Path" required>
@@ -12171,9 +12185,10 @@ window.addEventListener('hashchange', function(e) {
 			<p>Even just a small €1/month would be greatly appreciated! Fill in
 				0 to disable the banner without a donation.</p>
 
-			€ <input type="number" name="quantity" id="quantity" value="2" min="0">
+			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="2" min="0">
 
-			<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>.</p>
+			<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>
+				(note: using this form is better due to lower platform costs).</p>
 		</fieldset>
 
 		<p class="ask-cc">You’ll be asked for credit card details on the next page.
@@ -12612,40 +12627,46 @@ information.</p>
 	<form class="vertical" method="post" action="/signup">
 		<fieldset class="two">
 			<div>
-				<label for="name">Site name</label>
-				<input type="text" name="site_name" id="name" maxlength="255" value="{{.Site.Name}}">
-				{{validate "site.name" .Validate}}
-				<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
-			</div>
+				<div>
+					<label for="name">Site name</label>
+					<input type="text" name="site_name" id="name" maxlength="255" value="{{.Site.Name}}">
+					{{validate "site.name" .Validate}}
+					<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
+				</div>
 
-			<div>
-				<label for="code">Code</label>
-				<input type="text" name="site_code" id="code" maxlength="50" value="{{.Site.Code}}">
-				{{validate "site.code" .Validate}}
-				<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+				<div>
+					<label for="code">Code</label>
+					<input type="text" name="site_code" id="code" maxlength="50" value="{{.Site.Code}}">
+					{{validate "site.code" .Validate}}
+					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+				</div>
 			</div>
 		</fieldset>
 
 		<fieldset class="two">
 			<div>
-				<label for="user_name">Your name</label>
-				<input type="text" name="user_name" id="user_name" value="{{.User.Name}}">
-				{{validate "user.name" .Validate}}
-			</div>
-			<div>
-				<label for="email">Email address</label>
-				<input type="email" name="user_email" id="email" value="{{.User.Email}}">
-				{{validate "user.email" .Validate}}
-				<span class="help">You will need access to the inbox to sign in.</span>
+				<div>
+					<label for="user_name">Your name</label>
+					<input type="text" name="user_name" id="user_name" value="{{.User.Name}}">
+					{{validate "user.name" .Validate}}
+				</div>
+				<div>
+					<label for="email">Email address</label>
+					<input type="email" name="user_email" id="email" value="{{.User.Email}}">
+					{{validate "user.email" .Validate}}
+					<span class="help">You will need access to the inbox to sign in.</span>
+				</div>
 			</div>
 		</fieldset>
 
 		<fieldset class="two">
 			<div>
-				<label for="turing_test">Fill in 9 here</label>
-				<input type="text" name="turing_test" id="turing_test" value="{{.TuringTest}}">
-				{{validate "turing_test" .Validate}}
-				<span class="help">Just a little verification that you’re human :-)</span>
+				<div>
+					<label for="turing_test">Fill in 9 here</label>
+					<input type="text" name="turing_test" id="turing_test" value="{{.TuringTest}}">
+					{{validate "turing_test" .Validate}}
+					<span class="help">Just a little verification that you’re human :-)</span>
+				</div>
 			</div>
 		</fieldset>
 

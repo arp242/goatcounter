@@ -49,6 +49,8 @@
 				method: 'POST',
 				data:    {csrf: $('#csrf').val(), plan: plan, quantity: quantity},
 				success: function(data) {
+					if (data === '')
+						return window.location.reload();
 					Stripe(form.attr('data-key')).redirectToCheckout({sessionId: data.id}).
 						then(function(result) { err(result.error ? result.error.message : ''); });
 				},

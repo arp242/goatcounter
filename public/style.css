@@ -98,13 +98,11 @@ img.imgzoom-loading { cursor: wait !important; }
 	margin: 0;
 	padding: 0;
 	border: none;
-	display: flex;
-	justify-content: space-between; 
 	margin-bottom: 1em;
 }
-#signup-form fieldset.two div {
-	width: 50%;
-}
+/* Extra div needed because Chrome doesn't support flexbox on fieldsets :-/ */
+#signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
+#signup-form fieldset.two > div > div { width: 50%; }
 
 #signup-form .exp { width: 4em; }
 #signup-form .cvc { width: 4em; }
