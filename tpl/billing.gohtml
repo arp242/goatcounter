@@ -6,10 +6,7 @@
 	{{else}}
 		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
 		<p>{{.Next}}</p>
-		<form method="post" action="/billing/cancel">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-			<button class="link" type="submit">Cancel</button>
-		</form>
+		<p><a href="/billing/cancel">Cancel</a></p>
 	{{end}}
 {{else}}
 	<script src="https://js.stripe.com/v3"></script>

@@ -30,6 +30,7 @@ func (h billing) mount(pub, auth chi.Router) {
 
 	pauth := auth.With(noSubSites)
 	pauth.Post("/billing/start", zhttp.Wrap(h.start))
+	pauth.Get("/billing/cancel", zhttp.Wrap(h.confirmCancel))
 	pauth.Post("/billing/cancel", zhttp.Wrap(h.cancel))
 
 	// These are not specific to any domain.
@@ -56,7 +57,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				"stripeID": stripe,
 			}).Errorf("stripe not processed")
 		} else {
-			zhttp.Flash(w, "Great success!")
+			zhttp.Flash(w, "Payment processed successfully!")
 		}
 	}
 
@@ -284,4 +285,10 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.String(w, "okay")
+}
+
+func (h billing) confirmCancel(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "billing_cancel.gohtml", struct {
+		Globals
+	}{newGlobals(w, r)})
 }

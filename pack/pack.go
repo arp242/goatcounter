@@ -12154,10 +12154,7 @@ window.addEventListener('hashchange', function(e) {
 	{{else}}
 		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
 		<p>{{.Next}}</p>
-		<form method="post" action="/billing/cancel">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-			<button class="link" type="submit">Cancel</button>
-		</form>
+		<p><a href="/billing/cancel">Cancel</a></p>
 	{{end}}
 {{else}}
 	<script src="https://js.stripe.com/v3"></script>
@@ -12197,6 +12194,18 @@ window.addEventListener('hashchange', function(e) {
 		<button type="submit">Continue</button>
 	</form>
 {{end}}
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/billing_cancel.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<p>Cancel your plan immediately; you will be refunded for the remaining billing
+period.</p>
+
+<form method="post" action="/billing/cancel">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<button class="link" type="submit">Cancel</button>
+</form>
 
 {{template "_backend_bottom.gohtml" .}}
 `),
