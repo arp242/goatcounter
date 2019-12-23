@@ -100,7 +100,7 @@ html, body {
 @media (max-width: 54em) {
   .page, .center {
     max-width: 100%;
-    padding: 0 1rem;
+    padding: .5rem 1rem;
   }
 }
 @page {

@@ -7,7 +7,9 @@ package handlers // import "zgo.at/goatcounter/handlers"
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
+	"net/mail"
 	"net/url"
 	"strings"
 	"time"
@@ -21,6 +23,8 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zhttp/zmail"
+	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
 
@@ -54,6 +58,8 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup", zhttp.Wrap(h.signup))
 	r.Post("/signup", zhttp.Wrap(h.doSignup))
+	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
+	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
 	for _, t := range []string{"", "help", "privacy", "terms", "contact"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
@@ -65,10 +71,26 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 	if t == "" {
 		t = "home"
 	}
+
+	var loggedIn template.HTML
+	if c, err := r.Cookie("key"); err == nil {
+		var u goatcounter.User
+		err = u.ByToken(r.Context(), c.Value)
+		if err == nil {
+			var s goatcounter.Site
+			err = s.ByID(r.Context(), u.Site)
+			if err == nil {
+				loggedIn = template.HTML(fmt.Sprintf("Logged in as %s on <a href='%s'>%[2]s</a>",
+					template.HTMLEscapeString(u.Name), template.HTMLEscapeString(s.URL())))
+			}
+		}
+	}
+
 	return zhttp.Template(w, t+".gohtml", struct {
 		Globals
-		Page string
-	}{newGlobals(w, r), t})
+		Page     string
+		LoggedIn template.HTML
+	}{newGlobals(w, r), t, loggedIn})
 }
 
 func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
@@ -168,4 +190,58 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new?mailed=%s",
 		site.URL(), url.QueryEscape(user.Email)))
+}
+
+func (h website) forgot(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "user_forgot.gohtml", struct {
+		Globals
+		Page string
+	}{newGlobals(w, r), "forgot"})
+}
+
+func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
+	var args struct {
+		Email string `json:"email"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	var users goatcounter.Users
+	err = users.ByEmail(r.Context(), args.Email)
+	if err != nil {
+		return err
+	}
+
+	go func(ctx context.Context) {
+		var body, name string
+		if len(users) == 0 {
+			body = fmt.Sprintf("There are no GoatCounter domains associated with ‘%s’", args.Email)
+		} else {
+			name = users[0].Name
+			body = fmt.Sprintf("Sites associated with ‘%s’:\r\n\r\n", args.Email)
+			for _, u := range users {
+				var s goatcounter.Site
+				err := s.ByID(ctx, u.Site)
+				if err != nil {
+					zlog.Error(err)
+					continue
+				}
+
+				body += fmt.Sprintf("- %s\r\n\r\n", s.URL())
+			}
+		}
+
+		err := zmail.Send("Your GoatCounter sites",
+			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
+			[]mail.Address{{Name: name, Address: args.Email}},
+			body)
+		if err != nil {
+			zlog.Errorf("zmail: %s", err)
+		}
+	}(goatcounter.NewContext(r.Context()))
+
+	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
+	return zhttp.SeeOther(w, "/user/forgot")
 }

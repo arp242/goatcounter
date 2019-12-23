@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
@@ -152,6 +153,14 @@ func MustGetSite(ctx context.Context) *Site {
 func GetUser(ctx context.Context) *User {
 	u, _ := ctx.Value(ctxkey.User).(*User)
 	return u
+}
+
+// NewContext creates a new context with the all the request values set.
+func NewContext(ctx context.Context) context.Context {
+	n := zdb.With(context.Background(), zdb.MustGet(ctx))
+	n = context.WithValue(n, ctxkey.User, GetUser(ctx))
+	n = context.WithValue(n, ctxkey.Site, GetSite(ctx))
+	return n
 }
 
 func dayStart(t time.Time) string { return t.Format("2006-01-02") + " 00:00:00" }

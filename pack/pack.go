@@ -984,7 +984,7 @@ html, body {
 @media (max-width: 54em) {
   .page, .center {
     max-width: 100%;
-    padding: 0 1rem;
+    padding: .5rem 1rem;
   }
 }
 @page {
@@ -10739,16 +10739,25 @@ return jQuery;
 hr             { margin: 1em 0; }
 u              { text-decoration: none; box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
 
-footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
-           display: flex; justify-content: space-between; }
-footer a { font-weight: bold; color: #252525; }
+.cbox { box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
+
+footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between; }
+footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
+
+@media (max-width: 54em) {
+	footer      { text-align: left; justify-content: space-around; }
+	footer a    { display: block; padding: .5em 0; }
+	footer span { display: none; }
+}
+
+.page { position: relative; }
 
 /*** Home page ***/
 .page-home          { padding: 0; box-shadow: none; background-color: transparent; }
 .page-home h1       { margin-top: 2em; font-size: 2em; }
 .page-home *:target { background-color: inherit; }
 
-.hlink       { font-weight: bold; box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
+.hlink       { font-weight: bold; }
 .hlink:hover { text-decoration: none; background-color: #fffded; color: #252525; }
 .hlink img   { vertical-align: middle; margin: 0 5px; height: 1.1em; }
 
@@ -10759,6 +10768,7 @@ footer a { font-weight: bold; color: #252525; }
 
 #home-demo   { text-align: center; margin: 2.5em 0; }
 #home-demo a { padding: 1em 3em; }
+#home-login  { text-align: center }
 
 @media (min-width: 45rem) {
 	#home-screens           { display: flex; justify-content: space-between; align-items: center; }
@@ -10855,6 +10865,25 @@ button        { display: block; }
 
 /*** Help page ***/
 dt { font-weight: bold; margin-top: 1em; }
+
+.flash {
+	text-align: center;
+	padding: 10px;
+	border-radius: 2px;
+	border: 2px solid #fff;
+	margin-bottom: 1em;
+}
+.flash p   { max-width: none !important; }
+.flash pre { text-align: left; margin: 0 auto; display: inline-block; }
+.flash-i {
+	background-color: #c9f0ff;
+	border-color: #a1a1ff;
+}
+.flash-e {
+	background-color: #fff0f0;
+	border-color: #f00;
+}
+
 `),
 	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
    This file is part of GoatCounter and published under the terms of the AGPLv3,
@@ -11792,17 +11821,17 @@ window.addEventListener('hashchange', function(e) {
 </body>
 </html>
 `),
-	"tpl/_bottom_links.gohtml": []byte(`<footer class="center">
+	"tpl/_bottom_links.gohtml": []byte(`<footer class="center cbox">
 	<div>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a> |
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a> |
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a> |
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a> |
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
+		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
 		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
 	</div>
 	<div>
-		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a> |
-		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank">Product Hunt</a> |
+		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a><span> |</span>
+		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank">Product Hunt</a><span> |</span>
 		<a href="https://patreon.com/arp242">Patreon</a>
 	</div>
 </footer>
@@ -12496,8 +12525,13 @@ sub {
 	<br>
 
 	<div id="home-demo">
-		<a class="hlink" href="https://stats.arp242.net" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
+		<a class="hlink cbox" href="https://stats.arp242.net" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
 	</div>
+	<div id="home-login">
+		{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
+		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}
+	</div>
+
 	<br><br>
 
 	<div id="home-screens" class="one">
@@ -12563,7 +12597,7 @@ sub {
 	</div>
 </div>
 <div id="home-signup">
-	<a class="hlink" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+	<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 </div>
 <div id="home-pricing-custom">
 	<a href="/contact">Contact</a> if you need more pageviews or want a
@@ -12798,5 +12832,18 @@ information.</p>
 {{template "_backend_signin.gohtml" .}}
 
 {{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/user_forgot.gohtml": []byte(`{{template "_top.gohtml" .}}
+
+<h1>Forgot domain</h1>
+<p>Email a list of all domains associated with an email address.</p>
+
+<form method="post" action="/user/forgot">
+	<label for="email">Email address</label>
+	<input type="email" name="email" id="email" required>
+	<button>Send login URL</button>
+</form>
+
+{{template "_bottom.gohtml" .}}
 `),
 }

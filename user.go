@@ -140,9 +140,8 @@ func (u *User) ByToken(ctx context.Context, token string) error {
 	}
 
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, `
-		select users.* from users
-		where login_token=$1 and users.site=$2`,
-		token, MustGetSite(ctx).IDOrParent()), "User.ByToken")
+		select users.* from users where login_token=$1`,
+		token), "User.ByToken")
 }
 
 // BySite gets a user by site.
@@ -219,4 +218,13 @@ func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 			zlog.Errorf("zmail: %s", err)
 		}
 	}()
+}
+
+type Users []User
+
+// ByEmail gets all users with this email address.
+func (u *Users) ByEmail(ctx context.Context, email string) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
+		`select * from users where lower(email)=lower($1) order by id asc`, email),
+		"Users.ByEmail")
 }
