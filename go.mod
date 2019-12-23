@@ -2,8 +2,6 @@ module zgo.at/goatcounter
 
 go 1.12
 
-replace zgo.at/zdb => ../zdb
-
 require (
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/go-chi/chi v4.0.2+incompatible
@@ -14,7 +12,6 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.2.1
-	google.golang.org/appengine v1.6.5 // indirect
 	zgo.at/utils v1.2.0
 	zgo.at/zdb v0.0.0-20191223222447-56ca139f10b1
 	zgo.at/zhttp v0.0.0-20191211182637-d99b56ea9f13
