@@ -128,6 +128,13 @@ To use it:
 
    See the [pq docs][pq] for more details on the connection string.
 
+3. You can compile goatcounter without cgo if you don't use SQLite:
+
+       $ CGO_ENABLED=0 go build
+
+   Functionally it doesn't matter too much, but it will allow building static
+   binaries, speeds up the builds a bit, and makes builds a bit easier as you
+   won't need a C compiler.
 
 [www]: https://www.goatcounter.com
 [privacy]: https://goatcounter.com/privacy
