@@ -49,6 +49,7 @@ h3 + p { margin-top: 0; }
 	border: 2px solid #fff;
 	margin-bottom: 1em;
 }
+.flash p   { max-width: none !important; }
 .flash pre { text-align: left; margin: 0 auto; display: inline-block; }
 .flash-i {
 	background-color: #c9f0ff;
