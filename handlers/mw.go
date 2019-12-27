@@ -69,7 +69,7 @@ var (
 func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Add database and timeout to context.
+			// Add timeout.
 			ctx, cancel := context.WithTimeout(r.Context(), 4*time.Second)
 			defer func() {
 				cancel()
@@ -81,7 +81,7 @@ func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
 			// Add database.
 			*r = *r.WithContext(zdb.With(ctx, db))
 
-			// Load site from subdomain
+			// Load site from subdomain.
 			if loadSite {
 				var s goatcounter.Site
 				err := s.ByHost(r.Context(), r.Host)

@@ -8,8 +8,13 @@
 	<br>
 
 	<div id="home-demo">
-		<a class="hlink" href="https://stats.arp242.net" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
+		<a class="hlink cbox" href="https://stats.arp242.net" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
 	</div>
+	<div id="home-login">
+		{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
+		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}
+	</div>
+
 	<br><br>
 
 	<div id="home-screens" class="one">
@@ -75,7 +80,7 @@
 	</div>
 </div>
 <div id="home-signup">
-	<a class="hlink" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+	<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 </div>
 <div id="home-pricing-custom">
 	<a href="/contact">Contact</a> if you need more pageviews or want a
