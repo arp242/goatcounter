@@ -10797,7 +10797,9 @@ img.imgzoom-loading { cursor: wait !important; }
 #home-pricing-custom { text-align: center; margin-top: 1em; }
 
 @media (max-width: 45rem) {
-	#home-pricing > div { width: 32.5%; }
+	#home-pricing > div        { width: 32.5%; }
+	#home-pricing > div .empty { display: none; }
+	#home-signup a             { width: 50%; }
 }
 @media (max-width: 40rem) {
 	#home-pricing       { display: block; }
@@ -12576,8 +12578,8 @@ sub {
 			<li>For non-commercial use</li>
 			<li>Unlimited sites</li>
 			<li title="3.3k/day">100k pageviews/months</li>
-			<li>&nbsp;</li>
-			<li>&nbsp;</li>
+			<li class="empty">&nbsp;</li>
+			<li class="empty">&nbsp;</li>
 		</ul>
 	</div>
 
@@ -12589,7 +12591,7 @@ sub {
 			<li>Unlimited sites</li>
 			<li title="16.6k/day">500k pageviews/month</li>
 			<li>Custom domain (stats.mine.com)</li>
-			<li>&nbsp;</li>
+			<li class="empty">&nbsp;</li>
 		</ul>
 	</div>
 

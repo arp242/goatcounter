@@ -26,9 +26,7 @@ import (
 //   site       | 1
 //   day        | 2019-12-05
 //   path       | /jquery.html
-//   stats      | [[0,0],[1,2],[2,2],[3,0],[4,0],[5,0],[6,1],[7,2],[8,3],
-//                 [9,0],[10,2],[11,2],[12,2],[13,5],[14,4],[15,3],[16,0],
-//                 [17,1],[18,2],[19,0],[20,0],[21,1],[22,4],[23,2]]
+//   stats      | [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
