@@ -40,6 +40,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		return nil, nil
 	}
 
+	// TODO: this could be a channel.
 	m.Lock()
 	hits := make([]Hit, len(m.hits))
 	copy(hits, m.hits)

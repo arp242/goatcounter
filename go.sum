@@ -24,6 +24,8 @@ github.com/mattn/go-sqlite3 v2.0.2+incompatible h1:qzw9c2GNT8UFrgWNDhCTqRqYUSmu/
 github.com/mattn/go-sqlite3 v2.0.2+incompatible/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 github.com/monoculum/formam v0.0.0-20190830100315-7ff9597b1407 h1:ZU5O9BawmEx9Mu1lxn9NLIwO9DrqRfjE+HWKU+e9GKQ=
 github.com/monoculum/formam v0.0.0-20190830100315-7ff9597b1407/go.mod h1:JKa2av1XVkGjhxdLS59nDoXa2JpmIHpnURWNbzCtXtc=
+github.com/monoculum/formam v0.0.0-20191227051036-52d7288c5a20 h1:0aj/bdlAHWfL9Dskx2suZ7rcNF13MtN1CmVfTLNg2Oo=
+github.com/monoculum/formam v0.0.0-20191227051036-52d7288c5a20/go.mod h1:JKa2av1XVkGjhxdLS59nDoXa2JpmIHpnURWNbzCtXtc=
 github.com/mssola/user_agent v0.5.0 h1:gRF7/x8cKt8qzAosYGsBNyirta+F8fvYDlJrgXws9AQ=
 github.com/mssola/user_agent v0.5.0/go.mod h1:UFiKPVaShrJGW93n4uo8dpPdg1BSVpw2P9bneo0Mtp8=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

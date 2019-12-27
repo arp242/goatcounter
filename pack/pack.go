@@ -10924,6 +10924,8 @@ h2 sup, h2 small {
 h3     { margin-bottom: 0; }
 h3 + p { margin-top: 0; }
 
+form .err  { color: red; display: block; }
+
 @media (min-width: 55rem) {
 	.form-wrap form          { display: flex; flex-wrap: wrap; }
 	.form-wrap form fieldset { width: 48%; }
@@ -12074,14 +12076,24 @@ window.addEventListener('hashchange', function(e) {
 <div>
 	<h2 id="setting">Settings</h2>
 	<div class="form-wrap">
-		<form method="post" action="/save" class="vertical">
+		<form method="post" action="/save-settings" class="vertical">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			<fieldset>
 				<legend>Site settings</legend>
 				<label for="name">Name</label>
 				<input type="text" name="name" id="name" value="{{.Site.Name}}">
+				{{validate "site.name" .Validate}}
 				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
+
+				<label for="user.name">Your name</label>
+				<input type="text" name="user.name" id="user.name" value="{{.User.Name}}">
+				{{validate "user.name" .Validate}}
+
+				<label for="user.email">Your email</label>
+				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
+				{{validate "user.email" .Validate}}
+				<span>You will need access to the inbox to sign in.</span>
 
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
 					Make statistics publicly viewable</label>
@@ -12112,14 +12124,11 @@ window.addEventListener('hashchange', function(e) {
 
 				<label for="limits_page">Page size</label>
 				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
+				{{validate "settings.limits.page" .Validate}}
 
 				<label for="limits_ref">Referrers page size</label>
 				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-
-				{{/*
-				<label for="limits_browser">Browser page size</label>
-				<input type="text" name="settings.limits.browser" id="limits_browser" value="{{.Site.Settings.Limits.Browser}}">
-				*/}}
+				{{validate "settings.limits.ref" .Validate}}
 			</fieldset>
 
 			<button type="submit">Save</button>

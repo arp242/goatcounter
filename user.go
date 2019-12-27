@@ -105,6 +105,24 @@ func (u *User) Insert(ctx context.Context) error {
 	return errors.Wrap(err, "User.Insert")
 }
 
+// Update this user's name and email.
+func (u *User) Update(ctx context.Context) error {
+	if u.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	u.Defaults(ctx)
+	err := u.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+		`update users set name=$1, email=$2, updated_at=$3 where id=$4`,
+		u.Name, u.Email, zdb.Date(*u.UpdatedAt), u.ID)
+	return errors.Wrap(err, "User.Update")
+}
+
 // ByEmail gets a user by email address.
 func (u *User) ByEmail(ctx context.Context, email string) error {
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,

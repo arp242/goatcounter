@@ -19,6 +19,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
+	"github.com/monoculum/formam"
 	"github.com/mssola/user_agent"
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
@@ -28,6 +29,7 @@ import (
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/sliceutil"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
@@ -101,7 +103,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 				billing{}.mount(a, af)
 			}
 			af.Get("/settings", zhttp.Wrap(h.settings))
-			af.Post("/save", zhttp.Wrap(h.save))
+			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.Get("/export/{file}", zhttp.Wrap(h.export))
 			af.Post("/add", zhttp.Wrap(h.addSubsite))
 			af.Get("/remove/{id}", zhttp.Wrap(h.removeSubsiteConfirm))
@@ -521,33 +523,68 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) settings(w http.ResponseWriter, r *http.Request) error {
+	return h.settingsTpl(w, r, nil)
+}
+
+func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvalidate.Validator) error {
 	var sites goatcounter.Sites
 	err := sites.ListSubs(r.Context())
 	if err != nil {
 		return err
 	}
 
+	var merr map[string][]string
+	if verr != nil {
+		merr = verr.Errors
+	}
+
 	return zhttp.Template(w, "backend_settings.gohtml", struct {
 		Globals
 		SubSites goatcounter.Sites
-	}{newGlobals(w, r), sites})
+		Validate map[string][]string
+	}{newGlobals(w, r), sites, merr})
 }
 
-func (h backend) save(w http.ResponseWriter, r *http.Request) error {
+func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+
 	args := struct {
 		Name     string                   `json:"name"`
 		Cname    string                   `json:"cname"`
 		Settings goatcounter.SiteSettings `json:"settings"`
+		User     goatcounter.User         `json:"user"`
 	}{}
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
-		return err
+		ferr, ok := err.(*formam.Error)
+		if !ok || ferr.Code() != formam.ErrCodeConversion {
+			return err
+		}
+		v.Append(ferr.Path(), "must be a number")
+
+		// TODO: we return here because formam stops decoding on the first
+		// error. We should really fix this, but it's an incompatible change.
+		return h.settingsTpl(w, r, &v)
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
+	txctx, tx, err := zdb.Begin(r.Context())
+	defer tx.Rollback()
+
+	user := goatcounter.GetUser(txctx)
+	user.Name = args.User.Name
+	user.Email = args.User.Email
+	err = user.Update(txctx)
+	if err != nil {
+		if _, ok := err.(*zvalidate.Validator); !ok {
+			return err
+		}
+		v.Sub("user", "", err)
+	}
+
+	site := goatcounter.MustGetSite(txctx)
 	site.Name = args.Name
 	site.Settings = args.Settings
-	if args.Cname != "" && !site.PlanCustomDomain(r.Context()) {
+	if args.Cname != "" && !site.PlanCustomDomain(txctx) {
 		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
 	}
 
@@ -560,13 +597,24 @@ func (h backend) save(w http.ResponseWriter, r *http.Request) error {
 		site.Cname = &args.Cname
 	}
 
-	err = site.Update(r.Context())
+	err = site.Update(txctx)
 	if err != nil {
-		zhttp.FlashError(w, "%v", err)
-	} else {
-		zhttp.Flash(w, "Saved!")
+		if _, ok := err.(*zvalidate.Validator); !ok {
+			return err
+		}
+		v.Sub("site", "", err)
 	}
 
+	if v.HasErrors() {
+		return h.settingsTpl(w, r, &v)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Saved!")
 	return zhttp.SeeOther(w, "/settings")
 }
 
