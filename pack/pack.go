@@ -11605,7 +11605,7 @@ insert into iso_3166_1 (name, alpha2) values
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
 	{{template "_bottom_links.gohtml" .}}
-	{{if and .User.ID .Billing (.Site.ShowPayBanner .Context)}}
+	{{if and .User.ID .Billing (eq .Path "/") (.Site.ShowPayBanner .Context)}}
 		<div id="trail-expired">
 			<p>Hey hey; you’ve been using GoatCounter for more than 14 days.
 			Please consider making a small donation to cover development costs,
