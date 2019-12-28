@@ -50,7 +50,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
 			"ref_scheme", "browser", "size", "location", "created_at", "count_ref"})
-	for _, h := range hits {
+	for i, h := range hits {
 		var err error
 		h.refURL, err = url.Parse(h.Ref)
 		if err != nil {
@@ -69,6 +69,11 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			zlog.Error(err)
 			continue
 		}
+
+		// Some values are sanitized in Hit.Defaults(), make sure this is
+		// reflected in the hits object too, which matters for the hit_stats
+		// generation later.
+		hits[i] = h
 
 		countRef := h.CountRef
 		if countRef != "" {

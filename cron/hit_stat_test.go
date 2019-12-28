@@ -21,7 +21,7 @@ func TestHitStats(t *testing.T) {
 
 	goatcounter.Memstore.Append([]goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Path: "/asd"},
-		{Site: site.ID, CreatedAt: now, Path: "/asd"},
+		{Site: site.ID, CreatedAt: now, Path: "/asd/"}, // Trailing / should be sanitized and treated identical as /asd
 		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
 	}...)
 	hits, err := goatcounter.Memstore.Persist(ctx)
