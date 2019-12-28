@@ -15,8 +15,12 @@ import (
 )
 
 func main() {
-	var confirm bool
+	var (
+		confirm bool
+		since   string
+	)
 	flag.BoolVar(&confirm, "confirm", false, "Skip 10-second safety check")
+	flag.StringVar(&since, "since", "", "Only reindex days starting with this; as 2006-01-02")
 	cfg.Set()
 
 	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, nil, nil, "")
@@ -25,9 +29,12 @@ func main() {
 	}
 	defer db.Close()
 
-	fmt.Println("This will reindex all the stats from the hit data.")
-	fmt.Println("This may take a long while during which the stats on the site will be wonky.")
-	fmt.Println("It's recommended to stop GoatCounter!")
+	// TODO: would be best to signal GoatCounter to not persist anything from
+	// memstore instead of telling people to stop GoatCounter.
+	// OTOH ... this shouldn't be needed very often.
+	fmt.Println("This will reindex all the hit_stats; it's recommended to stop GoatCounter.")
+	fmt.Println("This may take a few minutes depending on your data size/computer speed;")
+	fmt.Println("you can use e.g. Varnish or some other proxy to send requests to /count later")
 	if !confirm {
 		fmt.Println("Continuing in 10 seconds; press ^C to abort. Use -confirm to skip this.")
 		time.Sleep(10 * time.Second)
@@ -36,23 +43,36 @@ func main() {
 
 	ctx := zdb.With(context.Background(), db)
 
-	prog("Deleting stats")
-	db.MustExecContext(ctx, `delete from hit_stats`)
-	db.MustExecContext(ctx, `delete from browser_stats`)
-	db.MustExecContext(ctx, `delete from location_stats`)
-	db.MustExecContext(ctx, `update sites set last_stat=null`)
-	prog("Stats deleted")
+	where := ""
+	last_stat := "null"
+	var firstDay time.Time
+	if since != "" {
+		firstDay, err = time.Parse("2006-01-02", since)
+		if err != nil {
+			log.Fatalf("wrong time format for -since: %s", err)
+		}
 
-	var first string
-	err = db.GetContext(ctx, &first, `select created_at from hits order by created_at asc limit 1`)
-	if err != nil {
-		log.Fatal(err)
+		where = fmt.Sprintf(" where day >= '%s'", since)
+		last_stat = fmt.Sprintf("'%s'", since)
 	}
 
-	now := time.Now().UTC()
-	day, err := time.Parse("2006-01-02", first[:10])
-	if err != nil {
-		log.Fatal(err)
+	db.MustExecContext(ctx, `delete from hit_stats`+where)
+	db.MustExecContext(ctx, `delete from browser_stats`+where)
+	db.MustExecContext(ctx, `delete from location_stats`+where)
+	db.MustExecContext(ctx, `update sites set last_stat=`+last_stat)
+
+	// Get first hit ever created (start of this GoatCounter site).
+	if since == "" {
+		var first string
+		err = db.GetContext(ctx, &first, `select created_at from hits order by created_at asc limit 1`)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		firstDay, err = time.Parse("2006-01-02", first[:10])
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// Prefill every day with empty entry.
@@ -68,6 +88,8 @@ func main() {
 
 	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
 		"hit_stats", []string{"site", "day", "path", "stats"})
+	now := time.Now().UTC()
+	day := firstDay
 	for {
 		prog(fmt.Sprintf("blanks %s", day.Format("2006-01-02")))
 		for _, p := range allpaths {
@@ -86,10 +108,8 @@ func main() {
 	}
 
 	// Insert paths.
-	day, _ = time.Parse("2006-01-02", first[:10])
+	day = firstDay
 	for {
-		prog(fmt.Sprintf("data %s", day.Format("2006-01-02")))
-
 		var hits []goatcounter.Hit
 		err := db.SelectContext(ctx, &hits, `
 			select * from hits where 
@@ -98,6 +118,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		prog(fmt.Sprintf("data %s → %d", day.Format("2006-01-02"), len(hits)))
 
 		err = cron.ReindexStats(ctx, hits)
 		if err != nil {
