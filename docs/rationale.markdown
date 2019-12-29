@@ -240,6 +240,13 @@ solutions that's free or charge.
 
 #### statcounter.com
 
+#### https://plausible.io/
+
+- Doesn't give referal insights per-page.
+
+- Open source, but self-hosted is currently not supported.
+
+- Small tracking script.
 
 #### Other
 
