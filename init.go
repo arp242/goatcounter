@@ -52,7 +52,7 @@ func init() {
 	}
 
 	// Implemented as function for performance.
-	zhttp.FuncMap["bar_chart"] = func(stats []HitStat, max int) template.HTML {
+	zhttp.FuncMap["bar_chart"] = func(stats []Stat, max int) template.HTML {
 		var b strings.Builder
 		now := time.Now().UTC()
 		today := now.Format("2006-01-02")
