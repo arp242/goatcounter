@@ -408,6 +408,11 @@ commit;
 	insert into version values ('2019-12-20-1-dailystat');
 commit;
 `),
+	"db/migrate/pgsql/2019-12-31-1-blank-days.sql": []byte(`begin;
+	delete from hit_stats where stats='[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]';
+	insert into version values ('2019-12-31-1-blank-days');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -877,6 +882,11 @@ commit;
 		add column total integer not null default 0;
 
 	insert into version values ('2019-12-20-1-dailystat');
+commit;
+`),
+	"db/migrate/sqlite/2019-12-31-1-blank-days.sql": []byte(`begin;
+	delete from hit_stats where stats='[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]';
+	insert into version values ('2019-12-31-1-blank-days');
 commit;
 `),
 }
