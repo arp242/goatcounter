@@ -15,7 +15,6 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
-	"zgo.at/zdb/bulk"
 )
 
 func main() {
@@ -90,29 +89,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
-		"hit_stats", []string{"site", "day", "path", "stats"})
+	// Insert paths.
 	now := time.Now().UTC()
 	day := firstDay
-	for {
-		prog(fmt.Sprintf("blanks %s", day.Format("2006-01-02")))
-		for _, p := range allpaths {
-			ins.Values(p.Site, day.Format("2006-01-02"), p.Path, allDays)
-		}
-
-		day = day.Add(24 * time.Hour)
-		if day.After(now) {
-			break
-		}
-	}
-
-	err = ins.Finish()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Insert paths.
-	day = firstDay
 	for {
 		var hits []goatcounter.Hit
 		err := db.SelectContext(ctx, &hits, `
@@ -123,7 +102,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		prog(fmt.Sprintf("data %s → %d", day.Format("2006-01-02"), len(hits)))
+		prog(fmt.Sprintf("%s → %d", day.Format("2006-01-02"), len(hits)))
 
 		err = cron.ReindexStats(ctx, hits)
 		if err != nil {
@@ -137,8 +116,6 @@ func main() {
 	}
 	fmt.Println("")
 }
-
-const allDays = `[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]`
 
 func prog(msg string) {
 	fmt.Printf("\r\x1b[0K")

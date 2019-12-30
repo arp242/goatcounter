@@ -50,7 +50,8 @@ type Hit struct {
 	// help track down abuse.
 	CountRef string `db:"count_ref" json:"-"`
 
-	refURL *url.URL `db:"-"`
+	// Parsed Ref
+	RefURL *url.URL `db:"-"`
 }
 
 var groups = map[string]string{
@@ -208,8 +209,8 @@ func (h *Hit) Defaults(ctx context.Context) {
 		h.CreatedAt = time.Now().UTC()
 	}
 
-	if h.Ref != "" && h.refURL != nil {
-		if h.refURL.Scheme == "http" || h.refURL.Scheme == "https" {
+	if h.Ref != "" && h.RefURL != nil {
+		if h.RefURL.Scheme == "http" || h.RefURL.Scheme == "https" {
 			h.RefScheme = RefSchemeHTTP
 		} else {
 			h.RefScheme = RefSchemeOther
@@ -217,7 +218,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 
 		var store, generated bool
 		r := h.Ref
-		h.Ref, h.RefParams, store, generated = cleanURL(h.Ref, h.refURL)
+		h.Ref, h.RefParams, store, generated = cleanURL(h.Ref, h.RefURL)
 		if store {
 			h.RefOriginal = &r
 		}
@@ -277,20 +278,22 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 	return tx.Commit()
 }
 
-type HitStat struct {
+type Stat struct {
 	Day  string
 	Days []int
 }
 
-type hs struct {
+type HitStat struct {
 	Count     int     `db:"count"`
 	Max       int     `db:"-"`
 	Path      string  `db:"path"`
 	RefScheme *string `db:"ref_scheme"`
-	Stats     []HitStat
+	Stats     []Stat
 }
 
-type HitStats []hs
+type HitStats []HitStat
+
+var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []string) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
@@ -379,7 +382,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 			if s.Path == hh[i].Path {
 				var x []int
 				jsonutil.MustUnmarshal(s.Stats, &x)
-				hh[i].Stats = append(hh[i].Stats, HitStat{Day: s.Day.Format("2006-01-02"), Days: x})
+				hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
 
 				// Get max.
 				for j := range x {
@@ -395,8 +398,37 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 			hh[i].Max = 10
 		}
 	}
-
 	l = l.Since("reorder data")
+
+	// Fill in blank days.
+	endFmt := end.Format("2006-01-02")
+	for i := range hh {
+		var (
+			day     = start.Add(-24 * time.Hour)
+			newStat []Stat
+			j       int
+		)
+		if day.Before(site.CreatedAt) {
+			day = site.CreatedAt.Add(-24 * time.Hour)
+		}
+
+		for {
+			day = day.Add(24 * time.Hour)
+			dayFmt := day.Format("2006-01-02")
+
+			if len(hh[i].Stats)-1 >= j && dayFmt == hh[i].Stats[j].Day {
+				newStat = append(newStat, hh[i].Stats[j])
+				j++
+			} else {
+				newStat = append(newStat, Stat{Day: dayFmt, Days: allDays})
+			}
+			if dayFmt == endFmt {
+				break
+			}
+		}
+		hh[i].Stats = newStat
+	}
+	l = l.Since("fill blanks")
 
 	// Get total.
 	total := 0

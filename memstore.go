@@ -52,14 +52,14 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			"ref_scheme", "browser", "size", "location", "created_at", "count_ref"})
 	for i, h := range hits {
 		var err error
-		h.refURL, err = url.Parse(h.Ref)
+		h.RefURL, err = url.Parse(h.Ref)
 		if err != nil {
 			zlog.Field("ref", h.Ref).Errorf("could not parse ref: %s", err)
 			continue
 		}
 
 		// Ignore spammers.
-		if _, ok := blacklist[h.refURL.Host]; ok {
+		if _, ok := blacklist[h.RefURL.Host]; ok {
 			continue
 		}
 

@@ -7,14 +7,11 @@ package cron
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -111,51 +108,4 @@ func existingHitStats(
 		r[i] = 0 // TODO: not needed?
 	}
 	return r, nil
-}
-
-const allDays = `[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]`
-
-var ranDay int
-
-// Every path must have a row for every day since the start of the site, even if
-// there are no hits. This makes the SQL queries and chart generation a lot
-// easier and faster later on, at the expense of storing more "useless" data.
-func fillBlanksForToday(ctx context.Context) error {
-	// Run once a day only (it's okay to run more than once, just a waste of
-	// time).
-	if time.Now().UTC().Day() == ranDay {
-		return nil
-	}
-	ranDay = time.Now().UTC().Day()
-
-	var allpaths []struct {
-		Site int64
-		Path string
-	}
-	err := zdb.MustGet(ctx).SelectContext(ctx, &allpaths,
-		`select site, path from hits group by site, path`)
-	if err != nil {
-		return err
-	}
-
-	today := time.Now().UTC().Format("2006-01-02")
-
-	var have []string
-	err = zdb.MustGet(ctx).SelectContext(ctx, &have,
-		`select site || path from hit_stats where day=$1`, today)
-	if err != nil {
-		return err
-	}
-
-	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
-		"hit_stats", []string{"site", "day", "path", "stats"})
-	for _, p := range allpaths {
-		if sliceutil.InStringSlice(have, fmt.Sprintf("%d%s", p.Site, p.Path)) {
-			continue
-		}
-
-		ins.Values(p.Site, today, p.Path, allDays)
-	}
-
-	return ins.Finish()
 }

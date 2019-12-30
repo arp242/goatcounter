@@ -92,11 +92,6 @@ func persistAndStat(ctx context.Context) error {
 	}
 	l = l.Since("memstore")
 
-	err = fillBlanksForToday(ctx)
-	if err != nil {
-		return errors.Wrapf(err, "fillBlanks")
-	}
-
 	grouped := make(map[int64][]goatcounter.Hit)
 	for _, h := range hits {
 		grouped[h.Site] = append(grouped[h.Site], h)

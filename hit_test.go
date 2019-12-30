@@ -2,17 +2,78 @@
 // This file is part of GoatCounter and published under the terms of the EUPL
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
-package goatcounter
+package goatcounter_test
 
 import (
 	"context"
 	"fmt"
 	"net/url"
 	"testing"
+	"time"
 
+	"github.com/jmoiron/sqlx"
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cron"
+	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/ztest"
 )
+
+func TestHitStatsList(t *testing.T) {
+	ctx, clean := goatcounter.StartTest(t)
+	defer clean()
+
+	start := time.Date(2019, 8, 10, 14, 42, 0, 0, time.UTC)
+	end := time.Date(2019, 8, 17, 14, 42, 0, 0, time.UTC)
+	site := goatcounter.MustGetSite(ctx)
+	goatcounter.Memstore.Append([]goatcounter.Hit{
+		{Site: site.ID, CreatedAt: start, Path: "/asd"},
+		{Site: site.ID, CreatedAt: start.Add(40 * time.Hour), Path: "/asd/"},
+		{Site: site.ID, CreatedAt: start.Add(100 * time.Hour), Path: "/zxc"},
+	}...)
+	db := zdb.MustGet(ctx).(*sqlx.DB)
+	cron.Run(db)
+
+	var stats goatcounter.HitStats
+	total, totalDisplay, more, err := stats.List(ctx, start, end, nil)
+
+	got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
+	want := "3 3 false <nil>"
+	if got != want {
+		t.Fatalf("wrong return\nout:  %s\nwant: %s\n", got, want)
+	}
+
+	if len(stats) != 2 {
+		t.Fatalf("wrong len(stats): %d", len(stats))
+	}
+
+	wantStats := goatcounter.HitStats{
+		goatcounter.HitStat{Count: 2, Max: 10, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
+			{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+		}},
+		goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
+			{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+			{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+		}},
+	}
+
+	if d := ztest.Diff(stats, wantStats); d != "" {
+		t.Fatal(d)
+	}
+}
 
 func TestHitDefaults(t *testing.T) {
 	a := "arp242.net"
@@ -50,12 +111,12 @@ func TestHitDefaults(t *testing.T) {
 		{"android-app://com.example.android", "com.example.android", nil, nil, "o"},
 	}
 
-	ctx := context.WithValue(context.Background(), ctxkey.Site, &Site{ID: 1})
+	ctx := context.WithValue(context.Background(), ctxkey.Site, &goatcounter.Site{ID: 1})
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			h := Hit{Ref: tt.in}
-			h.refURL, _ = url.Parse(tt.in)
+			h := goatcounter.Hit{Ref: tt.in}
+			h.RefURL, _ = url.Parse(tt.in)
 			h.Defaults(ctx)
 
 			if tt.wantOriginal != nil && *tt.wantOriginal == "_" {

@@ -408,6 +408,11 @@ commit;
 	insert into version values ('2019-12-20-1-dailystat');
 commit;
 `),
+	"db/migrate/pgsql/2019-12-31-1-blank-days.sql": []byte(`begin;
+	delete from hit_stats where stats='[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]';
+	insert into version values ('2019-12-31-1-blank-days');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -879,6 +884,11 @@ commit;
 	insert into version values ('2019-12-20-1-dailystat');
 commit;
 `),
+	"db/migrate/sqlite/2019-12-31-1-blank-days.sql": []byte(`begin;
+	delete from hit_stats where stats='[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]';
+	insert into version values ('2019-12-31-1-blank-days');
+commit;
+`),
 }
 
 var Public = map[string][]byte{
@@ -1313,8 +1323,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 }
 `),
 	"public/count.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the AGPLv3,
-// which can be found in the LICENSE file or at gnu.org/licenses/agpl.html
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
 // See /bin/proxy on how to test this locally.
 (function() { 
@@ -1424,8 +1434,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 })();
 `),
 	"public/count.min.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the AGPLv3,
-// which can be found in the LICENSE file or at gnu.org/licenses/agpl.html
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at eupl12.zgo.at
 
 // See /bin/proxy on how to test this locally.
 (function() { 
@@ -10144,8 +10154,8 @@ return jQuery;
 		return s
 	}(),
 	"public/script.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the AGPLv3,
-// which can be found in the LICENSE file or at gnu.org/licenses/agpl.html
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
 (function() {
 	var init = function() {
@@ -10198,8 +10208,8 @@ return jQuery;
 })();
 `),
 	"public/script_backend.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the AGPLv3,
-// which can be found in the LICENSE file or at gnu.org/licenses/agpl.html
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
 (function() {
 	'use strict';
@@ -10732,8 +10742,8 @@ return jQuery;
 })();
 `),
 	"public/style.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
-   This file is part of GoatCounter and published under the terms of the AGPLv3,
-   which can be found in the LICENSE file or at gnu.org/licenses/agpl.html */
+   This file is part of GoatCounter and published under the terms of the EUPL
+   v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
 
 .page, .center { max-width: 60em; }
 hr             { margin: 1em 0; }
@@ -10888,8 +10898,8 @@ dt { font-weight: bold; margin-top: 1em; }
 
 `),
 	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
-   This file is part of GoatCounter and published under the terms of the AGPLv3,
-   which can be found in the LICENSE file or at gnu.org/licenses/agpl.html */
+   This file is part of GoatCounter and published under the terms of the EUPL
+   v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
 
 .page    { padding: 1em; }
 footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
