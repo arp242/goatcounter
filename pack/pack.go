@@ -11127,6 +11127,9 @@ form .err  { color: red; display: block; }
 	.show-mobile { display: block; }
 }
 
+/* Using display: none means it's ignored by Safary when pressing Enter. */
+.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
+
 fieldset { margin-bottom: 1em; border: 1px solid #666; }
 legend   { font-weight: bold; }
 
@@ -11887,7 +11890,7 @@ window.addEventListener('hashchange', function(e) {
 <div class="count-list-opt">
 	<form id="period-form">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
-		<button type="submit" class="hide"></button>
+		<button type="submit" class="hide-btn"></button>
 
 		<span class="period-select period-{{.Period}}">
 			Select last
