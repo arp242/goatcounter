@@ -11135,6 +11135,9 @@ legend   { font-weight: bold; }
 
 .active { font-weight: bold; text-decoration: underline; }
 
+/* Break to new flexbox row. */
+.flex-break { flex-basis: 100%; height: 0; }
+
 table.auto { width: auto; }
 
 .browser-charts       { display: flex; justify-content: space-between; }
@@ -12146,6 +12149,7 @@ window.addEventListener('hashchange', function(e) {
 				{{validate "settings.limits.ref" .Validate}}
 			</fieldset>
 
+			<div class="flex-break"></div>
 			<button type="submit">Save</button>
 		</form>
 	</div>
