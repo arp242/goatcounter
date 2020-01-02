@@ -35,8 +35,8 @@ h2 sup, h2 small {
 	font-weight: normal;
 }
 
-h3     { margin-bottom: 0; }
-h3 + p { margin-top: 0; }
+h3, h4     { margin-bottom: 0; }
+h3+p, h4+p { margin-top: 0; }
 
 form .err  { color: red; display: block; }
 

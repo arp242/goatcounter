@@ -12507,8 +12507,8 @@ h2 sup, h2 small {
 	font-weight: normal;
 }
 
-h3     { margin-bottom: 0; }
-h3 + p { margin-top: 0; }
+h3, h4     { margin-bottom: 0; }
+h3+p, h4+p { margin-top: 0; }
 
 form .err  { color: red; display: block; }
 
@@ -13300,6 +13300,8 @@ var Templates = map[string][]byte{
 	compatible in the foreseeable future. Just be sure to set
 	<code>window.counter</code> as in the above snippet.</p>
 
+<h3>Customizing</h3>
+
 <p>You can optionally pass variables manually by using the
 <code>window.goatcounter.vars</code> object.
 
@@ -13331,32 +13333,67 @@ callback is <code>null</code>.</p>
 		take precedence over the global <code>window.goatcounter.vars</code>.</li>
 </ul>
 
-<p>Examples:</p>
-<pre>window.goatcounter = window.goatcounter || {};
-window.goatcounter.vars = {
-	path: function(p) {
-		// Don't track the home page.
-		if (p === '/')
-			return null;
+<h3>Examples</h3>
 
-		// Remove .html from all other page links.
-		return p.replace(/\.html$/, '');
-	},
+<h4>Load only on production</h4>
+<p>You can check <code>location.host</code> if you want to load GoatCounter only
+on <code>production.com</code> and not <code>staging.com</code> or
+<code>development.com</code>; for example:</p>
 
-	// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
-	referrer: (window.location.search ? window.location.search.split('=')[1] : null),
-};</pre>
+<pre>&lt;script&gt;
+	(function() {
+		// Only load on production environment.
+		if (window.location.host !== 'production.com')
+			return;
 
+		var script = document.createElement('script');
+		// [.. rest of standard script omitted ..]
+	})();
+&lt;/script&gt;</pre>
+
+<p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
+	request from localhost are already ignored</a>.</p>
+
+<h4>Custom path</h4>
+<pre>&lt;script&gt;
+	(function() {
+		window.goatcounter = window.goatcounter || {};
+		window.goatcounter.vars = {
+			path: function(p) {
+				// Don't track the home page.
+				if (p === '/')
+					return null;
+
+				// Remove .html from all other page links.
+				return p.replace(/\.html$/, '');
+			},
+
+			// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
+			referrer: (window.location.search ? window.location.search.split('=')[1] : null),
+		};
+
+		var script = document.createElement('script');
+		// [.. rest of standard script omitted ..]
+	})();
+&lt;/script&gt;</pre>
+
+<h4>SPA</h4>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
-<pre>window.goatcounter = window.goatcounter || {};
-window.goatcounter.vars = {no_onload: true}
+<pre>&lt;script&gt;
+	(function() {
+		window.goatcounter = window.goatcounter || {};
+		window.goatcounter.vars = {no_onload: true}
 
-window.addEventListener('hashchange', function(e) {
-	window.goatcounter.count({
-		page: window.location.pathname + window.location.search + window.location.hash,
-	});
-});
-</pre>
+		window.addEventListener('hashchange', function(e) {
+			window.goatcounter.count({
+				page: window.location.pathname + window.location.search + window.location.hash,
+			});
+		});
+
+		var script = document.createElement('script');
+		// [.. rest of standard script omitted ..]
+	})();
+&lt;/script&gt;</pre>
 
 {{end}}
 `),
