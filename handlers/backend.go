@@ -165,6 +165,14 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
+	// I think this is some sort of bot, but log/verify to be sure.
+	if r.UserAgent() == "" || r.UserAgent() == "''" || len(r.UserAgent()) < 5 {
+		zlog.
+			Field("URL", r.URL.String()).
+			Field("headers", fmt.Sprintf("%#v", r.Header)).
+			Print("empty User-Agent")
+	}
+
 	hit := goatcounter.Hit{
 		Site:      goatcounter.MustGetSite(r.Context()).ID,
 		Browser:   r.UserAgent(),
