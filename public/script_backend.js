@@ -23,9 +23,28 @@
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
-			billing_subscribe,
+			billing_subscribe, setup_datepicker,
 		].forEach(function(f) { f.call(); });
+
 	});
+
+	// Setup datepicker fields.
+	var setup_datepicker = function() {
+		// Change to type="date" on mobile as that gives a better experience.
+		//
+		// Not done on *any* desktop OS as styling these fields with basic stuff
+		// (like setting a cross-browser consistent height) is really hard and
+		// fraught with all sort of idiocy.
+		// They also don't really look all that great. Especially the Firefox
+		// one looks pretty fucked.
+		if (is_mobile()) {
+			return $('#period-start, #period-end').
+				attr('type', 'date').
+				css('width', 'auto');  // Make sure there's room for UI chrome.
+		}
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
+	};
 
 	// Report an error.
 	var onerror = function(msg, url, line, column, err) {
@@ -543,5 +562,12 @@
 		$('#period-start').val(format_date_ymd(start));
 		$('#period-end').val(format_date_ymd(end));
 		$('#period-form').trigger('submit');
+	};
+
+	// Check if this is a mobile browser. Probably not 100% reliable.
+	var is_mobile = function() {
+		if (navigator.userAgent.match(/Mobile/i))
+			return true;
+		return window.innerWidth <= 800 && window.innerHeight <= 600;
 	};
 })();
