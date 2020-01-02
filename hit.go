@@ -43,6 +43,7 @@ type Hit struct {
 	Browser     string            `db:"browser" json:"-"`
 	Size        sqlutil.FloatList `db:"size" json:"s"`
 	Location    string            `db:"location"`
+	Bot         int               `db:"bot"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
 	// Tracks referer of the /count request; this is not a statistic, just so we
@@ -247,7 +248,7 @@ type Hits []Hit
 // List all hits for a site.
 func (h *Hits) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, h,
-		`select * from hits where site=$1`, MustGetSite(ctx).ID),
+		`select * from hits where site=$1 and bot=0`, MustGetSite(ctx).ID),
 		"Hits.List")
 }
 
@@ -317,6 +318,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		from hits
 		where
 			site=? and
+			bot=0 and
 			created_at >= ? and
 			created_at <= ?`
 	args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
@@ -466,6 +468,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		from hits
 		where
 			site=$1 and
+			bot=0 and
 			lower(path)=lower($2) and
 			created_at >= $3 and
 			created_at <= $4
@@ -498,7 +501,7 @@ func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
 func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select path, count(path) as count from hits
-		where site=$1 and lower(path) like lower($2)
+		where site=$1 and bot=0 and lower(path) like lower($2)
 		group by path
 		order by count desc
 		`, MustGetSite(ctx).ID, path)
@@ -588,6 +591,7 @@ func (h *BrowserStats) ListSizes(ctx context.Context, start, end time.Time) erro
 		from hits
 		where
 			site=$1 and
+			bot=0 and
 			created_at >= $2 and created_at <= $3
 		group by size
 	`, MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
@@ -670,6 +674,7 @@ func (h *BrowserStats) ListSize(ctx context.Context, name string, start, end tim
 		from hits
 		where
 			site=$1 and
+			bot=0 and
 			created_at >= $2 and created_at <= $3 and
 			%s
 		group by size

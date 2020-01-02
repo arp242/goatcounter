@@ -413,6 +413,15 @@ commit;
 	insert into version values ('2019-12-31-1-blank-days');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-02-1-bot.sql": []byte(`begin;
+	alter table hits add column bot int default 0;
+	drop index "hits#site#created_at";
+	drop index "hits#site#path#created_at";
+	create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
+	create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
+	insert into version values ('2020-01-02-1-bot');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -887,6 +896,15 @@ commit;
 	"db/migrate/sqlite/2019-12-31-1-blank-days.sql": []byte(`begin;
 	delete from hit_stats where stats='[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]';
 	insert into version values ('2019-12-31-1-blank-days');
+commit;
+`),
+	"db/migrate/sqlite/2020-01-02-1-bot.sql": []byte(`begin;
+	alter table hits add column bot int default 0;
+	drop index "hits#site#created_at";
+	drop index "hits#site#path#created_at";
+	create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
+	create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
+	insert into version values ('2020-01-02-1-bot');
 commit;
 `),
 }
@@ -12736,7 +12754,8 @@ insert into version values
 	('2019-12-15-1-personal-free'),
 	('2019-12-15-2-old'),
 	('2019-12-17-1-business'),
-	('2019-12-20-1-dailystat');
+	('2019-12-20-1-dailystat'),
+	('2020-01-02-1-bot');
 
 drop table if exists sites;
 create table sites (
@@ -12795,10 +12814,12 @@ create table hits (
 	size           varchar        not null default '',
 	location       varchar        not null default '',
 	count_ref      varchar        not null default '',
+	bot            int            default 0,
+
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
-create index "hits#site#created_at"      on hits(site, created_at);
-create index "hits#site#path#created_at" on hits(site, lower(path), created_at);
+create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
+create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
 
 drop table if exists hit_stats;
 create table hit_stats (

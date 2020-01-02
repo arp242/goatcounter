@@ -176,7 +176,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 
 	// Don't track pages fetched with the browser's prefetch algorithm.
 	// See https://github.com/usefathom/fathom/issues/13
-	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" || user_agent.New(r.UserAgent()).Bot() {
+	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
 		w.Header().Set("Content-Type", "image/gif")
 		return zhttp.Bytes(w, gif)
 	}
@@ -196,6 +196,10 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		CountRef:  r.Referer(),
 		CreatedAt: time.Now().UTC(),
 	}
+	if user_agent.New(r.UserAgent()).Bot() {
+		hit.Bot = 1
+	}
+
 	_, err := zhttp.Decode(r, &hit)
 	if err != nil {
 		w.Header().Set("Content-Type", "text/plain")

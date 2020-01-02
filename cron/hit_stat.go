@@ -40,6 +40,10 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	}
 	grouped := map[string]gt{}
 	for _, h := range hits {
+		if h.Bot > 0 {
+			continue
+		}
+
 		day := h.CreatedAt.Format("2006-01-02")
 		k := day + h.Path
 		v := grouped[k]
