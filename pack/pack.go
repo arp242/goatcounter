@@ -13294,7 +13294,7 @@ window.addEventListener('hashchange', function(e) {
 <html lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<title>{{.Site.Name}} – GoatCounter</title>
 	<link rel="icon" type="image/png" href="//{{.Static}}/favicon.png">
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
@@ -13404,7 +13404,7 @@ window.addEventListener('hashchange', function(e) {
 <html lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<title>GoatCounter – Website statistics for regular folks</title>
 	<link rel="icon" type="image/png" href="//{{.Static}}/favicon.png">
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
