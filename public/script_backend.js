@@ -10,9 +10,14 @@
 	$(document).ready(function() {
 		SETTINGS = JSON.parse($('#settings').html());
 
+		// Set up error reporting.
+		window.onerror = onerror;
 		$(document).ajaxError(function(e, xhr, settings, err) {
+			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
+				return;
 			var msg = 'Could not load ' + settings.url + ': ' + err;
 			console.error(msg);
+			onerror('ajaxError: ' + msg, settings.url);
 			alert(msg);
 		});
 
@@ -21,6 +26,15 @@
 			billing_subscribe,
 		].forEach(function(f) { f.call(); });
 	});
+
+	// Report an error.
+	var onerror = function(msg, url, line, column, err) {
+		jQuery.ajax({
+			url:    '/jserr',
+			method: 'POST',
+			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack},
+		});
+	}
 
 	// Subscribe with Stripe.
 	var billing_subscribe = function() {

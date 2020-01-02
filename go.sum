@@ -26,6 +26,8 @@ github.com/monoculum/formam v0.0.0-20190830100315-7ff9597b1407 h1:ZU5O9BawmEx9Mu
 github.com/monoculum/formam v0.0.0-20190830100315-7ff9597b1407/go.mod h1:JKa2av1XVkGjhxdLS59nDoXa2JpmIHpnURWNbzCtXtc=
 github.com/monoculum/formam v0.0.0-20191227051036-52d7288c5a20 h1:0aj/bdlAHWfL9Dskx2suZ7rcNF13MtN1CmVfTLNg2Oo=
 github.com/monoculum/formam v0.0.0-20191227051036-52d7288c5a20/go.mod h1:JKa2av1XVkGjhxdLS59nDoXa2JpmIHpnURWNbzCtXtc=
+github.com/monoculum/formam v0.0.0-20191229172733-952f0766a724 h1:qlTmDrFZLQIGXnd1JE58dqyLnKyIJjR9WBeDQcT3O8w=
+github.com/monoculum/formam v0.0.0-20191229172733-952f0766a724/go.mod h1:JKa2av1XVkGjhxdLS59nDoXa2JpmIHpnURWNbzCtXtc=
 github.com/mssola/user_agent v0.5.0 h1:gRF7/x8cKt8qzAosYGsBNyirta+F8fvYDlJrgXws9AQ=
 github.com/mssola/user_agent v0.5.0/go.mod h1:UFiKPVaShrJGW93n4uo8dpPdg1BSVpw2P9bneo0Mtp8=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
@@ -58,6 +60,8 @@ zgo.at/zdb v0.0.0-20191224164219-424522de06ec h1:qkL+IYNatMz0FRqb2hWVj/06XRPvlhI
 zgo.at/zdb v0.0.0-20191224164219-424522de06ec/go.mod h1:GT5Nyrxb9H6JszZtd7o0m5CPEd3C7DFqAeJt98nyNQI=
 zgo.at/zhttp v0.0.0-20191211182637-d99b56ea9f13 h1:bGQduxwVeOSYLd1UXhv44BU89HX4riQSQAS1DCd3eAk=
 zgo.at/zhttp v0.0.0-20191211182637-d99b56ea9f13/go.mod h1:imK4gXI3K0p6OT4MnNuDfOp5IDky8tET1Ik5EaChAkg=
+zgo.at/zhttp v0.0.0-20200102075026-a25b87d32a84 h1:l5We3nV5yVfciThfF9bXX9GBD0dMf8QMMElFwXtsIQE=
+zgo.at/zhttp v0.0.0-20200102075026-a25b87d32a84/go.mod h1:imK4gXI3K0p6OT4MnNuDfOp5IDky8tET1Ik5EaChAkg=
 zgo.at/zlog v1.0.6 h1:0LN5DIYbajUNSZrTa7pt3UgRxiG5R5NZoiR0OjDQVnU=
 zgo.at/zlog v1.0.6/go.mod h1:KC3mmJFl0M9IMPNk+5agwLeDHZFl1ANXAFI+stzDXfw=
 zgo.at/zlog v1.0.7 h1:Ppjb9VOBheqENQ28TWsOddG2qIVO4nGb0b/TPh/5sXc=

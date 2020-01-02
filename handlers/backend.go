@@ -55,6 +55,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 	{
 		rr := r.With(zhttp.Headers(nil))
 		rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
+		rr.Post("/jserr", zhttp.HandlerJSErr())
 		rr.Post("/csp", zhttp.HandlerCSP())
 		rr.Get("/count", zhttp.Wrap(h.count))
 		if cfg.CertDir != "" {
