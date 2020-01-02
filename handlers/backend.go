@@ -73,11 +73,11 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
 			header.CSPImgSrc:     st,
-			header.CSPScriptSrc:  append(st, "https://js.stripe.com"),
+			header.CSPScriptSrc:  append(st, []string{"https://chat.goatcounter.com", "https://js.stripe.com"}...),
 			header.CSPStyleSrc:   append(st, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:    st,
 			header.CSPFormAction: {header.CSPSourceSelf},
-			header.CSPConnectSrc: {header.CSPSourceSelf, "https://api.stripe.com"},
+			header.CSPConnectSrc: {header.CSPSourceSelf, "https://chat.goatcounter.com", "https://api.stripe.com"},
 			header.CSPFrameSrc:   {"https://js.stripe.com", "https://hooks.stripe.com"},
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})

@@ -1,16 +1,17 @@
 {{template "_top.gohtml" .}}
 
 <div id="home-top">
-	<h1>GoatCounter <sup><i>Beta</i></sup></h1>
+	<h1>GoatCounter</h1>
 	<div id="home-intro">
 		<p><span>Simple</span> web statistics. <span>No tracking</span> of personal data.</p>
 	</div>
-	<br>
 
 	<div id="home-demo">
-		<a class="hlink cbox" href="https://stats.arp242.net" target="_blank"><img src="//{{.Static}}/index.svg" alt=""> Live demo</a>
+		<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 	<div id="home-login">
+		<a class="" href="https://stats.arp242.net" target="_blank">Live demo</a>
+		<br>
 		{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
 		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}
 	</div>
@@ -41,7 +42,34 @@
 	</div>
 </div>
 
-<hr id="pricing">
+<h2 id="features">Features</h2>
+<div id="home-features">
+	<div>
+		<p><strong>Privacy-aware</strong>; doesn’t track users; doesn't need a
+			GDPR notice.</p>
+		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
+			1.8KB of extra data to your site.</p>
+	</div>
+
+	<div>
+		<p><strong>Easy</strong>; if you've been confused by the myriad of
+			options and flexibility of Google Analytics and Matomo that you
+			don't need then GoatCounter will be a breath of fresh air.</p>
+		<p><strong>Accessibility</strong> is a high-priority feature, and the
+			interface works well with assistive technology such as screen
+			readers.</p>
+	</div>
+
+	<div>
+		<p>100% committed to <strong>open source</strong>; you can see exactly
+			what the code does and make improvements. See
+			<a href="https://github.com/zgoat/goatcounter">the GitHub page</a>.</p>
+		<p><strong>Own your data</strong>; you can always export all data and
+			<strong>cancel at any time</strong>.</p>
+	</div>
+</div>
+
+<h2 id="pricing">Pricing</h2>
 <div id="home-pricing">
 	<div>
 		<h3>Personal</h3>
@@ -87,43 +115,6 @@
 	privately installed hosted option.
 </div>
 
-<hr id="features">
-<div id="home-features">
-	<div>
-		<p><strong>Privacy-aware</strong>; doesn’t track users; doesn't need a
-			GDPR notice.</p>
-		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
-			1.5KB of extra data to your site.</p>
-	</div>
-
-	<div>
-		<p><strong>Easy</strong>; if you've been confused by the myriad of
-			options and flexibility of Google Analytics and Matomo that you
-			don't need then GoatCounter will be a breath of fresh air.</p>
-		<p><strong>Accessibility</strong> is a high-priority feature, and the
-		interface works well with assistive technology such as screen
-		readers.</p>
-	</div>
-
-	<div>
-		<p>100% committed to <strong>open source</strong>; you can see exactly
-			what the code does and make improvements. See
-			<a href="https://github.com/zgoat/goatcounter">the GitHub page</a>.</p>
-		<p><strong>Own your data</strong>; you can always export all data and
-			<strong>cancel at any time</strong>.</p>
-	</div>
-</div>
-
-<hr id="newsletter">
-<div id="home-newsletter">
-	<form method="POST" action="https://goatcounter.goatletter.com/request">
-		<label for="nl-email">Get notified of updates:</label>
-		<input type="email" name="email" id="nl-email" placeholder="Email address"><button type="submit">Subscribe</button>
-		<input type="text" id="nl-turing-test" name="website" placeholder="Do NOT fill in this field, it's here as an anti-spam meassure">
-		<p>We’ll email on significant updates (such as full launch) and major additions, at most once a month.</p>
-	</form>
-</div>
-
-<br><br>
+<hr>
 
 {{template "_bottom.gohtml" .}}

@@ -23,6 +23,7 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 .page-home          { padding: 0; box-shadow: none; background-color: transparent; }
 .page-home h1       { margin-top: 2em; font-size: 2em; }
 .page-home *:target { background-color: inherit; }
+.page-home h2       { border-bottom: 0; text-align: center; font-size: 2rem; margin-top: 5rem; }
 
 .hlink       { font-weight: bold; }
 .hlink:hover { text-decoration: none; background-color: #fffded; color: #252525; }
