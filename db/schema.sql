@@ -9,8 +9,9 @@ insert into version values
 	('2019-12-15-1-personal-free'),
 	('2019-12-15-2-old'),
 	('2019-12-17-1-business'),
-	('2019-12-20-1-dailystat'),
 	('2019-12-19-1-updates'),
+	('2019-12-20-1-dailystat'),
+	('2019-12-31-1-blank-days'),
 	('2020-01-02-1-bot');
 
 drop table if exists sites;

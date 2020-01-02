@@ -19,8 +19,9 @@ func main() {
 			"Public":           "./public",
 			"Templates":        "./tpl",
 			"SchemaSQLite":     "./db/schema.sql",
-			"MigrationsPgSQL":  "./db/migrate/pgsql",
+			"SchemaPgSQL":      "./db/schema.pgsql",
 			"MigrationsSQLite": "./db/migrate/sqlite",
+			"MigrationsPgSQL":  "./db/migrate/pgsql",
 		},
 	}, "/.keep", "public/fonts/LICENSE")
 	if err != nil {

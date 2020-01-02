@@ -26,7 +26,10 @@ func main() {
 	flag.StringVar(&since, "since", "", "Only reindex days starting with this; as 2006-01-02")
 	cfg.Set()
 
-	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, nil, nil, "")
+	db, err := zdb.Connect(zdb.ConnectOptions{
+		Connect:    cfg.DBFile,
+		PostgreSQL: cfg.PgSQL,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
