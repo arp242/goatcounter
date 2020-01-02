@@ -57,7 +57,18 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
 		rr.Post("/jserr", zhttp.HandlerJSErr())
 		rr.Post("/csp", zhttp.HandlerCSP())
-		rr.Get("/count", zhttp.Wrap(h.count))
+
+		// 4 pageviews/second should be more than enough.
+		rr.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
+			Client: func(r *http.Request) string {
+				// Add in the User-Agent to reduce the problem of multiple
+				// people in the same building hitting the limit.
+				return r.RemoteAddr + r.UserAgent()
+			},
+			Store:  zhttp.NewRatelimitMemory(),
+			Period: 1, Limit: 4,
+		})).Get("/count", zhttp.Wrap(h.count))
+
 		if cfg.CertDir != "" {
 			zhttp.MountACME(rr, cfg.CertDir)
 		}
@@ -105,7 +116,12 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			}
 			af.Get("/settings", zhttp.Wrap(h.settings))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
-			af.Get("/export/{file}", zhttp.Wrap(h.export))
+			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
+				Client: zhttp.RatelimitIP,
+				Store:  zhttp.NewRatelimitMemory(),
+				Period: 3600 * 4, Limit: 1,
+				Message: "you can request only one export every 4 hours",
+			})).Get("/export/{file}", zhttp.Wrap(h.export))
 			af.Post("/add", zhttp.Wrap(h.addSubsite))
 			af.Get("/remove/{id}", zhttp.Wrap(h.removeSubsiteConfirm))
 			af.Post("/remove/{id}", zhttp.Wrap(h.removeSubsite))
