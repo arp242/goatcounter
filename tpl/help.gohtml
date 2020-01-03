@@ -3,7 +3,8 @@
 <h1>GoatCounter help</h1>
 <dl>
 	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
-	<dd>For reasons of efficiency the statistics are updated once every minute.</dd>
+	<dd>For reasons of efficiency the statistics are updated once every 10
+	seconds.</dd>
 
 	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
 	<dd>We’ll be in touch if you consistently go over the number over pageviews,
@@ -12,26 +13,25 @@
 
 	<dt id="bots">How are bots and crawlers counted? <a href="#bots">§</a></dt>
 	<dd>They’re not; all bots and crawlers that identify themselves as such are ignored.<br>
-		It’s not hard for a malicious script to disguise itself as
-		Firefox or Chrome, and it’s hard to reliably detect this, so in
-		practice it’s unlikely that 100% of all bots are ignored (this is a
-		general problem with analytics, and not specific to GoatCounter).</dd>
+		It’s easy for a malicious script to disguise itself as Firefox or
+		Chrome, and it’s hard to reliably detect this. In practice it’s unlikely
+		that 100% of all bots are ignored (this is a general problem with
+		analytics, and not specific to GoatCounter).</dd>
 
 	<dt id="dnt">How is the <code>Do-Not-Track</code> header handled? <a href="#dnt">§</a></dt>
 	<dd>It’s ignored for two reasons:
 		<ol>
-			<li>It has very low adoption across the internet in the first
-				place. Setting it
+			<li>It has very low adoption across the internet. Setting it
 				<a href="https://www.digitaltrends.com/computing/do-not-tracking-tools-do-nothing/">
 				probably makes you <em>more</em> identifiable by trackers</a>. I
-				don’t recommend setting it if you care about not being tracked.</li>
+				don’t recommend setting it if you’re worried about tracking.</li>
 			<li>I don’t think that DNT is really intended for the kind of
 				statistics that GoatCounter collects. While
 				<a href="https://www.ietf.org/archive/id/draft-mayer-do-not-track-00.txt">the specification</a>
 				defines “tracking” as <em>“collection, retention, and use of all
 				data related to the request and response”</em>, it’s clear
 				from the introduction that this is primarily intended to combat
-				invasive and persist cross-site tracking. From the introduction:
+				invasive and persist cross-site tracking:
 				<blockquote><p>In the status quo: A user navigates a sequence of popular websites,
 					many of which incorporate content from a major advertising
 					network. In addition to delivering advertisements, the
