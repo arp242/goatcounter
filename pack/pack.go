@@ -14149,39 +14149,25 @@ sub {
 		analytics, and not specific to GoatCounter).</dd>
 
 	<dt id="dnt">How is the <code>Do-Not-Track</code> header handled? <a href="#dnt">§</a></dt>
-	<dd>It’s ignored for two reasons:
-		<ol>
-			<li>It has very low adoption across the internet. Setting it
-				<a href="https://www.digitaltrends.com/computing/do-not-tracking-tools-do-nothing/">
-				probably makes you <em>more</em> identifiable by trackers</a>. I
-				don’t recommend setting it if you’re worried about tracking.</li>
-			<li>I don’t think that DNT is really intended for the kind of
-				statistics that GoatCounter collects. While
-				<a href="https://www.ietf.org/archive/id/draft-mayer-do-not-track-00.txt">the specification</a>
-				defines “tracking” as <em>“collection, retention, and use of all
-				data related to the request and response”</em>, it’s clear
-				from the introduction that this is primarily intended to combat
-				invasive and persist cross-site tracking:
-				<blockquote><p>In the status quo: A user navigates a sequence of popular websites,
-					many of which incorporate content from a major advertising
-					network. In addition to delivering advertisements, the
-					advertising network assigns a unique cookie to the user agent
-					and compiles observations of the user’s browsing habits.</p>
+	<dd>It’s ignored for several reasons: it’s effectively abandoned with a low
+		adoption rate, mostly intended for persistent cross-site tracking (which
+		Goatcounter doesn’t do), and I feel there are some fundamental concerns
+		with the approach. See
+		<a href="https://www.arp242.net/dnt.html" target="_blank">Why GoatCounter ignores Do Not Track</a>
+		for a more in-depth explanation.
+		<br><br>
+		You can still implement it yourself by putting this at the start of the
+		GoatCounter script:
 
-					<p>With Do Not Track: A user enables Do Not Track in her web
-					browser. She navigates a sequence of popular websites, many of
-					which incorporate content from a major advertising network.  The
-					advertising network delivers advertisements, but refrains from
-					THIRD- PARTY TRACKING of the user.</p>
-				</blockquote>
+<pre>&lt;script&gt;
+	(function() {
+		if ('doNotTrack' in navigator && navigator.doNotTrack === '1')
+			return;
 
-				GoatCounter doesn’t do any of this, it just collects some basic
-				statistics about how many people visit your site. Adhering to
-				the strict definition of “tracking” is virtually impossible for
-				any site: access logs, error logs, binding a cookie to IP, and
-				other common and sensible features could be considered
-				“tracking”.</li>
-		</ol>
+		var script = document.createElement('script');
+		// [.. rest of standard script omitted ..]
+	})();
+&lt;/script&gt;</pre>
 	</dd>
 
 	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
