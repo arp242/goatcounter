@@ -13472,7 +13472,6 @@ on <code>production.com</code> and not <code>staging.com</code> or
 	</script>
 
 	{{if .Billing}}
-		{{/* Waiting for DNS
 		<script>
 			window.intergramId = 509523657;
 			window.intergramServer = 'https://chat.goatcounter.com';
@@ -13480,17 +13479,16 @@ on <code>production.com</code> and not <code>staging.com</code> or
 				cookieExpiration:    30,
 				closedChatAvatarUrl: '//{{.Static}}/avatar.jpg',
 				introMessage:        'Chat if you have questions',
-				closedStyle:         'button', // button or chat
+				closedStyle:         'button',
 				titleClosed:         'Chat',
 				titleOpen:           'Let’s chat!',
-				introMessage:        'Questions or feedback? Chat with me!',
+				introMessage:        'Questions or feedback? Chat here!',
 				autoResponse:        'Checking availability; please wait a minute…',
 				autoNoResponse:      'It seems that no one is available to answer right now. Please tell us how we can ' +
 									'contact you, and we will get back to you as soon as we can.',
 			};
 		</script>
 		<script src="https://goatcounter.herokuapp.com/js/widget.js"></script>
-		*/}}
 	{{end}}
 </body>
 </html>
