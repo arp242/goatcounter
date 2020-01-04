@@ -88,7 +88,7 @@ func (u *User) Insert(ctx context.Context) error {
 
 	res, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
-		u.Site, u.Name, u.Email, zdb.Date(u.CreatedAt))
+		u.Site, u.Name, u.Email, u.CreatedAt.Format(zdb.Date))
 	if err != nil {
 		if zdb.UniqueErr(err) {
 			return guru.New(400, "this user already exists")
@@ -120,7 +120,7 @@ func (u *User) Update(ctx context.Context) error {
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`update users set name=$1, email=$2, updated_at=$3 where id=$4`,
-		u.Name, u.Email, zdb.Date(*u.UpdatedAt), u.ID)
+		u.Name, u.Email, u.UpdatedAt.Format(zdb.Date), u.ID)
 	return errors.Wrap(err, "User.Update")
 }
 

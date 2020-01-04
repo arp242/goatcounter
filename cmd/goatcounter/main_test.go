@@ -37,7 +37,7 @@ func TestMain(t *testing.T) {
 		"-listen", "localhost:31874"}
 
 	go func() {
-		time.Sleep(1500 * time.Millisecond)
+		time.Sleep(3000 * time.Millisecond)
 		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 	}()
 

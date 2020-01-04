@@ -85,7 +85,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		}
 
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
-			h.RefScheme, h.Browser, h.Size, h.Location, zdb.Date(h.CreatedAt),
+			h.RefScheme, h.Browser, h.Size, h.Location, h.CreatedAt.Format(zdb.Date),
 			countRef, h.Bot)
 	}
 

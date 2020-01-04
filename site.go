@@ -194,7 +194,7 @@ func (s *Site) Insert(ctx context.Context) error {
 
 	res, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`insert into sites (parent, code, name, settings, plan, created_at) values ($1, $2, $3, $4, $5, $6)`,
-		s.Parent, s.Code, s.Name, s.Settings, s.Plan, zdb.Date(s.CreatedAt))
+		s.Parent, s.Code, s.Name, s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date))
 	if err != nil {
 		if zdb.UniqueErr(err) {
 			return guru.New(400, "this site already exists: name and code must be unique")
@@ -226,7 +226,7 @@ func (s *Site) Update(ctx context.Context) error {
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set name=$1, settings=$2, cname=$3, updated_at=$4 where id=$5`,
-		s.Name, s.Settings, s.Cname, zdb.Date(*s.UpdatedAt), s.ID)
+		s.Name, s.Settings, s.Cname, s.UpdatedAt.Format(zdb.Date), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 
@@ -246,7 +246,7 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan string) error {
 	s.Plan = plan
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set stripe=$1, plan=$2, updated_at=$3 where id=$4`,
-		s.Stripe, s.Plan, zdb.Date(*s.UpdatedAt), s.ID)
+		s.Stripe, s.Plan, s.UpdatedAt.Format(zdb.Date), s.ID)
 	return errors.Wrap(err, "Site.UpdateStripe")
 }
 

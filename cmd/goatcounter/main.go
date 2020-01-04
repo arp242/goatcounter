@@ -5,9 +5,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"net/mail"
+	"os"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -32,12 +34,14 @@ import (
 var version = "dev"
 
 func main() {
+	var migrate string
+	flag.StringVar(&migrate, "migrate", "", "Run database migrations")
 	cfg.Set()
 	if cfg.Version == "" {
 		cfg.Version = version
 	}
 	fmt.Printf("Goatcounter version %s\n", version)
-	cfg.Print()
+	//cfg.Print()
 
 	if cfg.Stripe != "" {
 		for _, k := range stringutil.Fields(cfg.Stripe, ":") {
@@ -97,21 +101,22 @@ func main() {
 	}
 
 	// Connect to DB.
-	m := pack.MigrationsSQLite
-	p := "db/migrate/sqlite"
-	if cfg.PgSQL {
-		m = pack.MigrationsPgSQL
-		p = "db/migrate/pgsql"
-	}
-	// TODO: I'd like a switch to run these migrations:
-	//   Show migration status and exit:             ./goatcounter -migrate
-	//   Migrate all pending migrations and exit:    ./goatcounter -migrate all
-	//   Migrate one and exit:                       ./goatcounter -migrate 2019-10-16-1-geoip
-	//   Rollback last migration:                    ./goatcounter -rollback last
-	//   Rollback specific migration:                ./goatcounter -rollback 2019-10-16-1-geoip
-	db, err := zdb.Connect(cfg.DBFile, cfg.PgSQL, pack.SchemaSQLite, m, p)
+	db, err := zdb.Connect(zdb.ConnectOptions{
+		Connect:    cfg.DBFile,
+		PostgreSQL: cfg.PgSQL,
+		Schema:     map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL],
+		Migrate: zdb.NewMigrate(nil, migrate,
+			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
+			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL]),
+	})
 	must(err)
 	defer db.Close()
+
+	// Don't continue if we just want to run migrations.
+	if migrate != "" && migrate != "auto" {
+		zlog.Print("migrations done")
+		os.Exit(0)
+	}
 
 	// Run background tasks.
 	cron.Run(db)
@@ -130,6 +135,7 @@ func main() {
 		hosts[zhttp.RemovePort(ds)] = static
 	}
 
+	zlog.Printf("listening on %q; prod: %t", cfg.Listen, cfg.Prod)
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(hosts)}, func() {
 		cron.Wait(db)
 		acme.Wait()
