@@ -13729,12 +13729,12 @@ on <code>production.com</code> and not <code>staging.com</code> or
 <table>
 	<tr>
 		<th>ID</th>
-		<th># hits</th>
+		<th><a href="?order=count"># hits</a></th>
 		<th>Code</th>
 		<th>Name</th>
 		<th>User</th>
 		<th>Plan</th>
-		<th>Created at</th>
+		<th><a href="?order=created_at">Created at</a></th>
 	</tr>
 	{{range $s := .Stats}}
 		<tr>

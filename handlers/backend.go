@@ -350,7 +350,7 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var a goatcounter.AdminStats
-	err := a.List(r.Context())
+	err := a.List(r.Context(), r.URL.Query().Get("order"))
 	if err != nil {
 		return err
 	}

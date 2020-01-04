@@ -11,6 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 )
 
@@ -29,12 +30,16 @@ type AdminStat struct {
 type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
-func (a *AdminStats) List(ctx context.Context) error {
+func (a *AdminStats) List(ctx context.Context, order string) error {
 	// TODO: needs --tags json1: too much work for now.
 	//js := "json_extract(settings, '$.public')"
 	js := "'0'"
 	if cfg.PgSQL {
 		js = "settings::json->>'public'"
+	}
+
+	if order == "" || !sliceutil.InStringSlice([]string{"count", "created_at"}, order) {
+		order = "count"
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
@@ -53,7 +58,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 		join users on users.site=sites.id
 		where hits.created_at >= now() - interval '30 days'
 		group by sites.id, sites.code, sites.name, sites.created_at, users.name, users.email, public, plan
-		order by count desc`, js))
+		order by %s desc`, js, order))
 	return errors.Wrap(err, "AdminStats.List")
 }
 
