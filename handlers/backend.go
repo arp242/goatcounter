@@ -51,6 +51,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
 	})
+	r.Get("/status", zhttp.Wrap(h.status()))
 
 	{
 		rr := r.With(zhttp.Headers(nil))
@@ -170,6 +171,16 @@ func geo(ip string) string {
 		zlog.Module("geo").Field("ip", ip).Error(err)
 	}
 	return loc.Country.IsoCode
+}
+
+func (h backend) status() func(w http.ResponseWriter, r *http.Request) error {
+	started := time.Now().UTC()
+	return func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.JSON(w, map[string]string{
+			"uptime":  time.Now().UTC().Sub(started).String(),
+			"version": cfg.Version,
+		})
+	}
 }
 
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
