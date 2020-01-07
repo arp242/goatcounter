@@ -508,23 +508,22 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
 	return errors.Wrap(err, "Hits.ListPaths")
 }
 
-// TODO: rename to just "Stats" or something, as it's used for much more now.
-type BrowserStats []struct {
-	Browser string
-	Mobile  bool
-	Count   int
+type Stats []struct {
+	Name   string
+	Mobile bool
+	Count  int
 }
 
 // List all browser statistics for the given time period.
-func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (int, int, error) {
+func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select browser, sum(count) as count from browser_stats
+		select browser as name, sum(count) as count from browser_stats
 		where site=$1 and day >= $2 and day <= $3
 		group by browser 
 		order by count desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return 0, 0, errors.Wrap(err, "BrowserStats.List browsers")
+		return 0, 0, errors.Wrap(err, "Stats.ListBrowsers browsers")
 	}
 
 	var total int
@@ -539,7 +538,7 @@ func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (int, int
 		where site=$1 and day >= $2 and day <= $3 and mobile=true
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return 0, 0, errors.Wrap(err, "BrowserStats.List mobile")
+		return 0, 0, errors.Wrap(err, "Stats.ListBrowsers mobile")
 	}
 
 	mobile := 0
@@ -551,10 +550,10 @@ func (h *BrowserStats) List(ctx context.Context, start, end time.Time) (int, int
 }
 
 // ListBrowser lists all the versions for one browser.
-func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (int, error) {
+func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
-			browser || ' ' || version as browser,
+			browser || ' ' || version as name,
 			sum(count) as count
 		from browser_stats
 		where site=$1 and day >= $2 and day <= $3 and lower(browser)=lower($4)
@@ -562,7 +561,7 @@ func (h *BrowserStats) ListBrowser(ctx context.Context, browser string, start, e
 		order by count desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), browser)
 	if err != nil {
-		return 0, errors.Wrap(err, "BrowserStats.ListBrowser")
+		return 0, errors.Wrap(err, "Stats.ListBrowser")
 	}
 
 	var total int
@@ -582,12 +581,12 @@ const (
 )
 
 // ListSizes lists all device sizes.
-func (h *BrowserStats) ListSizes(ctx context.Context, start, end time.Time) error {
+func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 	// TODO: just store better; all of this is ugly.
 	// select split_part(size, ',', 1) || ',' || split_part(size, ',', 2) as browser,
 	// order by cast(split_part(size, ',', 1) as int) asc
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select size as browser, count(size) as count
+		select size as name, count(size) as count
 		from hits
 		where
 			site=$1 and
@@ -596,23 +595,23 @@ func (h *BrowserStats) ListSizes(ctx context.Context, start, end time.Time) erro
 		group by size
 	`, MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
 	if err != nil {
-		return errors.Wrap(err, "BrowserStats.ListSize")
+		return errors.Wrap(err, "Stats.ListSize")
 	}
 
 	// hh := *h
 	// for i := range hh {
-	// 	s := strings.Split(hh[i].Browser, ", ")
-	// 	hh[i].Browser = fmt.Sprintf("%s×%s", s[0], s[1])
+	// 	s := strings.Split(hh[i].Name, ", ")
+	// 	hh[i].Name = fmt.Sprintf("%s×%s", s[0], s[1])
 	// }
 	// sort.Slice(hh, func(i int, j int) bool {
-	// 	p1, _ := strconv.ParseInt(hh[i].Browser[:strings.Index(hh[i].Browser, "×")], 10, 32)
-	// 	p2, _ := strconv.ParseInt(hh[j].Browser[:strings.Index(hh[j].Browser, "×")], 10, 32)
+	// 	p1, _ := strconv.ParseInt(hh[i].Name[:strings.Index(hh[i].Name, "×")], 10, 32)
+	// 	p2, _ := strconv.ParseInt(hh[j].Name[:strings.Index(hh[j].Name, "×")], 10, 32)
 	// 	return p1 < p2
 	// })
 
 	// TODO: group a bit; ideally I'd like to make a line chart in the future,
 	// in which case this should no longer be needed.
-	ns := BrowserStats{
+	ns := Stats{
 		{sizePhones, false, 0},
 		{sizeLargePhones, false, 0},
 		{sizeTablets, false, 0},
@@ -623,7 +622,7 @@ func (h *BrowserStats) ListSizes(ctx context.Context, start, end time.Time) erro
 
 	hh := *h
 	for i := range hh {
-		x, _ := strconv.ParseInt(strings.Split(hh[i].Browser, ", ")[0], 10, 16)
+		x, _ := strconv.ParseInt(strings.Split(hh[i].Name, ", ")[0], 10, 16)
 		// TODO: apply scaling?
 		switch {
 		case x == 0:
@@ -645,7 +644,7 @@ func (h *BrowserStats) ListSizes(ctx context.Context, start, end time.Time) erro
 }
 
 // ListSize lists all sizes for one grouping.
-func (h *BrowserStats) ListSize(ctx context.Context, name string, start, end time.Time) (int, error) {
+func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time) (int, error) {
 	var where string
 	switch name {
 	case sizePhones:
@@ -670,7 +669,7 @@ func (h *BrowserStats) ListSize(ctx context.Context, name string, start, end tim
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`
-		select size as browser, count(size) as count
+		select size as name, count(size) as count
 		from hits
 		where
 			site=$1 and
@@ -680,25 +679,25 @@ func (h *BrowserStats) ListSize(ctx context.Context, name string, start, end tim
 		group by size
 	`, where), MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
 	if err != nil {
-		return 0, errors.Wrap(err, "BrowserStats.ListSize")
+		return 0, errors.Wrap(err, "Stats.ListSize")
 	}
 
 	grouped := make(map[string]int)
 	hh := *h
 	for i := range hh {
 		// TODO: apply scaling?
-		scaleless := strings.Join(strings.Split(hh[i].Browser, ", ")[:2], "×")
+		scaleless := strings.Join(strings.Split(hh[i].Name, ", ")[:2], "×")
 		grouped[scaleless] += hh[i].Count
 	}
 
-	ns := BrowserStats{}
+	ns := Stats{}
 	total := 0
 	for size, count := range grouped {
 		total += count
 		ns = append(ns, struct {
-			Browser string
-			Mobile  bool
-			Count   int
+			Name   string
+			Mobile bool
+			Count  int
 		}{size, false, count})
 	}
 	sort.Slice(ns, func(i int, j int) bool { return ns[i].Count > ns[j].Count })
@@ -708,10 +707,10 @@ func (h *BrowserStats) ListSize(ctx context.Context, name string, start, end tim
 }
 
 // List all location statistics for the given time period.
-func (h *BrowserStats) ListLocations(ctx context.Context, start, end time.Time) (int, error) {
+func (h *Stats) ListLocations(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
-			iso_3166_1.name as browser,
+			iso_3166_1.name as name,
 			sum(count) as count
 		from location_stats
 		join iso_3166_1 on iso_3166_1.alpha2=location
@@ -720,7 +719,7 @@ func (h *BrowserStats) ListLocations(ctx context.Context, start, end time.Time) 
 		order by count desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return 0, errors.Wrap(err, "BrowserStats.ListLocations")
+		return 0, errors.Wrap(err, "Stats.ListLocations")
 	}
 
 	var total int

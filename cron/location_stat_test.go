@@ -28,7 +28,7 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var stats goatcounter.BrowserStats
+	var stats goatcounter.Stats
 	total, err := stats.ListLocations(ctx, now, now)
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +54,7 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	stats = goatcounter.BrowserStats{}
+	stats = goatcounter.Stats{}
 	total, err = stats.ListLocations(ctx, now, now)
 	if err != nil {
 		t.Fatal(err)

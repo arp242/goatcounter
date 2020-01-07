@@ -81,7 +81,7 @@ func init() {
 		return template.HTML(b.String())
 	}
 
-	zhttp.FuncMap["hbar_chart"] = func(stats BrowserStats, total, parentTotal int, cutoff float32, link bool) template.HTML {
+	zhttp.FuncMap["hbar_chart"] = func(stats Stats, total, parentTotal int, cutoff float32, link bool) template.HTML {
 		tag := "p"
 		if link {
 			tag = "a"
@@ -96,7 +96,7 @@ func init() {
 			}
 			totalPerc += perc
 
-			browser := s.Browser
+			browser := s.Name
 			if browser == "" {
 				browser = "(unknown)"
 			}

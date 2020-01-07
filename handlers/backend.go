@@ -274,21 +274,21 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 	l = l.Since("pages.List")
 
-	var browsers goatcounter.BrowserStats
-	totalBrowsers, totalMobile, err := browsers.List(r.Context(), start, end)
+	var browsers goatcounter.Stats
+	totalBrowsers, totalMobile, err := browsers.ListBrowsers(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
 	l = l.Since("browsers.List")
 
-	var sizeStat goatcounter.BrowserStats
+	var sizeStat goatcounter.Stats
 	err = sizeStat.ListSizes(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
 	l = l.Since("sizeStat.ListSizes")
 
-	var locStat goatcounter.BrowserStats
+	var locStat goatcounter.Stats
 	totalLoc, err := locStat.ListLocations(r.Context(), start, end)
 	if err != nil {
 		return err
@@ -324,12 +324,12 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		MoreRefs          bool
 		TotalHits         int
 		TotalHitsDisplay  int
-		Browsers          goatcounter.BrowserStats
+		Browsers          goatcounter.Stats
 		TotalBrowsers     int
 		TotalMobile       string
 		SubSites          []string
-		SizeStat          goatcounter.BrowserStats
-		LocationStat      goatcounter.BrowserStats
+		SizeStat          goatcounter.Stats
+		LocationStat      goatcounter.Stats
 		ShowMoreLocations bool
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, pages,
 		refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
@@ -443,13 +443,13 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var browsers goatcounter.BrowserStats
+	var browsers goatcounter.Stats
 	total, err := browsers.ListBrowser(r.Context(), r.URL.Query().Get("name"), start, end)
 	if err != nil {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32, bool) template.HTML)
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.Stats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
 	tpl := f(browsers, total, int(t), .5, true)
 
@@ -469,13 +469,13 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var sizeStat goatcounter.BrowserStats
+	var sizeStat goatcounter.Stats
 	total, err := sizeStat.ListSize(r.Context(), r.URL.Query().Get("name"), start, end)
 	if err != nil {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32, bool) template.HTML)
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.Stats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
 	tpl := f(sizeStat, total, int(t), .5, true)
 
@@ -495,13 +495,13 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var locStat goatcounter.BrowserStats
+	var locStat goatcounter.Stats
 	total, err := locStat.ListLocations(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32, bool) template.HTML)
+	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.Stats, int, int, float32, bool) template.HTML)
 	tpl := f(locStat, total, total, 0, false)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
