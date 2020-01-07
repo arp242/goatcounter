@@ -502,7 +502,7 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.BrowserStats, int, int, float32, bool) template.HTML)
-	tpl := f(locStat, total, total, 0, true)
+	tpl := f(locStat, total, total, 0, false)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
 	})
@@ -613,7 +613,8 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		v.Append(ferr.Path(), "must be a number")
 
 		// TODO: we return here because formam stops decoding on the first
-		// error. We should really fix this, but it's an incompatible change.
+		// error. We should really fix this in formam, but it's an incompatible
+		// change.
 		return h.settingsTpl(w, r, &v)
 	}
 

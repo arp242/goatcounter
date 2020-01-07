@@ -12615,8 +12615,6 @@ form .err  { color: red; display: block; }
 	.chart { margin-bottom: 1em; }
 }
 
-/* TODO: doesn't show well on iPhone :-/ .go:after { content: "🡭"; } */
-
 .chart > .top {
 	font-size: 13px;
 	line-height: 1;
