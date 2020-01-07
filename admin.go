@@ -131,8 +131,9 @@ type AdminCountRefs []AdminCountRef
 
 func (a *AdminCountRefs) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, `
-		select site, count_ref, count(*) as count
-		from hits where count_ref != ''
+		select site, count_ref, count(*) as count from hits
+		where count_ref != ''
 		group by site, count_ref
+		having count(*)>100
 		order by count desc`), "AdminCountRefs")
 }
