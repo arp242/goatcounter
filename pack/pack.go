@@ -13737,7 +13737,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 		<th><a href="?order=created_at">Created at</a></th>
 	</tr>
 	{{range $s := .Stats}}
-		<tr>
+		<tr id="{{$s.ID}}">
 			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
 			<td>{{nformat $s.Count}}</td>
 			<td>
@@ -13749,7 +13749,10 @@ on <code>production.com</code> and not <code>staging.com</code> or
 			</td>
 			<td>{{$s.Name}}</td>
 			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
-			<td>{{$s.Plan}}</td>
+			<td>
+				{{$s.Plan}}
+				{{if eq $s.Plan "child"}}(<a href="#{{$s.Parent}}">{{$s.Parent}}</a>){{end}}
+			</td>
 			<td>{{tformat $s.CreatedAt ""}}</td>
 		</tr>
 	{{end}}

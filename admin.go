@@ -7,6 +7,7 @@ package goatcounter
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/pkg/errors"
@@ -17,6 +18,7 @@ import (
 
 type AdminStat struct {
 	ID        int64     `db:"id"`
+	Parent    *int64    `db:"parent"`
 	Code      string    `db:"code"`
 	Name      string    `db:"name"`
 	User      string    `db:"user"`
@@ -45,6 +47,7 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
 		select
 			sites.id,
+			sites.parent,
 			sites.code,
 			sites.name,
 			sites.created_at,
@@ -55,11 +58,33 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			count(*) - 1 as count
 		from sites
 		left join hits on hits.site=sites.id
-		join users on users.site=sites.id
+		left join users on users.site=coalesce(sites.parent, sites.id)
 		where hits.created_at >= now() - interval '30 days'
 		group by sites.id, sites.code, sites.name, sites.created_at, users.name, users.email, public, plan
 		order by %s desc`, js, order))
-	return errors.Wrap(err, "AdminStats.List")
+	if err != nil {
+		return errors.Wrap(err, "AdminStats.List")
+	}
+
+	// Add all the child plan counts to the parents.
+	aa := *a
+	for _, s := range aa {
+		if s.Plan != PlanChild {
+			continue
+		}
+
+		for i, s2 := range aa {
+			if s2.ID == *s.Parent {
+				aa[i].Count += s.Count
+				break
+			}
+		}
+	}
+	if order == "count" {
+		sort.Slice(aa, func(i, j int) bool { return aa[i].Count > aa[j].Count })
+	}
+
+	return nil
 }
 
 type AdminSiteStat struct {
