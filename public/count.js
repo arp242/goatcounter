@@ -17,19 +17,37 @@
 		var results = {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
+			t: count_vars.title    || VARS.title,
+			d: count_vars.domain   || VARS.domain,
 		};
 
-		var rcb, pcb;
+		var rcb, pcb, tcb, dcb;
 		if (typeof(results.r) === 'function')
 			rcb = results.r;
 		if (typeof(results.p) === 'function')
 			pcb = results.p;
+		if (typeof(results.t) === 'function')
+			tcb = results.t;
+		if (typeof(results.d) === 'function')
+			dcb = results.d;
 
 		// Get referrer.
 		if (results.r === null || results.r === undefined)
 			results.r = document.referrer;
 		if (rcb)
 			results.r = rcb(results.r);
+
+		// Get title.
+		if (results.t === null || results.t === undefined)
+			results.t = document.title;
+		if (tcb)
+			results.t = tcb(results.t);
+
+		// Get domain.
+		if (results.d === null || results.d === undefined)
+			results.d = location.hostname;
+		if (tcb)
+			results.d = tcb(results.d);
 
 		// Get path.
 		if (results.p === null || results.p === undefined) {

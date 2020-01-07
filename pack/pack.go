@@ -438,6 +438,13 @@ commit;
 	insert into version values ('2020-01-02-1-bot');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-07-1-title-domain.sql": []byte(`begin;
+	alter table hits add column title varchar not null default '';
+	alter table hits add column domain varchar not null default '';
+
+	insert into version values ('2020-01-07-1-title-domain');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -939,6 +946,13 @@ commit;
 	insert into version values ('2020-01-02-1-bot');
 commit;
 `),
+	"db/migrate/sqlite/2020-01-07-1-title-domain.sql": []byte(`begin;
+	alter table hits add column title varchar;
+	alter table hits add column domain varchar;
+
+	insert into version values ('2020-01-07-1-title-domain');
+commit;
+`),
 }
 
 var Public = map[string][]byte{
@@ -1405,19 +1419,37 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		var results = {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
+			t: count_vars.title    || VARS.title,
+			d: count_vars.domain   || VARS.domain,
 		};
 
-		var rcb, pcb;
+		var rcb, pcb, tcb, dcb;
 		if (typeof(results.r) === 'function')
 			rcb = results.r;
 		if (typeof(results.p) === 'function')
 			pcb = results.p;
+		if (typeof(results.t) === 'function')
+			tcb = results.t;
+		if (typeof(results.d) === 'function')
+			dcb = results.d;
 
 		// Get referrer.
 		if (results.r === null || results.r === undefined)
 			results.r = document.referrer;
 		if (rcb)
 			results.r = rcb(results.r);
+
+		// Get title.
+		if (results.t === null || results.t === undefined)
+			results.t = document.title;
+		if (tcb)
+			results.t = tcb(results.t);
+
+		// Get domain.
+		if (results.d === null || results.d === undefined)
+			results.d = location.hostname;
+		if (tcb)
+			results.d = tcb(results.d);
 
 		// Get path.
 		if (results.p === null || results.p === undefined) {
@@ -1499,7 +1531,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 `),
 	"public/count.min.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
 // This file is part of GoatCounter and published under the terms of the EUPL
-// v1.2, which can be found in the LICENSE file or at eupl12.zgo.at
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
 // See /bin/proxy on how to test this locally.
 (function() { 
@@ -1516,19 +1548,37 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		var results = {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
+			t: count_vars.title    || VARS.title,
+			d: count_vars.domain   || VARS.domain,
 		};
 
-		var rcb, pcb;
+		var rcb, pcb, tcb, dcb;
 		if (typeof(results.r) === 'function')
 			rcb = results.r;
 		if (typeof(results.p) === 'function')
 			pcb = results.p;
+		if (typeof(results.t) === 'function')
+			tcb = results.t;
+		if (typeof(results.d) === 'function')
+			dcb = results.d;
 
 		// Get referrer.
 		if (results.r === null || results.r === undefined)
 			results.r = document.referrer;
 		if (rcb)
 			results.r = rcb(results.r);
+
+		// Get title.
+		if (results.t === null || results.t === undefined)
+			results.t = document.title;
+		if (tcb)
+			results.t = tcb(results.t);
+
+		// Get domain.
+		if (results.d === null || results.d === undefined)
+			results.d = location.hostname;
+		if (tcb)
+			results.d = tcb(results.d);
 
 		// Get path.
 		if (results.p === null || results.p === undefined) {
@@ -12895,7 +12945,8 @@ insert into version values
 	('2019-12-19-1-updates'),
 	('2019-12-20-1-dailystat'),
 	('2019-12-31-1-blank-days'),
-	('2020-01-02-1-bot');
+	('2020-01-02-1-bot'),
+	('2020-01-07-1-title-domain');
 
 drop table if exists sites;
 create table sites (
@@ -12956,6 +13007,8 @@ create table hits (
 	location       varchar        not null default '',
 	count_ref      varchar        not null default '',
 	bot            int            default 0,
+	title          varchar        not null default '',
+	domain         varchar        not null default '',
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
@@ -13415,8 +13468,14 @@ callback is <code>null</code>.</p>
 <p>Supported keys:</p>
 
 <ul>
-	<li><code>path</code> – Current page that’s recorded, without domain (e.g.
+	<li><code>path</code> – Page that’s recorded, without domain (e.g.
 		<code>/path/page.html</code>).</li>
+
+	<li><code>title</code> – Page title (not yet displayed). The UI will always
+		display the latest title used. Default is <code>document.title</code>.</li>
+
+	<li><code>domain</code> – Domain; not yet used. Default is
+		<code>window.location.hostname</code>.</li>
 
 	<li><code>referrer</code> – Where the user came from; can be an URL
 		(<code>https://example.com</code>) or any string

@@ -36,6 +36,8 @@ type Hit struct {
 	Site int64 `db:"site" json:"-"`
 
 	Path        string            `db:"path" json:"p,omitempty"`
+	Title       string            `db:"title" json:"t,omitempty"`
+	Domain      string            `db:"domain" json:"d,omitempty"`
 	Ref         string            `db:"ref" json:"r,omitempty"`
 	RefParams   *string           `db:"ref_params" json:"-"`
 	RefOriginal *string           `db:"ref_original" json:"-"`

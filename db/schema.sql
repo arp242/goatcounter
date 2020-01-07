@@ -12,7 +12,8 @@ insert into version values
 	('2019-12-19-1-updates'),
 	('2019-12-20-1-dailystat'),
 	('2019-12-31-1-blank-days'),
-	('2020-01-02-1-bot');
+	('2020-01-02-1-bot'),
+	('2020-01-07-1-title-domain');
 
 drop table if exists sites;
 create table sites (
@@ -73,6 +74,8 @@ create table hits (
 	location       varchar        not null default '',
 	count_ref      varchar        not null default '',
 	bot            int            default 0,
+	title          varchar        not null default '',
+	domain         varchar        not null default '',
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );

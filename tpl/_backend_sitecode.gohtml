@@ -31,8 +31,14 @@ callback is <code>null</code>.</p>
 <p>Supported keys:</p>
 
 <ul>
-	<li><code>path</code> – Current page that’s recorded, without domain (e.g.
+	<li><code>path</code> – Page that’s recorded, without domain (e.g.
 		<code>/path/page.html</code>).</li>
+
+	<li><code>title</code> – Page title (not yet displayed). The UI will always
+		display the latest title used. Default is <code>document.title</code>.</li>
+
+	<li><code>domain</code> – Domain; not yet used. Default is
+		<code>window.location.hostname</code>.</li>
 
 	<li><code>referrer</code> – Where the user came from; can be an URL
 		(<code>https://example.com</code>) or any string
