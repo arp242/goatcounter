@@ -31,13 +31,6 @@ import (
 type website struct{}
 
 func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
-	// TODO: Frequent 404s I should probably fix:
-	//       /robots.txt
-	//       /ads.txt               https://en.wikipedia.org/wiki/Ads.txt
-	//       /security.txt          https://en.wikipedia.org/wiki/Security.txt
-	//       /apple-touch-icon.png
-	//       /sitemap.xml
-
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
@@ -54,6 +47,16 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
 	})
+
+	r.Get("/robots.txt", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.Text(w, "")
+	}))
+	r.Get("/ads.txt", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.Text(w, "")
+	}))
+	r.Get("/security.txt", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.Text(w, "Contact: support@goatcounter.com")
+	}))
 
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup", zhttp.Wrap(h.signup))
