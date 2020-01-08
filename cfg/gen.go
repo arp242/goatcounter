@@ -30,6 +30,7 @@ var flags = []flag{
 	{"string", "MemProfile", "memprofile", "", "Write memory profile to this file."},
 	{"string", "CertDir", "certdir", "", "Directory to store ACME-generated certificates for custom domains"},
 	{"string", "Plan", "plan", "pro", "Plan for new installations"},
+	{"string", "Debug", "debug", "", "Modules to debug, comma-separated or 'all' for all modules."},
 }
 
 type flag struct {

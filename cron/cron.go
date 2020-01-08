@@ -90,7 +90,9 @@ func persistAndStat(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	l = l.Since("memstore")
+	if len(hits) > 0 {
+		l = l.Since("memstore")
+	}
 
 	grouped := make(map[int64][]goatcounter.Hit)
 	for _, h := range hits {

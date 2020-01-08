@@ -15,6 +15,7 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
+	"zgo.at/zlog"
 )
 
 func main() {
@@ -25,6 +26,8 @@ func main() {
 	flag.BoolVar(&confirm, "confirm", false, "Skip 10-second safety check")
 	flag.StringVar(&since, "since", "", "Only reindex days starting with this; as 2006-01-02")
 	cfg.Set()
+
+	zlog.Config.SetDebug(cfg.Debug)
 
 	db, err := zdb.Connect(zdb.ConnectOptions{
 		Connect:    cfg.DBFile,

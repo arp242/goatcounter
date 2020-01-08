@@ -54,6 +54,8 @@ zgo.at/zhttp v0.0.0-20200108041919-3990cfa2823e h1:eiTtIQKIXVwaL64iGGyNSHmcVJh1i
 zgo.at/zhttp v0.0.0-20200108041919-3990cfa2823e/go.mod h1:7PO/E4nqxbstyxX95cqKJOpZAVKNKoohk5utWZIdKz0=
 zgo.at/zlog v1.0.7 h1:Ppjb9VOBheqENQ28TWsOddG2qIVO4nGb0b/TPh/5sXc=
 zgo.at/zlog v1.0.7/go.mod h1:0RldP/sQzWwOCPsJogZcxnJneFt56T1zfDtIN/LcYec=
+zgo.at/zlog v1.0.8 h1:uXgCFWdGkixSrGD83zjMFHSk3OD9V89UaN9KANO+yCM=
+zgo.at/zlog v1.0.8/go.mod h1:0RldP/sQzWwOCPsJogZcxnJneFt56T1zfDtIN/LcYec=
 zgo.at/zpack v1.0.0 h1:gcew5c1Bhh6uzi22nfsr/ztXT7UVVbb4Rw4gv0btHao=
 zgo.at/zpack v1.0.0/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
 zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=

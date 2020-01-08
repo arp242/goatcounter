@@ -74,8 +74,10 @@ func main() {
 	if cfg.Prod {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
+	zlog.Config.SetDebug(cfg.Debug)
 	zlog.Config.StackFilter = errorutil.FilterPattern(
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
+
 	if cfg.EmailErrors != "" {
 		zlog.Config.Outputs = append(zlog.Config.Outputs, func(l zlog.Log) {
 			if l.Level != zlog.LevelErr {

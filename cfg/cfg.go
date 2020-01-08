@@ -26,6 +26,7 @@ var (
 	MemProfile   string // Write memory profile to this file.
 	CertDir      string // Directory to store ACME-generated certificates for custom domains
 	Plan         string // Plan for new installations
+	Debug        string // Modules to debug, comma-separated or 'all' for all modules.
 )
 
 // Set configuration variables from os.Args.
@@ -44,6 +45,7 @@ func Set() {
 	flag.StringVar(&MemProfile, "memprofile", "", "Write memory profile to this file.")
 	flag.StringVar(&CertDir, "certdir", "", "Directory to store ACME-generated certificates for custom domains")
 	flag.StringVar(&Plan, "plan", "pro", "Plan for new installations")
+	flag.StringVar(&Debug, "debug", "", "Modules to debug, comma-separated or 'all' for all modules.")
 	flag.Parse()
 }
 
@@ -63,4 +65,5 @@ func Print() {
 	fmt.Printf("MemProfile     %#v\n", MemProfile)
 	fmt.Printf("CertDir        %#v\n", CertDir)
 	fmt.Printf("Plan           %#v\n", Plan)
+	fmt.Printf("Debug          %#v\n", Debug)
 }
