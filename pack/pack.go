@@ -13404,7 +13404,7 @@ var Templates = map[string][]byte{
 				{{/* We don't have the site domain, so can't link to it.
 				<a class="top go" target="_blank" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
 				*/}}
-				<span class="top max">{{nformat .Max}}</span>
+				<span class="top max" title="Y-axis scale">{{nformat .Max}}</span>
 				<span class="half"></span>
 				{{bar_chart .Stats .Max}}
 			</div>
