@@ -66,8 +66,13 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 				// people in the same building hitting the limit.
 				return r.RemoteAddr + r.UserAgent()
 			},
-			Store:  zhttp.NewRatelimitMemory(),
-			Period: 1, Limit: 4,
+			Store: zhttp.NewRatelimitMemory(),
+			Limit: func(r *http.Request) (int, int64) {
+				if r.RemoteAddr == "127.0.0.1" { // From zbuf
+					return 1 << 14, 1
+				}
+				return 4, 1
+			},
 		})).Get("/count", zhttp.Wrap(h.count))
 
 		if cfg.CertDir != "" {
@@ -119,9 +124,9 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			af.Get("/settings", zhttp.Wrap(h.settings))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
-				Client: zhttp.RatelimitIP,
-				Store:  zhttp.NewRatelimitMemory(),
-				Period: 3600 * 4, Limit: 1,
+				Client:  zhttp.RatelimitIP,
+				Store:   zhttp.NewRatelimitMemory(),
+				Limit:   zhttp.RatelimitLimit(1, 3600*4),
 				Message: "you can request only one export every 4 hours",
 			})).Get("/export/{file}", zhttp.Wrap(h.export))
 			af.Post("/add", zhttp.Wrap(h.addSubsite))

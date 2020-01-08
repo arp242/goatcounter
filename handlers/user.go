@@ -30,8 +30,7 @@ func (h user) mount(r chi.Router) {
 	rate := r.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 		Client: zhttp.RatelimitIP,
 		Store:  zhttp.NewRatelimitMemory(),
-		Period: 60,
-		Limit:  20,
+		Limit:  zhttp.RatelimitLimit(20, 60),
 	}))
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
 	rate.Get("/user/login/{key}", zhttp.Wrap(h.login))
