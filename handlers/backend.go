@@ -377,11 +377,18 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	contacts := make([]string, len(a))
+	for i := range a {
+		contacts[i] = a[i].Email
+	}
+	sliceutil.UniqString(contacts)
+
 	return zhttp.Template(w, "backend_admin.gohtml", struct {
 		Globals
 		Stats     goatcounter.AdminStats
 		CountRefs goatcounter.AdminCountRefs
-	}{newGlobals(w, r), a, cs})
+		Contacts  string
+	}{newGlobals(w, r), a, cs, strings.Join(contacts, ", ")})
 }
 
 func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {

@@ -13866,9 +13866,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 </table>
 
 <h2>Contacts</h2>
-{{range $s := .Stats}}
-	{{$s.Email}},
-{{end}}
+{{.Contacts}}
 
 {{template "_backend_bottom.gohtml" .}}
 `),
