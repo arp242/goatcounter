@@ -94,7 +94,7 @@ func (s *Site) Defaults(ctx context.Context) {
 	}
 
 	if s.Settings.DateFormat == "" {
-		s.Settings.DateFormat = "2006-01-02"
+		s.Settings.DateFormat = "2 Jan ’06"
 	}
 
 	if s.Settings.Limits.Page == 0 {
