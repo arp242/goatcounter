@@ -52,11 +52,6 @@ type Hit struct {
 	// Track deprecated stuff from count.js
 	Deprecated string `db:"-" json:"dep"`
 
-	// Tracks referer of the /count request; this is not a statistic, just so we
-	// can get an indication on which domains people are using GoatCounter, to
-	// help track down abuse.
-	CountRef string `db:"count_ref" json:"-"`
-
 	// Parsed Ref
 	RefURL *url.URL `db:"-"`
 }

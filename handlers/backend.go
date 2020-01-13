@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/pprof"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -214,11 +215,22 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		Site:      site.ID,
 		Browser:   r.UserAgent(),
 		Location:  geo(r.RemoteAddr),
-		CountRef:  r.Referer(),
 		CreatedAt: time.Now().UTC(),
 	}
 	if user_agent.New(r.UserAgent()).Bot() {
 		hit.Bot = 1
+	}
+
+	// Tracks referer of the /count request; this is not a statistic, just so we
+	// can get an indication on which domains people are using GoatCounter, to
+	// help track down abuse.
+	if ref := r.Referer(); ref != "" {
+		u, _ := url.Parse(ref)
+		if u != nil {
+			ref = u.Host
+		}
+
+		//hitRefs[ref] += 1
 	}
 
 	_, err := zhttp.Decode(r, &hit)
@@ -381,8 +393,8 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var cs goatcounter.AdminCountRefs
-	err = cs.List(r.Context())
+	var usage goatcounter.AdminUsages
+	err = usage.List(r.Context())
 	if err != nil {
 		return err
 	}
@@ -395,10 +407,10 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "backend_admin.gohtml", struct {
 		Globals
-		Stats     goatcounter.AdminStats
-		CountRefs goatcounter.AdminCountRefs
-		Contacts  string
-	}{newGlobals(w, r), a, cs, strings.Join(contacts, ", ")})
+		Stats    goatcounter.AdminStats
+		Usage    goatcounter.AdminUsages
+		Contacts string
+	}{newGlobals(w, r), a, usage, strings.Join(contacts, ", ")})
 }
 
 func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {

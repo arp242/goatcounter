@@ -546,6 +546,27 @@ commit;
 commit;
 
 `),
+	"db/migrate/pgsql/2020-01-27-2-rm-count-ref.sql": []byte(`begin;
+	-- https://www.depesz.com/2016/06/14/incrementing-counters-in-database/
+	-- - Just insert new row to count.
+	-- - Cron job merges all of them every 30 mins or so
+	drop table if exists usage;
+	create table usage (
+		site           integer        not null                 check(site > 0),
+		domain         varchar        not null,
+		count          integer        not null,
+		vetted         integer        default 0,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+
+	insert into usage
+		select site, count_ref, count(count_ref) from hits where count_ref != '' group by site, count_ref;
+	alter table hits drop column count_ref;
+
+	insert into version values ('2020-01-27-2-rm-count-ref');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1116,6 +1137,43 @@ commit;
 	alter table hits2 rename to hits;
 
 	insert into version values ('2020-01-24-2-domain');
+commit;
+`),
+	"db/migrate/sqlite/2020-01-27-2-rm-count-ref.sql": []byte(`begin;
+	create table usage (
+		site           integer        not null                 check(site > 0),
+		domain         varchar        not null,
+		count          integer        not null,
+		vetted         integer        default 0,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create unique index "usage#site#domain" on usage(site, domain);
+
+	create table hits2 (
+		site           integer        not null                 check(site > 0),
+
+		path           varchar        not null,
+		ref            varchar        not null,
+		ref_original   varchar,
+		ref_params     varchar,
+		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
+		browser        varchar        not null,
+		size           varchar        not null default '',
+		location       varchar        not null default '',
+		bot            int            default 0,
+		title          varchar        not null default '',
+		event          int            default 0,
+
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
+	);
+
+	insert into hits2 select site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at from hits;
+	drop table hits;
+	alter table hits2 rename to hits;
+
+
+	insert into version values ('2020-01-27-2-rm-count-ref');
 commit;
 `),
 }
@@ -14215,7 +14273,7 @@ do this 100% reliably.</p>
 					{{$s.Code}}
 				{{end}}
 			</td>
-			<td>{{$s.Name}}</td>
+			<td>{{$s.Name}}{{if $s.LinkDomain}} – {{$s.LinkDomain}}{{end}}</td>
 			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
 			<td>
 				{{$s.Plan}}
@@ -14226,18 +14284,18 @@ do this 100% reliably.</p>
 	{{end}}
 </table>
 
-<h2>Count refs</h2>
+<h2>Usage</h2>
 <table>
 	<tr>
 		<th>Site</th>
 		<th>Count</th>
 		<th>Ref</th>
 	</tr>
-	{{range $s := .CountRefs}}
+	{{range $s := .Usage}}
 		<tr>
 			<td><a href="/admin/{{$s.Site}}">{{$s.Site}}</a></td>
 			<td>{{$s.Count}}</td>
-			<td>{{$s.CountRef}}</td>
+			<td>{{$s.Domain}}</td>
 		</tr>
 	{{end}}
 </table>

@@ -26,7 +26,7 @@
 					{{$s.Code}}
 				{{end}}
 			</td>
-			<td>{{$s.Name}}</td>
+			<td>{{$s.Name}}{{if $s.LinkDomain}} – {{$s.LinkDomain}}{{end}}</td>
 			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
 			<td>
 				{{$s.Plan}}
@@ -37,18 +37,18 @@
 	{{end}}
 </table>
 
-<h2>Count refs</h2>
+<h2>Usage</h2>
 <table>
 	<tr>
 		<th>Site</th>
 		<th>Count</th>
 		<th>Ref</th>
 	</tr>
-	{{range $s := .CountRefs}}
+	{{range $s := .Usage}}
 		<tr>
 			<td><a href="/admin/{{$s.Site}}">{{$s.Site}}</a></td>
 			<td>{{$s.Count}}</td>
-			<td>{{$s.CountRef}}</td>
+			<td>{{$s.Domain}}</td>
 		</tr>
 	{{end}}
 </table>
