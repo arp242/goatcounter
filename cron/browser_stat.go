@@ -26,57 +26,49 @@ import (
 //
 // TODO: mobile counts are inaccurate as it's not grouped by that.
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
-	txctx, tx, err := zdb.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	// Group by day + browser.
-	type gt struct {
-		count   int
-		mobile  bool
-		day     string
-		browser string
-		version string
-	}
-	grouped := map[string]gt{}
-	for _, h := range hits {
-		browser, version, mobile := getBrowser(h.Browser)
-		if browser == "" {
-			continue
+	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		// Group by day + browser.
+		type gt struct {
+			count   int
+			mobile  bool
+			day     string
+			browser string
+			version string
 		}
-
-		day := h.CreatedAt.Format("2006-01-02")
-		k := day + browser + " " + version
-		v := grouped[k]
-		if v.count == 0 {
-			v.day = day
-			v.browser = browser
-			v.version = version
-			v.mobile = mobile
-			v.count, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
-			if err != nil {
-				return err
+		grouped := map[string]gt{}
+		for _, h := range hits {
+			browser, version, mobile := getBrowser(h.Browser)
+			if browser == "" {
+				continue
 			}
+
+			day := h.CreatedAt.Format("2006-01-02")
+			k := day + browser + " " + version
+			v := grouped[k]
+			if v.count == 0 {
+				v.day = day
+				v.browser = browser
+				v.version = version
+				v.mobile = mobile
+				var err error
+				v.count, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
+				if err != nil {
+					return err
+				}
+			}
+
+			v.count += 1
+			grouped[k] = v
 		}
 
-		v.count += 1
-		grouped[k] = v
-	}
-
-	siteID := goatcounter.MustGetSite(ctx).ID
-	ins := bulk.NewInsert(txctx, tx,
-		"browser_stats", []string{"site", "day", "browser", "version", "count", "mobile"})
-	for _, v := range grouped {
-		ins.Values(siteID, v.day, v.browser, v.version, v.count, v.mobile)
-	}
-	err = ins.Finish()
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+		siteID := goatcounter.MustGetSite(ctx).ID
+		ins := bulk.NewInsert(ctx, tx,
+			"browser_stats", []string{"site", "day", "browser", "version", "count", "mobile"})
+		for _, v := range grouped {
+			ins.Values(siteID, v.day, v.browser, v.version, v.count, v.mobile)
+		}
+		return ins.Finish()
+	})
 }
 
 func existingBrowserStats(

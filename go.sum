@@ -48,8 +48,8 @@ google.golang.org/appengine v1.6.5 h1:tycE03LOZYQNhDpS27tcQdAzLCVMaj7QT2SXxebnpC
 google.golang.org/appengine v1.6.5/go.mod h1:8WjMMxjGQR8xUklV/ARdw2HLXBOI7O7uCIDZVag1xfc=
 zgo.at/utils v1.2.0 h1:Ohv+XfqyoiSdl9lCbyiDZ5E4YgEXWxxE4Y/holHDiYo=
 zgo.at/utils v1.2.0/go.mod h1:7acz1AfMZAOOC1wTi6QbYFie+eA0LRSHE38TwLZsFcA=
-zgo.at/zdb v0.0.0-20200104065131-90c5bb37d973 h1:BUmqUQu17pL0e7byR1/wY+qpJqeoRHhrhIc5Pszumds=
-zgo.at/zdb v0.0.0-20200104065131-90c5bb37d973/go.mod h1:GT5Nyrxb9H6JszZtd7o0m5CPEd3C7DFqAeJt98nyNQI=
+zgo.at/zdb v0.0.0-20200114054604-cb5410b595af h1:0sqdYwYaBk8qDdNEW/gmmZ0Otxih4wYMbFYnPnO77ow=
+zgo.at/zdb v0.0.0-20200114054604-cb5410b595af/go.mod h1:GT5Nyrxb9H6JszZtd7o0m5CPEd3C7DFqAeJt98nyNQI=
 zgo.at/zhttp v0.0.0-20200113161827-2cb6ed03333e h1:sZ1oj9sa+w6mQlhoxMMWWKqMAPEZURHIR0cY1St3Mgc=
 zgo.at/zhttp v0.0.0-20200113161827-2cb6ed03333e/go.mod h1:7PO/E4nqxbstyxX95cqKJOpZAVKNKoohk5utWZIdKz0=
 zgo.at/zlog v1.0.7 h1:Ppjb9VOBheqENQ28TWsOddG2qIVO4nGb0b/TPh/5sXc=
