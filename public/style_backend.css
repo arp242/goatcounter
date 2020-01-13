@@ -83,16 +83,14 @@ form .err  { color: red; display: block; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
+/* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
+ * solution for that though :-/ */
+.page-title, .rlink {
+	display: inline-block; max-width: 17.5rem;
+	text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
 .rlink {
 	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
-	max-width: 17.5em;
-	display: inline-block;	
-
-	/* Ideally I'd like the … to be in the centre, rather than at the end. Need
-	 * JS solution for that though :-/ */
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
 }
 
 .count-list tr {

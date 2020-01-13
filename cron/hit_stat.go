@@ -23,6 +23,7 @@ import (
 //   site       | 1
 //   day        | 2019-12-05
 //   path       | /jquery.html
+//   title      | Why I'm still using jQuery in 2019
 //   stats      | [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	txctx, tx, err := zdb.Begin(ctx)
@@ -37,6 +38,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		total int
 		day   string
 		path  string
+		title string
 	}
 	grouped := map[string]gt{}
 	for _, h := range hits {
@@ -50,6 +52,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		if len(v.count) == 0 {
 			v.day = day
 			v.path = h.Path
+			v.title = h.Title
 			v.count, err = existingHitStats(ctx, tx, h.Site, day, v.path)
 			if err != nil {
 				return err
@@ -67,9 +70,9 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 	siteID := goatcounter.MustGetSite(ctx).ID
 	ins := bulk.NewInsert(txctx, tx,
-		"hit_stats", []string{"site", "day", "path", "stats", "total"})
+		"hit_stats", []string{"site", "day", "path", "title", "stats", "total"})
 	for _, v := range grouped {
-		ins.Values(siteID, v.day, v.path, jsonutil.MustMarshal(v.count), v.total)
+		ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count), v.total)
 	}
 	err = ins.Finish()
 	if err != nil {
