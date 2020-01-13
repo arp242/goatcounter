@@ -136,21 +136,5 @@ it:
 
 ### Development
 
-1. In development mode (i.e. without `-prod`) various files like static assets
-   and templates are loaded from the filesystem. For this reason goatcounter
-   expects to be run from the goatcounter source directory.
-
-2. Running `goatcounter` without flags will run a development environment on
-   http://goatcounter.localhost:8081
-
-3. You can sign up your new site at http://www.goatcounter.localhost:8081, which
-   can then be accessed at http://[code].goatcounter.localhost:8081
-
-   Note: some systems require `/etc/hosts` entries `*.goatcounter.localhost`,
-   whereas others work fine without. If you can't connect try adding this:
-
-       127.0.0.1 goatcounter.localhost www.goatcounter.localhost static.goatcounter.localhost code.goatcounter.localhost
-
-4. Don't forget to run `go generate ./...` before building a release binary;
-   this will generate the `pack/pack.go` file which contains all static assets
-   (JS/CSS, templates, DB migrations).
+See [.github/CONTRIBUTING.markdown](/.github/CONTRIBUTING.markdown) for details
+on how to run a development server, write patches, etc.
