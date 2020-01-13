@@ -2,3 +2,4 @@
 /goatcounter-reindex
 /*.upx
 /db/*.sqlite3*
+/dist
