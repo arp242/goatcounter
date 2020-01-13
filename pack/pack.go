@@ -445,6 +445,33 @@ commit;
 	insert into version values ('2020-01-07-1-title-domain');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-13-1-update.sql": []byte(`begin;
+	delete from updates where subject = 'GoatCounter 1.0 released';
+	insert into updates (subject, created_at, show_at, body) values (
+		'GoatCounter 1.0 released', now(), now(),
+		'<p>I just tagged GoatCounter 1.0! There are no exciting sudden changes
+			as updates are usually deployed immediately, but it is an important
+			milestone in the development of GoatCounter: this is the first version
+			that I consider complete and stable enough to “shout from the roofs”, as
+			we say in Dutch :-)
+			Also see the <a href="https://www.arp242.net/goatcounter-1.0.html">announcement post</a>.</p>
+
+		<p>I aim to release a new version roughly every 6 to 8 weeks. The next
+			version will mostly focus on small UX improvements and making the
+			self-hosting experience better. You can see the
+			<a href="https://github.com/zgoat/goatcounter/milestone/3">roadmap for 1.1 on GitHub</a>.
+			These changes will be deployed when they’re ready rather than in one go.
+			I’ll be providing some more updates in this space when I make
+			user-visible changes, but for the full ChangeLog see the GitHub commit
+			log.</p>
+
+		<p><strong>Feedback is important</strong>, so let me know if there’s
+			anything in particular you’re missing.</p>'
+	);
+
+	insert into version values ('2020-01-13-1-update');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -13594,9 +13621,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
-				{{/*
 				<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |
-				*/}}
 				{{if eq .Site.ID 1}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
