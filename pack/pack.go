@@ -14478,7 +14478,7 @@ sub {
 			<li>Free but donation recommended</li>
 			<li>For non-commercial use</li>
 			<li>Unlimited sites</li>
-			<li title="3.3k/day">100k pageviews/months</li>
+			<li title="3.3k/day">100k pageviews/month</li>
 			<li class="empty">&nbsp;</li>
 			<li class="empty">&nbsp;</li>
 		</ul>
@@ -14502,7 +14502,7 @@ sub {
 			<li>€30/month</li>
 			<li>Commercial use</li>
 			<li>Unlimited sites</li>
-			<li title="64k/day">1M pageviews/month</li>
+			<li title="33.3k/day">1M pageviews/month</li>
 			<li>Custom domain (stats.mine.com)</li>
 			<li>Phone support</li>
 		</ul>
