@@ -21,48 +21,40 @@ import (
 //     1 | 2019-11-30 | GR       |     2
 //     1 | 2019-11-30 | MX       |     4
 func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
-	txctx, tx, err := zdb.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	// Group by day + location.
-	type gt struct {
-		count    int
-		day      string
-		location string
-	}
-	grouped := map[string]gt{}
-	for _, h := range hits {
-		day := h.CreatedAt.Format("2006-01-02")
-		k := day + h.Location
-		v := grouped[k]
-		if v.count == 0 {
-			v.day = day
-			v.location = h.Location
-			v.count, err = existingLocationStats(ctx, tx, h.Site, day, v.location)
-			if err != nil {
-				return err
+	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		// Group by day + location.
+		type gt struct {
+			count    int
+			day      string
+			location string
+		}
+		grouped := map[string]gt{}
+		for _, h := range hits {
+			day := h.CreatedAt.Format("2006-01-02")
+			k := day + h.Location
+			v := grouped[k]
+			if v.count == 0 {
+				v.day = day
+				v.location = h.Location
+				var err error
+				v.count, err = existingLocationStats(ctx, tx, h.Site, day, v.location)
+				if err != nil {
+					return err
+				}
 			}
+
+			v.count += 1
+			grouped[k] = v
 		}
 
-		v.count += 1
-		grouped[k] = v
-	}
-
-	siteID := goatcounter.MustGetSite(ctx).ID
-	ins := bulk.NewInsert(txctx, tx,
-		"location_stats", []string{"site", "day", "location", "count"})
-	for _, v := range grouped {
-		ins.Values(siteID, v.day, v.location, v.count)
-	}
-	err = ins.Finish()
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+		siteID := goatcounter.MustGetSite(ctx).ID
+		ins := bulk.NewInsert(ctx, tx,
+			"location_stats", []string{"site", "day", "location", "count"})
+		for _, v := range grouped {
+			ins.Values(siteID, v.day, v.location, v.count)
+		}
+		return ins.Finish()
+	})
 }
 
 func existingLocationStats(

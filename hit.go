@@ -256,29 +256,25 @@ func (h *Hits) List(ctx context.Context) error {
 
 // Purge all paths matching the like pattern.
 func (h *Hits) Purge(ctx context.Context, path string) error {
-	txctx, tx, err := zdb.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		site := MustGetSite(ctx).ID
 
-	site := MustGetSite(txctx).ID
+		_, err := tx.ExecContext(ctx,
+			`delete from hits where site=$1 and lower(path) like lower($2)`,
+			site, path)
+		if err != nil {
+			return errors.Wrap(err, "Hits.Purge")
+		}
 
-	_, err = tx.ExecContext(txctx,
-		`delete from hits where site=$1 and lower(path) like lower($2)`,
-		site, path)
-	if err != nil {
-		return errors.Wrap(err, "Hits.Purge")
-	}
+		_, err = tx.ExecContext(ctx,
+			`delete from hit_stats where site=$1 and lower(path) like lower($2)`,
+			site, path)
+		if err != nil {
+			return errors.Wrap(err, "Hits.Purge")
+		}
 
-	_, err = tx.ExecContext(ctx,
-		`delete from hit_stats where site=$1 and lower(path) like lower($2)`,
-		site, path)
-	if err != nil {
-		return errors.Wrap(err, "Hits.Purge")
-	}
-
-	return tx.Commit()
+		return nil
+	})
 }
 
 type Stat struct {

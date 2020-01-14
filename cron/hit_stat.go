@@ -26,60 +26,52 @@ import (
 //   title      | Why I'm still using jQuery in 2019
 //   stats      | [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
-	txctx, tx, err := zdb.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		// Group by day + path.
+		type gt struct {
+			count []int
+			total int
+			day   string
+			path  string
+			title string
+		}
+		grouped := map[string]gt{}
+		for _, h := range hits {
+			if h.Bot > 0 {
+				continue
+			}
 
-	// Group by day + path.
-	type gt struct {
-		count []int
-		total int
-		day   string
-		path  string
-		title string
-	}
-	grouped := map[string]gt{}
-	for _, h := range hits {
-		if h.Bot > 0 {
-			continue
+			day := h.CreatedAt.Format("2006-01-02")
+			k := day + h.Path
+			v := grouped[k]
+			if len(v.count) == 0 {
+				v.day = day
+				v.path = h.Path
+				v.title = h.Title
+				var err error
+				v.count, err = existingHitStats(ctx, tx, h.Site, day, v.path)
+				if err != nil {
+					return err
+				}
+				for _, c := range v.count {
+					v.total += c
+				}
+			}
+
+			h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
+			v.count[h] += 1
+			v.total += 1
+			grouped[k] = v
 		}
 
-		day := h.CreatedAt.Format("2006-01-02")
-		k := day + h.Path
-		v := grouped[k]
-		if len(v.count) == 0 {
-			v.day = day
-			v.path = h.Path
-			v.title = h.Title
-			v.count, err = existingHitStats(ctx, tx, h.Site, day, v.path)
-			if err != nil {
-				return err
-			}
-			for _, c := range v.count {
-				v.total += c
-			}
+		siteID := goatcounter.MustGetSite(ctx).ID
+		ins := bulk.NewInsert(ctx, tx,
+			"hit_stats", []string{"site", "day", "path", "title", "stats", "total"})
+		for _, v := range grouped {
+			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count), v.total)
 		}
-
-		h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
-		v.count[h] += 1
-		v.total += 1
-		grouped[k] = v
-	}
-
-	siteID := goatcounter.MustGetSite(ctx).ID
-	ins := bulk.NewInsert(txctx, tx,
-		"hit_stats", []string{"site", "day", "path", "title", "stats", "total"})
-	for _, v := range grouped {
-		ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count), v.total)
-	}
-	err = ins.Finish()
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+		return ins.Finish()
+	})
 }
 
 func existingHitStats(
