@@ -13780,11 +13780,14 @@ parameters:</p>
 		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
 		<button type="submit">Go</button>
+
+		<input name="filter" value="{{.Filter}}" placeholder="Filter">
 	</form>
 </div>
 
 <div class="pages-list">
 	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
+
 	{{if eq .TotalHits 0}}
 		<em>Nothing to display</em>
 	{{else}}
