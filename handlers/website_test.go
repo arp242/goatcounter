@@ -20,7 +20,7 @@ func TestWebsiteTpl(t *testing.T) {
 			router:   NewWebsite,
 			path:     "/",
 			wantCode: 200,
-			wantBody: "doesn’t track users;",
+			wantBody: "doesn’t track users with",
 		},
 		{
 			name:     "help",
