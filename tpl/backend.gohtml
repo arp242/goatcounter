@@ -17,8 +17,8 @@
 
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
-<div class="count-list-opt">
-	<form id="period-form">
+<form id="period-form">
+	<div class="count-list-opt">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" class="hide-btn"></button>
 
@@ -45,28 +45,31 @@
 		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
 		<button type="submit">Go</button>
+	</div>
 
-		<input name="filter" value="{{.Filter}}" placeholder="Filter">
-	</form>
-</div>
+	<div class="pages-list">
+		<header class="h2 header-pages">
+			<h2>Pages</h2>
+			<sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup>
+			<input name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
+				title="Filter the list of paths; matched case-insensitive on path and title">
+		</header>
 
-<div class="pages-list">
-	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<table class="count-list count-list-pages">
+				<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
+			</table>
+		{{end}}
 
-	{{if eq .TotalHits 0}}
-		<em>Nothing to display</em>
-	{{else}}
-		<table class="count-list count-list-pages">
-			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
-		</table>
-	{{end}}
-
-	{{if gt .TotalHits .TotalHitsDisplay}}
-		<a href="#_", class="load-more"
-			data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
-		>load more</a>
-	{{end}}
-</div>
+		{{if gt .TotalHits .TotalHitsDisplay}}
+			<a href="#_", class="load-more"
+				data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+			>load more</a>
+		{{end}}
+	</div>
+</form>
 
 <div class="browser-charts">
 	<div>
@@ -93,7 +96,7 @@
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalHits 0 3 false}}</div>
+			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalLocation 0 3 false}}</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>

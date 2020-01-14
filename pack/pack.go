@@ -11821,10 +11821,45 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker,
+			billing_subscribe, setup_datepicker, filter_paths,
 		].forEach(function(f) { f.call(); });
 
 	});
+
+	// Reload the path list when typing in the filter input, so the user won't
+	// have to press "enter".
+	var filter_paths = function() {
+		var t;
+		$('#filter-paths').on('input', function(e) {
+			clearTimeout(t);
+			t = setTimeout(function() {
+				set_param('filter', $(e.target).val());
+
+				jQuery.ajax({
+					url: '/pages',
+					data: append_period({
+						filter: $(e.target).val(),
+					}),
+					success: function(data) {
+						$('.pages-list .count-list-pages > tbody').html(data.rows);
+
+						if (!data.more)
+							$('.pages-list .load-more').css('display', 'none')
+						else {
+							$('.pages-list .load-more').css('display', 'inline')
+							// TODO: set filter here.
+							var b = $('.pages-list .load-more');
+							b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
+						}
+
+						var td = $('.pages-list .total-display');
+						td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
+					},
+				});
+
+			}, 300);
+		});
+	};
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
@@ -11995,8 +12030,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					$('.pages-list .count-list-pages > tbody').append(data.rows);
 
 					if (!data.more)
-						$('.pages-list .load-more').remove()
+						$('.pages-list .load-more').css('display', 'none')
 					else {
+						$('.pages-list .load-more').css('display', 'inline')
 						var b = $('.pages-list .load-more');
 						b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
 					}
@@ -12843,6 +12879,13 @@ noscript {
 /*** Updates overview ***/
 .update p        { margin-left: 2em; }
 .update > em + p { margin-top: 0; }
+
+/*** Pages header ***/
+header h2 { border-bottom: 0; display: inline; }
+header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
+
+.header-pages sup   { font-size: .9rem; }
+.header-pages input { float: right; border: 1px solid #ccc; padding: .2em; margin-right: 1em; border-radius: 2px; }
 `),
 }
 
@@ -13752,8 +13795,8 @@ parameters:</p>
 
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
-<div class="count-list-opt">
-	<form id="period-form">
+<form id="period-form">
+	<div class="count-list-opt">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" class="hide-btn"></button>
 
@@ -13780,28 +13823,31 @@ parameters:</p>
 		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
 		<button type="submit">Go</button>
+	</div>
 
-		<input name="filter" value="{{.Filter}}" placeholder="Filter">
-	</form>
-</div>
+	<div class="pages-list">
+		<header class="h2 header-pages">
+			<h2>Pages</h2>
+			<sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup>
+			<input name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
+				title="Filter the list of paths; matched case-insensitive on path and title">
+		</header>
 
-<div class="pages-list">
-	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<table class="count-list count-list-pages">
+				<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
+			</table>
+		{{end}}
 
-	{{if eq .TotalHits 0}}
-		<em>Nothing to display</em>
-	{{else}}
-		<table class="count-list count-list-pages">
-			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
-		</table>
-	{{end}}
-
-	{{if gt .TotalHits .TotalHitsDisplay}}
-		<a href="#_", class="load-more"
-			data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
-		>load more</a>
-	{{end}}
-</div>
+		{{if gt .TotalHits .TotalHitsDisplay}}
+			<a href="#_", class="load-more"
+				data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+			>load more</a>
+		{{end}}
+	</div>
+</form>
 
 <div class="browser-charts">
 	<div>
@@ -13828,7 +13874,7 @@ parameters:</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalHits 0 3 false}}</div>
+			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalLocation 0 3 false}}</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>

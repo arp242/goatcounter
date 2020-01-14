@@ -298,3 +298,10 @@ noscript {
 /*** Updates overview ***/
 .update p        { margin-left: 2em; }
 .update > em + p { margin-top: 0; }
+
+/*** Pages header ***/
+header h2 { border-bottom: 0; display: inline; }
+header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
+
+.header-pages sup   { font-size: .9rem; }
+.header-pages input { float: right; border: 1px solid #ccc; padding: .2em; margin-right: 1em; border-radius: 2px; }

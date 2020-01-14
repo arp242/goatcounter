@@ -23,10 +23,45 @@
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker,
+			billing_subscribe, setup_datepicker, filter_paths,
 		].forEach(function(f) { f.call(); });
 
 	});
+
+	// Reload the path list when typing in the filter input, so the user won't
+	// have to press "enter".
+	var filter_paths = function() {
+		var t;
+		$('#filter-paths').on('input', function(e) {
+			clearTimeout(t);
+			t = setTimeout(function() {
+				set_param('filter', $(e.target).val());
+
+				jQuery.ajax({
+					url: '/pages',
+					data: append_period({
+						filter: $(e.target).val(),
+					}),
+					success: function(data) {
+						$('.pages-list .count-list-pages > tbody').html(data.rows);
+
+						if (!data.more)
+							$('.pages-list .load-more').css('display', 'none')
+						else {
+							$('.pages-list .load-more').css('display', 'inline')
+							// TODO: set filter here.
+							var b = $('.pages-list .load-more');
+							b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
+						}
+
+						var td = $('.pages-list .total-display');
+						td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
+					},
+				});
+
+			}, 300);
+		});
+	};
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
@@ -197,8 +232,9 @@
 					$('.pages-list .count-list-pages > tbody').append(data.rows);
 
 					if (!data.more)
-						$('.pages-list .load-more').remove()
+						$('.pages-list .load-more').css('display', 'none')
 					else {
+						$('.pages-list .load-more').css('display', 'inline')
 						var b = $('.pages-list .load-more');
 						b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
 					}
