@@ -47,9 +47,8 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			if len(v.count) == 0 {
 				v.day = day
 				v.path = h.Path
-				v.title = h.Title
 				var err error
-				v.count, err = existingHitStats(ctx, tx, h.Site, day, v.path)
+				v.count, v.title, err = existingHitStats(ctx, tx, h.Site, day, v.path)
 				if err != nil {
 					return err
 				}
@@ -58,7 +57,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				}
 			}
 
-			if v.title == "" && h.Title != "" {
+			if h.Title != "" {
 				v.title = h.Title
 			}
 
@@ -81,34 +80,37 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 func existingHitStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
 	day, path string,
-) ([]int, error) {
+) ([]int, string, error) {
 
-	var c []byte
-	err := tx.GetContext(txctx, &c,
-		`select stats from hit_stats where site=$1 and day=$2 and path=$3`,
+	var ex []struct {
+		Stats []byte `db:"stats"`
+		Title string `db:"title"`
+	}
+	err := tx.SelectContext(txctx, &ex,
+		`select stats, title from hit_stats where site=$1 and day=$2 and path=$3`,
 		siteID, day, path)
 	if err != nil && err != sql.ErrNoRows {
-		return nil, errors.Wrap(err, "existing")
+		return nil, "", errors.Wrap(err, "existingHitStats")
 	}
 
-	if err != sql.ErrNoRows {
-		_, err = tx.ExecContext(txctx,
-			`delete from hit_stats where site=$1 and day=$2 and path=$3`,
-			siteID, day, path)
-		if err != nil {
-			return nil, errors.Wrap(err, "delete")
-		}
+	if len(ex) == 0 {
+		return make([]int, 24), "", nil
+	}
+
+	if len(ex) > 1 {
+		return nil, "", errors.Errorf("existingHitStats: %d rows: %#v", len(ex), ex)
+	}
+
+	_, err = tx.ExecContext(txctx,
+		`delete from hit_stats where site=$1 and day=$2 and path=$3`,
+		siteID, day, path)
+	if err != nil {
+		return nil, "", errors.Wrap(err, "delete")
 	}
 
 	var r []int
-	if c != nil {
-		jsonutil.MustUnmarshal(c, &r)
-		return r, nil
+	if ex[0].Stats != nil {
+		jsonutil.MustUnmarshal(ex[0].Stats, &r)
 	}
-
-	r = make([]int, 24)
-	for i := range r {
-		r[i] = 0 // TODO: not needed?
-	}
-	return r, nil
+	return r, ex[0].Title, nil
 }
