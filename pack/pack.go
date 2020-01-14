@@ -12426,6 +12426,12 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 	footer span { display: none; }
 }
 
+/* TODO: bit of a temporary solution to make sure all links are visible with the
+ * "chat bubble" from intergram. I'd like to redesign that entire thing, but ...
+ * right now also a lot of other stuff to do, so this will have to do. */
+footer                   { display: block; }
+footer > div:first-child { margin-bottom: 1em; }
+
 .page { position: relative; }
 
 /*** Home page ***/
@@ -13682,7 +13688,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 				introMessage:        'Questions or feedback? Chat here!',
 				autoResponse:        'Checking availability; please wait a minute…',
 				autoNoResponse:      'It seems that no one is available to answer right now. Please tell us how we can ' +
-									'contact you, and we will get back to you as soon as we can.',
+				                     'contact you, and we will get back to you as soon as we can.',
 			};
 		</script>
 		<script src="https://goatcounter.herokuapp.com/js/widget.js"></script>
