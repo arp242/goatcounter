@@ -11877,8 +11877,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
+		// TODO: disable keyboardInput as <Backspace> cleans the entire field
+		// instead of just one character, which is unexpected and from the error
+		// logs many people get this wrong (they submit stuff with a date like
+		// "8" because they press "<BS>8<CR>").
+		// This should be fixed better though, this is just a hotfix.
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, keyboardInput: false});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, keyboardInput: false});
 	};
 
 	// Report an error.
