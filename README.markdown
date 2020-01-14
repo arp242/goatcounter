@@ -1,7 +1,8 @@
 [![Build Status](https://travis-ci.org/zgoat/goatcounter.svg?branch=master)](https://travis-ci.org/zgoat/goatcounter)
 [![codecov](https://codecov.io/gh/zgoat/goatcounter/branch/master/graph/badge.svg)](https://codecov.io/gh/zgoat/goatcounter)
 
-GoatCounter aims to give meaningful privacy-friendly web analytics for business
+GoatCounter is a web analytics platform, roughly similar to Google Analytics or
+Matomo. It aims to give meaningful privacy-friendly web analytics for business
 purposes, while still staying usable for non-technical users to use on personal
 websites. The choices that currently exist are between freely hosted but with
 problematic privacy (e.g. Google Analytics), hosting your own complex software
@@ -26,7 +27,7 @@ Features
 
 - **Privacy-aware**; doesn't track users; doesn't need a GDPR consent notice.
 
-- **Lightweight** and **fast**; adds just 1.5KB (0.7KB compressed) of extra data
+- **Lightweight** and **fast**; adds just 3.5K (1.9K compressed) of extra data
   to your site.
 
 - **Easy**; if you've been confused by the myriad of options and flexibility of
@@ -34,7 +35,8 @@ Features
   breath of fresh air. 
 
 - **Accessibility** is a high-priority feature, and the interface works well
-  with screen readers, no JavaScript, and even text browsers.
+  with screen readers, no JavaScript, and even text browsers (although not all
+  features work equally well without JS).
 
 - 100% committed to **open source**; you can see exactly what the code does and
   make improvements.
@@ -46,9 +48,9 @@ Features
 - Fast: can handle about 800 hits/second on a $5/month Linode VPS using the
   default settings.
 
-- Self-contained binary: everything (including static assets) is in a single 5M
-  statically compiled binary. The only other thing you need is a SQLite database
-  file or PostgreSQL connection.
+- Self-contained binary: everything – including static assets – is in a single
+  ~7M statically compiled binary. The only other thing you need is a SQLite
+  database file or PostgreSQL connection (no way around that).
 
 Running your own
 ----------------
@@ -98,7 +100,7 @@ goatcounter.com, although that is just one way of running it.
 
 ### Updating
 
-You may need to run run database migrations when updating. Using  `goatcounter
+You may need to run run database migrations when updating. Use  `goatcounter
 -migrate auto` to always run all pending migrations on startup. This is the
 easiest way, although arguably not the "best" way.
 
