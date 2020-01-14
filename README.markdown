@@ -25,7 +25,8 @@ pay my rent :-)
 Features
 --------
 
-- **Privacy-aware**; doesn't track users; doesn't need a GDPR consent notice.
+- **Privacy-aware**; doesn't track users with unique identifiers and doesn't
+  need a GDPR consent notice. Also see the [privacy policy][privacy].
 
 - **Lightweight** and **fast**; adds just 3.5K (1.9K compressed) of extra data
   to your site.
@@ -42,6 +43,8 @@ Features
   make improvements.
 
 - **Own your data**; you can always export all data and **cancel at any time**.
+
+[privacy]: https://www.goatcounter.com/privacy
 
 ### Technical
 

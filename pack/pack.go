@@ -14446,8 +14446,10 @@ sub {
 <h2 id="features">Features</h2>
 <div id="home-features">
 	<div>
-		<p><strong>Privacy-aware</strong>; doesn’t track users; doesn't need a
-			GDPR notice.</p>
+		<p><strong>Privacy-aware</strong>; doesn’t track users with
+			unique identifiers and doesn't need a GDPR notice. Also
+			see the <a href="/privacy">privacy policy</a>.</p>
+
 		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
 			1.8KB of extra data to your site.</p>
 	</div>
