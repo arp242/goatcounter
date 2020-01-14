@@ -472,6 +472,11 @@ commit;
 	insert into version values ('2020-01-13-1-update');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-13-2-hit_stats_title.sql": []byte(`begin;
+	alter table hit_stats add column title varchar not null default '';
+	insert into version values ('2020-01-13-2-hit_stats_title');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -978,6 +983,11 @@ commit;
 	alter table hits add column domain varchar;
 
 	insert into version values ('2020-01-07-1-title-domain');
+commit;
+`),
+	"db/migrate/sqlite/2020-01-13-2-hit_stats_title.sql": []byte(`begin;
+	alter table hit_stats add column title varchar not null default '';
+	insert into version values ('2020-01-13-2-hit_stats_title');
 commit;
 `),
 }
@@ -12639,16 +12649,14 @@ form .err  { color: red; display: block; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
+/* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
+ * solution for that though :-/ */
+.page-title, .rlink {
+	display: inline-block; max-width: 17.5rem;
+	text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
 .rlink {
 	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
-	max-width: 17.5em;
-	display: inline-block;	
-
-	/* Ideally I'd like the … to be in the centre, rather than at the end. Need
-	 * JS solution for that though :-/ */
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
 }
 
 .count-list tr {
@@ -12973,7 +12981,8 @@ insert into version values
 	('2019-12-20-1-dailystat'),
 	('2019-12-31-1-blank-days'),
 	('2020-01-02-1-bot'),
-	('2020-01-07-1-title-domain');
+	('2020-01-07-1-title-domain'),
+	('2020-01-13-2-hit_stats_title');
 
 drop table if exists sites;
 create table sites (
@@ -13048,6 +13057,7 @@ create table hit_stats (
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	path           varchar        not null,
+	title          varchar        not null default '',
 	stats          varchar        not null,
 	total          integer        not null default 0,
 
@@ -13421,7 +13431,8 @@ var Templates = map[string][]byte{
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td>{{$h.Count | nformat}}</td>
 		<td class="hide-mobile">
-			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
+			<small class="page-title" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 		</td>
 		<td>
 			<div class="show-mobile">

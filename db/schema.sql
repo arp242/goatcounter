@@ -13,7 +13,8 @@ insert into version values
 	('2019-12-20-1-dailystat'),
 	('2019-12-31-1-blank-days'),
 	('2020-01-02-1-bot'),
-	('2020-01-07-1-title-domain');
+	('2020-01-07-1-title-domain'),
+	('2020-01-13-2-hit_stats_title');
 
 drop table if exists sites;
 create table sites (
@@ -88,6 +89,7 @@ create table hit_stats (
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	path           varchar        not null,
+	title          varchar        not null default '',
 	stats          varchar        not null,
 	total          integer        not null default 0,
 

@@ -290,6 +290,7 @@ type HitStat struct {
 	Count     int     `db:"count"`
 	Max       int     `db:"-"`
 	Path      string  `db:"path"`
+	Title     string  `db:"title"`
 	RefScheme *string `db:"ref_scheme"`
 	Stats     []Stat
 }
@@ -301,6 +302,7 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []string) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
+	l := zlog.Module("HitStats.List")
 
 	limit := site.Settings.Limits.Page
 	if limit == 0 {
@@ -339,8 +341,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
 
-	l := zlog.Module("HitStats.List")
-
 	err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 	if err != nil {
 		return 0, 0, false, errors.Wrap(err, "HitStats.List")
@@ -357,15 +357,16 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		}
 	}
 
-	// Add stats
+	// Add stats and title
 	type stats struct {
-		Path  string    `json:"path"`
-		Day   time.Time `json:"day"`
-		Stats []byte    `json:"stats"`
+		Path  string    `db:"path"`
+		Title string    `db:"title"`
+		Day   time.Time `db:"day"`
+		Stats []byte    `db:"stats"`
 	}
 	var st []stats
 	err = db.SelectContext(ctx, &st, `
-		select path, day, stats
+		select path, title, day, stats
 		from hit_stats
 		where
 			site=$1 and
@@ -386,6 +387,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 			if s.Path == hh[i].Path {
 				var x []int
 				jsonutil.MustUnmarshal(s.Stats, &x)
+				hh[i].Title = s.Title
 				hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
 
 				// Get max.
