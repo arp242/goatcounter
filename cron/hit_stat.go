@@ -58,6 +58,10 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				}
 			}
 
+			if v.title == "" && h.Title != "" {
+				v.title = h.Title
+			}
+
 			h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
 			v.count[h] += 1
 			v.total += 1
