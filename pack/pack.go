@@ -1451,8 +1451,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	else if (window.vars)  // TODO: temporary compatibility.
 		VARS = window.vars || {};
 
-	// Find canonical location of the current page.
-	var get_location = function(count_vars) {
+	// Get all data we're going to send off to the counter endpoint.
+	var get_data = function(count_vars) {
 		var results = {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
@@ -1460,36 +1460,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			d: count_vars.domain   || VARS.domain,
 		};
 
+		// Save callbacks.
 		var rcb, pcb, tcb, dcb;
-		if (typeof(results.r) === 'function')
-			rcb = results.r;
-		if (typeof(results.p) === 'function')
-			pcb = results.p;
-		if (typeof(results.t) === 'function')
-			tcb = results.t;
-		if (typeof(results.d) === 'function')
-			dcb = results.d;
+		if (typeof(results.r) === 'function') rcb = results.r;
+		if (typeof(results.t) === 'function') tcb = results.t;
+		if (typeof(results.d) === 'function') dcb = results.d;
+		if (typeof(results.p) === 'function') pcb = results.p;
 
-		// Get referrer.
-		if (results.r === null || results.r === undefined)
-			results.r = document.referrer;
-		if (rcb)
-			results.r = rcb(results.r);
-
-		// Get title.
-		if (results.t === null || results.t === undefined)
-			results.t = document.title;
-		if (tcb)
-			results.t = tcb(results.t);
-
-		// Get domain.
-		if (results.d === null || results.d === undefined)
-			results.d = location.hostname;
-		if (tcb)
-			results.d = tcb(results.d);
-
-		// Get path.
-		if (results.p === null || results.p === undefined) {
+		// Get the values unless explicitly given.
+		if (is_empty(results.r)) results.r = document.referrer;
+		if (is_empty(results.t)) results.t = document.title;
+		if (is_empty(results.d)) results.d = location.hostname;
+		if (is_empty(results.p)) {
 			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
@@ -1500,11 +1482,20 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			}
 			results.p = (loc.pathname + loc.search) || '/';
 		}
-		if (pcb)
-			results.p = pcb(results.p);
+
+		// Apply callbacks.
+		if (rcb) results.r = rcb(results.r);
+		if (tcb) results.t = tcb(results.t);
+		if (tcb) results.d = tcb(results.d);
+		if (pcb) results.p = pcb(results.p);
 
 		return results;
 	};
+
+	// Check if a value is "empty" for the purpose of get_data().
+	var is_empty = function(v) {
+		return v === null || v === undefined || typeof(v) === 'function';
+	}
 
 	// Convert parameters to urlencoded string, starting with a ?
 	//
@@ -1528,18 +1519,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
 				return;
 
-		var loc = get_location(count_vars || {});
-		loc.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
+		var data = get_data(count_vars || {});
+		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
 
 		// null returned from user callback.
-		if (loc.p === null)
+		if (data.p === null)
 			return;
 
 		// Add image to send request.
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(loc);
+		img.src = window.counter + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
@@ -1580,8 +1571,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	else if (window.vars)  // TODO: temporary compatibility.
 		VARS = window.vars || {};
 
-	// Find canonical location of the current page.
-	var get_location = function(count_vars) {
+	// Get all data we're going to send off to the counter endpoint.
+	var get_data = function(count_vars) {
 		var results = {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
@@ -1589,36 +1580,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			d: count_vars.domain   || VARS.domain,
 		};
 
+		// Save callbacks.
 		var rcb, pcb, tcb, dcb;
-		if (typeof(results.r) === 'function')
-			rcb = results.r;
-		if (typeof(results.p) === 'function')
-			pcb = results.p;
-		if (typeof(results.t) === 'function')
-			tcb = results.t;
-		if (typeof(results.d) === 'function')
-			dcb = results.d;
+		if (typeof(results.r) === 'function') rcb = results.r;
+		if (typeof(results.t) === 'function') tcb = results.t;
+		if (typeof(results.d) === 'function') dcb = results.d;
+		if (typeof(results.p) === 'function') pcb = results.p;
 
-		// Get referrer.
-		if (results.r === null || results.r === undefined)
-			results.r = document.referrer;
-		if (rcb)
-			results.r = rcb(results.r);
-
-		// Get title.
-		if (results.t === null || results.t === undefined)
-			results.t = document.title;
-		if (tcb)
-			results.t = tcb(results.t);
-
-		// Get domain.
-		if (results.d === null || results.d === undefined)
-			results.d = location.hostname;
-		if (tcb)
-			results.d = tcb(results.d);
-
-		// Get path.
-		if (results.p === null || results.p === undefined) {
+		// Get the values unless explicitly given.
+		if (is_empty(results.r)) results.r = document.referrer;
+		if (is_empty(results.t)) results.t = document.title;
+		if (is_empty(results.d)) results.d = location.hostname;
+		if (is_empty(results.p)) {
 			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
@@ -1629,11 +1602,20 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			}
 			results.p = (loc.pathname + loc.search) || '/';
 		}
-		if (pcb)
-			results.p = pcb(results.p);
+
+		// Apply callbacks.
+		if (rcb) results.r = rcb(results.r);
+		if (tcb) results.t = tcb(results.t);
+		if (tcb) results.d = tcb(results.d);
+		if (pcb) results.p = pcb(results.p);
 
 		return results;
 	};
+
+	// Check if a value is "empty" for the purpose of get_data().
+	var is_empty = function(v) {
+		return v === null || v === undefined || typeof(v) === 'function';
+	}
 
 	// Convert parameters to urlencoded string, starting with a ?
 	//
@@ -1657,18 +1639,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
 				return;
 
-		var loc = get_location(count_vars || {});
-		loc.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
+		var data = get_data(count_vars || {});
+		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
 
 		// null returned from user callback.
-		if (loc.p === null)
+		if (data.p === null)
 			return;
 
 		// Add image to send request.
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(loc);
+		img.src = window.counter + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
@@ -13486,11 +13468,11 @@ var Templates = map[string][]byte{
 `),
 	"tpl/_backend_sitecode.gohtml": []byte(`<pre>&lt;script&gt;
 	(function() {
-		var script = document.createElement('script');
 		window.counter = '{{.Site.URL}}/count'
+
+		var script = document.createElement('script');
 		script.async = 1;
 		script.src = '//{{.Static}}/count.js';
-
 		var ins = document.getElementsByTagName('script')[0];
 		ins.parentNode.insertBefore(script, ins)
 	})();
@@ -13498,39 +13480,42 @@ var Templates = map[string][]byte{
 
 {{if eq .Path "/settings"}}
 
-<p>The script is quite small and you can inline it if you want for slightly
-	better performance. You won’t get any updates, but it’s expected to remain
-	compatible in the foreseeable future. Just be sure to set
-	<code>window.counter</code> as in the above snippet.</p>
+<p>The script is quite small and you can inline it if you want to save a
+	request. You won’t get any updates, but it’s expected to remain compatible in
+	the foreseeable future. Just be sure to set <code>window.counter</code> as in
+	the above snippet.</p>
 
 <h3>Customizing</h3>
-
-<p>You can optionally pass variables manually by using the
-<code>window.goatcounter.vars</code> object.
+<p>You can pass variables with the <code>window.goatcounter.vars</code> object.
 
 The default value will be used if the value is <code>null</code> or
-<code>undefined</code> (but <em>not</em> on empty string!) The value can be used
-as a callback too: the default value is passed and the return value is sent to
-the server. Nothing is sent if the return value from the <code>path</code>
-callback is <code>null</code>.</p>
+<code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
+anything else!</p>
 
-<p>Supported keys:</p>
+<p>The value can be used as a callback: the default value is passed and the
+return value is sent to the server. Nothing is sent if the return value from the
+<code>path</code> callback is <code>null</code>.</p>
+
+<p>Data:</p>
 
 <ul>
 	<li><code>path</code> – Page that’s recorded, without domain (e.g.
 		<code>/path/page.html</code>).</li>
 
-	<li><code>title</code> – Page title (not yet displayed). The UI will always
-		display the latest title used. Default is <code>document.title</code>.</li>
+	<li><code>title</code> – Page title. The UI will always display the latest
+		title used. Default is <code>document.title</code>.</li>
 
 	<li><code>domain</code> – Domain; not yet used. Default is
 		<code>window.location.hostname</code>.</li>
 
 	<li><code>referrer</code> – Where the user came from; can be an URL
 		(<code>https://example.com</code>) or any string
-		(<code>June Newsletter</code>). Default is to use the Referer
-		header.</li>
+		(<code>June Newsletter</code>). Default is to use the
+		<code>Referer</code> header.</li>
+</ul>
 
+<p>Settings:</p>
+<ul>
 	<li><code>no_onload</code> – Don’t do anything on page load; if you want to
 		call <code>count()</code> manually.</li>
 </ul>
@@ -13542,9 +13527,9 @@ callback is <code>null</code>.</p>
 		take precedence over the global <code>window.goatcounter.vars</code>.</li>
 </ul>
 
-<h3>Examples</h3>
+<h3 id="examples">Examples</h3>
 
-<h4>Load only on production</h4>
+<h4 id="example-prod">Load only on production</h4>
 <p>You can check <code>location.host</code> if you want to load GoatCounter only
 on <code>production.com</code> and not <code>staging.com</code> or
 <code>development.com</code>; for example:</p>
@@ -13555,6 +13540,8 @@ on <code>production.com</code> and not <code>staging.com</code> or
 		if (window.location.host !== 'production.com')
 			return;
 
+		window.counter = '{{.Site.URL}}/count'
+
 		var script = document.createElement('script');
 		// [.. rest of standard script omitted ..]
 	})();
@@ -13563,7 +13550,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
 	request from localhost are already ignored</a>.</p>
 
-<h4>Custom path</h4>
+<h4 id="example-path">Custom path and referrer</h4>
 <pre>&lt;script&gt;
 	(function() {
 		window.goatcounter = window.goatcounter || {};
@@ -13581,12 +13568,41 @@ on <code>production.com</code> and not <code>staging.com</code> or
 			referrer: (window.location.search ? window.location.search.split('=')[1] : null),
 		};
 
+		window.counter = '{{.Site.URL}}/count'
+
 		var script = document.createElement('script');
 		// [.. rest of standard script omitted ..]
 	})();
 &lt;/script&gt;</pre>
 
-<h4>SPA</h4>
+<h4 id="example-query">Ignore query parameters in path</h4>
+<p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used
+automatically, and is the easiest way to ignore extraneous query parameters:</p>
+
+<pre>&lt;link rel="canonical" href="https://example.com/path.html"&gt;</pre>
+
+<p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be
+sure to understand the potential SEO effects before adding that! If you use
+query parameters for navigation then you probably <em>don’t</em> want it.</p>
+
+<p>Alternatively you can send a custom <code>path</code> without the query
+parameters:</p>
+
+<pre>&lt;script&gt;
+	(function() {
+		window.goatcounter = window.goatcounter || {};
+		window.goatcounter.vars = {
+			path: location.pathname || '/',
+		};
+
+		window.counter = '{{.Site.URL}}/count'
+
+		var script = document.createElement('script');
+		// [.. rest of standard script omitted ..]
+	})();
+&lt;/script&gt;</pre>
+
+<h4 id="example-spa">SPA</h4>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
 <pre>&lt;script&gt;
 	(function() {
@@ -13595,9 +13611,11 @@ on <code>production.com</code> and not <code>staging.com</code> or
 
 		window.addEventListener('hashchange', function(e) {
 			window.goatcounter.count({
-				page: window.location.pathname + window.location.search + window.location.hash,
+				page: location.pathname + location.search + location.hash,
 			});
 		});
+
+		window.counter = '{{.Site.URL}}/count'
 
 		var script = document.createElement('script');
 		// [.. rest of standard script omitted ..]

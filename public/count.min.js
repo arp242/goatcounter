@@ -12,8 +12,8 @@
 	else if (window.vars)  // TODO: temporary compatibility.
 		VARS = window.vars || {};
 
-	// Find canonical location of the current page.
-	var get_location = function(count_vars) {
+	// Get all data we're going to send off to the counter endpoint.
+	var get_data = function(count_vars) {
 		var results = {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
@@ -21,36 +21,18 @@
 			d: count_vars.domain   || VARS.domain,
 		};
 
+		// Save callbacks.
 		var rcb, pcb, tcb, dcb;
-		if (typeof(results.r) === 'function')
-			rcb = results.r;
-		if (typeof(results.p) === 'function')
-			pcb = results.p;
-		if (typeof(results.t) === 'function')
-			tcb = results.t;
-		if (typeof(results.d) === 'function')
-			dcb = results.d;
+		if (typeof(results.r) === 'function') rcb = results.r;
+		if (typeof(results.t) === 'function') tcb = results.t;
+		if (typeof(results.d) === 'function') dcb = results.d;
+		if (typeof(results.p) === 'function') pcb = results.p;
 
-		// Get referrer.
-		if (results.r === null || results.r === undefined)
-			results.r = document.referrer;
-		if (rcb)
-			results.r = rcb(results.r);
-
-		// Get title.
-		if (results.t === null || results.t === undefined)
-			results.t = document.title;
-		if (tcb)
-			results.t = tcb(results.t);
-
-		// Get domain.
-		if (results.d === null || results.d === undefined)
-			results.d = location.hostname;
-		if (tcb)
-			results.d = tcb(results.d);
-
-		// Get path.
-		if (results.p === null || results.p === undefined) {
+		// Get the values unless explicitly given.
+		if (is_empty(results.r)) results.r = document.referrer;
+		if (is_empty(results.t)) results.t = document.title;
+		if (is_empty(results.d)) results.d = location.hostname;
+		if (is_empty(results.p)) {
 			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
@@ -61,11 +43,20 @@
 			}
 			results.p = (loc.pathname + loc.search) || '/';
 		}
-		if (pcb)
-			results.p = pcb(results.p);
+
+		// Apply callbacks.
+		if (rcb) results.r = rcb(results.r);
+		if (tcb) results.t = tcb(results.t);
+		if (tcb) results.d = tcb(results.d);
+		if (pcb) results.p = pcb(results.p);
 
 		return results;
 	};
+
+	// Check if a value is "empty" for the purpose of get_data().
+	var is_empty = function(v) {
+		return v === null || v === undefined || typeof(v) === 'function';
+	}
 
 	// Convert parameters to urlencoded string, starting with a ?
 	//
@@ -89,18 +80,18 @@
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
 				return;
 
-		var loc = get_location(count_vars || {});
-		loc.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
+		var data = get_data(count_vars || {});
+		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
 
 		// null returned from user callback.
-		if (loc.p === null)
+		if (data.p === null)
 			return;
 
 		// Add image to send request.
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(loc);
+		img.src = window.counter + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
