@@ -1,1 +1,9 @@
+matrix="
+linux amd64
+linux arm   CC=arm-linux-gnueabi-gcc
+linux arm64 CC=aarch64-linux-gnu-gcc
+"
+
 build_flags="-trimpath -ldflags='-w -s -X main.version=$tag' ./cmd/goatcounter"
+
+export CGO_ENABLED=1
