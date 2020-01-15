@@ -12706,13 +12706,8 @@ form .err  { color: red; display: block; }
 	position: absolute;
 	top: -1.2em;
 }
-.chart > .go {
-	left: .2em;
-}
-.chart > .max {
-	font-weight: bold;
-	right: .2em;
-}
+.chart > .go  { left: .2em; }
+.chart > .max { right: .2em; }
 
 /* Bar char */
 .chart-bar {
