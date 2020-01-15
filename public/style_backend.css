@@ -63,6 +63,8 @@ form .err  { color: red; display: block; }
 	border-color: #f00;
 }
 
+
+/*** Pages list ***/
 .count-list td {
 	vertical-align: top;
 }
@@ -108,6 +110,7 @@ form .err  { color: red; display: block; }
 	border-bottom: 4px solid yellow;
 }
 
+/*** Pages header (filter, time period select, etc.) ***/
 .count-list-opt {
 	padding: 1em;
 	background-color: #f8f8d9;
@@ -128,6 +131,7 @@ form .err  { color: red; display: block; }
 
 .count-list-opt input { width: 9em; text-align: center; }
 
+/*** Charts ***/
 .chart {
 	border: 1px solid #ccc;
 	height: 50px;
@@ -303,5 +307,6 @@ noscript {
 header h2 { border-bottom: 0; display: inline; }
 header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
 
-.header-pages sup   { font-size: .9rem; }
-.header-pages input { float: right; border: 1px solid #ccc; padding: .2em; margin-right: 1em; border-radius: 2px; }
+.header-pages sup         { font-size: .9rem; }
+.header-pages input       { float: right; border: 1px solid #ccc; padding: .2em; margin-right: 1em; border-radius: 2px; }
+.header-pages input.value { background-color: yellow; }

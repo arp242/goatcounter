@@ -20,58 +20,96 @@ import (
 )
 
 func TestHitStatsList(t *testing.T) {
-	ctx, clean := goatcounter.StartTest(t)
-	defer clean()
-
 	start := time.Date(2019, 8, 10, 14, 42, 0, 0, time.UTC)
 	end := time.Date(2019, 8, 17, 14, 42, 0, 0, time.UTC)
-	site := goatcounter.MustGetSite(ctx)
-	goatcounter.Memstore.Append([]goatcounter.Hit{
-		{Site: site.ID, CreatedAt: start, Path: "/asd"},
-		{Site: site.ID, CreatedAt: start.Add(40 * time.Hour), Path: "/asd/"},
-		{Site: site.ID, CreatedAt: start.Add(100 * time.Hour), Path: "/zxc"},
-	}...)
-	db := zdb.MustGet(ctx).(*sqlx.DB)
-	cron.Run(db)
 
-	var stats goatcounter.HitStats
-	total, totalDisplay, more, err := stats.List(ctx, start, end, nil)
-
-	got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
-	want := "3 3 false <nil>"
-	if got != want {
-		t.Fatalf("wrong return\nout:  %s\nwant: %s\n", got, want)
+	tests := []struct {
+		in         []goatcounter.Hit
+		inFilter   string
+		inExclude  []string
+		wantReturn string
+		wantStats  goatcounter.HitStats
+	}{
+		{
+			in: []goatcounter.Hit{
+				{CreatedAt: start, Path: "/asd"},
+				{CreatedAt: start.Add(40 * time.Hour), Path: "/asd/"},
+				{CreatedAt: start.Add(100 * time.Hour), Path: "/zxc"},
+			},
+			wantReturn: "3 3 false <nil>",
+			wantStats: goatcounter.HitStats{
+				goatcounter.HitStat{Count: 2, Max: 10, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
+					{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+				}},
+				goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
+					{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+				}},
+			},
+		},
+		{
+			in: []goatcounter.Hit{
+				{CreatedAt: start, Path: "/asd"},
+				{CreatedAt: start, Path: "/zxc"},
+			},
+			inFilter:   "x",
+			wantReturn: "1 1 false <nil>",
+			wantStats: goatcounter.HitStats{
+				goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
+					{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+				}},
+			},
+		},
 	}
 
-	if len(stats) != 2 {
-		t.Fatalf("wrong len(stats): %d", len(stats))
-	}
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			ctx, clean := goatcounter.StartTest(t)
+			defer clean()
 
-	wantStats := goatcounter.HitStats{
-		goatcounter.HitStat{Count: 2, Max: 10, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
-			{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-		}},
-		goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
-			{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-			{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-		}},
-	}
+			site := goatcounter.MustGetSite(ctx)
+			for j := range tt.in {
+				if tt.in[j].Site == 0 {
+					tt.in[j].Site = site.ID
+				}
+			}
 
-	if d := ztest.Diff(stats, wantStats); d != "" {
-		t.Fatal(d)
+			goatcounter.Memstore.Append(tt.in...)
+			db := zdb.MustGet(ctx).(*sqlx.DB)
+			cron.Run(db)
+
+			var stats goatcounter.HitStats
+			total, totalDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude)
+
+			got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
+			if got != tt.wantReturn {
+				t.Fatalf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
+			}
+
+			if d := ztest.Diff(stats, tt.wantStats); d != "" {
+				t.Fatal(d)
+			}
+		})
 	}
 }
 

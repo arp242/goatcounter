@@ -35,7 +35,9 @@
 		$('#filter-paths').on('input', function(e) {
 			clearTimeout(t);
 			t = setTimeout(function() {
-				set_param('filter', $(e.target).val());
+				var filter = $(e.target).val().trim();
+				set_param('filter', filter);
+				$('#filter-paths').toggleClass('value', filter !== '');
 
 				jQuery.ajax({
 					url: '/pages',
