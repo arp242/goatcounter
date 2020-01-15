@@ -59,7 +59,7 @@ Running your own
 ----------------
 
 There are binaries on the [releases][release] page, or compile from source with
-`go get zgo.at/goatcounter`, which will put the binary at
+`go get zgo.at/goatcounter/cmd/goatcounter`, which will put the binary at
 `~/go/bin/goatcounter`.
 
 Go 1.12 and newer are supported (it follows the [Go release policy][rp]). You
