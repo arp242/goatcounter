@@ -154,13 +154,24 @@ func (u *User) ByLoginRequest(ctx context.Context, key string) error {
 
 // ByToken gets a user by login token.
 func (u *User) ByToken(ctx context.Context, token string) error {
-	if token == "" { // Quick exit when called from zhttp.Auth()
+	if token == "" {
 		return sql.ErrNoRows
 	}
 
-	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, `
-		select users.* from users where login_token=$1`,
-		token), "User.ByToken")
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
+		`select * from users where login_token=$1`, token),
+		"User.ByToken")
+}
+
+// ByTokenAndSite gets a user by login token.
+func (u *User) ByTokenAndSite(ctx context.Context, token string) error {
+	if token == "" {
+		return sql.ErrNoRows
+	}
+
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
+		`select * from users where login_token=$1 and site=$2`,
+		token, MustGetSite(ctx).IDOrParent()), "User.ByTokenAndSite")
 }
 
 // BySite gets a user by site.

@@ -61,7 +61,7 @@ var (
 
 	keyAuth = zhttp.Auth(func(ctx context.Context, key string) (zhttp.User, error) {
 		u := &goatcounter.User{}
-		err := u.ByToken(ctx, key)
+		err := u.ByTokenAndSite(ctx, key)
 		return u, err
 	})
 )

@@ -118,7 +118,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 		zlog.Errorf("logout: %s", err)
 	}
 
-	zhttp.ClearCookie(w)
+	zhttp.ClearCookie(w, goatcounter.MustGetSite(r.Context()).Domain())
 	zhttp.Flash(w, "&#x1f44b;")
 	return zhttp.SeeOther(w, "/")
 }

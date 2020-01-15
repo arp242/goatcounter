@@ -62,6 +62,7 @@ func main() {
 		zlog.Print("-stripe not given or doesn't contain all keys; billing disabled")
 	}
 
+	zhttp.CookieSecure = cfg.Prod
 	zmail.SMTP = cfg.SMTP
 
 	if cfg.Prod && cfg.SMTP == "" {
