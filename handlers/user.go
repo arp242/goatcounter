@@ -40,6 +40,11 @@ func (h user) mount(r chi.Router) {
 }
 
 func (h user) new(w http.ResponseWriter, r *http.Request) error {
+	u := goatcounter.GetUser(r.Context())
+	if u != nil && u.ID > 0 {
+		return zhttp.SeeOther(w, "/")
+	}
+
 	// During login we can't set the flash cookie as the domain is different, so
 	// pass it by query.
 	if m := r.URL.Query().Get("mailed"); m != "" {
@@ -53,6 +58,11 @@ func (h user) new(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
+	u := goatcounter.GetUser(r.Context())
+	if u != nil && u.ID > 0 {
+		return zhttp.SeeOther(w, "/")
+	}
+
 	args := struct {
 		Email string `json:"email"`
 	}{}
@@ -61,7 +71,6 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var u goatcounter.User
 	err = u.ByEmail(r.Context(), args.Email)
 	if err != nil {
 		if errors.Cause(err) == sql.ErrNoRows {

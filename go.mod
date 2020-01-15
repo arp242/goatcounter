@@ -15,7 +15,7 @@ require (
 	github.com/teamwork/reload v1.3.0
 	zgo.at/utils v1.2.0
 	zgo.at/zdb v0.0.0-20200114054604-cb5410b595af
-	zgo.at/zhttp v0.0.0-20200115163454-886ef9c5533a
+	zgo.at/zhttp v0.0.0-20200115164934-3af3cb27bf0b
 	zgo.at/zlog v1.0.8
 	zgo.at/zpack v1.0.0
 	zgo.at/zstripe v1.0.0
