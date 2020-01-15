@@ -260,7 +260,7 @@
 		$('.period-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
-				end = get_date($('#period-end').val());
+			    end   = get_date($('#period-end').val());
 
 			switch (this.value) {
 				case 'week':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
@@ -340,8 +340,12 @@
 			box = null;
 			$(document).off('.timeframe');
 
-			set_period((start.title || start.dataset.title).split(' ')[0],
-				(end.title || end.dataset.title).split(' ')[0]);
+			// Every bar is always one hour, -2 for .half and .max
+			var ps = get_date($('#period-start').val()),
+			    pe = get_date($('#period-start').val());
+			ps.setHours(ps.getHours() + $(start).index() - 2);
+			pe.setHours(pe.getHours() + $(end).index()   - 2);
+			set_period(ps, pe);
 		});
 	};
 
@@ -535,7 +539,7 @@
 
 	// Format a date as year-month-day.
 	var format_date_ymd = function(date) {
-		if (typeof date === 'string')
+		if (typeof date === 'string')  // TODO: maybe add basic sanity check here?
 			return date;
 		var m = date.getMonth() + 1,
 			d = date.getDate();
@@ -551,6 +555,9 @@
 		d.setFullYear(s[0]);
 		d.setMonth(parseInt(s[1], 10) - 1);
 		d.setDate(s[2]);
+		d.setHours(0);
+		d.setMinutes(0);
+		d.setSeconds(0);
 		return d
 	};
 
