@@ -144,13 +144,13 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 
 	for _, c := range s.Code {
-		if !(c == 95 || (c >= 48 && c <= 57) || (c >= 97 && c <= 122)) {
-			v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', a to z, and numbers", c))
+		if !(c == '-' || c == '_' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z')) {
+			v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', '-', a to z, and numbers", c))
 			break
 		}
 	}
-	if len(s.Code) > 0 && s.Code[0] == '_' { // Special domains, like _acme-challenge.
-		v.Append("code", "cannot start with underscore (_)")
+	if len(s.Code) > 0 && (s.Code[0] == '_' || s.Code[0] == '-') { // Special domains, like _acme-challenge.
+		v.Append("code", "cannot start with underscore or dash (_, -)")
 	}
 
 	if !v.HasErrors() {
