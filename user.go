@@ -139,13 +139,13 @@ func (u *User) ByLoginRequest(ctx context.Context, key string) error {
 		return sql.ErrNoRows
 	}
 
-	query := `select users.* from users
-		where login_request=$1 and users.site=$2 and `
+	query := `select * from users
+		where login_request=$1 and site=$2 and `
 
 	if cfg.PgSQL {
-		query += `login_at + interval '15 minutes' > now()`
+		query += `login_at + interval '60 minutes' > now()`
 	} else {
-		query += `datetime(login_at, '+15 minutes') > datetime()`
+		query += `datetime(login_at, '+60 minutes') > datetime()`
 	}
 
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, query,
@@ -199,7 +199,7 @@ func (u *User) RequestLogin(ctx context.Context) error {
 //
 // How logins work:
 //
-//   1. login_request is set to a temporary token that expires in 15 mins.
+//   1. login_request is set to a temporary token that expires in 60 mins.
 //   2. User goes to /user/login/<login_request> via email.
 //   3. If there already is a login_token, set the cookie to that. Otherwise
 //      generate a new one.
@@ -242,7 +242,7 @@ func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
 			[]mail.Address{{Name: u.Name, Address: u.Email}},
-			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  %s/user/login/%s\n\nGo to it to log in.\n",
+			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  %s/user/login/%s\n\nGo to it to log in. This key is valid for one hour.\n",
 				site.URL(), *u.LoginRequest))
 		if err != nil {
 			zlog.Errorf("zmail: %s", err)

@@ -67,7 +67,7 @@ func TestUserRequestLogin(t *testing.T) {
 			msg := fmt.Sprintf("%v", zhttp.ReadFlash(rr, r))
 			var want string
 			if tt.name == "basic" {
-				want = `&{i All good. Login URL emailed to "new@example.com"; please click it in the next 15 minutes to continue.`
+				want = `&{i All good. Login URL emailed to "new@example.com"; please click it in the next hour to continue.`
 			} else {
 				want = `&{e Not an account on this site: "nonexistent@example.com"}`
 			}

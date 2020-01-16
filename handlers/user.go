@@ -98,6 +98,13 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 		if errors.Cause(err) != sql.ErrNoRows {
 			zlog.Error(err)
 		}
+		s := goatcounter.MustGetSite(r.Context())
+		zlog.FieldsRequest(r).Fields(zlog.F{
+			"key":    chi.URLParam(r, "key"),
+			"site":   s.ID,
+			"parent": s.Parent,
+		}).Printf("user.login: sql.ErrNoRows")
+
 		return guru.New(http.StatusForbidden, "could not login; perhaps the key has expired?")
 	}
 
@@ -134,7 +141,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 
 func flashLoginKey(ctx context.Context, w http.ResponseWriter, email string) {
 	msg := fmt.Sprintf(
-		"All good. Login URL emailed to %q; please click it in the next 15 minutes to continue.",
+		"All good. Login URL emailed to %q; please click it in the next hour to continue.",
 		email)
 
 	if !cfg.Prod {
