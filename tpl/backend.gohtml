@@ -51,7 +51,7 @@
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
 			<sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup>
-			<input name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
+			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
 		</header>
@@ -86,7 +86,7 @@
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0.1 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalSize 0 0.1 true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
 				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
 			</small></p>

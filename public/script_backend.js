@@ -31,6 +31,15 @@
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
 	var filter_paths = function() {
+		var highlight = function(s) {
+			$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title').each(function(_, elem) {
+				elem.innerHTML = replacei(elem.innerHTML, s, function(s) { return '<em>' + s + '</em>'; });
+			});
+		};
+
+		if ($('#filter-paths').val() !== '')
+			highlight($('#filter-paths').val());
+
 		var t;
 		$('#filter-paths').on('input', function(e) {
 			clearTimeout(t);
@@ -41,11 +50,10 @@
 
 				jQuery.ajax({
 					url: '/pages',
-					data: append_period({
-						filter: $(e.target).val(),
-					}),
+					data: append_period({filter: filter}),
 					success: function(data) {
 						$('.pages-list .count-list-pages > tbody').html(data.rows);
+						highlight(filter);
 
 						if (!data.more)
 							$('.pages-list .load-more').css('display', 'none')
@@ -60,7 +68,6 @@
 						td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
 					},
 				});
-
 			}, 300);
 		});
 	};
@@ -618,4 +625,19 @@
 			return true;
 		return window.innerWidth <= 800 && window.innerHeight <= 600;
 	};
+
+	// Case-insensitive string replace. https://stackoverflow.com/a/42215678/660921
+	var replacei = function(str, sub, f) {
+		var A = str.toLowerCase().split(sub.toLowerCase()),
+		    B = [],
+		    x = 0;
+		for (var i = 0; i < A.length; i++) {
+			var n = A[i].length;
+			B.push(str.substr(x, n));
+			if (i < A.length-1)
+				B.push(f(str.substr(x + n, sub.length)));
+			x += n + sub.length;
+		}
+		return B.join('');
+	}
 })();
