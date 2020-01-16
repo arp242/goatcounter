@@ -1024,7 +1024,7 @@ aside {
 	font-weight: 400;
 	font-display: fallback;
 	src: local('Lato'), local('Lato Regular'),
-		url('/fonts/latolatin.woff2') format('woff2');
+		url('/fonts/latolatin.woff2') format('woff2'),
 		url('./fonts/latolatin.woff2') format('woff2');
 }
 @font-face {
@@ -1033,7 +1033,7 @@ aside {
 	font-weight: 700;
 	font-display: fallback;
 	src: local('Lato Bold'), local('Lato Bold'),
-		url('/fonts/latolatin-bold.woff2') format('woff2');
+		url('/fonts/latolatin-bold.woff2') format('woff2'),
 		url('./fonts/latolatin-bold.woff2') format('woff2');
 }
 @font-face {
@@ -1042,7 +1042,7 @@ aside {
 	font-weight: 400;
 	font-display: fallback;
 	src: local('Lato Italic'), local('Lato Italic'),
-		url('/fonts/latolatin-italic.woff2') format('woff2');
+		url('/fonts/latolatin-italic.woff2') format('woff2'),
 		url('./fonts/latolatin-italic.woff2') format('woff2');
 }
 html {

@@ -1,0 +1,8 @@
+[[headers]]
+	for = "*.woff2"
+	[headers.values]
+		# Netlify sets cache to 0 to allow rollbacks, but this content isn't
+		# going to change so just cache it.
+		Cache-Control = "public, max-age=7776000"  # 90 days
+		Access-Control-Allow-Origin = "*"
+
