@@ -42,11 +42,6 @@
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
-		// TODO: disable keyboardInput as <Backspace> cleans the entire field
-		// instead of just one character, which is unexpected and from the error
-		// logs many people get this wrong (they submit stuff with a date like
-		// "8" because they press "<BS>8<CR>").
-		// This should be fixed better though, this is just a hotfix.
 		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
 		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
 	};
@@ -88,7 +83,7 @@
 				data:    {csrf: $('#csrf').val(), plan: plan, quantity: quantity},
 				success: function(data) {
 					if (data === '')
-						return window.location.reload();
+						return location.reload();
 					Stripe(form.attr('data-key')).redirectToCheckout({sessionId: data.id}).
 						then(function(result) { err(result.error ? result.error.message : ''); });
 				},
@@ -123,7 +118,7 @@
 			return;
 
 		var tabs = '',
-			active = window.location.hash.substr(5) || 'setting',
+			active = location.hash.substr(5) || 'setting',
 			valid = !!$('#' + active).length;
 		$('.page > div').each(function(i, elem) {
 			var h2 = $(elem).find('h2');
@@ -147,7 +142,10 @@
 		});
 
 		$(window).on('hashchange', function() {
-			var tab = $('#' + window.location.hash.substr(5)).parent()
+			if (location.hash === '')
+				return;
+
+			var tab = $('#' + location.hash.substr(5)).parent()
 			if (!tab.length)
 				return;
 			$('.page > div').css('display', 'none');
@@ -455,7 +453,7 @@
 
 	// Get all query parameters as an object.
 	var get_params = function() {
-		var s = window.location.search;
+		var s = location.search;
 		if (s.length === 0)
 			return {};
 		if (s[0] === '?')
