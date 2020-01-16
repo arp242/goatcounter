@@ -439,6 +439,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		from hits
 		where
 			site=$1 and
+			bot=0 and
 			created_at >= $2 and
 			created_at <= $3`,
 		site.ID, dayStart(start), dayEnd(end))
