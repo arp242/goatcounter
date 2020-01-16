@@ -47,8 +47,8 @@
 		// logs many people get this wrong (they submit stuff with a date like
 		// "8" because they press "<BS>8<CR>").
 		// This should be fixed better though, this is just a hotfix.
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, keyboardInput: false});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, keyboardInput: false});
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
 	};
 
 	// Report an error.

@@ -10426,7 +10426,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     color: #666;
     font-size: 12px;
     line-height: 15px;
-    text-align: right;
+    text-align: center;
     background: #f5f5f5;
 }
 
@@ -10508,9 +10508,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
  * Pikaday
  *
  * Copyright © 2014 David Bushell | BSD & MIT license | https://github.com/Pikaday/Pikaday
+ *
+ * NOTE: this is a modified version; see git log for details.
  */
-
-// Note: This is a modified version.
 
 (function() {
     'use strict';
@@ -10519,10 +10519,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
      * feature detection and helper functions
      */
     var hasEventListeners = !!window.addEventListener,
-
-    document = window.document,
-
-    sto = window.setTimeout,
 
     addEvent = function(el, e, callback, capture)
     {
@@ -10862,7 +10858,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
     renderWeek = function (d, m, y) {
         var date = new Date(y, m, d),
-			week = isoWeek(date) ;
+            week = isoWeek(date) ;
 
         return '<td class="pika-week">' + week + '</td>';
     },
@@ -10941,11 +10937,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
         if (c === 0) {
             html += '<button class="pika-prev' + (prev ? '' : ' is-disabled') + '" type="button" ' +
-				'title="' + opts.i18n.previousMonth + '">◀</button>';
+                'title="' + opts.i18n.previousMonth + '">◀</button>';
         }
         if (c === (instance._o.numberOfMonths - 1) ) {
             html += '<button class="pika-next' + (next ? '' : ' is-disabled') + '" type="button" ' +
-				'title="' + opts.i18n.nextMonth + '">▶</button>';
+                'title="' + opts.i18n.nextMonth + '">▶</button>';
         }
 
         return html += '</div>';
@@ -10965,22 +10961,19 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         var self = this,
             opts = self.config(options);
 
-        self._onMouseDown = function(e)
-        {
-            if (!self._v) {
+        self._onMouseDown = function(e) {
+            if (!self._v)
                 return;
-            }
-            e = e || window.event;
-            var target = e.target || e.srcElement;
-            if (!target) {
+
+            var target = e.target;
+            if (!target)
                 return;
-            }
 
             if (!hasClass(target, 'is-disabled')) {
                 if (hasClass(target, 'pika-button') && !hasClass(target, 'is-empty') && !hasClass(target.parentNode, 'is-disabled')) {
                     self.setDate(new Date(target.getAttribute('data-pika-year'), target.getAttribute('data-pika-month'), target.getAttribute('data-pika-day')));
                     if (opts.bound) {
-                        sto(function() {
+                        setTimeout(function() {
                             self.hide();
                             if (opts.blurFieldOnSelect && opts.field) {
                                 opts.field.blur();
@@ -11008,13 +11001,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             }
         };
 
-        self._onChange = function(e)
-        {
-            e = e || window.event;
-            var target = e.target || e.srcElement;
-            if (!target) {
+        self._onChange = function(e) {
+            var target = e.target;
+            if (!target)
                 return;
-            }
+
             if (hasClass(target, 'pika-select-month')) {
                 self.gotoMonth(target.value);
             }
@@ -11023,36 +11014,29 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             }
         };
 
-        self._onKeyChange = function(e)
-        {
-            e = e || window.event;
+        self._onKeyChange = function(e) {
+            if (!self.isVisible())
+                return;
 
-            if (self.isVisible()) {
-
-                switch(e.keyCode){
-                    case 13:
-                    case 27:
-                        if (opts.field) {
-                            opts.field.blur();
-                        }
-                        break;
-                    case 37:
-                        self.adjustDate('subtract', 1);
-                        break;
-                    case 38:
-                        self.adjustDate('subtract', 7);
-                        break;
-                    case 39:
-                        self.adjustDate('add', 1);
-                        break;
-                    case 40:
-                        self.adjustDate('add', 7);
-                        break;
-                    case 8:
-                    case 46:
-                        self.setDate(null);
-                        break;
-                }
+            switch (e.keyCode) {
+                case 13:  // <Enter>
+                case 27:  // <Esc>
+                    if (opts.field) {
+                        opts.field.blur();
+                    }
+                    break;
+                case 37:  // <Left>
+                    self.adjustDate('subtract', 1);
+                    break;
+                case 38:  // <Up>
+                    self.adjustDate('subtract', 7);
+                    break;
+                case 39:  // <Right>
+                    self.adjustDate('add', 1);
+                    break;
+                case 40:  // <Down>
+                    self.adjustDate('add', 7);
+                    break;
             }
         };
 
@@ -11102,21 +11086,19 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             while ((pEl = pEl.parentNode));
 
             if (!self._c) {
-                self._b = sto(function() {
+                self._b = setTimeout(function() {
                     self.hide();
                 }, 50);
             }
             self._c = false;
         };
 
-        self._onClick = function(e)
-        {
-            e = e || window.event;
-            var target = e.target || e.srcElement,
+        self._onClick = function(e) {
+            var target = e.target,
                 pEl = target;
-            if (!target) {
+            if (!target)
                 return;
-            }
+
             if (!hasEventListeners && hasClass(target, 'pika-select')) {
                 if (!target.onchange) {
                     target.setAttribute('onchange', 'return;');
@@ -11127,8 +11109,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                 if (hasClass(pEl, 'pika-single') || pEl === opts.trigger) {
                     return;
                 }
-            }
-            while ((pEl = pEl.parentNode));
+            } while ((pEl = pEl.parentNode));
             if (self._v && target !== opts.trigger && pEl !== opts.trigger) {
                 self.hide();
             }
@@ -11512,7 +11493,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
             if (opts.bound) {
                 if(opts.field.type !== 'hidden') {
-                    sto(function() {
+                    setTimeout(function() {
                         opts.trigger.focus();
                     }, 1);
                 }
@@ -11579,8 +11560,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                 bottomAligned = false;
             }
 
-            this.el.style.left = left + 'px';
-            this.el.style.top = top + 'px';
+            this.el.style.left = Math.max(left, 0) + 'px';
+            this.el.style.top =  Math.max(top, 0) + 'px';
 
             addClass(this.el, leftAligned ? 'left-aligned' : 'right-aligned');
             addClass(this.el, bottomAligned ? 'bottom-aligned' : 'top-aligned');
@@ -11864,8 +11845,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		// logs many people get this wrong (they submit stuff with a date like
 		// "8" because they press "<BS>8<CR>").
 		// This should be fixed better though, this is just a hotfix.
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, keyboardInput: false});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, keyboardInput: false});
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
 	};
 
 	// Report an error.
@@ -13797,8 +13778,8 @@ parameters:</p>
 		</span><br>
 
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="text" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-		<input type="text" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
 		<button type="submit">Go</button>
 	</form>

@@ -41,8 +41,8 @@
 		</span><br>
 
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="text" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-		<input type="text" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
 		<button type="submit">Go</button>
 	</form>
