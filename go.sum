@@ -66,5 +66,7 @@ zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=
 zgo.at/zstripe v1.0.0/go.mod h1:EqblFpMvXAhzZAUUt0EVom06EnN5+D5ESBTSOkwSwTY=
 zgo.at/ztest v1.0.0 h1:MKJXDboceOH2bFKaWN8GJ0bUgfJgx4pp/HWeCTOCJbA=
 zgo.at/ztest v1.0.0/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
+zgo.at/ztest v1.0.1 h1:2DWVZVmWAwOX8pq8sJQoOPtAHZ0Y099XVc9YkOmpnuc=
+zgo.at/ztest v1.0.1/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
 zgo.at/zvalidate v1.0.0 h1:glc7tbq3X2EyPEQf00N6HgsWCVDlJkNLvdRbBBOrhs4=
 zgo.at/zvalidate v1.0.0/go.mod h1:3w++OX5k3nkvwwf7OkdYnjpzF+U4OGJ5xmP7SphmUuk=

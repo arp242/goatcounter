@@ -5,12 +5,16 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"io/ioutil"
 	"os"
+	"strings"
 	"syscall"
 	"testing"
 	"time"
+
+	"zgo.at/ztest"
 )
 
 func TestMain(t *testing.T) {
@@ -33,12 +37,20 @@ func TestMain(t *testing.T) {
 	// Reset flags in case of -count 2
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	os.Args = []string{"goatcounter",
+		"-prod", "-smtp", "dummy",
 		"-dbconnect", tmpdb,
 		"-listen", "localhost:31874"}
 
+	out, reset := ztest.ReplaceStdStreams()
+	defer reset()
 	go func() {
-		time.Sleep(3000 * time.Millisecond)
-		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		scanner := bufio.NewScanner(out)
+		for scanner.Scan() {
+			if strings.Contains(scanner.Text(), "listening on") {
+				time.Sleep(100 * time.Millisecond)
+				syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+			}
+		}
 	}()
 
 	main()
