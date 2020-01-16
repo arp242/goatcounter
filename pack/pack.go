@@ -12100,8 +12100,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				: {left: e.pageX, right: $(window).width() - startX + 1});
 		};
 
-		$('.chart').on('mousedown', function(e) {
-			if (e.button !== 0)  // Left mouse button.
+		$('.chart').on('mousedown touchstart', function(e) {
+			if (e.button !== 0 && e.type !== 'touchstart')
 				return;
 
 			startX = e.pageX
@@ -12110,7 +12110,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				right:  $(document.body).width() - e.pageX,
 				top:    $(this).offset().top,
 				height: $(this).outerHeight(),
-			}).on('mousemove', function(e) {
+			}).on('mousemove touchmove', function(e) {
 				e.preventDefault();
 				setpos(e);
 			});
@@ -12123,14 +12123,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			$(document.body).append(box);
 		});
 
-		$('.chart').on('mousemove', function(e) {
+		$('.chart').on('mousemove touchmove', function(e) {
 			e.preventDefault();
 			if (!box)
 				return;
 			setpos(e);
 		});
 
-		$(document.body).on('mouseup', function(e) {
+		$(document.body).on('mouseup touchend', function(e) {
 			if (!box)
 				return;
 
