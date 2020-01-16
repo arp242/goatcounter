@@ -688,8 +688,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	hh := *h
 	for i := range hh {
 		// TODO: apply scaling?
-		scaleless := strings.Join(strings.Split(hh[i].Name, ", ")[:2], "×")
-		grouped[scaleless] += hh[i].Count
+		grouped[fmt.Sprintf("↔ %spx", strings.Split(hh[i].Name, ", ")[0])] += hh[i].Count
 	}
 
 	ns := Stats{}
