@@ -12833,6 +12833,7 @@ table.auto { width: auto; }
 .chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
 .chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
+.chart-hbar > *[title^="(other): "]:focus, .chart-hbar > *[title^="(unknown): "]:focus { outline: none; }
 
 .tab-nav {
 	padding: 1em;
@@ -13834,7 +13835,7 @@ parameters:</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0.1 true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
 				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
 			</small></p>

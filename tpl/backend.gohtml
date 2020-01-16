@@ -79,7 +79,7 @@
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0.1 true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
 				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
 			</small></p>

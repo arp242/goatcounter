@@ -658,7 +658,9 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	case sizeDesktopHD:
 		where = "size != '' and cast(split_part(size, ',', 1) as int) > 1920"
 	case sizeUnknown:
-		where = " size = ''"
+		where = "size = ''"
+	default:
+		return 0, fmt.Errorf("Stats.ListSizes: invalid value for name: %#v", name)
 	}
 
 	if !cfg.PgSQL {
