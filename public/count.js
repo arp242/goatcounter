@@ -71,10 +71,18 @@
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
+		// Find the tag used to load this script.
+		var script = document.querySelector('script[data-goatcounter]'),
+			endpoint;
+		if (script) 
+			endpoint = script.dataset.goatcounter;
+		else  // TODO: temporary compat.
+			endpoint = window.counter;
+
 		// Don't track private networks.
-		if (location.hostname.match(/localhost$/) ||
-			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
-				return;
+		//if (location.hostname.match(/localhost$/) ||
+		//	location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
+		//		return;
 
 		var data = get_data(count_vars || {});
 		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
@@ -87,7 +95,7 @@
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(data);
+		img.src = endpoint + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.

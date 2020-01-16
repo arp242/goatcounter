@@ -1611,10 +1611,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
+		// Find the tag used to load this script.
+		var script = document.querySelector('script[data-goatcounter]'),
+			endpoint;
+		if (script) 
+			endpoint = script.dataset.goatcounter;
+		else  // TODO: temporary compat.
+			endpoint = window.counter;
+
 		// Don't track private networks.
-		if (location.hostname.match(/localhost$/) ||
-			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
-				return;
+		//if (location.hostname.match(/localhost$/) ||
+		//	location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
+		//		return;
 
 		var data = get_data(count_vars || {});
 		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
@@ -1627,7 +1635,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(data);
+		img.src = endpoint + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
@@ -13733,24 +13741,25 @@ var Templates = map[string][]byte{
 	<button>Sign in</button>
 </form>
 `),
-	"tpl/_backend_sitecode.gohtml": []byte(`<pre>&lt;script&gt;
-	(function() {
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		script.async = 1;
-		script.src = '//{{.Static}}/count.js';
-		var ins = document.getElementsByTagName('script')[0];
-		ins.parentNode.insertBefore(script, ins)
-	})();
-&lt;/script&gt;</pre>
+	"tpl/_backend_sitecode.gohtml": []byte(`{{define "code"}}&lt;script async 
+	data-goatcounter="{{.Site.URL}}/count"
+	src="//static.goatcounter.localhost:8081/count.js"&gt;&lt;/script&gt;{{end}}
+<pre>{{template "code" .}}</pre>
 
 {{if eq .Path "/settings"}}
 
-<p>The script is quite small and you can inline it if you want to save a
-	request. You won’t get any updates, but it’s expected to remain compatible in
-	the foreseeable future. Just be sure to set <code>window.counter</code> as in
-	the above snippet.</p>
+<h3>Content security policy</h3>
+<p>You’ll need the following if you use a
+<code>Content-Security-Policy</code>:</p>
+
+<pre>
+script-src  https://{{.Static}}
+img-src     {{.Site.URL}}/count
+</pre>
+
+<p>If you use the old script then you may also need to add
+<code>'unsafe-inline'</code> to <code>script-src</code>, but it's recommended to
+upgrade to the new script.</p>
 
 <h3>Customizing</h3>
 <p>You can pass variables with the <code>window.goatcounter.vars</code> object.
@@ -13802,45 +13811,32 @@ on <code>production.com</code> and not <code>staging.com</code> or
 <code>development.com</code>; for example:</p>
 
 <pre>&lt;script&gt;
-	(function() {
-		// Only load on production environment.
-		if (window.location.host !== 'production.com')
-			return;
-
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+	// Only load on production environment.
+	if (window.location.host !== 'production.com')
+		window.goatcounter.no_onload = true;
+{{template "code" .}}</pre>
 
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
 	request from localhost are already ignored</a>.</p>
 
 <h4 id="example-path">Custom path and referrer</h4>
 <pre>&lt;script&gt;
-	(function() {
-		window.goatcounter = window.goatcounter || {};
-		window.goatcounter.vars = {
-			path: function(p) {
-				// Don't track the home page.
-				if (p === '/')
-					return null;
+	window.goatcounter = window.goatcounter || {};
+	window.goatcounter.vars = {
+		path: function(p) {
+			// Don't track the home page.
+			if (p === '/')
+				return null;
 
-				// Remove .html from all other page links.
-				return p.replace(/\.html$/, '');
-			},
+			// Remove .html from all other page links.
+			return p.replace(/\.html$/, '');
+		},
 
-			// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
-			referrer: (window.location.search ? window.location.search.split('=')[1] : null),
-		};
-
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+		// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
+		referrer: (window.location.search ? window.location.search.split('=')[1] : null),
+	};
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
 <h4 id="example-query">Ignore query parameters in path</h4>
 <p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used
@@ -13856,40 +13852,48 @@ query parameters for navigation then you probably <em>don’t</em> want it.</p>
 parameters:</p>
 
 <pre>&lt;script&gt;
-	(function() {
-		window.goatcounter = window.goatcounter || {};
-		window.goatcounter.vars = {
-			path: location.pathname || '/',
-		};
-
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+	window.goatcounter = window.goatcounter || {};
+	window.goatcounter.vars = {
+		path: location.pathname || '/',
+	};
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
 <h4 id="example-spa">SPA</h4>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
 <pre>&lt;script&gt;
-	(function() {
-		window.goatcounter = window.goatcounter || {};
-		window.goatcounter.vars = {no_onload: true}
+	window.goatcounter = window.goatcounter || {};
+	window.goatcounter.vars = {no_onload: true}
 
-		window.addEventListener('hashchange', function(e) {
-			window.goatcounter.count({
-				page: location.pathname + location.search + location.hash,
-			});
+	window.addEventListener('hashchange', function(e) {
+		window.goatcounter.count({
+			page: location.pathname + location.search + location.hash,
 		});
+	});
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
-		window.counter = '{{.Site.URL}}/count'
 
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+<h3>Advanced usage</h3>
+<p>You don’t <em>need</em> to use the <code>count.js</code> script, you can also
+<code>GET {{.Site.URL}}/count</code> directly with the following query
+parameters:</p>
 
-{{end}}
+<ul>
+	<li><code>p</code> – <code>path</code></li>
+	<li><code>t</code> – <code>title</code></li>
+	<li><code>d</code> – <code>domain</code></li>
+	<li><code>r</code> – <code>referrer</code></li>
+</ul>
+
+<p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to
+load an image on your site:<p>
+<pre>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;</pre>
+
+<p>Or you can call this from your app’s middleware (note this will probably
+result in more bot requests).</p>
+
+{{end}} {{/* if eq .Path "/settings" */}}
 `),
 	"tpl/_backend_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">
@@ -14385,7 +14389,7 @@ parameters:</p>
 
 <div>
 	<h2 id="site-code">Site code</h2>
-	<p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
+	<p>Insert the code below just before the closing <code>&lt;/body&gt;</code> tag:</p>
 	{{template "_backend_sitecode.gohtml" .}}
 </div>
 
