@@ -14165,8 +14165,10 @@ parameters:</p>
 		<fieldset class="free">
 			<legend>Optional payments</legend>
 
-			<p>GoatCounter is free for personal non-commercial use, but a small
-				monthly donation is encouraged so I can pay my rent and such 😅</p>
+			<p>GoatCounter is free for personal non-commercial use (see
+				<a href="//www.{{.Domain}}/terms#commercial">ToS for definition</a>),
+				but a small monthly donation is encouraged so I can pay my rent
+				and such 😅</p>
 			<p>Even just a small €1/month would be greatly appreciated! Fill in
 				0 to disable the banner without a donation.</p>
 
@@ -14665,7 +14667,7 @@ information.</p>
 
 <h1>GoatCounter terms of service</h1>
 
-<p><em>10 August 2019</em></p>
+<p><em>16 January 2020</em></p>
 
 <h2>Definitions</h2>
 <p>The “services” are any software, application, product, or service provided by
@@ -14702,6 +14704,17 @@ information.</p>
 <p>This service is operated out of the Republic of Ireland. It is your
 	responsibility to ensure that all local laws regarding data collection are
 	followed (e.g. GDPR) are followed.</p>
+
+<h2 id="commercial">Commercial use</h2>
+<p>The service is free for personal use, but all commercial users must purchase
+a plan after the initial 14-day trail or close their account. A website is
+considered “commercial” if the primary goal is to sell or advertise products or
+services.</p>
+
+<p>There is a large amount of grey area between strictly ‘personal’ and
+‘commercial’; for example selling a service as a side-project which provides
+just a little but of pocket money is ‘commercial’, but also ‘personal’. Just get
+in touch if you’re unsure and I’ll tell you if it’s considered personal.</p>
 
 <h2>Payments</h2>
 <p>You are billed immediately for the displayed term. These services will be
