@@ -13417,9 +13417,9 @@ var Templates = map[string][]byte{
 		</div>
 	{{end}}
 	<span id="settings">{{.Site.Settings.String | unsafe_js}}</span>
-	<script src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
-	<script src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
-	<script src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
 </body>
 </html>
 `),
@@ -13683,8 +13683,8 @@ parameters:</p>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_bottom.gohtml": []byte(`		<script src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
-		<script src="//{{.Static}}/script.js?v={{.Version}}"></script>
+	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
+		<script crossorigin="anonymous" src="//{{.Static}}/script.js?v={{.Version}}"></script>
 	</div> {{/* .page */}}
 
 	{{template "_bottom_links.gohtml" .}}

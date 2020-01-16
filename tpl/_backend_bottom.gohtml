@@ -19,8 +19,8 @@
 		</div>
 	{{end}}
 	<span id="settings">{{.Site.Settings.String | unsafe_js}}</span>
-	<script src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
-	<script src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
-	<script src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
 </body>
 </html>
