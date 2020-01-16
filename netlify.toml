@@ -6,3 +6,7 @@
 		Cache-Control = "public, max-age=7776000"  # 90 days
 		Access-Control-Allow-Origin = "*"
 
+[[headers]]
+	for = "/*"
+	[headers.values]
+		Access-Control-Allow-Origin = "*"
