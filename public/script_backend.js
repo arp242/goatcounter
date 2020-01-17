@@ -55,7 +55,7 @@
 		$('.pages-list .load-more').on('click', function(e) {
 			e.preventDefault();
 			jQuery.ajax({
-				url: $(this).attr('data-href'),
+				url:     $(this).attr('data-href'),
 				success: function(data) { update_pages(data, false); },
 			});
 		});
@@ -76,7 +76,7 @@
 		else {
 			$('.pages-list .load-more').css('display', 'inline')
 			var more   = $('.pages-list .load-more'),
-				params = split_query(more.attr('data-href'));
+			    params = split_query(more.attr('data-href'));
 			params['filter'] = filter;
 			if (from_filter)  // Clear pagination when filter changes.
 				params['exclude'] = data.paths.join(',');
@@ -86,7 +86,7 @@
 		}
 
 		var th = $('.pages-list .total-hits'),
-			td = $('.pages-list .total-display');
+		    td = $('.pages-list .total-display');
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));

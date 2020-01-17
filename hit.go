@@ -349,9 +349,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 	l = l.Since("select hits")
 
-	// "" → []string{"/tmux.html", "/goatcounter-1.0.html", "/license.html", "//yaml-config.html", "/dnt.html"}
-	fmt.Printf("%#v → %#v\n", filter, exclude)
-
 	if more {
 		if len(*h) == limit {
 			x := *h

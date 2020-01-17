@@ -282,7 +282,6 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	filter := r.URL.Query().Get("filter")
-
 	l := zlog.Module("backend").Field("site", site.ID)
 
 	var pages goatcounter.HitStats
