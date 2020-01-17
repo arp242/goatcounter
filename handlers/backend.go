@@ -548,7 +548,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var pages goatcounter.HitStats
-	_, totalDisplay, more, err := pages.List(r.Context(), start, end,
+	totalHits, totalDisplay, more, err := pages.List(r.Context(), start, end,
 		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","))
 	if err != nil {
 		return err
@@ -575,6 +575,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.JSON(w, map[string]interface{}{
 		"rows":          string(tpl),
 		"paths":         paths,
+		"total_hits":    totalHits,
 		"total_display": totalDisplay,
 		"more":          more,
 	})

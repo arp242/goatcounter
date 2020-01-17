@@ -31,44 +31,62 @@
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
 	var filter_paths = function() {
-		var highlight = function(s) {
-			$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title').each(function(_, elem) {
-				elem.innerHTML = replacei(elem.innerHTML, s, function(s) { return '<em>' + s + '</em>'; });
-			});
-		};
-
 		if ($('#filter-paths').val() !== '')
-			highlight($('#filter-paths').val());
+			highlight_filter($('#filter-paths').val());
 
 		var t;
 		$('#filter-paths').on('input', function(e) {
 			clearTimeout(t);
 			t = setTimeout(function() {
 				var filter = $(e.target).val().trim();
-				set_param('filter', filter);
+				push_query('filter', filter);
 				$('#filter-paths').toggleClass('value', filter !== '');
 
 				jQuery.ajax({
 					url: '/pages',
 					data: append_period({filter: filter}),
-					success: function(data) {
-						$('.pages-list .count-list-pages > tbody').html(data.rows);
-						highlight(filter);
-
-						if (!data.more)
-							$('.pages-list .load-more').css('display', 'none')
-						else {
-							$('.pages-list .load-more').css('display', 'inline')
-							// TODO: set filter here.
-							var b = $('.pages-list .load-more');
-							b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
-						}
-
-						var td = $('.pages-list .total-display');
-						td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
-					},
+					success: function(data) { xxx(data, true); },
 				});
 			}, 300);
+		});
+	};
+
+	var xxx = function(data, filter) {
+		if (filter)
+			$('.pages-list .count-list-pages > tbody').html(data.rows);
+		else
+			$('.pages-list .count-list-pages > tbody').append(data.rows);
+
+		highlight_filter($('#filter-paths').val());
+
+		if (!data.more)
+			$('.pages-list .load-more').css('display', 'none')
+		else {
+			$('.pages-list .load-more').css('display', 'inline')
+			var more   = $('.pages-list .load-more'),
+				params = split_query(more.attr('data-href'));
+			params['filter'] = filter;
+			params['exclude'] += data.paths.join(',');
+			more.attr('data-href', '/pages' + join_query(params));
+		}
+
+		var th = $('.pages-list .total-hits'),
+			td = $('.pages-list .total-display');
+		if (filter) {
+			th.text(format_int(data.total_hits));
+			td.text(format_int(data.total_display));
+		}
+		else {
+			td.text(format_int(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display));
+		}
+	};
+
+	// Highlight a filter pattern in the path and title.
+	var highlight_filter = function(s) {
+		if (s === '')
+			return;
+		$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title').each(function(_, elem) {
+			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
 		});
 	};
 
@@ -237,20 +255,7 @@
 
 			jQuery.ajax({
 				url: $(this).attr('data-href'),
-				success: function(data) {
-					$('.pages-list .count-list-pages > tbody').append(data.rows);
-
-					if (!data.more)
-						$('.pages-list .load-more').css('display', 'none')
-					else {
-						$('.pages-list .load-more').css('display', 'inline')
-						var b = $('.pages-list .load-more');
-						b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
-					}
-
-					var td = $('.pages-list .total-display');
-					td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
-				},
+				success: function(data) { xxx(data, false); },
 			});
 		});
 	};
@@ -397,7 +402,7 @@
 		$('.count-list-pages').on('click', '.rlink', function(e) {
 			e.preventDefault();
 
-			var params = get_params(),
+			var params = split_query(location.search),
 				link   = this,
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
@@ -412,10 +417,10 @@
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
 			if (params['showrefs'] === path) {
 				close();
-				return set_param('showrefs', null);
+				return push_query('showrefs', null);
 			}
 
-			set_param('showrefs', path);
+			push_query('showrefs', path);
 			jQuery.ajax({
 				url: '/refs' + link.search,
 				success: function(data) {
@@ -496,13 +501,11 @@
 		});
 	};
 
-	// Get all query parameters as an object.
-	var get_params = function() {
-		var s = location.search;
+	// Parse all query parameters from string to {k: v} object.
+	var split_query = function(s) {
+		s = s.substr(s.indexOf('?') + 1);
 		if (s.length === 0)
 			return {};
-		if (s[0] === '?')
-			s = s.substr(1);
 
 		var split = s.split('&'),
 			obj = {};
@@ -513,22 +516,22 @@
 		return obj;
 	};
 
-	// Set query parameters to the provided object.
-	var set_params = function(obj) {
+	// Join query parameters from {k: v} object to href.
+	var join_query = function(obj) {
 		var s = [];
 		for (var k in obj)
 			s.push(k + '=' + encodeURIComponent(obj[k]));
-		history.pushState(null, '', s.length === 0 ? '/' : ('?' + s.join('&')));
+		return (s.length === 0 ? '/' : ('?' + s.join('&')));
 	};
 
-	// Set one query parameter, leaving the others alone.
-	var set_param = function(k, v) {
-		var params = get_params();
+	// Set one query parameter – leaving the others alone – and push to history.
+	var push_query = function(k, v) {
+		var params = split_query(location.search);
 		if (v === null)
 			delete params[k];
 		else
 			params[k] = v;
-		set_params(params);
+		history.pushState(null, '', join_query(params));
 	};
 
 	// Convert "23:45" to "11:45 pm".
@@ -591,6 +594,11 @@
 			(d >= 10 ? d : ('0' + d));
 	};
 
+	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
+	var format_int = function(n) {
+		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+	};
+
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var d = new Date(),
@@ -626,18 +634,8 @@
 		return window.innerWidth <= 800 && window.innerHeight <= 600;
 	};
 
-	// Case-insensitive string replace. https://stackoverflow.com/a/42215678/660921
-	var replacei = function(str, sub, f) {
-		var A = str.toLowerCase().split(sub.toLowerCase()),
-		    B = [],
-		    x = 0;
-		for (var i = 0; i < A.length; i++) {
-			var n = A[i].length;
-			B.push(str.substr(x, n));
-			if (i < A.length-1)
-				B.push(f(str.substr(x + n, sub.length)));
-			x += n + sub.length;
-		}
-		return B.join('');
-	}
+	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
+	var quote_re = function(s) {
+		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
+	};
 })();

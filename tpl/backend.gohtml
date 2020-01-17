@@ -50,25 +50,19 @@
 	<div class="pages-list">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
-			<sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup>
+			<sup>(total <span class="total-hits">{{nformat .TotalHits}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed)</sup>
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
 		</header>
 
-		{{if eq .TotalHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<table class="count-list count-list-pages">
-				<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
-			</table>
-		{{end}}
+		<table class="count-list count-list-pages">
+			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
+		</table>
 
-		{{if gt .TotalHits .TotalHitsDisplay}}
-			<a href="#_", class="load-more"
+		<a href="#_", class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
 				data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
-			>load more</a>
-		{{end}}
+		>load more</a>
 	</div>
 </form>
 
