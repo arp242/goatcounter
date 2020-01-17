@@ -19,6 +19,14 @@ import (
 	"zgo.at/ztest"
 )
 
+func dayStat(days map[int]int) []int {
+	s := make([]int, 24)
+	for k, v := range days {
+		s[k] = v
+	}
+	return s
+}
+
 func TestHitStatsList(t *testing.T) {
 	start := time.Date(2019, 8, 10, 14, 42, 0, 0, time.UTC)
 	end := time.Date(2019, 8, 17, 14, 42, 0, 0, time.UTC)
@@ -39,24 +47,24 @@ func TestHitStatsList(t *testing.T) {
 			wantReturn: "3 3 false <nil>",
 			wantStats: goatcounter.HitStats{
 				goatcounter.HitStat{Count: 2, Max: 10, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
-					{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-10", Days: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Days: dayStat(nil)},
+					{Day: "2019-08-12", Days: dayStat(map[int]int{6: 1})},
+					{Day: "2019-08-13", Days: dayStat(nil)},
+					{Day: "2019-08-14", Days: dayStat(nil)},
+					{Day: "2019-08-15", Days: dayStat(nil)},
+					{Day: "2019-08-16", Days: dayStat(nil)},
+					{Day: "2019-08-17", Days: dayStat(nil)},
 				}},
 				goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
-					{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-10", Days: dayStat(nil)},
+					{Day: "2019-08-11", Days: dayStat(nil)},
+					{Day: "2019-08-12", Days: dayStat(nil)},
+					{Day: "2019-08-13", Days: dayStat(nil)},
+					{Day: "2019-08-14", Days: dayStat(map[int]int{18: 1})},
+					{Day: "2019-08-15", Days: dayStat(nil)},
+					{Day: "2019-08-16", Days: dayStat(nil)},
+					{Day: "2019-08-17", Days: dayStat(nil)},
 				}},
 			},
 		},
@@ -69,14 +77,79 @@ func TestHitStatsList(t *testing.T) {
 			wantReturn: "1 1 false <nil>",
 			wantStats: goatcounter.HitStats{
 				goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
-					{Day: "2019-08-10", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-11", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-12", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-13", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-14", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-15", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-16", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-					{Day: "2019-08-17", Days: []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+					{Day: "2019-08-10", Days: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Days: dayStat(nil)},
+					{Day: "2019-08-12", Days: dayStat(nil)},
+					{Day: "2019-08-13", Days: dayStat(nil)},
+					{Day: "2019-08-14", Days: dayStat(nil)},
+					{Day: "2019-08-15", Days: dayStat(nil)},
+					{Day: "2019-08-16", Days: dayStat(nil)},
+					{Day: "2019-08-17", Days: dayStat(nil)},
+				}},
+			},
+		},
+		{
+			in: []goatcounter.Hit{
+				{CreatedAt: start, Path: "/a"},
+				{CreatedAt: start, Path: "/aa"},
+				{CreatedAt: start, Path: "/aaa"},
+				{CreatedAt: start, Path: "/aaaa"},
+			},
+			inFilter:   "a",
+			wantReturn: "4 2 true <nil>",
+			wantStats: goatcounter.HitStats{
+				goatcounter.HitStat{Count: 1, Max: 10, Path: "/aaaa", RefScheme: nil, Stats: []goatcounter.Stat{
+					{Day: "2019-08-10", Days: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Days: dayStat(nil)},
+					{Day: "2019-08-12", Days: dayStat(nil)},
+					{Day: "2019-08-13", Days: dayStat(nil)},
+					{Day: "2019-08-14", Days: dayStat(nil)},
+					{Day: "2019-08-15", Days: dayStat(nil)},
+					{Day: "2019-08-16", Days: dayStat(nil)},
+					{Day: "2019-08-17", Days: dayStat(nil)},
+				}},
+				goatcounter.HitStat{Count: 1, Max: 10, Path: "/aaa", RefScheme: nil, Stats: []goatcounter.Stat{
+					{Day: "2019-08-10", Days: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Days: dayStat(nil)},
+					{Day: "2019-08-12", Days: dayStat(nil)},
+					{Day: "2019-08-13", Days: dayStat(nil)},
+					{Day: "2019-08-14", Days: dayStat(nil)},
+					{Day: "2019-08-15", Days: dayStat(nil)},
+					{Day: "2019-08-16", Days: dayStat(nil)},
+					{Day: "2019-08-17", Days: dayStat(nil)},
+				}},
+			},
+		},
+		{
+			in: []goatcounter.Hit{
+				{CreatedAt: start, Path: "/a"},
+				{CreatedAt: start, Path: "/aa"},
+				{CreatedAt: start, Path: "/aaa"},
+				{CreatedAt: start, Path: "/aaaa"},
+			},
+			inFilter:   "a",
+			inExclude:  []string{"/aaaa", "/aaa"},
+			wantReturn: "4 2 false <nil>",
+			wantStats: goatcounter.HitStats{
+				goatcounter.HitStat{Count: 1, Max: 10, Path: "/aa", RefScheme: nil, Stats: []goatcounter.Stat{
+					{Day: "2019-08-10", Days: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Days: dayStat(nil)},
+					{Day: "2019-08-12", Days: dayStat(nil)},
+					{Day: "2019-08-13", Days: dayStat(nil)},
+					{Day: "2019-08-14", Days: dayStat(nil)},
+					{Day: "2019-08-15", Days: dayStat(nil)},
+					{Day: "2019-08-16", Days: dayStat(nil)},
+					{Day: "2019-08-17", Days: dayStat(nil)},
+				}},
+				goatcounter.HitStat{Count: 1, Max: 10, Path: "/a", RefScheme: nil, Stats: []goatcounter.Stat{
+					{Day: "2019-08-10", Days: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Days: dayStat(nil)},
+					{Day: "2019-08-12", Days: dayStat(nil)},
+					{Day: "2019-08-13", Days: dayStat(nil)},
+					{Day: "2019-08-14", Days: dayStat(nil)},
+					{Day: "2019-08-15", Days: dayStat(nil)},
+					{Day: "2019-08-16", Days: dayStat(nil)},
+					{Day: "2019-08-17", Days: dayStat(nil)},
 				}},
 			},
 		},
@@ -93,6 +166,7 @@ func TestHitStatsList(t *testing.T) {
 					tt.in[j].Site = site.ID
 				}
 			}
+			site.Settings.Limits.Page = 2
 
 			goatcounter.Memstore.Append(tt.in...)
 			db := zdb.MustGet(ctx).(*sqlx.DB)

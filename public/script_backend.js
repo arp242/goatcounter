@@ -31,8 +31,7 @@
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
 	var filter_paths = function() {
-		if ($('#filter-paths').val() !== '')
-			highlight_filter($('#filter-paths').val());
+		highlight_filter($('#filter-paths').val());
 
 		var t;
 		$('#filter-paths').on('input', function(e) {
@@ -43,21 +42,34 @@
 				$('#filter-paths').toggleClass('value', filter !== '');
 
 				jQuery.ajax({
-					url: '/pages',
-					data: append_period({filter: filter}),
-					success: function(data) { xxx(data, true); },
+					url:     '/pages',
+					data:    append_period({filter: filter}),
+					success: function(data) { update_pages(data, true); },
 				});
 			}, 300);
 		});
 	};
 
-	var xxx = function(data, filter) {
-		if (filter)
+	// Paginate the main path overview.
+	var paginate_paths = function() {
+		$('.pages-list .load-more').on('click', function(e) {
+			e.preventDefault();
+			jQuery.ajax({
+				url: $(this).attr('data-href'),
+				success: function(data) { update_pages(data, false); },
+			});
+		});
+	};
+
+	// Update the page list from ajax request on pagination/filter.
+	var update_pages = function(data, from_filter) {
+		if (from_filter)
 			$('.pages-list .count-list-pages > tbody').html(data.rows);
 		else
 			$('.pages-list .count-list-pages > tbody').append(data.rows);
 
-		highlight_filter($('#filter-paths').val());
+		var filter = $('#filter-paths').val();
+		highlight_filter(filter);
 
 		if (!data.more)
 			$('.pages-list .load-more').css('display', 'none')
@@ -66,19 +78,21 @@
 			var more   = $('.pages-list .load-more'),
 				params = split_query(more.attr('data-href'));
 			params['filter'] = filter;
-			params['exclude'] += data.paths.join(',');
+			if (from_filter)  // Clear pagination when filter changes.
+				params['exclude'] = data.paths.join(',');
+			else
+				params['exclude'] += ',' + data.paths.join(',');
 			more.attr('data-href', '/pages' + join_query(params));
 		}
 
 		var th = $('.pages-list .total-hits'),
 			td = $('.pages-list .total-display');
-		if (filter) {
+		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
 		}
-		else {
+		else
 			td.text(format_int(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display));
-		}
 	};
 
 	// Highlight a filter pattern in the path and title.
@@ -244,18 +258,6 @@
 					total: bar.attr('data-total'),
 				}),
 				success: function(data) { bar.html(data.html); },
-			});
-		});
-	};
-
-	// Paginate the main path overview.
-	var paginate_paths = function() {
-		$('.pages-list .load-more').on('click', function(e) {
-			e.preventDefault();
-
-			jQuery.ajax({
-				url: $(this).attr('data-href'),
-				success: function(data) { xxx(data, false); },
 			});
 		});
 	};

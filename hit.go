@@ -349,21 +349,10 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 	l = l.Since("select hits")
 
-	// TODO: not always correct
-	// TODO: breaks after 2 pages?
-	// More 3 3 []
-	// &[{2380 0 /tmux.html  <nil> []} {230 0 /the-art-of-unix-programming  <nil> []} {95 0 /taoup.html  <nil> []}]
-	//    13:01:07 backend: INFO:  {browsers.List="1ms" locStat.List="1ms" pages.List="85ms" site=1 sizeStat.ListSizes="26ms" zhttp.Template="2ms"}
-	// 13:01:07  200 GET   118ms  arp242.goatcounter.localhost:8081/?filter=x
-	// More 3 3 [/tmux.html /the-art-of-unix-programming ]
-	// &[{95 0 /taoup.html  <nil> []} {70 0 /read-stdin.html  <nil> []} {57 0 /anti-vax.html  <nil> []}]
-	// 13:01:11  200 GET    78ms  arp242.goatcounter.localhost:8081/pages?period-start=2020-01-10&period-end=2020-01-17&filter=x&exclude=%2ftmux.html,%2fthe-art-of-unix-programming,
-	// More 0 3 [/tmux.html /the-art-of-unix-programming /taoup.html /read-stdin.html]
-	// &[]
-	// 13:01:12  200 GET    88ms  arp242.goatcounter.localhost:8081/pages?period-start=2020-01-10&period-end=2020-01-17&filter=false&exclude=%2Ftmux.html%2C%2Fthe-art-of-unix-programming%2C%2Ftaoup.html%2C%2Fread-stdin.html
+	// "" → []string{"/tmux.html", "/goatcounter-1.0.html", "/license.html", "//yaml-config.html", "/dnt.html"}
+	fmt.Printf("%#v → %#v\n", filter, exclude)
+
 	if more {
-		fmt.Println("More", len(*h), limit, exclude)
-		fmt.Println(h)
 		if len(*h) == limit {
 			x := *h
 			x = x[:len(x)-1]
