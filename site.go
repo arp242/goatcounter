@@ -154,7 +154,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 
 	if !v.HasErrors() {
-		var code, name uint8
+		var code uint8
 		err := zdb.MustGet(ctx).GetContext(ctx, &code,
 			`select 1 from sites where lower(code)=lower($1) and id!=$2 limit 1`,
 			s.Code, s.ID)
@@ -163,16 +163,6 @@ func (s *Site) Validate(ctx context.Context) error {
 		}
 		if code == 1 {
 			v.Append("code", "already exists")
-		}
-
-		err = zdb.MustGet(ctx).GetContext(ctx, &name,
-			`select 1 from sites where lower(name)=lower($1) and id!=$2 limit 1`,
-			s.Name, s.ID)
-		if err != nil && err != sql.ErrNoRows {
-			return err
-		}
-		if name == 1 {
-			v.Append("name", "already exists")
 		}
 	}
 

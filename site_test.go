@@ -58,7 +58,7 @@ func TestSiteValidate(t *testing.T) {
 					panic(err)
 				}
 			},
-			map[string][]string{"code": {"already exists"}, "name": {"already exists"}},
+			map[string][]string{"code": {"already exists"}},
 		},
 	}
 

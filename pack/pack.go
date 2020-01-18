@@ -477,6 +477,11 @@ commit;
 	insert into version values ('2020-01-13-2-hit_stats_title');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-18-1-sitename.sql": []byte(`begin;
+	drop index "sites#name";
+	insert into version values ('2020-01-18-1-sitename');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -988,6 +993,11 @@ commit;
 	"db/migrate/sqlite/2020-01-13-2-hit_stats_title.sql": []byte(`begin;
 	alter table hit_stats add column title varchar not null default '';
 	insert into version values ('2020-01-13-2-hit_stats_title');
+commit;
+`),
+	"db/migrate/sqlite/2020-01-18-1-sitename.sql": []byte(`begin;
+	drop index "sites#name";
+	insert into version values ('2020-01-18-1-sitename');
 commit;
 `),
 }
@@ -13034,7 +13044,8 @@ insert into version values
 	('2019-12-31-1-blank-days'),
 	('2020-01-02-1-bot'),
 	('2020-01-07-1-title-domain'),
-	('2020-01-13-2-hit_stats_title');
+	('2020-01-13-2-hit_stats_title'),
+	('2020-01-18-1-sitename');
 
 drop table if exists sites;
 create table sites (
@@ -13055,7 +13066,6 @@ create table sites (
 	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
 );
 create unique index "sites#code" on sites(lower(code));
-create unique index "sites#name" on sites(lower(name));
 
 drop table if exists users;
 create table users (
