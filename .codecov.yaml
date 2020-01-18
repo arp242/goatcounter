@@ -1,4 +1,4 @@
-ignore: ["pack.go"]
+ignore: ["pack.go", "*.js"]
 comment: off
 coverage:
   range: 50..90
