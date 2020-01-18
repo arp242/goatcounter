@@ -11821,10 +11821,86 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker,
+			billing_subscribe, setup_datepicker, filter_paths,
 		].forEach(function(f) { f.call(); });
 
 	});
+
+	// Reload the path list when typing in the filter input, so the user won't
+	// have to press "enter".
+	var filter_paths = function() {
+		highlight_filter($('#filter-paths').val());
+
+		var t;
+		$('#filter-paths').on('input', function(e) {
+			clearTimeout(t);
+			t = setTimeout(function() {
+				var filter = $(e.target).val().trim();
+				push_query('filter', filter);
+				$('#filter-paths').toggleClass('value', filter !== '');
+
+				jQuery.ajax({
+					url:     '/pages',
+					data:    append_period({filter: filter}),
+					success: function(data) { update_pages(data, true); },
+				});
+			}, 300);
+		});
+	};
+
+	// Paginate the main path overview.
+	var paginate_paths = function() {
+		$('.pages-list .load-more').on('click', function(e) {
+			e.preventDefault();
+			jQuery.ajax({
+				url:     $(this).attr('data-href'),
+				success: function(data) { update_pages(data, false); },
+			});
+		});
+	};
+
+	// Update the page list from ajax request on pagination/filter.
+	var update_pages = function(data, from_filter) {
+		if (from_filter)
+			$('.pages-list .count-list-pages > tbody').html(data.rows);
+		else
+			$('.pages-list .count-list-pages > tbody').append(data.rows);
+
+		var filter = $('#filter-paths').val();
+		highlight_filter(filter);
+
+		if (!data.more)
+			$('.pages-list .load-more').css('display', 'none')
+		else {
+			$('.pages-list .load-more').css('display', 'inline')
+			var more   = $('.pages-list .load-more'),
+			    params = split_query(more.attr('data-href'));
+			params['filter'] = filter;
+			if (from_filter)  // Clear pagination when filter changes.
+				params['exclude'] = data.paths.join(',');
+			else
+				params['exclude'] += ',' + data.paths.join(',');
+			more.attr('data-href', '/pages' + join_query(params));
+		}
+
+		var th = $('.pages-list .total-hits'),
+		    td = $('.pages-list .total-display');
+		if (from_filter) {
+			th.text(format_int(data.total_hits));
+			td.text(format_int(data.total_display));
+		}
+		else
+			td.text(format_int(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display));
+	};
+
+	// Highlight a filter pattern in the path and title.
+	var highlight_filter = function(s) {
+		if (s === '')
+			return;
+		$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title').each(function(_, elem) {
+			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
+		});
+	};
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
@@ -11984,30 +12060,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 	};
 
-	// Paginate the main path overview.
-	var paginate_paths = function() {
-		$('.pages-list .load-more').on('click', function(e) {
-			e.preventDefault();
-
-			jQuery.ajax({
-				url: $(this).attr('data-href'),
-				success: function(data) {
-					$('.pages-list .count-list-pages > tbody').append(data.rows);
-
-					if (!data.more)
-						$('.pages-list .load-more').remove()
-					else {
-						var b = $('.pages-list .load-more');
-						b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
-					}
-
-					var td = $('.pages-list .total-display');
-					td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
-				},
-			});
-		});
-	};
-
 	// Paginate the referrers.
 	var paginate_refs = function() {
 		$('.pages-list').on('click', '.load-more-refs', function(e) {
@@ -12150,7 +12202,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		$('.count-list-pages').on('click', '.rlink', function(e) {
 			e.preventDefault();
 
-			var params = get_params(),
+			var params = split_query(location.search),
 				link   = this,
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
@@ -12165,10 +12217,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
 			if (params['showrefs'] === path) {
 				close();
-				return set_param('showrefs', null);
+				return push_query('showrefs', null);
 			}
 
-			set_param('showrefs', path);
+			push_query('showrefs', path);
 			jQuery.ajax({
 				url: '/refs' + link.search,
 				success: function(data) {
@@ -12249,13 +12301,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 	};
 
-	// Get all query parameters as an object.
-	var get_params = function() {
-		var s = location.search;
+	// Parse all query parameters from string to {k: v} object.
+	var split_query = function(s) {
+		s = s.substr(s.indexOf('?') + 1);
 		if (s.length === 0)
 			return {};
-		if (s[0] === '?')
-			s = s.substr(1);
 
 		var split = s.split('&'),
 			obj = {};
@@ -12266,22 +12316,22 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		return obj;
 	};
 
-	// Set query parameters to the provided object.
-	var set_params = function(obj) {
+	// Join query parameters from {k: v} object to href.
+	var join_query = function(obj) {
 		var s = [];
 		for (var k in obj)
 			s.push(k + '=' + encodeURIComponent(obj[k]));
-		history.pushState(null, '', s.length === 0 ? '/' : ('?' + s.join('&')));
+		return (s.length === 0 ? '/' : ('?' + s.join('&')));
 	};
 
-	// Set one query parameter, leaving the others alone.
-	var set_param = function(k, v) {
-		var params = get_params();
+	// Set one query parameter – leaving the others alone – and push to history.
+	var push_query = function(k, v) {
+		var params = split_query(location.search);
 		if (v === null)
 			delete params[k];
 		else
 			params[k] = v;
-		set_params(params);
+		history.pushState(null, '', join_query(params));
 	};
 
 	// Convert "23:45" to "11:45 pm".
@@ -12344,6 +12394,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			(d >= 10 ? d : ('0' + d));
 	};
 
+	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
+	var format_int = function(n) {
+		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+	};
+
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var d = new Date(),
@@ -12377,6 +12432,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (navigator.userAgent.match(/Mobile/i))
 			return true;
 		return window.innerWidth <= 800 && window.innerHeight <= 600;
+	};
+
+	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
+	var quote_re = function(s) {
+		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
 })();
 `),
@@ -12608,6 +12668,8 @@ form .err  { color: red; display: block; }
 	border-color: #f00;
 }
 
+
+/*** Pages list ***/
 .count-list td {
 	vertical-align: top;
 }
@@ -12618,6 +12680,10 @@ form .err  { color: red; display: block; }
 .count-list td:first-child {  /* Count */
 	text-align: right;
 	width: 5em;
+}
+.count-list td[colspan="3"] {  /* "nothing to display" */
+	text-align: left;
+	width: auto;
 }
 
 .count-list td:nth-child(2) {  /* Path */
@@ -12637,6 +12703,7 @@ form .err  { color: red; display: block; }
 .rlink {
 	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
 }
+.page-title b, .rlink b { background-color: yellow; }
 
 .count-list tr {
 	border: none;
@@ -12653,6 +12720,7 @@ form .err  { color: red; display: block; }
 	border-bottom: 4px solid yellow;
 }
 
+/*** Pages header (filter, time period select, etc.) ***/
 .count-list-opt {
 	padding: 1em;
 	background-color: #f8f8d9;
@@ -12673,6 +12741,7 @@ form .err  { color: red; display: block; }
 
 .count-list-opt input { width: 9em; text-align: center; }
 
+/*** Charts ***/
 .chart {
 	border: 1px solid #ccc;
 	height: 50px;
@@ -12843,6 +12912,14 @@ noscript {
 /*** Updates overview ***/
 .update p        { margin-left: 2em; }
 .update > em + p { margin-top: 0; }
+
+/*** Pages header ***/
+header h2 { border-bottom: 0; display: inline; }
+header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
+
+.header-pages sup         { font-size: .9rem; }
+.header-pages input       { float: right; border: 1px solid #ccc; padding: .2em; margin-right: 1em; border-radius: 2px; }
+.header-pages input.value { background-color: yellow; }
 `),
 }
 
@@ -13428,6 +13505,8 @@ var Templates = map[string][]byte{
 			{{end}}</div>
 		</td>
 	</tr>
+{{else}}
+	<tr><td colspan="3"><em>Nothing to display</em></td></tr>
 {{- end}}
 `),
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
@@ -13753,8 +13832,8 @@ parameters:</p>
 
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
-<div class="count-list-opt">
-	<form id="period-form">
+<form id="period-form">
+	<div class="count-list-opt">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
 
@@ -13781,25 +13860,26 @@ parameters:</p>
 		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
 		<button type="submit">Go</button>
-	</form>
-</div>
+	</div>
 
-<div class="pages-list">
-	<h2>Pages <sup>(total {{nformat .TotalHits}} hits{{if ne .TotalHits .TotalHitsDisplay}}, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed{{end}})</sup></h2>
-	{{if eq .TotalHits 0}}
-		<em>Nothing to display</em>
-	{{else}}
+	<div class="pages-list">
+		<header class="h2 header-pages">
+			<h2>Pages</h2>
+			<sup>(total <span class="total-hits">{{nformat .TotalHits}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed)</sup>
+			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
+				{{if .Filter}}class="value"{{end}}
+				title="Filter the list of paths; matched case-insensitive on path and title">
+		</header>
+
 		<table class="count-list count-list-pages">
 			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
-	{{end}}
 
-	{{if gt .TotalHits .TotalHitsDisplay}}
-		<a href="#_", class="load-more"
-			data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+		<a href="#_", class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
+				data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
 		>load more</a>
-	{{end}}
-</div>
+	</div>
+</form>
 
 <div class="browser-charts">
 	<div>
@@ -13815,7 +13895,7 @@ parameters:</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalHits 0 0.1 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalSize 0 0.1 true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
 				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
 			</small></p>
@@ -13826,7 +13906,7 @@ parameters:</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalHits 0 3 false}}</div>
+			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalLocation 0 3 false}}</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>

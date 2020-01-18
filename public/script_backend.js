@@ -23,10 +23,86 @@
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker,
+			billing_subscribe, setup_datepicker, filter_paths,
 		].forEach(function(f) { f.call(); });
 
 	});
+
+	// Reload the path list when typing in the filter input, so the user won't
+	// have to press "enter".
+	var filter_paths = function() {
+		highlight_filter($('#filter-paths').val());
+
+		var t;
+		$('#filter-paths').on('input', function(e) {
+			clearTimeout(t);
+			t = setTimeout(function() {
+				var filter = $(e.target).val().trim();
+				push_query('filter', filter);
+				$('#filter-paths').toggleClass('value', filter !== '');
+
+				jQuery.ajax({
+					url:     '/pages',
+					data:    append_period({filter: filter}),
+					success: function(data) { update_pages(data, true); },
+				});
+			}, 300);
+		});
+	};
+
+	// Paginate the main path overview.
+	var paginate_paths = function() {
+		$('.pages-list .load-more').on('click', function(e) {
+			e.preventDefault();
+			jQuery.ajax({
+				url:     $(this).attr('data-href'),
+				success: function(data) { update_pages(data, false); },
+			});
+		});
+	};
+
+	// Update the page list from ajax request on pagination/filter.
+	var update_pages = function(data, from_filter) {
+		if (from_filter)
+			$('.pages-list .count-list-pages > tbody').html(data.rows);
+		else
+			$('.pages-list .count-list-pages > tbody').append(data.rows);
+
+		var filter = $('#filter-paths').val();
+		highlight_filter(filter);
+
+		if (!data.more)
+			$('.pages-list .load-more').css('display', 'none')
+		else {
+			$('.pages-list .load-more').css('display', 'inline')
+			var more   = $('.pages-list .load-more'),
+			    params = split_query(more.attr('data-href'));
+			params['filter'] = filter;
+			if (from_filter)  // Clear pagination when filter changes.
+				params['exclude'] = data.paths.join(',');
+			else
+				params['exclude'] += ',' + data.paths.join(',');
+			more.attr('data-href', '/pages' + join_query(params));
+		}
+
+		var th = $('.pages-list .total-hits'),
+		    td = $('.pages-list .total-display');
+		if (from_filter) {
+			th.text(format_int(data.total_hits));
+			td.text(format_int(data.total_display));
+		}
+		else
+			td.text(format_int(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display));
+	};
+
+	// Highlight a filter pattern in the path and title.
+	var highlight_filter = function(s) {
+		if (s === '')
+			return;
+		$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title').each(function(_, elem) {
+			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
+		});
+	};
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
@@ -186,30 +262,6 @@
 		});
 	};
 
-	// Paginate the main path overview.
-	var paginate_paths = function() {
-		$('.pages-list .load-more').on('click', function(e) {
-			e.preventDefault();
-
-			jQuery.ajax({
-				url: $(this).attr('data-href'),
-				success: function(data) {
-					$('.pages-list .count-list-pages > tbody').append(data.rows);
-
-					if (!data.more)
-						$('.pages-list .load-more').remove()
-					else {
-						var b = $('.pages-list .load-more');
-						b.attr('data-href', b.attr('data-href') + ',' +  data.paths.join(','));
-					}
-
-					var td = $('.pages-list .total-display');
-					td.text(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display);
-				},
-			});
-		});
-	};
-
 	// Paginate the referrers.
 	var paginate_refs = function() {
 		$('.pages-list').on('click', '.load-more-refs', function(e) {
@@ -352,7 +404,7 @@
 		$('.count-list-pages').on('click', '.rlink', function(e) {
 			e.preventDefault();
 
-			var params = get_params(),
+			var params = split_query(location.search),
 				link   = this,
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
@@ -367,10 +419,10 @@
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
 			if (params['showrefs'] === path) {
 				close();
-				return set_param('showrefs', null);
+				return push_query('showrefs', null);
 			}
 
-			set_param('showrefs', path);
+			push_query('showrefs', path);
 			jQuery.ajax({
 				url: '/refs' + link.search,
 				success: function(data) {
@@ -451,13 +503,11 @@
 		});
 	};
 
-	// Get all query parameters as an object.
-	var get_params = function() {
-		var s = location.search;
+	// Parse all query parameters from string to {k: v} object.
+	var split_query = function(s) {
+		s = s.substr(s.indexOf('?') + 1);
 		if (s.length === 0)
 			return {};
-		if (s[0] === '?')
-			s = s.substr(1);
 
 		var split = s.split('&'),
 			obj = {};
@@ -468,22 +518,22 @@
 		return obj;
 	};
 
-	// Set query parameters to the provided object.
-	var set_params = function(obj) {
+	// Join query parameters from {k: v} object to href.
+	var join_query = function(obj) {
 		var s = [];
 		for (var k in obj)
 			s.push(k + '=' + encodeURIComponent(obj[k]));
-		history.pushState(null, '', s.length === 0 ? '/' : ('?' + s.join('&')));
+		return (s.length === 0 ? '/' : ('?' + s.join('&')));
 	};
 
-	// Set one query parameter, leaving the others alone.
-	var set_param = function(k, v) {
-		var params = get_params();
+	// Set one query parameter – leaving the others alone – and push to history.
+	var push_query = function(k, v) {
+		var params = split_query(location.search);
 		if (v === null)
 			delete params[k];
 		else
 			params[k] = v;
-		set_params(params);
+		history.pushState(null, '', join_query(params));
 	};
 
 	// Convert "23:45" to "11:45 pm".
@@ -546,6 +596,11 @@
 			(d >= 10 ? d : ('0' + d));
 	};
 
+	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
+	var format_int = function(n) {
+		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+	};
+
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var d = new Date(),
@@ -579,5 +634,10 @@
 		if (navigator.userAgent.match(/Mobile/i))
 			return true;
 		return window.innerWidth <= 800 && window.innerHeight <= 600;
+	};
+
+	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
+	var quote_re = function(s) {
+		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
 })();

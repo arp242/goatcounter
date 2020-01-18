@@ -295,7 +295,7 @@ type HitStats []HitStat
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []string) (int, int, bool, error) {
+func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -305,7 +305,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		limit = 20
 	}
 	more := false
-	if len(exclude) > 0 {
+	if len(exclude) > 0 || filter != "" {
 		// Get one page more so we can detect if there are more pages after
 		// this.
 		more = true
@@ -320,8 +320,14 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 			site=? and
 			bot=0 and
 			created_at >= ? and
-			created_at <= ?`
+			created_at <= ? `
 	args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
+
+	if filter != "" {
+		filter = "%" + strings.ToLower(filter) + "%"
+		query += ` and (lower(path) like ? or lower(title) like ?) `
+		args = append(args, filter, filter)
+	}
 
 	// Quite a bit faster to not check path.
 	if len(exclude) > 0 {
@@ -360,16 +366,22 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 		Day   time.Time `db:"day"`
 		Stats []byte    `db:"stats"`
 	}
-	var st []stats
-	err = db.SelectContext(ctx, &st, `
+	query = `
 		select path, title, day, stats
 		from hit_stats
 		where
 			site=$1 and
 			day >= $2 and
-			day <= $3
-		order by day asc`,
-		site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+			day <= $3 `
+	args = []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
+	if filter != "" {
+		query += ` and (lower(path) like $4 or lower(title) like $4) `
+		args = append(args, filter)
+	}
+	query += ` order by day asc`
+
+	var st []stats
+	err = db.SelectContext(ctx, &st, query, args...)
 	if err != nil {
 		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
@@ -433,16 +445,22 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, exclude []str
 	l = l.Since("fill blanks")
 
 	// Get total.
-	total := 0
-	err = db.GetContext(ctx, &total, `
+	query = `
 		select count(path)
 		from hits
 		where
 			site=$1 and
 			bot=0 and
 			created_at >= $2 and
-			created_at <= $3`,
-		site.ID, dayStart(start), dayEnd(end))
+			created_at <= $3 `
+	args = []interface{}{site.ID, dayStart(start), dayEnd(end)}
+	if filter != "" {
+		query += ` and (lower(path) like $4 or lower(title) like $4) `
+		args = append(args, filter)
+	}
+
+	total := 0
+	err = db.GetContext(ctx, &total, query, args...)
 
 	l = l.Since("get total")
 	return total, totalDisplay, more, errors.Wrap(err, "HitStats.List")
@@ -533,19 +551,20 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, in
 	}
 
 	// List number of mobile browsers.
-	var m *int
-	err = zdb.MustGet(ctx).GetContext(ctx, &m, `
-		select sum(count) from browser_stats
-		where site=$1 and day >= $2 and day <= $3 and mobile=true
-	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
-	if err != nil {
-		return 0, 0, errors.Wrap(err, "Stats.ListBrowsers mobile")
-	}
+	// TODO: inaccurate and not shown in UI at the moment.
+	//var m *int
+	//err = zdb.MustGet(ctx).GetContext(ctx, &m, `
+	//	select sum(count) from browser_stats
+	//	where site=$1 and day >= $2 and day <= $3 and mobile=true
+	//`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+	//if err != nil {
+	//	return 0, 0, errors.Wrap(err, "Stats.ListBrowsers mobile")
+	//}
 
 	mobile := 0
-	if m != nil {
-		mobile = *m
-	}
+	//if m != nil {
+	//	mobile = *m
+	//}
 
 	return total, mobile, nil
 }
@@ -582,7 +601,7 @@ const (
 )
 
 // ListSizes lists all device sizes.
-func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
+func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error) {
 	// TODO: just store better; all of this is ugly.
 	// select split_part(size, ',', 1) || ',' || split_part(size, ',', 2) as browser,
 	// order by cast(split_part(size, ',', 1) as int) asc
@@ -596,7 +615,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 		group by size
 	`, MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
 	if err != nil {
-		return errors.Wrap(err, "Stats.ListSize")
+		return 0, errors.Wrap(err, "Stats.ListSize")
 	}
 
 	// hh := *h
@@ -622,7 +641,10 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 	}
 
 	hh := *h
+	var count int
 	for i := range hh {
+		count += hh[i].Count
+
 		x, _ := strconv.ParseInt(strings.Split(hh[i].Name, ", ")[0], 10, 16)
 		// TODO: apply scaling?
 		switch {
@@ -641,7 +663,8 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 		}
 	}
 	*h = ns
-	return nil
+
+	return count, nil
 }
 
 // ListSize lists all sizes for one grouping.
