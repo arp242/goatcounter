@@ -36,7 +36,7 @@ var Plans = []string{PlanPersonal, PlanBusiness, PlanBusinessPlus}
 var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
 	"admin", "ns1", "ns2", "m", "mobile", "api",
-	"dev", "test", "beta", "staging", "debug", "pprof",
+	"dev", "test", "beta", "new", "staging", "debug", "pprof",
 	"chat",
 }
 
