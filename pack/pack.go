@@ -13756,7 +13756,7 @@ parameters:</p>
 <div class="count-list-opt">
 	<form id="period-form">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
-		<button type="submit" class="hide-btn"></button>
+		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
 
 		<span class="period-select period-{{.Period}}">
 			Select last
