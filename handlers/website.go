@@ -209,8 +209,9 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 func (h website) forgot(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "user_forgot.gohtml", struct {
 		Globals
-		Page string
-	}{newGlobals(w, r), "forgot"})
+		Page     string
+		MetaDesc string
+	}{newGlobals(w, r), "forgot", "Forgot domain – GoatCounter"})
 }
 
 func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
