@@ -69,6 +69,14 @@ func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
 	user{}.mount(r)
 }
 
+var metaDesc = map[string]string{
+	"":        "Simple web statistics. No tracking of personal data.",
+	"help":    "Help and support – GoatCounter",
+	"privacy": "Privacy policy – GoatCounter",
+	"terms":   "Terms of Service – GoatCounter",
+	"contact": "Contact – GoatCounter",
+}
+
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 	t := r.URL.Path[1:]
 	if t == "" {
@@ -92,8 +100,9 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, t+".gohtml", struct {
 		Globals
 		Page     string
+		MetaDesc string
 		LoggedIn template.HTML
-	}{newGlobals(w, r), t, loggedIn})
+	}{newGlobals(w, r), t, metaDesc[t], loggedIn})
 }
 
 func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
@@ -110,11 +119,12 @@ func (h website) signup(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "signup.gohtml", struct {
 		Globals
 		Page       string
+		MetaDesc   string
 		Site       goatcounter.Site
 		User       goatcounter.User
 		Validate   map[string][]string
 		TuringTest string
-	}{newGlobals(w, r), "signup", goatcounter.Site{},
+	}{newGlobals(w, r), "signup", "Sign up for GoatCounter", goatcounter.Site{},
 		goatcounter.User{}, map[string][]string{}, ""})
 }
 
@@ -172,11 +182,12 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Template(w, "signup.gohtml", struct {
 			Globals
 			Page       string
+			MetaDesc   string
 			Site       goatcounter.Site
 			User       goatcounter.User
 			Validate   map[string][]string
 			TuringTest string
-		}{newGlobals(w, r), "signup", site, user, v.Errors, args.TuringTest})
+		}{newGlobals(w, r), "signup", "Sign up for GoatCounter", site, user, v.Errors, args.TuringTest})
 	}
 
 	err = tx.Commit()
