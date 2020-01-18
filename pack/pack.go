@@ -13416,7 +13416,7 @@ var Templates = map[string][]byte{
 			</div>
 			<div class="chart chart-bar">
 				{{/* We don't have the site domain, so can't link to it.
-				<a class="top go" target="_blank" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
+				<a class="top go" target="_blank" rel="noopener" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
 				*/}}
 				<span class="top max" title="Y-axis scale">{{nformat .Max}}</span>
 				<span class="half"></span>
@@ -13436,7 +13436,7 @@ var Templates = map[string][]byte{
 		<td>{{$r.Count | nformat}}</td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path}}{{$r.Path}}
-			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank">go</a></sup>{{end}}
+			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>{{end}}
 			{{else}}(no data){{end}}
 		</td>
 	</tr>
@@ -13711,8 +13711,8 @@ parameters:</p>
 		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
 	</div>
 	<div>
-		<a href="https://github.com/zgoat/goatcounter" target="_blank">GitHub</a><span> |</span>
-		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank">Product Hunt</a><span> |</span>
+		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">GitHub</a><span> |</span>
+		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank" rel="noopener">Product Hunt</a><span> |</span>
 		<a href="https://patreon.com/arp242">Patreon</a>
 	</div>
 </footer>
@@ -14194,7 +14194,7 @@ period.</p>
 		<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>.</li>
 
 	<li>For chat there’s a
-		<a href="https://t.me/goatcounter" target="_blank">Public Telegram Group</a>.</li>
+		<a href="https://t.me/goatcounter" target="_blank" rel="noopener">Public Telegram Group</a>.</li>
 </ul>
 
 {{template "_bottom.gohtml" .}}
@@ -14364,7 +14364,7 @@ sub {
 		adoption rate, mostly intended for persistent cross-site tracking (which
 		Goatcounter doesn’t do), and I feel there are some fundamental concerns
 		with the approach. See
-		<a href="https://www.arp242.net/dnt.html" target="_blank">Why GoatCounter ignores Do Not Track</a>
+		<a href="https://www.arp242.net/dnt.html" target="_blank" rel="noopener">Why GoatCounter ignores Do Not Track</a>
 		for a more in-depth explanation.
 		<br><br>
 		You can still implement it yourself by putting this at the start of the
@@ -14419,7 +14419,7 @@ sub {
 		<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 	<div id="home-login">
-		<a class="" href="https://stats.arp242.net" target="_blank">Live demo</a>
+		<a class="" href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
 		<br>
 		{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
 		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}
@@ -14566,7 +14566,7 @@ sub {
 <h2>Using the GoatCounter.com service</h2>
 <p>Billing is handled by <a href="https://stripe.com">Stripe</a>, and all
 	billing information is stored and handler by Stripe. See the
-	<a href="https://stripe.com/ie/privacy" target="_blank">Stripe Privacy Policy</a>.</p>
+	<a href="https://stripe.com/ie/privacy" target="_blank" rel="noopener">Stripe Privacy Policy</a>.</p>
 
 <p>An email address is required to use the GoatCounter.com service. We also use
 	cookies to:</p>

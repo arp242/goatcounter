@@ -12,7 +12,7 @@
 			</div>
 			<div class="chart chart-bar">
 				{{/* We don't have the site domain, so can't link to it.
-				<a class="top go" target="_blank" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
+				<a class="top go" target="_blank" rel="noopener" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
 				*/}}
 				<span class="top max" title="Y-axis scale">{{nformat .Max}}</span>
 				<span class="half"></span>
