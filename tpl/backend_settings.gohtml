@@ -24,7 +24,7 @@
 				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
 				{{validate "site.code" .Validate}}
 				<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
-				Changing this isn’t implemented yet; contact
+					Changing this isn’t implemented yet; contact
 					<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
 					if you want to change it.
 				</span>
@@ -45,6 +45,11 @@
 				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
 				{{validate "site.settings.data_retention" .Validate}}
 				<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
+
+				<label>Ignore IPs</label>
+				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
+				<span>Never count requests coming from these IP addresses.<br>
+					Comma-separated. Only supports exact matches.</span>
 			</fieldset>
 
 			<fieldset>
