@@ -14058,18 +14058,14 @@ parameters:</p>
 				{{validate "site.name" .Validate}}
 				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
 
-				<label for="user.name">Your name</label>
-				<input type="text" name="user.name" id="user.name" value="{{.User.Name}}">
-				{{validate "user.name" .Validate}}
-
-				<label for="user.email">Your email</label>
-				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
-				{{validate "user.email" .Validate}}
-				<span>You will need access to the inbox to sign in.</span>
-
-				<label>{{checkbox .Site.Settings.Public "settings.public"}}
-					Make statistics publicly viewable</label>
-				<span>Anyone can view the statistics without logging in.</span>
+				<label for="code">Code</label>
+				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
+				{{validate "site.code" .Validate}}
+				<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
+				Changing this isn’t implemented yet; contact
+					<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+					if you want to change it.
+				</span>
 
 				{{if .Site.PlanCustomDomain .Context}}
 					<label for="cname">Custom domain</label>
@@ -14078,10 +14074,24 @@ parameters:</p>
 						CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
 						<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
 				{{end}}
+
+				<label>{{checkbox .Site.Settings.Public "settings.public"}}
+					Make statistics publicly viewable</label>
+				<span>Anyone can view the statistics without logging in.</span>
 			</fieldset>
 
 			<fieldset>
-				<legend>Preferences</legend>
+				<legend>User info and preferences</legend>
+
+				<label for="user.name">Your name</label>
+				<input type="text" name="user.name" id="user.name" value="{{.User.Name}}">
+				{{validate "user.name" .Validate}}
+
+				<label for="user.email">Your email</label>
+				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
+				{{validate "user.email" .Validate}}
+
+				<span>You will need access to the inbox to sign in.</span>
 				<label for="date_format">Date format</label>
 				<select name="settings.date_format" id="date_format">
 					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
