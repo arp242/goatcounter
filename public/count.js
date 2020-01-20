@@ -74,15 +74,15 @@
 		// Find the tag used to load this script.
 		var script = document.querySelector('script[data-goatcounter]'),
 			endpoint;
-		if (script) 
+		if (script)
 			endpoint = script.dataset.goatcounter;
 		else  // TODO: temporary compat.
 			endpoint = window.counter;
 
 		// Don't track private networks.
-		//if (location.hostname.match(/localhost$/) ||
-		//	location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
-		//		return;
+		if (location.hostname.match(/localhost$/) ||
+			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
+				return;
 
 		var data = get_data(count_vars || {});
 		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];

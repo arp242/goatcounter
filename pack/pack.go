@@ -1614,15 +1614,15 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		// Find the tag used to load this script.
 		var script = document.querySelector('script[data-goatcounter]'),
 			endpoint;
-		if (script) 
+		if (script)
 			endpoint = script.dataset.goatcounter;
 		else  // TODO: temporary compat.
 			endpoint = window.counter;
 
 		// Don't track private networks.
-		//if (location.hostname.match(/localhost$/) ||
-		//	location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
-		//		return;
+		if (location.hostname.match(/localhost$/) ||
+			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
+				return;
 
 		var data = get_data(count_vars || {});
 		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
@@ -1735,6 +1735,14 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
+		// Find the tag used to load this script.
+		var script = document.querySelector('script[data-goatcounter]'),
+			endpoint;
+		if (script)
+			endpoint = script.dataset.goatcounter;
+		else  // TODO: temporary compat.
+			endpoint = window.counter;
+
 		// Don't track private networks.
 		if (location.hostname.match(/localhost$/) ||
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
@@ -1751,7 +1759,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(data);
+		img.src = endpoint + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
@@ -13757,10 +13765,6 @@ script-src  https://{{.Static}}
 img-src     {{.Site.URL}}/count
 </pre>
 
-<p>If you use the old script then you may also need to add
-<code>'unsafe-inline'</code> to <code>script-src</code>, but it's recommended to
-upgrade to the new script.</p>
-
 <h3>Customizing</h3>
 <p>You can pass variables with the <code>window.goatcounter.vars</code> object.
 
@@ -13814,6 +13818,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 	// Only load on production environment.
 	if (window.location.host !== 'production.com')
 		window.goatcounter.no_onload = true;
+&lt;/script&gt;
 {{template "code" .}}</pre>
 
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
@@ -13845,8 +13850,9 @@ automatically, and is the easiest way to ignore extraneous query parameters:</p>
 <pre>&lt;link rel="canonical" href="https://example.com/path.html"&gt;</pre>
 
 <p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be
-sure to understand the potential SEO effects before adding that! If you use
-query parameters for navigation then you probably <em>don’t</em> want it.</p>
+sure to understand the potential SEO effects before adding a canonical URL! If
+you use query parameters for navigation then you probably <em>don’t</em> want
+it.</p>
 
 <p>Alternatively you can send a custom <code>path</code> without the query
 parameters:</p>
@@ -13876,8 +13882,8 @@ parameters:</p>
 
 <h3>Advanced usage</h3>
 <p>You don’t <em>need</em> to use the <code>count.js</code> script, you can also
-<code>GET {{.Site.URL}}/count</code> directly with the following query
-parameters:</p>
+<code>GET {{.Site.URL}}/count</code> directly – e.g. from your app's middleware
+– with the following query parameters:</p>
 
 <ul>
 	<li><code>p</code> – <code>path</code></li>
@@ -13886,12 +13892,17 @@ parameters:</p>
 	<li><code>r</code> – <code>referrer</code></li>
 </ul>
 
+<p>The <code>User-Agent</code> header and remote address are used for the
+browser and location.</p>
+
 <p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to
 load an image on your site:<p>
 <pre>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;</pre>
 
-<p>Or you can call this from your app’s middleware (note this will probably
-result in more bot requests).</p>
+<p>Note this calling it from the middleware or as will probably result in more
+bot requests. GoatCounter does its best to filter this out, but it’s impossible
+to do this 100% reliably.</p>
+
 
 {{end}} {{/* if eq .Path "/settings" */}}
 `),
