@@ -11830,7 +11830,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
-			paginate_refs, browser_detail, settings_tabs, paginate_locations,
+			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths,
 		].forEach(function(f) { f.call(); });
 
@@ -12037,8 +12037,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 	};
 
-	// Show detail for a browser (version breakdown)
-	var browser_detail = function() {
+	// Show detail for a browser (version breakdown) or size (width breakdown).
+	var browser_size_detail = function() {
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
@@ -12063,7 +12063,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				url: url,
 				data: append_period({
 					name:  name,
-					total: bar.attr('data-total'),
+					total: $('.total-hits').text().replace(/[^\d]/, ''),
 				}),
 				success: function(data) { bar.html(data.html); },
 			});

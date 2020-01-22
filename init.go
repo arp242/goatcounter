@@ -91,24 +91,21 @@ func init() {
 		var b strings.Builder
 		for _, s := range stats {
 			perc := float32(s.Count) / float32(total) * 100
+			totalPerc += perc
+			if parentTotal > 0 {
+				perc = float32(s.Count) / float32(parentTotal) * 100
+			}
 			if perc < cutoff { // Group as "Other" later.
 				break
 			}
-			totalPerc += perc
 
 			browser := s.Name
 			if browser == "" {
 				browser = "(unknown)"
 			}
 
-			title := fmt.Sprintf("%s: %.1f%% – ", template.HTMLEscapeString(browser), perc)
-			if parentTotal > 0 {
-				title += fmt.Sprintf("%.1f%% of total, %s hits",
-					float32(s.Count)/float32(parentTotal)*100, zhttp.Tnformat(s.Count))
-			} else {
-				title += fmt.Sprintf("%s hits in total", zhttp.Tnformat(s.Count))
-			}
-
+			title := fmt.Sprintf("%s: %.1f%% – %s hits in total",
+				template.HTMLEscapeString(browser), perc, zhttp.Tnformat(s.Count))
 			b.WriteString(fmt.Sprintf(
 				`<%[4]s href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></%[4]s>`,
 				title, template.HTMLEscapeString(browser), perc, tag))
