@@ -558,14 +558,16 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	tpl, err := zhttp.ExecuteTpl("_backend_pages.gohtml", struct {
+		Context     context.Context
 		Pages       goatcounter.HitStats
+		Site        *goatcounter.Site
 		PeriodStart time.Time
 		PeriodEnd   time.Time
 
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
-	}{pages, start, end, false, ""})
+	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()), start, end, false, ""})
 	if err != nil {
 		return err
 	}
