@@ -39,6 +39,10 @@ func init() {
 		return s.URL()
 	}
 
+	zhttp.FuncMap["nformat2"] = func(n int, s Site) string {
+		return zhttp.FuncMap["nformat"].(func(int, rune) string)(n, s.Settings.NumberFormat)
+	}
+
 	zhttp.FuncMap["validate"] = func(k string, v map[string][]string) template.HTML {
 		if v == nil {
 			return template.HTML("")
@@ -52,7 +56,7 @@ func init() {
 	}
 
 	// Implemented as function for performance.
-	zhttp.FuncMap["bar_chart"] = func(stats []Stat, max int) template.HTML {
+	zhttp.FuncMap["bar_chart"] = func(ctx context.Context, stats []Stat, max int) template.HTML {
 		var b strings.Builder
 		now := time.Now().UTC()
 		today := now.Format("2006-01-02")
@@ -74,14 +78,14 @@ func init() {
 					inner = fmt.Sprintf(`<div style="height: %.0f%%;"></div>`, h)
 				}
 				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
-					stat.Day, shour, zhttp.Tnformat(s), inner))
+					stat.Day, shour, zhttp.Tnformat(s, MustGetSite(ctx).Settings.NumberFormat), inner))
 			}
 		}
 
 		return template.HTML(b.String())
 	}
 
-	zhttp.FuncMap["hbar_chart"] = func(stats Stats, total, parentTotal int, cutoff float32, link bool) template.HTML {
+	zhttp.FuncMap["hbar_chart"] = func(ctx context.Context, stats Stats, total, parentTotal int, cutoff float32, link bool) template.HTML {
 		tag := "p"
 		if link {
 			tag = "a"
@@ -105,7 +109,8 @@ func init() {
 			}
 
 			title := fmt.Sprintf("%s: %.1f%% – %s hits in total",
-				template.HTMLEscapeString(browser), perc, zhttp.Tnformat(s.Count))
+				template.HTMLEscapeString(browser), perc,
+				zhttp.Tnformat(s.Count, MustGetSite(ctx).Settings.NumberFormat))
 			b.WriteString(fmt.Sprintf(
 				`<%[4]s href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></%[4]s>`,
 				title, template.HTMLEscapeString(browser), perc, tag))

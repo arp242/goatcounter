@@ -50,7 +50,7 @@
 	<div class="pages-list">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
-			<sup>(total <span class="total-hits">{{nformat .TotalHits}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed)</sup>
+			<sup>(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
@@ -72,7 +72,7 @@
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Browsers .TotalBrowsers 0 .5 true}}</div>
+			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
 		{{end}}
 	</div>
 	<div>
@@ -80,7 +80,7 @@
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalSize 0 0.1 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
 				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
 			</small></p>
@@ -91,7 +91,7 @@
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalLocation 0 3 false}}</div>
+			<div class="chart-hbar">{{hbar_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>

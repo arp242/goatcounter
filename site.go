@@ -63,6 +63,7 @@ type SiteSettings struct {
 	Public          bool   `json:"public"`
 	TwentyFourHours bool   `json:"twenty_four_hours"`
 	DateFormat      string `json:"date_format"`
+	NumberFormat    rune   `json:"number_format"`
 	Limits          struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
@@ -94,6 +95,9 @@ func (s *Site) Defaults(ctx context.Context) {
 
 	if s.Settings.DateFormat == "" {
 		s.Settings.DateFormat = "2 Jan ’06"
+	}
+	if s.Settings.NumberFormat == 0 {
+		s.Settings.NumberFormat = 0x202f
 	}
 
 	if s.Settings.Limits.Page == 0 {

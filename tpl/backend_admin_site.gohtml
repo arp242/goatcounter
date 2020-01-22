@@ -3,9 +3,9 @@
 <h2>Admin</h2>
 
 <table>
-	<tr><td>Total</td><td>{{.Stat.CountTotal | nformat}}</td></tr>
-	<tr><td>Last month</td><td>{{.Stat.CountLastMonth | nformat}}</td></tr>
-	<tr><td>Previous month</td><td>{{.Stat.CountPrevMonth | nformat}}</td></tr>
+	<tr><td>Total</td><td>{{nformat2 .Stat.CountTotal $.Site}}</td></tr>
+	<tr><td>Last month</td><td>{{nformat2 .Stat.CountLastMonth $.Site}}</td></tr>
+	<tr><td>Previous month</td><td>{{nformat2 .Stat.CountPrevMonth $.Site}}</td></tr>
 	</tr>
 </table>
 
