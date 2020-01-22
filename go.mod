@@ -16,7 +16,7 @@ require (
 	zgo.at/utils v1.3.1
 	zgo.at/zdb v0.0.0-20200114054604-cb5410b595af
 	zgo.at/zhttp v0.0.0-20200122175535-f8103001dd8e
-	zgo.at/zlog v1.0.8
+	zgo.at/zlog v1.0.9
 	zgo.at/zpack v1.0.0
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v1.0.1
