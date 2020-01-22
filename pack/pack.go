@@ -14587,7 +14587,7 @@ sub {
 		<h3>Personal</h3>
 		<ul>
 			<li>Free but donation recommended</li>
-			<li>For non-commercial use</li>
+			<li>For <a href="/terms#commercial">non-commercial</a> use</li>
 			<li>Unlimited sites</li>
 			<li title="3.3k/day">100k pageviews/month</li>
 			<li class="empty">&nbsp;</li>
@@ -14799,8 +14799,12 @@ services.</p>
 
 <p>There is a large amount of grey area between strictly ‘personal’ and
 ‘commercial’; for example selling a service as a side-project which provides
-just a little but of pocket money is ‘commercial’, but also ‘personal’. Just get
-in touch if you’re unsure and I’ll tell you if it’s considered personal.</p>
+just a little bit of pocket money is ‘commercial’, but also ‘personal’. As a
+rule, things like “pocket-money side-projects” are considered personal,
+especially if they’re open source.
+
+Just get in touch if you’re unsure and I’ll tell you if it’s considered
+personal.</p>
 
 <h2>Payments</h2>
 <p>You are billed immediately for the displayed term. These services will be
