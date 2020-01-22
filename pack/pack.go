@@ -14200,6 +14200,13 @@ parameters:</p>
 	</ul>
 </div>
 
+<div>
+	<h2 id="delete">Delete account</h2>
+	<p>Email <a href="mailto:delete@goatcounter.com">delete@goatcounter.com</a>
+		if you wish to permanently delete your account and all associated data.
+		Be sure to do this from the registered email for verification.</p>
+</div>
+
 {{template "_backend_bottom.gohtml" .}}
 `),
 	"tpl/backend_updates.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
@@ -14793,9 +14800,9 @@ information.</p>
 
 <h2 id="commercial">Commercial use</h2>
 <p>The service is free for personal use, but all commercial users must purchase
-a plan after the initial 14-day trail or close their account. A website is
-considered “commercial” if the primary goal is to sell or advertise products or
-services.</p>
+a plan after the initial 14-day trail or stop using the service until a plan is
+purchased. A website is considered “commercial” if the primary goal is to sell
+or advertise paid products or services.</p>
 
 <p>There is a large amount of grey area between strictly ‘personal’ and
 ‘commercial’; for example selling a service as a side-project which provides
