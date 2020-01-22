@@ -482,6 +482,17 @@ commit;
 	insert into version values ('2020-01-18-1-sitename');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-23-1-nformat.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'New setting: thousands separator', now(), now(),
+		'<p>You can now choose which thousands separators is used to format
+		numbers in your site’s settings. The default is still a thin space as
+		before, as that’s the most universal format.</p>');
+
+	update sites set settings=substr(settings, 0, length(settings)) || ', "number_format": 8239}';
+	insert into version values ('2020-01-23-1-nformat');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -998,6 +1009,11 @@ commit;
 	"db/migrate/sqlite/2020-01-18-1-sitename.sql": []byte(`begin;
 	drop index "sites#name";
 	insert into version values ('2020-01-18-1-sitename');
+commit;
+`),
+	"db/migrate/sqlite/2020-01-23-1-nformat.sql": []byte(`begin;
+	update sites set settings=substr(settings, 0, length(settings)) || ', "number_format": 8239}';
+	insert into version values ('2020-01-23-1-nformat');
 commit;
 `),
 }
@@ -13491,7 +13507,7 @@ var Templates = map[string][]byte{
 `),
 	"tpl/_backend_pages.gohtml": []byte(`{{range $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
-		<td>{{$h.Count | nformat}}</td>
+		<td>{{nformat2 $h.Count $.Site}}</td>
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
@@ -13505,12 +13521,12 @@ var Templates = map[string][]byte{
 				{{/* We don't have the site domain, so can't link to it.
 				<a class="top go" target="_blank" rel="noopener" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
 				*/}}
-				<span class="top max" title="Y-axis scale">{{nformat .Max}}</span>
+				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>
 				<span class="half"></span>
-				{{bar_chart .Stats .Max}}
+				{{bar_chart $.Context .Stats .Max}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-				{{template "_backend_refs.gohtml" $.Refs}}
+				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
 				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">load more</a>{{end}}
 			{{end}}</div>
 		</td>
@@ -13520,9 +13536,9 @@ var Templates = map[string][]byte{
 {{- end}}
 `),
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
-{{range $r := .}}
+{{range $r := .Refs}}
 	<tr>
-		<td>{{$r.Count | nformat}}</td>
+		<td>{{nformat2 $r.Count $.Site}}</td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path}}{{$r.Path}}
 			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>{{end}}
@@ -13875,7 +13891,7 @@ parameters:</p>
 	<div class="pages-list">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
-			<sup>(total <span class="total-hits">{{nformat .TotalHits}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay}}</span> displayed)</sup>
+			<sup>(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
@@ -13897,7 +13913,7 @@ parameters:</p>
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Browsers .TotalBrowsers 0 .5 true}}</div>
+			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
 		{{end}}
 	</div>
 	<div>
@@ -13905,7 +13921,7 @@ parameters:</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .SizeStat .TotalSize 0 0.1 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
 				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
 			</small></p>
@@ -13916,7 +13932,7 @@ parameters:</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{hbar_chart .LocationStat .TotalLocation 0 3 false}}</div>
+			<div class="chart-hbar">{{hbar_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>
@@ -13944,7 +13960,7 @@ parameters:</p>
 	{{range $s := .Stats}}
 		<tr id="{{$s.ID}}">
 			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
-			<td>{{nformat $s.Count}}</td>
+			<td>{{nformat2 $s.Count $.Site}}</td>
 			<td>
 				{{if $s.Public}}
 					<a href="https://{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a>
@@ -13989,9 +14005,9 @@ parameters:</p>
 <h2>Admin</h2>
 
 <table>
-	<tr><td>Total</td><td>{{.Stat.CountTotal | nformat}}</td></tr>
-	<tr><td>Last month</td><td>{{.Stat.CountLastMonth | nformat}}</td></tr>
-	<tr><td>Previous month</td><td>{{.Stat.CountPrevMonth | nformat}}</td></tr>
+	<tr><td>Total</td><td>{{nformat2 .Stat.CountTotal $.Site}}</td></tr>
+	<tr><td>Last month</td><td>{{nformat2 .Stat.CountLastMonth $.Site}}</td></tr>
+	<tr><td>Previous month</td><td>{{nformat2 .Stat.CountPrevMonth $.Site}}</td></tr>
 	</tr>
 </table>
 
@@ -14010,7 +14026,7 @@ parameters:</p>
 		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th></tr></thead></thead>
 		<tbody>
 			{{range $s := .List}}
-				<tr><td>{{nformat $s.Count}}</td><td>{{$s.Path}}</td></tr>
+				<tr><td>{{nformat2 $s.Count $.Site}}</td><td>{{$s.Path}}</td></tr>
 			{{end}}
 		</tbody>
 	</table>
@@ -14090,8 +14106,8 @@ parameters:</p>
 				<label for="user.email">Your email</label>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
 				{{validate "user.email" .Validate}}
-
 				<span>You will need access to the inbox to sign in.</span>
+
 				<label for="date_format">Date format</label>
 				<select name="settings.date_format" id="date_format">
 					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
@@ -14103,6 +14119,17 @@ parameters:</p>
 
 				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
 					24-hour clock</label>
+
+				<label for="number_format">Thousands separator</label>
+				<select name="settings.number_format" id="number_format">
+					<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.1234)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
+				</select>
+				{{validate "settings.number_format" .Validate}}
 
 				<label for="limits_page">Page size</label>
 				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">

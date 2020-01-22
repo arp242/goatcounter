@@ -3,3 +3,4 @@
 /*.upx
 /db/*.sqlite3*
 /dist
+/b.sql

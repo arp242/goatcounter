@@ -47,8 +47,8 @@
 				<label for="user.email">Your email</label>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
 				{{validate "user.email" .Validate}}
-
 				<span>You will need access to the inbox to sign in.</span>
+
 				<label for="date_format">Date format</label>
 				<select name="settings.date_format" id="date_format">
 					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
@@ -60,6 +60,17 @@
 
 				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
 					24-hour clock</label>
+
+				<label for="number_format">Thousands separator</label>
+				<select name="settings.number_format" id="number_format">
+					<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.1234)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
+				</select>
+				{{validate "settings.number_format" .Validate}}
 
 				<label for="limits_page">Page size</label>
 				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">

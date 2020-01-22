@@ -18,7 +18,7 @@
 	{{range $s := .Stats}}
 		<tr id="{{$s.ID}}">
 			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
-			<td>{{nformat $s.Count}}</td>
+			<td>{{nformat2 $s.Count $.Site}}</td>
 			<td>
 				{{if $s.Public}}
 					<a href="https://{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a>

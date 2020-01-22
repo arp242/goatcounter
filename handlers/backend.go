@@ -5,6 +5,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/csv"
 	"fmt"
 	"html/template"
@@ -448,7 +449,10 @@ func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tpl, err := zhttp.ExecuteTpl("_backend_refs.gohtml", refs)
+	tpl, err := zhttp.ExecuteTpl("_backend_refs.gohtml", map[string]interface{}{
+		"Refs": refs,
+		"Site": goatcounter.MustGetSite(r.Context()),
+	})
 	if err != nil {
 		return err
 	}
@@ -476,9 +480,9 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.Stats, int, int, float32, bool) template.HTML)
+	f := zhttp.FuncMap["hbar_chart"].(func(context.Context, goatcounter.Stats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := f(browsers, total, int(t), .5, true)
+	tpl := f(r.Context(), browsers, total, int(t), .5, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -502,9 +506,9 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.Stats, int, int, float32, bool) template.HTML)
+	f := zhttp.FuncMap["hbar_chart"].(func(context.Context, goatcounter.Stats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := f(sizeStat, total, int(t), .5, true)
+	tpl := f(r.Context(), sizeStat, total, int(t), .5, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -528,8 +532,8 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(goatcounter.Stats, int, int, float32, bool) template.HTML)
-	tpl := f(locStat, total, total, 0, false)
+	f := zhttp.FuncMap["hbar_chart"].(func(context.Context, goatcounter.Stats, int, int, float32, bool) template.HTML)
+	tpl := f(r.Context(), locStat, total, total, 0, false)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
 	})

@@ -8,7 +8,7 @@
 		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th></tr></thead></thead>
 		<tbody>
 			{{range $s := .List}}
-				<tr><td>{{nformat $s.Count}}</td><td>{{$s.Path}}</td></tr>
+				<tr><td>{{nformat2 $s.Count $.Site}}</td><td>{{$s.Path}}</td></tr>
 			{{end}}
 		</tbody>
 	</table>
