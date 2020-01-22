@@ -44,7 +44,7 @@ func Set() {
 	flag.StringVar(&CPUProfile, "cpuprofile", "", "Write CPU profile to this file.")
 	flag.StringVar(&MemProfile, "memprofile", "", "Write memory profile to this file.")
 	flag.StringVar(&CertDir, "certdir", "", "Directory to store ACME-generated certificates for custom domains")
-	flag.StringVar(&Plan, "plan", "pro", "Plan for new installations")
+	flag.StringVar(&Plan, "plan", "business", "Plan for new installations")
 	flag.StringVar(&Debug, "debug", "", "Modules to debug, comma-separated or 'all' for all modules.")
 	flag.Parse()
 }
