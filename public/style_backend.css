@@ -10,7 +10,7 @@ footer a { font-weight: bold; color: #252525; }
 /* Don't make various explanatory texts too wide. */
 .page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
 
-#trail-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
+#trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
 
 #settings { display: none; }

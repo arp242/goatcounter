@@ -1,7 +1,7 @@
 	</div> {{- /* .page */}}
 	{{template "_bottom_links.gohtml" .}}
 	{{if and .User.ID .Billing (eq .Path "/") (.Site.ShowPayBanner .Context)}}
-		<div id="trail-expired">
+		<div id="trial-expired">
 			<p>Hey hey; you’ve been using GoatCounter for more than 14 days.
 			Please consider making a small donation to cover development costs,
 			or subscribe to a plan if you’re using it for commercial
