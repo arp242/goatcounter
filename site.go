@@ -346,7 +346,7 @@ func (s Site) IDOrParent() int64 {
 	return s.ID
 }
 
-var trailPeriod = time.Hour * 24 * 14
+var trialPeriod = time.Hour * 24 * 14
 
 func (s Site) ShowPayBanner(ctx context.Context) bool {
 	if s.Parent != nil {
@@ -362,7 +362,7 @@ func (s Site) ShowPayBanner(ctx context.Context) bool {
 	if s.Stripe != nil {
 		return false
 	}
-	return -time.Now().UTC().Sub(s.CreatedAt.Add(trailPeriod)) < 0
+	return -time.Now().UTC().Sub(s.CreatedAt.Add(trialPeriod)) < 0
 }
 
 func (s Site) FreePlan() bool {
