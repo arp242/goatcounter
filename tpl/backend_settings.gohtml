@@ -35,6 +35,11 @@
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
+
+				<label for="data_retention">Data retention in days</label>
+				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
+				{{validate "site.settings.data_retention" .Validate}}
+				<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
 			</fieldset>
 
 			<fieldset>

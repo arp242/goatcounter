@@ -64,6 +64,7 @@ type SiteSettings struct {
 	TwentyFourHours bool   `json:"twenty_four_hours"`
 	DateFormat      string `json:"date_format"`
 	NumberFormat    rune   `json:"number_format"`
+	DataRetention   int    `json:"data_retention"`
 	Limits          struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
@@ -130,6 +131,10 @@ func (s *Site) Validate(ctx context.Context) error {
 		v.Include("plan", s.Plan, Plans)
 	} else {
 		v.Include("plan", s.Plan, []string{PlanChild})
+	}
+
+	if s.Settings.DataRetention > 0 {
+		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
 	}
 
 	v.Len("code", s.Code, 1, 50)
@@ -367,6 +372,37 @@ func (s Site) ShowPayBanner(ctx context.Context) bool {
 
 func (s Site) FreePlan() bool {
 	return s.Stripe != nil && strings.HasPrefix(*s.Stripe, "cus_free_")
+}
+
+func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
+	if days < 14 {
+		return fmt.Errorf("days must be at least 14: %d", days)
+	}
+
+	ival := fmt.Sprintf(" < now() - interval '%d days' ", days)
+
+	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		r, err := tx.ExecContext(ctx,
+			`delete from hits where site=$1 and created_at `+ival,
+			s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
+		}
+
+		n, _ := r.RowsAffected()
+		zlog.Module("DeleteOlderThan").Fields(zlog.F{"site": s.ID, "hits": n}).Print("deleted hits")
+
+		for _, t := range []string{"hit_stats", "browser_stats", "location_stats"} {
+			_, err := tx.ExecContext(ctx,
+				`delete from `+t+` where site=$1 and day `+ival,
+				s.ID)
+			if err != nil {
+				return errors.Wrap(err, "Site.DeleteOlderThan: delete "+t)
+			}
+		}
+
+		return nil
+	})
 }
 
 // Sites is a list of sites.
