@@ -9,11 +9,11 @@ spending just a few minutes.
 Starting it
 -----------
 
-1. In development mode (i.e. without `-prod`) various files like static assets
-   and templates are loaded from the filesystem. For this reason goatcounter
-   expects to be run from the goatcounter source directory.
+1. Various files like static assets and templates are loaded from the filesystem
+   if they exist; you should run GoatCounter from the goatcounter source
+   directory on development.
 
-2. Running `goatcounter` without flags will run a development environment on
+2. Running `goatcounter -dev` will run a development environment on
    http://goatcounter.localhost:8081
 
 3. You can sign up your new site at http://www.goatcounter.localhost:8081, which

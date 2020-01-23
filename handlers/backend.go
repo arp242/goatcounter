@@ -91,14 +91,13 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			"X-Frame-Options":           []string{"deny"},
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
-		st := strings.Split(cfg.DomainStatic, ",")
 		// https://stripe.com/docs/security#content-security-policy
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
-			header.CSPImgSrc:     append(st, "data:"),
-			header.CSPScriptSrc:  append(st, "https://chat.goatcounter.com", "https://js.stripe.com"),
-			header.CSPStyleSrc:   append(st, header.CSPSourceUnsafeInline), // style="height: " on the charts.
-			header.CSPFontSrc:    st,
+			header.CSPImgSrc:     append(cfg.DomainStatic, "data:"),
+			header.CSPScriptSrc:  append(cfg.DomainStatic, "https://chat.goatcounter.com", "https://js.stripe.com"),
+			header.CSPStyleSrc:   append(cfg.DomainStatic, header.CSPSourceUnsafeInline), // style="height: " on the charts.
+			header.CSPFontSrc:    cfg.DomainStatic,
 			header.CSPFormAction: {header.CSPSourceSelf},
 			header.CSPConnectSrc: {header.CSPSourceSelf, "https://chat.goatcounter.com", "https://api.stripe.com"},
 			header.CSPFrameSrc:   {"https://js.stripe.com", "https://hooks.stripe.com"},

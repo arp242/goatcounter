@@ -14,12 +14,12 @@ require (
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.3.0
 	zgo.at/tz v0.0.0-20200203090654-9231354ff19a
-	zgo.at/utils v1.3.1
-	zgo.at/zdb v0.0.0-20200125154831-aafd6e7fe5e8
+	zgo.at/utils v1.4.0
+	zgo.at/zdb v0.0.0-20200206083203-2767b90860ac
 	zgo.at/zhttp v0.0.0-20200130181800-93ad25acd686
 	zgo.at/zlog v1.0.9
 	zgo.at/zpack v1.0.0
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v1.0.1
-	zgo.at/zvalidate v1.2.0
+	zgo.at/zvalidate v1.2.1
 )

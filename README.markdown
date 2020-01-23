@@ -90,44 +90,25 @@ will need a C compiler (for SQLite) or PostgreSQL.
 
 ### Production
 
-1. For a production environment run something like:
+For a production environment run something like:
 
-       goatcounter \
-           -prod \
-           -smtp         'smtp://localhost:25' \
-           -plan         'businessplus' \
-           -domain       'example.com' \
-           -domainstatic 'static.example.com' \
-           -emailerrors  'me@example.com' \
-           "$@"
+    goatcounter saas \
+       -smtp         'smtp://localhost:25' \
+       -emailerrors  'me@example.com'
 
-   The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will
-   be created if it doesn't exist). See the `-dbconnect` flag to customize this.
+The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will be
+created if it doesn't exist). See the `-db` flag to customize this.
 
-   The `-prod` flag affects various minor things; without it it'll try to load
-   templates from the filesystem (instead of using the built-in ones), for
-   example.
-
-   `-smtp` is required to send login emails. You can use something like Mailtrap
-   if you just want it for yourself, but you can also use your Gmail or whatnot.
-
-2. Use a proxy for https (e.g. [hitch][hitch] or [caddy][caddy]); you'll need to
-   forward `example.com` and `*.example.com`
-
-You can see the [goathost repo][goathost] for the server configuration of
-goatcounter.com, although that is just one way of running it.
-
-[hitch]: https://github.com/varnish/hitch
-[caddy]: https://caddyserver.com/
-[goathost]: https://github.com/zgoat/goathost
+`-smtp` is required to send login emails. You can use something like Mailtrap if
+you just want it for yourself, but you can also use your Gmail or whatnot.
 
 ### Updating
 
 You may need to run run database migrations when updating. Use  `goatcounter
--migrate auto` to always run all pending migrations on startup. This is the
+-automigrate` to always run all pending migrations on startup. This is the
 easiest way, although arguably not the "best" way.
 
-Use `goatcounter -migrate <file>` or `goatcounter -migrate all` to manually run
+Use `goatcounter migrate <file>` or `goatcounter migrate all` to manually run
 migrations; generally you want to upload the new version, run migrations while
 the old one is still running, and then restart so the new version takes effect.
 
@@ -146,7 +127,10 @@ it:
 
 2. Run with `-pgsql` and `-dbconnect`, for example:
 
-       $ goatcounter -pgsql -dbconnect 'user=goatcounter dbname=goatcounter sslmode=disable'
+       $ goatcounter \
+           -db           'postgresql://user=goatcounter dbname=goatcounter sslmode=disable' \
+           -smtp         'smtp://localhost:25' \
+           -emailerrors  'me@example.com'
 
    See the [pq docs][pq] for more details on the connection string.
 
