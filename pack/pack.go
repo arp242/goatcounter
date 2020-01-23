@@ -12641,7 +12641,7 @@ footer a { font-weight: bold; color: #252525; }
 /* Don't make various explanatory texts too wide. */
 .page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
 
-#trail-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
+#trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
 
 #settings { display: none; }
@@ -13481,7 +13481,7 @@ var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
 	{{template "_bottom_links.gohtml" .}}
 	{{if and .User.ID .Billing (eq .Path "/") (.Site.ShowPayBanner .Context)}}
-		<div id="trail-expired">
+		<div id="trial-expired">
 			<p>Hey hey; you’ve been using GoatCounter for more than 14 days.
 			Please consider making a small donation to cover development costs,
 			or subscribe to a plan if you’re using it for commercial
@@ -14827,7 +14827,7 @@ information.</p>
 
 <h2 id="commercial">Commercial use</h2>
 <p>The service is free for personal use, but all commercial users must purchase
-a plan after the initial 14-day trail or stop using the service until a plan is
+a plan after the initial 14-day trial or stop using the service until a plan is
 purchased. A website is considered “commercial” if the primary goal is to sell
 or advertise paid products or services.</p>
 
