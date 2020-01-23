@@ -75,7 +75,7 @@ will need a C compiler (for SQLite) or PostgreSQL.
        goatcounter \
            -prod \
            -smtp         'smtp://localhost:25' \
-           -plan         'pro' \
+           -plan         'businessplus' \
            -domain       'example.com' \
            -domainstatic 'static.example.com' \
            -emailerrors  'me@example.com' \
