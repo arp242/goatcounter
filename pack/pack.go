@@ -493,6 +493,14 @@ commit;
 	insert into version values ('2020-01-23-1-nformat');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-23-2-retention.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'New setting: data retention', now(), now(),
+		'<p>You can now limit the amount of time GoatCounter keeps data in you site settings.</p>');
+
+	insert into version values ('2020-01-23-2-retention');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -14094,6 +14102,11 @@ parameters:</p>
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
+
+				<label for="data_retention">Data retention in days</label>
+				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
+				{{validate "site.settings.data_retention" .Validate}}
+				<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
 			</fieldset>
 
 			<fieldset>

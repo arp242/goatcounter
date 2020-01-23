@@ -26,11 +26,13 @@ type task struct {
 
 var tasks = []task{
 	{persistAndStat, 10 * time.Second},
+	{dataRetention, 1 * time.Hour},
 }
 
-var stopped = syncutil.NewAtomicInt(0)
-
-var wg sync.WaitGroup
+var (
+	stopped = syncutil.NewAtomicInt(0)
+	wg      sync.WaitGroup
+)
 
 // Run stat updates in the background.
 func Run(db *sqlx.DB) {
@@ -81,6 +83,27 @@ func Wait(db *sqlx.DB) {
 			zlog.Module("cron").Error(err)
 		}
 	}
+}
+
+func dataRetention(ctx context.Context) error {
+	var sites goatcounter.Sites
+	err := sites.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range sites {
+		if s.Settings.DataRetention <= 0 {
+			continue
+		}
+
+		err = s.DeleteOlderThan(ctx, s.Settings.DataRetention)
+		if err != nil {
+			zlog.Module("cron").Field("site", s.ID).Error(err)
+		}
+	}
+
+	return nil
 }
 
 func persistAndStat(ctx context.Context) error {
