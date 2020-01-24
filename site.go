@@ -225,8 +225,8 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set name=$1, settings=$2, cname=$3, updated_at=$4 where id=$5`,
-		s.Name, s.Settings, s.Cname, s.UpdatedAt.Format(zdb.Date), s.ID)
+		`update sites set name=$1, settings=$2, cname=$3, link_domain=$4, updated_at=$5 where id=$6`,
+		s.Name, s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 

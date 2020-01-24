@@ -14140,7 +14140,7 @@ parameters:</p>
 				<label for="link_domain">Domain</label>
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 				{{validate "site.link_domain" .Validate}}
-				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used only for linking.</span>
+				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 
 				<label for="code">Code</label>
 				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
