@@ -528,21 +528,20 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
 }
 
 type Stats []struct {
-	Name   string
-	Mobile bool
-	Count  int
+	Name  string
+	Count int
 }
 
 // List all browser statistics for the given time period.
-func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, int, error) {
+func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select browser as name, sum(count) as count from browser_stats
 		where site=$1 and day >= $2 and day <= $3
-		group by browser 
+		group by browser
 		order by count desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return 0, 0, errors.Wrap(err, "Stats.ListBrowsers browsers")
+		return 0, errors.Wrap(err, "Stats.ListBrowsers browsers")
 	}
 
 	var total int
@@ -550,23 +549,7 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, in
 		total += b.Count
 	}
 
-	// List number of mobile browsers.
-	// TODO: inaccurate and not shown in UI at the moment.
-	//var m *int
-	//err = zdb.MustGet(ctx).GetContext(ctx, &m, `
-	//	select sum(count) from browser_stats
-	//	where site=$1 and day >= $2 and day <= $3 and mobile=true
-	//`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
-	//if err != nil {
-	//	return 0, 0, errors.Wrap(err, "Stats.ListBrowsers mobile")
-	//}
-
-	mobile := 0
-	//if m != nil {
-	//	mobile = *m
-	//}
-
-	return total, mobile, nil
+	return total, nil
 }
 
 // ListBrowser lists all the versions for one browser.
@@ -632,12 +615,12 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 	// TODO: group a bit; ideally I'd like to make a line chart in the future,
 	// in which case this should no longer be needed.
 	ns := Stats{
-		{sizePhones, false, 0},
-		{sizeLargePhones, false, 0},
-		{sizeTablets, false, 0},
-		{sizeDesktop, false, 0},
-		{sizeDesktopHD, false, 0},
-		{sizeUnknown, false, 0},
+		{sizePhones, 0},
+		{sizeLargePhones, 0},
+		{sizeTablets, 0},
+		{sizeDesktop, 0},
+		{sizeDesktopHD, 0},
+		{sizeUnknown, 0},
 	}
 
 	hh := *h
@@ -720,10 +703,9 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	for size, count := range grouped {
 		total += count
 		ns = append(ns, struct {
-			Name   string
-			Mobile bool
-			Count  int
-		}{size, false, count})
+			Name  string
+			Count int
+		}{size, count})
 	}
 	sort.Slice(ns, func(i int, j int) bool { return ns[i].Count > ns[j].Count })
 	*h = ns

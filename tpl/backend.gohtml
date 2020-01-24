@@ -81,9 +81,7 @@
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
-			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
-				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
-			</small></p>
+			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
 	<div class="location-chart">

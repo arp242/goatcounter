@@ -501,6 +501,12 @@ commit;
 	insert into version values ('2020-01-23-2-retention');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-24-1-rm-mobile.sql": []byte(`begin;
+	alter table browser_stats drop column mobile;
+	insert into version values ('2020-01-24-1-rm-mobile');
+commit;
+
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1023,6 +1029,26 @@ commit;
 	update sites set settings=substr(settings, 0, length(settings)) || ', "number_format": 8239}';
 	insert into version values ('2020-01-23-1-nformat');
 commit;
+`),
+	"db/migrate/sqlite/2020-01-24-1-rm-mobile.sql": []byte(`begin;
+	create table browser_stats2 (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+		browser        varchar        not null,
+		version        varchar        not null,
+		count          int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+
+	insert into browser_stats2 select site, day, browser, version, count from browser_stats;
+	drop table browser_stats;
+	alter table browser_stats2 rename to browser_stats;
+
+	insert into version values ('2020-01-24-1-rm-mobile');
+commit;
+
 `),
 }
 
@@ -13930,9 +13956,7 @@ parameters:</p>
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
-			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.
-				{{/*Approximately {{.TotalMobile}}% advertised the usage of a mobile browser.*/}}
-			</small></p>
+			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
 	<div class="location-chart">
