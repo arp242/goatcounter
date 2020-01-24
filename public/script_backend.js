@@ -96,6 +96,7 @@
 	};
 
 	// Highlight a filter pattern in the path and title.
+	// TODO: don't highlight "go" link.
 	var highlight_filter = function(s) {
 		if (s === '')
 			return;

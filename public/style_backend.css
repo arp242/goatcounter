@@ -65,12 +65,8 @@ form .err  { color: red; display: block; }
 
 
 /*** Pages list ***/
-.count-list td {
-	vertical-align: top;
-}
-.count-list td.generated {
-	font-style: italic;
-}
+.count-list td           { vertical-align: top; }
+.count-list td.generated { font-style: italic; }
 
 .count-list td:first-child {  /* Count */
 	text-align: right;
