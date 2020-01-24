@@ -23,8 +23,6 @@ import (
 //     1 | 2019-12-17 | Chrome  | 38      |    13 | t
 //     1 | 2019-12-17 | Chrome  | 77      |     2 | f
 //     1 | 2019-12-17 | Opera   | 9       |     1 | f
-//
-// TODO: mobile counts are inaccurate as it's not grouped by that.
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + browser.
@@ -37,7 +35,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
-			browser, version, mobile := getBrowser(h.Browser)
+			browser, version := getBrowser(h.Browser)
 			if browser == "" {
 				continue
 			}
@@ -49,7 +47,6 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.day = day
 				v.browser = browser
 				v.version = version
-				v.mobile = mobile
 				var err error
 				v.count, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
 				if err != nil {
@@ -63,9 +60,9 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, tx,
-			"browser_stats", []string{"site", "day", "browser", "version", "count", "mobile"})
+			"browser_stats", []string{"site", "day", "browser", "version", "count"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.browser, v.version, v.count, v.mobile)
+			ins.Values(siteID, v.day, v.browser, v.version, v.count)
 		}
 		return ins.Finish()
 	})
@@ -96,13 +93,13 @@ func existingBrowserStats(
 	return c, nil
 }
 
-func getBrowser(uaHeader string) (string, string, bool) {
+func getBrowser(uaHeader string) (string, string) {
 	ua := user_agent.New(uaHeader)
 	browser, version := ua.Browser()
 
 	// A lot of this is wrong, so just skip for now.
 	if browser == "Android" {
-		return "", "", false
+		return "", ""
 	}
 
 	if browser == "Chromium" {
@@ -134,6 +131,5 @@ func getBrowser(uaHeader string) (string, string, bool) {
 		}
 	}
 
-	//mobile := ua.Mobile()
-	return browser, version, false
+	return browser, version
 }

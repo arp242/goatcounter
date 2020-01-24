@@ -34,7 +34,7 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `3 -> [{Indonesia false 2} {Ethiopia false 1}]`
+	want := `3 -> [{Indonesia 2} {Ethiopia 1}]`
 	out := fmt.Sprintf("%d -> %v", total, stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -60,7 +60,7 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `10 -> [{Ethiopia false 5} {Indonesia false 4} {New Zealand false 1}]`
+	want = `10 -> [{Ethiopia 5} {Indonesia 4} {New Zealand 1}]`
 	out = fmt.Sprintf("%d -> %v", total, stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
