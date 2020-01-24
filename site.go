@@ -45,9 +45,10 @@ type Site struct {
 	ID     int64  `db:"id"`
 	Parent *int64 `db:"parent"`
 
-	Name         string       `db:"name"`  // Any name for the website.
-	Cname        *string      `db:"cname"` // Custom domain, e.g. "stats.example.com"
-	Code         string       `db:"code"`  // Domain code (arp242, which makes arp242.goatcounter.com)
+	Name         string       `db:"name"`        // Any name for the website.
+	Cname        *string      `db:"cname"`       // Custom domain, e.g. "stats.example.com"
+	Code         string       `db:"code"`        // Domain code (arp242, which makes arp242.goatcounter.com)
+	LinkDomain   string       `db:"link_domain"` // Site domain for linking (www.arp242.net).
 	Plan         string       `db:"plan"`
 	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
@@ -137,6 +138,7 @@ func (s *Site) Validate(ctx context.Context) error {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
 	}
 
+	v.Domain("link_domain", s.LinkDomain)
 	v.Len("code", s.Code, 1, 50)
 	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)

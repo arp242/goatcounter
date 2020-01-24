@@ -39,6 +39,7 @@ type Hit struct {
 	Title       string            `db:"title" json:"t,omitempty"`
 	Domain      string            `db:"domain" json:"d,omitempty"`
 	Ref         string            `db:"ref" json:"r,omitempty"`
+	Event       bool              `db:"event" json:"e,omitempty"`
 	RefParams   *string           `db:"ref_params" json:"-"`
 	RefOriginal *string           `db:"ref_original" json:"-"`
 	RefScheme   *string           `db:"ref_scheme" json:"-"`
@@ -232,7 +233,9 @@ func (h *Hit) Defaults(ctx context.Context) {
 	}
 
 	h.Ref = strings.TrimRight(h.Ref, "/")
-	h.Path = "/" + strings.Trim(h.Path, "/")
+	if !h.Event {
+		h.Path = "/" + strings.Trim(h.Path, "/")
+	}
 }
 
 // Validate the object.
@@ -286,6 +289,7 @@ type HitStat struct {
 	Count     int     `db:"count"`
 	Max       int     `db:"-"`
 	Path      string  `db:"path"`
+	Event     bool    `db:"event"`
 	Title     string  `db:"title"`
 	RefScheme *string `db:"ref_scheme"`
 	Stats     []Stat

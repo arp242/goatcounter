@@ -15,6 +15,11 @@
 				{{validate "site.name" .Validate}}
 				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
 
+				<label for="link_domain">Domain</label>
+				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
+				{{validate "site.link_domain" .Validate}}
+				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used only for linking.</span>
+
 				<label for="code">Code</label>
 				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
 				{{validate "site.code" .Validate}}

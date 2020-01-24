@@ -50,11 +50,12 @@ func StartTest(t *testing.T) (context.Context, func()) {
 	}
 
 	if schema == "" {
-		schema, err := ioutil.ReadFile(top + "/db/schema.sql")
+		s, err := ioutil.ReadFile(top + "/db/schema.sql")
 		if err != nil {
 			t.Fatal(err)
 		}
-		_, err = db.Exec(string(schema))
+		schema = string(s)
+		_, err = db.Exec(schema)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -79,6 +80,11 @@ func StartTest(t *testing.T) (context.Context, func()) {
 				t.Fatalf("read migration: %s", err)
 			}
 			migrations = append(migrations, string(mb))
+		}
+	} else {
+		_, err = db.Exec(schema)
+		if err != nil {
+			t.Fatal(err)
 		}
 	}
 
