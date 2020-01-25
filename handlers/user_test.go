@@ -92,7 +92,7 @@ func TestUserLogin(t *testing.T) {
 
 				_, err = zdb.MustGet(ctx).ExecContext(ctx, `update users set
 					login_request='asdf', login_at=current_timestamp
-					where id=$2 and site=1`, user.ID)
+					where id=$1 and site=1`, user.ID)
 				if err != nil {
 					panic(err)
 				}

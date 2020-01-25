@@ -1,7 +1,7 @@
 drop table if exists version;
 create table version (name varchar);
 
-drop table if exists sites;
+drop table if exists sites cascade;
 create table sites (
 	id             serial         primary key,
 	parent         integer        null                     check(parent is null or parent>0),
@@ -23,7 +23,7 @@ create unique index "sites#code"  on sites(lower(code));
 create unique index "sites#name"  on sites(lower(name));
 create unique index "sites#cname" on sites(lower(cname));
 
-drop table if exists users;
+drop table if exists users cascade;
 create table users (
 	id             serial         primary key,
 	site           integer        not null                 check(site > 0),
@@ -46,7 +46,7 @@ create unique index "users#login_token"   on users(login_token);
 create        index "users#site"          on users(site);
 create unique index "users#site#email"    on users(site, lower(email));
 
-drop table if exists hits;
+drop table if exists hits cascade;
 create table hits (
 	site           integer        not null                 check(site > 0),
 
@@ -63,7 +63,7 @@ create table hits (
 create index "hits#site#created_at"      on hits(site, created_at);
 create index "hits#site#path#created_at" on hits(site, lower(path), created_at);
 
-drop table if exists hit_stats;
+drop table if exists hit_stats cascade;
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -78,7 +78,7 @@ create table hit_stats (
 );
 create index "hit_stats#site#day" on hit_stats(site, day);
 
-drop table if exists browser_stats;
+drop table if exists browser_stats cascade;
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
