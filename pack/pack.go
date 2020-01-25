@@ -11939,6 +11939,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				});
 			}, 300);
 		});
+
+		// Don't submit form on enter.
+		$('#filter-paths').on('keydown', function(e) {
+			if (e.keyCode === 13)
+				e.preventDefault();
+		})
 	};
 
 	// Paginate the main path overview.
@@ -11987,7 +11993,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	};
 
 	// Highlight a filter pattern in the path and title.
-	// TODO: don't highlight "go" link.
 	var highlight_filter = function(s) {
 		if (s === '')
 			return;
@@ -12785,11 +12790,13 @@ form .err  { color: red; display: block; }
 }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
-.page-title, .rlink { display: inline-block; overflow: hidden; }
+.show-mobile .page-title { vertical-align: top; }
+.show-mobile .page-title+sup { bottom: 2.5ex; }
 
 /* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
  * solution for that though :-/ */
-.rlink { max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
+.rlink { display: inline-block; overflow: hidden;
+         max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
 .page-title b, .rlink b { background-color: yellow; }
 
@@ -13572,18 +13579,14 @@ var Templates = map[string][]byte{
 		<td>{{nformat2 $h.Count $.Site}}</td>
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
-			<small class="page-title" title="{{$h.Title}}">
-				{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}
-				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
-			</small>
+			<small class="page-title" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-				<small class="page-title" title="{{$h.Title}}">|
-					{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}
-					{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
-				</small>
+				<small class="page-title" title="{{$h.Title}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
 				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>

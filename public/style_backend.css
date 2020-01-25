@@ -86,11 +86,13 @@ form .err  { color: red; display: block; }
 }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
-.page-title, .rlink { display: inline-block; overflow: hidden; }
+.show-mobile .page-title { vertical-align: top; }
+.show-mobile .page-title+sup { bottom: 2.5ex; }
 
 /* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
  * solution for that though :-/ */
-.rlink { max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
+.rlink { display: inline-block; overflow: hidden;
+         max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
 .page-title b, .rlink b { background-color: yellow; }
 

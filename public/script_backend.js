@@ -48,6 +48,12 @@
 				});
 			}, 300);
 		});
+
+		// Don't submit form on enter.
+		$('#filter-paths').on('keydown', function(e) {
+			if (e.keyCode === 13)
+				e.preventDefault();
+		})
 	};
 
 	// Paginate the main path overview.
@@ -96,7 +102,6 @@
 	};
 
 	// Highlight a filter pattern in the path and title.
-	// TODO: don't highlight "go" link.
 	var highlight_filter = function(s) {
 		if (s === '')
 			return;

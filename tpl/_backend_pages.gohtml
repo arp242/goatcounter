@@ -3,18 +3,14 @@
 		<td>{{nformat2 $h.Count $.Site}}</td>
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
-			<small class="page-title" title="{{$h.Title}}">
-				{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}
-				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
-			</small>
+			<small class="page-title" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-				<small class="page-title" title="{{$h.Title}}">|
-					{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}
-					{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
-				</small>
+				<small class="page-title" title="{{$h.Title}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
 				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>
