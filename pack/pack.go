@@ -13901,6 +13901,7 @@ parameters:</p>
 	<link rel="apple-touch-icon" href="//{{.Static}}/apple-touch-icon.png">
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/style.css?v={{.Version}}">
+	<link rel="canonical" href="https://{{.Domain}}{{if ne .Page "home"}}/{{.Page}}{{end}}">
 </head>
 
 <body>
