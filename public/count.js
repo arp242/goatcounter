@@ -3,7 +3,7 @@
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
 // See /bin/proxy on how to test this locally.
-(function() { 
+(function() {
 	'use strict';
 
 	var VARS = {};
@@ -18,20 +18,17 @@
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
 			t: count_vars.title    || VARS.title,
-			d: count_vars.domain   || VARS.domain,
 		};
 
 		// Save callbacks.
 		var rcb, pcb, tcb, dcb;
 		if (typeof(results.r) === 'function') rcb = results.r;
 		if (typeof(results.t) === 'function') tcb = results.t;
-		if (typeof(results.d) === 'function') dcb = results.d;
 		if (typeof(results.p) === 'function') pcb = results.p;
 
 		// Get the values unless explicitly given.
 		if (is_empty(results.r)) results.r = document.referrer;
 		if (is_empty(results.t)) results.t = document.title;
-		if (is_empty(results.d)) results.d = location.hostname;
 		if (is_empty(results.p)) {
 			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
@@ -47,7 +44,6 @@
 		// Apply callbacks.
 		if (rcb) results.r = rcb(results.r);
 		if (tcb) results.t = tcb(results.t);
-		if (tcb) results.d = tcb(results.d);
 		if (pcb) results.p = pcb(results.p);
 
 		return results;
@@ -98,11 +94,11 @@
 		setTimeout(function() {
 			if (!img.parentNode)
 				return;
-			img.src = ''; 
+			img.src = '';
 			document.body.removeChild(img)
 		}, 3000);
 
-		document.body.appendChild(img);  
+		document.body.appendChild(img);
 	};
 
 	// Expose public API.

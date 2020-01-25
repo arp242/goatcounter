@@ -631,10 +631,11 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	v := zvalidate.New()
 
 	args := struct {
-		Name     string                   `json:"name"`
-		Cname    string                   `json:"cname"`
-		Settings goatcounter.SiteSettings `json:"settings"`
-		User     goatcounter.User         `json:"user"`
+		Name       string                   `json:"name"`
+		Cname      string                   `json:"cname"`
+		LinkDomain string                   `json:"link_domain"`
+		Settings   goatcounter.SiteSettings `json:"settings"`
+		User       goatcounter.User         `json:"user"`
 	}{}
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
@@ -667,6 +668,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(txctx)
 	site.Name = args.Name
 	site.Settings = args.Settings
+	site.LinkDomain = args.LinkDomain
 	if args.Cname != "" && !site.PlanCustomDomain(txctx) {
 		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
 	}

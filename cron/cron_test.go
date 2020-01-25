@@ -43,7 +43,7 @@ func TestDataRetention(t *testing.T) {
 	}
 
 	out := fmt.Sprintf("%d %d %t %v %v", total, display, more, err, stats)
-	want := `2 2 false <nil> [{2 10 /a  <nil> [{2019-08-31 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0]}]}]`
+	want := `2 2 false <nil> [{2 10 /a false  <nil> [{2019-08-31 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0]}]}]`
 	if out != want {
 		t.Errorf("\ngot:  %s\nwant: %s", out, want)
 	}

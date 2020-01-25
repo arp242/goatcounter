@@ -507,6 +507,18 @@ commit;
 commit;
 
 `),
+	"db/migrate/pgsql/2020-01-24-2-domain.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'New setting: domain (for linking)', now(), now(),
+		'<p>You can now fill in you site’s domain in the settings; this will allow linking the path directly from the overview.</p>');
+
+	alter table hits drop column domain;
+	alter table hits add column event int default 0;
+	alter table sites add column link_domain varchar not null default '';
+
+	insert into version values ('2020-01-24-2-domain');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1050,6 +1062,35 @@ commit;
 commit;
 
 `),
+	"db/migrate/sqlite/2020-01-24-2-domain.sql": []byte(`begin;
+	alter table sites add column link_domain varchar not null default '';
+
+	create table hits2 (
+		site           integer        not null                 check(site > 0),
+
+		path           varchar        not null,
+		ref            varchar        not null,
+		ref_original   varchar,
+		ref_params     varchar,
+		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
+		browser        varchar        not null,
+		size           varchar        not null default '',
+		location       varchar        not null default '',
+		count_ref      varchar        not null default '',
+		bot            int            default 0,
+		title          varchar        not null default '',
+		event          int            default 0,
+
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
+	);
+
+	insert into hits2 select site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, count_ref, bot, title, 0, created_at from hits;
+	drop table hits;
+	alter table hits2 rename to hits;
+
+	insert into version values ('2020-01-24-2-domain');
+commit;
+`),
 }
 
 var Public = map[string][]byte{
@@ -1502,7 +1543,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
 // See /bin/proxy on how to test this locally.
-(function() { 
+(function() {
 	'use strict';
 
 	var VARS = {};
@@ -1517,20 +1558,17 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
 			t: count_vars.title    || VARS.title,
-			d: count_vars.domain   || VARS.domain,
 		};
 
 		// Save callbacks.
 		var rcb, pcb, tcb, dcb;
 		if (typeof(results.r) === 'function') rcb = results.r;
 		if (typeof(results.t) === 'function') tcb = results.t;
-		if (typeof(results.d) === 'function') dcb = results.d;
 		if (typeof(results.p) === 'function') pcb = results.p;
 
 		// Get the values unless explicitly given.
 		if (is_empty(results.r)) results.r = document.referrer;
 		if (is_empty(results.t)) results.t = document.title;
-		if (is_empty(results.d)) results.d = location.hostname;
 		if (is_empty(results.p)) {
 			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
@@ -1546,7 +1584,6 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		// Apply callbacks.
 		if (rcb) results.r = rcb(results.r);
 		if (tcb) results.t = tcb(results.t);
-		if (tcb) results.d = tcb(results.d);
 		if (pcb) results.p = pcb(results.p);
 
 		return results;
@@ -1597,11 +1634,11 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		setTimeout(function() {
 			if (!img.parentNode)
 				return;
-			img.src = ''; 
+			img.src = '';
 			document.body.removeChild(img)
 		}, 3000);
 
-		document.body.appendChild(img);  
+		document.body.appendChild(img);
 	};
 
 	// Expose public API.
@@ -1622,7 +1659,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
 // See /bin/proxy on how to test this locally.
-(function() { 
+(function() {
 	'use strict';
 
 	var VARS = {};
@@ -1637,20 +1674,17 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			p: count_vars.path     || VARS.path,
 			r: count_vars.referrer || VARS.referrer,
 			t: count_vars.title    || VARS.title,
-			d: count_vars.domain   || VARS.domain,
 		};
 
 		// Save callbacks.
 		var rcb, pcb, tcb, dcb;
 		if (typeof(results.r) === 'function') rcb = results.r;
 		if (typeof(results.t) === 'function') tcb = results.t;
-		if (typeof(results.d) === 'function') dcb = results.d;
 		if (typeof(results.p) === 'function') pcb = results.p;
 
 		// Get the values unless explicitly given.
 		if (is_empty(results.r)) results.r = document.referrer;
 		if (is_empty(results.t)) results.t = document.title;
-		if (is_empty(results.d)) results.d = location.hostname;
 		if (is_empty(results.p)) {
 			var loc = location,
 				c = document.querySelector('link[rel="canonical"][href]');
@@ -1666,7 +1700,6 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		// Apply callbacks.
 		if (rcb) results.r = rcb(results.r);
 		if (tcb) results.t = tcb(results.t);
-		if (tcb) results.d = tcb(results.d);
 		if (pcb) results.p = pcb(results.p);
 
 		return results;
@@ -1717,11 +1750,11 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		setTimeout(function() {
 			if (!img.parentNode)
 				return;
-			img.src = ''; 
+			img.src = '';
 			document.body.removeChild(img)
 		}, 3000);
 
-		document.body.appendChild(img);  
+		document.body.appendChild(img);
 	};
 
 	// Expose public API.
@@ -11906,6 +11939,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				});
 			}, 300);
 		});
+
+		// Don't submit form on enter.
+		$('#filter-paths').on('keydown', function(e) {
+			if (e.keyCode === 13)
+				e.preventDefault();
+		})
 	};
 
 	// Paginate the main path overview.
@@ -12730,12 +12769,8 @@ form .err  { color: red; display: block; }
 
 
 /*** Pages list ***/
-.count-list td {
-	vertical-align: top;
-}
-.count-list td.generated {
-	font-style: italic;
-}
+.count-list td           { vertical-align: top; }
+.count-list td.generated { font-style: italic; }
 
 .count-list td:first-child {  /* Count */
 	text-align: right;
@@ -12754,15 +12789,15 @@ form .err  { color: red; display: block; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
+/* Otherwise .page-title has different vertical alignment? Hmmm... */
+.show-mobile .page-title { vertical-align: top; }
+.show-mobile .page-title+sup { bottom: 2.5ex; }
+
 /* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
  * solution for that though :-/ */
-.page-title, .rlink {
-	display: inline-block; max-width: 17.5rem;
-	text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
-}
-.rlink {
-	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
-}
+.rlink { display: inline-block; overflow: hidden;
+         max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
+.rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
 .page-title b, .rlink b { background-color: yellow; }
 
 .count-list tr {
@@ -13545,16 +13580,15 @@ var Templates = map[string][]byte{
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 				<small class="page-title" title="{{$h.Title}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
-				{{/* We don't have the site domain, so can't link to it.
-				<a class="top go" target="_blank" rel="noopener" href="https://{{$.Site.Name}}{{$h.Path}}">go</a>
-				*/}}
 				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats .Max}}
@@ -13627,8 +13661,8 @@ return value is sent to the server. Nothing is sent if the return value from the
 	<li><code>title</code> – Page title. The UI will always display the latest
 		title used. Default is <code>document.title</code>.</li>
 
-	<li><code>domain</code> – Domain; not yet used. Default is
-		<code>window.location.hostname</code>.</li>
+	<li><code>event</code> – Treat the <code>path</code> as an event, rather
+		than a URL. Boolean.</li>
 
 	<li><code>referrer</code> – Where the user came from; can be an URL
 		(<code>https://example.com</code>) or any string
@@ -14105,6 +14139,11 @@ parameters:</p>
 				<input type="text" name="name" id="name" value="{{.Site.Name}}">
 				{{validate "site.name" .Validate}}
 				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
+
+				<label for="link_domain">Domain</label>
+				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
+				{{validate "site.link_domain" .Validate}}
+				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 
 				<label for="code">Code</label>
 				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">

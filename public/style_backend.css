@@ -65,12 +65,8 @@ form .err  { color: red; display: block; }
 
 
 /*** Pages list ***/
-.count-list td {
-	vertical-align: top;
-}
-.count-list td.generated {
-	font-style: italic;
-}
+.count-list td           { vertical-align: top; }
+.count-list td.generated { font-style: italic; }
 
 .count-list td:first-child {  /* Count */
 	text-align: right;
@@ -89,15 +85,15 @@ form .err  { color: red; display: block; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
+/* Otherwise .page-title has different vertical alignment? Hmmm... */
+.show-mobile .page-title { vertical-align: top; }
+.show-mobile .page-title+sup { bottom: 2.5ex; }
+
 /* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
  * solution for that though :-/ */
-.page-title, .rlink {
-	display: inline-block; max-width: 17.5rem;
-	text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
-}
-.rlink {
-	min-width: 3em;   /* Make very short paths (like just /) easier to click/touch. */
-}
+.rlink { display: inline-block; overflow: hidden;
+         max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
+.rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
 .page-title b, .rlink b { background-color: yellow; }
 
 .count-list tr {

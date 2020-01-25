@@ -48,6 +48,12 @@
 				});
 			}, 300);
 		});
+
+		// Don't submit form on enter.
+		$('#filter-paths').on('keydown', function(e) {
+			if (e.keyCode === 13)
+				e.preventDefault();
+		})
 	};
 
 	// Paginate the main path overview.

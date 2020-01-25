@@ -45,9 +45,10 @@ type Site struct {
 	ID     int64  `db:"id"`
 	Parent *int64 `db:"parent"`
 
-	Name         string       `db:"name"`  // Any name for the website.
-	Cname        *string      `db:"cname"` // Custom domain, e.g. "stats.example.com"
-	Code         string       `db:"code"`  // Domain code (arp242, which makes arp242.goatcounter.com)
+	Name         string       `db:"name"`        // Any name for the website.
+	Cname        *string      `db:"cname"`       // Custom domain, e.g. "stats.example.com"
+	Code         string       `db:"code"`        // Domain code (arp242, which makes arp242.goatcounter.com)
+	LinkDomain   string       `db:"link_domain"` // Site domain for linking (www.arp242.net).
 	Plan         string       `db:"plan"`
 	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
@@ -137,6 +138,7 @@ func (s *Site) Validate(ctx context.Context) error {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
 	}
 
+	v.Domain("link_domain", s.LinkDomain)
 	v.Len("code", s.Code, 1, 50)
 	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)
@@ -223,8 +225,8 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set name=$1, settings=$2, cname=$3, updated_at=$4 where id=$5`,
-		s.Name, s.Settings, s.Cname, s.UpdatedAt.Format(zdb.Date), s.ID)
+		`update sites set name=$1, settings=$2, cname=$3, link_domain=$4, updated_at=$5 where id=$6`,
+		s.Name, s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 
