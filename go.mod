@@ -2,6 +2,8 @@ module zgo.at/goatcounter
 
 go 1.12
 
+replace zgo.at/zvalidate => ../zvalidate
+
 require (
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/go-chi/chi v4.0.3+incompatible

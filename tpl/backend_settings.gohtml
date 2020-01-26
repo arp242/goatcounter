@@ -48,6 +48,7 @@
 
 				<label>Ignore IPs</label>
 				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
+				{{validate "site.settings.ignore_ips" .Validate}}
 				<span>Never count requests coming from these IP addresses.<br>
 					Comma-separated. Only supports exact matches.</span>
 			</fieldset>

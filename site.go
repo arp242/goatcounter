@@ -103,7 +103,6 @@ func (s *Site) Defaults(ctx context.Context) {
 	if s.Settings.NumberFormat == 0 {
 		s.Settings.NumberFormat = 0x202f
 	}
-
 	if s.Settings.Limits.Page == 0 {
 		s.Settings.Limits.Page = 10
 	}
@@ -138,6 +137,12 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
+	}
+
+	if len(s.Settings.IgnoreIPs) > 0 {
+		for _, ip := range s.Settings.IgnoreIPs {
+			v.IP("settings.ignore_ips", ip)
+		}
 	}
 
 	v.Domain("link_domain", s.LinkDomain)
