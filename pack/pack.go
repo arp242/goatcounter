@@ -1575,7 +1575,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		};
 
 		// Save callbacks.
-		var rcb, pcb, tcb, dcb;
+		var rcb, pcb, tcb;
 		if (typeof(results.r) === 'function') rcb = results.r;
 		if (typeof(results.t) === 'function') tcb = results.t;
 		if (typeof(results.p) === 'function') pcb = results.p;
@@ -1588,9 +1588,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
 			if (c) {
-				var a = document.createElement('a');
-				a.href = c.href;
-				loc = a;
+				loc = document.createElement('a');
+				loc.href = c.href;
 			}
 			results.p = (loc.pathname + loc.search) || '/';
 		}
@@ -1698,7 +1697,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		};
 
 		// Save callbacks.
-		var rcb, pcb, tcb, dcb;
+		var rcb, pcb, tcb;
 		if (typeof(results.r) === 'function') rcb = results.r;
 		if (typeof(results.t) === 'function') tcb = results.t;
 		if (typeof(results.p) === 'function') pcb = results.p;
@@ -1711,9 +1710,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
 			if (c) {
-				var a = document.createElement('a');
-				a.href = c.href;
-				loc = a;
+				loc = document.createElement('a');
+				loc.href = c.href;
 			}
 			results.p = (loc.pathname + loc.search) || '/';
 		}
@@ -14812,7 +14810,10 @@ sub {
 			see the <a href="/privacy">privacy policy</a>.</p>
 
 		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
-			1.8KB of extra data to your site.</p>
+			~2KB of extra data to your site. Also has JavaScript-free "tracking
+			pixel" option, or you can use it from your application's
+			middleware.
+</p>
 	</div>
 
 	<div>

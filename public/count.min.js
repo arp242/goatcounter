@@ -22,7 +22,7 @@
 		};
 
 		// Save callbacks.
-		var rcb, pcb, tcb, dcb;
+		var rcb, pcb, tcb;
 		if (typeof(results.r) === 'function') rcb = results.r;
 		if (typeof(results.t) === 'function') tcb = results.t;
 		if (typeof(results.p) === 'function') pcb = results.p;
@@ -35,9 +35,8 @@
 				c = document.querySelector('link[rel="canonical"][href]');
 			// Parse in a tag to a Location object (canonical URL may be relative).
 			if (c) {
-				var a = document.createElement('a');
-				a.href = c.href;
-				loc = a;
+				loc = document.createElement('a');
+				loc.href = c.href;
 			}
 			results.p = (loc.pathname + loc.search) || '/';
 		}

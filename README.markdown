@@ -28,12 +28,13 @@ Features
 - **Privacy-aware**; doesn't track users with unique identifiers and doesn't
   need a GDPR consent notice. Also see the [privacy policy][privacy].
 
-- **Lightweight** and **fast**; adds just 3.5K (1.9K compressed) of extra data
-  to your site.
+- **Lightweight** and **fast**; adds just ~4K (~2K compressed) of extra data to
+  your site. Also has JavaScript-free "tracking pixel" option, or you can use it
+  from your application's middleware.
 
 - **Easy**; if you've been confused by the myriad of options and flexibility of
   Google Analytics and Matomo that you don't need then GoatCounter will be a
-  breath of fresh air. 
+  breath of fresh air.
 
 - **Accessibility** is a high-priority feature, and the interface works well
   with screen readers, no JavaScript, and even text browsers (although not all
@@ -135,7 +136,7 @@ it:
        $ CGO_ENABLED=0 go build
 
    Functionally it doesn't matter too much, but you won't need a C compiler,
-   builds will be faster, and makes creating static binaries easier.
+   builds will be faster, and creating static binaries will be easier.
 
 [pq]: https://godoc.org/github.com/lib/pq
 
