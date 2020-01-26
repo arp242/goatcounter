@@ -37,6 +37,7 @@ h2 sup, h2 small {
 
 h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
+h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
 
 form .err  { color: red; display: block; }
 

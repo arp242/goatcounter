@@ -6,18 +6,19 @@
 (function() {
 	'use strict';
 
-	var VARS = {};
-	if (window.goatcounter)
-		VARS = window.goatcounter.vars || {};
-	else if (window.vars)  // TODO: temporary compatibility.
-		VARS = window.vars || {};
+	if (window.vars)  // TODO: temporary compatibility.
+		window.goatcounter = window.vars;
+	else if (window.goatcounter && window.goatcounter.vars)
+		window.goatcounter = window.goatcounter.vars;
+	else
+		window.goatcounter = window.goatcounter || {};
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(count_vars) {
 		var results = {
-			p: count_vars.path     || VARS.path,
-			r: count_vars.referrer || VARS.referrer,
-			t: count_vars.title    || VARS.title,
+			p: count_vars.path     || goatcounter.path,
+			r: count_vars.referrer || goatcounter.referrer,
+			t: count_vars.title    || goatcounter.title,
 		};
 
 		// Save callbacks.
@@ -110,11 +111,9 @@
 	};
 
 	// Expose public API.
-	if (!window.goatcounter)
-		window.goatcounter = {};
 	window.goatcounter.count = count;
 
-	if (!VARS.no_onload) {
+	if (!goatcounter.no_onload) {
 		if (document.body === null)
 			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
 		else
