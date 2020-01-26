@@ -191,6 +191,7 @@ func (h backend) status() func(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Cache-Control", "no-store,no-cache")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// Don't track pages fetched with the browser's prefetch algorithm.
 	// See https://github.com/usefathom/fathom/issues/13

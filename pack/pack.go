@@ -519,6 +519,19 @@ commit;
 	insert into version values ('2020-01-24-2-domain');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-26-1-sitecode.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'Simpler site code', now(), now(),
+		'<p>The <a href="/settings#tab-site-code">site code</a> is now
+			significantly simpler. The old one will still work, but it’s recommended
+			to use the new one.</p>
+
+		<p>The page now also documents how to integrate GoatCounter on your site without JavaScript.</p>
+			');
+
+	insert into version values ('2020-01-26-1-sitecode');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1546,18 +1559,19 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 (function() {
 	'use strict';
 
-	var VARS = {};
-	if (window.goatcounter)
-		VARS = window.goatcounter.vars || {};
-	else if (window.vars)  // TODO: temporary compatibility.
-		VARS = window.vars || {};
+	if (window.vars)  // TODO: temporary compatibility.
+		window.goatcounter = window.vars;
+	else if (window.goatcounter && window.goatcounter.vars)
+		window.goatcounter = window.goatcounter.vars;
+	else
+		window.goatcounter = window.goatcounter || {};
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(count_vars) {
 		var results = {
-			p: count_vars.path     || VARS.path,
-			r: count_vars.referrer || VARS.referrer,
-			t: count_vars.title    || VARS.title,
+			p: count_vars.path     || goatcounter.path,
+			r: count_vars.referrer || goatcounter.referrer,
+			t: count_vars.title    || goatcounter.title,
 		};
 
 		// Save callbacks.
@@ -1611,6 +1625,14 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
+		// Find the tag used to load this script.
+		var script = document.querySelector('script[data-goatcounter]'),
+			endpoint;
+		if (script)
+			endpoint = script.dataset.goatcounter;
+		else  // TODO: temporary compat.
+			endpoint = window.counter;
+
 		// Don't track private networks.
 		if (location.hostname.match(/localhost$/) ||
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
@@ -1627,7 +1649,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(data);
+		img.src = endpoint + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
@@ -1642,11 +1664,9 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	};
 
 	// Expose public API.
-	if (!window.goatcounter)
-		window.goatcounter = {};
 	window.goatcounter.count = count;
 
-	if (!VARS.no_onload) {
+	if (!goatcounter.no_onload) {
 		if (document.body === null)
 			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
 		else
@@ -1662,18 +1682,19 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 (function() {
 	'use strict';
 
-	var VARS = {};
-	if (window.goatcounter)
-		VARS = window.goatcounter.vars || {};
-	else if (window.vars)  // TODO: temporary compatibility.
-		VARS = window.vars || {};
+	if (window.vars)  // TODO: temporary compatibility.
+		window.goatcounter = window.vars;
+	else if (window.goatcounter && window.goatcounter.vars)
+		window.goatcounter = window.goatcounter.vars;
+	else
+		window.goatcounter = window.goatcounter || {};
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(count_vars) {
 		var results = {
-			p: count_vars.path     || VARS.path,
-			r: count_vars.referrer || VARS.referrer,
-			t: count_vars.title    || VARS.title,
+			p: count_vars.path     || goatcounter.path,
+			r: count_vars.referrer || goatcounter.referrer,
+			t: count_vars.title    || goatcounter.title,
 		};
 
 		// Save callbacks.
@@ -1727,6 +1748,14 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
+		// Find the tag used to load this script.
+		var script = document.querySelector('script[data-goatcounter]'),
+			endpoint;
+		if (script)
+			endpoint = script.dataset.goatcounter;
+		else  // TODO: temporary compat.
+			endpoint = window.counter;
+
 		// Don't track private networks.
 		if (location.hostname.match(/localhost$/) ||
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
@@ -1743,7 +1772,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(data);
+		img.src = endpoint + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
@@ -1758,11 +1787,9 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	};
 
 	// Expose public API.
-	if (!window.goatcounter)
-		window.goatcounter = {};
 	window.goatcounter.count = count;
 
-	if (!VARS.no_onload) {
+	if (!goatcounter.no_onload) {
 		if (document.body === null)
 			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
 		else
@@ -12852,6 +12879,7 @@ h2 sup, h2 small {
 
 h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
+h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
 
 form .err  { color: red; display: block; }
 
@@ -13733,27 +13761,23 @@ var Templates = map[string][]byte{
 	<button>Sign in</button>
 </form>
 `),
-	"tpl/_backend_sitecode.gohtml": []byte(`<pre>&lt;script&gt;
-	(function() {
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		script.async = 1;
-		script.src = '//{{.Static}}/count.js';
-		var ins = document.getElementsByTagName('script')[0];
-		ins.parentNode.insertBefore(script, ins)
-	})();
-&lt;/script&gt;</pre>
+	"tpl/_backend_sitecode.gohtml": []byte(`{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
+        async src="//{{.Static}}/count.js"&gt;&lt;/script&gt;{{end}}
+<pre>{{template "code" .}}</pre>
 
 {{if eq .Path "/settings"}}
 
-<p>The script is quite small and you can inline it if you want to save a
-	request. You won’t get any updates, but it’s expected to remain compatible in
-	the foreseeable future. Just be sure to set <code>window.counter</code> as in
-	the above snippet.</p>
+<h3 class="border">Content security policy</h3>
+<p>You’ll need the following if you use a
+<code>Content-Security-Policy</code>:</p>
 
-<h3>Customizing</h3>
-<p>You can pass variables with the <code>window.goatcounter.vars</code> object.
+<pre>
+script-src  https://{{.Static}}
+img-src     {{.Site.URL}}/count
+</pre>
+
+<h3 class="border">Customizing</h3>
+<p>You can pass variables with the <code>window.goatcounter</code> object.
 
 The default value will be used if the value is <code>null</code> or
 <code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
@@ -13766,14 +13790,13 @@ return value is sent to the server. Nothing is sent if the return value from the
 <p>Data:</p>
 
 <ul>
-	<li><code>path</code> – Page that’s recorded, without domain (e.g.
-		<code>/path/page.html</code>).</li>
-
-	<li><code>title</code> – Page title. The UI will always display the latest
-		title used. Default is <code>document.title</code>.</li>
+	<li><code>path</code> – Page path (without domain) or event name.</li>
 
 	<li><code>event</code> – Treat the <code>path</code> as an event, rather
 		than a URL. Boolean.</li>
+
+	<li><code>title</code> – Human-readable title. Default is
+		<code>document.title</code>.</li>
 
 	<li><code>referrer</code> – Where the user came from; can be an URL
 		(<code>https://example.com</code>) or any string
@@ -13783,113 +13806,117 @@ return value is sent to the server. Nothing is sent if the return value from the
 
 <p>Settings:</p>
 <ul>
-	<li><code>no_onload</code> – Don’t do anything on page load; if you want to
-		call <code>count()</code> manually.</li>
+	<li><code>no_onload</code> – Don’t do anything on page load. Use if you want
+		to call <code>count()</code> manually.</li>
 </ul>
 
 <p>Callable methods:</p>
 <ul>
-	<li><code>window.goatcounter.count(vars)</code> – Count an event. The
-		<code>vars</code> parameter is an object as described above, and wil
-		take precedence over the global <code>window.goatcounter.vars</code>.</li>
+	<li><code>count(vars)</code> – Count an event. The <code>vars</code>
+		parameter is an object as described above, and wil take precedence over
+		the global <code>window.goatcounter</code>.</li>
 </ul>
 
-<h3 id="examples">Examples</h3>
+<h3 class="border">Examples</h3>
 
-<h4 id="example-prod">Load only on production</h4>
+<h4>Load only on production</h4>
 <p>You can check <code>location.host</code> if you want to load GoatCounter only
 on <code>production.com</code> and not <code>staging.com</code> or
 <code>development.com</code>; for example:</p>
 
 <pre>&lt;script&gt;
-	(function() {
-		// Only load on production environment.
-		if (window.location.host !== 'production.com')
-			return;
-
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+	// Only load on production environment.
+	if (window.location.host !== 'production.com')
+		window.goatcounter = {no_onload: true};
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
 	request from localhost are already ignored</a>.</p>
 
-<h4 id="example-path">Custom path and referrer</h4>
+<h4>Custom path and referrer</h4>
 <pre>&lt;script&gt;
-	(function() {
-		window.goatcounter = window.goatcounter || {};
-		window.goatcounter.vars = {
-			path: function(p) {
-				// Don't track the home page.
-				if (p === '/')
-					return null;
+	window.goatcounter = {
+		path: function(p) {
+			// Don't track the home page.
+			if (p === '/')
+				return null;
 
-				// Remove .html from all other page links.
-				return p.replace(/\.html$/, '');
-			},
+			// Remove .html from all other page links.
+			return p.replace(/\.html$/, '');
+		},
 
-			// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
-			referrer: (window.location.search ? window.location.search.split('=')[1] : null),
-		};
+		// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
+		referrer: (window.location.search ? window.location.search.split('=')[1] : null),
+	};
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
-
-<h4 id="example-query">Ignore query parameters in path</h4>
+<h4>Ignore query parameters in path</h4>
 <p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used
 automatically, and is the easiest way to ignore extraneous query parameters:</p>
 
 <pre>&lt;link rel="canonical" href="https://example.com/path.html"&gt;</pre>
 
 <p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be
-sure to understand the potential SEO effects before adding that! If you use
-query parameters for navigation then you probably <em>don’t</em> want it.</p>
+sure to understand the potential SEO effects before adding a canonical URL! If
+you use query parameters for navigation then you probably <em>don’t</em> want
+it.</p>
 
 <p>Alternatively you can send a custom <code>path</code> without the query
 parameters:</p>
 
 <pre>&lt;script&gt;
-	(function() {
-		window.goatcounter = window.goatcounter || {};
-		window.goatcounter.vars = {
-			path: location.pathname || '/',
-		};
+	window.goatcounter = {
+		path: location.pathname || '/',
+	};
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
-		window.counter = '{{.Site.URL}}/count'
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
-
-<h4 id="example-spa">SPA</h4>
+<h4>SPA</h4>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
 <pre>&lt;script&gt;
-	(function() {
-		window.goatcounter = window.goatcounter || {};
-		window.goatcounter.vars = {no_onload: true}
+	window.goatcounter = {no_onload: true};
 
-		window.addEventListener('hashchange', function(e) {
-			window.goatcounter.count({
-				page: location.pathname + location.search + location.hash,
-			});
+	window.addEventListener('hashchange', function(e) {
+		window.goatcounter.count({
+			page: location.pathname + location.search + location.hash,
 		});
+	});
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
-		window.counter = '{{.Site.URL}}/count'
+<h3 class="border">Advanced integrations</h3>
 
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+<h4>Image</h4>
+<p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to
+load an image on your site:<p>
+<pre>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;</pre>
 
-{{end}}
+<p>This won’t allow recording the referral or screen size though, and may also
+increase the number of bot requests (although we do our best to filter this
+out).</p>
+
+<h4>From middlware</h4>
+<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your
+app's middleware. It supports the following query parameters:</p>
+
+<ul>
+	<li><code>p</code> – <code>path</code></li>
+	<li><code>e</code> – <code>event</code></li>
+	<li><code>t</code> – <code>title</code></li>
+	<li><code>r</code> – <code>referrer</code></li>
+	<li><code>s</code> – screen size, as <code>x,y,scaling</code>.</li>
+</ul>
+
+<p>The <code>User-Agent</code> header and remote address are used for the
+browser and location.</p>
+
+<p>Calling it from the middleware or as will probably result in more bot
+requests. GoatCounter does its best to filter this out, but it’s impossible to
+do this 100% reliably.</p>
+
+{{end}} {{/* if eq .Path "/settings" */}}
 `),
 	"tpl/_backend_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">
@@ -13950,17 +13977,8 @@ parameters:</p>
 
 	{{template "_bottom_links.gohtml" .}}
 
-	<script>
-		(function() {
-			var script = document.createElement('script');
-			window.counter = 'https://goatcounter.goatcounter.com/count'
-			script.async = 1;
-			script.src = '//gc.zgo.at/count.js';
-
-			var ins = document.getElementsByTagName('script')[0];
-			ins.parentNode.insertBefore(script, ins)
-		})();
-	</script>
+	<script data-goatcounter="http://goatcounter.goatcounter.com/count"
+	        async src="//gc.zgo.at/count.js"></script>
 
 	{{if .Billing}}
 		<script>
@@ -14385,7 +14403,7 @@ parameters:</p>
 
 <div>
 	<h2 id="site-code">Site code</h2>
-	<p>Insert the code below just before the closing &lt;/body&gt; tag:</p>
+	<p>Insert the code below just before the closing <code>&lt;/body&gt;</code> tag:</p>
 	{{template "_backend_sitecode.gohtml" .}}
 </div>
 

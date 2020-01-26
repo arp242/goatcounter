@@ -6,18 +6,19 @@
 (function() {
 	'use strict';
 
-	var VARS = {};
-	if (window.goatcounter)
-		VARS = window.goatcounter.vars || {};
-	else if (window.vars)  // TODO: temporary compatibility.
-		VARS = window.vars || {};
+	if (window.vars)  // TODO: temporary compatibility.
+		window.goatcounter = window.vars;
+	else if (window.goatcounter && window.goatcounter.vars)
+		window.goatcounter = window.goatcounter.vars;
+	else
+		window.goatcounter = window.goatcounter || {};
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(count_vars) {
 		var results = {
-			p: count_vars.path     || VARS.path,
-			r: count_vars.referrer || VARS.referrer,
-			t: count_vars.title    || VARS.title,
+			p: count_vars.path     || goatcounter.path,
+			r: count_vars.referrer || goatcounter.referrer,
+			t: count_vars.title    || goatcounter.title,
 		};
 
 		// Save callbacks.
@@ -71,6 +72,14 @@
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return;
 
+		// Find the tag used to load this script.
+		var script = document.querySelector('script[data-goatcounter]'),
+			endpoint;
+		if (script)
+			endpoint = script.dataset.goatcounter;
+		else  // TODO: temporary compat.
+			endpoint = window.counter;
+
 		// Don't track private networks.
 		if (location.hostname.match(/localhost$/) ||
 			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
@@ -87,7 +96,7 @@
 		var img = document.createElement('img');
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = window.counter + to_params(data);
+		img.src = endpoint + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
 
 		// Remove the image after 3s if the onload event is never triggered.
@@ -102,11 +111,9 @@
 	};
 
 	// Expose public API.
-	if (!window.goatcounter)
-		window.goatcounter = {};
 	window.goatcounter.count = count;
 
-	if (!VARS.no_onload) {
+	if (!goatcounter.no_onload) {
 		if (document.body === null)
 			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
 		else
