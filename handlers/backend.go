@@ -212,6 +212,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	for _, ip := range site.Settings.IgnoreIPs {
 		if ip == r.RemoteAddr {
 			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusAccepted)
 			return zhttp.String(w, fmt.Sprintf("ignored because %q is in the IP ignore list", ip))
 		}
 	}
