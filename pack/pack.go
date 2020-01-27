@@ -532,6 +532,20 @@ commit;
 	insert into version values ('2020-01-26-1-sitecode');
 commit;
 `),
+	"db/migrate/pgsql/2020-01-27-1-ignore.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'New setting: ignoring your own views', now(), now(),
+		'<p>There is now a setting to ignore your own views based on IP address</p>
+
+		<p>Note you can also do this client-side if you prefer; there is an
+			example in the <a href="/settings#tab-site-code">site code</a> for
+			this now as well (“skip own views”).</p>
+	');
+
+	insert into version values ('2020-01-27-1-ignore');
+commit;
+
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -13834,6 +13848,20 @@ on <code>production.com</code> and not <code>staging.com</code> or
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
 	request from localhost are already ignored</a>.</p>
 
+<h4>Skip own views</h4>
+<p>You can use the same technique as a client-side way to skip loading from your
+own browser:</p>
+
+<pre>&lt;script&gt;
+	if (window.location.hash === '#skipgc')
+		localStorage.setItem('skipgc', 't');
+	if (localstorage.getItem('skipgc') === 't')
+		window.goatcounter = {no_onload: true};
+&lt;/script&gt;
+{{template "code" .}}</pre>
+
+<p>You can also fill in your IP address in the settings.</p>
+
 <h4>Custom path and referrer</h4>
 <pre>&lt;script&gt;
 	window.goatcounter = {
@@ -14284,7 +14312,7 @@ do this 100% reliably.</p>
 				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
 				{{validate "site.code" .Validate}}
 				<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
-				Changing this isn’t implemented yet; contact
+					Changing this isn’t implemented yet; contact
 					<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
 					if you want to change it.
 				</span>
@@ -14305,6 +14333,12 @@ do this 100% reliably.</p>
 				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
 				{{validate "site.settings.data_retention" .Validate}}
 				<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
+
+				<label>Ignore IPs</label>
+				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
+				{{validate "site.settings.ignore_ips" .Validate}}
+				<span>Never count requests coming from these IP addresses.<br>
+					Comma-separated. Only supports exact matches.</span>
 			</fieldset>
 
 			<fieldset>

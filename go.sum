@@ -74,3 +74,5 @@ zgo.at/ztest v1.0.1 h1:2DWVZVmWAwOX8pq8sJQoOPtAHZ0Y099XVc9YkOmpnuc=
 zgo.at/ztest v1.0.1/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
 zgo.at/zvalidate v1.0.0 h1:glc7tbq3X2EyPEQf00N6HgsWCVDlJkNLvdRbBBOrhs4=
 zgo.at/zvalidate v1.0.0/go.mod h1:3w++OX5k3nkvwwf7OkdYnjpzF+U4OGJ5xmP7SphmUuk=
+zgo.at/zvalidate v1.1.0 h1:cc+toj0DZ3zL4bOp6FambUgCEfhQiJ95+VR3kK+mYOs=
+zgo.at/zvalidate v1.1.0/go.mod h1:3w++OX5k3nkvwwf7OkdYnjpzF+U4OGJ5xmP7SphmUuk=

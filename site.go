@@ -17,6 +17,7 @@ import (
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
+	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -61,11 +62,12 @@ type Site struct {
 }
 
 type SiteSettings struct {
-	Public          bool   `json:"public"`
-	TwentyFourHours bool   `json:"twenty_four_hours"`
-	DateFormat      string `json:"date_format"`
-	NumberFormat    rune   `json:"number_format"`
-	DataRetention   int    `json:"data_retention"`
+	Public          bool               `json:"public"`
+	TwentyFourHours bool               `json:"twenty_four_hours"`
+	DateFormat      string             `json:"date_format"`
+	NumberFormat    rune               `json:"number_format"`
+	DataRetention   int                `json:"data_retention"`
+	IgnoreIPs       sqlutil.StringList `json:"ignore_ips"`
 	Limits          struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
@@ -101,7 +103,6 @@ func (s *Site) Defaults(ctx context.Context) {
 	if s.Settings.NumberFormat == 0 {
 		s.Settings.NumberFormat = 0x202f
 	}
-
 	if s.Settings.Limits.Page == 0 {
 		s.Settings.Limits.Page = 10
 	}
@@ -136,6 +137,12 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
+	}
+
+	if len(s.Settings.IgnoreIPs) > 0 {
+		for _, ip := range s.Settings.IgnoreIPs {
+			v.IP("settings.ignore_ips", ip)
+		}
 	}
 
 	v.Domain("link_domain", s.LinkDomain)
