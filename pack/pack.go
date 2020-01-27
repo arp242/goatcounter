@@ -14300,9 +14300,6 @@ do this 100% reliably.</p>
 	{{end}}
 </table>
 
-<h2>Contacts</h2>
-{{.Contacts}}
-
 {{template "_backend_bottom.gohtml" .}}
 `),
 	"tpl/backend_admin_site.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
