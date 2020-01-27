@@ -1572,6 +1572,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			p: count_vars.path     || goatcounter.path,
 			r: count_vars.referrer || goatcounter.referrer,
 			t: count_vars.title    || goatcounter.title,
+			e: count_vars.event    || goatcounter.event,
 		};
 
 		// Save callbacks.
@@ -1694,6 +1695,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			p: count_vars.path     || goatcounter.path,
 			r: count_vars.referrer || goatcounter.referrer,
 			t: count_vars.title    || goatcounter.title,
+			e: count_vars.event    || goatcounter.event,
 		};
 
 		// Save callbacks.

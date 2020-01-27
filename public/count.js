@@ -19,6 +19,7 @@
 			p: count_vars.path     || goatcounter.path,
 			r: count_vars.referrer || goatcounter.referrer,
 			t: count_vars.title    || goatcounter.title,
+			e: count_vars.event    || goatcounter.event,
 		};
 
 		// Save callbacks.
