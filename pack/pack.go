@@ -13834,6 +13834,20 @@ on <code>production.com</code> and not <code>staging.com</code> or
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
 	request from localhost are already ignored</a>.</p>
 
+<h4>Skip own views</h4>
+<p>You can use the same technique as a client-side way to skip loading from your
+own browser:</p>
+
+<pre>&lt;script&gt;
+	if (window.location.hash === '#skipgc')
+		localStorage.setItem('skipgc', 't');
+	if (localstorage.getItem('skipgc') === 't')
+		window.goatcounter = {no_onload: true};
+&lt;/script&gt;
+{{template "code" .}}</pre>
+
+<p>You can also fill in your IP address in the settings.</p>
+
 <h4>Custom path and referrer</h4>
 <pre>&lt;script&gt;
 	window.goatcounter = {
@@ -14308,6 +14322,7 @@ do this 100% reliably.</p>
 
 				<label>Ignore IPs</label>
 				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
+				{{validate "site.settings.ignore_ips" .Validate}}
 				<span>Never count requests coming from these IP addresses.<br>
 					Comma-separated. Only supports exact matches.</span>
 			</fieldset>
