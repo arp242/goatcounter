@@ -14132,7 +14132,7 @@ do this 100% reliably.</p>
 			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
 
-		<a href="#_", class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
+		<a href="#_" class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
 				data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
 		>load more</a>
 	</div>
