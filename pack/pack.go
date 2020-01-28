@@ -1648,13 +1648,9 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 		// Find the tag used to load this script.
 		var script = document.querySelector('script[data-goatcounter]'),
-			endpoint;
+			endpoint = window.counter;  // TODO: temporary compat.
 		if (script)
 			endpoint = script.dataset.goatcounter;
-		else  { // TODO: temporary compat.
-			endpoint = window.counter;
-			dep += 'window.counter';
-		}
 
 		// Don't track private networks.
 		if (location.hostname.match(/localhost$/) ||
