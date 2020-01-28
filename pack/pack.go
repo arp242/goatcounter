@@ -1573,10 +1573,16 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 (function() {
 	'use strict';
 
-	if (window.vars)  // TODO: temporary compatibility.
+	var dep = '';
+
+	if (window.vars) {  // TODO: temporary compatibility.
 		window.goatcounter = window.vars;
-	else if (window.goatcounter && window.goatcounter.vars)
+		dep += 'window.vars';
+	}
+	else if (window.goatcounter && window.goatcounter.vars) {
 		window.goatcounter = window.goatcounter.vars;
+		dep += 'window.goatcounter.vars';
+	}
 	else
 		window.goatcounter = window.goatcounter || {};
 
@@ -1586,8 +1592,9 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			p: count_vars.path     || goatcounter.path,
 			r: count_vars.referrer || goatcounter.referrer,
 			t: count_vars.title    || goatcounter.title,
-			e: count_vars.event    || goatcounter.event,
 		};
+		if (count_vars.event || goatcounter.event)
+			results.e = true;
 
 		// Save callbacks.
 		var rcb, pcb, tcb;
@@ -1644,8 +1651,10 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			endpoint;
 		if (script)
 			endpoint = script.dataset.goatcounter;
-		else  // TODO: temporary compat.
+		else  { // TODO: temporary compat.
 			endpoint = window.counter;
+			dep += 'window.counter';
+		}
 
 		// Don't track private networks.
 		if (location.hostname.match(/localhost$/) ||
@@ -1654,6 +1663,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 		var data = get_data(count_vars || {});
 		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
+		if (dep !== '')
+			data.dep = dep;
 
 		// null returned from user callback.
 		if (data.p === null)
@@ -1696,10 +1707,16 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 (function() {
 	'use strict';
 
-	if (window.vars)  // TODO: temporary compatibility.
+	var dep = 'count.min.js';
+
+	if (window.vars) {  // TODO: temporary compatibility.
 		window.goatcounter = window.vars;
-	else if (window.goatcounter && window.goatcounter.vars)
+		dep += 'window.vars';
+	}
+	else if (window.goatcounter && window.goatcounter.vars) {
 		window.goatcounter = window.goatcounter.vars;
+		dep += 'window.goatcounter.vars';
+	}
 	else
 		window.goatcounter = window.goatcounter || {};
 
@@ -1709,8 +1726,9 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			p: count_vars.path     || goatcounter.path,
 			r: count_vars.referrer || goatcounter.referrer,
 			t: count_vars.title    || goatcounter.title,
-			e: count_vars.event    || goatcounter.event,
 		};
+		if (count_vars.event || goatcounter.event)
+			results.e = true;
 
 		// Save callbacks.
 		var rcb, pcb, tcb;
@@ -1767,8 +1785,10 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			endpoint;
 		if (script)
 			endpoint = script.dataset.goatcounter;
-		else  // TODO: temporary compat.
+		else  { // TODO: temporary compat.
 			endpoint = window.counter;
+			dep += 'window.counter';
+		}
 
 		// Don't track private networks.
 		if (location.hostname.match(/localhost$/) ||
@@ -1777,6 +1797,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 		var data = get_data(count_vars || {});
 		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
+		if (dep !== '')
+			data.dep = dep;
 
 		// null returned from user callback.
 		if (data.p === null)

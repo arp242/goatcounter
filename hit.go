@@ -49,6 +49,9 @@ type Hit struct {
 	Bot         int               `db:"bot"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
+	// Track deprecated stuff from count.js
+	Deprecated string `db:"-" json:"dep"`
+
 	// Tracks referer of the /count request; this is not a statistic, just so we
 	// can get an indication on which domains people are using GoatCounter, to
 	// help track down abuse.

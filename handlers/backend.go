@@ -233,6 +233,10 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Content-Type", "text/plain")
 		return err
 	}
+	if hit.Deprecated != "" {
+		zlog.Module("count-dep").Field("site", site.Code).Print(hit.Deprecated)
+		hit.Deprecated = ""
+	}
 	goatcounter.Memstore.Append(hit)
 
 	w.Header().Set("Content-Type", "image/gif")
