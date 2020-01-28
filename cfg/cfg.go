@@ -27,6 +27,7 @@ var (
 	CertDir      string // Directory to store ACME-generated certificates for custom domains
 	Plan         string // Plan for new installations
 	Debug        string // Modules to debug, comma-separated or 'all' for all modules.
+	TLS          string // Path to TLS certificate and keyfile, as 'certfile:keyfile', which should be a wildcard cert for *.domain. Port 80 will be redirected automatically.
 )
 
 // Set configuration variables from os.Args.
@@ -46,6 +47,7 @@ func Set() {
 	flag.StringVar(&CertDir, "certdir", "", "Directory to store ACME-generated certificates for custom domains")
 	flag.StringVar(&Plan, "plan", "business", "Plan for new installations")
 	flag.StringVar(&Debug, "debug", "", "Modules to debug, comma-separated or 'all' for all modules.")
+	flag.StringVar(&TLS, "tls", "", "Path to TLS certificate and keyfile, as 'certfile:keyfile', which should be a wildcard cert for *.domain. Port 80 will be redirected automatically.")
 	flag.Parse()
 }
 
@@ -66,4 +68,5 @@ func Print() {
 	fmt.Printf("CertDir        %#v\n", CertDir)
 	fmt.Printf("Plan           %#v\n", Plan)
 	fmt.Printf("Debug          %#v\n", Debug)
+	fmt.Printf("TLS            %#v\n", TLS)
 }

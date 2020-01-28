@@ -4,3 +4,4 @@
 /db/*.sqlite3*
 /dist
 /b.sql
+*.pem

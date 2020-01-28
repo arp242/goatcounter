@@ -31,6 +31,7 @@ var flags = []flag{
 	{"string", "CertDir", "certdir", "", "Directory to store ACME-generated certificates for custom domains"},
 	{"string", "Plan", "plan", "business", "Plan for new installations"},
 	{"string", "Debug", "debug", "", "Modules to debug, comma-separated or 'all' for all modules."},
+	{"string", "TLS", "tls", "", "Path to TLS certificate and keyfile, as 'certfile:keyfile', which should be a wildcard cert for *.domain. Port 80 will be redirected automatically."},
 }
 
 type flag struct {

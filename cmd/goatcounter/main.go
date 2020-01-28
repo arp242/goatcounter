@@ -139,7 +139,8 @@ func main() {
 	}
 
 	zlog.Printf("listening on %q; prod: %t", cfg.Listen, cfg.Prod)
-	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(hosts)}, func() {
+
+	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(hosts)}, cfg.TLS, func() {
 		cron.Wait(db)
 		acme.Wait()
 		zlog.ProfileHeap(cfg.MemProfile)
