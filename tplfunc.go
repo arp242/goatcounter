@@ -43,32 +43,96 @@ func init() {
 }
 
 func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
+	site := MustGetSite(ctx)
+
+	now := time.Now().In(site.Settings.Timezone.Loc())
+	_, offset := now.Zone()
+
+	// Round to next hour for TZ offset of 9.5 hours, instead of down.
+	if offset%3600 != 0 {
+		offset += 1900
+	}
+
+	offset /= 3600
+	applyOffset(offset, stats)
+
 	var b strings.Builder
-	now := time.Now().UTC()
 	today := now.Format("2006-01-02")
 	hour := now.Hour()
-	for _, stat := range stats {
+	for i, stat := range stats {
 		for shour, s := range stat.Days {
-			// Don't show stuff in the future.
+			// Don't show stuff in past or future.
+			if i == 0 && shour < offset {
+				continue
+			}
 			if stat.Day == today && shour > hour {
 				break
 			}
-			h := math.Round(float64(s) / float64(max) / 0.01)
 
-			// Double div so that the title is on the entire column, instead
-			// of just the coloured area.
-			// No need to add the inner one if there's no data – saves quite
-			// a bit in the total filesize.
+			// Double div so that the title is on the entire column, instead of
+			// just the coloured area. No need to add the inner one if there's
+			// no data – saves quite a bit in the total filesize.
 			inner := ""
+			h := math.Round(float64(s) / float64(max) / 0.01)
 			if h > 0 {
 				inner = fmt.Sprintf(`<div style="height: %.0f%%;"></div>`, h)
 			}
 			b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
-				stat.Day, shour, zhttp.Tnformat(s, MustGetSite(ctx).Settings.NumberFormat), inner))
+				stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))
 		}
 	}
 
 	return template.HTML(b.String())
+}
+
+// The database stores everything in UTC, so we need to apply
+// the offse.
+//
+// Let's say we have two days with an offset of UTC+2, this means we
+// need to transform this:
+//
+//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
+//    2019-12-06 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
+//    2019-12-07 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//
+// To:
+//
+//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
+//    2019-12-06 → [1,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
+//    2019-12-07 → [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//
+// And skip the first 2 hours of the first day.
+//
+// Or, for UTC-2:
+//
+//    2019-12-04 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//    2019-12-05 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
+//    2019-12-06 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
+//
+// And skip the last 2 hours of the last day.
+//
+// Offsets that are not whole hours (e.g. 6:30) are treated like 6:00. I don't
+// know how to do that otherwise.
+func applyOffset(offset int, stats []Stat) {
+	switch {
+	case offset > 0:
+		popped := make([]int, offset)
+		for i := range stats {
+			stats[i].Days = append(popped, stats[i].Days...)
+			o := len(stats[i].Days) - offset
+			popped = stats[i].Days[o:]
+			stats[i].Days = stats[i].Days[:o]
+		}
+
+	case offset < 0:
+		offset = -offset
+		popped := make([]int, offset)
+		for i := range stats {
+			stats[i].Days = append(stats[i].Days, popped...)
+			popped = stats[i].Days[:offset]
+			stats[i].Days = stats[i].Days[offset:]
+		}
+	}
 }
 
 func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, cutoff float32, link bool) template.HTML {

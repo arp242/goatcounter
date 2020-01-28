@@ -5,10 +5,12 @@
 (function() {
 	'use strict';
 
-	var SETTINGS = {};
+	var SETTINGS = {},
+		CSRF     = '';
 
 	$(document).ready(function() {
-		SETTINGS = JSON.parse($('#settings').html());
+		SETTINGS = JSON.parse($('#js-settings').html());
+		CSRF     = $('#js-csrf').text();
 
 		// Set up error reporting.
 		window.onerror = onerror;
@@ -23,8 +25,24 @@
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker, filter_paths, add_ip,
+			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 		].forEach(function(f) { f.call(); });
+
+		// Set timezone for people who don't have it yet.
+		// TODO: remove after a while, just so that existing people don't have
+		// to manually set it. It's set for new signups automatically.
+		if (SETTINGS.timezone === null) {
+			if (!window.Intl || !window.Intl.DateTimeFormat)
+				return;
+			jQuery.ajax({
+				url:     '/set-tz',
+				method:  'POST',
+				data:    {
+					csrf: CSRF,
+					zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				},
+			});
+		}
 	});
 
 	// Add current IP address ignore_ips.
@@ -48,6 +66,25 @@
 					input.val(current.join(', '));
 				},
 			});
+		});
+	};
+
+	// Set the timezone based on the browser's timezone.
+	var fill_tz = function() {
+		$('#set-local-tz').on('click', function(e) {
+			e.preventDefault();
+
+			// It's hard to reliably get the TZ in JS without this; we can just
+			// get the offset (-480) and perhaps parse the Date string to get
+			// "WITA". Browser support is "good enough" to not bother with
+			// complex workarounds: https://caniuse.com/#search=DateTimeFormat
+			if (!window.Intl || !window.Intl.DateTimeFormat) {
+				alert("Sorry, your browser doesn't support accurate timezone information :-(");
+				return;
+			}
+
+			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			$('#timezone [value$="' + zone + '"]').attr('selected', true);
 		});
 	};
 
@@ -192,7 +229,7 @@
 			jQuery.ajax({
 				url:    '/billing/start',
 				method: 'POST',
-				data:    {csrf: $('#csrf').val(), plan: plan, quantity: quantity},
+				data:    {csrf: CSRF, plan: plan, quantity: quantity},
 				success: function(data) {
 					if (data === '')
 						return location.reload();

@@ -12098,6 +12098,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	var init = function() {
 		setup_imgzoom();
 		fill_code();
+		fill_tz();
 	};
 
 	var setup_imgzoom = function() {
@@ -12105,6 +12106,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		for (var i=0; i<img.length; i++) {
 			img[i].addEventListener('click', function(e) { imgzoom(this); }, false);
 		}
+	};
+
+	var fill_tz = function() {
+		var tz = document.getElementById('timezone');
+		if (!tz || !window.Intl || !window.Intl.DateTimeFormat)
+			return;
+		tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	};
 
 	var fill_code = function() {
@@ -12151,10 +12159,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 (function() {
 	'use strict';
 
-	var SETTINGS = {};
+	var SETTINGS = {},
+		CSRF     = '';
 
 	$(document).ready(function() {
-		SETTINGS = JSON.parse($('#settings').html());
+		SETTINGS = JSON.parse($('#js-settings').html());
+		CSRF     = $('#js-csrf').text();
 
 		// Set up error reporting.
 		window.onerror = onerror;
@@ -12169,8 +12179,24 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker, filter_paths, add_ip,
+			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 		].forEach(function(f) { f.call(); });
+
+		// Set timezone for people who don't have it yet.
+		// TODO: remove after a while, just so that existing people don't have
+		// to manually set it. It's set for new signups automatically.
+		if (SETTINGS.timezone === null) {
+			if (!window.Intl || !window.Intl.DateTimeFormat)
+				return;
+			jQuery.ajax({
+				url:     '/set-tz',
+				method:  'POST',
+				data:    {
+					csrf: CSRF,
+					zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				},
+			});
+		}
 	});
 
 	// Add current IP address ignore_ips.
@@ -12194,6 +12220,25 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					input.val(current.join(', '));
 				},
 			});
+		});
+	};
+
+	// Set the timezone based on the browser's timezone.
+	var fill_tz = function() {
+		$('#set-local-tz').on('click', function(e) {
+			e.preventDefault();
+
+			// It's hard to reliably get the TZ in JS without this; we can just
+			// get the offset (-480) and perhaps parse the Date string to get
+			// "WITA". Browser support is "good enough" to not bother with
+			// complex workarounds: https://caniuse.com/#search=DateTimeFormat
+			if (!window.Intl || !window.Intl.DateTimeFormat) {
+				alert("Sorry, your browser doesn't support accurate timezone information :-(");
+				return;
+			}
+
+			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			$('#timezone [value$="' + zone + '"]').attr('selected', true);
 		});
 	};
 
@@ -12338,7 +12383,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			jQuery.ajax({
 				url:    '/billing/start',
 				method: 'POST',
-				data:    {csrf: $('#csrf').val(), plan: plan, quantity: quantity},
+				data:    {csrf: CSRF, plan: plan, quantity: quantity},
 				success: function(data) {
 					if (data === '')
 						return location.reload();
@@ -12988,7 +13033,7 @@ footer a { font-weight: bold; color: #252525; }
 #trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
 
-#settings { display: none; }
+#js-settings, #js-csrf { display: none; }
 
 .page, .center {
 	/* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
@@ -13203,6 +13248,8 @@ form .err  { color: red; display: block; }
 
 fieldset { margin-bottom: 1em; border: 1px solid #666; }
 legend   { font-weight: bold; }
+
+select#timezone { max-width: 20rem; }
 
 .active { font-weight: bold; text-decoration: underline; }
 
@@ -13853,7 +13900,8 @@ var Templates = map[string][]byte{
 				know</a> if you have any questions or comments.</p>
 		</div>
 	{{end}}
-	<span id="settings">{{.Site.Settings.String | unsafe_js}}</span>
+	<span id="js-settings">{{.Site.Settings.String | unsafe_js}}</span>
+	{{if .User.ID}}<span id="js-csrf">{{.User.CSRFToken}}</span>{{end}}
 	<script crossorigin="anonymous" src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
@@ -14540,6 +14588,14 @@ parent site includes the child sites.</p>
 				</select>
 				{{validate "settings.number_format" .Validate}}
 
+				<label for="timezone">Timezone</label>
+				<select name="settings.timezone" id="timezone">
+					{{range $tz := .Timezones}}<option data-abbr="{{$tz.Abbr}}" {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
+					{{end}}
+				</select>
+				{{validate "settings.timezone" .Validate}}
+				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
+
 				<label for="limits_page">Page size</label>
 				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
 				{{validate "settings.limits.page" .Validate}}
@@ -15206,6 +15262,7 @@ information.</p>
 			</div>
 		</fieldset>
 
+		<input type="hidden" name="timezone" id="timezone">
 		<button type="submit">Sign up</button>
 	</form>
 

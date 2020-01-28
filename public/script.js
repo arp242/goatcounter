@@ -6,6 +6,7 @@
 	var init = function() {
 		setup_imgzoom();
 		fill_code();
+		fill_tz();
 	};
 
 	var setup_imgzoom = function() {
@@ -13,6 +14,13 @@
 		for (var i=0; i<img.length; i++) {
 			img[i].addEventListener('click', function(e) { imgzoom(this); }, false);
 		}
+	};
+
+	var fill_tz = function() {
+		var tz = document.getElementById('timezone');
+		if (!tz || !window.Intl || !window.Intl.DateTimeFormat)
+			return;
+		tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	};
 
 	var fill_code = function() {

@@ -89,6 +89,14 @@
 				</select>
 				{{validate "settings.number_format" .Validate}}
 
+				<label for="timezone">Timezone</label>
+				<select name="settings.timezone" id="timezone">
+					{{range $tz := .Timezones}}<option data-abbr="{{$tz.Abbr}}" {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
+					{{end}}
+				</select>
+				{{validate "settings.timezone" .Validate}}
+				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
+
 				<label for="limits_page">Page size</label>
 				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
 				{{validate "settings.limits.page" .Validate}}
