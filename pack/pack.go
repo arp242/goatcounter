@@ -548,8 +548,6 @@ commit;
 `),
 	"db/migrate/pgsql/2020-01-27-2-rm-count-ref.sql": []byte(`begin;
 	-- https://www.depesz.com/2016/06/14/incrementing-counters-in-database/
-	-- - Just insert new row to count.
-	-- - Cron job merges all of them every 30 mins or so
 	drop table if exists usage;
 	create table usage (
 		site           integer        not null                 check(site > 0),

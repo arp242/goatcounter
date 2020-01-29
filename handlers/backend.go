@@ -212,10 +212,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	hit := goatcounter.Hit{
-		Site:      site.ID,
-		Browser:   r.UserAgent(),
-		Location:  geo(r.RemoteAddr),
-		CreatedAt: time.Now().UTC(),
+		Site:        site.ID,
+		Browser:     r.UserAgent(),
+		Location:    geo(r.RemoteAddr),
+		UsageDomain: r.Referer(),
+		CreatedAt:   time.Now().UTC(),
 	}
 	if user_agent.New(r.UserAgent()).Bot() {
 		hit.Bot = 1
@@ -387,17 +388,22 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(400, "not implemented in SQLite yet")
 	}
 
+	l := zlog.Module("admin")
+
 	var a goatcounter.AdminStats
 	err := a.List(r.Context(), r.URL.Query().Get("order"))
 	if err != nil {
 		return err
 	}
+	l = l.Since("AdminStats")
 
 	var usage goatcounter.AdminUsages
 	err = usage.List(r.Context())
 	if err != nil {
 		return err
 	}
+	l = l.Since("AdminUsages")
+	l.FieldsSince().Debug("admin")
 
 	return zhttp.Template(w, "backend_admin.gohtml", struct {
 		Globals

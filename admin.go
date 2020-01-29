@@ -133,8 +133,9 @@ type AdminUsages []AdminUsage
 
 func (a *AdminUsages) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, `
-		select site, domain, count from usage
+		select site, domain, sum(count) as count from usage
 		where vetted=0 and count>5000
+		group by site, domain
 		order by count desc`),
 		"AdminUsage")
 }

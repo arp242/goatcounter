@@ -49,11 +49,9 @@ type Hit struct {
 	Bot         int               `db:"bot"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
-	// Track deprecated stuff from count.js
-	Deprecated string `db:"-" json:"dep"`
-
-	// Parsed Ref
-	RefURL *url.URL `db:"-"`
+	Deprecated  string   `db:"-" json:"dep"` // Track deprecated stuff from count.js
+	RefURL      *url.URL `db:"-"`            // Parsed Ref
+	UsageDomain string   `db:"-"`            // Track referrer for usage.
 }
 
 var groups = map[string]string{
