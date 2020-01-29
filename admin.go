@@ -63,6 +63,7 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 		left join users on users.site=coalesce(sites.parent, sites.id)
 		where hits.created_at >= now() - interval '30 days'
 		group by sites.id, sites.code, sites.name, sites.created_at, users.name, users.email, public, plan
+		having count(*) > 1000
 		order by %s desc`, js, order))
 	if err != nil {
 		return errors.Wrap(err, "AdminStats.List")

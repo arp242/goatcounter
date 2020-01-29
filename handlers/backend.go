@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -395,21 +396,49 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	l = l.Since("AdminStats")
+	l = l.Since("stats")
 
 	var usage goatcounter.AdminUsages
 	err = usage.List(r.Context())
 	if err != nil {
 		return err
 	}
-	l = l.Since("AdminUsages")
-	l.FieldsSince().Debug("admin")
+	l = l.Since("usages")
 
+	var sites goatcounter.Sites
+	err = sites.List(r.Context())
+	if err != nil {
+		return err
+	}
+	grouped := make(map[string]int) // day → count
+	for _, s := range sites {
+		grouped[s.CreatedAt.Format("2006-01-02")]++
+	}
+
+	var (
+		signups    []goatcounter.Stat
+		maxSignups int
+	)
+	for k, v := range grouped {
+		if v > maxSignups {
+			maxSignups = v
+		}
+		signups = append(signups, goatcounter.Stat{Day: k, Days: []int{v}})
+	}
+	sort.Slice(signups, func(i, j int) bool {
+		return signups[i].Day < signups[j].Day
+	})
+
+	l = l.Since("signups")
+
+	l.FieldsSince().Debug("admin")
 	return zhttp.Template(w, "backend_admin.gohtml", struct {
 		Globals
-		Stats goatcounter.AdminStats
-		Usage goatcounter.AdminUsages
-	}{newGlobals(w, r), a, usage})
+		Stats      goatcounter.AdminStats
+		Signups    []goatcounter.Stat
+		MaxSignups int
+		Usage      goatcounter.AdminUsages
+	}{newGlobals(w, r), a, signups, maxSignups, usage})
 }
 
 func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {

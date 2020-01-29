@@ -14250,6 +14250,8 @@ do this 100% reliably.</p>
 <p><a href="/debug/pprof">pprof</a></p>
 
 <h2>Sites</h2>
+<p>All sites with at least 1,000 hits in the last 30 days; the counts for the
+parent site includes the child sites.</p>
 <table>
 	<tr>
 		<th>ID</th>
@@ -14281,6 +14283,11 @@ do this 100% reliably.</p>
 		</tr>
 	{{end}}
 </table>
+
+<h2>Signups</h2>
+<div class="chart chart-bar">
+{{bar_chart $.Context .Signups .MaxSignups}}
+</div>
 
 <h2>Usage</h2>
 <table>
