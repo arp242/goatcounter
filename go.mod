@@ -7,18 +7,18 @@ require (
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.3.0
-	github.com/mattn/go-sqlite3 v2.0.2+incompatible
+	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/monoculum/formam v0.0.0-20191229172733-952f0766a724
-	github.com/mssola/user_agent v0.5.0
+	github.com/mssola/user_agent v0.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.3.0
 	zgo.at/utils v1.3.1
-	zgo.at/zdb v0.0.0-20200114054604-cb5410b595af
+	zgo.at/zdb v0.0.0-20200125154831-aafd6e7fe5e8
 	zgo.at/zhttp v0.0.0-20200129021758-94e88bdf5b72
 	zgo.at/zlog v1.0.9
 	zgo.at/zpack v1.0.0
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v1.0.1
-	zgo.at/zvalidate v1.1.1-0.20200129073825-7df7dee1592c
+	zgo.at/zvalidate v1.2.0
 )
