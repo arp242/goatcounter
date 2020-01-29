@@ -122,10 +122,10 @@ func (h website) signup(w http.ResponseWriter, r *http.Request) error {
 		MetaDesc   string
 		Site       goatcounter.Site
 		User       goatcounter.User
-		Validate   map[string][]string
+		Validate   *zvalidate.Validator
 		TuringTest string
 	}{newGlobals(w, r), "signup", "Sign up for GoatCounter", goatcounter.Site{},
-		goatcounter.User{}, map[string][]string{}, ""})
+		goatcounter.User{}, nil, ""})
 }
 
 type signupArgs struct {
@@ -185,9 +185,9 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 			MetaDesc   string
 			Site       goatcounter.Site
 			User       goatcounter.User
-			Validate   map[string][]string
+			Validate   *zvalidate.Validator
 			TuringTest string
-		}{newGlobals(w, r), "signup", "Sign up for GoatCounter", site, user, v.Errors, args.TuringTest})
+		}{newGlobals(w, r), "signup", "Sign up for GoatCounter", site, user, &v, args.TuringTest})
 	}
 
 	err = tx.Commit()

@@ -81,3 +81,5 @@ zgo.at/zvalidate v1.0.0 h1:glc7tbq3X2EyPEQf00N6HgsWCVDlJkNLvdRbBBOrhs4=
 zgo.at/zvalidate v1.0.0/go.mod h1:3w++OX5k3nkvwwf7OkdYnjpzF+U4OGJ5xmP7SphmUuk=
 zgo.at/zvalidate v1.1.0 h1:cc+toj0DZ3zL4bOp6FambUgCEfhQiJ95+VR3kK+mYOs=
 zgo.at/zvalidate v1.1.0/go.mod h1:3w++OX5k3nkvwwf7OkdYnjpzF+U4OGJ5xmP7SphmUuk=
+zgo.at/zvalidate v1.1.1-0.20200129073825-7df7dee1592c h1:rXGJI9Oq62bh7lZ+KqiDrMHyPrHjVsgBoUBgD3hwXWE=
+zgo.at/zvalidate v1.1.1-0.20200129073825-7df7dee1592c/go.mod h1:3NddX3R32A538Bd5kmixLlbgxm/eHNxN+mlpGtmx5Mo=

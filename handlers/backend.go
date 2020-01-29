@@ -662,16 +662,11 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		return err
 	}
 
-	var merr map[string][]string
-	if verr != nil {
-		merr = verr.Errors
-	}
-
 	return zhttp.Template(w, "backend_settings.gohtml", struct {
 		Globals
 		SubSites goatcounter.Sites
-		Validate map[string][]string
-	}{newGlobals(w, r), sites, merr})
+		Validate *zvalidate.Validator
+	}{newGlobals(w, r), sites, verr})
 }
 
 func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {

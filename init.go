@@ -18,6 +18,7 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
+	"zgo.at/zvalidate"
 )
 
 func init() {
@@ -28,6 +29,9 @@ func init() {
 	zhttp.FuncMap["beforeSize"] = func(createdAt time.Time) bool { return createdAt.Before(ss) }
 	zhttp.FuncMap["beforeLoc"] = func(createdAt time.Time) bool { return createdAt.Before(sl) }
 	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
+
+	zhttp.FuncMap["validate"] = zvalidate.TemplateError
+	zhttp.FuncMap["has_errors"] = zvalidate.TemplateHasErrors
 
 	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) string {
 		var s Site
@@ -41,18 +45,6 @@ func init() {
 
 	zhttp.FuncMap["nformat2"] = func(n int, s Site) string {
 		return zhttp.FuncMap["nformat"].(func(int, rune) string)(n, s.Settings.NumberFormat)
-	}
-
-	zhttp.FuncMap["validate"] = func(k string, v map[string][]string) template.HTML {
-		if v == nil {
-			return template.HTML("")
-		}
-		e, ok := v[k]
-		if !ok {
-			return template.HTML("")
-		}
-		return template.HTML(fmt.Sprintf(`<span class="err">Error: %s</span>`,
-			template.HTMLEscapeString(strings.Join(e, ", "))))
 	}
 
 	// Implemented as function for performance.

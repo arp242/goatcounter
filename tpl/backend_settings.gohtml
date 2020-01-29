@@ -100,6 +100,12 @@
 			<div class="flex-break"></div>
 			<button type="submit">Save</button>
 		</form>
+
+		{{if has_errors .Validate}}
+			<div class="flash flash-e"
+				style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
+			Additional errors:{{.Validate.HTML}}</div>
+		{{end}}
 	</div>
 </div>
 

@@ -1146,7 +1146,6 @@ commit;
 
 		foreign key (site) references sites(id) on delete restrict on update restrict
 	);
-	create unique index "usage#site#domain" on usage(site, domain);
 
 	create table hits2 (
 		site           integer        not null                 check(site > 0),
@@ -1169,7 +1168,6 @@ commit;
 	insert into hits2 select site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
-
 
 	insert into version values ('2020-01-27-2-rm-count-ref');
 commit;
@@ -14466,6 +14464,12 @@ parent site includes the child sites.</p>
 			<div class="flex-break"></div>
 			<button type="submit">Save</button>
 		</form>
+
+		{{if has_errors .Validate}}
+			<div class="flash flash-e"
+				style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
+			Additional errors:{{.Validate.HTML}}</div>
+		{{end}}
 	</div>
 </div>
 
@@ -15112,6 +15116,12 @@ information.</p>
 
 		<button type="submit">Sign up</button>
 	</form>
+
+	{{if has_errors .Validate}}
+		<div class="flash flash-e"
+				style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
+		Additional errors:{{.Validate.HTML}}</div>
+	{{end}}
 </div>
 
 {{template "_bottom.gohtml" .}}

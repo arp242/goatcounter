@@ -20,5 +20,5 @@ require (
 	zgo.at/zpack v1.0.0
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v1.0.1
-	zgo.at/zvalidate v1.1.0
+	zgo.at/zvalidate v1.1.1-0.20200129073825-7df7dee1592c
 )
