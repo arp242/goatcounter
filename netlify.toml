@@ -10,3 +10,8 @@
 	for = "/*"
 	[headers.values]
 		Access-Control-Allow-Origin = "*"
+
+# count.min.js no longer exists, so just redirect to count.js
+[[redirects]]
+  from = "/count.min.js"
+  to   = "/count.js"
