@@ -44,7 +44,8 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),
 		addctx(db, true),
-		middleware.RedirectSlashes)
+		middleware.RedirectSlashes,
+		zhttp.WrapWriter)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
