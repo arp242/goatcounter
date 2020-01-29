@@ -17,16 +17,17 @@ import (
 )
 
 type AdminStat struct {
-	ID        int64     `db:"id"`
-	Parent    *int64    `db:"parent"`
-	Code      string    `db:"code"`
-	Name      string    `db:"name"`
-	User      string    `db:"user"`
-	Email     string    `db:"email"`
-	Public    bool      `db:"public"`
-	CreatedAt time.Time `db:"created_at"`
-	Plan      string    `db:"plan"`
-	Count     int       `db:"count"`
+	ID         int64     `db:"id"`
+	Parent     *int64    `db:"parent"`
+	Code       string    `db:"code"`
+	Name       string    `db:"name"`
+	LinkDomain string    `db:"link_domain"`
+	User       string    `db:"user"`
+	Email      string    `db:"email"`
+	Public     bool      `db:"public"`
+	CreatedAt  time.Time `db:"created_at"`
+	Plan       string    `db:"plan"`
+	Count      int       `db:"count"`
 }
 
 type AdminStats []AdminStat
@@ -52,6 +53,7 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			sites.name,
 			sites.created_at,
 			sites.plan,
+			sites.link_domain,
 			users.name as user,
 			users.email,
 			%s as public,
@@ -121,19 +123,19 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 	return errors.Wrap(err, "AdminSiteStats.ByID")
 }
 
-type AdminCountRef struct {
-	Site     int64  `db:"site"`
-	CountRef string `db:"count_ref"`
-	Count    int    `db:"count"`
+type AdminUsage struct {
+	Site   int64  `db:"site"`
+	Domain string `db:"domain"`
+	Count  int    `db:"count"`
 }
 
-type AdminCountRefs []AdminCountRef
+type AdminUsages []AdminUsage
 
-func (a *AdminCountRefs) List(ctx context.Context) error {
+func (a *AdminUsages) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, `
-		select site, count_ref, count(*) as count from hits
-		where count_ref != ''
-		group by site, count_ref
-		having count(*)>100
-		order by count desc`), "AdminCountRefs")
+		select site, domain, sum(count) as count from usage
+		where vetted=0 and count>5000
+		group by site, domain
+		order by count desc`),
+		"AdminUsage")
 }

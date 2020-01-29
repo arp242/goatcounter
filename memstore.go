@@ -48,8 +48,10 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 
 	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
-			"ref_scheme", "browser", "size", "location", "created_at", "count_ref",
-			"bot", "title"})
+			"ref_scheme", "browser", "size", "location", "created_at", "bot",
+			"title"})
+	usage := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
+		"usage", []string{"site", "domain", "count"})
 	for i, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
@@ -71,17 +73,16 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		// generation later.
 		hits[i] = h
 
-		countRef := h.CountRef
-		if countRef != "" {
-			u, _ := url.Parse(countRef)
-			if u != nil {
-				countRef = u.Host
-			}
-		}
-
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
-			h.RefScheme, h.Browser, h.Size, h.Location, h.CreatedAt.Format(zdb.Date),
-			countRef, h.Bot, h.Title)
+			h.RefScheme, h.Browser, h.Size, h.Location,
+			h.CreatedAt.Format(zdb.Date), h.Bot, h.Title)
+
+		usage.Values(h.Site, h.UsageDomain, 1)
+	}
+
+	err := usage.Finish()
+	if err != nil {
+		zlog.Error(err)
 	}
 
 	return hits, ins.Finish()
