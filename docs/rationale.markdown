@@ -9,7 +9,7 @@ tl;dr ("elevator pitch"):
 > hosted but with problematic privacy (Google Analytics), hosting your own
 > complex software or paying $19/month (Matomo), or extremely simplistic "vanity
 > statistics" (Fathom).
-> 
+>
 > GoatCounter attempts to strike a good balance between various interests.
 > Major features include a free hosted version so people can easily add
 > analytics to their personal website, an easy to run hosted option, an
@@ -60,10 +60,25 @@ Goals
 
 - Works well with any browser and assistive technology, whenever possible.
 
-- Free or very cheap hosted version. Almost all hosted solutions are exclusively
-  oriented towards business use. This makes sense from a business point of view
-  (better to support 100 customers paying $30 each than 1000 paying $3 each),
-  but it does leave a lot of people without a good/affordable solution.
+- Free hosted version. Almost all hosted solutions are exclusively oriented
+  towards business use. This makes sense from a business point of view (better
+  to support 100 customers paying $30 each than 1000 paying $3 each), but it
+  does leave a lot of people without a good/affordable solution.
+
+  I think it’s important to make software like this as accessible as feasible to
+  make actual meaningful inroads to “de-Google-fi” the internet a bit, and make
+  pervasive tracking less common. Making it freely available (for personal use)
+  is part of that. In my own online purchasing behaviour I find that even a
+  small $1 or $2 subscription is quite a barrier, especially for personal
+  projects. From what I see, I don’t think my behaviour is an outlier.
+
+  The only other options you have are to use GA, pay upwards of $10/month, or
+  self-host – which also isn't free in terms of hosting costs, setup time,
+  maintenance, etc. Never mind that Average Joe running his photography website
+  probably doesn't have the know-how.
+
+  If you want to make the internet a bit better, then the only real option is to
+  offer a SaaS for free, at least for personal use.
 
 - Easy to run your own. `go install zgo.at/goatcounter` should be all you need
   to get started. No need to set up web servers, PHP, MySQL databases,
@@ -89,7 +104,7 @@ Existing solutions
 
 - Not "true" open source but "open core", although most premium features aren't
   really required for most users.
- 
+
 ### Fathom
 
 - Open version is no longer maintained in favour of a complete (closed source)
@@ -215,7 +230,7 @@ solutions that's free or charge.
 
 #### statcounter
 
-- Cheapest plan is $9/month (the "free" one is 
+- Cheapest plan is $9/month (the "free" one is
 
 - Lacks per-page referal view. Various UX items seem clunky.
 
