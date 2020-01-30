@@ -14585,7 +14585,9 @@ parent site includes the child sites.</p>
 `),
 	"tpl/billing.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
-{{if and .Site.Stripe .Subscribed}}
+{{if .Site.Parent}}
+	<p>Please manage the billing at the parent site: <a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}/billing</a></p>
+{{else if and .Site.Stripe .Subscribed}}
 	{{if .FreePlan}}
 		<p>Currently using the <em>Personal free</em> plan for non-commercial usage.</p>
 	{{else}}
