@@ -450,14 +450,20 @@ func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(400, "not implemented in SQLite yet")
 	}
 
+	var code string
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
-		return v
+		code = chi.URLParam(r, "id")
 	}
 
 	var a goatcounter.AdminSiteStat
-	err := a.ByID(r.Context(), id)
+	var err error
+	if id > 0 {
+		err = a.ByID(r.Context(), id)
+	} else {
+		err = a.ByCode(r.Context(), code)
+	}
 	if err != nil {
 		return err
 	}

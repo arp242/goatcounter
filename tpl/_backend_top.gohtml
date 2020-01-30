@@ -27,6 +27,8 @@
 					<strong><a href="/settings#tab-additional-sites">← Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
 					<strong><a href="/settings#tab-purge">← Back</a></strong>
+				{{else if has_prefix .Path "/admin/"}}
+					<strong><a href="/admin">← Back</a></strong>
 				{{else}}
 					<strong><a href="/">← Back</a></strong>
 				{{end}}

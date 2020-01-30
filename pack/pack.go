@@ -14054,6 +14054,8 @@ do this 100% reliably.</p>
 					<strong><a href="/settings#tab-additional-sites">← Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
 					<strong><a href="/settings#tab-purge">← Back</a></strong>
+				{{else if has_prefix .Path "/admin/"}}
+					<strong><a href="/admin">← Back</a></strong>
 				{{else}}
 					<strong><a href="/">← Back</a></strong>
 				{{end}}
@@ -14320,7 +14322,13 @@ parent site includes the child sites.</p>
 	<tr><td>Total</td><td>{{nformat2 .Stat.CountTotal $.Site}}</td></tr>
 	<tr><td>Last month</td><td>{{nformat2 .Stat.CountLastMonth $.Site}}</td></tr>
 	<tr><td>Previous month</td><td>{{nformat2 .Stat.CountPrevMonth $.Site}}</td></tr>
-	</tr>
+	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
+</table>
+
+<table>
+	{{range $s := .Stat.Usage}}
+		<tr><td>{{nformat2 $s.Count $.Site}}</td><td>{{$s.Domain}}</td></tr>
+	{{end}}
 </table>
 
 <pre>{{pp .Stat.Site}}</pre>

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 )
@@ -82,11 +83,13 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 }
 
 type AdminSiteStat struct {
-	Site           Site `db:"-"`
-	User           User `db:"-"`
-	CountTotal     int  `db:"count_total"`
-	CountLastMonth int  `db:"count_last_month"`
-	CountPrevMonth int  `db:"count_prev_month"`
+	Site           Site        `db:"-"`
+	User           User        `db:"-"`
+	Usage          AdminUsages `db:"-"`
+	LastData       time.Time   `db:"last_data"`
+	CountTotal     int         `db:"count_total"`
+	CountLastMonth int         `db:"count_last_month"`
+	CountPrevMonth int         `db:"count_prev_month"`
 }
 
 // ByID gets stats for a single site.
@@ -101,8 +104,14 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 		return err
 	}
 
+	err = a.Usage.BySite(ctx, id)
+	if err != nil {
+		return err
+	}
+
 	err = zdb.MustGet(ctx).GetContext(ctx, a, `
 		select
+			(select created_at from hits where site=$1 order by created_at desc limit 1) as last_data,
 			(select count(*) from hits where site=$1) as count_total,
 			(select count(*) from hits where site=$1
 				and created_at >= now() - interval '30 days') as count_last_month,
@@ -111,8 +120,16 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 				and created_at <= now() - interval '30 days'
 			) as count_prev_month
 		`, id)
-
 	return errors.Wrap(err, "AdminSiteStats.ByID")
+}
+
+// ByCode gets stats for a single site.
+func (a *AdminSiteStat) ByCode(ctx context.Context, code string) error {
+	err := a.Site.ByHost(ctx, code+"."+cfg.Domain)
+	if err != nil {
+		return err
+	}
+	return a.ByID(ctx, a.Site.ID)
 }
 
 type AdminUsage struct {
@@ -130,5 +147,15 @@ func (a *AdminUsages) List(ctx context.Context) error {
 		group by site, domain
 		having sum(count)>5000
 		order by count desc`),
+		"AdminUsage")
+}
+
+// BySite gets usage for one site.
+func (a *AdminUsages) BySite(ctx context.Context, id int64) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, `
+		select site, domain, sum(count) as count from usage
+		where site=$1
+		group by site, domain
+		order by count desc`, id),
 		"AdminUsage")
 }
