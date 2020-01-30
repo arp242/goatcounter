@@ -12269,6 +12269,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		form.on('submit', function(e) {
 			e.preventDefault();
+
+			if (typeof(Stripe) === 'undefined') {
+				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
+					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
+				return;
+			}
+
 			form.find('button').attr('disabled', true).text('Redirecting...');
 
 			var err = function(e) { $('#stripe-error').text(e); },
