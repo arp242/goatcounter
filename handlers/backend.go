@@ -47,6 +47,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 		zhttp.Unpanic(cfg.Prod),
 		addctx(db, true),
 		middleware.RedirectSlashes,
+		zhttp.NoStore,
 		zhttp.WrapWriter)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
@@ -193,7 +194,6 @@ func (h backend) status() func(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
-	w.Header().Set("Cache-Control", "no-store,no-cache")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// Don't track pages fetched with the browser's prefetch algorithm.
