@@ -14084,7 +14084,7 @@ do this 100% reliably.</p>
 
 	{{template "_bottom_links.gohtml" .}}
 
-	<script data-goatcounter="http://goatcounter.goatcounter.com/count"
+	<script data-goatcounter="https://goatcounter.goatcounter.com/count"
 	        async src="//gc.zgo.at/count.js"></script>
 
 	{{if .Billing}}
