@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 )
@@ -27,16 +28,27 @@ var (
 func StartTest(t *testing.T) (context.Context, func()) {
 	t.Helper()
 
-	db, err := sqlx.Connect("sqlite3", ":memory:")
+	var (
+		db  *sqlx.DB
+		err error
+	)
+
+	if cfg.PgSQL {
+		db, err = sqlx.Connect("postgres", "dbname=goatcounter_test sslmode=disable password=x")
+	} else {
+		db, err = sqlx.Connect("sqlite3", ":memory:")
+	}
 	if err != nil {
 		t.Fatal(err)
+	}
+	if cfg.PgSQL {
+		cleanpg(t, db)
 	}
 
 	top, err := os.Getwd()
 	if err != nil {
 		panic(fmt.Sprintf("cannot get cwd: %s", err))
 	}
-
 	for {
 		if filepath.Base(top) == "goatcounter" {
 			break
@@ -49,8 +61,15 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		}
 	}
 
+	schemapath := top + "/db/schema.sql"
+	migratepath := top + "/db/migrate/sqlite"
+	if cfg.PgSQL {
+		schemapath = top + "/db/schema.pgsql"
+		migratepath = top + "/db/migrate/pgsql"
+	}
+
 	if schema == "" {
-		s, err := ioutil.ReadFile(top + "/db/schema.sql")
+		s, err := ioutil.ReadFile(schemapath)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -60,7 +79,7 @@ func StartTest(t *testing.T) (context.Context, func()) {
 			t.Fatal(err)
 		}
 
-		migs, err := ioutil.ReadDir(top + "/db/migrate/sqlite")
+		migs, err := ioutil.ReadDir(migratepath)
 		if err != nil {
 			t.Fatalf("read migration directory: %s", err)
 		}
@@ -75,7 +94,7 @@ func StartTest(t *testing.T) (context.Context, func()) {
 				continue
 			}
 
-			mb, err := ioutil.ReadFile(fmt.Sprintf("%s/db/migrate/sqlite/%s", top, m.Name()))
+			mb, err := ioutil.ReadFile(fmt.Sprintf("%s/%s", migratepath, m.Name()))
 			if err != nil {
 				t.Fatalf("read migration: %s", err)
 			}
@@ -95,8 +114,13 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		}
 	}
 
-	_, err = db.Exec(`insert into sites (code, name, plan, settings, created_at) values
-		('test', 'example.com', 'personal', '{}', datetime());`)
+	now := `datetime()`
+	if cfg.PgSQL {
+		now = `now()`
+	}
+
+	_, err = db.Exec(fmt.Sprintf(`insert into sites (code, name, plan, settings, created_at) values
+		('test', 'example.com', 'personal', '{}', %s);`, now))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,5 +129,21 @@ func StartTest(t *testing.T) (context.Context, func()) {
 	ctx = context.WithValue(ctx, ctxkey.Site, &Site{ID: 1})
 	ctx = context.WithValue(ctx, ctxkey.User, &User{ID: 1, Site: 1})
 
-	return ctx, func() { db.Close() }
+	return ctx, func() {
+		if cfg.PgSQL {
+			cleanpg(t, db)
+		}
+		db.Close()
+	}
+}
+
+func cleanpg(t *testing.T, db *sqlx.DB) {
+	_, err := db.Exec("drop schema public cascade;")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = db.Exec("create schema public;")
+	if err != nil {
+		t.Fatal(err)
+	}
 }

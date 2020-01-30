@@ -1,6 +1,12 @@
 language: go
 go:
   - '1.13.x'
+services:
+  - 'postgresql'
+# GoatCounter.com actually runs on 12.1, but this is the latest version that
+# seems easily installable on Travis.
+addons:
+  postgresql: '10'
 go_import_path: 'zgo.at/goatcounter'
 env:
   - 'GO111MODULE=on'
@@ -15,6 +21,7 @@ before_cache:
 script:
   - 'go vet ./...'
   - 'go generate ./... && [ $(git status -s | wc -l) -gt 1 ] && git diff && exit 1 || true'
-  - 'go test -race -coverprofile=coverage.txt -coverpkg=./... ./...'
+  - 'go test              -race -coverprofile=coverage.txt -coverpkg=./... ./...'
+  - 'go test -tags=testpg -race -coverprofile=coverage.txt -coverpkg=./... ./...'
 after_success:
   - 'bash <(curl -s https://codecov.io/bash)'

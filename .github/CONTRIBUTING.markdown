@@ -47,7 +47,8 @@ General notes
   restart on recompile, and reload templates once they change (no restart
   required).
 
-- Tests can be run with `go test ./...`; nothing special needed.
+- Tests can be run with `go test ./...`; nothing special needed. You can run
+  tests against PostgreSQL (instead of SQLite) with `go test -tags=testpg ./...`
 
 - Run `go generate ./...` before committing; this will generate the
   `pack/pack.go` file, which contains all the static resources for production
