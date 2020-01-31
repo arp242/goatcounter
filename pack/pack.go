@@ -1325,7 +1325,7 @@ form {
   padding: 0;
 }
 .link {
-  background-color: transparent;
+  background: transparent;
   border: none;
   outline: none;
   margin: 0;
