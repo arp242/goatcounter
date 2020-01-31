@@ -1194,7 +1194,7 @@ aside {
     text-align: left;
     background-color: #f7f7f7;
     padding: .4em 2em;
-    border: 1px solid #b7b7b7;
+    border: 1px solid #aaa;
     hyphens: none;
   }
 }
@@ -1367,7 +1367,7 @@ figure {
   margin: 1rem 0;
 }
 figure.border {
-  border: 1px solid #bbb;
+  border: 1px solid #aaa;
   padding: 5px;
   margin: -5px;
 }
@@ -1507,24 +1507,49 @@ input[type="range"],
 input[type="number"],
 textarea,
 select {
-  font: 1rem/100% sans-serif;
-  padding: .3em .2em;
+  font: 1em/100% sans-serif;
+}
+textarea,
+button,
+select,
+input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]) {
+  padding: .6em;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+}
+form span { padding-left: .2em; }
+textarea:focus,
+input:focus,
+select:focus,
+button:focus {
+  outline: 1px solid #00f;
+  box-shadow: 0 0 .2em #00f;
 }
 textarea {
   width: 100%;
   height: 10rem;
   line-height: 130%;
 }
+button, input[type="submit"] {
+  margin-left: .5em;
+  padding: .6em 1.5em;
+  background-color: #f6f5f4;
+  background: linear-gradient(#f6f5f4, #edebe9);
+  border: .5px outset #e9e9e9;
+  border-radius: 3px;
+  border-top-color: #ccc;
+  border-left-color: #ccc;
+}
+select {
+	background-color: inherit;
+}
 form > strong, fieldset > strong {
   display: inline-block;
   margin-top: .5em;
 }
-/* ... why?
-form > div, fieldset > div {
-  float: left;
-  margin-right: 1em;
+fieldset {
+  border: 1px solid #aaa;
 }
-*/
 .vertical input[type="text"],
 .vertical input[type="search"],
 .vertical input[type="tel"],
@@ -1547,7 +1572,7 @@ form > div, fieldset > div {
   min-width: 10rem;
   width: 10rem;
 }
-.vertical label  {
+.vertical label {
   display: block;
   margin-top: .5em;
 }
@@ -1557,10 +1582,19 @@ form.horizontal {
   justify-content: space-between;
 }
 form.horizontal label {
-  width: 25%;
+  width: 30%;
 }
-form.horizontal input {
-  width: 75%;
+form.horizontal > div {
+  width: 65%;
+  margin-bottom: 1em;
+}
+form.horizontal input[type=submit],
+form.horizontal button[type=submit] {
+  margin-left: 35%;
+}
+form.horizontal span {
+  display: block;
+  margin-left: .2em;
 }
 
 /* FILE: ./permalink.css */
@@ -1576,7 +1610,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 /* FILE: ./postscript.css */
 .postscript {
   margin-top: 3em;
-  border-top: 1px solid #bbb;
+  border-top: 1px solid #aaa;
   font-size: .9em;
   position: relative;
 }
@@ -12895,21 +12929,8 @@ img.imgzoom-loading { cursor: wait !important; }
 #signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
 #signup-form fieldset.two > div > div { width: 50%; }
 
-#signup-form .exp { width: 4em; }
-#signup-form .cvc { width: 4em; }
-
-#signup-form .exp input,
-#signup-form .cvc input {
-	min-width: 1em;
-	width: 100%;
-}
-
 form.vertical .err  { color: red; display: block; }
 form.vertical .help { font-size: 14px; margin-bottom: 1.2em; }
-
-input, select { background-color: #fff; border: 1px solid #ccc; border-radius: 2px; }
-button        { display: block; }
-
 
 /*** Help page ***/
 dt { font-weight: bold; margin-top: 1em; }
@@ -12931,7 +12952,6 @@ dt { font-weight: bold; margin-top: 1em; }
 	background-color: #fff0f0;
 	border-color: #f00;
 }
-
 `),
 	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
    This file is part of GoatCounter and published under the terms of the EUPL

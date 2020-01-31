@@ -123,21 +123,8 @@ img.imgzoom-loading { cursor: wait !important; }
 #signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
 #signup-form fieldset.two > div > div { width: 50%; }
 
-#signup-form .exp { width: 4em; }
-#signup-form .cvc { width: 4em; }
-
-#signup-form .exp input,
-#signup-form .cvc input {
-	min-width: 1em;
-	width: 100%;
-}
-
 form.vertical .err  { color: red; display: block; }
 form.vertical .help { font-size: 14px; margin-bottom: 1.2em; }
-
-input, select { background-color: #fff; border: 1px solid #ccc; border-radius: 2px; }
-button        { display: block; }
-
 
 /*** Help page ***/
 dt { font-weight: bold; margin-top: 1em; }
@@ -159,4 +146,3 @@ dt { font-weight: bold; margin-top: 1em; }
 	background-color: #fff0f0;
 	border-color: #f00;
 }
-
