@@ -25,7 +25,6 @@ return value is sent to the server. Nothing is sent if the return value from the
 <code>path</code> callback is <code>null</code>.</p>
 
 <p>Data:</p>
-
 <ul>
 	<li><code>path</code> – Page path (without domain) or event name.</li>
 
@@ -43,8 +42,11 @@ return value is sent to the server. Nothing is sent if the return value from the
 
 <p>Settings:</p>
 <ul>
-	<li><code>no_onload</code> – Don’t do anything on page load. Use if you want
-		to call <code>count()</code> manually.</li>
+	<li><code>no_onload</code> – Don’t do anything on page load. If you want to
+		call <code>count()</code> manually.</li>
+	<li><code>allow_local</code> – Allow requests from local addresses
+		(<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing
+		the integration locally.</li>
 </ul>
 
 <p>Callable methods:</p>

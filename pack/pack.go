@@ -1680,6 +1680,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			p: count_vars.path     || goatcounter.path,
 			r: count_vars.referrer || goatcounter.referrer,
 			t: count_vars.title    || goatcounter.title,
+			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
 		};
 		if (count_vars.event || goatcounter.event)
 			results.e = true;
@@ -1741,32 +1742,26 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			endpoint = script.dataset.goatcounter;
 
 		// Don't track private networks.
-		if (location.hostname.match(/localhost$/) ||
-			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
-				return;
+		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
+			return;
 
 		var data = get_data(count_vars || {});
-		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
+		if (data.p === null)  // null returned from user callback.
+			return;
+
 		if (dep !== '')
 			data.dep = dep;
 
-		// null returned from user callback.
-		if (data.p === null)
-			return;
-
 		// Add image to send request.
 		var img = document.createElement('img');
+		img.src = endpoint + to_params(data);
+		img.style.float = 'right';  // Affect layout less.
 		img.setAttribute('alt', '');
 		img.setAttribute('aria-hidden', 'true');
-		img.src = endpoint + to_params(data);
 		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
-
-		// Remove the image after 3s if the onload event is never triggered.
-		setTimeout(function() {
-			if (!img.parentNode)
-				return;
-			img.src = '';
-			document.body.removeChild(img)
+		setTimeout(function() {  // Just in case the onload isn't triggered.
+			if (img && img.parentNode)
+				img.parentNode.removeChild(img)
 		}, 3000);
 
 		document.body.appendChild(img);
@@ -13901,7 +13896,6 @@ return value is sent to the server. Nothing is sent if the return value from the
 <code>path</code> callback is <code>null</code>.</p>
 
 <p>Data:</p>
-
 <ul>
 	<li><code>path</code> – Page path (without domain) or event name.</li>
 
@@ -13919,8 +13913,11 @@ return value is sent to the server. Nothing is sent if the return value from the
 
 <p>Settings:</p>
 <ul>
-	<li><code>no_onload</code> – Don’t do anything on page load. Use if you want
-		to call <code>count()</code> manually.</li>
+	<li><code>no_onload</code> – Don’t do anything on page load. If you want to
+		call <code>count()</code> manually.</li>
+	<li><code>allow_local</code> – Allow requests from local addresses
+		(<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing
+		the integration locally.</li>
 </ul>
 
 <p>Callable methods:</p>
