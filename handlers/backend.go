@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"html/template"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -532,9 +531,8 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(context.Context, goatcounter.Stats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := f(r.Context(), browsers, total, int(t), .5, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .5, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -558,9 +556,8 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(context.Context, goatcounter.Stats, int, int, float32, bool) template.HTML)
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := f(r.Context(), sizeStat, total, int(t), .5, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), sizeStat, total, int(t), .5, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -584,8 +581,7 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	f := zhttp.FuncMap["hbar_chart"].(func(context.Context, goatcounter.Stats, int, int, float32, bool) template.HTML)
-	tpl := f(r.Context(), locStat, total, total, 0, false)
+	tpl := goatcounter.HorizontalChart(r.Context(), locStat, total, total, 0, false)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
 	})

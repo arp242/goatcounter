@@ -14258,7 +14258,7 @@ do this 100% reliably.</p>
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{hbar_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
+			<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
 		{{end}}
 	</div>
 	<div>
@@ -14266,7 +14266,7 @@ do this 100% reliably.</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{hbar_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
@@ -14275,7 +14275,7 @@ do this 100% reliably.</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{hbar_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
+			<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>
