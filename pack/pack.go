@@ -1531,6 +1531,8 @@ textarea {
   line-height: 130%;
 }
 button, input[type="submit"] {
+  color: #000;
+  cursor: pointer;
   margin-left: .5em;
   padding: .6em 1.5em;
   background-color: #f6f5f4;
