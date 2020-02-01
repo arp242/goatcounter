@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
@@ -66,7 +65,7 @@ var (
 	})
 )
 
-func addctx(db *sqlx.DB, loadSite bool) func(http.Handler) http.Handler {
+func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Add timeout.

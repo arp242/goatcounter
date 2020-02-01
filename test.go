@@ -78,7 +78,7 @@ func StartTest(t *testing.T) (context.Context, func()) {
 			t.Fatal(err)
 		}
 		schema = string(s)
-		_, err = db.Exec(schema)
+		_, err = db.ExecContext(context.Background(), schema)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -105,14 +105,14 @@ func StartTest(t *testing.T) (context.Context, func()) {
 			migrations = append(migrations, string(mb))
 		}
 	} else {
-		_, err = db.Exec(schema)
+		_, err = db.ExecContext(context.Background(), schema)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 
 	for _, m := range migrations {
-		_, err = db.Exec(m)
+		_, err = db.ExecContext(context.Background(), m)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -123,7 +123,8 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		now = `now()`
 	}
 
-	_, err = db.Exec(fmt.Sprintf(`insert into sites (code, name, plan, settings, created_at) values
+	_, err = db.ExecContext(context.Background(), fmt.Sprintf(
+		`insert into sites (code, name, plan, settings, created_at) values
 		('test', 'example.com', 'personal', '{}', %s);`, now))
 	if err != nil {
 		t.Fatal(err)
@@ -154,12 +155,12 @@ func createpg() {
 	}
 }
 
-func cleanpg(t *testing.T, db *sqlx.DB) {
-	_, err := db.Exec("drop schema public cascade;")
+func cleanpg(t *testing.T, db zdb.DB) {
+	_, err := db.ExecContext(context.Background(), "drop schema public cascade;")
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = db.Exec("create schema public;")
+	_, err = db.ExecContext(context.Background(), "create schema public;")
 	if err != nil {
 		t.Fatal(err)
 	}

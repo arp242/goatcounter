@@ -20,7 +20,6 @@ import (
 	"github.com/arp242/geoip2-golang"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/jmoiron/sqlx"
 	"github.com/monoculum/formam"
 	"github.com/mssola/user_agent"
 	"github.com/pkg/errors"
@@ -40,7 +39,7 @@ import (
 
 type backend struct{}
 
-func (h backend) Mount(r chi.Router, db *sqlx.DB) {
+func (h backend) Mount(r chi.Router, db zdb.DB) {
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),

@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi"
-	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
@@ -63,7 +63,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	return g
 }
 
-func NewWebsite(db *sqlx.DB) chi.Router {
+func NewWebsite(db zdb.DB) chi.Router {
 	if !cfg.Prod {
 		pack.Templates = nil
 	}
@@ -89,7 +89,7 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 	return r
 }
 
-func NewBackend(db *sqlx.DB) chi.Router {
+func NewBackend(db zdb.DB) chi.Router {
 	r := chi.NewRouter()
 	backend{}.Mount(r, db)
 	return r

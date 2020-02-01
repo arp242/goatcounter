@@ -16,7 +16,6 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
@@ -30,7 +29,7 @@ import (
 
 type website struct{}
 
-func (h website) Mount(r *chi.Mux, db *sqlx.DB) {
+func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),

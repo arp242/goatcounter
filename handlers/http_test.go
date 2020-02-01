@@ -16,7 +16,6 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
-	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
@@ -30,7 +29,7 @@ import (
 type handlerTest struct {
 	name         string
 	setup        func(context.Context)
-	router       func(*sqlx.DB) chi.Router
+	router       func(zdb.DB) chi.Router
 	path         string
 	method       string
 	auth         bool
@@ -80,7 +79,7 @@ func runTest(
 					login(t, rr, r)
 				}
 
-				tt.router(zdb.MustGet(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
+				tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 				ztest.Code(t, rr, tt.wantCode)
 				if !strings.Contains(rr.Body.String(), tt.wantBody) {
 					t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
@@ -112,7 +111,7 @@ func runTest(
 				login(t, rr, r)
 			}
 
-			tt.router(zdb.MustGet(ctx).(*sqlx.DB)).ServeHTTP(rr, r)
+			tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantFormCode)
 			if !strings.Contains(rr.Body.String(), tt.wantFormBody) {
 				t.Errorf("wrong body\nwant: %q\ngot:  %q", tt.wantFormBody, rr.Body.String())
