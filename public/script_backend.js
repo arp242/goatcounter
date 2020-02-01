@@ -23,10 +23,33 @@
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker, filter_paths,
+			billing_subscribe, setup_datepicker, filter_paths, add_ip,
 		].forEach(function(f) { f.call(); });
-
 	});
+
+	// Add current IP address ignore_ips.
+	var add_ip = function() {
+		$('#add-ip').on('click', function(e) {
+			e.preventDefault();
+
+			jQuery.ajax({
+				url:     '/ip',
+				success: function(data) {
+					var input   = $('[name="settings.ignore_ips"]'),
+						current = input.val().split(',').
+							map(function(m) { return m.trim() }).
+							filter(function(m) { return m !== '' });
+
+					if (current.indexOf(data) > -1) {
+						$('#add-ip').after('<span class="err">IP ' + data + ' is already in the list</span>');
+						return;
+					}
+					current.push(data);
+					input.val(current.join(', '));
+				},
+			});
+		});
+	};
 
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".

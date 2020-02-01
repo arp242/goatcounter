@@ -126,6 +126,7 @@ func (h backend) Mount(r chi.Router, db *sqlx.DB) {
 			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
 			af.Get("/settings", zhttp.Wrap(h.settings))
+			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 				Client:  zhttp.RatelimitIP,
@@ -670,6 +671,10 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		SubSites goatcounter.Sites
 		Validate *zvalidate.Validator
 	}{newGlobals(w, r), sites, verr})
+}
+
+func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.String(w, zhttp.RemovePort(r.RemoteAddr))
 }
 
 func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {

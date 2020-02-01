@@ -50,7 +50,8 @@
 				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
 				{{validate "site.settings.ignore_ips" .Validate}}
 				<span>Never count requests coming from these IP addresses.<br>
-					Comma-separated. Only supports exact matches.</span>
+					Comma-separated. Only supports exact matches.
+					<a href="#_" id="add-ip">Add current IP</a></span>
 			</fieldset>
 
 			<fieldset>
