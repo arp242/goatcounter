@@ -120,7 +120,9 @@
 		<p>Add GoatCounter to multiple websites by creating a “child site”,
 			which is a separate GoatCounter site which inherits the plan, users,
 			and logins from the current site, but is otherwise completely
-			separate. You can add as many as you want.</p>
+			separate. The current site’s settings are copied on creation, but
+			are independent afterwards.</p>
+		<p>You can add as many as you want.</p>
 
 		<form method="post" action="/add">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">

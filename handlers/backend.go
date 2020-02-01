@@ -848,11 +848,13 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	parent := goatcounter.MustGetSite(r.Context())
 	site := goatcounter.Site{
-		Code:   args.Code,
-		Name:   args.Name,
-		Parent: &goatcounter.MustGetSite(r.Context()).ID,
-		Plan:   goatcounter.PlanChild,
+		Code:     args.Code,
+		Name:     args.Name,
+		Parent:   &parent.ID,
+		Plan:     goatcounter.PlanChild,
+		Settings: parent.Settings,
 	}
 	err = site.Insert(r.Context())
 	if err != nil {
