@@ -13402,7 +13402,11 @@ insert into version values
 	('2020-01-02-1-bot'),
 	('2020-01-07-1-title-domain'),
 	('2020-01-13-2-hit_stats_title'),
-	('2020-01-18-1-sitename');
+	('2020-01-18-1-sitename'),
+	('2020-01-23-1-nformat'),
+	('2020-01-24-1-rm-mobile'),
+	('2020-01-24-2-domain'),
+	('2020-01-27-2-rm-count-ref');
 
 drop table if exists sites;
 create table sites (
@@ -13417,6 +13421,7 @@ create table sites (
 	settings       varchar        not null,
 	last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
 	received_data  int            not null default 0,
+	link_domain    varchar        not null default '',
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
@@ -13460,10 +13465,9 @@ create table hits (
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
-	count_ref      varchar        not null default '',
 	bot            int            default 0,
 	title          varchar        not null default '',
-	domain         varchar        not null default '',
+	event          int            default 0,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
@@ -13492,7 +13496,6 @@ create table browser_stats (
 	browser        varchar        not null,
 	version        varchar        not null,
 	count          int            not null,
-	mobile         int default 0  not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -13809,6 +13812,7 @@ insert into iso_3166_1 (name, alpha2) values
 	('Zaire', 'ZR'),
 	('Zimbabwe', 'ZW');
 
+drop table if exists updates;
 create table updates (
 	id             integer        primary key autoincrement,
 	subject        varchar        not null,
@@ -13816,6 +13820,16 @@ create table updates (
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 	show_at        timestamp      not null                 check(show_at = strftime('%Y-%m-%d %H:%M:%S', show_at))
+);
+
+drop table if exists usage;
+create table usage (
+	site           integer        not null                 check(site > 0),
+	domain         varchar        not null,
+	count          integer        not null,
+	vetted         integer        default 0,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 `)
 var Templates = map[string][]byte{
