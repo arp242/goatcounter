@@ -8,8 +8,10 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 )
@@ -54,3 +56,10 @@ func NewContext(ctx context.Context) context.Context {
 
 func dayStart(t time.Time) string { return t.Format("2006-01-02") + " 00:00:00" }
 func dayEnd(t time.Time) string   { return t.Format("2006-01-02") + " 23:59:59" }
+
+func interval(days int) string {
+	if cfg.PgSQL {
+		return fmt.Sprintf(" now() - interval '%d days' ", days)
+	}
+	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)
+}

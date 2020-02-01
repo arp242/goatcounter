@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/utils/syncutil"
@@ -35,7 +34,7 @@ var (
 )
 
 // Run stat updates in the background.
-func Run(db *sqlx.DB) {
+func Run(db zdb.DB) {
 	ctx := zdb.With(context.Background(), db)
 	l := zlog.Module("cron")
 
@@ -71,7 +70,7 @@ func Run(db *sqlx.DB) {
 
 // Wait for all running tasks to finish and then run all tasks for consistency
 // on shutdown.
-func Wait(db *sqlx.DB) {
+func Wait(db zdb.DB) {
 	stopped.Set(1)
 	ctx := zdb.With(context.Background(), db)
 

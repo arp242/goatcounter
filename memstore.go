@@ -10,7 +10,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jmoiron/sqlx"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zlog"
@@ -23,9 +22,9 @@ type ms struct {
 
 var Memstore = ms{}
 
-func (m *ms) Append(hit ...Hit) {
+func (m *ms) Append(hits ...Hit) {
 	m.Lock()
-	m.hits = append(m.hits, hit...)
+	m.hits = append(m.hits, hits...)
 	m.Unlock()
 }
 
@@ -47,11 +46,11 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = []Hit{}
 	m.Unlock()
 
-	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
+	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
 			"ref_scheme", "browser", "size", "location", "created_at", "bot",
 			"title"})
-	usage := bulk.NewInsert(ctx, zdb.MustGet(ctx).(*sqlx.DB),
+	usage := bulk.NewInsert(ctx, zdb.MustGet(ctx),
 		"usage", []string{"site", "domain", "count"})
 	for i, h := range hits {
 		// Ignore spammers.

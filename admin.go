@@ -38,6 +38,7 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 		order = "count"
 	}
 
+	ival := interval(30)
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
 		select
 			sites.id,
@@ -53,10 +54,10 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 		from sites
 		left join hits on hits.site=sites.id
 		left join users on users.site=coalesce(sites.parent, sites.id)
-		where hits.created_at >= now() - interval '30 days'
+		where hits.created_at >= %s
 		group by sites.id, sites.code, sites.name, sites.created_at, users.name, users.email, plan
 		having count(*) > 1000
-		order by %s desc`, order))
+		order by %s desc`, ival, order))
 	if err != nil {
 		return errors.Wrap(err, "AdminStats.List")
 	}
@@ -109,17 +110,19 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 		return err
 	}
 
-	err = zdb.MustGet(ctx).GetContext(ctx, a, `
+	ival30 := interval(30)
+	ival60 := interval(30)
+	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`
 		select
 			(select created_at from hits where site=$1 order by created_at desc limit 1) as last_data,
 			(select count(*) from hits where site=$1) as count_total,
 			(select count(*) from hits where site=$1
-				and created_at >= now() - interval '30 days') as count_last_month,
+				and created_at >= %[1]s) as count_last_month,
 			(select count(*) from hits where site=$1
-				and created_at >= now() - interval '60 days'
-				and created_at <= now() - interval '30 days'
+				and created_at >= %[2]s
+				and created_at <= %[1]s
 			) as count_prev_month
-		`, id)
+		`, ival30, ival60), id)
 	return errors.Wrap(err, "AdminSiteStats.ByID")
 }
 

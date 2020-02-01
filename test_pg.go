@@ -7,18 +7,11 @@
 package goatcounter
 
 import (
-	"os/exec"
-
 	"zgo.at/goatcounter/cfg"
 )
 
 func init() {
 	cfg.PgSQL = true
-
+	createpg()
 	// Doing this on every test run doubles the running time.
-	exec.Command("dropdb", "goatcounter_test").CombinedOutput()
-	out, err := exec.Command("createdb", "goatcounter_test").CombinedOutput()
-	if err != nil {
-		panic(string(out))
-	}
 }

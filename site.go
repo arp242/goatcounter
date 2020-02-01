@@ -388,11 +388,10 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 		return fmt.Errorf("days must be at least 14: %d", days)
 	}
 
-	ival := fmt.Sprintf(" < now() - interval '%d days' ", days)
-
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		ival := interval(days)
 		r, err := tx.ExecContext(ctx,
-			`delete from hits where site=$1 and created_at `+ival,
+			`delete from hits where site=$1 and created_at < `+ival,
 			s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
@@ -403,7 +402,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 
 		for _, t := range []string{"hit_stats", "browser_stats", "location_stats"} {
 			_, err := tx.ExecContext(ctx,
-				`delete from `+t+` where site=$1 and day `+ival,
+				`delete from `+t+` where site=$1 and day < `+ival,
 				s.ID)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan: delete "+t)

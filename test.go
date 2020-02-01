@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -28,11 +29,14 @@ var (
 func StartTest(t *testing.T) (context.Context, func()) {
 	t.Helper()
 
+	if cfg.PgSQL {
+		createpg()
+	}
+
 	var (
 		db  *sqlx.DB
 		err error
 	)
-
 	if cfg.PgSQL {
 		db, err = sqlx.Connect("postgres", "dbname=goatcounter_test sslmode=disable password=x")
 	} else {
@@ -134,6 +138,19 @@ func StartTest(t *testing.T) (context.Context, func()) {
 			cleanpg(t, db)
 		}
 		db.Close()
+	}
+}
+
+func createpg() {
+	_, err := exec.Command("psql", "goatcounter_test", "-c", "select 1").CombinedOutput()
+	if err == nil {
+		return
+	}
+
+	exec.Command("dropdb", "goatcounter_test").CombinedOutput()
+	out, err := exec.Command("createdb", "goatcounter_test").CombinedOutput()
+	if err != nil {
+		panic(fmt.Sprintf("%s → %s", err, out))
 	}
 }
 

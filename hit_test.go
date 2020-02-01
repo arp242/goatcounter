@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
@@ -169,8 +168,7 @@ func TestHitStatsList(t *testing.T) {
 			site.Settings.Limits.Page = 2
 
 			goatcounter.Memstore.Append(tt.in...)
-			db := zdb.MustGet(ctx).(*sqlx.DB)
-			cron.Run(db)
+			cron.Run(zdb.MustGet(ctx))
 
 			var stats goatcounter.HitStats
 			total, totalDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude)

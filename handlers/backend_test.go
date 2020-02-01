@@ -8,15 +8,12 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
-	"zgo.at/zhttp/ctxkey"
 )
 
 func TestBackendCount(t *testing.T) {
@@ -81,45 +78,6 @@ func TestBackendCount(t *testing.T) {
 	}
 }
 
-func TestBackendAdmin(t *testing.T) {
-	t.Skip() // TODO: Doesn't work with SQLite
-
-	tests := []handlerTest{
-		{
-			setup: func(ctx context.Context) {
-				site := goatcounter.Site{Name: "new site", Code: "newsite", Plan: goatcounter.PlanPersonal}
-				err := site.Insert(ctx)
-				if err != nil {
-					panic(err)
-				}
-
-				user := goatcounter.User{Site: site.ID, Name: "Martin", Email: "martin@arp242.net"}
-				err = user.Insert(context.WithValue(ctx, ctxkey.Site, site))
-				if err != nil {
-					panic(err)
-				}
-			},
-			router:   NewBackend,
-			path:     "/admin",
-			auth:     true,
-			wantCode: 200,
-			wantBody: "<table>",
-		},
-	}
-
-	for _, tt := range tests {
-		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			b := rr.Body.String()
-			if !strings.Contains(b, "<td>example.com</td>") {
-				t.Errorf("no example.com")
-			}
-			if !strings.Contains(b, "<td>new site</td>") {
-				t.Errorf("no new site")
-			}
-		})
-	}
-}
-
 func TestBackendIndex(t *testing.T) {
 	tests := []handlerTest{
 		{
@@ -138,8 +96,7 @@ func TestBackendIndex(t *testing.T) {
 				//if err != nil {
 				//	panic(err)
 				//}
-				db := zdb.MustGet(ctx).(*sqlx.DB)
-				cron.Run(db)
+				cron.Run(zdb.MustGet(ctx))
 			},
 			router:   NewBackend,
 			auth:     true,

@@ -386,10 +386,6 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(403, "yeah nah")
 	}
 
-	if !cfg.PgSQL { // TODO
-		return guru.New(400, "not implemented in SQLite yet")
-	}
-
 	l := zlog.Module("admin")
 
 	var a goatcounter.AdminStats
@@ -445,10 +441,6 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.MustGetSite(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
-	}
-
-	if !cfg.PgSQL { // TODO
-		return guru.New(400, "not implemented in SQLite yet")
 	}
 
 	var code string
