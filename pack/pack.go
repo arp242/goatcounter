@@ -14534,7 +14534,7 @@ parent site includes the child sites.</p>
 					<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
 					<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
 					<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.1234)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
 					<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
 					<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
 				</select>
