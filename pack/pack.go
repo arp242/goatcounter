@@ -12868,19 +12868,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (TZ_OFFSET) {
 			var offset = (start.getTimezoneOffset() + TZ_OFFSET) / 60;
 			start.setHours(start.getHours() + offset);
-			end.setHours(end.getHours()     + offset);
+			end.setHours(end.getHours() + offset);
 		}
 
 		$('#period-start').val(format_date_ymd(start));
 		$('#period-end').val(format_date_ymd(end));
 		$('#period-form').trigger('submit');
 	};
-
-	// Get UTC date.
-	var utc_date = function(d) {
-		return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
-			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()));
-	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
 	var is_mobile = function() {
