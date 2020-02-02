@@ -669,13 +669,18 @@ func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.String(w, zhttp.RemovePort(r.RemoteAddr))
 }
 
+// TODO: temporary.
 func (h backend) setTZ(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 
 	var err error
 	site.Settings.Timezone, err = tz.New(geo(r.RemoteAddr), r.FormValue("zone"))
 	if err != nil {
-		zlog.Field("zone", r.FormValue("zone")).Error(err)
+		site.Settings.Timezone, err = tz.New("", r.FormValue("zone"))
+		if err != nil {
+			zlog.Field("zone", r.FormValue("zone")).Error(err)
+			return zhttp.JSON(w, "")
+		}
 	}
 
 	err = site.Update(r.Context())
