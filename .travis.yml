@@ -23,6 +23,8 @@ before_cache:
 before_script:
   - 'createdb goatcounter_test'
 
+install: [] # Don't need to run go get ./... with modules.
+
 script:
   - 'go vet ./...'
   - 'go generate ./... && [ $(git status -s | wc -l) -gt 1 ] && git diff && exit 1 || true'
