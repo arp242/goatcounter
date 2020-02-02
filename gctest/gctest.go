@@ -176,3 +176,25 @@ func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goa
 
 	return hits
 }
+
+func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Context, goatcounter.Site) {
+	if site.Code == "" {
+		site.Code = zhttp.Secret()
+		if len(site.Code) > 50 {
+			site.Code = site.Code[:50]
+		}
+	}
+	if site.Name == "" {
+		site.Name = "name"
+	}
+	if site.Plan == "" {
+		site.Plan = goatcounter.PlanPersonal
+	}
+
+	err := site.Insert(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return context.WithValue(ctx, ctxkey.Site, &site), site
+}

@@ -48,12 +48,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		g.User = &goatcounter.User{}
 	}
 
-	// g.Updates = new(goatcounter.Updates)
-	// err := g.Updates.ListSince(r.Context(), g.User.SeenUpdatesAt)
-	// if err != nil {
-	// 	zlog.FieldsRequest(r).Error(err)
-	// }
-
 	var err error
 	g.HasUpdates, err = (new(goatcounter.Updates)).HasSince(r.Context(), g.User.SeenUpdatesAt)
 	if err != nil {
