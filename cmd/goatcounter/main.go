@@ -138,7 +138,7 @@ func main() {
 		hosts[zhttp.RemovePort(ds)] = static
 	}
 
-	zlog.Printf("listening on %q; prod: %t", cfg.Listen, cfg.Prod)
+	zlog.Printf("serving %q on %q; prod: %t", cfg.Domain, cfg.Listen, cfg.Prod)
 
 	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(hosts)}, cfg.TLS, func() {
 		cron.Wait(db)

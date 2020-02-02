@@ -46,7 +46,7 @@ func TestMain(t *testing.T) {
 	go func() {
 		scanner := bufio.NewScanner(out)
 		for scanner.Scan() {
-			if strings.Contains(scanner.Text(), "listening on") {
+			if strings.Contains(scanner.Text(), "serving ") {
 				time.Sleep(100 * time.Millisecond)
 				syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 			}
