@@ -5,12 +5,14 @@
 (function() {
 	'use strict';
 
-	var SETTINGS = {},
-		CSRF     = '';
+	var SETTINGS  = {},
+		CSRF      = '',
+		TZ_OFFSET = 0;
 
 	$(document).ready(function() {
-		SETTINGS = JSON.parse($('#js-settings').html());
-		CSRF     = $('#js-csrf').text();
+		SETTINGS  = JSON.parse($('#js-settings').text());
+		CSRF      = $('#js-csrf').text();
+		TZ_OFFSET = parseInt($('#js-settings').attr('data-offset'), 10) || 0;
 
 		// Set up error reporting.
 		window.onerror = onerror;
@@ -697,10 +699,22 @@
 
 	// Set the start and end period and submit the form.
 	var set_period = function(start, end) {
+		if (TZ_OFFSET) {
+			var offset = (start.getTimezoneOffset() + TZ_OFFSET) / 60;
+			start.setHours(start.getHours() + offset);
+			end.setHours(end.getHours()     + offset);
+		}
+
 		$('#period-start').val(format_date_ymd(start));
 		$('#period-end').val(format_date_ymd(end));
 		$('#period-form').trigger('submit');
 	};
+
+	// Get UTC date.
+	var utc_date = function(d) {
+		return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
+			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()));
+	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
 	var is_mobile = function() {

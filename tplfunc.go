@@ -59,12 +59,9 @@ func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
 	var b strings.Builder
 	today := now.Format("2006-01-02")
 	hour := now.Hour()
-	for i, stat := range stats {
+	for _, stat := range stats {
 		for shour, s := range stat.Days {
-			// Don't show stuff in past or future.
-			if i == 0 && shour < offset {
-				continue
-			}
+			// Don't show stuff in the future.
 			if stat.Day == today && shour > hour {
 				break
 			}

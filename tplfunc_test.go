@@ -48,6 +48,14 @@ func TestBarChart(t *testing.T) {
 			<div title="2019-08-31 23:00 – 23:59, 0 views"></div>
 		`},
 		{"Asia/Makassar", now, `
+			<div title="2019-08-31 0:00 – 0:59, 0 views"></div>
+			<div title="2019-08-31 1:00 – 1:59, 0 views"></div>
+			<div title="2019-08-31 2:00 – 2:59, 0 views"></div>
+			<div title="2019-08-31 3:00 – 3:59, 0 views"></div>
+			<div title="2019-08-31 4:00 – 4:59, 0 views"></div>
+			<div title="2019-08-31 5:00 – 5:59, 0 views"></div>
+			<div title="2019-08-31 6:00 – 6:59, 0 views"></div>
+			<div title="2019-08-31 7:00 – 7:59, 0 views"></div>
 			<div title="2019-08-31 8:00 – 8:59, 0 views"></div>
 			<div title="2019-08-31 9:00 – 9:59, 0 views"></div>
 			<div title="2019-08-31 10:00 – 10:59, 0 views"></div>
@@ -66,11 +74,58 @@ func TestBarChart(t *testing.T) {
 			</div>
 			<div title="2019-08-31 23:00 – 23:59, 0 views"></div>
 		`},
-		// TODO: wrong
-		// {"Pacific/Auckland", now,
-		// 	``},
-		// {"Pacific/Pago_Pago", time.Date(2019, 8, 31, 9, 42, 0, 0, time.UTC),
-		// 	``},
+		{"Pacific/Auckland", now, `
+			<div title="2019-08-31 0:00 – 0:59, 0 views"></div>
+			<div title="2019-08-31 1:00 – 1:59, 0 views"></div>
+			<div title="2019-08-31 2:00 – 2:59, 0 views"></div>
+			<div title="2019-08-31 3:00 – 3:59, 0 views"></div>
+			<div title="2019-08-31 4:00 – 4:59, 0 views"></div>
+			<div title="2019-08-31 5:00 – 5:59, 0 views"></div>
+			<div title="2019-08-31 6:00 – 6:59, 0 views"></div>
+			<div title="2019-08-31 7:00 – 7:59, 0 views"></div>
+			<div title="2019-08-31 8:00 – 8:59, 0 views"></div>
+			<div title="2019-08-31 9:00 – 9:59, 0 views"></div>
+			<div title="2019-08-31 10:00 – 10:59, 0 views"></div>
+			<div title="2019-08-31 11:00 – 11:59, 0 views"></div>
+			<div title="2019-08-31 12:00 – 12:59, 0 views"></div>
+			<div title="2019-08-31 13:00 – 13:59, 0 views"></div>
+			<div title="2019-08-31 14:00 – 14:59, 0 views"></div>
+			<div title="2019-08-31 15:00 – 15:59, 0 views"></div>
+			<div title="2019-08-31 16:00 – 16:59, 0 views"></div>
+			<div title="2019-08-31 17:00 – 17:59, 0 views"></div>
+			<div title="2019-08-31 18:00 – 18:59, 0 views"></div>
+			<div title="2019-08-31 19:00 – 19:59, 0 views"></div>
+			<div title="2019-08-31 20:00 – 20:59, 0 views"></div>
+			<div title="2019-08-31 21:00 – 21:59, 0 views"></div>
+			<div title="2019-08-31 22:00 – 22:59, 0 views"></div>
+			<div title="2019-08-31 23:00 – 23:59, 0 views"></div>
+		`},
+		{"Pacific/Pago_Pago", time.Date(2019, 8, 31, 9, 42, 0, 0, time.UTC), `
+			<div title="2019-08-31 0:00 – 0:59, 0 views"></div>
+			<div title="2019-08-31 1:00 – 1:59, 0 views"></div>
+			<div title="2019-08-31 2:00 – 2:59, 0 views"></div>
+			<div title="2019-08-31 3:00 – 3:59, 0 views"></div>
+			<div title="2019-08-31 4:00 – 4:59, 0 views"></div>
+			<div title="2019-08-31 5:00 – 5:59, 0 views"></div>
+			<div title="2019-08-31 6:00 – 6:59, 0 views"></div>
+			<div title="2019-08-31 7:00 – 7:59, 0 views"></div>
+			<div title="2019-08-31 8:00 – 8:59, 0 views"></div>
+			<div title="2019-08-31 9:00 – 9:59, 0 views"></div>
+			<div title="2019-08-31 10:00 – 10:59, 0 views"></div>
+			<div title="2019-08-31 11:00 – 11:59, 0 views"></div>
+			<div title="2019-08-31 12:00 – 12:59, 0 views"></div>
+			<div title="2019-08-31 13:00 – 13:59, 0 views"></div>
+			<div title="2019-08-31 14:00 – 14:59, 0 views"></div>
+			<div title="2019-08-31 15:00 – 15:59, 0 views"></div>
+			<div title="2019-08-31 16:00 – 16:59, 0 views"></div>
+			<div title="2019-08-31 17:00 – 17:59, 0 views"></div>
+			<div title="2019-08-31 18:00 – 18:59, 0 views"></div>
+			<div title="2019-08-31 19:00 – 19:59, 0 views"></div>
+			<div title="2019-08-31 20:00 – 20:59, 0 views"></div>
+			<div title="2019-08-31 21:00 – 21:59, 0 views"></div>
+			<div title="2019-08-31 22:00 – 22:59, 0 views"></div>
+			<div title="2019-08-31 23:00 – 23:59, 0 views"></div>
+		`},
 	}
 
 	for i, tt := range tests {
@@ -95,6 +150,9 @@ func TestBarChart(t *testing.T) {
 			_, _, _, err = stats.List(ctx, tt.now, tt.now, "", nil)
 			if err != nil {
 				t.Fatal(err)
+			}
+			if len(stats) != 1 {
+				t.Fatalf("len(stats) == %d", len(stats))
 			}
 
 			out := string(BarChart(ctx, stats[0].Stats, stats[0].Max))
