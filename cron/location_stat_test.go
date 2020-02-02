@@ -2,7 +2,7 @@
 // This file is part of GoatCounter and published under the terms of the EUPL
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
-package cron
+package cron_test
 
 import (
 	"fmt"
@@ -10,16 +10,18 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
+	. "zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/gctest"
 )
 
 func TestLocationStats(t *testing.T) {
-	ctx, clean := goatcounter.StartTest(t)
+	ctx, clean := gctest.DB(t)
 	defer clean()
 
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	err := updateStats(ctx, site.ID, []goatcounter.Hit{
+	err := UpdateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},
@@ -41,7 +43,7 @@ func TestLocationStats(t *testing.T) {
 	}
 
 	// Update existing.
-	err = updateStats(ctx, site.ID, []goatcounter.Hit{
+	err = UpdateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},

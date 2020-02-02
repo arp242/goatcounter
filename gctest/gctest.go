@@ -2,7 +2,8 @@
 // This file is part of GoatCounter and published under the terms of the EUPL
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
-package goatcounter
+// Package gctest contains testing helpers.
+package gctest
 
 import (
 	"context"
@@ -15,8 +16,11 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
+	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
 )
 
@@ -25,12 +29,17 @@ var (
 	migrations []string
 )
 
-// StartTest a new database test.
-func StartTest(t *testing.T) (context.Context, func()) {
+// DB starts a new database test.
+func DB(t *testing.T) (context.Context, func()) {
 	t.Helper()
 
+	dbname := "goatcounter_test_" + zhttp.Secret()
+
 	if cfg.PgSQL {
-		createpg()
+		out, err := exec.Command("createdb", dbname).CombinedOutput()
+		if err != nil {
+			panic(fmt.Sprintf("%s → %s", err, out))
+		}
 	}
 
 	var (
@@ -38,15 +47,12 @@ func StartTest(t *testing.T) (context.Context, func()) {
 		err error
 	)
 	if cfg.PgSQL {
-		db, err = sqlx.Connect("postgres", "dbname=goatcounter_test sslmode=disable password=x")
+		db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
 	} else {
 		db, err = sqlx.Connect("sqlite3", ":memory:")
 	}
 	if err != nil {
 		t.Fatal(err)
-	}
-	if cfg.PgSQL {
-		cleanpg(t, db)
 	}
 
 	top, err := os.Getwd()
@@ -131,37 +137,42 @@ func StartTest(t *testing.T) (context.Context, func()) {
 	}
 
 	ctx := zdb.With(context.Background(), db)
-	ctx = context.WithValue(ctx, ctxkey.Site, &Site{ID: 1})
-	ctx = context.WithValue(ctx, ctxkey.User, &User{ID: 1, Site: 1})
+	ctx = context.WithValue(ctx, ctxkey.Site, &goatcounter.Site{ID: 1})
+	ctx = context.WithValue(ctx, ctxkey.User, &goatcounter.User{ID: 1, Site: 1})
 
 	return ctx, func() {
-		if cfg.PgSQL {
-			cleanpg(t, db)
-		}
 		db.Close()
+		if cfg.PgSQL {
+			out, err := exec.Command("dropdb", dbname).CombinedOutput()
+			if err != nil {
+				panic(fmt.Sprintf("%s → %s", err, out))
+			}
+		}
 	}
 }
 
-func createpg() {
-	_, err := exec.Command("psql", "goatcounter_test", "-c", "select 1").CombinedOutput()
-	if err == nil {
-		return
-	}
+// StoreHits is a convenient helper to store hits in the DB via Memstore and
+// cron.UpdateStats().
+func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goatcounter.Hit {
+	t.Helper()
 
-	exec.Command("dropdb", "goatcounter_test").CombinedOutput()
-	out, err := exec.Command("createdb", "goatcounter_test").CombinedOutput()
-	if err != nil {
-		panic(fmt.Sprintf("%s → %s", err, out))
-	}
-}
-
-func cleanpg(t *testing.T, db zdb.DB) {
-	_, err := db.ExecContext(context.Background(), "drop schema public cascade;")
+	goatcounter.Memstore.Append(hits...)
+	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = db.ExecContext(context.Background(), "create schema public;")
-	if err != nil {
-		t.Fatal(err)
+
+	sites := make(map[int64]struct{})
+	for _, h := range hits {
+		sites[h.Site] = struct{}{}
 	}
+
+	for s := range sites {
+		err = cron.UpdateStats(ctx, s, hits)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	return hits
 }

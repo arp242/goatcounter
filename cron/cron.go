@@ -25,7 +25,7 @@ type task struct {
 
 var tasks = []task{
 	{persistAndStat, 10 * time.Second},
-	{dataRetention, 1 * time.Hour},
+	{DataRetention, 1 * time.Hour},
 }
 
 var (
@@ -84,7 +84,7 @@ func Wait(db zdb.DB) {
 	}
 }
 
-func dataRetention(ctx context.Context) error {
+func DataRetention(ctx context.Context) error {
 	var sites goatcounter.Sites
 	err := sites.List(ctx)
 	if err != nil {
@@ -121,7 +121,7 @@ func persistAndStat(ctx context.Context) error {
 		grouped[h.Site] = append(grouped[h.Site], h)
 	}
 	for siteID, hits := range grouped {
-		err := updateStats(ctx, siteID, hits)
+		err := UpdateStats(ctx, siteID, hits)
 		if err != nil {
 			l.Fields(zlog.F{
 				"site":  siteID,
@@ -136,7 +136,7 @@ func persistAndStat(ctx context.Context) error {
 	return err
 }
 
-func updateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) error {
+func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) error {
 	start := time.Now().UTC().Format("2006-01-02 15:04:05")
 	var site goatcounter.Site
 	err := site.ByID(ctx, siteID)
@@ -181,7 +181,7 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit) error {
 	}
 
 	for siteID, hits := range grouped {
-		err := updateStats(ctx, siteID, hits)
+		err := UpdateStats(ctx, siteID, hits)
 		if err != nil {
 			return err
 		}

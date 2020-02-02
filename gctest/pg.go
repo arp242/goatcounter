@@ -4,7 +4,7 @@
 
 // +build testpg
 
-package goatcounter
+package gctest
 
 import (
 	"zgo.at/goatcounter/cfg"
@@ -12,6 +12,4 @@ import (
 
 func init() {
 	cfg.PgSQL = true
-	createpg()
-	// Doing this on every test run doubles the running time.
 }

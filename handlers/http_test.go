@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/gctest"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -68,7 +69,7 @@ func runTest(
 
 		if tt.wantCode > 0 {
 			t.Run(sn, func(t *testing.T) {
-				ctx, clean := goatcounter.StartTest(t)
+				ctx, clean := gctest.DB(t)
 				defer clean()
 
 				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(jsonutil.MustMarshal(tt.body)))
@@ -97,7 +98,7 @@ func runTest(
 		}
 
 		t.Run("form", func(t *testing.T) {
-			ctx, clean := goatcounter.StartTest(t)
+			ctx, clean := gctest.DB(t)
 			defer clean()
 
 			form := formBody(tt.body)

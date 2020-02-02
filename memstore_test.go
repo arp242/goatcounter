@@ -2,17 +2,19 @@
 // This file is part of GoatCounter and published under the terms of the EUPL
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
-package goatcounter
+package goatcounter_test
 
 import (
 	"context"
 	"testing"
 
+	. "zgo.at/goatcounter"
+	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 )
 
 func TestMemstore(t *testing.T) {
-	ctx, clean := StartTest(t)
+	ctx, clean := gctest.DB(t)
 	defer clean()
 
 	for i := 0; i < 2000; i++ {

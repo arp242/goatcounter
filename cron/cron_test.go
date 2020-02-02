@@ -1,4 +1,8 @@
-package cron
+// Copyright © 2019 Martin Tournoij <martin@arp242.net>
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+
+package cron_test
 
 import (
 	"context"
@@ -7,11 +11,13 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
+	. "zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/gctest"
 	"zgo.at/zhttp/ctxkey"
 )
 
 func TestDataRetention(t *testing.T) {
-	ctx, clean := goatcounter.StartTest(t)
+	ctx, clean := gctest.DB(t)
 	defer clean()
 
 	site := goatcounter.Site{Code: "bbbb", Name: "bbbb", Plan: goatcounter.PlanPersonal,
@@ -25,14 +31,14 @@ func TestDataRetention(t *testing.T) {
 	now := time.Now().UTC()
 	past := now.Add(-40 * 24 * time.Hour)
 
-	StoreHits(ctx, t, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Path: "/a"},
 		{Site: site.ID, CreatedAt: now, Path: "/a"},
 		{Site: site.ID, CreatedAt: past, Path: "/a"},
 		{Site: site.ID, CreatedAt: past, Path: "/a"},
 	}...)
 
-	err = dataRetention(ctx)
+	err = DataRetention(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,28 +64,4 @@ func TestDataRetention(t *testing.T) {
 	if out != want {
 		t.Errorf("\ngot:  %s\nwant: %s", out, want)
 	}
-}
-
-func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goatcounter.Hit {
-	t.Helper()
-
-	goatcounter.Memstore.Append(hits...)
-	hits, err := goatcounter.Memstore.Persist(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	sites := make(map[int64]struct{})
-	for _, h := range hits {
-		sites[h.Site] = struct{}{}
-	}
-
-	for s := range sites {
-		err = updateStats(ctx, s, hits)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	return hits
 }

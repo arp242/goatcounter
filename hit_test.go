@@ -13,6 +13,7 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/ztest"
@@ -156,7 +157,7 @@ func TestHitStatsList(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			ctx, clean := goatcounter.StartTest(t)
+			ctx, clean := gctest.DB(t)
 			defer clean()
 
 			site := goatcounter.MustGetSite(ctx)

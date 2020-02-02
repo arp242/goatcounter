@@ -2,18 +2,20 @@
 // This file is part of GoatCounter and published under the terms of the EUPL
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
-package cron
+package cron_test
 
 import (
 	"testing"
 	"time"
 
 	"zgo.at/goatcounter"
+	. "zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/gctest"
 	"zgo.at/utils/jsonutil"
 )
 
 func TestHitStats(t *testing.T) {
-	ctx, clean := goatcounter.StartTest(t)
+	ctx, clean := gctest.DB(t)
 	defer clean()
 
 	site := goatcounter.MustGetSite(ctx)
@@ -29,7 +31,7 @@ func TestHitStats(t *testing.T) {
 		panic(err)
 	}
 
-	err = updateStats(ctx, site.ID, hits)
+	err = UpdateStats(ctx, site.ID, hits)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -2,7 +2,7 @@
 // This file is part of GoatCounter and published under the terms of the EUPL
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
-package goatcounter
+package goatcounter_test
 
 import (
 	"context"
@@ -10,11 +10,13 @@ import (
 	"reflect"
 	"testing"
 
+	. "zgo.at/goatcounter"
+	"zgo.at/goatcounter/gctest"
 	"zgo.at/zvalidate"
 )
 
 func TestSiteInsert(t *testing.T) {
-	ctx, clean := StartTest(t)
+	ctx, clean := gctest.DB(t)
 	defer clean()
 
 	s := Site{Code: "the_code", Name: "the-code.com", Plan: PlanPersonal}
@@ -64,7 +66,7 @@ func TestSiteValidate(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			ctx, clean := StartTest(t)
+			ctx, clean := gctest.DB(t)
 			defer clean()
 
 			if tt.prefn != nil {
