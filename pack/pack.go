@@ -565,6 +565,18 @@ commit;
 	insert into version values ('2020-01-27-2-rm-count-ref');
 commit;
 `),
+	"db/migrate/pgsql/2020-02-02-1-tz.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'New setting: timezone', now(), now(),
+		'<p>The charts can now be displayed in the local timezone; you can
+			change the timezone in the site settings.</p>
+		<p>The timezone should be automatically set to your browser’s local
+			timezone.</p>
+	');
+
+	insert into version values ('2020-02-02-1-tz');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -12159,12 +12171,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 (function() {
 	'use strict';
 
-	var SETTINGS = {},
-		CSRF     = '';
+	var SETTINGS  = {},
+		CSRF      = '',
+		TZ_OFFSET = 0;
 
 	$(document).ready(function() {
-		SETTINGS = JSON.parse($('#js-settings').html());
-		CSRF     = $('#js-csrf').text();
+		SETTINGS  = JSON.parse($('#js-settings').text());
+		CSRF      = $('#js-csrf').text();
+		TZ_OFFSET = parseInt($('#js-settings').attr('data-offset'), 10) || 0;
 
 		// Set up error reporting.
 		window.onerror = onerror;
@@ -12851,10 +12865,22 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Set the start and end period and submit the form.
 	var set_period = function(start, end) {
+		if (TZ_OFFSET) {
+			var offset = (start.getTimezoneOffset() + TZ_OFFSET) / 60;
+			start.setHours(start.getHours() + offset);
+			end.setHours(end.getHours()     + offset);
+		}
+
 		$('#period-start').val(format_date_ymd(start));
 		$('#period-end').val(format_date_ymd(end));
 		$('#period-form').trigger('submit');
 	};
+
+	// Get UTC date.
+	var utc_date = function(d) {
+		return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
+			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()));
+	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
 	var is_mobile = function() {
@@ -13900,7 +13926,7 @@ var Templates = map[string][]byte{
 				know</a> if you have any questions or comments.</p>
 		</div>
 	{{end}}
-	<span id="js-settings">{{.Site.Settings.String | unsafe_js}}</span>
+	<span id="js-settings" data-offset="{{.Site.Settings.Timezone.Offset}}">{{.Site.Settings.String | unsafe_js}}</span>
 	{{if .User.ID}}<span id="js-csrf">{{.User.CSRFToken}}</span>{{end}}
 	<script crossorigin="anonymous" src="//{{.Static}}/jquery.min.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
