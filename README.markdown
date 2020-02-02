@@ -59,9 +59,16 @@ Features
 Running your own
 ----------------
 
-There are binaries on the [releases][release] page, or compile from source with
-`go get zgo.at/goatcounter/cmd/goatcounter`, which will put the binary at
-`~/go/bin/goatcounter`.
+There are binaries on the [releases][release] page, or compile from source with:
+
+	$ git clone git@github.com:zgoat/goatcounter.git
+	$ cd goatcounter
+	$ go build ./cmd/goatcounter
+
+You'll now have a `goatcounter` binary in the current directory.
+
+It's not recommended to use `go get` in GOPATH mode since that will ignore the
+versions in go.mod.
 
 Go 1.12 and newer are supported (it follows the [Go release policy][rp]). You
 will need a C compiler (for SQLite) or PostgreSQL.
