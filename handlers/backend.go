@@ -28,6 +28,7 @@ import (
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
+	"zgo.at/tz"
 	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
@@ -127,6 +128,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Get("/settings", zhttp.Wrap(h.settings))
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
+			af.Post("/set-tz", zhttp.Wrap(h.setTZ))
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 				Client:  zhttp.RatelimitIP,
 				Store:   zhttp.NewRatelimitMemory(),
@@ -175,10 +177,7 @@ var geodb = func() *geoip2.Reader {
 }()
 
 func geo(ip string) string {
-	loc, err := geodb.Country(net.ParseIP(ip))
-	if err != nil && cfg.Prod {
-		zlog.Module("geo").Field("ip", ip).Error(err)
-	}
+	loc, _ := geodb.Country(net.ParseIP(ip))
 	return loc.Country.IsoCode
 }
 
@@ -263,8 +262,9 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var (
-		start = time.Now().UTC().Add(-7 * day)
-		end   = time.Now().UTC()
+		now   = time.Now().In(site.Settings.Timezone.Loc())
+		start = now.Add(-7 * day)
+		end   = now
 	)
 	// Use period first as fallback when there's no JS.
 	if p := r.URL.Query().Get("period"); p != "" {
@@ -290,7 +290,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 			start, err = time.Parse("2006-01-02", s)
 			if err != nil {
 				zhttp.FlashError(w, "start date: %s", err.Error())
-				start = time.Now().UTC().Add(-7 * day)
+				start = now.Add(-7 * day)
 			}
 		}
 		if s := r.URL.Query().Get("period-end"); s != "" {
@@ -298,7 +298,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 			end, err = time.Parse("2006-01-02", s)
 			if err != nil {
 				zhttp.FlashError(w, "end date: %s", err.Error())
-				end = time.Now().UTC()
+				end = now
 			}
 		}
 	}
@@ -659,13 +659,30 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 
 	return zhttp.Template(w, "backend_settings.gohtml", struct {
 		Globals
-		SubSites goatcounter.Sites
-		Validate *zvalidate.Validator
-	}{newGlobals(w, r), sites, verr})
+		SubSites  goatcounter.Sites
+		Validate  *zvalidate.Validator
+		Timezones []*tz.Zone
+	}{newGlobals(w, r), sites, verr, tz.Zones})
 }
 
 func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.String(w, zhttp.RemovePort(r.RemoteAddr))
+}
+
+func (h backend) setTZ(w http.ResponseWriter, r *http.Request) error {
+	site := goatcounter.MustGetSite(r.Context())
+
+	var err error
+	site.Settings.Timezone, err = tz.New(geo(r.RemoteAddr), r.FormValue("zone"))
+	if err != nil {
+		zlog.Field("zone", r.FormValue("zone")).Error(err)
+	}
+
+	err = site.Update(r.Context())
+	if err != nil {
+		return err
+	}
+	return zhttp.JSON(w, "")
 }
 
 func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {

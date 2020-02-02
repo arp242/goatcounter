@@ -13,7 +13,7 @@ footer a { font-weight: bold; color: #252525; }
 #trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
 
-#settings { display: none; }
+#js-settings, #js-csrf { display: none; }
 
 .page, .center {
 	/* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
@@ -228,6 +228,8 @@ form .err  { color: red; display: block; }
 
 fieldset { margin-bottom: 1em; border: 1px solid #666; }
 legend   { font-weight: bold; }
+
+select#timezone { max-width: 20rem; }
 
 .active { font-weight: bold; text-decoration: underline; }
 

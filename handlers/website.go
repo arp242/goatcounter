@@ -19,6 +19,7 @@ import (
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
@@ -130,6 +131,7 @@ func (h website) signup(w http.ResponseWriter, r *http.Request) error {
 type signupArgs struct {
 	Name       string `json:"site_name"`
 	Code       string `json:"site_code"`
+	Timezone   string `json:"timezone"`
 	Email      string `json:"user_email"`
 	UserName   string `json:"user_name"`
 	TuringTest string `json:"turing_test"`
@@ -154,7 +156,13 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Create site.
-	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan}
+	tz, err := tz.New(geo(r.RemoteAddr), args.Timezone)
+	if err != nil {
+		zlog.Field("timezone", args.Timezone).Error(err)
+	}
+
+	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan,
+		Settings: goatcounter.SiteSettings{Timezone: tz}}
 	err = site.Insert(txctx)
 	if err != nil {
 		if _, ok := err.(*zvalidate.Validator); !ok {

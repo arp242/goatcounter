@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/tz"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
@@ -68,6 +69,7 @@ type SiteSettings struct {
 	NumberFormat    rune               `json:"number_format"`
 	DataRetention   int                `json:"data_retention"`
 	IgnoreIPs       sqlutil.StringList `json:"ignore_ips"`
+	Timezone        *tz.Zone           `json:"timezone"`
 	Limits          struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
