@@ -240,7 +240,10 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	if hit.Deprecated != "" {
-		zlog.Module("count-dep").Field("site", site.Code).Print(hit.Deprecated)
+		zlog.Module("count-dep").Fields(zlog.F{
+			"site": site.Code,
+			"ref":  r.Referer(),
+		}).Print(hit.Deprecated)
 		hit.Deprecated = ""
 	}
 	goatcounter.Memstore.Append(hit)

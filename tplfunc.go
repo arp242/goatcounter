@@ -83,7 +83,7 @@ func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
 }
 
 // The database stores everything in UTC, so we need to apply
-// the offse.
+// the offset.
 //
 // Let's say we have two days with an offset of UTC+2, this means we
 // need to transform this:
@@ -108,7 +108,7 @@ func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
 //
 // And skip the last 2 hours of the last day.
 //
-// Offsets that are not whole hours (e.g. 6:30) are treated like 6:00. I don't
+// Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
 // know how to do that otherwise.
 func applyOffset(offset int, stats []Stat) {
 	switch {
