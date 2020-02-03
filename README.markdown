@@ -67,6 +67,9 @@ There are binaries on the [releases][release] page, or compile from source with:
 
 You'll now have a `goatcounter` binary in the current directory.
 
+The master branch should be reasonably stable. You can build/run a specific
+release by checking out the tag: `git checkout v1.0.0`.
+
 It's not recommended to use `go get` in GOPATH mode since that will ignore the
 versions in go.mod.
 
