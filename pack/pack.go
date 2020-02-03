@@ -14610,7 +14610,8 @@ parent site includes the child sites.</p>
 
 				<label for="timezone">Timezone</label>
 				<select name="settings.timezone" id="timezone">
-					{{range $tz := .Timezones}}<option data-abbr="{{$tz.Abbr}}" {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
+					<option {{option_value $.Site.Settings.Timezone.String ".UTC"}}>UTC</option>
+					{{range $tz := .Timezones}}<option {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
 					{{end}}
 				</select>
 				{{validate "settings.timezone" .Validate}}

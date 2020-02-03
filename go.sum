@@ -50,6 +50,8 @@ google.golang.org/appengine v1.6.5 h1:tycE03LOZYQNhDpS27tcQdAzLCVMaj7QT2SXxebnpC
 google.golang.org/appengine v1.6.5/go.mod h1:8WjMMxjGQR8xUklV/ARdw2HLXBOI7O7uCIDZVag1xfc=
 zgo.at/tz v0.0.0-20200202093647-dce38bfb92f6 h1:97snEhVwldCmQBgYEORXez3diX/Qu8moXtpdA8Igtdg=
 zgo.at/tz v0.0.0-20200202093647-dce38bfb92f6/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
+zgo.at/tz v0.0.0-20200203034257-ef4c21819945 h1:Jm0GDHHFINxlFb2OQqCMeOzKXzj+nSXXJ3paSqYUpok=
+zgo.at/tz v0.0.0-20200203034257-ef4c21819945/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/utils v1.2.0 h1:Ohv+XfqyoiSdl9lCbyiDZ5E4YgEXWxxE4Y/holHDiYo=
 zgo.at/utils v1.2.0/go.mod h1:7acz1AfMZAOOC1wTi6QbYFie+eA0LRSHE38TwLZsFcA=
 zgo.at/utils v1.3.1 h1:e5/HyvCEuASSrpipLY0QhWMjDIYr+zU24wRJzejX+es=
