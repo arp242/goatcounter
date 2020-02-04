@@ -32,6 +32,9 @@ var (
 	RefSchemeGenerated = ptr("g")
 )
 
+// Switch from hourly to daily view if the number of days is larger than this.
+const DailyView = 30
+
 type Hit struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
@@ -302,8 +305,9 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 }
 
 type Stat struct {
-	Day  string
-	Days []int
+	Day   string
+	Days  []int
+	Total int
 }
 
 type HitStat struct {
@@ -390,9 +394,10 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		Title string    `db:"title"`
 		Day   time.Time `db:"day"`
 		Stats []byte    `db:"stats"`
+		Total int       `db:"total"`
 	}
 	query = `
-		select path, title, day, stats
+		select path, title, day, stats, total
 		from hit_stats
 		where
 			site=$1 and
@@ -412,6 +417,8 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 	l = l.Since("select hits_stats")
 
+	daily := end.Sub(start).Hours()/24 >= DailyView
+
 	// Get max amount and totals.
 	hh := *h
 	totalDisplay := 0
@@ -421,13 +428,20 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 				var x []int
 				jsonutil.MustUnmarshal(s.Stats, &x)
 				hh[i].Title = s.Title
-				hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
+				hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x, Total: s.Total})
 
 				// Get max.
-				for j := range x {
-					totalDisplay += x[j]
-					if x[j] > hh[i].Max {
-						hh[i].Max = x[j]
+				if daily {
+					totalDisplay += s.Total
+					if s.Total > hh[i].Max {
+						hh[i].Max = s.Total
+					}
+				} else {
+					for j := range x {
+						totalDisplay += x[j]
+						if x[j] > hh[i].Max {
+							hh[i].Max = x[j]
+						}
 					}
 				}
 			}
