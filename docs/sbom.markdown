@@ -17,9 +17,10 @@ Backend
 | github.com/google/go-cmp           | v0.3.1                             | BSD     |
 | github.com/jmoiron/sqlx            | v1.2.0                             | MIT     |
 | github.com/lib/pq                  | v1.3.0                             | MIT     |
-| github.com/mattn/go-sqlite3        | v2.0.2                             | MIT     |
+| github.com/mattn/go-sqlite3        | v2.0.3                             | MIT     |
+| SQLite                             | 3.31.1                             | Public domain |
 | github.com/monoculum/formam        | v0.0.0-20191229172733-952f0766a724 | Apache  |
-| github.com/mssola/user_agent       | v0.5.0                             | MIT     |
+| github.com/mssola/user_agent       | v0.5.1                             | MIT     |
 | github.com/pkg/errors              | v0.9.1                             | BSD     |
 | github.com/teamwork/guru           | v1.0.0                             | MIT     |
 | github.com/teamwork/reload         | v1.3.0                             | MIT     |
@@ -27,6 +28,7 @@ Backend
 | golang.org/x/net                   | v0.0.0-20190724013045-ca1201d0de80 | BSD     |
 | golang.org/x/sys                   | v0.0.0-20191110163157-d32e6e3b99c4 | BSD     |
 | golang.org/x/text                  | v0.3.0                             | BSD     |
+| zgo.at/tz                          | v0.0.0-20200203090654-9231354ff19a | MIT     |
 | zgo.at/utils                       | v1.3.1                             | MIT     |
 | zgo.at/zdb                         | v0.0.0-20200114054604-cb5410b595af | MIT     |
 | zgo.at/zhttp                       | v0.0.0-20200122175535-f8103001dd8e | MIT     |
@@ -34,7 +36,7 @@ Backend
 | zgo.at/zpack                       | v1.0.0                             | MIT     |
 | zgo.at/zstripe                     | v1.0.0                             | MIT     |
 | zgo.at/ztest                       | v1.0.1                             | MIT     |
-| zgo.at/zvalidate                   | v1.0.0                             | MIT     |
+| zgo.at/zvalidate                   | v1.2.0                             | MIT     |
 
 
 Frontend

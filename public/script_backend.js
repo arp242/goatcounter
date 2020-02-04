@@ -16,7 +16,7 @@
 
 		// Set up error reporting.
 		window.onerror = onerror;
-		$(document).ajaxError(function(e, xhr, settings, err) {
+		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return;
 			var msg = 'Could not load ' + settings.url + ': ' + err;
