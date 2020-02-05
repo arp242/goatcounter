@@ -88,7 +88,7 @@ form .err  { color: red; display: block; }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
-.show-mobile .page-title+sup { bottom: 2.5ex; }
+.show-mobile .page-title+sup { bottom: 2ex; }
 
 /* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
  * solution for that though :-/ */

@@ -13077,7 +13077,7 @@ form .err  { color: red; display: block; }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
-.show-mobile .page-title+sup { bottom: 2.5ex; }
+.show-mobile .page-title+sup { bottom: 2ex; }
 
 /* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
  * solution for that though :-/ */
@@ -14292,7 +14292,7 @@ do this 100% reliably.</p>
 	<div class="pages-list">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
-			<sup>(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
+			<sup class="hide-mobile">(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
