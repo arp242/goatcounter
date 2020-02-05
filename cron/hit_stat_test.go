@@ -49,13 +49,13 @@ func TestHitStats(t *testing.T) {
 		t.Fatalf("len(stats) is not 2: %d", len(stats))
 	}
 
-	want0 := `{"Count":2,"Max":10,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0]}]}`
+	want0 := `{"Count":2,"Max":10,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],"Total":2}]}`
 	got0 := string(jsonutil.MustMarshal(stats[0]))
 	if got0 != want0 {
 		t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
 	}
 
-	want1 := `{"Count":1,"Max":10,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]}]}`
+	want1 := `{"Count":1,"Max":10,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Total":1}]}`
 	got1 := string(jsonutil.MustMarshal(stats[1]))
 	if got1 != want1 {
 		t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)

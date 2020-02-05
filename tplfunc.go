@@ -51,16 +51,16 @@ func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
 
 	now := time.Now().In(site.Settings.Timezone.Loc())
 	_, offset := now.Zone()
-
-	// Round to next hour for TZ offset of 9.5 hours, instead of down.
 	if offset%3600 != 0 {
+		// Round to next hour for TZ offset of 9.5 hours, instead of down.
 		offset += 1900
 	}
+	offset /= 3600
 
 	// Daily view.
 	// TODO: apply TZ offsets, e.g. if UTC+8 and local time is after 16:00, then
 	// add hours from next day.
-	if len(stats) >= DailyView {
+	if len(stats) > DailyView {
 		var b strings.Builder
 		for _, stat := range stats {
 			inner := ""
@@ -75,7 +75,6 @@ func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
 		return template.HTML(b.String())
 	}
 
-	offset /= 3600
 	applyOffset(offset, stats)
 
 	var b strings.Builder
