@@ -199,6 +199,28 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	return refURL.String()[2:], &eq, changed || len(q) != start, false
 }
 
+func cleanPath(path string) string {
+	// No query parameters.
+	if !strings.Contains(path, "?") {
+		return path
+	}
+
+	u, err := url.Parse(path)
+	if err != nil {
+		return path
+	}
+
+	q := u.Query()
+
+	// Magic Facebook tracking parameter. As far as I can find it's not public
+	// what this even does exactly, so just remove it to prevent pages from
+	// being show more than once.
+	q.Del("fbclid")
+
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
 	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set from memstore.
@@ -207,6 +229,10 @@ func (h *Hit) Defaults(ctx context.Context) {
 
 	if h.CreatedAt.IsZero() {
 		h.CreatedAt = time.Now().UTC()
+	}
+
+	if !h.Event {
+		h.Path = cleanPath(h.Path)
 	}
 
 	if h.Ref != "" && h.RefURL != nil {
@@ -227,7 +253,6 @@ func (h *Hit) Defaults(ctx context.Context) {
 			h.RefScheme = RefSchemeGenerated
 		}
 	}
-
 	h.Ref = strings.TrimRight(h.Ref, "/")
 	if !h.Event {
 		h.Path = "/" + strings.Trim(h.Path, "/")

@@ -186,7 +186,7 @@ func TestHitStatsList(t *testing.T) {
 	}
 }
 
-func TestHitDefaults(t *testing.T) {
+func TestHitDefaultsRef(t *testing.T) {
 	a := "arp242.net"
 	set := ztest.SP("_")
 
@@ -249,6 +249,35 @@ func TestHitDefaults(t *testing.T) {
 			if *h.RefScheme != tt.wantScheme {
 				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n",
 					PSP(h.RefScheme), tt.wantScheme)
+			}
+		})
+	}
+}
+
+func TestHitDefaultsPath(t *testing.T) {
+	tests := []struct {
+		in       string
+		wantPath string
+	}{
+		{"/page", "/page"},
+		{"//page/", "/page"},
+		{"//", "/"},
+		{"", "/"},
+		{"/page?q=a", "/page?q=a"},
+		{"/page?fbclid=foo", "/page"},
+		{"/page?fbclid=foo&a=b", "/page?a=b"},
+	}
+
+	ctx := context.WithValue(context.Background(), ctxkey.Site, &goatcounter.Site{ID: 1})
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			h := goatcounter.Hit{Path: tt.in}
+			h.Defaults(ctx)
+
+			if h.Path != tt.wantPath {
+				t.Fatalf("wrong Path\nout:  %#v\nwant: %#v\n",
+					h.Path, tt.wantPath)
 			}
 		})
 	}
