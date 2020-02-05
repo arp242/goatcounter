@@ -94,8 +94,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		// https://stripe.com/docs/security#content-security-policy
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
-			header.CSPImgSrc:     st,
-			header.CSPScriptSrc:  append(st, "data:", "https://chat.goatcounter.com", "https://js.stripe.com"),
+			header.CSPImgSrc:     append(st, "data:"),
+			header.CSPScriptSrc:  append(st, "https://chat.goatcounter.com", "https://js.stripe.com"),
 			header.CSPStyleSrc:   append(st, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:    st,
 			header.CSPFormAction: {header.CSPSourceSelf},
