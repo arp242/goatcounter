@@ -1676,12 +1676,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	'use strict';
 
 	var dep = '';
-
-	if (window.vars) {  // TODO: temporary compatibility.
-		window.goatcounter = window.vars;
-		dep += 'window.vars';
-	}
-	else if (window.goatcounter && window.goatcounter.vars) {
+	if (window.goatcounter && window.goatcounter.vars) {  // TODO: temporary compatibility.
 		window.goatcounter = window.goatcounter.vars;
 		dep += 'window.goatcounter.vars';
 	}
