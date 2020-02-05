@@ -12424,7 +12424,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).closest('.chart-hbar')
+			var bar = $(this).closest('.chart-hbar'),
+				url = bar.attr('data-detail'),
+				name = $(this).find('small').text();
+			if (!url || !name || name === '(other)' || name === '(unknown)')
+				return;
+
 			// Already open.
 			if (bar.attr('data-save')) {
 				bar.html(bar.attr('data-save'));
@@ -12432,22 +12437,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				return;
 			}
 
-			var name = $(this).find('small').text();
-			if (!name || name === '(other)' || name === '(unknown)')
-				return;
-
-			var url = bar.attr('data-detail');
-			if (!url)
-				return;
-
-			bar.attr('data-save', bar.html());
 			jQuery.ajax({
 				url: url,
 				data: append_period({
 					name:  name,
 					total: $('.total-hits').text().replace(/[^\d]/, ''),
 				}),
-				success: function(data) { bar.html(data.html); },
+				success: function(data) {
+					bar.attr('data-save', bar.html());
+					bar.html(data.html);
+				},
 			});
 		});
 	};
