@@ -7,148 +7,133 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
-	"net/mail"
 	"os"
+	"runtime"
 	"strings"
 
-	"github.com/go-chi/chi"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
-	"github.com/pkg/errors"
-	"github.com/teamwork/reload"
-	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/cron"
-	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/errorutil"
-	"zgo.at/utils/stringutil"
+	"zgo.at/utils/runtimeutil"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
-	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
-	"zgo.at/zstripe"
+	"zgo.at/zvalidate"
 )
 
 var version = "dev"
 
+var usage = map[string]string{
+	"":     usageTop,
+	"help": usageHelp,
+	//"serve":   usageServe,
+	//"create":    usageCreate,
+	"migrate": usageMigrate,
+	"saas":    usageSaas,
+	"reindex": usageReindex,
+
+	"version": `
+Show version and build information. This is printed as key=value, separated by
+semicolons.
+`,
+}
+
+const usageTop = `
+Usage: goatcounter [command] [flags]
+
+Commands:
+
+  help        Show help; use "help <command>" or "help all" for more details.
+  version     Show version and build information and exit.
+  migrate     Run database migrations.
+  saas        Run a "SaaS" production server.
+  reindex     Re-create the cached statistics (*_stats tables) from the hits.
+              This is generally rarely needed and mostly a development tool.
+
+See "help <command>" for more details for the command.`
+
+// serve          Serve just existing domains. This is probably what you want if
+//                you're looking to self-host GoatCounter. Requires creating a
+//                site with "create" first.
+// create         Create a new site and user; only needed for "serve".
+
 func main() {
-	var migrate string
-	flag.StringVar(&migrate, "migrate", "", "Run database migrations")
-	cfg.Set()
-	if cfg.Version == "" {
-		cfg.Version = version
-	}
-	fmt.Printf("Goatcounter version %s\n", version)
-	//cfg.Print()
-
-	if cfg.Stripe != "" {
-		for _, k := range stringutil.Fields(cfg.Stripe, ":") {
-			switch {
-			case strings.HasPrefix(k, "sk_"):
-				zstripe.SecretKey = k
-			case strings.HasPrefix(k, "pk_"):
-				zstripe.PublicKey = k
-			case strings.HasPrefix(k, "whsec_"):
-				zstripe.SignSecret = k
-			}
-		}
-	}
-	if zstripe.SecretKey == "" || zstripe.SignSecret == "" || zstripe.PublicKey == "" {
-		zstripe.SecretKey = ""
-		zstripe.SignSecret = ""
-		zstripe.PublicKey = ""
-		zlog.Print("-stripe not given or doesn't contain all keys; billing disabled")
-	}
-
-	zhttp.CookieSecure = cfg.Prod
-	zmail.SMTP = cfg.SMTP
-
-	if cfg.Prod && cfg.SMTP == "" {
-		panic("-prod enabled and -smtp not given")
-	}
-
-	defer zlog.ProfileCPU(cfg.CPUProfile)()
-
-	// Setup logging.
-	if cfg.Prod {
-		zlog.Config.FmtTime = "Jan _2 15:04:05 "
-	}
-	zlog.Config.SetDebug(cfg.Debug)
+	cfg.Version = version
 	zlog.Config.StackFilter = errorutil.FilterPattern(
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
 
-	if cfg.EmailErrors != "" {
-		zlog.Config.Outputs = append(zlog.Config.Outputs, func(l zlog.Log) {
-			if l.Level != zlog.LevelErr {
-				return
-			}
-
-			err := zmail.Send("GoatCounter Error",
-				mail.Address{Address: "errors@zgo.at"},
-				[]mail.Address{{Address: cfg.EmailErrors}},
-				zlog.Config.Format(l))
-			if err != nil {
-				fmt.Println(err)
-			}
-		})
+	if len(os.Args) < 2 {
+		die(1, usage[""], "need a command")
 	}
 
-	// Reload on changes.
-	if !cfg.Prod {
-		go func() {
-			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
-			must(errors.Wrap(err, "reload.Do"))
-		}()
+	cmd := os.Args[1]
+	os.Args = append([]string{os.Args[0]}, os.Args[2:]...)
+	flag.Usage = func() { fmt.Print("\n", strings.TrimSpace(usage[cmd]), "\n") }
+
+	var err error
+	switch cmd {
+	default:
+		die(1, usage[""], "unknown command: %q", cmd)
+	case "help":
+		help()
+	case "version":
+		fmt.Printf("version=%s; go=%s; GOOS=%s; GOARCH=%s; race=%t; cgo=%t\n",
+			version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
+			runtimeutil.Race, runtimeutil.CGO)
+	case "migrate":
+		if len(os.Args) == 1 {
+			die(1, usage["migrate"], "need a migration or command")
+		}
+		err = migrate()
+	//case "create":
+	//	err = create()
+	//case "serve":
+	//	err = serve()
+	case "saas":
+		err = saas()
+	case "reindex":
+		err = reindex()
+	}
+	if err != nil {
+		if _, ok := err.(zvalidate.Validator); ok {
+			die(1, usage[cmd], err.Error())
+		}
+		die(1, "", err.Error())
+	}
+}
+
+func die(code int, usageText, msg string, args ...interface{}) {
+	out := os.Stdout
+	if code > 0 {
+		out = os.Stderr
 	}
 
-	// Connect to DB.
-	db, err := zdb.Connect(zdb.ConnectOptions{
-		Connect:    cfg.DBFile,
-		PostgreSQL: cfg.PgSQL,
-		Schema:     map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL],
+	msg = strings.TrimSpace(msg)
+	if msg != "" {
+		fmt.Fprintf(out, msg+"\n", args...)
+	}
+
+	if usageText != "" {
+		if msg != "" {
+			fmt.Fprintf(out, "\n")
+		}
+		fmt.Fprintf(out, strings.TrimSpace(usageText)+"\n")
+	}
+	os.Exit(code)
+}
+
+func flagDB() *string    { return flag.String("db", "sqlite://db/goatcounter.sqlite3", "") }
+func flagDebug() *string { return flag.String("debug", "", "") }
+
+func connectDB(connect string, migrate []string) (*sqlx.DB, error) {
+	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://")
+	return zdb.Connect(zdb.ConnectOptions{
+		Connect: connect,
+		Schema:  map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL],
 		Migrate: zdb.NewMigrate(nil, migrate,
 			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
 			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL]),
 	})
-	must(err)
-	defer db.Close()
-
-	// Don't continue if we just want to run migrations.
-	if migrate != "" && migrate != "auto" {
-		zlog.Print("migrations done")
-		os.Exit(0)
-	}
-
-	// Run background tasks.
-	cron.Run(db)
-	acme.Run()
-
-	// Set up HTTP handler and servers.
-	domain := zhttp.RemovePort(cfg.Domain)
-	hosts := map[string]chi.Router{
-		domain:          zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + domain: handlers.NewWebsite(db),
-		"*":             handlers.NewBackend(db),
-	}
-
-	static := handlers.NewStatic("./public", cfg.Domain, cfg.Prod)
-	for _, ds := range strings.Split(cfg.DomainStatic, ",") {
-		hosts[zhttp.RemovePort(ds)] = static
-	}
-
-	zlog.Printf("serving %q on %q; prod: %t", cfg.Domain, cfg.Listen, cfg.Prod)
-
-	zhttp.Serve(&http.Server{Addr: cfg.Listen, Handler: zhttp.HostRoute(hosts)}, cfg.TLS, func() {
-		cron.Wait(db)
-		acme.Wait()
-		zlog.ProfileHeap(cfg.MemProfile)
-	})
-}
-
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
