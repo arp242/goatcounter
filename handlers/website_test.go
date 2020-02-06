@@ -73,7 +73,7 @@ func TestWebsiteSignup(t *testing.T) {
 			method:       "POST",
 			router:       NewWebsite,
 			path:         "/signup",
-			body:         signupArgs{Name: "Example", Code: "example", Email: "m@example.com", UserName: "Example user", TuringTest: "9"},
+			body:         signupArgs{Name: "Example", Code: "xxx", Email: "m@example.com", UserName: "Example user", TuringTest: "9"},
 			wantCode:     303,
 			wantFormCode: 303,
 		},

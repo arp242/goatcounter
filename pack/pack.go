@@ -12967,6 +12967,7 @@ img.imgzoom-loading { cursor: wait !important; }
 #home-features p   { width: 49%; padding: .5em 1em; background-color: #fff; box-shadow: 0 0 4px #cdc8a4; }
 #home-features div:first-child p { margin-top: 0; }
 #home-features strong { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
+#home-features code   { font-size: 10px; white-space: pre-wrap; }
 
 @media (max-width: 45rem) {
 	#home-features div { flex-wrap: wrap; }
@@ -15100,6 +15101,18 @@ sub {
 			<a href="https://github.com/zgoat/goatcounter">the GitHub page</a>.</p>
 		<p><strong>Own your data</strong>; you can always export all data and
 			<strong>cancel at any time</strong>.</p>
+	</div>
+
+	<div>
+			<p>Integrate on your site with just <strong>a single script
+				tag</strong>:<br>
+			<code>&lt;script data-goatcounter="https://yoursite.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"&gt;&lt;/script&gt;</code>
+			</p>
+
+		<p>The JavaScript integration is a good option for most, but you can
+			also use a <strong>no-JavaScript image-based tracker</strong> or
+			integrate in your <strong>backend middleware</strong>.</p>
 	</div>
 </div>
 

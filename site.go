@@ -39,7 +39,7 @@ var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
 	"admin", "ns1", "ns2", "m", "mobile", "api",
 	"dev", "test", "beta", "new", "staging", "debug", "pprof",
-	"chat",
+	"chat", "example", "yoursite", "test",
 }
 
 // Site is a single site which is sending newsletters (i.e. it's a "customer").
