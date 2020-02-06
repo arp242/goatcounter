@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"net"
@@ -460,6 +461,9 @@ func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 		err = a.ByCode(r.Context(), code)
 	}
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return guru.New(404, "no such site")
+		}
 		return err
 	}
 
