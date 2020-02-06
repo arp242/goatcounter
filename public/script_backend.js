@@ -398,6 +398,9 @@
 
 	// Select a period by dragging the mouse over a timeframe.
 	var drag_timeframe = function() {
+		if (is_mobile())
+			return;
+
 		var box, startX;
 
 		var setpos = function(e) {
@@ -407,7 +410,7 @@
 				: {left: e.pageX, right: $(window).width() - startX + 1});
 		};
 
-		$('.chart').on('mousedown touchstart', function(e) {
+		$('.chart').on('mousedown', function(e) {
 			if (e.button !== 0 && e.type !== 'touchstart')
 				return;
 
@@ -417,7 +420,7 @@
 				right:  $(document.body).width() - e.pageX,
 				top:    $(this).offset().top,
 				height: $(this).outerHeight(),
-			}).on('mousemove touchmove', function(e) {
+			}).on('mousemove', function(e) {
 				e.preventDefault();
 				setpos(e);
 			});
@@ -430,14 +433,14 @@
 			$(document.body).append(box);
 		});
 
-		$('.chart').on('mousemove touchmove', function(e) {
+		$('.chart').on('mousemove', function(e) {
 			e.preventDefault();
 			if (!box)
 				return;
 			setpos(e);
 		});
 
-		$(document.body).on('mouseup touchend', function(e) {
+		$(document.body).on('mouseup', function(e) {
 			if (!box)
 				return;
 
