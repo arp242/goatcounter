@@ -63,6 +63,8 @@ zgo.at/utils v1.3.2-0.20200206074800-0200528ddecf h1:5YqIt5EV0x1ct7ZGPN4Srde0P4j
 zgo.at/utils v1.3.2-0.20200206074800-0200528ddecf/go.mod h1:7acz1AfMZAOOC1wTi6QbYFie+eA0LRSHE38TwLZsFcA=
 zgo.at/utils v1.4.0 h1:x7KF9KbZoXPPZZP6ySJv78TV49d1BCvkc2/AUD52Kls=
 zgo.at/utils v1.4.0/go.mod h1:7acz1AfMZAOOC1wTi6QbYFie+eA0LRSHE38TwLZsFcA=
+zgo.at/utils v1.4.1 h1:Zn2SkgG6ta3hJTl0aawGqExIw/9Lf3ruJSvjhSjZ6pI=
+zgo.at/utils v1.4.1/go.mod h1:7acz1AfMZAOOC1wTi6QbYFie+eA0LRSHE38TwLZsFcA=
 zgo.at/zdb v0.0.0-20200125154831-aafd6e7fe5e8 h1:Mzkvf62YPU+Ka6mWwZwC7WlHBok8rQl0XMFylb/LS7Q=
 zgo.at/zdb v0.0.0-20200125154831-aafd6e7fe5e8/go.mod h1:GT5Nyrxb9H6JszZtd7o0m5CPEd3C7DFqAeJt98nyNQI=
 zgo.at/zdb v0.0.0-20200130143039-645dc2ac90fe h1:vlIHPVBy0aMEY01ctWKOBrj7F0lVjY+HPX5U8lkQiyU=

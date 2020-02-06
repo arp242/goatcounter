@@ -17,10 +17,10 @@ all" to display everything.
 `
 
 func help() {
-	if len(os.Args) == 1 {
+	if len(os.Args) == 2 {
 		die(0, usage[""], "")
 	}
-	if os.Args[1] == "all" {
+	if os.Args[2] == "all" {
 		fmt.Print(strings.TrimSpace(usage[""]), "\n\n")
 		for _, h := range []string{"help", "version", "migrate", "saas", "reindex"} {
 			head := fmt.Sprintf("─── Help for %q ", h)
@@ -30,9 +30,9 @@ func help() {
 		os.Exit(0)
 	}
 
-	t, ok := usage[os.Args[1]]
+	t, ok := usage[os.Args[2]]
 	if !ok {
-		die(1, usage["help"], "no help topic for %q", os.Args[1])
+		die(1, usage["help"], "no help topic for %q", os.Args[2])
 	}
 	die(0, t, "")
 }

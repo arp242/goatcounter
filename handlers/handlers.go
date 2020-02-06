@@ -57,9 +57,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 }
 
 func NewWebsite(db zdb.DB) chi.Router {
-	if !cfg.Prod {
-		pack.Templates = nil
-	}
 	zhttp.InitTpl(pack.Templates)
 
 	r := chi.NewRouter()
@@ -69,11 +66,8 @@ func NewWebsite(db zdb.DB) chi.Router {
 
 func NewStatic(dir, domain string, prod bool) chi.Router {
 	r := chi.NewRouter()
-	if !prod {
-		pack.Public = nil
-	}
 	cache := 0
-	if cfg.Prod {
+	if prod {
 		cache = 86400 * 30
 	}
 	// Use * for Access-Control-Allow-Origin as we can't use *.domain, which is

@@ -18,6 +18,8 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
+	"zgo.at/goatcounter/pack"
+	"zgo.at/utils/ioutilx"
 	"zgo.at/utils/stringutil"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -30,9 +32,11 @@ import (
 const usageSaas = `
 Run as a "SaaS" service; this will run, a public-facing website on
 www.[domanin], a static file server on [staticdomain], and a backend UI on
-[code].domain.
+[code].domain. Users are expected to register on www.[domain].
 
-Users are expected to register on www.[domain].
+Static files and templates are compiled in the binary and aren't needed to run
+GoatCounter. But if GoatCounter is started from the source directory they're
+loaded from the filesystem.
 
 Flags:
 
@@ -99,6 +103,7 @@ func saas() error {
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
+	cfg.SourceTree = ioutilx.Exists("./public/script.js") && ioutilx.Exists("./tpl/home.gohtml")
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
 	if !dev {
@@ -117,8 +122,10 @@ func saas() error {
 	}
 
 	// Reload on changes.
-	// TODO: detect this based on whether or not we're in local dir.
-	if dev {
+	if cfg.SourceTree {
+		pack.Templates = nil
+		pack.Public = nil
+
 		go func() {
 			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
 			if err != nil {
@@ -152,7 +159,8 @@ func saas() error {
 	}
 
 	zlog.Print(getVersion())
-	zlog.Printf("serving %q on %q; dev: %t", cfg.Domain, listen, dev)
+	zlog.Printf("serving %q on %q; dev=%t; sourceTree=%t",
+		cfg.Domain, listen, dev, cfg.SourceTree)
 	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
 		cron.Wait(db)
 		acme.Wait()
