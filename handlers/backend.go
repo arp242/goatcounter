@@ -72,7 +72,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			},
 			Store: zhttp.NewRatelimitMemory(),
 			Limit: func(r *http.Request) (int, int64) {
-				if r.RemoteAddr == "127.0.0.1" { // From zbuf
+				if r.RemoteAddr == "127.0.0.1" { // From httpbuf
 					return 1 << 14, 1
 				}
 				return 4, 1

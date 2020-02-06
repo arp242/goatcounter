@@ -392,15 +392,12 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		ival := interval(days)
-		r, err := tx.ExecContext(ctx,
+		_, err := tx.ExecContext(ctx,
 			`delete from hits where site=$1 and created_at < `+ival,
 			s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
 		}
-
-		n, _ := r.RowsAffected()
-		zlog.Module("DeleteOlderThan").Fields(zlog.F{"site": s.ID, "hits": n}).Print("deleted hits")
 
 		for _, t := range []string{"hit_stats", "browser_stats", "location_stats"} {
 			_, err := tx.ExecContext(ctx,

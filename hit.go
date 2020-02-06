@@ -33,6 +33,7 @@ var (
 )
 
 type Hit struct {
+	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
 
 	Path        string            `db:"path" json:"p,omitempty"`
