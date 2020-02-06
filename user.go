@@ -242,7 +242,7 @@ func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
 			[]mail.Address{{Name: u.Name, Address: u.Email}},
-			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  %s/user/login/%s\n\nGo to it to log in. This key is valid for one hour.\n",
+			fmt.Sprintf("Hi there,\n\nYour login URL for Goatcounter is:\n\n  %s/user/login/%s\n\nGo to it to log in. This key is valid for one hour and can be used only once.\n",
 				site.URL(), *u.LoginRequest))
 		if err != nil {
 			zlog.Errorf("zmail: %s", err)
