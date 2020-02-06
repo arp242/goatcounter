@@ -26,10 +26,10 @@ import (
 var version = "dev"
 
 var usage = map[string]string{
-	"":     usageTop,
-	"help": usageHelp,
-	//"serve":   usageServe,
-	//"create":    usageCreate,
+	"":        usageTop,
+	"help":    usageHelp,
+	"serve":   usageServe,
+	"create":  usageCreate,
 	"migrate": usageMigrate,
 	"saas":    usageSaas,
 	"reindex": usageReindex,
@@ -48,16 +48,19 @@ Commands:
   help        Show help; use "help <command>" or "help all" for more details.
   version     Show version and build information and exit.
   migrate     Run database migrations.
+              This is generally rarely needed and mostly a development tool.
+  serve       Serve just existing domains. This is probably what you want if
+              you're looking to self-host GoatCounter. Requires creating a site
+              with "create" first.
+  create      Create a new site and user.
+
+Advanced commands:
+
   saas        Run a "SaaS" production server.
   reindex     Re-create the cached statistics (*_stats tables) from the hits.
-              This is generally rarely needed and mostly a development tool.
+
 
 See "help <command>" for more details for the command.`
-
-// serve          Serve just existing domains. This is probably what you want if
-//                you're looking to self-host GoatCounter. Requires creating a
-//                site with "create" first.
-// create         Create a new site and user; only needed for "serve".
 
 var CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 

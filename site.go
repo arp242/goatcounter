@@ -154,8 +154,20 @@ func (s *Site) Validate(ctx context.Context) error {
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
+		//if cfg.Create == "" && strings.HasSuffix(*s.Cname, cfg.Domain) {
 		if strings.HasSuffix(*s.Cname, cfg.Domain) {
 			v.Append("cname", "cannot end with %q", cfg.Domain)
+		}
+
+		var cname uint8
+		err := zdb.MustGet(ctx).GetContext(ctx, &cname,
+			`select 1 from sites where lower(cname)=lower($1) and id!=$2 limit 1`,
+			s.Cname, s.ID)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+		if cname == 1 {
+			v.Append("cname", "already exists")
 		}
 	}
 
@@ -202,8 +214,8 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	res, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`insert into sites (parent, code, name, settings, plan, created_at) values ($1, $2, $3, $4, $5, $6)`,
-		s.Parent, s.Code, s.Name, s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date))
+		`insert into sites (parent, code, name, cname, settings, plan, created_at) values ($1, $2, $3, $4, $5, $6, $7)`,
+		s.Parent, s.Code, s.Name, s.Cname, s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date))
 	if err != nil {
 		if zdb.UniqueErr(err) {
 			return guru.New(400, "this site already exists: name and code must be unique")
@@ -286,6 +298,7 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
 	// Custom domain.
+	//if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
 	if !strings.HasSuffix(host, cfg.Domain) {
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`select * from sites where lower(cname)=lower($1) and state=$2`,

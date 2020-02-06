@@ -23,5 +23,42 @@ Required flags:
 `
 
 func create() error {
+	/*
+		v := zvalidate.New()
+		v.Required("domain", cfg.Domain)
+		v.Domain("domain", cfg.Domain)
+		v.Email("init", cfg.Create)
+		if v.HasErrors() {
+			fmt.Fprintln(os.Stderr, v.String())
+			os.Exit(1)
+		}
+
+		err := zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, tx zdb.DB) error {
+			s := goatcounter.Site{
+				Name:  "serve",
+				Code:  "serve-" + zhttp.Secret()[:10],
+				Cname: &cfg.Domain,
+				Plan:  goatcounter.PlanBusinessPlus,
+			}
+			err = s.Insert(ctx)
+			if err != nil {
+				return err
+			}
+
+			u := goatcounter.User{Site: s.ID, Name: "serve", Email: cfg.Create}
+			err = u.Insert(ctx)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Okay! Now start with 'goatcounter -serve'")
+	*/
 	return nil
 }

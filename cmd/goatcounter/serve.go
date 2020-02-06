@@ -35,5 +35,24 @@ Flags:
 `
 
 func serve() error {
+	/*
+		ctx := zdb.With(context.Background(), db)
+
+		var s goatcounter.Sites
+		err := s.List(ctx)
+		must(err)
+		if len(s) == 0 {
+			fmt.Fprintln(os.Stderr,
+				"it looks like there are no sites yet; Use '-create mymail@example.com -domain stats.example.com' to create one first")
+			os.Exit(1)
+		}
+
+	*/
+
+	/*
+			hosts = map[string]chi.Router{
+			"*": handlers.NewBackend(db),
+		}
+	*/
 	return nil
 }
