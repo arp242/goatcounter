@@ -56,8 +56,8 @@ Flags:
                  If you want to serve the static files from CDN, e.g.:
                     -domain 'example.com, gc.cdn.com, static.example.com'
 
-  -smtp          SMTP server for sending login emails and errors (if -errors is
-                 enabled).
+  -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
+                 sending login emails and errors (if -errors is enabled).
                  Default is blank, meaning nothing is sent.
 
   -errors        What to do with errors; they're always printed to stderr.
@@ -79,6 +79,9 @@ Flags:
 
   -certdir       Directory to store ACME-generated certificates for custom
                  domains. Default: empty.
+
+  -tls           Path to TLS certificate and key, colon-separated and in that
+                 order. This will automatically redirect port 80 as well.
 `
 
 func saas() error {
@@ -111,6 +114,10 @@ func saas() error {
 	}
 
 	v := zvalidate.New()
+	v.Include("-plan", cfg.Plan, goatcounter.Plans)
+	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
+	//v.Path("-certdir", cfg.CertDir, true) // TODO: implement in zvalidate
+	// TODO: validate tls
 	if smtp == "" && !dev {
 		v.Append("-smtp", "must be set if -dev is not enabled")
 	}
