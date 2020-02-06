@@ -18,6 +18,7 @@ import (
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -43,6 +44,8 @@ type handlerTest struct {
 
 func init() {
 	zhttp.TplPath = "../tpl"
+	pack.Templates = nil
+	pack.Public = nil
 	zhttp.InitTpl(nil)
 	zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
 	zmail.Print = false
