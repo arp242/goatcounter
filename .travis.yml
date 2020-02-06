@@ -1,6 +1,8 @@
 language: go
 go:
+  - '1.12.x'
   - '1.13.x'
+  - 'master'
 services:
   - 'postgresql'
 # GoatCounter.com actually runs on 12.1, but this is the latest version that
