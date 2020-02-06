@@ -5,8 +5,8 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
 	"strings"
 
 	"zgo.at/goatcounter/cfg"
@@ -40,16 +40,16 @@ migrations on startup.
 func migrate() error {
 	dbConnect := flagDB()
 	debug := flagDebug()
-	flag.Parse()
+	CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
 
-	db, err := connectDB(*dbConnect, flag.Args())
+	db, err := connectDB(*dbConnect, CommandLine.Args())
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	if sliceutil.InStringSlice(flag.Args(), "show") {
+	if sliceutil.InStringSlice(CommandLine.Args(), "show") {
 		m := zdb.NewMigrate(db, []string{"show"},
 			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
 			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL])

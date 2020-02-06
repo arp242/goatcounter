@@ -59,6 +59,8 @@ See "help <command>" for more details for the command.`
 //                site with "create" first.
 // create         Create a new site and user; only needed for "serve".
 
+var CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
 func main() {
 	cfg.Version = version
 	zlog.Config.StackFilter = errorutil.FilterPattern(
@@ -67,10 +69,9 @@ func main() {
 	if len(os.Args) < 2 {
 		die(1, usage[""], "need a command")
 	}
-
 	cmd := os.Args[1]
-	os.Args = append([]string{os.Args[0]}, os.Args[2:]...)
-	flag.Usage = func() { fmt.Print("\n", strings.TrimSpace(usage[cmd]), "\n") }
+	CommandLine.SetOutput(os.Stdout)
+	CommandLine.Usage = func() { fmt.Print("\n", strings.TrimSpace(usage[cmd]), "\n") }
 
 	var err error
 	switch cmd {
@@ -79,9 +80,7 @@ func main() {
 	case "help":
 		help()
 	case "version":
-		fmt.Printf("version=%s; go=%s; GOOS=%s; GOARCH=%s; race=%t; cgo=%t\n",
-			version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
-			runtimeutil.Race, runtimeutil.CGO)
+		fmt.Println(getVersion())
 	case "migrate":
 		if len(os.Args) == 1 {
 			die(1, usage["migrate"], "need a migration or command")
@@ -124,8 +123,8 @@ func die(code int, usageText, msg string, args ...interface{}) {
 	os.Exit(code)
 }
 
-func flagDB() *string    { return flag.String("db", "sqlite://db/goatcounter.sqlite3", "") }
-func flagDebug() *string { return flag.String("debug", "", "") }
+func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcounter.sqlite3", "") }
+func flagDebug() *string { return CommandLine.String("debug", "", "") }
 
 func connectDB(connect string, migrate []string) (*sqlx.DB, error) {
 	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://")
@@ -136,4 +135,10 @@ func connectDB(connect string, migrate []string) (*sqlx.DB, error) {
 			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
 			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL]),
 	})
+}
+
+func getVersion() string {
+	return fmt.Sprintf("version=%s; go=%s; GOOS=%s; GOARCH=%s; race=%t; cgo=%t",
+		version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
+		runtimeutil.Race, runtimeutil.CGO)
 }

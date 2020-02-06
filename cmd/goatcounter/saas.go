@@ -5,10 +5,10 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
 	"net/mail"
+	"os"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -85,17 +85,17 @@ func saas() error {
 		automigrate, dev                          bool
 		tls, listen, smtp, errors, stripe, domain string
 	)
-	flag.BoolVar(&automigrate, "automigrate", false, "")
-	flag.BoolVar(&dev, "dev", false, "")
-	flag.StringVar(&domain, "domain", "goatcounter.localhost:8081", "")
-	flag.StringVar(&listen, "listen", "localhost:8081", "")
-	flag.StringVar(&smtp, "smtp", "", "")
-	flag.StringVar(&errors, "errors", "", "")
-	flag.StringVar(&stripe, "stripe", "", "")
-	flag.StringVar(&cfg.CertDir, "certdir", "", "")
-	flag.StringVar(&cfg.Plan, "plan", goatcounter.PlanPersonal, "")
-	flag.StringVar(&tls, "tls", "", "")
-	flag.Parse()
+	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
+	CommandLine.BoolVar(&dev, "dev", false, "")
+	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081", "")
+	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
+	CommandLine.StringVar(&smtp, "smtp", "", "")
+	CommandLine.StringVar(&errors, "errors", "", "")
+	CommandLine.StringVar(&stripe, "stripe", "", "")
+	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
+	CommandLine.StringVar(&cfg.Plan, "plan", goatcounter.PlanPersonal, "")
+	CommandLine.StringVar(&tls, "tls", "", "")
+	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
@@ -151,6 +151,7 @@ func saas() error {
 		hosts[zhttp.RemovePort(ds)] = static
 	}
 
+	zlog.Print(getVersion())
 	zlog.Printf("serving %q on %q; dev: %t", cfg.Domain, listen, dev)
 	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
 		cron.Wait(db)

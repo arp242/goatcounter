@@ -7,8 +7,8 @@ package main
 import (
 	"context"
 	"database/sql"
-	"flag"
 	"fmt"
+	"os"
 	"time"
 
 	"zgo.at/goatcounter"
@@ -45,9 +45,9 @@ Flags:
 func reindex() error {
 	dbConnect := flagDB()
 	debug := flagDebug()
-	confirm := flag.Bool("confirm", false, "")
-	since := flag.String("since", "", "")
-	flag.Parse()
+	confirm := CommandLine.Bool("confirm", false, "")
+	since := CommandLine.String("since", "", "")
+	CommandLine.Parse(os.Args[2:])
 
 	v := zvalidate.New()
 	firstDay := v.Date("-since", *since, "2006-01-02")

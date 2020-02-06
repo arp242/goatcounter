@@ -45,7 +45,7 @@ func TestMain(t *testing.T) {
 	defer os.RemoveAll(tmpdir)
 
 	// Reset flags in case of -count 2
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	os.Args = []string{"goatcounter", "saas",
 		"-smtp", "dummy",
 		"-db", tmpdb,
