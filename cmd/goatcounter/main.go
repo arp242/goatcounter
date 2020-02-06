@@ -7,6 +7,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"net/mail"
 	"os"
@@ -41,7 +42,15 @@ func main() {
 		cfg.Version = version
 	}
 	fmt.Printf("Goatcounter version %s\n", version)
-	//cfg.Print()
+
+	cfg.StaticURL = strings.Split(cfg.DomainStatic, ",")[0]
+	cfg.DomainURL = cfg.Domain
+	_, port, _ := net.SplitHostPort(cfg.Listen)
+	if port != "" && port != "80" && port != "443" {
+		cfg.Port = port
+		cfg.DomainURL += ":" + port
+		cfg.StaticURL += ":" + port
+	}
 
 	if cfg.Stripe != "" {
 		for _, k := range stringutil.Fields(cfg.Stripe, ":") {

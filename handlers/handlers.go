@@ -7,7 +7,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
@@ -39,8 +38,8 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Site:    goatcounter.GetSite(r.Context()),
 		Path:    r.URL.Path,
 		Flash:   zhttp.ReadFlash(w, r),
-		Static:  strings.Split(cfg.DomainStatic, ",")[0],
-		Domain:  cfg.Domain,
+		Static:  cfg.StaticURL,
+		Domain:  cfg.DomainURL,
 		Version: cfg.Version,
 		Billing: zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
 	}

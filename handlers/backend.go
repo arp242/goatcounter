@@ -92,6 +92,10 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
 		st := strings.Split(cfg.DomainStatic, ",")
+		if cfg.StaticURL != st[0] {
+			st = append(st, cfg.StaticURL)
+		}
+
 		// https://stripe.com/docs/security#content-security-policy
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},

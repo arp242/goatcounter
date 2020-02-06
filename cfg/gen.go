@@ -18,8 +18,8 @@ import (
 var flags = []flag{
 	{"bool", "Prod", "prod", false, "Production mode: hide errors, don't reload."},
 	{"string", "Version", "version", "", "Version tag; normally set during compile"},
-	{"string", "Domain", "domain", "goatcounter.localhost:8081", "Base domain"},
-	{"string", "DomainStatic", "domainstatic", "static.goatcounter.localhost:8081", "Comma-separated list of domain to serve static files from."},
+	{"string", "Domain", "domain", "goatcounter.localhost", "Base domain"},
+	{"string", "DomainStatic", "domainstatic", "static.goatcounter.localhost", "Comma-separated list of domain to serve static files from."},
 	{"string", "Listen", "listen", "localhost:8081", "Address to listen on."},
 	{"string", "DBFile", "dbconnect", "db/goatcounter.sqlite3", "Database connection string."},
 	{"bool", "PgSQL", "pgsql", false, "Use PostgreSQL instead of SQLite"},

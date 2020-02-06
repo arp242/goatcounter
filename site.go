@@ -285,11 +285,17 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
+	host = zhttp.RemovePort(host)
+	zlog.Module("Site.ByHost").Fields(zlog.F{
+		"host":   host,
+		"domain": cfg.Domain,
+	}).Debug("")
+
 	// Custom domain.
 	if !strings.HasSuffix(host, cfg.Domain) {
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`select * from sites where lower(cname)=lower($1) and state=$2`,
-			zhttp.RemovePort(host), StateActive), "site.ByHost: from custom domain")
+			host, StateActive), "site.ByHost: from custom domain")
 	}
 
 	// Get from code (e.g. "arp242" in "arp242.goatcounter.com").
@@ -328,15 +334,20 @@ func (s Site) Domain() string {
 
 // URL to this site.
 func (s Site) URL() string {
+	var d string
 	if s.Cname != nil {
-		return fmt.Sprintf("http%s://%s",
+		d = fmt.Sprintf("http%s://%s",
 			map[bool]string{true: "s", false: ""}[cfg.Prod],
 			*s.Cname)
+	} else {
+		d = fmt.Sprintf("http%s://%s.%s",
+			map[bool]string{true: "s", false: ""}[cfg.Prod],
+			s.Code, cfg.Domain)
 	}
-
-	return fmt.Sprintf("http%s://%s.%s",
-		map[bool]string{true: "s", false: ""}[cfg.Prod],
-		s.Code, cfg.Domain)
+	if cfg.Port != "" {
+		d += ":" + cfg.Port
+	}
+	return d
 }
 
 // PlanCustomDomain reports if this site's plan allows custom domains.
