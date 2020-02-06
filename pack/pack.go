@@ -13015,7 +13015,7 @@ form .err  { color: red; display: block; }
 	text-decoration: underline;
 }
 
-.count-list-opt input { width: 9em; text-align: center; }
+.count-list-opt input[type="text"] { width: 9em; text-align: center; }
 
 /*** Charts ***/
 .chart {
@@ -13789,7 +13789,7 @@ var Templates = map[string][]byte{
 			<div class="chart chart-bar">
 				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>
 				<span class="half"></span>
-				{{bar_chart $.Context .Stats .Max}}
+				{{bar_chart $.Context .Stats .Max $.Daily}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
@@ -14177,12 +14177,15 @@ do this 100% reliably.</p>
 			<button class="link" name="move" value="week">week</button>,
 			<button class="link" name="move" value="month">month</button>,
 			<button class="link" name="move" value="quarter">quarter</button>.
-		</span><br>
+		</span>
+		<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+		<br>
 
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
 		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
 		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
+
 		<button type="submit">Go</button>
 	</div>
 
@@ -14279,7 +14282,7 @@ parent site includes the child sites.</p>
 
 <h2>Signups</h2>
 <div class="chart chart-bar">
-{{bar_chart $.Context .Signups .MaxSignups}}
+{{bar_chart $.Context .Signups .MaxSignups false}}
 </div>
 
 <h2>Usage</h2>

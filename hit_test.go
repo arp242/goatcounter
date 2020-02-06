@@ -172,7 +172,7 @@ func TestHitStatsList(t *testing.T) {
 			cron.Run(zdb.MustGet(ctx))
 
 			var stats goatcounter.HitStats
-			total, totalDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude)
+			total, totalDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude, false)
 
 			got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
 			if got != tt.wantReturn {

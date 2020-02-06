@@ -38,6 +38,9 @@ import (
 	"zgo.at/zvalidate"
 )
 
+// Always use the daily view if the number of days is larger than this.
+const DailyView = 90
+
 type backend struct{}
 
 func (h backend) Mount(r chi.Router, db zdb.DB) {
@@ -286,10 +289,15 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	filter := r.URL.Query().Get("filter")
+	daily := r.URL.Query().Get("daily") != ""
+	if !daily {
+		daily = end.Sub(start).Hours()/24 >= DailyView
+	}
+
 	l := zlog.Module("backend").Field("site", site.ID)
 
 	var pages goatcounter.HitStats
-	total, totalDisplay, _, err := pages.List(r.Context(), start, end, filter, nil)
+	total, totalDisplay, _, err := pages.List(r.Context(), start, end, filter, nil, daily)
 	if err != nil {
 		return err
 	}
@@ -354,9 +362,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		LocationStat      goatcounter.Stats
 		TotalLocation     int
 		ShowMoreLocations bool
+		Daily             bool
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, filter,
 		pages, refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
-		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc})
+		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc, daily})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
@@ -578,9 +587,14 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	daily := r.URL.Query().Get("daily") != ""
+	if !daily {
+		daily = end.Sub(start).Hours()/24 >= DailyView
+	}
+
 	var pages goatcounter.HitStats
 	totalHits, totalDisplay, more, err := pages.List(r.Context(), start, end,
-		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","))
+		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","), daily)
 	if err != nil {
 		return err
 	}
@@ -591,11 +605,12 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		Site        *goatcounter.Site
 		PeriodStart time.Time
 		PeriodEnd   time.Time
+		Daily       bool
 
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
-	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()), start, end, false, ""})
+	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()), start, end, daily, false, ""})
 	if err != nil {
 		return err
 	}

@@ -32,9 +32,6 @@ var (
 	RefSchemeGenerated = ptr("g")
 )
 
-// Switch from hourly to daily view if the number of days is larger than this.
-const DailyView = 30
-
 type Hit struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
@@ -324,7 +321,7 @@ type HitStats []HitStat
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, bool, error) {
+func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string, daily bool) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -416,8 +413,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
 	l = l.Since("select hits_stats")
-
-	daily := end.Sub(start).Hours()/24 >= DailyView
 
 	// Get max amount and totals.
 	hh := *h

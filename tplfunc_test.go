@@ -150,7 +150,7 @@ func TestBarChart(t *testing.T) {
 			gctest.StoreHits(ctx, t, Hit{Site: site.ID, CreatedAt: tt.now, Path: "/a"})
 
 			var stats HitStats
-			_, _, _, err = stats.List(ctx, tt.now, tt.now, "", nil)
+			_, _, _, err = stats.List(ctx, tt.now, tt.now, "", nil, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -158,7 +158,7 @@ func TestBarChart(t *testing.T) {
 				t.Fatalf("len(stats) == %d", len(stats))
 			}
 
-			out := string(BarChart(ctx, stats[0].Stats, stats[0].Max))
+			out := string(BarChart(ctx, stats[0].Stats, stats[0].Max, false))
 			out = strings.TrimSpace(strings.ReplaceAll(out, "</div>", "</div>\n"))
 			tt.want = strings.TrimSpace(strings.ReplaceAll(tt.want, "\t", ""))
 

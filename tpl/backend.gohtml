@@ -38,12 +38,15 @@
 			<button class="link" name="move" value="week">week</button>,
 			<button class="link" name="move" value="month">month</button>,
 			<button class="link" name="move" value="quarter">quarter</button>.
-		</span><br>
+		</span>
+		<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+		<br>
 
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
 		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
 		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
 		<input type="hidden" id="hl-period" name="hl-period" value="">
+
 		<button type="submit">Go</button>
 	</div>
 

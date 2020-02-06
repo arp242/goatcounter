@@ -131,7 +131,7 @@ form .err  { color: red; display: block; }
 	text-decoration: underline;
 }
 
-.count-list-opt input { width: 9em; text-align: center; }
+.count-list-opt input[type="text"] { width: 9em; text-align: center; }
 
 /*** Charts ***/
 .chart {
