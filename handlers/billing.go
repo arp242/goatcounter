@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
@@ -128,13 +129,15 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 var stripePlans = map[bool]map[string]string{
-	true: {
+	true: { // Production
 		"personal":     "plan_GLVKIvCvCjzT2u",
+		"personalplus": "plan_GlJxixkxNZZOct",
 		"business":     "plan_GLVGCVzLaPA3cY",
 		"businessplus": "plan_GLVHJUi21iV4Wh",
 	},
-	false: {
+	false: { // Test data
 		"personal":     "plan_GLWnXaogEns1n2",
+		"personalplus": "plan_GlJvCPdCeUpww3",
 		"business":     "plan_GLWoJ72fcNGoUD",
 		"businessplus": "plan_GLWootweDZnKBk",
 	},
@@ -156,12 +159,13 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	v.Required("plan", args.Plan)
 	v.Include("plan", args.Plan, goatcounter.Plans)
 	v.Required("quantity", args.Quantity)
+	quantity := v.Integer("quantity", args.Quantity)
 	if v.HasErrors() {
 		return v
 	}
 
 	// Use dummy Stripe customer for personal plan without donations.
-	if args.Plan == goatcounter.PlanPersonal && args.Quantity == "0" {
+	if args.Plan == goatcounter.PlanPersonal && quantity == 0 {
 		err := site.UpdateStripe(r.Context(),
 			fmt.Sprintf("cus_free_%d", site.ID),
 			goatcounter.PlanPersonal)
@@ -197,7 +201,6 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
 	var customer struct {
 		Subscriptions struct {
 			Data []struct {
@@ -205,28 +208,39 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 			} `json:"data"`
 		} `json:"subscriptions"`
 	}
-	_, err := zstripe.Request(&customer, "GET",
-		fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
-	if err != nil {
-		return err
+
+	site := goatcounter.MustGetSite(r.Context())
+	if site.Stripe == nil {
+		return guru.New(400, "No Stripe customer for this site?")
 	}
 
-	if len(customer.Subscriptions.Data) == 0 {
-		zhttp.FlashError(w, "No current subscriptions")
-		return zhttp.SeeOther(w, "/billing")
-	}
-	if len(customer.Subscriptions.Data) > 1 {
-		return fmt.Errorf(
-			"billing.cancel: unexpected number of subscriptions for site %d/%s",
-			site.ID, *site.Stripe)
-	}
+	zdb.TX(r.Context(), func(ctx context.Context, db zdb.DB) error {
+		err := site.UpdateStripe(r.Context(), *site.Stripe, goatcounter.PlanPersonal)
+		if err != nil {
+			return err
+		}
 
-	_, err = zstripe.Request(nil, "DELETE",
-		fmt.Sprintf("/v1/subscriptions/%s", customer.Subscriptions.Data[0].ID),
-		zstripe.Body{"prorate": "true"}.Encode())
-	if err != nil {
+		_, err = zstripe.Request(&customer, "GET",
+			fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
+		if err != nil {
+			return err
+		}
+
+		if len(customer.Subscriptions.Data) == 0 {
+			zhttp.FlashError(w, "No current subscriptions")
+			return zhttp.SeeOther(w, "/billing")
+		}
+		if len(customer.Subscriptions.Data) > 1 {
+			return fmt.Errorf(
+				"billing.cancel: unexpected number of subscriptions for site %d/%s",
+				site.ID, *site.Stripe)
+		}
+
+		_, err = zstripe.Request(nil, "DELETE",
+			fmt.Sprintf("/v1/subscriptions/%s", customer.Subscriptions.Data[0].ID),
+			zstripe.Body{"prorate": "true"}.Encode())
 		return err
-	}
+	})
 
 	zhttp.Flash(w, "Plan cancelled; you will be refunded for the remaining period.")
 	return zhttp.SeeOther(w, "/billing")

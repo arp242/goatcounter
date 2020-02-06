@@ -15,10 +15,10 @@ the *"why?"* of this project.
 
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
-Please consider [donating][patreon] if you're self-hosting GoatCounter so I can
-pay my rent :-)
+Please consider [contributing financially][sponsor] if you're self-hosting
+GoatCounter so I can pay my rent :-)
 
-[patreon]: https://www.patreon.com/arp242
+[sponsor]: http://www.goatcounter.com/contribute
 [www]: https://www.goatcounter.com
 
 Features
