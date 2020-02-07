@@ -15,7 +15,7 @@ import (
 
 func main() {
 	err := zpack.Pack(map[string]map[string]string{
-		"./pack/pack.go": map[string]string{
+		"./pack/pack.go": {
 			"Public":           "./public",
 			"Templates":        "./tpl",
 			"SchemaSQLite":     "./db/schema.sql",
@@ -32,7 +32,7 @@ func main() {
 	// Don't need to commit this.
 	if _, err := os.Stat("./GeoLite2-Country.mmdb"); err == nil {
 		err := zpack.Pack(map[string]map[string]string{
-			"./pack/geodb.go": map[string]string{
+			"./pack/geodb.go": {
 				"GeoDB": "./GeoLite2-Country.mmdb",
 			},
 		})

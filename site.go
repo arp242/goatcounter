@@ -154,8 +154,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
-		//if cfg.Create == "" && strings.HasSuffix(*s.Cname, cfg.Domain) {
-		if strings.HasSuffix(*s.Cname, cfg.Domain) {
+		if cfg.Domain != "" && strings.HasSuffix(*s.Cname, cfg.Domain) {
 			v.Append("cname", "cannot end with %q", cfg.Domain)
 		}
 
@@ -298,8 +297,7 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
 	// Custom domain.
-	//if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
-	if !strings.HasSuffix(host, cfg.Domain) {
+	if cfg.Domain == "" || !strings.HasSuffix(host, cfg.Domain) {
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`select * from sites where lower(cname)=lower($1) and state=$2`,
 			zhttp.RemovePort(host), StateActive), "site.ByHost: from custom domain")

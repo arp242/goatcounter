@@ -89,8 +89,8 @@ func saas() error {
 	debug := flagDebug()
 
 	var (
-		automigrate, dev                          bool
-		tls, listen, smtp, errors, stripe, domain string
+		automigrate, dev                                bool
+		tls, listen, smtp, errors, stripe, domain, plan string
 	)
 	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
 	CommandLine.BoolVar(&dev, "dev", false, "")
@@ -100,12 +100,13 @@ func saas() error {
 	CommandLine.StringVar(&errors, "errors", "", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
-	CommandLine.StringVar(&cfg.Plan, "plan", goatcounter.PlanPersonal, "")
+	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
 	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
+	cfg.Plan = plan
 	cfg.SourceTree = ioutilx.Exists("./public/script.js") && ioutilx.Exists("./tpl/home.gohtml")
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
@@ -114,7 +115,7 @@ func saas() error {
 	}
 
 	v := zvalidate.New()
-	v.Include("-plan", cfg.Plan, goatcounter.Plans)
+	v.Include("-plan", plan, goatcounter.Plans)
 	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
 	//v.Path("-certdir", cfg.CertDir, true) // TODO: implement in zvalidate
 	// TODO: validate tls
@@ -142,7 +143,7 @@ func saas() error {
 	}
 
 	// Connect to DB.
-	db, err := connectDB(*dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate])
+	db, err := connectDB(*dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate])
 	if err != nil {
 		return err
 	}
@@ -153,6 +154,7 @@ func saas() error {
 	acme.Run()
 
 	// Set up HTTP handler and servers.
+	zhttp.InitTpl(pack.Templates)
 	d := zhttp.RemovePort(cfg.Domain)
 	hosts := map[string]chi.Router{
 		d:          zhttp.RedirectHost("//www." + cfg.Domain),

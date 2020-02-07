@@ -16,9 +16,9 @@ require (
 	zgo.at/tz v0.0.0-20200207054238-b33e5ce779e4
 	zgo.at/utils v1.4.1
 	zgo.at/zdb v0.0.0-20200206083203-2767b90860ac
-	zgo.at/zhttp v0.0.0-20200130181800-93ad25acd686
+	zgo.at/zhttp v0.0.0-20200207153638-484b9d286a74
 	zgo.at/zlog v1.0.9
-	zgo.at/zpack v1.0.0
+	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v1.0.1
 	zgo.at/zvalidate v1.2.1

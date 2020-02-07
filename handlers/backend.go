@@ -12,7 +12,6 @@ import (
 	"net"
 	"net/http"
 	"net/http/pprof"
-	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -220,18 +219,6 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 	if user_agent.New(r.UserAgent()).Bot() {
 		hit.Bot = 1
-	}
-
-	// Tracks referer of the /count request; this is not a statistic, just so we
-	// can get an indication on which domains people are using GoatCounter, to
-	// help track down abuse.
-	if ref := r.Referer(); ref != "" {
-		u, _ := url.Parse(ref)
-		if u != nil {
-			ref = u.Host
-		}
-
-		//hitRefs[ref] += 1
 	}
 
 	_, err := zhttp.Decode(r, &hit)
@@ -724,6 +711,9 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	txctx, tx, err := zdb.Begin(r.Context())
+	if err != nil {
+		return err
+	}
 	defer tx.Rollback()
 
 	user := goatcounter.GetUser(txctx)

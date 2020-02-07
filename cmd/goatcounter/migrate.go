@@ -38,6 +38,10 @@ migrations on startup.
 `
 
 func migrate() error {
+	if len(os.Args) == 2 {
+		die(1, strings.TrimSpace(usage["migrate"]), "need a migration or command")
+	}
+
 	dbConnect := flagDB()
 	debug := flagDebug()
 	CommandLine.Parse(os.Args[2:])

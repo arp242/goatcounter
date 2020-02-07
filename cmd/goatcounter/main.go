@@ -48,7 +48,6 @@ Commands:
   help        Show help; use "help <command>" or "help all" for more details.
   version     Show version and build information and exit.
   migrate     Run database migrations.
-              This is generally rarely needed and mostly a development tool.
   serve       Serve just existing domains. This is probably what you want if
               you're looking to self-host GoatCounter. Requires creating a site
               with "create" first.
@@ -58,9 +57,10 @@ Advanced commands:
 
   saas        Run a "SaaS" production server.
   reindex     Re-create the cached statistics (*_stats tables) from the hits.
+              This is generally rarely needed and mostly a development tool.
 
-
-See "help <command>" for more details for the command.`
+See "help <command>" for more details for the command.
+`
 
 var CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
@@ -85,14 +85,11 @@ func main() {
 	case "version":
 		fmt.Println(getVersion())
 	case "migrate":
-		if len(os.Args) == 1 {
-			die(1, usage["migrate"], "need a migration or command")
-		}
 		err = migrate()
-	//case "create":
-	//	err = create()
-	//case "serve":
-	//	err = serve()
+	case "create":
+		err = create()
+	case "serve":
+		err = serve()
 	case "saas":
 		err = saas()
 	case "reindex":

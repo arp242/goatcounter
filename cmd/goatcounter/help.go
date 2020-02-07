@@ -22,7 +22,7 @@ func help() {
 	}
 	if os.Args[2] == "all" {
 		fmt.Print(strings.TrimSpace(usage[""]), "\n\n")
-		for _, h := range []string{"help", "version", "migrate", "saas", "reindex"} {
+		for _, h := range []string{"help", "version", "migrate", "serve", "create", "saas", "reindex"} {
 			head := fmt.Sprintf("─── Help for %q ", h)
 			fmt.Printf("%s%s\n\n", head, strings.Repeat("─", 80-utf8.RuneCountInString(head)))
 			fmt.Print(strings.TrimSpace(usage[h]), "\n\n")
