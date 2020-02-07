@@ -76,8 +76,6 @@ Flags:
 // - Settings → Domain isn't filled in?
 // - How to handle additional sites? Maybe just remove? Or add create flag?
 // - Hide Delete account
-//
-//
 
 func serve() error {
 	dbConnect := flagDB()

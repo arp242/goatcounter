@@ -66,14 +66,14 @@ func reindex() error {
 	// TODO: would be best to signal GoatCounter to not persist anything from
 	// memstore instead of telling people to stop GoatCounter.
 	// OTOH ... this shouldn't be needed very often.
-	fmt.Println("This will reindex all the *_stats tables; it's recommended to stop GoatCounter.")
-	fmt.Println("This may take a few minutes depending on your data size/computer speed;")
-	fmt.Println("you can use e.g. Varnish or some other proxy to send requests to /count later.")
+	fmt.Fprintln(stdout, "This will reindex all the *_stats tables; it's recommended to stop GoatCounter.")
+	fmt.Fprintln(stdout, "This may take a few minutes depending on your data size/computer speed;")
+	fmt.Fprintln(stdout, "you can use e.g. Varnish or some other proxy to send requests to /count later.")
 	if !*confirm {
-		fmt.Println("Continuing in 10 seconds; press ^C to abort. Use -confirm to skip this.")
+		fmt.Fprintln(stdout, "Continuing in 10 seconds; press ^C to abort. Use -confirm to skip this.")
 		time.Sleep(10 * time.Second)
 	}
-	fmt.Println("")
+	fmt.Fprintln(stdout, "")
 
 	ctx := zdb.With(context.Background(), db)
 
@@ -127,7 +127,7 @@ func reindex() error {
 			return err
 		}
 
-		prog(fmt.Sprintf("%s → %d", day.Format("2006-01-02"), len(hits)))
+		fmt.Fprintf(stdout, "\r\x1b[0K%s → %d", day.Format("2006-01-02"), len(hits))
 
 		err = cron.ReindexStats(ctx, hits)
 		if err != nil {
@@ -139,14 +139,9 @@ func reindex() error {
 			break
 		}
 	}
-	fmt.Println("")
+	fmt.Fprintln(stdout, "")
 
 	return nil
-}
-
-func prog(msg string) {
-	fmt.Printf("\r\x1b[0K")
-	fmt.Printf(msg)
 }
 
 func dayStart(t time.Time) string { return t.Format("2006-01-02") + " 00:00:00" }

@@ -7,6 +7,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -14,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"zgo.at/ztest"
+	"zgo.at/zlog"
 )
 
 // Make sure usage doesn't contain tabs, as that will mess up formatting in
@@ -27,9 +28,7 @@ func TestUsageTabs(t *testing.T) {
 	}
 }
 
-func TestMain(t *testing.T) {
-	// Just ensure the app can start with the default settings, creating a new
-	// DB file.
+func run(t *testing.T, killswitch string, args []string) {
 	cwd, _ := os.Getwd()
 	err := os.Chdir("../../")
 	if err != nil {
@@ -39,6 +38,7 @@ func TestMain(t *testing.T) {
 
 	tmpdir, err := ioutil.TempDir("", "goatcounter")
 	if err != nil {
+		os.Chdir(cwd)
 		t.Fatal(err)
 	}
 	tmpdb := "sqlite://" + tmpdir + "/goatcounter.sqlite3"
@@ -46,22 +46,47 @@ func TestMain(t *testing.T) {
 
 	// Reset flags in case of -count 2
 	CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	os.Args = []string{"goatcounter", "saas",
-		"-smtp", "dummy",
-		"-db", tmpdb,
-		"-listen", "localhost:31874"}
+	args = append(args, []string{"-db", tmpdb}...)
+	os.Args = args
 
-	out, reset := ztest.ReplaceStdStreams()
-	defer reset()
+	// Swap out std/stderr.
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	stdout = w
+	stderr = w
+	zlog.Config.Outputs = []zlog.OutputFunc{
+		func(l zlog.Log) {
+			out := stdout
+			if l.Level == zlog.LevelErr {
+				out = stderr
+			}
+			fmt.Fprintln(out, zlog.Config.Format(l))
+		},
+	}
+
+	// Kill when we see a string.
 	go func() {
-		scanner := bufio.NewScanner(out)
+		scanner := bufio.NewScanner(r)
 		for scanner.Scan() {
-			if strings.Contains(scanner.Text(), "serving ") {
+			l := scanner.Text()
+			fmt.Println("std: ", l)
+			if strings.Contains(l, killswitch) {
+				fmt.Println("kill", syscall.Getpid())
 				time.Sleep(100 * time.Millisecond)
-				syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+				stop()
 			}
 		}
 	}()
+	go func() {
+		time.Sleep(10 * time.Second)
+		stop()
+	}()
 
 	main()
+}
+
+func stop() {
+	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 }

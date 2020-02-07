@@ -212,20 +212,20 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	res, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`insert into sites (parent, code, name, cname, settings, plan, created_at) values ($1, $2, $3, $4, $5, $6, $7)`,
-		s.Parent, s.Code, s.Name, s.Cname, s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date))
+	res, err := zdb.MustGet(ctx).ExecContext(ctx, `insert into sites
+		(parent, code, name, cname, settings, plan, created_at)
+		values ($1, $2, $3, $4, $5, $6, $7)`, s.Parent, s.Code, s.Name, s.Cname,
+		s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date))
 	if err != nil {
 		if zdb.UniqueErr(err) {
-			return guru.New(400, "this site already exists: name and code must be unique")
+			return guru.New(400, "this site already exists: code or domain must be unique")
 		}
 		return errors.Wrap(err, "Site.Insert")
 	}
 
 	if cfg.PgSQL {
-		var ns Site
-		err = ns.ByHost(ctx, s.Code+"."+cfg.Domain)
-		s.ID = ns.ID
+		err = zdb.MustGet(ctx).GetContext(ctx, &s.ID,
+			"select currval('sites_id_seq')")
 	} else {
 		s.ID, err = res.LastInsertId()
 	}

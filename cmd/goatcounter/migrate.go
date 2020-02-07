@@ -62,12 +62,12 @@ func migrate() error {
 			return err
 		}
 		if d := sliceutil.DifferenceString(have, ran); len(d) > 0 {
-			fmt.Printf("Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
+			fmt.Fprintf(stdout, "Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
 		} else {
-			fmt.Println("No pending migrations")
+			fmt.Fprintln(stdout, "No pending migrations")
 		}
 		if d := sliceutil.DifferenceString(ran, have); len(d) > 0 {
-			fmt.Printf("Migrations in the DB that don't exist:\n\t%s\n", strings.Join(d, "\n\t"))
+			fmt.Fprintf(stdout, "Migrations in the DB that don't exist:\n\t%s\n", strings.Join(d, "\n\t"))
 		}
 	}
 

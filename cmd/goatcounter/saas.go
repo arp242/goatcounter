@@ -196,7 +196,9 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				[]mail.Address{{Address: errors}},
 				zlog.Config.Format(l))
 			if err != nil {
-				fmt.Println(err)
+				// Just output to stderr I guess, can't really do much more if
+				// zlog fails.
+				fmt.Fprintf(stderr, "emailerrors: %s\n", err)
 			}
 		})
 	}

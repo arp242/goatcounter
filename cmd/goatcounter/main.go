@@ -25,6 +25,11 @@ import (
 
 var version = "dev"
 
+var (
+	stdout = os.Stdout
+	stderr = os.Stderr
+)
+
 var usage = map[string]string{
 	"":        usageTop,
 	"help":    usageHelp,
@@ -73,8 +78,8 @@ func main() {
 		die(1, usage[""], "need a command")
 	}
 	cmd := os.Args[1]
-	CommandLine.SetOutput(os.Stdout)
-	CommandLine.Usage = func() { fmt.Print("\n", strings.TrimSpace(usage[cmd]), "\n") }
+	CommandLine.SetOutput(stdout)
+	CommandLine.Usage = func() { fmt.Fprint(stdout, "\n", strings.TrimSpace(usage[cmd]), "\n") }
 
 	var err error
 	switch cmd {
@@ -83,7 +88,7 @@ func main() {
 	case "help":
 		help()
 	case "version":
-		fmt.Println(getVersion())
+		fmt.Fprintln(stdout, getVersion())
 	case "migrate":
 		err = migrate()
 	case "create":
@@ -104,9 +109,9 @@ func main() {
 }
 
 func die(code int, usageText, msg string, args ...interface{}) {
-	out := os.Stdout
+	out := stdout
 	if code > 0 {
-		out = os.Stderr
+		out = stderr
 	}
 
 	msg = strings.TrimSpace(msg)
