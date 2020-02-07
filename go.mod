@@ -13,7 +13,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.3.0
-	zgo.at/tz v0.0.0-20200203090654-9231354ff19a
+	zgo.at/tz v0.0.0-20200207054238-b33e5ce779e4
 	zgo.at/utils v1.4.1
 	zgo.at/zdb v0.0.0-20200206083203-2767b90860ac
 	zgo.at/zhttp v0.0.0-20200130181800-93ad25acd686
