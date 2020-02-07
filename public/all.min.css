@@ -333,27 +333,19 @@ select {
   font: 1em/100% sans-serif;
 }
 textarea,
-button,
+button:not(.link),
 select,
 input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]) {
   padding: .6em;
   border: 1px solid #bbb;
   border-radius: 3px;
 }
-form span { padding-left: .2em; }
-textarea:focus,
-input:focus,
-select:focus,
-button:focus {
-  outline: 1px solid #00f;
-  box-shadow: 0 0 .2em #00f;
-}
 textarea {
   width: 100%;
   height: 10rem;
   line-height: 130%;
 }
-button, input[type="submit"] {
+button:not(.link), input[type="submit"]:not(.link) {
   color: #000;
   cursor: pointer;
   margin-left: .5em;
@@ -366,11 +358,34 @@ button, input[type="submit"] {
   border-left-color: #ccc;
 }
 select {
-	background-color: inherit;
+  background-color: inherit;
+}
+input:not(.link):focus,
+button:not(.link):focus,
+textarea:focus,
+select:focus {
+  outline: 1px solid #00f;
+  box-shadow: 0 0 .2em #00f;
+  color: #000;
+  cursor: pointer;
+}
+button:not(.link):hover,
+input[type="submit"]:not(.link):hover {
+  background-color: #f0f0f0;
+  background: linear-gradient(#f0f0f0, #d0cecc);
+}
+button:not(.link):active,
+input[type="submit"]:not(.link):active {
+  background-color: #d0cecc;
+  background: linear-gradient(#d0cecc, #f0f0f0);
+  border-style: inset;
 }
 form > strong, fieldset > strong {
   display: inline-block;
   margin-top: .5em;
+}
+form span {
+  margin-left: .2em;
 }
 fieldset {
   border: 1px solid #aaa;

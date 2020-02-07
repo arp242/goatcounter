@@ -224,7 +224,7 @@ form .err  { color: red; display: block; }
 }
 
 /* Using display: none means it's ignored by Safary when pressing Enter. */
-.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
+button.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
 
 fieldset { margin-bottom: 1em; border: 1px solid #666; }
 legend   { font-weight: bold; }
