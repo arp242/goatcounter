@@ -20,6 +20,6 @@ require (
 	zgo.at/zlog v1.0.9
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
-	zgo.at/ztest v1.0.1
+	zgo.at/ztest v1.0.2
 	zgo.at/zvalidate v1.2.1
 )

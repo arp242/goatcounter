@@ -12,14 +12,17 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/jsonutil"
+	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
@@ -47,8 +50,14 @@ func init() {
 	pack.Templates = nil
 	pack.Public = nil
 	zhttp.InitTpl(nil)
-	zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
 	zmail.Print = false
+	ztest.DefaultHost = "test.example.com"
+	cfg.Domain = "example.com"
+	if sliceutil.InStringSlice(os.Args, "-test.v=true") {
+		zlog.Config.Debug = []string{"all"}
+	} else {
+		zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
+	}
 }
 
 func runTest(
@@ -56,7 +65,6 @@ func runTest(
 	tt handlerTest,
 	fun func(*testing.T, *httptest.ResponseRecorder, *http.Request),
 ) {
-
 	if tt.method == "" {
 		tt.method = "GET"
 	}

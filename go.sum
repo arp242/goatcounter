@@ -73,5 +73,7 @@ zgo.at/ztest v1.0.0 h1:MKJXDboceOH2bFKaWN8GJ0bUgfJgx4pp/HWeCTOCJbA=
 zgo.at/ztest v1.0.0/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
 zgo.at/ztest v1.0.1 h1:2DWVZVmWAwOX8pq8sJQoOPtAHZ0Y099XVc9YkOmpnuc=
 zgo.at/ztest v1.0.1/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
+zgo.at/ztest v1.0.2 h1:XXKjJ/9JQ7Y0UHBqVnLnzdG1R81Dx15t8x5afmzmk1Q=
+zgo.at/ztest v1.0.2/go.mod h1:iTxcAVkHLq73Qnd+a8rlwc6Ayrk8sbnJPsGeapG/y0Q=
 zgo.at/zvalidate v1.2.1 h1:99xGg/kwRPqO+BDx8Cb7e0nPOQYAylYbXepXY8R9LC8=
 zgo.at/zvalidate v1.2.1/go.mod h1:3NddX3R32A538Bd5kmixLlbgxm/eHNxN+mlpGtmx5Mo=
