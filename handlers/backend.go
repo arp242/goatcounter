@@ -411,6 +411,9 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 	}
 	grouped := make(map[string]int) // day → count
 	for _, s := range sites {
+		if s.Parent != nil {
+			continue
+		}
 		grouped[s.CreatedAt.Format("2006-01-02")]++
 	}
 
