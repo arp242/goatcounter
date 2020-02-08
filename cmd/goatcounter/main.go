@@ -60,10 +60,10 @@ Commands:
   help        Show help; use "help <command>" or "help all" for more details.
   version     Show version and build information and exit.
   migrate     Run database migrations.
+  create      Create a new site and user.
   serve       Serve just existing domains. This is probably what you want if
               you're looking to self-host GoatCounter. Requires creating a site
-              with "create" first.
-  create      Create a new site and user.
+              with "create" first. WORK-IN-PROGRESS; NOT YET READY!
 
 Advanced commands:
 
