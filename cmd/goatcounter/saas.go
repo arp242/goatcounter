@@ -176,9 +176,10 @@ func saas() (int, error) {
 
 func flagErrors(errors string, v *zvalidate.Validator) {
 	switch {
-	case errors == "":
 	default:
 		v.Append("-errors", "invalid value")
+	case errors == "":
+		// Do nothing.
 	case strings.HasPrefix(errors, "mailto:"):
 		errors = errors[7:]
 		v.Email("-errors", errors)

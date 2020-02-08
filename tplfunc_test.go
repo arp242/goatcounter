@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"zgo.at/goatcounter"
 	. "zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/tz"
@@ -145,7 +144,7 @@ func TestBarChart(t *testing.T) {
 
 			ctx, site := gctest.Site(ctx, t, Site{
 				CreatedAt: tt.now,
-				Settings:  goatcounter.SiteSettings{Timezone: zone},
+				Settings:  SiteSettings{Timezone: zone},
 			})
 
 			gctest.StoreHits(ctx, t, Hit{Site: site.ID, CreatedAt: tt.now, Path: "/a"})

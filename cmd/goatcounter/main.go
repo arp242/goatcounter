@@ -140,7 +140,7 @@ func printMsg(code int, usageText, msg string, args ...interface{}) {
 		if msg != "" {
 			fmt.Fprintf(out, "\n")
 		}
-		fmt.Fprintf(out, usageText)
+		fmt.Fprint(out, usageText)
 	}
 }
 

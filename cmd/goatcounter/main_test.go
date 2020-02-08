@@ -121,18 +121,21 @@ func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 	// Safety.
 	go func() {
 		time.Sleep(20 * time.Second)
-		t.Fatal("test took longer than 20s")
-		stop()
+		wait <- false
 	}()
 
 	// Return exit code.
 	var code int
-	exit = func(c int) { c = code }
+	exit = func(c int) { code = c }
 
 	main()
 
 	w.Close()
-	<-wait
+	if !<-wait {
+		stop()
+		code = 99
+		t.Fatal("test took longer than 20s")
+	}
 	return output, code
 }
 

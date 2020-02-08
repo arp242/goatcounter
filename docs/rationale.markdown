@@ -232,7 +232,7 @@ solutions that's free or charge.
 
 - Cheapest plan is $9/month (the "free" one is
 
-- Lacks per-page referal view. Various UX items seem clunky.
+- Lacks per-page referral view. Various UX items seem clunky.
 
 - Tracking script is 32k (10k gzip'd).
 
@@ -257,7 +257,7 @@ solutions that's free or charge.
 
 #### https://plausible.io/
 
-- Doesn't give referal insights per-page.
+- Doesn't give referral insights per-page.
 
 - Open source, but self-hosted is currently not supported.
 

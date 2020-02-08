@@ -36,7 +36,7 @@ func help() (int, error) {
 	if !ok {
 		return 1, fmt.Errorf("no help topic for %q", os.Args[2])
 	}
+	fmt.Fprint(stdout, t)
 
-	fmt.Fprintf(stdout, t)
 	return 0, nil
 }

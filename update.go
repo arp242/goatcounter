@@ -46,7 +46,7 @@ func (u *Updates) HasSince(ctx context.Context, since time.Time) (bool, error) {
 func (u *Updates) List(ctx context.Context, since time.Time) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, u, `select * from updates order by show_at desc`)
 	if err != nil {
-		errors.Wrap(err, "Updates.ListUnseen")
+		return errors.Wrap(err, "Updates.ListUnseen")
 	}
 
 	uu := *u
