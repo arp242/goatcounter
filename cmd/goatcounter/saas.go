@@ -19,7 +19,6 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/utils/ioutilx"
 	"zgo.at/utils/stringutil"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -35,8 +34,8 @@ www.[domanin], a static file server on [staticdomain], and a backend UI on
 [code].domain. Users are expected to register on www.[domain].
 
 Static files and templates are compiled in the binary and aren't needed to run
-GoatCounter. But if GoatCounter is started from the source directory they're
-loaded from the filesystem.
+GoatCounter. But they're loaded from the filesystem if GoatCounter is started
+with -dev.
 
 Flags:
 
@@ -84,13 +83,13 @@ Flags:
                  order. This will automatically redirect port 80 as well.
 `
 
-func saas() error {
+func saas() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
 	var (
-		automigrate, dev                          bool
-		tls, listen, smtp, errors, stripe, domain string
+		automigrate, dev                                bool
+		tls, listen, smtp, errors, stripe, domain, plan string
 	)
 	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
 	CommandLine.BoolVar(&dev, "dev", false, "")
@@ -100,13 +99,13 @@ func saas() error {
 	CommandLine.StringVar(&errors, "errors", "", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
-	CommandLine.StringVar(&cfg.Plan, "plan", goatcounter.PlanPersonal, "")
+	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
 	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
-	cfg.SourceTree = ioutilx.Exists("./public/script.js") && ioutilx.Exists("./tpl/home.gohtml")
+	cfg.Plan = plan
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
 	if !dev {
@@ -114,7 +113,7 @@ func saas() error {
 	}
 
 	v := zvalidate.New()
-	v.Include("-plan", cfg.Plan, goatcounter.Plans)
+	v.Include("-plan", plan, goatcounter.Plans)
 	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
 	//v.Path("-certdir", cfg.CertDir, true) // TODO: implement in zvalidate
 	// TODO: validate tls
@@ -125,14 +124,13 @@ func saas() error {
 	flagStripe(stripe, &v)
 	flagDomain(domain, &v)
 	if v.HasErrors() {
-		return v
+		return 1, v
 	}
 
 	// Reload on changes.
-	if cfg.SourceTree {
+	if !cfg.Prod {
 		pack.Templates = nil
 		pack.Public = nil
-
 		go func() {
 			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
 			if err != nil {
@@ -142,9 +140,9 @@ func saas() error {
 	}
 
 	// Connect to DB.
-	db, err := connectDB(*dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate])
+	db, err := connectDB(*dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate])
 	if err != nil {
-		return err
+		return 2, err
 	}
 	defer db.Close()
 
@@ -153,6 +151,7 @@ func saas() error {
 	acme.Run()
 
 	// Set up HTTP handler and servers.
+	zhttp.InitTpl(pack.Templates)
 	d := zhttp.RemovePort(cfg.Domain)
 	hosts := map[string]chi.Router{
 		d:          zhttp.RedirectHost("//www." + cfg.Domain),
@@ -166,14 +165,13 @@ func saas() error {
 	}
 
 	zlog.Print(getVersion())
-	zlog.Printf("serving %q on %q; dev=%t; sourceTree=%t",
-		cfg.Domain, listen, dev, cfg.SourceTree)
+	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
 	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
 		cron.Wait(db)
 		acme.Wait()
 	})
 
-	return nil
+	return 0, nil
 }
 
 func flagErrors(errors string, v *zvalidate.Validator) {
@@ -194,7 +192,9 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				[]mail.Address{{Address: errors}},
 				zlog.Config.Format(l))
 			if err != nil {
-				fmt.Println(err)
+				// Just output to stderr I guess, can't really do much more if
+				// zlog fails.
+				fmt.Fprintf(stderr, "emailerrors: %s\n", err)
 			}
 		})
 	}

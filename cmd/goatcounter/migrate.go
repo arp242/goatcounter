@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -37,7 +38,11 @@ Note: you can also use -automigrate flag for the serve and saas commands to run
 migrations on startup.
 `
 
-func migrate() error {
+func migrate() (int, error) {
+	if len(os.Args) == 2 {
+		return 1, errors.New("need a migration or command")
+	}
+
 	dbConnect := flagDB()
 	debug := flagDebug()
 	CommandLine.Parse(os.Args[2:])
@@ -45,7 +50,7 @@ func migrate() error {
 
 	db, err := connectDB(*dbConnect, CommandLine.Args())
 	if err != nil {
-		return err
+		return 2, err
 	}
 	defer db.Close()
 
@@ -55,17 +60,17 @@ func migrate() error {
 			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL])
 		have, ran, err := m.List()
 		if err != nil {
-			return err
+			return 1, err
 		}
 		if d := sliceutil.DifferenceString(have, ran); len(d) > 0 {
-			fmt.Printf("Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
+			fmt.Fprintf(stdout, "Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
 		} else {
-			fmt.Println("No pending migrations")
+			fmt.Fprintln(stdout, "No pending migrations")
 		}
 		if d := sliceutil.DifferenceString(ran, have); len(d) > 0 {
-			fmt.Printf("Migrations in the DB that don't exist:\n\t%s\n", strings.Join(d, "\n\t"))
+			fmt.Fprintf(stdout, "Migrations in the DB that don't exist:\n\t%s\n", strings.Join(d, "\n\t"))
 		}
 	}
 
-	return nil
+	return 0, nil
 }

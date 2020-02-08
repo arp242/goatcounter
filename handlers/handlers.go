@@ -57,8 +57,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 }
 
 func NewWebsite(db zdb.DB) chi.Router {
-	zhttp.InitTpl(pack.Templates)
-
 	r := chi.NewRouter()
 	website{}.Mount(r, db)
 	return r

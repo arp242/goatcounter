@@ -16,23 +16,27 @@ Show help; use "help commands" to dispay detailed help for a command, or "help
 all" to display everything.
 `
 
-func help() {
+func help() (int, error) {
 	if len(os.Args) == 2 {
-		die(0, usage[""], "")
+		fmt.Fprint(stdout, usage[""])
+		return 0, nil
 	}
+
 	if os.Args[2] == "all" {
-		fmt.Print(strings.TrimSpace(usage[""]), "\n\n")
-		for _, h := range []string{"help", "version", "migrate", "saas", "reindex"} {
+		fmt.Fprint(stdout, usage[""], "\n")
+		for _, h := range []string{"help", "version", "migrate", "serve", "create", "saas", "reindex"} {
 			head := fmt.Sprintf("─── Help for %q ", h)
-			fmt.Printf("%s%s\n\n", head, strings.Repeat("─", 80-utf8.RuneCountInString(head)))
-			fmt.Print(strings.TrimSpace(usage[h]), "\n\n")
+			fmt.Fprintf(stdout, "%s%s\n\n", head, strings.Repeat("─", 80-utf8.RuneCountInString(head)))
+			fmt.Fprint(stdout, usage[h], "\n")
 		}
-		os.Exit(0)
+		return 0, nil
 	}
 
 	t, ok := usage[os.Args[2]]
 	if !ok {
-		die(1, usage["help"], "no help topic for %q", os.Args[2])
+		return 1, fmt.Errorf("no help topic for %q", os.Args[2])
 	}
-	die(0, t, "")
+
+	fmt.Fprintf(stdout, t)
+	return 0, nil
 }

@@ -128,12 +128,12 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 var stripePlans = map[bool]map[string]string{
-	true: map[string]string{
+	true: {
 		"personal":     "plan_GLVKIvCvCjzT2u",
 		"business":     "plan_GLVGCVzLaPA3cY",
 		"businessplus": "plan_GLVHJUi21iV4Wh",
 	},
-	false: map[string]string{
+	false: {
 		"personal":     "plan_GLWnXaogEns1n2",
 		"business":     "plan_GLWoJ72fcNGoUD",
 		"businessplus": "plan_GLWootweDZnKBk",

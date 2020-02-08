@@ -25,11 +25,17 @@ import (
 
 var version = "dev"
 
+var (
+	stdout = os.Stdout
+	stderr = os.Stderr
+	exit   = os.Exit
+)
+
 var usage = map[string]string{
-	"":     usageTop,
-	"help": usageHelp,
-	//"serve":   usageServe,
-	//"create":    usageCreate,
+	"":        usageTop,
+	"help":    usageHelp,
+	"serve":   usageServe,
+	"create":  usageCreate,
 	"migrate": usageMigrate,
 	"saas":    usageSaas,
 	"reindex": usageReindex,
@@ -40,6 +46,12 @@ semicolons.
 `,
 }
 
+func init() {
+	for k := range usage {
+		usage[k] = strings.TrimSpace(usage[k]) + "\n"
+	}
+}
+
 const usageTop = `
 Usage: goatcounter [command] [flags]
 
@@ -48,16 +60,19 @@ Commands:
   help        Show help; use "help <command>" or "help all" for more details.
   version     Show version and build information and exit.
   migrate     Run database migrations.
+  create      Create a new site and user.
+  serve       Serve just existing domains. This is probably what you want if
+              you're looking to self-host GoatCounter. Requires creating a site
+              with "create" first. WORK-IN-PROGRESS; NOT YET READY!
+
+Advanced commands:
+
   saas        Run a "SaaS" production server.
   reindex     Re-create the cached statistics (*_stats tables) from the hits.
               This is generally rarely needed and mostly a development tool.
 
-See "help <command>" for more details for the command.`
-
-// serve          Serve just existing domains. This is probably what you want if
-//                you're looking to self-host GoatCounter. Requires creating a
-//                site with "create" first.
-// create         Create a new site and user; only needed for "serve".
+See "help <command>" for more details for the command.
+`
 
 var CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
@@ -67,46 +82,53 @@ func main() {
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
 
 	if len(os.Args) < 2 {
-		die(1, usage[""], "need a command")
+		printMsg(1, usage[""], "need a command")
+		exit(1)
+		return
 	}
 	cmd := os.Args[1]
-	CommandLine.SetOutput(os.Stdout)
-	CommandLine.Usage = func() { fmt.Print("\n", strings.TrimSpace(usage[cmd]), "\n") }
+	CommandLine.SetOutput(stdout)
+	CommandLine.Usage = func() { fmt.Fprint(stdout, "\n", usage[cmd], "\n") }
 
-	var err error
+	var (
+		code int
+		err  error
+	)
 	switch cmd {
 	default:
-		die(1, usage[""], "unknown command: %q", cmd)
-	case "help":
-		help()
+		printMsg(1, usage[""], "unknown command: %q", cmd)
+		code = 1
 	case "version":
-		fmt.Println(getVersion())
+		fmt.Fprintln(stdout, getVersion())
+	case "help":
+		code, err = help()
 	case "migrate":
-		if len(os.Args) == 1 {
-			die(1, usage["migrate"], "need a migration or command")
-		}
-		err = migrate()
-	//case "create":
-	//	err = create()
-	//case "serve":
-	//	err = serve()
+		code, err = migrate()
+	case "create":
+		code, err = create()
+	case "serve":
+		code, err = serve()
 	case "saas":
-		err = saas()
+		code, err = saas()
 	case "reindex":
-		err = reindex()
+		code, err = reindex()
 	}
 	if err != nil {
+		// code=1, the user did something wrong and print usage as well
+		// code=2, some internal error, and print just that.
 		if _, ok := err.(zvalidate.Validator); ok {
-			die(1, usage[cmd], err.Error())
+			printMsg(code, usage[cmd], err.Error())
 		}
-		die(1, "", err.Error())
+		printMsg(code, "", err.Error())
 	}
+
+	exit(code)
 }
 
-func die(code int, usageText, msg string, args ...interface{}) {
-	out := os.Stdout
+func printMsg(code int, usageText, msg string, args ...interface{}) {
+	out := stdout
 	if code > 0 {
-		out = os.Stderr
+		out = stderr
 	}
 
 	msg = strings.TrimSpace(msg)
@@ -118,9 +140,8 @@ func die(code int, usageText, msg string, args ...interface{}) {
 		if msg != "" {
 			fmt.Fprintf(out, "\n")
 		}
-		fmt.Fprintf(out, strings.TrimSpace(usageText)+"\n")
+		fmt.Fprintf(out, usageText)
 	}
-	os.Exit(code)
 }
 
 func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcounter.sqlite3", "") }

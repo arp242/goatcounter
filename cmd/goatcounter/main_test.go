@@ -6,15 +6,22 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
 	"syscall"
 	"testing"
 	"time"
 
-	"zgo.at/ztest"
+	"zgo.at/goatcounter/cfg"
+	_ "zgo.at/goatcounter/gctest" // Set cfg.PgSQL
+	"zgo.at/zdb"
+	"zgo.at/zhttp"
+	"zgo.at/zlog"
 )
 
 // Make sure usage doesn't contain tabs, as that will mess up formatting in
@@ -27,9 +34,45 @@ func TestUsageTabs(t *testing.T) {
 	}
 }
 
-func TestMain(t *testing.T) {
-	// Just ensure the app can start with the default settings, creating a new
-	// DB file.
+func tmpdb(t *testing.T) (context.Context, string, func()) {
+	dir, err := ioutil.TempDir("", "goatcounter")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	dbname := "goatcounter_" + zhttp.Secret()
+	var tmp string
+	if cfg.PgSQL {
+		// TODO: need to load schema etc.
+		t.Skip()
+		out, err := exec.Command("createdb", dbname).CombinedOutput()
+		if err != nil {
+			panic(fmt.Sprintf("%s → %s", err, out))
+		}
+		tmp = "postgresql://dbname=" + dbname + " sslmode=disable password=x"
+	} else {
+		tmp = "sqlite://" + dir + "/goatcounter.sqlite3"
+	}
+
+	db, err := connectDB(tmp, nil)
+	if err != nil {
+		os.RemoveAll(dir)
+		t.Fatal(err)
+	}
+
+	return zdb.With(context.Background(), db), tmp, func() {
+		os.RemoveAll(dir)
+		db.Close()
+		if cfg.PgSQL {
+			out, err := exec.Command("dropdb", dbname).CombinedOutput()
+			if err != nil {
+				panic(fmt.Sprintf("%s → %s", err, out))
+			}
+		}
+	}
+}
+
+func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 	cwd, _ := os.Getwd()
 	err := os.Chdir("../../")
 	if err != nil {
@@ -37,31 +80,62 @@ func TestMain(t *testing.T) {
 	}
 	defer os.Chdir(cwd)
 
-	tmpdir, err := ioutil.TempDir("", "goatcounter")
+	// Reset flags in case of -count 2
+	CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	os.Args = append([]string{"goatcounter"}, args...)
+
+	// Swap out stdout/stderr.
+	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatal(err)
 	}
-	tmpdb := "sqlite://" + tmpdir + "/goatcounter.sqlite3"
-	defer os.RemoveAll(tmpdir)
+	stdout = w
+	stderr = w
+	zlog.Config.Outputs = []zlog.OutputFunc{
+		func(l zlog.Log) {
+			out := stdout
+			if l.Level == zlog.LevelErr {
+				out = stderr
+			}
+			fmt.Fprintln(out, zlog.Config.Format(l))
+		},
+	}
 
-	// Reset flags in case of -count 2
-	CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	os.Args = []string{"goatcounter", "saas",
-		"-smtp", "dummy",
-		"-db", tmpdb,
-		"-listen", "localhost:31874"}
-
-	out, reset := ztest.ReplaceStdStreams()
-	defer reset()
+	// Record output, and kill when we see a string.
+	var output []string
+	wait := make(chan bool)
 	go func() {
-		scanner := bufio.NewScanner(out)
+		scanner := bufio.NewScanner(r)
 		for scanner.Scan() {
-			if strings.Contains(scanner.Text(), "serving ") {
+			l := scanner.Text()
+			output = append(output, l)
+			if killswitch != "" && strings.Contains(l, killswitch) {
+				fmt.Println("kill", syscall.Getpid())
 				time.Sleep(100 * time.Millisecond)
-				syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+				stop()
 			}
 		}
+		wait <- true
 	}()
 
+	// Safety.
+	go func() {
+		time.Sleep(20 * time.Second)
+		t.Fatal("test took longer than 20s")
+		stop()
+	}()
+
+	// Return exit code.
+	var code int
+	exit = func(c int) { c = code }
+
 	main()
+
+	w.Close()
+	<-wait
+	return output, code
+}
+
+func stop() {
+	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 }
