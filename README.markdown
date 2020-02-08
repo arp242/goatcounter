@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/zgoat/goatcounter.svg?branch=master)](https://travis-ci.org/zgoat/goatcounter)
-[![codecov](https://codecov.io/gh/zgoat/goatcounter/branch/master/graph/badge.svg)](https://codecov.io/gh/zgoat/goatcounter)
 
 GoatCounter is a web analytics platform, roughly similar to Google Analytics or
 Matomo. It aims to give meaningful privacy-friendly web analytics for business

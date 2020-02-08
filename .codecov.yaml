@@ -1,8 +1,0 @@
-ignore: ["pack/*.go", "*.js"]
-comment: off
-coverage:
-  range: 50..90
-  round: down
-  precision: 2
-  status:
-    patch: false

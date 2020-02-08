@@ -30,8 +30,5 @@ install: [] # Don't need to run go get ./... with modules.
 script:
   - 'go vet ./...'
   - 'go generate ./... && [ $(git status -s | wc -l) -gt 1 ] && git diff && exit 1 || true'
-  - 'go test              -race -coverprofile=coverage.txt -coverpkg=./... ./...'
-  - 'go test -tags=testpg -race -coverprofile=coverage.txt -coverpkg=./... ./...'
-
-after_success:
-  - 'bash <(curl -s https://codecov.io/bash)'
+  - 'go test              -race ./...'
+  - 'go test -tags=testpg -race ./...'
