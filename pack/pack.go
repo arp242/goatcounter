@@ -1716,258 +1716,91 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		}
 		return s
 	}(),
-	"public/count.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the EUPL
-// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+	"public/count.js": []byte(`// GoatCounter: https://www.goatcounter.com
+'use strict';
 
-// See /bin/proxy on how to test this locally.
 (function() {
-	'use strict';
-
-	var dep = '';
-	if (window.goatcounter && window.goatcounter.vars) {  // TODO: temporary compatibility.
-		window.goatcounter = window.goatcounter.vars;
-		dep += 'window.goatcounter.vars';
-	}
-	else
-		window.goatcounter = window.goatcounter || {};
+	window.goatcounter = (window.goatcounter && goatcounter.vars)
+		? goatcounter.vars  // Compatibility
+		: (window.goatcounter || {})
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(count_vars) {
-		var results = {
+		var data = {
 			p: count_vars.path     || goatcounter.path,
 			r: count_vars.referrer || goatcounter.referrer,
 			t: count_vars.title    || goatcounter.title,
+			e: !!(count_vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
-		};
-		if (count_vars.event || goatcounter.event)
-			results.e = true;
-
-		// Save callbacks.
-		var rcb, pcb, tcb;
-		if (typeof(results.r) === 'function') rcb = results.r;
-		if (typeof(results.t) === 'function') tcb = results.t;
-		if (typeof(results.p) === 'function') pcb = results.p;
-
-		// Get the values unless explicitly given.
-		if (is_empty(results.r)) results.r = document.referrer;
-		if (is_empty(results.t)) results.t = document.title;
-		if (is_empty(results.p)) {
-			var loc = location,
-				c = document.querySelector('link[rel="canonical"][href]');
-			// Parse in a tag to a Location object (canonical URL may be relative).
-			if (c) {
-				loc = document.createElement('a');
-				loc.href = c.href;
-			}
-			results.p = (loc.pathname + loc.search) || '/';
 		}
 
-		// Apply callbacks.
-		if (rcb) results.r = rcb(results.r);
-		if (tcb) results.t = tcb(results.t);
-		if (pcb) results.p = pcb(results.p);
+		var rcb, pcb, tcb  // Save callbacks so they can be applied after getting the defaults.
+		if (typeof(data.r) === 'function') rcb = data.r
+		if (typeof(data.t) === 'function') tcb = data.t
+		if (typeof(data.p) === 'function') pcb = data.p
 
-		return results;
-	};
+		if (is_empty(data.r)) data.r = document.referrer
+		if (is_empty(data.t)) data.t = document.title
+		if (is_empty(data.p)) {
+			var loc = location,
+			    c   = document.querySelector('link[rel="canonical"][href]')
+			if (c) {  // May be relative.
+				loc = document.createElement('a')
+				loc.href = c.href
+			}
+			data.p = (loc.pathname + loc.search) || '/'
+		}
 
-	// Check if a value is "empty" for the purpose of get_data().
-	var is_empty = function(v) {
-		return v === null || v === undefined || typeof(v) === 'function';
+		if (rcb) data.r = rcb(data.r)
+		if (tcb) data.t = tcb(data.t)
+		if (pcb) data.p = pcb(data.p)
+		return data
 	}
 
-	// Convert parameters to urlencoded string, starting with a ?
-	//
-	// e.g. ?foo=bar&a=b
+	// Check if a value is "empty" for the purpose of get_data().
+	var is_empty = function(v) { return v === null || v === undefined || typeof(v) === 'function' }
+
+	// Create urlencoded string, starting with a ?: "?foo=bar&a=b".
 	var to_params = function(obj) {
-		var p = [];
-		for (var k in obj)
-			p.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]));
-		return '?' + p.join('&');
-	};
+		return '?' + Object.keys(obj).map(function(k) {
+			return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])
+		}).join('&')
+	}
 
 	// Count a hit.
-	var count = function(count_vars) {
-		// Don't track pages fetched with the browser's prefetch algorithm.
-		// See https://github.com/usefathom/fathom/issues/13
-		if ('visibilityState' in document && document.visibilityState === 'prerender')
-			return;
-
-		// Find the tag used to load this script.
-		var script = document.querySelector('script[data-goatcounter]'),
-			endpoint = window.counter;  // TODO: temporary compat.
-		if (script)
-			endpoint = script.dataset.goatcounter;
-
-		// Don't track private networks.
+	goatcounter.count = function(count_vars) {
+		if (document.hidden || ('visibilityState' in document && document.visibilityState === 'prerender'))
+			return
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
-			return;
+			return
 
-		var data = get_data(count_vars || {});
-		if (data.p === null)  // null returned from user callback.
-			return;
-
-		if (dep !== '')
-			data.dep = dep;
-
-		// Add image to send request.
-		var img = document.createElement('img');
-		img.src = endpoint + to_params(data);
-		img.style.float = 'right';  // Affect layout less.
-		img.setAttribute('alt', '');
-		img.setAttribute('aria-hidden', 'true');
-		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
-		setTimeout(function() {  // Just in case the onload isn't triggered.
-			if (img && img.parentNode)
-				img.parentNode.removeChild(img)
-		}, 3000);
-
-		document.body.appendChild(img);
-	};
-
-	// Expose public API.
-	window.goatcounter.count = count;
-
-	if (!goatcounter.no_onload) {
-		if (document.body === null)
-			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
-		else
-			count();
-	}
-})();
-`),
-	"public/count.min.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the EUPL
-// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
-
-// See /bin/proxy on how to test this locally.
-(function() {
-	'use strict';
-
-	var dep = 'count.min.js';
-
-	if (window.vars) {  // TODO: temporary compatibility.
-		window.goatcounter = window.vars;
-		dep += 'window.vars';
-	}
-	else if (window.goatcounter && window.goatcounter.vars) {
-		window.goatcounter = window.goatcounter.vars;
-		dep += 'window.goatcounter.vars';
-	}
-	else
-		window.goatcounter = window.goatcounter || {};
-
-	// Get all data we're going to send off to the counter endpoint.
-	var get_data = function(count_vars) {
-		var results = {
-			p: count_vars.path     || goatcounter.path,
-			r: count_vars.referrer || goatcounter.referrer,
-			t: count_vars.title    || goatcounter.title,
-		};
-		if (count_vars.event || goatcounter.event)
-			results.e = true;
-
-		// Save callbacks.
-		var rcb, pcb, tcb;
-		if (typeof(results.r) === 'function') rcb = results.r;
-		if (typeof(results.t) === 'function') tcb = results.t;
-		if (typeof(results.p) === 'function') pcb = results.p;
-
-		// Get the values unless explicitly given.
-		if (is_empty(results.r)) results.r = document.referrer;
-		if (is_empty(results.t)) results.t = document.title;
-		if (is_empty(results.p)) {
-			var loc = location,
-				c = document.querySelector('link[rel="canonical"][href]');
-			// Parse in a tag to a Location object (canonical URL may be relative).
-			if (c) {
-				loc = document.createElement('a');
-				loc.href = c.href;
-			}
-			results.p = (loc.pathname + loc.search) || '/';
-		}
-
-		// Apply callbacks.
-		if (rcb) results.r = rcb(results.r);
-		if (tcb) results.t = tcb(results.t);
-		if (pcb) results.p = pcb(results.p);
-
-		return results;
-	};
-
-	// Check if a value is "empty" for the purpose of get_data().
-	var is_empty = function(v) {
-		return v === null || v === undefined || typeof(v) === 'function';
-	}
-
-	// Convert parameters to urlencoded string, starting with a ?
-	//
-	// e.g. ?foo=bar&a=b
-	var to_params = function(obj) {
-		var p = [];
-		for (var k in obj)
-			p.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]));
-		return '?' + p.join('&');
-	};
-
-	// Count a hit.
-	var count = function(count_vars) {
-		// Don't track pages fetched with the browser's prefetch algorithm.
-		// See https://github.com/usefathom/fathom/issues/13
-		if ('visibilityState' in document && document.visibilityState === 'prerender')
-			return;
-
-		// Find the tag used to load this script.
-		var script = document.querySelector('script[data-goatcounter]'),
-			endpoint;
+		var script   = document.querySelector('script[data-goatcounter]'),
+		    endpoint = window.counter  // Compatibility
 		if (script)
-			endpoint = script.dataset.goatcounter;
-		else  { // TODO: temporary compat.
-			endpoint = window.counter;
-			dep += 'window.counter';
-		}
+			endpoint = script.dataset.goatcounter
 
-		// Don't track private networks.
-		if (location.hostname.match(/localhost$/) ||
-			location.hostname.match(/^(127\.|10\.|172\.16\.|192\.168\.)/))
-				return;
+		var data = get_data(count_vars || {})
+		if (data.p === null)  // null returned from user callback.
+			return
 
-		var data = get_data(count_vars || {});
-		data.s = [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)];
-		if (dep !== '')
-			data.dep = dep;
+		var img = document.createElement('img')
+		img.src = endpoint + to_params(data)
+		img.style.float = 'right'  // Affect layout less.
+		img.setAttribute('alt', '')
+		img.setAttribute('aria-hidden', 'true')
+		img.addEventListener('load', function() { img.parentNode.removeChild(img) }, false)
+		setTimeout(function() {  // Just in case the onload isn't triggered.
+			if (img && img.parentNode) img.parentNode.removeChild(img)
+		}, 3000)
 
-		// null returned from user callback.
-		if (data.p === null)
-			return;
-
-		// Add image to send request.
-		var img = document.createElement('img');
-		img.setAttribute('alt', '');
-		img.setAttribute('aria-hidden', 'true');
-		img.src = endpoint + to_params(data);
-		img.addEventListener('load', function() { document.body.removeChild(img) }, false);
-
-		// Remove the image after 3s if the onload event is never triggered.
-		setTimeout(function() {
-			if (!img.parentNode)
-				return;
-			img.src = '';
-			document.body.removeChild(img)
-		}, 3000);
-
-		document.body.appendChild(img);
-	};
-
-	// Expose public API.
-	window.goatcounter.count = count;
-
-	if (!goatcounter.no_onload) {
-		if (document.body === null)
-			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
-		else
-			count();
+		document.body.appendChild(img)
 	}
+
+	if (!goatcounter.no_onload)
+		if (document.readyState === 'loading')
+			document.addEventListener('DOMContentLoaded', goatcounter.count, false)
+		else
+			goatcounter.count()
 })();
 `),
 	"public/favicon/android-chrome-192x192.png": func() []byte {
@@ -15104,8 +14937,8 @@ sub {
 			see the <a href="/privacy">privacy policy</a>.</p>
 
 		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
-			~2KB of extra data to your site. Also has JavaScript-free "tracking
-			pixel" option, or you can use it from your application's
+			~1.5KB of extra data to your site. Also has JavaScript-free
+			"tracking pixel" option, or you can use it from your application's
 			middleware.
 </p>
 	</div>

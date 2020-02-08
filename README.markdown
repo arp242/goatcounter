@@ -27,7 +27,7 @@ Features
 - **Privacy-aware**; doesn't track users with unique identifiers and doesn't
   need a GDPR consent notice. Also see the [privacy policy][privacy].
 
-- **Lightweight** and **fast**; adds just ~4K (~2K compressed) of extra data to
+- **Lightweight** and **fast**; adds just ~3K (~1.5K compressed) of extra data to
   your site. Also has JavaScript-free "tracking pixel" option, or you can use it
   from your application's middleware.
 
