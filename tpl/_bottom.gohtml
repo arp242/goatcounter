@@ -4,8 +4,10 @@
 
 	{{template "_bottom_links.gohtml" .}}
 
-	<script data-goatcounter="https://goatcounter.goatcounter.com/count"
-	        async src="//gc.zgo.at/count.js"></script>
+	{{if eq .Domain "goatcounter.com"}}
+		<script data-goatcounter="https://goatcounter.goatcounter.com/count"
+				async src="//gc.zgo.at/count.js"></script>
+	{{end}}
 
 	{{if .Billing}}
 		<script>

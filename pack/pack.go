@@ -1720,9 +1720,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 'use strict';
 
 (function() {
-	window.goatcounter = (window.goatcounter && goatcounter.vars)
-		? goatcounter.vars  // Compatibility
-		: (window.goatcounter || {})
+	window.goatcounter = (window.goatcounter && goatcounter.vars)  // Compatibility
+		? goatcounter.vars : (window.goatcounter || {})
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(count_vars) {
@@ -1760,7 +1759,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	// Check if a value is "empty" for the purpose of get_data().
 	var is_empty = function(v) { return v === null || v === undefined || typeof(v) === 'function' }
 
-	// Create urlencoded string, starting with a ?: "?foo=bar&a=b".
+	// Create urlencoded string, starting with a ?: "?foo=bar&a=b" or "?".
 	var to_params = function(obj) {
 		return '?' + Object.keys(obj).map(function(k) {
 			return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])
@@ -1792,7 +1791,6 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		setTimeout(function() {  // Just in case the onload isn't triggered.
 			if (img && img.parentNode) img.parentNode.removeChild(img)
 		}, 3000)
-
 		document.body.appendChild(img)
 	}
 
@@ -14060,8 +14058,10 @@ do this 100% reliably.</p>
 
 	{{template "_bottom_links.gohtml" .}}
 
-	<script data-goatcounter="https://goatcounter.goatcounter.com/count"
-	        async src="//gc.zgo.at/count.js"></script>
+	{{if eq .Domain "goatcounter.com"}}
+		<script data-goatcounter="https://goatcounter.goatcounter.com/count"
+				async src="//gc.zgo.at/count.js"></script>
+	{{end}}
 
 	{{if .Billing}}
 		<script>
