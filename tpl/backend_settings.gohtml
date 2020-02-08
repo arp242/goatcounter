@@ -20,14 +20,16 @@
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 
-				<label for="code">Code</label>
-				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
-				{{validate "site.code" .Validate}}
-				<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
-					Changing this isn’t implemented yet; contact
-					<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-					if you want to change it.
-				</span>
+				{{if .Saas}}
+					<label for="code">Code</label>
+					<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
+					{{validate "site.code" .Validate}}
+					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
+						Changing this isn’t implemented yet; contact
+						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+						if you want to change it.
+					</span>
+				{{end}}
 
 				{{if .Site.PlanCustomDomain .Context}}
 					<label for="cname">Custom domain</label>
@@ -202,11 +204,13 @@
 	</ul>
 </div>
 
-<div>
-	<h2 id="delete">Delete account</h2>
-	<p>Email <a href="mailto:delete@goatcounter.com">delete@goatcounter.com</a>
-		if you wish to permanently delete your account and all associated data.
-		Be sure to do this from the registered email for verification.</p>
-</div>
+{{if .Saas}}
+	<div>
+		<h2 id="delete">Delete account</h2>
+		<p>Email <a href="mailto:delete@goatcounter.com">delete@goatcounter.com</a>
+			if you wish to permanently delete your account and all associated data.
+			Be sure to do this from the registered email for verification.</p>
+	</div>
+{{end}}
 
 {{template "_backend_bottom.gohtml" .}}

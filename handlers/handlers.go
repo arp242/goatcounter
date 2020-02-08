@@ -29,6 +29,7 @@ type Globals struct {
 	Domain     string
 	Version    string
 	Billing    bool
+	Saas       bool
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
@@ -42,6 +43,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Domain:  cfg.Domain,
 		Version: cfg.Version,
 		Billing: zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
+		Saas:    cfg.Saas,
 	}
 	if g.User == nil {
 		g.User = &goatcounter.User{}

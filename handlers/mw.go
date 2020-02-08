@@ -52,7 +52,7 @@ var (
 	})
 
 	admin = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
-		if goatcounter.MustGetSite(r.Context()).ID == 1 {
+		if goatcounter.MustGetSite(r.Context()).Admin() {
 			return nil
 		}
 		return guru.Errorf(404, "")

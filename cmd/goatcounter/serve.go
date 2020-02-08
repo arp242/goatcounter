@@ -68,13 +68,10 @@ Flags:
 
 // TODO:
 //
-// - disable "admin" for site.id=1, and perhaps some other things as well?
-// - Remove www links from footer.
 // - Ports not reflected in domain links (login, script)
-// - Settings → Code can be removed
 // - Settings → Domain isn't filled in?
+// - Update help text for "domain".
 // - How to handle additional sites? Maybe just remove? Or add create flag?
-// - Hide Delete account
 
 func serve() (int, error) {
 	dbConnect := flagDB()

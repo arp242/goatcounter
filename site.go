@@ -154,7 +154,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
-		if cfg.Domain != "" && strings.HasSuffix(*s.Cname, cfg.Domain) {
+		if cfg.Saas && strings.HasSuffix(*s.Cname, cfg.Domain) {
 			v.Append("cname", "cannot end with %q", cfg.Domain)
 		}
 
@@ -302,7 +302,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	})
 
 	// Custom domain.
-	if cfg.Domain == "" || !strings.HasSuffix(host, cfg.Domain) {
+	if cfg.Saas && !strings.HasSuffix(host, cfg.Domain) {
 		l.Debug("by cname")
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`select * from sites where lower(cname)=lower($1) and state=$2`,
@@ -428,6 +428,11 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 
 		return nil
 	})
+}
+
+// Admin reports if this site is an admin.
+func (s Site) Admin() bool {
+	return s.ID == 1
 }
 
 // Sites is a list of sites.

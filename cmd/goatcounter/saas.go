@@ -106,6 +106,7 @@ func saas() (int, error) {
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
 	cfg.Plan = plan
+	cfg.Saas = true
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
 	if !dev {

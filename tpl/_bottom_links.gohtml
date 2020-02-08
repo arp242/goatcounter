@@ -1,10 +1,12 @@
 <footer class="center cbox">
 	<div>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
+		{{if .Saas}}
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
+		{{end}}
 	</div>
 	<div>
 		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">GitHub</a><span> |</span>

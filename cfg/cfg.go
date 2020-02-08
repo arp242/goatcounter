@@ -10,4 +10,5 @@ var (
 	Plan         string
 	Prod         bool
 	Version      string
+	Saas         bool
 )

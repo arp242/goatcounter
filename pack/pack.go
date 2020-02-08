@@ -14204,7 +14204,7 @@ do this 100% reliably.</p>
 			<div>
 				Signed in as {{.User.Name}} |
 				<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |
-				{{if eq .Site.ID 1}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
+				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
 				<form method="post" action="/user/logout">
@@ -14254,11 +14254,13 @@ do this 100% reliably.</p>
 `),
 	"tpl/_bottom_links.gohtml": []byte(`<footer class="center cbox">
 	<div>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
-		<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
+		{{if .Saas}}
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
+		{{end}}
 	</div>
 	<div>
 		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">GitHub</a><span> |</span>
@@ -14540,14 +14542,16 @@ parent site includes the child sites.</p>
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 
-				<label for="code">Code</label>
-				<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
-				{{validate "site.code" .Validate}}
-				<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
-					Changing this isn’t implemented yet; contact
-					<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-					if you want to change it.
-				</span>
+				{{if .Saas}}
+					<label for="code">Code</label>
+					<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
+					{{validate "site.code" .Validate}}
+					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
+						Changing this isn’t implemented yet; contact
+						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+						if you want to change it.
+					</span>
+				{{end}}
 
 				{{if .Site.PlanCustomDomain .Context}}
 					<label for="cname">Custom domain</label>
@@ -14722,12 +14726,14 @@ parent site includes the child sites.</p>
 	</ul>
 </div>
 
-<div>
-	<h2 id="delete">Delete account</h2>
-	<p>Email <a href="mailto:delete@goatcounter.com">delete@goatcounter.com</a>
-		if you wish to permanently delete your account and all associated data.
-		Be sure to do this from the registered email for verification.</p>
-</div>
+{{if .Saas}}
+	<div>
+		<h2 id="delete">Delete account</h2>
+		<p>Email <a href="mailto:delete@goatcounter.com">delete@goatcounter.com</a>
+			if you wish to permanently delete your account and all associated data.
+			Be sure to do this from the registered email for verification.</p>
+	</div>
+{{end}}
 
 {{template "_backend_bottom.gohtml" .}}
 `),
