@@ -42,7 +42,7 @@ Flags:
                  as year-month-day.
 `
 
-func reindex() error {
+func reindex() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 	confirm := CommandLine.Bool("confirm", false, "")
@@ -52,14 +52,14 @@ func reindex() error {
 	v := zvalidate.New()
 	firstDay := v.Date("-since", *since, "2006-01-02")
 	if v.HasErrors() {
-		return v
+		return 1, v
 	}
 
 	zlog.Config.SetDebug(*debug)
 
 	db, err := connectDB(*dbConnect, nil)
 	if err != nil {
-		die(1, usage["reindex"], err.Error())
+		return 2, err
 	}
 	defer db.Close()
 
@@ -87,14 +87,14 @@ func reindex() error {
 		err := db.GetContext(ctx, &first, `select created_at from hits order by created_at asc limit 1`)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return nil
+				return 0, nil
 			}
-			return err
+			return 1, err
 		}
 
 		firstDay, err = time.Parse("2006-01-02", first[:10])
 		if err != nil {
-			return err
+			return 1, err
 		}
 	}
 
@@ -111,7 +111,7 @@ func reindex() error {
 	err = zdb.MustGet(ctx).SelectContext(ctx, &allpaths,
 		`select site, path from hits group by site, path`)
 	if err != nil {
-		return err
+		return 1, err
 	}
 
 	// Insert paths.
@@ -124,14 +124,14 @@ func reindex() error {
 			created_at >= $1 and created_at <= $2`,
 			dayStart(day), dayEnd(day))
 		if err != nil {
-			return err
+			return 1, err
 		}
 
 		fmt.Fprintf(stdout, "\r\x1b[0K%s → %d", day.Format("2006-01-02"), len(hits))
 
 		err = cron.ReindexStats(ctx, hits)
 		if err != nil {
-			return err
+			return 1, err
 		}
 
 		day = day.Add(24 * time.Hour)
@@ -141,7 +141,7 @@ func reindex() error {
 	}
 	fmt.Fprintln(stdout, "")
 
-	return nil
+	return 0, nil
 }
 
 func dayStart(t time.Time) string { return t.Format("2006-01-02") + " 00:00:00" }

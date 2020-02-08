@@ -48,7 +48,7 @@ Other flags:
 //                 to also store certificates in a directory, which makes it
 //                 easier to use an external https proxy.
 
-func create() error {
+func create() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -69,12 +69,12 @@ func create() error {
 	v.Domain("-domain", domain)
 	v.Email("-email", email)
 	if v.HasErrors() {
-		return v
+		return 1, v
 	}
 
 	db, err := connectDB(*dbConnect, nil)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	defer db.Close()
 
@@ -95,11 +95,11 @@ func create() error {
 		return err
 	})
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	// TODO: Create certificate; fix ACME first though.
 	// acme.Domains <- domain
 	// acme.Wait()
-	return nil
+	return 0, nil
 }

@@ -9,11 +9,11 @@ import (
 	"testing"
 )
 
-func TestSaas(t *testing.T) {
+func TestServe(t *testing.T) {
 	ctx, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "serving", []string{"saas",
+	out, code := run(t, "serving", []string{"serve",
 		"-smtp", "dummy",
 		"-listen", "localhost:31874",
 		"-db", dbc})

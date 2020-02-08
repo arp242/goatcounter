@@ -77,7 +77,7 @@ Flags:
 // - How to handle additional sites? Maybe just remove? Or add create flag?
 // - Hide Delete account
 
-func serve() error {
+func serve() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -111,7 +111,7 @@ func serve() error {
 	}
 	flagErrors(errors, &v)
 	if v.HasErrors() {
-		return v
+		return 1, v
 	}
 
 	// Reload on changes.
@@ -130,7 +130,7 @@ func serve() error {
 	// Connect to DB.
 	db, err := connectDB(*dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate])
 	if err != nil {
-		return err
+		return 2, err
 	}
 	defer db.Close()
 
@@ -155,7 +155,7 @@ func serve() error {
 
 	cnames, err := lsSites(db)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	zlog.Print(getVersion())
 	zlog.Printf("serving %d sites on %q; dev=%t; sourceTree=%t",
@@ -166,7 +166,8 @@ func serve() error {
 		cron.Wait(db)
 		acme.Wait()
 	})
-	return nil
+
+	return 0, nil
 }
 
 func lsSites(db zdb.DB) ([]string, error) {

@@ -28,6 +28,7 @@ var version = "dev"
 var (
 	stdout = os.Stdout
 	stderr = os.Stderr
+	exit   = os.Exit
 )
 
 var usage = map[string]string{
@@ -43,6 +44,12 @@ var usage = map[string]string{
 Show version and build information. This is printed as key=value, separated by
 semicolons.
 `,
+}
+
+func init() {
+	for k := range usage {
+		usage[k] = strings.TrimSpace(usage[k]) + "\n"
+	}
 }
 
 const usageTop = `
@@ -75,40 +82,50 @@ func main() {
 		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
 
 	if len(os.Args) < 2 {
-		die(1, usage[""], "need a command")
+		printMsg(1, usage[""], "need a command")
+		exit(1)
+		return
 	}
 	cmd := os.Args[1]
 	CommandLine.SetOutput(stdout)
-	CommandLine.Usage = func() { fmt.Fprint(stdout, "\n", strings.TrimSpace(usage[cmd]), "\n") }
+	CommandLine.Usage = func() { fmt.Fprint(stdout, "\n", usage[cmd], "\n") }
 
-	var err error
+	var (
+		code int
+		err  error
+	)
 	switch cmd {
 	default:
-		die(1, usage[""], "unknown command: %q", cmd)
-	case "help":
-		help()
+		printMsg(1, usage[""], "unknown command: %q", cmd)
+		code = 1
 	case "version":
 		fmt.Fprintln(stdout, getVersion())
+	case "help":
+		code, err = help()
 	case "migrate":
-		err = migrate()
+		code, err = migrate()
 	case "create":
-		err = create()
+		code, err = create()
 	case "serve":
-		err = serve()
+		code, err = serve()
 	case "saas":
-		err = saas()
+		code, err = saas()
 	case "reindex":
-		err = reindex()
+		code, err = reindex()
 	}
 	if err != nil {
+		// code=1, the user did something wrong and print usage as well
+		// code=2, some internal error, and print just that.
 		if _, ok := err.(zvalidate.Validator); ok {
-			die(1, usage[cmd], err.Error())
+			printMsg(code, usage[cmd], err.Error())
 		}
-		die(1, "", err.Error())
+		printMsg(code, "", err.Error())
 	}
+
+	exit(code)
 }
 
-func die(code int, usageText, msg string, args ...interface{}) {
+func printMsg(code int, usageText, msg string, args ...interface{}) {
 	out := stdout
 	if code > 0 {
 		out = stderr
@@ -123,9 +140,8 @@ func die(code int, usageText, msg string, args ...interface{}) {
 		if msg != "" {
 			fmt.Fprintf(out, "\n")
 		}
-		fmt.Fprintf(out, strings.TrimSpace(usageText)+"\n")
+		fmt.Fprintf(out, usageText)
 	}
-	os.Exit(code)
 }
 
 func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcounter.sqlite3", "") }

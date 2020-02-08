@@ -9,13 +9,12 @@ import (
 	"testing"
 )
 
-func TestSaas(t *testing.T) {
+func TestReindex(t *testing.T) {
 	ctx, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "serving", []string{"saas",
-		"-smtp", "dummy",
-		"-listen", "localhost:31874",
+	out, code := run(t, "", []string{"reindex",
+		"-confirm",
 		"-db", dbc})
 	if code != 0 {
 		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))

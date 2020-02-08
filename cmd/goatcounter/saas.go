@@ -84,7 +84,7 @@ Flags:
                  order. This will automatically redirect port 80 as well.
 `
 
-func saas() error {
+func saas() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -126,7 +126,7 @@ func saas() error {
 	flagStripe(stripe, &v)
 	flagDomain(domain, &v)
 	if v.HasErrors() {
-		return v
+		return 1, v
 	}
 
 	// Reload on changes.
@@ -145,7 +145,7 @@ func saas() error {
 	// Connect to DB.
 	db, err := connectDB(*dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate])
 	if err != nil {
-		return err
+		return 2, err
 	}
 	defer db.Close()
 
@@ -175,7 +175,7 @@ func saas() error {
 		acme.Wait()
 	})
 
-	return nil
+	return 0, nil
 }
 
 func flagErrors(errors string, v *zvalidate.Validator) {

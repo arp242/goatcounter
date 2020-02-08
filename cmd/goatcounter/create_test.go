@@ -4,10 +4,34 @@
 
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+
+	"zgo.at/goatcounter"
+)
 
 func TestCreate(t *testing.T) {
-	run(t, "serving", []string{"goatcounter", "create",
+	ctx, dbc, clean := tmpdb(t)
+	defer clean()
+
+	out, code := run(t, "", []string{"create",
 		"-email", "foo@foo.foo",
-		"-domain", "stats.stats"})
+		"-domain", "stats.stats",
+		"-db", dbc})
+	if code != 0 {
+		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
+	}
+
+	var s goatcounter.Site
+	err := s.ByID(ctx, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var u goatcounter.User
+	err = u.BySite(ctx, s.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
