@@ -52,6 +52,8 @@ type Hit struct {
 
 	RefURL      *url.URL `db:"-"` // Parsed Ref
 	UsageDomain string   `db:"-"` // Track referrer for usage.
+
+	D string `json:"dep"` // TODO: no longer sent, can remove in future.
 }
 
 var groups = map[string]string{
