@@ -192,11 +192,11 @@ func (h backend) status() func(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "image/gif")
 
 	// Don't track pages fetched with the browser's prefetch algorithm.
 	// See https://github.com/usefathom/fathom/issues/13
 	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
-		w.Header().Set("Content-Type", "image/gif")
 		return zhttp.Bytes(w, gif)
 	}
 
@@ -204,7 +204,6 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	for _, ip := range site.Settings.IgnoreIPs {
 		if ip == r.RemoteAddr {
 			w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because %q is in the IP ignore list", ip))
-			w.Header().Set("Content-Type", "image/gif")
 			w.WriteHeader(http.StatusAccepted)
 			return zhttp.Bytes(w, gif)
 		}
@@ -223,19 +222,12 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 
 	_, err := zhttp.Decode(r, &hit)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/plain")
-		return err
+		w.Header().Add("X-Goatcounter", fmt.Sprintf("error decoding parameters: %s", err))
+		w.WriteHeader(400)
+		return zhttp.Bytes(w, gif)
 	}
-	if hit.Deprecated != "" {
-		zlog.Module("count-dep").Fields(zlog.F{
-			"site": site.Code,
-			"ref":  r.Referer(),
-		}).Print(hit.Deprecated)
-		hit.Deprecated = ""
-	}
-	goatcounter.Memstore.Append(hit)
 
-	w.Header().Set("Content-Type", "image/gif")
+	goatcounter.Memstore.Append(hit)
 	return zhttp.Bytes(w, gif)
 }
 
