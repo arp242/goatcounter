@@ -19,7 +19,6 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/utils/ioutilx"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -97,7 +96,6 @@ func serve() (int, error) {
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
-	cfg.SourceTree = ioutilx.Exists("./public/script.js") && ioutilx.Exists("./tpl/home.gohtml")
 	cfg.DomainStatic = []string{static}
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
@@ -115,10 +113,9 @@ func serve() (int, error) {
 	}
 
 	// Reload on changes.
-	if cfg.SourceTree {
+	if !cfg.Prod {
 		pack.Templates = nil
 		pack.Public = nil
-
 		go func() {
 			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
 			if err != nil {
@@ -158,8 +155,7 @@ func serve() (int, error) {
 		return 2, err
 	}
 	zlog.Print(getVersion())
-	zlog.Printf("serving %d sites on %q; dev=%t; sourceTree=%t",
-		len(cnames), listen, dev, cfg.SourceTree)
+	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
 	zlog.Printf("sites: %s", strings.Join(cnames, ", "))
 
 	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {

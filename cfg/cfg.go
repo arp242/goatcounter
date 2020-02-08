@@ -10,5 +10,4 @@ var (
 	Plan         string
 	Prod         bool
 	Version      string
-	SourceTree   bool
 )

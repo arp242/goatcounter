@@ -19,7 +19,6 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/utils/ioutilx"
 	"zgo.at/utils/stringutil"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -35,8 +34,8 @@ www.[domanin], a static file server on [staticdomain], and a backend UI on
 [code].domain. Users are expected to register on www.[domain].
 
 Static files and templates are compiled in the binary and aren't needed to run
-GoatCounter. But if GoatCounter is started from the source directory they're
-loaded from the filesystem.
+GoatCounter. But they're loaded from the filesystem if GoatCounter is started
+with -dev.
 
 Flags:
 
@@ -107,7 +106,6 @@ func saas() (int, error) {
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
 	cfg.Plan = plan
-	cfg.SourceTree = ioutilx.Exists("./public/script.js") && ioutilx.Exists("./tpl/home.gohtml")
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
 	if !dev {
@@ -130,10 +128,9 @@ func saas() (int, error) {
 	}
 
 	// Reload on changes.
-	if cfg.SourceTree {
+	if !cfg.Prod {
 		pack.Templates = nil
 		pack.Public = nil
-
 		go func() {
 			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
 			if err != nil {
@@ -168,8 +165,7 @@ func saas() (int, error) {
 	}
 
 	zlog.Print(getVersion())
-	zlog.Printf("serving %q on %q; dev=%t; sourceTree=%t",
-		cfg.Domain, listen, dev, cfg.SourceTree)
+	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
 	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
 		cron.Wait(db)
 		acme.Wait()
