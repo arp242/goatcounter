@@ -9,50 +9,13 @@
 (function() {
     'use strict';
 
-    /**
-     * feature detection and helper functions
-     */
-    var hasEventListeners = !!window.addEventListener,
-
-    addEvent = function(el, e, callback, capture)
-    {
-        if (hasEventListeners) {
-            el.addEventListener(e, callback, !!capture);
-        } else {
-            el.attachEvent('on' + e, callback);
-        }
-    },
-
-    removeEvent = function(el, e, callback, capture)
-    {
-        if (hasEventListeners) {
-            el.removeEventListener(e, callback, !!capture);
-        } else {
-            el.detachEvent('on' + e, callback);
-        }
-    },
-
-    trim = function(str)
-    {
-        return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g,'');
-    },
-
-    hasClass = function(el, cn)
-    {
-        return (' ' + el.className + ' ').indexOf(' ' + cn + ' ') !== -1;
-    },
-
-    addClass = function(el, cn)
-    {
-        if (!hasClass(el, cn)) {
-            el.className = (el.className === '') ? cn : el.className + ' ' + cn;
-        }
-    },
-
-    removeClass = function(el, cn)
-    {
-        el.className = trim((' ' + el.className + ' ').replace(' ' + cn + ' ', ' '));
-    },
+    // TODO: these can all be removed.
+    var
+    addEvent = function(el, e, callback, capture) { el.addEventListener(e, callback, !!capture); },
+    removeEvent = function(el, e, callback, capture) { el.removeEventListener(e, callback, !!capture); },
+    hasClass = function(el, cn) { return el.classList && el.classList.contains(cn) },
+    addClass = function(el, cn) { el.classList.add(cn) },
+    removeClass = function(el, cn) { el.classList.remove(cn) },
 
     isArray = function(obj)
     {
@@ -593,12 +556,6 @@
             if (!target)
                 return;
 
-            if (!hasEventListeners && hasClass(target, 'pika-select')) {
-                if (!target.onchange) {
-                    target.setAttribute('onchange', 'return;');
-                    addEvent(target, 'change', self._onChange);
-                }
-            }
             do {
                 if (hasClass(pEl, 'pika-single') || pEl === opts.trigger) {
                     return;
