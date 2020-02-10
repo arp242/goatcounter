@@ -47,13 +47,9 @@ Flags:
 
   -dev           Start in "dev mode".
 
-  -domain        Base domain with port followed by comma and list of static
-                 domains. You need to have at least one static domain.
+  -domain        Base domain with port followed by comma and the static domain.
 
                  Default: goatcounter.localhost:8081, static.goatcounter.localhost:8081
-
-                 If you want to serve the static files from CDN, e.g.:
-                    -domain 'example.com, gc.cdn.com, static.example.com'
 
   -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
                  sending login emails and errors (if -errors is enabled).
@@ -93,7 +89,7 @@ func saas() (int, error) {
 	)
 	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
 	CommandLine.BoolVar(&dev, "dev", false, "")
-	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081", "")
+	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
 	CommandLine.StringVar(&smtp, "smtp", "", "")
 	CommandLine.StringVar(&errors, "errors", "", "")
@@ -155,14 +151,10 @@ func saas() (int, error) {
 	zhttp.InitTpl(pack.Templates)
 	d := zhttp.RemovePort(cfg.Domain)
 	hosts := map[string]chi.Router{
-		d:          zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + d: handlers.NewWebsite(db),
-		"*":        handlers.NewBackend(db),
-	}
-
-	static := handlers.NewStatic("./public", cfg.Domain, !dev)
-	for _, ds := range cfg.DomainStatic {
-		hosts[zhttp.RemovePort(ds)] = static
+		zhttp.RemovePort(cfg.DomainStatic): handlers.NewStatic("./public", cfg.Domain, !dev),
+		d:                                  zhttp.RedirectHost("//www." + cfg.Domain),
+		"www." + d:                         handlers.NewWebsite(db),
+		"*":                                handlers.NewBackend(db),
 	}
 
 	zlog.Print(getVersion())
@@ -231,28 +223,28 @@ func flagStripe(stripe string, v *zvalidate.Validator) {
 
 func flagDomain(domain string, v *zvalidate.Validator) {
 	l := strings.Split(domain, ",")
-	if len(l) == 0 {
+
+	switch len(l) {
+	case 0:
 		v.Append("-domain", "cannot be blank")
-		return
-	}
+	case 1, 2:
+		for i, d := range l {
+			d = strings.TrimSpace(d)
+			if p := strings.Index(d, ":"); p > -1 {
+				v.Domain("-domain", d[:p])
+			} else {
+				v.Domain("-domain", d)
+			}
 
-	if len(l) == 1 {
-		l = append(l, l[0])
-	}
-
-	cfg.DomainStatic = []string{}
-	for i, d := range l {
-		d = strings.TrimSpace(d)
-		if p := strings.Index(d, ":"); p > -1 {
-			v.Domain("-domain", d[:p])
-		} else {
-			v.Domain("-domain", d)
+			if i == 0 {
+				cfg.Domain = d
+			} else {
+				cfg.DomainStatic = d
+				cfg.URLStatic = "//" + d
+			}
 		}
-
-		if i == 0 {
-			cfg.Domain = d
-		} else {
-			cfg.DomainStatic = append(cfg.DomainStatic, d)
-		}
+	default:
+		v.Append("-domain", "too many domains")
 	}
+
 }

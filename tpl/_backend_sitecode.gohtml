@@ -1,5 +1,5 @@
 {{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
-        async src="//{{.Static}}/count.js"&gt;&lt;/script&gt;{{end}}
+        async src="//{{.StaticDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
 {{if eq .Path "/settings"}}
@@ -9,7 +9,7 @@
 <code>Content-Security-Policy</code>:</p>
 
 <pre>
-script-src  https://{{.Static}}
+script-src  https://{{.StaticDomain}}
 img-src     {{.Site.URL}}/count
 </pre>
 

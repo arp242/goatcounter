@@ -19,18 +19,19 @@ import (
 )
 
 type Globals struct {
-	Context    context.Context
-	User       *goatcounter.User
-	Site       *goatcounter.Site
-	HasUpdates bool
-	Path       string
-	Flash      *zhttp.FlashMessage
-	Static     string
-	Domain     string
-	Version    string
-	Billing    bool
-	Saas       bool
-	Port       string
+	Context      context.Context
+	User         *goatcounter.User
+	Site         *goatcounter.Site
+	HasUpdates   bool
+	Path         string
+	Flash        *zhttp.FlashMessage
+	Static       string
+	StaticDomain string
+	Domain       string
+	Version      string
+	Billing      bool
+	Saas         bool
+	Port         string
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
@@ -40,7 +41,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Site:    goatcounter.GetSite(r.Context()),
 		Path:    r.URL.Path,
 		Flash:   zhttp.ReadFlash(w, r),
-		Static:  cfg.DomainStatic[0],
+		Static:  cfg.URLStatic,
 		Domain:  cfg.Domain,
 		Version: cfg.Version,
 		Billing: zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
@@ -49,6 +50,11 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	}
 	if g.User == nil {
 		g.User = &goatcounter.User{}
+	}
+	if cfg.DomainStatic == "" {
+		g.StaticDomain = goatcounter.GetSite(r.Context()).Domain()
+	} else {
+		g.StaticDomain = cfg.DomainStatic
 	}
 
 	var err error
@@ -81,5 +87,8 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 func NewBackend(db zdb.DB) chi.Router {
 	r := chi.NewRouter()
 	backend{}.Mount(r, db)
+	if !cfg.Saas {
+		r.Get("/*", zhttp.NewStatic("./public", "*", 0, pack.Public).ServeHTTP)
+	}
 	return r
 }

@@ -5,7 +5,8 @@ package cfg
 var (
 	CertDir      string
 	Domain       string
-	DomainStatic = []string{""}
+	DomainStatic string
+	URLStatic    string
 	PgSQL        bool
 	Plan         string
 	Prod         bool

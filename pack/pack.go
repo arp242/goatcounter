@@ -13711,9 +13711,9 @@ var Templates = map[string][]byte{
 	{{end}}
 	<span id="js-settings" data-offset="{{.Site.Settings.Timezone.Offset}}">{{.Site.Settings.String | unsafe_js}}</span>
 	{{if .User.ID}}<span id="js-csrf">{{.User.CSRFToken}}</span>{{end}}
-	<script crossorigin="anonymous" src="//{{.Static}}/jquery.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
 </body>
 </html>
 `),
@@ -13766,7 +13766,7 @@ var Templates = map[string][]byte{
 </form>
 `),
 	"tpl/_backend_sitecode.gohtml": []byte(`{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
-        async src="//{{.Static}}/count.js"&gt;&lt;/script&gt;{{end}}
+        async src="//{{.StaticDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
 {{if eq .Path "/settings"}}
@@ -13776,7 +13776,7 @@ var Templates = map[string][]byte{
 <code>Content-Security-Policy</code>:</p>
 
 <pre>
-script-src  https://{{.Static}}
+script-src  https://{{.StaticDomain}}
 img-src     {{.Site.URL}}/count
 </pre>
 
@@ -13960,9 +13960,9 @@ do this 100% reliably.</p>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<title>{{if ne .Site.Name "serve"}}{{.Site.Name}} – {{end}}GoatCounter</title>
-	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
-	<link rel="stylesheet" href="//{{.Static}}/pikaday.css?v={{.Version}}">
-	<link rel="stylesheet" href="//{{.Static}}/style_backend.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
 </head>
 
 <body>
@@ -14013,8 +14013,8 @@ do this 100% reliably.</p>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
-		<script crossorigin="anonymous" src="//{{.Static}}/script.js?v={{.Version}}"></script>
+	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="{{.Static}}/imgzoom.js?v={{.Version}}"></script>
+		<script crossorigin="anonymous" src="{{.Static}}/script.js?v={{.Version}}"></script>
 	</div> {{/* .page */}}
 
 	{{template "_bottom_links.gohtml" .}}
@@ -14030,7 +14030,7 @@ do this 100% reliably.</p>
 			window.intergramServer = 'https://chat.goatcounter.com';
 			window.intergramCustomizations = {
 				cookieExpiration:    30,
-				closedChatAvatarUrl: '//{{.Static}}/avatar.jpg',
+				closedChatAvatarUrl: '{{.Static}}/avatar.jpg',
 				introMessage:        'Chat if you have questions',
 				closedStyle:         'button',
 				titleClosed:         'Chat',
@@ -14064,11 +14064,11 @@ do this 100% reliably.</p>
 </footer>
 `),
 	"tpl/_favicon.gohtml": []byte(`<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="icon" type="image/png" sizes="32x32" href="//{{.Static}}/favicon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="//{{.Static}}/favicon/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="//{{.Static}}/favicon/apple-touch-icon.png">
-<link rel="manifest" href="//{{.Static}}/favicon/site.webmanifest">
-<link rel="mask-icon" href="//{{.Static}}/favicon/safari-pinned-tab.svg" color="#9a15a4">
+<link rel="icon" type="image/png" sizes="32x32" href="{{.Static}}/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="{{.Static}}/favicon/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="{{.Static}}/favicon/apple-touch-icon.png">
+<link rel="manifest" href="{{.Static}}/favicon/site.webmanifest">
+<link rel="mask-icon" href="{{.Static}}/favicon/safari-pinned-tab.svg" color="#9a15a4">
 <meta name="msapplication-TileColor" content="#9f00a7">
 <meta name="theme-color" content="#ffffff">
 `),
@@ -14079,8 +14079,8 @@ do this 100% reliably.</p>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta name="description" content="{{.MetaDesc}}">
 	<title>GoatCounter – Website statistics for regular folks</title>
-	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
-	<link rel="stylesheet" href="//{{.Static}}/style.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
 	<link rel="canonical" href="https://{{.Domain}}{{if ne .Page "home"}}/{{.Page}}{{end}}">
 </head>
 
@@ -14853,13 +14853,13 @@ sub {
 	"tpl/home.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <div id="home-top">
-	<h1><img alt="" src="//{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
+	<h1><img alt="" src="{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
 	<div id="home-intro">
 		<p><span>Simple</span> web statistics. <span>No tracking</span> of personal data.</p>
 	</div>
 
 	<div id="home-demo">
-		<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+		<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 	<div id="home-login">
 		<a class="" href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
@@ -14872,13 +14872,13 @@ sub {
 
 	<div id="home-screens" class="one">
 		<div>
-			<img class="zoom" src="//{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
+			<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
 		</div>
 
 		{{/*
 		<div style="height: 255px">
-			<img class="zoom" src="//{{.Static}}/screenshot-small.png"
-				data-large="//{{.Static}}/screenshot.png"
+			<img class="zoom" src="{{.Static}}/screenshot-small.png"
+				data-large="{{.Static}}/screenshot.png"
 				alt="Screenshot of the GoatCounter interface">
 		</div>
 		<div>
@@ -14977,7 +14977,7 @@ sub {
 	</div>
 </div>
 <div id="home-signup">
-	<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+	<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
 </div>
 <div id="home-pricing-custom">
 	<a href="/contact">Contact</a> if you need more pageviews or want a

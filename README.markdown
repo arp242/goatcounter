@@ -91,7 +91,7 @@ will need a C compiler (for SQLite) or PostgreSQL.
 
 For a production environment run something like:
 
-    goatcounter saas \
+    goatcounter serve \
        -smtp         'smtp://localhost:25' \
        -emailerrors  'me@example.com'
 
@@ -100,6 +100,10 @@ created if it doesn't exist). See the `-db` flag to customize this.
 
 `-smtp` is required to send login emails. You can use something like Mailtrap if
 you just want it for yourself, but you can also use your Gmail or whatnot.
+
+You can create new sites with the `create` command:
+
+	goatcounter create -email me@example.com -domain stats.example.com
 
 ### Updating
 
