@@ -301,8 +301,8 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 		"cfg.Domain": cfg.Domain,
 	})
 
-	// Custom domain.
-	if cfg.Saas && !strings.HasSuffix(host, cfg.Domain) {
+	// Custom domain or serve.
+	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
 		l.Debug("by cname")
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`select * from sites where lower(cname)=lower($1) and state=$2`,
@@ -323,15 +323,19 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 
 // ListSubs lists all subsites, including the current site and parent.
 func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
+	col := "code"
+	if cfg.Serve {
+		col = "cname"
+	}
 	var codes []string
 	err := zdb.MustGet(ctx).SelectContext(ctx, &codes, `
-		select code from sites
-		where state=$2 and (parent=$1 or id=$1) or (
-			parent = (select parent from sites where id=$1) or
-			id     = (select parent from sites where id=$1)
-		) and state=$2
+		select `+col+` from sites
+		where state=$1 and (parent=$2 or id=$2) or (
+			parent = (select parent from sites where id=$2) or
+			id     = (select parent from sites where id=$2)
+		) and state=$1
 		order by code
-	`, s.ID, StateActive)
+		`, StateActive, s.ID)
 	return codes, errors.Wrap(err, "Site.ListSubs")
 }
 
@@ -347,14 +351,14 @@ func (s Site) Domain() string {
 // URL to this site.
 func (s Site) URL() string {
 	if s.Cname != nil {
-		return fmt.Sprintf("http%s://%s",
+		return fmt.Sprintf("http%s://%s%s",
 			map[bool]string{true: "s", false: ""}[cfg.Prod],
-			*s.Cname)
+			*s.Cname, cfg.Port)
 	}
 
-	return fmt.Sprintf("http%s://%s.%s",
+	return fmt.Sprintf("http%s://%s.%s%s",
 		map[bool]string{true: "s", false: ""}[cfg.Prod],
-		s.Code, cfg.Domain)
+		s.Code, cfg.Domain, cfg.Port)
 }
 
 // PlanCustomDomain reports if this site's plan allows custom domains.

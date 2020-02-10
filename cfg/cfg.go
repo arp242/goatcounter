@@ -11,4 +11,6 @@ var (
 	Prod         bool
 	Version      string
 	Saas         bool
+	Serve        bool
+	Port         string
 )

@@ -40,6 +40,9 @@ Flags:
 
   -listen        Address to listen on. Default: localhost:8081
 
+  -port          Port your site is publicly accessible on. Only needed if it's
+                 not 80 or 443.
+
   -dev           Start in "dev mode".
 
   -static        Where to serve static files from.
@@ -69,9 +72,7 @@ Flags:
 // TODO:
 //
 // - Ports not reflected in domain links (login, script)
-// - Settings → Domain isn't filled in?
-// - Update help text for "domain".
-// - How to handle additional sites? Maybe just remove? Or add create flag?
+// - Static host.
 
 func serve() (int, error) {
 	dbConnect := flagDB()
@@ -89,6 +90,7 @@ func serve() (int, error) {
 	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
 	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.StringVar(&static, "static", "static.goatcounter.localhost:8081", "")
+	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
@@ -96,6 +98,7 @@ func serve() (int, error) {
 	cfg.DomainStatic = []string{static}
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
+	cfg.Serve = true
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
@@ -153,7 +156,7 @@ func serve() (int, error) {
 	}
 	zlog.Print(getVersion())
 	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
-	zlog.Printf("sites: %s", strings.Join(cnames, ", "))
+	zlog.Printf("%d sites: %s", len(cnames), strings.Join(cnames, ", "))
 
 	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
 		cron.Wait(db)

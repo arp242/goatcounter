@@ -6,9 +6,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strconv"
 
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -29,15 +32,15 @@ Required flags:
 
 Other flags:
 
+  -name          Name for the site and user; can be changed later in settings.
+
+  -parent        Parent site; either as ID or domain.
+
   -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
                  or "postgres://<connect string>" for PostgreSQL
                  Default: sqlite://db/goatcounter.sqlite3
 
   -debug         Modules to debug, comma-separated or 'all' for all modules.
-
-  -plan          Plan for new installations; default: businessplus.
-
-  -name          Name for the site and user; can be changed later in settings.
 `
 
 // TODO: maybe just make a new "export-certs" command for this? Or generic even
@@ -52,20 +55,19 @@ func create() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
-	var domain, email, plan, name string
+	var domain, email, name, parent string
 	CommandLine.StringVar(&domain, "domain", "", "")
 	CommandLine.StringVar(&email, "email", "", "")
-	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
 	CommandLine.StringVar(&name, "name", "serve", "")
+	CommandLine.StringVar(&parent, "parent", "", "")
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
+	cfg.Serve = true
 
 	v := zvalidate.New()
 	v.Required("-domain", domain)
 	v.Required("-email", email)
-	v.Required("-plan", plan)
-	v.Include("-plan", plan, goatcounter.Plans)
 	v.Domain("-domain", domain)
 	v.Email("-email", email)
 	if v.HasErrors() {
@@ -78,12 +80,25 @@ func create() (int, error) {
 	}
 	defer db.Close()
 
+	var ps goatcounter.Site
+	if parent != "" {
+		ps, err = findParent(zdb.With(context.Background(), db), parent)
+		if err != nil {
+			return 1, err
+		}
+	}
+
 	err = zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, tx zdb.DB) error {
 		s := goatcounter.Site{
 			Name:  name,
 			Code:  "serve-" + zhttp.Secret()[:10],
 			Cname: &domain,
-			Plan:  plan,
+			Plan:  goatcounter.PlanBusinessPlus,
+		}
+		if ps.ID > 0 {
+			s.Parent = &ps.ID
+			s.Settings = ps.Settings
+			s.Plan = goatcounter.PlanChild
 		}
 		err := s.Insert(ctx)
 		if err != nil {
@@ -102,4 +117,18 @@ func create() (int, error) {
 	// acme.Domains <- domain
 	// acme.Wait()
 	return 0, nil
+}
+
+func findParent(ctx context.Context, p string) (goatcounter.Site, error) {
+	var s goatcounter.Site
+	id, err := strconv.ParseInt(p, 10, 64)
+	if err == nil {
+		err = s.ByID(ctx, id)
+	} else {
+		err = s.ByHost(ctx, p)
+	}
+	if s.Plan == goatcounter.PlanChild {
+		return s, fmt.Errorf("can't add child site as parent")
+	}
+	return s, err
 }

@@ -32,11 +32,17 @@
 				{{end}}
 
 				{{if .Site.PlanCustomDomain .Context}}
-					<label for="cname">Custom domain</label>
-					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
-						CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-						<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
+					{{if .Saas}}
+						<label for="cname">Custom domain</label>
+						<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+						<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
+							CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
+							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
+					{{else}}
+						<label for="cname">Goatcounter domain</label>
+						<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+						<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
+					{{end}}
 				{{end}}
 
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
@@ -121,51 +127,49 @@
 	</div>
 </div>
 
-<div>
-	<h2 id="additional-sites">Additional sites</h2>
-	{{if .Site.Parent}}
-		This site has a parent
-		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
-		and can't have additional sites of its own.
-	{{else}}
-		<p>Add GoatCounter to multiple websites by creating a “child site”,
-			which is a separate GoatCounter site which inherits the plan, users,
-			and logins from the current site, but is otherwise completely
-			separate. The current site’s settings are copied on creation, but
-			are independent afterwards.</p>
-		<p>You can add as many as you want.</p>
+{{if .Saas}}
+	<div>
+		<h2 id="additional-sites">Additional sites</h2>
+		{{if .Site.Parent}}
+			This site has a parent
+			(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+			and can't have additional sites of its own.
+		{{else}}
+			<p>Add GoatCounter to multiple websites by creating a “child site”,
+				which is a separate GoatCounter site which inherits the plan, users,
+				and logins from the current site, but is otherwise completely
+				separate. The current site’s settings are copied on creation, but
+				are independent afterwards.</p>
+			<p>You can add as many as you want.</p>
 
-		<form method="post" action="/add">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-			<table class="auto">
-				<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
-				<tbody>
-					{{range $s := .SubSites}}<tr>
-						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-						<td>{{$s.Name}}</td>
-						<td><a href="/remove/{{$s.ID}}">remove</a></td>
-					</tr>{{end}}
+			<form method="post" action="/add">
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+				<table class="auto">
+					<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
+					<tbody>
+						{{range $s := .SubSites}}<tr>
+							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+							<td>{{$s.Name}}</td>
+							<td><a href="/remove/{{$s.ID}}">remove</a></td>
+						</tr>{{end}}
 
-					<tr>
-						<td>
-							<input type="text" id="code" name="code" placeholder="Code"><br>
-							<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
-						</td>
-						<td>
-							<input type="text" id="name" name="name" placeholder="Name"><br>
-							<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
-						</td>
+						<tr>
+							<td>
+								<input type="text" id="code" name="code" placeholder="Code"><br>
+								<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+							</td>
+							<td>
+								<input type="text" id="name" name="name" placeholder="Name"><br>
+								<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
+							</td>
 
-		<!--
-		<p>You just have to choose a code on which to access the site (e.g.
-			https://<em>[my_code]</em>.goatcounter.com) and a name.</p>
-		-->
-						<td><button type="submit">Add new</button></td>
-					</tr>
-			</tbody></table>
-		</form>
-	{{end}}
-</div>
+							<td><button type="submit">Add new</button></td>
+						</tr>
+				</tbody></table>
+			</form>
+		{{end}}
+	</div>
+{{end}}
 
 <div>
 	<h2 id="site-code">Site code</h2>

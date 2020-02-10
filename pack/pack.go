@@ -10704,50 +10704,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 (function() {
     'use strict';
 
-    /**
-     * feature detection and helper functions
-     */
-    var hasEventListeners = !!window.addEventListener,
-
-    addEvent = function(el, e, callback, capture)
-    {
-        if (hasEventListeners) {
-            el.addEventListener(e, callback, !!capture);
-        } else {
-            el.attachEvent('on' + e, callback);
-        }
-    },
-
-    removeEvent = function(el, e, callback, capture)
-    {
-        if (hasEventListeners) {
-            el.removeEventListener(e, callback, !!capture);
-        } else {
-            el.detachEvent('on' + e, callback);
-        }
-    },
-
-    trim = function(str)
-    {
-        return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g,'');
-    },
-
-    hasClass = function(el, cn)
-    {
-        return (' ' + el.className + ' ').indexOf(' ' + cn + ' ') !== -1;
-    },
-
-    addClass = function(el, cn)
-    {
-        if (!hasClass(el, cn)) {
-            el.className = (el.className === '') ? cn : el.className + ' ' + cn;
-        }
-    },
-
-    removeClass = function(el, cn)
-    {
-        el.className = trim((' ' + el.className + ' ').replace(' ' + cn + ' ', ' '));
-    },
+    // TODO: these can all be removed.
+    var
+    addEvent = function(el, e, callback, capture) { el.addEventListener(e, callback, !!capture); },
+    removeEvent = function(el, e, callback, capture) { el.removeEventListener(e, callback, !!capture); },
+    hasClass = function(el, cn) { return el.classList && el.classList.contains(cn) },
+    addClass = function(el, cn) { el.classList.add(cn) },
+    removeClass = function(el, cn) { el.classList.remove(cn) },
 
     isArray = function(obj)
     {
@@ -11288,12 +11251,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             if (!target)
                 return;
 
-            if (!hasEventListeners && hasClass(target, 'pika-select')) {
-                if (!target.onchange) {
-                    target.setAttribute('onchange', 'return;');
-                    addEvent(target, 'change', self._onChange);
-                }
-            }
             do {
                 if (hasClass(pEl, 'pika-single') || pEl === opts.trigger) {
                     return;
@@ -14002,7 +13959,7 @@ do this 100% reliably.</p>
 <head>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<title>{{.Site.Name}} – GoatCounter</title>
+	<title>{{if ne .Site.Name "serve"}}{{.Site.Name}} – {{end}}GoatCounter</title>
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/style_backend.css?v={{.Version}}">
@@ -14019,7 +13976,11 @@ do this 100% reliably.</p>
 						Switch site:
 						{{range $i, $s := .SubSites}}
 							{{if gt $i 0}}|{{end}}
-							<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}">{{$s}}</a>
+							{{if $.Saas}}
+								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{else}}
+								<a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+							{{end}}
 						{{end}}
 					{{end}}
 				{{else if has_prefix .Path "/remove/"}}
@@ -14034,7 +13995,7 @@ do this 100% reliably.</p>
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
-				<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |
+				{{if .Saas}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
 				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
@@ -14387,11 +14348,17 @@ parent site includes the child sites.</p>
 				{{end}}
 
 				{{if .Site.PlanCustomDomain .Context}}
-					<label for="cname">Custom domain</label>
-					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
-						CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-						<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
+					{{if .Saas}}
+						<label for="cname">Custom domain</label>
+						<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+						<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
+							CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
+							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
+					{{else}}
+						<label for="cname">Goatcounter domain</label>
+						<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+						<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
+					{{end}}
 				{{end}}
 
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
@@ -14476,51 +14443,49 @@ parent site includes the child sites.</p>
 	</div>
 </div>
 
-<div>
-	<h2 id="additional-sites">Additional sites</h2>
-	{{if .Site.Parent}}
-		This site has a parent
-		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
-		and can't have additional sites of its own.
-	{{else}}
-		<p>Add GoatCounter to multiple websites by creating a “child site”,
-			which is a separate GoatCounter site which inherits the plan, users,
-			and logins from the current site, but is otherwise completely
-			separate. The current site’s settings are copied on creation, but
-			are independent afterwards.</p>
-		<p>You can add as many as you want.</p>
+{{if .Saas}}
+	<div>
+		<h2 id="additional-sites">Additional sites</h2>
+		{{if .Site.Parent}}
+			This site has a parent
+			(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+			and can't have additional sites of its own.
+		{{else}}
+			<p>Add GoatCounter to multiple websites by creating a “child site”,
+				which is a separate GoatCounter site which inherits the plan, users,
+				and logins from the current site, but is otherwise completely
+				separate. The current site’s settings are copied on creation, but
+				are independent afterwards.</p>
+			<p>You can add as many as you want.</p>
 
-		<form method="post" action="/add">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-			<table class="auto">
-				<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
-				<tbody>
-					{{range $s := .SubSites}}<tr>
-						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-						<td>{{$s.Name}}</td>
-						<td><a href="/remove/{{$s.ID}}">remove</a></td>
-					</tr>{{end}}
+			<form method="post" action="/add">
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+				<table class="auto">
+					<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
+					<tbody>
+						{{range $s := .SubSites}}<tr>
+							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+							<td>{{$s.Name}}</td>
+							<td><a href="/remove/{{$s.ID}}">remove</a></td>
+						</tr>{{end}}
 
-					<tr>
-						<td>
-							<input type="text" id="code" name="code" placeholder="Code"><br>
-							<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
-						</td>
-						<td>
-							<input type="text" id="name" name="name" placeholder="Name"><br>
-							<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
-						</td>
+						<tr>
+							<td>
+								<input type="text" id="code" name="code" placeholder="Code"><br>
+								<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+							</td>
+							<td>
+								<input type="text" id="name" name="name" placeholder="Name"><br>
+								<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
+							</td>
 
-		<!--
-		<p>You just have to choose a code on which to access the site (e.g.
-			https://<em>[my_code]</em>.goatcounter.com) and a name.</p>
-		-->
-						<td><button type="submit">Add new</button></td>
-					</tr>
-			</tbody></table>
-		</form>
-	{{end}}
-</div>
+							<td><button type="submit">Add new</button></td>
+						</tr>
+				</tbody></table>
+			</form>
+		{{end}}
+	</div>
+{{end}}
 
 <div>
 	<h2 id="site-code">Site code</h2>

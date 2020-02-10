@@ -802,6 +802,10 @@ func (h backend) export(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {
+	if !cfg.Saas {
+		return guru.New(400, "can only do this in SaaS mode")
+	}
+
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -821,6 +825,10 @@ func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) er
 }
 
 func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
+	if !cfg.Saas {
+		return guru.New(400, "can only do this in SaaS mode")
+	}
+
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -843,6 +851,10 @@ func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
+	if !cfg.Saas {
+		return guru.New(400, "can only do this in SaaS mode")
+	}
+
 	args := struct {
 		Name string `json:"name"`
 		Code string `json:"code"`

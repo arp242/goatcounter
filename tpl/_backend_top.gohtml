@@ -3,7 +3,7 @@
 <head>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<title>{{.Site.Name}} – GoatCounter</title>
+	<title>{{if ne .Site.Name "serve"}}{{.Site.Name}} – {{end}}GoatCounter</title>
 	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="//{{.Static}}/style_backend.css?v={{.Version}}">
@@ -20,7 +20,11 @@
 						Switch site:
 						{{range $i, $s := .SubSites}}
 							{{if gt $i 0}}|{{end}}
-							<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}">{{$s}}</a>
+							{{if $.Saas}}
+								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{else}}
+								<a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+							{{end}}
 						{{end}}
 					{{end}}
 				{{else if has_prefix .Path "/remove/"}}
@@ -35,7 +39,7 @@
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
-				<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |
+				{{if .Saas}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
 				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
