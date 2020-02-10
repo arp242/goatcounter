@@ -144,16 +144,17 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	v := zvalidate.New()
+	if strings.TrimSpace(args.TuringTest) != "9" {
+		v.Append("turing_test", "must fill in correct value")
+		return v // Quick exit to prevent spurious errors/DB load from spambots.
+	}
+
 	txctx, tx, err := zdb.Begin(r.Context())
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
-
-	v := zvalidate.New()
-	if strings.TrimSpace(args.TuringTest) != "9" {
-		v.Append("turing_test", "must fill in correct value")
-	}
 
 	// Create site.
 	tz, err := tz.New(geo(r.RemoteAddr), args.Timezone)
