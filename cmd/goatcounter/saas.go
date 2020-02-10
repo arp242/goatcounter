@@ -137,7 +137,7 @@ func saas() (int, error) {
 	}
 
 	// Connect to DB.
-	db, err := connectDB(*dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate])
+	db, err := connectDB(*dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate], true)
 	if err != nil {
 		return 2, err
 	}

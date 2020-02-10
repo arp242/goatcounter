@@ -147,8 +147,13 @@ func printMsg(code int, usageText, msg string, args ...interface{}) {
 func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcounter.sqlite3", "") }
 func flagDebug() *string { return CommandLine.String("debug", "", "") }
 
-func connectDB(connect string, migrate []string) (*sqlx.DB, error) {
+func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) {
 	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://")
+
+	if !create {
+		return zdb.Connect(zdb.ConnectOptions{Connect: connect})
+	}
+
 	return zdb.Connect(zdb.ConnectOptions{
 		Connect: connect,
 		Schema:  map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL],

@@ -57,7 +57,7 @@ func reindex() (int, error) {
 
 	zlog.Config.SetDebug(*debug)
 
-	db, err := connectDB(*dbConnect, nil)
+	db, err := connectDB(*dbConnect, nil, false)
 	if err != nil {
 		return 2, err
 	}
