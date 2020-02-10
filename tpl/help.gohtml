@@ -28,16 +28,13 @@
 		<br><br>
 		You can still implement it yourself by putting this at the start of the
 		GoatCounter script:
-
 <pre>&lt;script&gt;
-	(function() {
-		if ('doNotTrack' in navigator && navigator.doNotTrack === '1')
-			return;
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+	window.goatcounter = {
+		no_onload: ('doNotTrack' in navigator && navigator.doNotTrack === '1'),
+	};
+&lt;/script&gt;
+&lt;script data-goatcounter="[..]"
+        async src="//gc.zgo.at/count.js"&gt;&lt;/script&gt;</pre>
 	</dd>
 
 	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
