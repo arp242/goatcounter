@@ -13977,7 +13977,7 @@ do this 100% reliably.</p>
 						{{range $i, $s := .SubSites}}
 							{{if gt $i 0}}|{{end}}
 							{{if $.Saas}}
-								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}{{$.Domain}}{{$.Port}}">{{$s}}</a>
+								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
 							{{else}}
 								<a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
 							{{end}}
