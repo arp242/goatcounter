@@ -158,7 +158,10 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	// Create site.
 	tz, err := tz.New(geo(r.RemoteAddr), args.Timezone)
 	if err != nil {
-		zlog.Field("timezone", args.Timezone).Error(err)
+		zlog.FieldsRequest(r).Fields(zlog.F{
+			"timezone": args.Timezone,
+			"args":     fmt.Sprintf("%#v\n", args),
+		}).Error(err)
 	}
 
 	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan,
