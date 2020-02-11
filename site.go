@@ -148,7 +148,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 
 	v.Domain("link_domain", s.LinkDomain)
-	v.Len("code", s.Code, 1, 50)
+	v.Len("code", s.Code, 2, 50)
 	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)
 	if s.Cname != nil {

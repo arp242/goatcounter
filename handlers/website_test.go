@@ -87,7 +87,7 @@ func TestWebsiteSignup(t *testing.T) {
 			wantCode:     200,
 			wantBody:     "", // TODO: should return JSON
 			wantFormCode: 200,
-			wantFormBody: "Error: must be set, must be longer than 1 characters",
+			wantFormBody: "Error: must be set, must be longer than 2 characters",
 		},
 	}
 
