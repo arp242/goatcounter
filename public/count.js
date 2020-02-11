@@ -64,15 +64,15 @@
 		if (data.p === null)  // null returned from user callback.
 			return
 
-		var img = document.createElement('img')
+		var img = document.createElement('img'),
+		    rm  = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
 		img.src = endpoint + to_params(data)
 		img.style.float = 'right'  // Affect layout less.
 		img.setAttribute('alt', '')
 		img.setAttribute('aria-hidden', 'true')
-		img.addEventListener('load', function() { img.parentNode.removeChild(img) }, false)
-		setTimeout(function() {  // Just in case the onload isn't triggered.
-			if (img && img.parentNode) img.parentNode.removeChild(img)
-		}, 3000)
+
+		setTimeout(rm, 3000) // In case the onload isn't triggered.
+		img.addEventListener('load', rm, false);
 		document.body.appendChild(img)
 	}
 
