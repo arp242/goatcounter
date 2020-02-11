@@ -54,7 +54,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 		tmp = "sqlite://" + dir + "/goatcounter.sqlite3"
 	}
 
-	db, err := connectDB(tmp, nil)
+	db, err := connectDB(tmp, nil, true)
 	if err != nil {
 		os.RemoveAll(dir)
 		t.Fatal(err)

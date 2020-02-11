@@ -74,7 +74,7 @@ func create() (int, error) {
 		return 1, v
 	}
 
-	db, err := connectDB(*dbConnect, nil)
+	db, err := connectDB(*dbConnect, nil, false)
 	if err != nil {
 		return 2, err
 	}

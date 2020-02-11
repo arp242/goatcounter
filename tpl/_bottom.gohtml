@@ -1,5 +1,5 @@
-		<script crossorigin="anonymous" src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
-		<script crossorigin="anonymous" src="//{{.Static}}/script.js?v={{.Version}}"></script>
+		<script crossorigin="anonymous" src="{{.Static}}/imgzoom.js?v={{.Version}}"></script>
+		<script crossorigin="anonymous" src="{{.Static}}/script.js?v={{.Version}}"></script>
 	</div> {{/* .page */}}
 
 	{{template "_bottom_links.gohtml" .}}
@@ -15,7 +15,7 @@
 			window.intergramServer = 'https://chat.goatcounter.com';
 			window.intergramCustomizations = {
 				cookieExpiration:    30,
-				closedChatAvatarUrl: '//{{.Static}}/avatar.jpg',
+				closedChatAvatarUrl: '{{.Static}}/avatar.jpg',
 				introMessage:        'Chat if you have questions',
 				closedStyle:         'button',
 				titleClosed:         'Chat',

@@ -13,7 +13,7 @@ Starting it
    if they exist; you should run GoatCounter from the goatcounter source
    directory on development.
 
-2. Running `goatcounter -dev` will run a development environment on
+2. Running `goatcounter serve -dev` will run a development environment on
    http://goatcounter.localhost:8081
 
 3. You can sign up your new site at http://www.goatcounter.localhost:8081, which

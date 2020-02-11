@@ -40,13 +40,13 @@ Flags:
 
   -listen        Address to listen on. Default: localhost:8081
 
+  -static        Serve static files from a diffent domain, such as a CDN or
+                 cookieless domain. Default: not set.
+
   -port          Port your site is publicly accessible on. Only needed if it's
                  not 80 or 443.
 
   -dev           Start in "dev mode".
-
-  -static        Where to serve static files from.
-                 Default: static.goatcounter.localhost:8081
 
   -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
                  sending login emails and errors (if -errors is enabled).
@@ -69,18 +69,13 @@ Flags:
                  order. This will automatically redirect port 80 as well.
 `
 
-// TODO:
-//
-// - Ports not reflected in domain links (login, script)
-// - Static host.
-
 func serve() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
 	var (
-		automigrate, dev                  bool
-		tls, listen, smtp, errors, static string
+		automigrate, dev          bool
+		tls, listen, smtp, errors string
 	)
 	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
 	CommandLine.BoolVar(&dev, "dev", false, "")
@@ -89,13 +84,12 @@ func serve() (int, error) {
 	CommandLine.StringVar(&errors, "errors", "", "")
 	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
 	CommandLine.StringVar(&tls, "tls", "", "")
-	CommandLine.StringVar(&static, "static", "static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
+	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
-	cfg.DomainStatic = []string{static}
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
 	cfg.Serve = true
@@ -108,6 +102,16 @@ func serve() (int, error) {
 		v.Append("-smtp", "must be set if -dev is not enabled")
 	}
 	flagErrors(errors, &v)
+
+	if cfg.DomainStatic != "" {
+		if p := strings.Index(cfg.DomainStatic, ":"); p > -1 {
+			v.Domain("-domain", cfg.DomainStatic[:p])
+		} else {
+			v.Domain("-domain", cfg.DomainStatic)
+		}
+		cfg.URLStatic = "//" + cfg.DomainStatic
+	}
+
 	if v.HasErrors() {
 		return 1, v
 	}
@@ -125,7 +129,7 @@ func serve() (int, error) {
 	}
 
 	// Connect to DB.
-	db, err := connectDB(*dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate])
+	db, err := connectDB(*dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate], true)
 	if err != nil {
 		return 2, err
 	}
@@ -140,15 +144,9 @@ func serve() (int, error) {
 	hosts := map[string]chi.Router{
 		"*": handlers.NewBackend(db),
 	}
-
-	// Set up static host.
-	// TODO: it would be better to serve static files from the same domain,
-	// instead of requiring people to forward this one.
-	// So instead of "static.example.com/script.js", something like
-	// "stat.example.com/script.js" or "stat.example.com/public/script.js"
-	// should also work.
-	// This decreases the operational requirements to get this running a lot.
-	hosts[zhttp.RemovePort(static)] = handlers.NewStatic("./public", "", !dev)
+	if cfg.DomainStatic != "" {
+		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic("./public", cfg.Domain, !dev)
+	}
 
 	cnames, err := lsSites(db)
 	if err != nil {
