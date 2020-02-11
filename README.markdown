@@ -71,7 +71,7 @@ Running your own
 
 There are binaries on the [releases][release] page, or compile from source with:
 
-	$ git clone git@github.com:zgoat/goatcounter.git
+	$ git clone https://github.com/zgoat/goatcounter.git
 	$ cd goatcounter
 	$ go build ./cmd/goatcounter
 
