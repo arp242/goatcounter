@@ -103,6 +103,7 @@ func saas() (int, error) {
 	cfg.Prod = !dev
 	cfg.Plan = plan
 	cfg.Saas = true
+	zhttp.LogUnknownFields = dev
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
 	if !dev {

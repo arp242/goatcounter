@@ -267,6 +267,11 @@ func (h *Hit) Validate(ctx context.Context) error {
 
 	v.Required("site", h.Site)
 	v.Required("path", h.Path)
+	v.UTF8("browser", h.Browser)
+	v.UTF8("ref", h.Ref)
+	v.UTF8("path", h.Path)
+	v.UTF8("title", h.Title)
+	v.UTF8("usage_domain", h.UsageDomain)
 
 	return v.ErrorOrNil()
 }

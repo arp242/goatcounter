@@ -233,6 +233,13 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
+	err = hit.Validate(r.Context())
+	if err != nil {
+		w.Header().Add("X-Goatcounter", fmt.Sprintf("not valid: %s", err))
+		w.WriteHeader(400)
+		return zhttp.Bytes(w, gif)
+	}
+
 	goatcounter.Memstore.Append(hit)
 	return zhttp.Bytes(w, gif)
 }

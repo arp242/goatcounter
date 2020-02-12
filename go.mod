@@ -1,6 +1,6 @@
 module zgo.at/goatcounter
 
-go 1.12
+go 1.13
 
 require (
 	github.com/arp242/geoip2-golang v1.4.0
@@ -16,10 +16,10 @@ require (
 	zgo.at/tz v0.0.0-20200207054238-b33e5ce779e4
 	zgo.at/utils v1.4.1
 	zgo.at/zdb v0.0.0-20200210152331-3173dfc581b0
-	zgo.at/zhttp v0.0.0-20200207153638-484b9d286a74
+	zgo.at/zhttp v0.0.0-20200212095431-74ca4622637c
 	zgo.at/zlog v1.0.9
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v1.0.2
-	zgo.at/zvalidate v1.2.1
+	zgo.at/zvalidate v1.2.2-0.20200212110917-909e6911fd62
 )

@@ -92,6 +92,7 @@ func serve() (int, error) {
 	cfg.Prod = !dev
 	zhttp.CookieSecure = !dev
 	zmail.SMTP = smtp
+	zhttp.LogUnknownFields = dev
 	cfg.Serve = true
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
