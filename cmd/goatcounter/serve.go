@@ -13,7 +13,6 @@ import (
 
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
@@ -33,17 +32,19 @@ Set up sites with the "create" command.
 
 Flags:
 
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
-
-  -listen        Address to listen on. Default: localhost:8081
-
   -static        Serve static files from a diffent domain, such as a CDN or
                  cookieless domain. Default: not set.
 
   -port          Port your site is publicly accessible on. Only needed if it's
                  not 80 or 443.
+` + serveAndSaasFlags
+
+const serveAndSaasFlags = `
+  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
+                 or "postgres://<connect string>" for PostgreSQL
+                 Default: sqlite://db/goatcounter.sqlite3
+
+  -listen        Address to listen on. Default: localhost:8081
 
   -dev           Start in "dev mode".
 
@@ -61,11 +62,23 @@ Flags:
 
   -automigrate   Automatically run all pending migrations on startup.
 
-  -certdir       Directory to store ACME-generated certificates for custom
-                 domains. Default: empty.
+  -tls           Serve over tls. The first word is one of the following:
 
-  -tls           Path to TLS certificate and key, colon-separated and in that
-                 order. This will automatically redirect port 80 as well.
+                   path/to/file.pem  TLS certificate and keyfile, in one file.
+                   acme              Create TLS certificates with ACME.
+
+                 This can then optionally be followed by ",tls" to make the
+                 address on -listen accept TLS connections, instead of HTTP
+                 connections. This can then be followed by ",rdr" to redirect
+                 port 80. Examples:
+
+                   acme                       Create ACME certs but serve HTTP,
+                                              useful when serving behind proxy
+                                              which can use the certs.
+
+                   ./example.com.pem,tls,rdr  Always use the certificate in the
+                                              file, service over TLS, and
+                                              redirect port 80.
 `
 
 func serve() (int, error) {
@@ -81,7 +94,6 @@ func serve() (int, error) {
 	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
 	CommandLine.StringVar(&smtp, "smtp", "", "")
 	CommandLine.StringVar(&errors, "errors", "", "")
-	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
 	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
@@ -137,12 +149,14 @@ func serve() (int, error) {
 
 	// Run background tasks.
 	cron.Run(db)
-	acme.Run()
+	defer cron.Wait(db)
 
 	// Set up HTTP handler and servers.
 	zhttp.InitTpl(pack.Templates)
+	tlsc, acmeh, listenTLS := handlers.SetupTLS(db, tls)
+
 	hosts := map[string]http.Handler{
-		"*": handlers.NewBackend(db),
+		"*": handlers.NewBackend(db, acmeh),
 	}
 	if cfg.DomainStatic != "" {
 		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic("./public", cfg.Domain, !dev)
@@ -153,12 +167,12 @@ func serve() (int, error) {
 		return 2, err
 	}
 	zlog.Print(getVersion())
-	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
-	zlog.Printf("%d sites: %s", len(cnames), strings.Join(cnames, ", "))
-
-	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
-		cron.Wait(db)
-		acme.Wait()
+	zlog.Printf("serving %d sites on %q; dev=%t:", len(cnames), listen, dev)
+	zlog.Printf("  %s", strings.Join(cnames, ", "))
+	zhttp.Serve(listenTLS, &http.Server{
+		Addr:      listen,
+		Handler:   zhttp.HostRoute(hosts),
+		TLSConfig: tlsc,
 	})
 
 	return 0, nil

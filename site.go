@@ -443,15 +443,23 @@ func (s Site) Admin() bool {
 type Sites []Site
 
 // List all sites.
-func (u *Sites) List(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
+func (s *Sites) List(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
 		`select * from sites where state=$1 order by created_at desc`,
 		StateActive), "Sites.List")
 }
 
 // ListSubs lists all subsites for the current site.
-func (u *Sites) ListSubs(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
+func (s *Sites) ListSubs(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
 		`select * from sites where parent=$1 and state=$2 order by code`,
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
+}
+
+// HasCNAME reports if there is a site with this CNAME set.
+func (s *Sites) HasCNAME(ctx context.Context, cname string) (bool, error) {
+	var ok bool
+	err := zdb.MustGet(ctx).GetContext(ctx, &ok,
+		`select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
+	return ok, errors.Wrap(err, "Sites.HasCNAME")
 }

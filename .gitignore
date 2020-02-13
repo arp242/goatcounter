@@ -5,3 +5,4 @@
 /dist
 /b.sql
 *.pem
+/secret-dir

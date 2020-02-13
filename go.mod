@@ -2,6 +2,8 @@ module zgo.at/goatcounter
 
 go 1.13
 
+replace zgo.at/zhttp => ../zhttp
+
 require (
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/go-chi/chi v4.0.3+incompatible
@@ -13,10 +15,11 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.3.0
+	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678
 	zgo.at/tz v0.0.0-20200207054238-b33e5ce779e4
 	zgo.at/utils v1.4.1
 	zgo.at/zdb v0.0.0-20200210152331-3173dfc581b0
-	zgo.at/zhttp v0.0.0-20200213125110-e107006afa30
+	zgo.at/zhttp v0.0.0-20200213205119-2cbf8136987c
 	zgo.at/zlog v1.0.9
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0

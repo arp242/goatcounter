@@ -114,8 +114,7 @@ func create() (int, error) {
 	}
 
 	// TODO: Create certificate; fix ACME first though.
-	// acme.Domains <- domain
-	// acme.Wait()
+
 	return 0, nil
 }
 
