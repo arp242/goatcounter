@@ -67,6 +67,10 @@ zgo.at/zhttp v0.0.0-20200212095431-74ca4622637c h1:GUj18QQp3xev3w95AntlcUPgatAxL
 zgo.at/zhttp v0.0.0-20200212095431-74ca4622637c/go.mod h1:Lb8PSL0S0LaFLzMA3/Grf575P2EgOmI65WD4JdLBAao=
 zgo.at/zhttp v0.0.0-20200212170313-59c9281e04e3 h1:W5UoTpNXLf7BYkVRp6aQi0kIFxad+x0c+r1dVQbBQKw=
 zgo.at/zhttp v0.0.0-20200212170313-59c9281e04e3/go.mod h1:Lb8PSL0S0LaFLzMA3/Grf575P2EgOmI65WD4JdLBAao=
+zgo.at/zhttp v0.0.0-20200213124407-7cbcba50037e h1:Ezrz0fPLarnf+iceuJ7xJyzHFyOuHyq8hEZGjbqH258=
+zgo.at/zhttp v0.0.0-20200213124407-7cbcba50037e/go.mod h1:iExeFl9p2Ynln7sUCKHoo9i//YnOMV5Su9MFoIaxqVI=
+zgo.at/zhttp v0.0.0-20200213125110-e107006afa30 h1:kHEAuyaZek68B6Pze8FlXkc0Vu23pJVNiNta1rIS5NY=
+zgo.at/zhttp v0.0.0-20200213125110-e107006afa30/go.mod h1:iExeFl9p2Ynln7sUCKHoo9i//YnOMV5Su9MFoIaxqVI=
 zgo.at/zlog v1.0.7 h1:Ppjb9VOBheqENQ28TWsOddG2qIVO4nGb0b/TPh/5sXc=
 zgo.at/zlog v1.0.7/go.mod h1:0RldP/sQzWwOCPsJogZcxnJneFt56T1zfDtIN/LcYec=
 zgo.at/zlog v1.0.9 h1:JRggYfHH9eF5daLW6cm9uitibTlKP85AdlK+q9x5vZ4=

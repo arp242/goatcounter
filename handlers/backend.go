@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -80,7 +81,16 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		})).Get("/count", zhttp.Wrap(h.count))
 
 		if cfg.CertDir != "" {
-			zhttp.MountACME(rr, cfg.CertDir)
+			rr.Get("/.well-known/acme-challenge/{key}", func(w http.ResponseWriter, r *http.Request) {
+				path := fmt.Sprintf("%s/.well-known/acme-challenge/%s",
+					cfg.CertDir, zhttp.SafePath(chi.URLParam(r, "key")))
+				data, err := ioutil.ReadFile(path)
+				if err != nil {
+					http.Error(w, fmt.Sprintf("can't read %q: %s", path, err), 400)
+					return
+				}
+				w.Write(data)
+			})
 		}
 	}
 

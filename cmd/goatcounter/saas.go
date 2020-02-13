@@ -11,7 +11,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-chi/chi"
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
@@ -151,7 +150,7 @@ func saas() (int, error) {
 	// Set up HTTP handler and servers.
 	zhttp.InitTpl(pack.Templates)
 	d := zhttp.RemovePort(cfg.Domain)
-	hosts := map[string]chi.Router{
+	hosts := map[string]http.Handler{
 		zhttp.RemovePort(cfg.DomainStatic): handlers.NewStatic("./public", cfg.Domain, !dev),
 		d:                                  zhttp.RedirectHost("//www." + cfg.Domain),
 		"www." + d:                         handlers.NewWebsite(db),

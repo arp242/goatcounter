@@ -11,7 +11,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-chi/chi"
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
@@ -142,7 +141,7 @@ func serve() (int, error) {
 
 	// Set up HTTP handler and servers.
 	zhttp.InitTpl(pack.Templates)
-	hosts := map[string]chi.Router{
+	hosts := map[string]http.Handler{
 		"*": handlers.NewBackend(db),
 	}
 	if cfg.DomainStatic != "" {
