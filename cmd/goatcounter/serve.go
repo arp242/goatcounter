@@ -62,15 +62,16 @@ const serveAndSaasFlags = `
 
   -automigrate   Automatically run all pending migrations on startup.
 
-  -tls           Serve over tls. The first word is one of the following:
+  -tls           Serve over tls. This is a comma-separated list of the
+                 following:
 
+				   none              Don't serve any TLS.
                    path/to/file.pem  TLS certificate and keyfile, in one file.
                    acme              Create TLS certificates with ACME.
+				   tls               Accept TLS connections.
+				   rdr               Redirect port 80.
 
-                 This can then optionally be followed by ",tls" to make the
-                 address on -listen accept TLS connections, instead of HTTP
-                 connections. This can then be followed by ",rdr" to redirect
-                 port 80. Examples:
+                 Examples:
 
                    acme                       Create ACME certs but serve HTTP,
                                               useful when serving behind proxy
@@ -79,6 +80,8 @@ const serveAndSaasFlags = `
                    ./example.com.pem,tls,rdr  Always use the certificate in the
                                               file, service over TLS, and
                                               redirect port 80.
+
+				 Default: "acme,tls,rdr"; but blank when -dev is given.
 `
 
 func serve() (int, error) {
@@ -107,6 +110,9 @@ func serve() (int, error) {
 	cfg.Serve = true
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
+	}
+	if tls == "" {
+		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 	}
 
 	v := zvalidate.New()

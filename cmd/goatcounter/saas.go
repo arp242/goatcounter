@@ -77,6 +77,9 @@ func saas() (int, error) {
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
+	if tls == "" {
+		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
+	}
 
 	v := zvalidate.New()
 	v.Include("-plan", plan, goatcounter.Plans)
