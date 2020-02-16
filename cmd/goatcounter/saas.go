@@ -10,6 +10,7 @@ import (
 	"net/mail"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
@@ -114,13 +115,19 @@ func saas() (int, error) {
 	}
 	defer db.Close()
 
-	// Run background tasks.
-	cron.Run(db)
-	defer cron.Wait(db)
-
-	// Set up HTTP handler and servers.
 	zhttp.InitTpl(pack.Templates)
 	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
+
+	// Run background tasks.
+	cron.RunBackground(db)
+	defer cron.Wait(db)
+	go func() {
+		defer zlog.Recover()
+		time.Sleep(3 * time.Second)
+		cron.RunOnce(db)
+	}()
+
+	// Set up HTTP handler and servers.
 	d := zhttp.RemovePort(cfg.Domain)
 	hosts := map[string]http.Handler{
 		zhttp.RemovePort(cfg.DomainStatic): handlers.NewStatic("./public", cfg.Domain, !dev),

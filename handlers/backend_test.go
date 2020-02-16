@@ -105,7 +105,7 @@ func TestBackendIndex(t *testing.T) {
 				//if err != nil {
 				//	panic(err)
 				//}
-				cron.Run(zdb.MustGet(ctx))
+				cron.RunOnce(zdb.MustGet(ctx))
 			},
 			router:   newBackend,
 			auth:     true,

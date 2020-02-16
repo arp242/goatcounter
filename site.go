@@ -449,6 +449,13 @@ func (s *Sites) List(ctx context.Context) error {
 		StateActive), "Sites.List")
 }
 
+// ListCnames all sites that have CNAME set.
+func (s *Sites) ListCnames(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
+		`select * from sites where state=$1 and cname is not null order by created_at desc`,
+		StateActive), "Sites.List")
+}
+
 // ListSubs lists all subsites for the current site.
 func (s *Sites) ListSubs(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,

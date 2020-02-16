@@ -1,3 +1,7 @@
+// Copyright © 2019 Martin Tournoij <martin@arp242.net>
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+
 package acme
 
 import (
@@ -9,8 +13,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	crypto_acme "golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -19,13 +25,17 @@ import (
 var manager *autocert.Manager
 
 // cache is like autocert.DirCache, but ensures that files end with .pem
+//
+// TODO: patch upstream and open PR
 type cache struct{ dc autocert.DirCache }
 
 func NewCache(dir string) cache                                     { return cache{dc: autocert.DirCache(dir)} }
 func (d cache) Get(ctx context.Context, key string) ([]byte, error) { return d.dc.Get(ctx, key) }
 func (d cache) Delete(ctx context.Context, key string) error        { return d.dc.Delete(ctx, key) }
 func (d cache) Put(ctx context.Context, name string, data []byte) error {
-	name += ".pem"
+	if !strings.Contains(name, "+") {
+		name += ".pem"
+	}
 	return d.dc.Put(ctx, name, data)
 }
 
@@ -79,7 +89,13 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 				dir = f[c+1:]
 			}
 
+			c := &crypto_acme.Client{DirectoryURL: autocert.DefaultACMEDirectory}
+			if !cfg.Prod {
+				c.DirectoryURL = "https://acme-staging-v02.api.letsencrypt.org/directory"
+			}
+
 			manager = &autocert.Manager{
+				Client: c,
 				Cache:  NewCache(dir),
 				Prompt: autocert.AcceptTOS,
 				HostPolicy: func(ctx context.Context, host string) error {
@@ -137,6 +153,7 @@ func Make(domain string) error {
 		ServerName:        domain,
 		SupportedProtos:   []string{"h2", "http/1.1"},
 		SupportedVersions: []uint16{tls.VersionTLS13, tls.VersionTLS12, tls.VersionTLS11},
+		// ciphers = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
@@ -149,4 +166,9 @@ func Make(domain string) error {
 
 	_, err := manager.GetCertificate(hello)
 	return errors.Wrapf(err, "acme.MakeCert for %q", domain)
+}
+
+// Enabled reports if ACME is enabled.
+func Enabled() bool {
+	return manager != nil
 }
