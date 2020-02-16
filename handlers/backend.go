@@ -25,6 +25,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/tz"
@@ -735,12 +736,12 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
 	}
 
+	makecert := false
 	if args.Cname == "" {
 		site.Cname = nil
 	} else {
 		if site.Cname == nil || *site.Cname != args.Cname {
-			// TODO: create certificate here.
-			//go acme.Create(args.Cname)
+			makecert = true
 		}
 		site.Cname = &args.Cname
 	}
@@ -760,6 +761,15 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	err = tx.Commit()
 	if err != nil {
 		return err
+	}
+
+	if makecert {
+		go func() {
+			err := acme.Make(args.Cname)
+			if err != nil {
+				zlog.Field("domain", args.Cname).Error(err)
+			}
+		}()
 	}
 
 	zhttp.Flash(w, "Saved!")

@@ -13,6 +13,7 @@ import (
 
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
@@ -61,10 +62,10 @@ func saas() (int, error) {
 	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
 	CommandLine.StringVar(&smtp, "smtp", "", "")
+	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.StringVar(&errors, "errors", "", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
@@ -84,7 +85,6 @@ func saas() (int, error) {
 	v := zvalidate.New()
 	v.Include("-plan", plan, goatcounter.Plans)
 	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
-	// TODO: validate tls
 	if smtp == "" && !dev {
 		v.Append("-smtp", "must be set if -dev is not enabled")
 	}
@@ -120,8 +120,7 @@ func saas() (int, error) {
 
 	// Set up HTTP handler and servers.
 	zhttp.InitTpl(pack.Templates)
-	tlsc, acmeh, listenTLS := handlers.SetupTLS(db, tls)
-
+	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
 	d := zhttp.RemovePort(cfg.Domain)
 	hosts := map[string]http.Handler{
 		zhttp.RemovePort(cfg.DomainStatic): handlers.NewStatic("./public", cfg.Domain, !dev),

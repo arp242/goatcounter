@@ -1,8 +1,17 @@
+# "go build" binary.
 /goatcounter
-/goatcounter-reindex
-/*.upx
-/db/*.sqlite3*
-/dist
-/b.sql
+
+# UPX creates temporary files.
+*.upx
+
+# SQLite3 database; may also store journal hence last *.
+*.sqlite3*
+
+# Never store certificates.
 *.pem
-/secret-dir
+
+# Default acme-secrets.
+/acme-secrets
+
+# Cached ACME account key.
+acme_account+key

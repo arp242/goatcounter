@@ -43,14 +43,6 @@ Other flags:
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 `
 
-// TODO: maybe just make a new "export-certs" command for this? Or generic even
-// part of more generic "export"?
-//
-//  -certdir       ACME-generated certificates are stored in the SQL database
-//                 and can be used by GoatCounter from there. You can set this
-//                 to also store certificates in a directory, which makes it
-//                 easier to use an external https proxy.
-
 func create() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
@@ -112,8 +104,6 @@ func create() (int, error) {
 	if err != nil {
 		return 2, err
 	}
-
-	// TODO: Create certificate; fix ACME first though.
 
 	return 0, nil
 }

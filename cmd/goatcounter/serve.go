@@ -13,6 +13,7 @@ import (
 
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
@@ -37,6 +38,31 @@ Flags:
 
   -port          Port your site is publicly accessible on. Only needed if it's
                  not 80 or 443.
+
+  -tls           Serve over tls. This is a comma-separated list of the
+                 following:
+
+                   none              Don't serve any TLS.
+                   path/to/file.pem  TLS certificate and keyfile, in one file.
+                   acme              Create TLS certificates with ACME, this can
+                                     optionally followed by a : and a cache
+                                     directory name (default: acme-secrets).
+                   tls               Accept TLS connections.
+                   rdr               Redirect port 80.
+
+                 Examples:
+
+                   acme                       Create ACME certs but serve HTTP,
+                                              useful when serving behind proxy
+                                              which can use the certs.
+
+                   acme:/home/gc/.acme        As above, but with custom cache dir.
+
+                   ./example.com.pem,tls,rdr  Always use the certificate in the
+                                              file, service over TLS, and
+                                              redirect port 80.
+
+                 Default: "acme,tls,rdr"; but blank when -dev is given.
 ` + serveAndSaasFlags
 
 const serveAndSaasFlags = `
@@ -61,27 +87,6 @@ const serveAndSaasFlags = `
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
   -automigrate   Automatically run all pending migrations on startup.
-
-  -tls           Serve over tls. This is a comma-separated list of the
-                 following:
-
-				   none              Don't serve any TLS.
-                   path/to/file.pem  TLS certificate and keyfile, in one file.
-                   acme              Create TLS certificates with ACME.
-				   tls               Accept TLS connections.
-				   rdr               Redirect port 80.
-
-                 Examples:
-
-                   acme                       Create ACME certs but serve HTTP,
-                                              useful when serving behind proxy
-                                              which can use the certs.
-
-                   ./example.com.pem,tls,rdr  Always use the certificate in the
-                                              file, service over TLS, and
-                                              redirect port 80.
-
-				 Default: "acme,tls,rdr"; but blank when -dev is given.
 `
 
 func serve() (int, error) {
@@ -159,7 +164,7 @@ func serve() (int, error) {
 
 	// Set up HTTP handler and servers.
 	zhttp.InitTpl(pack.Templates)
-	tlsc, acmeh, listenTLS := handlers.SetupTLS(db, tls)
+	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
 
 	hosts := map[string]http.Handler{
 		"*": handlers.NewBackend(db, acmeh),
