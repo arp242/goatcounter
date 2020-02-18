@@ -21,7 +21,7 @@ func TestUserNew(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name:         "basic",
-			router:       NewBackend,
+			router:       newBackend,
 			path:         "/user/new",
 			wantCode:     200,
 			wantFormCode: 200,
@@ -44,7 +44,7 @@ func TestUserRequestLogin(t *testing.T) {
 					panic(err)
 				}
 			},
-			router:       NewBackend,
+			router:       newBackend,
 			method:       "POST",
 			path:         "/user/requestlogin",
 			body:         map[string]string{"email": "new@example.com"},
@@ -53,7 +53,7 @@ func TestUserRequestLogin(t *testing.T) {
 		},
 		{
 			name:         "nonexistent",
-			router:       NewBackend,
+			router:       newBackend,
 			method:       "POST",
 			path:         "/user/requestlogin",
 			body:         map[string]string{"email": "nonexistent@example.com"},
@@ -97,7 +97,7 @@ func TestUserLogin(t *testing.T) {
 					panic(err)
 				}
 			},
-			router:       NewBackend,
+			router:       newBackend,
 			path:         "/user/login/asdf",
 			wantCode:     303,
 			wantFormCode: 303,
@@ -105,7 +105,7 @@ func TestUserLogin(t *testing.T) {
 
 		{
 			name:         "nonexistent",
-			router:       NewBackend,
+			router:       newBackend,
 			path:         "/user/login/nonexistent",
 			wantCode:     403,
 			wantFormCode: 403,
@@ -125,7 +125,7 @@ func TestUserLogout(t *testing.T) {
 		{
 			name:         "basic",
 			method:       "POST",
-			router:       NewBackend,
+			router:       newBackend,
 			path:         "/user/logout",
 			auth:         true,
 			wantCode:     303,

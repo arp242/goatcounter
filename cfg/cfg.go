@@ -3,7 +3,6 @@ package cfg
 
 // Configuration variables.
 var (
-	CertDir      string
 	Domain       string
 	DomainStatic string
 	URLStatic    string

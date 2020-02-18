@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
@@ -33,19 +34,46 @@ Set up sites with the "create" command.
 
 Flags:
 
+  -static        Serve static files from a diffent domain, such as a CDN or
+                 cookieless domain. Default: not set.
+
+  -port          Port your site is publicly accessible on. Only needed if it's
+                 not 80 or 443.
+` + serveAndSaasFlags
+
+const serveAndSaasFlags = `
   -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
                  or "postgres://<connect string>" for PostgreSQL
                  Default: sqlite://db/goatcounter.sqlite3
 
   -listen        Address to listen on. Default: localhost:8081
 
-  -static        Serve static files from a diffent domain, such as a CDN or
-                 cookieless domain. Default: not set.
-
-  -port          Port your site is publicly accessible on. Only needed if it's
-                 not 80 or 443.
-
   -dev           Start in "dev mode".
+
+  -tls           Serve over tls. This is a comma-separated list with any of:
+
+                   none              Don't serve any TLS.
+                   path/to/file.pem  TLS certificate and keyfile, in one file.
+                   acme              Create TLS certificates with ACME, this can
+                                     optionally followed by a : and a cache
+                                     directory name (default: acme-secrets).
+                   tls               Accept TLS connections on -listen.
+                   rdr               Redirect port 80.
+
+                 Examples:
+
+                   acme                       Create ACME certs but serve HTTP,
+                                              useful when serving behind proxy
+                                              which can use the certs.
+
+                   acme:/home/gc/.acme        As above, but with custom cache dir.
+
+                   ./example.com.pem,tls,rdr  Always use the certificate in the
+                                              file, serve over TLS, and redirect
+                                              port 80.
+
+                 Default: "acme,tls,rdr" for serve, "acme" for saas, and blank
+                 when -dev is given.
 
   -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
                  sending login emails and errors (if -errors is enabled).
@@ -60,12 +88,6 @@ Flags:
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
   -automigrate   Automatically run all pending migrations on startup.
-
-  -certdir       Directory to store ACME-generated certificates for custom
-                 domains. Default: empty.
-
-  -tls           Path to TLS certificate and key, colon-separated and in that
-                 order. This will automatically redirect port 80 as well.
 `
 
 func serve() (int, error) {
@@ -81,7 +103,6 @@ func serve() (int, error) {
 	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
 	CommandLine.StringVar(&smtp, "smtp", "", "")
 	CommandLine.StringVar(&errors, "errors", "", "")
-	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
 	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
@@ -95,6 +116,9 @@ func serve() (int, error) {
 	cfg.Serve = true
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
+	}
+	if tls == "" {
+		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 	}
 
 	v := zvalidate.New()
@@ -135,14 +159,21 @@ func serve() (int, error) {
 	}
 	defer db.Close()
 
+	zhttp.InitTpl(pack.Templates)
+	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
+
 	// Run background tasks.
-	cron.Run(db)
-	acme.Run()
+	cron.RunBackground(db)
+	defer cron.Wait(db)
+	go func() {
+		defer zlog.Recover()
+		time.Sleep(3 * time.Second)
+		cron.RunOnce(db)
+	}()
 
 	// Set up HTTP handler and servers.
-	zhttp.InitTpl(pack.Templates)
 	hosts := map[string]http.Handler{
-		"*": handlers.NewBackend(db),
+		"*": handlers.NewBackend(db, acmeh),
 	}
 	if cfg.DomainStatic != "" {
 		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic("./public", cfg.Domain, !dev)
@@ -153,12 +184,12 @@ func serve() (int, error) {
 		return 2, err
 	}
 	zlog.Print(getVersion())
-	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
-	zlog.Printf("%d sites: %s", len(cnames), strings.Join(cnames, ", "))
-
-	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
-		cron.Wait(db)
-		acme.Wait()
+	zlog.Printf("serving %d sites on %q; dev=%t:", len(cnames), listen, dev)
+	zlog.Printf("  %s", strings.Join(cnames, ", "))
+	zhttp.Serve(listenTLS, &http.Server{
+		Addr:      listen,
+		Handler:   zhttp.HostRoute(hosts),
+		TLSConfig: tlsc,
 	})
 
 	return 0, nil

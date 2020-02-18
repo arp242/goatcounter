@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -79,19 +78,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 				return 4, 1
 			},
 		})).Get("/count", zhttp.Wrap(h.count))
-
-		if cfg.CertDir != "" {
-			rr.Get("/.well-known/acme-challenge/{key}", func(w http.ResponseWriter, r *http.Request) {
-				path := fmt.Sprintf("%s/.well-known/acme-challenge/%s",
-					cfg.CertDir, zhttp.SafePath(chi.URLParam(r, "key")))
-				data, err := ioutil.ReadFile(path)
-				if err != nil {
-					http.Error(w, fmt.Sprintf("can't read %q: %s", path, err), 400)
-					return
-				}
-				w.Write(data)
-			})
-		}
 	}
 
 	{
@@ -750,11 +736,12 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
 	}
 
+	makecert := false
 	if args.Cname == "" {
 		site.Cname = nil
 	} else {
 		if site.Cname == nil || *site.Cname != args.Cname {
-			acme.Domains <- args.Cname
+			makecert = true // Make after we persisted to DB.
 		}
 		site.Cname = &args.Cname
 	}
@@ -774,6 +761,15 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	err = tx.Commit()
 	if err != nil {
 		return err
+	}
+
+	if makecert {
+		go func() {
+			err := acme.Make(args.Cname)
+			if err != nil {
+				zlog.Field("domain", args.Cname).Error(err)
+			}
+		}()
 	}
 
 	zhttp.Flash(w, "Saved!")

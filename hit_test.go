@@ -169,7 +169,7 @@ func TestHitStatsList(t *testing.T) {
 			site.Settings.Limits.Page = 2
 
 			goatcounter.Memstore.Append(tt.in...)
-			cron.Run(zdb.MustGet(ctx))
+			cron.RunOnce(zdb.MustGet(ctx))
 
 			var stats goatcounter.HitStats
 			total, totalDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude)

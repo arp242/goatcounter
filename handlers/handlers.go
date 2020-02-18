@@ -84,11 +84,14 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 	return r
 }
 
-func NewBackend(db zdb.DB) chi.Router {
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc) chi.Router {
 	r := chi.NewRouter()
 	backend{}.Mount(r, db)
 	if !cfg.Saas {
 		r.Get("/*", zhttp.NewStatic("./public", "*", 0, pack.Public).ServeHTTP)
+	}
+	if acmeh != nil {
+		r.Get("/.well-known/acme-challenge/{key}", acmeh)
 	}
 	return r
 }

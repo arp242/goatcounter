@@ -10,6 +10,7 @@ import (
 	"net/mail"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
@@ -38,45 +39,16 @@ with -dev.
 
 Flags:
 
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
-
-  -listen        Address to listen on. Default: localhost:8081
-
-  -dev           Start in "dev mode".
-
   -domain        Base domain with port followed by comma and the static domain.
-
                  Default: goatcounter.localhost:8081, static.goatcounter.localhost:8081
 
-  -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
-                 sending login emails and errors (if -errors is enabled).
-                 Default is blank, meaning nothing is sent.
-
-  -errors        What to do with errors; they're always printed to stderr.
-
-                     mailto:addr     Email to this address; requires -smtp.
-
-                 Default: not set.
+  -plan          Plan for new installations; default: personal.
 
   -stripe        Stripe keys; needed for billing. It needs the secret,
                  publishable, and webhook (sk_*, pk_*, whsec_*) keys as
                  colon-separated, in any order. Billing will be disabled if left
                  blank.
-
-  -debug         Modules to debug, comma-separated or 'all' for all modules.
-
-  -plan          Plan for new installations; default: personal.
-
-  -automigrate   Automatically run all pending migrations on startup.
-
-  -certdir       Directory to store ACME-generated certificates for custom
-                 domains. Default: empty.
-
-  -tls           Path to TLS certificate and key, colon-separated and in that
-                 order. This will automatically redirect port 80 as well.
-`
+` + serveAndSaasFlags
 
 func saas() (int, error) {
 	dbConnect := flagDB()
@@ -91,11 +63,10 @@ func saas() (int, error) {
 	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
 	CommandLine.StringVar(&smtp, "smtp", "", "")
+	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.StringVar(&errors, "errors", "", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
-	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
 	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
@@ -108,12 +79,13 @@ func saas() (int, error) {
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
+	if tls == "" {
+		tls = map[bool]string{true: "none", false: "acme"}[dev]
+	}
 
 	v := zvalidate.New()
 	v.Include("-plan", plan, goatcounter.Plans)
 	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
-	//v.Path("-certdir", cfg.CertDir, true) // TODO: implement in zvalidate
-	// TODO: validate tls
 	if smtp == "" && !dev {
 		v.Append("-smtp", "must be set if -dev is not enabled")
 	}
@@ -143,27 +115,34 @@ func saas() (int, error) {
 	}
 	defer db.Close()
 
+	zhttp.InitTpl(pack.Templates)
+	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
+
 	// Run background tasks.
-	cron.Run(db)
-	acme.Run()
+	cron.RunBackground(db)
+	defer cron.Wait(db)
+	go func() {
+		defer zlog.Recover()
+		time.Sleep(3 * time.Second)
+		cron.RunOnce(db)
+	}()
 
 	// Set up HTTP handler and servers.
-	zhttp.InitTpl(pack.Templates)
 	d := zhttp.RemovePort(cfg.Domain)
 	hosts := map[string]http.Handler{
 		zhttp.RemovePort(cfg.DomainStatic): handlers.NewStatic("./public", cfg.Domain, !dev),
 		d:                                  zhttp.RedirectHost("//www." + cfg.Domain),
 		"www." + d:                         handlers.NewWebsite(db),
-		"*":                                handlers.NewBackend(db),
+		"*":                                handlers.NewBackend(db, acmeh),
 	}
 
 	zlog.Print(getVersion())
 	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
-	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
-		cron.Wait(db)
-		acme.Wait()
+	zhttp.Serve(listenTLS, &http.Server{
+		Addr:      listen,
+		Handler:   zhttp.HostRoute(hosts),
+		TLSConfig: tlsc,
 	})
-
 	return 0, nil
 }
 

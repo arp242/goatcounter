@@ -12,6 +12,7 @@ import (
 
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/acme"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
@@ -26,6 +27,7 @@ type task struct {
 var tasks = []task{
 	{persistAndStat, 10 * time.Second},
 	{DataRetention, 1 * time.Hour},
+	{renewACME, 2 * time.Hour},
 }
 
 var (
@@ -33,18 +35,24 @@ var (
 	wg      sync.WaitGroup
 )
 
-// Run stat updates in the background.
-func Run(db zdb.DB) {
+// RunOnce runs all tasks once and returns.
+func RunOnce(db zdb.DB) {
 	ctx := zdb.With(context.Background(), db)
 	l := zlog.Module("cron")
-
 	for _, t := range tasks {
-		// Run everything on startup immediately.
 		err := t.fun(ctx)
 		if err != nil {
 			l.Error(err)
 		}
+	}
+}
 
+// RunBackground runs tasks in the background according to the given schedule.
+func RunBackground(db zdb.DB) {
+	ctx := zdb.With(context.Background(), db)
+	l := zlog.Module("cron")
+
+	for _, t := range tasks {
 		go func(t task) {
 			defer zlog.Recover()
 
@@ -185,6 +193,36 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func renewACME(ctx context.Context) error {
+	if !acme.Enabled() {
+		return nil
+	}
+
+	// Don't do this on shutdown as the HTTP server won't be available.
+	if stopped.Value() == 1 {
+		return nil
+	}
+
+	var sites goatcounter.Sites
+	err := sites.ListCnames(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range sites {
+		go func(d string) {
+			wg.Add(1)
+			defer wg.Done()
+			err := acme.Make(d)
+			if err != nil {
+				zlog.Module("cron-acme").Error(err)
+			}
+		}(*s.Cname)
 	}
 
 	return nil
