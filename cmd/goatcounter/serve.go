@@ -143,6 +143,7 @@ func serve() (int, error) {
 	zlog.Print(getVersion())
 	zlog.Printf("serving %d sites on %q; dev=%t:", len(cnames), listen, dev)
 	zlog.Printf("  %s", strings.Join(cnames, ", "))
+	banner()
 	zhttp.Serve(listenTLS, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),

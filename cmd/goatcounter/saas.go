@@ -149,12 +149,27 @@ func saas() (int, error) {
 
 	zlog.Print(getVersion())
 	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
+	banner()
 	zhttp.Serve(listenTLS, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
 	})
 	return 0, nil
+}
+
+func banner() {
+	fmt.Print(`
+┏━━━━━━━━━━━━━━━━━━━━━ Thank you for using GoatCounter! ━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                             ┃
+┃ Great you're choosing to self-host GoatCounter! I'd just like to put a      ┃
+┃ reminder here that I work on this full-time; it's not a side-project.       ┃
+┃ Please consider making a financial contribution according to your means if  ┃
+┃ this is useful for you to ensure the long-term viability. Thank you :-)     ┃
+┃                                                                             ┃
+┃                     https://www.goatcounter/contribute                      ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+`)
 }
 
 func flagErrors(errors string, v *zvalidate.Validator) {

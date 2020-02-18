@@ -14070,6 +14070,7 @@ do this 100% reliably.</p>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contribute">Contribute</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
 		{{end}}
@@ -14649,6 +14650,31 @@ period.</p>
 
 	<li>For chat there’s a
 		<a href="https://t.me/goatcounter" target="_blank" rel="noopener">Public Telegram Group</a>.</li>
+</ul>
+
+{{template "_bottom.gohtml" .}}
+`),
+	"tpl/contribute.gohtml": []byte(`{{template "_top.gohtml" .}}
+
+<h1>Contribute financially</h1>
+<p>I encourage everyone to self-host GoatCounter if they have the inclination to
+do so, which is why it's 100% Open Source (or "Free") software.</p>
+
+<p>I work on this full-time: it's not a side-project I work on in spare time,
+it's my means of living. Please consider making a financial contribution if this
+is useful for you to ensure the long-term viability.</p>
+
+<p>Thank you :-)</p>
+
+<p>Ways to contribute:</p>
+
+<ul>
+	{{/* Pending <li><a href="">GitHub sponsor</a>; this is the preferred method
+		as GitHub will match contributions.</li> */}}
+	<li>Subscribe to a plan on www.goatcounter.com</li>
+	<li><a href="https://patreon.com/arp242">Patreon</a></li>
+	<li>goatcounter.com is a Brave Verified Creator, and you can send Brave
+		rewards.</li>
 </ul>
 
 {{template "_bottom.gohtml" .}}
