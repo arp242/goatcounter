@@ -463,10 +463,10 @@ func (s *Sites) ListSubs(ctx context.Context) error {
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
 }
 
-// HasCNAME reports if there is a site with this CNAME set.
-func (s *Sites) HasCNAME(ctx context.Context, cname string) (bool, error) {
+// ContainsCNAME reports if there is a site with this CNAME set.
+func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 	var ok bool
 	err := zdb.MustGet(ctx).GetContext(ctx, &ok,
 		`select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
-	return ok, errors.Wrap(err, "Sites.HasCNAME")
+	return ok, errors.Wrap(err, "Sites.ContainsCNAME")
 }

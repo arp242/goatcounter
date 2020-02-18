@@ -80,7 +80,7 @@ func saas() (int, error) {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
 	if tls == "" {
-		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
+		tls = map[bool]string{true: "none", false: "acme"}[dev]
 	}
 
 	v := zvalidate.New()

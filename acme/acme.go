@@ -100,12 +100,12 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 				Prompt: autocert.AcceptTOS,
 				HostPolicy: func(ctx context.Context, host string) error {
 					var s goatcounter.Sites
-					ok, err := s.HasCNAME(zdb.With(ctx, db), host)
+					ok, err := s.ContainsCNAME(zdb.With(ctx, db), host)
 					if err != nil {
 						return err
 					}
 					if !ok {
-						return fmt.Errorf("HasCNAME: unknown host: %q", host)
+						return fmt.Errorf("ContainsCNAME: unknown host: %q", host)
 					}
 					return nil
 				},

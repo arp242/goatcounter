@@ -39,16 +39,25 @@ Flags:
 
   -port          Port your site is publicly accessible on. Only needed if it's
                  not 80 or 443.
+` + serveAndSaasFlags
 
-  -tls           Serve over tls. This is a comma-separated list of the
-                 following:
+const serveAndSaasFlags = `
+  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
+                 or "postgres://<connect string>" for PostgreSQL
+                 Default: sqlite://db/goatcounter.sqlite3
+
+  -listen        Address to listen on. Default: localhost:8081
+
+  -dev           Start in "dev mode".
+
+  -tls           Serve over tls. This is a comma-separated list with any of:
 
                    none              Don't serve any TLS.
                    path/to/file.pem  TLS certificate and keyfile, in one file.
                    acme              Create TLS certificates with ACME, this can
                                      optionally followed by a : and a cache
                                      directory name (default: acme-secrets).
-                   tls               Accept TLS connections.
+                   tls               Accept TLS connections on -listen.
                    rdr               Redirect port 80.
 
                  Examples:
@@ -60,20 +69,11 @@ Flags:
                    acme:/home/gc/.acme        As above, but with custom cache dir.
 
                    ./example.com.pem,tls,rdr  Always use the certificate in the
-                                              file, service over TLS, and
-                                              redirect port 80.
+                                              file, serve over TLS, and redirect
+                                              port 80.
 
-                 Default: "acme,tls,rdr"; but blank when -dev is given.
-` + serveAndSaasFlags
-
-const serveAndSaasFlags = `
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
-
-  -listen        Address to listen on. Default: localhost:8081
-
-  -dev           Start in "dev mode".
+                 Default: "acme,tls,rdr" for serve, "acme" for saas, and blank
+                 when -dev is given.
 
   -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
                  sending login emails and errors (if -errors is enabled).

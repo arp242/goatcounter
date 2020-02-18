@@ -741,7 +741,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		site.Cname = nil
 	} else {
 		if site.Cname == nil || *site.Cname != args.Cname {
-			makecert = true
+			makecert = true // Make after we persisted to DB.
 		}
 		site.Cname = &args.Cname
 	}
