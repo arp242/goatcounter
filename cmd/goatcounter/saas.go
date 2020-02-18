@@ -20,6 +20,7 @@ import (
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/stringutil"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
@@ -50,35 +51,62 @@ Flags:
                  blank.
 ` + serveAndSaasFlags
 
-func saas() (int, error) {
+func flagServeAndSaas() (string, bool, bool, string, string, string, string) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
-	var (
-		automigrate, dev                                bool
-		tls, listen, smtp, errors, stripe, domain, plan string
-	)
-	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
+	var dev bool
 	CommandLine.BoolVar(&dev, "dev", false, "")
-	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
-	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
-	CommandLine.StringVar(&smtp, "smtp", "", "")
-	CommandLine.StringVar(&tls, "tls", "", "")
-	CommandLine.StringVar(&errors, "errors", "", "")
-	CommandLine.StringVar(&stripe, "stripe", "", "")
-	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
+	automigrate := CommandLine.Bool("automigrate", false, "")
+	listen := CommandLine.String("listen", "localhost:8081", "")
+	smtp := CommandLine.String("smtp", "", "")
+	tls := CommandLine.String("tls", "", "")
+	errors := CommandLine.String("errors", "", "")
+
 	CommandLine.Parse(os.Args[2:])
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
-	cfg.Plan = plan
-	cfg.Saas = true
 	zhttp.LogUnknownFields = dev
 	zhttp.CookieSecure = !dev
-	zmail.SMTP = smtp
+	zmail.SMTP = *smtp
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
+
+	return *dbConnect, dev, *automigrate, *listen, *smtp, *tls, *errors
+}
+
+func setupReload() {
+	pack.Templates = nil
+	pack.Public = nil
+	go func() {
+		err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
+		if err != nil {
+			panic(fmt.Errorf("reload.Do: %v", err))
+		}
+	}()
+}
+
+func setupCron(db zdb.DB) func() {
+	cron.RunBackground(db)
+	go func() {
+		defer zlog.Recover()
+		time.Sleep(3 * time.Second)
+		cron.RunOnce(db)
+	}()
+	return func() { cron.Wait(db) }
+}
+
+func saas() (int, error) {
+	var stripe, domain, plan string
+	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
+	CommandLine.StringVar(&stripe, "stripe", "", "")
+	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
+	dbConnect, dev, automigrate, listen, smtp, tls, errors := flagServeAndSaas()
+
+	cfg.Saas = true
+	cfg.Plan = plan
 	if tls == "" {
 		tls = map[bool]string{true: "none", false: "acme"}[dev]
 	}
@@ -96,20 +124,11 @@ func saas() (int, error) {
 		return 1, v
 	}
 
-	// Reload on changes.
 	if !cfg.Prod {
-		pack.Templates = nil
-		pack.Public = nil
-		go func() {
-			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
-			if err != nil {
-				panic(fmt.Errorf("reload.Do: %v", err))
-			}
-		}()
+		setupReload()
 	}
 
-	// Connect to DB.
-	db, err := connectDB(*dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate], true)
+	db, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate], true)
 	if err != nil {
 		return 2, err
 	}
@@ -117,15 +136,7 @@ func saas() (int, error) {
 
 	zhttp.InitTpl(pack.Templates)
 	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
-
-	// Run background tasks.
-	cron.RunBackground(db)
-	defer cron.Wait(db)
-	go func() {
-		defer zlog.Recover()
-		time.Sleep(3 * time.Second)
-		cron.RunOnce(db)
-	}()
+	defer setupCron(db)
 
 	// Set up HTTP handler and servers.
 	d := zhttp.RemovePort(cfg.Domain)

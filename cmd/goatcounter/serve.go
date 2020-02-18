@@ -6,22 +6,16 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
 	"strings"
-	"time"
 
-	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
@@ -91,32 +85,11 @@ const serveAndSaasFlags = `
 `
 
 func serve() (int, error) {
-	dbConnect := flagDB()
-	debug := flagDebug()
-
-	var (
-		automigrate, dev          bool
-		tls, listen, smtp, errors string
-	)
-	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
-	CommandLine.BoolVar(&dev, "dev", false, "")
-	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
-	CommandLine.StringVar(&smtp, "smtp", "", "")
-	CommandLine.StringVar(&errors, "errors", "", "")
-	CommandLine.StringVar(&tls, "tls", "", "")
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	CommandLine.Parse(os.Args[2:])
+	dbConnect, dev, automigrate, listen, smtp, tls, errors := flagServeAndSaas()
 
-	zlog.Config.SetDebug(*debug)
-	cfg.Prod = !dev
-	zhttp.CookieSecure = !dev
-	zmail.SMTP = smtp
-	zhttp.LogUnknownFields = dev
 	cfg.Serve = true
-	if !dev {
-		zlog.Config.FmtTime = "Jan _2 15:04:05 "
-	}
 	if tls == "" {
 		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 	}
@@ -142,18 +115,10 @@ func serve() (int, error) {
 
 	// Reload on changes.
 	if !cfg.Prod {
-		pack.Templates = nil
-		pack.Public = nil
-		go func() {
-			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
-			if err != nil {
-				panic(fmt.Errorf("reload.Do: %v", err))
-			}
-		}()
+		setupReload()
 	}
 
-	// Connect to DB.
-	db, err := connectDB(*dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate], true)
+	db, err := connectDB(dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate], true)
 	if err != nil {
 		return 2, err
 	}
@@ -161,15 +126,7 @@ func serve() (int, error) {
 
 	zhttp.InitTpl(pack.Templates)
 	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
-
-	// Run background tasks.
-	cron.RunBackground(db)
-	defer cron.Wait(db)
-	go func() {
-		defer zlog.Recover()
-		time.Sleep(3 * time.Second)
-		cron.RunOnce(db)
-	}()
+	defer setupCron(db)
 
 	// Set up HTTP handler and servers.
 	hosts := map[string]http.Handler{
@@ -191,7 +148,6 @@ func serve() (int, error) {
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
 	})
-
 	return 0, nil
 }
 
