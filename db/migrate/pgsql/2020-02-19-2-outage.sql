@@ -29,6 +29,6 @@ I’ll also improve the integration testing (most of this code is tested already
 a full integration test yet).</p>
 ');
 
-	-- insert into version values ('2020-02-19-1-personalplus');
+	insert into version values ('2020-02-19-2-outage');
 commit;
 
