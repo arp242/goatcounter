@@ -14989,6 +14989,27 @@ sub {
 		title you can filter by it. Also see
 		<a href="https://github.com/zgoat/goatcounter/issues/3#issuecomment-578202761">issue #3</a>.
 	</dd>
+
+	<dt id="charity">Is there any discount for charities, non-profit organisations, startups, etc? <a href="#charity">§</a></dt>
+	<dd>
+		The short answer is ”not really”. The longer answer is that it depends
+		on the individual case.<br><br>
+
+		To give an example, Amnesty International is undoubtedly a charity doing
+		great work, and I’d be honoured to facilitate that. But they also have a
+		~€300 million/year income and it seems to me that asking them for
+		€15/year so I can make a living isn't unreasonable, regardless of their
+		charitable work. After all, people employed by Amnesty are getting paid
+		too, and I also need to pay my rent, food, etc. 😅<br><br>
+
+		Most charities don’t have the kind of endowment Amnesty has, so if
+		you’re running a small charity or non-profit where €15/month would be a
+		prohibitively large cost then feel free to get in touch and we’ll see
+		what we can arrange.<br><br>
+
+		I’ll be happy to revisit this policy once GoatCounter starts becoming
+		financially sustainable, but right now it’s still quite far from that.
+	</dd>
 </dl>
 
 {{template "_bottom.gohtml" .}}
@@ -15307,6 +15328,8 @@ especially if they’re open source.
 
 Just get in touch if you’re unsure and I’ll tell you if it’s considered
 personal.</p>
+
+<p>Also see the <a href="/help#charity">note on charities</a>.</p>
 
 <h2>Payments</h2>
 <p>You are billed immediately for the displayed term. These services will be
