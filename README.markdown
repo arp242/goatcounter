@@ -69,7 +69,7 @@ Running your own
 
 ### Building
 
-There are binaries on the [releases][release] page, or compile from source with:
+Compile from source with:
 
 	$ git clone https://github.com/zgoat/goatcounter.git
 	$ cd goatcounter
@@ -86,7 +86,6 @@ versions in go.mod.
 Go 1.13 and newer are supported (it follows the [Go release policy][rp]). You
 will need a C compiler (for SQLite) or PostgreSQL.
 
-[release]: https://github.com/zgoat/goatcounter/releases
 [rp]: https://golang.org/doc/devel/release.html#policy
 
 ### Running
