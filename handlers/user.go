@@ -105,29 +105,8 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 		if errors.Cause(err) != sql.ErrNoRows {
 			zlog.Error(err)
 		}
-
-		s := goatcounter.MustGetSite(r.Context())
-		u.BySite(r.Context(), s.ID)
-		zlog.Module("user.login").FieldsRequest(r).Fields(zlog.F{
-			"site":               s.ID,
-			"user.login_request": psp(u.LoginRequest),
-			"user.login_token":   psp(u.LoginToken),
-			"user.login_at":      u.LoginAt,
-			"user.updated_at":    u.UpdatedAt,
-		}).Printf("sql.ErrNoRows")
-
 		return guru.New(http.StatusForbidden, "could not login; perhaps the key has expired?")
 	}
-
-	s := goatcounter.MustGetSite(r.Context())
-	zlog.Module("user.login").FieldsRequest(r).Fields(zlog.F{
-		"site":               s.ID,
-		"user.login_request": psp(u.LoginRequest),
-		"user.login_token":   psp(u.LoginToken),
-		"user.login_at":      u.LoginAt,
-		"user.updated_at":    u.UpdatedAt,
-		"headers":            fmt.Sprintf("%s", r.Header),
-	}).Printf("login")
 
 	err = u.Login(r.Context())
 	if err != nil {
