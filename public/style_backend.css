@@ -311,7 +311,8 @@ noscript {
 
 /*** Updates overview ***/
 .update p        { margin-left: 2em; }
-.update > em + p { margin-top: 0; }
+.update > em + p, .update > em + strong + p { margin-top: 0; }
+.update-new      { background-color: yellow; padding: 0 .3em; }
 
 /*** Pages header ***/
 header h2 { border-bottom: 0; display: inline; }

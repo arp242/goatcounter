@@ -632,6 +632,7 @@ func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	seenat := u.SeenUpdatesAt
 	err = u.SeenUpdates(r.Context())
 	if err != nil {
 		zlog.Field("user", fmt.Sprintf("%d", u.ID)).Error(err)
@@ -640,7 +641,8 @@ func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "backend_updates.gohtml", struct {
 		Globals
 		Updates goatcounter.Updates
-	}{newGlobals(w, r), up})
+		SeenAt  time.Time
+	}{newGlobals(w, r), up, seenat})
 }
 
 func (h backend) settings(w http.ResponseWriter, r *http.Request) error {
