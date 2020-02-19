@@ -582,6 +582,29 @@ commit;
 	insert into version values ('2020-02-06-1-hitsid');
 commit;
 `),
+	"db/migrate/pgsql/2020-02-19-1-personalplus.sql": []byte(`begin;
+	alter table sites
+		drop constraint sites_plan_check;
+	alter table sites
+		add constraint sites_plan_check check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom'));
+
+	insert into updates (subject, created_at, show_at, body) values (
+		'Personal plus plan and GitHub Sponsors', now(), now(),
+		'<p>You can now contribute through the GitHub Sponsors as well; since
+			GitHub will match contributions in the first year this is now the
+			preferred method, since you’ll get more bang for your buck ;-)
+			<a href="https://github.com/sponsors/arp242/">https://github.com/sponsors/arp242/</a>
+		</p>
+
+		<p>I also added a “Personal Plus” plan. Like the Personal plan, this is
+			for non-commercial use only, but allows you to use a custom domain
+			with GoatCounter; e.g. stats.mydomain.com instead of
+			mine.goatcounter.com. This is €5/month.</p>
+	');
+
+	insert into version values ('2020-02-19-1-personalplus');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1216,6 +1239,33 @@ commit;
 	alter table hits2 rename to hits;
 
 	insert into version values ('2020-02-06-1-hitsid');
+commit;
+`),
+	"db/migrate/sqlite/2020-02-19-1-personalplus.sql": []byte(`begin;
+	create table sites2 (
+		id             integer        primary key autoincrement,
+		parent         integer        null                     check(parent is null or parent>0),
+
+		name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
+		code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+		cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
+		plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
+		stripe         varchar        null,
+		settings       varchar        not null,
+		last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
+		received_data  int            not null default 0,
+		link_domain    varchar        not null default '',
+
+		state          varchar        not null default 'a'     check(state in ('a', 'd')),
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+	);
+
+	insert into sites2 select * from sites;
+	drop table sites;
+	alter table sites2 rename to sites;
+
+	insert into version values ('2020-02-19-1-personalplus');
 commit;
 `),
 }
@@ -12850,9 +12900,15 @@ dt { font-weight: bold; margin-top: 1em; }
    v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
 
 .page    { padding: 1em; }
-footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
-           display: flex; justify-content: space-between; }
-footer a { font-weight: bold; color: #252525; }
+footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between;
+	       background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
+footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
+
+@media (max-width: 54em) {
+	footer      { text-align: left; justify-content: space-around; }
+	footer a    { display: block; padding: .5em 0; }
+	footer span { display: none; }
+}
 
 /* Don't make various explanatory texts too wide. */
 .page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
@@ -14076,9 +14132,10 @@ do this 100% reliably.</p>
 		{{end}}
 	</div>
 	<div>
-		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">GitHub</a><span> |</span>
-		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank" rel="noopener">Product Hunt</a><span> |</span>
-		<a href="https://patreon.com/arp242">Patreon</a>
+		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">Source code</a><span> |</span>
+		<a href="https://github.com/sponsors/arp242" target="_blank" rel="noopener">GitHub sponsors</a><span> |</span>
+		<a href="https://patreon.com/arp242" target="_blank" rel="noopener">Patreon</a><span> |</span>
+		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank" rel="noopener">Product Hunt</a>
 	</div>
 </footer>
 `),
@@ -14577,7 +14634,7 @@ parent site includes the child sites.</p>
 	{{else}}
 		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
 		<p>{{.Next}}</p>
-		<p><a href="/billing/cancel">Cancel</a></p>
+		<p><a href="/billing/cancel">Cancel or change</a></p>
 	{{end}}
 {{else}}
 	<script src="https://js.stripe.com/v3"></script>
@@ -14589,17 +14646,21 @@ parent site includes the child sites.</p>
 			<legend>Plan</legend>
 			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
 				<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+			<label><input type="radio" name="plan" value="personalplus" {{if eq .Site.Plan "personalplus"}}checked{{end}}>
+				<span>Personal plus</span> €5/month; non-commercial use; 200k pageviews/month; custom domain.</label><br>
 			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
 				<span>Business</span> €15/month; 500k pageviews/month; custom domain.</label><br>
 			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
 				<span>Business plus</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
-
-			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
+			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a><br><br>
+			Email
+				<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+				if you donate via other channels with details to set up the
+				correct plan.
 		</fieldset>
 
 		<fieldset class="free">
 			<legend>Optional payments</legend>
-
 			<p>GoatCounter is free for personal non-commercial use (see
 				<a href="//www.{{.Domain}}/terms#commercial">ToS for definition</a>),
 				but a small monthly donation is encouraged so I can pay my rent
@@ -14607,10 +14668,13 @@ parent site includes the child sites.</p>
 			<p>Even just a small €1/month would be greatly appreciated! Fill in
 				0 to disable the banner without a donation.</p>
 
-			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="2" min="0">
+			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="3" min="0"> /month
 
-			<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>
-				(note: using this form is better due to lower platform costs).</p>
+			<p>Other ways to contribute:</p>
+			<ul>
+				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
+				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
+			</ul>
 		</fieldset>
 
 		<p class="ask-cc">You’ll be asked for credit card details on the next page.
@@ -14625,7 +14689,8 @@ parent site includes the child sites.</p>
 	"tpl/billing_cancel.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <p>Cancel your plan immediately; you will be refunded for the remaining billing
-period.</p>
+period. You can also use this towards paying for a new plan if you subscribe
+within a day orso.</p>
 
 <form method="post" action="/billing/cancel">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -14669,8 +14734,8 @@ is useful for you to ensure the long-term viability.</p>
 <p>Ways to contribute:</p>
 
 <ul>
-	{{/* Pending <li><a href="">GitHub sponsor</a>; this is the preferred method
-		as GitHub will match contributions.</li> */}}
+	<li><a href="https://github.com/sponsors/arp242">GitHub sponsor</a>;
+		this is the preferred method as GitHub will match contributions.</li>
 	<li>Subscribe to a plan on www.goatcounter.com</li>
 	<li><a href="https://patreon.com/arp242">Patreon</a></li>
 	<li>goatcounter.com is a Brave Verified Creator, and you can send Brave
@@ -14988,7 +15053,7 @@ sub {
 			<li>For <a href="/terms#commercial">non-commercial</a> use</li>
 			<li>Unlimited sites</li>
 			<li title="3.3k/day">100k pageviews/month</li>
-			<li class="empty">&nbsp;</li>
+			<li>Optional custom domain for €5</li>
 			<li class="empty">&nbsp;</li>
 		</ul>
 	</div>

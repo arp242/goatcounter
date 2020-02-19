@@ -28,12 +28,13 @@ import (
 // Plan column values.
 const (
 	PlanPersonal     = "personal"
+	PlanPersonalPlus = "personalplus"
 	PlanBusiness     = "business"
 	PlanBusinessPlus = "businessplus"
 	PlanChild        = "child"
 )
 
-var Plans = []string{PlanPersonal, PlanBusiness, PlanBusinessPlus}
+var Plans = []string{PlanPersonal, PlanPersonalPlus, PlanBusiness, PlanBusinessPlus}
 
 var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
@@ -373,7 +374,7 @@ func (s Site) PlanCustomDomain(ctx context.Context) bool {
 		return ps.PlanCustomDomain(ctx)
 	}
 
-	return s.Plan == PlanBusiness || s.Plan == PlanBusinessPlus
+	return s.Plan == PlanPersonalPlus || s.Plan == PlanBusiness || s.Plan == PlanBusinessPlus
 }
 
 // IDOrParent gets this site's ID or the parent ID if that's set.
