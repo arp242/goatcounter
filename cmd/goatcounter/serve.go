@@ -126,7 +126,7 @@ func serve() (int, error) {
 
 	zhttp.InitTpl(pack.Templates)
 	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
-	defer setupCron(db)
+	defer setupCron(db)()
 
 	// Set up HTTP handler and servers.
 	hosts := map[string]http.Handler{
