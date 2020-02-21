@@ -14,6 +14,7 @@ require (
 	github.com/teamwork/guru v1.0.0
 	github.com/teamwork/reload v1.3.0
 	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678
+	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	zgo.at/tz v0.0.0-20200207054238-b33e5ce779e4
 	zgo.at/utils v1.4.1
 	zgo.at/zdb v0.0.0-20200210152331-3173dfc581b0

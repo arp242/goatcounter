@@ -9,34 +9,51 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 
 	"github.com/pkg/errors"
 	crypto_acme "golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
+	"golang.org/x/sync/singleflight"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zlog"
 )
 
-var manager *autocert.Manager
+var (
+	manager *autocert.Manager
+	l       = zlog.Module("acme")
+)
 
-// cache is like autocert.DirCache, but ensures that files end with .pem
-//
-// TODO: patch upstream and open PR
+// cache is like autocert.DirCache, but ensures that certificates end with .pem.
 type cache struct{ dc autocert.DirCache }
 
-func NewCache(dir string) cache                                     { return cache{dc: autocert.DirCache(dir)} }
-func (d cache) Get(ctx context.Context, key string) ([]byte, error) { return d.dc.Get(ctx, key) }
-func (d cache) Delete(ctx context.Context, key string) error        { return d.dc.Delete(ctx, key) }
-func (d cache) Put(ctx context.Context, name string, data []byte) error {
-	if !strings.Contains(name, "+") {
-		name += ".pem"
+func NewCache(dir string) cache { return cache{dc: autocert.DirCache(dir)} }
+
+func (d cache) Get(ctx context.Context, key string) ([]byte, error) {
+	if !strings.Contains(key, "+") {
+		key += ".pem"
 	}
-	return d.dc.Put(ctx, name, data)
+	return d.dc.Get(ctx, key)
+}
+
+func (d cache) Delete(ctx context.Context, key string) error {
+	if !strings.Contains(key, "+") {
+		key += ".pem"
+	}
+	return d.dc.Delete(ctx, key)
+}
+
+func (d cache) Put(ctx context.Context, key string, data []byte) error {
+	if !strings.Contains(key, "+") {
+		key += ".pem"
+	}
+	return d.dc.Put(ctx, key, data)
 }
 
 // Setup returns a tls.Config and http-01 verification based on the value of the
@@ -143,10 +160,19 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 	return tlsc, manager.HTTPHandler(nil).ServeHTTP, listen
 }
 
+// Enabled reports if ACME is enabled.
+func Enabled() bool {
+	return manager != nil
+}
+
 // Make a new certificate for the domain.
 func Make(domain string) error {
 	if manager == nil {
 		panic("acme.MakeCert: no manager, use Setup() first")
+	}
+
+	if !validForwarding(domain) {
+		return nil
 	}
 
 	hello := &tls.ClientHelloInfo{
@@ -164,11 +190,51 @@ func Make(domain string) error {
 		},
 	}
 
+	l.Debugf("Make: %q", domain)
 	_, err := manager.GetCertificate(hello)
-	return errors.Wrapf(err, "acme.MakeCert for %q", domain)
+	return errors.Wrapf(err, "acme.Make for %q", domain)
 }
 
-// Enabled reports if ACME is enabled.
-func Enabled() bool {
-	return manager != nil
+var resolveSelf singleflight.Group
+
+func validForwarding(domain string) bool {
+	x, _, _ := resolveSelf.Do("resolveSelf", func() (interface{}, error) {
+		// For "serve" we don't know what the end destination will be, so always
+		// check.
+		if cfg.Serve {
+			return []string{}, nil
+		}
+
+		addrs, err := net.LookupHost(cfg.Domain)
+		if err != nil {
+			l.Errorf("could not look up host %q: %s", cfg.Domain, err)
+			return []string{}, nil
+		}
+
+		l.Debugf("me: %q", addrs)
+		return addrs, nil
+	})
+	me := x.([]string)
+
+	if len(me) == 0 {
+		l.Debug("len(me)==0)")
+		return true
+	}
+
+	addrs, err := net.LookupHost(domain)
+	l.Debugf("Lookup %q: %s, %q", domain, err, addrs)
+	if err != nil {
+		return false
+	}
+
+	for _, a := range addrs {
+		for _, m := range me {
+			if a == m {
+				l.Debugf("  Match %q → %q", a, m)
+				return true
+			}
+		}
+	}
+
+	return false
 }
