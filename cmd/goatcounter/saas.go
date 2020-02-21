@@ -51,7 +51,7 @@ Flags:
                  blank.
 ` + serveAndSaasFlags
 
-func flagServeAndSaas() (string, bool, bool, string, string, string, string) {
+func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, string, string) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -59,7 +59,7 @@ func flagServeAndSaas() (string, bool, bool, string, string, string, string) {
 	CommandLine.BoolVar(&dev, "dev", false, "")
 	automigrate := CommandLine.Bool("automigrate", false, "")
 	listen := CommandLine.String("listen", "localhost:8081", "")
-	smtp := CommandLine.String("smtp", "", "")
+	smtp := CommandLine.String("smtp", "stdout", "")
 	tls := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
 
@@ -74,7 +74,9 @@ func flagServeAndSaas() (string, bool, bool, string, string, string, string) {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
 
-	return *dbConnect, dev, *automigrate, *listen, *smtp, *tls, *errors
+	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
+
+	return *dbConnect, dev, *automigrate, *listen, *tls, *errors
 }
 
 func setupReload() {
@@ -99,11 +101,13 @@ func setupCron(db zdb.DB) func() {
 }
 
 func saas() (int, error) {
+	v := zvalidate.New()
+
 	var stripe, domain, plan string
 	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	dbConnect, dev, automigrate, listen, smtp, tls, errors := flagServeAndSaas()
+	dbConnect, dev, automigrate, listen, tls, errors := flagServeAndSaas(&v)
 
 	cfg.Saas = true
 	cfg.Plan = plan
@@ -111,12 +115,7 @@ func saas() (int, error) {
 		tls = map[bool]string{true: "none", false: "acme"}[dev]
 	}
 
-	v := zvalidate.New()
 	v.Include("-plan", plan, goatcounter.Plans)
-	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
-	if smtp == "" && !dev {
-		v.Append("-smtp", "must be set if -dev is not enabled")
-	}
 	flagErrors(errors, &v)
 	flagStripe(stripe, &v)
 	flagDomain(domain, &v)

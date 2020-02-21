@@ -70,12 +70,22 @@ const serveAndSaasFlags = `
                  when -dev is given.
 
   -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
-                 sending login emails and errors (if -errors is enabled).
-                 Default is blank, meaning nothing is sent.
+                 sending login emails and errors (if -errors has mailto:).
+
+                 A special value of "stdout" means no emails will be sent and
+                 emails will be printed to stdout only. This is the default.
+
+                 If this is blank emails will be sent without using a relay;
+                 this should work fine, but deliverability will usually be worse
+                 (i.e. it will be more likely to end up in the spam box). This
+                 usually requires rDNS properly set up, and GoatCounter will
+                 *not* retry on errors. Using stdout, a local smtp relay, or a
+                 mailtrap.io box is probably better unless you really know what
+                 you're doing.
 
   -errors        What to do with errors; they're always printed to stderr.
 
-                     mailto:addr     Email to this address; requires -smtp.
+                     mailto:addr     Email to this address.
 
                  Default: not set.
 
@@ -85,19 +95,17 @@ const serveAndSaasFlags = `
 `
 
 func serve() (int, error) {
+	v := zvalidate.New()
+
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, dev, automigrate, listen, smtp, tls, errors := flagServeAndSaas()
+	dbConnect, dev, automigrate, listen, tls, errors := flagServeAndSaas(&v)
 
 	cfg.Serve = true
 	if tls == "" {
 		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 	}
 
-	v := zvalidate.New()
-	if smtp == "" && !dev {
-		v.Append("-smtp", "must be set if -dev is not enabled")
-	}
 	flagErrors(errors, &v)
 
 	if cfg.DomainStatic != "" {
