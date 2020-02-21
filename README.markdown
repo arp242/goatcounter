@@ -71,9 +71,9 @@ Running your own
 
 Compile from source with:
 
-	$ git clone https://github.com/zgoat/goatcounter.git
-	$ cd goatcounter
-	$ go build ./cmd/goatcounter
+    $ git clone https://github.com/zgoat/goatcounter.git
+    $ cd goatcounter
+    $ go build ./cmd/goatcounter
 
 You'll now have a `goatcounter` binary in the current directory.
 
@@ -92,26 +92,26 @@ will need a C compiler (for SQLite) or PostgreSQL.
 
 You can start the server with:
 
-	goatcounter serve -dev
+    goatcounter serve -dev
 
 The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will be
 created if it doesn't exist). See the `-db` flag to customize this.
 
 You can create new sites with the `create` command:
 
-	goatcounter create -email me@example.com -domain stats.example.com
+    goatcounter create -email me@example.com -domain stats.example.com
 
 If you use a custom DB, you must also pass the `-db` flag here.
 
 The `-dev` flag makes some small things a bit more convenient for development,
 such as logins. For a production environment run something like:
 
-    goatcounter serve \
-       -smtp         'smtp://localhost:25' \
-       -emailerrors  'me@example.com'
+    goatcounter serve
 
-`-smtp` is required to send login emails. You can use something like Mailtrap if
-you just want it for yourself, but you can also use your Gmail or whatnot.
+Using an SMTP relay via `-smtp` isn't required, but will usually guarantee
+better deliverability, so is recommended (delivering emails without them ending
+up in the spambox is hard). You should be able to use your
+gmail/FastMail/ProtonMail/etc. account for this.
 
 ### Updating
 
@@ -137,14 +137,12 @@ it:
 
        $ createdb goatcounter
        $ psql goatcounter -c '\i db/schema.pgsql'
-	   $ goatcounter migrate all
+       $ goatcounter migrate all
 
 2. Run with custom `-db` flag:
 
        $ goatcounter serve \
-           -db           'postgresql://user=goatcounter dbname=goatcounter sslmode=disable' \
-           -smtp         'smtp://localhost:25' \
-           -emailerrors  'me@example.com'
+           -db 'postgresql://user=goatcounter dbname=goatcounter sslmode=disable'
 
    See the [pq docs][pq] for more details on the connection string.
 
