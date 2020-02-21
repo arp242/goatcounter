@@ -148,7 +148,7 @@ func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcoun
 func flagDebug() *string { return CommandLine.String("debug", "", "") }
 
 func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) {
-	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://")
+	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://") || strings.HasPrefix(connect, "postgres://")
 
 	if !create {
 		return zdb.Connect(zdb.ConnectOptions{Connect: connect})
