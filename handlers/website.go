@@ -270,7 +270,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		err := zmail.Send("Your GoatCounter sites",
-			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
+			mail.Address{Name: "GoatCounter login", Address: cfg.LoginFrom},
 			[]mail.Address{{Name: name, Address: args.Email}},
 			body)
 		if err != nil {
