@@ -62,6 +62,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	smtp := CommandLine.String("smtp", "stdout", "")
 	tls := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
+	auth := CommandLine.String("auth", "email", "")
 
 	CommandLine.Parse(os.Args[2:])
 
@@ -74,9 +75,10 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
 
+	flagErrors(*errors, v)
 	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
 
-	return *dbConnect, dev, *automigrate, *listen, *tls, *errors
+	return *dbConnect, dev, *automigrate, *listen, *tls, *auth
 }
 
 func setupReload() {
@@ -107,7 +109,7 @@ func saas() (int, error) {
 	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	dbConnect, dev, automigrate, listen, tls, errors := flagServeAndSaas(&v)
+	dbConnect, dev, automigrate, listen, tls, auth := flagServeAndSaas(&v)
 
 	cfg.Saas = true
 	cfg.Plan = plan
@@ -116,9 +118,9 @@ func saas() (int, error) {
 	}
 
 	v.Include("-plan", plan, goatcounter.Plans)
-	flagErrors(errors, &v)
 	flagStripe(stripe, &v)
 	flagDomain(domain, &v)
+	flagAuth(auth, &v)
 	if v.HasErrors() {
 		return 1, v
 	}
@@ -179,15 +181,23 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 		// Do nothing.
 	case strings.HasPrefix(errors, "mailto:"):
 		errors = errors[7:]
-		v.Email("-errors", errors)
+		s := strings.Split(errors, ",")
+		from := s[0]
+		to := s[0]
+		if len(s) > 1 {
+			to = s[1]
+		}
+
+		v.Email("-errors", from)
+		v.Email("-errors", to)
 		zlog.Config.Outputs = append(zlog.Config.Outputs, func(l zlog.Log) {
 			if l.Level != zlog.LevelErr {
 				return
 			}
 
 			err := zmail.Send("GoatCounter Error",
-				mail.Address{Address: "errors@zgo.at"},
-				[]mail.Address{{Address: errors}},
+				mail.Address{Address: from},
+				[]mail.Address{{Address: to}},
 				zlog.Config.Format(l))
 			if err != nil {
 				// Just output to stderr I guess, can't really do much more if
@@ -195,6 +205,35 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				fmt.Fprintf(stderr, "emailerrors: %s\n", err)
 			}
 		})
+	}
+}
+
+func flagAuth(auth string, v *zvalidate.Validator) {
+	switch {
+	default:
+		v.Append("-auth", "invalid value")
+
+	case strings.HasPrefix(auth, "email"):
+		s := strings.Split(auth, ":")
+		var from string
+		if len(s) > 1 {
+			from = s[1]
+		}
+		if from == "" {
+			if cfg.Domain != "" {
+				from = "login@" + zhttp.RemovePort(cfg.Domain)
+			} else {
+				h, err := os.Hostname()
+				if err != nil {
+					panic("cannot get hostname for -auth parameter")
+				}
+				from = "login@" + h
+			}
+		}
+
+		cfg.LoginFrom = from
+
+		v.Email("-auth", from)
 	}
 }
 

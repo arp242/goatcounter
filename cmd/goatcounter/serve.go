@@ -85,9 +85,19 @@ const serveAndSaasFlags = `
 
   -errors        What to do with errors; they're always printed to stderr.
 
-                     mailto:addr     Email to this address.
+                   mailto:to_addr[,from_addr]  Email to this address; the
+                                               from_addr is optional and sets
+                                               the From: address. The default is
+                                               to use the same as the to_addr.
 
                  Default: not set.
+
+  -auth          How to handle user authentication.
+
+                   email[:from_addr]     Email users login tokens. The from_addr
+                                         is optional and sets the From: address.
+
+                 Default: email:login@[domain flag or hostname]
 
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
@@ -99,14 +109,12 @@ func serve() (int, error) {
 
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, dev, automigrate, listen, tls, errors := flagServeAndSaas(&v)
+	dbConnect, dev, automigrate, listen, tls, auth := flagServeAndSaas(&v)
 
 	cfg.Serve = true
 	if tls == "" {
 		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 	}
-
-	flagErrors(errors, &v)
 
 	if cfg.DomainStatic != "" {
 		if p := strings.Index(cfg.DomainStatic, ":"); p > -1 {
@@ -117,6 +125,7 @@ func serve() (int, error) {
 		cfg.URLStatic = "//" + cfg.DomainStatic
 	}
 
+	flagAuth(auth, &v)
 	if v.HasErrors() {
 		return 1, v
 	}
