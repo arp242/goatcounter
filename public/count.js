@@ -70,7 +70,7 @@
 			endpoint = script.dataset.goatcounter;
 
 		// Don't track private networks.
-		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
+		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
 			return;
 
 		var data = get_data(count_vars || {});
