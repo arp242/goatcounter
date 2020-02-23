@@ -257,40 +257,20 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		start = now.Add(-7 * day)
 		end   = now
 	)
-	// Use period first as fallback when there's no JS.
-	if p := r.URL.Query().Get("period"); p != "" {
-		switch p {
-		case "day":
-			// Do nothing.
-		case "week":
-			start = start.Add(-7 * day)
-		case "month":
-			start = start.Add(-30 * day)
-		case "quarter":
-			start = start.Add(-91 * day)
-		case "half-year":
-			start = start.Add(-183 * day)
-		case "year":
-			start = start.Add(-365 * day)
-		case "all":
-			start = time.Date(1970, 1, 1, 0, 0, 0, 0, start.Location())
+	if d := r.URL.Query().Get("period-start"); d != "" {
+		var err error
+		start, err = time.Parse("2006-01-02", d)
+		if err != nil {
+			zhttp.FlashError(w, "Invalid start date: %q", d)
+			start = now.Add(-7 * day)
 		}
-	} else {
-		if s := r.URL.Query().Get("period-start"); s != "" {
-			var err error
-			start, err = time.Parse("2006-01-02", s)
-			if err != nil {
-				zhttp.FlashError(w, "start date: %s", err.Error())
-				start = now.Add(-7 * day)
-			}
-		}
-		if s := r.URL.Query().Get("period-end"); s != "" {
-			var err error
-			end, err = time.Parse("2006-01-02", s)
-			if err != nil {
-				zhttp.FlashError(w, "end date: %s", err.Error())
-				end = now
-			}
+	}
+	if d := r.URL.Query().Get("period-end"); d != "" {
+		var err error
+		end, err = time.Parse("2006-01-02", d)
+		if err != nil {
+			zhttp.FlashError(w, "Invalid end date: %q", d)
+			end = now
 		}
 	}
 
