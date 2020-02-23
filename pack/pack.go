@@ -14448,31 +14448,6 @@ parent site includes the child sites.</p>
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 
-				{{if .Saas}}
-					<label for="code">Code</label>
-					<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
-					{{validate "site.code" .Validate}}
-					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
-						Changing this isn’t implemented yet; contact
-						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-						if you want to change it.
-					</span>
-				{{end}}
-
-				{{if .Site.PlanCustomDomain .Context}}
-					{{if .Saas}}
-						<label for="cname">Custom domain</label>
-						<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-						<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
-							CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
-					{{else}}
-						<label for="cname">Goatcounter domain</label>
-						<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-						<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
-					{{end}}
-				{{end}}
-
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
@@ -14542,6 +14517,42 @@ parent site includes the child sites.</p>
 				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
 				{{validate "settings.limits.ref" .Validate}}
 			</fieldset>
+
+			<fieldset>
+				<legend>Domain settings</legend>
+
+				{{if .Saas}}
+					<label for="code">Code</label>
+					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
+					{{validate "site.code" .Validate}}
+					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
+						Changing this isn’t implemented yet; contact
+						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+						if you want to change it.
+					</span>
+				{{end}}
+
+				{{if .Saas}}
+					<label for="cname">Custom domain</label>
+					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
+						{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
+					<span>Custom domain, e.g. <em>“stats.example.com”</em>.
+						{{if not (.Site.PlanCustomDomain .Context)}}
+							Requires Personal Plus or Business plan (you’re
+							on the {{.Site.Plan}} plan; see
+							<a href="/billing">billing</a>.
+						{{else}}
+							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
+							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
+						{{end}}</span>
+				{{else}}
+					<label for="cname">Goatcounter domain</label>
+					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+					<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
+				{{end}}
+
+			</fieldset>
+
 
 			<div class="flex-break"></div>
 			<button type="submit">Save</button>
