@@ -346,7 +346,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
 		ShowRefs          string
-		Period            string
+		SelectedPeriod    string
 		PeriodStart       time.Time
 		PeriodEnd         time.Time
 		Filter            string
