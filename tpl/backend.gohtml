@@ -18,33 +18,49 @@
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
 <form id="period-form">
-	<div class="count-list-opt">
+	<div class="period-form-date">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-
-		<span class="period-select period-{{.Period}}">
-			Select last
-			<button class="link" name="period" value="day">day</button>,
-			<button class="link" name="period" value="week">week</button>,
-			<button class="link" name="period" value="month">month</button>,
-			<button class="link" name="period" value="quarter">quarter</button>,
-			<button class="link" name="period" value="half-year">half year</button>,
-			<button class="link" name="period" value="year">year</button>,
-			<button class="link" name="period" value="all">all time</button>.
-		</span>
-
-		<span class="period-move">
-			Go back one
-			<button class="link" name="move" value="week">week</button>,
-			<button class="link" name="move" value="month">month</button>,
-			<button class="link" name="move" value="quarter">quarter</button>.
-		</span><br>
-
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
-		<input type="hidden" id="hl-period" name="hl-period" value="">
-		<button type="submit">Go</button>
+		<input type="hidden" value="" id="hl-period"     name="hl-period">
+
+		<div class="date">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+			<button type="submit">Go</button>
+
+			<span class="period-form-select period-{{.SelectedPeriod}}">
+				<span>
+					Select last
+					<button class="link" name="period" value="week">week</button> ·
+					<button class="link" name="period" value="month">month</button> ·
+					<button class="link" name="period" value="quarter">quarter</button> ·
+					<button class="link" name="period" value="half-year">half year</button> ·
+					<button class="link" name="period" value="year">year</button>
+				</span>
+
+				<span>
+					Current
+					<button class="link" name="period" value="week-cur">week</button> ·
+					<button class="link" name="period" value="month-cur">month</button>
+				</span>
+			</span>
+		</div>
+
+		<div class="period-form-move">
+			<div>
+				← back
+				<button class="link" name="move" value="week-b">week</button> ·
+				<button class="link" name="move" value="month-b">month</button>
+			</div>
+
+			<div>
+				<button class="link" name="move" value="week-f">week</button> ·
+				<button class="link" name="move" value="month-f">month</button>
+				forward →
+			</div>
+		</div>
+
 	</div>
 
 	<div class="pages-list">

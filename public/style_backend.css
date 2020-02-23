@@ -119,11 +119,15 @@ form .err  { color: red; display: block; }
 }
 
 /*** Pages header (filter, time period select, etc.) ***/
-.count-list-opt {
-	padding: 1em;
-	background-color: #f8f8d9;
-	border: 1px solid #dede89;
-	border-radius: 2px;
+.period-form-date            { margin-bottom: 1.5em; }
+.period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+.period-form-date .date span { margin-left: .5em; }
+.period-form-date input      { width: 9em; text-align: center; }
+.period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
+
+@media (max-width: 62.5rem) {
+	.period-form-select          { display: block; }
+	.period-form-date .date span { margin-left: .1em; margin-top: .5em; }
 }
 
 .period-day [value=day],
@@ -132,12 +136,11 @@ form .err  { color: red; display: block; }
 .period-quarter [value=quarter],
 .period-half-year [value=half-year],
 .period-year [value=year],
-.period-all [value=all] {
+.period-week-cur [value=week-cur],
+.period-month-cur [value=month-cur] {
 	font-weight: bold;
 	text-decoration: underline;
 }
-
-.count-list-opt input { width: 9em; text-align: center; }
 
 /*** Charts ***/
 .chart {

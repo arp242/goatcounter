@@ -359,10 +359,10 @@
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
-		$('.period-select').on('click', 'button', function(e) {
+		$('.period-form-select').on('click', 'button', function(e) {
 			e.preventDefault();
 
-			var start = new Date();
+			var start = new Date(), end = new Date();
 			switch (this.value) {
 				case 'day':       /* Do nothing */ break;
 				case 'week':      start.setDate(start.getDate() - 7); break;
@@ -370,27 +370,32 @@
 				case 'quarter':   start.setMonth(start.getMonth() - 3); break;
 				case 'half-year': start.setMonth(start.getMonth() - 6); break;
 				case 'year':      start.setFullYear(start.getFullYear() - 1); break;
-				case 'all':
-					start.setYear(1970);
-					start.setMonth(0);
+				case 'week-cur':
+					start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
+					end.setDate(start.getDate() + 6);
+					break;
+				case 'month-cur':
 					start.setDate(1);
+					end = new Date(end.getFullYear(), end.getMonth() + 1, 0);
 					break;
 			}
 
 			$('#hl-period').val(this.value);
-			set_period(start, new Date())
+			set_period(start, end);
 		});
 
-		$('.period-move').on('click', 'button', function(e) {
+		$('.period-form-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
-
 			switch (this.value) {
-				case 'week':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
-				case 'month':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'quarter': start.setMonth(start.getMonth() - 3); end.setMonth(end.getMonth() - 3); break;
+				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
+				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
+				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
+				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
 			}
+			if (start.getDate() === 1 && this.value.substr(0, 4) === 'month')
+				end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
 			set_period(start, end);
 		});

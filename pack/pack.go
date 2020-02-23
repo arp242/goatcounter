@@ -1873,7 +1873,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			endpoint = script.dataset.goatcounter;
 
 		// Don't track private networks.
-		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
+		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
 			return;
 
 		var data = get_data(count_vars || {});
@@ -12414,10 +12414,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
-		$('.period-select').on('click', 'button', function(e) {
+		$('.period-form-select').on('click', 'button', function(e) {
 			e.preventDefault();
 
-			var start = new Date();
+			var start = new Date(), end = new Date();
 			switch (this.value) {
 				case 'day':       /* Do nothing */ break;
 				case 'week':      start.setDate(start.getDate() - 7); break;
@@ -12425,27 +12425,32 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				case 'quarter':   start.setMonth(start.getMonth() - 3); break;
 				case 'half-year': start.setMonth(start.getMonth() - 6); break;
 				case 'year':      start.setFullYear(start.getFullYear() - 1); break;
-				case 'all':
-					start.setYear(1970);
-					start.setMonth(0);
+				case 'week-cur':
+					start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
+					end.setDate(start.getDate() + 6);
+					break;
+				case 'month-cur':
 					start.setDate(1);
+					end = new Date(end.getFullYear(), end.getMonth() + 1, 0);
 					break;
 			}
 
 			$('#hl-period').val(this.value);
-			set_period(start, new Date())
+			set_period(start, end);
 		});
 
-		$('.period-move').on('click', 'button', function(e) {
+		$('.period-form-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
-
 			switch (this.value) {
-				case 'week':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
-				case 'month':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'quarter': start.setMonth(start.getMonth() - 3); end.setMonth(end.getMonth() - 3); break;
+				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
+				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
+				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
+				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
 			}
+			if (start.getDate() === 1 && this.value.substr(0, 4) === 'month')
+				end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
 			set_period(start, end);
 		});
@@ -13051,11 +13056,15 @@ form .err  { color: red; display: block; }
 }
 
 /*** Pages header (filter, time period select, etc.) ***/
-.count-list-opt {
-	padding: 1em;
-	background-color: #f8f8d9;
-	border: 1px solid #dede89;
-	border-radius: 2px;
+.period-form-date            { margin-bottom: 1.5em; }
+.period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+.period-form-date .date span { margin-left: .5em; }
+.period-form-date input      { width: 9em; text-align: center; }
+.period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
+
+@media (max-width: 62.5rem) {
+	.period-form-select          { display: block; }
+	.period-form-date .date span { margin-left: .1em; margin-top: .5em; }
 }
 
 .period-day [value=day],
@@ -13064,12 +13073,11 @@ form .err  { color: red; display: block; }
 .period-quarter [value=quarter],
 .period-half-year [value=half-year],
 .period-year [value=year],
-.period-all [value=all] {
+.period-week-cur [value=week-cur],
+.period-month-cur [value=month-cur] {
 	font-weight: bold;
 	text-decoration: underline;
 }
-
-.count-list-opt input { width: 9em; text-align: center; }
 
 /*** Charts ***/
 .chart {
@@ -14220,33 +14228,49 @@ do this 100% reliably.</p>
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
 <form id="period-form">
-	<div class="count-list-opt">
+	<div class="period-form-date">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-
-		<span class="period-select period-{{.Period}}">
-			Select last
-			<button class="link" name="period" value="day">day</button>,
-			<button class="link" name="period" value="week">week</button>,
-			<button class="link" name="period" value="month">month</button>,
-			<button class="link" name="period" value="quarter">quarter</button>,
-			<button class="link" name="period" value="half-year">half year</button>,
-			<button class="link" name="period" value="year">year</button>,
-			<button class="link" name="period" value="all">all time</button>.
-		</span>
-
-		<span class="period-move">
-			Go back one
-			<button class="link" name="move" value="week">week</button>,
-			<button class="link" name="move" value="month">month</button>,
-			<button class="link" name="move" value="quarter">quarter</button>.
-		</span><br>
-
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
-		<input type="hidden" id="hl-period" name="hl-period" value="">
-		<button type="submit">Go</button>
+		<input type="hidden" value="" id="hl-period"     name="hl-period">
+
+		<div class="date">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+			<button type="submit">Go</button>
+
+			<span class="period-form-select period-{{.SelectedPeriod}}">
+				<span>
+					Select last
+					<button class="link" name="period" value="week">week</button> ·
+					<button class="link" name="period" value="month">month</button> ·
+					<button class="link" name="period" value="quarter">quarter</button> ·
+					<button class="link" name="period" value="half-year">half year</button> ·
+					<button class="link" name="period" value="year">year</button>
+				</span>
+
+				<span>
+					Current
+					<button class="link" name="period" value="week-cur">week</button> ·
+					<button class="link" name="period" value="month-cur">month</button>
+				</span>
+			</span>
+		</div>
+
+		<div class="period-form-move">
+			<div>
+				← back
+				<button class="link" name="move" value="week-b">week</button> ·
+				<button class="link" name="move" value="month-b">month</button>
+			</div>
+
+			<div>
+				<button class="link" name="move" value="week-f">week</button> ·
+				<button class="link" name="move" value="month-f">month</button>
+				forward →
+			</div>
+		</div>
+
 	</div>
 
 	<div class="pages-list">
