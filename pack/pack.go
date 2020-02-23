@@ -12443,18 +12443,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
-
-			// TODO: be a bit smarter; going back the current month if the full
-			// month is selected (1-31, or 1-28 in case of Feb) should select
-			// the *full* month, not just move the month.
 			switch (this.value) {
 				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
 				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'quarter-b': start.setMonth(start.getMonth() - 3); end.setMonth(end.getMonth() - 3); break;
 				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
 				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
-				case 'quarter-f': start.setMonth(start.getMonth() + 3); end.setMonth(end.getMonth() + 3); break;
 			}
+			if (start.getDate() === 1 && this.value.substr(0, 4) === 'month')
+				end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
 			set_period(start, end);
 		});
@@ -14263,17 +14259,15 @@ do this 100% reliably.</p>
 
 		<div class="period-form-move">
 			<div>
-				← <span class="hide-mobile">back</span>
+				← back
 				<button class="link" name="move" value="week-b">week</button> ·
-				<button class="link" name="move" value="month-b">month</button> ·
-				<button class="link" name="move" value="quarter-b">quarter</button>
+				<button class="link" name="move" value="month-b">month</button>
 			</div>
 
 			<div>
 				<button class="link" name="move" value="week-f">week</button> ·
-				<button class="link" name="move" value="month-f">month</button> ·
-				<button class="link" name="move" value="quarter-f">quarter</button>
-				<span class="hide-mobile">forward</span> →
+				<button class="link" name="move" value="month-f">month</button>
+				forward →
 			</div>
 		</div>
 
