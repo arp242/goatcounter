@@ -39,6 +39,7 @@ var usage = map[string]string{
 	"migrate": usageMigrate,
 	"saas":    usageSaas,
 	"reindex": usageReindex,
+	"monitor": usageMonitor,
 
 	"version": `
 Show version and build information. This is printed as key=value, separated by
@@ -70,6 +71,7 @@ Advanced commands:
   saas        Run a "SaaS" production server.
   reindex     Re-create the cached statistics (*_stats tables) from the hits.
               This is generally rarely needed and mostly a development tool.
+  monitor     Monitor for pageviews.
 
 See "help <command>" for more details for the command.
 `
@@ -112,6 +114,8 @@ func main() {
 		code, err = saas()
 	case "reindex":
 		code, err = reindex()
+	case "monitor":
+		code, err = monitor()
 	}
 	if err != nil {
 		// code=1, the user did something wrong and print usage as well
