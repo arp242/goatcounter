@@ -192,6 +192,10 @@
 
 	// Report an error.
 	var onerror = function(msg, url, line, column, err) {
+		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
+		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
+			return;
+
 		jQuery.ajax({
 			url:    '/jserr',
 			method: 'POST',
