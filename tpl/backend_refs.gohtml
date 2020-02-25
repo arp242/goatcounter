@@ -1,0 +1,11 @@
+{{- template "_backend_top.gohtml" . -}}
+
+	<div class="pages-list">
+		<header class="h2 header-pages">
+			<h2>Pages</h2>
+		</header>
+	</div>
+
+	<div class="chart-hbar" data-detail="/pages">{{horizontal_chart .Context .Refs .Total 0 1 true}}</div>
+
+{{- template "_backend_bottom.gohtml" . }}

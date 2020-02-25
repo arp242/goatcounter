@@ -640,6 +640,22 @@ a full integration test yet).</p>
 commit;
 
 `),
+	"db/migrate/pgsql/2020-02-24-1-ref_stats.sql": []byte(`begin;
+
+	create table ref_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null,
+		ref            varchar        not null,
+		count          int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "ref_stats#site#day" on ref_stats(site, day);
+
+	insert into version values ('2020-02-24-1-ref_stats');
+commit;
+`),
 	"db/migrate/pgsql/2020-03-03-1-flag.sql": []byte(`begin;
 	create table flags (
 		name  varchar not null,
@@ -13206,8 +13222,8 @@ select#timezone { max-width: 20rem; }
 
 table.auto { width: auto; }
 
-.browser-charts       { display: flex; justify-content: space-between; }
-.browser-charts > div { width: 32%; }
+.browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.browser-charts > div    { width: 32%; }
 .browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
 
 @media (max-width: 45rem) {
@@ -14344,6 +14360,14 @@ do this 100% reliably.</p>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>
+	<div class="refs-chart">
+		<h2>Top referers</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="chart-hbar" data-detail="/ref-breakdown">{{horizontal_chart .Context .TopRefs .TotalHits 0 1 true}}</div>
+			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}} {{/* TODO */}}
+		{{end}}
 </div>
 
 {{- template "_backend_bottom.gohtml" . }}
@@ -14457,6 +14481,18 @@ parent site includes the child sites.</p>
 {{end}}
 
 {{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/backend_refs.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
+
+	<div class="pages-list">
+		<header class="h2 header-pages">
+			<h2>Pages</h2>
+		</header>
+	</div>
+
+	<div class="chart-hbar" data-detail="/pages">{{horizontal_chart .Context .Refs .Total 0 1 true}}</div>
+
+{{- template "_backend_bottom.gohtml" . }}
 `),
 	"tpl/backend_remove.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 

@@ -114,11 +114,13 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		{
 			ap := a.With(loggedInOrPublic)
 			ap.Get("/", zhttp.Wrap(h.index))
+			ap.Get("/byrefs", zhttp.Wrap(h.byrefs))
 			ap.Get("/refs", zhttp.Wrap(h.refs))
 			ap.Get("/pages", zhttp.Wrap(h.pages))
 			ap.Get("/browsers", zhttp.Wrap(h.browsers))
 			ap.Get("/sizes", zhttp.Wrap(h.sizes))
 			ap.Get("/locations", zhttp.Wrap(h.locations))
+			ap.Get("/ref-breakdown", zhttp.Wrap(h.refBreakdown))
 		}
 		{
 			af := a.With(loggedIn)
@@ -306,6 +308,14 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	showMoreLoc := len(locStat) > 0 && float32(locStat[len(locStat)-1].Count)/float32(totalLoc)*100 < 3.0
 	l = l.Since("locStat.List")
 
+	var topRefs goatcounter.Stats
+	//total, totalDisplay, err := topRefs.ListRefs(r.Context(), start, end)
+	_, _, err = topRefs.ListRefs(r.Context(), start, end)
+	if err != nil {
+		return err
+	}
+	l = l.Since("topRefs.List")
+
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
 	var refs goatcounter.HitStats
@@ -343,9 +353,79 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		LocationStat      goatcounter.Stats
 		TotalLocation     int
 		ShowMoreLocations bool
+		TopRefs           goatcounter.Stats
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, filter,
 		pages, refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
-		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc})
+		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc, topRefs})
+	l = l.Since("zhttp.Template")
+	l.FieldsSince().Print("")
+	return x
+}
+
+func (h backend) refBreakdown(w http.ResponseWriter, r *http.Request) error {
+	//Could not load /ref-breakdown?name=Hacker%20News&total=45546&period-start=2020-01-25&period-end=2020-02-25: Not Found
+	return nil
+}
+
+func (h backend) byrefs(w http.ResponseWriter, r *http.Request) error {
+	site := goatcounter.MustGetSite(r.Context())
+
+	// Cache much more aggressively for public displays. Don't care so much if
+	// it's outdated by an hour.
+	if site.Settings.Public && goatcounter.GetUser(r.Context()).ID == 0 {
+		w.Header().Set("Cache-Control", "public,max-age=3600")
+		w.Header().Set("Vary", "Cookie")
+	}
+
+	var (
+		now   = time.Now().In(site.Settings.Timezone.Loc())
+		start = now.Add(-7 * day)
+		end   = now
+	)
+	if d := r.URL.Query().Get("period-start"); d != "" {
+		var err error
+		start, err = time.Parse("2006-01-02", d)
+		if err != nil {
+			zhttp.FlashError(w, "Invalid start date: %q", d)
+			start = now.Add(-7 * day)
+		}
+	}
+	if d := r.URL.Query().Get("period-end"); d != "" {
+		var err error
+		end, err = time.Parse("2006-01-02", d)
+		if err != nil {
+			zhttp.FlashError(w, "Invalid end date: %q", d)
+			end = now
+		}
+	}
+
+	filter := r.URL.Query().Get("filter")
+	l := zlog.Module("backend").Field("site", site.ID)
+
+	var refs goatcounter.Stats
+	total, totalDisplay, err := refs.ListRefs(r.Context(), start, end)
+	if err != nil {
+		return err
+	}
+	l = l.Since("refs.List")
+
+	subs, err := site.ListSubs(r.Context())
+	if err != nil {
+		return err
+	}
+
+	x := zhttp.Template(w, "backend_refs.gohtml", struct {
+		Globals
+		SelectedPeriod string
+		PeriodStart    time.Time
+		PeriodEnd      time.Time
+		Filter         string
+		Refs           goatcounter.Stats
+		Total          int
+		TotalDisplay   int
+		SubSites       []string
+	}{newGlobals(w, r), r.URL.Query().Get("hl-period"), start, end, filter,
+		refs, total, totalDisplay, subs})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x

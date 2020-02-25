@@ -165,6 +165,10 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	if err != nil {
 		return errors.Wrapf(err, "location_stat: site %d", siteID)
 	}
+	err = updateRefStats(ctx, hits)
+	if err != nil {
+		return errors.Wrapf(err, "ref_stat: site %d", siteID)
+	}
 
 	// Record last update.
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,

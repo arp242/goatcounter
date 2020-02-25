@@ -109,6 +109,14 @@
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>
+	<div class="refs-chart">
+		<h2>Top referers</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="chart-hbar" data-detail="/ref-breakdown">{{horizontal_chart .Context .TopRefs .TotalHits 0 1 true}}</div>
+			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}} {{/* TODO */}}
+		{{end}}
 </div>
 
 {{- template "_backend_bottom.gohtml" . }}

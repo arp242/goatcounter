@@ -564,6 +564,27 @@ type Stats []struct {
 	Count int
 }
 
+// List all ref statistics for the given time period.
+func (h *Stats) ListRefs(ctx context.Context, start, end time.Time) (int, int, error) {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select ref as name, sum(count) as count from ref_stats
+		where site=$1 and day >= $2 and day <= $3 and ref not like $4
+		group by ref
+		order by count desc
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"),
+		MustGetSite(ctx).LinkDomain+"%")
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "Stats.ListBrowsers browsers")
+	}
+
+	var total int
+	for _, b := range *h {
+		total += b.Count
+	}
+
+	return total, total, nil
+}
+
 // List all browser statistics for the given time period.
 func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
