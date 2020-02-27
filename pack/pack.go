@@ -14038,7 +14038,7 @@ parameters:</p>
 
 	window.addEventListener('hashchange', function(e) {
 		window.goatcounter.count({
-			page: location.pathname + location.search + location.hash,
+			path: location.pathname + location.search + location.hash,
 		});
 	});
 &lt;/script&gt;
