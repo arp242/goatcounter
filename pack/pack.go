@@ -12241,8 +12241,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: 1});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: 1});
 	};
 
 	// Report an error.
