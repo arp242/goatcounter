@@ -66,7 +66,6 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	for _, t := range []string{"", "help", "privacy", "terms", "contact", "contribute"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
-	user{}.mount(r)
 }
 
 var metaDesc = map[string]string{
