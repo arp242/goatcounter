@@ -13893,6 +13893,9 @@ var Templates = map[string][]byte{
 
 {{if eq .Path "/settings"}}
 
+Or use one of the ready-made integrations:
+<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>.
+
 <h3 class="border">Content security policy</h3>
 <p>You’ll need the following if you use a
 <code>Content-Security-Policy</code>:</p>
@@ -14225,7 +14228,7 @@ do this 100% reliably.</p>
 		<p><small>This message will disappear once we receive data; you will
 			still be able to see the site code in
 			<a href="/settings#tab-site-code">settings</a>, which also contains
-			further documentation.</small></p>
+			further documentation and ready-made integrations.</small></p>
 	</div>
 {{end}}
 
@@ -15226,7 +15229,7 @@ sub {
 
 <h2>Using the GoatCounter.com service</h2>
 <p>Billing is handled by <a href="https://stripe.com">Stripe</a>, and all
-	billing information is stored and handler by Stripe. See the
+	billing information is stored and handled by Stripe. See the
 	<a href="https://stripe.com/ie/privacy" target="_blank" rel="noopener">Stripe Privacy Policy</a>.</p>
 
 <p>An email address is required to use the GoatCounter.com service. We also use
