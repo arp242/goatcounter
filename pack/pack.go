@@ -1328,6 +1328,22 @@ commit;
 	insert into version values ('2020-02-19-1-personalplus');
 commit;
 `),
+	"db/migrate/sqlite/2020-02-24-1-ref_stats.sql": []byte(`begin;
+
+	create table ref_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+		ref            varchar        not null,
+		count          int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "ref_stats#site#day" on ref_stats(site, day);
+
+	insert into version values ('2020-02-24-1-ref_stats');
+commit;
+`),
 	"db/migrate/sqlite/2020-03-03-1-flag.sql": []byte(`begin;
 	create table flags (
 		name  varchar not null,
@@ -12117,6 +12133,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs,
 		].forEach(function(f) { f.call(); });
 
 		// Set timezone for people who don't have it yet.
@@ -12336,6 +12353,31 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				},
 				complete: function() {
 					form.find('button').attr('disabled', false).text('Continue');
+				},
+			});
+		});
+	};
+
+	// Paginate the top ref list.
+	//
+	// TODO: how about instead of replacing the contents of the current charts,
+	// we add a second one next to the current one, or on top of it? OR
+	// something. That way we don't lose context.
+	var paginate_toprefs = function() {
+		$('.top-refs-chart .show-more').on('click', function(e) {
+			e.preventDefault();
+
+			var bar = $(this).parent().find('.chart-hbar')
+			jQuery.ajax({
+				url: '/toprefs',
+				data: append_period({
+					offset: $('.top-refs-chart > .chart-hbar > a').length,
+					total:  $('.total-hits').text().replace(/[^\d]/, ''),
+				}),
+				success: function(data) {
+					bar.append(data.html);
+					if (!data.has_more)
+						$('.top-refs-chart .show-more').remove()
 				},
 			});
 		});
@@ -14339,7 +14381,7 @@ do this 100% reliably.</p>
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
+			<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true true}}</div>
 		{{end}}
 	</div>
 	<div>
@@ -14347,7 +14389,7 @@ do this 100% reliably.</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
+			<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true true}}</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
@@ -14356,17 +14398,17 @@ do this 100% reliably.</p>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
+			<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>
-	<div class="refs-chart">
+	<div class="top-refs-chart">
 		<h2>Top referers</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/ref-breakdown">{{horizontal_chart .Context .TopRefs .TotalHits 0 1 true}}</div>
-			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}} {{/* TODO */}}
+			<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalHits 0 0 true false}}</div>
+			<a href="#" class="show-more">Show more</a>
 		{{end}}
 </div>
 

@@ -136,7 +136,7 @@ func applyOffset(offset int, stats []Stat) {
 	}
 }
 
-func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, cutoff float32, link bool) template.HTML {
+func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, cutoff float32, link, other bool) template.HTML {
 	tag := "p"
 	if link {
 		tag = "a"
@@ -168,7 +168,7 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 	}
 
 	// Add "(other)" part.
-	if totalPerc < 100 {
+	if other && totalPerc < 100 {
 		b.WriteString(fmt.Sprintf(
 			`<%[2]s href="#_" title="(other): %.1[1]f%%" class="other"><small>(other)</small> <span style="width: %[1]f%%">%.1[1]f%%</span></%[2]s>`,
 			100-totalPerc, tag))

@@ -28,6 +28,7 @@
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs,
 		].forEach(function(f) { f.call(); });
 
 		// Set timezone for people who don't have it yet.
@@ -247,6 +248,31 @@
 				},
 				complete: function() {
 					form.find('button').attr('disabled', false).text('Continue');
+				},
+			});
+		});
+	};
+
+	// Paginate the top ref list.
+	//
+	// TODO: how about instead of replacing the contents of the current charts,
+	// we add a second one next to the current one, or on top of it? OR
+	// something. That way we don't lose context.
+	var paginate_toprefs = function() {
+		$('.top-refs-chart .show-more').on('click', function(e) {
+			e.preventDefault();
+
+			var bar = $(this).parent().find('.chart-hbar')
+			jQuery.ajax({
+				url: '/toprefs',
+				data: append_period({
+					offset: $('.top-refs-chart > .chart-hbar > a').length,
+					total:  $('.total-hits').text().replace(/[^\d]/, ''),
+				}),
+				success: function(data) {
+					bar.append(data.html);
+					if (!data.has_more)
+						$('.top-refs-chart .show-more').remove()
 				},
 			});
 		});

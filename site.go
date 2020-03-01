@@ -55,7 +55,7 @@ type Site struct {
 	Plan         string       `db:"plan"`
 	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
-	LastStat     *time.Time   `db:"last_stat"`
+	LastStat     *time.Time   `db:"last_stat"` // TODO: unused, remove
 	ReceivedData bool         `db:"received_data"`
 
 	State     string     `db:"state"`

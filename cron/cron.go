@@ -145,7 +145,6 @@ func persistAndStat(ctx context.Context) error {
 }
 
 func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) error {
-	start := time.Now().UTC().Format("2006-01-02 15:04:05")
 	var site goatcounter.Site
 	err := site.ByID(ctx, siteID)
 	if err != nil {
@@ -170,12 +169,6 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 		return errors.Wrapf(err, "ref_stat: site %d", siteID)
 	}
 
-	// Record last update.
-	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set last_stat=$1 where id=$2`, start, siteID)
-	if err != nil {
-		return errors.Wrapf(err, "update last_stat: site %d", siteID)
-	}
 	if !site.ReceivedData {
 		_, err = zdb.MustGet(ctx).ExecContext(ctx,
 			`update sites set received_data=1 where id=$1`, siteID)
@@ -186,14 +179,32 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	return nil
 }
 
-func ReindexStats(ctx context.Context, hits []goatcounter.Hit) error {
+func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) error {
 	grouped := make(map[int64][]goatcounter.Hit)
 	for _, h := range hits {
 		grouped[h.Site] = append(grouped[h.Site], h)
 	}
 
 	for siteID, hits := range grouped {
-		err := UpdateStats(ctx, siteID, hits)
+		var site goatcounter.Site
+		err := site.ByID(ctx, siteID)
+		if err != nil {
+			return err
+		}
+		ctx = context.WithValue(ctx, ctxkey.Site, &site)
+
+		switch table {
+		case "all":
+			err = UpdateStats(ctx, siteID, hits)
+		case "hit_stats":
+			err = updateHitStats(ctx, hits)
+		case "browser_stats":
+			err = updateBrowserStats(ctx, hits)
+		case "location_stats":
+			err = updateLocationStats(ctx, hits)
+		case "ref_stats":
+			err = updateRefStats(ctx, hits)
+		}
 		if err != nil {
 			return err
 		}
