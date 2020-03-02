@@ -26,7 +26,7 @@
 		});
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
-			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
+			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs,
 		].forEach(function(f) { f.call(); });
@@ -266,7 +266,7 @@
 			jQuery.ajax({
 				url: '/toprefs',
 				data: append_period({
-					offset: $('.top-refs-chart > .chart-hbar > a').length,
+					offset: $('.top-refs-chart [data-detail] > a').length,
 					total:  $('.total-hits').text().replace(/[^\d]/, ''),
 				}),
 				success: function(data) {
@@ -334,23 +334,17 @@
 		});
 	};
 
-	// Show detail for a browser (version breakdown) or size (width breakdown).
-	var browser_size_detail = function() {
+	// Show details for the horizontal charts.
+	var hchart_detail = function() {
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).closest('.chart-hbar'),
-				url = bar.attr('data-detail'),
+			var btn  = $(this),
+				bar  = $(this).closest('.chart-hbar'),
+				url  = bar.attr('data-detail'),
 				name = $(this).find('small').text();
 			if (!url || !name || name === '(other)' || name === '(unknown)')
 				return;
-
-			// Already open.
-			if (bar.attr('data-save')) {
-				bar.html(bar.attr('data-save'));
-				bar.attr('data-save', '');
-				return;
-			}
 
 			jQuery.ajax({
 				url: url,
@@ -359,8 +353,27 @@
 					total: $('.total-hits').text().replace(/[^\d]/, ''),
 				}),
 				success: function(data) {
-					bar.attr('data-save', bar.html());
-					bar.html(data.html);
+					bar.parent().find('.hbar-detail').remove();
+					//bar.find('.active').removeClass('active');
+					//btn.addClass('active');
+
+					bar.addClass('hbar-open');
+					var d = $('<div class="chart-hbar hbar-detail"></div>')
+					var close = $('<a href="#_" class="close">×</a>');
+					var arrow = $('<div class="arrow"></div>')
+					arrow.css('top', (btn.position().top + 6) + 'px');
+					d.css('min-height', (btn.position().top + btn.height()) + 'px');
+					d.append(arrow)
+					d.append(data.html);
+
+					close.on('click', function(e) {
+						e.preventDefault();
+						d.remove();
+						bar.removeClass('hbar-open');
+						btn.removeClass('active');
+					});
+					d.append(close);
+					bar.after(d);
 				},
 			});
 		});

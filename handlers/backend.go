@@ -309,7 +309,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l = l.Since("locStat.List")
 
 	var topRefs goatcounter.Stats
-	_, _, err = topRefs.ListRefs(r.Context(), start, end, 10, 0)
+	_, showMoreRefs, err := topRefs.ListRefs(r.Context(), start, end, 10, 0)
 	if err != nil {
 		return err
 	}
@@ -353,9 +353,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TotalLocation     int
 		ShowMoreLocations bool
 		TopRefs           goatcounter.Stats
+		ShowMoreRefs      bool
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, filter,
 		pages, refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
-		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc, topRefs})
+		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc, topRefs, showMoreRefs})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
@@ -405,9 +406,7 @@ func (h backend) pagesByRef(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	// TODO: total is off here.
-	//t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), hits, total, total, 0.1, true, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), hits, total, total, 1, true, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),

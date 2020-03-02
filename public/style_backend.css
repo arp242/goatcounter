@@ -220,7 +220,6 @@ form .err  { color: red; display: block; }
 
 #drag-box {
 	position: absolute;
-
 	background-color: #99f;
 	opacity: .5;
 }
@@ -248,7 +247,7 @@ select#timezone { max-width: 20rem; }
 table.auto { width: auto; }
 
 .browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.browser-charts > div    { width: 32%; }
+.browser-charts > div    { width: 49%; }
 .browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
 
 @media (max-width: 45rem) {
@@ -286,6 +285,52 @@ table.auto { width: auto; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
 .chart-hbar > *[title^="(other): "]:focus, .chart-hbar > *[title^="(unknown): "]:focus { outline: none; }
 
+.hchart-wrap { position: relative; }
+.hbar-open   { opacity: .25; background-color: #ddd; }
+
+/*
+.chart-hbar .active {
+	font-weight: bold;
+}
+.chart-hbar .active span {
+	background-color: red;
+}
+*/
+
+.hbar-detail {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #fff;
+	z-index: 2;  /* Make sure it's over the footer */
+	border-left: 1px solid #ddd;
+	width: 75%;
+	padding-left: .25em;
+}
+.hbar-detail .arrow {
+	content: " ";
+	display: block;
+	position: absolute;
+	left: -20px;
+	width: 0;
+	height: 0;
+	border-top: 20px solid transparent;
+	border-bottom: 20px solid transparent;
+	border-right: 20px solid #aaa;
+}
+.hbar-detail .close {
+	position: absolute;
+	left: -1em;
+	top: -1em;
+	border-radius: 9999px;
+	background-color: #ccc;
+	width: 1.5em;
+	text-align: center;
+	line-height: 1.5em;
+}
+
+
+/*** Settings tabs ***/
 .tab-nav {
 	padding: 1em;
 	background-color: #f8f8d9;
