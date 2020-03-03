@@ -640,6 +640,15 @@ a full integration test yet).</p>
 commit;
 
 `),
+	"db/migrate/pgsql/2020-03-03-1-flag.sql": []byte(`begin;
+	create table flags (
+		name  varchar not null,
+		value int     not null
+	);
+
+	insert into version values ('2020-03-03-1-flag');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1301,6 +1310,15 @@ commit;
 	alter table sites2 rename to sites;
 
 	insert into version values ('2020-02-19-1-personalplus');
+commit;
+`),
+	"db/migrate/sqlite/2020-03-03-1-flag.sql": []byte(`begin;
+	create table flags (
+		name  varchar not null,
+		value int     not null
+	);
+
+	insert into version values ('2020-03-03-1-flag');
 commit;
 `),
 }

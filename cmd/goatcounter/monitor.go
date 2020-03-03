@@ -59,6 +59,4 @@ func monitor() (int, error) {
 			l.Errorf("no hits")
 		}
 	}
-
-	return 0, nil
 }
