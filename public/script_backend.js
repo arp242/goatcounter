@@ -254,15 +254,11 @@
 	};
 
 	// Paginate the top ref list.
-	//
-	// TODO: how about instead of replacing the contents of the current charts,
-	// we add a second one next to the current one, or on top of it? OR
-	// something. That way we don't lose context.
 	var paginate_toprefs = function() {
 		$('.top-refs-chart .show-more').on('click', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).parent().find('.chart-hbar')
+			var bar = $(this).parent().find('.chart-hbar:first')
 			jQuery.ajax({
 				url: '/toprefs',
 				data: append_period({

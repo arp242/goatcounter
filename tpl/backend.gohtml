@@ -83,7 +83,7 @@
 </form>
 
 <div class="browser-charts">
-	<div class="">
+	<div>
 		<h2>Browsers</h2>
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
@@ -93,7 +93,7 @@
 			</div>
 		{{end}}
 	</div>
-	<div class="">
+	<div>
 		<h2>Screen size{{if beforeSize .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>

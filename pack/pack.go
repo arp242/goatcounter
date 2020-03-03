@@ -12359,15 +12359,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	};
 
 	// Paginate the top ref list.
-	//
-	// TODO: how about instead of replacing the contents of the current charts,
-	// we add a second one next to the current one, or on top of it? OR
-	// something. That way we don't lose context.
 	var paginate_toprefs = function() {
 		$('.top-refs-chart .show-more').on('click', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).parent().find('.chart-hbar')
+			var bar = $(this).parent().find('.chart-hbar:first')
 			jQuery.ajax({
 				url: '/toprefs',
 				data: append_period({
@@ -14432,7 +14428,7 @@ do this 100% reliably.</p>
 </form>
 
 <div class="browser-charts">
-	<div class="">
+	<div>
 		<h2>Browsers</h2>
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
@@ -14442,7 +14438,7 @@ do this 100% reliably.</p>
 			</div>
 		{{end}}
 	</div>
-	<div class="">
+	<div>
 		<h2>Screen size{{if beforeSize .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
@@ -14588,18 +14584,6 @@ parent site includes the child sites.</p>
 {{end}}
 
 {{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/backend_refs.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
-
-	<div class="pages-list">
-		<header class="h2 header-pages">
-			<h2>Pages</h2>
-		</header>
-	</div>
-
-	<div class="chart-hbar" data-detail="/pages">{{horizontal_chart .Context .Refs .Total 0 1 true}}</div>
-
-{{- template "_backend_bottom.gohtml" . }}
 `),
 	"tpl/backend_remove.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 

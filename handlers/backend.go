@@ -563,7 +563,7 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .5, true, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .1, true, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
