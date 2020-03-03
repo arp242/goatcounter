@@ -280,6 +280,9 @@ table.auto { width: auto; }
 }
 
 /* Don't make things appear clickable that aren't */
+.chart-hbar.hbar-detail > *            { cursor: default; }
+.chart-hbar.hbar-detail > *:hover span { background-color: #9a15a4;  }
+.chart-hbar.hbar-detail > *:focus      { outline: none; }
 .chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
 .chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
@@ -287,15 +290,6 @@ table.auto { width: auto; }
 
 .hchart-wrap { position: relative; }
 .hbar-open   { opacity: .25; background-color: #ddd; }
-
-/*
-.chart-hbar .active {
-	font-weight: bold;
-}
-.chart-hbar .active span {
-	background-color: red;
-}
-*/
 
 .hbar-detail {
 	position: absolute;
@@ -327,6 +321,10 @@ table.auto { width: auto; }
 	width: 1.5em;
 	text-align: center;
 	line-height: 1.5em;
+	cursor: pointer;
+}
+.hbar-detail .close:hover {
+	background-color: #ddd;
 }
 
 

@@ -336,6 +336,13 @@
 
 	// Show details for the horizontal charts.
 	var hchart_detail = function() {
+		$(document.body).on('keydown', function(e) {
+			if (e.keyCode !== 27)  // Esc
+				return;
+			$('.hbar-detail').remove();
+			$('.hbar-open').removeClass('hbar-open');
+		});
+
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
@@ -354,25 +361,18 @@
 				}),
 				success: function(data) {
 					bar.parent().find('.hbar-detail').remove();
-					//bar.find('.active').removeClass('active');
-					//btn.addClass('active');
-
 					bar.addClass('hbar-open');
-					var d = $('<div class="chart-hbar hbar-detail"></div>')
-					var close = $('<a href="#_" class="close">×</a>');
-					var arrow = $('<div class="arrow"></div>')
-					arrow.css('top', (btn.position().top + 6) + 'px');
-					d.css('min-height', (btn.position().top + btn.height()) + 'px');
-					d.append(arrow)
-					d.append(data.html);
 
-					close.on('click', function(e) {
-						e.preventDefault();
-						d.remove();
-						bar.removeClass('hbar-open');
-						btn.removeClass('active');
-					});
-					d.append(close);
+					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
+						$('<div class="arrow"></div>').css('top', (btn.position().top + 6) + 'px'),
+						data.html,
+						$('<a href="#_" class="close">×</a>').on('click', function(e) {
+							e.preventDefault();
+							d.remove();
+							bar.removeClass('hbar-open');
+							btn.removeClass('active');
+						}));
+
 					bar.after(d);
 				},
 			});

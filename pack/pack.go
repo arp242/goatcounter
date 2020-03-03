@@ -12441,6 +12441,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Show details for the horizontal charts.
 	var hchart_detail = function() {
+		$(document.body).on('keydown', function(e) {
+			if (e.keyCode !== 27)  // Esc
+				return;
+			$('.hbar-detail').remove();
+			$('.hbar-open').removeClass('hbar-open');
+		});
+
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
@@ -12459,25 +12466,18 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				}),
 				success: function(data) {
 					bar.parent().find('.hbar-detail').remove();
-					//bar.find('.active').removeClass('active');
-					//btn.addClass('active');
-
 					bar.addClass('hbar-open');
-					var d = $('<div class="chart-hbar hbar-detail"></div>')
-					var close = $('<a href="#_" class="close">×</a>');
-					var arrow = $('<div class="arrow"></div>')
-					arrow.css('top', (btn.position().top + 6) + 'px');
-					d.css('min-height', (btn.position().top + btn.height()) + 'px');
-					d.append(arrow)
-					d.append(data.html);
 
-					close.on('click', function(e) {
-						e.preventDefault();
-						d.remove();
-						bar.removeClass('hbar-open');
-						btn.removeClass('active');
-					});
-					d.append(close);
+					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
+						$('<div class="arrow"></div>').css('top', (btn.position().top + 6) + 'px'),
+						data.html,
+						$('<a href="#_" class="close">×</a>').on('click', function(e) {
+							e.preventDefault();
+							d.remove();
+							bar.removeClass('hbar-open');
+							btn.removeClass('active');
+						}));
+
 					bar.after(d);
 				},
 			});
@@ -13310,6 +13310,9 @@ table.auto { width: auto; }
 }
 
 /* Don't make things appear clickable that aren't */
+.chart-hbar.hbar-detail > *            { cursor: default; }
+.chart-hbar.hbar-detail > *:hover span { background-color: #9a15a4;  }
+.chart-hbar.hbar-detail > *:focus      { outline: none; }
 .chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
 .chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
@@ -13317,15 +13320,6 @@ table.auto { width: auto; }
 
 .hchart-wrap { position: relative; }
 .hbar-open   { opacity: .25; background-color: #ddd; }
-
-/*
-.chart-hbar .active {
-	font-weight: bold;
-}
-.chart-hbar .active span {
-	background-color: red;
-}
-*/
 
 .hbar-detail {
 	position: absolute;
@@ -13357,6 +13351,10 @@ table.auto { width: auto; }
 	width: 1.5em;
 	text-align: center;
 	line-height: 1.5em;
+	cursor: pointer;
+}
+.hbar-detail .close:hover {
+	background-color: #ddd;
 }
 
 
