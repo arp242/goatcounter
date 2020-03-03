@@ -40,6 +40,8 @@ Other flags:
                  or "postgres://<connect string>" for PostgreSQL
                  Default: sqlite://db/goatcounter.sqlite3
 
+  -createdb      Create the database if it doesn't exist yet; only for SQLite.
+
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 `
 
@@ -47,11 +49,15 @@ func create() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
-	var domain, email, name, parent string
+	var (
+		domain, email, name, parent string
+		createdb                    bool
+	)
 	CommandLine.StringVar(&domain, "domain", "", "")
 	CommandLine.StringVar(&email, "email", "", "")
 	CommandLine.StringVar(&name, "name", "serve", "")
 	CommandLine.StringVar(&parent, "parent", "", "")
+	CommandLine.BoolVar(&createdb, "createdb", false, "")
 	err := CommandLine.Parse(os.Args[2:])
 	if err != nil {
 		return 1, err
@@ -69,7 +75,7 @@ func create() (int, error) {
 		return 1, v
 	}
 
-	db, err := connectDB(*dbConnect, nil, false)
+	db, err := connectDB(*dbConnect, nil, createdb)
 	if err != nil {
 		return 2, err
 	}
