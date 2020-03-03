@@ -51,7 +51,7 @@ Flags:
                  blank.
 ` + serveAndSaasFlags
 
-func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, string, string) {
+func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -64,8 +64,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	errors := CommandLine.String("errors", "", "")
 	auth := CommandLine.String("auth", "email", "")
 
-	CommandLine.Parse(os.Args[2:])
-
+	err := CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
 	zhttp.LogUnknownFields = dev
@@ -78,7 +77,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	flagErrors(*errors, v)
 	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
 
-	return *dbConnect, dev, *automigrate, *listen, *tls, *auth
+	return *dbConnect, dev, *automigrate, *listen, *tls, *auth, err
 }
 
 func setupReload() {
@@ -109,7 +108,10 @@ func saas() (int, error) {
 	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	dbConnect, dev, automigrate, listen, tls, auth := flagServeAndSaas(&v)
+	dbConnect, dev, automigrate, listen, tls, auth, err := flagServeAndSaas(&v)
+	if err != nil {
+		return 1, err
+	}
 
 	cfg.Saas = true
 	cfg.Plan = plan

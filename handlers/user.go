@@ -91,13 +91,6 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/user/new")
 }
 
-func psp(s *string) string {
-	if s == nil {
-		return "<nil>"
-	}
-	return *s
-}
-
 func (h user) login(w http.ResponseWriter, r *http.Request) error {
 	var u goatcounter.User
 	err := u.ByLoginRequest(r.Context(), chi.URLParam(r, "key"))

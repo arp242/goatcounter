@@ -47,7 +47,10 @@ func reindex() (int, error) {
 	debug := flagDebug()
 	confirm := CommandLine.Bool("confirm", false, "")
 	since := CommandLine.String("since", "", "")
-	CommandLine.Parse(os.Args[2:])
+	err := CommandLine.Parse(os.Args[2:])
+	if err != nil {
+		return 1, err
+	}
 
 	v := zvalidate.New()
 	firstDay := v.Date("-since", *since, "2006-01-02")

@@ -215,8 +215,8 @@ func renewACME(ctx context.Context) error {
 	}
 
 	for _, s := range sites {
+		wg.Add(1)
 		go func(d string) {
-			wg.Add(1)
 			defer wg.Done()
 			err := acme.Make(d)
 			if err != nil {

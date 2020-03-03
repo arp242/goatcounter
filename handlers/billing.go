@@ -214,7 +214,7 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(400, "No Stripe customer for this site?")
 	}
 
-	zdb.TX(r.Context(), func(ctx context.Context, db zdb.DB) error {
+	err := zdb.TX(r.Context(), func(ctx context.Context, db zdb.DB) error {
 		err := site.UpdateStripe(r.Context(), *site.Stripe, goatcounter.PlanPersonal)
 		if err != nil {
 			return err
@@ -241,6 +241,9 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 			zstripe.Body{"prorate": "true"}.Encode())
 		return err
 	})
+	if err != nil {
+		return err
+	}
 
 	zhttp.Flash(w, "Plan cancelled; you will be refunded for the remaining period.")
 	return zhttp.SeeOther(w, "/billing")

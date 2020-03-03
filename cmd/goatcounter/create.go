@@ -52,7 +52,10 @@ func create() (int, error) {
 	CommandLine.StringVar(&email, "email", "", "")
 	CommandLine.StringVar(&name, "name", "serve", "")
 	CommandLine.StringVar(&parent, "parent", "", "")
-	CommandLine.Parse(os.Args[2:])
+	err := CommandLine.Parse(os.Args[2:])
+	if err != nil {
+		return 1, err
+	}
 
 	zlog.Config.SetDebug(*debug)
 	cfg.Serve = true

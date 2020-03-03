@@ -31,7 +31,10 @@ func monitor() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 	period := CommandLine.Int("period", 120, "")
-	CommandLine.Parse(os.Args[2:])
+	err := CommandLine.Parse(os.Args[2:])
+	if err != nil {
+		return 1, err
+	}
 
 	zlog.Config.SetDebug(*debug)
 

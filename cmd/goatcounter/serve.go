@@ -109,7 +109,10 @@ func serve() (int, error) {
 
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, dev, automigrate, listen, tls, auth := flagServeAndSaas(&v)
+	dbConnect, dev, automigrate, listen, tls, auth, err := flagServeAndSaas(&v)
+	if err != nil {
+		return 1, err
+	}
 
 	cfg.Serve = true
 	if tls == "" {

@@ -45,7 +45,11 @@ func migrate() (int, error) {
 
 	dbConnect := flagDB()
 	debug := flagDebug()
-	CommandLine.Parse(os.Args[2:])
+	err := CommandLine.Parse(os.Args[2:])
+	if err != nil {
+		return 1, err
+	}
+
 	zlog.Config.SetDebug(*debug)
 
 	db, err := connectDB(*dbConnect, CommandLine.Args(), false)
