@@ -38,6 +38,10 @@ Static files and templates are compiled in the binary and aren't needed to run
 GoatCounter. But they're loaded from the filesystem if GoatCounter is started
 with -dev.
 
+NOTE: running your own SaaS is currently undocumented, non-trivial, and has
+certain assumptions that may not be true in your case. You almost certainly want
+to use the "serve" command.
+
 Flags:
 
   -domain        Base domain with port followed by comma and the static domain.

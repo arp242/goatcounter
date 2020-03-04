@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"strconv"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -58,6 +60,14 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				"stripeID": stripe,
 			}).Errorf("stripe not processed")
 		} else {
+			go func() {
+				zlog.Recover()
+				zmail.Send("GoatCounter subscription "+site.Plan,
+					mail.Address{Name: "GoatCounter Billing", Address: "billing@goatcounter.com"},
+					[]mail.Address{{Address: "billing@goatcounter.com"}},
+					fmt.Sprintf(`Cancelled: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
+			}()
+
 			zhttp.Flash(w, "Payment processed successfully!")
 		}
 	}
@@ -244,6 +254,14 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	go func() {
+		zlog.Recover()
+		zmail.Send("GoatCounter cancellation",
+			mail.Address{Name: "GoatCounter Billing", Address: "billing@goatcounter.com"},
+			[]mail.Address{{Address: "billing@goatcounter.com"}},
+			fmt.Sprintf(`Cancelled: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
+	}()
 
 	zhttp.Flash(w, "Plan cancelled; you will be refunded for the remaining period.")
 	return zhttp.SeeOther(w, "/billing")
