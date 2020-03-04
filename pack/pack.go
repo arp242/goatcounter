@@ -14025,7 +14025,8 @@ var Templates = map[string][]byte{
 {{if eq .Path "/settings"}}
 
 Or use one of the ready-made integrations:
-<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>.
+<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
+<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.
 
 <h3 class="border">Content security policy</h3>
 <p>You’ll need the following if you use a
