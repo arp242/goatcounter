@@ -18,6 +18,7 @@ import (
 )
 
 func init() {
+	zhttp.FuncMap["has_flag"] = HasFlag
 	zhttp.FuncMap["validate"] = zvalidate.TemplateError
 	zhttp.FuncMap["has_errors"] = zvalidate.TemplateHasErrors
 	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
@@ -38,8 +39,8 @@ func init() {
 		ss = time.Date(2019, 9, 16, 0, 0, 0, 0, time.UTC)
 		sl = time.Date(2019, 11, 7, 0, 0, 0, 0, time.UTC)
 	)
-	zhttp.FuncMap["beforeSize"] = func(createdAt time.Time) bool { return createdAt.Before(ss) }
-	zhttp.FuncMap["beforeLoc"] = func(createdAt time.Time) bool { return createdAt.Before(sl) }
+	zhttp.FuncMap["before_size"] = func(createdAt time.Time) bool { return createdAt.Before(ss) }
+	zhttp.FuncMap["before_loc"] = func(createdAt time.Time) bool { return createdAt.Before(sl) }
 
 	// Implemented as function for performance.
 	zhttp.FuncMap["bar_chart"] = BarChart
