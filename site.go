@@ -64,14 +64,15 @@ type Site struct {
 }
 
 type SiteSettings struct {
-	Public          bool               `json:"public"`
-	TwentyFourHours bool               `json:"twenty_four_hours"`
-	DateFormat      string             `json:"date_format"`
-	NumberFormat    rune               `json:"number_format"`
-	DataRetention   int                `json:"data_retention"`
-	IgnoreIPs       sqlutil.StringList `json:"ignore_ips"`
-	Timezone        *tz.Zone           `json:"timezone"`
-	Limits          struct {
+	Public           bool               `json:"public"`
+	TwentyFourHours  bool               `json:"twenty_four_hours"`
+	SundayStartsWeek bool               `json:"sunday_starts_week"`
+	DateFormat       string             `json:"date_format"`
+	NumberFormat     rune               `json:"number_format"`
+	DataRetention    int                `json:"data_retention"`
+	IgnoreIPs        sqlutil.StringList `json:"ignore_ips"`
+	Timezone         *tz.Zone           `json:"timezone"`
+	Limits           struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
 	} `json:"limits"`

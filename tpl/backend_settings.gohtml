@@ -38,59 +38,6 @@
 			</fieldset>
 
 			<fieldset>
-				<legend>User info and preferences</legend>
-
-				<label for="user.name">Your name</label>
-				<input type="text" name="user.name" id="user.name" value="{{.User.Name}}">
-				{{validate "user.name" .Validate}}
-
-				<label for="user.email">Your email</label>
-				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
-				{{validate "user.email" .Validate}}
-				<span>You will need access to the inbox to sign in.</span>
-
-				<label for="date_format">Date format</label>
-				<select name="settings.date_format" id="date_format">
-					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-					<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-					<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-					<option {{option_value .Site.Settings.DateFormat "2 Jan ’06"}}>Short text (2 Jan '06)</option>
-					<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
-				</select>
-
-				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-					24-hour clock</label>
-
-				<label for="number_format">Thousands separator</label>
-				<select name="settings.number_format" id="number_format">
-					<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
-				</select>
-				{{validate "settings.number_format" .Validate}}
-
-				<label for="timezone">Timezone</label>
-				<select name="settings.timezone" id="timezone">
-					<option {{option_value $.Site.Settings.Timezone.String ".UTC"}}>UTC</option>
-					{{range $tz := .Timezones}}<option {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
-					{{end}}
-				</select>
-				{{validate "settings.timezone" .Validate}}
-				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
-
-				<label for="limits_page">Page size</label>
-				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
-				{{validate "settings.limits.page" .Validate}}
-
-				<label for="limits_ref">Referrers page size</label>
-				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-				{{validate "settings.limits.ref" .Validate}}
-			</fieldset>
-
-			<fieldset>
 				<legend>Domain settings</legend>
 
 				{{if .Saas}}
@@ -122,9 +69,68 @@
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 					<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
 				{{end}}
-
 			</fieldset>
 
+			<fieldset>
+				<legend>User info and preferences</legend>
+
+				<label for="user.name">Your name</label>
+				<input type="text" name="user.name" id="user.name" value="{{.User.Name}}">
+				{{validate "user.name" .Validate}}
+
+				<label for="user.email">Your email</label>
+				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
+				{{validate "user.email" .Validate}}
+				<span>You will need access to the inbox to sign in.</span>
+
+				<label for="limits_page">Page size</label>
+				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
+				{{validate "settings.limits.page" .Validate}}
+
+				<label for="limits_ref">Referrers page size</label>
+				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
+				{{validate "settings.limits.ref" .Validate}}
+			</fieldset>
+
+			<fieldset>
+				<legend>Localisation preferences</legend>
+
+				<label for="date_format">Date format</label>
+				<select name="settings.date_format" id="date_format">
+					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+					<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+					<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+					<option {{option_value .Site.Settings.DateFormat "2 Jan ’06"}}>Short text (2 Jan '06)</option>
+					<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+				</select>
+
+				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
+					24-hour clock</label>
+
+				<label>{{checkbox .Site.Settings.SundayStartsWeek "settings.sunday_starts_week"}}
+					Week starts on Sunday</label>
+
+
+				<label for="number_format">Thousands separator</label>
+				<select name="settings.number_format" id="number_format">
+					<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
+					<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
+				</select>
+				{{validate "settings.number_format" .Validate}}
+
+				<label for="timezone">Timezone</label>
+				<select name="settings.timezone" id="timezone">
+					<option {{option_value $.Site.Settings.Timezone.String ".UTC"}}>UTC</option>
+					{{range $tz := .Timezones}}<option {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
+					{{end}}
+				</select>
+				{{validate "settings.timezone" .Validate}}
+				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
+			</fieldset>
 
 			<div class="flex-break"></div>
 			<button type="submit">Save</button>

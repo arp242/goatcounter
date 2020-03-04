@@ -187,8 +187,8 @@
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: 1});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: 1});
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};
 
 	// Report an error.
@@ -410,7 +410,10 @@
 				case 'half-year': start.setMonth(start.getMonth() - 6); break;
 				case 'year':      start.setFullYear(start.getFullYear() - 1); break;
 				case 'week-cur':
-					start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
+					if (SETTINGS.sunday_starts_week)
+						start.setDate(start.getDate() - start.getDay());
+					else
+						start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
 					end.setDate(start.getDate() + 6);
 					break;
 				case 'month-cur':
