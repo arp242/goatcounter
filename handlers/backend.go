@@ -119,6 +119,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			ap.Get("/browsers", zhttp.Wrap(h.browsers))
 			ap.Get("/sizes", zhttp.Wrap(h.sizes))
 			ap.Get("/locations", zhttp.Wrap(h.locations))
+			ap.Get("/toprefs", zhttp.Wrap(h.topRefs))
+			ap.Get("/pages-by-ref", zhttp.Wrap(h.pagesByRef))
 		}
 		{
 			af := a.With(loggedIn)
@@ -306,6 +308,13 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	showMoreLoc := len(locStat) > 0 && float32(locStat[len(locStat)-1].Count)/float32(totalLoc)*100 < 3.0
 	l = l.Since("locStat.List")
 
+	var topRefs goatcounter.Stats
+	_, showMoreRefs, err := topRefs.ListRefs(r.Context(), start, end, 10, 0)
+	if err != nil {
+		return err
+	}
+	l = l.Since("topRefs.List")
+
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
 	var refs goatcounter.HitStats
@@ -343,12 +352,65 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		LocationStat      goatcounter.Stats
 		TotalLocation     int
 		ShowMoreLocations bool
+		TopRefs           goatcounter.Stats
+		ShowMoreRefs      bool
 	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, filter,
 		pages, refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
-		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc})
+		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc, topRefs, showMoreRefs})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
+}
+
+func (h backend) topRefs(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var refs goatcounter.Stats
+	o, _ := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
+	total, hasMore, err := refs.ListRefs(r.Context(), start, end, 10, int(o))
+	if err != nil {
+		return err
+	}
+
+	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
+	tpl := goatcounter.HorizontalChart(r.Context(), refs, total, int(t), 0, true, false)
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"html":     string(tpl),
+		"has_more": hasMore,
+	})
+}
+
+func (h backend) pagesByRef(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var hits goatcounter.Stats
+	total, err := hits.ByRef(r.Context(), start, end, r.URL.Query().Get("name"))
+	if err != nil {
+		return err
+	}
+
+	tpl := goatcounter.HorizontalChart(r.Context(), hits, total, total, 1, true, true)
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"html": string(tpl),
+	})
 }
 
 func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
@@ -501,7 +563,7 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .5, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .1, true, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -526,7 +588,7 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), sizeStat, total, int(t), .5, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), sizeStat, total, int(t), .5, true, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -550,7 +612,7 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tpl := goatcounter.HorizontalChart(r.Context(), locStat, total, total, 0, false)
+	tpl := goatcounter.HorizontalChart(r.Context(), locStat, total, total, 0, false, true)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
 	})

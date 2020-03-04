@@ -564,6 +564,57 @@ type Stats []struct {
 	Count int
 }
 
+// ByRef lists all paths by reference.
+func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (int, error) {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select path as name, count(path) as count
+		from hits where
+			site=$1 and
+			bot=0 and
+			created_at >= $2 and
+			created_at <= $3 and
+			ref = $4
+		group by path
+		order by count desc
+	`, MustGetSite(ctx).ID, dayStart(start), dayEnd(end), ref)
+
+	var total int
+	for _, b := range *h {
+		total += b.Count
+	}
+	return total, errors.Wrap(err, "HitStats.ByRef")
+}
+
+// List all ref statistics for the given time period.
+func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offset int) (int, bool, error) {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select ref as name, sum(count) as count from ref_stats
+		where site=$1 and day >= $2 and day <= $3 and ref not like $4
+		group by ref
+		order by count desc
+		limit $5 offset $6
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"),
+		MustGetSite(ctx).LinkDomain+"%", limit+1, offset)
+	if err != nil {
+		return 0, false, errors.Wrap(err, "Stats.ListBrowsers browsers")
+	}
+
+	var total int
+	for _, b := range *h {
+		total += b.Count
+	}
+
+	hasMore := false
+	hh := *h
+	if len(hh) > offset {
+		hasMore = true
+		hh = hh[:len(hh)-1]
+	}
+	*h = hh
+
+	return total, hasMore, nil
+}
+
 // List all browser statistics for the given time period.
 func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `

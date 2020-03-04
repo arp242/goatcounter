@@ -88,25 +88,42 @@
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true true}}</div>
+			</div>
 		{{end}}
 	</div>
 	<div>
-		<h2>Screen size{{if beforeSize .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
+		<h2>Screen size{{if before_size .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true true}}</div>
+			</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
 	<div class="location-chart">
-		<h2>Locations{{if beforeLoc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
+		<h2>Locations{{if before_loc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
+			</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
+		{{end}}
+	</div>
+	<div class="top-refs-chart">
+		<h2>Top referers</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalHits 0 0 true false}}</div>
+			</div>
+			{{if .ShowMoreRefs}}<a href="#" class="show-more">Show more</a>{{end}}
 		{{end}}
 	</div>
 </div>

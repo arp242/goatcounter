@@ -40,6 +40,9 @@ Flags:
 
   -since         Reindex only statistics since this date instead of all of them;
                  as year-month-day.
+
+  -table         Which tables to reindex: hit_stats, browser_stats,
+                 location_stats, ref_stats, or all (default).
 `
 
 func reindex() (int, error) {
@@ -47,6 +50,7 @@ func reindex() (int, error) {
 	debug := flagDebug()
 	confirm := CommandLine.Bool("confirm", false, "")
 	since := CommandLine.String("since", "", "")
+	table := CommandLine.String("table", "all", "")
 	err := CommandLine.Parse(os.Args[2:])
 	if err != nil {
 		return 1, err
@@ -54,6 +58,8 @@ func reindex() (int, error) {
 
 	v := zvalidate.New()
 	firstDay := v.Date("-since", *since, "2006-01-02")
+	v.Include("-table", *table, []string{"hit_stats", "browser_stats",
+		"location_stats", "ref_stats", "all"})
 	if v.HasErrors() {
 		return 1, v
 	}
@@ -69,7 +75,9 @@ func reindex() (int, error) {
 	// TODO: would be best to signal GoatCounter to not persist anything from
 	// memstore instead of telling people to stop GoatCounter.
 	// OTOH ... this shouldn't be needed very often.
-	fmt.Fprintln(stdout, "This will reindex all the *_stats tables; it's recommended to stop GoatCounter.")
+	if *table == "all" {
+		fmt.Fprintln(stdout, "This will reindex all the *_stats tables; it's recommended to stop GoatCounter.")
+	}
 	fmt.Fprintln(stdout, "This may take a few minutes depending on your data size/computer speed;")
 	fmt.Fprintln(stdout, "you can use e.g. Varnish or some other proxy to send requests to /count later.")
 	if !*confirm {
@@ -81,10 +89,8 @@ func reindex() (int, error) {
 	ctx := zdb.With(context.Background(), db)
 
 	where := ""
-	last_stat := "null"
 	if since != nil && *since != "" {
 		where = fmt.Sprintf(" where day >= '%s'", *since)
-		last_stat = fmt.Sprintf("'%s'", *since)
 	} else {
 		var first string
 		err := db.GetContext(ctx, &first, `select created_at from hits order by created_at asc limit 1`)
@@ -101,10 +107,21 @@ func reindex() (int, error) {
 		}
 	}
 
-	db.MustExecContext(ctx, `delete from hit_stats`+where)
-	db.MustExecContext(ctx, `delete from browser_stats`+where)
-	db.MustExecContext(ctx, `delete from location_stats`+where)
-	db.MustExecContext(ctx, `update sites set last_stat=`+last_stat)
+	switch *table {
+	case "hit_stats":
+		db.MustExecContext(ctx, `delete from hit_stats`+where)
+	case "browser_stats":
+		db.MustExecContext(ctx, `delete from browser_stats`+where)
+	case "location_stats":
+		db.MustExecContext(ctx, `delete from location_stats`+where)
+	case "ref_stats":
+		db.MustExecContext(ctx, `delete from ref_stats`+where)
+	case "all":
+		db.MustExecContext(ctx, `delete from hit_stats`+where)
+		db.MustExecContext(ctx, `delete from browser_stats`+where)
+		db.MustExecContext(ctx, `delete from location_stats`+where)
+		db.MustExecContext(ctx, `delete from ref_stats`+where)
+	}
 
 	// Prefill every day with empty entry.
 	var allpaths []struct {
@@ -132,7 +149,7 @@ func reindex() (int, error) {
 
 		fmt.Fprintf(stdout, "\r\x1b[0K%s → %d", day.Format("2006-01-02"), len(hits))
 
-		err = cron.ReindexStats(ctx, hits)
+		err = cron.ReindexStats(ctx, hits, *table)
 		if err != nil {
 			return 1, err
 		}
