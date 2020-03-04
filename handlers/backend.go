@@ -143,6 +143,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Post("/remove/{id}", zhttp.Wrap(h.removeSubsite))
 			af.Get("/purge", zhttp.Wrap(h.purgeConfirm))
 			af.Post("/purge", zhttp.Wrap(h.purge))
+			af.Post("/delete", zhttp.Wrap(h.delete))
 			af.With(admin).Get("/admin", zhttp.Wrap(h.admin))
 			af.With(admin).Get("/admin/{id}", zhttp.Wrap(h.adminSite))
 		}
@@ -969,4 +970,22 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Done!")
 	return zhttp.SeeOther(w, "/settings#tab-purge")
+}
+
+func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
+	site := goatcounter.MustGetSite(r.Context())
+	err := site.Delete(r.Context())
+	if err != nil {
+		return err
+	}
+
+	if site.Parent != nil {
+		var p goatcounter.Site
+		err := p.ByID(r.Context(), *site.Parent)
+		if err != nil {
+			return err
+		}
+		return zhttp.SeeOther(w, p.URL())
+	}
+	return zhttp.SeeOther(w, "https://"+cfg.Domain)
 }

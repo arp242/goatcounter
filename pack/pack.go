@@ -14080,7 +14080,7 @@ return value is sent to the server. Nothing is sent if the return value from the
 		the global <code>window.goatcounter</code>.</li>
 </ul>
 
-<p>By aware that the script is loaded with <code>async</code> by default,
+<p>Be aware that the script is loaded with <code>async</code> by default,
 so <code>count</code> may not yet be available on click events and the like,
 especially on slower connections and/or if your page loads a lot of other
 resources. To solve this, use <code>setInterval</code> to wait until it’s
@@ -14776,7 +14776,7 @@ parent site includes the child sites.</p>
 						{{range $s := .SubSites}}<tr>
 							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
 							<td>{{$s.Name}}</td>
-							<td><a href="/remove/{{$s.ID}}">remove</a></td>
+							<td><a href="/remove/{{$s.ID}}">delete</a></td>
 						</tr>{{end}}
 
 						<tr>
@@ -14837,9 +14837,20 @@ parent site includes the child sites.</p>
 {{if .Saas}}
 	<div>
 		<h2 id="delete">Delete account</h2>
-		<p>Email <a href="mailto:delete@goatcounter.com">delete@goatcounter.com</a>
-			if you wish to permanently delete your account and all associated data.
-			Be sure to do this from the registered email for verification.</p>
+		{{if .Site.Parent}}
+			<p>Note this site has a parent
+				(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+				this will delete only this subsite, and not the parent.</p>
+		{{end}}
+
+		<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be marked as deleted, and will no longer be accessible.
+			All data will be removed after 7 days.<br>
+			<a href="/contact">Contact</a> if you changed your mind.</p>
+
+		<form method="post" action="/delete">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+			<button type="submit">Delete site</button> (no confirmation)
+		</form>
 	</div>
 {{end}}
 
