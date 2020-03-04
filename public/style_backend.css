@@ -247,7 +247,7 @@ select#timezone { max-width: 20rem; }
 table.auto { width: auto; }
 
 .browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.browser-charts > div    { width: 32% /*49%*/; }
+.browser-charts > div    { width: 49%; }
 .browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
 
 @media (max-width: 45rem) {

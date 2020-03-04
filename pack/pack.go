@@ -13273,7 +13273,7 @@ select#timezone { max-width: 20rem; }
 table.auto { width: auto; }
 
 .browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.browser-charts > div    { width: 32% /*49%*/; }
+.browser-charts > div    { width: 49%; }
 .browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
 
 @media (max-width: 45rem) {
@@ -14460,19 +14460,17 @@ do this 100% reliably.</p>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
 		{{end}}
 	</div>
-	{{if has_flag .Context "top-refs"}}
-		<div class="top-refs-chart">
-			<h2>Top referers</h2>
-			{{if eq .TotalHits 0}}
-				<em>Nothing to display</em>
-			{{else}}
-				<div class="hchart-wrap">
-					<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalHits 0 0 true false}}</div>
-				</div>
-				{{if .ShowMoreRefs}}<a href="#" class="show-more">Show more</a>{{end}}
-			{{end}}
-		</div>
-	{{end}}
+	<div class="top-refs-chart">
+		<h2>Top referers</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalHits 0 0 true false}}</div>
+			</div>
+			{{if .ShowMoreRefs}}<a href="#" class="show-more">Show more</a>{{end}}
+		{{end}}
+	</div>
 </div>
 
 {{- template "_backend_bottom.gohtml" . }}
