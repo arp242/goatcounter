@@ -15,7 +15,7 @@ env:
 cache:
   directories:
     - '$HOME/.cache/go-build'
-    - '$GOPATH/pkg'
+    - '$GOPATH'
 notifications:
   email: false
 
@@ -25,10 +25,12 @@ before_cache:
 before_script:
   - 'createdb goatcounter_test'
 
-install: [] # Don't need to run go get ./... with modules.
+install:
+  - 'go get honnef.co/go/tools/cmd/staticcheck'
 
 script:
   - 'go vet ./...'
+  - 'staticcheck ./...'
   - 'go generate ./... && [ $(git status -s | wc -l) -gt 1 ] && git diff && exit 1 || true'
   - 'go test              -race ./...'
   - 'go test -tags=testpg -race ./...'
