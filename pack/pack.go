@@ -14190,7 +14190,7 @@ load an image on your site:<p>
 increase the number of bot requests (although we do our best to filter this
 out).</p>
 
-<h4>From middlware</h4>
+<h4>From middleware</h4>
 <p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your
 app's middleware. It supports the following query parameters:</p>
 
