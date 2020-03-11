@@ -58,6 +58,12 @@ return value is sent to the server. Nothing is sent if the return value from the
 	<li><code>count(vars)</code> – Count an event. The <code>vars</code>
 		parameter is an object as described above, and wil take precedence over
 		the global <code>window.goatcounter</code>.</li>
+	<li><code>get_query(name)</code> – Get a single query parameter for the
+		current page’s URL. This is useful if you want to get the
+		<code>referrer</code> from the URL:
+		<pre>window.goatcounter = {referrer: get_query('ref')}</pre>
+		Returns <code>null</code> if the parameter doesn’t exist, so it will
+		fall back to the <code>Referer</code> header.
 </ul>
 
 <p>Be aware that the script is loaded with <code>async</code> by default,

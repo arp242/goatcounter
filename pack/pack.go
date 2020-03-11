@@ -1943,8 +1943,21 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		document.body.appendChild(img);
 	};
 
+	// Get an URL parameter.
+	var get_query = function(name) {
+		name = name.toLowerCase()
+		var split = location.search.substr(1).split('&');
+		for (var i = 0; i < split.length; i++) {
+			var p = split[i].toLowerCase().indexOf(name + '=');
+			if (p === 0)
+				return split[i].substr(name.length + 1)
+		}
+		return null;
+	};
+
 	// Expose public API.
-	window.goatcounter.count = count;
+	window.goatcounter.count     = count;
+	window.goatcounter.get_param = get_param;
 
 	if (!goatcounter.no_onload) {
 		if (document.body === null)
@@ -14078,6 +14091,12 @@ return value is sent to the server. Nothing is sent if the return value from the
 	<li><code>count(vars)</code> – Count an event. The <code>vars</code>
 		parameter is an object as described above, and wil take precedence over
 		the global <code>window.goatcounter</code>.</li>
+	<li><code>get_query(name)</code> – Get a single query parameter for the
+		current page’s URL. This is useful if you want to get the
+		<code>referrer</code> from the URL:
+		<pre>window.goatcounter = {referrer: get_query('ref')}</pre>
+		Returns <code>null</code> if the parameter doesn’t exist, so it will
+		fall back to the <code>Referer</code> header.
 </ul>
 
 <p>Be aware that the script is loaded with <code>async</code> by default,
