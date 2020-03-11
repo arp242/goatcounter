@@ -27,6 +27,7 @@ type Globals struct {
 	Flash        *zhttp.FlashMessage
 	Static       string
 	StaticDomain string
+	CountDomain  string
 	Domain       string
 	Version      string
 	Billing      bool
@@ -36,17 +37,18 @@ type Globals struct {
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	g := Globals{
-		Context: r.Context(),
-		User:    goatcounter.GetUser(r.Context()),
-		Site:    goatcounter.GetSite(r.Context()),
-		Path:    r.URL.Path,
-		Flash:   zhttp.ReadFlash(w, r),
-		Static:  cfg.URLStatic,
-		Domain:  cfg.Domain,
-		Version: cfg.Version,
-		Billing: zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
-		Saas:    cfg.Saas,
-		Port:    cfg.Port,
+		Context:     r.Context(),
+		User:        goatcounter.GetUser(r.Context()),
+		Site:        goatcounter.GetSite(r.Context()),
+		Path:        r.URL.Path,
+		Flash:       zhttp.ReadFlash(w, r),
+		Static:      cfg.URLStatic,
+		CountDomain: cfg.DomainCount,
+		Domain:      cfg.Domain,
+		Version:     cfg.Version,
+		Billing:     zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
+		Saas:        cfg.Saas,
+		Port:        cfg.Port,
 	}
 	if g.User == nil {
 		g.User = &goatcounter.User{}

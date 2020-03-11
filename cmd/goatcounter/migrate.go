@@ -30,7 +30,7 @@ Flags:
 
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
-Positional argumts are names of database migrations, either as just the name
+Positional arguments are names of database migrations, either as just the name
 ("2020-01-05-2-foo") or as the file path ("./db/migrate/sqlite/2020-01-05-2-foo.sql").
 
 Use "all" to run all migrations that haven't been run yet, or "show" to only

@@ -44,8 +44,10 @@ to use the "serve" command.
 
 Flags:
 
-  -domain        Base domain with port followed by comma and the static domain.
+  -domain        Base domain with port followed by comma and the static domain,
+                 optionally followed by the doimain to serve count.js
                  Default: goatcounter.localhost:8081, static.goatcounter.localhost:8081
+                 Example: -domain goatcounter.com,static.zgo.at,gc.zgo.at
 
   -plan          Plan for new installations; default: personal.
 
@@ -274,9 +276,13 @@ func flagDomain(domain string, v *zvalidate.Validator) {
 	l := strings.Split(domain, ",")
 
 	switch len(l) {
+	default:
+		v.Append("-domain", "too many domains")
 	case 0:
 		v.Append("-domain", "cannot be blank")
-	case 1, 2:
+	case 1:
+		v.Append("-domain", "must have static domain")
+	case 2, 3:
 		for i, d := range l {
 			d = strings.TrimSpace(d)
 			if p := strings.Index(d, ":"); p > -1 {
@@ -285,15 +291,17 @@ func flagDomain(domain string, v *zvalidate.Validator) {
 				v.Domain("-domain", d)
 			}
 
-			if i == 0 {
+			switch i {
+			case 0:
 				cfg.Domain = d
-			} else {
+			case 1:
 				cfg.DomainStatic = d
+				cfg.DomainCount = d
 				cfg.URLStatic = "//" + d
+			case 2:
+				cfg.DomainCount = d
 			}
 		}
-	default:
-		v.Append("-domain", "too many domains")
 	}
 
 }

@@ -5,6 +5,7 @@ package cfg
 var (
 	Domain       string
 	DomainStatic string
+	DomainCount  string
 	URLStatic    string
 	PgSQL        bool
 	Plan         string

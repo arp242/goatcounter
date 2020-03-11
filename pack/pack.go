@@ -14019,7 +14019,7 @@ var Templates = map[string][]byte{
 </form>
 `),
 	"tpl/_backend_sitecode.gohtml": []byte(`{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
-        async src="//{{.StaticDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
+        async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
 {{if eq .Path "/settings"}}
@@ -14125,7 +14125,8 @@ own browser:</p>
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<p>You can also fill in your IP address in the settings.</p>
+<p>You can also fill in your IP address in the settings, or (temporarily) block
+the <code>{{.CountDomain}}</code> domain.</p>
 
 <h4>Custom path and referrer</h4>
 <pre>&lt;script&gt;
