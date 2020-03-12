@@ -92,19 +92,15 @@
 
 	// Get an URL parameter.
 	var get_query = function(name) {
-		name = name.toLowerCase()
-		var split = location.search.substr(1).split('&');
-		for (var i = 0; i < split.length; i++) {
-			var p = split[i].toLowerCase().indexOf(name + '=');
-			if (p === 0)
-				return split[i].substr(name.length + 1)
-		}
-		return null;
+		var s = location.search.substr(1).split('&');
+		for (var i = 0; i < s.length; i++)
+			if (s[i].toLowerCase().indexOf(name.toLowerCase() + '=') === 0)
+				return s[i].substr(name.length + 1)
 	};
 
 	// Expose public API.
 	window.goatcounter.count     = count;
-	window.goatcounter.get_param = get_param;
+	window.goatcounter.get_query = get_query
 
 	if (!goatcounter.no_onload) {
 		if (document.body === null)
