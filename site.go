@@ -278,13 +278,15 @@ func (s *Site) Delete(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
+	t := time.Now().UTC()
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set state=$1 where id=$2`,
-		StateDeleted, s.ID)
+		`update sites set state=$1, updated_at=$2 where id=$3 or parent=$3`,
+		StateDeleted, t.Format(zdb.Date), s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Delete")
 	}
 	s.ID = 0
+	s.UpdatedAt = &t
 	s.State = StateDeleted
 	return nil
 }
@@ -471,4 +473,12 @@ func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 	err := zdb.MustGet(ctx).GetContext(ctx, &ok,
 		`select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
 	return ok, errors.Wrap(err, "Sites.ContainsCNAME")
+}
+
+// OldSoftDeleted finds all sites which have been soft-deleted more than a week
+// ago.
+func (s *Sites) OldSoftDeleted(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, fmt.Sprintf(
+		`select * from sites where state=$1 and updated_at < %s`, interval(7)),
+		StateDeleted), "Sites.OldSoftDeleted")
 }
