@@ -1943,8 +1943,17 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		document.body.appendChild(img);
 	};
 
+	// Get an URL parameter.
+	var get_query = function(name) {
+		var s = location.search.substr(1).split('&');
+		for (var i = 0; i < s.length; i++)
+			if (s[i].toLowerCase().indexOf(name.toLowerCase() + '=') === 0)
+				return s[i].substr(name.length + 1)
+	};
+
 	// Expose public API.
-	window.goatcounter.count = count;
+	window.goatcounter.count     = count;
+	window.goatcounter.get_query = get_query
 
 	if (!goatcounter.no_onload) {
 		if (document.body === null)
@@ -14077,24 +14086,36 @@ return value is sent to the server. Nothing is sent if the return value from the
 <ul>
 	<li><code>count(vars)</code> – Count an event. The <code>vars</code>
 		parameter is an object as described above, and wil take precedence over
-		the global <code>window.goatcounter</code>.</li>
-</ul>
+		the global <code>window.goatcounter</code>.<br><br>
 
-<p>Be aware that the script is loaded with <code>async</code> by default,
-so <code>count</code> may not yet be available on click events and the like,
-especially on slower connections and/or if your page loads a lot of other
-resources. To solve this, use <code>setInterval</code> to wait until it’s
-available:</p>
-<pre>
-elem.addEventListener('click', function() {
+		Be aware that the script is loaded with <code>async</code> by default,
+		so <code>count</code> may not yet be available on click events and the
+		like, especially on slower connections and/or if your page loads a lot
+		of other resources. To solve this, use <code>setInterval</code> to wait
+		until it’s available:
+
+		<pre>elem.addEventListener('click', function() {
 	var t = setInterval(function() {
-		if (window.goatcounter && window.goatcounter.count) {
+		if (window.goatcounter &amp;&amp; window.goatcounter.count) {
 			clearInterval(t);
 			goatconter.count();
 		}
 	}, 100);
-});
-</pre>
+});</pre>
+
+		The default implementation already handles this, and you only need to
+		worry about this if you call <code>count()</code> manually.
+	</li>
+	<li><code>get_query(name)</code> – Get a single query parameter from the
+		current page’s URL; returns <code>undefined</code> if the parameter
+		doesn’t exist. This is useful if you want to get the
+		<code>referrer</code> from the URL:
+		<pre>window.goatcounter = {
+	referrer: function() {
+		return goatcounter.get_query('ref') || document.referrer;
+	}
+};</pre>
+</ul>
 
 <h3 class="border">Examples</h3>
 
@@ -14131,6 +14152,8 @@ the <code>{{.CountDomain}}</code> domain.</p>
 <h4>Custom path and referrer</h4>
 <pre>&lt;script&gt;
 	window.goatcounter = {
+        referrer: function() { return goatcounter.get_query('ref') || document.referrer },
+
 		path: function(p) {
 			// Don't track the home page.
 			if (p === '/')
@@ -14139,9 +14162,6 @@ the <code>{{.CountDomain}}</code> domain.</p>
 			// Remove .html from all other page links.
 			return p.replace(/\.html$/, '');
 		},
-
-		// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
-		referrer: (window.location.search ? window.location.search.split('=')[1] : null),
 	};
 &lt;/script&gt;
 {{template "code" .}}</pre>
