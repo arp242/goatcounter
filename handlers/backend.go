@@ -129,6 +129,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
 			af.Get("/settings", zhttp.Wrap(h.settings))
+			af.Get("/code", zhttp.Wrap(h.code))
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.Post("/set-tz", zhttp.Wrap(h.setTZ))
@@ -335,6 +336,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
+		CountDomain       string
 		ShowRefs          string
 		SelectedPeriod    string
 		PeriodStart       time.Time
@@ -355,9 +357,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		ShowMoreLocations bool
 		TopRefs           goatcounter.Stats
 		ShowMoreRefs      bool
-	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, filter,
-		pages, refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
-		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc, topRefs, showMoreRefs})
+	}{newGlobals(w, r), cfg.DomainCount, sr, r.URL.Query().Get("hl-period"),
+		start, end, filter, pages, refs, moreRefs, total, totalDisplay,
+		browsers, totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
+		showMoreLoc, topRefs, showMoreRefs})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
@@ -705,6 +708,20 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		Validate  *zvalidate.Validator
 		Timezones []*tz.Zone
 	}{newGlobals(w, r), sites, verr, tz.Zones})
+}
+
+func (h backend) code(w http.ResponseWriter, r *http.Request) error {
+	var sites goatcounter.Sites
+	err := sites.ListSubs(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_code.gohtml", struct {
+		Globals
+		SubSites    goatcounter.Sites
+		CountDomain string
+	}{newGlobals(w, r), sites, cfg.DomainCount})
 }
 
 func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
