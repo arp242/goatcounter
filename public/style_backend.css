@@ -367,3 +367,6 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages sup                { font-size: .9rem; }
 .header-pages input#filter-paths { float: right; padding: .2em; margin-right: 1em; }
 .header-pages input.value        { background-color: yellow; }
+
+h3 + h4 { margin-top: .3em; }
+

@@ -665,6 +665,17 @@ commit;
 	insert into version values ('2020-03-03-1-flag');
 commit;
 `),
+	"db/migrate/pgsql/2020-03-13-1-code-moved.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'Site code moved', now(), now(),
+		'<p>Just a little heads-up that the “site code” is now its own page
+		linked in the top menu, instead of a tab in the settings page. This will
+		allow permalinks to sections, which was tricky on the tab page because
+		permalinks are already used there for the tabs.</p>');
+
+	insert into version values ('2020-03-13-1-code-moved');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1802,7 +1813,7 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
   color: #999;
 }
 h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
-  content: "¶";
+  content: "§";
 }
 
 /* FILE: ./postscript.css */
@@ -13405,6 +13416,9 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages sup                { font-size: .9rem; }
 .header-pages input#filter-paths { float: right; padding: .2em; margin-right: 1em; }
 .header-pages input.value        { background-color: yellow; }
+
+h3 + h4 { margin-top: .3em; }
+
 `),
 }
 
@@ -14031,13 +14045,13 @@ var Templates = map[string][]byte{
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
-{{if eq .Path "/settings"}}
+{{if eq .Path "/code"}}
 
 Or use one of the ready-made integrations:
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.
 
-<h3 class="border">Content security policy</h3>
+<h2 id="csp">Content security policy <a href="#csp"></a></h2>
 <p>You’ll need the following if you use a
 <code>Content-Security-Policy</code>:</p>
 
@@ -14046,34 +14060,11 @@ script-src  https://{{.StaticDomain}}
 img-src     {{.Site.URL}}/count
 </pre>
 
-<h3 class="border">Customizing</h3>
-<p>You can pass variables with the <code>window.goatcounter</code> object.
+<h2 id="customizing">Customizing <a href="#customizing"></a></h2>
+<p>Customisation is done with the <code>window.goatcounter</code> object; the
+following keys are supported:</p>
 
-The default value will be used if the value is <code>null</code> or
-<code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
-anything else!</p>
-
-<p>The value can be used as a callback: the default value is passed and the
-return value is sent to the server. Nothing is sent if the return value from the
-<code>path</code> callback is <code>null</code>.</p>
-
-<p>Data:</p>
-<ul>
-	<li><code>path</code> – Page path (without domain) or event name.</li>
-
-	<li><code>event</code> – Treat the <code>path</code> as an event, rather
-		than a URL. Boolean.</li>
-
-	<li><code>title</code> – Human-readable title. Default is
-		<code>document.title</code>.</li>
-
-	<li><code>referrer</code> – Where the user came from; can be an URL
-		(<code>https://example.com</code>) or any string
-		(<code>June Newsletter</code>). Default is to use the
-		<code>Referer</code> header.</li>
-</ul>
-
-<p>Settings:</p>
+<h3 id="settings">Settings <a href="#settings"></a></h3>
 <ul>
 	<li><code>no_onload</code> – Don’t do anything on page load. If you want to
 		call <code>count()</code> manually.</li>
@@ -14082,19 +14073,43 @@ return value is sent to the server. Nothing is sent if the return value from the
 		the integration locally.</li>
 </ul>
 
-<p>Callable methods:</p>
+<h3 id="data">Data <a href="#data"></a></h3>
+<p>You can customize the data sent to Goatcounter; the default value will be
+used if the value is <code>null</code> or <code>undefined</code>, but
+<em>not</em> on empty string, <code>0</code>, or anything else!</p>
+
+<p>The value can be a callback: the default value is passed and the return value
+is sent to the server. Nothing is sent if the return value from the
+<code>path</code> callback is <code>null</code>.</p>
+
 <ul>
-	<li><code>count(vars)</code> – Count an event. The <code>vars</code>
-		parameter is an object as described above, and wil take precedence over
-		the global <code>window.goatcounter</code>.<br><br>
+	<li><code>path</code> – Page path (without domain) or event name.
+		Default is the value of <code>&lt;link rel="canonical"&gt;</code> if it exists,
+		or <code>location.pathname + location.search</code>.</li>
 
-		Be aware that the script is loaded with <code>async</code> by default,
-		so <code>count</code> may not yet be available on click events and the
-		like, especially on slower connections and/or if your page loads a lot
-		of other resources. To solve this, use <code>setInterval</code> to wait
-		until it’s available:
+	<li><code>title</code> – Human-readable title. Default is
+		<code>document.title</code>.</li>
 
-		<pre>elem.addEventListener('click', function() {
+	<li><code>referrer</code> – Where the user came from; can be an URL
+		(<code>https://example.com</code>) or any string
+		(<code>June Newsletter</code>). Default is to use the
+		<code>Referer</code> header.</li>
+
+	<li><code>event</code> – Treat the <code>path</code> as an event, rather
+		than a URL. Boolean.</li>
+</ul>
+
+<h3 id="methods">Methods <a href="#methods"></a></h3>
+<h4 id="count"><code>count(vars)</code> <a href="#count"></a></h4>
+<p>Count an event; the <code>vars</code> parameter is an object as described in
+the Data section above, and will be merged in to the global
+<code>window.goatcounter</code>, taking precedence.</p>
+
+<p>Be aware that the script is loaded with <code>async</code> by default, so
+<code>count</code> may not yet be available on click events and the like. To
+solve this, use <code>setInterval</code> to wait until it’s available:</p>
+
+<pre>elem.addEventListener('click', function() {
 	var t = setInterval(function() {
 		if (window.goatcounter &amp;&amp; window.goatcounter.count) {
 			clearInterval(t);
@@ -14103,23 +14118,23 @@ return value is sent to the server. Nothing is sent if the return value from the
 	}, 100);
 });</pre>
 
-		The default implementation already handles this, and you only need to
-		worry about this if you call <code>count()</code> manually.
-	</li>
-	<li><code>get_query(name)</code> – Get a single query parameter from the
-		current page’s URL; returns <code>undefined</code> if the parameter
-		doesn’t exist. This is useful if you want to get the
-		<code>referrer</code> from the URL:
-		<pre>window.goatcounter = {
+<p>The default implementation already handles this, and you only need to worry
+about this if you call <code>count()</code> manually.</p>
+
+<h4 id="get_query"><code>get_query(name)</code> <a href="#get_query"></a></h4>
+<p>Get a single query parameter from the current page’s URL; returns
+<code>undefined</code> if the parameter doesn’t exist. This is useful if you
+want to get the <code>referrer</code> from the URL:</p>
+
+<pre>window.goatcounter = {
 	referrer: function() {
-		return goatcounter.get_query('ref') || document.referrer;
+		return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
 	}
 };</pre>
-</ul>
 
-<h3 class="border">Examples</h3>
+<h2 id="examples">Examples <a href="#examples"></a></h2>
 
-<h4>Load only on production</h4>
+<h3 id="production">Load only on production <a href="#production"></a></h3>
 <p>You can check <code>location.host</code> if you want to load GoatCounter only
 on <code>production.com</code> and not <code>staging.com</code> or
 <code>development.com</code>; for example:</p>
@@ -14134,7 +14149,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
 	request from localhost are already ignored</a>.</p>
 
-<h4>Skip own views</h4>
+<h3 id="skip-own">Skip own views <a href="#skip-own"></a></h3>
 <p>You can use the same technique as a client-side way to skip loading from your
 own browser:</p>
 
@@ -14149,11 +14164,10 @@ own browser:</p>
 <p>You can also fill in your IP address in the settings, or (temporarily) block
 the <code>{{.CountDomain}}</code> domain.</p>
 
-<h4>Custom path and referrer</h4>
+<h3 id="custom-data">Custom path and referrer <a href="#custom-data"></a></h3>
+<p>A basic example with some custom logic for <code>path</code>:</p>
 <pre>&lt;script&gt;
 	window.goatcounter = {
-        referrer: function() { return goatcounter.get_query('ref') || document.referrer },
-
 		path: function(p) {
 			// Don't track the home page.
 			if (p === '/')
@@ -14166,7 +14180,7 @@ the <code>{{.CountDomain}}</code> domain.</p>
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<h4>Ignore query parameters in path</h4>
+<h3 id="ignore-query">Ignore query parameters in path <a href="#ignore-query"></a></h3>
 <p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used
 automatically, and is the easiest way to ignore extraneous query parameters:</p>
 
@@ -14187,7 +14201,7 @@ parameters:</p>
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<h4>SPA</h4>
+<h3 id="spa">SPA <a href="#spa"></a></h3>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
 <pre>&lt;script&gt;
 	window.goatcounter = {no_onload: true};
@@ -14200,9 +14214,9 @@ parameters:</p>
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<h3 class="border">Advanced integrations</h3>
+<h2 id="advanced">Advanced integrations <a href="#advanced"></a></h2>
 
-<h4>Image</h4>
+<h3 id="image">Image <a href="#image"></a></h3>
 <p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to
 load an image on your site:<p>
 <pre>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;</pre>
@@ -14211,7 +14225,10 @@ load an image on your site:<p>
 increase the number of bot requests (although we do our best to filter this
 out).</p>
 
-<h4>From middleware</h4>
+<p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people
+without JavaScript.</p>
+
+<h3 id="middleware">From middleware <a href="#middleware"></a></h3>
 <p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your
 app's middleware. It supports the following query parameters:</p>
 
@@ -14276,6 +14293,7 @@ do this 100% reliably.</p>
 				{{if .Saas}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
 				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
+				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
 				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -14378,10 +14396,9 @@ do this 100% reliably.</p>
 		before the closing &lt;/body&gt; tag:</p>
 		{{template "_backend_sitecode.gohtml" .}}
 
-		<p><small>This message will disappear once we receive data; you will
-			still be able to see the site code in
-			<a href="/settings#tab-site-code">settings</a>, which also contains
-			further documentation and ready-made integrations.</small></p>
+		<p><small>This message will disappear once we receive data; see
+			<a href="/code">Site code</a> in the top menu for further
+			documentation and ready-made integrations.</small></p>
 	</div>
 {{end}}
 
@@ -14583,6 +14600,15 @@ parent site includes the child sites.</p>
 
 <pre>{{pp .Stat.Site}}</pre>
 <pre>{{pp .Stat.User}}</pre>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/backend_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h1>Site code</h1>
+<p>To add Goatcounter to a site insert the code below just before the closing
+<code>&lt;/body&gt;</code> tag:</p>
+{{template "_backend_sitecode.gohtml" .}}
 
 {{template "_backend_bottom.gohtml" .}}
 `),
@@ -14816,12 +14842,6 @@ parent site includes the child sites.</p>
 		{{end}}
 	</div>
 {{end}}
-
-<div>
-	<h2 id="site-code">Site code</h2>
-	<p>Insert the code below just before the closing <code>&lt;/body&gt;</code> tag:</p>
-	{{template "_backend_sitecode.gohtml" .}}
-</div>
 
 <div>
 	<h2 id="purge">Purge</h2>
