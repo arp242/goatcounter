@@ -15173,15 +15173,12 @@ sub {
 	"tpl/help.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <h1>GoatCounter help</h1>
+
+<h2 id="general">General <a href="#general"></a></h2>
 <dl>
 	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
 	<dd>For reasons of efficiency the statistics are updated once every 10
 	seconds.</dd>
-
-	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
-	<dd>We’ll be in touch if you consistently go over the number over pageviews,
-		but there is no automated process to shut down accounts or anything like
-		that.</dd>
 
 	<dt id="bots">How are bots and crawlers counted? <a href="#bots">§</a></dt>
 	<dd>They’re not; all bots and crawlers that identify themselves as such are ignored.<br>
@@ -15239,6 +15236,15 @@ sub {
 		<a href="https://github.com/zgoat/goatcounter/issues/3#issuecomment-578202761">issue #3</a>.
 	</dd>
 
+</dl>
+
+<h2 id="billing">Billing <a href="#billing"></a></h2>
+<dl>
+	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
+	<dd>We’ll be in touch if you consistently go over the number over pageviews,
+		but there is no automated process to shut down accounts or anything like
+		that.</dd>
+
 	<dt id="charity">Is there any discount for charities, non-profit organisations, startups, etc? <a href="#charity">§</a></dt>
 	<dd>
 		The short answer is ”not really”. The longer answer is that it depends
@@ -15259,7 +15265,6 @@ sub {
 		I’ll be happy to revisit this policy once GoatCounter starts becoming
 		financially sustainable, but right now it’s still quite far from that.
 	</dd>
-</dl>
 
 {{template "_bottom.gohtml" .}}
 `),
