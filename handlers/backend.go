@@ -81,10 +81,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 				return 4, 1
 			},
 		})).Get("/count", zhttp.Wrap(h.count))
-
-		if cfg.CertDir != "" {
-			zhttp.MountACME(rr, cfg.CertDir)
-		}
 	}
 
 	{
@@ -94,12 +90,18 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
 		// https://stripe.com/docs/security#content-security-policy
+		ds := []string{""}
+		if cfg.DomainStatic == "" {
+			ds[0] = header.CSPSourceSelf
+		} else {
+			ds[0] = cfg.DomainStatic
+		}
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
-			header.CSPImgSrc:     append(cfg.DomainStatic, "data:"),
-			header.CSPScriptSrc:  append(cfg.DomainStatic, "https://chat.goatcounter.com", "https://js.stripe.com"),
-			header.CSPStyleSrc:   append(cfg.DomainStatic, header.CSPSourceUnsafeInline), // style="height: " on the charts.
-			header.CSPFontSrc:    cfg.DomainStatic,
+			header.CSPImgSrc:     append(ds, "data:"),
+			header.CSPScriptSrc:  append(ds, "https://chat.goatcounter.com", "https://js.stripe.com"),
+			header.CSPStyleSrc:   append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
+			header.CSPFontSrc:    ds,
 			header.CSPFormAction: {header.CSPSourceSelf},
 			header.CSPConnectSrc: {header.CSPSourceSelf, "https://chat.goatcounter.com", "https://api.stripe.com"},
 			header.CSPFrameSrc:   {"https://js.stripe.com", "https://hooks.stripe.com"},
@@ -120,6 +122,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			ap.Get("/browsers", zhttp.Wrap(h.browsers))
 			ap.Get("/sizes", zhttp.Wrap(h.sizes))
 			ap.Get("/locations", zhttp.Wrap(h.locations))
+			ap.Get("/toprefs", zhttp.Wrap(h.topRefs))
+			ap.Get("/pages-by-ref", zhttp.Wrap(h.pagesByRef))
 		}
 		{
 			af := a.With(loggedIn)
@@ -128,6 +132,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
 			af.Get("/settings", zhttp.Wrap(h.settings))
+			af.Get("/code", zhttp.Wrap(h.code))
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.Post("/set-tz", zhttp.Wrap(h.setTZ))
@@ -142,6 +147,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Post("/remove/{id}", zhttp.Wrap(h.removeSubsite))
 			af.Get("/purge", zhttp.Wrap(h.purgeConfirm))
 			af.Post("/purge", zhttp.Wrap(h.purge))
+			af.Post("/delete", zhttp.Wrap(h.delete))
 			af.With(admin).Get("/admin", zhttp.Wrap(h.admin))
 			af.With(admin).Get("/admin/{id}", zhttp.Wrap(h.adminSite))
 		}
@@ -230,6 +236,13 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
+	err = hit.Validate(r.Context())
+	if err != nil {
+		w.Header().Add("X-Goatcounter", fmt.Sprintf("not valid: %s", err))
+		w.WriteHeader(400)
+		return zhttp.Bytes(w, gif)
+	}
+
 	goatcounter.Memstore.Append(hit)
 	return zhttp.Bytes(w, gif)
 }
@@ -251,40 +264,20 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		start = now.Add(-7 * day)
 		end   = now
 	)
-	// Use period first as fallback when there's no JS.
-	if p := r.URL.Query().Get("period"); p != "" {
-		switch p {
-		case "day":
-			// Do nothing.
-		case "week":
-			start = start.Add(-7 * day)
-		case "month":
-			start = start.Add(-30 * day)
-		case "quarter":
-			start = start.Add(-91 * day)
-		case "half-year":
-			start = start.Add(-183 * day)
-		case "year":
-			start = start.Add(-365 * day)
-		case "all":
-			start = time.Date(1970, 1, 1, 0, 0, 0, 0, start.Location())
+	if d := r.URL.Query().Get("period-start"); d != "" {
+		var err error
+		start, err = time.Parse("2006-01-02", d)
+		if err != nil {
+			zhttp.FlashError(w, "Invalid start date: %q", d)
+			start = now.Add(-7 * day)
 		}
-	} else {
-		if s := r.URL.Query().Get("period-start"); s != "" {
-			var err error
-			start, err = time.Parse("2006-01-02", s)
-			if err != nil {
-				zhttp.FlashError(w, "start date: %s", err.Error())
-				start = now.Add(-7 * day)
-			}
-		}
-		if s := r.URL.Query().Get("period-end"); s != "" {
-			var err error
-			end, err = time.Parse("2006-01-02", s)
-			if err != nil {
-				zhttp.FlashError(w, "end date: %s", err.Error())
-				end = now
-			}
+	}
+	if d := r.URL.Query().Get("period-end"); d != "" {
+		var err error
+		end, err = time.Parse("2006-01-02", d)
+		if err != nil {
+			zhttp.FlashError(w, "Invalid end date: %q", d)
+			end = now
 		}
 	}
 
@@ -325,6 +318,13 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	showMoreLoc := len(locStat) > 0 && float32(locStat[len(locStat)-1].Count)/float32(totalLoc)*100 < 3.0
 	l = l.Since("locStat.List")
 
+	var topRefs goatcounter.Stats
+	_, showMoreRefs, err := topRefs.ListRefs(r.Context(), start, end, 10, 0)
+	if err != nil {
+		return err
+	}
+	l = l.Since("topRefs.List")
+
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
 	var refs goatcounter.HitStats
@@ -344,8 +344,9 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
+		CountDomain       string
 		ShowRefs          string
-		Period            string
+		SelectedPeriod    string
 		PeriodStart       time.Time
 		PeriodEnd         time.Time
 		Filter            string
@@ -362,13 +363,67 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		LocationStat      goatcounter.Stats
 		TotalLocation     int
 		ShowMoreLocations bool
+		TopRefs           goatcounter.Stats
+		ShowMoreRefs      bool
 		Daily             bool
-	}{newGlobals(w, r), sr, r.URL.Query().Get("hl-period"), start, end, filter,
-		pages, refs, moreRefs, total, totalDisplay, browsers, totalBrowsers,
-		subs, sizeStat, totalSize, locStat, totalLoc, showMoreLoc, daily})
+	}{newGlobals(w, r), cfg.DomainCount, sr, r.URL.Query().Get("hl-period"),
+		start, end, filter, pages, refs, moreRefs, total, totalDisplay,
+		browsers, totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
+		showMoreLoc, topRefs, showMoreRefs, daily})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
+}
+
+func (h backend) topRefs(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var refs goatcounter.Stats
+	o, _ := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
+	total, hasMore, err := refs.ListRefs(r.Context(), start, end, 10, int(o))
+	if err != nil {
+		return err
+	}
+
+	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
+	tpl := goatcounter.HorizontalChart(r.Context(), refs, total, int(t), 0, true, false)
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"html":     string(tpl),
+		"has_more": hasMore,
+	})
+}
+
+func (h backend) pagesByRef(w http.ResponseWriter, r *http.Request) error {
+	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
+	if err != nil {
+		return err
+	}
+
+	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
+	if err != nil {
+		return err
+	}
+
+	var hits goatcounter.Stats
+	total, err := hits.ByRef(r.Context(), start, end, r.URL.Query().Get("name"))
+	if err != nil {
+		return err
+	}
+
+	tpl := goatcounter.HorizontalChart(r.Context(), hits, total, total, 1, true, true)
+
+	return zhttp.JSON(w, map[string]interface{}{
+		"html": string(tpl),
+	})
 }
 
 func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
@@ -521,7 +576,7 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .5, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .1, true, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -546,7 +601,7 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), sizeStat, total, int(t), .5, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), sizeStat, total, int(t), .5, true, true)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -570,7 +625,7 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tpl := goatcounter.HorizontalChart(r.Context(), locStat, total, total, 0, false)
+	tpl := goatcounter.HorizontalChart(r.Context(), locStat, total, total, 0, false, true)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
 	})
@@ -638,6 +693,7 @@ func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	seenat := u.SeenUpdatesAt
 	err = u.SeenUpdates(r.Context())
 	if err != nil {
 		zlog.Field("user", fmt.Sprintf("%d", u.ID)).Error(err)
@@ -646,7 +702,8 @@ func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "backend_updates.gohtml", struct {
 		Globals
 		Updates goatcounter.Updates
-	}{newGlobals(w, r), up})
+		SeenAt  time.Time
+	}{newGlobals(w, r), up, seenat})
 }
 
 func (h backend) settings(w http.ResponseWriter, r *http.Request) error {
@@ -666,6 +723,20 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		Validate  *zvalidate.Validator
 		Timezones []*tz.Zone
 	}{newGlobals(w, r), sites, verr, tz.Zones})
+}
+
+func (h backend) code(w http.ResponseWriter, r *http.Request) error {
+	var sites goatcounter.Sites
+	err := sites.ListSubs(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_code.gohtml", struct {
+		Globals
+		SubSites    goatcounter.Sites
+		CountDomain string
+	}{newGlobals(w, r), sites, cfg.DomainCount})
 }
 
 func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
@@ -742,11 +813,12 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
 	}
 
+	makecert := false
 	if args.Cname == "" {
 		site.Cname = nil
 	} else {
 		if site.Cname == nil || *site.Cname != args.Cname {
-			acme.Domains <- args.Cname
+			makecert = true // Make after we persisted to DB.
 		}
 		site.Cname = &args.Cname
 	}
@@ -766,6 +838,15 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	err = tx.Commit()
 	if err != nil {
 		return err
+	}
+
+	if makecert {
+		go func() {
+			err := acme.Make(args.Cname)
+			if err != nil {
+				zlog.Field("domain", args.Cname).Error(err)
+			}
+		}()
 	}
 
 	zhttp.Flash(w, "Saved!")
@@ -817,6 +898,10 @@ func (h backend) export(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {
+	if !cfg.Saas {
+		return guru.New(400, "can only do this in SaaS mode")
+	}
+
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -836,6 +921,10 @@ func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) er
 }
 
 func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
+	if !cfg.Saas {
+		return guru.New(400, "can only do this in SaaS mode")
+	}
+
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -858,6 +947,10 @@ func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
+	if !cfg.Saas {
+		return guru.New(400, "can only do this in SaaS mode")
+	}
+
 	args := struct {
 		Name string `json:"name"`
 		Code string `json:"code"`
@@ -909,4 +1002,22 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Done!")
 	return zhttp.SeeOther(w, "/settings#tab-purge")
+}
+
+func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
+	site := goatcounter.MustGetSite(r.Context())
+	err := site.Delete(r.Context())
+	if err != nil {
+		return err
+	}
+
+	if site.Parent != nil {
+		var p goatcounter.Site
+		err := p.ByID(r.Context(), *site.Parent)
+		if err != nil {
+			return err
+		}
+		return zhttp.SeeOther(w, p.URL())
+	}
+	return zhttp.SeeOther(w, "https://"+cfg.Domain)
 }

@@ -28,12 +28,13 @@ import (
 // Plan column values.
 const (
 	PlanPersonal     = "personal"
+	PlanPersonalPlus = "personalplus"
 	PlanBusiness     = "business"
 	PlanBusinessPlus = "businessplus"
 	PlanChild        = "child"
 )
 
-var Plans = []string{PlanPersonal, PlanBusiness, PlanBusinessPlus}
+var Plans = []string{PlanPersonal, PlanPersonalPlus, PlanBusiness, PlanBusinessPlus}
 
 var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
@@ -54,7 +55,7 @@ type Site struct {
 	Plan         string       `db:"plan"`
 	Stripe       *string      `db:"stripe"`
 	Settings     SiteSettings `db:"settings"`
-	LastStat     *time.Time   `db:"last_stat"`
+	LastStat     *time.Time   `db:"last_stat"` // TODO: unused, remove
 	ReceivedData bool         `db:"received_data"`
 
 	State     string     `db:"state"`
@@ -63,14 +64,15 @@ type Site struct {
 }
 
 type SiteSettings struct {
-	Public          bool               `json:"public"`
-	TwentyFourHours bool               `json:"twenty_four_hours"`
-	DateFormat      string             `json:"date_format"`
-	NumberFormat    rune               `json:"number_format"`
-	DataRetention   int                `json:"data_retention"`
-	IgnoreIPs       sqlutil.StringList `json:"ignore_ips"`
-	Timezone        *tz.Zone           `json:"timezone"`
-	Limits          struct {
+	Public           bool               `json:"public"`
+	TwentyFourHours  bool               `json:"twenty_four_hours"`
+	SundayStartsWeek bool               `json:"sunday_starts_week"`
+	DateFormat       string             `json:"date_format"`
+	NumberFormat     rune               `json:"number_format"`
+	DataRetention    int                `json:"data_retention"`
+	IgnoreIPs        sqlutil.StringList `json:"ignore_ips"`
+	Timezone         *tz.Zone           `json:"timezone"`
+	Limits           struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
 	} `json:"limits"`
@@ -148,7 +150,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 
 	v.Domain("link_domain", s.LinkDomain)
-	v.Len("code", s.Code, 1, 50)
+	v.Len("code", s.Code, 2, 50)
 	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)
 	if s.Cname != nil {
@@ -276,13 +278,15 @@ func (s *Site) Delete(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
+	t := time.Now().UTC()
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set state=$1 where id=$2`,
-		StateDeleted, s.ID)
+		`update sites set state=$1, updated_at=$2 where id=$3 or parent=$3`,
+		StateDeleted, t.Format(zdb.Date), s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Delete")
 	}
 	s.ID = 0
+	s.UpdatedAt = &t
 	s.State = StateDeleted
 	return nil
 }
@@ -301,8 +305,8 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 		"cfg.Domain": cfg.Domain,
 	})
 
-	// Custom domain.
-	if cfg.Saas && !strings.HasSuffix(host, cfg.Domain) {
+	// Custom domain or serve.
+	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
 		l.Debug("by cname")
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`select * from sites where lower(cname)=lower($1) and state=$2`,
@@ -323,15 +327,19 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 
 // ListSubs lists all subsites, including the current site and parent.
 func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
+	col := "code"
+	if cfg.Serve {
+		col = "cname"
+	}
 	var codes []string
 	err := zdb.MustGet(ctx).SelectContext(ctx, &codes, `
-		select code from sites
-		where state=$2 and (parent=$1 or id=$1) or (
-			parent = (select parent from sites where id=$1) or
-			id     = (select parent from sites where id=$1)
-		) and state=$2
+		select `+col+` from sites
+		where state=$1 and (parent=$2 or id=$2) or (
+			parent = (select parent from sites where id=$2) or
+			id     = (select parent from sites where id=$2)
+		) and state=$1
 		order by code
-	`, s.ID, StateActive)
+		`, StateActive, s.ID)
 	return codes, errors.Wrap(err, "Site.ListSubs")
 }
 
@@ -347,14 +355,14 @@ func (s Site) Domain() string {
 // URL to this site.
 func (s Site) URL() string {
 	if s.Cname != nil {
-		return fmt.Sprintf("http%s://%s",
+		return fmt.Sprintf("http%s://%s%s",
 			map[bool]string{true: "s", false: ""}[cfg.Prod],
-			*s.Cname)
+			*s.Cname, cfg.Port)
 	}
 
-	return fmt.Sprintf("http%s://%s.%s",
+	return fmt.Sprintf("http%s://%s.%s%s",
 		map[bool]string{true: "s", false: ""}[cfg.Prod],
-		s.Code, cfg.Domain)
+		s.Code, cfg.Domain, cfg.Port)
 }
 
 // PlanCustomDomain reports if this site's plan allows custom domains.
@@ -369,7 +377,7 @@ func (s Site) PlanCustomDomain(ctx context.Context) bool {
 		return ps.PlanCustomDomain(ctx)
 	}
 
-	return s.Plan == PlanBusiness || s.Plan == PlanBusinessPlus
+	return s.Plan == PlanPersonalPlus || s.Plan == PlanBusiness || s.Plan == PlanBusinessPlus
 }
 
 // IDOrParent gets this site's ID or the parent ID if that's set.
@@ -439,15 +447,38 @@ func (s Site) Admin() bool {
 type Sites []Site
 
 // List all sites.
-func (u *Sites) List(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
+func (s *Sites) List(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
 		`select * from sites where state=$1 order by created_at desc`,
 		StateActive), "Sites.List")
 }
 
+// ListCnames all sites that have CNAME set.
+func (s *Sites) ListCnames(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
+		`select * from sites where state=$1 and cname is not null order by created_at desc`,
+		StateActive), "Sites.List")
+}
+
 // ListSubs lists all subsites for the current site.
-func (u *Sites) ListSubs(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
+func (s *Sites) ListSubs(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
 		`select * from sites where parent=$1 and state=$2 order by code`,
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
+}
+
+// ContainsCNAME reports if there is a site with this CNAME set.
+func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
+	var ok bool
+	err := zdb.MustGet(ctx).GetContext(ctx, &ok,
+		`select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
+	return ok, errors.Wrap(err, "Sites.ContainsCNAME")
+}
+
+// OldSoftDeleted finds all sites which have been soft-deleted more than a week
+// ago.
+func (s *Sites) OldSoftDeleted(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, fmt.Sprintf(
+		`select * from sites where state=$1 and updated_at < %s`, interval(7)),
+		StateDeleted), "Sites.OldSoftDeleted")
 }

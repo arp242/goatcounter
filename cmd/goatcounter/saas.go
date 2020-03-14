@@ -10,8 +10,8 @@ import (
 	"net/mail"
 	"os"
 	"strings"
+	"time"
 
-	"github.com/go-chi/chi"
 	"github.com/teamwork/reload"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
@@ -20,6 +20,7 @@ import (
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/stringutil"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
@@ -37,142 +38,147 @@ Static files and templates are compiled in the binary and aren't needed to run
 GoatCounter. But they're loaded from the filesystem if GoatCounter is started
 with -dev.
 
+NOTE: running your own SaaS is currently undocumented, non-trivial, and has
+certain assumptions that may not be true in your case. You almost certainly want
+to use the "serve" command.
+
 Flags:
 
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
-
-  -listen        Address to listen on. Default: localhost:8081
-
-  -dev           Start in "dev mode".
-
-  -domain        Base domain with port followed by comma and list of static
-                 domains. You need to have at least one static domain.
-
+  -domain        Base domain with port followed by comma and the static domain,
+                 optionally followed by the doimain to serve count.js
                  Default: goatcounter.localhost:8081, static.goatcounter.localhost:8081
+                 Example: -domain goatcounter.com,static.zgo.at,gc.zgo.at
 
-                 If you want to serve the static files from CDN, e.g.:
-                    -domain 'example.com, gc.cdn.com, static.example.com'
-
-  -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
-                 sending login emails and errors (if -errors is enabled).
-                 Default is blank, meaning nothing is sent.
-
-  -errors        What to do with errors; they're always printed to stderr.
-
-                     mailto:addr     Email to this address; requires -smtp.
-
-                 Default: not set.
+  -plan          Plan for new installations; default: personal.
 
   -stripe        Stripe keys; needed for billing. It needs the secret,
                  publishable, and webhook (sk_*, pk_*, whsec_*) keys as
                  colon-separated, in any order. Billing will be disabled if left
                  blank.
+` + serveAndSaasFlags
 
-  -debug         Modules to debug, comma-separated or 'all' for all modules.
-
-  -plan          Plan for new installations; default: personal.
-
-  -automigrate   Automatically run all pending migrations on startup.
-
-  -certdir       Directory to store ACME-generated certificates for custom
-                 domains. Default: empty.
-
-  -tls           Path to TLS certificate and key, colon-separated and in that
-                 order. This will automatically redirect port 80 as well.
-`
-
-func saas() (int, error) {
+func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
-	var (
-		automigrate, dev                                bool
-		tls, listen, smtp, errors, stripe, domain, plan string
-	)
-	CommandLine.BoolVar(&automigrate, "automigrate", false, "")
+	var dev bool
 	CommandLine.BoolVar(&dev, "dev", false, "")
-	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081", "")
-	CommandLine.StringVar(&listen, "listen", "localhost:8081", "")
-	CommandLine.StringVar(&smtp, "smtp", "", "")
-	CommandLine.StringVar(&errors, "errors", "", "")
-	CommandLine.StringVar(&stripe, "stripe", "", "")
-	CommandLine.StringVar(&cfg.CertDir, "certdir", "", "")
-	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	CommandLine.StringVar(&tls, "tls", "", "")
-	CommandLine.Parse(os.Args[2:])
+	automigrate := CommandLine.Bool("automigrate", false, "")
+	listen := CommandLine.String("listen", "localhost:8081", "")
+	smtp := CommandLine.String("smtp", "stdout", "")
+	tls := CommandLine.String("tls", "", "")
+	errors := CommandLine.String("errors", "", "")
+	auth := CommandLine.String("auth", "email", "")
 
+	err := CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
 	cfg.Prod = !dev
-	cfg.Plan = plan
-	cfg.Saas = true
+	zhttp.LogUnknownFields = dev
 	zhttp.CookieSecure = !dev
-	zmail.SMTP = smtp
+	zmail.SMTP = *smtp
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
 
-	v := zvalidate.New()
-	v.Include("-plan", plan, goatcounter.Plans)
+	flagErrors(*errors, v)
 	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
-	//v.Path("-certdir", cfg.CertDir, true) // TODO: implement in zvalidate
-	// TODO: validate tls
-	if smtp == "" && !dev {
-		v.Append("-smtp", "must be set if -dev is not enabled")
+
+	return *dbConnect, dev, *automigrate, *listen, *tls, *auth, err
+}
+
+func setupReload() {
+	pack.Templates = nil
+	pack.Public = nil
+	go func() {
+		err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
+		if err != nil {
+			panic(fmt.Errorf("reload.Do: %v", err))
+		}
+	}()
+}
+
+func setupCron(db zdb.DB) func() {
+	cron.RunBackground(db)
+	go func() {
+		defer zlog.Recover()
+		time.Sleep(3 * time.Second)
+		cron.RunOnce(db)
+	}()
+	return func() { cron.Wait(db) }
+}
+
+func saas() (int, error) {
+	v := zvalidate.New()
+
+	var stripe, domain, plan string
+	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
+	CommandLine.StringVar(&stripe, "stripe", "", "")
+	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
+	dbConnect, dev, automigrate, listen, tls, auth, err := flagServeAndSaas(&v)
+	if err != nil {
+		return 1, err
 	}
-	flagErrors(errors, &v)
+
+	cfg.Saas = true
+	cfg.Plan = plan
+	if tls == "" {
+		tls = map[bool]string{true: "none", false: "acme"}[dev]
+	}
+
+	v.Include("-plan", plan, goatcounter.Plans)
 	flagStripe(stripe, &v)
 	flagDomain(domain, &v)
+	flagAuth(auth, &v)
 	if v.HasErrors() {
 		return 1, v
 	}
 
-	// Reload on changes.
 	if !cfg.Prod {
-		pack.Templates = nil
-		pack.Public = nil
-		go func() {
-			err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
-			if err != nil {
-				panic(fmt.Errorf("reload.Do: %v", err))
-			}
-		}()
+		setupReload()
 	}
 
-	// Connect to DB.
-	db, err := connectDB(*dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate])
+	db, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate], true)
 	if err != nil {
 		return 2, err
 	}
 	defer db.Close()
 
-	// Run background tasks.
-	cron.Run(db)
-	acme.Run()
+	zhttp.InitTpl(pack.Templates)
+	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
+	defer setupCron(db)()
 
 	// Set up HTTP handler and servers.
-	zhttp.InitTpl(pack.Templates)
 	d := zhttp.RemovePort(cfg.Domain)
-	hosts := map[string]chi.Router{
-		d:          zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + d: handlers.NewWebsite(db),
-		"*":        handlers.NewBackend(db),
-	}
-
-	static := handlers.NewStatic("./public", cfg.Domain, !dev)
-	for _, ds := range cfg.DomainStatic {
-		hosts[zhttp.RemovePort(ds)] = static
+	hosts := map[string]http.Handler{
+		zhttp.RemovePort(cfg.DomainStatic): handlers.NewStatic("./public", cfg.Domain, !dev),
+		d:                                  zhttp.RedirectHost("//www." + cfg.Domain),
+		"www." + d:                         handlers.NewWebsite(db),
+		"*":                                handlers.NewBackend(db, acmeh),
 	}
 
 	zlog.Print(getVersion())
 	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
-	zhttp.Serve(&http.Server{Addr: listen, Handler: zhttp.HostRoute(hosts)}, tls, func() {
-		cron.Wait(db)
-		acme.Wait()
+	banner()
+	zhttp.Serve(listenTLS, &http.Server{
+		Addr:      listen,
+		Handler:   zhttp.HostRoute(hosts),
+		TLSConfig: tlsc,
 	})
-
 	return 0, nil
+}
+
+func banner() {
+	fmt.Print(`
+┏━━━━━━━━━━━━━━━━━━━━━ Thank you for using GoatCounter! ━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                             ┃
+┃ Great you're choosing to self-host GoatCounter! I'd just like to put a      ┃
+┃ reminder here that I work on this full-time; it's not a side-project.       ┃
+┃ Please consider making a financial contribution according to your means if  ┃
+┃ this is useful for you to ensure the long-term viability. Thank you :-)     ┃
+┃                                                                             ┃
+┃                     https://www.goatcounter/contribute                      ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+`)
 }
 
 func flagErrors(errors string, v *zvalidate.Validator) {
@@ -183,15 +189,23 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 		// Do nothing.
 	case strings.HasPrefix(errors, "mailto:"):
 		errors = errors[7:]
-		v.Email("-errors", errors)
+		s := strings.Split(errors, ",")
+		from := s[0]
+		to := s[0]
+		if len(s) > 1 {
+			to = s[1]
+		}
+
+		v.Email("-errors", from)
+		v.Email("-errors", to)
 		zlog.Config.Outputs = append(zlog.Config.Outputs, func(l zlog.Log) {
 			if l.Level != zlog.LevelErr {
 				return
 			}
 
 			err := zmail.Send("GoatCounter Error",
-				mail.Address{Address: "errors@zgo.at"},
-				[]mail.Address{{Address: errors}},
+				mail.Address{Address: from},
+				[]mail.Address{{Address: to}},
 				zlog.Config.Format(l))
 			if err != nil {
 				// Just output to stderr I guess, can't really do much more if
@@ -199,6 +213,35 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				fmt.Fprintf(stderr, "emailerrors: %s\n", err)
 			}
 		})
+	}
+}
+
+func flagAuth(auth string, v *zvalidate.Validator) {
+	switch {
+	default:
+		v.Append("-auth", "invalid value")
+
+	case strings.HasPrefix(auth, "email"):
+		s := strings.Split(auth, ":")
+		var from string
+		if len(s) > 1 {
+			from = s[1]
+		}
+		if from == "" {
+			if cfg.Domain != "" {
+				from = "login@" + zhttp.RemovePort(cfg.Domain)
+			} else {
+				h, err := os.Hostname()
+				if err != nil {
+					panic("cannot get hostname for -auth parameter")
+				}
+				from = "login@" + h
+			}
+		}
+
+		cfg.LoginFrom = from
+
+		v.Email("-auth", from)
 	}
 }
 
@@ -231,28 +274,34 @@ func flagStripe(stripe string, v *zvalidate.Validator) {
 
 func flagDomain(domain string, v *zvalidate.Validator) {
 	l := strings.Split(domain, ",")
-	if len(l) == 0 {
+
+	switch len(l) {
+	default:
+		v.Append("-domain", "too many domains")
+	case 0:
 		v.Append("-domain", "cannot be blank")
-		return
-	}
+	case 1:
+		v.Append("-domain", "must have static domain")
+	case 2, 3:
+		for i, d := range l {
+			d = strings.TrimSpace(d)
+			if p := strings.Index(d, ":"); p > -1 {
+				v.Domain("-domain", d[:p])
+			} else {
+				v.Domain("-domain", d)
+			}
 
-	if len(l) == 1 {
-		l = append(l, l[0])
-	}
-
-	cfg.DomainStatic = []string{}
-	for i, d := range l {
-		d = strings.TrimSpace(d)
-		if p := strings.Index(d, ":"); p > -1 {
-			v.Domain("-domain", d[:p])
-		} else {
-			v.Domain("-domain", d)
+			switch i {
+			case 0:
+				cfg.Domain = d
+			case 1:
+				cfg.DomainStatic = d
+				cfg.DomainCount = d
+				cfg.URLStatic = "//" + d
+			case 2:
+				cfg.DomainCount = d
+			}
 		}
-
-		if i == 0 {
-			cfg.Domain = d
-		} else {
-			cfg.DomainStatic = append(cfg.DomainStatic, d)
-		}
 	}
+
 }

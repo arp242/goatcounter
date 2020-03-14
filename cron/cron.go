@@ -7,11 +7,13 @@ package cron
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/acme"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
@@ -26,6 +28,8 @@ type task struct {
 var tasks = []task{
 	{persistAndStat, 10 * time.Second},
 	{DataRetention, 1 * time.Hour},
+	{renewACME, 2 * time.Hour},
+	{vacuumDeleted, 12 * time.Hour},
 }
 
 var (
@@ -33,18 +37,24 @@ var (
 	wg      sync.WaitGroup
 )
 
-// Run stat updates in the background.
-func Run(db zdb.DB) {
+// RunOnce runs all tasks once and returns.
+func RunOnce(db zdb.DB) {
 	ctx := zdb.With(context.Background(), db)
 	l := zlog.Module("cron")
-
 	for _, t := range tasks {
-		// Run everything on startup immediately.
 		err := t.fun(ctx)
 		if err != nil {
 			l.Error(err)
 		}
+	}
+}
 
+// RunBackground runs tasks in the background according to the given schedule.
+func RunBackground(db zdb.DB) {
+	ctx := zdb.With(context.Background(), db)
+	l := zlog.Module("cron")
+
+	for _, t := range tasks {
 		go func(t task) {
 			defer zlog.Recover()
 
@@ -137,7 +147,6 @@ func persistAndStat(ctx context.Context) error {
 }
 
 func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) error {
-	start := time.Now().UTC().Format("2006-01-02 15:04:05")
 	var site goatcounter.Site
 	err := site.ByID(ctx, siteID)
 	if err != nil {
@@ -157,13 +166,11 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	if err != nil {
 		return errors.Wrapf(err, "location_stat: site %d", siteID)
 	}
-
-	// Record last update.
-	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set last_stat=$1 where id=$2`, start, siteID)
+	err = updateRefStats(ctx, hits)
 	if err != nil {
-		return errors.Wrapf(err, "update last_stat: site %d", siteID)
+		return errors.Wrapf(err, "ref_stat: site %d", siteID)
 	}
+
 	if !site.ReceivedData {
 		_, err = zdb.MustGet(ctx).ExecContext(ctx,
 			`update sites set received_data=1 where id=$1`, siteID)
@@ -174,18 +181,93 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	return nil
 }
 
-func ReindexStats(ctx context.Context, hits []goatcounter.Hit) error {
+func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) error {
 	grouped := make(map[int64][]goatcounter.Hit)
 	for _, h := range hits {
 		grouped[h.Site] = append(grouped[h.Site], h)
 	}
 
 	for siteID, hits := range grouped {
-		err := UpdateStats(ctx, siteID, hits)
+		var site goatcounter.Site
+		err := site.ByID(ctx, siteID)
+		if err != nil {
+			return err
+		}
+		ctx = context.WithValue(ctx, ctxkey.Site, &site)
+
+		switch table {
+		case "all":
+			err = UpdateStats(ctx, siteID, hits)
+		case "hit_stats":
+			err = updateHitStats(ctx, hits)
+		case "browser_stats":
+			err = updateBrowserStats(ctx, hits)
+		case "location_stats":
+			err = updateLocationStats(ctx, hits)
+		case "ref_stats":
+			err = updateRefStats(ctx, hits)
+		}
 		if err != nil {
 			return err
 		}
 	}
 
+	return nil
+}
+
+func renewACME(ctx context.Context) error {
+	if !acme.Enabled() {
+		return nil
+	}
+
+	// Don't do this on shutdown as the HTTP server won't be available.
+	if stopped.Value() == 1 {
+		return nil
+	}
+
+	var sites goatcounter.Sites
+	err := sites.ListCnames(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range sites {
+		wg.Add(1)
+		go func(d string) {
+			defer wg.Done()
+			err := acme.Make(d)
+			if err != nil {
+				zlog.Module("cron-acme").Error(err)
+			}
+		}(*s.Cname)
+	}
+
+	return nil
+}
+
+func vacuumDeleted(ctx context.Context) error {
+	var sites goatcounter.Sites
+	err := sites.OldSoftDeleted(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range sites {
+		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
+
+		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+			for _, t := range []string{"browser_stats", "hit_stats", "hits", "location_stats", "ref_stats", "users"} {
+				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
+				if err != nil {
+					return fmt.Errorf("%s: %w", t, err)
+				}
+			}
+			_, err := db.ExecContext(ctx, `delete from sites where id=$1`, s.ID)
+			return err
+		})
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

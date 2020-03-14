@@ -39,6 +39,7 @@ var usage = map[string]string{
 	"migrate": usageMigrate,
 	"saas":    usageSaas,
 	"reindex": usageReindex,
+	"monitor": usageMonitor,
 
 	"version": `
 Show version and build information. This is printed as key=value, separated by
@@ -70,6 +71,7 @@ Advanced commands:
   saas        Run a "SaaS" production server.
   reindex     Re-create the cached statistics (*_stats tables) from the hits.
               This is generally rarely needed and mostly a development tool.
+  monitor     Monitor for pageviews.
 
 See "help <command>" for more details for the command.
 `
@@ -112,6 +114,8 @@ func main() {
 		code, err = saas()
 	case "reindex":
 		code, err = reindex()
+	case "monitor":
+		code, err = monitor()
 	}
 	if err != nil {
 		// code=1, the user did something wrong and print usage as well
@@ -147,8 +151,13 @@ func printMsg(code int, usageText, msg string, args ...interface{}) {
 func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcounter.sqlite3", "") }
 func flagDebug() *string { return CommandLine.String("debug", "", "") }
 
-func connectDB(connect string, migrate []string) (*sqlx.DB, error) {
-	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://")
+func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) {
+	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://") || strings.HasPrefix(connect, "postgres://")
+
+	if !create {
+		return zdb.Connect(zdb.ConnectOptions{Connect: connect})
+	}
+
 	return zdb.Connect(zdb.ConnectOptions{
 		Connect: connect,
 		Schema:  map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL],

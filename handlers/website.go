@@ -63,18 +63,18 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Post("/signup", zhttp.Wrap(h.doSignup))
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
-	for _, t := range []string{"", "help", "privacy", "terms", "contact"} {
+	for _, t := range []string{"", "help", "privacy", "terms", "contact", "contribute"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
-	user{}.mount(r)
 }
 
 var metaDesc = map[string]string{
-	"":        "Simple web statistics. No tracking of personal data.",
-	"help":    "Help and support – GoatCounter",
-	"privacy": "Privacy policy – GoatCounter",
-	"terms":   "Terms of Service – GoatCounter",
-	"contact": "Contact – GoatCounter",
+	"":           "Simple web statistics. No tracking of personal data.",
+	"help":       "Help and support – GoatCounter",
+	"privacy":    "Privacy policy – GoatCounter",
+	"terms":      "Terms of Service – GoatCounter",
+	"contact":    "Contact – GoatCounter",
+	"contribute": "Contribute – GoatCounter",
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
@@ -144,25 +144,41 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan}
+	user := goatcounter.User{Name: args.Name, Email: args.Email}
+
+	v := zvalidate.New()
+	if strings.TrimSpace(args.TuringTest) != "9" {
+		v.Append("turing_test", "must fill in correct value")
+		// Quick exit to prevent spurious errors/DB load from spambots.
+		return zhttp.Template(w, "signup.gohtml", struct {
+			Globals
+			Page       string
+			MetaDesc   string
+			Site       goatcounter.Site
+			User       goatcounter.User
+			Validate   *zvalidate.Validator
+			TuringTest string
+		}{newGlobals(w, r), "signup", "Sign up for GoatCounter",
+			site, user, &v, args.TuringTest})
+	}
+
 	txctx, tx, err := zdb.Begin(r.Context())
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	v := zvalidate.New()
-	if strings.TrimSpace(args.TuringTest) != "9" {
-		v.Append("turing_test", "must fill in correct value")
-	}
-
 	// Create site.
 	tz, err := tz.New(geo(r.RemoteAddr), args.Timezone)
 	if err != nil {
-		zlog.Field("timezone", args.Timezone).Error(err)
+		zlog.FieldsRequest(r).Fields(zlog.F{
+			"timezone": args.Timezone,
+			"args":     fmt.Sprintf("%#v\n", args),
+		}).Error(err)
 	}
+	site.Settings = goatcounter.SiteSettings{Timezone: tz}
 
-	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan,
-		Settings: goatcounter.SiteSettings{Timezone: tz}}
 	err = site.Insert(txctx)
 	if err != nil {
 		if _, ok := err.(*zvalidate.Validator); !ok {
@@ -172,17 +188,14 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Create user.
-	user := goatcounter.User{
-		Name:  args.Name,
-		Email: args.Email,
-		Site:  site.ID,
-	}
+	user.Site = site.ID
 	err = user.Insert(txctx)
 	if err != nil {
 		if _, ok := err.(*zvalidate.Validator); !ok {
 			return err
 		}
 		v.Sub("user", "", err)
+		delete(v.Errors, "user.site")
 	}
 
 	if v.HasErrors() {
@@ -256,7 +269,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		err := zmail.Send("Your GoatCounter sites",
-			mail.Address{Name: "GoatCounter login", Address: "login@goatcounter.com"},
+			mail.Address{Name: "GoatCounter login", Address: cfg.LoginFrom},
 			[]mail.Address{{Name: name, Address: args.Email}},
 			body)
 		if err != nil {

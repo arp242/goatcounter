@@ -8,46 +8,58 @@
 		before the closing &lt;/body&gt; tag:</p>
 		{{template "_backend_sitecode.gohtml" .}}
 
-		<p><small>This message will disappear once we receive data; you will
-			still be able to see the site code in
-			<a href="/settings#tab-site-code">settings</a>, which also contains
-			further documentation.</small></p>
+		<p><small>This message will disappear once we receive data; see
+			<a href="/code">Site code</a> in the top menu for further
+			documentation and ready-made integrations.</small></p>
 	</div>
 {{end}}
 
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
 <form id="period-form">
-	<div class="count-list-opt">
+	<div class="period-form-date">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-
-		<span class="period-select period-{{.Period}}">
-			Select last
-			<button class="link" name="period" value="day">day</button>,
-			<button class="link" name="period" value="week">week</button>,
-			<button class="link" name="period" value="month">month</button>,
-			<button class="link" name="period" value="quarter">quarter</button>,
-			<button class="link" name="period" value="half-year">half year</button>,
-			<button class="link" name="period" value="year">year</button>,
-			<button class="link" name="period" value="all">all time</button>.
-		</span>
-
-		<span class="period-move">
-			Go back one
-			<button class="link" name="move" value="week">week</button>,
-			<button class="link" name="move" value="month">month</button>,
-			<button class="link" name="move" value="quarter">quarter</button>.
-		</span>
-		<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
-		<br>
-
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
-		<input type="hidden" id="hl-period" name="hl-period" value="">
+		<input type="hidden" value="" id="hl-period"     name="hl-period">
 
-		<button type="submit">Go</button>
+		<div class="date">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+			<button type="submit">Go</button>
+			<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+
+			<span class="period-form-select period-{{.SelectedPeriod}}">
+				<span>
+					Select last
+					<button class="link" name="period" value="week">week</button> ·
+					<button class="link" name="period" value="month">month</button> ·
+					<button class="link" name="period" value="quarter">quarter</button> ·
+					<button class="link" name="period" value="half-year">half year</button> ·
+					<button class="link" name="period" value="year">year</button>
+				</span>
+
+				<span>
+					Current
+					<button class="link" name="period" value="week-cur">week</button> ·
+					<button class="link" name="period" value="month-cur">month</button>
+				</span>
+			</span>
+		</div>
+
+		<div class="period-form-move">
+			<div>
+				← back
+				<button class="link" name="move" value="week-b">week</button> ·
+				<button class="link" name="move" value="month-b">month</button>
+			</div>
+
+			<div>
+				<button class="link" name="move" value="week-f">week</button> ·
+				<button class="link" name="move" value="month-f">month</button>
+				forward →
+			</div>
+		</div>
 	</div>
 
 	<div class="pages-list">
@@ -75,25 +87,42 @@
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true true}}</div>
+			</div>
 		{{end}}
 	</div>
 	<div>
-		<h2>Screen size{{if beforeSize .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
+		<h2>Screen size{{if before_size .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true true}}</div>
+			</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
 	<div class="location-chart">
-		<h2>Locations{{if beforeLoc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
+		<h2>Locations{{if before_loc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
+			</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
+		{{end}}
+	</div>
+	<div class="top-refs-chart">
+		<h2>Top referers</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalHits 0 0 true false}}</div>
+			</div>
+			{{if .ShowMoreRefs}}<a href="#" class="show-more">Show more</a>{{end}}
 		{{end}}
 	</div>
 </div>

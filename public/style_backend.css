@@ -3,9 +3,15 @@
    v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
 
 .page    { padding: 1em; }
-footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
-           display: flex; justify-content: space-between; }
-footer a { font-weight: bold; color: #252525; }
+footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between;
+	       background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
+footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
+
+@media (max-width: 54em) {
+	footer      { text-align: left; justify-content: space-around; }
+	footer a    { display: block; padding: .5em 0; }
+	footer span { display: none; }
+}
 
 /* Don't make various explanatory texts too wide. */
 .page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
@@ -113,11 +119,15 @@ form .err  { color: red; display: block; }
 }
 
 /*** Pages header (filter, time period select, etc.) ***/
-.count-list-opt {
-	padding: 1em;
-	background-color: #f8f8d9;
-	border: 1px solid #dede89;
-	border-radius: 2px;
+.period-form-date            { margin-bottom: 1.5em; }
+.period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+.period-form-date .date span { margin-left: .5em; }
+.period-form-date input      { width: 9em; text-align: center; }
+.period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
+
+@media (max-width: 62.5rem) {
+	.period-form-select          { display: block; }
+	.period-form-date .date span { margin-left: .1em; margin-top: .5em; }
 }
 
 .period-day [value=day],
@@ -126,7 +136,8 @@ form .err  { color: red; display: block; }
 .period-quarter [value=quarter],
 .period-half-year [value=half-year],
 .period-year [value=year],
-.period-all [value=all] {
+.period-week-cur [value=week-cur],
+.period-month-cur [value=month-cur] {
 	font-weight: bold;
 	text-decoration: underline;
 }
@@ -211,7 +222,6 @@ form .err  { color: red; display: block; }
 
 #drag-box {
 	position: absolute;
-
 	background-color: #99f;
 	opacity: .5;
 }
@@ -238,8 +248,8 @@ select#timezone { max-width: 20rem; }
 
 table.auto { width: auto; }
 
-.browser-charts       { display: flex; justify-content: space-between; }
-.browser-charts > div { width: 32%; }
+.browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.browser-charts > div    { width: 49%; }
 .browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
 
 @media (max-width: 45rem) {
@@ -272,11 +282,55 @@ table.auto { width: auto; }
 }
 
 /* Don't make things appear clickable that aren't */
+.chart-hbar.hbar-detail > *            { cursor: default; }
+.chart-hbar.hbar-detail > *:hover span { background-color: #9a15a4;  }
+.chart-hbar.hbar-detail > *:focus      { outline: none; }
 .chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
 .chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
 .chart-hbar > *[title^="(other): "]:focus, .chart-hbar > *[title^="(unknown): "]:focus { outline: none; }
 
+.hchart-wrap { position: relative; }
+.hbar-open   { opacity: .25; background-color: #ddd; }
+
+.hbar-detail {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #fff;
+	z-index: 2;  /* Make sure it's over the footer */
+	border-left: 1px solid #ddd;
+	width: 75%;
+	padding-left: .25em;
+}
+.hbar-detail .arrow {
+	content: " ";
+	display: block;
+	position: absolute;
+	left: -20px;
+	width: 0;
+	height: 0;
+	border-top: 20px solid transparent;
+	border-bottom: 20px solid transparent;
+	border-right: 20px solid #aaa;
+}
+.hbar-detail .close {
+	position: absolute;
+	left: -1em;
+	top: -1em;
+	border-radius: 9999px;
+	background-color: #ccc;
+	width: 1.5em;
+	text-align: center;
+	line-height: 1.5em;
+	cursor: pointer;
+}
+.hbar-detail .close:hover {
+	background-color: #ddd;
+}
+
+
+/*** Settings tabs ***/
 .tab-nav {
 	padding: 1em;
 	background-color: #f8f8d9;
@@ -305,7 +359,8 @@ noscript {
 
 /*** Updates overview ***/
 .update p        { margin-left: 2em; }
-.update > em + p { margin-top: 0; }
+.update > em + p, .update > em + strong + p { margin-top: 0; }
+.update-new      { background-color: yellow; padding: 0 .3em; }
 
 /*** Pages header ***/
 header h2 { border-bottom: 0; display: inline; }
@@ -314,3 +369,6 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages sup                { font-size: .9rem; }
 .header-pages input#filter-paths { float: right; padding: .2em; margin-right: 1em; }
 .header-pages input.value        { background-color: yellow; }
+
+h3 + h4 { margin-top: .3em; }
+

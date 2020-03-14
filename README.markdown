@@ -15,10 +15,10 @@ the *"why?"* of this project.
 
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
-Please consider [donating][patreon] if you're self-hosting GoatCounter so I can
-pay my rent :-)
+Please consider [contributing financially][sponsor] if you're self-hosting
+GoatCounter so I can pay my rent :-)
 
-[patreon]: https://www.patreon.com/arp242
+[sponsor]: http://www.goatcounter.com/contribute
 [www]: https://www.goatcounter.com
 
 Features
@@ -67,39 +67,51 @@ Features
 Running your own
 ----------------
 
-There are binaries on the [releases][release] page, or compile from source with:
+### Building
 
-	$ git clone git@github.com:zgoat/goatcounter.git
-	$ cd goatcounter
-	$ go build ./cmd/goatcounter
+Compile from source with:
+
+    $ git clone https://github.com/zgoat/goatcounter.git
+    $ cd goatcounter
+    $ go build ./cmd/goatcounter
 
 You'll now have a `goatcounter` binary in the current directory.
 
-The master branch should be reasonably stable. You can build/run a specific
-release by checking out the tag: `git checkout v1.0.0`.
+The master branch should be reasonably stable. You can get a specific release by
+checking out the branch for the latest version: `git checkout v1.0.0`.
 
 It's not recommended to use `go get` in GOPATH mode since that will ignore the
 versions in go.mod.
 
-Go 1.12 and newer are supported (it follows the [Go release policy][rp]). You
+Go 1.13 and newer are supported (it follows the [Go release policy][rp]). You
 will need a C compiler (for SQLite) or PostgreSQL.
 
-[release]: https://github.com/zgoat/goatcounter/releases
 [rp]: https://golang.org/doc/devel/release.html#policy
 
-### Production
+### Running
 
-For a production environment run something like:
+You can start the server with:
 
-    goatcounter saas \
-       -smtp         'smtp://localhost:25' \
-       -emailerrors  'me@example.com'
+    goatcounter serve -dev
 
 The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will be
 created if it doesn't exist). See the `-db` flag to customize this.
 
-`-smtp` is required to send login emails. You can use something like Mailtrap if
-you just want it for yourself, but you can also use your Gmail or whatnot.
+You can create new sites with the `create` command:
+
+    goatcounter create -email me@example.com -domain stats.example.com
+
+If you use a custom DB, you must also pass the `-db` flag here.
+
+The `-dev` flag makes some small things a bit more convenient for development,
+such as logins. For a production environment run something like:
+
+    goatcounter serve
+
+Using an SMTP relay via `-smtp` isn't required, but will usually guarantee
+better deliverability, so is recommended (delivering emails without them ending
+up in the spambox is hard). You should be able to use your
+gmail/FastMail/ProtonMail/etc. account for this.
 
 ### Updating
 
@@ -110,6 +122,8 @@ easiest way, although arguably not the "best" way.
 Use `goatcounter migrate <file>` or `goatcounter migrate all` to manually run
 migrations; generally you want to upload the new version, run migrations while
 the old one is still running, and then restart so the new version takes effect.
+
+Use `goatcounter migrate show` to get a list of pending migrations.
 
 ### PostgreSQL
 
@@ -123,13 +137,12 @@ it:
 
        $ createdb goatcounter
        $ psql goatcounter -c '\i db/schema.pgsql'
+       $ goatcounter migrate all
 
-2. Run with `-pgsql` and `-dbconnect`, for example:
+2. Run with custom `-db` flag:
 
-       $ goatcounter \
-           -db           'postgresql://user=goatcounter dbname=goatcounter sslmode=disable' \
-           -smtp         'smtp://localhost:25' \
-           -emailerrors  'me@example.com'
+       $ goatcounter serve \
+           -db 'postgresql://user=goatcounter dbname=goatcounter sslmode=disable'
 
    See the [pq docs][pq] for more details on the connection string.
 
@@ -137,8 +150,8 @@ it:
 
        $ CGO_ENABLED=0 go build
 
-   Functionally it doesn't matter too much, but you won't need a C compiler,
-   builds will be faster, and creating static binaries will be easier.
+   Functionally it doesn't matter too much, but builds will be a bit easier and
+   faster as it won't require a C compiler.
 
 [pq]: https://godoc.org/github.com/lib/pq
 

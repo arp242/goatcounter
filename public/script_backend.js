@@ -26,8 +26,9 @@
 		});
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
-			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
+			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs,
 		].forEach(function(f) { f.call(); });
 
 		// Set timezone for people who don't have it yet.
@@ -186,16 +187,20 @@
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};
 
 	// Report an error.
 	var onerror = function(msg, url, line, column, err) {
+		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
+		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
+			return;
+
 		jQuery.ajax({
 			url:    '/jserr',
 			method: 'POST',
-			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent},
+			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
 	}
 
@@ -243,6 +248,27 @@
 				},
 				complete: function() {
 					form.find('button').attr('disabled', false).text('Continue');
+				},
+			});
+		});
+	};
+
+	// Paginate the top ref list.
+	var paginate_toprefs = function() {
+		$('.top-refs-chart .show-more').on('click', function(e) {
+			e.preventDefault();
+
+			var bar = $(this).parent().find('.chart-hbar:first')
+			jQuery.ajax({
+				url: '/toprefs',
+				data: append_period({
+					offset: $('.top-refs-chart [data-detail] > a').length,
+					total:  $('.total-hits').text().replace(/[^\d]/, ''),
+				}),
+				success: function(data) {
+					bar.append(data.html);
+					if (!data.has_more)
+						$('.top-refs-chart .show-more').remove()
 				},
 			});
 		});
@@ -304,23 +330,24 @@
 		});
 	};
 
-	// Show detail for a browser (version breakdown) or size (width breakdown).
-	var browser_size_detail = function() {
+	// Show details for the horizontal charts.
+	var hchart_detail = function() {
+		$(document.body).on('keydown', function(e) {
+			if (e.keyCode !== 27)  // Esc
+				return;
+			$('.hbar-detail').remove();
+			$('.hbar-open').removeClass('hbar-open');
+		});
+
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).closest('.chart-hbar'),
-				url = bar.attr('data-detail'),
+			var btn  = $(this),
+				bar  = $(this).closest('.chart-hbar'),
+				url  = bar.attr('data-detail'),
 				name = $(this).find('small').text();
 			if (!url || !name || name === '(other)' || name === '(unknown)')
 				return;
-
-			// Already open.
-			if (bar.attr('data-save')) {
-				bar.html(bar.attr('data-save'));
-				bar.attr('data-save', '');
-				return;
-			}
 
 			jQuery.ajax({
 				url: url,
@@ -329,8 +356,20 @@
 					total: $('.total-hits').text().replace(/[^\d]/, ''),
 				}),
 				success: function(data) {
-					bar.attr('data-save', bar.html());
-					bar.html(data.html);
+					bar.parent().find('.hbar-detail').remove();
+					bar.addClass('hbar-open');
+
+					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
+						$('<div class="arrow"></div>').css('top', (btn.position().top + 6) + 'px'),
+						data.html,
+						$('<a href="#_" class="close">×</a>').on('click', function(e) {
+							e.preventDefault();
+							d.remove();
+							bar.removeClass('hbar-open');
+							btn.removeClass('active');
+						}));
+
+					bar.after(d);
 				},
 			});
 		});
@@ -359,10 +398,10 @@
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
-		$('.period-select').on('click', 'button', function(e) {
+		$('.period-form-select').on('click', 'button', function(e) {
 			e.preventDefault();
 
-			var start = new Date();
+			var start = new Date(), end = new Date();
 			switch (this.value) {
 				case 'day':       /* Do nothing */ break;
 				case 'week':      start.setDate(start.getDate() - 7); break;
@@ -370,27 +409,35 @@
 				case 'quarter':   start.setMonth(start.getMonth() - 3); break;
 				case 'half-year': start.setMonth(start.getMonth() - 6); break;
 				case 'year':      start.setFullYear(start.getFullYear() - 1); break;
-				case 'all':
-					start.setYear(1970);
-					start.setMonth(0);
+				case 'week-cur':
+					if (SETTINGS.sunday_starts_week)
+						start.setDate(start.getDate() - start.getDay());
+					else
+						start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
+					end.setDate(start.getDate() + 6);
+					break;
+				case 'month-cur':
 					start.setDate(1);
+					end = new Date(end.getFullYear(), end.getMonth() + 1, 0);
 					break;
 			}
 
 			$('#hl-period').val(this.value);
-			set_period(start, new Date())
+			set_period(start, end);
 		});
 
-		$('.period-move').on('click', 'button', function(e) {
+		$('.period-form-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
-
 			switch (this.value) {
-				case 'week':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
-				case 'month':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'quarter': start.setMonth(start.getMonth() - 3); end.setMonth(end.getMonth() - 3); break;
+				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
+				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
+				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
+				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
 			}
+			if (start.getDate() === 1 && this.value.substr(0, 4) === 'month')
+				end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
 			set_period(start, end);
 		});
@@ -412,6 +459,8 @@
 
 		$('.chart').on('mousedown', function(e) {
 			if (e.button !== 0 && e.type !== 'touchstart')
+				return;
+			if ($(e.target).hasClass('top'))
 				return;
 
 			startX = e.pageX
@@ -447,7 +496,7 @@
 			e.preventDefault();
 
 			var box_left   = parseFloat(box.css('left')),
-				box_right = $(window).width() - parseFloat(box.css('right')),
+				box_right  = $(window).width() - parseFloat(box.css('right')),
 				start, end;
 			// All charts have the same bars, so just using the first is fine.
 			$('.chart').first().find('>div').each(function(i, elem) {
@@ -466,6 +515,10 @@
 			box.remove();
 			box = null;
 			$(document).off('.timeframe');
+
+			// Don't count clicks or very small movements.
+			if ($(end).index() - $(start).index() < 2)
+				return;
 
 			// Every bar is always one hour, -2 for .half and .max
 			var ps = get_date($('#period-start').val()),

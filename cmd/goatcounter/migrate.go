@@ -26,9 +26,11 @@ Flags:
                  or "postgres://<connect string>" for PostgreSQL
                  Default: sqlite://db/goatcounter.sqlite3
 
+  -createdb      Create the database if it doesn't exist yet; only for SQLite.
+
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
-Positional argumts are names of database migrations, either as just the name
+Positional arguments are names of database migrations, either as just the name
 ("2020-01-05-2-foo") or as the file path ("./db/migrate/sqlite/2020-01-05-2-foo.sql").
 
 Use "all" to run all migrations that haven't been run yet, or "show" to only
@@ -45,10 +47,17 @@ func migrate() (int, error) {
 
 	dbConnect := flagDB()
 	debug := flagDebug()
-	CommandLine.Parse(os.Args[2:])
+
+	var createdb bool
+	CommandLine.BoolVar(&createdb, "createdb", false, "")
+	err := CommandLine.Parse(os.Args[2:])
+	if err != nil {
+		return 1, err
+	}
+
 	zlog.Config.SetDebug(*debug)
 
-	db, err := connectDB(*dbConnect, CommandLine.Args())
+	db, err := connectDB(*dbConnect, CommandLine.Args(), createdb)
 	if err != nil {
 		return 2, err
 	}

@@ -352,7 +352,7 @@ button:not(.link), input[type="submit"]:not(.link) {
   padding: .6em 1.5em;
   background-color: #f6f5f4;
   background: linear-gradient(#f6f5f4, #edebe9);
-  border: .5px outset #e9e9e9;
+  border: 1px outset #e9e9e9;
   border-radius: 3px;
   border-top-color: #ccc;
   border-left-color: #ccc;
@@ -444,7 +444,7 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
   color: #999;
 }
 h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
-  content: "¶";
+  content: "§";
 }
 
 /* FILE: ./postscript.css */

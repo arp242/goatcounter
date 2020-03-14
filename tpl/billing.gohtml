@@ -8,7 +8,7 @@
 	{{else}}
 		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
 		<p>{{.Next}}</p>
-		<p><a href="/billing/cancel">Cancel</a></p>
+		<p><a href="/billing/cancel">Cancel or change</a></p>
 	{{end}}
 {{else}}
 	<script src="https://js.stripe.com/v3"></script>
@@ -20,17 +20,21 @@
 			<legend>Plan</legend>
 			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
 				<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+			<label><input type="radio" name="plan" value="personalplus" {{if eq .Site.Plan "personalplus"}}checked{{end}}>
+				<span>Personal plus</span> €5/month; non-commercial use; 200k pageviews/month; custom domain.</label><br>
 			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
 				<span>Business</span> €15/month; 500k pageviews/month; custom domain.</label><br>
 			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
 				<span>Business plus</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
-
-			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
+			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a><br><br>
+			Email
+				<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+				if you donate via other channels with details to set up the
+				correct plan.
 		</fieldset>
 
 		<fieldset class="free">
 			<legend>Optional payments</legend>
-
 			<p>GoatCounter is free for personal non-commercial use (see
 				<a href="//www.{{.Domain}}/terms#commercial">ToS for definition</a>),
 				but a small monthly donation is encouraged so I can pay my rent
@@ -38,10 +42,13 @@
 			<p>Even just a small €1/month would be greatly appreciated! Fill in
 				0 to disable the banner without a donation.</p>
 
-			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="2" min="0">
+			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="3" min="0"> /month
 
-			<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>
-				(note: using this form is better due to lower platform costs).</p>
+			<p>Other ways to contribute:</p>
+			<ul>
+				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
+				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
+			</ul>
 		</fieldset>
 
 		<p class="ask-cc">You’ll be asked for credit card details on the next page.

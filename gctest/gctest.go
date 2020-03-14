@@ -29,8 +29,14 @@ var (
 	migrations []string
 )
 
+type tester interface {
+	Helper()
+	Fatal(...interface{})
+	Fatalf(string, ...interface{})
+}
+
 // DB starts a new database test.
-func DB(t *testing.T) (context.Context, func()) {
+func DB(t tester) (context.Context, func()) {
 	t.Helper()
 
 	dbname := "goatcounter_test_" + zhttp.Secret()

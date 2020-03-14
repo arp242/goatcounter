@@ -582,6 +582,100 @@ commit;
 	insert into version values ('2020-02-06-1-hitsid');
 commit;
 `),
+	"db/migrate/pgsql/2020-02-19-1-personalplus.sql": []byte(`begin;
+	alter table sites
+		drop constraint sites_plan_check;
+	alter table sites
+		add constraint sites_plan_check check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom'));
+
+	insert into updates (subject, created_at, show_at, body) values (
+		'Personal plus plan and GitHub Sponsors', now(), now(),
+		'<p>You can now contribute through the GitHub Sponsors as well; since
+			GitHub will match contributions in the first year this is now the
+			preferred method, since you’ll get more bang for your buck ;-)
+			<a href="https://github.com/sponsors/arp242/">https://github.com/sponsors/arp242/</a>
+		</p>
+
+		<p>I also added a “Personal Plus” plan. Like the Personal plan, this is
+			for non-commercial use only, but allows you to use a custom domain
+			with GoatCounter; e.g. stats.mydomain.com instead of
+			mine.goatcounter.com. This is €5/month.</p>
+	');
+
+	insert into version values ('2020-02-19-1-personalplus');
+commit;
+`),
+	"db/migrate/pgsql/2020-02-19-2-outage.sql": []byte(`begin;
+		delete from updates where subject='Outage 😞';
+	insert into updates (subject, created_at, show_at, body) values (
+		'Outage 😞', now(), now(),
+
+		'
+<p>For about 12 hours (from Feb 18 20:00 until Feb 19 09:00, UTC) GoatCounter
+didn’t collect any pageviews 😞</p>
+
+<p>The first mistake was a small update I pushed yesterday with some minor code refactors.
+GoatCounter persists the pageviews in the background to reduce database load and ensure the
+<code>/count</code> endpoint is always fast, but the background cron wasn’t being run so … nothing
+got persisted to the database.</p>
+
+<p>The fix was just two characters: <code>defer setupCron(db)</code> to <code>defer setupCron(db)()</code>.
+It was a silly mistake.</p>
+
+<p>This shouldn’t have resulted in any data loss, since Varnish (the HTTP proxy/load balancer) logs
+all requests exactly to recover from this kind of thing. The second mistake is that the log files
+would be truncated whenever Varnish restarts, instead of appended to them. I restarted Varnish just
+before I discovered this to clear the cache after some frontend changes. I fixed this as well, but
+it’s too late to recover the previous logs.</p>
+
+<p>So unfortunately there is no way to recover from this and there’s a 12-hour gap in your pageviews
+😞 I’m really sorry about this; it definitely ruined my day.</p>
+
+<p>I’ll improve the monitoring to also send alerts if the number of pageviews drops dramatically.
+I’ll also improve the integration testing (most of this code is tested already, but it’s not
+a full integration test yet).</p>
+');
+
+	insert into version values ('2020-02-19-2-outage');
+commit;
+
+`),
+	"db/migrate/pgsql/2020-02-24-1-ref_stats.sql": []byte(`begin;
+
+	create table ref_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null,
+		ref            varchar        not null,
+		count          int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "ref_stats#site#day" on ref_stats(site, day);
+
+	insert into version values ('2020-02-24-1-ref_stats');
+commit;
+`),
+	"db/migrate/pgsql/2020-03-03-1-flag.sql": []byte(`begin;
+	create table flags (
+		name  varchar not null,
+		value int     not null
+	);
+
+	insert into version values ('2020-03-03-1-flag');
+commit;
+`),
+	"db/migrate/pgsql/2020-03-13-1-code-moved.sql": []byte(`begin;
+	insert into updates (subject, created_at, show_at, body) values (
+		'Site code moved', now(), now(),
+		'<p>Just a little heads-up that the “site code” is now its own page
+		linked in the top menu, instead of a tab in the settings page. This will
+		allow permalinks to sections, which was tricky on the tab page because
+		permalinks are already used there for the tabs.</p>');
+
+	insert into version values ('2020-03-13-1-code-moved');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1218,6 +1312,58 @@ commit;
 	insert into version values ('2020-02-06-1-hitsid');
 commit;
 `),
+	"db/migrate/sqlite/2020-02-19-1-personalplus.sql": []byte(`begin;
+	create table sites2 (
+		id             integer        primary key autoincrement,
+		parent         integer        null                     check(parent is null or parent>0),
+
+		name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
+		code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+		cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
+		plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
+		stripe         varchar        null,
+		settings       varchar        not null,
+		last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
+		received_data  int            not null default 0,
+		link_domain    varchar        not null default '',
+
+		state          varchar        not null default 'a'     check(state in ('a', 'd')),
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+	);
+
+	insert into sites2 select * from sites;
+	drop table sites;
+	alter table sites2 rename to sites;
+
+	insert into version values ('2020-02-19-1-personalplus');
+commit;
+`),
+	"db/migrate/sqlite/2020-02-24-1-ref_stats.sql": []byte(`begin;
+
+	create table ref_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+		ref            varchar        not null,
+		count          int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "ref_stats#site#day" on ref_stats(site, day);
+
+	insert into version values ('2020-02-24-1-ref_stats');
+commit;
+`),
+	"db/migrate/sqlite/2020-03-03-1-flag.sql": []byte(`begin;
+	create table flags (
+		name  varchar not null,
+		value int     not null
+	);
+
+	insert into version values ('2020-03-03-1-flag');
+commit;
+`),
 }
 
 var Public = map[string][]byte{
@@ -1575,7 +1721,7 @@ button:not(.link), input[type="submit"]:not(.link) {
   padding: .6em 1.5em;
   background-color: #f6f5f4;
   background: linear-gradient(#f6f5f4, #edebe9);
-  border: .5px outset #e9e9e9;
+  border: 1px outset #e9e9e9;
   border-radius: 3px;
   border-top-color: #ccc;
   border-left-color: #ccc;
@@ -1667,7 +1813,7 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
   color: #999;
 }
 h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
-  content: "¶";
+  content: "§";
 }
 
 /* FILE: ./postscript.css */
@@ -1720,9 +1866,10 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 'use strict';
 
 (function() {
-	window.goatcounter = (window.goatcounter && goatcounter.vars)
-		? goatcounter.vars  // Compatibility
-		: (window.goatcounter || {})
+	if (window.goatcounter && window.goatcounter.vars)  // Compatibility
+		window.goatcounter = window.goatcounter.vars;
+	else
+		window.goatcounter = window.goatcounter || {};
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(count_vars) {
@@ -1732,75 +1879,99 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			t: count_vars.title    || goatcounter.title,
 			e: !!(count_vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
-		}
+		};
 
-		var rcb, pcb, tcb  // Save callbacks so they can be applied after getting the defaults.
-		if (typeof(data.r) === 'function') rcb = data.r
-		if (typeof(data.t) === 'function') tcb = data.t
-		if (typeof(data.p) === 'function') pcb = data.p
+		// Save callbacks.
+		var rcb, pcb, tcb;
+		if (typeof(data.r) === 'function') rcb = data.r;
+		if (typeof(data.t) === 'function') tcb = data.t;
+		if (typeof(data.p) === 'function') pcb = data.p;
 
-		if (is_empty(data.r)) data.r = document.referrer
-		if (is_empty(data.t)) data.t = document.title
+		// Get the values unless explicitly given.
+		if (is_empty(data.r)) data.r = document.referrer;
+		if (is_empty(data.t)) data.t = document.title;
 		if (is_empty(data.p)) {
 			var loc = location,
-			    c   = document.querySelector('link[rel="canonical"][href]')
-			if (c) {  // May be relative.
-				loc = document.createElement('a')
-				loc.href = c.href
+				c = document.querySelector('link[rel="canonical"][href]');
+			// Parse in a tag to a Location object (canonical URL may be relative).
+			if (c) {
+				loc = document.createElement('a');
+				loc.href = c.href;
 			}
-			data.p = (loc.pathname + loc.search) || '/'
+			data.p = (loc.pathname + loc.search) || '/';
 		}
 
-		if (rcb) data.r = rcb(data.r)
-		if (tcb) data.t = tcb(data.t)
-		if (pcb) data.p = pcb(data.p)
-		return data
-	}
+		// Apply callbacks.
+		if (rcb) data.r = rcb(data.r);
+		if (tcb) data.t = tcb(data.t);
+		if (pcb) data.p = pcb(data.p);
+
+		return data;
+	};
 
 	// Check if a value is "empty" for the purpose of get_data().
-	var is_empty = function(v) { return v === null || v === undefined || typeof(v) === 'function' }
+	var is_empty = function(v) { return v === null || v === undefined || typeof(v) === 'function'; }
 
-	// Create urlencoded string, starting with a ?: "?foo=bar&a=b".
+	// Object to urlencoded string, starting with a ?.
 	var to_params = function(obj) {
-		return '?' + Object.keys(obj).map(function(k) {
-			return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])
-		}).join('&')
-	}
+		var p = [];
+		for (var k in obj)
+			p.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]));
+		return '?' + p.join('&');
+	};
 
 	// Count a hit.
-	goatcounter.count = function(count_vars) {
-		if (document.hidden || ('visibilityState' in document && document.visibilityState === 'prerender'))
-			return
-		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
-			return
+	var count = function(count_vars) {
+		// Don't track pages fetched with the browser's prefetch algorithm.
+		// See https://github.com/usefathom/fathom/issues/13
+		if ('visibilityState' in document && document.visibilityState === 'prerender')
+			return;
 
-		var script   = document.querySelector('script[data-goatcounter]'),
-		    endpoint = window.counter  // Compatibility
+		// Find the tag used to load this script.
+		var script = document.querySelector('script[data-goatcounter]'),
+			endpoint = window.counter;  // Compatability
 		if (script)
-			endpoint = script.dataset.goatcounter
+			endpoint = script.dataset.goatcounter;
 
-		var data = get_data(count_vars || {})
+		// Don't track private networks.
+		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
+			return;
+
+		var data = get_data(count_vars || {});
 		if (data.p === null)  // null returned from user callback.
-			return
+			return;
 
-		var img = document.createElement('img')
-		img.src = endpoint + to_params(data)
-		img.style.float = 'right'  // Affect layout less.
-		img.setAttribute('alt', '')
-		img.setAttribute('aria-hidden', 'true')
-		img.addEventListener('load', function() { img.parentNode.removeChild(img) }, false)
-		setTimeout(function() {  // Just in case the onload isn't triggered.
-			if (img && img.parentNode) img.parentNode.removeChild(img)
-		}, 3000)
+		// Add image to send request.
+		var img = document.createElement('img'),
+		    rm  = function() { if (img && img.parentNode) img.parentNode.removeChild(img) };
+		img.src = endpoint + to_params(data);
+		img.style.float = 'right';  // Affect layout less.
+		img.setAttribute('alt', '');
+		img.setAttribute('aria-hidden', 'true');
 
-		document.body.appendChild(img)
-	}
+		setTimeout(rm, 3000); // In case the onload isn't triggered.
+		img.addEventListener('load', rm, false);
+		document.body.appendChild(img);
+	};
 
-	if (!goatcounter.no_onload)
-		if (document.readyState === 'loading')
-			document.addEventListener('DOMContentLoaded', goatcounter.count, false)
+	// Get an URL parameter.
+	var get_query = function(name) {
+		var s = location.search.substr(1).split('&');
+		for (var i = 0; i < s.length; i++)
+			if (s[i].toLowerCase().indexOf(name.toLowerCase() + '=') === 0)
+				return s[i].substr(name.length + 1)
+	};
+
+	// Expose public API.
+	window.goatcounter.count     = count;
+	window.goatcounter.get_query = get_query
+
+	if (!goatcounter.no_onload) {
+		if (document.body === null)
+			document.addEventListener('DOMContentLoaded', function() { count(); }, false);
 		else
-			goatcounter.count()
+			count();
+	}
 })();
 `),
 	"public/favicon/android-chrome-192x192.png": func() []byte {
@@ -10706,50 +10877,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 (function() {
     'use strict';
 
-    /**
-     * feature detection and helper functions
-     */
-    var hasEventListeners = !!window.addEventListener,
-
-    addEvent = function(el, e, callback, capture)
-    {
-        if (hasEventListeners) {
-            el.addEventListener(e, callback, !!capture);
-        } else {
-            el.attachEvent('on' + e, callback);
-        }
-    },
-
-    removeEvent = function(el, e, callback, capture)
-    {
-        if (hasEventListeners) {
-            el.removeEventListener(e, callback, !!capture);
-        } else {
-            el.detachEvent('on' + e, callback);
-        }
-    },
-
-    trim = function(str)
-    {
-        return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g,'');
-    },
-
-    hasClass = function(el, cn)
-    {
-        return (' ' + el.className + ' ').indexOf(' ' + cn + ' ') !== -1;
-    },
-
-    addClass = function(el, cn)
-    {
-        if (!hasClass(el, cn)) {
-            el.className = (el.className === '') ? cn : el.className + ' ' + cn;
-        }
-    },
-
-    removeClass = function(el, cn)
-    {
-        el.className = trim((' ' + el.className + ' ').replace(' ' + cn + ' ', ' '));
-    },
+    // TODO: these can all be removed.
+    var
+    addEvent = function(el, e, callback, capture) { el.addEventListener(e, callback, !!capture); },
+    removeEvent = function(el, e, callback, capture) { el.removeEventListener(e, callback, !!capture); },
+    hasClass = function(el, cn) { return el.classList && el.classList.contains(cn) },
+    addClass = function(el, cn) { el.classList.add(cn) },
+    removeClass = function(el, cn) { el.classList.remove(cn) },
 
     isArray = function(obj)
     {
@@ -11012,7 +11146,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             arr.push('is-endrange');
         }
         return '<td data-day="' + opts.day + '" class="' + arr.join(' ') + '" aria-selected="' + ariaSelected + '">' +
-                 '<button class="pika-button pika-day" type="button" ' +
+                 '<button class="pika-button link pika-day" type="button" ' +
                     'data-pika-year="' + opts.year + '" data-pika-month="' + opts.month + '" data-pika-day="' + opts.day + '">' +
                         opts.day +
                  '</button>' +
@@ -11127,11 +11261,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         }
 
         if (c === 0) {
-            html += '<button class="pika-prev' + (prev ? '' : ' is-disabled') + '" type="button" ' +
+            html += '<button class="pika-prev link' + (prev ? '' : ' is-disabled') + '" type="button" ' +
                 'title="' + opts.i18n.previousMonth + '">◀</button>';
         }
         if (c === (instance._o.numberOfMonths - 1) ) {
-            html += '<button class="pika-next' + (next ? '' : ' is-disabled') + '" type="button" ' +
+            html += '<button class="pika-next link' + (next ? '' : ' is-disabled') + '" type="button" ' +
                 'title="' + opts.i18n.nextMonth + '">▶</button>';
         }
 
@@ -11290,12 +11424,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             if (!target)
                 return;
 
-            if (!hasEventListeners && hasClass(target, 'pika-select')) {
-                if (!target.onchange) {
-                    target.setAttribute('onchange', 'return;');
-                    addEvent(target, 'change', self._onChange);
-                }
-            }
             do {
                 if (hasClass(pEl, 'pika-single') || pEl === opts.trigger) {
                     return;
@@ -12023,8 +12151,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
-			paginate_refs, browser_size_detail, settings_tabs, paginate_locations,
+			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs,
 		].forEach(function(f) { f.call(); });
 
 		// Set timezone for people who don't have it yet.
@@ -12183,16 +12312,20 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date});
+		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
+		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};
 
 	// Report an error.
 	var onerror = function(msg, url, line, column, err) {
+		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
+		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
+			return;
+
 		jQuery.ajax({
 			url:    '/jserr',
 			method: 'POST',
-			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent},
+			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
 	}
 
@@ -12240,6 +12373,27 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				},
 				complete: function() {
 					form.find('button').attr('disabled', false).text('Continue');
+				},
+			});
+		});
+	};
+
+	// Paginate the top ref list.
+	var paginate_toprefs = function() {
+		$('.top-refs-chart .show-more').on('click', function(e) {
+			e.preventDefault();
+
+			var bar = $(this).parent().find('.chart-hbar:first')
+			jQuery.ajax({
+				url: '/toprefs',
+				data: append_period({
+					offset: $('.top-refs-chart [data-detail] > a').length,
+					total:  $('.total-hits').text().replace(/[^\d]/, ''),
+				}),
+				success: function(data) {
+					bar.append(data.html);
+					if (!data.has_more)
+						$('.top-refs-chart .show-more').remove()
 				},
 			});
 		});
@@ -12301,23 +12455,24 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 	};
 
-	// Show detail for a browser (version breakdown) or size (width breakdown).
-	var browser_size_detail = function() {
+	// Show details for the horizontal charts.
+	var hchart_detail = function() {
+		$(document.body).on('keydown', function(e) {
+			if (e.keyCode !== 27)  // Esc
+				return;
+			$('.hbar-detail').remove();
+			$('.hbar-open').removeClass('hbar-open');
+		});
+
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).closest('.chart-hbar'),
-				url = bar.attr('data-detail'),
+			var btn  = $(this),
+				bar  = $(this).closest('.chart-hbar'),
+				url  = bar.attr('data-detail'),
 				name = $(this).find('small').text();
 			if (!url || !name || name === '(other)' || name === '(unknown)')
 				return;
-
-			// Already open.
-			if (bar.attr('data-save')) {
-				bar.html(bar.attr('data-save'));
-				bar.attr('data-save', '');
-				return;
-			}
 
 			jQuery.ajax({
 				url: url,
@@ -12326,8 +12481,20 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					total: $('.total-hits').text().replace(/[^\d]/, ''),
 				}),
 				success: function(data) {
-					bar.attr('data-save', bar.html());
-					bar.html(data.html);
+					bar.parent().find('.hbar-detail').remove();
+					bar.addClass('hbar-open');
+
+					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
+						$('<div class="arrow"></div>').css('top', (btn.position().top + 6) + 'px'),
+						data.html,
+						$('<a href="#_" class="close">×</a>').on('click', function(e) {
+							e.preventDefault();
+							d.remove();
+							bar.removeClass('hbar-open');
+							btn.removeClass('active');
+						}));
+
+					bar.after(d);
 				},
 			});
 		});
@@ -12356,10 +12523,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
-		$('.period-select').on('click', 'button', function(e) {
+		$('.period-form-select').on('click', 'button', function(e) {
 			e.preventDefault();
 
-			var start = new Date();
+			var start = new Date(), end = new Date();
 			switch (this.value) {
 				case 'day':       /* Do nothing */ break;
 				case 'week':      start.setDate(start.getDate() - 7); break;
@@ -12367,27 +12534,35 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				case 'quarter':   start.setMonth(start.getMonth() - 3); break;
 				case 'half-year': start.setMonth(start.getMonth() - 6); break;
 				case 'year':      start.setFullYear(start.getFullYear() - 1); break;
-				case 'all':
-					start.setYear(1970);
-					start.setMonth(0);
+				case 'week-cur':
+					if (SETTINGS.sunday_starts_week)
+						start.setDate(start.getDate() - start.getDay());
+					else
+						start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
+					end.setDate(start.getDate() + 6);
+					break;
+				case 'month-cur':
 					start.setDate(1);
+					end = new Date(end.getFullYear(), end.getMonth() + 1, 0);
 					break;
 			}
 
 			$('#hl-period').val(this.value);
-			set_period(start, new Date())
+			set_period(start, end);
 		});
 
-		$('.period-move').on('click', 'button', function(e) {
+		$('.period-form-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
-
 			switch (this.value) {
-				case 'week':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
-				case 'month':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'quarter': start.setMonth(start.getMonth() - 3); end.setMonth(end.getMonth() - 3); break;
+				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
+				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
+				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
+				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
 			}
+			if (start.getDate() === 1 && this.value.substr(0, 4) === 'month')
+				end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
 			set_period(start, end);
 		});
@@ -12409,6 +12584,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		$('.chart').on('mousedown', function(e) {
 			if (e.button !== 0 && e.type !== 'touchstart')
+				return;
+			if ($(e.target).hasClass('top'))
 				return;
 
 			startX = e.pageX
@@ -12444,7 +12621,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			e.preventDefault();
 
 			var box_left   = parseFloat(box.css('left')),
-				box_right = $(window).width() - parseFloat(box.css('right')),
+				box_right  = $(window).width() - parseFloat(box.css('right')),
 				start, end;
 			// All charts have the same bars, so just using the first is fine.
 			$('.chart').first().find('>div').each(function(i, elem) {
@@ -12463,6 +12640,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			box.remove();
 			box = null;
 			$(document).off('.timeframe');
+
+			// Don't count clicks or very small movements.
+			if ($(end).index() - $(start).index() < 2)
+				return;
 
 			// Every bar is always one hour, -2 for .half and .max
 			var ps = get_date($('#period-start').val()),
@@ -12887,9 +13068,15 @@ dt { font-weight: bold; margin-top: 1em; }
    v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
 
 .page    { padding: 1em; }
-footer   { padding: 1em; text-align: center; background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4;
-           display: flex; justify-content: space-between; }
-footer a { font-weight: bold; color: #252525; }
+footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between;
+	       background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
+footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
+
+@media (max-width: 54em) {
+	footer      { text-align: left; justify-content: space-around; }
+	footer a    { display: block; padding: .5em 0; }
+	footer span { display: none; }
+}
 
 /* Don't make various explanatory texts too wide. */
 .page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
@@ -12997,11 +13184,15 @@ form .err  { color: red; display: block; }
 }
 
 /*** Pages header (filter, time period select, etc.) ***/
-.count-list-opt {
-	padding: 1em;
-	background-color: #f8f8d9;
-	border: 1px solid #dede89;
-	border-radius: 2px;
+.period-form-date            { margin-bottom: 1.5em; }
+.period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+.period-form-date .date span { margin-left: .5em; }
+.period-form-date input      { width: 9em; text-align: center; }
+.period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
+
+@media (max-width: 62.5rem) {
+	.period-form-select          { display: block; }
+	.period-form-date .date span { margin-left: .1em; margin-top: .5em; }
 }
 
 .period-day [value=day],
@@ -13010,7 +13201,8 @@ form .err  { color: red; display: block; }
 .period-quarter [value=quarter],
 .period-half-year [value=half-year],
 .period-year [value=year],
-.period-all [value=all] {
+.period-week-cur [value=week-cur],
+.period-month-cur [value=month-cur] {
 	font-weight: bold;
 	text-decoration: underline;
 }
@@ -13095,7 +13287,6 @@ form .err  { color: red; display: block; }
 
 #drag-box {
 	position: absolute;
-
 	background-color: #99f;
 	opacity: .5;
 }
@@ -13122,8 +13313,8 @@ select#timezone { max-width: 20rem; }
 
 table.auto { width: auto; }
 
-.browser-charts       { display: flex; justify-content: space-between; }
-.browser-charts > div { width: 32%; }
+.browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.browser-charts > div    { width: 49%; }
 .browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
 
 @media (max-width: 45rem) {
@@ -13156,11 +13347,55 @@ table.auto { width: auto; }
 }
 
 /* Don't make things appear clickable that aren't */
+.chart-hbar.hbar-detail > *            { cursor: default; }
+.chart-hbar.hbar-detail > *:hover span { background-color: #9a15a4;  }
+.chart-hbar.hbar-detail > *:focus      { outline: none; }
 .chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
 .chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
 .chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
 .chart-hbar > *[title^="(other): "]:focus, .chart-hbar > *[title^="(unknown): "]:focus { outline: none; }
 
+.hchart-wrap { position: relative; }
+.hbar-open   { opacity: .25; background-color: #ddd; }
+
+.hbar-detail {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #fff;
+	z-index: 2;  /* Make sure it's over the footer */
+	border-left: 1px solid #ddd;
+	width: 75%;
+	padding-left: .25em;
+}
+.hbar-detail .arrow {
+	content: " ";
+	display: block;
+	position: absolute;
+	left: -20px;
+	width: 0;
+	height: 0;
+	border-top: 20px solid transparent;
+	border-bottom: 20px solid transparent;
+	border-right: 20px solid #aaa;
+}
+.hbar-detail .close {
+	position: absolute;
+	left: -1em;
+	top: -1em;
+	border-radius: 9999px;
+	background-color: #ccc;
+	width: 1.5em;
+	text-align: center;
+	line-height: 1.5em;
+	cursor: pointer;
+}
+.hbar-detail .close:hover {
+	background-color: #ddd;
+}
+
+
+/*** Settings tabs ***/
 .tab-nav {
 	padding: 1em;
 	background-color: #f8f8d9;
@@ -13189,7 +13424,8 @@ noscript {
 
 /*** Updates overview ***/
 .update p        { margin-left: 2em; }
-.update > em + p { margin-top: 0; }
+.update > em + p, .update > em + strong + p { margin-top: 0; }
+.update-new      { background-color: yellow; padding: 0 .3em; }
 
 /*** Pages header ***/
 header h2 { border-bottom: 0; display: inline; }
@@ -13198,6 +13434,9 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages sup                { font-size: .9rem; }
 .header-pages input#filter-paths { float: right; padding: .2em; margin-right: 1em; }
 .header-pages input.value        { background-color: yellow; }
+
+h3 + h4 { margin-top: .3em; }
+
 `),
 }
 
@@ -13766,9 +14005,9 @@ var Templates = map[string][]byte{
 	{{end}}
 	<span id="js-settings" data-offset="{{.Site.Settings.Timezone.Offset}}">{{.Site.Settings.String | unsafe_js}}</span>
 	{{if .User.ID}}<span id="js-csrf">{{.User.CSRFToken}}</span>{{end}}
-	<script crossorigin="anonymous" src="//{{.Static}}/jquery.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
 </body>
 </html>
 `),
@@ -13821,48 +14060,29 @@ var Templates = map[string][]byte{
 </form>
 `),
 	"tpl/_backend_sitecode.gohtml": []byte(`{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
-        async src="//{{.Static}}/count.js"&gt;&lt;/script&gt;{{end}}
+        async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
-{{if eq .Path "/settings"}}
+{{if eq .Path "/code"}}
 
-<h3 class="border">Content security policy</h3>
+Or use one of the ready-made integrations:
+<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
+<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.
+
+<h2 id="csp">Content security policy <a href="#csp"></a></h2>
 <p>You’ll need the following if you use a
 <code>Content-Security-Policy</code>:</p>
 
 <pre>
-script-src  https://{{.Static}}
+script-src  https://{{.StaticDomain}}
 img-src     {{.Site.URL}}/count
 </pre>
 
-<h3 class="border">Customizing</h3>
-<p>You can pass variables with the <code>window.goatcounter</code> object.
+<h2 id="customizing">Customizing <a href="#customizing"></a></h2>
+<p>Customisation is done with the <code>window.goatcounter</code> object; the
+following keys are supported:</p>
 
-The default value will be used if the value is <code>null</code> or
-<code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
-anything else!</p>
-
-<p>The value can be used as a callback: the default value is passed and the
-return value is sent to the server. Nothing is sent if the return value from the
-<code>path</code> callback is <code>null</code>.</p>
-
-<p>Data:</p>
-<ul>
-	<li><code>path</code> – Page path (without domain) or event name.</li>
-
-	<li><code>event</code> – Treat the <code>path</code> as an event, rather
-		than a URL. Boolean.</li>
-
-	<li><code>title</code> – Human-readable title. Default is
-		<code>document.title</code>.</li>
-
-	<li><code>referrer</code> – Where the user came from; can be an URL
-		(<code>https://example.com</code>) or any string
-		(<code>June Newsletter</code>). Default is to use the
-		<code>Referer</code> header.</li>
-</ul>
-
-<p>Settings:</p>
+<h3 id="settings">Settings <a href="#settings"></a></h3>
 <ul>
 	<li><code>no_onload</code> – Don’t do anything on page load. If you want to
 		call <code>count()</code> manually.</li>
@@ -13871,32 +14091,68 @@ return value is sent to the server. Nothing is sent if the return value from the
 		the integration locally.</li>
 </ul>
 
-<p>Callable methods:</p>
+<h3 id="data">Data <a href="#data"></a></h3>
+<p>You can customize the data sent to Goatcounter; the default value will be
+used if the value is <code>null</code> or <code>undefined</code>, but
+<em>not</em> on empty string, <code>0</code>, or anything else!</p>
+
+<p>The value can be a callback: the default value is passed and the return value
+is sent to the server. Nothing is sent if the return value from the
+<code>path</code> callback is <code>null</code>.</p>
+
 <ul>
-	<li><code>count(vars)</code> – Count an event. The <code>vars</code>
-		parameter is an object as described above, and wil take precedence over
-		the global <code>window.goatcounter</code>.</li>
+	<li><code>path</code> – Page path (without domain) or event name.
+		Default is the value of <code>&lt;link rel="canonical"&gt;</code> if it exists,
+		or <code>location.pathname + location.search</code>.</li>
+
+	<li><code>title</code> – Human-readable title. Default is
+		<code>document.title</code>.</li>
+
+	<li><code>referrer</code> – Where the user came from; can be an URL
+		(<code>https://example.com</code>) or any string
+		(<code>June Newsletter</code>). Default is to use the
+		<code>Referer</code> header.</li>
+
+	<li><code>event</code> – Treat the <code>path</code> as an event, rather
+		than a URL. Boolean.</li>
 </ul>
 
-<p>By aware that the script is loaded with <code>async</code> by default,
-so <code>count</code> may not yet be available on click events and the like,
-especially on slower connections and/or if your page loads a lot of other
-resources. To solve this, use <code>setInterval</code> to wait until it’s
-available:</p>
-<pre>
-elem.addEventListener('click', function() {
+<h3 id="methods">Methods <a href="#methods"></a></h3>
+<h4 id="count"><code>count(vars)</code> <a href="#count"></a></h4>
+<p>Count an event; the <code>vars</code> parameter is an object as described in
+the Data section above, and will be merged in to the global
+<code>window.goatcounter</code>, taking precedence.</p>
+
+<p>Be aware that the script is loaded with <code>async</code> by default, so
+<code>count</code> may not yet be available on click events and the like. To
+solve this, use <code>setInterval</code> to wait until it’s available:</p>
+
+<pre>elem.addEventListener('click', function() {
 	var t = setInterval(function() {
-		if (window.goatcounter && window.goatcounter.count) {
+		if (window.goatcounter &amp;&amp; window.goatcounter.count) {
 			clearInterval(t);
 			goatconter.count();
 		}
 	}, 100);
-});
-</pre>
+});</pre>
 
-<h3 class="border">Examples</h3>
+<p>The default implementation already handles this, and you only need to worry
+about this if you call <code>count()</code> manually.</p>
 
-<h4>Load only on production</h4>
+<h4 id="get_query"><code>get_query(name)</code> <a href="#get_query"></a></h4>
+<p>Get a single query parameter from the current page’s URL; returns
+<code>undefined</code> if the parameter doesn’t exist. This is useful if you
+want to get the <code>referrer</code> from the URL:</p>
+
+<pre>window.goatcounter = {
+	referrer: function() {
+		return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
+	}
+};</pre>
+
+<h2 id="examples">Examples <a href="#examples"></a></h2>
+
+<h3 id="production">Load only on production <a href="#production"></a></h3>
 <p>You can check <code>location.host</code> if you want to load GoatCounter only
 on <code>production.com</code> and not <code>staging.com</code> or
 <code>development.com</code>; for example:</p>
@@ -13911,7 +14167,7 @@ on <code>production.com</code> and not <code>staging.com</code> or
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
 	request from localhost are already ignored</a>.</p>
 
-<h4>Skip own views</h4>
+<h3 id="skip-own">Skip own views <a href="#skip-own"></a></h3>
 <p>You can use the same technique as a client-side way to skip loading from your
 own browser:</p>
 
@@ -13923,9 +14179,11 @@ own browser:</p>
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<p>You can also fill in your IP address in the settings.</p>
+<p>You can also fill in your IP address in the settings, or (temporarily) block
+the <code>{{.CountDomain}}</code> domain.</p>
 
-<h4>Custom path and referrer</h4>
+<h3 id="custom-data">Custom path and referrer <a href="#custom-data"></a></h3>
+<p>A basic example with some custom logic for <code>path</code>:</p>
 <pre>&lt;script&gt;
 	window.goatcounter = {
 		path: function(p) {
@@ -13936,14 +14194,11 @@ own browser:</p>
 			// Remove .html from all other page links.
 			return p.replace(/\.html$/, '');
 		},
-
-		// Very simplistic method to get referrer from URL (e.g. ?ref=Newsletter)
-		referrer: (window.location.search ? window.location.search.split('=')[1] : null),
 	};
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<h4>Ignore query parameters in path</h4>
+<h3 id="ignore-query">Ignore query parameters in path <a href="#ignore-query"></a></h3>
 <p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used
 automatically, and is the easiest way to ignore extraneous query parameters:</p>
 
@@ -13964,22 +14219,22 @@ parameters:</p>
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<h4>SPA</h4>
+<h3 id="spa">SPA <a href="#spa"></a></h3>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
 <pre>&lt;script&gt;
 	window.goatcounter = {no_onload: true};
 
 	window.addEventListener('hashchange', function(e) {
 		window.goatcounter.count({
-			page: location.pathname + location.search + location.hash,
+			path: location.pathname + location.search + location.hash,
 		});
 	});
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
-<h3 class="border">Advanced integrations</h3>
+<h2 id="advanced">Advanced integrations <a href="#advanced"></a></h2>
 
-<h4>Image</h4>
+<h3 id="image">Image <a href="#image"></a></h3>
 <p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to
 load an image on your site:<p>
 <pre>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;</pre>
@@ -13988,7 +14243,10 @@ load an image on your site:<p>
 increase the number of bot requests (although we do our best to filter this
 out).</p>
 
-<h4>From middlware</h4>
+<p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people
+without JavaScript.</p>
+
+<h3 id="middleware">From middleware <a href="#middleware"></a></h3>
 <p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your
 app's middleware. It supports the following query parameters:</p>
 
@@ -14014,10 +14272,10 @@ do this 100% reliably.</p>
 <head>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<title>{{.Site.Name}} – GoatCounter</title>
-	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
-	<link rel="stylesheet" href="//{{.Static}}/pikaday.css?v={{.Version}}">
-	<link rel="stylesheet" href="//{{.Static}}/style_backend.css?v={{.Version}}">
+	<title>{{if ne .Site.Name "serve"}}{{.Site.Name}} – {{end}}GoatCounter</title>
+	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
 </head>
 
 <body>
@@ -14031,7 +14289,11 @@ do this 100% reliably.</p>
 						Switch site:
 						{{range $i, $s := .SubSites}}
 							{{if gt $i 0}}|{{end}}
-							<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}">{{$s}}</a>
+							{{if $.Saas}}
+								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{else}}
+								<a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+							{{end}}
 						{{end}}
 					{{end}}
 				{{else if has_prefix .Path "/remove/"}}
@@ -14046,9 +14308,10 @@ do this 100% reliably.</p>
 			</div>
 			<div>
 				Signed in as {{.User.Name}} |
-				<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |
+				{{if .Saas}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
 				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
+				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
 				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -14064,14 +14327,16 @@ do this 100% reliably.</p>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="//{{.Static}}/imgzoom.js?v={{.Version}}"></script>
-		<script crossorigin="anonymous" src="//{{.Static}}/script.js?v={{.Version}}"></script>
+	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="{{.Static}}/imgzoom.js?v={{.Version}}"></script>
+		<script crossorigin="anonymous" src="{{.Static}}/script.js?v={{.Version}}"></script>
 	</div> {{/* .page */}}
 
 	{{template "_bottom_links.gohtml" .}}
 
-	<script data-goatcounter="https://goatcounter.goatcounter.com/count"
-	        async src="//gc.zgo.at/count.js"></script>
+	{{if eq .Domain "goatcounter.com"}}
+		<script data-goatcounter="https://goatcounter.goatcounter.com/count"
+				async src="//gc.zgo.at/count.js"></script>
+	{{end}}
 
 	{{if .Billing}}
 		<script>
@@ -14079,7 +14344,7 @@ do this 100% reliably.</p>
 			window.intergramServer = 'https://chat.goatcounter.com';
 			window.intergramCustomizations = {
 				cookieExpiration:    30,
-				closedChatAvatarUrl: '//{{.Static}}/avatar.jpg',
+				closedChatAvatarUrl: '{{.Static}}/avatar.jpg',
 				introMessage:        'Chat if you have questions',
 				closedStyle:         'button',
 				titleClosed:         'Chat',
@@ -14101,23 +14366,25 @@ do this 100% reliably.</p>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contribute">Contribute</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
 		{{end}}
 	</div>
 	<div>
-		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">GitHub</a><span> |</span>
-		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank" rel="noopener">Product Hunt</a><span> |</span>
-		<a href="https://patreon.com/arp242">Patreon</a>
+		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">Source code</a><span> |</span>
+		<a href="https://github.com/sponsors/arp242" target="_blank" rel="noopener">GitHub sponsors</a><span> |</span>
+		<a href="https://patreon.com/arp242" target="_blank" rel="noopener">Patreon</a><span> |</span>
+		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank" rel="noopener">Product Hunt</a>
 	</div>
 </footer>
 `),
 	"tpl/_favicon.gohtml": []byte(`<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="icon" type="image/png" sizes="32x32" href="//{{.Static}}/favicon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="//{{.Static}}/favicon/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="//{{.Static}}/favicon/apple-touch-icon.png">
-<link rel="manifest" href="//{{.Static}}/favicon/site.webmanifest">
-<link rel="mask-icon" href="//{{.Static}}/favicon/safari-pinned-tab.svg" color="#9a15a4">
+<link rel="icon" type="image/png" sizes="32x32" href="{{.Static}}/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="{{.Static}}/favicon/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="{{.Static}}/favicon/apple-touch-icon.png">
+<link rel="manifest" href="{{.Static}}/favicon/site.webmanifest">
+<link rel="mask-icon" href="{{.Static}}/favicon/safari-pinned-tab.svg" color="#9a15a4">
 <meta name="msapplication-TileColor" content="#9f00a7">
 <meta name="theme-color" content="#ffffff">
 `),
@@ -14128,8 +14395,8 @@ do this 100% reliably.</p>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta name="description" content="{{.MetaDesc}}">
 	<title>GoatCounter – Website statistics for regular folks</title>
-	<link rel="stylesheet" href="//{{.Static}}/all.min.css?v={{.Version}}">
-	<link rel="stylesheet" href="//{{.Static}}/style.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
 	<link rel="canonical" href="https://{{.Domain}}{{if ne .Page "home"}}/{{.Page}}{{end}}">
 </head>
 
@@ -14147,46 +14414,58 @@ do this 100% reliably.</p>
 		before the closing &lt;/body&gt; tag:</p>
 		{{template "_backend_sitecode.gohtml" .}}
 
-		<p><small>This message will disappear once we receive data; you will
-			still be able to see the site code in
-			<a href="/settings#tab-site-code">settings</a>, which also contains
-			further documentation.</small></p>
+		<p><small>This message will disappear once we receive data; see
+			<a href="/code">Site code</a> in the top menu for further
+			documentation and ready-made integrations.</small></p>
 	</div>
 {{end}}
 
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
 <form id="period-form">
-	<div class="count-list-opt">
+	<div class="period-form-date">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-
-		<span class="period-select period-{{.Period}}">
-			Select last
-			<button class="link" name="period" value="day">day</button>,
-			<button class="link" name="period" value="week">week</button>,
-			<button class="link" name="period" value="month">month</button>,
-			<button class="link" name="period" value="quarter">quarter</button>,
-			<button class="link" name="period" value="half-year">half year</button>,
-			<button class="link" name="period" value="year">year</button>,
-			<button class="link" name="period" value="all">all time</button>.
-		</span>
-
-		<span class="period-move">
-			Go back one
-			<button class="link" name="move" value="week">week</button>,
-			<button class="link" name="move" value="month">month</button>,
-			<button class="link" name="move" value="quarter">quarter</button>.
-		</span>
-		<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
-		<br>
-
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-		<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
-		<input type="hidden" id="hl-period" name="hl-period" value="">
+		<input type="hidden" value="" id="hl-period"     name="hl-period">
 
-		<button type="submit">Go</button>
+		<div class="date">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+			<button type="submit">Go</button>
+			<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+
+			<span class="period-form-select period-{{.SelectedPeriod}}">
+				<span>
+					Select last
+					<button class="link" name="period" value="week">week</button> ·
+					<button class="link" name="period" value="month">month</button> ·
+					<button class="link" name="period" value="quarter">quarter</button> ·
+					<button class="link" name="period" value="half-year">half year</button> ·
+					<button class="link" name="period" value="year">year</button>
+				</span>
+
+				<span>
+					Current
+					<button class="link" name="period" value="week-cur">week</button> ·
+					<button class="link" name="period" value="month-cur">month</button>
+				</span>
+			</span>
+		</div>
+
+		<div class="period-form-move">
+			<div>
+				← back
+				<button class="link" name="move" value="week-b">week</button> ·
+				<button class="link" name="move" value="month-b">month</button>
+			</div>
+
+			<div>
+				<button class="link" name="move" value="week-f">week</button> ·
+				<button class="link" name="move" value="month-f">month</button>
+				forward →
+			</div>
+		</div>
 	</div>
 
 	<div class="pages-list">
@@ -14214,25 +14493,42 @@ do this 100% reliably.</p>
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true true}}</div>
+			</div>
 		{{end}}
 	</div>
 	<div>
-		<h2>Screen size{{if beforeSize .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
+		<h2>Screen size{{if before_size .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true true}}</div>
+			</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
 	<div class="location-chart">
-		<h2>Locations{{if beforeLoc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
+		<h2>Locations{{if before_loc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
-			<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false}}</div>
+			<div class="hchart-wrap">
+				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
+			</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
+		{{end}}
+	</div>
+	<div class="top-refs-chart">
+		<h2>Top referers</h2>
+		{{if eq .TotalHits 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalHits 0 0 true false}}</div>
+			</div>
+			{{if .ShowMoreRefs}}<a href="#" class="show-more">Show more</a>{{end}}
 		{{end}}
 	</div>
 </div>
@@ -14325,6 +14621,15 @@ parent site includes the child sites.</p>
 
 {{template "_backend_bottom.gohtml" .}}
 `),
+	"tpl/backend_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h1>Site code</h1>
+<p>To add Goatcounter to a site insert the code below just before the closing
+<code>&lt;/body&gt;</code> tag:</p>
+{{template "_backend_sitecode.gohtml" .}}
+
+{{template "_backend_bottom.gohtml" .}}
+`),
 	"tpl/backend_purge.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 {{if eq (len .List) 0}}
@@ -14388,25 +14693,6 @@ parent site includes the child sites.</p>
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 
-				{{if .Saas}}
-					<label for="code">Code</label>
-					<input type="text" {{/*name="code"*/}} disabled id="code" value="{{.Site.Code}}">
-					{{validate "site.code" .Validate}}
-					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
-						Changing this isn’t implemented yet; contact
-						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-						if you want to change it.
-					</span>
-				{{end}}
-
-				{{if .Site.PlanCustomDomain .Context}}
-					<label for="cname">Custom domain</label>
-					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-					<span>Custom domain, e.g. <em>“stats.example.com”</em>; set a
-						CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-						<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.</span>
-				{{end}}
-
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
@@ -14425,6 +14711,40 @@ parent site includes the child sites.</p>
 			</fieldset>
 
 			<fieldset>
+				<legend>Domain settings</legend>
+
+				{{if .Saas}}
+					<label for="code">Code</label>
+					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
+					{{validate "site.code" .Validate}}
+					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
+						Changing this isn’t implemented yet; contact
+						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+						if you want to change it.
+					</span>
+				{{end}}
+
+				{{if .Saas}}
+					<label for="cname">Custom domain</label>
+					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
+						{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
+					<span>Custom domain, e.g. <em>“stats.example.com”</em>.
+						{{if not (.Site.PlanCustomDomain .Context)}}
+							Requires Personal Plus or Business plan (you’re
+							on the {{.Site.Plan}} plan; see
+							<a href="/billing">billing</a>.
+						{{else}}
+							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
+							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
+						{{end}}</span>
+				{{else}}
+					<label for="cname">Goatcounter domain</label>
+					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+					<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
+				{{end}}
+			</fieldset>
+
+			<fieldset>
 				<legend>User info and preferences</legend>
 
 				<label for="user.name">Your name</label>
@@ -14435,6 +14755,18 @@ parent site includes the child sites.</p>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
 				{{validate "user.email" .Validate}}
 				<span>You will need access to the inbox to sign in.</span>
+
+				<label for="limits_page">Page size</label>
+				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
+				{{validate "settings.limits.page" .Validate}}
+
+				<label for="limits_ref">Referrers page size</label>
+				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
+				{{validate "settings.limits.ref" .Validate}}
+			</fieldset>
+
+			<fieldset>
+				<legend>Localisation preferences</legend>
 
 				<label for="date_format">Date format</label>
 				<select name="settings.date_format" id="date_format">
@@ -14447,6 +14779,10 @@ parent site includes the child sites.</p>
 
 				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
 					24-hour clock</label>
+
+				<label>{{checkbox .Site.Settings.SundayStartsWeek "settings.sunday_starts_week"}}
+					Week starts on Sunday</label>
+
 
 				<label for="number_format">Thousands separator</label>
 				<select name="settings.number_format" id="number_format">
@@ -14467,14 +14803,6 @@ parent site includes the child sites.</p>
 				</select>
 				{{validate "settings.timezone" .Validate}}
 				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
-
-				<label for="limits_page">Page size</label>
-				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
-				{{validate "settings.limits.page" .Validate}}
-
-				<label for="limits_ref">Referrers page size</label>
-				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-				{{validate "settings.limits.ref" .Validate}}
 			</fieldset>
 
 			<div class="flex-break"></div>
@@ -14489,57 +14817,49 @@ parent site includes the child sites.</p>
 	</div>
 </div>
 
-<div>
-	<h2 id="additional-sites">Additional sites</h2>
-	{{if .Site.Parent}}
-		This site has a parent
-		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
-		and can't have additional sites of its own.
-	{{else}}
-		<p>Add GoatCounter to multiple websites by creating a “child site”,
-			which is a separate GoatCounter site which inherits the plan, users,
-			and logins from the current site, but is otherwise completely
-			separate. The current site’s settings are copied on creation, but
-			are independent afterwards.</p>
-		<p>You can add as many as you want.</p>
+{{if .Saas}}
+	<div>
+		<h2 id="additional-sites">Additional sites</h2>
+		{{if .Site.Parent}}
+			This site has a parent
+			(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+			and can't have additional sites of its own.
+		{{else}}
+			<p>Add GoatCounter to multiple websites by creating a “child site”,
+				which is a separate GoatCounter site which inherits the plan, users,
+				and logins from the current site, but is otherwise completely
+				separate. The current site’s settings are copied on creation, but
+				are independent afterwards.</p>
+			<p>You can add as many as you want.</p>
 
-		<form method="post" action="/add">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-			<table class="auto">
-				<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
-				<tbody>
-					{{range $s := .SubSites}}<tr>
-						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-						<td>{{$s.Name}}</td>
-						<td><a href="/remove/{{$s.ID}}">remove</a></td>
-					</tr>{{end}}
+			<form method="post" action="/add">
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+				<table class="auto">
+					<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
+					<tbody>
+						{{range $s := .SubSites}}<tr>
+							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+							<td>{{$s.Name}}</td>
+							<td><a href="/remove/{{$s.ID}}">delete</a></td>
+						</tr>{{end}}
 
-					<tr>
-						<td>
-							<input type="text" id="code" name="code" placeholder="Code"><br>
-							<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
-						</td>
-						<td>
-							<input type="text" id="name" name="name" placeholder="Name"><br>
-							<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
-						</td>
+						<tr>
+							<td>
+								<input type="text" id="code" name="code" placeholder="Code"><br>
+								<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+							</td>
+							<td>
+								<input type="text" id="name" name="name" placeholder="Name"><br>
+								<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
+							</td>
 
-		<!--
-		<p>You just have to choose a code on which to access the site (e.g.
-			https://<em>[my_code]</em>.goatcounter.com) and a name.</p>
-		-->
-						<td><button type="submit">Add new</button></td>
-					</tr>
-			</tbody></table>
-		</form>
-	{{end}}
-</div>
-
-<div>
-	<h2 id="site-code">Site code</h2>
-	<p>Insert the code below just before the closing <code>&lt;/body&gt;</code> tag:</p>
-	{{template "_backend_sitecode.gohtml" .}}
-</div>
+							<td><button type="submit">Add new</button></td>
+						</tr>
+				</tbody></table>
+			</form>
+		{{end}}
+	</div>
+{{end}}
 
 <div>
 	<h2 id="purge">Purge</h2>
@@ -14552,8 +14872,8 @@ parent site includes the child sites.</p>
 		<code>\%</code> and <code>\_</code> for the literal characters without special
 		meaning.</p>
 
-	<p>This won’t adjust the browser or location statistics, as they’re not
-		stored per-path.</p>
+	<p><strong>This won’t adjust the browser or location statistics, as they’re not
+		stored per-path.</strong></p>
 
 	<form method="get" action="/purge">
 		<input type="text" name="path" placeholder="Path" required>
@@ -14575,9 +14895,20 @@ parent site includes the child sites.</p>
 {{if .Saas}}
 	<div>
 		<h2 id="delete">Delete account</h2>
-		<p>Email <a href="mailto:delete@goatcounter.com">delete@goatcounter.com</a>
-			if you wish to permanently delete your account and all associated data.
-			Be sure to do this from the registered email for verification.</p>
+		{{if .Site.Parent}}
+			<p>Note this site has a parent
+				(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+				this will delete only this subsite, and not the parent.</p>
+		{{end}}
+
+		<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be marked as deleted, and will no longer be accessible.
+			All data will be removed after 7 days.<br>
+			<a href="/contact">Contact</a> if you changed your mind.</p>
+
+		<form method="post" action="/delete">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+			<button type="submit">Delete site</button> (no confirmation)
+		</form>
 	</div>
 {{end}}
 
@@ -14590,6 +14921,7 @@ parent site includes the child sites.</p>
 {{range $u := .Updates}}
 	<div class="update">
 		<strong>{{$u.Subject}}</strong> – <em>{{$u.ShowAt.Format $.Site.Settings.DateFormat}}</em>
+		{{if $u.ShowAt.After $.SeenAt}}<strong class="update-new">New</strong>{{end}}
 		{{$u.Body|unsafe}}
 	</div>
 {{end}}
@@ -14606,7 +14938,7 @@ parent site includes the child sites.</p>
 	{{else}}
 		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
 		<p>{{.Next}}</p>
-		<p><a href="/billing/cancel">Cancel</a></p>
+		<p><a href="/billing/cancel">Cancel or change</a></p>
 	{{end}}
 {{else}}
 	<script src="https://js.stripe.com/v3"></script>
@@ -14618,17 +14950,21 @@ parent site includes the child sites.</p>
 			<legend>Plan</legend>
 			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
 				<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+			<label><input type="radio" name="plan" value="personalplus" {{if eq .Site.Plan "personalplus"}}checked{{end}}>
+				<span>Personal plus</span> €5/month; non-commercial use; 200k pageviews/month; custom domain.</label><br>
 			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
 				<span>Business</span> €15/month; 500k pageviews/month; custom domain.</label><br>
 			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
 				<span>Business plus</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
-
-			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
+			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a><br><br>
+			Email
+				<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+				if you donate via other channels with details to set up the
+				correct plan.
 		</fieldset>
 
 		<fieldset class="free">
 			<legend>Optional payments</legend>
-
 			<p>GoatCounter is free for personal non-commercial use (see
 				<a href="//www.{{.Domain}}/terms#commercial">ToS for definition</a>),
 				but a small monthly donation is encouraged so I can pay my rent
@@ -14636,10 +14972,13 @@ parent site includes the child sites.</p>
 			<p>Even just a small €1/month would be greatly appreciated! Fill in
 				0 to disable the banner without a donation.</p>
 
-			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="2" min="0">
+			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="3" min="0"> /month
 
-			<p>Other ways to contribute: <a href="https://patreon.com/arp242">Patreon</a>
-				(note: using this form is better due to lower platform costs).</p>
+			<p>Other ways to contribute:</p>
+			<ul>
+				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
+				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
+			</ul>
 		</fieldset>
 
 		<p class="ask-cc">You’ll be asked for credit card details on the next page.
@@ -14654,7 +14993,8 @@ parent site includes the child sites.</p>
 	"tpl/billing_cancel.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <p>Cancel your plan immediately; you will be refunded for the remaining billing
-period.</p>
+period. You can also use this towards paying for a new plan if you subscribe
+within a day orso.</p>
 
 <form method="post" action="/billing/cancel">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -14679,6 +15019,31 @@ period.</p>
 
 	<li>For chat there’s a
 		<a href="https://t.me/goatcounter" target="_blank" rel="noopener">Public Telegram Group</a>.</li>
+</ul>
+
+{{template "_bottom.gohtml" .}}
+`),
+	"tpl/contribute.gohtml": []byte(`{{template "_top.gohtml" .}}
+
+<h1>Contribute financially</h1>
+<p>I encourage everyone to self-host GoatCounter if they have the inclination to
+do so, which is why it's 100% Open Source (or "Free") software.</p>
+
+<p>I work on this full-time: it's not a side-project I work on in spare time,
+it's my means of living. Please consider making a financial contribution if this
+is useful for you to ensure the long-term viability.</p>
+
+<p>Thank you :-)</p>
+
+<p>Ways to contribute:</p>
+
+<ul>
+	<li><a href="https://github.com/sponsors/arp242">GitHub sponsor</a>;
+		this is the preferred method as GitHub will match contributions.</li>
+	<li>Subscribe to a plan on www.goatcounter.com</li>
+	<li><a href="https://patreon.com/arp242">Patreon</a></li>
+	<li>goatcounter.com is a Brave Verified Creator, and you can send Brave
+		rewards.</li>
 </ul>
 
 {{template "_bottom.gohtml" .}}
@@ -14826,15 +15191,12 @@ sub {
 	"tpl/help.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <h1>GoatCounter help</h1>
+
+<h2 id="general">General <a href="#general"></a></h2>
 <dl>
 	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
 	<dd>For reasons of efficiency the statistics are updated once every 10
 	seconds.</dd>
-
-	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
-	<dd>We’ll be in touch if you consistently go over the number over pageviews,
-		but there is no automated process to shut down accounts or anything like
-		that.</dd>
 
 	<dt id="bots">How are bots and crawlers counted? <a href="#bots">§</a></dt>
 	<dd>They’re not; all bots and crawlers that identify themselves as such are ignored.<br>
@@ -14853,16 +15215,13 @@ sub {
 		<br><br>
 		You can still implement it yourself by putting this at the start of the
 		GoatCounter script:
-
 <pre>&lt;script&gt;
-	(function() {
-		if ('doNotTrack' in navigator && navigator.doNotTrack === '1')
-			return;
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+	window.goatcounter = {
+		no_onload: ('doNotTrack' in navigator && navigator.doNotTrack === '1'),
+	};
+&lt;/script&gt;
+&lt;script data-goatcounter="[..]"
+        async src="//gc.zgo.at/count.js"&gt;&lt;/script&gt;</pre>
 	</dd>
 
 	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
@@ -14894,20 +15253,49 @@ sub {
 		title you can filter by it. Also see
 		<a href="https://github.com/zgoat/goatcounter/issues/3#issuecomment-578202761">issue #3</a>.
 	</dd>
+
 </dl>
+
+<h2 id="billing">Billing <a href="#billing"></a></h2>
+<dl>
+	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
+	<dd>We’ll be in touch if you consistently go over the number over pageviews,
+		but there is no automated process to shut down accounts or anything like
+		that.</dd>
+
+	<dt id="charity">Is there any discount for charities, non-profit organisations, startups, etc? <a href="#charity">§</a></dt>
+	<dd>
+		The short answer is ”not really”. The longer answer is that it depends
+		on the individual case.<br><br>
+
+		To give an example, Amnesty International is undoubtedly a charity doing
+		great work, and I’d be honoured to facilitate that. But they also have a
+		~€300 million/year income and it seems to me that asking them for
+		€15/year so I can make a living isn't unreasonable, regardless of their
+		charitable work. After all, people employed by Amnesty are getting paid
+		too, and I also need to pay my rent, food, etc. 😅<br><br>
+
+		Most charities don’t have the kind of endowment Amnesty has, so if
+		you’re running a small charity or non-profit where €15/month would be a
+		prohibitively large cost then feel free to get in touch and we’ll see
+		what we can arrange.<br><br>
+
+		I’ll be happy to revisit this policy once GoatCounter starts becoming
+		financially sustainable, but right now it’s still quite far from that.
+	</dd>
 
 {{template "_bottom.gohtml" .}}
 `),
 	"tpl/home.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <div id="home-top">
-	<h1><img alt="" src="//{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
+	<h1><img alt="" src="{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
 	<div id="home-intro">
 		<p><span>Simple</span> web statistics. <span>No tracking</span> of personal data.</p>
 	</div>
 
 	<div id="home-demo">
-		<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+		<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
 	</div>
 	<div id="home-login">
 		<a class="" href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
@@ -14920,13 +15308,13 @@ sub {
 
 	<div id="home-screens" class="one">
 		<div>
-			<img class="zoom" src="//{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
+			<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
 		</div>
 
 		{{/*
 		<div style="height: 255px">
-			<img class="zoom" src="//{{.Static}}/screenshot-small.png"
-				data-large="//{{.Static}}/screenshot.png"
+			<img class="zoom" src="{{.Static}}/screenshot-small.png"
+				data-large="{{.Static}}/screenshot.png"
 				alt="Screenshot of the GoatCounter interface">
 		</div>
 		<div>
@@ -14995,7 +15383,7 @@ sub {
 			<li>For <a href="/terms#commercial">non-commercial</a> use</li>
 			<li>Unlimited sites</li>
 			<li title="3.3k/day">100k pageviews/month</li>
-			<li class="empty">&nbsp;</li>
+			<li>Optional custom domain for €5</li>
 			<li class="empty">&nbsp;</li>
 		</ul>
 	</div>
@@ -15025,7 +15413,7 @@ sub {
 	</div>
 </div>
 <div id="home-signup">
-	<a class="hlink cbox" href="/signup"><img src="//{{.Static}}/index.svg" alt=""> Sign up</a>
+	<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
 </div>
 <div id="home-pricing-custom">
 	<a href="/contact">Contact</a> if you need more pageviews or want a
@@ -15071,7 +15459,7 @@ sub {
 
 <h2>Using the GoatCounter.com service</h2>
 <p>Billing is handled by <a href="https://stripe.com">Stripe</a>, and all
-	billing information is stored and handler by Stripe. See the
+	billing information is stored and handled by Stripe. See the
 	<a href="https://stripe.com/ie/privacy" target="_blank" rel="noopener">Stripe Privacy Policy</a>.</p>
 
 <p>An email address is required to use the GoatCounter.com service. We also use
@@ -15178,11 +15566,6 @@ information.</p>
 <p>The “user”, “you”, and “your” refers to any individual or organization which
 	accesses our services.</p>
 
-<p>“Content” refers to any content displayed by our services, including but not
-	limited to text, source code, images, data, and so on. “User generated content”
-	refers to content created or uploaded by our users. “Your content” refers to
-	content you created or own.</p>
-
 <h2>Account Terms</h2>
 <p>Accounts are only available to users who are 13 years of age or older, or the
 	minimum age for accessing internet services in their country, whichever is
@@ -15201,7 +15584,7 @@ information.</p>
 
 <p>This service is operated out of the Republic of Ireland. It is your
 	responsibility to ensure that all local laws regarding data collection are
-	followed (e.g. GDPR) are followed.</p>
+	followed (e.g. GDPR).</p>
 
 <h2 id="commercial">Commercial use</h2>
 <p>The service is free for personal use, but all commercial users must purchase
@@ -15218,6 +15601,8 @@ especially if they’re open source.
 Just get in touch if you’re unsure and I’ll tell you if it’s considered
 personal.</p>
 
+<p>Also see the <a href="/help#charity">note on charities</a>.</p>
+
 <h2>Payments</h2>
 <p>You are billed immediately for the displayed term. These services will be
 	remitted to you at the displayed price, which will not change during the
@@ -15226,7 +15611,7 @@ personal.</p>
 	when the price has changed during the previous payment term.</p>
 
 <p>No refunds are given for partial service or when you request your services
-	are downgraded. In the event that your services are downgraded, you are
+	to be downgraded. In the event that your services are downgraded, you are
 	billed the reduced price at the start of the next billing term.</p>
 
 <h2>Limitation of liability</h2>

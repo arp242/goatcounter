@@ -1,15 +1,12 @@
 {{template "_top.gohtml" .}}
 
 <h1>GoatCounter help</h1>
+
+<h2 id="general">General <a href="#general"></a></h2>
 <dl>
 	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
 	<dd>For reasons of efficiency the statistics are updated once every 10
 	seconds.</dd>
-
-	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
-	<dd>We’ll be in touch if you consistently go over the number over pageviews,
-		but there is no automated process to shut down accounts or anything like
-		that.</dd>
 
 	<dt id="bots">How are bots and crawlers counted? <a href="#bots">§</a></dt>
 	<dd>They’re not; all bots and crawlers that identify themselves as such are ignored.<br>
@@ -28,16 +25,13 @@
 		<br><br>
 		You can still implement it yourself by putting this at the start of the
 		GoatCounter script:
-
 <pre>&lt;script&gt;
-	(function() {
-		if ('doNotTrack' in navigator && navigator.doNotTrack === '1')
-			return;
-
-		var script = document.createElement('script');
-		// [.. rest of standard script omitted ..]
-	})();
-&lt;/script&gt;</pre>
+	window.goatcounter = {
+		no_onload: ('doNotTrack' in navigator && navigator.doNotTrack === '1'),
+	};
+&lt;/script&gt;
+&lt;script data-goatcounter="[..]"
+        async src="//gc.zgo.at/count.js"&gt;&lt;/script&gt;</pre>
 	</dd>
 
 	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
@@ -69,6 +63,35 @@
 		title you can filter by it. Also see
 		<a href="https://github.com/zgoat/goatcounter/issues/3#issuecomment-578202761">issue #3</a>.
 	</dd>
+
 </dl>
+
+<h2 id="billing">Billing <a href="#billing"></a></h2>
+<dl>
+	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
+	<dd>We’ll be in touch if you consistently go over the number over pageviews,
+		but there is no automated process to shut down accounts or anything like
+		that.</dd>
+
+	<dt id="charity">Is there any discount for charities, non-profit organisations, startups, etc? <a href="#charity">§</a></dt>
+	<dd>
+		The short answer is ”not really”. The longer answer is that it depends
+		on the individual case.<br><br>
+
+		To give an example, Amnesty International is undoubtedly a charity doing
+		great work, and I’d be honoured to facilitate that. But they also have a
+		~€300 million/year income and it seems to me that asking them for
+		€15/year so I can make a living isn't unreasonable, regardless of their
+		charitable work. After all, people employed by Amnesty are getting paid
+		too, and I also need to pay my rent, food, etc. 😅<br><br>
+
+		Most charities don’t have the kind of endowment Amnesty has, so if
+		you’re running a small charity or non-profit where €15/month would be a
+		prohibitively large cost then feel free to get in touch and we’ll see
+		what we can arrange.<br><br>
+
+		I’ll be happy to revisit this policy once GoatCounter starts becoming
+		financially sustainable, but right now it’s still quite far from that.
+	</dd>
 
 {{template "_bottom.gohtml" .}}

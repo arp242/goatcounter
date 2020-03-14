@@ -20,8 +20,8 @@
 	{{end}}
 	<span id="js-settings" data-offset="{{.Site.Settings.Timezone.Offset}}">{{.Site.Settings.String | unsafe_js}}</span>
 	{{if .User.ID}}<span id="js-csrf">{{.User.CSRFToken}}</span>{{end}}
-	<script crossorigin="anonymous" src="//{{.Static}}/jquery.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="//{{.Static}}/pikaday.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="//{{.Static}}/script_backend.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
 </body>
 </html>
