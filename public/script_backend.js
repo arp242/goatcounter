@@ -521,6 +521,7 @@
 				return;
 
 			// Every bar is always one hour, -2 for .half and .max
+			// TODO: fix when daily=true
 			var ps = get_date($('#period-start').val()),
 			    pe = get_date($('#period-start').val());
 			ps.setHours(ps.getHours() + $(start).index() - 2);
