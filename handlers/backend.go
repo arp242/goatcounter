@@ -348,9 +348,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TopRefs           goatcounter.Stats
 		ShowMoreRefs      bool
 	}{newGlobals(w, r), cfg.DomainCount, sr, r.URL.Query().Get("hl-period"),
-		start.In(site.Settings.Timezone.Loc()),
-		end.In(site.Settings.Timezone.Loc()),
-		filter, pages, refs, moreRefs, total, totalDisplay,
+		start, end, filter, pages, refs, moreRefs, total, totalDisplay,
 		browsers, totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
 		showMoreLoc, topRefs, showMoreRefs})
 	l = l.Since("zhttp.Template")
@@ -588,9 +586,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
-	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()),
-		start.In(site.Settings.Timezone.Loc()),
-		end.In(site.Settings.Timezone.Loc()),
+	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()), start, end,
 		false, ""})
 	if err != nil {
 		return err

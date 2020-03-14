@@ -69,9 +69,6 @@ func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
 	offset /= 3600
 	stats = applyOffset(offset, stats)
 
-	// fmt.Println("time TZ", site.Settings.Timezone.Loc())
-	// fmt.Println("Now", now)
-
 	var b strings.Builder
 	today := now.Format("2006-01-02")
 	hour := now.Hour()
@@ -141,7 +138,6 @@ func applyOffset(offset int, stats []Stat) []Stat {
 	case offset < 0:
 		offset = -offset
 		popped := make([]int, offset)
-
 		for i := len(stats) - 1; i >= 0; i-- {
 			stats[i].Days = append(stats[i].Days, popped...)
 			popped = stats[i].Days[:offset]
