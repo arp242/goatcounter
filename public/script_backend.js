@@ -460,6 +460,8 @@
 		$('.chart').on('mousedown', function(e) {
 			if (e.button !== 0 && e.type !== 'touchstart')
 				return;
+			if ($(e.target).hasClass('top'))
+				return;
 
 			startX = e.pageX
 			box = $('<span id="drag-box"></span>').css({
@@ -494,7 +496,7 @@
 			e.preventDefault();
 
 			var box_left   = parseFloat(box.css('left')),
-				box_right = $(window).width() - parseFloat(box.css('right')),
+				box_right  = $(window).width() - parseFloat(box.css('right')),
 				start, end;
 			// All charts have the same bars, so just using the first is fine.
 			$('.chart').first().find('>div').each(function(i, elem) {
@@ -513,6 +515,10 @@
 			box.remove();
 			box = null;
 			$(document).off('.timeframe');
+
+			// Don't count clicks or very small movements.
+			if ($(end).index() - $(start).index() < 2)
+				return;
 
 			// Every bar is always one hour, -2 for .half and .max
 			var ps = get_date($('#period-start').val()),
