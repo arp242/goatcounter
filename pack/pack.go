@@ -14854,8 +14854,8 @@ parent site includes the child sites.</p>
 		<code>\%</code> and <code>\_</code> for the literal characters without special
 		meaning.</p>
 
-	<p>This won’t adjust the browser or location statistics, as they’re not
-		stored per-path.</p>
+	<p><strong>This won’t adjust the browser or location statistics, as they’re not
+		stored per-path.</strong></p>
 
 	<form method="get" action="/purge">
 		<input type="text" name="path" placeholder="Path" required>
