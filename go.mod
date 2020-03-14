@@ -3,6 +3,7 @@ module zgo.at/goatcounter
 go 1.13
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/jmoiron/sqlx v1.2.0
@@ -16,7 +17,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	honnef.co/go/tools v0.0.1-2020.1.3
-	zgo.at/tz v0.0.0-20200207054238-b33e5ce779e4
+	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
 	zgo.at/utils v1.4.1
 	zgo.at/zdb v0.0.0-20200221072833-2c234b210cf1
 	zgo.at/zhttp v0.0.0-20200301180126-a9b7c887528b

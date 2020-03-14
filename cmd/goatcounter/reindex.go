@@ -135,7 +135,7 @@ func reindex() (int, error) {
 	}
 
 	// Insert paths.
-	now := time.Now().UTC()
+	now := goatcounter.Now()
 	day := firstDay
 	for {
 		var hits []goatcounter.Hit

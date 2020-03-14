@@ -117,9 +117,9 @@ func (s *Site) Defaults(ctx context.Context) {
 	s.Code = strings.ToLower(s.Code)
 
 	if s.CreatedAt.IsZero() {
-		s.CreatedAt = time.Now().UTC()
+		s.CreatedAt = Now()
 	} else {
-		t := time.Now().UTC()
+		t := Now()
 		s.UpdatedAt = &t
 	}
 }
@@ -278,7 +278,7 @@ func (s *Site) Delete(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
-	t := time.Now().UTC()
+	t := Now()
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set state=$1, updated_at=$2 where id=$3 or parent=$3`,
 		StateDeleted, t.Format(zdb.Date), s.ID)
@@ -404,7 +404,7 @@ func (s Site) ShowPayBanner(ctx context.Context) bool {
 	if s.Stripe != nil {
 		return false
 	}
-	return -time.Now().UTC().Sub(s.CreatedAt.Add(trialPeriod)) < 0
+	return -Now().Sub(s.CreatedAt.Add(trialPeriod)) < 0
 }
 
 func (s Site) FreePlan() bool {

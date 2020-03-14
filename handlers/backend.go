@@ -187,10 +187,10 @@ func geo(ip string) string {
 }
 
 func (h backend) status() func(w http.ResponseWriter, r *http.Request) error {
-	started := time.Now().UTC()
+	started := goatcounter.Now()
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.JSON(w, map[string]string{
-			"uptime":  time.Now().UTC().Sub(started).String(),
+			"uptime":  goatcounter.Now().Sub(started).String(),
 			"version": cfg.Version,
 		})
 	}
@@ -220,7 +220,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		Browser:     r.UserAgent(),
 		Location:    geo(r.RemoteAddr),
 		UsageDomain: r.Referer(),
-		CreatedAt:   time.Now().UTC(),
+		CreatedAt:   goatcounter.Now(),
 	}
 	if user_agent.New(r.UserAgent()).Bot() {
 		hit.Bot = 1
@@ -256,26 +256,16 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Vary", "Cookie")
 	}
 
-	var (
-		now   = time.Now().In(site.Settings.Timezone.Loc())
-		start = now.Add(-7 * day)
-		end   = now
-	)
-	if d := r.URL.Query().Get("period-start"); d != "" {
-		var err error
-		start, err = time.Parse("2006-01-02", d)
-		if err != nil {
-			zhttp.FlashError(w, "Invalid start date: %q", d)
-			start = now.Add(-7 * day)
-		}
+	start, end, err := getPeriod(w, r, site)
+	if err != nil {
+		zhttp.FlashError(w, err.Error())
 	}
-	if d := r.URL.Query().Get("period-end"); d != "" {
-		var err error
-		end, err = time.Parse("2006-01-02", d)
-		if err != nil {
-			zhttp.FlashError(w, "Invalid end date: %q", d)
-			end = now
-		}
+	now := goatcounter.Now().In(site.Settings.Timezone.Loc())
+	if start.IsZero() {
+		start = now.Add(-7 * day)
+	}
+	if end.IsZero() {
+		end = now
 	}
 
 	filter := r.URL.Query().Get("filter")
@@ -358,7 +348,9 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TopRefs           goatcounter.Stats
 		ShowMoreRefs      bool
 	}{newGlobals(w, r), cfg.DomainCount, sr, r.URL.Query().Get("hl-period"),
-		start, end, filter, pages, refs, moreRefs, total, totalDisplay,
+		start.In(site.Settings.Timezone.Loc()),
+		end.In(site.Settings.Timezone.Loc()),
+		filter, pages, refs, moreRefs, total, totalDisplay,
 		browsers, totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
 		showMoreLoc, topRefs, showMoreRefs})
 	l = l.Since("zhttp.Template")
@@ -367,15 +359,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) topRefs(w http.ResponseWriter, r *http.Request) error {
-	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
-	if err != nil {
-		return err
-	}
-
-	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
-	if err != nil {
-		return err
-	}
+	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
 
 	var refs goatcounter.Stats
 	o, _ := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
@@ -394,15 +378,7 @@ func (h backend) topRefs(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) pagesByRef(w http.ResponseWriter, r *http.Request) error {
-	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
-	if err != nil {
-		return err
-	}
-
-	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
-	if err != nil {
-		return err
-	}
+	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
 
 	var hits goatcounter.Stats
 	total, err := hits.ByRef(r.Context(), start, end, r.URL.Query().Get("name"))
@@ -510,15 +486,7 @@ func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
-	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
-	if err != nil {
-		return err
-	}
-
-	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
-	if err != nil {
-		return err
-	}
+	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
 
 	offset := 0
 	if o := r.URL.Query().Get("offset"); o != "" {
@@ -550,15 +518,7 @@ func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
-	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
-	if err != nil {
-		return err
-	}
-
-	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
-	if err != nil {
-		return err
-	}
+	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
 
 	var browsers goatcounter.Stats
 	total, err := browsers.ListBrowser(r.Context(), r.URL.Query().Get("name"), start, end)
@@ -575,15 +535,7 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
-	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
-	if err != nil {
-		return err
-	}
-
-	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
-	if err != nil {
-		return err
-	}
+	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
 
 	var sizeStat goatcounter.Stats
 	total, err := sizeStat.ListSize(r.Context(), r.URL.Query().Get("name"), start, end)
@@ -600,15 +552,7 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
-	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
-	if err != nil {
-		return err
-	}
-
-	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
-	if err != nil {
-		return err
-	}
+	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
 
 	var locStat goatcounter.Stats
 	total, err := locStat.ListLocations(r.Context(), start, end)
@@ -623,15 +567,9 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
-	start, err := time.Parse("2006-01-02", r.URL.Query().Get("period-start"))
-	if err != nil {
-		return err
-	}
+	site := goatcounter.MustGetSite(r.Context())
 
-	end, err := time.Parse("2006-01-02", r.URL.Query().Get("period-end"))
-	if err != nil {
-		return err
-	}
+	start, end, err := getPeriod(w, r, site)
 
 	var pages goatcounter.HitStats
 	totalHits, totalDisplay, more, err := pages.List(r.Context(), start, end,
@@ -650,7 +588,10 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
-	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()), start, end, false, ""})
+	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()),
+		start.In(site.Settings.Timezone.Loc()),
+		end.In(site.Settings.Timezone.Loc()),
+		false, ""})
 	if err != nil {
 		return err
 	}
@@ -1005,4 +946,25 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, p.URL())
 	}
 	return zhttp.SeeOther(w, "https://"+cfg.Domain)
+}
+
+func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (time.Time, time.Time, error) {
+	var start, end time.Time
+
+	if d := r.URL.Query().Get("period-start"); d != "" {
+		var err error
+		start, err = time.ParseInLocation("2006-01-02", d, site.Settings.Timezone.Loc())
+		if err != nil {
+			return start, end, guru.Errorf(400, "Invalid start date: %q", d)
+		}
+	}
+	if d := r.URL.Query().Get("period-end"); d != "" {
+		var err error
+		end, err = time.ParseInLocation("2006-01-02 15:04:05", d+" 23:59:59", site.Settings.Timezone.Loc())
+		if err != nil {
+			return start, end, guru.Errorf(400, "Invalid end date: %q", d)
+		}
+	}
+
+	return start.UTC(), end.UTC(), nil
 }
