@@ -520,12 +520,17 @@
 			if ($(end).index() - $(start).index() < 2)
 				return;
 
-			// Every bar is always one hour, -2 for .half and .max
-			// TODO: fix when daily=true
+			// Every bar is always one hour or day, -2 for .half and .max
 			var ps = get_date($('#period-start').val()),
 			    pe = get_date($('#period-start').val());
-			ps.setHours(ps.getHours() + $(start).index() - 2);
-			pe.setHours(pe.getHours() + $(end).index()   - 2);
+			if ($('input[name=daily]').is(':checked')) {
+				ps.setDate(ps.getDate() + $(start).index() - 2);
+				pe.setDate(pe.getDate() + $(end).index()   - 2);
+			}
+			else {
+				ps.setHours(ps.getHours() + $(start).index() - 2);
+				pe.setHours(pe.getHours() + $(end).index()   - 2);
+			}
 			set_period(ps, pe);
 		});
 	};

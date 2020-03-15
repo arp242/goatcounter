@@ -126,7 +126,8 @@ form .err  { color: red; display: block; }
 .period-form-date            { margin-bottom: 1.5em; }
 .period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
 .period-form-date .date span { margin-left: .5em; }
-.period-form-date input      { width: 9em; text-align: center; }
+.period-form-date input[type="text"]     { width: 9em; text-align: center; }
+.period-form-date input[type="checkbox"] { vertical-align: middle; }
 .period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
 
 @media (max-width: 62.5rem) {

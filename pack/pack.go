@@ -12645,11 +12645,17 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			if ($(end).index() - $(start).index() < 2)
 				return;
 
-			// Every bar is always one hour, -2 for .half and .max
+			// Every bar is always one hour or day, -2 for .half and .max
 			var ps = get_date($('#period-start').val()),
 			    pe = get_date($('#period-start').val());
-			ps.setHours(ps.getHours() + $(start).index() - 2);
-			pe.setHours(pe.getHours() + $(end).index()   - 2);
+			if ($('input[name=daily]').is(':checked')) {
+				ps.setDate(ps.getDate() + $(start).index() - 2);
+				pe.setDate(pe.getDate() + $(end).index()   - 2);
+			}
+			else {
+				ps.setHours(ps.getHours() + $(start).index() - 2);
+				pe.setHours(pe.getHours() + $(end).index()   - 2);
+			}
 			set_period(ps, pe);
 		});
 	};
@@ -13191,7 +13197,8 @@ form .err  { color: red; display: block; }
 .period-form-date            { margin-bottom: 1.5em; }
 .period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
 .period-form-date .date span { margin-left: .5em; }
-.period-form-date input      { width: 9em; text-align: center; }
+.period-form-date input[type="text"]     { width: 9em; text-align: center; }
+.period-form-date input[type="checkbox"] { vertical-align: middle; }
 .period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
 
 @media (max-width: 62.5rem) {
@@ -14289,17 +14296,15 @@ do this 100% reliably.</p>
 		{{- if .User.ID}}
 			<div>
 				{{if eq .Path "/"}}
-					{{if gt (len .SubSites) 1}}
+					{{- if gt (len .SubSites) 1 -}}
 						Switch site:
-						{{range $i, $s := .SubSites}}
-							{{if gt $i 0}}|{{end}}
-							{{if $.Saas}}
-								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
-							{{else}}
-								<a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
-							{{end}}
-						{{end}}
-					{{end}}
+						{{- range $i, $s := .SubSites -}}
+							{{- if gt $i 0 -}}|{{- end -}}
+							{{if $.Saas}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{else}} <a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+							{{- end -}}
+						{{- end -}}
+					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
 					<strong><a href="/settings#tab-additional-sites">← Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
@@ -14437,7 +14442,6 @@ do this 100% reliably.</p>
 			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}"> –
 			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">
 			<button type="submit">Go</button>
-			<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
 
 			<span class="period-form-select period-{{.SelectedPeriod}}">
 				<span>
@@ -14453,6 +14457,13 @@ do this 100% reliably.</p>
 					Current
 					<button class="link" name="period" value="week-cur">week</button> ·
 					<button class="link" name="period" value="month-cur">month</button>
+				</span>
+				<span>
+					{{if .ForcedDaily}}
+						<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
+					{{else}}
+						<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+					{{end}}
 				</span>
 			</span>
 		</div>
@@ -14472,7 +14483,7 @@ do this 100% reliably.</p>
 		</div>
 	</div>
 
-	<div class="pages-list">
+	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
 			<sup class="hide-mobile">(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
@@ -14486,7 +14497,7 @@ do this 100% reliably.</p>
 		</table>
 
 		<a href="#_" class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
-				data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+			data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&daily={{.Daily}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
 		>load more</a>
 	</div>
 </form>

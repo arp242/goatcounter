@@ -40,10 +40,10 @@ import (
 	"zgo.at/zvalidate"
 )
 
+type backend struct{}
+
 // Always use the daily view if the number of days is larger than this.
 const DailyView = 90
-
-type backend struct{}
 
 func (h backend) Mount(r chi.Router, db zdb.DB) {
 	r.Use(
@@ -275,10 +275,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	filter := r.URL.Query().Get("filter")
-	daily := r.URL.Query().Get("daily") != ""
-	if !daily {
-		daily = end.Sub(start).Hours()/24 >= DailyView
-	}
+	daily, forcedDaily := getDaily(r, start, end)
 
 	l := zlog.Module("backend").Field("site", site.ID)
 
@@ -359,10 +356,11 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TopRefs           goatcounter.Stats
 		ShowMoreRefs      bool
 		Daily             bool
+		ForcedDaily       bool
 	}{newGlobals(w, r), cfg.DomainCount, sr, r.URL.Query().Get("hl-period"),
 		start, end, filter, pages, refs, moreRefs, total, totalDisplay,
 		browsers, totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
-		showMoreLoc, topRefs, showMoreRefs, daily})
+		showMoreLoc, topRefs, showMoreRefs, daily, forcedDaily})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
@@ -580,11 +578,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 
 	start, end, err := getPeriod(w, r, site)
-
-	daily := r.URL.Query().Get("daily") != ""
-	if !daily {
-		daily = end.Sub(start).Hours()/24 >= DailyView
-	}
+	daily, forcedDaily := getDaily(r, start, end)
 
 	var pages goatcounter.HitStats
 	totalHits, totalDisplay, more, err := pages.List(r.Context(), start, end,
@@ -600,12 +594,13 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		PeriodStart time.Time
 		PeriodEnd   time.Time
 		Daily       bool
+		ForcedDaily bool
 
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
 	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()), start, end,
-		daily, false, ""})
+		daily, forcedDaily, false, ""})
 	if err != nil {
 		return err
 	}
@@ -1002,4 +997,12 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (
 	}
 
 	return start.UTC(), end.UTC(), nil
+}
+
+func getDaily(r *http.Request, start, end time.Time) (daily bool, forced bool) {
+	if end.Sub(start).Hours()/24 >= DailyView {
+		return true, true
+	}
+	d := strings.ToLower(r.URL.Query().Get("daily"))
+	return d == "on" || d == "true", false
 }
