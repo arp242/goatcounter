@@ -13069,7 +13069,11 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 }
 
 /* Don't make various explanatory texts too wide. */
-.page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
+.page > p, .page > div > p, .page > ul, .page > div > ul,
+.form-max-width label, .form-max-width textarea, .form-max-width input {
+	max-width: 50em;
+}
+.form-max-width label { display: inline-block; }
 
 #trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
@@ -14891,13 +14895,22 @@ parent site includes the child sites.</p>
 		{{end}}
 
 		<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be marked as deleted, and will no longer be accessible.
-			All data will be removed after 7 days.<br>
-			<a href="/contact">Contact</a> if you changed your mind.</p>
+			All data will be removed after 7 days.</p>
 
-		<form method="post" action="/delete">
+		<form method="post" action="/delete" class="form-max-width">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			{{if and (not .Site.Parent) .Saas}}
+				<label for="reason">It would be appreciated if you could let me know
+					if there's anything in particular you're missing in Goatcounter,
+					or any other reasons you have for wanting to delete your
+					account. This is entirely optional.</label><br>
+				<textarea id="reason" name="reason"></textarea><br><br>
+			{{end}}
+
 			<button type="submit">Delete site</button> (no confirmation)
 		</form>
+		<p><a href="/contact">Contact</a> within 7 days if you changed your mind and want to recover your data.</p>
 	</div>
 {{end}}
 

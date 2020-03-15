@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/pprof"
+	"net/mail"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,6 +34,7 @@ import (
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -929,6 +931,26 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
+
+	if cfg.Saas {
+		var args struct {
+			Reason string `json:"reason"`
+		}
+		_, err := zhttp.Decode(r, &args)
+		if err != nil {
+			zlog.Error(err)
+		}
+		if args.Reason != "" {
+			go func() {
+				zlog.Recover()
+				zmail.Send("GoatCounter deletion",
+					mail.Address{Name: "GoatCounter deletion", Address: "support@goatcounter.com"},
+					[]mail.Address{{Address: "support@goatcounter.com"}},
+					fmt.Sprintf(`Deleted: %s (%d): %s`, site.Code, site.ID, args.Reason))
+			}()
+		}
+	}
+
 	err := site.Delete(r.Context())
 	if err != nil {
 		return err
@@ -942,6 +964,7 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		}
 		return zhttp.SeeOther(w, p.URL())
 	}
+
 	return zhttp.SeeOther(w, "https://"+cfg.Domain)
 }
 
