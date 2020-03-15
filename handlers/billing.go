@@ -49,7 +49,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 
 	case "success":
 		// Verify that the webhook was processed correct.
-		if site.Stripe == nil || site.UpdatedAt.Before(time.Now().UTC().Add(-1*time.Minute)) {
+		if site.Stripe == nil || site.UpdatedAt.Before(goatcounter.Now().Add(-1*time.Minute)) {
 			zhttp.Flash(w, "The payment processor reported success, but we're still processing the payment")
 			stripe := ""
 			if site.Stripe != nil {

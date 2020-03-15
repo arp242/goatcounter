@@ -12,7 +12,6 @@ import (
 	"net/mail"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -106,10 +105,10 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
-	started := time.Now().UTC()
+	started := goatcounter.Now()
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.JSON(w, map[string]string{
-			"uptime":  time.Now().UTC().Sub(started).String(),
+			"uptime":  goatcounter.Now().Sub(started).String(),
 			"version": cfg.Version,
 		})
 	}

@@ -230,7 +230,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 	}
 
 	if h.CreatedAt.IsZero() {
-		h.CreatedAt = time.Now().UTC()
+		h.CreatedAt = Now()
 	}
 
 	if !h.Event {

@@ -13424,7 +13424,6 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages input.value        { background-color: yellow; }
 
 h3 + h4 { margin-top: .3em; }
-
 `),
 }
 
@@ -14003,13 +14002,13 @@ var Templates = map[string][]byte{
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td>{{nformat2 $h.Count $.Site}}</td>
 		<td class="hide-mobile">
-			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
+			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
-				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 				<small class="page-title" title="{{$h.Title}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
@@ -14415,11 +14414,11 @@ do this 100% reliably.</p>
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="hidden" value="" id="hl-period"     name="hl-period">
+		<input type="hidden" id="hl-period" name="hl-period">
 
 		<div class="date">
-			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}"> –
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">
 			<button type="submit">Go</button>
 
 			<span class="period-form-select period-{{.SelectedPeriod}}">
@@ -14470,7 +14469,7 @@ do this 100% reliably.</p>
 		</table>
 
 		<a href="#_" class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
-				data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+				data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
 		>load more</a>
 	</div>
 </form>
@@ -14559,7 +14558,7 @@ parent site includes the child sites.</p>
 				{{$s.Plan}}
 				{{if eq $s.Plan "child"}}(<a href="#{{$s.Parent}}">{{$s.Parent}}</a>){{end}}
 			</td>
-			<td>{{tformat $s.CreatedAt ""}}</td>
+			<td>{{tformat $.Site $s.CreatedAt ""}}</td>
 		</tr>
 	{{end}}
 </table>

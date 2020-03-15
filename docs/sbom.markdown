@@ -10,6 +10,7 @@ Backend
 | Name                               | Version                            | License |
 | ----                               | -------                            | ------- |
 | Go compiler & stdlib               | 1.13.5                             | BSD     |
+| github.com/andybalholm/cascadia    | v1.1.1                             | BSD     |
 | github.com/arp242/geoip2-golang    | v1.4.0                             | ISC     |
 | github.com/arp242/maxminddb-golang | v1.6.0                             | ISC     |
 | github.com/fsnotify/fsnotify       | v1.4.7                             | BSD     |
@@ -22,6 +23,7 @@ Backend
 | github.com/monoculum/formam        | v0.0.0-20191229172733-952f0766a724 | Apache  |
 | github.com/mssola/user_agent       | v0.5.1                             | MIT     |
 | github.com/pkg/errors              | v0.9.1                             | BSD     |
+| github.com/PuerkitoBio/goquery     | v1.5.1                             | BSD     |
 | github.com/teamwork/guru           | v1.0.0                             | MIT     |
 | github.com/teamwork/reload         | v1.3.0                             | MIT     |
 | golang.org/x/crypto                | v0.0.0-20190308221718-c2843e01d9a2 | BSD     |

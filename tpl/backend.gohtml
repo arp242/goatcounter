@@ -21,11 +21,11 @@
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
 		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="hidden" value="" id="hl-period"     name="hl-period">
+		<input type="hidden" id="hl-period" name="hl-period">
 
 		<div class="date">
-			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .PeriodStart ""}}"> –
-			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .PeriodEnd ""}}">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}"> –
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">
 			<button type="submit">Go</button>
 
 			<span class="period-form-select period-{{.SelectedPeriod}}">
@@ -76,7 +76,7 @@
 		</table>
 
 		<a href="#_" class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
-				data-href="/pages?period-start={{tformat $.PeriodStart ""}}&period-end={{tformat $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+				data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
 		>load more</a>
 	</div>
 </form>

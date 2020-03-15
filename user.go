@@ -52,9 +52,9 @@ func (u *User) Defaults(ctx context.Context) {
 	}
 
 	if u.CreatedAt.IsZero() {
-		u.CreatedAt = time.Now().UTC()
+		u.CreatedAt = Now()
 	} else {
-		t := time.Now().UTC()
+		t := Now()
 		u.UpdatedAt = &t
 	}
 }
@@ -206,7 +206,7 @@ func (u *User) RequestLogin(ctx context.Context) error {
 func (u *User) Login(ctx context.Context) error {
 	u.CSRFToken = zhttp.SecretP()
 	if u.LoginToken == nil {
-		s := time.Now().Format("20060102") + "-" + zhttp.Secret()
+		s := Now().Format("20060102") + "-" + zhttp.Secret()
 		u.LoginToken = &s
 	}
 
@@ -252,7 +252,7 @@ func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 
 // SeenUpdates marks this user as having seen all updates up until now.
 func (u *User) SeenUpdates(ctx context.Context) error {
-	u.SeenUpdatesAt = time.Now().UTC()
+	u.SeenUpdatesAt = Now()
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update users set seen_updates_at=$1 where id=$2`, u.SeenUpdatesAt, u.ID)
 	return errors.Wrap(err, "User.SeenUpdatesAt")

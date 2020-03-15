@@ -89,7 +89,7 @@ func runTest(
 					tt.setup(ctx)
 				}
 				if tt.auth {
-					login(t, rr, r)
+					login(t, rr, r, 1)
 				}
 
 				tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
@@ -121,7 +121,7 @@ func runTest(
 				tt.setup(ctx)
 			}
 			if tt.auth {
-				login(t, rr, r)
+				login(t, rr, r, 1)
 			}
 
 			tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
@@ -138,11 +138,11 @@ func runTest(
 	})
 }
 
-func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID int64) {
 	t.Helper()
 
 	// Insert user
-	u := goatcounter.User{Site: 1, Name: "Example", Email: "test@example.com"}
+	u := goatcounter.User{Site: siteID, Name: "Example", Email: "test@example.com"}
 	err := u.Insert(r.Context())
 	if err != nil {
 		t.Fatal(err)
