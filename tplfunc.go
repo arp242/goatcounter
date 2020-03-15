@@ -68,6 +68,8 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 
 	stats = applyOffset(offset, stats)
 	var b strings.Builder
+	future := false
+	today := now.Format("2006-01-02")
 
 	switch daily {
 	// Daily view.
@@ -82,6 +84,15 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 		}
 
 		for _, stat := range stats {
+			if future {
+				b.WriteString(fmt.Sprintf(`<div title="%s, future" class="f"></div>`, stat.Day))
+				continue
+			}
+
+			if stat.Day == today {
+				future = true
+			}
+
 			inner := ""
 			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
 			if h > 0 {
@@ -93,13 +104,20 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 
 	// Hourly view.
 	case false:
-		today := now.Format("2006-01-02")
 		hour := now.Hour()
-		for _, stat := range stats {
+		for i, stat := range stats {
 			for shour, s := range stat.Days {
-				// Don't show stuff in the future.
+				if future {
+					b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, future" class="f"></div>`,
+						stat.Day, shour))
+					continue
+				}
+
 				if stat.Day == today && shour > hour {
-					break
+					if i == len(stats)-1 { // Don't display future if end date is today.
+						break
+					}
+					future = true
 				}
 
 				// Double div so that the title is on the entire column, instead

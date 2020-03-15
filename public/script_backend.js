@@ -606,7 +606,7 @@
 					date  = split[0];
 					start = split[1];
 					end   = split[3];
-					views = ', ' + split[4] + ' ' + split[5];
+					views = ', ' + split[4] + (split[5] ? (' ' + split[5]) : '');
 
 					if (!SETTINGS.twenty_four_hours) {
 						start = un24(start);
