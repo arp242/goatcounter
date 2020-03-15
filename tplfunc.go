@@ -67,9 +67,11 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	offset /= 3600
 
 	stats = applyOffset(offset, stats)
+	var b strings.Builder
 
+	switch daily {
 	// Daily view.
-	if daily {
+	case true:
 		for i := range stats {
 			for j := range stats[i].Days {
 				stats[i].Daily += stats[i].Days[j]
@@ -79,7 +81,6 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 			}
 		}
 
-		var b strings.Builder
 		for _, stat := range stats {
 			inner := ""
 			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
@@ -90,29 +91,28 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 				stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat), inner))
 		}
 
-		return template.HTML(b.String())
-	}
+	// Hourly view.
+	case false:
+		today := now.Format("2006-01-02")
+		hour := now.Hour()
+		for _, stat := range stats {
+			for shour, s := range stat.Days {
+				// Don't show stuff in the future.
+				if stat.Day == today && shour > hour {
+					break
+				}
 
-	var b strings.Builder
-	today := now.Format("2006-01-02")
-	hour := now.Hour()
-	for _, stat := range stats {
-		for shour, s := range stat.Days {
-			// Don't show stuff in the future.
-			if stat.Day == today && shour > hour {
-				break
+				// Double div so that the title is on the entire column, instead
+				// of just the coloured area. No need to add the inner one if
+				// there's no data – saves quite a bit in the total filesize.
+				inner := ""
+				h := math.Round(float64(s) / float64(max) / 0.01)
+				if h > 0 {
+					inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
+				}
+				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
+					stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))
 			}
-
-			// Double div so that the title is on the entire column, instead of
-			// just the coloured area. No need to add the inner one if there's
-			// no data – saves quite a bit in the total filesize.
-			inner := ""
-			h := math.Round(float64(s) / float64(max) / 0.01)
-			if h > 0 {
-				inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
-			}
-			b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
-				stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))
 		}
 	}
 

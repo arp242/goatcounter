@@ -12648,7 +12648,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// Every bar is always one hour or day, -2 for .half and .max
 			var ps = get_date($('#period-start').val()),
 			    pe = get_date($('#period-start').val());
-			if ($('input[name=daily]').is(':checked')) {
+			if ($('.pages-list').hasClass('pages-list-daily')) {
 				ps.setDate(ps.getDate() + $(start).index() - 2);
 				pe.setDate(pe.getDate() + $(end).index()   - 2);
 			}

@@ -277,16 +277,6 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	filter := r.URL.Query().Get("filter")
 	daily, forcedDaily := getDaily(r, start, end)
 
-	// Add extra day for timezone; will be removed on display.
-	if daily {
-		o := site.Settings.Timezone.Offset()
-		if o > 0 {
-			//start = start.Add(24 * time.Hour)
-		} else if o < 0 {
-			//end = end.Add(24 * time.Hour)
-		}
-	}
-
 	l := zlog.Module("backend").Field("site", site.ID)
 
 	var pages goatcounter.HitStats
