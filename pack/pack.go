@@ -13399,14 +13399,9 @@ table.auto { width: auto; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
 
-noscript {
-	display: block;
-	padding: .4em;
-	text-align: center;
-	background-color: #ffcfcf;
-	border-bottom: 1px solid #f88;
-}
-
+/*** noscript ***/
+noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
+noscript p { margin: .5em; }
 
 /*** Billing ***/
 #billing-form .plan span            { display: inline-block; min-width: 8em; }
@@ -14270,7 +14265,13 @@ do this 100% reliably.</p>
 </head>
 
 <body>
-	<noscript>Only basic features work without JavaScript; for the best experience use JavaScript.</noscript>
+	<noscript>
+		<p>Goatcounter requires JavaScript enabled to function well; please allow JavaScript to run from {{.StaticDomain}}.</p>
+		<img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code}}" alt="" style="float:right">
+		<!--
+		<p><small>For a rationale, see: <a href="https://arp242.net/noscript.html">https://arp242.net/noscript.html</a></small></p>
+		-->
+	</noscript>
 
 	<nav class="center">
 		{{- if .User.ID}}

@@ -10,7 +10,13 @@
 </head>
 
 <body>
-	<noscript>Only basic features work without JavaScript; for the best experience use JavaScript.</noscript>
+	<noscript>
+		<p>Goatcounter requires JavaScript enabled to function well; please allow JavaScript to run from {{.StaticDomain}}.</p>
+		<img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code}}" alt="" style="float:right">
+		<!--
+		<p><small>For a rationale, see: <a href="https://arp242.net/noscript.html">https://arp242.net/noscript.html</a></small></p>
+		-->
+	</noscript>
 
 	<nav class="center">
 		{{- if .User.ID}}

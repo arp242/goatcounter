@@ -97,7 +97,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		}
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc:  {header.CSPSourceNone},
-			header.CSPImgSrc:      append(ds, "data:"),
+			header.CSPImgSrc:      append(ds, "data:", "https://gc.goatcounter.com"),
 			header.CSPScriptSrc:   append(ds, "https://chat.goatcounter.com", "https://js.stripe.com"),
 			header.CSPStyleSrc:    append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:     ds,
