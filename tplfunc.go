@@ -45,12 +45,20 @@ func init() {
 	// Implemented as function for performance.
 	zhttp.FuncMap["bar_chart"] = BarChart
 	zhttp.FuncMap["horizontal_chart"] = HorizontalChart
+
+	// Override default to display in site TZ.
+	zhttp.FuncMap["tformat"] = func(s *Site, t time.Time, fmt string) string {
+		if fmt == "" {
+			fmt = "2006-01-02"
+		}
+		return t.In(s.Settings.Timezone.Loc()).Format(fmt)
+	}
 }
 
 func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
 	site := MustGetSite(ctx)
 
-	now := time.Now().In(site.Settings.Timezone.Loc())
+	now := Now().In(site.Settings.Timezone.Loc())
 	_, offset := now.Zone()
 	if offset%3600 != 0 {
 		// Round to next hour for TZ offset of 9.5 hours, instead of down.
@@ -76,8 +84,6 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 		return template.HTML(b.String())
 	}
 
-	applyOffset(offset, stats)
-
 	var b strings.Builder
 	today := now.Format("2006-01-02")
 	hour := now.Hour()
@@ -94,7 +100,7 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 			inner := ""
 			h := math.Round(float64(s) / float64(max) / 0.01)
 			if h > 0 {
-				inner = fmt.Sprintf(`<div style="height: %.0f%%;"></div>`, h)
+				inner = fmt.Sprintf(`<div style="height: %.0f%%"></div>`, h)
 			}
 			b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
 				stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))
@@ -132,7 +138,7 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 //
 // Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
 // know how to do that otherwise.
-func applyOffset(offset int, stats []Stat) {
+func applyOffset(offset int, stats []Stat) []Stat {
 	switch {
 	case offset > 0:
 		popped := make([]int, offset)
@@ -142,16 +148,20 @@ func applyOffset(offset int, stats []Stat) {
 			popped = stats[i].Days[o:]
 			stats[i].Days = stats[i].Days[:o]
 		}
+		stats = stats[1:] // Overselect a day to get the stats for it, remove it.
 
 	case offset < 0:
 		offset = -offset
 		popped := make([]int, offset)
-		for i := range stats {
+		for i := len(stats) - 1; i >= 0; i-- {
 			stats[i].Days = append(stats[i].Days, popped...)
 			popped = stats[i].Days[:offset]
 			stats[i].Days = stats[i].Days[offset:]
 		}
+		stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
 	}
+
+	return stats
 }
 
 func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, cutoff float32, link, other bool) template.HTML {

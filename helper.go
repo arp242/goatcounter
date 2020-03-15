@@ -25,6 +25,9 @@ const (
 
 var States = []string{StateActive, StateRequest, StateDeleted}
 
+// Now gets the current time in UTC; can be overwritten in tests.
+var Now = func() time.Time { return time.Now().UTC() }
+
 // GetSite gets the current site.
 func GetSite(ctx context.Context) *Site {
 	s, _ := ctx.Value(ctxkey.Site).(*Site)

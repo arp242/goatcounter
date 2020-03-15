@@ -112,7 +112,7 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 		Name:    "key",
 		Value:   "",
 		Path:    "/",
-		Expires: time.Now().UTC().Add(-100 * time.Hour),
+		Expires: goatcounter.Now().Add(-100 * time.Hour),
 	})
 
 	zhttp.SetCookie(w, *u.LoginToken, goatcounter.MustGetSite(r.Context()).Domain())

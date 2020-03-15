@@ -34,7 +34,7 @@ parent site includes the child sites.</p>
 				{{$s.Plan}}
 				{{if eq $s.Plan "child"}}(<a href="#{{$s.Parent}}">{{$s.Parent}}</a>){{end}}
 			</td>
-			<td>{{tformat $s.CreatedAt ""}}</td>
+			<td>{{tformat $.Site $s.CreatedAt ""}}</td>
 		</tr>
 	{{end}}
 </table>
