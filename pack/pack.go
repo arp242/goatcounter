@@ -14524,6 +14524,8 @@ do this 100% reliably.</p>
 `),
 	"tpl/backend_admin.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
+<style>.plan-free { background-color: #eaeaea; }</style>
+
 <h1>Admin</h1>
 
 <p><a href="/debug/pprof">pprof</a></p>
@@ -14542,7 +14544,7 @@ parent site includes the child sites.</p>
 		<th><a href="?order=created_at">Created at</a></th>
 	</tr>
 	{{range $s := .Stats}}
-		<tr id="{{$s.ID}}">
+		<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
 			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
 			<td>{{nformat2 $s.Count $.Site}}</td>
 			<td>

@@ -46,7 +46,7 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			sites.code,
 			sites.name,
 			sites.created_at,
-			sites.plan,
+			(case when substr(sites.stripe, 0, 9) = 'cus_free' then 'free' else sites.plan end) as plan,
 			sites.link_domain,
 			users.name as user,
 			users.email,
