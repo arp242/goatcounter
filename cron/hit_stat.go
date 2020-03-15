@@ -30,7 +30,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		// Group by day + path.
 		type gt struct {
 			count []int
-			total int
 			day   string
 			path  string
 			title string
@@ -52,9 +51,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				if err != nil {
 					return err
 				}
-				for _, c := range v.count {
-					v.total += c
-				}
 			}
 
 			if h.Title != "" {
@@ -63,15 +59,14 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 			h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
 			v.count[h] += 1
-			v.total += 1
 			grouped[k] = v
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, tx,
-			"hit_stats", []string{"site", "day", "path", "title", "stats", "total"})
+			"hit_stats", []string{"site", "day", "path", "title", "stats"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count), v.total)
+			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count))
 		}
 		return ins.Finish()
 	})

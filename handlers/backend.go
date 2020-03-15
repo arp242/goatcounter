@@ -277,10 +277,20 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	filter := r.URL.Query().Get("filter")
 	daily, forcedDaily := getDaily(r, start, end)
 
+	// Add extra day for timezone; will be removed on display.
+	if daily {
+		o := site.Settings.Timezone.Offset()
+		if o > 0 {
+			//start = start.Add(24 * time.Hour)
+		} else if o < 0 {
+			//end = end.Add(24 * time.Hour)
+		}
+	}
+
 	l := zlog.Module("backend").Field("site", site.ID)
 
 	var pages goatcounter.HitStats
-	total, totalDisplay, _, err := pages.List(r.Context(), start, end, filter, nil, daily)
+	total, totalDisplay, _, err := pages.List(r.Context(), start, end, filter, nil)
 	if err != nil {
 		return err
 	}
@@ -582,7 +592,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 	var pages goatcounter.HitStats
 	totalHits, totalDisplay, more, err := pages.List(r.Context(), start, end,
-		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","), daily)
+		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","))
 	if err != nil {
 		return err
 	}

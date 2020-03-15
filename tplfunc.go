@@ -60,25 +60,34 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 
 	now := Now().In(site.Settings.Timezone.Loc())
 	_, offset := now.Zone()
+	// Round to next hour for TZ offset of e.g. 9.5 hours, instead of down.
 	if offset%3600 != 0 {
-		// Round to next hour for TZ offset of 9.5 hours, instead of down.
 		offset += 1900
 	}
 	offset /= 3600
 
+	stats = applyOffset(offset, stats)
+
 	// Daily view.
-	// TODO: apply TZ offsets, e.g. if UTC+8 and local time is after 16:00, then
-	// add hours from next day.
 	if daily {
+		for i := range stats {
+			for j := range stats[i].Days {
+				stats[i].Daily += stats[i].Days[j]
+			}
+			if stats[i].Daily > max {
+				max = stats[i].Daily
+			}
+		}
+
 		var b strings.Builder
 		for _, stat := range stats {
 			inner := ""
-			h := math.Round(float64(stat.Total) / float64(max) / 0.01)
+			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
 			if h > 0 {
-				inner = fmt.Sprintf(`<div style="height: %.0f%%;"></div>`, h)
+				inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
 			}
 			b.WriteString(fmt.Sprintf(`<div title="%s, %s views">%s</div>`,
-				stat.Day, zhttp.Tnformat(stat.Total, site.Settings.NumberFormat), inner))
+				stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat), inner))
 		}
 
 		return template.HTML(b.String())
@@ -100,7 +109,7 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 			inner := ""
 			h := math.Round(float64(s) / float64(max) / 0.01)
 			if h > 0 {
-				inner = fmt.Sprintf(`<div style="height: %.0f%%"></div>`, h)
+				inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
 			}
 			b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
 				stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))

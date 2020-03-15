@@ -311,7 +311,7 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 type Stat struct {
 	Day   string
 	Days  []int
-	Total int
+	Daily int
 }
 
 type HitStat struct {
@@ -328,7 +328,7 @@ type HitStats []HitStat
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string, daily bool) (int, int, bool, error) {
+func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -398,10 +398,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		Title string    `db:"title"`
 		Day   time.Time `db:"day"`
 		Stats []byte    `db:"stats"`
-		Total int       `db:"total"`
 	}
 	query = `
-		select path, title, day, stats, total
+		select path, title, day, stats
 		from hit_stats
 		where
 			site=$1 and
@@ -430,20 +429,13 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 				var x []int
 				jsonutil.MustUnmarshal(s.Stats, &x)
 				hh[i].Title = s.Title
-				hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x, Total: s.Total})
+				hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
 
 				// Get max.
-				if daily {
-					totalDisplay += s.Total
-					if s.Total > hh[i].Max {
-						hh[i].Max = s.Total
-					}
-				} else {
-					for j := range x {
-						totalDisplay += x[j]
-						if x[j] > hh[i].Max {
-							hh[i].Max = x[j]
-						}
+				for j := range x {
+					totalDisplay += x[j]
+					if x[j] > hh[i].Max {
+						hh[i].Max = x[j]
 					}
 				}
 			}
