@@ -7,6 +7,7 @@ package cron
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"sync"
 	"time"
@@ -170,6 +171,10 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	if err != nil {
 		return errors.Wrapf(err, "ref_stat: site %d", siteID)
 	}
+	err = updateSizeStats(ctx, hits)
+	if err != nil {
+		return errors.Wrapf(err, "size_stat: site %d", siteID)
+	}
 
 	if !site.ReceivedData {
 		_, err = zdb.MustGet(ctx).ExecContext(ctx,
@@ -191,7 +196,10 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) err
 		var site goatcounter.Site
 		err := site.ByID(ctx, siteID)
 		if err != nil {
-			return err
+			if errors.Cause(err) == sql.ErrNoRows { // Deleted site.
+				continue
+			}
+			return fmt.Errorf("cron.ReindexStats: %w", err)
 		}
 		ctx = context.WithValue(ctx, ctxkey.Site, &site)
 
@@ -206,6 +214,8 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) err
 			err = updateLocationStats(ctx, hits)
 		case "ref_stats":
 			err = updateRefStats(ctx, hits)
+		case "size_stats":
+			err = updateSizeStats(ctx, hits)
 		}
 		if err != nil {
 			return err
@@ -256,7 +266,7 @@ func vacuumDeleted(ctx context.Context) error {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
 
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
-			for _, t := range []string{"usage", "browser_stats", "hit_stats", "hits", "location_stats", "ref_stats", "users"} {
+			for _, t := range []string{"usage", "browser_stats", "hit_stats", "hits", "location_stats", "ref_stats", "size_stats", "users"} {
 				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
 				if err != nil {
 					return fmt.Errorf("%s: %w", t, err)

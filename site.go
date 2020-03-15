@@ -425,7 +425,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
 		}
 
-		for _, t := range []string{"hit_stats", "browser_stats", "location_stats"} {
+		for _, t := range []string{"hit_stats", "browser_stats", "location_stats", "ref_stats", "size_stats"} {
 			_, err := tx.ExecContext(ctx,
 				`delete from `+t+` where site=$1 and day < `+ival,
 				s.ID)

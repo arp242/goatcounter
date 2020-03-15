@@ -15,7 +15,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
@@ -669,35 +668,20 @@ const (
 
 // ListSizes lists all device sizes.
 func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error) {
-	// TODO: just store better; all of this is ugly.
-	// select split_part(size, ',', 1) || ',' || split_part(size, ',', 2) as browser,
-	// order by cast(split_part(size, ',', 1) as int) asc
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select size as name, count(size) as count
-		from hits
-		where
-			site=$1 and
-			bot=0 and
-			created_at >= $2 and created_at <= $3
-		group by size
-	`, MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
+		select width as name, sum(count) as count
+		from size_stats
+		where site=$1 and day >= $2 and day <= $3
+		group by width
+		order by count desc
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
 		return 0, errors.Wrap(err, "Stats.ListSize")
 	}
 
-	// hh := *h
-	// for i := range hh {
-	// 	s := strings.Split(hh[i].Name, ", ")
-	// 	hh[i].Name = fmt.Sprintf("%s×%s", s[0], s[1])
-	// }
-	// sort.Slice(hh, func(i int, j int) bool {
-	// 	p1, _ := strconv.ParseInt(hh[i].Name[:strings.Index(hh[i].Name, "×")], 10, 32)
-	// 	p2, _ := strconv.ParseInt(hh[j].Name[:strings.Index(hh[j].Name, "×")], 10, 32)
-	// 	return p1 < p2
-	// })
-
-	// TODO: group a bit; ideally I'd like to make a line chart in the future,
-	// in which case this should no longer be needed.
+	// Group a bit more user-friendly.
+	// TODO: ideally I'd like to make a line chart in the future, in which case
+	// this should no longer be needed.
 	ns := Stats{
 		{sizePhones, 0},
 		{sizeLargePhones, 0},
@@ -712,8 +696,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 	for i := range hh {
 		count += hh[i].Count
 
-		x, _ := strconv.ParseInt(strings.Split(hh[i].Name, ", ")[0], 10, 16)
-		// TODO: apply scaling?
+		x, _ := strconv.ParseInt(hh[i].Name, 10, 16)
 		switch {
 		case x == 0:
 			ns[5].Count += hh[i].Count
@@ -739,37 +722,28 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	var where string
 	switch name {
 	case sizePhones:
-		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 384"
+		where = "width != 0 and width <= 384"
 	case sizeLargePhones:
-		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 1024 and cast(split_part(size, ',', 1) as int) > 384"
+		where = "width != 0 and width <= 1024 and width > 384"
 	case sizeTablets:
-		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 1440 and cast(split_part(size, ',', 1) as int) > 1024"
+		where = "width != 0 and width <= 1440 and width > 1024"
 	case sizeDesktop:
-		where = "size != '' and cast(split_part(size, ',', 1) as int) <= 1920 and cast(split_part(size, ',', 1) as int) > 1440"
+		where = "width != 0 and width <= 1920 and width > 1440"
 	case sizeDesktopHD:
-		where = "size != '' and cast(split_part(size, ',', 1) as int) > 1920"
+		where = "width != 0 and width > 1920"
 	case sizeUnknown:
-		where = "size = ''"
+		where = "width = 0"
 	default:
 		return 0, fmt.Errorf("Stats.ListSizes: invalid value for name: %#v", name)
 	}
 
-	if !cfg.PgSQL {
-		where = strings.Replace(where,
-			"split_part(size, ',', 1)",
-			"substr(size, 0, instr(size, ','))",
-			-1)
-	}
-
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`
-		select size as name, count(size) as count
-		from hits
+		select width as name, sum(count) as count
+		from size_stats
 		where
-			site=$1 and
-			bot=0 and
-			created_at >= $2 and created_at <= $3 and
+			site=$1 and day >= $2 and day <= $3 and
 			%s
-		group by size
+		group by width
 	`, where), MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
 	if err != nil {
 		return 0, errors.Wrap(err, "Stats.ListSize")
@@ -778,18 +752,17 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	grouped := make(map[string]int)
 	hh := *h
 	for i := range hh {
-		// TODO: apply scaling?
-		grouped[fmt.Sprintf("↔ %spx", strings.Split(hh[i].Name, ", ")[0])] += hh[i].Count
+		grouped[fmt.Sprintf("↔ %spx", hh[i].Name)] += hh[i].Count
 	}
 
 	ns := Stats{}
 	total := 0
-	for size, count := range grouped {
+	for width, count := range grouped {
 		total += count
 		ns = append(ns, struct {
 			Name  string
 			Count int
-		}{size, count})
+		}{width, count})
 	}
 	sort.Slice(ns, func(i int, j int) bool { return ns[i].Count > ns[j].Count })
 	*h = ns
