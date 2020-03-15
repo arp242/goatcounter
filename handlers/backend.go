@@ -265,10 +265,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 	now := goatcounter.Now().In(site.Settings.Timezone.Loc())
 	if start.IsZero() {
-		start = now.Add(-7 * day)
+		start = now.Add(-7 * day).UTC()
 	}
 	if end.IsZero() {
-		end = now
+		end = now.UTC()
 	}
 
 	filter := r.URL.Query().Get("filter")
