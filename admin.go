@@ -114,7 +114,7 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 	ival60 := interval(30)
 	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`
 		select
-			(select created_at from hits where site=$1 order by created_at desc limit 1) as last_data,
+			coalesce((select created_at from hits where site=$1 order by created_at desc limit 1), '1970-01-01') as last_data,
 			(select count(*) from hits where site=$1) as count_total,
 			(select count(*) from hits where site=$1
 				and created_at >= %[1]s) as count_last_month,
