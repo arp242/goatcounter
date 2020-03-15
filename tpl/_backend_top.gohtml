@@ -22,17 +22,15 @@
 		{{- if .User.ID}}
 			<div>
 				{{if eq .Path "/"}}
-					{{if gt (len .SubSites) 1}}
+					{{- if gt (len .SubSites) 1 -}}
 						Switch site:
-						{{range $i, $s := .SubSites}}
-							{{if gt $i 0}}|{{end}}
-							{{if $.Saas}}
-								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
-							{{else}}
-								<a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
-							{{end}}
-						{{end}}
-					{{end}}
+						{{- range $i, $s := .SubSites -}}
+							{{- if gt $i 0 -}}|{{- end -}}
+							{{if $.Saas}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{else}} <a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+							{{- end -}}
+						{{- end -}}
+					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
 					<strong><a href="/settings#tab-additional-sites">← Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}

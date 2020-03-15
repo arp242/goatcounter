@@ -43,6 +43,13 @@
 					<button class="link" name="period" value="week-cur">week</button> ·
 					<button class="link" name="period" value="month-cur">month</button>
 				</span>
+				<span>
+					{{if .ForcedDaily}}
+						<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
+					{{else}}
+						<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+					{{end}}
+				</span>
 			</span>
 		</div>
 
@@ -59,10 +66,9 @@
 				forward →
 			</div>
 		</div>
-
 	</div>
 
-	<div class="pages-list">
+	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
 			<sup class="hide-mobile">(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
@@ -76,7 +82,7 @@
 		</table>
 
 		<a href="#_" class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
-				data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+			data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&daily={{.Daily}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
 		>load more</a>
 	</div>
 </form>

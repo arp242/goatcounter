@@ -309,8 +309,9 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 }
 
 type Stat struct {
-	Day  string
-	Days []int
+	Day   string
+	Days  []int
+	Daily int
 }
 
 type HitStat struct {

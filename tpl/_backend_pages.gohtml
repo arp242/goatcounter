@@ -15,7 +15,7 @@
 			<div class="chart chart-bar">
 				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>
 				<span class="half"></span>
-				{{bar_chart $.Context .Stats .Max}}
+				{{bar_chart $.Context .Stats .Max $.Daily}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}

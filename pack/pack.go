@@ -12645,11 +12645,17 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			if ($(end).index() - $(start).index() < 2)
 				return;
 
-			// Every bar is always one hour, -2 for .half and .max
+			// Every bar is always one hour or day, -2 for .half and .max
 			var ps = get_date($('#period-start').val()),
 			    pe = get_date($('#period-start').val());
-			ps.setHours(ps.getHours() + $(start).index() - 2);
-			pe.setHours(pe.getHours() + $(end).index()   - 2);
+			if ($('.pages-list').hasClass('pages-list-daily')) {
+				ps.setDate(ps.getDate() + $(start).index() - 2);
+				pe.setDate(pe.getDate() + $(end).index()   - 2);
+			}
+			else {
+				ps.setHours(ps.getHours() + $(start).index() - 2);
+				pe.setHours(pe.getHours() + $(end).index()   - 2);
+			}
 			set_period(ps, pe);
 		});
 	};
@@ -12713,18 +12719,24 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				title = t.attr('data-title');
 			else {
 				// Reformat date and time according to site settings.
-				//
-				// 2019-07-22 22:00 – 22:59, 5 views
-				// 2019-07-24 7:00 – 7:59, 4 views
-				var split = title.split(' ');
-				var date  = split[0],
-					start = split[1],
-					end   = split[3].replace(',', ''),
+				var split = title.replace(',', '').split(' '),
+					date, views, start, end;
+				// Daily: 2020-02-05, 42 views
+				if (split.length == 3) {
+					date = split[0];
+					views = ', ' + split[1] + ' ' + split[2];
+				}
+				// Hourly: 2019-07-22 22:00 – 22:59, 5 views
+				else {
+					date  = split[0];
+					start = split[1];
+					end   = split[3];
 					views = ', ' + split[4] + ' ' + split[5];
 
-				if (!SETTINGS.twenty_four_hours) {
-					start = un24(start);
-					end = un24(end);
+					if (!SETTINGS.twenty_four_hours) {
+						start = un24(start);
+						end = un24(end);
+					}
 				}
 
 				if (SETTINGS.date_format !== '2006-01-02') {
@@ -12736,7 +12748,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					date = format_date(d);
 				}
 
-				title = date + ' ' + start + ' – ' + end + views;
+				if (start)
+					title = date + ' ' + start + ' – ' + end + views;
+				else
+					title = date + views;
+
 				t.attr('data-title', title);
 				t.removeAttr('title');
 			}
@@ -13181,7 +13197,8 @@ form .err  { color: red; display: block; }
 .period-form-date            { margin-bottom: 1.5em; }
 .period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
 .period-form-date .date span { margin-left: .5em; }
-.period-form-date input      { width: 9em; text-align: center; }
+.period-form-date input[type="text"]     { width: 9em; text-align: center; }
+.period-form-date input[type="checkbox"] { vertical-align: middle; }
 .period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
 
 @media (max-width: 62.5rem) {
@@ -13200,6 +13217,8 @@ form .err  { color: red; display: block; }
 	font-weight: bold;
 	text-decoration: underline;
 }
+
+.count-list-opt input[type="text"] { width: 9em; text-align: center; }
 
 /*** Charts ***/
 .chart {
@@ -14014,7 +14033,7 @@ var Templates = map[string][]byte{
 			<div class="chart chart-bar">
 				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>
 				<span class="half"></span>
-				{{bar_chart $.Context .Stats .Max}}
+				{{bar_chart $.Context .Stats .Max $.Daily}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
@@ -14277,17 +14296,15 @@ do this 100% reliably.</p>
 		{{- if .User.ID}}
 			<div>
 				{{if eq .Path "/"}}
-					{{if gt (len .SubSites) 1}}
+					{{- if gt (len .SubSites) 1 -}}
 						Switch site:
-						{{range $i, $s := .SubSites}}
-							{{if gt $i 0}}|{{end}}
-							{{if $.Saas}}
-								<a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
-							{{else}}
-								<a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
-							{{end}}
-						{{end}}
-					{{end}}
+						{{- range $i, $s := .SubSites -}}
+							{{- if gt $i 0 -}}|{{- end -}}
+							{{if $.Saas}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{else}} <a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+							{{- end -}}
+						{{- end -}}
+					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
 					<strong><a href="/settings#tab-additional-sites">← Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
@@ -14441,6 +14458,13 @@ do this 100% reliably.</p>
 					<button class="link" name="period" value="week-cur">week</button> ·
 					<button class="link" name="period" value="month-cur">month</button>
 				</span>
+				<span>
+					{{if .ForcedDaily}}
+						<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
+					{{else}}
+						<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+					{{end}}
+				</span>
 			</span>
 		</div>
 
@@ -14457,10 +14481,9 @@ do this 100% reliably.</p>
 				forward →
 			</div>
 		</div>
-
 	</div>
 
-	<div class="pages-list">
+	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
 			<sup class="hide-mobile">(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
@@ -14474,7 +14497,7 @@ do this 100% reliably.</p>
 		</table>
 
 		<a href="#_" class="load-more" {{if not (gt .TotalHits .TotalHitsDisplay)}}style="display: none"{{end}}
-				data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
+			data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&daily={{.Daily}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
 		>load more</a>
 	</div>
 </form>
@@ -14572,7 +14595,7 @@ parent site includes the child sites.</p>
 
 <h2>Signups</h2>
 <div class="chart chart-bar">
-{{bar_chart $.Context .Signups .MaxSignups}}
+{{bar_chart $.Context .Signups .MaxSignups false}}
 </div>
 
 <h2>Usage</h2>

@@ -55,40 +55,64 @@ func init() {
 	}
 }
 
-func BarChart(ctx context.Context, stats []Stat, max int) template.HTML {
+func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
 	site := MustGetSite(ctx)
 
 	now := Now().In(site.Settings.Timezone.Loc())
 	_, offset := now.Zone()
-
-	// Round to next hour for TZ offset of 9.5 hours, instead of down.
+	// Round to next hour for TZ offset of e.g. 9.5 hours, instead of down.
 	if offset%3600 != 0 {
 		offset += 1900
 	}
-
 	offset /= 3600
+
 	stats = applyOffset(offset, stats)
-
 	var b strings.Builder
-	today := now.Format("2006-01-02")
-	hour := now.Hour()
-	for _, stat := range stats {
-		for shour, s := range stat.Days {
-			// Don't show stuff in the future.
-			if stat.Day == today && shour > hour {
-				break
-			}
 
-			// Double div so that the title is on the entire column, instead of
-			// just the coloured area. No need to add the inner one if there's
-			// no data – saves quite a bit in the total filesize.
-			inner := ""
-			h := math.Round(float64(s) / float64(max) / 0.01)
-			if h > 0 {
-				inner = fmt.Sprintf(`<div style="height: %.0f%%"></div>`, h)
+	switch daily {
+	// Daily view.
+	case true:
+		for i := range stats {
+			for j := range stats[i].Days {
+				stats[i].Daily += stats[i].Days[j]
 			}
-			b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
-				stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))
+			if stats[i].Daily > max {
+				max = stats[i].Daily
+			}
+		}
+
+		for _, stat := range stats {
+			inner := ""
+			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
+			if h > 0 {
+				inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
+			}
+			b.WriteString(fmt.Sprintf(`<div title="%s, %s views">%s</div>`,
+				stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat), inner))
+		}
+
+	// Hourly view.
+	case false:
+		today := now.Format("2006-01-02")
+		hour := now.Hour()
+		for _, stat := range stats {
+			for shour, s := range stat.Days {
+				// Don't show stuff in the future.
+				if stat.Day == today && shour > hour {
+					break
+				}
+
+				// Double div so that the title is on the entire column, instead
+				// of just the coloured area. No need to add the inner one if
+				// there's no data – saves quite a bit in the total filesize.
+				inner := ""
+				h := math.Round(float64(s) / float64(max) / 0.01)
+				if h > 0 {
+					inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
+				}
+				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
+					stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))
+			}
 		}
 	}
 
