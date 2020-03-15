@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -68,14 +69,19 @@ var (
 func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Add timeout.
-			ctx, cancel := context.WithTimeout(r.Context(), 4*time.Second)
-			defer func() {
-				cancel()
-				if ctx.Err() == context.DeadlineExceeded {
-					w.WriteHeader(http.StatusGatewayTimeout)
-				}
-			}()
+			ctx := r.Context()
+
+			// Add timeout on non-admin pages.
+			if !strings.HasPrefix(r.URL.Path, "/admin") {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
+				defer func() {
+					cancel()
+					if ctx.Err() == context.DeadlineExceeded {
+						w.WriteHeader(http.StatusGatewayTimeout)
+					}
+				}()
+			}
 
 			// Add database.
 			*r = *r.WithContext(zdb.With(ctx, db))
