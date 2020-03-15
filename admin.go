@@ -46,7 +46,7 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			sites.code,
 			sites.name,
 			sites.created_at,
-			sites.plan,
+			(case when substr(sites.stripe, 0, 9) = 'cus_free' then 'free' else sites.plan end) as plan,
 			sites.link_domain,
 			users.name as user,
 			users.email,
@@ -114,7 +114,7 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 	ival60 := interval(30)
 	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`
 		select
-			(select created_at from hits where site=$1 order by created_at desc limit 1) as last_data,
+			coalesce((select created_at from hits where site=$1 order by created_at desc limit 1), '1970-01-01') as last_data,
 			(select count(*) from hits where site=$1) as count_total,
 			(select count(*) from hits where site=$1
 				and created_at >= %[1]s) as count_last_month,

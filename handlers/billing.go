@@ -62,10 +62,10 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		} else {
 			go func() {
 				zlog.Recover()
-				zmail.Send("GoatCounter subscription "+site.Plan,
+				zmail.Send("New GoatCounter subscription "+site.Plan,
 					mail.Address{Name: "GoatCounter Billing", Address: "billing@goatcounter.com"},
 					[]mail.Address{{Address: "billing@goatcounter.com"}},
-					fmt.Sprintf(`Cancelled: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
+					fmt.Sprintf(`New subscription: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
 			}()
 
 			zhttp.Flash(w, "Payment processed successfully!")

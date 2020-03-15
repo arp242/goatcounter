@@ -14,7 +14,11 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 }
 
 /* Don't make various explanatory texts too wide. */
-.page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
+.page > p, .page > div > p, .page > ul, .page > div > ul,
+.form-max-width label, .form-max-width textarea, .form-max-width input {
+	max-width: 50em;
+}
+.form-max-width label { display: inline-block; }
 
 #trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
@@ -342,14 +346,9 @@ table.auto { width: auto; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
 
-noscript {
-	display: block;
-	padding: .4em;
-	text-align: center;
-	background-color: #ffcfcf;
-	border-bottom: 1px solid #f88;
-}
-
+/*** noscript ***/
+noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
+noscript p { margin: .5em; }
 
 /*** Billing ***/
 #billing-form .plan span            { display: inline-block; min-width: 8em; }

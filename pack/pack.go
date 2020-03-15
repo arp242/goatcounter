@@ -13079,7 +13079,11 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 }
 
 /* Don't make various explanatory texts too wide. */
-.page > p, .page > div > p, .page > ul, .page > div > ul { max-width: 50em; }
+.page > p, .page > div > p, .page > ul, .page > div > ul,
+.form-max-width label, .form-max-width textarea, .form-max-width input {
+	max-width: 50em;
+}
+.form-max-width label { display: inline-block; }
 
 #trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
                  background-color: #fff0f0; border-top: 1px solid #f00; }
@@ -13407,14 +13411,9 @@ table.auto { width: auto; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
 
-noscript {
-	display: block;
-	padding: .4em;
-	text-align: center;
-	background-color: #ffcfcf;
-	border-bottom: 1px solid #f88;
-}
-
+/*** noscript ***/
+noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
+noscript p { margin: .5em; }
 
 /*** Billing ***/
 #billing-form .plan span            { display: inline-block; min-width: 8em; }
@@ -14278,7 +14277,13 @@ do this 100% reliably.</p>
 </head>
 
 <body>
-	<noscript>Only basic features work without JavaScript; for the best experience use JavaScript.</noscript>
+	<noscript>
+		<p>Goatcounter requires JavaScript enabled to function well; please allow JavaScript to run from {{.StaticDomain}}.</p>
+		<img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code}}" alt="" style="float:right">
+		<!--
+		<p><small>For a rationale, see: <a href="https://arp242.net/noscript.html">https://arp242.net/noscript.html</a></small></p>
+		-->
+	</noscript>
 
 	<nav class="center">
 		{{- if .User.ID}}
@@ -14536,6 +14541,8 @@ do this 100% reliably.</p>
 `),
 	"tpl/backend_admin.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
+<style>.plan-free { background-color: #eaeaea; }</style>
+
 <h1>Admin</h1>
 
 <p><a href="/debug/pprof">pprof</a></p>
@@ -14554,7 +14561,7 @@ parent site includes the child sites.</p>
 		<th><a href="?order=created_at">Created at</a></th>
 	</tr>
 	{{range $s := .Stats}}
-		<tr id="{{$s.ID}}">
+		<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
 			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
 			<td>{{nformat2 $s.Count $.Site}}</td>
 			<td>
@@ -14901,13 +14908,22 @@ parent site includes the child sites.</p>
 		{{end}}
 
 		<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be marked as deleted, and will no longer be accessible.
-			All data will be removed after 7 days.<br>
-			<a href="/contact">Contact</a> if you changed your mind.</p>
+			All data will be removed after 7 days.</p>
 
-		<form method="post" action="/delete">
+		<form method="post" action="/delete" class="form-max-width">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			{{if and (not .Site.Parent) .Saas}}
+				<label for="reason">It would be appreciated if you could let me know
+					if there's anything in particular you're missing in Goatcounter,
+					or any other reasons you have for wanting to delete your
+					account. This is entirely optional.</label><br>
+				<textarea id="reason" name="reason"></textarea><br><br>
+			{{end}}
+
 			<button type="submit">Delete site</button> (no confirmation)
 		</form>
+		<p><a href="/contact">Contact</a> within 7 days if you changed your mind and want to recover your data.</p>
 	</div>
 {{end}}
 
