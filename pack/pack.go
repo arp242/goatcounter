@@ -12814,9 +12814,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				var split = title.replace(',', '').split(' '),
 					date, views, start, end;
 				// Daily: 2020-02-05, 42 views
-				if (split.length == 3) {
+				if ($('.pages-list').hasClass('pages-list-daily')) {
 					date = split[0];
-					views = ', ' + split[1] + ' ' + split[2];
+					views = ', ' + split[1] + (split[2] ? (' ' + split[2]) : '');
 				}
 				// Hourly: 2019-07-22 22:00 – 22:59, 5 views
 				else {
