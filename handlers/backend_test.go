@@ -274,20 +274,23 @@ func TestBarChart(t *testing.T) {
 	id := tz.MustNew("", "Asia/Makassar").Loc()
 	hi := tz.MustNew("", "Pacific/Honolulu").Loc()
 
+	type testcase struct {
+		zone                  string
+		now, hit              time.Time
+		wantHourly, wantDaily string
+	}
+
 	// The requested time is always from 2019-06-17 to 2019-06-18, in the local
 	// TZ.
-	tests := []struct {
-		zone     string
-		now, hit time.Time
-		daily    bool
-		want     string
-	}{
+	tests := []testcase{
 		{
-			zone:  "UTC",
-			now:   date("2019-06-18 14:43", time.UTC),
-			hit:   date("2019-06-18 12:42", time.UTC),
-			daily: false,
-			want: `
+			zone: "UTC",
+			now:  date("2019-06-18 14:43", time.UTC),
+			hit:  date("2019-06-18 12:42", time.UTC),
+			wantDaily: `
+				<div title="2019-06-17, 0 views"></div>
+				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-17 2:00 – 2:59, 0 views"></div>
@@ -328,23 +331,16 @@ func TestBarChart(t *testing.T) {
 				<div title="2019-06-18 13:00 – 13:59, 0 views"></div>
 				<div title="2019-06-18 14:00 – 14:59, 0 views"></div>`, // Future not displayed
 		},
-		{
-			zone:  "UTC",
-			now:   date("2019-06-18 14:43", time.UTC),
-			hit:   date("2019-06-18 12:42", time.UTC),
-			daily: true,
-			want: `
-				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
-		},
 
 		// +8
 		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 14:42", time.UTC),
-			hit:   date("2019-06-18 12:42", time.UTC),
-			daily: false,
-			want: `
+			zone: "Asia/Makassar",
+			now:  date("2019-06-18 14:42", time.UTC),
+			hit:  date("2019-06-18 12:42", time.UTC),
+			wantDaily: `
+				<div title="2019-06-17, 0 views"></div>
+				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-17 2:00 – 2:59, 0 views"></div>
@@ -393,23 +389,16 @@ func TestBarChart(t *testing.T) {
 				<div title="2019-06-18 21:00 – 21:59, 0 views"></div>
 				<div title="2019-06-18 22:00 – 22:59, 0 views"></div>`,
 		},
-		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 14:42", time.UTC),
-			hit:   date("2019-06-18 12:42", time.UTC),
-			daily: true,
-			want: `
-				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
-		},
 
 		// in the future, so nothing displayed
 		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 14:42", time.UTC),
-			hit:   date("2019-06-18 23:42", time.UTC),
-			daily: false,
-			want: `
+			zone: "Asia/Makassar",
+			now:  date("2019-06-18 14:42", time.UTC),
+			hit:  date("2019-06-18 23:42", time.UTC),
+			wantDaily: `
+				<div title="2019-06-17, 0 views"></div>
+				<div title="2019-06-18, 0 views"></div>`,
+			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-17 2:00 – 2:59, 0 views"></div>
@@ -458,23 +447,16 @@ func TestBarChart(t *testing.T) {
 				<div title="2019-06-18 21:00 – 21:59, 0 views"></div>
 				<div title="2019-06-18 22:00 – 22:59, 0 views"></div>`,
 		},
-		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 14:42", time.UTC),
-			hit:   date("2019-06-18 23:42", time.UTC),
-			daily: true,
-			want: `
-				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 0 views"></div>`,
-		},
 
 		// The hit is added on the 17th, but displayed on the 18th
 		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 2:16", id),
-			hit:   date("2019-06-17 18:15", time.UTC),
-			daily: false,
-			want: `
+			zone: "Asia/Makassar",
+			now:  date("2019-06-18 2:16", id),
+			hit:  date("2019-06-17 18:15", time.UTC),
+			wantDaily: `
+				<div title="2019-06-17, 0 views"></div>
+				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-17 2:00 – 2:59, 0 views"></div>
@@ -503,23 +485,16 @@ func TestBarChart(t *testing.T) {
 				<div title="2019-06-18 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-18 2:00 – 2:59, 1 views"><div style="height:10%"></div></div>`,
 		},
-		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 2:16", id),
-			hit:   date("2019-06-17 18:15", time.UTC),
-			daily: true,
-			want: `
-				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
-		},
 
 		// The hit is added on the 16th, but displayed on the 17th
 		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 2:16", id),
-			hit:   date("2019-06-16 18:15", time.UTC),
-			daily: false,
-			want: `
+			zone: "Asia/Makassar",
+			now:  date("2019-06-18 2:16", id),
+			hit:  date("2019-06-16 18:15", time.UTC),
+			wantDaily: `
+				<div title="2019-06-17, 1 views"><div style="height:10%"></div></div>
+				<div title="2019-06-18, 0 views"></div>`,
+			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-17 2:00 – 2:59, 1 views"><div style="height:10%"></div></div>
@@ -548,23 +523,16 @@ func TestBarChart(t *testing.T) {
 				<div title="2019-06-18 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-18 2:00 – 2:59, 0 views"></div>`,
 		},
-		{
-			zone:  "Asia/Makassar",
-			now:   date("2019-06-18 2:16", id),
-			hit:   date("2019-06-16 18:15", time.UTC),
-			daily: true,
-			want: `
-				<div title="2019-06-17, 1 views"><div style="height:10%"></div></div>
-				<div title="2019-06-18, 0 views"></div>`,
-		},
 
 		// -10
 		{
-			zone:  "Pacific/Honolulu",
-			now:   date("2019-06-18 14:42", time.UTC),
-			hit:   date("2019-06-18 12:42", time.UTC),
-			daily: false,
-			want: `
+			zone: "Pacific/Honolulu",
+			now:  date("2019-06-18 14:42", time.UTC),
+			hit:  date("2019-06-18 12:42", time.UTC),
+			wantDaily: `
+				<div title="2019-06-17, 0 views"></div>
+				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-17 2:00 – 2:59, 0 views"></div>
@@ -595,23 +563,16 @@ func TestBarChart(t *testing.T) {
 				<div title="2019-06-18 3:00 – 3:59, 0 views"></div>
 				<div title="2019-06-18 4:00 – 4:59, 0 views"></div>`,
 		},
-		{
-			zone:  "Pacific/Honolulu",
-			now:   date("2019-06-18 14:42", time.UTC),
-			hit:   date("2019-06-18 12:42", time.UTC),
-			daily: true,
-			want: `
-				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
-		},
 
 		// The hit is added on the 18th, but displayed on the 17th
 		{
-			zone:  "Pacific/Honolulu",
-			now:   date("2019-06-18 14:42", hi),
-			hit:   date("2019-06-18 2:42", time.UTC),
-			daily: false,
-			want: `
+			zone: "Pacific/Honolulu",
+			now:  date("2019-06-18 14:42", hi),
+			hit:  date("2019-06-18 2:42", time.UTC),
+			wantDaily: `
+				<div title="2019-06-17, 1 views"><div style="height:10%"></div></div>
+				<div title="2019-06-18, 0 views"></div>`,
+			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
 				<div title="2019-06-17 2:00 – 2:59, 0 views"></div>
@@ -652,72 +613,70 @@ func TestBarChart(t *testing.T) {
 				<div title="2019-06-18 13:00 – 13:59, 0 views"></div>
 				<div title="2019-06-18 14:00 – 14:59, 0 views"></div>`,
 		},
-		{
-			zone:  "Pacific/Honolulu",
-			now:   date("2019-06-18 14:42", hi),
-			hit:   date("2019-06-18 2:42", time.UTC),
-			daily: true,
-			want: `
-				<div title="2019-06-17, 1 views"><div style="height:10%"></div></div>
-				<div title="2019-06-18, 0 views"></div>`,
-		},
 	}
 
 	zlog.Config.Debug = []string{}
 
+	run := func(t *testing.T, tt testcase, url, want string) {
+		ctx, clean := gctest.DB(t)
+		defer clean()
+
+		ctx, site := gctest.Site(ctx, t, goatcounter.Site{
+			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
+		})
+		gctest.StoreHits(ctx, t, goatcounter.Hit{
+			Site:      site.ID,
+			CreatedAt: tt.hit.UTC(),
+			Path:      "/a",
+		})
+
+		r, rr := newTest(ctx, "GET", url, nil)
+		r.Host = site.Code + "." + cfg.Domain
+		login(t, rr, r, site.ID)
+
+		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 200)
+
+		doc, err := goquery.NewDocumentFromReader(rr.Body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		c := doc.Find(".chart.chart-bar")
+		if c.Length() != 1 {
+			t.Fatalf("c.Length: %d", c.Length())
+		}
+		out, err := c.Html()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		out = strings.ReplaceAll(out, "</div>", "</div>\n")
+		out = strings.ReplaceAll(out, "</div>\n</div>", "</div></div>")
+		out = strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(out, "<"))
+
+		want = `<span class="top max" title="Y-axis scale">10</span>` + "\n" +
+			`<span class="half"></span>` + "\n" +
+			strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
+
+		if d := ztest.Diff(out, want); d != "" {
+			t.Error(d)
+			if sliceutil.InStringSlice(os.Args, "-test.v=true") {
+				fmt.Println("Out:\n" + out)
+			}
+		}
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.zone, func(t *testing.T) {
 			goatcounter.Now = func() time.Time { return tt.now.UTC() }
-			ctx, clean := gctest.DB(t)
-			defer clean()
-
-			ctx, site := gctest.Site(ctx, t, goatcounter.Site{
-				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
-				Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
+			t.Run("hourly", func(t *testing.T) {
+				run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18", tt.wantHourly)
 			})
-			gctest.StoreHits(ctx, t, goatcounter.Hit{
-				Site:      site.ID,
-				CreatedAt: tt.hit.UTC(),
-				Path:      "/a",
+
+			t.Run("daily", func(t *testing.T) {
+				run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18&daily=true", tt.wantDaily)
 			})
-			url := "/?period-start=2019-06-17&period-end=2019-06-18"
-			if tt.daily {
-				url += "&daily=true"
-			}
-			r, rr := newTest(ctx, "GET", url, nil)
-			r.Host = site.Code + "." + cfg.Domain
-			login(t, rr, r, site.ID)
-
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
-			ztest.Code(t, rr, 200)
-
-			doc, err := goquery.NewDocumentFromReader(rr.Body)
-			if err != nil {
-				t.Fatal(err)
-			}
-			c := doc.Find(".chart.chart-bar")
-			if c.Length() != 1 {
-				t.Fatalf("c.Length: %d", c.Length())
-			}
-			out, err := c.Html()
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			out = strings.ReplaceAll(out, "</div>", "</div>\n")
-			out = strings.ReplaceAll(out, "</div>\n</div>", "</div></div>")
-			out = strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(out, "<"))
-
-			tt.want = `<span class="top max" title="Y-axis scale">10</span>` + "\n" +
-				`<span class="half"></span>` + "\n" +
-				strings.TrimSpace(strings.ReplaceAll(tt.want, "\t", ""))
-
-			if d := ztest.Diff(out, tt.want); d != "" {
-				t.Error(d)
-				if sliceutil.InStringSlice(os.Args, "-test.v=true") {
-					fmt.Println("Out:\n" + out)
-				}
-			}
 		})
 	}
 }

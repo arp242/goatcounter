@@ -330,14 +330,15 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
 
+	//limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10))
 	limit := site.Settings.Limits.Page
 	if limit == 0 {
-		limit = 20
+		limit = 10
 	}
+
 	more := false
+	// Get one page more so we can detect if there are more pages after this.
 	if len(exclude) > 0 || filter != "" {
-		// Get one page more so we can detect if there are more pages after
-		// this.
 		more = true
 		limit++
 	}
@@ -372,13 +373,13 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	if err != nil {
 		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
-
 	err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 	if err != nil {
 		return 0, 0, false, errors.Wrap(err, "HitStats.List")
 	}
 	l = l.Since("select hits")
 
+	// Check if there are more entries.
 	if more {
 		if len(*h) == limit {
 			x := *h
@@ -389,7 +390,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		}
 	}
 
-	// Add stats and title
+	// Add stats and title.
 	type stats struct {
 		Path  string    `db:"path"`
 		Title string    `db:"title"`
@@ -409,7 +410,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		args = append(args, filter)
 	}
 	query += ` order by day asc`
-
 	var st []stats
 	err = db.SelectContext(ctx, &st, query, args...)
 	if err != nil {
@@ -417,83 +417,174 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 	l = l.Since("select hits_stats")
 
-	// Get max amount and totals.
 	hh := *h
-	totalDisplay := 0
-	for i := range hh {
-		for _, s := range st {
-			if s.Path == hh[i].Path {
-				var x []int
-				jsonutil.MustUnmarshal(s.Stats, &x)
-				hh[i].Title = s.Title
-				hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
 
-				// Get max.
-				for j := range x {
-					totalDisplay += x[j]
-					if x[j] > hh[i].Max {
-						hh[i].Max = x[j]
-					}
+	// Add the hit_stats.
+	{
+		for i := range hh {
+			for _, s := range st {
+				if s.Path == hh[i].Path {
+					var x []int
+					jsonutil.MustUnmarshal(s.Stats, &x)
+					hh[i].Title = s.Title
+					hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
 				}
 			}
 		}
-
-		if hh[i].Max < 10 {
-			hh[i].Max = 10
-		}
+		l = l.Since("add hit_stats")
 	}
-	l = l.Since("reorder data")
 
 	// Fill in blank days.
-	endFmt := end.Format("2006-01-02")
-	for i := range hh {
-		var (
-			day     = start.Add(-24 * time.Hour)
-			newStat []Stat
-			j       int
-		)
-		if day.Before(site.CreatedAt) {
-			day = site.CreatedAt.Add(-24 * time.Hour)
-		}
-
-		for {
-			day = day.Add(24 * time.Hour)
-			dayFmt := day.Format("2006-01-02")
-
-			if len(hh[i].Stats)-1 >= j && dayFmt == hh[i].Stats[j].Day {
-				newStat = append(newStat, hh[i].Stats[j])
-				j++
-			} else {
-				newStat = append(newStat, Stat{Day: dayFmt, Days: allDays})
+	{
+		endFmt := end.Format("2006-01-02")
+		for i := range hh {
+			var (
+				day     = start.Add(-24 * time.Hour)
+				newStat []Stat
+				j       int
+			)
+			if day.Before(site.CreatedAt) {
+				day = site.CreatedAt.Add(-24 * time.Hour)
 			}
-			if dayFmt == endFmt {
-				break
-			}
-		}
-		hh[i].Stats = newStat
-	}
-	l = l.Since("fill blanks")
 
-	// Get total.
-	query = `
-		select count(path)
-		from hits
-		where
-			site=$1 and
-			bot=0 and
-			created_at >= $2 and
-			created_at <= $3 `
-	args = []interface{}{site.ID, dayStart(start), dayEnd(end)}
-	if filter != "" {
-		query += ` and (lower(path) like $4 or lower(title) like $4) `
-		args = append(args, filter)
+			for {
+				day = day.Add(24 * time.Hour)
+				dayFmt := day.Format("2006-01-02")
+
+				if len(hh[i].Stats)-1 >= j && dayFmt == hh[i].Stats[j].Day {
+					newStat = append(newStat, hh[i].Stats[j])
+					j++
+				} else {
+					newStat = append(newStat, Stat{Day: dayFmt, Days: allDays})
+				}
+				if dayFmt == endFmt {
+					break
+				}
+			}
+
+			hh[i].Stats = newStat
+		}
+		l = l.Since("fill blanks")
 	}
 
-	total := 0
-	err = db.GetContext(ctx, &total, query, args...)
+	// Apply TZ offset.
+	{
+		offset := site.Settings.Timezone.Offset()
+		if offset%60 != 0 {
+			offset += 30
+		}
+		offset /= 60
+		for i := range hh {
+			hh[i].Stats = applyOffset(offset, hh[i].Stats)
+		}
+		l = l.Since("tz")
+	}
 
-	l = l.Since("get total")
-	return total, totalDisplay, more, errors.Wrap(err, "HitStats.List")
+	// Add total and max.
+	var totalDisplay int
+	{
+		for i := range hh {
+			hh[i].Count = 0
+			for j := range hh[i].Stats {
+				for k := range hh[i].Stats[j].Days {
+					hh[i].Stats[j].Daily += hh[i].Stats[j].Days[k]
+				}
+				hh[i].Count += hh[i].Stats[j].Daily
+				if hh[i].Stats[j].Daily > hh[i].Max {
+					hh[i].Max = hh[i].Stats[j].Daily
+				}
+
+			}
+
+			totalDisplay += hh[i].Count
+			if hh[i].Max < 10 {
+				hh[i].Max = 10
+			}
+		}
+		l = l.Since("add totals")
+	}
+
+	// Get total number of hits in the selected time range
+	// TODO: not 100% correct as it doesn't correct for TZ.
+	// We can also select fewer by skipping totalDisplay and just adding
+	// totalDisplay to the rest.
+	var total int
+	{
+		query = `
+			select count(path)
+			from hits
+			where
+				site=$1 and
+				bot=0 and
+				created_at >= $2 and
+				created_at <= $3 `
+		args = []interface{}{site.ID, dayStart(start), dayEnd(end)}
+		if filter != "" {
+			query += ` and (lower(path) like $4 or lower(title) like $4) `
+			args = append(args, filter)
+		}
+		err = db.GetContext(ctx, &total, query, args...)
+		if err != nil {
+			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+		}
+		l = l.Since("get total")
+	}
+
+	return total, totalDisplay, more, nil
+}
+
+// The database stores everything in UTC, so we need to apply
+// the offset for HitStats.List()
+//
+// Let's say we have two days with an offset of UTC+2, this means we
+// need to transform this:
+//
+//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
+//    2019-12-06 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
+//    2019-12-07 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//
+// To:
+//
+//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
+//    2019-12-06 → [1,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
+//    2019-12-07 → [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//
+// And skip the first 2 hours of the first day.
+//
+// Or, for UTC-2:
+//
+//    2019-12-04 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//    2019-12-05 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
+//    2019-12-06 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
+//
+// And skip the last 2 hours of the last day.
+//
+// Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
+// know how to do that otherwise.
+func applyOffset(offset int, stats []Stat) []Stat {
+	switch {
+	case offset > 0:
+		popped := make([]int, offset)
+		for i := range stats {
+			stats[i].Days = append(popped, stats[i].Days...)
+			o := len(stats[i].Days) - offset
+			popped = stats[i].Days[o:]
+			stats[i].Days = stats[i].Days[:o]
+		}
+		stats = stats[1:] // Overselect a day to get the stats for it, remove it.
+
+	case offset < 0:
+		offset = -offset
+		popped := make([]int, offset)
+		for i := len(stats) - 1; i >= 0; i-- {
+			stats[i].Days = append(stats[i].Days, popped...)
+			popped = stats[i].Days[:offset]
+			stats[i].Days = stats[i].Days[offset:]
+		}
+		stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
+	}
+
+	return stats
 }
 
 // ListRefs lists all references for a path.
