@@ -15,7 +15,6 @@ env:
 cache:
   directories:
     - '$HOME/.cache/go-build'
-    - '$GOPATH'
 notifications:
   email: false
 

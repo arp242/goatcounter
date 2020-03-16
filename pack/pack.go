@@ -676,6 +676,22 @@ commit;
 	insert into version values ('2020-03-13-1-code-moved');
 commit;
 `),
+	"db/migrate/pgsql/2020-03-16-1-size_stats.sql": []byte(`begin;
+	create table size_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null,
+		width          int           not null,
+		count          int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "size_stats#site#day"       on size_stats(site, day);
+	create index "size_stats#site#day#width" on size_stats(site, day, width);
+
+	insert into version values ('2020-03-16-1-size_stats');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1362,6 +1378,22 @@ commit;
 	);
 
 	insert into version values ('2020-03-03-1-flag');
+commit;
+`),
+	"db/migrate/sqlite/2020-03-16-1-size_stats.sql": []byte(`begin;
+	create table size_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+		width          int           not null,
+		count          int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "size_stats#site#day"       on size_stats(site, day);
+	create index "size_stats#site#day#width" on size_stats(site, day, width);
+
+	insert into version values ('2020-03-16-1-size_stats');
 commit;
 `),
 }

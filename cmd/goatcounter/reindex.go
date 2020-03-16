@@ -42,7 +42,9 @@ Flags:
                  as year-month-day.
 
   -table         Which tables to reindex: hit_stats, browser_stats,
-                 location_stats, ref_stats, or all (default).
+                 location_stats, ref_stats, size_stats, or all (default).
+
+  -site          Only reindex this site ID. Default is to reindex all.
 `
 
 func reindex() (int, error) {
@@ -51,6 +53,8 @@ func reindex() (int, error) {
 	confirm := CommandLine.Bool("confirm", false, "")
 	since := CommandLine.String("since", "", "")
 	table := CommandLine.String("table", "all", "")
+	var site int64
+	CommandLine.Int64Var(&site, "site", 0, "")
 	err := CommandLine.Parse(os.Args[2:])
 	if err != nil {
 		return 1, err
@@ -59,7 +63,7 @@ func reindex() (int, error) {
 	v := zvalidate.New()
 	firstDay := v.Date("-since", *since, "2006-01-02")
 	v.Include("-table", *table, []string{"hit_stats", "browser_stats",
-		"location_stats", "ref_stats", "all"})
+		"location_stats", "ref_stats", "size_stats", "all"})
 	if v.HasErrors() {
 		return 1, v
 	}
@@ -90,10 +94,15 @@ func reindex() (int, error) {
 
 	where := ""
 	if since != nil && *since != "" {
-		where = fmt.Sprintf(" where day >= '%s'", *since)
+		where = fmt.Sprintf(" where day >= '%s' ", *since)
 	} else {
+		siteWhere := ""
+		if site > 0 {
+			siteWhere = fmt.Sprintf(" where site=%d ", site)
+		}
+
 		var first string
-		err := db.GetContext(ctx, &first, `select created_at from hits order by created_at asc limit 1`)
+		err := db.GetContext(ctx, &first, `select created_at from hits `+siteWhere+` order by created_at asc limit 1`)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return 0, nil
@@ -107,6 +116,15 @@ func reindex() (int, error) {
 		}
 	}
 
+	if site > 0 {
+		if where == "" {
+			where += " where "
+		} else {
+			where += " and "
+		}
+		where += fmt.Sprintf(" site=%d ", site)
+	}
+
 	switch *table {
 	case "hit_stats":
 		db.MustExecContext(ctx, `delete from hit_stats`+where)
@@ -116,11 +134,14 @@ func reindex() (int, error) {
 		db.MustExecContext(ctx, `delete from location_stats`+where)
 	case "ref_stats":
 		db.MustExecContext(ctx, `delete from ref_stats`+where)
+	case "size_stats":
+		db.MustExecContext(ctx, `delete from size_stats`+where)
 	case "all":
 		db.MustExecContext(ctx, `delete from hit_stats`+where)
 		db.MustExecContext(ctx, `delete from browser_stats`+where)
 		db.MustExecContext(ctx, `delete from location_stats`+where)
 		db.MustExecContext(ctx, `delete from ref_stats`+where)
+		db.MustExecContext(ctx, `delete from size_stats`+where)
 	}
 
 	// Prefill every day with empty entry.
@@ -135,14 +156,16 @@ func reindex() (int, error) {
 	}
 
 	// Insert paths.
+	query := `select * from hits where created_at >= $1 and created_at <= $2`
+	if site > 0 {
+		query += fmt.Sprintf(" and site=%d ", site)
+	}
+
 	now := goatcounter.Now()
 	day := firstDay
 	for {
 		var hits []goatcounter.Hit
-		err := db.SelectContext(ctx, &hits, `
-			select * from hits where
-			created_at >= $1 and created_at <= $2`,
-			dayStart(day), dayEnd(day))
+		err := db.SelectContext(ctx, &hits, query, dayStart(day), dayEnd(day))
 		if err != nil {
 			return 1, err
 		}

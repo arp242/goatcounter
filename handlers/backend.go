@@ -368,6 +368,9 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) topRefs(w http.ResponseWriter, r *http.Request) error {
 	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	if err != nil {
+		return err
+	}
 
 	var refs goatcounter.Stats
 	o, _ := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
@@ -387,6 +390,9 @@ func (h backend) topRefs(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) pagesByRef(w http.ResponseWriter, r *http.Request) error {
 	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	if err != nil {
+		return err
+	}
 
 	var hits goatcounter.Stats
 	total, err := hits.ByRef(r.Context(), start, end, r.URL.Query().Get("name"))
@@ -495,6 +501,9 @@ func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
 	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	if err != nil {
+		return err
+	}
 
 	offset := 0
 	if o := r.URL.Query().Get("offset"); o != "" {
@@ -527,6 +536,9 @@ func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	if err != nil {
+		return err
+	}
 
 	var browsers goatcounter.Stats
 	total, err := browsers.ListBrowser(r.Context(), r.URL.Query().Get("name"), start, end)
@@ -544,6 +556,9 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	if err != nil {
+		return err
+	}
 
 	var sizeStat goatcounter.Stats
 	total, err := sizeStat.ListSize(r.Context(), r.URL.Query().Get("name"), start, end)
@@ -561,6 +576,9 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	if err != nil {
+		return err
+	}
 
 	var locStat goatcounter.Stats
 	total, err := locStat.ListLocations(r.Context(), start, end)
@@ -578,6 +596,9 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 
 	start, end, err := getPeriod(w, r, site)
+	if err != nil {
+		return err
+	}
 	daily, forcedDaily := getDaily(r, start, end)
 
 	var pages goatcounter.HitStats
