@@ -19,7 +19,13 @@ insert into version values
 	('2020-01-23-1-nformat'),
 	('2020-01-24-1-rm-mobile'),
 	('2020-01-24-2-domain'),
-	('2020-01-27-2-rm-count-ref');
+	('2020-01-27-2-rm-count-ref'),
+	('2020-02-06-1-hitsid'),
+	('2020-02-19-1-personalplus'),
+	('2020-02-24-1-ref_stats'),
+	('2020-03-03-1-flag'),
+	('2020-03-16-1-size_stats'),
+	('2020-03-16-2-rm-old');
 
 drop table if exists sites;
 create table sites (
@@ -28,13 +34,12 @@ create table sites (
 
 	name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+	link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
-	plan           varchar        not null                 check(plan in ('personal', 'business', 'businessplus', 'child', 'custom')),
+	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
 	settings       varchar        not null,
-	last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
 	received_data  int            not null default 0,
-	link_domain    varchar        not null default '',
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
@@ -68,9 +73,13 @@ create unique index "users#site#email"    on users(site, lower(email));
 
 drop table if exists hits;
 create table hits (
+	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 
 	path           varchar        not null,
+	title          varchar        not null default '',
+	event          int            default 0,
+	bot            int            default 0,
 	ref            varchar        not null,
 	ref_original   varchar,
 	ref_params     varchar,
@@ -78,9 +87,6 @@ create table hits (
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
-	bot            int            default 0,
-	title          varchar        not null default '',
-	event          int            default 0,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
@@ -95,7 +101,6 @@ create table hit_stats (
 	path           varchar        not null,
 	title          varchar        not null default '',
 	stats          varchar        not null,
-	total          integer        not null default 0,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -115,6 +120,7 @@ create table browser_stats (
 create index "browser_stats#site#day"         on browser_stats(site, day);
 create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
 
+drop table if exists location_stats;
 create table location_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -127,6 +133,32 @@ create table location_stats (
 create index "location_stats#site#day"          on location_stats(site, day);
 create index "location_stats#site#day#location" on location_stats(site, day, location);
 
+drop table if exists ref_stats;
+create table ref_stats (
+	site           integer        not null                 check(site > 0),
+
+	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	ref            varchar        not null,
+	count          int            not null,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+create index "ref_stats#site#day" on ref_stats(site, day);
+
+drop table if exists size_stats;
+create table size_stats (
+	site           integer        not null                 check(site > 0),
+
+	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	width          int           not null,
+	count          int            not null,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+create index "size_stats#site#day"       on size_stats(site, day);
+create index "size_stats#site#day#width" on size_stats(site, day, width);
+
+drop table if exists iso_3166_1;
 create table iso_3166_1 (
 	name   varchar,
 	alpha2 varchar
@@ -443,4 +475,10 @@ create table usage (
 	vetted         integer        default 0,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+
+drop table if exists flags;
+create table flags (
+	name  varchar not null,
+	value int     not null
 );

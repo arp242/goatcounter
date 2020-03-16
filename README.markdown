@@ -133,11 +133,12 @@ be faster in most cases, and the chief reason for adding support in the first
 place is to support load balancing web requests over multiple servers. To use
 it:
 
-1. Create the database, unlike SQLite it's not done automatically:
+1. Create the database, unlike SQLite it's not done automatically (you may need
+   to modify the `-db` flag):
 
        $ createdb goatcounter
        $ psql goatcounter -c '\i db/schema.pgsql'
-       $ goatcounter migrate all
+       $ goatcounter -db 'postgresql://dbname=goatcounter' migrate all
 
 2. Run with custom `-db` flag:
 
