@@ -84,6 +84,12 @@ straightforward
   first. The cron package will persist that to DB every 10 seconds, which also
   regenerates various cached stats.
 
+- Hits ("pageviews") are stored in the `hits` table with minimal processing; for
+  the most part, this table isn't queried directly for reasons of performance.
+  When inserting new rows in the table the various `*_stats` tables are updated
+  as well, which contain a more efficient aggregation of the data (`hit_stats`,
+  browser_stats`, etc.)
+
 - Templates live in /tpl, and are standard Go templates. The Go template library
   is a bit idiosyncratic, but once you "get" it they're quite pleasant to work
   with (I can't find a good/gentle "getting started with Go templates"
@@ -92,3 +98,5 @@ straightforward
 
 - The frontend is in /public. It's all simple basic CSS with simple jQuery-based
   JavaScript.
+
+
