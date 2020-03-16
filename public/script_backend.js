@@ -161,7 +161,7 @@
 			td.text(format_int(data.total_display));
 		}
 		else
-			td.text(format_int(parseInt(td.text().replace(/\s/, ''), 10) + data.total_display));
+			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
 	};
 
 	// Highlight a filter pattern in the path and title.
@@ -744,7 +744,7 @@
 
 	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
 	var format_int = function(n) {
-		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format));
 	};
 
 	// Create Date() object from year-month-day string.
