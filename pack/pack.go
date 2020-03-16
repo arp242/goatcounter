@@ -12731,7 +12731,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					date  = split[0];
 					start = split[1];
 					end   = split[3];
-					views = ', ' + split[4] + ' ' + split[5];
+					views = ', ' + split[4] + (split[5] ? (' ' + split[5]) : '');
 
 					if (!SETTINGS.twenty_four_hours) {
 						start = un24(start);
@@ -13280,7 +13280,9 @@ form .err  { color: red; display: block; }
 	*/
 
 }
-.chart-bar > div:hover       { background-color: #aaa; }
+.chart-bar > div:hover  { background-color: #aaa; }
+.chart-bar > .f         { background-color: #eee; }
+
 
 #popup {
 	position: absolute;
