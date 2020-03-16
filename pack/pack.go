@@ -15306,12 +15306,12 @@ parent site includes the child sites.</p>
 				<span>You will need access to the inbox to sign in.</span>
 
 				<label for="limits_page">Page size</label>
-				<input type="text" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
-				{{validate "settings.limits.page" .Validate}}
+				<input type="number" min="1" max="25" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
+				{{validate "site.settings.limits.page" .Validate}}
 
 				<label for="limits_ref">Referrers page size</label>
-				<input type="text" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-				{{validate "settings.limits.ref" .Validate}}
+				<input type="number" min="1" max="25" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
+				{{validate "site.settings.limits.ref" .Validate}}
 			</fieldset>
 
 			<fieldset>
@@ -15327,11 +15327,10 @@ parent site includes the child sites.</p>
 				</select>
 
 				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-					24-hour clock</label>
+					24-hour clock (13:00)</label>
 
 				<label>{{checkbox .Site.Settings.SundayStartsWeek "settings.sunday_starts_week"}}
 					Week starts on Sunday</label>
-
 
 				<label for="number_format">Thousands separator</label>
 				<select name="settings.number_format" id="number_format">
@@ -15342,7 +15341,7 @@ parent site includes the child sites.</p>
 					<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
 					<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
 				</select>
-				{{validate "settings.number_format" .Validate}}
+				{{validate "site.settings.number_format" .Validate}}
 
 				<label for="timezone">Timezone</label>
 				<select name="settings.timezone" id="timezone">
@@ -15350,7 +15349,7 @@ parent site includes the child sites.</p>
 					{{range $tz := .Timezones}}<option {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
 					{{end}}
 				</select>
-				{{validate "settings.timezone" .Validate}}
+				{{validate "site.settings.timezone" .Validate}}
 				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
 			</fieldset>
 

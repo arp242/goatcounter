@@ -73,6 +73,7 @@ func TestSiteValidate(t *testing.T) {
 				tt.prefn(ctx)
 			}
 
+			tt.in.Defaults(ctx)
 			err := tt.in.Validate(ctx)
 			if err == nil && tt.want == nil {
 				return

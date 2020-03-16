@@ -138,6 +138,9 @@ func (s *Site) Validate(ctx context.Context) error {
 		v.Include("plan", s.Plan, []string{PlanChild})
 	}
 
+	v.Range("settings.limits.page", int64(s.Settings.Limits.Page), 1, 25)
+	v.Range("settings.limits.ref", int64(s.Settings.Limits.Ref), 1, 25)
+
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
 	}
