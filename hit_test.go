@@ -179,7 +179,7 @@ func TestHitStatsList(t *testing.T) {
 				t.Fatalf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
 			}
 
-			if d := ztest.Diff(stats, tt.wantStats); d != "" {
+			if d := ztest.Diff(fmt.Sprintf("%+v\n", stats), fmt.Sprintf("%+v", tt.wantStats)); d != "" {
 				t.Fatal(d)
 			}
 		})

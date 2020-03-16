@@ -712,7 +712,7 @@ func TestBarChart(t *testing.T) {
 				`<span class="half"></span>` + "\n" +
 				strings.TrimSpace(strings.ReplaceAll(tt.want, "\t", ""))
 
-			if d := ztest.Diff(strings.Split(out, "\n"), strings.Split(tt.want, "\n")); d != "" {
+			if d := ztest.Diff(out, tt.want); d != "" {
 				t.Error(d)
 				if sliceutil.InStringSlice(os.Args, "-test.v=true") {
 					fmt.Println("Out:\n" + out)

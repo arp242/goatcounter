@@ -15,7 +15,6 @@ Backend
 | github.com/arp242/maxminddb-golang | v1.6.0                             | ISC     |
 | github.com/fsnotify/fsnotify       | v1.4.7                             | BSD     |
 | github.com/go-chi/chi              | v4.0.3                             | MIT     |
-| github.com/google/go-cmp           | v0.3.1                             | BSD     |
 | github.com/jmoiron/sqlx            | v1.2.0                             | MIT     |
 | github.com/lib/pq                  | v1.3.0                             | MIT     |
 | github.com/mattn/go-sqlite3        | v2.0.3                             | MIT     |
