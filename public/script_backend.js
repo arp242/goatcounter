@@ -32,7 +32,7 @@
 		].forEach(function(f) { f.call(); });
 	});
 
-	// Add current IP address ignore_ips.
+	// Add current IP address to ignore_ips.
 	var add_ip = function() {
 		$('#add-ip').on('click', function(e) {
 			e.preventDefault();
@@ -316,12 +316,13 @@
 
 	// Show details for the horizontal charts.
 	var hchart_detail = function() {
-		$(document.body).on('keydown', function(e) {
-			if (e.keyCode !== 27)  // Esc
-				return;
+		// Close on Esc or when clicking outside the hbar area.
+		var close = function() {
 			$('.hbar-detail').remove();
 			$('.hbar-open').removeClass('hbar-open');
-		});
+		};
+		$(document.body).on('keydown', function(e) { if (e.keyCode === 27) close(); });
+		$(document.body).on('click', function(e)   { if ($(e.target).closest('.chart-hbar').length === 0) close(); });
 
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
