@@ -442,9 +442,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 				newStat []Stat
 				j       int
 			)
-			if day.Before(site.CreatedAt) {
-				day = site.CreatedAt.Add(-24 * time.Hour)
-			}
 
 			for {
 				day = day.Add(24 * time.Hour)
