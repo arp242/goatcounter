@@ -704,6 +704,11 @@ commit;
 	insert into version values ('2020-03-16-2-rm-old');
 commit;
 `),
+	"db/migrate/pgsql/2020-03-18-1-json_settings.sql": []byte(`begin;
+	alter table sites alter column settings type json using settings::json;
+	insert into version values ('2020-03-18-1-json_settings');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -12247,22 +12252,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs,
 		].forEach(function(f) { f.call(); });
-
-		// Set timezone for people who don't have it yet.
-		// TODO: remove after a while, just so that existing people don't have
-		// to manually set it. It's set for new signups automatically.
-		if (SETTINGS.timezone === null) {
-			if (!window.Intl || !window.Intl.DateTimeFormat)
-				return;
-			jQuery.ajax({
-				url:     '/set-tz',
-				method:  'POST',
-				data:    {
-					csrf: CSRF,
-					zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-				},
-			});
-		}
 	});
 
 	// Add current IP address ignore_ips.
@@ -13539,8 +13528,7 @@ h3 + h4 { margin-top: .3em; }
 `),
 }
 
-var SchemaPgSQL = []byte(`drop table if exists version;
-create table version (name varchar);
+var SchemaPgSQL = []byte(`create table version (name varchar);
 insert into version values
 	('2019-10-16-1-geoip'),
 	('2019-11-08-1-refs'),
@@ -13573,9 +13561,9 @@ insert into version values
 	('2020-03-03-1-flag'),
 	('2020-03-13-1-code-moved'),
 	('2020-03-16-1-size_stats'),
-	('2020-03-16-2-rm-old');
+	('2020-03-16-2-rm-old'),
+	('2020-03-18-1-json_settings');
 
-drop table if exists sites cascade;
 create table sites (
 	id             serial         primary key,
 	parent         integer        null                     check(parent is null or parent>0),
@@ -13586,7 +13574,7 @@ create table sites (
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
-	settings       varchar        not null,
+	settings       json           not null,
 	received_data  int            not null default 0,
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
@@ -13596,7 +13584,6 @@ create table sites (
 create unique index "sites#code"  on sites(lower(code));
 create unique index "sites#cname" on sites(lower(cname));
 
-drop table if exists users cascade;
 create table users (
 	id             serial         primary key,
 	site           integer        not null                 check(site > 0),
@@ -13620,7 +13607,6 @@ create unique index "users#login_token"   on users(login_token);
 create        index "users#site"          on users(site);
 create unique index "users#site#email"    on users(site, lower(email));
 
-drop table if exists hits cascade;
 create table hits (
 	id             serial primary key,
 	site           integer        not null                 check(site > 0),
@@ -13642,7 +13628,6 @@ create table hits (
 create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
 create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
 
-drop table if exists hit_stats cascade;
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -13655,7 +13640,6 @@ create table hit_stats (
 );
 create index "hit_stats#site#day" on hit_stats(site, day);
 
-drop table if exists browser_stats cascade;
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -13669,7 +13653,6 @@ create table browser_stats (
 create index "browser_stats#site#day"         on browser_stats(site, day);
 create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
 
-drop table if exists location_stats;
 create table location_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -13682,7 +13665,6 @@ create table location_stats (
 create index "location_stats#site#day"          on location_stats(site, day);
 create index "location_stats#site#day#location" on location_stats(site, day, location);
 
-drop table if exists ref_stats;
 create table ref_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -13694,7 +13676,6 @@ create table ref_stats (
 );
 create index "ref_stats#site#day" on ref_stats(site, day);
 
-drop table if exists size_stats;
 create table size_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -13707,7 +13688,6 @@ create table size_stats (
 create index "size_stats#site#day"       on size_stats(site, day);
 create index "size_stats#site#day#width" on size_stats(site, day, width);
 
-drop table if exists iso_3166_1;
 create table iso_3166_1 (
 	name   varchar,
 	alpha2 varchar
@@ -14006,7 +13986,6 @@ insert into iso_3166_1 (name, alpha2) values
 	('Zaire', 'ZR'),
 	('Zimbabwe', 'ZW');
 
-drop table if exists updates;
 create table updates (
 	id             serial         primary key,
 	subject        varchar        not null,
@@ -14016,7 +13995,6 @@ create table updates (
 	show_at        timestamp      not null
 );
 
-drop table if exists usage;
 create table usage (
 	site           integer        not null                 check(site > 0),
 	domain         varchar        not null,
@@ -14026,7 +14004,6 @@ create table usage (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 
-drop table if exists flags;
 create table flags (
 	name  varchar not null,
 	value int     not null
@@ -14034,8 +14011,7 @@ create table flags (
 
 -- vim:ft=sql
 `)
-var SchemaSQLite = []byte(`drop table if exists version;
-create table version (name varchar);
+var SchemaSQLite = []byte(`create table version (name varchar);
 insert into version values
 	('2019-10-16-1-geoip'),
 	('2019-11-08-1-refs'),
@@ -14063,7 +14039,6 @@ insert into version values
 	('2020-03-16-1-size_stats'),
 	('2020-03-16-2-rm-old');
 
-drop table if exists sites;
 create table sites (
 	id             integer        primary key autoincrement,
 	parent         integer        null                     check(parent is null or parent>0),
@@ -14083,7 +14058,6 @@ create table sites (
 );
 create unique index "sites#code" on sites(lower(code));
 
-drop table if exists users;
 create table users (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
@@ -14107,7 +14081,6 @@ create unique index "users#login_token"   on users(login_token);
 create        index "users#site"          on users(site);
 create unique index "users#site#email"    on users(site, lower(email));
 
-drop table if exists hits;
 create table hits (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
@@ -14129,7 +14102,6 @@ create table hits (
 create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
 create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
 
-drop table if exists hit_stats;
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -14142,7 +14114,6 @@ create table hit_stats (
 );
 create index "hit_stats#site#day" on hit_stats(site, day);
 
-drop table if exists browser_stats;
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -14156,7 +14127,6 @@ create table browser_stats (
 create index "browser_stats#site#day"         on browser_stats(site, day);
 create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
 
-drop table if exists location_stats;
 create table location_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -14169,7 +14139,6 @@ create table location_stats (
 create index "location_stats#site#day"          on location_stats(site, day);
 create index "location_stats#site#day#location" on location_stats(site, day, location);
 
-drop table if exists ref_stats;
 create table ref_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -14181,7 +14150,6 @@ create table ref_stats (
 );
 create index "ref_stats#site#day" on ref_stats(site, day);
 
-drop table if exists size_stats;
 create table size_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -14194,7 +14162,6 @@ create table size_stats (
 create index "size_stats#site#day"       on size_stats(site, day);
 create index "size_stats#site#day#width" on size_stats(site, day, width);
 
-drop table if exists iso_3166_1;
 create table iso_3166_1 (
 	name   varchar,
 	alpha2 varchar
@@ -14493,7 +14460,6 @@ insert into iso_3166_1 (name, alpha2) values
 	('Zaire', 'ZR'),
 	('Zimbabwe', 'ZW');
 
-drop table if exists updates;
 create table updates (
 	id             integer        primary key autoincrement,
 	subject        varchar        not null,
@@ -14503,7 +14469,6 @@ create table updates (
 	show_at        timestamp      not null                 check(show_at = strftime('%Y-%m-%d %H:%M:%S', show_at))
 );
 
-drop table if exists usage;
 create table usage (
 	site           integer        not null                 check(site > 0),
 	domain         varchar        not null,
@@ -14513,7 +14478,6 @@ create table usage (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 
-drop table if exists flags;
 create table flags (
 	name  varchar not null,
 	value int     not null

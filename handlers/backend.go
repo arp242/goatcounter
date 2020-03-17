@@ -138,7 +138,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Get("/code", zhttp.Wrap(h.code))
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
-			af.Post("/set-tz", zhttp.Wrap(h.setTZ))
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 				Client:  zhttp.RatelimitIP,
 				Store:   zhttp.NewRatelimitMemory(),
@@ -697,27 +696,6 @@ func (h backend) code(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.String(w, zhttp.RemovePort(r.RemoteAddr))
-}
-
-// TODO: temporary.
-func (h backend) setTZ(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
-
-	var err error
-	site.Settings.Timezone, err = tz.New(geo(r.RemoteAddr), r.FormValue("zone"))
-	if err != nil {
-		site.Settings.Timezone, err = tz.New("", r.FormValue("zone"))
-		if err != nil {
-			zlog.Field("zone", r.FormValue("zone")).Error(err)
-			return zhttp.JSON(w, "")
-		}
-	}
-
-	err = site.Update(r.Context())
-	if err != nil {
-		return err
-	}
-	return zhttp.JSON(w, "")
 }
 
 func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {

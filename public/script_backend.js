@@ -30,22 +30,6 @@
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs,
 		].forEach(function(f) { f.call(); });
-
-		// Set timezone for people who don't have it yet.
-		// TODO: remove after a while, just so that existing people don't have
-		// to manually set it. It's set for new signups automatically.
-		if (SETTINGS.timezone === null) {
-			if (!window.Intl || !window.Intl.DateTimeFormat)
-				return;
-			jQuery.ajax({
-				url:     '/set-tz',
-				method:  'POST',
-				data:    {
-					csrf: CSRF,
-					zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-				},
-			});
-		}
 	});
 
 	// Add current IP address ignore_ips.
