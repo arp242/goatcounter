@@ -331,13 +331,8 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
 
-	limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10))
-	more := false
 	// Get one page more so we can detect if there are more pages after this.
-	if len(exclude) > 0 || filter != "" {
-		more = true
-		limit++
-	}
+	limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
 
 	// Select hits.
 	var st []struct {
@@ -346,6 +341,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		Day   time.Time `db:"day"`
 		Stats []byte    `db:"stats"`
 	}
+	var more bool
 	{
 		// TODO: this queries hits directly since hit_stats won't account for
 		// TZ, but this is rather slow for longer time periods. Perhaps easier
@@ -385,14 +381,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		l = l.Since("select hits")
 
 		// Check if there are more entries.
-		if more {
-			if len(*h) == limit {
-				x := *h
-				x = x[:len(x)-1]
-				*h = x
-			} else {
-				more = false
-			}
+		if len(*h) == limit {
+			x := *h
+			x = x[:len(x)-1]
+			*h = x
+			more = true
 		}
 
 		// Add stats and title.
@@ -505,13 +498,13 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	var total int
 	{
 		query := `
-			select count(path)
-			from hits
-			where
-				site=$1 and
-				bot=0 and
-				created_at >= $2 and
-				created_at <= $3 `
+		    select count(path)
+		    from hits
+		    where
+			    site=$1 and
+			    bot=0 and
+			    created_at >= $2 and
+			    created_at <= $3 `
 		args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `

@@ -278,7 +278,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l := zlog.Module("backend").Field("site", site.ID)
 
 	var pages goatcounter.HitStats
-	total, totalDisplay, _, err := pages.List(r.Context(), start, end, filter, nil)
+	total, totalDisplay, morePages, err := pages.List(r.Context(), start, end, filter, nil)
 	if err != nil {
 		return err
 	}
@@ -339,6 +339,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		PeriodEnd         time.Time
 		Filter            string
 		Pages             goatcounter.HitStats
+		MorePages         bool
 		Refs              goatcounter.HitStats
 		MoreRefs          bool
 		TotalHits         int
@@ -356,9 +357,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		Daily             bool
 		ForcedDaily       bool
 	}{newGlobals(w, r), cfg.DomainCount, sr, r.URL.Query().Get("hl-period"),
-		start, end, filter, pages, refs, moreRefs, total, totalDisplay,
-		browsers, totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
-		showMoreLoc, topRefs, showMoreRefs, daily, forcedDaily})
+		start, end, filter, pages, morePages, refs, moreRefs, total,
+		totalDisplay, browsers, totalBrowsers, subs, sizeStat, totalSize,
+		locStat, totalLoc, showMoreLoc, topRefs, showMoreRefs, daily,
+		forcedDaily})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
