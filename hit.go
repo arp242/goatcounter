@@ -353,7 +353,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 				bot=0 and
 				created_at >= ? and
 				created_at <= ? `
-		args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
+		args := []interface{}{site.ID, start, end}
 
 		if filter != "" {
 			filter = "%" + strings.ToLower(filter) + "%"
@@ -505,7 +505,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			    bot=0 and
 			    created_at >= $2 and
 			    created_at <= $3 `
-		args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
+		args := []interface{}{site.ID, start, end}
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
 			args = append(args, filter)
@@ -603,7 +603,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		group by ref, ref_scheme
 		order by count(*) desc, path desc
 		limit $5 offset $6`,
-		site.ID, path, dayStart(start), dayEnd(end), limit+1, offset)
+		site.ID, path, start, end, limit+1, offset)
 
 	more := false
 	if len(*h) > limit {
@@ -653,7 +653,7 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 			ref = $4
 		group by path
 		order by count desc
-	`, MustGetSite(ctx).ID, dayStart(start), dayEnd(end), ref)
+	`, MustGetSite(ctx).ID, start, end, ref)
 
 	var total int
 	for _, b := range *h {
@@ -821,7 +821,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 			site=$1 and day >= $2 and day <= $3 and
 			%s
 		group by width
-	`, where), MustGetSite(ctx).ID, dayStart(start), dayEnd(end))
+	`, where), MustGetSite(ctx).ID, start, end)
 	if err != nil {
 		return 0, errors.Wrap(err, "Stats.ListSize")
 	}
