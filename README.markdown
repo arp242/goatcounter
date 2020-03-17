@@ -78,10 +78,10 @@ Compile from source with:
 You'll now have a `goatcounter` binary in the current directory.
 
 The master branch should be reasonably stable. You can get a specific release by
-checking out the branch for the latest version: `git checkout v1.0.0`.
+checking out the branch for the latest version: `git checkout v1.1.0`.
 
 It's not recommended to use `go get` in GOPATH mode since that will ignore the
-versions in go.mod.
+dependency versions in go.mod.
 
 Go 1.13 and newer are supported (it follows the [Go release policy][rp]). You
 will need a C compiler (for SQLite) or PostgreSQL.
