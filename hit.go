@@ -484,11 +484,12 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			for j := range hh[i].Stats {
 				for k := range hh[i].Stats[j].Days {
 					hh[i].Stats[j].Daily += hh[i].Stats[j].Days[k]
+
+					if hh[i].Stats[j].Days[k] > hh[i].Max {
+						hh[i].Max = hh[i].Stats[j].Days[k]
+					}
 				}
 				hh[i].Count += hh[i].Stats[j].Daily
-				if hh[i].Stats[j].Daily > hh[i].Max {
-					hh[i].Max = hh[i].Stats[j].Daily
-				}
 			}
 
 			totalDisplay += hh[i].Count
