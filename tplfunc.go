@@ -59,14 +59,7 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	site := MustGetSite(ctx)
 
 	now := Now().In(site.Settings.Timezone.Loc())
-	_, offset := now.Zone()
-	// Round to next hour for TZ offset of e.g. 9.5 hours, instead of down.
-	if offset%3600 != 0 {
-		offset += 1900
-	}
-	offset /= 3600
 
-	stats = applyOffset(offset, stats)
 	var b strings.Builder
 	future := false
 	today := now.Format("2006-01-02")
@@ -74,15 +67,6 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	switch daily {
 	// Daily view.
 	case true:
-		for i := range stats {
-			for j := range stats[i].Days {
-				stats[i].Daily += stats[i].Days[j]
-			}
-			if stats[i].Daily > max {
-				max = stats[i].Daily
-			}
-		}
-
 		for _, stat := range stats {
 			if future {
 				b.WriteString(fmt.Sprintf(`<div title="%s, future" class="f"></div>`, stat.Day))
@@ -135,60 +119,6 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	}
 
 	return template.HTML(b.String())
-}
-
-// The database stores everything in UTC, so we need to apply
-// the offset.
-//
-// Let's say we have two days with an offset of UTC+2, this means we
-// need to transform this:
-//
-//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
-//    2019-12-06 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
-//    2019-12-07 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-//
-// To:
-//
-//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
-//    2019-12-06 → [1,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
-//    2019-12-07 → [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-//
-// And skip the first 2 hours of the first day.
-//
-// Or, for UTC-2:
-//
-//    2019-12-04 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-//    2019-12-05 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
-//    2019-12-06 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
-//
-// And skip the last 2 hours of the last day.
-//
-// Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
-// know how to do that otherwise.
-func applyOffset(offset int, stats []Stat) []Stat {
-	switch {
-	case offset > 0:
-		popped := make([]int, offset)
-		for i := range stats {
-			stats[i].Days = append(popped, stats[i].Days...)
-			o := len(stats[i].Days) - offset
-			popped = stats[i].Days[o:]
-			stats[i].Days = stats[i].Days[:o]
-		}
-		stats = stats[1:] // Overselect a day to get the stats for it, remove it.
-
-	case offset < 0:
-		offset = -offset
-		popped := make([]int, offset)
-		for i := len(stats) - 1; i >= 0; i-- {
-			stats[i].Days = append(stats[i].Days, popped...)
-			popped = stats[i].Days[:offset]
-			stats[i].Days = stats[i].Days[offset:]
-		}
-		stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
-	}
-
-	return stats
 }
 
 func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, cutoff float32, link, other bool) template.HTML {
