@@ -241,7 +241,7 @@ func flagAuth(auth string, v *zvalidate.Validator) {
 
 		cfg.LoginFrom = from
 
-		v.Email("-auth", from)
+		v.Email("-auth", from, fmt.Sprintf("%q is not a valid email address", from))
 	}
 }
 
