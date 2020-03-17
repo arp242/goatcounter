@@ -347,6 +347,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		Stats []byte    `db:"stats"`
 	}
 	{
+		// TODO: this queries hits directly since hit_stats won't account for
+		// TZ, but this is rather slow for longer time periods. Perhaps easier
+		// to see if we can make the query faster?
 		query := `
 			select path from hits
 			where

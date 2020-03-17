@@ -265,12 +265,11 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 	}
-	now := goatcounter.Now().In(site.Settings.Timezone.Loc())
-	if start.IsZero() {
+	if start.IsZero() || end.IsZero() {
+		y, m, d := goatcounter.Now().In(site.Settings.Timezone.Loc()).Date()
+		now := time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())
 		start = now.Add(-7 * day).UTC()
-	}
-	if end.IsZero() {
-		end = now.UTC()
+		end = time.Date(y, m, d, 23, 59, 59, 9, now.Location()).UTC()
 	}
 
 	filter := r.URL.Query().Get("filter")
