@@ -16,6 +16,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"zgo.at/utils/jsonutil"
+	"zgo.at/utils/mathutil"
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -330,12 +331,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
 
-	//limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10))
-	limit := site.Settings.Limits.Page
-	if limit == 0 {
-		limit = 10
-	}
-
+	limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10))
 	more := false
 	// Get one page more so we can detect if there are more pages after this.
 	if len(exclude) > 0 || filter != "" {
@@ -343,79 +339,79 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		limit++
 	}
 
-	query := `
-		select
-			path, count(path) as count
-		from hits
-		where
-			site=? and
-			bot=0 and
-			created_at >= ? and
-			created_at <= ? `
-	args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
-
-	if filter != "" {
-		filter = "%" + strings.ToLower(filter) + "%"
-		query += ` and (lower(path) like ? or lower(title) like ?) `
-		args = append(args, filter, filter)
-	}
-
-	// Quite a bit faster to not check path.
-	if len(exclude) > 0 {
-		args = append(args, exclude)
-		query += ` and path not in (?) `
-	}
-
-	query, args, err := sqlx.In(query+`
-		group by path
-		order by count desc, path desc
-		limit ?`, append(args, limit)...)
-	if err != nil {
-		return 0, 0, false, errors.Wrap(err, "HitStats.List")
-	}
-	err = db.SelectContext(ctx, h, db.Rebind(query), args...)
-	if err != nil {
-		return 0, 0, false, errors.Wrap(err, "HitStats.List")
-	}
-	l = l.Since("select hits")
-
-	// Check if there are more entries.
-	if more {
-		if len(*h) == limit {
-			x := *h
-			x = x[:len(x)-1]
-			*h = x
-		} else {
-			more = false
-		}
-	}
-
-	// Add stats and title.
-	type stats struct {
+	// Select hits.
+	var st []struct {
 		Path  string    `db:"path"`
 		Title string    `db:"title"`
 		Day   time.Time `db:"day"`
 		Stats []byte    `db:"stats"`
 	}
-	query = `
-		select path, title, day, stats
-		from hit_stats
-		where
-			site=$1 and
-			day >= $2 and
-			day <= $3 `
-	args = []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
-	if filter != "" {
-		query += ` and (lower(path) like $4 or lower(title) like $4) `
-		args = append(args, filter)
+	{
+		query := `
+			select path from hits
+			where
+				site=? and
+				bot=0 and
+				created_at >= ? and
+				created_at <= ? `
+		args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
+
+		if filter != "" {
+			filter = "%" + strings.ToLower(filter) + "%"
+			query += ` and (lower(path) like ? or lower(title) like ?) `
+			args = append(args, filter, filter)
+		}
+
+		// Quite a bit faster to not check path.
+		if len(exclude) > 0 {
+			args = append(args, exclude)
+			query += ` and path not in (?) `
+		}
+
+		query, args, err := sqlx.In(query+`
+			group by path
+			order by count(path) desc, path desc
+			limit ?`, append(args, limit)...)
+		if err != nil {
+			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+		}
+		err = db.SelectContext(ctx, h, db.Rebind(query), args...)
+		if err != nil {
+			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+		}
+		l = l.Since("select hits")
+
+		// Check if there are more entries.
+		if more {
+			if len(*h) == limit {
+				x := *h
+				x = x[:len(x)-1]
+				*h = x
+			} else {
+				more = false
+			}
+		}
+
+		// Add stats and title.
+		query = `
+			select path, title, day, stats
+			from hit_stats
+			where
+				site=$1 and
+				day >= $2 and
+				day <= $3 `
+		args = []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
+		if filter != "" {
+			query += ` and (lower(path) like $4 or lower(title) like $4) `
+			args = append(args, filter)
+		}
+		query += ` order by day asc`
+		err = db.SelectContext(ctx, &st, query, args...)
+		if err != nil {
+			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+		}
+		l = l.Since("select hits_stats")
 	}
-	query += ` order by day asc`
-	var st []stats
-	err = db.SelectContext(ctx, &st, query, args...)
-	if err != nil {
-		return 0, 0, false, errors.Wrap(err, "HitStats.List")
-	}
-	l = l.Since("select hits_stats")
 
 	hh := *h
 
@@ -474,6 +470,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			offset += 30
 		}
 		offset /= 60
+
 		for i := range hh {
 			hh[i].Stats = applyOffset(offset, hh[i].Stats)
 		}
@@ -484,7 +481,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	var totalDisplay int
 	{
 		for i := range hh {
-			hh[i].Count = 0
 			for j := range hh[i].Stats {
 				for k := range hh[i].Stats[j].Days {
 					hh[i].Stats[j].Daily += hh[i].Stats[j].Days[k]
@@ -493,7 +489,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 				if hh[i].Stats[j].Daily > hh[i].Max {
 					hh[i].Max = hh[i].Stats[j].Daily
 				}
-
 			}
 
 			totalDisplay += hh[i].Count
@@ -506,11 +501,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	// Get total number of hits in the selected time range
 	// TODO: not 100% correct as it doesn't correct for TZ.
-	// We can also select fewer by skipping totalDisplay and just adding
-	// totalDisplay to the rest.
 	var total int
 	{
-		query = `
+		query := `
 			select count(path)
 			from hits
 			where
@@ -518,15 +511,16 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 				bot=0 and
 				created_at >= $2 and
 				created_at <= $3 `
-		args = []interface{}{site.ID, dayStart(start), dayEnd(end)}
+		args := []interface{}{site.ID, dayStart(start), dayEnd(end)}
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
 			args = append(args, filter)
 		}
-		err = db.GetContext(ctx, &total, query, args...)
+		err := db.GetContext(ctx, &total, query, args...)
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
+
 		l = l.Since("get total")
 	}
 

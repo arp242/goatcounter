@@ -67,15 +67,6 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	switch daily {
 	// Daily view.
 	case true:
-		for i := range stats {
-			for j := range stats[i].Days {
-				stats[i].Daily += stats[i].Days[j]
-			}
-			if stats[i].Daily > max {
-				max = stats[i].Daily
-			}
-		}
-
 		for _, stat := range stats {
 			if future {
 				b.WriteString(fmt.Sprintf(`<div title="%s, future" class="f"></div>`, stat.Day))

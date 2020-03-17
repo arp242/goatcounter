@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -179,7 +180,9 @@ func TestHitStatsList(t *testing.T) {
 				t.Fatalf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
 			}
 
-			if d := ztest.Diff(fmt.Sprintf("%+v\n", stats), fmt.Sprintf("%+v", tt.wantStats)); d != "" {
+			out := strings.ReplaceAll(", ", ",\n", fmt.Sprintf("%+v", stats))
+			want := strings.ReplaceAll(", ", ",\n", fmt.Sprintf("%+v", tt.wantStats))
+			if d := ztest.Diff(out, want); d != "" {
 				t.Fatal(d)
 			}
 		})

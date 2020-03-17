@@ -670,10 +670,9 @@ func TestBarChart(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.zone, func(t *testing.T) {
 			goatcounter.Now = func() time.Time { return tt.now.UTC() }
-			t.Run("hourly", func(t *testing.T) {
-				run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18", tt.wantHourly)
-			})
-
+			//t.Run("hourly", func(t *testing.T) {
+			//	run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18", tt.wantHourly)
+			//})
 			t.Run("daily", func(t *testing.T) {
 				run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18&daily=true", tt.wantDaily)
 			})
