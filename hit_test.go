@@ -29,8 +29,9 @@ func dayStat(days map[int]int) []int {
 }
 
 func TestHitStatsList(t *testing.T) {
-	start := time.Date(2019, 8, 10, 14, 42, 0, 0, time.UTC)
-	end := time.Date(2019, 8, 17, 14, 42, 0, 0, time.UTC)
+	start := time.Date(2019, 8, 10, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2019, 8, 17, 23, 59, 59, 0, time.UTC)
+	hit := start.Add(1 * time.Second)
 
 	tests := []struct {
 		in         []goatcounter.Hit
@@ -41,9 +42,9 @@ func TestHitStatsList(t *testing.T) {
 	}{
 		{
 			in: []goatcounter.Hit{
-				{CreatedAt: start, Path: "/asd"},
-				{CreatedAt: start.Add(40 * time.Hour), Path: "/asd/"},
-				{CreatedAt: start.Add(100 * time.Hour), Path: "/zxc"},
+				{CreatedAt: hit, Path: "/asd"},
+				{CreatedAt: hit.Add(40 * time.Hour), Path: "/asd/"},
+				{CreatedAt: hit.Add(100 * time.Hour), Path: "/zxc"},
 			},
 			wantReturn: "3 3 false <nil>",
 			wantStats: goatcounter.HitStats{
@@ -71,8 +72,8 @@ func TestHitStatsList(t *testing.T) {
 		},
 		{
 			in: []goatcounter.Hit{
-				{CreatedAt: start, Path: "/asd"},
-				{CreatedAt: start, Path: "/zxc"},
+				{CreatedAt: hit, Path: "/asd"},
+				{CreatedAt: hit, Path: "/zxc"},
 			},
 			inFilter:   "x",
 			wantReturn: "1 1 false <nil>",
@@ -91,10 +92,10 @@ func TestHitStatsList(t *testing.T) {
 		},
 		{
 			in: []goatcounter.Hit{
-				{CreatedAt: start, Path: "/a"},
-				{CreatedAt: start, Path: "/aa"},
-				{CreatedAt: start, Path: "/aaa"},
-				{CreatedAt: start, Path: "/aaaa"},
+				{CreatedAt: hit, Path: "/a"},
+				{CreatedAt: hit, Path: "/aa"},
+				{CreatedAt: hit, Path: "/aaa"},
+				{CreatedAt: hit, Path: "/aaaa"},
 			},
 			inFilter:   "a",
 			wantReturn: "4 2 true <nil>",
@@ -123,10 +124,10 @@ func TestHitStatsList(t *testing.T) {
 		},
 		{
 			in: []goatcounter.Hit{
-				{CreatedAt: start, Path: "/a"},
-				{CreatedAt: start, Path: "/aa"},
-				{CreatedAt: start, Path: "/aaa"},
-				{CreatedAt: start, Path: "/aaaa"},
+				{CreatedAt: hit, Path: "/a"},
+				{CreatedAt: hit, Path: "/aa"},
+				{CreatedAt: hit, Path: "/aaa"},
+				{CreatedAt: hit, Path: "/aaaa"},
 			},
 			inFilter:   "a",
 			inExclude:  []string{"/aaaa", "/aaa"},
@@ -177,7 +178,7 @@ func TestHitStatsList(t *testing.T) {
 
 			got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
 			if got != tt.wantReturn {
-				t.Fatalf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
+				t.Errorf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
 			}
 
 			out := strings.ReplaceAll(", ", ",\n", fmt.Sprintf("%+v", stats))

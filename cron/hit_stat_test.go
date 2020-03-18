@@ -37,7 +37,7 @@ func TestHitStats(t *testing.T) {
 	}
 
 	var stats goatcounter.HitStats
-	total, display, more, err := stats.List(ctx, now, now, "", nil)
+	total, display, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

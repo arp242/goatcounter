@@ -15,3 +15,7 @@
 
 # Cached ACME account key.
 acme_account+key
+
+# Coverage reports
+/coverage
+/coverage.*
