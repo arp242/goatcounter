@@ -47,8 +47,6 @@ func monitor() (int, error) {
 	l := zlog.Module("monitor")
 	d := time.Duration(*period) * time.Second
 	for {
-		time.Sleep(d)
-
 		l.Debug("check")
 
 		var n int
@@ -60,6 +58,10 @@ func monitor() (int, error) {
 		}
 		if n == 0 {
 			l.Errorf("no hits")
+		} else {
+			l.Printf("%d hits", n)
 		}
+
+		time.Sleep(d)
 	}
 }
