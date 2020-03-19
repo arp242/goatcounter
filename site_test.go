@@ -19,7 +19,7 @@ func TestSiteInsert(t *testing.T) {
 	ctx, clean := gctest.DB(t)
 	defer clean()
 
-	s := Site{Code: "the_code", Name: "the-code.com", Plan: PlanPersonal}
+	s := Site{Code: "the-code", Name: "the-code.com", Plan: PlanPersonal}
 	err := s.Insert(ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -37,19 +37,19 @@ func TestSiteValidate(t *testing.T) {
 		want  map[string][]string
 	}{
 		{
-			Site{Name: "Hello", Code: "hello-_0", State: StateActive, Plan: PlanPersonal},
+			Site{Name: "Hello", Code: "hello-0", State: StateActive, Plan: PlanPersonal},
 			nil,
 			nil,
 		},
 		{
 			Site{Name: "Hello", Code: "h€llo", State: StateActive, Plan: PlanPersonal},
 			nil,
-			map[string][]string{"code": {"'€' not allowed; characters are limited to '_', '-', a to z, and numbers"}},
+			map[string][]string{"code": {"must be a valid hostname: invalid character: '€'"}},
 		},
 		{
-			Site{Name: "Hello", Code: "-hello", State: StateActive, Plan: PlanPersonal},
+			Site{Name: "Hello", Code: "hel_lo", State: StateActive, Plan: PlanPersonal},
 			nil,
-			map[string][]string{"code": {"cannot start with underscore or dash (_, -)"}},
+			map[string][]string{"code": {"must be a valid hostname: invalid character: '_'"}},
 		},
 		{
 			Site{Name: "Hello", Code: "hello", State: StateActive, Plan: PlanPersonal},
