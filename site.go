@@ -216,23 +216,30 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	res, err := zdb.MustGet(ctx).ExecContext(ctx, `insert into sites
+	query := `insert into sites
 		(parent, code, name, cname, settings, plan, created_at)
-		values ($1, $2, $3, $4, $5, $6, $7)`, s.Parent, s.Code, s.Name, s.Cname,
-		s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date))
+		values ($1, $2, $3, $4, $5, $6, $7)`
+	args := []interface{}{s.Parent, s.Code, s.Name, s.Cname, s.Settings, s.Plan,
+		s.CreatedAt.Format(zdb.Date)}
+	if cfg.PgSQL {
+		err = zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
+		if err != nil {
+			if zdb.UniqueErr(err) {
+				return guru.New(400, "this site already exists: code or domain must be unique")
+			}
+			return errors.Wrap(err, "Site.Insert")
+		}
+		return nil
+	}
+
+	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
 	if err != nil {
 		if zdb.UniqueErr(err) {
 			return guru.New(400, "this site already exists: code or domain must be unique")
 		}
 		return errors.Wrap(err, "Site.Insert")
 	}
-
-	if cfg.PgSQL {
-		err = zdb.MustGet(ctx).GetContext(ctx, &s.ID,
-			"select currval('sites_id_seq')")
-	} else {
-		s.ID, err = res.LastInsertId()
-	}
+	s.ID, err = res.LastInsertId()
 	return errors.Wrap(err, "Site.Insert")
 }
 
