@@ -155,6 +155,10 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Len("code", s.Code, 2, 50)
 	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)
+	labels := v.Hostname("code", s.Code)
+	if len(labels) > 1 {
+		v.Append("code", "cannot contain '.'")
+	}
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
@@ -176,16 +180,6 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
 		v.Append("stripe", "not a valid Stripe customer ID")
-	}
-
-	for _, c := range s.Code {
-		if !(c == '-' || c == '_' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z')) {
-			v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', '-', a to z, and numbers", c))
-			break
-		}
-	}
-	if len(s.Code) > 0 && (s.Code[0] == '_' || s.Code[0] == '-') { // Special domains, like _acme-challenge.
-		v.Append("code", "cannot start with underscore or dash (_, -)")
 	}
 
 	if !v.HasErrors() {
