@@ -246,7 +246,19 @@ func (s *Site) Update(ctx context.Context) error {
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
-		return err
+		// Make sure we can still save sites with an underscore until I figure
+		// out a migration plan: #211
+		if v, ok := err.(*zvalidate.Validator); ok {
+			for i, s := range v.Errors["code"] {
+				if s == "must be a valid hostname: invalid character: '_'" {
+					v.Errors["code"] = append(v.Errors["code"][:i], v.Errors["code"][i+1:]...)
+				}
+			}
+			err = v.ErrorOrNil()
+		}
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
