@@ -254,6 +254,9 @@ func (s *Site) Update(ctx context.Context) error {
 					v.Errors["code"] = append(v.Errors["code"][:i], v.Errors["code"][i+1:]...)
 				}
 			}
+			if len(v.Errors["code"]) == 0 {
+				delete(v.Errors, "code")
+			}
 			err = v.ErrorOrNil()
 		}
 		if err != nil {
