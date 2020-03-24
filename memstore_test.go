@@ -40,6 +40,7 @@ func gen(ctx context.Context) Hit {
 	s := MustGetSite(ctx)
 	return Hit{
 		Site:    s.ID,
+		Session: 1,
 		Path:    "/test",
 		Ref:     "https://example.com/test",
 		Browser: "test",

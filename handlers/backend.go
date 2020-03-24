@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -243,6 +244,22 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Add("X-Goatcounter", fmt.Sprintf("error decoding parameters: %s", err))
 		w.WriteHeader(400)
 		return zhttp.Bytes(w, gif)
+	}
+
+	// TODO: move to memstore?
+	{
+		hash := sha256.New()
+		hash.Write([]byte(fmt.Sprintf("%d%s%s", site.ID, r.UserAgent(), zhttp.RemovePort(r.RemoteAddr))))
+		var sess goatcounter.Session
+		started, err := sess.GetOrCreate(r.Context(), hash.Sum(nil))
+		if err != nil {
+			zlog.Error(err)
+			//w.Header().Add("X-Goatcounter", fmt.Sprintf("not valid: %s", err))
+			w.WriteHeader(500)
+			return zhttp.Bytes(w, gif)
+		}
+		hit.Session = sess.ID
+		hit.StartedSession = started
 	}
 
 	err = hit.Validate(r.Context())

@@ -49,7 +49,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
 		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
 			"ref_scheme", "browser", "size", "location", "created_at", "bot",
-			"title", "event"})
+			"title", "event", "session", "started_session"})
 	usage := bulk.NewInsert(ctx, zdb.MustGet(ctx),
 		"usage", []string{"site", "domain", "count"})
 	for i, h := range hits {
@@ -57,6 +57,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		h.RefURL, _ = url.Parse(h.Ref)
 		if h.RefURL != nil {
 			if _, ok := blacklist[h.RefURL.Host]; ok {
+				zlog.Module("blacklist").Debugf("blacklisted: %q", h.RefURL.Host)
 				continue
 			}
 		}
@@ -76,9 +77,13 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		if h.Event {
 			e = 1
 		}
+		ss := 0
+		if h.StartedSession {
+			ss = 1
+		}
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
 			h.RefScheme, h.Browser, h.Size, h.Location,
-			h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, e)
+			h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, e, h.Session, ss)
 
 		if strings.HasPrefix(h.UsageDomain, "http") {
 			d, err := url.Parse(h.UsageDomain)

@@ -154,7 +154,7 @@ func TestBackendIndex(t *testing.T) {
 
 		{
 			name: "basic",
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				gctest.StoreHits(ctx, t, goatcounter.Hit{Path: "/asdfghjkl", Site: 1})
 			},
 			router:   newBackend,
@@ -172,17 +172,13 @@ func TestBackendIndex(t *testing.T) {
 func TestBackendExport(t *testing.T) {
 	tests := []handlerTest{
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				goatcounter.Memstore.Append([]goatcounter.Hit{
+				gctest.StoreHits(ctx, t, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				_, err := goatcounter.Memstore.Persist(ctx)
-				if err != nil {
-					panic(err)
-				}
 			},
 			router:   newBackend,
 			path:     "/export/hits.csv",
@@ -200,17 +196,13 @@ func TestBackendExport(t *testing.T) {
 func TestBackendTpl(t *testing.T) {
 	tests := []handlerTest{
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				goatcounter.Memstore.Append([]goatcounter.Hit{
+				gctest.StoreHits(ctx, t, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				_, err := goatcounter.Memstore.Persist(ctx)
-				if err != nil {
-					panic(err)
-				}
 			},
 			router:   newBackend,
 			path:     "/purge?path=/asd",
@@ -220,7 +212,7 @@ func TestBackendTpl(t *testing.T) {
 		},
 
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				one := int64(1)
 				ss := goatcounter.Site{
 					Name:   "Subsite",
@@ -249,17 +241,13 @@ func TestBackendTpl(t *testing.T) {
 func TestBackendPurge(t *testing.T) {
 	tests := []handlerTest{
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				goatcounter.Memstore.Append([]goatcounter.Hit{
+				gctest.StoreHits(ctx, t, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				_, err := goatcounter.Memstore.Persist(ctx)
-				if err != nil {
-					panic(err)
-				}
 			},
 			router:       newBackend,
 			path:         "/purge",
@@ -614,6 +602,7 @@ func TestBackendBarChart(t *testing.T) {
 		})
 		gctest.StoreHits(ctx, t, goatcounter.Hit{
 			Site:      site.ID,
+			Session:   1,
 			CreatedAt: tt.hit.UTC(),
 			Path:      "/a",
 		})

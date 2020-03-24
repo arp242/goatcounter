@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
@@ -31,6 +32,7 @@ var tasks = []task{
 	{DataRetention, 1 * time.Hour},
 	{renewACME, 2 * time.Hour},
 	{vacuumDeleted, 12 * time.Hour},
+	{clearSessions, 1 * time.Minute},
 }
 
 var (
@@ -280,4 +282,15 @@ func vacuumDeleted(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+func clearSessions(ctx context.Context) error {
+	var query string
+	if cfg.PgSQL {
+		query = `update sessions set hash=null where last_seen > now() + interval '1 hour'`
+	} else {
+		query = `update sessions set hash=null where last_seen > datetime(datetime(), '+1 hours')`
+	}
+	_, err := zdb.MustGet(ctx).ExecContext(ctx, query)
+	return err
 }

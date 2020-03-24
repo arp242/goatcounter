@@ -6,7 +6,6 @@ package cron
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
@@ -24,9 +23,10 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + location.
 		type gt struct {
-			count    int
-			day      string
-			location string
+			count       int
+			countUnique int
+			day         string
+			location    string
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -41,21 +41,24 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.day = day
 				v.location = h.Location
 				var err error
-				v.count, err = existingLocationStats(ctx, tx, h.Site, day, v.location)
+				v.count, v.countUnique, err = existingLocationStats(ctx, tx, h.Site, day, v.location)
 				if err != nil {
 					return err
 				}
 			}
 
 			v.count += 1
+			if h.StartedSession {
+				v.countUnique += 1
+			}
 			grouped[k] = v
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, tx,
-			"location_stats", []string{"site", "day", "location", "count"})
+			"location_stats", []string{"site", "day", "location", "count", "count_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.location, v.count)
+			ins.Values(siteID, v.day, v.location, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
@@ -64,24 +67,24 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 func existingLocationStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
 	day, location string,
-) (int, error) {
+) (int, int, error) {
 
-	var c int
-	err := tx.GetContext(txctx, &c,
-		`select count from location_stats where site=$1 and day=$2 and location=$3`,
+	var c []struct {
+		Count       int `db:"count"`
+		CountUnique int `db:"count_unique"`
+	}
+	err := tx.SelectContext(txctx, &c,
+		`select count, count_unique from location_stats where site=$1 and day=$2 and location=$3`,
 		siteID, day, location)
-	if err != nil && err != sql.ErrNoRows {
-		return 0, errors.Wrap(err, "existing")
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "select")
+	}
+	if len(c) == 0 {
+		return 0, 0, nil
 	}
 
-	if err != sql.ErrNoRows {
-		_, err = tx.ExecContext(txctx,
-			`delete from location_stats where site=$1 and day=$2 and location=$3`,
-			siteID, day, location)
-		if err != nil {
-			return 0, errors.Wrap(err, "delete")
-		}
-	}
-
-	return c, nil
+	_, err = tx.ExecContext(txctx,
+		`delete from location_stats where site=$1 and day=$2 and location=$3`,
+		siteID, day, location)
+	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

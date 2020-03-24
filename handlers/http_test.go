@@ -33,7 +33,7 @@ import (
 
 type handlerTest struct {
 	name         string
-	setup        func(context.Context)
+	setup        func(context.Context, *testing.T)
 	router       func(zdb.DB) chi.Router
 	path         string
 	method       string
@@ -86,7 +86,7 @@ func runTest(
 
 				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(jsonutil.MustMarshal(tt.body)))
 				if tt.setup != nil {
-					tt.setup(ctx)
+					tt.setup(ctx, t)
 				}
 				if tt.auth {
 					login(t, rr, r, 1)
@@ -118,7 +118,7 @@ func runTest(
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			r.Header.Set("Content-Length", fmt.Sprintf("%d", len(form)))
 			if tt.setup != nil {
-				tt.setup(ctx)
+				tt.setup(ctx, t)
 			}
 			if tt.auth {
 				login(t, rr, r, 1)

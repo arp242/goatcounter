@@ -37,7 +37,7 @@ func TestUserRequestLogin(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name: "basic",
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				user := goatcounter.User{Site: 1, Name: "new site", Email: "new@example.com"}
 				err := user.Insert(ctx)
 				if err != nil {
@@ -83,7 +83,7 @@ func TestUserLogin(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name: "basic",
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				user := goatcounter.User{Site: 1, Name: "new site", Email: "new@example.com"}
 				err := user.Insert(ctx)
 				if err != nil {

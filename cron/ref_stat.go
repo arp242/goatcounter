@@ -6,7 +6,6 @@ package cron
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
@@ -24,9 +23,10 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + ref.
 		type gt struct {
-			count int
-			day   string
-			ref   string
+			count       int
+			countUnique int
+			day         string
+			ref         string
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -41,21 +41,24 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.day = day
 				v.ref = h.Ref
 				var err error
-				v.count, err = existingRefStats(ctx, tx, h.Site, day, v.ref)
+				v.count, v.countUnique, err = existingRefStats(ctx, tx, h.Site, day, v.ref)
 				if err != nil {
 					return err
 				}
 			}
 
 			v.count += 1
+			if h.StartedSession {
+				v.countUnique += 1
+			}
 			grouped[k] = v
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, tx,
-			"ref_stats", []string{"site", "day", "ref", "count"})
+			"ref_stats", []string{"site", "day", "ref", "count", "count_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.ref, v.count)
+			ins.Values(siteID, v.day, v.ref, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
@@ -64,24 +67,24 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 func existingRefStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
 	day, ref string,
-) (int, error) {
+) (int, int, error) {
 
-	var c int
-	err := tx.GetContext(txctx, &c,
-		`select count from ref_stats where site=$1 and day=$2 and ref=$3`,
+	var c []struct {
+		Count       int `db:"count"`
+		CountUnique int `db:"count_unique"`
+	}
+	err := tx.SelectContext(txctx, &c,
+		`select count, count_unique from ref_stats where site=$1 and day=$2 and ref=$3`,
 		siteID, day, ref)
-	if err != nil && err != sql.ErrNoRows {
-		return 0, errors.Wrap(err, "existing")
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "select")
+	}
+	if len(c) == 0 {
+		return 0, 0, nil
 	}
 
-	if err != sql.ErrNoRows {
-		_, err = tx.ExecContext(txctx,
-			`delete from ref_stats where site=$1 and day=$2 and ref=$3`,
-			siteID, day, ref)
-		if err != nil {
-			return 0, errors.Wrap(err, "delete")
-		}
-	}
-
-	return c, nil
+	_, err = tx.ExecContext(txctx,
+		`delete from ref_stats where site=$1 and day=$2 and ref=$3`,
+		siteID, day, ref)
+	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

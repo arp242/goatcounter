@@ -13,9 +13,7 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/ztest"
 )
@@ -170,8 +168,7 @@ func TestHitStatsList(t *testing.T) {
 			}
 			site.Settings.Limits.Page = 2
 
-			goatcounter.Memstore.Append(tt.in...)
-			cron.RunOnce(zdb.MustGet(ctx))
+			gctest.StoreHits(ctx, t, tt.in...)
 
 			var stats goatcounter.HitStats
 			total, totalDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude)

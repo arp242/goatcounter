@@ -173,6 +173,15 @@ func DB(t tester) (context.Context, func()) {
 func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goatcounter.Hit {
 	t.Helper()
 
+	for i := range hits {
+		if hits[i].Session == 0 {
+			hits[i].Session = 1
+		}
+		if hits[i].Site == 0 {
+			hits[i].Site = 1
+		}
+	}
+
 	goatcounter.Memstore.Append(hits...)
 	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {
