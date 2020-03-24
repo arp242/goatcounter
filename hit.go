@@ -302,6 +302,19 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 			return errors.Wrap(err, "Hits.Purge")
 		}
 
+		// Delete all other stats as well if there's nothing left: not much use
+		// for it.
+		var check Hits
+		err = check.List(ctx)
+		if err == nil && len(check) == 0 {
+			for _, t := range statTables {
+				_, err := tx.ExecContext(ctx, `delete from `+t+` where site=$1`, site)
+				if err != nil {
+					zlog.Errorf("Hits.Purge: delete %s: %s", t, err)
+				}
+			}
+		}
+
 		return nil
 	})
 }

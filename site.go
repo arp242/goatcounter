@@ -43,6 +43,8 @@ var reserved = []string{
 	"chat", "example", "yoursite", "test",
 }
 
+var statTables = []string{"hit_stats", "browser_stats", "location_stats", "ref_stats", "size_stats"}
+
 // Site is a single site which is sending newsletters (i.e. it's a "customer").
 type Site struct {
 	ID     int64  `db:"id"`
@@ -447,7 +449,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
 		}
 
-		for _, t := range []string{"hit_stats", "browser_stats", "location_stats", "ref_stats", "size_stats"} {
+		for _, t := range statTables {
 			_, err := tx.ExecContext(ctx,
 				`delete from `+t+` where site=$1 and day < `+ival,
 				s.ID)
