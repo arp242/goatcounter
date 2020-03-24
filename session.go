@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"

@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/tz"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"

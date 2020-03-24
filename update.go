@@ -9,7 +9,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/pkg/errors"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 )
 

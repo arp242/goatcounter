@@ -11,9 +11,9 @@ import (
 	"net/mail"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"

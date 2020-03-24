@@ -5,12 +5,12 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"

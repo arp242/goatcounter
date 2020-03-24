@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/mathutil"
 	"zgo.at/utils/sqlutil"

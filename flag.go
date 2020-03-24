@@ -8,7 +8,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/pkg/errors"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )

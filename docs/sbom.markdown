@@ -21,7 +21,6 @@ Backend
 | SQLite                             | 3.31.1                             | PD      |
 | github.com/monoculum/formam        | v0.0.0-20191229172733-952f0766a724 | Apache  |
 | github.com/mssola/user_agent       | v0.5.1                             | MIT     |
-| github.com/pkg/errors              | v0.9.1                             | BSD     |
 | github.com/PuerkitoBio/goquery     | v1.5.1                             | BSD     |
 | github.com/teamwork/guru           | v1.0.0                             | MIT     |
 | github.com/teamwork/reload         | v1.3.0                             | MIT     |

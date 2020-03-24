@@ -18,7 +18,6 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/utils/errorutil"
 	"zgo.at/utils/runtimeutil"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
@@ -80,8 +79,6 @@ var CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 
 func main() {
 	cfg.Version = version
-	zlog.Config.StackFilter = errorutil.FilterPattern(
-		errorutil.FilterTraceInclude, "zgo.at/goatcounter")
 
 	if len(os.Args) < 2 {
 		printMsg(1, usage[""], "need a command")

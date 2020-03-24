@@ -22,11 +22,11 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/monoculum/formam"
-	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/isbot"
 	"zgo.at/tz"
@@ -514,7 +514,7 @@ func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 		err = a.ByCode(r.Context(), code)
 	}
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return guru.New(404, "no such site")
 		}
 		return err

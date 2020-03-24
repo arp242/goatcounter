@@ -10,8 +10,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/pkg/errors"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 )

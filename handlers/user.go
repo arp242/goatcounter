@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 )
@@ -73,7 +73,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 
 	err = u.ByEmail(r.Context(), args.Email)
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			zhttp.FlashError(w, "Not an account on this site: %q", args.Email)
 			return zhttp.SeeOther(w, fmt.Sprintf("/user/new?email=%s", url.QueryEscape(args.Email)))
 		}
@@ -95,7 +95,7 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 	var u goatcounter.User
 	err := u.ByLoginRequest(r.Context(), chi.URLParam(r, "key"))
 	if err != nil {
-		if errors.Cause(err) != sql.ErrNoRows {
+		if !errors.Is(err, sql.ErrNoRows) {
 			zlog.Error(err)
 		}
 		return guru.New(http.StatusForbidden, "could not login; perhaps the key has expired?")
