@@ -123,6 +123,8 @@ func (s *Site) Defaults(ctx context.Context) {
 	}
 }
 
+var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
+
 // Validate the object.
 func (s *Site) Validate(ctx context.Context) error {
 	v := zvalidate.New()
@@ -155,10 +157,25 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Len("code", s.Code, 2, 50)
 	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)
-	labels := v.Hostname("code", s.Code)
-	if len(labels) > 1 {
-		v.Append("code", "cannot contain '.'")
+	// TODO: compat with older requirements, otherwise various update functions
+	// will error out.
+	if !s.CreatedAt.IsZero() && s.CreatedAt.Before(noUnderscore) {
+		for _, c := range s.Code {
+			if !(c == '-' || c == '_' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z')) {
+				v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', '-', a to z, and numbers", c))
+				break
+			}
+		}
+		if len(s.Code) > 0 && (s.Code[0] == '_' || s.Code[0] == '-') { // Special domains, like _acme-challenge.
+			v.Append("code", "cannot start with underscore or dash (_, -)")
+		}
+	} else {
+		labels := v.Hostname("code", s.Code)
+		if len(labels) > 1 {
+			v.Append("code", "cannot contain '.'")
+		}
 	}
+
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
@@ -246,19 +263,6 @@ func (s *Site) Update(ctx context.Context) error {
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
-		// Make sure we can still save sites with an underscore until I figure
-		// out a migration plan: #211
-		if v, ok := err.(*zvalidate.Validator); ok {
-			for i, s := range v.Errors["code"] {
-				if s == "must be a valid hostname: invalid character: '_'" {
-					v.Errors["code"] = append(v.Errors["code"][:i], v.Errors["code"][i+1:]...)
-				}
-			}
-			if len(v.Errors["code"]) == 0 {
-				delete(v.Errors, "code")
-			}
-			err = v.ErrorOrNil()
-		}
 		if err != nil {
 			return err
 		}
