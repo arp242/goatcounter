@@ -103,6 +103,7 @@ func TestBackendCount(t *testing.T) {
 			tt.hit.ID = h.ID
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
+			h.CreatedAt = h.CreatedAt.In(time.UTC)
 			if d := ztest.Diff(h.String(), tt.hit.String()); d != "" {
 				t.Error(d)
 			}
