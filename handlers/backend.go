@@ -98,12 +98,16 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		} else {
 			ds[0] = cfg.DomainStatic
 		}
+		gc := "https://gc.goatcounter.com"
+		if !cfg.Prod {
+			gc = "http://gc." + cfg.Domain
+		}
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
-			header.CSPImgSrc:     append(ds, "data:", "https://gc.goatcounter.com"),
+			header.CSPImgSrc:     append(ds, "data:", gc),
 			header.CSPScriptSrc: append(ds, "https://chat.goatcounter.com", "https://js.stripe.com",
 				// Inline GoatCounter setup
-				"https://gc.zgo.at", "'sha256-iveW9DX+7RV2HQ1fltrXMBm2RUPspqqMuLwh6pLY0Ic='"),
+				"https://gc.zgo.at", "'sha256-xlM5XAoTH2SDN4Lu1hi8y/A8YVcV+FBUKUK/Yek253w='"),
 			header.CSPStyleSrc:    append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:     ds,
 			header.CSPFormAction:  {header.CSPSourceSelf},

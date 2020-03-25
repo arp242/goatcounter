@@ -47,7 +47,8 @@
 	var to_params = function(obj) {
 		var p = []
 		for (var k in obj)
-			p.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]))
+			if (obj[k] !== '' && obj[k] !== null && obj[k] !== undefined && obj[k] !== false)
+				p.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]))
 		return '?' + p.join('&')
 	}
 

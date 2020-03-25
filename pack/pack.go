@@ -2008,7 +2008,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	var to_params = function(obj) {
 		var p = []
 		for (var k in obj)
-			p.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]))
+			if (obj[k] !== '' && obj[k] !== null && obj[k] !== undefined && obj[k] !== false)
+				p.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]))
 		return '?' + p.join('&')
 	}
 
@@ -14498,13 +14499,20 @@ var Templates = map[string][]byte{
 	{{if .Saas}}
 		<script>
 			window.goatcounter = {
-				title:     function() { return '' },
-				no_onload: localStorage.getItem('skipgc') === 't',
+				title:       function() { return null },
+				no_onload:   localStorage.getItem('skipgc') === 't',
+				allow_local: true,
 			}
 		</script>
-		<script data-goatcounter="https://gc.goatcounter.com/count"
-		        async src="https://gc.zgo.at/count.js"></script>
-		<noscript><img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code | hash}}" alt="" style="float:right"></noscript>
+		{{if .Dev}}
+			<script data-goatcounter="http://gc.{{.Domain}}/count"
+					async src="{{.Static}}/count.js"></script>
+			<noscript><img src="http://gc.{{.Domain}}/count?p=/noscript-{{.Site.Code | hash}}" alt="" style="float:right"></noscript>
+		{{else}}
+			<script data-goatcounter="https://gc.goatcounter.com/count"
+					async src="https://gc.zgo.at/count.js"></script>
+			<noscript><img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code | hash}}" alt="" style="float:right"></noscript>
+		{{end}}
 	{{end}}
 </body>
 </html>
