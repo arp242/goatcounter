@@ -30,6 +30,10 @@ import (
 
 // saas
 const usageSaas = `
+NOTE: running your own SaaS is currently undocumented, non-trivial, and has
+certain assumptions that will not be true in your case. You do not want to run
+this; for now it can only run run goatcounter.com
+
 Run as a "SaaS" service; this will run, a public-facing website on
 www.[domanin], a static file server on [staticdomain], and a backend UI on
 [code].domain. Users are expected to register on www.[domain].
@@ -37,10 +41,6 @@ www.[domanin], a static file server on [staticdomain], and a backend UI on
 Static files and templates are compiled in the binary and aren't needed to run
 GoatCounter. But they're loaded from the filesystem if GoatCounter is started
 with -dev.
-
-NOTE: running your own SaaS is currently undocumented, non-trivial, and has
-certain assumptions that may not be true in your case. You almost certainly want
-to use the "serve" command.
 
 Flags:
 
@@ -53,8 +53,7 @@ Flags:
 
   -stripe        Stripe keys; needed for billing. It needs the secret,
                  publishable, and webhook (sk_*, pk_*, whsec_*) keys as
-                 colon-separated, in any order. Billing will be disabled if left
-                 blank.
+                 colon-separated, in any order.
 ` + serveAndSaasFlags
 
 func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
@@ -247,7 +246,7 @@ func flagAuth(auth string, v *zvalidate.Validator) {
 
 func flagStripe(stripe string, v *zvalidate.Validator) {
 	if stripe == "" {
-		zlog.Print("-stripe not given; billing disabled")
+		v.Required("-stripe", stripe)
 		return
 	}
 

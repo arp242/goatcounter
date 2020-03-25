@@ -16,6 +16,7 @@ func TestSaas(t *testing.T) {
 	out, code := run(t, "serving", []string{"saas",
 		"-smtp", "dummy",
 		"-listen", "localhost:31874",
+		"-stripe", "sk_test_x:pk_test_x:whsec_x",
 		"-db", dbc})
 	if code != 0 {
 		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))

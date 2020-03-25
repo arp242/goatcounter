@@ -36,8 +36,8 @@ Positional arguments are names of database migrations, either as just the name
 Use "all" to run all migrations that haven't been run yet, or "show" to only
 display pending migrations.
 
-Note: you can also use -automigrate flag for the serve and saas commands to run
-migrations on startup.
+Note: you can also use -automigrate flag for the serve command to run migrations
+on startup.
 `
 
 func migrate() (int, error) {

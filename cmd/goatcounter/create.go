@@ -19,14 +19,13 @@ import (
 )
 
 const usageCreate = `
-Create a new site and user. This is mostly useful for the "serve" command; if
-you're using "saas" you can create a new site/user through in the UI.
-
-You can create (and host) multiple sites like this.
+Create a new site and user.
 
 Required flags:
 
-  -domain         Domain to host e.g. "stats.example.com".
+  -domain         Domain to host e.g. "stats.example.com". The site will be
+                  available on this domain only, so "stats.example.com" won't be
+                  available on "localhost".
 
   -email          Your email address. Will be required to login.
 

@@ -24,7 +24,7 @@ func help() (int, error) {
 
 	if os.Args[2] == "all" {
 		fmt.Fprint(stdout, usage[""], "\n")
-		for _, h := range []string{"help", "version", "migrate", "serve", "create", "saas", "reindex", "monitor"} {
+		for _, h := range []string{"help", "version", "migrate", "serve", "create", "reindex", "monitor"} {
 			head := fmt.Sprintf("─── Help for %q ", h)
 			fmt.Fprintf(stdout, "%s%s\n\n", head, strings.Repeat("─", 80-utf8.RuneCountInString(head)))
 			fmt.Fprint(stdout, usage[h], "\n")

@@ -21,10 +21,14 @@ import (
 )
 
 const usageServe = `
-Serve existing domains, without the "SaaS" parts and billing. This is what you
-want if you're looking to self-host.
+Start a HTTP server to serve one or more GoatCounter installations.
 
-Set up sites with the "create" command.
+Set up sites with the "create" command; you don't need to restart for changes to
+take effect.
+
+Static files and templates are compiled in the binary and aren't needed to run
+GoatCounter. But they're loaded from the filesystem if GoatCounter is started
+with -dev.
 
 Flags:
 
@@ -66,8 +70,7 @@ const serveAndSaasFlags = `
                                               file, serve over TLS, and redirect
                                               port 80.
 
-                 Default: "acme,tls,rdr" for serve, "acme" for saas, and blank
-                 when -dev is given.
+                 Default: "acme,tls,rdr", blank when -dev is given.
 
   -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
                  sending login emails and errors (if -errors has mailto:).

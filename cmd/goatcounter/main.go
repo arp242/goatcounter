@@ -62,13 +62,10 @@ Commands:
   version     Show version and build information and exit.
   migrate     Run database migrations.
   create      Create a new site and user.
-  serve       Serve just existing domains. This is probably what you want if
-              you're looking to self-host GoatCounter. Requires creating a site
-              with "create" first. WORK-IN-PROGRESS; NOT YET READY!
+  serve       Start HTTP server.
 
 Advanced commands:
 
-  saas        Run a "SaaS" production server.
   reindex     Re-create the cached statistics (*_stats tables) from the hits.
               This is generally rarely needed and mostly a development tool.
   monitor     Monitor for pageviews.
