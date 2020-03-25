@@ -40,20 +40,19 @@ type Hit struct {
 
 	Path        string            `db:"path" json:"p,omitempty"`
 	Title       string            `db:"title" json:"t,omitempty"`
-	Domain      string            `db:"domain" json:"d,omitempty"`
 	Ref         string            `db:"ref" json:"r,omitempty"`
 	Event       bool              `db:"event" json:"e,omitempty"`
 	RefParams   *string           `db:"ref_params" json:"-"`
 	RefOriginal *string           `db:"ref_original" json:"-"`
 	RefScheme   *string           `db:"ref_scheme" json:"-"`
 	Browser     string            `db:"browser" json:"-"`
-	Size        sqlutil.FloatList `db:"size" json:"s"`
-	Location    string            `db:"location"`
-	Bot         int               `db:"bot"`
+	Size        sqlutil.FloatList `db:"size" json:"s,omitempty"`
+	Location    string            `db:"location" json:"-"`
+	Bot         int               `db:"bot" json:"-"`
 	CreatedAt   time.Time         `db:"created_at" json:"-"`
 
-	RefURL      *url.URL `db:"-"` // Parsed Ref
-	UsageDomain string   `db:"-"` // Track referrer for usage.
+	RefURL      *url.URL `db:"-" json:"-"` // Parsed Ref
+	UsageDomain string   `db:"-" json:"-"` // Track referrer for usage.
 }
 
 var groups = map[string]string{
@@ -230,7 +229,6 @@ func (h Hit) String() string {
 	fmt.Fprintf(t, "Site\t%d\n", h.Site)
 	fmt.Fprintf(t, "Path\t%q\n", h.Path)
 	fmt.Fprintf(t, "Title\t%q\n", h.Title)
-	fmt.Fprintf(t, "Domain\t%q\n", h.Domain)
 	fmt.Fprintf(t, "Ref\t%q\n", h.Ref)
 	fmt.Fprintf(t, "Event\t%t\n", h.Event)
 	if h.RefParams == nil {

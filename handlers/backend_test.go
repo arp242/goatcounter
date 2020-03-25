@@ -23,6 +23,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/tz"
 	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/ztest"
@@ -32,36 +33,62 @@ func TestBackendCount(t *testing.T) {
 	goatcounter.Now = func() time.Time { return time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC) }
 
 	tests := []struct {
+		name     string
 		query    url.Values
 		wantCode int
 		hit      goatcounter.Hit
 	}{
-		{url.Values{}, 400, goatcounter.Hit{}},
+		{"no path", url.Values{}, 400, goatcounter.Hit{}},
+		{"invalid size", url.Values{"p": {"/x"}, "s": {"xxx"}}, 400, goatcounter.Hit{}},
 
-		{url.Values{"p": {"/foo.html"}}, 200, goatcounter.Hit{
+		{"", url.Values{"p": {"/foo.html"}}, 200, goatcounter.Hit{
 			Path: "/foo.html",
 		}},
 
-		{url.Values{"p": {"/foo.html?a=b&c=d"}}, 200, goatcounter.Hit{
+		{"add slash", url.Values{"p": {"foo.html"}}, 200, goatcounter.Hit{
+			Path: "/foo.html",
+		}},
+
+		{"event", url.Values{"p": {"foo.html"}, "e": {"true"}}, 200, goatcounter.Hit{
+			Path:  "foo.html",
+			Event: true,
+		}},
+
+		{"params", url.Values{"p": {"/foo.html?a=b&c=d"}}, 200, goatcounter.Hit{
 			Path: "/foo.html?a=b&c=d",
 		}},
 
-		{url.Values{"p": {"/foo.html"}, "r": {"https://example.com"}}, 200, goatcounter.Hit{
+		{"ref", url.Values{"p": {"/foo.html"}, "r": {"https://example.com"}}, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
 			RefScheme: ztest.SP("h"),
 		}},
 
-		{url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, 200, goatcounter.Hit{
+		{"str ref", url.Values{"p": {"/foo.html"}, "r": {"example"}}, 200, goatcounter.Hit{
+			Path:      "/foo.html",
+			Ref:       "example",
+			RefScheme: ztest.SP("o"),
+		}},
+
+		{"ref params", url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
 			RefParams: ztest.SP("p=x"),
 			RefScheme: ztest.SP("h"),
 		}},
+
+		{"full", url.Values{"p": {"/foo.html"}, "t": {"XX"}, "r": {"https://example.com?p=x"}, "s": {"40,50,1"}}, 200, goatcounter.Hit{
+			Path:      "/foo.html",
+			Title:     "XX",
+			Ref:       "example.com",
+			RefParams: ztest.SP("p=x"),
+			RefScheme: ztest.SP("h"),
+			Size:      sqlutil.FloatList{40, 50, 1},
+		}},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.query.Encode(), func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			ctx, clean := gctest.DB(t)
 			defer clean()
 
