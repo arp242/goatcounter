@@ -22,9 +22,6 @@ func init() {
 	zhttp.FuncMap["validate"] = zvalidate.TemplateError
 	zhttp.FuncMap["has_errors"] = zvalidate.TemplateHasErrors
 	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
-	zhttp.FuncMap["nformat2"] = func(n int, s Site) string {
-		return zhttp.FuncMap["nformat"].(func(int, rune) string)(n, s.Settings.NumberFormat)
-	}
 	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) string {
 		var s Site
 		err := s.ByID(ctx, *id)
@@ -46,12 +43,15 @@ func init() {
 	zhttp.FuncMap["bar_chart"] = BarChart
 	zhttp.FuncMap["horizontal_chart"] = HorizontalChart
 
-	// Override default to display in site TZ.
+	// Override defaults to take site settings in to account.
 	zhttp.FuncMap["tformat"] = func(s *Site, t time.Time, fmt string) string {
 		if fmt == "" {
 			fmt = "2006-01-02"
 		}
 		return t.In(s.Settings.Timezone.Loc()).Format(fmt)
+	}
+	zhttp.FuncMap["nformat"] = func(n int, s Site) string {
+		return zhttp.Tnformat(n, s.Settings.NumberFormat)
 	}
 }
 

@@ -14515,7 +14515,7 @@ var Templates = map[string][]byte{
 `),
 	"tpl/_backend_pages.gohtml": []byte(`{{range $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
-		<td>{{nformat2 $h.Count $.Site}}</td>
+		<td>{{nformat $h.Count $.Site}}</td>
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
@@ -14528,7 +14528,7 @@ var Templates = map[string][]byte{
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
-				<span class="top max" title="Y-axis scale">{{nformat2 .Max $.Site}}</span>
+				<span class="top max" title="Y-axis scale">{{nformat .Max $.Site}}</span>
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats .Max $.Daily}}
 			</div>
@@ -14545,7 +14545,7 @@ var Templates = map[string][]byte{
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td>{{nformat2 $r.Count $.Site}}</td>
+		<td>{{nformat $r.Count $.Site}}</td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path}}{{$r.Path}}
 			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>{{end}}
@@ -14984,7 +14984,7 @@ do this 100% reliably.</p>
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
 			{{/*
-			<sup class="hide-mobile">(total <span class="total-hits">{{nformat2 .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat2 .TotalHitsDisplay $.Site}}</span> displayed)</sup>
+			<sup class="hide-mobile">(total <span class="total-hits">{{nformat .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> displayed)</sup>
 			*/}}
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
@@ -15073,7 +15073,7 @@ parent site includes the child sites.</p>
 	{{range $s := .Stats}}
 		<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
 			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
-			<td>{{nformat2 $s.Count $.Site}}</td>
+			<td>{{nformat $s.Count $.Site}}</td>
 			<td>
 				{{if $s.Public}}
 					<a href="https://{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a>
@@ -15120,15 +15120,15 @@ parent site includes the child sites.</p>
 <h2>Admin</h2>
 
 <table>
-	<tr><td>Total</td><td>{{nformat2 .Stat.CountTotal $.Site}}</td></tr>
-	<tr><td>Last month</td><td>{{nformat2 .Stat.CountLastMonth $.Site}}</td></tr>
-	<tr><td>Previous month</td><td>{{nformat2 .Stat.CountPrevMonth $.Site}}</td></tr>
+	<tr><td>Total</td><td>{{nformat .Stat.CountTotal $.Site}}</td></tr>
+	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.Site}}</td></tr>
+	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.Site}}</td></tr>
 	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
 </table>
 
 <table>
 	{{range $s := .Stat.Usage}}
-		<tr><td>{{nformat2 $s.Count $.Site}}</td><td>{{$s.Domain}}</td></tr>
+		<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Domain}}</td></tr>
 	{{end}}
 </table>
 
@@ -15156,7 +15156,7 @@ parent site includes the child sites.</p>
 		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th></tr></thead></thead>
 		<tbody>
 			{{range $s := .List}}
-				<tr><td>{{nformat2 $s.Count $.Site}}</td><td>{{$s.Path}}</td></tr>
+				<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Path}}</td></tr>
 			{{end}}
 		</tbody>
 	</table>

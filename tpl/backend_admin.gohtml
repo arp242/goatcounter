@@ -22,7 +22,7 @@ parent site includes the child sites.</p>
 	{{range $s := .Stats}}
 		<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
 			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
-			<td>{{nformat2 $s.Count $.Site}}</td>
+			<td>{{nformat $s.Count $.Site}}</td>
 			<td>
 				{{if $s.Public}}
 					<a href="https://{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a>
