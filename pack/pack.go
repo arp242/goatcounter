@@ -15233,7 +15233,7 @@ parent site includes the child sites.</p>
 					<label for="code">Code</label>
 					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
 					{{validate "site.code" .Validate}}
-					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.<br>
+					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.<br>
 						Changing this isn’t implemented yet; contact
 						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
 						if you want to change it.
@@ -15361,7 +15361,7 @@ parent site includes the child sites.</p>
 						<tr>
 							<td>
 								<input type="text" id="code" name="code" placeholder="Code"><br>
-								<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+								<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
 							</td>
 							<td>
 								<input type="text" id="name" name="name" placeholder="Name"><br>
@@ -16029,7 +16029,7 @@ information.</p>
 					<label for="code">Code</label>
 					<input type="text" name="site_code" id="code" maxlength="50" value="{{.Site.Code}}">
 					{{validate "site.code" .Validate}}
-					<span class="help">You will access your account at https://<em>[my_code]</em>.{{.Domain}}.</span>
+					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
 				</div>
 			</div>
 		</fieldset>
