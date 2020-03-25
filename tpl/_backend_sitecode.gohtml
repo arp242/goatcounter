@@ -113,8 +113,7 @@ own browser:</p>
 <pre>&lt;script&gt;
 	if (window.location.hash === '#skipgc')
 		localStorage.setItem('skipgc', 't');
-	if (localStorage.getItem('skipgc') === 't')
-		window.goatcounter = {no_onload: true};
+	window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'};
 &lt;/script&gt;
 {{template "code" .}}</pre>
 

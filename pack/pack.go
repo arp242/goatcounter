@@ -14494,6 +14494,18 @@ var Templates = map[string][]byte{
 	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
+
+	{{if .Saas}}
+		<script>
+			window.goatcounter = {
+				title:     function() { return '' },
+				no_onload: localStorage.getItem('skipgc') === 't',
+			}
+		</script>
+		<script data-goatcounter="https://gc.goatcounter.com/count"
+		        async src="https://gc.zgo.at/count.js"></script>
+		<noscript><img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code | hash}}" alt="" style="float:right"></noscript>
+	{{end}}
 </body>
 </html>
 `),
@@ -14660,8 +14672,7 @@ own browser:</p>
 <pre>&lt;script&gt;
 	if (window.location.hash === '#skipgc')
 		localStorage.setItem('skipgc', 't');
-	if (localStorage.getItem('skipgc') === 't')
-		window.goatcounter = {no_onload: true};
+	window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'};
 &lt;/script&gt;
 {{template "code" .}}</pre>
 
@@ -14758,7 +14769,7 @@ do this 100% reliably.</p>
 <head>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<title>{{if ne .Site.Name "serve"}}{{.Site.Name}} – {{end}}GoatCounter</title>
+	<title>{{.Site.Name}} – GoatCounter</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
@@ -14767,7 +14778,6 @@ do this 100% reliably.</p>
 <body>
 	<noscript>
 		<p>Goatcounter requires JavaScript enabled to function well; please allow JavaScript to run from {{.StaticDomain}}.</p>
-		<img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code}}" alt="" style="float:right">
 		<!--
 		<p><small>For a rationale, see: <a href="https://arp242.net/noscript.html">https://arp242.net/noscript.html</a></small></p>
 		-->

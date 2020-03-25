@@ -6,6 +6,7 @@ package goatcounter
 
 import (
 	"context"
+	"crypto/sha1"
 	"fmt"
 	"html/template"
 	"math"
@@ -30,6 +31,11 @@ func init() {
 			return ""
 		}
 		return s.URL()
+	}
+	zhttp.FuncMap["hash"] = func(s string) string {
+		h := sha1.New()
+		h.Write([]byte(s))
+		return fmt.Sprintf("%x", h.Sum(nil))
 	}
 
 	var (
