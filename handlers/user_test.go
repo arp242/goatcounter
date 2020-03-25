@@ -120,7 +120,6 @@ func TestUserLogin(t *testing.T) {
 }
 
 func TestUserLogout(t *testing.T) {
-	t.Skip() // TODO
 	tests := []handlerTest{
 		{
 			name:         "basic",
@@ -135,7 +134,7 @@ func TestUserLogout(t *testing.T) {
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			// TODO: ensure we're actually logged in.
+			// TODO: ensure we're actually logged out.
 		})
 	}
 }

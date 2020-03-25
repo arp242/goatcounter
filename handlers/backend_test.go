@@ -20,7 +20,6 @@ import (
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/tz"
 	"zgo.at/utils/sliceutil"
@@ -30,46 +29,57 @@ import (
 )
 
 func TestBackendCount(t *testing.T) {
-	t.Skip() // TODO: these need to set query params, instead of body
+	goatcounter.Now = func() time.Time { return time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC) }
 
-	tests := []handlerTest{
-		{
-			name:         "basic",
-			router:       newBackend,
-			path:         "/count",
-			body:         &goatcounter.Hit{Path: "/foo.html"},
-			wantCode:     200,
-			wantFormCode: 200,
-		},
-		{
-			name:         "params",
-			router:       newBackend,
-			path:         "/count",
-			body:         &goatcounter.Hit{Path: "/foo.html?param=xxx"},
-			wantCode:     200,
-			wantFormCode: 200,
-		},
+	tests := []struct {
+		query    url.Values
+		wantCode int
+		hit      goatcounter.Hit
+	}{
+		{url.Values{}, 400, goatcounter.Hit{}},
 
-		{
-			name:         "ref",
-			router:       newBackend,
-			path:         "/count",
-			body:         &goatcounter.Hit{Path: "/foo.html", Ref: "https://example.com"},
-			wantCode:     200,
-			wantFormCode: 200,
-		},
-		{
-			name:         "ref_params",
-			router:       newBackend,
-			path:         "/count",
-			body:         &goatcounter.Hit{Path: "/foo.html", Ref: "https://example.com?p=xxx"},
-			wantCode:     200,
-			wantFormCode: 200,
-		},
+		{url.Values{"p": {"/foo.html"}}, 200, goatcounter.Hit{
+			Path: "/foo.html",
+		}},
+
+		{url.Values{"p": {"/foo.html?a=b&c=d"}}, 200, goatcounter.Hit{
+			Path: "/foo.html?a=b&c=d",
+		}},
+
+		{url.Values{"p": {"/foo.html"}, "r": {"https://example.com"}}, 200, goatcounter.Hit{
+			Path:      "/foo.html",
+			Ref:       "example.com",
+			RefScheme: ztest.SP("h"),
+		}},
+
+		{url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, 200, goatcounter.Hit{
+			Path:      "/foo.html",
+			Ref:       "example.com",
+			RefParams: ztest.SP("p=x"),
+			RefScheme: ztest.SP("h"),
+		}},
 	}
 
 	for _, tt := range tests {
-		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+		t.Run(tt.query.Encode(), func(t *testing.T) {
+			ctx, clean := gctest.DB(t)
+			defer clean()
+
+			ctx, site := gctest.Site(ctx, t, goatcounter.Site{
+				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+			})
+
+			r, rr := newTest(ctx, "GET", "/count?"+tt.query.Encode(), nil)
+			r.Host = site.Code + "." + cfg.Domain
+			login(t, rr, r, site.ID)
+
+			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			if tt.wantCode >= 400 {
+				return
+			}
+
 			_, err := goatcounter.Memstore.Persist(r.Context())
 			if err != nil {
 				t.Fatal(err)
@@ -88,6 +98,13 @@ func TestBackendCount(t *testing.T) {
 			err = h.Validate(r.Context())
 			if err != nil {
 				t.Errorf("Validate failed after get: %s", err)
+			}
+
+			tt.hit.ID = h.ID
+			tt.hit.Site = h.Site
+			tt.hit.CreatedAt = goatcounter.Now()
+			if d := ztest.Diff(h.String(), tt.hit.String()); d != "" {
+				t.Error(d)
 			}
 		})
 	}
@@ -110,20 +127,12 @@ func TestBackendIndex(t *testing.T) {
 		{
 			name: "basic",
 			setup: func(ctx context.Context) {
-				goatcounter.Memstore.Append(goatcounter.Hit{Path: "/asdfghjkl", Site: 1})
-				//_, err := goatcounter.Memstore.Persist(ctx)
-				//if err != nil {
-				//	panic(err)
-				//}
-				cron.RunOnce(zdb.MustGet(ctx))
+				gctest.StoreHits(ctx, t, goatcounter.Hit{Path: "/asdfghjkl", Site: 1})
 			},
 			router:   newBackend,
 			auth:     true,
 			wantCode: 200,
-			// TODO: why 0 displayed?
-			// <h2>Pages <sup>(total 1 hits, <span class="total-display">0</span> displayed)</sup></h2>
-			//wantBody: "<h2>Pages <sup>(total 1 hits)</sup></h2>",
-			//wantBody: `<span class="total-hits">1</span>`,
+			wantBody: ", 1 views",
 		},
 	}
 
@@ -264,13 +273,12 @@ func BenchmarkCount(b *testing.B) {
 	handler := newBackend(zdb.MustGet(ctx)).ServeHTTP
 
 	b.ResetTimer()
-
 	for i := 0; i < b.N; i++ {
 		handler(rr, r)
 	}
 }
 
-func TestBarChart(t *testing.T) {
+func TestBackendBarChart(t *testing.T) {
 	id := tz.MustNew("", "Asia/Makassar").Loc()
 	hi := tz.MustNew("", "Pacific/Honolulu").Loc()
 

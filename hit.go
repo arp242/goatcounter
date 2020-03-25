@@ -5,12 +5,14 @@
 package goatcounter
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net/url"
 	"sort"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -219,6 +221,40 @@ func cleanPath(path string) string {
 
 	u.RawQuery = q.Encode()
 	return u.String()
+}
+
+func (h Hit) String() string {
+	b := new(bytes.Buffer)
+	t := tabwriter.NewWriter(b, 8, 8, 2, ' ', 0)
+	fmt.Fprintf(t, "ID\t%d\n", h.ID)
+	fmt.Fprintf(t, "Site\t%d\n", h.Site)
+	fmt.Fprintf(t, "Path\t%q\n", h.Path)
+	fmt.Fprintf(t, "Title\t%q\n", h.Title)
+	fmt.Fprintf(t, "Domain\t%q\n", h.Domain)
+	fmt.Fprintf(t, "Ref\t%q\n", h.Ref)
+	fmt.Fprintf(t, "Event\t%t\n", h.Event)
+	if h.RefParams == nil {
+		fmt.Fprintf(t, "RefParams\t<nil>\n")
+	} else {
+		fmt.Fprintf(t, "RefParams\t%q\n", *h.RefParams)
+	}
+	if h.RefOriginal == nil {
+		fmt.Fprintf(t, "RefOriginal\t<nil>\n")
+	} else {
+		fmt.Fprintf(t, "RefOriginal\t%q\n", *h.RefOriginal)
+	}
+	if h.RefScheme == nil {
+		fmt.Fprintf(t, "RefScheme\t<nil>\n")
+	} else {
+		fmt.Fprintf(t, "RefScheme\t%q\n", *h.RefScheme)
+	}
+	fmt.Fprintf(t, "Browser\t%q\n", h.Browser)
+	fmt.Fprintf(t, "Size\t%q\n", h.Size)
+	fmt.Fprintf(t, "Location\t%q\n", h.Location)
+	fmt.Fprintf(t, "Bot\t%d\n", h.Bot)
+	fmt.Fprintf(t, "CreatedAt\t%s\n", h.CreatedAt)
+	t.Flush()
+	return b.String()
 }
 
 // Defaults sets fields to default values, unless they're already set.

@@ -35,40 +35,57 @@ func TestUsageTabs(t *testing.T) {
 }
 
 func tmpdb(t *testing.T) (context.Context, string, func()) {
-	dir, err := ioutil.TempDir("", "goatcounter")
-	if err != nil {
-		t.Fatal(err)
-	}
+	t.Helper()
+
+	var clean func()
+	defer func() {
+		r := recover()
+		if r != nil {
+			clean()
+			panic(r)
+		}
+	}()
 
 	dbname := "goatcounter_" + zhttp.Secret()
 	var tmp string
 	if cfg.PgSQL {
-		// TODO: need to load schema etc.
-		t.Skip()
 		out, err := exec.Command("createdb", dbname).CombinedOutput()
 		if err != nil {
 			panic(fmt.Sprintf("%s → %s", err, out))
 		}
-		tmp = "postgresql://dbname=" + dbname + " sslmode=disable password=x"
-	} else {
-		tmp = "sqlite://" + dir + "/goatcounter.sqlite3"
-	}
-
-	db, err := connectDB(tmp, nil, true)
-	if err != nil {
-		os.RemoveAll(dir)
-		t.Fatal(err)
-	}
-
-	return zdb.With(context.Background(), db), tmp, func() {
-		os.RemoveAll(dir)
-		db.Close()
-		if cfg.PgSQL {
+		clean = func() {
 			out, err := exec.Command("dropdb", dbname).CombinedOutput()
 			if err != nil {
 				panic(fmt.Sprintf("%s → %s", err, out))
 			}
 		}
+
+		out, err = exec.Command("psql", dbname, "-c", `\i ../../db/schema.pgsql`).CombinedOutput()
+		if err != nil {
+			panic(fmt.Sprintf("%s → %s", err, out))
+		}
+
+		tmp = "postgresql://dbname=" + dbname + " sslmode=disable password=x"
+	} else {
+		dir, err := ioutil.TempDir("", "goatcounter")
+		if err != nil {
+			t.Fatal(err)
+		}
+		clean = func() {
+			os.RemoveAll(dir)
+		}
+
+		tmp = "sqlite://" + dir + "/goatcounter.sqlite3"
+	}
+
+	db, err := connectDB(tmp, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return zdb.With(context.Background(), db), tmp, func() {
+		db.Close()
+		clean()
 	}
 }
 

@@ -39,12 +39,28 @@ type tester interface {
 func DB(t tester) (context.Context, func()) {
 	t.Helper()
 
+	clean := func() {}
+	defer func() {
+		r := recover()
+		if r != nil {
+			clean()
+			panic(r)
+		}
+	}()
+
 	dbname := "goatcounter_test_" + zhttp.Secret()
 
 	if cfg.PgSQL {
 		out, err := exec.Command("createdb", dbname).CombinedOutput()
 		if err != nil {
 			panic(fmt.Sprintf("%s → %s", err, out))
+		}
+
+		clean = func() {
+			out, err := exec.Command("dropdb", dbname).CombinedOutput()
+			if err != nil {
+				panic(fmt.Sprintf("%s → %s", err, out))
+			}
 		}
 	}
 
@@ -58,7 +74,7 @@ func DB(t tester) (context.Context, func()) {
 		db, err = sqlx.Connect("sqlite3", ":memory:")
 	}
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
 
 	top, err := os.Getwd()
@@ -87,17 +103,17 @@ func DB(t tester) (context.Context, func()) {
 	if schema == "" {
 		s, err := ioutil.ReadFile(schemapath)
 		if err != nil {
-			t.Fatal(err)
+			panic(err)
 		}
 		schema = string(s)
 		_, err = db.ExecContext(context.Background(), schema)
 		if err != nil {
-			t.Fatal(err)
+			panic(err)
 		}
 
 		migs, err := ioutil.ReadDir(migratepath)
 		if err != nil {
-			t.Fatalf("read migration directory: %s", err)
+			panic(fmt.Sprintf("read migration directory: %s", err))
 		}
 
 		for _, m := range migs {
@@ -112,21 +128,21 @@ func DB(t tester) (context.Context, func()) {
 
 			mb, err := ioutil.ReadFile(fmt.Sprintf("%s/%s", migratepath, m.Name()))
 			if err != nil {
-				t.Fatalf("read migration: %s", err)
+				panic(fmt.Sprintf("read migration: %s", err))
 			}
 			migrations = append(migrations, string(mb))
 		}
 	} else {
 		_, err = db.ExecContext(context.Background(), schema)
 		if err != nil {
-			t.Fatal(err)
+			panic(err)
 		}
 	}
 
 	for _, m := range migrations {
 		_, err = db.ExecContext(context.Background(), m)
 		if err != nil {
-			t.Fatal(err)
+			panic(err)
 		}
 	}
 
@@ -139,7 +155,7 @@ func DB(t tester) (context.Context, func()) {
 		`insert into sites (code, name, plan, settings, created_at) values
 		('test', 'example.com', 'personal', '{}', %s);`, now))
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
 
 	ctx := zdb.With(context.Background(), db)
@@ -148,12 +164,7 @@ func DB(t tester) (context.Context, func()) {
 
 	return ctx, func() {
 		db.Close()
-		if cfg.PgSQL {
-			out, err := exec.Command("dropdb", dbname).CombinedOutput()
-			if err != nil {
-				panic(fmt.Sprintf("%s → %s", err, out))
-			}
-		}
+		clean()
 	}
 }
 
