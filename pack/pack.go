@@ -15020,7 +15020,7 @@ do this 100% reliably.</p>
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0.1 true true}}</div>
+				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0 true false}}</div>
 			</div>
 			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}

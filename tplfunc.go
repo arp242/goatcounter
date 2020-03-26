@@ -150,7 +150,7 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 			perc = float32(s.Count) / float32(parentTotal) * 100
 		}
 		if perc < cutoff { // Group as "Other" later.
-			break
+			continue
 		}
 
 		browser := s.Name
