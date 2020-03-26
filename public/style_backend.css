@@ -96,6 +96,8 @@ form .err  { color: red; display: block; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
+.label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
+
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
 .show-mobile .page-title+sup { bottom: 2ex; }

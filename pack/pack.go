@@ -757,6 +757,16 @@ commit;
 	insert into version values ('2020-03-29-1-page_cost');
 commit;
 `),
+	"db/migrate/pgsql/2020-04-06-1-event.sql": []byte(`begin;
+	alter table hit_stats      add column event integer default 0;
+	alter table browser_stats  add column event integer default 0;
+	alter table location_stats add column event integer default 0;
+	alter table size_stats     add column event integer default 0;
+	alter table ref_stats      add column event integer default 0;
+
+	insert into version values ('2020-04-06-1-event');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1546,6 +1556,16 @@ commit;
 commit;
 `),
 	"db/migrate/sqlite/2020-03-27-1-isbot.sql": []byte(``),
+	"db/migrate/sqlite/2020-04-06-1-event.sql": []byte(`begin;
+	alter table hit_stats      add column event integer default 0;
+	alter table browser_stats  add column event integer default 0;
+	alter table location_stats add column event integer default 0;
+	alter table size_stats     add column event integer default 0;
+	alter table ref_stats      add column event integer default 0;
+
+	insert into version values ('2020-04-06-1-event');
+commit;
+`),
 }
 
 var Public = map[string][]byte{
@@ -2054,12 +2074,12 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		window.goatcounter = window.goatcounter || {}
 
 	// Get all data we're going to send off to the counter endpoint.
-	var get_data = function(count_vars) {
+	var get_data = function(vars) {
 		var data = {
-			p: count_vars.path     || goatcounter.path,
-			r: count_vars.referrer || goatcounter.referrer,
-			t: count_vars.title    || goatcounter.title,
-			e: !!(count_vars.event || goatcounter.event),
+			p: (vars.path     === undefined ? goatcounter.path     : vars.path),
+			r: (vars.referrer === undefined ? goatcounter.referrer : vars.referrer),
+			t: (vars.title    === undefined ? goatcounter.title    : vars.title),
+			e: !!(vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
 		}
 
@@ -2099,7 +2119,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	}
 
 	// Count a hit.
-	window.goatcounter.count = function(count_vars) {
+	window.goatcounter.count = function(vars) {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
@@ -2110,9 +2130,11 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		if (script)
 			endpoint = script.dataset.goatcounter
 
-		var data = get_data(count_vars || {})
+		var data = get_data(vars || {})
 		if (data.p === null)  // null from user callback.
 			return
+
+		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
 
 		var img = document.createElement('img'),
 		    rm  = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
@@ -2134,6 +2156,24 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 				return s[i].substr(name.length + 1)
 	}
 
+	// Track click events.
+	window.goatcounter.bind_events = function() {
+		document.querySelectorAll("*[data-goatcounter-click]").forEach(function(elem) {
+			var send = function() {
+				goatcounter.count({
+					event:    true,
+					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || elem.href || ''),
+					title:    (elem.dataset.goatcounterTitle || elem.title || (elem.innerHTML || '').substr(0, 200) || ''),
+					referral: (elem.dataset.goatcounterReferral || ''),
+				})
+			}
+			elem.addEventListener('click', send, false)
+			elem.addEventListener('auxclick', send, false)  // Middle click.
+		})
+	}
+
+	if (!goatcounter.no_events)
+		goatcounter.bind_events()
 	if (!goatcounter.no_onload)
 		if (document.body === null)
 			document.addEventListener('DOMContentLoaded', function() { goatcounter.count() }, false)
@@ -13321,6 +13361,8 @@ form .err  { color: red; display: block; }
 	word-break: break-all; /* don't make it wider for very long urls */
 }
 
+.label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
+
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
 .show-mobile .page-title+sup { bottom: 2ex; }
@@ -14627,12 +14669,14 @@ var Templates = map[string][]byte{
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title {{if not $h.Title}}no-title{{end}}" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
 				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 				<small class="page-title {{if not $h.Title}}no-title{{end}}" title="{{$h.Title}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
@@ -14687,234 +14731,242 @@ var Templates = map[string][]byte{
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.</p>
 
-<h2 id="content-security-policy">Content security policy <a href="#content-security-policy"></a></h2>
-<p>You’ll need the following if you use a <code>Content-Security-Policy</code>:</p>
+<h2 id="events">Events <a href="#events"></a></h2>
+<p>GoatCounter will automatically bind a click event on any element with the
+<code>data-goatcounter-click</code> attribute; for example to track clicks to an
+external link as <code>ext-example.com</code>:</p>
 
-<pre><code>script-src  https://{{.CountDomain}}
-img-src     {{.Site.URL}}/count
-</code></pre>
+<pre>
+&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"&gt;Example&lt;/a&gt;
+</pre>
 
-<h2 id="customizing">Customizing <a href="#customizing"></a></h2>
-<p>Customisation is done with the <code>window.goatcounter</code> object; the following keys
-are supported:</p>
+<p>The <code>name</code>, <code>id</code>, or <code>href</code> attribute will
+be used if <code>data-goatcounter-click</code> is empty, in that order.</p>
 
-<h3 id="settings">Settings <a href="#settings"></a></h3>
+<p>You can use <code>data-goatcounter-title</code> and
+<code>data-goatcounter-referral</code> to set the title and/or referral:</p>
+<pre>
+&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"
+   data-goatcounter-title="Example event"
+   data-goatcounter-referral="hello"&gt;Example&lt;/a&gt;
+</pre>
 
-<table class="reftable">
-  <thead>
-    <tr>
-      <th style="text-align: left">Setting</th>
-      <th style="text-align: left">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left"><code>no_onload</code></td>
-      <td style="text-align: left">Don’t do anything on page load. If you want to call <code>count()</code> manually.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>allow_local</code></td>
-      <td style="text-align: left">Allow requests from local addresses (<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing the integration locally.</td>
-    </tr>
-  </tbody>
-</table>
+<p>The regular <code>title</code> attribute or the element’s HTML (capped to 200
+characters) is used if <code>data-goatcounter-title</code> is empty. There is
+no default for the referrer.
 
-<h3 id="data">Data <a href="#data"></a></h3>
-<p>You can customize the data sent to GoatCounter; the default value will be used
-if the value is <code>null</code> or <code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
-anything else!</p>
+Content security policy
+-----------------------
+You’ll need the following if you use a ` + "`" + `Content-Security-Policy` + "`" + `:
 
-<p>The value can be a callback: the default value is passed and the return value is
-sent to the server. Nothing is sent if the return value from the <code>path</code> callback
-is <code>null</code>.</p>
+	script-src  https://{{.CountDomain}}
+	img-src     {{.Site.URL}}/count
 
-<table class="reftable">
-  <thead>
-    <tr>
-      <th style="text-align: left">Variable</th>
-      <th style="text-align: left">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left"><code>path</code></td>
-      <td style="text-align: left">Page path (without domain) or event name. Default is the value of <code>&lt;link rel="canonical"&gt;</code> if it exists, or <code>location.pathname + location.search</code>.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>title</code></td>
-      <td style="text-align: left">Human-readable title. Default is <code>document.title</code>.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>referrer</code></td>
-      <td style="text-align: left">Where the user came from; can be an URL (<code>https://example.com</code>) or any string (<code>June Newsletter</code>). Default is to use the <code>Referer</code> header.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>event</code></td>
-      <td style="text-align: left">Treat the <code>path</code> as an event, rather than a URL. Boolean.</td>
-    </tr>
-  </tbody>
-</table>
+Customizing
+-----------
+Customisation is done with the ` + "`" + `window.goatcounter` + "`" + ` object; the following keys
+are supported:
 
-<h3 id="methods">Methods <a href="#methods"></a></h3>
+### Settings
 
-<h4 id="countvars"><code>count(vars)</code> <a href="#countvars"></a></h4>
-<p>Count an event; the <code>vars</code> parameter is an object as described in the Data
-section above, and will be merged in to the global <code>window.goatcounter</code>, taking
-precedence.</p>
+{:class="reftable"}
+| Setting       | Description                                                                                                 |
+| :------       | :----------                                                                                                 |
+| ` + "`" + `no_onload` + "`" + `   | Don’t do anything on page load. If you want to call ` + "`" + `count()` + "`" + ` manually.                                     |
+| ` + "`" + `no_events` + "`" + `   | Don’t bind click events.                                                                                    |
+| ` + "`" + `allow_local` + "`" + ` | Allow requests from local addresses (` + "`" + `localhost` + "`" + `, ` + "`" + `192.168.0.0` + "`" + `, etc.) for testing the integration locally. |
 
-<p>Be aware that the script is loaded with <code>async</code> by default, so <code>count</code> may not
-yet be available on click events and the like. To solve this, use <code>setInterval</code>
-to wait until it’s available:</p>
+### Data
+You can customize the data sent to GoatCounter; the default value will be used
+if the value is ` + "`" + `null` + "`" + ` or ` + "`" + `undefined` + "`" + `, but *not* on empty string, ` + "`" + `0` + "`" + `, or
+anything else!
 
-<pre><code>elem.addEventListener('click', function() {
-	var t = setInterval(function() {
-		if (window.goatcounter &amp;amp;&amp;amp; window.goatcounter.count) {
-			clearInterval(t);
-			goatconter.count();
-		}
-	}, 100);
-});
-</code></pre>
+The value can be a callback: the default value is passed and the return value is
+sent to the server. Nothing is sent if the return value from the ` + "`" + `path` + "`" + ` callback
+is ` + "`" + `null` + "`" + `.
 
-<p>The default implementation already handles this, and you only need to worry
-about this if you call <code>count()</code> manually.</p>
+{:class="reftable"}
+| Variable   | Description                                                                                                                                        |
+| :-------   | :----------                                                                                                                                        |
+| ` + "`" + `path` + "`" + `     | Page path (without domain) or event name. Default is the value of ` + "`" + `<link rel="canonical" />` + "`" + ` if it exists, or ` + "`" + `location.pathname + location.search` + "`" + `. |
+| ` + "`" + `title` + "`" + `    | Human-readable title. Default is ` + "`" + `document.title` + "`" + `.                                                                                                 |
+| ` + "`" + `referrer` + "`" + ` | Where the user came from; can be an URL (` + "`" + `https://example.com` + "`" + `) or any string (` + "`" + `June Newsletter` + "`" + `). Default is to use the ` + "`" + `Referer` + "`" + ` header.         |
+| ` + "`" + `event` + "`" + `    | Treat the ` + "`" + `path` + "`" + ` as an event, rather than a URL. Boolean.                                                                                          |
 
-<h4 id="getqueryname"><code>get_query(name)</code> <a href="#getqueryname"></a></h4>
-<p>Get a single query parameter from the current page’s URL; returns <code>undefined</code> if
-the parameter doesn’t exist. This is useful if you want to get the <code>referrer</code>
-from the URL:</p>
+### Methods
 
-<pre><code>&lt;script&gt;
-	referrer: function() {
-		return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
-	}
-};
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
+#### ` + "`" + `count(vars)` + "`" + `
+Count an event; the ` + "`" + `vars` + "`" + ` parameter is an object as described in the Data
+section above, and will be merged in to the global ` + "`" + `window.goatcounter` + "`" + `, taking
+precedence.
 
-<h2 id="examples">Examples <a href="#examples"></a></h2>
+Be aware that the script is loaded with ` + "`" + `async` + "`" + ` by default, so ` + "`" + `count` + "`" + ` may not
+yet be available on click events and the like. To solve this, use ` + "`" + `setInterval` + "`" + `
+to wait until it’s available:
 
-<h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
-<p>You can check <code>location.host</code> if you want to load GoatCounter only on
-<code>production.com</code> and not <code>staging.com</code> or <code>development.com</code>; for example:</p>
-
-<pre><code>&lt;script&gt;
-	// Only load on production environment.
-	if (window.location.host !== 'production.com')
-		window.goatcounter = {no_onload: true};
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">request from localhost are already
-ignored</a></p>
-
-<h3 id="skip-own-views">Skip own views <a href="#skip-own-views"></a></h3>
-<p>You can use the same technique as a client-side way to skip loading from your
-own browser:</p>
-
-<pre><code>&lt;script&gt;
-	if (window.location.hash === '#skipgc')
-		localStorage.setItem('skipgc', 't');
-	window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'};
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<p>You can also fill in your IP address in the settings, or (temporarily) block the
-<code>{{.CountDomain}}</code> domain.</p>
-
-<h3 id="custom-path-and-referrer">Custom path and referrer <a href="#custom-path-and-referrer"></a></h3>
-<p>A basic example with some custom logic for <code>path</code>:</p>
-
-<pre><code>&lt;script&gt;
-	window.goatcounter = {
-		path: function(p) {
-			// Don't track the home page.
-			if (p === '/')
-				return null;
-
-			// Remove .html from all other page links.
-			return p.replace(/\.html$/, '');
-		},
-	};
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<h3 id="ignore-query-parameters-in-path">Ignore query parameters in path <a href="#ignore-query-parameters-in-path"></a></h3>
-<p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used automatically, and is the
-easiest way to ignore extraneous query parameters:</p>
-
-<pre><code>&lt;link rel="canonical" href="https://example.com/path.html"&gt;
-</code></pre>
-
-<p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be sure to understand the
-potential SEO effects before adding a canonical URL! If you use query parameters
-for navigation then you probably <em>don’t</em> want it.</p>
-
-<p>Alternatively you can send a custom <code>path</code> without the query
-parameters:</p>
-
-<pre><code>&lt;script&gt;
-	window.goatcounter = {
-		path: location.pathname || '/',
-	};
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<h3 id="spa">SPA <a href="#spa"></a></h3>
-<p>Custom <code>count()</code> example for hooking in to an SPA:</p>
-
-<pre><code>&lt;script&gt;
-	window.goatcounter = {no_onload: true};
-
-	window.addEventListener('hashchange', function(e) {
-		window.goatcounter.count({
-			path: location.pathname + location.search + location.hash,
-		});
+	elem.addEventListener('click', function() {
+		var t = setInterval(function() {
+			if (window.goatcounter &amp;&amp; window.goatcounter.count) {
+				clearInterval(t);
+				goatconter.count();
+			}
+		}, 100);
 	});
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
 
-<h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
+The default implementation already handles this, and you only need to worry
+about this if you call ` + "`" + `count()` + "`" + ` manually.
 
-<h3 id="image">Image <a href="#image"></a></h3>
-<p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
-an image on your site:</p>
+#### ` + "`" + `bind_events()` + "`" + `
+Bind a click event to every element with ` + "`" + `data-goatcounter-click` + "`" + `. Called on
+page load unless ` + "`" + `no_events` + "`" + ` is set. You may need to call this manually if you
+insert elements after the page loads.
 
-<pre><code>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;
-</code></pre>
+#### ` + "`" + `get_query(name)` + "`" + `
+Get a single query parameter from the current page’s URL; returns ` + "`" + `undefined` + "`" + ` if
+the parameter doesn’t exist. This is useful if you want to get the ` + "`" + `referrer` + "`" + `
+from the URL:
 
-<p>This won’t allow recording the referral or screen size though, and may also
+	<script>
+		referrer: function() {
+			return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
+		}
+	};
+	</script>
+	{{template "code" .}}
+
+Examples
+--------
+
+### Load only on production
+You can check ` + "`" + `location.host` + "`" + ` if you want to load GoatCounter only on
+` + "`" + `production.com` + "`" + ` and not ` + "`" + `staging.com` + "`" + ` or ` + "`" + `development.com` + "`" + `; for example:
+
+	<script>
+		// Only load on production environment.
+		if (window.location.host !== 'production.com')
+			window.goatcounter = {no_onload: true};
+	</script>
+	{{template "code" .}}
+
+Note that [request from localhost are already
+ignored](https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72)
+
+### Skip own views
+You can use the same technique as a client-side way to skip loading from your
+own browser:
+
+	<script>
+		if (window.location.hash === '#skipgc')
+			localStorage.setItem('skipgc', 't');
+		window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'};
+	</script>
+	{{template "code" .}}
+
+You can also fill in your IP address in the settings, or (temporarily) block the
+` + "`" + `{{.CountDomain}}` + "`" + ` domain.
+
+### Custom path and referrer
+A basic example with some custom logic for ` + "`" + `path` + "`" + `:
+
+	<script>
+		window.goatcounter = {
+			path: function(p) {
+				// Don't track the home page.
+				if (p === '/')
+					return null;
+
+				// Remove .html from all other page links.
+				return p.replace(/\.html$/, '');
+			},
+		};
+	</script>
+	{{template "code" .}}
+
+### Ignore query parameters in path
+The value of ` + "`" + `<link rel="canonical" />` + "`" + ` will be used automatically, and is the
+easiest way to ignore extraneous query parameters:
+
+	<link rel="canonical" href="https://example.com/path.html" />
+
+The ` + "`" + `href` + "`" + ` can also be relative (e.g. ` + "`" + `/path.html` + "`" + `. Be sure to understand the
+potential SEO effects before adding a canonical URL! If you use query parameters
+for navigation then you probably *don’t* want it.
+
+Alternatively you can send a custom ` + "`" + `path` + "`" + ` without the query
+parameters:
+
+	<script>
+		window.goatcounter = {
+			path: location.pathname || '/',
+		};
+	</script>
+	{{template "code" .}}
+
+### SPA
+Custom ` + "`" + `count()` + "`" + ` example for hooking in to an SPA:
+
+	<script>
+		window.goatcounter = {no_onload: true};
+
+		window.addEventListener('hashchange', function(e) {
+			window.goatcounter.count({
+				path: location.pathname + location.search + location.hash,
+			});
+		});
+	</script>
+	{{template "code" .}}
+
+### Custom events
+You can send an event by setting the ` + "`" + `event` + "`" + ` parameter to ` + "`" + `true` + "`" + ` in ` + "`" + `count()` + "`" + `.
+For example:
+
+	$('#banana').on('click', function(e) {
+		window.goatcounter.count({
+			path:  'click-banana',
+			title: 'Yellow curvy fruit',
+			event: true,
+		});
+	})
+
+Note that the ` + "`" + `path` + "`" + ` doubles as the event name.
+
+Advanced integrations
+---------------------
+
+### Image
+The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
+an image on your site:
+
+	<img src="{{.Site.URL}}/count?p=/test-img" />
+
+This won’t allow recording the referral or screen size though, and may also
 increase the number of bot requests (although we do our best to filter this
-out).</p>
+out).
 
-<p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
+Wrap in a ` + "`" + `<noscript>` + "`" + ` tag to use this only for people without JavaScript.
 
-<h3 id="from-middleware">From middleware <a href="#from-middleware"></a></h3>
-<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your app's
-middleware. It supports the following query parameters:</p>
+### From middleware
+You can call ` + "`" + `GET {{.Site.URL}}/count` + "`" + ` from anywhere, such as your app's
+middleware. It supports the following query parameters:
 
-<ul>
-  <li><code>p</code> → <code>path</code></li>
-  <li><code>e</code> → <code>event</code></li>
-  <li><code>t</code> → <code>title</code></li>
-  <li><code>r</code> → <code>referrer</code></li>
-  <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
-</ul>
+- ` + "`" + `p` + "`" + ` → ` + "`" + `path` + "`" + `
+- ` + "`" + `e` + "`" + ` → ` + "`" + `event` + "`" + `
+- ` + "`" + `t` + "`" + ` → ` + "`" + `title` + "`" + `
+- ` + "`" + `r` + "`" + ` → ` + "`" + `referrer` + "`" + `
+- ` + "`" + `s` + "`" + ` → screen size, as ` + "`" + `x,y,scaling` + "`" + `.
+- ` + "`" + `rnd` + "`" + ` → can be used as a “cache buster” since browsers don’t always obey
+  ` + "`" + `Cache-Control` + "`" + `; ignored by the backend.
 
-<p>The <code>User-Agent</code> header and remote address are used for the browser and
-location.</p>
+The ` + "`" + `User-Agent` + "`" + ` header and remote address are used for the browser and
+location.
 
-<p>Calling it from the middleware or as will probably result in more bot requests.
+Calling it from the middleware or as will probably result in more bot requests.
 GoatCounter does its best to filter this out, but it’s impossible to do this
-100% reliably.</p>
+100% reliably.
 
 {{end}} {{/* if eq .Path "/settings" */}}
+</noscript></p>
+Warning: Found no end tag for 'noscript' on line 224 - auto-closing it
 `),
 	"tpl/_backend_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">

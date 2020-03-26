@@ -83,17 +83,11 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		// reflected in the hits object too, which matters for the hit_stats
 		// generation later.
 		hits[i] = h
-		e := 0
-		if h.Event {
-			e = 1
-		}
-		ss := 0
-		if h.StartedSession {
-			ss = 1
-		}
+
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
 			h.RefScheme, h.Browser, h.Size, h.Location,
-			h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, e, h.Session, ss)
+			h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, h.Event, h.Session,
+			h.StartedSession)
 
 		usage.Values(h.Site, h.UsageDomain, 1)
 	}

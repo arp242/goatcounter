@@ -6,11 +6,13 @@ package cron
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/jsonutil"
+	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -26,11 +28,12 @@ import (
 //   stats      | [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + path.
+		// Group by day + path + event.
 		type gt struct {
 			count       []int
 			countUnique []int
 			day         string
+			event       sqlutil.Bool
 			path        string
 			title       string
 		}
@@ -41,13 +44,15 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + h.Path
+			k := fmt.Sprintf("%s%s%t", day, h.Path, h.Event)
 			v := grouped[k]
 			if len(v.count) == 0 {
 				v.day = day
 				v.path = h.Path
+				v.event = h.Event
 				var err error
-				v.count, v.countUnique, v.title, err = existingHitStats(ctx, tx, h.Site, day, v.path)
+				v.count, v.countUnique, v.title, err = existingHitStats(ctx, tx,
+					h.Site, day, v.path, v.event)
 				if err != nil {
 					return err
 				}
@@ -67,9 +72,10 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "hit_stats", []string{"site", "day", "path",
-			"title", "stats", "stats_unique"})
+			"event", "title", "stats", "stats_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count),
+			ins.Values(siteID, v.day, v.path, v.event, v.title,
+				jsonutil.MustMarshal(v.count),
 				jsonutil.MustMarshal(v.countUnique))
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats")
@@ -78,17 +84,19 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingHitStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, path string,
+	day, path string, event sqlutil.Bool,
 ) ([]int, []int, string, error) {
 
 	var ex []struct {
-		Stats       []byte `db:"stats"`
-		StatsUnique []byte `db:"stats_unique"`
-		Title       string `db:"title"`
+		Stats       []byte       `db:"stats"`
+		StatsUnique []byte       `db:"stats_unique"`
+		Title       string       `db:"title"`
+		Event       sqlutil.Bool `db:"event"`
 	}
 	err := tx.SelectContext(txctx, &ex,
-		`select stats, stats_unique, title from hit_stats where site=$1 and day=$2 and path=$3 limit 1`,
-		siteID, day, path)
+		`select stats, stats_unique, title, event from hit_stats
+		where site=$1 and day=$2 and path=$3 and event=$4 limit 1`,
+		siteID, day, path, event)
 	if err != nil {
 		return nil, nil, "", errors.Wrap(err, "existingHitStats")
 	}
@@ -96,9 +104,9 @@ func existingHitStats(
 		return make([]int, 24), make([]int, 24), "", nil
 	}
 
-	_, err = tx.ExecContext(txctx,
-		`delete from hit_stats where site=$1 and day=$2 and path=$3`,
-		siteID, day, path)
+	_, err = tx.ExecContext(txctx, `delete from hit_stats where
+		site=$1 and day=$2 and path=$3 and event=$4`,
+		siteID, day, path, event)
 	if err != nil {
 		return nil, nil, "", errors.Wrap(err, "delete")
 	}

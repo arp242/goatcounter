@@ -8,6 +8,31 @@ Or use one of the ready-made integrations:
 [Gatsby](https://www.npmjs.com/package/gatsby-plugin-goatcounter),
 [schlix](https://www.schlix.com/extensions/analytics/goatcounter.html).
 
+Events
+------
+<p>GoatCounter will automatically bind a click event on any element with the
+<code>data-goatcounter-click</code> attribute; for example to track clicks to an
+external link as <code>ext-example.com</code>:</p>
+
+<pre>
+&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"&gt;Example&lt;/a&gt;
+</pre>
+
+<p>The <code>name</code>, <code>id</code>, or <code>href</code> attribute will
+be used if <code>data-goatcounter-click</code> is empty, in that order.</p>
+
+<p>You can use <code>data-goatcounter-title</code> and
+<code>data-goatcounter-referral</code> to set the title and/or referral:</p>
+<pre>
+&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"
+   data-goatcounter-title="Example event"
+   data-goatcounter-referral="hello"&gt;Example&lt;/a&gt;
+</pre>
+
+<p>The regular <code>title</code> attribute or the element’s HTML (capped to 200
+characters) is used if <code>data-goatcounter-title</code> is empty. There is
+no default for the referrer.
+
 Content security policy
 -----------------------
 You’ll need the following if you use a `Content-Security-Policy`:
@@ -26,6 +51,7 @@ are supported:
 | Setting       | Description                                                                                                 |
 | :------       | :----------                                                                                                 |
 | `no_onload`   | Don’t do anything on page load. If you want to call `count()` manually.                                     |
+| `no_events`   | Don’t bind click events.                                                                                    |
 | `allow_local` | Allow requests from local addresses (`localhost`, `192.168.0.0`, etc.) for testing the integration locally. |
 
 ### Data
@@ -67,6 +93,11 @@ to wait until it’s available:
 
 The default implementation already handles this, and you only need to worry
 about this if you call `count()` manually.
+
+#### `bind_events()`
+Bind a click event to every element with `data-goatcounter-click`. Called on
+page load unless `no_events` is set. You may need to call this manually if you
+insert elements after the page loads.
 
 #### `get_query(name)`
 Get a single query parameter from the current page’s URL; returns `undefined` if
@@ -163,6 +194,20 @@ Custom `count()` example for hooking in to an SPA:
 	</script>
 	{{template "code" .}}
 
+### Custom events
+You can send an event by setting the `event` parameter to `true` in `count()`.
+For example:
+
+	$('#banana').on('click', function(e) {
+		window.goatcounter.count({
+			path:  'click-banana',
+			title: 'Yellow curvy fruit',
+			event: true,
+		});
+	})
+
+Note that the `path` doubles as the event name.
+
 Advanced integrations
 ---------------------
 
@@ -187,6 +232,8 @@ middleware. It supports the following query parameters:
 - `t` → `title`
 - `r` → `referrer`
 - `s` → screen size, as `x,y,scaling`.
+- `rnd` → can be used as a “cache buster” since browsers don’t always obey
+  `Cache-Control`; ignored by the backend.
 
 The `User-Agent` header and remote address are used for the browser and
 location.

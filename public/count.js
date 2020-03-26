@@ -8,12 +8,12 @@
 		window.goatcounter = window.goatcounter || {}
 
 	// Get all data we're going to send off to the counter endpoint.
-	var get_data = function(count_vars) {
+	var get_data = function(vars) {
 		var data = {
-			p: count_vars.path     || goatcounter.path,
-			r: count_vars.referrer || goatcounter.referrer,
-			t: count_vars.title    || goatcounter.title,
-			e: !!(count_vars.event || goatcounter.event),
+			p: (vars.path     === undefined ? goatcounter.path     : vars.path),
+			r: (vars.referrer === undefined ? goatcounter.referrer : vars.referrer),
+			t: (vars.title    === undefined ? goatcounter.title    : vars.title),
+			e: !!(vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
 		}
 
@@ -53,7 +53,7 @@
 	}
 
 	// Count a hit.
-	window.goatcounter.count = function(count_vars) {
+	window.goatcounter.count = function(vars) {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
@@ -64,9 +64,11 @@
 		if (script)
 			endpoint = script.dataset.goatcounter
 
-		var data = get_data(count_vars || {})
+		var data = get_data(vars || {})
 		if (data.p === null)  // null from user callback.
 			return
+
+		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
 
 		var img = document.createElement('img'),
 		    rm  = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
@@ -88,6 +90,24 @@
 				return s[i].substr(name.length + 1)
 	}
 
+	// Track click events.
+	window.goatcounter.bind_events = function() {
+		document.querySelectorAll("*[data-goatcounter-click]").forEach(function(elem) {
+			var send = function() {
+				goatcounter.count({
+					event:    true,
+					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || elem.href || ''),
+					title:    (elem.dataset.goatcounterTitle || elem.title || (elem.innerHTML || '').substr(0, 200) || ''),
+					referral: (elem.dataset.goatcounterReferral || ''),
+				})
+			}
+			elem.addEventListener('click', send, false)
+			elem.addEventListener('auxclick', send, false)  // Middle click.
+		})
+	}
+
+	if (!goatcounter.no_events)
+		goatcounter.bind_events()
 	if (!goatcounter.no_onload)
 		if (document.body === null)
 			document.addEventListener('DOMContentLoaded', function() { goatcounter.count() }, false)

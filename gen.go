@@ -47,6 +47,8 @@ func main() {
 			os.Exit(1)
 		}
 	}
+
+	// So I don't need to import Markdown (and
 }
 
 var (
