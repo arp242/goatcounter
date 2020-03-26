@@ -107,7 +107,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			header.CSPImgSrc:     append(ds, "data:", gc),
 			header.CSPScriptSrc: append(ds, "https://chat.goatcounter.com", "https://js.stripe.com",
 				// Inline GoatCounter setup
-				"https://gc.zgo.at", "'sha256-xlM5XAoTH2SDN4Lu1hi8y/A8YVcV+FBUKUK/Yek253w='"),
+				"https://gc.zgo.at", "'sha256-rhp1kopsm+UqtrN5qCeSn81YXeO4wJtXDvQE00OrLoQ='"),
 			header.CSPStyleSrc:    append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:     ds,
 			header.CSPFormAction:  {header.CSPSourceSelf},

@@ -14500,6 +14500,7 @@ var Templates = map[string][]byte{
 		<script>
 			window.goatcounter = {
 				title:       function() { return null },
+				referrer:    function() { return null },
 				no_onload:   localStorage.getItem('skipgc') === 't',
 				allow_local: true,
 			}
