@@ -711,14 +711,23 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 
 // List all ref statistics for the given time period.
 func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offset int) (int, bool, error) {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select ref as name, sum(count) as count from ref_stats
-		where site=$1 and day >= $2 and day <= $3 and ref not like $4
+	site := MustGetSite(ctx)
+
+	query := `select ref as name, sum(count) as count from ref_stats
+		where site=? and day>=? and day<=?`
+	args := []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
+	if site.LinkDomain != "" {
+		query += " and ref not like ? "
+		args = append(args, site.LinkDomain+"%")
+	}
+	query += `
 		group by ref
 		order by count desc
-		limit $5 offset $6
-	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"),
-		MustGetSite(ctx).LinkDomain+"%", limit+1, offset)
+		limit ? offset ?`
+	args = append(args, limit+1, offset)
+
+	db := zdb.MustGet(ctx)
+	err := db.SelectContext(ctx, h, db.Rebind(query), args...)
 	if err != nil {
 		return 0, false, errors.Wrap(err, "Stats.ListBrowsers browsers")
 	}
