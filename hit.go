@@ -519,7 +519,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 
 	// Add total and max.
-	// TODO: daily max.
 	var totalDisplay int
 	{
 		for i := range hh {

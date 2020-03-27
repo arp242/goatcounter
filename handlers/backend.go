@@ -214,7 +214,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	bot := isbot.Bot(r)
 
 	// Don't track pages fetched with the browser's prefetch algorithm.
-	if bot == isbot.Prefetch {
+	if bot == isbot.BotPrefetch {
 		return zhttp.Bytes(w, gif)
 	}
 
