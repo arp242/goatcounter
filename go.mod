@@ -26,4 +26,5 @@ require (
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41
 	zgo.at/zvalidate v0.0.0-20200319081247-6653bab59e5e
+	zgo.at/isbot v0.0.0-20200327011439-fc25399dfb4f
 )

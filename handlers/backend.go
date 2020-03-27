@@ -22,13 +22,13 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/monoculum/formam"
-	"github.com/mssola/user_agent"
 	"github.com/pkg/errors"
 	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
+	"zgo.at/isbot"
 	"zgo.at/tz"
 	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/sliceutil"
@@ -211,9 +211,10 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "image/gif")
 
+	bot := isbot.Bot(r)
+
 	// Don't track pages fetched with the browser's prefetch algorithm.
-	// See https://github.com/usefathom/fathom/issues/13
-	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
+	if bot == isbot.Prefetch {
 		return zhttp.Bytes(w, gif)
 	}
 
@@ -233,8 +234,8 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		UsageDomain: r.Referer(),
 		CreatedAt:   goatcounter.Now(),
 	}
-	if user_agent.New(r.UserAgent()).Bot() {
-		hit.Bot = 1
+	if isbot.Is(bot) {
+		hit.Bot = int(bot)
 	}
 
 	_, err := zhttp.Decode(r, &hit)
