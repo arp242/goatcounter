@@ -120,9 +120,11 @@ img.imgzoom-loading { cursor: wait !important; }
 	border: none;
 	margin-bottom: 1em;
 }
-/* Extra div needed because Chrome doesn't support flexbox on fieldsets :-/ */
-#signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
-#signup-form fieldset.two > div > div { width: 50%; }
+@media (min-width: 45rem) {
+	/* Extra div needed because Chrome doesn't support flexbox on fieldsets :-/ */
+	#signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
+	#signup-form fieldset.two > div > div { width: 50%; }
+}
 
 form.vertical .err  { color: red; display: block; }
 form.vertical .help { font-size: 14px; margin-bottom: 1.2em; }

@@ -13108,9 +13108,11 @@ img.imgzoom-loading { cursor: wait !important; }
 	border: none;
 	margin-bottom: 1em;
 }
-/* Extra div needed because Chrome doesn't support flexbox on fieldsets :-/ */
-#signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
-#signup-form fieldset.two > div > div { width: 50%; }
+@media (min-width: 45rem) {
+	/* Extra div needed because Chrome doesn't support flexbox on fieldsets :-/ */
+	#signup-form fieldset.two > div       { display: flex; justify-content: space-between; }
+	#signup-form fieldset.two > div > div { width: 50%; }
+}
 
 form.vertical .err  { color: red; display: block; }
 form.vertical .help { font-size: 14px; margin-bottom: 1.2em; }
@@ -16029,7 +16031,7 @@ information.</p>
 					<label for="name">Site name</label>
 					<input type="text" name="site_name" id="name" maxlength="255" value="{{.Site.Name}}">
 					{{validate "site.name" .Validate}}
-					<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
+					<span class="help">Your site’s name, e.g. <em>Example Inc.</em></span>
 				</div>
 
 				<div>

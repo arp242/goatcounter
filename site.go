@@ -379,12 +379,12 @@ func (s Site) Domain() string {
 // URL to this site.
 func (s Site) URL() string {
 	if s.Cname != nil {
-		return fmt.Sprintf("http%s://%s:%s",
+		return fmt.Sprintf("http%s://%s%s",
 			map[bool]string{true: "s", false: ""}[cfg.Prod],
 			*s.Cname, cfg.Port)
 	}
 
-	return fmt.Sprintf("http%s://%s.%s:%s",
+	return fmt.Sprintf("http%s://%s.%s%s",
 		map[bool]string{true: "s", false: ""}[cfg.Prod],
 		s.Code, cfg.Domain, cfg.Port)
 }

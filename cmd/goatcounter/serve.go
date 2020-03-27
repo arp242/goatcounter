@@ -132,6 +132,10 @@ func serve() (int, error) {
 		cfg.DomainCount = cfg.DomainStatic
 	}
 
+	if cfg.Port != "" {
+		cfg.Port = ":" + cfg.Port
+	}
+
 	flagAuth(auth, &v)
 	if v.HasErrors() {
 		return 1, v
