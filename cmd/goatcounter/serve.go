@@ -129,6 +129,7 @@ func serve() (int, error) {
 			v.Domain("-domain", cfg.DomainStatic)
 		}
 		cfg.URLStatic = "//" + cfg.DomainStatic
+		cfg.DomainCount = cfg.DomainStatic
 	}
 
 	flagAuth(auth, &v)

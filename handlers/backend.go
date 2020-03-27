@@ -336,6 +336,14 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	cd := cfg.DomainCount
+	if cd == "" {
+		cd = goatcounter.MustGetSite(r.Context()).Domain()
+		if cfg.Port != "" {
+			cd += ":" + cfg.Port
+		}
+	}
+
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
 		CountDomain       string
@@ -362,11 +370,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		ShowMoreRefs      bool
 		Daily             bool
 		ForcedDaily       bool
-	}{newGlobals(w, r), cfg.DomainCount, sr, r.URL.Query().Get("hl-period"),
-		start, end, filter, pages, morePages, refs, moreRefs, total,
-		totalDisplay, browsers, totalBrowsers, subs, sizeStat, totalSize,
-		locStat, totalLoc, showMoreLoc, topRefs, showMoreRefs, daily,
-		forcedDaily})
+	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
+		filter, pages, morePages, refs, moreRefs, total, totalDisplay, browsers,
+		totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
+		showMoreLoc, topRefs, showMoreRefs, daily, forcedDaily})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x
@@ -694,11 +701,19 @@ func (h backend) code(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	cd := cfg.DomainCount
+	if cd == "" {
+		cd = goatcounter.MustGetSite(r.Context()).Domain()
+		if cfg.Port != "" {
+			cd += ":" + cfg.Port
+		}
+	}
+
 	return zhttp.Template(w, "backend_code.gohtml", struct {
 		Globals
 		SubSites    goatcounter.Sites
 		CountDomain string
-	}{newGlobals(w, r), sites, cfg.DomainCount})
+	}{newGlobals(w, r), sites, cd})
 }
 
 func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
