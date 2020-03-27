@@ -17,7 +17,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	honnef.co/go/tools v0.0.1-2020.1.3
-	zgo.at/isbot v0.0.0-20200327041831-a9388c365aa6
+	zgo.at/isbot v0.0.0-20200327072829-16f0f4beb330
 	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
 	zgo.at/utils v0.0.0-20200316145006-980e7a29f94c
 	zgo.at/zdb v0.0.0-20200316145234-74be7683e163
