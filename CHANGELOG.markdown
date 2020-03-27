@@ -5,6 +5,22 @@ This list is not comprehensive, and only lists new features and major changes.
 
 The goatcounter.com service generally runs the latest master.
 
+2020-03-27 v1.1.1
+-----------------
+
+- Small bugfix release which fixes some small issues and improves a few small
+  documentation issues. List of changes:
+  https://github.com/zgoat/goatcounter/compare/v1.1.0...v1.1.1
+
+- The biggest change is that the `saas` command no longer works (and is no
+  longer documented). It was only ever useful for hosting goatcounter.com, and
+  has a number of assumptions and hard-coded values.
+
+  If you're using `saas`, then you can migrate to `serve` by setting a custom
+  domain (`sites.cname`) for all the sites. The `serve` command should work
+  after that.
+
+
 2020-03-18 v1.1.0
 -----------------
 
