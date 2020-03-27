@@ -362,6 +362,7 @@ type Stat struct {
 type HitStat struct {
 	Count     int     `db:"count"`
 	Max       int     `db:"-"`
+	DailyMax  int     `db:"-"`
 	Path      string  `db:"path"`
 	Event     bool    `db:"event"`
 	Title     string  `db:"title"`
@@ -518,6 +519,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 
 	// Add total and max.
+	// TODO: daily max.
 	var totalDisplay int
 	{
 		for i := range hh {
@@ -529,6 +531,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 						hh[i].Max = hh[i].Stats[j].Days[k]
 					}
 				}
+				if hh[i].Stats[j].Daily > hh[i].DailyMax {
+					hh[i].DailyMax = hh[i].Stats[j].Daily
+				}
 				hh[i].Count += hh[i].Stats[j].Daily
 			}
 
@@ -536,7 +541,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			if hh[i].Max < 10 {
 				hh[i].Max = 10
 			}
+			if hh[i].DailyMax < 10 {
+				hh[i].DailyMax = 10
+			}
 		}
+
 		l = l.Since("add totals")
 	}
 

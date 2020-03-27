@@ -14533,9 +14533,13 @@ var Templates = map[string][]byte{
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
-				<span class="top max" title="Y-axis scale">{{nformat .Max $.Site}}</span>
+				{{$max := .Max}}
+				{{if $.Daily}}
+					{{$max = .DailyMax}}
+				{{end}}
+				<span class="top max" title="Y-axis scale">{{nformat $max $.Site}}</span>
 				<span class="half"></span>
-				{{bar_chart $.Context .Stats .Max $.Daily}}
+				{{bar_chart $.Context .Stats $max $.Daily}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
