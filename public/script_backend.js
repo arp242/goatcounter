@@ -152,7 +152,7 @@
 	var highlight_filter = function(s) {
 		if (s === '')
 			return;
-		$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title').each(function(_, elem) {
+		$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
 			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
 		});
 	};
