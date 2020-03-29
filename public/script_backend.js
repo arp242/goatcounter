@@ -407,7 +407,7 @@
 					break;
 			}
 
-			$('#hl-period').val(this.value);
+			$('#hl-period').val(this.value).attr('disabled', false);
 			set_period(start, end);
 		});
 

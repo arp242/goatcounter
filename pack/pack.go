@@ -12627,7 +12627,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					break;
 			}
 
-			$('#hl-period').val(this.value);
+			$('#hl-period').val(this.value).attr('disabled', false);
 			set_period(start, end);
 		});
 
@@ -14968,8 +14968,8 @@ do this 100% reliably.</p>
 	<div class="period-form-date">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-		<input type="hidden" name="showrefs" value="{{.ShowRefs}}">
-		<input type="hidden" id="hl-period" name="hl-period">
+		{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
+		<input type="hidden" id="hl-period" name="hl-period" disabled>
 
 		<div class="date">
 			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}"> –
