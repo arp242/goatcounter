@@ -391,9 +391,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 	var more bool
 	{
-		// TODO: this queries hits directly since hit_stats won't account for
-		// TZ, but this is rather slow for longer time periods. Perhaps easier
-		// to see if we can make the query faster?
 		query := `
 			select path from hits
 			where
@@ -545,6 +542,16 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			}
 		}
 
+		// We sort in SQL, but this is not always 100% correct after applying
+		// the TZ offset, so order here as well.
+		// TODO: this is still not 100% correct, as the "first 10" after
+		// applying the TZ offset may be different than the first 10 being
+		// fetched in the SQL query. There is no easy fix for that in the
+		// current design. I considered storing everything in the DB as the
+		// configured TZ, but that would make changing the TZ expensive, I'm not
+		// 100% sure yet what a good solution here is. For now, this is "good
+		// enough".
+		sort.Slice(hh, func(i, j int) bool { return hh[i].Count > hh[j].Count })
 		l = l.Since("add totals")
 	}
 
