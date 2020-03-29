@@ -667,12 +667,12 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		limit $5 offset $6`,
 		site.ID, path, start, end, limit+1, offset)
 
-	more := false
+	var more bool
 	if len(*h) > limit {
 		more = true
-		x := *h
-		x = x[:len(x)-1]
-		*h = x
+		hh := *h
+		hh = hh[:len(hh)-1]
+		*h = hh
 	}
 
 	return more, errors.Wrap(err, "RefStats.ListRefs")
@@ -728,39 +728,41 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offset int) (int, bool, error) {
 	site := MustGetSite(ctx)
 
-	query := `select ref as name, sum(count) as count from ref_stats
-		where site=? and day>=? and day<=?`
+	where := ` where site=? and day>=? and day<=?`
 	args := []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
 	if site.LinkDomain != "" {
-		query += " and ref not like ? "
+		where += " and ref not like ? "
 		args = append(args, site.LinkDomain+"%")
 	}
-	query += `
-		group by ref
-		order by count desc
-		limit ? offset ?`
-	args = append(args, limit+1, offset)
 
 	db := zdb.MustGet(ctx)
-	err := db.SelectContext(ctx, h, db.Rebind(query), args...)
+	err := db.SelectContext(ctx, h, db.Rebind(`
+		select ref as name, sum(count) as count from ref_stats`+
+		where+`
+		group by ref
+		order by count desc
+		limit ? offset ?`), append(args, limit+1, offset)...)
 	if err != nil {
-		return 0, false, errors.Wrap(err, "Stats.ListBrowsers browsers")
+		return 0, false, errors.Wrap(err, "Stats.ListRefs")
 	}
 
 	var total int
-	for _, b := range *h {
-		total += b.Count
+	err = db.GetContext(ctx, &total,
+		db.Rebind(`select coalesce(sum(count), 0) from ref_stats`+where),
+		args...)
+	if err != nil {
+		return 0, false, errors.Wrap(err, "Stats.ListRefs: total")
 	}
 
-	hasMore := false
-	hh := *h
-	if len(hh) > offset {
-		hasMore = true
+	var more bool
+	if len(*h) > limit {
+		more = true
+		hh := *h
 		hh = hh[:len(hh)-1]
+		*h = hh
 	}
-	*h = hh
 
-	return total, hasMore, nil
+	return total, more, nil
 }
 
 // List all browser statistics for the given time period.

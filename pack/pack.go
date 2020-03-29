@@ -14169,7 +14169,7 @@ create table size_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-	width          int           not null,
+	width          int            not null,
 	count          int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
@@ -14572,7 +14572,7 @@ var Templates = map[string][]byte{
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
-				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">load more</a>{{end}}
+				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
 			{{end}}</div>
 		</td>
 	</tr>
@@ -15033,7 +15033,7 @@ do this 100% reliably.</p>
 
 		<a href="#_" class="load-more" {{if not .MorePages}}style="display: none"{{end}}
 			data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&daily={{.Daily}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
-		>load more</a>
+		>Show more</a>
 	</div>
 </form>
 
@@ -15071,7 +15071,7 @@ do this 100% reliably.</p>
 		{{end}}
 	</div>
 	<div class="top-refs-chart">
-		<h2>Top referers</h2>
+		<h2>Top referrers</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}

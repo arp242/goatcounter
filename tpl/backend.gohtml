@@ -85,7 +85,7 @@
 
 		<a href="#_" class="load-more" {{if not .MorePages}}style="display: none"{{end}}
 			data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&daily={{.Daily}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
-		>load more</a>
+		>Show more</a>
 	</div>
 </form>
 
@@ -123,7 +123,7 @@
 		{{end}}
 	</div>
 	<div class="top-refs-chart">
-		<h2>Top referers</h2>
+		<h2>Top referrers</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}

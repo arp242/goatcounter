@@ -142,7 +142,7 @@ create table size_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-	width          int           not null,
+	width          int            not null,
 	count          int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
