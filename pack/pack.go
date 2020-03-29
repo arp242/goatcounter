@@ -709,6 +709,17 @@ commit;
 	insert into version values ('2020-03-18-1-json_settings');
 commit;
 `),
+	"db/migrate/pgsql/2020-03-29-1-page_cost.sql": []byte(`begin;
+	-- Note this requires a new session (i.e. server restart) to take effect.
+	DO $$
+		BEGIN
+			execute 'alter database ' || current_database() || ' set random_page_cost=2';
+		END
+	$$;
+
+	insert into version values ('2020-03-29-1-page_cost');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -13516,7 +13527,18 @@ h3 + h4 { margin-top: .3em; }
 `),
 }
 
-var SchemaPgSQL = []byte(`create table version (name varchar);
+var SchemaPgSQL = []byte(`-- This ensures PostgreSQL is quicker to use some indexes, dramatically
+-- increasing performance for the hits table (would always do a seq scan
+-- before).
+-- Random pages aren't that expensive any more, and the default of 4.0 is pretty
+-- outdated.
+DO $$
+BEGIN
+   execute 'alter database ' || current_database() || ' set random_page_cost=2';
+END
+$$;
+
+create table version (name varchar);
 insert into version values
 	('2019-10-16-1-geoip'),
 	('2019-11-08-1-refs'),
@@ -13550,7 +13572,8 @@ insert into version values
 	('2020-03-13-1-code-moved'),
 	('2020-03-16-1-size_stats'),
 	('2020-03-16-2-rm-old'),
-	('2020-03-18-1-json_settings');
+	('2020-03-18-1-json_settings'),
+	('2020-03-29-1-page_cost');
 
 create table sites (
 	id             serial         primary key,
