@@ -709,7 +709,7 @@ commit;
 	insert into version values ('2020-03-18-1-json_settings');
 commit;
 `),
-<<<<<<< HEAD
+	"db/migrate/pgsql/2020-03-27-1-isbot.sql": []byte(``),
 	"db/migrate/pgsql/2020-03-29-1-page_cost.sql": []byte(`begin;
 	-- Note this requires a new session (i.e. server restart) to take effect.
 	DO $$
@@ -721,9 +721,6 @@ commit;
 	insert into version values ('2020-03-29-1-page_cost');
 commit;
 `),
-=======
-	"db/migrate/pgsql/2020-03-27-1-isbot.sql": []byte(``),
->>>>>>> da96edc... Migrate existing stuff
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -13578,11 +13575,8 @@ insert into version values
 	('2020-03-16-1-size_stats'),
 	('2020-03-16-2-rm-old'),
 	('2020-03-18-1-json_settings'),
-<<<<<<< HEAD
-	('2020-03-29-1-page_cost');
-=======
+	('2020-03-29-1-page_cost'),
 	('2020-03-27-1-isbot');
->>>>>>> da96edc... Migrate existing stuff
 
 create table sites (
 	id             serial         primary key,

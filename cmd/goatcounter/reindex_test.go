@@ -13,9 +13,7 @@ func TestReindex(t *testing.T) {
 	ctx, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "", []string{"reindex",
-		"-confirm",
-		"-db", dbc})
+	out, code := run(t, "", []string{"reindex", "-db", dbc})
 	if code != 0 {
 		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
 	}

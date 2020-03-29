@@ -98,7 +98,7 @@ func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 	defer os.Chdir(cwd)
 
 	// Reset flags in case of -count 2
-	CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 	os.Args = append([]string{"goatcounter"}, args...)
 
 	// Swap out stdout/stderr.

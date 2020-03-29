@@ -76,7 +76,7 @@ Advanced commands:
 See "help <command>" for more details for the command.
 `
 
-var CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+var CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 
 func main() {
 	cfg.Version = version
