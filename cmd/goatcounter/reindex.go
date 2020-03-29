@@ -182,7 +182,6 @@ func clearDay(db *sqlx.DB, table, day string, site int64) {
 		where += fmt.Sprintf(" and site=%d ", site)
 	}
 
-	// TODO: use day, site
 	switch table {
 	case "hit_stats":
 		db.MustExecContext(ctx, `delete from hit_stats`+where)
