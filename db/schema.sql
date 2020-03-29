@@ -24,7 +24,8 @@ insert into version values
 	('2020-02-24-1-ref_stats'),
 	('2020-03-03-1-flag'),
 	('2020-03-16-1-size_stats'),
-	('2020-03-16-2-rm-old');
+	('2020-03-16-2-rm-old'),
+	('2020-03-27-1-isbot');
 
 create table sites (
 	id             integer        primary key autoincrement,

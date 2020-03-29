@@ -44,7 +44,8 @@ insert into version values
 	('2020-03-16-1-size_stats'),
 	('2020-03-16-2-rm-old'),
 	('2020-03-18-1-json_settings'),
-	('2020-03-29-1-page_cost');
+	('2020-03-29-1-page_cost'),
+	('2020-03-27-1-isbot');
 
 create table sites (
 	id             serial         primary key,

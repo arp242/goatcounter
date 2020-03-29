@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
@@ -22,11 +23,23 @@ import (
 const usageReindex = `
 GoatCounter keeps several *_stats tables so it's less expensive to generate
 charts. These are normally updated automatically in the background. This command
-recreates these tables.
-
-This is mostly for upgrades; you shouldn't have to run this in normal usage.
+recreates these tables. This is mostly for upgrades; you shouldn't have to run
+this in normal usage.
 
 This command may take a while to run on larger sites.
+
+Avoiding race conditions
+
+  You need to be a little bit careful to avoid race conditions with this. It's
+  fine to update older data since goatcounter never writes to it, but updating
+  the current day may result in:
+
+  1. Goatcounter reads data from DB, processes it, updates the DB.
+  2. In the meanwhile reindex updated the data in the DB.
+
+  For this reason, GoatCounter will only update up to yesterday by default; the
+  process to update everything is wait a day and then run it again with -since
+  <yesterday>.
 
 Flags:
 
@@ -36,10 +49,14 @@ Flags:
 
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
-  -confirm       Skip the 10-second safety check.
+  -pause         Number of seconds to pause after each day, to give the server
+                 some breathing room on large sites. Default: 0.
 
   -since         Reindex only statistics since this date instead of all of them;
-                 as year-month-day.
+                 as year-month-day in UTC.
+
+  -to            Reindex only statistics up to and including this day; as
+                 year-month-day in UTC. The default is yesterday.
 
   -table         Which tables to reindex: hit_stats, browser_stats,
                  location_stats, ref_stats, size_stats, or all (default).
@@ -50,9 +67,10 @@ Flags:
 func reindex() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
-	confirm := CommandLine.Bool("confirm", false, "")
 	since := CommandLine.String("since", "", "")
+	to := CommandLine.String("to", "", "")
 	table := CommandLine.String("table", "all", "")
+	pause := CommandLine.Int("pause", 0, "")
 	var site int64
 	CommandLine.Int64Var(&site, "site", 0, "")
 	err := CommandLine.Parse(os.Args[2:])
@@ -62,6 +80,7 @@ func reindex() (int, error) {
 
 	v := zvalidate.New()
 	firstDay := v.Date("-since", *since, "2006-01-02")
+	lastDay := v.Date("-to", *to, "2006-01-02")
 	v.Include("-table", *table, []string{"hit_stats", "browser_stats",
 		"location_stats", "ref_stats", "size_stats", "all"})
 	if v.HasErrors() {
@@ -75,34 +94,16 @@ func reindex() (int, error) {
 		return 2, err
 	}
 	defer db.Close()
-
-	// TODO: would be best to signal GoatCounter to not persist anything from
-	// memstore instead of telling people to stop GoatCounter.
-	// OTOH ... this shouldn't be needed very often.
-	if *table == "all" {
-		fmt.Fprintln(stdout, "This will reindex all the *_stats tables; it's recommended to stop GoatCounter.")
-	}
-	fmt.Fprintln(stdout, "This may take a few minutes depending on your data size/computer speed;")
-	fmt.Fprintln(stdout, "you can use e.g. Varnish or some other proxy to send requests to /count later.")
-	if !*confirm {
-		fmt.Fprintln(stdout, "Continuing in 10 seconds; press ^C to abort. Use -confirm to skip this.")
-		time.Sleep(10 * time.Second)
-	}
-	fmt.Fprintln(stdout, "")
-
 	ctx := zdb.With(context.Background(), db)
 
-	where := ""
-	if since != nil && *since != "" {
-		where = fmt.Sprintf(" where day >= '%s' ", *since)
-	} else {
-		siteWhere := ""
+	if *since == "" {
+		w := ""
 		if site > 0 {
-			siteWhere = fmt.Sprintf(" where site=%d ", site)
+			w = fmt.Sprintf(" where site=%d ", site)
 		}
 
 		var first string
-		err := db.GetContext(ctx, &first, `select created_at from hits `+siteWhere+` order by created_at asc limit 1`)
+		err := db.GetContext(ctx, &first, `select created_at from hits `+w+` order by created_at asc limit 1`)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return 0, nil
@@ -115,17 +116,73 @@ func reindex() (int, error) {
 			return 1, err
 		}
 	}
-
-	if site > 0 {
-		if where == "" {
-			where += " where "
-		} else {
-			where += " and "
-		}
-		where += fmt.Sprintf(" site=%d ", site)
+	if *to == "" {
+		lastDay = time.Now().UTC().Add(-24 * time.Hour)
 	}
 
-	switch *table {
+	var allpaths []struct {
+		Site int64
+		Path string
+	}
+	err = zdb.MustGet(ctx).SelectContext(ctx, &allpaths,
+		`select site, path from hits group by site, path`)
+	if err != nil {
+		return 1, err
+	}
+
+	// Insert paths.
+	query := `select * from hits where created_at >= $1 and created_at <= $2`
+	if site > 0 {
+		query += fmt.Sprintf(" and site=%d ", site)
+	}
+
+	var pauses time.Duration
+	if *pause > 0 {
+		pauses = time.Duration(*pause) * time.Second
+	}
+
+	now := goatcounter.Now()
+	now = time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
+	day := firstDay
+	for {
+		var hits []goatcounter.Hit
+		err := db.SelectContext(ctx, &hits, query, dayStart(day), dayEnd(day))
+		if err != nil {
+			return 1, err
+		}
+
+		fmt.Fprintf(stdout, "\r\x1b[0K%s → %d", day.Format("2006-01-02"), len(hits))
+
+		clearDay(db, *table, day.Format("2006-01-02"), site)
+
+		err = cron.ReindexStats(ctx, hits, *table)
+		if err != nil {
+			return 1, err
+		}
+
+		day = day.Add(24 * time.Hour)
+		if day.After(now) || day.After(lastDay) {
+			break
+		}
+
+		if pauses > 0 {
+			time.Sleep(pauses)
+		}
+	}
+
+	fmt.Fprintln(stdout, "")
+	return 0, nil
+}
+
+func clearDay(db *sqlx.DB, table, day string, site int64) {
+	ctx := context.Background()
+
+	where := fmt.Sprintf(" where day = '%s'", day)
+	if site > 0 {
+		where += fmt.Sprintf(" and site=%d ", site)
+	}
+
+	switch table {
 	case "hit_stats":
 		db.MustExecContext(ctx, `delete from hit_stats`+where)
 	case "browser_stats":
@@ -143,48 +200,6 @@ func reindex() (int, error) {
 		db.MustExecContext(ctx, `delete from ref_stats`+where)
 		db.MustExecContext(ctx, `delete from size_stats`+where)
 	}
-
-	// Prefill every day with empty entry.
-	var allpaths []struct {
-		Site int64
-		Path string
-	}
-	err = zdb.MustGet(ctx).SelectContext(ctx, &allpaths,
-		`select site, path from hits group by site, path`)
-	if err != nil {
-		return 1, err
-	}
-
-	// Insert paths.
-	query := `select * from hits where created_at >= $1 and created_at <= $2`
-	if site > 0 {
-		query += fmt.Sprintf(" and site=%d ", site)
-	}
-
-	now := goatcounter.Now()
-	day := firstDay
-	for {
-		var hits []goatcounter.Hit
-		err := db.SelectContext(ctx, &hits, query, dayStart(day), dayEnd(day))
-		if err != nil {
-			return 1, err
-		}
-
-		fmt.Fprintf(stdout, "\r\x1b[0K%s → %d", day.Format("2006-01-02"), len(hits))
-
-		err = cron.ReindexStats(ctx, hits, *table)
-		if err != nil {
-			return 1, err
-		}
-
-		day = day.Add(24 * time.Hour)
-		if day.After(now) {
-			break
-		}
-	}
-	fmt.Fprintln(stdout, "")
-
-	return 0, nil
 }
 
 func dayStart(t time.Time) string { return t.Format("2006-01-02") + " 00:00:00" }

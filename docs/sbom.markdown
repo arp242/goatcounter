@@ -30,6 +30,7 @@ Backend
 | golang.org/x/sync                  | v0.0.0-20190911185100-cd5d95a43a6e | BSD     |
 | golang.org/x/sys                   | v0.0.0-20191110163157-d32e6e3b99c4 | BSD     |
 | golang.org/x/text                  | v0.3.0                             | BSD     |
+| zgo.at/isbot                       | -                                  | MIT     |
 | zgo.at/tz                          | v0.0.0-20200203090654-9231354ff19a | MIT     |
 | zgo.at/utils                       | v1.3.1                             | MIT     |
 | zgo.at/zdb                         | v0.0.0-20200114054604-cb5410b595af | MIT     |

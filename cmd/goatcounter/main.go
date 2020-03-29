@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -15,9 +16,11 @@ import (
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/errorutil"
 	"zgo.at/utils/runtimeutil"
+	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
@@ -73,7 +76,7 @@ Advanced commands:
 See "help <command>" for more details for the command.
 `
 
-var CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+var CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 
 func main() {
 	cfg.Version = version
@@ -160,7 +163,55 @@ func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) 
 	if create {
 		opts.Schema = map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL]
 	}
-	return zdb.Connect(opts)
+	db, err := zdb.Connect(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(migrate) > 0 {
+		err = runGoMigrations(db)
+		return db, err
+	}
+	return db, nil
+}
+
+var goMigrations = map[string]func(zdb.DB) error{
+	"2020-03-27-1-isbot": gomig.Migrate_20200327_1_isbot,
+}
+
+func runGoMigrations(db zdb.DB) error {
+	var ran []string
+	err := db.SelectContext(context.Background(), &ran,
+		`select name from version order by name asc`)
+	if err != nil {
+		return fmt.Errorf("runGoMigrations: %w", err)
+	}
+
+	ctx := zdb.With(context.Background(), db)
+
+	for k, f := range goMigrations {
+		if sliceutil.InStringSlice(ran, k) {
+			continue
+		}
+		zlog.Printf("running Go migration %q", k)
+
+		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+			err := f(db)
+			if err != nil {
+				return fmt.Errorf("runGoMigrations: running migration %q: %w", k, err)
+			}
+
+			_, err = db.ExecContext(context.Background(), `insert into version values ($1)`, k)
+			if err != nil {
+				return fmt.Errorf("runGoMigrations: update version: %w", err)
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func getVersion() string {

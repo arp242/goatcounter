@@ -31,6 +31,9 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
+			if h.Bot > 0 {
+				continue
+			}
 
 			var width int
 			if len(h.Size) > 0 {

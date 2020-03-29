@@ -34,6 +34,10 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
+			if h.Bot > 0 {
+				continue
+			}
+
 			browser, version := getBrowser(h.Browser)
 			if browser == "" {
 				continue
