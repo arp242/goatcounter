@@ -11,6 +11,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/monoculum/formam v0.0.0-20200316225015-49f0baed3a1b
 	github.com/mssola/user_agent v0.5.1
+	github.com/pkg/errors v0.9.1
 	github.com/teamwork/reload v1.3.1
 	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e

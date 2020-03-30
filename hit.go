@@ -325,11 +325,41 @@ func (h *Hit) Validate(ctx context.Context) error {
 
 type Hits []Hit
 
-// List all hits for a site.
-func (h *Hits) List(ctx context.Context) error {
+// TestList all hits for a site. It's only intended for tests, since getting a
+// full list of all hits without constraints is not a good idea on production
+// sites.
+func (h *Hits) TestList(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, h,
 		`select * from hits where site=$1 and bot=0`, MustGetSite(ctx).ID),
 		"Hits.List")
+}
+
+// List all hits for a site, including bot requests.
+func (h *Hits) List(ctx context.Context, limit, paginate int64) (int64, error) {
+	if limit == 0 || limit > 5000 {
+		limit = 5000
+	}
+
+	err := zdb.MustGet(ctx).SelectContext(ctx, h,
+		`select * from hits where site=$1 and id>$2 order by id asc limit $3`,
+		MustGetSite(ctx).ID, paginate, limit)
+
+	var last int64
+	if len(*h) > 0 {
+		hh := *h
+		last = hh[len(hh)-1].ID
+	}
+
+	return last, errors.Wrap(err, "Hits.List")
+}
+
+// Count the number of pageviews.
+func (h *Hits) Count(ctx context.Context) (int64, error) {
+	var c int64
+	err := zdb.MustGet(ctx).GetContext(ctx, &c,
+		`select count(*) from hits where site=$1 and bot=0`,
+		MustGetSite(ctx).ID)
+	return c, errors.Wrap(err, "Hits.List")
 }
 
 // Purge all paths matching the like pattern.
@@ -354,8 +384,8 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 		// Delete all other stats as well if there's nothing left: not much use
 		// for it.
 		var check Hits
-		err = check.List(ctx)
-		if err == nil && len(check) == 0 {
+		n, err := check.Count(ctx)
+		if err == nil && n == 0 {
 			for _, t := range statTables {
 				_, err := tx.ExecContext(ctx, `delete from `+t+` where site=$1`, site)
 				if err != nil {

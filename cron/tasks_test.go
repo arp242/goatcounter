@@ -44,7 +44,7 @@ func TestDataRetention(t *testing.T) {
 	}
 
 	var hits goatcounter.Hits
-	err = hits.List(ctx)
+	err = hits.TestList(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

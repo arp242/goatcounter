@@ -33,6 +33,8 @@ github.com/monoculum/formam v0.0.0-20200316225015-49f0baed3a1b h1:BvSZE/bUSz180c
 github.com/monoculum/formam v0.0.0-20200316225015-49f0baed3a1b/go.mod h1:JKa2av1XVkGjhxdLS59nDoXa2JpmIHpnURWNbzCtXtc=
 github.com/mssola/user_agent v0.5.1 h1:sJUCUozh+j7c0dR2zMIUX5aJjoY/TNo/gXiNujoH5oY=
 github.com/mssola/user_agent v0.5.1/go.mod h1:TTPno8LPY3wAIEKRpAtkdMT0f8SE24pLRGPahjCH4uw=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/teamwork/reload v1.3.1 h1:CLsrqsjSb3Z1qY1ZyiNg2+Jj+6vqngwxQklcaiSXN1E=
 github.com/teamwork/reload v1.3.1/go.mod h1:aSIac/gCJQTnFONKQrSo+Mm1GdVcvH3G81/4UtzoD2A=

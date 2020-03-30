@@ -388,7 +388,7 @@ func TestBackendPurge(t *testing.T) {
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 			var hits goatcounter.Hits
-			err := hits.List(r.Context())
+			err := hits.TestList(r.Context())
 			if err != nil {
 				t.Fatal(err)
 			}
