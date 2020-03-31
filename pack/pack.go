@@ -723,6 +723,12 @@ commit;
 	);
 	create unique index "sessions#site#hash" on sessions(site, hash);
 
+	create table session_salts (
+		key         varchar,
+		salt        varchar,
+		created_at  timestamp
+	);
+
 	alter table hits add column session int default null;
 	alter table hits add column started_session int default 0;
 

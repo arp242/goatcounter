@@ -90,7 +90,7 @@ conversion rates or other slightly more advanced statistics.
 GoatCounter's solution
 ----------------------
 
-- Create a server-side hash: hash(site.UUIDv4, User-Agent, IP, salt) to identify
+- Create a server-side hash: hash(site.ID, User-Agent, IP, salt) to identify
   the client without storing any personal information directly.
 
 - An hour after a hash is last seen, the hash is removed. This ensures we can
@@ -140,12 +140,13 @@ We can store the data in a new `session` table and link that to every hit:
 The salts are used from memory, but also stored in the DB so it will survive
 server restarts:
 
-	create_table session_salts (
-		key   varchar,
-		salt  varchar
+	create table session_salts (
+		key         int,
+		salt        varchar,
+		created_at  timestamp
 	);
-	insert into session_salts ('previous', random());
-	insert into session_salts ('current', random());
+	insert into session_salts (0, random());  -- Today
+	insert into session_salts (1, random());  -- Yesterday
 
 To efficiently query this a new `stats_unique` or `count_unique` column can be
 added to all the `*_stats` tables, which is a copy of the existing columns but

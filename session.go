@@ -6,7 +6,10 @@ package goatcounter
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"fmt"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -24,13 +27,44 @@ type Session struct {
 	LastSeen  time.Time `db:"last_seen"`
 }
 
+type salt struct {
+	mu        sync.Mutex
+	today     string
+	yesterday string
+}
+
+var Salts salt
+
+func (s *salt) Set(today, yesterday string) {
+	s.mu.Lock()
+	s.today = today
+	s.yesterday = yesterday
+	s.mu.Unlock()
+}
+
+func (s *salt) Get() (today, yesterday string) {
+	return s.today, s.yesterday
+}
+
 // GetOrCreate gets the session by hash, creating a new one if it doesn't exist
 // yet.
-func (s *Session) GetOrCreate(ctx context.Context, hash []byte) (bool, error) {
+func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 
+	td, yd := Salts.Get()
+
+	h := sha256.New()
+	h.Write([]byte(fmt.Sprintf("%d%s%s%s", site.ID, ua, remoteAddr, td)))
+	hash := h.Sum(nil)
+
 	err := db.GetContext(ctx, s, `select * from sessions where site=$1 and hash=$2`, site.ID, hash)
+	if errors.Is(err, sql.ErrNoRows) { // Try yesterday's salt.
+		h := sha256.New()
+		h.Write([]byte(fmt.Sprintf("%d%s%s%s", site.ID, ua, remoteAddr, yd)))
+	}
+
+	err = db.GetContext(ctx, s, `select * from sessions where site=$1 and hash=$2`, site.ID, hash)
 	switch err {
 	default:
 		return false, errors.Wrap(err, "Session.GetOrCreate")
