@@ -14684,11 +14684,13 @@ about this if you call <code>count()</code> manually.</p>
 <code>undefined</code> if the parameter doesn’t exist. This is useful if you
 want to get the <code>referrer</code> from the URL:</p>
 
-<pre>window.goatcounter = {
+<pre>&lt;script&gt;
 	referrer: function() {
 		return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
 	}
-};</pre>
+};
+&lt;/script&gt;
+{{template "code" .}}</pre>
 
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
