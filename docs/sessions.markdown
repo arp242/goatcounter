@@ -90,16 +90,40 @@ conversion rates or other slightly more advanced statistics.
 GoatCounter's solution
 ----------------------
 
-- Create a server-side hash: hash(site.ID, User-Agent, IP) to identify the
-  client without storing any personal information directly, and the site.ID
-  ensures users aren't identifiable across sites.
+- Create a server-side hash: hash(site.UUIDv4, User-Agent, IP, salt) to identify
+  the client without storing any personal information directly.
 
-- An hour after a hash is last seen, the hash is replaced with a random number.
-  This ensures we can track the current browsing session only, without some
-  arbitrary cut-off at midnight.
+- An hour after a hash is last seen, the hash is removed. This ensures we can
+  track the current browsing session only.
 
-- If a user visits the next day, they will have the same hash, but the system
+- The salt is rotated daily on a sliding schedule; when a new pageview comes in
+  we try to find an existing session based on the current and previous salt.
+  This ensures there isn't some arbitrary cut-off time when the salt is rotated.
+  After 2 days, the salt is permanently deleted.
+
+- If a user visits the next time, they will have the same hash, but the system
   has forgotten about it by then.
+
+I considered generating the ID on the client side as a session cookie or
+localStorage,  but this is tricky due to the ePrivacy directive, which requires
+that *"users are provided with clear and precise information in accordance with
+Directive 95/46/EC about the purposes of cookies"* and should be offered the
+*"right to refuse"*, making exceptions only for data that is *"strictly
+necessary in order to provide a [..] service explicitly requested by the
+subscriber or user"*.
+
+Ironically, using a cookie would not only make things simpler but also *more*
+privacy friendly, as there would be no salt stored on the server, and the user
+has more control. It is what it is 🤷
+
+I'm not super keen on adding the IP address in the hash, as IP addresses are
+quite ephemeral; think about moving from WiFi to 4G for example, or ISPs who
+recycle IP addresses a lot. There's no clear alternatives as far as I know
+though, but it may be replaced with something else in the future.
+
+Fathom's solution with multiple hashes seems rather complex, without any clear
+advantages; using just a single hash like this already won't store more
+information than before, and the hash is stored temporarily.
 
 ### Technically
 
@@ -112,6 +136,16 @@ We can store the data in a new `session` table and link that to every hit:
 		last_seen    datetime
 	);
 	alter table hits add column session int default null;
+
+The salts are used from memory, but also stored in the DB so it will survive
+server restarts:
+
+	create_table session_salts (
+		key   varchar,
+		salt  varchar
+	);
+	insert into session_salts ('previous', random());
+	insert into session_salts ('current', random());
 
 To efficiently query this a new `stats_unique` or `count_unique` column can be
 added to all the `*_stats` tables, which is a copy of the existing columns but

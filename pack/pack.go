@@ -16053,7 +16053,7 @@ sub {
 
 <h1>GoatCounter privacy policy</h1>
 
-<p><em>8 November 2019</em></p>
+<p><em>1 April 2020</em></p>
 
 <p>The following information is collected:</p>
 <ul>
@@ -16062,12 +16062,14 @@ sub {
 	<li><code>User-Agent</code> header.</li>
 	<li>Screen size.</li>
 	<li>Country name based on IP address.</li>
+	<li>A hash of the IP address, User-Agent, and random number.</li>
 </ul>
 
-<p>No personal information (such as IP address) is collected. 
-	Visitors are <em>not</em> tracked by using e.g. persistent cookies; it is
-	virtually impossible to tie any of the collected information to a
-	person.</p>
+<p>No personal information (such as IP address) is collected; a hash of the IP
+address, User-Agent, and a daily changing random number (“salt”) is stored for
+24 hours at the most to identify unique visitors.</p>
+
+<p>There is no information stored in the browser with e.g. cookies.</p>
 
 <h2 id="gdpr">GDPR</h2>
 <p>GoatCounter does not collect data which can be used to identify a person, and
