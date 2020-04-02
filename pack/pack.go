@@ -14614,7 +14614,7 @@ Or use one of the ready-made integrations:
 <code>Content-Security-Policy</code>:</p>
 
 <pre>
-script-src  https://{{.StaticDomain}}
+script-src  https://{{.CountDomain}}
 img-src     {{.Site.URL}}/count
 </pre>
 
