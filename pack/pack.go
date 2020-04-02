@@ -15854,7 +15854,7 @@ sub {
 <div id="home-top">
 	<h1><img alt="" src="{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
 	<div id="home-intro">
-		<p><span>Simple</span> web statistics. <span>No tracking</span> of personal data.</p>
+		<p><span>Simple</span> web analytics. <span>No tracking</span> of personal data.</p>
 	</div>
 
 	<div id="home-demo">
