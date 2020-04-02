@@ -314,7 +314,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l = l.Since("locStat.List")
 
 	var topRefs goatcounter.Stats
-	_, showMoreRefs, err := topRefs.ListRefs(r.Context(), start, end, 10, 0)
+	totalTopRefs, showMoreRefs, err := topRefs.ListRefs(r.Context(), start, end, 10, 0)
 	if err != nil {
 		return err
 	}
@@ -368,13 +368,14 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TotalLocation     int
 		ShowMoreLocations bool
 		TopRefs           goatcounter.Stats
+		TotalTopRefs      int
 		ShowMoreRefs      bool
 		Daily             bool
 		ForcedDaily       bool
 	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
 		filter, pages, morePages, refs, moreRefs, total, totalDisplay, browsers,
 		totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
-		showMoreLoc, topRefs, showMoreRefs, daily, forcedDaily})
+		showMoreLoc, topRefs, totalTopRefs, showMoreRefs, daily, forcedDaily})
 	l = l.Since("zhttp.Template")
 	l.FieldsSince().Print("")
 	return x

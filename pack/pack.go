@@ -15078,7 +15078,7 @@ do this 100% reliably.</p>
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalHits 0 0 true false}}</div>
+				<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalTopRefs 0 0 true false}}</div>
 			</div>
 			{{if .ShowMoreRefs}}<a href="#" class="show-more">Show more</a>{{end}}
 		{{end}}

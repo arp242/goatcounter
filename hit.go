@@ -663,7 +663,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 			created_at >= $3 and
 			created_at <= $4
 		group by ref, ref_scheme
-		order by count(*) desc, path desc
+		order by count(ref) desc, path desc
 		limit $5 offset $6`,
 		site.ID, path, start, end, limit+1, offset)
 
@@ -724,7 +724,11 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 	return total, errors.Wrap(err, "HitStats.ByRef")
 }
 
-// List all ref statistics for the given time period.
+// List all ref statistics for the given time period, excluding referrals from
+// the configured LinkDomain.
+//
+// The returned count is the count without LinkDomain, and is different from the
+// total number of hits.
 func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offset int) (int, bool, error) {
 	site := MustGetSite(ctx)
 
