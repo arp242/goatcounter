@@ -12619,7 +12619,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						start.setDate(start.getDate() - start.getDay());
 					else
 						start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
-					end.setDate(start.getDate() + 6);
+					end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
 					break;
 				case 'month-cur':
 					start.setDate(1);
