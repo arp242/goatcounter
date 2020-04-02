@@ -1,8 +1,8 @@
 begin;
 	create table sessions (
-		id             serial         primary key,
+		id             integer        primary key autoincrement,
 		site           integer        not null                 check(site > 0),
-		hash           bytea          null,
+		hash           blob           null,
 		created_at     timestamp      not null,
 		last_seen      timestamp      not null,
 
@@ -11,7 +11,7 @@ begin;
 	create unique index "sessions#site#hash" on sessions(site, hash);
 
 	create table session_salts (
-		key         int        not null,
+		previous    int        not null,
 		salt        varchar    not null,
 		created_at  timestamp  not null
 	);

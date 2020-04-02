@@ -710,8 +710,6 @@ commit;
 commit;
 `),
 	"db/migrate/pgsql/2020-03-24-1-sessions.sql": []byte(`begin;
-	create extension pgcrypto;
-
 	create table sessions (
 		id             serial         primary key,
 		site           integer        not null                 check(site > 0),
@@ -724,9 +722,9 @@ commit;
 	create unique index "sessions#site#hash" on sessions(site, hash);
 
 	create table session_salts (
-		key         varchar,
-		salt        varchar,
-		created_at  timestamp
+		previous    int        not null,
+		salt        varchar    not null,
+		created_at  timestamp  not null
 	);
 
 	alter table hits add column session int default null;
@@ -1513,15 +1511,21 @@ commit;
 `),
 	"db/migrate/sqlite/2020-03-24-1-sessions.sql": []byte(`begin;
 	create table sessions (
-		id             serial         primary key,
+		id             integer        primary key autoincrement,
 		site           integer        not null                 check(site > 0),
-		hash           bytea          null,
+		hash           blob           null,
 		created_at     timestamp      not null,
 		last_seen      timestamp      not null,
 
 		foreign key (site) references sites(id) on delete restrict on update restrict
 	);
 	create unique index "sessions#site#hash" on sessions(site, hash);
+
+	create table session_salts (
+		previous    int        not null,
+		salt        varchar    not null,
+		created_at  timestamp  not null
+	);
 
 	alter table hits add column session int default null;
 	alter table hits add column started_session int default 0;

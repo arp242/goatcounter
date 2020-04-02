@@ -230,6 +230,7 @@ func (h Hit) String() string {
 	t := tabwriter.NewWriter(b, 8, 8, 2, ' ', 0)
 	fmt.Fprintf(t, "ID\t%d\n", h.ID)
 	fmt.Fprintf(t, "Site\t%d\n", h.Site)
+	fmt.Fprintf(t, "Session\t%d\n", h.Session)
 	fmt.Fprintf(t, "Path\t%q\n", h.Path)
 	fmt.Fprintf(t, "Title\t%q\n", h.Title)
 	fmt.Fprintf(t, "Ref\t%q\n", h.Ref)
@@ -261,6 +262,9 @@ func (h Hit) String() string {
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
 	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set from memstore.
+		if h.Site != s.ID {
+			fmt.Println("SET SITE", h.Site, s.ID)
+		}
 		h.Site = s.ID
 	}
 

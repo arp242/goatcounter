@@ -1,6 +1,4 @@
 begin;
-	create extension pgcrypto;
-
 	create table sessions (
 		id             serial         primary key,
 		site           integer        not null                 check(site > 0),
@@ -13,7 +11,7 @@ begin;
 	create unique index "sessions#site#hash" on sessions(site, hash);
 
 	create table session_salts (
-		key         int        not null,
+		previous    int        not null,
 		salt        varchar    not null,
 		created_at  timestamp  not null
 	);

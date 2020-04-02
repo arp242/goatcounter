@@ -32,7 +32,7 @@ var tasks = []task{
 	{DataRetention, 1 * time.Hour},
 	{renewACME, 2 * time.Hour},
 	{vacuumDeleted, 12 * time.Hour},
-	{updateSalts, 1 * time.Hour},
+	{goatcounter.Salts.Refresh, 1 * time.Hour},
 	{clearSessions, 1 * time.Minute},
 }
 

@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
+	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
@@ -145,7 +146,9 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID 
 	u := goatcounter.User{Site: siteID, Name: "Example", Email: "test@example.com"}
 	err := u.Insert(r.Context())
 	if err != nil {
-		t.Fatal(err)
+		if guru.Code(err) != 400 {
+			t.Fatal(err)
+		}
 	}
 
 	// Login user
