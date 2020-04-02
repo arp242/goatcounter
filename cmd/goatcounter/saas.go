@@ -64,7 +64,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	CommandLine.BoolVar(&dev, "dev", false, "")
 	automigrate := CommandLine.Bool("automigrate", false, "")
 	listen := CommandLine.String("listen", "localhost:8081", "")
-	smtp := CommandLine.String("smtp", "stdout", "")
+	CommandLine.StringVar(&zmail.SMTP, "smtp", "stdout", "")
 	tls := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
 	auth := CommandLine.String("auth", "email", "")
@@ -74,13 +74,12 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	cfg.Prod = !dev
 	zhttp.LogUnknownFields = dev
 	zhttp.CookieSecure = !dev
-	zmail.SMTP = *smtp
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
 
 	flagErrors(*errors, v)
-	//v.URL("-smtp", smtp) // TODO smtp://localhost fails (1 domain label)
+	v.Hostname("-smtp", zmail.SMTP)
 
 	return *dbConnect, dev, *automigrate, *listen, *tls, *auth, err
 }
@@ -240,7 +239,9 @@ func flagAuth(auth string, v *zvalidate.Validator) {
 
 		cfg.LoginFrom = from
 
-		v.Email("-auth", from, fmt.Sprintf("%q is not a valid email address", from))
+		if zmail.SMTP != "stdout" {
+			v.Email("-auth", from, fmt.Sprintf("%q is not a valid email address", from))
+		}
 	}
 }
 
