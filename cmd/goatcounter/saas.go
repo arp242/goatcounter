@@ -79,7 +79,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	}
 
 	flagErrors(*errors, v)
-	v.Hostname("-smtp", zmail.SMTP)
+	//v.Hostname("-smtp", zmail.SMTP)
 
 	return *dbConnect, dev, *automigrate, *listen, *tls, *auth, err
 }
