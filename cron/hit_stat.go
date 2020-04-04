@@ -60,7 +60,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			hour, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
 			v.count[hour] += 1
 			if h.StartedSession {
-				v.count[hour] += 1
+				v.countUnique[hour] += 1
 			}
 			grouped[k] = v
 		}
@@ -72,7 +72,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count),
 				jsonutil.MustMarshal(v.countUnique))
 		}
-		return ins.Finish()
+		return errors.Wrap(ins.Finish(), "updateHitStats")
 	})
 }
 

@@ -129,10 +129,11 @@ func TestBackendCount(t *testing.T) {
 				t.Errorf("Validate failed after get: %s", err)
 			}
 
+			one := int64(1)
 			tt.hit.ID = h.ID
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
-			tt.hit.Session = 1 // Should all be the same session.
+			tt.hit.Session = &one // Should all be the same session.
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
 			if d := ztest.Diff(h.String(), tt.hit.String()); d != "" {
 				t.Error(d)
@@ -199,7 +200,7 @@ func TestBackendCountSessions(t *testing.T) {
 	checkSess := func(hits goatcounter.Hits, want []int) {
 		var got []int
 		for _, h := range hits {
-			got = append(got, int(h.Session))
+			got = append(got, int(*h.Session))
 		}
 
 		// TODO: test in order.
@@ -706,9 +707,10 @@ func TestBackendBarChart(t *testing.T) {
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
 		})
+		one := int64(1)
 		gctest.StoreHits(ctx, t, goatcounter.Hit{
 			Site:      site.ID,
-			Session:   1,
+			Session:   &one,
 			CreatedAt: tt.hit.UTC(),
 			Path:      "/a",
 		})

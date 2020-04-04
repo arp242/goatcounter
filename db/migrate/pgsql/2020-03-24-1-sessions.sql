@@ -19,7 +19,7 @@ begin;
 	alter table hits add column session int default null;
 	alter table hits add column started_session int default 0;
 
-	alter table hit_stats      add column stats_unique varchar not null default '';
+	alter table hit_stats      add column stats_unique varchar not null default '[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]';
 	alter table browser_stats  add column count_unique int not null default 0;
 	alter table location_stats add column count_unique int not null default 0;
 	alter table ref_stats      add column count_unique int not null default 0;

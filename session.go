@@ -175,6 +175,7 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool,
 			return true, errors.Wrap(err, "Session.GetOrCreate")
 		}
 
+		// SQLite
 		res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
 		if err != nil {
 			return true, errors.Wrap(err, "Session.GetOrCreate")
