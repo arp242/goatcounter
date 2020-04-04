@@ -6,7 +6,6 @@ package cron
 
 import (
 	"context"
-	"database/sql"
 	"strings"
 
 	"github.com/mssola/user_agent"
@@ -27,10 +26,11 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + browser.
 		type gt struct {
-			count   int
-			day     string
-			browser string
-			version string
+			count       int
+			countUnique int
+			day         string
+			browser     string
+			version     string
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -51,21 +51,24 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.browser = browser
 				v.version = version
 				var err error
-				v.count, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
+				v.count, v.countUnique, err = existingBrowserStats(ctx, tx, h.Site, day, v.browser, v.version)
 				if err != nil {
 					return err
 				}
 			}
 
 			v.count += 1
+			if h.StartedSession {
+				v.countUnique += 1
+			}
 			grouped[k] = v
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, tx,
-			"browser_stats", []string{"site", "day", "browser", "version", "count"})
+			"browser_stats", []string{"site", "day", "browser", "version", "count", "count_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.browser, v.version, v.count)
+			ins.Values(siteID, v.day, v.browser, v.version, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
@@ -74,26 +77,26 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 func existingBrowserStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
 	day, browser, version string,
-) (int, error) {
+) (int, int, error) {
 
-	var c int
-	err := tx.GetContext(txctx, &c,
-		`select count from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+	var c []struct {
+		Count       int `db:"count"`
+		CountUnique int `db:"count_unique"`
+	}
+	err := tx.SelectContext(txctx, &c,
+		`select count, count_unique from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4 limit 1`,
 		siteID, day, browser, version)
-	if err != nil && err != sql.ErrNoRows {
-		return 0, errors.Wrap(err, "existing")
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "select")
+	}
+	if len(c) == 0 {
+		return 0, 0, nil
 	}
 
-	if err != sql.ErrNoRows {
-		_, err = tx.ExecContext(txctx,
-			`delete from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
-			siteID, day, browser, version)
-		if err != nil {
-			return 0, errors.Wrap(err, "delete")
-		}
-	}
-
-	return c, nil
+	_, err = tx.ExecContext(txctx,
+		`delete from browser_stats where site=$1 and day=$2 and browser=$3 and version=$4`,
+		siteID, day, browser, version)
+	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }
 
 func getBrowser(uaHeader string) (string, string) {

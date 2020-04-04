@@ -245,6 +245,18 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
+	// TODO: move to memstore?
+	{
+		var sess goatcounter.Session
+		started, err := sess.GetOrCreate(r.Context(), r.UserAgent(), zhttp.RemovePort(r.RemoteAddr))
+		if err != nil {
+			zlog.Error(err)
+		}
+
+		hit.Session = &sess.ID
+		hit.StartedSession = started
+	}
+
 	err = hit.Validate(r.Context())
 	if err != nil {
 		w.Header().Add("X-Goatcounter", fmt.Sprintf("not valid: %s", err))

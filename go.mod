@@ -20,11 +20,11 @@ require (
 	zgo.at/isbot v0.0.0-20200327072829-16f0f4beb330
 	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
 	zgo.at/utils v0.0.0-20200316145006-980e7a29f94c
-	zgo.at/zdb v0.0.0-20200316145234-74be7683e163
+	zgo.at/zdb v0.0.0-20200404001426-0b2b97101bba
 	zgo.at/zhttp v0.0.0-20200316145906-c4af5f1663fc
 	zgo.at/zlog v0.0.0-20200316145056-c8f48ff0943a
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41
-	zgo.at/zvalidate v0.0.0-20200319081247-6653bab59e5e
+	zgo.at/zvalidate v0.0.0-20200401232120-0b57ac59f5e0
 )

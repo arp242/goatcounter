@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -25,6 +26,7 @@ import (
 	"zgo.at/utils/sliceutil"
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
+	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/ztest"
 )
@@ -107,13 +109,13 @@ func TestBackendCount(t *testing.T) {
 				return
 			}
 
-			_, err := goatcounter.Memstore.Persist(r.Context())
+			_, err := goatcounter.Memstore.Persist(ctx)
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			var hits []goatcounter.Hit
-			err = zdb.MustGet(r.Context()).SelectContext(r.Context(), &hits, `select * from hits`)
+			err = zdb.MustGet(ctx).SelectContext(ctx, &hits, `select * from hits`)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -122,14 +124,16 @@ func TestBackendCount(t *testing.T) {
 			}
 
 			h := hits[0]
-			err = h.Validate(r.Context())
+			err = h.Validate(ctx)
 			if err != nil {
 				t.Errorf("Validate failed after get: %s", err)
 			}
 
+			one := int64(1)
 			tt.hit.ID = h.ID
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
+			tt.hit.Session = &one // Should all be the same session.
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
 			if d := ztest.Diff(h.String(), tt.hit.String()); d != "" {
 				t.Error(d)
@@ -138,8 +142,132 @@ func TestBackendCount(t *testing.T) {
 	}
 }
 
-func newBackend(db zdb.DB) chi.Router {
-	return NewBackend(db, nil)
+func TestBackendCountSessions(t *testing.T) {
+	now := time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC)
+	goatcounter.Now = func() time.Time { return now }
+	goatcounter.Salts.Clear()
+
+	ctx, clean := gctest.DB(t)
+	defer clean()
+
+	ctx1, _ := gctest.Site(ctx, t, goatcounter.Site{
+		CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+	})
+	ctx2, _ := gctest.Site(ctx, t, goatcounter.Site{
+		CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+	})
+
+	send := func(ctx context.Context, ua string) {
+		site := goatcounter.MustGetSite(ctx)
+		query := url.Values{"p": {"/" + zhttp.Secret()}}
+
+		r, rr := newTest(ctx, "GET", "/count?"+query.Encode(), nil)
+		r.Host = site.Code + "." + cfg.Domain
+		r.Header.Set("User-Agent", ua)
+		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+		//t.Logf("X-Goatcounter: %s", rr.Header().Get("X-Goatcounter"))
+		ztest.Code(t, rr, 200)
+
+		_, err := goatcounter.Memstore.Persist(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	checkHits := func(ctx context.Context, n int) []goatcounter.Hit {
+		var hits goatcounter.Hits
+		err := hits.List(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(hits) != n {
+			t.Errorf("len(hits) = %d; wanted %d", len(hits), n)
+			for _, h := range hits {
+				t.Logf("ID: %d; Site: %d; Session: %d\n", h.ID, h.Site, h.Session)
+			}
+			t.Fatal()
+		}
+
+		for _, h := range hits {
+			err := h.Validate(ctx)
+			if err != nil {
+				t.Errorf("Validate failed after get: %s", err)
+			}
+		}
+		return hits
+	}
+
+	checkSess := func(hits goatcounter.Hits, want []int) {
+		var got []int
+		for _, h := range hits {
+			got = append(got, int(*h.Session))
+		}
+
+		// TODO: test in order.
+		sort.Ints(want)
+		sort.Ints(got)
+
+		w := fmt.Sprintf("%#v", want)
+		g := fmt.Sprintf("%#v", got)
+		if w != g {
+			t.Errorf("wrong session\nwant: %s\ngot:  %s", w, g)
+		}
+	}
+
+	rotate := func(ctx context.Context) {
+		now = now.Add(12 * time.Hour)
+		oldCur, _ := goatcounter.Salts.Get(ctx)
+
+		err := goatcounter.Salts.Refresh(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, prev := goatcounter.Salts.Get(ctx)
+		if prev != oldCur {
+			t.Fatalf("salts not cycled?\noldCur: %s\nprev:   %s\n", oldCur, prev)
+		}
+	}
+
+	// Ensure salts aren't cycled before they should.
+	goatcounter.Salts.Get(ctx1)
+	before := zdb.DumpString(ctx1, "select * from session_salts order by previous")
+	now = now.Add(1 * time.Hour)
+	goatcounter.Salts.Refresh(ctx1)
+	after := zdb.DumpString(ctx1, "select * from session_salts order by previous")
+
+	if d := ztest.Diff(before, after); d != "" {
+		t.Fatalf("salts cycled too soon\n%s", d)
+	}
+
+	send(ctx1, "test")
+	send(ctx1, "test")
+	send(ctx1, "other")
+	send(ctx2, "test")
+	send(ctx2, "test")
+	send(ctx1, "test")
+	send(ctx1, "other")
+
+	hits1 := checkHits(ctx1, 5)
+	hits2 := checkHits(ctx2, 2)
+
+	checkSess(append(hits1, hits2...), []int{1, 1, 2, 3, 3, 1, 2})
+
+	// Rotate, should still use the same sessions.
+	rotate(ctx1)
+	send(ctx1, "test")
+	send(ctx2, "test")
+	hits1 = checkHits(ctx1, 6)
+	hits2 = checkHits(ctx2, 3)
+	checkSess(append(hits1, hits2...), []int{1, 1, 2, 3, 3, 1, 2, 1, 3})
+
+	// Rotate again, should use new sessions from now on.
+	rotate(ctx1)
+	send(ctx1, "test")
+	send(ctx2, "test")
+	hits1 = checkHits(ctx1, 7)
+	hits2 = checkHits(ctx2, 4)
+	checkSess(append(hits1, hits2...), []int{1, 1, 2, 3, 3, 1, 2, 1, 3, 4, 5})
 }
 
 func TestBackendIndex(t *testing.T) {
@@ -154,7 +282,7 @@ func TestBackendIndex(t *testing.T) {
 
 		{
 			name: "basic",
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				gctest.StoreHits(ctx, t, goatcounter.Hit{Path: "/asdfghjkl", Site: 1})
 			},
 			router:   newBackend,
@@ -172,17 +300,13 @@ func TestBackendIndex(t *testing.T) {
 func TestBackendExport(t *testing.T) {
 	tests := []handlerTest{
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				goatcounter.Memstore.Append([]goatcounter.Hit{
+				gctest.StoreHits(ctx, t, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				_, err := goatcounter.Memstore.Persist(ctx)
-				if err != nil {
-					panic(err)
-				}
 			},
 			router:   newBackend,
 			path:     "/export/hits.csv",
@@ -200,17 +324,13 @@ func TestBackendExport(t *testing.T) {
 func TestBackendTpl(t *testing.T) {
 	tests := []handlerTest{
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				goatcounter.Memstore.Append([]goatcounter.Hit{
+				gctest.StoreHits(ctx, t, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				_, err := goatcounter.Memstore.Persist(ctx)
-				if err != nil {
-					panic(err)
-				}
 			},
 			router:   newBackend,
 			path:     "/purge?path=/asd",
@@ -220,7 +340,7 @@ func TestBackendTpl(t *testing.T) {
 		},
 
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				one := int64(1)
 				ss := goatcounter.Site{
 					Name:   "Subsite",
@@ -249,17 +369,13 @@ func TestBackendTpl(t *testing.T) {
 func TestBackendPurge(t *testing.T) {
 	tests := []handlerTest{
 		{
-			setup: func(ctx context.Context) {
+			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				goatcounter.Memstore.Append([]goatcounter.Hit{
+				gctest.StoreHits(ctx, t, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
 				}...)
-				_, err := goatcounter.Memstore.Persist(ctx)
-				if err != nil {
-					panic(err)
-				}
 			},
 			router:       newBackend,
 			path:         "/purge",
@@ -282,27 +398,6 @@ func TestBackendPurge(t *testing.T) {
 				t.Fatalf("len is %d:\n%#v", len(hits), hits)
 			}
 		})
-	}
-}
-
-func BenchmarkCount(b *testing.B) {
-	ctx, clean := gctest.DB(b)
-	defer clean()
-
-	r, rr := newTest(ctx, "GET", "/count", nil)
-	r.URL.RawQuery = url.Values{
-		"p": {"/test.html"},
-		"t": {"Benchmark test for /count"},
-		"r": {"https://example.com/foo"},
-	}.Encode()
-	r.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0")
-	r.Header.Set("Referer", "https://example.com/foo")
-
-	handler := newBackend(zdb.MustGet(ctx)).ServeHTTP
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		handler(rr, r)
 	}
 }
 
@@ -612,8 +707,10 @@ func TestBackendBarChart(t *testing.T) {
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
 		})
+		one := int64(1)
 		gctest.StoreHits(ctx, t, goatcounter.Hit{
 			Site:      site.ID,
+			Session:   &one,
 			CreatedAt: tt.hit.UTC(),
 			Path:      "/a",
 		})
@@ -672,10 +769,35 @@ func TestBackendBarChart(t *testing.T) {
 	}
 }
 
+func BenchmarkCount(b *testing.B) {
+	ctx, clean := gctest.DB(b)
+	defer clean()
+
+	r, rr := newTest(ctx, "GET", "/count", nil)
+	r.URL.RawQuery = url.Values{
+		"p": {"/test.html"},
+		"t": {"Benchmark test for /count"},
+		"r": {"https://example.com/foo"},
+	}.Encode()
+	r.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0")
+	r.Header.Set("Referer", "https://example.com/foo")
+
+	handler := newBackend(zdb.MustGet(ctx)).ServeHTTP
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		handler(rr, r)
+	}
+}
+
 func date(s string, tz *time.Location) time.Time {
 	d, err := time.ParseInLocation("2006-01-02 15:04", s, tz)
 	if err != nil {
 		panic(err)
 	}
 	return d
+}
+
+func newBackend(db zdb.DB) chi.Router {
+	return NewBackend(db, nil)
 }

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	. "zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/utils/jsonutil"
 )
@@ -21,20 +20,11 @@ func TestHitStats(t *testing.T) {
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	goatcounter.Memstore.Append([]goatcounter.Hit{
+	gctest.StoreHits(ctx, t, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Path: "/asd", Title: "aSd"},
 		{Site: site.ID, CreatedAt: now, Path: "/asd/"}, // Trailing / should be sanitized and treated identical as /asd
 		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
 	}...)
-	hits, err := goatcounter.Memstore.Persist(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	err = UpdateStats(ctx, site.ID, hits)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	var stats goatcounter.HitStats
 	total, display, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil)

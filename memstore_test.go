@@ -38,8 +38,10 @@ func TestMemstore(t *testing.T) {
 
 func gen(ctx context.Context) Hit {
 	s := MustGetSite(ctx)
+	one := int64(1)
 	return Hit{
 		Site:    s.ID,
+		Session: &one,
 		Path:    "/test",
 		Ref:     "https://example.com/test",
 		Browser: "test",

@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
+	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
@@ -33,7 +34,7 @@ import (
 
 type handlerTest struct {
 	name         string
-	setup        func(context.Context)
+	setup        func(context.Context, *testing.T)
 	router       func(zdb.DB) chi.Router
 	path         string
 	method       string
@@ -86,7 +87,7 @@ func runTest(
 
 				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(jsonutil.MustMarshal(tt.body)))
 				if tt.setup != nil {
-					tt.setup(ctx)
+					tt.setup(ctx, t)
 				}
 				if tt.auth {
 					login(t, rr, r, 1)
@@ -118,7 +119,7 @@ func runTest(
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			r.Header.Set("Content-Length", fmt.Sprintf("%d", len(form)))
 			if tt.setup != nil {
-				tt.setup(ctx)
+				tt.setup(ctx, t)
 			}
 			if tt.auth {
 				login(t, rr, r, 1)
@@ -145,7 +146,9 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID 
 	u := goatcounter.User{Site: siteID, Name: "Example", Email: "test@example.com"}
 	err := u.Insert(r.Context())
 	if err != nil {
-		t.Fatal(err)
+		if guru.Code(err) != 400 {
+			t.Fatal(err)
+		}
 	}
 
 	// Login user

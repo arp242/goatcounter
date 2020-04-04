@@ -6,7 +6,6 @@ package cron
 
 import (
 	"context"
-	"database/sql"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -29,10 +28,11 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + path.
 		type gt struct {
-			count []int
-			day   string
-			path  string
-			title string
+			count       []int
+			countUnique []int
+			day         string
+			path        string
+			title       string
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -47,7 +47,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.day = day
 				v.path = h.Path
 				var err error
-				v.count, v.title, err = existingHitStats(ctx, tx, h.Site, day, v.path)
+				v.count, v.countUnique, v.title, err = existingHitStats(ctx, tx, h.Site, day, v.path)
 				if err != nil {
 					return err
 				}
@@ -57,55 +57,57 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.title = h.Title
 			}
 
-			h, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
-			v.count[h] += 1
+			hour, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
+			v.count[hour] += 1
+			if h.StartedSession {
+				v.countUnique[hour] += 1
+			}
 			grouped[k] = v
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, tx,
-			"hit_stats", []string{"site", "day", "path", "title", "stats"})
+			"hit_stats", []string{"site", "day", "path", "title", "stats", "stats_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count))
+			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count),
+				jsonutil.MustMarshal(v.countUnique))
 		}
-		return ins.Finish()
+		return errors.Wrap(ins.Finish(), "updateHitStats")
 	})
 }
 
 func existingHitStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
 	day, path string,
-) ([]int, string, error) {
+) ([]int, []int, string, error) {
 
 	var ex []struct {
-		Stats []byte `db:"stats"`
-		Title string `db:"title"`
+		Stats       []byte `db:"stats"`
+		StatsUnique []byte `db:"stats_unique"`
+		Title       string `db:"title"`
 	}
 	err := tx.SelectContext(txctx, &ex,
-		`select stats, title from hit_stats where site=$1 and day=$2 and path=$3`,
+		`select stats, stats_unique, title from hit_stats where site=$1 and day=$2 and path=$3 limit 1`,
 		siteID, day, path)
-	if err != nil && err != sql.ErrNoRows {
-		return nil, "", errors.Wrap(err, "existingHitStats")
+	if err != nil {
+		return nil, nil, "", errors.Wrap(err, "existingHitStats")
 	}
-
 	if len(ex) == 0 {
-		return make([]int, 24), "", nil
-	}
-
-	if len(ex) > 1 {
-		return nil, "", errors.Errorf("existingHitStats: %d rows: %#v", len(ex), ex)
+		return make([]int, 24), make([]int, 24), "", nil
 	}
 
 	_, err = tx.ExecContext(txctx,
 		`delete from hit_stats where site=$1 and day=$2 and path=$3`,
 		siteID, day, path)
 	if err != nil {
-		return nil, "", errors.Wrap(err, "delete")
+		return nil, nil, "", errors.Wrap(err, "delete")
 	}
 
-	var r []int
+	var r, ru []int
 	if ex[0].Stats != nil {
 		jsonutil.MustUnmarshal(ex[0].Stats, &r)
+		jsonutil.MustUnmarshal(ex[0].StatsUnique, &ru)
 	}
-	return r, ex[0].Title, nil
+
+	return r, ru, ex[0].Title, nil
 }
