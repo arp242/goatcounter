@@ -7,7 +7,6 @@ package cron
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"sync"
 	"time"
@@ -199,7 +198,7 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) err
 		var site goatcounter.Site
 		err := site.ByID(ctx, siteID)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) { // Deleted site.
+			if zdb.ErrNoRows(err) { // Deleted site.
 				continue
 			}
 			return fmt.Errorf("cron.ReindexStats: %w", err)

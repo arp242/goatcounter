@@ -6,7 +6,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
 	"time"
@@ -105,7 +104,7 @@ func reindex() (int, error) {
 		var first string
 		err := db.GetContext(ctx, &first, `select created_at from hits `+w+` order by created_at asc limit 1`)
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if zdb.ErrNoRows(err) {
 				return 0, nil
 			}
 			return 1, err

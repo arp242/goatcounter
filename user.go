@@ -90,7 +90,7 @@ func (u *User) Insert(ctx context.Context) error {
 		`insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
 		u.Site, u.Name, u.Email, u.CreatedAt.Format(zdb.Date))
 	if err != nil {
-		if zdb.UniqueErr(err) {
+		if zdb.ErrUnique(err) {
 			return guru.New(400, "this user already exists")
 		}
 		return errors.Wrap(err, "User.Insert")

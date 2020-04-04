@@ -6,7 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"zgo.at/goatcounter/errors"
@@ -36,7 +35,7 @@ func (u *Updates) HasSince(ctx context.Context, since time.Time) (bool, error) {
 	var has bool
 	err := zdb.MustGet(ctx).GetContext(ctx, &has,
 		`select 1 from updates where show_at >= $1`, since)
-	if err == sql.ErrNoRows {
+	if zdb.ErrNoRows(err) {
 		err = nil
 	}
 	return has, errors.Wrap(err, "Updates.ListUnseen")
