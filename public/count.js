@@ -15,6 +15,7 @@
 			t: (vars.title    === undefined ? goatcounter.title    : vars.title),
 			e: !!(vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
+			b: is_bot(),
 		}
 
 		var rcb, pcb, tcb  // Save callbacks to apply later.
@@ -43,6 +44,20 @@
 	// Check if a value is "empty" for the purpose of get_data().
 	var is_empty = function(v) { return v === null || v === undefined || typeof(v) === 'function' }
 
+	// See if this loads like a headless browser, which is usually a bot.
+	var is_bot = function() {
+		var w = window
+		if (w.callPhantom || w._phantom || w.phantom)
+			return 50
+		if (w.__nightmare)
+			return 51
+		if (navigator.webdriver)
+			return 52
+		if (document.__selenium_unwrapped || document.__webdriver_evaluate || document.__driver_evaluate)
+			return 53
+		return 0
+	}
+
 	// Object to urlencoded string, starting with a ?.
 	var to_params = function(obj) {
 		var p = []
@@ -55,6 +70,8 @@
 	// Count a hit.
 	window.goatcounter.count = function(vars) {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
+			return
+		if (location !== parent.location)  // Frame
 			return
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
 			return
