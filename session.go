@@ -91,7 +91,6 @@ func (s *salt) Refresh(ctx context.Context) error {
 		}
 
 		if newsalt[1].CreatedAt.Add(12 * time.Hour).After(Now()) {
-			goto get
 			return nil
 		}
 
