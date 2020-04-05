@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
