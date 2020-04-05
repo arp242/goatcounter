@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/mssola/user_agent"
-	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )

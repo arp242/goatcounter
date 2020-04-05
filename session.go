@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -140,7 +140,7 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool,
 	hash := h.Sum(nil)
 
 	err := db.GetContext(ctx, s, `select * from sessions where site=$1 and hash=$2`, site.ID, hash)
-	if errors.Is(err, sql.ErrNoRows) { // Try previous salt.
+	if zdb.ErrNoRows(err) { // Try previous salt.
 		h := sha256.New()
 		h.Write([]byte(fmt.Sprintf("%d%s%s%s", site.ID, ua, remoteAddr, prevSalt)))
 		prevHash := h.Sum(nil)

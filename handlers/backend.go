@@ -6,7 +6,6 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"net"
@@ -22,12 +21,12 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/monoculum/formam"
-	"github.com/pkg/errors"
-	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/goatcounter/pack"
+	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/tz"
 	"zgo.at/utils/httputilx/header"
@@ -514,7 +513,7 @@ func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
 		err = a.ByCode(r.Context(), code)
 	}
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if zdb.ErrNoRows(err) {
 			return guru.New(404, "no such site")
 		}
 		return err
@@ -769,7 +768,8 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	user.Email = args.User.Email
 	err = user.Update(txctx)
 	if err != nil {
-		if _, ok := err.(*zvalidate.Validator); !ok {
+		var vErr *zvalidate.Validator
+		if !errors.As(err, &vErr) {
 			return err
 		}
 		v.Sub("user", "", err)
@@ -795,7 +795,8 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	err = site.Update(txctx)
 	if err != nil {
-		if _, ok := err.(*zvalidate.Validator); !ok {
+		var vErr *zvalidate.Validator
+		if !errors.As(err, &vErr) {
 			return err
 		}
 		v.Sub("site", "", err)

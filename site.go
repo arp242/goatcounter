@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/teamwork/guru"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
+	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"
@@ -237,7 +237,7 @@ func (s *Site) Insert(ctx context.Context) error {
 	if cfg.PgSQL {
 		err = zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
 		if err != nil {
-			if zdb.UniqueErr(err) {
+			if zdb.ErrUnique(err) {
 				return guru.New(400, "this site already exists: code or domain must be unique")
 			}
 			return errors.Wrap(err, "Site.Insert")
@@ -247,7 +247,7 @@ func (s *Site) Insert(ctx context.Context) error {
 
 	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
 	if err != nil {
-		if zdb.UniqueErr(err) {
+		if zdb.ErrUnique(err) {
 			return guru.New(400, "this site already exists: code or domain must be unique")
 		}
 		return errors.Wrap(err, "Site.Insert")

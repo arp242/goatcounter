@@ -17,11 +17,11 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
-	"github.com/teamwork/guru"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/goatcounter/pack"
+	"zgo.at/guru"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"

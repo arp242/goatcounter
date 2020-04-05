@@ -6,9 +6,8 @@ package goatcounter
 
 import (
 	"context"
-	"database/sql"
 
-	"github.com/pkg/errors"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
@@ -25,7 +24,7 @@ func HasFlag(ctx context.Context, name string) bool {
 	err := zdb.MustGet(ctx).GetContext(ctx, &ok,
 		`select 1 from flags where name=$1 and value in (0, $2)`,
 		name, siteID)
-	if err == sql.ErrNoRows {
+	if zdb.ErrNoRows(err) {
 		return false
 	}
 	if err != nil {

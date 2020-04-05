@@ -7,15 +7,14 @@ package cron
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
@@ -199,7 +198,7 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) err
 		var site goatcounter.Site
 		err := site.ByID(ctx, siteID)
 		if err != nil {
-			if errors.Cause(err) == sql.ErrNoRows { // Deleted site.
+			if zdb.ErrNoRows(err) { // Deleted site.
 				continue
 			}
 			return fmt.Errorf("cron.ReindexStats: %w", err)

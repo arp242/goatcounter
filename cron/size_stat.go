@@ -8,8 +8,8 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/pkg/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
