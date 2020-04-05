@@ -768,7 +768,8 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	user.Email = args.User.Email
 	err = user.Update(txctx)
 	if err != nil {
-		if _, ok := err.(*zvalidate.Validator); !ok {
+		var vErr *zvalidate.Validator
+		if !errors.As(err, &vErr) {
 			return err
 		}
 		v.Sub("user", "", err)
@@ -794,7 +795,8 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	err = site.Update(txctx)
 	if err != nil {
-		if _, ok := err.(*zvalidate.Validator); !ok {
+		var vErr *zvalidate.Validator
+		if !errors.As(err, &vErr) {
 			return err
 		}
 		v.Sub("site", "", err)

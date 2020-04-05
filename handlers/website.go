@@ -180,7 +180,8 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	err = site.Insert(txctx)
 	if err != nil {
-		if _, ok := err.(*zvalidate.Validator); !ok {
+		var vErr *zvalidate.Validator
+		if !errors.As(err, &vErr) {
 			return err
 		}
 		v.Sub("site", "", err)
@@ -190,7 +191,8 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	user.Site = site.ID
 	err = user.Insert(txctx)
 	if err != nil {
-		if _, ok := err.(*zvalidate.Validator); !ok {
+		var vErr *zvalidate.Validator
+		if !errors.As(err, &vErr) {
 			return err
 		}
 		v.Sub("user", "", err)
