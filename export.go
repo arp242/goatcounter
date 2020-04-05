@@ -7,7 +7,6 @@ package goatcounter
 import (
 	"compress/gzip"
 	"context"
-	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -15,8 +14,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/pkg/errors"
 	"zgo.at/utils/sliceutil"
+	"zgo.at/zdb"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 )
@@ -36,7 +35,7 @@ func Export(ctx context.Context, fp io.WriteCloser) {
 	defer gzfp.Close()
 
 	c := csv.NewWriter(gzfp)
-	c.Write([]string{"Path", "Title", "Event", "Bot",
+	c.Write([]string{"Path", "Title", "Event", "Bot", "Session",
 		"Referrer (sanitized)", "Referrer query params",
 		"Original Referrer", "Browser", "Screen size", "Location",
 		"Date"})
@@ -49,7 +48,7 @@ func Export(ctx context.Context, fp io.WriteCloser) {
 	for {
 		var hits Hits
 		last, err = hits.List(ctx, 5000, last)
-		if errors.Is(err, sql.ErrNoRows) {
+		if zdb.ErrNoRows(err) {
 			// TODO: better.
 			zmail.Send("GoatCounter export ready",
 				mail.Address{Name: "GoatCounter export", Address: "support@goatcounter.com"},
@@ -72,9 +71,9 @@ func Export(ctx context.Context, fp io.WriteCloser) {
 				ro = *hit.RefOriginal
 			}
 			c.Write([]string{hit.Path, hit.Title, fmt.Sprintf("%t", hit.Event),
-				fmt.Sprintf("%d", hit.Bot), hit.Ref, rp, ro, hit.Browser,
-				sliceutil.JoinFloat(hit.Size), hit.Location,
-				hit.CreatedAt.Format(time.RFC3339)})
+				fmt.Sprintf("%d", hit.Bot), fmt.Sprintf("%d", hit.Session),
+				hit.Ref, rp, ro, hit.Browser, sliceutil.JoinFloat(hit.Size),
+				hit.Location, hit.CreatedAt.Format(time.RFC3339)})
 		}
 
 		c.Flush()

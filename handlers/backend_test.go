@@ -175,7 +175,7 @@ func TestBackendCountSessions(t *testing.T) {
 
 	checkHits := func(ctx context.Context, n int) []goatcounter.Hit {
 		var hits goatcounter.Hits
-		err := hits.List(ctx)
+		err := hits.TestList(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
