@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/sync/singleflight"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
@@ -50,9 +51,13 @@ func (s *salt) Clear() {
 	s.mu.Unlock()
 }
 
+var firstRefresh, createSession singleflight.Group
+
 func (s *salt) Get(ctx context.Context) (current, previous string) {
 	if s.current == "" || s.previous == "" {
-		err := s.Refresh(ctx)
+		_, err, _ := firstRefresh.Do("firstRefresh", func() (interface{}, error) {
+			return nil, s.Refresh(ctx)
+		})
 		if err != nil {
 			panic(err)
 		}
@@ -87,6 +92,10 @@ func (s *salt) Refresh(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
+			goto get
+		}
+
+		if s.current == "" { // Server restart
 			goto get
 		}
 
@@ -163,23 +172,33 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool,
 		return false, nil
 
 	case sql.ErrNoRows:
-		s.Site = site.ID
-		s.Hash = hash
-		s.CreatedAt = now
-		s.LastSeen = now
-		query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
-		args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
-		if cfg.PgSQL {
-			err := zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
-			return true, errors.Wrap(err, "Session.GetOrCreate")
-		}
+		news, err, _ := createSession.Do(string(hash), func() (interface{}, error) {
+			s.Site = site.ID
+			s.Hash = hash
+			s.CreatedAt = now
+			s.LastSeen = now
 
-		// SQLite
-		res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
+			query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
+			args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
+
+			if cfg.PgSQL {
+				err := zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
+				return s, err
+			}
+
+			// SQLite
+			res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
+			if err != nil {
+				return s, err
+			}
+			s.ID, err = res.LastInsertId()
+			return s, err
+		})
 		if err != nil {
 			return true, errors.Wrap(err, "Session.GetOrCreate")
 		}
-		s.ID, err = res.LastInsertId()
-		return true, errors.Wrap(err, "Session.GetOrCreate")
+
+		*s = *news.(*Session)
+		return true, nil
 	}
 }
