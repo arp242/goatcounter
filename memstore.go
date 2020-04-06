@@ -69,6 +69,17 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			continue
 		}
 
+		if strings.HasPrefix(h.UsageDomain, "http") {
+			d, err := url.Parse(h.UsageDomain)
+			if err == nil && d.Host != "" {
+				// Probably a bot trying to inject code.
+				if len(d.Host) > 63 {
+					continue
+				}
+				h.UsageDomain = d.Host
+			}
+		}
+
 		// Some values are sanitized in Hit.Defaults(), make sure this is
 		// reflected in the hits object too, which matters for the hit_stats
 		// generation later.
@@ -85,12 +96,6 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			h.RefScheme, h.Browser, h.Size, h.Location,
 			h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, e, h.Session, ss)
 
-		if strings.HasPrefix(h.UsageDomain, "http") {
-			d, err := url.Parse(h.UsageDomain)
-			if err == nil && d.Host != "" {
-				h.UsageDomain = d.Host
-			}
-		}
 		usage.Values(h.Site, h.UsageDomain, 1)
 	}
 

@@ -308,11 +308,16 @@ func (h *Hit) Validate(ctx context.Context) error {
 	v.Required("site", h.Site)
 	v.Required("session", h.Session)
 	v.Required("path", h.Path)
-	v.UTF8("browser", h.Browser)
-	v.UTF8("ref", h.Ref)
 	v.UTF8("path", h.Path)
 	v.UTF8("title", h.Title)
+	v.UTF8("ref", h.Ref)
+	v.UTF8("browser", h.Browser)
 	v.UTF8("usage_domain", h.UsageDomain)
+
+	v.Len("path", h.Path, 0, 2048)
+	v.Len("title", h.Title, 0, 1024)
+	v.Len("ref", h.Ref, 0, 2048)
+	v.Len("browser", h.Browser, 0, 512)
 
 	return v.ErrorOrNil()
 }
