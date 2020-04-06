@@ -46,12 +46,11 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = []Hit{}
 	m.Unlock()
 
-	ins := bulk.NewInsert(ctx, zdb.MustGet(ctx),
-		"hits", []string{"site", "path", "ref", "ref_params", "ref_original",
-			"ref_scheme", "browser", "size", "location", "created_at", "bot",
-			"title", "event", "session", "started_session"})
-	usage := bulk.NewInsert(ctx, zdb.MustGet(ctx),
-		"usage", []string{"site", "domain", "count"})
+	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path", "ref",
+		"ref_params", "ref_original", "ref_scheme", "browser", "size",
+		"location", "created_at", "bot", "title", "event", "session",
+		"started_session"})
+	usage := bulk.NewInsert(ctx, "usage", []string{"site", "domain", "count"})
 	for i, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)

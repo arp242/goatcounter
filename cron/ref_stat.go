@@ -55,8 +55,8 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, tx,
-			"ref_stats", []string{"site", "day", "ref", "count", "count_unique"})
+		ins := bulk.NewInsert(ctx, "ref_stats", []string{"site", "day", "ref",
+			"count", "count_unique"})
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.ref, v.count, v.countUnique)
 		}

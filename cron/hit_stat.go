@@ -66,8 +66,8 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, tx,
-			"hit_stats", []string{"site", "day", "path", "title", "stats", "stats_unique"})
+		ins := bulk.NewInsert(ctx, "hit_stats", []string{"site", "day", "path",
+			"title", "stats", "stats_unique"})
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.path, v.title, jsonutil.MustMarshal(v.count),
 				jsonutil.MustMarshal(v.countUnique))

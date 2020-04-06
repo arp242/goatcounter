@@ -63,8 +63,8 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, tx,
-			"size_stats", []string{"site", "day", "width", "count", "count_unique"})
+		ins := bulk.NewInsert(ctx, "size_stats", []string{"site", "day",
+			"width", "count", "count_unique"})
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.width, v.count, v.countUnique)
 		}

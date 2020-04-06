@@ -18,8 +18,8 @@ require (
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200327072829-16f0f4beb330
 	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
-	zgo.at/utils v0.0.0-20200329232238-fc562ad7089c
-	zgo.at/zdb v0.0.0-20200404055959-085741f5bd6f
+	zgo.at/utils v0.0.0-20200406093336-259fc9b78078
+	zgo.at/zdb v0.0.0-20200406162958-937e12b8bda5
 	zgo.at/zhttp v0.0.0-20200405140654-19a758ea6c65
 	zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57
 	zgo.at/zpack v1.0.1
