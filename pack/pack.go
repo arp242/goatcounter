@@ -13239,7 +13239,7 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 }
 
 /* Don't make various explanatory texts too wide. */
-.page > p, .page > div > p, .page > ul, .page > div > ul,
+.page > p, .page > div > p, .page > ul, .page > div > ul, .page > table,
 .form-max-width label, .form-max-width textarea, .form-max-width input {
 	max-width: 50em;
 }
@@ -13598,6 +13598,8 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages input.value        { background-color: yellow; }
 
 h3 + h4 { margin-top: .3em; }
+
+.reftable { margin-top: 1em; }
 `),
 }
 
@@ -14671,133 +14673,162 @@ var Templates = map[string][]byte{
 	<button>Sign in</button>
 </form>
 `),
-	"tpl/_backend_sitecode.gohtml": []byte(`{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
+	"tpl/_backend_sitecode.gohtml": []byte(`{{/*************************************************************************
+ * This file was generated from tpl/_backend_sitecode.markdown. DO NOT EDIT.
+*************************************************************************/}}
+
+{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
 {{if eq .Path "/code"}}
 
-Or use one of the ready-made integrations:
+<p>Or use one of the ready-made integrations:
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
-<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.
+<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.</p>
 
-<h2 id="csp">Content security policy <a href="#csp"></a></h2>
-<p>You’ll need the following if you use a
-<code>Content-Security-Policy</code>:</p>
+<h2 id="content-security-policy">Content security policy <a href="#content-security-policy"></a></h2>
+<p>You’ll need the following if you use a <code>Content-Security-Policy</code>:</p>
 
-<pre>
-script-src  https://{{.CountDomain}}
+<pre><code>script-src  https://{{.CountDomain}}
 img-src     {{.Site.URL}}/count
-</pre>
+</code></pre>
 
 <h2 id="customizing">Customizing <a href="#customizing"></a></h2>
-<p>Customisation is done with the <code>window.goatcounter</code> object; the
-following keys are supported:</p>
+<p>Customisation is done with the <code>window.goatcounter</code> object; the following keys
+are supported:</p>
 
 <h3 id="settings">Settings <a href="#settings"></a></h3>
-<ul>
-	<li><code>no_onload</code> – Don’t do anything on page load. If you want to
-		call <code>count()</code> manually.</li>
-	<li><code>allow_local</code> – Allow requests from local addresses
-		(<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing
-		the integration locally.</li>
-</ul>
+
+<table class="reftable">
+  <thead>
+    <tr>
+      <th style="text-align: left">Setting</th>
+      <th style="text-align: left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code>no_onload</code></td>
+      <td style="text-align: left">Don’t do anything on page load. If you want to call <code>count()</code> manually.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>allow_local</code></td>
+      <td style="text-align: left">Allow requests from local addresses (<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing the integration locally.</td>
+    </tr>
+  </tbody>
+</table>
 
 <h3 id="data">Data <a href="#data"></a></h3>
-<p>You can customize the data sent to Goatcounter; the default value will be
-used if the value is <code>null</code> or <code>undefined</code>, but
-<em>not</em> on empty string, <code>0</code>, or anything else!</p>
+<p>You can customize the data sent to GoatCounter; the default value will be used
+if the value is <code>null</code> or <code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
+anything else!</p>
 
-<p>The value can be a callback: the default value is passed and the return value
-is sent to the server. Nothing is sent if the return value from the
-<code>path</code> callback is <code>null</code>.</p>
+<p>The value can be a callback: the default value is passed and the return value is
+sent to the server. Nothing is sent if the return value from the <code>path</code> callback
+is <code>null</code>.</p>
 
-<ul>
-	<li><code>path</code> – Page path (without domain) or event name.
-		Default is the value of <code>&lt;link rel="canonical"&gt;</code> if it exists,
-		or <code>location.pathname + location.search</code>.</li>
-
-	<li><code>title</code> – Human-readable title. Default is
-		<code>document.title</code>.</li>
-
-	<li><code>referrer</code> – Where the user came from; can be an URL
-		(<code>https://example.com</code>) or any string
-		(<code>June Newsletter</code>). Default is to use the
-		<code>Referer</code> header.</li>
-
-	<li><code>event</code> – Treat the <code>path</code> as an event, rather
-		than a URL. Boolean.</li>
-</ul>
+<table class="reftable">
+  <thead>
+    <tr>
+      <th style="text-align: left">Variable</th>
+      <th style="text-align: left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code>path</code></td>
+      <td style="text-align: left">Page path (without domain) or event name. Default is the value of <code>&lt;link rel="canonical"&gt;</code> if it exists, or <code>location.pathname + location.search</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>title</code></td>
+      <td style="text-align: left">Human-readable title. Default is <code>document.title</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>referrer</code></td>
+      <td style="text-align: left">Where the user came from; can be an URL (<code>https://example.com</code>) or any string (<code>June Newsletter</code>). Default is to use the <code>Referer</code> header.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>event</code></td>
+      <td style="text-align: left">Treat the <code>path</code> as an event, rather than a URL. Boolean.</td>
+    </tr>
+  </tbody>
+</table>
 
 <h3 id="methods">Methods <a href="#methods"></a></h3>
-<h4 id="count"><code>count(vars)</code> <a href="#count"></a></h4>
-<p>Count an event; the <code>vars</code> parameter is an object as described in
-the Data section above, and will be merged in to the global
-<code>window.goatcounter</code>, taking precedence.</p>
 
-<p>Be aware that the script is loaded with <code>async</code> by default, so
-<code>count</code> may not yet be available on click events and the like. To
-solve this, use <code>setInterval</code> to wait until it’s available:</p>
+<h4 id="countvars"><code>count(vars)</code> <a href="#countvars"></a></h4>
+<p>Count an event; the <code>vars</code> parameter is an object as described in the Data
+section above, and will be merged in to the global <code>window.goatcounter</code>, taking
+precedence.</p>
 
-<pre>elem.addEventListener('click', function() {
+<p>Be aware that the script is loaded with <code>async</code> by default, so <code>count</code> may not
+yet be available on click events and the like. To solve this, use <code>setInterval</code>
+to wait until it’s available:</p>
+
+<pre><code>elem.addEventListener('click', function() {
 	var t = setInterval(function() {
-		if (window.goatcounter &amp;&amp; window.goatcounter.count) {
+		if (window.goatcounter &amp;amp;&amp;amp; window.goatcounter.count) {
 			clearInterval(t);
 			goatconter.count();
 		}
 	}, 100);
-});</pre>
+});
+</code></pre>
 
 <p>The default implementation already handles this, and you only need to worry
 about this if you call <code>count()</code> manually.</p>
 
-<h4 id="get_query"><code>get_query(name)</code> <a href="#get_query"></a></h4>
-<p>Get a single query parameter from the current page’s URL; returns
-<code>undefined</code> if the parameter doesn’t exist. This is useful if you
-want to get the <code>referrer</code> from the URL:</p>
+<h4 id="getqueryname"><code>get_query(name)</code> <a href="#getqueryname"></a></h4>
+<p>Get a single query parameter from the current page’s URL; returns <code>undefined</code> if
+the parameter doesn’t exist. This is useful if you want to get the <code>referrer</code>
+from the URL:</p>
 
-<pre>&lt;script&gt;
+<pre><code>&lt;script&gt;
 	referrer: function() {
 		return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
 	}
 };
 &lt;/script&gt;
-{{template "code" .}}</pre>
+{{template "code" .}}
+</code></pre>
 
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
-<h3 id="production">Load only on production <a href="#production"></a></h3>
-<p>You can check <code>location.host</code> if you want to load GoatCounter only
-on <code>production.com</code> and not <code>staging.com</code> or
-<code>development.com</code>; for example:</p>
+<h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
+<p>You can check <code>location.host</code> if you want to load GoatCounter only on
+<code>production.com</code> and not <code>staging.com</code> or <code>development.com</code>; for example:</p>
 
-<pre>&lt;script&gt;
+<pre><code>&lt;script&gt;
 	// Only load on production environment.
 	if (window.location.host !== 'production.com')
 		window.goatcounter = {no_onload: true};
 &lt;/script&gt;
-{{template "code" .}}</pre>
+{{template "code" .}}
+</code></pre>
 
-<p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">
-	request from localhost are already ignored</a>.</p>
+<p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">request from localhost are already
+ignored</a></p>
 
-<h3 id="skip-own">Skip own views <a href="#skip-own"></a></h3>
+<h3 id="skip-own-views">Skip own views <a href="#skip-own-views"></a></h3>
 <p>You can use the same technique as a client-side way to skip loading from your
 own browser:</p>
 
-<pre>&lt;script&gt;
+<pre><code>&lt;script&gt;
 	if (window.location.hash === '#skipgc')
 		localStorage.setItem('skipgc', 't');
 	window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'};
 &lt;/script&gt;
-{{template "code" .}}</pre>
+{{template "code" .}}
+</code></pre>
 
-<p>You can also fill in your IP address in the settings, or (temporarily) block
-the <code>{{.CountDomain}}</code> domain.</p>
+<p>You can also fill in your IP address in the settings, or (temporarily) block the
+<code>{{.CountDomain}}</code> domain.</p>
 
-<h3 id="custom-data">Custom path and referrer <a href="#custom-data"></a></h3>
+<h3 id="custom-path-and-referrer">Custom path and referrer <a href="#custom-path-and-referrer"></a></h3>
 <p>A basic example with some custom logic for <code>path</code>:</p>
-<pre>&lt;script&gt;
+
+<pre><code>&lt;script&gt;
 	window.goatcounter = {
 		path: function(p) {
 			// Don't track the home page.
@@ -14809,32 +14840,35 @@ the <code>{{.CountDomain}}</code> domain.</p>
 		},
 	};
 &lt;/script&gt;
-{{template "code" .}}</pre>
+{{template "code" .}}
+</code></pre>
 
-<h3 id="ignore-query">Ignore query parameters in path <a href="#ignore-query"></a></h3>
-<p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used
-automatically, and is the easiest way to ignore extraneous query parameters:</p>
+<h3 id="ignore-query-parameters-in-path">Ignore query parameters in path <a href="#ignore-query-parameters-in-path"></a></h3>
+<p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used automatically, and is the
+easiest way to ignore extraneous query parameters:</p>
 
-<pre>&lt;link rel="canonical" href="https://example.com/path.html"&gt;</pre>
+<pre><code>&lt;link rel="canonical" href="https://example.com/path.html"&gt;
+</code></pre>
 
-<p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be
-sure to understand the potential SEO effects before adding a canonical URL! If
-you use query parameters for navigation then you probably <em>don’t</em> want
-it.</p>
+<p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be sure to understand the
+potential SEO effects before adding a canonical URL! If you use query parameters
+for navigation then you probably <em>don’t</em> want it.</p>
 
 <p>Alternatively you can send a custom <code>path</code> without the query
 parameters:</p>
 
-<pre>&lt;script&gt;
+<pre><code>&lt;script&gt;
 	window.goatcounter = {
 		path: location.pathname || '/',
 	};
 &lt;/script&gt;
-{{template "code" .}}</pre>
+{{template "code" .}}
+</code></pre>
 
 <h3 id="spa">SPA <a href="#spa"></a></h3>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
-<pre>&lt;script&gt;
+
+<pre><code>&lt;script&gt;
 	window.goatcounter = {no_onload: true};
 
 	window.addEventListener('hashchange', function(e) {
@@ -14843,40 +14877,42 @@ parameters:</p>
 		});
 	});
 &lt;/script&gt;
-{{template "code" .}}</pre>
+{{template "code" .}}
+</code></pre>
 
-<h2 id="advanced">Advanced integrations <a href="#advanced"></a></h2>
+<h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
 
 <h3 id="image">Image <a href="#image"></a></h3>
-<p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to
-load an image on your site:<p>
-<pre>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;</pre>
+<p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
+an image on your site:</p>
+
+<pre><code>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;
+</code></pre>
 
 <p>This won’t allow recording the referral or screen size though, and may also
 increase the number of bot requests (although we do our best to filter this
 out).</p>
 
-<p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people
-without JavaScript.</p>
+<p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
 
-<h3 id="middleware">From middleware <a href="#middleware"></a></h3>
-<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your
-app's middleware. It supports the following query parameters:</p>
+<h3 id="from-middleware">From middleware <a href="#from-middleware"></a></h3>
+<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your app's
+middleware. It supports the following query parameters:</p>
 
 <ul>
-	<li><code>p</code> – <code>path</code></li>
-	<li><code>e</code> – <code>event</code></li>
-	<li><code>t</code> – <code>title</code></li>
-	<li><code>r</code> – <code>referrer</code></li>
-	<li><code>s</code> – screen size, as <code>x,y,scaling</code>.</li>
+  <li><code>p</code> → <code>path</code></li>
+  <li><code>e</code> → <code>event</code></li>
+  <li><code>t</code> → <code>title</code></li>
+  <li><code>r</code> → <code>referrer</code></li>
+  <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
 </ul>
 
-<p>The <code>User-Agent</code> header and remote address are used for the
-browser and location.</p>
+<p>The <code>User-Agent</code> header and remote address are used for the browser and
+location.</p>
 
-<p>Calling it from the middleware or as will probably result in more bot
-requests. GoatCounter does its best to filter this out, but it’s impossible to
-do this 100% reliably.</p>
+<p>Calling it from the middleware or as will probably result in more bot requests.
+GoatCounter does its best to filter this out, but it’s impossible to do this
+100% reliably.</p>
 
 {{end}} {{/* if eq .Path "/settings" */}}
 `),
