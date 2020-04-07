@@ -21,7 +21,6 @@ import (
 )
 
 func ExportFile(site *Site) string {
-	// TODO: Maybe add flag to set different dir than os.TempDir()?
 	return fmt.Sprintf("%s/goatcounter-export-%s.csv.gz", os.TempDir(), site.Code)
 }
 
