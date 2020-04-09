@@ -15046,7 +15046,7 @@ GoatCounter does its best to filter this out, but it’s impossible to do this
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta name="description" content="{{.MetaDesc}}">
-	<title>GoatCounter – Website statistics for regular folks</title>
+	<title>GoatCounter – Website analytics for regular folks</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
 	<link rel="canonical" href="https://{{.Domain}}{{if ne .Page "home"}}/{{.Page}}{{end}}">
@@ -16026,15 +16026,14 @@ sub {
 
 	<div>
 		<p>100% committed to <strong>open source</strong>; you can see exactly
-			what the code does and make improvements. See
-			<a href="https://github.com/zgoat/goatcounter">the GitHub page</a>.</p>
+			what the code does and make improvements, or self-host
+			it for any purpose. See <a href="https://github.com/zgoat/goatcounter">the GitHub page</a>.</p>
 		<p><strong>Own your data</strong>; you can always export all data and
 			<strong>cancel at any time</strong>.</p>
 	</div>
 
 	<div>
-			<p>Integrate on your site with just <strong>a single script
-				tag</strong>:<br>
+			<p>Integrate on your site with just <strong>a single script tag</strong>:<br>
 			<code>&lt;script data-goatcounter="https://yoursite.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"&gt;&lt;/script&gt;</code>
 			</p>

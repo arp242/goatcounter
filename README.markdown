@@ -8,7 +8,9 @@ problematic privacy (e.g. Google Analytics), hosting your own complex software
 or paying $19/month (e.g. Matomo), or extremely simplistic "vanity statistics".
 
 There are two ways to run this: as **hosted service** on [goatcounter.com][www],
-*free* for non-commercial use, or run it on your own server.
+*free* for non-commercial use, or run it on your own server (the source code is
+completely Open Source/Free Software, and it can be self-hosted without
+restrictions).
 
 See [docs/rationale.markdown](docs/rationale.markdown) for some more details on
 the *"why?"* of this project.
