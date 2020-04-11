@@ -4,6 +4,9 @@
 # UPX creates temporary files.
 *.upx
 
+# dist directory from gogo-release
+/dist
+
 # SQLite3 database; may also store journal hence last *.
 *.sqlite3*
 
