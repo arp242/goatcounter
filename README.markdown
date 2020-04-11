@@ -69,6 +69,14 @@ Features
 Running your own
 ----------------
 
+The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
+are statically compiled and should work in pretty much any Linux environment.
+
+For other platforms, you'll have to build from source for now (it's not hard, I
+promise).
+
+[releases]: https://github.com/zgoat/goatcounter/releases
+
 ### Building
 
 Compile from source with:
@@ -80,7 +88,7 @@ Compile from source with:
 You'll now have a `goatcounter` binary in the current directory.
 
 The master branch should be reasonably stable. You can get a specific release by
-checking out the branch for the latest version: `git checkout v1.1.0`.
+checking out the branch for the latest version: `git checkout v1.1.2`.
 
 It's not recommended to use `go get` in GOPATH mode since that will ignore the
 dependency versions in go.mod.
