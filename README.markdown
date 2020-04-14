@@ -71,30 +71,32 @@ Running your own
 
 The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
 are statically compiled and should work in pretty much any Linux environment.
-
-For other platforms, you'll have to build from source for now (it's not hard, I
-promise).
+GoatCounter should run on any platform supported by Go, but there are no
+binaries for them (yet), so you'll have to build from source for now (it's not
+hard, I promise).
 
 [releases]: https://github.com/zgoat/goatcounter/releases
 
-### Building
+### Building from source
 
 Compile from source with:
 
-    $ git clone https://github.com/zgoat/goatcounter.git
+    $ git clone -b release-1.1 https://github.com/zgoat/goatcounter.git
     $ cd goatcounter
     $ go build ./cmd/goatcounter
 
 You'll now have a `goatcounter` binary in the current directory.
 
-The master branch should be reasonably stable. You can get a specific release by
-checking out the branch for the latest version: `git checkout v1.1.2`.
+Go 1.13 and newer are supported (it follows the [Go release policy][rp]). You
+will need a C compiler (for SQLite), or compile it with `CGO_ENABLED=0 go build`
+and use PostgreSQL.
+
+It's recommended to use the latest release as in the above command. The master
+branch should be reasonably stable, but no guarantees, and sometimes I don't
+write release/upgrade notes until the actual release.
 
 It's not recommended to use `go get` in GOPATH mode since that will ignore the
 dependency versions in go.mod.
-
-Go 1.13 and newer are supported (it follows the [Go release policy][rp]). You
-will need a C compiler (for SQLite) or PostgreSQL.
 
 [rp]: https://golang.org/doc/devel/release.html#policy
 
