@@ -12,6 +12,39 @@
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.</p>
 
+<h2 id="table-of-contents">Table of Contents <a href="#table-of-contents"></a></h2>
+<ul id="markdown-toc">
+  <li><a href="#table-of-contents" id="markdown-toc-table-of-contents">Table of Contents</a></li>
+  <li><a href="#events" id="markdown-toc-events">Events</a></li>
+  <li><a href="#content-security-policy" id="markdown-toc-content-security-policy">Content security policy</a></li>
+  <li><a href="#customizing" id="markdown-toc-customizing">Customizing</a>    <ul>
+      <li><a href="#settings" id="markdown-toc-settings">Settings</a></li>
+      <li><a href="#data-parameters" id="markdown-toc-data-parameters">Data parameters</a></li>
+      <li><a href="#methods" id="markdown-toc-methods">Methods</a>        <ul>
+          <li><a href="#countvars" id="markdown-toc-countvars"><code>count(vars)</code></a></li>
+          <li><a href="#bindevents" id="markdown-toc-bindevents"><code>bind_events()</code></a></li>
+          <li><a href="#getqueryname" id="markdown-toc-getqueryname"><code>get_query(name)</code></a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#examples" id="markdown-toc-examples">Examples</a>    <ul>
+      <li><a href="#load-only-on-production" id="markdown-toc-load-only-on-production">Load only on production</a></li>
+      <li><a href="#skip-own-views" id="markdown-toc-skip-own-views">Skip own views</a></li>
+      <li><a href="#custom-path-and-referrer" id="markdown-toc-custom-path-and-referrer">Custom path and referrer</a></li>
+      <li><a href="#multiple-domains" id="markdown-toc-multiple-domains">Multiple domains</a></li>
+      <li><a href="#ignore-query-parameters-in-path" id="markdown-toc-ignore-query-parameters-in-path">Ignore query parameters in path</a></li>
+      <li><a href="#spa" id="markdown-toc-spa">SPA</a></li>
+      <li><a href="#custom-events" id="markdown-toc-custom-events">Custom events</a></li>
+    </ul>
+  </li>
+  <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>    <ul>
+      <li><a href="#image-based-tracking-without-javascript" id="markdown-toc-image-based-tracking-without-javascript">Image-based tracking without JavaScript</a></li>
+      <li><a href="#tracking-from-backend-middleware" id="markdown-toc-tracking-from-backend-middleware">Tracking from backend middleware</a></li>
+    </ul>
+  </li>
+</ul>
+
 <h2 id="events">Events <a href="#events"></a></h2>
 <p>GoatCounter will automatically bind a click event on any element with the
 <code>data-goatcounter-click</code> attribute; for example to track clicks to an external
@@ -73,7 +106,7 @@ are supported:</p>
   </tbody>
 </table>
 
-<h3 id="data">Data <a href="#data"></a></h3>
+<h3 id="data-parameters">Data parameters <a href="#data-parameters"></a></h3>
 <p>You can customize the data sent to GoatCounter; the default value will be used
 if the value is <code>null</code> or <code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
 anything else!</p>
@@ -202,6 +235,38 @@ own browser:</p>
 {{template "code" .}}
 </code></pre>
 
+<h3 id="multiple-domains">Multiple domains <a href="#multiple-domains"></a></h3>
+<p>Right now GoatCounter doesn’t store the domain a pageview belongs to. If you add
+GoatCounter to several (sub)domain then there’s no way to distinguish between
+requests to <code>a.example.com/path</code> and <code>b.example.com/path</code>, as they’re both
+recorded as <code>/path</code>.</p>
+
+<p>This might be improved at some point in the future; the options right now are:</p>
+
+<ol>
+  <li>
+    <p>Create a new “additional site” for every domain; this is a completely
+separate site which inherits the user, login, plan, etc. You will need to use
+a different site code for every (sub)domain.</p>
+  </li>
+  <li>
+    <p>If you want everything in a single overview on a single site, then you can
+add the domain to the path, instead of just sending the path:</p>
+
+    <pre><code>&lt;script&gt;
+    window.goatcounter = {
+        path: function(p) { return location.host + p }
+    }
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
+
+    <p>For subdomains it it might be more useful to just add the first domain label
+instead of the full domain here, depending on taste, or perhaps just a short
+static string.</p>
+  </li>
+</ol>
+
 <h3 id="ignore-query-parameters-in-path">Ignore query parameters in path <a href="#ignore-query-parameters-in-path"></a></h3>
 <p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used automatically, and is the
 easiest way to ignore extraneous query parameters:</p>
@@ -269,7 +334,7 @@ taken in to account.</p>
 
 <h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
 
-<h3 id="image">Image <a href="#image"></a></h3>
+<h3 id="image-based-tracking-without-javascript">Image-based tracking without JavaScript <a href="#image-based-tracking-without-javascript"></a></h3>
 <p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
 an image on your site:</p>
 
@@ -282,7 +347,7 @@ out).</p>
 
 <p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
 
-<h3 id="from-middleware">From middleware <a href="#from-middleware"></a></h3>
+<h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
 <p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your app's
 middleware. It supports the following query parameters:</p>
 

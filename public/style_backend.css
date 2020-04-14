@@ -14,7 +14,10 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 }
 
 /* Don't make various explanatory texts too wide. */
-.page > p, .page > div > p, .page > ul, .page > div > ul, .page > table,
+.page > p, .page > div > p,
+.page > ul, .page > div > ul,
+.page > ol, .page > div > ol,
+.page > table,
 .form-max-width label, .form-max-width textarea, .form-max-width input {
 	max-width: 50em;
 }

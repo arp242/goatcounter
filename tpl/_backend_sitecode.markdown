@@ -8,6 +8,12 @@ Or use one of the ready-made integrations:
 [Gatsby](https://www.npmjs.com/package/gatsby-plugin-goatcounter),
 [schlix](https://www.schlix.com/extensions/analytics/goatcounter.html).
 
+
+Table of Contents
+-----------------
+- TOC
+{:toc}
+
 Events
 ------
 GoatCounter will automatically bind a click event on any element with the
@@ -53,7 +59,7 @@ are supported:
 | `no_events`   | Don’t bind click events.                                                                                    |
 | `allow_local` | Allow requests from local addresses (`localhost`, `192.168.0.0`, etc.) for testing the integration locally. |
 
-### Data
+### Data parameters
 You can customize the data sent to GoatCounter; the default value will be used
 if the value is `null` or `undefined`, but *not* on empty string, `0`, or
 anything else!
@@ -159,6 +165,32 @@ A basic example with some custom logic for `path`:
     </script>
     {{template "code" .}}
 
+### Multiple domains
+Right now GoatCounter doesn’t store the domain a pageview belongs to. If you add
+GoatCounter to several (sub)domain then there’s no way to distinguish between
+requests to `a.example.com/path` and `b.example.com/path`, as they’re both
+recorded as `/path`.
+
+This might be improved at some point in the future; the options right now are:
+
+1. Create a new “additional site” for every domain; this is a completely
+   separate site which inherits the user, login, plan, etc. You will need to use
+   a different site code for every (sub)domain.
+
+2. If you want everything in a single overview on a single site, then you can
+   add the domain to the path, instead of just sending the path:
+
+       <script>
+           window.goatcounter = {
+               path: function(p) { return location.host + p }
+           }
+       </script>
+       {{template "code" .}}
+
+   For subdomains it it might be more useful to just add the first domain label
+   instead of the full domain here, depending on taste, or perhaps just a short
+   static string.
+
 ### Ignore query parameters in path
 The value of `<link rel="canonical">` will be used automatically, and is the
 easiest way to ignore extraneous query parameters:
@@ -222,7 +254,7 @@ taken in to account.
 Advanced integrations
 ---------------------
 
-### Image
+### Image-based tracking without JavaScript
 The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
 an image on your site:
 
@@ -234,7 +266,7 @@ out).
 
 Wrap in a `<noscript>` tag to use this only for people without JavaScript.
 
-### From middleware
+### Tracking from backend middleware
 You can call `GET {{.Site.URL}}/count` from anywhere, such as your app's
 middleware. It supports the following query parameters:
 
