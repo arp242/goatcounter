@@ -77,7 +77,13 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			},
 			Store: zhttp.NewRatelimitMemory(),
 			Limit: func(r *http.Request) (int, int64) {
-				if r.RemoteAddr == "127.0.0.1" { // From httpbuf
+				if !cfg.Prod {
+					return 1 << 32, 1
+				}
+				// From httpbuf
+				// TODO: in some setups this may always be true, e.g. when proxy
+				// through nginx without settings this properly. Need to check.
+				if r.RemoteAddr == "127.0.0.1" {
 					return 1 << 14, 1
 				}
 				return 4, 1

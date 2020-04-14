@@ -164,6 +164,7 @@ func DB(t tester) (context.Context, func()) {
 
 	return ctx, func() {
 		db.Close()
+		goatcounter.Salts.Clear()
 		clean()
 	}
 }

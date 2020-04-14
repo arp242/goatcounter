@@ -208,11 +208,11 @@ func vacuumDeleted(ctx context.Context) error {
 }
 
 func clearSessions(ctx context.Context) error {
-	var query string
+	query := `delete from sessions where last_seen < `
 	if cfg.PgSQL {
-		query = `update sessions set hash=null where last_seen > now() + interval '1 hour'`
+		query += `now() - interval '1 hour'`
 	} else {
-		query = `update sessions set hash=null where last_seen > datetime(datetime(), '+1 hours')`
+		query += `datetime(datetime(), '-1 hours')`
 	}
 	_, err := zdb.MustGet(ctx).ExecContext(ctx, query)
 	return err

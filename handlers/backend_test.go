@@ -145,7 +145,6 @@ func TestBackendCount(t *testing.T) {
 func TestBackendCountSessions(t *testing.T) {
 	now := time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC)
 	goatcounter.Now = func() time.Time { return now }
-	goatcounter.Salts.Clear()
 
 	ctx, clean := gctest.DB(t)
 	defer clean()

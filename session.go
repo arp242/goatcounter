@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/sync/singleflight"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
+	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -33,6 +33,8 @@ type salt struct {
 	mu       sync.Mutex
 	current  string
 	previous string
+
+	firstRefresh sync.Once
 }
 
 var Salts salt
@@ -48,19 +50,18 @@ func (s *salt) Clear() {
 	s.mu.Lock()
 	s.current = ""
 	s.previous = ""
+	s.firstRefresh = sync.Once{}
 	s.mu.Unlock()
 }
 
-var firstRefresh, createSession singleflight.Group
-
 func (s *salt) Get(ctx context.Context) (current, previous string) {
 	if s.current == "" || s.previous == "" {
-		_, err, _ := firstRefresh.Do("firstRefresh", func() (interface{}, error) {
-			return nil, s.Refresh(ctx)
+		s.firstRefresh.Do(func() {
+			err := s.Refresh(ctx)
+			if err != nil {
+				panic(err)
+			}
 		})
-		if err != nil {
-			panic(err)
-		}
 	}
 
 	if s.current == "" {
@@ -135,9 +136,11 @@ func (s *salt) Refresh(ctx context.Context) error {
 	return nil
 }
 
+var createSession syncutil.Once
+
 // GetOrCreate gets the session by hash, creating a new one if it doesn't exist
 // yet.
-func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool, error) {
+func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (createdSession bool, err error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	now := Now()
@@ -147,7 +150,7 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool,
 	h.Write([]byte(fmt.Sprintf("%d%s%s%s", site.ID, ua, remoteAddr, curSalt)))
 	hash := h.Sum(nil)
 
-	err := db.GetContext(ctx, s, `select * from sessions where site=$1 and hash=$2`, site.ID, hash)
+	err = db.GetContext(ctx, s, `select * from sessions where site=$1 and hash=$2`, site.ID, hash)
 	if zdb.ErrNoRows(err) { // Try previous salt.
 		h := sha256.New()
 		h.Write([]byte(fmt.Sprintf("%d%s%s%s", site.ID, ua, remoteAddr, prevSalt)))
@@ -172,7 +175,8 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool,
 		return false, nil
 
 	case sql.ErrNoRows:
-		news, err, _ := createSession.Do(string(hash), func() (interface{}, error) {
+		var outerErr error
+		ran := createSession.Do(string(hash), func() {
 			s.Site = site.ID
 			s.Hash = hash
 			s.CreatedAt = now
@@ -183,22 +187,33 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (bool,
 
 			if cfg.PgSQL {
 				err := zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
-				return s, err
+				outerErr = err
+				return
 			}
 
 			// SQLite
 			res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
 			if err != nil {
-				return s, err
+				outerErr = err
+				return
 			}
 			s.ID, err = res.LastInsertId()
-			return s, err
+			outerErr = err
 		})
-		if err != nil {
-			return true, errors.Wrap(err, "Session.GetOrCreate")
+		if outerErr != nil {
+			return true, errors.Wrap(outerErr, "Session.GetOrCreate")
 		}
 
-		*s = *news.(*Session)
+		// Didn't run, but the first request is finished, so just run again to
+		// use the now-existing session.
+		if !ran {
+			defer func() {
+				time.Sleep(3 * time.Second)
+				createSession.Forget(string(hash))
+			}()
+			return s.GetOrCreate(ctx, ua, remoteAddr)
+		}
+
 		return true, nil
 	}
 }
