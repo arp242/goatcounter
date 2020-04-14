@@ -15299,9 +15299,7 @@ GoatCounter does its best to filter this out, but it’s impossible to do this
 	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
 			<h2>Pages</h2>
-			{{/*
 			<sup class="hide-mobile">(total <span class="total-hits">{{nformat .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> displayed)</sup>
-			*/}}
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
