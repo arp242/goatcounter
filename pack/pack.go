@@ -14617,13 +14617,14 @@ var Templates = map[string][]byte{
 			or subscribe to a plan if you’re using it for commercial
 			websites.</p>
 
-			<p>Select an option on the
+			<p>Choose if you want to subscribe on a plan or continue with the
+			free plan on the
 			{{if .Site.Parent}}
 				<a href="{{parent_site .Context .Site.Parent}}/billing">the parent’s billing page</a>
 			{{else}}
 				<a href="/billing">billing page</a>
 			{{end}}
-			to make this banner go away and you’ll never be asked again.
+			to make this banner go away.
 			<a href="https://www.goatcounter.com/contact" target="_blank">Let me
 				know</a> if you have any questions or comments.</p>
 		</div>
