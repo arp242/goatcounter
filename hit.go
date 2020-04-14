@@ -574,18 +574,14 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		l = l.Since("add totals")
 	}
 
-	// Get total number of hits in the selected time range
-	// TODO: not 100% correct as it doesn't correct for TZ.
+	// Get total number of hits in the selected time range.
 	var total int
 	{
-		query := `
-		    select count(path)
-		    from hits
-		    where
-			    site=$1 and
-			    bot=0 and
-			    created_at >= $2 and
-			    created_at <= $3 `
+		query := `select count(*) from hits where
+			site=$1 and
+			bot=0 and
+			created_at >= $2 and
+			created_at <= $3 `
 		args := []interface{}{site.ID, start, end}
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
