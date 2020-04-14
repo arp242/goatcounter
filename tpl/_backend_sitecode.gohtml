@@ -12,6 +12,31 @@
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.</p>
 
+<h2 id="events">Events <a href="#events"></a></h2>
+<p>GoatCounter will automatically bind a click event on any element with the
+<code>data-goatcounter-click</code> attribute; for example to track clicks to an external
+link as <code>ext-example.com</code>:</p>
+
+<pre><code>&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"&gt;Example&lt;/a&gt;
+</code></pre>
+
+<p>The <code>name</code> or <code>id</code> attribute will be used if <code>data-goatcounter-click</code> is empty,
+in that order.</p>
+
+<p>You can use <code>data-goatcounter-title</code> and <code>data-goatcounter-referral</code> to set the
+title and/or referral:</p>
+
+<pre><code>&lt;a href="https://example.com"
+   data-goatcounter-click="ext-example.com"
+   data-goatcounter-title="Example event"
+   data-goatcounter-referral="hello"
+&gt;Example&lt;/a&gt;
+</code></pre>
+
+<p>The regular <code>title</code> attribute or the element’s HTML (capped to 200 characters)
+is used if <code>data-goatcounter-title</code> is empty. There is no default for the
+referrer.</p>
+
 <h2 id="content-security-policy">Content security policy <a href="#content-security-policy"></a></h2>
 <p>You’ll need the following if you use a <code>Content-Security-Policy</code>:</p>
 
@@ -36,6 +61,10 @@ are supported:</p>
     <tr>
       <td style="text-align: left"><code>no_onload</code></td>
       <td style="text-align: left">Don’t do anything on page load. If you want to call <code>count()</code> manually.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>no_events</code></td>
+      <td style="text-align: left">Don’t bind click events.</td>
     </tr>
     <tr>
       <td style="text-align: left"><code>allow_local</code></td>
@@ -83,26 +112,31 @@ is <code>null</code>.</p>
 <h3 id="methods">Methods <a href="#methods"></a></h3>
 
 <h4 id="countvars"><code>count(vars)</code> <a href="#countvars"></a></h4>
-<p>Count an event; the <code>vars</code> parameter is an object as described in the Data
-section above, and will be merged in to the global <code>window.goatcounter</code>, taking
-precedence.</p>
+<p>Send a pageview or event to GoatCounter; the <code>vars</code> parameter is an object as
+described in the Data section above, and will be merged in to the global
+<code>window.goatcounter</code>, taking precedence.</p>
 
-<p>Be aware that the script is loaded with <code>async</code> by default, so <code>count</code> may not
-yet be available on click events and the like. To solve this, use <code>setInterval</code>
-to wait until it’s available:</p>
+<p>Be aware that the script is loaded with <code>async</code> by default, so <code>count()</code> may not
+yet be available on click events and the like. To solve this, use
+<code>setInterval()</code> to wait until it’s available:</p>
 
 <pre><code>elem.addEventListener('click', function() {
-	var t = setInterval(function() {
-		if (window.goatcounter &amp;amp;&amp;amp; window.goatcounter.count) {
-			clearInterval(t);
-			goatconter.count();
-		}
-	}, 100);
-});
+    var t = setInterval(function() {
+        if (window.goatcounter &amp;&amp; window.goatcounter.count) {
+            clearInterval(t)
+            goatconter.count()
+        }
+    }, 100)
+})
 </code></pre>
 
 <p>The default implementation already handles this, and you only need to worry
 about this if you call <code>count()</code> manually.</p>
+
+<h4 id="bindevents"><code>bind_events()</code> <a href="#bindevents"></a></h4>
+<p>Bind a click event to every element with <code>data-goatcounter-click</code>. Called on
+page load unless <code>no_events</code> is set. You may need to call this manually if you
+insert elements after the page loads.</p>
 
 <h4 id="getqueryname"><code>get_query(name)</code> <a href="#getqueryname"></a></h4>
 <p>Get a single query parameter from the current page’s URL; returns <code>undefined</code> if
@@ -110,10 +144,10 @@ the parameter doesn’t exist. This is useful if you want to get the <code>refer
 from the URL:</p>
 
 <pre><code>&lt;script&gt;
-	referrer: function() {
-		return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
-	}
-};
+    referrer: function() {
+        return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer
+    }
+}
 &lt;/script&gt;
 {{template "code" .}}
 </code></pre>
@@ -125,9 +159,9 @@ from the URL:</p>
 <code>production.com</code> and not <code>staging.com</code> or <code>development.com</code>; for example:</p>
 
 <pre><code>&lt;script&gt;
-	// Only load on production environment.
-	if (window.location.host !== 'production.com')
-		window.goatcounter = {no_onload: true};
+    // Only load on production environment.
+    if (window.location.host !== 'production.com')
+        window.goatcounter = {no_onload: true}
 &lt;/script&gt;
 {{template "code" .}}
 </code></pre>
@@ -140,9 +174,9 @@ ignored</a></p>
 own browser:</p>
 
 <pre><code>&lt;script&gt;
-	if (window.location.hash === '#skipgc')
-		localStorage.setItem('skipgc', 't');
-	window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'};
+    if (window.location.hash === '#skipgc')
+        localStorage.setItem('skipgc', 't')
+    window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'}
 &lt;/script&gt;
 {{template "code" .}}
 </code></pre>
@@ -154,16 +188,16 @@ own browser:</p>
 <p>A basic example with some custom logic for <code>path</code>:</p>
 
 <pre><code>&lt;script&gt;
-	window.goatcounter = {
-		path: function(p) {
-			// Don't track the home page.
-			if (p === '/')
-				return null;
+    window.goatcounter = {
+        path: function(p) {
+            // Don't track the home page.
+            if (p === '/')
+                return null
 
-			// Remove .html from all other page links.
-			return p.replace(/\.html$/, '');
-		},
-	};
+            // Remove .html from all other page links.
+            return p.replace(/\.html$/, '')
+        },
+    }
 &lt;/script&gt;
 {{template "code" .}}
 </code></pre>
@@ -183,9 +217,9 @@ for navigation then you probably <em>don’t</em> want it.</p>
 parameters:</p>
 
 <pre><code>&lt;script&gt;
-	window.goatcounter = {
-		path: location.pathname || '/',
-	};
+    window.goatcounter = {
+        path: location.pathname || '/',
+    }
 &lt;/script&gt;
 {{template "code" .}}
 </code></pre>
@@ -194,16 +228,44 @@ parameters:</p>
 <p>Custom <code>count()</code> example for hooking in to an SPA:</p>
 
 <pre><code>&lt;script&gt;
-	window.goatcounter = {no_onload: true};
+    window.goatcounter = {no_onload: true}
 
-	window.addEventListener('hashchange', function(e) {
-		window.goatcounter.count({
-			path: location.pathname + location.search + location.hash,
-		});
-	});
+    window.addEventListener('hashchange', function(e) {
+        window.goatcounter.count({
+            path: location.pathname + location.search + location.hash,
+        })
+    })
 &lt;/script&gt;
 {{template "code" .}}
 </code></pre>
+
+<h3 id="custom-events">Custom events <a href="#custom-events"></a></h3>
+<p>You can send an event by setting the <code>event</code> parameter to <code>true</code> in <code>count()</code>.
+For example:</p>
+
+<pre><code>$('#banana').on('click', function(e) {
+    window.goatcounter.count({
+        path:  'click-banana',
+        title: 'Yellow curvy fruit',
+        event: true,
+    })
+})
+</code></pre>
+
+<p>Note that the <code>path</code> doubles as the event name. There is currently no real way
+to record the pathname with the event, although you can send it as part of the
+event name with something like:</p>
+
+<pre><code>window.goatcounter.count({
+    path:  function(p) { p + '_banana' },
+    event: true,
+})
+</code></pre>
+
+<p>The callback will have the regular <code>path</code> passed to it, and you can append an
+event name there; you can also use <code>window.location.pathname</code> directly; the
+biggest difference with the passed value is that <code>&lt;link rel="canonical"&gt;</code> is
+taken in to account.</p>
 
 <h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
 
@@ -230,6 +292,8 @@ middleware. It supports the following query parameters:</p>
   <li><code>t</code> → <code>title</code></li>
   <li><code>r</code> → <code>referrer</code></li>
   <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
+  <li><code>rnd</code> → can be used as a “cache buster” since browsers don’t always obey
+<code>Cache-Control</code>; ignored by the backend.</li>
 </ul>
 
 <p>The <code>User-Agent</code> header and remote address are used for the browser and

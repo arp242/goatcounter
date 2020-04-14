@@ -42,20 +42,21 @@ type Hit struct {
 	Path  string            `db:"path" json:"p,omitempty"`
 	Title string            `db:"title" json:"t,omitempty"`
 	Ref   string            `db:"ref" json:"r,omitempty"`
-	Event bool              `db:"event" json:"e,omitempty"`
+	Event sqlutil.Bool      `db:"event" json:"e,omitempty"`
 	Size  sqlutil.FloatList `db:"size" json:"s,omitempty"`
 
-	RefParams      *string   `db:"ref_params" json:"-"`
-	RefOriginal    *string   `db:"ref_original" json:"-"`
-	RefScheme      *string   `db:"ref_scheme" json:"-"`
-	Browser        string    `db:"browser" json:"-"`
-	Location       string    `db:"location" json:"-"`
-	StartedSession bool      `db:"started_session" json:"-"`
-	Bot            int       `db:"bot" json:"-"`
-	CreatedAt      time.Time `db:"created_at" json:"-"`
+	RefParams      *string      `db:"ref_params" json:"-"`
+	RefOriginal    *string      `db:"ref_original" json:"-"`
+	RefScheme      *string      `db:"ref_scheme" json:"-"`
+	Browser        string       `db:"browser" json:"-"`
+	Location       string       `db:"location" json:"-"`
+	StartedSession sqlutil.Bool `db:"started_session" json:"-"`
+	Bot            int          `db:"bot" json:"-"`
+	CreatedAt      time.Time    `db:"created_at" json:"-"`
 
-	RefURL      *url.URL `db:"-" json:"-"` // Parsed Ref
-	UsageDomain string   `db:"-" json:"-"` // Track referrer for usage.
+	RefURL      *url.URL `db:"-" json:"-"`   // Parsed Ref
+	UsageDomain string   `db:"-" json:"-"`   // Track referrer for usage.
+	Random      string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
 }
 
 var groups = map[string]string{
@@ -374,13 +375,13 @@ type Stat struct {
 }
 
 type HitStat struct {
-	Count     int     `db:"count"`
-	Max       int     `db:"-"`
-	DailyMax  int     `db:"-"`
-	Path      string  `db:"path"`
-	Event     bool    `db:"event"`
-	Title     string  `db:"title"`
-	RefScheme *string `db:"ref_scheme"`
+	Count     int          `db:"count"`
+	Max       int          `db:"-"`
+	DailyMax  int          `db:"-"`
+	Path      string       `db:"path"`
+	Event     sqlutil.Bool `db:"event"`
+	Title     string       `db:"title"`
+	RefScheme *string      `db:"ref_scheme"`
 	Stats     []Stat
 }
 
@@ -398,10 +399,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	// Select hits.
 	var st []struct {
-		Path  string    `db:"path"`
-		Title string    `db:"title"`
-		Day   time.Time `db:"day"`
-		Stats []byte    `db:"stats"`
+		Path  string       `db:"path"`
+		Title string       `db:"title"`
+		Event sqlutil.Bool `db:"event"`
+		Day   time.Time    `db:"day"`
+		Stats []byte       `db:"stats"`
 	}
 	var more bool
 	{
@@ -446,22 +448,24 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			*h = x
 			more = true
 		}
+	}
 
-		// Add stats and title.
-		query = `
-			select path, title, day, stats
+	// Add stats and title.
+	{
+		query := `
+			select path, event, title, day, stats
 			from hit_stats
 			where
 				site=$1 and
 				day >= $2 and
 				day <= $3 `
-		args = []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
+		args := []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
 			args = append(args, filter)
 		}
 		query += ` order by day asc`
-		err = db.SelectContext(ctx, &st, query, args...)
+		err := db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
@@ -478,6 +482,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 					var x []int
 					jsonutil.MustUnmarshal(s.Stats, &x)
 					hh[i].Title = s.Title
+					hh[i].Event = s.Event
 					hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
 				}
 			}

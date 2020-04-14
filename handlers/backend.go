@@ -31,6 +31,7 @@ import (
 	"zgo.at/tz"
 	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -253,7 +254,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		hit.Session = &sess.ID
-		hit.StartedSession = started
+		hit.StartedSession = sqlutil.Bool(started)
 	}
 
 	err = hit.Validate(r.Context())
