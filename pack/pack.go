@@ -2050,13 +2050,6 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
   }
 }
 `),
-	"public/apple-touch-icon.png": func() []byte {
-		s, err := base64.StdEncoding.DecodeString("iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAACVBMVEUAACCaFaTDJ86v2gYSAAAAAXRSTlMAQObYZgAAAElJREFUaN7tyrERgCAQAMFvgr4MsD8TE6okQAh0aMDfS28jJEmSNrWni6Zpms6qyzmqNE2n0quPnuOgaZqms+v7PWiapmma/rPuZCFrL487624AAAAASUVORK5CYII=")
-		if err != nil {
-			panic(err)
-		}
-		return s
-	}(),
 	"public/avatar.jpg": func() []byte {
 		s, err := base64.StdEncoding.DecodeString("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")
 		if err != nil {
@@ -2162,7 +2155,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			var send = function() {
 				goatcounter.count({
 					event:    true,
-					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || elem.href || ''),
+					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || ''),
 					title:    (elem.dataset.goatcounterTitle || elem.title || (elem.innerHTML || '').substr(0, 200) || ''),
 					referral: (elem.dataset.goatcounterReferral || ''),
 				})
@@ -14733,240 +14726,296 @@ var Templates = map[string][]byte{
 
 <h2 id="events">Events <a href="#events"></a></h2>
 <p>GoatCounter will automatically bind a click event on any element with the
-<code>data-goatcounter-click</code> attribute; for example to track clicks to an
-external link as <code>ext-example.com</code>:</p>
+<code>data-goatcounter-click</code> attribute; for example to track clicks to an external
+link as <code>ext-example.com</code>:</p>
 
-<pre>
-&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"&gt;Example&lt;/a&gt;
-</pre>
+<pre><code>&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"&gt;Example&lt;/a&gt;
+</code></pre>
 
-<p>The <code>name</code>, <code>id</code>, or <code>href</code> attribute will
-be used if <code>data-goatcounter-click</code> is empty, in that order.</p>
+<p>The <code>name</code> or <code>id</code> attribute will be used if <code>data-goatcounter-click</code> is empty,
+in that order.</p>
 
-<p>You can use <code>data-goatcounter-title</code> and
-<code>data-goatcounter-referral</code> to set the title and/or referral:</p>
-<pre>
-&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"
+<p>You can use <code>data-goatcounter-title</code> and <code>data-goatcounter-referral</code> to set the
+title and/or referral:</p>
+
+<pre><code>&lt;a href="https://example.com"
+   data-goatcounter-click="ext-example.com"
    data-goatcounter-title="Example event"
-   data-goatcounter-referral="hello"&gt;Example&lt;/a&gt;
-</pre>
+   data-goatcounter-referral="hello"
+&gt;Example&lt;/a&gt;
+</code></pre>
 
-<p>The regular <code>title</code> attribute or the element’s HTML (capped to 200
-characters) is used if <code>data-goatcounter-title</code> is empty. There is
-no default for the referrer.
+<p>The regular <code>title</code> attribute or the element’s HTML (capped to 200 characters)
+is used if <code>data-goatcounter-title</code> is empty. There is no default for the
+referrer.</p>
 
-Content security policy
------------------------
-You’ll need the following if you use a ` + "`" + `Content-Security-Policy` + "`" + `:
+<h2 id="content-security-policy">Content security policy <a href="#content-security-policy"></a></h2>
+<p>You’ll need the following if you use a <code>Content-Security-Policy</code>:</p>
 
-	script-src  https://{{.CountDomain}}
-	img-src     {{.Site.URL}}/count
+<pre><code>script-src  https://{{.CountDomain}}
+img-src     {{.Site.URL}}/count
+</code></pre>
 
-Customizing
------------
-Customisation is done with the ` + "`" + `window.goatcounter` + "`" + ` object; the following keys
-are supported:
+<h2 id="customizing">Customizing <a href="#customizing"></a></h2>
+<p>Customisation is done with the <code>window.goatcounter</code> object; the following keys
+are supported:</p>
 
-### Settings
+<h3 id="settings">Settings <a href="#settings"></a></h3>
 
-{:class="reftable"}
-| Setting       | Description                                                                                                 |
-| :------       | :----------                                                                                                 |
-| ` + "`" + `no_onload` + "`" + `   | Don’t do anything on page load. If you want to call ` + "`" + `count()` + "`" + ` manually.                                     |
-| ` + "`" + `no_events` + "`" + `   | Don’t bind click events.                                                                                    |
-| ` + "`" + `allow_local` + "`" + ` | Allow requests from local addresses (` + "`" + `localhost` + "`" + `, ` + "`" + `192.168.0.0` + "`" + `, etc.) for testing the integration locally. |
+<table class="reftable">
+  <thead>
+    <tr>
+      <th style="text-align: left">Setting</th>
+      <th style="text-align: left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code>no_onload</code></td>
+      <td style="text-align: left">Don’t do anything on page load. If you want to call <code>count()</code> manually.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>no_events</code></td>
+      <td style="text-align: left">Don’t bind click events.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>allow_local</code></td>
+      <td style="text-align: left">Allow requests from local addresses (<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing the integration locally.</td>
+    </tr>
+  </tbody>
+</table>
 
-### Data
-You can customize the data sent to GoatCounter; the default value will be used
-if the value is ` + "`" + `null` + "`" + ` or ` + "`" + `undefined` + "`" + `, but *not* on empty string, ` + "`" + `0` + "`" + `, or
-anything else!
+<h3 id="data">Data <a href="#data"></a></h3>
+<p>You can customize the data sent to GoatCounter; the default value will be used
+if the value is <code>null</code> or <code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
+anything else!</p>
 
-The value can be a callback: the default value is passed and the return value is
-sent to the server. Nothing is sent if the return value from the ` + "`" + `path` + "`" + ` callback
-is ` + "`" + `null` + "`" + `.
+<p>The value can be a callback: the default value is passed and the return value is
+sent to the server. Nothing is sent if the return value from the <code>path</code> callback
+is <code>null</code>.</p>
 
-{:class="reftable"}
-| Variable   | Description                                                                                                                                        |
-| :-------   | :----------                                                                                                                                        |
-| ` + "`" + `path` + "`" + `     | Page path (without domain) or event name. Default is the value of ` + "`" + `<link rel="canonical" />` + "`" + ` if it exists, or ` + "`" + `location.pathname + location.search` + "`" + `. |
-| ` + "`" + `title` + "`" + `    | Human-readable title. Default is ` + "`" + `document.title` + "`" + `.                                                                                                 |
-| ` + "`" + `referrer` + "`" + ` | Where the user came from; can be an URL (` + "`" + `https://example.com` + "`" + `) or any string (` + "`" + `June Newsletter` + "`" + `). Default is to use the ` + "`" + `Referer` + "`" + ` header.         |
-| ` + "`" + `event` + "`" + `    | Treat the ` + "`" + `path` + "`" + ` as an event, rather than a URL. Boolean.                                                                                          |
+<table class="reftable">
+  <thead>
+    <tr>
+      <th style="text-align: left">Variable</th>
+      <th style="text-align: left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code>path</code></td>
+      <td style="text-align: left">Page path (without domain) or event name. Default is the value of <code>&lt;link rel="canonical"&gt;</code> if it exists, or <code>location.pathname + location.search</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>title</code></td>
+      <td style="text-align: left">Human-readable title. Default is <code>document.title</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>referrer</code></td>
+      <td style="text-align: left">Where the user came from; can be an URL (<code>https://example.com</code>) or any string (<code>June Newsletter</code>). Default is to use the <code>Referer</code> header.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>event</code></td>
+      <td style="text-align: left">Treat the <code>path</code> as an event, rather than a URL. Boolean.</td>
+    </tr>
+  </tbody>
+</table>
 
-### Methods
+<h3 id="methods">Methods <a href="#methods"></a></h3>
 
-#### ` + "`" + `count(vars)` + "`" + `
-Count an event; the ` + "`" + `vars` + "`" + ` parameter is an object as described in the Data
-section above, and will be merged in to the global ` + "`" + `window.goatcounter` + "`" + `, taking
-precedence.
+<h4 id="countvars"><code>count(vars)</code> <a href="#countvars"></a></h4>
+<p>Send a pageview or event to GoatCounter; the <code>vars</code> parameter is an object as
+described in the Data section above, and will be merged in to the global
+<code>window.goatcounter</code>, taking precedence.</p>
 
-Be aware that the script is loaded with ` + "`" + `async` + "`" + ` by default, so ` + "`" + `count` + "`" + ` may not
-yet be available on click events and the like. To solve this, use ` + "`" + `setInterval` + "`" + `
-to wait until it’s available:
+<p>Be aware that the script is loaded with <code>async</code> by default, so <code>count()</code> may not
+yet be available on click events and the like. To solve this, use
+<code>setInterval()</code> to wait until it’s available:</p>
 
-	elem.addEventListener('click', function() {
-		var t = setInterval(function() {
-			if (window.goatcounter &amp;&amp; window.goatcounter.count) {
-				clearInterval(t);
-				goatconter.count();
-			}
-		}, 100);
-	});
+<pre><code>elem.addEventListener('click', function() {
+    var t = setInterval(function() {
+        if (window.goatcounter &amp;&amp; window.goatcounter.count) {
+            clearInterval(t)
+            goatconter.count()
+        }
+    }, 100)
+})
+</code></pre>
 
-The default implementation already handles this, and you only need to worry
-about this if you call ` + "`" + `count()` + "`" + ` manually.
+<p>The default implementation already handles this, and you only need to worry
+about this if you call <code>count()</code> manually.</p>
 
-#### ` + "`" + `bind_events()` + "`" + `
-Bind a click event to every element with ` + "`" + `data-goatcounter-click` + "`" + `. Called on
-page load unless ` + "`" + `no_events` + "`" + ` is set. You may need to call this manually if you
-insert elements after the page loads.
+<h4 id="bindevents"><code>bind_events()</code> <a href="#bindevents"></a></h4>
+<p>Bind a click event to every element with <code>data-goatcounter-click</code>. Called on
+page load unless <code>no_events</code> is set. You may need to call this manually if you
+insert elements after the page loads.</p>
 
-#### ` + "`" + `get_query(name)` + "`" + `
-Get a single query parameter from the current page’s URL; returns ` + "`" + `undefined` + "`" + ` if
-the parameter doesn’t exist. This is useful if you want to get the ` + "`" + `referrer` + "`" + `
-from the URL:
+<h4 id="getqueryname"><code>get_query(name)</code> <a href="#getqueryname"></a></h4>
+<p>Get a single query parameter from the current page’s URL; returns <code>undefined</code> if
+the parameter doesn’t exist. This is useful if you want to get the <code>referrer</code>
+from the URL:</p>
 
-	<script>
-		referrer: function() {
-			return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer;
-		}
-	};
-	</script>
-	{{template "code" .}}
+<pre><code>&lt;script&gt;
+    referrer: function() {
+        return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer
+    }
+}
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
 
-Examples
---------
+<h2 id="examples">Examples <a href="#examples"></a></h2>
 
-### Load only on production
-You can check ` + "`" + `location.host` + "`" + ` if you want to load GoatCounter only on
-` + "`" + `production.com` + "`" + ` and not ` + "`" + `staging.com` + "`" + ` or ` + "`" + `development.com` + "`" + `; for example:
+<h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
+<p>You can check <code>location.host</code> if you want to load GoatCounter only on
+<code>production.com</code> and not <code>staging.com</code> or <code>development.com</code>; for example:</p>
 
-	<script>
-		// Only load on production environment.
-		if (window.location.host !== 'production.com')
-			window.goatcounter = {no_onload: true};
-	</script>
-	{{template "code" .}}
+<pre><code>&lt;script&gt;
+    // Only load on production environment.
+    if (window.location.host !== 'production.com')
+        window.goatcounter = {no_onload: true}
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
 
-Note that [request from localhost are already
-ignored](https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72)
+<p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">request from localhost are already
+ignored</a></p>
 
-### Skip own views
-You can use the same technique as a client-side way to skip loading from your
-own browser:
+<h3 id="skip-own-views">Skip own views <a href="#skip-own-views"></a></h3>
+<p>You can use the same technique as a client-side way to skip loading from your
+own browser:</p>
 
-	<script>
-		if (window.location.hash === '#skipgc')
-			localStorage.setItem('skipgc', 't');
-		window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'};
-	</script>
-	{{template "code" .}}
+<pre><code>&lt;script&gt;
+    if (window.location.hash === '#skipgc')
+        localStorage.setItem('skipgc', 't')
+    window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'}
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
 
-You can also fill in your IP address in the settings, or (temporarily) block the
-` + "`" + `{{.CountDomain}}` + "`" + ` domain.
+<p>You can also fill in your IP address in the settings, or (temporarily) block the
+<code>{{.CountDomain}}</code> domain.</p>
 
-### Custom path and referrer
-A basic example with some custom logic for ` + "`" + `path` + "`" + `:
+<h3 id="custom-path-and-referrer">Custom path and referrer <a href="#custom-path-and-referrer"></a></h3>
+<p>A basic example with some custom logic for <code>path</code>:</p>
 
-	<script>
-		window.goatcounter = {
-			path: function(p) {
-				// Don't track the home page.
-				if (p === '/')
-					return null;
+<pre><code>&lt;script&gt;
+    window.goatcounter = {
+        path: function(p) {
+            // Don't track the home page.
+            if (p === '/')
+                return null
 
-				// Remove .html from all other page links.
-				return p.replace(/\.html$/, '');
-			},
-		};
-	</script>
-	{{template "code" .}}
+            // Remove .html from all other page links.
+            return p.replace(/\.html$/, '')
+        },
+    }
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
 
-### Ignore query parameters in path
-The value of ` + "`" + `<link rel="canonical" />` + "`" + ` will be used automatically, and is the
-easiest way to ignore extraneous query parameters:
+<h3 id="ignore-query-parameters-in-path">Ignore query parameters in path <a href="#ignore-query-parameters-in-path"></a></h3>
+<p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used automatically, and is the
+easiest way to ignore extraneous query parameters:</p>
 
-	<link rel="canonical" href="https://example.com/path.html" />
+<pre><code>&lt;link rel="canonical" href="https://example.com/path.html"&gt;
+</code></pre>
 
-The ` + "`" + `href` + "`" + ` can also be relative (e.g. ` + "`" + `/path.html` + "`" + `. Be sure to understand the
+<p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be sure to understand the
 potential SEO effects before adding a canonical URL! If you use query parameters
-for navigation then you probably *don’t* want it.
+for navigation then you probably <em>don’t</em> want it.</p>
 
-Alternatively you can send a custom ` + "`" + `path` + "`" + ` without the query
-parameters:
+<p>Alternatively you can send a custom <code>path</code> without the query
+parameters:</p>
 
-	<script>
-		window.goatcounter = {
-			path: location.pathname || '/',
-		};
-	</script>
-	{{template "code" .}}
+<pre><code>&lt;script&gt;
+    window.goatcounter = {
+        path: location.pathname || '/',
+    }
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
 
-### SPA
-Custom ` + "`" + `count()` + "`" + ` example for hooking in to an SPA:
+<h3 id="spa">SPA <a href="#spa"></a></h3>
+<p>Custom <code>count()</code> example for hooking in to an SPA:</p>
 
-	<script>
-		window.goatcounter = {no_onload: true};
+<pre><code>&lt;script&gt;
+    window.goatcounter = {no_onload: true}
 
-		window.addEventListener('hashchange', function(e) {
-			window.goatcounter.count({
-				path: location.pathname + location.search + location.hash,
-			});
-		});
-	</script>
-	{{template "code" .}}
+    window.addEventListener('hashchange', function(e) {
+        window.goatcounter.count({
+            path: location.pathname + location.search + location.hash,
+        })
+    })
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
 
-### Custom events
-You can send an event by setting the ` + "`" + `event` + "`" + ` parameter to ` + "`" + `true` + "`" + ` in ` + "`" + `count()` + "`" + `.
-For example:
+<h3 id="custom-events">Custom events <a href="#custom-events"></a></h3>
+<p>You can send an event by setting the <code>event</code> parameter to <code>true</code> in <code>count()</code>.
+For example:</p>
 
-	$('#banana').on('click', function(e) {
-		window.goatcounter.count({
-			path:  'click-banana',
-			title: 'Yellow curvy fruit',
-			event: true,
-		});
-	})
+<pre><code>$('#banana').on('click', function(e) {
+    window.goatcounter.count({
+        path:  'click-banana',
+        title: 'Yellow curvy fruit',
+        event: true,
+    })
+})
+</code></pre>
 
-Note that the ` + "`" + `path` + "`" + ` doubles as the event name.
+<p>Note that the <code>path</code> doubles as the event name. There is currently no real way
+to record the pathname with the event, although you can send it as part of the
+event name with something like:</p>
 
-Advanced integrations
----------------------
+<pre><code>window.goatcounter.count({
+    path:  function(p) { p + '_banana' },
+    event: true,
+})
+</code></pre>
 
-### Image
-The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
-an image on your site:
+<p>The callback will have the regular <code>path</code> passed to it, and you can append an
+event name there; you can also use <code>window.location.pathname</code> directly; the
+biggest difference with the passed value is that <code>&lt;link rel="canonical"&gt;</code> is
+taken in to account.</p>
 
-	<img src="{{.Site.URL}}/count?p=/test-img" />
+<h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
 
-This won’t allow recording the referral or screen size though, and may also
+<h3 id="image">Image <a href="#image"></a></h3>
+<p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
+an image on your site:</p>
+
+<pre><code>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;
+</code></pre>
+
+<p>This won’t allow recording the referral or screen size though, and may also
 increase the number of bot requests (although we do our best to filter this
-out).
+out).</p>
 
-Wrap in a ` + "`" + `<noscript>` + "`" + ` tag to use this only for people without JavaScript.
+<p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
 
-### From middleware
-You can call ` + "`" + `GET {{.Site.URL}}/count` + "`" + ` from anywhere, such as your app's
-middleware. It supports the following query parameters:
+<h3 id="from-middleware">From middleware <a href="#from-middleware"></a></h3>
+<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your app's
+middleware. It supports the following query parameters:</p>
 
-- ` + "`" + `p` + "`" + ` → ` + "`" + `path` + "`" + `
-- ` + "`" + `e` + "`" + ` → ` + "`" + `event` + "`" + `
-- ` + "`" + `t` + "`" + ` → ` + "`" + `title` + "`" + `
-- ` + "`" + `r` + "`" + ` → ` + "`" + `referrer` + "`" + `
-- ` + "`" + `s` + "`" + ` → screen size, as ` + "`" + `x,y,scaling` + "`" + `.
-- ` + "`" + `rnd` + "`" + ` → can be used as a “cache buster” since browsers don’t always obey
-  ` + "`" + `Cache-Control` + "`" + `; ignored by the backend.
+<ul>
+  <li><code>p</code> → <code>path</code></li>
+  <li><code>e</code> → <code>event</code></li>
+  <li><code>t</code> → <code>title</code></li>
+  <li><code>r</code> → <code>referrer</code></li>
+  <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
+  <li><code>rnd</code> → can be used as a “cache buster” since browsers don’t always obey
+<code>Cache-Control</code>; ignored by the backend.</li>
+</ul>
 
-The ` + "`" + `User-Agent` + "`" + ` header and remote address are used for the browser and
-location.
+<p>The <code>User-Agent</code> header and remote address are used for the browser and
+location.</p>
 
-Calling it from the middleware or as will probably result in more bot requests.
+<p>Calling it from the middleware or as will probably result in more bot requests.
 GoatCounter does its best to filter this out, but it’s impossible to do this
-100% reliably.
+100% reliably.</p>
 
 {{end}} {{/* if eq .Path "/settings" */}}
-</noscript></p>
-Warning: Found no end tag for 'noscript' on line 224 - auto-closing it
 `),
 	"tpl/_backend_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">

@@ -96,7 +96,7 @@
 			var send = function() {
 				goatcounter.count({
 					event:    true,
-					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || elem.href || ''),
+					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || ''),
 					title:    (elem.dataset.goatcounterTitle || elem.title || (elem.innerHTML || '').substr(0, 200) || ''),
 					referral: (elem.dataset.goatcounterReferral || ''),
 				})
