@@ -239,7 +239,13 @@
 					if there's anything in particular you're missing in Goatcounter,
 					or any other reasons you have for wanting to delete your
 					account. This is entirely optional.</label><br>
-				<textarea id="reason" name="reason"></textarea><br><br>
+				<textarea id="reason" name="reason" placeholder="Optional reason for deletion"></textarea><br><br>
+
+				<label>{{checkbox true "contact_me"}} It’s okay to follow up</label><br>
+				<div style="max-width: 40em; color: #333;">I might contact you with some follow-up questions or
+					commentary if you leave this checked. I won’t try to
+					convince you to stay, but I might outline future plans if
+					you’re missing a particular feature, for example.</div><br>
 			{{end}}
 
 			<button type="submit">Delete site</button> (no confirmation)
