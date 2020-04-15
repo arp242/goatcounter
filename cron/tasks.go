@@ -184,14 +184,14 @@ func vacuumDeleted(ctx context.Context) error {
 	var sites goatcounter.Sites
 	err := sites.OldSoftDeleted(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("vacuumDeleted: %w", err)
 	}
 
 	for _, s := range sites {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
 
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
-			for _, t := range []string{"usage", "browser_stats", "hit_stats", "hits", "location_stats", "ref_stats", "size_stats", "users"} {
+			for _, t := range []string{"usage", "browser_stats", "hit_stats", "sessions", "hits", "location_stats", "ref_stats", "size_stats", "users"} {
 				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
 				if err != nil {
 					return fmt.Errorf("%s: %w", t, err)
@@ -201,7 +201,7 @@ func vacuumDeleted(ctx context.Context) error {
 			return err
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("vacuumDeleted: %w", err)
 		}
 	}
 	return nil
