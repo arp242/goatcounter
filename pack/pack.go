@@ -12375,7 +12375,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						return;
 					}
 					current.push(data);
-					input.val(current.join(', '));
+					var set = current.join(', ');
+					input.val(set).
+						trigger('focus')[0].
+						setSelectionRange(set.length, set.length);
 				},
 			});
 		});
