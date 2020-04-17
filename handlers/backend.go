@@ -12,6 +12,7 @@ import (
 	"net/http/pprof"
 	"net/mail"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,7 +34,6 @@ import (
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
@@ -832,21 +832,38 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings")
 }
 
+func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
+	site := goatcounter.MustGetSite(r.Context())
+
+	ctx := goatcounter.NewContext(r.Context())
+
+	f := goatcounter.ExportFile(site) + ".progress"
+	fp, err := os.Create(f)
+	if err != nil {
+		return err
+	}
+	go goatcounter.Export(ctx, fp)
+
+	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
+	return zhttp.SeeOther(w, "/settings#tab-export")
+}
+
 func (h backend) downloadExport(w http.ResponseWriter, r *http.Request) error {
-	// TODO: instead of writing to one file, write to a "[..].progress" file and
-	// rename that when it's done. Otherwise there is no way to see if something
-	// was aborted.
 	f := goatcounter.ExportFile(goatcounter.MustGetSite(r.Context()))
 	fp, err := os.Open(f)
 	if err != nil {
-		// TODO: friendly error if not exists.
+		if os.IsNotExist(err) {
+			zhttp.FlashError(w, "It looks like there is no export yet.")
+			return zhttp.SeeOther(w, "/settings#tab-export")
+		}
+
 		return err
 	}
 	defer fp.Close()
 
 	err = header.SetContentDisposition(w.Header(), header.DispositionArgs{
 		Type:     header.TypeAttachment,
-		Filename: f,
+		Filename: filepath.Base(f),
 	})
 	if err != nil {
 		return err
@@ -854,23 +871,6 @@ func (h backend) downloadExport(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("Content-Type", "text/csv")
 	return zhttp.Stream(w, fp)
-}
-
-func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
-	ctx := context.Background()
-	ctx = zdb.With(ctx, zdb.MustGet(r.Context()))
-	ctx = context.WithValue(ctx, ctxkey.Site, site)
-
-	f := goatcounter.ExportFile(site)
-	fp, err := os.Create(f)
-	if err != nil {
-		return err
-	}
-	go goatcounter.Export(ctx, fp)
-
-	zhttp.Flash(w, "Export started in the background; you’ll get an email when it’s done with a link.")
-	return zhttp.SeeOther(w, "/settings#tab-export")
 }
 
 func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {

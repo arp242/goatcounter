@@ -9,25 +9,33 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"io"
 	"net/mail"
 	"os"
 	"time"
 
 	"zgo.at/utils/sliceutil"
-	"zgo.at/zdb"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 )
+
+const emailExportDone = `Hi there,
+
+The GoatCounter export you’ve requested is finished, go here to download it:
+%s/download-export
+
+The file size is %.1fM, and the export will be removed after 24 hours.
+
+Feel free to reply to this email if you have any questions or problems.
+`
 
 func ExportFile(site *Site) string {
 	return fmt.Sprintf("%s/goatcounter-export-%s.csv.gz", os.TempDir(), site.Code)
 }
 
 // Export all data to a CSV file.
-//
-// TODO: cron job to remove these files.
-func Export(ctx context.Context, fp io.WriteCloser) {
+func Export(ctx context.Context, fp *os.File) {
+	site := MustGetSite(ctx)
+
 	defer fp.Close()
 
 	gzfp := gzip.NewWriter(fp)
@@ -39,24 +47,20 @@ func Export(ctx context.Context, fp io.WriteCloser) {
 		"Original Referrer", "Browser", "Screen size", "Location",
 		"Date"})
 
-	l := zlog.Module("export").Field("site", MustGetSite(ctx).ID)
+	l := zlog.Module("export").Field("site", site.ID)
+	l.Print("export started")
 	var (
 		last int64
 		err  error
 	)
+
 	for {
 		var hits Hits
 		last, err = hits.List(ctx, 5000, last)
-		if zdb.ErrNoRows(err) {
-			// TODO: better.
-			zmail.Send("GoatCounter export ready",
-				mail.Address{Name: "GoatCounter export", Address: "support@goatcounter.com"},
-				[]mail.Address{{Address: "support@goatcounter.com"}},
-				fmt.Sprintf(""))
+		if len(hits) == 0 {
 			break
 		}
 		if err != nil {
-			l.Error(err)
 			break
 		}
 
@@ -78,8 +82,49 @@ func Export(ctx context.Context, fp io.WriteCloser) {
 		c.Flush()
 		err = c.Error()
 		if err != nil {
-			l.Error(err)
 			break
 		}
 	}
+
+	if err != nil {
+		l.Error(err)
+		gzfp.Close()
+		fp.Close()
+		os.Remove(fp.Name())
+		return
+	}
+
+	err = gzfp.Close()
+	if err != nil {
+		l.Error(err)
+		return
+	}
+	err = fp.Sync()
+	if err != nil {
+		l.Error(err)
+		return
+	}
+
+	stat, err := fp.Stat() // Needs to be before Close.
+	var size float64
+	if err == nil {
+		size = float64(stat.Size()) / 1024 / 1024
+	}
+
+	err = fp.Close()
+	if err != nil {
+		l.Error(err)
+		return
+	}
+
+	err = os.Rename(fp.Name(), ExportFile(site))
+	if err != nil {
+		l.Error(err)
+		return
+	}
+
+	zmail.Send("GoatCounter export ready",
+		mail.Address{Name: "GoatCounter export", Address: "support@goatcounter.com"},
+		[]mail.Address{{Address: "support@goatcounter.com"}},
+		fmt.Sprintf(emailExportDone, site.URL(), size))
 }

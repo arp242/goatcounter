@@ -15719,10 +15719,18 @@ parent site includes the child sites.</p>
 <div>
 	<h2 id="export">Export</h2>
 	<p>Export all page hits as CSV, for backups, or if you want to import
-		somewhere else. This will start the process and email you once it’s done.
-		You can only do this twice a day.</p>
+	somewhere else.</p>
 
-	<p>The first line is a header with the field descriptions. The fields, in order are:</p>
+	<p>This will start the process and email you a download link once it’s done.
+	You can only do this once a day.</p>
+
+	<form method="post" action="/start-export">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<button type="submit">Start export</button>
+	</form>
+
+	<h2>CSV format</h2>
+	<p>The first line is a header with the field names. The fields, in order, are:</p>
 	<table class="table-left">
 		<tr><th>Path</th><td>Path name (e.g. <code>/a.html</code>). This also doubles as the event name.</td></tr>
 		<tr><th>Title</th><td>Page title that was sent.</td></tr>
@@ -15740,11 +15748,6 @@ parent site includes the child sites.</p>
 		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
 		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
 	</table>
-
-	<form method="post" action="/start-export">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<button type="submit">Start export</button>
-	</form>
 </div>
 
 {{if .Saas}}

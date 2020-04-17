@@ -296,30 +296,6 @@ func TestBackendIndex(t *testing.T) {
 	}
 }
 
-func TestBackendExport(t *testing.T) {
-	tests := []handlerTest{
-		{
-			setup: func(ctx context.Context, t *testing.T) {
-				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				gctest.StoreHits(ctx, t, []goatcounter.Hit{
-					{Site: 1, Path: "/asd", CreatedAt: now},
-					{Site: 1, Path: "/asd", CreatedAt: now},
-					{Site: 1, Path: "/zxc", CreatedAt: now},
-				}...)
-			},
-			router:   newBackend,
-			path:     "/export/hits.csv",
-			auth:     true,
-			wantCode: 200,
-			wantBody: "/zxc",
-		},
-	}
-
-	for _, tt := range tests {
-		runTest(t, tt, nil)
-	}
-}
-
 func TestBackendTpl(t *testing.T) {
 	tests := []handlerTest{
 		{
