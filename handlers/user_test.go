@@ -6,22 +6,26 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
 )
 
 func TestUserNew(t *testing.T) {
 	tests := []handlerTest{
 		{
-			name:         "basic",
-			router:       newBackend,
+			name:   "basic",
+			router: newBackend,
+			setup: func(ctx context.Context, t *testing.T) {
+				u := goatcounter.User{Site: 1, Name: "Example", Email: "test@example.com", Password: []byte("coconuts")}
+				err := u.Insert(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
 			path:         "/user/new",
 			wantCode:     200,
 			wantFormCode: 200,
@@ -33,58 +37,12 @@ func TestUserNew(t *testing.T) {
 	}
 }
 
-func TestUserRequestLogin(t *testing.T) {
-	tests := []handlerTest{
-		{
-			name: "basic",
-			setup: func(ctx context.Context, t *testing.T) {
-				user := goatcounter.User{Site: 1, Name: "new site", Email: "new@example.com"}
-				err := user.Insert(ctx)
-				if err != nil {
-					panic(err)
-				}
-			},
-			router:       newBackend,
-			method:       "POST",
-			path:         "/user/requestlogin",
-			body:         map[string]string{"email": "new@example.com"},
-			wantCode:     303,
-			wantFormCode: 303,
-		},
-		{
-			name:         "nonexistent",
-			router:       newBackend,
-			method:       "POST",
-			path:         "/user/requestlogin",
-			body:         map[string]string{"email": "nonexistent@example.com"},
-			wantCode:     303,
-			wantFormCode: 303,
-		},
-	}
-
-	for _, tt := range tests {
-		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			msg := fmt.Sprintf("%v", zhttp.ReadFlash(rr, r))
-			var want string
-			if tt.name == "basic" {
-				want = `&{i All good. Login URL emailed to "new@example.com"; please click it in the next hour to continue.`
-			} else {
-				want = `&{e Not an account on this site: "nonexistent@example.com"}`
-			}
-
-			if !strings.HasPrefix(msg, want) {
-				t.Errorf("wrong flash\nwant: %q\nout:  %q", want, msg)
-			}
-		})
-	}
-}
-
 func TestUserLogin(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name: "basic",
 			setup: func(ctx context.Context, t *testing.T) {
-				user := goatcounter.User{Site: 1, Name: "new site", Email: "new@example.com"}
+				user := goatcounter.User{Site: 1, Name: "new site", Email: "new@example.com", Password: []byte("coconuts")}
 				err := user.Insert(ctx)
 				if err != nil {
 					panic(err)

@@ -243,6 +243,27 @@
 	</table>
 </div>
 
+<div>
+	<h2 id="change-password">Change password</h2>
+
+	<form method="post" action="/user/change-password" class="form-max-width vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		{{if .User.Password}}
+			<label for="c_password">Current password</label>
+			<input type="password" name="c_password" id="c_password" required><br>
+		{{end}}
+
+		<label for="password">New password</label>
+		<input type="password" name="password" id="password" required><br>
+
+		<label for="password2">New password (confirm)</label>
+		<input type="password" name="password2" id="password2" required><br>
+
+		<button>Change password</button>
+	</form>
+</div>
+
 {{if .Saas}}
 	<div>
 		<h2 id="delete">Delete account</h2>

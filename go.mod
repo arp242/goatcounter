@@ -12,7 +12,7 @@ require (
 	github.com/monoculum/formam v0.0.0-20200316225015-49f0baed3a1b
 	github.com/mssola/user_agent v0.5.1
 	github.com/teamwork/reload v1.3.1
-	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678
+	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	honnef.co/go/tools v0.0.1-2020.1.3
 	zgo.at/guru v1.1.0
@@ -25,5 +25,5 @@ require (
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41
-	zgo.at/zvalidate v0.0.0-20200401232120-0b57ac59f5e0
+	zgo.at/zvalidate v0.0.0-20200417055504-a940f5b1be33
 )

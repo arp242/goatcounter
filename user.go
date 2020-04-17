@@ -11,9 +11,11 @@ import (
 	"net/mail"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/guru"
+	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
@@ -32,14 +34,17 @@ type User struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
 
-	Name          string     `db:"name" json:"name"`
-	Email         string     `db:"email" json:"email"`
-	Role          string     `db:"role" json:"-"`
-	LoginAt       *time.Time `db:"login_at" json:"-"`
-	LoginRequest  *string    `db:"login_request" json:"-"`
-	LoginToken    *string    `db:"login_token" json:"-"`
-	CSRFToken     *string    `db:"csrf_token" json:"-"`
-	SeenUpdatesAt time.Time  `db:"seen_updates_at" json:"-"`
+	Name          string       `db:"name" json:"name"`
+	Email         string       `db:"email" json:"email"`
+	EmailVerified sqlutil.Bool `db:"email_verified" json:"-"`
+	Password      []byte       `db:"password" json:"-"`
+	Role          string       `db:"role" json:"-"`
+	LoginAt       *time.Time   `db:"login_at" json:"-"`
+	ResetAt       *time.Time   `db:"reset_at" json:"-"`
+	LoginRequest  *string      `db:"login_request" json:"-"`
+	LoginToken    *string      `db:"login_token" json:"-"`
+	CSRFToken     *string      `db:"csrf_token" json:"-"`
+	SeenUpdatesAt time.Time    `db:"seen_updates_at" json:"-"`
 
 	CreatedAt time.Time  `db:"created_at" json:"-"`
 	UpdatedAt *time.Time `db:"updated_at" json:"-"`
@@ -60,18 +65,37 @@ func (u *User) Defaults(ctx context.Context) {
 }
 
 // Validate the object.
-func (u *User) Validate(ctx context.Context) error {
+func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 	v := zvalidate.New()
 
 	v.Required("site", u.Site)
-	v.Required("name", u.Name)
 	v.Required("email", u.Email)
-
-	v.Len("name", u.Name, 1, 200)
 	v.Len("email", u.Email, 5, 255)
 	v.Email("email", u.Email)
+	if u.Name != "" {
+		v.Len("name", u.Name, 1, 200)
+	}
+
+	if validatePassword {
+		sp := string(u.Password)
+		v.Required("password", u.Password)
+		v.UTF8("password", sp)
+		v.Len("password", sp, 8, 30)
+	}
 
 	return v.ErrorOrNil()
+}
+
+// Hash the password, replacing the plain-text one.
+func (u *User) hashPassword() error {
+	// TODO: ensure it's not hashed already, just as safety.
+
+	pwd, err := bcrypt.GenerateFromPassword(u.Password, bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("User.hashPassword: %w", err)
+	}
+	u.Password = pwd
+	return nil
 }
 
 // Insert a new row.
@@ -81,14 +105,19 @@ func (u *User) Insert(ctx context.Context) error {
 	}
 
 	u.Defaults(ctx)
-	err := u.Validate(ctx)
+	err := u.Validate(ctx, true)
 	if err != nil {
 		return err
 	}
 
+	err = u.hashPassword()
+	if err != nil {
+		return errors.Wrap(err, "User.Insert")
+	}
+
 	res, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`insert into users (site, name, email, created_at) values ($1, $2, $3, $4)`,
-		u.Site, u.Name, u.Email, u.CreatedAt.Format(zdb.Date))
+		`insert into users (site, name, email, password, created_at) values ($1, $2, $3, $4, $5)`,
+		u.Site, u.Name, u.Email, u.Password, u.CreatedAt.Format(zdb.Date))
 	if err != nil {
 		if zdb.ErrUnique(err) {
 			return guru.New(400, "this user already exists")
@@ -103,17 +132,17 @@ func (u *User) Insert(ctx context.Context) error {
 	} else {
 		u.ID, err = res.LastInsertId()
 	}
-	return errors.Wrap(err, "User.Insert")
+	return errors.Wrap(err, "User.Insert: get ID")
 }
 
-// Update this user's name and email.
+// Update this user's name, email.
 func (u *User) Update(ctx context.Context) error {
 	if u.ID == 0 {
 		return errors.New("ID == 0")
 	}
 
 	u.Defaults(ctx)
-	err := u.Validate(ctx)
+	err := u.Validate(ctx, false)
 	if err != nil {
 		return err
 	}
@@ -122,6 +151,42 @@ func (u *User) Update(ctx context.Context) error {
 		`update users set name=$1, email=$2, updated_at=$3 where id=$4`,
 		u.Name, u.Email, u.UpdatedAt.Format(zdb.Date), u.ID)
 	return errors.Wrap(err, "User.Update")
+}
+
+// UpdatePassword updates this user's password.
+func (u *User) UpdatePassword(ctx context.Context, pwd string) error {
+	if u.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	u.Password = []byte(pwd)
+	u.Defaults(ctx)
+	err := u.Validate(ctx, true)
+	if err != nil {
+		return err
+	}
+
+	err = u.hashPassword()
+	if err != nil {
+		return errors.Wrap(err, "User.UpdatePassword")
+	}
+
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+		`update users set password=$1, updated_at=$2 where id=$3`,
+		u.Password, u.UpdatedAt.Format(zdb.Date), u.ID)
+	return errors.Wrap(err, "User.UpdatePassword")
+}
+
+// CorrectPassword verifies that this password is correct.
+func (u User) CorrectPassword(pwd string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(u.Password, []byte(pwd))
+	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("user.CorrectPassword: %w", err)
+	}
+	return true, nil
 }
 
 // ByEmail gets a user by email address.
@@ -150,6 +215,21 @@ func (u *User) ByLoginRequest(ctx context.Context, key string) error {
 
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, query,
 		key, MustGetSite(ctx).IDOrParent()), "User.ByLoginRequest")
+}
+
+// ByResetToken gets a user by login request key.
+func (u *User) ByResetToken(ctx context.Context, key string) error {
+	query := `select * from users
+		where login_request=$1 and site=$2 and `
+
+	if cfg.PgSQL {
+		query += `reset_at + interval '60 minutes' > now()`
+	} else {
+		query += `datetime(reset_at, '+60 minutes') > datetime()`
+	}
+
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, query,
+		key, MustGetSite(ctx).IDOrParent()), "User.ByResetToken")
 }
 
 // ByToken gets a user by login token.
@@ -193,6 +273,16 @@ func (u *User) RequestLogin(ctx context.Context) error {
 		login_request=$1, login_at=current_timestamp
 		where id=$2 and site=$3`, *u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.RequestLogin")
+}
+
+// RequestReset generates a new password reset key.
+func (u *User) RequestReset(ctx context.Context) error {
+	// Recycle the request_login for now; will rename after removing email auth.
+	u.LoginRequest = zhttp.SecretP()
+	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set
+		login_request=$1, reset_at=current_timestamp where id=$2 and site=$3`,
+		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
+	return errors.Wrap(err, "User.RequestReset")
 }
 
 // Login a user; create a new key, CSRF token, and reset the request date.

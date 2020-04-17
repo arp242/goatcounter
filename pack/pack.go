@@ -767,6 +767,18 @@ commit;
 	insert into version values ('2020-04-06-1-event');
 commit;
 `),
+	"db/migrate/pgsql/2020-04-16-1-pwauth.sql": []byte(`begin;
+	alter table users add column password bytea default null;
+	alter table users add column email_verified int not null default 0;
+	update users set email_verified=1;
+
+	alter table users drop constraint users_name_check;
+
+	alter table users add column reset_at timestamp null;
+
+	insert into version values ('2020-04-16-1-pwauth');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1564,6 +1576,40 @@ commit;
 	alter table ref_stats      add column event integer default 0;
 
 	insert into version values ('2020-04-06-1-event');
+commit;
+`),
+	"db/migrate/sqlite/2020-04-16-1-pwauth.sql": []byte(`begin;
+	--alter table users drop constraint users_name_check;
+	create table users2 (
+		id             integer        primary key autoincrement,
+		site           integer        not null                 check(site > 0),
+
+		name           varchar        not null,
+		email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
+		role           varchar        not null default ''      check(role in ('', 'a')),
+		login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
+		login_request  varchar        null,
+		login_token    varchar        null,
+		csrf_token     varchar        null,
+		seen_updates_at timestamp     not null default '1970-01-01 00:00:00' check(seen_updates_at = strftime('%Y-%m-%d %H:%M:%S', seen_updates_at)),
+
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+
+	insert into users2 select * from users;
+	drop table users;
+	alter table users2 rename to users;
+
+	alter table users add column password bytea default null;
+	alter table users add column email_verified int not null default 0;
+	update users set email_verified=1;
+
+	alter table users add column reset_at timestamp null;
+
+	insert into version values ('2020-04-16-1-pwauth');
 commit;
 `),
 }
@@ -14712,11 +14758,20 @@ var Templates = map[string][]byte{
 {{end}}
 </tbody></table>
 `),
-	"tpl/_backend_signin.gohtml": []byte(`<form method="post" action="/user/requestlogin" id="request-login">
+	"tpl/_backend_signin.gohtml": []byte(`<form method="post" action="/user/requestlogin" class="vertical">
 	<label for="email">Email address</label>
-	<input type="email" name="email" id="email" value="{{.Email}}" required>
+	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
+
+	{{if .HasPassword}}
+		<label for="password">Password</label>
+		<input type="password" name="password" id="password" required><br>
+	{{end}}
 	<button>Sign in</button>
 </form>
+
+{{if .HasPassword}}
+	<p><a href="/user/forgot">Forgot password?</a></p>
+{{end}}
 `),
 	"tpl/_backend_sitecode.gohtml": []byte(`{{/*************************************************************************
  * This file was generated from tpl/_backend_sitecode.markdown. DO NOT EDIT.
@@ -15249,6 +15304,34 @@ endpoint, such as <code>/count/v2</code>).</p>
 `),
 	"tpl/backend.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
 
+{{if and .User.ID (not .User.Password)}}
+	<div class="flash flash-i" style="text-align: left">
+		<p><strong>tl;dr: Please <a href="/settings#tab-change-password">set a password here</a> and use that for future logins.</strong></p>
+
+		<div style="max-width: 50em;">
+			<p>GoatCounter is switching from email-token authentication to
+			password-based authentication. I originally thought that email-based
+			auth would be a good idea, but feedback and experience proved
+			otherwise. Many people (including myself!) find it cumbersome. It
+			was simply not a good idea in hindsight 😅</p>
+
+			<p>Because maintaining two systems makes everything a lot more
+			complex, the email auth will be removed.
+			All new signups use passwords now, and this notice should migrate
+			most users who login in the next few weeks, after which I’ll email
+			users without a password requesting them to set one. A few weeks
+			after that I’ll email a random password to the remaining users who
+			haven’t set one yet and remove the email auth workflow.</p>
+
+			<p>2-factor auth will be added at some point in the future; the
+			current email code isn’t really suitable for that and not something
+			that can easily be re-used for that.</p>
+
+			<p>This notice will disappear if you set a password.</p>
+		</div>
+	</div>
+{{end}}
+
 {{if and .User.ID (not .Site.ReceivedData)}}
 	<div class="flash flash-i">
 		<p><strong>No data received</strong> – GoatCounter hasn’t received any
@@ -15767,6 +15850,27 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
 		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
 	</table>
+</div>
+
+<div>
+	<h2 id="change-password">Change password</h2>
+
+	<form method="post" action="/user/change-password" class="form-max-width vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		{{if .User.Password}}
+			<label for="c_password">Current password</label>
+			<input type="password" name="c_password" id="c_password" required><br>
+		{{end}}
+
+		<label for="password">New password</label>
+		<input type="password" name="password" id="password" required><br>
+
+		<label for="password2">New password (confirm)</label>
+		<input type="password" name="password2" id="password2" required><br>
+
+		<button>Change password</button>
+	</form>
 </div>
 
 {{if .Saas}}
@@ -16405,15 +16509,16 @@ information.</p>
 		<fieldset class="two">
 			<div>
 				<div>
-					<label for="user_name">Your name</label>
-					<input type="text" name="user_name" id="user_name" value="{{.User.Name}}">
-					{{validate "user.name" .Validate}}
-				</div>
-				<div>
 					<label for="email">Email address</label>
 					<input type="email" name="user_email" id="email" value="{{.User.Email}}">
 					{{validate "user.email" .Validate}}
-					<span class="help">You will need access to the inbox to sign in.</span>
+					<span class="help">For password resets, important announcements, invoices.</span>
+				</div>
+				<div>
+					<label for="password">Password</label>
+					<input type="password" name="password" id="password" value="">
+					{{validate "user.password" .Validate}}
+					<span class="help">Needs at least 8 characters.</span>
 				</div>
 			</div>
 		</fieldset>
@@ -16533,7 +16638,7 @@ personal.</p>
 
 {{template "_backend_bottom.gohtml" .}}
 `),
-	"tpl/user_forgot.gohtml": []byte(`{{template "_top.gohtml" .}}
+	"tpl/user_forgot_code.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <h1>Forgot domain</h1>
 <p>Email a list of all domains associated with an email address.</p>
@@ -16545,5 +16650,34 @@ personal.</p>
 </form>
 
 {{template "_bottom.gohtml" .}}
+`),
+	"tpl/user_forgot_pw.gohtml": []byte(`{{template "_top.gohtml" .}}
+
+<h1>Forgot password</h1>
+
+<form method="post" action="/user/request-reset" class="vertical">
+	<label for="email">Email address</label>
+	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
+
+	<button>Request password reset</button>
+</form>
+
+{{template "_bottom.gohtml" .}}
+`),
+	"tpl/user_reset.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h1>Reset password for {{.User.Email}} at {{.Site.Name}}</h1>
+<form method="post" action="/user/reset/{{.Key}}" class="vertical">
+	<label for="password">New password</label>
+	<input type="password" name="password" id="password" required><br>
+
+	<label for="password2">New password (confirm)</label>
+	<input type="password" name="password2" id="password2" required><br>
+
+	<button>Reset password</button>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}
+
 `),
 }

@@ -1,0 +1,12 @@
+{{template "_top.gohtml" .}}
+
+<h1>Forgot password</h1>
+
+<form method="post" action="/user/request-reset" class="vertical">
+	<label for="email">Email address</label>
+	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
+
+	<button>Request password reset</button>
+</form>
+
+{{template "_bottom.gohtml" .}}
