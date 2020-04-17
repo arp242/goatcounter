@@ -175,7 +175,7 @@ func TestBackendCountSessions(t *testing.T) {
 
 	checkHits := func(ctx context.Context, n int) []goatcounter.Hit {
 		var hits goatcounter.Hits
-		err := hits.TestList(ctx)
+		_, err := hits.List(ctx, 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -364,7 +364,7 @@ func TestBackendPurge(t *testing.T) {
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 			var hits goatcounter.Hits
-			err := hits.TestList(r.Context())
+			_, err := hits.List(r.Context(), 0, 0)
 			if err != nil {
 				t.Fatal(err)
 			}

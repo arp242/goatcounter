@@ -325,15 +325,6 @@ func (h *Hit) Validate(ctx context.Context) error {
 
 type Hits []Hit
 
-// TestList all hits for a site. It's only intended for tests, since getting a
-// full list of all hits without constraints is not a good idea on production
-// sites.
-func (h *Hits) TestList(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, h,
-		`select * from hits where site=$1 and bot=0`, MustGetSite(ctx).ID),
-		"Hits.List")
-}
-
 // List all hits for a site, including bot requests.
 func (h *Hits) List(ctx context.Context, limit, paginate int64) (int64, error) {
 	if limit == 0 || limit > 5000 {
@@ -359,7 +350,7 @@ func (h *Hits) Count(ctx context.Context) (int64, error) {
 	err := zdb.MustGet(ctx).GetContext(ctx, &c,
 		`select count(*) from hits where site=$1 and bot=0`,
 		MustGetSite(ctx).ID)
-	return c, errors.Wrap(err, "Hits.List")
+	return c, errors.Wrap(err, "Hits.Count")
 }
 
 // Purge all paths matching the like pattern.

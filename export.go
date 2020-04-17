@@ -35,10 +35,11 @@ func ExportFile(site *Site) string {
 // Export all data to a CSV file.
 func Export(ctx context.Context, fp *os.File) {
 	site := MustGetSite(ctx)
-
-	defer fp.Close()
+	l := zlog.Module("export").Field("site", site.ID)
+	l.Print("export started")
 
 	gzfp := gzip.NewWriter(fp)
+	defer fp.Close() // No need to error-check; just for safety.
 	defer gzfp.Close()
 
 	c := csv.NewWriter(gzfp)
@@ -47,13 +48,10 @@ func Export(ctx context.Context, fp *os.File) {
 		"Original Referrer", "Browser", "Screen size", "Location",
 		"Date"})
 
-	l := zlog.Module("export").Field("site", site.ID)
-	l.Print("export started")
 	var (
 		last int64
 		err  error
 	)
-
 	for {
 		var hits Hits
 		last, err = hits.List(ctx, 5000, last)
@@ -84,13 +82,16 @@ func Export(ctx context.Context, fp *os.File) {
 		if err != nil {
 			break
 		}
+
+		// Small amount of breathing space.
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	if err != nil {
 		l.Error(err)
-		gzfp.Close()
-		fp.Close()
-		os.Remove(fp.Name())
+		_ = gzfp.Close()
+		_ = fp.Close()
+		_ = os.Remove(fp.Name())
 		return
 	}
 
@@ -99,13 +100,13 @@ func Export(ctx context.Context, fp *os.File) {
 		l.Error(err)
 		return
 	}
-	err = fp.Sync()
+	err = fp.Sync() // Ensure stat is correct.
 	if err != nil {
 		l.Error(err)
 		return
 	}
 
-	stat, err := fp.Stat() // Needs to be before Close.
+	stat, err := fp.Stat()
 	var size float64
 	if err == nil {
 		size = float64(stat.Size()) / 1024 / 1024
