@@ -28,6 +28,7 @@ var tasks = []task{
 	{vacuumDeleted, 12 * time.Hour},
 	{goatcounter.Salts.Refresh, 1 * time.Hour},
 	{clearSessions, 1 * time.Minute},
+	{oldExports, 1 * time.Hour},
 }
 
 var (

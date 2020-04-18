@@ -7,6 +7,9 @@ package cron
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
+	"time"
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
@@ -16,6 +19,42 @@ import (
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 )
+
+func oldExports(ctx context.Context) error {
+	tmp := os.TempDir()
+	d, err := os.Open(tmp)
+	if err != nil {
+		return fmt.Errorf("cron.oldExports: %w", err)
+	}
+
+	files, err := d.Readdirnames(-1)
+	if err != nil {
+		return fmt.Errorf("cron.oldExports: %w", err)
+	}
+
+	tmp += "/"
+	for _, f := range files {
+		if !strings.HasPrefix(f, "goatcounter-export-") {
+			continue
+		}
+
+		f = tmp + f
+		st, err := os.Stat(f)
+		if err != nil {
+			zlog.Errorf("cron.oldExports: %s", err)
+			continue
+		}
+
+		if st.ModTime().Before(goatcounter.Now().Add(-24 * time.Hour)) {
+			err := os.Remove(f)
+			if err != nil {
+				zlog.Errorf("cron.oldExports: %s", err)
+			}
+		}
+	}
+
+	return nil
+}
 
 func DataRetention(ctx context.Context) error {
 	var sites goatcounter.Sites

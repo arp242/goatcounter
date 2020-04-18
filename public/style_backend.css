@@ -380,3 +380,4 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
+.table-left th { text-align: left; }

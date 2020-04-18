@@ -105,6 +105,12 @@ const serveAndSaasFlags = `
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
   -automigrate   Automatically run all pending migrations on startup.
+
+Environment:
+
+  TMPDIR         Directory for temporary files; only used to store CSV exports
+                 at the moment. On Windows it will use the first non-empty value
+                 of %TMP%, %TEMP%, and %USERPROFILE%.
 `
 
 func serve() (int, error) {

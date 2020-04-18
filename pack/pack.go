@@ -13641,6 +13641,7 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
+.table-left th { text-align: left; }
 `),
 }
 
@@ -15717,12 +15718,36 @@ parent site includes the child sites.</p>
 
 <div>
 	<h2 id="export">Export</h2>
-	<p>Export all data as CSV, for backups, or if you want to import somewhere else.
-		The first line is a header with the field descriptions.</p>
+	<p>Export all page hits as CSV, for backups, or if you want to import
+	somewhere else.</p>
 
-	<ul>
-		<li><a href="/export/hits.csv">hits.csv</a></li>
-	</ul>
+	<p>This will start the process and email you a download link once it’s done.
+	You can only do this once a day.</p>
+
+	<form method="post" action="/start-export">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<button type="submit">Start export</button>
+	</form>
+
+	<h3>CSV format</h3>
+	<p>The first line is a header with the field names. The fields, in order, are:</p>
+	<table class="table-left">
+		<tr><th>Path</th><td>Path name (e.g. <code>/a.html</code>). This also doubles as the event name.</td></tr>
+		<tr><th>Title</th><td>Page title that was sent.</td></tr>
+		<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
+		<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
+			not, or one of the
+			<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
+			constants if it is.</td></tr>
+		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
+		<tr><th>Referrer (sanitized)</th><td>Sanitized referrer data.</td></tr>
+		<tr><th>Referrer query params</th><td>Query parameters of the referrer, if any.</td></tr>
+		<tr><th>Original Referrer</th><td>Original referrer as sent.</td></tr>
+		<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
+		<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
+		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
+		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
+	</table>
 </div>
 
 {{if .Saas}}

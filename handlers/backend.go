@@ -6,12 +6,13 @@ package handlers
 
 import (
 	"context"
-	"encoding/csv"
 	"fmt"
 	"net"
 	"net/http"
 	"net/http/pprof"
 	"net/mail"
+	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -30,7 +31,6 @@ import (
 	"zgo.at/isbot"
 	"zgo.at/tz"
 	"zgo.at/utils/httputilx/header"
-	"zgo.at/utils/sliceutil"
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -153,9 +153,10 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 				Client:  zhttp.RatelimitIP,
 				Store:   zhttp.NewRatelimitMemory(),
-				Limit:   zhttp.RatelimitLimit(1, 3600*4),
-				Message: "you can request only one export every 4 hours",
-			})).Get("/export/{file}", zhttp.Wrap(h.export))
+				Limit:   zhttp.RatelimitLimit(1, 3600*24),
+				Message: "you can request only one export a day",
+			})).Post("/start-export", zhttp.Wrap(h.startExport))
+			af.Get("/download-export", zhttp.Wrap(h.downloadExport))
 			af.Post("/add", zhttp.Wrap(h.addSubsite))
 			af.Get("/remove/{id}", zhttp.Wrap(h.removeSubsiteConfirm))
 			af.Post("/remove/{id}", zhttp.Wrap(h.removeSubsite))
@@ -831,48 +832,45 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings")
 }
 
-func (h backend) export(w http.ResponseWriter, r *http.Request) error {
-	file := strings.ToLower(chi.URLParam(r, "file"))
+func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
+	site := goatcounter.MustGetSite(r.Context())
 
-	w.Header().Set("Content-Type", "text/csv")
-	err := header.SetContentDisposition(w.Header(), header.DispositionArgs{
+	ctx := goatcounter.NewContext(r.Context())
+
+	f := goatcounter.ExportFile(site) + ".progress"
+	fp, err := os.Create(f)
+	if err != nil {
+		return err
+	}
+	go goatcounter.Export(ctx, fp)
+
+	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
+	return zhttp.SeeOther(w, "/settings#tab-export")
+}
+
+func (h backend) downloadExport(w http.ResponseWriter, r *http.Request) error {
+	f := goatcounter.ExportFile(goatcounter.MustGetSite(r.Context()))
+	fp, err := os.Open(f)
+	if err != nil {
+		if os.IsNotExist(err) {
+			zhttp.FlashError(w, "It looks like there is no export yet.")
+			return zhttp.SeeOther(w, "/settings#tab-export")
+		}
+
+		return err
+	}
+	defer fp.Close()
+
+	err = header.SetContentDisposition(w.Header(), header.DispositionArgs{
 		Type:     header.TypeAttachment,
-		Filename: file,
+		Filename: filepath.Base(f),
 	})
 	if err != nil {
 		return err
 	}
 
-	c := csv.NewWriter(w)
-	switch file {
-	default:
-		return guru.Errorf(400, "unknown export file: %#v", file)
-
-	case "hits.csv":
-		var hits goatcounter.Hits
-		err := hits.List(r.Context())
-		if err != nil {
-			return err
-		}
-		c.Write([]string{"Path", "Referrer (sanitized)",
-			"Referrer query params", "Original Referrer", "Browser",
-			"Screen size", "Date (RFC 3339/ISO 8601)"})
-		for _, hit := range hits {
-			rp := ""
-			if hit.RefParams != nil {
-				rp = *hit.RefParams
-			}
-			ro := ""
-			if hit.RefOriginal != nil {
-				ro = *hit.RefOriginal
-			}
-			c.Write([]string{hit.Path, hit.Ref, rp, ro, hit.Browser,
-				sliceutil.JoinFloat(hit.Size), hit.CreatedAt.Format(time.RFC3339)})
-		}
-	}
-
-	c.Flush()
-	return c.Error()
+	w.Header().Set("Content-Type", "text/csv")
+	return zhttp.Stream(w, fp)
 }
 
 func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {

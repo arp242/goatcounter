@@ -50,6 +50,9 @@ func GetUser(ctx context.Context) *User {
 }
 
 // NewContext creates a new context with the all the request values set.
+//
+// Useful for tests, or for "removing" the timeout on the request context so it
+// can be passed to background functions.
 func NewContext(ctx context.Context) context.Context {
 	n := zdb.With(context.Background(), zdb.MustGet(ctx))
 	n = context.WithValue(n, ctxkey.User, GetUser(ctx))
