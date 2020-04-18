@@ -13,6 +13,7 @@ import (
 	"os"
 	"time"
 
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
@@ -84,7 +85,9 @@ func Export(ctx context.Context, fp *os.File) {
 		}
 
 		// Small amount of breathing space.
-		time.Sleep(500 * time.Millisecond)
+		if cfg.Prod {
+			time.Sleep(500 * time.Millisecond)
+		}
 	}
 
 	if err != nil {
@@ -124,8 +127,9 @@ func Export(ctx context.Context, fp *os.File) {
 		return
 	}
 
+	user := GetUser(ctx)
 	zmail.Send("GoatCounter export ready",
 		mail.Address{Name: "GoatCounter export", Address: "support@goatcounter.com"},
-		[]mail.Address{{Address: "support@goatcounter.com"}},
+		[]mail.Address{{Name: user.Name, Address: user.Email}},
 		fmt.Sprintf(emailExportDone, site.URL(), size))
 }
