@@ -19,7 +19,7 @@ require (
 	zgo.at/isbot v0.0.0-20200327072829-16f0f4beb330
 	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
 	zgo.at/utils v0.0.0-20200414120907-c358204ca8c7
-	zgo.at/zdb v0.0.0-20200406162958-937e12b8bda5
+	zgo.at/zdb v0.0.0-20200418134937-ef2c94ae360c
 	zgo.at/zhttp v0.0.0-20200405140654-19a758ea6c65
 	zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57
 	zgo.at/zpack v1.0.1

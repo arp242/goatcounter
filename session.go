@@ -14,7 +14,6 @@ import (
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -136,8 +135,6 @@ func (s *salt) Refresh(ctx context.Context) error {
 	return nil
 }
 
-var createSession syncutil.Once
-
 // GetOrCreate gets the session by hash, creating a new one if it doesn't exist
 // yet.
 func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (createdSession bool, err error) {
@@ -175,43 +172,37 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (creat
 		return false, nil
 
 	case sql.ErrNoRows:
-		var outerErr error
-		ran := createSession.Do(string(hash), func() {
-			s.Site = site.ID
-			s.Hash = hash
-			s.CreatedAt = now
-			s.LastSeen = now
+		s.Site = site.ID
+		s.Hash = hash
+		s.CreatedAt = now
+		s.LastSeen = now
 
-			query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
-			args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
+		query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
+		args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
 
-			if cfg.PgSQL {
-				err := zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
-				outerErr = err
-				return
-			}
-
-			// SQLite
-			res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
+		if cfg.PgSQL {
+			err := zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
 			if err != nil {
-				outerErr = err
-				return
+				if zdb.ErrUnique(err) {
+					time.Sleep(100 * time.Millisecond)
+					return s.GetOrCreate(ctx, ua, remoteAddr)
+				}
+				return false, fmt.Errorf("Session.GetOrCreate: insert: %w", err)
 			}
-			s.ID, err = res.LastInsertId()
-			outerErr = err
-		})
-		if outerErr != nil {
-			return true, errors.Wrap(outerErr, "Session.GetOrCreate")
 		}
 
-		// Didn't run, but the first request is finished, so just run again to
-		// use the now-existing session.
-		if !ran {
-			defer func() {
-				time.Sleep(3 * time.Second)
-				createSession.Forget(string(hash))
-			}()
-			return s.GetOrCreate(ctx, ua, remoteAddr)
+		// SQLite
+		res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
+		if err != nil {
+			if zdb.ErrUnique(err) {
+				time.Sleep(100 * time.Millisecond)
+				return s.GetOrCreate(ctx, ua, remoteAddr)
+			}
+			return false, fmt.Errorf("Session.GetOrCreate: insert: %w", err)
+		}
+		s.ID, err = res.LastInsertId()
+		if err != nil {
+			return false, fmt.Errorf("Session.GetOrCreate: %w", err)
 		}
 
 		return true, nil
