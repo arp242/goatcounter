@@ -15114,7 +15114,7 @@ GoatCounter does its best to filter this out, but it’s impossible to do this
 			<div>
 				{{if eq .Path "/"}}
 					{{- if gt (len .SubSites) 1 -}}
-						Switch site:
+						Sites:
 						{{- range $i, $s := .SubSites -}}
 							{{- if gt $i 0 -}}|{{- end -}}
 							{{if $.Saas}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
@@ -15133,7 +15133,6 @@ GoatCounter does its best to filter this out, but it’s impossible to do this
 				{{end}}
 			</div>
 			<div>
-				Signed in as {{.User.Name}} |
 				{{if .Saas}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
 				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
