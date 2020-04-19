@@ -49,6 +49,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 	dbname := "goatcounter_" + zhttp.Secret()
 	var tmp string
 	if cfg.PgSQL {
+		// TODO: don't rely on shell commands if possible, as it's quite slow.
 		out, err := exec.Command("createdb", dbname).CombinedOutput()
 		if err != nil {
 			panic(fmt.Sprintf("%s → %s", err, out))
@@ -78,7 +79,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 		tmp = "sqlite://" + dir + "/goatcounter.sqlite3"
 	}
 
-	db, err := connectDB(tmp, nil, true)
+	db, err := connectDB(tmp, []string{"all"}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
