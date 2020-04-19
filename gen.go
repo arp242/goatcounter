@@ -18,7 +18,12 @@ import (
 )
 
 func main() {
-	markdown()
+	if _, ok := os.LookupEnv("CI"); !ok {
+		err := markdown()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate markdown files: %s\n", err)
+		}
+	}
 
 	err := zpack.Pack(map[string]map[string]string{
 		"./pack/pack.go": {
@@ -56,10 +61,10 @@ var (
 
 // Don't really need to generate Markdown on requests, and don't want to
 // implement caching; so just go generate it.
-func markdown() {
+func markdown() error {
 	ls, err := ioutil.ReadDir("./tpl")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	for _, f := range ls {
@@ -71,18 +76,18 @@ func markdown() {
 
 		out, err := exec.Command("kramdown", "--smart-quotes", "39,39,34,34", src).CombinedOutput()
 		if err != nil {
-			panic(fmt.Sprintf("running kramdown: %s\n%s", err, out))
+			return fmt.Errorf("running kramdown: %s\n%s", err, out)
 		}
 
 		dest, err := os.Create(dst)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		line := strings.Repeat("*", 72)
 		_, err = dest.Write([]byte(fmt.Sprintf("{{/*%s\n * This file was generated from %s. DO NOT EDIT.\n%[1]s*/}}\n\n",
 			line, src)))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		out = reHeaders.ReplaceAll(out, []byte(`<h$1 id="$2">$3 <a href="#$2"></a></h$1>`))
@@ -90,11 +95,13 @@ func markdown() {
 
 		_, err = dest.Write(out)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		err = dest.Close()
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+
+	return nil
 }
