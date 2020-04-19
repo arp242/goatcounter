@@ -138,7 +138,7 @@ func create() (int, error) {
 			return err
 		}
 
-		u := goatcounter.User{Site: s.ID, Name: name, Email: email, Password: []byte(password)}
+		u := goatcounter.User{Site: s.ID, Name: name, Email: email, Password: []byte(password), EmailVerified: true}
 		err = u.Insert(ctx)
 		return err
 	})

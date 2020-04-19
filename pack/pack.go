@@ -770,6 +770,7 @@ commit;
 	"db/migrate/pgsql/2020-04-16-1-pwauth.sql": []byte(`begin;
 	alter table users add column password bytea default null;
 	alter table users add column email_verified int not null default 0;
+	alter table users add column email_token varchar null;
 	update users set email_verified=1;
 
 	alter table users drop constraint users_name_check;
@@ -1605,6 +1606,7 @@ commit;
 
 	alter table users add column password bytea default null;
 	alter table users add column email_verified int not null default 0;
+	alter table users add column email_token varchar null;
 	update users set email_verified=1;
 
 	alter table users add column reset_at timestamp null;
@@ -15304,48 +15306,62 @@ endpoint, such as <code>/count/v2</code>).</p>
 `),
 	"tpl/backend.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
 
-{{if and .User.ID (not .User.Password)}}
-	<div class="flash flash-i" style="text-align: left">
-		<p><strong>tl;dr: Please <a href="/settings#tab-change-password">set a password here</a> and use that for future logins.</strong></p>
+{{if .User.ID}}
+	{{if not .User.Password}}
+		<div class="flash flash-i" style="text-align: left">
+			<p><strong>tl;dr: Please <a href="/settings#tab-change-password">set a password here</a> and use that for future logins.</strong></p>
 
-		<div style="max-width: 50em;">
-			<p>GoatCounter is switching from email-token authentication to
-			password-based authentication. I originally thought that email-based
-			auth would be a good idea, but feedback and experience proved
-			otherwise. Many people (including myself!) find it cumbersome. It
-			was simply not a good idea in hindsight 😅</p>
+			<div style="max-width: 50em;">
+				<p>GoatCounter is switching from email-token authentication to
+				password-based authentication. I originally thought that email-based
+				auth would be a good idea, but feedback and experience proved
+				otherwise. Many people (including myself!) find it cumbersome. It
+				was simply not a good idea in hindsight 😅</p>
 
-			<p>Because maintaining two systems makes everything a lot more
-			complex, the email auth will be removed.
-			All new signups use passwords now, and this notice should migrate
-			most users who login in the next few weeks, after which I’ll email
-			users without a password requesting them to set one. A few weeks
-			after that I’ll email a random password to the remaining users who
-			haven’t set one yet and remove the email auth workflow.</p>
+				<p>Because maintaining two systems makes everything a lot more
+				complex, the email auth will be removed.
+				All new signups use passwords now, and this notice should migrate
+				most users who login in the next few weeks, after which I’ll email
+				users without a password requesting them to set one. A few weeks
+				after that I’ll email a random password to the remaining users who
+				haven’t set one yet and remove the email auth workflow.</p>
 
-			<p>2-factor auth will be added at some point in the future; the
-			current email code isn’t really suitable for that and not something
-			that can easily be re-used for that.</p>
+				<p>2-factor auth will be added at some point in the future; the
+				current email code isn’t really suitable for that and not something
+				that can easily be re-used for that.</p>
 
-			<p>This notice will disappear if you set a password.</p>
+				<p>This notice will disappear if you set a password.</p>
+			</div>
 		</div>
-	</div>
-{{end}}
+	{{end}}
 
-{{if and .User.ID (not .Site.ReceivedData)}}
-	<div class="flash flash-i">
-		<p><strong>No data received</strong> – GoatCounter hasn’t received any
-		data yet.<br>
-		Make sure the site is set up correctly with the code below inserted in
-		your page, ideally just before the closing &lt;/body&gt; tag (but
-		anywhere will work):</p>
-		{{template "_backend_sitecode.gohtml" .}}
+	{{if not .User.EmailVerified}}
+		<div class="flash flash-i">
+			Please verify your email by clicking the link sent to {{.User.Email}}.
+			<sup>(<a href="https://www.{{.Domain}}/help#verify-email">Why?</a>)</sup><br>
 
-		<p><small>This message will disappear once we receive data; see
-			<a href="/code">Site code</a> in the top menu for further
-			documentation and ready-made integrations.</small></p>
-	</div>
-{{end}}
+			Change the email address in the <a href="/settings">settings</a> –
+			<form method="post" action="/user/resend-verify">
+				<button class="link">Resend email</button>.
+			</form>
+		</div>
+	{{end}}
+
+	{{if not .Site.ReceivedData}}
+		<div class="flash flash-i">
+			<p><strong>No data received</strong> – GoatCounter hasn’t received any
+			data yet.<br>
+			Make sure the site is set up correctly with the code below inserted in
+			your page, ideally just before the closing &lt;/body&gt; tag (but
+			anywhere will work):</p>
+			{{template "_backend_sitecode.gohtml" .}}
+
+			<p><small>This message will disappear once we receive data; see
+				<a href="/code">Site code</a> in the top menu for further
+				documentation and ready-made integrations.</small></p>
+		</div>
+	{{end}}
+{{end}} {{/* .User.ID */}}
 
 {{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
@@ -15671,7 +15687,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 							<a href="/billing">billing</a>.
 						{{else}}
 							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
+							<a href="https://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
 						{{end}}</span>
 				{{else}}
 					<label for="cname">Goatcounter domain</label>
@@ -15690,7 +15706,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 				<label for="user.email">Your email</label>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
 				{{validate "user.email" .Validate}}
-				<span>You will need access to the inbox to sign in.</span>
+				<span>You will need to re-verify the new address.</span>
 
 				<label for="limits_page">Page size</label>
 				<input type="number" min="1" max="25" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
@@ -16250,6 +16266,15 @@ sub {
 		<a href="https://github.com/zgoat/goatcounter/issues/3#issuecomment-578202761">issue #3</a>.
 	</dd>
 
+	<dt id="verify-email">Why do I need to verify my email? <a href="#verify-email">§</a></dt>
+	<dd>
+		Having some means of contact on file is useful in case of questions,
+		problems, or other reasons for communicating.
+		<br>
+		For example, if you’re sending many pageviews (millions) then I’d rather
+		contact you to discus options than just shut down the account. Not
+		having any means to get in touch would leave me in an awkward position.
+	</dd>
 </dl>
 
 <h2 id="billing">Billing <a href="#billing"></a></h2>

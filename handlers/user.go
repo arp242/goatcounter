@@ -33,8 +33,6 @@ Someone (hopefully you) requested to reset your GoatCounter password.
 You can do this here:
 %s
 
-This link is valid for one hour.
-
 You can reply to this email for further assistence or questions.
 `
 
@@ -54,11 +52,13 @@ func (h user) mount(r chi.Router) {
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
 	rate.Get("/user/login/{key}", zhttp.Wrap(h.login))
 	rate.Get("/user/reset/{key}", zhttp.Wrap(h.reset))
+	rate.Get("/user/verify/{key}", zhttp.Wrap(h.verify))
 	rate.Post("/user/reset/{key}", zhttp.Wrap(h.doReset))
 
 	auth := r.With(loggedIn)
 	auth.Post("/user/logout", zhttp.Wrap(h.logout))
 	auth.Post("/user/change-password", zhttp.Wrap(h.changePassword))
+	auth.Post("/user/resend-verify", zhttp.Wrap(h.resendVerify))
 }
 
 func (h user) new(w http.ResponseWriter, r *http.Request) error {
@@ -286,8 +286,6 @@ func (h user) reset(w http.ResponseWriter, r *http.Request) error {
 		User goatcounter.User
 		Key  string
 	}{newGlobals(w, r), site, user, key})
-
-	return zhttp.SeeOther(w, "/")
 }
 
 func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
@@ -313,7 +311,8 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 
 	err = user.UpdatePassword(r.Context(), args.Password)
 	if err != nil {
-		if errors.As(err, &zvalidate.Validator{}) {
+		var vErr *zvalidate.Validator
+		if errors.As(err, &vErr) {
 			zhttp.FlashError(w, fmt.Sprintf("%s", err))
 			return zhttp.SeeOther(w, "/user/new")
 		}
@@ -332,7 +331,6 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.ClearCookie(w, goatcounter.MustGetSite(r.Context()).Domain())
-	zhttp.Flash(w, "&#x1f44b;")
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -366,7 +364,8 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 
 	err = u.UpdatePassword(r.Context(), args.Password)
 	if err != nil {
-		if errors.As(err, &zvalidate.Validator{}) {
+		var vErr *zvalidate.Validator
+		if errors.As(err, &vErr) {
 			zhttp.FlashError(w, fmt.Sprintf("%s", err))
 			return zhttp.SeeOther(w, "/settings#tab-change-password")
 		}
@@ -374,6 +373,64 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Password changed")
+	return zhttp.SeeOther(w, "/")
+}
+
+func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
+	user := goatcounter.GetUser(r.Context())
+	if user.EmailVerified {
+		zhttp.Flash(w, "%q is already verified", user.Email)
+		return zhttp.SeeOther(w, "/")
+	}
+
+	site := goatcounter.MustGetSite(r.Context())
+
+	go sendEmailVerify(site, user)
+
+	zhttp.Flash(w, "Sent to %q", user.Email)
+	return zhttp.SeeOther(w, "/")
+}
+
+const emailVerify = `Hi there,
+
+Please go here to verify your email address:
+%s/user/verify/%s
+
+Feel free to reply to this email if you have any problems or questions.
+
+Cheers,
+Martin
+`
+
+func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
+	err := zmail.Send("Verify your email",
+		mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+		[]mail.Address{{Name: user.Name, Address: user.Email}},
+		fmt.Sprintf(emailVerify, site.URL(), *user.EmailToken))
+	if err != nil {
+		zlog.Errorf("zmail: %s", err)
+	}
+}
+
+func (h user) verify(w http.ResponseWriter, r *http.Request) error {
+	user := goatcounter.GetUser(r.Context())
+	if user.EmailVerified {
+		zhttp.Flash(w, "%q is already verified", user.Email)
+		return zhttp.SeeOther(w, "/")
+	}
+
+	key := chi.URLParam(r, "key")
+	if key != *user.EmailToken {
+		zhttp.FlashError(w, "Wrong verification key")
+		return zhttp.SeeOther(w, "/")
+	}
+
+	err := user.VerifyEmail(r.Context())
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "%q verified", user.Email)
 	return zhttp.SeeOther(w, "/")
 }
 

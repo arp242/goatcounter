@@ -26,6 +26,17 @@ import (
 	"zgo.at/zvalidate"
 )
 
+const emailWelcome = `Hi there,
+
+Welcome to your GoatCounter account. Please go here to verify your email address:
+%s/user/verify/%s
+
+Feel free to reply to this email if you have any problems or questions.
+
+Cheers,
+Martin
+`
+
 type website struct{}
 
 func (h website) Mount(r *chi.Mux, db zdb.DB) {
@@ -220,7 +231,16 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	go user.SendLoginMail(context.Background(), &site)
+
+	go func() {
+		err := zmail.Send("Welcome to GoatCounter!",
+			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+			[]mail.Address{{Name: user.Name, Address: user.Email}},
+			fmt.Sprintf(emailWelcome, site.URL(), *user.EmailToken))
+		if err != nil {
+			zlog.Errorf("zmail: %s", err)
+		}
+	}()
 
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL()))
 }

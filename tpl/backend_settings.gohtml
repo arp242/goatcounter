@@ -62,7 +62,7 @@
 							<a href="/billing">billing</a>.
 						{{else}}
 							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
+							<a href="https://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
 						{{end}}</span>
 				{{else}}
 					<label for="cname">Goatcounter domain</label>
@@ -81,7 +81,7 @@
 				<label for="user.email">Your email</label>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
 				{{validate "user.email" .Validate}}
-				<span>You will need access to the inbox to sign in.</span>
+				<span>You will need to re-verify the new address.</span>
 
 				<label for="limits_page">Page size</label>
 				<input type="number" min="1" max="25" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">

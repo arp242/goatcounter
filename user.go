@@ -44,6 +44,7 @@ type User struct {
 	LoginRequest  *string      `db:"login_request" json:"-"`
 	LoginToken    *string      `db:"login_token" json:"-"`
 	CSRFToken     *string      `db:"csrf_token" json:"-"`
+	EmailToken    *string      `db:"email_token" json:"-"`
 	SeenUpdatesAt time.Time    `db:"seen_updates_at" json:"-"`
 
 	CreatedAt time.Time  `db:"created_at" json:"-"`
@@ -61,6 +62,10 @@ func (u *User) Defaults(ctx context.Context) {
 	} else {
 		t := Now()
 		u.UpdatedAt = &t
+	}
+
+	if !u.EmailVerified {
+		u.EmailToken = zhttp.SecretP()
 	}
 }
 
@@ -88,7 +93,10 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 
 // Hash the password, replacing the plain-text one.
 func (u *User) hashPassword() error {
-	// TODO: ensure it's not hashed already, just as safety.
+	// Length is capped to 30 characters in Validate.
+	if len(u.Password) > 30 {
+		return fmt.Errorf("User.hashPassword: already hashed")
+	}
 
 	pwd, err := bcrypt.GenerateFromPassword(u.Password, bcrypt.DefaultCost)
 	if err != nil {
@@ -115,9 +123,16 @@ func (u *User) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "User.Insert")
 	}
 
-	res, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`insert into users (site, name, email, password, created_at) values ($1, $2, $3, $4, $5)`,
-		u.Site, u.Name, u.Email, u.Password, u.CreatedAt.Format(zdb.Date))
+	query := `insert into users `
+	args := []interface{}{u.Site, u.Name, u.Email, u.Password, u.CreatedAt.Format(zdb.Date)}
+	if u.EmailVerified {
+		query += ` (site, name, email, password, created_at, email_verified) values ($1, $2, $3, $4, $5, 1)`
+	} else {
+		query += ` (site, name, email, password, created_at, email_token) values ($1, $2, $3, $4, $5, $6)`
+		args = append(args, u.EmailToken)
+	}
+
+	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
 	if err != nil {
 		if zdb.ErrUnique(err) {
 			return guru.New(400, "this user already exists")
@@ -132,11 +147,12 @@ func (u *User) Insert(ctx context.Context) error {
 	} else {
 		u.ID, err = res.LastInsertId()
 	}
+
 	return errors.Wrap(err, "User.Insert: get ID")
 }
 
 // Update this user's name, email.
-func (u *User) Update(ctx context.Context) error {
+func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	if u.ID == 0 {
 		return errors.New("ID == 0")
 	}
@@ -147,9 +163,14 @@ func (u *User) Update(ctx context.Context) error {
 		return err
 	}
 
+	if emailChanged {
+		u.EmailVerified = false
+		u.EmailToken = zhttp.SecretP()
+	}
+
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update users set name=$1, email=$2, updated_at=$3 where id=$4`,
-		u.Name, u.Email, u.UpdatedAt.Format(zdb.Date), u.ID)
+		`update users set name=$1, email=$2, updated_at=$3, email_verified=$4, email_token=$5 where id=$6`,
+		u.Name, u.Email, u.UpdatedAt.Format(zdb.Date), u.EmailVerified, u.EmailToken, u.ID)
 	return errors.Wrap(err, "User.Update")
 }
 
@@ -187,6 +208,13 @@ func (u User) CorrectPassword(pwd string) (bool, error) {
 		return false, fmt.Errorf("user.CorrectPassword: %w", err)
 	}
 	return true, nil
+}
+
+func (u *User) VerifyEmail(ctx context.Context) error {
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+		`update users set email_verified=1, email_token=null where id=$1`,
+		u.ID)
+	return errors.Wrap(err, "User.VerifyEmail")
 }
 
 // ByEmail gets a user by email address.
