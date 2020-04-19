@@ -51,6 +51,7 @@ func DB(t tester) (context.Context, func()) {
 	dbname := "goatcounter_test_" + zhttp.Secret()
 
 	if cfg.PgSQL {
+		// TODO: avoid using shell commands if possible; it's quite slow!
 		out, err := exec.Command("createdb", dbname).CombinedOutput()
 		if err != nil {
 			panic(fmt.Sprintf("%s → %s", err, out))

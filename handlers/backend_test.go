@@ -250,7 +250,13 @@ func TestBackendCountSessions(t *testing.T) {
 	hits1 := checkHits(ctx1, 5)
 	hits2 := checkHits(ctx2, 2)
 
-	checkSess(append(hits1, hits2...), []int{1, 1, 2, 3, 3, 1, 2})
+	want := []int{1, 1, 2, 3, 3, 1, 2}
+	if cfg.PgSQL {
+		// These numbers are different because trying to insert still increases
+		// the counter on PostgreSQL
+		want = []int{1, 1, 1, 3, 3, 5, 5}
+	}
+	checkSess(append(hits1, hits2...), want)
 
 	// Rotate, should still use the same sessions.
 	rotate(ctx1)
@@ -258,7 +264,11 @@ func TestBackendCountSessions(t *testing.T) {
 	send(ctx2, "test")
 	hits1 = checkHits(ctx1, 6)
 	hits2 = checkHits(ctx2, 3)
-	checkSess(append(hits1, hits2...), []int{1, 1, 2, 3, 3, 1, 2, 1, 3})
+	want = []int{1, 1, 2, 3, 3, 1, 2, 1, 3}
+	if cfg.PgSQL {
+		want = []int{1, 1, 1, 1, 3, 3, 5, 5, 5}
+	}
+	checkSess(append(hits1, hits2...), want)
 
 	// Rotate again, should use new sessions from now on.
 	rotate(ctx1)
@@ -266,7 +276,11 @@ func TestBackendCountSessions(t *testing.T) {
 	send(ctx2, "test")
 	hits1 = checkHits(ctx1, 7)
 	hits2 = checkHits(ctx2, 4)
-	checkSess(append(hits1, hits2...), []int{1, 1, 2, 3, 3, 1, 2, 1, 3, 4, 5})
+	want = []int{1, 1, 2, 3, 3, 1, 2, 1, 3, 4, 5}
+	if cfg.PgSQL {
+		want = []int{1, 1, 1, 1, 3, 3, 5, 5, 5, 7, 9}
+	}
+	checkSess(append(hits1, hits2...), want)
 }
 
 func TestBackendIndex(t *testing.T) {
