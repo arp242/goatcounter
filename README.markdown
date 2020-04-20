@@ -113,10 +113,12 @@ You can create new sites with the `create` command:
 
     goatcounter create -email me@example.com -domain stats.example.com
 
-If you use a custom DB, you must also pass the `-db` flag here.
+This will ask for a password for your new account; you can also add a password
+on the commandline with `-password`. If you use a custom DB, you must also pass
+the `-db` flag here.
 
-The `-dev` flag makes some small things a bit more convenient for development,
-such as logins. For a production environment run something like:
+The `-dev` flag makes some small things a bit more convenient for development.
+For a production environment run something like:
 
     goatcounter serve
 

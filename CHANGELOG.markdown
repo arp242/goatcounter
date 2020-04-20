@@ -1,9 +1,53 @@
 ChangeLog for GoatCounter
 =========================
 
-This list is not comprehensive, and only lists new features and major changes.
+This list is not comprehensive, and only lists new features and major changes,
+but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
+
+UNRELEASED v1.2.0
+-----------------
+
+- Password authentication (#232)
+
+  The email-based authentication has been deprecated in favour of password
+  authentication.
+
+  **Action required** Use the interface to set a password (you will get a
+  notification about this). Email authentication still works, but will be
+  removed in the next release.
+
+- Unique visitor tracking (#212)
+
+  GoatCounter can now track unique visitors (without using cookies). Technical
+  documentation about the implementation is in
+  [doc/sessions.markdown](doc/sessions.markdown).
+
+- Improve bot detection (#219)
+
+  The bot detection is now improved; this will be applied to older pageviews in
+  the database with a migration, but the cached statistics aren't updated
+  automatically (as it can take a while for larger sites). Use the `reindex`
+  command to fully update older. This is entirely optional.
+
+- Track events (#215)
+
+  There is now better support to track events; see the updated documentation on
+  the Site Code page for details.
+
+- Better export (#221)
+
+  The export was a quick feature added in the first version, but didn't scale
+  well to larger sites with a lot of pageviews. This now works well for any
+  number of pageviews.
+
+
+2020-03-27 v1.1.2
+-----------------
+
+- Fix small issue with the domain not showing correct in the site code 😅
+
 
 2020-03-27 v1.1.1
 -----------------
