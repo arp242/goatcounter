@@ -1049,6 +1049,10 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (
 		}
 	}
 
+	if start.Before(site.CreatedAt) {
+		start = site.CreatedAt
+	}
+
 	return start.UTC(), end.UTC(), nil
 }
 
