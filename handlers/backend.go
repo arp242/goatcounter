@@ -772,9 +772,15 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	defer tx.Rollback()
 
 	user := goatcounter.GetUser(txctx)
+
+	emailChanged := false
+	if cfg.Saas && args.User.Email != user.Email {
+		emailChanged = true
+	}
+
 	user.Name = args.User.Name
 	user.Email = args.User.Email
-	err = user.Update(txctx)
+	err = user.Update(txctx, emailChanged)
 	if err != nil {
 		var vErr *zvalidate.Validator
 		if !errors.As(err, &vErr) {
@@ -817,6 +823,10 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	err = tx.Commit()
 	if err != nil {
 		return err
+	}
+
+	if emailChanged {
+		go sendEmailVerify(site, user)
 	}
 
 	if makecert {

@@ -62,7 +62,7 @@
 							<a href="/billing">billing</a>.
 						{{else}}
 							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="http://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
+							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
 						{{end}}</span>
 				{{else}}
 					<label for="cname">Goatcounter domain</label>
@@ -81,7 +81,7 @@
 				<label for="user.email">Your email</label>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
 				{{validate "user.email" .Validate}}
-				<span>You will need access to the inbox to sign in.</span>
+				<span>You will need to re-verify the new address.</span>
 
 				<label for="limits_page">Page size</label>
 				<input type="number" min="1" max="25" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
@@ -241,6 +241,27 @@
 		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
 		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
 	</table>
+</div>
+
+<div>
+	<h2 id="change-password">Change password</h2>
+
+	<form method="post" action="/user/change-password" class="form-max-width vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		{{if .User.Password}}
+			<label for="c_password">Current password</label>
+			<input type="password" name="c_password" id="c_password" required><br>
+		{{end}}
+
+		<label for="password">New password</label>
+		<input type="password" name="password" id="password" required><br>
+
+		<label for="password2">New password (confirm)</label>
+		<input type="password" name="password2" id="password2" required><br>
+
+		<button>Change password</button>
+	</form>
 </div>
 
 {{if .Saas}}

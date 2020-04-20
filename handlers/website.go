@@ -10,7 +10,6 @@ import (
 	"html/template"
 	"net/http"
 	"net/mail"
-	"net/url"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -26,6 +25,17 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
+
+const emailWelcome = `Hi there,
+
+Welcome to your GoatCounter account. Please go here to verify your email address:
+%s/user/verify/%s
+
+Feel free to reply to this email if you have any problems or questions.
+
+Cheers,
+Martin
+`
 
 type website struct{}
 
@@ -132,7 +142,7 @@ type signupArgs struct {
 	Code       string `json:"site_code"`
 	Timezone   string `json:"timezone"`
 	Email      string `json:"user_email"`
-	UserName   string `json:"user_name"`
+	Password   string `json:"password"`
 	TuringTest string `json:"turing_test"`
 }
 
@@ -144,7 +154,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan}
-	user := goatcounter.User{Name: args.Name, Email: args.Email}
+	user := goatcounter.User{Email: args.Email, Password: []byte(args.Password)}
 
 	v := zvalidate.New()
 	if strings.TrimSpace(args.TuringTest) != "9" {
@@ -221,14 +231,22 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	go user.SendLoginMail(context.Background(), &site)
 
-	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new?mailed=%s",
-		site.URL(), url.QueryEscape(user.Email)))
+	go func() {
+		err := zmail.Send("Welcome to GoatCounter!",
+			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+			[]mail.Address{{Name: user.Name, Address: user.Email}},
+			fmt.Sprintf(emailWelcome, site.URL(), *user.EmailToken))
+		if err != nil {
+			zlog.Errorf("zmail: %s", err)
+		}
+	}()
+
+	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL()))
 }
 
 func (h website) forgot(w http.ResponseWriter, r *http.Request) error {
-	return zhttp.Template(w, "user_forgot.gohtml", struct {
+	return zhttp.Template(w, "user_forgot_code.gohtml", struct {
 		Globals
 		Page     string
 		MetaDesc string

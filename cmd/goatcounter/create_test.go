@@ -18,6 +18,7 @@ func TestCreate(t *testing.T) {
 	out, code := run(t, "", []string{"create",
 		"-email", "foo@foo.foo",
 		"-domain", "stats.stats",
+		"-password", "password",
 		"-db", dbc})
 	if code != 0 {
 		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))

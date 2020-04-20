@@ -30,15 +30,16 @@
 		<fieldset class="two">
 			<div>
 				<div>
-					<label for="user_name">Your name</label>
-					<input type="text" name="user_name" id="user_name" value="{{.User.Name}}">
-					{{validate "user.name" .Validate}}
-				</div>
-				<div>
 					<label for="email">Email address</label>
 					<input type="email" name="user_email" id="email" value="{{.User.Email}}">
 					{{validate "user.email" .Validate}}
-					<span class="help">You will need access to the inbox to sign in.</span>
+					<span class="help">For password resets, important announcements, invoices.</span>
+				</div>
+				<div>
+					<label for="password">Password</label>
+					<input type="password" name="password" id="password" value="">
+					{{validate "user.password" .Validate}}
+					<span class="help">Needs at least 8 characters.</span>
 				</div>
 			</div>
 		</fieldset>

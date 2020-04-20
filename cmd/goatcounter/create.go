@@ -5,11 +5,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
 	"strconv"
+	"syscall"
 
+	"golang.org/x/crypto/ssh/terminal"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
@@ -31,6 +34,8 @@ Required flags:
 
 Other flags:
 
+  -password      Password to log in; will be asked interactively if omitted.
+
   -name          Name for the site and user; can be changed later in settings.
 
   -parent        Parent site; either as ID or domain.
@@ -49,13 +54,14 @@ func create() (int, error) {
 	debug := flagDebug()
 
 	var (
-		domain, email, name, parent string
-		createdb                    bool
+		domain, email, name, parent, password string
+		createdb                              bool
 	)
 	CommandLine.StringVar(&domain, "domain", "", "")
 	CommandLine.StringVar(&email, "email", "", "")
 	CommandLine.StringVar(&name, "name", "serve", "")
 	CommandLine.StringVar(&parent, "parent", "", "")
+	CommandLine.StringVar(&password, "password", "", "")
 	CommandLine.BoolVar(&createdb, "createdb", false, "")
 	err := CommandLine.Parse(os.Args[2:])
 	if err != nil {
@@ -72,6 +78,33 @@ func create() (int, error) {
 	v.Email("-email", email)
 	if v.HasErrors() {
 		return 1, v
+	}
+
+	if password == "" {
+	getpw:
+		fmt.Printf("Enter password for new user (will not echo): ")
+		pwd, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return 3, err
+		}
+		if len(pwd) < 8 {
+			fmt.Println("\nNeed at least 8 characters")
+			goto getpw
+		}
+
+		fmt.Printf("\nConfirm: ")
+		pwd2, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return 3, err
+		}
+		fmt.Println("")
+
+		if !bytes.Equal(pwd, pwd2) {
+			fmt.Println("Passwords did not match; try again.")
+			goto getpw
+		}
+
+		password = string(pwd)
 	}
 
 	db, err := connectDB(*dbConnect, nil, createdb)
@@ -105,7 +138,7 @@ func create() (int, error) {
 			return err
 		}
 
-		u := goatcounter.User{Site: s.ID, Name: name, Email: email}
+		u := goatcounter.User{Site: s.ID, Name: name, Email: email, Password: []byte(password), EmailVerified: true}
 		err = u.Insert(ctx)
 		return err
 	})

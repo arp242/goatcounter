@@ -143,7 +143,7 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID 
 	t.Helper()
 
 	// Insert user
-	u := goatcounter.User{Site: siteID, Name: "Example", Email: "test@example.com"}
+	u := goatcounter.User{Site: siteID, Name: "Example", Email: "test@example.com", Password: []byte("coconuts")}
 	err := u.Insert(r.Context())
 	if err != nil {
 		if guru.Code(err) != 400 {
@@ -152,10 +152,6 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID 
 	}
 
 	// Login user
-	err = u.RequestLogin(r.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
 	err = u.Login(r.Context())
 	if err != nil {
 		t.Fatal(err)
