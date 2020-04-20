@@ -122,7 +122,7 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 						return err
 					}
 					if !ok {
-						return fmt.Errorf("ContainsCNAME: unknown host: %q", host)
+						return errors.Errorf("ContainsCNAME: unknown host: %q", host)
 					}
 					return nil
 				},

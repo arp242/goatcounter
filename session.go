@@ -129,7 +129,7 @@ func (s *salt) Refresh(ctx context.Context) error {
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("salt.Refresh: %w", err)
+		return errors.Errorf("salt.Refresh: %w", err)
 	}
 
 	return nil
@@ -187,7 +187,7 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (creat
 					time.Sleep(100 * time.Millisecond)
 					return s.GetOrCreate(ctx, ua, remoteAddr)
 				}
-				return false, fmt.Errorf("Session.GetOrCreate: insert: %w", err)
+				return false, errors.Errorf("Session.GetOrCreate: insert: %w", err)
 			}
 		}
 
@@ -198,11 +198,11 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (creat
 				time.Sleep(100 * time.Millisecond)
 				return s.GetOrCreate(ctx, ua, remoteAddr)
 			}
-			return false, fmt.Errorf("Session.GetOrCreate: insert: %w", err)
+			return false, errors.Errorf("Session.GetOrCreate: insert: %w", err)
 		}
 		s.ID, err = res.LastInsertId()
 		if err != nil {
-			return false, fmt.Errorf("Session.GetOrCreate: %w", err)
+			return false, errors.Errorf("Session.GetOrCreate: %w", err)
 		}
 
 		return true, nil

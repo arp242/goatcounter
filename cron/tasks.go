@@ -24,12 +24,12 @@ func oldExports(ctx context.Context) error {
 	tmp := os.TempDir()
 	d, err := os.Open(tmp)
 	if err != nil {
-		return fmt.Errorf("cron.oldExports: %w", err)
+		return errors.Errorf("cron.oldExports: %w", err)
 	}
 
 	files, err := d.Readdirnames(-1)
 	if err != nil {
-		return fmt.Errorf("cron.oldExports: %w", err)
+		return errors.Errorf("cron.oldExports: %w", err)
 	}
 
 	tmp += "/"
@@ -163,7 +163,7 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) err
 			if zdb.ErrNoRows(err) { // Deleted site.
 				continue
 			}
-			return fmt.Errorf("cron.ReindexStats: %w", err)
+			return errors.Errorf("cron.ReindexStats: %w", err)
 		}
 		ctx = context.WithValue(ctx, ctxkey.Site, &site)
 
@@ -223,7 +223,7 @@ func vacuumDeleted(ctx context.Context) error {
 	var sites goatcounter.Sites
 	err := sites.OldSoftDeleted(ctx)
 	if err != nil {
-		return fmt.Errorf("vacuumDeleted: %w", err)
+		return errors.Errorf("vacuumDeleted: %w", err)
 	}
 
 	for _, s := range sites {
@@ -233,14 +233,14 @@ func vacuumDeleted(ctx context.Context) error {
 			for _, t := range []string{"usage", "browser_stats", "hit_stats", "sessions", "hits", "location_stats", "ref_stats", "size_stats", "users"} {
 				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
 				if err != nil {
-					return fmt.Errorf("%s: %w", t, err)
+					return errors.Errorf("%s: %w", t, err)
 				}
 			}
 			_, err := db.ExecContext(ctx, `delete from sites where id=$1`, s.ID)
 			return err
 		})
 		if err != nil {
-			return fmt.Errorf("vacuumDeleted: %w", err)
+			return errors.Errorf("vacuumDeleted: %w", err)
 		}
 	}
 	return nil

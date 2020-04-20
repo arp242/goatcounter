@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/errors"
 	"zgo.at/guru"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
@@ -241,7 +242,7 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 			return zhttp.SeeOther(w, "/billing")
 		}
 		if len(customer.Subscriptions.Data) > 1 {
-			return fmt.Errorf(
+			return errors.Errorf(
 				"billing.cancel: unexpected number of subscriptions for site %d/%s",
 				site.ID, *site.Stripe)
 		}

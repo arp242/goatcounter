@@ -7,6 +7,7 @@ package errors
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -32,7 +33,7 @@ func TestWrap(t *testing.T) {
 		t.Run(fmt.Sprintf("%s", tt.in), func(t *testing.T) {
 			//out := Wrap(tt.in)
 			out := fmt.Sprintf("%v", tt.in)
-			if out != tt.want {
+			if !strings.HasPrefix(out, tt.want) {
 				t.Errorf("\nout:  %s\nwant: %s", out, tt.want)
 			}
 		})
