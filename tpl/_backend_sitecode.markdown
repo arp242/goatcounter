@@ -11,6 +11,7 @@ Or use one of the ready-made integrations:
 
 Table of Contents
 -----------------
+{:.no_toc}
 - TOC
 {:toc}
 
@@ -284,5 +285,23 @@ location.
 Calling it from the middleware or as will probably result in more bot requests.
 GoatCounter does its best to filter this out, but it’s impossible to do this
 100% reliably.
+
+### Location of count.js
+You can load the `count.js` script anywhere, but it’s recommended to load it
+just before the closing `</body>` tag if possible.
+
+The reason for this is that downloading the `count.js` script will take up some
+bandwidth which could be better used for the actual JS/CSS used to render the
+site. The script is quite small (about 2K), so it’s not a huge difference, but
+might as well put it in the best possible location if possible.
+
+If your CMS makes it hard to insert a JavaScript tag there, then just insert it
+in the `<head>`, or anywhere in the `<body>`.
+
+You can also host the `count.js` script yourself, or include it in your page
+directly inside `<script>` tags. You won’t get any new features or other
+updates, but the `/count` endpoint is guaranteed to remain compatible so it
+should never break (any future incompatible changes will be a different
+endpoint, such as `/count/v2`).
 
 {{end}} {{/* if eq .Path "/settings" */}}

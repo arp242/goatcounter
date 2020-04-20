@@ -14732,9 +14732,8 @@ var Templates = map[string][]byte{
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.</p>
 
-<h2 id="table-of-contents">Table of Contents <a href="#table-of-contents"></a></h2>
+<h2 class="no_toc" id="table-of-contents">Table of Contents</h2>
 <ul id="markdown-toc">
-  <li><a href="#table-of-contents" id="markdown-toc-table-of-contents">Table of Contents</a></li>
   <li><a href="#events" id="markdown-toc-events">Events</a></li>
   <li><a href="#content-security-policy" id="markdown-toc-content-security-policy">Content security policy</a></li>
   <li><a href="#customizing" id="markdown-toc-customizing">Customizing</a>    <ul>
@@ -14761,6 +14760,7 @@ var Templates = map[string][]byte{
   <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>    <ul>
       <li><a href="#image-based-tracking-without-javascript" id="markdown-toc-image-based-tracking-without-javascript">Image-based tracking without JavaScript</a></li>
       <li><a href="#tracking-from-backend-middleware" id="markdown-toc-tracking-from-backend-middleware">Tracking from backend middleware</a></li>
+      <li><a href="#location-of-countjs" id="markdown-toc-location-of-countjs">Location of count.js</a></li>
     </ul>
   </li>
 </ul>
@@ -15088,6 +15088,24 @@ location.</p>
 GoatCounter does its best to filter this out, but it’s impossible to do this
 100% reliably.</p>
 
+<h3 id="location-of-countjs">Location of count.js <a href="#location-of-countjs"></a></h3>
+<p>You can load the <code>count.js</code> script anywhere, but it’s recommended to load it
+just before the closing <code>&lt;/body&gt;</code> tag if possible.</p>
+
+<p>The reason for this is that downloading the <code>count.js</code> script will take up some
+bandwidth which could be better used for the actual JS/CSS used to render the
+site. The script is quite small (about 2K), so it’s not a huge difference, but
+might as well put it in the best possible location if possible.</p>
+
+<p>If your CMS makes it hard to insert a JavaScript tag there, then just insert it
+in the <code>&lt;head&gt;</code>, or anywhere in the <code>&lt;body&gt;</code>.</p>
+
+<p>You can also host the <code>count.js</code> script yourself, or include it in your page
+directly inside <code>&lt;script&gt;</code> tags. You won’t get any new features or other
+updates, but the <code>/count</code> endpoint is guaranteed to remain compatible so it
+should never break (any future incompatible changes will be a different
+endpoint, such as <code>/count/v2</code>).</p>
+
 {{end}} {{/* if eq .Path "/settings" */}}
 `),
 	"tpl/_backend_top.gohtml": []byte(`<!DOCTYPE html>
@@ -15235,8 +15253,9 @@ GoatCounter does its best to filter this out, but it’s impossible to do this
 	<div class="flash flash-i">
 		<p><strong>No data received</strong> – GoatCounter hasn’t received any
 		data yet.<br>
-		Make sure the site is set up correctly with the code below inserted just
-		before the closing &lt;/body&gt; tag:</p>
+		Make sure the site is set up correctly with the code below inserted in
+		your page, ideally just before the closing &lt;/body&gt; tag (but
+		anywhere will work):</p>
 		{{template "_backend_sitecode.gohtml" .}}
 
 		<p><small>This message will disappear once we receive data; see
@@ -15457,8 +15476,9 @@ parent site includes the child sites.</p>
 	"tpl/backend_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <h1>Site code</h1>
-<p>To add Goatcounter to a site insert the code below just before the closing
-<code>&lt;/body&gt;</code> tag:</p>
+<p>Insert the code below to add GoatCounter to a site, ideally just before the
+closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
+<code>&lt;head&gt;</code> will work):</p>
 {{template "_backend_sitecode.gohtml" .}}
 
 {{template "_backend_bottom.gohtml" .}}
