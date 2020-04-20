@@ -26,16 +26,6 @@ import (
 	"zgo.at/zvalidate"
 )
 
-const emailPasswordReset = `Hi there,
-
-Someone (hopefully you) requested to reset your GoatCounter password.
-
-You can do this here:
-%s
-
-You can reply to this email for further assistence or questions.
-`
-
 type user struct{}
 
 func (h user) mount(r chi.Router) {
@@ -137,14 +127,17 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	go func() {
-		url := fmt.Sprintf("%s/user/reset/%s", site.URL(), *u.LoginRequest)
-		err := zmail.Send(
+		defer zlog.Recover()
+		err = zmail.SendTemplate(
 			fmt.Sprintf("Password reset for %s", site.Domain()),
 			mail.Address{Name: "GoatCounter login", Address: cfg.LoginFrom},
 			[]mail.Address{{Name: u.Name, Address: u.Email}},
-			fmt.Sprintf(emailPasswordReset, url))
+			"email_password_reset.gotxt", struct {
+				Site goatcounter.Site
+				User goatcounter.User
+			}{*site, *u})
 		if err != nil {
-			zlog.Errorf("zmail: %s", err)
+			zlog.Errorf("password reset: %s", err)
 		}
 	}()
 
@@ -376,31 +369,26 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 
 	site := goatcounter.MustGetSite(r.Context())
 
-	go sendEmailVerify(site, user)
+	sendEmailVerify(site, user)
 
 	zhttp.Flash(w, "Sent to %q", user.Email)
 	return zhttp.SeeOther(w, "/")
 }
 
-const emailVerify = `Hi there,
-
-Please go here to verify your email address:
-%s/user/verify/%s
-
-Feel free to reply to this email if you have any problems or questions.
-
-Cheers,
-Martin
-`
-
 func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
-	err := zmail.Send("Verify your email",
-		mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
-		[]mail.Address{{Name: user.Name, Address: user.Email}},
-		fmt.Sprintf(emailVerify, site.URL(), *user.EmailToken))
-	if err != nil {
-		zlog.Errorf("zmail: %s", err)
-	}
+	go func() {
+		zlog.Recover()
+		err := zmail.SendTemplate("Verify your email",
+			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+			[]mail.Address{{Name: user.Name, Address: user.Email}},
+			"email_verify.gotxt", struct {
+				Site goatcounter.Site
+				User goatcounter.User
+			}{*site, *user})
+		if err != nil {
+			zlog.Errorf("zmail: %s", err)
+		}
+	}()
 }
 
 func (h user) verify(w http.ResponseWriter, r *http.Request) error {

@@ -1,0 +1,8 @@
+Hi there,
+
+The GoatCounter export you’ve requested is finished, go here to download it:
+{{.Site.URL}}/download-export
+
+The file size is {{.Size}}M, and the export will be removed after 24 hours.
+
+{{template "_email_bottom.gotxt" .}}

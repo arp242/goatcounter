@@ -15291,6 +15291,11 @@ endpoint, such as <code>/count/v2</code>).</p>
 	</div>
 </footer>
 `),
+	"tpl/_email_bottom.gotxt": []byte(`Feel free to reply to this email if you have any problems, questions, or feedback.
+
+Cheers,
+Martin
+`),
 	"tpl/_favicon.gohtml": []byte(`<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="icon" type="image/png" sizes="32x32" href="{{.Static}}/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="{{.Static}}/favicon/favicon-16x16.png">
@@ -16073,6 +16078,59 @@ is useful for you to ensure the long-term viability.</p>
 </ul>
 
 {{template "_bottom.gohtml" .}}
+`),
+	"tpl/email_export_done.gotxt": []byte(`Hi there,
+
+The GoatCounter export you’ve requested is finished, go here to download it:
+{{.Site.URL}}/download-export
+
+The file size is {{.Size}}M, and the export will be removed after 24 hours.
+
+{{template "_email_bottom.gotxt" .}}
+`),
+	"tpl/email_forgot_site.gotxt": []byte(`Hi there,
+
+You requested a list of GoatCounter sites associated with ‘{{.Email}}’:
+
+{{range $s := .Sites}}
+- {{$s.URL}}
+{{else}}
+There are no GoatCounter domains associated with this email.
+{{end}}
+
+{{template "_email_bottom.gotxt" .}}
+`),
+	"tpl/email_password_reset.gotxt": []byte(`Hi there,
+
+Someone (hopefully you) requested to reset the password on your GoatCounter account.
+
+You can do this here:
+{{.Site.URL}}/user/reset/{{.User.LoginRequest}}
+
+{{template "_email_bottom.gotxt" .}}
+`),
+	"tpl/email_verify.gotxt": []byte(`Hi there,
+
+Please go here to verify your GoatCounter email address:
+{{.Site.URL}}/user/verify/{{.User.EmailToken}}
+
+{{template "_email_bottom.gotxt" .}}
+`),
+	"tpl/email_welcome.gotxt": []byte(`Hi there,
+
+Welcome to your GoatCounter account!
+
+Please go here to verify your email address:
+{{.Site.URL}}/user/verify/{{.User.EmailToken}}
+
+Getting started is pretty easy, just add the following JavaScript anywhere on the page:
+
+	<script data-goatcounter="{{.Site.URL}}/count"
+			async src="//{{.CountDomain}}/count.js"></script>
+
+Further documentation is available at {{.Site.URL}}/code
+
+{{template "_email_bottom.gotxt" .}}
 `),
 	"tpl/error.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">

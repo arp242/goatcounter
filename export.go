@@ -19,16 +19,6 @@ import (
 	"zgo.at/zlog"
 )
 
-const emailExportDone = `Hi there,
-
-The GoatCounter export you’ve requested is finished, go here to download it:
-%s/download-export
-
-The file size is %.1fM, and the export will be removed after 24 hours.
-
-Feel free to reply to this email if you have any questions or problems.
-`
-
 func ExportFile(site *Site) string {
 	return fmt.Sprintf("%s/goatcounter-export-%s.csv.gz", os.TempDir(), site.Code)
 }
@@ -110,9 +100,9 @@ func Export(ctx context.Context, fp *os.File) {
 	}
 
 	stat, err := fp.Stat()
-	var size float64
+	size := "0"
 	if err == nil {
-		size = float64(stat.Size()) / 1024 / 1024
+		size = fmt.Sprintf("%.1f", float64(stat.Size())/1024/1024)
 	}
 
 	err = fp.Close()
@@ -128,8 +118,15 @@ func Export(ctx context.Context, fp *os.File) {
 	}
 
 	user := GetUser(ctx)
-	zmail.Send("GoatCounter export ready",
+	err = zmail.SendTemplate("GoatCounter export ready",
 		mail.Address{Name: "GoatCounter export", Address: "support@goatcounter.com"},
 		[]mail.Address{{Name: user.Name, Address: user.Email}},
-		fmt.Sprintf(emailExportDone, site.URL(), size))
+		"email_export_done.gotxt", struct {
+			Site Site
+			Size string
+		}{*site, size})
+	if err != nil {
+		l.Error(err)
+		return
+	}
 }

@@ -26,17 +26,6 @@ import (
 	"zgo.at/zvalidate"
 )
 
-const emailWelcome = `Hi there,
-
-Welcome to your GoatCounter account. Please go here to verify your email address:
-%s/user/verify/%s
-
-Feel free to reply to this email if you have any problems or questions.
-
-Cheers,
-Martin
-`
-
 type website struct{}
 
 func (h website) Mount(r *chi.Mux, db zdb.DB) {
@@ -233,12 +222,18 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	go func() {
-		err := zmail.Send("Welcome to GoatCounter!",
+		defer zlog.Recover()
+
+		err := zmail.SendTemplate("Welcome to GoatCounter!",
 			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
 			[]mail.Address{{Name: user.Name, Address: user.Email}},
-			fmt.Sprintf(emailWelcome, site.URL(), *user.EmailToken))
+			"email_welcome.gotxt", struct {
+				Site        goatcounter.Site
+				User        goatcounter.User
+				CountDomain string
+			}{site, user, cfg.DomainCount})
 		if err != nil {
-			zlog.Errorf("zmail: %s", err)
+			zlog.Errorf("welcome email: %s", err)
 		}
 	}()
 
@@ -268,33 +263,35 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	go func(ctx context.Context) {
-		var body, name string
-		if len(users) == 0 {
-			body = fmt.Sprintf("There are no GoatCounter domains associated with ‘%s’", args.Email)
-		} else {
-			name = users[0].Name
-			body = fmt.Sprintf("Sites associated with ‘%s’:\r\n\r\n", args.Email)
-			for _, u := range users {
-				var s goatcounter.Site
-				err := s.ByID(ctx, u.Site)
-				if err != nil {
-					zlog.Error(err)
-					continue
-				}
-
-				body += fmt.Sprintf("- %s\r\n\r\n", s.URL())
-			}
-		}
-
-		err := zmail.Send("Your GoatCounter sites",
-			mail.Address{Name: "GoatCounter login", Address: cfg.LoginFrom},
-			[]mail.Address{{Name: name, Address: args.Email}},
-			body)
+	var sites goatcounter.Sites
+	for _, u := range users {
+		var s goatcounter.Site
+		err := s.ByID(r.Context(), u.Site)
 		if err != nil {
-			zlog.Errorf("zmail: %s", err)
+			return err
 		}
-	}(goatcounter.NewContext(r.Context()))
+
+		sites = append(sites, s)
+	}
+
+	go func() {
+		defer zlog.Recover()
+
+		var name string
+		if len(users) > 0 {
+			name = users[0].Name
+		}
+		err = zmail.SendTemplate("Your GoatCounter sites",
+			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+			[]mail.Address{{Name: name, Address: args.Email}},
+			"email_forgot_site.gotxt", struct {
+				Sites goatcounter.Sites
+				Email string
+			}{sites, args.Email})
+		if err != nil {
+			zlog.Error(err)
+		}
+	}()
 
 	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
 	return zhttp.SeeOther(w, "/user/forgot")

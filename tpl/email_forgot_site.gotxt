@@ -1,0 +1,11 @@
+Hi there,
+
+You requested a list of GoatCounter sites associated with ‘{{.Email}}’:
+
+{{range $s := .Sites}}
+- {{$s.URL}}
+{{else}}
+There are no GoatCounter domains associated with this email.
+{{end}}
+
+{{template "_email_bottom.gotxt" .}}
