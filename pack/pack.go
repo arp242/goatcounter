@@ -15320,11 +15320,13 @@ endpoint, such as <code>/count/v2</code>).</p>
 
 				<p>Because maintaining two systems makes everything a lot more
 				complex, the email auth will be removed.
+				{{if .Saas}}
 				All new signups use passwords now, and this notice should migrate
 				most users who login in the next few weeks, after which I’ll email
 				users without a password requesting them to set one. A few weeks
 				after that I’ll email a random password to the remaining users who
 				haven’t set one yet and remove the email auth workflow.</p>
+				{{end}}
 
 				<p>2-factor auth will be added at some point in the future; the
 				current email code isn’t really suitable for that and not something
@@ -15338,7 +15340,7 @@ endpoint, such as <code>/count/v2</code>).</p>
 	{{if not .User.EmailVerified}}
 		<div class="flash flash-i">
 			Please verify your email by clicking the link sent to {{.User.Email}}.
-			<sup>(<a href="https://www.{{.Domain}}/help#verify-email">Why?</a>)</sup><br>
+			<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
 
 			Change the email address in the <a href="/settings">settings</a> –
 			<form method="post" action="/user/resend-verify">
@@ -15687,7 +15689,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 							<a href="/billing">billing</a>.
 						{{else}}
 							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="https://www.{{.Domain}}/help#custom-domain" target="_blank">Detailed instructions</a>.
+							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
 						{{end}}</span>
 				{{else}}
 					<label for="cname">Goatcounter domain</label>
@@ -16268,11 +16270,11 @@ sub {
 
 	<dt id="verify-email">Why do I need to verify my email? <a href="#verify-email">§</a></dt>
 	<dd>
-		Having some means of contact on file is useful in case of questions,
-		problems, or other reasons for communicating.
+		Having some means of contact is useful in case of questions, problems,
+		or other reasons for communicating.
 		<br>
-		For example, if you’re sending many pageviews (millions) then I’d rather
-		contact you to discus options than just shut down the account. Not
+		For example, if you’re sending many (millions) of pageviews then I’d rather
+		contact you to discuss options than just shut down the account. Not
 		having any means to get in touch would leave me in an awkward position.
 	</dd>
 </dl>

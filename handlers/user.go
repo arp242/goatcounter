@@ -195,15 +195,6 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		// Temporary Set-Cookie to remove previous "code.goatcounter.com" cookie,
-		// which takes priority over the ".goatcounter.com" cookie.
-		http.SetCookie(w, &http.Cookie{
-			Name:    "key",
-			Value:   "",
-			Path:    "/",
-			Expires: goatcounter.Now().Add(-100 * time.Hour),
-		})
-
 		zhttp.SetCookie(w, *user.LoginToken, site.Domain())
 		return zhttp.SeeOther(w, "/")
 	}
@@ -275,7 +266,7 @@ func (h user) reset(w http.ResponseWriter, r *http.Request) error {
 		if !zdb.ErrNoRows(err) {
 			zlog.Error(err)
 		}
-		return guru.New(http.StatusForbidden, "could find the user for the given token; perhaps it has expired?")
+		return guru.New(http.StatusForbidden, "could find the user for the given token; perhaps it's expired or has already been used?")
 	}
 
 	user.ID = 0 // Don't count as logged in.
@@ -292,7 +283,7 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 	var user goatcounter.User
 	err := user.ByResetToken(r.Context(), chi.URLParam(r, "key"))
 	if err != nil {
-		return guru.New(http.StatusForbidden, "could find the user for the given token; perhaps it has expired?")
+		return guru.New(http.StatusForbidden, "could find the user for the given token; perhaps it's expired or has already been used?")
 	}
 
 	var args struct {

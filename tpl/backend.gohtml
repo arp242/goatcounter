@@ -14,11 +14,13 @@
 
 				<p>Because maintaining two systems makes everything a lot more
 				complex, the email auth will be removed.
+				{{if .Saas}}
 				All new signups use passwords now, and this notice should migrate
 				most users who login in the next few weeks, after which I’ll email
 				users without a password requesting them to set one. A few weeks
 				after that I’ll email a random password to the remaining users who
 				haven’t set one yet and remove the email auth workflow.</p>
+				{{end}}
 
 				<p>2-factor auth will be added at some point in the future; the
 				current email code isn’t really suitable for that and not something
@@ -32,7 +34,7 @@
 	{{if not .User.EmailVerified}}
 		<div class="flash flash-i">
 			Please verify your email by clicking the link sent to {{.User.Email}}.
-			<sup>(<a href="https://www.{{.Domain}}/help#verify-email">Why?</a>)</sup><br>
+			<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
 
 			Change the email address in the <a href="/settings">settings</a> –
 			<form method="post" action="/user/resend-verify">

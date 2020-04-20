@@ -774,7 +774,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	user := goatcounter.GetUser(txctx)
 
 	emailChanged := false
-	if args.User.Email != user.Email {
+	if cfg.Saas && args.User.Email != user.Email {
 		emailChanged = true
 	}
 
