@@ -340,6 +340,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		defer wg.Done()
 
 		total, totalDisplay, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil)
+		totalUnique := 0 // TODO; needs new query? ugh
+		for _, p := range pages {
+			totalUnique += p.CountUnique
+		}
 		//l = l.Since("pages.List")
 	}()
 
@@ -417,6 +421,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		Refs              goatcounter.HitStats
 		MoreRefs          bool
 		TotalHits         int
+		TotalUniqueHits   int
 		TotalHitsDisplay  int
 		Browsers          goatcounter.Stats
 		TotalBrowsers     int
@@ -432,8 +437,8 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		Daily             bool
 		ForcedDaily       bool
 	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
-		filter, pages, morePages, refs, moreRefs, total, totalDisplay, browsers,
-		totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
+		filter, pages, morePages, refs, moreRefs, total, totalUnique, totalDisplay,
+		browsers, totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
 		showMoreLoc, topRefs, totalTopRefs, showMoreRefs, daily, forcedDaily})
 	l.Since("zhttp.Template")
 	return x
@@ -515,7 +520,7 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		if v > maxSignups {
 			maxSignups = v
 		}
-		signups = append(signups, goatcounter.Stat{Day: k, Days: []int{v}})
+		signups = append(signups, goatcounter.Stat{Day: k, Hourly: []int{v}})
 	}
 	sort.Slice(signups, func(i, j int) bool {
 		return signups[i].Day < signups[j].Day

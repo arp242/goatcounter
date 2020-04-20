@@ -96,7 +96,7 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	case false:
 		hour := now.Hour()
 		for i, stat := range stats {
-			for shour, s := range stat.Days {
+			for shour, s := range stat.Hourly {
 				if future {
 					b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, future" class="f"></div>`,
 						stat.Day, shour))

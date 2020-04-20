@@ -118,13 +118,10 @@
 			<span class="hide-mobileX totals">
 				Displaying
 				<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-				{{/*
-				(<span class="total-display-unique">{{nformat .TotalHitsDisplay $.Site}}</span> unique)
-				*/}}
+				(<span class="total-display-unique">{{nformat .TotalUniqueHits $.Site}}</span> unique)
 				out of
 				<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
 			</span>
-
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
