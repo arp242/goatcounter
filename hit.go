@@ -205,26 +205,43 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	return refURL.String()[2:], &eq, changed || len(q) != start, false
 }
 
-func cleanPath(path string) string {
-	// No query parameters.
-	if !strings.Contains(path, "?") {
-		return path
+func (h *Hit) cleanPath(ctx context.Context) {
+	if h.Event {
+		return
+	}
+	if !strings.Contains(h.Path, "?") { // No query parameters.
+		return
 	}
 
-	u, err := url.Parse(path)
+	u, err := url.Parse(h.Path)
 	if err != nil {
-		return path
+		return
 	}
 
 	q := u.Query()
 
-	// Magic Facebook tracking parameter. As far as I can find it's not public
-	// what this even does exactly, so just remove it to prevent pages from
-	// being show more than once.
-	q.Del("fbclid")
+	for _, c := range MustGetSite(ctx).Settings.Campaigns {
+		if _, ok := q[c]; ok {
+			h.Ref = q.Get(c)
+			h.RefURL = nil
+			break
+		}
+	}
+
+	q.Del("fbclid") // Magic undocumented Facebook tracking parameter.
+	q.Del("ref")    // ProductHunt and a few others.
+	q.Del("mc_cid") // MailChimp
+	q.Del("mc_eid")
+
+	// Google tracking parameters.
+	for k := range q {
+		if strings.HasPrefix(k, "utm_") {
+			q.Del(k)
+		}
+	}
 
 	u.RawQuery = q.Encode()
-	return u.String()
+	h.Path = u.String()
 }
 
 func (h Hit) String() string {
@@ -275,9 +292,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 		h.CreatedAt = Now()
 	}
 
-	if !h.Event {
-		h.Path = cleanPath(h.Path)
-	}
+	h.cleanPath(ctx)
 
 	if h.Ref != "" && h.RefURL != nil {
 		if h.RefURL.Scheme == "http" || h.RefURL.Scheme == "https" {

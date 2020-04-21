@@ -73,6 +73,7 @@ type SiteSettings struct {
 	DataRetention    int                `json:"data_retention"`
 	IgnoreIPs        sqlutil.StringList `json:"ignore_ips"`
 	Timezone         *tz.Zone           `json:"timezone"`
+	Campaigns        sqlutil.StringList `json:"campaigns"`
 	Limits           struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
