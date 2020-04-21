@@ -15984,9 +15984,17 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 	{{if .FreePlan}}
 		<p>Currently using the <em>Personal free</em> plan for non-commercial usage.</p>
 	{{else}}
-		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with a {{.Payment}}.</p>
-		<p>{{.Next}}</p>
-		<p><a href="/billing/cancel">Cancel or change</a></p>
+		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with {{.Payment}}.</p>
+		{{if .External}}
+			The plan was set up through you contribution at {{.External}}, and
+			can’t be cancelled or changed here.<br>
+			Get in touch at
+			<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+			if you want to change it or have any questions about it.
+		{{else}}
+			<p>{{.Next}}</p>
+			<p><a href="/billing/cancel">Cancel or change</a></p>
+		{{end}}
 	{{end}}
 {{else}}
 	<script src="https://js.stripe.com/v3"></script>

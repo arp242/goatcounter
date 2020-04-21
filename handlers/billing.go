@@ -73,8 +73,12 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	external := site.PayExternal()
 	var payment, next string
-	if site.Stripe != nil && !site.FreePlan() {
+	if external != "" {
+		payment = external
+	}
+	if site.Stripe != nil && !site.FreePlan() && external == "" {
 		var customer struct {
 			Subscriptions struct {
 				Data []struct {
@@ -109,7 +113,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				return err
 			}
 			if len(methods.Data) > 0 {
-				payment = fmt.Sprintf("%s card ending with %s",
+				payment = fmt.Sprintf("a %s card ending with %s",
 					methods.Data[0].Card.Brand, methods.Data[0].Card.Last4)
 			}
 
@@ -135,8 +139,9 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		Next            string
 		Subscribed      bool
 		FreePlan        bool
+		External        string
 	}{newGlobals(w, r), zstripe.PublicKey, payment, next,
-		payment != "", site.FreePlan()})
+		payment != "", site.FreePlan(), external})
 }
 
 var stripePlans = map[bool]map[string]string{

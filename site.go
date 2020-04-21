@@ -435,6 +435,20 @@ func (s Site) FreePlan() bool {
 	return s.Stripe != nil && strings.HasPrefix(*s.Stripe, "cus_free_")
 }
 
+func (s Site) PayExternal() string {
+	if s.Stripe == nil {
+		return ""
+	}
+
+	if strings.HasPrefix(*s.Stripe, "cus_github_") {
+		return "GitHub Sponsors"
+	}
+	if strings.HasPrefix(*s.Stripe, "cus_patreon_") {
+		return "Patreon"
+	}
+	return ""
+}
+
 func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	if days < 14 {
 		return fmt.Errorf("days must be at least 14: %d", days)
