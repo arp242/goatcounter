@@ -14851,7 +14851,7 @@ var Templates = map[string][]byte{
   <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>    <ul>
       <li><a href="#image-based-tracking-without-javascript" id="markdown-toc-image-based-tracking-without-javascript">Image-based tracking without JavaScript</a></li>
       <li><a href="#tracking-from-backend-middleware" id="markdown-toc-tracking-from-backend-middleware">Tracking from backend middleware</a></li>
-      <li><a href="#location-of-countjs" id="markdown-toc-location-of-countjs">Location of count.js</a></li>
+      <li><a href="#location-of-countjs-and-loading-it-locally" id="markdown-toc-location-of-countjs-and-loading-it-locally">Location of count.js and loading it locally</a></li>
       <li><a href="#setting-the-endpoint-in-javascript" id="markdown-toc-setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript</a></li>
     </ul>
   </li>
@@ -14883,11 +14883,15 @@ is used if <code>data-goatcounter-title</code> is empty. There is no default for
 referrer.</p>
 
 <h2 id="content-security-policy">Content security policy <a href="#content-security-policy"></a></h2>
-<p>You’ll need the following if you use a <code>Content-Security-Policy</code>:</p>
+<p>You’ll need to add the following if you use a <code>Content-Security-Policy</code>:</p>
 
 <pre><code>script-src  https://{{.CountDomain}}
 img-src     {{.Site.URL}}/count
 </code></pre>
+
+<p>The <code>script-src</code> is needed to load the <code>count.js</code> script, and the <code>img-src</code> is
+needed to send pageviews to GoatCounter (which are loaded with a “tracking
+pixel”).</p>
 
 <h2 id="customizing">Customizing <a href="#customizing"></a></h2>
 <p>Customisation is done with the <code>window.goatcounter</code> object; the following keys
@@ -14914,6 +14918,10 @@ are supported:</p>
     <tr>
       <td style="text-align: left"><code>allow_local</code></td>
       <td style="text-align: left">Allow requests from local addresses (<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing the integration locally.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>endpoint</code></td>
+      <td style="text-align: left">Customize the endpoint for sending pageviews to; see <a href="#setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript </a>.</td>
     </tr>
   </tbody>
 </table>
@@ -14962,8 +14970,8 @@ described in the Data section above, and will be merged in to the global
 <code>window.goatcounter</code>, taking precedence.</p>
 
 <p>Be aware that the script is loaded with <code>async</code> by default, so <code>count()</code> may not
-yet be available on click events and the like. To solve this, use
-<code>setInterval()</code> to wait until it’s available:</p>
+yet be available on click events and the like. Use <code>setInterval()</code> to wait until
+it’s available:</p>
 
 <pre><code>elem.addEventListener('click', function() {
     var t = setInterval(function() {
@@ -14980,8 +14988,8 @@ about this if you call <code>count()</code> manually.</p>
 
 <h4 id="bindevents"><code>bind_events()</code> <a href="#bindevents"></a></h4>
 <p>Bind a click event to every element with <code>data-goatcounter-click</code>. Called on
-page load unless <code>no_events</code> is set. You may need to call this manually if you
-insert elements after the page loads.</p>
+page load unless <code>no_onload</code> or <code>no_events</code> is set. You may need to call this
+manually if you insert elements after the page loads.</p>
 
 <h4 id="getqueryname"><code>get_query(name)</code> <a href="#getqueryname"></a></h4>
 <p>Get a single query parameter from the current page’s URL; returns <code>undefined</code> if
@@ -15016,7 +15024,7 @@ from the URL:</p>
 </code></pre>
 
 <p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">request from localhost are already
-ignored</a></p>
+ignored</a>.</p>
 
 <h3 id="skip-own-views">Skip own views <a href="#skip-own-views"></a></h3>
 <p>You can use the same technique as a client-side way to skip loading from your
@@ -15038,6 +15046,7 @@ own browser:</p>
 
 <pre><code>&lt;script&gt;
     window.goatcounter = {
+        // The passed value is the default.
         path: function(p) {
             // Don't track the home page.
             if (p === '/')
@@ -15052,9 +15061,9 @@ own browser:</p>
 </code></pre>
 
 <h3 id="multiple-domains">Multiple domains <a href="#multiple-domains"></a></h3>
-<p>Right now GoatCounter doesn’t store the domain a pageview belongs to. If you add
+<p>GoatCounter doesn’t store the domain a pageview belongs to; if you add
 GoatCounter to several (sub)domain then there’s no way to distinguish between
-requests to <code>a.example.com/path</code> and <code>b.example.com/path</code>, as they’re both
+requests to <code>a.example.com/path</code> and <code>b.example.com/path</code> as they’re both
 recorded as <code>/path</code>.</p>
 
 <p>This might be improved at some point in the future; the options right now are:</p>
@@ -15066,8 +15075,8 @@ separate site which inherits the user, login, plan, etc. You will need to use
 a different site code for every (sub)domain.</p>
   </li>
   <li>
-    <p>If you want everything in a single overview on a single site, then you can
-add the domain to the path, instead of just sending the path:</p>
+    <p>If you want everything in a single overview then you can add the domain to
+the path, instead of just sending the path:</p>
 
     <pre><code>&lt;script&gt;
     window.goatcounter = {
@@ -15078,8 +15087,8 @@ add the domain to the path, instead of just sending the path:</p>
 </code></pre>
 
     <p>For subdomains it it might be more useful to just add the first domain label
-instead of the full domain here, depending on taste, or perhaps just a short
-static string.</p>
+instead of the full domain here, or perhaps just a short static string
+identifying the source.</p>
   </li>
 </ol>
 
@@ -15091,11 +15100,10 @@ easiest way to ignore extraneous query parameters:</p>
 </code></pre>
 
 <p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be sure to understand the
-potential SEO effects before adding a canonical URL! If you use query parameters
-for navigation then you probably <em>don’t</em> want it.</p>
+potential SEO effects before adding a canonical URL; if you use query parameters
+for navigation then you probably <em>don’t</em> want to do this.</p>
 
-<p>Alternatively you can send a custom <code>path</code> without the query
-parameters:</p>
+<p>Alternatively you can send a custom <code>path</code> without the query parameters:</p>
 
 <pre><code>&lt;script&gt;
     window.goatcounter = {
@@ -15105,8 +15113,15 @@ parameters:</p>
 {{template "code" .}}
 </code></pre>
 
+<p>You can add individual query parameters with <code>get_query()</code>:</p>
+
+<pre><code>window.goatcounter = {
+    path: (location.pathname + '?page=' + get_query('page')) || '/',
+}
+</code></pre>
+
 <h3 id="spa">SPA <a href="#spa"></a></h3>
-<p>Custom <code>count()</code> example for hooking in to an SPA:</p>
+<p>Custom <code>count()</code> example for hooking in to an SPA nagivating by <code>#</code>:</p>
 
 <pre><code>&lt;script&gt;
     window.goatcounter = {no_onload: true}
@@ -15134,19 +15149,19 @@ For example:</p>
 </code></pre>
 
 <p>Note that the <code>path</code> doubles as the event name. There is currently no real way
-to record the pathname with the event, although you can send it as part of the
-event name with something like:</p>
+to record the path with the event, although you can send it as part of the event
+name:</p>
 
 <pre><code>window.goatcounter.count({
-    path:  function(p) { p + '_banana' },
+    path:  function(p) { 'click-banana-' + p },
     event: true,
 })
 </code></pre>
 
-<p>The callback will have the regular <code>path</code> passed to it, and you can append an
-event name there; you can also use <code>window.location.pathname</code> directly; the
-biggest difference with the passed value is that <code>&lt;link rel="canonical"&gt;</code> is
-taken in to account.</p>
+<p>The callback will have the regular <code>path</code> passed to it, and you can add an event
+name there; you can also use <code>window.location.pathname</code> directly; the biggest
+difference with the passed value is that <code>&lt;link rel="canonical"&gt;</code> is taken in to
+account.</p>
 
 <h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
 
@@ -15157,9 +15172,10 @@ an image on your site:</p>
 <pre><code>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;
 </code></pre>
 
-<p>This won’t allow recording the referral or screen size though, and may also
-increase the number of bot requests (although we do our best to filter this
-out).</p>
+<p>This won’t allow recording the referral or screen size, and may also increase
+the number of bot requests (we do our best to filter this out, but it’s hard to
+get all of them, since many spam scrapers and such disguise themselves as
+regular browsers).</p>
 
 <p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
 
@@ -15180,21 +15196,19 @@ middleware. It supports the following query parameters:</p>
 <p>The <code>User-Agent</code> header and remote address are used for the browser and
 location.</p>
 
-<p>Calling it from the middleware or as will probably result in more bot requests.
-GoatCounter does its best to filter this out, but it’s impossible to do this
-100% reliably.</p>
+<p>Calling it from the middleware will probably result in more bot requests, as
+mentioned in the previous section.</p>
 
-<h3 id="location-of-countjs">Location of count.js <a href="#location-of-countjs"></a></h3>
-<p>You can load the <code>count.js</code> script anywhere, but it’s recommended to load it
-just before the closing <code>&lt;/body&gt;</code> tag if possible.</p>
+<h3 id="location-of-countjs-and-loading-it-locally">Location of count.js and loading it locally <a href="#location-of-countjs-and-loading-it-locally"></a></h3>
+<p>You can load the <code>count.js</code> script anywhere on your page, but it’s recommended
+to load it just before the closing <code>&lt;/body&gt;</code> tag if possible.</p>
 
 <p>The reason for this is that downloading the <code>count.js</code> script will take up some
-bandwidth which could be better used for the actual JS/CSS used to render the
+bandwidth which could be better used for the actual assets needed to render the
 site. The script is quite small (about 2K), so it’s not a huge difference, but
-might as well put it in the best possible location if possible.</p>
-
-<p>If your CMS makes it hard to insert a JavaScript tag there, then just insert it
-in the <code>&lt;head&gt;</code>, or anywhere in the <code>&lt;body&gt;</code>.</p>
+might as well put it in the best location if possible. Just insert it in the
+<code>&lt;head&gt;</code> or anywhere in the <code>&lt;body&gt;</code> if your CMS doesn’t have an option to add
+it there.</p>
 
 <p>You can also host the <code>count.js</code> script yourself, or include it in your page
 directly inside <code>&lt;script&gt;</code> tags. You won’t get any new features or other
@@ -15202,10 +15216,18 @@ updates, but the <code>/count</code> endpoint is guaranteed to remain compatible
 should never break (any future incompatible changes will be a different
 endpoint, such as <code>/count/v2</code>).</p>
 
-<p>Be sure to include the <code>data-goatcounter</code> attribute on the script tag, so
-GoatCounter knows where to send the pageviews to:</p>
+<p>Be sure to include the <code>data-goatcounter</code> attribute on the script tag or set
+<code>goatcounter.endpoint</code> so GoatCounter knows where to send the pageviews to:</p>
 
 <pre><code>&lt;script data-goatcounter="{{.Site.URL}}/count"&gt;
+    // [.. contents of count.js ..]
+&lt;/script&gt;
+
+// or:
+
+&lt;script&gt;
+    window.goatcounter = {endpoint: '{{.Site.URL}}/count'}
+
     // [.. contents of count.js ..]
 &lt;/script&gt;
 </code></pre>
@@ -15253,7 +15275,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 
 <body>
 	<noscript>
-		<p>Goatcounter requires JavaScript enabled to function well; please allow JavaScript to run from {{.StaticDomain}}.</p>
+		<p>GoatCounter requires JavaScript enabled to function well; please allow JavaScript to run from {{.StaticDomain}}.</p>
 		<!--
 		<p><small>For a rationale, see: <a href="https://arp242.net/noscript.html">https://arp242.net/noscript.html</a></small></p>
 		-->
@@ -15772,7 +15794,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
 						{{end}}</span>
 				{{else}}
-					<label for="cname">Goatcounter domain</label>
+					<label for="cname">GoatCounter domain</label>
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 					<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
 				{{end}}
@@ -15988,7 +16010,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 
 			{{if and (not .Site.Parent) .Saas}}
 				<label for="reason">It would be appreciated if you could let me know
-					if there's anything in particular you're missing in Goatcounter,
+					if there's anything in particular you're missing in GoatCounter,
 					or any other reasons you have for wanting to delete your
 					account. This is entirely optional.</label><br>
 				<textarea id="reason" name="reason" placeholder="Optional reason for deletion"></textarea><br><br>
@@ -16363,7 +16385,7 @@ sub {
 	<dt id="dnt">How is the <code>Do-Not-Track</code> header handled? <a href="#dnt">§</a></dt>
 	<dd>It’s ignored for several reasons: it’s effectively abandoned with a low
 		adoption rate, mostly intended for persistent cross-site tracking (which
-		Goatcounter doesn’t do), and I feel there are some fundamental concerns
+		GoatCounter doesn’t do), and I feel there are some fundamental concerns
 		with the approach. See
 		<a href="https://www.arp242.net/dnt.html" target="_blank" rel="noopener">Why GoatCounter ignores Do Not Track</a>
 		for a more in-depth explanation.

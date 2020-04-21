@@ -65,7 +65,7 @@
 							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
 						{{end}}</span>
 				{{else}}
-					<label for="cname">Goatcounter domain</label>
+					<label for="cname">GoatCounter domain</label>
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 					<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
 				{{end}}
@@ -281,7 +281,7 @@
 
 			{{if and (not .Site.Parent) .Saas}}
 				<label for="reason">It would be appreciated if you could let me know
-					if there's anything in particular you're missing in Goatcounter,
+					if there's anything in particular you're missing in GoatCounter,
 					or any other reasons you have for wanting to delete your
 					account. This is entirely optional.</label><br>
 				<textarea id="reason" name="reason" placeholder="Optional reason for deletion"></textarea><br><br>
