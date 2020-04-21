@@ -357,7 +357,7 @@ func (u *User) GetToken() string {
 // SendLoginMail sends the login email.
 func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 	go func() {
-		zlog.Recover()
+		defer zlog.Recover()
 
 		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: cfg.LoginFrom},

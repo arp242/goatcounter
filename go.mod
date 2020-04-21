@@ -21,7 +21,7 @@ require (
 	zgo.at/utils v0.0.0-20200419060054-75240aa95450
 	zgo.at/zdb v0.0.0-20200419060143-bfbc1457f919
 	zgo.at/zhttp v0.0.0-20200420182732-94cc2e4e6b21
-	zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57
+	zgo.at/zlog v0.0.0-20200421035531-23e3ad0cd91b
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41

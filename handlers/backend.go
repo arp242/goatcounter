@@ -831,7 +831,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if emailChanged {
-		go sendEmailVerify(site, user)
+		sendEmailVerify(site, user)
 	}
 
 	if makecert {
@@ -1009,7 +1009,7 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		}
 		if args.Reason != "" {
 			go func() {
-				zlog.Recover()
+				defer zlog.Recover()
 				zmail.Send("GoatCounter deletion",
 					mail.Address{Name: "GoatCounter deletion", Address: "support@goatcounter.com"},
 					[]mail.Address{{Address: "support@goatcounter.com"}},

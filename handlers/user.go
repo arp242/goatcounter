@@ -377,7 +377,7 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 
 func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
 	go func() {
-		zlog.Recover()
+		defer zlog.Recover()
 		err := zmail.SendTemplate("Verify your email",
 			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
 			[]mail.Address{{Name: user.Name, Address: user.Email}},

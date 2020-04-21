@@ -79,6 +79,8 @@ zgo.at/zhttp v0.0.0-20200420182732-94cc2e4e6b21 h1:VULwDmkx1qFJ/A9yt7nofu6Y+fglz
 zgo.at/zhttp v0.0.0-20200420182732-94cc2e4e6b21/go.mod h1:lnKdr+Z/u747AVwOkBKweLbFFe0yyvV2JY8NONI4XpQ=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
+zgo.at/zlog v0.0.0-20200421035531-23e3ad0cd91b h1:C+vsuBG62mc5bm/1spHXiJklIi8jV6Nx9Uu8mnPKpY4=
+zgo.at/zlog v0.0.0-20200421035531-23e3ad0cd91b/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
 zgo.at/zpack v1.0.1 h1:muDVwpdzfC/1+U2rsTsv0feI82zxMq0CZuHPZ9RTwJ8=
 zgo.at/zpack v1.0.1/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
 zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=

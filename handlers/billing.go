@@ -62,7 +62,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 			}).Errorf("stripe not processed")
 		} else {
 			go func() {
-				zlog.Recover()
+				defer zlog.Recover()
 				zmail.Send("New GoatCounter subscription "+site.Plan,
 					mail.Address{Name: "GoatCounter Billing", Address: "billing@goatcounter.com"},
 					[]mail.Address{{Address: "billing@goatcounter.com"}},
@@ -257,7 +257,7 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	go func() {
-		zlog.Recover()
+		defer zlog.Recover()
 		zmail.Send("GoatCounter cancellation",
 			mail.Address{Name: "GoatCounter Billing", Address: "billing@goatcounter.com"},
 			[]mail.Address{{Address: "billing@goatcounter.com"}},

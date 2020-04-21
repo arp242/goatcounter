@@ -202,7 +202,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 			}
 
 			go func() {
-				zlog.Recover()
+				defer zlog.Recover()
 				err := zmail.Send("GoatCounter Error",
 					mail.Address{Address: from},
 					[]mail.Address{{Address: to}},
