@@ -20,7 +20,7 @@ require (
 	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
 	zgo.at/utils v0.0.0-20200419060054-75240aa95450
 	zgo.at/zdb v0.0.0-20200419060143-bfbc1457f919
-	zgo.at/zhttp v0.0.0-20200405140654-19a758ea6c65
+	zgo.at/zhttp v0.0.0-20200420182732-94cc2e4e6b21
 	zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
