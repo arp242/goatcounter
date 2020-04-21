@@ -2196,7 +2196,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			return
 
 		var script   = document.querySelector('script[data-goatcounter]'),
-		    endpoint = window.counter  // Compatibility
+		    endpoint = (window.goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
 		if (script)
 			endpoint = script.dataset.goatcounter
 
@@ -14847,6 +14847,7 @@ var Templates = map[string][]byte{
       <li><a href="#image-based-tracking-without-javascript" id="markdown-toc-image-based-tracking-without-javascript">Image-based tracking without JavaScript</a></li>
       <li><a href="#tracking-from-backend-middleware" id="markdown-toc-tracking-from-backend-middleware">Tracking from backend middleware</a></li>
       <li><a href="#location-of-countjs" id="markdown-toc-location-of-countjs">Location of count.js</a></li>
+      <li><a href="#setting-the-endpoint-in-javascript" id="markdown-toc-setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript</a></li>
     </ul>
   </li>
 </ul>
@@ -14983,10 +14984,14 @@ the parameter doesn’t exist. This is useful if you want to get the <code>refer
 from the URL:</p>
 
 <pre><code>&lt;script&gt;
-    referrer: function() {
-        return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer
+    window.goatcounter = {
+        referrer: function() {
+            return goatcounter.get_query('ref') ||
+                goatcounter.get_query('utm_campaign') ||
+                goatcounter.get_query('utm_source') ||
+                document.referrer
+        },
     }
-}
 &lt;/script&gt;
 {{template "code" .}}
 </code></pre>
@@ -15191,6 +15196,42 @@ directly inside <code>&lt;script&gt;</code> tags. You won’t get any new featur
 updates, but the <code>/count</code> endpoint is guaranteed to remain compatible so it
 should never break (any future incompatible changes will be a different
 endpoint, such as <code>/count/v2</code>).</p>
+
+<p>Be sure to include the <code>data-goatcounter</code> attribute on the script tag, so
+GoatCounter knows where to send the pageviews to:</p>
+
+<pre><code>&lt;script data-goatcounter="{{.Site.URL}}/count"&gt;
+    // [.. contents of count.js ..]
+&lt;/script&gt;
+</code></pre>
+
+<h3 id="setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript <a href="#setting-the-endpoint-in-javascript"></a></h3>
+<p>Normally GoatCounter gets the endpoint to send pageviews to from the
+<code>data-goatcounter</code> attribute on the <code>&lt;script&gt;</code> tag, but in some cases you may
+want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code> for that.</p>
+
+<p>For example, to send to different sites depending on the current hostname:</p>
+
+<pre><code>&lt;script&gt;
+    var code = '';
+    switch (location.hostname) {
+    case 'example.com':
+        code = 'a'
+        break
+    case 'example.org':
+        code = 'b'
+        break
+    default:
+        code = 'c'
+    }
+    window.goatcounter = {
+        endpoint: 'https://' + code + '.goatcounter.com/count',
+    }
+&lt;/script&gt;
+&lt;script async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>Note that <code>data-goatcounter</code> will always override any <code>goatcounter.endpoint</code>.</p>
 
 {{end}} {{/* if eq .Path "/settings" */}}
 `),

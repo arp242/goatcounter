@@ -77,7 +77,7 @@
 			return
 
 		var script   = document.querySelector('script[data-goatcounter]'),
-		    endpoint = window.counter  // Compatibility
+		    endpoint = (window.goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
 		if (script)
 			endpoint = script.dataset.goatcounter
 

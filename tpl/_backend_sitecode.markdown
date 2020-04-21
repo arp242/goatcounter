@@ -111,10 +111,14 @@ the parameter doesn’t exist. This is useful if you want to get the `referrer`
 from the URL:
 
     <script>
-        referrer: function() {
-            return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer
+        window.goatcounter = {
+            referrer: function() {
+                return goatcounter.get_query('ref') ||
+                    goatcounter.get_query('utm_campaign') ||
+                    goatcounter.get_query('utm_source') ||
+                    document.referrer
+            },
         }
-    }
     </script>
     {{template "code" .}}
 
@@ -303,5 +307,39 @@ directly inside `<script>` tags. You won’t get any new features or other
 updates, but the `/count` endpoint is guaranteed to remain compatible so it
 should never break (any future incompatible changes will be a different
 endpoint, such as `/count/v2`).
+
+Be sure to include the `data-goatcounter` attribute on the script tag, so
+GoatCounter knows where to send the pageviews to:
+
+    <script data-goatcounter="{{.Site.URL}}/count">
+        // [.. contents of count.js ..]
+    </script>
+
+### Setting the endpoint in JavaScript
+Normally GoatCounter gets the endpoint to send pageviews to from the
+`data-goatcounter` attribute on the `<script>` tag, but in some cases you may
+want to modify that in JavaScript; you can use `goatcounter.endpoint` for that.
+
+For example, to send to different sites depending on the current hostname:
+
+    <script>
+        var code = '';
+        switch (location.hostname) {
+        case 'example.com':
+            code = 'a'
+            break
+        case 'example.org':
+            code = 'b'
+            break
+        default:
+            code = 'c'
+        }
+        window.goatcounter = {
+            endpoint: 'https://' + code + '.goatcounter.com/count',
+        }
+    </script>
+    <script async src="//{{.CountDomain}}/count.js"></script>
+
+Note that `data-goatcounter` will always override any `goatcounter.endpoint`.
 
 {{end}} {{/* if eq .Path "/settings" */}}
