@@ -56,7 +56,7 @@ are supported:
 {:class="reftable"}
 | Setting       | Description                                                                                                 |
 | :------       | :----------                                                                                                 |
-| `no_onload`   | Don’t do anything on page load. If you want to call `count()` manually.                                     |
+| `no_onload`   | Don’t do anything on page load. If you want to call `count()` manually. Also won’t bind events.             |
 | `no_events`   | Don’t bind click events.                                                                                    |
 | `allow_local` | Allow requests from local addresses (`localhost`, `192.168.0.0`, etc.) for testing the integration locally. |
 

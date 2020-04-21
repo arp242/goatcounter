@@ -2242,13 +2242,18 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		})
 	}
 
-	if (!goatcounter.no_events)
-		goatcounter.bind_events()
-	if (!goatcounter.no_onload)
-		if (document.body === null)
-			document.addEventListener('DOMContentLoaded', function() { goatcounter.count() }, false)
-		else
+	if (!goatcounter.no_onload) {
+		var go = function() {
 			goatcounter.count()
+			if (!goatcounter.no_events)
+				goatcounter.bind_events()
+		}
+
+		if (document.body === null)
+			document.addEventListener('DOMContentLoaded', function() { go() }, false)
+		else
+			go()
+	}
 })();
 `),
 	"public/favicon/android-chrome-192x192.png": func() []byte {
@@ -14900,7 +14905,7 @@ are supported:</p>
   <tbody>
     <tr>
       <td style="text-align: left"><code>no_onload</code></td>
-      <td style="text-align: left">Don’t do anything on page load. If you want to call <code>count()</code> manually.</td>
+      <td style="text-align: left">Don’t do anything on page load. If you want to call <code>count()</code> manually. Also won’t bind events.</td>
     </tr>
     <tr>
       <td style="text-align: left"><code>no_events</code></td>
