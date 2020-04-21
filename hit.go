@@ -44,6 +44,7 @@ type Hit struct {
 	Ref   string            `db:"ref" json:"r,omitempty"`
 	Event sqlutil.Bool      `db:"event" json:"e,omitempty"`
 	Size  sqlutil.FloatList `db:"size" json:"s,omitempty"`
+	JSBot int               `db:"-" json:"b,omitempty"`
 
 	RefParams      *string      `db:"ref_params" json:"-"`
 	RefOriginal    *string      `db:"ref_original" json:"-"`

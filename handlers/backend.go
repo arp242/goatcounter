@@ -252,6 +252,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
+	if hit.Bot == 0 && hit.JSBot != 0 {
+		zlog.Module("jsbot").Printf("hit.JSBot: %d; %s; %s",
+			hit.JSBot, r.RemoteAddr, r.UserAgent())
+	}
+
 	// TODO: move to memstore?
 	{
 		var sess goatcounter.Session
