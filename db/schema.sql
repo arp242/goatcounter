@@ -1,32 +1,3 @@
-create table version (name varchar);
-insert into version values
-	('2019-10-16-1-geoip'),
-	('2019-11-08-1-refs'),
-	('2019-11-08-2-location_stats'),
-	('2019-12-10-1-plans'),
-	('2019-12-10-2-count_ref'),
-	('2019-12-15-1-personal-free'),
-	('2019-12-15-2-old'),
-	('2019-12-17-1-business'),
-	('2019-12-19-1-updates'),
-	('2019-12-20-1-dailystat'),
-	('2019-12-31-1-blank-days'),
-	('2020-01-02-1-bot'),
-	('2020-01-07-1-title-domain'),
-	('2020-01-13-2-hit_stats_title'),
-	('2020-01-18-1-sitename'),
-	('2020-01-23-1-nformat'),
-	('2020-01-24-1-rm-mobile'),
-	('2020-01-24-2-domain'),
-	('2020-01-27-2-rm-count-ref'),
-	('2020-02-06-1-hitsid'),
-	('2020-02-19-1-personalplus'),
-	('2020-02-24-1-ref_stats'),
-	('2020-03-03-1-flag'),
-	('2020-03-16-1-size_stats'),
-	('2020-03-16-2-rm-old'),
-	('2020-03-27-1-isbot');
-
 create table sites (
 	id             integer        primary key autoincrement,
 	parent         integer        null                     check(parent is null or parent>0),
@@ -50,14 +21,18 @@ create table users (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 
-	name           varchar        not null                 check(length(name) > 1  and length(name) <= 200),
+	name           varchar        not null,
+	password       blob           default null,
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
+	email_verified int            not null default 0,
 	role           varchar        not null default ''      check(role in ('', 'a')),
 	login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
 	login_request  varchar        null,
 	login_token    varchar        null,
 	csrf_token     varchar        null,
+	email_token    varchar        null,
 	seen_updates_at timestamp     not null default '1970-01-01 00:00:00' check(seen_updates_at = strftime('%Y-%m-%d %H:%M:%S', seen_updates_at)),
+	reset_at       timestamp      null,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
@@ -72,6 +47,7 @@ create unique index "users#site#email"    on users(site, lower(email));
 create table hits (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
+	session        integer        default null,
 
 	path           varchar        not null,
 	title          varchar        not null default '',
@@ -84,19 +60,39 @@ create table hits (
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
+	started_session int           default 0,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
 create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
 create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
 
+create table sessions (
+	id             integer        primary key autoincrement,
+	site           integer        not null                 check(site > 0),
+	hash           blob           null,
+	created_at     timestamp      not null,
+	last_seen      timestamp      not null,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+create unique index "sessions#site#hash" on sessions(site, hash);
+
+create table session_salts (
+	previous    int        not null,
+	salt        varchar    not null,
+	created_at  timestamp  not null
+);
+
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	event          integer        default 0,
 	path           varchar        not null,
 	title          varchar        not null default '',
 	stats          varchar        not null,
+	stats_unique   varchar        not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -106,9 +102,11 @@ create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	event          integer        default 0,
 	browser        varchar        not null,
 	version        varchar        not null,
 	count          int            not null,
+	count_unique   int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -119,8 +117,10 @@ create table location_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	event          integer        default 0,
 	location       varchar        not null,
 	count          int            not null,
+	count_unique   int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -131,8 +131,10 @@ create table ref_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	event          integer        default 0,
 	ref            varchar        not null,
 	count          int            not null,
+	count_unique   int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -142,8 +144,10 @@ create table size_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	event          integer        default 0,
 	width          int            not null,
 	count          int            not null,
+	count_unique   int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
@@ -470,3 +474,35 @@ create table flags (
 	name  varchar not null,
 	value int     not null
 );
+
+create table version (name varchar);
+insert into version values
+	('2019-10-16-1-geoip'),
+	('2019-11-08-1-refs'),
+	('2019-11-08-2-location_stats'),
+	('2019-12-10-1-plans'),
+	('2019-12-10-2-count_ref'),
+	('2019-12-15-1-personal-free'),
+	('2019-12-15-2-old'),
+	('2019-12-17-1-business'),
+	('2019-12-19-1-updates'),
+	('2019-12-20-1-dailystat'),
+	('2019-12-31-1-blank-days'),
+	('2020-01-02-1-bot'),
+	('2020-01-07-1-title-domain'),
+	('2020-01-13-2-hit_stats_title'),
+	('2020-01-18-1-sitename'),
+	('2020-01-23-1-nformat'),
+	('2020-01-24-1-rm-mobile'),
+	('2020-01-24-2-domain'),
+	('2020-01-27-2-rm-count-ref'),
+	('2020-02-06-1-hitsid'),
+	('2020-02-19-1-personalplus'),
+	('2020-02-24-1-ref_stats'),
+	('2020-03-03-1-flag'),
+	('2020-03-16-1-size_stats'),
+	('2020-03-16-2-rm-old'),
+	('2020-03-27-1-isbot'),
+	('2020-03-24-1-sessions'),
+	('2020-04-06-1-event'),
+	('2020-04-16-1-pwauth');
