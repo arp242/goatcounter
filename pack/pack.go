@@ -2215,8 +2215,10 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	// Check if a value is "empty" for the purpose of get_data().
 	var is_empty = function(v) { return v === null || v === undefined || typeof(v) === 'function' }
 
-	// See if this loads like a headless browser, which is usually a bot.
+	// See if this looks like a bot; there is some additional filtering on the
+	// backend, but these properties can't be fetched from there.
 	var is_bot = function() {
+		// Headless browsers are probably a bot.
 		var w = window, d = document
 		if (w.callPhantom || w._phantom || w.phantom)
 			return 150

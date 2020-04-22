@@ -243,9 +243,6 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		UsageDomain: r.Referer(),
 		CreatedAt:   goatcounter.Now(),
 	}
-	if isbot.Is(bot) {
-		hit.Bot = int(bot)
-	}
 
 	_, err := zhttp.Decode(r, &hit)
 	if err != nil {
@@ -253,10 +250,19 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(400)
 		return zhttp.Bytes(w, gif)
 	}
+	if hit.Bot > 0 && hit.Bot < 150 {
+		w.Header().Add("X-Goatcounter", fmt.Sprintf("wrong value: b=%d", hit.Bot))
+		w.WriteHeader(400)
+		return zhttp.Bytes(w, gif)
+	}
 
-	if hit.Bot == 0 && hit.JSBot != 0 {
-		zlog.Module("jsbot").Printf("hit.JSBot: %d; %s; %s",
-			hit.JSBot, r.RemoteAddr, r.UserAgent())
+	if isbot.Is(bot) { // Prefer the backend detection.
+		hit.Bot = int(bot)
+	}
+
+	if uint8(hit.Bot) >= isbot.BotJSNightmare {
+		zlog.Module("jsbot").Printf("%d^ %s^ %s",
+			hit.Bot, r.RemoteAddr, r.UserAgent())
 	}
 
 	// TODO: move to memstore?
