@@ -134,6 +134,9 @@ func TestBackendCount(t *testing.T) {
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
 			tt.hit.Session = &one // Should all be the same session.
+			if tt.hit.Browser == "" {
+				tt.hit.Browser = "GoatCounter test runner/1.0"
+			}
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
 			if d := ztest.Diff(h.String(), tt.hit.String()); d != "" {
 				t.Error(d)

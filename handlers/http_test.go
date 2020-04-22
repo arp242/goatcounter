@@ -175,7 +175,9 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID 
 }
 
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
-	return ztest.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
+	r, rr := ztest.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
+	r.Header.Set("User-Agent", "GoatCounter test runner/1.0")
+	return r, rr
 }
 
 // Convert anything to an "application/x-www-form-urlencoded" form.
