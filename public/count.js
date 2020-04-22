@@ -16,6 +16,7 @@
 			e: !!(vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
 			b: is_bot(),
+			q: location.search,
 		}
 
 		var rcb, pcb, tcb  // Save callbacks to apply later.

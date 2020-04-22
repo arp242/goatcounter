@@ -16,7 +16,7 @@ UNRELEASED v1.2.0
 
   **Action required** Use the interface to set a password (you will get a
   notification about this). Email authentication still works, but will be
-  removed in the next release.
+  removed in the next release, after which updating the password will be tricky.
 
 - Unique visitor tracking (#212)
 
@@ -29,12 +29,19 @@ UNRELEASED v1.2.0
   The bot detection is now improved; this will be applied to older pageviews in
   the database with a migration, but the cached statistics aren't updated
   automatically (as it can take a while for larger sites). Use the `reindex`
-  command to fully update older. This is entirely optional.
+  command to fully update older pageviews (this is entirely optional).
 
 - Track events (#215)
 
   There is now better support to track events; see the updated documentation on
   the Site Code page for details.
+
+- Better support for campaigns (#238)
+
+  There is now a "campaign parameters" setting; if the URL matches one of these
+  parameters it will be set as the referrer (overriding the `Referer` header).
+
+  The default is `utm_campaign, utm_source, ref`.
 
 - Better export (#221)
 

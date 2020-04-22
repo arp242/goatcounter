@@ -2148,6 +2148,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			e: !!(vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
 			b: is_bot(),
+			q: location.search,
 		}
 
 		var rcb, pcb, tcb  // Save callbacks to apply later.
@@ -15083,6 +15084,11 @@ from the URL:</p>
 {{template "code" .}}
 </code></pre>
 
+<p>Note there is also a <em>Campaign Parameters</em> setting, which is probably easier for
+most people. This is just if you want to get the campaign on only some pages, or
+want to do some more advanced filtering (such as only including your own
+campaigns).</p>
+
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
 <h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
@@ -15306,6 +15312,7 @@ middleware. It supports the following query parameters:</p>
   <li><code>t</code> → <code>title</code></li>
   <li><code>r</code> → <code>referrer</code></li>
   <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
+  <li><code>q</code> → Query parameters, for getting the campaign.</li>
   <li><code>rnd</code> → can be used as a “cache buster” since browsers don’t always obey
 <code>Cache-Control</code>; ignored by the backend.</li>
 </ul>

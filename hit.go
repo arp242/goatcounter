@@ -45,6 +45,7 @@ type Hit struct {
 	Event sqlutil.Bool      `db:"event" json:"e,omitempty"`
 	Size  sqlutil.FloatList `db:"size" json:"s,omitempty"`
 	JSBot int               `db:"-" json:"b,omitempty"`
+	Query string            `db:"-" json:"q,omitempty"`
 
 	RefParams      *string      `db:"ref_params" json:"-"`
 	RefOriginal    *string      `db:"ref_original" json:"-"`
@@ -220,21 +221,11 @@ func (h *Hit) cleanPath(ctx context.Context) {
 
 	q := u.Query()
 
-	for _, c := range MustGetSite(ctx).Settings.Campaigns {
-		if _, ok := q[c]; ok {
-			h.Ref = q.Get(c)
-			h.RefURL = nil
-			break
-		}
-	}
-
 	q.Del("fbclid") // Magic undocumented Facebook tracking parameter.
 	q.Del("ref")    // ProductHunt and a few others.
 	q.Del("mc_cid") // MailChimp
 	q.Del("mc_eid")
-
-	// Google tracking parameters.
-	for k := range q {
+	for k := range q { // Google tracking parameters.
 		if strings.HasPrefix(k, "utm_") {
 			q.Del(k)
 		}
@@ -284,8 +275,9 @@ func (h Hit) String() string {
 
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
-	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set from memstore.
-		h.Site = s.ID
+	site := GetSite(ctx)
+	if site != nil && site.ID > 0 { // Not set from memstore.
+		h.Site = site.ID
 	}
 
 	if h.CreatedAt.IsZero() {
@@ -293,6 +285,32 @@ func (h *Hit) Defaults(ctx context.Context) {
 	}
 
 	h.cleanPath(ctx)
+
+	// Set campaign.
+	if !h.Event && h.Query != "" {
+		if h.Query[0] != '?' {
+			h.Query = "?" + h.Query
+		}
+		u, err := url.Parse(h.Query)
+		if err != nil {
+			return
+		}
+		q := u.Query()
+
+		var site Site
+		err = site.ByID(ctx, h.Site)
+		if err != nil { // TODO: return?
+			zlog.Error(err)
+		}
+
+		for _, c := range site.Settings.Campaigns {
+			if _, ok := q[c]; ok {
+				h.Ref = q.Get(c)
+				h.RefURL = nil
+				break
+			}
+		}
+	}
 
 	if h.Ref != "" && h.RefURL != nil {
 		if h.RefURL.Scheme == "http" || h.RefURL.Scheme == "https" {

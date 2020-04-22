@@ -118,8 +118,9 @@ func (s *Site) Defaults(ctx context.Context) {
 
 	s.Code = strings.ToLower(s.Code)
 
-	if s.CreatedAt.IsZero() {
+	if s.CreatedAt.IsZero() { // New site.
 		s.CreatedAt = Now()
+		s.Settings.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
 	} else {
 		t := Now()
 		s.UpdatedAt = &t
