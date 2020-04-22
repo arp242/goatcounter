@@ -99,6 +99,11 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 
 // Defaults sets fields to default values, unless they're already set.
 func (s *Site) Defaults(ctx context.Context) {
+	// New site: Set default settings.
+	if s.ID == 0 {
+		s.Settings.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
+	}
+
 	if s.State == "" {
 		s.State = StateActive
 	}
@@ -118,9 +123,8 @@ func (s *Site) Defaults(ctx context.Context) {
 
 	s.Code = strings.ToLower(s.Code)
 
-	if s.CreatedAt.IsZero() { // New site.
+	if s.CreatedAt.IsZero() {
 		s.CreatedAt = Now()
-		s.Settings.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
 	} else {
 		t := Now()
 		s.UpdatedAt = &t

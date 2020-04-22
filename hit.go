@@ -32,6 +32,7 @@ var (
 	RefSchemeHTTP      = ptr("h")
 	RefSchemeOther     = ptr("o")
 	RefSchemeGenerated = ptr("g")
+	RefSchemeCampaign  = ptr("c")
 )
 
 type Hit struct {
@@ -299,6 +300,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 			if _, ok := q[c]; ok {
 				h.Ref = q.Get(c)
 				h.RefURL = nil
+				h.RefScheme = RefSchemeCampaign
 				break
 			}
 		}

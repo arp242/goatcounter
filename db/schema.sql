@@ -56,7 +56,7 @@ create table hits (
 	ref            varchar        not null,
 	ref_original   varchar,
 	ref_params     varchar,
-	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
+	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
@@ -505,4 +505,5 @@ insert into version values
 	('2020-03-27-1-isbot'),
 	('2020-03-24-1-sessions'),
 	('2020-04-06-1-event'),
-	('2020-04-16-1-pwauth');
+	('2020-04-16-1-pwauth'),
+	('2020-04-22-1-campaigns');
