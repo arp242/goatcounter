@@ -1,6 +1,0 @@
-Hi there,
-
-Please go here to verify the email address for your GoatCounter account:
-{{.Site.URL}}/user/verify/{{.User.EmailToken}}
-
-{{template "_email_bottom.gotxt" .}}
