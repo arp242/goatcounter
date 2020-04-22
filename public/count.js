@@ -77,7 +77,7 @@
 			return
 
 		var script   = document.querySelector('script[data-goatcounter]'),
-		    endpoint = window.counter  // Compatibility
+		    endpoint = (window.goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
 		if (script)
 			endpoint = script.dataset.goatcounter
 
@@ -123,11 +123,16 @@
 		})
 	}
 
-	if (!goatcounter.no_events)
-		goatcounter.bind_events()
-	if (!goatcounter.no_onload)
-		if (document.body === null)
-			document.addEventListener('DOMContentLoaded', function() { goatcounter.count() }, false)
-		else
+	if (!goatcounter.no_onload) {
+		var go = function() {
 			goatcounter.count()
+			if (!goatcounter.no_events)
+				goatcounter.bind_events()
+		}
+
+		if (document.body === null)
+			document.addEventListener('DOMContentLoaded', function() { go() }, false)
+		else
+			go()
+	}
 })();

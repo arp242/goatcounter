@@ -41,10 +41,14 @@ referrer.
 
 Content security policy
 -----------------------
-You’ll need the following if you use a `Content-Security-Policy`:
+You’ll need to add the following if you use a `Content-Security-Policy`:
 
     script-src  https://{{.CountDomain}}
     img-src     {{.Site.URL}}/count
+
+The `script-src` is needed to load the `count.js` script, and the `img-src` is
+needed to send pageviews to GoatCounter (which are loaded with a “tracking
+pixel”).
 
 Customizing
 -----------
@@ -56,9 +60,10 @@ are supported:
 {:class="reftable"}
 | Setting       | Description                                                                                                 |
 | :------       | :----------                                                                                                 |
-| `no_onload`   | Don’t do anything on page load. If you want to call `count()` manually.                                     |
+| `no_onload`   | Don’t do anything on page load. If you want to call `count()` manually. Also won’t bind events.             |
 | `no_events`   | Don’t bind click events.                                                                                    |
 | `allow_local` | Allow requests from local addresses (`localhost`, `192.168.0.0`, etc.) for testing the integration locally. |
+| `endpoint`    | Customize the endpoint for sending pageviews to; see [Setting the endpoint in JavaScript ](#setting-the-endpoint-in-javascript). |
 
 ### Data parameters
 You can customize the data sent to GoatCounter; the default value will be used
@@ -85,8 +90,8 @@ described in the Data section above, and will be merged in to the global
 `window.goatcounter`, taking precedence.
 
 Be aware that the script is loaded with `async` by default, so `count()` may not
-yet be available on click events and the like. To solve this, use
-`setInterval()` to wait until it’s available:
+yet be available on click events and the like. Use `setInterval()` to wait until
+it’s available:
 
     elem.addEventListener('click', function() {
         var t = setInterval(function() {
@@ -102,8 +107,8 @@ about this if you call `count()` manually.
 
 #### `bind_events()`
 Bind a click event to every element with `data-goatcounter-click`. Called on
-page load unless `no_events` is set. You may need to call this manually if you
-insert elements after the page loads.
+page load unless `no_onload` or `no_events` is set. You may need to call this
+manually if you insert elements after the page loads.
 
 #### `get_query(name)`
 Get a single query parameter from the current page’s URL; returns `undefined` if
@@ -111,10 +116,14 @@ the parameter doesn’t exist. This is useful if you want to get the `referrer`
 from the URL:
 
     <script>
-        referrer: function() {
-            return goatcounter.get_query('ref') || goatcounter.get_query('utm_source') || document.referrer
+        window.goatcounter = {
+            referrer: function() {
+                return goatcounter.get_query('ref') ||
+                    goatcounter.get_query('utm_campaign') ||
+                    goatcounter.get_query('utm_source') ||
+                    document.referrer
+            },
         }
-    }
     </script>
     {{template "code" .}}
 
@@ -133,7 +142,7 @@ You can check `location.host` if you want to load GoatCounter only on
     {{template "code" .}}
 
 Note that [request from localhost are already
-ignored](https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72)
+ignored](https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72).
 
 ### Skip own views
 You can use the same technique as a client-side way to skip loading from your
@@ -154,6 +163,7 @@ A basic example with some custom logic for `path`:
 
     <script>
         window.goatcounter = {
+            // The passed value is the default.
             path: function(p) {
                 // Don't track the home page.
                 if (p === '/')
@@ -167,9 +177,9 @@ A basic example with some custom logic for `path`:
     {{template "code" .}}
 
 ### Multiple domains
-Right now GoatCounter doesn’t store the domain a pageview belongs to. If you add
+GoatCounter doesn’t store the domain a pageview belongs to; if you add
 GoatCounter to several (sub)domain then there’s no way to distinguish between
-requests to `a.example.com/path` and `b.example.com/path`, as they’re both
+requests to `a.example.com/path` and `b.example.com/path` as they’re both
 recorded as `/path`.
 
 This might be improved at some point in the future; the options right now are:
@@ -178,8 +188,8 @@ This might be improved at some point in the future; the options right now are:
    separate site which inherits the user, login, plan, etc. You will need to use
    a different site code for every (sub)domain.
 
-2. If you want everything in a single overview on a single site, then you can
-   add the domain to the path, instead of just sending the path:
+2. If you want everything in a single overview then you can add the domain to
+   the path, instead of just sending the path:
 
        <script>
            window.goatcounter = {
@@ -189,8 +199,8 @@ This might be improved at some point in the future; the options right now are:
        {{template "code" .}}
 
    For subdomains it it might be more useful to just add the first domain label
-   instead of the full domain here, depending on taste, or perhaps just a short
-   static string.
+   instead of the full domain here, or perhaps just a short static string
+   identifying the source.
 
 ### Ignore query parameters in path
 The value of `<link rel="canonical">` will be used automatically, and is the
@@ -199,11 +209,10 @@ easiest way to ignore extraneous query parameters:
     <link rel="canonical" href="https://example.com/path.html">
 
 The `href` can also be relative (e.g. `/path.html`. Be sure to understand the
-potential SEO effects before adding a canonical URL! If you use query parameters
-for navigation then you probably *don’t* want it.
+potential SEO effects before adding a canonical URL; if you use query parameters
+for navigation then you probably *don’t* want to do this.
 
-Alternatively you can send a custom `path` without the query
-parameters:
+Alternatively you can send a custom `path` without the query parameters:
 
     <script>
         window.goatcounter = {
@@ -212,8 +221,14 @@ parameters:
     </script>
     {{template "code" .}}
 
+You can add individual query parameters with `get_query()`:
+
+    window.goatcounter = {
+        path: (location.pathname + '?page=' + get_query('page')) || '/',
+    }
+
 ### SPA
-Custom `count()` example for hooking in to an SPA:
+Custom `count()` example for hooking in to an SPA nagivating by `#`:
 
     <script>
         window.goatcounter = {no_onload: true}
@@ -239,18 +254,18 @@ For example:
     })
 
 Note that the `path` doubles as the event name. There is currently no real way
-to record the pathname with the event, although you can send it as part of the
-event name with something like:
+to record the path with the event, although you can send it as part of the event
+name:
 
     window.goatcounter.count({
-        path:  function(p) { p + '_banana' },
+        path:  function(p) { 'click-banana-' + p },
         event: true,
     })
 
-The callback will have the regular `path` passed to it, and you can append an
-event name there; you can also use `window.location.pathname` directly; the
-biggest difference with the passed value is that `<link rel="canonical">` is
-taken in to account.
+The callback will have the regular `path` passed to it, and you can add an event
+name there; you can also use `window.location.pathname` directly; the biggest
+difference with the passed value is that `<link rel="canonical">` is taken in to
+account.
 
 Advanced integrations
 ---------------------
@@ -261,9 +276,10 @@ an image on your site:
 
     <img src="{{.Site.URL}}/count?p=/test-img">
 
-This won’t allow recording the referral or screen size though, and may also
-increase the number of bot requests (although we do our best to filter this
-out).
+This won’t allow recording the referral or screen size, and may also increase
+the number of bot requests (we do our best to filter this out, but it’s hard to
+get all of them, since many spam scrapers and such disguise themselves as
+regular browsers).
 
 Wrap in a `<noscript>` tag to use this only for people without JavaScript.
 
@@ -282,26 +298,66 @@ middleware. It supports the following query parameters:
 The `User-Agent` header and remote address are used for the browser and
 location.
 
-Calling it from the middleware or as will probably result in more bot requests.
-GoatCounter does its best to filter this out, but it’s impossible to do this
-100% reliably.
+Calling it from the middleware will probably result in more bot requests, as
+mentioned in the previous section.
 
-### Location of count.js
-You can load the `count.js` script anywhere, but it’s recommended to load it
-just before the closing `</body>` tag if possible.
+### Location of count.js and loading it locally
+You can load the `count.js` script anywhere on your page, but it’s recommended
+to load it just before the closing `</body>` tag if possible.
 
 The reason for this is that downloading the `count.js` script will take up some
-bandwidth which could be better used for the actual JS/CSS used to render the
+bandwidth which could be better used for the actual assets needed to render the
 site. The script is quite small (about 2K), so it’s not a huge difference, but
-might as well put it in the best possible location if possible.
-
-If your CMS makes it hard to insert a JavaScript tag there, then just insert it
-in the `<head>`, or anywhere in the `<body>`.
+might as well put it in the best location if possible. Just insert it in the
+`<head>` or anywhere in the `<body>` if your CMS doesn’t have an option to add
+it there.
 
 You can also host the `count.js` script yourself, or include it in your page
 directly inside `<script>` tags. You won’t get any new features or other
 updates, but the `/count` endpoint is guaranteed to remain compatible so it
 should never break (any future incompatible changes will be a different
 endpoint, such as `/count/v2`).
+
+Be sure to include the `data-goatcounter` attribute on the script tag or set
+`goatcounter.endpoint` so GoatCounter knows where to send the pageviews to:
+
+    <script data-goatcounter="{{.Site.URL}}/count">
+        // [.. contents of count.js ..]
+    </script>
+
+    // or:
+
+    <script>
+        window.goatcounter = {endpoint: '{{.Site.URL}}/count'}
+
+        // [.. contents of count.js ..]
+    </script>
+
+### Setting the endpoint in JavaScript
+Normally GoatCounter gets the endpoint to send pageviews to from the
+`data-goatcounter` attribute on the `<script>` tag, but in some cases you may
+want to modify that in JavaScript; you can use `goatcounter.endpoint` for that.
+
+For example, to send to different sites depending on the current hostname:
+
+    <script>
+        var code = '';
+        switch (location.hostname) {
+        case 'example.com':
+            code = 'a'
+            break
+        case 'example.org':
+            code = 'b'
+            break
+        default:
+            code = 'c'
+        }
+        window.goatcounter = {
+            endpoint: 'https://' + code + '.goatcounter.com/count',
+        }
+    </script>
+    <script async src="//{{.CountDomain}}/count.js"></script>
+
+Note that `data-goatcounter` will always override any `goatcounter.endpoint`.
 
 {{end}} {{/* if eq .Path "/settings" */}}

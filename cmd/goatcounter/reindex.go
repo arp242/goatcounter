@@ -33,7 +33,7 @@ Avoiding race conditions
   fine to update older data since goatcounter never writes to it, but updating
   the current day may result in:
 
-  1. Goatcounter reads data from DB, processes it, updates the DB.
+  1. GoatCounter reads data from DB, processes it, updates the DB.
   2. In the meanwhile reindex updated the data in the DB.
 
   For this reason, GoatCounter will only update up to yesterday by default; the
