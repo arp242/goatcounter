@@ -275,10 +275,8 @@ func (h Hit) String() string {
 
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
-	site := GetSite(ctx)
-	if site != nil && site.ID > 0 { // Not set from memstore.
-		h.Site = site.ID
-	}
+	site := MustGetSite(ctx)
+	h.Site = site.ID
 
 	if h.CreatedAt.IsZero() {
 		h.CreatedAt = Now()
@@ -296,12 +294,6 @@ func (h *Hit) Defaults(ctx context.Context) {
 			return
 		}
 		q := u.Query()
-
-		var site Site
-		err = site.ByID(ctx, h.Site)
-		if err != nil { // TODO: return?
-			zlog.Error(err)
-		}
 
 		for _, c := range site.Settings.Campaigns {
 			if _, ok := q[c]; ok {

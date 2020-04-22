@@ -16,7 +16,6 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
-	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 )
 
@@ -117,7 +116,7 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	if err != nil {
 		return err
 	}
-	ctx = context.WithValue(ctx, ctxkey.Site, &site)
+	ctx = goatcounter.WithSite(ctx, &site)
 
 	err = updateHitStats(ctx, hits)
 	if err != nil {
@@ -165,7 +164,7 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) err
 			}
 			return errors.Errorf("cron.ReindexStats: %w", err)
 		}
-		ctx = context.WithValue(ctx, ctxkey.Site, &site)
+		ctx = goatcounter.WithSite(ctx, &site)
 
 		switch table {
 		case "all":

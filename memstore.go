@@ -46,6 +46,10 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = []Hit{}
 	m.Unlock()
 
+	sites := make(map[int64]*Site)
+
+	l := zlog.Module("memstore")
+
 	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path", "ref",
 		"ref_params", "ref_original", "ref_scheme", "browser", "size",
 		"location", "created_at", "bot", "title", "event", "session",
@@ -56,15 +60,27 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		h.RefURL, _ = url.Parse(h.Ref)
 		if h.RefURL != nil {
 			if _, ok := blacklist[h.RefURL.Host]; ok {
-				zlog.Module("blacklist").Debugf("blacklisted: %q", h.RefURL.Host)
+				l.Debugf("blacklisted: %q", h.RefURL.Host)
 				continue
 			}
 		}
 
+		site, ok := sites[h.Site]
+		if !ok {
+			site = new(Site)
+			err := site.ByID(ctx, h.Site)
+			if err != nil {
+				l.Field("hit", h).Error(err)
+				continue
+			}
+			sites[h.Site] = site
+		}
+		ctx = WithSite(ctx, site)
+
 		h.Defaults(ctx)
 		err := h.Validate(ctx)
 		if err != nil {
-			zlog.Error(err)
+			l.Field("hit", h).Error(err)
 			continue
 		}
 
@@ -94,7 +110,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 
 	err := usage.Finish()
 	if err != nil {
-		zlog.Error(err)
+		l.Error(err)
 	}
 
 	return hits, ins.Finish()

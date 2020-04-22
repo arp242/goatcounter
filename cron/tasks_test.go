@@ -5,7 +5,6 @@
 package cron_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -13,7 +12,6 @@ import (
 	"zgo.at/goatcounter"
 	. "zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/zhttp/ctxkey"
 )
 
 func TestDataRetention(t *testing.T) {
@@ -26,7 +24,7 @@ func TestDataRetention(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ctx = context.WithValue(ctx, ctxkey.Site, &site)
+	ctx = goatcounter.WithSite(ctx, &site)
 
 	now := time.Now().UTC()
 	past := now.Add(-40 * 24 * time.Hour)

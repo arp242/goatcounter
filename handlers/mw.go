@@ -15,7 +15,6 @@ import (
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zlog"
 )
 
@@ -98,7 +97,7 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 					return
 				}
 
-				*r = *r.WithContext(context.WithValue(r.Context(), ctxkey.Site, &s))
+				*r = *r.WithContext(goatcounter.WithSite(r.Context(), &s))
 			}
 
 			next.ServeHTTP(w, r)

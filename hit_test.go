@@ -14,7 +14,6 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/zhttp/ctxkey"
 	"zgo.at/ztest"
 )
 
@@ -223,7 +222,7 @@ func TestHitDefaultsRef(t *testing.T) {
 		{"android-app://com.example.android", "com.example.android", nil, nil, "o"},
 	}
 
-	ctx := context.WithValue(context.Background(), ctxkey.Site, &goatcounter.Site{ID: 1})
+	ctx := goatcounter.WithSite(context.Background(), &goatcounter.Site{ID: 1})
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
@@ -269,7 +268,7 @@ func TestHitDefaultsPath(t *testing.T) {
 		{"/page?fbclid=foo&a=b", "/page?a=b"},
 	}
 
-	ctx := context.WithValue(context.Background(), ctxkey.Site, &goatcounter.Site{ID: 1})
+	ctx := goatcounter.WithSite(context.Background(), &goatcounter.Site{ID: 1})
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
