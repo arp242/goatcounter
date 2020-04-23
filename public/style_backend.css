@@ -180,6 +180,7 @@ form .err  { color: red; display: block; }
 /* Bar char */
 .chart-bar {
 	display: flex;
+	align-items: flex-end;
 }
 .chart-bar > .half {
 	border-top: 1px solid #ddd;
@@ -198,8 +199,11 @@ form .err  { color: red; display: block; }
 #77f / #99f
 #db1212 / #6b1818
 */
-.chart-bar > div > div, .chart-hbar span               { background-color: #9a15a4; }
-.chart-bar > div:hover > div, .chart-hbar a:hover span { background-color: #b11abc; }
+.chart-bar > div       { background: #9a15a4; }
+.chart-bar > div:hover { background: #d314e1 !important; }
+
+.chart-hbar span         { background: #9a15a4; }
+.chart-hbar a:hover span { background: #b11abc; }
 
 .chart-bar > div > div {
 	position: absolute;

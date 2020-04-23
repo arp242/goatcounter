@@ -413,7 +413,7 @@ func TestBackendBarChart(t *testing.T) {
 			hit:  date("2019-06-18 12:42", time.UTC),
 			wantDaily: `
 				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+				<div style="height:10%" title="2019-06-18, 1 views"></div>`,
 			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
@@ -451,7 +451,7 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-18 9:00 – 9:59, 0 views"></div>
 				<div title="2019-06-18 10:00 – 10:59, 0 views"></div>
 				<div title="2019-06-18 11:00 – 11:59, 0 views"></div>
-				<div title="2019-06-18 12:00 – 12:59, 1 views"><div style="height:10%"></div></div>
+				<div style="height:10%" title="2019-06-18 12:00 – 12:59, 1 views"></div>
 				<div title="2019-06-18 13:00 – 13:59, 0 views"></div>
 				<div title="2019-06-18 14:00 – 14:59, 0 views"></div>`, // Future not displayed
 		},
@@ -463,7 +463,7 @@ func TestBackendBarChart(t *testing.T) {
 			hit:  date("2019-06-18 12:42", time.UTC),
 			wantDaily: `
 				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+				<div style="height:10%" title="2019-06-18, 1 views"></div>`,
 			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
@@ -509,7 +509,7 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-18 17:00 – 17:59, 0 views"></div>
 				<div title="2019-06-18 18:00 – 18:59, 0 views"></div>
 				<div title="2019-06-18 19:00 – 19:59, 0 views"></div>
-				<div title="2019-06-18 20:00 – 20:59, 1 views"><div style="height:10%"></div></div>
+				<div style="height:10%" title="2019-06-18 20:00 – 20:59, 1 views"></div>
 				<div title="2019-06-18 21:00 – 21:59, 0 views"></div>
 				<div title="2019-06-18 22:00 – 22:59, 0 views"></div>`,
 		},
@@ -529,7 +529,7 @@ func TestBackendBarChart(t *testing.T) {
 			hit:  date("2019-06-17 18:15", time.UTC),
 			wantDaily: `
 				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+				<div style="height:10%" title="2019-06-18, 1 views"></div>`,
 			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
@@ -557,7 +557,7 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-17 23:00 – 23:59, 0 views"></div>
 				<div title="2019-06-18 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-18 1:00 – 1:59, 0 views"></div>
-				<div title="2019-06-18 2:00 – 2:59, 1 views"><div style="height:10%"></div></div>`,
+				<div style="height:10%" title="2019-06-18 2:00 – 2:59, 1 views"></div>`,
 		},
 
 		// The hit is added on the 16th, but displayed on the 17th
@@ -566,12 +566,12 @@ func TestBackendBarChart(t *testing.T) {
 			now:  date("2019-06-18 2:16", id),
 			hit:  date("2019-06-16 18:15", time.UTC),
 			wantDaily: `
-				<div title="2019-06-17, 1 views"><div style="height:10%"></div></div>
+				<div style="height:10%" title="2019-06-17, 1 views"></div>
 				<div title="2019-06-18, 0 views"></div>`,
 			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
-				<div title="2019-06-17 2:00 – 2:59, 1 views"><div style="height:10%"></div></div>
+				<div style="height:10%" title="2019-06-17 2:00 – 2:59, 1 views"></div>
 				<div title="2019-06-17 3:00 – 3:59, 0 views"></div>
 				<div title="2019-06-17 4:00 – 4:59, 0 views"></div>
 				<div title="2019-06-17 5:00 – 5:59, 0 views"></div>
@@ -605,7 +605,7 @@ func TestBackendBarChart(t *testing.T) {
 			hit:  date("2019-06-18 12:42", time.UTC),
 			wantDaily: `
 				<div title="2019-06-17, 0 views"></div>
-				<div title="2019-06-18, 1 views"><div style="height:10%"></div></div>`,
+				<div style="height:10%" title="2019-06-18, 1 views"></div>`,
 			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-17 1:00 – 1:59, 0 views"></div>
@@ -633,7 +633,7 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-17 23:00 – 23:59, 0 views"></div>
 				<div title="2019-06-18 0:00 – 0:59, 0 views"></div>
 				<div title="2019-06-18 1:00 – 1:59, 0 views"></div>
-				<div title="2019-06-18 2:00 – 2:59, 1 views"><div style="height:10%"></div></div>
+				<div style="height:10%" title="2019-06-18 2:00 – 2:59, 1 views"></div>
 				<div title="2019-06-18 3:00 – 3:59, 0 views"></div>
 				<div title="2019-06-18 4:00 – 4:59, 0 views"></div>`,
 		},
@@ -644,7 +644,7 @@ func TestBackendBarChart(t *testing.T) {
 			now:  date("2019-06-18 14:42", hi),
 			hit:  date("2019-06-18 2:42", time.UTC),
 			wantDaily: `
-				<div title="2019-06-17, 1 views"><div style="height:10%"></div></div>
+				<div style="height:10%" title="2019-06-17, 1 views"></div>
 				<div title="2019-06-18, 0 views"></div>`,
 			wantHourly: `
 				<div title="2019-06-17 0:00 – 0:59, 0 views"></div>
@@ -663,7 +663,7 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-17 13:00 – 13:59, 0 views"></div>
 				<div title="2019-06-17 14:00 – 14:59, 0 views"></div>
 				<div title="2019-06-17 15:00 – 15:59, 0 views"></div>
-				<div title="2019-06-17 16:00 – 16:59, 1 views"><div style="height:10%"></div></div>
+				<div style="height:10%" title="2019-06-17 16:00 – 16:59, 1 views"></div>
 				<div title="2019-06-17 17:00 – 17:59, 0 views"></div>
 				<div title="2019-06-17 18:00 – 18:59, 0 views"></div>
 				<div title="2019-06-17 19:00 – 19:59, 0 views"></div>

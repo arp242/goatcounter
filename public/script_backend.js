@@ -28,9 +28,33 @@
 		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs,
+			paginate_toprefs, draw_chart,
 		].forEach(function(f) { f.call(); });
 	});
+
+	// Replace the "height:" style with a background gradient and set the height
+	// to 100%.
+	//
+	// This way you can still hover the entire height.
+	var draw_chart = function() {
+		$('.chart-bar').each(function(i, chart) {
+			// Don't repaint/reflow on every bar update.
+			chart.style.display = 'none'
+
+			$(chart).find('> div').each(function(i, bar) {
+				var h = bar.style.height
+				bar.style.height = '100%'
+				if (h === '')
+					bar.style.background = 'transparent'
+				else {
+					h = (100 - parseInt(h, 10)) + '%'
+					bar.style.background = 'linear-gradient(to bottom, transparent 0%, transparent ' + h +
+						', transparent ' + h + ', #9a15a4 ' + h + ', #9a15a4 100%)'
+				}
+			})
+			chart.style.display = 'flex'
+		})
+	};
 
 	// Add current IP address to ignore_ips.
 	var add_ip = function() {
@@ -571,8 +595,6 @@
 		// Pages chart.
 		$(document.body).on('mouseenter', '.chart > div', function(e) {
 			var t = $(e.target);
-			if (e.target.style.length > 0)  // Inner bar (the coloured part).
-				t = t.parent();
 
 			var title = t.attr('title') || t.attr('data-title');
 			if (!title)

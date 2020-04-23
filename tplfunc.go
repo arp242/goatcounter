@@ -83,13 +83,14 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 				future = true
 			}
 
-			inner := ""
 			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
+			st := ""
 			if h > 0 {
-				inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
+				st = fmt.Sprintf(` style="height:%.0f%%"`, h)
 			}
-			b.WriteString(fmt.Sprintf(`<div title="%s, %s views">%s</div>`,
-				stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat), inner))
+
+			b.WriteString(fmt.Sprintf(`<div%s title="%s, %s views"></div>`,
+				st, stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat)))
 		}
 
 	// Hourly view.
@@ -110,16 +111,13 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 					future = true
 				}
 
-				// Double div so that the title is on the entire column, instead
-				// of just the coloured area. No need to add the inner one if
-				// there's no data – saves quite a bit in the total filesize.
-				inner := ""
 				h := math.Round(float64(s) / float64(max) / 0.01)
+				st := ""
 				if h > 0 {
-					inner = fmt.Sprintf(`<div style="height:%.0f%%"></div>`, h)
+					st = fmt.Sprintf(` style="height:%.0f%%"`, h)
 				}
-				b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, %s views">%s</div>`,
-					stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat), inner))
+				b.WriteString(fmt.Sprintf(`<div%s title="%s %[3]d:00 – %[3]d:59, %s views"></div>`,
+					st, stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat)))
 			}
 		}
 	}
