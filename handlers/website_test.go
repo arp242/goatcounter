@@ -34,7 +34,7 @@ func TestWebsiteTpl(t *testing.T) {
 			router:   NewWebsite,
 			path:     "/privacy",
 			wantCode: 200,
-			wantBody: "GoatCounter does not collect data which can be used to identify",
+			wantBody: "Screen size",
 		},
 		{
 			name:     "terms",

@@ -61,7 +61,7 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Post("/signup", zhttp.Wrap(h.doSignup))
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
-	for _, t := range []string{"", "help", "privacy", "terms", "contact", "contribute"} {
+	for _, t := range []string{"", "help", "privacy", "terms", "contact", "contribute", "gdpr"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
 }
@@ -70,6 +70,7 @@ var metaDesc = map[string]string{
 	"":           "Simple web statistics. No tracking of personal data.",
 	"help":       "Help and support – GoatCounter",
 	"privacy":    "Privacy policy – GoatCounter",
+	"gdpr":       "GDPR consent notices – GoatCounter",
 	"terms":      "Terms of Service – GoatCounter",
 	"contact":    "Contact – GoatCounter",
 	"contribute": "Contribute – GoatCounter",

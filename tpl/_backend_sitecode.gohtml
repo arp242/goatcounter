@@ -35,6 +35,7 @@
       <li><a href="#ignore-query-parameters-in-path" id="markdown-toc-ignore-query-parameters-in-path">Ignore query parameters in path</a></li>
       <li><a href="#spa" id="markdown-toc-spa">SPA</a></li>
       <li><a href="#custom-events" id="markdown-toc-custom-events">Custom events</a></li>
+      <li><a href="#consent-notice" id="markdown-toc-consent-notice">Consent notice</a></li>
     </ul>
   </li>
   <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>    <ul>
@@ -351,6 +352,49 @@ name:</p>
 name there; you can also use <code>window.location.pathname</code> directly; the biggest
 difference with the passed value is that <code>&lt;link rel="canonical"&gt;</code> is taken in to
 account.</p>
+
+<h3 id="consent-notice">Consent notice <a href="#consent-notice"></a></h3>
+<p>It is my understanding that GoatCounter does not need GDPR consent notices, but
+right no-one can be 100% sure, lacking case law and clarification from the
+member states' regulatory agents. See <a href="https://www.goatcounter.com/gdpr">GDPR consent
+notices</a> for some more details.</p>
+
+<p>If you want to add a consent notice, then a simple example might be:</p>
+
+<pre><code>&lt;script&gt;
+    (function() {
+        // Consent already given
+        if (localStorage.getItem('consent') === 't')
+            return
+
+        // Don't do anyting on load.
+        window.goatcounter = {no_onload: true}
+
+        // Create a simple banner.
+        var agree = document.createElement('a')
+        agree.innerHTML = 'Yeah, I agree'
+        agree.style.position = 'fixed'
+        agree.style.left = '0'
+        agree.style.right = '0'
+        agree.style.bottom = '0'
+        agree.style.textAlign = 'center'
+        agree.style.backgroundColor = 'pink'
+
+        // Send the event on click.
+        agree.addEventListener('click', function(e) {
+            e.preventDefault()
+            localStorage.setItem('consent', 't')
+            agree.parentNode.removeChild(agree)
+
+            window.goatcounter.count()       // Send pageview.
+            window.goatcounter.bind_events() // If you use events.
+        })
+
+        document.body.appendChild(agree)
+    })()
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
 
 <h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
 
