@@ -12432,10 +12432,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			alert(msg);
 		});
 
-		[period_select, drag_timeframe, load_refs, chart_hover, paginate_paths,
-			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart,
+		[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
+			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
+			setup_datepicker, filter_paths, add_ip, fill_tz, paginate_toprefs,
+			draw_chart,
 		].forEach(function(f) { f.call(); });
 	});
 
@@ -12445,6 +12445,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	// This way you can still hover the entire height.
 	var draw_chart = function() {
 		$('.chart-bar').each(function(i, chart) {
+			if (chart.dataset.done === 't')
+				return
+
 			// Don't repaint/reflow on every bar update.
 			chart.style.display = 'none'
 
@@ -12459,6 +12462,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						', transparent ' + h + ', #9a15a4 ' + h + ', #9a15a4 100%)'
 				}
 			})
+			chart.dataset.done = 't'
 			chart.style.display = 'flex'
 		})
 	};
@@ -12580,6 +12584,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		}
 		else
 			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
+
+		draw_chart()
 	};
 
 	// Highlight a filter pattern in the path and title.
@@ -12859,98 +12865,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
 			set_period(start, end);
-		});
-	};
-
-	// Select a period by dragging the mouse over a timeframe.
-	var drag_timeframe = function() {
-		if (is_mobile())
-			return;
-
-		var box, startX;
-
-		var setpos = function(e) {
-			// +1 on the right to make sure the tooltip is always visible.
-			box.css(e.pageX > startX
-				? {left: startX,  right: $(window).width() - e.pageX + 1}
-				: {left: e.pageX, right: $(window).width() - startX + 1});
-		};
-
-		$('.chart').on('mousedown', function(e) {
-			if (e.button !== 0 && e.type !== 'touchstart')
-				return;
-			if ($(e.target).hasClass('top'))
-				return;
-
-			startX = e.pageX
-			box = $('<span id="drag-box"></span>').css({
-				left:   e.pageX,
-				right:  $(document.body).width() - e.pageX,
-				top:    $(this).offset().top,
-				height: $(this).outerHeight(),
-			}).on('mousemove', function(e) {
-				e.preventDefault();
-				setpos(e);
-			});
-
-			// Mainly for Firefox.
-			$(document).on('dragstart.timeframe, selectstart.timeframe', function(e) {
-				e.preventDefault();
-			});
-
-			$(document.body).append(box);
-		});
-
-		$('.chart').on('mousemove', function(e) {
-			e.preventDefault();
-			if (!box)
-				return;
-			setpos(e);
-		});
-
-		$(document.body).on('mouseup', function(e) {
-			if (!box)
-				return;
-
-			e.preventDefault();
-
-			var box_left   = parseFloat(box.css('left')),
-				box_right  = $(window).width() - parseFloat(box.css('right')),
-				start, end;
-			// All charts have the same bars, so just using the first is fine.
-			$('.chart').first().find('>div').each(function(i, elem) {
-				var l = $(elem).offset().left,
-					w = $(elem).width();
-
-				if (!start && l + w >= box_left)
-					start = elem;
-
-				if (start && !end && l+w >= box_right) {
-					end = elem;
-					return false
-				}
-			});
-
-			box.remove();
-			box = null;
-			$(document).off('.timeframe');
-
-			// Don't count clicks or very small movements.
-			if ($(end).index() - $(start).index() < 2)
-				return;
-
-			// Every bar is always one hour or day, -2 for .half and .max
-			var ps = get_date($('#period-start').val()),
-			    pe = get_date($('#period-start').val());
-			if ($('.pages-list').hasClass('pages-list-daily')) {
-				ps.setDate(ps.getDate() + $(start).index() - 2);
-				pe.setDate(pe.getDate() + $(end).index()   - 2);
-			}
-			else {
-				ps.setHours(ps.getHours() + $(start).index() - 2);
-				pe.setHours(pe.getHours() + $(end).index()   - 2);
-			}
-			set_period(ps, pe);
 		});
 	};
 
