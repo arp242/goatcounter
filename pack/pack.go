@@ -16007,6 +16007,9 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 	<p>This will start the process and email you a download link once it’s done.
 	You can only do this once a day.</p>
 
+	<p>This includes all pageviews, including those marked as "bot", which
+	aren't shown in the overview.</p>
+
 	<form method="post" action="/start-export">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 		<button type="submit">Start export</button>
