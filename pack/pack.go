@@ -15432,7 +15432,8 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">Source code</a><span> |</span>
 		<a href="https://github.com/sponsors/arp242" target="_blank" rel="noopener">GitHub sponsors</a><span> |</span>
 		<a href="https://patreon.com/arp242" target="_blank" rel="noopener">Patreon</a><span> |</span>
-		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank" rel="noopener">Product Hunt</a>
+		<a href="https://www.producthunt.com/posts/goatcounter" target="_blank" rel="noopener">Product Hunt</a><span> |</span>
+		<a href="https://alternativeto.net/software/goatcounter/" target="_blank" rel="noopener">AlternativeTo</a>
 	</div>
 </footer>
 `),
