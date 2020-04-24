@@ -1,0 +1,15 @@
+{{template "_backend_top.gohtml" .}}
+
+<p>Send a one-time donation to GoatCounter; the minimum amount of €5, which can
+be increased in increments of €5.</p>
+
+<script src="https://js.stripe.com/v3"></script>
+<div id="stripe-error"></div>
+<form method="post" action="" id="donate-form"
+	data-key="{{.StripePublicKey}}" data-sku="{{.SKU}}"
+>
+	<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="5" min="5" step="5">
+	<button type="submit">Continue</button>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}

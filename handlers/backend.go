@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"net/mail"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -31,6 +32,7 @@ import (
 	"zgo.at/isbot"
 	"zgo.at/tz"
 	"zgo.at/utils/httputilx/header"
+	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -712,12 +714,18 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		return err
 	}
 
+	del := map[string]interface{}{
+		"ContactMe": r.URL.Query().Get("contact_me") == "true",
+		"Reason":    r.URL.Query().Get("reason"),
+	}
+
 	return zhttp.Template(w, "backend_settings.gohtml", struct {
 		Globals
 		SubSites  goatcounter.Sites
 		Validate  *zvalidate.Validator
 		Timezones []*tz.Zone
-	}{newGlobals(w, r), sites, verr, tz.Zones})
+		Delete    map[string]interface{}
+	}{newGlobals(w, r), sites, verr, tz.Zones, del})
 }
 
 func (h backend) code(w http.ResponseWriter, r *http.Request) error {
@@ -995,6 +1003,40 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings#tab-purge")
 }
 
+func hasPlan(site *goatcounter.Site) (bool, error) {
+	if !cfg.Saas || site.Plan == goatcounter.PlanChild ||
+		site.Stripe == nil || site.FreePlan() || site.PayExternal() != "" {
+		return false, nil
+	}
+
+	var customer struct {
+		Subscriptions struct {
+			Data []struct {
+				CancelAtPeriodEnd bool               `json:"cancel_at_period_end"`
+				CurrentPeriodEnd  jsonutil.Timestamp `json:"current_period_end"`
+				Plan              struct {
+					Quantity int `json:"quantity"`
+				} `json:"plan"`
+			} `json:"data"`
+		} `json:"subscriptions"`
+	}
+	_, err := zstripe.Request(&customer, "GET",
+		fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
+	if err != nil {
+		return false, err
+	}
+
+	if len(customer.Subscriptions.Data) == 0 {
+		return false, nil
+	}
+
+	if customer.Subscriptions.Data[0].CancelAtPeriodEnd {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 
@@ -1007,6 +1049,19 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			zlog.Error(err)
 		}
+
+		has, err := hasPlan(site)
+		if err != nil {
+			return err
+		}
+		if has {
+			zhttp.FlashError(w, "This site still has a Stripe subscription; cancel that first on the billing page.")
+			q := url.Values{}
+			q.Set("reason", args.Reason)
+			q.Set("contact_me", fmt.Sprintf("%t", args.ContactMe))
+			return zhttp.SeeOther(w, "/settings?"+q.Encode()+"#tab-delete")
+		}
+
 		if args.Reason != "" {
 			go func() {
 				defer zlog.Recover()

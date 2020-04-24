@@ -31,6 +31,7 @@ type billing struct{}
 
 func (h billing) mount(pub, auth chi.Router) {
 	auth.Get("/billing", zhttp.Wrap(h.index))
+	auth.Get("/billing/donate", zhttp.Wrap(h.donate))
 
 	pauth := auth.With(noSubSites)
 	pauth.Post("/billing/start", zhttp.Wrap(h.start))
@@ -144,18 +145,28 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		payment != "", site.FreePlan(), external})
 }
 
+func (h billing) donate(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "billing_donate.gohtml", struct {
+		Globals
+		StripePublicKey string
+		SKU             string
+	}{newGlobals(w, r), zstripe.PublicKey, stripePlans[cfg.Prod]["donate"]})
+}
+
 var stripePlans = map[bool]map[string]string{
 	true: { // Production
 		"personal":     "plan_GLVKIvCvCjzT2u",
 		"personalplus": "plan_GlJxixkxNZZOct",
 		"business":     "plan_GLVGCVzLaPA3cY",
 		"businessplus": "plan_GLVHJUi21iV4Wh",
+		"donate":       "sku_H9jE6zFGzh6KKb",
 	},
 	false: { // Test data
 		"personal":     "plan_GLWnXaogEns1n2",
 		"personalplus": "plan_GlJvCPdCeUpww3",
 		"business":     "plan_GLWoJ72fcNGoUD",
 		"businessplus": "plan_GLWootweDZnKBk",
+		"donate":       "sku_H9iAuKytd1eeN9",
 	},
 }
 
@@ -303,7 +314,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 		go func(r *http.Request, s Session) {
 			ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
 
-			l := zlog.Module("stripe-wh").FieldsRequest(r).Field("session", s)
+			l := zlog.Module("billing").FieldsRequest(r).Field("session", s)
 			id, err := strconv.ParseInt(s.ClientReferenceID, 10, 64)
 			if err != nil {
 				l.Error(err)
