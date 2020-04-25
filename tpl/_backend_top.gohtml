@@ -36,6 +36,8 @@
 					<strong><a href="/settings#tab-purge">← Back</a></strong>
 				{{else if has_prefix .Path "/admin/"}}
 					<strong><a href="/admin">← Back</a></strong>
+				{{else if has_prefix .Path "/billing/"}}
+					<strong><a href="/billing">← Back</a></strong>
 				{{else}}
 					<strong><a href="/">← Back</a></strong>
 				{{end}}
@@ -45,7 +47,7 @@
 				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
-				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
+				{{if .Billing}}<a {{if has_prefix .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 					<button class="link">Sign out</button>

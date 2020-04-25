@@ -792,6 +792,19 @@ commit;
 	insert into version values ('2020-04-20-1-hitsindex');
 commit;
 `),
+	"db/migrate/pgsql/2020-04-25-1-donate.sql": []byte(`begin;
+	delete from updates where subject='One-time donation option';
+	insert into updates (subject, created_at, show_at, body) values (
+		'One-time donation option', now(), now(), '
+		<p>There is now a one-time donation option; several people have asked for
+		this in the last few months, so here it is :-)</p>
+		<p>The link is available from the billing page, or as a direct link:
+		<a href="/billing/donate">/billing/donate</a></p>
+	');
+
+	insert into version values ('2020-04-25-1-donate');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -12434,8 +12447,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
 			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
-			setup_datepicker, filter_paths, add_ip, fill_tz, paginate_toprefs,
-			draw_chart,
+			donate, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs, draw_chart,
 		].forEach(function(f) { f.call(); });
 	});
 
@@ -12626,6 +12639,50 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
+	}
+
+	// Process one-time donation.
+	var donate = function() {
+		var form = $('#donate-form')
+		if (!form.length)
+			return;
+
+		var query = split_query(location.search)
+		if (query['return']) {
+			if (query['return'] !== 'success')
+				return $('#stripe-error').text('Looks like there was an error in processing the payment :-(')
+
+			$('.page').html('<p>Thank you for your donation! ' +
+				'Note you still have to choose a free plan on the billing page to disable the popup. ' +
+				'<a href="/billing">Do that here</a></p>')
+			return;
+		}
+
+
+		form.on('submit', function(e) {
+			e.preventDefault();
+
+			if (typeof(Stripe) === 'undefined') {
+				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
+					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
+				return;
+			}
+
+			form.find('button').attr('disabled', true).text('Redirecting...');
+
+			var err = function(e) { $('#stripe-error').text(e) },
+				q   = parseInt($('#quantity').val(), 10);
+			if (q % 5 !== 0)
+				return err('Amount must be in multiples of 5')
+
+			Stripe(form.attr('data-key')).redirectToCheckout({
+				items:      [{sku: form.attr('data-sku'), quantity: q/5}],
+				successUrl: location.origin + "/billing/donate?return=success",
+				cancelUrl:  location.origin + "/billing/donate?return=cancel",
+			}).then(function(result) {
+				err(result.error ? result.error.message : '');
+			});
+		})
 	}
 
 	// Subscribe with Stripe.
@@ -13011,7 +13068,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		else
 			params[k] = v;
 		history.pushState(null, '', join_query(params));
-	};
+	}
 
 	// Convert "23:45" to "11:45 pm".
 	var un24 = function(t) {
@@ -13645,7 +13702,7 @@ noscript p { margin: .5em; }
 #billing-form .plan span            { display: inline-block; min-width: 8em; }
 #billing-form fieldset legend+p     { margin-top: 0; }
 #billing-form fieldset p:last-child { margin-bottom: 0; }
-
+#stripe-error                       { color: red; }
 
 /*** Updates overview ***/
 .update p        { margin-left: 2em; }
@@ -15359,6 +15416,8 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 					<strong><a href="/settings#tab-purge">← Back</a></strong>
 				{{else if has_prefix .Path "/admin/"}}
 					<strong><a href="/admin">← Back</a></strong>
+				{{else if has_prefix .Path "/billing/"}}
+					<strong><a href="/billing">← Back</a></strong>
 				{{else}}
 					<strong><a href="/">← Back</a></strong>
 				{{end}}
@@ -15368,7 +15427,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
-				{{if .Billing}}<a {{if eq .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
+				{{if .Billing}}<a {{if has_prefix .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 					<button class="link">Sign out</button>
@@ -16059,15 +16118,16 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 
 {{if .Saas}}
 	<div>
-		<h2 id="delete">Delete account</h2>
+		<h2 id="delete">Delete {{if .Site.Parent}}site{{else}}account{{end}}</h2>
 		{{if .Site.Parent}}
 			<p>Note this site has a parent
 				(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
 				this will delete only this subsite, and not the parent.</p>
 		{{end}}
 
-		<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be marked as deleted, and will no longer be accessible.
-			All data will be removed after 7 days.</p>
+		<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be
+			marked as deleted, and will no longer be accessible. All data will
+			be removed after 7 days.</p>
 
 		<form method="post" action="/delete" class="form-max-width">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -16077,13 +16137,15 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 					if there's anything in particular you're missing in GoatCounter,
 					or any other reasons you have for wanting to delete your
 					account. This is entirely optional.</label><br>
-				<textarea id="reason" name="reason" placeholder="Optional reason for deletion"></textarea><br><br>
+				<textarea id="reason" name="reason" placeholder="Optional reason for deletion">{{index .Delete "Reason"}}</textarea><br><br>
 
-				<label>{{checkbox true "contact_me"}} It’s okay to follow up</label><br>
-				<div style="max-width: 40em; color: #333;">I might contact you with some follow-up questions or
-					commentary if you leave this checked. I won’t try to
-					convince you to stay, but I might outline future plans if
-					you’re missing a particular feature, for example.</div><br>
+				<label>{{checkbox (index .Delete "ContactMe") "contact_me"}} It’s okay to follow up</label><br>
+				<div style="max-width: 40em; color: #333;">I might contact you
+					with some follow-up questions or commentary if you leave
+					this checked. I won’t try to convince you to stay (I’m not a
+					telecom), but I might ask a question or two, or outline
+					future plans if you’re missing a particular
+					feature.</div><br>
 			{{end}}
 
 			<button type="submit">Delete site</button> (no confirmation)
@@ -16166,6 +16228,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 			<ul>
 				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
 				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
+				<li><a href="/billing/donate">One-time donation</a>; recurring payments are preferred as it’s more predictable.</li>
 			</ul>
 		</fieldset>
 
@@ -16187,6 +16250,22 @@ within a day orso.</p>
 <form method="post" action="/billing/cancel">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<button class="link" type="submit">Cancel</button>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/billing_donate.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<p>Send a one-time donation to GoatCounter; the minimum amount of €5, which can
+be increased in increments of €5.</p>
+
+<script src="https://js.stripe.com/v3"></script>
+<div id="stripe-error"></div>
+<form method="post" action="" id="donate-form"
+	data-key="{{.StripePublicKey}}" data-sku="{{.SKU}}"
+>
+	<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="5" min="5" step="5">
+	<button type="submit">Continue</button>
 </form>
 
 {{template "_backend_bottom.gohtml" .}}
