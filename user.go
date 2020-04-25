@@ -85,7 +85,9 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 		sp := string(u.Password)
 		v.Required("password", u.Password)
 		v.UTF8("password", sp)
-		v.Len("password", sp, 8, 30)
+		if len(sp) < 8 || len(sp) > 50 {
+			v.Append("password", "must be between 8 and 50 bytes")
+		}
 	}
 
 	return v.ErrorOrNil()
@@ -93,8 +95,8 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 
 // Hash the password, replacing the plain-text one.
 func (u *User) hashPassword() error {
-	// Length is capped to 30 characters in Validate.
-	if len(u.Password) > 30 {
+	// Length is capped to 50 characters in Validate.
+	if len(u.Password) > 50 {
 		return fmt.Errorf("User.hashPassword: already hashed")
 	}
 
