@@ -81,8 +81,8 @@ func main() {
 	cfg.Version = version
 
 	if len(os.Args) < 2 {
-		printMsg(1, usage[""], "need a command")
-		exit(1)
+		fmt.Fprint(stdout, usage[""])
+		exit(0)
 		return
 	}
 	cmd := os.Args[1]
