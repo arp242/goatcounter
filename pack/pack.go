@@ -16228,7 +16228,9 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 			<ul>
 				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
 				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
+				{{/*
 				<li><a href="/billing/donate">One-time donation</a>; recurring payments are preferred as it’s more predictable.</li>
+				*/}}
 			</ul>
 		</fieldset>
 
