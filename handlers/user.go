@@ -367,10 +367,7 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/")
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
-
-	sendEmailVerify(site, user)
-
+	sendEmailVerify(goatcounter.MustGetSite(r.Context()), user)
 	zhttp.Flash(w, "Sent to %q", user.Email)
 	return zhttp.SeeOther(w, "/")
 }
@@ -392,19 +389,27 @@ func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
 }
 
 func (h user) verify(w http.ResponseWriter, r *http.Request) error {
-	user := goatcounter.GetUser(r.Context())
+	key := chi.URLParam(r, "key")
+	var user goatcounter.User
+	err := user.ByEmailToken(r.Context(), key)
+	if err != nil {
+		if zdb.ErrNoRows(err) {
+			return guru.New(400, "unknown token; perhaps it was already used?")
+		}
+		return err
+	}
+
 	if user.EmailVerified {
 		zhttp.Flash(w, "%q is already verified", user.Email)
 		return zhttp.SeeOther(w, "/")
 	}
 
-	key := chi.URLParam(r, "key")
 	if key != *user.EmailToken {
 		zhttp.FlashError(w, "Wrong verification key")
 		return zhttp.SeeOther(w, "/")
 	}
 
-	err := user.VerifyEmail(r.Context())
+	err = user.VerifyEmail(r.Context())
 	if err != nil {
 		return err
 	}

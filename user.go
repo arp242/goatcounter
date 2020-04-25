@@ -217,6 +217,13 @@ func (u *User) VerifyEmail(ctx context.Context) error {
 	return errors.Wrap(err, "User.VerifyEmail")
 }
 
+// ByEmailToken gets a user by email verification token.
+func (u *User) ByEmailToken(ctx context.Context, key string) error {
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
+		`select * from users where site=$1 and email_token=$2`,
+		MustGetSite(ctx).IDOrParent(), key), "User.ByEmailToken")
+}
+
 // ByEmail gets a user by email address.
 func (u *User) ByEmail(ctx context.Context, email string) error {
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
