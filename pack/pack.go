@@ -12464,10 +12464,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// Don't repaint/reflow on every bar update.
 			chart.style.display = 'none'
 
-			$(chart).find('> div').each(function(i, bar) {
+			$(chart).find('>div').each(function(i, bar) {
 				var h = bar.style.height
 				bar.style.height = '100%'
-				if (h === '')
+				if (bar.className === 'f')
+					return
+				else if (h === '')
 					bar.style.background = 'transparent'
 				else {
 					h = (100 - parseInt(h, 10)) + '%'
@@ -13556,7 +13558,6 @@ form .err  { color: red; display: block; }
 }
 .chart-bar > div:hover  { background-color: #aaa; }
 .chart-bar > .f         { background-color: #eee; }
-
 
 #popup {
 	position: absolute;

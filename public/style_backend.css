@@ -221,7 +221,6 @@ form .err  { color: red; display: block; }
 .chart-bar > div:hover  { background-color: #aaa; }
 .chart-bar > .f         { background-color: #eee; }
 
-
 #popup {
 	position: absolute;
 	left: 0;
