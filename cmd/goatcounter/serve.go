@@ -178,6 +178,11 @@ func serve() (int, error) {
 	zlog.Printf("serving %d sites on %q; dev=%t:", len(cnames), listen, dev)
 	zlog.Printf("  %s", strings.Join(cnames, ", "))
 	banner()
+
+	if len(cnames) == 0 {
+		zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
+	}
+
 	zhttp.Serve(listenTLS, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
