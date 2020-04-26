@@ -25,7 +25,20 @@
 			alert(msg);
 		});
 
-		[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
+		// Show loading indicator.
+		var loading;
+		$(document).on('ajaxStart', function() {
+			clearTimeout(loading)
+			loading = setTimeout(function() {
+				$('#loading').css('display', 'block')
+			}, 150)
+		})
+		$(document).on('ajaxComplete', function() {
+			clearTimeout(loading)
+			$('#loading').css('display', 'none')
+		})
+
+		;[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
 			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
 			setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs, draw_chart,

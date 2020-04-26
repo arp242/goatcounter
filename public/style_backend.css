@@ -403,3 +403,24 @@ h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
+
+
+/*** Loading indicator ***/
+@keyframes loading {
+  0%   { background-color: #f6f3da; }
+  50%  { background-color: yellow; }
+  100% { background-color: #f6f3da; }
+}
+#loading {
+	position: fixed;
+	top: 0;
+	left: calc(50% - 3em);
+	padding: .3em 1em;
+	box-shadow: 0 0 4px #cdc8a4;
+	display: none;
+
+	background-color: #f6f3da;
+	animation-name: loading;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+}

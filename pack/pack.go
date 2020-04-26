@@ -12543,7 +12543,20 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			alert(msg);
 		});
 
-		[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
+		// Show loading indicator.
+		var loading;
+		$(document).on('ajaxStart', function() {
+			clearTimeout(loading)
+			loading = setTimeout(function() {
+				$('#loading').css('display', 'block')
+			}, 150)
+		})
+		$(document).on('ajaxComplete', function() {
+			clearTimeout(loading)
+			$('#loading').css('display', 'none')
+		})
+
+		;[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
 			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
 			setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs, draw_chart,
@@ -13812,6 +13825,27 @@ h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
+
+
+/*** Loading indicator ***/
+@keyframes loading {
+  0%   { background-color: #f6f3da; }
+  50%  { background-color: yellow; }
+  100% { background-color: #f6f3da; }
+}
+#loading {
+	position: fixed;
+	top: 0;
+	left: calc(50% - 3em);
+	padding: .3em 1em;
+	box-shadow: 0 0 4px #cdc8a4;
+	display: none;
+
+	background-color: #f6f3da;
+	animation-name: loading;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+}
 `),
 }
 
@@ -14907,6 +14941,7 @@ var Templates = map[string][]byte{
 			<noscript><img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code | hash}}" alt="" style="float:right"></noscript>
 		{{end}}
 	{{end}}
+	<div id="loading">Loading…</div>
 </body>
 </html>
 `),
