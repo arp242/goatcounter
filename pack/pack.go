@@ -16036,8 +16036,8 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 				<span>
 					List of parameters to count as ‘campaigns’; if set then the
 					value will be set as the referrer, overriding any Referer
-					header; <a href="/code#campaigns">Details</a>.
-					Comma-separated; first match takes precedence.
+					header.{{/* <a href="/code#campaigns">Details</a>.
+					Comma-separated; first match takes precedence.*/}}
 				</span>
 
 			</fieldset>
