@@ -73,6 +73,7 @@ type SiteSettings struct {
 	DataRetention    int                `json:"data_retention"`
 	IgnoreIPs        sqlutil.StringList `json:"ignore_ips"`
 	Timezone         *tz.Zone           `json:"timezone"`
+	Campaigns        sqlutil.StringList `json:"campaigns"`
 	Limits           struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`
@@ -98,6 +99,11 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 
 // Defaults sets fields to default values, unless they're already set.
 func (s *Site) Defaults(ctx context.Context) {
+	// New site: Set default settings.
+	if s.ID == 0 {
+		s.Settings.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
+	}
+
 	if s.State == "" {
 		s.State = StateActive
 	}

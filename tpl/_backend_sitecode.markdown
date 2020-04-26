@@ -127,6 +127,11 @@ from the URL:
     </script>
     {{template "code" .}}
 
+Note there is also a *Campaign Parameters* setting, which is probably easier for
+most people. This is just if you want to get the campaign on only some pages, or
+want to do some more advanced filtering (such as only including your own
+campaigns).
+
 Examples
 --------
 
@@ -336,6 +341,7 @@ middleware. It supports the following query parameters:
 - `t` → `title`
 - `r` → `referrer`
 - `s` → screen size, as `x,y,scaling`.
+- `q` → Query parameters, for getting the campaign.
 - `rnd` → can be used as a “cache buster” since browsers don’t always obey
   `Cache-Control`; ignored by the backend.
 

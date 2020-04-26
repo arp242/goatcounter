@@ -21,7 +21,6 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ctxkey"
 )
 
 var (
@@ -160,8 +159,8 @@ func DB(t tester) (context.Context, func()) {
 	}
 
 	ctx := zdb.With(context.Background(), db)
-	ctx = context.WithValue(ctx, ctxkey.Site, &goatcounter.Site{ID: 1})
-	ctx = context.WithValue(ctx, ctxkey.User, &goatcounter.User{ID: 1, Site: 1})
+	ctx = goatcounter.WithSite(ctx, &goatcounter.Site{ID: 1})
+	ctx = goatcounter.WithUser(ctx, &goatcounter.User{ID: 1, Site: 1})
 
 	return ctx, func() {
 		db.Close()
@@ -225,5 +224,5 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 		t.Fatal(err)
 	}
 
-	return context.WithValue(ctx, ctxkey.Site, &site), site
+	return goatcounter.WithSite(ctx, &site), site
 }

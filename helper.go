@@ -28,6 +28,11 @@ var States = []string{StateActive, StateRequest, StateDeleted}
 // Now gets the current time in UTC; can be overwritten in tests.
 var Now = func() time.Time { return time.Now().UTC() }
 
+// WithSite adds the site to the context.
+func WithSite(ctx context.Context, s *Site) context.Context {
+	return context.WithValue(ctx, ctxkey.Site, s)
+}
+
 // GetSite gets the current site.
 func GetSite(ctx context.Context) *Site {
 	s, _ := ctx.Value(ctxkey.Site).(*Site)
@@ -41,6 +46,11 @@ func MustGetSite(ctx context.Context) *Site {
 		panic("MustGetSite: no site on context")
 	}
 	return s
+}
+
+// WithUser adds the site to the context.
+func WithUser(ctx context.Context, u *User) context.Context {
+	return context.WithValue(ctx, ctxkey.User, u)
 }
 
 // GetUser gets the currently logged in user.

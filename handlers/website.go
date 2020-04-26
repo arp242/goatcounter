@@ -5,7 +5,6 @@
 package handlers // import "zgo.at/goatcounter/handlers"
 
 import (
-	"context"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -20,7 +19,6 @@ import (
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
@@ -216,7 +214,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := context.WithValue(r.Context(), ctxkey.Site, &site)
+	ctx := goatcounter.WithSite(r.Context(), &site)
 	err = user.RequestLogin(ctx)
 	if err != nil {
 		return err

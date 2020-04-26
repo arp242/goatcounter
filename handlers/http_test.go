@@ -26,7 +26,6 @@ import (
 	"zgo.at/utils/sliceutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/ztest"
@@ -171,7 +170,7 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID 
 	r.Form.Set("csrf", *u.CSRFToken)
 
 	r.Header.Set("Cookie", "key="+*u.LoginToken)
-	*r = *r.WithContext(context.WithValue(r.Context(), ctxkey.User, u))
+	*r = *r.WithContext(goatcounter.WithUser(r.Context(), &u))
 }
 
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {

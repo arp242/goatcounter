@@ -32,6 +32,7 @@ var (
 	RefSchemeHTTP      = ptr("h")
 	RefSchemeOther     = ptr("o")
 	RefSchemeGenerated = ptr("g")
+	RefSchemeCampaign  = ptr("c")
 )
 
 type Hit struct {
@@ -45,6 +46,7 @@ type Hit struct {
 	Event sqlutil.Bool      `db:"event" json:"e,omitempty"`
 	Size  sqlutil.FloatList `db:"size" json:"s,omitempty"`
 	JSBot int               `db:"-" json:"b,omitempty"`
+	Query string            `db:"-" json:"q,omitempty"`
 
 	RefParams      *string      `db:"ref_params" json:"-"`
 	RefOriginal    *string      `db:"ref_original" json:"-"`
@@ -205,26 +207,33 @@ func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	return refURL.String()[2:], &eq, changed || len(q) != start, false
 }
 
-func cleanPath(path string) string {
-	// No query parameters.
-	if !strings.Contains(path, "?") {
-		return path
+func (h *Hit) cleanPath(ctx context.Context) {
+	if h.Event {
+		return
+	}
+	if !strings.Contains(h.Path, "?") { // No query parameters.
+		return
 	}
 
-	u, err := url.Parse(path)
+	u, err := url.Parse(h.Path)
 	if err != nil {
-		return path
+		return
 	}
 
 	q := u.Query()
 
-	// Magic Facebook tracking parameter. As far as I can find it's not public
-	// what this even does exactly, so just remove it to prevent pages from
-	// being show more than once.
-	q.Del("fbclid")
+	q.Del("fbclid") // Magic undocumented Facebook tracking parameter.
+	q.Del("ref")    // ProductHunt and a few others.
+	q.Del("mc_cid") // MailChimp
+	q.Del("mc_eid")
+	for k := range q { // Google tracking parameters.
+		if strings.HasPrefix(k, "utm_") {
+			q.Del(k)
+		}
+	}
 
 	u.RawQuery = q.Encode()
-	return u.String()
+	h.Path = u.String()
 }
 
 func (h Hit) String() string {
@@ -267,16 +276,34 @@ func (h Hit) String() string {
 
 // Defaults sets fields to default values, unless they're already set.
 func (h *Hit) Defaults(ctx context.Context) {
-	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set from memstore.
-		h.Site = s.ID
-	}
+	site := MustGetSite(ctx)
+	h.Site = site.ID
 
 	if h.CreatedAt.IsZero() {
 		h.CreatedAt = Now()
 	}
 
-	if !h.Event {
-		h.Path = cleanPath(h.Path)
+	h.cleanPath(ctx)
+
+	// Set campaign.
+	if !h.Event && h.Query != "" {
+		if h.Query[0] != '?' {
+			h.Query = "?" + h.Query
+		}
+		u, err := url.Parse(h.Query)
+		if err != nil {
+			return
+		}
+		q := u.Query()
+
+		for _, c := range site.Settings.Campaigns {
+			if _, ok := q[c]; ok {
+				h.Ref = q.Get(c)
+				h.RefURL = nil
+				h.RefScheme = RefSchemeCampaign
+				break
+			}
+		}
 	}
 
 	if h.Ref != "" && h.RefURL != nil {

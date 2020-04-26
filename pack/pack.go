@@ -792,6 +792,13 @@ commit;
 	insert into version values ('2020-04-20-1-hitsindex');
 commit;
 `),
+	"db/migrate/pgsql/2020-04-22-1-campaigns.sql": []byte(`begin;
+	alter table hits drop constraint hits_ref_scheme_check;
+	alter table hits add constraint hits_ref_scheme_check check(ref_scheme in ('h', 'g', 'o', 'c'));
+
+	insert into version values ('2020-04-22-1-campaigns');
+commit;
+`),
 	"db/migrate/pgsql/2020-04-25-1-donate.sql": []byte(`begin;
 	delete from updates where subject='One-time donation option';
 	insert into updates (subject, created_at, show_at, body) values (
@@ -1639,6 +1646,37 @@ commit;
 	insert into version values ('2020-04-16-1-pwauth');
 commit;
 `),
+	"db/migrate/sqlite/2020-04-22-1-campaigns.sql": []byte(`begin;
+	-- alter table hits drop constraint hits_ref_scheme_check;
+	-- alter table hits add constraint hits_ref_scheme_check check(ref_scheme in ('h', 'g', 'o', 'c'));
+	create table hits2 (
+		id             integer        primary key autoincrement,
+		site           integer        not null                 check(site > 0),
+		session        integer        default null,
+
+		path           varchar        not null,
+		title          varchar        not null default '',
+		event          int            default 0,
+		bot            int            default 0,
+		ref            varchar        not null,
+		ref_original   varchar,
+		ref_params     varchar,
+		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
+		browser        varchar        not null,
+		size           varchar        not null default '',
+		location       varchar        not null default '',
+		started_session int           default 0,
+
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
+	);
+
+	insert into hits2 select * from hits;
+	drop table hits;
+	rename hits2 to hits;
+
+	insert into version values ('2020-04-22-1-campaigns');
+commit;
+`),
 }
 
 var Public = map[string][]byte{
@@ -2148,6 +2186,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			e: !!(vars.event || goatcounter.event),
 			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
 			b: is_bot(),
+			q: location.search,
 		}
 
 		var rcb, pcb, tcb  // Save callbacks to apply later.
@@ -13795,7 +13834,7 @@ create table hits (
 	ref            varchar        not null,
 	ref_original   varchar,
 	ref_params     varchar,
-	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
+	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
@@ -14255,8 +14294,8 @@ insert into version values
 	('2020-03-29-1-page_cost'),
 	('2020-04-06-1-event'),
 	('2020-04-16-1-pwauth'),
-	('2020-04-20-1-hitsindex');
-
+	('2020-04-20-1-hitsindex'),
+	('2020-04-22-1-campaigns');
 
 -- vim:ft=sql
 `)
@@ -14318,7 +14357,7 @@ create table hits (
 	ref            varchar        not null,
 	ref_original   varchar,
 	ref_params     varchar,
-	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
+	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
@@ -14767,7 +14806,8 @@ insert into version values
 	('2020-03-27-1-isbot'),
 	('2020-03-24-1-sessions'),
 	('2020-04-06-1-event'),
-	('2020-04-16-1-pwauth');
+	('2020-04-16-1-pwauth'),
+	('2020-04-22-1-campaigns');
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
@@ -15083,6 +15123,11 @@ from the URL:</p>
 {{template "code" .}}
 </code></pre>
 
+<p>Note there is also a <em>Campaign Parameters</em> setting, which is probably easier for
+most people. This is just if you want to get the campaign on only some pages, or
+want to do some more advanced filtering (such as only including your own
+campaigns).</p>
+
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
 <h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
@@ -15306,6 +15351,7 @@ middleware. It supports the following query parameters:</p>
   <li><code>t</code> → <code>title</code></li>
   <li><code>r</code> → <code>referrer</code></li>
   <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
+  <li><code>q</code> → Query parameters, for getting the campaign.</li>
   <li><code>rnd</code> → can be used as a “cache buster” since browsers don’t always obey
 <code>Cache-Control</code>; ignored by the backend.</li>
 </ul>
@@ -15869,22 +15915,6 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
-
-				<label>{{checkbox .Site.Settings.Public "settings.public"}}
-					Make statistics publicly viewable</label>
-				<span>Anyone can view the statistics without logging in.</span>
-
-				<label for="data_retention">Data retention in days</label>
-				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
-				{{validate "site.settings.data_retention" .Validate}}
-				<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
-
-				<label>Ignore IPs</label>
-				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
-				{{validate "site.settings.ignore_ips" .Validate}}
-				<span>Never count requests coming from these IP addresses.<br>
-					Comma-separated. Only supports exact matches.
-					<a href="#_" id="add-ip">Add current IP</a></span>
 			</fieldset>
 
 			<fieldset>
@@ -15979,6 +16009,37 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 				</select>
 				{{validate "site.settings.timezone" .Validate}}
 				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
+			</fieldset>
+
+			<fieldset>
+				<legend>Tracking</legend>
+
+				<label>{{checkbox .Site.Settings.Public "settings.public"}}
+					Make statistics publicly viewable</label>
+				<span>Anyone can view the statistics without logging in.</span>
+
+				<label for="data_retention">Data retention in days</label>
+				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
+				{{validate "site.settings.data_retention" .Validate}}
+				<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
+
+				<label>Ignore IPs</label>
+				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
+				{{validate "site.settings.ignore_ips" .Validate}}
+				<span>Never count requests coming from these IP addresses.<br>
+					Comma-separated. Only supports exact matches.
+					<a href="#_" id="add-ip">Add current IP</a></span>
+
+				<label>Campaign parameters</label>
+				<input type="text" name="settings.campaigns" value="{{.Site.Settings.Campaigns}}">
+				{{validate "site.settings.campaigns" .Validate}}
+				<span>
+					List of parameters to count as ‘campaigns’; if set then the
+					value will be set as the referrer, overriding any Referer
+					header; <a href="/code#campaigns">Details</a>.
+					Comma-separated; first match takes precedence.
+				</span>
+
 			</fieldset>
 
 			<div class="flex-break"></div>

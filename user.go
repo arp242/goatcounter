@@ -18,7 +18,6 @@ import (
 	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
@@ -144,7 +143,8 @@ func (u *User) Insert(ctx context.Context) error {
 
 	if cfg.PgSQL {
 		var nu User
-		err = nu.ByEmail(context.WithValue(ctx, ctxkey.Site, &Site{ID: u.Site}), u.Email)
+		// No site yet when signing up since it's on www.goatcounter.com
+		err = nu.ByEmail(WithSite(ctx, &Site{ID: u.Site}), u.Email)
 		u.ID = nu.ID
 	} else {
 		u.ID, err = res.LastInsertId()

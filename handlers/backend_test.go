@@ -87,6 +87,18 @@ func TestBackendCount(t *testing.T) {
 			RefScheme: ztest.SP("h"),
 			Size:      sqlutil.FloatList{40, 50, 1},
 		}},
+
+		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=XXX"}}, 200, goatcounter.Hit{
+			Path:      "/foo.html",
+			Ref:       "XXX",
+			RefScheme: ztest.SP("c"),
+		}},
+
+		{"campaign_override", url.Values{"p": {"/foo.html?ref=AAA"}, "q": {"ref=XXX"}}, 200, goatcounter.Hit{
+			Path:      "/foo.html",
+			Ref:       "XXX",
+			RefScheme: ztest.SP("c"),
+		}},
 	}
 
 	for _, tt := range tests {
