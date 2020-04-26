@@ -2215,8 +2215,10 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	// Check if a value is "empty" for the purpose of get_data().
 	var is_empty = function(v) { return v === null || v === undefined || typeof(v) === 'function' }
 
-	// See if this loads like a headless browser, which is usually a bot.
+	// See if this looks like a bot; there is some additional filtering on the
+	// backend, but these properties can't be fetched from there.
 	var is_bot = function() {
+		// Headless browsers are probably a bot.
 		var w = window, d = document
 		if (w.callPhantom || w._phantom || w.phantom)
 			return 150
@@ -15368,7 +15370,7 @@ regular browsers).</p>
 <p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
 
 <h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
-<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your app's
+<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your app’s
 middleware. It supports the following query parameters:</p>
 
 <ul>
@@ -15378,8 +15380,11 @@ middleware. It supports the following query parameters:</p>
   <li><code>r</code> → <code>referrer</code></li>
   <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
   <li><code>q</code> → Query parameters, for getting the campaign.</li>
+  <li><code>b</code> → hint if this should be considered a bot; should be one of the
+      <a href="https://github.com/zgoat/isbot/blob/master/isbot.go#L28"><code>JSBot*</code> constants from isbot</a>; note the backend may override
+      this if it detects a bot using another method.</li>
   <li><code>rnd</code> → can be used as a “cache buster” since browsers don’t always obey
-<code>Cache-Control</code>; ignored by the backend.</li>
+        <code>Cache-Control</code>; ignored by the backend.</li>
 </ul>
 
 <p>The <code>User-Agent</code> header and remote address are used for the browser and

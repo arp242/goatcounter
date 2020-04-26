@@ -67,8 +67,8 @@ honnef.co/go/tools v0.0.1-2020.1.3 h1:sXmLre5bzIR6ypkjXCDI3jHPssRhc8KD/Ome589sc3
 honnef.co/go/tools v0.0.1-2020.1.3/go.mod h1:X/FiERA/W4tHapMX5mGpAtMSVEeEUOyHaw9vFzvIQ3k=
 zgo.at/guru v1.1.0 h1:hvMLOzPnv7XApwJZgxvFxBA8wb6RGPUw9lz8kmq450g=
 zgo.at/guru v1.1.0/go.mod h1:eltnfk6QwmM7ic3OLzmGMjEChP2iLuYXERyliREiA00=
-zgo.at/isbot v0.0.0-20200423080820-ab89c0f1e4d7 h1:65JYCH870Pj0rjjlPSoSnWt/T+Zj1HntTMHvDxnGeBU=
-zgo.at/isbot v0.0.0-20200423080820-ab89c0f1e4d7/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
+zgo.at/isbot v0.0.0-20200426063629-b68998fc6a4b h1:fJx+sqk2OK9WWabzXleHsSMnPMg0a/ip9uRsMhCWatA=
+zgo.at/isbot v0.0.0-20200426063629-b68998fc6a4b/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
 zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e h1:AkOzghahAFiffIAXjd0KBlxGZsR0wERvCNs67kAAcSc=
 zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/utils v0.0.0-20200419060054-75240aa95450 h1:fhL/Mw6swYZaF2krlspsCeNlGp1fm02sSXRoFbybKVU=

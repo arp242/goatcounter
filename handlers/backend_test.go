@@ -22,6 +22,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/isbot"
 	"zgo.at/tz"
 	"zgo.at/utils/sliceutil"
 	"zgo.at/utils/sqlutil"
@@ -37,49 +38,50 @@ func TestBackendCount(t *testing.T) {
 	tests := []struct {
 		name     string
 		query    url.Values
+		set      func(r *http.Request)
 		wantCode int
 		hit      goatcounter.Hit
 	}{
-		{"no path", url.Values{}, 400, goatcounter.Hit{}},
-		{"invalid size", url.Values{"p": {"/x"}, "s": {"xxx"}}, 400, goatcounter.Hit{}},
+		{"no path", url.Values{}, nil, 400, goatcounter.Hit{}},
+		{"invalid size", url.Values{"p": {"/x"}, "s": {"xxx"}}, nil, 400, goatcounter.Hit{}},
 
-		{"", url.Values{"p": {"/foo.html"}}, 200, goatcounter.Hit{
+		{"", url.Values{"p": {"/foo.html"}}, nil, 200, goatcounter.Hit{
 			Path: "/foo.html",
 		}},
 
-		{"add slash", url.Values{"p": {"foo.html"}}, 200, goatcounter.Hit{
+		{"add slash", url.Values{"p": {"foo.html"}}, nil, 200, goatcounter.Hit{
 			Path: "/foo.html",
 		}},
 
-		{"event", url.Values{"p": {"foo.html"}, "e": {"true"}}, 200, goatcounter.Hit{
+		{"event", url.Values{"p": {"foo.html"}, "e": {"true"}}, nil, 200, goatcounter.Hit{
 			Path:  "foo.html",
 			Event: true,
 		}},
 
-		{"params", url.Values{"p": {"/foo.html?a=b&c=d"}}, 200, goatcounter.Hit{
+		{"params", url.Values{"p": {"/foo.html?a=b&c=d"}}, nil, 200, goatcounter.Hit{
 			Path: "/foo.html?a=b&c=d",
 		}},
 
-		{"ref", url.Values{"p": {"/foo.html"}, "r": {"https://example.com"}}, 200, goatcounter.Hit{
+		{"ref", url.Values{"p": {"/foo.html"}, "r": {"https://example.com"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
 			RefScheme: ztest.SP("h"),
 		}},
 
-		{"str ref", url.Values{"p": {"/foo.html"}, "r": {"example"}}, 200, goatcounter.Hit{
+		{"str ref", url.Values{"p": {"/foo.html"}, "r": {"example"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example",
 			RefScheme: ztest.SP("o"),
 		}},
 
-		{"ref params", url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, 200, goatcounter.Hit{
+		{"ref params", url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
 			RefParams: ztest.SP("p=x"),
 			RefScheme: ztest.SP("h"),
 		}},
 
-		{"full", url.Values{"p": {"/foo.html"}, "t": {"XX"}, "r": {"https://example.com?p=x"}, "s": {"40,50,1"}}, 200, goatcounter.Hit{
+		{"full", url.Values{"p": {"/foo.html"}, "t": {"XX"}, "r": {"https://example.com?p=x"}, "s": {"40,50,1"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Title:     "XX",
 			Ref:       "example.com",
@@ -88,17 +90,30 @@ func TestBackendCount(t *testing.T) {
 			Size:      sqlutil.FloatList{40, 50, 1},
 		}},
 
-		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=XXX"}}, 200, goatcounter.Hit{
+		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=XXX"}}, nil, 200, goatcounter.Hit{
+			Path:      "/foo.html",
+			Ref:       "XXX",
+			RefScheme: ztest.SP("c"),
+		}},
+		{"campaign_override", url.Values{"p": {"/foo.html?ref=AAA"}, "q": {"ref=XXX"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "XXX",
 			RefScheme: ztest.SP("c"),
 		}},
 
-		{"campaign_override", url.Values{"p": {"/foo.html?ref=AAA"}, "q": {"ref=XXX"}}, 200, goatcounter.Hit{
-			Path:      "/foo.html",
-			Ref:       "XXX",
-			RefScheme: ztest.SP("c"),
+		{"bot", url.Values{"p": {"/a"}, "b": {"150"}}, nil, 200, goatcounter.Hit{
+			Path: "/a",
+			Bot:  150,
 		}},
+		{"googlebot", url.Values{"p": {"/a"}, "b": {"150"}}, func(r *http.Request) {
+			r.Header.Set("User-Agent", "GoogleBot/1.0")
+		}, 200, goatcounter.Hit{
+			Path:    "/a",
+			Bot:     int(isbot.BotShort),
+			Browser: "GoogleBot/1.0",
+		}},
+
+		{"bot", url.Values{"p": {"/a"}, "b": {"100"}}, nil, 400, goatcounter.Hit{}},
 	}
 
 	for _, tt := range tests {
@@ -112,6 +127,9 @@ func TestBackendCount(t *testing.T) {
 
 			r, rr := newTest(ctx, "GET", "/count?"+tt.query.Encode(), nil)
 			r.Host = site.Code + "." + cfg.Domain
+			if tt.set != nil {
+				tt.set(r)
+			}
 			login(t, rr, r, site.ID)
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)

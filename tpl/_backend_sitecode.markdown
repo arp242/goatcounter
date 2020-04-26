@@ -333,7 +333,7 @@ regular browsers).
 Wrap in a `<noscript>` tag to use this only for people without JavaScript.
 
 ### Tracking from backend middleware
-You can call `GET {{.Site.URL}}/count` from anywhere, such as your app's
+You can call `GET {{.Site.URL}}/count` from anywhere, such as your app’s
 middleware. It supports the following query parameters:
 
 - `p` → `path`
@@ -342,14 +342,19 @@ middleware. It supports the following query parameters:
 - `r` → `referrer`
 - `s` → screen size, as `x,y,scaling`.
 - `q` → Query parameters, for getting the campaign.
+- `b` → hint if this should be considered a bot; should be one of the
+        [`JSBot*` constants from isbot][isbot]; note the backend may override
+        this if it detects a bot using another method.
 - `rnd` → can be used as a “cache buster” since browsers don’t always obey
-  `Cache-Control`; ignored by the backend.
+          `Cache-Control`; ignored by the backend.
 
 The `User-Agent` header and remote address are used for the browser and
 location.
 
 Calling it from the middleware will probably result in more bot requests, as
 mentioned in the previous section.
+
+[isbot]: https://github.com/zgoat/isbot/blob/master/isbot.go#L28
 
 ### Location of count.js and loading it locally
 You can load the `count.js` script anywhere on your page, but it’s recommended
