@@ -13534,7 +13534,7 @@ form .err  { color: red; display: block; }
 
 /*** Pages header (filter, time period select, etc.) ***/
 .period-form-date            { margin-bottom: 1.5em; }
-.period-form-date .date      { padding: 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+.period-form-date .date      { padding: .5em 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
 .period-form-date .date span { margin-left: .5em; }
 .period-form-date input[type="text"]     { width: 9em; text-align: center; }
 .period-form-date input[type="checkbox"] { vertical-align: middle; }
@@ -13544,6 +13544,17 @@ form .err  { color: red; display: block; }
 	.period-form-select          { display: block; }
 	.period-form-date .date span { margin-left: .1em; margin-top: .5em; }
 }
+
+@media (max-width: 41rem) {
+	.period-form-date .date span:first-child { display: block; }
+}
+
+@media (max-width: 30rem) {
+	.period-form-date .date button {
+		margin: 0; margin-left: -1px;
+	}
+}
+
 
 .period-day [value=day],
 .period-week [value=week],
@@ -13781,9 +13792,17 @@ noscript p { margin: .5em; }
 header h2 { border-bottom: 0; display: inline; }
 header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
 
-.header-pages sup                { font-size: .9rem; }
-.header-pages input#filter-paths { float: right; padding: .2em; margin-right: 1em; }
-.header-pages input.value        { background-color: yellow; }
+.header-pages         { display: flex; font-size: .9rem; }
+.header-pages h2      { margin: 0; margin-right: 1em; display: none; }
+.header-pages span    { margin-left: 0; }
+.header-pages .totals { flex-grow: 1; }
+.header-pages input#filter-paths,
+.header-pages select#display { padding: .2em; margin-right: 1em; }
+.header-pages input.value { background-color: yellow; }
+
+@media (max-width: 30rem) {
+	.header-pages input#filter-paths { max-width: 10em; }
+}
 
 h3 + h4 { margin-top: .3em; }
 
@@ -15675,13 +15694,14 @@ Martin
 		<input type="hidden" id="hl-period" name="hl-period" disabled>
 
 		<div class="date">
-			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}"> –
-			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
 			<button type="submit">Go</button>
 
 			<span class="period-form-select period-{{.SelectedPeriod}}">
 				<span>
 					Select last
+					<button class="link" name="period" value="day">day</button> ·
 					<button class="link" name="period" value="week">week</button> ·
 					<button class="link" name="period" value="month">month</button> ·
 					<button class="link" name="period" value="quarter">quarter</button> ·
@@ -15721,8 +15741,17 @@ Martin
 
 	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
-			<h2>Pages</h2>
-			<sup class="hide-mobile">(total <span class="total-hits">{{nformat .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> displayed)</sup>
+			<h2>Paths</h2>
+			<span class="hide-mobileX totals">
+				Displaying
+				<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
+				{{/*
+				(<span class="total-display-unique">{{nformat .TotalHitsDisplay $.Site}}</span> unique)
+				*/}}
+				out of
+				<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
+			</span>
+
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
