@@ -418,6 +418,10 @@
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
+		$('.period-form-select input[type="checkbox"]').on('click', function(e) {
+			$(this).closest('form').trigger('submit')
+		})
+
 		$('.period-form-select').on('click', 'button', function(e) {
 			e.preventDefault();
 
