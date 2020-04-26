@@ -4,10 +4,11 @@
 
 (function() {
 	var init = function() {
-		setup_imgzoom();
-		fill_code();
-		fill_tz();
-	};
+		setup_imgzoom()
+		fill_code()
+		fill_tz()
+		setup_donate()
+	}
 
 	var setup_imgzoom = function() {
 		var img = document.querySelectorAll('img.zoom');
@@ -53,6 +54,62 @@
 			this.value = this.value.toLowerCase();
 		}, false);
 	};
+
+	// Parse all query parameters from string to {k: v} object.
+	var split_query = function(s) {
+		s = s.substr(s.indexOf('?') + 1);
+		if (s.length === 0)
+			return {};
+
+		var split = s.split('&'),
+			obj = {};
+		for (var i = 0; i < split.length; i++) {
+			var item = split[i].split('=');
+			obj[item[0]] = decodeURIComponent(item[1]);
+		}
+		return obj;
+	};
+
+	var setup_donate = function() {
+		var form = document.getElementById('donate-form')
+		if (!form)
+			return;
+
+		var err = function(e) { document.getElementById('stripe-error').innerText = e }
+
+		var query = split_query(location.search)
+		if (query['return']) {
+			if (query['return'] !== 'success')
+				return err('Looks like there was an error in processing the payment :-(')
+			form.innerHTML = '<p>Thank you for your donation!</p>'
+			return;
+		}
+
+		form.addEventListener('submit', function(e) {
+			e.preventDefault();
+
+			if (typeof(Stripe) === 'undefined') {
+				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
+					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
+				return;
+			}
+
+			var q = {five: 5, ten: 10, twenty: 20, fourty: 40}[document.activeElement.value]
+			if (!q) {
+				q = parseInt(document.getElementById('quantity').value, 10);
+				if (q % 5 !== 0)
+					return err('Amount must be in multiples of 5')
+			}
+
+			Stripe(form.dataset.key).redirectToCheckout({
+				items:      [{sku: form.dataset.sku, quantity: q / 5}],
+				successUrl: location.origin + '/contribute?return=success#donate',
+				cancelUrl:  location.origin + '/contribute?return=cancel#donate',
+			}).then(function(result) {
+				err(result.error ? result.error.message : '');
+			});
+		}, false)
+	}
 
 	if (document.readyState === 'complete')
 		init();

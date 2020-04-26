@@ -149,3 +149,16 @@ dt { font-weight: bold; margin-top: 1em; }
 	background-color: #fff0f0;
 	border-color: #f00;
 }
+
+/*** Contribute page ***/
+#donate-form          { text-align: center; }
+#donate-form .buttons { display: flex; flex-wrap: wrap; justify-content: space-around; margin-bottom: 2em; }
+#donate-form .amount  { font-weight: bold; padding: 1em 2em; font-size: 1.3em; }
+#donate-form button   { border: none; box-shadow: 0 0 4px #cdc8a4; background: #f6f3da; color: #252525; }
+#donate-form .custom  { font-size: .9em; margin-bottom: 2em; }
+#donate-form span     { font-size: .9em; }
+#donate-form input    { width: 5em; }
+#stripe-error         { color: red; }
+@media (max-width: 35rem) {
+	#donate-form .buttons button { width: 45%; margin-top: 1em; }
+}

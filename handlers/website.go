@@ -21,6 +21,7 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
+	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
 
@@ -54,12 +55,13 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 		return zhttp.Text(w, "Contact: support@goatcounter.com")
 	}))
 
+	r.Get("/contribute", zhttp.Wrap(h.contribute))
 	r.Get("/status", zhttp.Wrap(h.status()))
 	r.Get("/signup", zhttp.Wrap(h.signup))
 	r.Post("/signup", zhttp.Wrap(h.doSignup))
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
-	for _, t := range []string{"", "help", "privacy", "terms", "contact", "contribute", "gdpr"} {
+	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
 }
@@ -294,4 +296,15 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
 	return zhttp.SeeOther(w, "/user/forgot")
+}
+
+func (h website) contribute(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "contribute.gohtml", struct {
+		Globals
+		Page            string
+		MetaDesc        string
+		StripePublicKey string
+		SKU             string
+	}{newGlobals(w, r), "contribute", "Contribute – GoatCounter",
+		zstripe.PublicKey, stripePlans[cfg.Prod]["donate"]})
 }

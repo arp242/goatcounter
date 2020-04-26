@@ -27,7 +27,7 @@
 
 		[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
 			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
-			donate, setup_datepicker, filter_paths, add_ip, fill_tz,
+			setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs, draw_chart,
 		].forEach(function(f) { f.call(); });
 	});
@@ -221,50 +221,6 @@
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
-	}
-
-	// Process one-time donation.
-	var donate = function() {
-		var form = $('#donate-form')
-		if (!form.length)
-			return;
-
-		var query = split_query(location.search)
-		if (query['return']) {
-			if (query['return'] !== 'success')
-				return $('#stripe-error').text('Looks like there was an error in processing the payment :-(')
-
-			$('.page').html('<p>Thank you for your donation! ' +
-				'Note you still have to choose a free plan on the billing page to disable the popup. ' +
-				'<a href="/billing">Do that here</a></p>')
-			return;
-		}
-
-
-		form.on('submit', function(e) {
-			e.preventDefault();
-
-			if (typeof(Stripe) === 'undefined') {
-				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
-					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
-				return;
-			}
-
-			form.find('button').attr('disabled', true).text('Redirecting...');
-
-			var err = function(e) { $('#stripe-error').text(e) },
-				q   = parseInt($('#quantity').val(), 10);
-			if (q % 5 !== 0)
-				return err('Amount must be in multiples of 5')
-
-			Stripe(form.attr('data-key')).redirectToCheckout({
-				items:      [{sku: form.attr('data-sku'), quantity: q/5}],
-				successUrl: location.origin + "/billing/donate?return=success",
-				cancelUrl:  location.origin + "/billing/donate?return=cancel",
-			}).then(function(result) {
-				err(result.error ? result.error.message : '');
-			});
-		})
 	}
 
 	// Subscribe with Stripe.

@@ -806,7 +806,7 @@ commit;
 		<p>There is now a one-time donation option; several people have asked for
 		this in the last few months, so here it is :-)</p>
 		<p>The link is available from the billing page, or as a direct link:
-		<a href="/billing/donate">/billing/donate</a></p>
+		<a href="/donate">/donate</a></p>
 	');
 
 	insert into version values ('2020-04-25-1-donate');
@@ -2217,15 +2217,15 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 	// See if this loads like a headless browser, which is usually a bot.
 	var is_bot = function() {
-		var w = window
+		var w = window, d = document
 		if (w.callPhantom || w._phantom || w.phantom)
-			return 50
+			return 150
 		if (w.__nightmare)
-			return 51
+			return 151
+		if (d.__selenium_unwrapped || d.__webdriver_evaluate || d.__driver_evaluate)
+			return 152
 		if (navigator.webdriver)
-			return 52
-		if (document.__selenium_unwrapped || document.__webdriver_evaluate || document.__driver_evaluate)
-			return 53
+			return 153
 		return 0
 	}
 
@@ -12401,10 +12401,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 (function() {
 	var init = function() {
-		setup_imgzoom();
-		fill_code();
-		fill_tz();
-	};
+		setup_imgzoom()
+		fill_code()
+		fill_tz()
+		setup_donate()
+	}
 
 	var setup_imgzoom = function() {
 		var img = document.querySelectorAll('img.zoom');
@@ -12451,6 +12452,62 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		}, false);
 	};
 
+	// Parse all query parameters from string to {k: v} object.
+	var split_query = function(s) {
+		s = s.substr(s.indexOf('?') + 1);
+		if (s.length === 0)
+			return {};
+
+		var split = s.split('&'),
+			obj = {};
+		for (var i = 0; i < split.length; i++) {
+			var item = split[i].split('=');
+			obj[item[0]] = decodeURIComponent(item[1]);
+		}
+		return obj;
+	};
+
+	var setup_donate = function() {
+		var form = document.getElementById('donate-form')
+		if (!form)
+			return;
+
+		var err = function(e) { document.getElementById('stripe-error').innerText = e }
+
+		var query = split_query(location.search)
+		if (query['return']) {
+			if (query['return'] !== 'success')
+				return err('Looks like there was an error in processing the payment :-(')
+			form.innerHTML = '<p>Thank you for your donation!</p>'
+			return;
+		}
+
+		form.addEventListener('submit', function(e) {
+			e.preventDefault();
+
+			if (typeof(Stripe) === 'undefined') {
+				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
+					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
+				return;
+			}
+
+			var q = {five: 5, ten: 10, twenty: 20, fourty: 40}[document.activeElement.value]
+			if (!q) {
+				q = parseInt(document.getElementById('quantity').value, 10);
+				if (q % 5 !== 0)
+					return err('Amount must be in multiples of 5')
+			}
+
+			Stripe(form.dataset.key).redirectToCheckout({
+				items:      [{sku: form.dataset.sku, quantity: q / 5}],
+				successUrl: location.origin + '/contribute?return=success#donate',
+				cancelUrl:  location.origin + '/contribute?return=cancel#donate',
+			}).then(function(result) {
+				err(result.error ? result.error.message : '');
+			});
+		}, false)
+	}
+
 	if (document.readyState === 'complete')
 		init();
 	else
@@ -12486,7 +12543,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
 			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
-			donate, setup_datepicker, filter_paths, add_ip, fill_tz,
+			setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs, draw_chart,
 		].forEach(function(f) { f.call(); });
 	});
@@ -12680,50 +12737,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
-	}
-
-	// Process one-time donation.
-	var donate = function() {
-		var form = $('#donate-form')
-		if (!form.length)
-			return;
-
-		var query = split_query(location.search)
-		if (query['return']) {
-			if (query['return'] !== 'success')
-				return $('#stripe-error').text('Looks like there was an error in processing the payment :-(')
-
-			$('.page').html('<p>Thank you for your donation! ' +
-				'Note you still have to choose a free plan on the billing page to disable the popup. ' +
-				'<a href="/billing">Do that here</a></p>')
-			return;
-		}
-
-
-		form.on('submit', function(e) {
-			e.preventDefault();
-
-			if (typeof(Stripe) === 'undefined') {
-				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
-					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
-				return;
-			}
-
-			form.find('button').attr('disabled', true).text('Redirecting...');
-
-			var err = function(e) { $('#stripe-error').text(e) },
-				q   = parseInt($('#quantity').val(), 10);
-			if (q % 5 !== 0)
-				return err('Amount must be in multiples of 5')
-
-			Stripe(form.attr('data-key')).redirectToCheckout({
-				items:      [{sku: form.attr('data-sku'), quantity: q/5}],
-				successUrl: location.origin + "/billing/donate?return=success",
-				cancelUrl:  location.origin + "/billing/donate?return=cancel",
-			}).then(function(result) {
-				err(result.error ? result.error.message : '');
-			});
-		})
 	}
 
 	// Subscribe with Stripe.
@@ -13373,6 +13386,19 @@ dt { font-weight: bold; margin-top: 1em; }
 .flash-e {
 	background-color: #fff0f0;
 	border-color: #f00;
+}
+
+/*** Contribute page ***/
+#donate-form          { text-align: center; }
+#donate-form .buttons { display: flex; flex-wrap: wrap; justify-content: space-around; margin-bottom: 2em; }
+#donate-form .amount  { font-weight: bold; padding: 1em 2em; font-size: 1.3em; }
+#donate-form button   { border: none; box-shadow: 0 0 4px #cdc8a4; background: #f6f3da; color: #252525; }
+#donate-form .custom  { font-size: .9em; margin-bottom: 2em; }
+#donate-form span     { font-size: .9em; }
+#donate-form input    { width: 5em; }
+#stripe-error         { color: red; }
+@media (max-width: 35rem) {
+	#donate-form .buttons button { width: 45%; margin-top: 1em; }
 }
 `),
 	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
@@ -16290,9 +16316,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 			<ul>
 				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
 				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
-				{{/*
-				<li><a href="/billing/donate">One-time donation</a>; recurring payments are preferred as it’s more predictable.</li>
-				*/}}
+				<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable.</li>
 			</ul>
 		</fieldset>
 
@@ -16314,22 +16338,6 @@ within a day orso.</p>
 <form method="post" action="/billing/cancel">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<button class="link" type="submit">Cancel</button>
-</form>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/billing_donate.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<p>Send a one-time donation to GoatCounter; the minimum amount of €5, which can
-be increased in increments of €5.</p>
-
-<script src="https://js.stripe.com/v3"></script>
-<div id="stripe-error"></div>
-<form method="post" action="" id="donate-form"
-	data-key="{{.StripePublicKey}}" data-sku="{{.SKU}}"
->
-	<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="5" min="5" step="5">
-	<button type="submit">Continue</button>
 </form>
 
 {{template "_backend_bottom.gohtml" .}}
@@ -16358,7 +16366,7 @@ be increased in increments of €5.</p>
 
 <h1>Contribute financially</h1>
 <p>I encourage everyone to self-host GoatCounter if they have the inclination to
-do so, which is why it's 100% Open Source (or "Free") software.</p>
+do so, which is why it's 100% Open Source (or “Free”) software.</p>
 
 <p>I work on this full-time: it's not a side-project I work on in spare time,
 it's my means of living. Please consider making a financial contribution if this
@@ -16370,12 +16378,36 @@ is useful for you to ensure the long-term viability.</p>
 
 <ul>
 	<li><a href="https://github.com/sponsors/arp242">GitHub sponsor</a>;
-		this is the preferred method as GitHub will match contributions.</li>
+		this is the preferred method as GitHub will match contributions for the
+		first year (until March 2021).</li>
 	<li>Subscribe to a plan on www.goatcounter.com</li>
 	<li><a href="https://patreon.com/arp242">Patreon</a></li>
 	<li>goatcounter.com is a Brave Verified Creator, and you can send Brave
 		rewards.</li>
 </ul>
+
+<h2 id="donate">One-time donation</h2>
+
+<p>You can also send a one-time donation with the form below; the payments are
+processed by Stripe (you will need a Credit Card).</p>
+
+<script src="https://js.stripe.com/v3"></script>
+<form method="get" action="" id="donate-form" data-key="{{.StripePublicKey}}" data-sku="{{.SKU}}" >
+	<div id="stripe-error"></div>
+	<div class="buttons">
+		<button class="amount" name="btn" value="five">€5</button>
+		<button class="amount" name="btn" value="ten">€10</button>
+		<button class="amount" name="btn" value="twenty">€20</button>
+		<button class="amount" name="btn" value="fourty">€40</button>
+	</div>
+
+	<div class="custom">
+		<label for="quantity">Custom amount:</label>
+		<span title="Euro">€</span> <input type="number" id="quantity" value="5" min="5" step="5">
+		<button name="btn" value="custom" class="continue">Continue</button>
+		<span>(in increments of €5)</span>
+	</div>
+</form>
 
 {{template "_bottom.gohtml" .}}
 `),

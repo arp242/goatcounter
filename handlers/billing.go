@@ -31,7 +31,6 @@ type billing struct{}
 
 func (h billing) mount(pub, auth chi.Router) {
 	auth.Get("/billing", zhttp.Wrap(h.index))
-	auth.Get("/billing/donate", zhttp.Wrap(h.donate))
 
 	pauth := auth.With(noSubSites)
 	pauth.Post("/billing/start", zhttp.Wrap(h.start))
@@ -143,14 +142,6 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		External        string
 	}{newGlobals(w, r), zstripe.PublicKey, payment, next,
 		payment != "", site.FreePlan(), external})
-}
-
-func (h billing) donate(w http.ResponseWriter, r *http.Request) error {
-	return zhttp.Template(w, "billing_donate.gohtml", struct {
-		Globals
-		StripePublicKey string
-		SKU             string
-	}{newGlobals(w, r), zstripe.PublicKey, stripePlans[cfg.Prod]["donate"]})
 }
 
 var stripePlans = map[bool]map[string]string{

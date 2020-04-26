@@ -47,15 +47,15 @@
 
 	// See if this loads like a headless browser, which is usually a bot.
 	var is_bot = function() {
-		var w = window
+		var w = window, d = document
 		if (w.callPhantom || w._phantom || w.phantom)
-			return 50
+			return 150
 		if (w.__nightmare)
-			return 51
+			return 151
+		if (d.__selenium_unwrapped || d.__webdriver_evaluate || d.__driver_evaluate)
+			return 152
 		if (navigator.webdriver)
-			return 52
-		if (document.__selenium_unwrapped || document.__webdriver_evaluate || document.__driver_evaluate)
-			return 53
+			return 153
 		return 0
 	}
 

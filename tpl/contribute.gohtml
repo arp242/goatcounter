@@ -2,7 +2,7 @@
 
 <h1>Contribute financially</h1>
 <p>I encourage everyone to self-host GoatCounter if they have the inclination to
-do so, which is why it's 100% Open Source (or "Free") software.</p>
+do so, which is why it's 100% Open Source (or “Free”) software.</p>
 
 <p>I work on this full-time: it's not a side-project I work on in spare time,
 it's my means of living. Please consider making a financial contribution if this
@@ -14,11 +14,35 @@ is useful for you to ensure the long-term viability.</p>
 
 <ul>
 	<li><a href="https://github.com/sponsors/arp242">GitHub sponsor</a>;
-		this is the preferred method as GitHub will match contributions.</li>
+		this is the preferred method as GitHub will match contributions for the
+		first year (until March 2021).</li>
 	<li>Subscribe to a plan on www.goatcounter.com</li>
 	<li><a href="https://patreon.com/arp242">Patreon</a></li>
 	<li>goatcounter.com is a Brave Verified Creator, and you can send Brave
 		rewards.</li>
 </ul>
+
+<h2 id="donate">One-time donation</h2>
+
+<p>You can also send a one-time donation with the form below; the payments are
+processed by Stripe (you will need a Credit Card).</p>
+
+<script src="https://js.stripe.com/v3"></script>
+<form method="get" action="" id="donate-form" data-key="{{.StripePublicKey}}" data-sku="{{.SKU}}" >
+	<div id="stripe-error"></div>
+	<div class="buttons">
+		<button class="amount" name="btn" value="five">€5</button>
+		<button class="amount" name="btn" value="ten">€10</button>
+		<button class="amount" name="btn" value="twenty">€20</button>
+		<button class="amount" name="btn" value="fourty">€40</button>
+	</div>
+
+	<div class="custom">
+		<label for="quantity">Custom amount:</label>
+		<span title="Euro">€</span> <input type="number" id="quantity" value="5" min="5" step="5">
+		<button name="btn" value="custom" class="continue">Continue</button>
+		<span>(in increments of €5)</span>
+	</div>
+</form>
 
 {{template "_bottom.gohtml" .}}
