@@ -71,10 +71,10 @@ zgo.at/isbot v0.0.0-20200426063629-b68998fc6a4b h1:fJx+sqk2OK9WWabzXleHsSMnPMg0a
 zgo.at/isbot v0.0.0-20200426063629-b68998fc6a4b/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
 zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e h1:AkOzghahAFiffIAXjd0KBlxGZsR0wERvCNs67kAAcSc=
 zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
-zgo.at/utils v0.0.0-20200419060054-75240aa95450 h1:fhL/Mw6swYZaF2krlspsCeNlGp1fm02sSXRoFbybKVU=
-zgo.at/utils v0.0.0-20200419060054-75240aa95450/go.mod h1:+PbZTy2300b/A3oAh7/vJY58X5okaK67qKnAzNKJt3k=
-zgo.at/zdb v0.0.0-20200419060143-bfbc1457f919 h1:WhoWSkGlrMji+aKxWAa0+zrYdxfOrr35/p5vJO9GIBc=
-zgo.at/zdb v0.0.0-20200419060143-bfbc1457f919/go.mod h1:5wuZM3qBwQA5hg+1utRGNiXVmjBEm7VEGroDPwjnIqo=
+zgo.at/utils v0.0.0-20200426174547-f932b4226e60 h1:X9cQ2wWNxXFbvkKBotW5aLiuy/qmYI9DZEN6pOP4rZ0=
+zgo.at/utils v0.0.0-20200426174547-f932b4226e60/go.mod h1:+PbZTy2300b/A3oAh7/vJY58X5okaK67qKnAzNKJt3k=
+zgo.at/zdb v0.0.0-20200427035250-b77b1bf11c26 h1:CFxUB5hIsQaSR191ZQrJthwvNuHOqo28onzkTpxHjr8=
+zgo.at/zdb v0.0.0-20200427035250-b77b1bf11c26/go.mod h1:aoAA4zBn0GDEFLKt2ExIJc6neMm8UcOeHB92Yns1BgI=
 zgo.at/zhttp v0.0.0-20200420182732-94cc2e4e6b21 h1:VULwDmkx1qFJ/A9yt7nofu6Y+fglz6CYcdPn2oZJn2U=
 zgo.at/zhttp v0.0.0-20200420182732-94cc2e4e6b21/go.mod h1:lnKdr+Z/u747AVwOkBKweLbFFe0yyvV2JY8NONI4XpQ=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=

@@ -14,6 +14,7 @@ import (
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
+	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -28,24 +29,27 @@ type Session struct {
 	LastSeen  time.Time `db:"last_seen"`
 }
 
-type salt struct {
-	mu       sync.Mutex
-	current  string
-	previous string
+type Salt struct {
+	mu         sync.Mutex
+	current    string
+	previous   string
+	CycleEvery time.Duration
 
 	firstRefresh sync.Once
 }
 
-var Salts salt
+var Salts = Salt{
+	CycleEvery: 4 * time.Hour,
+}
 
-func (s *salt) Set(current, previous string) {
+func (s *Salt) Set(current, previous string) {
 	s.mu.Lock()
 	s.current = current
 	s.previous = previous
 	s.mu.Unlock()
 }
 
-func (s *salt) Clear() {
+func (s *Salt) Clear() {
 	s.mu.Lock()
 	s.current = ""
 	s.previous = ""
@@ -53,7 +57,7 @@ func (s *salt) Clear() {
 	s.mu.Unlock()
 }
 
-func (s *salt) Get(ctx context.Context) (current, previous string) {
+func (s *Salt) Get(ctx context.Context) (current, previous string) {
 	if s.current == "" || s.previous == "" {
 		s.firstRefresh.Do(func() {
 			err := s.Refresh(ctx)
@@ -64,15 +68,15 @@ func (s *salt) Get(ctx context.Context) (current, previous string) {
 	}
 
 	if s.current == "" {
-		panic("salt.Get: s.current is empty")
+		panic("Salt.Get: s.current is empty")
 	}
 	if s.previous == "" {
-		panic("salt.Get: s.previous is empty")
+		panic("Salt.Get: s.previous is empty")
 	}
 	return s.current, s.previous
 }
 
-func (s *salt) Refresh(ctx context.Context) error {
+func (s *Salt) Refresh(ctx context.Context) error {
 	var newsalt []struct {
 		Salt      string    `db:"salt"`
 		CreatedAt time.Time `db:"created_at"`
@@ -99,7 +103,7 @@ func (s *salt) Refresh(ctx context.Context) error {
 			goto get
 		}
 
-		if newsalt[1].CreatedAt.Add(12 * time.Hour).After(Now()) {
+		if newsalt[1].CreatedAt.Add(s.CycleEvery).After(Now()) {
 			return nil
 		}
 
@@ -135,9 +139,24 @@ func (s *salt) Refresh(ctx context.Context) error {
 	return nil
 }
 
+var hashOnce syncutil.Once
+
 // GetOrCreate gets the session by hash, creating a new one if it doesn't exist
 // yet.
 func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (createdSession bool, err error) {
+	return s.getOrCreate(ctx, ua, remoteAddr, 0)
+}
+
+func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int) (createdSession bool, err error) {
+	if r > 10 {
+		zlog.Module("session").Fields(zlog.F{
+			"remoteAddr": remoteAddr,
+			"ua":         ua,
+			"siteID":     MustGetSite(ctx).ID,
+		}).Printf("recurse > 10")
+		return false, nil
+	}
+
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	now := Now()
@@ -172,39 +191,49 @@ func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (creat
 		return false, nil
 
 	case sql.ErrNoRows:
-		s.Site = site.ID
-		s.Hash = hash
-		s.CreatedAt = now
-		s.LastSeen = now
-
-		query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
-		args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
-
-		if cfg.PgSQL {
-			err := zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
-			if err != nil {
-				if zdb.ErrUnique(err) {
-					time.Sleep(100 * time.Millisecond)
-					return s.GetOrCreate(ctx, ua, remoteAddr)
-				}
-				return false, errors.Errorf("Session.GetOrCreate: insert: %w", err)
-			}
+		var err error
+		hh := fmt.Sprintf("%x", hash)
+		ran := hashOnce.Do(hh, func() {
+			s.Site = site.ID
+			s.Hash = hash
+			s.CreatedAt = now
+			s.LastSeen = now
+			err = s.create(ctx)
+		})
+		if !ran {
+			time.Sleep(50 * time.Millisecond)
+			return s.getOrCreate(ctx, ua, remoteAddr, r+1)
 		}
-
-		// SQLite
-		res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
 		if err != nil {
-			if zdb.ErrUnique(err) {
-				time.Sleep(100 * time.Millisecond)
-				return s.GetOrCreate(ctx, ua, remoteAddr)
-			}
-			return false, errors.Errorf("Session.GetOrCreate: insert: %w", err)
+			return false, err
 		}
-		s.ID, err = res.LastInsertId()
-		if err != nil {
-			return false, errors.Errorf("Session.GetOrCreate: %w", err)
-		}
-
+		go func() {
+			time.Sleep(10 * time.Second)
+			hashOnce.Forget(hh)
+		}()
 		return true, nil
 	}
+}
+
+func (s *Session) create(ctx context.Context) error {
+	query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
+	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
+
+	if cfg.PgSQL {
+		return errors.Wrap(
+			zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...),
+			"Session.create: insert")
+	}
+
+	// SQLite
+	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return errors.Errorf("Session.create: insert: %w", err)
+	}
+	s.ID, err = res.LastInsertId()
+	if err != nil {
+		return errors.Errorf("Session.create: %w", err)
+	}
+
+	return nil
 }

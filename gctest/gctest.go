@@ -71,7 +71,7 @@ func DB(t tester) (context.Context, func()) {
 	if cfg.PgSQL {
 		db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
 	} else {
-		db, err = sqlx.Connect("sqlite3", ":memory:")
+		db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
 	}
 	if err != nil {
 		panic(err)
