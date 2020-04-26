@@ -69,13 +69,14 @@
 		<input type="hidden" id="hl-period" name="hl-period" disabled>
 
 		<div class="date">
-			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}"> –
-			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">
+			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
+			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
 			<button type="submit">Go</button>
 
 			<span class="period-form-select period-{{.SelectedPeriod}}">
 				<span>
 					Select last
+					<button class="link" name="period" value="day">day</button> ·
 					<button class="link" name="period" value="week">week</button> ·
 					<button class="link" name="period" value="month">month</button> ·
 					<button class="link" name="period" value="quarter">quarter</button> ·
@@ -115,8 +116,17 @@
 
 	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
-			<h2>Pages</h2>
-			<sup class="hide-mobile">(total <span class="total-hits">{{nformat .TotalHits $.Site}}</span> hits, <span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> displayed)</sup>
+			<h2>Paths</h2>
+			<span class="hide-mobileX totals">
+				Displaying
+				<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
+				{{/*
+				(<span class="total-display-unique">{{nformat .TotalHitsDisplay $.Site}}</span> unique)
+				*/}}
+				out of
+				<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
+			</span>
+
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
