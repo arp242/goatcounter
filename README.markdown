@@ -104,14 +104,14 @@ dependency versions in go.mod.
 
 You can start the server with:
 
-    goatcounter serve -dev
+    $ goatcounter serve -dev
 
 The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will be
 created if it doesn't exist). See the `-db` flag to customize this.
 
 You can create new sites with the `create` command:
 
-    goatcounter create -email me@example.com -domain stats.example.com
+    $ goatcounter create -email me@example.com -domain stats.example.com
 
 This will ask for a password for your new account; you can also add a password
 on the commandline with `-password`. If you use a custom DB, you must also pass
@@ -120,7 +120,7 @@ the `-db` flag here.
 The `-dev` flag makes some small things a bit more convenient for development.
 For a production environment run something like:
 
-    goatcounter serve
+    $ goatcounter serve
 
 Using an SMTP relay via `-smtp` isn't required, but will usually guarantee
 better deliverability, so is recommended (delivering emails without them ending
