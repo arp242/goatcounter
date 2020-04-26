@@ -806,7 +806,7 @@ commit;
 		<p>There is now a one-time donation option; several people have asked for
 		this in the last few months, so here it is :-)</p>
 		<p>The link is available from the billing page, or as a direct link:
-		<a href="/donate">/donate</a></p>
+		<a target="_blank" href="https://www.goatcounter.com/contribute#donate">/contribute</a></p>
 	');
 
 	insert into version values ('2020-04-25-1-donate');
