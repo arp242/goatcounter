@@ -177,6 +177,7 @@ func TestBackendCount(t *testing.T) {
 
 func TestBackendCountSessions(t *testing.T) {
 	now := time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC)
+
 	goatcounter.Now = func() time.Time { return now }
 
 	ctx, clean := gctest.DB(t)
@@ -284,11 +285,6 @@ func TestBackendCountSessions(t *testing.T) {
 	hits2 := checkHits(ctx2, 2)
 
 	want := []int{1, 1, 2, 3, 3, 1, 2}
-	if cfg.PgSQL {
-		// These numbers are different because trying to insert still increases
-		// the counter on PostgreSQL
-		want = []int{1, 1, 1, 3, 3, 5, 5}
-	}
 	checkSess(append(hits1, hits2...), want)
 
 	// Rotate, should still use the same sessions.
@@ -298,9 +294,6 @@ func TestBackendCountSessions(t *testing.T) {
 	hits1 = checkHits(ctx1, 6)
 	hits2 = checkHits(ctx2, 3)
 	want = []int{1, 1, 2, 3, 3, 1, 2, 1, 3}
-	if cfg.PgSQL {
-		want = []int{1, 1, 1, 1, 3, 3, 5, 5, 5}
-	}
 	checkSess(append(hits1, hits2...), want)
 
 	// Rotate again, should use new sessions from now on.
@@ -310,9 +303,6 @@ func TestBackendCountSessions(t *testing.T) {
 	hits1 = checkHits(ctx1, 7)
 	hits2 = checkHits(ctx2, 4)
 	want = []int{1, 1, 2, 3, 3, 1, 2, 1, 3, 4, 5}
-	if cfg.PgSQL {
-		want = []int{1, 1, 1, 1, 3, 3, 5, 5, 5, 7, 9}
-	}
 	checkSess(append(hits1, hits2...), want)
 }
 
