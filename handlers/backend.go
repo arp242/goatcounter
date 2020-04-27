@@ -332,7 +332,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		defer wg.Done()
 
 		total, totalDisplay, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil)
-		l = l.Since("pages.List")
+		//l = l.Since("pages.List")
 	}()
 
 	var browsers goatcounter.Stats

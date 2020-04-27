@@ -442,6 +442,10 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
 
+	if filter != "" {
+		filter = "%" + strings.ToLower(filter) + "%"
+	}
+
 	// Get total number of hits in the selected time range.
 	var (
 		wg       sync.WaitGroup
@@ -465,7 +469,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			args = append(args, filter)
 		}
 		totalErr = db.GetContext(ctx, &total, query, args...)
-		l = l.Since("get total")
+		//l = l.Since("get total")
 	}()
 
 	// Select hits.
@@ -493,7 +497,6 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		args := []interface{}{site.ID, start, end}
 
 		if filter != "" {
-			filter = "%" + strings.ToLower(filter) + "%"
 			query += ` and (lower(path) like ? or lower(title) like ?) `
 			args = append(args, filter, filter)
 		}
@@ -545,7 +548,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
-		l = l.Since("select hits_stats")
+		//l = l.Since("select hits_stats")
 	}
 
 	hh := *h
