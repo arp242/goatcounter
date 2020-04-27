@@ -65,9 +65,19 @@
 				else if (h === '')
 					bar.style.background = 'transparent'
 				else {
-					h = (100 - parseInt(h, 10)) + '%'
-					bar.style.background = 'linear-gradient(to bottom, transparent 0%, transparent ' + h +
-						', transparent ' + h + ', #9a15a4 ' + h + ', #9a15a4 100%)'
+					//h = (100 - parseInt(h, 10)) + '%'
+					console.log(h)
+					var hu = bar.dataset.u
+
+					bar.style.background = 'linear-gradient(to top, '+
+						'#9a15a4 0%'+
+						', #9a15a4 ' + hu +
+						', #9a15a4 ' + hu +
+						', #d314e1 ' + hu +
+						', #d314e1 ' + h +
+						', #d314e1 ' + h +
+						', transparent ' + h +
+						', transparent 100%)'
 				}
 			})
 			chart.dataset.done = 't'
@@ -539,17 +549,18 @@
 				// Reformat date and time according to site settings.
 				var split = title.replace(',', '').split(' '),
 					date, views, start, end;
-				// Daily: 2020-02-05, 42 views
+				// Daily: 2020-02-05, 42 views; 10 unique
+				// TODO: fix unique
 				if ($('.pages-list').hasClass('pages-list-daily')) {
 					date = split[0];
-					views = ', ' + split[1] + (split[2] ? (' ' + split[2]) : '');
+					views = ', ' + split[1] + (split[2] ? (' ' + split[2]) : '') + ' - ' + split[3] +  ' unqiue';
 				}
-				// Hourly: 2019-07-22 22:00 – 22:59, 5 views
+				// Hourly: 2019-07-22 22:00 – 22:59, 5 views; 10 unique
 				else {
 					date  = split[0];
 					start = split[1];
 					end   = split[3];
-					views = ', ' + split[4] + (split[5] ? (' ' + split[5]) : '');
+					views = ', ' + split[4] + (split[5] ? (' ' + split[5]) : '') + ' - ' + split[6] + ' unique';
 
 					if (!SETTINGS.twenty_four_hours) {
 						start = un24(start);

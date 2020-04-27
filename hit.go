@@ -476,16 +476,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}()
 
 	// Select hits.
-	var (
-		st []struct {
-			Path  string       `db:"path"`
-			Title string       `db:"title"`
-			Event sqlutil.Bool `db:"event"`
-			Day   time.Time    `db:"day"`
-			Stats []byte       `db:"stats"`
-		}
-		more bool
-	)
+	var more bool
 	{
 		// Get one page more so we can detect if there are more pages after this.
 		limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1

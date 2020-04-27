@@ -328,11 +328,11 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l := zlog.Module("dashboard").Field("site", site.ID)
 
 	var (
-		wg                  sync.WaitGroup
-		pages               goatcounter.HitStats
-		total, totalDisplay int
-		morePages           bool
-		pagesErr            error
+		wg                               sync.WaitGroup
+		pages                            goatcounter.HitStats
+		total, totalDisplay, totalUnique int
+		morePages                        bool
+		pagesErr                         error
 	)
 	wg.Add(1)
 	go func() {
@@ -340,7 +340,8 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		defer wg.Done()
 
 		total, totalDisplay, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil)
-		totalUnique := 0 // TODO; needs new query? ugh
+
+		// TODO; needs new query? ugh
 		for _, p := range pages {
 			totalUnique += p.CountUnique
 		}

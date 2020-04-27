@@ -85,11 +85,13 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
 			st := ""
 			if h > 0 {
-				st = fmt.Sprintf(` style="height:%.0f%%"`, h)
+				hu := math.Round(float64(stat.DailyUnique) / float64(max) / 0.01)
+				st = fmt.Sprintf(` style="height:%.0f%%" data-u="%.0f%%"`, h, hu)
 			}
 
-			b.WriteString(fmt.Sprintf(`<div%s title="%s, %s views"></div>`,
-				st, stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat)))
+			b.WriteString(fmt.Sprintf(`<div%s title="%s, %s views; %s unique"></div>`,
+				st, stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat),
+				zhttp.Tnformat(stat.DailyUnique, site.Settings.NumberFormat)))
 		}
 
 	// Hourly view.
@@ -113,10 +115,13 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 				h := math.Round(float64(s) / float64(max) / 0.01)
 				st := ""
 				if h > 0 {
-					st = fmt.Sprintf(` style="height:%.0f%%"`, h)
+					hu := math.Round(float64(stat.HourlyUnique[shour]) / float64(max) / 0.01)
+					st = fmt.Sprintf(` style="height:%.0f%%" data-u="%.0f%%"`, h, hu)
 				}
-				b.WriteString(fmt.Sprintf(`<div%s title="%s %[3]d:00 – %[3]d:59, %s views"></div>`,
-					st, stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat)))
+				b.WriteString(fmt.Sprintf(`<div%s title="%s %[3]d:00 – %[3]d:59, %s views; %s unique"></div>`,
+					st, stat.Day, shour,
+					zhttp.Tnformat(s, site.Settings.NumberFormat),
+					zhttp.Tnformat(stat.HourlyUnique[shour], site.Settings.NumberFormat)))
 			}
 		}
 	}
