@@ -56,9 +56,8 @@ type Hit struct {
 	StartedSession sqlutil.Bool `db:"started_session" json:"-"`
 	CreatedAt      time.Time    `db:"created_at" json:"-"`
 
-	RefURL      *url.URL `db:"-" json:"-"`   // Parsed Ref
-	UsageDomain string   `db:"-" json:"-"`   // Track referrer for usage.
-	Random      string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
+	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
+	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
 }
 
 var groups = map[string]string{
@@ -340,7 +339,6 @@ func (h *Hit) Validate(ctx context.Context) error {
 	v.UTF8("title", h.Title)
 	v.UTF8("ref", h.Ref)
 	v.UTF8("browser", h.Browser)
-	v.UTF8("usage_domain", h.UsageDomain)
 
 	v.Len("path", h.Path, 0, 2048)
 	v.Len("title", h.Title, 0, 1024)

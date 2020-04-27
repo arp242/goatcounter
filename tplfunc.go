@@ -19,7 +19,6 @@ import (
 )
 
 func init() {
-	zhttp.FuncMap["has_flag"] = HasFlag
 	zhttp.FuncMap["validate"] = zvalidate.TemplateError
 	zhttp.FuncMap["has_errors"] = zvalidate.TemplateHasErrors
 	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }

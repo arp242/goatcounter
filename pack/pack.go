@@ -812,6 +812,13 @@ commit;
 	insert into version values ('2020-04-25-1-donate');
 commit;
 `),
+	"db/migrate/pgsql/2020-04-27-1-usage-flags.sql": []byte(`begin;
+	drop table usage;
+	drop table flags;
+
+	insert into version values ('2020-04-27-1-usage-flags');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1675,6 +1682,13 @@ commit;
 	rename hits2 to hits;
 
 	insert into version values ('2020-04-22-1-campaigns');
+commit;
+`),
+	"db/migrate/sqlite/2020-04-27-1-usage-flags.sql": []byte(`begin;
+	drop table usage;
+	drop table flags;
+
+	insert into version values ('2020-04-27-1-usage-flags');
 commit;
 `),
 }
@@ -14324,20 +14338,6 @@ create table updates (
 	show_at        timestamp      not null
 );
 
-create table usage (
-	site           integer        not null                 check(site > 0),
-	domain         varchar        not null,
-	count          integer        not null,
-	vetted         integer        default 0,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-
-create table flags (
-	name  varchar not null,
-	value int     not null
-);
-
 create table version (name varchar);
 insert into version values
 	('2019-10-16-1-geoip'),
@@ -14380,7 +14380,8 @@ insert into version values
 	('2020-04-06-1-event'),
 	('2020-04-16-1-pwauth'),
 	('2020-04-20-1-hitsindex'),
-	('2020-04-22-1-campaigns');
+	('2020-04-22-1-campaigns'),
+	('2020-04-27-1-usage-flags');
 
 -- vim:ft=sql
 `)
@@ -14847,20 +14848,6 @@ create table updates (
 	show_at        timestamp      not null                 check(show_at = strftime('%Y-%m-%d %H:%M:%S', show_at))
 );
 
-create table usage (
-	site           integer        not null                 check(site > 0),
-	domain         varchar        not null,
-	count          integer        not null,
-	vetted         integer        default 0,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-
-create table flags (
-	name  varchar not null,
-	value int     not null
-);
-
 create table version (name varchar);
 insert into version values
 	('2019-10-16-1-geoip'),
@@ -14892,7 +14879,8 @@ insert into version values
 	('2020-03-24-1-sessions'),
 	('2020-04-06-1-event'),
 	('2020-04-16-1-pwauth'),
-	('2020-04-22-1-campaigns');
+	('2020-04-22-1-campaigns'),
+	('2020-04-27-1-usage-flags');
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
@@ -15860,7 +15848,10 @@ Martin
 
 <h1>Admin</h1>
 
-<p><a href="/debug/pprof">pprof</a> | <a href="/sql">PostgreSQL</a></p>
+<p><a href="/debug/pprof">pprof</a> | <a href="/admin/sql">PostgreSQL</a></p>
+
+<h2>Signups</h2>
+<div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
 
 <h2>Sites</h2>
 <p>All sites with at least 1,000 hits in the last 30 days; the counts for the
@@ -15897,27 +15888,6 @@ parent site includes the child sites.</p>
 	{{end}}
 </table>
 
-<h2>Signups</h2>
-<div class="chart chart-bar">
-{{bar_chart $.Context .Signups .MaxSignups false}}
-</div>
-
-<h2>Usage</h2>
-<table>
-	<tr>
-		<th>Site</th>
-		<th>Count</th>
-		<th>Ref</th>
-	</tr>
-	{{range $s := .Usage}}
-		<tr>
-			<td><a href="/admin/{{$s.Site}}">{{$s.Site}}</a></td>
-			<td>{{$s.Count}}</td>
-			<td>{{$s.Domain}}</td>
-		</tr>
-	{{end}}
-</table>
-
 {{template "_backend_bottom.gohtml" .}}
 `),
 	"tpl/backend_admin_site.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
@@ -15929,12 +15899,6 @@ parent site includes the child sites.</p>
 	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.Site}}</td></tr>
 	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.Site}}</td></tr>
 	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
-</table>
-
-<table>
-	{{range $s := .Stat.Usage}}
-		<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Domain}}</td></tr>
-	{{end}}
 </table>
 
 <pre>{{pp .Stat.Site}}</pre>

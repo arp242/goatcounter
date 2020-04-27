@@ -9,12 +9,6 @@
 	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
 </table>
 
-<table>
-	{{range $s := .Stat.Usage}}
-		<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Domain}}</td></tr>
-	{{end}}
-</table>
-
 <pre>{{pp .Stat.Site}}</pre>
 <pre>{{pp .Stat.User}}</pre>
 

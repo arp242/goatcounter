@@ -238,11 +238,10 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	hit := goatcounter.Hit{
-		Site:        site.ID,
-		Browser:     r.UserAgent(),
-		Location:    geo(r.RemoteAddr),
-		UsageDomain: r.Referer(),
-		CreatedAt:   goatcounter.Now(),
+		Site:      site.ID,
+		Browser:   r.UserAgent(),
+		Location:  geo(r.RemoteAddr),
+		CreatedAt: goatcounter.Now(),
 	}
 
 	_, err := zhttp.Decode(r, &hit)
@@ -469,13 +468,6 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 	}
 	l = l.Since("stats")
 
-	var usage goatcounter.AdminUsages
-	err = usage.List(r.Context())
-	if err != nil {
-		return err
-	}
-	l = l.Since("usages")
-
 	var sites goatcounter.Sites
 	err = sites.List(r.Context())
 	if err != nil {
@@ -511,8 +503,7 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		Stats      goatcounter.AdminStats
 		Signups    []goatcounter.Stat
 		MaxSignups int
-		Usage      goatcounter.AdminUsages
-	}{newGlobals(w, r), a, signups, maxSignups, usage})
+	}{newGlobals(w, r), a, signups, maxSignups})
 }
 
 func (h backend) adminSQL(w http.ResponseWriter, r *http.Request) error {

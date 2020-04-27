@@ -85,13 +85,12 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 }
 
 type AdminSiteStat struct {
-	Site           Site        `db:"-"`
-	User           User        `db:"-"`
-	Usage          AdminUsages `db:"-"`
-	LastData       time.Time   `db:"last_data"`
-	CountTotal     int         `db:"count_total"`
-	CountLastMonth int         `db:"count_last_month"`
-	CountPrevMonth int         `db:"count_prev_month"`
+	Site           Site      `db:"-"`
+	User           User      `db:"-"`
+	LastData       time.Time `db:"last_data"`
+	CountTotal     int       `db:"count_total"`
+	CountLastMonth int       `db:"count_last_month"`
+	CountPrevMonth int       `db:"count_prev_month"`
 }
 
 // ByID gets stats for a single site.
@@ -102,11 +101,6 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 	}
 
 	err = a.User.BySite(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	err = a.Usage.BySite(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -134,34 +128,6 @@ func (a *AdminSiteStat) ByCode(ctx context.Context, code string) error {
 		return err
 	}
 	return a.ByID(ctx, a.Site.ID)
-}
-
-type AdminUsage struct {
-	Site   int64  `db:"site"`
-	Domain string `db:"domain"`
-	Count  int    `db:"count"`
-}
-
-type AdminUsages []AdminUsage
-
-func (a *AdminUsages) List(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, `
-		select site, domain, sum(count) as count from usage
-		where vetted=0
-		group by site, domain
-		having sum(count)>5000
-		order by count desc`),
-		"AdminUsage")
-}
-
-// BySite gets usage for one site.
-func (a *AdminUsages) BySite(ctx context.Context, id int64) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, `
-		select site, domain, sum(count) as count from usage
-		where site=$1
-		group by site, domain
-		order by count desc`, id),
-		"AdminUsage")
 }
 
 type AdminPgStats []struct {

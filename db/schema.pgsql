@@ -473,20 +473,6 @@ create table updates (
 	show_at        timestamp      not null
 );
 
-create table usage (
-	site           integer        not null                 check(site > 0),
-	domain         varchar        not null,
-	count          integer        not null,
-	vetted         integer        default 0,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-
-create table flags (
-	name  varchar not null,
-	value int     not null
-);
-
 create table version (name varchar);
 insert into version values
 	('2019-10-16-1-geoip'),
@@ -529,6 +515,7 @@ insert into version values
 	('2020-04-06-1-event'),
 	('2020-04-16-1-pwauth'),
 	('2020-04-20-1-hitsindex'),
-	('2020-04-22-1-campaigns');
+	('2020-04-22-1-campaigns'),
+	('2020-04-27-1-usage-flags');
 
 -- vim:ft=sql
