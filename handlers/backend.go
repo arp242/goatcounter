@@ -17,6 +17,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/arp242/geoip2-golang"
@@ -34,6 +35,7 @@ import (
 	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/sqlutil"
+	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -314,14 +316,24 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	filter := r.URL.Query().Get("filter")
 	daily, forcedDaily := getDaily(r, start, end)
 
-	l := zlog.Module("backend").Field("site", site.ID)
+	startl := zlog.Module("dashboard")
+	l := zlog.Module("dashboard").Field("site", site.ID)
 
-	var pages goatcounter.HitStats
-	total, totalDisplay, morePages, err := pages.List(r.Context(), start, end, filter, nil)
-	if err != nil {
-		return err
-	}
-	l = l.Since("pages.List")
+	var (
+		wg                  sync.WaitGroup
+		pages               goatcounter.HitStats
+		total, totalDisplay int
+		morePages           bool
+		pagesErr            error
+	)
+	wg.Add(1)
+	go func() {
+		defer zlog.Recover()
+		defer wg.Done()
+
+		total, totalDisplay, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil)
+		l = l.Since("pages.List")
+	}()
 
 	var browsers goatcounter.Stats
 	totalBrowsers, err := browsers.ListBrowsers(r.Context(), start, end)
@@ -377,6 +389,13 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	syncutil.Wait(r.Context(), &wg)
+	if pagesErr != nil {
+		return pagesErr
+	}
+
+	l = startl.Since("get data")
+
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
 		CountDomain       string
@@ -408,8 +427,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		filter, pages, morePages, refs, moreRefs, total, totalDisplay, browsers,
 		totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
 		showMoreLoc, topRefs, totalTopRefs, showMoreRefs, daily, forcedDaily})
-	l = l.Since("zhttp.Template")
-	l.FieldsSince().Print("")
+	l.Since("zhttp.Template")
 	return x
 }
 
@@ -859,6 +877,8 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	if makecert {
 		go func() {
+			defer zlog.Recover()
+
 			err := acme.Make(args.Cname)
 			if err != nil {
 				zlog.Field("domain", args.Cname).Error(err)
@@ -1080,6 +1100,7 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		if args.Reason != "" {
 			go func() {
 				defer zlog.Recover()
+
 				zmail.Send("GoatCounter deletion",
 					mail.Address{Name: "GoatCounter deletion", Address: "support@goatcounter.com"},
 					[]mail.Address{{Address: "support@goatcounter.com"}},

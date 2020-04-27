@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"text/tabwriter"
 	"time"
 
@@ -20,6 +21,7 @@ import (
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/mathutil"
 	"zgo.at/utils/sqlutil"
+	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
@@ -440,19 +442,47 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
 
-	// Get one page more so we can detect if there are more pages after this.
-	limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
+	// Get total number of hits in the selected time range.
+	var (
+		wg       sync.WaitGroup
+		total    int
+		totalErr error
+	)
+	wg.Add(1)
+	go func() {
+		defer zlog.Recover()
+		defer wg.Done()
+
+		query := `/* HitStats.List: get count */
+			select count(*) from hits where
+				site=$1 and
+				bot=0 and
+				created_at >= $2 and
+				created_at <= $3 `
+		args := []interface{}{site.ID, start, end}
+		if filter != "" {
+			query += ` and (lower(path) like $4 or lower(title) like $4) `
+			args = append(args, filter)
+		}
+		totalErr = db.GetContext(ctx, &total, query, args...)
+		l = l.Since("get total")
+	}()
 
 	// Select hits.
-	var st []struct {
-		Path  string       `db:"path"`
-		Title string       `db:"title"`
-		Event sqlutil.Bool `db:"event"`
-		Day   time.Time    `db:"day"`
-		Stats []byte       `db:"stats"`
-	}
-	var more bool
+	var (
+		st []struct {
+			Path  string       `db:"path"`
+			Title string       `db:"title"`
+			Event sqlutil.Bool `db:"event"`
+			Day   time.Time    `db:"day"`
+			Stats []byte       `db:"stats"`
+		}
+		more bool
+	)
 	{
+		// Get one page more so we can detect if there are more pages after this.
+		limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
+
 		query := `/* HitStats.List: get overview */
 			select path from hits
 			where
@@ -620,26 +650,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		l = l.Since("add totals")
 	}
 
-	// Get total number of hits in the selected time range.
-	var total int
-	{
-		query := `/* HitStats.List: get count */
-			select count(*) from hits where
-				site=$1 and
-				bot=0 and
-				created_at >= $2 and
-				created_at <= $3 `
-		args := []interface{}{site.ID, start, end}
-		if filter != "" {
-			query += ` and (lower(path) like $4 or lower(title) like $4) `
-			args = append(args, filter)
-		}
-		err := db.GetContext(ctx, &total, query, args...)
-		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
-		}
-
-		l = l.Since("get total")
+	syncutil.Wait(ctx, &wg)
+	if totalErr != nil {
+		return 0, 0, false, errors.Wrap(totalErr, "HitStats.List")
 	}
 
 	return total, totalDisplay, more, nil
