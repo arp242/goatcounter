@@ -133,6 +133,8 @@ func (a *AdminSiteStat) ByCode(ctx context.Context, code string) error {
 type AdminPgStats []struct {
 	Total    float64 `db:"total"`
 	MeanTime float64 `db:"mean_time"`
+	MinTime  float64 `db:"min_time"`
+	MaxTime  float64 `db:"max_time"`
 	Calls    int     `db:"calls"`
 	QueryID  int64   `db:"queryid"`
 	Query    string  `db:"query"`
@@ -146,6 +148,8 @@ func (a *AdminPgStats) List(ctx context.Context, order string) error {
 		select
 			(total_time / 1000 / 60) as total,
 			mean_time,
+			min_time,
+			max_time,
 			calls,
 			queryid,
 			query

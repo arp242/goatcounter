@@ -15918,9 +15918,11 @@ pre   { white-space: pre-wrap; border: 0; background-color: transparent; margin:
 <table>
 <thead><tr>
 	<td>QueryID</td>
-	<td><a href="?order=calls"># calls</a></td>
+	<td><a href="?order=calls">Calls</a></td>
 	<td><a href="?order=total">Total</a></td>
 	<td><a href="?order=mean_time">Mean time</a></td>
+	<td><a href="?order=min_time">Min time</a></td>
+	<td><a href="?order=max_time">Max time</a></td>
 	<td>Query</td>
 </tr></thead>
 <tbody>
@@ -15928,8 +15930,10 @@ pre   { white-space: pre-wrap; border: 0; background-color: transparent; margin:
 	<tr>
 		<td>{{$s.QueryID}}</td>
 		<td>{{nformat $s.Calls $.Site}}</td>
-		<td>{{$s.Total | printf "%.1f"}} min</td>
-		<td>{{$s.MeanTime | printf "%.1f"}} ms</td>
+		<td>{{$s.Total | printf "%.1f"}}min</td>
+		<td>{{$s.MeanTime | printf "%.1f"}}ms</td>
+		<td>{{$s.MinTime | printf "%.1f"}}ms</td>
+		<td>{{$s.MaxTime | printf "%.1f"}}ms</td>
 		<td><pre>{{$s.Query}}</pre></td>
 	</tr>
 	{{end}}
