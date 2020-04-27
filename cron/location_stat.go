@@ -79,8 +79,8 @@ func existingLocationStats(
 		CountUnique int          `db:"count_unique"`
 		Event       sqlutil.Bool `db:"event"`
 	}
-	err := tx.SelectContext(txctx, &c,
-		`select count, count_unique, event from location_stats
+	err := tx.SelectContext(txctx, &c, `/* existingLocationStats */
+		select count, count_unique, event from location_stats
 		where site=$1 and day=$2 and location=$3 limit 1`,
 		siteID, day, location)
 	if err != nil {

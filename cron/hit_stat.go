@@ -93,8 +93,8 @@ func existingHitStats(
 		Title       string       `db:"title"`
 		Event       sqlutil.Bool `db:"event"`
 	}
-	err := tx.SelectContext(txctx, &ex,
-		`select stats, stats_unique, title, event from hit_stats
+	err := tx.SelectContext(txctx, &ex, `/* cron.existingHitStats */
+		select stats, stats_unique, title, event from hit_stats
 		where site=$1 and day=$2 and path=$3 and event=$4 limit 1`,
 		siteID, day, path, event)
 	if err != nil {

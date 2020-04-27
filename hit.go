@@ -455,7 +455,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 	var more bool
 	{
-		query := `
+		query := `/* HitStats.List: get overview */
 			select path from hits
 			where
 				site=? and
@@ -500,7 +500,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	// Add stats and title.
 	{
-		query := `
+		query := `/* HitStats.List: get stats */
 			select path, event, title, day, stats
 			from hit_stats
 			where
@@ -625,11 +625,12 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	// Get total number of hits in the selected time range.
 	var total int
 	{
-		query := `select count(*) from hits where
-			site=$1 and
-			bot=0 and
-			created_at >= $2 and
-			created_at <= $3 `
+		query := `/* HitStats.List: get count */
+			select count(*) from hits where
+				site=$1 and
+				bot=0 and
+				created_at >= $2 and
+				created_at <= $3 `
 		args := []interface{}{site.ID, start, end}
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
@@ -803,7 +804,7 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 	}
 
 	db := zdb.MustGet(ctx)
-	err := db.SelectContext(ctx, h, db.Rebind(`
+	err := db.SelectContext(ctx, h, db.Rebind(`/* Stats.ListRefs */
 		select ref as name, sum(count) as count from ref_stats`+
 		where+`
 		group by ref

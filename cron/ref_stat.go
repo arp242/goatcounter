@@ -79,8 +79,8 @@ func existingRefStats(
 		CountUnique int          `db:"count_unique"`
 		Event       sqlutil.Bool `db:"event"`
 	}
-	err := tx.SelectContext(txctx, &c,
-		`select count, count_unique, event from ref_stats
+	err := tx.SelectContext(txctx, &c, `/* existingRefStats */
+		select count, count_unique, event from ref_stats
 		where site=$1 and day=$2 and ref=$3 limit 1`,
 		siteID, day, ref)
 	if err != nil {

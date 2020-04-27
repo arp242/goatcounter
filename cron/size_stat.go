@@ -86,8 +86,8 @@ func existingSizeStats(
 		CountUnique int          `db:"count_unique"`
 		Event       sqlutil.Bool `db:"event"`
 	}
-	err := tx.SelectContext(txctx, &c,
-		`select count, count_unique, event from size_stats
+	err := tx.SelectContext(txctx, &c, `/* existingSizeStats */
+		select count, count_unique, event from size_stats
 		where site=$1 and day=$2 and width=$3 limit 1`,
 		siteID, day, width)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"zgo.at/goatcounter/cfg"
@@ -175,7 +176,7 @@ func (a *AdminPgStats) List(ctx context.Context, order string) error {
 	if order == "" {
 		order = "total"
 	}
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
 		select
 			(total_time / 1000 / 60) as total,
 			mean_time,
@@ -188,5 +189,28 @@ func (a *AdminPgStats) List(ctx context.Context, order string) error {
 			query !~* '^ *(copy|create|alter|explain) '
 		order by %s desc
 		limit 100
-	`, order)), "AdminPgStats.List")
+	`, order))
+	if err != nil {
+		return fmt.Errorf("AdminPgStats.List: %w", err)
+	}
+
+	// Normalize the indent a bit, because there are often of extra tabs inside
+	// Go literal strings.
+	aa := *a
+	for i := range aa {
+		lines := strings.Split(aa[i].Query, "\n")
+		if len(lines) < 2 {
+			continue
+		}
+
+		n := strings.Count(lines[1], "\t") - 1
+		for j := range lines {
+			lines[j] = strings.Replace(lines[j], "\t", "", n)
+		}
+
+		aa[i].Query = strings.Join(lines, "\n")
+	}
+
+	*a = aa
+	return nil
 }

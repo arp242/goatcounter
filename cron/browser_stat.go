@@ -89,8 +89,8 @@ func existingBrowserStats(
 		CountUnique int          `db:"count_unique"`
 		Event       sqlutil.Bool `db:"event"`
 	}
-	err := tx.SelectContext(txctx, &c,
-		`select count, count_unique, event from browser_stats
+	err := tx.SelectContext(txctx, &c, `/* existingBrowserStats */
+		select count, count_unique, event from browser_stats
 		where site=$1 and day=$2 and browser=$3 and version=$4 limit 1`,
 		siteID, day, browser, version)
 	if err != nil {
