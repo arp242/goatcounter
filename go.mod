@@ -16,7 +16,7 @@ require (
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	honnef.co/go/tools v0.0.1-2020.1.3
 	zgo.at/guru v1.1.0
-	zgo.at/isbot v0.0.0-20200426063629-b68998fc6a4b
+	zgo.at/isbot v0.0.0-20200427181629-1d4940c02e50
 	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
 	zgo.at/utils v0.0.0-20200426174547-f932b4226e60
 	zgo.at/zdb v0.0.0-20200427035250-b77b1bf11c26
