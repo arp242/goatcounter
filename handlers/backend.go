@@ -263,8 +263,13 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if uint8(hit.Bot) >= isbot.BotJSNightmare {
-		zlog.Module("jsbot").Printf("%d^ %s^ %s",
-			hit.Bot, r.RemoteAddr, r.UserAgent())
+		zlog.Module("jsbot").Fields(zlog.F{
+			"bot": hit.Bot,
+			"ip":  r.RemoteAddr,
+			"ua":  r.UserAgent(),
+			"h":   zlog.JSON(jsonutil.MustMarshal(r.Header)),
+			"url": r.RequestURI,
+		}).Printf("")
 	}
 
 	// TODO: move to memstore?
