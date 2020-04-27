@@ -40,7 +40,7 @@ var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
 	"admin", "ns1", "ns2", "m", "mobile", "api",
 	"dev", "test", "beta", "new", "staging", "debug", "pprof",
-	"chat", "example", "yoursite", "test",
+	"chat", "example", "yoursite", "test", "sql",
 }
 
 var statTables = []string{"hit_stats", "browser_stats", "location_stats", "ref_stats", "size_stats"}

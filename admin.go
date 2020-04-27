@@ -162,3 +162,31 @@ func (a *AdminUsages) BySite(ctx context.Context, id int64) error {
 		order by count desc`, id),
 		"AdminUsage")
 }
+
+type AdminPgStats []struct {
+	Total    float64 `db:"total"`
+	MeanTime float64 `db:"mean_time"`
+	Calls    int     `db:"calls"`
+	QueryID  int64   `db:"queryid"`
+	Query    string  `db:"query"`
+}
+
+func (a *AdminPgStats) List(ctx context.Context, order string) error {
+	if order == "" {
+		order = "total"
+	}
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
+		select
+			(total_time / 1000 / 60) as total,
+			mean_time,
+			calls,
+			queryid,
+			query
+		from pg_stat_statements where
+			userid = (select usesysid from pg_user where usename = CURRENT_USER) and
+			calls > 20 and
+			query !~* '^ *(copy|create|alter|explain) '
+		order by %s desc
+		limit 100
+	`, order)), "AdminPgStats.List")
+}

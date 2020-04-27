@@ -15860,7 +15860,7 @@ Martin
 
 <h1>Admin</h1>
 
-<p><a href="/debug/pprof">pprof</a></p>
+<p><a href="/debug/pprof">pprof</a> | <a href="/sql">PostgreSQL</a></p>
 
 <h2>Sites</h2>
 <p>All sites with at least 1,000 hits in the last 30 days; the counts for the
@@ -15939,6 +15939,40 @@ parent site includes the child sites.</p>
 
 <pre>{{pp .Stat.Site}}</pre>
 <pre>{{pp .Stat.User}}</pre>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/backend_admin_sql.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<style>
+table { max-width: none !important; }
+td    { white-space: nowrap; vertical-align: top; }
+pre   { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+</style>
+
+<h1>PostgreSQL stats</h1>
+<table>
+<thead><tr>
+	<td>QueryID</td>
+	<td><a href="?order=calls"># calls</a></td>
+	<td><a href="?order=total">Total</a></td>
+	<td><a href="?order=mean_time">Mean time</a></td>
+	<td>Query</td>
+</tr></thead>
+<tbody>
+	{{range $s := .Stats}}
+	<tr>
+		<td>{{$s.QueryID}}</td>
+		<td>{{nformat $s.Calls $.Site}}</td>
+		<td>{{$s.Total | printf "%.1f"}} min</td>
+		<td>{{$s.MeanTime | printf "%.1f"}} ms</td>
+		<td><pre>{{$s.Query}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+
 
 {{template "_backend_bottom.gohtml" .}}
 `),

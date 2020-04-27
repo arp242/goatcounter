@@ -166,6 +166,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Post("/purge", zhttp.Wrap(h.purge))
 			af.Post("/delete", zhttp.Wrap(h.delete))
 			af.With(admin).Get("/admin", zhttp.Wrap(h.admin))
+			af.With(admin).Get("/admin/sql", zhttp.Wrap(h.adminSQL))
 			af.With(admin).Get("/admin/{id}", zhttp.Wrap(h.adminSite))
 		}
 	}
@@ -512,6 +513,23 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		MaxSignups int
 		Usage      goatcounter.AdminUsages
 	}{newGlobals(w, r), a, signups, maxSignups, usage})
+}
+
+func (h backend) adminSQL(w http.ResponseWriter, r *http.Request) error {
+	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	var a goatcounter.AdminPgStats
+	err := a.List(r.Context(), r.URL.Query().Get("order"))
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_admin_sql.gohtml", struct {
+		Globals
+		Stats goatcounter.AdminPgStats
+	}{newGlobals(w, r), a})
 }
 
 func (h backend) adminSite(w http.ResponseWriter, r *http.Request) error {
