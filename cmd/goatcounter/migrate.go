@@ -76,9 +76,6 @@ func migrate() (int, error) {
 		} else {
 			fmt.Fprintln(stdout, "No pending migrations")
 		}
-		if d := sliceutil.DifferenceString(ran, have); len(d) > 0 {
-			fmt.Fprintf(stdout, "Migrations in the DB that don't exist:\n\t%s\n", strings.Join(d, "\n\t"))
-		}
 	}
 
 	return 0, nil
