@@ -14912,7 +14912,7 @@ Martin
 		{{end}}
 	</div>
 	<div>
-		<h2>Screen size{{if before_size .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
+		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
@@ -14923,7 +14923,7 @@ Martin
 		{{end}}
 	</div>
 	<div class="location-chart">
-		<h2>Locations{{if before_loc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
+		<h2>Locations{{if before_loc .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}

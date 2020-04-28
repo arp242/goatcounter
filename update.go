@@ -30,7 +30,7 @@ type Update struct {
 
 type Updates []Update
 
-// HasSince reports if there are any updates siocne the goven date.
+// HasSince reports if there are any updates since the given date.
 func (u *Updates) HasSince(ctx context.Context, since time.Time) (bool, error) {
 	var has bool
 	err := zdb.MustGet(ctx).GetContext(ctx, &has,
