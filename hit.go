@@ -425,14 +425,14 @@ type Stat struct {
 }
 
 type HitStat struct {
-	Count       int
-	CountUnique int
+	Count       int `db:"count"`
+	CountUnique int `db:"count_unique"`
 	Max         int
 	DailyMax    int
-	Path        string
-	Event       sqlutil.Bool
-	Title       string
-	RefScheme   *string
+	Path        string       `db:"path"`
+	Event       sqlutil.Bool `db:"event"`
+	Title       string       `db:"title"`
+	RefScheme   *string      `db:"ref_scheme"`
 	Stats       []Stat
 }
 
@@ -440,6 +440,10 @@ type HitStats []HitStat
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
+// List the top paths for this site in the given time period.
+//
+// TODO: There are too many return values; at the very least it can be split in
+// List() and Totals()
 func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
@@ -460,6 +464,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		defer zlog.Recover()
 		defer wg.Done()
 
+		// TODO: can also use started_session; not sure what would make the most
+		// sense:
+		// 1. started_session will list only people who visted for the first time
+		// 2. distinct session lists people who visited at all (first visit in
+		//    timerange)
 		query := `/* HitStats.List: get count */
 			select count(id) as t,
 			count(distinct session) as u
@@ -753,14 +762,16 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		limit = 10
 	}
 
-	// TODO: using offset for pagination is not ideal:
-	// data can change in the meanwhile, and it still gets the first N rows,
-	// which is more expensive than it needs to be.
-	// It's "good enough" for now, though.
+	// TODO: using offset for pagination is not ideal: data can change in the
+	// meanwhile, and it still gets the first N rows, which is more expensive
+	// than it needs to be. It's "good enough" for now, though.
+	//
+	// TODO: count_unqiue is off here
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
 			ref as path,
 			count(ref) as count,
+			count(distinct session) as count_unique,
 			ref_scheme
 		from hits
 		where
@@ -812,11 +823,12 @@ type Stats []struct {
 }
 
 // ByRef lists all paths by reference.
-//
-// TODO: add unique; not so easy here.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select path as name, count(path) as count
+		select
+			path as name,
+			count(path) as count,
+			count(distinct session) as count_unique
 		from hits where
 			site=$1 and
 			bot=0 and

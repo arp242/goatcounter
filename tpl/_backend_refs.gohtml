@@ -1,7 +1,7 @@
 <table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td>{{nformat $r.Count $.Site}}</td>
+		<td>{{nformat $r.Count $.Site}} ({{nformat $r.CountUnique $.Site}})</td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path}}{{$r.Path}}
 			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>{{end}}

@@ -65,19 +65,15 @@
 				else if (h === '')
 					bar.style.background = 'transparent'
 				else {
-					//h = (100 - parseInt(h, 10)) + '%'
-					console.log(h)
 					var hu = bar.dataset.u
-
-					bar.style.background = 'linear-gradient(to top, '+
-						'#9a15a4 0%'+
-						', #9a15a4 ' + hu +
-						', #9a15a4 ' + hu +
-						', #d314e1 ' + hu +
-						', #d314e1 ' + h +
-						', #d314e1 ' + h +
-						', transparent ' + h +
-						', transparent 100%)'
+					bar.style.background = `
+						linear-gradient(to top,
+						#9a15a4 0%,
+						#9a15a4 ${hu},
+						#d314e1 ${hu},
+						#d314e1 ${h},
+						transparent ${h},
+						transparent 100%)`
 				}
 			})
 			chart.dataset.done = 't'
@@ -530,56 +526,31 @@
 	};
 
 	// Display popup when hovering a chart.
-	//
-	// TODO: this is far more complicated than it needs to be; it's like this
-	// because I wanted to support no-JS, but screw that.
 	var chart_hover = function() {
-		$(document.body).on('mouseleave', '.chart', function() {
-			$('#popup').remove();
-		});
+		$(document.body).on('mouseleave', '.chart', () => { $('#popup').remove() })
 
 		// Pages chart.
 		$(document.body).on('mouseenter', '.chart > div', function(e) {
 			var t = $(e.target);
 
-			var title = t.attr('title') || t.attr('data-title');
+			var title = t.attr('title') || t.attr('data-t');
 			if (!title)
 				return;
 
-			if (t.attr('data-title'))
-				title = t.attr('data-title');
+			if (t.attr('data-t'))
+				title = t.attr('data-t');
 			else {
-				// Reformat date and time according to site settings.
-				var split = title.replace(',', '').split(' '),
-					date, views, start, end;
-				// Daily: 2020-02-05, 42 views; 10 unique
-				// TODO: fix unique
 				if ($('.pages-list').hasClass('pages-list-daily')) {
-					date = split[0];
-					views = ', ' + split[1] + (split[2] ? (' ' + split[2]) : '') + ' - ' + split[3] +  ' unqiue';
+					var [day, views, unique] = title.split('|')
+					title = `${format_date(day)}`
 				}
-				// Hourly: 2019-07-22 22:00 – 22:59, 5 views; 10 unique
 				else {
-					date  = split[0];
-					start = split[1];
-					end   = split[3];
-					views = ', ' + split[4] + (split[5] ? (' ' + split[5]) : '') + ' - ' + split[6] + ' unique';
-
-					if (!SETTINGS.twenty_four_hours) {
-						start = un24(start);
-						end = un24(end);
-					}
+					var [day, start, end, views, unique] = title.split('|')
+					title = `${format_date(day)} ${un24(start)} – ${un24(end)}`
 				}
 
-				if (SETTINGS.date_format !== '2006-01-02')
-					date = format_date(get_date(date))
-
-				if (start)
-					title = date + ' ' + start + ' – ' + end + views;
-				else
-					title = date + views;
-
-				t.attr('data-title', title);
+				title += !views ? ', future' : `, ${views} views; ${unique} unique`
+				t.attr('data-t', title);
 				t.removeAttr('title');
 			}
 
@@ -635,6 +606,9 @@
 
 	// Convert "23:45" to "11:45 pm".
 	var un24 = function(t) {
+		if (SETTINGS.twenty_four_hours)
+			return t
+
 		var hour = parseInt(t.substr(0, 2), 10);
 		if (hour < 12)
 			return t + ' am';
@@ -650,6 +624,9 @@
 
 	// Format a date according to user configuration.
 	var format_date = function(date) {
+		if (typeof(date) === 'string')
+			date = get_date(date)
+
 		var m = date.getMonth() + 1,
 			d = date.getDate(),
 			items = SETTINGS.date_format.split(/[-/\s]/),
