@@ -745,7 +745,6 @@ commit;
 	insert into version values ('2020-03-24-1-sessions');
 commit;
 `),
-	"db/migrate/pgsql/2020-03-27-1-isbot.sql": []byte(``),
 	"db/migrate/pgsql/2020-03-29-1-page_cost.sql": []byte(`begin;
 	-- Note this requires a new session (i.e. server restart) to take effect.
 	DO $$
@@ -1607,7 +1606,6 @@ commit;
 	insert into version values ('2020-03-24-1-sessions');
 commit;
 `),
-	"db/migrate/sqlite/2020-03-27-1-isbot.sql": []byte(``),
 	"db/migrate/sqlite/2020-04-06-1-event.sql": []byte(`begin;
 	alter table hit_stats      add column event integer default 0;
 	alter table browser_stats  add column event integer default 0;
@@ -1679,7 +1677,7 @@ commit;
 
 	insert into hits2 select * from hits;
 	drop table hits;
-	rename hits2 to hits;
+	alter table hits2 rename to hits;
 
 	insert into version values ('2020-04-22-1-campaigns');
 commit;

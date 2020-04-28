@@ -24,7 +24,7 @@ begin;
 
 	insert into hits2 select * from hits;
 	drop table hits;
-	rename hits2 to hits;
+	alter table hits2 rename to hits;
 
 	insert into version values ('2020-04-22-1-campaigns');
 commit;
