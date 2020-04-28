@@ -17,7 +17,7 @@ require (
 	honnef.co/go/tools v0.0.1-2020.1.3
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200427181629-1d4940c02e50
-	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e
+	zgo.at/tz v0.0.0-20200428173314-f4a46a753a7e
 	zgo.at/utils v0.0.0-20200426174547-f932b4226e60
 	zgo.at/zdb v0.0.0-20200428100151-401f37d34a88
 	zgo.at/zhttp v0.0.0-20200420182732-94cc2e4e6b21

@@ -14683,7 +14683,10 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 				</form>
 			</div>
 		{{else if .Site.Settings.Public}}
-			<div></div>
+			<div style="margin-left: .3em;">
+				The public view is updated once an hour; all times are in
+				{{.Site.Settings.Timezone.Abbr}} ({{.Site.Settings.Timezone.OffsetDisplay}})
+			</div>
 			<div>Viewing as guest | <a href="/user/new">Sign in</a></div>
 		{{- end -}}
 	</nav>
@@ -14835,8 +14838,6 @@ Martin
 		</div>
 	{{end}}
 {{end}} {{/* .User.ID */}}
-
-{{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
 
 <form id="period-form">
 	<div class="period-form-date">

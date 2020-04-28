@@ -59,8 +59,6 @@
 	{{end}}
 {{end}} {{/* .User.ID */}}
 
-{{if and .Site.Settings.Public (not .User.ID)}}<div class="flash flash-i"><p>Note: public view is updated once an hour. Sign in to get real-time statistics.</p></div>{{end}}
-
 <form id="period-form">
 	<div class="period-form-date">
 		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
