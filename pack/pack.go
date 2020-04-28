@@ -14926,7 +14926,7 @@ Martin
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .5 true true}}</div>
+				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .1 true true}}</div>
 			</div>
 		{{end}}
 	</div>
