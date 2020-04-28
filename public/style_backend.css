@@ -94,7 +94,17 @@ form .err  { color: red; display: block; }
 .count-list td:nth-child(2) {  /* Path */
 	width: 20em;
 }
+
+.count-list.count-list-refs td:nth-child(1) {
+	text-align: right;
+	width: 4em;
+}
 .count-list.count-list-refs td:nth-child(2) {
+	text-align: right;
+	width: 4em;
+}
+
+.count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
 }
@@ -423,4 +433,15 @@ h3 + h4 { margin-top: .3em; }
 	animation-name: loading;
 	animation-duration: 1s;
 	animation-iteration-count: infinite;
+}
+
+
+.views {
+	color: #999;
+	/*
+	font-size: .9em;
+	*/
+}
+
+.unique-views {
 }

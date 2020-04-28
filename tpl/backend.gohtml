@@ -117,11 +117,16 @@
 			<h2>Paths</h2>
 			<span class="hide-mobileX totals">
 				Displaying
-				<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-				(<span class="total-display-unique">{{nformat .TotalUniqueDisplay $.Site}}</span> unique)
+				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
 				out of
-				<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
-				(<span class="total-display-unique">{{nformat .TotalUniqueHits $.Site}}</span> unique)
+				<span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
+				visits;
+				<span class="views">
+					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span>
+					out of
+					<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
+					pageviews
+				</span>
 			</span>
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}

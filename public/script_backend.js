@@ -14,36 +14,25 @@
 		CSRF      = $('#js-csrf').text();
 		TZ_OFFSET = parseInt($('#js-settings').attr('data-offset'), 10) || 0;
 
+		;[report_errors, period_select, load_refs, chart_hover, paginate_paths,
+			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
+			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs, draw_chart,
+		].forEach(function(f) { f.call(); });
+	});
+
+	var report_errors = function() {
 		// Set up error reporting.
 		window.onerror = onerror;
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return;
-			var msg = 'Could not load ' + settings.url + ': ' + err;
-			console.error(msg);
-			onerror('ajaxError: ' + msg, settings.url);
-			alert(msg);
-		});
-
-		// Show loading indicator.
-		var loading;
-		$(document).on('ajaxStart', function() {
-			clearTimeout(loading)
-			loading = setTimeout(function() {
-				$('#loading').css('display', 'block')
-			}, 150)
+			var msg = `Could not load ${settings.url}: ${err}`
+			console.error(msg)
+			onerror('ajaxError: ' + msg, settings.url)
+			alert(msg)
 		})
-		$(document).on('ajaxComplete', function() {
-			clearTimeout(loading)
-			$('#loading').css('display', 'none')
-		})
-
-		;[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
-			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
-			setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart,
-		].forEach(function(f) { f.call(); });
-	});
+	}
 
 	// Replace the "height:" style with a background gradient and set the height
 	// to 100%.
@@ -191,13 +180,19 @@
 		}
 
 		var th = $('.pages-list .total-hits'),
-		    td = $('.pages-list .total-display');
+		    td = $('.pages-list .total-display'),
+			tu = $('.pages-list .total-unique'),
+			ud = $('.pages-list .total-unique-display')
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
+			tu.text(format_int(data.total_unique));
+			ud.text(format_int(data.total_unique_display));
 		}
-		else
+		else {
 			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
+			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_display_unique));
+		}
 
 		draw_chart()
 	};
@@ -549,7 +544,7 @@
 					title = `${format_date(day)} ${un24(start)} – ${un24(end)}`
 				}
 
-				title += !views ? ', future' : `, ${views} views; ${unique} unique`
+				title += !views ? ', future' : `, ${unique} visits; <span class="views">${views} pageviews</span>`
 				t.attr('data-t', title);
 				t.removeAttr('title');
 			}

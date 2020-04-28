@@ -155,10 +155,10 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 			browser = "(unknown)"
 		}
 
-		title := fmt.Sprintf("%s: %.1f%% – %s hits in total; %s unique",
+		title := fmt.Sprintf("%s: %.1f%% – %s visits; %s pageviews",
 			template.HTMLEscapeString(browser), perc,
-			zhttp.Tnformat(s.Count, MustGetSite(ctx).Settings.NumberFormat),
-			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat))
+			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat),
+			zhttp.Tnformat(s.Count, MustGetSite(ctx).Settings.NumberFormat))
 		b.WriteString(fmt.Sprintf(
 			`<%[4]s href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></%[4]s>`,
 			title, template.HTMLEscapeString(browser), perc, tag))
