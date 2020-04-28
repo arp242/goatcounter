@@ -119,25 +119,50 @@ func reindex() (int, error) {
 		lastDay = time.Now().UTC().Add(-24 * time.Hour)
 	}
 
-	var allpaths []struct {
-		Site int64
-		Path string
-	}
-	err = zdb.MustGet(ctx).SelectContext(ctx, &allpaths,
-		`select site, path from hits group by site, path`)
+	var sites goatcounter.Sites
+	err = sites.List(ctx)
 	if err != nil {
 		return 1, err
 	}
 
-	// Insert paths.
-	query := `select * from hits where created_at >= $1 and created_at <= $2`
-	if site > 0 {
-		query += fmt.Sprintf(" and site=%d ", site)
+	for _, s := range sites {
+		if site > 0 && s.ID != site {
+			continue
+		}
+		err := dosite(ctx, s, *table, *pause, firstDay, lastDay)
+		if err != nil {
+			return 1, err
+		}
 	}
 
+	fmt.Fprintln(stdout, "")
+	return 0, nil
+}
+
+func dosite(ctx context.Context, site goatcounter.Site, table string, pause int, firstDay, lastDay time.Time) error {
+	db := zdb.MustGet(ctx).(*sqlx.DB)
+	siteID := site.ID
+
+	if firstDay.Before(site.CreatedAt) {
+		firstDay = site.CreatedAt
+	}
+
+	var allpaths []struct {
+		Site int64
+		Path string
+	}
+	err := db.SelectContext(ctx, &allpaths,
+		`select path from hits where site=$1 group by path`, siteID)
+	if err != nil {
+		return err
+	}
+
+	// Insert paths.
+	query := `select * from hits where site=$1 and created_at >= $2 and created_at <= $3`
+
 	var pauses time.Duration
-	if *pause > 0 {
-		pauses = time.Duration(*pause) * time.Second
+	if pause > 0 {
+		pauses = time.Duration(pause) * time.Second
 	}
 
 	now := goatcounter.Now()
@@ -145,18 +170,18 @@ func reindex() (int, error) {
 	day := firstDay
 	for {
 		var hits []goatcounter.Hit
-		err := db.SelectContext(ctx, &hits, query, dayStart(day), dayEnd(day))
+		err := db.SelectContext(ctx, &hits, query, siteID, dayStart(day), dayEnd(day))
 		if err != nil {
-			return 1, err
+			return err
 		}
 
-		fmt.Fprintf(stdout, "\r\x1b[0K%s → %d", day.Format("2006-01-02"), len(hits))
+		fmt.Fprintf(stdout, "\r\x1b[0Ksite %d %s → %d", siteID, day.Format("2006-01-02"), len(hits))
 
-		clearDay(db, *table, day.Format("2006-01-02"), site)
+		clearDay(db, table, day.Format("2006-01-02"), siteID)
 
-		err = cron.ReindexStats(ctx, hits, *table)
+		err = cron.ReindexStats(ctx, hits, table)
 		if err != nil {
-			return 1, err
+			return err
 		}
 
 		day = day.Add(24 * time.Hour)
@@ -169,18 +194,13 @@ func reindex() (int, error) {
 		}
 	}
 
-	fmt.Fprintln(stdout, "")
-	return 0, nil
+	return nil
 }
 
-func clearDay(db *sqlx.DB, table, day string, site int64) {
+func clearDay(db *sqlx.DB, table, day string, siteID int64) {
 	ctx := context.Background()
 
-	where := fmt.Sprintf(" where day = '%s'", day)
-	if site > 0 {
-		where += fmt.Sprintf(" and site=%d ", site)
-	}
-
+	where := fmt.Sprintf(" where site=%d and day='%s'", siteID, day)
 	switch table {
 	case "hit_stats":
 		db.MustExecContext(ctx, `delete from hit_stats`+where)
