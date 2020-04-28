@@ -661,7 +661,7 @@
 
 	// Format a date as year-month-day.
 	var format_date_ymd = function(date) {
-		if (typeof date === 'string')  // TODO: maybe add basic sanity check here?
+		if (typeof(date) === 'string')
 			return date;
 		var m = date.getMonth() + 1,
 			d = date.getDate();
