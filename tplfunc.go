@@ -134,13 +134,13 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 	var b strings.Builder
 	for _, s := range stats {
 		perc := float32(s.Count) / float32(total) * 100
-		totalPerc += perc
 		if parentTotal > 0 {
 			perc = float32(s.Count) / float32(parentTotal) * 100
 		}
 		if perc < cutoff { // Group as "Other" later.
 			continue
 		}
+		totalPerc += perc
 
 		browser := s.Name
 		if browser == "" {
