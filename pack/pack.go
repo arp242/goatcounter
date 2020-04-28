@@ -14684,8 +14684,8 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 			</div>
 		{{else if .Site.Settings.Public}}
 			<div style="margin-left: .3em;">
-				The public view is updated once an hour; all times are in
-				{{.Site.Settings.Timezone.Abbr}} ({{.Site.Settings.Timezone.OffsetDisplay}})
+				The public view is updated once an hour{{if .Site.Settings.Timezone}}; all times are in
+				{{.Site.Settings.Timezone.Abbr}} ({{.Site.Settings.Timezone.OffsetDisplay}}){{end}}
 			</div>
 			<div>Viewing as guest | <a href="/user/new">Sign in</a></div>
 		{{- end -}}
