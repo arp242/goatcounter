@@ -19,7 +19,9 @@ begin;
 		foreign key (site) references sites(id) on delete restrict on update restrict
 	);
 
-	insert into users2 select * from users;
+	insert into users2 select
+		id, site, name, email, role, login_at, login_request, login_token, csrf_token, seen_updates_at, created_at, updated_at
+	from users;
 	drop table users;
 	alter table users2 rename to users;
 

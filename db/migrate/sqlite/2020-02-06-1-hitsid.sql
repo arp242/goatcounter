@@ -19,8 +19,10 @@ begin;
 	);
 
 	insert into hits2
-		(site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at )
-		select site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at from hits;
+		(site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at)
+	select
+		site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at
+	from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
 

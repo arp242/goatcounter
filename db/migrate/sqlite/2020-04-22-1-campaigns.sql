@@ -22,7 +22,9 @@ begin;
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 	);
 
-	insert into hits2 select * from hits;
+	insert into hits2 select
+		id, site, session, path, title, event, bot, ref, ref_original, ref_params, ref_scheme, browser, size, location, started_session, created_at
+	from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
 

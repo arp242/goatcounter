@@ -18,7 +18,9 @@ begin;
 		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
 	);
 
-	insert into sites2 select * from sites;
+	insert into sites2 select
+		id, parent, name, code, cname, plan, stripe, settings, last_stat, received_data, link_domain, state, created_at, updated_at
+	from sites;
 	drop table sites;
 	alter table sites2 rename to sites;
 

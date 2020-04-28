@@ -12,7 +12,9 @@ begin;
 	);
 	insert into hit_stats2
 		(site, day, path, title, stats)
-		select site, day, path, title, stats from hit_stats;
+	select
+		site, day, path, title, stats
+	from hit_stats;
 	drop table hit_stats;
 	alter table hit_stats2 rename to hit_stats;
 
@@ -38,8 +40,9 @@ begin;
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
 	);
-	insert into sites2
-		select id, parent, name, code, link_domain, cname, plan, stripe, settings, received_data, state, created_at, updated_at from sites;
+	insert into sites2 select
+		id, parent, name, code, link_domain, cname, plan, stripe, settings, received_data, state, created_at, updated_at
+	from sites;
 	drop table sites;
 	alter table sites2 rename to sites;
 

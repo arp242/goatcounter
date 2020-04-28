@@ -446,14 +446,14 @@ commit;
 
 		foreign key (site) references sites(id) on delete restrict on update restrict
 	);
-
-	insert into browser_stats2 select site, day, browser, version, count from browser_stats;
+	insert into browser_stats2 select
+		site, day, browser, version, count
+	from browser_stats;
 	drop table browser_stats;
 	alter table browser_stats2 rename to browser_stats;
 
 	insert into version values ('2020-01-24-1-rm-mobile');
 commit;
-
 `),
 	"db/migrate/sqlite/2020-01-24-2-domain.sql": []byte(`begin;
 	alter table sites add column link_domain varchar not null default '';
@@ -477,7 +477,9 @@ commit;
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 	);
 
-	insert into hits2 select site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, count_ref, bot, title, 0, created_at from hits;
+	insert into hits2 select
+		site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, count_ref, bot, title, 0, created_at
+	from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
 
@@ -511,8 +513,9 @@ commit;
 
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 	);
-
-	insert into hits2 select site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at from hits;
+	insert into hits2 select
+		site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at
+	from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
 
@@ -540,8 +543,10 @@ commit;
 	);
 
 	insert into hits2
-		(site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at )
-		select site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at from hits;
+		(site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at)
+	select
+		site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at
+	from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
 
@@ -568,7 +573,9 @@ commit;
 		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
 	);
 
-	insert into sites2 select * from sites;
+	insert into sites2 select
+		id, parent, name, code, cname, plan, stripe, settings, last_stat, received_data, link_domain, state, created_at, updated_at
+	from sites;
 	drop table sites;
 	alter table sites2 rename to sites;
 
@@ -576,7 +583,6 @@ commit;
 commit;
 `),
 	"db/migrate/sqlite/2020-02-24-1-ref_stats.sql": []byte(`begin;
-
 	create table ref_stats (
 		site           integer        not null                 check(site > 0),
 
@@ -630,7 +636,9 @@ commit;
 	);
 	insert into hit_stats2
 		(site, day, path, title, stats)
-		select site, day, path, title, stats from hit_stats;
+	select
+		site, day, path, title, stats
+	from hit_stats;
 	drop table hit_stats;
 	alter table hit_stats2 rename to hit_stats;
 
@@ -656,8 +664,9 @@ commit;
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
 	);
-	insert into sites2
-		select id, parent, name, code, link_domain, cname, plan, stripe, settings, received_data, state, created_at, updated_at from sites;
+	insert into sites2 select
+		id, parent, name, code, link_domain, cname, plan, stripe, settings, received_data, state, created_at, updated_at
+	from sites;
 	drop table sites;
 	alter table sites2 rename to sites;
 
@@ -731,7 +740,9 @@ commit;
 		foreign key (site) references sites(id) on delete restrict on update restrict
 	);
 
-	insert into users2 select * from users;
+	insert into users2 select
+		id, site, name, email, role, login_at, login_request, login_token, csrf_token, seen_updates_at, created_at, updated_at
+	from users;
 	drop table users;
 	alter table users2 rename to users;
 
@@ -769,7 +780,9 @@ commit;
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 	);
 
-	insert into hits2 select * from hits;
+	insert into hits2 select
+		id, site, session, path, title, event, bot, ref, ref_original, ref_params, ref_scheme, browser, size, location, started_session, created_at
+	from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
 
@@ -781,6 +794,26 @@ commit;
 	drop table flags;
 
 	insert into version values ('2020-04-27-1-usage-flags');
+commit;
+`),
+	"db/migrate/sqlite/2020-04-28-1-fix.sql": []byte(`-- Turns out SQLite doesn't preserve/rebuild the indexes on migration >_<
+begin;
+	create index if not exists "browser_stats#site#day"         on browser_stats(site, day);
+	create index if not exists "browser_stats#site#day#browser" on browser_stats(site, day, browser);
+
+	create index if not exists "hits#site#bot#created_at"      on hits(site, bot, created_at);
+	create index if not exists "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
+
+	create unique index if not exists "sites#code" on sites(lower(code));
+
+	create index if not exists "hit_stats#site#day" on hit_stats(site, day);
+
+	create unique index if not exists "users#login_request" on users(login_request);
+	create unique index if not exists "users#login_token"   on users(login_token);
+	create        index if not exists "users#site"          on users(site);
+	create unique index if not exists "users#site#email"    on users(site, lower(email));
+
+	insert into version values ('2020-04-28-1-fix');
 commit;
 `),
 }

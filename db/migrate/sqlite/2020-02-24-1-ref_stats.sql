@@ -1,5 +1,4 @@
 begin;
-
 	create table ref_stats (
 		site           integer        not null                 check(site > 0),
 
