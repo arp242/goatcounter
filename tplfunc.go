@@ -138,6 +138,9 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 	totalPerc := float32(0.0)
 	var b strings.Builder
 	for _, s := range stats {
+		// TODO: not sure how to display this; doing it in two colours doesn't
+		// make much sense, and neither does always displaying unique. Maybe a
+		// checkbox to toggle? Or two bars?
 		perc := float32(s.Count) / float32(total) * 100
 		if parentTotal > 0 {
 			perc = float32(s.Count) / float32(parentTotal) * 100
@@ -152,9 +155,10 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 			browser = "(unknown)"
 		}
 
-		title := fmt.Sprintf("%s: %.1f%% – %s hits in total",
+		title := fmt.Sprintf("%s: %.1f%% – %s hits in total; %s unique",
 			template.HTMLEscapeString(browser), perc,
-			zhttp.Tnformat(s.Count, MustGetSite(ctx).Settings.NumberFormat))
+			zhttp.Tnformat(s.Count, MustGetSite(ctx).Settings.NumberFormat),
+			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat))
 		b.WriteString(fmt.Sprintf(
 			`<%[4]s href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></%[4]s>`,
 			title, template.HTMLEscapeString(browser), perc, tag))

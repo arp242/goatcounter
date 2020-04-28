@@ -440,7 +440,7 @@ type HitStats []HitStat
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, bool, error) {
+func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -451,9 +451,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	// Get total number of hits in the selected time range.
 	var (
-		wg       sync.WaitGroup
-		total    int
-		totalErr error
+		wg                 sync.WaitGroup
+		total, totalUnique int
+		totalErr           error
 	)
 	wg.Add(1)
 	go func() {
@@ -461,7 +461,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		defer wg.Done()
 
 		query := `/* HitStats.List: get count */
-			select count(*) from hits where
+			select count(id) as t,
+			count(distinct session) as u
+			from hits where
 				site=$1 and
 				bot=0 and
 				created_at >= $2 and
@@ -471,7 +473,13 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
 			args = append(args, filter)
 		}
-		totalErr = db.GetContext(ctx, &total, query, args...)
+
+		var t struct {
+			T int
+			U int
+		}
+		totalErr = db.GetContext(ctx, &t, query, args...)
+		total, totalUnique = t.T, t.U
 		//l = l.Since("get total")
 	}()
 
@@ -506,11 +514,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			order by count(path) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		l = l.Since("select hits")
 
@@ -548,7 +556,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		query += ` order by day asc`
 		err := db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		//l = l.Since("select hits_stats")
 	}
@@ -621,7 +629,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 
 	// Add total and max.
-	var totalDisplay int
+	var totalDisplay, totalUniqueDisplay int
 	{
 		for i := range hh {
 			for j := range hh[i].Stats {
@@ -641,6 +649,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			}
 
 			totalDisplay += hh[i].Count
+			totalUniqueDisplay += hh[i].CountUnique
 			if hh[i].Max < 10 {
 				hh[i].Max = 10
 			}
@@ -665,10 +674,10 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	syncutil.Wait(ctx, &wg)
 	if totalErr != nil {
-		return 0, 0, false, errors.Wrap(totalErr, "HitStats.List")
+		return 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List")
 	}
 
-	return total, totalDisplay, more, nil
+	return total, totalUnique, totalDisplay, totalUniqueDisplay, more, nil
 }
 
 // The database stores everything in UTC, so we need to apply

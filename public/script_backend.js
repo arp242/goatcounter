@@ -530,6 +530,9 @@
 	};
 
 	// Display popup when hovering a chart.
+	//
+	// TODO: this is far more complicated than it needs to be; it's like this
+	// because I wanted to support no-JS, but screw that.
 	var chart_hover = function() {
 		$(document.body).on('mouseleave', '.chart', function() {
 			$('#popup').remove();
