@@ -26,13 +26,13 @@ link as `ext-example.com`:
 The `name` or `id` attribute will be used if `data-goatcounter-click` is empty,
 in that order.
 
-You can use `data-goatcounter-title` and `data-goatcounter-referral` to set the
-title and/or referral:
+You can use `data-goatcounter-title` and `data-goatcounter-referrer` to set the
+title and/or referrer:
 
     <a href="https://example.com"
        data-goatcounter-click="ext-example.com"
        data-goatcounter-title="Example event"
-       data-goatcounter-referral="hello"
+       data-goatcounter-referrer="hello"
     >Example</a>
 
 The regular `title` attribute or the element’s HTML (capped to 200 characters)
@@ -325,7 +325,7 @@ an image on your site:
 
     <img src="{{.Site.URL}}/count?p=/test-img">
 
-This won’t allow recording the referral or screen size, and may also increase
+This won’t allow recording the referrer or screen size, and may also increase
 the number of bot requests (we do our best to filter this out, but it’s hard to
 get all of them, since many spam scrapers and such disguise themselves as
 regular browsers).
