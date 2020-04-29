@@ -88,6 +88,13 @@ Compile from source with:
     $ cd goatcounter
     $ go build ./cmd/goatcounter
 
+Or to build a statically linked binary:
+
+    $ go build \
+        -tags osusergo,netgo,sqlite_omit_load_extension \
+        -ldflags='-extldflags=-static' \
+        ./cmd/goatcounter
+
 You'll now have a `goatcounter` binary in the current directory.
 
 Go 1.13 and newer are supported (it follows the [Go release policy][rp]). You
