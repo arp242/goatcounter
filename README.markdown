@@ -20,7 +20,7 @@ There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 Please consider [contributing financially][sponsor] if you're self-hosting
 GoatCounter so I can pay my rent :-)
 
-GoatCounter is sponsored by a grant from [NLNet's NGI Zero PET fund][nlnet].
+GoatCounter is sponsored by a grant from [NLnet's NGI Zero PET fund][nlnet].
 
 [nlnet]: https://nlnet.nl/project/GoatCounter/
 [sponsor]: http://www.goatcounter.com/contribute
