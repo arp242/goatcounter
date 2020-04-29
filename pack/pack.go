@@ -1427,7 +1427,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 					event:    true,
 					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || ''),
 					title:    (elem.dataset.goatcounterTitle || elem.title || (elem.innerHTML || '').substr(0, 200) || ''),
-					referral: (elem.dataset.goatcounterReferral || ''),
+					referrer: (elem.dataset.goatcounterReferrer || elem.dataset.goatcounterReferral || ''),
 				})
 			}
 			elem.addEventListener('click', send, false)
@@ -14181,13 +14181,13 @@ link as <code>ext-example.com</code>:</p>
 <p>The <code>name</code> or <code>id</code> attribute will be used if <code>data-goatcounter-click</code> is empty,
 in that order.</p>
 
-<p>You can use <code>data-goatcounter-title</code> and <code>data-goatcounter-referral</code> to set the
-title and/or referral:</p>
+<p>You can use <code>data-goatcounter-title</code> and <code>data-goatcounter-referrer</code> to set the
+title and/or referrer:</p>
 
 <pre><code>&lt;a href="https://example.com"
    data-goatcounter-click="ext-example.com"
    data-goatcounter-title="Example event"
-   data-goatcounter-referral="hello"
+   data-goatcounter-referrer="hello"
 &gt;Example&lt;/a&gt;
 </code></pre>
 
@@ -14533,7 +14533,7 @@ an image on your site:</p>
 <pre><code>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;
 </code></pre>
 
-<p>This won’t allow recording the referral or screen size, and may also increase
+<p>This won’t allow recording the referrer or screen size, and may also increase
 the number of bot requests (we do our best to filter this out, but it’s hard to
 get all of them, since many spam scrapers and such disguise themselves as
 regular browsers).</p>
