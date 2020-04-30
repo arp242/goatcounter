@@ -242,7 +242,7 @@ form .err  { color: red; display: block; }
 .chart-bar > div:hover  { background-color: #aaa; }
 .chart-bar > .f         { background-color: #eee; }
 
-#popup {
+#tooltip {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -250,10 +250,8 @@ form .err  { color: red; display: block; }
 	font-family: sans-serif;
 
 	padding: 0 .5em;
-	border-radius: 2px;
-	background-color: #fff;
-	border: 1px solid #eee;
-	box-shadow: 0 0 2px rgba(0, 0, 0, .5);
+	color: #fff;
+	background-color: #111;
 }
 
 #drag-box {

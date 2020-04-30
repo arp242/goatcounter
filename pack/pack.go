@@ -11671,36 +11671,39 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		CSRF      = $('#js-csrf').text();
 		TZ_OFFSET = parseInt($('#js-settings').attr('data-offset'), 10) || 0;
 
-		// Set up error reporting.
-		window.onerror = onerror;
+		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
+			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
+			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs, draw_chart,
+		].forEach(function(f) { f.call() })
+	});
+
+	// Set up error reporting.
+	var report_errors = function() {
+		window.onerror = on_error;
+
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return;
-			var msg = 'Could not load ' + settings.url + ': ' + err;
-			console.error(msg);
-			onerror('ajaxError: ' + msg, settings.url);
-			alert(msg);
+			var msg = ` + "`" + `Could not load ${settings.url}: ${err}` + "`" + `
+			console.error(msg)
+			on_error('ajaxError: ' + msg, settings.url)
+			alert(msg)
+		})
+	}
+
+	// Report an error.
+	var on_error = function(msg, url, line, column, err) {
+		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
+		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
+			return;
+
+		jQuery.ajax({
+			url:    '/jserr',
+			method: 'POST',
+			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
-
-		// Show loading indicator.
-		var loading;
-		$(document).on('ajaxStart', function() {
-			clearTimeout(loading)
-			loading = setTimeout(function() {
-				$('#loading').css('display', 'block')
-			}, 150)
-		})
-		$(document).on('ajaxComplete', function() {
-			clearTimeout(loading)
-			$('#loading').css('display', 'none')
-		})
-
-		;[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
-			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
-			setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart,
-		].forEach(function(f) { f.call(); });
-	});
+	}
 
 	// Replace the "height:" style with a background gradient and set the height
 	// to 100%.
@@ -11848,13 +11851,19 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		}
 
 		var th = $('.pages-list .total-hits'),
-		    td = $('.pages-list .total-display');
+		    td = $('.pages-list .total-display'),
+			tu = $('.pages-list .total-unique'),
+			ud = $('.pages-list .total-unique-display')
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
+			tu.text(format_int(data.total_unique));
+			ud.text(format_int(data.total_unique_display));
 		}
-		else
+		else {
 			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
+			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_display_unique));
+		}
 
 		draw_chart()
 	};
@@ -11885,19 +11894,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};
-
-	// Report an error.
-	var onerror = function(msg, url, line, column, err) {
-		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
-		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
-			return;
-
-		jQuery.ajax({
-			url:    '/jserr',
-			method: 'POST',
-			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
-		});
-	}
 
 	// Subscribe with Stripe.
 	var billing_subscribe = function() {
@@ -12182,21 +12178,40 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		})
 	};
 
-	// Display popup when hovering a chart.
-	var chart_hover = function() {
-		$(document.body).on('mouseleave', '.chart', () => { $('#popup').remove() })
+	// Show custom tooltip on everything with a title attribute.
+	var tooltip = function() {
+		var tip = $('<div id="tooltip"></div>')
 
-		// Pages chart.
-		$(document.body).on('mouseenter', '.chart > div', function(e) {
-			var t = $(e.target);
+		var display = function(e, t) {
+			var pos = {left: e.pageX, top: (e.pageY + 20)}
+			if (t.closest('.chart-bar').length > 0) {
+				var x = t.offset().left
+				pos = {
+					left: (x + 8),
+					top:  (t.parent().position().top),
+				}
+			}
 
-			var title = t.attr('title') || t.attr('data-t');
-			if (!title)
-				return;
+			tip.remove().html(t.attr('data-title')).css(pos)
 
-			if (t.attr('data-t'))
-				title = t.attr('data-t');
-			else {
+			t.one('mouseleave', () => { tip.remove() })
+			$('body').append(tip);
+
+			// Move to left of cursor if there isn't enough space.
+			if (tip.height() > 30)
+				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
+		}
+
+		$('body').on('mouseenter', '[data-title]', function(e) {
+			display(e, $(e.target).closest('[data-title]'))
+		})
+
+		$('body').on('mouseenter', '[title]', function(e) {
+			var t     = $(e.target).closest('[title]'),
+				title = t.attr('title')
+
+			// Reformat the title in the chart.
+			if (t.is('div') && t.closest('.chart-bar').length > 0) {
 				if ($('.pages-list').hasClass('pages-list-daily')) {
 					var [day, views, unique] = title.split('|')
 					title = ` + "`" + `${format_date(day)}` + "`" + `
@@ -12206,27 +12221,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					title = ` + "`" + `${format_date(day)} ${un24(start)} – ${un24(end)}` + "`" + `
 				}
 
-				title += !views ? ', future' : ` + "`" + `, ${views} views; ${unique} unique` + "`" + `
-				t.attr('data-t', title);
-				t.removeAttr('title');
+				title += !views ? ', future' : ` + "`" + `, ${unique} visits; <span class="views">${views} pageviews</span>` + "`" + `
 			}
 
-			var x = t.offset().left
-			var p = $('<div id="popup"></div>').
-				html(title).
-				css({
-					left: (x + 8) + 'px',
-					top: (t.parent().position().top) + 'px',
-				});
-
-			$('#popup').remove();
-			$(document.body).append(p);
-
-			// Move to left of cursor if there isn't enough space.
-			if (p.height() > 30)
-				p.css('left', 0).css('left', (x - p.width() - 8) + 'px');
-		});
-	};
+			t.attr('data-title', title).removeAttr('title')
+			display(e, t)
+		})
+	}
 
 	// Parse all query parameters from string to {k: v} object.
 	var split_query = function(s) {
@@ -12318,7 +12319,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Format a date as year-month-day.
 	var format_date_ymd = function(date) {
-		if (typeof date === 'string')  // TODO: maybe add basic sanity check here?
+		if (typeof(date) === 'string')
 			return date;
 		var m = date.getMonth() + 1,
 			d = date.getDate();
@@ -12633,7 +12634,17 @@ form .err  { color: red; display: block; }
 .count-list td:nth-child(2) {  /* Path */
 	width: 20em;
 }
+
+.count-list.count-list-refs td:nth-child(1) {
+	text-align: right;
+	width: 4em;
+}
 .count-list.count-list-refs td:nth-child(2) {
+	text-align: right;
+	width: 4em;
+}
+
+.count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
 }
@@ -12771,7 +12782,7 @@ form .err  { color: red; display: block; }
 .chart-bar > div:hover  { background-color: #aaa; }
 .chart-bar > .f         { background-color: #eee; }
 
-#popup {
+#tooltip {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -12779,10 +12790,8 @@ form .err  { color: red; display: block; }
 	font-family: sans-serif;
 
 	padding: 0 .5em;
-	border-radius: 2px;
-	background-color: #fff;
-	border: 1px solid #eee;
-	box-shadow: 0 0 2px rgba(0, 0, 0, .5);
+	color: #fff;
+	background-color: #111;
 }
 
 #drag-box {
@@ -12962,6 +12971,17 @@ h3 + h4 { margin-top: .3em; }
 	animation-name: loading;
 	animation-duration: 1s;
 	animation-iteration-count: infinite;
+}
+
+
+.views {
+	color: #999;
+	/*
+	font-size: .9em;
+	*/
+}
+
+.unique-views {
 }
 `),
 }
@@ -14039,8 +14059,8 @@ var Templates = map[string][]byte{
 	"tpl/_backend_pages.gohtml": []byte(`{{range $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td>
-			<span title="Pageviews">{{nformat $h.Count $.Site}}</span><br>
-			<span title="Unqiue visitors">{{nformat $h.CountUnique $.Site}}</span>
+			<span title="Visits">{{nformat $h.CountUnique $.Site}}</span><br>
+			<span title="Pageviews" class="views">{{nformat $h.Count $.Site}}</span><br>
 		</td>
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
@@ -14077,7 +14097,12 @@ var Templates = map[string][]byte{
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td>{{nformat $r.Count $.Site}} ({{nformat $r.CountUnique $.Site}})</td>
+		<td>
+			<span title="Visits">{{nformat $r.CountUnique $.Site}}</span>
+		</td>
+		<td>
+			<span class="views" title="Pageviews">{{nformat $r.Count $.Site}}</span>
+		</td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path}}{{$r.Path}}
 			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>{{end}}
@@ -14879,11 +14904,16 @@ Martin
 			<h2>Paths</h2>
 			<span class="hide-mobileX totals">
 				Displaying
-				<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-				(<span class="total-display-unique">{{nformat .TotalUniqueDisplay $.Site}}</span> unique)
+				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
 				out of
-				<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
-				(<span class="total-display-unique">{{nformat .TotalUniqueHits $.Site}}</span> unique)
+				<span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
+				visits;
+				<span class="views">
+					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span>
+					out of
+					<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
+					pageviews
+				</span>
 			</span>
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}

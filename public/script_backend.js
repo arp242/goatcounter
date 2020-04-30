@@ -14,24 +14,38 @@
 		CSRF      = $('#js-csrf').text();
 		TZ_OFFSET = parseInt($('#js-settings').attr('data-offset'), 10) || 0;
 
-		;[report_errors, period_select, load_refs, chart_hover, paginate_paths,
+		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 			paginate_toprefs, draw_chart,
-		].forEach(function(f) { f.call(); });
+		].forEach(function(f) { f.call() })
 	});
 
+	// Set up error reporting.
 	var report_errors = function() {
-		// Set up error reporting.
-		window.onerror = onerror;
+		window.onerror = on_error;
+
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return;
 			var msg = `Could not load ${settings.url}: ${err}`
 			console.error(msg)
-			onerror('ajaxError: ' + msg, settings.url)
+			on_error('ajaxError: ' + msg, settings.url)
 			alert(msg)
 		})
+	}
+
+	// Report an error.
+	var on_error = function(msg, url, line, column, err) {
+		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
+		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
+			return;
+
+		jQuery.ajax({
+			url:    '/jserr',
+			method: 'POST',
+			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
+		});
 	}
 
 	// Replace the "height:" style with a background gradient and set the height
@@ -223,19 +237,6 @@
 		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};
-
-	// Report an error.
-	var onerror = function(msg, url, line, column, err) {
-		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
-		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
-			return;
-
-		jQuery.ajax({
-			url:    '/jserr',
-			method: 'POST',
-			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
-		});
-	}
 
 	// Subscribe with Stripe.
 	var billing_subscribe = function() {
@@ -520,21 +521,40 @@
 		})
 	};
 
-	// Display popup when hovering a chart.
-	var chart_hover = function() {
-		$(document.body).on('mouseleave', '.chart', () => { $('#popup').remove() })
+	// Show custom tooltip on everything with a title attribute.
+	var tooltip = function() {
+		var tip = $('<div id="tooltip"></div>')
 
-		// Pages chart.
-		$(document.body).on('mouseenter', '.chart > div', function(e) {
-			var t = $(e.target);
+		var display = function(e, t) {
+			var pos = {left: e.pageX, top: (e.pageY + 20)}
+			if (t.closest('.chart-bar').length > 0) {
+				var x = t.offset().left
+				pos = {
+					left: (x + 8),
+					top:  (t.parent().position().top),
+				}
+			}
 
-			var title = t.attr('title') || t.attr('data-t');
-			if (!title)
-				return;
+			tip.remove().html(t.attr('data-title')).css(pos)
 
-			if (t.attr('data-t'))
-				title = t.attr('data-t');
-			else {
+			t.one('mouseleave', () => { tip.remove() })
+			$('body').append(tip);
+
+			// Move to left of cursor if there isn't enough space.
+			if (tip.height() > 30)
+				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
+		}
+
+		$('body').on('mouseenter', '[data-title]', function(e) {
+			display(e, $(e.target).closest('[data-title]'))
+		})
+
+		$('body').on('mouseenter', '[title]', function(e) {
+			var t     = $(e.target).closest('[title]'),
+				title = t.attr('title')
+
+			// Reformat the title in the chart.
+			if (t.is('div') && t.closest('.chart-bar').length > 0) {
 				if ($('.pages-list').hasClass('pages-list-daily')) {
 					var [day, views, unique] = title.split('|')
 					title = `${format_date(day)}`
@@ -545,26 +565,12 @@
 				}
 
 				title += !views ? ', future' : `, ${unique} visits; <span class="views">${views} pageviews</span>`
-				t.attr('data-t', title);
-				t.removeAttr('title');
 			}
 
-			var x = t.offset().left
-			var p = $('<div id="popup"></div>').
-				html(title).
-				css({
-					left: (x + 8) + 'px',
-					top: (t.parent().position().top) + 'px',
-				});
-
-			$('#popup').remove();
-			$(document.body).append(p);
-
-			// Move to left of cursor if there isn't enough space.
-			if (p.height() > 30)
-				p.css('left', 0).css('left', (x - p.width() - 8) + 'px');
-		});
-	};
+			t.attr('data-title', title).removeAttr('title')
+			display(e, t)
+		})
+	}
 
 	// Parse all query parameters from string to {k: v} object.
 	var split_query = function(s) {
