@@ -521,7 +521,11 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		if v > maxSignups {
 			maxSignups = v
 		}
-		signups = append(signups, goatcounter.Stat{Day: k, Hourly: []int{v}})
+		signups = append(signups, goatcounter.Stat{
+			Day:          k,
+			Hourly:       []int{v},
+			HourlyUnique: []int{v},
+		})
 	}
 	sort.Slice(signups, func(i, j int) bool {
 		return signups[i].Day < signups[j].Day

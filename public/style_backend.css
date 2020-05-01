@@ -231,13 +231,6 @@ form .err  { color: red; display: block; }
 	left: 0;
 	bottom: 0;
 	width: 100%;
-
-	/*
-	border: 1px solid #db1212;
-	border-bottom: 0;
-	background-color: #fff;
-	*/
-
 }
 .chart-bar > div:hover  { background-color: #aaa; }
 .chart-bar > .f         { background-color: #eee; }
@@ -433,13 +426,5 @@ h3 + h4 { margin-top: .3em; }
 	animation-iteration-count: infinite;
 }
 
-
-.views {
-	color: #999;
-	/*
-	font-size: .9em;
-	*/
-}
-
-.unique-views {
-}
+/* Grey "pageviews" out when put next to visitors */
+.views { color: #999; }

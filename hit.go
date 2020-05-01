@@ -989,16 +989,22 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 		switch {
 		case x == 0:
 			ns[5].Count += hh[i].Count
+			ns[5].CountUnique += hh[i].CountUnique
 		case x <= 384:
 			ns[0].Count += hh[i].Count
+			ns[0].CountUnique += hh[i].CountUnique
 		case x <= 1024:
 			ns[1].Count += hh[i].Count
+			ns[1].CountUnique += hh[i].CountUnique
 		case x <= 1440:
 			ns[2].Count += hh[i].Count
+			ns[2].CountUnique += hh[i].CountUnique
 		case x <= 1920:
 			ns[3].Count += hh[i].Count
+			ns[3].CountUnique += hh[i].CountUnique
 		default:
 			ns[4].Count += hh[i].Count
+			ns[4].CountUnique += hh[i].CountUnique
 		}
 	}
 	*h = ns

@@ -39,12 +39,10 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 			var width int
 			if len(h.Size) > 0 {
-				// TODO: apply scaling?
-				width = int(h.Size[0])
+				width = int(h.Size[0]) // TODO: apply scaling?
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-
 			k := fmt.Sprintf("%s%d%t", day, width, h.Event)
 			v := grouped[k]
 			if v.count == 0 {

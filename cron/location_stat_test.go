@@ -24,7 +24,7 @@ func TestLocationStats(t *testing.T) {
 	err := UpdateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
-		{Site: site.ID, CreatedAt: now, Location: "ET"},
+		{Site: site.ID, CreatedAt: now, Location: "ET", StartedSession: true},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -36,7 +36,7 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `3 -> [{Indonesia 2} {Ethiopia 1}]`
+	want := `3 -> [{Indonesia 2 0} {Ethiopia 1 1}]`
 	out := fmt.Sprintf("%d -> %v", total, stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -47,8 +47,8 @@ func TestLocationStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},
-		{Site: site.ID, CreatedAt: now, Location: "ET"},
-		{Site: site.ID, CreatedAt: now, Location: "ET"},
+		{Site: site.ID, CreatedAt: now, Location: "ET", StartedSession: true},
+		{Site: site.ID, CreatedAt: now, Location: "ET", StartedSession: true},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},
 		{Site: site.ID, CreatedAt: now, Location: "NZ"},
 	})
@@ -62,10 +62,9 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `10 -> [{Ethiopia 5} {Indonesia 4} {New Zealand 1}]`
+	want = `10 -> [{Ethiopia 5 3} {Indonesia 4 0} {New Zealand 1 0}]`
 	out = fmt.Sprintf("%d -> %v", total, stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
 	}
-
 }
