@@ -12214,14 +12214,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					}
 				}
 
-				if (SETTINGS.date_format !== '2006-01-02') {
-					var d = new Date(),
-						ds = date.split('-');
-					d.setFullYear(ds[0]);
-					d.setMonth(parseInt(ds[1], 10) - 1);
-					d.setDate(ds[2]);
-					date = format_date(d);
-				}
+				if (SETTINGS.date_format !== '2006-01-02')
+					date = format_date(get_date(date))
 
 				if (start)
 					title = date + ' ' + start + ' – ' + end + views;
@@ -12349,15 +12343,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
-		var d = new Date(),
-			s = str.split('-');
-		d.setFullYear(s[0]);
-		d.setMonth(parseInt(s[1], 10) - 1);
-		d.setDate(s[2]);
-		d.setHours(0);
-		d.setMinutes(0);
-		d.setSeconds(0);
-		return d
+		var s = str.split('-')
+		return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
 	};
 
 	// Append period-start and period-end values to the data object.
