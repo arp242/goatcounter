@@ -11730,8 +11730,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						linear-gradient(to top,
 						#9a15a4 0%,
 						#9a15a4 ${hu},
-						#d314e1 ${hu},
-						#d314e1 ${h},
+						#ddd ${hu},
+						#ddd ${h},
 						transparent ${h},
 						transparent 100%)` + "`" + `
 				}
@@ -11739,7 +11739,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			chart.dataset.done = 't'
 			chart.style.display = 'flex'
 		})
-	};
+	}
 
 	// Add current IP address to ignore_ips.
 	var add_ip = function() {
@@ -12202,8 +12202,27 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
 		}
 
+		// Translucent hover effect; need a new div because the height isn't
+		// 100%
+		var add_cursor = function(t) {
+			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.is('.max'))
+				return
+
+			$('#cursor').remove()
+			var cursor = $('<span id="cursor"></span>').
+				on('mouseleave', () => { cursor.remove() }).
+				attr('title', t.attr('data-title')).
+				css({
+					width: t.width(),
+					left:  t.position().left - 3, // TODO: -3, why?
+				})
+				t.parent().append(cursor)
+		}
+
 		$('body').on('mouseenter', '[data-title]', function(e) {
-			display(e, $(e.target).closest('[data-title]'))
+			var t = $(e.target).closest('[data-title]')
+			display(e, t)
+			add_cursor(t)
 		})
 
 		$('body').on('mouseenter', '[title]', function(e) {
@@ -12223,9 +12242,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 				title += !views ? ', future' : ` + "`" + `, ${unique} visits; <span class="views">${views} pageviews</span>` + "`" + `
 			}
-
 			t.attr('data-title', title).removeAttr('title')
+
 			display(e, t)
+			add_cursor(t)
 		})
 	}
 
@@ -12655,8 +12675,6 @@ form .err  { color: red; display: block; }
 .show-mobile .page-title { vertical-align: top; }
 .show-mobile .page-title+sup { bottom: 2ex; }
 
-/* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
- * solution for that though :-/ */
 .rlink { display: inline-block; overflow: hidden;
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
@@ -12755,13 +12773,14 @@ form .err  { color: red; display: block; }
 	flex-grow: 1;
 }
 
-/* Chart colours
- * TODO: color scheme setting?
-#77f / #99f
-#db1212 / #6b1818
-*/
 .chart-bar > div       { background: #9a15a4; }
-.chart-bar > div:hover { background: #d314e1 !important; }
+
+.chart-bar > #cursor {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, .2);
+}
 
 .chart-hbar span         { background: #9a15a4; }
 .chart-hbar a:hover span { background: #b11abc; }
@@ -12771,15 +12790,7 @@ form .err  { color: red; display: block; }
 	left: 0;
 	bottom: 0;
 	width: 100%;
-
-	/*
-	border: 1px solid #db1212;
-	border-bottom: 0;
-	background-color: #fff;
-	*/
-
 }
-.chart-bar > div:hover  { background-color: #aaa; }
 .chart-bar > .f         { background-color: #eee; }
 
 #tooltip {
@@ -12952,37 +12963,8 @@ h3 + h4 { margin-top: .3em; }
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
 
-
-/*** Loading indicator ***/
-@keyframes loading {
-  0%   { background-color: #f6f3da; }
-  50%  { background-color: yellow; }
-  100% { background-color: #f6f3da; }
-}
-#loading {
-	position: fixed;
-	top: 0;
-	left: calc(50% - 3em);
-	padding: .3em 1em;
-	box-shadow: 0 0 4px #cdc8a4;
-	display: none;
-
-	background-color: #f6f3da;
-	animation-name: loading;
-	animation-duration: 1s;
-	animation-iteration-count: infinite;
-}
-
-
-.views {
-	color: #999;
-	/*
-	font-size: .9em;
-	*/
-}
-
-.unique-views {
-}
+/* Grey "pageviews" out when put next to visitors */
+.views { color: #999; }
 `),
 }
 
@@ -14097,12 +14079,8 @@ var Templates = map[string][]byte{
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td>
-			<span title="Visits">{{nformat $r.CountUnique $.Site}}</span>
-		</td>
-		<td>
-			<span class="views" title="Pageviews">{{nformat $r.Count $.Site}}</span>
-		</td>
+		<td><span title="Visits">{{nformat $r.CountUnique $.Site}}</span></td>
+		<td><span class="views" title="Pageviews">{{nformat $r.Count $.Site}}</span></td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path}}{{$r.Path}}
 			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>{{end}}
@@ -14903,16 +14881,12 @@ Martin
 		<header class="h2 header-pages">
 			<h2>Paths</h2>
 			<span class="hide-mobileX totals">
-				Displaying
-				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
-				out of
-				<span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
+				Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
+				out of <span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
 				visits;
 				<span class="views">
-					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span>
-					out of
-					<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
-					pageviews
+					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> out of
+					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
 				</span>
 			</span>
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"

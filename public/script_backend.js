@@ -73,8 +73,8 @@
 						linear-gradient(to top,
 						#9a15a4 0%,
 						#9a15a4 ${hu},
-						#d314e1 ${hu},
-						#d314e1 ${h},
+						#ddd ${hu},
+						#ddd ${h},
 						transparent ${h},
 						transparent 100%)`
 				}
@@ -82,7 +82,7 @@
 			chart.dataset.done = 't'
 			chart.style.display = 'flex'
 		})
-	};
+	}
 
 	// Add current IP address to ignore_ips.
 	var add_ip = function() {
@@ -545,8 +545,27 @@
 				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
 		}
 
+		// Translucent hover effect; need a new div because the height isn't
+		// 100%
+		var add_cursor = function(t) {
+			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.is('.max'))
+				return
+
+			$('#cursor').remove()
+			var cursor = $('<span id="cursor"></span>').
+				on('mouseleave', () => { cursor.remove() }).
+				attr('title', t.attr('data-title')).
+				css({
+					width: t.width(),
+					left:  t.position().left - 3, // TODO: -3, why?
+				})
+				t.parent().append(cursor)
+		}
+
 		$('body').on('mouseenter', '[data-title]', function(e) {
-			display(e, $(e.target).closest('[data-title]'))
+			var t = $(e.target).closest('[data-title]')
+			display(e, t)
+			add_cursor(t)
 		})
 
 		$('body').on('mouseenter', '[title]', function(e) {
@@ -566,9 +585,10 @@
 
 				title += !views ? ', future' : `, ${unique} visits; <span class="views">${views} pageviews</span>`
 			}
-
 			t.attr('data-title', title).removeAttr('title')
+
 			display(e, t)
+			add_cursor(t)
 		})
 	}
 
