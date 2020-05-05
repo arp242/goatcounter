@@ -114,6 +114,12 @@ func TestBackendCount(t *testing.T) {
 		}},
 
 		{"bot", url.Values{"p": {"/a"}, "b": {"100"}}, nil, 400, goatcounter.Hit{}},
+
+		{"post", url.Values{"p": {"/foo.html"}}, func(r *http.Request) {
+			r.Method = "POST"
+		}, 200, goatcounter.Hit{
+			Path: "/foo.html",
+		}},
 	}
 
 	for _, tt := range tests {

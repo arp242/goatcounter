@@ -73,7 +73,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		rr.Post("/csp", zhttp.HandlerCSP())
 
 		// 4 pageviews/second should be more than enough.
-		rr.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
+		rateLimited := rr.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 			Client: func(r *http.Request) string {
 				// Add in the User-Agent to reduce the problem of multiple
 				// people in the same building hitting the limit.
@@ -92,7 +92,10 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 				}
 				return 4, 1
 			},
-		})).Get("/count", zhttp.Wrap(h.count))
+		}))
+		countHandler := zhttp.Wrap(h.count)
+		rateLimited.Get("/count", countHandler)
+		rateLimited.Post("/count", countHandler) // to support navigator.sendBeacon (JS)
 	}
 
 	{
@@ -246,7 +249,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		CreatedAt: goatcounter.Now(),
 	}
 
-	_, err := zhttp.Decode(r, &hit)
+	err := formam.NewDecoder(&formam.DecoderOptions{TagName: "json"}).Decode(r.URL.Query(), &hit)
 	if err != nil {
 		w.Header().Add("X-Goatcounter", fmt.Sprintf("error decoding parameters: %s", err))
 		w.WriteHeader(400)
