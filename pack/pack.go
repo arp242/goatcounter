@@ -1837,13 +1837,12 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		return false
 	}
 
-	// Count a hit.
-	window.goatcounter.count = function(vars) {
-		if (filter()) {
-			if (console && 'log' in console)
-				console.warn('goatcounter: not counting because of: ' + filter())
+	// Get URL to send to GoatCounter.
+	window.goatcounter.url = function(vars) {
+		var data = get_data(vars || {})
+		if (data.p === null)  // null from user callback.
 			return
-		}
+		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
 
 		var endpoint = get_endpoint()
 		if (!endpoint) {
@@ -1852,19 +1851,31 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			return
 		}
 
-		var data = get_data(vars || {})
-		if (data.p === null)  // null from user callback.
+		return endpoint + urlencode(data)
+	}
+
+	// Count a hit.
+	window.goatcounter.count = function(vars) {
+		if (filter()) {
+			if (console && 'log' in console)
+				console.warn('goatcounter: not counting because of: ' + filter())
 			return
+		}
 
-		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
+		var url = goatcounter.url(vars)
+		if (!url) {
+			if (console && 'log' in console)
+				console.warn('goatcounter: not counting because path callback returned null')
+			return
+		}
 
-		var img = document.createElement('img'),
-		    rm  = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
-		img.src = endpoint + urlencode(data)
+		var img = document.createElement('img')
+		img.src = url
 		img.style.float = 'right'  // Affect layout less.
 		img.setAttribute('alt', '')
 		img.setAttribute('aria-hidden', 'true')
 
+		var rm = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
 		setTimeout(rm, 3000)  // In case the onload isn't triggered.
 		img.addEventListener('load', rm, false)
 		document.body.appendChild(img)
@@ -14809,6 +14820,10 @@ Use <code>{{.Site.URL}}/count</code> as the endpoint in the WordPress GoatCounte
       <li><a href="#data-parameters" id="markdown-toc-data-parameters">Data parameters</a></li>
       <li><a href="#methods" id="markdown-toc-methods">Methods</a>        <ul>
           <li><a href="#countvars" id="markdown-toc-countvars"><code>count(vars)</code></a></li>
+        </ul>
+      </li>
+      <li><a href="#urlvars" id="markdown-toc-urlvars"><code>url(vars)</code></a></li>
+      <li><a href="#filter" id="markdown-toc-filter"><code>filter()</code></a>        <ul>
           <li><a href="#bindevents" id="markdown-toc-bindevents"><code>bind_events()</code></a></li>
           <li><a href="#getqueryname" id="markdown-toc-getqueryname"><code>get_query(name)</code></a></li>
         </ul>
@@ -14822,6 +14837,7 @@ Use <code>{{.Site.URL}}/count</code> as the endpoint in the WordPress GoatCounte
       <li><a href="#multiple-domains" id="markdown-toc-multiple-domains">Multiple domains</a></li>
       <li><a href="#ignore-query-parameters-in-path" id="markdown-toc-ignore-query-parameters-in-path">Ignore query parameters in path</a></li>
       <li><a href="#spa" id="markdown-toc-spa">SPA</a></li>
+      <li><a href="#using-navigatorsendbeacon" id="markdown-toc-using-navigatorsendbeacon">Using navigator.sendBeacon</a></li>
       <li><a href="#custom-events" id="markdown-toc-custom-events">Custom events</a></li>
       <li><a href="#consent-notice" id="markdown-toc-consent-notice">Consent notice</a></li>
     </ul>
@@ -14967,6 +14983,28 @@ it’s available:</p>
 
 <p>The default implementation already handles this, and you only need to worry
 about this if you call <code>count()</code> manually.</p>
+
+<h3 id="urlvars"><code>url(vars)</code> <a href="#urlvars"></a></h3>
+<p>Get URL to send to the server; the <code>vars</code> parameter behaves as <code>count()</code>.</p>
+
+<p>Note that you may want to use <code>filter()</code> to exclude prerender requests and
+various other things.</p>
+
+<h3 id="filter"><code>filter()</code> <a href="#filter"></a></h3>
+<p>Determine if this request should be filtered; this returns a string with the
+reason or <code>false</code>.</p>
+
+<p>This will filter pre-render requests, frames (unless <code>allow_frame</code> is set), and
+local requests (unless <code>allow_local</code> is set).</p>
+
+<p>Example usage:</p>
+
+<pre><code>if (goatcounter.filter()) {
+    if (console &amp;&amp; 'log' in console)
+        console.warn('goatcounter: not counting because of: ' + goatcounter.filter())
+    return
+}
+</code></pre>
 
 <h4 id="bindevents"><code>bind_events()</code> <a href="#bindevents"></a></h4>
 <p>Bind a click event to every element with <code>data-goatcounter-click</code>. Called on
@@ -15122,6 +15160,24 @@ for navigation then you probably <em>don’t</em> want to do this.</p>
 {{template "code" .}}
 </code></pre>
 
+<h3 id="using-navigatorsendbeacon">Using navigator.sendBeacon <a href="#using-navigatorsendbeacon"></a></h3>
+
+<p>You can use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon"><code>navigator.sendBeacon()</code></a> with GoatCounter, for example to
+send events when someone closes a page:</p>
+
+<pre><code>&lt;script&gt;
+    if (goatcounter.filter())
+        return
+    navigator.sendBeacon(goatcounter.url({
+        event: true,
+        path: function(p) {
+            return 'unload-' + p
+        },
+    }))
+&lt;/script&gt;
+{{template "code" .}}
+</code></pre>
+
 <h3 id="custom-events">Custom events <a href="#custom-events"></a></h3>
 <p>You can send an event by setting the <code>event</code> parameter to <code>true</code> in <code>count()</code>.
 For example:</p>
@@ -15210,8 +15266,10 @@ regular browsers).</p>
 <p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
 
 <h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
-<p>You can call <code>GET {{.Site.URL}}/count</code> from anywhere, such as your app’s
-middleware. It supports the following query parameters:</p>
+<p>You can call <code>GET {{.Site.URL}}/count</code> or <code>POST {{.Site.URL}}/count</code> from
+anywhere, such as your app’s middleware. The GET and POST sendpoints are
+identical, and supportxs the following query parameters (form parameters are
+ignored for POST):</p>
 
 <ul>
   <li><code>p</code> → <code>path</code></li>

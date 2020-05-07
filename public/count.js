@@ -89,13 +89,12 @@
 		return false
 	}
 
-	// Count a hit.
-	window.goatcounter.count = function(vars) {
-		if (filter()) {
-			if (console && 'log' in console)
-				console.warn('goatcounter: not counting because of: ' + filter())
+	// Get URL to send to GoatCounter.
+	window.goatcounter.url = function(vars) {
+		var data = get_data(vars || {})
+		if (data.p === null)  // null from user callback.
 			return
-		}
+		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
 
 		var endpoint = get_endpoint()
 		if (!endpoint) {
@@ -104,19 +103,31 @@
 			return
 		}
 
-		var data = get_data(vars || {})
-		if (data.p === null)  // null from user callback.
+		return endpoint + urlencode(data)
+	}
+
+	// Count a hit.
+	window.goatcounter.count = function(vars) {
+		if (filter()) {
+			if (console && 'log' in console)
+				console.warn('goatcounter: not counting because of: ' + filter())
 			return
+		}
 
-		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
+		var url = goatcounter.url(vars)
+		if (!url) {
+			if (console && 'log' in console)
+				console.warn('goatcounter: not counting because path callback returned null')
+			return
+		}
 
-		var img = document.createElement('img'),
-		    rm  = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
-		img.src = endpoint + urlencode(data)
+		var img = document.createElement('img')
+		img.src = url
 		img.style.float = 'right'  // Affect layout less.
 		img.setAttribute('alt', '')
 		img.setAttribute('aria-hidden', 'true')
 
+		var rm = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
 		setTimeout(rm, 3000)  // In case the onload isn't triggered.
 		img.addEventListener('load', rm, false)
 		document.body.appendChild(img)
