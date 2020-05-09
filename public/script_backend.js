@@ -14,36 +14,39 @@
 		CSRF      = $('#js-csrf').text();
 		TZ_OFFSET = parseInt($('#js-settings').attr('data-offset'), 10) || 0;
 
-		// Set up error reporting.
-		window.onerror = onerror;
+		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
+			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
+			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
+			paginate_toprefs, draw_chart,
+		].forEach(function(f) { f.call() })
+	});
+
+	// Set up error reporting.
+	var report_errors = function() {
+		window.onerror = on_error;
+
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return;
-			var msg = 'Could not load ' + settings.url + ': ' + err;
-			console.error(msg);
-			onerror('ajaxError: ' + msg, settings.url);
-			alert(msg);
+			var msg = `Could not load ${settings.url}: ${err}`
+			console.error(msg)
+			on_error('ajaxError: ' + msg, settings.url)
+			alert(msg)
+		})
+	}
+
+	// Report an error.
+	var on_error = function(msg, url, line, column, err) {
+		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
+		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
+			return;
+
+		jQuery.ajax({
+			url:    '/jserr',
+			method: 'POST',
+			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
-
-		// Show loading indicator.
-		var loading;
-		$(document).on('ajaxStart', function() {
-			clearTimeout(loading)
-			loading = setTimeout(function() {
-				$('#loading').css('display', 'block')
-			}, 150)
-		})
-		$(document).on('ajaxComplete', function() {
-			clearTimeout(loading)
-			$('#loading').css('display', 'none')
-		})
-
-		;[period_select, load_refs, chart_hover, paginate_paths, paginate_refs,
-			hchart_detail, settings_tabs, paginate_locations, billing_subscribe,
-			setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart,
-		].forEach(function(f) { f.call(); });
-	});
+	}
 
 	// Replace the "height:" style with a background gradient and set the height
 	// to 100%.
@@ -65,15 +68,21 @@
 				else if (h === '')
 					bar.style.background = 'transparent'
 				else {
-					h = (100 - parseInt(h, 10)) + '%'
-					bar.style.background = 'linear-gradient(to bottom, transparent 0%, transparent ' + h +
-						', transparent ' + h + ', #9a15a4 ' + h + ', #9a15a4 100%)'
+					var hu = bar.dataset.u
+					bar.style.background = `
+						linear-gradient(to top,
+						#9a15a4 0%,
+						#9a15a4 ${hu},
+						#ddd ${hu},
+						#ddd ${h},
+						transparent ${h},
+						transparent 100%)`
 				}
 			})
 			chart.dataset.done = 't'
 			chart.style.display = 'flex'
 		})
-	};
+	}
 
 	// Add current IP address to ignore_ips.
 	var add_ip = function() {
@@ -185,13 +194,19 @@
 		}
 
 		var th = $('.pages-list .total-hits'),
-		    td = $('.pages-list .total-display');
+		    td = $('.pages-list .total-display'),
+			tu = $('.pages-list .total-unique'),
+			ud = $('.pages-list .total-unique-display')
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
+			tu.text(format_int(data.total_unique));
+			ud.text(format_int(data.total_unique_display));
 		}
-		else
+		else {
 			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
+			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_display_unique));
+		}
 
 		draw_chart()
 	};
@@ -222,19 +237,6 @@
 		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};
-
-	// Report an error.
-	var onerror = function(msg, url, line, column, err) {
-		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
-		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
-			return;
-
-		jQuery.ajax({
-			url:    '/jserr',
-			method: 'POST',
-			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
-		});
-	}
 
 	// Subscribe with Stripe.
 	var billing_subscribe = function() {
@@ -519,72 +521,76 @@
 		})
 	};
 
-	// Display popup when hovering a chart.
-	var chart_hover = function() {
-		$(document.body).on('mouseleave', '.chart', function() {
-			$('#popup').remove();
-		});
+	// Show custom tooltip on everything with a title attribute.
+	var tooltip = function() {
+		var tip = $('<div id="tooltip"></div>')
 
-		// Pages chart.
-		$(document.body).on('mouseenter', '.chart > div', function(e) {
-			var t = $(e.target);
-
-			var title = t.attr('title') || t.attr('data-title');
-			if (!title)
-				return;
-
-			if (t.attr('data-title'))
-				title = t.attr('data-title');
-			else {
-				// Reformat date and time according to site settings.
-				var split = title.replace(',', '').split(' '),
-					date, views, start, end;
-				// Daily: 2020-02-05, 42 views
-				if ($('.pages-list').hasClass('pages-list-daily')) {
-					date = split[0];
-					views = ', ' + split[1] + (split[2] ? (' ' + split[2]) : '');
+		var display = function(e, t) {
+			var pos = {left: e.pageX, top: (e.pageY + 20)}
+			if (t.closest('.chart-bar').length > 0) {
+				var x = t.offset().left
+				pos = {
+					left: (x + 8),
+					top:  (t.parent().position().top),
 				}
-				// Hourly: 2019-07-22 22:00 – 22:59, 5 views
-				else {
-					date  = split[0];
-					start = split[1];
-					end   = split[3];
-					views = ', ' + split[4] + (split[5] ? (' ' + split[5]) : '');
-
-					if (!SETTINGS.twenty_four_hours) {
-						start = un24(start);
-						end = un24(end);
-					}
-				}
-
-				if (SETTINGS.date_format !== '2006-01-02')
-					date = format_date(get_date(date))
-
-				if (start)
-					title = date + ' ' + start + ' – ' + end + views;
-				else
-					title = date + views;
-
-				t.attr('data-title', title);
-				t.removeAttr('title');
 			}
 
-			var x = t.offset().left
-			var p = $('<div id="popup"></div>').
-				html(title).
-				css({
-					left: (x + 8) + 'px',
-					top: (t.parent().position().top) + 'px',
-				});
+			tip.remove().html(t.attr('data-title')).css(pos)
 
-			$('#popup').remove();
-			$(document.body).append(p);
+			t.one('mouseleave', () => { tip.remove() })
+			$('body').append(tip);
 
 			// Move to left of cursor if there isn't enough space.
-			if (p.height() > 30)
-				p.css('left', 0).css('left', (x - p.width() - 8) + 'px');
-		});
-	};
+			if (tip.height() > 30)
+				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
+		}
+
+		// Translucent hover effect; need a new div because the height isn't
+		// 100%
+		var add_cursor = function(t) {
+			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.is('.max'))
+				return
+
+			$('#cursor').remove()
+			var cursor = $('<span id="cursor"></span>').
+				on('mouseleave', () => { cursor.remove() }).
+				attr('title', t.attr('data-title')).
+				css({
+					width: t.width(),
+					left:  t.position().left - 3, // TODO: -3, why?
+				})
+				t.parent().append(cursor)
+		}
+
+		$('body').on('mouseenter', '[data-title]', function(e) {
+			var t = $(e.target).closest('[data-title]')
+			display(e, t)
+			add_cursor(t)
+		})
+
+		$('body').on('mouseenter', '[title]', function(e) {
+			var t     = $(e.target).closest('[title]'),
+				title = t.attr('title')
+
+			// Reformat the title in the chart.
+			if (t.is('div') && t.closest('.chart-bar').length > 0) {
+				if ($('.pages-list').hasClass('pages-list-daily')) {
+					var [day, views, unique] = title.split('|')
+					title = `${format_date(day)}`
+				}
+				else {
+					var [day, start, end, views, unique] = title.split('|')
+					title = `${format_date(day)} ${un24(start)} – ${un24(end)}`
+				}
+
+				title += !views ? ', future' : `, ${unique} visits; <span class="views">${views} pageviews</span>`
+			}
+			t.attr('data-title', title).removeAttr('title')
+
+			display(e, t)
+			add_cursor(t)
+		})
+	}
 
 	// Parse all query parameters from string to {k: v} object.
 	var split_query = function(s) {
@@ -621,6 +627,9 @@
 
 	// Convert "23:45" to "11:45 pm".
 	var un24 = function(t) {
+		if (SETTINGS.twenty_four_hours)
+			return t
+
 		var hour = parseInt(t.substr(0, 2), 10);
 		if (hour < 12)
 			return t + ' am';
@@ -636,6 +645,9 @@
 
 	// Format a date according to user configuration.
 	var format_date = function(date) {
+		if (typeof(date) === 'string')
+			date = get_date(date)
+
 		var m = date.getMonth() + 1,
 			d = date.getDate(),
 			items = SETTINGS.date_format.split(/[-/\s]/),
@@ -670,7 +682,7 @@
 
 	// Format a date as year-month-day.
 	var format_date_ymd = function(date) {
-		if (typeof date === 'string')  // TODO: maybe add basic sanity check here?
+		if (typeof(date) === 'string')
 			return date;
 		var m = date.getMonth() + 1,
 			d = date.getDate();

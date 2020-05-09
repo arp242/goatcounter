@@ -116,15 +116,14 @@
 		<header class="h2 header-pages">
 			<h2>Paths</h2>
 			<span class="hide-mobileX totals">
-				Displaying
-				<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-				{{/*
-				(<span class="total-display-unique">{{nformat .TotalHitsDisplay $.Site}}</span> unique)
-				*/}}
-				out of
-				<span class="total-hits">{{nformat .TotalHits $.Site}}</span>
+				Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
+				out of <span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
+				visits;
+				<span class="views">
+					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> out of
+					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
+				</span>
 			</span>
-
 			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
 				{{if .Filter}}class="value"{{end}}
 				title="Filter the list of paths; matched case-insensitive on path and title">
@@ -152,7 +151,7 @@
 		{{end}}
 	</div>
 	<div>
-		<h2>Screen size{{if before_size .Site.CreatedAt}} <small>Since 16 Sept 2019</small>{{end}}</h2>
+		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
@@ -163,7 +162,7 @@
 		{{end}}
 	</div>
 	<div class="location-chart">
-		<h2>Locations{{if before_loc .Site.CreatedAt}} <small>Since 7 Nov 2019</small>{{end}}</h2>
+		<h2>Locations{{if before_loc .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}

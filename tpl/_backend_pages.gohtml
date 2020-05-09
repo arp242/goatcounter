@@ -1,6 +1,9 @@
 {{range $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
-		<td>{{nformat $h.Count $.Site}}</td>
+		<td>
+			<span title="Visits">{{nformat $h.CountUnique $.Site}}</span><br>
+			<span title="Pageviews" class="views">{{nformat $h.Count $.Site}}</span><br>
+		</td>
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title {{if not $h.Title}}no-title{{end}}" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>

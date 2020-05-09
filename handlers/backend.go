@@ -328,18 +328,19 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l := zlog.Module("dashboard").Field("site", site.ID)
 
 	var (
-		wg                  sync.WaitGroup
-		pages               goatcounter.HitStats
-		total, totalDisplay int
-		morePages           bool
-		pagesErr            error
+		wg                              sync.WaitGroup
+		pages                           goatcounter.HitStats
+		total, totalDisplay             int
+		totalUnique, totalUniqueDisplay int
+		morePages                       bool
+		pagesErr                        error
 	)
 	wg.Add(1)
 	go func() {
 		defer zlog.Recover()
 		defer wg.Done()
 
-		total, totalDisplay, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil)
+		total, totalUnique, totalDisplay, totalUniqueDisplay, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil)
 		//l = l.Since("pages.List")
 	}()
 
@@ -404,37 +405,42 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 
 	l = startl.Since("get data")
 
+	// TODO: this is getting a bit silly ... should split this out by rendering
+	// partials.
 	x := zhttp.Template(w, "backend.gohtml", struct {
 		Globals
-		CountDomain       string
-		ShowRefs          string
-		SelectedPeriod    string
-		PeriodStart       time.Time
-		PeriodEnd         time.Time
-		Filter            string
-		Pages             goatcounter.HitStats
-		MorePages         bool
-		Refs              goatcounter.HitStats
-		MoreRefs          bool
-		TotalHits         int
-		TotalHitsDisplay  int
-		Browsers          goatcounter.Stats
-		TotalBrowsers     int
-		SubSites          []string
-		SizeStat          goatcounter.Stats
-		TotalSize         int
-		LocationStat      goatcounter.Stats
-		TotalLocation     int
-		ShowMoreLocations bool
-		TopRefs           goatcounter.Stats
-		TotalTopRefs      int
-		ShowMoreRefs      bool
-		Daily             bool
-		ForcedDaily       bool
+		CountDomain        string
+		ShowRefs           string
+		SelectedPeriod     string
+		PeriodStart        time.Time
+		PeriodEnd          time.Time
+		Filter             string
+		Pages              goatcounter.HitStats
+		MorePages          bool
+		Refs               goatcounter.HitStats
+		MoreRefs           bool
+		TotalHits          int
+		TotalUniqueHits    int
+		TotalHitsDisplay   int
+		TotalUniqueDisplay int
+		Browsers           goatcounter.Stats
+		TotalBrowsers      int
+		SubSites           []string
+		SizeStat           goatcounter.Stats
+		TotalSize          int
+		LocationStat       goatcounter.Stats
+		TotalLocation      int
+		ShowMoreLocations  bool
+		TopRefs            goatcounter.Stats
+		TotalTopRefs       int
+		ShowMoreRefs       bool
+		Daily              bool
+		ForcedDaily        bool
 	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
-		filter, pages, morePages, refs, moreRefs, total, totalDisplay, browsers,
-		totalBrowsers, subs, sizeStat, totalSize, locStat, totalLoc,
-		showMoreLoc, topRefs, totalTopRefs, showMoreRefs, daily, forcedDaily})
+		filter, pages, morePages, refs, moreRefs, total, totalUnique,
+		totalDisplay, totalUniqueDisplay, browsers, totalBrowsers, subs,
+		sizeStat, totalSize, locStat, totalLoc, showMoreLoc, topRefs,
+		totalTopRefs, showMoreRefs, daily, forcedDaily})
 	l.Since("zhttp.Template")
 	return x
 }
@@ -515,7 +521,11 @@ func (h backend) admin(w http.ResponseWriter, r *http.Request) error {
 		if v > maxSignups {
 			maxSignups = v
 		}
-		signups = append(signups, goatcounter.Stat{Day: k, Days: []int{v}})
+		signups = append(signups, goatcounter.Stat{
+			Day:          k,
+			Hourly:       []int{v},
+			HourlyUnique: []int{v},
+		})
 	}
 	sort.Slice(signups, func(i, j int) bool {
 		return signups[i].Day < signups[j].Day
@@ -684,7 +694,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	daily, forcedDaily := getDaily(r, start, end)
 
 	var pages goatcounter.HitStats
-	totalHits, totalDisplay, more, err := pages.List(r.Context(), start, end,
+	totalHits, totalUnique, totalDisplay, totalUniqueDisplay, more, err := pages.List(r.Context(), start, end,
 		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","))
 	if err != nil {
 		return err
@@ -714,11 +724,13 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, map[string]interface{}{
-		"rows":          string(tpl),
-		"paths":         paths,
-		"total_hits":    totalHits,
-		"total_display": totalDisplay,
-		"more":          more,
+		"rows":                 string(tpl),
+		"paths":                paths,
+		"total_hits":           totalHits,
+		"total_display":        totalDisplay,
+		"total_unique":         totalUnique,
+		"total_unique_display": totalUniqueDisplay,
+		"more":                 more,
 	})
 }
 

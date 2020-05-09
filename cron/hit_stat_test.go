@@ -5,6 +5,7 @@
 package cron_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -21,31 +22,34 @@ func TestHitStats(t *testing.T) {
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
 	gctest.StoreHits(ctx, t, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Path: "/asd", Title: "aSd"},
+		{Site: site.ID, CreatedAt: now, Path: "/asd", Title: "aSd", StartedSession: true},
 		{Site: site.ID, CreatedAt: now, Path: "/asd/"}, // Trailing / should be sanitized and treated identical as /asd
 		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
 	}...)
 
 	var stats goatcounter.HitStats
-	total, display, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil)
+	total, totalUnique, display, displayUnique, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil)
+	_, _ = totalUnique, displayUnique // TODO
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if total != 3 || display != 3 || more {
-		t.Fatalf("wrong return\nwant: 3, 3, false\ngot:  %v, %v, %v", total, display, more)
+	gotT := fmt.Sprintf("%d %d %d %d %t", total, totalUnique, display, displayUnique, more)
+	wantT := "3 1 3 1 false"
+	if wantT != gotT {
+		t.Fatalf("wrong totals\ngot:  %s\nwant: %s", gotT, wantT)
 	}
 	if len(stats) != 2 {
 		t.Fatalf("len(stats) is not 2: %d", len(stats))
 	}
 
-	want0 := `{"Count":2,"Max":10,"DailyMax":10,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],"Daily":2}]}`
+	want0 := `{"Count":2,"CountUnique":1,"Max":10,"DailyMax":10,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":2,"DailyUnique":1}]}`
 	got0 := string(jsonutil.MustMarshal(stats[0]))
 	if got0 != want0 {
 		t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
 	}
 
-	want1 := `{"Count":1,"Max":10,"DailyMax":10,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Stats":[{"Day":"2019-08-31","Days":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":1}]}`
+	want1 := `{"Count":1,"CountUnique":0,"Max":10,"DailyMax":10,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`
 	got1 := string(jsonutil.MustMarshal(stats[1]))
 	if got1 != want1 {
 		t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)

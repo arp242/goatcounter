@@ -74,7 +74,7 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	case true:
 		for _, stat := range stats {
 			if future {
-				b.WriteString(fmt.Sprintf(`<div title="%s, future" class="f"></div>`, stat.Day))
+				b.WriteString(fmt.Sprintf(`<div title="%s" class="f"></div>`, stat.Day))
 				continue
 			}
 
@@ -85,20 +85,22 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
 			st := ""
 			if h > 0 {
-				st = fmt.Sprintf(` style="height:%.0f%%"`, h)
+				hu := math.Round(float64(stat.DailyUnique) / float64(max) / 0.01)
+				st = fmt.Sprintf(` style="height:%.0f%%" data-u="%.0f%%"`, h, hu)
 			}
 
-			b.WriteString(fmt.Sprintf(`<div%s title="%s, %s views"></div>`,
-				st, stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat)))
+			b.WriteString(fmt.Sprintf(`<div%s title="%s|%s|%s"></div>`,
+				st, stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat),
+				zhttp.Tnformat(stat.DailyUnique, site.Settings.NumberFormat)))
 		}
 
 	// Hourly view.
 	case false:
 		hour := now.Hour()
 		for i, stat := range stats {
-			for shour, s := range stat.Days {
+			for shour, s := range stat.Hourly {
 				if future {
-					b.WriteString(fmt.Sprintf(`<div title="%s %[2]d:00 – %[2]d:59, future" class="f"></div>`,
+					b.WriteString(fmt.Sprintf(`<div title="%s|%[2]d:00|%[2]d:59" class="f"></div>`,
 						stat.Day, shour))
 					continue
 				}
@@ -113,10 +115,13 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 				h := math.Round(float64(s) / float64(max) / 0.01)
 				st := ""
 				if h > 0 {
-					st = fmt.Sprintf(` style="height:%.0f%%"`, h)
+					hu := math.Round(float64(stat.HourlyUnique[shour]) / float64(max) / 0.01)
+					st = fmt.Sprintf(` style="height:%.0f%%" data-u="%.0f%%"`, h, hu)
 				}
-				b.WriteString(fmt.Sprintf(`<div%s title="%s %[3]d:00 – %[3]d:59, %s views"></div>`,
-					st, stat.Day, shour, zhttp.Tnformat(s, site.Settings.NumberFormat)))
+				b.WriteString(fmt.Sprintf(`<div%s title="%s|%[3]d:00|%[3]d:59|%s|%s"></div>`,
+					st, stat.Day, shour,
+					zhttp.Tnformat(s, site.Settings.NumberFormat),
+					zhttp.Tnformat(stat.HourlyUnique[shour], site.Settings.NumberFormat)))
 			}
 		}
 	}
@@ -133,6 +138,9 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 	totalPerc := float32(0.0)
 	var b strings.Builder
 	for _, s := range stats {
+		// TODO: not sure how to display this; doing it in two colours doesn't
+		// make much sense, and neither does always displaying unique. Maybe a
+		// checkbox to toggle? Or two bars?
 		perc := float32(s.Count) / float32(total) * 100
 		if parentTotal > 0 {
 			perc = float32(s.Count) / float32(parentTotal) * 100
@@ -147,8 +155,9 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, c
 			browser = "(unknown)"
 		}
 
-		title := fmt.Sprintf("%s: %.1f%% – %s hits in total",
+		title := fmt.Sprintf("%s: %.1f%% – %s visits; %s pageviews",
 			template.HTMLEscapeString(browser), perc,
+			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat),
 			zhttp.Tnformat(s.Count, MustGetSite(ctx).Settings.NumberFormat))
 		b.WriteString(fmt.Sprintf(
 			`<%[4]s href="#_" title="%[1]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></%[4]s>`,

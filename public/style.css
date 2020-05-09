@@ -46,18 +46,13 @@ footer > div:first-child { margin-bottom: 1em; }
 
 @media (min-width: 45rem) {
 	#home-screens           { display: flex; justify-content: space-between; align-items: center; }
-	#home-screens.two > div { width: 49%; }
-	#home-screens.one > div { width: 100%; text-align: center; }
+	#home-screens img       { width: 49%; }
 }
 @media (max-width: 45rem) {
-	#home-screens > div { margin-bottom: 1em; }
+	#home-screens img { margin-bottom: 1em; }
 }
 #home-screens img { box-shadow: 0 0 4px #cdc8a4; }
 
-/*
-.iframe { position: relative; width: 100%; height: 0; padding-bottom: 56.25%; }
-iframe  { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-*/
 img.imgzoom-loading { cursor: wait !important; }
 .imgzoom-large { cursor: pointer; box-shadow: 0 0 8px rgba(0, 0, 0, .3); transition: all .4s; }
 

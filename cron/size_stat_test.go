@@ -6,6 +6,7 @@ package cron_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -22,7 +23,7 @@ func TestSizeStats(t *testing.T) {
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
 	err := UpdateStats(ctx, site.ID, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
+		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, StartedSession: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{}},
@@ -38,20 +39,25 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `5 -> [{Phones 0} {Large phones, small tablets 1} {Tablets and small laptops 0} {Computer monitors 2} {Computer monitors larger than HD 0} {(unknown) 2}]`
-	out := fmt.Sprintf("%d -> %v", total, stats)
+	want := `5 -> [{Phones 0 0}
+{Large phones, small tablets 1 0}
+{Tablets and small laptops 0 0}
+{Computer monitors 2 1}
+{Computer monitors larger than HD 0 0}
+{(unknown) 2 0}]`
+	out := strings.ReplaceAll(fmt.Sprintf("%d -> %v", total, stats), "} ", "}\n")
 	if want != out {
-		t.Errorf("\nwant: %s\nout:  %s", want, out)
+		t.Errorf("\nwant:\n%s\nout:\n%s", want, out)
 	}
 
 	// Update existing.
 	err = UpdateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
-		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
+		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, StartedSession: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{380, 600, 1}},
-		{Site: site.ID, CreatedAt: now, Size: nil},
+		{Site: site.ID, CreatedAt: now, Size: nil, StartedSession: true},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -63,8 +69,13 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `11 -> [{Phones 1} {Large phones, small tablets 3} {Tablets and small laptops 0} {Computer monitors 4} {Computer monitors larger than HD 0} {(unknown) 3}]`
-	out = fmt.Sprintf("%d -> %v", total, stats)
+	want = `11 -> [{Phones 1 0}
+{Large phones, small tablets 3 0}
+{Tablets and small laptops 0 0}
+{Computer monitors 4 2}
+{Computer monitors larger than HD 0 0}
+{(unknown) 3 1}]`
+	out = strings.ReplaceAll(fmt.Sprintf("%d -> %v", total, stats), "} ", "}\n")
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
 	}

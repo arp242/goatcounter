@@ -417,27 +417,34 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 }
 
 type Stat struct {
-	Day   string
-	Days  []int
-	Daily int
+	Day          string
+	Hourly       []int
+	HourlyUnique []int
+	Daily        int
+	DailyUnique  int
 }
 
 type HitStat struct {
-	Count     int          `db:"count"`
-	Max       int          `db:"-"`
-	DailyMax  int          `db:"-"`
-	Path      string       `db:"path"`
-	Event     sqlutil.Bool `db:"event"`
-	Title     string       `db:"title"`
-	RefScheme *string      `db:"ref_scheme"`
-	Stats     []Stat
+	Count       int `db:"count"`
+	CountUnique int `db:"count_unique"`
+	Max         int
+	DailyMax    int
+	Path        string       `db:"path"`
+	Event       sqlutil.Bool `db:"event"`
+	Title       string       `db:"title"`
+	RefScheme   *string      `db:"ref_scheme"`
+	Stats       []Stat
 }
 
 type HitStats []HitStat
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, bool, error) {
+// List the top paths for this site in the given time period.
+//
+// TODO: There are too many return values; at the very least it can be split in
+// List() and Totals()
+func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -448,17 +455,24 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	// Get total number of hits in the selected time range.
 	var (
-		wg       sync.WaitGroup
-		total    int
-		totalErr error
+		wg                 sync.WaitGroup
+		total, totalUnique int
+		totalErr           error
 	)
 	wg.Add(1)
 	go func() {
 		defer zlog.Recover()
 		defer wg.Done()
 
+		// TODO: can also use started_session; not sure what would make the most
+		// sense:
+		// 1. started_session will list only people who visted for the first time
+		// 2. distinct session lists people who visited at all (first visit in
+		//    timerange)
 		query := `/* HitStats.List: get count */
-			select count(*) from hits where
+			select count(id) as t,
+			count(distinct session) as u
+			from hits where
 				site=$1 and
 				bot=0 and
 				created_at >= $2 and
@@ -468,21 +482,18 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
 			args = append(args, filter)
 		}
-		totalErr = db.GetContext(ctx, &total, query, args...)
+
+		var t struct {
+			T int
+			U int
+		}
+		totalErr = db.GetContext(ctx, &t, query, args...)
+		total, totalUnique = t.T, t.U
 		//l = l.Since("get total")
 	}()
 
 	// Select hits.
-	var (
-		st []struct {
-			Path  string       `db:"path"`
-			Title string       `db:"title"`
-			Event sqlutil.Bool `db:"event"`
-			Day   time.Time    `db:"day"`
-			Stats []byte       `db:"stats"`
-		}
-		more bool
-	)
+	var more bool
 	{
 		// Get one page more so we can detect if there are more pages after this.
 		limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
@@ -512,11 +523,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			order by count(path) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		l = l.Since("select hits")
 
@@ -530,9 +541,17 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 
 	// Add stats and title.
+	var st []struct {
+		Path        string       `db:"path"`
+		Title       string       `db:"title"`
+		Event       sqlutil.Bool `db:"event"`
+		Day         time.Time    `db:"day"`
+		Stats       []byte       `db:"stats"`
+		StatsUnique []byte       `db:"stats_unique"`
+	}
 	{
 		query := `/* HitStats.List: get stats */
-			select path, event, title, day, stats
+			select path, event, title, day, stats, stats_unique
 			from hit_stats
 			where
 				site=$1 and
@@ -546,7 +565,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		query += ` order by day asc`
 		err := db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		//l = l.Since("select hits_stats")
 	}
@@ -558,11 +577,16 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		for i := range hh {
 			for _, s := range st {
 				if s.Path == hh[i].Path {
-					var x []int
+					var x, y []int
 					jsonutil.MustUnmarshal(s.Stats, &x)
+					jsonutil.MustUnmarshal(s.StatsUnique, &y)
 					hh[i].Title = s.Title
 					hh[i].Event = s.Event
-					hh[i].Stats = append(hh[i].Stats, Stat{Day: s.Day.Format("2006-01-02"), Days: x})
+					hh[i].Stats = append(hh[i].Stats, Stat{
+						Day:          s.Day.Format("2006-01-02"),
+						Hourly:       x,
+						HourlyUnique: y,
+					})
 				}
 			}
 		}
@@ -587,7 +611,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 					newStat = append(newStat, hh[i].Stats[j])
 					j++
 				} else {
-					newStat = append(newStat, Stat{Day: dayFmt, Days: allDays})
+					newStat = append(newStat, Stat{Day: dayFmt, Hourly: allDays, HourlyUnique: allDays})
 				}
 				if dayFmt == endFmt {
 					break
@@ -614,24 +638,27 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	}
 
 	// Add total and max.
-	var totalDisplay int
+	var totalDisplay, totalUniqueDisplay int
 	{
 		for i := range hh {
 			for j := range hh[i].Stats {
-				for k := range hh[i].Stats[j].Days {
-					hh[i].Stats[j].Daily += hh[i].Stats[j].Days[k]
+				for k := range hh[i].Stats[j].Hourly {
+					hh[i].Stats[j].Daily += hh[i].Stats[j].Hourly[k]
+					hh[i].Stats[j].DailyUnique += hh[i].Stats[j].HourlyUnique[k]
 
-					if hh[i].Stats[j].Days[k] > hh[i].Max {
-						hh[i].Max = hh[i].Stats[j].Days[k]
+					if hh[i].Stats[j].Hourly[k] > hh[i].Max {
+						hh[i].Max = hh[i].Stats[j].Hourly[k]
 					}
 				}
 				if hh[i].Stats[j].Daily > hh[i].DailyMax {
 					hh[i].DailyMax = hh[i].Stats[j].Daily
 				}
 				hh[i].Count += hh[i].Stats[j].Daily
+				hh[i].CountUnique += hh[i].Stats[j].DailyUnique
 			}
 
 			totalDisplay += hh[i].Count
+			totalUniqueDisplay += hh[i].CountUnique
 			if hh[i].Max < 10 {
 				hh[i].Max = 10
 			}
@@ -642,6 +669,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 		// We sort in SQL, but this is not always 100% correct after applying
 		// the TZ offset, so order here as well.
+		//
 		// TODO: this is still not 100% correct, as the "first 10" after
 		// applying the TZ offset may be different than the first 10 being
 		// fetched in the SQL query. There is no easy fix for that in the
@@ -655,10 +683,10 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	syncutil.Wait(ctx, &wg)
 	if totalErr != nil {
-		return 0, 0, false, errors.Wrap(totalErr, "HitStats.List")
+		return 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List")
 	}
 
-	return total, totalDisplay, more, nil
+	return total, totalUnique, totalDisplay, totalUniqueDisplay, more, nil
 }
 
 // The database stores everything in UTC, so we need to apply
@@ -693,21 +721,31 @@ func applyOffset(offset int, stats []Stat) []Stat {
 	switch {
 	case offset > 0:
 		popped := make([]int, offset)
+		poppedUnique := make([]int, offset)
 		for i := range stats {
-			stats[i].Days = append(popped, stats[i].Days...)
-			o := len(stats[i].Days) - offset
-			popped = stats[i].Days[o:]
-			stats[i].Days = stats[i].Days[:o]
+			stats[i].Hourly = append(popped, stats[i].Hourly...)
+			o := len(stats[i].Hourly) - offset
+			popped = stats[i].Hourly[o:]
+			stats[i].Hourly = stats[i].Hourly[:o]
+
+			stats[i].HourlyUnique = append(poppedUnique, stats[i].HourlyUnique...)
+			poppedUnique = stats[i].HourlyUnique[o:]
+			stats[i].HourlyUnique = stats[i].HourlyUnique[:o]
 		}
 		stats = stats[1:] // Overselect a day to get the stats for it, remove it.
 
 	case offset < 0:
 		offset = -offset
 		popped := make([]int, offset)
+		poppedUnique := make([]int, offset)
 		for i := len(stats) - 1; i >= 0; i-- {
-			stats[i].Days = append(stats[i].Days, popped...)
-			popped = stats[i].Days[:offset]
-			stats[i].Days = stats[i].Days[offset:]
+			stats[i].Hourly = append(stats[i].Hourly, popped...)
+			popped = stats[i].Hourly[:offset]
+			stats[i].Hourly = stats[i].Hourly[offset:]
+
+			stats[i].HourlyUnique = append(stats[i].HourlyUnique, poppedUnique...)
+			poppedUnique = stats[i].HourlyUnique[:offset]
+			stats[i].HourlyUnique = stats[i].HourlyUnique[offset:]
 		}
 		stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
 	}
@@ -724,14 +762,16 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		limit = 10
 	}
 
-	// TODO: using offset for pagination is not ideal:
-	// data can change in the meanwhile, and it still gets the first N rows,
-	// which is more expensive than it needs to be.
-	// It's "good enough" for now, though.
+	// TODO: using offset for pagination is not ideal: data can change in the
+	// meanwhile, and it still gets the first N rows, which is more expensive
+	// than it needs to be. It's "good enough" for now, though.
+	//
+	// TODO: count_unqiue is off here
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
 			ref as path,
 			count(ref) as count,
+			count(distinct session) as count_unique,
 			ref_scheme
 		from hits
 		where
@@ -777,14 +817,18 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
 }
 
 type Stats []struct {
-	Name  string
-	Count int
+	Name        string `db:"name"`
+	Count       int    `db:"count"`
+	CountUnique int    `db:"count_unique"`
 }
 
 // ByRef lists all paths by reference.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select path as name, count(path) as count
+		select
+			path as name,
+			count(path) as count,
+			count(distinct session) as count_unique
 		from hits where
 			site=$1 and
 			bot=0 and
@@ -819,7 +863,11 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 
 	db := zdb.MustGet(ctx)
 	err := db.SelectContext(ctx, h, db.Rebind(`/* Stats.ListRefs */
-		select ref as name, sum(count) as count from ref_stats`+
+		select
+			ref as name,
+			sum(count) as count,
+			sum(count_unique) as count_unique
+		from ref_stats`+
 		where+`
 		group by ref
 		order by count desc
@@ -828,6 +876,7 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 		return 0, false, errors.Wrap(err, "Stats.ListRefs")
 	}
 
+	// TODO: unique totals
 	var total int
 	err = db.GetContext(ctx, &total,
 		db.Rebind(`select coalesce(sum(count), 0) from ref_stats`+where),
@@ -850,7 +899,11 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 // List all browser statistics for the given time period.
 func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select browser as name, sum(count) as count from browser_stats
+		select
+			browser as name,
+			sum(count) as count,
+			sum(count_unique) as count_unique
+		from browser_stats
 		where site=$1 and day >= $2 and day <= $3
 		group by browser
 		order by count desc
@@ -872,7 +925,8 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
 			browser || ' ' || version as name,
-			sum(count) as count
+			sum(count) as count,
+			sum(count_unique) as count_unique
 		from browser_stats
 		where site=$1 and day >= $2 and day <= $3 and lower(browser)=lower($4)
 		group by browser, version
@@ -901,7 +955,10 @@ const (
 // ListSizes lists all device sizes.
 func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select width as name, sum(count) as count
+		select
+			width as name,
+			sum(count) as count,
+			sum(count_unique) as count_unique
 		from size_stats
 		where site=$1 and day >= $2 and day <= $3
 		group by width
@@ -915,12 +972,12 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 	// TODO: ideally I'd like to make a line chart in the future, in which case
 	// this should no longer be needed.
 	ns := Stats{
-		{sizePhones, 0},
-		{sizeLargePhones, 0},
-		{sizeTablets, 0},
-		{sizeDesktop, 0},
-		{sizeDesktopHD, 0},
-		{sizeUnknown, 0},
+		{sizePhones, 0, 0},
+		{sizeLargePhones, 0, 0},
+		{sizeTablets, 0, 0},
+		{sizeDesktop, 0, 0},
+		{sizeDesktopHD, 0, 0},
+		{sizeUnknown, 0, 0},
 	}
 
 	hh := *h
@@ -932,16 +989,22 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 		switch {
 		case x == 0:
 			ns[5].Count += hh[i].Count
+			ns[5].CountUnique += hh[i].CountUnique
 		case x <= 384:
 			ns[0].Count += hh[i].Count
+			ns[0].CountUnique += hh[i].CountUnique
 		case x <= 1024:
 			ns[1].Count += hh[i].Count
+			ns[1].CountUnique += hh[i].CountUnique
 		case x <= 1440:
 			ns[2].Count += hh[i].Count
+			ns[2].CountUnique += hh[i].CountUnique
 		case x <= 1920:
 			ns[3].Count += hh[i].Count
+			ns[3].CountUnique += hh[i].CountUnique
 		default:
 			ns[4].Count += hh[i].Count
+			ns[4].CountUnique += hh[i].CountUnique
 		}
 	}
 	*h = ns
@@ -970,7 +1033,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`
-		select width as name, sum(count) as count
+		select width as name, sum(count), sum(count_unique) as count
 		from size_stats
 		where
 			site=$1 and day >= $2 and day <= $3 and
@@ -982,9 +1045,11 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	}
 
 	grouped := make(map[string]int)
+	groupedUnique := make(map[string]int)
 	hh := *h
 	for i := range hh {
 		grouped[fmt.Sprintf("↔ %spx", hh[i].Name)] += hh[i].Count
+		groupedUnique[fmt.Sprintf("↔ %spx", hh[i].Name)] += hh[i].CountUnique
 	}
 
 	ns := Stats{}
@@ -992,9 +1057,10 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	for width, count := range grouped {
 		total += count
 		ns = append(ns, struct {
-			Name  string
-			Count int
-		}{width, count})
+			Name        string `db:"name"`
+			Count       int    `db:"count"`
+			CountUnique int    `db:"count_unique"`
+		}{width, count, groupedUnique[width]})
 	}
 	sort.Slice(ns, func(i int, j int) bool { return ns[i].Count > ns[j].Count })
 	*h = ns
@@ -1007,7 +1073,8 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time) (int, e
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select
 			iso_3166_1.name as name,
-			sum(count) as count
+			sum(count) as count,
+			sum(count_unique) as count_unique
 		from location_stats
 		join iso_3166_1 on iso_3166_1.alpha2=location
 		where site=$1 and day >= $2 and day <= $3

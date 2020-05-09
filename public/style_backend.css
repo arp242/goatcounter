@@ -94,7 +94,17 @@ form .err  { color: red; display: block; }
 .count-list td:nth-child(2) {  /* Path */
 	width: 20em;
 }
+
+.count-list.count-list-refs td:nth-child(1) {
+	text-align: right;
+	width: 4em;
+}
 .count-list.count-list-refs td:nth-child(2) {
+	text-align: right;
+	width: 4em;
+}
+
+.count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
 }
@@ -105,8 +115,6 @@ form .err  { color: red; display: block; }
 .show-mobile .page-title { vertical-align: top; }
 .show-mobile .page-title+sup { bottom: 2ex; }
 
-/* Ideally I'd like the … to be in the centre, rather than at the end. Need JS
- * solution for that though :-/ */
 .rlink { display: inline-block; overflow: hidden;
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
@@ -205,13 +213,14 @@ form .err  { color: red; display: block; }
 	flex-grow: 1;
 }
 
-/* Chart colours
- * TODO: color scheme setting?
-#77f / #99f
-#db1212 / #6b1818
-*/
 .chart-bar > div       { background: #9a15a4; }
-.chart-bar > div:hover { background: #d314e1 !important; }
+
+.chart-bar > #cursor {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, .2);
+}
 
 .chart-hbar span         { background: #9a15a4; }
 .chart-hbar a:hover span { background: #b11abc; }
@@ -221,18 +230,10 @@ form .err  { color: red; display: block; }
 	left: 0;
 	bottom: 0;
 	width: 100%;
-
-	/*
-	border: 1px solid #db1212;
-	border-bottom: 0;
-	background-color: #fff;
-	*/
-
 }
-.chart-bar > div:hover  { background-color: #aaa; }
 .chart-bar > .f         { background-color: #eee; }
 
-#popup {
+#tooltip {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -240,10 +241,8 @@ form .err  { color: red; display: block; }
 	font-family: sans-serif;
 
 	padding: 0 .5em;
-	border-radius: 2px;
-	background-color: #fff;
-	border: 1px solid #eee;
-	box-shadow: 0 0 2px rgba(0, 0, 0, .5);
+	color: #fff;
+	background-color: #111;
 }
 
 #drag-box {
@@ -404,23 +403,5 @@ h3 + h4 { margin-top: .3em; }
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
 
-
-/*** Loading indicator ***/
-@keyframes loading {
-  0%   { background-color: #f6f3da; }
-  50%  { background-color: yellow; }
-  100% { background-color: #f6f3da; }
-}
-#loading {
-	position: fixed;
-	top: 0;
-	left: calc(50% - 3em);
-	padding: .3em 1em;
-	box-shadow: 0 0 4px #cdc8a4;
-	display: none;
-
-	background-color: #f6f3da;
-	animation-name: loading;
-	animation-duration: 1s;
-	animation-iteration-count: infinite;
-}
+/* Grey "pageviews" out when put next to visitors */
+.views { color: #999; }

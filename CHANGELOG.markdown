@@ -18,11 +18,35 @@ UNRELEASED v1.2.0
   notification about this). Email authentication still works, but will be
   removed in the next release, after which updating the password will be tricky.
 
-- Unique visitor tracking (#212)
+- Unique visit tracking (#212)
 
-  GoatCounter can now track unique visitors (without using cookies). Technical
-  documentation about the implementation is in
+  GoatCounter now tracks unique visits (without using cookies).
+
+  Technical documentation about the implementation is in
   [doc/sessions.markdown](doc/sessions.markdown).
+
+  There are two ways to display the older stats:
+
+  1. Do nothing; meaning that "visits" will be 0 for previous date ranges.
+
+  2. Assign a new 'session' to every hit, so that unique visits will be the same
+     as the number of pageviews.
+
+  Doing option 2 is a potentially expensive database operation and not everyone
+  may care so it's not done automatically; instructions for doing this are:
+
+  - SQLite (do *not* do this on a running system; as far as I can tell there's
+    no good way to get the next sequence ID while incrementing it):
+
+        delete from sessions;
+        update hits set session=id, started_session=1;
+        update sqlite_sequence set seq = (select max(session) from hits) where name='sessions';
+
+  - PostgreSQL:
+
+        update hits set session=nextval('sessions_id_seq'), started_session=1;
+
+  And then run `goatcounter reindex`.
 
 - Improve bot detection (#219)
 
