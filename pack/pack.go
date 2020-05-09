@@ -13994,7 +13994,8 @@ insert into version values
 	('2020-04-06-1-event'),
 	('2020-04-16-1-pwauth'),
 	('2020-04-22-1-campaigns'),
-	('2020-04-27-1-usage-flags');
+	('2020-04-27-1-usage-flags'),
+	('2020-04-28-1-fix');
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}

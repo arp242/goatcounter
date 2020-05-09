@@ -85,6 +85,10 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 }
 
 func setupReload() {
+	if _, err := os.Stat("./tpl"); os.IsNotExist(err) {
+		return
+	}
+
 	pack.Templates = nil
 	pack.Public = nil
 	go func() {
