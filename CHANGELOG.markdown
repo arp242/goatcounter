@@ -6,8 +6,11 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
-UNRELEASED v1.2.0
+2020-05-18 v1.2.0
 -----------------
+
+There are a number of changes in 1.2, and a few which require a bit of action
+when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
 
 - Password authentication (#232)
 
@@ -72,6 +75,11 @@ UNRELEASED v1.2.0
   The export was a quick feature added in the first version, but didn't scale
   well to larger sites with a lot of pageviews. This now works well for any
   number of pageviews.
+
+- Many small improvements and bug fixes
+
+  It's almost 2 months of work, and there have been many small changes, fixes,
+  and improvements. I didn’t keep track of them all 😅
 
 
 2020-03-27 v1.1.2

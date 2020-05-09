@@ -82,7 +82,7 @@ Running your own
 The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
 are statically compiled and should work in pretty much any Linux environment.
 GoatCounter should run on any platform supported by Go, but there are no
-binaries for them (yet), so you'll have to build from source for now (it's not
+binaries for them (yet); you'll have to build from source for now (it's not
 hard, I promise).
 
 [releases]: https://github.com/zgoat/goatcounter/releases
@@ -91,7 +91,7 @@ hard, I promise).
 
 Compile from source with:
 
-    $ git clone -b release-1.1 https://github.com/zgoat/goatcounter.git
+    $ git clone -b release-1.2 https://github.com/zgoat/goatcounter.git
     $ cd goatcounter
     $ go build ./cmd/goatcounter
 
@@ -119,7 +119,7 @@ dependency versions in go.mod.
 
 ### Running
 
-You can start the server with:
+You can start a test/development server with:
 
     $ goatcounter serve -dev
 
@@ -139,10 +139,9 @@ For a production environment run something like:
 
     $ goatcounter serve
 
-Using an SMTP relay via `-smtp` isn't required, but will usually guarantee
-better deliverability, so is recommended (delivering emails without them ending
-up in the spambox is hard). You should be able to use your
-gmail/FastMail/ProtonMail/etc. account for this.
+By default it will use ACME to create https certificates; use `-tls none` if you
+want to disable it (e.g. if you're running goatcounter behind a proxy which
+already handles https for you).
 
 ### Updating
 
