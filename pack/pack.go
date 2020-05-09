@@ -14124,9 +14124,20 @@ var Templates = map[string][]byte{
 
 {{if eq .Path "/code"}}
 
-<p>Or use one of the ready-made integrations:
-<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a>,
-<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a>.</p>
+<p>Or use one of the ready-made integrations:</p>
+
+<ul>
+  <li>
+    <p><a href="https://github.com/zgoat/goatcounter-wordpress">WordPress</a><br />
+Use <code>{{.Site.URL}}/count</code> as the endpoint in the WordPress GoatCounter settings.</p>
+  </li>
+  <li>
+    <p><a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a></p>
+  </li>
+  <li>
+    <p><a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a></p>
+  </li>
+</ul>
 
 <h2 class="no_toc" id="table-of-contents">Table of Contents</h2>
 <ul id="markdown-toc">

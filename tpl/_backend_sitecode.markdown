@@ -5,8 +5,13 @@
 {{if eq .Path "/code"}}
 
 Or use one of the ready-made integrations:
-[Gatsby](https://www.npmjs.com/package/gatsby-plugin-goatcounter),
-[schlix](https://www.schlix.com/extensions/analytics/goatcounter.html).
+
+- [WordPress](https://github.com/zgoat/goatcounter-wordpress)<br>
+  Use `{{.Site.URL}}/count` as the endpoint in the WordPress GoatCounter settings.
+
+- [Gatsby](https://www.npmjs.com/package/gatsby-plugin-goatcounter)
+
+- [schlix](https://www.schlix.com/extensions/analytics/goatcounter.html)
 
 
 Table of Contents
