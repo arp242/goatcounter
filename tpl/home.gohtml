@@ -3,7 +3,7 @@
 <div id="home-top">
 	<h1><img alt="" src="{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
 	<div id="home-intro">
-		<p><span>Simple</span> web analytics. <span>No tracking</span> of personal data.</p>
+		<p><span>Easy</span> web analytics. <span>No tracking</span> of personal data.</p>
 	</div>
 
 	<div id="home-demo">
@@ -18,27 +18,9 @@
 
 	<br><br>
 
-	<div id="home-screens" class="one">
-		<div>
-			<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
-		</div>
-
-		{{/*
-		<div style="height: 255px">
-			<img class="zoom" src="{{.Static}}/screenshot-small.png"
-				data-large="{{.Static}}/screenshot.png"
-				alt="Screenshot of the GoatCounter interface">
-		</div>
-		<div>
-			<div class="iframe">
-				<iframe width="448" height="252"
-					src="https://www.youtube-nocookie.com/embed/T6pkhNWD76o"
-					frameborder="0"
-					allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-					allowfullscreen></iframe>
-			</div>
-		</div>
-		*/}}
+	<div id="home-screens" class="two">
+		<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
+		<img class="zoom" src="{{.Static}}/screenshot2.png" alt="Screenshot of the GoatCounter interface">
 	</div>
 </div>
 
@@ -51,10 +33,22 @@
 			<a href="/gdpr">GDPR consent notices</a>.</p>
 
 		<p><strong>Lightweight</strong> and <strong>fast</strong>; adds just
-			~1.5KB of extra data to your site. Also has JavaScript-free
+			~2.5KB of extra data to your site. Also has JavaScript-free
 			"tracking pixel" option, or you can use it from your application's
 			middleware.
 </p>
+	</div>
+
+	<div>
+		<p>Identify <strong>unique visits</strong> without cookies using a
+			non-identifiable hash
+			(<a href="https://github.com/zgoat/goatcounter/blob/master/docs/sessions.markdown">technical details</a>).
+		</p>
+
+		<p>Keeps useful statistics such as <strong>browser</strong> information,
+			<strong>location</strong>, and <strong>screen size</strong>. Keep
+			track of <strong>referring sites</strong> and
+			<strong>campaigns</strong>.</p>
 	</div>
 
 	<div>

@@ -35,7 +35,7 @@ func TestHitStats(t *testing.T) {
 	}
 
 	gotT := fmt.Sprintf("%d %d %d %d %t", total, totalUnique, display, displayUnique, more)
-	wantT := fmt.Sprintf("3 1 3 1 false")
+	wantT := "3 1 3 1 false"
 	if wantT != gotT {
 		t.Fatalf("wrong totals\ngot:  %s\nwant: %s", gotT, wantT)
 	}
