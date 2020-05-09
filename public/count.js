@@ -112,8 +112,8 @@
 
 	// Track click events.
 	window.goatcounter.bind_events = function() {
-		document.querySelectorAll("*[data-goatcounter-click]").forEach(function(elem) {
-			var send = function() {
+		var send = function(elem) {
+			return function() {
 				goatcounter.count({
 					event:    true,
 					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || ''),
@@ -121,8 +121,15 @@
 					referrer: (elem.dataset.goatcounterReferrer || elem.dataset.goatcounterReferral || ''),
 				})
 			}
-			elem.addEventListener('click', send, false)
-			elem.addEventListener('auxclick', send, false)  // Middle click.
+		}
+
+		document.querySelectorAll("*[data-goatcounter-click]").forEach(function(elem) {
+			if (elem.dataset.goatcounterBound)
+				return
+			var f = send(elem)
+			elem.addEventListener('click', f, false)
+			elem.addEventListener('auxclick', f, false)  // Middle click.
+			elem.dataset.goatcounterBound = 'true'
 		})
 	}
 
