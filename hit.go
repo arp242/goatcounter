@@ -1033,7 +1033,9 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`
-		select width as name, sum(count), sum(count_unique) as count
+		select width as name,
+		sum(count) as count,
+		sum(count_unique) as count_unique
 		from size_stats
 		where
 			site=$1 and day >= $2 and day <= $3 and
