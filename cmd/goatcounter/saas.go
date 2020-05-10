@@ -74,6 +74,10 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	cfg.Prod = !dev
 	zhttp.LogUnknownFields = dev
 	zhttp.CookieSecure = !dev
+	if tls == "none" {
+		zhttp.CookieSecure = false
+	}
+
 	if !dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
