@@ -45,7 +45,7 @@ func TestHitStatsList(t *testing.T) {
 			},
 			wantReturn: "3 3 false <nil>",
 			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 2, Max: 10, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
+				goatcounter.HitStat{Count: 2, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(map[int]int{6: 1})},
@@ -55,7 +55,7 @@ func TestHitStatsList(t *testing.T) {
 					{Day: "2019-08-16", Hourly: dayStat(nil)},
 					{Day: "2019-08-17", Hourly: dayStat(nil)},
 				}},
-				goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
+				goatcounter.HitStat{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(nil)},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -75,7 +75,7 @@ func TestHitStatsList(t *testing.T) {
 			inFilter:   "x",
 			wantReturn: "1 1 false <nil>",
 			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 1, Max: 10, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
+				goatcounter.HitStat{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -97,7 +97,7 @@ func TestHitStatsList(t *testing.T) {
 			inFilter:   "a",
 			wantReturn: "4 2 true <nil>",
 			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 1, Max: 10, Path: "/aaaa", RefScheme: nil, Stats: []goatcounter.Stat{
+				goatcounter.HitStat{Count: 1, Path: "/aaaa", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -107,7 +107,7 @@ func TestHitStatsList(t *testing.T) {
 					{Day: "2019-08-16", Hourly: dayStat(nil)},
 					{Day: "2019-08-17", Hourly: dayStat(nil)},
 				}},
-				goatcounter.HitStat{Count: 1, Max: 10, Path: "/aaa", RefScheme: nil, Stats: []goatcounter.Stat{
+				goatcounter.HitStat{Count: 1, Path: "/aaa", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -130,7 +130,7 @@ func TestHitStatsList(t *testing.T) {
 			inExclude:  []string{"/aaaa", "/aaa"},
 			wantReturn: "4 2 false <nil>",
 			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 1, Max: 10, Path: "/aa", RefScheme: nil, Stats: []goatcounter.Stat{
+				goatcounter.HitStat{Count: 1, Path: "/aa", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -140,7 +140,7 @@ func TestHitStatsList(t *testing.T) {
 					{Day: "2019-08-16", Hourly: dayStat(nil)},
 					{Day: "2019-08-17", Hourly: dayStat(nil)},
 				}},
-				goatcounter.HitStat{Count: 1, Max: 10, Path: "/a", RefScheme: nil, Stats: []goatcounter.Stat{
+				goatcounter.HitStat{Count: 1, Path: "/a", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -170,8 +170,9 @@ func TestHitStatsList(t *testing.T) {
 			gctest.StoreHits(ctx, t, tt.in...)
 
 			var stats goatcounter.HitStats
-			total, totalUnique, totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude)
-			_, _ = totalUnique, uniqueDisplay // TODO
+			total, totalUnique, totalDisplay, uniqueDisplay, max, more, err := stats.List(
+				ctx, start, end, tt.inFilter, tt.inExclude, false)
+			_, _, _ = totalUnique, uniqueDisplay, max // TODO
 
 			got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
 			if got != tt.wantReturn {

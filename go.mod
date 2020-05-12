@@ -18,11 +18,11 @@ require (
 	honnef.co/go/tools v0.0.1-2020.1.4
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200427181629-1d4940c02e50
-	zgo.at/tz v0.0.0-20200428173314-f4a46a753a7e
+	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/utils v0.0.0-20200514044306-bf7c1ff8aa0c
 	zgo.at/zdb v0.0.0-20200518092829-2353fffa61c0
 	zgo.at/zhttp v0.0.0-20200520171239-2396be244f0c
-	zgo.at/zlog v0.0.0-20200427184116-582329a88e79
+	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41

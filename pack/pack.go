@@ -14283,7 +14283,7 @@ var Templates = map[string][]byte{
 </body>
 </html>
 `),
-	"tpl/_backend_pages.gohtml": []byte(`{{range $h := .Pages}}
+	"tpl/_backend_pages.gohtml": []byte(`{{range $i, $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td>
 			<span title="Visits">{{nformat $h.CountUnique $.Site}}</span><br>
@@ -14303,13 +14303,9 @@ var Templates = map[string][]byte{
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
-				{{$max := .Max}}
-				{{if $.Daily}}
-					{{$max = .DailyMax}}
-				{{end}}
-				<span class="top max" title="Y-axis scale">{{nformat $max $.Site}}</span>
+				{{if eq $i 0}}<span class="top max" title="Y-axis scale">{{nformat $.Max $.Site}}</span>{{end}}
 				<span class="half"></span>
-				{{bar_chart $.Context .Stats $max $.Daily}}
+				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}

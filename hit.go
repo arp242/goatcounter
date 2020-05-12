@@ -437,10 +437,8 @@ type Stat struct {
 }
 
 type HitStat struct {
-	Count       int `db:"count"`
-	CountUnique int `db:"count_unique"`
-	Max         int
-	DailyMax    int
+	Count       int      `db:"count"`
+	CountUnique int      `db:"count_unique"`
 	Path        string   `db:"path"`
 	Event       zdb.Bool `db:"event"`
 	Title       string   `db:"title"`

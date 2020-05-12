@@ -317,6 +317,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		pages                           goatcounter.HitStats
 		total, totalDisplay             int
 		totalUnique, totalUniqueDisplay int
+		max                             int
 		morePages                       bool
 		pagesErr                        error
 	)
@@ -325,7 +326,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		defer zlog.Recover()
 		defer wg.Done()
 
-		total, totalUnique, totalDisplay, totalUniqueDisplay, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil)
+		total, totalUnique, totalDisplay, totalUniqueDisplay, max, morePages, pagesErr = pages.List(r.Context(), start, end, filter, nil, daily)
 		//l = l.Since("pages.List")
 	}()
 
@@ -421,11 +422,12 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		ShowMoreRefs       bool
 		Daily              bool
 		ForcedDaily        bool
+		Max                int
 	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
 		filter, pages, morePages, refs, moreRefs, total, totalUnique,
 		totalDisplay, totalUniqueDisplay, browsers, totalBrowsers, subs,
 		sizeStat, totalSize, locStat, totalLoc, showMoreLoc, topRefs,
-		totalTopRefs, showMoreRefs, daily, forcedDaily})
+		totalTopRefs, showMoreRefs, daily, forcedDaily, max})
 	l.Since("zhttp.Template")
 	return x
 }
@@ -574,8 +576,8 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	daily, forcedDaily := getDaily(r, start, end)
 
 	var pages goatcounter.HitStats
-	totalHits, totalUnique, totalDisplay, totalUniqueDisplay, more, err := pages.List(r.Context(), start, end,
-		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","))
+	totalHits, totalUnique, totalDisplay, totalUniqueDisplay, max, more, err := pages.List(r.Context(), start, end,
+		r.URL.Query().Get("filter"), strings.Split(r.URL.Query().Get("exclude"), ","), daily)
 	if err != nil {
 		return err
 	}
@@ -588,12 +590,13 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		PeriodEnd   time.Time
 		Daily       bool
 		ForcedDaily bool
+		Max         int
 
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
 	}{r.Context(), pages, goatcounter.MustGetSite(r.Context()), start, end,
-		daily, forcedDaily, false, ""})
+		daily, forcedDaily, max, false, ""})
 	if err != nil {
 		return err
 	}
