@@ -52,7 +52,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path", "ref",
 		"ref_params", "ref_original", "ref_scheme", "browser", "size",
 		"location", "created_at", "bot", "title", "event", "session",
-		"started_session"})
+		"first_visit"})
 	for i, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
@@ -90,7 +90,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		ins.Values(h.Site, h.Path, h.Ref, h.RefParams, h.RefOriginal,
 			h.RefScheme, h.Browser, h.Size, h.Location,
 			h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, h.Event, h.Session,
-			h.StartedSession)
+			h.FirstVisit)
 	}
 
 	return hits, ins.Finish()

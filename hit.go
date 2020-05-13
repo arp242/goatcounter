@@ -49,13 +49,13 @@ type Hit struct {
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"bot" json:"b,omitempty"`
 
-	RefParams      *string   `db:"ref_params" json:"-"`
-	RefOriginal    *string   `db:"ref_original" json:"-"`
-	RefScheme      *string   `db:"ref_scheme" json:"-"`
-	Browser        string    `db:"browser" json:"-"`
-	Location       string    `db:"location" json:"-"`
-	StartedSession zdb.Bool  `db:"started_session" json:"-"`
-	CreatedAt      time.Time `db:"created_at" json:"-"`
+	RefParams   *string   `db:"ref_params" json:"-"`
+	RefOriginal *string   `db:"ref_original" json:"-"`
+	RefScheme   *string   `db:"ref_scheme" json:"-"`
+	Browser     string    `db:"browser" json:"-"`
+	Location    string    `db:"location" json:"-"`
+	FirstVisit  zdb.Bool  `db:"first_visit" json:"-"`
+	CreatedAt   time.Time `db:"created_at" json:"-"`
 
 	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
@@ -463,9 +463,9 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		defer zlog.Recover()
 		defer wg.Done()
 
-		// TODO: can also use started_session; not sure what would make the most
+		// TODO: can also use first_visit; not sure what would make the most
 		// sense:
-		// 1. started_session will list only people who visted for the first time
+		// 1. first_visit will list only people who visted for the first time
 		// 2. distinct session lists people who visited at all (first visit in
 		//    timerange)
 		query := `/* HitStats.List: get count */
@@ -766,7 +766,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 	// than it needs to be. It's "good enough" for now, though.
 	//
 	// TODO: count_unqiue is off here
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* HitStats.ListRefs */
 		select
 			ref as path,
 			count(ref) as count,
@@ -823,7 +823,7 @@ type Stats []struct {
 
 // ByRef lists all paths by reference.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (int, error) {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ByRef */
 		select
 			path as name,
 			count(path) as count,
@@ -897,7 +897,7 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 
 // List all browser statistics for the given time period.
 func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, error) {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListBrowsers */
 		select
 			browser as name,
 			sum(count) as count,
@@ -1031,10 +1031,11 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 		return 0, fmt.Errorf("Stats.ListSizes: invalid value for name: %#v", name)
 	}
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`
-		select width as name,
-		sum(count) as count,
-		sum(count_unique) as count_unique
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`/* Stats.ListLocations */
+		select
+			width as name,
+			sum(count) as count,
+			sum(count_unique) as count_unique
 		from size_stats
 		where
 			site=$1 and day >= $2 and day <= $3 and
@@ -1071,7 +1072,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 
 // List all location statistics for the given time period.
 func (h *Stats) ListLocations(ctx context.Context, start, end time.Time) (int, error) {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListLocations */
 		select
 			iso_3166_1.name as name,
 			sum(count) as count,

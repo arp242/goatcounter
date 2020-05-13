@@ -93,12 +93,12 @@ Compile from source with:
 
     $ git clone -b release-1.1 https://github.com/zgoat/goatcounter.git
     $ cd goatcounter
-    $ go build ./cmd/goatcounter
+    $ go build -tags sqlite_json ./cmd/goatcounter
 
 Or to build a statically linked binary:
 
     $ go build \
-        -tags osusergo,netgo,sqlite_omit_load_extension \
+        -tags osusergo,netgo,sqlite_omit_load_extension,sqlite_json \
         -ldflags='-extldflags=-static' \
         ./cmd/goatcounter
 

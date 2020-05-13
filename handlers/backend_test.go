@@ -138,6 +138,9 @@ func TestBackendCount(t *testing.T) {
 			login(t, rr, r, site.ID)
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			if h := rr.Header().Get("X-Goatcounter"); h != "" {
+				t.Logf("X-Goatcounter: %s", h)
+			}
 			ztest.Code(t, rr, tt.wantCode)
 
 			if tt.wantCode >= 400 {

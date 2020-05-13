@@ -401,6 +401,12 @@ commit;
 	insert into version values ('2020-04-27-1-usage-flags');
 commit;
 `),
+	"db/migrate/pgsql/2020-05-13-1-unique-path.sql": []byte(`begin;
+	alter table hits add column first_visit int;
+	update hits set first_visit=1 where session=0;
+	insert into version values ('2020-05-13-1-unique-path');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{

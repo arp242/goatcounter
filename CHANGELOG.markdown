@@ -39,12 +39,12 @@ UNRELEASED v1.2.0
     no good way to get the next sequence ID while incrementing it):
 
         delete from sessions;
-        update hits set session=id, started_session=1;
+        update hits set session=id, first_visit=1;
         update sqlite_sequence set seq = (select max(session) from hits) where name='sessions';
 
   - PostgreSQL:
 
-        update hits set session=nextval('sessions_id_seq'), started_session=1;
+        update hits set session=nextval('sessions_id_seq'), first_visit=1;
 
   And then run `goatcounter reindex`.
 

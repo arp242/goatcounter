@@ -23,7 +23,7 @@ func TestSizeStats(t *testing.T) {
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
 	err := UpdateStats(ctx, site.ID, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, StartedSession: true},
+		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{}},
@@ -54,10 +54,10 @@ func TestSizeStats(t *testing.T) {
 	err = UpdateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
-		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, StartedSession: true},
+		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{380, 600, 1}},
-		{Site: site.ID, CreatedAt: now, Size: nil, StartedSession: true},
+		{Site: site.ID, CreatedAt: now, Size: nil, FirstVisit: true},
 	})
 	if err != nil {
 		t.Fatal(err)

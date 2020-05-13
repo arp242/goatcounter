@@ -25,6 +25,7 @@ type Session struct {
 	Site int64 `db:"site"`
 
 	Hash      []byte    `db:"hash"`
+	Paths     []byte    `db:"paths"` // TODO: don't need to get it for now.
 	CreatedAt time.Time `db:"created_at"`
 	LastSeen  time.Time `db:"last_seen"`
 }
@@ -139,15 +140,36 @@ func (s *Salt) Refresh(ctx context.Context) error {
 	return nil
 }
 
-var hashOnce syncutil.Once
+// HasPath reports if this session has already visited a path.
+func (s *Session) HasPath(ctx context.Context, path string) (bool, error) {
+	if s.ID == 0 {
+		return false, fmt.Errorf("Session.HasPath: s.ID is 0")
+	}
+
+	// TODO: meh, not a great solution.
+	paths := `where paths like '%"$3"%'`
+	if cfg.PgSQL {
+		paths = `$3 = any(paths)`
+	}
+	var r int
+	err := zdb.MustGet(ctx).GetContext(ctx, &r, `/* Session.HasPath */
+		select 1 from sessions where id=$1 and site=$2 and `+paths+` limit 1`,
+		s.ID, MustGetSite(ctx).ID, path)
+	if zdb.ErrNoRows(err) {
+		return false, nil
+	}
+	return false, errors.Wrap(err, "Session.HasPath")
+}
 
 // GetOrCreate gets the session by hash, creating a new one if it doesn't exist
 // yet.
-func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (createdSession bool, err error) {
-	return s.getOrCreate(ctx, ua, remoteAddr, 0)
+func (s *Session) GetOrCreate(ctx context.Context, path, ua, remoteAddr string) (createdSession bool, err error) {
+	return s.getOrCreate(ctx, path, ua, remoteAddr, 0)
 }
 
-func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int) (createdSession bool, err error) {
+var hashOnce syncutil.Once
+
+func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, r int) (createdSession bool, err error) {
 	if r > 10 {
 		zlog.Module("session").Fields(zlog.F{
 			"remoteAddr": remoteAddr,
@@ -183,8 +205,13 @@ func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int)
 		return false, errors.Wrap(err, "Session.GetOrCreate")
 
 	case nil:
-		_, err := db.ExecContext(ctx, `update sessions set last_seen=$1 where site=$2 and hash=$3`,
-			now.Format(zdb.Date), site.ID, hash)
+		updPath := `json_insert(paths, '$[' || json_array_length(paths) || ']', $2)`
+		if cfg.PgSQL {
+			updPath = `array_append(paths, $2)`
+		}
+
+		_, err := db.ExecContext(ctx, `update sessions set last_seen=$1, paths=`+updPath+` where site=$2 and hash=$3`,
+			now.Format(zdb.Date), site.ID, hash, path)
 		if err != nil {
 			zlog.Error(err)
 		}
@@ -198,11 +225,11 @@ func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int)
 			s.Hash = hash
 			s.CreatedAt = now
 			s.LastSeen = now
-			err = s.create(ctx)
+			err = s.create(ctx, path)
 		})
 		if !ran {
 			time.Sleep(50 * time.Millisecond)
-			return s.getOrCreate(ctx, ua, remoteAddr, r+1)
+			return s.getOrCreate(ctx, path, ua, remoteAddr, r+1)
 		}
 		if err != nil {
 			return false, err
@@ -215,9 +242,9 @@ func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int)
 	}
 }
 
-func (s *Session) create(ctx context.Context) error {
-	query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
-	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
+func (s *Session) create(ctx context.Context, path string) error {
+	query := `insert into sessions (site, hash, created_at, last_seen, paths) values ($1, $2, $3, $4, $5)`
+	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date), SQLArray{path}}
 
 	if cfg.PgSQL {
 		return errors.Wrap(
