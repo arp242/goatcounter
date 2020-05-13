@@ -14,6 +14,7 @@ import (
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
+	"zgo.at/utils/sqlutil"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -24,10 +25,10 @@ type Session struct {
 	ID   int64 `db:"id"`
 	Site int64 `db:"site"`
 
-	Hash      []byte    `db:"hash"`
-	Paths     []byte    `db:"paths"` // TODO: don't need to get it for now.
-	CreatedAt time.Time `db:"created_at"`
-	LastSeen  time.Time `db:"last_seen"`
+	Hash      []byte             `db:"hash"`
+	Paths     sqlutil.StringList `db:"paths"`
+	CreatedAt time.Time          `db:"created_at"`
+	LastSeen  time.Time          `db:"last_seen"`
 }
 
 type Salt struct {
@@ -146,15 +147,10 @@ func (s *Session) HasPath(ctx context.Context, path string) (bool, error) {
 		return false, fmt.Errorf("Session.HasPath: s.ID is 0")
 	}
 
-	// TODO: meh, not a great solution.
-	paths := `where paths like '%"$3"%'`
-	if cfg.PgSQL {
-		paths = `$3 = any(paths)`
-	}
 	var r int
 	err := zdb.MustGet(ctx).GetContext(ctx, &r, `/* Session.HasPath */
-		select 1 from sessions where id=$1 and site=$2 and `+paths+` limit 1`,
-		s.ID, MustGetSite(ctx).ID, path)
+		select 1 from sessions where id=$1 and site=$2 and paths like $3 limit 1`,
+		s.ID, MustGetSite(ctx).ID, "%"+path+"%")
 	if zdb.ErrNoRows(err) {
 		return false, nil
 	}
@@ -205,12 +201,9 @@ func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, 
 		return false, errors.Wrap(err, "Session.GetOrCreate")
 
 	case nil:
-		updPath := `json_insert(paths, '$[' || json_array_length(paths) || ']', $2)`
-		if cfg.PgSQL {
-			updPath = `array_append(paths, $2)`
-		}
-
-		_, err := db.ExecContext(ctx, `update sessions set last_seen=$1, paths=`+updPath+` where site=$2 and hash=$3`,
+		_, err := db.ExecContext(ctx, `update sessions
+			set last_seen=$1, paths=paths || ',' || $2
+			where site=$3 and hash=$4`,
 			now.Format(zdb.Date), site.ID, hash, path)
 		if err != nil {
 			zlog.Error(err)
@@ -244,7 +237,7 @@ func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, 
 
 func (s *Session) create(ctx context.Context, path string) error {
 	query := `insert into sessions (site, hash, created_at, last_seen, paths) values ($1, $2, $3, $4, $5)`
-	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date), SQLArray{path}}
+	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date), path + ","}
 
 	if cfg.PgSQL {
 		return errors.Wrap(

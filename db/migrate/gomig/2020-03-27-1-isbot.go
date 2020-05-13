@@ -53,5 +53,7 @@ func Migrate_20200327_1_isbot(db zdb.DB) error {
 		zlog.Printf("2020-03-27-1-isbot: %d hits marked as bot; run 'goatcounter reindex' to update the stats", total)
 	}
 
+	db.ExecContext(context.Background(), `insert into version values ('2020-03-27-1-isbot')`)
+
 	return nil
 }
