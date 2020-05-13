@@ -499,7 +499,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
 
 		query := `/* HitStats.List: get overview */
-			select path from hits
+			select path, event from hits
 			where
 				site=? and
 				bot=0 and
@@ -519,7 +519,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		}
 
 		query, args, err := sqlx.In(query+`
-			group by path
+			group by path, event
 			order by sum(started_session) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
@@ -567,7 +567,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		if err != nil {
 			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
-		//l = l.Since("select hits_stats")
+		l = l.Since("select hits_stats")
 	}
 
 	hh := *h
@@ -576,7 +576,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	{
 		for i := range hh {
 			for _, s := range st {
-				if s.Path == hh[i].Path {
+				if s.Path == hh[i].Path && s.Event == hh[i].Event {
 					var x, y []int
 					jsonutil.MustUnmarshal(s.Stats, &x)
 					jsonutil.MustUnmarshal(s.StatsUnique, &y)

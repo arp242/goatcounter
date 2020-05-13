@@ -159,7 +159,13 @@ func DB(t tester) (context.Context, func()) {
 	}
 
 	ctx := zdb.With(context.Background(), db)
-	ctx = goatcounter.WithSite(ctx, &goatcounter.Site{ID: 1})
+
+	var site goatcounter.Site
+	err = site.ByID(ctx, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx = goatcounter.WithSite(ctx, &site)
 	ctx = goatcounter.WithUser(ctx, &goatcounter.User{ID: 1, Site: 1})
 
 	return ctx, func() {

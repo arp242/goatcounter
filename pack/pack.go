@@ -14900,7 +14900,7 @@ Martin
 	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
 			<h2>Paths</h2>
-			<span class="hide-mobileX totals">
+			<span class="totals">
 				Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
 				out of <span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
 				visits;
