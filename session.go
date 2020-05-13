@@ -14,7 +14,6 @@ import (
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -25,10 +24,10 @@ type Session struct {
 	ID   int64 `db:"id"`
 	Site int64 `db:"site"`
 
-	Hash      []byte             `db:"hash"`
-	Paths     sqlutil.StringList `db:"paths"`
-	CreatedAt time.Time          `db:"created_at"`
-	LastSeen  time.Time          `db:"last_seen"`
+	Hash      []byte      `db:"hash"`
+	Paths     zdb.Strings `db:"paths"`
+	CreatedAt time.Time   `db:"created_at"`
+	LastSeen  time.Time   `db:"last_seen"`
 }
 
 type Salt struct {

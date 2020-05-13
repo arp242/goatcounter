@@ -519,7 +519,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 		query, args, err := sqlx.In(query+`
 			group by path, event
-			order by sum(started_session) desc, path desc
+			order by sum(first_visit) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
 			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
