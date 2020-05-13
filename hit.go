@@ -520,7 +520,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 		query, args, err := sqlx.In(query+`
 			group by path
-			order by count(path) desc, path desc
+			order by sum(started_session) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
 			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
@@ -677,7 +677,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		// configured TZ, but that would make changing the TZ expensive, I'm not
 		// 100% sure yet what a good solution here is. For now, this is "good
 		// enough".
-		sort.Slice(hh, func(i, j int) bool { return hh[i].Count > hh[j].Count })
+		sort.Slice(hh, func(i, j int) bool { return hh[i].CountUnique > hh[j].CountUnique })
 		l = l.Since("add totals")
 	}
 
