@@ -12,7 +12,6 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -33,7 +32,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count       []int
 			countUnique []int
 			day         string
-			event       sqlutil.Bool
+			event       zdb.Bool
 			path        string
 			title       string
 		}
@@ -84,14 +83,14 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingHitStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, path string, event sqlutil.Bool,
+	day, path string, event zdb.Bool,
 ) ([]int, []int, string, error) {
 
 	var ex []struct {
-		Stats       []byte       `db:"stats"`
-		StatsUnique []byte       `db:"stats_unique"`
-		Title       string       `db:"title"`
-		Event       sqlutil.Bool `db:"event"`
+		Stats       []byte   `db:"stats"`
+		StatsUnique []byte   `db:"stats_unique"`
+		Title       string   `db:"title"`
+		Event       zdb.Bool `db:"event"`
 	}
 	err := tx.SelectContext(txctx, &ex, `/* existingHitStats */
 		select stats, stats_unique, title, event from hit_stats

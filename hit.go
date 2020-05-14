@@ -20,7 +20,6 @@ import (
 	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/mathutil"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -42,21 +41,21 @@ type Hit struct {
 	Site    int64  `db:"site" json:"-"`
 	Session *int64 `db:"session" json:"-"`
 
-	Path  string            `db:"path" json:"p,omitempty"`
-	Title string            `db:"title" json:"t,omitempty"`
-	Ref   string            `db:"ref" json:"r,omitempty"`
-	Event sqlutil.Bool      `db:"event" json:"e,omitempty"`
-	Size  sqlutil.FloatList `db:"size" json:"s,omitempty"`
-	Query string            `db:"-" json:"q,omitempty"`
-	Bot   int               `db:"bot" json:"b,omitempty"`
+	Path  string     `db:"path" json:"p,omitempty"`
+	Title string     `db:"title" json:"t,omitempty"`
+	Ref   string     `db:"ref" json:"r,omitempty"`
+	Event zdb.Bool   `db:"event" json:"e,omitempty"`
+	Size  zdb.Floats `db:"size" json:"s,omitempty"`
+	Query string     `db:"-" json:"q,omitempty"`
+	Bot   int        `db:"bot" json:"b,omitempty"`
 
-	RefParams      *string      `db:"ref_params" json:"-"`
-	RefOriginal    *string      `db:"ref_original" json:"-"`
-	RefScheme      *string      `db:"ref_scheme" json:"-"`
-	Browser        string       `db:"browser" json:"-"`
-	Location       string       `db:"location" json:"-"`
-	StartedSession sqlutil.Bool `db:"started_session" json:"-"`
-	CreatedAt      time.Time    `db:"created_at" json:"-"`
+	RefParams      *string   `db:"ref_params" json:"-"`
+	RefOriginal    *string   `db:"ref_original" json:"-"`
+	RefScheme      *string   `db:"ref_scheme" json:"-"`
+	Browser        string    `db:"browser" json:"-"`
+	Location       string    `db:"location" json:"-"`
+	StartedSession zdb.Bool  `db:"started_session" json:"-"`
+	CreatedAt      time.Time `db:"created_at" json:"-"`
 
 	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
@@ -429,10 +428,10 @@ type HitStat struct {
 	CountUnique int `db:"count_unique"`
 	Max         int
 	DailyMax    int
-	Path        string       `db:"path"`
-	Event       sqlutil.Bool `db:"event"`
-	Title       string       `db:"title"`
-	RefScheme   *string      `db:"ref_scheme"`
+	Path        string   `db:"path"`
+	Event       zdb.Bool `db:"event"`
+	Title       string   `db:"title"`
+	RefScheme   *string  `db:"ref_scheme"`
 	Stats       []Stat
 }
 
@@ -542,12 +541,12 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 
 	// Add stats and title.
 	var st []struct {
-		Path        string       `db:"path"`
-		Title       string       `db:"title"`
-		Event       sqlutil.Bool `db:"event"`
-		Day         time.Time    `db:"day"`
-		Stats       []byte       `db:"stats"`
-		StatsUnique []byte       `db:"stats_unique"`
+		Path        string    `db:"path"`
+		Title       string    `db:"title"`
+		Event       zdb.Bool  `db:"event"`
+		Day         time.Time `db:"day"`
+		Stats       []byte    `db:"stats"`
+		StatsUnique []byte    `db:"stats_unique"`
 	}
 	{
 		query := `/* HitStats.List: get stats */

@@ -32,12 +32,11 @@ import (
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/tz"
-	"zgo.at/utils/httputilx/header"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/header"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
@@ -284,7 +283,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		hit.Session = &sess.ID
-		hit.StartedSession = sqlutil.Bool(started)
+		hit.StartedSession = zdb.Bool(started)
 	}
 
 	err = hit.Validate(r.Context())

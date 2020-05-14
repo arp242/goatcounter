@@ -18,7 +18,6 @@ import (
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -65,15 +64,15 @@ type Site struct {
 }
 
 type SiteSettings struct {
-	Public           bool               `json:"public"`
-	TwentyFourHours  bool               `json:"twenty_four_hours"`
-	SundayStartsWeek bool               `json:"sunday_starts_week"`
-	DateFormat       string             `json:"date_format"`
-	NumberFormat     rune               `json:"number_format"`
-	DataRetention    int                `json:"data_retention"`
-	IgnoreIPs        sqlutil.StringList `json:"ignore_ips"`
-	Timezone         *tz.Zone           `json:"timezone"`
-	Campaigns        sqlutil.StringList `json:"campaigns"`
+	Public           bool        `json:"public"`
+	TwentyFourHours  bool        `json:"twenty_four_hours"`
+	SundayStartsWeek bool        `json:"sunday_starts_week"`
+	DateFormat       string      `json:"date_format"`
+	NumberFormat     rune        `json:"number_format"`
+	DataRetention    int         `json:"data_retention"`
+	IgnoreIPs        zdb.Strings `json:"ignore_ips"`
+	Timezone         *tz.Zone    `json:"timezone"`
+	Campaigns        zdb.Strings `json:"campaigns"`
 	Limits           struct {
 		Page int `json:"page"`
 		Ref  int `json:"ref"`

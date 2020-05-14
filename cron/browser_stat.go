@@ -12,7 +12,6 @@ import (
 	"github.com/mssola/user_agent"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -31,7 +30,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count       int
 			countUnique int
 			day         string
-			event       sqlutil.Bool
+			event       zdb.Bool
 			browser     string
 			version     string
 		}
@@ -81,13 +80,13 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingBrowserStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, browser, version string, event sqlutil.Bool,
+	day, browser, version string, event zdb.Bool,
 ) (int, int, error) {
 
 	var c []struct {
-		Count       int          `db:"count"`
-		CountUnique int          `db:"count_unique"`
-		Event       sqlutil.Bool `db:"event"`
+		Count       int      `db:"count"`
+		CountUnique int      `db:"count_unique"`
+		Event       zdb.Bool `db:"event"`
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingBrowserStats */
 		select count, count_unique, event from browser_stats

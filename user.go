@@ -15,7 +15,6 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/guru"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -33,18 +32,18 @@ type User struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
 
-	Name          string       `db:"name" json:"name"`
-	Email         string       `db:"email" json:"email"`
-	EmailVerified sqlutil.Bool `db:"email_verified" json:"-"`
-	Password      []byte       `db:"password" json:"-"`
-	Role          string       `db:"role" json:"-"`
-	LoginAt       *time.Time   `db:"login_at" json:"-"`
-	ResetAt       *time.Time   `db:"reset_at" json:"-"`
-	LoginRequest  *string      `db:"login_request" json:"-"`
-	LoginToken    *string      `db:"login_token" json:"-"`
-	CSRFToken     *string      `db:"csrf_token" json:"-"`
-	EmailToken    *string      `db:"email_token" json:"-"`
-	SeenUpdatesAt time.Time    `db:"seen_updates_at" json:"-"`
+	Name          string     `db:"name" json:"name"`
+	Email         string     `db:"email" json:"email"`
+	EmailVerified zdb.Bool   `db:"email_verified" json:"-"`
+	Password      []byte     `db:"password" json:"-"`
+	Role          string     `db:"role" json:"-"`
+	LoginAt       *time.Time `db:"login_at" json:"-"`
+	ResetAt       *time.Time `db:"reset_at" json:"-"`
+	LoginRequest  *string    `db:"login_request" json:"-"`
+	LoginToken    *string    `db:"login_token" json:"-"`
+	CSRFToken     *string    `db:"csrf_token" json:"-"`
+	EmailToken    *string    `db:"email_token" json:"-"`
+	SeenUpdatesAt time.Time  `db:"seen_updates_at" json:"-"`
 
 	CreatedAt time.Time  `db:"created_at" json:"-"`
 	UpdatedAt *time.Time `db:"updated_at" json:"-"`

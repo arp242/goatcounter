@@ -10,7 +10,6 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -28,7 +27,7 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count       int
 			countUnique int
 			day         string
-			event       sqlutil.Bool
+			event       zdb.Bool
 			ref         string
 		}
 		grouped := map[string]gt{}
@@ -71,13 +70,13 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingRefStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, ref string, event sqlutil.Bool,
+	day, ref string, event zdb.Bool,
 ) (int, int, error) {
 
 	var c []struct {
-		Count       int          `db:"count"`
-		CountUnique int          `db:"count_unique"`
-		Event       sqlutil.Bool `db:"event"`
+		Count       int      `db:"count"`
+		CountUnique int      `db:"count_unique"`
+		Event       zdb.Bool `db:"event"`
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingRefStats */
 		select count, count_unique, event from ref_stats

@@ -25,7 +25,6 @@ import (
 	"zgo.at/isbot"
 	"zgo.at/tz"
 	"zgo.at/utils/sliceutil"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -87,7 +86,7 @@ func TestBackendCount(t *testing.T) {
 			Ref:       "example.com",
 			RefParams: ztest.SP("p=x"),
 			RefScheme: ztest.SP("h"),
-			Size:      sqlutil.FloatList{40, 50, 1},
+			Size:      zdb.Floats{40, 50, 1},
 		}},
 
 		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=XXX"}}, nil, 200, goatcounter.Hit{

@@ -10,7 +10,6 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -28,7 +27,7 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count       int
 			countUnique int
 			day         string
-			event       sqlutil.Bool
+			event       zdb.Bool
 			location    string
 		}
 		grouped := map[string]gt{}
@@ -71,13 +70,13 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingLocationStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, location string, event sqlutil.Bool,
+	day, location string, event zdb.Bool,
 ) (int, int, error) {
 
 	var c []struct {
-		Count       int          `db:"count"`
-		CountUnique int          `db:"count_unique"`
-		Event       sqlutil.Bool `db:"event"`
+		Count       int      `db:"count"`
+		CountUnique int      `db:"count_unique"`
+		Event       zdb.Bool `db:"event"`
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingLocationStats */
 		select count, count_unique, event from location_stats

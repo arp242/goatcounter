@@ -10,7 +10,6 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/sqlutil"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -28,7 +27,7 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count       int
 			countUnique int
 			day         string
-			event       sqlutil.Bool
+			event       zdb.Bool
 			width       int
 		}
 		grouped := map[string]gt{}
@@ -76,13 +75,13 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingSizeStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day string, width int, event sqlutil.Bool,
+	day string, width int, event zdb.Bool,
 ) (int, int, error) {
 
 	var c []struct {
-		Count       int          `db:"count"`
-		CountUnique int          `db:"count_unique"`
-		Event       sqlutil.Bool `db:"event"`
+		Count       int      `db:"count"`
+		CountUnique int      `db:"count_unique"`
+		Event       zdb.Bool `db:"event"`
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingSizeStats */
 		select count, count_unique, event from size_stats
