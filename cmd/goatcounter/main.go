@@ -19,7 +19,7 @@ import (
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/runtimeutil"
-	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
@@ -187,7 +187,7 @@ func runGoMigrations(db zdb.DB) error {
 	ctx := zdb.With(context.Background(), db)
 
 	for k, f := range goMigrations {
-		if sliceutil.InStringSlice(ran, k) {
+		if stringutil.Contains(ran, k) {
 			continue
 		}
 		zlog.Printf("running Go migration %q", k)

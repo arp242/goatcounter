@@ -19,7 +19,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -64,7 +64,7 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 	}
 
 	s := strings.Split(flag, ",")
-	if len(s) == 0 || sliceutil.InStringSlice(s, "none") {
+	if len(s) == 0 || stringutil.Contains(s, "none") {
 		return nil, nil, 0
 	}
 

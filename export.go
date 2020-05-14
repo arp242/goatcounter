@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/floatutil"
 	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 )
@@ -64,7 +64,7 @@ func Export(ctx context.Context, fp *os.File) {
 			}
 			c.Write([]string{hit.Path, hit.Title, fmt.Sprintf("%t", hit.Event),
 				fmt.Sprintf("%d", hit.Bot), fmt.Sprintf("%d", hit.Session),
-				hit.Ref, rp, ro, hit.Browser, sliceutil.JoinFloat(hit.Size),
+				hit.Ref, rp, ro, hit.Browser, floatutil.Join(hit.Size, ","),
 				hit.Location, hit.CreatedAt.Format(time.RFC3339)})
 		}
 

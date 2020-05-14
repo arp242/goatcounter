@@ -13,7 +13,7 @@ import (
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
-	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 )
 
@@ -35,7 +35,7 @@ type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
 func (a *AdminStats) List(ctx context.Context, order string) error {
-	if order == "" || !sliceutil.InStringSlice([]string{"count", "created_at"}, order) {
+	if order == "" || !stringutil.Contains([]string{"count", "created_at"}, order) {
 		order = "count"
 	}
 

@@ -18,8 +18,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter/errors"
+	"zgo.at/utils/intutil"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/mathutil"
 	"zgo.at/utils/syncutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -495,7 +495,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	var more bool
 	{
 		// Get one page more so we can detect if there are more pages after this.
-		limit := int(mathutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
+		limit := int(intutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
 
 		query := `/* HitStats.List: get overview */
 			select path, event from hits

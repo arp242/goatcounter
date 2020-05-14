@@ -23,7 +23,7 @@ import (
 	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
 	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/zmail"
@@ -54,7 +54,7 @@ func init() {
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.Saas = true
-	if sliceutil.InStringSlice(os.Args, "-test.v=true") {
+	if stringutil.Contains(os.Args, "-test.v=true") {
 		zlog.Config.Debug = []string{"all"}
 	} else {
 		zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.

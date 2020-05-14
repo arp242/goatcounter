@@ -24,7 +24,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/isbot"
 	"zgo.at/tz"
-	"zgo.at/utils/sliceutil"
+	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -754,7 +754,7 @@ func TestBackendBarChart(t *testing.T) {
 
 		if d := ztest.Diff(out, want); d != "" {
 			t.Error(d)
-			if sliceutil.InStringSlice(os.Args, "-test.v=true") {
+			if stringutil.Contains(os.Args, "-test.v=true") {
 				fmt.Println("Out:\n" + out)
 			}
 		}
