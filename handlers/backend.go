@@ -277,23 +277,14 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	// TODO: move to memstore?
 	{
 		var sess goatcounter.Session
-		started, err := sess.GetOrCreate(r.Context(), hit.Path, r.UserAgent(), zhttp.RemovePort(r.RemoteAddr))
+		first, err := sess.GetOrCreate(r.Context(), hit.Path, r.UserAgent(), zhttp.RemovePort(r.RemoteAddr))
 		if err != nil {
 			zlog.Error(err)
 		}
 
 		hit.Session = &sess.ID
-		if started {
+		if first {
 			hit.FirstVisit = zdb.Bool(true)
-		}
-		if !started {
-			first, err := sess.HasPath(r.Context(), hit.Path)
-			if err != nil {
-				zlog.Error(err)
-			}
-			if first {
-				hit.FirstVisit = zdb.Bool(true)
-			}
 		}
 	}
 

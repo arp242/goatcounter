@@ -845,8 +845,8 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 	return total, errors.Wrap(err, "HitStats.ByRef")
 }
 
-// List all ref statistics for the given time period, excluding referrals from
-// the configured LinkDomain.
+// ListRefs lists all ref statistics for the given time period, excluding
+// referrals from the configured LinkDomain.
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
@@ -895,7 +895,7 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 	return total, more, nil
 }
 
-// List all browser statistics for the given time period.
+// ListBrowsers lists all browser statistics for the given time period.
 func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListBrowsers */
 		select
@@ -1070,7 +1070,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	return total, nil
 }
 
-// List all location statistics for the given time period.
+// ListLocations lists all location statistics for the given time period.
 func (h *Stats) ListLocations(ctx context.Context, start, end time.Time) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListLocations */
 		select

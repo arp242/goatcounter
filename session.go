@@ -24,10 +24,9 @@ type Session struct {
 	ID   int64 `db:"id"`
 	Site int64 `db:"site"`
 
-	Hash      []byte      `db:"hash"`
-	Paths     zdb.Strings `db:"paths"`
-	CreatedAt time.Time   `db:"created_at"`
-	LastSeen  time.Time   `db:"last_seen"`
+	Hash      []byte    `db:"hash"`
+	CreatedAt time.Time `db:"created_at"`
+	LastSeen  time.Time `db:"last_seen"`
 }
 
 type Salt struct {
@@ -140,31 +139,31 @@ func (s *Salt) Refresh(ctx context.Context) error {
 	return nil
 }
 
-// HasPath reports if this session has already visited a path.
-func (s *Session) HasPath(ctx context.Context, path string) (bool, error) {
+// hasPath reports if this session has already visited a path.
+func (s *Session) hasPath(ctx context.Context, path string) (bool, error) {
 	if s.ID == 0 {
-		return false, fmt.Errorf("Session.HasPath: s.ID is 0")
+		return false, fmt.Errorf("Session.hasPath: s.ID is 0")
 	}
 
-	var r int
-	err := zdb.MustGet(ctx).GetContext(ctx, &r, `/* Session.HasPath */
-		select 1 from sessions where id=$1 and site=$2 and paths like $3 limit 1`,
-		s.ID, MustGetSite(ctx).ID, "%"+path+"%")
+	var r uint8
+	err := zdb.MustGet(ctx).GetContext(ctx, &r, `/* Session.hasPath */
+		select 1 from session_paths where session=$1 and lower(path) = lower($2) limit 1`,
+		s.ID, path)
 	if zdb.ErrNoRows(err) {
 		return false, nil
 	}
-	return false, errors.Wrap(err, "Session.HasPath")
+	return true, errors.Wrap(err, "Session.hasPath")
 }
 
 // GetOrCreate gets the session by hash, creating a new one if it doesn't exist
 // yet.
-func (s *Session) GetOrCreate(ctx context.Context, path, ua, remoteAddr string) (createdSession bool, err error) {
+func (s *Session) GetOrCreate(ctx context.Context, path, ua, remoteAddr string) (firstVisit bool, err error) {
 	return s.getOrCreate(ctx, path, ua, remoteAddr, 0)
 }
 
 var hashOnce syncutil.Once
 
-func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, r int) (createdSession bool, err error) {
+func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, r int) (firstVisit bool, err error) {
 	if r > 10 {
 		zlog.Module("session").Fields(zlog.F{
 			"remoteAddr": remoteAddr,
@@ -201,13 +200,28 @@ func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, 
 
 	case nil:
 		_, err := db.ExecContext(ctx, `update sessions
-			set last_seen=$1, paths=paths || ',' || $2
-			where site=$3 and hash=$4`,
-			now.Format(zdb.Date), site.ID, hash, path)
+			set last_seen=$1 where site=$2 and hash=$3`,
+			now.Format(zdb.Date), site.ID, hash)
 		if err != nil {
-			zlog.Error(err)
+			zlog.Errorf("Session.getOrCreate: update: %w", err)
 		}
-		return false, nil
+
+		has, err := s.hasPath(ctx, path)
+		if err != nil {
+			zlog.Errorf("Session.getOrCreate: %w", err)
+			return false, nil
+		}
+
+		if !has {
+			_, err = db.ExecContext(ctx, `
+				insert into session_paths (session, path) values ($1, $2)`,
+				s.ID, path)
+			if err != nil {
+				zlog.Errorf("Session.getOrCreate: insert path: %w", err)
+			}
+		}
+
+		return !has, nil
 
 	case sql.ErrNoRows:
 		var err error
@@ -235,24 +249,27 @@ func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, 
 }
 
 func (s *Session) create(ctx context.Context, path string) error {
-	query := `insert into sessions (site, hash, created_at, last_seen, paths) values ($1, $2, $3, $4, $5)`
-	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date), path + ","}
+	query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
+	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
+
+	db := zdb.MustGet(ctx)
 
 	if cfg.PgSQL {
-		return errors.Wrap(
-			zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...),
-			"Session.create: insert")
+		err := db.GetContext(ctx, &s.ID, query+" returning id", args...)
+		if err != nil {
+			return errors.Wrap(err, "Session.create: insert")
+		}
+	} else {
+		res, err := db.ExecContext(ctx, query, args...)
+		if err != nil {
+			return errors.Errorf("Session.create: insert: %w", err)
+		}
+		s.ID, err = res.LastInsertId()
+		if err != nil {
+			return errors.Errorf("Session.create: lastInsertID: %w", err)
+		}
 	}
 
-	// SQLite
-	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
-	if err != nil {
-		return errors.Errorf("Session.create: insert: %w", err)
-	}
-	s.ID, err = res.LastInsertId()
-	if err != nil {
-		return errors.Errorf("Session.create: %w", err)
-	}
-
-	return nil
+	_, err := db.ExecContext(ctx, `insert into session_paths (session, path) values ($1, $2)`, s.ID, path)
+	return errors.Wrap(err, "Session.create: insert path")
 }
