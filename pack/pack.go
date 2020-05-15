@@ -407,7 +407,12 @@ commit;
 	);
 	alter table hits rename column started_session to first_visit;
 
-	alter table sessions add column paths varchar;
+	create table session_paths (
+		session integer not null,
+		path    varchar not null,
+
+		foreign key (session) references sessions(id) on delete cascade on update cascade
+	);
 
 	insert into version values ('2020-05-13-1-unique-path');
 commit;
@@ -833,7 +838,12 @@ commit;
 	);
 	alter table hits rename column started_session to first_visit;
 
-	alter table sessions add column paths varchar;
+	create table session_paths (
+		session integer not null,
+		path    varchar not null,
+
+		foreign key (session) references sessions(id) on delete cascade on update cascade
+	);
 
 	insert into version values ('2020-05-13-1-unique-path');
 commit;
@@ -14047,7 +14057,7 @@ var Templates = map[string][]byte{
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
 
-	{{if .Saas}}
+	{{if and .Saas (not .Dev)}}
 		<script>
 			window.goatcounter = {
 				title:       function() { return null },
