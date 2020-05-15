@@ -1,7 +1,6 @@
 begin;
-	update hits set started_session=1 where id in (
-		select min(id) from hits where session>0 and started_session=1 group by path
-	);
+	update hits set started_session=1 where id in
+		(select min(id) from hits where session>0 and started_session=0 group by path, session);
 	alter table hits rename column started_session to first_visit;
 
 	create table session_paths (
