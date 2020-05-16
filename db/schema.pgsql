@@ -72,7 +72,7 @@ create table hits (
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
-	started_session integer       default 0,
+	first_visit    integer        default 0,
 
 	created_at     timestamp      not null
 );
@@ -89,6 +89,13 @@ create table sessions (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 create unique index "sessions#site#hash" on sessions(site, hash);
+
+create table session_paths (
+	session        integer        not null,
+	path           varchar        not null,
+
+	foreign key (session) references sessions(id) on delete cascade on update cascade
+);
 
 create table session_salts (
 	previous    int        not null,
@@ -516,6 +523,7 @@ insert into version values
 	('2020-04-16-1-pwauth'),
 	('2020-04-20-1-hitsindex'),
 	('2020-04-22-1-campaigns'),
-	('2020-04-27-1-usage-flags');
+	('2020-04-27-1-usage-flags'),
+	('2020-05-13-1-unique-path');
 
 -- vim:ft=sql
