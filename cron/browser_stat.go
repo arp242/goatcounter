@@ -7,9 +7,8 @@ package cron
 import (
 	"context"
 	"fmt"
-	"strings"
 
-	"github.com/mssola/user_agent"
+	"zgo.at/gadget"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
@@ -106,42 +105,10 @@ func existingBrowserStats(
 }
 
 func getBrowser(uaHeader string) (string, string) {
-	ua := user_agent.New(uaHeader)
-	browser, version := ua.Browser()
-
-	// A lot of this is wrong, so just skip for now.
-	if browser == "Android" {
-		return "", ""
+	ua := gadget.Parse(uaHeader)
+	if ua.BrowserName == "Safari" && ua.BrowserVersion == "" {
+		fmt.Println(uaHeader)
 	}
 
-	if browser == "Chromium" {
-		browser = "Chrome"
-	}
-
-	// Correct some wrong data.
-	if browser == "Safari" && strings.Count(version, ".") == 3 {
-		browser = "Chrome"
-	}
-	// Note: Safari still shows Chrome and Firefox wrong.
-	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent/Firefox
-	// https://developer.chrome.com/multidevice/user-agent#chrome_for_ios_user_agent
-
-	// The "build" and "patch" aren't interesting for us, and "minor" hasn't
-	// been non-0 since 2010.
-	// https://www.chromium.org/developers/version-numbers
-	if browser == "Chrome" || browser == "Opera" {
-		if i := strings.Index(version, "."); i > -1 {
-			version = version[:i]
-		}
-	}
-
-	// Don't include patch version.
-	if browser == "Safari" {
-		v := strings.Split(version, ".")
-		if len(v) > 2 {
-			version = v[0] + "." + v[1]
-		}
-	}
-
-	return browser, version
+	return ua.BrowserName, ua.BrowserVersion
 }

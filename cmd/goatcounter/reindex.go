@@ -62,6 +62,8 @@ Flags:
                  location_stats, ref_stats, size_stats, or all (default).
 
   -site          Only reindex this site ID. Default is to reindex all.
+
+  -quiet         Don't print progress.
 `
 
 func reindex() (int, error) {
@@ -71,6 +73,7 @@ func reindex() (int, error) {
 	to := CommandLine.String("to", "", "")
 	table := CommandLine.String("table", "all", "")
 	pause := CommandLine.Int("pause", 0, "")
+	quiet := CommandLine.Bool("quiet", false, "")
 	var site int64
 	CommandLine.Int64Var(&site, "site", 0, "")
 	err := CommandLine.Parse(os.Args[2:])
@@ -135,17 +138,19 @@ func reindex() (int, error) {
 		if site > 0 && s.ID != site {
 			continue
 		}
-		err := dosite(ctx, s, tables, *pause, firstDay, lastDay)
+		err := dosite(ctx, s, *table, *pause, firstDay, lastDay, *quiet)
 		if err != nil {
 			return 1, err
 		}
 	}
 
-	fmt.Fprintln(stdout, "")
+	if !*quiet {
+		fmt.Fprintln(stdout, "")
+	}
 	return 0, nil
 }
 
-func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause int, firstDay, lastDay time.Time) error {
+func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause int, firstDay, lastDay time.Time, quiet) error {
 	db := zdb.MustGet(ctx).(*sqlx.DB)
 	siteID := site.ID
 
@@ -181,7 +186,9 @@ func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause i
 			return err
 		}
 
-		fmt.Fprintf(stdout, "\r\x1b[0Ksite %d %s → %d", siteID, day.Format("2006-01-02"), len(hits))
+		if !quiet {
+			fmt.Fprintf(stdout, "\r\x1b[0Ksite %d %s → %d", siteID, day.Format("2006-01-02"), len(hits))
+		}
 
 		clearDay(db, tables, day.Format("2006-01-02"), siteID)
 
