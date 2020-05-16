@@ -169,6 +169,17 @@
 		{{end}}
 	</div>
 	<div>
+		<h2>Systems</h2>
+		{{if eq .TotalSystems 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 .1 true true}}</div>
+			</div>
+		{{end}}
+	</div>
+
+	<div>
 		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>

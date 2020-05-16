@@ -59,7 +59,8 @@ Flags:
                  year-month-day in UTC. The default is yesterday.
 
   -table         Which tables to reindex: hit_stats, hit_counts, browser_stats,
-                 location_stats, ref_stats, size_stats, or all (default).
+                 system_stats, location_stats, ref_stats, size_stats, or
+                 all (default).
 
   -site          Only reindex this site ID. Default is to reindex all.
 
@@ -89,7 +90,8 @@ func reindex() (int, error) {
 
 	for _, t := range tables {
 		v.Include("-table", t, []string{"hit_stats", "hit_counts",
-			"browser_stats", "location_stats", "ref_stats", "size_stats", "all"})
+			"browser_stats", "system_stats", "location_stats", "ref_stats",
+			"size_stats", "all"})
 	}
 	if v.HasErrors() {
 		return 1, v
@@ -150,7 +152,7 @@ func reindex() (int, error) {
 	return 0, nil
 }
 
-func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause int, firstDay, lastDay time.Time, quiet) error {
+func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause int, firstDay, lastDay time.Time, quiet bool) error {
 	db := zdb.MustGet(ctx).(*sqlx.DB)
 	siteID := site.ID
 
@@ -224,6 +226,8 @@ func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
 				siteID, day))
 		case "browser_stats":
 			db.MustExecContext(ctx, `delete from browser_stats`+where)
+		case "system_stats":
+			db.MustExecContext(ctx, `delete from system_stats`+where)
 		case "location_stats":
 			db.MustExecContext(ctx, `delete from location_stats`+where)
 		case "ref_stats":

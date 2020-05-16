@@ -180,6 +180,8 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, tables []string) 
 				err = updateHitCounts(ctx, hits)
 			case "browser_stats":
 				err = updateBrowserStats(ctx, hits)
+			case "system_stats":
+				err = updateSystemStats(ctx, hits)
 			case "location_stats":
 				err = updateLocationStats(ctx, hits)
 			case "ref_stats":
@@ -237,7 +239,7 @@ func vacuumDeleted(ctx context.Context) error {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
 
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
-			for _, t := range []string{"browser_stats", "hit_stats", "sessions", "hits", "location_stats", "ref_stats", "size_stats", "users"} {
+			for _, t := range []string{"browser_stats", "system_stats", "hit_stats", "sessions", "hits", "location_stats", "ref_stats", "size_stats", "users"} {
 				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
 				if err != nil {
 					return errors.Errorf("%s: %w", t, err)
