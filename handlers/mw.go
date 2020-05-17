@@ -49,7 +49,7 @@ var (
 		return guru.Errorf(403, "child sites can't access this")
 	})
 
-	admin = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+	adminOnly = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		if goatcounter.MustGetSite(r.Context()).Admin() {
 			return nil
 		}
