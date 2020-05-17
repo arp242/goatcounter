@@ -299,7 +299,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		y, m, d := goatcounter.Now().In(site.Settings.Timezone.Loc()).Date()
 		now := time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())
 		start = now.Add(-7 * day).UTC()
-		end = time.Date(y, m, d, 23, 59, 59, 9, now.Location()).UTC()
+		end = time.Date(y, m, d, 23, 59, 59, 9, now.Location()).UTC().Round(time.Second)
 	}
 
 	filter := r.URL.Query().Get("filter")
@@ -1042,7 +1042,8 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (
 	}
 
 	if start.Before(site.CreatedAt) {
-		start = site.CreatedAt
+		y, m, d := site.CreatedAt.In(site.Settings.Timezone.Loc()).Date()
+		start = time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())
 	}
 
 	return start.UTC(), end.UTC(), nil
