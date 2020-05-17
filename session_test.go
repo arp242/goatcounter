@@ -63,8 +63,8 @@ func TestSessionGetOrCreate(t *testing.T) {
 	defer clean()
 
 	type test struct {
-		session        *goatcounter.Session
-		ua, remoteAddr string
+		session              *goatcounter.Session
+		path, ua, remoteAddr string
 
 		created bool
 		err     error
@@ -73,15 +73,15 @@ func TestSessionGetOrCreate(t *testing.T) {
 	const n = 10
 	var data [n]test
 	for i := 0; i < n; i++ {
-		data[i] = test{session: &goatcounter.Session{}, ua: "test", remoteAddr: "127.0.0.1"}
+		data[i] = test{session: &goatcounter.Session{}, path: "/test", ua: "test", remoteAddr: "127.0.0.1"}
 	}
 
 	var wg sync.WaitGroup
 	wg.Add(n - 1)
-	data[0].created, data[0].err = data[0].session.GetOrCreate(ctx, data[0].ua, data[0].remoteAddr)
+	data[0].created, data[0].err = data[0].session.GetOrCreate(ctx, data[0].path, data[0].ua, data[0].remoteAddr)
 	for i := 1; i < n; i++ {
 		go func(i int) {
-			data[i].created, data[i].err = data[i].session.GetOrCreate(ctx, data[i].ua, data[i].remoteAddr)
+			data[i].created, data[i].err = data[i].session.GetOrCreate(ctx, data[i].path, data[i].ua, data[i].remoteAddr)
 			wg.Done()
 		}(i)
 	}

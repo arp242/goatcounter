@@ -139,15 +139,31 @@ func (s *Salt) Refresh(ctx context.Context) error {
 	return nil
 }
 
-var hashOnce syncutil.Once
+// hasPath reports if this session has already visited a path.
+func (s *Session) hasPath(ctx context.Context, path string) (bool, error) {
+	if s.ID == 0 {
+		return false, fmt.Errorf("Session.hasPath: s.ID is 0")
+	}
+
+	var r uint8
+	err := zdb.MustGet(ctx).GetContext(ctx, &r, `/* Session.hasPath */
+		select 1 from session_paths where session=$1 and lower(path) = lower($2) limit 1`,
+		s.ID, path)
+	if zdb.ErrNoRows(err) {
+		return false, nil
+	}
+	return true, errors.Wrap(err, "Session.hasPath")
+}
 
 // GetOrCreate gets the session by hash, creating a new one if it doesn't exist
 // yet.
-func (s *Session) GetOrCreate(ctx context.Context, ua, remoteAddr string) (createdSession bool, err error) {
-	return s.getOrCreate(ctx, ua, remoteAddr, 0)
+func (s *Session) GetOrCreate(ctx context.Context, path, ua, remoteAddr string) (firstVisit bool, err error) {
+	return s.getOrCreate(ctx, path, ua, remoteAddr, 0)
 }
 
-func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int) (createdSession bool, err error) {
+var hashOnce syncutil.Once
+
+func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, r int) (firstVisit bool, err error) {
 	if r > 10 {
 		zlog.Module("session").Fields(zlog.F{
 			"remoteAddr": remoteAddr,
@@ -183,12 +199,29 @@ func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int)
 		return false, errors.Wrap(err, "Session.GetOrCreate")
 
 	case nil:
-		_, err := db.ExecContext(ctx, `update sessions set last_seen=$1 where site=$2 and hash=$3`,
+		_, err := db.ExecContext(ctx, `update sessions
+			set last_seen=$1 where site=$2 and hash=$3`,
 			now.Format(zdb.Date), site.ID, hash)
 		if err != nil {
-			zlog.Error(err)
+			zlog.Errorf("Session.getOrCreate: update: %w", err)
 		}
-		return false, nil
+
+		has, err := s.hasPath(ctx, path)
+		if err != nil {
+			zlog.Errorf("Session.getOrCreate: %w", err)
+			return false, nil
+		}
+
+		if !has {
+			_, err = db.ExecContext(ctx, `
+				insert into session_paths (session, path) values ($1, $2)`,
+				s.ID, path)
+			if err != nil {
+				zlog.Errorf("Session.getOrCreate: insert path: %w", err)
+			}
+		}
+
+		return !has, nil
 
 	case sql.ErrNoRows:
 		var err error
@@ -198,11 +231,11 @@ func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int)
 			s.Hash = hash
 			s.CreatedAt = now
 			s.LastSeen = now
-			err = s.create(ctx)
+			err = s.create(ctx, path)
 		})
 		if !ran {
 			time.Sleep(50 * time.Millisecond)
-			return s.getOrCreate(ctx, ua, remoteAddr, r+1)
+			return s.getOrCreate(ctx, path, ua, remoteAddr, r+1)
 		}
 		if err != nil {
 			return false, err
@@ -215,25 +248,28 @@ func (s *Session) getOrCreate(ctx context.Context, ua, remoteAddr string, r int)
 	}
 }
 
-func (s *Session) create(ctx context.Context) error {
+func (s *Session) create(ctx context.Context, path string) error {
 	query := `insert into sessions (site, hash, created_at, last_seen) values ($1, $2, $3, $4)`
 	args := []interface{}{s.Site, s.Hash, s.CreatedAt.Format(zdb.Date), s.LastSeen.Format(zdb.Date)}
 
+	db := zdb.MustGet(ctx)
+
 	if cfg.PgSQL {
-		return errors.Wrap(
-			zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...),
-			"Session.create: insert")
+		err := db.GetContext(ctx, &s.ID, query+" returning id", args...)
+		if err != nil {
+			return errors.Wrap(err, "Session.create: insert")
+		}
+	} else {
+		res, err := db.ExecContext(ctx, query, args...)
+		if err != nil {
+			return errors.Errorf("Session.create: insert: %w", err)
+		}
+		s.ID, err = res.LastInsertId()
+		if err != nil {
+			return errors.Errorf("Session.create: lastInsertID: %w", err)
+		}
 	}
 
-	// SQLite
-	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
-	if err != nil {
-		return errors.Errorf("Session.create: insert: %w", err)
-	}
-	s.ID, err = res.LastInsertId()
-	if err != nil {
-		return errors.Errorf("Session.create: %w", err)
-	}
-
-	return nil
+	_, err := db.ExecContext(ctx, `insert into session_paths (session, path) values ($1, $2)`, s.ID, path)
+	return errors.Wrap(err, "Session.create: insert path")
 }

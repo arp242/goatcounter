@@ -138,6 +138,9 @@ func TestBackendCount(t *testing.T) {
 			login(t, rr, r, site.ID)
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			if h := rr.Header().Get("X-Goatcounter"); h != "" {
+				t.Logf("X-Goatcounter: %s", h)
+			}
 			ztest.Code(t, rr, tt.wantCode)
 
 			if tt.wantCode >= 400 {
@@ -201,7 +204,9 @@ func TestBackendCountSessions(t *testing.T) {
 		r.Host = site.Code + "." + cfg.Domain
 		r.Header.Set("User-Agent", ua)
 		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
-		//t.Logf("X-Goatcounter: %s", rr.Header().Get("X-Goatcounter"))
+		if h := rr.Header().Get("X-Goatcounter"); h != "" {
+			t.Logf("X-Goatcounter: %s", h)
+		}
 		ztest.Code(t, rr, 200)
 
 		_, err := goatcounter.Memstore.Persist(ctx)
@@ -237,6 +242,9 @@ func TestBackendCountSessions(t *testing.T) {
 		var got []int
 		for _, h := range hits {
 			got = append(got, int(*h.Session))
+			if !h.FirstVisit {
+				t.Errorf("FirstVisit is false for %v", h)
+			}
 		}
 
 		// TODO: test in order.
@@ -271,7 +279,6 @@ func TestBackendCountSessions(t *testing.T) {
 	now = now.Add(1 * time.Hour)
 	goatcounter.Salts.Refresh(ctx1)
 	after := zdb.DumpString(ctx1, "select * from session_salts order by previous")
-
 	if d := ztest.Diff(before, after); d != "" {
 		t.Fatalf("salts cycled too soon\n%s", d)
 	}

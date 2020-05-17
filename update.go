@@ -2,6 +2,15 @@
 // This file is part of GoatCounter and published under the terms of the EUPL
 // v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
 
+/*
+Adding a new update:
+
+insert into updates(created_at, show_at, subject, body) values (now(), now(),
+    "subject", "<p>body</p>");
+
+update users set unseen_updates=1;
+*/
+
 package goatcounter
 
 import (
@@ -12,13 +21,6 @@ import (
 	"zgo.at/zdb"
 )
 
-/* Adding a new update:
-
-insert into updates(created_at, show_at, subject, body) values (now(), now(),
-    "...", "...");
-
-update users set unseen_updates=1;
-*/
 type Update struct {
 	ID        int64     `db:"id"`
 	Subject   string    `db:"subject"`
@@ -41,7 +43,7 @@ func (u *Updates) HasSince(ctx context.Context, since time.Time) (bool, error) {
 	return has, errors.Wrap(err, "Updates.ListUnseen")
 }
 
-// Lists all updates.
+// List all updates.
 func (u *Updates) List(ctx context.Context, since time.Time) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, u, `select * from updates order by show_at desc`)
 	if err != nil {

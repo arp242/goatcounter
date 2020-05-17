@@ -403,5 +403,6 @@ h3 + h4 { margin-top: .3em; }
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
 
-/* Grey "pageviews" out when put next to visitors */
-.views { color: #999; }
+/* Grey out "pageviews" out when put next to visitors */
+.views          { color: #999; }
+#tooltip .views { color: #bbb; }

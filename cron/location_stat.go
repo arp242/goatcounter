@@ -52,7 +52,7 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			v.count += 1
-			if h.StartedSession {
+			if h.FirstVisit {
 				v.countUnique += 1
 			}
 			grouped[k] = v

@@ -24,7 +24,7 @@ func TestLocationStats(t *testing.T) {
 	err := UpdateStats(ctx, site.ID, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
-		{Site: site.ID, CreatedAt: now, Location: "ET", StartedSession: true},
+		{Site: site.ID, CreatedAt: now, Location: "ET", FirstVisit: true},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -47,8 +47,8 @@ func TestLocationStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},
-		{Site: site.ID, CreatedAt: now, Location: "ET", StartedSession: true},
-		{Site: site.ID, CreatedAt: now, Location: "ET", StartedSession: true},
+		{Site: site.ID, CreatedAt: now, Location: "ET", FirstVisit: true},
+		{Site: site.ID, CreatedAt: now, Location: "ET", FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},
 		{Site: site.ID, CreatedAt: now, Location: "NZ"},
 	})

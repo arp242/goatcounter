@@ -63,7 +63,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 			hour, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
 			v.count[hour] += 1
-			if h.StartedSession {
+			if h.FirstVisit {
 				v.countUnique[hour] += 1
 			}
 			grouped[k] = v

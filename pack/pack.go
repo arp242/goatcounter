@@ -401,6 +401,21 @@ commit;
 	insert into version values ('2020-04-27-1-usage-flags');
 commit;
 `),
+	"db/migrate/pgsql/2020-05-13-1-unique-path.sql": []byte(`begin;
+	update hits set started_session=1 where id in
+		(select min(id) from hits where session>0 and started_session=0 group by path, session);
+	alter table hits rename column started_session to first_visit;
+
+	create table session_paths (
+		session integer not null,
+		path    varchar not null,
+
+		foreign key (session) references sessions(id) on delete cascade on update cascade
+	);
+
+	insert into version values ('2020-05-13-1-unique-path');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -814,6 +829,21 @@ begin;
 	create unique index if not exists "users#site#email"    on users(site, lower(email));
 
 	insert into version values ('2020-04-28-1-fix');
+commit;
+`),
+	"db/migrate/sqlite/2020-05-13-1-unique-path.sql": []byte(`begin;
+	update hits set started_session=1 where id in
+		(select min(id) from hits where session>0 and started_session=0 group by path, session);
+	alter table hits rename column started_session to first_visit;
+
+	create table session_paths (
+		session integer not null,
+		path    varchar not null,
+
+		foreign key (session) references sessions(id) on delete cascade on update cascade
+	);
+
+	insert into version values ('2020-05-13-1-unique-path');
 commit;
 `),
 }
@@ -12972,8 +13002,9 @@ h3 + h4 { margin-top: .3em; }
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
 
-/* Grey "pageviews" out when put next to visitors */
-.views { color: #999; }
+/* Grey out "pageviews" out when put next to visitors */
+.views          { color: #999; }
+#tooltip .views { color: #bbb; }
 `),
 }
 
@@ -13051,7 +13082,7 @@ create table hits (
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
-	started_session integer       default 0,
+	first_visit    integer        default 0,
 
 	created_at     timestamp      not null
 );
@@ -13068,6 +13099,13 @@ create table sessions (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 create unique index "sessions#site#hash" on sessions(site, hash);
+
+create table session_paths (
+	session        integer        not null,
+	path           varchar        not null,
+
+	foreign key (session) references sessions(id) on delete cascade on update cascade
+);
 
 create table session_salts (
 	previous    int        not null,
@@ -13495,7 +13533,8 @@ insert into version values
 	('2020-04-16-1-pwauth'),
 	('2020-04-20-1-hitsindex'),
 	('2020-04-22-1-campaigns'),
-	('2020-04-27-1-usage-flags');
+	('2020-04-27-1-usage-flags'),
+	('2020-05-13-1-unique-path');
 
 -- vim:ft=sql
 `)
@@ -13561,7 +13600,7 @@ create table hits (
 	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
-	started_session int           default 0,
+	first_visit    int            default 0,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
@@ -13578,6 +13617,13 @@ create table sessions (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 create unique index "sessions#site#hash" on sessions(site, hash);
+
+create table session_paths (
+	session        integer        not null,
+	path           varchar        not null,
+
+	foreign key (session) references sessions(id) on delete cascade on update cascade
+);
 
 create table session_salts (
 	previous    int        not null,
@@ -13995,7 +14041,8 @@ insert into version values
 	('2020-04-16-1-pwauth'),
 	('2020-04-22-1-campaigns'),
 	('2020-04-27-1-usage-flags'),
-	('2020-04-28-1-fix');
+	('2020-04-28-1-fix'),
+	('2020-05-13-1-unique-path');
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
@@ -14025,7 +14072,7 @@ var Templates = map[string][]byte{
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
 
-	{{if .Saas}}
+	{{if and .Saas (not .Dev)}}
 		<script>
 			window.goatcounter = {
 				title:       function() { return null },
