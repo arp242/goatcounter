@@ -14783,9 +14783,9 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		{{if .Saas}}
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
-			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Documentation</a><span> |</span>
-			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contribute">Contribute</a>
 		{{end}}
+		<a {{if .Site}}target="_blank"{{end}} href="https://www.goatcounter.com/help">Documentation</a><span> |</span>
+		<a {{if .Site}}target="_blank"{{end}} href="https://www.goatcounter.com/contribute">Contribute</a>
 	</div>
 	<div>
 		<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">Source code</a><span> |</span>
