@@ -687,7 +687,6 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	v := zvalidate.New()
 
 	args := struct {
-		Name       string                   `json:"name"`
 		Cname      string                   `json:"cname"`
 		LinkDomain string                   `json:"link_domain"`
 		Settings   goatcounter.SiteSettings `json:"settings"`
@@ -720,7 +719,6 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		emailChanged = true
 	}
 
-	user.Name = args.User.Name
 	user.Email = args.User.Email
 	err = user.Update(txctx, emailChanged)
 	if err != nil {
@@ -732,7 +730,6 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site := goatcounter.MustGetSite(txctx)
-	site.Name = args.Name
 	site.Settings = args.Settings
 	site.LinkDomain = args.LinkDomain
 	if args.Cname != "" && !site.PlanCustomDomain(txctx) {
@@ -872,7 +869,7 @@ func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "Site ‘%s ’removed.", s.Name)
+	zhttp.Flash(w, "Site ‘%s ’removed.", s.Code)
 	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 }
 
@@ -882,7 +879,6 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := struct {
-		Name string `json:"name"`
 		Code string `json:"code"`
 	}{}
 	_, err := zhttp.Decode(r, &args)
@@ -893,7 +889,6 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 	parent := goatcounter.MustGetSite(r.Context())
 	site := goatcounter.Site{
 		Code:     args.Code,
-		Name:     args.Name,
 		Parent:   &parent.ID,
 		Plan:     goatcounter.PlanChild,
 		Settings: parent.Settings,
@@ -904,7 +899,7 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 	}
 
-	zhttp.Flash(w, "Site ‘%s’ added.", site.Name)
+	zhttp.Flash(w, "Site ‘%s’ added.", site.Code)
 	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 }
 

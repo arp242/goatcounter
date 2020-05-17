@@ -152,8 +152,8 @@ func DB(t tester) (context.Context, func()) {
 	}
 
 	_, err = db.ExecContext(context.Background(), fmt.Sprintf(
-		`insert into sites (code, name, plan, settings, created_at) values
-		('test', 'example.com', 'personal', '{}', %s);`, now))
+		`insert into sites (code, plan, settings, created_at) values
+		('test', 'personal', '{}', %s);`, now))
 	if err != nil {
 		panic(err)
 	}
@@ -217,9 +217,6 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 		if len(site.Code) > 50 {
 			site.Code = site.Code[:50]
 		}
-	}
-	if site.Name == "" {
-		site.Name = "name"
 	}
 	if site.Plan == "" {
 		site.Plan = goatcounter.PlanPersonal

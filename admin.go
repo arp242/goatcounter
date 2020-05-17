@@ -21,7 +21,6 @@ type AdminStat struct {
 	ID         int64     `db:"id"`
 	Parent     *int64    `db:"parent"`
 	Code       string    `db:"code"`
-	Name       string    `db:"name"`
 	LinkDomain string    `db:"link_domain"`
 	User       string    `db:"user"`
 	Email      string    `db:"email"`
@@ -45,18 +44,16 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			sites.id,
 			sites.parent,
 			sites.code,
-			sites.name,
 			sites.created_at,
 			(case when substr(sites.stripe, 0, 9) = 'cus_free' then 'free' else sites.plan end) as plan,
 			sites.link_domain,
-			users.name as user,
 			users.email,
 			count(*) - 1 as count
 		from sites
 		left join hits on hits.site=sites.id
 		left join users on users.site=coalesce(sites.parent, sites.id)
 		where hits.created_at >= %s
-		group by sites.id, sites.code, sites.name, sites.created_at, users.name, users.email, plan
+		group by sites.id, sites.code, sites.created_at, users.email, plan
 		having count(*) > 1000
 		order by %s desc`, ival, order))
 	if err != nil {

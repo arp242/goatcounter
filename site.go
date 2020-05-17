@@ -49,7 +49,6 @@ type Site struct {
 	ID     int64  `db:"id"`
 	Parent *int64 `db:"parent"`
 
-	Name         string       `db:"name"`        // Any name for the website.
 	Cname        *string      `db:"cname"`       // Custom domain, e.g. "stats.example.com"
 	Code         string       `db:"code"`        // Domain code (arp242, which makes arp242.goatcounter.com)
 	LinkDomain   string       `db:"link_domain"` // Site domain for linking (www.arp242.net).
@@ -136,7 +135,6 @@ var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
 func (s *Site) Validate(ctx context.Context) error {
 	v := zvalidate.New()
 
-	v.Required("name", s.Name)
 	v.Required("code", s.Code)
 	v.Required("state", s.State)
 	v.Required("plan", s.Plan)
@@ -162,7 +160,6 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	v.Domain("link_domain", s.LinkDomain)
 	v.Len("code", s.Code, 2, 50)
-	v.Len("name", s.Name, 4, 255)
 	v.Exclude("code", s.Code, reserved)
 	// TODO: compat with older requirements, otherwise various update functions
 	// will error out.
@@ -235,10 +232,10 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	query := `insert into sites
-		(parent, code, name, cname, settings, plan, created_at)
+		(parent, code, cname, link_domain, settings, plan, created_at)
 		values ($1, $2, $3, $4, $5, $6, $7)`
-	args := []interface{}{s.Parent, s.Code, s.Name, s.Cname, s.Settings, s.Plan,
-		s.CreatedAt.Format(zdb.Date)}
+	args := []interface{}{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings,
+		s.Plan, s.CreatedAt.Format(zdb.Date)}
 	if cfg.PgSQL {
 		err = zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
 		if err != nil {
@@ -276,8 +273,8 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set name=$1, settings=$2, cname=$3, link_domain=$4, updated_at=$5 where id=$6`,
-		s.Name, s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
+		`update sites set settings=$1, cname=$2, link_domain=$3, updated_at=$4 where id=$5`,
+		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
 	return errors.Wrap(err, "Site.Update")
 }
 

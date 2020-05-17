@@ -416,6 +416,12 @@ commit;
 	insert into version values ('2020-05-13-1-unique-path');
 commit;
 `),
+	"db/migrate/pgsql/2020-05-17-1-rm-user-name.sql": []byte(`begin;
+	alter table users drop column name;
+	alter table sites drop column name;
+	insert into version values ('2020-05-17-1-rm-user-name');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -844,6 +850,71 @@ commit;
 	);
 
 	insert into version values ('2020-05-13-1-unique-path');
+commit;
+`),
+	"db/migrate/sqlite/2020-05-17-1-rm-user-name.sql": []byte(`begin;
+	insert into version values ('2020-05-17-1-rm-user-name');
+
+	create table users2 (
+		id             integer        primary key autoincrement,
+		site           integer        not null                 check(site > 0),
+
+		password       blob           default null,
+		email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
+		email_verified int            not null default 0,
+		role           varchar        not null default ''      check(role in ('', 'a')),
+		login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
+		login_request  varchar        null,
+		login_token    varchar        null,
+		csrf_token     varchar        null,
+		email_token    varchar        null,
+		seen_updates_at timestamp     not null default '1970-01-01 00:00:00' check(seen_updates_at = strftime('%Y-%m-%d %H:%M:%S', seen_updates_at)),
+		reset_at       timestamp      null,
+
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	insert into users2 (
+		id, site, password, email, email_verified, role, login_at, login_request, login_token, csrf_token, email_token, seen_updates_at, reset_at, created_at, updated_at
+	) select
+		id, site, password, email, email_verified, role, login_at, login_request, login_token, csrf_token, email_token, seen_updates_at, reset_at, created_at, updated_at
+	from users;
+	drop table users;
+	alter table users2 rename to users;
+	create unique index "users#login_request" on users(login_request);
+	create unique index "users#login_token"   on users(login_token);
+	create        index "users#site"          on users(site);
+	create unique index "users#site#email"    on users(site, lower(email));
+
+	create table sites2 (
+		id             integer        primary key autoincrement,
+		parent         integer        null                     check(parent is null or parent>0),
+
+		code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+		link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
+		cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
+		plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
+		stripe         varchar        null,
+		settings       varchar        not null,
+		received_data  int            not null default 0,
+
+		state          varchar        not null default 'a'     check(state in ('a', 'd')),
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+	);
+	insert into sites2 (
+		id, parent, code, link_domain, cname, plan, stripe, settings, received_data, state, created_at, updated_at
+	) select
+		id, parent, code, link_domain, cname, plan, stripe, settings, received_data, state, created_at, updated_at
+	from sites;
+	drop table sites;
+	alter table sites2 rename to sites;
+
+	create unique index "sites#code" on sites(lower(code));
+
+	insert into version values ('2020-05-17-1-rm-user-name');
 commit;
 `),
 }
@@ -13023,7 +13094,6 @@ create table sites (
 	id             serial         primary key,
 	parent         integer        null                     check(parent is null or parent>0),
 
-	name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
 	code           varchar        not null                 check(length(code) >= 2 and length(code) <= 50),
 	link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
@@ -13043,7 +13113,6 @@ create table users (
 	id             serial         primary key,
 	site           integer        not null                 check(site > 0),
 
-	name           varchar        not null,
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
 	email_verified integer        not null default 0,
 	password       bytea          default null,
@@ -13534,7 +13603,8 @@ insert into version values
 	('2020-04-20-1-hitsindex'),
 	('2020-04-22-1-campaigns'),
 	('2020-04-27-1-usage-flags'),
-	('2020-05-13-1-unique-path');
+	('2020-05-13-1-unique-path'),
+	('2020-05-17-1-rm-user-name');
 
 -- vim:ft=sql
 `)
@@ -13542,7 +13612,6 @@ var SchemaSQLite = []byte(`create table sites (
 	id             integer        primary key autoincrement,
 	parent         integer        null                     check(parent is null or parent>0),
 
-	name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
 	link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
@@ -13561,7 +13630,6 @@ create table users (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 
-	name           varchar        not null,
 	password       blob           default null,
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
 	email_verified int            not null default 0,
@@ -14042,7 +14110,8 @@ insert into version values
 	('2020-04-22-1-campaigns'),
 	('2020-04-27-1-usage-flags'),
 	('2020-04-28-1-fix'),
-	('2020-05-13-1-unique-path');
+	('2020-05-13-1-unique-path'),
+	('2020-05-17-1-rm-user-name');
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}
@@ -14683,7 +14752,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 <head>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<title>{{.Site.Name}} – GoatCounter</title>
+	<title>{{.Site.Code}} – GoatCounter</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
@@ -15051,7 +15120,7 @@ parent site includes the child sites.</p>
 					{{$s.Code}}
 				{{end}}
 			</td>
-			<td>{{$s.Name}}{{if $s.LinkDomain}} – {{$s.LinkDomain}}{{end}}</td>
+			<td>{{if $s.LinkDomain}} – {{$s.LinkDomain}}{{end}}</td>
 			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
 			<td>
 				{{$s.Plan}}
@@ -15154,8 +15223,8 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 `),
 	"tpl/backend_remove.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
-<p>Are you sure you want to remove the site {{.Site.Name}}
-	(<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>)?<br>
+<p>Are you sure you want to remove the site
+	<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>?<br>
 	This will <strong>remove all associated data</strong>.
 </p>
 <p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
@@ -15181,11 +15250,6 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 
 			<fieldset>
 				<legend>Site settings</legend>
-				<label for="name">Name</label>
-				<input type="text" name="name" id="name" value="{{.Site.Name}}">
-				{{validate "site.name" .Validate}}
-				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
-
 				<label for="link_domain">Domain</label>
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 				{{validate "site.link_domain" .Validate}}
@@ -15228,10 +15292,6 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 
 			<fieldset>
 				<legend>User info and preferences</legend>
-
-				<label for="user.name">Your name</label>
-				<input type="text" name="user.name" id="user.name" value="{{.User.Name}}">
-				{{validate "user.name" .Validate}}
 
 				<label for="user.email">Your email</label>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
@@ -15351,7 +15411,6 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 					<tbody>
 						{{range $s := .SubSites}}<tr>
 							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-							<td>{{$s.Name}}</td>
 							<td><a href="/remove/{{$s.ID}}">delete</a></td>
 						</tr>{{end}}
 
@@ -15360,11 +15419,6 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 								<input type="text" id="code" name="code" placeholder="Code"><br>
 								<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
 							</td>
-							<td>
-								<input type="text" id="name" name="name" placeholder="Name"><br>
-								<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
-							</td>
-
 							<td><button type="submit">Add new</button></td>
 						</tr>
 				</tbody></table>
@@ -16273,13 +16327,6 @@ information.</p>
 		<fieldset class="two">
 			<div>
 				<div>
-					<label for="name">Site name</label>
-					<input type="text" name="site_name" id="name" maxlength="255" value="{{.Site.Name}}">
-					{{validate "site.name" .Validate}}
-					<span class="help">Your site’s name, e.g. <em>Example Inc.</em></span>
-				</div>
-
-				<div>
 					<label for="code">Code</label>
 					<input type="text" name="site_code" id="code" maxlength="50" value="{{.Site.Code}}">
 					{{validate "site.code" .Validate}}
@@ -16415,7 +16462,7 @@ personal.</p>
 `),
 	"tpl/user.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
-<h1>Sign in at {{.Site.Name}}</h1>
+<h1>Sign in at {{.Site.Code}}</h1>
 {{template "_backend_signin.gohtml" .}}
 
 {{template "_backend_bottom.gohtml" .}}
@@ -16448,7 +16495,7 @@ personal.</p>
 `),
 	"tpl/user_reset.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
-<h1>Reset password for {{.User.Email}} at {{.Site.Name}}</h1>
+<h1>Reset password for {{.User.Email}} at {{.Site.Code}}</h1>
 <form method="post" action="/user/reset/{{.Key}}" class="vertical">
 	<label for="password">New password</label>
 	<input type="password" name="password" id="password" required><br>

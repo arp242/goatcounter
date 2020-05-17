@@ -12,18 +12,18 @@
 		<fieldset class="two">
 			<div>
 				<div>
-					<label for="name">Site name</label>
-					<input type="text" name="site_name" id="name" maxlength="255" value="{{.Site.Name}}">
-					{{validate "site.name" .Validate}}
-					<span class="help">Your site’s name, e.g. <em>Example Inc.</em></span>
-				</div>
-
-				<div>
 					<label for="code">Code</label>
 					<input type="text" name="site_code" id="code" maxlength="50" value="{{.Site.Code}}">
 					{{validate "site.code" .Validate}}
 					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
 				</div>
+				<div>
+					<label for="link_domain">Site domain</label>
+					<input type="text" name="link_domain" id="link_domain" maxlength="255" value="{{.Site.LinkDomain}}">
+					{{validate "site.link_domain" .Validate}}
+					<span class="help">Your site’s domain, optional and only used for display/linking purposes.</em></span>
+				</div>
+
 			</div>
 		</fieldset>
 

@@ -20,7 +20,7 @@ func TestUserNew(t *testing.T) {
 			name:   "basic",
 			router: newBackend,
 			setup: func(ctx context.Context, t *testing.T) {
-				u := goatcounter.User{Site: 1, Name: "Example", Email: "test@example.com", Password: []byte("coconuts")}
+				u := goatcounter.User{Site: 1, Email: "test@example.com", Password: []byte("coconuts")}
 				err := u.Insert(ctx)
 				if err != nil {
 					t.Fatal(err)
@@ -42,7 +42,7 @@ func TestUserLogin(t *testing.T) {
 		{
 			name: "basic",
 			setup: func(ctx context.Context, t *testing.T) {
-				user := goatcounter.User{Site: 1, Name: "new site", Email: "new@example.com", Password: []byte("coconuts")}
+				user := goatcounter.User{Site: 1, Email: "new@example.com", Password: []byte("coconuts")}
 				err := user.Insert(ctx)
 				if err != nil {
 					panic(err)

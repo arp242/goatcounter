@@ -10,11 +10,6 @@
 
 			<fieldset>
 				<legend>Site settings</legend>
-				<label for="name">Name</label>
-				<input type="text" name="name" id="name" value="{{.Site.Name}}">
-				{{validate "site.name" .Validate}}
-				<span>Your site’s name, e.g. <em>“example.com”</em> or <em>“Example Inc”</em>.</span>
-
 				<label for="link_domain">Domain</label>
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 				{{validate "site.link_domain" .Validate}}
@@ -57,10 +52,6 @@
 
 			<fieldset>
 				<legend>User info and preferences</legend>
-
-				<label for="user.name">Your name</label>
-				<input type="text" name="user.name" id="user.name" value="{{.User.Name}}">
-				{{validate "user.name" .Validate}}
 
 				<label for="user.email">Your email</label>
 				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
@@ -180,7 +171,6 @@
 					<tbody>
 						{{range $s := .SubSites}}<tr>
 							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-							<td>{{$s.Name}}</td>
 							<td><a href="/remove/{{$s.ID}}">delete</a></td>
 						</tr>{{end}}
 
@@ -189,11 +179,6 @@
 								<input type="text" id="code" name="code" placeholder="Code"><br>
 								<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
 							</td>
-							<td>
-								<input type="text" id="name" name="name" placeholder="Name"><br>
-								<span class="help">Your site’s name, e.g. <em>example.com</em> or <em>Example Inc.</em></span>
-							</td>
-
 							<td><button type="submit">Add new</button></td>
 						</tr>
 				</tbody></table>
