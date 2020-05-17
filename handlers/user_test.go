@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"zgo.at/goatcounter"
-	"zgo.at/zdb"
 )
 
 func TestUserNew(t *testing.T) {
@@ -38,37 +37,7 @@ func TestUserNew(t *testing.T) {
 }
 
 func TestUserLogin(t *testing.T) {
-	tests := []handlerTest{
-		{
-			name: "basic",
-			setup: func(ctx context.Context, t *testing.T) {
-				user := goatcounter.User{Site: 1, Email: "new@example.com", Password: []byte("coconuts")}
-				err := user.Insert(ctx)
-				if err != nil {
-					panic(err)
-				}
-
-				_, err = zdb.MustGet(ctx).ExecContext(ctx, `update users set
-					login_request='asdf', login_at=current_timestamp
-					where id=$1 and site=1`, user.ID)
-				if err != nil {
-					panic(err)
-				}
-			},
-			router:       newBackend,
-			path:         "/user/login/asdf",
-			wantCode:     303,
-			wantFormCode: 303,
-		},
-
-		{
-			name:         "nonexistent",
-			router:       newBackend,
-			path:         "/user/login/nonexistent",
-			wantCode:     403,
-			wantFormCode: 403,
-		},
-	}
+	tests := []handlerTest{}
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {

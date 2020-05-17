@@ -14973,17 +14973,13 @@ var Templates = map[string][]byte{
 	<label for="email">Email address</label>
 	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
 
-	{{if .HasPassword}}
-		<label for="password">Password</label>
-		<input type="password" name="password" id="password" required
-			autocomplete="current-password"><br>
-	{{end}}
+	<label for="password">Password</label>
+	<input type="password" name="password" id="password" required
+		autocomplete="current-password"><br>
 	<button>Sign in</button>
 </form>
 
-{{if .HasPassword}}
-	<p><a href="/user/forgot">Forgot password?</a></p>
-{{end}}
+<p><a href="/user/forgot">Forgot password?</a></p>
 `),
 	"tpl/_backend_sitecode.gohtml": []byte(`{{/*************************************************************************
  * This file was generated from tpl/_backend_sitecode.markdown. DO NOT EDIT.
