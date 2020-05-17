@@ -224,6 +224,13 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	err = user.Login(goatcounter.WithSite(r.Context(), &site))
+	if err != nil {
+		zlog.Errorf("login during account creation: %w", err)
+	} else {
+		zhttp.SetCookie(w, *user.LoginToken, site.Domain())
+	}
+
 	go func() {
 		defer zlog.Recover()
 
@@ -239,13 +246,6 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 			zlog.Errorf("welcome email: %s", err)
 		}
 	}()
-
-	err = user.Login(goatcounter.WithSite(r.Context(), &site))
-	if err != nil {
-		zlog.Errorf("login during account creation: %w", err)
-	} else {
-		zhttp.SetCookie(w, *user.LoginToken, site.Domain())
-	}
 
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL()))
 }
