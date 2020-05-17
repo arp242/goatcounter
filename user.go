@@ -32,7 +32,6 @@ type User struct {
 	ID   int64 `db:"id" json:"-"`
 	Site int64 `db:"site" json:"-"`
 
-	Name          string     `db:"name" json:"name"`
 	Email         string     `db:"email" json:"email"`
 	EmailVerified zdb.Bool   `db:"email_verified" json:"-"`
 	Password      []byte     `db:"password" json:"-"`
@@ -75,9 +74,6 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 	v.Required("email", u.Email)
 	v.Len("email", u.Email, 5, 255)
 	v.Email("email", u.Email)
-	if u.Name != "" {
-		v.Len("name", u.Name, 1, 200)
-	}
 
 	if validatePassword {
 		sp := string(u.Password)
@@ -124,11 +120,11 @@ func (u *User) Insert(ctx context.Context) error {
 	}
 
 	query := `insert into users `
-	args := []interface{}{u.Site, u.Name, u.Email, u.Password, u.CreatedAt.Format(zdb.Date)}
+	args := []interface{}{u.Site, u.Email, u.Password, u.CreatedAt.Format(zdb.Date)}
 	if u.EmailVerified {
-		query += ` (site, name, email, password, created_at, email_verified) values ($1, $2, $3, $4, $5, 1)`
+		query += ` (site, email, password, created_at, email_verified) values ($1, $2, $3, $4, 1)`
 	} else {
-		query += ` (site, name, email, password, created_at, email_token) values ($1, $2, $3, $4, $5, $6)`
+		query += ` (site, email, password, created_at, email_token) values ($1, $2, $3, $4, $5)`
 		args = append(args, u.EmailToken)
 	}
 
@@ -170,8 +166,8 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update users set name=$1, email=$2, updated_at=$3, email_verified=$4, email_token=$5 where id=$6`,
-		u.Name, u.Email, u.UpdatedAt.Format(zdb.Date), u.EmailVerified, u.EmailToken, u.ID)
+		`update users set email=$1, updated_at=$2, email_verified=$3, email_token=$4 where id=$5`,
+		u.Email, u.UpdatedAt.Format(zdb.Date), u.EmailVerified, u.EmailToken, u.ID)
 	return errors.Wrap(err, "User.Update")
 }
 
@@ -369,7 +365,7 @@ func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 
 		err := zmail.Send("Your login URL",
 			mail.Address{Name: "GoatCounter login", Address: cfg.LoginFrom},
-			[]mail.Address{{Name: u.Name, Address: u.Email}},
+			[]mail.Address{{Address: u.Email}},
 			fmt.Sprintf("Hi there,\n\nYour login URL for GoatCounter is:\n\n  %s/user/login/%s\n\nGo to it to log in. This key is valid for one hour and can be used only once.\n",
 				site.URL(), *u.LoginRequest))
 		if err != nil {

@@ -1,6 +1,6 @@
 {{template "_backend_top.gohtml" .}}
 
-<h1>Reset password for {{.User.Email}} at {{.Site.Name}}</h1>
+<h1>Reset password for {{.User.Email}} at {{.Site.Code}}</h1>
 <form method="post" action="/user/reset/{{.Key}}" class="vertical">
 	<label for="password">New password</label>
 	<input type="password" name="password" id="password" required><br>

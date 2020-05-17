@@ -57,7 +57,7 @@ func TestWebsiteTpl(t *testing.T) {
 			router:   NewWebsite,
 			path:     "/signup",
 			wantCode: 200,
-			wantBody: `<label for="name">Site name</label>`,
+			wantBody: `<label for="email">Email address</label>`,
 		},
 	}
 
@@ -73,7 +73,7 @@ func TestWebsiteSignup(t *testing.T) {
 			method:       "POST",
 			router:       NewWebsite,
 			path:         "/signup",
-			body:         signupArgs{Name: "Example", Code: "xxx", Email: "m@example.com", TuringTest: "9", Password: "coconuts"},
+			body:         signupArgs{Code: "xxx", Email: "m@example.com", TuringTest: "9", Password: "coconuts"},
 			wantCode:     303,
 			wantFormCode: 303,
 		},
@@ -83,7 +83,7 @@ func TestWebsiteSignup(t *testing.T) {
 			method:       "POST",
 			router:       NewWebsite,
 			path:         "/signup",
-			body:         signupArgs{Name: "Example", Email: "m@example.com", TuringTest: "9", Password: "coconuts"},
+			body:         signupArgs{Email: "m@example.com", TuringTest: "9", Password: "coconuts"},
 			wantCode:     200,
 			wantBody:     "", // TODO: should return JSON
 			wantFormCode: 200,

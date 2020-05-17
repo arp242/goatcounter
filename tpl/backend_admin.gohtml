@@ -33,7 +33,7 @@ parent site includes the child sites.</p>
 					{{$s.Code}}
 				{{end}}
 			</td>
-			<td>{{$s.Name}}{{if $s.LinkDomain}} – {{$s.LinkDomain}}{{end}}</td>
+			<td>{{if $s.LinkDomain}} – {{$s.LinkDomain}}{{end}}</td>
 			<td>"{{$s.User}}" &lt;{{$s.Email}}&gt;</td>
 			<td>
 				{{$s.Plan}}

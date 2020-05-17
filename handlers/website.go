@@ -93,7 +93,7 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 			err = s.ByID(r.Context(), u.Site)
 			if err == nil {
 				loggedIn = template.HTML(fmt.Sprintf("Logged in as %s on <a href='%s'>%[2]s</a>",
-					template.HTMLEscapeString(u.Name), template.HTMLEscapeString(s.URL())))
+					template.HTMLEscapeString(u.Email), template.HTMLEscapeString(s.URL())))
 			}
 		}
 	}
@@ -130,8 +130,8 @@ func (h website) signup(w http.ResponseWriter, r *http.Request) error {
 }
 
 type signupArgs struct {
-	Name       string `json:"site_name"`
 	Code       string `json:"site_code"`
+	LinkDomain string `json:"link_domain"`
 	Timezone   string `json:"timezone"`
 	Email      string `json:"user_email"`
 	Password   string `json:"password"`
@@ -145,7 +145,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	site := goatcounter.Site{Name: args.Name, Code: args.Code, Plan: cfg.Plan}
+	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain, Plan: cfg.Plan}
 	user := goatcounter.User{Email: args.Email, Password: []byte(args.Password)}
 
 	v := zvalidate.New()
@@ -229,7 +229,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 		err := zmail.SendTemplate("Welcome to GoatCounter!",
 			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
-			[]mail.Address{{Name: user.Name, Address: user.Email}},
+			[]mail.Address{{Address: user.Email}},
 			"email_welcome.gotxt", struct {
 				Site        goatcounter.Site
 				User        goatcounter.User
@@ -239,6 +239,13 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 			zlog.Errorf("welcome email: %s", err)
 		}
 	}()
+
+	err = user.Login(goatcounter.WithSite(r.Context(), &site))
+	if err != nil {
+		zlog.Errorf("login during account creation: %w", err)
+	} else {
+		zhttp.SetCookie(w, *user.LoginToken, site.Domain())
+	}
 
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL()))
 }
@@ -291,13 +298,9 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 	go func() {
 		defer zlog.Recover()
 
-		var name string
-		if len(users) > 0 {
-			name = users[0].Name
-		}
 		err = zmail.SendTemplate("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
-			[]mail.Address{{Name: name, Address: args.Email}},
+			[]mail.Address{{Address: args.Email}},
 			"email_forgot_site.gotxt", struct {
 				Sites goatcounter.Sites
 				Email string

@@ -354,7 +354,6 @@ func TestBackendTpl(t *testing.T) {
 			setup: func(ctx context.Context, t *testing.T) {
 				one := int64(1)
 				ss := goatcounter.Site{
-					Name:   "Subsite",
 					Code:   "subsite",
 					Parent: &one,
 					Plan:   goatcounter.PlanChild,
@@ -368,7 +367,7 @@ func TestBackendTpl(t *testing.T) {
 			path:     "/remove/2",
 			auth:     true,
 			wantCode: 200,
-			wantBody: "Are you sure you want to remove the site Subsite",
+			wantBody: "Are you sure you want to remove the site",
 		},
 	}
 

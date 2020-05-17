@@ -2,7 +2,6 @@ create table sites (
 	id             integer        primary key autoincrement,
 	parent         integer        null                     check(parent is null or parent>0),
 
-	name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
 	link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
@@ -21,7 +20,6 @@ create table users (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 
-	name           varchar        not null,
 	password       blob           default null,
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
 	email_verified int            not null default 0,
@@ -502,4 +500,5 @@ insert into version values
 	('2020-04-22-1-campaigns'),
 	('2020-04-27-1-usage-flags'),
 	('2020-04-28-1-fix'),
-	('2020-05-13-1-unique-path');
+	('2020-05-13-1-unique-path'),
+	('2020-05-17-1-rm-user-name');

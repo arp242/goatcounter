@@ -36,8 +36,6 @@ Other flags:
 
   -password      Password to log in; will be asked interactively if omitted.
 
-  -name          Name for the site and user; can be changed later in settings.
-
   -parent        Parent site; either as ID or domain.
 
   -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
@@ -54,12 +52,11 @@ func create() (int, error) {
 	debug := flagDebug()
 
 	var (
-		domain, email, name, parent, password string
-		createdb                              bool
+		domain, email, parent, password string
+		createdb                        bool
 	)
 	CommandLine.StringVar(&domain, "domain", "", "")
 	CommandLine.StringVar(&email, "email", "", "")
-	CommandLine.StringVar(&name, "name", "serve", "")
 	CommandLine.StringVar(&parent, "parent", "", "")
 	CommandLine.StringVar(&password, "password", "", "")
 	CommandLine.BoolVar(&createdb, "createdb", false, "")
@@ -123,7 +120,6 @@ func create() (int, error) {
 
 	err = zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, tx zdb.DB) error {
 		s := goatcounter.Site{
-			Name:  name,
 			Code:  "serve-" + zhttp.Secret()[:10],
 			Cname: &domain,
 			Plan:  goatcounter.PlanBusinessPlus,
@@ -138,7 +134,7 @@ func create() (int, error) {
 			return err
 		}
 
-		u := goatcounter.User{Site: s.ID, Name: name, Email: email, Password: []byte(password), EmailVerified: true}
+		u := goatcounter.User{Site: s.ID, Email: email, Password: []byte(password), EmailVerified: true}
 		err = u.Insert(ctx)
 		return err
 	})
