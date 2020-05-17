@@ -14783,11 +14783,8 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		{{if .Saas}}
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
-			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Help</a><span> |</span>
-			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contribute">Contribute</a><span> |</span>
-			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/privacy">Privacy</a><span> |</span>
-			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/gdpr">GDPR</a><span> |</span>
-			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/terms">Terms</a>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/help">Documentation</a><span> |</span>
+			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contribute">Contribute</a>
 		{{end}}
 	</div>
 	<div>
@@ -15594,6 +15591,20 @@ within a day orso.</p>
 
 {{template "_backend_bottom.gohtml" .}}
 `),
+	"tpl/code.gohtml": []byte(`{{template "_top.gohtml" .}}
+
+<h1>Site code</h1>
+<p class="flash flash-i">Note: replace <code>{{.Site.URL}}</code> with the URL
+to your actual site in the examples below. This will be done automatically if
+you view the docs linked from your site in the top-right corner.</p>
+
+<p>Insert the code below to add GoatCounter to a site, ideally just before the
+closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
+<code>&lt;head&gt;</code> will work):</p>
+{{template "_backend_sitecode.gohtml" .}}
+
+{{template "_bottom.gohtml" .}}
+`),
 	"tpl/contact.gohtml": []byte(`{{template "_top.gohtml" .}}
 
 <h1>GoatCounter contact</h1>
@@ -15953,9 +15964,19 @@ advice specific to your situation.</p>
 `),
 	"tpl/help.gohtml": []byte(`{{template "_top.gohtml" .}}
 
-<h1>GoatCounter help</h1>
+<h1>GoatCounter documentation</h1>
 
-<h2 id="general">General <a href="#general"></a></h2>
+<p>
+	Other documentation pages:<br>
+	<a href="/gdpr">GDPR consent notices</a> |
+	<a href="/code">Site integration code</a> |
+	<a href="/privacy">Privacy policy</a> |
+	<a href="/terms">Terms of use</a>
+</p>
+
+<h2>FAQ</h2>
+
+<h3 id="general">General <a href="#general"></a></h3>
 <dl>
 	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
 	<dd>For reasons of efficiency the statistics are updated once every 10
@@ -15990,12 +16011,8 @@ advice specific to your situation.</p>
 	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
 	<dd>GoatCounter does not collect data which can be used to identify a
 		person, and you almost certainly don’t need to ask for consent
-		See Recital 26, <em>“Not applicable to anonymous data”</em>.<br><br>
-
-		That being said, EU Regulations such as the GDPR are interpreted and
-		enforced different across member states, and national laws may also
-		apply. It’s advised you consult a lawyer if you want detailed legal
-		advice specific to your situation.
+		See Recital 26, <em>“Not applicable to anonymous data”</em>.
+		See <a href="/gdpr">the GDPR page</a> for details.
 	</dd>
 
 	<dt id="custom-domain">How do I set up a custom domain? <a href="#custom-domain">§</a></dt>
@@ -16028,12 +16045,13 @@ advice specific to your situation.</p>
 	</dd>
 </dl>
 
-<h2 id="billing">Billing <a href="#billing"></a></h2>
+<h3 id="billing">Billing <a href="#billing"></a></h3>
 <dl>
 	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
 	<dd>We’ll be in touch if you consistently go over the number over pageviews,
 		but there is no automated process to shut down accounts or anything like
-		that.</dd>
+		that. It’s not a problem if you go over the pageviews in a single spike
+		of traffic because you wrote something that got shared a lot.</dd>
 
 	<dt id="charity">Is there any discount for charities, non-profit organisations, startups, etc? <a href="#charity">§</a></dt>
 	<dd>
@@ -16048,13 +16066,14 @@ advice specific to your situation.</p>
 		too, and I also need to pay my rent, food, etc. 😅<br><br>
 
 		Most charities don’t have the kind of endowment Amnesty has, so if
-		you’re running a small charity or non-profit where €15/month would be a
-		prohibitively large cost then feel free to get in touch and we’ll see
-		what we can arrange.<br><br>
+		you’re running a small charity, non-profit, or one-person startup where
+		€15/month would be a prohibitively large cost then feel free to get in
+		touch and we’ll see what we can arrange.<br><br>
 
 		I’ll be happy to revisit this policy once GoatCounter starts becoming
 		financially sustainable, but right now it’s still quite far from that.
 	</dd>
+</dl>
 
 {{template "_bottom.gohtml" .}}
 `),

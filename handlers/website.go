@@ -61,6 +61,7 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Post("/signup", zhttp.Wrap(h.doSignup))
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
+	r.Get("/code", zhttp.Wrap(h.code))
 	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
@@ -74,6 +75,7 @@ var metaDesc = map[string]string{
 	"terms":      "Terms of Service – GoatCounter",
 	"contact":    "Contact – GoatCounter",
 	"contribute": "Contribute – GoatCounter",
+	"code":       "Site integration code – GoatCounter",
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
@@ -247,6 +249,17 @@ func (h website) forgot(w http.ResponseWriter, r *http.Request) error {
 		Page     string
 		MetaDesc string
 	}{newGlobals(w, r), "forgot", "Forgot domain – GoatCounter"})
+}
+
+func (h website) code(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "code.gohtml", struct {
+		Globals
+		Page        string
+		MetaDesc    string
+		CountDomain string
+		Site        goatcounter.Site
+	}{newGlobals(w, r), "forgot", "Site integration code – GoatCounter",
+		cfg.DomainCount, goatcounter.Site{Code: "MYCODE"}})
 }
 
 func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
