@@ -14224,7 +14224,8 @@ var Templates = map[string][]byte{
 
 	{{if .HasPassword}}
 		<label for="password">Password</label>
-		<input type="password" name="password" id="password" required><br>
+		<input type="password" name="password" id="password" required
+			autocomplete="current-password"><br>
 	{{end}}
 	<button>Sign in</button>
 </form>
@@ -15497,14 +15498,17 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 
 		{{if .User.Password}}
 			<label for="c_password">Current password</label>
-			<input type="password" name="c_password" id="c_password" required><br>
+			<input type="password" name="c_password" id="c_password" required
+				autocomplete="current-password"><br>
 		{{end}}
 
 		<label for="password">New password</label>
-		<input type="password" name="password" id="password" required><br>
+		<input type="password" name="password" id="password" required
+			autocomplete="new-password"><br>
 
 		<label for="password2">New password (confirm)</label>
-		<input type="password" name="password2" id="password2" required><br>
+		<input type="password" name="password2" id="password2" required
+			autocomplete="new-password"><br>
 
 		<button>Change password</button>
 	</form>
@@ -16362,7 +16366,7 @@ information.</p>
 				</div>
 				<div>
 					<label for="password">Password</label>
-					<input type="password" name="password" id="password" value="">
+					<input type="password" name="password" id="password" value="" autocomplete="new-password">
 					{{validate "user.password" .Validate}}
 					<span class="help">Needs at least 8 characters.</span>
 				</div>
@@ -16515,10 +16519,10 @@ personal.</p>
 <h1>Reset password for {{.User.Email}} at {{.Site.Code}}</h1>
 <form method="post" action="/user/reset/{{.Key}}" class="vertical">
 	<label for="password">New password</label>
-	<input type="password" name="password" id="password" required><br>
+	<input type="password" name="password" id="password" autocomplete="new-password" required><br>
 
 	<label for="password2">New password (confirm)</label>
-	<input type="password" name="password2" id="password2" required><br>
+	<input type="password" name="password2" id="password2" autocomplete="new-password" required><br>
 
 	<button>Reset password</button>
 </form>

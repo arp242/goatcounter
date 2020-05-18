@@ -254,14 +254,17 @@
 
 		{{if .User.Password}}
 			<label for="c_password">Current password</label>
-			<input type="password" name="c_password" id="c_password" required><br>
+			<input type="password" name="c_password" id="c_password" required
+				autocomplete="current-password"><br>
 		{{end}}
 
 		<label for="password">New password</label>
-		<input type="password" name="password" id="password" required><br>
+		<input type="password" name="password" id="password" required
+			autocomplete="new-password"><br>
 
 		<label for="password2">New password (confirm)</label>
-		<input type="password" name="password2" id="password2" required><br>
+		<input type="password" name="password2" id="password2" required
+			autocomplete="new-password"><br>
 
 		<button>Change password</button>
 	</form>
