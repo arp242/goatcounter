@@ -11979,7 +11979,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		}
 		else {
 			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
-			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_display_unique));
+			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
 		}
 
 		draw_chart()
