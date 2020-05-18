@@ -30,7 +30,9 @@
 				return;
 			var msg = `Could not load ${settings.url}: ${err}`
 			console.error(msg)
-			on_error('ajaxError: ' + msg, settings.url)
+			on_error(
+				`ajaxError: ${msg}; e: ${JSON.stringify(e)}; xhr: ${JSON.stringify(xhr)}; settings: ${JSON.stringify(settings)}`,
+				settings.url)
 			alert(msg)
 		})
 	}

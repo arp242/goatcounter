@@ -11802,7 +11802,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				return;
 			var msg = ` + "`" + `Could not load ${settings.url}: ${err}` + "`" + `
 			console.error(msg)
-			on_error('ajaxError: ' + msg, settings.url)
+			on_error(
+				` + "`" + `ajaxError: ${msg}; e: ${JSON.stringify(e)}; xhr: ${JSON.stringify(xhr)}; settings: ${JSON.stringify(settings)}` + "`" + `,
+				settings.url)
 			alert(msg)
 		})
 	}
@@ -16332,6 +16334,13 @@ information.</p>
 					{{validate "site.code" .Validate}}
 					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
 				</div>
+				<div>
+					<label for="link_domain">Site domain</label>
+					<input type="text" name="link_domain" id="link_domain" maxlength="255" value="{{.Site.LinkDomain}}">
+					{{validate "site.link_domain" .Validate}}
+					<span class="help">Your site’s domain, optional and only used for display/linking purposes.</em></span>
+				</div>
+
 			</div>
 		</fieldset>
 
