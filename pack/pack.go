@@ -12868,7 +12868,7 @@ form .err  { color: red; display: block; }
 	position: absolute;
 	top: -1.2em;
 }
-.chart > .go  { left: .2em; }
+.go { word-break: normal; }
 .chart > .max { right: .2em; }
 
 /* Bar char */
