@@ -465,6 +465,13 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
 		}
 
+		_, err = tx.ExecContext(ctx,
+			`delete from hit_counts where site=$1 and hour < `+ival,
+			s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
+		}
+
 		for _, t := range statTables {
 			_, err := tx.ExecContext(ctx,
 				`delete from `+t+` where site=$1 and day < `+ival,

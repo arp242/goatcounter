@@ -21,21 +21,23 @@ type AdminStat struct {
 	ID         int64     `db:"id"`
 	Parent     *int64    `db:"parent"`
 	Code       string    `db:"code"`
+	Stripe     *string   `db:"stripe"`
 	LinkDomain string    `db:"link_domain"`
 	User       string    `db:"user"`
 	Email      string    `db:"email"`
 	Public     bool      `db:"public"`
 	CreatedAt  time.Time `db:"created_at"`
 	Plan       string    `db:"plan"`
-	Count      int       `db:"count"`
+	LastMonth  int       `db:"last_month"`
+	Total      int       `db:"total"`
 }
 
 type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
 func (a *AdminStats) List(ctx context.Context, order string) error {
-	if order == "" || !stringutil.Contains([]string{"count", "created_at"}, order) {
-		order = "count"
+	if order == "" || !stringutil.Contains([]string{"total", "last_month", "created_at"}, order) {
+		order = "last_month"
 	}
 
 	ival := interval(30)
@@ -45,16 +47,24 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			sites.parent,
 			sites.code,
 			sites.created_at,
-			(case when substr(sites.stripe, 0, 9) = 'cus_free' then 'free' else sites.plan end) as plan,
+			(case
+				when sites.stripe is null then 'free'
+				when substr(sites.stripe, 0, 9) = 'cus_free' then 'free'
+				else sites.plan
+			end) as plan,
+			stripe,
 			sites.link_domain,
 			users.email,
-			count(*) - 1 as count
+			sum(hit_counts.total) as total,
+			coalesce((
+				select sum(hit_counts.total) from hit_counts
+				where site=sites.id and hit_counts.hour >= %s
+			), 0) as last_month
 		from sites
-		left join hits on hits.site=sites.id
+		left join hit_counts on hit_counts.site=sites.id
 		left join users on users.site=coalesce(sites.parent, sites.id)
-		where hits.created_at >= %s
 		group by sites.id, sites.code, sites.created_at, users.email, plan
-		having count(*) > 1000
+		having sum(hit_counts.total) > 1000
 		order by %s desc`, ival, order))
 	if err != nil {
 		return errors.Wrap(err, "AdminStats.List")
@@ -69,13 +79,17 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 
 		for i, s2 := range aa {
 			if s2.ID == *s.Parent {
-				aa[i].Count += s.Count
+				aa[i].Total += s.Total
+				aa[i].LastMonth += s.LastMonth
 				break
 			}
 		}
 	}
-	if order == "count" {
-		sort.Slice(aa, func(i, j int) bool { return aa[i].Count > aa[j].Count })
+	if order == "last_month" {
+		sort.Slice(aa, func(i, j int) bool { return aa[i].LastMonth > aa[j].LastMonth })
+	}
+	if order == "total" {
+		sort.Slice(aa, func(i, j int) bool { return aa[i].Total > aa[j].Total })
 	}
 
 	return nil
@@ -106,14 +120,14 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 	ival60 := interval(30)
 	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`
 		select
-			coalesce((select created_at from hits where site=$1 order by created_at desc limit 1), '1970-01-01') as last_data,
-			(select count(*) from hits where site=$1) as count_total,
-			(select count(*) from hits where site=$1
-				and created_at >= %[1]s) as count_last_month,
-			(select count(*) from hits where site=$1
-				and created_at >= %[2]s
-				and created_at <= %[1]s
-			) as count_prev_month
+			coalesce((select hour from hit_counts where site=$1 order by hour desc limit 1), '1970-01-01') as last_data,
+			coalesce((select sum(total) from hit_counts where site=$1), 0) as count_total,
+			coalesce((select sum(total) from hit_counts where site=$1
+				and hour >= %[1]s), 0) as count_last_month,
+			coalesce((select sum(total) from hit_counts where site=$1
+				and hour >= %[2]s
+				and hour <= %[1]s
+			), 0) as count_prev_month
 		`, ival30, ival60), id)
 	return errors.Wrap(err, "AdminSiteStats.ByID")
 }
