@@ -12551,7 +12551,7 @@ footer > div:first-child { margin-bottom: 1em; }
 .hlink img   { vertical-align: middle; margin: 0 5px; height: 1.1em; }
 
 /*** Home top ***/
-#home-top        { padding: 0 1em; }
+#home-top        { padding: 0 1em; margin-bottom: 3rem; }
 #home-intro      { margin: 1em 0; text-align: center; font-size: 1.8em; line-height: 1.5em; }
 #home-intro span { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
 
@@ -12592,14 +12592,12 @@ img.imgzoom-loading { cursor: wait !important; }
 	#home-pricing h3    { padding-top: .5em; }
 }
 
-/*** Home newsletter ***/
-#home-newsletter        { padding: 2em 1em; text-align: center; background-color: #fff; box-shadow: 0 0 4px #cdc8a4; }
-#nl-turing-test         { display: none; }
-#home-newsletter p      { font-size: 14px; margin-bottom: 0; }
-#home-newsletter input  { width: 13em; }
-#home-newsletter button { display: inline; line-height: 1.5em; margin-left: .5em; }
+/*** Home description ***/
+#home-desc   { padding: 0 3rem; }
+#home-desc p { text-align: justify; hyphens: auto; }
 
 /*** Home features ***/
+#features          { margin-top: 3rem; }
 #home-features div { display: flex; justify-content: space-between; }
 #home-features p   { width: 49%; padding: .5em 1em; background-color: #fff; box-shadow: 0 0 4px #cdc8a4; }
 #home-features div:first-child p { margin-top: 0; }
@@ -16160,6 +16158,13 @@ advice specific to your situation.</p>
 		<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
 		<img class="zoom" src="{{.Static}}/screenshot2.png" alt="Screenshot of the GoatCounter interface">
 	</div>
+</div>
+
+<div id="home-desc">
+	<p>GoatCounter is an easy to use open source web analytics platform, roughly
+		similar to Google Analytics or Matomo. It aims to give meaningful
+		privacy-friendly web analytics for business purposes, while still staying
+		usable for non-technical users to use on personal websites.</p>
 </div>
 
 <h2 id="features">Features</h2>
