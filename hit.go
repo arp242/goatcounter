@@ -210,6 +210,8 @@ func (h *Hit) cleanPath(ctx context.Context) {
 	if h.Event {
 		return
 	}
+
+	h.Path = strings.TrimRight(h.Path, "?&")
 	if !strings.Contains(h.Path, "?") { // No query parameters.
 		return
 	}
