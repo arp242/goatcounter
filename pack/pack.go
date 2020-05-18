@@ -12300,6 +12300,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		var tip = $('<div id="tooltip"></div>')
 
 		var display = function(e, t) {
+			if (t.is('.rlink') && t[0].offsetWidth >= t[0].scrollWidth)
+				return
+
 			var pos = {left: e.pageX, top: (e.pageY + 20)}
 			if (t.closest('.chart-bar').length > 0) {
 				var x = t.offset().left
@@ -14173,14 +14176,14 @@ var Templates = map[string][]byte{
 		</td>
 		<td class="hide-mobile">
 			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
-			<small class="page-title {{if not $h.Title}}no-title{{end}}" title="{{$h.Title}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
-				<a class="rlink" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-				<small class="page-title {{if not $h.Title}}no-title{{end}}" title="{{$h.Title}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+				<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>

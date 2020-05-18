@@ -528,6 +528,9 @@
 		var tip = $('<div id="tooltip"></div>')
 
 		var display = function(e, t) {
+			if (t.is('.rlink') && t[0].offsetWidth >= t[0].scrollWidth)
+				return
+
 			var pos = {left: e.pageX, top: (e.pageY + 20)}
 			if (t.closest('.chart-bar').length > 0) {
 				var x = t.offset().left
