@@ -228,6 +228,15 @@ func (h *Hit) cleanPath(ctx context.Context) {
 		}
 	}
 
+	// Some WeChat tracking thing; see e.g:
+	// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fsheshui.me%2Fblogs%2Fexplain-wechat-nsukey-url
+	// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fwww.v2ex.com%2Ft%2F312163
+	q.Del("nsukey")
+	q.Del("isappinstalled")
+	if q.Get("from") == "singlemessage" || q.Get("from") == "groupmessage" {
+		q.Del("from")
+	}
+
 	u.RawQuery = q.Encode()
 	h.Path = u.String()
 }
