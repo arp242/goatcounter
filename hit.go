@@ -371,7 +371,7 @@ func (h *Hits) List(ctx context.Context, limit, paginate int64) (int64, error) {
 func (h *Hits) Count(ctx context.Context) (int64, error) {
 	var c int64
 	err := zdb.MustGet(ctx).GetContext(ctx, &c,
-		`select sum(total) from hit_counts where site=$1`,
+		`select coalesce(sum(total), 0) from hit_counts where site=$1`,
 		MustGetSite(ctx).ID)
 	return c, errors.Wrap(err, "Hits.Count")
 }
