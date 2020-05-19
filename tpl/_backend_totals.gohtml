@@ -1,0 +1,13 @@
+<tbody class="totals"><tr>
+	<td>
+		<span title="Visits">{{nformat .TotalPages.CountUnique $.Site}}</span><br>
+		<span title="Pageviews" class="views">{{nformat .TotalPages.Count $.Site}}</span><br>
+	<td class="hide-mobile">Total</td>
+	<td>
+		<div class="show-mobile"><strong>Total</strong></div>
+		<div class="chart chart-bar chart-totals">
+			<span class="half"></span>
+			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
+		</div>
+	</td>
+</tr></tbody>

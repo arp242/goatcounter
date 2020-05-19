@@ -2,14 +2,15 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/intutil"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/syncutil"
@@ -25,7 +26,7 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 // List() and Totals()
 func (h *HitStats) List(
 	ctx context.Context, start, end time.Time, filter string, exclude []string, daily bool,
-) (int, int, int, int, int, bool, error) {
+) (int, int, int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -65,7 +66,6 @@ func (h *HitStats) List(
 		}
 		totalErr = db.GetContext(ctx, &t, query, args...)
 		total, totalUnique = t.T, t.U
-		//l = l.Since("get total")
 	}()
 
 	// Select hits.
@@ -99,11 +99,11 @@ func (h *HitStats) List(
 			order by sum(total_unique) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
-			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 		if err != nil {
-			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_counts")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_counts")
 		}
 		l = l.Since("select hits")
 
@@ -140,7 +140,7 @@ func (h *HitStats) List(
 		query += ` order by day asc`
 		err := db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
-			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
 		}
 		l = l.Since("select hits_stats")
 	}
@@ -164,89 +164,109 @@ func (h *HitStats) List(
 				}
 			}
 		}
-		l = l.Since("add hit_stats")
 	}
 
 	// Fill in blank days.
 	fillBlankDays(hh, start, end)
-	l = l.Since("fill blanks")
 
 	// Apply TZ offset.
 	applyOffset(hh, *site)
-	l = l.Since("tz")
 
 	// Add total and max.
 	var totalDisplay, totalUniqueDisplay int
 	addTotals(hh, &totalDisplay, &totalUniqueDisplay)
-	l = l.Since("add totals")
-
-	// Get max values
-	var max int
-	{
-		var (
-			query string
-			args  []interface{}
-		)
-		if daily {
-			if cfg.PgSQL {
-				// PostgreSQL daily.
-				query = `/* getMax daily */
-					select coalesce(sum(total), 0) as t
-					from hit_counts
-					where site=? and hour>=? and hour<=? `
-				args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-				if filter != "" {
-					query += ` and (lower(path) like ? or lower(title) like ?) `
-					args = append(args, filter, filter)
-				}
-				query += `group by path, substring(timezone(?, hour)::varchar, 0, 11)
-					order by t desc
-					limit 1`
-				args = append(args, site.Settings.Timezone.OffsetRFC3339())
-			} else {
-				// SQLite daily
-				query = `
-					select coalesce(sum(total), 0) as t
-					from hit_counts
-					where site=? and hour>=? and hour<=? `
-				args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-				if filter != "" {
-					query += ` and (lower(path) like ? or lower(title) like ?) `
-					args = append(args, filter, filter)
-				}
-				query += `group by path, substr(datetime(hour, ?), 0, 11)
-					order by t desc
-					limit 1`
-				args = append(args, site.Settings.Timezone.OffsetRFC3339())
-			}
-		} else {
-			/* Hourly */
-			query = `/* getMax hourly */
-				select coalesce(max(total), 0) from hit_counts
-				where site=? and hour>=? and hour<=? `
-			args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-			if filter != "" {
-				query += ` and (lower(path) like ? or lower(title) like ?) `
-				args = append(args, filter, filter)
-			}
-		}
-
-		err := db.GetContext(ctx, &max, db.Rebind(query), args...)
-		if err != nil && !zdb.ErrNoRows(err) {
-			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get max")
-		}
-		if max < 10 {
-			max = 10
-		}
-		l = l.Since("get max")
-	}
 
 	syncutil.Wait(ctx, &wg)
 	if totalErr != nil {
-		return 0, 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List get total")
+		return 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List get total")
 	}
 
-	return total, totalUnique, totalDisplay, totalUniqueDisplay, max, more, nil
+	return total, totalUnique, totalDisplay, totalUniqueDisplay, more, nil
+}
+
+// Totals gets the totals overview of all pages.
+func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {
+	l := zlog.Module("HitStat.Totals")
+	db := zdb.MustGet(ctx)
+	site := MustGetSite(ctx)
+
+	query := `select hour, total, total_unique from hit_counts
+		where site=$1 and hour>=$2 and hour<=$3 `
+	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+	if filter != "" {
+		query += ` and (lower(path) like lower($4) or lower(title) like lower($4)) `
+		args = append(args, "%"+filter+"%")
+	}
+	query += ` order by hour asc`
+
+	var tc []struct {
+		Hour        time.Time `db:"hour"`
+		Total       int       `db:"total"`
+		TotalUnique int       `db:"total_unique"`
+	}
+	err := db.SelectContext(ctx, &tc, query, args...)
+	if err != nil {
+		return 0, fmt.Errorf("HitStat.Totals: %w", err)
+	}
+	l = l.Since("total overview")
+
+	totalst := HitStat{
+		Path:  "",
+		Title: "",
+	}
+	stats := make(map[string]Stat)
+	for _, t := range tc {
+		d := t.Hour.Format("2006-01-02")
+		hour, _ := strconv.ParseInt(t.Hour.Format("15"), 10, 32)
+		s, ok := stats[d]
+		if !ok {
+			s = Stat{
+				Day:          d,
+				Hourly:       make([]int, 24),
+				HourlyUnique: make([]int, 24),
+			}
+		}
+
+		s.Hourly[hour] += t.Total
+		s.HourlyUnique[hour] += t.TotalUnique
+		s.Daily += t.Total
+		s.DailyUnique += t.TotalUnique
+
+		totalst.Count += t.Total
+		totalst.CountUnique += t.TotalUnique
+
+		stats[d] = s
+	}
+
+	max := 0
+	for _, v := range stats {
+		totalst.Stats = append(totalst.Stats, v)
+		if daily && v.Daily > max {
+			max = v.Daily
+		}
+		if !daily {
+			for _, x := range v.Hourly {
+				if x > max {
+					max = x
+				}
+			}
+		}
+	}
+	if max < 10 {
+		max = 10
+	}
+
+	sort.Slice(totalst.Stats, func(i, j int) bool {
+		return totalst.Stats[i].Day < totalst.Stats[j].Day
+	})
+
+	hh := []HitStat{totalst}
+	fillBlankDays(hh, start, end)
+	applyOffset(hh, *site)
+	*h = hh[0]
+	l = l.Since("total overview correct")
+
+	return max, nil
 }
 
 // The database stores everything in UTC, so we need to apply

@@ -12,6 +12,7 @@ import (
 	"zgo.at/goatcounter"
 	. "zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/zdb"
 )
 
 func TestDataRetention(t *testing.T) {
@@ -30,10 +31,10 @@ func TestDataRetention(t *testing.T) {
 	past := now.Add(-40 * 24 * time.Hour)
 
 	gctest.StoreHits(ctx, t, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Path: "/a"},
-		{Site: site.ID, CreatedAt: now, Path: "/a"},
-		{Site: site.ID, CreatedAt: past, Path: "/a"},
-		{Site: site.ID, CreatedAt: past, Path: "/a"},
+		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zdb.Bool(true)},
+		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zdb.Bool(false)},
+		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zdb.Bool(true)},
+		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zdb.Bool(false)},
 	}...)
 
 	err = DataRetention(ctx)
@@ -46,21 +47,19 @@ func TestDataRetention(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	if len(hits) != 2 {
 		t.Errorf("len(hits) is %d\n%v", len(hits), hits)
 	}
 
 	var stats goatcounter.HitStats
-	total, totalUnique, display, displayUnique, max, more, err := stats.List(
+	total, totalUnique, display, displayUnique, more, err := stats.List(
 		ctx, past.Add(-1*24*time.Hour), now, "", nil, false)
-	_, _, _ = totalUnique, displayUnique, max // TODO
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	out := fmt.Sprintf("%d %d %t %v", total, display, more, err)
-	want := `2 2 false <nil>`
+	out := fmt.Sprintf("%d %d %d %d %t %v", total, totalUnique, display, displayUnique, more, err)
+	want := `2 1 2 1 false <nil>`
 	if out != want {
 		t.Errorf("\ngot:  %s\nwant: %s", out, want)
 	}

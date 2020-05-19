@@ -84,7 +84,7 @@ form .err  { color: red; display: block; }
 
 .count-list td:first-child {  /* Count */
 	text-align: right;
-	width: 5em;
+	width: 5rem;
 }
 .count-list td[colspan="3"] {  /* "nothing to display" */
 	text-align: left;
@@ -92,22 +92,27 @@ form .err  { color: red; display: block; }
 }
 
 .count-list td:nth-child(2) {  /* Path */
-	width: 20em;
+	width: 20rem;
 }
 
 .count-list.count-list-refs td:nth-child(1) {
 	text-align: right;
-	width: 4em;
+	width: 4rem;
 }
 .count-list.count-list-refs td:nth-child(2) {
 	text-align: right;
-	width: 4em;
+	width: 4rem;
 }
 
 .count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
 }
+
+/* Totals */
+.count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
+.count-list .totals td:nth-child(2) { font-weight: bold; }
+.count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
 
 .label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
 

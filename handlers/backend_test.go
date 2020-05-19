@@ -740,13 +740,19 @@ func TestBackendBarChart(t *testing.T) {
 		}
 
 		c := doc.Find(".chart.chart-bar")
-		if c.Length() != 1 {
+		if c.Length() != 2 {
 			t.Fatalf("c.Length: %d", c.Length())
 		}
-		out, err := c.Html()
+		totals, err := c.Eq(0).Html()
 		if err != nil {
 			t.Fatal(err)
 		}
+		out, err := c.Eq(1).Html()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_ = totals // TODO: test too, although should probs be a different test.
 
 		out = strings.ReplaceAll(out, "</div>", "</div>\n")
 		out = strings.ReplaceAll(out, "</div>\n</div>", "</div></div>")

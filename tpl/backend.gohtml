@@ -148,7 +148,8 @@
 		</header>
 
 		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
+			{{template "_backend_totals.gohtml" .}}
+			<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
 
 		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>

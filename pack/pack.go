@@ -12326,11 +12326,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		$('#scale-reset').on('click', (e) => {
 			clearTimeout(t)
 			e.preventDefault()
-			$('#scale').val($('.count-list-pages').attr('data-max'))
+			$('#scale').val(get_max())
 			redraw()
 		})
 
-		var scale = parseInt($('#scale').val(), 10) / parseInt($('.count-list-pages').attr('data-max'), 10)
+		var scale = parseInt($('#scale').val(), 10) / parseInt(get_max(), 10)
 		$('.chart-bar').each(function(i, chart) {
 			if (chart.dataset.done === 't')
 				return
@@ -12419,6 +12419,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 	};
 
+	// Get the original y-axis max.
+	var get_max = function() {
+		return $('.count-list-pages').attr('data-max')
+	}
+
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
 	var filter_paths = function() {
@@ -12436,7 +12441,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				$(e.target).after(loading)
 				jQuery.ajax({
 					url:     '/pages',
-					data:    append_period({filter: filter}),
+					data:    append_period({
+						filter: filter,
+						daily:  $('#daily').is(':checked'),
+						max:    get_max(),
+					}),
 					success: function(data) {
 						update_pages(data, true)
 						loading.remove()
@@ -12461,8 +12470,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					url:  '/pages',
 					data: append_period({
 						filter:  $('#filter-paths').val(),
-						daily:   $('#daily').is(':selected'),
+						daily:   $('#daily').is(':checked'),
 						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+						max:     get_max(),
 					}),
 					success: function(data) {
 						update_pages(data, false)
@@ -12475,10 +12485,15 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Update the page list from ajax request on pagination/filter.
 	var update_pages = function(data, from_filter) {
-		if (from_filter)
-			$('.pages-list .count-list-pages > tbody').html(data.rows);
+		if (from_filter) {
+			$('.count-list-pages').attr('data-max', data.max)
+			$('#scale').val(data.max)
+
+			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
+			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
+		}
 		else
-			$('.pages-list .count-list-pages > tbody').append(data.rows);
+			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
 		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
@@ -12509,7 +12524,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	var highlight_filter = function(s) {
 		if (s === '')
 			return;
-		$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
+		$('.pages-list .count-list-pages > tbody.pages').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
+			if ($(elem).find('b').length)  // Don't apply twice after pagination
+				return
 			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
 		});
 	};
@@ -13334,7 +13351,7 @@ form .err  { color: red; display: block; }
 
 .count-list td:first-child {  /* Count */
 	text-align: right;
-	width: 5em;
+	width: 5rem;
 }
 .count-list td[colspan="3"] {  /* "nothing to display" */
 	text-align: left;
@@ -13342,22 +13359,27 @@ form .err  { color: red; display: block; }
 }
 
 .count-list td:nth-child(2) {  /* Path */
-	width: 20em;
+	width: 20rem;
 }
 
 .count-list.count-list-refs td:nth-child(1) {
 	text-align: right;
-	width: 4em;
+	width: 4rem;
 }
 .count-list.count-list-refs td:nth-child(2) {
 	text-align: right;
-	width: 4em;
+	width: 4rem;
 }
 
 .count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
 }
+
+/* Totals */
+.count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
+.count-list .totals td:nth-child(2) { font-weight: bold; }
+.count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
 
 .label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
 
@@ -15525,6 +15547,20 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
+	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr>
+	<td>
+		<span title="Visits">{{nformat .TotalPages.CountUnique $.Site}}</span><br>
+		<span title="Pageviews" class="views">{{nformat .TotalPages.Count $.Site}}</span><br>
+	<td class="hide-mobile">Total</td>
+	<td>
+		<div class="show-mobile"><strong>Total</strong></div>
+		<div class="chart chart-bar chart-totals">
+			<span class="half"></span>
+			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
+		</div>
+	</td>
+</tr></tbody>
+`),
 	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="{{.Static}}/imgzoom.js?v={{.Version}}"></script>
 		<script crossorigin="anonymous" src="{{.Static}}/script.js?v={{.Version}}"></script>
 	</div> {{/* .page */}}
@@ -15757,7 +15793,8 @@ Martin
 		</header>
 
 		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
+			{{template "_backend_totals.gohtml" .}}
+			<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
 
 		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
