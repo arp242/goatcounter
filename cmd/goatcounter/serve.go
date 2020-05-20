@@ -51,12 +51,18 @@ const serveAndSaasFlags = `
   -tls           Serve over tls. This is a comma-separated list with any of:
 
                    none              Don't serve any TLS.
+
                    path/to/file.pem  TLS certificate and keyfile, in one file.
-                   acme              Create TLS certificates with ACME, this can
+
+                   acme[:cache]      Create TLS certificates with ACME, this can
                                      optionally followed by a : and a cache
                                      directory name (default: acme-secrets).
+
                    tls               Accept TLS connections on -listen.
-                   rdr               Redirect port 80.
+
+                   rdr               Redirect port 80 to the -listen port. ACME
+                                     verification requires the server to be
+                                     available on port 80.
 
                  Examples:
 
