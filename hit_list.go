@@ -222,10 +222,11 @@ func applyOffset(hh HitStats, site Site) {
 	}
 	offset /= 60
 
-	for i := range hh {
-		stats := hh[i].Stats
-		switch {
-		case offset > 0:
+	switch {
+	case offset > 0:
+		for i := range hh {
+			stats := hh[i].Stats
+
 			popped := make([]int, offset)
 			poppedUnique := make([]int, offset)
 			for i := range stats {
@@ -238,10 +239,15 @@ func applyOffset(hh HitStats, site Site) {
 				poppedUnique = stats[i].HourlyUnique[o:]
 				stats[i].HourlyUnique = stats[i].HourlyUnique[:o]
 			}
-			stats = stats[1:] // Overselect a day to get the stats for it, remove it.
+			hh[i].Stats = stats[1:] // Overselect a day to get the stats for it, remove it.
+		}
 
-		case offset < 0:
-			offset = -offset
+	case offset < 0:
+		offset = -offset
+
+		for i := range hh {
+			stats := hh[i].Stats
+
 			popped := make([]int, offset)
 			poppedUnique := make([]int, offset)
 			for i := len(stats) - 1; i >= 0; i-- {
@@ -253,10 +259,8 @@ func applyOffset(hh HitStats, site Site) {
 				poppedUnique = stats[i].HourlyUnique[:offset]
 				stats[i].HourlyUnique = stats[i].HourlyUnique[offset:]
 			}
-			stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
+			hh[i].Stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
 		}
-
-		hh[i].Stats = stats
 	}
 }
 
