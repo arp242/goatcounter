@@ -43,7 +43,7 @@ import (
 
 type backend struct{}
 
-// Always use the daily view if the number of days is larger than this.
+// DailyView forces the "view by day" if the number of selected days is larger than this.
 const DailyView = 90
 
 func (h backend) Mount(r chi.Router, db zdb.DB) {

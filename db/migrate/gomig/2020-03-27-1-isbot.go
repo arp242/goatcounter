@@ -10,7 +10,7 @@ import (
 	"zgo.at/zlog"
 )
 
-func Migrate_20200327_1_isbot(db zdb.DB) error {
+func IsBot(db zdb.DB) error {
 	zlog.Printf("2020-03-27-1-isbot: this may take a minute, depending on the table size")
 
 	var all []string

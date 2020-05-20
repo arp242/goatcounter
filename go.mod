@@ -14,6 +14,7 @@ require (
 	github.com/teamwork/reload v1.3.1
 	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
+	golang.org/x/tools v0.0.0-20191130070609-6e064ea0cf2d
 	honnef.co/go/tools v0.0.1-2020.1.4
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200427181629-1d4940c02e50
