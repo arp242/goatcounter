@@ -85,14 +85,12 @@ gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
 honnef.co/go/tools v0.0.1-2020.1.4 h1:UoveltGrhghAA7ePc+e+QYDHXrBps2PqFZiHkGR/xK8=
 honnef.co/go/tools v0.0.1-2020.1.4/go.mod h1:X/FiERA/W4tHapMX5mGpAtMSVEeEUOyHaw9vFzvIQ3k=
-zgo.at/gadget v0.0.0-20200516120423-5af267911ece h1:n1LH47vmGaJNERr8nzg5dEyIQJeN2ZaVKUzOV41IqE8=
-zgo.at/gadget v0.0.0-20200516120423-5af267911ece/go.mod h1:1x0AKFOjKScVTzJh+V69Ku6hTwvEM56MlnKOtrjMwSo=
+zgo.at/gadget v0.0.0-20200521085522-a7ce5b57f377 h1:aLYVFZ0uyKNlgjymIoXQVMZbCpAGvPSBCXsJuj3SatY=
+zgo.at/gadget v0.0.0-20200521085522-a7ce5b57f377/go.mod h1:1x0AKFOjKScVTzJh+V69Ku6hTwvEM56MlnKOtrjMwSo=
 zgo.at/guru v1.1.0 h1:hvMLOzPnv7XApwJZgxvFxBA8wb6RGPUw9lz8kmq450g=
 zgo.at/guru v1.1.0/go.mod h1:eltnfk6QwmM7ic3OLzmGMjEChP2iLuYXERyliREiA00=
 zgo.at/isbot v0.0.0-20200427181629-1d4940c02e50 h1:T6Xej7cvCd9kdrhp9HnZ8cRPf3dQjEFCIvnbgoc12k4=
 zgo.at/isbot v0.0.0-20200427181629-1d4940c02e50/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
-zgo.at/tz v0.0.0-20200428173314-f4a46a753a7e h1:IsgWHil+aeBoONa51OzaJqzpy1kFZ55mUcmuX9AafZY=
-zgo.at/tz v0.0.0-20200428173314-f4a46a753a7e/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxytHj8G8kRl2M=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/utils v0.0.0-20200514044306-bf7c1ff8aa0c h1:GWACHp07xLc1JwEISDzITuw1U4x6+r3BdbdYifbHz9E=

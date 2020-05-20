@@ -140,7 +140,7 @@ func reindex() (int, error) {
 		if site > 0 && s.ID != site {
 			continue
 		}
-		err := dosite(ctx, s, *table, *pause, firstDay, lastDay, *quiet)
+		err := dosite(ctx, s, tables, *pause, firstDay, lastDay, *quiet)
 		if err != nil {
 			return 1, err
 		}
