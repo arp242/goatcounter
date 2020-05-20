@@ -992,11 +992,22 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 			go func() {
 				defer zlog.Recover()
 
+				contact := "false"
+				if args.ContactMe {
+					var u goatcounter.User
+					err := u.BySite(r.Context(), site.ID)
+					if err != nil {
+						zlog.Error(err)
+					} else {
+						contact = u.Email
+					}
+				}
+
 				zmail.Send("GoatCounter deletion",
-					mail.Address{Name: "GoatCounter deletion", Address: "support@goatcounter.com"},
-					[]mail.Address{{Address: "support@goatcounter.com"}},
-					fmt.Sprintf(`Deleted: %s (%d): contact_me: %t; reason: %s`,
-						site.Code, site.ID, args.ContactMe, args.Reason))
+					mail.Address{Name: "GoatCounter deletion", Address: cfg.EmailFrom},
+					[]mail.Address{{Address: cfg.EmailFrom}},
+					fmt.Sprintf(`Deleted: %s (%d): contact_me: %s; reason: %s`,
+						site.Code, site.ID, contact, args.Reason))
 			}()
 		}
 	}

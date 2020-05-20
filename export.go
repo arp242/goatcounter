@@ -119,7 +119,7 @@ func Export(ctx context.Context, fp *os.File) {
 
 	user := GetUser(ctx)
 	err = zmail.SendTemplate("GoatCounter export ready",
-		mail.Address{Name: "GoatCounter export", Address: "support@goatcounter.com"},
+		mail.Address{Name: "GoatCounter export", Address: cfg.EmailFrom},
 		[]mail.Address{{Address: user.Email}},
 		"email_export_done.gotxt", struct {
 			Site Site

@@ -6,6 +6,21 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
+
+Unreleased
+----------
+
+- Replace `-auth` with `-email-from` (#270)
+
+  Since the email auth no longer exists the `-auth` parameter no longer makes
+  sense. It's now replaced with `-email-from`, which can be set to just an email
+  address.
+
+- Improve performance (#265)
+
+  Increase performance by quite a bit on large sites and time ranges.
+
+
 2020-05-18 v1.2.0
 -----------------
 

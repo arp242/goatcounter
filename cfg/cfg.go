@@ -14,5 +14,5 @@ var (
 	Saas         bool
 	Serve        bool
 	Port         string
-	LoginFrom    string
+	EmailFrom    string
 )
