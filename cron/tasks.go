@@ -122,6 +122,10 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	if err != nil {
 		return errors.Wrapf(err, "hit_stat: site %d", siteID)
 	}
+	err = updateHitCounts(ctx, hits)
+	if err != nil {
+		return errors.Wrapf(err, "hit_count: site %d", siteID)
+	}
 	err = updateBrowserStats(ctx, hits)
 	if err != nil {
 		return errors.Wrapf(err, "browser_stat: site %d", siteID)
@@ -149,7 +153,7 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	return nil
 }
 
-func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) error {
+func ReindexStats(ctx context.Context, hits []goatcounter.Hit, tables []string) error {
 	grouped := make(map[int64][]goatcounter.Hit)
 	for _, h := range hits {
 		grouped[h.Site] = append(grouped[h.Site], h)
@@ -166,22 +170,26 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, table string) err
 		}
 		ctx = goatcounter.WithSite(ctx, &site)
 
-		switch table {
-		case "all":
-			err = UpdateStats(ctx, siteID, hits)
-		case "hit_stats":
-			err = updateHitStats(ctx, hits)
-		case "browser_stats":
-			err = updateBrowserStats(ctx, hits)
-		case "location_stats":
-			err = updateLocationStats(ctx, hits)
-		case "ref_stats":
-			err = updateRefStats(ctx, hits)
-		case "size_stats":
-			err = updateSizeStats(ctx, hits)
-		}
-		if err != nil {
-			return err
+		for _, t := range tables {
+			switch t {
+			case "all":
+				err = UpdateStats(ctx, siteID, hits)
+			case "hit_stats":
+				err = updateHitStats(ctx, hits)
+			case "hit_counts":
+				err = updateHitCounts(ctx, hits)
+			case "browser_stats":
+				err = updateBrowserStats(ctx, hits)
+			case "location_stats":
+				err = updateLocationStats(ctx, hits)
+			case "ref_stats":
+				err = updateRefStats(ctx, hits)
+			case "size_stats":
+				err = updateSizeStats(ctx, hits)
+			}
+			if err != nil {
+				return err
+			}
 		}
 	}
 

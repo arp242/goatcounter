@@ -10,7 +10,6 @@ import (
 	"strconv"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
@@ -90,25 +89,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			ins.Values(siteID, v.day, v.path, v.event, v.title,
 				jsonutil.MustMarshal(v.count),
 				jsonutil.MustMarshal(v.countUnique))
-
-			var err error
-			if cfg.PgSQL {
-				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into hit_counts
-				(site, path, title, event, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6, $7)
-				on conflict on constraint "hit_counts#site#path#hour#event" do
-					update set total=$8, total_unique=$9`,
-					siteID, v.path, v.title, v.event, v.hour, v.total, v.totalUnique,
-					v.total, v.totalUnique)
-			} else {
-				// SQLite has "on conflict replace" on the unique constraint to
-				// do the same.
-				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into hit_counts
-					(site, path, title, event, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6, $7)`,
-					siteID, v.path, v.title, v.event, v.hour, v.total, v.totalUnique)
-			}
-			if err != nil {
-				return errors.Wrap(err, "updateHitStats hit_counts")
-			}
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
 	})

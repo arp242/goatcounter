@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -57,7 +58,7 @@ Flags:
   -to            Reindex only statistics up to and including this day; as
                  year-month-day in UTC. The default is yesterday.
 
-  -table         Which tables to reindex: hit_stats, browser_stats,
+  -table         Which tables to reindex: hit_stats, hit_counts, browser_stats,
                  location_stats, ref_stats, size_stats, or all (default).
 
   -site          Only reindex this site ID. Default is to reindex all.
@@ -77,11 +78,16 @@ func reindex() (int, error) {
 		return 1, err
 	}
 
+	tables := strings.Split(*table, ",")
+
 	v := zvalidate.New()
 	firstDay := v.Date("-since", *since, "2006-01-02")
 	lastDay := v.Date("-to", *to, "2006-01-02")
-	v.Include("-table", *table, []string{"hit_stats", "browser_stats",
-		"location_stats", "ref_stats", "size_stats", "all"})
+
+	for _, t := range tables {
+		v.Include("-table", t, []string{"hit_stats", "hit_counts",
+			"browser_stats", "location_stats", "ref_stats", "size_stats", "all"})
+	}
 	if v.HasErrors() {
 		return 1, v
 	}
@@ -129,7 +135,7 @@ func reindex() (int, error) {
 		if site > 0 && s.ID != site {
 			continue
 		}
-		err := dosite(ctx, s, *table, *pause, firstDay, lastDay)
+		err := dosite(ctx, s, tables, *pause, firstDay, lastDay)
 		if err != nil {
 			return 1, err
 		}
@@ -139,7 +145,7 @@ func reindex() (int, error) {
 	return 0, nil
 }
 
-func dosite(ctx context.Context, site goatcounter.Site, table string, pause int, firstDay, lastDay time.Time) error {
+func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause int, firstDay, lastDay time.Time) error {
 	db := zdb.MustGet(ctx).(*sqlx.DB)
 	siteID := site.ID
 
@@ -177,9 +183,9 @@ func dosite(ctx context.Context, site goatcounter.Site, table string, pause int,
 
 		fmt.Fprintf(stdout, "\r\x1b[0Ksite %d %s → %d", siteID, day.Format("2006-01-02"), len(hits))
 
-		clearDay(db, table, day.Format("2006-01-02"), siteID)
+		clearDay(db, tables, day.Format("2006-01-02"), siteID)
 
-		err = cron.ReindexStats(ctx, hits, table)
+		err = cron.ReindexStats(ctx, hits, tables)
 		if err != nil {
 			return err
 		}
@@ -197,27 +203,36 @@ func dosite(ctx context.Context, site goatcounter.Site, table string, pause int,
 	return nil
 }
 
-func clearDay(db *sqlx.DB, table, day string, siteID int64) {
+func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
 	ctx := context.Background()
 
 	where := fmt.Sprintf(" where site=%d and day='%s'", siteID, day)
-	switch table {
-	case "hit_stats":
-		db.MustExecContext(ctx, `delete from hit_stats`+where)
-	case "browser_stats":
-		db.MustExecContext(ctx, `delete from browser_stats`+where)
-	case "location_stats":
-		db.MustExecContext(ctx, `delete from location_stats`+where)
-	case "ref_stats":
-		db.MustExecContext(ctx, `delete from ref_stats`+where)
-	case "size_stats":
-		db.MustExecContext(ctx, `delete from size_stats`+where)
-	case "all":
-		db.MustExecContext(ctx, `delete from hit_stats`+where)
-		db.MustExecContext(ctx, `delete from browser_stats`+where)
-		db.MustExecContext(ctx, `delete from location_stats`+where)
-		db.MustExecContext(ctx, `delete from ref_stats`+where)
-		db.MustExecContext(ctx, `delete from size_stats`+where)
+	for _, t := range tables {
+		switch t {
+		case "hit_stats":
+			db.MustExecContext(ctx, `delete from hit_stats`+where)
+		case "hit_counts":
+			db.MustExecContext(ctx, fmt.Sprintf(
+				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s %%'`,
+				siteID, day))
+		case "browser_stats":
+			db.MustExecContext(ctx, `delete from browser_stats`+where)
+		case "location_stats":
+			db.MustExecContext(ctx, `delete from location_stats`+where)
+		case "ref_stats":
+			db.MustExecContext(ctx, `delete from ref_stats`+where)
+		case "size_stats":
+			db.MustExecContext(ctx, `delete from size_stats`+where)
+		case "all":
+			db.MustExecContext(ctx, `delete from hit_stats`+where)
+			db.MustExecContext(ctx, `delete from browser_stats`+where)
+			db.MustExecContext(ctx, `delete from location_stats`+where)
+			db.MustExecContext(ctx, `delete from ref_stats`+where)
+			db.MustExecContext(ctx, `delete from size_stats`+where)
+			db.MustExecContext(ctx, fmt.Sprintf(
+				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s %%'`,
+				siteID, day))
+		}
 	}
 }
 
