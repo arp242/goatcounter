@@ -56,8 +56,12 @@
 	// This way you can still hover the entire height.
 	var draw_chart = function() {
 		var redraw = () => {
-			if ($('#scale').val() === $('.count-list-pages').attr('data-scale'))
+			if ($('#scale').val() === $('.count-list-pages').attr('data-scale')) {
+				$('#scale').removeClass('value')
 				return
+			}
+
+			$('#scale').addClass('value')
 			$('.count-list-pages').attr('data-scale', $('#scale').val())
 			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
