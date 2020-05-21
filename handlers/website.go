@@ -288,6 +288,9 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 	for _, u := range users {
 		var s goatcounter.Site
 		err := s.ByID(r.Context(), u.Site)
+		if zdb.ErrNoRows(err) { // Deleted site.
+			continue
+		}
 		if err != nil {
 			return err
 		}

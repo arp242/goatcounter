@@ -6,9 +6,9 @@
 Adding a new update:
 
 insert into updates(created_at, show_at, subject, body) values (now(), now(),
-    "subject", "<p>body</p>");
-
-update users set unseen_updates=1;
+    'subject', '<p>
+	body</p>
+	');
 */
 
 package goatcounter

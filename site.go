@@ -319,9 +319,9 @@ func (s *Site) Delete(ctx context.Context) error {
 
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
-	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
+	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, s,
 		`select * from sites where id=$1 and state=$2`,
-		id, StateActive), "Site.ByID")
+		id, StateActive), "Site.ByID %d", id)
 }
 
 // ByHost gets a site by host name.
