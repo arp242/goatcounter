@@ -391,13 +391,18 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages input#filter-paths,
 .header-pages input#scale,
 .header-pages select#display { padding: .2em; margin-right: 1em; }
-.header-pages input.value { background-color: yellow; }
+.header-pages input.value    { background-color: yellow; }
+.header-pages .totals-small  { display: none; }
 
-@media (max-width: 30rem) {
+@media (max-width: 36rem) {
 	.header-pages input#filter-paths { max-width: 10em; }
+	.header-pages .totals       { display: none; }
+	.header-pages .totals-small { display: block; }
 }
 
 .header-pages input#scale { width: 6em; }
+/* Don't wrap on smaller screens; prefer counts to wrap instead. */
+.header-pages .scale-wrap { white-space: no-wrap; }
 
 h3 + h4 { margin-top: .3em; }
 

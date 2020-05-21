@@ -76,6 +76,7 @@
 
 		$('#scale-reset').on('click', (e) => {
 			clearTimeout(t)
+			e.preventDefault()
 			$('#scale').val($('.count-list-pages').attr('data-max'))
 			redraw()
 		})
@@ -253,8 +254,12 @@
 			ud.text(format_int(data.total_unique_display));
 		}
 		else {
-			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
-			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
+			td.each((_, t) => {
+				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display));
+			})
+			ud.each((_, t) => {
+				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
+			})
 		}
 
 		draw_chart()

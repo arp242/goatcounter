@@ -11908,6 +11908,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		$('#scale-reset').on('click', (e) => {
 			clearTimeout(t)
+			e.preventDefault()
 			$('#scale').val($('.count-list-pages').attr('data-max'))
 			redraw()
 		})
@@ -12085,8 +12086,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			ud.text(format_int(data.total_unique_display));
 		}
 		else {
-			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
-			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
+			td.each((_, t) => {
+				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display));
+			})
+			ud.each((_, t) => {
+				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
+			})
 		}
 
 		draw_chart()
@@ -13201,13 +13206,18 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages input#filter-paths,
 .header-pages input#scale,
 .header-pages select#display { padding: .2em; margin-right: 1em; }
-.header-pages input.value { background-color: yellow; }
+.header-pages input.value    { background-color: yellow; }
+.header-pages .totals-small  { display: none; }
 
-@media (max-width: 30rem) {
+@media (max-width: 36rem) {
 	.header-pages input#filter-paths { max-width: 10em; }
+	.header-pages .totals       { display: none; }
+	.header-pages .totals-small { display: block; }
 }
 
 .header-pages input#scale { width: 6em; }
+/* Don't wrap on smaller screens; prefer counts to wrap instead. */
+.header-pages .scale-wrap { white-space: no-wrap; }
 
 h3 + h4 { margin-top: .3em; }
 
@@ -15171,13 +15181,22 @@ Martin
 				Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
 				out of <span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
 				visits;
+				<br class="show-mobile">
 				<span class="views">
 					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> out of
 					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
 				</span>
 			</span>
 
-			<div>
+			<span class="totals totals-small">
+				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>/<span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span> visits
+				<br class="show-mobile">
+				<span class="views">
+					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span>/<span class="total-hits">{{nformat .TotalHits $.Site}}</span> views
+				</span>
+			</span>
+
+			<div class="scale-wrap">
 				<a href="#" id="scale-reset" title="Reset Y-axis scale to the default value">reset</a>
 				<input type="number"autocomplete="off" name="scale" id="scale" value="{{.Max}}"
 					placeholder="Scale" title="Set the Y-axis scale">
