@@ -124,14 +124,21 @@
 					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
 				</span>
 			</span>
+
+			<div>
+				<a href="#" id="scale-reset" title="Reset Y-axis scale to the default value">reset</a>
+				<input type="number"autocomplete="off" name="scale" id="scale" value="{{.Max}}"
+					placeholder="Scale" title="Set the Y-axis scale">
+			</div>
+
 			<div class="filter-wrap">
-				<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
-					{{if .Filter}}class="value"{{end}}
-					title="Filter the list of paths; matched case-insensitive on path and title">
+				<input type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
+					{{if .Filter}}class="value"{{end}}>
 			</div>
 		</header>
 
-		<table class="count-list count-list-pages">
+		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
 

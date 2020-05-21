@@ -18,7 +18,6 @@
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
-				{{if eq $i 0}}<span class="top max" title="Y-axis scale">{{nformat $.Max $.Site}}</span>{{end}}
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>

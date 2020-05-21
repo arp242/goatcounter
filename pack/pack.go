@@ -11887,6 +11887,32 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	//
 	// This way you can still hover the entire height.
 	var draw_chart = function() {
+		var redraw = () => {
+			if ($('#scale').val() === $('.count-list-pages').attr('data-scale'))
+				return
+			$('.count-list-pages').attr('data-scale', $('#scale').val())
+			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
+			draw_chart()
+		}
+
+		var t;
+		$('#scale')
+			.on('keydown', (e) => {
+				if (e.keyCode === 13)
+					e.preventDefault()
+			})
+			.on('input', (e) => {
+				clearTimeout(t)
+				t = setTimeout(redraw, 300)
+			})
+
+		$('#scale-reset').on('click', (e) => {
+			clearTimeout(t)
+			$('#scale').val($('.count-list-pages').attr('data-max'))
+			redraw()
+		})
+
+		var scale = parseInt($('#scale').val(), 10) / parseInt($('.count-list-pages').attr('data-max'), 10)
 		$('.chart-bar').each(function(i, chart) {
 			if (chart.dataset.done === 't')
 				return
@@ -11895,14 +11921,25 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			chart.style.display = 'none'
 
 			$(chart).find('>div').each(function(i, bar) {
-				var h = bar.style.height
-				bar.style.height = '100%'
+				if (bar.dataset.h !== undefined)
+					var h = bar.dataset.h
+				else {
+					var h = bar.style.height
+					bar.dataset.h = h
+					bar.style.height = '100%'
+				}
+
 				if (bar.className === 'f')
 					return
 				else if (h === '')
 					bar.style.background = 'transparent'
 				else {
 					var hu = bar.dataset.u
+					if (scale && scale !== 1) {
+						h  = (parseInt(h, 10)  / scale) + '%'
+						hu = (parseInt(hu, 10) / scale) + '%'
+					}
+
 					bar.style.background = ` + "`" + `
 						linear-gradient(to top,
 						#9a15a4 0%,
@@ -11988,12 +12025,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					},
 				});
 			}, 300);
-		});
+		})
 
 		// Don't submit form on enter.
 		$('#filter-paths').on('keydown', function(e) {
 			if (e.keyCode === 13)
-				e.preventDefault();
+				e.preventDefault()
 		})
 	};
 
@@ -12409,7 +12446,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		// Translucent hover effect; need a new div because the height isn't
 		// 100%
 		var add_cursor = function(t) {
-			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.is('.max'))
+			if (t.closest('.chart-bar').length === 0 || t.is('#cursor'))
 				return
 
 			$('#cursor').remove()
@@ -12954,8 +12991,7 @@ form .err  { color: red; display: block; }
 	width: 100%;
 	position: relative;
 }
-/* Add a bit extra space between the charts, mostly so it's clearer where the
- * .max belongs to when you're scrolled down. */
+/* Add a bit extra space between the charts */
 @media (min-width: 55rem) {
 	.chart { margin-bottom: 1em; }
 }
@@ -12967,7 +13003,6 @@ form .err  { color: red; display: block; }
 	top: -1.2em;
 }
 .go { word-break: normal; }
-.chart > .max { right: .2em; }
 
 /* Bar char */
 .chart-bar {
@@ -13164,12 +13199,15 @@ header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 
 .header-pages span    { margin-left: 0; }
 .header-pages .totals { flex-grow: 1; }
 .header-pages input#filter-paths,
+.header-pages input#scale,
 .header-pages select#display { padding: .2em; margin-right: 1em; }
 .header-pages input.value { background-color: yellow; }
 
 @media (max-width: 30rem) {
 	.header-pages input#filter-paths { max-width: 10em; }
 }
+
+.header-pages input#scale { width: 6em; }
 
 h3 + h4 { margin-top: .3em; }
 
@@ -14303,7 +14341,6 @@ var Templates = map[string][]byte{
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 			</div>
 			<div class="chart chart-bar">
-				{{if eq $i 0}}<span class="top max" title="Y-axis scale">{{nformat $.Max $.Site}}</span>{{end}}
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
@@ -15139,14 +15176,21 @@ Martin
 					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
 				</span>
 			</span>
+
+			<div>
+				<a href="#" id="scale-reset" title="Reset Y-axis scale to the default value">reset</a>
+				<input type="number"autocomplete="off" name="scale" id="scale" value="{{.Max}}"
+					placeholder="Scale" title="Set the Y-axis scale">
+			</div>
+
 			<div class="filter-wrap">
-				<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
-					{{if .Filter}}class="value"{{end}}
-					title="Filter the list of paths; matched case-insensitive on path and title">
+				<input type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
+					{{if .Filter}}class="value"{{end}}>
 			</div>
 		</header>
 
-		<table class="count-list count-list-pages">
+		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
 
