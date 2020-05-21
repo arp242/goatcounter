@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -62,6 +63,20 @@ var (
 		return u, err
 	})
 )
+
+// Allow debugging frontend timing issues by setting a "debug-delay" cookie.
+func delay() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if c, _ := r.Cookie("debug-delay"); c != nil {
+				n, _ := strconv.ParseInt(c.Value, 10, 32)
+				zlog.Module("debug-delay").Printf("%ds delay", n)
+				time.Sleep(time.Duration(n) * time.Second)
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
 
 func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

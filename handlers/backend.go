@@ -47,6 +47,10 @@ type backend struct{}
 const DailyView = 90
 
 func (h backend) Mount(r chi.Router, db zdb.DB) {
+	if !cfg.Prod {
+		r.Use(delay())
+	}
+
 	r.Use(
 		middleware.RealIP,
 		zhttp.Unpanic(cfg.Prod),

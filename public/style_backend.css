@@ -406,3 +406,13 @@ h3 + h4 { margin-top: .3em; }
 /* Grey out "pageviews" out when put next to visitors */
 .views          { color: #999; }
 #tooltip .views { color: #bbb; }
+
+/*** Loading indicator ***/
+@keyframes loading {
+  0%   { content: "."; }
+  50%  { content: ".."; }
+  100% { content: "..."; }
+}
+.loading       { color: #777; }
+.loading:hover { color: #777; text-decoration: none; }
+.loading:after { content: ""; animation: loading 500ms linear infinite; }

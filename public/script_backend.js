@@ -163,12 +163,17 @@
 	// Paginate the main path overview.
 	var paginate_paths = function() {
 		$('.pages-list .load-more').on('click', function(e) {
-			e.preventDefault();
-			jQuery.ajax({
-				url:     $(this).attr('data-href'),
-				success: function(data) { update_pages(data, false); },
-			});
-		});
+			e.preventDefault()
+			var done = paginate_button($(this), () => {
+				jQuery.ajax({
+					url:     $(this).attr('data-href'),
+					success: function(data) {
+						update_pages(data, false)
+						done()
+					},
+				})
+			})
+		})
 	};
 
 	// Update the page list from ajax request on pagination/filter.
@@ -295,19 +300,22 @@
 			e.preventDefault();
 
 			var bar = $(this).parent().find('.chart-hbar:first')
-			jQuery.ajax({
-				url: '/toprefs',
-				data: append_period({
-					offset: $('.top-refs-chart [data-detail] > a').length,
-					total:  $('.total-hits').text().replace(/[^\d]/, ''),
-				}),
-				success: function(data) {
-					bar.append(data.html);
-					if (!data.has_more)
-						$('.top-refs-chart .show-more').remove()
-				},
-			});
-		});
+			var done = paginate_button($(this), () => {
+				jQuery.ajax({
+					url: '/toprefs',
+					data: append_period({
+						offset: $('.top-refs-chart [data-detail] > a').length,
+						total:  $('.total-hits').text().replace(/[^\d]/, ''),
+					}),
+					success: function(data) {
+						bar.append(data.html)
+						if (!data.has_more)
+							$('.top-refs-chart .show-more').remove()
+						done()
+					},
+				})
+			})
+		})
 	};
 
 	// Paginate the location chart.
@@ -316,13 +324,18 @@
 			e.preventDefault();
 
 			var bar = $(this).parent().find('.chart-hbar')
-			jQuery.ajax({
-				url: '/locations',
-				data: append_period(),
-				success: function(data) { bar.html(data.html); },
-			});
-		});
-	};
+			var done = paginate_button($(this), () => {
+				jQuery.ajax({
+					url: '/locations',
+					data: append_period(),
+					success: function(data) {
+						bar.html(data.html)
+						done()
+					},
+				})
+			})
+		})
+	}
 
 	// Set up the tabbed navigation in the settings.
 	var settings_tabs = function() {
@@ -418,19 +431,22 @@
 			e.preventDefault();
 
 			var btn = $(this);
-			jQuery.ajax({
-				url: '/refs',
-				data: append_period({
-					showrefs: btn.closest('tr').attr('id'),
-					offset:   btn.prev().find('tr').length,
-				}),
-				success: function(data) {
-					btn.prev().find('tbody').append($(data.rows).find('tr'));
-					if (!data.more)
-						btn.remove()
-				},
-			});
-		});
+			var done = paginate_button(btn, () => {
+				jQuery.ajax({
+					url: '/refs',
+					data: append_period({
+						showrefs: btn.closest('tr').attr('id'),
+						offset:   btn.prev().find('tr').length,
+					}),
+					success: function(data) {
+						btn.prev().find('tbody').append($(data.rows).find('tr'));
+						if (!data.more)
+							btn.remove()
+						done()
+					},
+				})
+			})
+		})
 	};
 
 	// Fill in start/end periods from buttons.
@@ -595,6 +611,22 @@
 			display(e, t)
 			add_cursor(t)
 		})
+	}
+
+	// Prevent a button/link from working while an AJAX request is in progress;
+	// otherwise smashing a "load more" button will load the same data twice.
+	//
+	// This also adds a subtle loading indicator after the link/button.
+	//
+	// TODO: this could be improved by queueing the requests, instead of
+	// ignoring them.
+	var paginate_button = function(btn, f) {
+		if (btn.attr('data-working') === '1')
+			return
+
+		btn.attr('data-working', '1').addClass('loading')
+		f.call(btn)
+		return () => { btn.removeAttr('data-working').removeClass('loading') }
 	}
 
 	// Parse all query parameters from string to {k: v} object.
