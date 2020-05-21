@@ -55,6 +55,37 @@
 	//
 	// This way you can still hover the entire height.
 	var draw_chart = function() {
+		var redraw = () => {
+			if ($('#scale').val() === $('.count-list-pages').attr('data-scale')) {
+				$('#scale').removeClass('value')
+				return
+			}
+
+			$('#scale').addClass('value')
+			$('.count-list-pages').attr('data-scale', $('#scale').val())
+			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
+			draw_chart()
+		}
+
+		var t;
+		$('#scale')
+			.on('keydown', (e) => {
+				if (e.keyCode === 13)
+					e.preventDefault()
+			})
+			.on('input', (e) => {
+				clearTimeout(t)
+				t = setTimeout(redraw, 300)
+			})
+
+		$('#scale-reset').on('click', (e) => {
+			clearTimeout(t)
+			e.preventDefault()
+			$('#scale').val($('.count-list-pages').attr('data-max'))
+			redraw()
+		})
+
+		var scale = parseInt($('#scale').val(), 10) / parseInt($('.count-list-pages').attr('data-max'), 10)
 		$('.chart-bar').each(function(i, chart) {
 			if (chart.dataset.done === 't')
 				return
@@ -63,14 +94,25 @@
 			chart.style.display = 'none'
 
 			$(chart).find('>div').each(function(i, bar) {
-				var h = bar.style.height
-				bar.style.height = '100%'
+				if (bar.dataset.h !== undefined)
+					var h = bar.dataset.h
+				else {
+					var h = bar.style.height
+					bar.dataset.h = h
+					bar.style.height = '100%'
+				}
+
 				if (bar.className === 'f')
 					return
 				else if (h === '')
 					bar.style.background = 'transparent'
 				else {
 					var hu = bar.dataset.u
+					if (scale && scale !== 1) {
+						h  = (parseInt(h, 10)  / scale) + '%'
+						hu = (parseInt(hu, 10) / scale) + '%'
+					}
+
 					bar.style.background = `
 						linear-gradient(to top,
 						#9a15a4 0%,
@@ -156,12 +198,12 @@
 					},
 				});
 			}, 300);
-		});
+		})
 
 		// Don't submit form on enter.
 		$('#filter-paths').on('keydown', function(e) {
 			if (e.keyCode === 13)
-				e.preventDefault();
+				e.preventDefault()
 		})
 	};
 
@@ -216,8 +258,12 @@
 			ud.text(format_int(data.total_unique_display));
 		}
 		else {
-			td.text(format_int(parseInt(td.text().replace(/[^0-9]/, ''), 10) + data.total_display));
-			ud.text(format_int(parseInt(ud.text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
+			td.each((_, t) => {
+				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display));
+			})
+			ud.each((_, t) => {
+				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
+			})
 		}
 
 		draw_chart()
@@ -577,7 +623,7 @@
 		// Translucent hover effect; need a new div because the height isn't
 		// 100%
 		var add_cursor = function(t) {
-			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.is('.max'))
+			if (t.closest('.chart-bar').length === 0 || t.is('#cursor'))
 				return
 
 			$('#cursor').remove()

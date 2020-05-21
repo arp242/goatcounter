@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/intutil"
 	"zgo.at/utils/jsonutil"
@@ -22,7 +23,9 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 //
 // TODO: There are too many return values; at the very least it can be split in
 // List() and Totals()
-func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string, exclude []string) (int, int, int, int, bool, error) {
+func (h *HitStats) List(
+	ctx context.Context, start, end time.Time, filter string, exclude []string, daily bool,
+) (int, int, int, int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -96,11 +99,11 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 			order by sum(total_unique) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
-			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 		if err != nil {
-			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_counts")
 		}
 		l = l.Since("select hits")
 
@@ -138,7 +141,7 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 		query += ` order by day asc`
 		err := db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
-			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
 		}
 		l = l.Since("select hits_stats")
 	}
@@ -179,12 +182,73 @@ func (h *HitStats) List(ctx context.Context, start, end time.Time, filter string
 	addTotals(hh, &totalDisplay, &totalUniqueDisplay)
 	l = l.Since("add totals")
 
-	syncutil.Wait(ctx, &wg)
-	if totalErr != nil {
-		return 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List")
+	// Get max values
+	var max int
+	{
+		var (
+			query string
+			args  []interface{}
+		)
+		if daily {
+			if cfg.PgSQL {
+				// PostgreSQL daily.
+				query = `/* getMax daily */
+					select coalesce(sum(total), 0) as t
+					from hit_counts
+					where site=? and hour>=? and hour<=? `
+				args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+				if filter != "" {
+					query += ` and (lower(path) like ? or lower(title) like ?) `
+					args = append(args, filter, filter)
+				}
+				query += `group by path, substring(timezone(?, hour)::varchar, 0, 11)
+					order by t desc
+					limit 1`
+				args = append(args, site.Settings.Timezone.OffsetRFC3339())
+			} else {
+				// SQLite daily
+				query = `
+					select coalesce(sum(total), 0) as t
+					from hit_counts
+					where site=? and hour>=? and hour<=? `
+				args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+				if filter != "" {
+					query += ` and (lower(path) like ? or lower(title) like ?) `
+					args = append(args, filter, filter)
+				}
+				query += `group by path, substr(datetime(hour, ?), 0, 11)
+					order by t desc
+					limit 1`
+				args = append(args, site.Settings.Timezone.OffsetRFC3339())
+			}
+		} else {
+			/* Hourly */
+			query = `/* getMax hourly */
+				select coalesce(max(total), 0) from hit_counts
+				where site=? and hour>=? and hour<=? `
+			args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+			if filter != "" {
+				query += ` and (lower(path) like ? or lower(title) like ?) `
+				args = append(args, filter, filter)
+			}
+		}
+
+		err := db.GetContext(ctx, &max, db.Rebind(query), args...)
+		if err != nil && !zdb.ErrNoRows(err) {
+			return 0, 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get max")
+		}
+		if max < 10 {
+			max = 10
+		}
+		l = l.Since("get max")
 	}
 
-	return total, totalUnique, totalDisplay, totalUniqueDisplay, more, nil
+	syncutil.Wait(ctx, &wg)
+	if totalErr != nil {
+		return 0, 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List get total")
+	}
+
+	return total, totalUnique, totalDisplay, totalUniqueDisplay, max, more, nil
 }
 
 // The database stores everything in UTC, so we need to apply
@@ -298,13 +362,6 @@ func addTotals(hh HitStats, totalDisplay, totalUniqueDisplay *int) {
 			for k := range hh[i].Stats[j].Hourly {
 				hh[i].Stats[j].Daily += hh[i].Stats[j].Hourly[k]
 				hh[i].Stats[j].DailyUnique += hh[i].Stats[j].HourlyUnique[k]
-
-				if hh[i].Stats[j].Hourly[k] > hh[i].Max {
-					hh[i].Max = hh[i].Stats[j].Hourly[k]
-				}
-			}
-			if hh[i].Stats[j].Daily > hh[i].DailyMax {
-				hh[i].DailyMax = hh[i].Stats[j].Daily
 			}
 			hh[i].Count += hh[i].Stats[j].Daily
 			hh[i].CountUnique += hh[i].Stats[j].DailyUnique
@@ -312,12 +369,6 @@ func addTotals(hh HitStats, totalDisplay, totalUniqueDisplay *int) {
 
 		*totalDisplay += hh[i].Count
 		*totalUniqueDisplay += hh[i].CountUnique
-		if hh[i].Max < 10 {
-			hh[i].Max = 10
-		}
-		if hh[i].DailyMax < 10 {
-			hh[i].DailyMax = 10
-		}
 	}
 
 	// We sort in SQL, but this is not always 100% correct after applying

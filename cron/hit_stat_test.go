@@ -28,8 +28,9 @@ func TestHitStats(t *testing.T) {
 	}...)
 
 	var stats goatcounter.HitStats
-	total, totalUnique, display, displayUnique, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil)
-	_, _ = totalUnique, displayUnique // TODO
+	total, totalUnique, display, displayUnique, max, more, err := stats.List(
+		ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil, false)
+	_, _, _ = totalUnique, displayUnique, max // TODO
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,13 +44,13 @@ func TestHitStats(t *testing.T) {
 		t.Fatalf("len(stats) is not 2: %d", len(stats))
 	}
 
-	want0 := `{"Count":2,"CountUnique":1,"Max":10,"DailyMax":10,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":2,"DailyUnique":1}]}`
+	want0 := `{"Count":2,"CountUnique":1,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":2,"DailyUnique":1}]}`
 	got0 := string(jsonutil.MustMarshal(stats[0]))
 	if got0 != want0 {
 		t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
 	}
 
-	want1 := `{"Count":1,"CountUnique":0,"Max":10,"DailyMax":10,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`
+	want1 := `{"Count":1,"CountUnique":0,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`
 	got1 := string(jsonutil.MustMarshal(stats[1]))
 	if got1 != want1 {
 		t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)

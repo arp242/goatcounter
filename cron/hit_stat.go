@@ -31,8 +31,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		type gt struct {
 			count       []int
 			countUnique []int
-			total       int
-			totalUnique int
 			day         string
 			hour        string
 			event       zdb.Bool
@@ -60,12 +58,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				if err != nil {
 					return err
 				}
-				for _, i := range v.count {
-					v.total += i
-				}
-				for _, i := range v.countUnique {
-					v.totalUnique += i
-				}
 			}
 
 			if h.Title != "" {
@@ -74,9 +66,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 			hour, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
 			v.count[hour] += 1
-			v.total += 1
 			if h.FirstVisit {
-				v.totalUnique += 1
 				v.countUnique[hour] += 1
 			}
 			grouped[k] = v
