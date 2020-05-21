@@ -15530,9 +15530,8 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 	<div>
 		<h2 id="additional-sites">Additional sites</h2>
 		{{if .Site.Parent}}
-			This site has a parent
-			(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
-			and can't have additional sites of its own.
+			This site has a parent and can't have additional sites of its own.
+			<a href="{{parent_site .Context .Site.Parent}}/settings#tab-additional-sites">Manage the parent’s sites</a>.
 		{{else}}
 			<p>Add GoatCounter to multiple websites by creating a “child site”,
 				which is a separate GoatCounter site which inherits the plan, users,
