@@ -154,7 +154,7 @@ func (a *AdminPgStatActivity) List(ctx context.Context) error {
 			now() - pg_stat_activity.query_start as duration,
 			query
 		from pg_stat_activity
-		where state != 'idle';
+		where state != 'idle' and query not like '%from pg_stat_activity%';
 	`)
 	if err != nil {
 		return fmt.Errorf("AdminPgActivity.List: %w", err)
@@ -179,10 +179,20 @@ type AdminPgStatStatements []struct {
 	Query    string  `db:"query"`
 }
 
-func (a *AdminPgStatStatements) List(ctx context.Context, order string) error {
+func (a *AdminPgStatStatements) List(ctx context.Context, order, filter string) error {
 	if order == "" {
 		order = "total"
 	}
+
+	var (
+		args  []interface{}
+		where string
+	)
+	if filter != "" {
+		args = append(args, "%"+filter+"%")
+		where = `and query like $1`
+	}
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
 		select
 			(total_time / 1000 / 60) as total,
@@ -195,10 +205,11 @@ func (a *AdminPgStatStatements) List(ctx context.Context, order string) error {
 		from pg_stat_statements where
 			userid = (select usesysid from pg_user where usename = CURRENT_USER) and
 			calls > 20 and
-			query !~* '^ *(copy|create|alter|explain) '
+			query !~* '(^ *(copy|create|alter|explain) |from (pg_stat_|pg_catalog))'
+			%s
 		order by %s desc
 		limit 100
-	`, order))
+	`, where, order), args...)
 	if err != nil {
 		return fmt.Errorf("AdminPgStatStatements.List: %w", err)
 	}
@@ -308,4 +319,56 @@ func normalizeQueryIndent(q string) string {
 		lines[j] = strings.Replace(lines[j], "\t", "", n)
 	}
 	return strings.Join(lines, "\n")
+}
+
+type AdminPgStatProgress []struct {
+	Table   string `db:"relname"`
+	Command string `db:"command"`
+	Phase   string `db:"phase"`
+	Status  string `db:"status"`
+}
+
+// https://www.postgresql.org/docs/current/progress-reporting.html
+func (a *AdminPgStatProgress) List(ctx context.Context) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
+		select
+			relname,
+			phase,
+			command,
+				'lockers: '    || lockers_done    || '/' || lockers_total    || '; ' ||
+				'blocks: '     || blocks_done     || '/' || blocks_total     || '; ' ||
+				'tuples: '     || tuples_done     || '/' || tuples_total     || '; ' ||
+				'partitions: ' || partitions_done || '/' || partitions_total
+			as status
+		from pg_stat_progress_create_index
+		join pg_stat_all_tables using(relid)
+
+		union select
+			relname,
+			phase,
+			'VACUUM' as command,
+				'heap_blks: '          || heap_blks_total    || ', ' || heap_blks_scanned || ', ' || heap_blks_vacuumed || '; ' ||
+				'index_vacuum_count: ' || index_vacuum_count || '; ' ||
+				'max_dead_tuples: '    || max_dead_tuples    || '; ' ||
+				'num_dead_tuples: '    || num_dead_tuples
+			as status
+		from pg_stat_progress_vacuum
+		join pg_stat_all_tables using(relid)
+
+		union select
+			relname,
+			phase,
+			'VACUUM FULL' as command,
+				'cluster_index_relid: ' || cluster_index_relid || '; ' ||
+				'heap_tuples: '         || heap_tuples_scanned || '/'  || heap_tuples_written || '; ' ||
+				'heap_blks: '           || heap_blks_scanned   || '/'  || heap_blks_total     || '; ' ||
+				'index_rebuild_count: ' || index_rebuild_count
+			as status
+		from pg_stat_progress_cluster
+		join pg_stat_all_tables using(relid)
+
+	`)
+
+	return errors.Wrap(err, "AdminPgStatProgress.List")
+
 }

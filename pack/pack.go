@@ -15406,21 +15406,46 @@ td    { white-space: nowrap; vertical-align: top; }
 pre   { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
 th    { text-align: left; }
 .n    { text-align: right; }
+input { float: right; padding: .4em !important; }
 </style>
 
 <h2>pg_stat_activity</h2>
 <table>
+{{if gt (len .Activity) 0}}
 <thead><tr>
 	<th>PID</th>
 	<th class="n">Duration</th>
 	<th>Query</th>
 </tr></thead>
+{{end}}
 <tbody>
 	{{range $s := .Activity}}
 	<tr>
 		<td>{{$s.PID}}</td>
 		<td class="n">{{$s.Duration}}</td>
 		<td><pre>{{$s.Query}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>pg_stat_progress_*</h2>
+<table>
+{{if gt (len .Progress) 0}}
+<thead><tr>
+	<th>Table</th>
+	<th>Command</th>
+	<th>Phase</th>
+	<th>Status</th>
+</tr></thead>
+{{end}}
+<tbody>
+	{{range $s := .Progress}}
+	<tr>
+		<td>{{$s.Table}}</td>
+		<td>{{$s.Command}}</td>
+		<td>{{$s.Phase}}</td>
+		<td>{{$s.Status}}</td>
 	</tr>
 	{{end}}
 </tbody>
@@ -15488,15 +15513,19 @@ th    { text-align: left; }
 </tbody>
 </table>
 
-<h2>pg_stat_statements</h2>
+<h2 id="statements">pg_stat_statements
+<form method="get" action="#statements">
+	<input name="filter" value="{{.Filter}}" placeholder="Filter">
+</form>
+</h2>
 <table>
 <thead><tr>
 	<th>QueryID</th>
-	<th class="n"><a href="?order=calls">Calls</a></th>
-	<th class="n"><a href="?order=total">Total</a></th>
-	<th class="n"><a href="?order=mean_time">Mean time</a></th>
-	<th class="n"><a href="?order=min_time">Min time</a></th>
-	<th class="n"><a href="?order=max_time">Max time</a></th>
+	<th class="n"><a href="?order=calls#statements">Calls</a></th>
+	<th class="n"><a href="?order=total#statements">Total</a></th>
+	<th class="n"><a href="?order=mean_time#statements">Mean</a></th>
+	<th class="n"><a href="?order=min_time#statements">Min</a></th>
+	<th class="n"><a href="?order=max_time#statements">Max</a></th>
 	<th>Query</th>
 </tr></thead>
 <tbody>
