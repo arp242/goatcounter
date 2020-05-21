@@ -494,14 +494,15 @@
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
+
 			switch (this.value) {
 				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
 				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
 				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
 				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
 			}
-			if (start.getDate() === 1 && this.value.substr(0, 4) === 'month')
-				end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+			if (start.getDate() === 1 && this.value.substr(0, 5) === 'month')
+				end = new Date(start.getFullYear(), start.getMonth() + 1, 0)
 
 			set_period(start, end);
 		});
