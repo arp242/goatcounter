@@ -16,9 +16,19 @@ Unreleased
   sense. It's now replaced with `-email-from`, which can be set to just an email
   address.
 
+  **Action required**: if you set the email address with `-auth` you'll have to
+  change it to `-email-from`.
+
 - Improve performance (#265)
 
   Increase performance by quite a bit on large sites and time ranges.
+
+- Remove the per-path scaling (#267)
+
+  Previously GoatCounter would scale the Y-axis different for every path in the
+  dashboard, but this was more confusing than helpful. It's now always scaled to
+  the maximum of all paths in the selected time range, and there's a input to
+  scale it lower if desired.
 
 
 2020-05-18 v1.2.0
