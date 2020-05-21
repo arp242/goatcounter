@@ -6,7 +6,6 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
-
 Unreleased
 ----------
 
@@ -18,6 +17,20 @@ Unreleased
 
   **Action required**: if you set the email address with `-auth` you'll have to
   change it to `-email-from`.
+
+- Add OS stats, improve accuracy of browser stats (#261)
+
+  GoatCounter now tracks the OS/platform in addition to just the browser, and
+  the accuracy of the browser stats should be improved.
+
+  **Action required**: you'll need to populate the `system_stats` table:
+
+      $ goatcounter reindex -table system_stats
+
+  If you want to process all browser stats with the new logic too, then use this
+  instead:
+
+      $ goatcounter reindex -table system_stats,browser_stats
 
 - Improve performance (#265)
 

@@ -15,22 +15,22 @@ import (
 	"zgo.at/zdb/bulk"
 )
 
-// Browser are stored as a count per browser/version per day:
+// Systems are stored as a count per system/version per day:
 //
-//  site |    day     | browser | version | count
+//  site |    day     | system  | version | count
 // ------+------------+---------+---------+------
 //     1 | 2019-12-17 | Chrome  | 38      |    13
 //     1 | 2019-12-17 | Chrome  | 77      |     2
 //     1 | 2019-12-17 | Opera   | 9       |     1
-func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
+func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + browser + event.
+		// Group by day + system + event.
 		type gt struct {
 			count       int
 			countUnique int
 			day         string
 			event       zdb.Bool
-			browser     string
+			system      string
 			version     string
 		}
 		grouped := map[string]gt{}
@@ -39,22 +39,22 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 				continue
 			}
 
-			browser, version := getBrowser(h.Browser)
-			if browser == "" {
+			system, version := getSystem(h.Browser)
+			if system == "" {
 				continue
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := fmt.Sprintf("%s%s%s%t", day, browser, version, h.Event)
+			k := fmt.Sprintf("%s%s%s%t", day, system, version, h.Event)
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
-				v.browser = browser
+				v.system = system
 				v.version = version
 				v.event = h.Event
 				var err error
-				v.count, v.countUnique, err = existingBrowserStats(ctx, tx,
-					h.Site, day, v.browser, v.version, v.event)
+				v.count, v.countUnique, err = existingSystemStats(ctx, tx,
+					h.Site, day, v.system, v.version, v.event)
 				if err != nil {
 					return err
 				}
@@ -68,18 +68,18 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "browser_stats", []string{"site", "day",
-			"browser", "version", "count", "count_unique", "event"})
+		ins := bulk.NewInsert(ctx, "system_stats", []string{"site", "day",
+			"system", "version", "count", "count_unique", "event"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.browser, v.version, v.count, v.countUnique, v.event)
+			ins.Values(siteID, v.day, v.system, v.version, v.count, v.countUnique, v.event)
 		}
 		return ins.Finish()
 	})
 }
 
-func existingBrowserStats(
+func existingSystemStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, browser, version string, event zdb.Bool,
+	day, system, version string, event zdb.Bool,
 ) (int, int, error) {
 
 	var c []struct {
@@ -87,10 +87,10 @@ func existingBrowserStats(
 		CountUnique int      `db:"count_unique"`
 		Event       zdb.Bool `db:"event"`
 	}
-	err := tx.SelectContext(txctx, &c, `/* existingBrowserStats */
-		select count, count_unique, event from browser_stats
-		where site=$1 and day=$2 and browser=$3 and version=$4 limit 1`,
-		siteID, day, browser, version)
+	err := tx.SelectContext(txctx, &c, `/* existingSystemStats */
+		select count, count_unique, event from system_stats
+		where site=$1 and day=$2 and system=$3 and version=$4 limit 1`,
+		siteID, day, system, version)
 	if err != nil {
 		return 0, 0, errors.Wrap(err, "select")
 	}
@@ -98,13 +98,13 @@ func existingBrowserStats(
 		return 0, 0, nil
 	}
 
-	_, err = tx.ExecContext(txctx, `delete from browser_stats where
-		site=$1 and day=$2 and browser=$3 and version=$4 and event=$5`,
-		siteID, day, browser, version, event)
+	_, err = tx.ExecContext(txctx, `delete from system_stats where
+		site=$1 and day=$2 and system=$3 and version=$4 and event=$5`,
+		siteID, day, system, version, event)
 	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }
 
-func getBrowser(uaHeader string) (string, string) {
+func getSystem(uaHeader string) (string, string) {
 	ua := gadget.Parse(uaHeader)
-	return ua.BrowserName, ua.BrowserVersion
+	return ua.OSName, ua.OSVersion
 }

@@ -42,7 +42,8 @@ var reserved = []string{
 	"chat", "example", "yoursite", "test", "sql",
 }
 
-var statTables = []string{"hit_stats", "browser_stats", "location_stats", "ref_stats", "size_stats"}
+var statTables = []string{"hit_stats", "system_stats", "browser_stats",
+	"location_stats", "ref_stats", "size_stats"}
 
 // Site is a single site which is sending newsletters (i.e. it's a "customer").
 type Site struct {

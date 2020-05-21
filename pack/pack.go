@@ -416,6 +416,25 @@ commit;
 	insert into version values ('2020-05-13-1-unique-path');
 commit;
 `),
+	"db/migrate/pgsql/2020-05-16-1-os_stats.sql": []byte(`begin;
+	create table system_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null,
+		event          integer        default 0,
+		system         varchar        not null,
+		version        varchar        not null,
+		count          int            not null,
+		count_unique   int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "system_stats#site#day"        on system_stats(site, day);
+	create index "system_stats#site#day#system" on system_stats(site, day, system);
+
+	insert into version values ('2020-05-16-1-os_stats');
+commit;
+`),
 	"db/migrate/pgsql/2020-05-17-1-rm-user-name.sql": []byte(`begin;
 	alter table users drop column name;
 	alter table sites drop column name;
@@ -880,6 +899,25 @@ commit;
 	);
 
 	insert into version values ('2020-05-13-1-unique-path');
+commit;
+`),
+	"db/migrate/sqlite/2020-05-16-1-os_stats.sql": []byte(`begin;
+	create table system_stats (
+		site           integer        not null                 check(site > 0),
+
+		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+		event          integer        default 0,
+		system         varchar        not null,
+		version        varchar        not null,
+		count          int            not null,
+		count_unique   int            not null,
+
+		foreign key (site) references sites(id) on delete restrict on update restrict
+	);
+	create index "system_stats#site#day"        on system_stats(site, day);
+	create index "system_stats#site#day#system" on system_stats(site, day, system);
+
+	insert into version values ('2020-05-16-1-os_stats');
 commit;
 `),
 	"db/migrate/sqlite/2020-05-17-1-rm-user-name.sql": []byte(`begin;
@@ -15234,6 +15272,17 @@ Martin
 			</div>
 		{{end}}
 	</div>
+	<div>
+		<h2>Systems</h2>
+		{{if eq .TotalSystems 0}}
+			<em>Nothing to display</em>
+		{{else}}
+			<div class="hchart-wrap">
+				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 .1 true true}}</div>
+			</div>
+		{{end}}
+	</div>
+
 	<div>
 		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
