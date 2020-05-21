@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"html/template"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -57,6 +58,31 @@ func init() {
 	}
 	zhttp.FuncMap["nformat"] = func(n int, s Site) string {
 		return zhttp.Tnformat(n, s.Settings.NumberFormat)
+	}
+
+	zhttp.FuncMap["nformat64"] = func(n int64) string {
+		s := strconv.FormatInt(n, 10)
+		if len(s) < 4 {
+			return s
+		}
+
+		b := []byte(s)
+		for i, j := 0, len(b)-1; i < j; i, j = i+1, j-1 {
+			b[i], b[j] = b[j], b[i]
+		}
+
+		var out []rune
+		for i := range b {
+			if i > 0 && i%3 == 0 && ',' > 1 {
+				out = append(out, ',')
+			}
+			out = append(out, rune(b[i]))
+		}
+
+		for i, j := 0, len(out)-1; i < j; i, j = i+1, j-1 {
+			out[i], out[j] = out[j], out[i]
+		}
+		return string(out)
 	}
 }
 

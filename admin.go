@@ -141,7 +141,35 @@ func (a *AdminSiteStat) ByCode(ctx context.Context, code string) error {
 	return a.ByID(ctx, a.Site.ID)
 }
 
-type AdminPgStats []struct {
+type AdminPgStatActivity []struct {
+	PID      int64  `db:"pid"`
+	Duration string `db:"duration"`
+	Query    string `db:"query"`
+}
+
+func (a *AdminPgStatActivity) List(ctx context.Context) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
+		select
+			pid,
+			now() - pg_stat_activity.query_start as duration,
+			query
+		from pg_stat_activity
+		where state != 'idle';
+	`)
+	if err != nil {
+		return fmt.Errorf("AdminPgActivity.List: %w", err)
+	}
+
+	aa := *a
+	for i := range aa {
+		aa[i].Query = normalizeQueryIndent(aa[i].Query)
+	}
+
+	*a = aa
+	return nil
+}
+
+type AdminPgStatStatements []struct {
 	Total    float64 `db:"total"`
 	MeanTime float64 `db:"mean_time"`
 	MinTime  float64 `db:"min_time"`
@@ -151,7 +179,7 @@ type AdminPgStats []struct {
 	Query    string  `db:"query"`
 }
 
-func (a *AdminPgStats) List(ctx context.Context, order string) error {
+func (a *AdminPgStatStatements) List(ctx context.Context, order string) error {
 	if order == "" {
 		order = "total"
 	}
@@ -172,26 +200,112 @@ func (a *AdminPgStats) List(ctx context.Context, order string) error {
 		limit 100
 	`, order))
 	if err != nil {
-		return fmt.Errorf("AdminPgStats.List: %w", err)
+		return fmt.Errorf("AdminPgStatStatements.List: %w", err)
 	}
 
-	// Normalize the indent a bit, because there are often of extra tabs inside
-	// Go literal strings.
 	aa := *a
 	for i := range aa {
-		lines := strings.Split(aa[i].Query, "\n")
-		if len(lines) < 2 {
-			continue
-		}
-
-		n := strings.Count(lines[1], "\t") - 1
-		for j := range lines {
-			lines[j] = strings.Replace(lines[j], "\t", "", n)
-		}
-
-		aa[i].Query = strings.Join(lines, "\n")
+		aa[i].Query = normalizeQueryIndent(aa[i].Query)
 	}
-
 	*a = aa
 	return nil
+}
+
+type AdminPgStatTables []struct {
+	Table   string `db:"relname"`
+	SeqScan int64  `db:"seq_scan"`
+	IdxScan int64  `db:"idx_scan"`
+	SeqRead int64  `db:"seq_tup_read"`
+	IdxRead int64  `db:"idx_tup_fetch"`
+
+	LastVacuum      time.Time `db:"last_vacuum"`
+	LastAutoVacuum  time.Time `db:"last_autovacuum"`
+	LastAnalyze     time.Time `db:"last_analyze"`
+	LastAutoAnalyze time.Time `db:"last_autoanalyze"`
+
+	VacuumCount  int `db:"vacuum_count"`
+	AnalyzeCount int `db:"analyze_count"`
+
+	LiveTup         int64 `db:"n_live_tup"`
+	DeadTup         int64 `db:"n_dead_tup"`
+	ModSinceAnalyze int64 `db:"n_mod_since_analyze"`
+}
+
+func (a *AdminPgStatTables) List(ctx context.Context) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
+		select
+			relname,
+
+			coalesce(seq_scan, 0) as seq_scan,
+			coalesce(seq_tup_read, 0) as seq_tup_read,
+			coalesce(idx_scan, 0) as idx_scan,
+			coalesce(idx_tup_fetch, 0) as idx_tup_fetch,
+
+			date(coalesce(last_vacuum,      now() - interval '50 year')) as last_vacuum,
+			date(coalesce(last_autovacuum,  now() - interval '50 year')) as last_autovacuum,
+			date(coalesce(last_analyze,     now() - interval '50 year')) as last_analyze,
+			date(coalesce(last_autoanalyze, now() - interval '50 year')) as last_autoanalyze,
+
+			vacuum_count  + autovacuum_count  as vacuum_count,
+			analyze_count + autoanalyze_count as analyze_count,
+
+			n_live_tup,
+			n_dead_tup,
+			n_mod_since_analyze
+		from pg_stat_user_tables
+		order by n_dead_tup
+			/(n_live_tup
+			* current_setting('autovacuum_vacuum_scale_factor')::float8
+			+ current_setting('autovacuum_vacuum_threshold')::float8)
+			desc
+	`)
+	return errors.Wrap(err, "AdminPgStatTables.List")
+}
+
+type AdminPgStatIndexes []struct {
+	Table    string `db:"relname"`
+	Index    string `db:"indexrelname"`
+	Scan     int64  `db:"idx_scan"`
+	TupRead  int64  `db:"idx_tup_read"`
+	TupFetch int64  `db:"idx_tup_fetch"`
+}
+
+func (a *AdminPgStatIndexes) List(ctx context.Context) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
+		select
+			relname,
+			indexrelname,
+			idx_scan,
+			idx_tup_read,
+			idx_tup_fetch
+		from pg_stat_user_indexes
+		order by idx_scan desc
+	`)
+	return errors.Wrap(err, "AdminPgStatTables.List")
+}
+
+// Normalize the indent a bit, because there are often of extra tabs inside
+// Go literal strings.
+func normalizeQueryIndent(q string) string {
+	lines := strings.Split(q, "\n")
+	if len(lines) < 2 {
+		return strings.TrimSpace(q)
+	}
+
+	var n int
+	for _, l := range lines {
+		if strings.TrimSpace(l) == "" {
+			continue
+		}
+		if strings.HasPrefix(strings.TrimSpace(l), "/*") {
+			continue
+		}
+		n = strings.Count(lines[1], "\t") - 1
+		break
+	}
+
+	for j := range lines {
+		lines[j] = strings.Replace(lines[j], "\t", "", n)
+	}
+	return strings.Join(lines, "\n")
 }

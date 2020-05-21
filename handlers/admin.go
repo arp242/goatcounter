@@ -105,16 +105,37 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(403, "yeah nah")
 	}
 
-	var a goatcounter.AdminPgStats
-	err := a.List(r.Context(), r.URL.Query().Get("order"))
+	var stats goatcounter.AdminPgStatStatements
+	err := stats.List(r.Context(), r.URL.Query().Get("order"))
+	if err != nil {
+		return err
+	}
+
+	var act goatcounter.AdminPgStatActivity
+	err = act.List(r.Context())
+	if err != nil {
+		return err
+	}
+
+	var tbls goatcounter.AdminPgStatTables
+	err = tbls.List(r.Context())
+	if err != nil {
+		return err
+	}
+
+	var idx goatcounter.AdminPgStatIndexes
+	err = idx.List(r.Context())
 	if err != nil {
 		return err
 	}
 
 	return zhttp.Template(w, "backend_admin_sql.gohtml", struct {
 		Globals
-		Stats goatcounter.AdminPgStats
-	}{newGlobals(w, r), a})
+		Stats    goatcounter.AdminPgStatStatements
+		Activity goatcounter.AdminPgStatActivity
+		Tables   goatcounter.AdminPgStatTables
+		Indexes  goatcounter.AdminPgStatIndexes
+	}{newGlobals(w, r), stats, act, tbls, idx})
 }
 
 func (h admin) adminSite(w http.ResponseWriter, r *http.Request) error {

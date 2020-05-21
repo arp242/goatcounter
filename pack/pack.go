@@ -15278,7 +15278,7 @@ Martin
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 .1 true true}}</div>
+				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 .5 true true}}</div>
 			</div>
 		{{end}}
 	</div>
@@ -15404,28 +15404,110 @@ parent site includes the child sites.</p>
 table { max-width: none !important; }
 td    { white-space: nowrap; vertical-align: top; }
 pre   { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th    { text-align: left; }
+.n    { text-align: right; }
 </style>
 
-<h1>PostgreSQL stats</h1>
+<h2>pg_stat_activity</h2>
 <table>
 <thead><tr>
-	<td>QueryID</td>
-	<td><a href="?order=calls">Calls</a></td>
-	<td><a href="?order=total">Total</a></td>
-	<td><a href="?order=mean_time">Mean time</a></td>
-	<td><a href="?order=min_time">Min time</a></td>
-	<td><a href="?order=max_time">Max time</a></td>
-	<td>Query</td>
+	<th>PID</th>
+	<th class="n">Duration</th>
+	<th>Query</th>
+</tr></thead>
+<tbody>
+	{{range $s := .Activity}}
+	<tr>
+		<td>{{$s.PID}}</td>
+		<td class="n">{{$s.Duration}}</td>
+		<td><pre>{{$s.Query}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>pg_stat_user_tables</h2>
+<table>
+<thead><tr>
+	<th>Table</th>
+	<th>Last vacuum</th>
+	<th>Last analyze</td>
+	<th class="n" title="Number of seq scans → of live rows fetched by seq scans">Seq scan</th>
+	<th class="n" title="Number of index scans → number of live rows fetched by index scans">Index scan</th>
+	<th class="n">Live rows</th>
+	<th class="n">Dead rows</th>
+	<th class="n">Mod. rows</th>
+</tr></thead>
+<tbody>
+	{{range $s := .Tables}}
+	<tr>
+		<td>{{$s.Table}}</td>
+		<td>
+			{{if $s.LastVacuum.After $s.LastAutoVacuum}}
+				{{$s.LastVacuum.Format "2006-01-02"}}
+			{{else}}
+				{{$s.LastAutoVacuum.Format "2006-01-02"}}
+			{{end}}
+			({{$s.VacuumCount}})
+		</td>
+		<td>
+			{{if $s.LastAnalyze.After $s.LastAutoAnalyze}}
+				{{$s.LastAnalyze.Format "2006-01-02"}}
+			{{else}}
+				{{$s.LastAutoAnalyze.Format "2006-01-02"}}
+			{{end}}
+			({{$s.AnalyzeCount}})
+		</td>
+		<td class="n">{{nformat64 $s.SeqScan}} → {{nformat64 $s.SeqRead}}</td>
+		<td class="n">{{nformat64 $s.IdxScan}} → {{nformat64 $s.IdxRead}}</td>
+		<td class="n">{{nformat64 $s.LiveTup}}</td>
+		<td class="n">{{nformat64 $s.DeadTup}}</td>
+		<td class="n">{{nformat64 $s.ModSinceAnalyze}}</td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>pg_stat_user_indexes</h2>
+<table>
+<thead><tr>
+	<th>Index</th>
+	<th class="n"># scans</th>
+	<th class="n"># entries returned</th>
+	<th class="n"># rows fetch by simple scans</th>
+</tr></thead>
+<tbody>
+	{{range $s := .Indexes}}
+	<tr>
+		<td>{{$s.Index}} on {{$s.Table}}</td>
+		<td class="n">{{nformat64 $s.Scan}}</td>
+		<td class="n">{{nformat64 $s.TupRead}}</td>
+		<td class="n">{{nformat64 $s.TupFetch}}</td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>pg_stat_statements</h2>
+<table>
+<thead><tr>
+	<th>QueryID</th>
+	<th class="n"><a href="?order=calls">Calls</a></th>
+	<th class="n"><a href="?order=total">Total</a></th>
+	<th class="n"><a href="?order=mean_time">Mean time</a></th>
+	<th class="n"><a href="?order=min_time">Min time</a></th>
+	<th class="n"><a href="?order=max_time">Max time</a></th>
+	<th>Query</th>
 </tr></thead>
 <tbody>
 	{{range $s := .Stats}}
 	<tr>
 		<td>{{$s.QueryID}}</td>
-		<td>{{nformat $s.Calls $.Site}}</td>
-		<td>{{$s.Total | printf "%.1f"}}min</td>
-		<td>{{$s.MeanTime | printf "%.1f"}}ms</td>
-		<td>{{$s.MinTime | printf "%.1f"}}ms</td>
-		<td>{{$s.MaxTime | printf "%.1f"}}ms</td>
+		<td class="n">{{nformat $s.Calls $.Site}}</td>
+		<td class="n">{{$s.Total | printf "%.1f"}}min</td>
+		<td class="n">{{$s.MeanTime | printf "%.1f"}}ms</td>
+		<td class="n">{{$s.MinTime | printf "%.1f"}}ms</td>
+		<td class="n">{{$s.MaxTime | printf "%.1f"}}ms</td>
 		<td><pre>{{$s.Query}}</pre></td>
 	</tr>
 	{{end}}
