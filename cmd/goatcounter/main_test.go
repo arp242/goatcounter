@@ -46,7 +46,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 		}
 	}()
 
-	dbname := "goatcounter_" + zhttp.Secret()
+	dbname := "goatcounter_" + zhttp.Secret()[:25]
 	var tmp string
 	if cfg.PgSQL {
 		// TODO: don't rely on shell commands if possible, as it's quite slow.

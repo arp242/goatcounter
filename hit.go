@@ -439,6 +439,13 @@ func (h *Hits) Purge(ctx context.Context, path string) error {
 			return errors.Wrap(err, "Hits.Purge")
 		}
 
+		_, err = tx.ExecContext(ctx,
+			`delete from ref_counts where site=$1 and lower(path) like lower($2)`,
+			site, path)
+		if err != nil {
+			return errors.Wrap(err, "Hits.Purge")
+		}
+
 		// Delete all other stats as well if there's nothing left: not much use
 		// for it.
 		var check Hits
@@ -485,28 +492,20 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		limit = 10
 	}
 
-	// TODO: using offset for pagination is not ideal: data can change in the
-	// meanwhile, and it still gets the first N rows, which is more expensive
-	// than it needs to be. It's "good enough" for now, though.
-	//
-	// TODO: count_unqiue is off here
-	//
-	// TODO: use ref_counts
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* HitStats.ListRefs */
 		select
-			ref as path,
-			count(ref) as count,
-			count(distinct session) as count_unique,
-			ref_scheme
-		from hits
+			coalesce(sum(total), 0) as count,
+			coalesce(sum(total_unique), 0) as count_unique,
+			max(ref_scheme) as ref_scheme,
+			ref as path
+		from ref_counts
 		where
 			site=$1 and
-			bot=0 and
 			lower(path)=lower($2) and
-			created_at >= $3 and
-			created_at <= $4
-		group by ref, ref_scheme
-		order by count(ref) desc, path desc
+			hour>=$3 and
+			hour<=$4
+		group by ref
+		order by count desc, path desc
 		limit $5 offset $6`,
 		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
 
@@ -549,21 +548,19 @@ type Stats []struct {
 
 // ByRef lists all paths by reference.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (int, error) {
-	// TODO: use ref_counts
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ByRef */
 		select
 			path as name,
-			count(path) as count,
-			count(distinct session) as count_unique
-		from hits where
+			coalesce(sum(total), 0) as count,
+			coalesce(sum(total_unique), 0) as count_unique
+		from ref_counts where
 			site=$1 and
-			bot=0 and
-			created_at >= $2 and
-			created_at <= $3 and
+			hour>=$2 and
+			hour<=$3 and
 			ref = $4
 		group by path
-		order by count desc
-	`, MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref)
+		order by count desc`,
+		MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref)
 
 	var total int
 	for _, b := range *h {
@@ -577,11 +574,13 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
+//
+// TODO: after ref_counts it no longer lists "unknown".
 func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offset int) (int, bool, error) {
 	site := MustGetSite(ctx)
 
-	where := ` where site=? and day>=? and day<=?`
-	args := []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
+	where := ` where site=? and hour>=? and hour<=?`
+	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
 	if site.LinkDomain != "" {
 		where += " and ref not like ? "
 		args = append(args, site.LinkDomain+"%")
@@ -591,9 +590,9 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 	err := db.SelectContext(ctx, h, db.Rebind(`/* Stats.ListRefs */
 		select
 			ref as name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from ref_stats`+
+			coalesce(sum(total), 0) as count,
+			coalesce(sum(total_unique), 0) as count_unique
+		from ref_counts`+
 		where+`
 		group by ref
 		order by count desc
@@ -605,7 +604,7 @@ func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offse
 	// TODO: unique totals
 	var total int
 	err = db.GetContext(ctx, &total,
-		db.Rebind(`select coalesce(sum(count), 0) from ref_stats`+where),
+		db.Rebind(`select coalesce(sum(total), 0) from ref_counts`+where),
 		args...)
 	if err != nil {
 		return 0, false, errors.Wrap(err, "Stats.ListRefs: total")
