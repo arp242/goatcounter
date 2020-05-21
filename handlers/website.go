@@ -235,7 +235,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		defer zlog.Recover()
 
 		err := zmail.SendTemplate("Welcome to GoatCounter!",
-			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
 			[]mail.Address{{Address: user.Email}},
 			"email_welcome.gotxt", struct {
 				Site        goatcounter.Site
@@ -299,7 +299,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		defer zlog.Recover()
 
 		err = zmail.SendTemplate("Your GoatCounter sites",
-			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
 			[]mail.Address{{Address: args.Email}},
 			"email_forgot_site.gotxt", struct {
 				Sites goatcounter.Sites

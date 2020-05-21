@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/mail"
 	"os"
+	"os/user"
 	"strings"
 	"time"
 
@@ -67,7 +68,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	CommandLine.StringVar(&zmail.SMTP, "smtp", "stdout", "")
 	tls := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
-	auth := CommandLine.String("auth", "email", "")
+	from := CommandLine.String("email-from", "", "")
 
 	err := CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
@@ -85,7 +86,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	flagErrors(*errors, v)
 	//v.Hostname("-smtp", zmail.SMTP)
 
-	return *dbConnect, dev, *automigrate, *listen, *tls, *auth, err
+	return *dbConnect, dev, *automigrate, *listen, *tls, *from, err
 }
 
 func setupReload() {
@@ -120,7 +121,7 @@ func saas() (int, error) {
 	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	dbConnect, dev, automigrate, listen, tls, auth, err := flagServeAndSaas(&v)
+	dbConnect, dev, automigrate, listen, tls, from, err := flagServeAndSaas(&v)
 	if err != nil {
 		return 1, err
 	}
@@ -134,7 +135,7 @@ func saas() (int, error) {
 	v.Include("-plan", plan, goatcounter.Plans)
 	flagStripe(stripe, &v)
 	flagDomain(domain, &v)
-	flagAuth(auth, &v)
+	flagFrom(from, &v)
 	if v.HasErrors() {
 		return 1, v
 	}
@@ -225,34 +226,28 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 	}
 }
 
-func flagAuth(auth string, v *zvalidate.Validator) {
-	switch {
-	default:
-		v.Append("-auth", "invalid value")
-
-	case strings.HasPrefix(auth, "email"):
-		s := strings.Split(auth, ":")
-		var from string
-		if len(s) > 1 {
-			from = s[1]
-		}
-		if from == "" {
-			if cfg.Domain != "" {
-				from = "login@" + zhttp.RemovePort(cfg.Domain)
-			} else {
-				h, err := os.Hostname()
-				if err != nil {
-					panic("cannot get hostname for -auth parameter")
-				}
-				from = "login@" + h
+func flagFrom(from string, v *zvalidate.Validator) {
+	if from == "" {
+		if cfg.Domain != "" { // saas only.
+			from = "support@" + zhttp.RemovePort(cfg.Domain)
+		} else {
+			u, err := user.Current()
+			if err != nil {
+				panic("cannot get user for -email-from parameter")
 			}
+			h, err := os.Hostname()
+			if err != nil {
+				panic("cannot get hostname for -email-from parameter")
+			}
+			from = fmt.Sprintf("%s@%s", u.Username, h)
 		}
 
-		cfg.LoginFrom = from
+	}
 
-		if zmail.SMTP != "stdout" {
-			v.Email("-auth", from, fmt.Sprintf("%q is not a valid email address", from))
-		}
+	cfg.EmailFrom = from
+
+	if zmail.SMTP != "stdout" {
+		v.Email("-email-from", from, fmt.Sprintf("%q is not a valid email address", from))
 	}
 }
 

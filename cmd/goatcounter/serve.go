@@ -51,12 +51,18 @@ const serveAndSaasFlags = `
   -tls           Serve over tls. This is a comma-separated list with any of:
 
                    none              Don't serve any TLS.
+
                    path/to/file.pem  TLS certificate and keyfile, in one file.
-                   acme              Create TLS certificates with ACME, this can
+
+                   acme[:cache]      Create TLS certificates with ACME, this can
                                      optionally followed by a : and a cache
                                      directory name (default: acme-secrets).
+
                    tls               Accept TLS connections on -listen.
-                   rdr               Redirect port 80.
+
+                   rdr               Redirect port 80 to the -listen port. ACME
+                                     verification requires the server to be
+                                     available on port 80.
 
                  Examples:
 
@@ -72,8 +78,7 @@ const serveAndSaasFlags = `
 
                  Default: "acme,tls,rdr", blank when -dev is given.
 
-  -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server"). for
-                 sending login emails and errors (if -errors has mailto:).
+  -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server").
 
                  A special value of "stdout" means no emails will be sent and
                  emails will be printed to stdout only. This is the default.
@@ -86,6 +91,8 @@ const serveAndSaasFlags = `
                  mailtrap.io box is probably better unless you really know what
                  you're doing.
 
+  -email-from    From: address in emails. Default: <user>@<hostname>
+
   -errors        What to do with errors; they're always printed to stderr.
 
                    mailto:to_addr[,from_addr]  Email to this address; the
@@ -94,13 +101,6 @@ const serveAndSaasFlags = `
                                                to use the same as the to_addr.
 
                  Default: not set.
-
-  -auth          How to handle user authentication.
-
-                   email[:from_addr]     Email users login tokens. The from_addr
-                                         is optional and sets the From: address.
-
-                 Default: email:login@[domain flag or hostname]
 
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
@@ -118,7 +118,7 @@ func serve() (int, error) {
 
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, dev, automigrate, listen, tls, auth, err := flagServeAndSaas(&v)
+	dbConnect, dev, automigrate, listen, tls, from, err := flagServeAndSaas(&v)
 	if err != nil {
 		return 1, err
 	}
@@ -130,9 +130,9 @@ func serve() (int, error) {
 
 	if cfg.DomainStatic != "" {
 		if p := strings.Index(cfg.DomainStatic, ":"); p > -1 {
-			v.Domain("-domain", cfg.DomainStatic[:p])
+			v.Domain("-static", cfg.DomainStatic[:p])
 		} else {
-			v.Domain("-domain", cfg.DomainStatic)
+			v.Domain("-static", cfg.DomainStatic)
 		}
 		cfg.URLStatic = "//" + cfg.DomainStatic
 		cfg.DomainCount = cfg.DomainStatic
@@ -142,7 +142,7 @@ func serve() (int, error) {
 		cfg.Port = ":" + cfg.Port
 	}
 
-	flagAuth(auth, &v)
+	flagFrom(from, &v)
 	if v.HasErrors() {
 		return 1, v
 	}

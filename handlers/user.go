@@ -130,7 +130,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		defer zlog.Recover()
 		err = zmail.SendTemplate(
 			fmt.Sprintf("Password reset for %s", site.Domain()),
-			mail.Address{Name: "GoatCounter login", Address: cfg.LoginFrom},
+			mail.Address{Name: "GoatCounter login", Address: cfg.EmailFrom},
 			[]mail.Address{{Address: u.Email}},
 			"email_password_reset.gotxt", struct {
 				Site goatcounter.Site
@@ -376,7 +376,7 @@ func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
 	go func() {
 		defer zlog.Recover()
 		err := zmail.SendTemplate("Verify your email",
-			mail.Address{Name: "GoatCounter", Address: cfg.LoginFrom},
+			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
 			[]mail.Address{{Address: user.Email}},
 			"email_verify.gotxt", struct {
 				Site goatcounter.Site

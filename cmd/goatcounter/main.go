@@ -60,7 +60,7 @@ Usage: goatcounter [command] [flags]
 
 Commands:
 
-  help        Show help; use "help <command>" or "help all" for more details.
+  help        Show help; use "help <topic>" or "help all" for more details.
   version     Show version and build information and exit.
   migrate     Run database migrations.
   create      Create a new site and user.
@@ -72,7 +72,7 @@ Advanced commands:
               This is generally rarely needed and mostly a development tool.
   monitor     Monitor for pageviews.
 
-See "help <command>" for more details for the command.
+See "help <topic>" for more details for the command.
 `
 
 var CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
