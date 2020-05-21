@@ -11973,14 +11973,19 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		$('#filter-paths').on('input', function(e) {
 			clearTimeout(t);
 			t = setTimeout(function() {
-				var filter = $(e.target).val().trim();
-				push_query('filter', filter);
-				$('#filter-paths').toggleClass('value', filter !== '');
+				var filter = $(e.target).val().trim()
+				push_query('filter', filter)
+				$('#filter-paths').toggleClass('value', filter !== '')
 
+				var loading = $('<span class="loading"></span>')
+				$(e.target).after(loading)
 				jQuery.ajax({
 					url:     '/pages',
 					data:    append_period({filter: filter}),
-					success: function(data) { update_pages(data, true); },
+					success: function(data) {
+						update_pages(data, true)
+						loading.remove()
+					},
 				});
 			}, 300);
 		});
@@ -12218,19 +12223,20 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			$('.hbar-detail').remove();
 			$('.hbar-open').removeClass('hbar-open');
 		};
-		$(document.body).on('keydown', function(e) { if (e.keyCode === 27) close(); });
-		$(document.body).on('click', function(e)   { if ($(e.target).closest('.chart-hbar').length === 0) close(); });
+		$(document.body).on('keydown', (e) => { if (e.keyCode === 27) close() });
+		$(document.body).on('click',   (e) => { if ($(e.target).closest('.chart-hbar').length === 0) close() });
 
 		$('.chart-hbar').on('click', 'a', function(e) {
 			e.preventDefault();
 
 			var btn  = $(this),
-				bar  = $(this).closest('.chart-hbar'),
+				bar  = btn.closest('.chart-hbar'),
 				url  = bar.attr('data-detail'),
-				name = $(this).find('small').text();
+				name = btn.find('small').text();
 			if (!url || !name || name === '(other)' || name === '(unknown)')
 				return;
 
+			btn.find('small').addClass('loading')
 			jQuery.ajax({
 				url: url,
 				data: append_period({
@@ -12239,6 +12245,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				}),
 				success: function(data) {
 					bar.parent().find('.hbar-detail').remove();
+					btn.find('small').removeClass('loading')
 					bar.addClass('hbar-open');
 
 					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
@@ -13178,9 +13185,16 @@ h3 + h4 { margin-top: .3em; }
   50%  { content: ".."; }
   100% { content: "..."; }
 }
-.loading       { color: #777; }
-.loading:hover { color: #777; text-decoration: none; }
-.loading:after { content: ""; animation: loading 500ms linear infinite; }
+a.loading        { color: #777; }
+a.loading:hover  { color: #777; text-decoration: none; }
+a.loading::after { content: ""; animation: loading 500ms linear infinite; }
+
+/* hchart */
+small.loading::after { content: ""; animation: loading 500ms linear infinite; }
+
+/* Filter */
+.filter-wrap                 { position: relative; }
+.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
 `),
 }
 
@@ -15128,9 +15142,11 @@ Martin
 					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
 				</span>
 			</span>
-			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
-				{{if .Filter}}class="value"{{end}}
-				title="Filter the list of paths; matched case-insensitive on path and title">
+			<div class="filter-wrap">
+				<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
+					{{if .Filter}}class="value"{{end}}
+					title="Filter the list of paths; matched case-insensitive on path and title">
+			</div>
 		</header>
 
 		<table class="count-list count-list-pages">

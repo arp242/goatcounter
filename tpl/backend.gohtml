@@ -124,9 +124,11 @@
 					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
 				</span>
 			</span>
-			<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
-				{{if .Filter}}class="value"{{end}}
-				title="Filter the list of paths; matched case-insensitive on path and title">
+			<div class="filter-wrap">
+				<input autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths" placeholder="Filter paths"
+					{{if .Filter}}class="value"{{end}}
+					title="Filter the list of paths; matched case-insensitive on path and title">
+			</div>
 		</header>
 
 		<table class="count-list count-list-pages">
