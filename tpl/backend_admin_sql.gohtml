@@ -55,6 +55,8 @@ input { float: right; padding: .4em !important; }
 <table>
 <thead><tr>
 	<th>Table</th>
+	<th>T size</th>
+	<th>I size</th>
 	<th>Last vacuum</th>
 	<th>Last analyze</td>
 	<th class="n" title="Number of seq scans → of live rows fetched by seq scans">Seq scan</th>
@@ -67,6 +69,8 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Tables}}
 	<tr>
 		<td>{{$s.Table}}</td>
+		<td>{{$s.TableSize}}M</td>
+		<td>{{$s.IndexesSize}}M</td>
 		<td>
 			{{if $s.LastVacuum.After $s.LastAutoVacuum}}
 				{{$s.LastVacuum.Format "2006-01-02"}}
@@ -97,6 +101,7 @@ input { float: right; padding: .4em !important; }
 <table>
 <thead><tr>
 	<th>Index</th>
+	<th>Size</th>
 	<th class="n"># scans</th>
 	<th class="n"># entries returned</th>
 	<th class="n"># rows fetch by simple scans</th>
@@ -105,6 +110,7 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Indexes}}
 	<tr>
 		<td>{{$s.Index}} on {{$s.Table}}</td>
+		<td>{{$s.Size}}M</td>
 		<td class="n">{{nformat64 $s.Scan}}</td>
 		<td class="n">{{nformat64 $s.TupRead}}</td>
 		<td class="n">{{nformat64 $s.TupFetch}}</td>

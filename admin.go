@@ -240,6 +240,9 @@ type AdminPgStatTables []struct {
 	LiveTup         int64 `db:"n_live_tup"`
 	DeadTup         int64 `db:"n_dead_tup"`
 	ModSinceAnalyze int64 `db:"n_mod_since_analyze"`
+
+	TableSize int `db:"table_size"`
+	IndexesSize int `db:"indexes_size"`
 }
 
 func (a *AdminPgStatTables) List(ctx context.Context) error {
@@ -262,7 +265,11 @@ func (a *AdminPgStatTables) List(ctx context.Context) error {
 
 			n_live_tup,
 			n_dead_tup,
-			n_mod_since_analyze
+			n_mod_since_analyze,
+
+			pg_table_size(  '"public"."' || relname || '"') / 1024/1024 as table_size,
+			pg_indexes_size('"public"."' || relname || '"') / 1024/1024 as indexes_size
+
 		from pg_stat_user_tables
 		order by n_dead_tup
 			/(n_live_tup
@@ -275,6 +282,7 @@ func (a *AdminPgStatTables) List(ctx context.Context) error {
 
 type AdminPgStatIndexes []struct {
 	Table    string `db:"relname"`
+	Size int `db:"size"`
 	Index    string `db:"indexrelname"`
 	Scan     int64  `db:"idx_scan"`
 	TupRead  int64  `db:"idx_tup_read"`
@@ -285,6 +293,7 @@ func (a *AdminPgStatIndexes) List(ctx context.Context) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
 		select
 			relname,
+			pg_relation_size('"public"."' || indexrelname || '"') / 1024/1024 as size,
 			indexrelname,
 			idx_scan,
 			idx_tup_read,
