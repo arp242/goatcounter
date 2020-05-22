@@ -12427,41 +12427,45 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	// Load references as an AJAX request.
 	var load_refs = function() {
 		$('.count-list-pages').on('click', '.rlink', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			var params = split_query(location.search),
 				link   = this,
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
 				close  = function() {
-					var t = $(document.getElementById(params['showrefs']));
-					t.removeClass('target');
-					t.closest('tr').find('.refs').html('');
-				};
+					var t = $(document.getElementById(params['showrefs']))
+					t.removeClass('target')
+					t.closest('tr').find('.refs').html('')
+				}
 
 			// Clicked on row that's already open, so close and stop. Don't
 			// close anything yet if we're going to load another path, since
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
 			if (params['showrefs'] === path) {
-				close();
-				return push_query('showrefs', null);
+				close()
+				return push_query('showrefs', null)
 			}
 
-			push_query('showrefs', path);
-			jQuery.ajax({
-				url: '/refs' + link.search,
-				success: function(data) {
-					row.addClass('target');
+			push_query('showrefs', path)
 
-					if (params['showrefs'])
-						close();
-					row.find('.refs').html(data.rows);
-					if (data.more)
-						row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
-				},
-			});
+			var done = paginate_button($(link), () => {
+				jQuery.ajax({
+					url: '/refs' + link.search,
+					success: function(data) {
+						row.addClass('target')
+
+						if (params['showrefs'])
+							close()
+						row.find('.refs').html(data.rows)
+						if (data.more)
+							row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
+						done()
+					},
+				})
+			})
 		})
-	};
+	}
 
 	// Show custom tooltip on everything with a title attribute.
 	var tooltip = function() {
@@ -15455,6 +15459,8 @@ input { float: right; padding: .4em !important; }
 <table>
 <thead><tr>
 	<th>Table</th>
+	<th>T size</th>
+	<th>I size</th>
 	<th>Last vacuum</th>
 	<th>Last analyze</td>
 	<th class="n" title="Number of seq scans → of live rows fetched by seq scans">Seq scan</th>
@@ -15467,6 +15473,8 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Tables}}
 	<tr>
 		<td>{{$s.Table}}</td>
+		<td>{{$s.TableSize}}M</td>
+		<td>{{$s.IndexesSize}}M</td>
 		<td>
 			{{if $s.LastVacuum.After $s.LastAutoVacuum}}
 				{{$s.LastVacuum.Format "2006-01-02"}}
@@ -15497,6 +15505,7 @@ input { float: right; padding: .4em !important; }
 <table>
 <thead><tr>
 	<th>Index</th>
+	<th>Size</th>
 	<th class="n"># scans</th>
 	<th class="n"># entries returned</th>
 	<th class="n"># rows fetch by simple scans</th>
@@ -15505,6 +15514,7 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Indexes}}
 	<tr>
 		<td>{{$s.Index}} on {{$s.Table}}</td>
+		<td>{{$s.Size}}M</td>
 		<td class="n">{{nformat64 $s.Scan}}</td>
 		<td class="n">{{nformat64 $s.TupRead}}</td>
 		<td class="n">{{nformat64 $s.TupFetch}}</td>
