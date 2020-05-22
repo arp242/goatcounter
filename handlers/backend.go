@@ -249,6 +249,24 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		hit.Bot = int(bot)
 	}
 
+	if uint8(hit.Bot) >= isbot.BotJSPhanton {
+		go func() {
+			defer zlog.Recover()
+			ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
+
+			bl := goatcounter.AdminBotlog{
+				Bot:       hit.Bot,
+				UserAgent: r.UserAgent(),
+				Headers:   r.Header,
+				URL:       r.RequestURI,
+			}
+			err := bl.Insert(ctx, r.RemoteAddr)
+			if err != nil {
+				zlog.Error(err)
+			}
+		}()
+	}
+
 	// TODO: move to memstore?
 	{
 		var sess goatcounter.Session

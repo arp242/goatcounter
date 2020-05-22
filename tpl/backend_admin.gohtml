@@ -11,7 +11,11 @@ input    { float: right; padding: .4em !important; }
 </style>
 <style>.plan-free { background-color: #eaeaea; }</style>
 
-<p><a href="/debug/pprof">pprof</a> | <a href="/admin/sql">PostgreSQL</a></p>
+<p>
+	<a href="/debug/pprof">pprof</a> |
+	<a href="/admin/sql">PostgreSQL</a> |
+	<a href="/admin/botlog">Botlog</a>
+</p>
 
 <h2>Signups</h2>
 <div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
