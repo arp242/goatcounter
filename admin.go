@@ -241,7 +241,7 @@ type AdminPgStatTables []struct {
 	DeadTup         int64 `db:"n_dead_tup"`
 	ModSinceAnalyze int64 `db:"n_mod_since_analyze"`
 
-	TableSize int `db:"table_size"`
+	TableSize   int `db:"table_size"`
 	IndexesSize int `db:"indexes_size"`
 }
 
@@ -282,7 +282,7 @@ func (a *AdminPgStatTables) List(ctx context.Context) error {
 
 type AdminPgStatIndexes []struct {
 	Table    string `db:"relname"`
-	Size int `db:"size"`
+	Size     int    `db:"size"`
 	Index    string `db:"indexrelname"`
 	Scan     int64  `db:"idx_scan"`
 	TupRead  int64  `db:"idx_tup_read"`
@@ -337,8 +337,8 @@ type AdminPgStatProgress []struct {
 	Status  string `db:"status"`
 }
 
-// https://www.postgresql.org/docs/current/progress-reporting.html
 func (a *AdminPgStatProgress) List(ctx context.Context) error {
+	// https://www.postgresql.org/docs/current/progress-reporting.html
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
 		select
 			relname,
