@@ -34,7 +34,7 @@ func main() {
 			"MigrationsSQLite": "./db/migrate/sqlite",
 			"MigrationsPgSQL":  "./db/migrate/pgsql",
 		},
-	}, "/.keep", "public/fonts/LICENSE", ".markdown")
+	}, "/.keep", "public/fonts/LICENSE", ".markdown", "/index.html")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
