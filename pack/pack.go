@@ -1581,7 +1581,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	// Get the endpoint to send requests to.
 	var get_endpoint = function() {
 		var s = document.querySelector('script[data-goatcounter]');
-		if (s)
+		if (s && s.dataset.goatcounter)
 			return s.dataset.goatcounter
 		return (goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
 	}
