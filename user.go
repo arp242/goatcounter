@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"

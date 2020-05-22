@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"

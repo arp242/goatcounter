@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 )

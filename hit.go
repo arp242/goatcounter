@@ -15,7 +15,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"zgo.at/goatcounter/errors"
+	"zgo.at/errors"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"

@@ -15,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
+	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/goatcounter/pack"
@@ -53,6 +54,7 @@ func init() {
 	for k := range usage {
 		usage[k] = strings.TrimSpace(usage[k]) + "\n"
 	}
+	errors.Package = "zgo.at/goatcounter"
 }
 
 const usageTop = `

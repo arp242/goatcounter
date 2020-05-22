@@ -15,6 +15,7 @@ require (
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 	golang.org/x/tools v0.0.0-20200519205726-57a9e4404bf7
 	honnef.co/go/tools v0.0.1-2020.1.4
+	zgo.at/errors v0.0.0-20200522184031-947c392080a8
 	zgo.at/gadget v0.0.0-20200521085522-a7ce5b57f377
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200427181629-1d4940c02e50

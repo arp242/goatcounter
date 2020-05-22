@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )

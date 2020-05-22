@@ -8,8 +8,8 @@ import (
 	"context"
 	"fmt"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )

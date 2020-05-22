@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/utils/intutil"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/utils/syncutil"

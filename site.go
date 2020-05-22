@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/utils/jsonutil"

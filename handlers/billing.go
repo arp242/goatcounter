@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/errors"
 	"zgo.at/guru"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"

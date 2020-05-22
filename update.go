@@ -17,7 +17,7 @@ import (
 	"context"
 	"time"
 
-	"zgo.at/goatcounter/errors"
+	"zgo.at/errors"
 	"zgo.at/zdb"
 )
 
