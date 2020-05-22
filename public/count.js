@@ -62,7 +62,7 @@
 	}
 
 	// Object to urlencoded string, starting with a ?.
-	var to_params = function(obj) {
+	var urlencode = function(obj) {
 		var p = []
 		for (var k in obj)
 			if (obj[k] !== '' && obj[k] !== null && obj[k] !== undefined && obj[k] !== false)
@@ -70,19 +70,29 @@
 		return '?' + p.join('&')
 	}
 
+	// Get the endpoint to send requests to.
+	var get_endpoint = function() {
+		var s = document.querySelector('script[data-goatcounter]');
+		if (s)
+			return s.dataset.goatcounter
+		return (goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
+	}
+
 	// Count a hit.
 	window.goatcounter.count = function(vars) {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return
-		if (location !== parent.location)  // Frame
+		if (!goatcounter.allow_frame && location !== parent.location)
 			return
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
 			return
 
-		var script   = document.querySelector('script[data-goatcounter]'),
-		    endpoint = (window.goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
-		if (script)
-			endpoint = script.dataset.goatcounter
+		var endpoint = get_endpoint()
+		if (!endpoint) {
+			if (console && 'warn' in console)
+				console.warn('goatcounter: no endpoint found')
+			return
+		}
 
 		var data = get_data(vars || {})
 		if (data.p === null)  // null from user callback.
@@ -92,7 +102,7 @@
 
 		var img = document.createElement('img'),
 		    rm  = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
-		img.src = endpoint + to_params(data)
+		img.src = endpoint + urlencode(data)
 		img.style.float = 'right'  // Affect layout less.
 		img.setAttribute('alt', '')
 		img.setAttribute('aria-hidden', 'true')
