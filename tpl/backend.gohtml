@@ -91,7 +91,7 @@
 					{{if .ForcedDaily}}
 						<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 					{{else}}
-						<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+						<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
 					{{end}}
 				</span>
 			</span>
@@ -151,9 +151,7 @@
 			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
 
-		<a href="#_" class="load-more" {{if not .MorePages}}style="display: none"{{end}}
-			data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&daily={{.Daily}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
-		>Show more</a>
+		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
 	</div>
 </form>
 

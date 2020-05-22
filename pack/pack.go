@@ -12083,7 +12083,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:     $(this).attr('data-href'),
+					url:  '/pages',
+					data: append_period({
+						filter:  $('#filter-paths').val(),
+						daily:   $('#daily').is(':selected'),
+						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+					}),
 					success: function(data) {
 						update_pages(data, false)
 						done()
@@ -12100,22 +12105,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		else
 			$('.pages-list .count-list-pages > tbody').append(data.rows);
 
-		var filter = $('#filter-paths').val();
-		highlight_filter(filter);
-
-		if (!data.more)
-			$('.pages-list .load-more').css('display', 'none')
-		else {
-			$('.pages-list .load-more').css('display', 'inline')
-			var more   = $('.pages-list .load-more'),
-			    params = split_query(more.attr('data-href'));
-			params['filter'] = filter;
-			if (from_filter)  // Clear pagination when filter changes.
-				params['exclude'] = data.paths.join(',');
-			else
-				params['exclude'] += ',' + data.paths.join(',');
-			more.attr('data-href', '/pages' + join_query(params));
-		}
+		highlight_filter($('#filter-paths').val())
+		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
 
 		var th = $('.pages-list .total-hits'),
 		    td = $('.pages-list .total-display'),
@@ -15199,7 +15190,7 @@ Martin
 					{{if .ForcedDaily}}
 						<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 					{{else}}
-						<label><input type="checkbox" name="daily" {{if .Daily}}checked{{end}}> View by day</label>
+						<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
 					{{end}}
 				</span>
 			</span>
@@ -15259,9 +15250,7 @@ Martin
 			<tbody>{{template "_backend_pages.gohtml" .}}</tbody>
 		</table>
 
-		<a href="#_" class="load-more" {{if not .MorePages}}style="display: none"{{end}}
-			data-href="/pages?period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}&daily={{.Daily}}&filter={{.Filter}}&exclude={{range $h := .Pages}}{{$h.Path}},{{end}}"
-		>Show more</a>
+		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
 	</div>
 </form>
 

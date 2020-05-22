@@ -213,7 +213,12 @@
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:     $(this).attr('data-href'),
+					url:  '/pages',
+					data: append_period({
+						filter:  $('#filter-paths').val(),
+						daily:   $('#daily').is(':selected'),
+						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+					}),
 					success: function(data) {
 						update_pages(data, false)
 						done()
@@ -230,22 +235,8 @@
 		else
 			$('.pages-list .count-list-pages > tbody').append(data.rows);
 
-		var filter = $('#filter-paths').val();
-		highlight_filter(filter);
-
-		if (!data.more)
-			$('.pages-list .load-more').css('display', 'none')
-		else {
-			$('.pages-list .load-more').css('display', 'inline')
-			var more   = $('.pages-list .load-more'),
-			    params = split_query(more.attr('data-href'));
-			params['filter'] = filter;
-			if (from_filter)  // Clear pagination when filter changes.
-				params['exclude'] = data.paths.join(',');
-			else
-				params['exclude'] += ',' + data.paths.join(',');
-			more.attr('data-href', '/pages' + join_query(params));
-		}
+		highlight_filter($('#filter-paths').val())
+		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
 
 		var th = $('.pages-list .total-hits'),
 		    td = $('.pages-list .total-display'),
