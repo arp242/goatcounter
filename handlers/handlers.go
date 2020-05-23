@@ -19,36 +19,36 @@ import (
 )
 
 type Globals struct {
-	Context      context.Context
-	User         *goatcounter.User
-	Site         *goatcounter.Site
-	HasUpdates   bool
-	Path         string
-	Flash        *zhttp.FlashMessage
-	Static       string
-	StaticDomain string
-	Domain       string
-	Version      string
-	Billing      bool
-	Saas         bool
-	Dev          bool
-	Port         string
+	Context        context.Context
+	User           *goatcounter.User
+	Site           *goatcounter.Site
+	HasUpdates     bool
+	Path           string
+	Flash          *zhttp.FlashMessage
+	Static         string
+	StaticDomain   string
+	Domain         string
+	Version        string
+	Billing        bool
+	GoatcounterCom bool
+	Dev            bool
+	Port           string
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	g := Globals{
-		Context: r.Context(),
-		User:    goatcounter.GetUser(r.Context()),
-		Site:    goatcounter.GetSite(r.Context()),
-		Path:    r.URL.Path,
-		Flash:   zhttp.ReadFlash(w, r),
-		Static:  cfg.URLStatic,
-		Domain:  cfg.Domain,
-		Version: cfg.Version,
-		Billing: zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
-		Saas:    cfg.Saas,
-		Dev:     !cfg.Prod,
-		Port:    cfg.Port,
+		Context:        r.Context(),
+		User:           goatcounter.GetUser(r.Context()),
+		Site:           goatcounter.GetSite(r.Context()),
+		Path:           r.URL.Path,
+		Flash:          zhttp.ReadFlash(w, r),
+		Static:         cfg.URLStatic,
+		Domain:         cfg.Domain,
+		Version:        cfg.Version,
+		Billing:        zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
+		GoatcounterCom: cfg.GoatcounterCom,
+		Dev:            !cfg.Prod,
+		Port:           cfg.Port,
 	}
 	if g.User == nil {
 		g.User = &goatcounter.User{}
@@ -89,7 +89,7 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 func NewBackend(db zdb.DB, acmeh http.HandlerFunc) chi.Router {
 	r := chi.NewRouter()
 	backend{}.Mount(r, db)
-	if !cfg.Saas {
+	if !cfg.GoatcounterCom {
 		r.Get("/*", zhttp.NewStatic("./public", "*", 0, pack.Public).ServeHTTP)
 	}
 	if acmeh != nil {

@@ -25,7 +25,7 @@
 						Sites:
 						{{- range $i, $s := .SubSites -}}
 							{{- if gt $i 0 -}}|{{- end -}}
-							{{if $.Saas}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{if $.GoatcounterCom}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
 							{{else}} <a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
 							{{- end -}}
 						{{- end -}}
@@ -43,8 +43,8 @@
 				{{end}}
 			</div>
 			<div>
-				{{if .Saas}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
-				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
+				{{if .GoatcounterCom}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
+				{{if and .GoatcounterCom .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
 				{{if .Billing}}<a {{if has_prefix .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}

@@ -25,7 +25,7 @@
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
 
-	{{if and .Saas (not .Dev)}}
+	{{if and .GoatcounterCom (not .Dev)}}
 		<script>
 			window.goatcounter = {
 				title:       function() { return null },

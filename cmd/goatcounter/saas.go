@@ -126,7 +126,7 @@ func saas() (int, error) {
 		return 1, err
 	}
 
-	cfg.Saas = true
+	cfg.GoatcounterCom = true
 	cfg.Plan = plan
 	if tls == "" {
 		tls = map[bool]string{true: "none", false: "acme"}[dev]
@@ -136,6 +136,10 @@ func saas() (int, error) {
 	flagStripe(stripe, &v)
 	flagDomain(domain, &v)
 	flagFrom(from, &v)
+	if cfg.Prod && cfg.Domain != "goatcounter.com" {
+		v.Append("saas", "can only run on goatcounter.com")
+	}
+
 	if v.HasErrors() {
 		return 1, v
 	}

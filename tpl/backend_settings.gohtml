@@ -19,7 +19,7 @@
 			<fieldset>
 				<legend>Domain settings</legend>
 
-				{{if .Saas}}
+				{{if .GoatcounterCom}}
 					<label for="code">Code</label>
 					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
 					{{validate "site.code" .Validate}}
@@ -30,7 +30,7 @@
 					</span>
 				{{end}}
 
-				{{if .Saas}}
+				{{if .GoatcounterCom}}
 					<label for="cname">Custom domain</label>
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
 						{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
@@ -149,7 +149,7 @@
 	</div>
 </div>
 
-{{if .Saas}}
+{{if .GoatcounterCom}}
 	<div>
 		<h2 id="additional-sites">Additional sites</h2>
 		{{if .Site.Parent}}
@@ -269,7 +269,7 @@
 	</form>
 </div>
 
-{{if .Saas}}
+{{if .GoatcounterCom}}
 	<div>
 		<h2 id="delete">Delete {{if .Site.Parent}}site{{else}}account{{end}}</h2>
 		{{if .Site.Parent}}
@@ -285,7 +285,7 @@
 		<form method="post" action="/delete" class="form-max-width">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-			{{if and (not .Site.Parent) .Saas}}
+			{{if and (not .Site.Parent) .GoatcounterCom}}
 				<label for="reason">It would be appreciated if you could let me know
 					if there's anything in particular you're missing in GoatCounter,
 					or any other reasons you have for wanting to delete your

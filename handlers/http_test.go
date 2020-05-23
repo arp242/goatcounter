@@ -53,7 +53,7 @@ func init() {
 	zmail.Print = false
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
-	cfg.Saas = true
+	cfg.GoatcounterCom = true
 	if stringutil.Contains(os.Args, "-test.v=true") {
 		zlog.Config.Debug = []string{"all"}
 	} else {

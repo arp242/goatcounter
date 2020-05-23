@@ -742,7 +742,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	user := goatcounter.GetUser(txctx)
 
 	emailChanged := false
-	if cfg.Saas && args.User.Email != user.Email {
+	if cfg.GoatcounterCom && args.User.Email != user.Email {
 		emailChanged = true
 	}
 
@@ -852,7 +852,7 @@ func (h backend) downloadExport(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {
-	if !cfg.Saas {
+	if !cfg.GoatcounterCom {
 		return guru.New(400, "can only do this in SaaS mode")
 	}
 
@@ -875,7 +875,7 @@ func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) er
 }
 
 func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
-	if !cfg.Saas {
+	if !cfg.GoatcounterCom {
 		return guru.New(400, "can only do this in SaaS mode")
 	}
 
@@ -901,7 +901,7 @@ func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
-	if !cfg.Saas {
+	if !cfg.GoatcounterCom {
 		return guru.New(400, "can only do this in SaaS mode")
 	}
 
@@ -957,7 +957,7 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 }
 
 func hasPlan(site *goatcounter.Site) (bool, error) {
-	if !cfg.Saas || site.Plan == goatcounter.PlanChild ||
+	if !cfg.GoatcounterCom || site.Plan == goatcounter.PlanChild ||
 		site.Stripe == nil || site.FreePlan() || site.PayExternal() != "" {
 		return false, nil
 	}
@@ -993,7 +993,7 @@ func hasPlan(site *goatcounter.Site) (bool, error) {
 func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 
-	if cfg.Saas {
+	if cfg.GoatcounterCom {
 		var args struct {
 			Reason    string `json:"reason"`
 			ContactMe bool   `json:"contact_me"`

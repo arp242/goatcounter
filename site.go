@@ -184,7 +184,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
-		if cfg.Saas && strings.HasSuffix(*s.Cname, cfg.Domain) {
+		if cfg.GoatcounterCom && strings.HasSuffix(*s.Cname, cfg.Domain) {
 			v.Append("cname", "cannot end with %q", cfg.Domain)
 		}
 

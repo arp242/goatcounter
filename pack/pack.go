@@ -14597,7 +14597,7 @@ var Templates = map[string][]byte{
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
 
-	{{if and .Saas (not .Dev)}}
+	{{if and .GoatcounterCom (not .Dev)}}
 		<script>
 			window.goatcounter = {
 				title:       function() { return null },
@@ -15226,7 +15226,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 						Sites:
 						{{- range $i, $s := .SubSites -}}
 							{{- if gt $i 0 -}}|{{- end -}}
-							{{if $.Saas}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
+							{{if $.GoatcounterCom}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
 							{{else}} <a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
 							{{- end -}}
 						{{- end -}}
@@ -15244,8 +15244,8 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 				{{end}}
 			</div>
 			<div>
-				{{if .Saas}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
-				{{if and .Saas .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
+				{{if .GoatcounterCom}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
+				{{if and .GoatcounterCom .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
 				{{if .Billing}}<a {{if has_prefix .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
@@ -15301,7 +15301,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_bottom_links.gohtml": []byte(`<footer class="center cbox">
 	<div>
-		{{if .Saas}}
+		{{if .GoatcounterCom}}
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/">Home</a><span> |</span>
 			<a {{if .Site}}target="_blank"{{end}} href="//www.{{.Domain}}/contact">Contact</a><span> |</span>
 		{{end}}
@@ -15364,7 +15364,7 @@ Martin
 
 				<p>Because maintaining two systems makes everything a lot more
 				complex, the email auth will be removed.
-				{{if .Saas}}
+				{{if .GoatcounterCom}}
 				All new signups use passwords now, and this notice should migrate
 				most users who login in the next few weeks, after which I’ll email
 				users without a password requesting them to set one. A few weeks
@@ -15870,7 +15870,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 			<fieldset>
 				<legend>Domain settings</legend>
 
-				{{if .Saas}}
+				{{if .GoatcounterCom}}
 					<label for="code">Code</label>
 					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
 					{{validate "site.code" .Validate}}
@@ -15881,7 +15881,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 					</span>
 				{{end}}
 
-				{{if .Saas}}
+				{{if .GoatcounterCom}}
 					<label for="cname">Custom domain</label>
 					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
 						{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
@@ -16000,7 +16000,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 	</div>
 </div>
 
-{{if .Saas}}
+{{if .GoatcounterCom}}
 	<div>
 		<h2 id="additional-sites">Additional sites</h2>
 		{{if .Site.Parent}}
@@ -16120,7 +16120,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 	</form>
 </div>
 
-{{if .Saas}}
+{{if .GoatcounterCom}}
 	<div>
 		<h2 id="delete">Delete {{if .Site.Parent}}site{{else}}account{{end}}</h2>
 		{{if .Site.Parent}}
@@ -16136,7 +16136,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 		<form method="post" action="/delete" class="form-max-width">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-			{{if and (not .Site.Parent) .Saas}}
+			{{if and (not .Site.Parent) .GoatcounterCom}}
 				<label for="reason">It would be appreciated if you could let me know
 					if there's anything in particular you're missing in GoatCounter,
 					or any other reasons you have for wanting to delete your
