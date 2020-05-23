@@ -103,6 +103,19 @@ create table hit_stats (
 );
 create index "hit_stats#site#day" on hit_stats(site, day);
 
+create table hit_counts (
+	site          int        not null check(site>0),
+	path          varchar    not null,
+	title         varchar    not null,
+	event         integer    not null default 0,
+	hour          timestamp  not null check(hour = strftime('%Y-%m-%d %H:%M:%S', hour)),
+	total         int        not null,
+	total_unique  int        not null,
+
+	constraint "hit_counts#site#path#hour#event" unique(site, path, hour, event) on conflict replace
+);
+create index "hit_counts#site#hour#event" on hit_counts(site, hour, event);
+
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -117,6 +130,21 @@ create table browser_stats (
 );
 create index "browser_stats#site#day"         on browser_stats(site, day);
 create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
+
+create table system_stats (
+	site           integer        not null                 check(site > 0),
+
+	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+	event          integer        default 0,
+	system         varchar        not null,
+	version        varchar        not null,
+	count          int            not null,
+	count_unique   int            not null,
+
+	foreign key (site) references sites(id) on delete restrict on update restrict
+);
+create index "system_stats#site#day"        on system_stats(site, day);
+create index "system_stats#site#day#system" on system_stats(site, day, system);
 
 create table location_stats (
 	site           integer        not null                 check(site > 0),
@@ -501,4 +529,6 @@ insert into version values
 	('2020-04-27-1-usage-flags'),
 	('2020-04-28-1-fix'),
 	('2020-05-13-1-unique-path'),
-	('2020-05-17-1-rm-user-name');
+	('2020-05-17-1-rm-user-name'),
+	('2020-05-16-1-os_stats'),
+	('2020-05-18-1-domain-count');
