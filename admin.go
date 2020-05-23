@@ -173,7 +173,9 @@ func (a *AdminPgStatStatements) List(ctx context.Context, order, filter string) 
 	)
 	if filter != "" {
 		args = append(args, "%"+filter+"%")
-		where = `and query like $1`
+		where = ` query like $1 `
+	} else {
+		where = ` calls > 20 `
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
@@ -187,8 +189,7 @@ func (a *AdminPgStatStatements) List(ctx context.Context, order, filter string) 
 			query
 		from pg_stat_statements where
 			userid = (select usesysid from pg_user where usename = CURRENT_USER) and
-			calls > 20 and
-			query !~* '(^ *(copy|create|alter|explain) |from (pg_stat_|pg_catalog))'
+			query !~* '(^ *(copy|create|alter|explain) |from (pg_stat_|pg_catalog))' and
 			%s
 		order by %s desc
 		limit 100

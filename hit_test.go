@@ -240,14 +240,6 @@ func TestHitDefaultsRef(t *testing.T) {
 				t.Fatalf("wrong Ref\nout:  %#v\nwant: %#v\n",
 					h.Ref, tt.wantRef)
 			}
-			if !CmpString(h.RefParams, tt.wantParams) {
-				t.Fatalf("wrong RefParams\nout:  %#v\nwant: %#v\n",
-					PSP(h.RefParams), PSP(tt.wantParams))
-			}
-			if !CmpString(h.RefOriginal, tt.wantOriginal) {
-				t.Fatalf("wrong RefOriginal\nout:  %#v\nwant: %#v\n",
-					PSP(h.RefOriginal), PSP(tt.wantOriginal))
-			}
 			if *h.RefScheme != tt.wantScheme {
 				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n",
 					PSP(h.RefScheme), tt.wantScheme)
