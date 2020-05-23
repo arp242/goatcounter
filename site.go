@@ -43,7 +43,7 @@ var reserved = []string{
 }
 
 var statTables = []string{"hit_stats", "system_stats", "browser_stats",
-	"location_stats", "ref_stats", "size_stats"}
+	"location_stats", "size_stats"}
 
 // Site is a single site which is sending newsletters (i.e. it's a "customer").
 type Site struct {
@@ -468,6 +468,13 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 
 		_, err = tx.ExecContext(ctx,
 			`delete from hit_counts where site=$1 and hour < `+ival,
+			s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
+		}
+
+		_, err = tx.ExecContext(ctx,
+			`delete from ref_counts where site=$1 and hour < `+ival,
 			s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")

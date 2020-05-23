@@ -13,16 +13,15 @@ import (
 	"zgo.at/zdb"
 )
 
-func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
+func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + path.
+		// Group by day + path + ref.
 		type gt struct {
 			total       int
 			totalUnique int
 			hour        string
-			event       zdb.Bool
 			path        string
-			title       string
+			ref         string
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -31,22 +30,21 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			hour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := hour + h.Path
+			k := hour + h.Path + h.Ref
 			v := grouped[k]
 			if v.total == 0 {
 				v.hour = hour
 				v.path = h.Path
-				v.event = h.Event
 				var err error
-				v.total, v.totalUnique, err = existingHitCounts(ctx, tx,
-					h.Site, hour, v.path)
+				v.total, v.totalUnique, err = existingRefCounts(ctx, tx,
+					h.Site, hour, v.path, v.ref)
 				if err != nil {
 					return err
 				}
 			}
 
-			if h.Title != "" {
-				v.title = h.Title
+			if h.Ref != "" {
+				v.ref = h.Ref
 			}
 
 			v.total += 1
@@ -60,42 +58,42 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 		for _, v := range grouped {
 			var err error
 			if cfg.PgSQL {
-				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into hit_counts
-				(site, path, title, event, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6, $7)
-				on conflict on constraint "hit_counts#site#path#hour" do
-					update set total=$8, total_unique=$9`,
-					siteID, v.path, v.title, v.event, v.hour, v.total, v.totalUnique,
+				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into ref_counts
+				(site, path, ref, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6)
+				on conflict on constraint "ref_counts#site#path#ref#hour" do
+					update set total=$7, total_unique=$8`,
+					siteID, v.path, v.ref, v.hour, v.total, v.totalUnique,
 					v.total, v.totalUnique)
 			} else {
 				// SQLite has "on conflict replace" on the unique constraint to
 				// do the same.
-				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into hit_counts
-					(site, path, title, event, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6, $7)`,
-					siteID, v.path, v.title, v.event, v.hour, v.total, v.totalUnique)
+				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into ref_counts
+					(site, path, ref, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6)`,
+					siteID, v.path, v.ref, v.hour, v.total, v.totalUnique)
 			}
 			if err != nil {
-				return errors.Wrap(err, "updateHitCounts hit_counts")
+				return errors.Wrap(err, "updateRefCounts ref_counts")
 			}
 		}
 		return nil
 	})
 }
 
-func existingHitCounts(
+func existingRefCounts(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	hour, path string,
+	hour, path, ref string,
 ) (int, int, error) {
 
 	var t, tu int
-	row := tx.QueryRowxContext(txctx, `/* existingHitCounts */
-		select total, total_unique from hit_counts
-		where site=$1 and hour=$2 and path=$3 limit 1`,
-		siteID, hour, path)
+	row := tx.QueryRowxContext(txctx, `/* existingRefCounts */
+		select total, total_unique from ref_counts
+		where site=$1 and hour=$2 and path=$3 and ref=$4 limit 1`,
+		siteID, hour, path, ref)
 	if err := row.Err(); err != nil {
 		if zdb.ErrNoRows(err) {
 			return 0, 0, nil
 		}
-		return 0, 0, errors.Wrap(err, "existingHitCounts")
+		return 0, 0, errors.Wrap(err, "existingRefCounts")
 	}
 
 	err := row.Scan(&t, &tu)
@@ -103,7 +101,7 @@ func existingHitCounts(
 		if zdb.ErrNoRows(err) {
 			return 0, 0, nil
 		}
-		return 0, 0, errors.Wrap(err, "existingHitCounts")
+		return 0, 0, errors.Wrap(err, "existingRefCounts")
 	}
 
 	return t, tu, nil

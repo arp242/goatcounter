@@ -32,7 +32,7 @@ Unreleased
 
       $ goatcounter reindex -table system_stats,browser_stats
 
-- Improve performance (#265)
+- Improve performance (#265, #273, #274)
 
   Increase performance by quite a bit on large sites and time ranges.
 

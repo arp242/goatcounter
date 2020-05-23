@@ -134,9 +134,9 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	if err != nil {
 		return errors.Wrapf(err, "location_stat: site %d", siteID)
 	}
-	err = updateRefStats(ctx, hits)
+	err = updateRefCounts(ctx, hits)
 	if err != nil {
-		return errors.Wrapf(err, "ref_stat: site %d", siteID)
+		return errors.Wrapf(err, "ref_count: site %d", siteID)
 	}
 	err = updateSizeStats(ctx, hits)
 	if err != nil {
@@ -184,8 +184,8 @@ func ReindexStats(ctx context.Context, hits []goatcounter.Hit, tables []string) 
 				err = updateSystemStats(ctx, hits)
 			case "location_stats":
 				err = updateLocationStats(ctx, hits)
-			case "ref_stats":
-				err = updateRefStats(ctx, hits)
+			case "ref_counts":
+				err = updateRefCounts(ctx, hits)
 			case "size_stats":
 				err = updateSizeStats(ctx, hits)
 			}
@@ -239,7 +239,7 @@ func vacuumDeleted(ctx context.Context) error {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
 
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
-			for _, t := range []string{"browser_stats", "system_stats", "hit_stats", "sessions", "hits", "location_stats", "ref_stats", "size_stats", "users"} {
+			for _, t := range []string{"browser_stats", "system_stats", "hit_stats", "sessions", "hits", "location_stats", "size_stats", "users"} {
 				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
 				if err != nil {
 					return errors.Errorf("%s: %w", t, err)

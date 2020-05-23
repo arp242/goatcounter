@@ -25,13 +25,14 @@ import (
 
 var (
 	schema     string
-	migrations []string
+	migrations [][]string
 )
 
 type tester interface {
 	Helper()
 	Fatal(...interface{})
 	Fatalf(string, ...interface{})
+	Logf(string, ...interface{})
 }
 
 // DB starts a new database test.
@@ -47,7 +48,7 @@ func DB(t tester) (context.Context, func()) {
 		}
 	}()
 
-	dbname := "goatcounter_test_" + zhttp.Secret()
+	dbname := "goatcounter_test_" + zhttp.Secret()[:25]
 
 	if cfg.PgSQL {
 		// TODO: avoid using shell commands if possible; it's quite slow!
@@ -57,10 +58,12 @@ func DB(t tester) (context.Context, func()) {
 		}
 
 		clean = func() {
-			out, err := exec.Command("dropdb", dbname).CombinedOutput()
-			if err != nil {
-				panic(fmt.Sprintf("%s → %s", err, out))
-			}
+			go func() {
+				out, err := exec.Command("dropdb", dbname).CombinedOutput()
+				if err != nil {
+					t.Logf("dropdb: %s → %s", err, out)
+				}
+			}()
 		}
 	}
 
@@ -74,12 +77,12 @@ func DB(t tester) (context.Context, func()) {
 		db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
 	}
 	if err != nil {
-		panic(err)
+		t.Fatalf("connect to DB: %s", err)
 	}
 
 	top, err := os.Getwd()
 	if err != nil {
-		panic(fmt.Sprintf("cannot get cwd: %s", err))
+		t.Fatalf(fmt.Sprintf("cannot get cwd: %s", err))
 	}
 	for {
 		if filepath.Base(top) == "goatcounter" {
@@ -103,17 +106,17 @@ func DB(t tester) (context.Context, func()) {
 	if schema == "" {
 		s, err := ioutil.ReadFile(schemapath)
 		if err != nil {
-			panic(err)
+			t.Fatalf("read schema: %v", err)
 		}
 		schema = string(s)
 		_, err = db.ExecContext(context.Background(), schema)
 		if err != nil {
-			panic(err)
+			t.Fatalf("run schema %q: %v", schemapath, err)
 		}
 
 		migs, err := ioutil.ReadDir(migratepath)
 		if err != nil {
-			panic(fmt.Sprintf("read migration directory: %s", err))
+			t.Fatalf("read migration directory: %s", err)
 		}
 
 		for _, m := range migs {
@@ -126,23 +129,24 @@ func DB(t tester) (context.Context, func()) {
 				continue
 			}
 
-			mb, err := ioutil.ReadFile(fmt.Sprintf("%s/%s", migratepath, m.Name()))
+			mp := fmt.Sprintf("%s/%s", migratepath, m.Name())
+			mb, err := ioutil.ReadFile(mp)
 			if err != nil {
-				panic(fmt.Sprintf("read migration: %s", err))
+				t.Fatalf("read migration: %s", err)
 			}
-			migrations = append(migrations, string(mb))
+			migrations = append(migrations, []string{mp, string(mb)})
 		}
 	} else {
 		_, err = db.ExecContext(context.Background(), schema)
 		if err != nil {
-			panic(err)
+			t.Fatalf("create schema: %s", err)
 		}
 	}
 
 	for _, m := range migrations {
-		_, err = db.ExecContext(context.Background(), m)
+		_, err = db.ExecContext(context.Background(), m[1])
 		if err != nil {
-			panic(err)
+			t.Fatalf("run migration %q: %s", m[0], err)
 		}
 	}
 
@@ -155,7 +159,7 @@ func DB(t tester) (context.Context, func()) {
 		`insert into sites (code, plan, settings, created_at) values
 		('test', 'personal', '{}', %s);`, now))
 	if err != nil {
-		panic(err)
+		t.Fatalf("create site: %s", err)
 	}
 
 	ctx := zdb.With(context.Background(), db)
@@ -163,7 +167,7 @@ func DB(t tester) (context.Context, func()) {
 	var site goatcounter.Site
 	err = site.ByID(ctx, 1)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("get site: %s", err)
 	}
 	ctx = goatcounter.WithSite(ctx, &site)
 	ctx = goatcounter.WithUser(ctx, &goatcounter.User{ID: 1, Site: 1})

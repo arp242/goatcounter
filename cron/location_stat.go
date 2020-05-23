@@ -6,7 +6,6 @@ package cron
 
 import (
 	"context"
-	"fmt"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
@@ -36,7 +35,7 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := fmt.Sprintf("%s%s", day, h.Location)
+			k := day + h.Location
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
