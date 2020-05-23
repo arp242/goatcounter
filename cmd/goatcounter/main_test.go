@@ -128,6 +128,7 @@ func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 			l := scanner.Text()
 			output = append(output, l)
 			if killswitch != "" && strings.Contains(l, killswitch) {
+				fmt.Println(strings.Join(output, "\n"))
 				fmt.Println("kill", syscall.Getpid())
 				time.Sleep(100 * time.Millisecond)
 				stop()

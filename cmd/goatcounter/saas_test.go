@@ -14,6 +14,7 @@ func TestSaas(t *testing.T) {
 	defer clean()
 
 	out, code := run(t, "serving", []string{"saas",
+		"-domain", "goatcounter.com,a.a",
 		"-smtp", "dummy",
 		"-listen", "localhost:31874",
 		"-stripe", "sk_test_x:pk_test_x:whsec_x",
