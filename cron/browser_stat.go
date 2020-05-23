@@ -6,7 +6,6 @@ package cron
 
 import (
 	"context"
-	"fmt"
 
 	"zgo.at/errors"
 	"zgo.at/gadget"
@@ -44,7 +43,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := fmt.Sprintf("%s%s%s", day, browser, version)
+			k := day + browser + version
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day

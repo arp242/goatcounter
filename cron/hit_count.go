@@ -6,7 +6,6 @@ package cron
 
 import (
 	"context"
-	"fmt"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
@@ -32,7 +31,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			hour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := fmt.Sprintf("%s%s", hour, h.Path)
+			k := hour + h.Path
 			v := grouped[k]
 			if v.total == 0 {
 				v.hour = hour

@@ -240,10 +240,12 @@ func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
 			db.MustExecContext(ctx, `delete from hit_stats`+where)
 			db.MustExecContext(ctx, `delete from browser_stats`+where)
 			db.MustExecContext(ctx, `delete from location_stats`+where)
-			db.MustExecContext(ctx, `delete from ref_counts`+where)
 			db.MustExecContext(ctx, `delete from size_stats`+where)
 			db.MustExecContext(ctx, fmt.Sprintf(
 				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s %%'`,
+				siteID, day))
+			db.MustExecContext(ctx, fmt.Sprintf(
+				`delete from ref_counts where site=%d and cast(hour as varchar) like '%s %%'`,
 				siteID, day))
 		}
 	}
