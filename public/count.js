@@ -132,6 +132,9 @@
 
 	// Track click events.
 	window.goatcounter.bind_events = function() {
+		if (!document.querySelectorAll)  // Just in case someone uses an ancient browser.
+			return
+
 		var send = function(elem) {
 			return function() {
 				goatcounter.count({
@@ -143,7 +146,7 @@
 			}
 		}
 
-		document.querySelectorAll("*[data-goatcounter-click]").forEach(function(elem) {
+		Array.prototype.slice.call(document.querySelectorAll("*[data-goatcounter-click]")).forEach(function(elem) {
 			if (elem.dataset.goatcounterBound)
 				return
 			var f = send(elem)

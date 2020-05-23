@@ -1586,14 +1586,24 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		return (goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
 	}
 
+	// Filter some requests that we (probably) don't want to count.
+	var filter = function() {
+		if ('visibilityState' in document && (document.visibilityState === 'prerender' || document.visibilityState === 'hidden'))
+			return 'visibilityState'
+		if (!goatcounter.allow_frame && location !== parent.location)
+			return 'frame'
+		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
+			return 'local'
+		return false
+	}
+
 	// Count a hit.
 	window.goatcounter.count = function(vars) {
-		if ('visibilityState' in document && document.visibilityState === 'prerender')
+		if (filter()) {
+			if (console && 'log' in console)
+				console.warn('goatcounter: not counting because of: ' + filter())
 			return
-		if (!goatcounter.allow_frame && location !== parent.location)
-			return
-		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
-			return
+		}
 
 		var endpoint = get_endpoint()
 		if (!endpoint) {
@@ -1630,6 +1640,9 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 	// Track click events.
 	window.goatcounter.bind_events = function() {
+		if (!document.querySelectorAll)  // Just in case someone uses an ancient browser.
+			return
+
 		var send = function(elem) {
 			return function() {
 				goatcounter.count({
@@ -1641,7 +1654,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			}
 		}
 
-		document.querySelectorAll("*[data-goatcounter-click]").forEach(function(elem) {
+		Array.prototype.slice.call(document.querySelectorAll("*[data-goatcounter-click]")).forEach(function(elem) {
 			if (elem.dataset.goatcounterBound)
 				return
 			var f = send(elem)
