@@ -11887,7 +11887,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart,
+			paginate_toprefs, draw_chart, tsort,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -12690,6 +12690,29 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	var quote_re = function(s) {
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
+
+	var tsort = function() {
+		$('table.sort th').on('click', function(e) {
+			var th       = $(this),
+				num_sort = th.is('.n'),
+				col      = th.index(),
+				tbody    = th.closest('table').find('>tbody'),
+				rows     = Array.from(tbody.find('>tr')),
+				to_i     = (i) => parseInt(i.replace(/,/g, ''), 10),
+				is_sort  = th.attr('data-sort') === '1'
+
+			if (num_sort)
+				rows.sort((a, b) => to_i(a.children[col].innerText) < to_i(b.children[col].innerText))
+			else
+				rows.sort((a, b) => a.children[col].innerText.localeCompare(b.children[col].innerText))
+			if (is_sort)
+				rows.reverse()
+
+			tbody.html('').html(rows)
+			th.closest('table').find('th').attr('data-sort', '0')
+			th.attr('data-sort', is_sort ? '0' : '1')
+		})
+	}
 })();
 `),
 	"public/style.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
@@ -15394,12 +15417,13 @@ parent site includes the child sites.</p>
 	"tpl/backend_admin_sql.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <style>
-table { max-width: none !important; }
-td    { white-space: nowrap; vertical-align: top; }
-pre   { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
-th    { text-align: left; }
-.n    { text-align: right; }
-input { float: right; padding: .4em !important; }
+table    { max-width: none !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
 </style>
 
 <h2>pg_stat_activity</h2>
@@ -15445,11 +15469,11 @@ input { float: right; padding: .4em !important; }
 </table>
 
 <h2>pg_stat_user_tables</h2>
-<table>
+<table class="sort">
 <thead><tr>
 	<th>Table</th>
-	<th>T size</th>
-	<th>I size</th>
+	<th class="n">T size</th>
+	<th class="n">I size</th>
 	<th>Last vacuum</th>
 	<th>Last analyze</td>
 	<th class="n" title="Number of seq scans → of live rows fetched by seq scans">Seq scan</th>
@@ -15462,8 +15486,8 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Tables}}
 	<tr>
 		<td>{{$s.Table}}</td>
-		<td>{{$s.TableSize}}M</td>
-		<td>{{$s.IndexesSize}}M</td>
+		<td class="n">{{$s.TableSize}}M</td>
+		<td class="n">{{$s.IndexesSize}}M</td>
 		<td>
 			{{if $s.LastVacuum.After $s.LastAutoVacuum}}
 				{{$s.LastVacuum.Format "2006-01-02"}}
@@ -15491,10 +15515,10 @@ input { float: right; padding: .4em !important; }
 </table>
 
 <h2>pg_stat_user_indexes</h2>
-<table>
+<table class="sort">
 <thead><tr>
 	<th>Index</th>
-	<th>Size</th>
+	<th class="n">Size</th>
 	<th class="n"># scans</th>
 	<th class="n"># entries returned</th>
 	<th class="n"># rows fetch by simple scans</th>
@@ -15503,7 +15527,7 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Indexes}}
 	<tr>
 		<td>{{$s.Index}} on {{$s.Table}}</td>
-		<td>{{$s.Size}}M</td>
+		<td class="n">{{$s.Size}}M</td>
 		<td class="n">{{nformat64 $s.Scan}}</td>
 		<td class="n">{{nformat64 $s.TupRead}}</td>
 		<td class="n">{{nformat64 $s.TupFetch}}</td>

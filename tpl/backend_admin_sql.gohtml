@@ -1,12 +1,13 @@
 {{template "_backend_top.gohtml" .}}
 
 <style>
-table { max-width: none !important; }
-td    { white-space: nowrap; vertical-align: top; }
-pre   { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
-th    { text-align: left; }
-.n    { text-align: right; }
-input { float: right; padding: .4em !important; }
+table    { max-width: none !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
 </style>
 
 <h2>pg_stat_activity</h2>
@@ -52,11 +53,11 @@ input { float: right; padding: .4em !important; }
 </table>
 
 <h2>pg_stat_user_tables</h2>
-<table>
+<table class="sort">
 <thead><tr>
 	<th>Table</th>
-	<th>T size</th>
-	<th>I size</th>
+	<th class="n">T size</th>
+	<th class="n">I size</th>
 	<th>Last vacuum</th>
 	<th>Last analyze</td>
 	<th class="n" title="Number of seq scans → of live rows fetched by seq scans">Seq scan</th>
@@ -69,8 +70,8 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Tables}}
 	<tr>
 		<td>{{$s.Table}}</td>
-		<td>{{$s.TableSize}}M</td>
-		<td>{{$s.IndexesSize}}M</td>
+		<td class="n">{{$s.TableSize}}M</td>
+		<td class="n">{{$s.IndexesSize}}M</td>
 		<td>
 			{{if $s.LastVacuum.After $s.LastAutoVacuum}}
 				{{$s.LastVacuum.Format "2006-01-02"}}
@@ -98,10 +99,10 @@ input { float: right; padding: .4em !important; }
 </table>
 
 <h2>pg_stat_user_indexes</h2>
-<table>
+<table class="sort">
 <thead><tr>
 	<th>Index</th>
-	<th>Size</th>
+	<th class="n">Size</th>
 	<th class="n"># scans</th>
 	<th class="n"># entries returned</th>
 	<th class="n"># rows fetch by simple scans</th>
@@ -110,7 +111,7 @@ input { float: right; padding: .4em !important; }
 	{{range $s := .Indexes}}
 	<tr>
 		<td>{{$s.Index}} on {{$s.Table}}</td>
-		<td>{{$s.Size}}M</td>
+		<td class="n">{{$s.Size}}M</td>
 		<td class="n">{{nformat64 $s.Scan}}</td>
 		<td class="n">{{nformat64 $s.TupRead}}</td>
 		<td class="n">{{nformat64 $s.TupFetch}}</td>

@@ -17,7 +17,7 @@
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart,
+			paginate_toprefs, draw_chart, tsort,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -820,4 +820,27 @@
 	var quote_re = function(s) {
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
+
+	var tsort = function() {
+		$('table.sort th').on('click', function(e) {
+			var th       = $(this),
+				num_sort = th.is('.n'),
+				col      = th.index(),
+				tbody    = th.closest('table').find('>tbody'),
+				rows     = Array.from(tbody.find('>tr')),
+				to_i     = (i) => parseInt(i.replace(/,/g, ''), 10),
+				is_sort  = th.attr('data-sort') === '1'
+
+			if (num_sort)
+				rows.sort((a, b) => to_i(a.children[col].innerText) < to_i(b.children[col].innerText))
+			else
+				rows.sort((a, b) => a.children[col].innerText.localeCompare(b.children[col].innerText))
+			if (is_sort)
+				rows.reverse()
+
+			tbody.html('').html(rows)
+			th.closest('table').find('th').attr('data-sort', '0')
+			th.attr('data-sort', is_sort ? '0' : '1')
+		})
+	}
 })();
