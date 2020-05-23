@@ -16,7 +16,7 @@ import (
 
 func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + path + event.
+		// Group by day + path.
 		type gt struct {
 			total       int
 			totalUnique int
@@ -32,7 +32,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			hour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := fmt.Sprintf("%s%s%t", hour, h.Path, h.Event)
+			k := fmt.Sprintf("%s%s", hour, h.Path)
 			v := grouped[k]
 			if v.total == 0 {
 				v.hour = hour
@@ -40,7 +40,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 				v.event = h.Event
 				var err error
 				v.total, v.totalUnique, err = existingHitCounts(ctx, tx,
-					h.Site, hour, v.path, v.event)
+					h.Site, hour, v.path)
 				if err != nil {
 					return err
 				}
@@ -63,7 +63,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			if cfg.PgSQL {
 				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into hit_counts
 				(site, path, title, event, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6, $7)
-				on conflict on constraint "hit_counts#site#path#hour#event" do
+				on conflict on constraint "hit_counts#site#path#hour" do
 					update set total=$8, total_unique=$9`,
 					siteID, v.path, v.title, v.event, v.hour, v.total, v.totalUnique,
 					v.total, v.totalUnique)
@@ -84,14 +84,14 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingHitCounts(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	hour, path string, event zdb.Bool,
+	hour, path string,
 ) (int, int, error) {
 
 	var t, tu int
 	row := tx.QueryRowxContext(txctx, `/* existingHitCounts */
 		select total, total_unique from hit_counts
-		where site=$1 and hour=$2 and path=$3 and event=$4 limit 1`,
-		siteID, hour, path, event)
+		where site=$1 and hour=$2 and path=$3 limit 1`,
+		siteID, hour, path)
 	if err := row.Err(); err != nil {
 		if zdb.ErrNoRows(err) {
 			return 0, 0, nil

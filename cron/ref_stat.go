@@ -22,12 +22,11 @@ import (
 //     1 | 2019-11-30 | ....     |     4
 func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + ref + event.
+		// Group by day + ref.
 		type gt struct {
 			count       int
 			countUnique int
 			day         string
-			event       zdb.Bool
 			ref         string
 		}
 		grouped := map[string]gt{}
@@ -37,15 +36,14 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := fmt.Sprintf("%s%s%t", day, h.Ref, h.Event)
+			k := fmt.Sprintf("%s%s", day, h.Ref)
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
 				v.ref = h.Ref
-				v.event = h.Event
 				var err error
 				v.count, v.countUnique, err = existingRefStats(ctx, tx, h.Site,
-					day, v.ref, v.event)
+					day, v.ref)
 				if err != nil {
 					return err
 				}
@@ -60,9 +58,9 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "ref_stats", []string{"site", "day", "ref",
-			"count", "count_unique", "event"})
+			"count", "count_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.ref, v.count, v.countUnique, v.event)
+			ins.Values(siteID, v.day, v.ref, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
@@ -70,16 +68,15 @@ func updateRefStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingRefStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, ref string, event zdb.Bool,
+	day, ref string,
 ) (int, int, error) {
 
 	var c []struct {
-		Count       int      `db:"count"`
-		CountUnique int      `db:"count_unique"`
-		Event       zdb.Bool `db:"event"`
+		Count       int `db:"count"`
+		CountUnique int `db:"count_unique"`
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingRefStats */
-		select count, count_unique, event from ref_stats
+		select count, count_unique from ref_stats
 		where site=$1 and day=$2 and ref=$3 limit 1`,
 		siteID, day, ref)
 	if err != nil {
@@ -90,7 +87,7 @@ func existingRefStats(
 	}
 
 	_, err = tx.ExecContext(txctx, `delete from ref_stats where
-		site=$1 and day=$2 and ref=$3 and event=$4`,
-		siteID, day, ref, event)
+		site=$1 and day=$2 and ref=$3`,
+		siteID, day, ref)
 	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

@@ -24,12 +24,11 @@ import (
 //     1 | 2019-12-17 | Opera   | 9       |     1
 func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + system + event.
+		// Group by day + system.
 		type gt struct {
 			count       int
 			countUnique int
 			day         string
-			event       zdb.Bool
 			system      string
 			version     string
 		}
@@ -45,16 +44,15 @@ func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := fmt.Sprintf("%s%s%s%t", day, system, version, h.Event)
+			k := fmt.Sprintf("%s%s%s", day, system, version)
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
 				v.system = system
 				v.version = version
-				v.event = h.Event
 				var err error
 				v.count, v.countUnique, err = existingSystemStats(ctx, tx,
-					h.Site, day, v.system, v.version, v.event)
+					h.Site, day, v.system, v.version)
 				if err != nil {
 					return err
 				}
@@ -69,9 +67,9 @@ func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "system_stats", []string{"site", "day",
-			"system", "version", "count", "count_unique", "event"})
+			"system", "version", "count", "count_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.system, v.version, v.count, v.countUnique, v.event)
+			ins.Values(siteID, v.day, v.system, v.version, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
@@ -79,16 +77,15 @@ func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingSystemStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, system, version string, event zdb.Bool,
+	day, system, version string,
 ) (int, int, error) {
 
 	var c []struct {
-		Count       int      `db:"count"`
-		CountUnique int      `db:"count_unique"`
-		Event       zdb.Bool `db:"event"`
+		Count       int `db:"count"`
+		CountUnique int `db:"count_unique"`
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingSystemStats */
-		select count, count_unique, event from system_stats
+		select count, count_unique from system_stats
 		where site=$1 and day=$2 and system=$3 and version=$4 limit 1`,
 		siteID, day, system, version)
 	if err != nil {
@@ -99,8 +96,8 @@ func existingSystemStats(
 	}
 
 	_, err = tx.ExecContext(txctx, `delete from system_stats where
-		site=$1 and day=$2 and system=$3 and version=$4 and event=$5`,
-		siteID, day, system, version, event)
+		site=$1 and day=$2 and system=$3 and version=$4`,
+		siteID, day, system, version)
 	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }
 
