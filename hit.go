@@ -110,7 +110,7 @@ var hostAlias = map[string]string{
 	"fr.reddit.com":      "www.reddit.com",
 }
 
-func cleanURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
+func cleanRefURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	// I'm not sure where these links are generated, but there are *a lot* of
 	// them.
 	if refURL.Host == "link.oreilly.com" {
@@ -206,39 +206,66 @@ func (h *Hit) cleanPath(ctx context.Context) {
 		return
 	}
 
-	h.Path = strings.TrimRight(h.Path, "?&")
-	if !strings.Contains(h.Path, "?") { // No query parameters.
-		return
-	}
+	// Normalize the path when accessed from e.g. offline storage or internet
+	// archive.
+	{
+		// Some offline reader thing.
+		// /storage/emulated/[..]/Curl_to_shell_isn_t_so_bad2019-11-09-11-07-58/curl-to-sh.html
+		if strings.HasPrefix(h.Path, "/storage/emulated/0/Android/data/jonas.tool.saveForOffline/files/") {
+			h.Path = h.Path[65:]
+			if s := strings.IndexRune(h.Path, '/'); s > -1 {
+				h.Path = h.Path[s:]
+			}
+		}
 
-	u, err := url.Parse(h.Path)
-	if err != nil {
-		return
-	}
-
-	q := u.Query()
-
-	q.Del("fbclid") // Magic undocumented Facebook tracking parameter.
-	q.Del("ref")    // ProductHunt and a few others.
-	q.Del("mc_cid") // MailChimp
-	q.Del("mc_eid")
-	for k := range q { // Google tracking parameters.
-		if strings.HasPrefix(k, "utm_") {
-			q.Del(k)
+		// Internet archive.
+		// /web/20200104233523/https://www.arp242.net/tmux.html
+		if strings.HasPrefix(h.Path, "/web/20") {
+			u, err := url.Parse(h.Path[20:])
+			if err == nil {
+				h.Path = u.Path
+				if q := u.Query().Encode(); q != "" {
+					h.Path += "?" + q
+				}
+			}
 		}
 	}
 
-	// Some WeChat tracking thing; see e.g:
-	// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fsheshui.me%2Fblogs%2Fexplain-wechat-nsukey-url
-	// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fwww.v2ex.com%2Ft%2F312163
-	q.Del("nsukey")
-	q.Del("isappinstalled")
-	if q.Get("from") == "singlemessage" || q.Get("from") == "groupmessage" {
-		q.Del("from")
-	}
+	// Remove various tracking query parameters.
+	{
+		h.Path = strings.TrimRight(h.Path, "?&")
+		if !strings.Contains(h.Path, "?") { // No query parameters.
+			return
+		}
 
-	u.RawQuery = q.Encode()
-	h.Path = u.String()
+		u, err := url.Parse(h.Path)
+		if err != nil {
+			return
+		}
+		q := u.Query()
+
+		q.Del("fbclid") // Magic undocumented Facebook tracking parameter.
+		q.Del("ref")    // ProductHunt and a few others.
+		q.Del("mc_cid") // MailChimp
+		q.Del("mc_eid")
+		for k := range q { // Google tracking parameters.
+			if strings.HasPrefix(k, "utm_") {
+				q.Del(k)
+			}
+		}
+
+		// Some WeChat tracking thing; see e.g:
+		// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fsheshui.me%2Fblogs%2Fexplain-wechat-nsukey-url
+		// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fwww.v2ex.com%2Ft%2F312163
+		q.Del("nsukey")
+		q.Del("isappinstalled")
+		if q.Get("from") == "singlemessage" || q.Get("from") == "groupmessage" {
+			q.Del("from")
+		}
+
+		u.RawQuery = q.Encode()
+		h.Path = u.String()
+	}
 }
 
 func (h Hit) String() string {
@@ -320,7 +347,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 
 		var store, generated bool
 		r := h.Ref
-		h.Ref, h.RefParams, store, generated = cleanURL(h.Ref, h.RefURL)
+		h.Ref, h.RefParams, store, generated = cleanRefURL(h.Ref, h.RefURL)
 		if store {
 			h.RefOriginal = &r
 		}

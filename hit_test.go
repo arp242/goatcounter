@@ -265,9 +265,24 @@ func TestHitDefaultsPath(t *testing.T) {
 		{"//page/", "/page"},
 		{"//", "/"},
 		{"", "/"},
+
 		{"/page?q=a", "/page?q=a"},
 		{"/page?fbclid=foo", "/page"},
 		{"/page?fbclid=foo&a=b", "/page?a=b"},
+		{"/page?", "/page"},
+		{"/page?", "/page"},
+
+		{
+			"/storage/emulated/0/Android/data/jonas.tool.saveForOffline/files/Curl_to_shell_isn_t_so_bad2019-11-09-11-07-58/curl-to-sh.html",
+			"/curl-to-sh.html",
+		},
+
+		{"/web/20200104233523/https://www.arp242.net/tmux.html", "/tmux.html"},
+		{"/web/20190820072242/https://arp242.net", "/"},
+		{"/web/20190820072242/https://arp242.net?a=b", "/?a=b"},
+		{"/web/20190820072242/https://arp242.net?a=b&c=d", "/?a=b&c=d"},
+		{"/web/20200104233523/https://www.arp242.net/many/more/slashes", "/many/more/slashes"},
+		{"/web/assets/images/social-github.svg", "/web/assets/images/social-github.svg"},
 	}
 
 	ctx := goatcounter.WithSite(context.Background(), &goatcounter.Site{ID: 1})
