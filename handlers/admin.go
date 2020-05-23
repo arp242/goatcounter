@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/pprof"
+	"os/exec"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
@@ -52,7 +54,7 @@ func (h admin) admin(w http.ResponseWriter, r *http.Request) error {
 	l := zlog.Module("admin")
 
 	var a goatcounter.AdminStats
-	err := a.List(r.Context(), r.URL.Query().Get("order"))
+	err := a.List(r.Context())
 	if err != nil {
 		return err
 	}
@@ -64,8 +66,12 @@ func (h admin) admin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	grouped := make(map[string]int) // day → count
+	cutoff := time.Now().Add(-120 * 24 * time.Hour)
 	for _, s := range sites {
 		if s.Parent != nil {
+			continue
+		}
+		if s.CreatedAt.Before(cutoff) {
 			continue
 		}
 		grouped[s.CreatedAt.Format("2006-01-02")]++
@@ -85,9 +91,7 @@ func (h admin) admin(w http.ResponseWriter, r *http.Request) error {
 			HourlyUnique: []int{v},
 		})
 	}
-	sort.Slice(signups, func(i, j int) bool {
-		return signups[i].Day < signups[j].Day
-	})
+	sort.Slice(signups, func(i, j int) bool { return signups[i].Day < signups[j].Day })
 
 	l = l.Since("signups")
 
@@ -105,10 +109,20 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(403, "yeah nah")
 	}
 
+	var load string
+	uptime, err := exec.Command("uptime").CombinedOutput()
+	if err == nil {
+		load = strings.TrimSpace(strings.Join(strings.Split(string(uptime), ",")[2:], ", "))
+	}
+	free, err := exec.Command("free", "-m").CombinedOutput()
+	if err != nil {
+		free = nil
+	}
+
 	filter := r.URL.Query().Get("filter")
 
 	var stats goatcounter.AdminPgStatStatements
-	err := stats.List(r.Context(), r.URL.Query().Get("order"), filter)
+	err = stats.List(r.Context(), r.URL.Query().Get("order"), filter)
 	if err != nil {
 		return err
 	}
@@ -140,12 +154,15 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "backend_admin_sql.gohtml", struct {
 		Globals
 		Filter   string
+		Load     string
+		Free     string
 		Stats    goatcounter.AdminPgStatStatements
 		Activity goatcounter.AdminPgStatActivity
 		Tables   goatcounter.AdminPgStatTables
 		Indexes  goatcounter.AdminPgStatIndexes
 		Progress goatcounter.AdminPgStatProgress
-	}{newGlobals(w, r), filter, stats, act, tbls, idx, prog})
+	}{newGlobals(w, r), filter, load, string(free), stats, act, tbls,
+		idx, prog})
 }
 
 func (h admin) adminSite(w http.ResponseWriter, r *http.Request) error {

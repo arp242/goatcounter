@@ -13,7 +13,6 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 )
 
@@ -23,9 +22,6 @@ type AdminStat struct {
 	Code       string    `db:"code"`
 	Stripe     *string   `db:"stripe"`
 	LinkDomain string    `db:"link_domain"`
-	User       string    `db:"user"`
-	Email      string    `db:"email"`
-	Public     bool      `db:"public"`
 	CreatedAt  time.Time `db:"created_at"`
 	Plan       string    `db:"plan"`
 	LastMonth  int       `db:"last_month"`
@@ -35,12 +31,7 @@ type AdminStat struct {
 type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
-func (a *AdminStats) List(ctx context.Context, order string) error {
-	if order == "" || !stringutil.Contains([]string{"total", "last_month", "created_at"}, order) {
-		order = "last_month"
-	}
-
-	ival := interval(30)
+func (a *AdminStats) List(ctx context.Context) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
 		select
 			sites.id,
@@ -54,18 +45,16 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			end) as plan,
 			stripe,
 			sites.link_domain,
-			users.email,
-			sum(hit_counts.total) as total,
+			coalesce((
+				select sum(hit_counts.total) from hit_counts where site=sites.id
+			), 0) as total,
 			coalesce((
 				select sum(hit_counts.total) from hit_counts
 				where site=sites.id and hit_counts.hour >= %s
 			), 0) as last_month
 		from sites
-		left join hit_counts on hit_counts.site=sites.id
-		left join users on users.site=coalesce(sites.parent, sites.id)
-		group by sites.id, sites.code, sites.created_at, users.email, plan
-		having sum(hit_counts.total) > 1000
-		order by %s desc`, ival, order))
+		group by sites.id, sites.code, sites.created_at, plan
+		order by last_month desc`, interval(30)))
 	if err != nil {
 		return errors.Wrap(err, "AdminStats.List")
 	}
@@ -85,13 +74,7 @@ func (a *AdminStats) List(ctx context.Context, order string) error {
 			}
 		}
 	}
-	if order == "last_month" {
-		sort.Slice(aa, func(i, j int) bool { return aa[i].LastMonth > aa[j].LastMonth })
-	}
-	if order == "total" {
-		sort.Slice(aa, func(i, j int) bool { return aa[i].Total > aa[j].Total })
-	}
-
+	sort.Slice(aa, func(i, j int) bool { return aa[i].LastMonth > aa[j].LastMonth })
 	return nil
 }
 

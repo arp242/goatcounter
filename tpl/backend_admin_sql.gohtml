@@ -10,6 +10,8 @@ input    { float: right; padding: .4em !important; }
 .sort th { color: blue; cursor: pointer; }
 </style>
 
+<pre>{{.Free}}{{.Load}}</pre>
+
 <h2>pg_stat_activity</h2>
 <table>
 {{if gt (len .Activity) 0}}

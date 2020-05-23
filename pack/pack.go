@@ -12166,10 +12166,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	// This way you can still hover the entire height.
 	var draw_chart = function() {
 		var redraw = () => {
-			if ($('#scale').val() === $('.count-list-pages').attr('data-scale')) {
-				$('#scale').removeClass('value')
-				return
-			}
+			if ($('#scale').val() === $('.count-list-pages').attr('data-scale'))
+				return $('#scale').removeClass('value')
 
 			$('#scale').addClass('value')
 			$('.count-list-pages').attr('data-scale', $('#scale').val())
@@ -15638,9 +15636,16 @@ Martin
 `),
 	"tpl/backend_admin.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
+<style>
+table    { max-width: none !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
+</style>
 <style>.plan-free { background-color: #eaeaea; }</style>
-
-<h1>Admin</h1>
 
 <p><a href="/debug/pprof">pprof</a> | <a href="/admin/sql">PostgreSQL</a></p>
 
@@ -15648,52 +15653,40 @@ Martin
 <div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
 
 <h2>Sites</h2>
-<p>All sites with at least 1,000 hits in the last 30 days; the counts for the
-parent site includes the child sites.</p>
-<table style="max-width: none">
-	<tr>
-		<th>ID</th>
-		<th><a href="?order=last_month">hits/month</a></th>
-		<th><a href="?order=total">total hits</a></th>
-		<th>Code</th>
-		<th>Domain</th>
-		<th>User</th>
-		<th>Plan</th>
-		<th><a href="?order=created_at">Created at</a></th>
+<table class="sort">
+<thead><tr>
+	<th class="n">Last month</th>
+	<th class="n">Total hits</th>
+	<th>Site</th>
+	<th>Domain</th>
+	<th>Plan</th>
+	<th>Created at</th>
+</tr></thead>
+<tbody>{{range $s := .Stats}}
+	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
+		<td class="n">{{nformat $s.LastMonth $.Site}}</td>
+		<td class="n">{{nformat $s.Total $.Site}}</td>
+		<td><a href="/admin/{{$s.ID}}">{{$s.Code}}</a></td>
+		<td>{{$s.LinkDomain}}</td>
+		<td>
+			{{if $s.Stripe}}
+				{{$s.Plan}}
+				{{- if has_prefix $s.Stripe "cus_github" -}}
+					; <a href="https://github.com/{{substr $s.Stripe 11 -1}}">GitHub</a>
+				{{- else if not (has_prefix $s.Stripe "cus_free_") -}}
+					; <a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">Stripe</a>
+				{{end}}
+			{{else}}
+				{{if eq $s.Plan "child"}}
+					child of <a href="#{{$s.Parent}}">{{$s.Parent}}</a>
+				{{else}}
+					free
+				{{end}}
+			{{end}}
+		</td>
+		<td>{{tformat $.Site $s.CreatedAt ""}}</td>
 	</tr>
-	{{range $s := .Stats}}
-		<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
-			<td><a href="/admin/{{$s.ID}}">{{$s.ID}}</a></td>
-			<td>{{nformat $s.LastMonth $.Site}}</td>
-			<td>{{nformat $s.Total $.Site}}</td>
-			<td>
-				{{if $s.Public}}
-					<a href="https://{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a>
-				{{else}}
-					{{$s.Code}}
-				{{end}}
-			</td>
-			<td>{{$s.LinkDomain}}</td>
-			<td>{{$s.Email}}</td>
-			<td>
-				{{if $s.Stripe}}
-					{{$s.Plan}}
-					{{if has_prefix $s.Stripe "cus_github"}}
-					<a href="https://github.com/{{substr $s.Stripe 11 -1}}">GitHub</a>
-					{{else if not (has_prefix $s.Stripe "cus_free_")}}
-						<a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">Stripe</a>
-					{{end}}
-				{{else}}
-					{{if eq $s.Plan "child"}}
-						child of <a href="#{{$s.Parent}}">{{$s.Parent}}</a>
-					{{else}}
-						free
-					{{end}}
-				{{end}}
-			</td>
-			<td>{{tformat $.Site $s.CreatedAt ""}}</td>
-		</tr>
-	{{end}}
+{{end}}</tbody>
 </table>
 
 {{template "_backend_bottom.gohtml" .}}
@@ -15725,6 +15718,8 @@ th       { text-align: left; }
 input    { float: right; padding: .4em !important; }
 .sort th { color: blue; cursor: pointer; }
 </style>
+
+<pre>{{.Free}}{{.Load}}</pre>
 
 <h2>pg_stat_activity</h2>
 <table>
