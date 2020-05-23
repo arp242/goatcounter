@@ -22,12 +22,11 @@ import (
 //     1 | 2019-11-30 | 1920     |     4
 func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + width + event.
+		// Group by day + width.
 		type gt struct {
 			count       int
 			countUnique int
 			day         string
-			event       zdb.Bool
 			width       int
 		}
 		grouped := map[string]gt{}
@@ -42,15 +41,14 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := fmt.Sprintf("%s%d%t", day, width, h.Event)
+			k := fmt.Sprintf("%s%d", day, width)
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
 				v.width = width
-				v.event = h.Event
 				var err error
 				v.count, v.countUnique, err = existingSizeStats(ctx, tx, h.Site,
-					day, v.width, v.event)
+					day, v.width)
 				if err != nil {
 					return err
 				}
@@ -65,9 +63,9 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "size_stats", []string{"site", "day",
-			"width", "count", "count_unique", "event"})
+			"width", "count", "count_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.width, v.count, v.countUnique, v.event)
+			ins.Values(siteID, v.day, v.width, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
@@ -75,16 +73,15 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 func existingSizeStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day string, width int, event zdb.Bool,
+	day string, width int,
 ) (int, int, error) {
 
 	var c []struct {
-		Count       int      `db:"count"`
-		CountUnique int      `db:"count_unique"`
-		Event       zdb.Bool `db:"event"`
+		Count       int `db:"count"`
+		CountUnique int `db:"count_unique"`
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingSizeStats */
-		select count, count_unique, event from size_stats
+		select count, count_unique from size_stats
 		where site=$1 and day=$2 and width=$3 limit 1`,
 		siteID, day, width)
 	if err != nil {
@@ -95,7 +92,7 @@ func existingSizeStats(
 	}
 
 	_, err = tx.ExecContext(txctx, `delete from size_stats where
-		site=$1 and day=$2 and width=$3 and event=$4`,
-		siteID, day, width, event)
+		site=$1 and day=$2 and width=$3`,
+		siteID, day, width)
 	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

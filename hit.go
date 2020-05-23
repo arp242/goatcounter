@@ -203,6 +203,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 
 func (h *Hit) cleanPath(ctx context.Context) {
 	if h.Event {
+		h.Path = strings.TrimLeft(h.Path, "/")
 		return
 	}
 
@@ -374,7 +375,7 @@ func (h *Hit) Validate(ctx context.Context) error {
 	v.UTF8("ref", h.Ref)
 	v.UTF8("browser", h.Browser)
 
-	v.Len("path", h.Path, 0, 2048)
+	v.Len("path", h.Path, 1, 2048)
 	v.Len("title", h.Title, 0, 1024)
 	v.Len("ref", h.Ref, 0, 2048)
 	v.Len("browser", h.Browser, 0, 512)

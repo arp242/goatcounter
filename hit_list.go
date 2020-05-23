@@ -120,14 +120,13 @@ func (h *HitStats) List(
 	var st []struct {
 		Path        string    `db:"path"`
 		Title       string    `db:"title"`
-		Event       zdb.Bool  `db:"event"`
 		Day         time.Time `db:"day"`
 		Stats       []byte    `db:"stats"`
 		StatsUnique []byte    `db:"stats_unique"`
 	}
 	{
 		query := `/* HitStats.List: get stats */
-			select path, event, title, day, stats, stats_unique
+			select path, title, day, stats, stats_unique
 			from hit_stats
 			where
 				site=$1 and
@@ -152,12 +151,11 @@ func (h *HitStats) List(
 	{
 		for i := range hh {
 			for _, s := range st {
-				if s.Path == hh[i].Path && s.Event == hh[i].Event {
+				if s.Path == hh[i].Path {
 					var x, y []int
 					jsonutil.MustUnmarshal(s.Stats, &x)
 					jsonutil.MustUnmarshal(s.StatsUnique, &y)
 					hh[i].Title = s.Title
-					hh[i].Event = s.Event
 					hh[i].Stats = append(hh[i].Stats, Stat{
 						Day:          s.Day.Format("2006-01-02"),
 						Hourly:       x,
