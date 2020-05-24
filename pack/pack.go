@@ -1929,7 +1929,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	}
 
 	// Filter some requests that we (probably) don't want to count.
-	var filter = function() {
+	goatcounter.filter = function() {
 		if ('visibilityState' in document && (document.visibilityState === 'prerender' || document.visibilityState === 'hidden'))
 			return 'visibilityState'
 		if (!goatcounter.allow_frame && location !== parent.location)
@@ -1958,9 +1958,10 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 	// Count a hit.
 	window.goatcounter.count = function(vars) {
-		if (filter()) {
+		var f = goatcounter.filter()
+		if (f) {
 			if (console && 'log' in console)
-				console.warn('goatcounter: not counting because of: ' + filter())
+				console.warn('goatcounter: not counting because of: ' + f)
 			return
 		}
 
@@ -15101,9 +15102,10 @@ local requests (unless <code>allow_local</code> is set).</p>
 
 <p>Example usage:</p>
 
-<pre><code>if (goatcounter.filter()) {
+<pre><code>var f = goatcounter.filter()
+if (f) {
     if (console &amp;&amp; 'log' in console)
-        console.warn('goatcounter: not counting because of: ' + goatcounter.filter())
+        console.warn('goatcounter: not counting because of: ' + f)
     return
 }
 </code></pre>

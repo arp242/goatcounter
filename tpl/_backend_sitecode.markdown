@@ -126,9 +126,10 @@ local requests (unless `allow_local` is set).
 
 Example usage:
 
-    if (goatcounter.filter()) {
+    var f = goatcounter.filter()
+    if (f) {
         if (console && 'log' in console)
-            console.warn('goatcounter: not counting because of: ' + goatcounter.filter())
+            console.warn('goatcounter: not counting because of: ' + f)
         return
     }
 

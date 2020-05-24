@@ -79,7 +79,7 @@
 	}
 
 	// Filter some requests that we (probably) don't want to count.
-	var filter = function() {
+	goatcounter.filter = function() {
 		if ('visibilityState' in document && (document.visibilityState === 'prerender' || document.visibilityState === 'hidden'))
 			return 'visibilityState'
 		if (!goatcounter.allow_frame && location !== parent.location)
@@ -108,9 +108,10 @@
 
 	// Count a hit.
 	window.goatcounter.count = function(vars) {
-		if (filter()) {
+		var f = goatcounter.filter()
+		if (f) {
 			if (console && 'log' in console)
-				console.warn('goatcounter: not counting because of: ' + filter())
+				console.warn('goatcounter: not counting because of: ' + f)
 			return
 		}
 
