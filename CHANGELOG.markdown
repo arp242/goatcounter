@@ -9,6 +9,10 @@ The goatcounter.com service generally runs the latest master.
 Unreleased
 ----------
 
+Note: this release contains quite a few database migrations; they make take a
+minute to run (depending on your table size), and you may want to run a `VACUUM`
+afterwards.
+
 - Replace `-auth` with `-email-from` (#270)
 
   Since the email auth no longer exists the `-auth` parameter no longer makes
@@ -45,9 +49,9 @@ Unreleased
 
 - Add `goatcounter.url()`, `goatcounter.filter()` (#272, #253)
 
-  Adds two new methods to the `count.js` script so it's easier to contract your
-  own implementation. In addition the script will now issue a `console.warn()`
-  if a request isn't being counted for some reason.
+  Adds two new methods to the `count.js` script so it's easier to use write own
+  implementation. In addition the script will now issue a `console.warn()` if a
+  request isn't being counted for some reason.
 
 
 2020-05-18 v1.2.0
