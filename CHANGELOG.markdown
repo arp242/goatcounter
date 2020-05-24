@@ -43,6 +43,12 @@ Unreleased
   the maximum of all paths in the selected time range, and there's a input to
   scale it lower if desired.
 
+- Add `goatcounter.url()`, `goatcounter.filter()` (#272, #253)
+
+  Adds two new methods to the `count.js` script so it's easier to contract your
+  own implementation. In addition the script will now issue a `console.warn()`
+  if a request isn't being counted for some reason.
+
 
 2020-05-18 v1.2.0
 -----------------

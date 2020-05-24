@@ -111,6 +111,27 @@ it’s available:
 The default implementation already handles this, and you only need to worry
 about this if you call `count()` manually.
 
+### `url(vars)`
+Get URL to send to the server; the `vars` parameter behaves as `count()`.
+
+Note that you may want to use `filter()` to exclude prerender requests and
+various other things.
+
+### `filter()`
+Determine if this request should be filtered; this returns a string with the
+reason or `false`.
+
+This will filter pre-render requests, frames (unless `allow_frame` is set), and
+local requests (unless `allow_local` is set).
+
+Example usage:
+
+    if (goatcounter.filter()) {
+        if (console && 'log' in console)
+            console.warn('goatcounter: not counting because of: ' + goatcounter.filter())
+        return
+    }
+
 #### `bind_events()`
 Bind a click event to every element with `data-goatcounter-click`. Called on
 page load unless `no_onload` or `no_events` is set. You may need to call this
@@ -252,6 +273,25 @@ Custom `count()` example for hooking in to an SPA nagivating by `#`:
     </script>
     {{template "code" .}}
 
+### Using navigator.sendBeacon
+
+You can use [`navigator.sendBeacon()`][beacon] with GoatCounter, for example to
+send events when someone closes a page:
+
+    <script>
+        if (goatcounter.filter())
+            return
+        navigator.sendBeacon(goatcounter.url({
+            event: true,
+            path: function(p) {
+                return 'unload-' + p
+            },
+        }))
+    </script>
+    {{template "code" .}}
+
+[beacon]: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon
+
 ### Custom events
 You can send an event by setting the `event` parameter to `true` in `count()`.
 For example:
@@ -339,8 +379,10 @@ regular browsers).
 Wrap in a `<noscript>` tag to use this only for people without JavaScript.
 
 ### Tracking from backend middleware
-You can call `GET {{.Site.URL}}/count` from anywhere, such as your app’s
-middleware. It supports the following query parameters:
+You can call `GET {{.Site.URL}}/count` or `POST {{.Site.URL}}/count` from
+anywhere, such as your app’s middleware. The GET and POST sendpoints are
+identical, and supportxs the following query parameters (form parameters are
+ignored for POST):
 
 - `p` → `path`
 - `e` → `event`
