@@ -30,6 +30,7 @@ func (h admin) mount(r chi.Router) {
 
 	a.Get("/admin", zhttp.Wrap(h.admin))
 	a.Get("/admin/sql", zhttp.Wrap(h.adminSQL))
+	a.Get("/admin/botlog", zhttp.Wrap(h.adminBotlog))
 	a.Get("/admin/{id}", zhttp.Wrap(h.adminSite))
 
 	//aa.Get("/debug/pprof/*", pprof.Index)
@@ -163,6 +164,23 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 		Progress goatcounter.AdminPgStatProgress
 	}{newGlobals(w, r), filter, load, string(free), stats, act, tbls,
 		idx, prog})
+}
+
+func (h admin) adminBotlog(w http.ResponseWriter, r *http.Request) error {
+	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	var ips goatcounter.AdminBotlogIPs
+	err := ips.List(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.Template(w, "backend_admin_botlog.gohtml", struct {
+		Globals
+		BotlogIP goatcounter.AdminBotlogIPs
+	}{newGlobals(w, r), ips})
 }
 
 func (h admin) adminSite(w http.ResponseWriter, r *http.Request) error {

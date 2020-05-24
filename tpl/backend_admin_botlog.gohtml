@@ -1,0 +1,49 @@
+{{template "_backend_top.gohtml" .}}
+
+<style>
+table    { max-width: none !important; }
+table table { max-width: 25em !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
+</style>
+
+<h2>IPs</h2>
+<table>
+<thead><tr>
+	<th class="n">Count</th>
+	<th></th>
+	<th>whois</th>
+</thead>
+<tbody>
+	{{range $s := .BotlogIP}}
+	<tr>
+		<td class="n">{{$s.Count}}</td>
+		<td>
+			<table>
+			{{range $o := $s.Links}}
+				<tr>
+					<td>{{index $o 0}}</td>
+					<td><strong>{{index $o 1}}</strong>
+						<a href="https://search.arin.net/rdap/?query={{index $o 1}}">ARIN</a> |
+						<a href="https://apps.db.ripe.net/db-web-ui/query?rflag=true&searchtext={{index $o 1}}">RIPE</a>
+					</td>
+				</tr>
+			{{end}}
+			<tr><td>IP</td><td>{{$s.IP}}</td></tr>
+			<tr><td>PTR</td><td>{{$s.PTR}}</td></tr>
+			<tr><td>Create</td><td>{{$s.CreatedAt.Format "2006-01-02"}}</td></tr>
+			<tr><td>Last</td><td>{{$s.LastSeen.Format "2006-01-02"}}</td></tr>
+			<tr><td>ID</td><td>{{$s.ID}}</td></tr>
+			</table>
+		</td>
+		<td><pre>{{$s.Info}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+{{template "_backend_bottom.gohtml" .}}

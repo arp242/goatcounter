@@ -502,6 +502,37 @@ commit;
 	insert into version values ('2020-05-21-1-ref-count');
 commit;
 `),
+	"db/migrate/pgsql/2020-05-23-1-botlog.sql": []byte(`begin;
+	create table botlog_ips (
+		id             serial         primary key,
+
+		count          int            not null default 1,
+		ip             varchar        not null,
+		ptr            varchar,
+		info           varchar,
+		hide           int            default 0,
+
+		created_at     timestamp      not null,
+		last_seen      timestamp      not null
+	);
+	create unique index "botlog_ips#ip" on botlog_ips(ip);
+
+	create table botlog (
+		id             serial         primary key,
+
+		ip             int            not null,
+		bot            int            not null,
+		ua             varchar        not null,
+		headers        jsonb          not null,
+		url            varchar        not null,
+		created_at     timestamp      not null,
+
+		foreign key (ip) references botlog_ips(id)
+	);
+
+	insert into version values ('2020-05-23-1-botlog');
+commit;
+`),
 	"db/migrate/pgsql/2020-05-23-1-event.sql": []byte(`begin;
 	update hits       set path=substr(path, 2) where event=1 and path like '/%';
 	update hit_counts set path=substr(path, 2) where event=1 and path like '/%';
@@ -15803,7 +15834,11 @@ input    { float: right; padding: .4em !important; }
 </style>
 <style>.plan-free { background-color: #eaeaea; }</style>
 
-<p><a href="/debug/pprof">pprof</a> | <a href="/admin/sql">PostgreSQL</a></p>
+<p>
+	<a href="/debug/pprof">pprof</a> |
+	<a href="/admin/sql">PostgreSQL</a> |
+	<a href="/admin/botlog">Botlog</a>
+</p>
 
 <h2>Signups</h2>
 <div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
@@ -15843,6 +15878,56 @@ input    { float: right; padding: .4em !important; }
 		<td>{{tformat $.Site $s.CreatedAt ""}}</td>
 	</tr>
 {{end}}</tbody>
+</table>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/backend_admin_botlog.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<style>
+table    { max-width: none !important; }
+table table { max-width: 25em !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
+</style>
+
+<h2>IPs</h2>
+<table>
+<thead><tr>
+	<th class="n">Count</th>
+	<th></th>
+	<th>whois</th>
+</thead>
+<tbody>
+	{{range $s := .BotlogIP}}
+	<tr>
+		<td class="n">{{$s.Count}}</td>
+		<td>
+			<table>
+			{{range $o := $s.Links}}
+				<tr>
+					<td>{{index $o 0}}</td>
+					<td><strong>{{index $o 1}}</strong>
+						<a href="https://search.arin.net/rdap/?query={{index $o 1}}">ARIN</a> |
+						<a href="https://apps.db.ripe.net/db-web-ui/query?rflag=true&searchtext={{index $o 1}}">RIPE</a>
+					</td>
+				</tr>
+			{{end}}
+			<tr><td>IP</td><td>{{$s.IP}}</td></tr>
+			<tr><td>PTR</td><td>{{$s.PTR}}</td></tr>
+			<tr><td>Create</td><td>{{$s.CreatedAt.Format "2006-01-02"}}</td></tr>
+			<tr><td>Last</td><td>{{$s.LastSeen.Format "2006-01-02"}}</td></tr>
+			<tr><td>ID</td><td>{{$s.ID}}</td></tr>
+			</table>
+		</td>
+		<td><pre>{{$s.Info}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
 </table>
 
 {{template "_backend_bottom.gohtml" .}}
@@ -16016,8 +16101,6 @@ input    { float: right; padding: .4em !important; }
 	{{end}}
 </tbody>
 </table>
-
-
 
 {{template "_backend_bottom.gohtml" .}}
 `),
@@ -17123,6 +17206,10 @@ advice specific to your situation.</p>
 <p>No personal information (such as IP address) is collected; a hash of the IP
 address, User-Agent, and a random number (“salt”) is stored for
 4 hours at the most to identify a browsing session.</p>
+
+<p>The exception to this are requests which are deemed to be coming from a bot,
+in which case the IP address will be stored temporarily for the purpose of
+blocking botnets, hosting providers, and other types of abuse.</p>
 
 <p>There is no information stored in the browser with e.g. cookies.</p>
 
