@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/arp242/geoip2-golang v1.4.0
+	github.com/chromedp/chromedp v0.5.3
 	github.com/go-chi/chi v4.1.1+incompatible
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.5.2
