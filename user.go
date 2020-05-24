@@ -34,6 +34,7 @@ type User struct {
 	CSRFToken     *string    `db:"csrf_token" json:"-"`
 	EmailToken    *string    `db:"email_token" json:"-"`
 	SeenUpdatesAt time.Time  `db:"seen_updates_at" json:"-"`
+	LastReportAt  *time.Time `db:"last_report_at" json:"-"`
 
 	CreatedAt time.Time  `db:"created_at" json:"-"`
 	UpdatedAt *time.Time `db:"updated_at" json:"-"`

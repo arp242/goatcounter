@@ -1,0 +1,55 @@
+<body style="font: 16px/1.2em sans-serif">
+<p>Hi there!</p>
+
+<p>This is your {{.PeriodNamely}} GoatCounter report for {{.DisplayDate}} for the site <a href="{{.Site.URL}}">{{.Site.URL}}</a>.</p>
+
+<table style="margin: 0 auto; margin-bottom: 1em; border-collapse: collapse;">
+<caption style="font-weight: bold; line-height: 4em;">Top 10 pages</caption>
+
+<thead><tr style="border-bottom: 2px solid #333">
+	<th style="padding: .5em; text-align: left">Path</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Visits</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Pageviews</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Growth</th>
+</tr></thead>
+<tbody>
+{{range $i, $p := .Pages}}<tr style="border-top: 1px solid #333">
+	<td style="padding: .5em;">{{$p.Path}}{{if $p.Event}} <sup>event</sup>{{end}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $p.CountUnique $.Site}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $p.Count $.Site}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{index $.Diffs $i}}</td>
+</tr>{{end}}
+</tbody>
+</table>
+
+<table style="margin: 0 auto; margin-bottom: 1em; border-collapse: collapse;">
+<caption style="font-weight: bold; line-height: 4em;">Top 10 referrers</caption>
+<thead><tr style="border-bottom: 2px solid #333">
+	<th style="padding: .5em; text-align: left">Referrer</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Visits</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Pageviews</th>
+</tr></thead>
+<tbody>
+{{range $r := .Refs}}<tr style="border-top: 1px solid #333">
+	<td style="padding: .5em;">{{if $r.Path}}{{$r.Path}}{{else}}(no data){{end}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $r.CountUnique $.Site}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $r.Count $.Site}}</td>
+</tr>{{end}}
+</tbody>
+</table>
+
+<p>
+{{if .NewFeature -}}
+Email reports were recently added to GoatCounter; this email is sent only once.
+Enable it in <a href="{{.Site.URL}}/settings#tab-email-reports">your settings</a> if you want to keep receiving it.
+{{else if .FirstTime -}}
+This email is automatically sent once for new sites.
+Enable it in <a href="{{.Site.URL}}/settings#tab-email-reports">your settings</a> if you want to keep receiving it.
+{{else -}}
+This is email is sent because it’s enabled in your settings.
+Disable it in <a href="{{.Site.URL}}/settings#tab-email-reports">your settings</a> if you want to stop receiving it.
+{{end}}
+</p>
+
+{{template "_email_bottom.gohtml" .}}
+</body>

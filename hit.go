@@ -492,8 +492,6 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
-//
-// TODO: after ref_counts it no longer lists "unknown".
 func (h *HitStats) ListAllRefs(ctx context.Context, start, end time.Time, offset int) (bool, error) {
 	site := MustGetSite(ctx)
 
@@ -534,6 +532,74 @@ func (h *HitStats) ListAllRefs(ctx context.Context, start, end time.Time, offset
 	}
 
 	return more, nil
+}
+
+// DiffTotal gets the total visit difference for a path compared to the same
+// previous time period.
+//
+// e.g. if called with start=2020-01-20; end=2020-01-2020-01-27, then it will
+// compare this to start=2020-01-12; end=2020-01-19
+//
+// The return value is in the same order as paths.
+func (h HitStats) DiffTotal(ctx context.Context, start, end time.Time, paths []string) ([]float32, error) {
+	siteID := MustGetSite(ctx).ID
+	d := -end.Sub(start) - 24*time.Hour
+	prevStart := start.Add(d)
+	prevEnd := end.Add(d)
+
+	var with strings.Builder
+	args := make([]interface{}, len(paths))
+	for i := range paths {
+		args[i] = paths[i]
+
+		if i == len(paths)-1 {
+			with.WriteString("(0,?)\n")
+		} else {
+			with.WriteString("(0,?),\n")
+		}
+	}
+
+	query := `
+		with tmp (t, path) as (values
+		` + with.String() + `
+		)
+		select percent_diff(
+			(select coalesce(sum(total_unique), 0)
+				from hit_counts
+				where
+					site=? and
+					path=tmp.path and
+					hour>=? and
+					hour<=?
+
+			),
+			(select coalesce(sum(c.total_unique), 0)
+					from hit_counts c
+					where
+						c.site=? and
+						c.path=tmp.path and
+						c.hour>=? and
+						c.hour<=?
+			)
+		) from tmp;
+	`
+	args = append(args,
+		siteID, prevStart.Format(zdb.Date), prevEnd.Format(zdb.Date),
+		siteID, start.Format(zdb.Date), end.Format(zdb.Date))
+
+	var diffs []float32
+	db := zdb.MustGet(ctx)
+	err := db.SelectContext(ctx, &diffs, db.Rebind(query), args...)
+	return diffs, errors.Wrap(err, "HitStats.DiffTotal")
+}
+
+// Paths get a list of all paths in this HitStats.
+func (h HitStats) Paths() []string {
+	paths := make([]string, len(h))
+	for i := range h {
+		paths[i] = h[i].Path
+	}
+	return paths
 }
 
 // ListPathsLike lists all paths matching the like pattern.

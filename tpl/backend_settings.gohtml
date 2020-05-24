@@ -2,7 +2,7 @@
 
 <nav class="tab-nav"></nav>
 
-<div>
+<div class="tab-page">
 	<h2 id="setting">Settings</h2>
 	<div class="form-wrap">
 		<form method="post" action="/save-settings" class="vertical">
@@ -147,7 +147,26 @@
 					header.{{/* <a href="/code#campaigns">Details</a>.
 					Comma-separated; first match takes precedence.*/}}
 				</span>
+			</fieldset>
 
+			<fieldset id="tab-email-reports">
+				<legend>Email reports</legend>
+
+				<label for="email_reports">Email reports</label>
+				<select name="settings.email_reports" id="email_reports">
+					<option {{option_value .Site.Settings.EmailReports.String "0"}}>Never</option>
+					<option {{option_value .Site.Settings.EmailReports.String "1"}}>Daily</option>
+					<option {{option_value .Site.Settings.EmailReports.String "2"}}>Weekly</option>
+					<option {{option_value .Site.Settings.EmailReports.String "3"}}>Biweekly</option>
+					<option {{option_value .Site.Settings.EmailReports.String "4"}}>Monthly</option>
+				</select>
+				<span>Reports are sent on the first day of the new period (e.g. first day of the month).</span>
+
+				<label for="email_reports_cc">Also Cc reports to</label>
+				<input type="text" name="settings.email_reports_cc" id="email_reports_cc" value="{{.Site.Settings.EmailReportsCc}}">
+				{{validate "site.settings.email_reports_cc" .Validate}}
+				<span>Reports are always sent to your email address; you can add
+					a comma-separated list of other addresses to Cc it to.</span>
 			</fieldset>
 
 			<div class="flex-break"></div>
@@ -163,7 +182,7 @@
 </div>
 
 {{if .GoatcounterCom}}
-	<div>
+	<div class="tab-page">
 		<h2 id="additional-sites">Additional sites</h2>
 		{{if .Site.Parent}}
 			This site has a parent and can't have additional sites of its own.
@@ -199,7 +218,7 @@
 	</div>
 {{end}}
 
-<div>
+<div class="tab-page">
 	<h2 id="purge">Purge</h2>
 	<p>Remove all instances of a page.</p>
 
@@ -222,7 +241,7 @@
 	</form>
 </div>
 
-<div>
+<div class="tab-page">
 	<h2 id="export">Export</h2>
 	<p>Export all page hits as CSV, for backups, or if you want to import
 	somewhere else.</p>
@@ -257,7 +276,7 @@
 	</table>
 </div>
 
-<div>
+<div class="tab-page">
 	<h2 id="change-password">Change password</h2>
 
 	<form method="post" action="/user/change-password" class="form-max-width vertical">
@@ -282,7 +301,7 @@
 </div>
 
 {{if .GoatcounterCom}}
-	<div>
+	<div class="tab-page">
 		<h2 id="delete">Delete {{if .Site.Parent}}site{{else}}account{{end}}</h2>
 		{{if .Site.Parent}}
 			<p>Note this site has a parent

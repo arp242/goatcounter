@@ -1,0 +1,28 @@
+Hi there!
+
+This is your {{.PeriodNamely}} GoatCounter report for {{.DisplayDate}} for the site {{.Site.URL}}.
+
+                        Top 10 pages
+------------------------------------------------------------
+{{.TextPagesTable}}
+
+                      Top 10 referrers
+------------------------------------------------------------
+{{.TextRefTable}}
+
+This is the text version and best viewed with a monospace font.
+View the HTML version if the alignment is off.
+
+{{if .NewFeature -}}
+Email reports were recently added to GoatCounter; this email is sent only once.
+Enable it in your settings if you want to keep receiving it:
+{{else if .FirstTime -}}
+This email is automatically sent once for new sites.
+Enable it in your settings if you want to keep receiving it:
+{{else -}}
+This is email is sent because it’s enabled in your settings.
+Disable it in your settings if you want to stop receiving it:
+{{end -}}
+{{.Site.URL}}/settings#tab-email-reports
+
+{{template "_email_bottom.gotxt" .}}

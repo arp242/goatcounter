@@ -29,6 +29,7 @@ var tasks = []task{
 	{goatcounter.Salts.Refresh, 1 * time.Hour},
 	{clearSessions, 1 * time.Minute},
 	{oldExports, 1 * time.Hour},
+	{emailReports, 1 * time.Hour},
 }
 
 var (

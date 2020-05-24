@@ -582,6 +582,23 @@ commit;
 	insert into version values ('2020-05-23-2-drop-ref-stats');
 commit;
 `),
+	"db/migrate/pgsql/2020-06-02-1-email-reports.sql": []byte(`begin;
+	alter table users add column last_report_at timestamp default null;
+
+	create or replace function percent_diff(start float4, final float4) returns float4 as $$
+		begin
+			return case
+				when start=0 then float4 '+infinity'
+				else              (final - start) / start * 100
+			end;
+		end; $$
+		language plpgsql
+		immutable
+		strict;
+
+	insert into version values ('2020-06-02-1-email-reports');
+commit;
+`),
 	"db/migrate/pgsql/2020-06-03-1-cname-setup.sql": []byte(`begin;
 	alter table sites add column cname_setup_at timestamp default null;
 	update sites set cname_setup_at=now() where cname is not null;
@@ -1361,6 +1378,12 @@ commit;
 	"db/migrate/sqlite/2020-05-23-2-drop-ref-stats.sql": []byte(`begin;
 	drop table ref_stats;
 	insert into version values ('2020-05-23-2-drop-ref-stats');
+commit;
+`),
+	"db/migrate/sqlite/2020-06-02-1-email-reports.sql": []byte(`begin;
+	alter table users add column last_report_at timestamp default null;
+
+	insert into version values ('2020-06-02-1-email-reports');
 commit;
 `),
 	"db/migrate/sqlite/2020-06-03-1-cname-setup.sql": []byte(`begin;
@@ -12726,28 +12749,34 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (!nav.length)
 			return;
 
-		var tabs = '',
+		var tabs   = '',
 			active = location.hash.substr(5) || 'setting',
-			valid = !!$('#' + active).length;
+			valid  = !!( $('#' + active).length || $('#tab-' + active).length);
+
+		// Link to a specific section for highlighting: set correct tab page.
+		if (!$('#tab-' + active).is('h2') && location.hash.length > 2)
+			active = $('#tab-' + active).closest('.tab-page').find('h2').attr('id')
+
 		$('.page > div').each(function(i, elem) {
-			var h2 = $(elem).find('h2');
+			var h2 = $(elem).find('h2')
 			if (!h2.length)
-				return;
+				return
 
 			var klass = '';
+			// Only hide stuff if it's a tab we know about, to prevent nothing
+			// being displayed.
 			if (valid)
 				if (h2.attr('id') !== active)
-					$(elem).css('display', 'none');
+					$(elem).css('display', 'none')
 				else
-					klass = 'active';
+					klass = 'active'
 
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
-		});
-
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>'
+		})
 		nav.html(tabs);
 		nav.on('click', 'a', function() {
-			nav.find('a').removeClass('active');
-			$(this).addClass('active');
+			nav.find('a').removeClass('active')
+			$(this).addClass('active')
 		});
 
 		$(window).on('hashchange', function() {
@@ -12756,10 +12785,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 			var tab = $('#' + location.hash.substr(5)).parent()
 			if (!tab.length)
-				return;
-			$('.page > div').css('display', 'none');
-			tab.css('display', 'block');
-		});
+				return
+			$('.page > div').css('display', 'none')
+			tab.css('display', 'block')
+		})
 	};
 
 	// Show details for the horizontal charts.
@@ -15832,6 +15861,11 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	</div>
 </footer>
 `),
+	"tpl/_email_bottom.gohtml": []byte(`<p>Any problems, questions, comments, or something else to tell me? Just reply to this email.</p>
+
+<p>Cheers,<br>
+Martin</p>
+`),
 	"tpl/_email_bottom.gotxt": []byte(`Any problems, questions, comments, or something else to tell me? Just reply to this email.
 
 Cheers,
@@ -16411,7 +16445,7 @@ input    { float: right; padding: .4em !important; }
 
 <nav class="tab-nav"></nav>
 
-<div>
+<div class="tab-page">
 	<h2 id="setting">Settings</h2>
 	<div class="form-wrap">
 		<form method="post" action="/save-settings" class="vertical">
@@ -16556,7 +16590,26 @@ input    { float: right; padding: .4em !important; }
 					header.{{/* <a href="/code#campaigns">Details</a>.
 					Comma-separated; first match takes precedence.*/}}
 				</span>
+			</fieldset>
 
+			<fieldset id="tab-email-reports">
+				<legend>Email reports</legend>
+
+				<label for="email_reports">Email reports</label>
+				<select name="settings.email_reports" id="email_reports">
+					<option {{option_value .Site.Settings.EmailReports.String "0"}}>Never</option>
+					<option {{option_value .Site.Settings.EmailReports.String "1"}}>Daily</option>
+					<option {{option_value .Site.Settings.EmailReports.String "2"}}>Weekly</option>
+					<option {{option_value .Site.Settings.EmailReports.String "3"}}>Biweekly</option>
+					<option {{option_value .Site.Settings.EmailReports.String "4"}}>Monthly</option>
+				</select>
+				<span>Reports are sent on the first day of the new period (e.g. first day of the month).</span>
+
+				<label for="email_reports_cc">Also Cc reports to</label>
+				<input type="text" name="settings.email_reports_cc" id="email_reports_cc" value="{{.Site.Settings.EmailReportsCc}}">
+				{{validate "site.settings.email_reports_cc" .Validate}}
+				<span>Reports are always sent to your email address; you can add
+					a comma-separated list of other addresses to Cc it to.</span>
 			</fieldset>
 
 			<div class="flex-break"></div>
@@ -16572,7 +16625,7 @@ input    { float: right; padding: .4em !important; }
 </div>
 
 {{if .GoatcounterCom}}
-	<div>
+	<div class="tab-page">
 		<h2 id="additional-sites">Additional sites</h2>
 		{{if .Site.Parent}}
 			This site has a parent and can't have additional sites of its own.
@@ -16608,7 +16661,7 @@ input    { float: right; padding: .4em !important; }
 	</div>
 {{end}}
 
-<div>
+<div class="tab-page">
 	<h2 id="purge">Purge</h2>
 	<p>Remove all instances of a page.</p>
 
@@ -16631,7 +16684,7 @@ input    { float: right; padding: .4em !important; }
 	</form>
 </div>
 
-<div>
+<div class="tab-page">
 	<h2 id="export">Export</h2>
 	<p>Export all page hits as CSV, for backups, or if you want to import
 	somewhere else.</p>
@@ -16666,7 +16719,7 @@ input    { float: right; padding: .4em !important; }
 	</table>
 </div>
 
-<div>
+<div class="tab-page">
 	<h2 id="change-password">Change password</h2>
 
 	<form method="post" action="/user/change-password" class="form-max-width vertical">
@@ -16691,7 +16744,7 @@ input    { float: right; padding: .4em !important; }
 </div>
 
 {{if .GoatcounterCom}}
-	<div>
+	<div class="tab-page">
 		<h2 id="delete">Delete {{if .Site.Parent}}site{{else}}account{{end}}</h2>
 		{{if .Site.Parent}}
 			<p>Note this site has a parent
@@ -16948,6 +17001,91 @@ Someone (hopefully you) requested to reset the password on your GoatCounter acco
 
 You can do this here:
 {{.Site.URL}}/user/reset/{{.User.LoginRequest}}
+
+{{template "_email_bottom.gotxt" .}}
+`),
+	"tpl/email_report.gohtml": []byte(`<body style="font: 16px/1.2em sans-serif">
+<p>Hi there!</p>
+
+<p>This is your {{.PeriodNamely}} GoatCounter report for {{.DisplayDate}} for the site <a href="{{.Site.URL}}">{{.Site.URL}}</a>.</p>
+
+<table style="margin: 0 auto; margin-bottom: 1em; border-collapse: collapse;">
+<caption style="font-weight: bold; line-height: 4em;">Top 10 pages</caption>
+
+<thead><tr style="border-bottom: 2px solid #333">
+	<th style="padding: .5em; text-align: left">Path</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Visits</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Pageviews</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Growth</th>
+</tr></thead>
+<tbody>
+{{range $i, $p := .Pages}}<tr style="border-top: 1px solid #333">
+	<td style="padding: .5em;">{{$p.Path}}{{if $p.Event}} <sup>event</sup>{{end}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $p.CountUnique $.Site}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $p.Count $.Site}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{index $.Diffs $i}}</td>
+</tr>{{end}}
+</tbody>
+</table>
+
+<table style="margin: 0 auto; margin-bottom: 1em; border-collapse: collapse;">
+<caption style="font-weight: bold; line-height: 4em;">Top 10 referrers</caption>
+<thead><tr style="border-bottom: 2px solid #333">
+	<th style="padding: .5em; text-align: left">Referrer</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Visits</th>
+	<th style="padding: .5em; text-align: right; width: 7em;">Pageviews</th>
+</tr></thead>
+<tbody>
+{{range $r := .Refs}}<tr style="border-top: 1px solid #333">
+	<td style="padding: .5em;">{{if $r.Path}}{{$r.Path}}{{else}}(no data){{end}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $r.CountUnique $.Site}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $r.Count $.Site}}</td>
+</tr>{{end}}
+</tbody>
+</table>
+
+<p>
+{{if .NewFeature -}}
+Email reports were recently added to GoatCounter; this email is sent only once.
+Enable it in <a href="{{.Site.URL}}/settings#tab-email-reports">your settings</a> if you want to keep receiving it.
+{{else if .FirstTime -}}
+This email is automatically sent once for new sites.
+Enable it in <a href="{{.Site.URL}}/settings#tab-email-reports">your settings</a> if you want to keep receiving it.
+{{else -}}
+This is email is sent because it’s enabled in your settings.
+Disable it in <a href="{{.Site.URL}}/settings#tab-email-reports">your settings</a> if you want to stop receiving it.
+{{end}}
+</p>
+
+{{template "_email_bottom.gohtml" .}}
+</body>
+`),
+	"tpl/email_report.gotxt": []byte(`Hi there!
+
+This is your {{.PeriodNamely}} GoatCounter report for {{.DisplayDate}} for the site {{.Site.URL}}.
+
+                        Top 10 pages
+------------------------------------------------------------
+{{.TextPagesTable}}
+
+                      Top 10 referrers
+------------------------------------------------------------
+{{.TextRefTable}}
+
+This is the text version and best viewed with a monospace font.
+View the HTML version if the alignment is off.
+
+{{if .NewFeature -}}
+Email reports were recently added to GoatCounter; this email is sent only once.
+Enable it in your settings if you want to keep receiving it:
+{{else if .FirstTime -}}
+This email is automatically sent once for new sites.
+Enable it in your settings if you want to keep receiving it:
+{{else -}}
+This is email is sent because it’s enabled in your settings.
+Disable it in your settings if you want to stop receiving it:
+{{end -}}
+{{.Site.URL}}/settings#tab-email-reports
 
 {{template "_email_bottom.gotxt" .}}
 `),

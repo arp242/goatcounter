@@ -14,6 +14,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
+	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
@@ -30,6 +31,13 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 func (h *HitStats) List(
 	ctx context.Context, start, end time.Time, filter string, exclude []string, daily bool,
 ) (int, int, int, int, bool, error) {
+
+	if start.After(end) {
+		return 0, 0, 0, 0, false, guru.Errorf(400,
+			"HitStats.List: start date (%s) after end date (%s)",
+			start, end)
+	}
+
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
