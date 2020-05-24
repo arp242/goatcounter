@@ -25,12 +25,15 @@ Flags:
   -debug         Modules to debug, comma-separated or 'all' for all modules.
 
   -period        Check every n seconds. Default: 120.
+
+  -site          Limit the check to just one site; makes the query faster.
 `
 
 func monitor() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 	period := CommandLine.Int("period", 120, "")
+	site := CommandLine.Int("site", 0, "")
 	err := CommandLine.Parse(os.Args[2:])
 	if err != nil {
 		return 1, err
@@ -44,15 +47,19 @@ func monitor() (int, error) {
 	}
 	defer db.Close()
 
+	query := `select count(*) from hits where `
+	if *site > 0 {
+		query += fmt.Sprintf(`site=%d and `, *site)
+	}
+	query += ` created_at > now() - interval '%d seconds'`
+
 	l := zlog.Module("monitor")
 	d := time.Duration(*period) * time.Second
 	for {
 		l.Debug("check")
 
 		var n int
-		err := db.Get(&n, fmt.Sprintf(
-			`select count(*) from hits where created_at > now() - interval '%d seconds'`,
-			*period))
+		err := db.Get(&n, fmt.Sprintf(query, *period))
 		if err != nil {
 			l.Error(err)
 		}
