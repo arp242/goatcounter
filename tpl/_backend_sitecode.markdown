@@ -68,6 +68,7 @@ are supported:
 | `no_onload`   | Don’t do anything on page load. If you want to call `count()` manually. Also won’t bind events.             |
 | `no_events`   | Don’t bind click events.                                                                                    |
 | `allow_local` | Allow requests from local addresses (`localhost`, `192.168.0.0`, etc.) for testing the integration locally. |
+| `allow_frame` | Allow requests when the page is loaded in a frame or iframe. |
 | `endpoint`    | Customize the endpoint for sending pageviews to; see [Setting the endpoint in JavaScript ](#setting-the-endpoint-in-javascript). |
 
 ### Data parameters
