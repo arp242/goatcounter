@@ -522,6 +522,30 @@ commit;
 	insert into version values ('2020-05-23-1-event');
 commit;
 `),
+	"db/migrate/pgsql/2020-05-23-1-index.sql": []byte(`begin;
+	-- Unused
+	drop index if exists "browser_stats#site#day";
+	drop index if exists "location_stats#site#day";
+	drop index if exists "size_stats#site#day";
+	drop index if exists "users#login_request";
+	drop index if exists "users#login_token";
+
+	-- Used for purge
+	drop   index if exists     "hits#site#bot#path#created_at";
+	create index if not exists "hits#site#path" on hits(site, lower(path));
+
+	-- Some small performance gains
+	create index if not exists "session_paths#session#path" on session_paths(session, lower(path));
+	create index if not exists "updates#show_at" on updates(show_at);
+	create index if not exists "sessions#last_seen" on sessions(last_seen);
+
+	-- Not really used, and don't see it being used in the future.
+	alter table hits drop column if exists ref_original;
+	alter table hits drop column if exists ref_params;
+
+	insert into version values ('2020-05-23-1-index');
+commit;
+`),
 	"db/migrate/pgsql/2020-05-23-2-drop-ref-stats.sql": []byte(`begin;
 	drop table ref_stats;
 	insert into version values ('2020-05-23-2-drop-ref-stats');
@@ -1249,6 +1273,53 @@ commit;
 	insert into version values ('2020-05-23-1-event');
 commit;
 
+`),
+	"db/migrate/sqlite/2020-05-23-1-index.sql": []byte(`begin;
+	-- Unused
+	drop index "browser_stats#site#day";
+	drop index "location_stats#site#day";
+	drop index "size_stats#site#day";
+	drop index "users#login_request";
+	drop index "users#login_token";
+
+	-- Some small performance gains (small tables, but called a lot).
+	create index "session_paths#session#path" on session_paths(session, lower(path));
+	create index "updates#show_at" on updates(show_at);
+	create index "sessions#last_seen" on sessions(last_seen);
+
+	-- Not really used, and don't see it being used in the future.
+	-- alter table hits drop column ref_original;
+	-- alter table hits drop column ref_params;
+	-- alter table hits drop column id;
+	create table hits2 (
+		id             integer        primary key autoincrement,
+		site           integer        not null                 check(site > 0),
+		session        integer        default null,
+
+		path           varchar        not null,
+		title          varchar        not null default '',
+		event          int            default 0,
+		bot            int            default 0,
+		ref            varchar        not null,
+		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
+		browser        varchar        not null,
+		size           varchar        not null default '',
+		location       varchar        not null default '',
+		first_visit    int            default 0,
+
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
+	);
+
+	insert into hits2 select
+		id, site, session, path, title, event, bot, ref, ref_scheme, browser, size, location, first_visit, created_at
+	from hits;
+	drop table hits;
+	alter table hits2 rename to hits;
+	create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
+	create index "hits#site#path" on hits(site, lower(path));
+
+	insert into version values ('2020-05-23-1-index');
+commit;
 `),
 	"db/migrate/sqlite/2020-05-23-2-drop-ref-stats.sql": []byte(`begin;
 	drop table ref_stats;
@@ -16180,9 +16251,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 			<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
 			constants if it is.</td></tr>
 		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
-		<tr><th>Referrer (sanitized)</th><td>Sanitized referrer data.</td></tr>
-		<tr><th>Referrer query params</th><td>Query parameters of the referrer, if any.</td></tr>
-		<tr><th>Original Referrer</th><td>Original referrer as sent.</td></tr>
+		<tr><th>Referrer</th><td>Referrer data.</td></tr>
 		<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
 		<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
 		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>

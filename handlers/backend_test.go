@@ -76,7 +76,6 @@ func TestBackendCount(t *testing.T) {
 		{"ref params", url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
-			RefParams: ztest.SP("p=x"),
 			RefScheme: ztest.SP("h"),
 		}},
 
@@ -84,7 +83,6 @@ func TestBackendCount(t *testing.T) {
 			Path:      "/foo.html",
 			Title:     "XX",
 			Ref:       "example.com",
-			RefParams: ztest.SP("p=x"),
 			RefScheme: ztest.SP("h"),
 			Size:      zdb.Floats{40, 50, 1},
 		}},

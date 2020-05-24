@@ -35,9 +35,7 @@ func Export(ctx context.Context, fp *os.File) {
 
 	c := csv.NewWriter(gzfp)
 	c.Write([]string{"Path", "Title", "Event", "Bot", "Session",
-		"Referrer (sanitized)", "Referrer query params",
-		"Original Referrer", "Browser", "Screen size", "Location",
-		"Date"})
+		"Referrer", "Browser", "Screen size", "Location", "Date"})
 
 	var (
 		last int64
@@ -54,17 +52,9 @@ func Export(ctx context.Context, fp *os.File) {
 		}
 
 		for _, hit := range hits {
-			rp := ""
-			if hit.RefParams != nil {
-				rp = *hit.RefParams
-			}
-			ro := ""
-			if hit.RefOriginal != nil {
-				ro = *hit.RefOriginal
-			}
 			c.Write([]string{hit.Path, hit.Title, fmt.Sprintf("%t", hit.Event),
 				fmt.Sprintf("%d", hit.Bot), fmt.Sprintf("%d", hit.Session),
-				hit.Ref, rp, ro, hit.Browser, floatutil.Join(hit.Size, ","),
+				hit.Ref, hit.Browser, floatutil.Join(hit.Size, ","),
 				hit.Location, hit.CreatedAt.Format(time.RFC3339)})
 		}
 

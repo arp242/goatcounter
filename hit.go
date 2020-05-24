@@ -44,13 +44,11 @@ type Hit struct {
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"bot" json:"b,omitempty"`
 
-	RefParams   *string   `db:"ref_params" json:"-"`
-	RefOriginal *string   `db:"ref_original" json:"-"`
-	RefScheme   *string   `db:"ref_scheme" json:"-"`
-	Browser     string    `db:"browser" json:"-"`
-	Location    string    `db:"location" json:"-"`
-	FirstVisit  zdb.Bool  `db:"first_visit" json:"-"`
-	CreatedAt   time.Time `db:"created_at" json:"-"`
+	RefScheme  *string   `db:"ref_scheme" json:"-"`
+	Browser    string    `db:"browser" json:"-"`
+	Location   string    `db:"location" json:"-"`
+	FirstVisit zdb.Bool  `db:"first_visit" json:"-"`
+	CreatedAt  time.Time `db:"created_at" json:"-"`
 
 	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
@@ -110,11 +108,11 @@ var hostAlias = map[string]string{
 	"fr.reddit.com":      "www.reddit.com",
 }
 
-func cleanRefURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
+func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	// I'm not sure where these links are generated, but there are *a lot* of
 	// them.
 	if refURL.Host == "link.oreilly.com" {
-		return "link.oreilly.com", nil, true, false
+		return "link.oreilly.com", false
 	}
 
 	// Always remove protocol.
@@ -123,31 +121,28 @@ func cleanRefURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 		ref = ref[p+3:]
 	}
 
-	changed := false
-
 	// Normalize some hosts.
 	if a, ok := hostAlias[refURL.Host]; ok {
-		changed = true
 		refURL.Host = a
 	}
 
 	// Group based on URL.
 	if strings.HasPrefix(refURL.Host, "www.google.") {
 		// Group all "google.co.nz", "google.nl", etc. as "Google".
-		return "Google", nil, true, true
+		return "Google", true
 	}
 	if g, ok := groups[refURL.Host]; ok {
-		return g, nil, true, true
+		return g, true
 	}
 
 	// Useful: https://lobste.rs/s/tslw6k/why_i_m_still_using_jquery_2019
 	// Not really: https://lobste.rs/newest/page/8, https://lobste.rs/page/7
 	//             https://lobste.rs/search, https://lobste.rs/t/javascript
 	if refURL.Host == "lobste.rs" && !strings.HasPrefix(refURL.Path, "/s/") {
-		return "lobste.rs", nil, true, false
+		return "lobste.rs", false
 	}
 	if refURL.Host == "gambe.ro" && !strings.HasPrefix(refURL.Path, "/s/") {
-		return "lobste.rs", nil, true, false
+		return "lobste.rs", false
 	}
 
 	// Reddit
@@ -160,13 +155,10 @@ func cleanRefURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 		switch {
 		case strings.HasSuffix(refURL.Path, "/top") || strings.HasSuffix(refURL.Path, "/new"):
 			refURL.Path = refURL.Path[:len(refURL.Path)-4]
-			changed = true
 		case strings.HasSuffix(refURL.Path, "/search"):
 			refURL.Path = refURL.Path[:len(refURL.Path)-7]
-			changed = true
 		case strings.HasSuffix(refURL.Path, ".compact"):
 			refURL.Path = refURL.Path[:len(refURL.Path)-8]
-			changed = true
 		}
 	}
 
@@ -174,19 +166,16 @@ func cleanRefURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	i := strings.Index(ref, "?")
 	if i == -1 {
 		// No parameters so no work.
-		return strings.TrimLeft(refURL.String(), "/"), nil, changed, false
+		return strings.TrimLeft(refURL.String(), "/"), false
 	}
-	eq := ref[i+1:]
-	ref = ref[:i]
 
 	// Twitter's t.co links add this.
-	if refURL.Host == "t.co" && eq == "amp=1" {
-		return ref, nil, false, false
+	if refURL.Host == "t.co" && ref[i+1:] == "amp=1" {
+		return ref[:i], false
 	}
 
 	q := refURL.Query()
 	refURL.RawQuery = ""
-	start := len(q)
 
 	// Google analytics tracking parameters.
 	q.Del("utm_source")
@@ -195,10 +184,9 @@ func cleanRefURL(ref string, refURL *url.URL) (string, *string, bool, bool) {
 	q.Del("utm_term")
 
 	if len(q) == 0 {
-		return refURL.String()[2:], nil, changed || len(q) != start, false
+		return refURL.String()[2:], false
 	}
-	eq = q.Encode()
-	return refURL.String()[2:], &eq, changed || len(q) != start, false
+	return refURL.String()[2:], false
 }
 
 func (h *Hit) cleanPath(ctx context.Context) {
@@ -283,16 +271,6 @@ func (h Hit) String() string {
 	fmt.Fprintf(t, "Title\t%q\n", h.Title)
 	fmt.Fprintf(t, "Ref\t%q\n", h.Ref)
 	fmt.Fprintf(t, "Event\t%t\n", h.Event)
-	if h.RefParams == nil {
-		fmt.Fprintf(t, "RefParams\t<nil>\n")
-	} else {
-		fmt.Fprintf(t, "RefParams\t%q\n", *h.RefParams)
-	}
-	if h.RefOriginal == nil {
-		fmt.Fprintf(t, "RefOriginal\t<nil>\n")
-	} else {
-		fmt.Fprintf(t, "RefOriginal\t%q\n", *h.RefOriginal)
-	}
 	if h.RefScheme == nil {
 		fmt.Fprintf(t, "RefScheme\t<nil>\n")
 	} else {
@@ -346,13 +324,8 @@ func (h *Hit) Defaults(ctx context.Context) {
 			h.RefScheme = RefSchemeOther
 		}
 
-		var store, generated bool
-		r := h.Ref
-		h.Ref, h.RefParams, store, generated = cleanRefURL(h.Ref, h.RefURL)
-		if store {
-			h.RefOriginal = &r
-		}
-
+		var generated bool
+		h.Ref, generated = cleanRefURL(h.Ref, h.RefURL)
 		if generated {
 			h.RefScheme = RefSchemeGenerated
 		}
