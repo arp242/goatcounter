@@ -7,13 +7,13 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"net/mail"
 	"os"
 	"os/user"
 	"strings"
 	"time"
 
 	"github.com/teamwork/reload"
+	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/cfg"
@@ -23,7 +23,6 @@ import (
 	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -65,7 +64,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	CommandLine.BoolVar(&dev, "dev", false, "")
 	automigrate := CommandLine.Bool("automigrate", false, "")
 	listen := CommandLine.String("listen", "localhost:8081", "")
-	CommandLine.StringVar(&zmail.SMTP, "smtp", "stdout", "")
+	smtp := CommandLine.String("smtp", blackmail.ConnectWriter, "")
 	tls := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
 	from := CommandLine.String("email-from", "", "")
@@ -84,7 +83,11 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	}
 
 	flagErrors(*errors, v)
-	//v.Hostname("-smtp", zmail.SMTP)
+
+	if *smtp != blackmail.ConnectDirect && *smtp != blackmail.ConnectWriter {
+		v.URL("-smtp", *smtp)
+	}
+	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
 
 	return *dbConnect, dev, *automigrate, *listen, *tls, *from, err
 }
@@ -216,10 +219,10 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 
 			go func() {
 				defer zlog.Recover()
-				err := zmail.Send("GoatCounter Error",
-					mail.Address{Address: from},
-					[]mail.Address{{Address: to}},
-					zlog.Config.Format(l))
+				err := blackmail.Send("GoatCounter Error",
+					blackmail.From("", from),
+					blackmail.To(to),
+					blackmail.Bodyf(zlog.Config.Format(l)))
 				if err != nil {
 					// Just output to stderr I guess, can't really do much more if
 					// zlog fails.
@@ -250,9 +253,10 @@ func flagFrom(from string, v *zvalidate.Validator) {
 
 	cfg.EmailFrom = from
 
-	if zmail.SMTP != "stdout" {
-		v.Email("-email-from", from, fmt.Sprintf("%q is not a valid email address", from))
-	}
+	// TODO
+	// if zmail.SMTP != "stdout" {
+	// 	v.Email("-email-from", from, fmt.Sprintf("%q is not a valid email address", from))
+	// }
 }
 
 func flagStripe(stripe string, v *zvalidate.Validator) {

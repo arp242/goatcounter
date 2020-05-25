@@ -14,7 +14,6 @@ func TestServe(t *testing.T) {
 	defer clean()
 
 	out, code := run(t, "serving", []string{"serve",
-		"-smtp", "dummy",
 		"-listen", "localhost:31874",
 		"-db", dbc})
 	if code != 0 {
