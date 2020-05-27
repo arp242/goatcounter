@@ -13,13 +13,13 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -233,15 +233,14 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	go func() {
 		defer zlog.Recover()
-
-		err := zmail.SendTemplate("Welcome to GoatCounter!",
-			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
-			[]mail.Address{{Address: user.Email}},
-			"email_welcome.gotxt", struct {
+		err := blackmail.Send("Welcome to GoatCounter!",
+			blackmail.From("GoatCounter", cfg.EmailFrom),
+			blackmail.To(user.Email),
+			blackmail.BodyMustText(goatcounter.EmailTemplate("email_welcome.gotxt", struct {
 				Site        goatcounter.Site
 				User        goatcounter.User
 				CountDomain string
-			}{site, user, cfg.DomainCount})
+			}{site, user, cfg.DomainCount})))
 		if err != nil {
 			zlog.Errorf("welcome email: %s", err)
 		}
@@ -300,14 +299,13 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 
 	go func() {
 		defer zlog.Recover()
-
-		err = zmail.SendTemplate("Your GoatCounter sites",
+		err := blackmail.Send("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
-			[]mail.Address{{Address: args.Email}},
-			"email_forgot_site.gotxt", struct {
+			blackmail.To(args.Email),
+			blackmail.BodyMustText(goatcounter.EmailTemplate("email_forgot_site.gotxt", struct {
 				Sites goatcounter.Sites
 				Email string
-			}{sites, args.Email})
+			}{sites, args.Email})))
 		if err != nil {
 			zlog.Error(err)
 		}

@@ -9,11 +9,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/mail"
 	"strconv"
 	"time"
 
 	"github.com/go-chi/chi"
+	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
@@ -21,7 +21,6 @@ import (
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -63,10 +62,10 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		} else {
 			go func() {
 				defer zlog.Recover()
-				zmail.Send("New GoatCounter subscription "+site.Plan,
-					mail.Address{Name: "GoatCounter Billing", Address: "billing@goatcounter.com"},
-					[]mail.Address{{Address: "billing@goatcounter.com"}},
-					fmt.Sprintf(`New subscription: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
+				blackmail.Send("New GoatCounter subscription "+site.Plan,
+					blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
+					blackmail.To("billing@goatcounter.com"),
+					blackmail.Bodyf(`New subscription: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
 			}()
 
 			zhttp.Flash(w, "Payment processed successfully!")
@@ -265,10 +264,10 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 
 	go func() {
 		defer zlog.Recover()
-		zmail.Send("GoatCounter cancellation",
-			mail.Address{Name: "GoatCounter Billing", Address: "billing@goatcounter.com"},
-			[]mail.Address{{Address: "billing@goatcounter.com"}},
-			fmt.Sprintf(`Cancelled: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
+		blackmail.Send("GoatCounter cancellation",
+			blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
+			blackmail.To("billing@goatcounter.com"),
+			blackmail.Bodyf(`Cancelled: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
 	}()
 
 	zhttp.Flash(w, "Plan cancelled; you will be refunded for the remaining period.")

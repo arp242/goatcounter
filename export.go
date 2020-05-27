@@ -9,13 +9,12 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"net/mail"
 	"os"
 	"time"
 
+	"zgo.at/blackmail"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/floatutil"
-	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 )
 
@@ -108,13 +107,13 @@ func Export(ctx context.Context, fp *os.File) {
 	}
 
 	user := GetUser(ctx)
-	err = zmail.SendTemplate("GoatCounter export ready",
-		mail.Address{Name: "GoatCounter export", Address: cfg.EmailFrom},
-		[]mail.Address{{Address: user.Email}},
-		"email_export_done.gotxt", struct {
+	err = blackmail.Send("GoatCounter export ready",
+		blackmail.From("GoatCounter export", cfg.EmailFrom),
+		blackmail.To(user.Email),
+		blackmail.BodyMustText(EmailTemplate("email_export_done.gotxt", struct {
 			Site Site
 			Size string
-		}{*site, size})
+		}{*site, size})))
 	if err != nil {
 		l.Error(err)
 		return

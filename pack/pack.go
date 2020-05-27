@@ -15577,7 +15577,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	</div>
 </footer>
 `),
-	"tpl/_email_bottom.gotxt": []byte(`Feel free to reply to this email if you have any problems, questions, or feedback.
+	"tpl/_email_bottom.gotxt": []byte(`Any problems, questions, comments, or something else to tell me? Just reply to this email.
 
 Cheers,
 Martin

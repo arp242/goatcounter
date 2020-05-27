@@ -26,7 +26,6 @@ import (
 	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/zmail"
 	"zgo.at/zlog"
 	"zgo.at/ztest"
 )
@@ -50,7 +49,6 @@ func init() {
 	pack.Templates = nil
 	pack.Public = nil
 	zhttp.InitTpl(nil)
-	zmail.Print = false
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.GoatcounterCom = true

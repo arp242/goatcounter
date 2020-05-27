@@ -27,6 +27,7 @@ Backend
 | golang.org/x/sync                  | v0.0.0-20190911185100-cd5d95a43a6e | BSD     |
 | golang.org/x/sys                   | v0.0.0-20191110163157-d32e6e3b99c4 | BSD     |
 | golang.org/x/text                  | v0.3.0                             | BSD     |
+| zgo.at/blackmail                   |                                    | MIT     |
 | zgo.at/gadget                      |                                    | MIT     |
 | zgo.at/guru                        | v1.1.0                             | MIT     |
 | zgo.at/isbot                       | -                                  | MIT     |
