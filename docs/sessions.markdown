@@ -5,7 +5,7 @@ Session tracking
 counter we have now. A "session" is a single browsing session people have on a
 website.
 
-Right now, ever pageview shows up as-is in the dashboard, including things like
+Right now, every pageview shows up as-is in the dashboard, including things like
 page refreshes. There is also no ability to determine things like conversion
 rates and the like.
 
