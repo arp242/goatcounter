@@ -184,6 +184,11 @@ func (h *HitStats) List(
 	return total, totalUnique, totalDisplay, totalUniqueDisplay, more, nil
 }
 
+// PathTotals is a special path to indicate this is the "total" overview.
+//
+// Trailing whitespace is trimmed on paths, so this should never conflict.
+const PathTotals = "TOTAL "
+
 // Totals gets the totals overview of all pages.
 func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {
 	l := zlog.Module("HitStat.Totals")
@@ -211,7 +216,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	l = l.Since("total overview")
 
 	totalst := HitStat{
-		Path:  "",
+		Path:  PathTotals,
 		Title: "",
 	}
 	stats := make(map[string]Stat)

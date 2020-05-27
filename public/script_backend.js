@@ -17,7 +17,7 @@
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart, tsort,
+			draw_chart, tsort,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -349,30 +349,6 @@
 				},
 			});
 		});
-	};
-
-	// Paginate the top ref list.
-	var paginate_toprefs = function() {
-		$('.top-refs-chart .show-more').on('click', function(e) {
-			e.preventDefault();
-
-			var bar = $(this).parent().find('.chart-hbar:first')
-			var done = paginate_button($(this), () => {
-				jQuery.ajax({
-					url: '/toprefs',
-					data: append_period({
-						offset: $('.top-refs-chart [data-detail] > a').length,
-						total:  $('.total-hits').text().replace(/[^\d]/, ''),
-					}),
-					success: function(data) {
-						bar.append(data.html)
-						if (!data.has_more)
-							$('.top-refs-chart .show-more').remove()
-						done()
-					},
-				})
-			})
-		})
 	};
 
 	// Paginate the location chart.

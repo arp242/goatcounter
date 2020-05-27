@@ -1,13 +1,22 @@
-<tbody class="totals"><tr>
+<tbody class="totals"><tr id="TOTAL ">
 	<td>
 		<span title="Visits">{{nformat .TotalPages.CountUnique $.Site}}</span><br>
 		<span title="Pageviews" class="views">{{nformat .TotalPages.Count $.Site}}</span><br>
-	<td class="hide-mobile">Total</td>
+	</td>
+	<td class="hide-mobile">
+		<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Total</a>
+	</td>
 	<td>
-		<div class="show-mobile"><strong>Total</strong></div>
+		<div class="show-mobile">
+			<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20"><strong>Total</strong></a>
+		</div>
 		<div class="chart chart-bar chart-totals">
 			<span class="half"></span>
 			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
 		</div>
+		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
+			{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
+			{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
+		{{end}}</div>
 	</td>
 </tr></tbody>

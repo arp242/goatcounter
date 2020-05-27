@@ -12264,7 +12264,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart, tsort,
+			draw_chart, tsort,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -12596,30 +12596,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				},
 			});
 		});
-	};
-
-	// Paginate the top ref list.
-	var paginate_toprefs = function() {
-		$('.top-refs-chart .show-more').on('click', function(e) {
-			e.preventDefault();
-
-			var bar = $(this).parent().find('.chart-hbar:first')
-			var done = paginate_button($(this), () => {
-				jQuery.ajax({
-					url: '/toprefs',
-					data: append_period({
-						offset: $('.top-refs-chart [data-detail] > a').length,
-						total:  $('.total-hits').text().replace(/[^\d]/, ''),
-					}),
-					success: function(data) {
-						bar.append(data.html)
-						if (!data.has_more)
-							$('.top-refs-chart .show-more').remove()
-						done()
-					},
-				})
-			})
-		})
 	};
 
 	// Paginate the location chart.
@@ -15547,17 +15523,26 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr>
+	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr id="TOTAL ">
 	<td>
 		<span title="Visits">{{nformat .TotalPages.CountUnique $.Site}}</span><br>
 		<span title="Pageviews" class="views">{{nformat .TotalPages.Count $.Site}}</span><br>
-	<td class="hide-mobile">Total</td>
+	</td>
+	<td class="hide-mobile">
+		<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Total</a>
+	</td>
 	<td>
-		<div class="show-mobile"><strong>Total</strong></div>
+		<div class="show-mobile">
+			<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20"><strong>Total</strong></a>
+		</div>
 		<div class="chart chart-bar chart-totals">
 			<span class="half"></span>
 			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
 		</div>
+		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
+			{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
+			{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
+		{{end}}</div>
 	</td>
 </tr></tbody>
 `),
@@ -15843,17 +15828,6 @@ Martin
 				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
 			</div>
 			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
-		{{end}}
-	</div>
-	<div class="top-refs-chart">
-		<h2>Top referrers</h2>
-		{{if eq .TotalHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/pages-by-ref">{{horizontal_chart .Context .TopRefs .TotalTopRefs 0 0 true false}}</div>
-			</div>
-			{{if .ShowMoreRefs}}<a href="#" class="show-more">Show more</a>{{end}}
 		{{end}}
 	</div>
 </div>

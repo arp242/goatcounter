@@ -481,6 +481,9 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		order by count desc, path desc
 		limit $5 offset $6`,
 		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
+	if err != nil {
+		errors.Wrap(err, "RefStats.ListRefs")
+	}
 
 	var more bool
 	if len(*h) > limit {
@@ -490,7 +493,56 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 		*h = hh
 	}
 
-	return more, errors.Wrap(err, "RefStats.ListRefs")
+	return more, nil
+}
+
+// ListAllRefs lists all ref statistics for the given time period, excluding
+// referrals from the configured LinkDomain.
+//
+// The returned count is the count without LinkDomain, and is different from the
+// total number of hits.
+//
+// TODO: after ref_counts it no longer lists "unknown".
+func (h *HitStats) ListAllRefs(ctx context.Context, start, end time.Time, offset int) (bool, error) {
+	site := MustGetSite(ctx)
+
+	limit := site.Settings.Limits.Ref
+	if limit == 0 {
+		limit = 10
+	}
+
+	where := ` where site=? and hour>=? and hour<=?`
+	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+	if site.LinkDomain != "" {
+		where += " and ref not like ? "
+		args = append(args, site.LinkDomain+"%")
+	}
+
+	db := zdb.MustGet(ctx)
+	err := db.SelectContext(ctx, h, db.Rebind(`/* HitStats.ListAllRefs */
+		select
+			coalesce(sum(total), 0) as count,
+			coalesce(sum(total_unique), 0) as count_unique,
+			max(ref_scheme) as ref_scheme,
+			ref as path
+		from ref_counts`+
+		where+`
+		group by ref
+		order by count desc
+		limit ? offset ?`), append(args, limit+1, offset)...)
+	if err != nil {
+		return false, errors.Wrap(err, "HitStats.ListAllRefs")
+	}
+
+	var more bool
+	if len(*h) > limit {
+		more = true
+		hh := *h
+		hh = hh[:len(hh)-1]
+		*h = hh
+	}
+
+	return more, nil
 }
 
 // ListPaths lists all paths we have statistics for.
@@ -540,58 +592,6 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 		total += b.Count
 	}
 	return total, errors.Wrap(err, "HitStats.ByRef")
-}
-
-// ListRefs lists all ref statistics for the given time period, excluding
-// referrals from the configured LinkDomain.
-//
-// The returned count is the count without LinkDomain, and is different from the
-// total number of hits.
-//
-// TODO: after ref_counts it no longer lists "unknown".
-func (h *Stats) ListRefs(ctx context.Context, start, end time.Time, limit, offset int) (int, bool, error) {
-	site := MustGetSite(ctx)
-
-	where := ` where site=? and hour>=? and hour<=?`
-	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-	if site.LinkDomain != "" {
-		where += " and ref not like ? "
-		args = append(args, site.LinkDomain+"%")
-	}
-
-	db := zdb.MustGet(ctx)
-	err := db.SelectContext(ctx, h, db.Rebind(`/* Stats.ListRefs */
-		select
-			ref as name,
-			coalesce(sum(total), 0) as count,
-			coalesce(sum(total_unique), 0) as count_unique
-		from ref_counts`+
-		where+`
-		group by ref
-		order by count desc
-		limit ? offset ?`), append(args, limit+1, offset)...)
-	if err != nil {
-		return 0, false, errors.Wrap(err, "Stats.ListRefs")
-	}
-
-	// TODO: unique totals
-	var total int
-	err = db.GetContext(ctx, &total,
-		db.Rebind(`select coalesce(sum(total), 0) from ref_counts`+where),
-		args...)
-	if err != nil {
-		return 0, false, errors.Wrap(err, "Stats.ListRefs: total")
-	}
-
-	var more bool
-	if len(*h) > limit {
-		more = true
-		hh := *h
-		hh = hh[:len(hh)-1]
-		*h = hh
-	}
-
-	return total, more, nil
 }
 
 // ListBrowsers lists all browser statistics for the given time period.
