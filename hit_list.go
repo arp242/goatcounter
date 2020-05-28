@@ -352,7 +352,6 @@ func applyOffset(hh HitStats, site Site) {
 }
 
 func fillBlankDays(hh HitStats, start, end time.Time) {
-	endFmt := end.Format("2006-01-02")
 	for i := range hh {
 		var (
 			day     = start.Add(-24 * time.Hour)
@@ -370,7 +369,7 @@ func fillBlankDays(hh HitStats, start, end time.Time) {
 			} else {
 				newStat = append(newStat, Stat{Day: dayFmt, Hourly: allDays, HourlyUnique: allDays})
 			}
-			if dayFmt == endFmt {
+			if day.After(end) {
 				break
 			}
 		}

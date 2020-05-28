@@ -38,7 +38,7 @@ type AdminStats []AdminStat
 
 // List stats for all sites, for all time.
 func (a *AdminStats) List(ctx context.Context) error {
-	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
+	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`/* AdminStats.List */
 		select
 			sites.id,
 			sites.parent,
@@ -107,7 +107,7 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 
 	ival30 := interval(30)
 	ival60 := interval(30)
-	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`
+	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`/* *AdminSiteStat.ByID */
 		select
 			coalesce((select hour from hit_counts where site=$1 order by hour desc limit 1), '1970-01-01') as last_data,
 			coalesce((select sum(total) from hit_counts where site=$1), 0) as count_total,
