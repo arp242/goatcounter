@@ -15514,7 +15514,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 <head>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<title>{{.Site.Code}} – GoatCounter</title>
+	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
@@ -17465,7 +17465,7 @@ personal.</p>
 `),
 	"tpl/user.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
-<h1>Sign in at {{.Site.Code}}</h1>
+<h1>Sign in at {{.Site.Display}}</h1>
 {{template "_backend_signin.gohtml" .}}
 
 {{template "_backend_bottom.gohtml" .}}

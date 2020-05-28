@@ -379,6 +379,14 @@ func (s Site) Domain() string {
 	return cfg.Domain
 }
 
+// Display format: just the domain (cname or code+domain).
+func (s Site) Display() string {
+	if s.Cname != nil {
+		return *s.Cname
+	}
+	return fmt.Sprintf("%s.%s", s.Code, zhttp.RemovePort(cfg.Domain))
+}
+
 // URL to this site.
 func (s Site) URL() string {
 	if s.Cname != nil {
