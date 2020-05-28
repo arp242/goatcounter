@@ -17,7 +17,7 @@
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			paginate_toprefs, draw_chart, tsort,
+			draw_chart, bind_scale, tsort,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -50,13 +50,10 @@
 		});
 	}
 
-	// Replace the "height:" style with a background gradient and set the height
-	// to 100%.
-	//
-	// This way you can still hover the entire height.
-	var draw_chart = function() {
+	// Bind the Y-axis scale actions.
+	var bind_scale = function() {
 		var redraw = () => {
-			if ($('#scale').val() === $('.count-list-pages').attr('data-scale'))
+			if ($('#scale').val() === get_max())
 				return $('#scale').removeClass('value')
 
 			$('#scale').addClass('value')
@@ -76,14 +73,27 @@
 				t = setTimeout(redraw, 300)
 			})
 
-		$('#scale-reset').on('click', (e) => {
+		$('#scale-half').on('click', (e) => {
 			clearTimeout(t)
 			e.preventDefault()
-			$('#scale').val($('.count-list-pages').attr('data-max'))
+			$('#scale').val(Math.max(10, Math.ceil(parseInt($('#scale').val(), 10) / 2)))
 			redraw()
 		})
 
-		var scale = parseInt($('#scale').val(), 10) / parseInt($('.count-list-pages').attr('data-max'), 10)
+		$('#scale-reset').on('click', (e) => {
+			clearTimeout(t)
+			e.preventDefault()
+			$('#scale').val(get_max())
+			redraw()
+		})
+	}
+
+	// Replace the "height:" style with a background gradient and set the height
+	// to 100%.
+	//
+	// This way you can still hover the entire height.
+	var draw_chart = function() {
+		var scale = parseInt($('#scale').val(), 10) / parseInt(get_max(), 10)
 		$('.chart-bar').each(function(i, chart) {
 			if (chart.dataset.done === 't')
 				return
@@ -172,6 +182,11 @@
 		});
 	};
 
+	// Get the original y-axis max.
+	var get_max = function() {
+		return $('.count-list-pages').attr('data-max')
+	}
+
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
 	var filter_paths = function() {
@@ -189,7 +204,11 @@
 				$(e.target).after(loading)
 				jQuery.ajax({
 					url:     '/pages',
-					data:    append_period({filter: filter}),
+					data:    append_period({
+						filter: filter,
+						daily:  $('#daily').is(':checked'),
+						max:    get_max(),
+					}),
 					success: function(data) {
 						update_pages(data, true)
 						loading.remove()
@@ -214,8 +233,9 @@
 					url:  '/pages',
 					data: append_period({
 						filter:  $('#filter-paths').val(),
-						daily:   $('#daily').is(':selected'),
+						daily:   $('#daily').is(':checked'),
 						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+						max:     get_max(),
 					}),
 					success: function(data) {
 						update_pages(data, false)
@@ -228,10 +248,15 @@
 
 	// Update the page list from ajax request on pagination/filter.
 	var update_pages = function(data, from_filter) {
-		if (from_filter)
-			$('.pages-list .count-list-pages > tbody').html(data.rows);
+		if (from_filter) {
+			$('.count-list-pages').attr('data-max', data.max)
+			$('#scale').val(data.max)
+
+			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
+			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
+		}
 		else
-			$('.pages-list .count-list-pages > tbody').append(data.rows);
+			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
 		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
@@ -262,7 +287,9 @@
 	var highlight_filter = function(s) {
 		if (s === '')
 			return;
-		$('.pages-list .count-list-pages > tbody').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
+		$('.pages-list .count-list-pages > tbody.pages').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
+			if ($(elem).find('b').length)  // Don't apply twice after pagination
+				return
 			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
 		});
 	};
@@ -332,30 +359,6 @@
 				},
 			});
 		});
-	};
-
-	// Paginate the top ref list.
-	var paginate_toprefs = function() {
-		$('.top-refs-chart .show-more').on('click', function(e) {
-			e.preventDefault();
-
-			var bar = $(this).parent().find('.chart-hbar:first')
-			var done = paginate_button($(this), () => {
-				jQuery.ajax({
-					url: '/toprefs',
-					data: append_period({
-						offset: $('.top-refs-chart [data-detail] > a').length,
-						total:  $('.total-hits').text().replace(/[^\d]/, ''),
-					}),
-					success: function(data) {
-						bar.append(data.html)
-						if (!data.has_more)
-							$('.top-refs-chart .show-more').remove()
-						done()
-					},
-				})
-			})
-		})
 	};
 
 	// Paginate the location chart.
@@ -545,7 +548,7 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.rlink', function(e) {
+		$('.count-list-pages').on('click', '.load-refs', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),

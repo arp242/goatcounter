@@ -170,9 +170,9 @@ func TestHitStatsList(t *testing.T) {
 			gctest.StoreHits(ctx, t, tt.in...)
 
 			var stats goatcounter.HitStats
-			total, totalUnique, totalDisplay, uniqueDisplay, max, more, err := stats.List(
+			total, totalUnique, totalDisplay, uniqueDisplay, more, err := stats.List(
 				ctx, start, end, tt.inFilter, tt.inExclude, false)
-			_, _, _ = totalUnique, uniqueDisplay, max // TODO
+			_, _ = totalUnique, uniqueDisplay // TODO
 
 			got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
 			if got != tt.wantReturn {

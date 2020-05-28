@@ -84,7 +84,7 @@ form .err  { color: red; display: block; }
 
 .count-list td:first-child {  /* Count */
 	text-align: right;
-	width: 5em;
+	width: 5rem;
 }
 .count-list td[colspan="3"] {  /* "nothing to display" */
 	text-align: left;
@@ -92,21 +92,29 @@ form .err  { color: red; display: block; }
 }
 
 .count-list td:nth-child(2) {  /* Path */
-	width: 20em;
+	width: 20rem;
 }
 
 .count-list.count-list-refs td:nth-child(1) {
 	text-align: right;
-	width: 4em;
+	width: 4rem;
 }
 .count-list.count-list-refs td:nth-child(2) {
 	text-align: right;
-	width: 4em;
+	width: 4rem;
 }
 
 .count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
+}
+
+/* Totals */
+.count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
+.count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
+.count-list .totals .load-refs.desktop {
+	float: right;
+	margin-right: 1em;
 }
 
 .label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
@@ -129,8 +137,11 @@ form .err  { color: red; display: block; }
 	background-color: inherit;
 }
 
-.count-list tr:target > td:nth-child(2) .rlink,
-.count-list tr.target > td:nth-child(2) .rlink {
+/* Border doesn't affect layout. */
+.count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
+
+.count-list tr:target > td:nth-child(2) .load-refs,
+.count-list tr.target > td:nth-child(2) .load-refs {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }
@@ -384,25 +395,19 @@ noscript p { margin: .5em; }
 header h2 { border-bottom: 0; display: inline; }
 header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
 
-.header-pages         { display: flex; font-size: .9rem; }
+.header-pages         { display: flex; justify-content: space-between; font-size: .9rem; }
 .header-pages h2      { margin: 0; margin-right: 1em; display: none; }
 .header-pages span    { margin-left: 0; }
 .header-pages .totals { flex-grow: 1; }
 .header-pages input#filter-paths,
 .header-pages input#scale,
-.header-pages select#display { padding: .2em; margin-right: 1em; }
+.header-pages select#display { padding: .2em; }
 .header-pages input.value    { background-color: yellow; }
 .header-pages .totals-small  { display: none; }
 
-@media (max-width: 36rem) {
-	.header-pages input#filter-paths { max-width: 10em; }
-	.header-pages .totals       { display: none; }
-	.header-pages .totals-small { display: block; }
-}
+.header-pages input#scale { width: 6em; margin-right: .2em; }
+.header-pages .scale-wrap { }
 
-.header-pages input#scale { width: 6em; }
-/* Don't wrap on smaller screens; prefer counts to wrap instead. */
-.header-pages .scale-wrap { white-space: no-wrap; }
 
 h3 + h4 { margin-top: .3em; }
 
@@ -419,6 +424,7 @@ h3 + h4 { margin-top: .3em; }
   50%  { content: ".."; }
   100% { content: "..."; }
 }
+/* TODO: See if we can have it sit in the margin */
 a.loading        { color: #777; }
 a.loading:hover  { color: #777; text-decoration: none; }
 a.loading::after { content: ""; animation: loading 500ms linear infinite; }
@@ -429,3 +435,10 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 /* Filter */
 .filter-wrap                 { position: relative; }
 .filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
+.header-pages .filter-wrap   { margin-left: 5.5rem; }
+@media (max-width: 32rem) {
+	.header-pages .filter-wrap       { margin-left: .2rem; }
+}
+@media (max-width: 28rem) {
+	.header-pages input#filter-paths { max-width: 10em; }
+}

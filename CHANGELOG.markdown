@@ -44,8 +44,12 @@ afterwards.
 
   Previously GoatCounter would scale the Y-axis different for every path in the
   dashboard, but this was more confusing than helpful. It's now always scaled to
-  the maximum of all paths in the selected time range, and there's a input to
-  scale it lower if desired.
+  the maximum of all paths in the selected date range and filter, with a field
+  to scale it lower on-demand if desired.
+
+- Add totals overview (#271)
+
+  Add chart with totals for the selected date range and filter.
 
 - Add `goatcounter.url()`, `goatcounter.filter()` (#272, #253)
 
