@@ -13,6 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -359,9 +360,7 @@ func (u *User) GetToken() string {
 
 // SendLoginMail sends the login email.
 func (u *User) SendLoginMail(ctx context.Context, site *Site) {
-	go func() {
-		defer zlog.Recover()
-
+	bgrun.Run(func() {
 		err := blackmail.Send("Your login URL",
 			blackmail.From("GoatCounter login", cfg.EmailFrom),
 			blackmail.To(u.Email),
@@ -371,7 +370,7 @@ func (u *User) SendLoginMail(ctx context.Context, site *Site) {
 		if err != nil {
 			zlog.Errorf("blackmail: %s", err)
 		}
-	}()
+	})
 }
 
 // SeenUpdates marks this user as having seen all updates up until now.

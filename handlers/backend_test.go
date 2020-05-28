@@ -20,6 +20,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/isbot"
@@ -396,10 +397,7 @@ func TestBackendPurge(t *testing.T) {
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			// Wait for goroutine.
-			// TODO: should add proper sync to wait for *all* goroutines to
-			// finish on exit.
-			time.Sleep(200 * time.Millisecond)
+			bgrun.Wait()
 
 			var hits goatcounter.Hits
 			_, err := hits.List(r.Context(), 0, 0)

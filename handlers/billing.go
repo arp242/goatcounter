@@ -16,6 +16,7 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/utils/jsonutil"
@@ -60,13 +61,12 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				"stripeID": stripe,
 			}).Errorf("stripe not processed")
 		} else {
-			go func() {
-				defer zlog.Recover()
+			bgrun.Run(func() {
 				blackmail.Send("New GoatCounter subscription "+site.Plan,
 					blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
 					blackmail.To("billing@goatcounter.com"),
 					blackmail.Bodyf(`New subscription: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
-			}()
+			})
 
 			zhttp.Flash(w, "Payment processed successfully!")
 		}
@@ -262,13 +262,12 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	go func() {
-		defer zlog.Recover()
+	bgrun.Run(func() {
 		blackmail.Send("GoatCounter cancellation",
 			blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
 			blackmail.To("billing@goatcounter.com"),
 			blackmail.Bodyf(`Cancelled: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
-	}()
+	})
 
 	zhttp.Flash(w, "Plan cancelled; you will be refunded for the remaining period.")
 	return zhttp.SeeOther(w, "/billing")
@@ -301,9 +300,8 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		go func(r *http.Request, s Session) {
-			ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
-
+		ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
+		bgrun.Run(func() {
 			l := zlog.Module("billing").FieldsRequest(r).Field("session", s)
 			id, err := strconv.ParseInt(s.ClientReferenceID, 10, 64)
 			if err != nil {
@@ -323,7 +321,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 				l.Error(err)
 				return
 			}
-		}(r, s)
+		})
 	}
 
 	return zhttp.String(w, "okay")

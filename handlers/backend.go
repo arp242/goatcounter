@@ -25,6 +25,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
@@ -248,10 +249,8 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if uint8(hit.Bot) >= isbot.BotJSPhanton {
-		go func() {
-			defer zlog.Recover()
-			ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
-
+		ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
+		bgrun.Run(func() {
 			bl := goatcounter.AdminBotlog{
 				Bot:       hit.Bot,
 				UserAgent: r.UserAgent(),
@@ -262,7 +261,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 			if err != nil {
 				zlog.Error(err)
 			}
-		}()
+		})
 	}
 
 	// TODO: move to memstore?
@@ -860,14 +859,12 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if makecert {
-		go func() {
-			defer zlog.Recover()
-
+		bgrun.Run(func() {
 			err := acme.Make(args.Cname)
 			if err != nil {
 				zlog.Field("domain", args.Cname).Error(err)
 			}
-		}()
+		})
 	}
 
 	zhttp.Flash(w, "Saved!")
@@ -884,7 +881,7 @@ func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	go goatcounter.Export(ctx, fp)
+	bgrun.Run(func() { goatcounter.Export(ctx, fp) })
 
 	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")
@@ -1012,16 +1009,14 @@ func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
-	go func() {
-		defer zlog.Recover()
-
-		ctx := goatcounter.NewContext(r.Context())
+	ctx := goatcounter.NewContext(r.Context())
+	bgrun.Run(func() {
 		var list goatcounter.Hits
 		err := list.Purge(ctx, r.Form.Get("path"), r.Form.Get("match-title") == "on")
 		if err != nil {
 			zlog.Error(err)
 		}
-	}()
+	})
 
 	zhttp.Flash(w, "Started in the background; may take about 10-20 seconds to fully process.")
 	return zhttp.SeeOther(w, "/settings#tab-purge")
@@ -1087,9 +1082,7 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		if args.Reason != "" {
-			go func() {
-				defer zlog.Recover()
-
+			bgrun.Run(func() {
 				contact := "false"
 				if args.ContactMe {
 					var u goatcounter.User
@@ -1106,7 +1099,7 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 					blackmail.To(cfg.EmailFrom),
 					blackmail.Bodyf(`Deleted: %s (%d): contact_me: %s; reason: %s`,
 						site.Code, site.ID, contact, args.Reason))
-			}()
+			})
 		}
 	}
 

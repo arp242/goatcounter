@@ -11,6 +11,7 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
@@ -160,7 +161,13 @@ func serve() (int, error) {
 
 	zhttp.InitTpl(pack.Templates)
 	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
-	defer setupCron(db)()
+
+	cronWait := setupCron(db)
+	defer func() {
+		defer cronWait()
+		defer bgrun.WaitAndLog()
+		zlog.Print("Waiting for background tasks to finish…")
+	}()
 
 	// Set up HTTP handler and servers.
 	hosts := map[string]http.Handler{

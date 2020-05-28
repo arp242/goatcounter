@@ -18,6 +18,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -126,8 +127,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	go func() {
-		defer zlog.Recover()
+	bgrun.Run(func() {
 		err := blackmail.Send(
 			fmt.Sprintf("Password reset for %s", site.Domain()),
 			blackmail.From("GoatCounter login", cfg.EmailFrom),
@@ -139,7 +139,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			zlog.Errorf("password reset: %s", err)
 		}
-	}()
+	})
 
 	zhttp.Flash(w, "Email sent to %q", args.Email)
 	return zhttp.SeeOther(w, "/user/forgot")
@@ -373,8 +373,7 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 }
 
 func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
-	go func() {
-		defer zlog.Recover()
+	bgrun.Run(func() {
 		err := blackmail.Send("Verify your email",
 			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
 			blackmail.To(user.Email),
@@ -385,7 +384,7 @@ func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
 		if err != nil {
 			zlog.Errorf("blackmail: %s", err)
 		}
-	}()
+	})
 }
 
 func (h user) verify(w http.ResponseWriter, r *http.Request) error {

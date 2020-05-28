@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/utils/jsonutil"
 	"zgo.at/zdb"
@@ -467,9 +468,7 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 	}
 
 	if newIP {
-		go func() {
-			defer zlog.Recover()
-
+		bgrun.Run(func() {
 			// apk add whois drill
 			whois, err := exec.Command("whois", "-r", "--", "--resource", ip).CombinedOutput()
 			if err != nil {
@@ -516,7 +515,7 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 			if err != nil {
 				zlog.Errorf("AdminBotlog.Insert: %w", err)
 			}
-		}()
+		})
 	}
 
 	return nil

@@ -16,6 +16,7 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/tz"
 	"zgo.at/zdb"
@@ -231,8 +232,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		zhttp.SetCookie(w, *user.LoginToken, site.Domain())
 	}
 
-	go func() {
-		defer zlog.Recover()
+	bgrun.Run(func() {
 		err := blackmail.Send("Welcome to GoatCounter!",
 			blackmail.From("GoatCounter", cfg.EmailFrom),
 			blackmail.To(user.Email),
@@ -244,7 +244,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			zlog.Errorf("welcome email: %s", err)
 		}
-	}()
+	})
 
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL()))
 }
@@ -297,7 +297,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		sites = append(sites, s)
 	}
 
-	go func() {
+	bgrun.Run(func() {
 		defer zlog.Recover()
 		err := blackmail.Send("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
@@ -309,7 +309,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			zlog.Error(err)
 		}
-	}()
+	})
 
 	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
 	return zhttp.SeeOther(w, "/user/forgot")
