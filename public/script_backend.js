@@ -55,11 +55,12 @@
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
 		var redraw = () => {
-			if ($('#scale').val() === get_max())
-				return $('#scale').removeClass('value')
+			if (get_current_scale() === get_original_scale())
+				$('#scale').removeClass('value')
+			else
+				$('#scale').addClass('value')
 
-			$('#scale').addClass('value')
-			$('.count-list-pages').attr('data-scale', $('#scale').val())
+			$('.count-list-pages').attr('data-scale', get_current_scale())
 			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
 		}
@@ -78,14 +79,14 @@
 		$('#scale-half').on('click', (e) => {
 			clearTimeout(t)
 			e.preventDefault()
-			$('#scale').val(Math.max(10, Math.ceil(parseInt($('#scale').val(), 10) / 2)))
+			$('#scale').val(Math.max(10, Math.ceil(parseInt(get_current_scale(), 10) / 2)))
 			redraw()
 		})
 
 		$('#scale-reset').on('click', (e) => {
 			clearTimeout(t)
 			e.preventDefault()
-			$('#scale').val(get_max())
+			$('#scale').val(get_original_scale())
 			redraw()
 		})
 	}
@@ -95,7 +96,7 @@
 	//
 	// This way you can still hover the entire height.
 	var draw_chart = function() {
-		var scale = parseInt($('#scale').val(), 10) / parseInt(get_max(), 10)
+		var scale = parseInt(get_current_scale(), 10) / parseInt(get_original_scale(), 10)
 		$('.chart-bar').each(function(i, chart) {
 			if (chart.dataset.done === 't')
 				return
@@ -184,10 +185,9 @@
 		});
 	};
 
-	// Get the original y-axis max.
-	var get_max = function() {
-		return $('.count-list-pages').attr('data-max')
-	}
+	// Get the Y-axis scake.
+	var get_original_scale = function(current) { return $('.count-list-pages').attr('data-max') }
+	var get_current_scale  = function(current) { return $('#scale').val() }
 
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
@@ -209,7 +209,7 @@
 					data:    append_period({
 						filter: filter,
 						daily:  $('#daily').is(':checked'),
-						max:    get_max(),
+						max:    get_original_scale(),
 					}),
 					success: function(data) {
 						update_pages(data, true)
@@ -237,7 +237,7 @@
 						filter:  $('#filter-paths').val(),
 						daily:   $('#daily').is(':checked'),
 						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
-						max:     get_max(),
+						max:     get_original_scale(),
 					}),
 					success: function(data) {
 						update_pages(data, false)
