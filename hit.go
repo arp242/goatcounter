@@ -387,36 +387,27 @@ func (h *Hits) Count(ctx context.Context) (int64, error) {
 }
 
 // Purge all paths matching the like pattern.
-func (h *Hits) Purge(ctx context.Context, path string) error {
+func (h *Hits) Purge(ctx context.Context, path string, matchTitle bool) error {
+	query := `/* Hits.Purge */
+		delete from %s where site=$1 and lower(path) like lower($2)`
+	if matchTitle {
+		query += ` and lower(title) like lower($2) `
+	}
+
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		site := MustGetSite(ctx).ID
 
-		_, err := tx.ExecContext(ctx,
-			`delete from hits where site=$1 and lower(path) like lower($2)`,
-			site, path)
-		if err != nil {
-			return errors.Wrap(err, "Hits.Purge")
+		for _, t := range []string{"hits", "hit_stats", "hit_counts"} {
+			_, err := tx.ExecContext(ctx, fmt.Sprintf(query, t), site, path)
+			if err != nil {
+				return errors.Wrapf(err, "Hits.Purge %s", t)
+			}
 		}
-
-		_, err = tx.ExecContext(ctx,
-			`delete from hit_stats where site=$1 and lower(path) like lower($2)`,
+		_, err := tx.ExecContext(ctx, `/* Hits.Purge */
+			delete from ref_counts where site=$1 and lower(path) like lower($2)`,
 			site, path)
 		if err != nil {
-			return errors.Wrap(err, "Hits.Purge")
-		}
-
-		_, err = tx.ExecContext(ctx,
-			`delete from hit_counts where site=$1 and lower(path) like lower($2)`,
-			site, path)
-		if err != nil {
-			return errors.Wrap(err, "Hits.Purge")
-		}
-
-		_, err = tx.ExecContext(ctx,
-			`delete from ref_counts where site=$1 and lower(path) like lower($2)`,
-			site, path)
-		if err != nil {
-			return errors.Wrap(err, "Hits.Purge")
+			return errors.Wrap(err, "Hits.Purge ref_counts")
 		}
 
 		// Delete all other stats as well if there's nothing left: not much use
@@ -555,13 +546,18 @@ func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
 }
 
 // ListPathsLike lists all paths matching the like pattern.
-func (h *HitStats) ListPathsLike(ctx context.Context, path string) error {
+func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bool) error {
+	t := ""
+	if matchTitle {
+		t = " or lower(title) like lower($2) "
+	}
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select path, sum(total) as count from hit_counts
-		where site=$1 and lower(path) like lower($2)
-		group by path
+		select path, title, sum(total) as count from hit_counts
+		where site=$1 and (lower(path) like lower($2) `+t+`)
+		group by path, title
 		order by count desc
-		`, MustGetSite(ctx).ID, path)
+	`, MustGetSite(ctx).ID, path)
 	return errors.Wrap(err, "Hits.ListPaths")
 }
 

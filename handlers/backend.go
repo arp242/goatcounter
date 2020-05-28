@@ -996,8 +996,10 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 	path := strings.TrimSpace(r.URL.Query().Get("path"))
+	title := r.URL.Query().Get("match-title") == "on"
+
 	var list goatcounter.HitStats
-	err := list.ListPathsLike(r.Context(), path)
+	err := list.ListPathsLike(r.Context(), path, title)
 	if err != nil {
 		return err
 	}
@@ -1010,13 +1012,18 @@ func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
-	var list goatcounter.Hits
-	err := list.Purge(r.Context(), r.Form.Get("path"))
-	if err != nil {
-		return err
-	}
+	go func() {
+		defer zlog.Recover()
 
-	zhttp.Flash(w, "Done!")
+		ctx := goatcounter.NewContext(r.Context())
+		var list goatcounter.Hits
+		err := list.Purge(ctx, r.Form.Get("path"), r.Form.Get("match-title") == "on")
+		if err != nil {
+			zlog.Error(err)
+		}
+	}()
+
+	zhttp.Flash(w, "Started in the background; may take about 10-20 seconds to fully process.")
 	return zhttp.SeeOther(w, "/settings#tab-purge")
 }
 

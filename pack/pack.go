@@ -16162,10 +16162,10 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 {{else}}
 	<p>The following paths match <code>{{.PurgePath}}</code>:</p>
 	<table>
-		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th></tr></thead></thead>
+		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th><th>Title</th></tr></thead></thead>
 		<tbody>
 			{{range $s := .List}}
-				<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Path}}</td></tr>
+				<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
 			{{end}}
 		</tbody>
 	</table>
@@ -16400,9 +16400,10 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 		though (using <code>%</code>, or if there are no more paths left).</p>
 
 	<form method="get" action="/purge">
-		<input type="text" name="path" placeholder="Path" required>
+		<input type="text" name="path" placeholder="Path" required autocomplete="off">
 		<button type="submit">Purge</button>
-		<span>You will see a preview of matches before anything is deleted</span>
+		<span>You will see a preview of matches before anything is deleted</span><br>
+		<label><input type="checkbox" name="match-title"> Match title as well</label>
 	</form>
 </div>
 
