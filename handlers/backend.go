@@ -634,12 +634,21 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			totalTpl, totalErr = zhttp.ExecuteTpl("_backend_totals.gohtml", struct {
-				Context    context.Context
-				Site       *goatcounter.Site
-				TotalPages goatcounter.HitStat
-				Daily      bool
-				Max        int
-			}{r.Context(), site, totalPages, daily, max})
+				Context     context.Context
+				Site        *goatcounter.Site
+				PeriodStart time.Time
+				PeriodEnd   time.Time
+				TotalPages  goatcounter.HitStat
+				Daily       bool
+				Max         int
+
+				// Dummy values so template won't error out.
+				TotalUniqueDisplay int
+				TotalHitsDisplay   int
+				Refs               bool
+				ShowRefs           string
+			}{r.Context(), site, start, end, totalPages, daily, max,
+				0, 0, false, ""})
 		}()
 	}
 

@@ -12264,7 +12264,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, tsort,
+			draw_chart, bind_scale, tsort,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -12297,13 +12297,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 	}
 
-	// Replace the "height:" style with a background gradient and set the height
-	// to 100%.
-	//
-	// This way you can still hover the entire height.
-	var draw_chart = function() {
+	// Bind the Y-axis scale actions.
+	var bind_scale = function() {
 		var redraw = () => {
-			if ($('#scale').val() === $('.count-list-pages').attr('data-scale'))
+			if ($('#scale').val() === get_max())
 				return $('#scale').removeClass('value')
 
 			$('#scale').addClass('value')
@@ -12323,13 +12320,26 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				t = setTimeout(redraw, 300)
 			})
 
+		$('#scale-half').on('click', (e) => {
+			clearTimeout(t)
+			e.preventDefault()
+			$('#scale').val(Math.max(10, Math.ceil(parseInt($('#scale').val(), 10) / 2)))
+			redraw()
+		})
+
 		$('#scale-reset').on('click', (e) => {
 			clearTimeout(t)
 			e.preventDefault()
 			$('#scale').val(get_max())
 			redraw()
 		})
+	}
 
+	// Replace the "height:" style with a background gradient and set the height
+	// to 100%.
+	//
+	// This way you can still hover the entire height.
+	var draw_chart = function() {
 		var scale = parseInt($('#scale').val(), 10) / parseInt(get_max(), 10)
 		$('.chart-bar').each(function(i, chart) {
 			if (chart.dataset.done === 't')
@@ -12785,7 +12795,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.rlink', function(e) {
+		$('.count-list-pages').on('click', '.load-refs', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
@@ -13354,8 +13364,11 @@ form .err  { color: red; display: block; }
 
 /* Totals */
 .count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
-.count-list .totals td:nth-child(2) { font-weight: bold; }
 .count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
+.count-list .totals .load-refs.desktop {
+	float: right;
+	margin-right: 1em;
+}
 
 .label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
 
@@ -13377,8 +13390,11 @@ form .err  { color: red; display: block; }
 	background-color: inherit;
 }
 
-.count-list tr:target > td:nth-child(2) .rlink,
-.count-list tr.target > td:nth-child(2) .rlink {
+/* Border doesn't affect layout. */
+.count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
+
+.count-list tr:target > td:nth-child(2) .load-refs,
+.count-list tr.target > td:nth-child(2) .load-refs {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }
@@ -13632,25 +13648,19 @@ noscript p { margin: .5em; }
 header h2 { border-bottom: 0; display: inline; }
 header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
 
-.header-pages         { display: flex; font-size: .9rem; }
+.header-pages         { display: flex; justify-content: space-between; font-size: .9rem; }
 .header-pages h2      { margin: 0; margin-right: 1em; display: none; }
 .header-pages span    { margin-left: 0; }
 .header-pages .totals { flex-grow: 1; }
 .header-pages input#filter-paths,
 .header-pages input#scale,
-.header-pages select#display { padding: .2em; margin-right: 1em; }
+.header-pages select#display { padding: .2em; }
 .header-pages input.value    { background-color: yellow; }
 .header-pages .totals-small  { display: none; }
 
-@media (max-width: 36rem) {
-	.header-pages input#filter-paths { max-width: 10em; }
-	.header-pages .totals       { display: none; }
-	.header-pages .totals-small { display: block; }
-}
+.header-pages input#scale { width: 6em; margin-right: .2em; }
+.header-pages .scale-wrap { }
 
-.header-pages input#scale { width: 6em; }
-/* Don't wrap on smaller screens; prefer counts to wrap instead. */
-.header-pages .scale-wrap { white-space: no-wrap; }
 
 h3 + h4 { margin-top: .3em; }
 
@@ -13667,6 +13677,7 @@ h3 + h4 { margin-top: .3em; }
   50%  { content: ".."; }
   100% { content: "..."; }
 }
+/* TODO: See if we can have it sit in the margin */
 a.loading        { color: #777; }
 a.loading:hover  { color: #777; text-decoration: none; }
 a.loading::after { content: ""; animation: loading 500ms linear infinite; }
@@ -13677,6 +13688,13 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 /* Filter */
 .filter-wrap                 { position: relative; }
 .filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
+.header-pages .filter-wrap   { margin-left: 5.5rem; }
+@media (max-width: 32rem) {
+	.header-pages .filter-wrap       { margin-left: .2rem; }
+}
+@media (max-width: 28rem) {
+	.header-pages input#filter-paths { max-width: 10em; }
+}
 `),
 }
 
@@ -14831,14 +14849,14 @@ var Templates = map[string][]byte{
 			<span title="Pageviews" class="views">{{nformat $h.Count $.Site}}</span><br>
 		</td>
 		<td class="hide-mobile">
-			<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
+			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
-				<a class="rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+				<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
@@ -15523,17 +15541,27 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr id="TOTAL ">
+	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
 	<td>
 		<span title="Visits">{{nformat .TotalPages.CountUnique $.Site}}</span><br>
 		<span title="Pageviews" class="views">{{nformat .TotalPages.Count $.Site}}</span><br>
 	</td>
 	<td class="hide-mobile">
-		<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Total</a>
+		<strong title="Totals for all the pages">Totals</strong>
+		<a class="load-refs desktop" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a><br>
+		<small>
+			Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+			<span class="views"><span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews</span>
+		</small>
 	</td>
 	<td>
 		<div class="show-mobile">
-			<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20"><strong>Total</strong></a>
+			<strong>Total</strong> |
+			<small>
+				Displaying <span class="total-unique-display" title="Visits">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+				<span class="views"><span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews</span>
+			</small> |
+			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
 		</div>
 		<div class="chart chart-bar chart-totals">
 			<span class="half"></span>
@@ -15745,35 +15773,18 @@ Martin
 	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 		<header class="h2 header-pages">
 			<h2>Paths</h2>
-			<span class="totals">
-				Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
-				out of <span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span>
-				visits;
-				<br class="show-mobile">
-				<span class="views">
-					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> out of
-					<span class="total-hits">{{nformat .TotalHits $.Site}}</span> pageviews
-				</span>
-			</span>
-
-			<span class="totals totals-small">
-				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>/<span class="total-unique">{{nformat .TotalUniqueHits $.Site}}</span> visits
-				<br class="show-mobile">
-				<span class="views">
-					<span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span>/<span class="total-hits">{{nformat .TotalHits $.Site}}</span> views
-				</span>
-			</span>
-
-			<div class="scale-wrap">
-				<a href="#" id="scale-reset" title="Reset Y-axis scale to the default value">reset</a>
-				<input type="number"autocomplete="off" name="scale" id="scale" value="{{.Max}}"
-					placeholder="Scale" title="Set the Y-axis scale">
-			</div>
-
 			<div class="filter-wrap">
 				<input type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
 					{{if .Filter}}class="value"{{end}}>
+			</div>
+
+			<div class="scale-wrap">
+				<label for="scale">Y-axis scale</label>
+				<input type="number" autocomplete="off" name="scale" id="scale" value="{{.Max}}"
+					placeholder="Scale" title="Set the Y-axis scale">
+				<a href="#" id="scale-reset" title="Reset Y-axis scale to the default value">reset</a>;
+				<a href="#" id="scale-half" title="Set Y-axis scale to half the current value">half</a>
 			</div>
 		</header>
 

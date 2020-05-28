@@ -17,7 +17,7 @@
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, tsort,
+			draw_chart, bind_scale, tsort,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -50,13 +50,10 @@
 		});
 	}
 
-	// Replace the "height:" style with a background gradient and set the height
-	// to 100%.
-	//
-	// This way you can still hover the entire height.
-	var draw_chart = function() {
+	// Bind the Y-axis scale actions.
+	var bind_scale = function() {
 		var redraw = () => {
-			if ($('#scale').val() === $('.count-list-pages').attr('data-scale'))
+			if ($('#scale').val() === get_max())
 				return $('#scale').removeClass('value')
 
 			$('#scale').addClass('value')
@@ -76,13 +73,26 @@
 				t = setTimeout(redraw, 300)
 			})
 
+		$('#scale-half').on('click', (e) => {
+			clearTimeout(t)
+			e.preventDefault()
+			$('#scale').val(Math.max(10, Math.ceil(parseInt($('#scale').val(), 10) / 2)))
+			redraw()
+		})
+
 		$('#scale-reset').on('click', (e) => {
 			clearTimeout(t)
 			e.preventDefault()
 			$('#scale').val(get_max())
 			redraw()
 		})
+	}
 
+	// Replace the "height:" style with a background gradient and set the height
+	// to 100%.
+	//
+	// This way you can still hover the entire height.
+	var draw_chart = function() {
 		var scale = parseInt($('#scale').val(), 10) / parseInt(get_max(), 10)
 		$('.chart-bar').each(function(i, chart) {
 			if (chart.dataset.done === 't')
@@ -538,7 +548,7 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.rlink', function(e) {
+		$('.count-list-pages').on('click', '.load-refs', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),

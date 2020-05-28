@@ -1,14 +1,24 @@
-<tbody class="totals"><tr id="TOTAL ">
+<tbody class="totals"><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
 	<td>
 		<span title="Visits">{{nformat .TotalPages.CountUnique $.Site}}</span><br>
 		<span title="Pageviews" class="views">{{nformat .TotalPages.Count $.Site}}</span><br>
 	</td>
 	<td class="hide-mobile">
-		<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Total</a>
+		<strong title="Totals for all the pages">Totals</strong>
+		<a class="load-refs desktop" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a><br>
+		<small>
+			Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+			<span class="views"><span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews</span>
+		</small>
 	</td>
 	<td>
 		<div class="show-mobile">
-			<a class="rlink" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20"><strong>Total</strong></a>
+			<strong>Total</strong> |
+			<small>
+				Displaying <span class="total-unique-display" title="Visits">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+				<span class="views"><span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews</span>
+			</small> |
+			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
 		</div>
 		<div class="chart chart-bar chart-totals">
 			<span class="half"></span>
