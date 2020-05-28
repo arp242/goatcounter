@@ -17013,6 +17013,14 @@ advice specific to your situation.</p>
 	<dd>For reasons of efficiency the statistics are updated once every 10
 	seconds.</dd>
 
+	<dt id="no-data">What does <em>(no data)</em> mean in the referrers list? <a href="#no-data">§</a></dt>
+	<dd>No Referer was sent; this can mean that the user directly accessed the
+		URL (e.g. from their bookmarks or typing it), that they disabled sending the
+		Referer header, or that the link they clicked on disabled the Referer header
+		with <code>rel="noreferer"</code>.
+	</dd>
+
+
 	<dt id="bots">How are bots and crawlers counted? <a href="#bots">§</a></dt>
 	<dd>They’re not; all bots and crawlers that identify themselves as such are ignored.<br>
 		It’s easy for a malicious script to disguise itself as Firefox or
