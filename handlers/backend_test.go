@@ -336,16 +336,16 @@ func TestBackendTpl(t *testing.T) {
 			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 				gctest.StoreHits(ctx, t, []goatcounter.Hit{
-					{Site: 1, Path: "/asd", CreatedAt: now},
-					{Site: 1, Path: "/asd", CreatedAt: now},
-					{Site: 1, Path: "/zxc", CreatedAt: now},
+					{Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
+					{Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
+					{Site: 1, Path: "/zxc", Title: "BBB", CreatedAt: now},
 				}...)
 			},
 			router:   newBackend,
 			path:     "/purge?path=/asd",
 			auth:     true,
 			wantCode: 200,
-			wantBody: "<tr><td>2</td><td>/asd</td></tr>",
+			wantBody: "<tr><td>2</td><td>/asd</td><td>AAA</td></tr>",
 		},
 
 		{
@@ -396,6 +396,11 @@ func TestBackendPurge(t *testing.T) {
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+			// Wait for goroutine.
+			// TODO: should add proper sync to wait for *all* goroutines to
+			// finish on exit.
+			time.Sleep(200 * time.Millisecond)
+
 			var hits goatcounter.Hits
 			_, err := hits.List(r.Context(), 0, 0)
 			if err != nil {
@@ -403,7 +408,11 @@ func TestBackendPurge(t *testing.T) {
 			}
 
 			if len(hits) != 1 {
-				t.Fatalf("len is %d:\n%#v", len(hits), hits)
+				t.Logf("still have %d hits in DB (expected 1):\n", len(hits))
+				for _, h := range hits {
+					t.Logf("   ID: %d; Path: %q; Title: %q\n", h.ID, h.Path, h.Title)
+				}
+				t.FailNow()
 			}
 		})
 	}
