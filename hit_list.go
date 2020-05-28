@@ -352,6 +352,13 @@ func applyOffset(hh HitStats, site Site) {
 }
 
 func fillBlankDays(hh HitStats, start, end time.Time) {
+	// Should Never Happen™ but if it does the below loop will never break, so
+	// be safe.
+	if start.After(end) {
+		return
+	}
+
+	endFmt := end.Format("2006-01-02")
 	for i := range hh {
 		var (
 			day     = start.Add(-24 * time.Hour)
@@ -369,7 +376,7 @@ func fillBlankDays(hh HitStats, start, end time.Time) {
 			} else {
 				newStat = append(newStat, Stat{Day: dayFmt, Hourly: allDays, HourlyUnique: allDays})
 			}
-			if day.After(end) {
+			if dayFmt == endFmt {
 				break
 			}
 		}

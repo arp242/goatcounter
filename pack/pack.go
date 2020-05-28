@@ -12252,14 +12252,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 (function() {
 	'use strict';
 
-	var SETTINGS  = {},
-		CSRF      = '',
-		TZ_OFFSET = 0;
+	var SETTINGS     = {},
+		CSRF         = '',
+		TZ_OFFSET    = 0,
+		SITE_CREATED = 0
 
 	$(document).ready(function() {
-		SETTINGS  = JSON.parse($('#js-settings').text());
-		CSRF      = $('#js-csrf').text();
-		TZ_OFFSET = parseInt($('#js-settings').attr('data-offset'), 10) || 0;
+		SETTINGS     = JSON.parse($('#js-settings').text())
+		CSRF         = $('#js-settings').attr('data-csrf')
+		TZ_OFFSET    = parseInt($('#js-settings').attr('data-offset'), 10) || 0
+		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
@@ -12773,12 +12775,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 			$('#hl-period').val(this.value).attr('disabled', false);
 			set_period(start, end);
-		});
+		})
 
 		$('.period-form-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
+
+			// TODO: make something nicer than alert()s.
+			if (this.value.substr(-2) === '-f' && end.getTime() > (new Date()).getTime())
+				return alert('That would be in the future.')
 
 			switch (this.value) {
 				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
@@ -12789,8 +12795,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			if (start.getDate() === 1 && this.value.substr(0, 5) === 'month')
 				end = new Date(start.getFullYear(), start.getMonth() + 1, 0)
 
+			if (start > (new Date()).getTime())
+				return alert('That would be in the future.')
+			if (SITE_CREATED > end.getTime())
+				return alert('That would be before the site’s creation; GoatCounter is not *that* good ;-)')
+
 			set_period(start, end);
-		});
+		})
 	};
 
 	// Load references as an AJAX request.
@@ -14814,8 +14825,14 @@ var Templates = map[string][]byte{
 				know</a> if you have any questions or comments.</p>
 		</div>
 	{{end}}
-	<span id="js-settings" data-offset="{{.Site.Settings.Timezone.Offset}}">{{.Site.Settings.String | unsafe_js}}</span>
-	{{if .User.ID}}<span id="js-csrf">{{.User.CSRFToken}}</span>{{end}}
+	<span id="js-settings"
+		data-offset="{{.Site.Settings.Timezone.Offset}}"
+		data-created="{{.Site.CreatedAt.Unix}}"
+		{{if .User.ID}}data-csrf="{{.User.CSRFToken}}"{{end}}
+	>
+		{{- .Site.Settings.String | unsafe_js -}}
+	</span>
+
 	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
