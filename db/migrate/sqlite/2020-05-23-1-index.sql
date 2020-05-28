@@ -14,7 +14,6 @@ begin;
 	-- Not really used, and don't see it being used in the future.
 	-- alter table hits drop column ref_original;
 	-- alter table hits drop column ref_params;
-	-- alter table hits drop column id;
 	create table hits2 (
 		id             integer        primary key autoincrement,
 		site           integer        not null                 check(site > 0),

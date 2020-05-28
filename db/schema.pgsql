@@ -49,8 +49,6 @@ create table users (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create unique index "users#login_request" on users(login_request);
-create unique index "users#login_token"   on users(login_token);
 create        index "users#site"          on users(site);
 create unique index "users#site#email"    on users(site, lower(email));
 
@@ -64,8 +62,6 @@ create table hits (
 	event          int            default 0,
 	bot            int            default 0,
 	ref            varchar        not null,
-	ref_original   varchar,
-	ref_params     varchar,
 	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
 	browser        varchar        not null,
 	size           varchar        not null default '',
@@ -74,8 +70,8 @@ create table hits (
 
 	created_at     timestamp      not null
 );
-create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
-create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
+create index "hits#site#bot#created_at" on hits(site, bot, created_at);
+create index "hits#site#path"           on hits(site, lower(path));
 
 create table sessions (
 	id             serial         primary key,
@@ -87,6 +83,7 @@ create table sessions (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 create unique index "sessions#site#hash" on sessions(site, hash);
+create        index "sessions#last_seen" on sessions(last_seen);
 
 create table session_paths (
 	session        integer        not null,
@@ -94,6 +91,7 @@ create table session_paths (
 
 	foreign key (session) references sessions(id) on delete cascade on update cascade
 );
+create index "session_paths#session#path" on session_paths(session, lower(path));
 
 create table session_salts (
 	previous    int        not null,
@@ -105,7 +103,6 @@ create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null,
-	event          integer        default 0,
 	path           varchar        not null,
 	title          varchar        not null default '',
 	stats          varchar        not null,
@@ -124,15 +121,27 @@ create table hit_counts (
 	total         int        not null,
 	total_unique  int        not null,
 
-	constraint "hit_counts#site#path#hour#event" unique(site, path, hour, event)
+	constraint "hit_counts#site#path#hour" unique(site, path, hour)
 );
-create index "hit_counts#site#hour#event" on hit_counts(site, hour, event);
+create index "hit_counts#site#hour" on hit_counts(site, hour);
+
+create table ref_counts (
+	site          int        not null check(site>0),
+	path          varchar    not null,
+	ref           varchar    not null,
+	ref_scheme    varchar    null,
+	hour          timestamp  not null,
+	total         int        not null,
+	total_unique  int        not null,
+
+	constraint "ref_counts#site#path#ref#hour" unique(site, path, ref, hour)
+);
+create index "ref_counts#site#hour" on ref_counts(site, hour);
 
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null,
-	event          integer        default 0,
 	browser        varchar        not null,
 	version        varchar        not null,
 	count          int            not null,
@@ -140,14 +149,12 @@ create table browser_stats (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "browser_stats#site#day"         on browser_stats(site, day);
 create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
 
 create table system_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null,
-	event          integer        default 0,
 	system         varchar        not null,
 	version        varchar        not null,
 	count          int            not null,
@@ -162,41 +169,24 @@ create table location_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null,
-	event          integer        default 0,
 	location       varchar        not null,
 	count          int            not null,
 	count_unique   int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "location_stats#site#day"          on location_stats(site, day);
 create index "location_stats#site#day#location" on location_stats(site, day, location);
-
-create table ref_stats (
-	site           integer        not null                 check(site > 0),
-
-	day            date           not null,
-	event          integer        default 0,
-	ref            varchar        not null,
-	count          int            not null,
-	count_unique   int            not null,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-create index "ref_stats#site#day" on ref_stats(site, day);
 
 create table size_stats (
 	site           integer        not null                 check(site > 0),
 
 	day            date           not null,
-	event          integer        default 0,
 	width          int            not null,
 	count          int            not null,
 	count_unique   int            not null,
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "size_stats#site#day"       on size_stats(site, day);
 create index "size_stats#site#day#width" on size_stats(site, day, width);
 
 create table iso_3166_1 (
@@ -505,6 +495,34 @@ create table updates (
 	created_at     timestamp      not null,
 	show_at        timestamp      not null
 );
+create index "updates#show_at" on updates(show_at);
+
+create table botlog_ips (
+	id             serial         primary key,
+
+	count          int            not null default 1,
+	ip             varchar        not null,
+	ptr            varchar,
+	info           varchar,
+	hide           int            default 0,
+
+	created_at     timestamp      not null,
+	last_seen      timestamp      not null
+);
+create unique index "botlog_ips#ip" on botlog_ips(ip);
+
+create table botlog (
+	id             serial         primary key,
+
+	ip             int            not null,
+	bot            int            not null,
+	ua             varchar        not null,
+	headers        jsonb          not null,
+	url            varchar        not null,
+	created_at     timestamp      not null,
+
+	foreign key (ip) references botlog_ips(id)
+);
 
 create table version (name varchar);
 insert into version values
@@ -553,6 +571,12 @@ insert into version values
 	('2020-05-13-1-unique-path'),
 	('2020-05-17-1-rm-user-name'),
 	('2020-05-16-1-os_stats'),
-	('2020-05-18-1-domain-count');
+	('2020-05-18-1-domain-count'),
+
+('2020-05-21-1-ref-count'),
+('2020-05-23-1-botlog'),
+('2020-05-23-1-event'),
+('2020-05-23-1-index'),
+('2020-05-23-2-drop-ref-stats');
 
 -- vim:ft=sql
