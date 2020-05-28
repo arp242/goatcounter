@@ -442,7 +442,10 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 	if ipID == 0 {
 		newIP = true
 		err := tx.GetContext(txctx, &ipID, `insert into botlog_ips
-			(ip, created_at, last_seen) values ($1, now(), now()) returning id`, ip)
+			(ip, created_at, last_seen) values ($1, now(), now())
+			on conflict on constraint "botlog_ips#ip" do update
+				set last_seen=now(), count = botlog_ips.count + 1
+			returning id`, ip)
 		if err != nil {
 			return fmt.Errorf("AdminBotlog.Insert insert ip: %w", err)
 		}
