@@ -18,7 +18,7 @@ func TestRun(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if i != i {
+	if i != 1 {
 		t.Fatal("i not set")
 	}
 }
