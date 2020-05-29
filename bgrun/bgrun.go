@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/utils/syncutil"
+	"zgo.at/zstd/zsync"
 	"zgo.at/zlog"
 )
 
@@ -25,7 +25,7 @@ var (
 func Wait() error {
 	ctx, c := context.WithTimeout(context.Background(), maxWait)
 	defer c()
-	return errors.Wrap(syncutil.Wait(ctx, wg), "bgrun.Wait")
+	return errors.Wrap(zsync.Wait(ctx, wg), "bgrun.Wait")
 }
 
 // WaitAndLog calls Wait() and logs any errors.

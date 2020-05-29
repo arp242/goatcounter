@@ -14,7 +14,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/utils/syncutil"
+	"zgo.at/zstd/zsync"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -161,7 +161,7 @@ func (s *Session) GetOrCreate(ctx context.Context, path, ua, remoteAddr string) 
 	return s.getOrCreate(ctx, path, ua, remoteAddr, 0)
 }
 
-var hashOnce syncutil.Once
+var hashOnce zsync.Once
 
 func (s *Session) getOrCreate(ctx context.Context, path, ua, remoteAddr string, r int) (firstVisit bool, err error) {
 	if r > 10 {

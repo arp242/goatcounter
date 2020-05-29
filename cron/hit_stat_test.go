@@ -11,7 +11,7 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/utils/jsonutil"
+	"zgo.at/zstd/zjson"
 )
 
 func TestHitStats(t *testing.T) {
@@ -44,13 +44,13 @@ func TestHitStats(t *testing.T) {
 	}
 
 	want0 := `{"Count":2,"CountUnique":1,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":2,"DailyUnique":1}]}`
-	got0 := string(jsonutil.MustMarshal(stats[0]))
+	got0 := string(zjson.MustMarshal(stats[0]))
 	if got0 != want0 {
 		t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
 	}
 
 	want1 := `{"Count":1,"CountUnique":0,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`
-	got1 := string(jsonutil.MustMarshal(stats[1]))
+	got1 := string(zjson.MustMarshal(stats[1]))
 	if got1 != want1 {
 		t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)
 	}

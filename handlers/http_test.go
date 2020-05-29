@@ -22,8 +22,8 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
-	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/stringutil"
+	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -52,7 +52,7 @@ func init() {
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.GoatcounterCom = true
-	if stringutil.Contains(os.Args, "-test.v=true") {
+	if zstring.Contains(os.Args, "-test.v=true") {
 		zlog.Config.Debug = []string{"all"}
 	} else {
 		zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
@@ -82,7 +82,7 @@ func runTest(
 				ctx, clean := gctest.DB(t)
 				defer clean()
 
-				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(jsonutil.MustMarshal(tt.body)))
+				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(zjson.MustMarshal(tt.body)))
 				if tt.setup != nil {
 					tt.setup(ctx, t)
 				}
@@ -184,7 +184,7 @@ func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Re
 // Note: this is primitive, but enough for now.
 func formBody(i interface{}) string {
 	var m map[string]string
-	jsonutil.MustUnmarshal(jsonutil.MustMarshal(i), &m)
+	zjson.MustUnmarshal(jsonutil.MustMarshal(i), &m)
 
 	f := make(url.Values)
 	for k, v := range m {

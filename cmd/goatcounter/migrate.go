@@ -12,7 +12,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/utils/stringutil"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
@@ -63,7 +63,7 @@ func migrate() (int, error) {
 	}
 	defer db.Close()
 
-	if stringutil.Contains(CommandLine.Args(), "show") {
+	if zstring.Contains(CommandLine.Args(), "show") {
 		m := zdb.NewMigrate(db, []string{"show"},
 			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
 			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL])
@@ -71,7 +71,7 @@ func migrate() (int, error) {
 		if err != nil {
 			return 1, err
 		}
-		if d := stringutil.Difference(have, ran); len(d) > 0 {
+		if d := zstring.Difference(have, ran); len(d) > 0 {
 			fmt.Fprintf(stdout, "Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
 		} else {
 			fmt.Fprintln(stdout, "No pending migrations")

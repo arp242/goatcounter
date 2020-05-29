@@ -14,7 +14,7 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/utils/floatutil"
+	"zgo.at/zstd/zfloat"
 	"zgo.at/zlog"
 )
 
@@ -53,7 +53,7 @@ func Export(ctx context.Context, fp *os.File) {
 		for _, hit := range hits {
 			c.Write([]string{hit.Path, hit.Title, fmt.Sprintf("%t", hit.Event),
 				fmt.Sprintf("%d", hit.Bot), fmt.Sprintf("%d", hit.Session),
-				hit.Ref, hit.Browser, floatutil.Join(hit.Size, ","),
+				hit.Ref, hit.Browser, zfloat.Join(hit.Size, ","),
 				hit.Location, hit.CreatedAt.Format(time.RFC3339)})
 		}
 

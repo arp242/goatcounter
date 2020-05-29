@@ -17,7 +17,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/utils/jsonutil"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -468,7 +468,7 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 
 	_, err = tx.ExecContext(txctx, `insert into botlog
 			(ip, bot, ua, headers, url, created_at) values ($1, $2, $3, $4, $5, now())`,
-		ipID, b.Bot, b.UserAgent, jsonutil.MustMarshal(b.Headers), b.URL)
+		ipID, b.Bot, b.UserAgent, zjson.MustMarshal(b.Headers), b.URL)
 	if err != nil {
 		return fmt.Errorf("AdminBotlog.Insert botlog: %w", err)
 	}

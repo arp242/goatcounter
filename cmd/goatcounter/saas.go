@@ -21,7 +21,7 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/utils/stringutil"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -272,7 +272,7 @@ func flagStripe(stripe string, v *zvalidate.Validator) {
 		return
 	}
 
-	for _, k := range stringutil.Fields(stripe, ":") {
+	for _, k := range zstring.Fields(stripe, ":") {
 		switch {
 		case strings.HasPrefix(k, "sk_"):
 			zstripe.SecretKey = k

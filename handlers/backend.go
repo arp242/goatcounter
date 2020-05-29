@@ -31,8 +31,8 @@ import (
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/tz"
-	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/syncutil"
+	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zsync"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
@@ -403,7 +403,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	syncutil.Wait(r.Context(), &wg)
+	zsync.Wait(r.Context(), &wg)
 	if pagesErr != nil {
 		return pagesErr
 	}
@@ -1032,7 +1032,7 @@ func hasPlan(site *goatcounter.Site) (bool, error) {
 		Subscriptions struct {
 			Data []struct {
 				CancelAtPeriodEnd bool               `json:"cancel_at_period_end"`
-				CurrentPeriodEnd  jsonutil.Timestamp `json:"current_period_end"`
+				CurrentPeriodEnd  zjson.Timestamp `json:"current_period_end"`
 				Plan              struct {
 					Quantity int `json:"quantity"`
 				} `json:"plan"`

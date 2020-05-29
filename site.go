@@ -17,7 +17,7 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/tz"
-	"zgo.at/utils/jsonutil"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -79,7 +79,7 @@ type SiteSettings struct {
 	} `json:"limits"`
 }
 
-func (ss SiteSettings) String() string { return string(jsonutil.MustMarshal(ss)) }
+func (ss SiteSettings) String() string { return string(zjson.MustMarshal(ss)) }
 
 // Value implements the SQL Value function to determine what to store in the DB.
 func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }

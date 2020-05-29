@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	"zgo.at/utils/syncutil"
+	"zgo.at/zstd/zsync"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
@@ -32,7 +32,7 @@ var tasks = []task{
 }
 
 var (
-	stopped = syncutil.NewAtomicInt(0)
+	stopped = zsync.NewAtomicInt(0)
 	wg      sync.WaitGroup
 )
 

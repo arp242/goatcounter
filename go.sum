@@ -97,12 +97,8 @@ zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea h1:Cl3Dnjfxvq1nOIffaDbhJOrnwb6aD
 zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxytHj8G8kRl2M=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
-zgo.at/utils v0.0.0-20200514044306-bf7c1ff8aa0c h1:GWACHp07xLc1JwEISDzITuw1U4x6+r3BdbdYifbHz9E=
-zgo.at/utils v0.0.0-20200514044306-bf7c1ff8aa0c/go.mod h1:+PbZTy2300b/A3oAh7/vJY58X5okaK67qKnAzNKJt3k=
-zgo.at/utils v0.0.0-20200524171306-5c9891cdb07f h1:qM6XwtmBUPr1QDR/2L7XqYNnhaOYKXHdG5IvWuGYK2o=
-zgo.at/utils v0.0.0-20200524171306-5c9891cdb07f/go.mod h1:+PbZTy2300b/A3oAh7/vJY58X5okaK67qKnAzNKJt3k=
-zgo.at/zdb v0.0.0-20200527213700-cb59ca25832f h1:TVvrmb7BTBtIBSI3VNltIuplXgSbgDyheB0lJYpdAjg=
-zgo.at/zdb v0.0.0-20200527213700-cb59ca25832f/go.mod h1:rHd8UyafKA8OQCesbWO909CyI4iussi0DRxrcjH5j54=
+zgo.at/zdb v0.0.0-20200529134049-932215d95f5b h1:ZLhAXHqTRUsR61eTcwFQ0gFDL585VzISU1307/jk2Ho=
+zgo.at/zdb v0.0.0-20200529134049-932215d95f5b/go.mod h1:zu+rvWosTqQeaTUgzZQdkGrXN+X8gjePHUgbhxx6E6I=
 zgo.at/zhttp v0.0.0-20200525055724-f2c83b7d82c1 h1:N2Bi3r6RB3THPU2wVajIUi3/AvJ0+5joRomVjByUz+c=
 zgo.at/zhttp v0.0.0-20200525055724-f2c83b7d82c1/go.mod h1:lnKdr+Z/u747AVwOkBKweLbFFe0yyvV2JY8NONI4XpQ=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=
@@ -111,6 +107,8 @@ zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c h1:PQksY26D9QgCNbOvMmortUzbStTYwf
 zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
 zgo.at/zpack v1.0.1 h1:muDVwpdzfC/1+U2rsTsv0feI82zxMq0CZuHPZ9RTwJ8=
 zgo.at/zpack v1.0.1/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
+zgo.at/zstd v0.0.0-20200528080824-83897c2259b4 h1:eOVo2ykKjVz8clrG2bvTGtyXNjq9I5X+INbvYiQ/UTQ=
+zgo.at/zstd v0.0.0-20200528080824-83897c2259b4/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
 zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=
 zgo.at/zstripe v1.0.0/go.mod h1:EqblFpMvXAhzZAUUt0EVom06EnN5+D5ESBTSOkwSwTY=
 zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41 h1:2vR+4hRs2YI2Lcm68AjHLSOHxQy/3XJ/b2nCV/dCrxs=

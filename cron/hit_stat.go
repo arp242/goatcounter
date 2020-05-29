@@ -10,7 +10,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/utils/jsonutil"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -74,8 +74,8 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			"title", "stats", "stats_unique"})
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.path, v.title,
-				jsonutil.MustMarshal(v.count),
-				jsonutil.MustMarshal(v.countUnique))
+				zjson.MustMarshal(v.count),
+				zjson.MustMarshal(v.countUnique))
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
 	})
@@ -111,8 +111,8 @@ func existingHitStats(
 
 	var r, ru []int
 	if ex[0].Stats != nil {
-		jsonutil.MustUnmarshal(ex[0].Stats, &r)
-		jsonutil.MustUnmarshal(ex[0].StatsUnique, &ru)
+		zjson.MustUnmarshal(ex[0].Stats, &r)
+		zjson.MustUnmarshal(ex[0].StatsUnique, &ru)
 	}
 
 	return r, ru, ex[0].Title, nil

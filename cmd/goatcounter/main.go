@@ -19,10 +19,10 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/utils/runtimeutil"
-	"zgo.at/utils/stringutil"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zruntime"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
 
@@ -189,7 +189,7 @@ func runGoMigrations(db zdb.DB) error {
 	ctx := zdb.With(context.Background(), db)
 
 	for k, f := range goMigrations {
-		if stringutil.Contains(ran, k) {
+		if zstring.Contains(ran, k) {
 			continue
 		}
 		zlog.Printf("running Go migration %q", k)
@@ -216,5 +216,5 @@ func runGoMigrations(db zdb.DB) error {
 func getVersion() string {
 	return fmt.Sprintf("version=%s; go=%s; GOOS=%s; GOARCH=%s; race=%t; cgo=%t",
 		version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
-		runtimeutil.Race, runtimeutil.CGO)
+		zruntime.Race, zruntime.CGO)
 }

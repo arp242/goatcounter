@@ -11,9 +11,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
-	"zgo.at/utils/intutil"
-	"zgo.at/utils/jsonutil"
-	"zgo.at/utils/syncutil"
+	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zsync"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
@@ -72,7 +72,7 @@ func (h *HitStats) List(
 	var more bool
 	{
 		// Get one page more so we can detect if there are more pages after this.
-		limit := int(intutil.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
+		limit := int(zint.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
 
 		query := `/* HitStats.List: get overview */
 			select path, event
@@ -153,8 +153,8 @@ func (h *HitStats) List(
 			for _, s := range st {
 				if s.Path == hh[i].Path {
 					var x, y []int
-					jsonutil.MustUnmarshal(s.Stats, &x)
-					jsonutil.MustUnmarshal(s.StatsUnique, &y)
+					zjson.MustUnmarshal(s.Stats, &x)
+					zjson.MustUnmarshal(s.StatsUnique, &y)
 					hh[i].Title = s.Title
 					hh[i].Stats = append(hh[i].Stats, Stat{
 						Day:          s.Day.Format("2006-01-02"),
@@ -176,7 +176,7 @@ func (h *HitStats) List(
 	var totalDisplay, totalUniqueDisplay int
 	addTotals(hh, &totalDisplay, &totalUniqueDisplay)
 
-	syncutil.Wait(ctx, &wg)
+	zsync.Wait(ctx, &wg)
 	if totalErr != nil {
 		return 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List get total")
 	}
