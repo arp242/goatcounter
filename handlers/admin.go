@@ -119,10 +119,9 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		free = nil
 	}
-	df, err := exec.Command("df", "-hT").Output()
-	if err != nil {
-		df = nil
-	}
+	// Ignore exit/stderr because:
+	// df: /sys/kernel/debug/tracing: Permission denied
+	df, _ := exec.Command("df", "-hT").Output()
 
 	filter := r.URL.Query().Get("filter")
 	order := r.URL.Query().Get("order")
