@@ -639,7 +639,7 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 
 // ListSystems lists OS statistics for the given time period.
 func (h *Stats) ListSystems(ctx context.Context, start, end time.Time) (int, error) {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListSystem */
 		select
 			system as name,
 			sum(count) as count,
@@ -695,7 +695,7 @@ const (
 
 // ListSizes lists all device sizes.
 func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error) {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListSizes */
 		select
 			width as name,
 			sum(count) as count,

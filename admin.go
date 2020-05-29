@@ -160,18 +160,24 @@ func (a *AdminPgStatActivity) List(ctx context.Context) error {
 }
 
 type AdminPgStatStatements []struct {
-	Total    float64 `db:"total"`
-	MeanTime float64 `db:"mean_time"`
-	MinTime  float64 `db:"min_time"`
-	MaxTime  float64 `db:"max_time"`
-	Calls    int     `db:"calls"`
-	QueryID  int64   `db:"queryid"`
-	Query    string  `db:"query"`
+	Total      float64 `db:"total"`
+	MeanTime   float64 `db:"mean_time"`
+	MinTime    float64 `db:"min_time"`
+	MaxTime    float64 `db:"max_time"`
+	StdDevTime float64 `db:"stddev_time"`
+	Calls      int     `db:"calls"`
+	HitPercent float64 `db:"hit_percent"`
+	QueryID    int64   `db:"queryid"`
+	Query      string  `db:"query"`
 }
 
-func (a *AdminPgStatStatements) List(ctx context.Context, order, filter string) error {
+func (a *AdminPgStatStatements) List(ctx context.Context, order string, asc bool, filter string) error {
 	if order == "" {
 		order = "total"
+	}
+	dir := "desc"
+	if asc {
+		dir = "asc"
 	}
 
 	var (
@@ -182,7 +188,7 @@ func (a *AdminPgStatStatements) List(ctx context.Context, order, filter string) 
 		args = append(args, "%"+filter+"%")
 		where = ` query like $1 `
 	} else {
-		where = ` calls > 20 `
+		where = ` calls >= 20 `
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`
@@ -191,16 +197,18 @@ func (a *AdminPgStatStatements) List(ctx context.Context, order, filter string) 
 			mean_time,
 			min_time,
 			max_time,
+			stddev_time,
 			calls,
+			coalesce(100.0 * shared_blks_hit / nullif(shared_blks_hit + shared_blks_read, 0), 0) as hit_percent,
 			queryid,
 			query
 		from pg_stat_statements where
 			userid = (select usesysid from pg_user where usename = CURRENT_USER) and
-			query !~* '(^ *(copy|create|alter|explain) |from (pg_stat_|pg_catalog))' and
+			query !~* '(^ *(copy|create|alter|explain) | (pg_stat_|pg_catalog)|^(COMMIT|BEGIN READ WRITE)$)' and
 			%s
-		order by %s desc
+		order by %s %s, queryid asc
 		limit 100
-	`, where, order), args...)
+	`, where, order, dir), args...)
 	if err != nil {
 		return fmt.Errorf("AdminPgStatStatements.List: %w", err)
 	}

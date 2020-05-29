@@ -195,7 +195,8 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 
-	query := `select hour, total, total_unique from hit_counts
+	query := `/* HitStat.Totals */
+		select hour, total, total_unique from hit_counts
 		where site=$1 and hour>=$2 and hour<=$3 `
 	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
 	if filter != "" {

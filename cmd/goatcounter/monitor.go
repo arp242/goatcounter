@@ -47,7 +47,7 @@ func monitor() (int, error) {
 	}
 	defer db.Close()
 
-	query := `select count(*) from hits where `
+	query := `/* monitor */ select count(*) from hits where `
 	if *site > 0 {
 		query += fmt.Sprintf(`site=%d and `, *site)
 	}

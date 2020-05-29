@@ -321,7 +321,7 @@ func (s *Site) Delete(ctx context.Context) error {
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
 	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, s,
-		`select * from sites where id=$1 and state=$2`,
+		`/* Site.ByID */ select * from sites where id=$1 and state=$2`,
 		id, StateActive), "Site.ByID %d", id)
 }
 
@@ -336,7 +336,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
 		l.Debug("by cname")
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
-			`select * from sites where lower(cname)=lower($1) and state=$2`,
+			`/* Site.ByHost */ select * from sites where lower(cname)=lower($1) and state=$2`,
 			zhttp.RemovePort(host), StateActive), "site.ByHost: from custom domain")
 	}
 
@@ -348,7 +348,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 
 	l.Debug("by code")
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
-		`select * from sites where lower(code)=lower($1) and state=$2`,
+		`/* Site.ByHost */ select * from sites where lower(code)=lower($1) and state=$2`,
 		host[:p], StateActive), "site.ByHost: from code")
 }
 
@@ -359,7 +359,7 @@ func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 		col = "cname"
 	}
 	var codes []string
-	err := zdb.MustGet(ctx).SelectContext(ctx, &codes, `
+	err := zdb.MustGet(ctx).SelectContext(ctx, &codes, `/* Site.ListSubs */
 		select `+col+` from sites
 		where state=$1 and (parent=$2 or id=$2) or (
 			parent = (select parent from sites where id=$2) or
@@ -512,36 +512,36 @@ type Sites []Site
 // List all sites.
 func (s *Sites) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
-		`select * from sites where state=$1 order by created_at desc`,
+		`/* Sites.List */ select * from sites where state=$1`,
 		StateActive), "Sites.List")
 }
 
 // ListCnames all sites that have CNAME set.
 func (s *Sites) ListCnames(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
-		`select * from sites where state=$1 and cname is not null order by created_at desc`,
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, `/* Sites.ListCnames */
+		select * from sites where state=$1 and cname is not null`,
 		StateActive), "Sites.List")
 }
 
 // ListSubs lists all subsites for the current site.
 func (s *Sites) ListSubs(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
-		`select * from sites where parent=$1 and state=$2 order by code`,
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, `/* Sites.ListSubs */
+		select * from sites where parent=$1 and state=$2 order by code`,
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
 }
 
 // ContainsCNAME reports if there is a site with this CNAME set.
 func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 	var ok bool
-	err := zdb.MustGet(ctx).GetContext(ctx, &ok,
-		`select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
+	err := zdb.MustGet(ctx).GetContext(ctx, &ok, `/* Sites.ContainsCNAME */
+		select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
 	return ok, errors.Wrap(err, "Sites.ContainsCNAME")
 }
 
 // OldSoftDeleted finds all sites which have been soft-deleted more than a week
 // ago.
 func (s *Sites) OldSoftDeleted(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, fmt.Sprintf(
-		`select * from sites where state=$1 and updated_at < %s`, interval(7)),
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, fmt.Sprintf(`/* Sites.OldSoftDeleted */
+		select * from sites where state=$1 and updated_at < %s`, interval(7)),
 		StateDeleted), "Sites.OldSoftDeleted")
 }

@@ -119,11 +119,17 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		free = nil
 	}
+	df, err := exec.Command("df", "-hT").Output()
+	if err != nil {
+		df = nil
+	}
 
 	filter := r.URL.Query().Get("filter")
+	order := r.URL.Query().Get("order")
+	asc := r.URL.Query().Get("asc") != ""
 
 	var stats goatcounter.AdminPgStatStatements
-	err = stats.List(r.Context(), r.URL.Query().Get("order"), filter)
+	err = stats.List(r.Context(), order, asc, filter)
 	if err != nil {
 		return err
 	}
@@ -155,14 +161,16 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "backend_admin_sql.gohtml", struct {
 		Globals
 		Filter   string
+		Order    string
 		Load     string
 		Free     string
+		Df       string
 		Stats    goatcounter.AdminPgStatStatements
 		Activity goatcounter.AdminPgStatActivity
 		Tables   goatcounter.AdminPgStatTables
 		Indexes  goatcounter.AdminPgStatIndexes
 		Progress goatcounter.AdminPgStatProgress
-	}{newGlobals(w, r), filter, load, string(free), stats, act, tbls,
+	}{newGlobals(w, r), filter, order, load, string(free), string(df), stats, act, tbls,
 		idx, prog})
 }
 
