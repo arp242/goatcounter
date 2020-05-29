@@ -19,7 +19,7 @@
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort,
+			draw_chart, bind_scale, tsort, copy_pre,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -50,6 +50,26 @@
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
+	}
+
+	// Add copy button to <pre>.
+	var copy_pre = function() {
+		$('pre').each((_, elem) => {
+			var btn = $('<a href="#" class="pre-copy">📋 Copy</a>').on('click', (e) => {
+				e.preventDefault()
+
+				var i = $('<textarea />').val(elem.innerText).css('position', 'absolute').appendTo('body')
+				i[0].select()
+				i[0].setSelectionRange(0, elem.innerText.length)
+				document.execCommand('copy')
+				i.remove()
+			})
+
+			// Need relative positioned wrapper.
+			var wrap = $('<div class="pre-copy-wrap">').html($(elem).clone())
+			$(elem).replaceWith(wrap)
+			wrap.prepend(btn)
+		})
 	}
 
 	// Bind the Y-axis scale actions.

@@ -27,18 +27,27 @@
 		<fieldset class="plan">
 			<legend>Plan</legend>
 			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
-				<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+				<span>Personal</span> Free.
+				<br class="show-mobile">
+				For non-commercial use; 100k pageviews/month.</label><br>
+
 			<label><input type="radio" name="plan" value="personalplus" {{if eq .Site.Plan "personalplus"}}checked{{end}}>
-				<span>Personal plus</span> €5/month; non-commercial use; 200k pageviews/month; custom domain.</label><br>
+				<span>Personal plus</span> €5/month.
+				<br class="show-mobile">
+				Non-commercial use; 200k pageviews/month; custom domain.</label><br>
+
 			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
-				<span>Business</span> €15/month; 500k pageviews/month; custom domain.</label><br>
+				<span>Business</span> €15/month.
+				<br class="show-mobile">
+				500k pageviews/month; custom domain.</label><br>
+
 			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
-				<span>Business plus</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
-			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a><br><br>
-			Email
-				<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-				if you donate via other channels with details to set up the
-				correct plan.
+				<span>Business plus</span> €30/month.
+				<br class="show-mobile">
+				1M pageviews/month; custom domain; phone support.</label><br>
+
+			<br>
+			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
 		</fieldset>
 
 		<fieldset class="free">

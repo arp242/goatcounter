@@ -12265,7 +12265,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort,
+			draw_chart, bind_scale, tsort, copy_pre,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -12296,6 +12296,26 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
+	}
+
+	// Add copy button to <pre>.
+	var copy_pre = function() {
+		$('pre').each((_, elem) => {
+			var btn = $('<a href="#" class="pre-copy">📋 Copy</a>').on('click', (e) => {
+				e.preventDefault()
+
+				var i = $('<textarea />').val(elem.innerText).css('position', 'absolute').appendTo('body')
+				i[0].select()
+				i[0].setSelectionRange(0, elem.innerText.length)
+				document.execCommand('copy')
+				i.remove()
+			})
+
+			// Need relative positioned wrapper.
+			var wrap = $('<div class="pre-copy-wrap">').html($(elem).clone())
+			$(elem).replaceWith(wrap)
+			wrap.prepend(btn)
+		})
 	}
 
 	// Bind the Y-axis scale actions.
@@ -13305,8 +13325,8 @@ nav {
 	padding-right: .5em;
 }
 nav .updates { font-weight: bold; background-color: yellow; }
-nav #signin { white-space: nowrap; margin-left: 1em; }
-
+nav #signin  { white-space: nowrap; margin-left: 1em; }
+nav #back    { white-space: nowrap; margin-right: 1em; }
 
 h2 sup, h2 small {
 	font-size: .9rem;
@@ -13386,7 +13406,11 @@ form .err  { color: red; display: block; }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
-.show-mobile .page-title+sup { bottom: 2ex; }
+
+/* Make "go" links bigger on mobile. */
+@media (max-width: 55rem) {
+	sup { vertical-align: inherit; font-size: 1rem; bottom: 1ex; }
+}
 
 .rlink { display: inline-block; overflow: hidden;
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -13640,6 +13664,10 @@ table.auto { width: auto; }
 .tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
+@media (max-width: 30rem) {
+	.tab-nav { flex-wrap: wrap; justify-content: center; }
+	.tab-nav a {  line-height: 2.5em; }
+}
 
 /*** noscript ***/
 noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
@@ -13706,6 +13734,21 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 }
 @media (max-width: 28rem) {
 	.header-pages input#filter-paths { max-width: 10em; }
+}
+
+
+/*** Copy buttons on pre ***/
+.pre-copy-wrap { position: relative; }
+.pre-copy {
+	position: absolute;
+	right: 0;
+	top: calc(-2em - 1px);
+
+	padding: .3em 1em;
+	background-color: #f5f5f5;
+	color: #000;
+	border-top: 1px solid #d5d5d5;
+	border-left: 1px solid #d5d5d5;
 }
 `),
 }
@@ -15544,15 +15587,15 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 						{{- end -}}
 					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
-					<strong><a href="/settings#tab-additional-sites">← Back</a></strong>
+					<strong id="back"><a href="/settings#tab-additional-sites">← Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
-					<strong><a href="/settings#tab-purge">← Back</a></strong>
+					<strong id="back"><a href="/settings#tab-purge">← Back</a></strong>
 				{{else if has_prefix .Path "/admin/"}}
-					<strong><a href="/admin">← Back</a></strong>
+					<strong id="back"><a href="/admin">← Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
-					<strong><a href="/billing">← Back</a></strong>
+					<strong id="back"><a href="/billing">← Back</a></strong>
 				{{else}}
-					<strong><a href="/">← Back</a></strong>
+					<strong id="back"><a href="/">← Back</a></strong>
 				{{end}}
 			</div>
 			<div>
@@ -16621,18 +16664,27 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 		<fieldset class="plan">
 			<legend>Plan</legend>
 			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
-				<span>Personal</span> Free for non-commercial use; 100k pageviews/month.</label><br>
+				<span>Personal</span> Free.
+				<br class="show-mobile">
+				For non-commercial use; 100k pageviews/month.</label><br>
+
 			<label><input type="radio" name="plan" value="personalplus" {{if eq .Site.Plan "personalplus"}}checked{{end}}>
-				<span>Personal plus</span> €5/month; non-commercial use; 200k pageviews/month; custom domain.</label><br>
+				<span>Personal plus</span> €5/month.
+				<br class="show-mobile">
+				Non-commercial use; 200k pageviews/month; custom domain.</label><br>
+
 			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
-				<span>Business</span> €15/month; 500k pageviews/month; custom domain.</label><br>
+				<span>Business</span> €15/month.
+				<br class="show-mobile">
+				500k pageviews/month; custom domain.</label><br>
+
 			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
-				<span>Business plus</span> €30/month; 1M pageviews/month; custom domain; phone support.</label><br>
-			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a><br><br>
-			Email
-				<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-				if you donate via other channels with details to set up the
-				correct plan.
+				<span>Business plus</span> €30/month.
+				<br class="show-mobile">
+				1M pageviews/month; custom domain; phone support.</label><br>
+
+			<br>
+			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
 		</fieldset>
 
 		<fieldset class="free">
