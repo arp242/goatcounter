@@ -22,11 +22,11 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
-	"zgo.at/zstd/zjson"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zstring"
 	"zgo.at/ztest"
 )
 
@@ -184,7 +184,7 @@ func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Re
 // Note: this is primitive, but enough for now.
 func formBody(i interface{}) string {
 	var m map[string]string
-	zjson.MustUnmarshal(jsonutil.MustMarshal(i), &m)
+	zjson.MustUnmarshal(zjson.MustMarshal(i), &m)
 
 	f := make(url.Values)
 	for k, v := range m {

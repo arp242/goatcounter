@@ -16351,7 +16351,7 @@ closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 						{{if not (.Site.PlanCustomDomain .Context)}}
 							Requires Personal Plus or Business plan (you’re
 							on the {{.Site.Plan}} plan; see
-							<a href="/billing">billing</a>.
+							<a href="/billing">billing</a>).
 						{{else}}
 							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
 							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
