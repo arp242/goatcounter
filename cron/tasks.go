@@ -130,6 +130,10 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	if err != nil {
 		return errors.Wrapf(err, "browser_stat: site %d", siteID)
 	}
+	err = updateSystemStats(ctx, hits)
+	if err != nil {
+		return errors.Wrapf(err, "browser_stat: site %d", siteID)
+	}
 	err = updateLocationStats(ctx, hits)
 	if err != nil {
 		return errors.Wrapf(err, "location_stat: site %d", siteID)
