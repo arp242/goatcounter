@@ -13,7 +13,10 @@ Note: this release contains quite a few database migrations; they make take a
 minute to run (depending on your table size), and you may want to run a `VACUUM`
 afterwards.
 
-- Replace `-auth` with `-email-from` (#270)
+- Remove email auth, replace `-auth` with `-email-from` (#263, #270)
+
+  As mentioned in the 1.2 release the email authentication is now removed. You
+  can still reset the password for old accounts.
 
   Since the email auth no longer exists the `-auth` parameter no longer makes
   sense. It's now replaced with `-email-from`, which can be set to just an email

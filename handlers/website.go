@@ -219,12 +219,6 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := goatcounter.WithSite(r.Context(), &site)
-	err = user.RequestLogin(ctx)
-	if err != nil {
-		return err
-	}
-
 	err = user.Login(goatcounter.WithSite(r.Context(), &site))
 	if err != nil {
 		zlog.Errorf("login during account creation: %w", err)
