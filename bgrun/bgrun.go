@@ -1,3 +1,7 @@
+// Copyright © 2019 Martin Tournoij <martin@arp242.net>
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+
 // Package bgrun allows simple synchronisation of goroutines.
 //
 // This is mostly intended for "fire and forget" type of goroutines like sending
@@ -12,8 +16,8 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/zstd/zsync"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zsync"
 )
 
 var (

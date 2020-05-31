@@ -1,3 +1,7 @@
+// Copyright © 2019 Martin Tournoij <martin@arp242.net>
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+
 package goatcounter
 
 import (
@@ -11,11 +15,11 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
+	"zgo.at/zdb"
+	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zsync"
-	"zgo.at/zdb"
-	"zgo.at/zlog"
 )
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}

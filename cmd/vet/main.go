@@ -1,3 +1,7 @@
+// Copyright © 2019 Martin Tournoij <martin@arp242.net>
+// This file is part of GoatCounter and published under the terms of the EUPL
+// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+
 package main
 
 import (
@@ -33,10 +37,8 @@ import (
 )
 
 func main() {
-	var analyzers []*analysis.Analyzer
-
-	// Add all cmd/vet analyzers.
-	analyzers = append(analyzers,
+	// All cmd/vet analyzers.
+	var checks = []*analysis.Analyzer{
 		asmdecl.Analyzer,
 		assign.Analyzer,
 		atomic.Analyzer,
@@ -58,13 +60,14 @@ func main() {
 		unmarshal.Analyzer,
 		unreachable.Analyzer,
 		unsafeptr.Analyzer,
-		unusedresult.Analyzer)
+		unusedresult.Analyzer}
 
+	// Most of staticcheck.
 	for _, v := range simple.Analyzers {
-		analyzers = append(analyzers, v)
+		checks = append(checks, v)
 	}
 	for _, v := range staticcheck.Analyzers {
-		analyzers = append(analyzers, v)
+		checks = append(checks, v)
 	}
 	for k, v := range stylecheck.Analyzers {
 		// - At least one file in a non-main package should have a package comment
@@ -72,8 +75,14 @@ func main() {
 		if k == "ST1000" {
 			continue
 		}
-		analyzers = append(analyzers, v)
+		checks = append(checks, v)
 	}
+	// TODO: this doesn't work; looks like staticcheck does some special magic
+	// for this?
+	//checks = append(checks, unused.NewChecker(true).Analyzer())
 
-	multichecker.Main(analyzers...)
+	// Our own stuff.
+	checks = append(checks, Copyright)
+
+	multichecker.Main(checks...)
 }
