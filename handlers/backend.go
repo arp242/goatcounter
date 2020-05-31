@@ -7,6 +7,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net"
 	"net/http"
 	"net/url"
@@ -31,12 +32,12 @@ import (
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/tz"
-	"zgo.at/zstd/zjson"
-	"zgo.at/zstd/zsync"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zsync"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
@@ -460,16 +461,26 @@ func (h backend) pagesByRef(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var hits goatcounter.Stats
-	total, err := hits.ByRef(r.Context(), start, end, r.URL.Query().Get("name"))
+	var pages goatcounter.Stats
+	total, err := pages.ByRef(r.Context(), start, end, r.URL.Query().Get("name"), 20)
 	if err != nil {
 		return err
 	}
 
-	tpl := goatcounter.HorizontalChart(r.Context(), hits, total, total, 1, true, true)
+	_ = total
+	b := new(strings.Builder)
+	b.WriteString(`<ul class="list-ref-pages">`)
+	for _, p := range pages {
+		perc := float32(p.Count) / float32(total) * 100
+
+		fmt.Fprintf(b, "<li><span>%0.f%%</span> %s</li>",
+			perc,
+			template.HTMLEscapeString(p.Name))
+	}
+	b.WriteString(`</ul>`)
 
 	return zhttp.JSON(w, map[string]interface{}{
-		"html": string(tpl),
+		"html": b.String(),
 	})
 }
 
@@ -507,8 +518,9 @@ func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	tpl, err := zhttp.ExecuteTpl("_backend_refs.gohtml", map[string]interface{}{
-		"Refs": refs,
-		"Site": goatcounter.MustGetSite(r.Context()),
+		"Refs":   refs,
+		"Site":   goatcounter.MustGetSite(r.Context()),
+		"Totals": showRefs == "TOTAL ",
 	})
 	if err != nil {
 		return err
@@ -1031,7 +1043,7 @@ func hasPlan(site *goatcounter.Site) (bool, error) {
 	var customer struct {
 		Subscriptions struct {
 			Data []struct {
-				CancelAtPeriodEnd bool               `json:"cancel_at_period_end"`
+				CancelAtPeriodEnd bool            `json:"cancel_at_period_end"`
 				CurrentPeriodEnd  zjson.Timestamp `json:"current_period_end"`
 				Plan              struct {
 					Quantity int `json:"quantity"`

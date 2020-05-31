@@ -22,7 +22,7 @@
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
+				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
 				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
 			{{end}}</div>
 		</td>

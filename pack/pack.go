@@ -12265,7 +12265,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort, copy_pre,
+			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -12278,9 +12278,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				return;
 			var msg = ` + "`" + `Could not load ${settings.url}: ${err}` + "`" + `
 			console.error(msg)
-			on_error(
-				` + "`" + `ajaxError: ${msg}; e: ${JSON.stringify(e)}; xhr: ${JSON.stringify(xhr)}; settings: ${JSON.stringify(settings)}` + "`" + `,
-				settings.url)
+			on_error(` + "`" + `ajaxError: ${msg}` + "`" + `, settings.url)
 			alert(msg)
 		})
 	}
@@ -12296,6 +12294,32 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
+	}
+
+	// Load pages for reference in Totals
+	var ref_pages = function() {
+		$('.count-list').on('click', '.pages-by-ref', function(e) {
+			e.preventDefault()
+			var btn = $(this),
+				p   = btn.parent()
+
+			if (p.find('.list-ref-pages').length > 0) {
+				p.find('.list-ref-pages').remove()
+				return
+			}
+
+			$('.list-ref-pages').remove()
+			var done = paginate_button(btn, () => {
+				jQuery.ajax({
+					url: '/pages-by-ref',
+					data: append_period({name: btn.text()}),
+					success: function(data) {
+						p.append(data.html)
+						done()
+					}
+				})
+			})
+		})
 	}
 
 	// Add copy button to <pre>.
@@ -13380,6 +13404,8 @@ form .err  { color: red; display: block; }
 	width: 20rem;
 }
 
+.count-list.count-list-refs { position: relative; }
+
 .count-list.count-list-refs td:nth-child(1) {
 	text-align: right;
 	width: 4rem;
@@ -13749,6 +13775,29 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 	color: #000;
 	border-top: 1px solid #d5d5d5;
 	border-left: 1px solid #d5d5d5;
+}
+
+.list-ref-pages {
+	list-style: none;
+	padding-left: 0;
+	font-style: normal;
+	padding: .5em;
+}
+.list-ref-pages span {
+	display: inline-block;
+	width: 3em;
+}
+
+@media (min-width: 40rem) {
+	.list-ref-pages {
+		left: 20em;
+
+		position: absolute;
+		background-color: #fff;
+		z-index: 5;
+		top: -1em;
+		border: 1px solid #b7b7b7;
+	}
 }
 `),
 }
@@ -14946,7 +14995,7 @@ var Templates = map[string][]byte{
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
 			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
+				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
 				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
 			{{end}}</div>
 		</td>
@@ -14961,8 +15010,10 @@ var Templates = map[string][]byte{
 		<td><span title="Visits">{{nformat $r.CountUnique $.Site}}</span></td>
 		<td><span class="views" title="Pageviews">{{nformat $r.Count $.Site}}</span></td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
-			{{if $r.Path}}{{$r.Path}}
-			{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>{{end}}
+			{{if $r.Path -}}
+				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Path}}</a>{{else}}{{$r.Path}}{{end}}
+				{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>
+			{{- end}}
 			{{else}}(no data){{end}}
 		</td>
 	</tr>
@@ -15647,7 +15698,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
 		</div>
 		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
-			{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site}}
+			{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" true}}
 			{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
 		{{end}}</div>
 	</td>

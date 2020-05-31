@@ -97,6 +97,8 @@ form .err  { color: red; display: block; }
 	width: 20rem;
 }
 
+.count-list.count-list-refs { position: relative; }
+
 .count-list.count-list-refs td:nth-child(1) {
 	text-align: right;
 	width: 4rem;
@@ -466,4 +468,27 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 	color: #000;
 	border-top: 1px solid #d5d5d5;
 	border-left: 1px solid #d5d5d5;
+}
+
+.list-ref-pages {
+	list-style: none;
+	padding-left: 0;
+	font-style: normal;
+	padding: .5em;
+}
+.list-ref-pages span {
+	display: inline-block;
+	width: 3em;
+}
+
+@media (min-width: 40rem) {
+	.list-ref-pages {
+		left: 20em;
+
+		position: absolute;
+		background-color: #fff;
+		z-index: 5;
+		top: -1em;
+		border: 1px solid #b7b7b7;
+	}
 }

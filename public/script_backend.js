@@ -19,7 +19,7 @@
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort, copy_pre,
+			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -32,9 +32,7 @@
 				return;
 			var msg = `Could not load ${settings.url}: ${err}`
 			console.error(msg)
-			on_error(
-				`ajaxError: ${msg}; e: ${JSON.stringify(e)}; xhr: ${JSON.stringify(xhr)}; settings: ${JSON.stringify(settings)}`,
-				settings.url)
+			on_error(`ajaxError: ${msg}`, settings.url)
 			alert(msg)
 		})
 	}
@@ -50,6 +48,32 @@
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		});
+	}
+
+	// Load pages for reference in Totals
+	var ref_pages = function() {
+		$('.count-list').on('click', '.pages-by-ref', function(e) {
+			e.preventDefault()
+			var btn = $(this),
+				p   = btn.parent()
+
+			if (p.find('.list-ref-pages').length > 0) {
+				p.find('.list-ref-pages').remove()
+				return
+			}
+
+			$('.list-ref-pages').remove()
+			var done = paginate_button(btn, () => {
+				jQuery.ajax({
+					url: '/pages-by-ref',
+					data: append_period({name: btn.text()}),
+					success: function(data) {
+						p.append(data.html)
+						done()
+					}
+				})
+			})
+		})
 	}
 
 	// Add copy button to <pre>.

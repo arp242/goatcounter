@@ -568,7 +568,7 @@ type Stats []struct {
 }
 
 // ByRef lists all paths by reference.
-func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (int, error) {
+func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string, limit int) (int, error) {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ByRef */
 		select
 			path as name,
@@ -580,8 +580,9 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) (in
 			hour<=$3 and
 			ref = $4
 		group by path
-		order by count desc`,
-		MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref)
+		order by count desc
+		limit $5`,
+		MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref, limit)
 
 	var total int
 	for _, b := range *h {
