@@ -17651,7 +17651,7 @@ personal.</p>
 `),
 	"tpl/user_reset.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
-<h1>Reset password for {{.User.Email}} at {{.Site.Code}}</h1>
+<h1>Reset password for {{.User.Email}} at {{.Site.Display}}</h1>
 <form method="post" action="/user/reset/{{.Key}}" class="vertical">
 	<label for="password">New password</label>
 	<input type="password" name="password" id="password" autocomplete="new-password" required><br>
