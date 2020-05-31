@@ -82,7 +82,7 @@ func main() {
 	//checks = append(checks, unused.NewChecker(true).Analyzer())
 
 	// Our own stuff.
-	checks = append(checks, Copyright)
+	checks = append(checks, Copyright, Defer)
 
 	multichecker.Main(checks...)
 }

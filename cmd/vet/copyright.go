@@ -16,10 +16,10 @@ var Copyright = &analysis.Analyzer{
 	Name:     "copyright",
 	Doc:      "Check that the first comment is a copyright notice.",
 	Requires: []*analysis.Analyzer{facts.Generated},
-	Run:      run,
+	Run:      runCopyright,
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func runCopyright(pass *analysis.Pass) (interface{}, error) {
 	for _, f := range pass.Files {
 		if code.IsGenerated(pass, f.Pos()) {
 			continue
