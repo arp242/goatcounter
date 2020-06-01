@@ -91,7 +91,7 @@ hard, I promise).
 
 Compile from source with:
 
-    $ git clone -b release-1.2 https://github.com/zgoat/goatcounter.git
+    $ git clone -b release-1.3 https://github.com/zgoat/goatcounter.git
     $ cd goatcounter
     $ go build ./cmd/goatcounter
 

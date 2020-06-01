@@ -6,8 +6,9 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
-Unreleased
-----------
+
+2020-06-01 v1.3.0
+-----------------
 
 Note: this release contains quite a few database migrations; they make take a
 minute to run (depending on your table size), and you may want to run a `VACUUM`
