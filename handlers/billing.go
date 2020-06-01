@@ -19,10 +19,10 @@ import (
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
@@ -81,7 +81,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		var customer struct {
 			Subscriptions struct {
 				Data []struct {
-					CancelAtPeriodEnd bool               `json:"cancel_at_period_end"`
+					CancelAtPeriodEnd bool            `json:"cancel_at_period_end"`
 					CurrentPeriodEnd  zjson.Timestamp `json:"current_period_end"`
 					Plan              struct {
 						Quantity int `json:"quantity"`
@@ -117,7 +117,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			var invoice struct {
-				AmountDue int                `json:"amount_due"`
+				AmountDue int             `json:"amount_due"`
 				Created   zjson.Timestamp `json:"created"`
 			}
 			_, err = zstripe.Request(&invoice, "GET", "/v1/invoices/upcoming", zstripe.Body{

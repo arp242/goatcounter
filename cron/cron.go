@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	"zgo.at/zstd/zsync"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zsync"
 )
 
 type task struct {

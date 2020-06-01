@@ -21,10 +21,10 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )

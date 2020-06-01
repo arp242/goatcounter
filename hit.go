@@ -536,15 +536,6 @@ func (h *HitStats) ListAllRefs(ctx context.Context, start, end time.Time, offset
 	return more, nil
 }
 
-// ListPaths lists all paths we have statistics for.
-func (h *HitStats) ListPaths(ctx context.Context) ([]string, error) {
-	var paths []string
-	err := zdb.MustGet(ctx).SelectContext(ctx, &paths,
-		`select path from hit_stats where site=$1 group by path`,
-		MustGetSite(ctx).ID)
-	return paths, errors.Wrap(err, "Hits.ListPaths")
-}
-
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bool) error {
 	t := ""
@@ -558,7 +549,7 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bo
 		group by path, title
 		order by count desc
 	`, MustGetSite(ctx).ID, path)
-	return errors.Wrap(err, "Hits.ListPaths")
+	return errors.Wrap(err, "Hits.ListPathsLike")
 }
 
 type Stats []struct {

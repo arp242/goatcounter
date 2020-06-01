@@ -12,9 +12,9 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zstring"
 )
 
 const usageMigrate = `

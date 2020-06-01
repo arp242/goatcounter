@@ -14,8 +14,8 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/zstd/zfloat"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zfloat"
 )
 
 func ExportFile(site *Site) string {

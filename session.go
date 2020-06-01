@@ -14,10 +14,10 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/zstd/zsync"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zsync"
 )
 
 type Session struct {

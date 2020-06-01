@@ -10,9 +10,9 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
+	"zgo.at/zstd/zjson"
 )
 
 // Hit stats are stored per day/path, the value is a 2-tuple: it lists the

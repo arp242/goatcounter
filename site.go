@@ -17,10 +17,10 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/tz"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zvalidate"
 )
 
@@ -380,6 +380,8 @@ func (s Site) Domain() string {
 }
 
 // Display format: just the domain (cname or code+domain).
+//
+//lint:ignore U1001 used in template.
 func (s Site) Display() string {
 	if s.Cname != nil {
 		return *s.Cname
@@ -423,8 +425,10 @@ func (s Site) IDOrParent() int64 {
 	return s.ID
 }
 
+//lint:ignore U1001 used in template (via ShowPayBanner)
 var trialPeriod = time.Hour * 24 * 14
 
+//lint:ignore U1001 used in template.
 func (s Site) ShowPayBanner(ctx context.Context) bool {
 	if s.Parent != nil {
 		var ps Site

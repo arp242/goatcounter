@@ -292,22 +292,6 @@ func TestHitDefaultsPath(t *testing.T) {
 	}
 }
 
-func CmpString(out, want *string) bool {
-	if out == nil && want == nil {
-		return true
-	}
-	if out == nil && want != nil {
-		return false
-	}
-	if want == nil && out != nil {
-		return false
-	}
-	if *out != *want {
-		return false
-	}
-	return true
-}
-
 func PSP(s *string) string {
 	if s == nil {
 		return "<nil>"

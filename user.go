@@ -19,11 +19,6 @@ import (
 	"zgo.at/zvalidate"
 )
 
-const (
-	UserRoleRegular = ""
-	UserRoleAdmin   = "a"
-)
-
 // User entry.
 type User struct {
 	ID   int64 `db:"id" json:"-"`
@@ -225,25 +220,6 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 			lower(email)=lower($1) and
 			(site=$2 or site=(select parent from sites where id=$2))
 		`, email, MustGetSite(ctx).ID), "User.ByEmail")
-}
-
-// ByLoginRequest gets a user by login request key.
-func (u *User) ByLoginRequest(ctx context.Context, key string) error {
-	if key == "" { // Quick exit when called from zhttp.Auth()
-		return sql.ErrNoRows
-	}
-
-	query := `select * from users
-		where login_request=$1 and site=$2 and `
-
-	if cfg.PgSQL {
-		query += `login_at + interval '60 minutes' > now()`
-	} else {
-		query += `datetime(login_at, '+60 minutes') > datetime()`
-	}
-
-	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u, query,
-		key, MustGetSite(ctx).IDOrParent()), "User.ByLoginRequest")
 }
 
 // ByResetToken gets a user by login request key.
