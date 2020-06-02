@@ -12324,7 +12324,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Add copy button to <pre>.
 	var copy_pre = function() {
-		$('pre').each((_, elem) => {
+		$('.site-code pre').each((_, elem) => {
 			var btn = $('<a href="#" class="pre-copy">📋 Copy</a>').on('click', (e) => {
 				e.preventDefault()
 
@@ -16310,10 +16310,12 @@ input    { float: right; padding: .4em !important; }
 	"tpl/backend_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <h1>Site code</h1>
-<p>Insert the code below to add GoatCounter to a site, ideally just before the
-closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
-<code>&lt;head&gt;</code> will work):</p>
-{{template "_backend_sitecode.gohtml" .}}
+<article class="site-code">
+	<p>Insert the code below to add GoatCounter to a site, ideally just before the
+	closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
+	<code>&lt;head&gt;</code> will work):</p>
+	{{template "_backend_sitecode.gohtml" .}}
+</article>
 
 {{template "_backend_bottom.gohtml" .}}
 `),

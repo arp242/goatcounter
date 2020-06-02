@@ -78,7 +78,7 @@
 
 	// Add copy button to <pre>.
 	var copy_pre = function() {
-		$('pre').each((_, elem) => {
+		$('.site-code pre').each((_, elem) => {
 			var btn = $('<a href="#" class="pre-copy">📋 Copy</a>').on('click', (e) => {
 				e.preventDefault()
 

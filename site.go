@@ -428,6 +428,9 @@ func (s Site) IDOrParent() int64 {
 //lint:ignore U1001 used in template (via ShowPayBanner)
 var trialPeriod = time.Hour * 24 * 14
 
+// ShowPayBanner determines if we should show a "please pay" banner for the
+// customer.
+//
 //lint:ignore U1001 used in template.
 func (s Site) ShowPayBanner(ctx context.Context) bool {
 	if s.Parent != nil {

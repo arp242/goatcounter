@@ -75,6 +75,11 @@ func main() {
 		if k == "ST1000" {
 			continue
 		}
+		// The documentation of an exported function should start with
+		// the function's name.
+		if k == "ST1020" {
+			continue
+		}
 		checks = append(checks, v)
 	}
 	// TODO: this doesn't work; looks like staticcheck does some special magic
