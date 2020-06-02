@@ -8,20 +8,29 @@
 
 {{if eq .Path "/code"}}
 
-<p>Or use one of the ready-made integrations:</p>
+<h2 class="no_toc" id="integrations">Integrations</h2>
 
-<ul>
-  <li>
-    <p><a href="https://github.com/zgoat/goatcounter-wordpress">WordPress</a><br />
-Use <code>{{.Site.URL}}/count</code> as the endpoint in the WordPress GoatCounter settings.</p>
-  </li>
-  <li>
-    <p><a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a></p>
-  </li>
-  <li>
-    <p><a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a></p>
-  </li>
-</ul>
+<div style="text-align: center">
+<label for="int-url">Endpoint</label><br />
+<input type="text" value="{{.Site.URL}}/count" style="width: 28em" /><br />
+<span style="color: #999">You’ll need to copy this to the integration settings</span>
+
+<style>
+.integrations         { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1em; margin-bottom: 2em; }
+.integrations a img   { float: left; }
+.integrations a       { line-height: 40px; padding: 10px; width: 10em; margin: 1em; box-shadow: 0 0 4px #cdc8a4; }
+.integrations a:hover { text-decoration: none; color: #00f; background-color: #f7f7f7; }
+</style>
+
+<div class="integrations">
+<a href="https://github.com/zgoat/goatcounter-wordpress">
+    <img width="40" height="40" src="{{.Static}}/int-logo/wp.png" /> WordPress</a>
+<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">
+    <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg" /> Gatsby</a>
+<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">
+    <img width="40" height="40" src="{{.Static}}/int-logo/schlix.png" /> schlix</a>
+</div>
+</div>
 
 <h2 class="no_toc" id="table-of-contents">Table of Contents</h2>
 <ul id="markdown-toc">
@@ -480,8 +489,8 @@ regular browsers).</p>
 
 <h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
 <p>You can call <code>GET {{.Site.URL}}/count</code> or <code>POST {{.Site.URL}}/count</code> from
-anywhere, such as your app’s middleware. The GET and POST sendpoints are
-identical, and supportxs the following query parameters (form parameters are
+anywhere, such as your app’s middleware. The GET and POST endpoints are
+identical, and support the following query parameters (form parameters are
 ignored for POST):</p>
 
 <ul>
@@ -498,8 +507,12 @@ ignored for POST):</p>
         <code>Cache-Control</code>; ignored by the backend.</li>
 </ul>
 
-<p>The <code>User-Agent</code> header and remote address are used for the browser and
-location.</p>
+<p>You’ll need to forward the <code>User-Agent</code> header from the client and IP as
+<code>X-Forwarded-For: &lt;ip&gt;</code> if you want to get the correct browser and location.</p>
+
+<p><strong>NOTE</strong>: many client libraries (such as <code>curl</code>) are marked as bots by default;
+be sure to use a vaguely realistic <code>User-Agent</code> when testing or if you’re not
+forwarding the user’s <code>User-Agent</code> header.</p>
 
 <p>Calling it from the middleware will probably result in more bot requests, as
 mentioned in the previous section.</p>

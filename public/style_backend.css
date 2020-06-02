@@ -456,7 +456,7 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 }
 
 
-/*** Copy buttons on pre ***/
+/*** site code docs ***/
 .pre-copy-wrap { position: relative; }
 .pre-copy {
 	position: absolute;
@@ -469,7 +469,6 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 	border-top: 1px solid #d5d5d5;
 	border-left: 1px solid #d5d5d5;
 }
-
 .list-ref-pages {
 	list-style: none;
 	padding-left: 0;

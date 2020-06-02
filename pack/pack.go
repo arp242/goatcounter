@@ -2319,6 +2319,22 @@ fill="#000000" stroke="none">
 `),
 	"public/index.svg": []byte(`<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 9.7259998 3.9560001" height="3.9560001mm" width="9.7259998mm"><g transform="translate(0,-293.044)"><path d="m 9.1334164,293.49193 c -1.6422229,-0.24526 -3.2984127,-0.45041 -4.9612577,-0.4448 -0.7571537,0.0118 -1.5243709,0.13886 -2.196424,0.50462 -0.283529,0.093 -0.6795335,0.36991 -0.9174014,0.30035 0,-0.1377 0,-0.27539 0,-0.41309 -0.35277776,0 -0.70555551,0 -1.058333271866608,0 0,1.08303 0,2.16606 0,3.24909 0.352777761866608,0 0.705555511866608,0 1.058333271866608,0 -0.018552,-0.19293 -0.022312,-0.37957 0.2356444,-0.21861 0.8579277,0.22409 1.7037735,0.5857 2.6086264,0.52834 0.42766,0.0146 0.8442444,-0.17513 1.261401,-0.0372 0.4181366,0.0824 0.9829984,-0.0793 1.0546952,-0.56208 0.1879788,-0.21325 0.7989502,-0.20725 0.8059871,-0.65765 -0.1664631,-0.43416 0.5861141,-0.50823 0.4279637,-0.97962 -0.0084,-0.19336 -0.4934002,-0.41887 -0.087643,-0.36828 0.646987,-0.0301 1.3000225,0.0276 1.9423724,-0.071 0.3625361,6.6e-4 0.5967846,-0.5038 0.2363885,-0.70137 -0.1236421,-0.0759 -0.2685667,-0.10797 -0.4103524,-0.12874 z m -1.8838333,1.397 c -0.176739,0.442 -0.7018993,0.61645 -1.1403954,0.6553 -0.4953689,0.0498 -0.932969,-0.2434 -1.3466878,-0.47277 -0.2932219,-0.1 -0.3373301,-0.49062 0.050271,-0.33071 0.3725822,0.18332 0.690558,0.49281 1.1138958,0.57147 0.2970717,0.12298 0.8013696,-0.0254 0.6667497,-0.42333 -0.029576,-0.22526 -0.6591866,-0.47727 -0.1561042,-0.51853 0.2989592,0.0483 0.7347496,0.19172 0.8122708,0.51857 z m 1.8309167,-0.74083 c -1.1304613,0.0861 -2.2682963,0.0489 -3.3972499,-0.0423 -0.3287259,-0.18481 -0.6007776,-0.51495 -1.0062022,-0.53082 -0.4308888,-0.0562 -0.8661645,-0.10631 -1.2996415,-0.11936 -0.2455342,0.24499 0.3755459,0.17073 0.529828,0.21572 0.3986907,0.0276 0.8115017,0.0941 1.1654898,0.28577 0.3883128,0.33273 0.8786734,0.53412 1.2370922,0.8999 0.1976824,0.5022 -0.5573274,0.22033 -0.769276,0.0671 -0.3198247,-0.11952 -0.5518933,-0.47805 -0.9151241,-0.43724 -0.3318914,-0.003 -0.6644063,0.0117 -0.9953328,-0.0212 -0.1902566,0.10419 0.037223,0.28951 -0.1706563,0.42486 -0.288771,0.35012 -0.6718428,0.61598 -1.0761926,0.81344 -0.086199,0.42022 0.576766,-0.0358 0.7398411,-0.16253 0.2883553,-0.23149 0.5717774,-0.49578 0.7186744,-0.84291 0.2502168,-0.15234 0.6171542,0.16475 0.2282031,0.25795 -0.3957968,0.14 0.018171,0.62274 -0.3300673,0.78002 -0.046068,0.32935 0.2303027,0.60466 0.4389606,0.82815 0.4218066,0.24806 -0.326091,0.18401 -0.5234616,0.20373 -0.88564,0.003 -1.6777825,-0.44935 -2.5347083,-0.5978 -0.12899359,-0.0198 -0.032556,-0.26152 -0.062342,-0.37899 0,-0.55839 0,-1.11677 0,-1.67516 0.462385,-0.004 0.8724889,-0.27053 1.285844,-0.44759 0.7806978,-0.41478 1.6884703,-0.44899 2.5506142,-0.37261 1.4358839,0.0801 2.8732136,0.19418 4.2915416,0.43658 0.4289646,0.085 0.2515375,0.43486 -0.105834,0.41527 z m -2.3389166,1.51341 c 0.097699,0.41362 -0.4475862,0.48402 -0.7435102,0.48943 -0.6506355,0.0197 -1.2896683,-0.25607 -1.7841287,-0.66331 -0.3598913,-0.35882 0.2771109,-0.56043 0.4712887,-0.2398 0.527227,0.36941 1.1972106,0.63845 1.8420374,0.43464 0.053553,0.0248 0.2532774,-0.15802 0.2143128,-0.021 z m -0.8149167,0.762 c -0.1307134,0.41795 -0.6622495,0.37963 -0.9997115,0.28554 -0.424531,-0.1036 -0.8099958,-0.41902 -0.9719304,-0.82479 0.1294242,-0.38374 0.5444154,0.0543 0.7651419,0.14236 0.3690338,0.20578 0.7785499,0.3649 1.2065,0.36512 v 0.021 z m -5.12233316,0 c -0.18697222,0 -0.37394443,0 -0.56091665,0 0,-0.91017 0,-1.82033 0,-2.7305 0.18697222,0 0.37394443,0 0.56091665,0 0,0.91017 0,1.82033 0,2.7305 z"/></g></svg>
 `),
+	"public/int-logo/gatsby.svg": []byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" focusable="false"><circle cx="14" cy="14" r="14" fill="#639"/><path fill="#fff" d="M6.2 21.8C4.1 19.7 3 16.9 3 14.2L13.9 25c-2.8-.1-5.6-1.1-7.7-3.2zm10.2 2.9L3.3 11.6C4.4 6.7 8.8 3 14 3c3.7 0 6.9 1.8 8.9 4.5l-1.5 1.3C19.7 6.5 17 5 14 5c-3.9 0-7.2 2.5-8.5 6L17 22.5c2.9-1 5.1-3.5 5.8-6.5H18v-2h7c0 5.2-3.7 9.6-8.6 10.7z"/></svg>
+`),
+	"public/int-logo/schlix.png": func() []byte {
+		s, err := base64.StdEncoding.DecodeString("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")
+		if err != nil {
+			panic(err)
+		}
+		return s
+	}(),
+	"public/int-logo/wp.png": func() []byte {
+		s, err := base64.StdEncoding.DecodeString("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")
+		if err != nil {
+			panic(err)
+		}
+		return s
+	}(),
 	"public/jquery.js": []byte(`/*!
  * jQuery JavaScript Library v4.0.0-pre -ajax/jsonp,-ajax/script,-ajax/parseXML,-css/showHide,-effects,-effects/Tween,-effects/animatedSelector,-deprecated,-deprecated/ajax-event-alias,-deprecated/event,-event/alias,-wrap,-exports/amd,-sizzle
  * https://jquery.com/
@@ -13763,7 +13779,7 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 }
 
 
-/*** Copy buttons on pre ***/
+/*** site code docs ***/
 .pre-copy-wrap { position: relative; }
 .pre-copy {
 	position: absolute;
@@ -13776,7 +13792,6 @@ small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 	border-top: 1px solid #d5d5d5;
 	border-left: 1px solid #d5d5d5;
 }
-
 .list-ref-pages {
 	list-style: none;
 	padding-left: 0;
@@ -15042,20 +15057,29 @@ var Templates = map[string][]byte{
 
 {{if eq .Path "/code"}}
 
-<p>Or use one of the ready-made integrations:</p>
+<h2 class="no_toc" id="integrations">Integrations</h2>
 
-<ul>
-  <li>
-    <p><a href="https://github.com/zgoat/goatcounter-wordpress">WordPress</a><br />
-Use <code>{{.Site.URL}}/count</code> as the endpoint in the WordPress GoatCounter settings.</p>
-  </li>
-  <li>
-    <p><a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">Gatsby</a></p>
-  </li>
-  <li>
-    <p><a href="https://www.schlix.com/extensions/analytics/goatcounter.html">schlix</a></p>
-  </li>
-</ul>
+<div style="text-align: center">
+<label for="int-url">Endpoint</label><br />
+<input type="text" value="{{.Site.URL}}/count" style="width: 28em" /><br />
+<span style="color: #999">You’ll need to copy this to the integration settings</span>
+
+<style>
+.integrations         { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1em; margin-bottom: 2em; }
+.integrations a img   { float: left; }
+.integrations a       { line-height: 40px; padding: 10px; width: 10em; margin: 1em; box-shadow: 0 0 4px #cdc8a4; }
+.integrations a:hover { text-decoration: none; color: #00f; background-color: #f7f7f7; }
+</style>
+
+<div class="integrations">
+<a href="https://github.com/zgoat/goatcounter-wordpress">
+    <img width="40" height="40" src="{{.Static}}/int-logo/wp.png" /> WordPress</a>
+<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">
+    <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg" /> Gatsby</a>
+<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">
+    <img width="40" height="40" src="{{.Static}}/int-logo/schlix.png" /> schlix</a>
+</div>
+</div>
 
 <h2 class="no_toc" id="table-of-contents">Table of Contents</h2>
 <ul id="markdown-toc">
@@ -15514,8 +15538,8 @@ regular browsers).</p>
 
 <h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
 <p>You can call <code>GET {{.Site.URL}}/count</code> or <code>POST {{.Site.URL}}/count</code> from
-anywhere, such as your app’s middleware. The GET and POST sendpoints are
-identical, and supportxs the following query parameters (form parameters are
+anywhere, such as your app’s middleware. The GET and POST endpoints are
+identical, and support the following query parameters (form parameters are
 ignored for POST):</p>
 
 <ul>
@@ -15532,8 +15556,12 @@ ignored for POST):</p>
         <code>Cache-Control</code>; ignored by the backend.</li>
 </ul>
 
-<p>The <code>User-Agent</code> header and remote address are used for the browser and
-location.</p>
+<p>You’ll need to forward the <code>User-Agent</code> header from the client and IP as
+<code>X-Forwarded-For: &lt;ip&gt;</code> if you want to get the correct browser and location.</p>
+
+<p><strong>NOTE</strong>: many client libraries (such as <code>curl</code>) are marked as bots by default;
+be sure to use a vaguely realistic <code>User-Agent</code> when testing or if you’re not
+forwarding the user’s <code>User-Agent</code> header.</p>
 
 <p>Calling it from the middleware will probably result in more bot requests, as
 mentioned in the previous section.</p>
@@ -16311,6 +16339,7 @@ input    { float: right; padding: .4em !important; }
 
 <h1>Site code</h1>
 <article class="site-code">
+	<h2>Manual</h2>
 	<p>Insert the code below to add GoatCounter to a site, ideally just before the
 	closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 	<code>&lt;head&gt;</code> will work):</p>
@@ -16784,6 +16813,7 @@ within a day orso.</p>
 to your actual site in the examples below. This will be done automatically if
 you view the docs linked from your site in the top-right corner.</p>
 
+<h2>Manual</h2>
 <p>Insert the code below to add GoatCounter to a site, ideally just before the
 closing <code>&lt;/body&gt;</code> tag (but anywhere, such as in the
 <code>&lt;head&gt;</code> will work):</p>

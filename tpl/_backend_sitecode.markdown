@@ -4,14 +4,31 @@
 
 {{if eq .Path "/code"}}
 
-Or use one of the ready-made integrations:
+Integrations
+------------
+{:.no_toc}
 
-- [WordPress](https://github.com/zgoat/goatcounter-wordpress)<br>
-  Use `{{.Site.URL}}/count` as the endpoint in the WordPress GoatCounter settings.
+<div style="text-align: center">
+<label for="int-url">Endpoint</label><br>
+<input type="text" value="{{.Site.URL}}/count" style="width: 28em"><br>
+<span style="color: #999">You’ll need to copy this to the integration settings</span>
 
-- [Gatsby](https://www.npmjs.com/package/gatsby-plugin-goatcounter)
+<style>
+.integrations         { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1em; margin-bottom: 2em; }
+.integrations a img   { float: left; }
+.integrations a       { line-height: 40px; padding: 10px; width: 10em; margin: 1em; box-shadow: 0 0 4px #cdc8a4; }
+.integrations a:hover { text-decoration: none; color: #00f; background-color: #f7f7f7; }
+</style>
 
-- [schlix](https://www.schlix.com/extensions/analytics/goatcounter.html)
+<div class="integrations">
+<a href="https://github.com/zgoat/goatcounter-wordpress">
+    <img width="40" height="40" src="{{.Static}}/int-logo/wp.png"> WordPress</a>
+<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">
+    <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg"> Gatsby</a>
+<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">
+    <img width="40" height="40" src="{{.Static}}/int-logo/schlix.png"> schlix</a>
+</div>
+</div>
 
 
 Table of Contents
@@ -381,8 +398,8 @@ Wrap in a `<noscript>` tag to use this only for people without JavaScript.
 
 ### Tracking from backend middleware
 You can call `GET {{.Site.URL}}/count` or `POST {{.Site.URL}}/count` from
-anywhere, such as your app’s middleware. The GET and POST sendpoints are
-identical, and supportxs the following query parameters (form parameters are
+anywhere, such as your app’s middleware. The GET and POST endpoints are
+identical, and support the following query parameters (form parameters are
 ignored for POST):
 
 - `p` → `path`
@@ -397,8 +414,12 @@ ignored for POST):
 - `rnd` → can be used as a “cache buster” since browsers don’t always obey
           `Cache-Control`; ignored by the backend.
 
-The `User-Agent` header and remote address are used for the browser and
-location.
+You’ll need to forward the `User-Agent` header from the client and IP as
+`X-Forwarded-For: <ip>` if you want to get the correct browser and location.
+
+**NOTE**: many client libraries (such as `curl`) are marked as bots by default;
+be sure to use a vaguely realistic `User-Agent` when testing or if you’re not
+forwarding the user’s `User-Agent` header.
 
 Calling it from the middleware will probably result in more bot requests, as
 mentioned in the previous section.
