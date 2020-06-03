@@ -329,7 +329,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	)
 	wg.Add(1)
 	go func() {
-		defer zlog.Recover()
+		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 		defer wg.Done()
 
 		total, totalUnique, totalDisplay, totalUniqueDisplay, morePages, pagesErr = pages.List(
@@ -343,7 +343,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	)
 	wg.Add(1)
 	go func() {
-		defer zlog.Recover()
+		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 		defer wg.Done()
 
 		max, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)
@@ -636,7 +636,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	if exclude == "" {
 		wg.Add(1)
 		go func() {
-			defer zlog.Recover()
+			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
 			max, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)

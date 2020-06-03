@@ -47,7 +47,15 @@ func (h *HitStats) List(
 	)
 	wg.Add(1)
 	go func() {
-		defer zlog.Recover()
+		defer zlog.Recover(func(l zlog.Log) zlog.Log {
+			return l.Fields(zlog.F{
+				"site":    site.ID,
+				"start":   start,
+				"end":     end,
+				"exclude": exclude,
+				"daily":   daily,
+			})
+		})
 		defer wg.Done()
 
 		query := `/* HitStats.List: get count */
