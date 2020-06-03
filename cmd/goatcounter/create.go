@@ -134,6 +134,11 @@ func create() (int, error) {
 			return err
 		}
 
+		err = s.UpdateCnameSetupAt(ctx)
+		if err != nil {
+			return err
+		}
+
 		u := goatcounter.User{Site: s.ID, Email: email, Password: []byte(password), EmailVerified: true}
 		err = u.Insert(ctx)
 		return err

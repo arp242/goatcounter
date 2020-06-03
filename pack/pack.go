@@ -582,6 +582,13 @@ commit;
 	insert into version values ('2020-05-23-2-drop-ref-stats');
 commit;
 `),
+	"db/migrate/pgsql/2020-06-03-1-cname-setup.sql": []byte(`begin;
+	alter table sites add column cname_setup_at timestamp default null;
+	update sites set cname_setup_at=now() where cname is not null;
+
+	insert into version values('2020-06-03-1-cname-setup');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1354,6 +1361,15 @@ commit;
 	"db/migrate/sqlite/2020-05-23-2-drop-ref-stats.sql": []byte(`begin;
 	drop table ref_stats;
 	insert into version values ('2020-05-23-2-drop-ref-stats');
+commit;
+`),
+	"db/migrate/sqlite/2020-06-03-1-cname-setup.sql": []byte(`begin;
+	alter table sites add column cname_setup_at timestamp default null
+		check(cname_setup_at = strftime('%Y-%m-%d %H:%M:%S', cname_setup_at));
+
+	update sites set cname_setup_at=datetime() where cname is not null;
+
+	insert into version values('2020-06-03-1-cname-setup');
 commit;
 `),
 }
@@ -15817,36 +15833,6 @@ Martin
 	"tpl/backend.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
 
 {{if .User.ID}}
-	{{if not .User.Password}}
-		<div class="flash flash-i" style="text-align: left">
-			<p><strong>tl;dr: Please <a href="/settings#tab-change-password">set a password here</a> and use that for future logins.</strong></p>
-
-			<div style="max-width: 50em;">
-				<p>GoatCounter is switching from email-token authentication to
-				password-based authentication. I originally thought that email-based
-				auth would be a good idea, but feedback and experience proved
-				otherwise. Many people (including myself!) find it cumbersome. It
-				was simply not a good idea in hindsight 😅</p>
-
-				<p>Because maintaining two systems makes everything a lot more
-				complex, the email auth will be removed.
-				{{if .GoatcounterCom}}
-				All new signups use passwords now, and this notice should migrate
-				most users who login in the next few weeks, after which I’ll email
-				users without a password requesting them to set one. A few weeks
-				after that I’ll email a random password to the remaining users who
-				haven’t set one yet and remove the email auth workflow.</p>
-				{{end}}
-
-				<p>2-factor auth will be added at some point in the future; the
-				current email code isn’t really suitable for that and not something
-				that can easily be re-used for that.</p>
-
-				<p>This notice will disappear if you set a password.</p>
-			</div>
-		</div>
-	{{end}}
-
 	{{if not .User.EmailVerified}}
 		<div class="flash flash-i">
 			Please verify your email by clicking the link sent to {{.User.Email}}.
@@ -16431,8 +16417,18 @@ input    { float: right; padding: .4em !important; }
 							on the {{.Site.Plan}} plan; see
 							<a href="/billing">billing</a>).
 						{{else}}
-							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+							{{if .Site.CnameSetupAt}}
+								<br>Domain verified and set up.
+							{{else if .Site.Cname}}
+								<br><span style="color: red;">Not yet verified</span>; set a CNAME record to
+								<code>{{.Site.Code}}.{{.Domain}}</code>.
+								<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+								Verification runs every 2 hours.
+							{{else}}
+								Set a CNAME record to
+								<code>{{.Site.Code}}.{{.Domain}}</code>.
+								<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+							{{end}}
 						{{end}}</span>
 				{{else}}
 					<label for="cname">GoatCounter domain</label>

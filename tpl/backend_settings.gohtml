@@ -40,8 +40,18 @@
 							on the {{.Site.Plan}} plan; see
 							<a href="/billing">billing</a>).
 						{{else}}
-							Set a CNAME record to <code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+							{{if .Site.CnameSetupAt}}
+								<br>Domain verified and set up.
+							{{else if .Site.Cname}}
+								<br><span style="color: red;">Not yet verified</span>; set a CNAME record to
+								<code>{{.Site.Code}}.{{.Domain}}</code>.
+								<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+								Verification runs every 2 hours.
+							{{else}}
+								Set a CNAME record to
+								<code>{{.Site.Code}}.{{.Domain}}</code>.
+								<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+							{{end}}
 						{{end}}</span>
 				{{else}}
 					<label for="cname">GoatCounter domain</label>

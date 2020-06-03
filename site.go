@@ -50,7 +50,8 @@ type Site struct {
 	ID     int64  `db:"id"`
 	Parent *int64 `db:"parent"`
 
-	Cname        *string      `db:"cname"`       // Custom domain, e.g. "stats.example.com"
+	Cname        *string      `db:"cname"` // Custom domain, e.g. "stats.example.com"
+	CnameSetupAt *time.Time   `db:"cname_setup_at"`
 	Code         string       `db:"code"`        // Domain code (arp242, which makes arp242.goatcounter.com)
 	LinkDomain   string       `db:"link_domain"` // Site domain for linking (www.arp242.net).
 	Plan         string       `db:"plan"`
@@ -299,6 +300,18 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan string) error {
 	return errors.Wrap(err, "Site.UpdateStripe")
 }
 
+// UpdateCnameSetupAt confirms the custom domain was setup correct.
+func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
+	if s.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+		`update sites set cname_setup_at=$1 where id=$2`,
+		Now().Format(zdb.Date), s.ID)
+	return errors.Wrap(err, "Site.UpdateCnameSetupAt")
+}
+
 // Delete a site.
 func (s *Site) Delete(ctx context.Context) error {
 	if s.ID == 0 {
@@ -373,7 +386,7 @@ func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 // Domain gets the global default domain, or this site's configured custom
 // domain.
 func (s Site) Domain() string {
-	if s.Cname != nil {
+	if s.Cname != nil && s.CnameSetupAt != nil {
 		return *s.Cname
 	}
 	return cfg.Domain
@@ -383,7 +396,7 @@ func (s Site) Domain() string {
 //
 //lint:ignore U1001 used in template.
 func (s Site) Display() string {
-	if s.Cname != nil {
+	if s.Cname != nil && s.CnameSetupAt != nil {
 		return *s.Cname
 	}
 	return fmt.Sprintf("%s.%s", s.Code, zhttp.RemovePort(cfg.Domain))
@@ -391,7 +404,7 @@ func (s Site) Display() string {
 
 // URL to this site.
 func (s Site) URL() string {
-	if s.Cname != nil {
+	if s.Cname != nil && s.CnameSetupAt != nil {
 		return fmt.Sprintf("http%s://%s%s",
 			map[bool]string{true: "s", false: ""}[cfg.Prod],
 			*s.Cname, cfg.Port)

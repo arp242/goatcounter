@@ -225,6 +225,12 @@ func renewACME(ctx context.Context) error {
 			err := acme.Make(d)
 			if err != nil {
 				zlog.Module("cron-acme").Error(err)
+				return
+			}
+
+			err = s.UpdateCnameSetupAt(ctx)
+			if err != nil {
+				zlog.Module("cron-acme").Error(err)
 			}
 		}(*s.Cname)
 	}

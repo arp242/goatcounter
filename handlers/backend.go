@@ -871,8 +871,15 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if makecert {
+		ctx := goatcounter.NewContext(r.Context())
 		bgrun.Run(func() {
 			err := acme.Make(args.Cname)
+			if err != nil {
+				zlog.Field("domain", args.Cname).Error(err)
+				return
+			}
+
+			err = site.UpdateCnameSetupAt(ctx)
 			if err != nil {
 				zlog.Field("domain", args.Cname).Error(err)
 			}

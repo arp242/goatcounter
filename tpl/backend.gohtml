@@ -1,36 +1,6 @@
 {{- template "_backend_top.gohtml" . -}}
 
 {{if .User.ID}}
-	{{if not .User.Password}}
-		<div class="flash flash-i" style="text-align: left">
-			<p><strong>tl;dr: Please <a href="/settings#tab-change-password">set a password here</a> and use that for future logins.</strong></p>
-
-			<div style="max-width: 50em;">
-				<p>GoatCounter is switching from email-token authentication to
-				password-based authentication. I originally thought that email-based
-				auth would be a good idea, but feedback and experience proved
-				otherwise. Many people (including myself!) find it cumbersome. It
-				was simply not a good idea in hindsight 😅</p>
-
-				<p>Because maintaining two systems makes everything a lot more
-				complex, the email auth will be removed.
-				{{if .GoatcounterCom}}
-				All new signups use passwords now, and this notice should migrate
-				most users who login in the next few weeks, after which I’ll email
-				users without a password requesting them to set one. A few weeks
-				after that I’ll email a random password to the remaining users who
-				haven’t set one yet and remove the email auth workflow.</p>
-				{{end}}
-
-				<p>2-factor auth will be added at some point in the future; the
-				current email code isn’t really suitable for that and not something
-				that can easily be re-used for that.</p>
-
-				<p>This notice will disappear if you set a password.</p>
-			</div>
-		</div>
-	{{end}}
-
 	{{if not .User.EmailVerified}}
 		<div class="flash flash-i">
 			Please verify your email by clicking the link sent to {{.User.Email}}.
