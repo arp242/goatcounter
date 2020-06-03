@@ -220,9 +220,9 @@ func renewACME(ctx context.Context) error {
 
 	for _, s := range sites {
 		wg.Add(1)
-		go func(d string) {
+		go func(ctx context.Context, s goatcounter.Site) {
 			defer wg.Done()
-			err := acme.Make(d)
+			err := acme.Make(*s.Cname)
 			if err != nil {
 				zlog.Module("cron-acme").Error(err)
 				return
@@ -232,7 +232,7 @@ func renewACME(ctx context.Context) error {
 			if err != nil {
 				zlog.Module("cron-acme").Error(err)
 			}
-		}(*s.Cname)
+		}(ctx, s)
 	}
 
 	return nil
