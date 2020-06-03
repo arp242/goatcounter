@@ -9,6 +9,11 @@ func x() {
 	defer f2()()
 	defer func() func() { return func() {} }()()
 
+	ch := make(chan struct{})
+	defer close(ch)
+	var a, b []string
+	defer copy(a, b)
+
 	// Wrong.
 	defer f2()                                 // want "defered return not called"
 	defer func() func() { return func() {} }() // want "defered return not called"

@@ -35,14 +35,18 @@ func runDefer(pass *analysis.Pass) (interface{}, error) {
 		case *ast.FuncLit: // defer func() { }()
 			ft = c.Type
 		case *ast.Ident: // defer f()
-			fd, ok := c.Obj.Decl.(*ast.FuncDecl)
-			if !ok { // I think this should never happen?
-				return
+			// Obj is nil for builtins such as close(), copy(), etc. Since these
+			// never return a function it's okay to just skip them.
+			if c.Obj != nil {
+				fd, ok := c.Obj.Decl.(*ast.FuncDecl)
+				if !ok { // I think this should never happen?
+					return
+				}
+				ft = fd.Type
 			}
-			ft = fd.Type
 		}
 
-		if returnsFunction(ft) {
+		if ft != nil && returnsFunction(ft) {
 			pass.Reportf(def.Call.Pos(), "defered return not called")
 		}
 	})
