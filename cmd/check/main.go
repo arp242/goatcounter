@@ -5,9 +5,13 @@
 package main
 
 import (
+	"os"
+	"strings"
+
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
 
+	// Vet checks.
 	"golang.org/x/tools/go/analysis/passes/asmdecl"
 	"golang.org/x/tools/go/analysis/passes/assign"
 	"golang.org/x/tools/go/analysis/passes/atomic"
@@ -31,14 +35,24 @@ import (
 	"golang.org/x/tools/go/analysis/passes/unsafeptr"
 	"golang.org/x/tools/go/analysis/passes/unusedresult"
 
+	// Additional checks in x/tools
+	"golang.org/x/tools/go/analysis/passes/atomicalign"
+	"golang.org/x/tools/go/analysis/passes/deepequalerrors"
+	"golang.org/x/tools/go/analysis/passes/ifaceassert"
+	"golang.org/x/tools/go/analysis/passes/nilness"
+	"golang.org/x/tools/go/analysis/passes/sortslice"
+	"golang.org/x/tools/go/analysis/passes/stringintconv"
+	"golang.org/x/tools/go/analysis/passes/testinggoroutine"
+
+	// Staticcheck
 	"honnef.co/go/tools/simple"
 	"honnef.co/go/tools/staticcheck"
 	"honnef.co/go/tools/stylecheck"
 )
 
 func main() {
-	// All cmd/vet analyzers.
 	var checks = []*analysis.Analyzer{
+		// All cmd/vet analyzers.
 		asmdecl.Analyzer,
 		assign.Analyzer,
 		atomic.Analyzer,
@@ -60,7 +74,18 @@ func main() {
 		unmarshal.Analyzer,
 		unreachable.Analyzer,
 		unsafeptr.Analyzer,
-		unusedresult.Analyzer}
+		unusedresult.Analyzer,
+
+		// Additional checks from x/tools
+		atomicalign.Analyzer,
+		deepequalerrors.Analyzer,
+		ifaceassert.Analyzer,
+		nilness.Analyzer,
+		//shadow.Analyzer,
+		sortslice.Analyzer,
+		stringintconv.Analyzer,
+		testinggoroutine.Analyzer,
+	}
 
 	// Most of staticcheck.
 	for _, v := range simple.Analyzers {
@@ -82,12 +107,23 @@ func main() {
 		}
 		checks = append(checks, v)
 	}
-	// TODO: this doesn't work; looks like staticcheck does some special magic
-	// for this?
-	//checks = append(checks, unused.NewChecker(true).Analyzer())
 
 	// Our own stuff.
 	checks = append(checks, Copyright, Defer)
+
+	// Add -printf.funcs unless already given.
+	var has bool
+	for _, a := range os.Args[1:] {
+		if strings.HasPrefix(a, "-printf.funcs") {
+			has = true
+			break
+		}
+	}
+	if !has {
+		os.Args = append(
+			[]string{os.Args[0], "-printf.funcs", "zgo.at/errors.Wrapf"},
+			os.Args[1:]...)
+	}
 
 	multichecker.Main(checks...)
 }

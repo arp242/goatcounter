@@ -269,9 +269,7 @@ func (s *Site) Update(ctx context.Context) error {
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
-		if err != nil {
-			return err
-		}
+		return err
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,

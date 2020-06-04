@@ -4,7 +4,7 @@ go:
   - '1.14.x'
 services:
   - 'postgresql'
-# GoatCounter.com actually runs on 12.1, but this is the latest version that
+# GoatCounter.com actually runs on 12.2, but this is the latest version that
 # seems easily installable on Travis.
 addons:
   postgresql: '10'
@@ -24,7 +24,7 @@ before_script:
   - 'createdb goatcounter_test'
 
 script:
-  - 'go run ./cmd/vet ./...'
+  - 'go run ./cmd/check ./...'
   - 'go generate ./... && [ $(git status -s | wc -l) -gt 1 ] && git diff && exit 1 || true'
   - 'go test              -race ./...'
   - 'go test -tags=testpg -race ./...'
