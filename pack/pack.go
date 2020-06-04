@@ -17096,7 +17096,7 @@ sub {
 
 {{template "_top.gohtml" .}}
 
-<h1 id="gdpr-consent-notices">GDPR consent notices <a href="#gdpr-consent-notices"></a></h1>
+<h1 id="gdpr-consent-notices">GDPR consent notices</h1>
 
 <p>The short version is that GoatCounter <em>probably</em> doesn’t require a GDPR consent
 notice, on the basis that 1) no personally identifiable information is
@@ -17317,10 +17317,12 @@ advice specific to your situation.</p>
 
 		<p>GoatCounter is an
 			<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">open source</a>
-			web analytics platform available as a hosted service or
-			<em>self-hosted.</em> It aims to offer easy to use and meaningful
-			privacy-friendly web analytics as an alternative to Google Analytics
-			or Matomo.</p>
+			web analytics platform available as a hosted service (free for
+			non-commercial use) or <em>self-hosted</em> app. It aims to offer easy to use
+			and meaningful privacy-friendly web analytics as an alternative to
+			Google Analytics or Matomo.<br>
+			<a href="/why">Why I made GoatCounter</a>
+		</p>
 	</div>
 
 	<div id="home-login">
@@ -17700,5 +17702,126 @@ personal.</p>
 
 {{template "_backend_bottom.gohtml" .}}
 
+`),
+	"tpl/why.gohtml": []byte(`{{/*************************************************************************
+ * This file was generated from tpl/why.markdown. DO NOT EDIT.
+*************************************************************************/}}
+
+{{template "_top.gohtml" .}}
+
+<h1 id="why-i-made-goatcounter">Why I made GoatCounter</h1>
+<p>Last year I was working on a product idea and wanted to add some basic analytics
+to measure how many people are visiting the site. I've also been wanting to add
+basic analytics to my personal homepage/programming weblog to measure if anyone
+is reading anything I write (and if so, what?)</p>
+
+<p>Analytics are useful to measure things like <em>“what type of content is popular,
+and should I write more of?”</em>, <em>“does it even make sense to distribute a
+newsletter?”</em>, <em>“how does the redesigned signup button affect signup rates?”</em>,
+<em>“is anyone even using this page I'm maintaining”?</em></p>
+
+<p>I tried a number of existing solutions, and found them are either very complex
+and designed for advanced users, or far too simplistic. In addition almost all
+hosted solutions are priced for business users (≥$10/month), making it too
+expensive for personal/hobby use.</p>
+
+<p>What seems to be lacking is a “middle ground” that offers useful statistics to
+answer business questions, without becoming a specialized marketing tool
+requiring in-depth training to use effectively. Furthermore, some tools have
+privacy issues (especially Google Analytics). I saw there was space for a new
+service and ended up putting my original idea in the freezer and writing
+GoatCounter.<sup id="fnref:gc" role="doc-noteref"><a href="#fn:gc" class="footnote">1</a></sup></p>
+
+<h2 id="why-is-it-free">Why is it free? <a href="#why-is-it-free"></a></h2>
+<p>Almost all hosted solutions are exclusively oriented towards business use. This
+makes sense from a business point of view – better to support 100 customers
+paying €30 each than 1000 paying €3 each – but it does leave a lot of people
+without a good/affordable solution.</p>
+
+<p>I think it’s important to make the barrier of entry for software like this low
+as feasible to make actual meaningful inroads to “de-Google-fi” the internet a
+bit, and make pervasive tracking less common. Making it freely available (for
+personal use) is part of that. In my own online purchasing behaviour I find that
+even a small €1 or €2 subscription is quite a barrier, especially for personal
+projects. From what I see, I don’t think my behaviour is an outlier. Most people
+don't use Google Analytics because they're overwhelmingly impressed by it, but
+just because it's free.</p>
+
+<p>The only other options outside of Google Analytics is to pay upwards of
+€10/month or to self-host something like Matomo, which also isn't free in terms
+of hosting costs, setup time, maintenance, etc. Never mind that average person
+running his photography website probably doesn't have the interest or know-how.</p>
+
+<p>If you want to make the internet a bit better, then the only real option is to
+offer a SaaS for free, at least for personal use. Ideally I'd like to make it
+free for <em>everyone</em> up to <em>n</em> pageviews/month – like Google Analytics – but I do
+need to pay the bills 😅</p>
+
+<h2 id="what-are-goatcounters-goals">What are GoatCounter's goals? <a href="#what-are-goatcounters-goals"></a></h2>
+<p>Without focusing too much on specific features, high-level goals are:</p>
+
+<ul>
+  <li>
+    <p>Give useful data while respecting people's privacy. For the most part, it
+should just “count events” rather than “get as much data as technically
+possible” (which, for the most part, is not even that useful or valuable for
+analytics anyway).</p>
+  </li>
+  <li>
+    <p>There should always be an option to add GoatCounter to your site <em>without</em>
+requiring a GDPR consent notice.</p>
+  </li>
+  <li>
+    <p>Easy user interface; some existing solutions are surprisingly complex, to the
+point where I wasn't able to get some basic data out of it. It's like putting
+a layperson in front of a SQL database and telling them to “just” get some
+“simple” data out of it.</p>
+
+    <p>GoatCounter isn't intended to solve every possible analytics use case, and by
+limiting the scope it should be <em>better</em> for the use cases it <em>is</em> designed
+for.</p>
+  </li>
+  <li>
+    <p>Make a web app that I <em>like</em> using, rather than merely <em>tolerate</em>. This is a
+bit subjective, and perhaps my tastes are old-fashioned, but I'm not wildly
+impressed by a lot of modern web UIs. Google Analytics is a good example where
+pressing the “back button” will often break everything.</p>
+  </li>
+  <li>
+    <p>Works well with any browser and assistive technology, whenever reasonably
+possible.</p>
+  </li>
+  <li>
+    <p>Easy to self-host without too much mucking about with web servers, proxies,
+{PHP,Python,Ruby,NodeJS,…}, SQL databases, what-have-you. I feel this is an
+important feature, because “run your own” sounds nice but it becomes a bit of
+a niche feature if you need to have a lot of knowledge and spend a lot of time
+setting everything up.</p>
+  </li>
+</ul>
+
+<hr />
+
+<p><strong>Footnotes</strong></p>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:gc" role="doc-endnote">
+      <p>A little context on the name: GoatCounter is written in the Go
+   programming language, and I thought it would be fun to reflect that in
+   the name. The original “intermediate” project in-between my original idea
+   and GoatCounter was GoatLetter, a newsletter service with similar
+   aesthetics to GoatCounter (something I will finish <em>soon™</em>). Probably
+   subconsciously influenced by MailChip I ended up with “Goat”.<br /><br />
+   I originally wanted to avoid using the word “Analytics” as it's 1)
+   associated with invasive tracking like GA 2) something I have trouble
+   spelling correctly 😅 “Counter” refers to “counting requests” (as opposed
+   to “analytics”. It's a bit of a weird name, but memorable, so I guess
+   I'll stick with it for now :-) <a href="#fnref:gc" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+{{template "_bottom.gohtml" .}}
 `),
 }

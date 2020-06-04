@@ -63,7 +63,7 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
 	r.Get("/code", zhttp.Wrap(h.code))
-	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr"} {
+	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr", "why"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
 }
@@ -77,6 +77,7 @@ var metaDesc = map[string]string{
 	"contact":    "Contact – GoatCounter",
 	"contribute": "Contribute – GoatCounter",
 	"code":       "Site integration code – GoatCounter",
+	"why":        "Why I made GoatCounter",
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {

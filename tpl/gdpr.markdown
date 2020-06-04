@@ -1,4 +1,4 @@
-{{template "_top.gohtml" .}}
+{{template "%%top.gohtml" .}}
 
 GDPR consent notices
 ====================
@@ -93,4 +93,4 @@ advice specific to your situation.
 
 [gdpr]: https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R0679
 
-{{template "_bottom.gohtml" .}}
+{{template "%%bottom.gohtml" .}}

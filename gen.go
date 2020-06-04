@@ -55,8 +55,11 @@ func main() {
 }
 
 var (
-	reHeaders = regexp.MustCompile(`<h(\d) id="(.*?)">(.*?)<\/h\d>`)
+	reHeaders = regexp.MustCompile(`<h([2-6]) id="(.*?)">(.*?)<\/h[2-6]>`)
 	reTpl     = regexp.MustCompile(`(?:<p>({{)|(}})</p>)`)
+
+	// {{template "%%top.gohtml" .}}
+	reUnderscore = regexp.MustCompile(`template "%%`)
 )
 
 // Don't really need to generate Markdown on requests, and don't want to
@@ -92,6 +95,7 @@ func markdown() error {
 
 		out = reHeaders.ReplaceAll(out, []byte(`<h$1 id="$2">$3 <a href="#$2"></a></h$1>`))
 		out = reTpl.ReplaceAll(out, []byte("$1$2"))
+		out = reUnderscore.ReplaceAll(out, []byte(`template "_`))
 
 		_, err = dest.Write(out)
 		if err != nil {
