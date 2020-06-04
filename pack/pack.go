@@ -13208,7 +13208,7 @@ footer > div:first-child { margin-bottom: 1em; }
 
 /*** Home page ***/
 .page-home          { padding: 0; box-shadow: none; background-color: transparent; }
-.page-home h1       { margin-top: 2em; font-size: 2em; }
+.page-home h1       { margin-top: 1em; font-size: 2em; }
 .page-home *:target { background-color: inherit; }
 .page-home h2       { border-bottom: 0; text-align: center; font-size: 2rem; margin-top: 5rem; }
 
@@ -13218,21 +13218,36 @@ footer > div:first-child { margin-bottom: 1em; }
 
 /*** Home top ***/
 #home-top        { padding: 0 1em; margin-bottom: 3rem; }
-#home-intro      { margin: 1em 0; text-align: center; font-size: 1.8em; line-height: 1.5em; }
-#home-intro span { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
 
-#home-demo   { text-align: center; margin: 2.5em 0; }
-#home-demo a { padding: 1em 3em; }
-#home-login  { text-align: center }
+/* Intro text */
+#home-intro      { margin: 1em 0; text-align: center; max-width: 40em; margin: 0 auto; margin-bottom: 4em; }
+#home-intro strong    { font-weight: normal; font-size: 1.8em; line-height: 1.5em; }
+#home-intro strong em { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
+#home-intro a { font-size: 1rem; margin-top: -2em; }
+#home-intro p { text-align: center; }
 
+/* Login button */
+#home-login       { text-align: center; }
+#home-login .cbox { padding: 1em 3em; }
+#home-login p     { font-size: .8em; margin-top: 1.3em; }
+
+/* Live demo and screenshots */
+#home-screens     { text-align: center; margin-top: 2em; }
+#home-screens p   { width: 100%; margin-bottom: 2em; }
+#home-screens p a { padding: .3em 1em; border-bottom: 3px solid yellow; transition: color, border .2s; }
+#home-screens p a:hover { text-decoration: none; border-bottom: 3px solid #6491ff; }
+/*
+#home-screens a { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
+*/
+
+#home-screens img     { box-shadow: 0 0 4px #cdc8a4; }
 @media (min-width: 45rem) {
-	#home-screens           { display: flex; justify-content: space-between; align-items: center; }
-	#home-screens img       { width: 49%; }
+	#home-screens     { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+	#home-screens img { width: 49%; }
 }
 @media (max-width: 45rem) {
 	#home-screens img { margin-bottom: 1em; }
 }
-#home-screens img { box-shadow: 0 0 4px #cdc8a4; }
 
 img.imgzoom-loading { cursor: wait !important; }
 .imgzoom-large { cursor: pointer; box-shadow: 0 0 8px rgba(0, 0, 0, .3); transition: all .4s; }
@@ -13257,10 +13272,6 @@ img.imgzoom-loading { cursor: wait !important; }
 	#home-pricing ul    { line-height: 2em; }
 	#home-pricing h3    { padding-top: .5em; }
 }
-
-/*** Home description ***/
-#home-desc   { padding: 0 3rem; }
-#home-desc p { text-align: justify; hyphens: auto; }
 
 /*** Home features ***/
 #features          { margin-top: 3rem; }
@@ -17302,32 +17313,29 @@ advice specific to your situation.</p>
 <div id="home-top">
 	<h1><img alt="" src="{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
 	<div id="home-intro">
-		<p><span>Easy</span> web analytics. <span>No tracking</span> of personal data.</p>
+		<strong><em>Easy</em> web analytics. <em>No tracking</em> of personal data.</strong>
+
+		<p>GoatCounter is an
+			<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">open source</a>
+			web analytics platform available as a hosted service or
+			<em>self-hosted.</em> It aims to offer easy to use and meaningful
+			privacy-friendly web analytics as an alternative to Google Analytics
+			or Matomo.</p>
 	</div>
 
-	<div id="home-demo">
-		<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
-	</div>
 	<div id="home-login">
-		<a class="" href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
-		<br>
-		{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
-		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}
+		<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
+		<p>{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
+		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}</p>
 	</div>
-
-	<br><br>
 
 	<div id="home-screens" class="two">
+		<p>
+			<a href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
+		</p>
 		<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
 		<img class="zoom" src="{{.Static}}/screenshot2.png" alt="Screenshot of the GoatCounter interface">
 	</div>
-</div>
-
-<div id="home-desc">
-	<p>GoatCounter is an easy to use open source web analytics platform, roughly
-		similar to Google Analytics or Matomo. It aims to give meaningful
-		privacy-friendly web analytics for business purposes, while still staying
-		usable for non-technical users to use on personal websites.</p>
 </div>
 
 <h2 id="features">Features</h2>

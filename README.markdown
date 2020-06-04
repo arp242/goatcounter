@@ -1,11 +1,9 @@
 [![Build Status](https://travis-ci.com/zgoat/goatcounter.svg?branch=master)](https://travis-ci.com/zgoat/goatcounter)
 
-GoatCounter is a web analytics platform, roughly similar to Google Analytics or
-Matomo. It aims to give meaningful privacy-friendly web analytics for business
-purposes, while still staying usable for non-technical users to use on personal
-websites. The choices that currently exist are between freely hosted but with
-problematic privacy (e.g. Google Analytics), hosting your own complex software
-or paying $19/month (e.g. Matomo), or extremely simplistic "vanity statistics".
+GoatCounter is an open source web analytics platform available as a hosted
+service or self-hosted. It aims to offer easy to use and meaningful
+privacy-friendly web analytics as an alternative to Google Analytics or
+Matomo.
 
 There are two ways to run this: as **hosted service** on [goatcounter.com][www],
 *free* for non-commercial use, or run it on your own server (the source code is

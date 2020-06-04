@@ -3,32 +3,29 @@
 <div id="home-top">
 	<h1><img alt="" src="{{.Static}}/logo.svg" height="50"> GoatCounter</h1>
 	<div id="home-intro">
-		<p><span>Easy</span> web analytics. <span>No tracking</span> of personal data.</p>
+		<strong><em>Easy</em> web analytics. <em>No tracking</em> of personal data.</strong>
+
+		<p>GoatCounter is an
+			<a href="https://github.com/zgoat/goatcounter" target="_blank" rel="noopener">open source</a>
+			web analytics platform available as a hosted service or
+			<em>self-hosted.</em> It aims to offer easy to use and meaningful
+			privacy-friendly web analytics as an alternative to Google Analytics
+			or Matomo.</p>
 	</div>
 
-	<div id="home-demo">
-		<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
-	</div>
 	<div id="home-login">
-		<a class="" href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
-		<br>
-		{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
-		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}
+		<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
+		<p>{{if .LoggedIn}}{{.LoggedIn}}{{else}}Already have an account? Sign in at <em>yourcode</em>.goatcounter.com.
+		<a href="//{{.Domain}}/user/forgot">Forgot?</a>{{end}}</p>
 	</div>
-
-	<br><br>
 
 	<div id="home-screens" class="two">
+		<p>
+			<a href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
+		</p>
 		<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
 		<img class="zoom" src="{{.Static}}/screenshot2.png" alt="Screenshot of the GoatCounter interface">
 	</div>
-</div>
-
-<div id="home-desc">
-	<p>GoatCounter is an easy to use open source web analytics platform, roughly
-		similar to Google Analytics or Matomo. It aims to give meaningful
-		privacy-friendly web analytics for business purposes, while still staying
-		usable for non-technical users to use on personal websites.</p>
 </div>
 
 <h2 id="features">Features</h2>
