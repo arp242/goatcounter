@@ -17405,7 +17405,7 @@ advice specific to your situation.</p>
 			<li>For <a href="/terms#commercial">non-commercial</a> use</li>
 			<li>Unlimited sites</li>
 			<li title="3.3k/day">100k pageviews/month</li>
-			<li>Optional custom domain for €5</li>
+			<li>Optional custom domain for €5/month</li>
 			<li class="empty">&nbsp;</li>
 		</ul>
 	</div>
