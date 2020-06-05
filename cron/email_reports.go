@@ -15,6 +15,7 @@ import (
 
 	"github.com/jinzhu/now"
 	"zgo.at/blackmail"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
@@ -23,13 +24,40 @@ import (
 	"zgo.at/zstd/zstring"
 )
 
-func emailReports(ctx context.Context) error {
+var el = zlog.Module("email-report")
+
+// EmailReports sends email reports for sites that have this configured.
+func EmailReports(ctx context.Context) error {
 	db := zdb.MustGet(ctx)
 
-	var ids []int64
-	// TODO: SQLite compat.
-	err := db.SelectContext(ctx, &ids,
-		`select id from sites where settings->>'email_reports'::varchar != '0'`)
+	var (
+		ids []int64
+		err error
+	)
+	if cfg.PgSQL {
+		err = db.SelectContext(ctx, &ids,
+			`select id from sites where settings->>'email_reports'::varchar != '0'`)
+	} else {
+		// Bit ugly to avoid having to depend on SQLite's JSON extensions, which
+		// requires "-tags sqlite_json" to be added to every go run/build/test
+		// command, which is annoying and prone to errors.
+		//
+		// TODO: find a good solution for this, for example by automatically
+		// setting this tag and/or -DSQLITE_ENABLE_JSON1 somehow.
+		//
+		// err = db.SelectContext(ctx, &ids,
+		//    `select id from sites where json_extract(settings, '$.email_reports') != '0'`)
+
+		var allSites goatcounter.Sites
+		err = allSites.List(ctx)
+		if err == nil {
+			for _, s := range allSites {
+				if s.Settings.EmailReports != 0 {
+					ids = append(ids, s.ID)
+				}
+			}
+		}
+	}
 	if err != nil {
 		return fmt.Errorf("cron.emailReports get sites: %w", err)
 	}
@@ -40,8 +68,9 @@ func emailReports(ctx context.Context) error {
 		return fmt.Errorf("cron.emailReports: %w", err)
 	}
 
-	// Note: maybe pool subsites in one email?
 	for _, s := range sites {
+		el.Debugf("running for site %d; setting: %d", s.ID, s.Settings.EmailReports)
+
 		var user goatcounter.User
 		err = user.BySite(ctx, s.ID)
 		if err != nil {
@@ -52,6 +81,10 @@ func emailReports(ctx context.Context) error {
 		text, html, subject, err := report(ctx, s, user.LastReportAt)
 		if err != nil {
 			zlog.Field("site", s.ID).Errorf("cron.emailReports: %w", err)
+			continue
+		}
+		if text == nil {
+			el.Debug("no text: bailing")
 			continue
 		}
 
@@ -103,48 +136,55 @@ func report(ctx context.Context, s goatcounter.Site, lastReport *time.Time) ([]b
 		},
 	}
 
-	//Start: time.Date(n.Year(), n.Month(), n.Day()-1, 0, 0, 0, 0, s.Settings.Timezone.Location),
-	//End:   time.Date(n.Year(), n.Month(), n.Day()-1, 23, 59, 59, 0, s.Settings.Timezone.Location),
-	//Start: n, End: n}
 	args := templateArgs{Site: &s, End: n.EndOfDay()}
 
 	switch s.Settings.EmailReports.Int() {
-	case 1:
+	case goatcounter.EmailReportDaily:
 		args.PeriodName = "day"
 		args.PeriodNamely = "daily"
 		args.Start = n.BeginningOfDay()
+		args.End = n.EndOfDay()
 		args.DisplayDate = args.Start.Format("Mon January ") + ordinal(args.Start.Day())
-	case 3:
+	case goatcounter.EmailReportBiWeekly:
 		args.PeriodName = "biweek"
 		args.PeriodNamely = "biweekly"
 		args.Start = n.BeginningOfWeek().Add(-7 * 24 * time.Hour)
+		args.End = now.New(args.Start).EndOfWeek()
 
 		args.DisplayDate = fmt.Sprintf("%s %s to %s %s",
 			args.Start.Format("Mon Jan"), ordinal(args.Start.Day()),
 			args.End.Format("Mon Jan"), ordinal(args.End.Day()))
-	case 4:
+	case goatcounter.EmailReportMonthly:
 		args.PeriodName = "month"
 		args.PeriodNamely = "monthly"
 		args.Start = n.BeginningOfMonth()
+		args.End = now.New(args.Start).EndOfMonth()
+
 		args.DisplayDate = args.Start.Format("January")
 
-	case -1:
+	case goatcounter.EmailReportOnce:
 		args.FirstTime = true
 		fallthrough
-	case -2:
+	case goatcounter.EmailReportInit:
 		args.PeriodName = "first-time"
 		args.NewFeature = true
 		fallthrough
-	case 2:
-		if args.PeriodName != "" {
+	case goatcounter.EmailReportWeekly:
+		if args.PeriodName == "" {
 			args.PeriodName = "week"
 		}
 		args.PeriodNamely = "weekly"
 		args.Start = n.BeginningOfWeek()
+		args.End = now.New(args.Start).EndOfWeek()
 		args.DisplayDate = fmt.Sprintf("%s %s to %s %s",
 			args.Start.Format("Mon Jan"), ordinal(args.Start.Day()),
 			args.End.Format("Mon Jan"), ordinal(args.End.Day()))
+	default:
+		return nil, nil, "", errors.Errorf(
+			"cron.report: invalid value for report: %s", s.Settings.EmailReports)
 	}
+
+	el.Debugf("%q: start: %s; end: %s", args.PeriodName, args.Start, args.End)
 
 	// Subject is unique mostly to prevent gmail from grouping messages by
 	// subject, which in turn results in it hidding content :-/ I don't get
@@ -157,6 +197,11 @@ func report(ctx context.Context, s goatcounter.Site, lastReport *time.Time) ([]b
 		_, _, td, tud, _, err := pages.List(ctx, args.Start, args.End, "", nil, true)
 		if err != nil {
 			return nil, nil, "", fmt.Errorf("cron.report: %w", err)
+		}
+
+		// No pages: nothing to report I guess?
+		if len(pages) == 0 {
+			return nil, nil, "", nil
 		}
 
 		var totals goatcounter.HitStat

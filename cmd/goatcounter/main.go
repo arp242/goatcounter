@@ -16,6 +16,7 @@ import (
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"zgo.at/errors"
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/goatcounter/pack"
@@ -162,6 +163,10 @@ func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) 
 	if create {
 		opts.Schema = map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL]
 	}
+	if !cfg.PgSQL {
+		opts.SQLiteHook = goatcounter.SQLiteHook
+	}
+
 	db, err := zdb.Connect(opts)
 	if err != nil {
 		return nil, err

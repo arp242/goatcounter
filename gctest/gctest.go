@@ -7,6 +7,7 @@ package gctest
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -16,12 +17,19 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/mattn/go-sqlite3"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 )
+
+func init() {
+	sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
+		ConnectHook: goatcounter.SQLiteHook,
+	})
+}
 
 var (
 	schema     string
@@ -74,7 +82,7 @@ func DB(t tester) (context.Context, func()) {
 	if cfg.PgSQL {
 		db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
 	} else {
-		db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
+		db, err = sqlx.Connect("sqlite3_zdb", "file::memory:?cache=shared")
 	}
 	if err != nil {
 		t.Fatalf("connect to DB: %s", err)
@@ -230,6 +238,17 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 	if err != nil {
 		t.Fatal(err)
 	}
+	ctx = goatcounter.WithSite(ctx, &site)
 
-	return goatcounter.WithSite(ctx, &site), site
+	u := goatcounter.User{
+		Site:     site.ID,
+		Email:    "martin@arp242.net",
+		Password: []byte("goatcounter"),
+	}
+	err = u.Insert(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return ctx, site
 }

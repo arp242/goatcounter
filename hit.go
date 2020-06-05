@@ -587,6 +587,7 @@ func (h HitStats) DiffTotal(ctx context.Context, start, end time.Time, paths []s
 		siteID, prevStart.Format(zdb.Date), prevEnd.Format(zdb.Date),
 		siteID, start.Format(zdb.Date), end.Format(zdb.Date))
 
+	//fmt.Println(zdb.ApplyPlaceholders(query, args...))
 	var diffs []float32
 	db := zdb.MustGet(ctx)
 	err := db.SelectContext(ctx, &diffs, db.Rebind(query), args...)

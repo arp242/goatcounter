@@ -267,8 +267,12 @@ func (u *User) BySite(ctx context.Context, id int64) error {
 		return err
 	}
 
-	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
-		`select * from users where site=$1`, s.IDOrParent()), "User.ByID")
+	err = zdb.MustGet(ctx).GetContext(ctx, u,
+		`select * from users where site=$1`, s.IDOrParent())
+	if err != nil {
+		return errors.Errorf("User.ByID for site %d: %w", id, err)
+	}
+	return nil
 }
 
 // RequestReset generates a new password reset key.

@@ -103,13 +103,13 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 
 // Settings.EmailReport
 const (
-	EmailReportInit    = -2 // Email once after this feature is introduced.
-	EmailReportOnce    = -1 // Email once after 2 weeks; for new sites.
-	EmailReportNever   = 0
-	EmailReportDaily   = 1
-	EmailReportWeekly  = 2
-	EmailReportBieekly = 3
-	EmailReportMonthly = 4
+	EmailReportInit     = -2 // Email once after this feature is introduced.
+	EmailReportOnce     = -1 // Email once after 2 weeks; for new sites.
+	EmailReportNever    = 0
+	EmailReportDaily    = 1
+	EmailReportWeekly   = 2
+	EmailReportBiWeekly = 3
+	EmailReportMonthly  = 4
 )
 
 var EmailReports = []int{-2, -1, 0, 1, 2, 3, 4}
@@ -119,7 +119,9 @@ func (s *Site) Defaults(ctx context.Context) {
 	// New site: Set default settings.
 	if s.ID == 0 {
 		s.Settings.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
-		s.Settings.EmailReports = EmailReportOnce
+		if s.Settings.EmailReports == 0 { // So it's easier to set from test.
+			s.Settings.EmailReports = EmailReportOnce
+		}
 	}
 
 	if s.State == "" {
