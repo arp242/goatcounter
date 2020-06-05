@@ -17,6 +17,7 @@ import (
 	"testing"
 	"time"
 
+	"zgo.at/blackmail"
 	"zgo.at/goatcounter/cfg"
 	_ "zgo.at/goatcounter/gctest" // Set cfg.PgSQL
 	"zgo.at/zdb"
@@ -101,6 +102,7 @@ func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 	// Reset flags in case of -count 2
 	CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 	os.Args = append([]string{"goatcounter"}, args...)
+	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 
 	// Swap out stdout/stderr.
 	r, w, err := os.Pipe()
@@ -159,5 +161,18 @@ func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 }
 
 func stop() {
-	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	p, err := os.FindProcess(syscall.Getpid())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return
+	}
+
+	err = p.Signal(os.Interrupt)
+	if err != nil {
+		err = p.Signal(os.Kill)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+		}
+
+	}
 }

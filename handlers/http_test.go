@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
+	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
@@ -49,6 +50,7 @@ func init() {
 	pack.Templates = nil
 	pack.Public = nil
 	zhttp.InitTpl(nil)
+	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.GoatcounterCom = true
