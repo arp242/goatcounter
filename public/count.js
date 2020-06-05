@@ -86,6 +86,8 @@
 			return 'frame'
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
 			return 'local'
+		if (localStorage.getItem('skipgc') === 't')
+			return 'disabled with #toggle-goatcounter'
 		return false
 	}
 
@@ -167,6 +169,17 @@
 			elem.dataset.goatcounterBound = 'true'
 		})
 	}
+
+	// Make it easy to skip your own views.
+	if (location.hash === '#toggle-goatcounter')
+		if (localStorage.getItem('skipgc') === 't') {
+			localStorage.removeItem('skipgc', 't')
+			alert('GoatCounter tracking is now ENABLED in this browser.')
+		}
+		else {
+			localStorage.setItem('skipgc', 't')
+			alert('GoatCounter tracking is now DISABLED in this browser until ' + location + ' is loaded again.')
+		}
 
 	if (!goatcounter.no_onload) {
 		var go = function() {

@@ -1951,6 +1951,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			return 'frame'
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
 			return 'local'
+		if (localStorage.getItem('skipgc') === 't')
+			return 'disabled with #toggle-goatcounter'
 		return false
 	}
 
@@ -2032,6 +2034,17 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			elem.dataset.goatcounterBound = 'true'
 		})
 	}
+
+	// Make it easy to skip your own views.
+	if (location.hash === '#toggle-goatcounter')
+		if (localStorage.getItem('skipgc') === 't') {
+			localStorage.removeItem('skipgc', 't')
+			alert('GoatCounter tracking is now ENABLED in this browser.')
+		}
+		else {
+			localStorage.setItem('skipgc', 't')
+			alert('GoatCounter tracking is now DISABLED in this browser until ' + location + ' is loaded again.')
+		}
 
 	if (!goatcounter.no_onload) {
 		var go = function() {
@@ -15350,19 +15363,18 @@ campaigns).</p>
 ignored</a>.</p>
 
 <h3 id="skip-own-views">Skip own views <a href="#skip-own-views"></a></h3>
-<p>You can use the same technique as a client-side way to skip loading from your
-own browser:</p>
+<p>There is a ‘Ignore IPs’ settings in your site’s settings (<em>Settings →
+Tracking</em>). All requests from any IP address added here will be ignored.</p>
 
-<pre><code>&lt;script&gt;
-    if (window.location.hash === '#skipgc')
-        localStorage.setItem('skipgc', 't')
-    window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'}
-&lt;/script&gt;
-{{template "code" .}}
+<p>You can also add <code>#toggle-goatcounter</code> to your site's URL to block your browser;
+for example:</p>
+
+<pre><code>https://example.com**#toggle-goatcounter**
 </code></pre>
 
-<p>You can also fill in your IP address in the settings, or (temporarily) block the
-<code>{{.CountDomain}}</code> domain.</p>
+<p>If you filled in the domain in your settings then there should be a link there.
+If you edit it in your URL bar you may have to reload the page with F5 for it to
+work (you should get a popup).</p>
 
 <h3 id="custom-path-and-referrer">Custom path and referrer <a href="#custom-path-and-referrer"></a></h3>
 <p>A basic example with some custom logic for <code>path</code>:</p>
@@ -16519,9 +16531,12 @@ input    { float: right; padding: .4em !important; }
 				<label>Ignore IPs</label>
 				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
 				{{validate "site.settings.ignore_ips" .Validate}}
-				<span>Never count requests coming from these IP addresses.<br>
+				<span>Never count requests coming from these IP addresses.
 					Comma-separated. Only supports exact matches.
-					<a href="#_" id="add-ip">Add current IP</a></span>
+					<a href="#_" id="add-ip">Add your current IP</a>.
+					{{if .Site.LinkDomain}}<br>
+					Alternatively, <a href="http://{{.Site.LinkDomain}}#toggle-goatcounter">disable for this browser</a> (click again to enable).{{end}}
+				</span>
 
 				<label>Campaign parameters</label>
 				<input type="text" name="settings.campaigns" value="{{.Site.Settings.Campaigns}}">
