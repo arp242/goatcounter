@@ -22,6 +22,10 @@
 			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
 		</div>
 		<div class="chart chart-bar chart-totals">
+			<small class="bounce">
+				<span title="Bounce rate">{{.TotalPages.Bounce}}%</span>{{/* ·
+				<span title="Avg. time on page">{{.TotalPages.TimeAvg | dformat}}</span>*/}}
+			</small>
 			<span class="half"></span>
 			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
 		</div>

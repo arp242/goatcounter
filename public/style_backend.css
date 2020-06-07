@@ -109,12 +109,10 @@ form .err  { color: red; display: block; }
 }
 
 /* Totals */
-.count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
+.count-list .totals                    { background-color: #f7f7f7; border-bottom: 1px solid #999; }
+.count-list .totals .load-refs.desktop { float: right; margin-right: 1em; }
+.count-list .totals .bounce            { background-color: #f7f7f7; }
 .count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
-.count-list .totals .load-refs.desktop {
-	float: right;
-	margin-right: 1em;
-}
 
 .label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
 
@@ -131,6 +129,7 @@ form .err  { color: red; display: block; }
 .rlink { display: inline-block; overflow: hidden;
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
+.page-title             { display: block; margin-top: -6px; }
 .page-title b, .rlink b { background-color: yellow; }
 
 .count-list tr {
@@ -215,23 +214,12 @@ tr.target small.go { display: inline-block; }
 .go { word-break: normal; }
 
 /* Bar char */
-.chart-bar {
-	display: flex;
-	align-items: flex-end;
-}
-.chart-bar > .half {
-	border-top: 1px solid #ddd;
-	position: absolute;
-	top: 50%;
-	left: 0;
-	right: 0;
-}
-.chart-bar > div {
-	position: relative;
-	flex-grow: 1;
-}
-
-.chart-bar > div       { background: #9a15a4; }
+.chart-bar span     { margin-left: 0; }  /* reset form span */
+.chart-bar          { display: flex; align-items: flex-end; }
+.chart-bar >div     { position: relative; flex-grow: 1; background: #9a15a4; }
+.chart-bar >.half   { border-top: 1px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; }
+.chart-bar >.bounce { position: absolute; top: -.6rem; left: .3rem; background-color: #fff;
+                      font-size .9em; padding: 0 .3em; line-height: 1rem; }
 
 .chart-bar > #cursor {
 	position: absolute;

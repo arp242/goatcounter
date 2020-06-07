@@ -63,18 +63,15 @@ func (h *HitStats) List(
 				coalesce(sum(total_unique), 0) as u
 			from hit_counts where
 				site=$1 and
-				hour >= $2 and
-				hour <= $3 `
+				hour>=$2 and
+				hour<=$3 `
 		args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
 			args = append(args, filter)
 		}
 
-		var t struct {
-			T int
-			U int
-		}
+		var t struct{ T, U int }
 		totalErr = db.GetContext(ctx, &t, query, args...)
 		total, totalUnique = t.T, t.U
 	}()
@@ -127,39 +124,45 @@ func (h *HitStats) List(
 		}
 	}
 
+	hh := *h
+	if len(hh) == 0 { // Nothing to display, exit early.
+		return 0, 0, 0, 0, false, nil
+	}
+	paths := make([]string, len(hh))
+	for i := range hh {
+		paths[i] = hh[i].Path
+	}
+
 	// Add stats and title.
 	var st []struct {
-		Path        string    `db:"path"`
-		Title       string    `db:"title"`
-		Day         time.Time `db:"day"`
-		Stats       []byte    `db:"stats"`
-		StatsUnique []byte    `db:"stats_unique"`
+		Path        string        `db:"path"`
+		Title       string        `db:"title"`
+		Day         time.Time     `db:"day"`
+		Stats       []byte        `db:"stats"`
+		StatsUnique []byte        `db:"stats_unique"`
+		Bounce      int           `db:"bounce"`
+		TimeAvg     time.Duration `db:"time_avg"`
 	}
 	{
 		query := `/* HitStats.List: get stats */
 			select path, title, day, stats, stats_unique
 			from hit_stats
 			where
-				site=$1 and
-				day >= $2 and
-				day <= $3 `
-		args := []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
-		if filter != "" {
-			query += ` and (lower(path) like $4 or lower(title) like $4) `
-			args = append(args, filter)
-		}
-		query += ` order by day asc`
-		err := db.SelectContext(ctx, &st, query, args...)
+				site=? and
+				day>=? and
+				day<=? and
+				path in (?)
+				order by day asc `
+		query, args, err := sqlx.In(query, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), paths)
 		if err != nil {
 			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
 		}
-		l = l.Since("select hits_stats")
-	}
 
-	hh := *h
+		err = db.SelectContext(ctx, &st, db.Rebind(query), args...)
+		if err != nil {
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
+		}
 
-	// Add the hit_stats.
-	{
 		for i := range hh {
 			for _, s := range st {
 				if s.Path == hh[i].Path {
@@ -175,6 +178,48 @@ func (h *HitStats) List(
 				}
 			}
 		}
+
+		l = l.Since("select hits_stats")
+	}
+
+	// Add bounce rate.
+	{
+		// TODO: this is too slow because it needs to scan hits.
+		query := `/* HitStats.List: get bounce */
+			select
+				path,
+				round(cast(sum(first_visit) as float) / count(path) * 100) as bounce
+			from hits
+			where
+				site=? and
+				bot=0 and
+				created_at>=? and
+				created_at<=? and
+				path in (?)
+			group by path `
+		query, args, err := sqlx.In(query, site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), paths)
+		if err != nil {
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get bounce")
+		}
+
+		var bounce []struct {
+			Path   string `db:"path"`
+			Bounce int    `db:"bounce"`
+		}
+		err = db.SelectContext(ctx, &bounce, db.Rebind(query), args...)
+		if err != nil {
+			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get bounce")
+		}
+
+		for i, x := range hh {
+			for _, y := range bounce {
+				if x.Path == y.Path {
+					hh[i].Bounce = y.Bounce
+					break
+				}
+			}
+		}
+		l = l.Since("select bounce")
 	}
 
 	// Fill in blank days.

@@ -49,6 +49,11 @@ func init() {
 	zhttp.FuncMap["bar_chart"] = BarChart
 	zhttp.FuncMap["horizontal_chart"] = HorizontalChart
 
+	// Format a duration
+	zhttp.FuncMap["dformat"] = func(d time.Duration) string {
+		return d.String() // TODO: better, also move to zhttp
+	}
+
 	// Override defaults to take site settings in to account.
 	zhttp.FuncMap["tformat"] = func(s *Site, t time.Time, fmt string) string {
 		if fmt == "" {

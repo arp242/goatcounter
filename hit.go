@@ -436,12 +436,14 @@ type Stat struct {
 }
 
 type HitStat struct {
-	Count       int      `db:"count"`
-	CountUnique int      `db:"count_unique"`
-	Path        string   `db:"path"`
-	Event       zdb.Bool `db:"event"`
-	Title       string   `db:"title"`
-	RefScheme   *string  `db:"ref_scheme"`
+	Count       int           `db:"count"`
+	CountUnique int           `db:"count_unique"`
+	Bounce      int           `db:"bounce"`
+	TimeAvg     time.Duration `db:"time_avg"`
+	Path        string        `db:"path"`
+	Event       zdb.Bool      `db:"event"`
+	Title       string        `db:"title"`
+	RefScheme   *string       `db:"ref_scheme"`
 	Stats       []Stat
 }
 

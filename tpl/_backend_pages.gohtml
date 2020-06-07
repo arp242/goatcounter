@@ -21,7 +21,12 @@
 					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
 				{{end}}
 			</div>
+
 			<div class="chart chart-bar">
+				<small class="bounce">
+					<span title="Bounce rate">{{$h.Bounce}}%</span>{{/* ·
+					<span title="Avg. time on page">{{$h.TimeAvg | dformat}}</span>*/}}
+				</small>
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>

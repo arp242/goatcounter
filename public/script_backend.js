@@ -653,7 +653,7 @@
 				return
 
 			var pos = {left: e.pageX, top: (e.pageY + 20)}
-			if (t.closest('.chart-bar').length > 0) {
+			if ((t.is('div') || t.is('#cursor')) && t.closest('.chart-bar').length > 0) {
 				var x = t.offset().left
 				pos = {
 					left: (x + 8),
