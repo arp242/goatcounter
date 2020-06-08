@@ -58,15 +58,25 @@ func (h *HitStats) List(
 		})
 		defer wg.Done()
 
+		join := ""
+		tbl := "hit_counts"
+		if filter != "" {
+			join = ` join paths using (path_id) `
+			tbl = "paths"
+		}
+
 		query := `/* HitStats.List: get count */
 			select
 				coalesce(sum(total), 0) as t,
 				coalesce(sum(total_unique), 0) as u
-			from hit_counts where
-				site=$1 and
-				hour >= $2 and
-				hour <= $3 `
+			from hit_counts
+			` + join + `
+			where
+				` + tbl + `.site=$1 and
+				hour>=$2 and
+				hour<=$3 `
 		args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+
 		if filter != "" {
 			query += ` and (lower(path) like $4 or lower(title) like $4) `
 			args = append(args, filter)
@@ -89,10 +99,11 @@ func (h *HitStats) List(
 		query := `/* HitStats.List: get overview */
 			select path, event
 			from hit_counts
+			join paths using (path_id)
 			where
-				site=? and
-				hour >= ? and
-				hour <= ? `
+				paths.site=? and
+				hour>=? and
+				hour<=? `
 		args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
 
 		if filter != "" {
@@ -106,6 +117,7 @@ func (h *HitStats) List(
 			query += ` and path not in (?) `
 		}
 
+		// NEW: ~75ms
 		query, args, err := sqlx.In(query+`
 			group by path, event
 			order by sum(total_unique) desc, path desc
@@ -140,8 +152,9 @@ func (h *HitStats) List(
 		query := `/* HitStats.List: get stats */
 			select path, title, day, stats, stats_unique
 			from hit_stats
+			join paths using (path_id)
 			where
-				site=$1 and
+				paths.site=$1 and
 				day >= $2 and
 				day <= $3 `
 		args := []interface{}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02")}
@@ -150,6 +163,7 @@ func (h *HitStats) List(
 			args = append(args, filter)
 		}
 		query += ` order by day asc`
+		// NEW: ~100ms
 		err := db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
 			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
@@ -207,9 +221,18 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 
+	join := ""
+	tbl := "hit_counts"
+	if filter != "" {
+		join = ` join paths using (path_id) `
+		tbl = "paths"
+	}
+
 	query := `/* HitStat.Totals */
-		select hour, total, total_unique from hit_counts
-		where site=$1 and hour>=$2 and hour<=$3 `
+		select hour, total, total_unique
+		from hit_counts
+		` + join + `
+		where ` + tbl + `.site=$1 and hour>=$2 and hour<=$3 `
 	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
 	if filter != "" {
 		query += ` and (lower(path) like lower($4) or lower(title) like lower($4)) `

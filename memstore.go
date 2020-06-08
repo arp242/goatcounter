@@ -49,9 +49,9 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 
 	l := zlog.Module("memstore")
 
-	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path", "ref",
-		"ref_scheme", "browser", "size", "location", "created_at", "bot",
-		"title", "event", "session", "first_visit"})
+	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path_id",
+		"user_agent_id", "ref", "ref_scheme", "size", "location", "created_at",
+		"bot", "session", "first_visit"})
 	for i, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
@@ -62,6 +62,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			}
 		}
 
+		// Get site.
 		site, ok := sites[h.Site]
 		if !ok {
 			site = new(Site)
@@ -73,6 +74,28 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			sites[h.Site] = site
 		}
 		ctx = WithSite(ctx, site)
+
+		// Get or insert path.
+		{
+			path := Path{Path: h.Path, Title: h.Title}
+			err := path.GetOrInsert(ctx)
+			if err != nil {
+				l.Field("hit", h).Error(err)
+				continue
+			}
+			h.PathID = path.ID
+		}
+
+		// Get or insert useragent
+		{
+			ua := UserAgent{UserAgent: h.Browser}
+			err := ua.GetOrInsert(ctx)
+			if err != nil {
+				l.Field("hit", h).Error(err)
+				continue
+			}
+			h.UserAgentID = ua.ID
+		}
 
 		h.Defaults(ctx)
 		err := h.Validate(ctx)
@@ -86,9 +109,9 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		// generation later.
 		hits[i] = h
 
-		ins.Values(h.Site, h.Path, h.Ref, h.RefScheme, h.Browser, h.Size,
-			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, h.Event,
-			h.Session, h.FirstVisit)
+		ins.Values(h.Site, h.PathID, h.UserAgentID, h.Ref, h.RefScheme, h.Size,
+			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Session,
+			h.FirstVisit)
 	}
 
 	return hits, ins.Finish()

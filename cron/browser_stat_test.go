@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	. "zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 )
 
@@ -21,15 +20,14 @@ func TestBrowserStats(t *testing.T) {
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	err := UpdateStats(ctx, site.ID, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/68.0", FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Browser: "Chrome/77.0.123.666"},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	}...)
+
+	return
 
 	var stats goatcounter.Stats
 	total, err := stats.ListBrowsers(ctx, now, now)
@@ -44,15 +42,12 @@ func TestBrowserStats(t *testing.T) {
 	}
 
 	// Update existing.
-	err = UpdateStats(ctx, site.ID, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0", FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/70.0"},
 		{Site: site.ID, CreatedAt: now, Browser: "Firefox/70.0"},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	}...)
 
 	stats = goatcounter.Stats{}
 	total, err = stats.ListBrowsers(ctx, now, now)

@@ -110,6 +110,9 @@ func persistAndStat(ctx context.Context) error {
 	return err
 }
 
+// UpdateStats updates all the stats tables.
+//
+// It's exported only so gctest can call it.
 func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) error {
 	var site goatcounter.Site
 	err := site.ByID(ctx, siteID)
@@ -118,33 +121,21 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	}
 	ctx = goatcounter.WithSite(ctx, &site)
 
-	err = updateHitStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "hit_stat: site %d", siteID)
+	funs := []func(context.Context, []goatcounter.Hit) error{
+		updateHitStats,
+		//updateHitCounts,
+		//updateBrowserStats,
+		//updateSystemStats,
+		//updateLocationStats,
+		//updateRefCounts,
+		//updateSizeStats,
 	}
-	err = updateHitCounts(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "hit_count: site %d", siteID)
-	}
-	err = updateBrowserStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "browser_stat: site %d", siteID)
-	}
-	err = updateSystemStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "browser_stat: site %d", siteID)
-	}
-	err = updateLocationStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "location_stat: site %d", siteID)
-	}
-	err = updateRefCounts(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "ref_count: site %d", siteID)
-	}
-	err = updateSizeStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "size_stat: site %d", siteID)
+
+	for _, f := range funs {
+		err := f(ctx, hits)
+		if err != nil {
+			return errors.Wrapf(err, "site %d", siteID)
+		}
 	}
 
 	if !site.ReceivedData {

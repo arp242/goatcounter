@@ -32,20 +32,22 @@ var (
 )
 
 type Hit struct {
-	ID      int64  `db:"id" json:"-"`
-	Site    int64  `db:"site" json:"-"`
-	Session *int64 `db:"session" json:"-"`
+	ID          int64  `db:"id" json:"-"`
+	Site        int64  `db:"site" json:"-"`
+	Session     *int64 `db:"session" json:"-"`
+	PathID      int64  `db:"path_id"`
+	UserAgentID int64  `db:"user_agent_id"`
 
-	Path  string     `db:"path" json:"p,omitempty"`
-	Title string     `db:"title" json:"t,omitempty"`
+	Path  string     `db:"-" json:"p,omitempty"`
+	Title string     `db:"-" json:"t,omitempty"`
 	Ref   string     `db:"ref" json:"r,omitempty"`
-	Event zdb.Bool   `db:"event" json:"e,omitempty"`
+	Event zdb.Bool   `db:"-" json:"e,omitempty"`
 	Size  zdb.Floats `db:"size" json:"s,omitempty"`
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"bot" json:"b,omitempty"`
 
 	RefScheme  *string   `db:"ref_scheme" json:"-"`
-	Browser    string    `db:"browser" json:"-"`
+	Browser    string    `db:"-" json:"-"`
 	Location   string    `db:"location" json:"-"`
 	FirstVisit zdb.Bool  `db:"first_visit" json:"-"`
 	CreatedAt  time.Time `db:"created_at" json:"-"`
@@ -189,74 +191,6 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	return refURL.String()[2:], false
 }
 
-func (h *Hit) cleanPath(ctx context.Context) {
-	if h.Event {
-		h.Path = strings.TrimLeft(h.Path, "/")
-		return
-	}
-
-	// Normalize the path when accessed from e.g. offline storage or internet
-	// archive.
-	{
-		// Some offline reader thing.
-		// /storage/emulated/[..]/Curl_to_shell_isn_t_so_bad2019-11-09-11-07-58/curl-to-sh.html
-		if strings.HasPrefix(h.Path, "/storage/emulated/0/Android/data/jonas.tool.saveForOffline/files/") {
-			h.Path = h.Path[65:]
-			if s := strings.IndexRune(h.Path, '/'); s > -1 {
-				h.Path = h.Path[s:]
-			}
-		}
-
-		// Internet archive.
-		// /web/20200104233523/https://www.arp242.net/tmux.html
-		if strings.HasPrefix(h.Path, "/web/20") {
-			u, err := url.Parse(h.Path[20:])
-			if err == nil {
-				h.Path = u.Path
-				if q := u.Query().Encode(); q != "" {
-					h.Path += "?" + q
-				}
-			}
-		}
-	}
-
-	// Remove various tracking query parameters.
-	{
-		h.Path = strings.TrimRight(h.Path, "?&")
-		if !strings.Contains(h.Path, "?") { // No query parameters.
-			return
-		}
-
-		u, err := url.Parse(h.Path)
-		if err != nil {
-			return
-		}
-		q := u.Query()
-
-		q.Del("fbclid") // Magic undocumented Facebook tracking parameter.
-		q.Del("ref")    // ProductHunt and a few others.
-		q.Del("mc_cid") // MailChimp
-		q.Del("mc_eid")
-		for k := range q { // Google tracking parameters.
-			if strings.HasPrefix(k, "utm_") {
-				q.Del(k)
-			}
-		}
-
-		// Some WeChat tracking thing; see e.g:
-		// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fsheshui.me%2Fblogs%2Fexplain-wechat-nsukey-url
-		// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fwww.v2ex.com%2Ft%2F312163
-		q.Del("nsukey")
-		q.Del("isappinstalled")
-		if q.Get("from") == "singlemessage" || q.Get("from") == "groupmessage" {
-			q.Del("from")
-		}
-
-		u.RawQuery = q.Encode()
-		h.Path = u.String()
-	}
-}
-
 func (h Hit) String() string {
 	b := new(bytes.Buffer)
 	t := tabwriter.NewWriter(b, 8, 8, 2, ' ', 0)
@@ -294,8 +228,6 @@ func (h *Hit) Defaults(ctx context.Context) {
 		h.CreatedAt = Now()
 	}
 
-	h.cleanPath(ctx)
-
 	// Set campaign.
 	if !h.Event && h.Query != "" {
 		if h.Query[0] != '?' {
@@ -331,9 +263,6 @@ func (h *Hit) Defaults(ctx context.Context) {
 		}
 	}
 	h.Ref = strings.TrimRight(h.Ref, "/")
-	if !h.Event {
-		h.Path = "/" + strings.Trim(h.Path, "/")
-	}
 }
 
 // Validate the object.
@@ -342,16 +271,10 @@ func (h *Hit) Validate(ctx context.Context) error {
 
 	v.Required("site", h.Site)
 	v.Required("session", h.Session)
-	v.Required("path", h.Path)
-	v.UTF8("path", h.Path)
-	v.UTF8("title", h.Title)
+	v.Required("path_id", h.PathID)
 	v.UTF8("ref", h.Ref)
-	v.UTF8("browser", h.Browser)
 
-	v.Len("path", h.Path, 1, 2048)
-	v.Len("title", h.Title, 0, 1024)
 	v.Len("ref", h.Ref, 0, 2048)
-	v.Len("browser", h.Browser, 0, 512)
 
 	return v.ErrorOrNil()
 }
