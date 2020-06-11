@@ -87,6 +87,12 @@ This is a pretty simple method, but it doesn't allow showing bounce or
 conversion rates or other slightly more advanced statistics.
 
 
+[Simple Web Analytics](https://simple-web-analytics.com/)
+---------------
+
+Uses the browser cache to achieve season tracking. The endpoint being called by the tracking code sets it's `Expire` header to the next calendar day of the user's timezone. This ensures the server only gets hit once per day per session by a HTTP request. This event is tracked as a "visit". In practice there are cases with counting a session multiple times, Firefox for example ignores the HTTP cache when the user hits the reload button. The advantage of this approach is less complexity and less load on the server since it does not need to track sessions in the database. From a privacy perspective this approach is also interesting, because no intermediate state with information about users (e.G a hashed IP address) is saved on the server.
+
+
 GoatCounter's solution
 ----------------------
 
