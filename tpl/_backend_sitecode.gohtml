@@ -274,19 +274,18 @@ campaigns).</p>
 ignored</a>.</p>
 
 <h3 id="skip-own-views">Skip own views <a href="#skip-own-views"></a></h3>
-<p>You can use the same technique as a client-side way to skip loading from your
-own browser:</p>
+<p>There is a ‘Ignore IPs’ settings in your site’s settings (<em>Settings →
+Tracking</em>). All requests from any IP address added here will be ignored.</p>
 
-<pre><code>&lt;script&gt;
-    if (window.location.hash === '#skipgc')
-        localStorage.setItem('skipgc', 't')
-    window.goatcounter = {no_onload: localStorage.getItem('skipgc') === 't'}
-&lt;/script&gt;
-{{template "code" .}}
+<p>You can also add <code>#toggle-goatcounter</code> to your site's URL to block your browser;
+for example:</p>
+
+<pre><code>https://example.com**#toggle-goatcounter**
 </code></pre>
 
-<p>You can also fill in your IP address in the settings, or (temporarily) block the
-<code>{{.CountDomain}}</code> domain.</p>
+<p>If you filled in the domain in your settings then there should be a link there.
+If you edit it in your URL bar you may have to reload the page with F5 for it to
+work (you should get a popup).</p>
 
 <h3 id="custom-path-and-referrer">Custom path and referrer <a href="#custom-path-and-referrer"></a></h3>
 <p>A basic example with some custom logic for <code>path</code>:</p>
