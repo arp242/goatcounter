@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/arp242/geoip2-golang v1.4.0
-	github.com/go-chi/chi v4.1.1+incompatible
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.5.2
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
@@ -22,7 +22,7 @@ require (
 	zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zdb v0.0.0-20200529134049-932215d95f5b
-	zgo.at/zhttp v0.0.0-20200602011947-d637cf767b75
+	zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
 	zgo.at/zstd v0.0.0-20200528080824-83897c2259b4

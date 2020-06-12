@@ -10,8 +10,8 @@ github.com/arp242/maxminddb-golang v1.6.0 h1:7IAwS+vjRSJpCFwBt9Co6mz/EWZPEA+JBt4
 github.com/arp242/maxminddb-golang v1.6.0/go.mod h1:zZGWhFkxTFX80NKfpEHn6vqd50ksDYTBP8Zi+Xk10OI=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
-github.com/go-chi/chi v4.1.1+incompatible h1:MmTgB0R8Bt/jccxp+t6S/1VGIKdJw5J74CK/c9tTfA4=
-github.com/go-chi/chi v4.1.1+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
+github.com/go-chi/chi v4.1.2+incompatible h1:fGFk2Gmi/YKXk0OmGfBh0WgmN3XB8lVnEyNz34tQRec=
+github.com/go-chi/chi v4.1.2+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
 github.com/go-sql-driver/mysql v1.4.0 h1:7LxgVwFb2hIQtMm87NdgAVfXjnt4OePseqT1tKx+opk=
 github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
@@ -99,8 +99,8 @@ zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxy
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zdb v0.0.0-20200529134049-932215d95f5b h1:ZLhAXHqTRUsR61eTcwFQ0gFDL585VzISU1307/jk2Ho=
 zgo.at/zdb v0.0.0-20200529134049-932215d95f5b/go.mod h1:zu+rvWosTqQeaTUgzZQdkGrXN+X8gjePHUgbhxx6E6I=
-zgo.at/zhttp v0.0.0-20200602011947-d637cf767b75 h1:V6LGZzVQGmoIH3VjGHrBVkKeTzRCBxoEmGlYyFfpVaI=
-zgo.at/zhttp v0.0.0-20200602011947-d637cf767b75/go.mod h1:gBlNBoFdFFDaf2j6mU4KhxTlD3A11GI4HU7zssqwSvQ=
+zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427 h1:kEvW6gekYXncOvbUTSQXX3OYfwE1NmfqBaA3qeoiEhY=
+zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427/go.mod h1:gBlNBoFdFFDaf2j6mU4KhxTlD3A11GI4HU7zssqwSvQ=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
 zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c h1:PQksY26D9QgCNbOvMmortUzbStTYwfLZHBzHlDDLa6c=

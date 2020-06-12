@@ -53,7 +53,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 	}
 
 	r.Use(
-		middleware.RealIP,
+		zhttp.RealIP,
 		zhttp.Unpanic(cfg.Prod),
 		addctx(db, true),
 		middleware.RedirectSlashes,
@@ -268,7 +268,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	// TODO: move to memstore?
 	{
 		var sess goatcounter.Session
-		first, err := sess.GetOrCreate(r.Context(), hit.Path, r.UserAgent(), zhttp.RemovePort(r.RemoteAddr))
+		first, err := sess.GetOrCreate(r.Context(), hit.Path, r.UserAgent(), r.RemoteAddr)
 		if err != nil {
 			zlog.Error(err)
 		}
@@ -782,7 +782,7 @@ func (h backend) code(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) ip(w http.ResponseWriter, r *http.Request) error {
-	return zhttp.String(w, zhttp.RemovePort(r.RemoteAddr))
+	return zhttp.String(w, r.RemoteAddr)
 }
 
 func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {

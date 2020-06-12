@@ -30,7 +30,7 @@ type website struct{}
 
 func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Use(
-		middleware.RealIP,
+		zhttp.RealIP,
 		zhttp.Unpanic(cfg.Prod),
 		middleware.RedirectSlashes,
 		addctx(db, false),
