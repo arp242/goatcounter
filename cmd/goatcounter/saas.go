@@ -32,31 +32,20 @@ import (
 
 // saas
 const usageSaas = `
-NOTE: running your own SaaS is currently undocumented, non-trivial, and has
-certain assumptions that will not be true in your case. You do not want to run
-this; for now it can only run run goatcounter.com
+This runs goatcounter.com
 
-Run as a "SaaS" service; this will run, a public-facing website on
-www.[domanin], a static file server on [staticdomain], and a backend UI on
-[code].domain. Users are expected to register on www.[domain].
+Running your own SaaS is currently undocumented, non-trivial, and has certain
+assumptions that will not be true in your case. You do not want to run this; for
+now it can only run run goatcounter.com
 
-Static files and templates are compiled in the binary and aren't needed to run
-GoatCounter. But they're loaded from the filesystem if GoatCounter is started
-with -dev.
+If you do want to run a SaaS, you're almost certainly better off writing your
+own front-end to interface with GoatCounter (this is probably how
+goatcounter.com should work as well, but it's quite some effort with low ROI to
+change that now).
 
-Flags:
-
-  -domain        Base domain with port followed by comma and the static domain,
-                 optionally followed by the doimain to serve count.js
-                 Default: goatcounter.localhost:8081, static.goatcounter.localhost:8081
-                 Example: -domain goatcounter.com,static.zgo.at,gc.zgo.at
-
-  -plan          Plan for new installations; default: personal.
-
-  -stripe        Stripe keys; needed for billing. It needs the secret,
-                 publishable, and webhook (sk_*, pk_*, whsec_*) keys as
-                 colon-separated, in any order.
-` + serveAndSaasFlags
+This command is undocumented on purpose. Get in touch if you think you need this
+(but you probably don't) and we'll see what can be done to fix you up.
+`
 
 func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
 	dbConnect := flagDB()
@@ -65,7 +54,7 @@ func flagServeAndSaas(v *zvalidate.Validator) (string, bool, bool, string, strin
 	var dev bool
 	CommandLine.BoolVar(&dev, "dev", false, "")
 	automigrate := CommandLine.Bool("automigrate", false, "")
-	listen := CommandLine.String("listen", "localhost:8081", "")
+	listen := CommandLine.String("listen", ":443", "")
 	smtp := CommandLine.String("smtp", blackmail.ConnectWriter, "")
 	tls := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
@@ -179,11 +168,12 @@ func saas() (int, error) {
 	}
 
 	zlog.Module("main").Debug(getVersion())
-	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
 	zhttp.Serve(listenTLS, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
+	}, func() {
+		zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
 	})
 	return 0, nil
 }
@@ -199,6 +189,7 @@ func banner() {
 ┃                                                                             ┃
 ┃                   https://www.goatcounter.com/contribute                    ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
 `)
 }
 

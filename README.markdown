@@ -83,7 +83,11 @@ GoatCounter should run on any platform supported by Go, but there are no
 binaries for them (yet); you'll have to build from source for now (it's not
 hard, I promise).
 
+Note this README is for the latest master; use the [`release-1.3`][r-1.3] branch
+for the 1.3 README.
+
 [releases]: https://github.com/zgoat/goatcounter/releases
+[r-1.3]: https://github.com/zgoat/goatcounter/tree/release-1.3
 
 ### Building from source
 
@@ -107,8 +111,8 @@ will need a C compiler (for SQLite), or compile it with `CGO_ENABLED=0 go build`
 and use PostgreSQL.
 
 It's recommended to use the latest release as in the above command. The master
-branch should be reasonably stable, but no guarantees, and sometimes I don't
-write release/upgrade notes until the actual release.
+branch should be reasonably stable but no guarantees, and sometimes I don't
+write detailed release/upgrade notes until the actual release.
 
 It's not recommended to use `go get` in GOPATH mode since that will ignore the
 dependency versions in go.mod.
@@ -117,12 +121,21 @@ dependency versions in go.mod.
 
 ### Running
 
-You can start a test/development server with:
+You can start a server with:
 
-    $ goatcounter serve -dev
+    $ goatcounter serve
 
-The default is to use a SQLite database at `./db/goatcounter.sqlite3` (will be
-created if it doesn't exist). See the `-db` flag to customize this.
+The default is to use a SQLite database at `./db/goatcounter.sqlite3`, which
+will be created if it doesn't exist yet. See the `-db` flag and
+`goatcounter help db` to customize this.
+
+GoatCounter will listens on port `*:80` and `*:443` by default. You don't need
+to run it as root and can grant the appropriate permissions on Linux with:
+
+    $ setcap 'cap_net_bind_service=+ep' goatcounter
+
+Listening on a different port can be a bit tricky due to the ACME/Let's Encrypt
+certificate generation; `goatcounter help listen` documents this in depth.
 
 You can create new sites with the `create` command:
 
@@ -131,15 +144,6 @@ You can create new sites with the `create` command:
 This will ask for a password for your new account; you can also add a password
 on the commandline with `-password`. If you use a custom DB, you must also pass
 the `-db` flag here.
-
-The `-dev` flag makes some small things a bit more convenient for development.
-For a production environment run something like:
-
-    $ goatcounter serve
-
-By default it will use ACME to create https certificates; use `-tls none` if you
-want to disable it (e.g. if you're running goatcounter behind a proxy which
-already handles https for you).
 
 ### Updating
 
@@ -184,9 +188,17 @@ it:
 
 [pq]: https://godoc.org/github.com/lib/pq
 
-### Development
+### Development/testing
 
-See [.github/CONTRIBUTING.markdown](/.github/CONTRIBUTING.markdown) for details
-on how to run a development server, write patches, etc.
+You can start a test/development server with:
+
+    $ goatcounter serve -dev
+
+The `-dev` flag makes some small things a bit more convenient for development;
+TLS is disabled by default, it will listen on localhost:8081, the application
+will automatically restart on recompiles, and a few other minor changes.
+
+See [.github/CONTRIBUTING.markdown](/.github/CONTRIBUTING.markdown) for more
+details on how to run a development server, write patches, etc.
 
 Various aggregate data files are available at https://www.goatcounter.com/data

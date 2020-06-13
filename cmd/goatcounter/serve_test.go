@@ -22,6 +22,7 @@ func TestServe(t *testing.T) {
 
 	out, code := run(t, "serving", []string{"serve",
 		"-listen", "localhost:31874",
+		"-tls", "none",
 		"-db", dbc})
 	if code != 0 {
 		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))

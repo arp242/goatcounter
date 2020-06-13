@@ -33,51 +33,28 @@ with -dev.
 
 Flags:
 
-  -static      Serve static files from a diffent domain, such as a CDN or
-               cookieless domain. Default: not set.
-
-  -port        Port your site is publicly accessible on. Only needed if it's
-               not 80 or 443.
-` + serveAndSaasFlags
-
-const serveAndSaasFlags = `
   -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
                See "goatcounter help db" for detailed documentation. Default:
                sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
-  -listen      Address to listen on. Default: localhost:8081
-
-  -dev         Start in "dev mode".
+  -listen      Address to listen on. Default: "*:443", or "localhost:8081" with
+               -dev. See "goatcounter help listen" for detailed documentation.
 
   -tls         Serve over tls. This is a comma-separated list with any of:
 
-                 none              Don't serve any TLS.
+                 none                   Don't serve any TLS
+                 tls                    Accept TLS connections on -listen
+                 path/to/file.pem       TLS certificate and keyfile, in one file
+                 acme[:cache]           Create TLS certificates with ACME
+                 rdr                    Redirect port 80 to the -listen port
 
-                 path/to/file.pem  TLS certificate and keyfile, in one file.
+               Default: "acme,tls,rdr", or "none" when -dev is given.
+               See "goatcounter help listen" for more detailed documentation.
 
-                 acme[:cache]      Create TLS certificates with ACME, this can
-                                   optionally followed by a : and a cache
-                                   directory name (default: acme-secrets).
+  -port        Port your site is publicly accessible on. Only needed if it's
+               not 80 or 443.
 
-                 tls               Accept TLS connections on -listen.
-
-                 rdr               Redirect port 80 to the -listen port. ACME
-                                   verification requires the server to be
-                                   available on port 80.
-
-               Examples:
-
-                 acme                       Create ACME certs but serve HTTP,
-                                            useful when serving behind proxy
-                                            which can use the certs.
-
-                 acme:/home/gc/.acme        As above, but with custom cache dir.
-
-                 ./example.com.pem,tls,rdr  Always use the certificate in the
-                                            file, serve over TLS, and redirect
-                                            port 80.
-
-               Default: "acme,tls,rdr", blank when -dev is given.
+  -automigrate Automatically run all pending migrations on startup.
 
   -smtp        SMTP server, as URL (e.g. "smtp://user:pass@server").
 
@@ -101,9 +78,12 @@ const serveAndSaasFlags = `
                                              use the same as the to_addr.
                Default: not set.
 
-  -debug       Modules to debug, comma-separated or 'all' for all modules.
+  -static      Serve static files from a different domain, such as a CDN or
+               cookieless domain. Default: not set.
 
-  -automigrate Automatically run all pending migrations on startup.
+  -dev         Start in "dev mode".
+
+  -debug       Modules to debug, comma-separated or 'all' for all modules.
 
 Environment:
 
@@ -179,19 +159,20 @@ func serve() (int, error) {
 	if err != nil {
 		return 2, err
 	}
+
 	zlog.Module("main").Debug(getVersion())
-	banner()
-	zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
-		len(cnames), listen, dev, strings.Join(cnames, ", "))
-
-	if len(cnames) == 0 {
-		zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
-	}
-
 	zhttp.Serve(listenTLS, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
+	}, func() {
+		banner()
+		zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
+			len(cnames), listen, dev, strings.Join(cnames, ", "))
+
+		if len(cnames) == 0 {
+			zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
+		}
 	})
 	return 0, nil
 }
