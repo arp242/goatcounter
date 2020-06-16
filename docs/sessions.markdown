@@ -117,10 +117,10 @@ GoatCounter's solution
 - An hour after a hash is last seen, the hash is removed. This ensures we can
   track the current browsing session only.
 
-- The salt is rotated every 12 hour on a sliding schedule; when a new pageview
+- The salt is rotated every 4 hour on a sliding schedule; when a new pageview
   comes in we try to find an existing session based on the current and previous
   salt. This ensures there isn't some arbitrary cut-off time when the salt is
-  rotated. After 1 day, the salt is permanently deleted.
+  rotated. After 8 hours, the salt is permanently deleted.
 
 - If a user visits the next time, they will have the same hash, but the system
   has forgotten about it by then.
