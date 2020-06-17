@@ -97,8 +97,8 @@ zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea h1:Cl3Dnjfxvq1nOIffaDbhJOrnwb6aD
 zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxytHj8G8kRl2M=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
-zgo.at/zdb v0.0.0-20200529134049-932215d95f5b h1:ZLhAXHqTRUsR61eTcwFQ0gFDL585VzISU1307/jk2Ho=
-zgo.at/zdb v0.0.0-20200529134049-932215d95f5b/go.mod h1:zu+rvWosTqQeaTUgzZQdkGrXN+X8gjePHUgbhxx6E6I=
+zgo.at/zdb v0.0.0-20200617080325-541c20b1184e h1:uqW7Lk9qKWx29nu9eNS+sWIitDBVQ0uTn/ijyZfYtI8=
+zgo.at/zdb v0.0.0-20200617080325-541c20b1184e/go.mod h1:zu+rvWosTqQeaTUgzZQdkGrXN+X8gjePHUgbhxx6E6I=
 zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427 h1:kEvW6gekYXncOvbUTSQXX3OYfwE1NmfqBaA3qeoiEhY=
 zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427/go.mod h1:gBlNBoFdFFDaf2j6mU4KhxTlD3A11GI4HU7zssqwSvQ=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=
