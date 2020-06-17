@@ -21,7 +21,7 @@ require (
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
-	zgo.at/zdb v0.0.0-20200617083153-fc652d23fdcb
+	zgo.at/zdb v0.0.0-20200617234610-1096bf7533ec
 	zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
