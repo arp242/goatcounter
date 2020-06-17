@@ -29,9 +29,11 @@
 		if (is_empty(data.p)) {
 			var loc = location,
 			    c = document.querySelector('link[rel="canonical"][href]')
-			if (c) {  // May be relative.
-				loc = document.createElement('a')
-				loc.href = c.href
+			if (c) {  // May be relative or point to different domain.
+				var a = document.createElement('a')
+				a.href = c.href
+				if (a.host.replace(/^www\./, '') === location.host.replace(/^www\./, ''))
+					loc = a
 			}
 			data.p = (loc.pathname + loc.search) || '/'
 		}
