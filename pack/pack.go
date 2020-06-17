@@ -1897,7 +1897,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			if (c) {  // May be relative or point to different domain.
 				var a = document.createElement('a')
 				a.href = c.href
-				if (a.host.replace(/^www\./, '') === location.host.replace(/^www\./, ''))
+				if (a.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, ''))
 					loc = a
 			}
 			data.p = (loc.pathname + loc.search) || '/'
