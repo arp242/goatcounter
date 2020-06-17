@@ -168,12 +168,22 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/user/new")
 	}
 
+	if user.Password == nil {
+		zhttp.FlashError(w,
+			"There is no password set for %q; please use <a href='/user/forgot?email=%[1]s'>Forgot password</a> to set it.",
+			args.Email)
+		return zhttp.SeeOther(w, "/user/new?email="+url.QueryEscape(args.Email))
+	}
+
 	err = bcrypt.CompareHashAndPassword(user.Password, []byte(args.Password))
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			zhttp.FlashError(w, "Wrong password for %q", args.Email)
+		} else {
+			zhttp.FlashError(w, "Something went wrong :-( An error has been logged for investigation.")
+			zlog.Error(err)
 		}
-		return zhttp.SeeOther(w, "/user/new")
+		return zhttp.SeeOther(w, "/user/new?email="+url.QueryEscape(args.Email))
 	}
 
 	err = user.Login(r.Context())
