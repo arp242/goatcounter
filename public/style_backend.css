@@ -104,11 +104,6 @@ form .err  { color: red; display: block; }
 	width: 4rem;
 }
 .count-list.count-list-refs td:nth-child(2) {
-	text-align: right;
-	width: 4rem;
-}
-
-.count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
 }
@@ -261,6 +256,9 @@ form .err  { color: red; display: block; }
 	color: #fff;
 	background-color: #111;
 }
+
+/* Grey out "pageviews" in tooltip. */
+#tooltip .views { color: #bbb; }
 
 #drag-box {
 	position: absolute;
@@ -425,10 +423,6 @@ h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
-
-/* Grey out "pageviews" out when put next to visitors */
-.views          { color: #999; }
-#tooltip .views { color: #bbb; }
 
 /*** Loading indicator ***/
 @keyframes loading {
