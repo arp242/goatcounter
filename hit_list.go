@@ -316,7 +316,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 // Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
 // know how to do that otherwise.
 func applyOffset(hh HitStats, site Site) {
-	if len(hh) == 0 || len(hh) == 1 && hh[0].Path == PathTotals {
+	if len(hh) == 0 || (len(hh) == 1 && hh[0].Path == PathTotals) {
 		return
 	}
 
