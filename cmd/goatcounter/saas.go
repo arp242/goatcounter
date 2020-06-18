@@ -197,7 +197,7 @@ func banner() {
 ┃ Please consider making a financial contribution according to your means if  ┃
 ┃ this is useful for you to ensure the long-term viability. Thank you :-)     ┃
 ┃                                                                             ┃
-┃                     https://www.goatcounter/contribute                      ┃
+┃                   https://www.goatcounter.com/contribute                    ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 `)
 }
