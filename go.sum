@@ -1,3 +1,5 @@
+code.soquee.net/otp v0.0.1 h1:sPALeimyp/DAj4MXMjj94QDdYN/y2+dSoMXQCxttpvw=
+code.soquee.net/otp v0.0.1/go.mod h1:sv1t9zLujoOZ8T14ty2ffdj6y+fjScwX7m76G+dzrm0=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/PuerkitoBio/goquery v1.5.1 h1:PSPBGne8NIUWw+/7vFBV+kG2J/5MOjbzc7154OaKCSE=
@@ -8,6 +10,8 @@ github.com/arp242/geoip2-golang v1.4.0 h1:oABeHO8xeXWqtuRF3Uq09cGlWrHIGLXkTUK55a
 github.com/arp242/geoip2-golang v1.4.0/go.mod h1:AZYwUhu7pAKqHkiZTQhSCWaexFJDwzR3K9jIrhkNDko=
 github.com/arp242/maxminddb-golang v1.6.0 h1:7IAwS+vjRSJpCFwBt9Co6mz/EWZPEA+JBt4XfKv28Uc=
 github.com/arp242/maxminddb-golang v1.6.0/go.mod h1:zZGWhFkxTFX80NKfpEHn6vqd50ksDYTBP8Zi+Xk10OI=
+github.com/boombuler/barcode v1.0.0 h1:s1TvRnXwL2xJRaccrdcBQMZxq6X7DvsMogtmJeHDdrc=
+github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/go-chi/chi v4.1.2+incompatible h1:fGFk2Gmi/YKXk0OmGfBh0WgmN3XB8lVnEyNz34tQRec=

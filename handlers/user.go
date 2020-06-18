@@ -5,15 +5,20 @@
 package handlers
 
 import (
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/mail"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
+	"code.soquee.net/otp"
 	"github.com/go-chi/chi"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/net/xsrftoken"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
@@ -24,6 +29,8 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
+
+const actionTOTP = "totp"
 
 type user struct{}
 
@@ -39,6 +46,7 @@ func (h user) mount(r chi.Router) {
 		Limit:  zhttp.RatelimitLimit(20, 60),
 	}))
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
+	rate.Post("/user/totplogin", zhttp.Wrap(h.totpLogin))
 	rate.Get("/user/reset/{key}", zhttp.Wrap(h.reset))
 	rate.Get("/user/verify/{key}", zhttp.Wrap(h.verify))
 	rate.Post("/user/reset/{key}", zhttp.Wrap(h.doReset))
@@ -46,6 +54,8 @@ func (h user) mount(r chi.Router) {
 	auth := r.With(loggedIn)
 	auth.Post("/user/logout", zhttp.Wrap(h.logout))
 	auth.Post("/user/change-password", zhttp.Wrap(h.changePassword))
+	auth.Post("/user/disable-totp", zhttp.Wrap(h.disableTOTP))
+	auth.Post("/user/enable-totp", zhttp.Wrap(h.enableTOTP))
 	auth.Post("/user/resend-verify", zhttp.Wrap(h.resendVerify))
 }
 
@@ -140,6 +150,49 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/user/forgot")
 }
 
+func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
+	args := struct {
+		LoginMAC string `json:"loginmac"`
+		Token    string `json:"totp_token"`
+	}{}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	site := goatcounter.MustGetSite(r.Context())
+
+	var u goatcounter.User
+	err = u.BySite(r.Context(), site.IDOrParent())
+	if err != nil {
+		return err
+	}
+
+	valid := xsrftoken.Valid(args.LoginMAC, *u.LoginToken, strconv.FormatInt(u.ID, 10), actionTOTP)
+	if !valid {
+		zhttp.Flash(w, "Invalid login")
+		return zhttp.SeeOther(w, "/")
+	}
+
+	tokGen := otp.NewOTP(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
+
+	// Check a 30 second window on either side of the current time as well. It's
+	// common for clocks to be slightly out of sync and this prevents most errors
+	// and is what the spec recommends.
+	if strconv.Itoa(int(tokGen(0, nil))) != args.Token &&
+		strconv.Itoa(int(tokGen(-1, nil))) != args.Token &&
+		strconv.Itoa(int(tokGen(1, nil))) != args.Token {
+		zhttp.FlashError(w, "Token did not match.")
+		return zhttp.Template(w, "totp.gohtml", struct {
+			Globals
+			LoginMAC string
+		}{newGlobals(w, r), args.LoginMAC})
+	}
+
+	zhttp.SetCookie(w, *u.LoginToken, site.Domain())
+	return zhttp.SeeOther(w, "/")
+}
+
 func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	u := goatcounter.GetUser(r.Context())
 	if u != nil && u.ID > 0 {
@@ -189,6 +242,13 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	err = user.Login(r.Context())
 	if err != nil {
 		return err
+	}
+
+	if user.TOTPEnabled {
+		return zhttp.Template(w, "totp.gohtml", struct {
+			Globals
+			LoginMAC string
+		}{newGlobals(w, r), xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP)})
 	}
 
 	zhttp.SetCookie(w, *user.LoginToken, site.Domain())
@@ -262,6 +322,45 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.ClearCookie(w, goatcounter.MustGetSite(r.Context()).Domain())
 	return zhttp.SeeOther(w, "/")
+}
+
+func (h user) disableTOTP(w http.ResponseWriter, r *http.Request) error {
+	u := goatcounter.GetUser(r.Context())
+	err := u.DisableTOTP(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.SeeOther(w, "/settings#tab-mfa-settings")
+}
+
+func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
+	u := goatcounter.GetUser(r.Context())
+	var args struct {
+		Token string `json:"totp_token"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	tokGen := otp.NewOTP(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
+
+	// Check a 30 second window on either side of the current time as well. It's
+	// common for clocks to be slightly out of sync and this prevents most errors
+	// and is what the spec recommends.
+	if strconv.Itoa(int(tokGen(0, nil))) != args.Token &&
+		strconv.Itoa(int(tokGen(-1, nil))) != args.Token &&
+		strconv.Itoa(int(tokGen(1, nil))) != args.Token {
+		zhttp.FlashError(w, "Token did not match.")
+		return zhttp.SeeOther(w, "/settings#tab-mfa-settings")
+	}
+
+	err = u.EnableTOTP(r.Context())
+	if err != nil {
+		return err
+	}
+	return zhttp.SeeOther(w, "/settings#tab-mfa-settings")
 }
 
 func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {

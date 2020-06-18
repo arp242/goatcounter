@@ -6,6 +6,7 @@ package goatcounter
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"fmt"
 	"time"
@@ -19,6 +20,8 @@ import (
 	"zgo.at/zvalidate"
 )
 
+const totpSecretLen = 16
+
 // User entry.
 type User struct {
 	ID   int64 `db:"id" json:"-"`
@@ -27,6 +30,8 @@ type User struct {
 	Email         string     `db:"email" json:"email"`
 	EmailVerified zdb.Bool   `db:"email_verified" json:"-"`
 	Password      []byte     `db:"password" json:"-"`
+	TOTPEnabled   zdb.Bool   `db:"totp_enabled" json:"-"`
+	TOTPSecret    []byte     `db:"totp_secret" json:"-"`
 	Role          string     `db:"role" json:"-"`
 	LoginAt       *time.Time `db:"login_at" json:"-"`
 	ResetAt       *time.Time `db:"reset_at" json:"-"`
@@ -111,12 +116,19 @@ func (u *User) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "User.Insert")
 	}
 
+	u.TOTPEnabled = zdb.Bool(false)
+	u.TOTPSecret = make([]byte, totpSecretLen)
+	_, err = rand.Read(u.TOTPSecret)
+	if err != nil {
+		return errors.Wrap(err, "User.Insert")
+	}
+
 	query := `insert into users `
-	args := []interface{}{u.Site, u.Email, u.Password, u.CreatedAt.Format(zdb.Date)}
+	args := []interface{}{u.Site, u.Email, u.Password, u.TOTPSecret, u.CreatedAt.Format(zdb.Date)}
 	if u.EmailVerified {
-		query += ` (site, email, password, created_at, email_verified) values ($1, $2, $3, $4, 1)`
+		query += ` (site, email, password, totp_secret, created_at, email_verified) values ($1, $2, $3, $4, $5, 1)`
 	} else {
-		query += ` (site, email, password, created_at, email_token) values ($1, $2, $3, $4, $5)`
+		query += ` (site, email, password, totp_secret, created_at, email_token) values ($1, $2, $3, $4, $5, $6)`
 		args = append(args, u.EmailToken)
 	}
 
@@ -280,6 +292,37 @@ func (u *User) RequestReset(ctx context.Context) error {
 		login_request=$1, reset_at=current_timestamp where id=$2 and site=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.RequestReset")
+}
+
+func (u *User) EnableTOTP(ctx context.Context) error {
+	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set totp_enabled=1
+		where id=$2 and site=$3`,
+		u.ID, MustGetSite(ctx).IDOrParent())
+	if err != nil {
+		return errors.Wrap(err, "User.EnableTOTP")
+	}
+	u.TOTPEnabled = zdb.Bool(true)
+	return nil
+}
+
+func (u *User) DisableTOTP(ctx context.Context) error {
+	// Reset the totp secret to something new so that we don't end up re-using the
+	// old secret by mistake and so that we're sure that it's invalidated.
+	secret := make([]byte, totpSecretLen)
+	_, err := rand.Read(secret)
+	if err != nil {
+		return errors.Wrap(err, "User.DisableTOTP")
+	}
+
+	_, err = zdb.MustGet(ctx).ExecContext(ctx, `update users set
+		totp_enabled=0, totp_secret=$1 where id=$2 and site=$3`,
+		secret, u.ID, MustGetSite(ctx).IDOrParent())
+	if err != nil {
+		return errors.Wrap(err, "User.DisableTOTP")
+	}
+	u.TOTPSecret = secret
+	u.TOTPEnabled = zdb.Bool(false)
+	return nil
 }
 
 // Login a user; create a new key, CSRF token, and reset the request date.

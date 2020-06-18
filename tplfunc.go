@@ -5,21 +5,28 @@
 package goatcounter
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha1"
+	"encoding/base32"
+	"encoding/base64"
 	"fmt"
 	"html/template"
+	"image/png"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
 
 func init() {
+	zhttp.FuncMap["base32"] = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString
 	zhttp.FuncMap["validate"] = zvalidate.TemplateError
 	zhttp.FuncMap["has_errors"] = zvalidate.TemplateHasErrors
 	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
@@ -83,6 +90,26 @@ func init() {
 			out[i], out[j] = out[j], out[i]
 		}
 		return string(out)
+	}
+
+	zhttp.FuncMap["totpbarcode"] = func(email, s string) template.URL {
+		totpURI := fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s)
+		buf := bytes.NewBufferString("data:image/png;base64,")
+		qrCode, err := qr.Encode(totpURI, qr.M, qr.Auto)
+		if err != nil {
+			panic(fmt.Sprintf("Error encoding QR Code: %q", err))
+		}
+		qrCode, err = barcode.Scale(qrCode, 200, 200)
+		if err != nil {
+			panic(fmt.Sprintf("Error scaling QR Code: %q", err))
+		}
+		e := base64.NewEncoder(base64.StdEncoding, buf)
+		err = png.Encode(e, qrCode)
+		if err != nil {
+			panic(fmt.Sprintf("Error encoding QR Code PNG: %q", err))
+		}
+		/* #nosec */
+		return template.URL(buf.String())
 	}
 }
 

@@ -281,6 +281,31 @@
 	</form>
 </div>
 
+<div>
+	<h2 id="mfa-settings">MFA Settings</h2>
+
+	{{ if .User.TOTPEnabled }}
+	<form method="post" action="/user/disable-totp" class="form-max-width vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<button type="submit">Disable TOTP</button>
+	</form>
+	{{ else }}
+	<form method="post" action="/user/enable-totp" class="form-max-width vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode"
+			src="{{ totpbarcode .User.Email (base32 .User.TOTPSecret) }}"/><br>
+		<label for="secret_text">Secret:</label>
+		<div id="secret_text">{{ .User.TOTPSecret | base32 }}</div>
+		<label for="totp_token">TOTP Token</label>
+		<input type="text" name="totp_token" id="totp_token" required
+			autocomplete="one-time-code"><br>
+
+
+		<button type="submit">Enable TOTP</button>
+	</form>
+	{{ end }}
+</div>
+
 {{if .GoatcounterCom}}
 	<div>
 		<h2 id="delete">Delete {{if .Site.Parent}}site{{else}}account{{end}}</h2>
