@@ -6,6 +6,24 @@ one is provided here, for the official translations see: http://eupl12.zgo.at
 
 Motivation for choosing the EUPL: https://www.arp242.net/license.html
 
+Note the “Compatible Licenses” Appendix is changed from the original!
+
+
+––– public/count.js is available under the ISC license ––––––––––––––––––––––––
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+
+
 ––– Start of license text –––––––––––––––––––––––––––––––––––––––––––––––––––––
 
                       EUROPEAN UNION PUBLIC LICENCE v. 1.2
@@ -291,18 +309,8 @@ Appendix
 
 ‘Compatible Licences’ according to Article 5 EUPL are:
 
-- GNU General Public License (GPL) v. 2, v. 3
 - GNU Affero General Public License (AGPL) v. 3
 - Open Software License (OSL) v. 2.1, v. 3.0
-- Eclipse Public License (EPL) v. 1.0
-- CeCILL v. 2.0, v. 2.1
-- Mozilla Public Licence (MPL) v. 2
-- GNU Lesser General Public Licence (LGPL) v. 2.1, v. 3
-- Creative Commons Attribution-ShareAlike v. 3.0 Unported (CC BY-SA 3.0) for
-  works other than software
-- European Union Public Licence (EUPL) v. 1.1, v. 1.2
-- Québec Free and Open-Source Licence — Reciprocity (LiLiQ-R) or Strong
-  Reciprocity (LiLiQ-R+).
 
 The European Commission may update this Appendix to later versions of the above
 licences without producing a new version of the EUPL, as long as they provide
