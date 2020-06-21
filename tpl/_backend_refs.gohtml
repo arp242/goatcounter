@@ -1,8 +1,7 @@
 <table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td><span title="Visits">{{nformat $r.CountUnique $.Site}}</span></td>
-		<td><span class="views" title="Pageviews">{{nformat $r.Count $.Site}}</span></td>
+		<td><span title="{{nformat $r.Count $.Site}} pageviews">{{nformat $r.CountUnique $.Site}}</span></td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path -}}
 				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Path}}</a>{{else}}{{$r.Path}}{{end}}

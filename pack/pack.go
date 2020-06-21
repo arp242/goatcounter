@@ -13470,11 +13470,6 @@ form .err  { color: red; display: block; }
 	width: 4rem;
 }
 .count-list.count-list-refs td:nth-child(2) {
-	text-align: right;
-	width: 4rem;
-}
-
-.count-list.count-list-refs td:nth-child(3) {
 	width: auto;
 	word-break: break-all; /* don't make it wider for very long urls */
 }
@@ -13627,6 +13622,9 @@ form .err  { color: red; display: block; }
 	color: #fff;
 	background-color: #111;
 }
+
+/* Grey out "pageviews" in tooltip. */
+#tooltip .views { color: #bbb; }
 
 #drag-box {
 	position: absolute;
@@ -13791,10 +13789,6 @@ h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
 .table-left th { text-align: left; }
-
-/* Grey out "pageviews" out when put next to visitors */
-.views          { color: #999; }
-#tooltip .views { color: #bbb; }
 
 /*** Loading indicator ***/
 @keyframes loading {
@@ -15032,8 +15026,7 @@ var Templates = map[string][]byte{
 	"tpl/_backend_pages.gohtml": []byte(`{{range $i, $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td>
-			<span title="Visits">{{nformat $h.CountUnique $.Site}}</span><br>
-			<span title="Pageviews" class="views">{{nformat $h.Count $.Site}}</span><br>
+			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
 		</td>
 		<td class="hide-mobile">
 			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
@@ -15065,8 +15058,7 @@ var Templates = map[string][]byte{
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td><span title="Visits">{{nformat $r.CountUnique $.Site}}</span></td>
-		<td><span class="views" title="Pageviews">{{nformat $r.Count $.Site}}</span></td>
+		<td><span title="{{nformat $r.Count $.Site}} pageviews">{{nformat $r.CountUnique $.Site}}</span></td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path -}}
 				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Path}}</a>{{else}}{{$r.Path}}{{end}}
@@ -15743,23 +15735,24 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
 	<td>
-		<span title="Visits">{{nformat .TotalPages.CountUnique $.Site}}</span><br>
-		<span title="Pageviews" class="views">{{nformat .TotalPages.Count $.Site}}</span><br>
+		<span title="{{nformat .TotalPages.Count $.Site}} pageviews">{{nformat .TotalPages.CountUnique $.Site}}</span>
 	</td>
 	<td class="hide-mobile">
 		<strong title="Totals for all the pages">Totals</strong>
 		<a class="load-refs desktop" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a><br>
 		<small>
-			Displaying <span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
-			<span class="views"><span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews</span>
+			Displaying
+			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+			<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
 		</small>
 	</td>
 	<td>
 		<div class="show-mobile">
 			<strong>Total</strong> |
 			<small>
-				Displaying <span class="total-unique-display" title="Visits">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
-				<span class="views"><span class="total-display">{{nformat .TotalHitsDisplay $.Site}}</span> pageviews</span>
+				Displaying
+				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+				<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
 			</small> |
 			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
 		</div>
