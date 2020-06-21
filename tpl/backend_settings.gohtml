@@ -262,9 +262,10 @@
 	<div class="flex-form">
 
 	<form method="post" action="/user/change-password" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
 		<fieldset>
 			<legend>Change password</legend>
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			{{if .User.Password}}
 				<label for="c_password">Current password</label>
@@ -286,27 +287,29 @@
 
 	{{if .User.TOTPEnabled}}
 		<form method="post" action="/user/disable-totp" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
 			<fieldset>
 				<legend>Multi-factor authentication</legend>
 
 				<p>MFA is currently enabled for this account.</p>
 
-				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 				<button type="submit">Disable MFA</button>
 			</fieldset>
 		</form>
 	{{else}}
 		<form method="post" action="/user/enable-totp" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
 			<fieldset>
 				<legend>Multi-factor authentication</legend>
 				<p>Enable TOTP-based multi-factor authentication by scanning the
 				code in your authenticator app or entering the secret.</p>
 
-				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-				<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode"
-					src="{{ totpbarcode .User.Email (base32 .User.TOTPSecret) }}"><br>
+				{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
 				<label for="secret_text">Secret:</label>
 				<div id="secret_text">{{ .User.TOTPSecret | base32 }}</div>
+
 				<label for="totp_token">Verification token</label>
 				<input type="text" name="totp_token" id="totp_token" required
 					autocomplete="one-time-code"><br>
