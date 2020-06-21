@@ -22,6 +22,7 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			hour        string
 			path        string
 			ref         string
+			refScheme   *string
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -35,6 +36,7 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			if v.total == 0 {
 				v.hour = hour
 				v.path = h.Path
+				v.refScheme = h.RefScheme
 				var err error
 				v.total, v.totalUnique, err = existingRefCounts(ctx, tx,
 					h.Site, hour, v.path, v.ref)
@@ -59,17 +61,17 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			var err error
 			if cfg.PgSQL {
 				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into ref_counts
-				(site, path, ref, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6)
+				(site, path, ref, hour, total, total_unique, ref_scheme) values ($1, $2, $3, $4, $5, $6, $7)
 				on conflict on constraint "ref_counts#site#path#ref#hour" do
-					update set total=$7, total_unique=$8`,
-					siteID, v.path, v.ref, v.hour, v.total, v.totalUnique,
+					update set total=$8, total_unique=$9`,
+					siteID, v.path, v.ref, v.hour, v.total, v.totalUnique, v.refScheme,
 					v.total, v.totalUnique)
 			} else {
 				// SQLite has "on conflict replace" on the unique constraint to
 				// do the same.
 				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into ref_counts
-					(site, path, ref, hour, total, total_unique) values ($1, $2, $3, $4, $5, $6)`,
-					siteID, v.path, v.ref, v.hour, v.total, v.totalUnique)
+					(site, path, ref, hour, total, total_unique, ref_scheme) values ($1, $2, $3, $4, $5, $6, $7)`,
+					siteID, v.path, v.ref, v.hour, v.total, v.totalUnique, v.refScheme)
 			}
 			if err != nil {
 				return errors.Wrap(err, "updateRefCounts ref_counts")

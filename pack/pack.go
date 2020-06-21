@@ -1864,6 +1864,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		return s
 	}(),
 	"public/count.js": []byte(`// GoatCounter: https://www.goatcounter.com
+// This file (and *only* this file) is released under the ISC license:
+// https://opensource.org/licenses/ISC
 (function() {
 	'use strict';
 
