@@ -13453,6 +13453,10 @@ form .err  { color: red; display: block; }
 @media (min-width: 55rem) {
 	.form-wrap form          { display: flex; flex-wrap: wrap; }
 	.form-wrap form fieldset { width: 48%; }
+
+	.flex-form          { display: flex; flex-wrap: wrap; }
+	.flex-form form     { width: 48%; }
+	.flex-form fieldset { height: 100%; }
 }
 
 .flash {
@@ -15802,15 +15806,6 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	</td>
 </tr></tbody>
 `),
-	"tpl/_backend_totp.gohtml": []byte(`<form method="post" action="/user/totplogin" class="vertical">
-	<input type="hidden" id="loginmac" name="loginmac" value="{{ .LoginMAC }}">
-	<label for="totp_token">MFA Token</label>
-	<input type="text" name="totp_token" id="totp_token"
-		inputmode="numeric" pattern="[0-9]*"
-		required autocomplete="one-time-code"><br>
-	<button>Sign in</button>
-</form>
-`),
 	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="{{.Static}}/imgzoom.js?v={{.Version}}"></script>
 		<script crossorigin="anonymous" src="{{.Static}}/script.js?v={{.Version}}"></script>
 	</div> {{/* .page */}}
@@ -16698,52 +16693,64 @@ input    { float: right; padding: .4em !important; }
 </div>
 
 <div>
-	<h2 id="change-password">Change password</h2>
+	<h2 id="auth">Password &amp; MFA</h2>
+	<div class="flex-form">
 
-	<form method="post" action="/user/change-password" class="form-max-width vertical">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<form method="post" action="/user/change-password" class="vertical">
+		<fieldset>
+			<legend>Change password</legend>
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-		{{if .User.Password}}
-			<label for="c_password">Current password</label>
-			<input type="password" name="c_password" id="c_password" required
-				autocomplete="current-password"><br>
-		{{end}}
+			{{if .User.Password}}
+				<label for="c_password">Current password</label>
+				<input type="password" name="c_password" id="c_password" required
+					autocomplete="current-password"><br>
+			{{end}}
 
-		<label for="password">New password</label>
-		<input type="password" name="password" id="password" required
-			autocomplete="new-password"><br>
+			<label for="password">New password</label>
+			<input type="password" name="password" id="password" required
+				autocomplete="new-password"><br>
 
-		<label for="password2">New password (confirm)</label>
-		<input type="password" name="password2" id="password2" required
-			autocomplete="new-password"><br>
+			<label for="password2">New password (confirm)</label>
+			<input type="password" name="password2" id="password2" required
+				autocomplete="new-password"><br>
 
-		<button>Change password</button>
+			<button>Change password</button>
+		</fieldset>
 	</form>
+
+	{{if .User.TOTPEnabled}}
+		<form method="post" action="/user/disable-totp" class="vertical">
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+
+				<p>MFA is currently enabled for this account.</p>
+
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+				<button type="submit">Disable MFA</button>
+			</fieldset>
+		</form>
+	{{else}}
+		<form method="post" action="/user/enable-totp" class="vertical">
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+				<p>Enable TOTP-based multi-factor authentication by scanning the
+				code in your authenticator app or entering the secret.</p>
+
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+				<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode"
+					src="{{ totpbarcode .User.Email (base32 .User.TOTPSecret) }}"><br>
+				<label for="secret_text">Secret:</label>
+				<div id="secret_text">{{ .User.TOTPSecret | base32 }}</div>
+				<label for="totp_token">Verification token</label>
+				<input type="text" name="totp_token" id="totp_token" required
+					autocomplete="one-time-code"><br>
+
+				<button type="submit">Enable MFA</button>
+			</fieldset>
+		</form>
+	{{end}}
 </div>
-
-<div>
-	<h2 id="mfa-settings">MFA Settings</h2>
-
-	{{ if .User.TOTPEnabled }}
-	<form method="post" action="/user/disable-totp" class="form-max-width vertical">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<button type="submit">Disable TOTP</button>
-	</form>
-	{{ else }}
-	<form method="post" action="/user/enable-totp" class="form-max-width vertical">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode"
-			src="{{ totpbarcode .User.Email (base32 .User.TOTPSecret) }}"/><br>
-		<label for="secret_text">Secret:</label>
-		<div id="secret_text">{{ .User.TOTPSecret | base32 }}</div>
-		<label for="totp_token">TOTP Token</label>
-		<input type="text" name="totp_token" id="totp_token" required
-			autocomplete="one-time-code"><br>
-
-
-		<button type="submit">Enable TOTP</button>
-	</form>
-	{{ end }}
 </div>
 
 {{if .GoatcounterCom}}
@@ -17737,7 +17744,17 @@ personal.</p>
 	"tpl/totp.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <h1>Multi-factor auth</h1>
-{{template "_backend_totp.gohtml" .}}
+<p>This account is protected with multi-factor auth; please enter the code from
+your authenticator app.</p>
+
+<form method="post" action="/user/totplogin" class="vertical">
+	<input type="hidden" id="loginmac" name="loginmac" value="{{ .LoginMAC }}">
+	<label for="totp_token">MFA Token</label>
+	<input type="text" name="totp_token" id="totp_token"
+		inputmode="numeric" pattern="[0-9]*"
+		required autocomplete="one-time-code"><br>
+	<button>Sign in</button>
+</form>
 
 {{template "_backend_bottom.gohtml" .}}
 `),

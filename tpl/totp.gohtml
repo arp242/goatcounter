@@ -1,6 +1,16 @@
 {{template "_backend_top.gohtml" .}}
 
 <h1>Multi-factor auth</h1>
-{{template "_backend_totp.gohtml" .}}
+<p>This account is protected with multi-factor auth; please enter the code from
+your authenticator app.</p>
+
+<form method="post" action="/user/totplogin" class="vertical">
+	<input type="hidden" id="loginmac" name="loginmac" value="{{ .LoginMAC }}">
+	<label for="totp_token">MFA Token</label>
+	<input type="text" name="totp_token" id="totp_token"
+		inputmode="numeric" pattern="[0-9]*"
+		required autocomplete="one-time-code"><br>
+	<button>Sign in</button>
+</form>
 
 {{template "_backend_bottom.gohtml" .}}

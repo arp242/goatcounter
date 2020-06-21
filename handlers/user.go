@@ -30,7 +30,10 @@ import (
 	"zgo.at/zvalidate"
 )
 
-const actionTOTP = "totp"
+const (
+	actionTOTP = "totp"
+	mfaError   = "Token did not match; perhaps you waited too long? Try again."
+)
 
 type user struct{}
 
@@ -182,7 +185,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 	if strconv.Itoa(int(tokGen(0, nil))) != args.Token &&
 		strconv.Itoa(int(tokGen(-1, nil))) != args.Token &&
 		strconv.Itoa(int(tokGen(1, nil))) != args.Token {
-		zhttp.FlashError(w, "Token did not match.")
+		zhttp.FlashError(w, mfaError)
 		return zhttp.Template(w, "totp.gohtml", struct {
 			Globals
 			LoginMAC string
@@ -331,7 +334,7 @@ func (h user) disableTOTP(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return zhttp.SeeOther(w, "/settings#tab-mfa-settings")
+	return zhttp.SeeOther(w, "/settings#tab-auth")
 }
 
 func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
@@ -352,15 +355,15 @@ func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
 	if strconv.Itoa(int(tokGen(0, nil))) != args.Token &&
 		strconv.Itoa(int(tokGen(-1, nil))) != args.Token &&
 		strconv.Itoa(int(tokGen(1, nil))) != args.Token {
-		zhttp.FlashError(w, "Token did not match.")
-		return zhttp.SeeOther(w, "/settings#tab-mfa-settings")
+		zhttp.FlashError(w, mfaError)
+		return zhttp.SeeOther(w, "/settings#tab-auth")
 	}
 
 	err = u.EnableTOTP(r.Context())
 	if err != nil {
 		return err
 	}
-	return zhttp.SeeOther(w, "/settings#tab-mfa-settings")
+	return zhttp.SeeOther(w, "/settings#tab-auth")
 }
 
 func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
