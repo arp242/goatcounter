@@ -7,7 +7,6 @@ package goatcounter
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -83,12 +82,12 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 func (u *User) hashPassword() error {
 	// Length is capped to 50 characters in Validate.
 	if len(u.Password) > 50 {
-		return fmt.Errorf("User.hashPassword: already hashed")
+		return errors.Errorf("User.hashPassword: already hashed")
 	}
 
 	pwd, err := bcrypt.GenerateFromPassword(u.Password, bcrypt.DefaultCost)
 	if err != nil {
-		return fmt.Errorf("User.hashPassword: %w", err)
+		return errors.Errorf("User.hashPassword: %w", err)
 	}
 	u.Password = pwd
 	return nil
@@ -194,7 +193,7 @@ func (u User) CorrectPassword(pwd string) (bool, error) {
 		return false, nil
 	}
 	if err != nil {
-		return false, fmt.Errorf("user.CorrectPassword: %w", err)
+		return false, errors.Errorf("user.CorrectPassword: %w", err)
 	}
 	return true, nil
 }

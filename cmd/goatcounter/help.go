@@ -9,6 +9,8 @@ import (
 	"os"
 	"strings"
 	"unicode/utf8"
+
+	"zgo.at/errors"
 )
 
 const usageHelp = `
@@ -34,7 +36,7 @@ func help() (int, error) {
 
 	t, ok := usage[os.Args[2]]
 	if !ok {
-		return 1, fmt.Errorf("no help topic for %q", os.Args[2])
+		return 1, errors.Errorf("no help topic for %q", os.Args[2])
 	}
 	fmt.Fprint(stdout, t)
 

@@ -147,7 +147,7 @@ func (a *AdminPgStatActivity) List(ctx context.Context) error {
 		where state != 'idle' and query not like '%from pg_stat_activity%';
 	`)
 	if err != nil {
-		return fmt.Errorf("AdminPgActivity.List: %w", err)
+		return errors.Errorf("AdminPgActivity.List: %w", err)
 	}
 
 	aa := *a
@@ -210,7 +210,7 @@ func (a *AdminPgStatStatements) List(ctx context.Context, order string, asc bool
 		limit 100
 	`, where, order, dir), args...)
 	if err != nil {
-		return fmt.Errorf("AdminPgStatStatements.List: %w", err)
+		return errors.Errorf("AdminPgStatStatements.List: %w", err)
 	}
 
 	aa := *a
@@ -434,7 +434,7 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 
 	txctx, tx, err := zdb.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("AdminBotlog.Insert Begin: %w", err)
+		return errors.Errorf("AdminBotlog.Insert Begin: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -444,7 +444,7 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 	)
 	err = tx.GetContext(txctx, &ipID, `select id from botlog_ips where ip=$1`, ip)
 	if err != nil && !zdb.ErrNoRows(err) {
-		return fmt.Errorf("AdminBotlog.Insert get IP: %w", err)
+		return errors.Errorf("AdminBotlog.Insert get IP: %w", err)
 	}
 
 	if ipID == 0 {
@@ -455,14 +455,14 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 				set last_seen=now(), count = botlog_ips.count + 1
 			returning id`, ip)
 		if err != nil {
-			return fmt.Errorf("AdminBotlog.Insert insert ip: %w", err)
+			return errors.Errorf("AdminBotlog.Insert insert ip: %w", err)
 		}
 	} else {
 		_, err := tx.ExecContext(txctx,
 			`update botlog_ips set count=count+1, last_seen=now() where id=$1`,
 			ipID)
 		if err != nil {
-			return fmt.Errorf("AdminBotlog.Insert update count: %w", err)
+			return errors.Errorf("AdminBotlog.Insert update count: %w", err)
 		}
 	}
 
@@ -470,12 +470,12 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 			(ip, bot, ua, headers, url, created_at) values ($1, $2, $3, $4, $5, now())`,
 		ipID, b.Bot, b.UserAgent, zjson.MustMarshal(b.Headers), b.URL)
 	if err != nil {
-		return fmt.Errorf("AdminBotlog.Insert botlog: %w", err)
+		return errors.Errorf("AdminBotlog.Insert botlog: %w", err)
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("AdminBotlog.Insert commit: %w", err)
+		return errors.Errorf("AdminBotlog.Insert commit: %w", err)
 	}
 
 	if newIP {

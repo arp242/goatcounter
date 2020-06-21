@@ -142,7 +142,7 @@ func (s *Salt) Refresh(ctx context.Context) error {
 // hasPath reports if this session has already visited a path.
 func (s *Session) hasPath(ctx context.Context, path string) (bool, error) {
 	if s.ID == 0 {
-		return false, fmt.Errorf("Session.hasPath: s.ID is 0")
+		return false, errors.Errorf("Session.hasPath: s.ID is 0")
 	}
 
 	var r uint8

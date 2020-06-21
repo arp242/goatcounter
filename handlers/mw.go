@@ -6,12 +6,12 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -104,7 +104,7 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				err := s.ByHost(r.Context(), r.Host)
 				if err != nil {
 					if zdb.ErrNoRows(err) {
-						zhttp.ErrPage(w, r, 400, fmt.Errorf("no site at this domain (%q)", r.Host))
+						zhttp.ErrPage(w, r, 400, errors.Errorf("no site at this domain (%q)", r.Host))
 						return
 					}
 

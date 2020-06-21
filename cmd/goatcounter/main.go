@@ -183,7 +183,7 @@ func runGoMigrations(db zdb.DB) error {
 	err := db.SelectContext(context.Background(), &ran,
 		`select name from version order by name asc`)
 	if err != nil {
-		return fmt.Errorf("runGoMigrations: %w", err)
+		return errors.Errorf("runGoMigrations: %w", err)
 	}
 
 	ctx := zdb.With(context.Background(), db)
@@ -197,12 +197,12 @@ func runGoMigrations(db zdb.DB) error {
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 			err := f(db)
 			if err != nil {
-				return fmt.Errorf("runGoMigrations: running migration %q: %w", k, err)
+				return errors.Errorf("runGoMigrations: running migration %q: %w", k, err)
 			}
 
 			_, err = db.ExecContext(context.Background(), `insert into version values ($1)`, k)
 			if err != nil {
-				return fmt.Errorf("runGoMigrations: update version: %w", err)
+				return errors.Errorf("runGoMigrations: update version: %w", err)
 			}
 			return nil
 		})

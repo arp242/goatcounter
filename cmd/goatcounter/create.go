@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	"golang.org/x/crypto/ssh/terminal"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
@@ -159,7 +160,7 @@ func findParent(ctx context.Context, p string) (goatcounter.Site, error) {
 		err = s.ByHost(ctx, p)
 	}
 	if s.Plan == goatcounter.PlanChild {
-		return s, fmt.Errorf("can't add child site as parent")
+		return s, errors.Errorf("can't add child site as parent")
 	}
 	return s, err
 }

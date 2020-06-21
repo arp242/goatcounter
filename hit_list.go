@@ -6,7 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -224,7 +223,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	}
 	err := db.SelectContext(ctx, &tc, query, args...)
 	if err != nil {
-		return 0, fmt.Errorf("HitStat.Totals: %w", err)
+		return 0, errors.Errorf("HitStat.Totals: %w", err)
 	}
 	l = l.Since("total overview")
 

@@ -354,7 +354,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	// Get from code (e.g. "arp242" in "arp242.goatcounter.com").
 	p := strings.Index(host, ".")
 	if p == -1 {
-		return fmt.Errorf("Site.ByHost: no subdomain in host %q", host)
+		return errors.Errorf("Site.ByHost: no subdomain in host %q", host)
 	}
 
 	l.Debug("by code")
@@ -480,7 +480,7 @@ func (s Site) PayExternal() string {
 
 func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	if days < 14 {
-		return fmt.Errorf("days must be at least 14: %d", days)
+		return errors.Errorf("days must be at least 14: %d", days)
 	}
 
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {

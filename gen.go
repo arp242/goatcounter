@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 
+	"zgo.at/errors"
 	"zgo.at/zpack"
 )
 
@@ -79,7 +80,7 @@ func markdown() error {
 
 		out, err := exec.Command("kramdown", "--smart-quotes", "39,39,34,34", src).CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("running kramdown: %s\n%s", err, out)
+			return errors.Errorf("running kramdown: %s\n%s", err, out)
 		}
 
 		dest, err := os.Create(dst)

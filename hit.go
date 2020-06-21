@@ -762,7 +762,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	case sizeUnknown:
 		where = "width = 0"
 	default:
-		return 0, fmt.Errorf("Stats.ListSizes: invalid value for name: %#v", name)
+		return 0, errors.Errorf("Stats.ListSizes: invalid value for name: %#v", name)
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, fmt.Sprintf(`/* Stats.ListLocations */

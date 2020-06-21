@@ -14,6 +14,7 @@ import (
 
 	"github.com/teamwork/reload"
 	"zgo.at/blackmail"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
@@ -103,7 +104,7 @@ func setupReload() {
 	go func() {
 		err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
 		if err != nil {
-			panic(fmt.Errorf("reload.Do: %v", err))
+			panic(errors.Errorf("reload.Do: %v", err))
 		}
 	}()
 }

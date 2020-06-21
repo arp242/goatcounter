@@ -6,9 +6,9 @@ package gomig
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"zgo.at/errors"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -46,7 +46,7 @@ func IsBot(db zdb.DB) error {
 
 		res, err := db.ExecContext(context.Background(), query, args...)
 		if err != nil {
-			return fmt.Errorf("update hits: %w", err)
+			return errors.Errorf("update hits: %w", err)
 		}
 
 		r, _ := res.RowsAffected()
