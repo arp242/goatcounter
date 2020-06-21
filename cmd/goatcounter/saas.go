@@ -230,7 +230,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				err := blackmail.Send("GoatCounter Error",
 					blackmail.From("", from),
 					blackmail.To(to),
-					blackmail.Bodyf(zlog.Config.Format(l)))
+					blackmail.BodyText([]byte(zlog.Config.Format(l))))
 				if err != nil {
 					// Just output to stderr I guess, can't really do much more if
 					// zlog fails.
