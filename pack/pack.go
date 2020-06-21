@@ -12276,9 +12276,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			}
 
 			Stripe(form.dataset.key).redirectToCheckout({
-				items:      [{sku: form.dataset.sku, quantity: q / 5}],
-				successUrl: location.origin + '/contribute?return=success#donate',
-				cancelUrl:  location.origin + '/contribute?return=cancel#donate',
+				items:             [{sku: form.dataset.sku, quantity: q / 5}],
+				clientReferenceId: 'one-time ' + q,
+				successUrl:        location.origin + '/contribute?return=success#donate',
+				cancelUrl:         location.origin + '/contribute?return=cancel#donate',
 			}).then(function(result) {
 				err(result.error ? result.error.message : '');
 			});

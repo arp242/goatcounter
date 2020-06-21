@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -298,6 +299,17 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 		err := json.Unmarshal(event.Data.Raw, &s)
 		if err != nil {
 			return err
+		}
+
+		if strings.HasPrefix(s.ClientReferenceID, "one-time") {
+			bgrun.Run(func() {
+				t := "New one-time donation: " + s.ClientReferenceID
+				blackmail.Send(t,
+					blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
+					blackmail.To("billing@goatcounter.com"),
+					blackmail.Bodyf(t))
+			})
+			return zhttp.String(w, "okay")
 		}
 
 		ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
