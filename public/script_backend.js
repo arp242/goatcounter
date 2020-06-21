@@ -19,23 +19,9 @@
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort, copy_pre, ref_pages, toggle_views,
+			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
-
-	var toggle_views = function() {
-		$('#toggle-views').on('change', function(e) {
-			$('*[data-views]').each((_, elem) => {
-				elem = $(elem)
-				if (this.checked) {
-					elem.attr('data-visits', elem.html())
-					elem.html(elem.attr('data-views'))
-				}
-				else
-					elem.html(elem.attr('data-visits'))
-			})
-		})
-	}
 
 	// Set up error reporting.
 	var report_errors = function() {

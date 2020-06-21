@@ -12313,23 +12313,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
 			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort, copy_pre, ref_pages, toggle_views,
+			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
-
-	var toggle_views = function() {
-		$('#toggle-views').on('change', function(e) {
-			$('*[data-views]').each((_, elem) => {
-				elem = $(elem)
-				if (this.checked) {
-					elem.attr('data-visits', elem.html())
-					elem.html(elem.attr('data-views'))
-				}
-				else
-					elem.html(elem.attr('data-visits'))
-			})
-		})
-	}
 
 	// Set up error reporting.
 	var report_errors = function() {
@@ -15040,7 +15026,7 @@ var Templates = map[string][]byte{
 	"tpl/_backend_pages.gohtml": []byte(`{{range $i, $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td>
-			<span data-views="{{nformat $h.Count $.Site}}">{{nformat $h.CountUnique $.Site}}</span>
+			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
 		</td>
 		<td class="hide-mobile">
 			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
@@ -15072,7 +15058,7 @@ var Templates = map[string][]byte{
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td><span data-views="{{nformat $r.Count $.Site}}">{{nformat $r.CountUnique $.Site}}</span></td>
+		<td><span title="{{nformat $r.Count $.Site}} pageviews">{{nformat $r.CountUnique $.Site}}</span></td>
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path -}}
 				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Path}}</a>{{else}}{{$r.Path}}{{end}}
@@ -15749,16 +15735,15 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
 	<td>
-		<span data-views="{{nformat .TotalPages.Count $.Site}}">{{nformat .TotalPages.CountUnique $.Site}}</span>
+		<span title="{{nformat .TotalPages.Count $.Site}} pageviews">{{nformat .TotalPages.CountUnique $.Site}}</span>
 	</td>
 	<td class="hide-mobile">
 		<strong title="Totals for all the pages">Totals</strong>
 		<a class="load-refs desktop" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a><br>
 		<small>
 			Displaying
-			<span class="visits" data-views="<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews">
-				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits
-			</span>
+			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+			<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
 		</small>
 	</td>
 	<td>
@@ -15766,9 +15751,8 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 			<strong>Total</strong> |
 			<small>
 				Displaying
-					<span class="visits" data-views="<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews">
-						<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits
-					</span>
+				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
+				<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
 			</small> |
 			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
 		</div>
@@ -15959,13 +15943,6 @@ Martin
 			</div>
 
 			<div class="scale-wrap">
-				<label title="Show pageviews instead of unique visits">
-					<input type="checkbox" id="toggle-views">
-					Pageviews
-				</label>
-				&nbsp;
-				·
-				&nbsp;
 				<label for="scale">Y-axis scale</label>
 				<input type="number" autocomplete="off" name="scale" id="scale" value="{{.Max}}"
 					placeholder="Scale" title="Set the Y-axis scale">
