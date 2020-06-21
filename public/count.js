@@ -128,7 +128,7 @@
 
 		var img = document.createElement('img')
 		img.src = url
-		img.style.float = 'right'  // Affect layout less.
+		img.style.position = 'absolute'  // Affect layout less.
 		img.setAttribute('alt', '')
 		img.setAttribute('aria-hidden', 'true')
 

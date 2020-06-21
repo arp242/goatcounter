@@ -1864,6 +1864,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		return s
 	}(),
 	"public/count.js": []byte(`// GoatCounter: https://www.goatcounter.com
+// This file (and *only* this file) is released under the ISC license:
+// https://opensource.org/licenses/ISC
 (function() {
 	'use strict';
 
@@ -1991,7 +1993,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 		var img = document.createElement('img')
 		img.src = url
-		img.style.float = 'right'  // Affect layout less.
+		img.style.position = 'absolute'  // Affect layout less.
 		img.setAttribute('alt', '')
 		img.setAttribute('aria-hidden', 'true')
 
