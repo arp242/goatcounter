@@ -471,7 +471,7 @@ func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Ti
 			hour>=$3 and
 			hour<=$4
 		group by ref
-		order by count desc, path desc
+		order by count_unique desc, path desc
 		limit $5 offset $6`,
 		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
 	if err != nil {
@@ -521,7 +521,7 @@ func (h *HitStats) ListAllRefs(ctx context.Context, start, end time.Time, offset
 		from ref_counts`+
 		where+`
 		group by ref
-		order by count desc
+		order by count_unique desc
 		limit ? offset ?`), append(args, limit+1, offset)...)
 	if err != nil {
 		return false, errors.Wrap(err, "HitStats.ListAllRefs")
