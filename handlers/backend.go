@@ -162,8 +162,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 				Client:  zhttp.RatelimitIP,
 				Store:   zhttp.NewRatelimitMemory(),
-				Limit:   zhttp.RatelimitLimit(1, 3600*24),
-				Message: "you can request only one export a day",
+				Limit:   zhttp.RatelimitLimit(1, 3600),
+				Message: "you can request only one export per hour",
 			})).Post("/start-export", zhttp.Wrap(h.startExport))
 			af.Get("/download-export", zhttp.Wrap(h.downloadExport))
 			af.Post("/add", zhttp.Wrap(h.addSubsite))
@@ -891,16 +891,24 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	r.ParseForm()
 
-	ctx := goatcounter.NewContext(r.Context())
+	v := zvalidate.New()
+	last := v.Integer("last", r.Form.Get("last"))
+	if v.HasErrors() {
+		return v
+	}
+
+	site := goatcounter.MustGetSite(r.Context())
 
 	f := goatcounter.ExportFile(site) + ".progress"
 	fp, err := os.Create(f)
 	if err != nil {
 		return err
 	}
-	bgrun.Run(func() { goatcounter.Export(ctx, fp) })
+
+	ctx := goatcounter.NewContext(r.Context())
+	bgrun.Run(func() { goatcounter.Export(ctx, fp, last) })
 
 	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")

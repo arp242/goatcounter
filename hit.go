@@ -370,7 +370,7 @@ func (h *Hits) List(ctx context.Context, limit, paginate int64) (int64, error) {
 		`select * from hits where site=$1 and id>$2 order by id asc limit $3`,
 		MustGetSite(ctx).ID, paginate, limit)
 
-	var last int64
+	last := paginate
 	if len(*h) > 0 {
 		hh := *h
 		last = hh[len(hh)-1].ID

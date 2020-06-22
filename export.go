@@ -23,9 +23,9 @@ func ExportFile(site *Site) string {
 }
 
 // Export all data to a CSV file.
-func Export(ctx context.Context, fp *os.File) {
+func Export(ctx context.Context, fp *os.File, last int64) {
 	site := MustGetSite(ctx)
-	l := zlog.Module("export").Field("site", site.ID)
+	l := zlog.Module("export").Field("site", site.ID).Field("last", last)
 	l.Print("export started")
 
 	gzfp := gzip.NewWriter(fp)
@@ -37,8 +37,8 @@ func Export(ctx context.Context, fp *os.File) {
 		"Referrer", "Browser", "Screen size", "Location", "Date"})
 
 	var (
-		last int64
 		err  error
+		rows int
 	)
 	for {
 		var hits Hits
@@ -49,6 +49,8 @@ func Export(ctx context.Context, fp *os.File) {
 		if err != nil {
 			break
 		}
+
+		rows += len(hits)
 
 		for _, hit := range hits {
 			c.Write([]string{hit.Path, hit.Title, fmt.Sprintf("%t", hit.Event),
@@ -111,9 +113,11 @@ func Export(ctx context.Context, fp *os.File) {
 		blackmail.From("GoatCounter export", cfg.EmailFrom),
 		blackmail.To(user.Email),
 		blackmail.BodyMustText(EmailTemplate("email_export_done.gotxt", struct {
-			Site Site
-			Size string
-		}{*site, size})))
+			Site   Site
+			LastID int64
+			Size   string
+			Rows   int
+		}{*site, last, size, rows})))
 	if err != nil {
 		l.Error(err)
 		return

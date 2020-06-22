@@ -16633,19 +16633,28 @@ input    { float: right; padding: .4em !important; }
 
 <div>
 	<h2 id="export">Export</h2>
-	<p>Export all page hits as CSV, for backups, or if you want to import
-	somewhere else.</p>
+	<p>Export all pageviews as CSV</p>
 
 	<p>This will start the process and email you a download link once it’s done.
-	You can only do this once a day.</p>
+	You can only do this once per hour and will override any previous backups
+	you may have.</p>
 
 	<p>This includes all pageviews, including those marked as "bot", which
 	aren't shown in the overview.</p>
 
-	<form method="post" action="/start-export">
+	<form method="post" action="/start-export" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<label for="last">Pagination cursor</label>
+		<input type="number" id="last" name="last">
+		<span>There will be a ‘pagination cursor’ in the email, if you fill this
+			in here it will export only hits that were recorded after the
+			previous export.</span><br><br>
+
 		<button type="submit">Start export</button>
 	</form>
+
+	<hr>
 
 	<h3>CSV format</h3>
 	<p>The first line is a header with the field names. The fields, in order, are:</p>
@@ -16926,7 +16935,11 @@ processed by Stripe (you will need a Credit Card).</p>
 The GoatCounter export you’ve requested is finished, go here to download it:
 {{.Site.URL}}/download-export
 
-The file size is {{.Size}}M, and the export will be removed after 24 hours.
+{{nformat .Rows .Site}} rows have been exported with a file size of {{.Size}}M.
+
+The pagination cursor is {{.LastID}}; you can use this to export only hits that were recorded after this export.
+
+The export will be removed after 24 hours.
 
 {{template "_email_bottom.gotxt" .}}
 `),
