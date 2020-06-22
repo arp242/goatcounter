@@ -7,8 +7,8 @@ require (
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/lib/pq v1.5.2
-	github.com/mattn/go-sqlite3 v1.13.1-0.20200606034938-baaf8a978416
+	github.com/lib/pq v1.7.0
+	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/monoculum/formam v0.0.0-20200527175922-6f3cce7a46cf
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
@@ -21,7 +21,7 @@ require (
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
-	zgo.at/zdb v0.0.0-20200617234610-1096bf7533ec
+	zgo.at/zdb v0.0.0-20200622035304-8fce69315f06
 	zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
