@@ -15075,7 +15075,7 @@ var Templates = map[string][]byte{
 			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 
 			{{if and $.Site.LinkDomain (not $h.Event)}}
-				<small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
 			{{end}}
 		</td>
 		<td>
