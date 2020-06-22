@@ -205,7 +205,8 @@ func TestHitDefaultsRef(t *testing.T) {
 		{"https://arp242.net?a=b&c=d", a, ztest.SP("a=b&c=d"), nil, "h"},
 
 		// Clean up query parameters.
-		{"https://t.co/asd?amp=1", "t.co/asd", nil, nil, "h"},
+		{"https://t.co/asd", "twitter.com/search?q=https%3A%2F%2Ft.co%2Fasd", nil, nil, "h"},
+		{"https://t.co/asd?amp=1", "twitter.com/search?q=https%3A%2F%2Ft.co%2Fasd", nil, nil, "h"},
 		{"https://arp242.net?utm_source=asd", a, nil, set, "h"},
 		{"https://arp242.net?utm_source=asd&a=b", a, ztest.SP("a=b"), set, "h"},
 

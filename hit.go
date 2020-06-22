@@ -162,16 +162,18 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 		}
 	}
 
+	// Linking https://t.co/c3MITw38Yq isn't too useful as that will link back
+	// to the page, so link to the Tweet instead.
+	if refURL.Host == "t.co" {
+		return "twitter.com/search?q=https%3A%2F%2Ft.co" +
+			url.QueryEscape(refURL.Path), false
+	}
+
 	// Clean query parameters.
 	i := strings.Index(ref, "?")
 	if i == -1 {
 		// No parameters so no work.
 		return strings.TrimLeft(refURL.String(), "/"), false
-	}
-
-	// Twitter's t.co links add this.
-	if refURL.Host == "t.co" && ref[i+1:] == "amp=1" {
-		return ref[:i], false
 	}
 
 	q := refURL.Query()
