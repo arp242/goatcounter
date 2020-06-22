@@ -13487,9 +13487,11 @@ form .err  { color: red; display: block; }
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
 
-/* Make "go" links bigger on mobile. */
+/* Make "visit" links bigger on mobile. */
 @media (max-width: 55rem) {
+	/*
 	sup { vertical-align: inherit; font-size: 1rem; bottom: 1ex; }
+	*/
 }
 
 .rlink { display: inline-block; overflow: hidden;
@@ -13514,6 +13516,10 @@ form .err  { color: red; display: block; }
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }
+
+/* Hide "Go to [..]" link unless we loaded the page details. */
+small.go           { display: none; }
+tr.target small.go { display: inline-block; }
 
 /*** Pages header (filter, time period select, etc.) ***/
 .period-form-date            { margin-bottom: 1.5em; }
@@ -15032,23 +15038,30 @@ var Templates = map[string][]byte{
 			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
-			{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
+
+			{{if and $.Site.LinkDomain (not $h.Event)}}
+				<small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+			{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
 				<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
 				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
-				{{if and $.Site.LinkDomain (not $h.Event)}}<sup><a class="go" target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">go</a></sup>{{end}}
+				{{if and $.Site.LinkDomain (not $h.Event)}}
+					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+				{{end}}
 			</div>
 			<div class="chart chart-bar">
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
-			<div class="refs">{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-				{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
-				{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
-			{{end}}</div>
+			<div class="refs">
+				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
+					{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
+					{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
+				{{end}}
+			</div>
 		</td>
 	</tr>
 {{else}}
@@ -15062,7 +15075,7 @@ var Templates = map[string][]byte{
 		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
 			{{if $r.Path -}}
 				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Path}}</a>{{else}}{{$r.Path}}{{end}}
-				{{if ne (deref_s $r.RefScheme) "g"}}<sup><a class="go" href="http://{{$r.Path}}" target="_blank" rel="noopener">go</a></sup>
+				{{if ne (deref_s $r.RefScheme) "g"}}<sup class="go"><a href="http://{{$r.Path}}" target="_blank" rel="noopener">visit</a></sup>
 			{{- end}}
 			{{else}}(no data){{end}}
 		</td>

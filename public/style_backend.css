@@ -121,9 +121,11 @@ form .err  { color: red; display: block; }
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
 
-/* Make "go" links bigger on mobile. */
+/* Make "visit" links bigger on mobile. */
 @media (max-width: 55rem) {
+	/*
 	sup { vertical-align: inherit; font-size: 1rem; bottom: 1ex; }
+	*/
 }
 
 .rlink { display: inline-block; overflow: hidden;
@@ -148,6 +150,10 @@ form .err  { color: red; display: block; }
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }
+
+/* Hide "Go to [..]" link unless we loaded the page details. */
+small.go           { display: none; }
+tr.target small.go { display: inline-block; }
 
 /*** Pages header (filter, time period select, etc.) ***/
 .period-form-date            { margin-bottom: 1.5em; }
