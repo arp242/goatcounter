@@ -16765,7 +16765,7 @@ input    { float: right; padding: .4em !important; }
 
 				<label for="totp_token">Verification token</label>
 				<input type="text" name="totp_token" id="totp_token" required
-					autocomplete="one-time-code"><br>
+					autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"><br>
 
 				<button type="submit">Enable MFA</button>
 			</fieldset>
