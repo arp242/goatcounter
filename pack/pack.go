@@ -589,6 +589,28 @@ commit;
 	insert into version values('2020-06-03-1-cname-setup');
 commit;
 `),
+	"db/migrate/pgsql/2020-06-18-1-totp.sql": []byte(`begin;
+	alter table users
+		add column totp_enabled integer not null default 0,
+		add column totp_secret bytea;
+
+	-- https://dba.stackexchange.com/a/22571/2629
+	CREATE OR REPLACE FUNCTION random_bytea(bytea_length integer)
+	RETURNS bytea AS $body$
+		SELECT decode(string_agg(lpad(to_hex(width_bucket(random(), 0, 1, 256)-1),2,'0') ,''), 'hex')
+		FROM generate_series(1, $1);
+	$body$
+	LANGUAGE 'sql'
+	VOLATILE
+	SET search_path = 'pg_catalog';
+
+	update users set totp_secret=random_bytea(16);
+
+	drop function random_bytea;
+
+	insert into version values('2020-06-18-1-totp');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1370,6 +1392,15 @@ commit;
 	update sites set cname_setup_at=datetime() where cname is not null;
 
 	insert into version values('2020-06-03-1-cname-setup');
+commit;
+`),
+	"db/migrate/sqlite/2020-06-18-1-totp.sql": []byte(`begin;
+	alter table users add column totp_enabled integer not null default 0;
+	alter table users add column totp_secret blob;
+
+	update users set totp_secret=randomblob(16);
+
+	insert into version values('2020-06-18-1-totp');
 commit;
 `),
 }
@@ -13425,6 +13456,10 @@ form .err  { color: red; display: block; }
 @media (min-width: 55rem) {
 	.form-wrap form          { display: flex; flex-wrap: wrap; }
 	.form-wrap form fieldset { width: 48%; }
+
+	.flex-form          { display: flex; flex-wrap: wrap; }
+	.flex-form form     { width: 48%; }
+	.flex-form fieldset { height: 100%; }
 }
 
 .flash {
@@ -16676,27 +16711,67 @@ input    { float: right; padding: .4em !important; }
 </div>
 
 <div>
-	<h2 id="change-password">Change password</h2>
+	<h2 id="auth">Password &amp; MFA</h2>
+	<div class="flex-form">
 
-	<form method="post" action="/user/change-password" class="form-max-width vertical">
+	<form method="post" action="/user/change-password" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-		{{if .User.Password}}
-			<label for="c_password">Current password</label>
-			<input type="password" name="c_password" id="c_password" required
-				autocomplete="current-password"><br>
-		{{end}}
+		<fieldset>
+			<legend>Change password</legend>
 
-		<label for="password">New password</label>
-		<input type="password" name="password" id="password" required
-			autocomplete="new-password"><br>
+			{{if .User.Password}}
+				<label for="c_password">Current password</label>
+				<input type="password" name="c_password" id="c_password" required
+					autocomplete="current-password"><br>
+			{{end}}
 
-		<label for="password2">New password (confirm)</label>
-		<input type="password" name="password2" id="password2" required
-			autocomplete="new-password"><br>
+			<label for="password">New password</label>
+			<input type="password" name="password" id="password" required
+				autocomplete="new-password"><br>
 
-		<button>Change password</button>
+			<label for="password2">New password (confirm)</label>
+			<input type="password" name="password2" id="password2" required
+				autocomplete="new-password"><br>
+
+			<button>Change password</button>
+		</fieldset>
 	</form>
+
+	{{if .User.TOTPEnabled}}
+		<form method="post" action="/user/disable-totp" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+
+				<p>MFA is currently enabled for this account.</p>
+
+				<button type="submit">Disable MFA</button>
+			</fieldset>
+		</form>
+	{{else}}
+		<form method="post" action="/user/enable-totp" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+				<p>Enable TOTP-based multi-factor authentication by scanning the
+				code in your authenticator app or entering the secret.</p>
+
+				{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
+				<label for="secret_text">Secret:</label>
+				<div id="secret_text">{{ .User.TOTPSecret | base32 }}</div>
+
+				<label for="totp_token">Verification token</label>
+				<input type="text" name="totp_token" id="totp_token" required
+					autocomplete="one-time-code"><br>
+
+				<button type="submit">Enable MFA</button>
+			</fieldset>
+		</form>
+	{{end}}
+</div>
 </div>
 
 {{if .GoatcounterCom}}
@@ -17690,6 +17765,23 @@ personal.</p>
 	will be sent to the email on file for your account.</p>
 
 {{template "_bottom.gohtml" .}}
+`),
+	"tpl/totp.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h1>Multi-factor auth</h1>
+<p>This account is protected with multi-factor auth; please enter the code from
+your authenticator app.</p>
+
+<form method="post" action="/user/totplogin" class="vertical">
+	<input type="hidden" id="loginmac" name="loginmac" value="{{ .LoginMAC }}">
+	<label for="totp_token">MFA Token</label>
+	<input type="text" name="totp_token" id="totp_token"
+		inputmode="numeric" pattern="[0-9]*"
+		required autocomplete="one-time-code"><br>
+	<button>Sign in</button>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}
 `),
 	"tpl/user.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 

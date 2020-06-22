@@ -59,6 +59,10 @@ form .err  { color: red; display: block; }
 @media (min-width: 55rem) {
 	.form-wrap form          { display: flex; flex-wrap: wrap; }
 	.form-wrap form fieldset { width: 48%; }
+
+	.flex-form          { display: flex; flex-wrap: wrap; }
+	.flex-form form     { width: 48%; }
+	.flex-form fieldset { height: 100%; }
 }
 
 .flash {

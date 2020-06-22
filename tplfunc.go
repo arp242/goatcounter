@@ -5,21 +5,29 @@
 package goatcounter
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha1"
+	"encoding/base32"
+	"encoding/base64"
 	"fmt"
 	"html/template"
+	"image/png"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
+	"zgo.at/errors"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
 
 func init() {
+	zhttp.FuncMap["base32"] = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString
 	zhttp.FuncMap["validate"] = zvalidate.TemplateError
 	zhttp.FuncMap["has_errors"] = zvalidate.TemplateHasErrors
 	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
@@ -83,6 +91,33 @@ func init() {
 			out[i], out[j] = out[j], out[i]
 		}
 		return string(out)
+	}
+
+	zhttp.FuncMap["totp_barcode"] = func(email, s string) template.HTML {
+		totpURI := fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s)
+		buf := bytes.NewBufferString("data:image/png;base64,")
+		qrCode, err := qr.Encode(totpURI, qr.M, qr.Auto)
+		if err != nil {
+			zlog.Error(errors.Wrap(err, "encoding QR code"))
+			return template.HTML("Error generating the QR code; this has been logged for investigation.")
+		}
+
+		qrCode, err = barcode.Scale(qrCode, 200, 200)
+		if err != nil {
+			zlog.Error(errors.Wrap(err, "scaling QR code"))
+			return template.HTML("Error generating the QR code; this has been logged for investigation.")
+		}
+
+		e := base64.NewEncoder(base64.StdEncoding, buf)
+		err = png.Encode(e, qrCode)
+		if err != nil {
+			zlog.Error(errors.Wrap(err, "encoding QR code as PNG"))
+			return template.HTML("Error generating the QR code; this has been logged for investigation.")
+		}
+
+		return template.HTML(fmt.Sprintf(
+			`<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode" src="%s">`,
+			buf.String()))
 	}
 }
 
