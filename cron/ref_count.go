@@ -36,6 +36,7 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			if v.total == 0 {
 				v.hour = hour
 				v.path = h.Path
+				v.ref = h.Ref
 				v.refScheme = h.RefScheme
 				var err error
 				v.total, v.totalUnique, err = existingRefCounts(ctx, tx,
@@ -43,10 +44,6 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 				if err != nil {
 					return err
 				}
-			}
-
-			if h.Ref != "" {
-				v.ref = h.Ref
 			}
 
 			v.total += 1
