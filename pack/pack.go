@@ -2024,7 +2024,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 		var img = document.createElement('img')
 		img.src = url
-		img.style.float = 'right'  // Affect layout less.
+		img.style.position = 'absolute'  // Affect layout less.
 		img.setAttribute('alt', '')
 		img.setAttribute('aria-hidden', 'true')
 
