@@ -92,8 +92,8 @@ honnef.co/go/tools v0.0.1-2020.1.4 h1:UoveltGrhghAA7ePc+e+QYDHXrBps2PqFZiHkGR/xK
 honnef.co/go/tools v0.0.1-2020.1.4/go.mod h1:X/FiERA/W4tHapMX5mGpAtMSVEeEUOyHaw9vFzvIQ3k=
 zgo.at/blackmail v0.0.0-20200527044144-ce30fa1f0a22 h1:aRuVXVlc58AQ6UTZkcrWT5184ufIvij2Z+zNVa75qA8=
 zgo.at/blackmail v0.0.0-20200527044144-ce30fa1f0a22/go.mod h1:fKGBHQ4ObWXVRrjvrKrXl6Q6vMtiiB8A0NZDJnHYSH4=
-zgo.at/errors v0.0.0-20200522184031-947c392080a8 h1:b5PYQMGccELfNH+waxfgUnEY2fzIgWGAfPMkyO3PgBI=
-zgo.at/errors v0.0.0-20200522184031-947c392080a8/go.mod h1:POfgvh1LafF2NZJk6buGYCIhcHWuR/miB3nndyf3ozs=
+zgo.at/errors v0.0.0-20200625031808-103e194a5a95 h1:puIXazQ4ZxPAoJr0ja0pZmyVzbfBF7nOElWTq4wVcrU=
+zgo.at/errors v0.0.0-20200625031808-103e194a5a95/go.mod h1:POfgvh1LafF2NZJk6buGYCIhcHWuR/miB3nndyf3ozs=
 zgo.at/gadget v0.0.0-20200522205438-64412137d778 h1:yDRvfHau8/hHdiPcqXeHaebpoe7XfDjmGBto70V0q7s=
 zgo.at/gadget v0.0.0-20200522205438-64412137d778/go.mod h1:1x0AKFOjKScVTzJh+V69Ku6hTwvEM56MlnKOtrjMwSo=
 zgo.at/guru v1.1.0 h1:hvMLOzPnv7XApwJZgxvFxBA8wb6RGPUw9lz8kmq450g=
@@ -104,8 +104,8 @@ zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxy
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zdb v0.0.0-20200622035304-8fce69315f06 h1:UR3S6k1b5nPoZnQ6nJO3BiRxklKrecc78YAcGs+YqOM=
 zgo.at/zdb v0.0.0-20200622035304-8fce69315f06/go.mod h1:qBj20DkzhioyoAgkqCNNrQYtU9dkaQXU6kko5B36zbg=
-zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427 h1:kEvW6gekYXncOvbUTSQXX3OYfwE1NmfqBaA3qeoiEhY=
-zgo.at/zhttp v0.0.0-20200612054249-79d9ae915427/go.mod h1:gBlNBoFdFFDaf2j6mU4KhxTlD3A11GI4HU7zssqwSvQ=
+zgo.at/zhttp v0.0.0-20200624095527-ebe3097ac87f h1:KTo7i3jcI38AXf0yFEQT3y07JOVPKtHdyXubNQ7e1+A=
+zgo.at/zhttp v0.0.0-20200624095527-ebe3097ac87f/go.mod h1:gBlNBoFdFFDaf2j6mU4KhxTlD3A11GI4HU7zssqwSvQ=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
 zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c h1:PQksY26D9QgCNbOvMmortUzbStTYwfLZHBzHlDDLa6c=
@@ -122,5 +122,5 @@ zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41 h1:2vR+4hRs2YI2Lcm68AjHLSOHxQy/3
 zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
 zgo.at/ztest v0.0.0-20200526130303-f59d60374e72 h1:eJi5pmYHERPsQ9a7Sw1HW8GXTVFWlHQ+EfZKSzx1Y+Y=
 zgo.at/ztest v0.0.0-20200526130303-f59d60374e72/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
-zgo.at/zvalidate v0.0.0-20200417055504-a940f5b1be33 h1:Wu/SeWsrdyr9odV6oBbAGnu0Bae93R5Kn3rM0ubbHbQ=
-zgo.at/zvalidate v0.0.0-20200417055504-a940f5b1be33/go.mod h1:SguuRnGmIa4boKWBN8G1l6Z1WWDGRDbkoY6KliwHXPg=
+zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a h1:CDG+/sJjuKFKFQzRx4G0w7D0+/e2OGWACzYe7w7Vg0o=
+zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a/go.mod h1:SguuRnGmIa4boKWBN8G1l6Z1WWDGRDbkoY6KliwHXPg=

@@ -5,9 +5,11 @@
 package handlers
 
 import (
+	"compress/gzip"
 	"context"
 	"fmt"
 	"html/template"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -166,6 +168,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 				Message: "you can request only one export per hour",
 			})).Post("/start-export", zhttp.Wrap(h.startExport))
 			af.Get("/download-export", zhttp.Wrap(h.downloadExport))
+			af.Post("/import", zhttp.Wrap(h.importFile))
 			af.Post("/add", zhttp.Wrap(h.addSubsite))
 			af.Get("/remove/{id}", zhttp.Wrap(h.removeSubsiteConfirm))
 			af.Post("/remove/{id}", zhttp.Wrap(h.removeSubsite))
@@ -888,6 +891,35 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Saved!")
 	return zhttp.SeeOther(w, "/settings")
+}
+
+func (h backend) importFile(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	replace := v.Boolean("replace", r.Form.Get("replace"))
+	if v.HasErrors() {
+		return v
+	}
+
+	file, head, err := r.FormFile("csv")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var fp io.ReadCloser = file
+	if strings.HasSuffix(head.Filename, ".gz") {
+		fp, err = gzip.NewReader(file)
+		if err != nil {
+			return guru.Errorf(400, "could not read as gzip: %w", err)
+		}
+	}
+	defer fp.Close()
+
+	ctx := goatcounter.NewContext(r.Context())
+	bgrun.Run(func() { goatcounter.Import(ctx, fp, replace) })
+
+	zhttp.Flash(w, "Import started in the background; you’ll get an email when it’s done.")
+	return zhttp.SeeOther(w, "/settings#tab-export")
 }
 
 func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {

@@ -1,0 +1,10 @@
+Hi there,
+
+Your import is finished; {{.Rows}} pageviews were imported successfully with {{.Errors.Len}} errors.
+{{if gt .Errors.Len 50}}
+First 50 errors:
+{{.Errors}}{{else if gt .Errors.Len 0}}
+List of Errors:
+{{.Errors}}{{end}}
+
+{{template "_email_bottom.gotxt" .}}
