@@ -15,6 +15,7 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zfloat"
 )
 
@@ -102,7 +103,14 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 		return
 	}
 
-	err = os.Rename(fp.Name(), ExportFile(site))
+	f := ExportFile(site)
+	err = os.Rename(fp.Name(), f)
+	if err != nil {
+		l.Error(err)
+		return
+	}
+
+	hash, err := zcrypto.HashFile(f)
 	if err != nil {
 		l.Error(err)
 		return
@@ -117,7 +125,8 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 			LastID int64
 			Size   string
 			Rows   int
-		}{*site, last, size, rows})))
+			Hash   string
+		}{*site, last, size, rows, hash})))
 	if err != nil {
 		l.Error(err)
 		return
