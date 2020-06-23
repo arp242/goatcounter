@@ -88,7 +88,7 @@
 			return 'frame'
 		if (!goatcounter.allow_local && location.hostname.match(/(localhost$|^127\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\.)/))
 			return 'local'
-		if (localStorage.getItem('skipgc') === 't')
+		if (localStorage && localStorage.getItem('skipgc') === 't')
 			return 'disabled with #toggle-goatcounter'
 		return false
 	}
