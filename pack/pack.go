@@ -16619,7 +16619,8 @@ input    { float: right; padding: .4em !important; }
 				which is a separate GoatCounter site which inherits the plan, users,
 				and logins from the current site, but is otherwise completely
 				separate. The current site’s settings are copied on creation, but
-				are independent afterwards.</p>
+				are independent afterwards; the only limitation is that child
+				sites can’t have child sites of their own.</p>
 			<p>You can add as many as you want.</p>
 
 			<form method="post" action="/add">
@@ -16685,7 +16686,7 @@ input    { float: right; padding: .4em !important; }
 		<label for="last">Pagination cursor</label>
 		<input type="number" id="last" name="last">
 		<span>There will be a ‘pagination cursor’ in the email, if you fill this
-			in here it will export only hits that were recorded after the
+			in here it will export only pageviews that were recorded after the
 			previous export.</span><br><br>
 
 		<button type="submit">Start export</button>
@@ -17014,7 +17015,9 @@ The GoatCounter export you’ve requested is finished, go here to download it:
 
 {{nformat .Rows .Site}} rows have been exported with a file size of {{.Size}}M.
 
-The pagination cursor is {{.LastID}}; you can use this to export only hits that were recorded after this export.
+The pagination cursor is {{.LastID}}; you can use this to export pageviews that were recorded after this export.
+
+The file integrity hash is {{.Hash}}
 
 The export will be removed after 24 hours.
 
