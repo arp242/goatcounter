@@ -281,7 +281,15 @@
 			<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
 			constants if it is.</td></tr>
 		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
+		<tr><th>FirstVisit</th><td>First visit in this session?</td>
 		<tr><th>Referrer</th><td>Referrer data.</td></tr>
+		<tr><th>Referrer scheme</th><td>
+				<code>h</code> – HTTP; an URL;<br>
+				<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
+				add a link to the specific story, so are just recorded as “Hacker News”;<br>
+				<code>c</code> – Campaign; text string from a campaign parameter;<br>
+				<code>o</code> – Other (e.g. Android apps).
+			</td></tr>
 		<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
 		<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
 		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>

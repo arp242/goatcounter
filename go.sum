@@ -92,8 +92,8 @@ honnef.co/go/tools v0.0.1-2020.1.4 h1:UoveltGrhghAA7ePc+e+QYDHXrBps2PqFZiHkGR/xK
 honnef.co/go/tools v0.0.1-2020.1.4/go.mod h1:X/FiERA/W4tHapMX5mGpAtMSVEeEUOyHaw9vFzvIQ3k=
 zgo.at/blackmail v0.0.0-20200527044144-ce30fa1f0a22 h1:aRuVXVlc58AQ6UTZkcrWT5184ufIvij2Z+zNVa75qA8=
 zgo.at/blackmail v0.0.0-20200527044144-ce30fa1f0a22/go.mod h1:fKGBHQ4ObWXVRrjvrKrXl6Q6vMtiiB8A0NZDJnHYSH4=
-zgo.at/errors v0.0.0-20200625031808-103e194a5a95 h1:puIXazQ4ZxPAoJr0ja0pZmyVzbfBF7nOElWTq4wVcrU=
-zgo.at/errors v0.0.0-20200625031808-103e194a5a95/go.mod h1:POfgvh1LafF2NZJk6buGYCIhcHWuR/miB3nndyf3ozs=
+zgo.at/errors v0.0.0-20200626061729-56441133759f h1:oUYxyo/c5Ubck8loObao64Zv88v7ltLmRXLtb9TebIM=
+zgo.at/errors v0.0.0-20200626061729-56441133759f/go.mod h1:POfgvh1LafF2NZJk6buGYCIhcHWuR/miB3nndyf3ozs=
 zgo.at/gadget v0.0.0-20200522205438-64412137d778 h1:yDRvfHau8/hHdiPcqXeHaebpoe7XfDjmGBto70V0q7s=
 zgo.at/gadget v0.0.0-20200522205438-64412137d778/go.mod h1:1x0AKFOjKScVTzJh+V69Ku6hTwvEM56MlnKOtrjMwSo=
 zgo.at/guru v1.1.0 h1:hvMLOzPnv7XApwJZgxvFxBA8wb6RGPUw9lz8kmq450g=

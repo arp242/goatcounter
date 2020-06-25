@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +21,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zfloat"
+	"zgo.at/zvalidate"
 )
 
 const exportVersion = "1"
@@ -43,7 +43,8 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 
 	c := csv.NewWriter(gzfp)
 	c.Write([]string{exportVersion + "Path", "Title", "Event", "Bot", "Session",
-		"Referrer", "Browser", "Screen size", "Location", "Date"})
+		"FirstVisit", "Referrer", "Referrer scheme", "Browser", "Screen size",
+		"Location", "Date"})
 
 	var (
 		err  error
@@ -67,10 +68,15 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 				s = fmt.Sprintf("%d", *hit.Session)
 			}
 
+			rs := ""
+			if hit.RefScheme != nil {
+				rs = *hit.RefScheme
+			}
+
 			c.Write([]string{hit.Path, hit.Title, fmt.Sprintf("%t", hit.Event),
-				fmt.Sprintf("%d", hit.Bot), s, hit.Ref, hit.Browser,
-				zfloat.Join(hit.Size, ","), hit.Location,
-				hit.CreatedAt.Format(time.RFC3339)})
+				fmt.Sprintf("%d", hit.Bot), s, fmt.Sprintf("%t", hit.FirstVisit),
+				hit.Ref, rs, hit.Browser, zfloat.Join(hit.Size, ","),
+				hit.Location, hit.CreatedAt.Format(time.RFC3339)})
 		}
 
 		c.Flush()
@@ -193,9 +199,9 @@ func Import(ctx context.Context, fp io.Reader, replace bool) {
 	}
 
 	var (
-		lastSession = int64(-1)
-		n           = 0
-		errs        errors.Group
+		sessions = make(map[string]int64)
+		n        = 0
+		errs     = errors.NewGroup(50)
 	)
 	for {
 		row, err := c.Read()
@@ -203,33 +209,65 @@ func Import(ctx context.Context, fp io.Reader, replace bool) {
 			break
 		}
 		if err != nil {
-			if errs.Len() < 50 {
-				errs.Append(err)
-			}
+			errs.Append(err)
+			continue
+		}
+		if len(row) != 12 {
+			errs.Append(fmt.Errorf("wrong number of fields: %d (want: 12)", len(row)))
 			continue
 		}
 
-		s := newIntP(row[4])
-		first := false
-		if s == nil || *s != lastSession {
-			first = true
-			lastSession = *s
+		path, title, event, bot, session, firstVisit, ref, refScheme, browser,
+			size, location, createdAt := row[0], row[1], row[2], row[3], row[4],
+			row[5], row[6], row[7], row[8], row[9], row[10], row[11]
+
+		hit := Hit{
+			Site:     site.ID,
+			Path:     path,
+			Title:    title,
+			Ref:      ref,
+			Browser:  browser,
+			Location: location, // TODO: validate from list?
 		}
 
-		Memstore.Append(Hit{
-			Site:       site.ID,
-			Path:       row[0],
-			Title:      row[1],
-			Event:      newBool(row[2]),
-			Bot:        int(newInt(row[3])),
-			Session:    s,
-			FirstVisit: zdb.Bool(first),
-			Ref:        row[5],
-			Browser:    row[6],
-			Size:       newFloats(row[7]),
-			Location:   row[8],
-			CreatedAt:  newTime(row[9]),
-		})
+		v := zvalidate.New()
+		v.Required("path", path)
+		hit.Event = zdb.Bool(v.Boolean("event", event))
+		hit.Bot = int(v.Integer("bot", bot))
+		hit.FirstVisit = zdb.Bool(v.Boolean("firstVisit", firstVisit))
+		hit.CreatedAt = v.Date("createdAt", createdAt, time.RFC3339)
+
+		if refScheme != "" {
+			v.Include("refScheme", refScheme, []string{*RefSchemeHTTP, *RefSchemeOther, *RefSchemeGenerated, *RefSchemeCampaign})
+			hit.RefScheme = &refScheme
+		}
+
+		if size != "" {
+			err = hit.Size.UnmarshalText([]byte(size))
+			if err != nil {
+				errs.Append(err)
+				continue
+			}
+		}
+
+		if v.HasErrors() {
+			errs.Append(v)
+			continue
+		}
+
+		// Map session IDs to new session IDs.
+		s, ok := sessions[session]
+		if !ok {
+			err = zdb.MustGet(ctx).GetContext(ctx, &s, `select nextval('sessions_id_seq')`)
+			if err != nil {
+				errs.Append(err)
+				continue
+			}
+			sessions[session] = s
+		}
+		hit.Session = &s
+
+		Memstore.Append(hit)
 		n++
 
 		// Spread out the load a bit.
@@ -243,41 +281,18 @@ func Import(ctx context.Context, fp io.Reader, replace bool) {
 		l.Error(errs)
 	}
 
+	// Send email after 10s delay to make sure the cron task has finished
+	// updating all the rows.
+	time.Sleep(10 * time.Second)
 	err = blackmail.Send("GoatCounter import ready",
 		blackmail.From("GoatCounter import", cfg.EmailFrom),
 		blackmail.To(user.Email),
 		blackmail.BodyMustText(EmailTemplate("email_import_done.gotxt", struct {
 			Site   Site
 			Rows   int
-			Errors errors.Group
+			Errors *errors.Group
 		}{*site, n, errs})))
 	if err != nil {
 		l.Error(err)
 	}
-}
-
-func newFloats(t string) zdb.Floats {
-	f := new(zdb.Floats)
-	f.UnmarshalText([]byte(t))
-	return *f
-}
-func newTime(s string) time.Time {
-	t, _ := time.Parse(time.RFC3339, s)
-	return t
-}
-func newInt(s string) int64 {
-	i, _ := strconv.ParseInt(s, 10, 64)
-	return i
-}
-func newIntP(s string) *int64 {
-	i := newInt(s)
-	if i == 0 {
-		return nil
-	}
-	return &i
-}
-func newBool(t string) zdb.Bool {
-	b := new(zdb.Bool)
-	b.UnmarshalText([]byte(t))
-	return *b
 }
