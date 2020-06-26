@@ -24,6 +24,11 @@ func main() {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate markdown files: %s\n", err)
 		}
+
+		err = kommentaar()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate kommentaar files: %s\n", err)
+		}
 	}
 
 	err := zpack.Pack(map[string]map[string]string{
@@ -62,6 +67,27 @@ var (
 	// {{template "%%top.gohtml" .}}
 	reUnderscore = regexp.MustCompile(`template "%%`)
 )
+
+func kommentaar() error {
+	commands := map[string][]string{
+		"docs/api.yaml": {"-config", "./kommentaar.conf", "-output", "openapi2-yaml", "./handlers"},
+		"docs/api.json": {"-config", "./kommentaar.conf", "-output", "openapi2-jsonindent", "./handlers"},
+		"docs/api.html": {"-config", "./kommentaar.conf", "-output", "html", "./handlers"},
+	}
+
+	for file, args := range commands {
+		out, err := exec.Command("kommentaar", args...).CombinedOutput()
+		if err != nil {
+			return errors.Errorf("running kommentaar: %s\n%s", err, out)
+		}
+
+		err = ioutil.WriteFile(file, out, 0666)
+		if err != nil {
+			return errors.Errorf("kommentaar: %s\n%s", err)
+		}
+	}
+	return nil
+}
 
 // Don't really need to generate Markdown on requests, and don't want to
 // implement caching; so just go generate it.

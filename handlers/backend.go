@@ -62,6 +62,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		zhttp.NoStore,
 		zhttp.WrapWriter)
 
+	api{}.mount(r, db)
+
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
 	})
@@ -952,7 +954,7 @@ func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(func() { export.Run(ctx, fp) })
+	bgrun.Run(func() { export.Run(ctx, fp, true) })
 
 	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")

@@ -306,7 +306,7 @@
 </div>
 
 <div>
-	<h2 id="auth">Password &amp; MFA</h2>
+	<h2 id="auth">Password, MFA, API</h2>
 
 	<div class="flex-form">
 		<form method="post" action="/user/change-password" class="vertical">
@@ -373,11 +373,7 @@
 		<fieldset>
 			<legend>API tokens</legend>
 
-			<p>
-				API tokens can be used with the GoatCounter API
-				<code>Authorisation: bearer [token]</code>
-			</p>
-
+			<a href="https://www.goatcounter.com/api">API documentation</a>
 			<table class="auto table-left">
 				<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
 
@@ -408,8 +404,10 @@
 								<input type="text" id="name" name="name" placeholder="Name">
 							</td>
 							<td>
+								{{/*
 								<label title="Record pageviews with /api/v0/count">
 									<input type="checkbox" name="permissions.count">Record pageviews</label><br>
+								*/}}
 								<label title="Export data with /api/v0/export">
 									<input type="checkbox" name="permissions.export">Export</label>
 							</td>

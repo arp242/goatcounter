@@ -22,6 +22,7 @@ import (
 type APIToken struct {
 	ID     int64 `db:"api_token_id" json:"-"`
 	SiteID int64 `db:"site_id" json:"-"`
+	UserID int64 `db:"user_id" json:"-"`
 
 	Name        string              `db:"name" json:"name"`
 	Token       string              `db:"token" json:"-"`
@@ -63,6 +64,7 @@ func (t *APIToken) Validate(ctx context.Context) error {
 	v := zvalidate.New()
 	v.Required("name", t.Name)
 	v.Required("site_id", t.SiteID)
+	v.Required("user_id", t.SiteID)
 	v.Required("token", t.Token)
 	return v.ErrorOrNil()
 }
@@ -79,8 +81,10 @@ func (t *APIToken) Insert(ctx context.Context) error {
 		return err
 	}
 
-	query := `insert into api_tokens (site_id, name, token, permissions, created_at) values ($1, $2, $3, $4, $5)`
-	args := []interface{}{t.SiteID, t.Name, t.Token, t.Permissions, t.CreatedAt}
+	query := `insert into api_tokens
+		(site_id, user_id, name, token, permissions, created_at)
+		values ($1, $2, $3, $4, $5, $6)`
+	args := []interface{}{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt}
 
 	if cfg.PgSQL {
 		err := zdb.MustGet(ctx).GetContext(ctx, &t.ID, query+` returning api_token_id`, args...)
@@ -101,6 +105,12 @@ func (t *APIToken) ByID(ctx context.Context, id int64) error {
 		id, MustGetSite(ctx).ID), "APIToken.ByID %d", id)
 }
 
+func (t *APIToken) ByToken(ctx context.Context, token string) error {
+	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, t,
+		`/* APIToken.ByID */ select * from api_tokens where token=$1 and site_id=$2`,
+		token, MustGetSite(ctx).ID), "APIToken.ByToken")
+}
+
 func (t *APIToken) Delete(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`/* APIToken.Delete */ delete from api_tokens where api_token_id=$1 and site_id=$2`,
@@ -112,6 +122,6 @@ type APITokens []APIToken
 
 func (t *APITokens) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, t,
-		`select * from api_tokens where site_id=$1`,
-		MustGetSite(ctx).ID), "APITokens.List")
+		`select * from api_tokens where site_id=$1 and user_id=$2`,
+		MustGetSite(ctx).ID, GetUser(ctx).ID), "APITokens.List")
 }

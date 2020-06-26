@@ -1,0 +1,170 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "GoatCounter",
+    "version": "0.1",
+    "contact": {
+      "name": "Martin Tournoij",
+      "url": "https://www.goatcounter.com",
+      "email": "support@goatcounter.com"
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "export"
+    }
+  ],
+  "paths": {
+    "/api/v0/export": {
+      "post": {
+        "operationId": "POST_api_v0_export",
+        "tags": [
+          "export"
+        ],
+        "summary": "Start a new export in the background.",
+        "description": "This starts a new export in the background.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "handlers.apiExportRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.apiExportRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "202 Accepted",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Export"
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/export/{id}": {
+      "get": {
+        "operationId": "GET_api_v0_export_{id}",
+        "tags": [
+          "export"
+        ],
+        "summary": "Get details about an export.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Export"
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/export/{id}/download": {
+      "get": {
+        "operationId": "GET_api_v0_export_{id}_download",
+        "tags": [
+          "export"
+        ],
+        "summary": "Download an export file.",
+        "produces": [
+          "text/csv"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK (text/csv data)"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "goatcounter.Export": {
+      "title": "Export",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "error": {
+          "description": "Any errors that may have occured.",
+          "type": "string"
+        },
+        "finished_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "hash": {
+          "description": "SHA256 hash.",
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "last_hit_id": {
+          "description": "Last hit ID that was exported; can be used as start_from_hit_id.",
+          "type": "integer"
+        },
+        "num_rows": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "site_id": {
+          "type": "integer"
+        },
+        "size": {
+          "description": "File size in MB.",
+          "type": "string"
+        },
+        "start_from_hit_id": {
+          "description": "The hit ID this export was started from.",
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.apiExportRequest": {
+      "title": "apiExportRequest",
+      "type": "object",
+      "properties": {
+        "start_from_hit_id": {
+          "description": "Pagination cursor; only export hits with an ID greater than this.",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
