@@ -478,6 +478,19 @@ func (s Site) PayExternal() string {
 	return ""
 }
 
+func (s Site) DeleteAll(ctx context.Context) error {
+	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits") {
+			_, err := tx.ExecContext(ctx, `delete from `+t+` where site=$1`, s.ID)
+			if err != nil {
+				return errors.Wrap(err, "Site.DeleteAll: delete "+t)
+			}
+		}
+
+		return nil
+	})
+}
+
 func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	if days < 14 {
 		return errors.Errorf("days must be at least 14: %d", days)
