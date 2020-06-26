@@ -56,8 +56,8 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
 		if h.RefURL != nil {
-			if _, ok := blacklist[h.RefURL.Host]; ok {
-				l.Debugf("blacklisted: %q", h.RefURL.Host)
+			if _, ok := refspam[h.RefURL.Host]; ok {
+				l.Debugf("refspam ignored: %q", h.RefURL.Host)
 				continue
 			}
 		}
