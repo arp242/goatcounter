@@ -611,6 +611,7 @@ commit;
 	insert into version values('2020-06-18-1-totp');
 commit;
 `),
+<<<<<<< HEAD
 	"db/migrate/pgsql/2020-06-26-1-record-export.sql": []byte(`begin;
 	create table exports (
 		export_id         serial         primary key,
@@ -632,6 +633,19 @@ commit;
 	create index "exports#site_id#created_at" on exports(site_id, created_at);
 
 	insert into version values('2020-06-26-1-record-export');
+=======
+	"db/migrate/pgsql/2020-06-26-1-api-tokens.sql": []byte(`begin;
+	create table api_tokens (
+		site_id      integer   not null,
+		token        varchar   not null   check(length(token) > 10),
+		permissions  jsonb     not null,
+
+		foreign key (site_id) references sites(id) on delete restrict on update restrict
+	);
+	create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
+
+	insert into version values('2020-06-26-1-api-tokens');
+>>>>>>> a90b40c... Add UI for creating API tokens
 commit;
 `),
 }
@@ -1426,6 +1440,7 @@ commit;
 	insert into version values('2020-06-18-1-totp');
 commit;
 `),
+<<<<<<< HEAD
 	"db/migrate/sqlite/2020-06-26-1-record-export.sql": []byte(`begin;
 	create table exports (
 		export_id         integer        primary key autoincrement,
@@ -1447,6 +1462,19 @@ commit;
 	create index "exports#site_id#created_at" on exports(site_id, created_at);
 
 	insert into version values('2020-06-26-1-record-export');
+=======
+	"db/migrate/sqlite/2020-06-26-1-api-tokens.sql": []byte(`begin;
+	create table api_tokens (
+		site_id      integer   not null,
+		token        varchar   not null   check(length(token) > 10),
+		permissions  jsonb     not null,
+
+		foreign key (site_id) references sites(id) on delete restrict on update restrict
+	);
+	create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
+
+	insert into version values('2020-06-26-1-api-tokens');
+>>>>>>> a90b40c... Add UI for creating API tokens
 commit;
 `),
 }

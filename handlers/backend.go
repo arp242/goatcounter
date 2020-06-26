@@ -754,6 +754,12 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		return err
 	}
 
+	var tokens goatcounter.APITokens
+	err = tokens.List(r.Context())
+	if err != nil {
+		return err
+	}
+
 	del := map[string]interface{}{
 		"ContactMe": r.URL.Query().Get("contact_me") == "true",
 		"Reason":    r.URL.Query().Get("reason"),
@@ -766,7 +772,8 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		Timezones []*tz.Zone
 		Delete    map[string]interface{}
 		Exports   goatcounter.Exports
-	}{newGlobals(w, r), sites, verr, tz.Zones, del, exports})
+		APITokens goatcounter.APITokens
+	}{newGlobals(w, r), sites, verr, tz.Zones, del, exports, tokens})
 }
 
 func (h backend) code(w http.ResponseWriter, r *http.Request) error {
