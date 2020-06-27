@@ -227,7 +227,7 @@
 	<h2 id="export">Export/Import</h2>
 
 	<div class="flex-form">
-		<form method="post" action="/start-export" class="vertical">
+		<form method="post" action="/export" class="vertical">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			<fieldset>
@@ -239,8 +239,8 @@
 				<p>This includes all pageviews, including those marked as "bot", which
 				aren't shown in the overview.</p>
 
-				<label for="last">Pagination cursor</label>
-				<input type="number" id="last" name="last">
+				<label for="startFrom">Pagination cursor</label>
+				<input type="number" id="startFrom" name="startFrom">
 				<span>There will be a ‘pagination cursor’ in the email, if you fill this
 					in here it will export only pageviews that were recorded
 					after the previous export.</span><br><br>

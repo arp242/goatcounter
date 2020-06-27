@@ -166,8 +166,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 				Store:   zhttp.NewRatelimitMemory(),
 				Limit:   zhttp.RatelimitLimit(1, 3600),
 				Message: "you can request only one export per hour",
-			})).Post("/start-export", zhttp.Wrap(h.startExport))
-			af.Get("/download-export", zhttp.Wrap(h.downloadExport))
+			})).Post("/export", zhttp.Wrap(h.startExport))
+			af.Get("/export/{id}", zhttp.Wrap(h.downloadExport))
 			af.Post("/import", zhttp.Wrap(h.importFile))
 			af.Post("/add", zhttp.Wrap(h.addSubsite))
 			af.Get("/remove/{id}", zhttp.Wrap(h.removeSubsiteConfirm))
@@ -748,6 +748,12 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		return err
 	}
 
+	var exports goatcounter.Exports
+	err = exports.List(r.Context())
+	if err != nil {
+		return err
+	}
+
 	del := map[string]interface{}{
 		"ContactMe": r.URL.Query().Get("contact_me") == "true",
 		"Reason":    r.URL.Query().Get("reason"),
@@ -759,7 +765,8 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		Validate  *zvalidate.Validator
 		Timezones []*tz.Zone
 		Delete    map[string]interface{}
-	}{newGlobals(w, r), sites, verr, tz.Zones, del})
+		Exports   goatcounter.Exports
+	}{newGlobals(w, r), sites, verr, tz.Zones, del, exports})
 }
 
 func (h backend) code(w http.ResponseWriter, r *http.Request) error {
@@ -926,29 +933,38 @@ func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
 	r.ParseForm()
 
 	v := zvalidate.New()
-	last := v.Integer("last", r.Form.Get("last"))
+	startFrom := v.Integer("startFrom", r.Form.Get("startFrom"))
 	if v.HasErrors() {
 		return v
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
-
-	f := goatcounter.ExportFile(site) + ".progress"
-	fp, err := os.Create(f)
+	var export goatcounter.Export
+	fp, err := export.Create(r.Context(), startFrom)
 	if err != nil {
 		return err
 	}
 
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(func() { goatcounter.Export(ctx, fp, last) })
+	bgrun.Run(func() { export.Run(ctx, fp) })
 
 	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")
 }
 
 func (h backend) downloadExport(w http.ResponseWriter, r *http.Request) error {
-	f := goatcounter.ExportFile(goatcounter.MustGetSite(r.Context()))
-	fp, err := os.Open(f)
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var export goatcounter.Export
+	err := export.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	fp, err := os.Open(export.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			zhttp.FlashError(w, "It looks like there is no export yet.")
@@ -961,7 +977,7 @@ func (h backend) downloadExport(w http.ResponseWriter, r *http.Request) error {
 
 	err = header.SetContentDisposition(w.Header(), header.DispositionArgs{
 		Type:     header.TypeAttachment,
-		Filename: filepath.Base(f),
+		Filename: filepath.Base(export.Path),
 	})
 	if err != nil {
 		return err

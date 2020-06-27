@@ -611,6 +611,29 @@ commit;
 	insert into version values('2020-06-18-1-totp');
 commit;
 `),
+	"db/migrate/pgsql/2020-06-26-1-record-export.sql": []byte(`begin;
+	create table exports (
+		export_id         serial         primary key,
+		site_id           integer        not null,
+		start_from_hit_id integer        not null,
+
+		path              varchar        not null,
+		created_at        timestamp      not null,
+
+		finished_at       timestamp,
+		last_hit_id       integer,
+		num_rows          integer,
+		size              varchar,
+		hash              varchar,
+		error             varchar,
+
+		foreign key (site_id) references sites(id) on delete restrict on update restrict
+	);
+	create index "exports#site_id#created_at" on exports(site_id, created_at);
+
+	insert into version values('2020-06-26-1-record-export');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1401,6 +1424,29 @@ commit;
 	update users set totp_secret=randomblob(16);
 
 	insert into version values('2020-06-18-1-totp');
+commit;
+`),
+	"db/migrate/sqlite/2020-06-26-1-record-export.sql": []byte(`begin;
+	create table exports (
+		export_id         integer        primary key autoincrement,
+		site_id           integer        not null,
+		start_from_hit_id integer        not null,
+		last_hit_id       integer        not null,
+
+		path              varchar        not null,
+		created_at        timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+
+		finished_at       timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+		num_rows          integer,
+		size              varchar,
+		hash              varchar,
+		errors            varchar,
+
+		foreign key (site_id) references sites(id) on delete restrict on update restrict
+	);
+	create index "exports#site_id#created_at" on exports(site_id, created_at);
+
+	insert into version values('2020-06-26-1-record-export');
 commit;
 `),
 }
@@ -16673,7 +16719,7 @@ input    { float: right; padding: .4em !important; }
 	<h2 id="export">Export/Import</h2>
 
 	<div class="flex-form">
-		<form method="post" action="/start-export" class="vertical">
+		<form method="post" action="/export" class="vertical">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			<fieldset>
@@ -16685,8 +16731,8 @@ input    { float: right; padding: .4em !important; }
 				<p>This includes all pageviews, including those marked as "bot", which
 				aren't shown in the overview.</p>
 
-				<label for="last">Pagination cursor</label>
-				<input type="number" id="last" name="last">
+				<label for="startFrom">Pagination cursor</label>
+				<input type="number" id="startFrom" name="startFrom">
 				<span>There will be a ‘pagination cursor’ in the email, if you fill this
 					in here it will export only pageviews that were recorded
 					after the previous export.</span><br><br>
@@ -17049,13 +17095,13 @@ processed by Stripe (you will need a Credit Card).</p>
 	"tpl/email_export_done.gotxt": []byte(`Hi there,
 
 The GoatCounter export you’ve requested is finished, go here to download it:
-{{.Site.URL}}/download-export
+{{.Site.URL}}/export/{{.Export.ID}}
 
-{{nformat .Rows .Site}} rows have been exported with a file size of {{.Size}}M.
+{{nformat .Export.NumRows .Site}} rows have been exported with a file size of {{.Export.Size}}M.
 
-The pagination cursor is {{.LastID}}; you can use this to export pageviews that were recorded after this export.
+The pagination cursor is {{.Export.LastHitID}}; you can use this to export pageviews that were recorded after this export.
 
-The file integrity hash is {{.Hash}}
+The file integrity hash is {{.Export.Hash}}
 
 The export will be removed after 24 hours.
 

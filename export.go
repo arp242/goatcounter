@@ -26,15 +26,66 @@ import (
 
 const exportVersion = "1"
 
-// ExportFile gets the filename used for an export.
-func ExportFile(site *Site) string {
-	return fmt.Sprintf("%s/goatcounter-export-%s.csv.gz", os.TempDir(), site.Code)
+type Export struct {
+	ID             int64     `db:"export_id"`
+	SiteID         int64     `db:"site_id"`
+	StartFromHitID int64     `db:"start_from_hit_id"`
+	LastHitID      int64     `db:"last_hit_id"`
+	Path           string    `db:"path"`
+	CreatedAt      time.Time `db:"created_at"`
+
+	FinishedAt *time.Time `db:"finished_at"`
+	NumRows    *int       `db:"num_rows"`
+	Size       *string    `db:"size"`
+	Hash       *string    `db:"hash"`
+	Error      *string    `db:"error"`
+}
+
+func (e *Export) ByID(ctx context.Context, id int64) error {
+	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, e,
+		`/* Export.ByID */ select * from exports where export_id=$1 and site_id=$2`,
+		id, MustGetSite(ctx).ID), "Export.ByID %d", id)
+}
+
+// Create a new export.
+//
+// Inserts a row in exports table and returns open file pointer to the
+// destination file.
+func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) {
+	site := MustGetSite(ctx)
+
+	e.SiteID = site.ID
+	e.CreatedAt = Now()
+	e.StartFromHitID = startFrom
+	e.Path = fmt.Sprintf("%s/goatcounter-export-%s-%s-%d.csv.gz",
+		os.TempDir(), site.Code, e.CreatedAt.Format("20060102T15:04:05Z"), startFrom)
+
+	query := `insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`
+	args := []interface{}{e.SiteID, e.Path, e.CreatedAt, e.StartFromHitID}
+
+	if cfg.PgSQL {
+		err := zdb.MustGet(ctx).GetContext(ctx, &e.ID, query+` returning export_id`, args...)
+		if err != nil {
+			return nil, errors.Wrap(err, "Export.Create")
+		}
+	} else {
+		res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
+		if err != nil {
+			return nil, errors.Wrap(err, "Export.Create")
+		}
+		e.ID, err = res.LastInsertId()
+		if err != nil {
+			return nil, errors.Wrap(err, "Export.Create")
+		}
+	}
+
+	fp, err := os.Create(e.Path)
+	return fp, errors.Wrap(err, "Export.Create")
 }
 
 // Export all data to a CSV file.
-func Export(ctx context.Context, fp *os.File, last int64) {
-	site := MustGetSite(ctx)
-	l := zlog.Module("export").Field("site", site.ID).Field("last", last)
+func (e *Export) Run(ctx context.Context, fp *os.File) {
+	l := zlog.Module("export").Field("id", e.ID)
 	l.Print("export started")
 
 	gzfp := gzip.NewWriter(fp)
@@ -46,21 +97,21 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 		"FirstVisit", "Referrer", "Referrer scheme", "Browser", "Screen size",
 		"Location", "Date"})
 
-	var (
-		err  error
-		rows int
-	)
+	var exportErr error
+	e.LastHitID = e.StartFromHitID
+	var z int
+	e.NumRows = &z
 	for {
 		var hits Hits
-		last, err = hits.List(ctx, 5000, last)
+		e.LastHitID, exportErr = hits.List(ctx, 5000, e.LastHitID)
 		if len(hits) == 0 {
 			break
 		}
-		if err != nil {
+		if exportErr != nil {
 			break
 		}
 
-		rows += len(hits)
+		*e.NumRows += len(hits)
 
 		for _, hit := range hits {
 			s := ""
@@ -80,8 +131,8 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 		}
 
 		c.Flush()
-		err = c.Error()
-		if err != nil {
+		exportErr = c.Error()
+		if exportErr != nil {
 			break
 		}
 
@@ -91,15 +142,23 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 		}
 	}
 
-	if err != nil {
-		l.Error(err)
+	if exportErr != nil {
+		l.Field("export", e).Error(exportErr)
+
+		_, err := zdb.MustGet(ctx).ExecContext(ctx,
+			`update exports set error=$1 where export_id=$2`,
+			exportErr.Error(), e.ID)
+		if err != nil {
+			zlog.Error(err)
+		}
+
 		_ = gzfp.Close()
 		_ = fp.Close()
 		_ = os.Remove(fp.Name())
 		return
 	}
 
-	err = gzfp.Close()
+	err := gzfp.Close()
 	if err != nil {
 		l.Error(err)
 		return
@@ -115,6 +174,7 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 	if err == nil {
 		size = fmt.Sprintf("%.1f", float64(stat.Size())/1024/1024)
 	}
+	e.Size = &size
 
 	err = fp.Close()
 	if err != nil {
@@ -122,49 +182,42 @@ func Export(ctx context.Context, fp *os.File, last int64) {
 		return
 	}
 
-	f := ExportFile(site)
-	err = os.Rename(fp.Name(), f)
+	hash, err := zcrypto.HashFile(e.Path)
+	e.Hash = &hash
 	if err != nil {
 		l.Error(err)
 		return
 	}
 
-	hash, err := zcrypto.HashFile(f)
+	n := Now()
+	_, err = zdb.MustGet(ctx).ExecContext(ctx, `update exports set
+		finished_at=$1, num_rows=$2, size=$3, hash=$4, last_hit_id=$5
+		where export_id=$6`,
+		&n, e.NumRows, e.Size, e.Hash, e.LastHitID, e.ID)
 	if err != nil {
-		l.Error(err)
-		return
+		zlog.Error(err)
 	}
 
+	site := MustGetSite(ctx)
 	user := GetUser(ctx)
 	err = blackmail.Send("GoatCounter export ready",
 		blackmail.From("GoatCounter export", cfg.EmailFrom),
 		blackmail.To(user.Email),
 		blackmail.BodyMustText(EmailTemplate("email_export_done.gotxt", struct {
 			Site   Site
-			LastID int64
-			Size   string
-			Rows   int
-			Hash   string
-		}{*site, last, size, rows, hash})))
+			Export Export
+		}{*site, *e})))
 	if err != nil {
 		l.Error(err)
 	}
 }
 
-func importError(l zlog.Log, user User, report error) {
-	if e, ok := report.(*errors.StackErr); ok {
-		report = e.Unwrap()
-	}
+type Exports []Export
 
-	err := blackmail.Send("GoatCounter import error",
-		blackmail.From("GoatCounter import", cfg.EmailFrom),
-		blackmail.To(user.Email),
-		blackmail.BodyMustText(EmailTemplate("email_import_error.gotxt", struct {
-			Error error
-		}{report})))
-	if err != nil {
-		l.Error(err)
-	}
+func (e *Exports) List(ctx context.Context) error {
+	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, e, `/* Exports.List */
+		select * from exports where site_id=$1 and created_at < `+interval(1),
+		MustGetSite(ctx).ID), "Exports.List")
 }
 
 // Import data from an export.
@@ -292,6 +345,22 @@ func Import(ctx context.Context, fp io.Reader, replace bool) {
 			Rows   int
 			Errors *errors.Group
 		}{*site, n, errs})))
+	if err != nil {
+		l.Error(err)
+	}
+}
+
+func importError(l zlog.Log, user User, report error) {
+	if e, ok := report.(*errors.StackErr); ok {
+		report = e.Unwrap()
+	}
+
+	err := blackmail.Send("GoatCounter import error",
+		blackmail.From("GoatCounter import", cfg.EmailFrom),
+		blackmail.To(user.Email),
+		blackmail.BodyMustText(EmailTemplate("email_import_error.gotxt", struct {
+			Error error
+		}{report})))
 	if err != nil {
 		l.Error(err)
 	}
