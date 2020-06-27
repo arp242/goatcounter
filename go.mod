@@ -23,9 +23,10 @@ require (
 	zgo.at/gadget v0.0.0-20200522205438-64412137d778
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea
+	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zdb v0.0.0-20200622035304-8fce69315f06
-	zgo.at/zhttp v0.0.0-20200624095527-ebe3097ac87f
+	zgo.at/zhttp v0.0.0-20200627042606-d9855b9c6bf9
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
 	zgo.at/zstd v0.0.0-20200623061931-3d4ffff7925b
