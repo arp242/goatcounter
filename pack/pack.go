@@ -16834,7 +16834,7 @@ input    { float: right; padding: .4em !important; }
 				</fieldset>
 			</form>
 		{{else}}
-			<form method="post" action="/user/enable-totp" class="ertical">
+			<form method="post" action="/user/enable-totp">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 				<fieldset>
