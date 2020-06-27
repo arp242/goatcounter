@@ -179,7 +179,7 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Type", "application/gzip")
 	return zhttp.Stream(w, fp)
 }
 
