@@ -342,6 +342,10 @@
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
+		$('#period-start, #period-end').on('change', function(e) {
+			$(this).closest('form').trigger('submit')
+		})
+
 		// Change to type="date" on mobile as that gives a better experience.
 		//
 		// Not done on *any* desktop OS as styling these fields with basic stuff
@@ -354,6 +358,7 @@
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
+
 		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};

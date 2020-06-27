@@ -11068,46 +11068,38 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     addClass = function(el, cn) { el.classList.add(cn) },
     removeClass = function(el, cn) { el.classList.remove(cn) },
 
-    isArray = function(obj)
-    {
+    isArray = function(obj) {
         return (/Array/).test(Object.prototype.toString.call(obj));
     },
 
-    isDate = function(obj)
-    {
+    isDate = function(obj) {
         return (/Date/).test(Object.prototype.toString.call(obj)) && !isNaN(obj.getTime());
     },
 
-    isWeekend = function(date)
-    {
+    isWeekend = function(date) {
         var day = date.getDay();
         return day === 0 || day === 6;
     },
 
-    isLeapYear = function(year)
-    {
+    isLeapYear = function(year) {
         // solution lifted from date.js (MIT license): https://github.com/datejs/Datejs
         return ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0);
     },
 
-    getDaysInMonth = function(year, month)
-    {
+    getDaysInMonth = function(year, month) {
         return [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
     },
 
-    setToStartOfDay = function(date)
-    {
+    setToStartOfDay = function(date) {
         if (isDate(date)) date.setHours(0,0,0,0);
     },
 
-    compareDates = function(a,b)
-    {
+    compareDates = function(a,b) {
         // weak date comparison (use setToStartOfDay(date) to ensure correct result)
         return a.getTime() === b.getTime();
     },
 
-    extend = function(to, from, overwrite)
-    {
+    extend = function(to, from, overwrite) {
         var prop, hasProp;
         for (prop in from) {
             hasProp = to[prop] !== undefined;
@@ -11131,8 +11123,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         return to;
     },
 
-    fireEvent = function(el, eventName, data)
-    {
+    fireEvent = function(el, eventName, data) {
         var ev;
 
         if (document.createEvent) {
@@ -11159,11 +11150,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         return calendar;
     },
 
-    /**
-     * defaults and localisation
-     */
+    // defaults and localisation
     defaults = {
-
         // bind the picker to a form field
         field: null,
 
@@ -11274,15 +11262,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         onDraw: null,
 
         // Enable keyboard input
-        keyboardInput: true
+        keyboardInput: true,
     },
 
-
-    /**
-     * templating functions to abstract HTML rendering
-     */
-    renderDayName = function(opts, day, abbr)
-    {
+	// Templating functions to abstract HTML rendering
+    renderDayName = function(opts, day, abbr) {
         day += opts.firstDay;
         while (day >= 7) {
             day -= 7;
@@ -11290,8 +11274,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         return abbr ? opts.i18n.weekdaysShort[day] : opts.i18n.weekdays[day];
     },
 
-    renderDay = function(opts)
-    {
+    renderDay = function(opts) {
         var arr = [];
         var ariaSelected = 'false';
         if (opts.isEmpty) {
@@ -11342,24 +11325,20 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
         // Thursday in current week decides the year because January 4th
         // is always in the first week according to ISO8601.
-
-        var yearDay        = date.getDate()
-          , weekDay        = date.getDay()
-          , dayInFirstWeek = 4 // January 4th
-          , dayShift       = dayInFirstWeek - 1 // counting starts at 0
-          , daysPerWeek    = 7
-          , prevWeekDay    = function(day) { return (day + daysPerWeek - 1) % daysPerWeek; }
-        ;
+        var yearDay        = date.getDate(),
+			weekDay        = date.getDay(),
+			dayInFirstWeek = 4, // January 4th
+			dayShift       = dayInFirstWeek - 1, // counting starts at 0
+			daysPerWeek    = 7,
+			prevWeekDay    = function(day) { return (day + daysPerWeek - 1) % daysPerWeek };
 
         // Adjust to Thursday in week 1 and count number of weeks from date to week 1.
-
         date.setDate(yearDay + dayShift - prevWeekDay(weekDay));
 
-        var jan4th      = new Date(date.getFullYear(), 0, dayInFirstWeek)
-          , msPerDay    = 24 * 60 * 60 * 1000
-          , daysBetween = (date.getTime() - jan4th.getTime()) / msPerDay
-          , weekNum     = 1 + Math.round((daysBetween - dayShift + prevWeekDay(jan4th.getDay())) / daysPerWeek)
-        ;
+        var jan4th      = new Date(date.getFullYear(), 0, dayInFirstWeek),
+			msPerDay    = 24 * 60 * 60 * 1000,
+			daysBetween = (date.getTime() - jan4th.getTime()) / msPerDay,
+			weekNum     = 1 + Math.round((daysBetween - dayShift + prevWeekDay(jan4th.getDay())) / daysPerWeek);
 
         return weekNum;
     },
@@ -11371,18 +11350,15 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         return '<td class="pika-week">' + week + '</td>';
     },
 
-    renderRow = function(days, isRTL, pickWholeWeek, isRowSelected)
-    {
+    renderRow = function(days, isRTL, pickWholeWeek, isRowSelected) {
         return '<tr class="pika-row' + (pickWholeWeek ? ' pick-whole-week' : '') + (isRowSelected ? ' is-selected' : '') + '">' + (isRTL ? days.reverse() : days).join('') + '</tr>';
     },
 
-    renderBody = function(rows)
-    {
+    renderBody = function(rows) {
         return '<tbody>' + rows.join('') + '</tbody>';
     },
 
-    renderHead = function(opts)
-    {
+    renderHead = function(opts) {
         var i, arr = [];
         if (opts.showWeekNumber) {
             arr.push('<th></th>');
@@ -11393,8 +11369,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         return '<thead><tr>' + (opts.isRTL ? arr.reverse() : arr).join('') + '</tr></thead>';
     },
 
-    renderTitle = function(instance, c, year, month, refYear, randId)
-    {
+    renderTitle = function(instance, c, year, month, refYear, randId) {
         var i, j, arr,
             opts = instance._o,
             isMinYear = year === opts.minYear,
@@ -11455,17 +11430,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         return html += '</div>';
     },
 
-    renderTable = function(opts, data, randId)
-    {
+    renderTable = function(opts, data, randId) {
         return '<table cellpadding="0" cellspacing="0" class="pika-table" role="grid" aria-labelledby="' + randId + '">' + renderHead(opts) + renderBody(data) + '</table>';
     },
 
 
-    /**
-     * Pikaday constructor
-     */
-    Pikaday = function(options)
-    {
+    // Pikaday constructor
+    Pikaday = function(options) {
         var self = this,
             opts = self.config(options);
 
@@ -11479,13 +11450,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
             if (!hasClass(target, 'is-disabled')) {
                 if (hasClass(target, 'pika-button') && !hasClass(target, 'is-empty') && !hasClass(target.parentNode, 'is-disabled')) {
-                    self.setDate(new Date(target.getAttribute('data-pika-year'), target.getAttribute('data-pika-month'), target.getAttribute('data-pika-day')));
+                    self.setDate(new Date(
+						target.getAttribute('data-pika-year'),
+						target.getAttribute('data-pika-month'),
+						target.getAttribute('data-pika-day')));
+
                     if (opts.bound) {
                         setTimeout(function() {
                             self.hide();
-                            if (opts.blurFieldOnSelect && opts.field) {
+                            if (opts.blurFieldOnSelect && opts.field)
                                 opts.field.blur();
-                            }
                         }, 100);
                     }
                 }
@@ -11512,14 +11486,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         self._onChange = function(e) {
             var target = e.target;
             if (!target)
-                return;
+                return
 
-            if (hasClass(target, 'pika-select-month')) {
-                self.gotoMonth(target.value);
-            }
-            else if (hasClass(target, 'pika-select-year')) {
-                self.gotoYear(target.value);
-            }
+            if (hasClass(target, 'pika-select-month'))
+                self.gotoMonth(target.value)
+            else if (hasClass(target, 'pika-select-year'))
+                self.gotoYear(target.value)
         };
 
         self._onKeyChange = function(e) {
@@ -11548,42 +11520,34 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             }
         };
 
-        self._parseFieldValue = function()
-        {
+        self._parseFieldValue = function() {
             if (opts.parse)
                 return opts.parse(opts.field.value, opts.format);
             else
                 return new Date(Date.parse(opts.field.value));
         };
 
-        self._onInputChange = function(e)
-        {
-            var date;
+        self._onInputChange = function(e) {
+            if (e.firedBy === self)
+                return
 
-            if (e.firedBy === self) {
-                return;
-            }
-            date = self._parseFieldValue();
-            if (isDate(date)) {
-              self.setDate(date);
-            }
-            if (!self._v) {
-                self.show();
-            }
+            var date = self._parseFieldValue()
+            if (isDate(date))
+              self.setDate(date)
+
+            if (!self._v)
+                self.show()
         };
 
-        self._onInputFocus = function()
-        {
+        self._onInputFocus = function() {
             self.show();
         };
 
-        self._onInputClick = function()
-        {
+        self._onInputClick = function() {
             self.show();
         };
 
-        self._onInputBlur = function()
-        {
+        self._onInputBlur = function() {
             // IE allows pika div to gain focus; catch blur the input field
             var pEl = document.activeElement;
             do {
@@ -11624,18 +11588,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         addEvent(self.el, 'touchend', self._onMouseDown, true);
         addEvent(self.el, 'change', self._onChange);
 
-        if (opts.keyboardInput) {
-            addEvent(document, 'keydown', self._onKeyChange);
-        }
+        if (opts.keyboardInput)
+            addEvent(document, 'keydown', self._onKeyChange)
 
         if (opts.field) {
-            if (opts.container) {
-                opts.container.appendChild(self.el);
-            } else if (opts.bound) {
-                document.body.appendChild(self.el);
-            } else {
-                opts.field.parentNode.insertBefore(self.el, opts.field.nextSibling);
-            }
+            if (opts.container)
+                opts.container.appendChild(self.el)
+            else if (opts.bound)
+                document.body.appendChild(self.el)
+            else
+                opts.field.parentNode.insertBefore(self.el, opts.field.nextSibling)
             addEvent(opts.field, 'change', self._onInputChange);
 
             if (!opts.defaultDate) {
@@ -11647,14 +11609,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         var defDate = opts.defaultDate;
 
         if (isDate(defDate)) {
-            if (opts.setDefaultDate) {
-                self.setDate(defDate, true);
-            } else {
-                self.gotoDate(defDate);
-            }
-        } else {
-            self.gotoDate(new Date());
+            // if (opts.setDefaultDate)
+            //     self.setDate(defDate, true)
+            // else
+                self.gotoDate(defDate)
         }
+		else
+            self.gotoDate(new Date());
 
         if (opts.bound) {
             this.hide();
@@ -11662,81 +11623,58 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             addEvent(opts.trigger, 'click', self._onInputClick);
             addEvent(opts.trigger, 'focus', self._onInputFocus);
             addEvent(opts.trigger, 'blur', self._onInputBlur);
-        } else {
-            this.show();
         }
+		else
+            this.show();
     };
 
-
-    /**
-     * public Pikaday API
-     */
+    // public Pikaday API
     Pikaday.prototype = {
-
-
-        /**
-         * configure functionality
-         */
-        config: function(options)
-        {
-            if (!this._o) {
+        // configure functionality
+        config: function(options) {
+            if (!this._o)
                 this._o = extend({}, defaults, true);
-            }
 
             var opts = extend(this._o, options, true);
 
             opts.isRTL = !!opts.isRTL;
-
             opts.field = (opts.field && opts.field.nodeName) ? opts.field : null;
-
             opts.theme = (typeof opts.theme) === 'string' && opts.theme ? opts.theme : null;
-
             opts.bound = !!(opts.bound !== undefined ? opts.field && opts.bound : opts.field);
-
             opts.trigger = (opts.trigger && opts.trigger.nodeName) ? opts.trigger : opts.field;
-
             opts.disableWeekends = !!opts.disableWeekends;
-
             opts.disableDayFn = (typeof opts.disableDayFn) === 'function' ? opts.disableDayFn : null;
 
             var nom = parseInt(opts.numberOfMonths, 10) || 1;
             opts.numberOfMonths = nom > 4 ? 4 : nom;
 
-            if (!isDate(opts.minDate)) {
+            if (!isDate(opts.minDate))
                 opts.minDate = false;
-            }
-            if (!isDate(opts.maxDate)) {
+            if (!isDate(opts.maxDate))
                 opts.maxDate = false;
-            }
-            if ((opts.minDate && opts.maxDate) && opts.maxDate < opts.minDate) {
+            if ((opts.minDate && opts.maxDate) && opts.maxDate < opts.minDate)
                 opts.maxDate = opts.minDate = false;
-            }
-            if (opts.minDate) {
+            if (opts.minDate)
                 this.setMinDate(opts.minDate);
-            }
-            if (opts.maxDate) {
+            if (opts.maxDate)
                 this.setMaxDate(opts.maxDate);
-            }
 
             if (isArray(opts.yearRange)) {
                 var fallback = new Date().getFullYear() - 10;
                 opts.yearRange[0] = parseInt(opts.yearRange[0], 10) || fallback;
                 opts.yearRange[1] = parseInt(opts.yearRange[1], 10) || fallback;
-            } else {
+            }
+			else {
                 opts.yearRange = Math.abs(parseInt(opts.yearRange, 10)) || defaults.yearRange;
-                if (opts.yearRange > 100) {
+                if (opts.yearRange > 100)
                     opts.yearRange = 100;
-                }
             }
 
             return opts;
         },
 
-        /**
-         * return a formatted string of the current selection.
-         */
-        toString: function(format)
-        {
+        // return a formatted string of the current selection.
+        toString: function(format) {
             format = format || this._o.format;
             if (!isDate(this._d)) {
                 return '';
@@ -11747,76 +11685,59 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             return this._d.toDateString();
         },
 
-        /**
-         * return a Date object of the current selection
-         */
-        getDate: function()
-        {
+        // return a Date object of the current selection
+        getDate: function() {
             return isDate(this._d) ? new Date(this._d.getTime()) : null;
         },
 
-        /**
-         * set the current selection
-         */
-        setDate: function(date, preventOnSelect)
-        {
+        // set the current selection
+        setDate: function(date, preventOnSelect) {
             if (!date) {
-                this._d = null;
-
+                this._d = null
                 if (this._o.field) {
-                    this._o.field.value = '';
-                    fireEvent(this._o.field, 'change', { firedBy: this });
+                    this._o.field.value = ''
+                    fireEvent(this._o.field, 'change', {firedBy: this})
                 }
-
                 return this.draw();
             }
-            if (typeof date === 'string') {
-                date = new Date(Date.parse(date));
-            }
-            if (!isDate(date)) {
-                return;
-            }
+
+            if (typeof date === 'string')
+                date = new Date(Date.parse(date))
+
+            if (!isDate(date))
+                return
 
             var min = this._o.minDate,
                 max = this._o.maxDate;
 
-            if (isDate(min) && date < min) {
-                date = min;
-            } else if (isDate(max) && date > max) {
-                date = max;
-            }
+            if (isDate(min) && date < min)
+                date = min
+            else if (isDate(max) && date > max)
+                date = max
 
-            this._d = new Date(date.getTime());
-            setToStartOfDay(this._d);
-            this.gotoDate(this._d);
+            this._d = new Date(date.getTime())
+            setToStartOfDay(this._d)
+            this.gotoDate(this._d)
 
             if (this._o.field) {
-                this._o.field.value = this.toString();
-                fireEvent(this._o.field, 'change', { firedBy: this });
+                this._o.field.value = this.toString()
+                fireEvent(this._o.field, 'change', {firedBy: this})
             }
-            if (!preventOnSelect && typeof this._o.onSelect === 'function') {
-                this._o.onSelect.call(this, this.getDate());
-            }
+            if (!preventOnSelect && typeof this._o.onSelect === 'function')
+                this._o.onSelect.call(this, this.getDate())
         },
 
-        /**
-         * clear and reset the date
-         */
-        clear: function()
-        {
+        // clear and reset the date
+        clear: function() {
             this.setDate(null);
         },
 
-        /**
-         * change view to a specific date
-         */
-        gotoDate: function(date)
-        {
+        // change view to a specific date
+        gotoDate: function(date) {
             var newCalendar = true;
 
-            if (!isDate(date)) {
+            if (!isDate(date))
                 return;
-            }
 
             if (this.calendars) {
                 var firstVisibleDate = new Date(this.calendars[0].year, this.calendars[0].month, 1),
@@ -11842,7 +11763,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         },
 
         adjustDate: function(sign, days) {
-
             var day = this.getDate() || new Date();
             var difference = parseInt(days)*24*60*60*1000;
 
@@ -11868,50 +11788,38 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             this.draw();
         },
 
-        gotoToday: function()
-        {
+        gotoToday: function() {
             this.gotoDate(new Date());
         },
 
-        /**
-         * change view to a specific month (zero-index, e.g. 0: January)
-         */
-        gotoMonth: function(month)
-        {
+        // change view to a specific month (zero-index, e.g. 0: January)
+        gotoMonth: function(month) {
             if (!isNaN(month)) {
                 this.calendars[0].month = parseInt(month, 10);
                 this.adjustCalendars();
             }
         },
 
-        nextMonth: function()
-        {
+        nextMonth: function() {
             this.calendars[0].month++;
             this.adjustCalendars();
         },
 
-        prevMonth: function()
-        {
+        prevMonth: function() {
             this.calendars[0].month--;
             this.adjustCalendars();
         },
 
-        /**
-         * change view to a specific full year (e.g. "2012")
-         */
-        gotoYear: function(year)
-        {
+        // change view to a specific full year (e.g. "2012")
+        gotoYear: function(year) {
             if (!isNaN(year)) {
                 this.calendars[0].year = parseInt(year, 10);
                 this.adjustCalendars();
             }
         },
 
-        /**
-         * change the minDate
-         */
-        setMinDate: function(value)
-        {
+        // change the minDate
+        setMinDate: function(value) {
             if(value instanceof Date) {
                 setToStartOfDay(value);
                 this._o.minDate = value;
@@ -11927,11 +11835,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             this.draw();
         },
 
-        /**
-         * change the maxDate
-         */
-        setMaxDate: function(value)
-        {
+        // change the maxDate
+        setMaxDate: function(value) {
             if(value instanceof Date) {
                 setToStartOfDay(value);
                 this._o.maxDate = value;
@@ -11947,21 +11852,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             this.draw();
         },
 
-        setStartRange: function(value)
-        {
+        setStartRange: function(value) {
             this._o.startRange = value;
         },
 
-        setEndRange: function(value)
-        {
+        setEndRange: function(value) {
             this._o.endRange = value;
         },
 
-        /**
-         * refresh the HTML
-         */
-        draw: function(force)
-        {
+        // refresh the HTML
+        draw: function(force) {
             if (!this._v && !force) {
                 return;
             }
@@ -12011,11 +11911,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             }
         },
 
-        adjustPosition: function()
-        {
+        adjustPosition: function() {
             var field, pEl, width, height, viewportWidth, viewportHeight, scrollTop, left, top, clientRect, leftAligned, bottomAligned;
 
-            if (this._o.container) return;
+            if (this._o.container)
+				return;
 
             this.el.style.position = 'absolute';
 
@@ -12071,11 +11971,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             removeClass(this.el, !bottomAligned ? 'bottom-aligned' : 'top-aligned');
         },
 
-        /**
-         * render HTML for a particular month
-         */
-        render: function(year, month, randId)
-        {
+        // render HTML for a particular month
+        render: function(year, month, randId) {
             var opts   = this._o,
                 now    = new Date(),
                 days   = getDaysInMonth(year, month),
@@ -12166,13 +12063,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             return renderTable(opts, data, randId);
         },
 
-        isVisible: function()
-        {
+        isVisible: function() {
             return this._v;
         },
 
-        show: function()
-        {
+        show: function() {
             if (!this.isVisible()) {
                 this._v = true;
                 this.draw();
@@ -12187,8 +12082,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             }
         },
 
-        hide: function()
-        {
+        hide: function() {
             var v = this._v;
             if (v !== false) {
                 if (this._o.bound) {
@@ -12205,11 +12099,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             }
         },
 
-        /**
-         * GAME OVER
-         */
-        destroy: function()
-        {
+        // GAME OVER
+        destroy: function() {
             var opts = this._o;
 
             this.hide();
@@ -12227,11 +12118,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                     removeEvent(opts.trigger, 'blur', this._onInputBlur);
                 }
             }
-            if (this.el.parentNode) {
-                this.el.parentNode.removeChild(this.el);
-            }
+            if (this.el.parentNode)
+                this.el.parentNode.removeChild(this.el)
         }
-
     };
 
     window.Pikaday = Pikaday;
@@ -12715,6 +12604,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
+		$('#period-start, #period-end').on('change', function(e) {
+			$(this).closest('form').trigger('submit')
+		})
+
 		// Change to type="date" on mobile as that gives a better experience.
 		//
 		// Not done on *any* desktop OS as styling these fields with basic stuff
@@ -12727,6 +12620,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				attr('type', 'date').
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
+
 		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
 	};
@@ -15986,7 +15880,6 @@ Martin
 		<div class="date">
 			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
 			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
-			<button type="submit">Go</button>
 
 			<span class="period-form-select period-{{.SelectedPeriod}}">
 				<span>
