@@ -188,3 +188,5 @@ it:
 
 See [.github/CONTRIBUTING.markdown](/.github/CONTRIBUTING.markdown) for details
 on how to run a development server, write patches, etc.
+
+Various aggregate data files are available at https://www.goatcounter.com/data
