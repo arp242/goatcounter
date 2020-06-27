@@ -17092,6 +17092,40 @@ processed by Stripe (you will need a Credit Card).</p>
 
 {{template "_bottom.gohtml" .}}
 `),
+	"tpl/data.gohtml": []byte(`{{template "_top.gohtml" .}}
+
+<h1>GoatCounter data</h1>
+<p>This page offers various GoatCounter aggregate data for download.</p>
+
+<p>Note that this data is somewhat biased as many GoatCounter customers use it
+for programming weblogs and the like, so the presence of e.g. Linux etc. will be
+higher than the general population. This is not necessarily a bad thing, as it
+gives an overview of what IT people are using, just something to be aware
+of.</p>
+
+<p>This data is not eligible for copyright as it’s not a creative work so no
+license is required for use, redistribution, etc. But if you really want a
+license then the
+<a href="https://creativecommons.org/share-your-work/public-domain/cc0/">CC0 “public domain” license</a>
+applies.</p>
+
+<p>The files are in CSV format with a header and are counted by visitor (rather
+than by pageviews) but data before 9th of May 2020 are per-pageview (as the
+visitor feature didn’t exist yet). The first column is the date, the second
+column the count for that date, and the third column the actual data.</p>
+
+<p>You can download <em>five</em> files per day only, and the data is updated
+daily at 2AM UTC. I’ll probably add a real-time query UI and some extra data at
+some point (e.g. the parsed User-Agent values).</p>
+
+<ul>
+	<li><a href="/data/ua.csv.gz">ua.csv.gz</a> – <code>User-Agent</code> headers excluding bots (~13M).</li>
+	<li><a href="/data/bots.csv.gz">bots.csv.gz</a> – <code>User-Agent</code> headers for bots (~150K).</li>
+	<li><a href="/data/screensize.csv.gz">screensize.csv.gz</a> – Screen sizes, as <code>X, Y, devicePixelScaling</code> (~1.5M).</li>
+</ul>
+
+{{template "_bottom.gohtml" .}}
+`),
 	"tpl/email_export_done.gotxt": []byte(`Hi there,
 
 The GoatCounter export you’ve requested is finished, go here to download it:

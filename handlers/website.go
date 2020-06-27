@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/mail"
+	"os"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -18,9 +19,11 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/header"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -63,9 +66,16 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
 	r.Get("/code", zhttp.Wrap(h.code))
-	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr", "why"} {
+	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr", "why", "data"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
+
+	r.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
+		Client:  zhttp.RatelimitIP,
+		Store:   zhttp.NewRatelimitMemory(),
+		Limit:   zhttp.RatelimitLimit(5, 86400),
+		Message: "you can download this five times per day only",
+	})).Get("/data/{file}", zhttp.Wrap(h.downloadData))
 }
 
 var metaDesc = map[string]string{
@@ -78,6 +88,7 @@ var metaDesc = map[string]string{
 	"contribute": "Contribute – GoatCounter",
 	"code":       "Site integration code – GoatCounter",
 	"why":        "Why I made GoatCounter",
+	"data":       "GoatCounter data",
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
@@ -261,6 +272,35 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 		Site        goatcounter.Site
 	}{newGlobals(w, r), "forgot", "Site integration code – GoatCounter",
 		cfg.DomainCount, goatcounter.Site{Code: "MYCODE"}})
+}
+
+func (h website) downloadData(w http.ResponseWriter, r *http.Request) error {
+	file := chi.URLParam(r, "file")
+	if file == "" {
+		return guru.New(400, "need file name")
+	}
+	switch file {
+	case "ua.csv.gz", "bots.csv.gz", "screensize.csv.gz":
+	default:
+		return guru.Errorf(400, "unknown file name: %q", file)
+	}
+
+	fp, err := os.Open("/tmp/" + file)
+	if err != nil {
+		return err
+	}
+	defer fp.Close()
+
+	err = header.SetContentDisposition(w.Header(), header.DispositionArgs{
+		Type:     header.TypeAttachment,
+		Filename: file,
+	})
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/gzip")
+	return zhttp.Stream(w, fp)
 }
 
 func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
