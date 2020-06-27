@@ -15887,8 +15887,12 @@ unless noted otherwise.</p>
     https://example.goatcounter.com/api/v0/export
 </code></pre>
 
-<h2 id="api-reference">API reference <a href="#api-reference"></a></h2>
+<h2 id="rate-limit">Rate limit <a href="#rate-limit"></a></h2>
+<p>The rate limit is 60 requests per 120 seconds. The current rate limits are
+indicated in the <code>X-Rate-Limit-Limit</code>, <code>X-Rate-Limit-Remaining</code>, and
+<code>X-Rate-Limit-Reset</code> headers.</p>
 
+<h2 id="api-reference">API reference <a href="#api-reference"></a></h2>
 <p>API reference docs are available at:</p>
 
 <ul>

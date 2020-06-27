@@ -24,7 +24,13 @@ import (
 type api struct{}
 
 func (h api) mount(r chi.Router, db zdb.DB) {
-	a := r.With(middleware.AllowContentType("application/json"))
+	a := r.With(
+		middleware.AllowContentType("application/json"),
+		zhttp.Ratelimit(zhttp.RatelimitOptions{
+			Client: zhttp.RatelimitIP,
+			Store:  zhttp.NewRatelimitMemory(),
+			Limit:  zhttp.RatelimitLimit(60, 120),
+		}))
 
 	//a.Get("/api/v0/count", zhttp.Wrap(h.count))
 	a.Post("/api/v0/export", zhttp.Wrap(h.export))

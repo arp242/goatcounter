@@ -25,9 +25,14 @@ Example:
         -H 'Authorization: Bearer 2q2snk7clgqs63tr4xc5bwseajlw88qzilr8fq157jz3qxwwmz5' \
         https://example.goatcounter.com/api/v0/export
 
+Rate limit
+----------
+The rate limit is 60 requests per 120 seconds. The current rate limits are
+indicated in the `X-Rate-Limit-Limit`, `X-Rate-Limit-Remaining`, and
+`X-Rate-Limit-Reset` headers.
+
 API reference
 -------------
-
 API reference docs are available at:
 
 - [/api.json](/api.json) – OpenAPI 2.0 JSON file.
