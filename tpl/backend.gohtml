@@ -39,7 +39,6 @@
 		<div class="date">
 			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
 			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
-			<button type="submit">Go</button>
 
 			<span class="period-form-select period-{{.SelectedPeriod}}">
 				<span>
