@@ -98,40 +98,14 @@
 
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
-		var redraw = () => {
-			if (get_current_scale() === get_original_scale())
-				$('#scale').removeClass('value')
-			else
-				$('#scale').addClass('value')
+		$('.count-list-pages').on('click', '.rescale', function(e) {
+			e.preventDefault()
 
-			$('.count-list-pages').attr('data-scale', get_current_scale())
+			var scale = $(this).closest('.chart').attr('data-max')
+			$('.scale').html(format_int(scale))
+			$('.count-list-pages').attr('data-scale', scale)
 			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
-		}
-
-		var t;
-		$('#scale')
-			.on('keydown', (e) => {
-				if (e.keyCode === 13)
-					e.preventDefault()
-			})
-			.on('input', (e) => {
-				clearTimeout(t)
-				t = setTimeout(redraw, 300)
-			})
-
-		$('#scale-half').on('click', (e) => {
-			clearTimeout(t)
-			e.preventDefault()
-			$('#scale').val(Math.max(10, Math.ceil(parseInt(get_current_scale(), 10) / 2)))
-			redraw()
-		})
-
-		$('#scale-reset').on('click', (e) => {
-			clearTimeout(t)
-			e.preventDefault()
-			$('#scale').val(get_original_scale())
-			redraw()
 		})
 	}
 
@@ -231,7 +205,7 @@
 
 	// Get the Y-axis scake.
 	var get_original_scale = function(current) { return $('.count-list-pages').attr('data-max') }
-	var get_current_scale  = function(current) { return $('#scale').val() }
+	var get_current_scale  = function(current) { return $('.count-list-pages').attr('data-scale') }
 
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
@@ -296,7 +270,8 @@
 	var update_pages = function(data, from_filter) {
 		if (from_filter) {
 			$('.count-list-pages').attr('data-max', data.max)
-			$('#scale').val(data.max)
+			$('.count-list-pages').attr('data-scale', data.max)
+			$('.scale').html(format_int(data.max))
 
 			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
 			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
@@ -658,7 +633,8 @@
 				return
 
 			var pos = {left: e.pageX, top: (e.pageY + 20)}
-			if (t.closest('.chart-bar').length > 0) {
+			// Position on top for the chart-bar.
+			if (t.closest('.chart-bar').length > 0 && t.closest('.chart-left, .chart-right').length === 0) {
 				var x = t.offset().left
 				pos = {
 					left: (x + 8),
@@ -679,7 +655,7 @@
 		// Translucent hover effect; need a new div because the height isn't
 		// 100%
 		var add_cursor = function(t) {
-			if (t.closest('.chart-bar').length === 0 || t.is('#cursor'))
+			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.closest('.chart-left, .chart-right').length > 0)
 				return
 
 			$('#cursor').remove()

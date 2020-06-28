@@ -21,7 +21,8 @@
 					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
 				{{end}}
 			</div>
-			<div class="chart chart-bar">
+			<div class="chart chart-bar" data-max="{{$h.Max}}">
+				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>

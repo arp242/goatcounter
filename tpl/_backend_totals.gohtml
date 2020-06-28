@@ -21,8 +21,10 @@
 			</small> |
 			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
 		</div>
-		<div class="chart chart-bar chart-totals">
+		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
+			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
 			<span class="half"></span>
+			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
 			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
 		</div>
 		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
