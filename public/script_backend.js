@@ -522,11 +522,11 @@
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
-		$('.period-form-select input[type="checkbox"]').on('click', function(e) {
+		$('#dash-main input[type="checkbox"]').on('click', function(e) {
 			$(this).closest('form').trigger('submit')
 		})
 
-		$('.period-form-select').on('click', 'button', function(e) {
+		$('#dash-select-period').on('click', 'button', function(e) {
 			e.preventDefault();
 
 			var start = new Date(), end = new Date();
@@ -554,7 +554,7 @@
 			set_period(start, end);
 		})
 
-		$('.period-form-move').on('click', 'button', function(e) {
+		$('#dash-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
@@ -843,7 +843,7 @@
 
 		$('#period-start').val(format_date_ymd(start));
 		$('#period-end').val(format_date_ymd(end));
-		$('#period-form').trigger('submit');
+		$('#dash-form').trigger('submit');
 	};
 
 	// Check if this is a mobile browser. Probably not 100% reliable.

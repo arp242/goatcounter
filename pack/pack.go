@@ -12784,11 +12784,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
-		$('.period-form-select input[type="checkbox"]').on('click', function(e) {
+		$('#dash-main input[type="checkbox"]').on('click', function(e) {
 			$(this).closest('form').trigger('submit')
 		})
 
-		$('.period-form-select').on('click', 'button', function(e) {
+		$('#dash-select-period').on('click', 'button', function(e) {
 			e.preventDefault();
 
 			var start = new Date(), end = new Date();
@@ -12816,7 +12816,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			set_period(start, end);
 		})
 
-		$('.period-form-move').on('click', 'button', function(e) {
+		$('#dash-move').on('click', 'button', function(e) {
 			e.preventDefault();
 			var start = get_date($('#period-start').val()),
 			    end   = get_date($('#period-end').val());
@@ -13105,7 +13105,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		$('#period-start').val(format_date_ymd(start));
 		$('#period-end').val(format_date_ymd(end));
-		$('#period-form').trigger('submit');
+		$('#dash-form').trigger('submit');
 	};
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
@@ -13475,29 +13475,45 @@ input.value             { background-color: yellow; }
 small.go           { display: none; }
 tr.target small.go { display: inline-block; }
 
-/*** Pages header (filter, time period select, etc.) ***/
-.period-form-date            { margin-bottom: 1.5em; }
-.period-form-date .date      { padding: .5em 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
-.period-form-date .date span { margin-left: .5em; }
-.period-form-date input[type="text"]     { width: 9em; text-align: center; }
-.period-form-date input[type="checkbox"] { vertical-align: middle; }
-.period-form-move            { display: flex; justify-content: space-between; padding: .2em; }
+/*** Dashboard form (filter, time period select, etc.) ***/
+#dash-saved-views { text-align: right; margin-right: .3em; }
+#dash-move        { display: flex; justify-content: space-between; padding: .2em; }
 
-@media (max-width: 62.5rem) {
-	.period-form-select          { display: block; }
-	.period-form-date .date span { margin-left: .1em; margin-top: .5em; }
+#dash-form      { display: block; margin-bottom: 1.5em; padding-bottom: .4em; }
+#dash-form span { margin-left: 0; } /* Reset from hello-css */
+
+#dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
+             background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+
+#dash-main input[type="text"]     { padding: .3em; }
+#dash-main input[type="checkbox"] { vertical-align: middle; }
+#filter-paths                     { width: 18.5em; display: block; }
+#dash-main .date-input            { width: 9em; text-align: center; }
+
+.filter-wrap                 { position: relative; text-align: right; }
+.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
+
+#dash-main label { display: block; text-align: right; }
+
+#dash-select-period           { display: block; padding-left: .3em; }
+#dash-select-period span+span { margin-left: .5em; }
+
+@media (max-width: 56.5rem) {
+	/* Break "current [..]" to new line to make more space. */
+	#dash-select-period span+span { display: block; margin-left: 0em; }
 }
 
 @media (max-width: 41rem) {
-	.period-form-date .date span:first-child { display: block; }
+	#filter-paths  { width: 10em;  }
 }
 
-@media (max-width: 30rem) {
-	.period-form-date .date button {
-		margin: 0; margin-left: -1px;
-	}
+/* TODO:
+ */
+@media (max-width: 33.5rem) {
+	#dash-main       { display: block; }
+	#filter-paths    { width: 100%; margin-top: .5em; }
+	#dash-main label { text-align: left; }
 }
-
 
 .period-day [value=day],
 .period-week [value=week],
@@ -13511,7 +13527,6 @@ tr.target small.go { display: inline-block; }
 	text-decoration: underline;
 }
 
-.count-list-opt input[type="text"] { width: 9em; text-align: center; }
 
 /*** Charts ***/
 .chart {
@@ -13762,12 +13777,6 @@ a.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
 /* hchart */
 small.loading::after { content: ""; animation: loading 500ms linear infinite; }
-
-/* Filter */
-.filter-wrap  { position: relative; text-align: right; margin-bottom: 1em; border-bottom: 1px solid #252525; padding-bottom: .2em; }
-#filter-paths { padding: .2em; }
-
-.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
 
 /*** site code docs ***/
 .pre-copy-wrap { position: relative; }
@@ -15843,20 +15852,27 @@ Martin
 	{{end}}
 {{end}} {{/* .User.ID */}}
 
-<form id="period-form">
-	<div class="period-form-date">
-		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
-		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-		{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
-		<input type="hidden" id="hl-period" name="hl-period" disabled>
+<form id="dash-form">
+	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
+	<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
+	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
+	<input type="hidden" id="hl-period" name="hl-period" disabled>
 
-		<div class="date">
-			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
-			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
-
-			<span class="period-form-select period-{{.SelectedPeriod}}">
+	{{/*
+	<div id="dash-saved-views">
+		Saved views: <a href="#">404</a> · <a href="#">blog</a>
+		| <a href="#">Save current view</a>
+	</div>
+	*/}}
+	<div id="dash-main">
+		<div>
+			<span>
+				<input type="text" class="date-input" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
+				<input type="text" class="date-input" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end" value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
+			</span>
+			<span id="dash-select-period" class="period-{{.SelectedPeriod}}">
 				<span>
-					Select last
+					Last
 					<button class="link" name="period" value="day">day</button> ·
 					<button class="link" name="period" value="week">week</button> ·
 					<button class="link" name="period" value="month">month</button> ·
@@ -15870,47 +15886,44 @@ Martin
 					<button class="link" name="period" value="week-cur">week</button> ·
 					<button class="link" name="period" value="month-cur">month</button>
 				</span>
-				<span>
-					{{if .ForcedDaily}}
-						<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
-					{{else}}
-						<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
-					{{end}}
-				</span>
 			</span>
 		</div>
 
-		<div class="period-form-move">
-			<div>
-				← back
-				<button class="link" name="move" value="week-b">week</button> ·
-				<button class="link" name="move" value="month-b">month</button>
-			</div>
-
-			<div>
-				<button class="link" name="move" value="week-f">week</button> ·
-				<button class="link" name="move" value="month-f">month</button>
-				forward →
-			</div>
+		<div>
+			<input
+					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
+					{{if .Filter}}class="value"{{end}}>
+			{{if .ForcedDaily}}
+				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
+			{{else}}
+				<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
+			{{end}}
 		</div>
 	</div>
-
-	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-		<h2 class="screen-reader">Paths</h2>
-		<div class="filter-wrap">
-			<input type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
-				placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
-				{{if .Filter}}class="value"{{end}}>
+	<div id="dash-move">
+		<div>
+			← back
+			<button class="link" name="move" value="week-b">week</button> ·
+			<button class="link" name="move" value="month-b">month</button>
 		</div>
-
-		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-			{{template "_backend_totals.gohtml" .}}
-			<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
-		</table>
-
-		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+		<div>
+			<button class="link" name="move" value="week-f">week</button> ·
+			<button class="link" name="move" value="month-f">month</button>
+			forward →
+		</div>
 	</div>
 </form>
+
+<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
+	<h2 class="screen-reader">Paths</h2>
+	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
+		{{template "_backend_totals.gohtml" .}}
+		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
+	</table>
+
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+</div>
 
 <div class="browser-charts">
 	<div>
