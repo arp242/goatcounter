@@ -444,6 +444,7 @@ type HitStat struct {
 	Event       zdb.Bool `db:"event"`
 	Title       string   `db:"title"`
 	RefScheme   *string  `db:"ref_scheme"`
+	Max         int
 	Stats       []Stat
 }
 

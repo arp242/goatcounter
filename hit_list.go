@@ -185,7 +185,7 @@ func (h *HitStats) List(
 
 	// Add total and max.
 	var totalDisplay, totalUniqueDisplay int
-	addTotals(hh, &totalDisplay, &totalUniqueDisplay)
+	addTotals(hh, daily, &totalDisplay, &totalUniqueDisplay)
 
 	zsync.Wait(ctx, &wg)
 	if totalErr != nil {
@@ -401,15 +401,22 @@ func fillBlankDays(hh HitStats, start, end time.Time) {
 	}
 }
 
-func addTotals(hh HitStats, totalDisplay, totalUniqueDisplay *int) {
+func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 	for i := range hh {
 		for j := range hh[i].Stats {
 			for k := range hh[i].Stats[j].Hourly {
 				hh[i].Stats[j].Daily += hh[i].Stats[j].Hourly[k]
 				hh[i].Stats[j].DailyUnique += hh[i].Stats[j].HourlyUnique[k]
+				if !daily && hh[i].Stats[j].Hourly[k] > hh[i].Max {
+					hh[i].Max = hh[i].Stats[j].Hourly[k]
+				}
 			}
+
 			hh[i].Count += hh[i].Stats[j].Daily
 			hh[i].CountUnique += hh[i].Stats[j].DailyUnique
+			if daily && hh[i].Stats[j].Daily > hh[i].Max {
+				hh[i].Max = hh[i].Stats[j].Daily
+			}
 		}
 
 		*totalDisplay += hh[i].Count

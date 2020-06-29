@@ -12360,40 +12360,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
-		var redraw = () => {
-			if (get_current_scale() === get_original_scale())
-				$('#scale').removeClass('value')
-			else
-				$('#scale').addClass('value')
+		$('.count-list-pages').on('click', '.rescale', function(e) {
+			e.preventDefault()
 
-			$('.count-list-pages').attr('data-scale', get_current_scale())
+			var scale = $(this).closest('.chart').attr('data-max')
+			$('.scale').html(format_int(scale))
+			$('.count-list-pages').attr('data-scale', scale)
 			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
-		}
-
-		var t;
-		$('#scale')
-			.on('keydown', (e) => {
-				if (e.keyCode === 13)
-					e.preventDefault()
-			})
-			.on('input', (e) => {
-				clearTimeout(t)
-				t = setTimeout(redraw, 300)
-			})
-
-		$('#scale-half').on('click', (e) => {
-			clearTimeout(t)
-			e.preventDefault()
-			$('#scale').val(Math.max(10, Math.ceil(parseInt(get_current_scale(), 10) / 2)))
-			redraw()
-		})
-
-		$('#scale-reset').on('click', (e) => {
-			clearTimeout(t)
-			e.preventDefault()
-			$('#scale').val(get_original_scale())
-			redraw()
 		})
 	}
 
@@ -12493,7 +12467,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Get the Y-axis scake.
 	var get_original_scale = function(current) { return $('.count-list-pages').attr('data-max') }
-	var get_current_scale  = function(current) { return $('#scale').val() }
+	var get_current_scale  = function(current) { return $('.count-list-pages').attr('data-scale') }
 
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
@@ -12558,7 +12532,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	var update_pages = function(data, from_filter) {
 		if (from_filter) {
 			$('.count-list-pages').attr('data-max', data.max)
-			$('#scale').val(data.max)
+			$('.count-list-pages').attr('data-scale', data.max)
+			$('.scale').html(format_int(data.max))
 
 			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
 			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
@@ -12920,7 +12895,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				return
 
 			var pos = {left: e.pageX, top: (e.pageY + 20)}
-			if (t.closest('.chart-bar').length > 0) {
+			// Position on top for the chart-bar.
+			if (t.closest('.chart-bar').length > 0 && t.closest('.chart-left, .chart-right').length === 0) {
 				var x = t.offset().left
 				pos = {
 					left: (x + 8),
@@ -12941,7 +12917,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		// Translucent hover effect; need a new div because the height isn't
 		// 100%
 		var add_cursor = function(t) {
-			if (t.closest('.chart-bar').length === 0 || t.is('#cursor'))
+			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.closest('.chart-left, .chart-right').length > 0)
 				return
 
 			$('#cursor').remove()
@@ -13475,6 +13451,7 @@ form .err  { color: red; display: block; }
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
 .page-title b, .rlink b { background-color: yellow; }
+input.value             { background-color: yellow; }
 
 .count-list tr {
 	border: none;
@@ -13557,6 +13534,22 @@ tr.target small.go { display: inline-block; }
 }
 .go { word-break: normal; }
 
+.chart-left {
+	position: absolute; left: -1.6em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+	display: none; margin-right: 0;
+}
+.count-list .totals .chart-left,
+.count-list .totals .chart-right { background-color: #f7f7f7; }
+.chart-left a:hover { text-decoration: none; }
+
+tr:hover .chart-left,
+tr.target .chart-left { display: block; }
+
+.chart-right {
+	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
+	background-color: #fff;
+}
+
 /* Bar char */
 .chart-bar {
 	display: flex;
@@ -13615,8 +13608,9 @@ tr.target small.go { display: inline-block; }
 	opacity: .5;
 }
 
-.hide        { display: none; }
-.show-mobile { display: none; }
+.screen-reader { display: none; }
+.hide          { display: none; }
+.show-mobile   { display: none; }
 @media (max-width: 55rem) {
 	.hide-mobile { display: none; }
 	.show-mobile { display: block; }
@@ -13750,24 +13744,6 @@ noscript p { margin: .5em; }
 .update > em + p, .update > em + strong + p { margin-top: 0; }
 .update-new      { background-color: yellow; padding: 0 .3em; }
 
-/*** Pages header ***/
-header h2 { border-bottom: 0; display: inline; }
-header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
-
-.header-pages         { display: flex; justify-content: space-between; font-size: .9rem; }
-.header-pages h2      { margin: 0; margin-right: 1em; display: none; }
-.header-pages span    { margin-left: 0; }
-.header-pages .totals { flex-grow: 1; }
-.header-pages input#filter-paths,
-.header-pages input#scale,
-.header-pages select#display { padding: .2em; }
-.header-pages input.value    { background-color: yellow; }
-.header-pages .totals-small  { display: none; }
-
-.header-pages input#scale { width: 6em; margin-right: .2em; }
-.header-pages .scale-wrap { }
-
-
 h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
@@ -13788,16 +13764,10 @@ a.loading::after { content: ""; animation: loading 500ms linear infinite; }
 small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
 /* Filter */
-.filter-wrap                 { position: relative; }
-.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
-.header-pages .filter-wrap   { margin-left: 5.5rem; }
-@media (max-width: 32rem) {
-	.header-pages .filter-wrap       { margin-left: .2rem; }
-}
-@media (max-width: 28rem) {
-	.header-pages input#filter-paths { max-width: 10em; }
-}
+.filter-wrap  { position: relative; text-align: right; margin-bottom: 1em; border-bottom: 1px solid #252525; padding-bottom: .2em; }
+#filter-paths { padding: .2em; }
 
+.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
 
 /*** site code docs ***/
 .pre-copy-wrap { position: relative; }
@@ -15029,7 +14999,8 @@ var Templates = map[string][]byte{
 					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
 				{{end}}
 			</div>
-			<div class="chart chart-bar">
+			<div class="chart chart-bar" data-max="{{$h.Max}}">
+				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
@@ -15746,8 +15717,10 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 			</small> |
 			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
 		</div>
-		<div class="chart chart-bar chart-totals">
+		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
+			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
 			<span class="half"></span>
+			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
 			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
 		</div>
 		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
@@ -15923,22 +15896,12 @@ Martin
 	</div>
 
 	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-		<header class="h2 header-pages">
-			<h2>Paths</h2>
-			<div class="filter-wrap">
-				<input type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
-					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
-					{{if .Filter}}class="value"{{end}}>
-			</div>
-
-			<div class="scale-wrap">
-				<label for="scale">Y-axis scale</label>
-				<input type="number" autocomplete="off" name="scale" id="scale" value="{{.Max}}"
-					placeholder="Scale" title="Set the Y-axis scale">
-				<a href="#" id="scale-reset" title="Reset Y-axis scale to the default value">reset</a>;
-				<a href="#" id="scale-half" title="Set Y-axis scale to half the current value">half</a>
-			</div>
-		</header>
+		<h2 class="screen-reader">Paths</h2>
+		<div class="filter-wrap">
+			<input type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+				placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
+				{{if .Filter}}class="value"{{end}}>
+		</div>
 
 		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 			{{template "_backend_totals.gohtml" .}}

@@ -765,7 +765,8 @@ func TestBackendBarChart(t *testing.T) {
 		out = strings.ReplaceAll(out, "</div>\n</div>", "</div></div>")
 		out = strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(out, "<"))
 
-		want = `<span class="half"></span>` + "\n" +
+		want = `<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>` + "\n" +
+			`<span class="half"></span>` + "\n" +
 			strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
 
 		if d := ztest.Diff(out, want); d != "" {

@@ -136,6 +136,7 @@ form .err  { color: red; display: block; }
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
 .page-title b, .rlink b { background-color: yellow; }
+input.value             { background-color: yellow; }
 
 .count-list tr {
 	border: none;
@@ -218,6 +219,22 @@ tr.target small.go { display: inline-block; }
 }
 .go { word-break: normal; }
 
+.chart-left {
+	position: absolute; left: -1.6em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+	display: none; margin-right: 0;
+}
+.count-list .totals .chart-left,
+.count-list .totals .chart-right { background-color: #f7f7f7; }
+.chart-left a:hover { text-decoration: none; }
+
+tr:hover .chart-left,
+tr.target .chart-left { display: block; }
+
+.chart-right {
+	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
+	background-color: #fff;
+}
+
 /* Bar char */
 .chart-bar {
 	display: flex;
@@ -276,8 +293,9 @@ tr.target small.go { display: inline-block; }
 	opacity: .5;
 }
 
-.hide        { display: none; }
-.show-mobile { display: none; }
+.screen-reader { display: none; }
+.hide          { display: none; }
+.show-mobile   { display: none; }
 @media (max-width: 55rem) {
 	.hide-mobile { display: none; }
 	.show-mobile { display: block; }
@@ -411,24 +429,6 @@ noscript p { margin: .5em; }
 .update > em + p, .update > em + strong + p { margin-top: 0; }
 .update-new      { background-color: yellow; padding: 0 .3em; }
 
-/*** Pages header ***/
-header h2 { border-bottom: 0; display: inline; }
-header.h2 { border-bottom: 1px solid #252525; padding-bottom: .2em; margin: 1em 0; }
-
-.header-pages         { display: flex; justify-content: space-between; font-size: .9rem; }
-.header-pages h2      { margin: 0; margin-right: 1em; display: none; }
-.header-pages span    { margin-left: 0; }
-.header-pages .totals { flex-grow: 1; }
-.header-pages input#filter-paths,
-.header-pages input#scale,
-.header-pages select#display { padding: .2em; }
-.header-pages input.value    { background-color: yellow; }
-.header-pages .totals-small  { display: none; }
-
-.header-pages input#scale { width: 6em; margin-right: .2em; }
-.header-pages .scale-wrap { }
-
-
 h3 + h4 { margin-top: .3em; }
 
 .reftable { margin-top: 1em; }
@@ -449,16 +449,10 @@ a.loading::after { content: ""; animation: loading 500ms linear infinite; }
 small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
 /* Filter */
-.filter-wrap                 { position: relative; }
-.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
-.header-pages .filter-wrap   { margin-left: 5.5rem; }
-@media (max-width: 32rem) {
-	.header-pages .filter-wrap       { margin-left: .2rem; }
-}
-@media (max-width: 28rem) {
-	.header-pages input#filter-paths { max-width: 10em; }
-}
+.filter-wrap  { position: relative; text-align: right; margin-bottom: 1em; border-bottom: 1px solid #252525; padding-bottom: .2em; }
+#filter-paths { padding: .2em; }
 
+.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
 
 /*** site code docs ***/
 .pre-copy-wrap { position: relative; }
