@@ -29,20 +29,27 @@
 	{{end}}
 {{end}} {{/* .User.ID */}}
 
-<form id="period-form">
-	<div class="period-form-date">
-		{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
-		<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-		{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
-		<input type="hidden" id="hl-period" name="hl-period" disabled>
+<form id="dash-form">
+	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
+	<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
+	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
+	<input type="hidden" id="hl-period" name="hl-period" disabled>
 
-		<div class="date">
-			<input type="text" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
-			<input type="text" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end"   value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
-
-			<span class="period-form-select period-{{.SelectedPeriod}}">
+	{{/*
+	<div id="dash-saved-views">
+		Saved views: <a href="#">404</a> · <a href="#">blog</a>
+		| <a href="#">Save current view</a>
+	</div>
+	*/}}
+	<div id="dash-main">
+		<div>
+			<span>
+				<input type="text" class="date-input" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
+				<input type="text" class="date-input" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end" value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
+			</span>
+			<span id="dash-select-period" class="period-{{.SelectedPeriod}}">
 				<span>
-					Select last
+					Last
 					<button class="link" name="period" value="day">day</button> ·
 					<button class="link" name="period" value="week">week</button> ·
 					<button class="link" name="period" value="month">month</button> ·
@@ -56,47 +63,44 @@
 					<button class="link" name="period" value="week-cur">week</button> ·
 					<button class="link" name="period" value="month-cur">month</button>
 				</span>
-				<span>
-					{{if .ForcedDaily}}
-						<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
-					{{else}}
-						<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
-					{{end}}
-				</span>
 			</span>
 		</div>
 
-		<div class="period-form-move">
-			<div>
-				← back
-				<button class="link" name="move" value="week-b">week</button> ·
-				<button class="link" name="move" value="month-b">month</button>
-			</div>
-
-			<div>
-				<button class="link" name="move" value="week-f">week</button> ·
-				<button class="link" name="move" value="month-f">month</button>
-				forward →
-			</div>
+		<div>
+			<input
+					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
+					{{if .Filter}}class="value"{{end}}>
+			{{if .ForcedDaily}}
+				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
+			{{else}}
+				<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
+			{{end}}
 		</div>
 	</div>
-
-	<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-		<h2 class="screen-reader">Paths</h2>
-		<div class="filter-wrap">
-			<input type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
-				placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
-				{{if .Filter}}class="value"{{end}}>
+	<div id="dash-move">
+		<div>
+			← back
+			<button class="link" name="move" value="week-b">week</button> ·
+			<button class="link" name="move" value="month-b">month</button>
 		</div>
-
-		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-			{{template "_backend_totals.gohtml" .}}
-			<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
-		</table>
-
-		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+		<div>
+			<button class="link" name="move" value="week-f">week</button> ·
+			<button class="link" name="move" value="month-f">month</button>
+			forward →
+		</div>
 	</div>
 </form>
+
+<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
+	<h2 class="screen-reader">Paths</h2>
+	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
+		{{template "_backend_totals.gohtml" .}}
+		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
+	</table>
+
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+</div>
 
 <div class="browser-charts">
 	<div>
