@@ -239,6 +239,7 @@ func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
 		case "all":
 			db.MustExecContext(ctx, `delete from hit_stats`+where)
 			db.MustExecContext(ctx, `delete from browser_stats`+where)
+			db.MustExecContext(ctx, `delete from system_stats`+where)
 			db.MustExecContext(ctx, `delete from location_stats`+where)
 			db.MustExecContext(ctx, `delete from size_stats`+where)
 			db.MustExecContext(ctx, fmt.Sprintf(
