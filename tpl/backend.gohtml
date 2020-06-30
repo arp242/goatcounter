@@ -115,7 +115,7 @@
 	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
 </div>
 
-<div class="browser-charts">
+<div class="hcharts">
 	<div>
 		<h2>Top referrers</h2>
 		<div class="refs">
@@ -123,14 +123,13 @@
 			<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>
 		</div>
 	</div>
-
 	<div>
 		<h2>Browsers</h2>
 		{{if eq .TotalBrowsers 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .1 true true}}</div>
+				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 true true}}</div>
 			</div>
 		{{end}}
 	</div>
@@ -140,31 +139,29 @@
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 .5 true true}}</div>
+				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 true true}}</div>
 			</div>
 		{{end}}
 	</div>
-
 	<div>
 		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0 true false}}</div>
+				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 true false}}</div>
 			</div>
-			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
-	<div class="location-chart">
+	<div data-more="/locations">
 		<h2>Locations{{if before_loc .Site.CreatedAt}}{{end}}</h2>
 		{{if eq .TotalHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
+				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 false true}}</div>
 			</div>
-			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
+			{{if .ShowMoreLocations}}<div class="load-more-wrapper"><a href="#", class="btn load-more">Show more</a></div>{{end}}
 		{{end}}
 	</div>
 </div>

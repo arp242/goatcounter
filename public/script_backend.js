@@ -17,7 +17,7 @@
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
-			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
+			paginate_refs, hchart_detail, settings_tabs, hchart_paginate,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
@@ -397,16 +397,18 @@
 		});
 	};
 
-	// Paginate the location chart.
-	var paginate_locations = function() {
-		$('.location-chart .show-all').on('click', function(e) {
+	// Paginate the horizontal bars.
+	var hchart_paginate = function() {
+		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).parent().find('.chart-hbar')
+			var wrap = $(this).closest('[data-more]'),
+				url  = wrap.attr('data-more'),
+				bar  = wrap.find('.chart-hbar')
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url: '/locations',
-					data: append_period(),
+					url:     url,
+					data:    append_period({offset: bar.length}),
 					success: function(data) {
 						bar.html(data.html)
 						done()
@@ -415,48 +417,6 @@
 			})
 		})
 	}
-
-	// Set up the tabbed navigation in the settings.
-	var settings_tabs = function() {
-		var nav = $('.tab-nav');
-		if (!nav.length)
-			return;
-
-		var tabs = '',
-			active = location.hash.substr(5) || 'setting',
-			valid = !!$('#' + active).length;
-		$('.page > div').each(function(i, elem) {
-			var h2 = $(elem).find('h2');
-			if (!h2.length)
-				return;
-
-			var klass = '';
-			if (valid)
-				if (h2.attr('id') !== active)
-					$(elem).css('display', 'none');
-				else
-					klass = 'active';
-
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
-		});
-
-		nav.html(tabs);
-		nav.on('click', 'a', function() {
-			nav.find('a').removeClass('active');
-			$(this).addClass('active');
-		});
-
-		$(window).on('hashchange', function() {
-			if (location.hash === '')
-				return;
-
-			var tab = $('#' + location.hash.substr(5)).parent()
-			if (!tab.length)
-				return;
-			$('.page > div').css('display', 'none');
-			tab.css('display', 'block');
-		});
-	};
 
 	// Show details for the horizontal charts.
 	var hchart_detail = function() {
@@ -506,9 +466,51 @@
 		})
 	}
 
+	// Set up the tabbed navigation in the settings.
+	var settings_tabs = function() {
+		var nav = $('.tab-nav');
+		if (!nav.length)
+			return;
+
+		var tabs = '',
+			active = location.hash.substr(5) || 'setting',
+			valid = !!$('#' + active).length;
+		$('.page > div').each(function(i, elem) {
+			var h2 = $(elem).find('h2');
+			if (!h2.length)
+				return;
+
+			var klass = '';
+			if (valid)
+				if (h2.attr('id') !== active)
+					$(elem).css('display', 'none');
+				else
+					klass = 'active';
+
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
+		});
+
+		nav.html(tabs);
+		nav.on('click', 'a', function() {
+			nav.find('a').removeClass('active');
+			$(this).addClass('active');
+		});
+
+		$(window).on('hashchange', function() {
+			if (location.hash === '')
+				return;
+
+			var tab = $('#' + location.hash.substr(5)).parent()
+			if (!tab.length)
+				return;
+			$('.page > div').css('display', 'none');
+			tab.css('display', 'block');
+		});
+	}
+
 	// Paginate the referrers.
 	var paginate_refs = function() {
-		$('.pages-list, .browser-charts').on('click', '.load-more-refs', function(e) {
+		$('.pages-list, .hcharts').on('click', '.load-more-refs', function(e) {
 			e.preventDefault()
 
 			// .count-list-refs

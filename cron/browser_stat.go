@@ -23,7 +23,7 @@ import (
 //     1 | 2019-12-17 | Opera   | 9       |     1
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + browser.
+		// Group by day + browser + version.
 		type gt struct {
 			count       int
 			countUnique int

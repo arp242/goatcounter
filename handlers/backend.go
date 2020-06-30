@@ -481,6 +481,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		systems, totalSystems, subs, sizeStat, totalSize, locStat, totalLoc,
 		showMoreLoc, daily, forcedDaily, maxTotals, max, topRefs})
 	l.Since("zhttp.Template")
+
+	fmt.Printf(
+		"total: \t\t%d\ntotalBrowsers: \t%d\ntotalSystems: \t%d\ntotalSize: \t%d\ntotalLoc: \t%d\n\n",
+		totalUnique, totalBrowsers, totalSystems, totalSize, totalLoc)
 	return x
 }
 
@@ -571,7 +575,7 @@ func (h backend) browsers(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), .2, true, false)
+	tpl := goatcounter.HorizontalChart(r.Context(), browsers, total, int(t), true, false)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -591,7 +595,7 @@ func (h backend) systems(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), systems, total, int(t), .2, true, false)
+	tpl := goatcounter.HorizontalChart(r.Context(), systems, total, int(t), true, false)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -611,7 +615,7 @@ func (h backend) sizes(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	t, _ := strconv.ParseInt(r.URL.Query().Get("total"), 10, 64)
-	tpl := goatcounter.HorizontalChart(r.Context(), sizeStat, total, int(t), .2, true, false)
+	tpl := goatcounter.HorizontalChart(r.Context(), sizeStat, total, int(t), true, false)
 
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
@@ -630,7 +634,7 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tpl := goatcounter.HorizontalChart(r.Context(), locStat, total, total, 0, false, true)
+	tpl := goatcounter.HorizontalChart(r.Context(), locStat, total, total, false, true)
 	return zhttp.JSON(w, map[string]interface{}{
 		"html": string(tpl),
 	})
