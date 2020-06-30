@@ -68,8 +68,9 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 	e.SiteID = site.ID
 	e.CreatedAt = Now()
 	e.StartFromHitID = startFrom
-	e.Path = fmt.Sprintf("%s/goatcounter-export-%s-%s-%d.csv.gz",
-		os.TempDir(), site.Code, e.CreatedAt.Format("20060102T15:04:05Z"), startFrom)
+	e.Path = fmt.Sprintf("%s%sgoatcounter-export-%s-%s-%d.csv.gz",
+		os.TempDir(), string(os.PathSeparator), site.Code,
+		e.CreatedAt.Format("20060102T150405Z"), startFrom)
 
 	query := `insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`
 	args := []interface{}{e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID}

@@ -53,7 +53,7 @@ func TestExport(t *testing.T) {
 			"site_id": 1,
 			"start_from_hit_id": 0,
 			"last_hit_id": 3,
-			"path": "/tmp/goatcounter-export-test-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
+			"path": "%(ANY)goatcounter-export-test-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
 			"created_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
 			"finished_at": null,
 			"num_rows": 3,
