@@ -61,7 +61,7 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 		os.TempDir(), site.Code, e.CreatedAt.Format("20060102T15:04:05Z"), startFrom)
 
 	query := `insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`
-	args := []interface{}{e.SiteID, e.Path, e.CreatedAt, e.StartFromHitID}
+	args := []interface{}{e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID}
 
 	if cfg.PgSQL {
 		err := zdb.MustGet(ctx).GetContext(ctx, &e.ID, query+` returning export_id`, args...)
@@ -189,11 +189,11 @@ func (e *Export) Run(ctx context.Context, fp *os.File) {
 		return
 	}
 
-	n := Now()
+	now := Now().Format(zdb.Date)
 	_, err = zdb.MustGet(ctx).ExecContext(ctx, `update exports set
 		finished_at=$1, num_rows=$2, size=$3, hash=$4, last_hit_id=$5
 		where export_id=$6`,
-		&n, e.NumRows, e.Size, e.Hash, e.LastHitID, e.ID)
+		&now, e.NumRows, e.Size, e.Hash, e.LastHitID, e.ID)
 	if err != nil {
 		zlog.Error(err)
 	}
@@ -216,14 +216,15 @@ type Exports []Export
 
 func (e *Exports) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, e, `/* Exports.List */
-		select * from exports where site_id=$1 and created_at < `+interval(1),
+		select * from exports where site_id=$1 and created_at > `+interval(1),
 		MustGetSite(ctx).ID), "Exports.List")
 }
 
 // Import data from an export.
-func Import(ctx context.Context, fp io.Reader, replace bool) {
+func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 	site := MustGetSite(ctx)
 	user := GetUser(ctx)
+	db := zdb.MustGet(ctx)
 
 	l := zlog.Module("import").Field("site", site.ID).Field("replace", replace)
 	l.Print("import started")
@@ -244,6 +245,19 @@ func Import(ctx context.Context, fp io.Reader, replace bool) {
 
 	if replace {
 		err := site.DeleteAll(ctx)
+		if err != nil {
+			importError(l, *user, err)
+			l.Error(err)
+			return
+		}
+	}
+
+	if !cfg.PgSQL {
+		// Insert a row to ensure sessions is in sqlite_sequence; this won't be
+		// added until the first sequences is accessed and is required for
+		// Import to work.
+		var s Session
+		_, err := s.GetOrCreate(ctx, "", "", "")
 		if err != nil {
 			importError(l, *user, err)
 			l.Error(err)
@@ -311,7 +325,17 @@ func Import(ctx context.Context, fp io.Reader, replace bool) {
 		// Map session IDs to new session IDs.
 		s, ok := sessions[session]
 		if !ok {
-			err = zdb.MustGet(ctx).GetContext(ctx, &s, `select nextval('sessions_id_seq')`)
+			if cfg.PgSQL {
+				err = db.GetContext(ctx, &s, `select nextval('sessions_id_seq')`)
+			} else {
+				err = zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+					_, err := tx.ExecContext(ctx, `update sqlite_sequence set seq=seq+1 where name='sessions'`)
+					if err != nil {
+						return err
+					}
+					return tx.GetContext(ctx, &s, `select seq from sqlite_sequence where name='sessions'`)
+				})
+			}
 			if err != nil {
 				errs.Append(err)
 				continue
@@ -334,19 +358,21 @@ func Import(ctx context.Context, fp io.Reader, replace bool) {
 		l.Error(errs)
 	}
 
-	// Send email after 10s delay to make sure the cron task has finished
-	// updating all the rows.
-	time.Sleep(10 * time.Second)
-	err = blackmail.Send("GoatCounter import ready",
-		blackmail.From("GoatCounter import", cfg.EmailFrom),
-		blackmail.To(user.Email),
-		blackmail.BodyMustText(EmailTemplate("email_import_done.gotxt", struct {
-			Site   Site
-			Rows   int
-			Errors *errors.Group
-		}{*site, n, errs})))
-	if err != nil {
-		l.Error(err)
+	if email {
+		// Send email after 10s delay to make sure the cron task has finished
+		// updating all the rows.
+		time.Sleep(10 * time.Second)
+		err = blackmail.Send("GoatCounter import ready",
+			blackmail.From("GoatCounter import", cfg.EmailFrom),
+			blackmail.To(user.Email),
+			blackmail.BodyMustText(EmailTemplate("email_import_done.gotxt", struct {
+				Site   Site
+				Rows   int
+				Errors *errors.Group
+			}{*site, n, errs})))
+		if err != nil {
+			l.Error(err)
+		}
 	}
 }
 

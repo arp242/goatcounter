@@ -98,8 +98,6 @@ zgo.at/gadget v0.0.0-20200522205438-64412137d778 h1:yDRvfHau8/hHdiPcqXeHaebpoe7X
 zgo.at/gadget v0.0.0-20200522205438-64412137d778/go.mod h1:1x0AKFOjKScVTzJh+V69Ku6hTwvEM56MlnKOtrjMwSo=
 zgo.at/guru v1.1.0 h1:hvMLOzPnv7XApwJZgxvFxBA8wb6RGPUw9lz8kmq450g=
 zgo.at/guru v1.1.0/go.mod h1:eltnfk6QwmM7ic3OLzmGMjEChP2iLuYXERyliREiA00=
-zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea h1:Cl3Dnjfxvq1nOIffaDbhJOrnwb6aDGPLgbsVzGGWPb0=
-zgo.at/isbot v0.0.0-20200518180519-d9e7a12daaea/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
 zgo.at/isbot v0.0.0-20200627092736-4e2d25be1249 h1:tPSJXnP1DO7OTVZ1Yc6DVlCoPFrKs9e7YUtFNaTjx5o=
 zgo.at/isbot v0.0.0-20200627092736-4e2d25be1249/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
 zgo.at/json v0.0.0-20200627042140-d5025253667f h1:o4XL0oDtAzxN+mkVCti8MYz5nLNfbrl17I78rqLWQrk=
@@ -126,5 +124,7 @@ zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41 h1:2vR+4hRs2YI2Lcm68AjHLSOHxQy/3
 zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
 zgo.at/ztest v0.0.0-20200526130303-f59d60374e72 h1:eJi5pmYHERPsQ9a7Sw1HW8GXTVFWlHQ+EfZKSzx1Y+Y=
 zgo.at/ztest v0.0.0-20200526130303-f59d60374e72/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
+zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af h1:R4x8P0jEUonoCtK3OGMVJ1Iwq7oMqJDSyBvw8r8b+Zk=
+zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
 zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a h1:CDG+/sJjuKFKFQzRx4G0w7D0+/e2OGWACzYe7w7Vg0o=
 zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a/go.mod h1:SguuRnGmIa4boKWBN8G1l6Z1WWDGRDbkoY6KliwHXPg=

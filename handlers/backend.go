@@ -923,7 +923,7 @@ func (h backend) importFile(w http.ResponseWriter, r *http.Request) error {
 	defer fp.Close()
 
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(func() { goatcounter.Import(ctx, fp, replace) })
+	bgrun.Run(func() { goatcounter.Import(ctx, fp, replace, true) })
 
 	zhttp.Flash(w, "Import started in the background; you’ll get an email when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")
