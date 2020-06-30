@@ -12432,6 +12432,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// Don't repaint/reflow on every bar update.
 			chart.style.display = 'none'
 
+			var is_pages = $(chart).closest('.count-list-pages').length > 0
 			$(chart).find('>div').each(function(i, bar) {
 				if (bar.dataset.h !== undefined)
 					var h = bar.dataset.h
@@ -12447,7 +12448,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					bar.style.background = 'transparent'
 				else {
 					var hu = bar.dataset.u
-					if (scale && scale !== 1) {
+					if (is_pages && scale && scale !== 1) {
 						h  = (parseInt(h, 10)  / scale) + '%'
 						hu = (parseInt(hu, 10) / scale) + '%'
 					}
@@ -12581,7 +12582,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (from_filter) {
 			$('.count-list-pages').attr('data-max', data.max)
 			$('.count-list-pages').attr('data-scale', data.max)
-			$('.scale').html(format_int(data.max))
+			//$('.scale').html(format_int(data.max))
 
 			$('.totals tbody').replaceWith(data.totals)
 			$('.pages-list tbody').html(data.rows)
@@ -15126,7 +15127,7 @@ var Templates = map[string][]byte{
 			</div>
 			<div class="chart chart-bar" data-max="{{$h.Max}}">
 				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
-				{{if eq $i 0}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>{{end}}
+				{{if eq $i 0}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small></span>{{end}}
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
@@ -15822,11 +15823,13 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_backend_totals.gohtml": []byte(`<tbody><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
 	<td>
-		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
+		<div class="chart chart-bar chart-totals" data-max="{{.MaxTotals}}">
+			{{/* TODO: doesn't work well, not sure if there's much value in it anyway?
 			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+			*/}}
 			<span class="half"></span>
-			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
-			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
+			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .MaxTotals $.Site}}</small></span>
+			{{bar_chart .Context .TotalPages.Stats .MaxTotals .Daily}}
 		</div>
 		{{/*
 		<div style="text-align: left;">

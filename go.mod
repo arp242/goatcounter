@@ -20,7 +20,7 @@ require (
 	golang.org/x/tools v0.0.0-20200519205726-57a9e4404bf7
 	honnef.co/go/tools v0.0.1-2020.1.4
 	zgo.at/blackmail v0.0.0-20200527044144-ce30fa1f0a22
-	zgo.at/errors v0.0.0-20200630050327-695f120d26a1
+	zgo.at/errors v0.0.0-20200630143612-2b870b08fb1d
 	zgo.at/gadget v0.0.0-20200522205438-64412137d778
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200627092736-4e2d25be1249

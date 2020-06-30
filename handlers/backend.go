@@ -326,39 +326,58 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 
 	var (
 		wg                              sync.WaitGroup
+		bgErr                           = errors.NewGroup(10)
 		pages                           goatcounter.HitStats
 		total, totalDisplay             int
 		totalUnique, totalUniqueDisplay int
 		morePages                       bool
-		pagesErr                        error
 	)
 	wg.Add(1)
 	go func() {
 		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 		defer wg.Done()
 
-		total, totalUnique, totalDisplay, totalUniqueDisplay, morePages, pagesErr = pages.List(
+		var err error
+		total, totalUnique, totalDisplay, totalUniqueDisplay, morePages, err = pages.List(
 			r.Context(), start, end, filter, nil, daily)
+		bgErr.Append(err)
 	}()
 
 	var (
 		totalPages goatcounter.HitStat
-		max        int
-		totalErr   error
+		maxTotals  int
 	)
 	wg.Add(1)
 	go func() {
 		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 		defer wg.Done()
 
-		max, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)
+		var err error
+		maxTotals, err = totalPages.Totals(r.Context(), start, end, filter, daily)
+		bgErr.Append(err)
 	}()
 
 	var topRefs goatcounter.Stats
-	_, err = topRefs.ListTopRefs(r.Context(), start, end, 0)
-	if err != nil {
-		return err
-	}
+	wg.Add(1)
+	go func() {
+		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
+		defer wg.Done()
+
+		var err error
+		_, err = topRefs.ListTopRefs(r.Context(), start, end, 0)
+		bgErr.Append(err)
+	}()
+
+	var max int
+	wg.Add(1)
+	go func() {
+		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
+		defer wg.Done()
+
+		var err error
+		max, err = goatcounter.GetMax(r.Context(), start, end, filter, daily)
+		bgErr.Append(err)
+	}()
 
 	var browsers goatcounter.Stats
 	totalBrowsers, err := browsers.ListBrowsers(r.Context(), start, end)
@@ -416,11 +435,8 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zsync.Wait(r.Context(), &wg)
-	if pagesErr != nil {
-		return pagesErr
-	}
-	if totalErr != nil {
-		return totalErr
+	if bgErr.Len() > 0 {
+		return bgErr
 	}
 
 	l = startl.Since("get data")
@@ -456,13 +472,14 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		ShowMoreLocations  bool
 		Daily              bool
 		ForcedDaily        bool
+		MaxTotals          int
 		Max                int
 		TopRefs            goatcounter.Stats
 	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
 		filter, pages, totalPages, morePages, refs, moreRefs, total,
 		totalUnique, totalDisplay, totalUniqueDisplay, browsers, totalBrowsers,
 		systems, totalSystems, subs, sizeStat, totalSize, locStat, totalLoc,
-		showMoreLoc, daily, forcedDaily, max, topRefs})
+		showMoreLoc, daily, forcedDaily, maxTotals, max, topRefs})
 	l.Since("zhttp.Template")
 	return x
 }
@@ -640,15 +657,20 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		wg         sync.WaitGroup
 		totalTpl   []byte
 		totalPages goatcounter.HitStat
+		maxTotals  int
 		totalErr   error
+		maxErr     error
 	)
+	// Filtering instead of paginating: get new "totals" stats as well.
+	// TODO: also re-render the the horizontal bar charts below, but this isn't
+	// currently possible since not all data is linked to a path.
 	if exclude == "" {
 		wg.Add(1)
 		go func() {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			max, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)
+			maxTotals, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)
 			if totalErr != nil {
 				return
 			}
@@ -660,15 +682,23 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 				PeriodEnd   time.Time
 				TotalPages  goatcounter.HitStat
 				Daily       bool
-				Max         int
+				MaxTotals   int
 
 				// Dummy values so template won't error out.
 				TotalUniqueDisplay int
 				TotalHitsDisplay   int
 				Refs               bool
 				ShowRefs           string
-			}{r.Context(), site, start, end, totalPages, daily, max,
+			}{r.Context(), site, start, end, totalPages, daily, maxTotals,
 				0, 0, false, ""})
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
+			defer wg.Done()
+
+			max, maxErr = goatcounter.GetMax(r.Context(), start, end, filter, daily)
 		}()
 	}
 
@@ -706,6 +736,9 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	wg.Wait()
 	if totalErr != nil {
 		return totalErr
+	}
+	if maxErr != nil {
+		return maxErr
 	}
 
 	return zhttp.JSON(w, map[string]interface{}{

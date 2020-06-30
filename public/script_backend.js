@@ -122,6 +122,7 @@
 			// Don't repaint/reflow on every bar update.
 			chart.style.display = 'none'
 
+			var is_pages = $(chart).closest('.count-list-pages').length > 0
 			$(chart).find('>div').each(function(i, bar) {
 				if (bar.dataset.h !== undefined)
 					var h = bar.dataset.h
@@ -137,7 +138,7 @@
 					bar.style.background = 'transparent'
 				else {
 					var hu = bar.dataset.u
-					if (scale && scale !== 1) {
+					if (is_pages && scale && scale !== 1) {
 						h  = (parseInt(h, 10)  / scale) + '%'
 						hu = (parseInt(hu, 10) / scale) + '%'
 					}
@@ -271,7 +272,7 @@
 		if (from_filter) {
 			$('.count-list-pages').attr('data-max', data.max)
 			$('.count-list-pages').attr('data-scale', data.max)
-			$('.scale').html(format_int(data.max))
+			//$('.scale').html(format_int(data.max))
 
 			$('.totals tbody').replaceWith(data.totals)
 			$('.pages-list tbody').html(data.rows)

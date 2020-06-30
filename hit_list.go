@@ -14,6 +14,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
@@ -443,4 +444,71 @@ func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 	// 100% sure yet what a good solution here is. For now, this is "good
 	// enough".
 	sort.Slice(hh, func(i, j int) bool { return hh[i].CountUnique > hh[j].CountUnique })
+}
+
+func GetMax(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {
+	if filter != "" {
+		filter = "%" + filter + "%"
+	}
+
+	site := MustGetSite(ctx)
+	var (
+		max   int
+		query string
+		args  []interface{}
+	)
+	if daily {
+		if cfg.PgSQL {
+			// PostgreSQL daily.
+			query = `/* getMax daily */
+					select coalesce(sum(total), 0) as t
+					from hit_counts
+					where site=? and hour>=? and hour<=? `
+			args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+			if filter != "" {
+				query += ` and (lower(path) like ? or lower(title) like ?) `
+				args = append(args, filter, filter)
+			}
+			query += `group by path, substring(timezone(?, hour)::varchar, 0, 11)
+					order by t desc
+					limit 1`
+			args = append(args, site.Settings.Timezone.OffsetRFC3339())
+		} else {
+			// SQLite daily
+			query = `
+					select coalesce(sum(total), 0) as t
+					from hit_counts
+					where site=? and hour>=? and hour<=? `
+			args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+			if filter != "" {
+				query += ` and (lower(path) like ? or lower(title) like ?) `
+				args = append(args, filter, filter)
+			}
+			query += `group by path, substr(datetime(hour, ?), 0, 11)
+					order by t desc
+					limit 1`
+			args = append(args, site.Settings.Timezone.OffsetRFC3339())
+		}
+	} else {
+		/* Hourly */
+		query = `/* getMax hourly */
+				select coalesce(max(total), 0) from hit_counts
+				where site=? and hour>=? and hour<=? `
+		args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+		if filter != "" {
+			query += ` and (lower(path) like ? or lower(title) like ?) `
+			args = append(args, filter, filter)
+		}
+	}
+
+	db := zdb.MustGet(ctx)
+	err := db.GetContext(ctx, &max, db.Rebind(query), args...)
+	if err != nil && !zdb.ErrNoRows(err) {
+		return 0, errors.Wrap(err, "getMax")
+	}
+
+	if max < 10 {
+		max = 10
+	}
+	return max, nil
 }

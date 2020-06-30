@@ -6,7 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"zgo.at/errors"
@@ -21,23 +20,6 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 	if limit == 0 {
 		limit = 10
 	}
-
-	fmt.Println(zdb.ApplyPlaceholders(`/* Stats.ListRefsByPath */
-		select
-			coalesce(sum(total), 0) as count,
-			coalesce(sum(total_unique), 0) as count_unique,
-			max(ref_scheme) as ref_scheme,
-			ref as name
-		from ref_counts
-		where
-			site=$1 and
-			lower(path)=lower($2) and
-			hour>=$3 and
-			hour<=$4
-		group by ref
-		order by count_unique desc, ref desc
-		limit $5 offset $6`,
-		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset))
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListRefsByPath */
 		select

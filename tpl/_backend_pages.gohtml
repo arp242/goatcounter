@@ -23,7 +23,7 @@
 			</div>
 			<div class="chart chart-bar" data-max="{{$h.Max}}">
 				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
-				{{if eq $i 0}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>{{end}}
+				{{if eq $i 0}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small></span>{{end}}
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
