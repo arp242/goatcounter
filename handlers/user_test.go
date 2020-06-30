@@ -19,7 +19,7 @@ func TestUserNew(t *testing.T) {
 			name:   "basic",
 			router: newBackend,
 			setup: func(ctx context.Context, t *testing.T) {
-				u := goatcounter.User{Site: 1, Email: "test@example.com", Password: []byte("coconuts")}
+				u := goatcounter.User{Site: 1, Email: "user_test@example.com", Password: []byte("coconuts")}
 				err := u.Insert(ctx)
 				if err != nil {
 					t.Fatal(err)

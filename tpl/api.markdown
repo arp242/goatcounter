@@ -74,8 +74,9 @@ Example to export via the API:
         fi
     done
 
-The abov doesn't does no error checking for brevity: errors are reported in the
-`errors` field.
+The above doesn't does no error checking for brevity: errors are reported in the
+`error` field as a string, or in the `errors` field as `{"name": ["err1",
+"err2", "name2": [..]}`.
 
 The export object contains a `last_hit_id` parameter, which can be used as a
 pagination cursor to only download hits after this export. This is useful to

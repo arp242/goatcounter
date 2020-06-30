@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/guru"
@@ -36,6 +37,9 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 	a.Post("/api/v0/export", zhttp.Wrap(h.export))
 	a.Get("/api/v0/export/{id}", zhttp.Wrap(h.exportGet))
 	a.Get("/api/v0/export/{id}/download", zhttp.Wrap(h.exportDownload))
+
+	a.Get("/api/v0/test", zhttp.Wrap(h.test))
+	a.Post("/api/v0/test", zhttp.Wrap(h.test))
 }
 
 func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
@@ -66,11 +70,16 @@ func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 
 	*r = *r.WithContext(goatcounter.WithUser(r.Context(), &user))
 
+	var need []string
 	if perm.Count && !token.Permissions.Count {
-		return guru.New(http.StatusForbidden, "required count permission")
+		need = append(need, "count")
 	}
 	if perm.Export && !token.Permissions.Export {
-		return guru.New(http.StatusForbidden, "required export permission")
+		need = append(need, "export")
+	}
+
+	if len(need) > 0 {
+		return guru.Errorf(http.StatusForbidden, "requires %s permissions", need)
 	}
 
 	return nil
@@ -79,6 +88,44 @@ func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 type apiExportRequest struct {
 	// Pagination cursor; only export hits with an ID greater than this.
 	StartFromHitID int64 `json:"start_from_hit_id"`
+}
+
+// For testing various generic properties about the API.
+func (h api) test(w http.ResponseWriter, r *http.Request) error {
+	var args struct {
+		Perm     goatcounter.APITokenPermissions `json:"perm"`
+		Status   int                             `json:"status"`
+		Panic    bool                            `json:"panic"`
+		Validate zvalidate.Validator             `json:"validate"`
+	}
+
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	err = h.auth(r, args.Perm)
+	if err != nil {
+		return err
+	}
+
+	if args.Panic {
+		panic("PANIC!")
+	}
+
+	if args.Validate.HasErrors() {
+		return args.Validate
+	}
+
+	if args.Status != 0 {
+		w.WriteHeader(args.Status)
+		if args.Status == 500 {
+			return errors.New("oh noes!")
+		}
+		return guru.Errorf(args.Status, "status %d", args.Status)
+	}
+
+	return zhttp.JSON(w, args)
 }
 
 // POST /api/v0/export export

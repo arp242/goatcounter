@@ -84,7 +84,7 @@ func (t *APIToken) Insert(ctx context.Context) error {
 	query := `insert into api_tokens
 		(site_id, user_id, name, token, permissions, created_at)
 		values ($1, $2, $3, $4, $5, $6)`
-	args := []interface{}{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt}
+	args := []interface{}{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt.Format(zdb.Date)}
 
 	if cfg.PgSQL {
 		err := zdb.MustGet(ctx).GetContext(ctx, &t.ID, query+` returning api_token_id`, args...)

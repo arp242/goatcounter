@@ -15936,8 +15936,9 @@ while :; do
 done
 </code></pre>
 
-<p>The abov doesn't does no error checking for brevity: errors are reported in the
-<code>errors</code> field.</p>
+<p>The above doesn't does no error checking for brevity: errors are reported in the
+<code>error</code> field as a string, or in the <code>errors</code> field as <code>{"name": ["err1",
+"err2", "name2": [..]}</code>.</p>
 
 <p>The export object contains a <code>last_hit_id</code> parameter, which can be used as a
 pagination cursor to only download hits after this export. This is useful to
