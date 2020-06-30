@@ -6,6 +6,38 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
+master branch
+-------------
+
+- Add multi-factor auth (#306)
+
+  TOTP-based multi-factor auth is now supported.
+
+- Better export, add import feature export API (#316, #318)
+
+  You can now import the CSV exports, useful for migrating from self-hosted to
+  goatcounter.com or vice verse, or for migrating from other systems.
+
+  The export now supports a "pagination cursor", so you can export only rows you
+  didn't previously export. This is especially useful with the new export API.
+  which should make it easy to sync GoatCounter data with another external
+  platform.
+
+  See http://goatcounter.com/api for details.
+
+- Make it easier to skip your own views (#290)
+
+  Previously this required adding custom code, but now loading any page with
+  `#toggle-goatcounter` added will enable/disable the GoatCounter tracking for
+  that browser.
+
+- public/count.js is now ISC licensed (#309)
+
+  Previously the EUPL applied, which is fairly restrictive and may prevent
+  people from including/self-hosting the count.js script.
+
+- Offer some data files for download (#319)
+
 
 2020-06-01 v1.3.0
 -----------------
