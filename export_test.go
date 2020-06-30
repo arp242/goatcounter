@@ -46,20 +46,20 @@ func TestExport(t *testing.T) {
 		}
 		defer fp.Close()
 
-		export.Run(ctx, fp)
+		export.Run(ctx, fp, false)
 
 		want := strings.ReplaceAll(`{
-			"ID": 1,
-			"SiteID": 1,
-			"StartFromHitID": 0,
-			"LastHitID": 3,
-			"Path": "/tmp/goatcounter-export-test-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
-			"CreatedAt": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
-			"FinishedAt": null,
-			"NumRows": 3,
-			"Size": "0.0",
-			"Hash": "sha256-7b756b6dd4d908eff7f7febad0fbdf59f2d7657d8fd09c8ff5133b45f86b1fbf",
-			"Error": null
+			"id": 1,
+			"site_id": 1,
+			"start_from_hit_id": 0,
+			"last_hit_id": 3,
+			"path": "%(ANY)goatcounter-export-test-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
+			"created_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
+			"finished_at": null,
+			"num_rows": 3,
+			"size": "0.0",
+			"hash": "sha256-7b756b6dd4d908eff7f7febad0fbdf59f2d7657d8fd09c8ff5133b45f86b1fbf",
+			"error": null
 		}`, "\t", "")
 		got := string(zjson.MustMarshalIndent(export, "", ""))
 		if d := ztest.DiffMatch(got, want); d != "" {

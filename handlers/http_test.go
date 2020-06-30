@@ -22,7 +22,6 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/goatcounter/pack"
-	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -89,7 +88,7 @@ func runTest(
 					tt.setup(ctx, t)
 				}
 				if tt.auth {
-					login(t, rr, r, 1)
+					login(t, r)
 				}
 
 				tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
@@ -121,7 +120,7 @@ func runTest(
 				tt.setup(ctx, t)
 			}
 			if tt.auth {
-				login(t, rr, r, 1)
+				login(t, r)
 			}
 
 			tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
@@ -138,20 +137,13 @@ func runTest(
 	})
 }
 
-func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID int64) {
+func login(t *testing.T, r *http.Request) {
 	t.Helper()
 
-	// Insert user
-	u := goatcounter.User{Site: siteID, Email: "test@example.com", Password: []byte("coconuts")}
-	err := u.Insert(r.Context())
-	if err != nil {
-		if guru.Code(err) != 400 {
-			t.Fatal(err)
-		}
-	}
+	u := goatcounter.GetUser(r.Context())
 
 	// Login user
-	err = u.Login(r.Context())
+	err := u.Login(r.Context())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -170,12 +162,13 @@ func login(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request, siteID 
 	r.Form.Set("csrf", *u.CSRFToken)
 
 	r.Header.Set("Cookie", "key="+*u.LoginToken)
-	*r = *r.WithContext(goatcounter.WithUser(r.Context(), &u))
 }
 
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
+	site := goatcounter.MustGetSite(ctx)
 	r, rr := ztest.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
 	r.Header.Set("User-Agent", "GoatCounter test runner/1.0")
+	r.Host = site.Code + "." + cfg.Domain
 	return r, rr
 }
 

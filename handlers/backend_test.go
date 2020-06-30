@@ -134,7 +134,7 @@ func TestBackendCount(t *testing.T) {
 			if tt.set != nil {
 				tt.set(r)
 			}
-			login(t, rr, r, site.ID)
+			login(t, r)
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			if h := rr.Header().Get("X-Goatcounter"); h != "" {
@@ -732,7 +732,7 @@ func TestBackendBarChart(t *testing.T) {
 
 		r, rr := newTest(ctx, "GET", url, nil)
 		r.Host = site.Code + "." + cfg.Domain
-		login(t, rr, r, site.ID)
+		login(t, r)
 
 		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)

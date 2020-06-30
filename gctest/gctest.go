@@ -170,7 +170,19 @@ func DB(t tester) (context.Context, func()) {
 		t.Fatalf("get site: %s", err)
 	}
 	ctx = goatcounter.WithSite(ctx, &site)
-	ctx = goatcounter.WithUser(ctx, &goatcounter.User{ID: 1, Site: 1})
+
+	var user goatcounter.User
+	err = user.BySite(ctx, site.ID)
+	if err != nil {
+		user.Site = 1
+		user.Email = "test@example.com"
+		user.Password = []byte("coconuts")
+		err = user.Insert(ctx)
+	}
+	if err != nil {
+		t.Fatalf("get/create user: %s", err)
+	}
+	ctx = goatcounter.WithUser(ctx, &user)
 
 	return ctx, func() {
 		db.Close()
@@ -230,6 +242,20 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 	if err != nil {
 		t.Fatal(err)
 	}
+	ctx = goatcounter.WithSite(ctx, &site)
 
-	return goatcounter.WithSite(ctx, &site), site
+	var user goatcounter.User
+	err = user.BySite(ctx, site.ID)
+	if err != nil {
+		user.Site = 1
+		user.Email = "test@example.com"
+		user.Password = []byte("coconuts")
+		err = user.Insert(ctx)
+	}
+	if err != nil {
+		t.Fatalf("get/create user: %s", err)
+	}
+	ctx = goatcounter.WithUser(ctx, &user)
+
+	return ctx, site
 }

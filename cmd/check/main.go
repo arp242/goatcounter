@@ -91,7 +91,14 @@ func main() {
 	for _, v := range simple.Analyzers {
 		checks = append(checks, v)
 	}
-	for _, v := range staticcheck.Analyzers {
+	for k, v := range staticcheck.Analyzers {
+		if k == "SA5008" {
+			// Skip struct tags check, as our modified JSON adds a new ,readonly tag and this will error:
+			//   unknown JSON option "readonly"
+			// TODO: write a patch to staticcheck to allow adding fields or
+			// something.
+			continue
+		}
 		checks = append(checks, v)
 	}
 	for k, v := range stylecheck.Analyzers {

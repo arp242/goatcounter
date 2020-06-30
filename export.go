@@ -27,18 +27,29 @@ import (
 const exportVersion = "1"
 
 type Export struct {
-	ID             int64     `db:"export_id"`
-	SiteID         int64     `db:"site_id"`
-	StartFromHitID int64     `db:"start_from_hit_id"`
-	LastHitID      int64     `db:"last_hit_id"`
-	Path           string    `db:"path"`
-	CreatedAt      time.Time `db:"created_at"`
+	ID     int64 `db:"export_id" json:"id,readonly"`
+	SiteID int64 `db:"site_id" json:"site_id,readonly"`
 
-	FinishedAt *time.Time `db:"finished_at"`
-	NumRows    *int       `db:"num_rows"`
-	Size       *string    `db:"size"`
-	Hash       *string    `db:"hash"`
-	Error      *string    `db:"error"`
+	// The hit ID this export was started from.
+	StartFromHitID int64 `db:"start_from_hit_id" json:"start_from_hit_id"`
+
+	// Last hit ID that was exported; can be used as start_from_hit_id.
+	LastHitID *int64 `db:"last_hit_id" json:"last_hit_id,readonly"`
+
+	Path      string    `db:"path" json:"path,readonly"`
+	CreatedAt time.Time `db:"created_at" json:"created_at,readonly"`
+
+	FinishedAt *time.Time `db:"finished_at" json:"finished_at,readonly"`
+	NumRows    *int       `db:"num_rows" json:"num_rows,readonly"`
+
+	// File size in MB.
+	Size *string `db:"size" json:"size,readonly"`
+
+	// SHA256 hash.
+	Hash *string `db:"hash" json:"hash,readonly"`
+
+	// Any errors that may have occured.
+	Error *string `db:"error" json:"error,readonly"`
 }
 
 func (e *Export) ByID(ctx context.Context, id int64) error {
@@ -57,8 +68,9 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 	e.SiteID = site.ID
 	e.CreatedAt = Now()
 	e.StartFromHitID = startFrom
-	e.Path = fmt.Sprintf("%s/goatcounter-export-%s-%s-%d.csv.gz",
-		os.TempDir(), site.Code, e.CreatedAt.Format("20060102T15:04:05Z"), startFrom)
+	e.Path = fmt.Sprintf("%s%sgoatcounter-export-%s-%s-%d.csv.gz",
+		os.TempDir(), string(os.PathSeparator), site.Code,
+		e.CreatedAt.Format("20060102T150405Z"), startFrom)
 
 	query := `insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`
 	args := []interface{}{e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID}
@@ -84,7 +96,7 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 }
 
 // Export all data to a CSV file.
-func (e *Export) Run(ctx context.Context, fp *os.File) {
+func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	l := zlog.Module("export").Field("id", e.ID)
 	l.Print("export started")
 
@@ -98,12 +110,16 @@ func (e *Export) Run(ctx context.Context, fp *os.File) {
 		"Location", "Date"})
 
 	var exportErr error
-	e.LastHitID = e.StartFromHitID
+	e.LastHitID = &e.StartFromHitID
 	var z int
 	e.NumRows = &z
 	for {
-		var hits Hits
-		e.LastHitID, exportErr = hits.List(ctx, 5000, e.LastHitID)
+		var (
+			hits Hits
+			last int64
+		)
+		last, exportErr = hits.List(ctx, 5000, *e.LastHitID)
+		e.LastHitID = &last
 		if len(hits) == 0 {
 			break
 		}
@@ -198,17 +214,19 @@ func (e *Export) Run(ctx context.Context, fp *os.File) {
 		zlog.Error(err)
 	}
 
-	site := MustGetSite(ctx)
-	user := GetUser(ctx)
-	err = blackmail.Send("GoatCounter export ready",
-		blackmail.From("GoatCounter export", cfg.EmailFrom),
-		blackmail.To(user.Email),
-		blackmail.BodyMustText(EmailTemplate("email_export_done.gotxt", struct {
-			Site   Site
-			Export Export
-		}{*site, *e})))
-	if err != nil {
-		l.Error(err)
+	if mailUser {
+		site := MustGetSite(ctx)
+		user := GetUser(ctx)
+		err = blackmail.Send("GoatCounter export ready",
+			blackmail.From("GoatCounter export", cfg.EmailFrom),
+			blackmail.To(user.Email),
+			blackmail.BodyMustText(EmailTemplate("email_export_done.gotxt", struct {
+				Site   Site
+				Export Export
+			}{*site, *e})))
+		if err != nil {
+			l.Error(err)
+		}
 	}
 }
 

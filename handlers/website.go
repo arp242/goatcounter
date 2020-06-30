@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/zgoat/kommentaar/srvhttp"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
@@ -66,7 +67,7 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
 	r.Get("/code", zhttp.Wrap(h.code))
-	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr", "why", "data"} {
+	for _, t := range []string{"", "help", "privacy", "terms", "contact", "gdpr", "why", "data", "api"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
 
@@ -76,6 +77,18 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 		Limit:   zhttp.RatelimitLimit(5, 86400),
 		Message: "you can download this five times per day only",
 	})).Get("/data/{file}", zhttp.Wrap(h.downloadData))
+
+	conf := srvhttp.Args{
+		Packages: []string{"./handlers"},
+		Config:   "./kommentaar.conf",
+		NoScan:   cfg.Prod,
+		YAMLFile: "./docs/api.yaml",
+		JSONFile: "./docs/api.json",
+		HTMLFile: "./docs/api.html",
+	}
+	r.Get("/api.json", srvhttp.JSON(conf))
+	r.Get("/api.yaml", srvhttp.YAML(conf))
+	r.Get("/api.html", srvhttp.HTML(conf))
 }
 
 var metaDesc = map[string]string{
@@ -89,6 +102,7 @@ var metaDesc = map[string]string{
 	"code":       "Site integration code – GoatCounter",
 	"why":        "Why I made GoatCounter",
 	"data":       "GoatCounter data",
+	"api":        "API – GoatCounter",
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {

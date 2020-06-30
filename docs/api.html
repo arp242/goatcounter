@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>GoatCounter API documentation 0.1</title>
+
+	<style>
+		body {
+			font: 16px/1.9em sans-serif;
+			background-color: #eee;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		p, ul {
+			margin: 0;
+			padding: 0;
+		}
+
+		ul {
+			margin-left: 2em;
+		}
+
+		h3 {
+			font-size: 1.5em;
+			position: relative;
+			margin-top: 1rem;
+			margin-bottom: 0;
+			padding: .2rem;
+			padding-left: .5rem;
+			margin-bottom: -1px;
+		}
+
+		h3.js-expand {
+			cursor: pointer;
+		}
+
+		h4 {
+			margin: 0;
+			font-size: 16px;
+		}
+
+		sup {
+			color: #aaa;
+		}
+
+		.permalink {
+			font-weight: normal;
+			color: rgb(0, 0, 238);
+
+			 
+			width: 1.5em;
+			display: inline-block;
+			text-align: center;
+		}
+
+		.permalink:visited {
+			color: rgb(0, 0, 238);
+		}
+
+		.permalink:hover {
+			color: #66f;
+		}
+
+		h3 .permalink {
+			font-size: 16px;
+		}
+
+		.endpoint {
+			position: relative;
+			background-color: #fff;
+			border: 1px solid #b7b7b7;
+			margin-bottom: -1px;
+			padding: .2em .5em;
+			border-radius: 2px;
+		}
+
+		.endpoint-top {
+			cursor: pointer;
+		}
+
+		.endpoint-info {
+			margin-left: 4.5rem;
+			display: none;
+		}
+
+		.endpoint-info p {
+			max-width: 55em;
+		}
+
+		.resource {
+			display: inline-block;
+			min-width: 38rem;
+		}
+
+		.resource .method {
+			display: inline-block;
+			min-width: 4rem;
+		}
+
+		.param-name {
+			display: inline-block;
+			min-width: 11rem;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>GoatCounter API documentation 0.1</h1>
+
+	
+	
+		<p>
+			Contact <a href="mailto:support@goatcounter.com">
+				
+					Martin Tournoij
+				
+			</a> for questions.
+		</p>
+	
+
+	
+
+	<h2>Endpoints</h2>
+	
+		
+			</div><div>
+			<h3 id="export" class="js-expand">
+				export
+				<a class="permalink" href="#export">§</a>
+			</h3>
+		
+
+		<div class="endpoint" id="GET-/api/v0/export/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/export/{id}</code>
+				Get details about an export.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fexport%2f%7bid%7d">§</a>
+			</div>
+
+			<div class="endpoint-info">
+				<p></p>
+
+				
+
+				
+
+				
+
+				
+
+				<h4>Responses</h4>
+				<ul>
+					
+						<li><code class="param-name">200 OK</code>
+							
+								
+									<a href="#goatcounter.Export">goatcounter.Export</a>
+								
+								<sup>(application/json)</sup>
+							
+						</li>
+					
+				</ul>
+			</div>
+		</div>
+	
+		
+
+		<div class="endpoint" id="GET-/api/v0/export/{id}/download">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/export/{id}/download</code>
+				Download an export file.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fexport%2f%7bid%7d%2fdownload">§</a>
+			</div>
+
+			<div class="endpoint-info">
+				<p></p>
+
+				
+
+				
+
+				
+
+				
+
+				<h4>Responses</h4>
+				<ul>
+					
+						<li><code class="param-name">200 OK</code>
+							
+								
+									200 OK (text/csv data)
+								
+								<sup>(text/csv)</sup>
+							
+						</li>
+					
+				</ul>
+			</div>
+		</div>
+	
+		
+
+		<div class="endpoint" id="POST-/api/v0/export">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">POST</span> /api/v0/export</code>
+				Start a new export in the background.
+				<a class="permalink" href="#POST-%2fapi%2fv0%2fexport">§</a>
+			</div>
+
+			<div class="endpoint-info">
+				<p>This starts a new export in the background.</p>
+
+				
+
+				
+
+				
+
+				
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.apiExportRequest">handlers.apiExportRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+				
+
+				<h4>Responses</h4>
+				<ul>
+					
+						<li><code class="param-name">202 Accepted</code>
+							
+								
+									<a href="#goatcounter.Export">goatcounter.Export</a>
+								
+								<sup>(application/json)</sup>
+							
+						</li>
+					
+				</ul>
+			</div>
+		</div>
+	
+
+	<h2>Models</h2>
+	
+		<h3 id="goatcounter.Export">
+			goatcounter.Export
+			<a class="permalink" href="#goatcounter.Export">§</a>
+		</h3>
+		<div class="endpoint">
+			<p></p>
+			<pre>title: Export
+type: object
+properties:
+  created_at:
+    type: string
+    format: date-time
+  error:
+    description: Any errors that may have occured.
+    type: string
+  finished_at:
+    type: string
+    format: date-time
+  hash:
+    description: SHA256 hash.
+    type: string
+  id:
+    type: integer
+  last_hit_id:
+    description: Last hit ID that was exported; can be used as start_from_hit_id.
+    type: integer
+  num_rows:
+    type: integer
+  path:
+    type: string
+  site_id:
+    type: integer
+  size:
+    description: File size in MB.
+    type: string
+  start_from_hit_id:
+    description: The hit ID this export was started from.
+    type: integer
+</pre>
+		</div>
+	
+		<h3 id="handlers.apiExportRequest">
+			handlers.apiExportRequest
+			<a class="permalink" href="#handlers.apiExportRequest">§</a>
+		</h3>
+		<div class="endpoint">
+			<p></p>
+			<pre>title: apiExportRequest
+type: object
+properties:
+  start_from_hit_id:
+    description: Pagination cursor; only export hits with an ID greater than this.
+    type: integer
+</pre>
+		</div>
+	
+
+	<script>
+		var add = function(endpoint) {
+			
+			var topLine = endpoint.getElementsByClassName('endpoint-top')[0]
+			var info = endpoint.getElementsByClassName('endpoint-info')[0]
+			topLine.addEventListener('click', function(e) {
+				if (e.target.className === 'permalink')
+					return
+
+				e.preventDefault()
+				
+				info.style.display = info.style.display === 'block' ? '' : 'block'
+			})
+
+			
+			
+			
+			
+			
+		}
+
+		var ep = document.getElementsByClassName('endpoint')
+		for (var i = 0; i < ep.length; i++)
+			add(ep[i])
+
+		
+		document.addEventListener('click', function(e) {
+			if (e.target.className !== 'js-expand')
+				return
+
+			e.preventDefault()
+			var parent = e.target.parentNode
+			if (parent.tagName.toLowerCase() === 'h3')
+				parent = parent.parentNode
+
+			var info = parent.getElementsByClassName('info')
+			for (var i = 0; i < info.length; i++)
+				info[i].style.display = info[i].style.display === 'block' ? '' : 'block'
+		})
+	</script>
+</body>
+</html>

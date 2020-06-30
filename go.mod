@@ -13,20 +13,21 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/monoculum/formam v0.0.0-20200527175922-6f3cce7a46cf
 	github.com/teamwork/reload v1.3.2
+	github.com/zgoat/kommentaar v0.1.2-0.20200627052335-2b2d4a9fb559
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 	golang.org/x/tools v0.0.0-20200519205726-57a9e4404bf7
 	honnef.co/go/tools v0.0.1-2020.1.4
 	zgo.at/blackmail v0.0.0-20200527044144-ce30fa1f0a22
-	zgo.at/errors v0.0.0-20200626061729-56441133759f
+	zgo.at/errors v0.0.0-20200630050327-695f120d26a1
 	zgo.at/gadget v0.0.0-20200522205438-64412137d778
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20200627092736-4e2d25be1249
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zdb v0.0.0-20200622035304-8fce69315f06
-	zgo.at/zhttp v0.0.0-20200627042606-d9855b9c6bf9
+	zgo.at/zhttp v0.0.0-20200630054645-5de78e421358
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
 	zgo.at/zstd v0.0.0-20200623061931-3d4ffff7925b

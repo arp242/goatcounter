@@ -327,7 +327,7 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
 	u.CSRFToken = zhttp.SecretP()
-	if u.LoginToken == nil {
+	if u.LoginToken == nil || *u.LoginToken == "" {
 		s := Now().Format("20060102") + "-" + zhttp.Secret()
 		u.LoginToken = &s
 	}

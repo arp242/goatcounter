@@ -611,6 +611,24 @@ commit;
 	insert into version values('2020-06-18-1-totp');
 commit;
 `),
+	"db/migrate/pgsql/2020-06-26-1-api-tokens.sql": []byte(`begin;
+	create table api_tokens (
+		api_token_id   serial         primary key,
+		site_id        integer        not null,
+		user_id        integer        not null,
+		name           varchar        not null,
+		token          varchar        not null   check(length(token) > 10),
+		permissions    jsonb          not null,
+		created_at     timestamp      not null,
+
+		foreign key (site_id) references sites(id) on delete restrict on update restrict,
+		foreign key (user_id) references users(id) on delete restrict on update restrict
+	);
+	create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
+
+	insert into version values('2020-06-26-1-api-tokens');
+commit;
+`),
 	"db/migrate/pgsql/2020-06-26-1-record-export.sql": []byte(`begin;
 	create table exports (
 		export_id         serial         primary key,
@@ -1424,6 +1442,24 @@ commit;
 	update users set totp_secret=randomblob(16);
 
 	insert into version values('2020-06-18-1-totp');
+commit;
+`),
+	"db/migrate/sqlite/2020-06-26-1-api-tokens.sql": []byte(`begin;
+	create table api_tokens (
+		api_token_id   integer        primary key autoincrement,
+		site_id        integer        not null,
+		user_id        integer        not null,
+		name           varchar        not null,
+		token          varchar        not null    check(length(token) > 10),
+		permissions    jsonb          not null,
+		created_at     timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+
+		foreign key (site_id) references sites(id) on delete restrict on update restrict,
+		foreign key (user_id) references users(id) on delete restrict on update restrict
+	);
+	create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
+
+	insert into version values('2020-06-26-1-api-tokens');
 commit;
 `),
 	"db/migrate/sqlite/2020-06-26-1-record-export.sql": []byte(`begin;
@@ -15821,6 +15857,102 @@ Martin
 	<div class="page page-{{.Page}}">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
+	"tpl/api.gohtml": []byte(`{{/*************************************************************************
+ * This file was generated from tpl/api.markdown. DO NOT EDIT.
+*************************************************************************/}}
+
+{{template "_top.gohtml" .}}
+
+<h1 id="goatcounter-api">GoatCounter API</h1>
+<p>GoatCounter has a rudimentary API; this is far from feature-complete, but solves
+some common use cases.</p>
+
+<p>The API is currently unversioned and prefixed with <code>/api/v0</code>; while breaking
+changes will be avoided and are not expected, they <em>may</em> occur. I'll be sure to
+send ample notification of this to everyone who has generated an API key.</p>
+
+<h2 id="authentication">Authentication <a href="#authentication"></a></h2>
+<p>To use the API create a key in your account (<code>Settings → Password, MFA, API</code>);
+send the API key in the <code>Authorization</code> header as <code>Authorization: bearer
+[token]</code>.</p>
+
+<p>You will need to use <code>Content-Type: application/json</code>; all requests return JSON
+unless noted otherwise.</p>
+
+<p>Example:</p>
+
+<pre><code>curl -X POST \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer 2q2snk7clgqs63tr4xc5bwseajlw88qzilr8fq157jz3qxwwmz5' \
+    https://example.goatcounter.com/api/v0/export
+</code></pre>
+
+<h2 id="rate-limit">Rate limit <a href="#rate-limit"></a></h2>
+<p>The rate limit is 60 requests per 120 seconds. The current rate limits are
+indicated in the <code>X-Rate-Limit-Limit</code>, <code>X-Rate-Limit-Remaining</code>, and
+<code>X-Rate-Limit-Reset</code> headers.</p>
+
+<h2 id="api-reference">API reference <a href="#api-reference"></a></h2>
+<p>API reference docs are available at:</p>
+
+<ul>
+  <li><a href="/api.json">/api.json</a> – OpenAPI 2.0 JSON file.</li>
+  <li><a href="/api.yaml">/api.yaml</a> – OpenAPI 2.0 YAML file.</li>
+  <li><a href="/api.html">/api.html</a> – Basic HTML.</li>
+  <li><a href="https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1">SwaggerHub</a></li>
+</ul>
+
+<p>The files are also available in the <code>docs</code> directory of the source repository.</p>
+
+<h2 id="examples">Examples <a href="#examples"></a></h2>
+
+<h3 id="export">Export <a href="#export"></a></h3>
+
+<p>Example to export via the API:</p>
+
+<pre><code>token=[your api token]
+api=http://[my code].goatcounter.com/api/v0
+curl() {
+    \command curl --silent \
+        -H 'Content-Type: application/json' \
+        -H "Authorization: Bearer $token" \
+        $@
+}
+
+# Start a new export, get ID from response object.
+id=$(curl -X POST "$api/export" | jq .id)
+
+# The export is started in the background, so we'll need to wait until it's finished.
+while :; do
+    sleep 1
+
+    finished=$(curl "$api/export/$id" | jq .finished_at)
+    if [ "$finished" != "null" ]; then
+        # Download the export.
+        curl "$api/export/$id/download" | gzip -d
+
+        break
+    fi
+done
+</code></pre>
+
+<p>The above doesn't does no error checking for brevity: errors are reported in the
+<code>error</code> field as a string, or in the <code>errors</code> field as <code>{"name": ["err1",
+"err2", "name2": [..]}</code>.</p>
+
+<p>The export object contains a <code>last_hit_id</code> parameter, which can be used as a
+pagination cursor to only download hits after this export. This is useful to
+sync your local database every hour or so:</p>
+
+<pre><code># Get cursor
+start=$(curl "$api/export/$id" | jq .last_hit_id)
+
+# Start new export starting from the cursor.
+id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id)
+</code></pre>
+
+{{template "_bottom.gohtml" .}}
+`),
 	"tpl/backend.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
 
 {{if .User.ID}}
@@ -16540,8 +16672,8 @@ input    { float: right; padding: .4em !important; }
 
 			<form method="post" action="/add">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-				<table class="auto">
-					<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
+				<table class="auto table-left">
+					<thead><tr><th>Code</th><th></th></tr></thead>
 					<tbody>
 						{{range $s := .SubSites}}<tr>
 							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
@@ -16667,7 +16799,7 @@ input    { float: right; padding: .4em !important; }
 </div>
 
 <div>
-	<h2 id="auth">Password &amp; MFA</h2>
+	<h2 id="auth">Password, MFA, API</h2>
 
 	<div class="flex-form">
 		<form method="post" action="/user/change-password" class="vertical">
@@ -16707,27 +16839,78 @@ input    { float: right; padding: .4em !important; }
 				</fieldset>
 			</form>
 		{{else}}
-			<form method="post" action="/user/enable-totp" class="vertical">
+			<form method="post" action="/user/enable-totp">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 				<fieldset>
 					<legend>Multi-factor authentication</legend>
 					<p>Enable TOTP-based multi-factor authentication by scanning the
-					code in your authenticator app or entering the secret.</p>
+					code in your authenticator app or entering the secret
+					manually.</p>
 
-					{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
-					<label for="secret_text">Secret:</label>
-					<div id="secret_text">{{ .User.TOTPSecret | base32 }}</div>
+					<div style="display: flex; justify-content: space-between">
+						{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
+						<div>Secret:<br>{{ .User.TOTPSecret | base32 }}</div>
+					</div>
 
-					<label for="totp_token">Verification token</label>
+					<label for="totp_token">Verification token: </label>
 					<input type="text" name="totp_token" id="totp_token" required
-						autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"><br>
-
+						autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
 					<button type="submit">Enable MFA</button>
 				</fieldset>
 			</form>
 		{{end}}
 	</div>
+	<br>
+
+		<fieldset>
+			<legend>API tokens</legend>
+
+			<a href="https://www.goatcounter.com/api">API documentation</a>
+			<table class="auto table-left">
+				<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
+
+				<tbody>
+					{{range $t := .APITokens}}<tr>
+						<td>{{$t.Name}}</td>
+						<td>
+							{{if $t.Permissions.Count}}Record pageviews{{end}}
+							{{if $t.Permissions.Export}}Export{{end}}
+						</td>
+						<td>{{$t.Token}}</td>
+						<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
+
+						<td>
+							<form method="post" action="/user/api-token/remove/{{$t.ID}}">
+								<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+								<button class="link">delete</button>
+							</form>
+						</td>
+					</tr>{{end}}
+
+					<tr>
+						<form method="post" action="/user/api-token">
+							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+							<td>
+								<input type="text" id="name" name="name" placeholder="Name">
+							</td>
+							<td>
+								{{/*
+								<label title="Record pageviews with /api/v0/count">
+									<input type="checkbox" name="permissions.count">Record pageviews</label><br>
+								*/}}
+								<label title="Export data with /api/v0/export">
+									<input type="checkbox" name="permissions.export">Export</label>
+							</td>
+							<td><button type="submit">Add new</button></td>
+						</form>
+					</tr>
+				</tbody>
+			</table>
+		</fieldset>
+	</form>
 </div>
 
 {{if .GoatcounterCom}}

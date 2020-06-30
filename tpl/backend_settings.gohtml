@@ -179,8 +179,8 @@
 
 			<form method="post" action="/add">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-				<table class="auto">
-					<thead><tr><th>Code</th><th>Name</th><th></th></tr></thead>
+				<table class="auto table-left">
+					<thead><tr><th>Code</th><th></th></tr></thead>
 					<tbody>
 						{{range $s := .SubSites}}<tr>
 							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
@@ -306,7 +306,7 @@
 </div>
 
 <div>
-	<h2 id="auth">Password &amp; MFA</h2>
+	<h2 id="auth">Password, MFA, API</h2>
 
 	<div class="flex-form">
 		<form method="post" action="/user/change-password" class="vertical">
@@ -346,27 +346,78 @@
 				</fieldset>
 			</form>
 		{{else}}
-			<form method="post" action="/user/enable-totp" class="vertical">
+			<form method="post" action="/user/enable-totp">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 				<fieldset>
 					<legend>Multi-factor authentication</legend>
 					<p>Enable TOTP-based multi-factor authentication by scanning the
-					code in your authenticator app or entering the secret.</p>
+					code in your authenticator app or entering the secret
+					manually.</p>
 
-					{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
-					<label for="secret_text">Secret:</label>
-					<div id="secret_text">{{ .User.TOTPSecret | base32 }}</div>
+					<div style="display: flex; justify-content: space-between">
+						{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
+						<div>Secret:<br>{{ .User.TOTPSecret | base32 }}</div>
+					</div>
 
-					<label for="totp_token">Verification token</label>
+					<label for="totp_token">Verification token: </label>
 					<input type="text" name="totp_token" id="totp_token" required
-						autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"><br>
-
+						autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
 					<button type="submit">Enable MFA</button>
 				</fieldset>
 			</form>
 		{{end}}
 	</div>
+	<br>
+
+		<fieldset>
+			<legend>API tokens</legend>
+
+			<a href="https://www.goatcounter.com/api">API documentation</a>
+			<table class="auto table-left">
+				<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
+
+				<tbody>
+					{{range $t := .APITokens}}<tr>
+						<td>{{$t.Name}}</td>
+						<td>
+							{{if $t.Permissions.Count}}Record pageviews{{end}}
+							{{if $t.Permissions.Export}}Export{{end}}
+						</td>
+						<td>{{$t.Token}}</td>
+						<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
+
+						<td>
+							<form method="post" action="/user/api-token/remove/{{$t.ID}}">
+								<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+								<button class="link">delete</button>
+							</form>
+						</td>
+					</tr>{{end}}
+
+					<tr>
+						<form method="post" action="/user/api-token">
+							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+							<td>
+								<input type="text" id="name" name="name" placeholder="Name">
+							</td>
+							<td>
+								{{/*
+								<label title="Record pageviews with /api/v0/count">
+									<input type="checkbox" name="permissions.count">Record pageviews</label><br>
+								*/}}
+								<label title="Export data with /api/v0/export">
+									<input type="checkbox" name="permissions.export">Export</label>
+							</td>
+							<td><button type="submit">Add new</button></td>
+						</form>
+					</tr>
+				</tbody>
+			</table>
+		</fieldset>
+	</form>
 </div>
 
 {{if .GoatcounterCom}}

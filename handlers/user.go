@@ -60,6 +60,8 @@ func (h user) mount(r chi.Router) {
 	auth.Post("/user/disable-totp", zhttp.Wrap(h.disableTOTP))
 	auth.Post("/user/enable-totp", zhttp.Wrap(h.enableTOTP))
 	auth.Post("/user/resend-verify", zhttp.Wrap(h.resendVerify))
+	auth.Post("/user/api-token", zhttp.Wrap(h.newAPIToken))
+	auth.Post("/user/api-token/remove/{id}", zhttp.Wrap(h.deleteAPIToken))
 }
 
 func (h user) new(w http.ResponseWriter, r *http.Request) error {
@@ -426,6 +428,50 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 	sendEmailVerify(goatcounter.MustGetSite(r.Context()), user)
 	zhttp.Flash(w, "Sent to %q", user.Email)
 	return zhttp.SeeOther(w, "/")
+}
+
+func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
+	user := goatcounter.GetUser(r.Context())
+	if !user.EmailVerified {
+		zhttp.Flash(w, "need to verify your email before you can use the API")
+		return zhttp.SeeOther(w, "/settings#tab-auth")
+	}
+
+	var token goatcounter.APIToken
+	_, err := zhttp.Decode(r, &token)
+	if err != nil {
+		return err
+	}
+
+	err = token.Insert(r.Context())
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Token created")
+	return zhttp.SeeOther(w, "/settings#tab-auth")
+}
+
+func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var token goatcounter.APIToken
+	err := token.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	err = token.Delete(r.Context())
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Token removed")
+	return zhttp.SeeOther(w, "/settings#tab-auth")
 }
 
 func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
