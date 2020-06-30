@@ -80,14 +80,19 @@
 	</div>
 	<div id="dash-move">
 		<div>
-			← back
+			←&#xfe0e; back
 			<button class="link" name="move" value="week-b">week</button> ·
 			<button class="link" name="move" value="month-b">month</button>
 		</div>
+		<small title="Visits displayed / total visits">
+			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
+			/
+			<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span></small>
+		</small>
 		<div>
 			<button class="link" name="move" value="week-f">week</button> ·
 			<button class="link" name="move" value="month-f">month</button>
-			forward →
+			forward →&#xfe0e;
 		</div>
 	</div>
 </form>
@@ -95,14 +100,30 @@
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 	<h2 class="screen-reader">Paths</h2>
 	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-		{{template "_backend_totals.gohtml" .}}
 		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
 	</table>
+	<div class="load-more-wrapper">
+		<a href="#" class="load-more btn" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+	</div>
+</div>
 
-	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+<div class="totals">
+	<h2>Totals <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
+		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews</small>
+	</h2>
+	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
 </div>
 
 <div class="browser-charts">
+	<div>
+		<h2>Top referrers</h2>
+		<div class="refs">
+			{{template "_backend_refs.gohtml" map "Refs" $.TopRefs "Site" $.Site "Totals" true}}
+			<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>
+		</div>
+	</div>
+
 	<div>
 		<h2>Browsers</h2>
 		{{if eq .TotalBrowsers 0}}

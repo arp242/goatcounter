@@ -354,6 +354,12 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		max, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)
 	}()
 
+	var topRefs goatcounter.Stats
+	_, err = topRefs.ListTopRefs(r.Context(), start, end, 0)
+	if err != nil {
+		return err
+	}
+
 	var browsers goatcounter.Stats
 	totalBrowsers, err := browsers.ListBrowsers(r.Context(), start, end)
 	if err != nil {
@@ -382,14 +388,14 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
 	var (
-		refs     goatcounter.HitStats
+		refs     goatcounter.Stats
 		moreRefs bool
 	)
 	if sr != "" {
 		if sr == goatcounter.PathTotals {
-			moreRefs, err = refs.ListAllRefs(r.Context(), start, end, 0)
+			moreRefs, err = refs.ListTopRefs(r.Context(), start, end, 0)
 		} else {
-			moreRefs, err = refs.ListRefs(r.Context(), sr, start, end, 0)
+			moreRefs, err = refs.ListRefsByPath(r.Context(), sr, start, end, 0)
 		}
 		if err != nil {
 			return err
@@ -432,7 +438,7 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		Pages              goatcounter.HitStats
 		TotalPages         goatcounter.HitStat
 		MorePages          bool
-		Refs               goatcounter.HitStats
+		Refs               goatcounter.Stats
 		MoreRefs           bool
 		TotalHits          int
 		TotalUniqueHits    int
@@ -451,11 +457,12 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		Daily              bool
 		ForcedDaily        bool
 		Max                int
+		TopRefs            goatcounter.Stats
 	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
 		filter, pages, totalPages, morePages, refs, moreRefs, total,
 		totalUnique, totalDisplay, totalUniqueDisplay, browsers, totalBrowsers,
 		systems, totalSystems, subs, sizeStat, totalSize, locStat, totalLoc,
-		showMoreLoc, daily, forcedDaily, max})
+		showMoreLoc, daily, forcedDaily, max, topRefs})
 	l.Since("zhttp.Template")
 	return x
 }
@@ -507,19 +514,16 @@ func (h backend) refs(w http.ResponseWriter, r *http.Request) error {
 	showRefs := r.URL.Query().Get("showrefs")
 
 	var (
-		refs goatcounter.HitStats
+		refs goatcounter.Stats
 		more bool
 	)
 	if showRefs == goatcounter.PathTotals {
-		more, err = refs.ListAllRefs(r.Context(), start, end, offset)
-		if err != nil {
-			return err
-		}
+		more, err = refs.ListTopRefs(r.Context(), start, end, offset)
 	} else {
-		more, err = refs.ListRefs(r.Context(), showRefs, start, end, offset)
-		if err != nil {
-			return err
-		}
+		more, err = refs.ListRefsByPath(r.Context(), showRefs, start, end, offset)
+	}
+	if err != nil {
+		return err
 	}
 
 	tpl, err := zhttp.ExecuteTpl("_backend_refs.gohtml", map[string]interface{}{

@@ -45,6 +45,13 @@ nav .updates { font-weight: bold; background-color: yellow; }
 nav #signin  { white-space: nowrap; margin-left: 1em; }
 nav #back    { white-space: nowrap; margin-right: 1em; }
 
+h2 { margin-bottom: .4em; }
+
+.totals h2 {
+	margin-left: .4em; margin-right: .4em; padding-right: .2em;
+	display: flex; justify-content: space-between;
+}
+
 h2 sup, h2 small {
 	font-size: .9rem;
 	font-weight: normal;
@@ -86,54 +93,31 @@ input.red { border: 1px solid red !important; }
 	border-color: #f00;
 }
 
+.btn       { display: inline-block; padding: .0em 1.5em; background-color: #f9f9f9; border: 1px solid #ddd; }
+.btn:hover { text-decoration: none; background-color: #fbfbfb; }
 
 /*** Pages list ***/
 .count-list td           { vertical-align: top; }
 .count-list td.generated { font-style: italic; }
 
-.count-list td:first-child {  /* Count */
-	text-align: right;
-	width: 5rem;
-}
+.count-list .col-count { width: 5rem; text-align: right; }
+.count-list .col-path  { width: 20rem; }
+
 .count-list td[colspan="3"] {  /* "nothing to display" */
 	text-align: left;
 	width: auto;
 }
 
-.count-list td:nth-child(2) {  /* Path */
-	width: 20rem;
-}
 
-.count-list.count-list-refs { position: relative; }
-
-.count-list.count-list-refs td:nth-child(1) {
-	text-align: right;
-	width: 4rem;
-}
-.count-list.count-list-refs td:nth-child(2) {
-	width: auto;
-	word-break: break-all; /* don't make it wider for very long urls */
-}
-
-/* Totals */
-.count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
-.count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
-.count-list .totals .load-refs.desktop {
-	float: right;
-	margin-right: 1em;
-}
+.count-list.count-list-refs            { position: relative; }
+.count-list.count-list-refs .col-count { width: 4rem; }
+.count-list.count-list-refs .col-ref   { text-align: left; width: auto;
+	word-break: break-all; /* don't make it wider for very long urls */ }
 
 .label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
-
-/* Make "visit" links bigger on mobile. */
-@media (max-width: 55rem) {
-	/*
-	sup { vertical-align: inherit; font-size: 1rem; bottom: 1ex; }
-	*/
-}
 
 .rlink { display: inline-block; overflow: hidden;
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -153,8 +137,11 @@ input.value             { background-color: yellow; }
 /* Border doesn't affect layout. */
 .count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
 
-.count-list tr:target > td:nth-child(2) .load-refs,
-.count-list tr.target > td:nth-child(2) .load-refs {
+.load-more-wrapper { text-align: center; }
+.load-more-refs { margin-top: .5em; }
+
+.count-list tr:target .load-refs,
+.count-list tr.target .load-refs {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }
@@ -167,7 +154,7 @@ tr.target small.go { display: inline-block; }
 #dash-saved-views { text-align: right; margin-right: .3em; }
 #dash-move        { display: flex; justify-content: space-between; padding: .2em; }
 
-#dash-form      { display: block; margin-bottom: 1.5em; padding-bottom: .4em; }
+#dash-form      { display: block; margin-bottom: .7em; padding-bottom: .4em; }
 #dash-form span { margin-left: 0; } /* Reset from hello-css */
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
@@ -181,7 +168,7 @@ tr.target small.go { display: inline-block; }
 .filter-wrap                 { position: relative; text-align: right; }
 .filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
 
-#dash-main label { display: block; text-align: right; }
+#dash-main label { display: block; text-align: right; margin-right: .4em; }
 
 #dash-select-period           { display: block; padding-left: .3em; }
 #dash-select-period span+span { margin-left: .5em; }
@@ -195,8 +182,6 @@ tr.target small.go { display: inline-block; }
 	#filter-paths  { width: 10em;  }
 }
 
-/* TODO:
- */
 @media (max-width: 33.5rem) {
 	#dash-main       { display: block; }
 	#filter-paths    { width: 100%; margin-top: .5em; }
@@ -215,7 +200,6 @@ tr.target small.go { display: inline-block; }
 	text-decoration: underline;
 }
 
-
 /*** Charts ***/
 .chart {
 	border: 1px solid #ccc;
@@ -223,26 +207,15 @@ tr.target small.go { display: inline-block; }
 	margin: 5px 0;
 	width: 100%;
 	position: relative;
-}
-/* Add a bit extra space between the charts */
-@media (min-width: 55rem) {
-	.chart { margin-bottom: 1em; }
+	margin-bottom: 1em;
 }
 
-.chart > .top {
-	font-size: 13px;
-	line-height: 1;
-	position: absolute;
-	top: -1.2em;
-}
 .go { word-break: normal; }
 
 .chart-left {
-	position: absolute; left: -1.6em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+	position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
 	display: none; margin-right: 0;
 }
-.count-list .totals .chart-left,
-.count-list .totals .chart-right { background-color: #f7f7f7; }
 .chart-left a:hover { text-decoration: none; }
 
 tr:hover .chart-left,

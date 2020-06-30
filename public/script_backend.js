@@ -98,7 +98,7 @@
 
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
-		$('.count-list-pages').on('click', '.rescale', function(e) {
+		$('.count-list').on('click', '.rescale', function(e) {
 			e.preventDefault()
 
 			var scale = $(this).closest('.chart').attr('data-max')
@@ -273,19 +273,19 @@
 			$('.count-list-pages').attr('data-scale', data.max)
 			$('.scale').html(format_int(data.max))
 
-			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
-			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
+			$('.totals tbody').replaceWith(data.totals)
+			$('.pages-list tbody').html(data.rows)
 		}
 		else
 			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
-		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
+		$('.pages-list .load-more').css('display', data.more ? 'inline-block' : 'none')
 
-		var th = $('.pages-list .total-hits'),
-		    td = $('.pages-list .total-display'),
-			tu = $('.pages-list .total-unique'),
-			ud = $('.pages-list .total-unique-display')
+		var th = $('.total-hits'),
+		    td = $('.total-display'),
+			tu = $('.total-unique'),
+			ud = $('.total-unique-display')
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
@@ -501,25 +501,28 @@
 
 					bar.after(d);
 				},
-			});
-		});
-	};
+			})
+		})
+	}
 
 	// Paginate the referrers.
 	var paginate_refs = function() {
-		$('.pages-list').on('click', '.load-more-refs', function(e) {
-			e.preventDefault();
+		$('.pages-list, .browser-charts').on('click', '.load-more-refs', function(e) {
+			e.preventDefault()
 
-			var btn = $(this);
+			// .count-list-refs
+			var btn   = $(this),
+				table = btn.closest('.refs').find('table')
 			var done = paginate_button(btn, () => {
+				console.log(btn.closest('tr').attr('id'))
 				jQuery.ajax({
 					url: '/refs',
 					data: append_period({
-						showrefs: btn.closest('tr').attr('id'),
-						offset:   btn.prev().find('tr').length,
+						showrefs: btn.closest('tr').attr('id') || 'TOTAL ',
+						offset:   table.find('tr').length,
 					}),
 					success: function(data) {
-						btn.prev().find('tbody').append($(data.rows).find('tr'));
+						table.find('tbody').append($(data.rows).find('tr'));
 						if (!data.more)
 							btn.remove()
 						done()
@@ -592,7 +595,7 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.load-refs', function(e) {
+		$('.count-list-pages, .totals').on('click', '.load-refs', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
@@ -625,7 +628,7 @@
 							close()
 						row.find('.refs').html(data.rows)
 						if (data.more)
-							row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
+							row.find('.refs').append('<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>')
 						done()
 					},
 				})
@@ -709,7 +712,7 @@
 	}
 
 	// Prevent a button/link from working while an AJAX request is in progress;
-	// otherwise smashing a "load more" button will load the same data twice.
+	// otherwise smashing a "show more" button will load the same data twice.
 	//
 	// This also adds a subtle loading indicator after the link/button.
 	//

@@ -1,9 +1,9 @@
 {{range $i, $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
-		<td>
+		<td class="col-count">
 			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
 		</td>
-		<td class="hide-mobile">
+		<td class="col-path hide-mobile">
 			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
@@ -22,14 +22,15 @@
 				{{end}}
 			</div>
 			<div class="chart chart-bar" data-max="{{$h.Max}}">
-				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
+				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+				{{if eq $i 0}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>{{end}}
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
 			<div class="refs">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 					{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
-					{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
+					{{if $.MoreRefs}}<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>{{end}}
 				{{end}}
 			</div>
 		</td>

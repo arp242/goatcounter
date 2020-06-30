@@ -12408,7 +12408,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
-		$('.count-list-pages').on('click', '.rescale', function(e) {
+		$('.count-list').on('click', '.rescale', function(e) {
 			e.preventDefault()
 
 			var scale = $(this).closest('.chart').attr('data-max')
@@ -12583,19 +12583,19 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			$('.count-list-pages').attr('data-scale', data.max)
 			$('.scale').html(format_int(data.max))
 
-			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
-			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
+			$('.totals tbody').replaceWith(data.totals)
+			$('.pages-list tbody').html(data.rows)
 		}
 		else
 			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
-		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
+		$('.pages-list .load-more').css('display', data.more ? 'inline-block' : 'none')
 
-		var th = $('.pages-list .total-hits'),
-		    td = $('.pages-list .total-display'),
-			tu = $('.pages-list .total-unique'),
-			ud = $('.pages-list .total-unique-display')
+		var th = $('.total-hits'),
+		    td = $('.total-display'),
+			tu = $('.total-unique'),
+			ud = $('.total-unique-display')
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
@@ -12811,25 +12811,28 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 					bar.after(d);
 				},
-			});
-		});
-	};
+			})
+		})
+	}
 
 	// Paginate the referrers.
 	var paginate_refs = function() {
-		$('.pages-list').on('click', '.load-more-refs', function(e) {
-			e.preventDefault();
+		$('.pages-list, .browser-charts').on('click', '.load-more-refs', function(e) {
+			e.preventDefault()
 
-			var btn = $(this);
+			// .count-list-refs
+			var btn   = $(this),
+				table = btn.closest('.refs').find('table')
 			var done = paginate_button(btn, () => {
+				console.log(btn.closest('tr').attr('id'))
 				jQuery.ajax({
 					url: '/refs',
 					data: append_period({
-						showrefs: btn.closest('tr').attr('id'),
-						offset:   btn.prev().find('tr').length,
+						showrefs: btn.closest('tr').attr('id') || 'TOTAL ',
+						offset:   table.find('tr').length,
 					}),
 					success: function(data) {
-						btn.prev().find('tbody').append($(data.rows).find('tr'));
+						table.find('tbody').append($(data.rows).find('tr'));
 						if (!data.more)
 							btn.remove()
 						done()
@@ -12902,7 +12905,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.load-refs', function(e) {
+		$('.count-list-pages, .totals').on('click', '.load-refs', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
@@ -12935,7 +12938,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 							close()
 						row.find('.refs').html(data.rows)
 						if (data.more)
-							row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
+							row.find('.refs').append('<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>')
 						done()
 					},
 				})
@@ -13019,7 +13022,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	}
 
 	// Prevent a button/link from working while an AJAX request is in progress;
-	// otherwise smashing a "load more" button will load the same data twice.
+	// otherwise smashing a "show more" button will load the same data twice.
 	//
 	// This also adds a subtle loading indicator after the link/button.
 	//
@@ -13417,6 +13420,13 @@ nav .updates { font-weight: bold; background-color: yellow; }
 nav #signin  { white-space: nowrap; margin-left: 1em; }
 nav #back    { white-space: nowrap; margin-right: 1em; }
 
+h2 { margin-bottom: .4em; }
+
+.totals h2 {
+	margin-left: .4em; margin-right: .4em; padding-right: .2em;
+	display: flex; justify-content: space-between;
+}
+
 h2 sup, h2 small {
 	font-size: .9rem;
 	font-weight: normal;
@@ -13458,54 +13468,31 @@ input.red { border: 1px solid red !important; }
 	border-color: #f00;
 }
 
+.btn       { display: inline-block; padding: .0em 1.5em; background-color: #f9f9f9; border: 1px solid #ddd; }
+.btn:hover { text-decoration: none; background-color: #fbfbfb; }
 
 /*** Pages list ***/
 .count-list td           { vertical-align: top; }
 .count-list td.generated { font-style: italic; }
 
-.count-list td:first-child {  /* Count */
-	text-align: right;
-	width: 5rem;
-}
+.count-list .col-count { width: 5rem; text-align: right; }
+.count-list .col-path  { width: 20rem; }
+
 .count-list td[colspan="3"] {  /* "nothing to display" */
 	text-align: left;
 	width: auto;
 }
 
-.count-list td:nth-child(2) {  /* Path */
-	width: 20rem;
-}
 
-.count-list.count-list-refs { position: relative; }
-
-.count-list.count-list-refs td:nth-child(1) {
-	text-align: right;
-	width: 4rem;
-}
-.count-list.count-list-refs td:nth-child(2) {
-	width: auto;
-	word-break: break-all; /* don't make it wider for very long urls */
-}
-
-/* Totals */
-.count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
-.count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
-.count-list .totals .load-refs.desktop {
-	float: right;
-	margin-right: 1em;
-}
+.count-list.count-list-refs            { position: relative; }
+.count-list.count-list-refs .col-count { width: 4rem; }
+.count-list.count-list-refs .col-ref   { text-align: left; width: auto;
+	word-break: break-all; /* don't make it wider for very long urls */ }
 
 .label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
-
-/* Make "visit" links bigger on mobile. */
-@media (max-width: 55rem) {
-	/*
-	sup { vertical-align: inherit; font-size: 1rem; bottom: 1ex; }
-	*/
-}
 
 .rlink { display: inline-block; overflow: hidden;
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -13525,8 +13512,11 @@ input.value             { background-color: yellow; }
 /* Border doesn't affect layout. */
 .count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
 
-.count-list tr:target > td:nth-child(2) .load-refs,
-.count-list tr.target > td:nth-child(2) .load-refs {
+.load-more-wrapper { text-align: center; }
+.load-more-refs { margin-top: .5em; }
+
+.count-list tr:target .load-refs,
+.count-list tr.target .load-refs {
 	font-weight: bold;
 	border-bottom: 4px solid yellow;
 }
@@ -13539,7 +13529,7 @@ tr.target small.go { display: inline-block; }
 #dash-saved-views { text-align: right; margin-right: .3em; }
 #dash-move        { display: flex; justify-content: space-between; padding: .2em; }
 
-#dash-form      { display: block; margin-bottom: 1.5em; padding-bottom: .4em; }
+#dash-form      { display: block; margin-bottom: .7em; padding-bottom: .4em; }
 #dash-form span { margin-left: 0; } /* Reset from hello-css */
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
@@ -13553,7 +13543,7 @@ tr.target small.go { display: inline-block; }
 .filter-wrap                 { position: relative; text-align: right; }
 .filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
 
-#dash-main label { display: block; text-align: right; }
+#dash-main label { display: block; text-align: right; margin-right: .4em; }
 
 #dash-select-period           { display: block; padding-left: .3em; }
 #dash-select-period span+span { margin-left: .5em; }
@@ -13567,8 +13557,6 @@ tr.target small.go { display: inline-block; }
 	#filter-paths  { width: 10em;  }
 }
 
-/* TODO:
- */
 @media (max-width: 33.5rem) {
 	#dash-main       { display: block; }
 	#filter-paths    { width: 100%; margin-top: .5em; }
@@ -13587,7 +13575,6 @@ tr.target small.go { display: inline-block; }
 	text-decoration: underline;
 }
 
-
 /*** Charts ***/
 .chart {
 	border: 1px solid #ccc;
@@ -13595,26 +13582,15 @@ tr.target small.go { display: inline-block; }
 	margin: 5px 0;
 	width: 100%;
 	position: relative;
-}
-/* Add a bit extra space between the charts */
-@media (min-width: 55rem) {
-	.chart { margin-bottom: 1em; }
+	margin-bottom: 1em;
 }
 
-.chart > .top {
-	font-size: 13px;
-	line-height: 1;
-	position: absolute;
-	top: -1.2em;
-}
 .go { word-break: normal; }
 
 .chart-left {
-	position: absolute; left: -1.6em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+	position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
 	display: none; margin-right: 0;
 }
-.count-list .totals .chart-left,
-.count-list .totals .chart-right { background-color: #f7f7f7; }
 .chart-left a:hover { text-decoration: none; }
 
 tr:hover .chart-left,
@@ -15127,10 +15103,10 @@ var Templates = map[string][]byte{
 `),
 	"tpl/_backend_pages.gohtml": []byte(`{{range $i, $h := .Pages}}
 	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
-		<td>
+		<td class="col-count">
 			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
 		</td>
-		<td class="hide-mobile">
+		<td class="col-path hide-mobile">
 			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
 			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
@@ -15149,14 +15125,15 @@ var Templates = map[string][]byte{
 				{{end}}
 			</div>
 			<div class="chart chart-bar" data-max="{{$h.Max}}">
-				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
+				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+				{{if eq $i 0}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>{{end}}
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
 			<div class="refs">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
 					{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
-					{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
+					{{if $.MoreRefs}}<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>{{end}}
 				{{end}}
 			</div>
 		</td>
@@ -15168,11 +15145,11 @@ var Templates = map[string][]byte{
 	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
 {{range $r := .Refs}}
 	<tr>
-		<td><span title="{{nformat $r.Count $.Site}} pageviews">{{nformat $r.CountUnique $.Site}}</span></td>
-		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
-			{{if $r.Path -}}
-				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Path}}</a>{{else}}{{$r.Path}}{{end}}
-				{{if ne (deref_s $r.RefScheme) "g"}}<sup class="go"><a href="http://{{$r.Path}}" target="_blank" rel="noopener">visit</a></sup>
+		<td class="col-count"><span title="{{nformat $r.Count $.Site}} pageviews">{{nformat $r.CountUnique $.Site}}</span></td>
+		<td class="col-ref{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Name "")}} generated{{end}}">
+			{{if $r.Name -}}
+				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Name}}</a>{{else}}{{$r.Name}}{{end}}
+				{{if ne (deref_s $r.RefScheme) "g"}}<sup class="go"><a href="http://{{$r.Name}}" target="_blank" rel="noopener">visit</a></sup>
 			{{- end}}
 			{{else}}(no data){{end}}
 		</td>
@@ -15806,15 +15783,15 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 						{{- end -}}
 					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
-					<strong id="back"><a href="/settings#tab-additional-sites">← Back</a></strong>
+					<strong id="back"><a href="/settings#tab-additional-sites">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
-					<strong id="back"><a href="/settings#tab-purge">← Back</a></strong>
+					<strong id="back"><a href="/settings#tab-purge">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/admin/"}}
-					<strong id="back"><a href="/admin">← Back</a></strong>
+					<strong id="back"><a href="/admin">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
-					<strong id="back"><a href="/billing">← Back</a></strong>
+					<strong id="back"><a href="/billing">←&#xfe0e; Back</a></strong>
 				{{else}}
-					<strong id="back"><a href="/">← Back</a></strong>
+					<strong id="back"><a href="/">←&#xfe0e; Back</a></strong>
 				{{end}}
 			</div>
 			<div>
@@ -15843,39 +15820,23 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
+	"tpl/_backend_totals.gohtml": []byte(`<tbody><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
 	<td>
-		<span title="{{nformat .TotalPages.Count $.Site}} pageviews">{{nformat .TotalPages.CountUnique $.Site}}</span>
-	</td>
-	<td class="hide-mobile">
-		<strong title="Totals for all the pages">Totals</strong>
-		<a class="load-refs desktop" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a><br>
-		<small>
-			Displaying
-			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
-			<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-		</small>
-	</td>
-	<td>
-		<div class="show-mobile">
-			<strong>Total</strong> |
-			<small>
-				Displaying
-				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
-				<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-			</small> |
-			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
-		</div>
 		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
-			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
+			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
 			<span class="half"></span>
 			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
 			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
 		</div>
+		{{/*
+		<div style="text-align: left;">
+			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
+		</div>
 		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
 			{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" true}}
-			{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
+			<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>
 		{{end}}</div>
+		*/}}
 	</td>
 </tr></tbody>
 `),
@@ -16507,14 +16468,19 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 	</div>
 	<div id="dash-move">
 		<div>
-			← back
+			←&#xfe0e; back
 			<button class="link" name="move" value="week-b">week</button> ·
 			<button class="link" name="move" value="month-b">month</button>
 		</div>
+		<small title="Visits displayed / total visits">
+			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
+			/
+			<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span></small>
+		</small>
 		<div>
 			<button class="link" name="move" value="week-f">week</button> ·
 			<button class="link" name="move" value="month-f">month</button>
-			forward →
+			forward →&#xfe0e;
 		</div>
 	</div>
 </form>
@@ -16522,14 +16488,30 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 	<h2 class="screen-reader">Paths</h2>
 	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-		{{template "_backend_totals.gohtml" .}}
 		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
 	</table>
+	<div class="load-more-wrapper">
+		<a href="#" class="load-more btn" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+	</div>
+</div>
 
-	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+<div class="totals">
+	<h2>Totals <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
+		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews</small>
+	</h2>
+	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
 </div>
 
 <div class="browser-charts">
+	<div>
+		<h2>Top referrers</h2>
+		<div class="refs">
+			{{template "_backend_refs.gohtml" map "Refs" $.TopRefs "Site" $.Site "Totals" true}}
+			<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>
+		</div>
+	</div>
+
 	<div>
 		<h2>Browsers</h2>
 		{{if eq .TotalBrowsers 0}}

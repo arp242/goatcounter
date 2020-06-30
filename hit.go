@@ -450,95 +450,6 @@ type HitStat struct {
 
 type HitStats []HitStat
 
-// ListRefs lists all references for a path.
-func (h *HitStats) ListRefs(ctx context.Context, path string, start, end time.Time, offset int) (bool, error) {
-	site := MustGetSite(ctx)
-
-	limit := site.Settings.Limits.Ref
-	if limit == 0 {
-		limit = 10
-	}
-
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* HitStats.ListRefs */
-		select
-			coalesce(sum(total), 0) as count,
-			coalesce(sum(total_unique), 0) as count_unique,
-			max(ref_scheme) as ref_scheme,
-			ref as path
-		from ref_counts
-		where
-			site=$1 and
-			lower(path)=lower($2) and
-			hour>=$3 and
-			hour<=$4
-		group by ref
-		order by count_unique desc, path desc
-		limit $5 offset $6`,
-		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
-	if err != nil {
-		errors.Wrap(err, "RefStats.ListRefs")
-	}
-
-	var more bool
-	if len(*h) > limit {
-		more = true
-		hh := *h
-		hh = hh[:len(hh)-1]
-		*h = hh
-	}
-
-	return more, nil
-}
-
-// ListAllRefs lists all ref statistics for the given time period, excluding
-// referrals from the configured LinkDomain.
-//
-// The returned count is the count without LinkDomain, and is different from the
-// total number of hits.
-//
-// TODO: after ref_counts it no longer lists "unknown".
-func (h *HitStats) ListAllRefs(ctx context.Context, start, end time.Time, offset int) (bool, error) {
-	site := MustGetSite(ctx)
-
-	limit := site.Settings.Limits.Ref
-	if limit == 0 {
-		limit = 10
-	}
-
-	where := ` where site=? and hour>=? and hour<=?`
-	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-	if site.LinkDomain != "" {
-		where += " and ref not like ? "
-		args = append(args, site.LinkDomain+"%")
-	}
-
-	db := zdb.MustGet(ctx)
-	err := db.SelectContext(ctx, h, db.Rebind(`/* HitStats.ListAllRefs */
-		select
-			coalesce(sum(total), 0) as count,
-			coalesce(sum(total_unique), 0) as count_unique,
-			max(ref_scheme) as ref_scheme,
-			ref as path
-		from ref_counts`+
-		where+`
-		group by ref
-		order by count_unique desc
-		limit ? offset ?`), append(args, limit+1, offset)...)
-	if err != nil {
-		return false, errors.Wrap(err, "HitStats.ListAllRefs")
-	}
-
-	var more bool
-	if len(*h) > limit {
-		more = true
-		hh := *h
-		hh = hh[:len(hh)-1]
-		*h = hh
-	}
-
-	return more, nil
-}
-
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bool) error {
 	t := ""
@@ -555,11 +466,16 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bo
 	return errors.Wrap(err, "Hits.ListPathsLike")
 }
 
-type Stats []struct {
-	Name        string `db:"name"`
-	Count       int    `db:"count"`
-	CountUnique int    `db:"count_unique"`
+// TODO: should be Stat, but that's already taken and don't want to rename
+// everything right now.
+type StatT struct {
+	Name        string  `db:"name"`
+	Count       int     `db:"count"`
+	CountUnique int     `db:"count_unique"`
+	RefScheme   *string `db:"ref_scheme"`
 }
+
+type Stats []StatT
 
 // ByRef lists all paths by reference.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string, limit int) (int, error) {
@@ -708,12 +624,12 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 	// TODO: ideally I'd like to make a line chart in the future, in which case
 	// this should no longer be needed.
 	ns := Stats{
-		{sizePhones, 0, 0},
-		{sizeLargePhones, 0, 0},
-		{sizeTablets, 0, 0},
-		{sizeDesktop, 0, 0},
-		{sizeDesktopHD, 0, 0},
-		{sizeUnknown, 0, 0},
+		{Name: sizePhones, Count: 0, CountUnique: 0},
+		{Name: sizeLargePhones, Count: 0, CountUnique: 0},
+		{Name: sizeTablets, Count: 0, CountUnique: 0},
+		{Name: sizeDesktop, Count: 0, CountUnique: 0},
+		{Name: sizeDesktopHD, Count: 0, CountUnique: 0},
+		{Name: sizeUnknown, Count: 0, CountUnique: 0},
 	}
 
 	hh := *h
@@ -795,11 +711,11 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 	total := 0
 	for width, count := range grouped {
 		total += count
-		ns = append(ns, struct {
-			Name        string `db:"name"`
-			Count       int    `db:"count"`
-			CountUnique int    `db:"count_unique"`
-		}{width, count, groupedUnique[width]})
+		ns = append(ns, StatT{
+			Name:        width,
+			Count:       count,
+			CountUnique: groupedUnique[width],
+		})
 	}
 	sort.Slice(ns, func(i int, j int) bool { return ns[i].Count > ns[j].Count })
 	*h = ns
