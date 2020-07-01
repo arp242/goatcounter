@@ -2,6 +2,8 @@
    This file is part of GoatCounter and published under the terms of the EUPL
    v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
 
+/*** Generic stuff and layout
+ ****************************/
 .page    { padding: 1em; }
 footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between;
 	       background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
@@ -89,27 +91,28 @@ input.red { border: 1px solid red !important; }
 .btn       { display: inline-block; padding: .0em 1.5em; background-color: #f9f9f9; border: 1px solid #ddd; }
 .btn:hover { text-decoration: none; background-color: #fbfbfb; }
 
-/*** Pages list ***/
-.pages-list h2 { margin-top: .5em; }
-
-.count-list td           { vertical-align: top; }
-.count-list td.generated { font-style: italic; }
-
-.count-list .col-count { width: 5rem; text-align: right; }
-.count-list .col-path  { width: 20rem; }
-
-.count-list td[colspan="3"] {  /* "nothing to display" */
-	text-align: left;
-	width: auto;
+.screen-reader { display: none; }
+.hide          { display: none; }
+.show-mobile   { display: none; }
+@media (max-width: 55rem) {
+	.hide-mobile { display: none; }
+	.show-mobile { display: block; }
 }
 
+/* Using display: none means it's ignored by Safary when pressing Enter. */
+button.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
 
-.count-list.count-list-refs            { position: relative; }
-.count-list.count-list-refs .col-count { width: 4rem; }
-.count-list.count-list-refs .col-ref   { text-align: left; width: auto;
-	word-break: break-all; /* don't make it wider for very long urls */ }
+fieldset { margin-bottom: 1em; border: 1px solid #666; }
+legend   { font-weight: bold; }
 
-.label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
+select#timezone { max-width: 20rem; }
+
+.active { font-weight: bold; text-decoration: underline; }
+
+/* Break to new flexbox row. */
+.flex-break { flex-basis: 100%; height: 0; }
+
+table.auto { width: auto; }
 
 /* Otherwise .page-title has different vertical alignment? Hmmm... */
 .show-mobile .page-title { vertical-align: top; }
@@ -120,37 +123,99 @@ input.red { border: 1px solid red !important; }
 .page-title b, .rlink b { background-color: yellow; }
 input.value             { background-color: yellow; }
 
-.count-list tr {
-	border: none;
+.load-more-wrapper {
+text-align: center;
+}
+.load-more-refs    { margin-top: .5em; }
+
+/* Hide "Go to [..]" link unless we loaded the page details. */
+small.go           { display: none; }
+.go { word-break: normal; }
+
+
+/*** Pages and totals list/charts
+ ********************************/
+.pages-list h2           { margin-top: .5em; }
+.count-list tr           { border: none; }
+.count-list td           { vertical-align: top; }
+.count-list .col-count   { width: 5rem; text-align: right; }
+.count-list .col-path    { width: 20rem; }
+.label-event             { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
+.count-list td[colspan="3"] {  /* "nothing to display" */
+	text-align: left;
+	width: auto;
 }
 
 .count-list tr:target,
-.count-list tr.target {
-	background-color: inherit;
-}
+.count-list tr.target             { background-color: inherit; }
+.count-list tr:target .load-refs,
+.count-list tr.target .load-refs  { font-weight: bold; border-bottom: 4px solid yellow; }
+tr.target small.go                { display: inline-block; }
 
 /* Border doesn't affect layout. */
 .count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
 
-.load-more-wrapper { text-align: center; }
-.load-more-refs { margin-top: .5em; }
+.chart { position: relative; border: 1px solid #ccc; height: 50px; width: 100%; margin: 5px 0; margin-bottom: 1em; }
 
-.count-list tr:target .load-refs,
-.count-list tr.target .load-refs {
-	font-weight: bold;
-	border-bottom: 4px solid yellow;
+.chart-left {
+	position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+	display: none; margin-right: 0;
+}
+.chart-left a:hover { text-decoration: none; }
+
+tr:hover .chart-left,
+tr.target .chart-left { display: block; }
+
+.chart-right {
+	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
+	background-color: #fff;
 }
 
-/* Hide "Go to [..]" link unless we loaded the page details. */
-small.go           { display: none; }
-tr.target small.go { display: inline-block; }
+.chart-bar             { display: flex; align-items: flex-end; }
+.chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }
+.chart-bar > div > div { position: absolute; left: 0; bottom: 0; width: 100%; }
+.chart-bar > .f        { background-color: #eee; }
+.chart-bar > .half     { border-top: 1px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; }
+.chart-bar > #cursor   { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, .2); }
 
-/*** Dashboard form (filter, time period select, etc.) ***/
+
+/*** Horizontal charts
+ ********************/
+.hcharts            { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.hcharts > div      { width: 49%; }
+@media (max-width: 45rem) {
+	.hcharts       { display: block; }
+	.hcharts > div { width: auto; }
+}
+
+.hchart { }
+.hchart .rows >div { position: relative; padding-bottom: 6px; margin-bottom: .4em; }
+.hchart .bar  { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; margin-left: 1px; background-color: #9a15a4; }
+.hchart .perc { position: absolute; top: 0; right: -2.8em; width: 2.5em; line-height: 7px; font-size: .7rem; text-align: left; }
+.hchart .generated { font-style: italic; }
+.hchart .col-name  { display: inline-block; word-break: break-all;
+					 width: calc(100% - .5rem); margin-left: -4.5rem; padding-left: 4.5rem;
+					 overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.hchart .col-count { display: inline-block; width: 4rem; text-align: right; margin-right: .5rem; vertical-align: bottom; }
+
+.hchart .detail {
+	margin-left: 2px;
+	padding-left: 1em;
+	padding-right: 1em;
+
+	background-color: #f7f7f7;
+
+	border-left: 1px solid #999;
+	border-bottom: 1px solid #999;
+}
+
+
+/*** Dashboard form (filter, time period select, etc.)
+ ******************************************************/
 #dash-saved-views { text-align: right; margin-right: .3em; }
 #dash-move        { display: flex; justify-content: space-between; padding: .2em; }
-
-#dash-form      { display: block; padding-bottom: .4em; }
-#dash-form span { margin-left: 0; } /* Reset from hello-css */
+#dash-form        { display: block; padding-bottom: .4em; }
+#dash-form span   { margin-left: 0; } /* Reset from hello-css */
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
              background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
@@ -195,185 +260,16 @@ tr.target small.go { display: inline-block; }
 	text-decoration: underline;
 }
 
-/*** Charts ***/
-.chart {
-	border: 1px solid #ccc;
-	height: 50px;
-	margin: 5px 0;
-	width: 100%;
-	position: relative;
-	margin-bottom: 1em;
-}
+/*** Tooltip
+ ************/
+#tooltip { position: absolute; left: 0; top: 0; padding: 0 .5em;
+		   font-size: 14px; font-family: sans-serif; color: #fff; background-color: #111; }
 
-.go { word-break: normal; }
-
-.chart-left {
-	position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
-	display: none; margin-right: 0;
-}
-.chart-left a:hover { text-decoration: none; }
-
-tr:hover .chart-left,
-tr.target .chart-left { display: block; }
-
-.chart-right {
-	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
-	background-color: #fff;
-}
-
-.chart-bar             { display: flex; align-items: flex-end; }
-.chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }
-.chart-bar > div > div { position: absolute; left: 0; bottom: 0; width: 100%; }
-
-.chart-bar > .half {
-	border-top: 1px solid #ddd;
-	position: absolute;
-	top: 50%;
-	left: 0;
-	right: 0;
-}
-
-.chart-bar > #cursor {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	background: rgba(0, 0, 0, .2);
-}
-
-.chart-hbar span         { background: #9a15a4; }
-.chart-hbar a:hover span { background: #b11abc; }
-.chart-bar > .f          { background-color: #eee; }
-
-/* Tooltip */
-#tooltip {
-	position: absolute;
-	left: 0;
-	top: 0;
-	font-size: 14px;
-	font-family: sans-serif;
-
-	padding: 0 .5em;
-	color: #fff;
-	background-color: #111;
-}
-
-/* Grey out "pageviews" in tooltip. */
-#tooltip .views { color: #bbb; }
-
-#drag-box {
-	position: absolute;
-	background-color: #99f;
-	opacity: .5;
-}
-
-.screen-reader { display: none; }
-.hide          { display: none; }
-.show-mobile   { display: none; }
-@media (max-width: 55rem) {
-	.hide-mobile { display: none; }
-	.show-mobile { display: block; }
-}
-
-/* Using display: none means it's ignored by Safary when pressing Enter. */
-button.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
-
-fieldset { margin-bottom: 1em; border: 1px solid #666; }
-legend   { font-weight: bold; }
-
-select#timezone { max-width: 20rem; }
-
-.active { font-weight: bold; text-decoration: underline; }
-
-/* Break to new flexbox row. */
-.flex-break { flex-basis: 100%; height: 0; }
-
-table.auto { width: auto; }
-
-.hcharts            { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.hcharts > div      { width: 49%; }
-.hcharts h2 small   { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
-.hcharts .load-more { margin-top: .5em; }
-
-@media (max-width: 45rem) {
-	.hcharts       { display: block; }
-	.hcharts > div { width: auto; }
-}
-
-.chart-hbar a, .chart-hbar > p {
-	position: relative;
-	margin: 0;
-	margin-bottom: .3em;
-	display: block;
-	font-size: 1rem;
-
-	color: #252525;
-}
-.chart-hbar a:hover { text-decoration: none; color: #555; }
-.chart-hbar small {
-	display: block;
-	font-size: 1rem;
-}
-.chart-hbar span {
-	display: inline-block;
-	color: #fff;
-	padding: .1em .5em;
-
-	/* So the text is readable if it's smaller than the chart.
-	 * TODO: It's 'good enough' for now, but I am not too happy with this. */
-	text-shadow: 2px 1px rgba(0, 0, 0, .5);
-}
-
-/* Don't make things appear clickable that aren't */
-.chart-hbar.hbar-detail > *            { cursor: default; }
-.chart-hbar.hbar-detail > *:hover span { background-color: #9a15a4;  }
-.chart-hbar.hbar-detail > *:focus      { outline: none; }
-
-.chart-hbar .other            { cursor: default; font-style: italic; }
-.chart-hbar .other:hover      { color: #252525; }
-.chart-hbar .other:hover span { background-color: #9a15a4; }
-.chart-hbar .other:focus      { outline: none; }
-
-.hchart-wrap { position: relative; }
-.hbar-open   { opacity: .25; background-color: #ddd; }
-
-.hbar-detail {
-	position: absolute;
-	top: 0;
-	right: 0;
-	background-color: #fff;
-	z-index: 2;  /* Make sure it's over the footer */
-	border-left: 1px solid #ddd;
-	width: 75%;
-	padding-left: .25em;
-}
-.hbar-detail .arrow {
-	content: " ";
-	display: block;
-	position: absolute;
-	left: -20px;
-	width: 0;
-	height: 0;
-	border-top: 20px solid transparent;
-	border-bottom: 20px solid transparent;
-	border-right: 20px solid #aaa;
-}
-.hbar-detail .close {
-	position: absolute;
-	left: -1em;
-	top: -1em;
-	border-radius: 9999px;
-	background-color: #ccc;
-	width: 1.5em;
-	text-align: center;
-	line-height: 1.5em;
-	cursor: pointer;
-}
-.hbar-detail .close:hover {
-	background-color: #ddd;
-}
+#tooltip .views { color: #bbb; } /* Grey out "pageviews" in tooltip. */
 
 
-/*** Settings tabs ***/
+/*** Settings tabs
+ ******************/
 .tab-nav {
 	padding: 1em;
 	background-color: #f8f8d9;
@@ -389,27 +285,33 @@ table.auto { width: auto; }
 	.tab-nav a {  line-height: 2.5em; }
 }
 
-/*** noscript ***/
+
+/*** noscript
+ *************/
 noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
 noscript p { margin: .5em; }
 
-/*** Billing ***/
+
+/*** Billing
+ *************/
 #billing-form .plan span            { display: inline-block; min-width: 8em; }
 #billing-form fieldset legend+p     { margin-top: 0; }
 #billing-form fieldset p:last-child { margin-bottom: 0; }
 #stripe-error                       { color: red; }
 
-/*** Updates overview ***/
+
+/*** Updates overview
+ **********************/
 .update p        { margin-left: 2em; }
 .update > em + p, .update > em + strong + p { margin-top: 0; }
 .update-new      { background-color: yellow; padding: 0 .3em; }
+h3 + h4          { margin-top: .3em; }
+.reftable        { margin-top: 1em; }
+.table-left th   { text-align: left; }
 
-h3 + h4 { margin-top: .3em; }
 
-.reftable { margin-top: 1em; }
-.table-left th { text-align: left; }
-
-/*** Loading indicator ***/
+/*** Loading indicator
+ *********************/
 @keyframes loading {
   0%   { content: "."; }
   50%  { content: ".."; }
@@ -420,41 +322,9 @@ a.loading        { color: #777; }
 a.loading:hover  { color: #777; text-decoration: none; }
 a.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
-/* hchart */
-small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
-/*** site code docs ***/
+/*** Site code docs
+ *******************/
 .pre-copy-wrap { position: relative; }
-.pre-copy {
-	position: absolute;
-	right: 0;
-	top: calc(-2em - 1px);
-
-	padding: .3em 1em;
-	background-color: #f5f5f5;
-	color: #000;
-	border-top: 1px solid #d5d5d5;
-	border-left: 1px solid #d5d5d5;
-}
-.list-ref-pages {
-	list-style: none;
-	padding-left: 0;
-	font-style: normal;
-	padding: .5em;
-}
-.list-ref-pages span {
-	display: inline-block;
-	width: 3em;
-}
-
-@media (min-width: 40rem) {
-	.list-ref-pages {
-		left: 20em;
-
-		position: absolute;
-		background-color: #fff;
-		z-index: 5;
-		top: -1em;
-		border: 1px solid #b7b7b7;
-	}
-}
+.pre-copy      { position: absolute; right: 0; top: calc(-2em - 1px); padding: .3em 1em;
+				 color: #000; background-color: #f5f5f5; border-top: 1px solid #d5d5d5; border-left: 1px solid #d5d5d5; }

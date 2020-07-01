@@ -17,9 +17,9 @@
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
-			paginate_refs, hchart_detail, settings_tabs, hchart_paginate,
-			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
+			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
+			filter_paths, add_ip, fill_tz, draw_chart, bind_scale, tsort,
+			copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -190,10 +190,6 @@
 		$('#set-local-tz').on('click', function(e) {
 			e.preventDefault();
 
-			// It's hard to reliably get the TZ in JS without this; we can just
-			// get the offset (-480) and perhaps parse the Date string to get
-			// "WITA". Browser support is "good enough" to not bother with
-			// complex workarounds: https://caniuse.com/#search=DateTimeFormat
 			if (!window.Intl || !window.Intl.DateTimeFormat) {
 				alert("Sorry, your browser doesn't support accurate timezone information :-(");
 				return;
@@ -247,7 +243,7 @@
 
 	// Paginate the main path overview.
 	var paginate_paths = function() {
-		$('.pages-list .load-more').on('click', function(e) {
+		$('.pages-list .load-more-pages').on('click', function(e) {
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
@@ -272,8 +268,6 @@
 		if (from_filter) {
 			$('.count-list-pages').attr('data-max', data.max)
 			$('.count-list-pages').attr('data-scale', data.max)
-			//$('.scale').html(format_int(data.max))
-
 			$('.totals tbody').replaceWith(data.totals)
 			$('.pages-list tbody').html(data.rows)
 		}
@@ -281,7 +275,7 @@
 			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
-		$('.pages-list .load-more').css('display', data.more ? 'inline-block' : 'none')
+		$('.pages-list .load-more-pages').css('display', data.more ? 'inline-block' : 'none')
 
 		var th = $('.total-hits'),
 		    td = $('.total-display'),
@@ -397,71 +391,54 @@
 		});
 	}
 
-	// Paginate the horizontal bars.
-	var hchart_paginate = function() {
-		$('.hcharts .load-more').on('click', function(e) {
+	// Paginate and show details for the horizontal charts.
+	var hchart_detail = function() {
+		// Paginate.
+		$('.hchart[data-more] .load-more').on('click', function(e) {
 			e.preventDefault();
 
-			var wrap = $(this).closest('[data-more]'),
-				url  = wrap.attr('data-more'),
-				bar  = wrap.find('.chart-hbar')
+			var btn   = $(this),
+				chart = btn.closest('[data-more]'),
+				rows  = chart.find('.rows')
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:     url,
-					data:    append_period({offset: bar.length}),
+					url:     chart.attr('data-more'),
+					data:    append_period({total: get_total(), offset: rows.find('>div').length}),
 					success: function(data) {
-						bar.html(data.html)
+						rows.append($(data.html).find('>div'))
+						if (!data.more)
+							btn.css('display', 'none')
 						done()
 					},
 				})
 			})
 		})
-	}
 
-	// Show details for the horizontal charts.
-	var hchart_detail = function() {
-		// Close on Esc or when clicking outside the hbar area.
-		var close = function() {
-			$('.hbar-detail').remove();
-			$('.hbar-open').removeClass('hbar-open');
-		};
-		$(document.body).on('keydown', (e) => { if (e.keyCode === 27) close() });
-		$(document.body).on('click',   (e) => { if ($(e.target).closest('.chart-hbar').length === 0) close() });
+		// Load detail.
+		$('.hchart').on('click', 'a', function(e) {
+			e.preventDefault()
 
-		$('.chart-hbar').on('click', 'a', function(e) {
-			e.preventDefault();
-
-			var btn  = $(this),
-				bar  = btn.closest('.chart-hbar'),
-				url  = bar.attr('data-detail'),
-				name = btn.find('small').text();
+			var btn   = $(this),
+				row   = btn.closest('div[data-name]'),
+				chart = btn.closest('.hchart'),
+				url   = chart.attr('data-detail'),
+				name  = row.attr('data-name')
 			if (!url || !name || name === '(other)' || name === '(unknown)')
 				return;
+			if (row.next().is('.detail'))
+				return row.next().remove()
 
-			btn.find('small').addClass('loading')
-			jQuery.ajax({
-				url: url,
-				data: append_period({
-					name:  name,
-					total: $('.total-hits').text().replace(/[^\d]/, ''),
-				}),
-				success: function(data) {
-					bar.parent().find('.hbar-detail').remove();
-					btn.find('small').removeClass('loading')
-					bar.addClass('hbar-open');
-
-					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
-						$('<div class="arrow"></div>').css('top', (btn.position().top + 6) + 'px'),
-						data.html,
-						$('<a href="#_" class="close">×</a>').on('click', function(e) {
-							e.preventDefault();
-							d.remove();
-							bar.removeClass('hbar-open');
-							btn.removeClass('active');
-						}));
-
-					bar.after(d);
-				},
+			btn.addClass('loading')
+			var done = paginate_button(btn, () => {
+				jQuery.ajax({
+					url:     url,
+					data:    append_period({name: name, total: get_total()}),
+					success: function(data) {
+						chart.find('.detail').remove()
+						row.after($('<div class="detail"></div>').html(data.html))
+						done()
+					},
+				})
 			})
 		})
 	}
@@ -507,33 +484,6 @@
 			tab.css('display', 'block');
 		});
 	}
-
-	// Paginate the referrers.
-	var paginate_refs = function() {
-		$('.pages-list, .hcharts').on('click', '.load-more-refs', function(e) {
-			e.preventDefault()
-
-			// .count-list-refs
-			var btn   = $(this),
-				table = btn.closest('.refs').find('table')
-			var done = paginate_button(btn, () => {
-				console.log(btn.closest('tr').attr('id'))
-				jQuery.ajax({
-					url: '/refs',
-					data: append_period({
-						showrefs: btn.closest('tr').attr('id') || 'TOTAL ',
-						offset:   table.find('tr').length,
-					}),
-					success: function(data) {
-						table.find('tbody').append($(data.rows).find('tr'));
-						if (!data.more)
-							btn.remove()
-						done()
-					},
-				})
-			})
-		})
-	};
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
@@ -623,15 +573,19 @@
 
 			var done = paginate_button($(link), () => {
 				jQuery.ajax({
-					url: '/refs' + link.search,
+					url:   '/hchart-more',
+					data: append_period({
+						kind:    'ref',
+						total:    row.find('.col-count').text().replace(/[^0-9]+/g, ''),
+						showrefs: '/zshrc.html',
+						offset:   0,
+					}),
 					success: function(data) {
 						row.addClass('target')
-
 						if (params['showrefs'])
 							close()
-						row.find('.refs').html(data.rows)
-						if (data.more)
-							row.find('.refs').append('<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>')
+
+						row.find('.refs').html(data.html)
 						done()
 					},
 				})
@@ -667,8 +621,7 @@
 				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
 		}
 
-		// Translucent hover effect; need a new div because the height isn't
-		// 100%
+		// Translucent hover effect; need a new div because the height isn't 100%
 		var add_cursor = function(t) {
 			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.closest('.chart-left, .chart-right').length > 0)
 				return
@@ -823,26 +776,30 @@
 		return date.getFullYear() + '-' +
 			(m >= 10 ? m : ('0' + m)) + '-' +
 			(d >= 10 ? d : ('0' + d));
-	};
+	}
 
 	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
 	var format_int = function(n) {
 		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format));
-	};
+	}
 
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var s = str.split('-')
 		return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
-	};
+	}
+
+	var get_total = function() {
+		return $('.total-unique').text().replace(/[^0-9]/g, '')
+	}
 
 	// Append period-start and period-end values to the data object.
 	var append_period = function(data) {
-		data = data || {};
-		data['period-start'] = $('#period-start').val();
-		data['period-end']   = $('#period-end').val();
-		return data;
-	};
+		data = data || {}
+		data['period-start'] = $('#period-start').val()
+		data['period-end']   = $('#period-end').val()
+		return data
+	}
 
 	// Set the start and end period and submit the form.
 	var set_period = function(start, end) {
@@ -852,10 +809,10 @@
 			end.setHours(end.getHours() + offset);
 		}
 
-		$('#period-start').val(format_date_ymd(start));
-		$('#period-end').val(format_date_ymd(end));
-		$('#dash-form').trigger('submit');
-	};
+		$('#period-start').val(format_date_ymd(start))
+		$('#period-end').val(format_date_ymd(end))
+		$('#dash-form').trigger('submit')
+	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
 	var is_mobile = function() {
@@ -869,6 +826,7 @@
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
 
+	// Sort tables, just for the admin.
 	var tsort = function() {
 		$('table.sort th').on('click', function(e) {
 			var th       = $(this),

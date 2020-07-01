@@ -78,9 +78,9 @@ func (h *HitStats) List(
 
 		// Check if there are more entries.
 		if len(*h) == limit {
-			x := *h
-			x = x[:len(x)-1]
-			*h = x
+			hh := *h
+			hh = hh[:len(hh)-1]
+			*h = hh
 			more = true
 		}
 	}

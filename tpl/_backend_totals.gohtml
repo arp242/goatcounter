@@ -8,14 +8,5 @@
 			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .MaxTotals $.Site}}</small></span>
 			{{bar_chart .Context .TotalPages.Stats .MaxTotals .Daily}}
 		</div>
-		{{/*
-		<div style="text-align: left;">
-			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
-		</div>
-		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
-			{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" true}}
-			<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>
-		{{end}}</div>
-		*/}}
 	</td>
 </tr></tbody>

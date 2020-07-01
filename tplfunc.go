@@ -190,28 +190,23 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	return template.HTML(b.String())
 }
 
-func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, link, other bool) template.HTML {
-	tag := "p"
-	if link {
-		tag = "a"
+func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link, paginate bool) template.HTML {
+	if total == 0 {
+		return `<em>Nothing to display</em>`
 	}
 
 	var (
 		displayed int
 		b         strings.Builder
 	)
-	for i, s := range stats {
-		if (other && i >= 5) || (!other && i > 6) {
-			continue
+	b.WriteString(`<div class="rows">`)
+	for i, s := range stats.Stats {
+		if pageSize > 0 && i > pageSize {
+			break
 		}
-		displayed += s.CountUnique
 
-		var perc float32
-		if parentTotal > 0 {
-			perc = float32(s.CountUnique) / float32(parentTotal) * 100
-		} else {
-			perc = float32(s.CountUnique) / float32(total) * 100
-		}
+		displayed += s.CountUnique
+		perc := float32(s.CountUnique) / float32(total) * 100
 
 		name := s.Name
 		if name == "" {
@@ -219,28 +214,29 @@ func HorizontalChart(ctx context.Context, stats Stats, total, parentTotal int, l
 		}
 		class := ""
 		if name == "(unknown)" {
-			class = "other"
+			class = "generated"
 		}
 
-		title := fmt.Sprintf("%s: %.1f%% – %s visits",
-			template.HTMLEscapeString(name), perc,
-			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat))
-		b.WriteString(fmt.Sprintf(
-			`<%[4]s href="#_" title="%[1]s" class="%[5]s"><small>%[2]s</small> <span style="width: %[3]f%%">%.1[3]f%%</span></%[4]s>`,
-			title, template.HTMLEscapeString(name), perc, tag, class))
+		name = template.HTMLEscapeString(name)
+		ref := name
+		if link && class != "generated" {
+			ref = `<a href="#">` + ref + `</a>`
+		}
+		b.WriteString(fmt.Sprintf(`<div class="%s" data-name="%s">
+				<div class="bar" style="width: %.1f%%"><small class="perc">%.1f%%</small></div>
+				<span class="col-name">%s</span>
+				<span class="col-count">%s</span>
+			</div>`,
+			class, name,
+			perc, perc, ref,
+			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat),
+		))
 	}
+	b.WriteString(`</div>`)
 
-	// Add "(other)" part
-	if other && displayed < total {
-		perc := 100 - float32(displayed)/float32(total)*100
-
-		title := fmt.Sprintf("(other): %.1f%% – %s visits",
-			perc,
-			zhttp.Tnformat(total-displayed, MustGetSite(ctx).Settings.NumberFormat))
-
-		b.WriteString(fmt.Sprintf(
-			`<%[2]s href="#_" title="%[3]s" class="other"><small>(other)</small> <span style="width: %[1]f%%">%.1[1]f%%</span></%[2]s>`,
-			perc, tag, title))
+	// Add pagination link.
+	if paginate && stats.More {
+		b.WriteString(`<div class="load-more-wrapper"><a href="#", class="btn load-more">Show more</a></div>`)
 	}
 
 	return template.HTML(b.String())

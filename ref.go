@@ -160,15 +160,16 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 }
 
 // ListRefsByPath lists all references for a path.
-func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time.Time, offset int) (bool, error) {
+func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time.Time, offset int) error {
 	site := MustGetSite(ctx)
 
 	limit := site.Settings.Limits.Ref
 	if limit == 0 {
 		limit = 10
 	}
+	limit++
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListRefsByPath */
+	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListRefsByPath */
 		select
 			coalesce(sum(total), 0) as count,
 			coalesce(sum(total_unique), 0) as count_unique,
@@ -183,20 +184,14 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 		group by ref
 		order by count_unique desc, ref desc
 		limit $5 offset $6`,
-		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
-	if err != nil {
-		errors.Wrap(err, "Stats.ListRefsByPath")
+		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit, offset)
+
+	if len(h.Stats) == limit {
+		h.More = true
+		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
 
-	var more bool
-	if len(*h) > limit {
-		more = true
-		hh := *h
-		hh = hh[:len(hh)-1]
-		*h = hh
-	}
-
-	return more, nil
+	return errors.Wrap(err, "Stats.ListRefsByPath")
 }
 
 // ListTopRefs lists all ref statistics for the given time period, excluding
@@ -204,11 +199,11 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
-//
-// TODO: after ref_counts it no longer lists "unknown".
-func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset int) (bool, error) {
+func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset int) error {
 	site := MustGetSite(ctx)
-	limit := 10
+	limit := 6 // TODO: arg
+
+	limit++
 
 	where := ` where site=? and hour>=? and hour<=?`
 	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
@@ -218,7 +213,7 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 	}
 
 	db := zdb.MustGet(ctx)
-	err := db.SelectContext(ctx, h, db.Rebind(`/* Stats.ListTopRefs */
+	err := db.SelectContext(ctx, &h.Stats, db.Rebind(`/* Stats.ListTopRefs */
 		select
 			coalesce(sum(total), 0) as count,
 			coalesce(sum(total_unique), 0) as count_unique,
@@ -228,18 +223,15 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 		where+`
 		group by ref
 		order by count_unique desc
-		limit ? offset ?`), append(args, limit+1, offset)...)
+		limit ? offset ?`), append(args, limit, offset)...)
 	if err != nil {
-		return false, errors.Wrap(err, "Stats.ListAllRefs")
+		return errors.Wrap(err, "Stats.ListAllRefs")
 	}
 
-	var more bool
-	if len(*h) > limit {
-		more = true
-		hh := *h
-		hh = hh[:len(hh)-1]
-		*h = hh
+	if len(h.Stats) == limit {
+		h.More = true
+		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
 
-	return more, nil
+	return nil
 }

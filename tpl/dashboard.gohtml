@@ -101,7 +101,7 @@
 		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
 	</table>
 	<div class="load-more-wrapper">
-		<a href="#" class="load-more btn" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+		<a href="#" class="load-more load-more-pages btn" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
 	</div>
 </div>
 
@@ -114,53 +114,25 @@
 </div>
 
 <div class="hcharts">
-	<div>
+	<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
 		<h2>Top referrers</h2>
-		<div class="refs">
-			{{template "_backend_refs.gohtml" map "Refs" $.TopRefs "Site" $.Site "Totals" true}}
-			<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>
-		</div>
+		{{horizontal_chart .Context $.TopRefs .TotalUniqueHits 6 true true}}
 	</div>
-	<div>
+	<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
 		<h2>Browsers</h2>
-		{{if eq .TotalUniqueHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalUniqueHits 0 true true}}</div>
-			</div>
-		{{end}}
+		{{horizontal_chart .Context .Browsers .TotalUniqueHits 6 true true}}
 	</div>
-	<div>
+	<div class="hchart" data-detail="/hchart-detail?kind=system" data-more="/hchart-more?kind=system">
 		<h2>Systems</h2>
-		{{if eq .TotalUniqueHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalUniqueHits 0 true true}}</div>
-			</div>
-		{{end}}
+		{{horizontal_chart .Context .Systems .TotalUniqueHits 6 true true}}
 	</div>
-	<div>
-		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
-		{{if eq .TotalUniqueHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalUniqueHits 0 true false}}</div>
-			</div>
-		{{end}}
+	<div class="hchart" data-detail="/hchart-detail?kind=size">
+		<h2>Screen size</h2>
+		{{horizontal_chart .Context .SizeStat .TotalUniqueHits 6 true true}}
 	</div>
-	<div data-more="/locations">
-		<h2>Locations{{if before_loc .Site.CreatedAt}}{{end}}</h2>
-		{{if eq .TotalUniqueHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalUniqueHits 0 false true}}</div>
-			</div>
-			{{if .ShowMoreLocations}}<div class="load-more-wrapper"><a href="#", class="btn load-more">Show more</a></div>{{end}}
-		{{end}}
+	<div class="hchart" data-more="/hchart-more?kind=location">
+		<h2>Locations</h2>
+		{{horizontal_chart .Context .LocationStat .TotalUniqueHits 6 false true}}
 	</div>
 </div>
 

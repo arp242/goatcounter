@@ -4,7 +4,7 @@
 			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
 		</td>
 		<td class="col-path hide-mobile">
-			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
+			<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a><br>
 			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 
@@ -14,7 +14,7 @@
 		</td>
 		<td>
 			<div class="show-mobile">
-				<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
+				<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a>
 				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
 				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
 				{{if and $.Site.LinkDomain (not $h.Event)}}
@@ -27,10 +27,9 @@
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
-			<div class="refs">
+			<div class="refs hchart" data-more="/hchart-more?kind=ref">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
-					{{if $.MoreRefs}}<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>{{end}}
+					{{horizontal_chart $.Context $.Refs $.TotalUniqueHits $.Site.Settings.Limits.Ref true true}}
 				{{end}}
 			</div>
 		</td>

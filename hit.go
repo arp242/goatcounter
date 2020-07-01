@@ -328,11 +328,14 @@ type StatT struct {
 	RefScheme   *string `db:"ref_scheme"`
 }
 
-type Stats []StatT
+type Stats struct {
+	More  bool
+	Stats []StatT
+}
 
 // ByRef lists all paths by reference.
-func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string, limit int) (int, error) {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ByRef */
+func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ByRef */
 		select
 			path as name,
 			coalesce(sum(total), 0) as count,
@@ -344,12 +347,8 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string, lim
 			ref = $4
 		group by path
 		order by count desc
-		limit $5`,
-		MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref, limit)
+		limit 10`,
+		MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref)
 
-	var total int
-	for _, b := range *h {
-		total += b.Count
-	}
-	return total, errors.Wrap(err, "HitStats.ByRef")
+	return errors.Wrap(err, "Stats.ByRef")
 }
