@@ -34,18 +34,18 @@ func TestSizeStats(t *testing.T) {
 	}
 
 	var stats goatcounter.Stats
-	total, err := stats.ListSizes(ctx, now, now)
+	err = stats.ListSizes(ctx, now, now)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := `5 -> [{Phones 0 0}
+	want := `[{Phones 0 0}
 {Large phones, small tablets 1 0}
 {Tablets and small laptops 0 0}
 {Computer monitors 2 1}
 {Computer monitors larger than HD 0 0}
 {(unknown) 2 0}]`
-	out := strings.ReplaceAll(fmt.Sprintf("%d -> %v", total, stats), "} ", "}\n")
+	out := strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
 		t.Errorf("\nwant:\n%s\nout:\n%s", want, out)
 	}
@@ -64,18 +64,18 @@ func TestSizeStats(t *testing.T) {
 	}
 
 	stats = goatcounter.Stats{}
-	total, err = stats.ListSizes(ctx, now, now)
+	err = stats.ListSizes(ctx, now, now)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want = `11 -> [{Phones 1 0}
+	want = `[{Phones 1 0}
 {Large phones, small tablets 3 0}
 {Tablets and small laptops 0 0}
 {Computer monitors 4 2}
 {Computer monitors larger than HD 0 0}
 {(unknown) 3 1}]`
-	out = strings.ReplaceAll(fmt.Sprintf("%d -> %v", total, stats), "} ", "}\n")
+	out = strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
 	}

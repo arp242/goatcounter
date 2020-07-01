@@ -12327,7 +12327,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
-			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
+			paginate_refs, hchart_detail, settings_tabs, hchart_paginate,
 			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
 			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
@@ -12707,16 +12707,18 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		});
 	};
 
-	// Paginate the location chart.
-	var paginate_locations = function() {
-		$('.location-chart .show-all').on('click', function(e) {
+	// Paginate the horizontal bars.
+	var hchart_paginate = function() {
+		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).parent().find('.chart-hbar')
+			var wrap = $(this).closest('[data-more]'),
+				url  = wrap.attr('data-more'),
+				bar  = wrap.find('.chart-hbar')
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url: '/locations',
-					data: append_period(),
+					url:     url,
+					data:    append_period({offset: bar.length}),
 					success: function(data) {
 						bar.html(data.html)
 						done()
@@ -12725,48 +12727,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			})
 		})
 	}
-
-	// Set up the tabbed navigation in the settings.
-	var settings_tabs = function() {
-		var nav = $('.tab-nav');
-		if (!nav.length)
-			return;
-
-		var tabs = '',
-			active = location.hash.substr(5) || 'setting',
-			valid = !!$('#' + active).length;
-		$('.page > div').each(function(i, elem) {
-			var h2 = $(elem).find('h2');
-			if (!h2.length)
-				return;
-
-			var klass = '';
-			if (valid)
-				if (h2.attr('id') !== active)
-					$(elem).css('display', 'none');
-				else
-					klass = 'active';
-
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
-		});
-
-		nav.html(tabs);
-		nav.on('click', 'a', function() {
-			nav.find('a').removeClass('active');
-			$(this).addClass('active');
-		});
-
-		$(window).on('hashchange', function() {
-			if (location.hash === '')
-				return;
-
-			var tab = $('#' + location.hash.substr(5)).parent()
-			if (!tab.length)
-				return;
-			$('.page > div').css('display', 'none');
-			tab.css('display', 'block');
-		});
-	};
 
 	// Show details for the horizontal charts.
 	var hchart_detail = function() {
@@ -12816,9 +12776,51 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		})
 	}
 
+	// Set up the tabbed navigation in the settings.
+	var settings_tabs = function() {
+		var nav = $('.tab-nav');
+		if (!nav.length)
+			return;
+
+		var tabs = '',
+			active = location.hash.substr(5) || 'setting',
+			valid = !!$('#' + active).length;
+		$('.page > div').each(function(i, elem) {
+			var h2 = $(elem).find('h2');
+			if (!h2.length)
+				return;
+
+			var klass = '';
+			if (valid)
+				if (h2.attr('id') !== active)
+					$(elem).css('display', 'none');
+				else
+					klass = 'active';
+
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
+		});
+
+		nav.html(tabs);
+		nav.on('click', 'a', function() {
+			nav.find('a').removeClass('active');
+			$(this).addClass('active');
+		});
+
+		$(window).on('hashchange', function() {
+			if (location.hash === '')
+				return;
+
+			var tab = $('#' + location.hash.substr(5)).parent()
+			if (!tab.length)
+				return;
+			$('.page > div').css('display', 'none');
+			tab.css('display', 'block');
+		});
+	}
+
 	// Paginate the referrers.
 	var paginate_refs = function() {
-		$('.pages-list, .browser-charts').on('click', '.load-more-refs', function(e) {
+		$('.pages-list, .hcharts').on('click', '.load-more-refs', function(e) {
 			e.preventDefault()
 
 			// .count-list-refs
@@ -13683,13 +13685,14 @@ select#timezone { max-width: 20rem; }
 
 table.auto { width: auto; }
 
-.browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.browser-charts > div    { width: 49%; }
-.browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
+.hcharts            { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.hcharts > div      { width: 49%; }
+.hcharts h2 small   { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
+.hcharts .load-more { margin-top: .5em; }
 
 @media (max-width: 45rem) {
-	.browser-charts       { display: block; }
-	.browser-charts > div { width: auto; }
+	.hcharts       { display: block; }
+	.hcharts > div { width: auto; }
 }
 
 .chart-hbar a, .chart-hbar > p {
@@ -13720,10 +13723,11 @@ table.auto { width: auto; }
 .chart-hbar.hbar-detail > *            { cursor: default; }
 .chart-hbar.hbar-detail > *:hover span { background-color: #9a15a4;  }
 .chart-hbar.hbar-detail > *:focus      { outline: none; }
-.chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
-.chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
-.chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
-.chart-hbar > *[title^="(other): "]:focus, .chart-hbar > *[title^="(unknown): "]:focus { outline: none; }
+
+.chart-hbar .other            { cursor: default; font-style: italic; }
+.chart-hbar .other:hover      { color: #252525; }
+.chart-hbar .other:hover span { background-color: #9a15a4; }
+.chart-hbar .other:focus      { outline: none; }
 
 .hchart-wrap { position: relative; }
 .hbar-open   { opacity: .25; background-color: #ddd; }
@@ -16506,7 +16510,7 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
 </div>
 
-<div class="browser-charts">
+<div class="hcharts">
 	<div>
 		<h2>Top referrers</h2>
 		<div class="refs">
@@ -16514,48 +16518,45 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 			<div class="load-more-wrapper"><a href="#", class="btn load-more-refs">Show more</a></div>
 		</div>
 	</div>
-
 	<div>
 		<h2>Browsers</h2>
-		{{if eq .TotalBrowsers 0}}
+		{{if eq .TotalUniqueHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .1 true true}}</div>
+				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalUniqueHits 0 true true}}</div>
 			</div>
 		{{end}}
 	</div>
 	<div>
 		<h2>Systems</h2>
-		{{if eq .TotalSystems 0}}
+		{{if eq .TotalUniqueHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 .5 true true}}</div>
+				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalUniqueHits 0 true true}}</div>
 			</div>
 		{{end}}
 	</div>
-
 	<div>
 		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
-		{{if eq .TotalHits 0}}
+		{{if eq .TotalUniqueHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0 true false}}</div>
+				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalUniqueHits 0 true false}}</div>
 			</div>
-			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
 		{{end}}
 	</div>
-	<div class="location-chart">
+	<div data-more="/locations">
 		<h2>Locations{{if before_loc .Site.CreatedAt}}{{end}}</h2>
-		{{if eq .TotalHits 0}}
+		{{if eq .TotalUniqueHits 0}}
 			<em>Nothing to display</em>
 		{{else}}
 			<div class="hchart-wrap">
-				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
+				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalUniqueHits 0 false true}}</div>
 			</div>
-			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
+			{{if .ShowMoreLocations}}<div class="load-more-wrapper"><a href="#", class="btn load-more">Show more</a></div>{{end}}
 		{{end}}
 	</div>
 </div>

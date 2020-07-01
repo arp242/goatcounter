@@ -325,12 +325,11 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	l := zlog.Module("dashboard").Field("site", site.ID)
 
 	var (
-		wg                              sync.WaitGroup
-		bgErr                           = errors.NewGroup(10)
-		pages                           goatcounter.HitStats
-		total, totalDisplay             int
-		totalUnique, totalUniqueDisplay int
-		morePages                       bool
+		wg                               sync.WaitGroup
+		bgErr                            = errors.NewGroup(10)
+		pages                            goatcounter.HitStats
+		totalDisplay, totalUniqueDisplay int
+		morePages                        bool
 	)
 	wg.Add(1)
 	go func() {
@@ -338,8 +337,19 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		defer wg.Done()
 
 		var err error
-		total, totalUnique, totalDisplay, totalUniqueDisplay, morePages, err = pages.List(
+		totalDisplay, totalUniqueDisplay, morePages, err = pages.List(
 			r.Context(), start, end, filter, nil, daily)
+		bgErr.Append(err)
+	}()
+
+	var total, totalUnique int
+	wg.Add(1)
+	go func() {
+		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
+		defer wg.Done()
+
+		var err error
+		total, totalUnique, err = goatcounter.GetTotalCount(r.Context(), start, end, filter)
 		bgErr.Append(err)
 	}()
 
@@ -380,29 +390,29 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	var browsers goatcounter.Stats
-	totalBrowsers, err := browsers.ListBrowsers(r.Context(), start, end)
+	err = browsers.ListBrowsers(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
 
 	var systems goatcounter.Stats
-	totalSystems, err := systems.ListSystems(r.Context(), start, end)
+	err = systems.ListSystems(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
 
 	var sizeStat goatcounter.Stats
-	totalSize, err := sizeStat.ListSizes(r.Context(), start, end)
+	err = sizeStat.ListSizes(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
 
 	var locStat goatcounter.Stats
-	totalLoc, err := locStat.ListLocations(r.Context(), start, end)
+	err = locStat.ListLocations(r.Context(), start, end)
 	if err != nil {
 		return err
 	}
-	showMoreLoc := len(locStat) > 0 && float32(locStat[len(locStat)-1].Count)/float32(totalLoc)*100 < 3.0
+	showMoreLoc := true // TODO len(locStat) > 0 && float32(locStat[len(locStat)-1].Count)/float32(totalLoc)*100 < 3.0
 
 	// Add refers.
 	sr := r.URL.Query().Get("showrefs")
@@ -461,14 +471,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TotalHitsDisplay   int
 		TotalUniqueDisplay int
 		Browsers           goatcounter.Stats
-		TotalBrowsers      int
 		Systems            goatcounter.Stats
-		TotalSystems       int
 		SubSites           []string
 		SizeStat           goatcounter.Stats
-		TotalSize          int
 		LocationStat       goatcounter.Stats
-		TotalLocation      int
 		ShowMoreLocations  bool
 		Daily              bool
 		ForcedDaily        bool
@@ -477,14 +483,10 @@ func (h backend) index(w http.ResponseWriter, r *http.Request) error {
 		TopRefs            goatcounter.Stats
 	}{newGlobals(w, r), cd, sr, r.URL.Query().Get("hl-period"), start, end,
 		filter, pages, totalPages, morePages, refs, moreRefs, total,
-		totalUnique, totalDisplay, totalUniqueDisplay, browsers, totalBrowsers,
-		systems, totalSystems, subs, sizeStat, totalSize, locStat, totalLoc,
-		showMoreLoc, daily, forcedDaily, maxTotals, max, topRefs})
+		totalUnique, totalDisplay, totalUniqueDisplay, browsers, systems, subs,
+		sizeStat, locStat, showMoreLoc, daily, forcedDaily, maxTotals, max,
+		topRefs})
 	l.Since("zhttp.Template")
-
-	fmt.Printf(
-		"total: \t\t%d\ntotalBrowsers: \t%d\ntotalSystems: \t%d\ntotalSize: \t%d\ntotalLoc: \t%d\n\n",
-		totalUnique, totalBrowsers, totalSystems, totalSize, totalLoc)
 	return x
 }
 
@@ -629,7 +631,12 @@ func (h backend) locations(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var locStat goatcounter.Stats
-	total, err := locStat.ListLocations(r.Context(), start, end)
+	err = locStat.ListLocations(r.Context(), start, end)
+	if err != nil {
+		return err
+	}
+
+	_, total, err := goatcounter.GetTotalCount(r.Context(), start, end, "")
 	if err != nil {
 		return err
 	}
@@ -658,12 +665,17 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 	// Load new totals unless this is for pagination.
 	var (
-		wg         sync.WaitGroup
+		wg sync.WaitGroup
+
 		totalTpl   []byte
 		totalPages goatcounter.HitStat
-		maxTotals  int
 		totalErr   error
-		maxErr     error
+
+		maxTotals int
+		maxErr    error
+
+		totalHits, totalUnique int
+		totalCountErr          error
 	)
 	// Filtering instead of paginating: get new "totals" stats as well.
 	// TODO: also re-render the the horizontal bar charts below, but this isn't
@@ -704,10 +716,18 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 			max, maxErr = goatcounter.GetMax(r.Context(), start, end, filter, daily)
 		}()
+
+		wg.Add(1)
+		go func() {
+			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
+			defer wg.Done()
+
+			totalHits, totalUnique, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, filter)
+		}()
 	}
 
 	var pages goatcounter.HitStats
-	totalHits, totalUnique, totalDisplay, totalUniqueDisplay, more, err := pages.List(
+	totalDisplay, totalUniqueDisplay, more, err := pages.List(
 		r.Context(), start, end, filter, strings.Split(exclude, ","), daily)
 	if err != nil {
 		return err
@@ -743,6 +763,9 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 	if maxErr != nil {
 		return maxErr
+	}
+	if totalCountErr != nil {
+		return totalCountErr
 	}
 
 	return zhttp.JSON(w, map[string]interface{}{

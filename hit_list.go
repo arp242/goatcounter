@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -19,7 +18,6 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
-	"zgo.at/zstd/zsync"
 )
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -30,7 +28,7 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 // List() and Totals()
 func (h *HitStats) List(
 	ctx context.Context, start, end time.Time, filter string, exclude []string, daily bool,
-) (int, int, int, int, bool, error) {
+) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 	l := zlog.Module("HitStats.List")
@@ -38,47 +36,6 @@ func (h *HitStats) List(
 	if filter != "" {
 		filter = "%" + strings.ToLower(filter) + "%"
 	}
-
-	// Get total number of hits in the selected time range.
-	var (
-		wg                 sync.WaitGroup
-		total, totalUnique int
-		totalErr           error
-	)
-	wg.Add(1)
-	go func() {
-		defer zlog.Recover(func(l zlog.Log) zlog.Log {
-			return l.Fields(zlog.F{
-				"site":    site.ID,
-				"start":   start,
-				"end":     end,
-				"exclude": exclude,
-				"daily":   daily,
-			})
-		})
-		defer wg.Done()
-
-		query := `/* HitStats.List: get count */
-			select
-				coalesce(sum(total), 0) as t,
-				coalesce(sum(total_unique), 0) as u
-			from hit_counts where
-				site=$1 and
-				hour >= $2 and
-				hour <= $3 `
-		args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-		if filter != "" {
-			query += ` and (lower(path) like $4 or lower(title) like $4) `
-			args = append(args, filter)
-		}
-
-		var t struct {
-			T int
-			U int
-		}
-		totalErr = db.GetContext(ctx, &t, query, args...)
-		total, totalUnique = t.T, t.U
-	}()
 
 	// Select hits.
 	var more bool
@@ -111,11 +68,11 @@ func (h *HitStats) List(
 			order by sum(total_unique) desc, path desc
 			limit ?`, append(args, limit)...)
 		if err != nil {
-			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
 		err = db.SelectContext(ctx, h, db.Rebind(query), args...)
 		if err != nil {
-			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_counts")
+			return 0, 0, false, errors.Wrap(err, "HitStats.List get hit_counts")
 		}
 		l = l.Since("select hits")
 
@@ -152,7 +109,7 @@ func (h *HitStats) List(
 		query += ` order by day asc`
 		err := db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
-			return 0, 0, 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
+			return 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
 		}
 		l = l.Since("select hits_stats")
 	}
@@ -188,12 +145,7 @@ func (h *HitStats) List(
 	var totalDisplay, totalUniqueDisplay int
 	addTotals(hh, daily, &totalDisplay, &totalUniqueDisplay)
 
-	zsync.Wait(ctx, &wg)
-	if totalErr != nil {
-		return 0, 0, 0, 0, false, errors.Wrap(totalErr, "HitStats.List get total")
-	}
-
-	return total, totalUnique, totalDisplay, totalUniqueDisplay, more, nil
+	return totalDisplay, totalUniqueDisplay, more, nil
 }
 
 // PathTotals is a special path to indicate this is the "total" overview.
@@ -444,6 +396,33 @@ func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 	// 100% sure yet what a good solution here is. For now, this is "good
 	// enough".
 	sort.Slice(hh, func(i, j int) bool { return hh[i].CountUnique > hh[j].CountUnique })
+}
+
+func GetTotalCount(ctx context.Context, start, end time.Time, filter string) (int, int, error) {
+	if filter != "" {
+		filter = "%" + strings.ToLower(filter) + "%"
+	}
+
+	query := `/* GetTotalCount */
+			select
+				coalesce(sum(total), 0) as t,
+				coalesce(sum(total_unique), 0) as u
+			from hit_counts where
+				site=$1 and
+				hour>=$2 and
+				hour<=$3 `
+	args := []interface{}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+	if filter != "" {
+		query += ` and (lower(path) like $4 or lower(title) like $4) `
+		args = append(args, filter)
+	}
+
+	var t struct {
+		T int
+		U int
+	}
+	err := zdb.MustGet(ctx).GetContext(ctx, &t, query, args...)
+	return t.T, t.U, errors.Wrap(err, "GetTotalCount")
 }
 
 func GetMax(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {

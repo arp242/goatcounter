@@ -25,7 +25,7 @@ const (
 )
 
 // ListSizes lists all device sizes.
-func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error) {
+func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListSizes */
 		select
 			width as name,
@@ -37,7 +37,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 		order by count_unique desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
-		return 0, errors.Wrap(err, "Stats.ListSize")
+		return errors.Wrap(err, "Stats.ListSize")
 	}
 
 	// Group a bit more user-friendly.
@@ -53,10 +53,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 	}
 
 	hh := *h
-	var count int
 	for i := range hh {
-		count += hh[i].CountUnique
-
 		x, _ := strconv.ParseInt(hh[i].Name, 10, 16)
 		switch {
 		case x == 0:
@@ -81,7 +78,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) (int, error
 	}
 	*h = ns
 
-	return count, nil
+	return nil
 }
 
 // ListSize lists all sizes for one grouping.

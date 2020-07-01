@@ -13,7 +13,7 @@ import (
 )
 
 // ListLocations lists all location statistics for the given time period.
-func (h *Stats) ListLocations(ctx context.Context, start, end time.Time) (int, error) {
+func (h *Stats) ListLocations(ctx context.Context, start, end time.Time) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* Stats.ListLocations */
 		select
 			iso_3166_1.name as name,
@@ -25,14 +25,6 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time) (int, e
 		group by location, iso_3166_1.name
 		order by count_unique desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
-	if err != nil {
-		return 0, errors.Wrap(err, "Stats.ListLocations")
-	}
 
-	var total int
-	for _, b := range *h {
-		total += b.CountUnique
-	}
-
-	return total, nil
+	return errors.Wrap(err, "Stats.ListLocations")
 }
