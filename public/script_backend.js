@@ -395,7 +395,7 @@
 				},
 			});
 		});
-	};
+	}
 
 	// Paginate the horizontal bars.
 	var hchart_paginate = function() {
@@ -674,14 +674,10 @@
 				return
 
 			$('#cursor').remove()
-			var cursor = $('<span id="cursor"></span>').
-				on('mouseleave', () => { cursor.remove() }).
+			t.parent().append($('<span id="cursor"></span>').
+				on('mouseleave', function() { $(this).remove() }).
 				attr('title', t.attr('data-title')).
-				css({
-					width: t.width(),
-					left:  t.position().left - 3, // TODO: -3, why?
-				})
-				t.parent().append(cursor)
+				css({width: t.width(), left: t.position().left}))
 		}
 
 		$('body').on('mouseenter', '[data-title]', function(e) {

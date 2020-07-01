@@ -12705,7 +12705,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				},
 			});
 		});
-	};
+	}
 
 	// Paginate the horizontal bars.
 	var hchart_paginate = function() {
@@ -12984,14 +12984,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				return
 
 			$('#cursor').remove()
-			var cursor = $('<span id="cursor"></span>').
-				on('mouseleave', () => { cursor.remove() }).
+			t.parent().append($('<span id="cursor"></span>').
+				on('mouseleave', function() { $(this).remove() }).
 				attr('title', t.attr('data-title')).
-				css({
-					width: t.width(),
-					left:  t.position().left - 3, // TODO: -3, why?
-				})
-				t.parent().append(cursor)
+				css({width: t.width(), left: t.position().left}))
 		}
 
 		$('body').on('mouseenter', '[data-title]', function(e) {
@@ -13599,11 +13595,10 @@ tr.target .chart-left { display: block; }
 	background-color: #fff;
 }
 
-/* Bar char */
-.chart-bar {
-	display: flex;
-	align-items: flex-end;
-}
+.chart-bar             { display: flex; align-items: flex-end; }
+.chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }
+.chart-bar > div > div { position: absolute; left: 0; bottom: 0; width: 100%; }
+
 .chart-bar > .half {
 	border-top: 1px solid #ddd;
 	position: absolute;
@@ -13611,12 +13606,6 @@ tr.target .chart-left { display: block; }
 	left: 0;
 	right: 0;
 }
-.chart-bar > div {
-	position: relative;
-	flex-grow: 1;
-}
-
-.chart-bar > div       { background: #9a15a4; }
 
 .chart-bar > #cursor {
 	position: absolute;
@@ -13627,15 +13616,9 @@ tr.target .chart-left { display: block; }
 
 .chart-hbar span         { background: #9a15a4; }
 .chart-hbar a:hover span { background: #b11abc; }
+.chart-bar > .f          { background-color: #eee; }
 
-.chart-bar > div > div {
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-}
-.chart-bar > .f         { background-color: #eee; }
-
+/* Tooltip */
 #tooltip {
 	position: absolute;
 	left: 0;
