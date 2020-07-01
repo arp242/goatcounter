@@ -84,11 +84,6 @@
 			<button class="link" name="move" value="week-b">week</button> ·
 			<button class="link" name="move" value="month-b">month</button>
 		</div>
-		<small title="Visits displayed / total visits">
-			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
-			/
-			<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span></small>
-		</small>
 		<div>
 			<button class="link" name="move" value="week-f">week</button> ·
 			<button class="link" name="move" value="month-f">month</button>
@@ -98,7 +93,10 @@
 </form>
 
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-	<h2 class="screen-reader">Paths</h2>
+	<h2 class="full-width">Pages <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+	</small></h2>
 	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
 	</table>
@@ -108,10 +106,10 @@
 </div>
 
 <div class="totals">
-	<h2>Totals <small>
+	<h2 class="full-width">Totals <small>
 		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
-		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews</small>
-	</h2>
+		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
+	</small></h2>
 	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
 </div>
 

@@ -13423,17 +13423,10 @@ nav .updates { font-weight: bold; background-color: yellow; }
 nav #signin  { white-space: nowrap; margin-left: 1em; }
 nav #back    { white-space: nowrap; margin-right: 1em; }
 
-h2 { margin-bottom: .4em; }
-
-.totals h2 {
-	margin-left: .4em; margin-right: .4em; padding-right: .2em;
-	display: flex; justify-content: space-between;
-}
-
-h2 sup, h2 small {
-	font-size: .9rem;
-	font-weight: normal;
-}
+h2            { margin-bottom: .4em; }
+h2 small      { font-size: .9rem; font-weight: normal; margin-right: .1em; line-height: 1rem; }
+h2.full-width { margin-left: .4em; margin-right: .4em; padding-right: .2em;
+				display: flex; justify-content: space-between; align-items: flex-end; }
 
 h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
@@ -13475,6 +13468,8 @@ input.red { border: 1px solid red !important; }
 .btn:hover { text-decoration: none; background-color: #fbfbfb; }
 
 /*** Pages list ***/
+.pages-list h2 { margin-top: .5em; }
+
 .count-list td           { vertical-align: top; }
 .count-list td.generated { font-style: italic; }
 
@@ -13532,7 +13527,7 @@ tr.target small.go { display: inline-block; }
 #dash-saved-views { text-align: right; margin-right: .3em; }
 #dash-move        { display: flex; justify-content: space-between; padding: .2em; }
 
-#dash-form      { display: block; margin-bottom: .7em; padding-bottom: .4em; }
+#dash-form      { display: block; padding-bottom: .4em; }
 #dash-form span { margin-left: 0; } /* Reset from hello-css */
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
@@ -16479,11 +16474,6 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 			<button class="link" name="move" value="week-b">week</button> ·
 			<button class="link" name="move" value="month-b">month</button>
 		</div>
-		<small title="Visits displayed / total visits">
-			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span>
-			/
-			<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span></small>
-		</small>
 		<div>
 			<button class="link" name="move" value="week-f">week</button> ·
 			<button class="link" name="move" value="month-f">month</button>
@@ -16493,7 +16483,10 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 </form>
 
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-	<h2 class="screen-reader">Paths</h2>
+	<h2 class="full-width">Pages <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+	</small></h2>
 	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
 	</table>
@@ -16503,10 +16496,10 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 </div>
 
 <div class="totals">
-	<h2>Totals <small>
+	<h2 class="full-width">Totals <small>
 		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
-		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews</small>
-	</h2>
+		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
+	</small></h2>
 	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
 </div>
 
