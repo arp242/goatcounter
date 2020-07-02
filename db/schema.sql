@@ -5,6 +5,7 @@ create table sites (
 	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
 	link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
+	cname_setup_at timestamp      default null             check(cname_setup_at = strftime('%Y-%m-%d %H:%M:%S', cname_setup_at)),
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
 	settings       varchar        not null,
@@ -21,6 +22,8 @@ create table users (
 	site           integer        not null                 check(site > 0),
 
 	password       blob           default null,
+	totp_enabled   integer        not null default 0,
+	totp_secret    blob,
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
 	email_verified int            not null default 0,
 	role           varchar        not null default ''      check(role in ('', 'a')),
@@ -39,6 +42,20 @@ create table users (
 );
 create        index "users#site"          on users(site);
 create unique index "users#site#email"    on users(site, lower(email));
+
+create table api_tokens (
+	api_token_id   integer        primary key autoincrement,
+	site_id        integer        not null,
+	user_id        integer        not null,
+	name           varchar        not null,
+	token          varchar        not null    check(length(token) > 10),
+	permissions    jsonb          not null,
+	created_at     timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+
+	foreign key (site_id) references sites(id) on delete restrict on update restrict,
+	foreign key (user_id) references users(id) on delete restrict on update restrict
+);
+create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
 
 create table hits (
 	id             integer        primary key autoincrement,
@@ -485,6 +502,25 @@ create table updates (
 );
 create index "updates#show_at" on updates(show_at);
 
+create table exports (
+	export_id         integer        primary key autoincrement,
+	site_id           integer        not null,
+	start_from_hit_id integer        not null,
+
+	path              varchar        not null,
+	created_at        timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+
+	finished_at       timestamp                  check(finished_at is null or finished_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	last_hit_id       integer,
+	num_rows          integer,
+	size              varchar,
+	hash              varchar,
+	error             varchar,
+
+	foreign key (site_id) references sites(id) on delete restrict on update restrict
+);
+create index "exports#site_id#created_at" on exports(site_id, created_at);
+
 create table version (name varchar);
 insert into version values
 	('2019-10-16-1-geoip'),
@@ -526,4 +562,8 @@ insert into version values
 	('2020-05-21-1-ref-count'),
 	('2020-05-23-1-event'),
 	('2020-05-23-1-index'),
-	('2020-05-23-2-drop-ref-stats');
+	('2020-05-23-2-drop-ref-stats'),
+	('2020-06-03-1-cname-setup'),
+	('2020-06-18-1-totp'),
+	('2020-06-26-1-api-tokens'),
+	('2020-06-26-1-record-export');
