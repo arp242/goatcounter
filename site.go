@@ -338,14 +338,8 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
-	l := zlog.Module("Site.ByHost").Fields(zlog.F{
-		"host":       host,
-		"cfg.Domain": cfg.Domain,
-	})
-
 	// Custom domain or serve.
 	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
-		l.Debug("by cname")
 		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 			`/* Site.ByHost */ select * from sites where lower(cname)=lower($1) and state=$2`,
 			zhttp.RemovePort(host), StateActive), "site.ByHost: from custom domain")
@@ -357,7 +351,6 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 		return errors.Errorf("Site.ByHost: no subdomain in host %q", host)
 	}
 
-	l.Debug("by code")
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
 		`/* Site.ByHost */ select * from sites where lower(code)=lower($1) and state=$2`,
 		host[:p], StateActive), "site.ByHost: from code")
