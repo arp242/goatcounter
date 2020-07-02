@@ -215,7 +215,6 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 		args = append(args, "%"+filter+"%")
 	}
 	query += ` order by hour asc`
-
 	var tc []struct {
 		Hour        time.Time `db:"hour"`
 		Total       int       `db:"total"`
@@ -246,9 +245,6 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 
 		s.Hourly[hour] += t.Total
 		s.HourlyUnique[hour] += t.TotalUnique
-		s.Daily += t.Total
-		s.DailyUnique += t.TotalUnique
-
 		totalst.Count += t.Total
 		totalst.CountUnique += t.TotalUnique
 
@@ -258,9 +254,6 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	max := 0
 	for _, v := range stats {
 		totalst.Stats = append(totalst.Stats, v)
-		if daily && v.Daily > max {
-			max = v.Daily
-		}
 		if !daily {
 			for _, x := range v.Hourly {
 				if x > max {
@@ -268,9 +261,6 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 				}
 			}
 		}
-	}
-	if max < 10 {
-		max = 10
 	}
 
 	sort.Slice(totalst.Stats, func(i, j int) bool {
@@ -280,6 +270,25 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	hh := []HitStat{totalst}
 	fillBlankDays(hh, start, end)
 	applyOffset(hh, *site)
+
+	if daily {
+		for i := range hh[0].Stats {
+			for _, n := range hh[0].Stats[i].Hourly {
+				hh[0].Stats[i].Daily += n
+			}
+			for _, n := range hh[0].Stats[i].HourlyUnique {
+				hh[0].Stats[i].DailyUnique += n
+			}
+			if daily && hh[0].Stats[i].Daily > max {
+				max = hh[0].Stats[i].Daily
+			}
+		}
+	}
+
+	if max < 10 {
+		max = 10
+	}
+
 	*h = hh[0]
 	l = l.Since("total overview correct")
 
