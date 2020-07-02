@@ -21,11 +21,8 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-)
-
-var (
-	schema     string
-	migrations [][]string
+	"zgo.at/zlog"
+	"zgo.at/zstd/zstring"
 )
 
 type tester interface {
@@ -35,51 +32,130 @@ type tester interface {
 	Logf(string, ...interface{})
 }
 
+var (
+	dbname = "goatcounter_test_" + zhttp.Secret()[:25]
+	db     *sqlx.DB
+	tables []string
+)
+
 // DB starts a new database test.
 func DB(t tester) (context.Context, func()) {
 	t.Helper()
 
-	clean := func() {}
-	defer func() {
-		r := recover()
-		if r != nil {
-			clean()
-			panic(r)
-		}
-	}()
+	l := zlog.Module("gctest")
+	//l = l.SetDebug("gctest")
 
-	dbname := "goatcounter_test_" + zhttp.Secret()[:25]
-
-	if cfg.PgSQL {
-		// TODO: avoid using shell commands if possible; it's quite slow!
-		out, err := exec.Command("createdb", dbname).CombinedOutput()
-		if err != nil {
-			panic(fmt.Sprintf("%s → %s", err, out))
-		}
-
-		clean = func() {
-			go func() {
-				out, err := exec.Command("dropdb", dbname).CombinedOutput()
+	if db == nil {
+		var err error
+		if cfg.PgSQL {
+			{
+				out, err := exec.Command("createdb", dbname).CombinedOutput()
 				if err != nil {
-					t.Logf("dropdb: %s → %s", err, out)
+					t.Fatalf("%s → %s", err, out)
 				}
-			}()
+				l = l.Since("createdb")
+			}
+
+			db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
+		} else {
+			db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
 		}
-	}
+		if err != nil {
+			t.Fatalf("connect to DB: %s", err)
+		}
+		l = l.Since("connect")
 
-	var (
-		db  *sqlx.DB
-		err error
-	)
-	if cfg.PgSQL {
-		db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
+		setupDB(t)
+
+		l = l.Since("setupDB")
+
+		if cfg.PgSQL {
+			err = db.Select(&tables, `select c.relname as name
+					from pg_catalog.pg_class c
+					left join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+					where
+							c.relkind = 'r' and
+							n.nspname <> 'pg_catalog' and
+							n.nspname <> 'information_schema' and
+							n.nspname !~ '^pg_toast' and
+							pg_catalog.pg_table_is_visible(c.oid);`)
+		} else {
+			err = db.Select(&tables, `select name from sqlite_master where type='table'`)
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		exclude := []string{"iso_3166_1", "version"}
+		tables = zstring.Filter(tables, func(t string) bool { return !zstring.Contains(exclude, t) })
+
+		l = l.Since("list tables")
 	} else {
-		db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
+		q := `delete from %s`
+		if cfg.PgSQL {
+			// TODO: takes about 450ms, which is rather long. See if we can
+			// speed this up.
+			q = `truncate %s restart identity cascade`
+		}
+		for _, t := range tables {
+			db.MustExec(fmt.Sprintf(q, t))
+		}
+		if !cfg.PgSQL {
+			db.MustExec(`delete from sqlite_sequence`)
+		}
+
+		l = l.Since("truncate")
 	}
-	if err != nil {
-		t.Fatalf("connect to DB: %s", err)
+	ctx := zdb.With(context.Background(), db)
+
+	{
+		_, err := db.ExecContext(ctx, `insert into sites
+			(code, plan, settings, created_at) values ('test', 'personal', '{}', $1)`,
+			goatcounter.Now().Format(zdb.Date))
+		if err != nil {
+			t.Fatalf("create site: %s", err)
+		}
+		l = l.Since("create site")
+
+		var site goatcounter.Site
+		err = site.ByID(ctx, 1)
+		if err != nil {
+			t.Fatalf("get site: %s", err)
+		}
+		ctx = goatcounter.WithSite(ctx, &site)
+		l = l.Since("get site")
 	}
 
+	{
+		_, err := db.ExecContext(ctx, `insert into users
+			(site, email, password, created_at) values (1, 'test@example.com', 'xx', $1)`,
+			goatcounter.Now().Format(zdb.Date))
+		if err != nil {
+			t.Fatalf("create site: %s", err)
+		}
+		l = l.Since("create user")
+
+		var user goatcounter.User
+		err = user.BySite(ctx, 1)
+		if err != nil {
+			t.Fatalf("get user: %s", err)
+		}
+		ctx = goatcounter.WithUser(ctx, &user)
+		l = l.Since("get user")
+	}
+
+	return ctx, func() {
+		goatcounter.Salts.Clear()
+
+		// TODO: run after all tests are done.
+		// out, err := exec.Command("dropdb", dbname).CombinedOutput()
+		// if err != nil {
+		// 	t.Logf("dropdb: %s → %s", err, out)
+		// }
+	}
+}
+
+func setupDB(t tester) {
 	top, err := os.Getwd()
 	if err != nil {
 		t.Fatalf(fmt.Sprintf("cannot get cwd: %s", err))
@@ -95,7 +171,6 @@ func DB(t tester) (context.Context, func()) {
 			break
 		}
 	}
-
 	schemapath := top + "/db/schema.sql"
 	migratepath := top + "/db/migrate/sqlite"
 	if cfg.PgSQL {
@@ -103,44 +178,38 @@ func DB(t tester) (context.Context, func()) {
 		migratepath = top + "/db/migrate/pgsql"
 	}
 
-	if schema == "" {
-		s, err := ioutil.ReadFile(schemapath)
-		if err != nil {
-			t.Fatalf("read schema: %v", err)
+	s, err := ioutil.ReadFile(schemapath)
+	if err != nil {
+		t.Fatalf("read schema: %v", err)
+	}
+	schema := string(s)
+	_, err = db.ExecContext(context.Background(), schema)
+	if err != nil {
+		t.Fatalf("run schema %q: %v", schemapath, err)
+	}
+
+	migs, err := ioutil.ReadDir(migratepath)
+	if err != nil {
+		t.Fatalf("read migration directory: %s", err)
+	}
+
+	var migrations [][]string
+	for _, m := range migs {
+		if !strings.HasSuffix(m.Name(), ".sql") {
+			continue
 		}
-		schema = string(s)
-		_, err = db.ExecContext(context.Background(), schema)
-		if err != nil {
-			t.Fatalf("run schema %q: %v", schemapath, err)
+		var ran bool
+		db.Get(&ran, `select 1 from version where name=$1`, m.Name()[:len(m.Name())-4])
+		if ran {
+			continue
 		}
 
-		migs, err := ioutil.ReadDir(migratepath)
+		mp := fmt.Sprintf("%s/%s", migratepath, m.Name())
+		mb, err := ioutil.ReadFile(mp)
 		if err != nil {
-			t.Fatalf("read migration directory: %s", err)
+			t.Fatalf("read migration: %s", err)
 		}
-
-		for _, m := range migs {
-			if !strings.HasSuffix(m.Name(), ".sql") {
-				continue
-			}
-			var ran bool
-			db.Get(&ran, `select 1 from version where name=$1`, m.Name()[:len(m.Name())-4])
-			if ran {
-				continue
-			}
-
-			mp := fmt.Sprintf("%s/%s", migratepath, m.Name())
-			mb, err := ioutil.ReadFile(mp)
-			if err != nil {
-				t.Fatalf("read migration: %s", err)
-			}
-			migrations = append(migrations, []string{mp, string(mb)})
-		}
-	} else {
-		_, err = db.ExecContext(context.Background(), schema)
-		if err != nil {
-			t.Fatalf("create schema: %s", err)
-		}
+		migrations = append(migrations, []string{mp, string(mb)})
 	}
 
 	for _, m := range migrations {
@@ -148,46 +217,6 @@ func DB(t tester) (context.Context, func()) {
 		if err != nil {
 			t.Fatalf("run migration %q: %s", m[0], err)
 		}
-	}
-
-	now := `datetime()`
-	if cfg.PgSQL {
-		now = `now()`
-	}
-
-	_, err = db.ExecContext(context.Background(), fmt.Sprintf(
-		`insert into sites (code, plan, settings, created_at) values
-		('test', 'personal', '{}', %s);`, now))
-	if err != nil {
-		t.Fatalf("create site: %s", err)
-	}
-
-	ctx := zdb.With(context.Background(), db)
-
-	var site goatcounter.Site
-	err = site.ByID(ctx, 1)
-	if err != nil {
-		t.Fatalf("get site: %s", err)
-	}
-	ctx = goatcounter.WithSite(ctx, &site)
-
-	var user goatcounter.User
-	err = user.BySite(ctx, site.ID)
-	if err != nil {
-		user.Site = 1
-		user.Email = "test@example.com"
-		user.Password = []byte("coconuts")
-		err = user.Insert(ctx)
-	}
-	if err != nil {
-		t.Fatalf("get/create user: %s", err)
-	}
-	ctx = goatcounter.WithUser(ctx, &user)
-
-	return ctx, func() {
-		db.Close()
-		goatcounter.Salts.Clear()
-		clean()
 	}
 }
 
