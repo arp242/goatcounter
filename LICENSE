@@ -1,15 +1,21 @@
 Copyright © 2019 Martin Tournoij <martin@arp242.net>
 
-This software is licensed under the European Union Public License (EUPL) version
-1.2, which is available in the 22 official languages of the EU. Only the English
+GoatCounter is licensed under a slightly modified version of European Union
+Public License (EUPL) 1.2; the only difference is that the “Compatible Licenses”
+Appendix removes some licenses, but is otherwise identical.
+
+The EUPL is available in the 22 official languages of the EU. Only the English
 one is provided here, for the official translations see: http://eupl12.zgo.at
 
 Motivation for choosing the EUPL: https://www.arp242.net/license.html
 
-Note the “Compatible Licenses” Appendix is changed from the original!
+The count.js integration script is licensed under the permissive ISC license to
+ease integrating it. GoatCounter also contains various 3rd-party components,
+most of which are MIT or BSD licensed (the licenses for which are included in
+this file as well).
 
 
-––– public/count.js is available under the ISC license ––––––––––––––––––––––––
+––– public/count.js; ISC license ––––––––––––––––––––––––––––––––––––––––––––––
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
@@ -41,7 +47,6 @@ copyright notice for the Work:
         Licensed under the EUPL
 
 or has expressed by any other means his willingness to license under the EUPL.
-
 
 1. Definitions
 
@@ -82,7 +87,6 @@ In this Licence, the following terms have the following meaning:
   essential functionalities at the disposal of any other natural or legal
   person.
 
-
 2. Scope of the rights granted by the Licence
 
 The Licensor hereby grants You a worldwide, royalty-free, non-exclusive,
@@ -110,7 +114,6 @@ The Licensor grants to the Licensee royalty-free, non-exclusive usage rights to
 any patents held by the Licensor, to the extent necessary to make use of the
 rights granted on the Work under this Licence.
 
-
 3. Communication of the Source Code
 
 The Licensor may provide the Work either in its Source Code form, or as
@@ -121,14 +124,12 @@ a notice following the copyright notice attached to the Work, a repository where
 the Source Code is easily and freely accessible for as long as the Licensor
 continues to distribute or communicate the Work.
 
-
 4. Limitations on copyright
 
 Nothing in this Licence is intended to deprive the Licensee of the benefits from
 any exception or limitation to the exclusive rights of the rights owners in the
 Work, of the exhaustion of those rights or of other applicable limitations
 thereto.
-
 
 5. Obligations of the Licensee
 
@@ -169,7 +170,6 @@ trademarks, service marks, or names of the Licensor, except as required for
 reasonable and customary use in describing the origin of the Work and
 reproducing the content of the copyright notice.
 
-
 6. Chain of Authorship
 
 The original Licensor warrants that the copyright in the Original Work granted
@@ -183,7 +183,6 @@ power and authority to grant the Licence.
 Each time You accept the Licence, the original Licensor and subsequent
 Contributors grant You a licence to their contributions to the Work, under the
 terms of this Licence.
-
 
 7. Disclaimer of Warranty
 
@@ -200,7 +199,6 @@ copyright as stated in Article 6 of this Licence.
 This disclaimer of warranty is an essential part of the Licence and a condition
 for the grant of any rights to the Work.
 
-
 8. Disclaimer of Liability
 
 Except in the cases of wilful misconduct or damages directly caused to natural
@@ -212,7 +210,6 @@ damage, even if the Licensor has been advised of the possibility of such damage.
 However, the Licensor will be liable under statutory product liability laws as
 far such laws apply to the Work.
 
-
 9. Additional agreements
 
 While distributing the Work, You may choose to conclude an additional agreement,
@@ -222,7 +219,6 @@ responsibility, not on behalf of the original Licensor or any other Contributor,
 and only if You agree to indemnify, defend, and hold each Contributor harmless
 for any liability incurred by, or claims asserted against such Contributor by
 the fact You have accepted any warranty or additional liability.
-
 
 10. Acceptance of the Licence
 
@@ -237,7 +233,6 @@ conditions by exercising any rights granted to You by Article 2 of this Licence,
 such as the use of the Work, the creation by You of a Derivative Work or the
 Distribution or Communication by You of the Work or copies thereof.
 
-
 11. Information to the public
 
 In case of any Distribution or Communication of the Work by means of electronic
@@ -247,7 +242,6 @@ at least provide to the public the information requested by the applicable law
 regarding the Licensor, the Licence and the way it may be accessible, concluded,
 stored and reproduced by the Licensee.
 
-
 12. Termination of the Licence
 
 The Licence and the rights granted hereunder will terminate automatically upon
@@ -256,7 +250,6 @@ any breach by the Licensee of the terms of the Licence.
 Such a termination will not terminate the licences of any person who has
 received the Work from the Licensee under the Licence, provided such persons
 remain in full compliance with the Licence.
-
 
 13. Miscellaneous
 
@@ -277,7 +270,6 @@ All linguistic versions of this Licence, approved by the European Commission,
 have identical value. Parties can take advantage of the linguistic version of
 their choice.
 
-
 14. Jurisdiction
 
 Without prejudice to specific agreement between parties,
@@ -293,7 +285,6 @@ Without prejudice to specific agreement between parties,
   of the competent court where the Licensor resides or conducts its primary
   business.
 
-
 15. Applicable Law
 
 Without prejudice to specific agreement between parties,
@@ -303,7 +294,6 @@ Without prejudice to specific agreement between parties,
 
 - this licence shall be governed by Belgian law if the Licensor has no seat,
   residence or registered office inside a European Union Member State.
-
 
 Appendix
 
@@ -319,3 +309,148 @@ Code from exclusive appropriation.
 
 All other changes or additions to this Appendix require the production of a new
 EUPL version.
+
+
+––– public/jquery.js; MIT license; https://jquery.org/license –––––––––––––––––
+
+Copyright OpenJS Foundation and other contributors, https://openjsf.org/
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+––– public/pikaday.*; MIT license; https://github.com/Pikaday/Pikaday –––––––––
+
+Copyright (c) 2014 David Bushell
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+––– public/fonts/*; OFL 1.1; http://www.latofonts.com –––––––––––––––––––––––––
+
+Copyright (c) 2010-2015, Łukasz Dziedzic (dziedzic@typoland.com),
+with Reserved Font Name Lato.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded,
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
