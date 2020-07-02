@@ -1,0 +1,8 @@
+<div class="totals">
+	<h2 class="full-width">Totals <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
+		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
+	</small></h2>
+	<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
+</div>
+

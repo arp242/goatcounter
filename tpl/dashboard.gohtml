@@ -92,48 +92,15 @@
 	</div>
 </form>
 
-<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-	<h2 class="full-width">Pages <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
-		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
-	</small></h2>
-	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
-	</table>
-	<div class="load-more-wrapper">
-		<a href="#" class="load-more load-more-pages btn" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
-	</div>
-</div>
-
-<div class="totals">
-	<h2 class="full-width">Totals <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
-		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
-	</small></h2>
-	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
-</div>
-
-<div class="hcharts">
-	<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
-		<h2>Top referrers</h2>
-		{{horizontal_chart .Context $.TopRefs .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
-		<h2>Browsers</h2>
-		{{horizontal_chart .Context .Browsers .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-detail="/hchart-detail?kind=system" data-more="/hchart-more?kind=system">
-		<h2>Systems</h2>
-		{{horizontal_chart .Context .Systems .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-detail="/hchart-detail?kind=size">
-		<h2>Screen size</h2>
-		{{horizontal_chart .Context .SizeStat .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-more="/hchart-more?kind=location">
-		<h2>Locations</h2>
-		{{horizontal_chart .Context .LocationStat .TotalUniqueHits 6 false true}}
-	</div>
-</div>
+{{$div := false}}
+{{range $w := .Widgets}}
+	{{if and (eq $w.Type "hchart") (not $div)}}
+		{{$div = true}}
+		<div class="hcharts">
+	{{end}}
+	{{if and (ne $w.Type "hchart") $div}}</div>{{end}}
+	{{$w.HTML}}
+{{end}}
+{{if $div}}</div>{{end}}
 
 {{- template "_backend_bottom.gohtml" . }}
