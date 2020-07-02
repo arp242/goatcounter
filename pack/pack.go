@@ -12615,6 +12615,15 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
+		$('#dash-form').on('submit', function(e) {
+			if (get_date($('#period-start').val()) < get_date($('#period-end').val()))
+				return
+
+			e.preventDefault()
+			if (!$('#period-end').hasClass('red'))
+				$('#period-end').addClass('red').after(' <span class="red">end date before start date</span>')
+		})
+
 		$('#period-start, #period-end').on('change', function(e) {
 			$(this).closest('form').trigger('submit')
 		})
@@ -13406,6 +13415,9 @@ h3+p, h4+p { margin-top: 0; }
 h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
 
 form .err  { color: red; display: block; }
+
+span.red  { color: red; }
+input.red { border: 1px solid red !important; }
 
 @media (min-width: 55rem) {
 	.form-wrap form          { display: flex; flex-wrap: wrap; }

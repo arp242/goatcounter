@@ -56,6 +56,9 @@ h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
 
 form .err  { color: red; display: block; }
 
+span.red  { color: red; }
+input.red { border: 1px solid red !important; }
+
 @media (min-width: 55rem) {
 	.form-wrap form          { display: flex; flex-wrap: wrap; }
 	.form-wrap form fieldset { width: 48%; }

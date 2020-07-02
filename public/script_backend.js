@@ -317,6 +317,15 @@
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
+		$('#dash-form').on('submit', function(e) {
+			if (get_date($('#period-start').val()) < get_date($('#period-end').val()))
+				return
+
+			e.preventDefault()
+			if (!$('#period-end').hasClass('red'))
+				$('#period-end').addClass('red').after(' <span class="red">end date before start date</span>')
+		})
+
 		$('#period-start, #period-end').on('change', function(e) {
 			$(this).closest('form').trigger('submit')
 		})
