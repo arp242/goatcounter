@@ -318,7 +318,7 @@
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
 		$('#dash-form').on('submit', function(e) {
-			if (get_date($('#period-start').val()) < get_date($('#period-end').val()))
+			if (get_date($('#period-start').val()) <= get_date($('#period-end').val()))
 				return
 
 			e.preventDefault()
