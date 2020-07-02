@@ -1,0 +1,48 @@
+{{template "_backend_top.gohtml" .}}
+
+<h2>Admin</h2>
+
+<form method="post" action="/admin/{{.Stat.Site.ID}}/gh-sponsor" class="vertical">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	<fieldset>
+		<legend>Set plan from GitHub</legend>
+
+		{{if .Stat.Site.Parent}}
+			<p>Child of {{.Stat.Site.Parent}}</p>
+		{{else if and .Stat.Site.Stripe (not .Stat.Site.PayExternal) (not .Stat.Site.FreePlan)}}
+			<p>Already has a Stripe subscription: {{.Stat.Site.Stripe}}</p>
+		{{else}}
+			<label for="user">GitHub user</label>
+			<input type="text" name="user" id="user" value="{{.Stat.Site.Stripe}}">
+
+			<label for="amount">USD amount</label>
+			<input type="text" name="amount" id="amount" value="{{.Stat.Site.BillingAmount}}">
+
+			<label for="plan">Plan</label>
+			<select name="plan" id="plan">
+				<option {{option_value .Stat.Site.Plan "personal"}}>personal</option>
+				<option {{option_value .Stat.Site.Plan "personalplus"}}>personalplus</option>
+				<option {{option_value .Stat.Site.Plan "business"}}>business</option>
+				<option {{option_value .Stat.Site.Plan "businessplus"}}>businessplus</option>
+			</select>
+			<br>
+			<button type="submit">Update</button>
+		{{end}}
+	</fieldset>
+</form>
+
+<table>
+	<tr><td>Total</td><td>{{nformat .Stat.CountTotal $.Site}}</td></tr>
+	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.Site}}</td></tr>
+	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.Site}}</td></tr>
+	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
+	{{if .Stat.Site.Parent}}
+		<tr><td>Parent</td><td><a href="/admin/{{.Stat.Site.Parent}}">/admin/{{.Stat.Site.Parent}}</a></td></tr>
+	{{end}}
+</table>
+
+<pre>{{pp .Stat.Site}}</pre>
+<pre>{{pp .Stat.User}}</pre>
+
+{{template "_backend_bottom.gohtml" .}}
