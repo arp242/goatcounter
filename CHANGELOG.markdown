@@ -25,6 +25,17 @@ master branch
 
   See http://goatcounter.com/api for details.
 
+- Some redesigns (#324, #315, #321 #320)
+
+  Did a bunch of redesigns:
+
+  - The "Totals" is now placed below the Pages; I think it makes more sense
+    there. The Y-axis for the totals is now also independent.
+
+  - You can configure what to display on the dashboard and in what order.
+
+  - A whole bunch of subjective re-styling.
+
 - Make it easier to skip your own views (#290)
 
   Previously this required adding custom code, but now loading any page with

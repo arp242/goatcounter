@@ -31,12 +31,12 @@ func TestLocationStats(t *testing.T) {
 	}
 
 	var stats goatcounter.Stats
-	err = stats.ListLocations(ctx, now, now)
+	err = stats.ListLocations(ctx, now, now, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := `[{Indonesia 2 0} {Ethiopia 1 1}]`
+	want := `{false [{Ethiopia 1 1 <nil>} {Indonesia 2 0 <nil>}]}`
 	out := fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -57,12 +57,12 @@ func TestLocationStats(t *testing.T) {
 	}
 
 	stats = goatcounter.Stats{}
-	err = stats.ListLocations(ctx, now, now)
+	err = stats.ListLocations(ctx, now, now, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want = `[{Ethiopia 5 3} {Indonesia 4 0} {New Zealand 1 0}]`
+	want = `{false [{Ethiopia 5 3 <nil>} {Indonesia 4 0 <nil>} {New Zealand 1 0 <nil>}]}`
 	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)

@@ -8,14 +8,12 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"html/template"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -40,8 +38,6 @@ import (
 	"zgo.at/zhttp/header"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
-	"zgo.at/zstd/zstring"
-	"zgo.at/zstd/zsync"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
@@ -293,273 +289,6 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Bytes(w, gif)
 }
 
-const day = 24 * time.Hour
-
-func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
-
-	// Cache much more aggressively for public displays. Don't care so much if
-	// it's outdated by an hour.
-	if site.Settings.Public && goatcounter.GetUser(r.Context()).ID == 0 {
-		w.Header().Set("Cache-Control", "public,max-age=3600")
-		w.Header().Set("Vary", "Cookie")
-	}
-
-	start, end, err := getPeriod(w, r, site)
-	if err != nil {
-		zhttp.FlashError(w, err.Error())
-	}
-	if start.IsZero() || end.IsZero() {
-		y, m, d := goatcounter.Now().In(site.Settings.Timezone.Loc()).Date()
-		now := time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())
-		start = now.Add(-7 * day).UTC()
-		end = time.Date(y, m, d, 23, 59, 59, 9, now.Location()).UTC().Round(time.Second)
-	}
-
-	showRefs := r.URL.Query().Get("showrefs")
-	filter := r.URL.Query().Get("filter")
-	daily, forcedDaily := getDaily(r, start, end)
-
-	// l := zlog.Module("dashboard").Field("site", site.ID)
-
-	type Widget struct {
-		Name string
-		Type string // "full-width", "hchart"
-		HTML template.HTML
-	}
-	var widgets []Widget
-	wantWidgets := []string{"totals",
-		"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"}
-
-	if showRefs == "" {
-		wantWidgets = append(wantWidgets, "refs")
-	}
-	if zstring.Contains(wantWidgets, "pages") {
-		wantWidgets = append(wantWidgets, "max")
-	}
-
-	var (
-		wg    sync.WaitGroup
-		bgErr = errors.NewGroup(20)
-	)
-
-	var data struct {
-		total, totalUnique int
-
-		pages struct {
-			display, uniqueDisplay int
-			max                    int
-			more                   bool
-			pages                  goatcounter.HitStats
-			refs                   goatcounter.Stats
-		}
-
-		totalPages struct {
-			max   int
-			total goatcounter.HitStat
-		}
-
-		topRefs  goatcounter.Stats
-		browsers goatcounter.Stats
-		systems  goatcounter.Stats
-		sizeStat goatcounter.Stats
-		locStat  goatcounter.Stats
-	}
-
-	funcs := map[string]func() error{
-		"totals": func() (err error) {
-			data.total, data.totalUnique, err = goatcounter.GetTotalCount(r.Context(), start, end, filter)
-			return err
-		},
-
-		"pages": func() (err error) {
-			data.pages.display, data.pages.uniqueDisplay, data.pages.more, err = data.pages.pages.List(
-				r.Context(), start, end, filter, nil, daily)
-			return err
-		},
-		"refs": func() (err error) {
-			return data.pages.refs.ListRefsByPath(r.Context(), showRefs, start, end, 0)
-		},
-
-		"max": func() (err error) {
-			data.pages.max, err = goatcounter.GetMax(r.Context(), start, end, filter, daily)
-			return err
-		},
-
-		"totalpages": func() (err error) {
-			data.totalPages.max, err = data.totalPages.total.Totals(r.Context(), start, end, filter, daily)
-			return err
-		},
-
-		"toprefs":   func() (err error) { return data.topRefs.ListTopRefs(r.Context(), start, end, 0) },
-		"browsers":  func() (err error) { return data.browsers.ListBrowsers(r.Context(), start, end, 6, 0) },
-		"systems":   func() (err error) { return data.systems.ListSystems(r.Context(), start, end, 6, 0) },
-		"sizes":     func() (err error) { return data.sizeStat.ListSizes(r.Context(), start, end) },
-		"locations": func() (err error) { return data.locStat.ListLocations(r.Context(), start, end, 6, 0) },
-	}
-
-	for _, w := range wantWidgets {
-		wg.Add(1)
-		go func(w string) {
-			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("data widget", w).FieldsRequest(r) })
-			defer wg.Done()
-
-			l := zlog.Module("dashboard")
-			bgErr.Append(funcs[w]())
-			l.Since(w)
-		}(w)
-	}
-
-	subs, err := site.ListSubs(r.Context())
-	if err != nil {
-		return err
-	}
-
-	cd := cfg.DomainCount
-	if cd == "" {
-		cd = goatcounter.MustGetSite(r.Context()).Domain()
-		if cfg.Port != "" {
-			cd += ":" + cfg.Port
-		}
-	}
-
-	zsync.Wait(r.Context(), &wg)
-	if bgErr.Len() > 0 {
-		return bgErr
-	}
-
-	render := map[string]func() (Widget, error){
-		"pages": func() (Widget, error) {
-			tpl, err := zhttp.ExecuteTpl("_dashboard_pages.gohtml", struct {
-				Context     context.Context
-				Pages       goatcounter.HitStats
-				Site        *goatcounter.Site
-				PeriodStart time.Time
-				PeriodEnd   time.Time
-				Daily       bool
-				ForcedDaily bool
-				Max         int
-
-				TotalDisplay       int
-				TotalUniqueDisplay int
-
-				TotalHits       int
-				TotalUniqueHits int
-				MorePages       bool
-
-				Refs     goatcounter.Stats
-				ShowRefs string
-			}{r.Context(), data.pages.pages, site, start, end, daily, forcedDaily, data.pages.max,
-				data.pages.display, data.pages.uniqueDisplay,
-				data.total, data.totalUnique, data.pages.more,
-				data.pages.refs, showRefs})
-
-			return Widget{Type: "full-width", HTML: template.HTML(tpl)}, err
-		},
-
-		"totalpages": func() (Widget, error) {
-			tpl, err := zhttp.ExecuteTpl("_dashboard_totals.gohtml", struct {
-				Context         context.Context
-				Site            *goatcounter.Site
-				Page            goatcounter.HitStat
-				Daily           bool
-				Max             int
-				TotalHits       int
-				TotalUniqueHits int
-			}{r.Context(), site, data.totalPages.total, daily, data.totalPages.max,
-				data.total, data.totalUnique})
-			return Widget{Type: "full-width", HTML: template.HTML(tpl)}, err
-		},
-
-		"toprefs": func() (Widget, error) {
-			tpl, err := zhttp.ExecuteTpl("_dashboard_toprefs.gohtml", struct {
-				Context         context.Context
-				TotalUniqueHits int
-				Stats           goatcounter.Stats
-			}{r.Context(), data.totalUnique, data.topRefs})
-			return Widget{Type: "hchart", HTML: template.HTML(tpl)}, err
-		},
-		"browsers": func() (Widget, error) {
-			tpl, err := zhttp.ExecuteTpl("_dashboard_browsers.gohtml", struct {
-				Context         context.Context
-				TotalUniqueHits int
-				Stats           goatcounter.Stats
-			}{r.Context(), data.totalUnique, data.browsers})
-			return Widget{Type: "hchart", HTML: template.HTML(tpl)}, err
-		},
-		"systems": func() (Widget, error) {
-			tpl, err := zhttp.ExecuteTpl("_dashboard_systems.gohtml", struct {
-				Context         context.Context
-				TotalUniqueHits int
-				Stats           goatcounter.Stats
-			}{r.Context(), data.totalUnique, data.systems})
-			return Widget{Type: "hchart", HTML: template.HTML(tpl)}, err
-		},
-		"sizes": func() (Widget, error) {
-			tpl, err := zhttp.ExecuteTpl("_dashboard_sizes.gohtml", struct {
-				Context         context.Context
-				TotalUniqueHits int
-				Stats           goatcounter.Stats
-			}{r.Context(), data.totalUnique, data.sizeStat})
-			return Widget{Type: "hchart", HTML: template.HTML(tpl)}, err
-		},
-		"locations": func() (Widget, error) {
-			tpl, err := zhttp.ExecuteTpl("_dashboard_locations.gohtml", struct {
-				Context         context.Context
-				TotalUniqueHits int
-				Stats           goatcounter.Stats
-			}{r.Context(), data.totalUnique, data.locStat})
-			return Widget{Type: "hchart", HTML: template.HTML(tpl)}, err
-		},
-	}
-	for _, w := range wantWidgets {
-		wg.Add(1)
-		go func(w string) {
-			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("tpl widget", w).FieldsRequest(r) })
-			defer wg.Done()
-
-			f, ok := render[w]
-			if !ok {
-				return
-			}
-
-			wid, err := f()
-			wid.Name = w
-			widgets = append(widgets, wid)
-			bgErr.Append(err)
-		}(w)
-	}
-
-	zsync.Wait(r.Context(), &wg)
-	if bgErr.Len() > 0 {
-		return bgErr
-	}
-
-	// Ensure correct order.
-	sortmap := make(map[string]int, len(wantWidgets))
-	for i, w := range wantWidgets {
-		sortmap[w] = i
-	}
-	sort.Slice(widgets, func(i, j int) bool { return sortmap[widgets[i].Name] < sortmap[widgets[j].Name] })
-
-	return zhttp.Template(w, "dashboard.gohtml", struct {
-		Globals
-		CountDomain    string
-		SubSites       []string
-		ShowRefs       string
-		SelectedPeriod string
-		PeriodStart    time.Time
-		PeriodEnd      time.Time
-		Filter         string
-		Daily          bool
-		ForcedDaily    bool
-		Widgets        []Widget
-	}{newGlobals(w, r),
-		cd, subs, showRefs, r.URL.Query().Get("hl-period"), start, end, filter,
-		daily, forcedDaily, widgets,
-	})
-}
-
 func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.MustGetSite(r.Context())
 
@@ -638,20 +367,21 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	tpl, err := zhttp.ExecuteTpl("_dashboard_pages_rows.gohtml", struct {
-		Context     context.Context
-		Pages       goatcounter.HitStats
-		Site        *goatcounter.Site
-		PeriodStart time.Time
-		PeriodEnd   time.Time
-		Daily       bool
-		ForcedDaily bool
-		Max         int
+		Context      context.Context
+		Pages        goatcounter.HitStats
+		Site         *goatcounter.Site
+		PeriodStart  time.Time
+		PeriodEnd    time.Time
+		Daily        bool
+		ForcedDaily  bool
+		Max          int
+		IsPagination bool
 
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
 	}{r.Context(), pages, site, start, end,
-		daily, forcedDaily, int(max), false, ""})
+		daily, forcedDaily, int(max), true, false, ""})
 	if err != nil {
 		return err
 	}
@@ -685,6 +415,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
+// TODO: don't hard-code limit to 10, and allow pagination here too.
 func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
 	if err != nil {
@@ -711,6 +442,9 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 	case "size":
 		err = detail.ListSize(r.Context(), name, start, end)
 	case "topref":
+		if name == "(unknown)" {
+			name = ""
+		}
 		err = detail.ByRef(r.Context(), start, end, name)
 	}
 	if err != nil {
@@ -718,12 +452,14 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, map[string]interface{}{
-		"html": string(goatcounter.HorizontalChart(r.Context(), detail, total, 10, false, true)),
+		"html": string(goatcounter.HorizontalChart(r.Context(), detail, total, 10, false, false)),
 	})
 }
 
 func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
-	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	site := goatcounter.MustGetSite(r.Context())
+
+	start, end, err := getPeriod(w, r, site)
 	if err != nil {
 		return err
 	}
@@ -744,7 +480,12 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 		return v
 	}
 
-	var page goatcounter.Stats
+	var (
+		page     goatcounter.Stats
+		size     = 6
+		paginate = false
+		link     = true
+	)
 	switch kind {
 	case "browser":
 		err = page.ListBrowsers(r.Context(), start, end, 6, offset)
@@ -752,8 +493,12 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 		err = page.ListSystems(r.Context(), start, end, 6, offset)
 	case "location":
 		err = page.ListLocations(r.Context(), start, end, 6, offset)
+		link = false
 	case "ref":
 		err = page.ListRefsByPath(r.Context(), showRefs, start, end, offset)
+		size = site.Settings.Limits.Ref
+		paginate = offset == 0
+		link = false
 	case "topref":
 		err = page.ListTopRefs(r.Context(), start, end, offset)
 	}
@@ -762,7 +507,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, map[string]interface{}{
-		"html": string(goatcounter.HorizontalChart(r.Context(), page, total, 6, kind != "location", false)),
+		"html": string(goatcounter.HorizontalChart(r.Context(), page, total, size, link, paginate)),
 		"more": page.More,
 	})
 }

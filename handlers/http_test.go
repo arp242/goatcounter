@@ -45,11 +45,13 @@ type handlerTest struct {
 }
 
 func init() {
+	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter,
+		blackmail.MailerOut(new(bytes.Buffer)))
+
 	zhttp.TplPath = "../tpl"
 	pack.Templates = nil
 	pack.Public = nil
 	zhttp.InitTpl(nil)
-	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.GoatcounterCom = true

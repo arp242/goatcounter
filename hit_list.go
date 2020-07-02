@@ -23,9 +23,6 @@ import (
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 // List the top paths for this site in the given time period.
-//
-// TODO: There are too many return values; at the very least it can be split in
-// List() and Totals()
 func (h *HitStats) List(
 	ctx context.Context, start, end time.Time, filter string, exclude []string, daily bool,
 ) (int, int, bool, error) {
@@ -44,12 +41,11 @@ func (h *HitStats) List(
 		limit := int(zint.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
 
 		query := `/* HitStats.List: get overview */
-			select path, event
-			from hit_counts
+			select path, event from hit_counts
 			where
 				site=? and
-				hour >= ? and
-				hour <= ? `
+				hour>=? and
+				hour<=? `
 		args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
 
 		if filter != "" {

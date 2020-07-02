@@ -102,9 +102,9 @@
 			e.preventDefault()
 
 			var scale = $(this).closest('.chart').attr('data-max')
-			$('.scale').html(format_int(scale))
-			$('.count-list-pages').attr('data-scale', scale)
-			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
+			$('.pages-list .scale').html(format_int(scale))
+			$('.pages-list .count-list-pages').attr('data-scale', scale)
+			$('.pages-list .chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
 		})
 	}
@@ -215,6 +215,7 @@
 			t = setTimeout(function() {
 				var filter = $(e.target).val().trim()
 				push_query('filter', filter)
+				push_query('showrefs', null) // clear as this will be reset
 				$('#filter-paths').toggleClass('value', filter !== '')
 
 				var loading = $('<span class="loading"></span>')
@@ -243,7 +244,7 @@
 
 	// Paginate the main path overview.
 	var paginate_paths = function() {
-		$('.pages-list .load-more-pages').on('click', function(e) {
+		$('.pages-list >.load-more').on('click', function(e) {
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
@@ -275,7 +276,7 @@
 			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
-		$('.pages-list .load-more-pages').css('display', data.more ? 'inline-block' : 'none')
+		$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
 
 		var th = $('.total-hits'),
 		    td = $('.total-display'),
@@ -394,7 +395,7 @@
 	// Paginate and show details for the horizontal charts.
 	var hchart_detail = function() {
 		// Paginate.
-		$('.hchart[data-more] .load-more').on('click', function(e) {
+		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
 
 			var btn   = $(this),
@@ -415,7 +416,7 @@
 		})
 
 		// Load detail.
-		$('.hchart').on('click', 'a', function(e) {
+		$('.hchart').on('click', '.load-detail', function(e) {
 			e.preventDefault()
 
 			var btn   = $(this),
@@ -423,7 +424,7 @@
 				chart = btn.closest('.hchart'),
 				url   = chart.attr('data-detail'),
 				name  = row.attr('data-name')
-			if (!url || !name || name === '(other)' || name === '(unknown)')
+			if (!url || !name) // || name === '(other)' || name === '(unknown)')
 				return;
 			if (row.next().is('.detail'))
 				return row.next().remove()
@@ -548,13 +549,14 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages, .totals').on('click', '.load-refs', function(e) {
+		$('.count-list-pages, .totals').on('click', '.load-refs, .hchart .load-more', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
-				link   = this,
+				btn    = $(this),
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
+				init   = btn .is('.load-refs'),
 				close  = function() {
 					var t = $(document.getElementById(params['showrefs']))
 					t.removeClass('target')
@@ -564,28 +566,34 @@
 			// Clicked on row that's already open, so close and stop. Don't
 			// close anything yet if we're going to load another path, since
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
-			if (params['showrefs'] === path) {
+			if (init && params['showrefs'] === path) {
 				close()
 				return push_query('showrefs', null)
 			}
 
 			push_query('showrefs', path)
-
-			var done = paginate_button($(link), () => {
+			var done = paginate_button(btn , () => {
 				jQuery.ajax({
 					url:   '/hchart-more',
 					data: append_period({
 						kind:    'ref',
-						total:    row.find('.col-count').text().replace(/[^0-9]+/g, ''),
-						showrefs: '/zshrc.html',
-						offset:   0,
+						total:    row.find('>.col-count').text().replace(/[^0-9]+/g, ''),
+						showrefs: path,
+						offset:   row.find('.refs .rows>div').length,
 					}),
 					success: function(data) {
 						row.addClass('target')
-						if (params['showrefs'])
-							close()
 
-						row.find('.refs').html(data.html)
+						if (init) {
+							if (params['showrefs'])
+								close()
+							row.find('.refs').html(data.html)
+						}
+						else {
+							row.find('.refs .rows').append($(data.html).find('>div'))
+							if (!data.more)
+								btn.css('display', 'none')
+						}
 						done()
 					},
 				})

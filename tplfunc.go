@@ -208,35 +208,40 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 		displayed += s.CountUnique
 		perc := float32(s.CountUnique) / float32(total) * 100
 
-		name := s.Name
+		name := template.HTMLEscapeString(s.Name)
 		if name == "" {
 			name = "(unknown)"
 		}
 		class := ""
-		if name == "(unknown)" {
+		if name == "(unknown)" || (s.RefScheme != nil && *s.RefScheme == *RefSchemeGenerated) {
 			class = "generated"
 		}
-
-		name = template.HTMLEscapeString(name)
-		ref := name
-		if link && class != "generated" {
-			ref = `<a href="#">` + ref + `</a>`
+		visit := ""
+		if !link && s.RefScheme != nil && *s.RefScheme == *RefSchemeHTTP {
+			visit = fmt.Sprintf(
+				`<sup class="go"><a rel="noopener" target="_blank" href="http://%s">visit</a></sup>`,
+				name)
 		}
-		b.WriteString(fmt.Sprintf(`<div class="%s" data-name="%s">
-				<div class="bar" style="width: %.1f%%"><small class="perc">%.1f%%</small></div>
-				<span class="col-name">%s</span>
-				<span class="col-count">%s</span>
+
+		ref := name
+		if link {
+			ref = `<a href="#" class="load-detail">` + ref + `</a>`
+		}
+		b.WriteString(fmt.Sprintf(`
+			<div class="%[1]s" data-name="%[2]s">
+				<div class="bar" style="width: %.1[3]f%%"><small class="perc">%.1[3]f%%</small></div>
+				<span class="col-count">%[5]s</span>
+				<span class="col-name">%[4]s %[6]s</span>
 			</div>`,
-			class, name,
-			perc, perc, ref,
+			class, name, perc, ref,
 			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat),
-		))
+			visit))
 	}
 	b.WriteString(`</div>`)
 
 	// Add pagination link.
 	if paginate && stats.More {
-		b.WriteString(`<div class="load-more-wrapper"><a href="#", class="btn load-more">Show more</a></div>`)
+		b.WriteString(`<a href="#", class="load-more">Show more</a>`)
 	}
 
 	return template.HTML(b.String())

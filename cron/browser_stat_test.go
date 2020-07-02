@@ -32,12 +32,12 @@ func TestBrowserStats(t *testing.T) {
 	}
 
 	var stats goatcounter.Stats
-	err = stats.ListBrowsers(ctx, now, now)
+	err = stats.ListBrowsers(ctx, now, now, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := `[{Firefox 3 1} {Chrome 1 0}]`
+	want := `{false [{Firefox 3 1 <nil>} {Chrome 1 0 <nil>}]}`
 	out := fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -55,12 +55,12 @@ func TestBrowserStats(t *testing.T) {
 	}
 
 	stats = goatcounter.Stats{}
-	err = stats.ListBrowsers(ctx, now, now)
+	err = stats.ListBrowsers(ctx, now, now, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want = `[{Firefox 7 2} {Chrome 1 0}]`
+	want = `{false [{Firefox 7 2 <nil>} {Chrome 1 0 <nil>}]}`
 	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -68,13 +68,13 @@ func TestBrowserStats(t *testing.T) {
 
 	// List just Firefox.
 	stats = goatcounter.Stats{}
-	total, err := stats.ListBrowser(ctx, "Firefox", now, now)
+	err = stats.ListBrowser(ctx, "Firefox", now, now)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want = `7 -> [{Firefox 69 4 1} {Firefox 70 2 0} {Firefox 68 1 1}]`
-	out = fmt.Sprintf("%d -> %v", total, stats)
+	want = `{false [{Firefox 68 1 1 <nil>} {Firefox 69 4 1 <nil>} {Firefox 70 2 0 <nil>}]}`
+	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
 	}

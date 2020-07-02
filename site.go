@@ -76,8 +76,9 @@ type SiteSettings struct {
 	Timezone         *tz.Zone    `json:"timezone"`
 	Campaigns        zdb.Strings `json:"campaigns"`
 	Limits           struct {
-		Page int `json:"page"`
-		Ref  int `json:"ref"`
+		Page   int `json:"page"`
+		Ref    int `json:"ref"`
+		Hchart int `json:"hchart"`
 	} `json:"limits"`
 }
 

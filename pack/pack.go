@@ -12412,9 +12412,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			e.preventDefault()
 
 			var scale = $(this).closest('.chart').attr('data-max')
-			$('.scale').html(format_int(scale))
-			$('.count-list-pages').attr('data-scale', scale)
-			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
+			$('.pages-list .scale').html(format_int(scale))
+			$('.pages-list .count-list-pages').attr('data-scale', scale)
+			$('.pages-list .chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
 		})
 	}
@@ -12525,6 +12525,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			t = setTimeout(function() {
 				var filter = $(e.target).val().trim()
 				push_query('filter', filter)
+				push_query('showrefs', null) // clear as this will be reset
 				$('#filter-paths').toggleClass('value', filter !== '')
 
 				var loading = $('<span class="loading"></span>')
@@ -12553,7 +12554,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Paginate the main path overview.
 	var paginate_paths = function() {
-		$('.pages-list .load-more-pages').on('click', function(e) {
+		$('.pages-list >.load-more').on('click', function(e) {
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
@@ -12585,7 +12586,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
-		$('.pages-list .load-more-pages').css('display', data.more ? 'inline-block' : 'none')
+		$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
 
 		var th = $('.total-hits'),
 		    td = $('.total-display'),
@@ -12704,7 +12705,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	// Paginate and show details for the horizontal charts.
 	var hchart_detail = function() {
 		// Paginate.
-		$('.hchart[data-more] .load-more').on('click', function(e) {
+		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
 
 			var btn   = $(this),
@@ -12725,7 +12726,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		})
 
 		// Load detail.
-		$('.hchart').on('click', 'a', function(e) {
+		$('.hchart').on('click', '.load-detail', function(e) {
 			e.preventDefault()
 
 			var btn   = $(this),
@@ -12733,7 +12734,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				chart = btn.closest('.hchart'),
 				url   = chart.attr('data-detail'),
 				name  = row.attr('data-name')
-			if (!url || !name || name === '(other)' || name === '(unknown)')
+			if (!url || !name) // || name === '(other)' || name === '(unknown)')
 				return;
 			if (row.next().is('.detail'))
 				return row.next().remove()
@@ -12858,13 +12859,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages, .totals').on('click', '.load-refs', function(e) {
+		$('.count-list-pages, .totals').on('click', '.load-refs, .hchart .load-more', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
-				link   = this,
+				btn    = $(this),
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
+				init   = btn .is('.load-refs'),
 				close  = function() {
 					var t = $(document.getElementById(params['showrefs']))
 					t.removeClass('target')
@@ -12874,28 +12876,34 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// Clicked on row that's already open, so close and stop. Don't
 			// close anything yet if we're going to load another path, since
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
-			if (params['showrefs'] === path) {
+			if (init && params['showrefs'] === path) {
 				close()
 				return push_query('showrefs', null)
 			}
 
 			push_query('showrefs', path)
-
-			var done = paginate_button($(link), () => {
+			var done = paginate_button(btn , () => {
 				jQuery.ajax({
 					url:   '/hchart-more',
 					data: append_period({
 						kind:    'ref',
-						total:    row.find('.col-count').text().replace(/[^0-9]+/g, ''),
-						showrefs: '/zshrc.html',
-						offset:   0,
+						total:    row.find('>.col-count').text().replace(/[^0-9]+/g, ''),
+						showrefs: path,
+						offset:   row.find('.refs .rows>div').length,
 					}),
 					success: function(data) {
 						row.addClass('target')
-						if (params['showrefs'])
-							close()
 
-						row.find('.refs').html(data.html)
+						if (init) {
+							if (params['showrefs'])
+								close()
+							row.find('.refs').html(data.html)
+						}
+						else {
+							row.find('.refs .rows').append($(data.html).find('>div'))
+							if (!data.more)
+								btn.css('display', 'none')
+						}
 						done()
 					},
 				})
@@ -13420,9 +13428,6 @@ input.red { border: 1px solid red !important; }
 	border-color: #f00;
 }
 
-.btn       { display: inline-block; padding: .0em 1.5em; background-color: #f9f9f9; border: 1px solid #ddd; }
-.btn:hover { text-decoration: none; background-color: #fbfbfb; }
-
 .screen-reader { display: none; }
 .hide          { display: none; }
 .show-mobile   { display: none; }
@@ -13455,11 +13460,6 @@ table.auto { width: auto; }
 .page-title b, .rlink b { background-color: yellow; }
 input.value             { background-color: yellow; }
 
-.load-more-wrapper {
-text-align: center;
-}
-.load-more-refs    { margin-top: .5em; }
-
 /* Hide "Go to [..]" link unless we loaded the page details. */
 small.go           { display: none; }
 .go { word-break: normal; }
@@ -13477,6 +13477,7 @@ small.go           { display: none; }
 	text-align: left;
 	width: auto;
 }
+.pages-list >.load-more { display: block; margin-top: -.7em; width: max-content; }
 
 .count-list tr:target,
 .count-list tr.target             { background-color: inherit; }
@@ -13521,26 +13522,19 @@ tr.target .chart-left { display: block; }
 }
 
 .hchart { }
-.hchart .rows >div { position: relative; padding-bottom: 6px; margin-bottom: .4em; }
-.hchart .bar  { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; margin-left: 1px; background-color: #9a15a4; }
-.hchart .perc { position: absolute; top: 0; right: -2.8em; width: 2.5em; line-height: 7px; font-size: .7rem; text-align: left; }
-.hchart .generated { font-style: italic; }
-.hchart .col-name  { display: inline-block; word-break: break-all;
-					 width: calc(100% - .5rem); margin-left: -4.5rem; padding-left: 4.5rem;
-					 overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
-.hchart .col-count { display: inline-block; width: 4rem; text-align: right; margin-right: .5rem; vertical-align: bottom; }
-
-.hchart .detail {
-	margin-left: 2px;
-	padding-left: 1em;
-	padding-right: 1em;
-
-	background-color: #f7f7f7;
-
-	border-left: 1px solid #999;
-	border-bottom: 1px solid #999;
-}
-
+.hchart .rows >div { position: relative; padding-bottom: 3px; margin-bottom: .4em; }
+.hchart .bar  { position: absolute; bottom: 0; left: 4.8em; width: 100%; height: 3px; background-color: #fcdaff; }
+.hchart .perc { position: absolute; top: 0; right: -2.8em; width: 2.5em; line-height: 4px; font-size: .7rem; text-align: left; }
+.hchart .generated   { font-style: italic; }
+.hchart .col-name    { display: inline-block; word-break: break-all;
+					   width: calc(100% - .5rem); margin-left: -4.5rem; padding-left: 4.5rem;
+					   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.hchart .col-count   { display: inline-block; width: 4rem; text-align: right; margin-right: .5rem; vertical-align: bottom;
+					   position: relative; top: 3px; }
+.hchart .load-more   { display: inline-block; margin-left: .2em; margin-top: .2em; }
+.hchart .load-detail { display: block; }
+.hchart .detail      { margin-left: 5em; margin-right: 1em;
+                       background-color: #f7f7f7; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd; }
 
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/
@@ -14912,46 +14906,6 @@ var Templates = map[string][]byte{
 </body>
 </html>
 `),
-	"tpl/_backend_pages.gohtml": []byte(`{{range $i, $h := .Pages}}
-	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
-		<td class="col-count">
-			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
-		</td>
-		<td class="col-path hide-mobile">
-			<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a><br>
-			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
-			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
-
-			{{if and $.Site.LinkDomain (not $h.Event)}}
-				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
-			{{end}}
-		</td>
-		<td>
-			<div class="show-mobile">
-				<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a>
-				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
-				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
-				{{if and $.Site.LinkDomain (not $h.Event)}}
-					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
-				{{end}}
-			</div>
-			<div class="chart chart-bar" data-max="{{$h.Max}}">
-				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
-				{{if eq $i 0}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small></span>{{end}}
-				<span class="half"></span>
-				{{bar_chart $.Context .Stats $.Max $.Daily}}
-			</div>
-			<div class="refs hchart" data-more="/hchart-more?kind=ref">
-				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{horizontal_chart $.Context $.Refs $.TotalUniqueHits $.Site.Settings.Limits.Ref true true}}
-				{{end}}
-			</div>
-		</td>
-	</tr>
-{{else}}
-	<tr><td colspan="3"><em>Nothing to display</em></td></tr>
-{{- end}}
-`),
 	"tpl/_backend_signin.gohtml": []byte(`<form method="post" action="/user/requestlogin" class="vertical">
 	<label for="email">Email address</label>
 	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
@@ -15615,19 +15569,6 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
-	"tpl/_backend_totals.gohtml": []byte(`<tbody><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
-	<td>
-		<div class="chart chart-bar chart-totals" data-max="{{.MaxTotals}}">
-			{{/* TODO: doesn't work well, not sure if there's much value in it anyway?
-			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
-			*/}}
-			<span class="half"></span>
-			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .MaxTotals $.Site}}</small></span>
-			{{bar_chart .Context .TotalPages.Stats .MaxTotals .Daily}}
-		</div>
-	</td>
-</tr></tbody>
-`),
 	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="{{.Static}}/imgzoom.js?v={{.Version}}"></script>
 		<script crossorigin="anonymous" src="{{.Static}}/script.js?v={{.Version}}"></script>
 	</div> {{/* .page */}}
@@ -15679,6 +15620,106 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		<a href="https://alternativeto.net/software/goatcounter/" target="_blank" rel="noopener">AlternativeTo</a>
 	</div>
 </footer>
+`),
+	"tpl/_dashboard_browsers.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
+	<h2>Browsers</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_locations.gohtml": []byte(`<div class="hchart" data-more="/hchart-more?kind=location">
+	<h2>Locations</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 false true}}
+</div>
+`),
+	"tpl/_dashboard_pages.gohtml": []byte(`<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
+	<h2 class="full-width">Pages <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+	</small></h2>
+	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
+		<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>
+	</table>
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+</div>
+
+
+`),
+	"tpl/_dashboard_pages_rows.gohtml": []byte(`{{range $i, $h := .Pages}}
+	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
+		<td class="col-count">
+			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
+		</td>
+		<td class="col-path hide-mobile">
+			<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a><br>
+			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
+
+			{{if and $.Site.LinkDomain (not $h.Event)}}
+				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+			{{end}}
+		</td>
+		<td>
+			<div class="show-mobile">
+				<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a>
+				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
+				{{if and $.Site.LinkDomain (not $h.Event)}}
+					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+				{{end}}
+			</div>
+			<div class="chart chart-bar" data-max="{{$h.Max}}">
+				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+				{{if and (not $.IsPagination) (eq $i 0)}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small></span>{{end}}
+				<span class="half"></span>
+				{{bar_chart $.Context .Stats $.Max $.Daily}}
+			</div>
+			<div class="refs hchart" data-more="/hchart-more?kind=ref">
+				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
+					{{horizontal_chart $.Context $.Refs $h.CountUnique $.Site.Settings.Limits.Ref false true}}
+				{{end}}
+			</div>
+		</td>
+	</tr>
+{{else}}
+	<tr><td colspan="3"><em>Nothing to display</em></td></tr>
+{{- end}}
+`),
+	"tpl/_dashboard_sizes.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=size">
+	<h2>Screen size</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_systems.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=system" data-more="/hchart-more?kind=system">
+	<h2>Systems</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_toprefs.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
+	<h2>Top referrers</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_totals.gohtml": []byte(`<div class="totals">
+	<h2 class="full-width">Totals <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
+		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
+	</small></h2>
+	<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
+</div>
+
+`),
+	"tpl/_dashboard_totals_row.gohtml": []byte(`<tbody><tr id="TOTAL ">
+	<td>
+		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
+			{{/* TODO: doesn't work well, not sure if there's much value in it anyway?
+			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+			*/}}
+			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
+			<span class="half"></span>
+			{{bar_chart .Context .Page.Stats .Max .Daily}}
+		</div>
+	</td>
+</tr></tbody>
 `),
 	"tpl/_email_bottom.gotxt": []byte(`Any problems, questions, comments, or something else to tell me? Just reply to this email.
 
@@ -16975,49 +17016,16 @@ processed by Stripe (you will need a Credit Card).</p>
 	</div>
 </form>
 
-<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-	<h2 class="full-width">Pages <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
-		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
-	</small></h2>
-	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
-	</table>
-	<div class="load-more-wrapper">
-		<a href="#" class="load-more load-more-pages btn" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
-	</div>
-</div>
-
-<div class="totals">
-	<h2 class="full-width">Totals <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
-		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
-	</small></h2>
-	<table class="count-list">{{template "_backend_totals.gohtml" .}}</table>
-</div>
-
-<div class="hcharts">
-	<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
-		<h2>Top referrers</h2>
-		{{horizontal_chart .Context $.TopRefs .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
-		<h2>Browsers</h2>
-		{{horizontal_chart .Context .Browsers .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-detail="/hchart-detail?kind=system" data-more="/hchart-more?kind=system">
-		<h2>Systems</h2>
-		{{horizontal_chart .Context .Systems .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-detail="/hchart-detail?kind=size">
-		<h2>Screen size</h2>
-		{{horizontal_chart .Context .SizeStat .TotalUniqueHits 6 true true}}
-	</div>
-	<div class="hchart" data-more="/hchart-more?kind=location">
-		<h2>Locations</h2>
-		{{horizontal_chart .Context .LocationStat .TotalUniqueHits 6 false true}}
-	</div>
-</div>
+{{$div := false}}
+{{range $w := .Widgets}}
+	{{if and (eq $w.Type "hchart") (not $div)}}
+		{{$div = true}}
+		<div class="hcharts">
+	{{end}}
+	{{if and (ne $w.Type "hchart") $div}}</div>{{end}}
+	{{$w.HTML}}
+{{end}}
+{{if $div}}</div>{{end}}
 
 {{- template "_backend_bottom.gohtml" . }}
 `),

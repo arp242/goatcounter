@@ -17,8 +17,7 @@ import (
 
 // ListBrowsers lists all browser statistics for the given time period.
 func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, limit, offset int) error {
-	limit++
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, fmt.Sprintf(`/* Stats.ListBrowsers */
+	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListBrowsers */
 		select
 			browser as name,
 			sum(count) as count,
@@ -27,14 +26,13 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, limit, o
 		where site=$1 and day>=$2 and day<=$3
 		group by browser
 		order by count_unique desc
-		limit %d offset %d
-	`, limit, offset), MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+		limit $4 offset $5
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
 
-	if len(h.Stats) == limit {
+	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-
 	return errors.Wrap(err, "Stats.ListBrowsers browsers")
 }
 
@@ -50,14 +48,12 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 		group by browser, version
 		order by count_unique desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), browser)
-
 	return errors.Wrap(err, "Stats.ListBrowser")
 }
 
 // ListSystems lists OS statistics for the given time period.
 func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, limit, offset int) error {
-	limit++
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, fmt.Sprintf(`/* Stats.ListSystem */
+	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListSystem */
 		select
 			system as name,
 			sum(count) as count,
@@ -66,10 +62,10 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, limit, of
 		where site=$1 and day>=$2 and day<=$3
 		group by system
 		order by count_unique desc
-		limit %d offset %d
-	`, limit, offset), MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+		limit $4 offset $5
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
 
-	if len(h.Stats) == limit {
+	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
@@ -88,7 +84,6 @@ func (h *Stats) ListSystem(ctx context.Context, system string, start, end time.T
 		group by system, version
 		order by count_unique desc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), system)
-
 	return errors.Wrap(err, "Stats.ListSystem")
 }
 
@@ -215,8 +210,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 
 // ListLocations lists all location statistics for the given time period.
 func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, limit, offset int) error {
-	limit++
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, fmt.Sprintf(`/* Stats.ListLocations */
+	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListLocations */
 		select
 			iso_3166_1.name as name,
 			sum(count) as count,
@@ -226,13 +220,12 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, limit, 
 		where site=$1 and day >= $2 and day <= $3
 		group by location, iso_3166_1.name
 		order by count_unique desc
-		limit %d offset %d
-	`, limit, offset), MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
+		limit $4 offset $5
+	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
 
-	if len(h.Stats) == limit {
+	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-
 	return errors.Wrap(err, "Stats.ListLocations")
 }

@@ -319,9 +319,9 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bo
 	return errors.Wrap(err, "Hits.ListPathsLike")
 }
 
-// TODO: should be Stat, but that's already taken and don't want to rename
-// everything right now.
 type StatT struct {
+	// TODO: should be Stat, but that's already taken and don't want to rename
+	// everything right now.
 	Name        string  `db:"name"`
 	Count       int     `db:"count"`
 	CountUnique int     `db:"count_unique"`

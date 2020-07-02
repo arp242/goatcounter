@@ -88,9 +88,6 @@ input.red { border: 1px solid red !important; }
 	border-color: #f00;
 }
 
-.btn       { display: inline-block; padding: .0em 1.5em; background-color: #f9f9f9; border: 1px solid #ddd; }
-.btn:hover { text-decoration: none; background-color: #fbfbfb; }
-
 .screen-reader { display: none; }
 .hide          { display: none; }
 .show-mobile   { display: none; }
@@ -123,11 +120,6 @@ table.auto { width: auto; }
 .page-title b, .rlink b { background-color: yellow; }
 input.value             { background-color: yellow; }
 
-.load-more-wrapper {
-text-align: center;
-}
-.load-more-refs    { margin-top: .5em; }
-
 /* Hide "Go to [..]" link unless we loaded the page details. */
 small.go           { display: none; }
 .go { word-break: normal; }
@@ -145,6 +137,7 @@ small.go           { display: none; }
 	text-align: left;
 	width: auto;
 }
+.pages-list >.load-more { display: block; margin-top: -.7em; width: max-content; }
 
 .count-list tr:target,
 .count-list tr.target             { background-color: inherit; }
@@ -189,26 +182,19 @@ tr.target .chart-left { display: block; }
 }
 
 .hchart { }
-.hchart .rows >div { position: relative; padding-bottom: 6px; margin-bottom: .4em; }
-.hchart .bar  { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; margin-left: 1px; background-color: #9a15a4; }
-.hchart .perc { position: absolute; top: 0; right: -2.8em; width: 2.5em; line-height: 7px; font-size: .7rem; text-align: left; }
-.hchart .generated { font-style: italic; }
-.hchart .col-name  { display: inline-block; word-break: break-all;
-					 width: calc(100% - .5rem); margin-left: -4.5rem; padding-left: 4.5rem;
-					 overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
-.hchart .col-count { display: inline-block; width: 4rem; text-align: right; margin-right: .5rem; vertical-align: bottom; }
-
-.hchart .detail {
-	margin-left: 2px;
-	padding-left: 1em;
-	padding-right: 1em;
-
-	background-color: #f7f7f7;
-
-	border-left: 1px solid #999;
-	border-bottom: 1px solid #999;
-}
-
+.hchart .rows >div { position: relative; padding-bottom: 3px; margin-bottom: .4em; }
+.hchart .bar  { position: absolute; bottom: 0; left: 4.8em; width: 100%; height: 3px; background-color: #fcdaff; }
+.hchart .perc { position: absolute; top: 0; right: -2.8em; width: 2.5em; line-height: 4px; font-size: .7rem; text-align: left; }
+.hchart .generated   { font-style: italic; }
+.hchart .col-name    { display: inline-block; word-break: break-all;
+					   width: calc(100% - .5rem); margin-left: -4.5rem; padding-left: 4.5rem;
+					   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.hchart .col-count   { display: inline-block; width: 4rem; text-align: right; margin-right: .5rem; vertical-align: bottom;
+					   position: relative; top: 3px; }
+.hchart .load-more   { display: inline-block; margin-left: .2em; margin-top: .2em; }
+.hchart .load-detail { display: block; }
+.hchart .detail      { margin-left: 5em; margin-right: 1em;
+                       background-color: #f7f7f7; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd; }
 
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/

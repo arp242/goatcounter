@@ -167,7 +167,6 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 	if limit == 0 {
 		limit = 10
 	}
-	limit++
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListRefsByPath */
 		select
@@ -184,9 +183,9 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 		group by ref
 		order by count_unique desc, ref desc
 		limit $5 offset $6`,
-		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit, offset)
+		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
 
-	if len(h.Stats) == limit {
+	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
@@ -201,9 +200,11 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 // total number of hits.
 func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset int) error {
 	site := MustGetSite(ctx)
-	limit := 6 // TODO: arg
 
-	limit++
+	limit := site.Settings.Limits.Hchart
+	if limit == 0 {
+		limit = 6
+	}
 
 	where := ` where site=? and hour>=? and hour<=?`
 	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
@@ -223,12 +224,12 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 		where+`
 		group by ref
 		order by count_unique desc
-		limit ? offset ?`), append(args, limit, offset)...)
+		limit ? offset ?`), append(args, limit+1, offset)...)
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListAllRefs")
 	}
 
-	if len(h.Stats) == limit {
+	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}

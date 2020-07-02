@@ -746,35 +746,60 @@ func TestBackendBarChart(t *testing.T) {
 			return
 		}
 
-		c := doc.Find(".chart.chart-bar")
-		if c.Length() != 2 {
-			t.Fatalf("c.Length: %d", c.Length())
-		}
-		totals, err := c.Eq(0).Html()
-		if err != nil {
-			t.Fatal(err)
-		}
-		out, err := c.Eq(1).Html()
-		if err != nil {
-			t.Fatal(err)
+		cleanChart := func(h string) string {
+			h = strings.ReplaceAll(h, "</div>", "</div>\n")
+			h = strings.ReplaceAll(h, "</div>\n</div>", "</div></div>")
+			return strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(h, "<"))
 		}
 
-		_ = totals // TODO: test too, although should probs be a different test.
-
-		out = strings.ReplaceAll(out, "</div>", "</div>\n")
-		out = strings.ReplaceAll(out, "</div>\n</div>", "</div></div>")
-		out = strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(out, "<"))
-
-		want = `<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>` + "\n" +
-			`<span class="half"></span>` + "\n" +
-			strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
-
-		if d := ztest.Diff(out, want); d != "" {
-			t.Error(d)
-			if zstring.Contains(os.Args, "-test.v=true") {
-				fmt.Println("Out:\n" + out)
+		t.Run("pages", func(t *testing.T) {
+			c := doc.Find(".pages-list .chart.chart-bar")
+			if c.Length() != 1 {
+				t.Fatalf("c.Length: %d", c.Length())
 			}
-		}
+			chart, err := c.Eq(0).Html()
+			if err != nil {
+				t.Fatal(err)
+			}
+			chart = cleanChart(chart)
+
+			want := `` +
+				`<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️` + "\ufe0e" + `</a></span>` + "\n" +
+				`<span class="chart-right"><small class="scale" title="Y-axis scale">10</small></span>` + "\n" +
+				`<span class="half"></span>` + "\n" +
+				strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
+
+			if d := ztest.Diff(chart, want); d != "" {
+				t.Error(d)
+				if zstring.Contains(os.Args, "-test.v=true") {
+					fmt.Println("pages:\n" + chart)
+				}
+			}
+		})
+
+		t.Run("totals", func(t *testing.T) {
+			c := doc.Find(".totals .chart.chart-bar")
+			if c.Length() != 1 {
+				t.Fatalf("c.Length: %d", c.Length())
+			}
+			chart, err := c.Eq(0).Html()
+			if err != nil {
+				t.Fatal(err)
+			}
+			chart = cleanChart(chart)
+
+			want := `` +
+				`<span class="chart-right"><small class="scale" title="Y-axis scale">10</small></span>` + "\n" +
+				`<span class="half"></span>` + "\n" +
+				strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
+
+			if d := ztest.Diff(chart, want); d != "" {
+				t.Error(d)
+				if zstring.Contains(os.Args, "-test.v=true") {
+					fmt.Println("totals:\n" + chart)
+				}
+			}
+		})
 	}
 
 	for _, tt := range tests {
