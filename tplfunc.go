@@ -204,9 +204,17 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 		if pageSize > 0 && i > pageSize {
 			break
 		}
-
 		displayed += s.CountUnique
-		perc := fmt.Sprintf("%.1f%%", float32(s.CountUnique)/float32(total)*100)
+
+		var (
+			p    = float64(s.CountUnique) / float64(total) * 100
+			perc string
+		)
+		if p < .5 {
+			perc = fmt.Sprintf("%.1f%%", p)[1:]
+		} else {
+			perc = fmt.Sprintf("%.0f%%", math.Round(p))
+		}
 
 		name := template.HTMLEscapeString(s.Name)
 		if name == "" {
@@ -235,7 +243,7 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 
 		b.WriteString(fmt.Sprintf(`
 			<div class="%[1]s" data-name="%[2]s">
-				<span class="col-count">%[3]s</span>
+				<span class="col-count col-perc">%[3]s</span>
 				<span class="col-name">%[4]s</span>
 				<span class="col-count">%[5]s</span>
 			</div>`,
