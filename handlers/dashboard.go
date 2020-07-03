@@ -41,7 +41,7 @@ func (ws *widgets) Append(w widget) {
 }
 
 type dashboardData struct {
-	total, totalUnique int
+	total, totalUnique, allTotalUnique int
 
 	pages struct {
 		display, uniqueDisplay int
@@ -101,13 +101,18 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	wantWidgets := []string{"totals",
+	wantWidgets := []string{
+		"totals", // We always need this.
 		"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"}
 	if zstring.Contains(wantWidgets, "pages") {
 		wantWidgets = append(wantWidgets, "max")
 		if showRefs != "" {
 			wantWidgets = append(wantWidgets, "refs")
 		}
+	}
+	if filter != "" {
+		// We need this when filtering as the bottom charts aren't filtered by path (yet).
+		wantWidgets = append(wantWidgets, "alltotals")
 	}
 
 	// Make the race detector stop complaining; I'm not sure why this is a
@@ -136,6 +141,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		widgetData := map[string]func() error{
 			"totals": func() (err error) {
 				data.total, data.totalUnique, err = goatcounter.GetTotalCount(r.Context(), start, end, filter)
+				return err
+			},
+			"alltotals": func() (err error) {
+				_, data.allTotalUnique, err = goatcounter.GetTotalCount(r.Context(), start, end, "")
 				return err
 			},
 			"pages": func() (err error) {
@@ -183,6 +192,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}()
 	if err != nil {
 		return err
+	}
+
+	if data.allTotalUnique == 0 {
+		data.allTotalUnique = data.totalUnique
 	}
 
 	var widgets widgets
@@ -234,35 +247,35 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 					Context         context.Context
 					TotalUniqueHits int
 					Stats           goatcounter.Stats
-				}{r.Context(), data.totalUnique, data.topRefs}
+				}{r.Context(), data.allTotalUnique, data.topRefs}
 			},
 			"browsers": func() (string, string, interface{}) {
 				return "hchart", "_dashboard_browsers.gohtml", struct {
 					Context         context.Context
 					TotalUniqueHits int
 					Stats           goatcounter.Stats
-				}{r.Context(), data.totalUnique, data.browsers}
+				}{r.Context(), data.allTotalUnique, data.browsers}
 			},
 			"systems": func() (string, string, interface{}) {
 				return "hchart", "_dashboard_systems.gohtml", struct {
 					Context         context.Context
 					TotalUniqueHits int
 					Stats           goatcounter.Stats
-				}{r.Context(), data.totalUnique, data.systems}
+				}{r.Context(), data.allTotalUnique, data.systems}
 			},
 			"sizes": func() (string, string, interface{}) {
 				return "hchart", "_dashboard_sizes.gohtml", struct {
 					Context         context.Context
 					TotalUniqueHits int
 					Stats           goatcounter.Stats
-				}{r.Context(), data.totalUnique, data.sizeStat}
+				}{r.Context(), data.allTotalUnique, data.sizeStat}
 			},
 			"locations": func() (string, string, interface{}) {
 				return "hchart", "_dashboard_locations.gohtml", struct {
 					Context         context.Context
 					TotalUniqueHits int
 					Stats           goatcounter.Stats
-				}{r.Context(), data.totalUnique, data.locStat}
+				}{r.Context(), data.allTotalUnique, data.locStat}
 			},
 		}
 
