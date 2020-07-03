@@ -15,7 +15,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 )
@@ -28,7 +27,6 @@ func (h *HitStats) List(
 ) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
-	l := zlog.Module("HitStats.List")
 
 	if filter != "" {
 		filter = "%" + strings.ToLower(filter) + "%"
@@ -70,7 +68,6 @@ func (h *HitStats) List(
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List get hit_counts")
 		}
-		l = l.Since("select hits")
 
 		// Check if there are more entries.
 		if len(*h) == limit {
@@ -107,7 +104,6 @@ func (h *HitStats) List(
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
 		}
-		l = l.Since("select hits_stats")
 	}
 
 	hh := *h
@@ -151,7 +147,6 @@ const PathTotals = "TOTAL "
 
 // Totals gets the totals overview of all pages.
 func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {
-	l := zlog.Module("HitStat.Totals")
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 
@@ -173,7 +168,6 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	if err != nil {
 		return 0, errors.Errorf("HitStat.Totals: %w", err)
 	}
-	l = l.Since("total overview")
 
 	totalst := HitStat{
 		Path:  PathTotals,
@@ -239,7 +233,6 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	}
 
 	*h = hh[0]
-	l = l.Since("total overview correct")
 
 	return max, nil
 }

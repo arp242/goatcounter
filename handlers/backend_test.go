@@ -417,6 +417,8 @@ func TestBackendPurge(t *testing.T) {
 }
 
 func TestBackendBarChart(t *testing.T) {
+	zlog.Config.Debug = []string{}
+
 	id := tz.MustNew("", "Asia/Makassar").Loc()
 	hi := tz.MustNew("", "Pacific/Honolulu").Loc()
 
@@ -711,8 +713,6 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-18|14:00|14:59|0|0"></div>`,
 		},
 	}
-
-	zlog.Config.Debug = []string{}
 
 	run := func(t *testing.T, tt testcase, url, want string) {
 		ctx, clean := gctest.DB(t)
