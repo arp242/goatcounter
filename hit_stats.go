@@ -25,7 +25,7 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, limit, o
 		from browser_stats
 		where site=$1 and day>=$2 and day<=$3
 		group by browser
-		order by count_unique desc
+		order by count_unique desc, name asc
 		limit $4 offset $5
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
 
@@ -46,7 +46,7 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 		from browser_stats
 		where site=$1 and day>=$2 and day<=$3 and lower(browser)=lower($4)
 		group by browser, version
-		order by count_unique desc
+		order by count_unique desc, name asc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), browser)
 	return errors.Wrap(err, "Stats.ListBrowser")
 }
@@ -61,7 +61,7 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, limit, of
 		from system_stats
 		where site=$1 and day>=$2 and day<=$3
 		group by system
-		order by count_unique desc
+		order by count_unique desc, name asc
 		limit $4 offset $5
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
 
@@ -82,7 +82,7 @@ func (h *Stats) ListSystem(ctx context.Context, system string, start, end time.T
 		from system_stats
 		where site=$1 and day >= $2 and day <= $3 and lower(system)=lower($4)
 		group by system, version
-		order by count_unique desc
+		order by count_unique desc, name asc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), system)
 	return errors.Wrap(err, "Stats.ListSystem")
 }
@@ -106,7 +106,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 		from size_stats
 		where site=$1 and day >= $2 and day <= $3
 		group by width
-		order by count_unique desc
+		order by count_unique desc, name asc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListSize")
@@ -219,7 +219,7 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, limit, 
 		join iso_3166_1 on iso_3166_1.alpha2=location
 		where site=$1 and day >= $2 and day <= $3
 		group by location, iso_3166_1.name
-		order by count_unique desc
+		order by count_unique desc, name asc
 		limit $4 offset $5
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
 
