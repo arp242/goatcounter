@@ -21,7 +21,6 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
 )
 
@@ -41,9 +40,7 @@ var (
 // DB starts a new database test.
 func DB(t tester) (context.Context, func()) {
 	t.Helper()
-
-	l := zlog.Module("gctest")
-	//l = l.SetDebug("gctest")
+	ctx := context.Background()
 
 	if db == nil {
 		var err error
@@ -53,7 +50,6 @@ func DB(t tester) (context.Context, func()) {
 				if err != nil {
 					t.Fatalf("%s → %s", err, out)
 				}
-				l = l.Since("createdb")
 			}
 
 			db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
@@ -63,34 +59,20 @@ func DB(t tester) (context.Context, func()) {
 		if err != nil {
 			t.Fatalf("connect to DB: %s", err)
 		}
-		l = l.Since("connect")
+		ctx = zdb.With(ctx, db)
 
 		setupDB(t)
 
-		l = l.Since("setupDB")
-
-		if cfg.PgSQL {
-			err = db.Select(&tables, `select c.relname as name
-					from pg_catalog.pg_class c
-					left join pg_catalog.pg_namespace n on n.oid = c.relnamespace
-					where
-							c.relkind = 'r' and
-							n.nspname <> 'pg_catalog' and
-							n.nspname <> 'information_schema' and
-							n.nspname !~ '^pg_toast' and
-							pg_catalog.pg_table_is_visible(c.oid);`)
-		} else {
-			err = db.Select(&tables, `select name from sqlite_master where type='table'`)
-		}
+		tables, err = zdb.ListTables(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		exclude := []string{"iso_3166_1", "version"}
 		tables = zstring.Filter(tables, func(t string) bool { return !zstring.Contains(exclude, t) })
-
-		l = l.Since("list tables")
 	} else {
+		ctx = zdb.With(ctx, db)
+
 		q := `delete from %s`
 		if cfg.PgSQL {
 			// TODO: takes about 450ms, which is rather long. See if we can
@@ -103,46 +85,9 @@ func DB(t tester) (context.Context, func()) {
 		if !cfg.PgSQL {
 			db.MustExec(`delete from sqlite_sequence`)
 		}
-
-		l = l.Since("truncate")
-	}
-	ctx := zdb.With(context.Background(), db)
-
-	{
-		_, err := db.ExecContext(ctx, `insert into sites
-			(code, plan, settings, created_at) values ('test', 'personal', '{}', $1)`,
-			goatcounter.Now().Format(zdb.Date))
-		if err != nil {
-			t.Fatalf("create site: %s", err)
-		}
-		l = l.Since("create site")
-
-		var site goatcounter.Site
-		err = site.ByID(ctx, 1)
-		if err != nil {
-			t.Fatalf("get site: %s", err)
-		}
-		ctx = goatcounter.WithSite(ctx, &site)
-		l = l.Since("get site")
 	}
 
-	{
-		_, err := db.ExecContext(ctx, `insert into users
-			(site, email, password, created_at) values (1, 'test@example.com', 'xx', $1)`,
-			goatcounter.Now().Format(zdb.Date))
-		if err != nil {
-			t.Fatalf("create site: %s", err)
-		}
-		l = l.Since("create user")
-
-		var user goatcounter.User
-		err = user.BySite(ctx, 1)
-		if err != nil {
-			t.Fatalf("get user: %s", err)
-		}
-		ctx = goatcounter.WithUser(ctx, &user)
-		l = l.Since("get user")
-	}
+	ctx = initData(ctx, t)
 
 	return ctx, func() {
 		goatcounter.Salts.Clear()
@@ -218,6 +163,42 @@ func setupDB(t tester) {
 			t.Fatalf("run migration %q: %s", m[0], err)
 		}
 	}
+}
+
+func initData(ctx context.Context, t tester) context.Context {
+	{
+		_, err := db.ExecContext(ctx, `insert into sites
+			(code, plan, settings, created_at) values ('test', 'personal', '{}', $1)`,
+			goatcounter.Now().Format(zdb.Date))
+		if err != nil {
+			t.Fatalf("create site: %s", err)
+		}
+
+		var site goatcounter.Site
+		err = site.ByID(ctx, 1)
+		if err != nil {
+			t.Fatalf("get site: %s", err)
+		}
+		ctx = goatcounter.WithSite(ctx, &site)
+	}
+
+	{
+		_, err := db.ExecContext(ctx, `insert into users
+			(site, email, password, created_at) values (1, 'test@example.com', 'xx', $1)`,
+			goatcounter.Now().Format(zdb.Date))
+		if err != nil {
+			t.Fatalf("create site: %s", err)
+		}
+
+		var user goatcounter.User
+		err = user.BySite(ctx, 1)
+		if err != nil {
+			t.Fatalf("get user: %s", err)
+		}
+		ctx = goatcounter.WithUser(ctx, &user)
+	}
+
+	return ctx
 }
 
 // StoreHits is a convenient helper to store hits in the DB via Memstore and
