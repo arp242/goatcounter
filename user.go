@@ -23,25 +23,25 @@ const totpSecretLen = 16
 
 // User entry.
 type User struct {
-	ID   int64 `db:"id" json:"-"`
-	Site int64 `db:"site" json:"-"`
+	ID   int64 `db:"id" json:"id,readonly"`
+	Site int64 `db:"site" json:"site,readonly"`
 
 	Email         string     `db:"email" json:"email"`
-	EmailVerified zdb.Bool   `db:"email_verified" json:"-"`
+	EmailVerified zdb.Bool   `db:"email_verified" json:"email_verified,readonly"`
 	Password      []byte     `db:"password" json:"-"`
-	TOTPEnabled   zdb.Bool   `db:"totp_enabled" json:"-"`
+	TOTPEnabled   zdb.Bool   `db:"totp_enabled" json:"totp_enabled,readonly"`
 	TOTPSecret    []byte     `db:"totp_secret" json:"-"`
-	Role          string     `db:"role" json:"-"`
-	LoginAt       *time.Time `db:"login_at" json:"-"`
-	ResetAt       *time.Time `db:"reset_at" json:"-"`
+	Role          string     `db:"role" json:"role,readonly"`
+	LoginAt       *time.Time `db:"login_at" json:"login_at,readonly"`
+	ResetAt       *time.Time `db:"reset_at" json:"reset_at,readonly"`
 	LoginRequest  *string    `db:"login_request" json:"-"`
 	LoginToken    *string    `db:"login_token" json:"-"`
 	CSRFToken     *string    `db:"csrf_token" json:"-"`
 	EmailToken    *string    `db:"email_token" json:"-"`
 	SeenUpdatesAt time.Time  `db:"seen_updates_at" json:"-"`
 
-	CreatedAt time.Time  `db:"created_at" json:"-"`
-	UpdatedAt *time.Time `db:"updated_at" json:"-"`
+	CreatedAt time.Time  `db:"created_at" json:"created_at,readonly"`
+	UpdatedAt *time.Time `db:"updated_at" json:"updated_at,readonly"`
 }
 
 // Defaults sets fields to default values, unless they're already set.

@@ -28,10 +28,11 @@ func (h admin) mount(r chi.Router) {
 	//a := r.With(zhttp.Log(true, ""), keyAuth, adminOnly)
 	a := r.With(zhttp.Log(true, ""), adminOnly)
 
-	a.Get("/admin", zhttp.Wrap(h.admin))
-	a.Get("/admin/sql", zhttp.Wrap(h.adminSQL))
-	a.Get("/admin/botlog", zhttp.Wrap(h.adminBotlog))
-	a.Get("/admin/{id}", zhttp.Wrap(h.adminSite))
+	a.Get("/admin", zhttp.Wrap(h.index))
+	a.Get("/admin/sql", zhttp.Wrap(h.sql))
+	a.Get("/admin/botlog", zhttp.Wrap(h.botlog))
+	a.Get("/admin/{id}", zhttp.Wrap(h.site))
+	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
 
 	//aa.Get("/debug/pprof/*", pprof.Index)
 	a.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +48,7 @@ func (h admin) mount(r chi.Router) {
 	a.Get("/debug/pprof/trace", pprof.Trace)
 }
 
-func (h admin) admin(w http.ResponseWriter, r *http.Request) error {
+func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.MustGetSite(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -97,7 +98,7 @@ func (h admin) admin(w http.ResponseWriter, r *http.Request) error {
 	l = l.Since("signups")
 
 	l.FieldsSince().Debug("admin")
-	return zhttp.Template(w, "backend_admin.gohtml", struct {
+	return zhttp.Template(w, "admin.gohtml", struct {
 		Globals
 		Stats      goatcounter.AdminStats
 		Signups    []goatcounter.Stat
@@ -105,7 +106,7 @@ func (h admin) admin(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), a, signups, maxSignups})
 }
 
-func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
+func (h admin) sql(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.MustGetSite(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -157,7 +158,7 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return zhttp.Template(w, "backend_admin_sql.gohtml", struct {
+	return zhttp.Template(w, "admin_sql.gohtml", struct {
 		Globals
 		Filter   string
 		Order    string
@@ -173,7 +174,7 @@ func (h admin) adminSQL(w http.ResponseWriter, r *http.Request) error {
 		idx, prog})
 }
 
-func (h admin) adminBotlog(w http.ResponseWriter, r *http.Request) error {
+func (h admin) botlog(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.MustGetSite(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -184,13 +185,13 @@ func (h admin) adminBotlog(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return zhttp.Template(w, "backend_admin_botlog.gohtml", struct {
+	return zhttp.Template(w, "admin_botlog.gohtml", struct {
 		Globals
 		BotlogIP goatcounter.AdminBotlogIPs
 	}{newGlobals(w, r), ips})
 }
 
-func (h admin) adminSite(w http.ResponseWriter, r *http.Request) error {
+func (h admin) site(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.MustGetSite(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -216,8 +217,60 @@ func (h admin) adminSite(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return zhttp.Template(w, "backend_admin_site.gohtml", struct {
+	return zhttp.Template(w, "admin_site.gohtml", struct {
 		Globals
 		Stat goatcounter.AdminSiteStat
 	}{newGlobals(w, r), a})
+}
+
+func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
+	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+
+	var args struct {
+		User   string `json:"user"`
+		Amount string `json:"amount"`
+		Plan   string `json:"plan"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		zhttp.FlashError(w, err.Error())
+		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+	}
+
+	v.Required("plan", args.Plan)
+	v.Include("plan", args.Plan, goatcounter.Plans)
+	if v.HasErrors() {
+		zhttp.FlashError(w, v.Error())
+		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+	}
+
+	var site goatcounter.Site
+	err = site.ByID(r.Context(), id)
+	if err != nil {
+		zhttp.FlashError(w, err.Error())
+		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+	}
+
+	if args.User != "" && !strings.HasPrefix(args.Amount, "USD ") {
+		args.Amount = "USD " + args.Amount
+	}
+	if args.User == "" {
+		args.User = fmt.Sprintf("cus_free_%d", site.ID)
+	} else if !strings.HasPrefix(args.User, "cus_github_") {
+		args.User = "cus_github_" + args.User
+	}
+
+	ctx := goatcounter.WithSite(goatcounter.NewContext(r.Context()), &site)
+	err = site.UpdateStripe(ctx, args.User, args.Plan, args.Amount)
+	if err != nil {
+		zhttp.FlashError(w, err.Error())
+		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+	}
+
+	return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
 }

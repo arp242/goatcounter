@@ -50,14 +50,15 @@ type Site struct {
 	ID     int64  `db:"id"`
 	Parent *int64 `db:"parent"`
 
-	Cname        *string      `db:"cname"` // Custom domain, e.g. "stats.example.com"
-	CnameSetupAt *time.Time   `db:"cname_setup_at"`
-	Code         string       `db:"code"`        // Domain code (arp242, which makes arp242.goatcounter.com)
-	LinkDomain   string       `db:"link_domain"` // Site domain for linking (www.arp242.net).
-	Plan         string       `db:"plan"`
-	Stripe       *string      `db:"stripe"`
-	Settings     SiteSettings `db:"settings"`
-	ReceivedData bool         `db:"received_data"`
+	Cname         *string      `db:"cname"` // Custom domain, e.g. "stats.example.com"
+	CnameSetupAt  *time.Time   `db:"cname_setup_at"`
+	Code          string       `db:"code"`        // Domain code (arp242, which makes arp242.goatcounter.com)
+	LinkDomain    string       `db:"link_domain"` // Site domain for linking (www.arp242.net).
+	Plan          string       `db:"plan"`
+	Stripe        *string      `db:"stripe"`
+	BillingAmount *string      `db:"billing_amount"`
+	Settings      SiteSettings `db:"settings"`
+	ReceivedData  bool         `db:"received_data"`
 
 	State     string     `db:"state"`
 	CreatedAt time.Time  `db:"created_at"`
@@ -279,7 +280,7 @@ func (s *Site) Update(ctx context.Context) error {
 }
 
 // UpdateStripe sets the Stripe customer ID.
-func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan string) error {
+func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) error {
 	if s.ID == 0 {
 		return errors.New("ID == 0")
 	}
@@ -292,9 +293,15 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan string) error {
 
 	s.Stripe = &stripeID
 	s.Plan = plan
+	if amount == "" {
+		s.BillingAmount = nil
+	} else {
+		s.BillingAmount = &amount
+	}
+
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set stripe=$1, plan=$2, updated_at=$3 where id=$4`,
-		s.Stripe, s.Plan, s.UpdatedAt.Format(zdb.Date), s.ID)
+		`update sites set stripe=$1, plan=$2, billing_amount=$3, updated_at=$4 where id=$5`,
+		s.Stripe, s.Plan, s.BillingAmount, s.UpdatedAt.Format(zdb.Date), s.ID)
 	return errors.Wrap(err, "Site.UpdateStripe")
 }
 

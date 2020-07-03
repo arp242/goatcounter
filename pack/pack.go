@@ -652,6 +652,12 @@ commit;
 	insert into version values('2020-06-26-1-record-export');
 commit;
 `),
+	"db/migrate/pgsql/2020-07-03-1-plan-amount.sql": []byte(`begin;
+	alter table sites add column billing_amount varchar;
+
+	insert into version values('2020-07-03-1-plan-amount');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1483,6 +1489,12 @@ commit;
 	create index "exports#site_id#created_at" on exports(site_id, created_at);
 
 	insert into version values('2020-06-26-1-record-export');
+commit;
+`),
+	"db/migrate/sqlite/2020-07-03-1-plan-amount.sql": []byte(`begin;
+	alter table sites add column billing_amount varchar;
+
+	insert into version values('2020-07-03-1-plan-amount');
 commit;
 `),
 }
@@ -15949,6 +15961,374 @@ Martin
 	<div class="page page-{{.Page}}">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 `),
+	"tpl/admin.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<style>
+table    { max-width: none !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
+</style>
+<style>.plan-free { background-color: #eaeaea; }</style>
+
+<p>
+	<a href="/debug/pprof">pprof</a> |
+	<a href="/admin/sql">PostgreSQL</a> |
+	<a href="/admin/botlog">Botlog</a>
+</p>
+
+<h2>Signups</h2>
+<div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
+
+<h2>Sites</h2>
+<table class="sort">
+<thead><tr>
+	<th class="n">Last month</th>
+	<th class="n">Total hits</th>
+	<th>Site</th>
+	<th>Domain/Email</th>
+	<th>Plan</th>
+	<th>Created at</th>
+</tr></thead>
+<tbody>{{range $s := .Stats}}
+	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
+		<td class="n">{{nformat $s.LastMonth $.Site}}</td>
+		<td class="n">{{nformat $s.Total $.Site}}</td>
+		<td><a href="/admin/{{$s.ID}}">{{$s.Code}}</a></td>
+		<td>{{$s.LinkDomain}}<br>{{$s.Email}}</td>
+		<td>
+			{{if $s.Stripe}}
+				{{if eq $s.Plan "free"}}z{{end}}{{$s.Plan}}
+				{{- if has_prefix $s.Stripe "cus_github" -}}
+					; <a href="https://github.com/{{substr $s.Stripe 11 -1}}">GitHub</a>
+				{{- else if not (has_prefix $s.Stripe "cus_free_") -}}
+					; <a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">Stripe</a>
+				{{end}}
+				{{if ne $s.Plan "free"}}
+					<br>{{if $s.BillingAmount}}{{$s.BillingAmount}}{{else}}UNKNOWN{{end}}
+				{{end}}
+			{{else}}
+				{{if eq $s.Plan "child"}}
+					child of <a href="#{{$s.Parent}}">{{$s.Parent}}</a>
+				{{else}}
+					zfree
+				{{end}}
+			{{end}}
+		</td>
+		<td>{{tformat $.Site $s.CreatedAt ""}}</td>
+	</tr>
+{{end}}</tbody>
+</table>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/admin_botlog.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<style>
+table    { max-width: none !important; }
+table table { max-width: 25em !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
+</style>
+
+<h2>IPs</h2>
+<table>
+<thead><tr>
+	<th class="n">Count</th>
+	<th></th>
+	<th>whois</th>
+</thead>
+<tbody>
+	{{range $s := .BotlogIP}}
+	<tr>
+		<td class="n">{{$s.Count}}</td>
+		<td>
+			<table>
+			{{range $o := $s.Links}}
+				<tr>
+					<td>{{index $o 0}}</td>
+					<td><strong>{{index $o 1}}</strong>
+						<a href="https://search.arin.net/rdap/?query={{index $o 1}}">ARIN</a> |
+						<a href="https://apps.db.ripe.net/db-web-ui/query?rflag=true&searchtext={{index $o 1}}">RIPE</a>
+					</td>
+				</tr>
+			{{end}}
+			<tr><td>IP</td><td>{{$s.IP}}</td></tr>
+			<tr><td>PTR</td><td>{{$s.PTR}}</td></tr>
+			<tr><td>Create</td><td>{{$s.CreatedAt.Format "2006-01-02"}}</td></tr>
+			<tr><td>Last</td><td>{{$s.LastSeen.Format "2006-01-02"}}</td></tr>
+			<tr><td>ID</td><td>{{$s.ID}}</td></tr>
+			</table>
+		</td>
+		<td><pre>{{$s.Info}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/admin_site.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h2>Admin</h2>
+
+<form method="post" action="/admin/{{.Stat.Site.ID}}/gh-sponsor" class="vertical">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	<fieldset>
+		<legend>Set plan from GitHub</legend>
+
+		{{if .Stat.Site.Parent}}
+			<p>Child of {{.Stat.Site.Parent}}</p>
+		{{else if and .Stat.Site.Stripe (not .Stat.Site.PayExternal) (not .Stat.Site.FreePlan)}}
+			<p>Already has a Stripe subscription: {{.Stat.Site.Stripe}}</p>
+		{{else}}
+			<label for="user">GitHub user</label>
+			<input type="text" name="user" id="user" value="{{.Stat.Site.Stripe}}">
+
+			<label for="amount">USD amount</label>
+			<input type="text" name="amount" id="amount" value="{{.Stat.Site.BillingAmount}}">
+
+			<label for="plan">Plan</label>
+			<select name="plan" id="plan">
+				<option {{option_value .Stat.Site.Plan "personal"}}>personal</option>
+				<option {{option_value .Stat.Site.Plan "personalplus"}}>personalplus</option>
+				<option {{option_value .Stat.Site.Plan "business"}}>business</option>
+				<option {{option_value .Stat.Site.Plan "businessplus"}}>businessplus</option>
+			</select>
+			<br>
+			<button type="submit">Update</button>
+		{{end}}
+	</fieldset>
+</form>
+
+<table>
+	<tr><td>Total</td><td>{{nformat .Stat.CountTotal $.Site}}</td></tr>
+	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.Site}}</td></tr>
+	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.Site}}</td></tr>
+	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
+	{{if .Stat.Site.Parent}}
+		<tr><td>Parent</td><td><a href="/admin/{{.Stat.Site.Parent}}">/admin/{{.Stat.Site.Parent}}</a></td></tr>
+	{{end}}
+</table>
+
+<pre>{{pp .Stat.Site}}</pre>
+<pre>{{pp .Stat.User}}</pre>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/admin_sql.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<style>
+table    { max-width: none !important; }
+td       { white-space: nowrap; vertical-align: top; }
+pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
+th       { text-align: left; }
+.n       { text-align: right; }
+input    { float: right; padding: .4em !important; }
+.sort th { color: blue; cursor: pointer; }
+
+#system-stats { display: flex; justify-content: space-between; }
+
+.qid-td    { padding: 0; }
+.qid       { border: 1px solid #eee; width: 1em; line-height: 2em; overflow: hidden; display: block; }
+.qid:hover { width: auto; }
+</style>
+
+<div id="system-stats">
+<pre>{{.Free}}{{.Load}}</pre>
+<pre>{{.Df}}</pre>
+</div>
+
+<h2>pg_stat_activity</h2>
+<table>
+{{if gt (len .Activity) 0}}
+<thead><tr>
+	<th>PID</th>
+	<th class="n">Duration</th>
+	<th>Query</th>
+</tr></thead>
+{{end}}
+<tbody>
+	{{range $s := .Activity}}
+	<tr>
+		<td>{{$s.PID}}</td>
+		<td class="n">{{$s.Duration}}</td>
+		<td><pre>{{$s.Query}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>pg_stat_progress_*</h2>
+<table>
+{{if gt (len .Progress) 0}}
+<thead><tr>
+	<th>Table</th>
+	<th>Command</th>
+	<th>Phase</th>
+	<th>Status</th>
+</tr></thead>
+{{end}}
+<tbody>
+	{{range $s := .Progress}}
+	<tr>
+		<td>{{$s.Table}}</td>
+		<td>{{$s.Command}}</td>
+		<td>{{$s.Phase}}</td>
+		<td>{{$s.Status}}</td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>pg_stat_user_tables</h2>
+<table class="sort">
+<thead><tr>
+	<th>Table</th>
+	<th class="n">T size</th>
+	<th class="n">I size</th>
+	<th>Last vacuum</th>
+	<th>Last analyze</td>
+	<th class="n" title="Number of seq scans → of live rows fetched by seq scans">Seq scan</th>
+	<th class="n" title="Number of index scans → number of live rows fetched by index scans">Index scan</th>
+	<th class="n">Live rows</th>
+	<th class="n">Dead rows</th>
+	<th class="n">Mod. rows</th>
+</tr></thead>
+<tbody>
+	{{range $s := .Tables}}
+	<tr>
+		<td>{{$s.Table}}</td>
+		<td class="n">{{$s.TableSize}}M</td>
+		<td class="n">{{$s.IndexesSize}}M</td>
+		<td>
+			{{if $s.LastVacuum.After $s.LastAutoVacuum}}
+				{{$s.LastVacuum.Format "2006-01-02"}}
+			{{else}}
+				{{$s.LastAutoVacuum.Format "2006-01-02"}}
+			{{end}}
+			({{$s.VacuumCount}})
+		</td>
+		<td>
+			{{if $s.LastAnalyze.After $s.LastAutoAnalyze}}
+				{{$s.LastAnalyze.Format "2006-01-02"}}
+			{{else}}
+				{{$s.LastAutoAnalyze.Format "2006-01-02"}}
+			{{end}}
+			({{$s.AnalyzeCount}})
+		</td>
+		<td class="n">{{nformat64 $s.SeqScan}} → {{nformat64 $s.SeqRead}}</td>
+		<td class="n">{{nformat64 $s.IdxScan}} → {{nformat64 $s.IdxRead}}</td>
+		<td class="n">{{nformat64 $s.LiveTup}}</td>
+		<td class="n">{{nformat64 $s.DeadTup}}</td>
+		<td class="n">{{nformat64 $s.ModSinceAnalyze}}</td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2>pg_stat_user_indexes</h2>
+<table class="sort">
+<thead><tr>
+	<th>Index</th>
+	<th class="n">Size</th>
+	<th class="n"># scans</th>
+	<th class="n"># entries returned</th>
+	<th class="n"># rows fetch by simple scans</th>
+</tr></thead>
+<tbody>
+	{{range $s := .Indexes}}
+	<tr>
+		<td>{{$s.Index}} on {{$s.Table}}</td>
+		<td class="n">{{$s.Size}}M</td>
+		<td class="n">{{nformat64 $s.Scan}}</td>
+		<td class="n">{{nformat64 $s.TupRead}}</td>
+		<td class="n">{{nformat64 $s.TupFetch}}</td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+<h2 id="statements">pg_stat_statements
+<form method="get" action="#statements">
+	<input type="hidden" name="order" value="{{.Order}}">
+	<input name="filter" value="{{.Filter}}" placeholder="Filter">
+</form>
+</h2>
+<table>
+<thead><tr>
+	<th></th>
+	<th class="n">
+		<a href="?filter={{.Filter}}&order=calls#statements">desc</a>/
+		{{- "" -}}<a href="?filter={{.Filter}}&order=calls&asc=1#statements">asc</a>
+		<br>
+		Calls
+	</th>
+	<th class="n">
+		<a href="?filter={{.Filter}}&order=total#statements">desc</a>/
+		{{- "" -}}<a href="?filter={{.Filter}}&order=total&asc=1#statements">asc</a>
+		<br>
+		Total
+	</th>
+	<th class="n">
+		<a href="?filter={{.Filter}}&order=mean_time#statements">desc</a>/
+		{{- "" -}}<a href="?filter={{.Filter}}&order=mean_time&asc=1#statements">asc</a>
+		<br>
+		Mean
+	</th>
+	<th class="n">
+		<a href="?filter={{.Filter}}&order=min_time#statements">desc</a>/
+		{{- "" -}}<a href="?filter={{.Filter}}&order=min_time&asc=1#statements">asc</a>
+		<br>
+		Min
+	</th>
+	<th class="n">
+		<a href="?filter={{.Filter}}&order=max_time#statements">desc</a>/
+		{{- "" -}}<a href="?filter={{.Filter}}&order=max_time&asc=1#statements">asc</a>
+		<br>
+		Max
+	</th>
+	<th class="n">
+		<a href="?filter={{.Filter}}&order=stddev_time#statements">desc</a>/
+		{{- "" -}}<a href="?filter={{.Filter}}&order=stddev_time&asc=1#statements">asc</a>
+		<br>
+		StdDev
+	</th>
+	<th class="n">
+		<a href="?filter={{.Filter}}&order=hit_percent#statements">desc</a>/
+		{{- "" -}}<a href="?filter={{.Filter}}&order=hit_percent&asc=1#statements">asc</a>
+		<br>
+		Cache
+	</th>
+	<th>Query</th>
+</tr></thead>
+<tbody>
+	{{range $s := .Stats}}
+	<tr>
+		<td class="qid-td"><span class="qid">{{$s.QueryID}}</span></td>
+		<td class="n">{{nformat $s.Calls $.Site}}</td>
+		<td class="n">{{$s.Total | printf "%.1f"}}min</td>
+		<td class="n">{{$s.MeanTime | printf "%.1f"}}ms</td>
+		<td class="n">{{$s.MinTime | printf "%.1f"}}ms</td>
+		<td class="n">{{$s.MaxTime | printf "%.1f"}}ms</td>
+		<td class="n">{{$s.StdDevTime | printf "%.1f"}}</td>
+		<td class="n">{{$s.HitPercent | printf "%.0f"}}%</td>
+		<td><pre>{{$s.Query}}</pre></td>
+	</tr>
+	{{end}}
+</tbody>
+</table>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
 	"tpl/api.gohtml": []byte(`{{/*************************************************************************
  * This file was generated from tpl/api.markdown. DO NOT EDIT.
 *************************************************************************/}}
@@ -16196,338 +16576,6 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 </div>
 
 {{- template "_backend_bottom.gohtml" . }}
-`),
-	"tpl/backend_admin.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<style>
-table    { max-width: none !important; }
-td       { white-space: nowrap; vertical-align: top; }
-pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
-th       { text-align: left; }
-.n       { text-align: right; }
-input    { float: right; padding: .4em !important; }
-.sort th { color: blue; cursor: pointer; }
-</style>
-<style>.plan-free { background-color: #eaeaea; }</style>
-
-<p>
-	<a href="/debug/pprof">pprof</a> |
-	<a href="/admin/sql">PostgreSQL</a> |
-	<a href="/admin/botlog">Botlog</a>
-</p>
-
-<h2>Signups</h2>
-<div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
-
-<h2>Sites</h2>
-<table class="sort">
-<thead><tr>
-	<th class="n">Last month</th>
-	<th class="n">Total hits</th>
-	<th>Site</th>
-	<th>Domain</th>
-	<th>Plan</th>
-	<th>Created at</th>
-</tr></thead>
-<tbody>{{range $s := .Stats}}
-	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
-		<td class="n">{{nformat $s.LastMonth $.Site}}</td>
-		<td class="n">{{nformat $s.Total $.Site}}</td>
-		<td><a href="/admin/{{$s.ID}}">{{$s.Code}}</a></td>
-		<td>{{$s.LinkDomain}}</td>
-		<td>
-			{{if $s.Stripe}}
-				{{$s.Plan}}
-				{{- if has_prefix $s.Stripe "cus_github" -}}
-					; <a href="https://github.com/{{substr $s.Stripe 11 -1}}">GitHub</a>
-				{{- else if not (has_prefix $s.Stripe "cus_free_") -}}
-					; <a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">Stripe</a>
-				{{end}}
-			{{else}}
-				{{if eq $s.Plan "child"}}
-					child of <a href="#{{$s.Parent}}">{{$s.Parent}}</a>
-				{{else}}
-					free
-				{{end}}
-			{{end}}
-		</td>
-		<td>{{tformat $.Site $s.CreatedAt ""}}</td>
-	</tr>
-{{end}}</tbody>
-</table>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/backend_admin_botlog.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<style>
-table    { max-width: none !important; }
-table table { max-width: 25em !important; }
-td       { white-space: nowrap; vertical-align: top; }
-pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
-th       { text-align: left; }
-.n       { text-align: right; }
-input    { float: right; padding: .4em !important; }
-.sort th { color: blue; cursor: pointer; }
-</style>
-
-<h2>IPs</h2>
-<table>
-<thead><tr>
-	<th class="n">Count</th>
-	<th></th>
-	<th>whois</th>
-</thead>
-<tbody>
-	{{range $s := .BotlogIP}}
-	<tr>
-		<td class="n">{{$s.Count}}</td>
-		<td>
-			<table>
-			{{range $o := $s.Links}}
-				<tr>
-					<td>{{index $o 0}}</td>
-					<td><strong>{{index $o 1}}</strong>
-						<a href="https://search.arin.net/rdap/?query={{index $o 1}}">ARIN</a> |
-						<a href="https://apps.db.ripe.net/db-web-ui/query?rflag=true&searchtext={{index $o 1}}">RIPE</a>
-					</td>
-				</tr>
-			{{end}}
-			<tr><td>IP</td><td>{{$s.IP}}</td></tr>
-			<tr><td>PTR</td><td>{{$s.PTR}}</td></tr>
-			<tr><td>Create</td><td>{{$s.CreatedAt.Format "2006-01-02"}}</td></tr>
-			<tr><td>Last</td><td>{{$s.LastSeen.Format "2006-01-02"}}</td></tr>
-			<tr><td>ID</td><td>{{$s.ID}}</td></tr>
-			</table>
-		</td>
-		<td><pre>{{$s.Info}}</pre></td>
-	</tr>
-	{{end}}
-</tbody>
-</table>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/backend_admin_site.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<h2>Admin</h2>
-
-<table>
-	<tr><td>Total</td><td>{{nformat .Stat.CountTotal $.Site}}</td></tr>
-	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.Site}}</td></tr>
-	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.Site}}</td></tr>
-	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
-</table>
-
-<pre>{{pp .Stat.Site}}</pre>
-<pre>{{pp .Stat.User}}</pre>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/backend_admin_sql.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<style>
-table    { max-width: none !important; }
-td       { white-space: nowrap; vertical-align: top; }
-pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
-th       { text-align: left; }
-.n       { text-align: right; }
-input    { float: right; padding: .4em !important; }
-.sort th { color: blue; cursor: pointer; }
-
-#system-stats { display: flex; justify-content: space-between; }
-
-.qid-td    { padding: 0; }
-.qid       { border: 1px solid #eee; width: 1em; line-height: 2em; overflow: hidden; display: block; }
-.qid:hover { width: auto; }
-</style>
-
-<div id="system-stats">
-<pre>{{.Free}}{{.Load}}</pre>
-<pre>{{.Df}}</pre>
-</div>
-
-<h2>pg_stat_activity</h2>
-<table>
-{{if gt (len .Activity) 0}}
-<thead><tr>
-	<th>PID</th>
-	<th class="n">Duration</th>
-	<th>Query</th>
-</tr></thead>
-{{end}}
-<tbody>
-	{{range $s := .Activity}}
-	<tr>
-		<td>{{$s.PID}}</td>
-		<td class="n">{{$s.Duration}}</td>
-		<td><pre>{{$s.Query}}</pre></td>
-	</tr>
-	{{end}}
-</tbody>
-</table>
-
-<h2>pg_stat_progress_*</h2>
-<table>
-{{if gt (len .Progress) 0}}
-<thead><tr>
-	<th>Table</th>
-	<th>Command</th>
-	<th>Phase</th>
-	<th>Status</th>
-</tr></thead>
-{{end}}
-<tbody>
-	{{range $s := .Progress}}
-	<tr>
-		<td>{{$s.Table}}</td>
-		<td>{{$s.Command}}</td>
-		<td>{{$s.Phase}}</td>
-		<td>{{$s.Status}}</td>
-	</tr>
-	{{end}}
-</tbody>
-</table>
-
-<h2>pg_stat_user_tables</h2>
-<table class="sort">
-<thead><tr>
-	<th>Table</th>
-	<th class="n">T size</th>
-	<th class="n">I size</th>
-	<th>Last vacuum</th>
-	<th>Last analyze</td>
-	<th class="n" title="Number of seq scans → of live rows fetched by seq scans">Seq scan</th>
-	<th class="n" title="Number of index scans → number of live rows fetched by index scans">Index scan</th>
-	<th class="n">Live rows</th>
-	<th class="n">Dead rows</th>
-	<th class="n">Mod. rows</th>
-</tr></thead>
-<tbody>
-	{{range $s := .Tables}}
-	<tr>
-		<td>{{$s.Table}}</td>
-		<td class="n">{{$s.TableSize}}M</td>
-		<td class="n">{{$s.IndexesSize}}M</td>
-		<td>
-			{{if $s.LastVacuum.After $s.LastAutoVacuum}}
-				{{$s.LastVacuum.Format "2006-01-02"}}
-			{{else}}
-				{{$s.LastAutoVacuum.Format "2006-01-02"}}
-			{{end}}
-			({{$s.VacuumCount}})
-		</td>
-		<td>
-			{{if $s.LastAnalyze.After $s.LastAutoAnalyze}}
-				{{$s.LastAnalyze.Format "2006-01-02"}}
-			{{else}}
-				{{$s.LastAutoAnalyze.Format "2006-01-02"}}
-			{{end}}
-			({{$s.AnalyzeCount}})
-		</td>
-		<td class="n">{{nformat64 $s.SeqScan}} → {{nformat64 $s.SeqRead}}</td>
-		<td class="n">{{nformat64 $s.IdxScan}} → {{nformat64 $s.IdxRead}}</td>
-		<td class="n">{{nformat64 $s.LiveTup}}</td>
-		<td class="n">{{nformat64 $s.DeadTup}}</td>
-		<td class="n">{{nformat64 $s.ModSinceAnalyze}}</td>
-	</tr>
-	{{end}}
-</tbody>
-</table>
-
-<h2>pg_stat_user_indexes</h2>
-<table class="sort">
-<thead><tr>
-	<th>Index</th>
-	<th class="n">Size</th>
-	<th class="n"># scans</th>
-	<th class="n"># entries returned</th>
-	<th class="n"># rows fetch by simple scans</th>
-</tr></thead>
-<tbody>
-	{{range $s := .Indexes}}
-	<tr>
-		<td>{{$s.Index}} on {{$s.Table}}</td>
-		<td class="n">{{$s.Size}}M</td>
-		<td class="n">{{nformat64 $s.Scan}}</td>
-		<td class="n">{{nformat64 $s.TupRead}}</td>
-		<td class="n">{{nformat64 $s.TupFetch}}</td>
-	</tr>
-	{{end}}
-</tbody>
-</table>
-
-<h2 id="statements">pg_stat_statements
-<form method="get" action="#statements">
-	<input type="hidden" name="order" value="{{.Order}}">
-	<input name="filter" value="{{.Filter}}" placeholder="Filter">
-</form>
-</h2>
-<table>
-<thead><tr>
-	<th></th>
-	<th class="n">
-		<a href="?filter={{.Filter}}&order=calls#statements">desc</a>/
-		{{- "" -}}<a href="?filter={{.Filter}}&order=calls&asc=1#statements">asc</a>
-		<br>
-		Calls
-	</th>
-	<th class="n">
-		<a href="?filter={{.Filter}}&order=total#statements">desc</a>/
-		{{- "" -}}<a href="?filter={{.Filter}}&order=total&asc=1#statements">asc</a>
-		<br>
-		Total
-	</th>
-	<th class="n">
-		<a href="?filter={{.Filter}}&order=mean_time#statements">desc</a>/
-		{{- "" -}}<a href="?filter={{.Filter}}&order=mean_time&asc=1#statements">asc</a>
-		<br>
-		Mean
-	</th>
-	<th class="n">
-		<a href="?filter={{.Filter}}&order=min_time#statements">desc</a>/
-		{{- "" -}}<a href="?filter={{.Filter}}&order=min_time&asc=1#statements">asc</a>
-		<br>
-		Min
-	</th>
-	<th class="n">
-		<a href="?filter={{.Filter}}&order=max_time#statements">desc</a>/
-		{{- "" -}}<a href="?filter={{.Filter}}&order=max_time&asc=1#statements">asc</a>
-		<br>
-		Max
-	</th>
-	<th class="n">
-		<a href="?filter={{.Filter}}&order=stddev_time#statements">desc</a>/
-		{{- "" -}}<a href="?filter={{.Filter}}&order=stddev_time&asc=1#statements">asc</a>
-		<br>
-		StdDev
-	</th>
-	<th class="n">
-		<a href="?filter={{.Filter}}&order=hit_percent#statements">desc</a>/
-		{{- "" -}}<a href="?filter={{.Filter}}&order=hit_percent&asc=1#statements">asc</a>
-		<br>
-		Cache
-	</th>
-	<th>Query</th>
-</tr></thead>
-<tbody>
-	{{range $s := .Stats}}
-	<tr>
-		<td class="qid-td"><span class="qid">{{$s.QueryID}}</span></td>
-		<td class="n">{{nformat $s.Calls $.Site}}</td>
-		<td class="n">{{$s.Total | printf "%.1f"}}min</td>
-		<td class="n">{{$s.MeanTime | printf "%.1f"}}ms</td>
-		<td class="n">{{$s.MinTime | printf "%.1f"}}ms</td>
-		<td class="n">{{$s.MaxTime | printf "%.1f"}}ms</td>
-		<td class="n">{{$s.StdDevTime | printf "%.1f"}}</td>
-		<td class="n">{{$s.HitPercent | printf "%.0f"}}%</td>
-		<td><pre>{{$s.Query}}</pre></td>
-	</tr>
-	{{end}}
-</tbody>
-</table>
-
-{{template "_backend_bottom.gohtml" .}}
 `),
 	"tpl/backend_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 

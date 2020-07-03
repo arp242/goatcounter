@@ -186,7 +186,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	if args.Plan == goatcounter.PlanPersonal && quantity == 0 {
 		err := site.UpdateStripe(r.Context(),
 			fmt.Sprintf("cus_free_%d", site.ID),
-			goatcounter.PlanPersonal)
+			goatcounter.PlanPersonal, "")
 		if err != nil {
 			return err
 		}
@@ -233,7 +233,7 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	err := zdb.TX(r.Context(), func(ctx context.Context, db zdb.DB) error {
-		err := site.UpdateStripe(r.Context(), *site.Stripe, goatcounter.PlanPersonal)
+		err := site.UpdateStripe(r.Context(), *site.Stripe, goatcounter.PlanPersonal, "")
 		if err != nil {
 			return err
 		}
@@ -278,7 +278,10 @@ type Session struct {
 	ClientReferenceID string `json:"client_reference_id"`
 	Customer          string `json:"customer"`
 	DisplayItems      []struct {
-		Plan struct {
+		Amount   int    `json:"amount"`
+		Currency string `json:"currency"`
+		Quantity int    `json:"quantity"`
+		Plan     struct {
 			Nickname string `json:"nickname"`
 		} `json:"plan"`
 	} `json:"display_items"`
@@ -300,6 +303,8 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
+
+		fmt.Println(string(event.Data.Raw))
 
 		if strings.HasPrefix(s.ClientReferenceID, "one-time") {
 			bgrun.Run(func() {
@@ -328,7 +333,9 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 				return
 			}
 
-			err = site.UpdateStripe(ctx, s.Customer, s.DisplayItems[0].Plan.Nickname)
+			amount := fmt.Sprintf("%s %d", strings.ToUpper(s.DisplayItems[0].Currency),
+				s.DisplayItems[0].Amount*s.DisplayItems[0].Quantity/100)
+			err = site.UpdateStripe(ctx, s.Customer, s.DisplayItems[0].Plan.Nickname, amount)
 			if err != nil {
 				l.Error(err)
 				return

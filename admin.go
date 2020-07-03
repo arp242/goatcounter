@@ -24,15 +24,17 @@ import (
 )
 
 type AdminStat struct {
-	ID         int64     `db:"id"`
-	Parent     *int64    `db:"parent"`
-	Code       string    `db:"code"`
-	Stripe     *string   `db:"stripe"`
-	LinkDomain string    `db:"link_domain"`
-	CreatedAt  time.Time `db:"created_at"`
-	Plan       string    `db:"plan"`
-	LastMonth  int       `db:"last_month"`
-	Total      int       `db:"total"`
+	ID            int64     `db:"id"`
+	Parent        *int64    `db:"parent"`
+	Code          string    `db:"code"`
+	Stripe        *string   `db:"stripe"`
+	BillingAmount *string   `db:"billing_amount"`
+	LinkDomain    string    `db:"link_domain"`
+	Email         string    `db:"email"`
+	CreatedAt     time.Time `db:"created_at"`
+	Plan          string    `db:"plan"`
+	LastMonth     int       `db:"last_month"`
+	Total         int       `db:"total"`
 }
 
 type AdminStats []AdminStat
@@ -45,6 +47,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 			sites.parent,
 			sites.code,
 			sites.created_at,
+			sites.billing_amount,
 			(case
 				when sites.stripe is null then 'free'
 				when substr(sites.stripe, 0, 9) = 'cus_free' then 'free'
@@ -52,6 +55,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 			end) as plan,
 			stripe,
 			sites.link_domain,
+			(select email from users where site=sites.id or site=sites.parent) as email,
 			coalesce((
 				select sum(hit_counts.total) from hit_counts where site=sites.id
 			), 0) as total,
@@ -60,7 +64,6 @@ func (a *AdminStats) List(ctx context.Context) error {
 				where site=sites.id and hit_counts.hour >= %s
 			), 0) as last_month
 		from sites
-		group by sites.id, sites.code, sites.created_at, plan
 		order by last_month desc`, interval(30)))
 	if err != nil {
 		return errors.Wrap(err, "AdminStats.List")
