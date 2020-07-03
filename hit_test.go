@@ -43,7 +43,7 @@ func TestHitStatsList(t *testing.T) {
 				{CreatedAt: hit.Add(40 * time.Hour), Path: "/asd/"},
 				{CreatedAt: hit.Add(100 * time.Hour), Path: "/zxc"},
 			},
-			wantReturn: "3 3 false <nil>",
+			wantReturn: "3 0 false <nil>",
 			wantStats: goatcounter.HitStats{
 				goatcounter.HitStat{Count: 2, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
@@ -73,7 +73,7 @@ func TestHitStatsList(t *testing.T) {
 				{CreatedAt: hit, Path: "/zxc"},
 			},
 			inFilter:   "x",
-			wantReturn: "1 1 false <nil>",
+			wantReturn: "1 0 false <nil>",
 			wantStats: goatcounter.HitStats{
 				goatcounter.HitStat{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
@@ -95,7 +95,7 @@ func TestHitStatsList(t *testing.T) {
 				{CreatedAt: hit, Path: "/aaaa"},
 			},
 			inFilter:   "a",
-			wantReturn: "4 2 true <nil>",
+			wantReturn: "2 0 true <nil>",
 			wantStats: goatcounter.HitStats{
 				goatcounter.HitStat{Count: 1, Path: "/aaaa", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
@@ -128,7 +128,7 @@ func TestHitStatsList(t *testing.T) {
 			},
 			inFilter:   "a",
 			inExclude:  []string{"/aaaa", "/aaa"},
-			wantReturn: "4 2 false <nil>",
+			wantReturn: "2 0 false <nil>",
 			wantStats: goatcounter.HitStats{
 				goatcounter.HitStat{Count: 1, Path: "/aa", RefScheme: nil, Stats: []goatcounter.Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
@@ -170,11 +170,9 @@ func TestHitStatsList(t *testing.T) {
 			gctest.StoreHits(ctx, t, tt.in...)
 
 			var stats goatcounter.HitStats
-			total, totalUnique, totalDisplay, uniqueDisplay, more, err := stats.List(
-				ctx, start, end, tt.inFilter, tt.inExclude, false)
-			_, _ = totalUnique, uniqueDisplay // TODO
+			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude, false)
 
-			got := fmt.Sprintf("%d %d %t %v", total, totalDisplay, more, err)
+			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
 			if got != tt.wantReturn {
 				t.Errorf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
 			}

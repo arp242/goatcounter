@@ -28,14 +28,13 @@ func TestHitStats(t *testing.T) {
 	}...)
 
 	var stats goatcounter.HitStats
-	total, totalUnique, display, displayUnique, more, err := stats.List(
-		ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil, false)
+	display, displayUnique, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	gotT := fmt.Sprintf("%d %d %d %d %t", total, totalUnique, display, displayUnique, more)
-	wantT := "3 1 3 1 false"
+	gotT := fmt.Sprintf("%d %d %t", display, displayUnique, more)
+	wantT := "3 1 false"
 	if wantT != gotT {
 		t.Fatalf("wrong totals\ngot:  %s\nwant: %s", gotT, wantT)
 	}

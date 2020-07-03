@@ -17,9 +17,9 @@
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
-			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
+			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
+			filter_paths, add_ip, fill_tz, draw_chart, bind_scale, tsort,
+			copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -98,13 +98,13 @@
 
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
-		$('.count-list-pages').on('click', '.rescale', function(e) {
+		$('.count-list').on('click', '.rescale', function(e) {
 			e.preventDefault()
 
 			var scale = $(this).closest('.chart').attr('data-max')
-			$('.scale').html(format_int(scale))
-			$('.count-list-pages').attr('data-scale', scale)
-			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
+			$('.pages-list .scale').html(format_int(scale))
+			$('.pages-list .count-list-pages').attr('data-scale', scale)
+			$('.pages-list .chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
 		})
 	}
@@ -122,6 +122,7 @@
 			// Don't repaint/reflow on every bar update.
 			chart.style.display = 'none'
 
+			var is_pages = $(chart).closest('.count-list-pages').length > 0
 			$(chart).find('>div').each(function(i, bar) {
 				if (bar.dataset.h !== undefined)
 					var h = bar.dataset.h
@@ -137,7 +138,7 @@
 					bar.style.background = 'transparent'
 				else {
 					var hu = bar.dataset.u
-					if (scale && scale !== 1) {
+					if (is_pages && scale && scale !== 1) {
 						h  = (parseInt(h, 10)  / scale) + '%'
 						hu = (parseInt(hu, 10) / scale) + '%'
 					}
@@ -189,10 +190,6 @@
 		$('#set-local-tz').on('click', function(e) {
 			e.preventDefault();
 
-			// It's hard to reliably get the TZ in JS without this; we can just
-			// get the offset (-480) and perhaps parse the Date string to get
-			// "WITA". Browser support is "good enough" to not bother with
-			// complex workarounds: https://caniuse.com/#search=DateTimeFormat
 			if (!window.Intl || !window.Intl.DateTimeFormat) {
 				alert("Sorry, your browser doesn't support accurate timezone information :-(");
 				return;
@@ -218,6 +215,7 @@
 			t = setTimeout(function() {
 				var filter = $(e.target).val().trim()
 				push_query('filter', filter)
+				push_query('showrefs', null) // clear as this will be reset
 				$('#filter-paths').toggleClass('value', filter !== '')
 
 				var loading = $('<span class="loading"></span>')
@@ -246,7 +244,7 @@
 
 	// Paginate the main path overview.
 	var paginate_paths = function() {
-		$('.pages-list .load-more').on('click', function(e) {
+		$('.pages-list >.load-more').on('click', function(e) {
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
@@ -271,21 +269,19 @@
 		if (from_filter) {
 			$('.count-list-pages').attr('data-max', data.max)
 			$('.count-list-pages').attr('data-scale', data.max)
-			$('.scale').html(format_int(data.max))
-
-			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
-			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
+			$('.totals tbody').replaceWith(data.totals)
+			$('.pages-list tbody').html(data.rows)
 		}
 		else
 			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
-		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
+		$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
 
-		var th = $('.pages-list .total-hits'),
-		    td = $('.pages-list .total-display'),
-			tu = $('.pages-list .total-unique'),
-			ud = $('.pages-list .total-unique-display')
+		var th = $('.total-hits'),
+		    td = $('.total-display'),
+			tu = $('.total-unique'),
+			ud = $('.total-unique-display')
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
@@ -394,20 +390,54 @@
 				},
 			});
 		});
-	};
+	}
 
-	// Paginate the location chart.
-	var paginate_locations = function() {
-		$('.location-chart .show-all').on('click', function(e) {
+	// Paginate and show details for the horizontal charts.
+	var hchart_detail = function() {
+		// Paginate.
+		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).parent().find('.chart-hbar')
+			var btn   = $(this),
+				chart = btn.closest('[data-more]'),
+				rows  = chart.find('.rows')
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url: '/locations',
-					data: append_period(),
+					url:     chart.attr('data-more'),
+					data:    append_period({total: get_total(), offset: rows.find('>div').length}),
 					success: function(data) {
-						bar.html(data.html)
+						rows.append($(data.html).find('>div'))
+						if (!data.more)
+							btn.css('display', 'none')
+						done()
+					},
+				})
+			})
+		})
+
+		// Load detail.
+		$('.hchart').on('click', '.load-detail', function(e) {
+			e.preventDefault()
+
+			var btn   = $(this),
+				row   = btn.closest('div[data-name]'),
+				chart = btn.closest('.hchart'),
+				url   = chart.attr('data-detail'),
+				name  = row.attr('data-name')
+			if (!url || !name)
+				return;
+			if (row.next().is('.detail'))
+				return row.next().remove()
+
+			var l = btn.find('.bar-c')
+			l.addClass('loading')
+			var done = paginate_button(l, () => {
+				jQuery.ajax({
+					url:     url,
+					data:    append_period({name: name, total: get_total()}),
+					success: function(data) {
+						chart.find('.detail').remove()
+						row.after($('<div class="detail"></div>').html(data.html))
 						done()
 					},
 				})
@@ -455,79 +485,7 @@
 			$('.page > div').css('display', 'none');
 			tab.css('display', 'block');
 		});
-	};
-
-	// Show details for the horizontal charts.
-	var hchart_detail = function() {
-		// Close on Esc or when clicking outside the hbar area.
-		var close = function() {
-			$('.hbar-detail').remove();
-			$('.hbar-open').removeClass('hbar-open');
-		};
-		$(document.body).on('keydown', (e) => { if (e.keyCode === 27) close() });
-		$(document.body).on('click',   (e) => { if ($(e.target).closest('.chart-hbar').length === 0) close() });
-
-		$('.chart-hbar').on('click', 'a', function(e) {
-			e.preventDefault();
-
-			var btn  = $(this),
-				bar  = btn.closest('.chart-hbar'),
-				url  = bar.attr('data-detail'),
-				name = btn.find('small').text();
-			if (!url || !name || name === '(other)' || name === '(unknown)')
-				return;
-
-			btn.find('small').addClass('loading')
-			jQuery.ajax({
-				url: url,
-				data: append_period({
-					name:  name,
-					total: $('.total-hits').text().replace(/[^\d]/, ''),
-				}),
-				success: function(data) {
-					bar.parent().find('.hbar-detail').remove();
-					btn.find('small').removeClass('loading')
-					bar.addClass('hbar-open');
-
-					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
-						$('<div class="arrow"></div>').css('top', (btn.position().top + 6) + 'px'),
-						data.html,
-						$('<a href="#_" class="close">×</a>').on('click', function(e) {
-							e.preventDefault();
-							d.remove();
-							bar.removeClass('hbar-open');
-							btn.removeClass('active');
-						}));
-
-					bar.after(d);
-				},
-			});
-		});
-	};
-
-	// Paginate the referrers.
-	var paginate_refs = function() {
-		$('.pages-list').on('click', '.load-more-refs', function(e) {
-			e.preventDefault();
-
-			var btn = $(this);
-			var done = paginate_button(btn, () => {
-				jQuery.ajax({
-					url: '/refs',
-					data: append_period({
-						showrefs: btn.closest('tr').attr('id'),
-						offset:   btn.prev().find('tr').length,
-					}),
-					success: function(data) {
-						btn.prev().find('tbody').append($(data.rows).find('tr'));
-						if (!data.more)
-							btn.remove()
-						done()
-					},
-				})
-			})
-		})
-	};
+	}
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
@@ -592,13 +550,14 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.load-refs', function(e) {
+		$('.count-list-pages, .totals').on('click', '.load-refs, .hchart .load-more', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
-				link   = this,
+				btn    = $(this),
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
+				init   = btn .is('.load-refs'),
 				close  = function() {
 					var t = $(document.getElementById(params['showrefs']))
 					t.removeClass('target')
@@ -608,24 +567,34 @@
 			// Clicked on row that's already open, so close and stop. Don't
 			// close anything yet if we're going to load another path, since
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
-			if (params['showrefs'] === path) {
+			if (init && params['showrefs'] === path) {
 				close()
 				return push_query('showrefs', null)
 			}
 
 			push_query('showrefs', path)
-
-			var done = paginate_button($(link), () => {
+			var done = paginate_button(btn , () => {
 				jQuery.ajax({
-					url: '/refs' + link.search,
+					url:   '/hchart-more',
+					data: append_period({
+						kind:    'ref',
+						total:    row.find('>.col-count').text().replace(/[^0-9]+/g, ''),
+						showrefs: path,
+						offset:   row.find('.refs .rows>div').length,
+					}),
 					success: function(data) {
 						row.addClass('target')
 
-						if (params['showrefs'])
-							close()
-						row.find('.refs').html(data.rows)
-						if (data.more)
-							row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
+						if (init) {
+							if (params['showrefs'])
+								close()
+							row.find('.refs').html(data.html)
+						}
+						else {
+							row.find('.refs .rows').append($(data.html).find('>div'))
+							if (!data.more)
+								btn.css('display', 'none')
+						}
 						done()
 					},
 				})
@@ -661,21 +630,16 @@
 				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
 		}
 
-		// Translucent hover effect; need a new div because the height isn't
-		// 100%
+		// Translucent hover effect; need a new div because the height isn't 100%
 		var add_cursor = function(t) {
 			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.closest('.chart-left, .chart-right').length > 0)
 				return
 
 			$('#cursor').remove()
-			var cursor = $('<span id="cursor"></span>').
-				on('mouseleave', () => { cursor.remove() }).
+			t.parent().append($('<span id="cursor"></span>').
+				on('mouseleave', function() { $(this).remove() }).
 				attr('title', t.attr('data-title')).
-				css({
-					width: t.width(),
-					left:  t.position().left - 3, // TODO: -3, why?
-				})
-				t.parent().append(cursor)
+				css({width: t.width(), left: t.position().left}))
 		}
 
 		$('body').on('mouseenter', '[data-title]', function(e) {
@@ -709,7 +673,7 @@
 	}
 
 	// Prevent a button/link from working while an AJAX request is in progress;
-	// otherwise smashing a "load more" button will load the same data twice.
+	// otherwise smashing a "show more" button will load the same data twice.
 	//
 	// This also adds a subtle loading indicator after the link/button.
 	//
@@ -821,26 +785,30 @@
 		return date.getFullYear() + '-' +
 			(m >= 10 ? m : ('0' + m)) + '-' +
 			(d >= 10 ? d : ('0' + d));
-	};
+	}
 
 	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
 	var format_int = function(n) {
 		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format));
-	};
+	}
 
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var s = str.split('-')
 		return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
-	};
+	}
+
+	var get_total = function() {
+		return $('.total-unique').text().replace(/[^0-9]/g, '')
+	}
 
 	// Append period-start and period-end values to the data object.
 	var append_period = function(data) {
-		data = data || {};
-		data['period-start'] = $('#period-start').val();
-		data['period-end']   = $('#period-end').val();
-		return data;
-	};
+		data = data || {}
+		data['period-start'] = $('#period-start').val()
+		data['period-end']   = $('#period-end').val()
+		return data
+	}
 
 	// Set the start and end period and submit the form.
 	var set_period = function(start, end) {
@@ -850,10 +818,10 @@
 			end.setHours(end.getHours() + offset);
 		}
 
-		$('#period-start').val(format_date_ymd(start));
-		$('#period-end').val(format_date_ymd(end));
-		$('#dash-form').trigger('submit');
-	};
+		$('#period-start').val(format_date_ymd(start))
+		$('#period-end').val(format_date_ymd(end))
+		$('#dash-form').trigger('submit')
+	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
 	var is_mobile = function() {
@@ -867,6 +835,7 @@
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
 
+	// Sort tables, just for the admin.
 	var tsort = function() {
 		$('table.sort th').on('click', function(e) {
 			var th       = $(this),

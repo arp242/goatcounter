@@ -1,0 +1,12 @@
+<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
+	<h2 class="full-width">Pages <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+	</small></h2>
+	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
+		<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>
+	</table>
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+</div>
+
+

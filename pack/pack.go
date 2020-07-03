@@ -12327,9 +12327,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
 		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
-			paginate_refs, hchart_detail, settings_tabs, paginate_locations,
-			billing_subscribe, setup_datepicker, filter_paths, add_ip, fill_tz,
-			draw_chart, bind_scale, tsort, copy_pre, ref_pages,
+			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
+			filter_paths, add_ip, fill_tz, draw_chart, bind_scale, tsort,
+			copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
 
@@ -12408,13 +12408,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
-		$('.count-list-pages').on('click', '.rescale', function(e) {
+		$('.count-list').on('click', '.rescale', function(e) {
 			e.preventDefault()
 
 			var scale = $(this).closest('.chart').attr('data-max')
-			$('.scale').html(format_int(scale))
-			$('.count-list-pages').attr('data-scale', scale)
-			$('.chart-bar').each((_, c) => { c.dataset.done = '' })
+			$('.pages-list .scale').html(format_int(scale))
+			$('.pages-list .count-list-pages').attr('data-scale', scale)
+			$('.pages-list .chart-bar').each((_, c) => { c.dataset.done = '' })
 			draw_chart()
 		})
 	}
@@ -12432,6 +12432,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// Don't repaint/reflow on every bar update.
 			chart.style.display = 'none'
 
+			var is_pages = $(chart).closest('.count-list-pages').length > 0
 			$(chart).find('>div').each(function(i, bar) {
 				if (bar.dataset.h !== undefined)
 					var h = bar.dataset.h
@@ -12447,7 +12448,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					bar.style.background = 'transparent'
 				else {
 					var hu = bar.dataset.u
-					if (scale && scale !== 1) {
+					if (is_pages && scale && scale !== 1) {
 						h  = (parseInt(h, 10)  / scale) + '%'
 						hu = (parseInt(hu, 10) / scale) + '%'
 					}
@@ -12499,10 +12500,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		$('#set-local-tz').on('click', function(e) {
 			e.preventDefault();
 
-			// It's hard to reliably get the TZ in JS without this; we can just
-			// get the offset (-480) and perhaps parse the Date string to get
-			// "WITA". Browser support is "good enough" to not bother with
-			// complex workarounds: https://caniuse.com/#search=DateTimeFormat
 			if (!window.Intl || !window.Intl.DateTimeFormat) {
 				alert("Sorry, your browser doesn't support accurate timezone information :-(");
 				return;
@@ -12528,6 +12525,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			t = setTimeout(function() {
 				var filter = $(e.target).val().trim()
 				push_query('filter', filter)
+				push_query('showrefs', null) // clear as this will be reset
 				$('#filter-paths').toggleClass('value', filter !== '')
 
 				var loading = $('<span class="loading"></span>')
@@ -12556,7 +12554,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Paginate the main path overview.
 	var paginate_paths = function() {
-		$('.pages-list .load-more').on('click', function(e) {
+		$('.pages-list >.load-more').on('click', function(e) {
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
@@ -12581,21 +12579,19 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (from_filter) {
 			$('.count-list-pages').attr('data-max', data.max)
 			$('.count-list-pages').attr('data-scale', data.max)
-			$('.scale').html(format_int(data.max))
-
-			$('.pages-list .count-list-pages > tbody.totals').replaceWith(data.totals)
-			$('.pages-list .count-list-pages > tbody.pages').html(data.rows)
+			$('.totals tbody').replaceWith(data.totals)
+			$('.pages-list tbody').html(data.rows)
 		}
 		else
 			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
 
 		highlight_filter($('#filter-paths').val())
-		$('.pages-list .load-more').css('display', data.more ? 'inline' : 'none')
+		$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
 
-		var th = $('.pages-list .total-hits'),
-		    td = $('.pages-list .total-display'),
-			tu = $('.pages-list .total-unique'),
-			ud = $('.pages-list .total-unique-display')
+		var th = $('.total-hits'),
+		    td = $('.total-display'),
+			tu = $('.total-unique'),
+			ud = $('.total-unique-display')
 		if (from_filter) {
 			th.text(format_int(data.total_hits));
 			td.text(format_int(data.total_display));
@@ -12704,20 +12700,54 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				},
 			});
 		});
-	};
+	}
 
-	// Paginate the location chart.
-	var paginate_locations = function() {
-		$('.location-chart .show-all').on('click', function(e) {
+	// Paginate and show details for the horizontal charts.
+	var hchart_detail = function() {
+		// Paginate.
+		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
 
-			var bar = $(this).parent().find('.chart-hbar')
+			var btn   = $(this),
+				chart = btn.closest('[data-more]'),
+				rows  = chart.find('.rows')
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url: '/locations',
-					data: append_period(),
+					url:     chart.attr('data-more'),
+					data:    append_period({total: get_total(), offset: rows.find('>div').length}),
 					success: function(data) {
-						bar.html(data.html)
+						rows.append($(data.html).find('>div'))
+						if (!data.more)
+							btn.css('display', 'none')
+						done()
+					},
+				})
+			})
+		})
+
+		// Load detail.
+		$('.hchart').on('click', '.load-detail', function(e) {
+			e.preventDefault()
+
+			var btn   = $(this),
+				row   = btn.closest('div[data-name]'),
+				chart = btn.closest('.hchart'),
+				url   = chart.attr('data-detail'),
+				name  = row.attr('data-name')
+			if (!url || !name)
+				return;
+			if (row.next().is('.detail'))
+				return row.next().remove()
+
+			var l = btn.find('.bar-c')
+			l.addClass('loading')
+			var done = paginate_button(l, () => {
+				jQuery.ajax({
+					url:     url,
+					data:    append_period({name: name, total: get_total()}),
+					success: function(data) {
+						chart.find('.detail').remove()
+						row.after($('<div class="detail"></div>').html(data.html))
 						done()
 					},
 				})
@@ -12765,79 +12795,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			$('.page > div').css('display', 'none');
 			tab.css('display', 'block');
 		});
-	};
-
-	// Show details for the horizontal charts.
-	var hchart_detail = function() {
-		// Close on Esc or when clicking outside the hbar area.
-		var close = function() {
-			$('.hbar-detail').remove();
-			$('.hbar-open').removeClass('hbar-open');
-		};
-		$(document.body).on('keydown', (e) => { if (e.keyCode === 27) close() });
-		$(document.body).on('click',   (e) => { if ($(e.target).closest('.chart-hbar').length === 0) close() });
-
-		$('.chart-hbar').on('click', 'a', function(e) {
-			e.preventDefault();
-
-			var btn  = $(this),
-				bar  = btn.closest('.chart-hbar'),
-				url  = bar.attr('data-detail'),
-				name = btn.find('small').text();
-			if (!url || !name || name === '(other)' || name === '(unknown)')
-				return;
-
-			btn.find('small').addClass('loading')
-			jQuery.ajax({
-				url: url,
-				data: append_period({
-					name:  name,
-					total: $('.total-hits').text().replace(/[^\d]/, ''),
-				}),
-				success: function(data) {
-					bar.parent().find('.hbar-detail').remove();
-					btn.find('small').removeClass('loading')
-					bar.addClass('hbar-open');
-
-					var d = $('<div class="chart-hbar hbar-detail"></div>').css('min-height', (btn.position().top + btn.height()) + 'px').append(
-						$('<div class="arrow"></div>').css('top', (btn.position().top + 6) + 'px'),
-						data.html,
-						$('<a href="#_" class="close">×</a>').on('click', function(e) {
-							e.preventDefault();
-							d.remove();
-							bar.removeClass('hbar-open');
-							btn.removeClass('active');
-						}));
-
-					bar.after(d);
-				},
-			});
-		});
-	};
-
-	// Paginate the referrers.
-	var paginate_refs = function() {
-		$('.pages-list').on('click', '.load-more-refs', function(e) {
-			e.preventDefault();
-
-			var btn = $(this);
-			var done = paginate_button(btn, () => {
-				jQuery.ajax({
-					url: '/refs',
-					data: append_period({
-						showrefs: btn.closest('tr').attr('id'),
-						offset:   btn.prev().find('tr').length,
-					}),
-					success: function(data) {
-						btn.prev().find('tbody').append($(data.rows).find('tr'));
-						if (!data.more)
-							btn.remove()
-						done()
-					},
-				})
-			})
-		})
-	};
+	}
 
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
@@ -12902,13 +12860,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.load-refs', function(e) {
+		$('.count-list-pages, .totals').on('click', '.load-refs, .hchart .load-more', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
-				link   = this,
+				btn    = $(this),
 				row    = $(this).closest('tr'),
 				path   = row.attr('id'),
+				init   = btn .is('.load-refs'),
 				close  = function() {
 					var t = $(document.getElementById(params['showrefs']))
 					t.removeClass('target')
@@ -12918,24 +12877,34 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// Clicked on row that's already open, so close and stop. Don't
 			// close anything yet if we're going to load another path, since
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
-			if (params['showrefs'] === path) {
+			if (init && params['showrefs'] === path) {
 				close()
 				return push_query('showrefs', null)
 			}
 
 			push_query('showrefs', path)
-
-			var done = paginate_button($(link), () => {
+			var done = paginate_button(btn , () => {
 				jQuery.ajax({
-					url: '/refs' + link.search,
+					url:   '/hchart-more',
+					data: append_period({
+						kind:    'ref',
+						total:    row.find('>.col-count').text().replace(/[^0-9]+/g, ''),
+						showrefs: path,
+						offset:   row.find('.refs .rows>div').length,
+					}),
 					success: function(data) {
 						row.addClass('target')
 
-						if (params['showrefs'])
-							close()
-						row.find('.refs').html(data.rows)
-						if (data.more)
-							row.find('.refs').append('<a href="#_", class="load-more-refs">load more</a>')
+						if (init) {
+							if (params['showrefs'])
+								close()
+							row.find('.refs').html(data.html)
+						}
+						else {
+							row.find('.refs .rows').append($(data.html).find('>div'))
+							if (!data.more)
+								btn.css('display', 'none')
+						}
 						done()
 					},
 				})
@@ -12971,21 +12940,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
 		}
 
-		// Translucent hover effect; need a new div because the height isn't
-		// 100%
+		// Translucent hover effect; need a new div because the height isn't 100%
 		var add_cursor = function(t) {
 			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.closest('.chart-left, .chart-right').length > 0)
 				return
 
 			$('#cursor').remove()
-			var cursor = $('<span id="cursor"></span>').
-				on('mouseleave', () => { cursor.remove() }).
+			t.parent().append($('<span id="cursor"></span>').
+				on('mouseleave', function() { $(this).remove() }).
 				attr('title', t.attr('data-title')).
-				css({
-					width: t.width(),
-					left:  t.position().left - 3, // TODO: -3, why?
-				})
-				t.parent().append(cursor)
+				css({width: t.width(), left: t.position().left}))
 		}
 
 		$('body').on('mouseenter', '[data-title]', function(e) {
@@ -13019,7 +12983,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	}
 
 	// Prevent a button/link from working while an AJAX request is in progress;
-	// otherwise smashing a "load more" button will load the same data twice.
+	// otherwise smashing a "show more" button will load the same data twice.
 	//
 	// This also adds a subtle loading indicator after the link/button.
 	//
@@ -13131,26 +13095,30 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		return date.getFullYear() + '-' +
 			(m >= 10 ? m : ('0' + m)) + '-' +
 			(d >= 10 ? d : ('0' + d));
-	};
+	}
 
 	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
 	var format_int = function(n) {
 		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format));
-	};
+	}
 
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var s = str.split('-')
 		return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
-	};
+	}
+
+	var get_total = function() {
+		return $('.total-unique').text().replace(/[^0-9]/g, '')
+	}
 
 	// Append period-start and period-end values to the data object.
 	var append_period = function(data) {
-		data = data || {};
-		data['period-start'] = $('#period-start').val();
-		data['period-end']   = $('#period-end').val();
-		return data;
-	};
+		data = data || {}
+		data['period-start'] = $('#period-start').val()
+		data['period-end']   = $('#period-end').val()
+		return data
+	}
 
 	// Set the start and end period and submit the form.
 	var set_period = function(start, end) {
@@ -13160,10 +13128,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			end.setHours(end.getHours() + offset);
 		}
 
-		$('#period-start').val(format_date_ymd(start));
-		$('#period-end').val(format_date_ymd(end));
-		$('#dash-form').trigger('submit');
-	};
+		$('#period-start').val(format_date_ymd(start))
+		$('#period-end').val(format_date_ymd(end))
+		$('#dash-form').trigger('submit')
+	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
 	var is_mobile = function() {
@@ -13177,6 +13145,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
 
+	// Sort tables, just for the admin.
 	var tsort = function() {
 		$('table.sort th').on('click', function(e) {
 			var th       = $(this),
@@ -13374,6 +13343,8 @@ dt { font-weight: bold; margin-top: 1em; }
    This file is part of GoatCounter and published under the terms of the EUPL
    v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
 
+/*** Generic stuff and layout
+ ****************************/
 .page    { padding: 1em; }
 footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between;
 	       background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
@@ -13417,10 +13388,10 @@ nav .updates { font-weight: bold; background-color: yellow; }
 nav #signin  { white-space: nowrap; margin-left: 1em; }
 nav #back    { white-space: nowrap; margin-right: 1em; }
 
-h2 sup, h2 small {
-	font-size: .9rem;
-	font-weight: normal;
-}
+h2            { margin-bottom: .4em; }
+h2 small      { font-size: .9rem; font-weight: normal; margin-right: .1em; line-height: 1rem; }
+h2.full-width { margin-left: .4em; margin-right: .4em; padding-right: .2em;
+				display: flex; justify-content: space-between; align-items: flex-end; }
 
 h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
@@ -13458,231 +13429,6 @@ input.red { border: 1px solid red !important; }
 	border-color: #f00;
 }
 
-
-/*** Pages list ***/
-.count-list td           { vertical-align: top; }
-.count-list td.generated { font-style: italic; }
-
-.count-list td:first-child {  /* Count */
-	text-align: right;
-	width: 5rem;
-}
-.count-list td[colspan="3"] {  /* "nothing to display" */
-	text-align: left;
-	width: auto;
-}
-
-.count-list td:nth-child(2) {  /* Path */
-	width: 20rem;
-}
-
-.count-list.count-list-refs { position: relative; }
-
-.count-list.count-list-refs td:nth-child(1) {
-	text-align: right;
-	width: 4rem;
-}
-.count-list.count-list-refs td:nth-child(2) {
-	width: auto;
-	word-break: break-all; /* don't make it wider for very long urls */
-}
-
-/* Totals */
-.count-list .totals                 { background-color: #f7f7f7; border-bottom: 1px solid #999; }
-.count-list .pages::before { content: ''; display: block; height: 1rem; } /* Hack to add margin to tbody */
-.count-list .totals .load-refs.desktop {
-	float: right;
-	margin-right: 1em;
-}
-
-.label-event { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
-
-/* Otherwise .page-title has different vertical alignment? Hmmm... */
-.show-mobile .page-title { vertical-align: top; }
-
-/* Make "visit" links bigger on mobile. */
-@media (max-width: 55rem) {
-	/*
-	sup { vertical-align: inherit; font-size: 1rem; bottom: 1ex; }
-	*/
-}
-
-.rlink { display: inline-block; overflow: hidden;
-         max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
-.rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
-.page-title b, .rlink b { background-color: yellow; }
-input.value             { background-color: yellow; }
-
-.count-list tr {
-	border: none;
-}
-
-.count-list tr:target,
-.count-list tr.target {
-	background-color: inherit;
-}
-
-/* Border doesn't affect layout. */
-.count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
-
-.count-list tr:target > td:nth-child(2) .load-refs,
-.count-list tr.target > td:nth-child(2) .load-refs {
-	font-weight: bold;
-	border-bottom: 4px solid yellow;
-}
-
-/* Hide "Go to [..]" link unless we loaded the page details. */
-small.go           { display: none; }
-tr.target small.go { display: inline-block; }
-
-/*** Dashboard form (filter, time period select, etc.) ***/
-#dash-saved-views { text-align: right; margin-right: .3em; }
-#dash-move        { display: flex; justify-content: space-between; padding: .2em; }
-
-#dash-form      { display: block; margin-bottom: 1.5em; padding-bottom: .4em; }
-#dash-form span { margin-left: 0; } /* Reset from hello-css */
-
-#dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
-             background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
-
-#dash-main input[type="text"]     { padding: .3em; }
-#dash-main input[type="checkbox"] { vertical-align: middle; }
-#filter-paths                     { width: 18.5em; display: block; }
-#dash-main .date-input            { width: 9em; text-align: center; }
-
-.filter-wrap                 { position: relative; text-align: right; }
-.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
-
-#dash-main label { display: block; text-align: right; }
-
-#dash-select-period           { display: block; padding-left: .3em; }
-#dash-select-period span+span { margin-left: .5em; }
-
-@media (max-width: 56.5rem) {
-	/* Break "current [..]" to new line to make more space. */
-	#dash-select-period span+span { display: block; margin-left: 0em; }
-}
-
-@media (max-width: 41rem) {
-	#filter-paths  { width: 10em;  }
-}
-
-/* TODO:
- */
-@media (max-width: 33.5rem) {
-	#dash-main       { display: block; }
-	#filter-paths    { width: 100%; margin-top: .5em; }
-	#dash-main label { text-align: left; }
-}
-
-.period-day [value=day],
-.period-week [value=week],
-.period-month [value=month],
-.period-quarter [value=quarter],
-.period-half-year [value=half-year],
-.period-year [value=year],
-.period-week-cur [value=week-cur],
-.period-month-cur [value=month-cur] {
-	font-weight: bold;
-	text-decoration: underline;
-}
-
-
-/*** Charts ***/
-.chart {
-	border: 1px solid #ccc;
-	height: 50px;
-	margin: 5px 0;
-	width: 100%;
-	position: relative;
-}
-/* Add a bit extra space between the charts */
-@media (min-width: 55rem) {
-	.chart { margin-bottom: 1em; }
-}
-
-.chart > .top {
-	font-size: 13px;
-	line-height: 1;
-	position: absolute;
-	top: -1.2em;
-}
-.go { word-break: normal; }
-
-.chart-left {
-	position: absolute; left: -1.6em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
-	display: none; margin-right: 0;
-}
-.count-list .totals .chart-left,
-.count-list .totals .chart-right { background-color: #f7f7f7; }
-.chart-left a:hover { text-decoration: none; }
-
-tr:hover .chart-left,
-tr.target .chart-left { display: block; }
-
-.chart-right {
-	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
-	background-color: #fff;
-}
-
-/* Bar char */
-.chart-bar {
-	display: flex;
-	align-items: flex-end;
-}
-.chart-bar > .half {
-	border-top: 1px solid #ddd;
-	position: absolute;
-	top: 50%;
-	left: 0;
-	right: 0;
-}
-.chart-bar > div {
-	position: relative;
-	flex-grow: 1;
-}
-
-.chart-bar > div       { background: #9a15a4; }
-
-.chart-bar > #cursor {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	background: rgba(0, 0, 0, .2);
-}
-
-.chart-hbar span         { background: #9a15a4; }
-.chart-hbar a:hover span { background: #b11abc; }
-
-.chart-bar > div > div {
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-}
-.chart-bar > .f         { background-color: #eee; }
-
-#tooltip {
-	position: absolute;
-	left: 0;
-	top: 0;
-	font-size: 14px;
-	font-family: sans-serif;
-
-	padding: 0 .5em;
-	color: #fff;
-	background-color: #111;
-}
-
-/* Grey out "pageviews" in tooltip. */
-#tooltip .views { color: #bbb; }
-
-#drag-box {
-	position: absolute;
-	background-color: #99f;
-	opacity: .5;
-}
-
 .screen-reader { display: none; }
 .hide          { display: none; }
 .show-mobile   { display: none; }
@@ -13706,89 +13452,151 @@ select#timezone { max-width: 20rem; }
 
 table.auto { width: auto; }
 
-.browser-charts          { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.browser-charts > div    { width: 49%; }
-.browser-charts h2 small { float: right; font-variant-ligatures: none; font-feature-settings: 'liga' off, 'dlig' off; }
+/* Otherwise .page-title has different vertical alignment? Hmmm... */
+.show-mobile .page-title { vertical-align: top; }
 
-@media (max-width: 45rem) {
-	.browser-charts       { display: block; }
-	.browser-charts > div { width: auto; }
+.rlink { display: inline-block; overflow: hidden;
+         max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
+.rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
+.page-title b, .rlink b { background-color: yellow; }
+input.value             { background-color: yellow; }
+
+/* Hide "Go to [..]" link unless we loaded the page details. */
+small.go           { display: none; }
+.go { word-break: normal; }
+
+
+/*** Pages and totals list/charts
+ ********************************/
+.pages-list h2           { margin-top: .5em; }
+.count-list tr           { border: none; }
+.count-list td           { vertical-align: top; }
+.count-list .col-count   { width: 5rem; text-align: right; }
+.count-list .col-path    { width: 20rem; }
+.label-event             { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
+.count-list td[colspan="3"] {  /* "nothing to display" */
+	text-align: left;
+	width: auto;
 }
+.pages-list >.load-more { display: block; margin-top: -.7em; width: max-content; }
 
-.chart-hbar a, .chart-hbar > p {
-	position: relative;
-	margin: 0;
-	margin-bottom: .3em;
-	display: block;
-	font-size: 1rem;
+.count-list tr:target,
+.count-list tr.target             { background-color: inherit; }
+.count-list tr:target .load-refs,
+.count-list tr.target .load-refs  { font-weight: bold; border-bottom: 4px solid yellow; }
+tr.target small.go                { display: inline-block; }
 
-	color: #252525;
+/* Border doesn't affect layout. */
+.count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
+
+.chart { position: relative; border: 1px solid #ccc; height: 50px; width: 100%; margin: 5px 0; margin-bottom: 1em; }
+
+.chart-left {
+	position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+	display: none; margin-right: 0;
 }
-.chart-hbar a:hover { text-decoration: none; color: #555; }
-.chart-hbar small {
-	display: block;
-	font-size: 1rem;
-}
-.chart-hbar span {
-	display: inline-block;
-	color: #fff;
-	padding: .1em .5em;
+.chart-left a:hover { text-decoration: none; }
 
-	/* So the text is readable if it's smaller than the chart.
-	 * TODO: It's 'good enough' for now, but I am not too happy with this. */
-	text-shadow: 2px 1px rgba(0, 0, 0, .5);
-}
+tr:hover .chart-left,
+tr.target .chart-left { display: block; }
 
-/* Don't make things appear clickable that aren't */
-.chart-hbar.hbar-detail > *            { cursor: default; }
-.chart-hbar.hbar-detail > *:hover span { background-color: #9a15a4;  }
-.chart-hbar.hbar-detail > *:focus      { outline: none; }
-.chart-hbar > *[title^="(other): "],       .chart-hbar > *[title^="(unknown): "]       { cursor: default; font-style: italic; }
-.chart-hbar > *[title^="(other): "]:hover, .chart-hbar > *[title^="(unknown): "]:hover { color: #252525; }
-.chart-hbar > *[title^="(other): "]:hover span, .chart-hbar > *[title^="(unknown): "]:hover span { background-color: #9a15a4; }
-.chart-hbar > *[title^="(other): "]:focus, .chart-hbar > *[title^="(unknown): "]:focus { outline: none; }
-
-.hchart-wrap { position: relative; }
-.hbar-open   { opacity: .25; background-color: #ddd; }
-
-.hbar-detail {
-	position: absolute;
-	top: 0;
-	right: 0;
+.chart-right {
+	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
 	background-color: #fff;
-	z-index: 2;  /* Make sure it's over the footer */
-	border-left: 1px solid #ddd;
-	width: 75%;
-	padding-left: .25em;
-}
-.hbar-detail .arrow {
-	content: " ";
-	display: block;
-	position: absolute;
-	left: -20px;
-	width: 0;
-	height: 0;
-	border-top: 20px solid transparent;
-	border-bottom: 20px solid transparent;
-	border-right: 20px solid #aaa;
-}
-.hbar-detail .close {
-	position: absolute;
-	left: -1em;
-	top: -1em;
-	border-radius: 9999px;
-	background-color: #ccc;
-	width: 1.5em;
-	text-align: center;
-	line-height: 1.5em;
-	cursor: pointer;
-}
-.hbar-detail .close:hover {
-	background-color: #ddd;
 }
 
+.chart-bar             { display: flex; align-items: flex-end; }
+.chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }
+.chart-bar > div > div { position: absolute; left: 0; bottom: 0; width: 100%; }
+.chart-bar > .f        { background-color: #eee; }
+.chart-bar > .half     { border-top: 1px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; }
+.chart-bar > #cursor   { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, .2); }
 
-/*** Settings tabs ***/
+
+/*** Horizontal charts
+ ********************/
+.hcharts            { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.hcharts > div      { width: 49%; }
+@media (max-width: 45rem) {
+	.hcharts       { display: block; }
+	.hcharts > div { width: auto; }
+}
+
+.hchart { }
+.hchart .rows >div   { position: relative; margin-bottom: .8em; }
+.hchart .generated .col-name { font-style: italic; }
+.hchart .col-name    { display: inline-block; word-break: break-all; width: calc(100% - 8.5rem); position: relative;
+					   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: #fbc7ff; }
+.hchart .bar-c       { position: relative; z-index: 1; padding-left: .5rem; display: block; }
+.hchart .col-count   { display: inline-block; width: 4.5rem; text-align: right; vertical-align: bottom; }
+.hchart .col-perc    { width: 2.5em; margin-right: .5rem; }
+.hchart .load-more   { display: inline-block; margin-left: .2em; margin-top: .2em; }
+.hchart .load-detail { display: block; color: #252525; }
+.hchart .detail      { padding-left: 3em; padding-right: 5em; border-bottom: 1px solid #bbb; }
+.load-detail:hover      { text-decoration: none; background-color: #eee; }
+.load-detail:hover .bar { background-color: #ebb7ef; }
+
+/*** Dashboard form (filter, time period select, etc.)
+ ******************************************************/
+#dash-saved-views { text-align: right; margin-right: .3em; }
+#dash-move        { display: flex; justify-content: space-between; padding: .2em; }
+#dash-form        { display: block; padding-bottom: .4em; }
+#dash-form span   { margin-left: 0; } /* Reset from hello-css */
+
+#dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
+             background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+
+#dash-main input[type="text"]     { padding: .3em; }
+#dash-main input[type="checkbox"] { vertical-align: middle; }
+#filter-paths                     { width: 18.5em; display: block; }
+#dash-main .date-input            { width: 9em; text-align: center; }
+
+.filter-wrap                 { position: relative; text-align: right; }
+.filter-wrap .loading::after { position: absolute; bottom: 0; right: .5em; }
+
+#dash-main label { display: block; text-align: right; margin-right: .4em; }
+
+#dash-select-period           { display: block; padding-left: .3em; }
+#dash-select-period span+span { margin-left: .5em; }
+
+@media (max-width: 56.5rem) {
+	/* Break "current [..]" to new line to make more space. */
+	#dash-select-period span+span { display: block; margin-left: 0em; }
+}
+
+@media (max-width: 41rem) {
+	#filter-paths  { width: 10em;  }
+}
+
+@media (max-width: 33.5rem) {
+	#dash-main       { display: block; }
+	#filter-paths    { width: 100%; margin-top: .5em; }
+	#dash-main label { text-align: left; }
+}
+
+.period-day [value=day],
+.period-week [value=week],
+.period-month [value=month],
+.period-quarter [value=quarter],
+.period-half-year [value=half-year],
+.period-year [value=year],
+.period-week-cur [value=week-cur],
+.period-month-cur [value=month-cur] {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+/*** Tooltip
+ ************/
+#tooltip { position: absolute; left: 0; top: 0; padding: 0 .5em;
+		   font-size: 14px; font-family: sans-serif; color: #fff; background-color: #111; }
+
+#tooltip .views { color: #bbb; } /* Grey out "pageviews" in tooltip. */
+
+
+/*** Settings tabs
+ ******************/
 .tab-nav {
 	padding: 1em;
 	background-color: #f8f8d9;
@@ -13804,75 +13612,49 @@ table.auto { width: auto; }
 	.tab-nav a {  line-height: 2.5em; }
 }
 
-/*** noscript ***/
+
+/*** noscript
+ *************/
 noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
 noscript p { margin: .5em; }
 
-/*** Billing ***/
+
+/*** Billing
+ *************/
 #billing-form .plan span            { display: inline-block; min-width: 8em; }
 #billing-form fieldset legend+p     { margin-top: 0; }
 #billing-form fieldset p:last-child { margin-bottom: 0; }
 #stripe-error                       { color: red; }
 
-/*** Updates overview ***/
+
+/*** Updates overview
+ **********************/
 .update p        { margin-left: 2em; }
 .update > em + p, .update > em + strong + p { margin-top: 0; }
 .update-new      { background-color: yellow; padding: 0 .3em; }
+h3 + h4          { margin-top: .3em; }
+.reftable        { margin-top: 1em; }
+.table-left th   { text-align: left; }
 
-h3 + h4 { margin-top: .3em; }
 
-.reftable { margin-top: 1em; }
-.table-left th { text-align: left; }
-
-/*** Loading indicator ***/
+/*** Loading indicator
+ *********************/
 @keyframes loading {
   0%   { content: "."; }
   50%  { content: ".."; }
   100% { content: "..."; }
 }
 /* TODO: See if we can have it sit in the margin */
-a.loading        { color: #777; }
-a.loading:hover  { color: #777; text-decoration: none; }
-a.loading::after { content: ""; animation: loading 500ms linear infinite; }
+.loading        { color: #777; }
+.loading:hover  { color: #777; text-decoration: none; }
+.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
-/* hchart */
-small.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
-/*** site code docs ***/
+/*** Site code docs
+ *******************/
 .pre-copy-wrap { position: relative; }
-.pre-copy {
-	position: absolute;
-	right: 0;
-	top: calc(-2em - 1px);
-
-	padding: .3em 1em;
-	background-color: #f5f5f5;
-	color: #000;
-	border-top: 1px solid #d5d5d5;
-	border-left: 1px solid #d5d5d5;
-}
-.list-ref-pages {
-	list-style: none;
-	padding-left: 0;
-	font-style: normal;
-	padding: .5em;
-}
-.list-ref-pages span {
-	display: inline-block;
-	width: 3em;
-}
-
-@media (min-width: 40rem) {
-	.list-ref-pages {
-		left: 20em;
-
-		position: absolute;
-		background-color: #fff;
-		z-index: 5;
-		top: -1em;
-		border: 1px solid #b7b7b7;
-	}
-}
+.pre-copy      { position: absolute; right: 0; top: calc(-2em - 1px); padding: .3em 1em;
+				 color: #000; background-color: #f5f5f5; border-top: 1px solid #d5d5d5; border-left: 1px solid #d5d5d5; }
 `),
 }
 
@@ -15125,61 +14907,6 @@ var Templates = map[string][]byte{
 </body>
 </html>
 `),
-	"tpl/_backend_pages.gohtml": []byte(`{{range $i, $h := .Pages}}
-	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
-		<td>
-			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
-		</td>
-		<td class="hide-mobile">
-			<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a><br>
-			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
-			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
-
-			{{if and $.Site.LinkDomain (not $h.Event)}}
-				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
-			{{end}}
-		</td>
-		<td>
-			<div class="show-mobile">
-				<a class="load-refs rlink" title="{{$h.Path}}" href="?showrefs={{$h.Path}}&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#{{$h.Path}}">{{$h.Path}}</a>
-				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
-				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
-				{{if and $.Site.LinkDomain (not $h.Event)}}
-					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
-				{{end}}
-			</div>
-			<div class="chart chart-bar" data-max="{{$h.Max}}">
-				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
-				<span class="half"></span>
-				{{bar_chart $.Context .Stats $.Max $.Daily}}
-			</div>
-			<div class="refs">
-				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" false}}
-					{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
-				{{end}}
-			</div>
-		</td>
-	</tr>
-{{else}}
-	<tr><td colspan="3"><em>Nothing to display</em></td></tr>
-{{- end}}
-`),
-	"tpl/_backend_refs.gohtml": []byte(`<table class="count-list count-list-refs"><tbody>
-{{range $r := .Refs}}
-	<tr>
-		<td><span title="{{nformat $r.Count $.Site}} pageviews">{{nformat $r.CountUnique $.Site}}</span></td>
-		<td{{if or (eq (deref_s $r.RefScheme) "g") (eq $r.Path "")}} class="generated"{{end}}>
-			{{if $r.Path -}}
-				{{if $.Totals}}<a href="#" class="pages-by-ref">{{$r.Path}}</a>{{else}}{{$r.Path}}{{end}}
-				{{if ne (deref_s $r.RefScheme) "g"}}<sup class="go"><a href="http://{{$r.Path}}" target="_blank" rel="noopener">visit</a></sup>
-			{{- end}}
-			{{else}}(no data){{end}}
-		</td>
-	</tr>
-{{end}}
-</tbody></table>
-`),
 	"tpl/_backend_signin.gohtml": []byte(`<form method="post" action="/user/requestlogin" class="vertical">
 	<label for="email">Email address</label>
 	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
@@ -15806,15 +15533,15 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 						{{- end -}}
 					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
-					<strong id="back"><a href="/settings#tab-additional-sites">← Back</a></strong>
+					<strong id="back"><a href="/settings#tab-additional-sites">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
-					<strong id="back"><a href="/settings#tab-purge">← Back</a></strong>
+					<strong id="back"><a href="/settings#tab-purge">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/admin/"}}
-					<strong id="back"><a href="/admin">← Back</a></strong>
+					<strong id="back"><a href="/admin">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
-					<strong id="back"><a href="/billing">← Back</a></strong>
+					<strong id="back"><a href="/billing">←&#xfe0e; Back</a></strong>
 				{{else}}
-					<strong id="back"><a href="/">← Back</a></strong>
+					<strong id="back"><a href="/">←&#xfe0e; Back</a></strong>
 				{{end}}
 			</div>
 			<div>
@@ -15842,42 +15569,6 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
-`),
-	"tpl/_backend_totals.gohtml": []byte(`<tbody class="totals"><tr id="TOTAL "{{if eq "TOTAL " $.ShowRefs}}class="target"{{end}}>
-	<td>
-		<span title="{{nformat .TotalPages.Count $.Site}} pageviews">{{nformat .TotalPages.CountUnique $.Site}}</span>
-	</td>
-	<td class="hide-mobile">
-		<strong title="Totals for all the pages">Totals</strong>
-		<a class="load-refs desktop" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a><br>
-		<small>
-			Displaying
-			<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
-			<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-		</small>
-	</td>
-	<td>
-		<div class="show-mobile">
-			<strong>Total</strong> |
-			<small>
-				Displaying
-				<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> visits;
-				<span class='total-display'>{{nformat .TotalHitsDisplay $.Site}}</span> pageviews
-			</small> |
-			<a class="load-refs" href="?showrefs=TOTAL%20&period-start={{tformat $.Site $.PeriodStart ""}}&period-end={{tformat $.Site $.PeriodEnd ""}}#TOTAL%20">Top referrers</a>
-		</div>
-		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
-			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️</a></span>
-			<span class="half"></span>
-			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
-			{{bar_chart .Context .TotalPages.Stats .Max .Daily}}
-		</div>
-		<div class="refs">{{if and $.Refs (eq $.ShowRefs "TOTAL ")}}
-			{{template "_backend_refs.gohtml" map "Refs" $.Refs "Site" $.Site "Totals" true}}
-			{{if $.MoreRefs}}<a href="#_", class="load-more-refs">Show more</a>{{end}}
-		{{end}}</div>
-	</td>
-</tr></tbody>
 `),
 	"tpl/_bottom.gohtml": []byte(`		<script crossorigin="anonymous" src="{{.Static}}/imgzoom.js?v={{.Version}}"></script>
 		<script crossorigin="anonymous" src="{{.Static}}/script.js?v={{.Version}}"></script>
@@ -15930,6 +15621,106 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		<a href="https://alternativeto.net/software/goatcounter/" target="_blank" rel="noopener">AlternativeTo</a>
 	</div>
 </footer>
+`),
+	"tpl/_dashboard_browsers.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
+	<h2>Browsers</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_locations.gohtml": []byte(`<div class="hchart" data-more="/hchart-more?kind=location">
+	<h2>Locations</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 false true}}
+</div>
+`),
+	"tpl/_dashboard_pages.gohtml": []byte(`<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
+	<h2 class="full-width">Pages <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+	</small></h2>
+	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
+		<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>
+	</table>
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+</div>
+
+
+`),
+	"tpl/_dashboard_pages_rows.gohtml": []byte(`{{range $i, $h := .Pages}}
+	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
+		<td class="col-count">
+			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
+		</td>
+		<td class="col-path hide-mobile">
+			<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a><br>
+			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
+
+			{{if and $.Site.LinkDomain (not $h.Event)}}
+				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+			{{end}}
+		</td>
+		<td>
+			<div class="show-mobile">
+				<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a>
+				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
+				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
+				{{if and $.Site.LinkDomain (not $h.Event)}}
+					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+				{{end}}
+			</div>
+			<div class="chart chart-bar" data-max="{{$h.Max}}">
+				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+				{{if and (not $.IsPagination) (eq $i 0)}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small></span>{{end}}
+				<span class="half"></span>
+				{{bar_chart $.Context .Stats $.Max $.Daily}}
+			</div>
+			<div class="refs hchart" data-more="/hchart-more?kind=ref">
+				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
+					{{horizontal_chart $.Context $.Refs $h.CountUnique $.Site.Settings.Limits.Ref false true}}
+				{{end}}
+			</div>
+		</td>
+	</tr>
+{{else}}
+	<tr><td colspan="3"><em>Nothing to display</em></td></tr>
+{{- end}}
+`),
+	"tpl/_dashboard_sizes.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=size">
+	<h2>Screen size</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_systems.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=system" data-more="/hchart-more?kind=system">
+	<h2>Systems</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_toprefs.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
+	<h2>Top referrers</h2>
+	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+</div>
+`),
+	"tpl/_dashboard_totals.gohtml": []byte(`<div class="totals">
+	<h2 class="full-width">Totals <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
+		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
+	</small></h2>
+	<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
+</div>
+
+`),
+	"tpl/_dashboard_totals_row.gohtml": []byte(`<tbody><tr id="TOTAL ">
+	<td>
+		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
+			{{/* TODO: doesn't work well, not sure if there's much value in it anyway?
+			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+			*/}}
+			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
+			<span class="half"></span>
+			{{bar_chart .Context .Page.Stats .Max .Daily}}
+		</div>
+	</td>
+</tr></tbody>
 `),
 	"tpl/_email_bottom.gotxt": []byte(`Any problems, questions, comments, or something else to tell me? Just reply to this email.
 
@@ -16424,158 +16215,6 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 </code></pre>
 
 {{template "_bottom.gohtml" .}}
-`),
-	"tpl/backend.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
-
-{{if .User.ID}}
-	{{if not .User.EmailVerified}}
-		<div class="flash flash-i">
-			Please verify your email by clicking the link sent to {{.User.Email}}.
-			<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
-
-			Change the email address in the <a href="/settings">settings</a> –
-			<form method="post" action="/user/resend-verify">
-				<button class="link">Resend email</button>.
-			</form>
-		</div>
-	{{end}}
-
-	{{if not .Site.ReceivedData}}
-		<div class="flash flash-i">
-			<p><strong>No data received</strong> – GoatCounter hasn’t received any
-			data yet.<br>
-			Make sure the site is set up correctly with the code below inserted in
-			your page, ideally just before the closing &lt;/body&gt; tag (but
-			anywhere will work):</p>
-			{{template "_backend_sitecode.gohtml" .}}
-
-			<p><small>This message will disappear once we receive data; see
-				<a href="/code">Site code</a> in the top menu for further
-				documentation and ready-made integrations.</small></p>
-		</div>
-	{{end}}
-{{end}} {{/* .User.ID */}}
-
-<form id="dash-form">
-	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
-	<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
-	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
-	<input type="hidden" id="hl-period" name="hl-period" disabled>
-
-	{{/*
-	<div id="dash-saved-views">
-		Saved views: <a href="#">404</a> · <a href="#">blog</a>
-		| <a href="#">Save current view</a>
-	</div>
-	*/}}
-	<div id="dash-main">
-		<div>
-			<span>
-				<input type="text" class="date-input" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
-				<input type="text" class="date-input" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end" value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
-			</span>
-			<span id="dash-select-period" class="period-{{.SelectedPeriod}}">
-				<span>
-					Last
-					<button class="link" name="period" value="day">day</button> ·
-					<button class="link" name="period" value="week">week</button> ·
-					<button class="link" name="period" value="month">month</button> ·
-					<button class="link" name="period" value="quarter">quarter</button> ·
-					<button class="link" name="period" value="half-year">half year</button> ·
-					<button class="link" name="period" value="year">year</button>
-				</span>
-
-				<span>
-					Current
-					<button class="link" name="period" value="week-cur">week</button> ·
-					<button class="link" name="period" value="month-cur">month</button>
-				</span>
-			</span>
-		</div>
-
-		<div>
-			<input
-					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
-					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
-					{{if .Filter}}class="value"{{end}}>
-			{{if .ForcedDaily}}
-				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
-			{{else}}
-				<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
-			{{end}}
-		</div>
-	</div>
-	<div id="dash-move">
-		<div>
-			← back
-			<button class="link" name="move" value="week-b">week</button> ·
-			<button class="link" name="move" value="month-b">month</button>
-		</div>
-		<div>
-			<button class="link" name="move" value="week-f">week</button> ·
-			<button class="link" name="move" value="month-f">month</button>
-			forward →
-		</div>
-	</div>
-</form>
-
-<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-	<h2 class="screen-reader">Paths</h2>
-	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-		{{template "_backend_totals.gohtml" .}}
-		<tbody class="pages">{{template "_backend_pages.gohtml" .}}</tbody>
-	</table>
-
-	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
-</div>
-
-<div class="browser-charts">
-	<div>
-		<h2>Browsers</h2>
-		{{if eq .TotalBrowsers 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/browsers">{{horizontal_chart .Context .Browsers .TotalBrowsers 0 .1 true true}}</div>
-			</div>
-		{{end}}
-	</div>
-	<div>
-		<h2>Systems</h2>
-		{{if eq .TotalSystems 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/systems">{{horizontal_chart .Context .Systems .TotalSystems 0 .5 true true}}</div>
-			</div>
-		{{end}}
-	</div>
-
-	<div>
-		<h2>Screen size{{if before_size .Site.CreatedAt}}{{end}}</h2>
-		{{if eq .TotalHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar" data-detail="/sizes">{{horizontal_chart .Context .SizeStat .TotalSize 0 0 true false}}</div>
-			</div>
-			<p><small>The screen sizes are an indication and influenced by DPI and zoom levels.</small></p>
-		{{end}}
-	</div>
-	<div class="location-chart">
-		<h2>Locations{{if before_loc .Site.CreatedAt}}{{end}}</h2>
-		{{if eq .TotalHits 0}}
-			<em>Nothing to display</em>
-		{{else}}
-			<div class="hchart-wrap">
-				<div class="chart-hbar">{{horizontal_chart .Context .LocationStat .TotalLocation 0 3 false true}}</div>
-			</div>
-			{{if .ShowMoreLocations}}<a href="#" class="show-all">Show all</a>{{end}}
-		{{end}}
-	</div>
-</div>
-
-{{- template "_backend_bottom.gohtml" . }}
 `),
 	"tpl/backend_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
@@ -17283,6 +16922,115 @@ processed by Stripe (you will need a Credit Card).</p>
 </form>
 
 {{template "_bottom.gohtml" .}}
+`),
+	"tpl/dashboard.gohtml": []byte(`{{- template "_backend_top.gohtml" . -}}
+
+{{if .User.ID}}
+	{{if not .User.EmailVerified}}
+		<div class="flash flash-i">
+			Please verify your email by clicking the link sent to {{.User.Email}}.
+			<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
+
+			Change the email address in the <a href="/settings">settings</a> –
+			<form method="post" action="/user/resend-verify">
+				<button class="link">Resend email</button>.
+			</form>
+		</div>
+	{{end}}
+
+	{{if not .Site.ReceivedData}}
+		<div class="flash flash-i">
+			<p><strong>No data received</strong> – GoatCounter hasn’t received any
+			data yet.<br>
+			Make sure the site is set up correctly with the code below inserted in
+			your page, ideally just before the closing &lt;/body&gt; tag (but
+			anywhere will work):</p>
+			{{template "_backend_sitecode.gohtml" .}}
+
+			<p><small>This message will disappear once we receive data; see
+				<a href="/code">Site code</a> in the top menu for further
+				documentation and ready-made integrations.</small></p>
+		</div>
+	{{end}}
+{{end}} {{/* .User.ID */}}
+
+<form id="dash-form">
+	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
+	<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
+	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
+	<input type="hidden" id="hl-period" name="hl-period" disabled>
+
+	{{/*
+	<div id="dash-saved-views">
+		Saved views: <a href="#">404</a> · <a href="#">blog</a>
+		| <a href="#">Save current view</a>
+	</div>
+	*/}}
+	<div id="dash-main">
+		<div>
+			<span>
+				<input type="text" class="date-input" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
+				<input type="text" class="date-input" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end" value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
+			</span>
+			<span id="dash-select-period" class="period-{{.SelectedPeriod}}">
+				<span>
+					Last
+					<button class="link" name="period" value="day">day</button> ·
+					<button class="link" name="period" value="week">week</button> ·
+					<button class="link" name="period" value="month">month</button> ·
+					<button class="link" name="period" value="quarter">quarter</button> ·
+					<button class="link" name="period" value="half-year">half year</button> ·
+					<button class="link" name="period" value="year">year</button>
+				</span>
+
+				<span>
+					Current
+					<button class="link" name="period" value="week-cur">week</button> ·
+					<button class="link" name="period" value="month-cur">month</button>
+				</span>
+			</span>
+		</div>
+
+		<div>
+			<div class="filter-wrap">
+				<input
+					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
+					{{if .Filter}}class="value"{{end}}>
+			</div>
+			{{if .ForcedDaily}}
+				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
+			{{else}}
+				<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
+			{{end}}
+		</div>
+	</div>
+	<div id="dash-move">
+		<div>
+			←&#xfe0e; back
+			<button class="link" name="move" value="week-b">week</button> ·
+			<button class="link" name="move" value="month-b">month</button>
+		</div>
+		<div>
+			<button class="link" name="move" value="week-f">week</button> ·
+			<button class="link" name="move" value="month-f">month</button>
+			forward →&#xfe0e;
+		</div>
+	</div>
+</form>
+
+{{$div := false}}
+{{range $w := .Widgets}}
+	{{if and (eq $w.Type "hchart") (not $div)}}
+		{{$div = true}}
+		<div class="hcharts">
+	{{end}}
+	{{if and (ne $w.Type "hchart") $div}}</div>{{end}}
+	{{$w.HTML}}
+{{end}}
+{{if $div}}</div>{{end}}
+
+{{- template "_backend_bottom.gohtml" . }}
 `),
 	"tpl/data.gohtml": []byte(`{{template "_top.gohtml" .}}
 
