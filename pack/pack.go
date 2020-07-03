@@ -12734,13 +12734,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				chart = btn.closest('.hchart'),
 				url   = chart.attr('data-detail'),
 				name  = row.attr('data-name')
-			if (!url || !name) // || name === '(other)' || name === '(unknown)')
+			if (!url || !name)
 				return;
 			if (row.next().is('.detail'))
 				return row.next().remove()
 
-			btn.addClass('loading')
-			var done = paginate_button(btn, () => {
+			var l = btn.find('.bar-c')
+			l.addClass('loading')
+			var done = paginate_button(l, () => {
 				jQuery.ajax({
 					url:     url,
 					data:    append_period({name: name, total: get_total()}),
@@ -13522,19 +13523,19 @@ tr.target .chart-left { display: block; }
 }
 
 .hchart { }
-.hchart .rows >div { position: relative; padding-bottom: 3px; margin-bottom: .4em; }
-.hchart .bar  { position: absolute; bottom: 0; left: 4.8em; width: 100%; height: 3px; background-color: #fcdaff; }
-.hchart .perc { position: absolute; top: 0; right: -2.8em; width: 2.5em; line-height: 4px; font-size: .7rem; text-align: left; }
-.hchart .generated   { font-style: italic; }
-.hchart .col-name    { display: inline-block; word-break: break-all;
-					   width: calc(100% - .5rem); margin-left: -4.5rem; padding-left: 4.5rem;
+.hchart .rows >div   { position: relative; margin-bottom: .8em; }
+.hchart .generated .col-name { font-style: italic; }
+.hchart .col-name    { display: inline-block; word-break: break-all; width: calc(100% - 10rem); position: relative;
 					   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
-.hchart .col-count   { display: inline-block; width: 4rem; text-align: right; margin-right: .5rem; vertical-align: bottom;
-					   position: relative; top: 3px; }
+.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: #fbc7ff; }
+.hchart .bar-c       { position: relative; z-index: 1; padding-left: .5rem; display: block; }
+.hchart .col-count   { display: inline-block; width: 4rem; text-align: right; margin-right: .5rem; vertical-align: bottom; }
 .hchart .load-more   { display: inline-block; margin-left: .2em; margin-top: .2em; }
-.hchart .load-detail { display: block; }
+.hchart .load-detail { display: block; color: #252525; }
 .hchart .detail      { margin-left: 5em; margin-right: 1em;
                        background-color: #f7f7f7; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd; }
+.load-detail:hover      { text-decoration: none; background-color: #eee; }
+.load-detail:hover .bar { background-color: #ebb7ef; }
 
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/
@@ -13552,7 +13553,7 @@ tr.target .chart-left { display: block; }
 #dash-main .date-input            { width: 9em; text-align: center; }
 
 .filter-wrap                 { position: relative; text-align: right; }
-.filter-wrap .loading::after { position: absolute; right: 1.2em; content: ""; animation: loading 500ms linear infinite; }
+.filter-wrap .loading::after { position: absolute; bottom: 0; right: .5em; }
 
 #dash-main label { display: block; text-align: right; margin-right: .4em; }
 
@@ -13644,9 +13645,9 @@ h3 + h4          { margin-top: .3em; }
   100% { content: "..."; }
 }
 /* TODO: See if we can have it sit in the margin */
-a.loading        { color: #777; }
-a.loading:hover  { color: #777; text-decoration: none; }
-a.loading::after { content: ""; animation: loading 500ms linear infinite; }
+.loading        { color: #777; }
+.loading:hover  { color: #777; text-decoration: none; }
+.loading::after { content: ""; animation: loading 500ms linear infinite; }
 
 
 /*** Site code docs
@@ -16991,10 +16992,12 @@ processed by Stripe (you will need a Credit Card).</p>
 		</div>
 
 		<div>
-			<input
+			<div class="filter-wrap">
+				<input
 					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
 					{{if .Filter}}class="value"{{end}}>
+			</div>
 			{{if .ForcedDaily}}
 				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 			{{else}}

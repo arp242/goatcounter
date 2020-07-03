@@ -206,7 +206,7 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 		}
 
 		displayed += s.CountUnique
-		perc := float32(s.CountUnique) / float32(total) * 100
+		perc := fmt.Sprintf("%.1f%%", float32(s.CountUnique)/float32(total)*100)
 
 		name := template.HTMLEscapeString(s.Name)
 		if name == "" {
@@ -223,19 +223,24 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 				name)
 		}
 
-		ref := name
+		var ref string
 		if link {
-			ref = `<a href="#" class="load-detail">` + ref + `</a>`
+			ref = fmt.Sprintf(`<a href="#" class="load-detail">`+
+				`<span class="bar" style="width: %s"></span>`+
+				`<span class="bar-c">%s %s</span></a>`, perc, name, visit)
+		} else {
+			ref = fmt.Sprintf(`<span class="bar" style="width: %s"></span>`+
+				`<span class="bar-c">%s %s</span>`, perc, name, visit)
 		}
+
 		b.WriteString(fmt.Sprintf(`
 			<div class="%[1]s" data-name="%[2]s">
-				<div class="bar" style="width: %.1[3]f%%"><small class="perc">%.1[3]f%%</small></div>
+				<span class="col-count">%[3]s</span>
+				<span class="col-name">%[4]s</span>
 				<span class="col-count">%[5]s</span>
-				<span class="col-name">%[4]s %[6]s</span>
 			</div>`,
 			class, name, perc, ref,
-			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat),
-			visit))
+			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat)))
 	}
 	b.WriteString(`</div>`)
 

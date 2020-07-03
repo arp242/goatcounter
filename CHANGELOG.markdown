@@ -27,14 +27,9 @@ master branch
 
 - Some redesigns (#324, #315, #321 #320)
 
-  Did a bunch of redesigns:
-
-  - The "Totals" is now placed below the Pages; I think it makes more sense
-    there. The Y-axis for the totals is now also independent.
-
-  - You can configure what to display on the dashboard and in what order.
-
-  - A whole bunch of subjective re-styling.
+  The "Totals" is now placed below the Pages; I think it makes more sense there.
+  The Y-axis for the totals is now also independent. There's also been a quite a
+  few restylings.
 
 - Make it easier to skip your own views (#290)
 

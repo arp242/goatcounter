@@ -67,10 +67,12 @@
 		</div>
 
 		<div>
-			<input
+			<div class="filter-wrap">
+				<input
 					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
 					{{if .Filter}}class="value"{{end}}>
+			</div>
 			{{if .ForcedDaily}}
 				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 			{{else}}

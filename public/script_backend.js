@@ -424,13 +424,14 @@
 				chart = btn.closest('.hchart'),
 				url   = chart.attr('data-detail'),
 				name  = row.attr('data-name')
-			if (!url || !name) // || name === '(other)' || name === '(unknown)')
+			if (!url || !name)
 				return;
 			if (row.next().is('.detail'))
 				return row.next().remove()
 
-			btn.addClass('loading')
-			var done = paginate_button(btn, () => {
+			var l = btn.find('.bar-c')
+			l.addClass('loading')
+			var done = paginate_button(l, () => {
 				jQuery.ajax({
 					url:     url,
 					data:    append_period({name: name, total: get_total()}),
