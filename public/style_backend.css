@@ -182,7 +182,7 @@ tr.target .chart-left { display: block; }
 }
 
 .hchart { }
-.hchart .rows >div   { position: relative; margin-bottom: .8em; }
+.hchart .rows >div   { position: relative; margin-bottom: .8em; max-width: 70vw; }
 .hchart .generated .col-name { font-style: italic; }
 .hchart .col-name    { display: inline-block; word-break: break-all; width: calc(100% - 8.5rem); position: relative;
 					   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
