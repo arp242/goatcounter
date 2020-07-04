@@ -33,85 +33,83 @@ with -dev.
 
 Flags:
 
-  -static        Serve static files from a diffent domain, such as a CDN or
-                 cookieless domain. Default: not set.
+  -static      Serve static files from a diffent domain, such as a CDN or
+               cookieless domain. Default: not set.
 
-  -port          Port your site is publicly accessible on. Only needed if it's
-                 not 80 or 443.
+  -port        Port your site is publicly accessible on. Only needed if it's
+               not 80 or 443.
 ` + serveAndSaasFlags
 
 const serveAndSaasFlags = `
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
+  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+               See "goatcounter help db" for detailed documentation. Default:
+               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
-  -listen        Address to listen on. Default: localhost:8081
+  -listen      Address to listen on. Default: localhost:8081
 
-  -dev           Start in "dev mode".
+  -dev         Start in "dev mode".
 
-  -tls           Serve over tls. This is a comma-separated list with any of:
+  -tls         Serve over tls. This is a comma-separated list with any of:
 
-                   none              Don't serve any TLS.
+                 none              Don't serve any TLS.
 
-                   path/to/file.pem  TLS certificate and keyfile, in one file.
+                 path/to/file.pem  TLS certificate and keyfile, in one file.
 
-                   acme[:cache]      Create TLS certificates with ACME, this can
-                                     optionally followed by a : and a cache
-                                     directory name (default: acme-secrets).
+                 acme[:cache]      Create TLS certificates with ACME, this can
+                                   optionally followed by a : and a cache
+                                   directory name (default: acme-secrets).
 
-                   tls               Accept TLS connections on -listen.
+                 tls               Accept TLS connections on -listen.
 
-                   rdr               Redirect port 80 to the -listen port. ACME
-                                     verification requires the server to be
-                                     available on port 80.
+                 rdr               Redirect port 80 to the -listen port. ACME
+                                   verification requires the server to be
+                                   available on port 80.
 
-                 Examples:
+               Examples:
 
-                   acme                       Create ACME certs but serve HTTP,
-                                              useful when serving behind proxy
-                                              which can use the certs.
+                 acme                       Create ACME certs but serve HTTP,
+                                            useful when serving behind proxy
+                                            which can use the certs.
 
-                   acme:/home/gc/.acme        As above, but with custom cache dir.
+                 acme:/home/gc/.acme        As above, but with custom cache dir.
 
-                   ./example.com.pem,tls,rdr  Always use the certificate in the
-                                              file, serve over TLS, and redirect
-                                              port 80.
+                 ./example.com.pem,tls,rdr  Always use the certificate in the
+                                            file, serve over TLS, and redirect
+                                            port 80.
 
-                 Default: "acme,tls,rdr", blank when -dev is given.
+               Default: "acme,tls,rdr", blank when -dev is given.
 
-  -smtp          SMTP server, as URL (e.g. "smtp://user:pass@server").
+  -smtp        SMTP server, as URL (e.g. "smtp://user:pass@server").
 
-                 A special value of "stdout" means no emails will be sent and
-                 emails will be printed to stdout only. This is the default.
+               A special value of "stdout" means no emails will be sent and
+               emails will be printed to stdout only. This is the default.
 
-                 If this is blank emails will be sent without using a relay;
-                 this should work fine, but deliverability will usually be worse
-                 (i.e. it will be more likely to end up in the spam box). This
-                 usually requires rDNS properly set up, and GoatCounter will
-                 *not* retry on errors. Using stdout, a local smtp relay, or a
-                 mailtrap.io box is probably better unless you really know what
-                 you're doing.
+               If this is blank emails will be sent without using a relay; this
+               should work fine, but deliverability will usually be worse (i.e.
+               it will be more likely to end up in the spam box). This usually
+               requires rDNS properly set up, and GoatCounter will *not* retry
+               on errors. Using stdout, a local smtp relay, or a mailtrap.io box
+               is probably better unless you really know what you're doing.
 
-  -email-from    From: address in emails. Default: <user>@<hostname>
+  -email-from  From: address in emails. Default: <user>@<hostname>
 
-  -errors        What to do with errors; they're always printed to stderr.
+  -errors      What to do with errors; they're always printed to stderr.
 
-                   mailto:to_addr[,from_addr]  Email to this address; the
-                                               from_addr is optional and sets
-                                               the From: address. The default is
-                                               to use the same as the to_addr.
+                 mailto:to_addr[,from_addr]  Email to this address; the
+                                             from_addr is optional and sets the
+                                             From: address. The default is to
+                                             use the same as the to_addr.
+               Default: not set.
 
-                 Default: not set.
+  -debug       Modules to debug, comma-separated or 'all' for all modules.
 
-  -debug         Modules to debug, comma-separated or 'all' for all modules.
-
-  -automigrate   Automatically run all pending migrations on startup.
+  -automigrate Automatically run all pending migrations on startup.
 
 Environment:
 
-  TMPDIR         Directory for temporary files; only used to store CSV exports
-                 at the moment. On Windows it will use the first non-empty value
-                 of %TMP%, %TEMP%, and %USERPROFILE%.
+  TMPDIR       Directory for temporary files; only used to store CSV exports at
+               the moment. On Windows it will use the first non-empty value of
+               %TMP%, %TEMP%, and %USERPROFILE%.
 `
 
 func serve() (int, error) {

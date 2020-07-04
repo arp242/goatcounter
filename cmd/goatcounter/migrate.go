@@ -22,13 +22,13 @@ Run database migrations and exit.
 
 Flags:
 
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
+  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+               See "goatcounter help db" for detailed documentation. Default:
+               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
-  -createdb      Create the database if it doesn't exist yet; only for SQLite.
+  -createdb    Create the database if it doesn't exist yet; only for SQLite.
 
-  -debug         Modules to debug, comma-separated or 'all' for all modules.
+  -debug       Modules to debug, comma-separated or 'all' for all modules.
 
 Positional arguments are names of database migrations, either as just the name
 ("2020-01-05-2-foo") or as the file path ("./db/migrate/sqlite/2020-01-05-2-foo.sql").
