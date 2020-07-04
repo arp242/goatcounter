@@ -35,14 +35,16 @@ var (
 )
 
 var usage = map[string]string{
-	"":        usageTop,
-	"help":    usageHelp,
-	"serve":   usageServe,
-	"create":  usageCreate,
-	"migrate": usageMigrate,
-	"saas":    usageSaas,
-	"reindex": usageReindex,
-	"monitor": usageMonitor,
+	"":         usageTop,
+	"help":     usageHelp,
+	"serve":    usageServe,
+	"create":   usageCreate,
+	"migrate":  usageMigrate,
+	"saas":     usageSaas,
+	"reindex":  usageReindex,
+	"monitor":  usageMonitor,
+	"database": helpDatabase,
+	"db":       helpDatabase,
 
 	"version": `
 Show version and build information. This is printed as key=value, separated by
@@ -62,17 +64,20 @@ Usage: goatcounter [command] [flags]
 
 Commands:
 
-  help        Show help; use "help <topic>" or "help all" for more details.
-  version     Show version and build information and exit.
-  migrate     Run database migrations.
-  create      Create a new site and user.
-  serve       Start HTTP server.
+  help         Show help; use "help <topic>" or "help all" for more details.
+  version      Show version and build information and exit.
+  migrate      Run database migrations.
+  create       Create a new site and user.
+  serve        Start HTTP server.
 
 Advanced commands:
 
-  reindex     Re-create the cached statistics (*_stats tables) from the hits.
-              This is generally rarely needed and mostly a development tool.
-  monitor     Monitor for pageviews.
+  reindex      Recreate the index tables (*_stats, *_count) from the hits.
+  monitor      Monitor for pageviews.
+
+Extra help topics:
+
+  db           Documentation on the -db flag.
 
 See "help <topic>" for more details for the command.
 `

@@ -18,15 +18,15 @@ log if it's 0.
 
 Flags:
 
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
+  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+               See "goatcounter help db" for detailed documentation. Default:
+               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
-  -debug         Modules to debug, comma-separated or 'all' for all modules.
+  -debug       Modules to debug, comma-separated or 'all' for all modules.
 
-  -period        Check every n seconds. Default: 120.
+  -period      Check every n seconds. Default: 120.
 
-  -site          Limit the check to just one site; makes the query faster.
+  -site        Limit the check to just one site; makes the query faster.
 `
 
 func monitor() (int, error) {

@@ -43,28 +43,28 @@ Avoiding race conditions
 
 Flags:
 
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
+  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+               See "goatcounter help db" for detailed documentation. Default:
+               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
-  -debug         Modules to debug, comma-separated or 'all' for all modules.
+  -debug       Modules to debug, comma-separated or 'all' for all modules.
 
-  -pause         Number of seconds to pause after each day, to give the server
-                 some breathing room on large sites. Default: 0.
+  -pause       Number of seconds to pause after each day, to give the server
+               some breathing room on large sites. Default: 0.
 
-  -since         Reindex only statistics since this date instead of all of them;
-                 as year-month-day in UTC.
+  -since       Reindex only statistics since this date instead of all of them;
+               as year-month-day in UTC.
 
-  -to            Reindex only statistics up to and including this day; as
-                 year-month-day in UTC. The default is yesterday.
+  -to          Reindex only statistics up to and including this day; as
+               year-month-day in UTC. The default is yesterday.
 
-  -table         Which tables to reindex: hit_stats, hit_counts, browser_stats,
-                 system_stats, location_stats, ref_counts, size_stats, or all
-                 (default).
+  -table       Which tables to reindex: hit_stats, hit_counts, browser_stats,
+               system_stats, location_stats, ref_counts, size_stats, or all
+               (default).
 
-  -site          Only reindex this site ID. Default is to reindex all.
+  -site        Only reindex this site ID. Default is to reindex all.
 
-  -quiet         Don't print progress.
+  -quiet       Don't print progress.
 `
 
 func reindex() (int, error) {

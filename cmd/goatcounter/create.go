@@ -26,25 +26,25 @@ Create a new site and user.
 
 Required flags:
 
-  -domain         Domain to host e.g. "stats.example.com". The site will be
-                  available on this domain only, so "stats.example.com" won't be
-                  available on "localhost".
+  -domain      Domain to host e.g. "stats.example.com". The site will be
+               available on this domain only, so "stats.example.com" won't be
+               available on "localhost".
 
-  -email          Your email address. Will be required to login.
+  -email       Your email address. Will be required to login.
 
 Other flags:
 
-  -password      Password to log in; will be asked interactively if omitted.
+  -password    Password to log in; will be asked interactively if omitted.
 
-  -parent        Parent site; either as ID or domain.
+  -parent      Parent site; either as ID or domain.
 
-  -db            Database connection string. Use "sqlite://<dbfile>" for SQLite,
-                 or "postgres://<connect string>" for PostgreSQL
-                 Default: sqlite://db/goatcounter.sqlite3
+  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+               See "goatcounter help db" for detailed documentation. Default:
+               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
-  -createdb      Create the database if it doesn't exist yet; only for SQLite.
+  -createdb    Create the database if it doesn't exist yet; only for SQLite.
 
-  -debug         Modules to debug, comma-separated or 'all' for all modules.
+  -debug       Modules to debug, comma-separated or 'all' for all modules.
 `
 
 func create() (int, error) {
