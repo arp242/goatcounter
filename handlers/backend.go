@@ -65,6 +65,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 	api{}.mount(r, db)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.Header)
 		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
 	})
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {

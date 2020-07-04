@@ -32,14 +32,16 @@ var (
 )
 
 var usage = map[string]string{
-	"":         usageTop,
-	"help":     usageHelp,
-	"serve":    usageServe,
-	"create":   usageCreate,
-	"migrate":  usageMigrate,
-	"saas":     usageSaas,
-	"reindex":  usageReindex,
-	"monitor":  usageMonitor,
+	"":        usageTop,
+	"help":    usageHelp,
+	"serve":   usageServe,
+	"create":  usageCreate,
+	"migrate": usageMigrate,
+	"saas":    usageSaas,
+	"reindex": usageReindex,
+	"monitor": usageMonitor,
+	"import":  usageImport,
+
 	"database": helpDatabase,
 	"db":       helpDatabase,
 	"listen":   helpListen,
@@ -63,6 +65,7 @@ Commands:
   migrate      Run database migrations.
   create       Create a new site and user.
   serve        Start HTTP server.
+  import       Import pageviews from export.
 
 Advanced commands:
   reindex      Recreate the index tables (*_stats, *_count) from the hits.
@@ -113,6 +116,8 @@ func main() {
 		code, err = reindex()
 	case "monitor":
 		code, err = monitor()
+	case "import":
+		code, err = importCmd()
 	}
 	if err != nil {
 		// code=1, the user did something wrong and print usage as well

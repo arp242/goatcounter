@@ -212,21 +212,21 @@ func TestAPIBasics(t *testing.T) {
 
 func TestAPICount(t *testing.T) {
 	tests := []struct {
-		body     apiCountRequest
+		body     APICountRequest
 		wantCode int
 		wantRet  string
 		want     string
 	}{
-		{apiCountRequest{}, 400, `{"error":"no hits"}`, ""},
+		{APICountRequest{}, 400, `{"error":"no hits"}`, ""},
 
 		// {
-		// 	apiCountRequest{NoSessions: true, Hits: []apiCountRequestHit{
+		// 	APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
 		// 		{Path: "/", CreatedAt: goatcounter.Now().Add(5 * time.Minute)},
 		// 	}}, 400, `{"errors":{"0":"created_at: in the future.\n"}}`, "",
 		// },
 
 		{
-			apiCountRequest{NoSessions: true, Hits: []apiCountRequestHit{
+			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
 				{Path: "/foo"},
 				{Path: "/bar", CreatedAt: time.Date(2020, 1, 18, 14, 42, 0, 0, time.UTC)},
 			}},
@@ -239,7 +239,7 @@ func TestAPICount(t *testing.T) {
 
 		// Fill in most fields.
 		{
-			apiCountRequest{NoSessions: true, Hits: []apiCountRequestHit{
+			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
 				{Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: zdb.Floats{42, 666, 2}},
 			}},
 			202, respOK, `
@@ -250,7 +250,7 @@ func TestAPICount(t *testing.T) {
 
 		// Event
 		{
-			apiCountRequest{NoSessions: true, Hits: []apiCountRequestHit{
+			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
 				{Event: zdb.Bool(true), Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: zdb.Floats{42, 666, 2}},
 			}},
 			202, respOK, `
@@ -261,7 +261,7 @@ func TestAPICount(t *testing.T) {
 
 		// Calculate session from IP+UserAgent
 		{
-			apiCountRequest{Hits: []apiCountRequestHit{
+			APICountRequest{Hits: []APICountRequestHit{
 				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "66.66.66.66"},
 				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "66.66.66.67"},
 				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "66.66.66.66"},
@@ -276,7 +276,7 @@ func TestAPICount(t *testing.T) {
 
 		// UserSessionID
 		{
-			apiCountRequest{Hits: []apiCountRequestHit{
+			APICountRequest{Hits: []APICountRequestHit{
 				{Path: "/foo", Session: "a"},
 				{Path: "/foo", Session: "b"},
 				{Path: "/foo", Session: "a"},
@@ -291,7 +291,7 @@ func TestAPICount(t *testing.T) {
 
 		// Don't persist if session is blank.
 		{
-			apiCountRequest{Hits: []apiCountRequestHit{
+			APICountRequest{Hits: []APICountRequestHit{
 				{Path: "/foo", Session: "a"},
 				{Path: "/foo"},
 			}},

@@ -289,7 +289,7 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Stream(w, fp)
 }
 
-type apiCountRequest struct {
+type APICountRequest struct {
 	// Don't try to count unique visitors; every pageview will be considered a
 	// "visit".
 	NoSessions bool `json:"no_sessions"`
@@ -297,10 +297,10 @@ type apiCountRequest struct {
 	// TODO: This is a new struct just because Kommentaar can't deal with it
 	// otherwise... Need to rewrite a lot of that.
 
-	Hits []apiCountRequestHit `json:"hits"`
+	Hits []APICountRequestHit `json:"hits"`
 }
 
-type apiCountRequestHit struct {
+type APICountRequestHit struct {
 	// Path of the pageview, or the event name. {required}
 	Path string `json:"path"`
 
@@ -367,7 +367,7 @@ type apiCountRequestHit struct {
 // the last time pageviews were persisted to the database. This is useful if you
 // want to (roughly) sync up with this.
 //
-// Request body: apiCountRequest
+// Request body: APICountRequest
 // Response 202: {empty}
 func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	err := h.auth(r, goatcounter.APITokenPermissions{
@@ -377,7 +377,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var args apiCountRequest
+	var args APICountRequest
 	_, err = zhttp.Decode(r, &args)
 	if err != nil {
 		return err

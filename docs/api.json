@@ -38,10 +38,10 @@
         "parameters": [
           {
             "in": "body",
-            "name": "handlers.apiCountRequest",
+            "name": "handlers.APICountRequest",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/handlers.apiCountRequest"
+              "$ref": "#/definitions/handlers.APICountRequest"
             }
           }
         ],
@@ -355,14 +355,14 @@
         }
       }
     },
-    "handlers.apiCountRequest": {
-      "title": "apiCountRequest",
+    "handlers.APICountRequest": {
+      "title": "APICountRequest",
       "type": "object",
       "properties": {
         "hits": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/handlers.apiCountRequestHit"
+            "$ref": "#/definitions/handlers.APICountRequestHit"
           }
         },
         "no_sessions": {
@@ -371,8 +371,8 @@
         }
       }
     },
-    "handlers.apiCountRequestHit": {
-      "title": "apiCountRequestHit",
+    "handlers.APICountRequestHit": {
+      "title": "APICountRequestHit",
       "type": "object",
       "required": [
         "path"

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -27,7 +28,7 @@ import (
 	"zgo.at/zvalidate"
 )
 
-const exportVersion = "1"
+const ExportVersion = "1"
 
 type Export struct {
 	ID     int64 `db:"export_id" json:"id,readonly"`
@@ -108,7 +109,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	defer gzfp.Close()
 
 	c := csv.NewWriter(gzfp)
-	c.Write([]string{exportVersion + "Path", "Title", "Event", "Bot", "Session",
+	c.Write([]string{ExportVersion + "Path", "Title", "Event", "Bot", "Session",
 		"FirstVisit", "Referrer", "Referrer scheme", "Browser", "Screen size",
 		"Location", "Date"})
 
@@ -262,10 +263,10 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		return
 	}
 
-	if len(header) == 0 || !strings.HasPrefix(header[0], exportVersion) {
+	if len(header) == 0 || !strings.HasPrefix(header[0], ExportVersion) {
 		importError(l, *user, errors.Errorf(
 			"wrong version of CSV database: %s (expected: %s)",
-			header[0][:1], exportVersion))
+			header[0][:1], ExportVersion))
 		return
 	}
 
@@ -284,60 +285,29 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		errs     = errors.NewGroup(50)
 	)
 	for {
-		row, err := c.Read()
+		line, err := c.Read()
 		if err == io.EOF {
 			break
 		}
-		if err != nil {
-			errs.Append(err)
-			continue
-		}
-		if len(row) != 12 {
-			errs.Append(fmt.Errorf("wrong number of fields: %d (want: 12)", len(row)))
+		if errs.Append(err) {
 			continue
 		}
 
-		path, title, event, bot, session, firstVisit, ref, refScheme, browser,
-			size, location, createdAt := row[0], row[1], row[2], row[3], row[4],
-			row[5], row[6], row[7], row[8], row[9], row[10], row[11]
-		hit := Hit{
-			Site:     site.ID,
-			Path:     path,
-			Title:    title,
-			Ref:      ref,
-			Browser:  browser,
-			Location: location, // TODO: validate from list?
+		var row ExportRow
+		err = row.Read(line)
+		if errs.Append(err) {
+			continue
 		}
 
-		v := zvalidate.New()
-		v.Required("path", path)
-		hit.Event = zdb.Bool(v.Boolean("event", event))
-		hit.Bot = int(v.Integer("bot", bot))
-		hit.FirstVisit = zdb.Bool(v.Boolean("firstVisit", firstVisit))
-		hit.CreatedAt = v.Date("createdAt", createdAt, time.RFC3339)
-
-		if refScheme != "" {
-			v.Include("refScheme", refScheme, []string{*RefSchemeHTTP, *RefSchemeOther, *RefSchemeGenerated, *RefSchemeCampaign})
-			hit.RefScheme = &refScheme
-		}
-
-		if size != "" {
-			err = hit.Size.UnmarshalText([]byte(size))
-			if err != nil {
-				errs.Append(err)
-				continue
-			}
-		}
-
-		if v.HasErrors() {
-			errs.Append(v)
+		hit, err := row.Hit(site.ID)
+		if errs.Append(err) {
 			continue
 		}
 
 		// Map session IDs to new session IDs.
-		s, ok := sessions[session]
+		s, ok := sessions[row.Session]
 		if !ok {
-			sessions[session] = Memstore.SessionID()
+			sessions[row.Session] = Memstore.SessionID()
 		}
 		hit.Session = s
 
@@ -371,6 +341,82 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 			l.Error(err)
 		}
 	}
+}
+
+// TODO: would be nice to have generic csv marshal/unmarshaler, so you can do:
+//
+//    Path string `csv:"1"`
+//
+// Or something, or perhaps even get by header:
+//
+//    Path string `csv:"path"`
+//
+// Looks like there's some existing stuff for that already:
+//
+// https://github.com/gocarina/gocsv
+// https://github.com/jszwec/csvutil
+
+type ExportRow struct { // Fields in order!
+	Path       string
+	Title      string
+	Event      string
+	Bot        string
+	Session    string
+	FirstVisit string
+	Ref        string
+	RefScheme  string
+	Browser    string
+	Size       string
+	Location   string
+	CreatedAt  string
+}
+
+func (row *ExportRow) Read(line []string) error {
+	values := reflect.ValueOf(row).Elem()
+	if len(line) != values.NumField() {
+		return fmt.Errorf("wrong number of fields: %d (want: %d)", len(line), values.NumField())
+	}
+
+	for i := 0; i < len(line); i++ {
+		f := values.Field(i)
+
+		switch f.Kind() {
+		case reflect.String:
+			f.SetString(line[i])
+		}
+	}
+
+	return nil
+}
+
+func (row ExportRow) Hit(siteID int64) (Hit, error) {
+	hit := Hit{
+		Site:     siteID,
+		Path:     row.Path,
+		Title:    row.Title,
+		Ref:      row.Ref,
+		Browser:  row.Browser,
+		Location: row.Location, // TODO: validate from list?
+	}
+
+	v := zvalidate.New()
+	v.Required("path", row.Path)
+	hit.Event = zdb.Bool(v.Boolean("event", row.Event))
+	hit.Bot = int(v.Integer("bot", row.Bot))
+	hit.FirstVisit = zdb.Bool(v.Boolean("firstVisit", row.FirstVisit))
+	hit.CreatedAt = v.Date("createdAt", row.CreatedAt, time.RFC3339)
+
+	if row.RefScheme != "" {
+		v.Include("refScheme", row.RefScheme, []string{*RefSchemeHTTP, *RefSchemeOther, *RefSchemeGenerated, *RefSchemeCampaign})
+		hit.RefScheme = &row.RefScheme
+	}
+
+	if row.Size != "" {
+		err := hit.Size.UnmarshalText([]byte(row.Size))
+		return hit, err
+	}
+
+	return hit, v.ErrorOrNil()
 }
 
 func importError(l zlog.Log, user User, report error) {

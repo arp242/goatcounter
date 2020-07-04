@@ -344,6 +344,13 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 		id, StateActive), "Site.ByID %d", id)
 }
 
+// ByCode gets a site by code.
+func (s *Site) ByCode(ctx context.Context, code string) error {
+	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, s,
+		`/* Site.ByCode */ select * from sites where code=$1 and state=$2`,
+		code, StateActive), "Site.ByCode %s", code)
+}
+
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
 	// Custom domain or serve.

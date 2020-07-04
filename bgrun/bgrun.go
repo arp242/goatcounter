@@ -58,14 +58,14 @@ func WaitProgress() error {
 
 		for {
 			if term {
-				zli.EraseLine(2)
+				zli.EraseLine()
 			}
 
 			func() {
 				working.Lock()
 				defer working.Unlock()
 
-				fmt.Printf("\r%d tasks: ", len(working.m))
+				fmt.Printf("%d tasks: ", len(working.m))
 				l := make([]string, 0, len(working.m))
 				for k := range working.m {
 					l = append(l, k)
@@ -89,8 +89,8 @@ func WaitProgress() error {
 
 	err := Wait()
 	if term {
-		zli.EraseLine(2)
-		fmt.Print("\r done \n")
+		zli.EraseLine()
+		fmt.Print(" done \n")
 	}
 	return err
 }
