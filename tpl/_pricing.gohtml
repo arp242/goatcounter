@@ -1,0 +1,69 @@
+{{if .Site}}<fieldset id="home-pricing" class="plan">{{else}}<div id="home-pricing">{{end}}
+	{{if .Site}}
+		<input type="radio" name="plan" id="personal" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="personal">{{else}}<div>{{end}}
+		<h3>Free</h3>
+		<ul>
+			<li>Free; donation recommended</li>
+			<li><a href="/terms#commercial">Non-commercial</a> use</li>
+			<li>Unlimited sites</li>
+			<li>6 months data retention</li>
+			<li>100k pageviews/month</li>
+			<li class="empty">&nbsp;</li>
+			<li class="empty">&nbsp;</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+
+	{{if .Site}}
+		<input type="radio" name="plan" id="personalplus" value="personalplus" {{if eq .Site.Plan "starter"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="personalplus">{{else}}<div>{{end}}
+		<h3>Starter</h3>
+		<ul>
+			<li>€5/month</li>
+			<li>Commercial use</li>
+			<li>Unlimited sites</li>
+			<li>12 months data retention</li>
+			<li>200k pageviews/month</li>
+			<li>Custom domain</li>
+			<li class="empty">&nbsp;</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+
+	{{if .Site}}
+		<input type="radio" name="plan" id="business" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="business">{{else}}<div>{{end}}
+		<h3>Business</h3>
+		<ul>
+			<li>€15/month</li>
+			<li>Commercial use</li>
+			<li>Unlimited sites</li>
+			<li>Unlimited data retention</li>
+			<li>500k pageviews/month</li>
+			<li>Custom domain</li>
+			<li class="empty">&nbsp;</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+
+	{{if .Site}}
+		<input type="radio" name="plan" id="businessplus" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="businessplus">{{else}}<div>{{end}}
+		<h3>Business Plus</h3>
+		<ul>
+			<li>€30/month</li>
+			<li>Commercial use</li>
+			<li>Unlimited sites</li>
+			<li>Unlimited data retention</li>
+			<li>1M pageviews/month</li>
+			<li>Custom domain</li>
+			<li>Phone support</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+{{if .Site}}</fieldset>{{else}}</div>{{end}}
+<div id="home-pricing-custom">
+	<a href="https://www.goatcounter.com/contact">Contact</a> if you need more pageviews or want a privately installed hosted option.<br>
+	<a href="https://www.goatcounter.com/help#billing">Pricing FAQ</a>
+</div>

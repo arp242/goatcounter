@@ -27,7 +27,7 @@ import (
 // Plan column values.
 const (
 	PlanPersonal     = "personal"
-	PlanPersonalPlus = "personalplus"
+	PlanPersonalPlus = "personalplus" // This is really the "starter" plan.
 	PlanBusiness     = "business"
 	PlanBusinessPlus = "businessplus"
 	PlanChild        = "child"

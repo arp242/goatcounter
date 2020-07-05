@@ -24,31 +24,7 @@
 	<form method="post" action="/billing/start" id="billing-form" data-key="{{.StripePublicKey}}">
 		<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
 
-		<fieldset class="plan">
-			<legend>Plan</legend>
-			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
-				<span>Personal</span> Free.
-				<br class="show-mobile">
-				For non-commercial use; 100k pageviews/month.</label><br>
-
-			<label><input type="radio" name="plan" value="personalplus" {{if eq .Site.Plan "personalplus"}}checked{{end}}>
-				<span>Personal plus</span> €5/month.
-				<br class="show-mobile">
-				Non-commercial use; 200k pageviews/month; custom domain.</label><br>
-
-			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
-				<span>Business</span> €15/month.
-				<br class="show-mobile">
-				500k pageviews/month; custom domain.</label><br>
-
-			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
-				<span>Business plus</span> €30/month.
-				<br class="show-mobile">
-				1M pageviews/month; custom domain; phone support.</label><br>
-
-			<br>
-			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
-		</fieldset>
+		{{template "_pricing.gohtml" .}}
 
 		<fieldset class="free">
 			<legend>Optional payments</legend>
@@ -63,16 +39,17 @@
 
 			<p>Other ways to contribute:</p>
 			<ul>
-				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
-				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
-				<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable.</li>
+				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a></li>
+				<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable</li>
 			</ul>
 		</fieldset>
 
-		<p class="ask-cc">You’ll be asked for credit card details on the next page.
-			<a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you
-			need a payment option other than credit card (e.g. IBAN transfer).</p>
-		<button type="submit">Continue</button>
+		<center>
+			<button type="submit">Continue</button>
+			<p class="ask-cc">You’ll be asked for credit card details on the next page.
+				<a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you
+				need a payment option other than credit card (e.g. IBAN transfer).</p>
+		</center>
 	</form>
 {{end}}
 
