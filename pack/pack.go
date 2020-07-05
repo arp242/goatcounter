@@ -13245,23 +13245,23 @@ img.imgzoom-loading { cursor: wait !important; }
 
 /*** Home pricing ***/
 #home-pricing        { display: flex; justify-content: space-between; text-align: center; align-items: flex-start; }
-#home-pricing > div  { width: 30%; box-shadow: 0 0 4px #cdc8a4; background-color: #fff; }
+#home-pricing >div   { box-shadow: 0 0 4px #cdc8a4; background-color: #fff; width: calc(25% - .5em); }
 #home-pricing h3     { margin: .5em 0; }
 #home-pricing ul     { list-style: none; padding: 0; line-height: 2.5em; }
 #home-signup         { text-align: center; margin-top: 2em; }
 #home-signup a       { padding: 1em; display: block; width: 30%; margin: auto; }
 #home-pricing-custom { text-align: center; margin-top: 1em; }
 
-@media (max-width: 45rem) {
-	#home-pricing > div        { width: 32.5%; }
-	#home-pricing > div .empty { display: none; }
-	#home-signup a             { width: 50%; }
+@media (max-width: 50rem) {
+	#home-pricing      { flex-wrap: wrap; justify-content: center; }
+	#home-pricing >div { width: 45%; margin: 1em; }
 }
-@media (max-width: 40rem) {
-	#home-pricing       { display: block; }
-	#home-pricing > div { margin-bottom: 1em; width: auto; }
-	#home-pricing ul    { line-height: 2em; }
-	#home-pricing h3    { padding-top: .5em; }
+@media (max-width: 37rem) {
+	#home-pricing >div        { margin-bottom: 1em; width: 100%; }
+	#home-pricing >div .empty { display: none; }
+	#home-pricing ul          { line-height: 2em; }
+	#home-pricing h3          { padding-top: .5em; }
+	#home-signup a            { width: auto; }
 }
 
 /*** Home features ***/
@@ -13620,10 +13620,36 @@ noscript p { margin: .5em; }
 
 /*** Billing
  *************/
-#billing-form .plan span            { display: inline-block; min-width: 8em; }
 #billing-form fieldset legend+p     { margin-top: 0; }
 #billing-form fieldset p:last-child { margin-bottom: 0; }
 #stripe-error                       { color: red; }
+
+#billing-form center { margin-top: 2em; }
+#home-pricing        { border: none; padding: 0; }
+#home-pricing input  { display: none; }
+#home-pricing input:checked+label { background-color: #f7f7f7; }
+/* Copy from style.css */
+#home-pricing        { display: flex; justify-content: space-between; text-align: center; align-items: flex-start; }
+#home-pricing >label   { box-shadow: 0 0 4px #cdc8a4; background-color: #fff; width: calc(25% - .5em); }
+#home-pricing h3     { margin: .5em 0; }
+#home-pricing ul     { list-style: none; padding: 0; line-height: 2.5em; }
+#home-signup         { text-align: center; margin-top: 2em; }
+#home-signup a       { padding: 1em; display: block; width: 30%; margin: auto; }
+#home-pricing-custom { text-align: center; margin-top: 1em; }
+
+@media (max-width: 50rem) {
+	#home-pricing      { flex-wrap: wrap; justify-content: center; }
+	#home-pricing >label { width: 45%; margin: 1em; }
+}
+@media (max-width: 37rem) {
+	#home-pricing >label        { margin-bottom: 1em; width: 100%; }
+	#home-pricing >label .empty { display: none; }
+	#home-pricing ul          { line-height: 2em; }
+	#home-pricing h3          { padding-top: .5em; }
+	#home-signup a            { width: auto; }
+}
+/* End copy */
+
 
 
 /*** Updates overview
@@ -15735,6 +15761,76 @@ Martin
 <meta name="msapplication-TileColor" content="#9f00a7">
 <meta name="theme-color" content="#ffffff">
 `),
+	"tpl/_pricing.gohtml": []byte(`{{if .Site}}<fieldset id="home-pricing" class="plan">{{else}}<div id="home-pricing">{{end}}
+	{{if .Site}}
+		<input type="radio" name="plan" id="personal" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="personal">{{else}}<div>{{end}}
+		<h3>Free</h3>
+		<ul>
+			<li>Free; donation recommended</li>
+			<li><a href="/terms#commercial">Non-commercial</a> use</li>
+			<li>Unlimited sites</li>
+			<li>6 months data retention</li>
+			<li>100k pageviews/month</li>
+			<li class="empty">&nbsp;</li>
+			<li class="empty">&nbsp;</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+
+	{{if .Site}}
+		<input type="radio" name="plan" id="personalplus" value="personalplus" {{if eq .Site.Plan "starter"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="personalplus">{{else}}<div>{{end}}
+		<h3>Starter</h3>
+		<ul>
+			<li>€5/month</li>
+			<li>Commercial use</li>
+			<li>Unlimited sites</li>
+			<li>12 months data retention</li>
+			<li>200k pageviews/month</li>
+			<li>Custom domain</li>
+			<li class="empty">&nbsp;</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+
+	{{if .Site}}
+		<input type="radio" name="plan" id="business" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="business">{{else}}<div>{{end}}
+		<h3>Business</h3>
+		<ul>
+			<li>€15/month</li>
+			<li>Commercial use</li>
+			<li>Unlimited sites</li>
+			<li>Unlimited data retention</li>
+			<li>500k pageviews/month</li>
+			<li>Custom domain</li>
+			<li class="empty">&nbsp;</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+
+	{{if .Site}}
+		<input type="radio" name="plan" id="businessplus" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
+	{{end}}
+	{{if .Site}}<label for="businessplus">{{else}}<div>{{end}}
+		<h3>Business Plus</h3>
+		<ul>
+			<li>€30/month</li>
+			<li>Commercial use</li>
+			<li>Unlimited sites</li>
+			<li>Unlimited data retention</li>
+			<li>1M pageviews/month</li>
+			<li>Custom domain</li>
+			<li>Phone support</li>
+		</ul>
+	{{if .Site}}</label>{{else}}</div>{{end}}
+{{if .Site}}</fieldset>{{else}}</div>{{end}}
+<div id="home-pricing-custom">
+	<a href="https://www.goatcounter.com/contact">Contact</a> if you need more pageviews or want a privately installed hosted option.<br>
+	<a href="https://www.goatcounter.com/help#billing">Pricing FAQ</a>
+</div>
+`),
 	"tpl/_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15889,7 +15985,7 @@ input    { float: right; padding: .4em !important; }
 			<label for="plan">Plan</label>
 			<select name="plan" id="plan">
 				<option {{option_value .Stat.Site.Plan "personal"}}>personal</option>
-				<option {{option_value .Stat.Site.Plan "personalplus"}}>personalplus</option>
+				<option {{option_value .Stat.Site.Plan "personalplus"}}>starter</option>
 				<option {{option_value .Stat.Site.Plan "business"}}>business</option>
 				<option {{option_value .Stat.Site.Plan "businessplus"}}>businessplus</option>
 			</select>
@@ -16771,31 +16867,7 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 	<form method="post" action="/billing/start" id="billing-form" data-key="{{.StripePublicKey}}">
 		<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
 
-		<fieldset class="plan">
-			<legend>Plan</legend>
-			<label><input type="radio" name="plan" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
-				<span>Personal</span> Free.
-				<br class="show-mobile">
-				For non-commercial use; 100k pageviews/month.</label><br>
-
-			<label><input type="radio" name="plan" value="personalplus" {{if eq .Site.Plan "personalplus"}}checked{{end}}>
-				<span>Personal plus</span> €5/month.
-				<br class="show-mobile">
-				Non-commercial use; 200k pageviews/month; custom domain.</label><br>
-
-			<label><input type="radio" name="plan" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
-				<span>Business</span> €15/month.
-				<br class="show-mobile">
-				500k pageviews/month; custom domain.</label><br>
-
-			<label><input type="radio" name="plan" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
-				<span>Business plus</span> €30/month.
-				<br class="show-mobile">
-				1M pageviews/month; custom domain; phone support.</label><br>
-
-			<br>
-			<a target="_blank" href="//www.{{.Domain}}/#pricing">Full overview</a>
-		</fieldset>
+		{{template "_pricing.gohtml" .}}
 
 		<fieldset class="free">
 			<legend>Optional payments</legend>
@@ -16810,16 +16882,17 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 
 			<p>Other ways to contribute:</p>
 			<ul>
-				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a>; prefered since GitHub will double the amount.</li>
-				<li><a href="https://patreon.com/arp242">Patreon</a> (using this form is better due to lower platform costs).</li>
-				<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable.</li>
+				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a></li>
+				<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable</li>
 			</ul>
 		</fieldset>
 
-		<p class="ask-cc">You’ll be asked for credit card details on the next page.
-			<a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you
-			need a payment option other than credit card (e.g. IBAN transfer).</p>
-		<button type="submit">Continue</button>
+		<center>
+			<button type="submit">Continue</button>
+			<p class="ask-cc">You’ll be asked for credit card details on the next page.
+				<a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you
+				need a payment option other than credit card (e.g. IBAN transfer).</p>
+		</center>
 	</form>
 {{end}}
 
@@ -17469,13 +17542,25 @@ advice specific to your situation.</p>
 	</dd>
 </dl>
 
-<h3 id="billing">Billing <a href="#billing"></a></h3>
+<h3 id="billing">Pricing and billing <a href="#billing"></a></h3>
 <dl>
 	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
-	<dd>We’ll be in touch if you consistently go over the number over pageviews,
+	<dd>I’ll be in touch if you consistently go over the number over pageviews,
 		but there is no automated process to shut down accounts or anything like
 		that. It’s not a problem if you go over the pageviews in a single spike
 		of traffic because you wrote something that got shared a lot.</dd>
+
+	<dt id="commercial">What is “Commercial Use”? <a href="#commercial">§</a></dt>
+	<dd>A website is considered “commercial” if the primary goal is to sell or
+		advertise paid products or services.<br><br>
+
+		There is a large amount of grey area between strictly ‘personal’ and
+		‘commercial’; for example selling a service as a side-project which
+		provides just a little bit of pocket money is ‘commercial’, but also
+		‘personal’. As a rule, things like “pocket-money side-projects” are
+		considered personal, especially if they’re open source. Just get in
+		touch if you’re unsure and I’ll tell you if it’s considered personal.
+	</dd>
 
 	<dt id="charity">Is there any discount for charities, non-profit organisations, startups, etc? <a href="#charity">§</a></dt>
 	<dd>
@@ -17590,49 +17675,9 @@ advice specific to your situation.</p>
 </div>
 
 <h2 id="pricing">Pricing</h2>
-<div id="home-pricing">
-	<div>
-		<h3>Personal</h3>
-		<ul>
-			<li>Free but donation recommended</li>
-			<li>For <a href="/terms#commercial">non-commercial</a> use</li>
-			<li>Unlimited sites</li>
-			<li title="3.3k/day">100k pageviews/month</li>
-			<li>Optional custom domain for €5/month</li>
-			<li class="empty">&nbsp;</li>
-		</ul>
-	</div>
-
-	<div>
-		<h3>Business</h3>
-		<ul>
-			<li>€15/month</li>
-			<li>Commercial use</li>
-			<li>Unlimited sites</li>
-			<li title="16.6k/day">500k pageviews/month</li>
-			<li>Custom domain (stats.mine.com)</li>
-			<li class="empty">&nbsp;</li>
-		</ul>
-	</div>
-
-	<div>
-		<h3>Business Plus</h3>
-		<ul>
-			<li>€30/month</li>
-			<li>Commercial use</li>
-			<li>Unlimited sites</li>
-			<li title="33.3k/day">1M pageviews/month</li>
-			<li>Custom domain (stats.mine.com)</li>
-			<li>Phone support</li>
-		</ul>
-	</div>
-</div>
+{{template "_pricing.gohtml" .}}
 <div id="home-signup">
 	<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
-</div>
-<div id="home-pricing-custom">
-	<a href="/contact">Contact</a> if you need more pageviews or want a
-	privately installed hosted option.
 </div>
 
 <hr>
@@ -17716,7 +17761,7 @@ information.</p>
 					<label for="link_domain">Site domain</label>
 					<input type="text" name="link_domain" id="link_domain" maxlength="255" value="{{.Site.LinkDomain}}">
 					{{validate "site.link_domain" .Validate}}
-					<span class="help">Your site’s domain, optional and only used for display/linking purposes.</em></span>
+					<span class="help">Your site’s domain, used for display/linlking; optional.</em></span>
 				</div>
 
 			</div>
