@@ -13589,10 +13589,9 @@ tr.target .chart-left { display: block; }
 
 /*** Tooltip
  ************/
-#tooltip { position: absolute; left: 0; top: 0; padding: 0 .5em;
-		   font-size: 14px; font-family: sans-serif; color: #fff; background-color: #111; }
-
-#tooltip .views { color: #bbb; } /* Grey out "pageviews" in tooltip. */
+#tooltip { position: absolute; left: 0; top: 0; padding: .2em .5em; font-size: 14px;
+		   font-family: sans-serif; color: #000; background-color: #f6f6f6; box-shadow: 0 0 2px #aaa; }
+#tooltip .views { color: #7a7a7a; } /* Grey out "pageviews" in tooltip. */
 
 
 /*** Settings tabs
