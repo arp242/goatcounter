@@ -179,10 +179,10 @@ func serve() (int, error) {
 	if err != nil {
 		return 2, err
 	}
-	zlog.Print(getVersion())
-	zlog.Printf("serving %d sites on %q; dev=%t:", len(cnames), listen, dev)
-	zlog.Printf("  %s", strings.Join(cnames, ", "))
+	zlog.Module("main").Debug(getVersion())
 	banner()
+	zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
+		len(cnames), listen, dev, strings.Join(cnames, ", "))
 
 	if len(cnames) == 0 {
 		zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")

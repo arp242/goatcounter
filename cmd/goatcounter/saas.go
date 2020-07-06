@@ -102,7 +102,7 @@ func setupReload() {
 	pack.Templates = nil
 	pack.Public = nil
 	go func() {
-		err := reload.Do(zlog.Printf, reload.Dir("./tpl", zhttp.ReloadTpl))
+		err := reload.Do(zlog.Module("main").Debugf, reload.Dir("./tpl", zhttp.ReloadTpl))
 		if err != nil {
 			panic(errors.Errorf("reload.Do: %v", err))
 		}
@@ -178,9 +178,8 @@ func saas() (int, error) {
 		"*":                                handlers.NewBackend(db, acmeh),
 	}
 
-	zlog.Print(getVersion())
+	zlog.Module("main").Debug(getVersion())
 	zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
-	banner()
 	zhttp.Serve(listenTLS, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
