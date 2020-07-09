@@ -116,6 +116,18 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 		return "lobste.rs", false
 	}
 
+	// No sense in retaining path for Pocket:
+	// app.getpocket.com
+	// app.getpocket.com/read/2369667792
+	// getpocket.com
+	// getpocket.com/a/read/2580004052
+	// getpocket.com/recommendations
+	// getpocket.com/redirect
+	// getpocket.com/users/XXX/feed/read
+	if refURL.Host == "getpocket.com" || refURL.Host == "app.getpocket.com" {
+		return "getpocket.com", false
+	}
+
 	// Reddit
 	// www.reddit.com/r/programming/top
 	// www.reddit.com/r/programming/.compact
