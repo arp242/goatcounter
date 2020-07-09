@@ -12188,9 +12188,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		}
 		return s
 	}(),
-	"public/script.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the EUPL
-// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+	"public/script.js": []byte(`// Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
+// published under the terms of a slightly modified EUPL v1.2 license, which can
+// be found in the LICENSE file or at https://license.goatcounter.com
 
 (function() {
 	var init = function() {
@@ -12308,9 +12308,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		window.addEventListener('load', init, false);
 })();
 `),
-	"public/script_backend.js": []byte(`// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the EUPL
-// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+	"public/script_backend.js": []byte(`// Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
+// published under the terms of a slightly modified EUPL v1.2 license, which can
+// be found in the LICENSE file or at https://license.goatcounter.com
 
 (function() {
 	'use strict';
@@ -13170,9 +13170,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	}
 })();
 `),
-	"public/style.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
-   This file is part of GoatCounter and published under the terms of the EUPL
-   v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
+	"public/style.css": []byte(`/* Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
+   published under the terms of a slightly modified EUPL v1.2 license, which can
+   be found in the LICENSE file or at https://license.goatcounter.com */
 
 .page, .center { max-width: 60em; }
 hr             { margin: 1em 0; }
@@ -13339,9 +13339,9 @@ dt { font-weight: bold; margin-top: 1em; }
 	#donate-form .buttons button { width: 45%; margin-top: 1em; }
 }
 `),
-	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij <martin@arp242.net>
-   This file is part of GoatCounter and published under the terms of the EUPL
-   v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at */
+	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
+   published under the terms of a slightly modified EUPL v1.2 license, which can
+   be found in the LICENSE file or at https://license.goatcounter.com */
 
 /*** Generic stuff and layout
  ****************************/
@@ -13367,7 +13367,7 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 .form-max-width label { display: inline-block; }
 
 #trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
-                 background-color: #fff0f0; border-top: 1px solid #f00; }
+                 background-color: #fff0f0; border-top: 1px solid #f00; z-index: 1; }
 
 #js-settings, #js-csrf { display: none; }
 

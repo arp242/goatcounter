@@ -102,6 +102,9 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	if g, ok := groups[refURL.Host]; ok {
 		return g, true
 	}
+	if g, ok := groups[ref]; ok {
+		return g, true
+	}
 
 	// Useful: https://lobste.rs/s/tslw6k/why_i_m_still_using_jquery_2019
 	// Not really: https://lobste.rs/newest/page/8, https://lobste.rs/page/7
