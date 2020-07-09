@@ -198,7 +198,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), args.LoginMAC})
 	}
 
-	zhttp.SetCookie(w, *u.LoginToken, site.Domain())
+	zhttp.SetCookie(w, *u.LoginToken, cookieDomain(site, r))
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -260,7 +260,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP)})
 	}
 
-	zhttp.SetCookie(w, *user.LoginToken, site.Domain())
+	zhttp.SetCookie(w, *user.LoginToken, cookieDomain(site, r))
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -517,4 +517,13 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "%q verified", user.Email)
 	return zhttp.SeeOther(w, "/")
+}
+
+// Make sure to use the currect cookie, since both "custom.example.com" and
+// "example.goatcounter.com" will work if you're using a custom domain.
+func cookieDomain(site *goatcounter.Site, r *http.Request) string {
+	if r.Host == site.Domain() {
+		return site.Domain()
+	}
+	return cfg.Domain
 }

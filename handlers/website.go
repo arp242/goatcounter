@@ -249,7 +249,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		zlog.Errorf("login during account creation: %w", err)
 	} else {
-		zhttp.SetCookie(w, *user.LoginToken, site.Domain())
+		zhttp.SetCookie(w, *user.LoginToken, cookieDomain(&site, r))
 	}
 
 	bgrun.Run(func() {
