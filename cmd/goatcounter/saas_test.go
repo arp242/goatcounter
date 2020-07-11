@@ -23,6 +23,7 @@ func TestSaas(t *testing.T) {
 	out, code := run(t, "serving", []string{"saas",
 		"-domain", "goatcounter.com,a.a",
 		"-listen", "localhost:31874",
+		"-tls", "none",
 		"-stripe", "sk_test_x:pk_test_x:whsec_x",
 		"-db", dbc})
 	if code != 0 {

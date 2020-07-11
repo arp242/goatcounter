@@ -9,6 +9,12 @@ The goatcounter.com service generally runs the latest master.
 master branch
 -------------
 
+- **Change defaults for `-listen`** (#336)
+
+  The default for the `-listen` flag changed from `localhost:8081` to `:443`,
+  which is probably a better and less confusing default for most people. There
+  is also some more detailed docs available in `goatcounter help listen`.
+
 - Add multi-factor auth (#306)
 
   TOTP-based multi-factor auth is now supported.

@@ -45,6 +45,7 @@ var usage = map[string]string{
 	"monitor":  usageMonitor,
 	"database": helpDatabase,
 	"db":       helpDatabase,
+	"listen":   helpListen,
 
 	"version": `
 Show version and build information. This is printed as key=value, separated by
@@ -53,9 +54,6 @@ semicolons.
 }
 
 func init() {
-	for k := range usage {
-		usage[k] = strings.TrimSpace(usage[k]) + "\n"
-	}
 	errors.Package = "zgo.at/goatcounter"
 }
 
@@ -63,7 +61,6 @@ const usageTop = `
 Usage: goatcounter [command] [flags]
 
 Commands:
-
   help         Show help; use "help <topic>" or "help all" for more details.
   version      Show version and build information and exit.
   migrate      Run database migrations.
@@ -71,13 +68,12 @@ Commands:
   serve        Start HTTP server.
 
 Advanced commands:
-
   reindex      Recreate the index tables (*_stats, *_count) from the hits.
   monitor      Monitor for pageviews.
 
 Extra help topics:
-
-  db           Documentation on the -db flag.
+  db           Detailed documentation on the -db flag.
+  listen       Detailed documentation on -listen, -tls.
 
 See "help <topic>" for more details for the command.
 `

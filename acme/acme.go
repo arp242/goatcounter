@@ -170,7 +170,6 @@ func Make(domain string) error {
 	if manager == nil {
 		panic("acme.MakeCert: no manager, use Setup() first")
 	}
-
 	if !validForwarding(domain) {
 		return nil
 	}
@@ -192,7 +191,7 @@ func Make(domain string) error {
 
 	l.Debugf("Make: %q", domain)
 	_, err := manager.GetCertificate(hello)
-	return errors.Wrapf(err, "acme.Make for %q", domain)
+	return errors.Wrap(err, "acme.Make")
 }
 
 var resolveSelf singleflight.Group
