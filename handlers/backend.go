@@ -903,7 +903,7 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 
 func hasPlan(site *goatcounter.Site) (bool, error) {
 	if !cfg.GoatcounterCom || site.Plan == goatcounter.PlanChild ||
-		site.Stripe == nil || site.FreePlan() || site.PayExternal() != "" {
+		site.Stripe == nil || *site.Stripe == "" || site.FreePlan() || site.PayExternal() != "" {
 		return false, nil
 	}
 

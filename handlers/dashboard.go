@@ -328,6 +328,11 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	hlPeriod := r.URL.Query().Get("hl-period")
+	if hlPeriod == "" {
+		hlPeriod = "week"
+	}
+
 	return zhttp.Template(w, "dashboard.gohtml", struct {
 		Globals
 		CountDomain    string
@@ -341,7 +346,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		ForcedDaily    bool
 		Widgets        []widget
 	}{newGlobals(w, r),
-		cd, subs, showRefs, r.URL.Query().Get("hl-period"), start, end, filter,
-		daily, forcedDaily, widgets.w,
+		cd, subs, showRefs, hlPeriod, start, end, filter, daily, forcedDaily,
+		widgets.w,
 	})
 }

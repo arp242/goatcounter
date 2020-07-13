@@ -4,19 +4,25 @@
 
 <form method="post" action="/admin/{{.Stat.Site.ID}}/gh-sponsor" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
 	<fieldset>
-		<legend>Set plan from GitHub</legend>
+		<legend>Set plan</legend>
+
+		{{if .Stat.Site.Stripe}}
+			{{- if has_prefix .Stat.Site.Stripe "cus_github" -}}
+				<a href="https://github.com/{{substr .Stat.Site.Stripe 11 -1}}">GitHub</a>
+			{{- else if not (has_prefix .Stat.Site.Stripe "cus_free_") -}}
+				<a href="https://dashboard.stripe.com/customers/{{.Stat.Site.Stripe}}">Stripe</a>
+			{{end}}
+		{{end}}
+
 
 		{{if .Stat.Site.Parent}}
 			<p>Child of {{.Stat.Site.Parent}}</p>
-		{{else if and .Stat.Site.Stripe (not .Stat.Site.PayExternal) (not .Stat.Site.FreePlan)}}
-			<p>Already has a Stripe subscription: {{.Stat.Site.Stripe}}</p>
 		{{else}}
-			<label for="user">GitHub user</label>
-			<input type="text" name="user" id="user" value="{{.Stat.Site.Stripe}}">
+			<label for="stripe">Customer ID (GitHub: <code>cus_github_[user]</code>, free: <code>cus_free_[id]</code>)</label>
+			<input type="text" name="stripe" id="stripe" value="{{.Stat.Site.Stripe}}">
 
-			<label for="amount">USD amount</label>
+			<label for="currency">Amount (USD for GitHub, EUR otherwise)</label>
 			<input type="text" name="amount" id="amount" value="{{.Stat.Site.BillingAmount}}">
 
 			<label for="plan">Plan</label>

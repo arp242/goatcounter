@@ -20,6 +20,10 @@ input    { float: right; padding: .4em !important; }
 <h2>Signups</h2>
 <div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
 
+<h2>Income</h2>
+<p>${{.TotalUSD}} GitHub + €{{.TotalEUR}} Stripe + $24 Patreon ≈ €{{.TotalEarnings}}</p>
+
+
 <h2>Sites</h2>
 <table class="sort">
 <thead><tr>

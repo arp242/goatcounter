@@ -6,10 +6,12 @@ package handlers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"net/http/pprof"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -96,14 +98,36 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 	sort.Slice(signups, func(i, j int) bool { return signups[i].Day < signups[j].Day })
 
 	l = l.Since("signups")
+	var (
+		totalUSD int
+		totalEUR int
+	)
+	for _, s := range a {
+		if s.BillingAmount == nil {
+			continue
+		}
+		b := *s.BillingAmount
+		n, _ := strconv.ParseInt(b[4:], 10, 32)
+		fmt.Println(b, ">", n)
+
+		if strings.HasPrefix(*s.BillingAmount, "EUR ") {
+			totalEUR += int(n)
+		} else {
+			totalUSD += int(n)
+		}
+	}
+	totalEarnings := totalEUR + int(math.Round((float64(totalUSD)+24)*0.9)) // $24 from Patreon
 
 	l.FieldsSince().Debug("admin")
 	return zhttp.Template(w, "admin.gohtml", struct {
 		Globals
-		Stats      goatcounter.AdminStats
-		Signups    []goatcounter.Stat
-		MaxSignups int
-	}{newGlobals(w, r), a, signups, maxSignups})
+		Stats         goatcounter.AdminStats
+		Signups       []goatcounter.Stat
+		MaxSignups    int
+		TotalUSD      int
+		TotalEUR      int
+		TotalEarnings int
+	}{newGlobals(w, r), a, signups, maxSignups, totalUSD, totalEUR, totalEarnings})
 }
 
 func (h admin) sql(w http.ResponseWriter, r *http.Request) error {
@@ -232,7 +256,7 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 	id := v.Integer("id", chi.URLParam(r, "id"))
 
 	var args struct {
-		User   string `json:"user"`
+		Stripe string `json:"stripe"`
 		Amount string `json:"amount"`
 		Plan   string `json:"plan"`
 	}
@@ -256,17 +280,16 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
 	}
 
-	if args.User != "" && !strings.HasPrefix(args.Amount, "USD ") {
-		args.Amount = "USD " + args.Amount
+	c := "EUR"
+	if strings.HasPrefix(args.Stripe, "cus_github") {
+		c = "USD"
 	}
-	if args.User == "" {
-		args.User = fmt.Sprintf("cus_free_%d", site.ID)
-	} else if !strings.HasPrefix(args.User, "cus_github_") {
-		args.User = "cus_github_" + args.User
+	if args.Amount != "" && !strings.HasPrefix(args.Amount, c) {
+		args.Amount = c + " " + args.Amount
 	}
 
 	ctx := goatcounter.WithSite(goatcounter.NewContext(r.Context()), &site)
-	err = site.UpdateStripe(ctx, args.User, args.Plan, args.Amount)
+	err = site.UpdateStripe(ctx, args.Stripe, args.Plan, args.Amount)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
