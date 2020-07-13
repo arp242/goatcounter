@@ -56,7 +56,7 @@ func (tp *APITokenPermissions) Scan(v interface{}) error {
 // Defaults sets fields to default values, unless they're already set.
 func (t *APIToken) Defaults(ctx context.Context) {
 	t.SiteID = MustGetSite(ctx).ID
-	t.Token = zhttp.Secret()
+	t.Token = zhttp.Secret256()
 	t.CreatedAt = Now()
 }
 

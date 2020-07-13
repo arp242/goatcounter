@@ -197,7 +197,7 @@ func TestBackendCountSessions(t *testing.T) {
 
 	send := func(ctx context.Context, ua string) {
 		site := goatcounter.MustGetSite(ctx)
-		query := url.Values{"p": {"/" + zhttp.Secret()}}
+		query := url.Values{"p": {"/" + zhttp.Secret64()}}
 
 		r, rr := newTest(ctx, "GET", "/count?"+query.Encode(), nil)
 		r.Host = site.Code + "." + cfg.Domain

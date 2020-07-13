@@ -32,7 +32,7 @@ type tester interface {
 }
 
 var (
-	dbname = "goatcounter_test_" + zhttp.Secret()[:25]
+	dbname = "goatcounter_test_" + zhttp.Secret64()
 	db     *sqlx.DB
 	tables []string
 )
@@ -239,7 +239,7 @@ func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goa
 
 func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Context, goatcounter.Site) {
 	if site.Code == "" {
-		site.Code = zhttp.Secret()
+		site.Code = zhttp.Secret64()
 		if len(site.Code) > 50 {
 			site.Code = site.Code[:50]
 		}

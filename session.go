@@ -92,7 +92,7 @@ func (s *Salt) Refresh(ctx context.Context) error {
 		if len(newsalt) == 0 { // First run
 			_, err = db.ExecContext(ctx, `insert into session_salts (previous, salt, created_at)
 				values (0, $1, $2), (1, $3, $4)`,
-				zhttp.Secret(), Now().Format(zdb.Date), zhttp.Secret(), Now().Format(zdb.Date))
+				zhttp.Secret256(), Now().Format(zdb.Date), zhttp.Secret256(), Now().Format(zdb.Date))
 			if err != nil {
 				return err
 			}
@@ -118,7 +118,7 @@ func (s *Salt) Refresh(ctx context.Context) error {
 		}
 
 		_, err = db.ExecContext(ctx, `insert into session_salts (previous, salt, created_at) values (0, $1, $2)`,
-			zhttp.Secret(), Now())
+			zhttp.Secret256(), Now())
 		if err != nil {
 			return err
 		}

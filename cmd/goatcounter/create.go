@@ -121,7 +121,7 @@ func create() (int, error) {
 
 	err = zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, tx zdb.DB) error {
 		s := goatcounter.Site{
-			Code:  "serve-" + zhttp.Secret()[:10],
+			Code:  "serve-" + zhttp.Secret64(),
 			Cname: &domain,
 			Plan:  goatcounter.PlanBusinessPlus,
 		}
