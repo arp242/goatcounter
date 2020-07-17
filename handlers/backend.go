@@ -209,8 +209,14 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "image/gif")
 
-	bot := isbot.Bot(r)
+	// Note this works in both HTTP/1.1 and HTTP/2, as the Go HTTP/2 server
+	// picks up on this and sends the GOAWAY frame.
+	// TODO: it would be better to set a short idle timeout, but this isn't
+	// really something that can be configured per-handler at the moment.
+	// https://github.com/golang/go/issues/16100
+	w.Header().Set("Connection", "close")
 
+	bot := isbot.Bot(r)
 	// Don't track pages fetched with the browser's prefetch algorithm.
 	if bot == isbot.BotPrefetch {
 		return zhttp.Bytes(w, gif)
