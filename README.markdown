@@ -86,6 +86,9 @@ hard, I promise).
 Note this README is for the latest master; use the [`release-1.3`][r-1.3] branch
 for the 1.3 README.
 
+Generally speaking only the latest release is supported, although critical fixes
+(security, data loss, etc.) may get backported to previous releases.
+
 [releases]: https://github.com/zgoat/goatcounter/releases
 [r-1.3]: https://github.com/zgoat/goatcounter/tree/release-1.3
 
@@ -106,9 +109,8 @@ Or to build a statically linked binary:
 
 You'll now have a `goatcounter` binary in the current directory.
 
-Go 1.13 and newer are supported (it follows the [Go release policy][rp]). You
-will need a C compiler (for SQLite), or compile it with `CGO_ENABLED=0 go build`
-and use PostgreSQL.
+You need Go 1.13 or newer and a C compiler (for SQLite), or compile it with
+`CGO_ENABLED=0 go build` and use PostgreSQL.
 
 It's recommended to use the latest release as in the above command. The master
 branch should be reasonably stable but no guarantees, and sometimes I don't
@@ -116,8 +118,6 @@ write detailed release/upgrade notes until the actual release.
 
 It's not recommended to use `go get` in GOPATH mode since that will ignore the
 dependency versions in go.mod.
-
-[rp]: https://golang.org/doc/devel/release.html#policy
 
 ### Running
 
