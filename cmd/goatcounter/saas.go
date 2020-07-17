@@ -184,6 +184,13 @@ func saas() (int, error) {
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
+
+		// Set some reasonably high timeouts which should never be reached.
+		// Note that handlers have a 5-second timeout set in handlers/mw.go
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       60 * time.Second,
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	})
 	return 0, nil
 }
