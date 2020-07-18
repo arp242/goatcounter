@@ -1002,7 +1002,10 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, p.URL())
 	}
 
-	return zhttp.SeeOther(w, "https://"+cfg.Domain)
+	if cfg.GoatcounterCom {
+		return zhttp.SeeOther(w, "https://"+cfg.Domain)
+	}
+	return zhttp.SeeOther(w, "/")
 }
 
 func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (time.Time, time.Time, error) {
