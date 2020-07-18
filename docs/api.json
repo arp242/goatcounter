@@ -116,39 +116,49 @@
       "properties": {
         "created_at": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "error": {
           "description": "Any errors that may have occured.",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "finished_at": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "hash": {
           "description": "SHA256 hash.",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "last_hit_id": {
           "description": "Last hit ID that was exported; can be used as start_from_hit_id.",
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "num_rows": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "path": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "site_id": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "size": {
           "description": "File size in MB.",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "start_from_hit_id": {
           "description": "The hit ID this export was started from.",

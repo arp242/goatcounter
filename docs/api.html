@@ -92,6 +92,11 @@
 			max-width: 55em;
 		}
 
+		.model p {
+			margin-left: 2em;
+			white-space: pre-line;
+		}
+
 		.resource {
 			display: inline-block;
 			min-width: 38rem;
@@ -112,15 +117,6 @@
 <body>
 	<h1>GoatCounter API documentation 0.1</h1>
 
-	
-	
-		<p>
-			Contact <a href="mailto:support@goatcounter.com">
-				
-					Martin Tournoij
-				
-			</a> for questions.
-		</p>
 	
 
 	
@@ -250,76 +246,40 @@
 
 	<h2>Models</h2>
 	
-		<h3 id="goatcounter.Export">
-			goatcounter.Export
-			<a class="permalink" href="#goatcounter.Export">§</a>
-		</h3>
-		<div class="endpoint">
-			<p></p>
-			<pre>{
-    &#34;title&#34;: &#34;Export&#34;,
-    &#34;type&#34;: &#34;object&#34;,
-    &#34;properties&#34;: {
-        &#34;created_at&#34;: {
-            &#34;type&#34;: &#34;string&#34;,
-            &#34;format&#34;: &#34;date-time&#34;
-        },
-        &#34;error&#34;: {
-            &#34;description&#34;: &#34;Any errors that may have occured.&#34;,
-            &#34;type&#34;: &#34;string&#34;
-        },
-        &#34;finished_at&#34;: {
-            &#34;type&#34;: &#34;string&#34;,
-            &#34;format&#34;: &#34;date-time&#34;
-        },
-        &#34;hash&#34;: {
-            &#34;description&#34;: &#34;SHA256 hash.&#34;,
-            &#34;type&#34;: &#34;string&#34;
-        },
-        &#34;id&#34;: {
-            &#34;type&#34;: &#34;integer&#34;
-        },
-        &#34;last_hit_id&#34;: {
-            &#34;description&#34;: &#34;Last hit ID that was exported; can be used as start_from_hit_id.&#34;,
-            &#34;type&#34;: &#34;integer&#34;
-        },
-        &#34;num_rows&#34;: {
-            &#34;type&#34;: &#34;integer&#34;
-        },
-        &#34;path&#34;: {
-            &#34;type&#34;: &#34;string&#34;
-        },
-        &#34;site_id&#34;: {
-            &#34;type&#34;: &#34;integer&#34;
-        },
-        &#34;size&#34;: {
-            &#34;description&#34;: &#34;File size in MB.&#34;,
-            &#34;type&#34;: &#34;string&#34;
-        },
-        &#34;start_from_hit_id&#34;: {
-            &#34;description&#34;: &#34;The hit ID this export was started from.&#34;,
-            &#34;type&#34;: &#34;integer&#34;
-        }
-    }
-}</pre>
+		<h3 id="goatcounter.Export">goatcounter.Export <a class="permalink" href="#goatcounter.Export">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>site_id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>start_from_hit_id <sup>integer</sup></h4>
+<p>The hit ID this export was started from.</p>
+<h4>last_hit_id <sup>integer [readonly]</sup></h4>
+<p>Last hit ID that was exported; can be used as start_from_hit_id.</p>
+<h4>path <sup>string [readonly]</sup></h4>
+<p></p>
+<h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>finished_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>num_rows <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>size <sup>string [readonly]</sup></h4>
+<p>File size in MB.</p>
+<h4>hash <sup>string [readonly]</sup></h4>
+<p>SHA256 hash.</p>
+<h4>error <sup>string [readonly]</sup></h4>
+<p>Any errors that may have occured.</p>
+
 		</div>
 	
-		<h3 id="handlers.apiExportRequest">
-			handlers.apiExportRequest
-			<a class="permalink" href="#handlers.apiExportRequest">§</a>
-		</h3>
-		<div class="endpoint">
-			<p></p>
-			<pre>{
-    &#34;title&#34;: &#34;apiExportRequest&#34;,
-    &#34;type&#34;: &#34;object&#34;,
-    &#34;properties&#34;: {
-        &#34;start_from_hit_id&#34;: {
-            &#34;description&#34;: &#34;Pagination cursor; only export hits with an ID greater than this.&#34;,
-            &#34;type&#34;: &#34;integer&#34;
-        }
-    }
-}</pre>
+		<h3 id="handlers.apiExportRequest">handlers.apiExportRequest <a class="permalink" href="#handlers.apiExportRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>start_from_hit_id <sup>integer</sup></h4>
+<p>Pagination cursor; only export hits with an ID greater than this.</p>
+
 		</div>
 	
 

@@ -16387,7 +16387,7 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 
 			<fieldset>
 				<legend>Site settings</legend>
-				<label for="link_domain">Domain</label>
+				<label for="link_domain">Your site</label>
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
