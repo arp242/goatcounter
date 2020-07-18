@@ -15,6 +15,13 @@ master branch
   which is probably a better and less confusing default for most people. There
   is also some more detailed docs available in `goatcounter help listen`.
 
+- Set Cache-Control header for static files (#348
+
+  The `Cache-Control` header is now set for static files. Since the "cache
+  busting" happens based on the goatcounter version it's now recommended to set
+  this if you're compiling GoatCounter yourself. See the updated README for
+  instructions.
+
 - Add multi-factor auth (#306)
 
   TOTP-based multi-factor auth is now supported.

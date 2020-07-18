@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/teamwork/reload"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
@@ -161,10 +162,12 @@ func saas() (int, error) {
 	// Set up HTTP handler and servers.
 	d := zhttp.RemovePort(cfg.Domain)
 	hosts := map[string]http.Handler{
-		zhttp.RemovePort(cfg.DomainStatic): handlers.NewStatic("./public", cfg.Domain, !dev),
-		d:                                  zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + d:                         handlers.NewWebsite(db),
-		"*":                                handlers.NewBackend(db, acmeh),
+		d:          zhttp.RedirectHost("//www." + cfg.Domain),
+		"www." + d: handlers.NewWebsite(db),
+		"*":        handlers.NewBackend(db, acmeh),
+	}
+	if dev {
+		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), "./public", !dev)
 	}
 
 	zlog.Module("main").Debug(getVersion())

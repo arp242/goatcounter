@@ -74,14 +74,14 @@ func NewWebsite(db zdb.DB) chi.Router {
 	return r
 }
 
-func NewStatic(dir, domain string, prod bool) chi.Router {
-	r := chi.NewRouter()
-	cache := 0
+func NewStatic(r chi.Router, dir string, prod bool) chi.Router {
+	var cache map[string]int
 	if prod {
-		cache = 86400 * 30
+		cache = map[string]int{
+			"/count.js": 86400,
+			"*":         86400 * 30,
+		}
 	}
-	// Use * for Access-Control-Allow-Origin as we can't use *.domain, which is
-	// needed to allow "code.domain", "code2.domain", etc.
 	r.Get("/*", zhttp.NewStatic(dir, "*", cache, pack.Public).ServeHTTP)
 	return r
 }
@@ -89,11 +89,14 @@ func NewStatic(dir, domain string, prod bool) chi.Router {
 func NewBackend(db zdb.DB, acmeh http.HandlerFunc) chi.Router {
 	r := chi.NewRouter()
 	backend{}.Mount(r, db)
-	if !cfg.GoatcounterCom {
-		r.Get("/*", zhttp.NewStatic("./public", "*", 0, pack.Public).ServeHTTP)
-	}
+
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
 	}
+
+	if !cfg.GoatcounterCom {
+		NewStatic(r, "./public", cfg.Prod)
+	}
+
 	return r
 }
