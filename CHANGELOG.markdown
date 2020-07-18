@@ -45,6 +45,8 @@ master branch
   run in to ratelimits, need to set specific headers, etc. Adding an API
   endpoint for that makes things much easier.
 
+- API for creating and editing additional sites (#361)
+
 - Some redesigns (#324, #315, #321 #320)
 
   The "Totals" is now placed below the Pages; I think it makes more sense there.

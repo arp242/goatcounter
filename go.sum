@@ -118,8 +118,8 @@ zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxy
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zdb v0.0.0-20200721051833-b17e8bb8e4ed h1:V+V2RMn8n6xBKnBZERZ9i4mvx9Zx4AhaLv6R7ZczhYA=
 zgo.at/zdb v0.0.0-20200721051833-b17e8bb8e4ed/go.mod h1:qBj20DkzhioyoAgkqCNNrQYtU9dkaQXU6kko5B36zbg=
-zgo.at/zhttp v0.0.0-20200725212542-64febe8c3092 h1:Pe33U7E2i2gzOJo2OSEWyuPcOz9OsN8dggpX9TVIyVM=
-zgo.at/zhttp v0.0.0-20200725212542-64febe8c3092/go.mod h1:4vN9RqtJXa0XePvaoFV03A88KvqUokFkJ0Z+86b1r6M=
+zgo.at/zhttp v0.0.0-20200727101404-6e4e811e7d2c h1:1xzXFj5KNp0oVWQGBGBeC+7nz3V3CAGb9xjAuUR5JvA=
+zgo.at/zhttp v0.0.0-20200727101404-6e4e811e7d2c/go.mod h1:4vN9RqtJXa0XePvaoFV03A88KvqUokFkJ0Z+86b1r6M=
 zgo.at/zli v0.0.0-20200726080121-9b05a9fdb5bd h1:vMA8yJ+z2mnM9nc9Ognje4BvDDJhvdLorNUmDblf1QI=
 zgo.at/zli v0.0.0-20200726080121-9b05a9fdb5bd/go.mod h1:iCNHeIhEG9nQZsmEvf1BDpnQXvbYbUDvokRSwB434M8=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=

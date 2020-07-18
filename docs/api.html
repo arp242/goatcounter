@@ -248,6 +248,158 @@ want to (roughly) sync up with this.</p>
 			</div>
 		</div>
 			</div><div>
+			<h3 id="sites" class="js-expand">sites
+				<a class="permalink" href="#sites">§</a></h3>
+
+		<div class="endpoint" id="GET-/api/v0/sites">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/sites</code>
+				List the current site and all additional sites.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fsites">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiSitesResponse">handlers.apiSitesResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/sites/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/sites/{id}</code>
+				Get information about a site.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fsites%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>Get all information about one site.</p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="PATCH-/api/v0/sites/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">PATCH</span> /api/v0/sites/{id}</code>
+				Update a site.
+				<a class="permalink" href="#PATCH-%2fapi%2fv0%2fsites%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>A POST request will *replace* the entire site with what&#39;s sent, blanking out
+any existing fields that may exist. A PATCH request will only update the
+fields that are sent.</p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.apiSiteUpdateRequest">handlers.apiSiteUpdateRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="POST-/api/v0/sites/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">POST</span> /api/v0/sites/{id}</code>
+				Update a site.
+				<a class="permalink" href="#POST-%2fapi%2fv0%2fsites%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>A POST request will *replace* the entire site with what&#39;s sent, blanking out
+any existing fields that may exist. A PATCH request will only update the
+fields that are sent.</p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.apiSiteUpdateRequest">handlers.apiSiteUpdateRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="PUT-/api/v0/sites">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">PUT</span> /api/v0/sites</code>
+				Create a new site.
+				<a class="permalink" href="#PUT-%2fapi%2fv0%2fsites">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+			</div><div>
 			<h3 id="user" class="js-expand">user
 				<a class="permalink" href="#user">§</a></h3>
 
@@ -295,6 +447,12 @@ want to (roughly) sync up with this.</p>
 <p></p>
 <h4>export <sup>boolean</sup></h4>
 <p></p>
+<h4>site_read <sup>boolean</sup></h4>
+<p></p>
+<h4>site_create <sup>boolean</sup></h4>
+<p></p>
+<h4>site_update <sup>boolean</sup></h4>
+<p></p>
 
 		</div>
 		<h3 id="goatcounter.Export">goatcounter.Export <a class="permalink" href="#goatcounter.Export">§</a></h3>
@@ -320,6 +478,61 @@ want to (roughly) sync up with this.</p>
 <p>SHA256 hash.</p>
 <h4>error <sup>string [readonly]</sup></h4>
 <p>Any errors that may have occured.</p>
+
+		</div>
+		<h3 id="goatcounter.Site">goatcounter.Site <a class="permalink" href="#goatcounter.Site">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>parent <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>cname <sup>string</sup></h4>
+<p>Custom domain, e.g. &#34;stats.example.com&#34;</p>
+<h4>cname_setup_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p>When the CNAME was verified.</p>
+<h4>code <sup>string</sup></h4>
+<p>Domain code (arp242, which makes arp242.goatcounter.com)</p>
+<h4>link_domain <sup>string</sup></h4>
+<p>Site domain for linking (www.arp242.net).</p>
+<h4>plan <sup>string</sup></h4>
+<p></p>
+<h4>setttings <sup></sup></h4>
+<p></p>
+<h4>received_data <sup>boolean</sup></h4>
+<p>Whether this site has received any data; will be true after the first
+pageview.</p>
+<h4>state <sup>string</sup></h4>
+<p></p>
+<h4>created_at <sup>string [format: date-time]</sup></h4>
+<p></p>
+<h4>updated_at <sup>string [format: date-time]</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="goatcounter.SiteSettings">goatcounter.SiteSettings <a class="permalink" href="#goatcounter.SiteSettings">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>public <sup>boolean</sup></h4>
+<p></p>
+<h4>twenty_four_hours <sup>boolean</sup></h4>
+<p></p>
+<h4>sunday_starts_week <sup>boolean</sup></h4>
+<p></p>
+<h4>date_format <sup>string</sup></h4>
+<p></p>
+<h4>number_format <sup>string</sup></h4>
+<p></p>
+<h4>data_retention <sup>integer</sup></h4>
+<p></p>
+<h4>ignore_ips <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>timezone <sup></sup></h4>
+<p></p>
+<h4>campaigns <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>limits <sup><a href="#"></a></sup></h4>
+<p></p>
 
 		</div>
 		<h3 id="goatcounter.User">goatcounter.User <a class="permalink" href="#goatcounter.User">§</a></h3>
@@ -412,6 +625,24 @@ identifier.</p><p>You can also just disable sessions entirely with NoSessions.</
 <p>Pagination cursor; only export hits with an ID greater than this.</p>
 
 		</div>
+		<h3 id="handlers.apiSiteUpdateRequest">handlers.apiSiteUpdateRequest <a class="permalink" href="#handlers.apiSiteUpdateRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>settings <sup></sup></h4>
+<p></p>
+<h4>cname <sup>string</sup></h4>
+<p></p>
+<h4>link_domain <sup>string</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.apiSitesResponse">handlers.apiSitesResponse <a class="permalink" href="#handlers.apiSitesResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>sites <sup>array [type: <a href="#goatcounter.Site">goatcounter.Site</a>]</sup></h4>
+<p></p>
+
+		</div>
 		<h3 id="handlers.authError">handlers.authError <a class="permalink" href="#handlers.authError">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
@@ -426,6 +657,29 @@ identifier.</p><p>You can also just disable sessions entirely with NoSessions.</
 <p></p>
 <h4>token <sup></sup></h4>
 <p></p>
+
+		</div>
+		<h3 id="time.Location">time.Location <a class="permalink" href="#time.Location">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">A Location maps time instants to the zone in use at that time.
+Typically, the Location represents the collection of time offsets
+in use in a geographical area. For many Locations the time offset varies
+depending on whether daylight savings time is in use at the time instant.</p>
+			
+		</div>
+		<h3 id="tz.Zone">tz.Zone <a class="permalink" href="#tz.Zone">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">Zone represents a time zone.</p>
+			<h4>CountryCode <sup>string</sup></h4>
+<p>ID</p>
+<h4>Zone <sup>string</sup></h4>
+<p>Asia/Makassar</p>
+<h4>Abbr <sup>string</sup></h4>
+<p>WITA</p>
+<h4>CountryName <sup>string</sup></h4>
+<p>Indonesia</p>
+<h4>Comments <sup>string</sup></h4>
+<p>Borneo (east, south); Sulawesi/Celebes, Bali, Nusa Tengarra; Timor (west)</p>
 
 		</div>
 

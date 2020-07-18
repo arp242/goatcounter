@@ -15793,6 +15793,9 @@ id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id
 						<td>
 							{{if $t.Permissions.Count}}Record pageviews{{end}}
 							{{if $t.Permissions.Export}}Export{{end}}
+							{{if $t.Permissions.SiteRead}}Read sites{{end}}
+							{{if $t.Permissions.SiteCreate}}Create sites{{end}}
+							{{if $t.Permissions.SiteUpdate}}Update sites{{end}}
 						</td>
 						<td>{{$t.Token}}</td>
 						<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
@@ -15817,7 +15820,10 @@ id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id
 								<label title="Record pageviews with /api/v0/count">
 									<input type="checkbox" name="permissions.count">Record pageviews</label><br>
 								<label title="Export data with /api/v0/export">
-									<input type="checkbox" name="permissions.export">Export</label>
+									<input type="checkbox" name="permissions.export">Export</label><br>
+								<label><input type="checkbox" name="permissions.site_read">Read sites</label><br>
+								<label><input type="checkbox" name="permissions.site_create">Create sites</label><br>
+								<label><input type="checkbox" name="permissions.site_update">Update sites</label>
 							</td>
 							<td><button type="submit">Add new</button></td>
 						</form>

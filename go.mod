@@ -28,7 +28,7 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zdb v0.0.0-20200721051833-b17e8bb8e4ed
-	zgo.at/zhttp v0.0.0-20200725212542-64febe8c3092
+	zgo.at/zhttp v0.0.0-20200727101404-6e4e811e7d2c
 	zgo.at/zli v0.0.0-20200726080121-9b05a9fdb5bd
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1

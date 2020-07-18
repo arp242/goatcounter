@@ -17,18 +17,40 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/ztest"
 	"zgo.at/zvalidate"
 )
 
-func newAPITest(
-	t *testing.T, method, path string, body io.Reader, perm goatcounter.APITokenPermissions,
-) (
-	context.Context, func(), *http.Request, *httptest.ResponseRecorder,
-) {
-	ctx, clean := gctest.DB(t)
+func jsonCmp(a, b string) bool {
+	var aj, bj json.RawMessage
+	err := json.Unmarshal([]byte(a), &aj)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal([]byte(b), &bj)
+	if err != nil {
+		panic(err)
+	}
+
+	aout, err := json.Marshal(aj)
+	if err != nil {
+		panic(err)
+	}
+	bout, err := json.Marshal(bj)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(aout) == string(bout)
+}
+
+func newAPITest(ctx context.Context, t *testing.T,
+	method, path string, body io.Reader,
+	perm goatcounter.APITokenPermissions,
+) (*http.Request, *httptest.ResponseRecorder) {
 
 	token := goatcounter.APIToken{
 		SiteID:      Site(ctx).ID,
@@ -43,15 +65,15 @@ func newAPITest(
 
 	r, rr := newTest(ctx, method, path, body)
 	r.Header.Set("Authorization", "Bearer "+token.Token)
-
-	return ctx, clean, r, rr
+	return r, rr
 }
 
 func TestAPIBasics(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		t.Run("no-auth", func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+			ctx, clean := gctest.DB(t)
 			defer clean()
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			delete(r.Header, "Authorization")
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
@@ -64,8 +86,9 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("wrong-auth", func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+			ctx, clean := gctest.DB(t)
 			defer clean()
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			r.Header.Set("Authorization", r.Header.Get("Authorization")+"x")
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
@@ -81,8 +104,9 @@ func TestAPIBasics(t *testing.T) {
 			body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 				"perm": goatcounter.APITokenPermissions{Export: true, Count: true},
 			}))
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{})
+			ctx, clean := gctest.DB(t)
 			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{})
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 403)
@@ -94,8 +118,9 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("404", func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/doesnt-exist", nil, goatcounter.APITokenPermissions{})
+			ctx, clean := gctest.DB(t)
 			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/doesnt-exist", nil, goatcounter.APITokenPermissions{})
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 404)
@@ -107,10 +132,11 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("500", func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test",
+			ctx, clean := gctest.DB(t)
+			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{"status":500}`),
 				goatcounter.APITokenPermissions{})
-			defer clean()
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
@@ -122,10 +148,11 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("invalid json", func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test",
+			ctx, clean := gctest.DB(t)
+			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{{{{`),
 				goatcounter.APITokenPermissions{})
-			defer clean()
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
@@ -137,10 +164,11 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("panic", func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test",
+			ctx, clean := gctest.DB(t)
+			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{"panic":true}`),
 				goatcounter.APITokenPermissions{})
-			defer clean()
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
@@ -152,8 +180,9 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("ct", func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+			ctx, clean := gctest.DB(t)
 			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			r.Header.Set("Content-Type", "text/html")
 
@@ -171,12 +200,13 @@ func TestAPIBasics(t *testing.T) {
 			v.Required("r", "")
 			v.Email("e", "asd")
 
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test",
+			ctx, clean := gctest.DB(t)
+			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 					"validate": v,
 				})),
 				goatcounter.APITokenPermissions{})
-			defer clean()
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
@@ -189,21 +219,25 @@ func TestAPIBasics(t *testing.T) {
 	})
 
 	t.Run("no-perm", func(t *testing.T) {
-		ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+		ctx, clean := gctest.DB(t)
 		defer clean()
+
+		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 	})
 
 	t.Run("check-perm", func(t *testing.T) {
+		ctx, clean := gctest.DB(t)
+		defer clean()
+
 		body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 			"perm": goatcounter.APITokenPermissions{Export: true, Count: true},
 		}))
-		ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{
+		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{
 			Export: true, Count: true,
 		})
-		defer clean()
 
 		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
@@ -307,13 +341,14 @@ func TestAPICount(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			ctx, clean, r, rr := newAPITest(t, "POST", "/api/v0/count",
-				bytes.NewReader(zjson.MustMarshal(tt.body)), perm)
+			ctx, clean := gctest.DB(t)
 			defer clean()
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/count",
+				bytes.NewReader(zjson.MustMarshal(tt.body)), perm)
 
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
-			if rr.Body.String() != tt.wantRet {
+			if !jsonCmp(rr.Body.String(), tt.wantRet) {
 				t.Errorf("\nout:  %s\nwant: %s", rr.Body.String(), tt.wantRet)
 			}
 
@@ -328,6 +363,65 @@ func TestAPICount(t *testing.T) {
 			if d := ztest.Diff(got, tt.want); d != "" {
 				t.Errorf(d)
 				fmt.Println(got)
+			}
+		})
+	}
+}
+
+func TestAPISitesUpdate(t *testing.T) {
+	stdsite := goatcounter.Site{Code: "gctest", Plan: "personal"}
+	stdsite.Defaults(context.Background())
+
+	tests := []struct {
+		method, body string
+		wantCode     int
+		want         func() goatcounter.Site
+	}{
+		{"POST", `{}`, 200, func() goatcounter.Site {
+			s := stdsite
+			s.Settings.Campaigns = zdb.Strings{} // Gets reset as it's not sent.
+			return s
+		}},
+
+		{"PATCH", `{}`, 200, func() goatcounter.Site {
+			s := stdsite
+			return s
+		}},
+	}
+
+	perm := goatcounter.APITokenPermissions{SiteCreate: true, SiteRead: true,
+		SiteUpdate: true}
+
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			ctx, clean := gctest.DB(t)
+			defer clean()
+
+			site := Site(ctx)
+
+			r, rr := newAPITest(ctx, t, tt.method, fmt.Sprintf("/api/v0/sites/%d", site.ID),
+				strings.NewReader(tt.body), perm)
+
+			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			var retSite goatcounter.Site
+			d := json.NewDecoder(rr.Body)
+			d.AllowReadonlyFields()
+			err := d.Decode(&retSite)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			w := tt.want()
+			w.ID = retSite.ID
+			retSite.CreatedAt = w.CreatedAt
+			retSite.UpdatedAt = nil
+
+			got := string(zjson.MustMarshalIndent(retSite, "", "  "))
+			want := string(zjson.MustMarshalIndent(w, "", "  "))
+			if d := ztest.Diff(got, want); d != "" {
+				t.Error(d)
 			}
 		})
 	}

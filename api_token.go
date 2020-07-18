@@ -7,12 +7,12 @@ package goatcounter
 import (
 	"context"
 	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zjson"
@@ -32,8 +32,11 @@ type APIToken struct {
 }
 
 type APITokenPermissions struct {
-	Count  bool `db:"count" json:"count"`
-	Export bool `db:"export" json:"export"`
+	Count      bool `db:"count" json:"count"`
+	Export     bool `db:"export" json:"export"`
+	SiteRead   bool `db:"site_read" json:"site_read"`
+	SiteCreate bool `db:"site_create" json:"site_create"`
+	SiteUpdate bool `db:"site_update" json:"site_update"`
 }
 
 func (tp APITokenPermissions) String() string { return string(zjson.MustMarshal(tp)) }
