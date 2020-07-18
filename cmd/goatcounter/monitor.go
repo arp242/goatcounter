@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
 
@@ -26,6 +27,11 @@ Flags:
 
   -period      Check every n seconds. Default: 120.
 
+  -once        Check once only and exit instead of checking every -period
+               seconds. The -period flag is still used to select the time range.
+               The exit code will be 0 if there's at least one pageview, 1 if
+               there's 0 pageviews, and 2 if there's another error.
+
   -site        Limit the check to just one site; makes the query faster.
 `
 
@@ -33,10 +39,11 @@ func monitor() (int, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 	period := CommandLine.Int("period", 120, "")
+	once := CommandLine.Bool("once", false, "")
 	site := CommandLine.Int("site", 0, "")
 	err := CommandLine.Parse(os.Args[2:])
 	if err != nil {
-		return 1, err
+		return 2, err
 	}
 
 	zlog.Config.SetDebug(*debug)
@@ -51,7 +58,11 @@ func monitor() (int, error) {
 	if *site > 0 {
 		query += fmt.Sprintf(`site=%d and `, *site)
 	}
-	query += ` created_at > now() - interval '%d seconds'`
+	if zdb.PgSQL(db) {
+		query += ` created_at > now() - interval '%d seconds'`
+	} else {
+		query += ` created_at > datetime(datetime(), '-%d seconds')`
+	}
 
 	l := zlog.Module("monitor")
 	d := time.Duration(*period) * time.Second
@@ -61,12 +72,23 @@ func monitor() (int, error) {
 		var n int
 		err := db.Get(&n, fmt.Sprintf(query, *period))
 		if err != nil {
+			if *once {
+				return 2, err
+			}
 			l.Error(err)
 		}
 		if n == 0 {
 			l.Errorf("no hits")
 		} else {
 			l.Printf("%d hits", n)
+		}
+
+		if *once {
+			if n == 0 {
+				return 1, nil
+			} else {
+				return 0, nil
+			}
 		}
 
 		time.Sleep(d)
