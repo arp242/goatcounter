@@ -70,7 +70,6 @@ var (
 
 func kommentaar() error {
 	commands := map[string][]string{
-		"docs/api.yaml": {"-config", "./kommentaar.conf", "-output", "openapi2-yaml", "./handlers"},
 		"docs/api.json": {"-config", "./kommentaar.conf", "-output", "openapi2-jsonindent", "./handlers"},
 		"docs/api.html": {"-config", "./kommentaar.conf", "-output", "html", "./handlers"},
 	}

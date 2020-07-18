@@ -36,7 +36,6 @@ API reference
 API reference docs are available at:
 
 - [/api.json](/api.json) – OpenAPI 2.0 JSON file.
-- [/api.yaml](/api.yaml) – OpenAPI 2.0 YAML file.
 - [/api.html](/api.html) – Basic HTML.
 - [SwaggerHub](https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1)
 

@@ -82,12 +82,10 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 		Packages: []string{"./handlers"},
 		Config:   "./kommentaar.conf",
 		NoScan:   cfg.Prod,
-		YAMLFile: "./docs/api.yaml",
 		JSONFile: "./docs/api.json",
 		HTMLFile: "./docs/api.html",
 	}
 	r.Get("/api.json", srvhttp.JSON(conf))
-	r.Get("/api.yaml", srvhttp.YAML(conf))
 	r.Get("/api.html", srvhttp.HTML(conf))
 }
 

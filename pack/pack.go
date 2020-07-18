@@ -16266,7 +16266,6 @@ indicated in the <code>X-Rate-Limit-Limit</code>, <code>X-Rate-Limit-Remaining</
 
 <ul>
   <li><a href="/api.json">/api.json</a> – OpenAPI 2.0 JSON file.</li>
-  <li><a href="/api.yaml">/api.yaml</a> – OpenAPI 2.0 YAML file.</li>
   <li><a href="/api.html">/api.html</a> – Basic HTML.</li>
   <li><a href="https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1">SwaggerHub</a></li>
 </ul>

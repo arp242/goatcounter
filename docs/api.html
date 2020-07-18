@@ -256,39 +256,52 @@
 		</h3>
 		<div class="endpoint">
 			<p></p>
-			<pre>title: Export
-type: object
-properties:
-  created_at:
-    type: string
-    format: date-time
-  error:
-    description: Any errors that may have occured.
-    type: string
-  finished_at:
-    type: string
-    format: date-time
-  hash:
-    description: SHA256 hash.
-    type: string
-  id:
-    type: integer
-  last_hit_id:
-    description: Last hit ID that was exported; can be used as start_from_hit_id.
-    type: integer
-  num_rows:
-    type: integer
-  path:
-    type: string
-  site_id:
-    type: integer
-  size:
-    description: File size in MB.
-    type: string
-  start_from_hit_id:
-    description: The hit ID this export was started from.
-    type: integer
-</pre>
+			<pre>{
+    &#34;title&#34;: &#34;Export&#34;,
+    &#34;type&#34;: &#34;object&#34;,
+    &#34;properties&#34;: {
+        &#34;created_at&#34;: {
+            &#34;type&#34;: &#34;string&#34;,
+            &#34;format&#34;: &#34;date-time&#34;
+        },
+        &#34;error&#34;: {
+            &#34;description&#34;: &#34;Any errors that may have occured.&#34;,
+            &#34;type&#34;: &#34;string&#34;
+        },
+        &#34;finished_at&#34;: {
+            &#34;type&#34;: &#34;string&#34;,
+            &#34;format&#34;: &#34;date-time&#34;
+        },
+        &#34;hash&#34;: {
+            &#34;description&#34;: &#34;SHA256 hash.&#34;,
+            &#34;type&#34;: &#34;string&#34;
+        },
+        &#34;id&#34;: {
+            &#34;type&#34;: &#34;integer&#34;
+        },
+        &#34;last_hit_id&#34;: {
+            &#34;description&#34;: &#34;Last hit ID that was exported; can be used as start_from_hit_id.&#34;,
+            &#34;type&#34;: &#34;integer&#34;
+        },
+        &#34;num_rows&#34;: {
+            &#34;type&#34;: &#34;integer&#34;
+        },
+        &#34;path&#34;: {
+            &#34;type&#34;: &#34;string&#34;
+        },
+        &#34;site_id&#34;: {
+            &#34;type&#34;: &#34;integer&#34;
+        },
+        &#34;size&#34;: {
+            &#34;description&#34;: &#34;File size in MB.&#34;,
+            &#34;type&#34;: &#34;string&#34;
+        },
+        &#34;start_from_hit_id&#34;: {
+            &#34;description&#34;: &#34;The hit ID this export was started from.&#34;,
+            &#34;type&#34;: &#34;integer&#34;
+        }
+    }
+}</pre>
 		</div>
 	
 		<h3 id="handlers.apiExportRequest">
@@ -297,13 +310,16 @@ properties:
 		</h3>
 		<div class="endpoint">
 			<p></p>
-			<pre>title: apiExportRequest
-type: object
-properties:
-  start_from_hit_id:
-    description: Pagination cursor; only export hits with an ID greater than this.
-    type: integer
-</pre>
+			<pre>{
+    &#34;title&#34;: &#34;apiExportRequest&#34;,
+    &#34;type&#34;: &#34;object&#34;,
+    &#34;properties&#34;: {
+        &#34;start_from_hit_id&#34;: {
+            &#34;description&#34;: &#34;Pagination cursor; only export hits with an ID greater than this.&#34;,
+            &#34;type&#34;: &#34;integer&#34;
+        }
+    }
+}</pre>
 		</div>
 	
 

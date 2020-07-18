@@ -23,27 +23,23 @@
   "paths": {
     "/api/v0/export": {
       "post": {
-        "operationId": "POST_api_v0_export",
-        "tags": [
-          "export"
-        ],
-        "summary": "Start a new export in the background.",
-        "description": "This starts a new export in the background.",
         "consumes": [
           "application/json"
         ],
-        "produces": [
-          "application/json"
-        ],
+        "description": "This starts a new export in the background.",
+        "operationId": "POST_api_v0_export",
         "parameters": [
           {
-            "name": "handlers.apiExportRequest",
             "in": "body",
+            "name": "handlers.apiExportRequest",
             "required": true,
             "schema": {
               "$ref": "#/definitions/handlers.apiExportRequest"
             }
           }
+        ],
+        "produces": [
+          "application/json"
         ],
         "responses": {
           "202": {
@@ -52,26 +48,26 @@
               "$ref": "#/definitions/goatcounter.Export"
             }
           }
-        }
+        },
+        "summary": "Start a new export in the background.",
+        "tags": [
+          "export"
+        ]
       }
     },
     "/api/v0/export/{id}": {
       "get": {
         "operationId": "GET_api_v0_export_{id}",
-        "tags": [
-          "export"
-        ],
-        "summary": "Get details about an export.",
-        "produces": [
-          "application/json"
-        ],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "type": "integer",
-            "required": true
+            "name": "id",
+            "required": true,
+            "type": "integer"
           }
+        ],
+        "produces": [
+          "application/json"
         ],
         "responses": {
           "200": {
@@ -80,32 +76,36 @@
               "$ref": "#/definitions/goatcounter.Export"
             }
           }
-        }
+        },
+        "summary": "Get details about an export.",
+        "tags": [
+          "export"
+        ]
       }
     },
     "/api/v0/export/{id}/download": {
       "get": {
         "operationId": "GET_api_v0_export_{id}_download",
-        "tags": [
-          "export"
-        ],
-        "summary": "Download an export file.",
-        "produces": [
-          "text/csv"
-        ],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "type": "integer",
-            "required": true
+            "name": "id",
+            "required": true,
+            "type": "integer"
           }
+        ],
+        "produces": [
+          "text/csv"
         ],
         "responses": {
           "200": {
             "description": "200 OK (text/csv data)"
           }
-        }
+        },
+        "summary": "Download an export file.",
+        "tags": [
+          "export"
+        ]
       }
     }
   },

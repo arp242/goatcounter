@@ -13,7 +13,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/monoculum/formam v0.0.0-20200527175922-6f3cce7a46cf
 	github.com/teamwork/reload v1.3.2
-	github.com/zgoat/kommentaar v0.1.2-0.20200627052335-2b2d4a9fb559
+	github.com/zgoat/kommentaar v0.0.0-20200718094027-9fe5c6e0bb9a
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
@@ -31,7 +31,7 @@ require (
 	zgo.at/zli v0.0.0-20200711054229-0ce80f3f667a
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
-	zgo.at/zstd v0.0.0-20200623061931-3d4ffff7925b
+	zgo.at/zstd v0.0.0-20200718091649-a5714a091965
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a
