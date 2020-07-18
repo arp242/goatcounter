@@ -177,13 +177,13 @@ listen and tls flags:
 
     Some common examples:
 
-        tls,acme,rdr
+        -tls tls,acme,rdr
             This is the default setting.
 
-        tls,rdr,acme:/home/gc/.acme
+        -tls tls,rdr,acme:/home/gc/.acme
             The default setting, but with a different cache directory.
 
-        tls,/etc/tls/stats.example.com.pem
+        -tls tls,/etc/tls/stats.example.com.pem
             Don't use ACME, but use a certificate from a CA. No port 80 redirect.
 
 Proxy Setup:
@@ -191,7 +191,7 @@ Proxy Setup:
     If you want to serve GoatCounter behind a proxy (HAproxy, Varnish, Hitch,
     nginx, Caddy, whatnot) then you'll want to use something like:
 
-        goatcounter -listen localhost:8081 -tls none
+        goatcounter serve -listen localhost:8081 -tls none
 
     And then forward requests on port 80 and 443 for your domain to
     localhost:8081. This assumes that the proxy will take care of the TLS
@@ -199,7 +199,7 @@ Proxy Setup:
 
     You can still use GoatCounter's ACME if you want:
 
-        goatcounter -listen localhost:8081 -tls tls,acme
+        goatcounter serve -listen localhost:8081 -tls tls,acme
 
     You will have to make the proxy reads the *.pem files from the acme cache
     directory. You may have to reload or restart the proxy for it to pick up new
@@ -222,7 +222,7 @@ Using a non-standard port:
     80 or 443) then you must add the -port flag to tell GoatCounter which port
     to use in various redirects, messages, and emails:
 
-        goatcounter -listen :9000 -port 9000
+        goatcounter serve -listen :9000 -port 9000
 
     This may seem redundant, but it's hard for GoatCounter to tell if it's
     accessible on :9000 or if there's a proxy in front of it redirecting :80 and
