@@ -126,12 +126,10 @@ zgo.at/json v0.0.0-20200627042140-d5025253667f h1:o4XL0oDtAzxN+mkVCti8MYz5nLNfbr
 zgo.at/json v0.0.0-20200627042140-d5025253667f/go.mod h1:DUuNIRpNC7/cup+Gy0qhwQEjjlLFXXRZ04VnVv9bf3E=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxytHj8G8kRl2M=
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
-zgo.at/zdb v0.0.0-20200704013256-53f5f3182386 h1:4uqJQOMBQbjBBAZYbONeXnaAdHP5mhOHf+mW/K1sC4U=
-zgo.at/zdb v0.0.0-20200704013256-53f5f3182386/go.mod h1:qBj20DkzhioyoAgkqCNNrQYtU9dkaQXU6kko5B36zbg=
 zgo.at/zdb v0.0.0-20200713161035-cc5d1b167eb1 h1:oJOsNjUuL0aZLa045+XbMuyDulTG2Nhx0zi7Vf80ztQ=
 zgo.at/zdb v0.0.0-20200713161035-cc5d1b167eb1/go.mod h1:qBj20DkzhioyoAgkqCNNrQYtU9dkaQXU6kko5B36zbg=
-zgo.at/zhttp v0.0.0-20200713005744-beb9ac646890 h1:DbL9EoqLCHCAgf0OpKJWqbDEi+Ts2CR6bajHenNrnjE=
-zgo.at/zhttp v0.0.0-20200713005744-beb9ac646890/go.mod h1:zt8XaGW1mJoxBWQICtEQlh4RMQYqIyATprZjq7tca2A=
+zgo.at/zhttp v0.0.0-20200718075539-ebbf6909eb4f h1:qv7qMaLMLSUfZ14Ug5/ptLqd3k+wTklZYR/k7s4W/+M=
+zgo.at/zhttp v0.0.0-20200718075539-ebbf6909eb4f/go.mod h1:zt8XaGW1mJoxBWQICtEQlh4RMQYqIyATprZjq7tca2A=
 zgo.at/zli v0.0.0-20200711054229-0ce80f3f667a h1:Z0Tvxgou6ve4S6T+9Ynu1C/pcCGLKf2yaeNxk0uOyl8=
 zgo.at/zli v0.0.0-20200711054229-0ce80f3f667a/go.mod h1:iCNHeIhEG9nQZsmEvf1BDpnQXvbYbUDvokRSwB434M8=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=

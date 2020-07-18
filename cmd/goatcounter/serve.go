@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
@@ -153,7 +154,9 @@ func serve() (int, error) {
 		"*": handlers.NewBackend(db, acmeh),
 	}
 	if cfg.DomainStatic != "" {
-		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic("./public", cfg.Domain, !dev)
+		// May not be needed, but just in case the DomainStatic isn't an
+		// external CDN.
+		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), "./public", !dev)
 	}
 
 	cnames, err := lsSites(db)

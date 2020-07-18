@@ -98,11 +98,17 @@ Compile from source with:
 
     $ git clone -b release-1.3 https://github.com/zgoat/goatcounter.git
     $ cd goatcounter
-    $ go build ./cmd/goatcounter
+    $ go build -ldflags="-X main.version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
+
+The `-ldflags=[..]` sets the version; this isn't *strictly* required as such,
+but it's recommended as it's used to "bust" the cache for static files and may
+also be useful later when reporting bugs. This can be any string and doesn't
+follow any particular format, you can also set this to the current date or
+`banana` or anything you want really.
 
 Or to build a statically linked binary:
 
-    $ go build \
+    $ go build -ldflags="-X main.version=$(git log -n1 --format='%h_%cI')" \
         -tags osusergo,netgo,sqlite_omit_load_extension \
         -ldflags='-extldflags=-static' \
         ./cmd/goatcounter
@@ -181,7 +187,7 @@ it:
 
 3. You can compile goatcounter without cgo if you don't use SQLite:
 
-       $ CGO_ENABLED=0 go build
+       $ CGO_ENABLED=0 go build -ldflags="-X main.version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
    Functionally it doesn't matter too much, but builds will be a bit easier and
    faster as it won't require a C compiler.
