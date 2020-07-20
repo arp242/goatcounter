@@ -53,6 +53,7 @@ func (d cache) Put(ctx context.Context, key string, data []byte) error {
 	if !strings.Contains(key, "+") {
 		key += ".pem"
 	}
+	l.Debugf("write pem file: %q", key)
 	return d.dc.Put(ctx, key, data)
 }
 
@@ -189,7 +190,6 @@ func Make(domain string) error {
 		},
 	}
 
-	l.Debugf("Make: %q", domain)
 	_, err := manager.GetCertificate(hello)
 	return errors.Wrap(err, "acme.Make")
 }
@@ -221,7 +221,6 @@ func validForwarding(domain string) bool {
 	}
 
 	addrs, err := net.LookupHost(domain)
-	l.Debugf("Lookup %q: %s, %q", domain, err, addrs)
 	if err != nil {
 		return false
 	}
@@ -229,7 +228,6 @@ func validForwarding(domain string) bool {
 	for _, a := range addrs {
 		for _, m := range me {
 			if a == m {
-				l.Debugf("  Match %q → %q", a, m)
 				return true
 			}
 		}

@@ -104,9 +104,7 @@ func persistAndStat(ctx context.Context) error {
 		}
 	}
 
-	if len(hits) > 100 {
-		l.Since("stats").FieldsSince().Printf("persisted %d hits", len(hits))
-	}
+	l.Since("stats").FieldsSince().Printf("persisted %d hits", len(hits))
 	return err
 }
 
