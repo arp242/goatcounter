@@ -41,6 +41,7 @@ func init() {
 		}
 		return s.URL()
 	})
+
 	tplfunc.Add("hash", func(s string) string {
 		h := sha1.New()
 		h.Write([]byte(s))

@@ -28,11 +28,11 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zdb v0.0.0-20200721051833-b17e8bb8e4ed
-	zgo.at/zhttp v0.0.0-20200724141128-ccf2f3e06fab
+	zgo.at/zhttp v0.0.0-20200725090804-7949f8934b53
 	zgo.at/zli v0.0.0-20200723211721-b6f2723c0e9c
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
-	zgo.at/zstd v0.0.0-20200724001141-81167fffefa7
+	zgo.at/zstd v0.0.0-20200725081511-350d4ae0eb40
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a
