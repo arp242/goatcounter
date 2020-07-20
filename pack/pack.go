@@ -16418,7 +16418,7 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 							<a href="/billing">billing</a>).
 						{{else}}
 							{{if .Site.CnameSetupAt}}
-								<br>Domain verified and set up.
+								<br>Domain verified and set up (note: it may take up to an hour for the certificate to work).
 							{{else if .Site.Cname}}
 								<br><span style="color: red;">Not yet verified</span>; set a CNAME record to
 								<code>{{.Site.Code}}.{{.Domain}}</code>.
