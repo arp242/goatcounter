@@ -74,6 +74,26 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		}
 		ctx = WithSite(ctx, site)
 
+		// Create session.
+		// TODO: we don't actually need to store any of this in the DB, all we
+		// need to store is a unique ID on the hits table and first_visit.
+		// The only reason we need to (temporarily) store it in the DB is on
+		// server restarts for persistence.
+		if h.Session == nil || *h.Session == 0 {
+			var sess Session
+			first, err := sess.GetOrCreate(ctx, h.Path, h.Browser, h.RemoteAddr)
+			if err != nil {
+				l.Field("hit", h).Error(err)
+				continue
+			}
+
+			h.Session = &sess.ID
+			if first {
+				h.FirstVisit = zdb.Bool(true)
+			}
+		}
+
+		// Persist.
 		h.Defaults(ctx)
 		err := h.Validate(ctx)
 		if err != nil {

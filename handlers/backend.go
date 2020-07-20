@@ -232,10 +232,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	hit := goatcounter.Hit{
-		Site:      site.ID,
-		Browser:   r.UserAgent(),
-		Location:  geo(r.RemoteAddr),
-		CreatedAt: goatcounter.Now(),
+		Site:       site.ID,
+		Browser:    r.UserAgent(),
+		Location:   geo(r.RemoteAddr),
+		CreatedAt:  goatcounter.Now(),
+		RemoteAddr: r.RemoteAddr,
 	}
 
 	err := formam.NewDecoder(&formam.DecoderOptions{TagName: "json"}).Decode(r.URL.Query(), &hit)
@@ -268,20 +269,6 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 				zlog.Error(err)
 			}
 		})
-	}
-
-	// TODO: move to memstore?
-	{
-		var sess goatcounter.Session
-		first, err := sess.GetOrCreate(r.Context(), hit.Path, r.UserAgent(), r.RemoteAddr)
-		if err != nil {
-			zlog.Error(err)
-		}
-
-		hit.Session = &sess.ID
-		if first {
-			hit.FirstVisit = zdb.Bool(true)
-		}
 	}
 
 	err = hit.Validate(r.Context())

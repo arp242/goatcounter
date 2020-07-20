@@ -42,6 +42,9 @@ type Hit struct {
 
 	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
+
+	// Some values we need to pass from the HTTP handler to memstore
+	RemoteAddr string `db:"-" json:"-"`
 }
 
 func (h *Hit) cleanPath(ctx context.Context) {
@@ -196,7 +199,7 @@ func (h *Hit) Validate(ctx context.Context) error {
 	v := zvalidate.New()
 
 	v.Required("site", h.Site)
-	v.Required("session", h.Session)
+	//v.Required("session", h.Session)
 	v.Required("path", h.Path)
 	v.UTF8("path", h.Path)
 	v.UTF8("title", h.Title)
