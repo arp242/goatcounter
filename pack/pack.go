@@ -12160,6 +12160,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
+		if ($('#dash-form').length === 0)
+			return
+
 		$('#dash-form').on('submit', function(e) {
 			if (get_date($('#period-start').val()) <= get_date($('#period-end').val()))
 				return
