@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
@@ -268,4 +269,16 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 	ctx = goatcounter.WithUser(ctx, &user)
 
 	return ctx, site
+}
+
+func SwapNow(t *testing.T, date string) func() {
+	d, err := time.Parse("2006-01-02 15:04:05", date)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	goatcounter.Now = func() time.Time { return d }
+	return func() {
+		goatcounter.Now = func() time.Time { return time.Now().UTC() }
+	}
 }

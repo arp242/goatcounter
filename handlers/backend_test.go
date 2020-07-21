@@ -33,7 +33,7 @@ import (
 )
 
 func TestBackendCount(t *testing.T) {
-	goatcounter.Now = func() time.Time { return time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC) }
+	defer gctest.SwapNow(t, "2019-06-18 14:42:00")()
 
 	tests := []struct {
 		name     string
@@ -185,6 +185,8 @@ func TestBackendCount(t *testing.T) {
 func TestBackendCountSessions(t *testing.T) {
 	now := time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC)
 	goatcounter.Now = func() time.Time { return now }
+	defer func() { goatcounter.Now = func() time.Time { return time.Now().UTC() } }()
+
 	ctx, clean := gctest.DB(t)
 	defer clean()
 

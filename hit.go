@@ -201,6 +201,7 @@ func (h *Hit) Validate(ctx context.Context) error {
 	v.Required("site", h.Site)
 	//v.Required("session", h.Session)
 	v.Required("path", h.Path)
+	v.Required("created_at", h.CreatedAt)
 	v.UTF8("path", h.Path)
 	v.UTF8("title", h.Title)
 	v.UTF8("ref", h.Ref)
@@ -210,6 +211,11 @@ func (h *Hit) Validate(ctx context.Context) error {
 	v.Len("title", h.Title, 0, 1024)
 	v.Len("ref", h.Ref, 0, 2048)
 	v.Len("browser", h.Browser, 0, 512)
+
+	// Small margin as client's clocks may not be 100% accurate.
+	if h.CreatedAt.After(Now().Add(5 * time.Second)) {
+		v.Append("created_at", "in the future")
+	}
 
 	return v.ErrorOrNil()
 }
