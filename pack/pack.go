@@ -10894,32 +10894,13 @@ return jQuery;
 clear child float (pika-lendar), using the famous micro clearfix hack
 http://nicolasgallagher.com/micro-clearfix-hack/
 */
-.pika-single:before,
-.pika-single:after {
-    content: " ";
-    display: table;
-}
+.pika-single:before, .pika-single:after { content: " "; display: table; }
 .pika-single:after { clear: both }
 
-.pika-single.is-hidden {
-    display: none;
-}
-
-.pika-single.is-bound {
-    position: absolute;
-    box-shadow: 0 5px 15px -5px rgba(0,0,0,.5);
-}
-
-.pika-lendar {
-    float: left;
-    width: 240px;
-    margin: 8px;
-}
-
-.pika-title {
-    position: relative;
-    text-align: center;
-}
+.pika-single.is-hidden { display: none; }
+.pika-single.is-bound  { position: absolute; box-shadow: 0 5px 15px -5px rgba(0,0,0,.5); }
+.pika-lendar           { float: left; width: 240px; margin: 8px; }
+.pika-title            { position: relative; text-align: center; }
 
 .pika-label {
     display: inline-block;
@@ -10943,8 +10924,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     opacity: 0;
 }
 
-.pika-prev,
-.pika-next {
+.pika-prev, .pika-next {
     display: block;
     cursor: pointer;
     position: relative;
@@ -10960,51 +10940,18 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     opacity: .5;
 }
 
-.pika-prev:hover,
-.pika-next:hover {
-    opacity: 1;
-}
-
-.pika-prev,
-.is-rtl .pika-next {
-    float: left;
-}
-
-.pika-next,
-.is-rtl .pika-prev {
-    float: right;
-}
-
-.pika-prev.is-disabled,
-.pika-next.is-disabled {
-    cursor: default;
-    opacity: .2;
-}
+.pika-prev:hover, .pika-next:hover { opacity: 1; }
+.pika-prev, .is-rtl .pika-next { float: left; }
+.pika-next, .is-rtl .pika-prev { float: right; }
+.pika-prev.is-disabled, .pika-next.is-disabled { cursor: default; opacity: .2; }
 
 .pika-select {
     display: inline-block;
 }
 
-.pika-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    border: 0;
-}
-
-.pika-table th,
-.pika-table td {
-    width: 14.285714285714286%;
-    padding: 0;
-}
-
-.pika-table th {
-    color: #999;
-    font-size: 12px;
-    line-height: 25px;
-    font-weight: bold;
-    text-align: center;
-}
+.pika-table { width: 100%; border-collapse: collapse; border-spacing: 0; border: 0; }
+.pika-table th, .pika-table td { width: 14.285714285714286%; padding: 0; }
+.pika-table th { color: #999; font-size: 12px; line-height: 25px; font-weight: bold; text-align: center; }
 
 .pika-button {
     cursor: pointer;
@@ -11023,167 +10970,60 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     background: #f5f5f5;
 }
 
-.pika-week {
-    font-size: 11px;
-    color: #999;
-}
+.is-today .pika-button    { color: #33aaff; font-weight: bold; }
+.is-selected .pika-button { color: #fff; font-weight: bold; background: #33aaff; box-shadow: inset 0 1px 3px #178fe5; border-radius: 3px; }
+.is-disabled .pika-button { pointer-events: none; cursor: default; color: #999; background: #D5E9F7; opacity: .3; }
+.is-outside-current-month .pika-button { color: #999; opacity: .3; }
 
-.is-today .pika-button {
-    color: #33aaff;
-    font-weight: bold;
-}
+.is-selection-disabled { pointer-events: none; cursor: default; }
 
-.is-selected .pika-button,
-.has-event .pika-button {
-    color: #fff;
-    font-weight: bold;
-    background: #33aaff;
-    box-shadow: inset 0 1px 3px #178fe5;
-    border-radius: 3px;
-}
-
-.has-event .pika-button {
-    background: #005da9;
-    box-shadow: inset 0 1px 3px #0076c9;
-}
-
-.is-disabled .pika-button,
-.is-inrange .pika-button {
-    background: #D5E9F7;
-}
-
-.is-startrange .pika-button {
-    color: #fff;
-    background: #6CB31D;
-    box-shadow: none;
-    border-radius: 3px;
-}
-
-.is-endrange .pika-button {
-    color: #fff;
-    background: #33aaff;
-    box-shadow: none;
-    border-radius: 3px;
-}
-
-.is-disabled .pika-button {
-    pointer-events: none;
-    cursor: default;
-    color: #999;
-    opacity: .3;
-}
-
-.is-outside-current-month .pika-button {
-    color: #999;
-    opacity: .3;
-}
-
-.is-selection-disabled {
-    pointer-events: none;
-    cursor: default;
-}
-
-.pika-button:hover,
-.pika-row.pick-whole-week:hover .pika-button {
+.pika-button:hover {
     color: #fff;
     background: #ff8000;
     box-shadow: none;
     border-radius: 3px;
 }
 
-/* styling for abbr */
-.pika-table abbr {
-    border-bottom: none;
-    cursor: help;
-}
+.pika-table abbr { border-bottom: none; cursor: help; }
 `),
 	"public/pikaday.js": []byte(`/*!
- * Pikaday
- *
  * Copyright © 2014 David Bushell | BSD & MIT license | https://github.com/Pikaday/Pikaday
  *
  * NOTE: this is a modified version; see git log for details.
  */
-
 (function() {
     'use strict';
 
-    // TODO: these can all be removed.
+    // TODO: these can be removed.
     var
-    addEvent = function(el, e, callback, capture) { el.addEventListener(e, callback, !!capture); },
+    addEvent    = function(el, e, callback, capture) { el.addEventListener(e, callback, !!capture); },
     removeEvent = function(el, e, callback, capture) { el.removeEventListener(e, callback, !!capture); },
+
     hasClass = function(el, cn) { return el.classList && el.classList.contains(cn) },
-    addClass = function(el, cn) { el.classList.add(cn) },
-    removeClass = function(el, cn) { el.classList.remove(cn) },
+    isArray  = function(obj)    { return (/Array/).test(Object.prototype.toString.call(obj)) },
+    isDate   = function(obj)    { return (/Date/).test(Object.prototype.toString.call(obj)) && !isNaN(obj.getTime()) },
 
-    isArray = function(obj) {
-        return (/Array/).test(Object.prototype.toString.call(obj));
-    },
-
-    isDate = function(obj) {
-        return (/Date/).test(Object.prototype.toString.call(obj)) && !isNaN(obj.getTime());
-    },
-
-    isWeekend = function(date) {
-        var day = date.getDay();
-        return day === 0 || day === 6;
-    },
-
-    isLeapYear = function(year) {
-        // solution lifted from date.js (MIT license): https://github.com/datejs/Datejs
-        return ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0);
-    },
-
-    getDaysInMonth = function(year, month) {
-        return [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
-    },
-
-    setToStartOfDay = function(date) {
-        if (isDate(date)) date.setHours(0,0,0,0);
-    },
-
-    compareDates = function(a,b) {
-        // weak date comparison (use setToStartOfDay(date) to ensure correct result)
-        return a.getTime() === b.getTime();
-    },
+	leapYear        = function(year)         { return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 },
+    getDaysInMonth  = function(year, month) { return [31,(leapYear(year)?29:28),31,30,31,30,31,31,30,31,30,31][month] },
+    setToStartOfDay = function(date)        { if (isDate(date)) date.setHours(0,0,0,0) },
+    compareDates    = function(a, b)        { return a.getTime() === b.getTime() },
 
     extend = function(to, from, overwrite) {
         var prop, hasProp;
         for (prop in from) {
             hasProp = to[prop] !== undefined;
             if (hasProp && typeof from[prop] === 'object' && from[prop] !== null && from[prop].nodeName === undefined) {
-                if (isDate(from[prop])) {
-                    if (overwrite) {
-                        to[prop] = new Date(from[prop].getTime());
-                    }
-                }
-                else if (isArray(from[prop])) {
-                    if (overwrite) {
-                        to[prop] = from[prop].slice(0);
-                    }
-                } else {
+                if (isDate(from[prop]))
+					to[prop] = new Date(from[prop].getTime());
+                else if (isArray(from[prop]))
+					to[prop] = from[prop].slice(0);
+				else
                     to[prop] = extend({}, from[prop], overwrite);
-                }
-            } else if (overwrite || !hasProp) {
-                to[prop] = from[prop];
             }
+			else
+                to[prop] = from[prop];
         }
         return to;
-    },
-
-    fireEvent = function(el, eventName, data) {
-        var ev;
-
-        if (document.createEvent) {
-            ev = document.createEvent('HTMLEvents');
-            ev.initEvent(eventName, true, false);
-            ev = extend(ev, data);
-            el.dispatchEvent(ev);
-        } else if (document.createEventObject) {
-            ev = document.createEventObject();
-            ev = extend(ev, data);
-            el.fireEvent('on' + eventName, ev);
-        }
     },
 
     adjustCalendar = function(calendar) {
@@ -11200,57 +11040,31 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
     // defaults and localisation
     defaults = {
-        // bind the picker to a form field
-        field: null,
+        field:         null,        // bind the picker to a form field
+        toString:      null,        // Format Date as string.
+        parse:         null,        // Create Date object from string.
+        firstDay:      0,           // first day of week (0: Sunday, 1: Monday etc)
+        minDate:       null,        // the minimum/earliest date that can be selected
+        maxDate:       new Date(),  // the maximum/latest date that can be selected
+        yearRange:     10,          // number of years either side, or array of upper/lower range
+        keyboardInput: true,        // Enable keyboard input
+        numberOfMonths: 1,          // how many months are visible
 
-        // automatically show/hide the picker on ` + "`" + `field` + "`" + ` focus (default ` + "`" + `true` + "`" + ` if ` + "`" + `field` + "`" + ` is set)
-        bound: undefined,
+		// when numberOfMonths is used, this will help you to choose where the
+		// main calendar will be (default ` + "`" + `left` + "`" + `, can be set to ` + "`" + `right` + "`" + `)
+        // only used for the first display or when a selected date is not visible
+        mainCalendar: 'left',
 
-        // data-attribute on the input field with an aria assistance tekst (only applied when ` + "`" + `bound` + "`" + ` is set)
-        ariaLabel: 'Use the arrow keys to pick a date',
-
-        // position of the datepicker, relative to the field (default to bottom & left)
-        // ('bottom' & 'left' keywords are not used, 'top' & 'right' are modifier on the bottom/left position)
-        position: 'bottom left',
-
-        // automatically fit in the viewport even if it means repositioning from the position option
-        reposition: true,
-
-        // the default output format for ` + "`" + `.toString()` + "`" + ` and ` + "`" + `field` + "`" + ` value
-        format: 'YYYY-MM-DD',
-
-        // the toString function which gets passed a current date object and format
-        // and returns a string
-        toString: null,
-
-        // used to create date object from current input string
-        parse: null,
-
-        // the initial date to view when first opened
-        defaultDate: null,
-
-        // make the ` + "`" + `defaultDate` + "`" + ` the initial selected value
-        setDefaultDate: false,
-
-        // first day of week (0: Sunday, 1: Monday etc)
-        firstDay: 0,
-
-        // the default flag for moment's strict date parsing
-        formatStrict: false,
-
-        // the minimum/earliest date that can be selected
-        minDate: null,
-        // the maximum/latest date that can be selected
-        maxDate: null,
-
-        // number of years either side, or array of upper/lower range
-        yearRange: 10,
-
-        // show week numbers at head of row
-        showWeekNumber: false,
-
-        // Week picker mode
-        pickWholeWeek: false,
+        // internationalization
+        isRTL: false,
+        i18n: {
+			ariaLabel:     'Use the arrow keys to pick a date',
+            previousMonth: 'Previous Month',
+            nextMonth:     'Next Month',
+            weekdays:      ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+            weekdaysShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+            months:        ['January','February','March','April','May','June','July','August','September','October','November','December'],
+        },
 
         // used internally (don't config outside)
         minYear: 0,
@@ -11258,107 +11072,30 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         minMonth: undefined,
         maxMonth: undefined,
 
-        startRange: null,
-        endRange: null,
-
-        isRTL: false,
-
-        // Additional text to append to the year in the calendar title
-        yearSuffix: '',
-
-        // Render the month after year in the calendar title
-        showMonthAfterYear: false,
-
-        // Render days of the calendar grid that fall in the next or previous month
-        showDaysInNextAndPreviousMonths: false,
-
-        // Allows user to select days that fall in the next or previous month
-        enableSelectionDaysInNextAndPreviousMonths: false,
-
-        // how many months are visible
-        numberOfMonths: 1,
-
-        // when numberOfMonths is used, this will help you to choose where the main calendar will be (default ` + "`" + `left` + "`" + `, can be set to ` + "`" + `right` + "`" + `)
-        // only used for the first display or when a selected date is not visible
-        mainCalendar: 'left',
-
-        // Specify a DOM element to render the calendar in
-        container: undefined,
-
-        // Blur field when date is selected
-        blurFieldOnSelect : true,
-
-        // internationalization
-        i18n: {
-            previousMonth : 'Previous Month',
-            nextMonth     : 'Next Month',
-            months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
-            weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-            weekdaysShort : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-        },
-
-        // Theme Classname
-        theme: null,
-
-        // events array
-        events: [],
-
-        // callback function
-        onSelect: null,
-        onOpen: null,
-        onClose: null,
-        onDraw: null,
-
-        // Enable keyboard input
-        keyboardInput: true,
     },
 
 	// Templating functions to abstract HTML rendering
     renderDayName = function(opts, day, abbr) {
-        day += opts.firstDay;
-        while (day >= 7) {
-            day -= 7;
-        }
-        return abbr ? opts.i18n.weekdaysShort[day] : opts.i18n.weekdays[day];
+        day += opts.firstDay
+        while (day >= 7)
+            day -= 7
+        return abbr ? opts.i18n.weekdaysShort[day] : opts.i18n.weekdays[day]
     },
 
     renderDay = function(opts) {
         var arr = [];
         var ariaSelected = 'false';
-        if (opts.isEmpty) {
-            if (opts.showDaysInNextAndPreviousMonths) {
-                arr.push('is-outside-current-month');
-
-                if(!opts.enableSelectionDaysInNextAndPreviousMonths) {
-                    arr.push('is-selection-disabled');
-                }
-
-            } else {
-                return '<td class="is-empty"></td>';
-            }
-        }
-        if (opts.isDisabled) {
+        if (opts.isEmpty)
+            arr.push('is-outside-current-month');
+        if (opts.isDisabled)
             arr.push('is-disabled');
-        }
-        if (opts.isToday) {
+        if (opts.isToday)
             arr.push('is-today');
-        }
         if (opts.isSelected) {
             arr.push('is-selected');
             ariaSelected = 'true';
         }
-        if (opts.hasEvent) {
-            arr.push('has-event');
-        }
-        if (opts.isInRange) {
-            arr.push('is-inrange');
-        }
-        if (opts.isStartRange) {
-            arr.push('is-startrange');
-        }
-        if (opts.isEndRange) {
-            arr.push('is-endrange');
-        }
+
         return '<td data-day="' + opts.day + '" class="' + arr.join(' ') + '" aria-selected="' + ariaSelected + '">' +
                  '<button class="pika-button link pika-day" type="button" ' +
                     'data-pika-year="' + opts.year + '" data-pika-month="' + opts.month + '" data-pika-day="' + opts.day + '">' +
@@ -11367,39 +11104,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                '</td>';
     },
 
-    isoWeek = function(date) {
-        // Ensure we're at the start of the day.
-        date.setHours(0, 0, 0, 0);
-
-        // Thursday in current week decides the year because January 4th
-        // is always in the first week according to ISO8601.
-        var yearDay        = date.getDate(),
-			weekDay        = date.getDay(),
-			dayInFirstWeek = 4, // January 4th
-			dayShift       = dayInFirstWeek - 1, // counting starts at 0
-			daysPerWeek    = 7,
-			prevWeekDay    = function(day) { return (day + daysPerWeek - 1) % daysPerWeek };
-
-        // Adjust to Thursday in week 1 and count number of weeks from date to week 1.
-        date.setDate(yearDay + dayShift - prevWeekDay(weekDay));
-
-        var jan4th      = new Date(date.getFullYear(), 0, dayInFirstWeek),
-			msPerDay    = 24 * 60 * 60 * 1000,
-			daysBetween = (date.getTime() - jan4th.getTime()) / msPerDay,
-			weekNum     = 1 + Math.round((daysBetween - dayShift + prevWeekDay(jan4th.getDay())) / daysPerWeek);
-
-        return weekNum;
-    },
-
-    renderWeek = function (d, m, y) {
-        var date = new Date(y, m, d),
-            week = isoWeek(date) ;
-
-        return '<td class="pika-week">' + week + '</td>';
-    },
-
-    renderRow = function(days, isRTL, pickWholeWeek, isRowSelected) {
-        return '<tr class="pika-row' + (pickWholeWeek ? ' pick-whole-week' : '') + (isRowSelected ? ' is-selected' : '') + '">' + (isRTL ? days.reverse() : days).join('') + '</tr>';
+    renderRow = function(days, isRTL) {
+        return '<tr class="pika-row">' + (isRTL ? days.reverse() : days).join('') + '</tr>';
     },
 
     renderBody = function(rows) {
@@ -11408,9 +11114,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
     renderHead = function(opts) {
         var i, arr = [];
-        if (opts.showWeekNumber) {
-            arr.push('<th></th>');
-        }
         for (i = 0; i < 7; i++) {
             arr.push('<th scope="col"><abbr title="' + renderDayName(opts, i) + '">' + renderDayName(opts, i, true) + '</abbr></th>');
         }
@@ -11450,21 +11153,15 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                 arr.push('<option value="' + i + '"' + (i === year ? ' selected="selected"': '') + '>' + (i) + '</option>');
             }
         }
-        yearHtml = '<div class="pika-label">' + year + opts.yearSuffix + '<select class="pika-select pika-select-year" tabindex="-1">' + arr.join('') + '</select></div>';
+        yearHtml = '<div class="pika-label">' + year + '<select class="pika-select pika-select-year" tabindex="-1">' + arr.join('') + '</select></div>';
 
-        if (opts.showMonthAfterYear) {
-            html += yearHtml + monthHtml;
-        } else {
-            html += monthHtml + yearHtml;
-        }
+		html += monthHtml + yearHtml;
 
-        if (isMinYear && (month === 0 || opts.minMonth >= month)) {
+        if (isMinYear && (month === 0 || opts.minMonth >= month))
             prev = false;
-        }
 
-        if (isMaxYear && (month === 11 || opts.maxMonth <= month)) {
+        if (isMaxYear && (month === 11 || opts.maxMonth <= month))
             next = false;
-        }
 
         if (c === 0) {
             html += '<button class="pika-prev link' + (prev ? '' : ' is-disabled') + '" type="button" ' +
@@ -11484,9 +11181,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 
     // Pikaday constructor
-    Pikaday = function(options) {
+    Pikaday = function(field, options) {
         var self = this,
-            opts = self.config(options);
+            opts = self.config(field, options);
 
         self._onMouseDown = function(e) {
             if (!self._v)
@@ -11503,34 +11200,30 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						target.getAttribute('data-pika-month'),
 						target.getAttribute('data-pika-day')));
 
-                    if (opts.bound) {
-                        setTimeout(function() {
-                            self.hide();
-                            if (opts.blurFieldOnSelect && opts.field)
-                                opts.field.blur();
-                        }, 100);
-                    }
+					setTimeout(function() {
+						self.hide();
+						opts.field.blur();
+					}, 100);
                 }
-                else if (hasClass(target, 'pika-prev')) {
+                else if (hasClass(target, 'pika-prev'))
                     self.prevMonth();
-                }
-                else if (hasClass(target, 'pika-next')) {
+                else if (hasClass(target, 'pika-next'))
                     self.nextMonth();
-                }
             }
             if (!hasClass(target, 'pika-select')) {
                 // if this is touch event prevent mouse events emulation
-                if (e.preventDefault) {
+                if (e.preventDefault)
                     e.preventDefault();
-                } else {
+				else {
                     e.returnValue = false;
                     return false;
                 }
-            } else {
-                self._c = true;
             }
+			else
+                self._c = true;
         };
 
+		// TODO: never gets called?
         self._onChange = function(e) {
             var target = e.target;
             if (!target)
@@ -11549,13 +11242,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             switch (e.keyCode) {
                 case 13:  // <Enter>
                 case 27:  // <Esc>
-                    if (opts.field) {
-                        opts.field.blur();
-                    }
-                    break;
+					opts.field.blur()
+                    break
                 case 37:  // <Left>
-                    self.adjustDate('subtract', 1);
-                    break;
+                    self.adjustDate('subtract', 1)
+                    break
                 case 38:  // <Up>
                     self.adjustDate('subtract', 7);
                     break;
@@ -11569,10 +11260,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         };
 
         self._parseFieldValue = function() {
-            if (opts.parse)
-                return opts.parse(opts.field.value, opts.format);
-            else
-                return new Date(Date.parse(opts.field.value));
+            return opts.parse(opts.field.value);
         };
 
         self._onInputChange = function(e) {
@@ -11599,9 +11287,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             // IE allows pika div to gain focus; catch blur the input field
             var pEl = document.activeElement;
             do {
-                if (hasClass(pEl, 'pika-single')) {
+                if (hasClass(pEl, 'pika-single'))
                     return;
-                }
             }
             while ((pEl = pEl.parentNode));
 
@@ -11620,17 +11307,17 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                 return;
 
             do {
-                if (hasClass(pEl, 'pika-single') || pEl === opts.trigger) {
+                if (hasClass(pEl, 'pika-single') || pEl === opts.field) {
                     return;
                 }
             } while ((pEl = pEl.parentNode));
-            if (self._v && target !== opts.trigger && pEl !== opts.trigger) {
+
+            if (self._v && target !== opts.field && pEl !== opts.field)
                 self.hide();
-            }
         };
 
         self.el = document.createElement('div');
-        self.el.className = 'pika-single' + (opts.isRTL ? ' is-rtl' : '') + (opts.theme ? ' ' + opts.theme : '');
+        self.el.className = 'pika-single' + (opts.isRTL ? ' is-rtl' : '');
 
         addEvent(self.el, 'mousedown', self._onMouseDown, true);
         addEvent(self.el, 'touchend', self._onMouseDown, true);
@@ -11639,69 +11326,34 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         if (opts.keyboardInput)
             addEvent(document, 'keydown', self._onKeyChange)
 
-        if (opts.field) {
-            if (opts.container)
-                opts.container.appendChild(self.el)
-            else if (opts.bound)
-                document.body.appendChild(self.el)
-            else
-                opts.field.parentNode.insertBefore(self.el, opts.field.nextSibling)
-            addEvent(opts.field, 'change', self._onInputChange);
+		document.body.appendChild(self.el)
+		addEvent(opts.field, 'change', self._onInputChange);
 
-            if (!opts.defaultDate) {
-                opts.defaultDate = self._parseFieldValue();
-                opts.setDefaultDate = true;
-            }
-        }
-
-        var defDate = opts.defaultDate;
-
-        if (isDate(defDate)) {
-            // if (opts.setDefaultDate)
-            //     self.setDate(defDate, true)
-            // else
-                self.gotoDate(defDate)
-        }
+        var defDate = self._parseFieldValue()
+        if (isDate(defDate))
+			self.setDate(defDate, true)
 		else
             self.gotoDate(new Date());
 
-        if (opts.bound) {
-            this.hide();
-            self.el.className += ' is-bound';
-            addEvent(opts.trigger, 'click', self._onInputClick);
-            addEvent(opts.trigger, 'focus', self._onInputFocus);
-            addEvent(opts.trigger, 'blur', self._onInputBlur);
-        }
-		else
-            this.show();
+		this.hide();
+		self.el.className += ' is-bound';
+		addEvent(opts.field, 'click', self._onInputClick);
+		addEvent(opts.field, 'focus', self._onInputFocus);
+		addEvent(opts.field, 'blur', self._onInputBlur);
     };
 
     // public Pikaday API
     Pikaday.prototype = {
         // configure functionality
-        config: function(options) {
+        config: function(field, options) {
+			options.field = field
             if (!this._o)
-                this._o = extend({}, defaults, true);
-
-            var opts = extend(this._o, options, true);
-
-            opts.isRTL = !!opts.isRTL;
-            opts.field = (opts.field && opts.field.nodeName) ? opts.field : null;
-            opts.theme = (typeof opts.theme) === 'string' && opts.theme ? opts.theme : null;
-            opts.bound = !!(opts.bound !== undefined ? opts.field && opts.bound : opts.field);
-            opts.trigger = (opts.trigger && opts.trigger.nodeName) ? opts.trigger : opts.field;
-            opts.disableWeekends = !!opts.disableWeekends;
-            opts.disableDayFn = (typeof opts.disableDayFn) === 'function' ? opts.disableDayFn : null;
+                this._o = extend({}, defaults)
+            var opts = extend(this._o, options)
 
             var nom = parseInt(opts.numberOfMonths, 10) || 1;
             opts.numberOfMonths = nom > 4 ? 4 : nom;
 
-            if (!isDate(opts.minDate))
-                opts.minDate = false;
-            if (!isDate(opts.maxDate))
-                opts.maxDate = false;
-            if ((opts.minDate && opts.maxDate) && opts.maxDate < opts.minDate)
-                opts.maxDate = opts.minDate = false;
             if (opts.minDate)
                 this.setMinDate(opts.minDate);
             if (opts.maxDate)
@@ -11722,15 +11374,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         },
 
         // return a formatted string of the current selection.
-        toString: function(format) {
-            format = format || this._o.format;
-            if (!isDate(this._d)) {
-                return '';
-            }
-            if (this._o.toString) {
-              return this._o.toString(this._d, format);
-            }
-            return this._d.toDateString();
+        toString: function() {
+            if (!isDate(this._d))
+                return ''
+            if (this._o.toString)
+				return this._o.toString(this._d)
+            return this._d.toDateString()
         },
 
         // return a Date object of the current selection
@@ -11739,13 +11388,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
         },
 
         // set the current selection
-        setDate: function(date, preventOnSelect) {
+        setDate: function(date, noSubmit) {
             if (!date) {
                 this._d = null
-                if (this._o.field) {
-                    this._o.field.value = ''
-                    fireEvent(this._o.field, 'change', {firedBy: this})
-                }
+				this._o.field.value = ''
                 return this.draw();
             }
 
@@ -11767,17 +11413,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             setToStartOfDay(this._d)
             this.gotoDate(this._d)
 
-            if (this._o.field) {
-                this._o.field.value = this.toString()
-                fireEvent(this._o.field, 'change', {firedBy: this})
-            }
-            if (!preventOnSelect && typeof this._o.onSelect === 'function')
-                this._o.onSelect.call(this, this.getDate())
-        },
+			this._o.field.value = this.toString()
 
-        // clear and reset the date
-        clear: function() {
-            this.setDate(null);
+			if (!noSubmit)
+				$(this._o.field).closest('form').trigger('submit')
         },
 
         // change view to a specific date
@@ -11873,11 +11512,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                 this._o.minDate = value;
                 this._o.minYear  = value.getFullYear();
                 this._o.minMonth = value.getMonth();
-            } else {
+            }
+			else {
                 this._o.minDate = defaults.minDate;
                 this._o.minYear  = defaults.minYear;
                 this._o.minMonth = defaults.minMonth;
-                this._o.startRange = defaults.startRange;
             }
 
             this.draw();
@@ -11894,25 +11533,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
                 this._o.maxDate = defaults.maxDate;
                 this._o.maxYear = defaults.maxYear;
                 this._o.maxMonth = defaults.maxMonth;
-                this._o.endRange = defaults.endRange;
             }
 
             this.draw();
         },
 
-        setStartRange: function(value) {
-            this._o.startRange = value;
-        },
-
-        setEndRange: function(value) {
-            this._o.endRange = value;
-        },
-
         // refresh the HTML
         draw: function(force) {
-            if (!this._v && !force) {
+            if (!this._v && !force)
                 return;
-            }
+
             var opts = this._o,
                 minYear = opts.minYear,
                 maxYear = opts.maxYear,
@@ -11923,15 +11553,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
             if (this._y <= minYear) {
                 this._y = minYear;
-                if (!isNaN(minMonth) && this._m < minMonth) {
+                if (!isNaN(minMonth) && this._m < minMonth)
                     this._m = minMonth;
-                }
             }
             if (this._y >= maxYear) {
                 this._y = maxYear;
-                if (!isNaN(maxMonth) && this._m > maxMonth) {
+                if (!isNaN(maxMonth) && this._m > maxMonth)
                     this._m = maxMonth;
-                }
             }
 
             for (var c = 0; c < opts.numberOfMonths; c++) {
@@ -11941,82 +11569,45 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
             this.el.innerHTML = html;
 
-            if (opts.bound) {
-                if(opts.field.type !== 'hidden') {
-                    setTimeout(function() {
-                        opts.trigger.focus();
-                    }, 1);
-                }
-            }
+            if (opts.field.type !== 'hidden')
+				setTimeout(function() { opts.field.focus() }, 1);
 
-            if (typeof this._o.onDraw === 'function') {
-                this._o.onDraw(this);
-            }
-
-            if (opts.bound) {
-                // let the screen reader user know to use arrow keys
-                opts.field.setAttribute('aria-label', opts.ariaLabel);
-            }
+            // let the screen reader user know to use arrow keys
+            opts.field.setAttribute('aria-label', opts.i18n.ariaLabel);
         },
 
         adjustPosition: function() {
-            var field, pEl, width, height, viewportWidth, viewportHeight, scrollTop, left, top, clientRect, leftAligned, bottomAligned;
-
-            if (this._o.container)
-				return;
+            var field, pEl, width, height, viewportWidth, viewportHeight, scrollTop,
+				left, top, clientRect;
 
             this.el.style.position = 'absolute';
 
-            field = this._o.trigger;
-            pEl = field;
-            width = this.el.offsetWidth;
-            height = this.el.offsetHeight;
-            viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+            field          = this._o.field;
+            pEl            = field;
+            width          = this.el.offsetWidth;
+            height         = this.el.offsetHeight;
+            viewportWidth  = window.innerWidth || document.documentElement.clientWidth;
             viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-            scrollTop = window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop;
-            leftAligned = true;
-            bottomAligned = true;
+            scrollTop      = window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop;
 
             if (typeof field.getBoundingClientRect === 'function') {
                 clientRect = field.getBoundingClientRect();
                 left = clientRect.left + window.pageXOffset;
                 top = clientRect.bottom + window.pageYOffset;
-            } else {
+            }
+			else {
                 left = pEl.offsetLeft;
                 top  = pEl.offsetTop + pEl.offsetHeight;
-                while((pEl = pEl.offsetParent)) {
+                while ((pEl = pEl.offsetParent)) {
                     left += pEl.offsetLeft;
                     top  += pEl.offsetTop;
                 }
             }
 
-            // default position is bottom & left
-            if ((this._o.reposition && left + width > viewportWidth) ||
-                (
-                    this._o.position.indexOf('right') > -1 &&
-                    left - width + field.offsetWidth > 0
-                )
-            ) {
-                left = left - width + field.offsetWidth;
-                leftAligned = false;
-            }
-            if ((this._o.reposition && top + height > viewportHeight + scrollTop) ||
-                (
-                    this._o.position.indexOf('top') > -1 &&
-                    top - height - field.offsetHeight > 0
-                )
-            ) {
-                top = top - height - field.offsetHeight;
-                bottomAligned = false;
-            }
-
             this.el.style.left = Math.max(left, 0) + 'px';
             this.el.style.top =  Math.max(top, 0) + 'px';
-
-            addClass(this.el, leftAligned ? 'left-aligned' : 'right-aligned');
-            addClass(this.el, bottomAligned ? 'bottom-aligned' : 'top-aligned');
-            removeClass(this.el, !leftAligned ? 'left-aligned' : 'right-aligned');
-            removeClass(this.el, !bottomAligned ? 'bottom-aligned' : 'top-aligned');
+			this.el.classList.add('left-aligned')
+			this.el.classList.add('bottom-aligned')
         },
 
         // render HTML for a particular month
@@ -12030,82 +11621,59 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             setToStartOfDay(now);
             if (opts.firstDay > 0) {
                 before -= opts.firstDay;
-                if (before < 0) {
-                    before += 7;
-                }
+                if (before < 0)
+                    before += 7
             }
-            var previousMonth = month === 0 ? 11 : month - 1,
-                nextMonth = month === 11 ? 0 : month + 1,
+            var previousMonth       = month === 0 ? 11 : month - 1,
+                nextMonth           = month === 11 ? 0 : month + 1,
                 yearOfPreviousMonth = month === 0 ? year - 1 : year,
-                yearOfNextMonth = month === 11 ? year + 1 : year,
+                yearOfNextMonth     = month === 11 ? year + 1 : year,
                 daysInPreviousMonth = getDaysInMonth(yearOfPreviousMonth, previousMonth);
+
             var cells = days + before,
                 after = cells;
-            while(after > 7) {
+            while (after > 7)
                 after -= 7;
-            }
             cells += 7 - after;
-            var isWeekSelected = false;
-            for (var i = 0, r = 0; i < cells; i++)
-            {
-                var day = new Date(year, month, 1 + (i - before)),
-                    isSelected = isDate(this._d) ? compareDates(day, this._d) : false,
-                    isToday = compareDates(day, now),
-                    hasEvent = opts.events.indexOf(day.toDateString()) !== -1 ? true : false,
-                    isEmpty = i < before || i >= (days + before),
-                    dayNumber = 1 + (i - before),
-                    monthNumber = month,
-                    yearNumber = year,
-                    isStartRange = opts.startRange && compareDates(opts.startRange, day),
-                    isEndRange = opts.endRange && compareDates(opts.endRange, day),
-                    isInRange = opts.startRange && opts.endRange && opts.startRange < day && day < opts.endRange,
-                    isDisabled = (opts.minDate && day < opts.minDate) ||
-                                 (opts.maxDate && day > opts.maxDate) ||
-                                 (opts.disableWeekends && isWeekend(day)) ||
-                                 (opts.disableDayFn && opts.disableDayFn(day));
+
+            for (var i=0, r=0; i<cells; i++) {
+                var day          = new Date(year, month, 1 + (i - before)),
+                    isSelected   = isDate(this._d) ? compareDates(day, this._d) : false,
+                    isToday      = compareDates(day, now),
+                    isEmpty      = i < before || i >= (days + before),
+                    dayNumber    = 1 + (i - before),
+                    monthNumber  = month,
+                    yearNumber   = year,
+                    isDisabled   = (opts.minDate && day < opts.minDate) ||
+                                   (opts.maxDate && day > opts.maxDate);
 
                 if (isEmpty) {
                     if (i < before) {
                         dayNumber = daysInPreviousMonth + dayNumber;
                         monthNumber = previousMonth;
                         yearNumber = yearOfPreviousMonth;
-                    } else {
+                    }
+					else {
                         dayNumber = dayNumber - days;
                         monthNumber = nextMonth;
                         yearNumber = yearOfNextMonth;
                     }
                 }
 
-                var dayConfig = {
-                        day: dayNumber,
-                        month: monthNumber,
-                        year: yearNumber,
-                        hasEvent: hasEvent,
-                        isSelected: isSelected,
-                        isToday: isToday,
-                        isDisabled: isDisabled,
-                        isEmpty: isEmpty,
-                        isStartRange: isStartRange,
-                        isEndRange: isEndRange,
-                        isInRange: isInRange,
-                        showDaysInNextAndPreviousMonths: opts.showDaysInNextAndPreviousMonths,
-                        enableSelectionDaysInNextAndPreviousMonths: opts.enableSelectionDaysInNextAndPreviousMonths
-                    };
-
-                if (opts.pickWholeWeek && isSelected) {
-                    isWeekSelected = true;
-                }
-
-                row.push(renderDay(dayConfig));
+                row.push(renderDay({
+					day:          dayNumber,
+					month:        monthNumber,
+					year:         yearNumber,
+					isSelected:   isSelected,
+					isToday:      isToday,
+					isDisabled:   isDisabled,
+					isEmpty:      isEmpty,
+				}))
 
                 if (++r === 7) {
-                    if (opts.showWeekNumber) {
-                        row.unshift(renderWeek(i - before, month, year));
-                    }
-                    data.push(renderRow(row, opts.isRTL, opts.pickWholeWeek, isWeekSelected));
+                    data.push(renderRow(row, opts.isRTL));
                     row = [];
                     r = 0;
-                    isWeekSelected = false;
                 }
             }
             return renderTable(opts, data, randId);
@@ -12119,56 +11687,25 @@ http://nicolasgallagher.com/micro-clearfix-hack/
             if (!this.isVisible()) {
                 this._v = true;
                 this.draw();
-                removeClass(this.el, 'is-hidden');
-                if (this._o.bound) {
-                    addEvent(document, 'click', this._onClick);
-                    this.adjustPosition();
-                }
-                if (typeof this._o.onOpen === 'function') {
-                    this._o.onOpen.call(this);
-                }
+                this.el.classList.remove('is-hidden');
+				addEvent(document, 'click', this._onClick);
+				this.adjustPosition();
             }
         },
 
         hide: function() {
             var v = this._v;
             if (v !== false) {
-                if (this._o.bound) {
-                    removeEvent(document, 'click', this._onClick);
-                }
+                removeEvent(document, 'click', this._onClick);
+
                 this.el.style.position = 'static'; // reset
                 this.el.style.left = 'auto';
                 this.el.style.top = 'auto';
-                addClass(this.el, 'is-hidden');
+
+                this.el.classList.add('is-hidden');
                 this._v = false;
-                if (v !== undefined && typeof this._o.onClose === 'function') {
-                    this._o.onClose.call(this);
-                }
             }
         },
-
-        // GAME OVER
-        destroy: function() {
-            var opts = this._o;
-
-            this.hide();
-            removeEvent(this.el, 'mousedown', this._onMouseDown, true);
-            removeEvent(this.el, 'touchend', this._onMouseDown, true);
-            removeEvent(this.el, 'change', this._onChange);
-            if (opts.keyboardInput) {
-                removeEvent(document, 'keydown', this._onKeyChange);
-            }
-            if (opts.field) {
-                removeEvent(opts.field, 'change', this._onInputChange);
-                if (opts.bound) {
-                    removeEvent(opts.trigger, 'click', this._onInputClick);
-                    removeEvent(opts.trigger, 'focus', this._onInputFocus);
-                    removeEvent(opts.trigger, 'blur', this._onInputBlur);
-                }
-            }
-            if (this.el.parentNode)
-                this.el.parentNode.removeChild(this.el)
-        }
     };
 
     window.Pikaday = Pikaday;
@@ -12632,10 +12169,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				$('#period-end').addClass('red').after(' <span class="red">end date before start date</span>')
 		})
 
-		$('#period-start, #period-end').on('change', function(e) {
-			$(this).closest('form').trigger('submit')
-		})
-
 		// Change to type="date" on mobile as that gives a better experience.
 		//
 		// Not done on *any* desktop OS as styling these fields with basic stuff
@@ -12649,8 +12182,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
 
-		new Pikaday({field: $('#period-start')[0], toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
-		new Pikaday({field: $('#period-end')[0],   toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week ? 0 : 1});
+		var opts = {toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_CREATED)}
+		new Pikaday($('#period-start')[0], opts)
+		new Pikaday($('#period-end')[0], opts)
 	};
 
 	// Subscribe with Stripe.

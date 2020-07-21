@@ -20,32 +20,13 @@
 clear child float (pika-lendar), using the famous micro clearfix hack
 http://nicolasgallagher.com/micro-clearfix-hack/
 */
-.pika-single:before,
-.pika-single:after {
-    content: " ";
-    display: table;
-}
+.pika-single:before, .pika-single:after { content: " "; display: table; }
 .pika-single:after { clear: both }
 
-.pika-single.is-hidden {
-    display: none;
-}
-
-.pika-single.is-bound {
-    position: absolute;
-    box-shadow: 0 5px 15px -5px rgba(0,0,0,.5);
-}
-
-.pika-lendar {
-    float: left;
-    width: 240px;
-    margin: 8px;
-}
-
-.pika-title {
-    position: relative;
-    text-align: center;
-}
+.pika-single.is-hidden { display: none; }
+.pika-single.is-bound  { position: absolute; box-shadow: 0 5px 15px -5px rgba(0,0,0,.5); }
+.pika-lendar           { float: left; width: 240px; margin: 8px; }
+.pika-title            { position: relative; text-align: center; }
 
 .pika-label {
     display: inline-block;
@@ -69,8 +50,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     opacity: 0;
 }
 
-.pika-prev,
-.pika-next {
+.pika-prev, .pika-next {
     display: block;
     cursor: pointer;
     position: relative;
@@ -86,51 +66,18 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     opacity: .5;
 }
 
-.pika-prev:hover,
-.pika-next:hover {
-    opacity: 1;
-}
-
-.pika-prev,
-.is-rtl .pika-next {
-    float: left;
-}
-
-.pika-next,
-.is-rtl .pika-prev {
-    float: right;
-}
-
-.pika-prev.is-disabled,
-.pika-next.is-disabled {
-    cursor: default;
-    opacity: .2;
-}
+.pika-prev:hover, .pika-next:hover { opacity: 1; }
+.pika-prev, .is-rtl .pika-next { float: left; }
+.pika-next, .is-rtl .pika-prev { float: right; }
+.pika-prev.is-disabled, .pika-next.is-disabled { cursor: default; opacity: .2; }
 
 .pika-select {
     display: inline-block;
 }
 
-.pika-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    border: 0;
-}
-
-.pika-table th,
-.pika-table td {
-    width: 14.285714285714286%;
-    padding: 0;
-}
-
-.pika-table th {
-    color: #999;
-    font-size: 12px;
-    line-height: 25px;
-    font-weight: bold;
-    text-align: center;
-}
+.pika-table { width: 100%; border-collapse: collapse; border-spacing: 0; border: 0; }
+.pika-table th, .pika-table td { width: 14.285714285714286%; padding: 0; }
+.pika-table th { color: #999; font-size: 12px; line-height: 25px; font-weight: bold; text-align: center; }
 
 .pika-button {
     cursor: pointer;
@@ -149,76 +96,18 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     background: #f5f5f5;
 }
 
-.pika-week {
-    font-size: 11px;
-    color: #999;
-}
+.is-today .pika-button    { color: #33aaff; font-weight: bold; }
+.is-selected .pika-button { color: #fff; font-weight: bold; background: #33aaff; box-shadow: inset 0 1px 3px #178fe5; border-radius: 3px; }
+.is-disabled .pika-button { pointer-events: none; cursor: default; color: #999; background: #D5E9F7; opacity: .3; }
+.is-outside-current-month .pika-button { color: #999; opacity: .3; }
 
-.is-today .pika-button {
-    color: #33aaff;
-    font-weight: bold;
-}
+.is-selection-disabled { pointer-events: none; cursor: default; }
 
-.is-selected .pika-button,
-.has-event .pika-button {
-    color: #fff;
-    font-weight: bold;
-    background: #33aaff;
-    box-shadow: inset 0 1px 3px #178fe5;
-    border-radius: 3px;
-}
-
-.has-event .pika-button {
-    background: #005da9;
-    box-shadow: inset 0 1px 3px #0076c9;
-}
-
-.is-disabled .pika-button,
-.is-inrange .pika-button {
-    background: #D5E9F7;
-}
-
-.is-startrange .pika-button {
-    color: #fff;
-    background: #6CB31D;
-    box-shadow: none;
-    border-radius: 3px;
-}
-
-.is-endrange .pika-button {
-    color: #fff;
-    background: #33aaff;
-    box-shadow: none;
-    border-radius: 3px;
-}
-
-.is-disabled .pika-button {
-    pointer-events: none;
-    cursor: default;
-    color: #999;
-    opacity: .3;
-}
-
-.is-outside-current-month .pika-button {
-    color: #999;
-    opacity: .3;
-}
-
-.is-selection-disabled {
-    pointer-events: none;
-    cursor: default;
-}
-
-.pika-button:hover,
-.pika-row.pick-whole-week:hover .pika-button {
+.pika-button:hover {
     color: #fff;
     background: #ff8000;
     box-shadow: none;
     border-radius: 3px;
 }
 
-/* styling for abbr */
-.pika-table abbr {
-    border-bottom: none;
-    cursor: help;
-}
+.pika-table abbr { border-bottom: none; cursor: help; }
