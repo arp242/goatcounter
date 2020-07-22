@@ -16,15 +16,20 @@ import (
 	"zgo.at/errors"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
 func ptr(s string) *string { return &s }
 
 type Hit struct {
-	ID      int64  `db:"id" json:"-"`
-	Site    int64  `db:"site" json:"-"`
-	Session *int64 `db:"session" json:"-"`
+	ID      int64        `db:"id" json:"-"`
+	Site    int64        `db:"site" json:"-"`
+	Session zint.Uint128 `db:"session2" json:"-"`
+
+	// Old incremental session IDs; kinda expensive to migrate, and only used
+	// for export. Will migrate later when I refactor the hits table.
+	OldSession *int64 `db:"session" json:"-"`
 
 	Path  string     `db:"path" json:"p,omitempty"`
 	Title string     `db:"title" json:"t,omitempty"`
@@ -120,11 +125,7 @@ func (h Hit) String() string {
 	t := tabwriter.NewWriter(b, 8, 8, 2, ' ', 0)
 	fmt.Fprintf(t, "ID\t%d\n", h.ID)
 	fmt.Fprintf(t, "Site\t%d\n", h.Site)
-	if h.Session == nil {
-		fmt.Fprintf(t, "Session\t<nil>\n")
-	} else {
-		fmt.Fprintf(t, "Session\t%d\n", *h.Session)
-	}
+	fmt.Fprintf(t, "Session\t%s\n", h.Session.Format(16))
 	fmt.Fprintf(t, "Path\t%q\n", h.Path)
 	fmt.Fprintf(t, "Title\t%q\n", h.Title)
 	fmt.Fprintf(t, "Ref\t%q\n", h.Ref)

@@ -28,6 +28,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
 	"zgo.at/ztest"
 )
@@ -166,11 +167,10 @@ func TestBackendCount(t *testing.T) {
 				t.Errorf("Validate failed after get: %s", err)
 			}
 
-			one := int64(1)
 			tt.hit.ID = h.ID
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
-			tt.hit.Session = &one // Should all be the same session.
+			tt.hit.Session = goatcounter.TestSeqSession // Should all be the same session.
 			if tt.hit.Browser == "" {
 				tt.hit.Browser = "GoatCounter test runner/1.0"
 			}
@@ -239,21 +239,35 @@ func TestBackendCountSessions(t *testing.T) {
 		return hits
 	}
 
-	checkSess := func(hits goatcounter.Hits, want []int) {
-		var got []int
+	checkSess := func(hits goatcounter.Hits, wantInt []int) {
+		var got []zint.Uint128
 		for _, h := range hits {
-			got = append(got, int(*h.Session))
+			got = append(got, h.Session)
 			if !h.FirstVisit {
 				t.Errorf("FirstVisit is false for %v", h)
 			}
 		}
 
-		// TODO: test in order.
-		sort.Ints(want)
-		sort.Ints(got)
+		first := zint.Uint128{H: goatcounter.TestSession.H, L: goatcounter.TestSession.L + 1}
+		want := make([]zint.Uint128, len(wantInt))
+		for i := range wantInt {
+			want[i] = first
+			want[i].L += uint64(wantInt[i])
+		}
 
-		w := fmt.Sprintf("%#v", want)
-		g := fmt.Sprintf("%#v", got)
+		// TODO: test in order.
+		sort.Slice(want, func(i, j int) bool { return want[i].L < want[j].L })
+		var w string
+		for _, ww := range want {
+			w += ww.Format(16) + " "
+		}
+
+		sort.Slice(got, func(i, j int) bool { return got[i].L < got[j].L })
+		var g string
+		for _, gg := range got {
+			g += gg.Format(16) + " "
+		}
+
 		if w != g {
 			t.Errorf("wrong session\nwant: %s\ngot:  %s", w, g)
 		}
@@ -723,10 +737,8 @@ func TestBackendBarChart(t *testing.T) {
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
 		})
-		one := int64(1)
 		gctest.StoreHits(ctx, t, goatcounter.Hit{
 			Site:      site.ID,
-			Session:   &one,
 			CreatedAt: tt.hit.UTC(),
 			Path:      "/a",
 		})

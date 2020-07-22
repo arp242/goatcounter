@@ -14,10 +14,18 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zint"
+)
+
+var (
+	// Valid UUID for testing: 00112233-4455-6677-8899-aabbccddeeff
+	TestSession    = zint.Uint128{H: 0x11223344556677, L: 0x8899aabbccddeeff}
+	TestSeqSession = zint.Uint128{H: TestSession.H, L: TestSession.L + 1}
 )
 
 type ms struct {
@@ -25,41 +33,48 @@ type ms struct {
 	hits  []Hit
 
 	sessionMu     sync.RWMutex
-	sessionID     int64                         // Incrementing session ID
-	sessions      map[string]int64              // Hash → sessionID
-	sessionHashes map[int64]string              // sessionID → hash
-	sessionPaths  map[int64]map[string]struct{} // SessionID → Path
-	sessionSeen   map[int64]int64               // SessionID → lastseen
+	sessions      map[string]zint.Uint128              // Hash → sessionID
+	sessionHashes map[zint.Uint128]string              // sessionID → hash
+	sessionPaths  map[zint.Uint128]map[string]struct{} // SessionID → Path
+	sessionSeen   map[zint.Uint128]int64               // SessionID → lastseen
 	curSalt       []byte
 	prevSalt      []byte
 	saltRotated   time.Time
+
+	testHook bool
 }
 
 var Memstore ms
 
 type storedSession struct {
-	ID          int64                         `json:"id"`
-	Sessions    map[string]int64              `json:"sessions"`
-	Hashes      map[int64]string              `json:"hashes"`
-	Paths       map[int64]map[string]struct{} `json:"paths"`
-	Seen        map[int64]int64               `json:"seen"`
-	CurSalt     []byte                        `json:"cur_salt"`
-	PrevSalt    []byte                        `json:"prev_salt"`
-	SaltRotated time.Time                     `json:"salt_rotated"`
+	Sessions    map[string]zint.Uint128              `json:"sessions"`
+	Hashes      map[zint.Uint128]string              `json:"hashes"`
+	Paths       map[zint.Uint128]map[string]struct{} `json:"paths"`
+	Seen        map[zint.Uint128]int64               `json:"seen"`
+	CurSalt     []byte                               `json:"cur_salt"`
+	PrevSalt    []byte                               `json:"prev_salt"`
+	SaltRotated time.Time                            `json:"salt_rotated"`
 }
 
 func (m *ms) Reset() {
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	m.sessionID = 0
-	m.sessions = make(map[string]int64)
-	m.sessionHashes = make(map[int64]string)
-	m.sessionPaths = make(map[int64]map[string]struct{})
-	m.sessionSeen = make(map[int64]int64)
+	m.sessions = make(map[string]zint.Uint128)
+	m.sessionHashes = make(map[zint.Uint128]string)
+	m.sessionPaths = make(map[zint.Uint128]map[string]struct{})
+	m.sessionSeen = make(map[zint.Uint128]int64)
 	m.curSalt = []byte(zhttp.Secret256())
 	m.prevSalt = []byte(zhttp.Secret256())
 	m.saltRotated = Now()
+	TestSeqSession = zint.Uint128{H: TestSession.H, L: TestSession.L + 1}
+}
+
+// TestInit is like Init(), but enables the test hook to return sequential UUIDs
+// instead of random ones.
+func (m *ms) TestInit(db zdb.DB) error {
+	m.testHook = true
+	return m.Init(db)
 }
 
 func (m *ms) Init(db zdb.DB) error {
@@ -77,16 +92,15 @@ func (m *ms) Init(db zdb.DB) error {
 		if zdb.ErrNoRows(err) {
 			return nil
 		}
-		return fmt.Errorf("NewMemstore: load from DB store: %w", err)
+		return fmt.Errorf("Memstore.Init: load from DB store: %w", err)
 	}
 
 	var stored storedSession
 	err = json.Unmarshal(s, &stored)
 	if err != nil {
-		return fmt.Errorf("NewMemstore: %w", err)
+		return fmt.Errorf("Memstore.Init: %w", err)
 	}
 
-	m.sessionID = stored.ID
 	if stored.Sessions != nil {
 		m.sessions = stored.Sessions
 	}
@@ -111,7 +125,7 @@ func (m *ms) Init(db zdb.DB) error {
 
 	_, err = db.ExecContext(context.Background(), `delete from store where key='session'`)
 	if err != nil {
-		return fmt.Errorf("NewMemstore: delete DB store: %w", err)
+		return fmt.Errorf("Memstore.Init: delete DB store: %w", err)
 	}
 
 	return nil
@@ -122,7 +136,6 @@ func (m *ms) StoreSessions(db zdb.DB) {
 	defer m.sessionMu.Unlock()
 
 	d, err := json.Marshal(storedSession{
-		ID:          m.sessionID,
 		Sessions:    m.sessions,
 		Paths:       m.sessionPaths,
 		Seen:        m.sessionSeen,
@@ -173,7 +186,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 
 	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path", "ref",
 		"ref_scheme", "browser", "size", "location", "created_at", "bot",
-		"title", "event", "session", "first_visit"})
+		"title", "event", "session2", "first_visit"})
 	for i, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
@@ -196,9 +209,8 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		}
 		ctx = WithSite(ctx, site)
 
-		if h.Session == nil || *h.Session == 0 {
-			s, f := m.session(ctx, site.ID, h.Path, h.Browser, h.RemoteAddr)
-			h.Session, h.FirstVisit = &s, zdb.Bool(f)
+		if h.Session.IsZero() {
+			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.Path, h.Browser, h.RemoteAddr)
 		}
 
 		// Persist.
@@ -261,22 +273,28 @@ func (m *ms) EvictSessions() {
 	}
 }
 
-// WARNING: this assumes m.sessionMu is not locked.
-func (m *ms) NextSessionID() int64 {
-	m.sessionMu.Lock()
-	defer m.sessionMu.Unlock()
-	return m.nextSessionIDWithoutLock()
+// SessionID gets a new UUID4 session ID.
+func (m *ms) SessionID() zint.Uint128 {
+	if m.testHook {
+		TestSeqSession.L += 1
+		return TestSeqSession
+	}
+
+	u, err := uuid.NewRandom()
+	if err != nil {
+		// Only failure here is if reading random failed.
+		panic(fmt.Sprintf("Memstore.SessionID: uuid.NewRandom: %s", err))
+	}
+
+	i, err := zint.NewUint128(u[:])
+	if err != nil {
+		panic(fmt.Sprintf("Memstore.SessionID: %s", err))
+	}
+
+	return i
 }
 
-func (m *ms) nextSessionIDWithoutLock() int64 {
-	// TODO: there should be an option to get a unique sessionID across multiple
-	// machines; using an UUID might be better, or perhaps rely on the DB and/or
-	// some light-weight syncing.
-	m.sessionID++
-	return m.sessionID
-}
-
-func (m *ms) session(ctx context.Context, siteID int64, path, ua, remoteAddr string) (int64, bool) {
+func (m *ms) session(ctx context.Context, siteID int64, path, ua, remoteAddr string) (zint.Uint128, zdb.Bool) {
 	h := sha256.New()
 	h.Write(append(append(append(m.curSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
 	hash := string(h.Sum(nil))
@@ -284,28 +302,28 @@ func (m *ms) session(ctx context.Context, siteID int64, path, ua, remoteAddr str
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	sessionID, ok := m.sessions[hash]
+	id, ok := m.sessions[hash]
 	if !ok { // Try previous hash
 		h := sha256.New()
 		h.Write(append(append(append(m.prevSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
 		prevHash := string(h.Sum(nil))
-		sessionID, ok = m.sessions[prevHash]
+		id, ok = m.sessions[prevHash]
 		if ok {
 			hash = prevHash
 		}
 	}
 
 	if ok { // Existing session
-		m.sessionSeen[m.sessionID] = Now().Unix()
-		_, seenPath := m.sessionPaths[sessionID][path]
+		m.sessionSeen[id] = Now().Unix()
+		_, seenPath := m.sessionPaths[id][path]
 		if !seenPath {
-			m.sessionPaths[sessionID][path] = struct{}{}
+			m.sessionPaths[id][path] = struct{}{}
 		}
-		return sessionID, !seenPath
+		return id, zdb.Bool(!seenPath)
 	}
 
 	// New session
-	id := m.nextSessionIDWithoutLock()
+	id = m.SessionID()
 	m.sessions[hash] = id
 	m.sessionPaths[id] = map[string]struct{}{path: struct{}{}}
 	m.sessionSeen[id] = Now().Unix()

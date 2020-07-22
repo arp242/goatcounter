@@ -151,10 +151,10 @@ information than before, and the hash is stored temporarily.
 We can store the data in memory; when GoatCounter shuts down it's (temporarily)
 dumped to the database, which can be read and deleted on startup.
 
-Old method was to store it in the DB, but this actually causes a lot of DB
-traffic which isn't really needed. To ensure consistency between multiple
-GoatCounter hosts we can either rely on the database's autoincrement for this,
-or use a unique prefix for every host.
+*Edit 2020-07-22*: Old method was to store it in the DB, but this actually
+causes a lot of DB traffic which isn't really needed. To ensure consistency
+between multiple GoatCounter hosts we use UUIDs instead of an autoincrementing
+counter.
 
 To efficiently query this a new `stats_unique` or `count_unique` column can be
 added to all the `*_stats` tables, which is a copy of the existing columns but

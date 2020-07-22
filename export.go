@@ -11,9 +11,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
@@ -21,6 +23,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zfloat"
+	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
@@ -131,8 +134,21 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 
 		for _, hit := range hits {
 			s := ""
-			if hit.Session != nil {
-				s = fmt.Sprintf("%d", *hit.Session)
+			if hit.OldSession != nil {
+				s = strconv.FormatInt(*hit.OldSession, 10)
+			} else {
+				b, err := hit.Session.Bytes()
+				if err != nil {
+					zlog.Fields(zlog.F{
+						"export":  e.ID,
+						"session": hit.Session.Format(16),
+					}).Error(err)
+				} else {
+					var u uuid.UUID
+					copy(u[:], b)
+					s = u.String()
+				}
+
 			}
 
 			rs := ""
@@ -270,7 +286,7 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 	}
 
 	var (
-		sessions = make(map[string]int64)
+		sessions = make(map[string]zint.Uint128)
 		n        = 0
 		errs     = errors.NewGroup(50)
 	)
@@ -328,9 +344,9 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		// Map session IDs to new session IDs.
 		s, ok := sessions[session]
 		if !ok {
-			sessions[session] = Memstore.NextSessionID()
+			sessions[session] = Memstore.SessionID()
 		}
-		hit.Session = &s
+		hit.Session = s
 
 		Memstore.Append(hit)
 		n++

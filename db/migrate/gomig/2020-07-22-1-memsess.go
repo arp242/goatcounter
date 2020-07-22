@@ -12,7 +12,6 @@ import (
 )
 
 type storedSession struct {
-	ID          int64                         `json:"id"`
 	Sessions    map[string]int64              `json:"sessions"`
 	Hashes      map[int64]string              `json:"hashes"`
 	Paths       map[int64]map[string]struct{} `json:"paths"`
@@ -25,6 +24,8 @@ type storedSession struct {
 func MemSess(db zdb.DB) error {
 	ctx := context.Background()
 
+	// Create new generic "store" table, we could use this for other stuff in
+	// the future too.
 	_, err := db.ExecContext(ctx, `
 		create table store (
 			key     varchar,
@@ -33,13 +34,13 @@ func MemSess(db zdb.DB) error {
 	if err != nil {
 		return err
 	}
-
-	var stored storedSession
-	err = db.GetContext(ctx, &stored.ID, `select coalesce(max(session), 0) from hits`)
+	_, err = db.ExecContext(ctx, `create unique index "store#key" on store(key)`)
 	if err != nil {
 		return err
 	}
 
+	// Populate store with existing data.
+	var stored storedSession
 	var sessions []struct {
 		ID       int64     `db:"id"`
 		Hash     string    `db:"hash"`
@@ -74,7 +75,7 @@ func MemSess(db zdb.DB) error {
 			stored.PrevSalt = []byte(s.Salt)
 		} else {
 			stored.CurSalt = []byte(s.Salt)
-			stored.SaltRotated = s.CreatedAt
+			stored.SaltRotated = s.CreatedAt.UTC()
 		}
 	}
 
@@ -95,6 +96,7 @@ func MemSess(db zdb.DB) error {
 		stored.Seen[s.ID] = s.LastSeen.Unix()
 	}
 
+	// Drop old tables.
 	_, err = db.ExecContext(ctx, `drop table session_salts`)
 	if err != nil {
 		return err
@@ -108,5 +110,11 @@ func MemSess(db zdb.DB) error {
 		return err
 	}
 
-	return nil
+	// Add new column for new session type.
+	if zdb.PgSQL(db) {
+		_, err = db.ExecContext(ctx, `alter table hits add column session2 bytea not null default ''`)
+	} else {
+		_, err = db.ExecContext(ctx, `alter table hits add column session2 blob not null default ''`)
+	}
+	return err
 }

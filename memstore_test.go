@@ -38,12 +38,44 @@ func TestMemstore(t *testing.T) {
 
 func gen(ctx context.Context) Hit {
 	s := MustGetSite(ctx)
-	one := int64(1)
 	return Hit{
 		Site:    s.ID,
-		Session: &one,
+		Session: TestSession,
 		Path:    "/test",
 		Ref:     "https://example.com/test",
 		Browser: "test",
 	}
+}
+
+func TestNextUUID(t *testing.T) {
+	want := `112233445566778899aabbccddef01
+112233445566778899aabbccddef02
+112233445566778899aabbccddef03
+112233445566778899aabbccddeeff`
+
+	func() {
+		_, clean := gctest.DB(t)
+		defer clean()
+
+		got := Memstore.SessionID().Format(16) + "\n" +
+			Memstore.SessionID().Format(16) + "\n" +
+			Memstore.SessionID().Format(16) + "\n" +
+			TestSession.Format(16)
+		if got != want {
+			t.Errorf("wrong:\n%s", got)
+		}
+	}()
+
+	func() {
+		_, clean := gctest.DB(t)
+		defer clean()
+
+		got := Memstore.SessionID().Format(16) + "\n" +
+			Memstore.SessionID().Format(16) + "\n" +
+			Memstore.SessionID().Format(16) + "\n" +
+			TestSession.Format(16)
+		if got != want {
+			t.Errorf("wrong after reset:\n%s", got)
+		}
+	}()
 }

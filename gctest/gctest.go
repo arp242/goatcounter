@@ -20,6 +20,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zstring"
@@ -88,7 +89,7 @@ func DB(t tester) (context.Context, func()) {
 		}
 	}
 
-	goatcounter.Memstore.Init(db)
+	goatcounter.Memstore.TestInit(db)
 	ctx = initData(ctx, t)
 
 	return ctx, func() {
@@ -165,6 +166,10 @@ func setupDB(t tester) {
 			t.Fatalf("run migration %q: %s", m[0], err)
 		}
 	}
+	err = gomig.Run(db)
+	if err != nil {
+		t.Fatalf("gomig: %w", err)
+	}
 }
 
 func initData(ctx context.Context, t tester) context.Context {
@@ -208,10 +213,9 @@ func initData(ctx context.Context, t tester) context.Context {
 func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goatcounter.Hit {
 	t.Helper()
 
-	one := int64(1)
 	for i := range hits {
-		if hits[i].Session == nil || *hits[i].Session == 0 {
-			hits[i].Session = &one
+		if hits[i].Session.IsZero() {
+			hits[i].Session = goatcounter.TestSession
 		}
 		if hits[i].Site == 0 {
 			hits[i].Site = 1

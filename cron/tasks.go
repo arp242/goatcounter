@@ -103,7 +103,9 @@ func persistAndStat(ctx context.Context) error {
 		}
 	}
 
-	l.Since("stats").FieldsSince().Debugf("persisted %d hits", len(hits))
+	if len(hits) > 0 {
+		l.Since("stats").FieldsSince().Debugf("persisted %d hits", len(hits))
+	}
 	return err
 }
 
@@ -246,7 +248,7 @@ func vacuumDeleted(ctx context.Context) error {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
 
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
-			for _, t := range []string{"browser_stats", "system_stats", "hit_stats", "sessions", "hits", "location_stats", "size_stats", "users"} {
+			for _, t := range []string{"browser_stats", "system_stats", "hit_stats", "hits", "location_stats", "size_stats", "users"} {
 				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
 				if err != nil {
 					return errors.Errorf("%s: %w", t, err)
