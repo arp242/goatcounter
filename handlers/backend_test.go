@@ -261,27 +261,26 @@ func TestBackendCountSessions(t *testing.T) {
 
 	rotate := func(ctx context.Context) {
 		now = now.Add(12 * time.Hour)
-		oldCur, _ := goatcounter.Salts.Get(ctx)
+		oldCur, _ := goatcounter.Memstore.GetSalt()
 
-		err := goatcounter.Salts.Refresh(ctx)
-		if err != nil {
-			t.Fatal(err)
-		}
+		goatcounter.Memstore.RefreshSalt()
 
-		_, prev := goatcounter.Salts.Get(ctx)
-		if prev != oldCur {
-			t.Fatalf("salts not cycled?\noldCur: %s\nprev:   %s\n", oldCur, prev)
+		_, prev := goatcounter.Memstore.GetSalt()
+		if string(prev) != string(oldCur) {
+			t.Fatalf("salts not cycled?\noldCur: %s\nprev:   %s\n", string(oldCur), string(prev))
 		}
 	}
 
 	// Ensure salts aren't cycled before they should.
-	goatcounter.Salts.Get(ctx1)
-	before := zdb.DumpString(ctx1, "select * from session_salts order by previous")
+	beforeCur, beforePrev := goatcounter.Memstore.GetSalt()
 	now = now.Add(1 * time.Hour)
-	goatcounter.Salts.Refresh(ctx1)
-	after := zdb.DumpString(ctx1, "select * from session_salts order by previous")
-	if d := ztest.Diff(before, after); d != "" {
-		t.Fatalf("salts cycled too soon\n%s", d)
+	goatcounter.Memstore.RefreshSalt()
+	afterCur, afterPrev := goatcounter.Memstore.GetSalt()
+
+	before := string(beforeCur) + " → " + string(beforePrev)
+	after := string(afterCur) + " → " + string(afterPrev)
+	if before != after {
+		t.Fatalf("salts cycled too soon\nbefore: %s\nafter: %s", before, after)
 	}
 
 	send(ctx1, "test")

@@ -14,7 +14,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
@@ -104,7 +103,7 @@ func persistAndStat(ctx context.Context) error {
 		}
 	}
 
-	l.Since("stats").FieldsSince().Printf("persisted %d hits", len(hits))
+	l.Since("stats").FieldsSince().Debugf("persisted %d hits", len(hits))
 	return err
 }
 
@@ -263,13 +262,8 @@ func vacuumDeleted(ctx context.Context) error {
 	return nil
 }
 
-func clearSessions(ctx context.Context) error {
-	query := `delete from sessions where last_seen < `
-	if cfg.PgSQL {
-		query += `now() - interval '1 hour'`
-	} else {
-		query += `datetime(datetime(), '-1 hours')`
-	}
-	_, err := zdb.MustGet(ctx).ExecContext(ctx, query)
-	return err
+func sessions(ctx context.Context) error {
+	goatcounter.Memstore.EvictSessions()
+	goatcounter.Memstore.RefreshSalt()
+	return nil
 }

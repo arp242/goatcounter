@@ -177,6 +177,7 @@ func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) 
 
 var goMigrations = map[string]func(zdb.DB) error{
 	"2020-03-27-1-isbot": gomig.IsBot,
+	"2020-07-22-1-isbot": gomig.MemSess,
 }
 
 func runGoMigrations(db zdb.DB) error {

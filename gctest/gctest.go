@@ -88,10 +88,11 @@ func DB(t tester) (context.Context, func()) {
 		}
 	}
 
+	goatcounter.Memstore.Init(db)
 	ctx = initData(ctx, t)
 
 	return ctx, func() {
-		goatcounter.Salts.Clear()
+		goatcounter.Memstore.Reset()
 
 		// TODO: run after all tests are done.
 		// out, err := exec.Command("dropdb", dbname).CombinedOutput()
