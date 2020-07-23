@@ -142,10 +142,16 @@ func serve() (int, error) {
 	zhttp.InitTpl(pack.Templates)
 	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
 
+	err = goatcounter.Memstore.Init(db)
+	if err != nil {
+		return 0, err
+	}
+
 	cronWait := setupCron(db)
 	defer func() {
 		defer cronWait()
 		defer bgrun.WaitAndLog()
+		defer goatcounter.Memstore.StoreSessions(db)
 		zlog.Print("Waiting for background tasks to finish…")
 	}()
 

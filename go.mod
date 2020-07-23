@@ -8,6 +8,7 @@ require (
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/boombuler/barcode v1.0.0
 	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/google/uuid v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.7.1
 	github.com/mattn/go-sqlite3 v1.14.0
@@ -31,7 +32,7 @@ require (
 	zgo.at/zli v0.0.0-20200720155933-a6253b26f9f7
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
-	zgo.at/zstd v0.0.0-20200722094831-0f2795b6ca59
+	zgo.at/zstd v0.0.0-20200723025405-2d979a0177fe
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a

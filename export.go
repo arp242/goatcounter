@@ -11,9 +11,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
@@ -21,6 +23,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zfloat"
+	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
@@ -131,8 +134,21 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 
 		for _, hit := range hits {
 			s := ""
-			if hit.Session != nil {
-				s = fmt.Sprintf("%d", *hit.Session)
+			if hit.OldSession != nil {
+				s = strconv.FormatInt(*hit.OldSession, 10)
+			} else {
+				b, err := hit.Session.Bytes()
+				if err != nil {
+					zlog.Fields(zlog.F{
+						"export":  e.ID,
+						"session": hit.Session.Format(16),
+					}).Error(err)
+				} else {
+					var u uuid.UUID
+					copy(u[:], b)
+					s = u.String()
+				}
+
 			}
 
 			rs := ""
@@ -242,7 +258,6 @@ func (e *Exports) List(ctx context.Context) error {
 func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 	site := MustGetSite(ctx)
 	user := GetUser(ctx)
-	db := zdb.MustGet(ctx)
 
 	l := zlog.Module("import").Field("site", site.ID).Field("replace", replace)
 	l.Print("import started")
@@ -270,21 +285,8 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		}
 	}
 
-	if !cfg.PgSQL {
-		// Insert a row to ensure sessions is in sqlite_sequence; this won't be
-		// added until the first sequences is accessed and is required for
-		// Import to work.
-		var s Session
-		_, err := s.GetOrCreate(ctx, "", "", "")
-		if err != nil {
-			importError(l, *user, err)
-			l.Error(err)
-			return
-		}
-	}
-
 	var (
-		sessions = make(map[string]int64)
+		sessions = make(map[string]zint.Uint128)
 		n        = 0
 		errs     = errors.NewGroup(50)
 	)
@@ -305,7 +307,6 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		path, title, event, bot, session, firstVisit, ref, refScheme, browser,
 			size, location, createdAt := row[0], row[1], row[2], row[3], row[4],
 			row[5], row[6], row[7], row[8], row[9], row[10], row[11]
-
 		hit := Hit{
 			Site:     site.ID,
 			Path:     path,
@@ -343,24 +344,9 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		// Map session IDs to new session IDs.
 		s, ok := sessions[session]
 		if !ok {
-			if cfg.PgSQL {
-				err = db.GetContext(ctx, &s, `select nextval('sessions_id_seq')`)
-			} else {
-				err = zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-					_, err := tx.ExecContext(ctx, `update sqlite_sequence set seq=seq+1 where name='sessions'`)
-					if err != nil {
-						return err
-					}
-					return tx.GetContext(ctx, &s, `select seq from sqlite_sequence where name='sessions'`)
-				})
-			}
-			if err != nil {
-				errs.Append(err)
-				continue
-			}
-			sessions[session] = s
+			sessions[session] = Memstore.SessionID()
 		}
-		hit.Session = &s
+		hit.Session = s
 
 		Memstore.Append(hit)
 		n++

@@ -28,6 +28,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
 	"zgo.at/ztest"
 )
@@ -166,11 +167,10 @@ func TestBackendCount(t *testing.T) {
 				t.Errorf("Validate failed after get: %s", err)
 			}
 
-			one := int64(1)
 			tt.hit.ID = h.ID
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
-			tt.hit.Session = &one // Should all be the same session.
+			tt.hit.Session = goatcounter.TestSeqSession // Should all be the same session.
 			if tt.hit.Browser == "" {
 				tt.hit.Browser = "GoatCounter test runner/1.0"
 			}
@@ -239,21 +239,35 @@ func TestBackendCountSessions(t *testing.T) {
 		return hits
 	}
 
-	checkSess := func(hits goatcounter.Hits, want []int) {
-		var got []int
+	checkSess := func(hits goatcounter.Hits, wantInt []int) {
+		var got []zint.Uint128
 		for _, h := range hits {
-			got = append(got, int(*h.Session))
+			got = append(got, h.Session)
 			if !h.FirstVisit {
 				t.Errorf("FirstVisit is false for %v", h)
 			}
 		}
 
-		// TODO: test in order.
-		sort.Ints(want)
-		sort.Ints(got)
+		first := zint.Uint128{H: goatcounter.TestSession.H, L: goatcounter.TestSession.L + 1}
+		want := make([]zint.Uint128, len(wantInt))
+		for i := range wantInt {
+			want[i] = first
+			want[i].L += uint64(wantInt[i])
+		}
 
-		w := fmt.Sprintf("%#v", want)
-		g := fmt.Sprintf("%#v", got)
+		// TODO: test in order.
+		sort.Slice(want, func(i, j int) bool { return want[i].L < want[j].L })
+		var w string
+		for _, ww := range want {
+			w += ww.Format(16) + " "
+		}
+
+		sort.Slice(got, func(i, j int) bool { return got[i].L < got[j].L })
+		var g string
+		for _, gg := range got {
+			g += gg.Format(16) + " "
+		}
+
 		if w != g {
 			t.Errorf("wrong session\nwant: %s\ngot:  %s", w, g)
 		}
@@ -261,27 +275,26 @@ func TestBackendCountSessions(t *testing.T) {
 
 	rotate := func(ctx context.Context) {
 		now = now.Add(12 * time.Hour)
-		oldCur, _ := goatcounter.Salts.Get(ctx)
+		oldCur, _ := goatcounter.Memstore.GetSalt()
 
-		err := goatcounter.Salts.Refresh(ctx)
-		if err != nil {
-			t.Fatal(err)
-		}
+		goatcounter.Memstore.RefreshSalt()
 
-		_, prev := goatcounter.Salts.Get(ctx)
-		if prev != oldCur {
-			t.Fatalf("salts not cycled?\noldCur: %s\nprev:   %s\n", oldCur, prev)
+		_, prev := goatcounter.Memstore.GetSalt()
+		if string(prev) != string(oldCur) {
+			t.Fatalf("salts not cycled?\noldCur: %s\nprev:   %s\n", string(oldCur), string(prev))
 		}
 	}
 
 	// Ensure salts aren't cycled before they should.
-	goatcounter.Salts.Get(ctx1)
-	before := zdb.DumpString(ctx1, "select * from session_salts order by previous")
+	beforeCur, beforePrev := goatcounter.Memstore.GetSalt()
 	now = now.Add(1 * time.Hour)
-	goatcounter.Salts.Refresh(ctx1)
-	after := zdb.DumpString(ctx1, "select * from session_salts order by previous")
-	if d := ztest.Diff(before, after); d != "" {
-		t.Fatalf("salts cycled too soon\n%s", d)
+	goatcounter.Memstore.RefreshSalt()
+	afterCur, afterPrev := goatcounter.Memstore.GetSalt()
+
+	before := string(beforeCur) + " → " + string(beforePrev)
+	after := string(afterCur) + " → " + string(afterPrev)
+	if before != after {
+		t.Fatalf("salts cycled too soon\nbefore: %s\nafter: %s", before, after)
 	}
 
 	send(ctx1, "test")
@@ -724,10 +737,8 @@ func TestBackendBarChart(t *testing.T) {
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
 		})
-		one := int64(1)
 		gctest.StoreHits(ctx, t, goatcounter.Hit{
 			Site:      site.ID,
-			Session:   &one,
 			CreatedAt: tt.hit.UTC(),
 			Path:      "/a",
 		})

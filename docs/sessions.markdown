@@ -148,24 +148,13 @@ information than before, and the hash is stored temporarily.
 
 ### Technically
 
-We can store the data in a new `session` table and link that to every hit:
+We can store the data in memory; when GoatCounter shuts down it's (temporarily)
+dumped to the database, which can be read and deleted on startup.
 
-	create table sessions (
-		site         int,
-		hash         varchar,
-		created_at   datetime,
-		last_seen    datetime
-	);
-	alter table hits add column session int default null;
-
-The salts are used from memory, but also stored in the DB so it will survive
-server restarts:
-
-	create table session_salts (
-		previous    int,
-		salt        varchar,
-		created_at  timestamp
-	);
+*Edit 2020-07-22*: Old method was to store it in the DB, but this actually
+causes a lot of DB traffic which isn't really needed. To ensure consistency
+between multiple GoatCounter hosts we use UUIDs instead of an autoincrementing
+counter.
 
 To efficiently query this a new `stats_unique` or `count_unique` column can be
 added to all the `*_stats` tables, which is a copy of the existing columns but

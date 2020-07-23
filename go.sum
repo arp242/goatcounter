@@ -23,6 +23,8 @@ github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
+github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
+github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/jmoiron/sqlx v1.2.0 h1:41Ip0zITnmWNR/vHV+S4m+VoUivnWY5E4OJfLZjCJMA=
 github.com/jmoiron/sqlx v1.2.0/go.mod h1:1FEQNm3xlJgrMD+FBdI9+xvCksHtbpVBBw5dYhBSsks=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
@@ -126,12 +128,11 @@ zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c h1:PQksY26D9QgCNbOvMmortUzbStTYwf
 zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
 zgo.at/zpack v1.0.1 h1:muDVwpdzfC/1+U2rsTsv0feI82zxMq0CZuHPZ9RTwJ8=
 zgo.at/zpack v1.0.1/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
-zgo.at/zstd v0.0.0-20200602040707-aaf6806a6bf5 h1:pP0ZXWWkzwPZkWs6/L07XPB3AL4ny3w7CsMeqCDr+4s=
 zgo.at/zstd v0.0.0-20200602040707-aaf6806a6bf5/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
 zgo.at/zstd v0.0.0-20200718091649-a5714a091965 h1:y/LPMwLcN2iC3tR7ssTaxAtjSbQ2rkwjG1YJ4K2fR3E=
 zgo.at/zstd v0.0.0-20200718091649-a5714a091965/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
-zgo.at/zstd v0.0.0-20200722094831-0f2795b6ca59 h1:Y+IVH5nQzelKpeRhX2cPR+6XKNwn/k0waR7yYBjpIfA=
-zgo.at/zstd v0.0.0-20200722094831-0f2795b6ca59/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
+zgo.at/zstd v0.0.0-20200723025405-2d979a0177fe h1:OXud7SvOcYnJUj9thR8cYeSz4ds69vOUqoDiIX2hhzo=
+zgo.at/zstd v0.0.0-20200723025405-2d979a0177fe/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
 zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=
 zgo.at/zstripe v1.0.0/go.mod h1:EqblFpMvXAhzZAUUt0EVom06EnN5+D5ESBTSOkwSwTY=
 zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41 h1:2vR+4hRs2YI2Lcm68AjHLSOHxQy/3XJ/b2nCV/dCrxs=
