@@ -92,6 +92,20 @@ Generally speaking only the latest release is supported, although critical fixes
 [releases]: https://github.com/zgoat/goatcounter/releases
 [r-1.3]: https://github.com/zgoat/goatcounter/tree/release-1.3
 
+### One Click Deployment
+
+You can use [Render's](https://render.com/) one-click deploy button to get up and running with GoatCounter in minutes!
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/render-examples/goatcounter)
+
+1. Click **Deploy to Render** above and create an account if you haven't already done so.
+
+2. Enter values for the `GC_USER_EMAIL` and `GC_PASSWORD` environment variables to create your GoatCounter account.
+
+3. Click Approve
+
+That's it! Once the service is deployed, you can access the service using the URL at the top of your service dashboard. Go to your `https://goatcounter-xyz.onrender.com` address, log in using the credentials you just provided and start using GoatCounter on Render!
+
 ### Building from source
 
 Compile from source with:
