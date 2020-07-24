@@ -94,7 +94,7 @@ Generally speaking only the latest release is supported, although critical fixes
 
 ### One Click Deployment
 
-You can use [Render's](https://render.com/) one-click deploy button to get up and running with GoatCounter in minutes!
+You can use [Render's](https://render.com/) one-click deploy button to easily get up and running with GoatCounter.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/render-examples/goatcounter)
 
@@ -104,7 +104,7 @@ You can use [Render's](https://render.com/) one-click deploy button to get up an
 
 3. Click Approve
 
-That's it! Once the service is deployed, you can access the service using the URL at the top of your service dashboard. Go to your `https://goatcounter-xyz.onrender.com` address, log in using the credentials you just provided and start using GoatCounter on Render!
+Once the service is deployed, you can access the service using the URL at the top of your service dashboard and login using the credentials you just provided.
 
 ### Building from source
 
