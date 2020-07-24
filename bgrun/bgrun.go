@@ -48,9 +48,11 @@ func WaitProgress() error {
 	term := zli.IsTerminal(os.Stdout.Fd())
 
 	go func() {
+		working.Lock()
 		if len(working.m) == 0 {
 			return
 		}
+		working.Unlock()
 
 		for {
 			if term {
@@ -70,9 +72,11 @@ func WaitProgress() error {
 			working.Unlock()
 
 			time.Sleep(200 * time.Millisecond)
+			working.Lock()
 			if len(working.m) == 0 {
 				return
 			}
+			working.Unlock()
 		}
 	}()
 

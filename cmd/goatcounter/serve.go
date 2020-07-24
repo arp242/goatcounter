@@ -194,9 +194,9 @@ func doServe(db *sqlx.DB, listen string, listenTLS uint8, tlsc *tls.Config, host
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGHUP, syscall.SIGTERM, os.Interrupt /*SIGINT*/)
-		_ = <-c
-		zli.Colorln("One more…", zli.Bold)
-		_ = <-c
+		<-c
+		zli.Colorln("One more to kill…", zli.Bold)
+		<-c
 		zli.Colorln("Force killing", zli.Bold)
 		os.Exit(99)
 	}()
