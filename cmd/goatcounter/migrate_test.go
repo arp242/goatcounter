@@ -5,18 +5,13 @@
 package main
 
 import (
-	"strings"
 	"testing"
 )
 
 func TestMigrate(t *testing.T) {
-	ctx, dbc, clean := tmpdb(t)
+	_, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "", []string{"migrate",
+	run(t, 0, []string{"migrate",
 		"-db", dbc})
-	if code != 0 {
-		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
-	}
-	_ = ctx
 }

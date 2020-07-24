@@ -48,35 +48,42 @@ func WaitProgress() error {
 	term := zli.IsTerminal(os.Stdout.Fd())
 
 	go func() {
-		working.Lock()
-		if len(working.m) == 0 {
-			return
-		}
-		working.Unlock()
+		func() {
+			working.Lock()
+			defer working.Unlock()
+			if len(working.m) == 0 {
+				return
+			}
+		}()
 
 		for {
 			if term {
 				zli.EraseLine(2)
 			}
 
-			working.Lock()
-			fmt.Printf("\r%d tasks: ", len(working.m))
-			l := make([]string, 0, len(working.m))
-			for k := range working.m {
-				l = append(l, k)
-			}
-			sort.Strings(l)
-			if term {
-				fmt.Print(strings.Join(l, ", "), " ")
-			}
-			working.Unlock()
+			func() {
+				working.Lock()
+				defer working.Unlock()
+
+				fmt.Printf("\r%d tasks: ", len(working.m))
+				l := make([]string, 0, len(working.m))
+				for k := range working.m {
+					l = append(l, k)
+				}
+				sort.Strings(l)
+				if term {
+					fmt.Print(strings.Join(l, ", "), " ")
+				}
+			}()
 
 			time.Sleep(200 * time.Millisecond)
-			working.Lock()
-			if len(working.m) == 0 {
-				return
-			}
-			working.Unlock()
+			func() {
+				working.Lock()
+				defer working.Unlock()
+				if len(working.m) == 0 {
+					return
+				}
+			}()
 		}
 	}()
 
@@ -128,17 +135,21 @@ func Run(name string, f func()) {
 //    }()
 func Add(name string) func() {
 	wg.Add(1)
-	working.Lock()
-	if working.m == nil {
-		working.m = make(map[string]struct{})
-	}
-	working.m[name] = struct{}{}
-	working.Unlock()
+	func() {
+		working.Lock()
+		defer working.Unlock()
+		if working.m == nil {
+			working.m = make(map[string]struct{})
+		}
+		working.m[name] = struct{}{}
+	}()
 
 	return func() {
 		wg.Done()
-		working.Lock()
-		delete(working.m, name)
-		working.Unlock()
+		func() {
+			working.Lock()
+			defer working.Unlock()
+			delete(working.m, name)
+		}()
 	}
 }

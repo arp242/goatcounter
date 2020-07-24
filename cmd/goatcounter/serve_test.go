@@ -6,7 +6,6 @@ package main
 
 import (
 	"runtime"
-	"strings"
 	"testing"
 )
 
@@ -17,15 +16,12 @@ func TestServe(t *testing.T) {
 		t.Skip()
 	}
 
-	ctx, dbc, clean := tmpdb(t)
+	_, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "serving", []string{"serve",
+	run(t, 0, []string{"serve", "-go-test-hook-do-not-use",
+		"-debug", "all",
 		"-listen", "localhost:31874",
 		"-tls", "none",
 		"-db", dbc})
-	if code != 0 {
-		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
-	}
-	_ = ctx
 }

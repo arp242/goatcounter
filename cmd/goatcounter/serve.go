@@ -112,7 +112,7 @@ func serve() (int, error) {
 
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
+	dbConnect, test, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
 	if err != nil {
 		return 1, err
 	}
@@ -161,7 +161,7 @@ func serve() (int, error) {
 		return 2, err
 	}
 
-	doServe(db, listen, listenTLS, tlsc, hosts, func() {
+	doServe(db, test, listen, listenTLS, tlsc, hosts, func() {
 		banner()
 		zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
 			len(cnames), listen, dev, strings.Join(cnames, ", "))
@@ -172,9 +172,9 @@ func serve() (int, error) {
 	return 0, nil
 }
 
-func doServe(db *sqlx.DB, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
+func doServe(db *sqlx.DB, test bool, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
 	zlog.Module("main").Debug(getVersion())
-	ch := zhttp.Serve(listenTLS, &http.Server{
+	ch := zhttp.Serve(listenTLS, test, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
@@ -209,7 +209,7 @@ func doServe(db *sqlx.DB, listen string, listenTLS uint8, tlsc *tls.Config, host
 	db.Close()
 }
 
-func flagsServe(v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
+func flagsServe(v *zvalidate.Validator) (string, bool, bool, bool, string, string, string, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -221,6 +221,7 @@ func flagsServe(v *zvalidate.Validator) (string, bool, bool, string, string, str
 	flagTLS := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
 	from := CommandLine.String("email-from", "", "")
+	test := CommandLine.Bool("go-test-hook-do-not-use", false, "")
 
 	err := CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
@@ -242,7 +243,7 @@ func flagsServe(v *zvalidate.Validator) (string, bool, bool, string, string, str
 	}
 	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
 
-	return *dbConnect, dev, *automigrate, *listen, *flagTLS, *from, err
+	return *dbConnect, *test, dev, *automigrate, *listen, *flagTLS, *from, err
 }
 
 func setupServe(dbConnect, flagTLS string, automigrate bool) (*sqlx.DB, *tls.Config, http.HandlerFunc, uint8, error) {

@@ -5,7 +5,6 @@
 package main
 
 import (
-	"strings"
 	"testing"
 
 	"zgo.at/goatcounter"
@@ -17,25 +16,20 @@ func TestMonitor(t *testing.T) {
 	defer clean()
 
 	t.Run("no pageviews", func(t *testing.T) {
-		out, code := run(t, "", []string{"monitor",
+		run(t, 1, []string{"monitor",
 			"-db", dbc,
 			"-once",
 			"-debug", "all"})
-		if code != 1 {
-			t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
-		}
+
 	})
 
 	t.Run("with pageviews", func(t *testing.T) {
 		ctx, site := gctest.Site(ctx, t, goatcounter.Site{})
 		gctest.StoreHits(ctx, t, goatcounter.Hit{Path: "/", Site: site.ID})
 
-		out, code := run(t, "", []string{"monitor",
+		run(t, 0, []string{"monitor",
 			"-db", dbc,
 			"-once",
 			"-debug", "all"})
-		if code != 0 {
-			t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
-		}
 	})
 }

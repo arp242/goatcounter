@@ -19,8 +19,8 @@ before_cache:
 
 script:
   - 'go run ./cmd/check ./...'
-  - 'go test -race ./...'
-  - '[ "$TRAVIS_OS_NAME" = "linux" ] && go test -tags=testpg -race ./... || true'
+  - 'go test -race -timeout=3m ./...'
+  - '[ "$TRAVIS_OS_NAME" = "linux" ] && go test -tags=testpg -race -timeout=3m ./... || true'
   # For some reason this doesn't work well on Windows:
   #     gofmt: exit status 2: ./pack/pack.go:15:6: unknown escape sequence
   #     ./pack/pack.go:15:14: unknown escape sequence

@@ -5,7 +5,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
@@ -13,9 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 	"testing"
-	"time"
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/cfg"
@@ -91,7 +88,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 	}
 }
 
-func run(t *testing.T, killswitch string, args []string) ([]string, int) {
+func run(t *testing.T, wantCode int, args []string) {
 	cwd, _ := os.Getwd()
 	err := os.Chdir("../../")
 	if err != nil {
@@ -104,13 +101,6 @@ func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 	os.Args = append([]string{"goatcounter"}, args...)
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 
-	// Swap out stdout/stderr.
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatal(err)
-	}
-	stdout = w
-	stderr = w
 	zlog.Config.Outputs = []zlog.OutputFunc{
 		func(l zlog.Log) {
 			out := stdout
@@ -121,57 +111,13 @@ func run(t *testing.T, killswitch string, args []string) ([]string, int) {
 		},
 	}
 
-	// Record output, and kill when we see a string.
-	var output []string
-	wait := make(chan bool)
-	go func() {
-		scanner := bufio.NewScanner(r)
-		for scanner.Scan() {
-			l := scanner.Text()
-			output = append(output, l)
-			if killswitch != "" && strings.Contains(l, killswitch) {
-				fmt.Println("Output:", strings.Join(output, "\n"))
-				fmt.Println("kill", syscall.Getpid())
-				time.Sleep(100 * time.Millisecond)
-				stop()
-			}
-		}
-		wait <- true
-	}()
-
-	// Safety.
-	go func() {
-		time.Sleep(20 * time.Second)
-		wait <- false
-	}()
-
 	// Return exit code.
 	var code int
 	exit = func(c int) { code = c }
 
 	main()
 
-	w.Close()
-	if !<-wait {
-		stop()
-		code = 99
-		t.Fatal("test took longer than 20s")
-	}
-	return output, code
-}
-
-func stop() {
-	p, err := os.FindProcess(syscall.Getpid())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		return
-	}
-
-	err = p.Signal(os.Interrupt)
-	if err != nil {
-		err = p.Signal(os.Kill)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-		}
+	if code != wantCode {
+		t.Fatalf("exit code %d; want %d", code, wantCode)
 	}
 }

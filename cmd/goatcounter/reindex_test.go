@@ -5,17 +5,12 @@
 package main
 
 import (
-	"strings"
 	"testing"
 )
 
 func TestReindex(t *testing.T) {
-	ctx, dbc, clean := tmpdb(t)
+	_, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "", []string{"reindex", "-db", dbc})
-	if code != 0 {
-		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
-	}
-	_ = ctx
+	run(t, 0, []string{"reindex", "-db", dbc})
 }

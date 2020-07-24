@@ -5,7 +5,6 @@
 package main
 
 import (
-	"strings"
 	"testing"
 
 	"zgo.at/goatcounter"
@@ -15,14 +14,11 @@ func TestCreate(t *testing.T) {
 	ctx, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "", []string{"create",
+	run(t, 0, []string{"create",
 		"-email", "foo@foo.foo",
 		"-domain", "stats.stats",
 		"-password", "password",
 		"-db", dbc})
-	if code != 0 {
-		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
-	}
 
 	var s goatcounter.Site
 	err := s.ByID(ctx, 1)

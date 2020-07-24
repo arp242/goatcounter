@@ -6,7 +6,6 @@ package main
 
 import (
 	"runtime"
-	"strings"
 	"testing"
 )
 
@@ -17,17 +16,13 @@ func TestSaas(t *testing.T) {
 		t.Skip()
 	}
 
-	ctx, dbc, clean := tmpdb(t)
+	_, dbc, clean := tmpdb(t)
 	defer clean()
 
-	out, code := run(t, "serving", []string{"saas",
+	run(t, 0, []string{"saas", "-go-test-hook-do-not-use",
 		"-domain", "goatcounter.com,a.a",
 		"-listen", "localhost:31874",
 		"-tls", "none",
 		"-stripe", "sk_test_x:pk_test_x:whsec_x",
 		"-db", dbc})
-	if code != 0 {
-		t.Fatalf("code is %d: %s", code, strings.Join(out, "\n"))
-	}
-	_ = ctx
 }
