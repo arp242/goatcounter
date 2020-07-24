@@ -5,6 +5,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -156,7 +157,7 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(func() { export.Run(ctx, fp, false) })
+	bgrun.Run(fmt.Sprintf("export api:%d", export.SiteID), func() { export.Run(ctx, fp, false) })
 
 	w.WriteHeader(http.StatusAccepted)
 	return zhttp.JSON(w, export)

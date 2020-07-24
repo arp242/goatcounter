@@ -22,7 +22,7 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstring"
 )
 
@@ -34,7 +34,7 @@ type tester interface {
 }
 
 var (
-	dbname = "goatcounter_test_" + zhttp.Secret64()
+	dbname = "goatcounter_test_" + zcrypto.Secret64()
 	db     *sqlx.DB
 	tables []string
 )
@@ -245,7 +245,7 @@ func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goa
 
 func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Context, goatcounter.Site) {
 	if site.Code == "" {
-		site.Code = zhttp.Secret64()
+		site.Code = zcrypto.Secret64()
 		if len(site.Code) > 50 {
 			site.Code = site.Code[:50]
 		}

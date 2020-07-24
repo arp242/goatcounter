@@ -35,15 +35,15 @@ var (
 
 	loggedInOrPublic = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		u := goatcounter.GetUser(r.Context())
-		if (u != nil && u.ID > 0) || goatcounter.MustGetSite(r.Context()).Settings.Public {
+		if (u != nil && u.ID > 0) || Site(r.Context()).Settings.Public {
 			return nil
 		}
 		return redirect(w, r)
 	})
 
 	noSubSites = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
-		if goatcounter.MustGetSite(r.Context()).Parent == nil ||
-			*goatcounter.MustGetSite(r.Context()).Parent == 0 {
+		if Site(r.Context()).Parent == nil ||
+			*Site(r.Context()).Parent == 0 {
 			return nil
 		}
 		zlog.FieldsRequest(r).Errorf("noSubSites")
@@ -51,7 +51,7 @@ var (
 	})
 
 	adminOnly = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
-		if goatcounter.MustGetSite(r.Context()).Admin() {
+		if Site(r.Context()).Admin() {
 			return nil
 		}
 		return guru.Errorf(404, "")

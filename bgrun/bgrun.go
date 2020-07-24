@@ -12,24 +12,76 @@ package bgrun
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"sort"
+	"strings"
 	"sync"
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zsync"
 )
 
 var (
 	wg      = new(sync.WaitGroup)
-	maxWait = 10 * time.Second
+	maxWait = 2 * time.Minute
+
+	working struct {
+		sync.Mutex
+		m map[string]struct{}
+	}
 )
 
 // Wait for all goroutines to finish for a maximum of maxWait.
 func Wait() error {
 	ctx, c := context.WithTimeout(context.Background(), maxWait)
 	defer c()
+
 	return errors.Wrap(zsync.Wait(ctx, wg), "bgrun.Wait")
+}
+
+// WaitProgress calls Wait() and prints which tasks it's waiting for.
+func WaitProgress() error {
+	term := zli.IsTerminal(os.Stdout.Fd())
+
+	go func() {
+		if len(working.m) == 0 {
+			return
+		}
+
+		for {
+			if term {
+				zli.EraseLine(2)
+			}
+
+			working.Lock()
+			fmt.Printf("\r%d tasks: ", len(working.m))
+			l := make([]string, 0, len(working.m))
+			for k := range working.m {
+				l = append(l, k)
+			}
+			sort.Strings(l)
+			if term {
+				fmt.Print(strings.Join(l, ", "), " ")
+			}
+			working.Unlock()
+
+			time.Sleep(200 * time.Millisecond)
+			if len(working.m) == 0 {
+				return
+			}
+		}
+	}()
+
+	err := Wait()
+	if term {
+		zli.EraseLine(2)
+		fmt.Print("\r done \n")
+	}
+	return err
 }
 
 // WaitAndLog calls Wait() and logs any errors.
@@ -40,13 +92,22 @@ func WaitAndLog() {
 	}
 }
 
+// WaitProgressAndLog calls Wait(), prints which tasks it's waiting for, and
+// logs any errors.
+func WaitProgressAndLog() {
+	err := WaitProgress()
+	if err != nil {
+		zlog.Error(err)
+	}
+}
+
 // Run the function in a goroutine.
 //
 //   bgrun.Run(func() {
 //       // Do work...
-//	 })
-func Run(f func()) {
-	done := Add()
+//   })
+func Run(name string, f func()) {
+	done := Add(name)
 	go func() {
 		defer zlog.Recover()
 		defer done()
@@ -61,7 +122,19 @@ func Run(f func()) {
 //       defer done()
 //       defer zlog.Recover()
 //    }()
-func Add() func() {
+func Add(name string) func() {
 	wg.Add(1)
-	return func() { wg.Done() }
+	working.Lock()
+	if working.m == nil {
+		working.m = make(map[string]struct{})
+	}
+	working.m[name] = struct{}{}
+	working.Unlock()
+
+	return func() {
+		wg.Done()
+		working.Lock()
+		delete(working.m, name)
+		working.Unlock()
+	}
 }

@@ -247,10 +247,10 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		zlog.Errorf("login during account creation: %w", err)
 	} else {
-		zhttp.SetCookie(w, *user.LoginToken, cookieDomain(&site, r))
+		zhttp.SetAuthCookie(w, *user.LoginToken, cookieDomain(&site, r))
 	}
 
-	bgrun.Run(func() {
+	bgrun.Run("welcome email", func() {
 		err := blackmail.Send("Welcome to GoatCounter!",
 			blackmail.From("GoatCounter", cfg.EmailFrom),
 			blackmail.To(user.Email),
@@ -344,7 +344,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		sites = append(sites, s)
 	}
 
-	bgrun.Run(func() {
+	bgrun.Run("email:sites", func() {
 		defer zlog.Recover()
 		err := blackmail.Send("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},

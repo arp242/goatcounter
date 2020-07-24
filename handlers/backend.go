@@ -36,6 +36,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
+	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstripe"
@@ -222,7 +223,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 	for _, ip := range site.Settings.IgnoreIPs {
 		if ip == r.RemoteAddr {
 			w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because %q is in the IP ignore list", ip))
@@ -257,7 +258,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 
 	if uint8(hit.Bot) >= isbot.BotJSPhanton {
 		ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
-		bgrun.Run(func() {
+		bgrun.Run("botlog:insert", func() {
 			bl := goatcounter.AdminBotlog{
 				Bot:       hit.Bot,
 				UserAgent: r.UserAgent(),
@@ -283,7 +284,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	exclude := r.URL.Query().Get("exclude")
 	filter := r.URL.Query().Get("filter")
@@ -302,7 +303,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	var (
 		wg sync.WaitGroup
 
-		totalTpl   []byte
+		totalTpl   string
 		totalPages goatcounter.HitStat
 		totalErr   error
 
@@ -326,7 +327,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 				return
 			}
 
-			totalTpl, totalErr = zhttp.ExecuteTpl("_dashboard_totals_row.gohtml", struct {
+			totalTpl, totalErr = ztpl.ExecuteString("_dashboard_totals_row.gohtml", struct {
 				Context context.Context
 				Site    *goatcounter.Site
 				Page    goatcounter.HitStat
@@ -359,7 +360,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tpl, err := zhttp.ExecuteTpl("_dashboard_pages_rows.gohtml", struct {
+	tpl, err := ztpl.ExecuteString("_dashboard_pages_rows.gohtml", struct {
 		Context      context.Context
 		Pages        goatcounter.HitStats
 		Site         *goatcounter.Site
@@ -396,8 +397,8 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, map[string]interface{}{
-		"rows":                 string(tpl),
-		"totals":               string(totalTpl),
+		"rows":                 tpl,
+		"totals":               totalTpl,
 		"paths":                paths,
 		"total_hits":           totalHits,
 		"total_display":        totalDisplay,
@@ -410,7 +411,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 // TODO: don't hard-code limit to 10, and allow pagination here too.
 func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
-	start, end, err := getPeriod(w, r, goatcounter.MustGetSite(r.Context()))
+	start, end, err := getPeriod(w, r, Site(r.Context()))
 	if err != nil {
 		return err
 	}
@@ -450,7 +451,7 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
@@ -575,7 +576,7 @@ func (h backend) code(w http.ResponseWriter, r *http.Request) error {
 
 	cd := cfg.DomainCount
 	if cd == "" {
-		cd = goatcounter.MustGetSite(r.Context()).Domain()
+		cd = Site(r.Context()).Domain()
 		if cfg.Port != "" {
 			cd += ":" + cfg.Port
 		}
@@ -638,7 +639,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		v.Sub("user", "", err)
 	}
 
-	site := goatcounter.MustGetSite(txctx)
+	site := Site(txctx)
 	site.Settings = args.Settings
 	site.LinkDomain = args.LinkDomain
 	if args.Cname != "" && !site.PlanCustomDomain(txctx) {
@@ -679,7 +680,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	if makecert {
 		ctx := goatcounter.NewContext(r.Context())
-		bgrun.Run(func() {
+		bgrun.Run(fmt.Sprintf("acme.Make:%s", args.Cname), func() {
 			err := acme.Make(args.Cname)
 			if err != nil {
 				zlog.Field("domain", args.Cname).Error(err)
@@ -720,7 +721,8 @@ func (h backend) importFile(w http.ResponseWriter, r *http.Request) error {
 	defer fp.Close()
 
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(func() { goatcounter.Import(ctx, fp, replace, true) })
+	bgrun.Run(fmt.Sprintf("import:%d", Site(ctx).ID),
+		func() { goatcounter.Import(ctx, fp, replace, true) })
 
 	zhttp.Flash(w, "Import started in the background; you’ll get an email when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")
@@ -742,7 +744,8 @@ func (h backend) startExport(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(func() { export.Run(ctx, fp, true) })
+	bgrun.Run(fmt.Sprintf("export web:%d", Site(ctx).ID),
+		func() { export.Run(ctx, fp, true) })
 
 	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")
@@ -846,7 +849,7 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	parent := goatcounter.MustGetSite(r.Context())
+	parent := Site(r.Context())
 	site := goatcounter.Site{
 		Code:     args.Code,
 		Parent:   &parent.ID,
@@ -882,7 +885,7 @@ func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(func() {
+	bgrun.Run(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
 		err := list.Purge(ctx, r.Form.Get("path"), r.Form.Get("match-title") == "on")
 		if err != nil {
@@ -929,7 +932,7 @@ func hasPlan(site *goatcounter.Site) (bool, error) {
 }
 
 func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	if cfg.GoatcounterCom {
 		var args struct {
@@ -954,7 +957,7 @@ func (h backend) delete(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		if args.Reason != "" {
-			bgrun.Run(func() {
+			bgrun.Run("email:deletion", func() {
 				contact := "false"
 				if args.ContactMe {
 					var u goatcounter.User

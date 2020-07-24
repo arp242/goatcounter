@@ -48,10 +48,10 @@ func gen(ctx context.Context) Hit {
 }
 
 func TestNextUUID(t *testing.T) {
-	want := `112233445566778899aabbccddef01
-112233445566778899aabbccddef02
-112233445566778899aabbccddef03
-112233445566778899aabbccddeeff`
+	want := `11223344556677-8899aabbccddef01
+11223344556677-8899aabbccddef02
+11223344556677-8899aabbccddef03
+11223344556677-8899aabbccddeeff`
 
 	func() {
 		_, clean := gctest.DB(t)

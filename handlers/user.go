@@ -71,7 +71,7 @@ func (h user) new(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var user goatcounter.User
-	err := user.BySite(r.Context(), goatcounter.MustGetSite(r.Context()).IDOrParent())
+	err := user.BySite(r.Context(), Site(r.Context()).IDOrParent())
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 	var user goatcounter.User
 	err = user.BySite(r.Context(), site.IDOrParent())
 	if err != nil {
@@ -137,7 +137,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	bgrun.Run(func() {
+	bgrun.Run("email:password", func() {
 		err := blackmail.Send(
 			fmt.Sprintf("Password reset for %s", site.Domain()),
 			blackmail.From("GoatCounter login", cfg.EmailFrom),
@@ -165,7 +165,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	var u goatcounter.User
 	err = u.BySite(r.Context(), site.IDOrParent())
@@ -198,7 +198,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), args.LoginMAC})
 	}
 
-	zhttp.SetCookie(w, *u.LoginToken, cookieDomain(site, r))
+	zhttp.SetAuthCookie(w, *u.LoginToken, cookieDomain(site, r))
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -208,7 +208,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/")
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	var user goatcounter.User
 	err := user.BySite(r.Context(), site.IDOrParent())
@@ -260,12 +260,12 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP)})
 	}
 
-	zhttp.SetCookie(w, *user.LoginToken, cookieDomain(site, r))
+	zhttp.SetAuthCookie(w, *user.LoginToken, cookieDomain(site, r))
 	return zhttp.SeeOther(w, "/")
 }
 
 func (h user) reset(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 	key := chi.URLParam(r, "key")
 
 	var user goatcounter.User
@@ -329,7 +329,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 		zlog.Errorf("logout: %s", err)
 	}
 
-	zhttp.ClearCookie(w, goatcounter.MustGetSite(r.Context()).Domain())
+	zhttp.ClearAuthCookie(w, Site(r.Context()).Domain())
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -425,7 +425,7 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/")
 	}
 
-	sendEmailVerify(goatcounter.MustGetSite(r.Context()), user)
+	sendEmailVerify(Site(r.Context()), user)
 	zhttp.Flash(w, "Sent to %q", user.Email)
 	return zhttp.SeeOther(w, "/")
 }
@@ -475,7 +475,7 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 }
 
 func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
-	bgrun.Run(func() {
+	bgrun.Run("email:verify", func() {
 		err := blackmail.Send("Verify your email",
 			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
 			blackmail.To(user.Email),

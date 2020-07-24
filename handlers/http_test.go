@@ -23,7 +23,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
+	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
@@ -48,10 +48,9 @@ func init() {
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter,
 		blackmail.MailerOut(new(bytes.Buffer)))
 
-	zhttp.TplPath = "../tpl"
 	pack.Templates = nil
 	pack.Public = nil
-	zhttp.InitTpl(nil)
+	ztpl.Init("../tpl", nil)
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.GoatcounterCom = true
@@ -167,7 +166,7 @@ func login(t *testing.T, r *http.Request) {
 }
 
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
-	site := goatcounter.MustGetSite(ctx)
+	site := Site(ctx)
 	r, rr := ztest.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
 	r.Header.Set("User-Agent", "GoatCounter test runner/1.0")
 	r.Host = site.Code + "." + cfg.Domain

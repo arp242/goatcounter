@@ -29,7 +29,7 @@ func newAPITest(
 	ctx, clean := gctest.DB(t)
 
 	token := goatcounter.APIToken{
-		SiteID:      goatcounter.MustGetSite(ctx).ID,
+		SiteID:      Site(ctx).ID,
 		UserID:      goatcounter.GetUser(ctx).ID,
 		Name:        "test",
 		Permissions: perm,

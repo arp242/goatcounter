@@ -6,19 +6,32 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"os/user"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/jmoiron/sqlx"
+	"github.com/teamwork/reload"
+	"zgo.at/blackmail"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/ztpl"
+	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
@@ -99,14 +112,14 @@ func serve() (int, error) {
 
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, dev, automigrate, listen, tls, from, err := flagServeAndSaas(&v)
+	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
 	if err != nil {
 		return 1, err
 	}
 
 	cfg.Serve = true
-	if tls == "" {
-		tls = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
+	if flagTLS == "" {
+		flagTLS = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 	}
 
 	if cfg.DomainStatic != "" {
@@ -128,32 +141,10 @@ func serve() (int, error) {
 		return 1, v
 	}
 
-	// Reload on changes.
-	if !cfg.Prod {
-		setupReload()
-	}
-
-	db, err := connectDB(dbConnect, map[bool][]string{true: []string{"all"}, false: nil}[automigrate], true)
+	db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate)
 	if err != nil {
 		return 2, err
 	}
-	defer db.Close()
-
-	zhttp.InitTpl(pack.Templates)
-	tlsc, acmeh, listenTLS := acme.Setup(db, tls)
-
-	err = goatcounter.Memstore.Init(db)
-	if err != nil {
-		return 0, err
-	}
-
-	cronWait := setupCron(db)
-	defer func() {
-		defer cronWait()
-		defer bgrun.WaitAndLog()
-		defer goatcounter.Memstore.StoreSessions(db)
-		zlog.Print("Waiting for background tasks to finish…")
-	}()
 
 	// Set up HTTP handler and servers.
 	hosts := map[string]http.Handler{
@@ -170,8 +161,20 @@ func serve() (int, error) {
 		return 2, err
 	}
 
+	doServe(db, listen, listenTLS, tlsc, hosts, func() {
+		banner()
+		zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
+			len(cnames), listen, dev, strings.Join(cnames, ", "))
+		if len(cnames) == 0 {
+			zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
+		}
+	})
+	return 0, nil
+}
+
+func doServe(db *sqlx.DB, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
 	zlog.Module("main").Debug(getVersion())
-	zhttp.Serve(listenTLS, &http.Server{
+	ch := zhttp.Serve(listenTLS, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
@@ -182,16 +185,169 @@ func serve() (int, error) {
 		ReadTimeout:       60 * time.Second,
 		WriteTimeout:      60 * time.Second,
 		IdleTimeout:       120 * time.Second,
-	}, func() {
-		banner()
-		zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
-			len(cnames), listen, dev, strings.Join(cnames, ", "))
-
-		if len(cnames) == 0 {
-			zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
-		}
 	})
-	return 0, nil
+
+	<-ch
+	start()
+	<-ch
+
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGHUP, syscall.SIGTERM, os.Interrupt /*SIGINT*/)
+		_ = <-c
+		zli.Colorln("One more…", zli.Bold)
+		_ = <-c
+		zli.Colorln("Force killing", zli.Bold)
+		os.Exit(99)
+	}()
+
+	bgrun.Run("memstore:persist", func() { goatcounter.Memstore.StoreSessions(db) })
+	bgrun.Run("cron:shutdown", func() { cron.RunOnce(db) })
+	zlog.Print("Waiting for background tasks to finish; send HUP, TERM, or INT twice to force kill (may lose data!)")
+	time.Sleep(10 * time.Millisecond)
+	bgrun.WaitProgressAndLog()
+	db.Close()
+}
+
+func flagsServe(v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
+	dbConnect := flagDB()
+	debug := flagDebug()
+
+	var dev bool
+	CommandLine.BoolVar(&dev, "dev", false, "")
+	automigrate := CommandLine.Bool("automigrate", false, "")
+	listen := CommandLine.String("listen", ":443", "")
+	smtp := CommandLine.String("smtp", blackmail.ConnectWriter, "")
+	flagTLS := CommandLine.String("tls", "", "")
+	errors := CommandLine.String("errors", "", "")
+	from := CommandLine.String("email-from", "", "")
+
+	err := CommandLine.Parse(os.Args[2:])
+	zlog.Config.SetDebug(*debug)
+	cfg.Prod = !dev
+	zhttp.LogUnknownFields = dev
+	zhttp.CookieSecure = !dev
+	if *flagTLS == "none" {
+		zhttp.CookieSecure = false
+	}
+
+	if !dev {
+		zlog.Config.FmtTime = "Jan _2 15:04:05 "
+	}
+
+	flagErrors(*errors, v)
+
+	if *smtp != blackmail.ConnectDirect && *smtp != blackmail.ConnectWriter {
+		v.URL("-smtp", *smtp)
+	}
+	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
+
+	return *dbConnect, dev, *automigrate, *listen, *flagTLS, *from, err
+}
+
+func setupServe(dbConnect, flagTLS string, automigrate bool) (*sqlx.DB, *tls.Config, http.HandlerFunc, uint8, error) {
+	if !cfg.Prod {
+		setupReload()
+	}
+
+	db, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate], true)
+	if err != nil {
+		return nil, nil, nil, 0, err
+	}
+
+	ztpl.Init("tpl", pack.Templates)
+	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS)
+
+	err = goatcounter.Memstore.Init(db)
+	if err != nil {
+		return nil, nil, nil, 0, err
+	}
+
+	cron.RunBackground(db)
+	bgrun.Run("cron:start", func() {
+		time.Sleep(3 * time.Second)
+		cron.RunOnce(db)
+	})
+
+	return db, tlsc, acmeh, listenTLS, nil
+}
+
+func setupReload() {
+	if _, err := os.Stat("./tpl"); os.IsNotExist(err) {
+		return
+	}
+
+	pack.Templates = nil
+	pack.Public = nil
+	go func() {
+		err := reload.Do(zlog.Module("main").Debugf, reload.Dir("./tpl", ztpl.Reload))
+		if err != nil {
+			panic(errors.Errorf("reload.Do: %v", err))
+		}
+	}()
+}
+
+func flagErrors(errors string, v *zvalidate.Validator) {
+	switch {
+	default:
+		v.Append("-errors", "invalid value")
+	case errors == "":
+		// Do nothing.
+	case strings.HasPrefix(errors, "mailto:"):
+		errors = errors[7:]
+		s := strings.Split(errors, ",")
+		from := s[0]
+		to := s[0]
+		if len(s) > 1 {
+			to = s[1]
+		}
+
+		v.Email("-errors", from)
+		v.Email("-errors", to)
+		zlog.Config.Outputs = append(zlog.Config.Outputs, func(l zlog.Log) {
+			if l.Level != zlog.LevelErr {
+				return
+			}
+
+			bgrun.Run("email:error", func() {
+				err := blackmail.Send("GoatCounter Error",
+					blackmail.From("", from),
+					blackmail.To(to),
+					blackmail.BodyText([]byte(zlog.Config.Format(l))))
+				if err != nil {
+					// Just output to stderr I guess, can't really do much more if
+					// zlog fails.
+					fmt.Fprintf(stderr, "emailerrors: %s\n", err)
+				}
+			})
+		})
+	}
+}
+
+func flagFrom(from string, v *zvalidate.Validator) {
+	if from == "" {
+		if cfg.Domain != "" { // saas only.
+			from = "support@" + zhttp.RemovePort(cfg.Domain)
+		} else {
+			u, err := user.Current()
+			if err != nil {
+				panic("cannot get user for -email-from parameter")
+			}
+			h, err := os.Hostname()
+			if err != nil {
+				panic("cannot get hostname for -email-from parameter")
+			}
+			from = fmt.Sprintf("%s@%s", u.Username, h)
+		}
+
+	}
+
+	cfg.EmailFrom = from
+
+	// TODO
+	// if zmail.SMTP != "stdout" {
+	// 	v.Email("-email-from", from, fmt.Sprintf("%q is not a valid email address", from))
+	// }
 }
 
 func lsSites(db zdb.DB) ([]string, error) {

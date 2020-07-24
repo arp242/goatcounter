@@ -26,8 +26,8 @@ import (
 	"zgo.at/isbot"
 	"zgo.at/tz"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
 	"zgo.at/ztest"
@@ -198,8 +198,8 @@ func TestBackendCountSessions(t *testing.T) {
 	})
 
 	send := func(ctx context.Context, ua string) {
-		site := goatcounter.MustGetSite(ctx)
-		query := url.Values{"p": {"/" + zhttp.Secret64()}}
+		site := Site(ctx)
+		query := url.Values{"p": {"/" + zcrypto.Secret64()}}
 
 		r, rr := newTest(ctx, "GET", "/count?"+query.Encode(), nil)
 		r.Host = site.Code + "." + cfg.Domain
@@ -248,21 +248,21 @@ func TestBackendCountSessions(t *testing.T) {
 			}
 		}
 
-		first := zint.Uint128{H: goatcounter.TestSession.H, L: goatcounter.TestSession.L + 1}
+		first := zint.Uint128{goatcounter.TestSession[0], goatcounter.TestSession[1] + 1}
 		want := make([]zint.Uint128, len(wantInt))
 		for i := range wantInt {
 			want[i] = first
-			want[i].L += uint64(wantInt[i])
+			want[i][1] += uint64(wantInt[i])
 		}
 
 		// TODO: test in order.
-		sort.Slice(want, func(i, j int) bool { return want[i].L < want[j].L })
+		sort.Slice(want, func(i, j int) bool { return want[i][1] < want[j][1] })
 		var w string
 		for _, ww := range want {
 			w += ww.Format(16) + " "
 		}
 
-		sort.Slice(got, func(i, j int) bool { return got[i].L < got[j].L })
+		sort.Slice(got, func(i, j int) bool { return got[i][1] < got[j][1] })
 		var g string
 		for _, gg := range got {
 			g += gg.Format(16) + " "

@@ -46,7 +46,7 @@ func (h billing) mount(pub, auth chi.Router) {
 }
 
 func (h billing) index(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	switch r.URL.Query().Get("return") {
 	case "cancel":
@@ -65,7 +65,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				"stripeID": stripe,
 			}).Errorf("stripe not processed")
 		} else {
-			bgrun.Run(func() {
+			bgrun.Run("email:subscription", func() {
 				blackmail.Send("New GoatCounter subscription "+site.Plan,
 					blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
 					blackmail.To("billing@goatcounter.com"),
@@ -165,7 +165,7 @@ var stripePlans = map[bool]map[string]string{
 }
 
 func (h billing) start(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	var args struct {
 		Plan     string `json:"plan"`
@@ -237,7 +237,7 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 		} `json:"subscriptions"`
 	}
 
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 	if site.Stripe == nil {
 		return guru.New(400, "No Stripe customer for this site?")
 	}
@@ -273,7 +273,7 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	bgrun.Run(func() {
+	bgrun.Run("email:cancellation", func() {
 		blackmail.Send("GoatCounter cancellation",
 			blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
 			blackmail.To("billing@goatcounter.com"),
@@ -315,7 +315,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		if strings.HasPrefix(s.ClientReferenceID, "one-time") {
-			bgrun.Run(func() {
+			bgrun.Run("email:donation", func() {
 				t := "New one-time donation: " + s.ClientReferenceID
 				blackmail.Send(t,
 					blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
@@ -326,7 +326,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
-		bgrun.Run(func() {
+		bgrun.Run("stripe", func() {
 			l := zlog.Module("billing").FieldsRequest(r).Field("session", s)
 			id, err := strconv.ParseInt(s.ClientReferenceID, 10, 64)
 			if err != nil {

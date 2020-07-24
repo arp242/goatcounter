@@ -7,11 +7,13 @@ package cron
 
 import (
 	"context"
-	"sync"
+	"strings"
 	"time"
 
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zsync"
 )
 
@@ -29,10 +31,7 @@ var tasks = []task{
 	{sessions, 1 * time.Minute},
 }
 
-var (
-	stopped = zsync.NewAtomicInt(0)
-	wg      sync.WaitGroup
-)
+var stopped = zsync.NewAtomicInt(0)
 
 // RunOnce runs all tasks once and returns.
 func RunOnce(db zdb.DB) {
@@ -61,15 +60,14 @@ func RunBackground(db zdb.DB) {
 					return
 				}
 
-				var err error
-				func() {
-					wg.Add(1)
-					defer wg.Done()
-					err = t.fun(ctx)
-				}()
-				if err != nil {
-					l.Error(err)
-				}
+				f := strings.Replace(zruntime.FuncName(t.fun), "zgo.at/goatcounter/cron.", "", 1)
+				bgrun.Run("cron:"+f, func() {
+					err := t.fun(ctx)
+					if err != nil {
+						l.Error(err)
+					}
+					time.Sleep(4 * time.Second)
+				})
 			}
 		}(t)
 	}
@@ -80,9 +78,6 @@ func RunBackground(db zdb.DB) {
 func Wait(db zdb.DB) {
 	stopped.Set(1)
 	ctx := zdb.With(context.Background(), db)
-
-	wg.Wait()
-
 	for _, t := range tasks {
 		err := t.fun(ctx)
 		if err != nil {

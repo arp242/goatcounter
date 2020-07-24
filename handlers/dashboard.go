@@ -16,6 +16,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/zsync"
@@ -64,7 +65,7 @@ type dashboardData struct {
 }
 
 func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
-	site := goatcounter.MustGetSite(r.Context())
+	site := Site(r.Context())
 
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
@@ -95,7 +96,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	cd := cfg.DomainCount
 	if cd == "" {
-		cd = goatcounter.MustGetSite(r.Context()).Domain()
+		cd = Site(r.Context()).Domain()
 		if cfg.Port != "" {
 			cd += ":" + cfg.Port
 		}
@@ -295,7 +296,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 				}
 
 				typ, tplName, tplData := f()
-				tpl, err := zhttp.ExecuteTpl(tplName, tplData)
+				tpl, err := ztpl.ExecuteString(tplName, tplData)
 				if err != nil {
 					bgErr.Append(err)
 					return

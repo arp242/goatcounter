@@ -51,7 +51,7 @@ func (h admin) mount(r chi.Router) {
 }
 
 func (h admin) index(w http.ResponseWriter, r *http.Request) error {
-	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
 
@@ -131,7 +131,7 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h admin) sql(w http.ResponseWriter, r *http.Request) error {
-	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
 
@@ -199,7 +199,7 @@ func (h admin) sql(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h admin) botlog(w http.ResponseWriter, r *http.Request) error {
-	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
 
@@ -216,7 +216,7 @@ func (h admin) botlog(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h admin) site(w http.ResponseWriter, r *http.Request) error {
-	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
 
@@ -248,7 +248,7 @@ func (h admin) site(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
-	if goatcounter.MustGetSite(r.Context()).ID != 1 {
+	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
 

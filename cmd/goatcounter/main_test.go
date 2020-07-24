@@ -21,8 +21,8 @@ import (
 	"zgo.at/goatcounter/cfg"
 	_ "zgo.at/goatcounter/gctest" // Set cfg.PgSQL
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zcrypto"
 )
 
 // Make sure usage doesn't contain tabs, as that will mess up formatting in
@@ -47,7 +47,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 		}
 	}()
 
-	dbname := "goatcounter_" + zhttp.Secret64()
+	dbname := "goatcounter_" + zcrypto.Secret64()
 	var tmp string
 	if cfg.PgSQL {
 		// TODO: don't rely on shell commands if possible, as it's quite slow.

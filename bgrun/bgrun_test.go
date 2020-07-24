@@ -14,7 +14,7 @@ import (
 
 func TestRun(t *testing.T) {
 	i := 0
-	Run(func() {
+	Run("test 1", func() {
 		time.Sleep(200 * time.Millisecond)
 		i = 1
 	})
@@ -31,7 +31,7 @@ func TestWait(t *testing.T) {
 	maxWait = 10
 	defer func() { maxWait = 10 * time.Second }()
 
-	Run(func() { time.Sleep(5 * time.Second) })
+	Run("test wait", func() { time.Sleep(5 * time.Second) })
 	err := Wait()
 	if err == nil {
 		t.Fatal("error is nil")

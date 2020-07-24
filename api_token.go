@@ -14,7 +14,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zvalidate"
 )
@@ -56,7 +56,7 @@ func (tp *APITokenPermissions) Scan(v interface{}) error {
 // Defaults sets fields to default values, unless they're already set.
 func (t *APIToken) Defaults(ctx context.Context) {
 	t.SiteID = MustGetSite(ctx).ID
-	t.Token = zhttp.Secret256()
+	t.Token = zcrypto.Secret256()
 	t.CreatedAt = Now()
 }
 

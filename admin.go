@@ -482,7 +482,7 @@ func (b AdminBotlog) Insert(ctx context.Context, ip string) error {
 	}
 
 	if newIP {
-		bgrun.Run(func() {
+		bgrun.Run("botlog", func() {
 			// apk add whois drill
 			whois, _ := exec.Command("whois", "-r", "--", "--resource", ip).CombinedOutput()
 			var info strings.Builder

@@ -22,16 +22,17 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"zgo.at/errors"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
 
 func init() {
-	zhttp.FuncMap["base32"] = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString
-	zhttp.FuncMap["validate"] = zvalidate.TemplateError
-	zhttp.FuncMap["has_errors"] = zvalidate.TemplateHasErrors
-	zhttp.FuncMap["error_code"] = func(err error) string { return zhttp.ErrorCode(err) }
-	zhttp.FuncMap["parent_site"] = func(ctx context.Context, id *int64) string {
+	tplfunc.Add("base32", base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString)
+	tplfunc.Add("validate", zvalidate.TemplateError)
+	tplfunc.Add("has_errors", zvalidate.TemplateHasErrors)
+	tplfunc.Add("error_code", func(err error) string { return zhttp.ErrorCode(err) })
+	tplfunc.Add("parent_site", func(ctx context.Context, id *int64) string {
 		var s Site
 		err := s.ByID(ctx, *id)
 		if err != nil {
@@ -39,36 +40,36 @@ func init() {
 			return ""
 		}
 		return s.URL()
-	}
-	zhttp.FuncMap["hash"] = func(s string) string {
+	})
+	tplfunc.Add("hash", func(s string) string {
 		h := sha1.New()
 		h.Write([]byte(s))
 		return fmt.Sprintf("%x", h.Sum(nil))
-	}
+	})
 
 	var (
 		ss = time.Date(2019, 9, 16, 0, 0, 0, 0, time.UTC)
 		sl = time.Date(2019, 11, 7, 0, 0, 0, 0, time.UTC)
 	)
-	zhttp.FuncMap["before_size"] = func(createdAt time.Time) bool { return createdAt.Before(ss) }
-	zhttp.FuncMap["before_loc"] = func(createdAt time.Time) bool { return createdAt.Before(sl) }
+	tplfunc.Add("before_size", func(createdAt time.Time) bool { return createdAt.Before(ss) })
+	tplfunc.Add("before_loc", func(createdAt time.Time) bool { return createdAt.Before(sl) })
 
 	// Implemented as function for performance.
-	zhttp.FuncMap["bar_chart"] = BarChart
-	zhttp.FuncMap["horizontal_chart"] = HorizontalChart
+	tplfunc.Add("bar_chart", BarChart)
+	tplfunc.Add("horizontal_chart", HorizontalChart)
 
 	// Override defaults to take site settings in to account.
-	zhttp.FuncMap["tformat"] = func(s *Site, t time.Time, fmt string) string {
+	tplfunc.Add("tformat", func(s *Site, t time.Time, fmt string) string {
 		if fmt == "" {
 			fmt = "2006-01-02"
 		}
 		return t.In(s.Settings.Timezone.Loc()).Format(fmt)
-	}
-	zhttp.FuncMap["nformat"] = func(n int, s Site) string {
-		return zhttp.Tnformat(n, s.Settings.NumberFormat)
-	}
+	})
+	tplfunc.Add("nformat", func(n int, s Site) string {
+		return tplfunc.Number(n, s.Settings.NumberFormat)
+	})
 
-	zhttp.FuncMap["nformat64"] = func(n int64) string {
+	tplfunc.Add("nformat64", func(n int64) string {
 		s := strconv.FormatInt(n, 10)
 		if len(s) < 4 {
 			return s
@@ -91,9 +92,9 @@ func init() {
 			out[i], out[j] = out[j], out[i]
 		}
 		return string(out)
-	}
+	})
 
-	zhttp.FuncMap["totp_barcode"] = func(email, s string) template.HTML {
+	tplfunc.Add("totp_barcode", func(email, s string) template.HTML {
 		totpURI := fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s)
 		buf := bytes.NewBufferString("data:image/png;base64,")
 		qrCode, err := qr.Encode(totpURI, qr.M, qr.Auto)
@@ -118,7 +119,7 @@ func init() {
 		return template.HTML(fmt.Sprintf(
 			`<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode" src="%s">`,
 			buf.String()))
-	}
+	})
 }
 
 func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
@@ -151,8 +152,8 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 			}
 
 			b.WriteString(fmt.Sprintf(`<div%s title="%s|%s|%s"></div>`,
-				st, stat.Day, zhttp.Tnformat(stat.Daily, site.Settings.NumberFormat),
-				zhttp.Tnformat(stat.DailyUnique, site.Settings.NumberFormat)))
+				st, stat.Day, tplfunc.Number(stat.Daily, site.Settings.NumberFormat),
+				tplfunc.Number(stat.DailyUnique, site.Settings.NumberFormat)))
 		}
 
 	// Hourly view.
@@ -181,8 +182,8 @@ func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 				}
 				b.WriteString(fmt.Sprintf(`<div%s title="%s|%[3]d:00|%[3]d:59|%s|%s"></div>`,
 					st, stat.Day, shour,
-					zhttp.Tnformat(s, site.Settings.NumberFormat),
-					zhttp.Tnformat(stat.HourlyUnique[shour], site.Settings.NumberFormat)))
+					tplfunc.Number(s, site.Settings.NumberFormat),
+					tplfunc.Number(stat.HourlyUnique[shour], site.Settings.NumberFormat)))
 			}
 		}
 	}
@@ -248,7 +249,7 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 				<span class="col-count">%[5]s</span>
 			</div>`,
 			class, name, perc, ref,
-			zhttp.Tnformat(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat)))
+			tplfunc.Number(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat)))
 	}
 	b.WriteString(`</div>`)
 

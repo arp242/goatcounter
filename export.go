@@ -137,17 +137,10 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 			if hit.OldSession != nil {
 				s = strconv.FormatInt(*hit.OldSession, 10)
 			} else {
-				b, err := hit.Session.Bytes()
-				if err != nil {
-					zlog.Fields(zlog.F{
-						"export":  e.ID,
-						"session": hit.Session.Format(16),
-					}).Error(err)
-				} else {
-					var u uuid.UUID
-					copy(u[:], b)
-					s = u.String()
-				}
+				b := hit.Session.Bytes()
+				var u uuid.UUID
+				copy(u[:], b)
+				s = u.String()
 
 			}
 

@@ -17,8 +17,8 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zvalidate"
 )
 
@@ -121,7 +121,7 @@ func create() (int, error) {
 
 	err = zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, tx zdb.DB) error {
 		s := goatcounter.Site{
-			Code:  "serve-" + zhttp.Secret64(),
+			Code:  "serve-" + zcrypto.Secret64(),
 			Cname: &domain,
 			Plan:  goatcounter.PlanBusinessPlus,
 		}

@@ -7,6 +7,8 @@ package goatcounter
 import (
 	"context"
 	"crypto/sha256"
+	"encoding"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -17,24 +19,46 @@ import (
 	"github.com/google/uuid"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
-	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 )
 
 var (
 	// Valid UUID for testing: 00112233-4455-6677-8899-aabbccddeeff
-	TestSession    = zint.Uint128{H: 0x11223344556677, L: 0x8899aabbccddeeff}
-	TestSeqSession = zint.Uint128{H: TestSession.H, L: TestSession.L + 1}
+	TestSession    = zint.Uint128{0x11223344556677, 0x8899aabbccddeeff}
+	TestSeqSession = zint.Uint128{TestSession[0], TestSession[1] + 1}
 )
+
+// The json encoder doesn't like binary data, so base64 it; need struct as it'll
+// ignore MarshalText on "type hash string" (but not UnmarshalText? Hmm)
+type hash struct{ v string }
+
+var (
+	_ encoding.TextMarshaler   = hash{}
+	_ encoding.TextUnmarshaler = &hash{}
+)
+
+// MarshalText converts the data to a human readable representation.
+func (h hash) MarshalText() ([]byte, error) {
+	b := base64.StdEncoding.EncodeToString([]byte(h.v))
+	return []byte(b), nil
+}
+
+// UnmarshalText parses text in to the Go data structure.
+func (h *hash) UnmarshalText(v []byte) error {
+	b, err := base64.StdEncoding.DecodeString(string(v))
+	h.v = string(b)
+	return err
+}
 
 type ms struct {
 	hitMu sync.RWMutex
 	hits  []Hit
 
 	sessionMu     sync.RWMutex
-	sessions      map[string]zint.Uint128              // Hash → sessionID
-	sessionHashes map[zint.Uint128]string              // sessionID → hash
+	sessions      map[hash]zint.Uint128                // Hash → sessionID
+	sessionHashes map[zint.Uint128]hash                // sessionID → hash
 	sessionPaths  map[zint.Uint128]map[string]struct{} // SessionID → Path
 	sessionSeen   map[zint.Uint128]int64               // SessionID → lastseen
 	curSalt       []byte
@@ -47,8 +71,8 @@ type ms struct {
 var Memstore ms
 
 type storedSession struct {
-	Sessions    map[string]zint.Uint128              `json:"sessions"`
-	Hashes      map[zint.Uint128]string              `json:"hashes"`
+	Sessions    map[hash]zint.Uint128                `json:"sessions"`
+	Hashes      map[zint.Uint128]hash                `json:"hashes"`
 	Paths       map[zint.Uint128]map[string]struct{} `json:"paths"`
 	Seen        map[zint.Uint128]int64               `json:"seen"`
 	CurSalt     []byte                               `json:"cur_salt"`
@@ -60,14 +84,14 @@ func (m *ms) Reset() {
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	m.sessions = make(map[string]zint.Uint128)
-	m.sessionHashes = make(map[zint.Uint128]string)
+	m.sessions = make(map[hash]zint.Uint128)
+	m.sessionHashes = make(map[zint.Uint128]hash)
 	m.sessionPaths = make(map[zint.Uint128]map[string]struct{})
 	m.sessionSeen = make(map[zint.Uint128]int64)
-	m.curSalt = []byte(zhttp.Secret256())
-	m.prevSalt = []byte(zhttp.Secret256())
+	m.curSalt = []byte(zcrypto.Secret256())
+	m.prevSalt = []byte(zcrypto.Secret256())
 	m.saltRotated = Now()
-	TestSeqSession = zint.Uint128{H: TestSession.H, L: TestSession.L + 1}
+	TestSeqSession = zint.Uint128{TestSession[0], TestSession[1] + 1}
 }
 
 // TestInit is like Init(), but enables the test hook to return sequential UUIDs
@@ -249,7 +273,7 @@ func (m *ms) RefreshSalt() {
 	}
 
 	m.prevSalt = m.curSalt[:]
-	m.curSalt = []byte(zhttp.Secret256())
+	m.curSalt = []byte(zcrypto.Secret256())
 }
 
 // For 10k sessions this takes about 5ms on my laptop; that's a small enough
@@ -276,7 +300,7 @@ func (m *ms) EvictSessions() {
 // SessionID gets a new UUID4 session ID.
 func (m *ms) SessionID() zint.Uint128 {
 	if m.testHook {
-		TestSeqSession.L += 1
+		TestSeqSession[1]++
 		return TestSeqSession
 	}
 
@@ -297,19 +321,19 @@ func (m *ms) SessionID() zint.Uint128 {
 func (m *ms) session(ctx context.Context, siteID int64, path, ua, remoteAddr string) (zint.Uint128, zdb.Bool) {
 	h := sha256.New()
 	h.Write(append(append(append(m.curSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
-	hash := string(h.Sum(nil))
+	hashed := hash{string(h.Sum(nil))}
 
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	id, ok := m.sessions[hash]
+	id, ok := m.sessions[hashed]
 	if !ok { // Try previous hash
 		h := sha256.New()
 		h.Write(append(append(append(m.prevSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
-		prevHash := string(h.Sum(nil))
-		id, ok = m.sessions[prevHash]
+		prev := hash{string(h.Sum(nil))}
+		id, ok = m.sessions[prev]
 		if ok {
-			hash = prevHash
+			hashed = prev
 		}
 	}
 
@@ -324,9 +348,9 @@ func (m *ms) session(ctx context.Context, siteID int64, path, ua, remoteAddr str
 
 	// New session
 	id = m.SessionID()
-	m.sessions[hash] = id
+	m.sessions[hashed] = id
 	m.sessionPaths[id] = map[string]struct{}{path: struct{}{}}
 	m.sessionSeen[id] = Now().Unix()
-	m.sessionHashes[id] = hash
+	m.sessionHashes[id] = hashed
 	return id, true
 }

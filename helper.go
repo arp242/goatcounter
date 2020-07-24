@@ -13,8 +13,8 @@ import (
 
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
 	"zgo.at/zhttp/ctxkey"
+	"zgo.at/zhttp/ztpl"
 )
 
 // State column values.
@@ -73,10 +73,7 @@ func NewContext(ctx context.Context) context.Context {
 
 func EmailTemplate(tplname string, args interface{}) func() ([]byte, error) {
 	return func() ([]byte, error) {
-		return zhttp.ExecuteTpl(tplname, args)
-		//buf := new(bytes.Buffer)
-		//err := tpl.ExecuteTemplate(buf, tplname, args)
-		//return buf.Bytes(), err
+		return ztpl.ExecuteBytes(tplname, args)
 	}
 }
 

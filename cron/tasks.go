@@ -14,6 +14,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
@@ -218,19 +219,19 @@ func renewACME(ctx context.Context) error {
 	}
 
 	for _, s := range sites {
-		wg.Add(1)
-		go func(ctx context.Context, s goatcounter.Site) {
-			defer wg.Done()
-			err := acme.Make(*s.Cname)
-			if err != nil {
-				zlog.Module("cron-acme").Error(err)
-				return
-			}
+		func(ctx context.Context, s goatcounter.Site) {
+			bgrun.Run("renewACME:"+*s.Cname, func() {
+				err := acme.Make(*s.Cname)
+				if err != nil {
+					zlog.Module("cron-acme").Error(err)
+					return
+				}
 
-			err = s.UpdateCnameSetupAt(ctx)
-			if err != nil {
-				zlog.Module("cron-acme").Error(err)
-			}
+				err = s.UpdateCnameSetupAt(ctx)
+				if err != nil {
+					zlog.Module("cron-acme").Error(err)
+				}
+			})
 		}(ctx, s)
 	}
 

@@ -18,6 +18,9 @@ import (
 	"zgo.at/zstripe"
 )
 
+// Site calls goatcounter.MustGetSite; it's just shorter :-)
+func Site(ctx context.Context) *goatcounter.Site { return goatcounter.MustGetSite(ctx) }
+
 type Globals struct {
 	Context        context.Context
 	User           *goatcounter.User
