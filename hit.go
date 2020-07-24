@@ -49,7 +49,8 @@ type Hit struct {
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
 
 	// Some values we need to pass from the HTTP handler to memstore
-	RemoteAddr string `db:"-" json:"-"`
+	RemoteAddr    string `db:"-" json:"-"`
+	UserSessionID string `db:"-" json:"-"`
 }
 
 func (h *Hit) cleanPath(ctx context.Context) {

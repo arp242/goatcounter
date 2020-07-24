@@ -27,7 +27,7 @@ func TestExport(t *testing.T) {
 
 	d1 := time.Date(2019, 6, 18, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(2019, 6, 19, 0, 0, 0, 0, time.UTC)
-	gctest.StoreHits(ctx, t, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 		{Path: "/asd", CreatedAt: d1},
 		{Path: "/zxc", CreatedAt: d1},
 		{Path: "/asd", CreatedAt: d2},

@@ -125,6 +125,44 @@
 	
 		
 			</div><div>
+			<h3 id="count" class="js-expand">count
+				<a class="permalink" href="#count">§</a></h3>
+
+		<div class="endpoint" id="POST-/api/v0/count">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">POST</span> /api/v0/count</code>
+				Count pageviews.
+				<a class="permalink" href="#POST-%2fapi%2fv0%2fcount">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>This can count one or more pageviews. Pageviews are not persisted immediatly,
+but persisted in the background every 10 seconds.</p><p>The maximum amount of pageviews per request is 100.</p><p>Errors will have the key set to the index of the pageview. Any pageviews not
+listed have been processed and shouldn&#39;t be sent again.</p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.apiCountRequest">handlers.apiCountRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">202 Accepted</code>
+								<p>202 Accepted (no data)</p>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+	
+		
+			</div><div>
 			<h3 id="export" class="js-expand">export
 				<a class="permalink" href="#export">§</a></h3>
 
@@ -141,6 +179,14 @@
 				<ul>
 					<li><code class="param-name">200 OK</code>
 								<a href="#goatcounter.Export">goatcounter.Export</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
 					</li></ul>
 			</div>
@@ -162,6 +208,14 @@
 					<li><code class="param-name">200 OK</code>
 								<p>200 OK (text/csv data)</p>
 							<sup>(text/csv)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
 					</li></ul>
 			</div>
 		</div>
@@ -187,6 +241,14 @@
 					<li><code class="param-name">202 Accepted</code>
 								<a href="#goatcounter.Export">goatcounter.Export</a>
 							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
 					</li></ul>
 			</div>
 		</div>
@@ -205,8 +267,6 @@
 <p>The hit ID this export was started from.</p>
 <h4>last_hit_id <sup>integer [readonly]</sup></h4>
 <p>Last hit ID that was exported; can be used as start_from_hit_id.</p>
-<h4>path <sup>string [readonly]</sup></h4>
-<p></p>
 <h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p></p>
 <h4>finished_at <sup>string [format: date-time] [readonly]</sup></h4>
@@ -221,11 +281,76 @@
 <p>Any errors that may have occured.</p>
 
 		</div>
+		<h3 id="handlers.apiCountRequest">handlers.apiCountRequest <a class="permalink" href="#handlers.apiCountRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>no_sessions <sup>boolean</sup></h4>
+<p>Don&#39;t try to count unique visitors; every pageview will be considered a
+&#34;visit&#34;.</p>
+<h4>hits <sup>array [type: <a href="#handlers.apiCountRequestHit">handlers.apiCountRequestHit</a>]</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.apiCountRequestHit">handlers.apiCountRequestHit <a class="permalink" href="#handlers.apiCountRequestHit">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>path <sup>string [required]</sup></h4>
+<p>Path of the pageview, or the event name.</p>
+<h4>title <sup>string</sup></h4>
+<p>Page title, or some descriptive event title.</p>
+<h4>event <sup>boolean</sup></h4>
+<p>Is this an event?</p>
+<h4>ref <sup>string</sup></h4>
+<p>Referrer value, can be an URL (i.e. the Referal: header) or any
+string.</p>
+<h4>size <sup>array [type: number]</sup></h4>
+<p>Screen size as &#34;x,y,scaling&#34;</p>
+<h4>query <sup>string</sup></h4>
+<p>Query parameters for this pageview, used to get campaign parameters.</p>
+<h4>bot <sup>integer</sup></h4>
+<p>Hint if this should be considered a bot; should be one of the JSBot*`
+constants from isbot; note the backend may override this if it
+detects a bot using another method.
+https://github.com/zgoat/isbot/blob/master/isbot.go#L28</p>
+<h4>user_agent <sup>string</sup></h4>
+<p>User-Agent header.</p>
+<h4>location <sup>string</sup></h4>
+<p>Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)</p>
+<h4>ip <sup>string</sup></h4>
+<p>IP to get location from; not used if location is set. Also used for
+session generation.</p>
+<h4>created_at <sup>string [format: date-time]</sup></h4>
+<p>Time this pageview should be recorded at; this can be in the past,
+but not in the future.</p>
+<h4>session <sup>string</sup></h4>
+<p>Normally a session is based on hash(User-Agent+IP+salt), but if you don&#39;t
+send the IP address then we can&#39;t determine the session.</p><p>In those cases, you can store your own session identifiers and send them
+along. Note these will not be stored in the database as the sessionID
+(just as the hashes aren&#39;t), they&#39;re just used as a unique grouping
+identifier.</p><p>You can also just disable sessions entirely with NoSessions.</p>
+
+		</div>
+		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>Error <sup>string</sup></h4>
+<p></p>
+<h4>Errors <sup><a href="#"></a></sup></h4>
+<p></p>
+
+		</div>
 		<h3 id="handlers.apiExportRequest">handlers.apiExportRequest <a class="permalink" href="#handlers.apiExportRequest">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
 			<h4>start_from_hit_id <sup>integer</sup></h4>
 <p>Pagination cursor; only export hits with an ID greater than this.</p>
+
+		</div>
+		<h3 id="handlers.authError">handlers.authError <a class="permalink" href="#handlers.authError">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>Error <sup>string</sup></h4>
+<p></p>
 
 		</div>
 

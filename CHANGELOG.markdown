@@ -26,7 +26,7 @@ master branch
 
   TOTP-based multi-factor auth is now supported.
 
-- Better export, add import feature export API (#316, #318)
+- Better export, export API, add import feature (#316, #318)
 
   You can now import the CSV exports, useful for migrating from self-hosted to
   goatcounter.com or vice verse, or for migrating from other systems.
@@ -37,6 +37,12 @@ master branch
   platform.
 
   See http://goatcounter.com/api for details.
+
+- API for sending pageviews (#357)
+
+  Doing that with the regular `/count` is actually quite painful, as you quickly
+  run in to ratelimits, need to set specific headers, etc. Adding an API
+  endpoint for that makes things much easier.
 
 - Some redesigns (#324, #315, #321 #320)
 
@@ -54,8 +60,6 @@ master branch
 
   Previously the EUPL applied, which is fairly restrictive and may prevent
   people from including/self-hosting the count.js script.
-
-- Offer some data files for download (#319)
 
 
 2020-06-01 v1.3.0

@@ -70,12 +70,15 @@ var (
 
 func kommentaar() error {
 	commands := map[string][]string{
-		"docs/api.json": {"-config", "./kommentaar.conf", "-output", "openapi2-jsonindent", "./handlers"},
-		"docs/api.html": {"-config", "./kommentaar.conf", "-output", "html", "./handlers"},
+		"docs/api.json": {"-config", "../kommentaar.conf", "-output", "openapi2-jsonindent", "."},
+		"docs/api.html": {"-config", "../kommentaar.conf", "-output", "html", "."},
 	}
 
 	for file, args := range commands {
-		out, err := exec.Command("kommentaar", args...).CombinedOutput()
+		cmd := exec.Command("kommentaar", args...)
+		cmd.Dir = "./handlers"
+
+		out, err := cmd.CombinedOutput()
 		if err != nil {
 			return errors.Errorf("running kommentaar: %s\n%s", err, out)
 		}

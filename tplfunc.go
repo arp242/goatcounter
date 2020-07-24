@@ -31,7 +31,7 @@ func init() {
 	tplfunc.Add("base32", base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString)
 	tplfunc.Add("validate", zvalidate.TemplateError)
 	tplfunc.Add("has_errors", zvalidate.TemplateHasErrors)
-	tplfunc.Add("error_code", func(err error) string { return zhttp.ErrorCode(err) })
+	tplfunc.Add("error_code", func(err error) string { return zhttp.UserErrorCode(err) })
 	tplfunc.Add("parent_site", func(ctx context.Context, id *int64) string {
 		var s Site
 		err := s.ByID(ctx, *id)

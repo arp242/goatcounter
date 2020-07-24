@@ -81,7 +81,7 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	conf := srvhttp.Args{
 		Packages: []string{"./handlers"},
 		Config:   "./kommentaar.conf",
-		NoScan:   cfg.Prod,
+		NoScan:   true, // TODO: Kommentaar doesn't resolve correctly in modules, need chdir()
 		JSONFile: "./docs/api.json",
 		HTMLFile: "./docs/api.html",
 	}

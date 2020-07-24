@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -23,6 +24,18 @@ import (
 	"zgo.at/zvalidate"
 )
 
+type (
+	apiError struct {
+		Error  string              `json:"error,omitempty"`
+		Errors map[string][]string `json:"errors,omitempty"`
+	}
+	authError struct {
+		Error string `json:"error"`
+	}
+)
+
+const respOK = `{"status":"ok"}`
+
 type api struct{}
 
 func (h api) mount(r chi.Router, db zdb.DB) {
@@ -34,13 +47,14 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 			Limit:  zhttp.RatelimitLimit(60, 120),
 		}))
 
-	//a.Get("/api/v0/count", zhttp.Wrap(h.count))
+	a.Get("/api/v0/test", zhttp.Wrap(h.test))
+	a.Post("/api/v0/test", zhttp.Wrap(h.test))
+
 	a.Post("/api/v0/export", zhttp.Wrap(h.export))
 	a.Get("/api/v0/export/{id}", zhttp.Wrap(h.exportGet))
 	a.Get("/api/v0/export/{id}/download", zhttp.Wrap(h.exportDownload))
 
-	a.Get("/api/v0/test", zhttp.Wrap(h.test))
-	a.Post("/api/v0/test", zhttp.Wrap(h.test))
+	a.Post("/api/v0/count", zhttp.Wrap(h.count))
 }
 
 func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
@@ -237,6 +251,82 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Stream(w, fp)
 }
 
+type apiCountRequest struct {
+	// Don't try to count unique visitors; every pageview will be considered a
+	// "visit".
+	NoSessions bool `json:"no_sessions"`
+
+	// TODO: This is a new struct just because Kommentaar can't deal with it
+	// otherwise... Need to rewrite a lot of that.
+
+	Hits []apiCountRequestHit `json:"hits"`
+}
+
+type apiCountRequestHit struct {
+	// Path of the pageview, or the event name. {required}
+	Path string `json:"path"`
+
+	// Page title, or some descriptive event title.
+	Title string `json:"title"`
+
+	// Is this an event?
+	Event zdb.Bool `json:"event"`
+
+	// Referrer value, can be an URL (i.e. the Referal: header) or any
+	// string.
+	Ref string `json:"ref"`
+
+	// Screen size as "x,y,scaling"
+	Size zdb.Floats `json:"size"`
+
+	// Query parameters for this pageview, used to get campaign parameters.
+	Query string `json:"query"`
+
+	// Hint if this should be considered a bot; should be one of the JSBot*`
+	// constants from isbot; note the backend may override this if it
+	// detects a bot using another method.
+	// https://github.com/zgoat/isbot/blob/master/isbot.go#L28
+	Bot int `json:"bot"`
+
+	// User-Agent header.
+	UserAgent string `json:"user_agent"`
+
+	// Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)
+	Location string `json:"location"`
+
+	// IP to get location from; not used if location is set. Also used for
+	// session generation.
+	IP string `json:"ip"`
+
+	// Time this pageview should be recorded at; this can be in the past,
+	// but not in the future.
+	CreatedAt time.Time `json:"created_at"`
+
+	// Normally a session is based on hash(User-Agent+IP+salt), but if you don't
+	// send the IP address then we can't determine the session.
+	//
+	// In those cases, you can store your own session identifiers and send them
+	// along. Note these will not be stored in the database as the sessionID
+	// (just as the hashes aren't), they're just used as a unique grouping
+	// identifier.
+	//
+	// You can also just disable sessions entirely with NoSessions.
+	Session string `json:"session"`
+}
+
+// POST /api/v0/count count
+// Count pageviews.
+//
+// This can count one or more pageviews. Pageviews are not persisted immediatly,
+// but persisted in the background every 10 seconds.
+//
+// The maximum amount of pageviews per request is 100.
+//
+// Errors will have the key set to the index of the pageview. Any pageviews not
+// listed have been processed and shouldn't be sent again.
+//
+// Request body: apiCountRequest
+// Response 202: {empty}
 func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	err := h.auth(r, goatcounter.APITokenPermissions{
 		Count: true,
@@ -245,5 +335,69 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return nil
+	var args apiCountRequest
+	_, err = zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	if len(args.Hits) == 0 {
+		w.WriteHeader(400)
+		return zhttp.JSON(w, apiError{Error: "no hits"})
+	}
+
+	if len(args.Hits) > 100 {
+		w.WriteHeader(400)
+		return zhttp.JSON(w, apiError{Error: "maximum amount of pageviews in one batch is 100"})
+	}
+
+	errs := make(map[int]string)
+	for i, a := range args.Hits {
+		if a.Location == "" && a.IP != "" {
+			a.Location = geo(a.IP)
+		}
+
+		hit := goatcounter.Hit{
+			Path:       a.Path,
+			Title:      a.Title,
+			Ref:        a.Ref,
+			Event:      a.Event,
+			Size:       a.Size,
+			Query:      a.Query,
+			Bot:        a.Bot,
+			CreatedAt:  a.CreatedAt,
+			Browser:    a.UserAgent,
+			Location:   a.Location,
+			RemoteAddr: a.IP,
+		}
+
+		switch {
+		case hit.Browser != "" && a.IP != "":
+			// Handle as usual in memstore.
+		case a.Session != "":
+			hit.UserSessionID = a.Session
+		case !args.NoSessions:
+			errs[i] = "session or browser/IP not set; use no_sessions if you don't want to track unique visits"
+			continue
+		}
+
+		hit.Defaults(r.Context())
+		err = hit.Validate(r.Context())
+		if err != nil {
+			errs[i] = err.Error()
+			continue
+		}
+
+		goatcounter.Memstore.Append(hit)
+	}
+
+	if len(errs) > 0 {
+		w.WriteHeader(400)
+		return zhttp.JSON(w, map[string]interface{}{
+			"errors": errs,
+		})
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	return zhttp.JSON(w, respOK)
 }

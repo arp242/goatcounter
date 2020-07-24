@@ -39,7 +39,7 @@ type Export struct {
 	// Last hit ID that was exported; can be used as start_from_hit_id.
 	LastHitID *int64 `db:"last_hit_id" json:"last_hit_id,readonly"`
 
-	Path      string    `db:"path" json:"path,readonly"`
+	Path      string    `db:"path" json:"path,readonly"` // {omitdoc}
 	CreatedAt time.Time `db:"created_at" json:"created_at,readonly"`
 
 	FinishedAt *time.Time `db:"finished_at" json:"finished_at,readonly"`

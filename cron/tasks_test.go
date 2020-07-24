@@ -30,7 +30,7 @@ func TestDataRetention(t *testing.T) {
 	now := time.Now().UTC()
 	past := now.Add(-40 * 24 * time.Hour)
 
-	gctest.StoreHits(ctx, t, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zdb.Bool(true)},
 		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zdb.Bool(false)},
 		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zdb.Bool(true)},

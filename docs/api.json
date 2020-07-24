@@ -2,10 +2,11 @@
   "swagger": "2.0",
   "info": {
     "title": "GoatCounter",
+    "description": "API for GoatCounter",
     "version": "0.1",
     "contact": {
       "name": "Martin Tournoij",
-      "url": "https://www.goatcounter.com",
+      "url": "https://www.goatcounter.com/api",
       "email": "support@goatcounter.com"
     }
   },
@@ -17,10 +18,56 @@
   ],
   "tags": [
     {
+      "name": "count"
+    },
+    {
       "name": "export"
     }
   ],
   "paths": {
+    "/api/v0/count": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This can count one or more pageviews. Pageviews are not persisted immediatly,\nbut persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 100.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.",
+        "operationId": "POST_api_v0_count",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "handlers.apiCountRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.apiCountRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "202 Accepted (no data)"
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Count pageviews.",
+        "tags": [
+          "count"
+        ]
+      }
+    },
     "/api/v0/export": {
       "post": {
         "consumes": [
@@ -46,6 +93,18 @@
             "description": "202 Accepted",
             "schema": {
               "$ref": "#/definitions/goatcounter.Export"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
             }
           }
         },
@@ -75,6 +134,18 @@
             "schema": {
               "$ref": "#/definitions/goatcounter.Export"
             }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
           }
         },
         "summary": "Get details about an export.",
@@ -95,11 +166,24 @@
           }
         ],
         "produces": [
+          "application/json",
           "text/csv"
         ],
         "responses": {
           "200": {
             "description": "200 OK (text/csv data)"
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
           }
         },
         "summary": "Download an export file.",
@@ -147,10 +231,6 @@
           "type": "integer",
           "readOnly": true
         },
-        "path": {
-          "type": "string",
-          "readOnly": true
-        },
         "site_id": {
           "type": "integer",
           "readOnly": true
@@ -166,6 +246,95 @@
         }
       }
     },
+    "handlers.apiCountRequest": {
+      "title": "apiCountRequest",
+      "type": "object",
+      "properties": {
+        "hits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handlers.apiCountRequestHit"
+          }
+        },
+        "no_sessions": {
+          "description": "Don't try to count unique visitors; every pageview will be considered a\n\"visit\".",
+          "type": "boolean"
+        }
+      }
+    },
+    "handlers.apiCountRequestHit": {
+      "title": "apiCountRequestHit",
+      "type": "object",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "bot": {
+          "description": "Hint if this should be considered a bot; should be one of the JSBot*`\nconstants from isbot; note the backend may override this if it\ndetects a bot using another method.\nhttps://github.com/zgoat/isbot/blob/master/isbot.go#L28",
+          "type": "integer"
+        },
+        "created_at": {
+          "description": "Time this pageview should be recorded at; this can be in the past,\nbut not in the future.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "event": {
+          "description": "Is this an event?",
+          "type": "boolean"
+        },
+        "ip": {
+          "description": "IP to get location from; not used if location is set. Also used for\nsession generation.",
+          "type": "string"
+        },
+        "location": {
+          "description": "Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)",
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the pageview, or the event name.",
+          "type": "string"
+        },
+        "query": {
+          "description": "Query parameters for this pageview, used to get campaign parameters.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Referrer value, can be an URL (i.e. the Referal: header) or any\nstring.",
+          "type": "string"
+        },
+        "session": {
+          "description": "Normally a session is based on hash(User-Agent+IP+salt), but if you don't\nsend the IP address then we can't determine the session.\n\nIn those cases, you can store your own session identifiers and send them\nalong. Note these will not be stored in the database as the sessionID\n(just as the hashes aren't), they're just used as a unique grouping\nidentifier.\n\nYou can also just disable sessions entirely with NoSessions.",
+          "type": "string"
+        },
+        "size": {
+          "description": "Screen size as \"x,y,scaling\"",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "title": {
+          "description": "Page title, or some descriptive event title.",
+          "type": "string"
+        },
+        "user_agent": {
+          "description": "User-Agent header.",
+          "type": "string"
+        }
+      }
+    },
+    "handlers.apiError": {
+      "title": "apiError",
+      "type": "object",
+      "properties": {
+        "Error": {
+          "type": "string"
+        },
+        "Errors": {
+          "type": "object"
+        }
+      }
+    },
     "handlers.apiExportRequest": {
       "title": "apiExportRequest",
       "type": "object",
@@ -173,6 +342,15 @@
         "start_from_hit_id": {
           "description": "Pagination cursor; only export hits with an ID greater than this.",
           "type": "integer"
+        }
+      }
+    },
+    "handlers.authError": {
+      "title": "authError",
+      "type": "object",
+      "properties": {
+        "Error": {
+          "type": "string"
         }
       }
     }
