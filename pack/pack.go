@@ -11339,9 +11339,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		TZ_OFFSET    = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
-		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
+		;[report_errors, period_select, load_refs, tooltip, paginate_pages,
 			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
-			filter_paths, add_ip, fill_tz, draw_chart, bind_scale, tsort,
+			filter_pages, add_ip, fill_tz, draw_chart, bind_scale, tsort,
 			copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
@@ -11529,7 +11529,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
-	var filter_paths = function() {
+	var filter_pages = function() {
 		highlight_filter($('#filter-paths').val());
 
 		var t;
@@ -11566,18 +11566,19 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	};
 
 	// Paginate the main path overview.
-	var paginate_paths = function() {
+	var paginate_pages = function() {
 		$('.pages-list >.load-more').on('click', function(e) {
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
 					url:  '/pages',
 					data: append_period({
-						filter:  $('#filter-paths').val(),
-						daily:   $('#daily').is(':checked'),
-						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
-						max:     get_original_scale(),
-						offset:  $('.count-list-pages >tbody >tr').length + 1,
+						filter:    $('#filter-paths').val(),
+						daily:     $('#daily').is(':checked'),
+						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+						max:       get_original_scale(),
+						offset:    $('.count-list-pages >tbody >tr').length + 1,
+						'as-text': $('.count-list-text').length > 0,
 					}),
 					success: function(data) {
 						update_pages(data, false)
@@ -12486,6 +12487,7 @@ small.go           { display: none; }
 .pages-list h2           { margin-top: .5em; }
 .count-list tr           { border: none; }
 .count-list td           { vertical-align: top; }
+.count-list th           { text-align: left; }
 .count-list .col-count   { width: 5rem; text-align: right; }
 .count-list .col-path    { width: 20rem; }
 .label-event             { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
@@ -12493,7 +12495,7 @@ small.go           { display: none; }
 	text-align: left;
 	width: auto;
 }
-.pages-list >.load-more { display: block; margin-top: -.7em; width: max-content; }
+.pages-list:not(.pages-list-text) >.load-more { display: block; margin-top: -.7em; width: max-content; }
 
 .count-list tr:target,
 .count-list tr.target             { background-color: inherit; }
@@ -12502,7 +12504,7 @@ small.go           { display: none; }
 tr.target small.go                { display: inline-block; }
 
 /* Border doesn't affect layout. */
-.count-list .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
+.count-list:not(.count-list-text) .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
 
 .chart { position: relative; border: 1px solid #ccc; height: 50px; width: 100%; margin: 5px 0; margin-bottom: 1em; }
 
@@ -12525,6 +12527,21 @@ tr.target .chart-left { display: block; }
 .chart-bar > .f        { background-color: #eee; }
 .chart-bar > .half     { border-top: 1px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; }
 .chart-bar > #cursor   { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, .2); }
+
+
+/*** Text pageviews
+ ******************/
+.count-list-text .rlink { display: inline; white-space: normal; } /* Reset overflow */
+.count-list-text td     { padding: .5em; }
+
+.count-list-text tbody tr           { border-bottom: 1px solid #eaeaea; border-top: 1px solid #eaeaea; }
+.count-list-text tr:nth-child(even) { background-color: #fafafa; }
+
+.count-list-text .col-idx { width: 1em; color: #555; }
+.count-list-text .col-n   { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
+.count-list-text .col-d   { width: 12em; font-size: 1.2em; padding: 0; vertical-align: middle; text-align: center; }
+.count-list-text .col-d span { padding-top: 2px; border-radius: 2px; border: 1px solid #e9e9e9;
+							   color: #9a15a4; background-color: #f9f9f9; }
 
 
 /*** Horizontal charts
@@ -12574,7 +12591,7 @@ tr.target .chart-left { display: block; }
 .filter-wrap                 { position: relative; text-align: right; }
 .filter-wrap .loading::after { position: absolute; bottom: 0; right: .5em; }
 
-#dash-main label { display: block; text-align: right; margin-right: .4em; }
+#dash-main label { text-align: right; margin-right: .4em; }
 
 #dash-select-period           { display: block; padding-left: .3em; }
 #dash-select-period span+span { margin-left: .5em; }
@@ -12586,6 +12603,7 @@ tr.target .chart-left { display: block; }
 @media (max-width: 56.5rem) {
 	/* Break "current [..]" to new line to make more space. */
 	#dash-select-period span+span { display: block; margin-left: 0em; }
+	#dash-main label              { display: block; }
 }
 
 @media (max-width: 41rem) {
@@ -14638,6 +14656,51 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<tr><td colspan="3"><em>Nothing to display</em></td></tr>
 {{- end}}
 `),
+	"tpl/_dashboard_pages_text.gohtml": []byte(`<div class="pages-list pages-list-text">
+	<h2 class="full-width">Pages <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+	</small></h2>
+	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
+		<thead><tr>
+			<th class="col-idx"></th>
+			<th class="col-n">Visits</th>
+			<th class="col-n" title="Pageviews">Views</th>
+			<th class="col-p">Path</th>
+			<th class="col-t">Title</th>
+			<th class="col-d" title="Every bar represents 1/12th of the selected time range">Stats</th>
+		</tr></thead>
+		<tbody class="pages">{{template "_dashboard_pages_text_rows.gohtml" .}}</tbody>
+	</table>
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+</div>
+`),
+	"tpl/_dashboard_pages_text_rows.gohtml": []byte(`{{range $i, $h := .Pages}}
+	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
+		<td class="col-idx">{{sum $.Offset $i}}</td>
+		<td class="col-n col-count">{{nformat $h.CountUnique $.Site}}</td>
+		<td class="col-n">{{nformat $h.Count $.Site}}</td>
+		<td class="col-p">
+			<a class="load-refs rlink" href="#">{{$h.Path}}</a>
+
+			{{if and $.Site.LinkDomain (not $h.Event)}}
+				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+			{{end}}
+
+			<div class="refs hchart" data-more="/hchart-more?kind=ref">
+				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
+					{{horizontal_chart $.Context $.Refs $h.CountUnique $.Site.Settings.Limits.Ref false true}}
+				{{end}}
+			</div>
+		</td>
+		<td class="col-t">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}
+			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}</td>
+		<td class="col-d"><span>{{text_chart $.Context .Stats $.Max $.Daily}}</span></td>
+	</tr>
+{{else}}
+	<tr><td colspan="6"><em>Nothing to display</em></td></tr>
+{{- end}}
+`),
 	"tpl/_dashboard_sizes.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=size">
 	<h2>Screen size</h2>
 	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
@@ -16050,6 +16113,7 @@ processed by Stripe (you will need a Credit Card).</p>
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
 					{{if .Filter}}class="value"{{end}}>
 			</div>
+			<label><input type="checkbox" name="as-text" id="as-text" {{if .AsText}}checked{{end}}> View as text table</label>
 			{{if .ForcedDaily}}
 				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 			{{else}}

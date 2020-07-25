@@ -57,6 +57,7 @@ func init() {
 
 	// Implemented as function for performance.
 	tplfunc.Add("bar_chart", BarChart)
+	tplfunc.Add("text_chart", TextChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
 
 	// Override defaults to take site settings in to account.
@@ -121,6 +122,28 @@ func init() {
 			`<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode" src="%s">`,
 			buf.String()))
 	})
+}
+
+var textSymbols = []rune{
+	'\u2007', // FIGURE SPACE; this one has the closest width to the blocks.
+	'▁',      // U+2581 LOWER ONE EIGHTH BLOCK
+	'▂',      // U+2582 LOWER ONE QUARTER BLOCK
+	'▃',      // U+2583 LOWER THREE EIGHTHS BLOCK
+	'▄',      // U+2584 LOWER HALF BLOCK
+	'▅',      // U+2585 LOWER FIVE EIGHTHS BLOCK
+	'▆',      // U+2586 LOWER THREE QUARTERS BLOCK
+	'▇',      // U+2587 LOWER SEVEN EIGHTHS BLOCK
+	'█',      // U+2588 FULL BLOCK
+}
+
+func TextChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
+	_, chunked := ChunkStat(stats)
+	symb := make([]rune, 0, 12)
+	for _, chunk := range chunked {
+		perc := int(math.Floor(float64(chunk) / float64(max) * 100))
+		symb = append(symb, textSymbols[perc/12])
+	}
+	return template.HTML(symb)
 }
 
 func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {

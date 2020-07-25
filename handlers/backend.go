@@ -65,7 +65,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 	api{}.mount(r, db)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.Header)
 		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
 	})
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
@@ -291,6 +290,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 	exclude := r.URL.Query().Get("exclude")
 	filter := r.URL.Query().Get("filter")
+	asText := r.URL.Query().Get("as-text") != ""
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
 		return err
@@ -325,6 +325,8 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	// Filtering instead of paginating: get new "totals" stats as well.
 	// TODO: also re-render the the horizontal bar charts below, but this isn't
 	// currently possible since not all data is linked to a path.
+	//
+	// TODO: use widgets for this.
 	if exclude == "" {
 		wg.Add(1)
 		go func() {
@@ -369,7 +371,12 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tpl, err := ztpl.ExecuteString("_dashboard_pages_rows.gohtml", struct {
+	t := "_dashboard_pages_rows.gohtml"
+	if asText {
+		t = "_dashboard_pages_text_rows.gohtml"
+	}
+
+	tpl, err := ztpl.ExecuteString(t, struct {
 		Context     context.Context
 		Pages       goatcounter.HitStats
 		Site        *goatcounter.Site

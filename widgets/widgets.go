@@ -31,6 +31,7 @@ type (
 		Daily       bool
 		ForcedDaily bool
 		ShowRefs    string
+		AsText      bool
 	}
 
 	SharedData struct {
