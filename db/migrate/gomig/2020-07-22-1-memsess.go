@@ -24,21 +24,6 @@ type storedSession struct {
 func MemSess(db zdb.DB) error {
 	ctx := context.Background()
 
-	// Create new generic "store" table, we could use this for other stuff in
-	// the future too.
-	_, err := db.ExecContext(ctx, `
-		create table store (
-			key     varchar,
-			value   text
-		);`)
-	if err != nil {
-		return err
-	}
-	_, err = db.ExecContext(ctx, `create unique index "store#key" on store(key)`)
-	if err != nil {
-		return err
-	}
-
 	// Populate store with existing data.
 	var stored storedSession
 	var sessions []struct {
@@ -46,7 +31,7 @@ func MemSess(db zdb.DB) error {
 		Hash     string    `db:"hash"`
 		LastSeen time.Time `db:"last_seen"`
 	}
-	err = db.SelectContext(ctx, &sessions, `select id, hash, last_seen from sessions`)
+	err := db.SelectContext(ctx, &sessions, `select id, hash, last_seen from sessions`)
 	if err != nil {
 		return err
 	}

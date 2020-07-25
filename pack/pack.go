@@ -658,6 +658,16 @@ commit;
 	insert into version values('2020-07-03-1-plan-amount');
 commit;
 `),
+	"db/migrate/pgsql/2020-07-21-1-memsess.sql": []byte(`begin;
+	create table store (
+		key     varchar,
+		value   text
+	);
+	create unique index "store#key" on store(key);
+
+	insert into version values('2020-07-21-1-memsess');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -1495,6 +1505,16 @@ commit;
 	alter table sites add column billing_amount varchar;
 
 	insert into version values('2020-07-03-1-plan-amount');
+commit;
+`),
+	"db/migrate/sqlite/2020-07-21-1-memsess.sql": []byte(`begin;
+	create table store (
+		key     varchar,
+		value   text
+	);
+	create unique index "store#key" on store(key);
+
+	insert into version values('2020-07-21-1-memsess');
 commit;
 `),
 }
