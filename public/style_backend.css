@@ -163,6 +163,7 @@ tr.target .chart-left { display: block; }
 	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
 	background-color: #fff;
 }
+.page-n { color: #555; font-size: .8em; }
 
 .chart-bar             { display: flex; align-items: flex-end; }
 .chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }

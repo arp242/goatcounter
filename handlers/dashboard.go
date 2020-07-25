@@ -214,6 +214,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 					PeriodEnd   time.Time
 					Daily       bool
 					ForcedDaily bool
+					Offset      int
 					Max         int
 
 					TotalDisplay       int
@@ -223,13 +224,12 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 					TotalUniqueHits int
 					MorePages       bool
 
-					Refs         goatcounter.Stats
-					ShowRefs     string
-					IsPagination bool
-				}{r.Context(), data.pages.pages, site, start, end, daily, forcedDaily, data.pages.max,
-					data.pages.display, data.pages.uniqueDisplay,
-					data.total, data.totalUnique, data.pages.more,
-					data.pages.refs, showRefs, false}
+					Refs     goatcounter.Stats
+					ShowRefs string
+				}{r.Context(), data.pages.pages, site, start, end, daily,
+					forcedDaily, 1, data.pages.max, data.pages.display,
+					data.pages.uniqueDisplay, data.total, data.totalUnique,
+					data.pages.more, data.pages.refs, showRefs}
 			},
 			"totalpages": func() (string, string, interface{}) {
 				return "full-width", "_dashboard_totals.gohtml", struct {
