@@ -15118,7 +15118,6 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 			</div>
 			<div>
 				{{if .GoatcounterCom}}<a href="/updates" {{if .HasUpdates}}class="updates"{{end}}>Updates</a> |{{end}}
-				{{if and .GoatcounterCom .Site.Admin}}<a {{if eq .Path "/admin"}}class="active" {{end}}href="/admin">Admin</a> |{{end}}
 				<a {{if eq .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
 				{{if .Billing}}<a {{if has_prefix .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
