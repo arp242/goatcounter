@@ -74,6 +74,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Vary", "Cookie")
 	}
 
+	hlPeriod := r.URL.Query().Get("hl-period")
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
@@ -83,6 +84,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		now := time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())
 		start = now.Add(-7 * day).UTC()
 		end = time.Date(y, m, d, 23, 59, 59, 9, now.Location()).UTC().Round(time.Second)
+		hlPeriod = "week"
 	}
 
 	showRefs := r.URL.Query().Get("showrefs")
@@ -327,11 +329,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}()
 	if err != nil {
 		return err
-	}
-
-	hlPeriod := r.URL.Query().Get("hl-period")
-	if hlPeriod == "" {
-		hlPeriod = "week"
 	}
 
 	return zhttp.Template(w, "dashboard.gohtml", struct {
