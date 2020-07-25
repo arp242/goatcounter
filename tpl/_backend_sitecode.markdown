@@ -396,34 +396,11 @@ regular browsers).
 Wrap in a `<noscript>` tag to use this only for people without JavaScript.
 
 ### Tracking from backend middleware
-You can call `GET {{.Site.URL}}/count` or `POST {{.Site.URL}}/count` from
-anywhere, such as your app’s middleware. The GET and POST endpoints are
-identical, and support the following query parameters (form parameters are
-ignored for POST):
+You can use the `/api/v0/count` API endpoint to send pageviews from essentially
+anywhere, such as you app's middleware.
 
-- `p` → `path`
-- `e` → `event`
-- `t` → `title`
-- `r` → `referrer`
-- `s` → screen size, as `x,y,scaling`.
-- `q` → Query parameters, for getting the campaign.
-- `b` → hint if this should be considered a bot; should be one of the
-        [`JSBot*` constants from isbot][isbot]; note the backend may override
-        this if it detects a bot using another method.
-- `rnd` → can be used as a “cache buster” since browsers don’t always obey
-          `Cache-Control`; ignored by the backend.
-
-You’ll need to forward the `User-Agent` header from the client and IP as
-`X-Forwarded-For: <ip>` if you want to get the correct browser and location.
-
-**NOTE**: many client libraries (such as `curl`) are marked as bots by default;
-be sure to use a vaguely realistic `User-Agent` when testing or if you’re not
-forwarding the user’s `User-Agent` header.
-
-Calling it from the middleware will probably result in more bot requests, as
-mentioned in the previous section.
-
-[isbot]: https://github.com/zgoat/isbot/blob/master/isbot.go#L28
+The [API documentation](https://www.goatcounter.com/api) contains more
+information and some examples.
 
 ### Location of count.js and loading it locally
 You can load the `count.js` script anywhere on your page, but it’s recommended

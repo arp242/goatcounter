@@ -25,7 +25,7 @@ func TestMonitor(t *testing.T) {
 
 	t.Run("with pageviews", func(t *testing.T) {
 		ctx, site := gctest.Site(ctx, t, goatcounter.Site{})
-		gctest.StoreHits(ctx, t, goatcounter.Hit{Path: "/", Site: site.ID})
+		gctest.StoreHits(ctx, t, false, goatcounter.Hit{Path: "/", Site: site.ID})
 
 		run(t, 0, []string{"monitor",
 			"-db", dbc,

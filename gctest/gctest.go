@@ -210,7 +210,7 @@ func initData(ctx context.Context, t tester) context.Context {
 
 // StoreHits is a convenient helper to store hits in the DB via Memstore and
 // cron.UpdateStats().
-func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goatcounter.Hit {
+func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcounter.Hit) []goatcounter.Hit {
 	t.Helper()
 
 	for i := range hits {
@@ -224,8 +224,11 @@ func StoreHits(ctx context.Context, t *testing.T, hits ...goatcounter.Hit) []goa
 
 	goatcounter.Memstore.Append(hits...)
 	hits, err := goatcounter.Memstore.Persist(ctx)
-	if err != nil {
-		t.Fatal(err)
+	if !wantFail && err != nil {
+		t.Fatalf("gctest.StoreHits failed: %s", err)
+	}
+	if wantFail && err == nil {
+		t.Fatal("gc.StoreHits: no error while wantError is true")
 	}
 
 	sites := make(map[int64]struct{})
@@ -276,8 +279,21 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 	return ctx, site
 }
 
-func SwapNow(t *testing.T, date string) func() {
-	d, err := time.Parse("2006-01-02 15:04:05", date)
+func SwapNow(t *testing.T, date interface{}) func() {
+	var (
+		d   time.Time
+		err error
+	)
+	switch dd := date.(type) {
+	case string:
+		d, err = time.Parse("2006-01-02 15:04:05", dd)
+	case time.Time:
+		d = dd
+	case *time.Time:
+		d = *dd
+	default:
+		t.Fatalf("unknown type: %T", date)
+	}
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -167,7 +167,7 @@ func TestHitStatsList(t *testing.T) {
 			}
 			site.Settings.Limits.Page = 2
 
-			gctest.StoreHits(ctx, t, tt.in...)
+			gctest.StoreHits(ctx, t, false, tt.in...)
 
 			var stats goatcounter.HitStats
 			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude, false)

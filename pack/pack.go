@@ -14980,34 +14980,11 @@ regular browsers).</p>
 <p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
 
 <h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
-<p>You can call <code>GET {{.Site.URL}}/count</code> or <code>POST {{.Site.URL}}/count</code> from
-anywhere, such as your app’s middleware. The GET and POST endpoints are
-identical, and support the following query parameters (form parameters are
-ignored for POST):</p>
+<p>You can use the <code>/api/v0/count</code> API endpoint to send pageviews from essentially
+anywhere, such as you app's middleware.</p>
 
-<ul>
-  <li><code>p</code> → <code>path</code></li>
-  <li><code>e</code> → <code>event</code></li>
-  <li><code>t</code> → <code>title</code></li>
-  <li><code>r</code> → <code>referrer</code></li>
-  <li><code>s</code> → screen size, as <code>x,y,scaling</code>.</li>
-  <li><code>q</code> → Query parameters, for getting the campaign.</li>
-  <li><code>b</code> → hint if this should be considered a bot; should be one of the
-      <a href="https://github.com/zgoat/isbot/blob/master/isbot.go#L28"><code>JSBot*</code> constants from isbot</a>; note the backend may override
-      this if it detects a bot using another method.</li>
-  <li><code>rnd</code> → can be used as a “cache buster” since browsers don’t always obey
-        <code>Cache-Control</code>; ignored by the backend.</li>
-</ul>
-
-<p>You’ll need to forward the <code>User-Agent</code> header from the client and IP as
-<code>X-Forwarded-For: &lt;ip&gt;</code> if you want to get the correct browser and location.</p>
-
-<p><strong>NOTE</strong>: many client libraries (such as <code>curl</code>) are marked as bots by default;
-be sure to use a vaguely realistic <code>User-Agent</code> when testing or if you’re not
-forwarding the user’s <code>User-Agent</code> header.</p>
-
-<p>Calling it from the middleware will probably result in more bot requests, as
-mentioned in the previous section.</p>
+<p>The <a href="https://www.goatcounter.com/api">API documentation</a> contains more
+information and some examples.</p>
 
 <h3 id="location-of-countjs-and-loading-it-locally">Location of count.js and loading it locally <a href="#location-of-countjs-and-loading-it-locally"></a></h3>
 <p>You can load the <code>count.js</code> script anywhere on your page, but it’s recommended
@@ -15779,14 +15756,23 @@ input    { float: right; padding: .4em !important; }
 *************************************************************************/}}
 
 {{template "_top.gohtml" .}}
+{{define "sh_header"}}#!/bin/sh<br />
+token=[your api token]
+api=https://[my code].goatcounter.com/api/v0
+curl() {
+    \command curl \
+        -H 'Content-Type: application/json' \
+        -H "Authorization: Bearer $token" \
+        "$@"
+}{{end}}
 
 <h1 id="goatcounter-api">GoatCounter API</h1>
 <p>GoatCounter has a rudimentary API; this is far from feature-complete, but solves
 some common use cases.</p>
 
-<p>The API is currently unversioned and prefixed with <code>/api/v0</code>; while breaking
-changes will be avoided and are not expected, they <em>may</em> occur. I'll be sure to
-send ample notification of this to everyone who has generated an API key.</p>
+<p>The API is currently unversioned and prefixed with <code>/api/v0</code>; breaking changes
+will be avoided and are not expected but <em>may</em> occur. I'll be sure to send ample
+notification of this to everyone who has generated an API key.</p>
 
 <h2 id="authentication">Authentication <a href="#authentication"></a></h2>
 <p>To use the API create a key in your account (<code>Settings → Password, MFA, API</code>);
@@ -15798,23 +15784,47 @@ unless noted otherwise.</p>
 
 <p>Example:</p>
 
-<pre><code>curl -X POST \
+<pre><code>curl -X POST https://example.goatcounter.com/api/v0/export \
     -H 'Content-Type: application/json' \
-    -H 'Authorization: Bearer 2q2snk7clgqs63tr4xc5bwseajlw88qzilr8fq157jz3qxwwmz5' \
-    https://example.goatcounter.com/api/v0/export
+    -H 'Authorization: Bearer 2q2snk7clgqs63tr4xc5bwseajlw88qzilr8fq157jz3qxwwmz5'
 </code></pre>
+
+<p>Replace the key and URL with your actual values.</p>
 
 <h2 id="rate-limit">Rate limit <a href="#rate-limit"></a></h2>
 <p>The rate limit is 60 requests per 120 seconds. The current rate limits are
 indicated in the <code>X-Rate-Limit-Limit</code>, <code>X-Rate-Limit-Remaining</code>, and
 <code>X-Rate-Limit-Reset</code> headers.</p>
 
+<h2 id="errors">Errors <a href="#errors"></a></h2>
+<p>Errors are reported in either an <code>error</code> or <code>errors</code> field; the <code>error</code> field
+always contains a string; for example:</p>
+
+<pre><code>{
+    "error": "oh noes!"
+}
+</code></pre>
+
+<p>The <code>errors</code> field contains an object with a list:</p>
+
+<pre><code>{
+    "errors": {
+        "key":     ["error1", "error2"],
+        "another": ["oh noes!"]
+    }
+}
+</code></pre>
+
+<p>A status code in the <code>2xx</code> range will never contain errors, a status code in the
+<code>4xx</code> or <code>5xx</code> range will always have either <code>error</code> or <code>errors</code>, but never
+both. There may also be additional data in other fields on errors.</p>
+
 <h2 id="api-reference">API reference <a href="#api-reference"></a></h2>
 <p>API reference docs are available at:</p>
 
 <ul>
   <li><a href="/api.json">/api.json</a> – OpenAPI 2.0 JSON file.</li>
-  <li><a href="/api.html">/api.html</a> – Basic HTML.</li>
+  <li><a href="/api.html">/api.html</a> – Basic HTML (still kinda ugly 😅).</li>
   <li><a href="https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1">SwaggerHub</a></li>
 </ul>
 
@@ -15822,18 +15832,25 @@ indicated in the <code>X-Rate-Limit-Limit</code>, <code>X-Rate-Limit-Remaining</
 
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
+<h3 id="backend-integration">Backend integration <a href="#backend-integration"></a></h3>
+<p>You can use <code>/api/v0/count</code> to send requests from your backend. This is the same
+as <code>/count</code> but has higher rate-limits, allows setting some additional fields,
+and allows batching multiple pageviews in one request.</p>
+
+<p>Detail are available in the <a href="/api.html#count">API reference</a>, a simple example
+might look like:</p>
+
+<pre><code>{{template "sh_header" .}}
+
+curl -X POST  "$api/count" \
+    --data '{"no_sessions": true, "hits": [{"path": "/one"}, {"path": "/two"}]}'
+</code></pre>
+
 <h3 id="export">Export <a href="#export"></a></h3>
 
 <p>Example to export via the API:</p>
 
-<pre><code>token=[your api token]
-api=http://[my code].goatcounter.com/api/v0
-curl() {
-    \command curl --silent \
-        -H 'Content-Type: application/json' \
-        -H "Authorization: Bearer $token" \
-        $@
-}
+<pre><code>{{template "sh_header" .}}
 
 # Start a new export, get ID from response object.
 id=$(curl -X POST "$api/export" | jq .id)
@@ -15853,8 +15870,7 @@ done
 </code></pre>
 
 <p>The above doesn't does no error checking for brevity: errors are reported in the
-<code>error</code> field as a string, or in the <code>errors</code> field as <code>{"name": ["err1",
-"err2", "name2": [..]}</code>.</p>
+<code>error</code> or <code>errors</code> field as described above.</p>
 
 <p>The export object contains a <code>last_hit_id</code> parameter, which can be used as a
 pagination cursor to only download hits after this export. This is useful to
@@ -15864,7 +15880,7 @@ sync your local database every hour or so:</p>
 start=$(curl "$api/export/$id" | jq .last_hit_id)
 
 # Start new export starting from the cursor.
-id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id)
+id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id)
 </code></pre>
 
 {{template "_bottom.gohtml" .}}
@@ -16329,10 +16345,8 @@ id=$(curl -X POST --data "{\"start_from_hit_id\":$start}" "$api/export" | jq .id
 								<input type="text" id="name" name="name" placeholder="Name">
 							</td>
 							<td>
-								{{/*
 								<label title="Record pageviews with /api/v0/count">
 									<input type="checkbox" name="permissions.count">Record pageviews</label><br>
-								*/}}
 								<label title="Export data with /api/v0/export">
 									<input type="checkbox" name="permissions.export">Export</label>
 							</td>
@@ -17024,6 +17038,7 @@ advice specific to your situation.</p>
 	Other documentation pages:<br>
 	<a href="/gdpr">GDPR consent notices</a> |
 	<a href="/code">Site integration code</a> |
+	<a href="/api">API</a> |
 	<a href="/privacy">Privacy policy</a> |
 	<a href="/terms">Terms of use</a>
 </p>

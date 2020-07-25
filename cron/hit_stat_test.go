@@ -21,7 +21,7 @@ func TestHitStats(t *testing.T) {
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	gctest.StoreHits(ctx, t, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Path: "/asd", Title: "aSd", FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Path: "/asd/"}, // Trailing / should be sanitized and treated identical as /asd
 		{Site: site.ID, CreatedAt: now, Path: "/zxc"},

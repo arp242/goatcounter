@@ -351,7 +351,7 @@ func TestBackendTpl(t *testing.T) {
 		{
 			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				gctest.StoreHits(ctx, t, []goatcounter.Hit{
+				gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
 					{Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
 					{Site: 1, Path: "/zxc", Title: "BBB", CreatedAt: now},
@@ -395,7 +395,7 @@ func TestBackendPurge(t *testing.T) {
 		{
 			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-				gctest.StoreHits(ctx, t, []goatcounter.Hit{
+				gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/asd", CreatedAt: now},
 					{Site: 1, Path: "/zxc", CreatedAt: now},
@@ -419,13 +419,8 @@ func TestBackendPurge(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-
 			if len(hits) != 1 {
-				t.Logf("still have %d hits in DB (expected 1):\n", len(hits))
-				for _, h := range hits {
-					t.Logf("   ID: %d; Path: %q; Title: %q\n", h.ID, h.Path, h.Title)
-				}
-				t.FailNow()
+				t.Errorf("%d hits in DB; expected 1:\n%v", len(hits), hits)
 			}
 		})
 	}
@@ -737,7 +732,7 @@ func TestBackendBarChart(t *testing.T) {
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
 		})
-		gctest.StoreHits(ctx, t, goatcounter.Hit{
+		gctest.StoreHits(ctx, t, false, goatcounter.Hit{
 			Site:      site.ID,
 			CreatedAt: tt.hit.UTC(),
 			Path:      "/a",
@@ -817,7 +812,8 @@ func TestBackendBarChart(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.zone, func(t *testing.T) {
-			goatcounter.Now = func() time.Time { return tt.now.UTC() }
+			defer gctest.SwapNow(t, tt.now.UTC())()
+
 			t.Run("hourly", func(t *testing.T) {
 				run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18", tt.wantHourly)
 			})

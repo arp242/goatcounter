@@ -234,7 +234,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		ctx = WithSite(ctx, site)
 
 		if h.Session.IsZero() {
-			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.Path, h.Browser, h.RemoteAddr)
+			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.Browser, h.RemoteAddr)
 		}
 
 		// Persist.
@@ -318,22 +318,26 @@ func (m *ms) SessionID() zint.Uint128 {
 	return i
 }
 
-func (m *ms) session(ctx context.Context, siteID int64, path, ua, remoteAddr string) (zint.Uint128, zdb.Bool) {
-	h := sha256.New()
-	h.Write(append(append(append(m.curSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
-	hashed := hash{string(h.Sum(nil))}
+func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua, remoteAddr string) (zint.Uint128, zdb.Bool) {
+	sessionHash := hash{userSessionID}
+
+	if userSessionID == "" {
+		h := sha256.New()
+		h.Write(append(append(append(m.curSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
+		sessionHash = hash{string(h.Sum(nil))}
+	}
 
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	id, ok := m.sessions[hashed]
-	if !ok { // Try previous hash
+	id, ok := m.sessions[sessionHash]
+	if !ok && userSessionID == "" { // Try previous hash
 		h := sha256.New()
 		h.Write(append(append(append(m.prevSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
 		prev := hash{string(h.Sum(nil))}
 		id, ok = m.sessions[prev]
 		if ok {
-			hashed = prev
+			sessionHash = prev
 		}
 	}
 
@@ -348,9 +352,9 @@ func (m *ms) session(ctx context.Context, siteID int64, path, ua, remoteAddr str
 
 	// New session
 	id = m.SessionID()
-	m.sessions[hashed] = id
+	m.sessions[sessionHash] = id
 	m.sessionPaths[id] = map[string]struct{}{path: struct{}{}}
 	m.sessionSeen[id] = Now().Unix()
-	m.sessionHashes[id] = hashed
+	m.sessionHashes[id] = sessionHash
 	return id, true
 }
