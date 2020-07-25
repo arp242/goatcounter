@@ -132,6 +132,8 @@ zgo.at/zstd v0.0.0-20200602040707-aaf6806a6bf5/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN
 zgo.at/zstd v0.0.0-20200718115135-a1fc42b2004d/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
 zgo.at/zstd v0.0.0-20200725081511-350d4ae0eb40 h1:6THn+vWRhVyjGPA6n8SIPQjFifenECa+Kq6VSyp5FzE=
 zgo.at/zstd v0.0.0-20200725081511-350d4ae0eb40/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
+zgo.at/zstd v0.0.0-20200725181426-6695d1971600 h1:0VhEdHKwfWCEFR8KMMWHqhVl/AixIinCWNnSr2/mo/g=
+zgo.at/zstd v0.0.0-20200725181426-6695d1971600/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
 zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=
 zgo.at/zstripe v1.0.0/go.mod h1:EqblFpMvXAhzZAUUt0EVom06EnN5+D5ESBTSOkwSwTY=
 zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
