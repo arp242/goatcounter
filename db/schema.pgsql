@@ -1,14 +1,3 @@
--- This ensures PostgreSQL is quicker to use some indexes, dramatically
--- increasing performance for the hits table (would always do a seq scan
--- before).
--- Random pages aren't that expensive any more, and the default of 4.0 is pretty
--- outdated.
-DO $$
-BEGIN
-   execute 'alter database ' || current_database() || ' set random_page_cost=2';
-END
-$$;
-
 create table sites (
 	id             serial         primary key,
 	parent         integer        null                     check(parent is null or parent>0),
@@ -19,6 +8,7 @@ create table sites (
 	cname_setup_at timestamp      default null,
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
+	billing_amount varchar,
 	settings       json           not null,
 	received_data  int            not null default 0,
 
@@ -73,6 +63,7 @@ create table hits (
 	id             serial primary key,
 	site           integer        not null                 check(site > 0),
 	session        integer        default null,
+	session2       bytea          default null,
 
 	path           varchar        not null,
 	title          varchar        not null default '',
@@ -560,40 +551,14 @@ create table exports (
 );
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
+create table store (
+	key     varchar,
+	value   text
+);
+create unique index "store#key" on store(key);
+
 create table version (name varchar);
 insert into version values
-	('2019-10-16-1-geoip'),
-	('2019-11-08-1-refs'),
-	('2019-11-08-2-location_stats'),
-	('2019-12-10-1-plans'),
-	('2019-12-10-2-count_ref'),
-	('2019-12-15-1-personal-free'),
-	('2019-12-15-2-old'),
-	('2019-12-17-1-business'),
-	('2019-12-19-1-updates'),
-	('2019-12-20-1-dailystat'),
-	('2019-12-31-1-blank-days'),
-	('2020-01-02-1-bot'),
-	('2020-01-07-1-title-domain'),
-	('2020-01-13-1-update'),
-	('2020-01-13-2-hit_stats_title'),
-	('2020-01-18-1-sitename'),
-	('2020-01-23-1-nformat'),
-	('2020-01-23-2-retention'),
-	('2020-01-24-1-rm-mobile'),
-	('2020-01-24-2-domain'),
-	('2020-01-26-1-sitecode'),
-	('2020-01-27-1-ignore'),
-	('2020-01-27-2-rm-count-ref'),
-	('2020-02-02-1-tz'),
-	('2020-02-06-1-hitsid'),
-	('2020-02-19-1-personalplus'),
-	('2020-02-19-2-outage'),
-	('2020-02-24-1-ref_stats'),
-	('2020-03-03-1-flag'),
-	('2020-03-13-1-code-moved'),
-	('2020-03-16-1-size_stats'),
-	('2020-03-16-2-rm-old'),
 	('2020-03-18-1-json_settings'),
 	('2020-03-29-1-page_cost'),
 	('2020-03-27-1-isbot'),
@@ -616,7 +581,8 @@ insert into version values
 	('2020-06-03-1-cname-setup'),
 	('2020-06-18-1-totp'),
 	('2020-06-26-1-api-tokens'),
-	('2020-06-26-1-record-export');
-
-
+	('2020-06-26-1-record-export'),
+	('2020-07-03-1-plan-amount'),
+	('2020-07-21-1-memsess'),
+	('2020-07-22-1-memsess');
 -- vim:ft=sql

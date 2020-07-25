@@ -12,281 +12,6 @@ import (
 var _, _, _, _ = zlib.BestSpeed, base64.NoPadding, ioutil.Discard, bytes.Join
 
 var MigrationsPgSQL = map[string][]byte{
-	"db/migrate/pgsql/2020-01-02-1-bot.sql": []byte(`begin;
-	alter table hits add column bot int default 0;
-	drop index "hits#site#created_at";
-	drop index "hits#site#path#created_at";
-	create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
-	create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
-	insert into version values ('2020-01-02-1-bot');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-07-1-title-domain.sql": []byte(`begin;
-	alter table hits add column title varchar not null default '';
-	alter table hits add column domain varchar not null default '';
-
-	insert into version values ('2020-01-07-1-title-domain');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-13-1-update.sql": []byte(`begin;
-	delete from updates where subject = 'GoatCounter 1.0 released';
-	insert into updates (subject, created_at, show_at, body) values (
-		'GoatCounter 1.0 released', now(), now(),
-		'<p>I just tagged GoatCounter 1.0! There are no exciting sudden changes
-			as updates are usually deployed immediately, but it is an important
-			milestone in the development of GoatCounter: this is the first version
-			that I consider complete and stable enough to “shout from the roofs”, as
-			we say in Dutch :-)
-			Also see the <a href="https://www.arp242.net/goatcounter-1.0.html">announcement post</a>.</p>
-
-		<p>I aim to release a new version roughly every 6 to 8 weeks. The next
-			version will mostly focus on small UX improvements and making the
-			self-hosting experience better. You can see the
-			<a href="https://github.com/zgoat/goatcounter/milestone/3">roadmap for 1.1 on GitHub</a>.
-			These changes will be deployed when they’re ready rather than in one go.
-			I’ll be providing some more updates in this space when I make
-			user-visible changes, but for the full ChangeLog see the GitHub commit
-			log.</p>
-
-		<p><strong>Feedback is important</strong>, so let me know if there’s
-			anything in particular you’re missing.</p>'
-	);
-
-	insert into version values ('2020-01-13-1-update');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-13-2-hit_stats_title.sql": []byte(`begin;
-	alter table hit_stats add column title varchar not null default '';
-	insert into version values ('2020-01-13-2-hit_stats_title');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-18-1-sitename.sql": []byte(`begin;
-	drop index "sites#name";
-	insert into version values ('2020-01-18-1-sitename');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-23-1-nformat.sql": []byte(`begin;
-	insert into updates (subject, created_at, show_at, body) values (
-		'New setting: thousands separator', now(), now(),
-		'<p>You can now choose which thousands separators is used to format
-		numbers in your site’s settings. The default is still a thin space as
-		before, as that’s the most universal format.</p>');
-
-	update sites set settings=substr(settings, 0, length(settings)) || ', "number_format": 8239}';
-	insert into version values ('2020-01-23-1-nformat');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-23-2-retention.sql": []byte(`begin;
-	insert into updates (subject, created_at, show_at, body) values (
-		'New setting: data retention', now(), now(),
-		'<p>You can now limit the amount of time GoatCounter keeps data in your site settings.</p>');
-
-	insert into version values ('2020-01-23-2-retention');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-24-1-rm-mobile.sql": []byte(`begin;
-	alter table browser_stats drop column mobile;
-	insert into version values ('2020-01-24-1-rm-mobile');
-commit;
-
-`),
-	"db/migrate/pgsql/2020-01-24-2-domain.sql": []byte(`begin;
-	insert into updates (subject, created_at, show_at, body) values (
-		'New setting: domain (for linking)', now(), now(),
-		'<p>You can now fill in you site’s domain in the settings; this will allow linking the path directly from the overview.</p>');
-
-	alter table hits drop column domain;
-	alter table hits add column event int default 0;
-	alter table sites add column link_domain varchar not null default '';
-
-	insert into version values ('2020-01-24-2-domain');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-26-1-sitecode.sql": []byte(`begin;
-	insert into updates (subject, created_at, show_at, body) values (
-		'Simpler site code', now(), now(),
-		'<p>The <a href="/settings#tab-site-code">site code</a> is now
-			significantly simpler. The old one will still work, but it’s recommended
-			to use the new one.</p>
-
-		<p>The page now also documents how to integrate GoatCounter on your site without JavaScript.</p>
-			');
-
-	insert into version values ('2020-01-26-1-sitecode');
-commit;
-`),
-	"db/migrate/pgsql/2020-01-27-1-ignore.sql": []byte(`begin;
-	insert into updates (subject, created_at, show_at, body) values (
-		'New setting: ignoring your own views', now(), now(),
-		'<p>There is now a setting to ignore your own views based on IP address</p>
-
-		<p>Note you can also do this client-side if you prefer; there is an
-			example in the <a href="/settings#tab-site-code">site code</a> for
-			this now as well (“skip own views”).</p>
-	');
-
-	insert into version values ('2020-01-27-1-ignore');
-commit;
-
-`),
-	"db/migrate/pgsql/2020-01-27-2-rm-count-ref.sql": []byte(`begin;
-	-- https://www.depesz.com/2016/06/14/incrementing-counters-in-database/
-	drop table if exists usage;
-	create table usage (
-		site           integer        not null                 check(site > 0),
-		domain         varchar        not null,
-		count          integer        not null,
-		vetted         integer        default 0,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-
-	insert into usage
-		select site, count_ref, count(count_ref) from hits where count_ref != '' group by site, count_ref;
-	alter table hits drop column count_ref;
-
-	insert into version values ('2020-01-27-2-rm-count-ref');
-commit;
-`),
-	"db/migrate/pgsql/2020-02-02-1-tz.sql": []byte(`begin;
-	insert into updates (subject, created_at, show_at, body) values (
-		'New setting: timezone', now(), now(),
-		'<p>The charts can now be displayed in the local timezone; you can
-			change the timezone in the site settings.</p>
-		<p>The timezone should be automatically set to your browser’s local
-			timezone.</p>
-	');
-
-	insert into version values ('2020-02-02-1-tz');
-commit;
-`),
-	"db/migrate/pgsql/2020-02-06-1-hitsid.sql": []byte(`begin;
-	alter table hits add column id serial primary key;
-	insert into version values ('2020-02-06-1-hitsid');
-commit;
-`),
-	"db/migrate/pgsql/2020-02-19-1-personalplus.sql": []byte(`begin;
-	alter table sites
-		drop constraint sites_plan_check;
-	alter table sites
-		add constraint sites_plan_check check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom'));
-
-	insert into updates (subject, created_at, show_at, body) values (
-		'Personal plus plan and GitHub Sponsors', now(), now(),
-		'<p>You can now contribute through the GitHub Sponsors as well; since
-			GitHub will match contributions in the first year this is now the
-			preferred method, since you’ll get more bang for your buck ;-)
-			<a href="https://github.com/sponsors/arp242/">https://github.com/sponsors/arp242/</a>
-		</p>
-
-		<p>I also added a “Personal Plus” plan. Like the Personal plan, this is
-			for non-commercial use only, but allows you to use a custom domain
-			with GoatCounter; e.g. stats.mydomain.com instead of
-			mine.goatcounter.com. This is €5/month.</p>
-	');
-
-	insert into version values ('2020-02-19-1-personalplus');
-commit;
-`),
-	"db/migrate/pgsql/2020-02-19-2-outage.sql": []byte(`begin;
-		delete from updates where subject='Outage 😞';
-	insert into updates (subject, created_at, show_at, body) values (
-		'Outage 😞', now(), now(),
-
-		'
-<p>For about 12 hours (from Feb 18 20:00 until Feb 19 09:00, UTC) GoatCounter
-didn’t collect any pageviews 😞</p>
-
-<p>The first mistake was a small update I pushed yesterday with some minor code refactors.
-GoatCounter persists the pageviews in the background to reduce database load and ensure the
-<code>/count</code> endpoint is always fast, but the background cron wasn’t being run so … nothing
-got persisted to the database.</p>
-
-<p>The fix was just two characters: <code>defer setupCron(db)</code> to <code>defer setupCron(db)()</code>.
-It was a silly mistake.</p>
-
-<p>This shouldn’t have resulted in any data loss, since Varnish (the HTTP proxy/load balancer) logs
-all requests exactly to recover from this kind of thing. The second mistake is that the log files
-would be truncated whenever Varnish restarts, instead of appended to them. I restarted Varnish just
-before I discovered this to clear the cache after some frontend changes. I fixed this as well, but
-it’s too late to recover the previous logs.</p>
-
-<p>So unfortunately there is no way to recover from this and there’s a 12-hour gap in your pageviews
-😞 I’m really sorry about this; it definitely ruined my day.</p>
-
-<p>I’ll improve the monitoring to also send alerts if the number of pageviews drops dramatically.
-I’ll also improve the integration testing (most of this code is tested already, but it’s not
-a full integration test yet).</p>
-');
-
-	insert into version values ('2020-02-19-2-outage');
-commit;
-
-`),
-	"db/migrate/pgsql/2020-02-24-1-ref_stats.sql": []byte(`begin;
-
-	create table ref_stats (
-		site           integer        not null                 check(site > 0),
-
-		day            date           not null,
-		ref            varchar        not null,
-		count          int            not null,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-	create index "ref_stats#site#day" on ref_stats(site, day);
-
-	insert into version values ('2020-02-24-1-ref_stats');
-commit;
-`),
-	"db/migrate/pgsql/2020-03-03-1-flag.sql": []byte(`begin;
-	create table flags (
-		name  varchar not null,
-		value int     not null
-	);
-
-	insert into version values ('2020-03-03-1-flag');
-commit;
-`),
-	"db/migrate/pgsql/2020-03-13-1-code-moved.sql": []byte(`begin;
-	insert into updates (subject, created_at, show_at, body) values (
-		'Site code moved', now(), now(),
-		'<p>Just a little heads-up that the “site code” is now its own page
-		linked in the top menu, instead of a tab in the settings page. This will
-		allow permalinks to sections, which was tricky on the tab page because
-		permalinks are already used there for the tabs.</p>');
-
-	insert into version values ('2020-03-13-1-code-moved');
-commit;
-`),
-	"db/migrate/pgsql/2020-03-16-1-size_stats.sql": []byte(`begin;
-	create table size_stats (
-		site           integer        not null                 check(site > 0),
-
-		day            date           not null,
-		width          int           not null,
-		count          int            not null,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-	create index "size_stats#site#day"       on size_stats(site, day);
-	create index "size_stats#site#day#width" on size_stats(site, day, width);
-
-	insert into version values ('2020-03-16-1-size_stats');
-commit;
-`),
-	"db/migrate/pgsql/2020-03-16-2-rm-old.sql": []byte(`begin;
-	alter table hit_stats drop column total;
-	alter table sites     drop column last_stat;
-
-	alter table sites
-		drop constraint if exists sites_domain_check;
-	alter table sites
-		add constraint sites_link_domain_check check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255));
-
-	insert into version values ('2020-03-16-2-rm-old');
-commit;
-`),
 	"db/migrate/pgsql/2020-03-18-1-json_settings.sql": []byte(`begin;
 	alter table sites alter column settings type json using settings::json;
 	insert into version values ('2020-03-18-1-json_settings');
@@ -671,275 +396,6 @@ commit;
 }
 
 var MigrationsSQLite = map[string][]byte{
-	"db/migrate/sqlite/2020-01-02-1-bot.sql": []byte(`begin;
-	alter table hits add column bot int default 0;
-	drop index "hits#site#created_at";
-	drop index "hits#site#path#created_at";
-	create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
-	create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
-	insert into version values ('2020-01-02-1-bot');
-commit;
-`),
-	"db/migrate/sqlite/2020-01-07-1-title-domain.sql": []byte(`begin;
-	alter table hits add column title varchar;
-	alter table hits add column domain varchar;
-
-	insert into version values ('2020-01-07-1-title-domain');
-commit;
-`),
-	"db/migrate/sqlite/2020-01-13-2-hit_stats_title.sql": []byte(`begin;
-	alter table hit_stats add column title varchar not null default '';
-	insert into version values ('2020-01-13-2-hit_stats_title');
-commit;
-`),
-	"db/migrate/sqlite/2020-01-18-1-sitename.sql": []byte(`begin;
-	drop index "sites#name";
-	insert into version values ('2020-01-18-1-sitename');
-commit;
-`),
-	"db/migrate/sqlite/2020-01-23-1-nformat.sql": []byte(`begin;
-	update sites set settings=substr(settings, 0, length(settings)) || ', "number_format": 8239}';
-	insert into version values ('2020-01-23-1-nformat');
-commit;
-`),
-	"db/migrate/sqlite/2020-01-24-1-rm-mobile.sql": []byte(`begin;
-	create table browser_stats2 (
-		site           integer        not null                 check(site > 0),
-
-		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-		browser        varchar        not null,
-		version        varchar        not null,
-		count          int            not null,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-	insert into browser_stats2 select
-		site, day, browser, version, count
-	from browser_stats;
-	drop table browser_stats;
-	alter table browser_stats2 rename to browser_stats;
-
-	insert into version values ('2020-01-24-1-rm-mobile');
-commit;
-`),
-	"db/migrate/sqlite/2020-01-24-2-domain.sql": []byte(`begin;
-	alter table sites add column link_domain varchar not null default '';
-
-	create table hits2 (
-		site           integer        not null                 check(site > 0),
-
-		path           varchar        not null,
-		ref            varchar        not null,
-		ref_original   varchar,
-		ref_params     varchar,
-		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
-		browser        varchar        not null,
-		size           varchar        not null default '',
-		location       varchar        not null default '',
-		count_ref      varchar        not null default '',
-		bot            int            default 0,
-		title          varchar        not null default '',
-		event          int            default 0,
-
-		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
-	);
-
-	insert into hits2 select
-		site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, count_ref, bot, title, 0, created_at
-	from hits;
-	drop table hits;
-	alter table hits2 rename to hits;
-
-	insert into version values ('2020-01-24-2-domain');
-commit;
-`),
-	"db/migrate/sqlite/2020-01-27-2-rm-count-ref.sql": []byte(`begin;
-	create table usage (
-		site           integer        not null                 check(site > 0),
-		domain         varchar        not null,
-		count          integer        not null,
-		vetted         integer        default 0,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-
-	create table hits2 (
-		site           integer        not null                 check(site > 0),
-
-		path           varchar        not null,
-		ref            varchar        not null,
-		ref_original   varchar,
-		ref_params     varchar,
-		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
-		browser        varchar        not null,
-		size           varchar        not null default '',
-		location       varchar        not null default '',
-		bot            int            default 0,
-		title          varchar        not null default '',
-		event          int            default 0,
-
-		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
-	);
-	insert into hits2 select
-		site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at
-	from hits;
-	drop table hits;
-	alter table hits2 rename to hits;
-
-	insert into version values ('2020-01-27-2-rm-count-ref');
-commit;
-`),
-	"db/migrate/sqlite/2020-02-06-1-hitsid.sql": []byte(`begin;
-	create table hits2 (
-		id             integer        primary key autoincrement,
-		site           integer        not null                 check(site > 0),
-
-		path           varchar        not null,
-		ref            varchar        not null,
-		ref_original   varchar,
-		ref_params     varchar,
-		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o')),
-		browser        varchar        not null,
-		size           varchar        not null default '',
-		location       varchar        not null default '',
-		bot            int            default 0,
-		title          varchar        not null default '',
-		event          int            default 0,
-
-		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
-	);
-
-	insert into hits2
-		(site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at)
-	select
-		site, path, ref, ref_original, ref_params, ref_scheme, browser, size, location, bot, title, event, created_at
-	from hits;
-	drop table hits;
-	alter table hits2 rename to hits;
-
-	insert into version values ('2020-02-06-1-hitsid');
-commit;
-`),
-	"db/migrate/sqlite/2020-02-19-1-personalplus.sql": []byte(`begin;
-	create table sites2 (
-		id             integer        primary key autoincrement,
-		parent         integer        null                     check(parent is null or parent>0),
-
-		name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
-		code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
-		cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
-		plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
-		stripe         varchar        null,
-		settings       varchar        not null,
-		last_stat      timestamp      null                     check(last_stat = strftime('%Y-%m-%d %H:%M:%S', last_stat)),
-		received_data  int            not null default 0,
-		link_domain    varchar        not null default '',
-
-		state          varchar        not null default 'a'     check(state in ('a', 'd')),
-		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
-	);
-
-	insert into sites2 select
-		id, parent, name, code, cname, plan, stripe, settings, last_stat, received_data, link_domain, state, created_at, updated_at
-	from sites;
-	drop table sites;
-	alter table sites2 rename to sites;
-
-	insert into version values ('2020-02-19-1-personalplus');
-commit;
-`),
-	"db/migrate/sqlite/2020-02-24-1-ref_stats.sql": []byte(`begin;
-	create table ref_stats (
-		site           integer        not null                 check(site > 0),
-
-		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-		ref            varchar        not null,
-		count          int            not null,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-	create index "ref_stats#site#day" on ref_stats(site, day);
-
-	insert into version values ('2020-02-24-1-ref_stats');
-commit;
-`),
-	"db/migrate/sqlite/2020-03-03-1-flag.sql": []byte(`begin;
-	create table flags (
-		name  varchar not null,
-		value int     not null
-	);
-
-	insert into version values ('2020-03-03-1-flag');
-commit;
-`),
-	"db/migrate/sqlite/2020-03-16-1-size_stats.sql": []byte(`begin;
-	create table size_stats (
-		site           integer        not null                 check(site > 0),
-
-		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-		width          int           not null,
-		count          int            not null,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-	create index "size_stats#site#day"       on size_stats(site, day);
-	create index "size_stats#site#day#width" on size_stats(site, day, width);
-
-	insert into version values ('2020-03-16-1-size_stats');
-commit;
-`),
-	"db/migrate/sqlite/2020-03-16-2-rm-old.sql": []byte(`begin;
-	--alter table hit_stats drop column total;
-	create table hit_stats2 (
-		site           integer        not null                 check(site > 0),
-
-		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-		path           varchar        not null,
-		title          varchar        not null default '',
-		stats          varchar        not null,
-
-		foreign key (site) references sites(id) on delete restrict on update restrict
-	);
-	insert into hit_stats2
-		(site, day, path, title, stats)
-	select
-		site, day, path, title, stats
-	from hit_stats;
-	drop table hit_stats;
-	alter table hit_stats2 rename to hit_stats;
-
-	--alter table sites     drop column last_stat;
-	--alter table sites
-	--	drop constraint if exists sites_domain_check;
-	--alter table sites
-	--	add constraint sites_link_domain_check check(length(link_domain) >= 4 and length(link_domain) <= 255);
-	create table sites2 (
-		id             integer        primary key autoincrement,
-		parent         integer        null                     check(parent is null or parent>0),
-
-		name           varchar        not null                 check(length(name) >= 4 and length(name) <= 255),
-		code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
-		link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
-		cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
-		plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
-		stripe         varchar        null,
-		settings       varchar        not null,
-		received_data  int            not null default 0,
-
-		state          varchar        not null default 'a'     check(state in ('a', 'd')),
-		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
-	);
-	insert into sites2 select
-		id, parent, name, code, link_domain, cname, plan, stripe, settings, received_data, state, created_at, updated_at
-	from sites;
-	drop table sites;
-	alter table sites2 rename to sites;
-
-	insert into version values ('2020-03-16-2-rm-old');
-commit;
-`),
 	"db/migrate/sqlite/2020-03-24-1-sessions.sql": []byte(`begin;
 	create table sessions (
 		id             integer        primary key autoincrement,
@@ -13250,18 +12706,7 @@ h3 + h4          { margin-top: .3em; }
 `),
 }
 
-var SchemaPgSQL = []byte(`-- This ensures PostgreSQL is quicker to use some indexes, dramatically
--- increasing performance for the hits table (would always do a seq scan
--- before).
--- Random pages aren't that expensive any more, and the default of 4.0 is pretty
--- outdated.
-DO $$
-BEGIN
-   execute 'alter database ' || current_database() || ' set random_page_cost=2';
-END
-$$;
-
-create table sites (
+var SchemaPgSQL = []byte(`create table sites (
 	id             serial         primary key,
 	parent         integer        null                     check(parent is null or parent>0),
 
@@ -13271,6 +12716,7 @@ create table sites (
 	cname_setup_at timestamp      default null,
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
+	billing_amount varchar,
 	settings       json           not null,
 	received_data  int            not null default 0,
 
@@ -13325,6 +12771,7 @@ create table hits (
 	id             serial primary key,
 	site           integer        not null                 check(site > 0),
 	session        integer        default null,
+	session2       bytea          default null,
 
 	path           varchar        not null,
 	title          varchar        not null default '',
@@ -13812,40 +13259,14 @@ create table exports (
 );
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
+create table store (
+	key     varchar,
+	value   text
+);
+create unique index "store#key" on store(key);
+
 create table version (name varchar);
 insert into version values
-	('2019-10-16-1-geoip'),
-	('2019-11-08-1-refs'),
-	('2019-11-08-2-location_stats'),
-	('2019-12-10-1-plans'),
-	('2019-12-10-2-count_ref'),
-	('2019-12-15-1-personal-free'),
-	('2019-12-15-2-old'),
-	('2019-12-17-1-business'),
-	('2019-12-19-1-updates'),
-	('2019-12-20-1-dailystat'),
-	('2019-12-31-1-blank-days'),
-	('2020-01-02-1-bot'),
-	('2020-01-07-1-title-domain'),
-	('2020-01-13-1-update'),
-	('2020-01-13-2-hit_stats_title'),
-	('2020-01-18-1-sitename'),
-	('2020-01-23-1-nformat'),
-	('2020-01-23-2-retention'),
-	('2020-01-24-1-rm-mobile'),
-	('2020-01-24-2-domain'),
-	('2020-01-26-1-sitecode'),
-	('2020-01-27-1-ignore'),
-	('2020-01-27-2-rm-count-ref'),
-	('2020-02-02-1-tz'),
-	('2020-02-06-1-hitsid'),
-	('2020-02-19-1-personalplus'),
-	('2020-02-19-2-outage'),
-	('2020-02-24-1-ref_stats'),
-	('2020-03-03-1-flag'),
-	('2020-03-13-1-code-moved'),
-	('2020-03-16-1-size_stats'),
-	('2020-03-16-2-rm-old'),
 	('2020-03-18-1-json_settings'),
 	('2020-03-29-1-page_cost'),
 	('2020-03-27-1-isbot'),
@@ -13868,9 +13289,10 @@ insert into version values
 	('2020-06-03-1-cname-setup'),
 	('2020-06-18-1-totp'),
 	('2020-06-26-1-api-tokens'),
-	('2020-06-26-1-record-export');
-
-
+	('2020-06-26-1-record-export'),
+	('2020-07-03-1-plan-amount'),
+	('2020-07-21-1-memsess'),
+	('2020-07-22-1-memsess');
 -- vim:ft=sql
 `)
 var SchemaSQLite = []byte(`create table sites (
@@ -13883,6 +13305,7 @@ var SchemaSQLite = []byte(`create table sites (
 	cname_setup_at timestamp      default null             check(cname_setup_at = strftime('%Y-%m-%d %H:%M:%S', cname_setup_at)),
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
+	billing_amount varchar,
 	settings       varchar        not null,
 	received_data  int            not null default 0,
 
@@ -13936,6 +13359,7 @@ create table hits (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 	session        integer        default null,
+	session2       blob           default null,
 
 	path           varchar        not null,
 	title          varchar        not null default '',
@@ -13952,32 +13376,6 @@ create table hits (
 );
 create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
 create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
-
-create table sessions (
-	id             integer        primary key autoincrement,
-	site           integer        not null                 check(site > 0),
-	hash           blob           null,
-	created_at     timestamp      not null,
-	last_seen      timestamp      not null,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-create unique index "sessions#site#hash" on sessions(site, hash);
-create        index "sessions#last_seen" on sessions(last_seen);
-
-create table session_paths (
-	session        integer        not null,
-	path           varchar        not null,
-
-	foreign key (session) references sessions(id) on delete cascade on update cascade
-);
-create index "session_paths#session#path" on session_paths(session, lower(path));
-
-create table session_salts (
-	previous    int        not null,
-	salt        varchar    not null,
-	created_at  timestamp  not null
-);
 
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
@@ -14396,33 +13794,14 @@ create table exports (
 );
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
+create table store (
+	key     varchar,
+	value   text
+);
+create unique index "store#key" on store(key);
+
 create table version (name varchar);
 insert into version values
-	('2019-10-16-1-geoip'),
-	('2019-11-08-1-refs'),
-	('2019-11-08-2-location_stats'),
-	('2019-12-10-1-plans'),
-	('2019-12-10-2-count_ref'),
-	('2019-12-15-1-personal-free'),
-	('2019-12-15-2-old'),
-	('2019-12-17-1-business'),
-	('2019-12-19-1-updates'),
-	('2019-12-20-1-dailystat'),
-	('2019-12-31-1-blank-days'),
-	('2020-01-02-1-bot'),
-	('2020-01-07-1-title-domain'),
-	('2020-01-13-2-hit_stats_title'),
-	('2020-01-18-1-sitename'),
-	('2020-01-23-1-nformat'),
-	('2020-01-24-1-rm-mobile'),
-	('2020-01-24-2-domain'),
-	('2020-01-27-2-rm-count-ref'),
-	('2020-02-06-1-hitsid'),
-	('2020-02-19-1-personalplus'),
-	('2020-02-24-1-ref_stats'),
-	('2020-03-03-1-flag'),
-	('2020-03-16-1-size_stats'),
-	('2020-03-16-2-rm-old'),
 	('2020-03-27-1-isbot'),
 	('2020-03-24-1-sessions'),
 	('2020-04-06-1-event'),
@@ -14441,7 +13820,10 @@ insert into version values
 	('2020-06-03-1-cname-setup'),
 	('2020-06-18-1-totp'),
 	('2020-06-26-1-api-tokens'),
-	('2020-06-26-1-record-export');
+	('2020-06-26-1-record-export'),
+	('2020-07-03-1-plan-amount'),
+	('2020-07-21-1-memsess'),
+	('2020-07-22-1-memsess');
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}

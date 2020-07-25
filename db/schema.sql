@@ -8,6 +8,7 @@ create table sites (
 	cname_setup_at timestamp      default null             check(cname_setup_at = strftime('%Y-%m-%d %H:%M:%S', cname_setup_at)),
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
+	billing_amount varchar,
 	settings       varchar        not null,
 	received_data  int            not null default 0,
 
@@ -61,6 +62,7 @@ create table hits (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 	session        integer        default null,
+	session2       blob           default null,
 
 	path           varchar        not null,
 	title          varchar        not null default '',
@@ -77,32 +79,6 @@ create table hits (
 );
 create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
 create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
-
-create table sessions (
-	id             integer        primary key autoincrement,
-	site           integer        not null                 check(site > 0),
-	hash           blob           null,
-	created_at     timestamp      not null,
-	last_seen      timestamp      not null,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-create unique index "sessions#site#hash" on sessions(site, hash);
-create        index "sessions#last_seen" on sessions(last_seen);
-
-create table session_paths (
-	session        integer        not null,
-	path           varchar        not null,
-
-	foreign key (session) references sessions(id) on delete cascade on update cascade
-);
-create index "session_paths#session#path" on session_paths(session, lower(path));
-
-create table session_salts (
-	previous    int        not null,
-	salt        varchar    not null,
-	created_at  timestamp  not null
-);
 
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
@@ -521,33 +497,14 @@ create table exports (
 );
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
+create table store (
+	key     varchar,
+	value   text
+);
+create unique index "store#key" on store(key);
+
 create table version (name varchar);
 insert into version values
-	('2019-10-16-1-geoip'),
-	('2019-11-08-1-refs'),
-	('2019-11-08-2-location_stats'),
-	('2019-12-10-1-plans'),
-	('2019-12-10-2-count_ref'),
-	('2019-12-15-1-personal-free'),
-	('2019-12-15-2-old'),
-	('2019-12-17-1-business'),
-	('2019-12-19-1-updates'),
-	('2019-12-20-1-dailystat'),
-	('2019-12-31-1-blank-days'),
-	('2020-01-02-1-bot'),
-	('2020-01-07-1-title-domain'),
-	('2020-01-13-2-hit_stats_title'),
-	('2020-01-18-1-sitename'),
-	('2020-01-23-1-nformat'),
-	('2020-01-24-1-rm-mobile'),
-	('2020-01-24-2-domain'),
-	('2020-01-27-2-rm-count-ref'),
-	('2020-02-06-1-hitsid'),
-	('2020-02-19-1-personalplus'),
-	('2020-02-24-1-ref_stats'),
-	('2020-03-03-1-flag'),
-	('2020-03-16-1-size_stats'),
-	('2020-03-16-2-rm-old'),
 	('2020-03-27-1-isbot'),
 	('2020-03-24-1-sessions'),
 	('2020-04-06-1-event'),
@@ -566,4 +523,7 @@ insert into version values
 	('2020-06-03-1-cname-setup'),
 	('2020-06-18-1-totp'),
 	('2020-06-26-1-api-tokens'),
-	('2020-06-26-1-record-export');
+	('2020-06-26-1-record-export'),
+	('2020-07-03-1-plan-amount'),
+	('2020-07-21-1-memsess'),
+	('2020-07-22-1-memsess');
