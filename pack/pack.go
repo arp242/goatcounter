@@ -12101,6 +12101,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						daily:   $('#daily').is(':checked'),
 						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
 						max:     get_original_scale(),
+						offset:  $('.count-list-pages >tbody >tr').length + 1,
 					}),
 					success: function(data) {
 						update_pages(data, false)
@@ -13042,6 +13043,7 @@ tr.target .chart-left { display: block; }
 	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
 	background-color: #fff;
 }
+.page-n { color: #555; font-size: .8em; }
 
 .chart-bar             { display: flex; align-items: flex-end; }
 .chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }
@@ -15233,7 +15235,10 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 			</div>
 			<div class="chart chart-bar" data-max="{{$h.Max}}">
 				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
-				{{if and (not $.IsPagination) (eq $i 0)}}<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small></span>{{end}}
+				<span class="chart-right">
+					{{- if (eq $i 0)}}<small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small>
+					{{- else if $.IsPagination}}<span class="page-n" title="Page ranking">#{{sum $.Offset $i}}</span>{{end -}}
+				</span>
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>

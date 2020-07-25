@@ -254,6 +254,7 @@
 						daily:   $('#daily').is(':checked'),
 						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
 						max:     get_original_scale(),
+						offset:  $('.count-list-pages >tbody >tr').length + 1,
 					}),
 					success: function(data) {
 						update_pages(data, false)

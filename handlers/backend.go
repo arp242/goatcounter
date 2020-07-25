@@ -299,6 +299,12 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 	max := int(m)
 
+	o, err := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
+	if err != nil {
+		o = 1
+	}
+	offset := int(o)
+
 	// Load new totals unless this is for pagination.
 	var (
 		wg sync.WaitGroup
@@ -370,12 +376,13 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		ForcedDaily  bool
 		Max          int
 		IsPagination bool
+		Offset       int
 
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
 	}{r.Context(), pages, site, start, end,
-		daily, forcedDaily, int(max), true, false, ""})
+		daily, forcedDaily, int(max), true, offset, false, ""})
 	if err != nil {
 		return err
 	}
