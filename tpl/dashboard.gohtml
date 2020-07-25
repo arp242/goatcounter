@@ -83,12 +83,17 @@
 	<div id="dash-move">
 		<div>
 			←&#xfe0e; back
-			<button class="link" name="move" value="week-b">week</button> ·
-			<button class="link" name="move" value="month-b">month</button>
+			<span>
+				<button class="link" name="move" value="week-b">week</button> ·
+				<button class="link" name="move" value="month-b">month</button>
+			</span>
 		</div>
+		<div id="dash-timerange">{{daterange .Site.Settings.Timezone.Loc .PeriodStart .PeriodEnd}}</div>
 		<div>
-			<button class="link" name="move" value="week-f">week</button> ·
-			<button class="link" name="move" value="month-f">month</button>
+			<span>
+				<button class="link" name="move" value="week-f">week</button> ·
+				<button class="link" name="move" value="month-f">month</button>
+			</span>
 			forward →&#xfe0e;
 		</div>
 	</div>

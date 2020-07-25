@@ -159,11 +159,9 @@ tr.target small.go                { display: inline-block; }
 tr:hover .chart-left,
 tr.target .chart-left { display: block; }
 
-.chart-right {
-	position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
-	background-color: #fff;
-}
-.page-n { color: #555; font-size: .8em; }
+.chart-right { position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem;
+	           text-align: center; background-color: #fff; }
+.page-n      { color: #555; font-size: .8em; }
 
 .chart-bar             { display: flex; align-items: flex-end; }
 .chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }
@@ -200,9 +198,14 @@ tr.target .chart-left { display: block; }
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/
 #dash-saved-views { text-align: right; margin-right: .3em; }
-#dash-move        { display: flex; justify-content: space-between; padding: .2em; }
+#dash-move        { display: flex; justify-content: space-between; align-items: start; padding: .2em; }
 #dash-form        { display: block; padding-bottom: .4em; }
 #dash-form span   { margin-left: 0; } /* Reset from hello-css */
+
+@media (max-width: 36.5rem) {
+	#dash-move span           { display: block; }
+	#dash-move div:last-child { display: flex; flex-direction: column-reverse; text-align: right; align-items: end; }
+}
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
              background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
@@ -219,6 +222,10 @@ tr.target .chart-left { display: block; }
 
 #dash-select-period           { display: block; padding-left: .3em; }
 #dash-select-period span+span { margin-left: .5em; }
+
+#dash-timerange { background-color: #f8f8d9; border: 1px solid #dede89; text-align: center;
+	              padding: 0 .4em; padding-top: 2px; border-top: 0; margin-top: -4px;
+	              border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
 
 @media (max-width: 56.5rem) {
 	/* Break "current [..]" to new line to make more space. */
