@@ -367,22 +367,21 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	tpl, err := ztpl.ExecuteString("_dashboard_pages_rows.gohtml", struct {
-		Context      context.Context
-		Pages        goatcounter.HitStats
-		Site         *goatcounter.Site
-		PeriodStart  time.Time
-		PeriodEnd    time.Time
-		Daily        bool
-		ForcedDaily  bool
-		Max          int
-		IsPagination bool
-		Offset       int
+		Context     context.Context
+		Pages       goatcounter.HitStats
+		Site        *goatcounter.Site
+		PeriodStart time.Time
+		PeriodEnd   time.Time
+		Daily       bool
+		ForcedDaily bool
+		Max         int
+		Offset      int
 
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
-	}{r.Context(), pages, site, start, end,
-		daily, forcedDaily, int(max), true, offset, false, ""})
+	}{r.Context(), pages, site, start, end, daily, forcedDaily, int(max),
+		offset, false, ""})
 	if err != nil {
 		return err
 	}
