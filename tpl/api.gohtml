@@ -40,8 +40,12 @@ unless noted otherwise.</p>
 
 <h2 id="rate-limit">Rate limit <a href="#rate-limit"></a></h2>
 <p>The rate limit is 60 requests per 120 seconds. The current rate limits are
-indicated in the <code>X-Rate-Limit-Limit</code>, <code>X-Rate-Limit-Remaining</code>, and
-<code>X-Rate-Limit-Reset</code> headers.</p>
+indicated in the the headers:</p>
+
+<pre><code>X-Rate-Limit-Limit        Number of requests the rate limit kicks in; this is always the same.
+X-Rate-Limit-Remaining    Requests remaining this period.
+X-Rate-Limit-Reset        Seconds until the rate limits resets.
+</code></pre>
 
 <h2 id="errors">Errors <a href="#errors"></a></h2>
 <p>Errors are reported in either an <code>error</code> or <code>errors</code> field; the <code>error</code> field

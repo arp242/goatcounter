@@ -40,8 +40,11 @@ Replace the key and URL with your actual values.
 Rate limit
 ----------
 The rate limit is 60 requests per 120 seconds. The current rate limits are
-indicated in the `X-Rate-Limit-Limit`, `X-Rate-Limit-Remaining`, and
-`X-Rate-Limit-Reset` headers.
+indicated in the the headers:
+
+    X-Rate-Limit-Limit        Number of requests the rate limit kicks in; this is always the same.
+    X-Rate-Limit-Remaining    Requests remaining this period.
+    X-Rate-Limit-Reset        Seconds until the rate limits resets.
 
 
 Errors

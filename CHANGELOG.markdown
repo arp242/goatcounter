@@ -26,17 +26,18 @@ master branch
 
   TOTP-based multi-factor auth is now supported.
 
-- Better export, export API, add import feature (#316, #318)
+- Better export, export API, add import feature (#316, #318, #329)
 
   You can now import the CSV exports, useful for migrating from self-hosted to
-  goatcounter.com or vice verse, or for migrating from other systems.
+  goatcounter.com or vice versa, or for migrating from other systems. There is a
+  web interface and a `goatcounter import` command.
 
   The export now supports a "pagination cursor", so you can export only rows you
   didn't previously export. This is especially useful with the new export API.
   which should make it easy to sync GoatCounter data with another external
   platform.
 
-  See http://goatcounter.com/api for details.
+  See http://goatcounter.com/api for details on the export API.
 
 - API for sending pageviews (#357)
 

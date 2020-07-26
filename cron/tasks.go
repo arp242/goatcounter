@@ -82,13 +82,13 @@ type lastMemstore struct {
 	t  time.Time
 }
 
-func (l lastMemstore) Get() time.Time {
+func (l *lastMemstore) Get() time.Time {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	return l.t
 }
 
-func (l lastMemstore) Set(t time.Time) {
+func (l *lastMemstore) Set(t time.Time) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.t = t
