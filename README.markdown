@@ -92,6 +92,30 @@ Generally speaking only the latest release is supported, although critical fixes
 [releases]: https://github.com/zgoat/goatcounter/releases
 [r-1.3]: https://github.com/zgoat/goatcounter/tree/release-1.3
 
+### Deploy scripts and such
+
+- ["StackScript" for Linode][stackscript]; you can also use this for other
+  Alpine Linux machines.
+
+  A $5/month Linode is more than enough to run GoatCounter unless you've got
+  millions of pageviews. And if you don't have a Linode account yet then
+  consider using my [referral URL][linode] and I'll get some cash back from
+  Linode :-)
+
+  [stackscript]: https://cloud.linode.com/stackscripts/659823
+  [linode]: https://www.linode.com/?r=7acaf75737436d859e785dd5c9abe1ae99b4387e
+
+- Some people have created Dockerfiles. You don't really need Docker since
+  GoatCounter is a static binary with no external dependencies; it probably
+  [creates more problems than it solves][docker] IMHO. At any rate, here are
+  some that seem alright at a glance if you must:
+
+  - https://github.com/baethon/docker-goatcounter (https://hub.docker.com/r/baethon/goatcounter)
+  - https://github.com/sent-hil/dokku-gocounter
+  - https://github.com/anarcat/goatcounter/blob/Dockerfile/Dockerfile
+
+  [docker]: https://www.youtube.com/watch?v=PivpCKEiQOQ
+
 ### Building from source
 
 Compile from source with:
