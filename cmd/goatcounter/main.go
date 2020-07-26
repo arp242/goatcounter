@@ -70,9 +70,9 @@ Commands:
 Advanced commands:
   reindex      Recreate the index tables (*_stats, *_count) from the hits.
   monitor      Monitor for pageviews.
+  db           Print database information and detailed docs on the -db flag.
 
 Extra help topics:
-  db           Detailed documentation on the -db flag.
   listen       Detailed documentation on -listen, -tls.
 
 See "help <topic>" for more details for the command.
@@ -118,6 +118,8 @@ func main() {
 		code, err = monitor()
 	case "import":
 		code, err = importCmd()
+	case "db", "database":
+		code, err = database()
 	}
 	if err != nil {
 		// code=1, the user did something wrong and print usage as well

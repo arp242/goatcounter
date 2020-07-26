@@ -62,6 +62,12 @@ master branch
   Previously the EUPL applied, which is fairly restrictive and may prevent
   people from including/self-hosting the count.js script.
 
+- Add `goatcounter db` command
+
+  This is mostly useful for writing deploy scripts: `goatcounter db
+  schema-sqlite` prints the SQLite schema, `schema-pgsql` prints the PostgreSQL
+  schema, and `goatcounter db test` tests if the database exists.
+
 
 2020-06-01 v1.3.0
 -----------------
