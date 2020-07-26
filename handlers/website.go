@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -20,6 +21,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
@@ -135,8 +137,9 @@ func (h website) status() func(w http.ResponseWriter, r *http.Request) error {
 	started := goatcounter.Now()
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.JSON(w, map[string]string{
-			"uptime":  goatcounter.Now().Sub(started).String(),
-			"version": cfg.Version,
+			"uptime":            goatcounter.Now().Sub(started).String(),
+			"version":           cfg.Version,
+			"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
 		})
 	}
 }

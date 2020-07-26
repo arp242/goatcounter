@@ -17,6 +17,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -50,6 +51,8 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 	a.Get("/api/v0/test", zhttp.Wrap(h.test))
 	a.Post("/api/v0/test", zhttp.Wrap(h.test))
 
+	a.Get("/api/v0/me", zhttp.Wrap(h.me))
+
 	a.Post("/api/v0/export", zhttp.Wrap(h.export))
 	a.Get("/api/v0/export/{id}", zhttp.Wrap(h.exportGet))
 	a.Get("/api/v0/export/{id}/download", zhttp.Wrap(h.exportDownload))
@@ -57,19 +60,26 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 	a.Post("/api/v0/count", zhttp.Wrap(h.count))
 }
 
-func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
+func tokenFromHeader(r *http.Request) (string, error) {
 	auth := r.Header.Get("Authorization")
 	if auth == "" {
-		return guru.New(http.StatusForbidden, "no Authorization header")
+		return "", guru.New(http.StatusForbidden, "no Authorization header")
 	}
-
 	b := strings.Fields(auth)
 	if len(b) != 2 || b[0] != "Bearer" {
-		return guru.New(http.StatusForbidden, "wrong format for Authorization header")
+		return "", guru.New(http.StatusForbidden, "wrong format for Authorization header")
+	}
+	return b[1], nil
+}
+
+func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
+	key, err := tokenFromHeader(r)
+	if err != nil {
+		return err
 	}
 
 	var token goatcounter.APIToken
-	err := token.ByToken(r.Context(), b[1])
+	err = token.ByToken(r.Context(), key)
 	if zdb.ErrNoRows(err) {
 		return guru.New(http.StatusForbidden, "unknown token")
 	}
@@ -92,7 +102,6 @@ func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 	if perm.Export && !token.Permissions.Export {
 		need = append(need, "export")
 	}
-
 	if len(need) > 0 {
 		return guru.Errorf(http.StatusForbidden, "requires %s permissions", need)
 	}
@@ -141,6 +150,35 @@ func (h api) test(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, args)
+}
+
+type meResponse struct {
+	User  goatcounter.User     `json:"user"`
+	Token goatcounter.APIToken `json:"token"`
+}
+
+// GET /api/v0/me user
+// Get information about the current user and API key.
+//
+// Response 200: meResponse
+func (h api) me(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, goatcounter.APITokenPermissions{})
+	if err != nil {
+		return err
+	}
+
+	key, err := tokenFromHeader(r)
+	if err != nil {
+		return err
+	}
+	var token goatcounter.APIToken
+	err = token.ByToken(r.Context(), key)
+	if err != nil {
+		return err
+	}
+
+	u := goatcounter.GetUser(r.Context())
+	return zhttp.JSON(w, meResponse{User: *u, Token: token})
 }
 
 // POST /api/v0/export export
@@ -325,6 +363,10 @@ type apiCountRequestHit struct {
 // Errors will have the key set to the index of the pageview. Any pageviews not
 // listed have been processed and shouldn't be sent again.
 //
+// The response header has the X-Goatcounter-Memstore header set to the time of
+// the last time pageviews were persisted to the database. This is useful if you
+// want to (roughly) sync up with this.
+//
 // Request body: apiCountRequest
 // Response 202: {empty}
 func (h api) count(w http.ResponseWriter, r *http.Request) error {
@@ -398,6 +440,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
+	w.Header().Set("X-Goatcounter-Memstore", cron.LastMemstore.Get().Format(time.RFC3339Nano))
 	w.WriteHeader(http.StatusAccepted)
 	return zhttp.JSON(w, respOK)
 }

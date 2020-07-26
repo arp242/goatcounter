@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"zgo.at/errors"
@@ -76,6 +77,25 @@ func DataRetention(ctx context.Context) error {
 	return nil
 }
 
+type lastMemstore struct {
+	mu sync.Mutex
+	t  time.Time
+}
+
+func (l lastMemstore) Get() time.Time {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.t
+}
+
+func (l lastMemstore) Set(t time.Time) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.t = t
+}
+
+var LastMemstore lastMemstore
+
 func persistAndStat(ctx context.Context) error {
 	l := zlog.Module("cron")
 
@@ -107,6 +127,7 @@ func persistAndStat(ctx context.Context) error {
 	if len(hits) > 0 {
 		l.Since("stats").FieldsSince().Debugf("persisted %d hits", len(hits))
 	}
+	LastMemstore.Set(goatcounter.Now())
 	return err
 }
 

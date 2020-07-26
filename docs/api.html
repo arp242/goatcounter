@@ -123,7 +123,6 @@
 
 	<h2>Endpoints</h2>
 	
-		
 			</div><div>
 			<h3 id="count" class="js-expand">count
 				<a class="permalink" href="#count">§</a></h3>
@@ -137,7 +136,9 @@
 			<div class="endpoint-info">
 				<p>This can count one or more pageviews. Pageviews are not persisted immediatly,
 but persisted in the background every 10 seconds.</p><p>The maximum amount of pageviews per request is 100.</p><p>Errors will have the key set to the index of the pageview. Any pageviews not
-listed have been processed and shouldn&#39;t be sent again.</p>
+listed have been processed and shouldn&#39;t be sent again.</p><p>The response header has the X-Goatcounter-Memstore header set to the time of
+the last time pageviews were persisted to the database. This is useful if you
+want to (roughly) sync up with this.</p>
 					<h4>Request body</h4>
 					<ul>
 						<li><a href="#handlers.apiCountRequest">handlers.apiCountRequest</a>
@@ -160,8 +161,6 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 					</li></ul>
 			</div>
 		</div>
-	
-		
 			</div><div>
 			<h3 id="export" class="js-expand">export
 				<a class="permalink" href="#export">§</a></h3>
@@ -191,8 +190,6 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 					</li></ul>
 			</div>
 		</div>
-	
-		
 
 		<div class="endpoint" id="GET-/api/v0/export/{id}/download">
 			<div class="endpoint-top">
@@ -219,8 +216,6 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 					</li></ul>
 			</div>
 		</div>
-	
-		
 
 		<div class="endpoint" id="POST-/api/v0/export">
 			<div class="endpoint-top">
@@ -252,10 +247,56 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 					</li></ul>
 			</div>
 		</div>
-	
+			</div><div>
+			<h3 id="user" class="js-expand">user
+				<a class="permalink" href="#user">§</a></h3>
+
+		<div class="endpoint" id="GET-/api/v0/me">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/me</code>
+				Get information about the current user and API key.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fme">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.meResponse">handlers.meResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
 
 	<h2>Models</h2>
 	
+		<h3 id="goatcounter.APIToken">goatcounter.APIToken <a class="permalink" href="#goatcounter.APIToken">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>name <sup>string</sup></h4>
+<p></p>
+<h4>permissions <sup></sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="goatcounter.APITokenPermissions">goatcounter.APITokenPermissions <a class="permalink" href="#goatcounter.APITokenPermissions">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>count <sup>boolean</sup></h4>
+<p></p>
+<h4>export <sup>boolean</sup></h4>
+<p></p>
+
+		</div>
 		<h3 id="goatcounter.Export">goatcounter.Export <a class="permalink" href="#goatcounter.Export">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
@@ -279,6 +320,31 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 <p>SHA256 hash.</p>
 <h4>error <sup>string [readonly]</sup></h4>
 <p>Any errors that may have occured.</p>
+
+		</div>
+		<h3 id="goatcounter.User">goatcounter.User <a class="permalink" href="#goatcounter.User">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">User entry.</p>
+			<h4>id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>site <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>email <sup>string</sup></h4>
+<p></p>
+<h4>email_verified <sup>boolean [readonly]</sup></h4>
+<p></p>
+<h4>totp_enabled <sup>boolean [readonly]</sup></h4>
+<p></p>
+<h4>role <sup>string [readonly]</sup></h4>
+<p></p>
+<h4>login_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>reset_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>updated_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
 
 		</div>
 		<h3 id="handlers.apiCountRequest">handlers.apiCountRequest <a class="permalink" href="#handlers.apiCountRequest">§</a></h3>
@@ -350,6 +416,15 @@ identifier.</p><p>You can also just disable sessions entirely with NoSessions.</
 		<div class="endpoint model">
 			<p class="info"></p>
 			<h4>Error <sup>string</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.meResponse">handlers.meResponse <a class="permalink" href="#handlers.meResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>user <sup></sup></h4>
+<p></p>
+<h4>token <sup></sup></h4>
 <p></p>
 
 		</div>

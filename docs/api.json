@@ -22,6 +22,9 @@
     },
     {
       "name": "export"
+    },
+    {
+      "name": "user"
     }
   ],
   "paths": {
@@ -30,7 +33,7 @@
         "consumes": [
           "application/json"
         ],
-        "description": "This can count one or more pageviews. Pageviews are not persisted immediatly,\nbut persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 100.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.",
+        "description": "This can count one or more pageviews. Pageviews are not persisted immediatly,\nbut persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 100.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.\n\nThe response header has the X-Goatcounter-Memstore header set to the time of\nthe last time pageviews were persisted to the database. This is useful if you\nwant to (roughly) sync up with this.",
         "operationId": "POST_api_v0_count",
         "parameters": [
           {
@@ -191,9 +194,65 @@
           "export"
         ]
       }
+    },
+    "/api/v0/me": {
+      "get": {
+        "operationId": "GET_api_v0_me",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.meResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get information about the current user and API key.",
+        "tags": [
+          "user"
+        ]
+      }
     }
   },
   "definitions": {
+    "goatcounter.APIToken": {
+      "title": "APIToken",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "permissions": {
+          "$ref": "#/definitions/goatcounter.APITokenPermissions"
+        }
+      }
+    },
+    "goatcounter.APITokenPermissions": {
+      "title": "APITokenPermissions",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "boolean"
+        },
+        "export": {
+          "type": "boolean"
+        }
+      }
+    },
     "goatcounter.Export": {
       "title": "Export",
       "type": "object",
@@ -243,6 +302,56 @@
         "start_from_hit_id": {
           "description": "The hit ID this export was started from.",
           "type": "integer"
+        }
+      }
+    },
+    "goatcounter.User": {
+      "title": "User",
+      "description": "User entry.",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string"
+        },
+        "email_verified": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "login_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "reset_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "role": {
+          "type": "string",
+          "readOnly": true
+        },
+        "site": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "totp_enabled": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -351,6 +460,18 @@
       "properties": {
         "Error": {
           "type": "string"
+        }
+      }
+    },
+    "handlers.meResponse": {
+      "title": "meResponse",
+      "type": "object",
+      "properties": {
+        "token": {
+          "$ref": "#/definitions/goatcounter.APIToken"
+        },
+        "user": {
+          "$ref": "#/definitions/goatcounter.User"
         }
       }
     }
