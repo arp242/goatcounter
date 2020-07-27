@@ -4,9 +4,11 @@
 	<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>?<br>
 	This will <strong>remove all associated data</strong>.
 </p>
+{{if .GoatcounterCom}}
 <p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
 	something else, like merge it in to the parent site, or decouple it from the
 	parent site.</p>
+{{end}}
 
 <form method="post">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">

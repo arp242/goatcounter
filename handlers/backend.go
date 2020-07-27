@@ -39,6 +39,7 @@ import (
 	"zgo.at/zhttp/header"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -806,10 +807,6 @@ func (h backend) downloadExport(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) error {
-	if !cfg.GoatcounterCom {
-		return guru.New(400, "can only do this in SaaS mode")
-	}
-
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -829,10 +826,6 @@ func (h backend) removeSubsiteConfirm(w http.ResponseWriter, r *http.Request) er
 }
 
 func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
-	if !cfg.GoatcounterCom {
-		return guru.New(400, "can only do this in SaaS mode")
-	}
-
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
@@ -850,18 +843,15 @@ func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "Site ‘%s ’removed.", s.Code)
+	zhttp.Flash(w, "Site ‘%s ’removed.", s.URL())
 	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 }
 
 func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
-	if !cfg.GoatcounterCom {
-		return guru.New(400, "can only do this in SaaS mode")
+	var args struct {
+		Code  string `json:"code"`
+		Cname string `json:"cname"`
 	}
-
-	args := struct {
-		Code string `json:"code"`
-	}{}
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		return err
@@ -869,18 +859,33 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 
 	parent := Site(r.Context())
 	site := goatcounter.Site{
-		Code:     args.Code,
 		Parent:   &parent.ID,
 		Plan:     goatcounter.PlanChild,
 		Settings: parent.Settings,
 	}
-	err = site.Insert(r.Context())
+	if cfg.GoatcounterCom {
+		site.Code = args.Code
+	} else {
+		site.Code = "serve-" + zcrypto.Secret64()
+		site.Cname = &args.Cname
+	}
+
+	err = zdb.TX(r.Context(), func(ctx context.Context, tx zdb.DB) error {
+		err := site.Insert(ctx)
+		if err != nil {
+			return err
+		}
+		if !cfg.GoatcounterCom {
+			return site.UpdateCnameSetupAt(ctx)
+		}
+		return nil
+	})
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 		return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 	}
 
-	zhttp.Flash(w, "Site ‘%s’ added.", site.Code)
+	zhttp.Flash(w, "Site ‘%s’ added.", site.URL())
 	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
 }
 
