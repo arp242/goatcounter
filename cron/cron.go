@@ -23,7 +23,7 @@ type task struct {
 }
 
 var tasks = []task{
-	{persistAndStat, 10 * time.Second},
+	{PersistAndStat, 10 * time.Second},
 	{DataRetention, 1 * time.Hour},
 	{renewACME, 2 * time.Hour},
 	{vacuumDeleted, 12 * time.Hour},

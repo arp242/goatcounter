@@ -201,8 +201,13 @@ func doServe(db *sqlx.DB, test bool, listen string, listenTLS uint8, tlsc *tls.C
 		os.Exit(99)
 	}()
 
-	bgrun.Run("memstore:persist", func() { goatcounter.Memstore.StoreSessions(db) })
-	bgrun.Run("cron:shutdown", func() { cron.RunOnce(db) })
+	bgrun.Run("shutdown", func() {
+		err := cron.PersistAndStat(zdb.With(context.Background(), db))
+		if err != nil {
+			zlog.Error(err)
+		}
+		goatcounter.Memstore.StoreSessions(db)
+	})
 	zlog.Print("Waiting for background tasks to finish; send HUP, TERM, or INT twice to force kill (may lose data!)")
 	time.Sleep(10 * time.Millisecond)
 	bgrun.WaitProgressAndLog()
@@ -265,7 +270,7 @@ func setupServe(dbConnect, flagTLS string, automigrate bool) (*sqlx.DB, *tls.Con
 	}
 
 	cron.RunBackground(db)
-	bgrun.Run("cron:start", func() {
+	bgrun.Run("cron:start", func() { // Run all jobs on startup.
 		time.Sleep(3 * time.Second)
 		cron.RunOnce(db)
 	})

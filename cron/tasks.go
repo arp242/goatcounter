@@ -96,7 +96,7 @@ func (l *lastMemstore) Set(t time.Time) {
 
 var LastMemstore lastMemstore
 
-func persistAndStat(ctx context.Context) error {
+func PersistAndStat(ctx context.Context) error {
 	l := zlog.Module("cron")
 
 	hits, err := goatcounter.Memstore.Persist(ctx)
