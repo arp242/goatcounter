@@ -11777,40 +11777,47 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (!nav.length)
 			return;
 
-		var tabs = '',
-			active = location.hash.substr(5) || 'setting',
-			valid = !!$('#' + active).length;
-		$('.page > div').each(function(i, elem) {
-			var h2 = $(elem).find('h2');
-			if (!h2.length)
-				return;
+		var tabs    = '',
+			active  = location.hash.substr(5) || 'setting',
+			tab     = $('#' + active),
+			section = $('#section-' + active),
+			valid   = !!(tab.length || section.length)
+		// Link to a specific section for highlighting: set correct tab page.
+		if (!tab.length && section.length && location.hash.length > 2)
+			active = section.closest('.tab-page').find('h2').attr('id')
 
-			var klass = '';
+		$('.page > div').each(function(i, elem) {
+			var h2 = $(elem).find('h2')
+			if (!h2.length)
+				return
+
+			var klass = ''
+			// Only hide stuff if it's a tab we know about, to prevent nothing
+			// being displayed.
 			if (valid)
 				if (h2.attr('id') !== active)
-					$(elem).css('display', 'none');
+					$(elem).css('display', 'none')
 				else
-					klass = 'active';
+					klass = 'active'
 
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
-		});
-
-		nav.html(tabs);
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>'
+		})
+		nav.html(tabs)
 		nav.on('click', 'a', function() {
-			nav.find('a').removeClass('active');
-			$(this).addClass('active');
-		});
+			nav.find('a').removeClass('active')
+			$(this).addClass('active')
+		})
 
 		$(window).on('hashchange', function() {
 			if (location.hash === '')
-				return;
+				return
 
 			var tab = $('#' + location.hash.substr(5)).parent()
 			if (!tab.length)
-				return;
-			$('.page > div').css('display', 'none');
-			tab.css('display', 'block');
-		});
+				return
+			$('.page > div').css('display', 'none')
+			tab.css('display', 'block')
+		})
 	}
 
 	// Fill in start/end periods from buttons.
@@ -17001,9 +17008,11 @@ depending on whether daylight savings time is in use at the time instant.</p>
 	<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>?<br>
 	This will <strong>remove all associated data</strong>.
 </p>
+{{if .GoatcounterCom}}
 <p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
 	something else, like merge it in to the parent site, or decouple it from the
 	parent site.</p>
+{{end}}
 
 <form method="post">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -17016,13 +17025,13 @@ depending on whether daylight savings time is in use at the time instant.</p>
 
 <nav class="tab-nav"></nav>
 
-<div>
+<div class="tab-page">
 	<h2 id="setting">Settings</h2>
 	<div class="form-wrap">
 		<form method="post" action="/save-settings" class="vertical">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-			<fieldset>
+			<fieldset id="section-site">
 				<legend>Site settings</legend>
 				<label for="link_domain">Your site</label>
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
@@ -17030,7 +17039,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 			</fieldset>
 
-			<fieldset>
+			<fieldset id="section-domain">
 				<legend>Domain settings</legend>
 
 				{{if .GoatcounterCom}}
@@ -17074,7 +17083,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				{{end}}
 			</fieldset>
 
-			<fieldset>
+			<fieldset id="section-user-pref">
 				<legend>User info and preferences</legend>
 
 				<label for="user.email">Your email</label>
@@ -17091,7 +17100,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				{{validate "site.settings.limits.ref" .Validate}}
 			</fieldset>
 
-			<fieldset>
+			<fieldset id="section-l10n">
 				<legend>Localisation preferences</legend>
 
 				<label for="date_format">Date format</label>
@@ -17130,7 +17139,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
 			</fieldset>
 
-			<fieldset>
+			<fieldset id="section-tracking">
 				<legend>Tracking</legend>
 
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
@@ -17161,7 +17170,6 @@ depending on whether daylight savings time is in use at the time instant.</p>
 					header.{{/* <a href="/code#campaigns">Details</a>.
 					Comma-separated; first match takes precedence.*/}}
 				</span>
-
 			</fieldset>
 
 			<div class="flex-break"></div>
@@ -17176,45 +17184,53 @@ depending on whether daylight savings time is in use at the time instant.</p>
 	</div>
 </div>
 
-{{if .GoatcounterCom}}
-	<div>
-		<h2 id="additional-sites">Additional sites</h2>
-		{{if .Site.Parent}}
-			This site has a parent and can't have additional sites of its own.
-			<a href="{{parent_site .Context .Site.Parent}}/settings#tab-additional-sites">Manage the parent’s sites</a>.
-		{{else}}
-			<p>Add GoatCounter to multiple websites by creating a “child site”,
-				which is a separate GoatCounter site which inherits the plan, users,
-				and logins from the current site, but is otherwise completely
-				separate. The current site’s settings are copied on creation, but
-				are independent afterwards; the only limitation is that child
-				sites can’t have child sites of their own.</p>
-			<p>You can add as many as you want.</p>
+<div class="tab-page">
+	<h2 id="additional-sites">Additional sites</h2>
+	{{if .Site.Parent}}
+		This site has a parent and can't have additional sites of its own.
+		<a href="{{parent_site .Context .Site.Parent}}/settings#tab-additional-sites">Manage the parent’s sites</a>.
+	{{else}}
+		<p>Add GoatCounter to multiple websites by creating a “child site”,
+			which is a separate GoatCounter site which inherits the plan, users,
+			and logins from the current site, but is otherwise completely
+			separate. The current site’s settings are copied on creation, but
+			are independent afterwards; the only limitation is that child
+			sites can’t have child sites of their own.</p>
+		<p>You can add as many as you want.</p>
 
-			<form method="post" action="/add">
-				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-				<table class="auto table-left">
-					<thead><tr><th>Code</th><th></th></tr></thead>
-					<tbody>
-						{{range $s := .SubSites}}<tr>
+		<form method="post" action="/add">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+			<table class="auto table-left">
+				<thead><tr><th>{{if .GoatcounterCom}}Code{{else}}Domain{{end}}</th><th></th></tr></thead>
+				<tbody>
+					{{range $s := .SubSites}}<tr>
+						{{if $.GoatcounterCom}}
 							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
 							<td><a href="/remove/{{$s.ID}}">delete</a></td>
-						</tr>{{end}}
+						{{else}}
+							<td><a href="//{{$s.URL}}">{{$s.URL}}</a></td>
+							<td><a href="/remove/{{$s.ID}}">delete</a></td>
+						{{end}}
+					</tr>{{end}}
 
-						<tr>
-							<td>
+					<tr>
+						<td>
+							{{if $.GoatcounterCom}}
 								<input type="text" id="code" name="code" placeholder="Code"><br>
 								<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
-							</td>
-							<td><button type="submit">Add new</button></td>
-						</tr>
-				</tbody></table>
-			</form>
-		{{end}}
-	</div>
-{{end}}
+							{{else}}
+								<input type="text" id="cname" name="cname" placeholder="Domain"><br>
+								<span class="help">Domain for the new site.</span>
+							{{end}}
+						</td>
+						<td><button type="submit">Add new</button></td>
+					</tr>
+			</tbody></table>
+		</form>
+	{{end}}
+</div>
 
-<div>
+<div class="tab-page">
 	<h2 id="purge">Purge</h2>
 	<p>Remove all instances of a page.</p>
 
@@ -17237,7 +17253,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 	</form>
 </div>
 
-<div>
+<div class="tab-page">
 	<h2 id="export">Export/Import</h2>
 
 	<div class="flex-form">
@@ -17319,7 +17335,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 	incompatibilities will be documented here.</p>
 </div>
 
-<div>
+<div class="tab-page">
 	<h2 id="auth">Password, MFA, API</h2>
 
 	<div class="flex-form">
@@ -17438,7 +17454,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 	</form>
 </div>
 
-<div>
+<div class="tab-page">
 	<h2 id="delete">Delete {{if or .Site.Parent (not .GoatcounterCom)}}site{{else}}account{{end}}</h2>
 	{{if .Site.Parent}}
 		<p>Note this site has a parent

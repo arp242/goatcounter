@@ -7,6 +7,7 @@ package gctest
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/mattn/go-sqlite3"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
@@ -38,6 +40,12 @@ var (
 	db     *sqlx.DB
 	tables []string
 )
+
+func init() {
+	sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
+		ConnectHook: goatcounter.SQLiteHook,
+	})
+}
 
 // DB starts a new database test.
 func DB(t tester) (context.Context, func()) {

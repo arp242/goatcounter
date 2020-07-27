@@ -454,40 +454,47 @@
 		if (!nav.length)
 			return;
 
-		var tabs = '',
-			active = location.hash.substr(5) || 'setting',
-			valid = !!$('#' + active).length;
-		$('.page > div').each(function(i, elem) {
-			var h2 = $(elem).find('h2');
-			if (!h2.length)
-				return;
+		var tabs    = '',
+			active  = location.hash.substr(5) || 'setting',
+			tab     = $('#' + active),
+			section = $('#section-' + active),
+			valid   = !!(tab.length || section.length)
+		// Link to a specific section for highlighting: set correct tab page.
+		if (!tab.length && section.length && location.hash.length > 2)
+			active = section.closest('.tab-page').find('h2').attr('id')
 
-			var klass = '';
+		$('.page > div').each(function(i, elem) {
+			var h2 = $(elem).find('h2')
+			if (!h2.length)
+				return
+
+			var klass = ''
+			// Only hide stuff if it's a tab we know about, to prevent nothing
+			// being displayed.
 			if (valid)
 				if (h2.attr('id') !== active)
-					$(elem).css('display', 'none');
+					$(elem).css('display', 'none')
 				else
-					klass = 'active';
+					klass = 'active'
 
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>';
-		});
-
-		nav.html(tabs);
+			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>'
+		})
+		nav.html(tabs)
 		nav.on('click', 'a', function() {
-			nav.find('a').removeClass('active');
-			$(this).addClass('active');
-		});
+			nav.find('a').removeClass('active')
+			$(this).addClass('active')
+		})
 
 		$(window).on('hashchange', function() {
 			if (location.hash === '')
-				return;
+				return
 
 			var tab = $('#' + location.hash.substr(5)).parent()
 			if (!tab.length)
-				return;
-			$('.page > div').css('display', 'none');
-			tab.css('display', 'block');
-		});
+				return
+			$('.page > div').css('display', 'none')
+			tab.css('display', 'block')
+		})
 	}
 
 	// Fill in start/end periods from buttons.

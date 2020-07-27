@@ -64,6 +64,10 @@ master branch
   `#toggle-goatcounter` added will enable/disable the GoatCounter tracking for
   that browser.
 
+- Can now manage "additional sites" from self-hosted GoatCounter (#363)
+
+  This wasn't possible before for no other reason than laziness on my part 🙃
+
 - public/count.js is now ISC licensed (#309)
 
   Previously the EUPL applied, which is fairly restrictive and may prevent

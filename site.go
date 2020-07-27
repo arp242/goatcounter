@@ -321,9 +321,12 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
+	n := Now()
+	s.CnameSetupAt = &n
+
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set cname_setup_at=$1 where id=$2`,
-		Now().Format(zdb.Date), s.ID)
+		s.CnameSetupAt.Format(zdb.Date), s.ID)
 	return errors.Wrap(err, "Site.UpdateCnameSetupAt")
 }
 
