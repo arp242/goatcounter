@@ -24,6 +24,9 @@
       "name": "export"
     },
     {
+      "name": "sites"
+    },
+    {
       "name": "user"
     }
   ],
@@ -226,6 +229,222 @@
           "user"
         ]
       }
+    },
+    "/api/v0/sites": {
+      "get": {
+        "operationId": "GET_api_v0_sites",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiSitesResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "List the current site and all additional sites.",
+        "tags": [
+          "sites"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "PUT_api_v0_sites",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "goatcounter.Site",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Create a new site.",
+        "tags": [
+          "sites"
+        ]
+      }
+    },
+    "/api/v0/sites/{id}": {
+      "get": {
+        "description": "Get all information about one site.",
+        "operationId": "GET_api_v0_sites_{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get information about a site.",
+        "tags": [
+          "sites"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "A POST request will *replace* the entire site with what's sent, blanking out\nany existing fields that may exist. A PATCH request will only update the\nfields that are sent.",
+        "operationId": "POST_api_v0_sites_{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "handlers.apiSiteUpdateRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.apiSiteUpdateRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Update a site.",
+        "tags": [
+          "sites"
+        ]
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "A POST request will *replace* the entire site with what's sent, blanking out\nany existing fields that may exist. A PATCH request will only update the\nfields that are sent.",
+        "operationId": "PATCH_api_v0_sites_{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "handlers.apiSiteUpdateRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.apiSiteUpdateRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Update a site.",
+        "tags": [
+          "sites"
+        ]
+      }
     }
   },
   "definitions": {
@@ -249,6 +468,15 @@
           "type": "boolean"
         },
         "export": {
+          "type": "boolean"
+        },
+        "site_create": {
+          "type": "boolean"
+        },
+        "site_read": {
+          "type": "boolean"
+        },
+        "site_update": {
           "type": "boolean"
         }
       }
@@ -302,6 +530,112 @@
         "start_from_hit_id": {
           "description": "The hit ID this export was started from.",
           "type": "integer"
+        }
+      }
+    },
+    "goatcounter.Site": {
+      "title": "Site",
+      "type": "object",
+      "properties": {
+        "cname": {
+          "description": "Custom domain, e.g. \"stats.example.com\"",
+          "type": "string"
+        },
+        "cname_setup_at": {
+          "description": "When the CNAME was verified.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "code": {
+          "description": "Domain code (arp242, which makes arp242.goatcounter.com)",
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "link_domain": {
+          "description": "Site domain for linking (www.arp242.net).",
+          "type": "string"
+        },
+        "parent": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "plan": {
+          "type": "string"
+        },
+        "received_data": {
+          "description": "Whether this site has received any data; will be true after the first\npageview.",
+          "type": "boolean"
+        },
+        "setttings": {
+          "$ref": "#/definitions/goatcounter.SiteSettings"
+        },
+        "state": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "goatcounter.SiteSettings": {
+      "title": "SiteSettings",
+      "type": "object",
+      "properties": {
+        "campaigns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_retention": {
+          "type": "integer"
+        },
+        "date_format": {
+          "type": "string"
+        },
+        "ignore_ips": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "hchart": {
+              "type": "integer"
+            },
+            "page": {
+              "type": "integer"
+            },
+            "ref": {
+              "type": "integer"
+            }
+          }
+        },
+        "number_format": {
+          "type": "string"
+        },
+        "public": {
+          "type": "boolean"
+        },
+        "sunday_starts_week": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "$ref": "#/definitions/tz.Zone"
+        },
+        "twenty_four_hours": {
+          "type": "boolean"
         }
       }
     },
@@ -454,6 +788,33 @@
         }
       }
     },
+    "handlers.apiSiteUpdateRequest": {
+      "title": "apiSiteUpdateRequest",
+      "type": "object",
+      "properties": {
+        "cname": {
+          "type": "string"
+        },
+        "link_domain": {
+          "type": "string"
+        },
+        "settings": {
+          "$ref": "#/definitions/goatcounter.SiteSettings"
+        }
+      }
+    },
+    "handlers.apiSitesResponse": {
+      "title": "apiSitesResponse",
+      "type": "object",
+      "properties": {
+        "sites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.Site"
+          }
+        }
+      }
+    },
     "handlers.authError": {
       "title": "authError",
       "type": "object",
@@ -472,6 +833,33 @@
         },
         "user": {
           "$ref": "#/definitions/goatcounter.User"
+        }
+      }
+    },
+    "tz.Zone": {
+      "title": "Zone",
+      "description": "Zone represents a time zone.",
+      "type": "object",
+      "properties": {
+        "Abbr": {
+          "description": "WITA",
+          "type": "string"
+        },
+        "Comments": {
+          "description": "Borneo (east, south); Sulawesi/Celebes, Bali, Nusa Tengarra; Timor (west)",
+          "type": "string"
+        },
+        "CountryCode": {
+          "description": "ID",
+          "type": "string"
+        },
+        "CountryName": {
+          "description": "Indonesia",
+          "type": "string"
+        },
+        "Zone": {
+          "description": "Asia/Makassar",
+          "type": "string"
         }
       }
     }

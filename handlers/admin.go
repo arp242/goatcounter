@@ -65,7 +65,7 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 	l = l.Since("stats")
 
 	var sites goatcounter.Sites
-	err = sites.List(r.Context())
+	err = sites.UnscopedList(r.Context())
 	if err != nil {
 		return err
 	}

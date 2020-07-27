@@ -58,7 +58,7 @@ func oldExports(ctx context.Context) error {
 
 func DataRetention(ctx context.Context) error {
 	var sites goatcounter.Sites
-	err := sites.List(ctx)
+	err := sites.UnscopedList(ctx)
 	if err != nil {
 		return err
 	}
@@ -234,7 +234,7 @@ func renewACME(ctx context.Context) error {
 	}
 
 	var sites goatcounter.Sites
-	err := sites.ListCnames(ctx)
+	err := sites.UnscopedListCnames(ctx)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -22,6 +21,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/handlers"
+	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
@@ -339,7 +339,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 			err = site.ByID(ctx, siteID)
 		case siteFlag == "":
 			var sites goatcounter.Sites
-			err := sites.List(ctx)
+			err := sites.UnscopedList(ctx)
 			if err != nil {
 				return "", "", nil, err
 			}

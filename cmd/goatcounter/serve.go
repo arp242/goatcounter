@@ -353,7 +353,7 @@ func flagFrom(from string, v *zvalidate.Validator) {
 
 func lsSites(db zdb.DB) ([]string, error) {
 	var sites goatcounter.Sites
-	err := sites.List(zdb.With(context.Background(), db))
+	err := sites.UnscopedList(zdb.With(context.Background(), db))
 	if err != nil {
 		return nil, err
 	}

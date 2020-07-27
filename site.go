@@ -45,24 +45,33 @@ var reserved = []string{
 var statTables = []string{"hit_stats", "system_stats", "browser_stats",
 	"location_stats", "size_stats"}
 
-// Site is a single site which is sending newsletters (i.e. it's a "customer").
 type Site struct {
-	ID     int64  `db:"id"`
-	Parent *int64 `db:"parent"`
+	ID     int64  `db:"id" json:"id,readonly"`
+	Parent *int64 `db:"parent" json:"parent,readonly"`
 
-	Cname         *string      `db:"cname"` // Custom domain, e.g. "stats.example.com"
-	CnameSetupAt  *time.Time   `db:"cname_setup_at"`
-	Code          string       `db:"code"`        // Domain code (arp242, which makes arp242.goatcounter.com)
-	LinkDomain    string       `db:"link_domain"` // Site domain for linking (www.arp242.net).
-	Plan          string       `db:"plan"`
-	Stripe        *string      `db:"stripe"`
-	BillingAmount *string      `db:"billing_amount"`
-	Settings      SiteSettings `db:"settings"`
-	ReceivedData  bool         `db:"received_data"`
+	// Custom domain, e.g. "stats.example.com"
+	Cname *string `db:"cname" json:"cname"`
 
-	State     string     `db:"state"`
-	CreatedAt time.Time  `db:"created_at"`
-	UpdatedAt *time.Time `db:"updated_at"`
+	// When the CNAME was verified.
+	CnameSetupAt *time.Time `db:"cname_setup_at" json:"cname_setup_at,readonly"`
+
+	// Domain code (arp242, which makes arp242.goatcounter.com)
+	Code string `db:"code" json:"code"`
+
+	// Site domain for linking (www.arp242.net).
+	LinkDomain    string       `db:"link_domain" json:"link_domain"`
+	Plan          string       `db:"plan" json:"plan"`
+	Stripe        *string      `db:"stripe" json:"-"`
+	BillingAmount *string      `db:"billing_amount" json:"-"`
+	Settings      SiteSettings `db:"settings" json:"setttings"`
+
+	// Whether this site has received any data; will be true after the first
+	// pageview.
+	ReceivedData bool `db:"received_data" json:"received_data"`
+
+	State     string     `db:"state" json:"state"`
+	CreatedAt time.Time  `db:"created_at" json:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
 }
 
 type SiteSettings struct {
@@ -548,15 +557,16 @@ func (s Site) Admin() bool {
 // Sites is a list of sites.
 type Sites []Site
 
-// List all sites.
-func (s *Sites) List(ctx context.Context) error {
+// UnscopedList lists all sites, not scoped to the current user.
+func (s *Sites) UnscopedList(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
 		`/* Sites.List */ select * from sites where state=$1`,
 		StateActive), "Sites.List")
 }
 
-// ListCnames all sites that have CNAME set.
-func (s *Sites) ListCnames(ctx context.Context) error {
+// UnscopedListCnames all sites that have CNAME set, not scoped to the current
+// user.
+func (s *Sites) UnscopedListCnames(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, `/* Sites.ListCnames */
 		select * from sites where state=$1 and cname is not null`,
 		StateActive), "Sites.List")

@@ -131,7 +131,7 @@ func reindex() (int, error) {
 	}
 
 	var sites goatcounter.Sites
-	err = sites.List(ctx)
+	err = sites.UnscopedList(ctx)
 	if err != nil {
 		return 1, err
 	}

@@ -58,6 +58,14 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 	a.Get("/api/v0/export/{id}/download", zhttp.Wrap(h.exportDownload))
 
 	a.Post("/api/v0/count", zhttp.Wrap(h.count))
+
+	// Note: DELETE not supported for sites and users intentionally, since it's
+	// such a dangerous operation.
+	a.Get("/api/v0/sites", zhttp.Wrap(h.siteList))
+	a.Put("/api/v0/sites", zhttp.Wrap(h.siteCreate))
+	a.Get("/api/v0/sites/{id}", zhttp.Wrap(h.siteGet))
+	a.Post("/api/v0/sites/{id}", zhttp.Wrap(h.siteUpdate))  // Update all
+	a.Patch("/api/v0/sites/{id}", zhttp.Wrap(h.siteUpdate)) // Update just fields given
 }
 
 func tokenFromHeader(r *http.Request) (string, error) {
@@ -443,4 +451,152 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("X-Goatcounter-Memstore", cron.LastMemstore.Get().Format(time.RFC3339Nano))
 	w.WriteHeader(http.StatusAccepted)
 	return zhttp.JSON(w, respOK)
+}
+
+type apiSitesResponse struct {
+	Sites goatcounter.Sites `json:"sites"`
+}
+
+// GET /api/v0/sites sites
+// List the current site and all additional sites.
+//
+// Response 200: apiSitesResponse
+func (h api) siteList(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, goatcounter.APITokenPermissions{
+		SiteRead: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	sites := goatcounter.Sites{*goatcounter.MustGetSite(r.Context())}
+	err = sites.ListSubs(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, apiSitesResponse{sites})
+}
+
+func (h api) siteFind(r *http.Request) (*goatcounter.Site, error) {
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return nil, v
+	}
+
+	var site goatcounter.Site
+	err := site.ByID(r.Context(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	siteID := Site(r.Context()).ID
+	if !(site.ID == siteID || (site.Parent != nil && *site.Parent == siteID)) {
+		return nil, guru.New(404, "")
+	}
+
+	return &site, nil
+}
+
+// GET /api/v0/sites/{id} sites
+// Get information about a site.
+//
+// Get all information about one site.
+//
+// Response 200: goatcounter.Site
+func (h api) siteGet(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, goatcounter.APITokenPermissions{
+		SiteRead: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	site, err := h.siteFind(r)
+	if err != nil {
+		return err
+	}
+	return zhttp.JSON(w, site)
+}
+
+// PUT /api/v0/sites sites
+// Create a new site.
+//
+// Request body: goatcounter.Site
+// Response 200: goatcounter.Site
+func (h api) siteCreate(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, goatcounter.APITokenPermissions{
+		SiteCreate: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	var site goatcounter.Site
+	_, err = zhttp.Decode(r, &site)
+	if err != nil {
+		return err
+	}
+
+	site.Parent = &Site(r.Context()).ID
+	site.Plan = goatcounter.PlanChild
+	err = site.Insert(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, site)
+}
+
+type apiSiteUpdateRequest struct {
+	Settings   goatcounter.SiteSettings `json:"settings"`
+	Cname      *string                  `json:"cname"`
+	LinkDomain string                   `json:"link_domain"`
+}
+
+// POST /api/v0/sites/{id} sites
+// PATCH /api/v0/sites/{id} sites
+// Update a site.
+//
+// A POST request will *replace* the entire site with what's sent, blanking out
+// any existing fields that may exist. A PATCH request will only update the
+// fields that are sent.
+//
+// Request body: apiSiteUpdateRequest
+// Response 200: goatcounter.Site
+func (h api) siteUpdate(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, goatcounter.APITokenPermissions{
+		SiteUpdate: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	site, err := h.siteFind(r)
+	if err != nil {
+		return err
+	}
+
+	var args apiSiteUpdateRequest
+	if r.Method == http.MethodPatch {
+		args.LinkDomain = site.LinkDomain
+		args.Cname = site.Cname
+		args.Settings = site.Settings
+	}
+
+	_, err = zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	site.LinkDomain = args.LinkDomain
+	site.Cname = args.Cname
+	site.Settings = args.Settings
+	err = site.Update(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, site)
 }

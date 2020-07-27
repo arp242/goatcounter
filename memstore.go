@@ -9,7 +9,6 @@ import (
 	"crypto/sha256"
 	"encoding"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -17,6 +16,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zlog"
