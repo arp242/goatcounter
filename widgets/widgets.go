@@ -41,6 +41,7 @@ type (
 		TotalUnique    int
 		AllTotalUnique int
 		Max            int
+		Refs           goatcounter.Stats
 	}
 )
 
@@ -56,6 +57,16 @@ func NewList(want []string) (List, error) {
 		list[i] = wid
 	}
 	return list, nil
+}
+
+func (l List) Get(name string) Widget {
+	// For a short list using a loop is usually faster.
+	for _, w := range l {
+		if w.Name() == name {
+			return w
+		}
+	}
+	return nil
 }
 
 func (l List) Totals() (total, unique, allUnique, max int) {
@@ -74,6 +85,16 @@ func (l List) Totals() (total, unique, allUnique, max int) {
 		}
 	}
 	return
+}
+
+func (l List) Refs() goatcounter.Stats {
+	for _, w := range l {
+		if w.Name() == "refs" {
+			ww := w.(*Refs)
+			return ww.Refs
+		}
+	}
+	panic("should never happen")
 }
 
 func New(name string) (Widget, error) {

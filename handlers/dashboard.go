@@ -112,13 +112,13 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	shared := widgets.SharedData{
-		Args: args,
-		Site: site,
-	}
+	shared := widgets.SharedData{Args: args, Site: site}
 	shared.Total, shared.TotalUnique, shared.AllTotalUnique, shared.Max = widgetList.Totals()
 	if shared.AllTotalUnique == 0 {
 		shared.AllTotalUnique = shared.TotalUnique
+	}
+	if showRefs != "" {
+		shared.Refs = widgetList.Refs()
 	}
 
 	// Render templates.

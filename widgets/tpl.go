@@ -49,7 +49,7 @@ func (w Pages) TemplateData(ctx context.Context, shared SharedData) (string, int
 		ctx, w.Pages, shared.Site, shared.Args.Start, shared.Args.End, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, shared.Max, w.Display,
 		w.UniqueDisplay, shared.Total, shared.TotalUnique,
-		w.More, w.Refs, shared.Args.ShowRefs,
+		w.More, shared.Refs, shared.Args.ShowRefs,
 	}
 }
 
