@@ -16,7 +16,8 @@ notifications:
 
 before_cache:
   # Don't cache the log file and downloads.
-  - 'rm -rf $GOCACHE/log.txt $GOPATH/pkg/mod/cache/vcs'
+  #- 'rm -rf $GOCACHE/log.txt $GOPATH/pkg/mod/cache/vcs'
+  - 'rm -rf $HOME/.cache/go-build/log.txt $GOPATH/pkg/mod/cache/vcs'
 
 script:
   - 'go run ./cmd/check ./...'
