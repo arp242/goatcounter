@@ -10,12 +10,13 @@ go_import_path: 'zgo.at/goatcounter'
 env: ['GO111MODULE=on']
 cache:
   directories:
-    - '$HOME/.cache/go-build'
+    - '$GOCACHE'
 notifications:
   email: false
 
 before_cache:
-  - 'rm -rf $HOME/.cache/go-build/log.txt $GOPATH/pkg/mod/cache/vcs'
+  # Don't cache the log file and downloads.
+  - 'rm -rf $GOCACHE/log.txt $GOPATH/pkg/mod/cache/vcs'
 
 script:
   - 'go run ./cmd/check ./...'
