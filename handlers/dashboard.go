@@ -5,16 +5,15 @@
 package handlers
 
 import (
-	"context"
 	"html/template"
 	"net/http"
-	"sort"
 	"sync"
 	"time"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/widgets"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
@@ -23,46 +22,6 @@ import (
 )
 
 const day = 24 * time.Hour
-
-type widget struct {
-	Name string
-	Type string // "full-width", "hchart"
-	HTML template.HTML
-}
-
-type widgets struct {
-	sync.Mutex
-	w []widget
-}
-
-func (ws *widgets) Append(w widget) {
-	ws.Lock()
-	ws.w = append(ws.w, w)
-	ws.Unlock()
-}
-
-type dashboardData struct {
-	total, totalUnique, allTotalUnique int
-
-	pages struct {
-		display, uniqueDisplay int
-		max                    int
-		more                   bool
-		pages                  goatcounter.HitStats
-		refs                   goatcounter.Stats
-	}
-
-	totalPages struct {
-		max   int
-		total goatcounter.HitStat
-	}
-
-	topRefs  goatcounter.Stats
-	browsers goatcounter.Stats
-	systems  goatcounter.Stats
-	sizeStat goatcounter.Stats
-	locStat  goatcounter.Stats
-}
 
 func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
@@ -104,228 +63,90 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	wantWidgets := []string{
-		"totals", // We always need this.
-		"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"}
+	args := widgets.Args{
+		Start:       start,
+		End:         end,
+		Filter:      filter,
+		Daily:       daily,
+		ShowRefs:    showRefs,
+		ForcedDaily: forcedDaily,
+	}
+
+	wantWidgets := goatcounter.GetUser(r.Context()).Widgets()
 	if zstring.Contains(wantWidgets, "pages") {
 		wantWidgets = append(wantWidgets, "max")
 		if showRefs != "" {
 			wantWidgets = append(wantWidgets, "refs")
 		}
 	}
-	if filter != "" {
-		// We need this when filtering as the bottom charts aren't filtered by path (yet).
+	if filter != "" { // Need this as the bottom charts aren't filtered by path (yet).
 		wantWidgets = append(wantWidgets, "alltotals")
 	}
+	widgetList, err := widgets.NewList(wantWidgets)
+	if err != nil {
+		return err
+	}
 
-	// Make the race detector stop complaining; I'm not sure why this is a
-	// problem, the logic here is:
-	//
-	// go [get data]
-	// wg.Wait()
-	//
-	// go [render tpl]
-	// wg.Wait()
-	//
-	// However, the race detector complains about reads in "render tpl" for data
-	// that was written to in "get data". This is not a race, since we wait for
-	// the goroutines to finish with wg.Wait()
-	//
-	// I'm not entirely sure why this is the case, and I can't reproduce it with
-	// simpler examples. So just wrap both blocks in a lock, which seems to fix
-	// it.
-	var stopComplaining sync.Mutex
-
-	var data dashboardData
+	// Load data.
 	err = func() error {
-		stopComplaining.Lock()
-		defer stopComplaining.Unlock()
-
-		widgetData := map[string]func() error{
-			"totals": func() (err error) {
-				data.total, data.totalUnique, err = goatcounter.GetTotalCount(r.Context(), start, end, filter)
-				return err
-			},
-			"alltotals": func() (err error) {
-				_, data.allTotalUnique, err = goatcounter.GetTotalCount(r.Context(), start, end, "")
-				return err
-			},
-			"pages": func() (err error) {
-				data.pages.display, data.pages.uniqueDisplay, data.pages.more, err = data.pages.pages.List(
-					r.Context(), start, end, filter, nil, daily)
-				return err
-			},
-			"max": func() (err error) {
-				data.pages.max, err = goatcounter.GetMax(r.Context(), start, end, filter, daily)
-				return err
-			},
-			"totalpages": func() (err error) {
-				data.totalPages.max, err = data.totalPages.total.Totals(r.Context(), start, end, filter, daily)
-				return err
-			},
-			"refs":      func() (err error) { return data.pages.refs.ListRefsByPath(r.Context(), showRefs, start, end, 0) },
-			"toprefs":   func() (err error) { return data.topRefs.ListTopRefs(r.Context(), start, end, 0) },
-			"browsers":  func() (err error) { return data.browsers.ListBrowsers(r.Context(), start, end, 6, 0) },
-			"systems":   func() (err error) { return data.systems.ListSystems(r.Context(), start, end, 6, 0) },
-			"sizes":     func() (err error) { return data.sizeStat.ListSizes(r.Context(), start, end) },
-			"locations": func() (err error) { return data.locStat.ListLocations(r.Context(), start, end, 6, 0) },
-		}
-
 		var (
-			wg    sync.WaitGroup
-			bgErr = errors.NewGroup(20)
+			wg   sync.WaitGroup
+			errs = errors.NewGroup(20)
 		)
-		for _, w := range wantWidgets {
+		for _, w := range widgetList {
 			wg.Add(1)
-			go func(w string) {
+			go func(w widgets.Widget) {
 				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("data widget", w).FieldsRequest(r) })
 				defer wg.Done()
 
 				l := zlog.Module("dashboard")
-				bgErr.Append(widgetData[w]())
-				l.Since(w)
+				errs.Append(w.GetData(r.Context(), args))
+				l.Since(w.Name())
 			}(w)
 		}
 
 		zsync.Wait(r.Context(), &wg)
-		if bgErr.Len() > 0 {
-			return bgErr
-		}
-		return nil
+		return errs.ErrorOrNil()
 	}()
 	if err != nil {
 		return err
 	}
 
-	if data.allTotalUnique == 0 {
-		data.allTotalUnique = data.totalUnique
+	shared := widgets.SharedData{
+		Args: args,
+		Site: site,
+	}
+	shared.Total, shared.TotalUnique, shared.AllTotalUnique, shared.Max = widgetList.Totals()
+	if shared.AllTotalUnique == 0 {
+		shared.AllTotalUnique = shared.TotalUnique
 	}
 
-	var widgets widgets
+	// Render templates.
 	err = func() error {
-		stopComplaining.Lock()
-		defer stopComplaining.Unlock()
-
-		render := map[string]func() (string, string, interface{}){
-			"pages": func() (string, string, interface{}) {
-				return "full-width", "_dashboard_pages.gohtml", struct {
-					Context     context.Context
-					Pages       goatcounter.HitStats
-					Site        *goatcounter.Site
-					PeriodStart time.Time
-					PeriodEnd   time.Time
-					Daily       bool
-					ForcedDaily bool
-					Offset      int
-					Max         int
-
-					TotalDisplay       int
-					TotalUniqueDisplay int
-
-					TotalHits       int
-					TotalUniqueHits int
-					MorePages       bool
-
-					Refs     goatcounter.Stats
-					ShowRefs string
-				}{r.Context(), data.pages.pages, site, start, end, daily,
-					forcedDaily, 1, data.pages.max, data.pages.display,
-					data.pages.uniqueDisplay, data.total, data.totalUnique,
-					data.pages.more, data.pages.refs, showRefs}
-			},
-			"totalpages": func() (string, string, interface{}) {
-				return "full-width", "_dashboard_totals.gohtml", struct {
-					Context         context.Context
-					Site            *goatcounter.Site
-					Page            goatcounter.HitStat
-					Daily           bool
-					Max             int
-					TotalHits       int
-					TotalUniqueHits int
-				}{r.Context(), site, data.totalPages.total, daily, data.totalPages.max,
-					data.total, data.totalUnique}
-			},
-			"toprefs": func() (string, string, interface{}) {
-				return "hchart", "_dashboard_toprefs.gohtml", struct {
-					Context         context.Context
-					TotalUniqueHits int
-					Stats           goatcounter.Stats
-				}{r.Context(), data.allTotalUnique, data.topRefs}
-			},
-			"browsers": func() (string, string, interface{}) {
-				return "hchart", "_dashboard_browsers.gohtml", struct {
-					Context         context.Context
-					TotalUniqueHits int
-					Stats           goatcounter.Stats
-				}{r.Context(), data.allTotalUnique, data.browsers}
-			},
-			"systems": func() (string, string, interface{}) {
-				return "hchart", "_dashboard_systems.gohtml", struct {
-					Context         context.Context
-					TotalUniqueHits int
-					Stats           goatcounter.Stats
-				}{r.Context(), data.allTotalUnique, data.systems}
-			},
-			"sizes": func() (string, string, interface{}) {
-				return "hchart", "_dashboard_sizes.gohtml", struct {
-					Context         context.Context
-					TotalUniqueHits int
-					Stats           goatcounter.Stats
-				}{r.Context(), data.allTotalUnique, data.sizeStat}
-			},
-			"locations": func() (string, string, interface{}) {
-				return "hchart", "_dashboard_locations.gohtml", struct {
-					Context         context.Context
-					TotalUniqueHits int
-					Stats           goatcounter.Stats
-				}{r.Context(), data.allTotalUnique, data.locStat}
-			},
-		}
-
 		var (
-			wg    sync.WaitGroup
-			bgErr = errors.NewGroup(20)
+			wg   sync.WaitGroup
+			errs = errors.NewGroup(20)
 		)
-		for _, w := range wantWidgets {
+		for _, w := range widgetList {
 			wg.Add(1)
-			go func(w string) {
+			go func(w widgets.Widget) {
 				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("tpl widget", w).FieldsRequest(r) })
 				defer wg.Done()
 
-				f, ok := render[w]
-				if !ok {
+				tplName, tplData := w.TemplateData(r.Context(), shared)
+				if tplName == "" { // Some data doesn't have a template.
 					return
 				}
-
-				typ, tplName, tplData := f()
 				tpl, err := ztpl.ExecuteString(tplName, tplData)
-				if err != nil {
-					bgErr.Append(err)
+				if errs.Append(errors.Wrap(err, w.Name())) {
 					return
 				}
-				widgets.Append(widget{
-					Name: w,
-					Type: typ,
-					HTML: template.HTML(tpl),
-				})
+				w.SetHTML(template.HTML(tpl))
 			}(w)
 		}
 
 		zsync.Wait(r.Context(), &wg)
-		if bgErr.Len() > 0 {
-			return bgErr
-		}
-
-		// Ensure correct order.
-		sortmap := make(map[string]int, len(wantWidgets))
-		for i, w := range wantWidgets {
-			sortmap[w] = i
-		}
-		widgets.Lock()
-		sort.Slice(widgets.w, func(i, j int) bool { return sortmap[widgets.w[i].Name] < sortmap[widgets.w[j].Name] })
-		widgets.Unlock()
-
-		return nil
+		return errs.ErrorOrNil()
 	}()
 	if err != nil {
 		return err
@@ -342,9 +163,9 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		Filter         string
 		Daily          bool
 		ForcedDaily    bool
-		Widgets        []widget
+		Widgets        widgets.List
 	}{newGlobals(w, r),
 		cd, subs, showRefs, hlPeriod, start, end, filter, daily, forcedDaily,
-		widgets.w,
+		widgetList,
 	})
 }

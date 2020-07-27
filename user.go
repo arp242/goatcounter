@@ -366,6 +366,12 @@ func (u *User) SeenUpdates(ctx context.Context) error {
 	return errors.Wrap(err, "User.SeenUpdatesAt")
 }
 
+func (u User) Widgets() []string {
+	return []string{
+		"totals", // We always need this.
+		"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"}
+}
+
 type Users []User
 
 // ByEmail gets all users with this email address.
