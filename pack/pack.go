@@ -15293,11 +15293,8 @@ both. There may also be additional data in other fields on errors.</p>
 
 <ul>
   <li><a href="/api.json">/api.json</a> – OpenAPI 2.0 JSON file.</li>
-  <li><a href="/api.html">/api.html</a> – Basic HTML (still kinda ugly 😅).</li>
-  <li><a href="https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1">SwaggerHub</a></li>
+  <li>Online viewer: <a href="/api2.html">RapiDoc</a>, <a href="https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1)">SwaggerHub</a>, <a href="/api.html">simple HTML</a></li>
 </ul>
-
-<p>The files are also available in the <code>docs</code> directory of the source repository.</p>
 
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
@@ -15353,6 +15350,1613 @@ id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id
 </code></pre>
 
 {{template "_bottom.gohtml" .}}
+`),
+	"tpl/api.html": []byte(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>GoatCounter API documentation 0.1</title>
+
+	<style>
+		body {
+			font: 16px/1.9em sans-serif;
+			background-color: #eee;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		p, ul {
+			margin: 0;
+			padding: 0;
+		}
+
+		ul {
+			margin-left: 2em;
+		}
+
+		h3 {
+			font-size: 1.5em;
+			position: relative;
+			margin-top: 1rem;
+			margin-bottom: 0;
+			padding: .2rem;
+			padding-left: .5rem;
+			margin-bottom: -1px;
+		}
+
+		h3.js-expand {
+			cursor: pointer;
+		}
+
+		h4 {
+			margin: 0;
+			font-size: 16px;
+		}
+
+		sup {
+			color: #aaa;
+		}
+
+		.permalink {
+			font-weight: normal;
+			color: rgb(0, 0, 238);
+
+			 
+			width: 1.5em;
+			display: inline-block;
+			text-align: center;
+		}
+
+		.permalink:visited {
+			color: rgb(0, 0, 238);
+		}
+
+		.permalink:hover {
+			color: #66f;
+		}
+
+		h3 .permalink {
+			font-size: 16px;
+		}
+
+		.endpoint {
+			position: relative;
+			background-color: #fff;
+			border: 1px solid #b7b7b7;
+			margin-bottom: -1px;
+			padding: .2em .5em;
+			border-radius: 2px;
+		}
+
+		.endpoint-top {
+			cursor: pointer;
+		}
+
+		.endpoint-info {
+			margin-left: 4.5rem;
+			display: none;
+		}
+
+		.endpoint-info p {
+			max-width: 55em;
+		}
+
+		.model p {
+			margin-left: 2em;
+			white-space: pre-line;
+		}
+
+		.resource {
+			display: inline-block;
+			min-width: 38rem;
+		}
+
+		.resource .method {
+			display: inline-block;
+			min-width: 4rem;
+		}
+
+		.param-name {
+			display: inline-block;
+			min-width: 11rem;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>GoatCounter API documentation 0.1</h1>
+
+	
+
+	
+
+	<h2>Endpoints</h2>
+	
+			</div><div>
+			<h3 id="count" class="js-expand">count
+				<a class="permalink" href="#count">§</a></h3>
+
+		<div class="endpoint" id="POST-/api/v0/count">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">POST</span> /api/v0/count</code>
+				Count pageviews.
+				<a class="permalink" href="#POST-%2fapi%2fv0%2fcount">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>This can count one or more pageviews. Pageviews are not persisted immediatly,
+but persisted in the background every 10 seconds.</p><p>The maximum amount of pageviews per request is 100.</p><p>Errors will have the key set to the index of the pageview. Any pageviews not
+listed have been processed and shouldn&#39;t be sent again.</p><p>The response header has the X-Goatcounter-Memstore header set to the time of
+the last time pageviews were persisted to the database. This is useful if you
+want to (roughly) sync up with this.</p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.APICountRequest">handlers.APICountRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">202 Accepted</code>
+								<p>202 Accepted (no data)</p>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+			</div><div>
+			<h3 id="export" class="js-expand">export
+				<a class="permalink" href="#export">§</a></h3>
+
+		<div class="endpoint" id="GET-/api/v0/export/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/export/{id}</code>
+				Get details about an export.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fexport%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Export">goatcounter.Export</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/export/{id}/download">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/export/{id}/download</code>
+				Download an export file.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fexport%2f%7bid%7d%2fdownload">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<p>200 OK (text/csv data)</p>
+							<sup>(text/csv)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="POST-/api/v0/export">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">POST</span> /api/v0/export</code>
+				Start a new export in the background.
+				<a class="permalink" href="#POST-%2fapi%2fv0%2fexport">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>This starts a new export in the background.</p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.apiExportRequest">handlers.apiExportRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">202 Accepted</code>
+								<a href="#goatcounter.Export">goatcounter.Export</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+			</div><div>
+			<h3 id="sites" class="js-expand">sites
+				<a class="permalink" href="#sites">§</a></h3>
+
+		<div class="endpoint" id="GET-/api/v0/sites">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/sites</code>
+				List the current site and all additional sites.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fsites">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiSitesResponse">handlers.apiSitesResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/sites/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/sites/{id}</code>
+				Get information about a site.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fsites%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>Get all information about one site.</p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="PATCH-/api/v0/sites/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">PATCH</span> /api/v0/sites/{id}</code>
+				Update a site.
+				<a class="permalink" href="#PATCH-%2fapi%2fv0%2fsites%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>A POST request will *replace* the entire site with what&#39;s sent, blanking out
+any existing fields that may exist. A PATCH request will only update the
+fields that are sent.</p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.apiSiteUpdateRequest">handlers.apiSiteUpdateRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="POST-/api/v0/sites/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">POST</span> /api/v0/sites/{id}</code>
+				Update a site.
+				<a class="permalink" href="#POST-%2fapi%2fv0%2fsites%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>A POST request will *replace* the entire site with what&#39;s sent, blanking out
+any existing fields that may exist. A PATCH request will only update the
+fields that are sent.</p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#handlers.apiSiteUpdateRequest">handlers.apiSiteUpdateRequest</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="PUT-/api/v0/sites">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">PUT</span> /api/v0/sites</code>
+				Create a new site.
+				<a class="permalink" href="#PUT-%2fapi%2fv0%2fsites">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+					<h4>Request body</h4>
+					<ul>
+						<li><a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup></li>
+					</ul>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.Site">goatcounter.Site</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+			</div><div>
+			<h3 id="user" class="js-expand">user
+				<a class="permalink" href="#user">§</a></h3>
+
+		<div class="endpoint" id="GET-/api/v0/me">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/me</code>
+				Get information about the current user and API key.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fme">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.meResponse">handlers.meResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+	<h2>Models</h2>
+	
+		<h3 id="goatcounter.APIToken">goatcounter.APIToken <a class="permalink" href="#goatcounter.APIToken">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>name <sup>string</sup></h4>
+<p></p>
+<h4>permissions <sup></sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="goatcounter.APITokenPermissions">goatcounter.APITokenPermissions <a class="permalink" href="#goatcounter.APITokenPermissions">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>count <sup>boolean</sup></h4>
+<p></p>
+<h4>export <sup>boolean</sup></h4>
+<p></p>
+<h4>site_read <sup>boolean</sup></h4>
+<p></p>
+<h4>site_create <sup>boolean</sup></h4>
+<p></p>
+<h4>site_update <sup>boolean</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="goatcounter.Export">goatcounter.Export <a class="permalink" href="#goatcounter.Export">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>site_id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>start_from_hit_id <sup>integer</sup></h4>
+<p>The hit ID this export was started from.</p>
+<h4>last_hit_id <sup>integer [readonly]</sup></h4>
+<p>Last hit ID that was exported; can be used as start_from_hit_id.</p>
+<h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>finished_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>num_rows <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>size <sup>string [readonly]</sup></h4>
+<p>File size in MB.</p>
+<h4>hash <sup>string [readonly]</sup></h4>
+<p>SHA256 hash.</p>
+<h4>error <sup>string [readonly]</sup></h4>
+<p>Any errors that may have occured.</p>
+
+		</div>
+		<h3 id="goatcounter.Site">goatcounter.Site <a class="permalink" href="#goatcounter.Site">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>parent <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>cname <sup>string</sup></h4>
+<p>Custom domain, e.g. &#34;stats.example.com&#34;</p>
+<h4>cname_setup_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p>When the CNAME was verified.</p>
+<h4>code <sup>string</sup></h4>
+<p>Domain code (arp242, which makes arp242.goatcounter.com)</p>
+<h4>link_domain <sup>string</sup></h4>
+<p>Site domain for linking (www.arp242.net).</p>
+<h4>plan <sup>string</sup></h4>
+<p></p>
+<h4>setttings <sup></sup></h4>
+<p></p>
+<h4>received_data <sup>boolean</sup></h4>
+<p>Whether this site has received any data; will be true after the first
+pageview.</p>
+<h4>state <sup>string</sup></h4>
+<p></p>
+<h4>created_at <sup>string [format: date-time]</sup></h4>
+<p></p>
+<h4>updated_at <sup>string [format: date-time]</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="goatcounter.SiteSettings">goatcounter.SiteSettings <a class="permalink" href="#goatcounter.SiteSettings">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>public <sup>boolean</sup></h4>
+<p></p>
+<h4>twenty_four_hours <sup>boolean</sup></h4>
+<p></p>
+<h4>sunday_starts_week <sup>boolean</sup></h4>
+<p></p>
+<h4>date_format <sup>string</sup></h4>
+<p></p>
+<h4>number_format <sup>string</sup></h4>
+<p></p>
+<h4>data_retention <sup>integer</sup></h4>
+<p></p>
+<h4>ignore_ips <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>timezone <sup></sup></h4>
+<p></p>
+<h4>campaigns <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>limits <sup><a href="#"></a></sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="goatcounter.User">goatcounter.User <a class="permalink" href="#goatcounter.User">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">User entry.</p>
+			<h4>id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>site <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>email <sup>string</sup></h4>
+<p></p>
+<h4>email_verified <sup>boolean [readonly]</sup></h4>
+<p></p>
+<h4>totp_enabled <sup>boolean [readonly]</sup></h4>
+<p></p>
+<h4>role <sup>string [readonly]</sup></h4>
+<p></p>
+<h4>login_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>reset_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>updated_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.APICountRequest">handlers.APICountRequest <a class="permalink" href="#handlers.APICountRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>no_sessions <sup>boolean</sup></h4>
+<p>Don&#39;t try to count unique visitors; every pageview will be considered a
+&#34;visit&#34;.</p>
+<h4>hits <sup>array [type: <a href="#handlers.APICountRequestHit">handlers.APICountRequestHit</a>]</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.APICountRequestHit">handlers.APICountRequestHit <a class="permalink" href="#handlers.APICountRequestHit">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>path <sup>string [required]</sup></h4>
+<p>Path of the pageview, or the event name.</p>
+<h4>title <sup>string</sup></h4>
+<p>Page title, or some descriptive event title.</p>
+<h4>event <sup>boolean</sup></h4>
+<p>Is this an event?</p>
+<h4>ref <sup>string</sup></h4>
+<p>Referrer value, can be an URL (i.e. the Referal: header) or any
+string.</p>
+<h4>size <sup>array [type: number]</sup></h4>
+<p>Screen size as &#34;x,y,scaling&#34;</p>
+<h4>query <sup>string</sup></h4>
+<p>Query parameters for this pageview, used to get campaign parameters.</p>
+<h4>bot <sup>integer</sup></h4>
+<p>Hint if this should be considered a bot; should be one of the JSBot*` + "`" + `
+constants from isbot; note the backend may override this if it
+detects a bot using another method.
+https://github.com/zgoat/isbot/blob/master/isbot.go#L28</p>
+<h4>user_agent <sup>string</sup></h4>
+<p>User-Agent header.</p>
+<h4>location <sup>string</sup></h4>
+<p>Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)</p>
+<h4>ip <sup>string</sup></h4>
+<p>IP to get location from; not used if location is set. Also used for
+session generation.</p>
+<h4>created_at <sup>string [format: date-time]</sup></h4>
+<p>Time this pageview should be recorded at; this can be in the past,
+but not in the future.</p>
+<h4>session <sup>string</sup></h4>
+<p>Normally a session is based on hash(User-Agent+IP+salt), but if you don&#39;t
+send the IP address then we can&#39;t determine the session.</p><p>In those cases, you can store your own session identifiers and send them
+along. Note these will not be stored in the database as the sessionID
+(just as the hashes aren&#39;t), they&#39;re just used as a unique grouping
+identifier.</p><p>You can also just disable sessions entirely with NoSessions.</p>
+
+		</div>
+		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>Error <sup>string</sup></h4>
+<p></p>
+<h4>Errors <sup><a href="#"></a></sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.apiExportRequest">handlers.apiExportRequest <a class="permalink" href="#handlers.apiExportRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>start_from_hit_id <sup>integer</sup></h4>
+<p>Pagination cursor; only export hits with an ID greater than this.</p>
+
+		</div>
+		<h3 id="handlers.apiSiteUpdateRequest">handlers.apiSiteUpdateRequest <a class="permalink" href="#handlers.apiSiteUpdateRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>settings <sup></sup></h4>
+<p></p>
+<h4>cname <sup>string</sup></h4>
+<p></p>
+<h4>link_domain <sup>string</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.apiSitesResponse">handlers.apiSitesResponse <a class="permalink" href="#handlers.apiSitesResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>sites <sup>array [type: <a href="#goatcounter.Site">goatcounter.Site</a>]</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.authError">handlers.authError <a class="permalink" href="#handlers.authError">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>Error <sup>string</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.meResponse">handlers.meResponse <a class="permalink" href="#handlers.meResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>user <sup></sup></h4>
+<p></p>
+<h4>token <sup></sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="time.Location">time.Location <a class="permalink" href="#time.Location">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">A Location maps time instants to the zone in use at that time.
+Typically, the Location represents the collection of time offsets
+in use in a geographical area. For many Locations the time offset varies
+depending on whether daylight savings time is in use at the time instant.</p>
+			
+		</div>
+		<h3 id="tz.Zone">tz.Zone <a class="permalink" href="#tz.Zone">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">Zone represents a time zone.</p>
+			<h4>CountryCode <sup>string</sup></h4>
+<p>ID</p>
+<h4>Zone <sup>string</sup></h4>
+<p>Asia/Makassar</p>
+<h4>Abbr <sup>string</sup></h4>
+<p>WITA</p>
+<h4>CountryName <sup>string</sup></h4>
+<p>Indonesia</p>
+<h4>Comments <sup>string</sup></h4>
+<p>Borneo (east, south); Sulawesi/Celebes, Bali, Nusa Tengarra; Timor (west)</p>
+
+		</div>
+
+	<script>
+		var add = function(endpoint) {
+			
+			var topLine = endpoint.getElementsByClassName('endpoint-top')[0]
+			var info = endpoint.getElementsByClassName('endpoint-info')[0]
+			topLine.addEventListener('click', function(e) {
+				if (e.target.className === 'permalink')
+					return
+
+				e.preventDefault()
+				
+				info.style.display = info.style.display === 'block' ? '' : 'block'
+			})
+
+			
+			
+			
+			
+			
+		}
+
+		var ep = document.getElementsByClassName('endpoint')
+		for (var i = 0; i < ep.length; i++)
+			add(ep[i])
+
+		
+		document.addEventListener('click', function(e) {
+			if (e.target.className !== 'js-expand')
+				return
+
+			e.preventDefault()
+			var parent = e.target.parentNode
+			if (parent.tagName.toLowerCase() === 'h3')
+				parent = parent.parentNode
+
+			var info = parent.getElementsByClassName('info')
+			for (var i = 0; i < info.length; i++)
+				info[i].style.display = info[i].style.display === 'block' ? '' : 'block'
+		})
+	</script>
+</body>
+</html>
+`),
+	"tpl/api.json": []byte(`{
+  "swagger": "2.0",
+  "info": {
+    "title": "GoatCounter",
+    "description": "API for GoatCounter",
+    "version": "0.1",
+    "contact": {
+      "name": "Martin Tournoij",
+      "url": "https://www.goatcounter.com/api",
+      "email": "support@goatcounter.com"
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "count"
+    },
+    {
+      "name": "export"
+    },
+    {
+      "name": "sites"
+    },
+    {
+      "name": "user"
+    }
+  ],
+  "paths": {
+    "/api/v0/count": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This can count one or more pageviews. Pageviews are not persisted immediatly,\nbut persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 100.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.\n\nThe response header has the X-Goatcounter-Memstore header set to the time of\nthe last time pageviews were persisted to the database. This is useful if you\nwant to (roughly) sync up with this.",
+        "operationId": "POST_api_v0_count",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "handlers.APICountRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.APICountRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "202 Accepted (no data)"
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Count pageviews.",
+        "tags": [
+          "count"
+        ]
+      }
+    },
+    "/api/v0/export": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This starts a new export in the background.",
+        "operationId": "POST_api_v0_export",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "handlers.apiExportRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.apiExportRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "202 Accepted",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Export"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Start a new export in the background.",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/v0/export/{id}": {
+      "get": {
+        "operationId": "GET_api_v0_export_{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Export"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get details about an export.",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/v0/export/{id}/download": {
+      "get": {
+        "operationId": "GET_api_v0_export_{id}_download",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "text/csv"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK (text/csv data)"
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Download an export file.",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/v0/me": {
+      "get": {
+        "operationId": "GET_api_v0_me",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.meResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get information about the current user and API key.",
+        "tags": [
+          "user"
+        ]
+      }
+    },
+    "/api/v0/sites": {
+      "get": {
+        "operationId": "GET_api_v0_sites",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiSitesResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "List the current site and all additional sites.",
+        "tags": [
+          "sites"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "PUT_api_v0_sites",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "goatcounter.Site",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Create a new site.",
+        "tags": [
+          "sites"
+        ]
+      }
+    },
+    "/api/v0/sites/{id}": {
+      "get": {
+        "description": "Get all information about one site.",
+        "operationId": "GET_api_v0_sites_{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get information about a site.",
+        "tags": [
+          "sites"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "A POST request will *replace* the entire site with what's sent, blanking out\nany existing fields that may exist. A PATCH request will only update the\nfields that are sent.",
+        "operationId": "POST_api_v0_sites_{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "handlers.apiSiteUpdateRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.apiSiteUpdateRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Update a site.",
+        "tags": [
+          "sites"
+        ]
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "A POST request will *replace* the entire site with what's sent, blanking out\nany existing fields that may exist. A PATCH request will only update the\nfields that are sent.",
+        "operationId": "PATCH_api_v0_sites_{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "handlers.apiSiteUpdateRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.apiSiteUpdateRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.Site"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Update a site.",
+        "tags": [
+          "sites"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "goatcounter.APIToken": {
+      "title": "APIToken",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "permissions": {
+          "$ref": "#/definitions/goatcounter.APITokenPermissions"
+        }
+      }
+    },
+    "goatcounter.APITokenPermissions": {
+      "title": "APITokenPermissions",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "boolean"
+        },
+        "export": {
+          "type": "boolean"
+        },
+        "site_create": {
+          "type": "boolean"
+        },
+        "site_read": {
+          "type": "boolean"
+        },
+        "site_update": {
+          "type": "boolean"
+        }
+      }
+    },
+    "goatcounter.Export": {
+      "title": "Export",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "error": {
+          "description": "Any errors that may have occured.",
+          "type": "string",
+          "readOnly": true
+        },
+        "finished_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "hash": {
+          "description": "SHA256 hash.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "last_hit_id": {
+          "description": "Last hit ID that was exported; can be used as start_from_hit_id.",
+          "type": "integer",
+          "readOnly": true
+        },
+        "num_rows": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "site_id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "size": {
+          "description": "File size in MB.",
+          "type": "string",
+          "readOnly": true
+        },
+        "start_from_hit_id": {
+          "description": "The hit ID this export was started from.",
+          "type": "integer"
+        }
+      }
+    },
+    "goatcounter.Site": {
+      "title": "Site",
+      "type": "object",
+      "properties": {
+        "cname": {
+          "description": "Custom domain, e.g. \"stats.example.com\"",
+          "type": "string"
+        },
+        "cname_setup_at": {
+          "description": "When the CNAME was verified.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "code": {
+          "description": "Domain code (arp242, which makes arp242.goatcounter.com)",
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "link_domain": {
+          "description": "Site domain for linking (www.arp242.net).",
+          "type": "string"
+        },
+        "parent": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "plan": {
+          "type": "string"
+        },
+        "received_data": {
+          "description": "Whether this site has received any data; will be true after the first\npageview.",
+          "type": "boolean"
+        },
+        "setttings": {
+          "$ref": "#/definitions/goatcounter.SiteSettings"
+        },
+        "state": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "goatcounter.SiteSettings": {
+      "title": "SiteSettings",
+      "type": "object",
+      "properties": {
+        "campaigns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_retention": {
+          "type": "integer"
+        },
+        "date_format": {
+          "type": "string"
+        },
+        "ignore_ips": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "hchart": {
+              "type": "integer"
+            },
+            "page": {
+              "type": "integer"
+            },
+            "ref": {
+              "type": "integer"
+            }
+          }
+        },
+        "number_format": {
+          "type": "string"
+        },
+        "public": {
+          "type": "boolean"
+        },
+        "sunday_starts_week": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "$ref": "#/definitions/tz.Zone"
+        },
+        "twenty_four_hours": {
+          "type": "boolean"
+        }
+      }
+    },
+    "goatcounter.User": {
+      "title": "User",
+      "description": "User entry.",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string"
+        },
+        "email_verified": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "login_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "reset_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "role": {
+          "type": "string",
+          "readOnly": true
+        },
+        "site": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "totp_enabled": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "handlers.APICountRequest": {
+      "title": "APICountRequest",
+      "type": "object",
+      "properties": {
+        "hits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/handlers.APICountRequestHit"
+          }
+        },
+        "no_sessions": {
+          "description": "Don't try to count unique visitors; every pageview will be considered a\n\"visit\".",
+          "type": "boolean"
+        }
+      }
+    },
+    "handlers.APICountRequestHit": {
+      "title": "APICountRequestHit",
+      "type": "object",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "bot": {
+          "description": "Hint if this should be considered a bot; should be one of the JSBot*` + "`" + `\nconstants from isbot; note the backend may override this if it\ndetects a bot using another method.\nhttps://github.com/zgoat/isbot/blob/master/isbot.go#L28",
+          "type": "integer"
+        },
+        "created_at": {
+          "description": "Time this pageview should be recorded at; this can be in the past,\nbut not in the future.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "event": {
+          "description": "Is this an event?",
+          "type": "boolean"
+        },
+        "ip": {
+          "description": "IP to get location from; not used if location is set. Also used for\nsession generation.",
+          "type": "string"
+        },
+        "location": {
+          "description": "Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)",
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the pageview, or the event name.",
+          "type": "string"
+        },
+        "query": {
+          "description": "Query parameters for this pageview, used to get campaign parameters.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Referrer value, can be an URL (i.e. the Referal: header) or any\nstring.",
+          "type": "string"
+        },
+        "session": {
+          "description": "Normally a session is based on hash(User-Agent+IP+salt), but if you don't\nsend the IP address then we can't determine the session.\n\nIn those cases, you can store your own session identifiers and send them\nalong. Note these will not be stored in the database as the sessionID\n(just as the hashes aren't), they're just used as a unique grouping\nidentifier.\n\nYou can also just disable sessions entirely with NoSessions.",
+          "type": "string"
+        },
+        "size": {
+          "description": "Screen size as \"x,y,scaling\"",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "title": {
+          "description": "Page title, or some descriptive event title.",
+          "type": "string"
+        },
+        "user_agent": {
+          "description": "User-Agent header.",
+          "type": "string"
+        }
+      }
+    },
+    "handlers.apiError": {
+      "title": "apiError",
+      "type": "object",
+      "properties": {
+        "Error": {
+          "type": "string"
+        },
+        "Errors": {
+          "type": "object"
+        }
+      }
+    },
+    "handlers.apiExportRequest": {
+      "title": "apiExportRequest",
+      "type": "object",
+      "properties": {
+        "start_from_hit_id": {
+          "description": "Pagination cursor; only export hits with an ID greater than this.",
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.apiSiteUpdateRequest": {
+      "title": "apiSiteUpdateRequest",
+      "type": "object",
+      "properties": {
+        "cname": {
+          "type": "string"
+        },
+        "link_domain": {
+          "type": "string"
+        },
+        "settings": {
+          "$ref": "#/definitions/goatcounter.SiteSettings"
+        }
+      }
+    },
+    "handlers.apiSitesResponse": {
+      "title": "apiSitesResponse",
+      "type": "object",
+      "properties": {
+        "sites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.Site"
+          }
+        }
+      }
+    },
+    "handlers.authError": {
+      "title": "authError",
+      "type": "object",
+      "properties": {
+        "Error": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.meResponse": {
+      "title": "meResponse",
+      "type": "object",
+      "properties": {
+        "token": {
+          "$ref": "#/definitions/goatcounter.APIToken"
+        },
+        "user": {
+          "$ref": "#/definitions/goatcounter.User"
+        }
+      }
+    },
+    "tz.Zone": {
+      "title": "Zone",
+      "description": "Zone represents a time zone.",
+      "type": "object",
+      "properties": {
+        "Abbr": {
+          "description": "WITA",
+          "type": "string"
+        },
+        "Comments": {
+          "description": "Borneo (east, south); Sulawesi/Celebes, Bali, Nusa Tengarra; Timor (west)",
+          "type": "string"
+        },
+        "CountryCode": {
+          "description": "ID",
+          "type": "string"
+        },
+        "CountryName": {
+          "description": "Indonesia",
+          "type": "string"
+        },
+        "Zone": {
+          "description": "Asia/Makassar",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
+`),
+	"tpl/api2.html": []byte(`<!doctype html> <!-- Important: must specify -->
+<html>
+<head>
+  <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 charecters -->
+  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+</head>
+<body>
+  <rapi-doc spec-url="https://www.goatcounter.com/api.json"> </rapi-doc>
+</body>
+</html>
 `),
 	"tpl/backend_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 

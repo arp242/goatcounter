@@ -15,13 +15,13 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/zgoat/kommentaar/srvhttp"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
@@ -73,22 +73,16 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
 
+	r.Get("/api.json", zhttp.Wrap(h.openAPI))
+	r.Get("/api.html", zhttp.Wrap(h.openAPI))
+	r.Get("/api2.html", zhttp.Wrap(h.openAPI))
+
 	r.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 		Client:  zhttp.RatelimitIP,
 		Store:   zhttp.NewRatelimitMemory(),
 		Limit:   zhttp.RatelimitLimit(5, 86400),
 		Message: "you can download this five times per day only",
 	})).Get("/data/{file}", zhttp.Wrap(h.downloadData))
-
-	conf := srvhttp.Args{
-		Packages: []string{"./handlers"},
-		Config:   "./kommentaar.conf",
-		NoScan:   true, // TODO: Kommentaar doesn't resolve correctly in modules, need chdir()
-		JSONFile: "./docs/api.json",
-		HTMLFile: "./docs/api.html",
-	}
-	r.Get("/api.json", srvhttp.JSON(conf))
-	r.Get("/api.html", srvhttp.HTML(conf))
 }
 
 var metaDesc = map[string]string{
@@ -103,6 +97,20 @@ var metaDesc = map[string]string{
 	"why":        "Why I made GoatCounter",
 	"data":       "GoatCounter data",
 	"api":        "API – GoatCounter",
+}
+
+func (h website) openAPI(w http.ResponseWriter, r *http.Request) error {
+	if r.URL.Path == "/api.html" || r.URL.Path == "/api2.html" {
+		w.Header().Set("Content-Type", "text/html")
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+	}
+
+	p := "tpl" + r.URL.Path
+	if _, err := os.Stat(p); err == nil {
+		return zhttp.File(w, p)
+	}
+	return zhttp.Bytes(w, pack.Templates[p])
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {

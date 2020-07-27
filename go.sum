@@ -1,5 +1,3 @@
-arp242.net/sconfig v1.2.1 h1:WHjZn+LWh/at3i/64PQC8W49GgAN7CA732OTEwLvRu8=
-arp242.net/sconfig v1.2.1/go.mod h1:ocoy1e2keexW6DqO4zA7ZeMg/Pa12FOEkPKzdcfRCms=
 code.soquee.net/otp v0.0.1 h1:sPALeimyp/DAj4MXMjj94QDdYN/y2+dSoMXQCxttpvw=
 code.soquee.net/otp v0.0.1/go.mod h1:sv1t9zLujoOZ8T14ty2ffdj6y+fjScwX7m76G+dzrm0=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
@@ -47,8 +45,6 @@ github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFR
 github.com/teamwork/reload v1.3.2 h1:Cfo305GjPi859SWLzh728H/4ovl1qkDndv48QFRjLLA=
 github.com/teamwork/reload v1.3.2/go.mod h1:xR3BcLHeCmLBX/2jKDG2vWOLTcql3+aah4puN18lmTo=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
-github.com/zgoat/kommentaar v0.0.0-20200723124016-8596c8d73b76 h1:UTzytzD1rEuIYLl5EvaN9uCKUyUFrLiUPqQtNKfmCD0=
-github.com/zgoat/kommentaar v0.0.0-20200723124016-8596c8d73b76/go.mod h1:7xhbAqcgV+9q20XCx0c2SWzJrklgwke/29Ah57LDsNU=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2 h1:VklqNMn3ovrHsnt90PveolxSbWFaJdECFbxSq0Mqo2M=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
@@ -118,8 +114,8 @@ zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxy
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zdb v0.0.0-20200721051833-b17e8bb8e4ed h1:V+V2RMn8n6xBKnBZERZ9i4mvx9Zx4AhaLv6R7ZczhYA=
 zgo.at/zdb v0.0.0-20200721051833-b17e8bb8e4ed/go.mod h1:qBj20DkzhioyoAgkqCNNrQYtU9dkaQXU6kko5B36zbg=
-zgo.at/zhttp v0.0.0-20200727101404-6e4e811e7d2c h1:1xzXFj5KNp0oVWQGBGBeC+7nz3V3CAGb9xjAuUR5JvA=
-zgo.at/zhttp v0.0.0-20200727101404-6e4e811e7d2c/go.mod h1:4vN9RqtJXa0XePvaoFV03A88KvqUokFkJ0Z+86b1r6M=
+zgo.at/zhttp v0.0.0-20200727125448-46429e444027 h1:fyBwO+m3ksCJFKap4sTph6QSK1rzwV0q9Kjm8Vi+P2k=
+zgo.at/zhttp v0.0.0-20200727125448-46429e444027/go.mod h1:4vN9RqtJXa0XePvaoFV03A88KvqUokFkJ0Z+86b1r6M=
 zgo.at/zli v0.0.0-20200726080121-9b05a9fdb5bd h1:vMA8yJ+z2mnM9nc9Ognje4BvDDJhvdLorNUmDblf1QI=
 zgo.at/zli v0.0.0-20200726080121-9b05a9fdb5bd/go.mod h1:iCNHeIhEG9nQZsmEvf1BDpnQXvbYbUDvokRSwB434M8=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=
@@ -129,7 +125,6 @@ zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c/go.mod h1:YkLAQZjLsp1RqWHn8SJokHz
 zgo.at/zpack v1.0.1 h1:muDVwpdzfC/1+U2rsTsv0feI82zxMq0CZuHPZ9RTwJ8=
 zgo.at/zpack v1.0.1/go.mod h1:2laAAHqImmeiTlMAQ2PlMRBVhS6YKPkUoosMfdv7GXY=
 zgo.at/zstd v0.0.0-20200602040707-aaf6806a6bf5/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
-zgo.at/zstd v0.0.0-20200718115135-a1fc42b2004d/go.mod h1:wSF/3tBbAJVo+RYk5CTMmSN2xxyy4C+qTb5fN4WP9iA=
 zgo.at/zstd v0.0.0-20200725081511-350d4ae0eb40 h1:6THn+vWRhVyjGPA6n8SIPQjFifenECa+Kq6VSyp5FzE=
 zgo.at/zstd v0.0.0-20200725081511-350d4ae0eb40/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
 zgo.at/zstd v0.0.0-20200725181426-6695d1971600 h1:0VhEdHKwfWCEFR8KMMWHqhVl/AixIinCWNnSr2/mo/g=

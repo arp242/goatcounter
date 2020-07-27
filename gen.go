@@ -70,8 +70,8 @@ var (
 
 func kommentaar() error {
 	commands := map[string][]string{
-		"docs/api.json": {"-config", "../kommentaar.conf", "-output", "openapi2-jsonindent", "."},
-		"docs/api.html": {"-config", "../kommentaar.conf", "-output", "html", "."},
+		"tpl/api.json": {"-config", "../kommentaar.conf", "-output", "openapi2-jsonindent", "."},
+		"tpl/api.html": {"-config", "../kommentaar.conf", "-output", "html", "."},
 	}
 
 	for file, args := range commands {

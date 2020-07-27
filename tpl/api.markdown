@@ -75,10 +75,11 @@ API reference
 API reference docs are available at:
 
 - [/api.json](/api.json) – OpenAPI 2.0 JSON file.
-- [/api.html](/api.html) – Basic HTML (still kinda ugly 😅).
-- [SwaggerHub](https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1)
+- Online viewer: [RapiDoc][1], [SwaggerHub][2], [simple HTML][3]
 
-The files are also available in the `docs` directory of the source repository.
+[1]: /api2.html
+[2]: https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1)
+[3]: /api.html
 
 
 Examples
