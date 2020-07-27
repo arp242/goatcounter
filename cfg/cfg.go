@@ -19,4 +19,6 @@ var (
 	Serve          bool
 	Port           string
 	EmailFrom      string
+
+	RunningTests bool
 )

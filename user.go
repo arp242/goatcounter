@@ -90,7 +90,11 @@ func (u *User) hashPassword() error {
 		return errors.Errorf("User.hashPassword: already hashed")
 	}
 
-	pwd, err := bcrypt.GenerateFromPassword(u.Password, bcrypt.DefaultCost)
+	cost := bcrypt.DefaultCost
+	if cfg.RunningTests { // Otherwise tests take 1.5s extra
+		cost = bcrypt.MinCost
+	}
+	pwd, err := bcrypt.GenerateFromPassword(u.Password, cost)
 	if err != nil {
 		return errors.Errorf("User.hashPassword: %w", err)
 	}

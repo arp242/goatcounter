@@ -41,6 +41,8 @@ var (
 
 // DB starts a new database test.
 func DB(t tester) (context.Context, func()) {
+	cfg.RunningTests = true
+
 	t.Helper()
 	ctx := context.Background()
 
@@ -263,14 +265,12 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 	}
 	ctx = goatcounter.WithSite(ctx, &site)
 
-	var user goatcounter.User
-	err = user.BySite(ctx, site.ID)
-	if err != nil {
-		user.Site = 1
-		user.Email = "test@example.com"
-		user.Password = []byte("coconuts")
-		err = user.Insert(ctx)
+	user := goatcounter.User{
+		Site:     site.ID,
+		Email:    "test@example.com",
+		Password: []byte("coconuts"),
 	}
+	err = user.Insert(ctx)
 	if err != nil {
 		t.Fatalf("get/create user: %s", err)
 	}
