@@ -139,7 +139,7 @@ Or to build a statically linked binary:
 
 You'll now have a `goatcounter` binary in the current directory.
 
-You need Go 1.13 or newer and a C compiler (for SQLite), or compile it with
+You need Go 1.14 or newer and a C compiler (for SQLite), or compile it with
 `CGO_ENABLED=0 go build` and use PostgreSQL.
 
 It's recommended to use the latest release as in the above command. The master

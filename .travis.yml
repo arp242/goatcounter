@@ -1,6 +1,6 @@
 language: go
 os: ['linux', 'osx', 'windows']
-go: ['1.13.x', '1.14.x']
+go: ['1.14.x']
 services: ['postgresql']
 # GoatCounter.com actually runs on 12.2, but this is the latest version that
 # seems easily installable on Travis.
