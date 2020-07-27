@@ -25,7 +25,23 @@ func (w Max) TemplateData(ctx context.Context, shared SharedData) (string, inter
 }
 
 func (w Pages) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
-	return "_dashboard_pages.gohtml", struct {
+	t := "_dashboard_pages.gohtml"
+	if shared.Args.AsText {
+		t = "_dashboard_pages_text.gohtml"
+	}
+
+	// Correct max for chunked data in text view.
+	if shared.Args.AsText {
+		shared.Max = 0
+		for _, p := range w.Pages {
+			m, _ := goatcounter.ChunkStat(p.Stats)
+			if m > shared.Max {
+				shared.Max = m
+			}
+		}
+	}
+
+	return t, struct {
 		Context     context.Context
 		Pages       goatcounter.HitStats
 		Site        *goatcounter.Site

@@ -73,6 +73,7 @@
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
 					{{if .Filter}}class="value"{{end}}>
 			</div>
+			<label><input type="checkbox" name="as-text" id="as-text" {{if .AsText}}checked{{end}}> View as text table</label>
 			{{if .ForcedDaily}}
 				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 			{{else}}

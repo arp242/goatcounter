@@ -83,3 +83,33 @@ func interval(days int) string {
 	}
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)
 }
+
+const numChars = 12
+
+// Compress all the data in to 12 chunks.
+func ChunkStat(stats []Stat) (int, []int) {
+	var (
+		chunked   = make([]int, numChars)
+		chunkSize = len(stats) * 24 / numChars
+		max       = 0
+		chunk     = 0
+		i         = 0
+		n         = 0
+	)
+	for _, stat := range stats {
+		for _, h := range stat.HourlyUnique {
+			i++
+			chunk += h
+			if i == chunkSize {
+				chunked[n] = chunk
+				if chunk > max {
+					max = chunk
+				}
+				n++
+				chunk, i = 0, 0
+			}
+		}
+	}
+
+	return max, chunked
+}

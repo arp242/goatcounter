@@ -233,7 +233,6 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter strin
 	}
 
 	*h = hh[0]
-
 	return max, nil
 }
 

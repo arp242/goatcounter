@@ -1,0 +1,18 @@
+<div class="pages-list pages-list-text">
+	<h2 class="full-width">Pages <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+	</small></h2>
+	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
+		<thead><tr>
+			<th class="col-idx"></th>
+			<th class="col-n">Visits</th>
+			<th class="col-n" title="Pageviews">Views</th>
+			<th class="col-p">Path</th>
+			<th class="col-t">Title</th>
+			<th class="col-d" title="Every bar represents 1/12th of the selected time range">Stats</th>
+		</tr></thead>
+		<tbody class="pages">{{template "_dashboard_pages_text_rows.gohtml" .}}</tbody>
+	</table>
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+</div>

@@ -51,6 +51,11 @@ master branch
   The Y-axis for the totals is now also independent. There's also been a quite a
   few restylings.
 
+- Add "text view" mode (#359)
+
+  View your data as a simple table without too much graphics; only the main
+  "Pages" overview is implemented and will do the rest later.
+
 - Make it easier to skip your own views (#290)
 
   Previously this required adding custom code, but now loading any page with

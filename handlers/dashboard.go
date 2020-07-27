@@ -48,6 +48,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	showRefs := r.URL.Query().Get("showrefs")
 	filter := r.URL.Query().Get("filter")
+	asText := r.URL.Query().Get("as-text") != ""
 	daily, forcedDaily := getDaily(r, start, end)
 
 	subs, err := site.ListSubs(r.Context())
@@ -70,6 +71,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		Daily:       daily,
 		ShowRefs:    showRefs,
 		ForcedDaily: forcedDaily,
+		AsText:      asText,
 	}
 
 	wantWidgets := goatcounter.GetUser(r.Context()).Widgets()
@@ -163,9 +165,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		Filter         string
 		Daily          bool
 		ForcedDaily    bool
+		AsText         bool
 		Widgets        widgets.List
 	}{newGlobals(w, r),
 		cd, subs, showRefs, hlPeriod, start, end, filter, daily, forcedDaily,
-		widgetList,
+		asText, widgetList,
 	})
 }

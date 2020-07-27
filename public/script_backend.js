@@ -16,9 +16,9 @@
 		TZ_OFFSET    = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
-		;[report_errors, period_select, load_refs, tooltip, paginate_paths,
+		;[report_errors, period_select, load_refs, tooltip, paginate_pages,
 			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
-			filter_paths, add_ip, fill_tz, draw_chart, bind_scale, tsort,
+			filter_pages, add_ip, fill_tz, draw_chart, bind_scale, tsort,
 			copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
@@ -206,7 +206,7 @@
 
 	// Reload the path list when typing in the filter input, so the user won't
 	// have to press "enter".
-	var filter_paths = function() {
+	var filter_pages = function() {
 		highlight_filter($('#filter-paths').val());
 
 		var t;
@@ -243,18 +243,19 @@
 	};
 
 	// Paginate the main path overview.
-	var paginate_paths = function() {
+	var paginate_pages = function() {
 		$('.pages-list >.load-more').on('click', function(e) {
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
 					url:  '/pages',
 					data: append_period({
-						filter:  $('#filter-paths').val(),
-						daily:   $('#daily').is(':checked'),
-						exclude: $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
-						max:     get_original_scale(),
-						offset:  $('.count-list-pages >tbody >tr').length + 1,
+						filter:    $('#filter-paths').val(),
+						daily:     $('#daily').is(':checked'),
+						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+						max:       get_original_scale(),
+						offset:    $('.count-list-pages >tbody >tr').length + 1,
+						'as-text': $('.count-list-text').length > 0,
 					}),
 					success: function(data) {
 						update_pages(data, false)
