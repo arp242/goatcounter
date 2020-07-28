@@ -14,6 +14,8 @@ import (
 	"zgo.at/zdb/bulk"
 )
 
+// TODO: add path_id here too?
+
 func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + width.
@@ -58,7 +60,7 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "size_stats", []string{"site", "day",
+		ins := bulk.NewInsert(ctx, "size_stats", []string{"site_id", "day",
 			"width", "count", "count_unique"})
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.width, v.count, v.countUnique)
@@ -78,7 +80,7 @@ func existingSizeStats(
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingSizeStats */
 		select count, count_unique from size_stats
-		where site=$1 and day=$2 and width=$3 limit 1`,
+		where site_id=$1 and day=$2 and width=$3 limit 1`,
 		siteID, day, width)
 	if err != nil {
 		return 0, 0, errors.Wrap(err, "select")
@@ -88,7 +90,7 @@ func existingSizeStats(
 	}
 
 	_, err = tx.ExecContext(txctx, `delete from size_stats where
-		site=$1 and day=$2 and width=$3`,
+		site_id=$1 and day=$2 and width=$3`,
 		siteID, day, width)
 	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

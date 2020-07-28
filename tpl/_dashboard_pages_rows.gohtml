@@ -1,5 +1,5 @@
 {{range $i, $h := .Pages}}
-	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
+	<tr id="{{$h.Path}}" data-id="{{$h.PathID}}" {{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td class="col-count">
 			<span title="{{nformat $h.Count $.Site}} pageviews">{{nformat $h.CountUnique $.Site}}</span>
 		</td>

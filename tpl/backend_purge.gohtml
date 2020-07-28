@@ -15,6 +15,7 @@
 
 	<form method="post">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<input type="hidden" name="paths" value="{{range $s := .List}}{{$s.PathID}},{{end}}">
 		<button>Yes, purge them all!</button>
 		<strong>This is a destructive operation, and cannot be undone!</strong>
 	</form>

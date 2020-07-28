@@ -55,13 +55,13 @@ func (a *AdminStats) List(ctx context.Context) error {
 			end) as plan,
 			stripe,
 			sites.link_domain,
-			(select email from users where site=sites.id or site=sites.parent) as email,
+			(select email from users where site_id=sites.id or site_id=sites.parent) as email,
 			coalesce((
-				select sum(hit_counts.total) from hit_counts where site=sites.id
+				select sum(hit_counts.total) from hit_counts where site_id=sites.site_id
 			), 0) as total,
 			coalesce((
 				select sum(hit_counts.total) from hit_counts
-				where site=sites.id and hit_counts.hour >= %s
+				where site_id=sites.site_id and hit_counts.hour >= %s
 			), 0) as last_month
 		from sites
 		order by last_month desc`, interval(30)))
@@ -113,11 +113,11 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 	ival60 := interval(30)
 	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`/* *AdminSiteStat.ByID */
 		select
-			coalesce((select hour from hit_counts where site=$1 order by hour desc limit 1), '1970-01-01') as last_data,
-			coalesce((select sum(total) from hit_counts where site=$1), 0) as count_total,
-			coalesce((select sum(total) from hit_counts where site=$1
+			coalesce((select hour from hit_counts where site_id=$1 order by hour desc limit 1), '1970-01-01') as last_data,
+			coalesce((select sum(total) from hit_counts where site_id=$1), 0) as count_total,
+			coalesce((select sum(total) from hit_counts where site_id=$1
 				and hour >= %[1]s), 0) as count_last_month,
-			coalesce((select sum(total) from hit_counts where site=$1
+			coalesce((select sum(total) from hit_counts where site_id=$1
 				and hour >= %[2]s
 				and hour <= %[1]s
 			), 0) as count_prev_month

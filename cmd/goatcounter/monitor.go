@@ -56,7 +56,7 @@ func monitor() (int, error) {
 
 	query := `/* monitor */ select count(*) from hits where `
 	if *site > 0 {
-		query += fmt.Sprintf(`site=%d and `, *site)
+		query += fmt.Sprintf(`site_id=%d and `, *site)
 	}
 	if zdb.PgSQL(db) {
 		query += ` created_at > now() - interval '%d seconds'`

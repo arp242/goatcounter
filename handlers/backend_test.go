@@ -29,6 +29,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 )
@@ -46,7 +47,7 @@ func TestBackendCount(t *testing.T) {
 		{"no path", url.Values{}, nil, 400, goatcounter.Hit{}},
 		{"invalid size", url.Values{"p": {"/x"}, "s": {"xxx"}}, nil, 400, goatcounter.Hit{}},
 
-		{"", url.Values{"p": {"/foo.html"}}, nil, 200, goatcounter.Hit{
+		{"only path", url.Values{"p": {"/foo.html"}}, nil, 200, goatcounter.Hit{
 			Path: "/foo.html",
 		}},
 
@@ -152,8 +153,8 @@ func TestBackendCount(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			var hits []goatcounter.Hit
-			err = zdb.MustGet(ctx).SelectContext(ctx, &hits, `select * from hits`)
+			var hits goatcounter.Hits
+			err = hits.TestList(ctx, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -162,7 +163,7 @@ func TestBackendCount(t *testing.T) {
 			}
 
 			h := hits[0]
-			err = h.Validate(ctx)
+			err = h.Validate(ctx, false)
 			if err != nil {
 				t.Errorf("Validate failed after get: %s", err)
 			}
@@ -175,7 +176,7 @@ func TestBackendCount(t *testing.T) {
 				tt.hit.Browser = "GoatCounter test runner/1.0"
 			}
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
-			if d := ztest.Diff(h.String(), tt.hit.String()); d != "" {
+			if d := ztest.Diff(string(zjson.MustMarshal(h)), string(zjson.MustMarshal(tt.hit))); d != "" {
 				t.Error(d)
 			}
 		})
@@ -218,10 +219,11 @@ func TestBackendCountSessions(t *testing.T) {
 
 	checkHits := func(ctx context.Context, n int) []goatcounter.Hit {
 		var hits goatcounter.Hits
-		_, err := hits.List(ctx, 0, 0)
+		err := hits.TestList(ctx, true)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if len(hits) != n {
 			t.Errorf("len(hits) = %d; wanted %d", len(hits), n)
 			for _, h := range hits {
@@ -231,7 +233,7 @@ func TestBackendCountSessions(t *testing.T) {
 		}
 
 		for _, h := range hits {
-			err := h.Validate(ctx)
+			err := h.Validate(ctx, false)
 			if err != nil {
 				t.Errorf("Validate failed after get: %s", err)
 			}
@@ -403,7 +405,7 @@ func TestBackendPurge(t *testing.T) {
 			},
 			router:       newBackend,
 			path:         "/purge",
-			body:         map[string]string{"path": "/asd"},
+			body:         map[string]string{"path": "/asd", "paths": "1,"},
 			method:       "POST",
 			auth:         true,
 			wantFormCode: 303,

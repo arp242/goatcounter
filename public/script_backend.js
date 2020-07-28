@@ -252,7 +252,7 @@
 					data: append_period({
 						filter:    $('#filter-paths').val(),
 						daily:     $('#daily').is(':checked'),
-						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
 						offset:    $('.count-list-pages >tbody >tr').length + 1,
 						'as-text': $('.count-list-text').length > 0,
@@ -888,6 +888,10 @@
 			var form = $(this),
 				ta   = form.find('textarea')
 
+			var esc = function(v) {
+				return v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+			}
+
 			jQuery.ajax({
 				method: 'POST',
 				url:    '/admin/sql/explain',
@@ -895,8 +899,8 @@
 				success: function(data) {
 					form.after($('<pre class="e"></pre>').html(data).append('' +
 						'<form action="https://explain.dalibo.com/new" method="POST" target="_blank">' +
-							`<input type="hidden" name="plan"  value="${data}">` +
-							`<input type="hidden" name="query" value="${form.find('textarea').val()}">` +
+							`<input type="hidden" name="plan"  value="${esc(data)}">` +
+							`<input type="hidden" name="query" value="${esc(form.find('textarea').val())}">` +
 							'<button type="submit">PEV</button>' +
 						'</form>'))
 				}

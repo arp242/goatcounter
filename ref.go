@@ -190,8 +190,9 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 			max(ref_scheme) as ref_scheme,
 			ref as name
 		from ref_counts
+		join paths using (path_id)
 		where
-			site=$1 and
+			paths.site_id=$1 and
 			lower(path)=lower($2) and
 			hour>=$3 and
 			hour<=$4
@@ -221,7 +222,7 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 		limit = 6
 	}
 
-	where := ` where site=? and hour>=? and hour<=?`
+	where := ` where site_id=? and hour>=? and hour<=?`
 	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
 	if site.LinkDomain != "" {
 		where += " and ref not like ? "

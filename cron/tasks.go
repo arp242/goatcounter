@@ -151,8 +151,10 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 		updateSizeStats,
 	}
 
+	//l := zlog.Module("stats")
 	for _, f := range funs {
 		err := f(ctx, hits, isReindex)
+		//l = l.Since(zruntime.FuncName(f))
 		if err != nil {
 			return errors.Wrapf(err, "site %d", siteID)
 		}
@@ -256,12 +258,12 @@ func vacuumDeleted(ctx context.Context) error {
 
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 			for _, t := range []string{"browser_stats", "system_stats", "hit_stats", "hits", "location_stats", "size_stats", "users"} {
-				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
+				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site_id=%d`, t, s.ID))
 				if err != nil {
 					return errors.Errorf("%s: %w", t, err)
 				}
 			}
-			_, err := db.ExecContext(ctx, `delete from sites where id=$1`, s.ID)
+			_, err := db.ExecContext(ctx, `delete from sites where site_id=$1`, s.ID)
 			return err
 		})
 		if err != nil {

@@ -204,13 +204,11 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = []Hit{}
 	m.hitMu.Unlock()
 
-	sites := make(map[int64]*Site)
-
 	l := zlog.Module("memstore")
 
-	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path", "ref",
-		"ref_scheme", "browser", "size", "location", "created_at", "bot",
-		"title", "event", "session2", "first_visit"})
+	ins := bulk.NewInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
+		"ref_scheme", "user_agent_id", "size", "location", "created_at", "bot",
+		"session", "first_visit"})
 	for i, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
@@ -221,25 +219,26 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			}
 		}
 
-		site, ok := sites[h.Site]
-		if !ok {
-			site = new(Site)
-			err := site.ByID(ctx, h.Site)
-			if err != nil {
-				l.Field("hit", h).Error(err)
-				continue
-			}
-			sites[h.Site] = site
+		var site Site
+		err := site.ByID(ctx, h.Site)
+		if err != nil {
+			l.Field("hit", h).Error(err)
+			continue
 		}
-		ctx = WithSite(ctx, site)
+		ctx = WithSite(ctx, &site)
 
 		if h.Session.IsZero() {
 			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.Browser, h.RemoteAddr)
 		}
 
 		// Persist.
-		h.Defaults(ctx)
-		err := h.Validate(ctx)
+		err = h.Defaults(ctx)
+		if err != nil {
+			l.Field("hit", h).Error(err)
+			continue
+		}
+
+		err = h.Validate(ctx, false)
 		if err != nil {
 			l.Field("hit", h).Error(err)
 			continue
@@ -250,9 +249,8 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		// generation later.
 		hits[i] = h
 
-		ins.Values(h.Site, h.Path, h.Ref, h.RefScheme, h.Browser, h.Size,
-			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, h.Event,
-			h.Session, h.FirstVisit)
+		ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
+			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Session, h.FirstVisit)
 	}
 
 	return hits, ins.Finish()

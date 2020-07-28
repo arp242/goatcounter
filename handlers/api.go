@@ -431,7 +431,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		hit.Defaults(r.Context())
-		err = hit.Validate(r.Context())
+		err = hit.Validate(r.Context(), true)
 		if err != nil {
 			errs[i] = err.Error()
 			continue

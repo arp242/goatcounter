@@ -23,8 +23,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 			countUnique []int
 			day         string
 			hour        string
-			path        string
-			title       string
+			pathID      int64
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -34,16 +33,16 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 
 			day := h.CreatedAt.Format("2006-01-02")
 			dayHour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := day + h.Path
+			k := day + strconv.FormatInt(h.PathID, 10)
 			v := grouped[k]
 			if len(v.count) == 0 {
 				v.day = day
 				v.hour = dayHour
-				v.path = h.Path
+				v.pathID = h.PathID
 				if !isReindex {
 					var err error
-					v.count, v.countUnique, v.title, err = existingHitStats(ctx, tx,
-						h.Site, day, v.path)
+					v.count, v.countUnique, err = existingHitStats(ctx, tx,
+						h.Site, day, v.pathID)
 					if err != nil {
 						return err
 					}
@@ -51,10 +50,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 					v.count = make([]int, 24)
 					v.countUnique = make([]int, 24)
 				}
-			}
-
-			if h.Title != "" {
-				v.title = h.Title
 			}
 
 			hour, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
@@ -66,10 +61,10 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "hit_stats", []string{"site", "day", "path",
-			"title", "stats", "stats_unique"})
+		ins := bulk.NewInsert(ctx, "hit_stats", []string{"site_id", "day", "path_id",
+			"stats", "stats_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.path, v.title,
+			ins.Values(siteID, v.day, v.pathID,
 				zjson.MustMarshal(v.count),
 				zjson.MustMarshal(v.countUnique))
 		}
@@ -79,30 +74,29 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 
 func existingHitStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, path string,
-) ([]int, []int, string, error) {
+	day string, pathID int64,
+) ([]int, []int, error) {
 
 	var ex []struct {
 		Stats       []byte `db:"stats"`
 		StatsUnique []byte `db:"stats_unique"`
-		Title       string `db:"title"`
 	}
 	err := tx.SelectContext(txctx, &ex, `/* existingHitStats */
-		select stats, stats_unique, title from hit_stats
-		where site=$1 and day=$2 and path=$3 limit 1`,
-		siteID, day, path)
+		select stats, stats_unique from hit_stats
+		where site_id=$1 and day=$2 and path_id=$3 limit 1`,
+		siteID, day, pathID)
 	if err != nil {
-		return nil, nil, "", errors.Wrap(err, "existingHitStats")
+		return nil, nil, errors.Wrap(err, "existingHitStats")
 	}
 	if len(ex) == 0 {
-		return make([]int, 24), make([]int, 24), "", nil
+		return make([]int, 24), make([]int, 24), nil
 	}
 
 	_, err = tx.ExecContext(txctx, `delete from hit_stats where
-		site=$1 and day=$2 and path=$3`,
-		siteID, day, path)
+		site_id=$1 and day=$2 and path_id=$3`,
+		siteID, day, pathID)
 	if err != nil {
-		return nil, nil, "", errors.Wrap(err, "delete")
+		return nil, nil, errors.Wrap(err, "delete")
 	}
 
 	var r, ru []int
@@ -111,5 +105,5 @@ func existingHitStats(
 		zjson.MustUnmarshal(ex[0].StatsUnique, &ru)
 	}
 
-	return r, ru, ex[0].Title, nil
+	return r, ru, nil
 }

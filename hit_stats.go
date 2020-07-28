@@ -22,12 +22,13 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, limit, o
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListBrowsers */
 		select
-			browser as name,
+			browsers.name,
 			sum(count) as count,
 			sum(count_unique) as count_unique
 		from browser_stats
-		where site=$1 and day>=$2 and day<=$3
-		group by browser
+		join browsers using (browser_id)
+		where site_id=$1 and day>=$2 and day<=$3
+		group by name
 		order by count_unique desc, name asc
 		limit $4 offset $5
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
@@ -46,12 +47,13 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `
 		select
-			browser || ' ' || version as name,
+			name || ' ' || version as name,
 			sum(count) as count,
 			sum(count_unique) as count_unique
 		from browser_stats
-		where site=$1 and day>=$2 and day<=$3 and lower(browser)=lower($4)
-		group by browser, version
+		join browsers using (browser_id)
+		where site_id=$1 and day>=$2 and day<=$3 and lower(name)=lower($4)
+		group by name, version
 		order by count_unique desc, name asc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), browser)
 	return errors.Wrap(err, "Stats.ListBrowser")
@@ -62,18 +64,20 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, limit, of
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListSystem */
+	query := `/* Stats.ListSystem */
 		select
-			system as name,
+			systems.name,
 			sum(count) as count,
 			sum(count_unique) as count_unique
 		from system_stats
-		where site=$1 and day>=$2 and day<=$3
-		group by system
+		join systems using (system_id)
+		where site_id=$1 and day>=$2 and day<=$3
+		group by name
 		order by count_unique desc, name asc
-		limit $4 offset $5
-	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit+1, offset)
+		limit $4 offset $5`
+	args := []interface{}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), limit + 1, offset}
 
+	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, query, args...)
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
@@ -88,12 +92,13 @@ func (h *Stats) ListSystem(ctx context.Context, system string, start, end time.T
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `
 		select
-			system || ' ' || version as name,
+			name || ' ' || version as name,
 			sum(count) as count,
 			sum(count_unique) as count_unique
 		from system_stats
-		where site=$1 and day >= $2 and day <= $3 and lower(system)=lower($4)
-		group by system, version
+		join systems using (system_id)
+		where site_id=$1 and day >= $2 and day <= $3 and lower(name)=lower($4)
+		group by name, version
 		order by count_unique desc, name asc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), system)
 	return errors.Wrap(err, "Stats.ListSystem")
@@ -119,7 +124,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 			sum(count) as count,
 			sum(count_unique) as count_unique
 		from size_stats
-		where site=$1 and day >= $2 and day <= $3
+		where site_id=$1 and day >= $2 and day <= $3
 		group by width
 		order by count_unique desc, name asc
 	`, MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
@@ -195,7 +200,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 			sum(count_unique) as count_unique
 		from size_stats
 		where
-			site=$1 and day >= $2 and day <= $3 and
+			site_id=$1 and day >= $2 and day <= $3 and
 			%s
 		group by width
 	`, where), MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"))
@@ -238,7 +243,7 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, limit, 
 			sum(count_unique) as count_unique
 		from location_stats
 		join iso_3166_1 on iso_3166_1.alpha2=location
-		where site=$1 and day >= $2 and day <= $3
+		where site_id=$1 and day >= $2 and day <= $3
 		group by location, iso_3166_1.name
 		order by count_unique desc, name asc
 		limit $4 offset $5

@@ -48,7 +48,7 @@ var statTables = []string{"hit_stats", "system_stats", "browser_stats",
 	"location_stats", "size_stats"}
 
 type Site struct {
-	ID     int64  `db:"id" json:"id,readonly"`
+	ID     int64  `db:"site_id" json:"id,readonly"`
 	Parent *int64 `db:"parent" json:"parent,readonly"`
 
 	// Custom domain, e.g. "stats.example.com"
@@ -208,7 +208,7 @@ func (s *Site) Validate(ctx context.Context) error {
 
 		var cname uint8
 		err := zdb.MustGet(ctx).GetContext(ctx, &cname,
-			`select 1 from sites where lower(cname)=lower($1) and id!=$2 limit 1`,
+			`select 1 from sites where lower(cname)=lower($1) and site_id!=$2 limit 1`,
 			s.Cname, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
@@ -225,7 +225,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	if !v.HasErrors() {
 		var code uint8
 		err := zdb.MustGet(ctx).GetContext(ctx, &code,
-			`select 1 from sites where lower(code)=lower($1) and id!=$2 limit 1`,
+			`select 1 from sites where lower(code)=lower($1) and site_id!=$2 limit 1`,
 			s.Code, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
@@ -250,7 +250,7 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	s.ID, err = insertWithID(ctx, "id", `insert into sites
+	s.ID, err = insertWithID(ctx, "site_id", `insert into sites
 		(parent, code, cname, link_domain, settings, plan, created_at)
 		values ($1, $2, $3, $4, $5, $6, $7)`,
 		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan,
@@ -274,7 +274,7 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set settings=$1, cname=$2, link_domain=$3, updated_at=$4 where id=$5`,
+		`update sites set settings=$1, cname=$2, link_domain=$3, updated_at=$4 where site_id=$5`,
 		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Update")
@@ -305,7 +305,7 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set stripe=$1, plan=$2, billing_amount=$3, updated_at=$4 where id=$5`,
+		`update sites set stripe=$1, plan=$2, billing_amount=$3, updated_at=$4 where site_id=$5`,
 		s.Stripe, s.Plan, s.BillingAmount, s.UpdatedAt.Format(zdb.Date), s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateStripe")
@@ -317,7 +317,7 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 
 func (s *Site) UpdateReceivedData(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set received_data=1 where id=$1`, s.ID)
+		`update sites set received_data=1 where site_id=$1`, s.ID)
 
 	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
 	return errors.Wrap(err, "Site.UpdateReceivedData")
@@ -333,7 +333,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 	s.CnameSetupAt = &n
 
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set cname_setup_at=$1 where id=$2`,
+		`update sites set cname_setup_at=$1 where site_id=$2`,
 		s.CnameSetupAt.Format(zdb.Date), s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateCnameSetupAt")
@@ -351,7 +351,7 @@ func (s *Site) Delete(ctx context.Context) error {
 
 	t := Now()
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set state=$1, updated_at=$2 where id=$3 or parent=$3`,
+		`update sites set state=$1, updated_at=$2 where site_id=$3 or parent=$3`,
 		StateDeleted, t.Format(zdb.Date), s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Delete")
@@ -379,7 +379,7 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 	}
 
 	err := zdb.MustGet(ctx).GetContext(ctx, s,
-		`/* Site.ByID */ select * from sites where id=$1 and state=$2`,
+		`/* Site.ByID */ select * from sites where site_id=$1 and state=$2`,
 		id, StateActive)
 	if err != nil {
 		return errors.Wrapf(err, "Site.ByID %d", id)
@@ -439,9 +439,9 @@ func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 	var codes []string
 	err := zdb.MustGet(ctx).SelectContext(ctx, &codes, `/* Site.ListSubs */
 		select `+col+` from sites
-		where state=$1 and (parent=$2 or id=$2) or (
-			parent = (select parent from sites where id=$2) or
-			id     = (select parent from sites where id=$2)
+		where state=$1 and (parent=$2 or site_id=$2) or (
+			parent  = (select parent from sites where site_id=$2) or
+			site_id = (select parent from sites where site_id=$2)
 		) and state=$1
 		order by code
 		`, StateActive, s.ID)
@@ -550,7 +550,7 @@ func (s Site) PayExternal() string {
 func (s Site) DeleteAll(ctx context.Context) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits") {
-			_, err := tx.ExecContext(ctx, `delete from `+t+` where site=$1`, s.ID)
+			_, err := tx.ExecContext(ctx, `delete from `+t+` where site_id=$1`, s.ID)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteAll: delete "+t)
 			}
@@ -568,21 +568,21 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		ival := interval(days)
 		_, err := tx.ExecContext(ctx,
-			`delete from hits where site=$1 and created_at < `+ival,
+			`delete from hits where site_id=$1 and created_at < `+ival,
 			s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
 		}
 
 		_, err = tx.ExecContext(ctx,
-			`delete from hit_counts where site=$1 and hour < `+ival,
+			`delete from hit_counts where site_id=$1 and hour < `+ival,
 			s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
 		}
 
 		_, err = tx.ExecContext(ctx,
-			`delete from ref_counts where site=$1 and hour < `+ival,
+			`delete from ref_counts where site_id=$1 and hour < `+ival,
 			s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
@@ -590,7 +590,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 
 		for _, t := range statTables {
 			_, err := tx.ExecContext(ctx,
-				`delete from `+t+` where site=$1 and day < `+ival,
+				`delete from `+t+` where site_id=$1 and day < `+ival,
 				s.ID)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan: delete "+t)

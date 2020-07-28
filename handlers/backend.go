@@ -40,6 +40,7 @@ import (
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -277,7 +278,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	err = hit.Validate(r.Context())
+	err = hit.Validate(r.Context(), true)
 	if err != nil {
 		w.Header().Add("X-Goatcounter", fmt.Sprintf("not valid: %s", err))
 		w.WriteHeader(400)
@@ -291,7 +292,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
 
-	exclude := r.URL.Query().Get("exclude")
+	exclude, err := zint.Split(r.URL.Query().Get("exclude"), ",")
+	if err != nil {
+		return err
+	}
+
 	filter := r.URL.Query().Get("filter")
 	asText := r.URL.Query().Get("as-text") == "true"
 	start, end, err := getPeriod(w, r, site)
@@ -330,7 +335,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	// currently possible since not all data is linked to a path.
 	//
 	// TODO: use widgets for this.
-	if exclude == "" {
+	if len(exclude) == 0 {
 		wg.Add(1)
 		go func() {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
@@ -369,7 +374,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 	var pages goatcounter.HitStats
 	totalDisplay, totalUniqueDisplay, more, err := pages.List(
-		r.Context(), start, end, filter, strings.Split(exclude, ","), daily)
+		r.Context(), start, end, filter, exclude, daily)
 	if err != nil {
 		return err
 	}
@@ -907,10 +912,15 @@ func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
+	paths, err := zint.Split(r.Form.Get("paths"), ",")
+	if err != nil {
+		return err
+	}
+
 	ctx := goatcounter.NewContext(r.Context())
 	bgrun.Run(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
-		err := list.Purge(ctx, r.Form.Get("path"), r.Form.Get("match-title") == "on")
+		err := list.Purge(ctx, paths, r.Form.Get("match-title") == "on")
 		if err != nil {
 			zlog.Error(err)
 		}

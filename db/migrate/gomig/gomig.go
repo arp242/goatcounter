@@ -14,8 +14,9 @@ import (
 )
 
 var goMigrations = map[string]func(zdb.DB) error{
-	"2020-03-27-1-isbot":   IsBot,
-	"2020-07-22-1-memsess": MemSess,
+	"2020-03-27-1-isbot":       IsBot,
+	"2020-07-22-1-memsess":     MemSess,
+	"2020-08-28-4-user_agents": UserAgents,
 }
 
 func Run(db zdb.DB) error {

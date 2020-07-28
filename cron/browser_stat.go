@@ -6,13 +6,56 @@ package cron
 
 import (
 	"context"
+	"strconv"
+	"sync"
 
 	"zgo.at/errors"
-	"zgo.at/gadget"
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
+	"zgo.at/zlog"
 )
+
+var (
+	userAgentMap map[int64][2]int64
+	getUAOnce    sync.Once
+)
+
+func getUA(ctx context.Context, uaID int64) (browser, system int64) {
+	getUAOnce.Do(func() {
+		var ua []struct {
+			UserAgentID int64 `db:"user_agent_id"`
+			BrowserID   int64 `db:"browser_id"`
+			SystemID    int64 `db:"system_id"`
+		}
+		err := zdb.MustGet(ctx).SelectContext(ctx, &ua,
+			`select user_agent_id, browser_id, system_id from user_agents`)
+		if err != nil {
+			panic(err)
+		}
+
+		userAgentMap = make(map[int64][2]int64, len(ua))
+		for _, u := range ua {
+			userAgentMap[u.UserAgentID] = [2]int64{u.BrowserID, u.SystemID}
+		}
+	})
+
+	ua, ok := userAgentMap[uaID]
+	if !ok {
+		var u goatcounter.UserAgent
+		err := u.ByID(ctx, uaID)
+		if err != nil {
+			zlog.Field("uaID", uaID).Error(err)
+			return 0, 0
+		}
+		ua = [2]int64{u.BrowserID, u.SystemID}
+		userAgentMap[uaID] = ua
+	}
+
+	return ua[0], ua[1]
+}
+
+// TODO: add path_id here too?
 
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
@@ -21,8 +64,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 			count       int
 			countUnique int
 			day         string
-			browser     string
-			version     string
+			browserID   int64
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -30,22 +72,20 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 				continue
 			}
 
-			browser, version := getBrowser(h.Browser)
-			if browser == "" {
-				continue
+			if h.BrowserID == 0 {
+				h.BrowserID, _ = getUA(ctx, h.UserAgentID)
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + browser + version
+			k := day + strconv.FormatInt(h.BrowserID, 10)
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
-				v.browser = browser
-				v.version = version
+				v.browserID = h.BrowserID
 				if !isReindex {
 					var err error
 					v.count, v.countUnique, err = existingBrowserStats(ctx, tx,
-						h.Site, day, v.browser, v.version)
+						h.Site, day, v.browserID)
 					if err != nil {
 						return err
 					}
@@ -60,10 +100,10 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "browser_stats", []string{"site", "day",
-			"browser", "version", "count", "count_unique"})
+		ins := bulk.NewInsert(ctx, "browser_stats", []string{"site_id", "day",
+			"browser_id", "count", "count_unique"})
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.browser, v.version, v.count, v.countUnique)
+			ins.Values(siteID, v.day, v.browserID, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
@@ -71,7 +111,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 
 func existingBrowserStats(
 	txctx context.Context, tx zdb.DB, siteID int64,
-	day, browser, version string,
+	day string, browserID int64,
 ) (int, int, error) {
 
 	var c []struct {
@@ -80,8 +120,8 @@ func existingBrowserStats(
 	}
 	err := tx.SelectContext(txctx, &c, `/* existingBrowserStats */
 		select count, count_unique from browser_stats
-		where site=$1 and day=$2 and browser=$3 and version=$4 limit 1`,
-		siteID, day, browser, version)
+		where site_id=$1 and day=$2 and browser_id=$3 limit 1`,
+		siteID, day, browserID)
 	if err != nil {
 		return 0, 0, errors.Wrap(err, "select")
 	}
@@ -90,12 +130,7 @@ func existingBrowserStats(
 	}
 
 	_, err = tx.ExecContext(txctx, `delete from browser_stats where
-		site=$1 and day=$2 and browser=$3 and version=$4`,
-		siteID, day, browser, version)
+		site_id=$1 and day=$2 and browser_id=$3`,
+		siteID, day, browserID)
 	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
-}
-
-func getBrowser(uaHeader string) (string, string) {
-	ua := gadget.Parse(uaHeader)
-	return ua.BrowserName, ua.BrowserVersion
 }

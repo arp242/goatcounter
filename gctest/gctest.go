@@ -213,6 +213,9 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 		if hits[i].Site == 0 {
 			hits[i].Site = 1
 		}
+		if hits[i].Path == "" {
+			hits[i].Path = "/"
+		}
 	}
 
 	goatcounter.Memstore.Append(hits...)

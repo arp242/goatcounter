@@ -12,7 +12,6 @@ import (
 	"io"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -123,16 +122,10 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		*e.NumRows += len(hits)
 
 		for _, hit := range hits {
-			s := ""
-			if hit.OldSession != nil {
-				s = strconv.FormatInt(*hit.OldSession, 10)
-			} else {
-				b := hit.Session.Bytes()
-				var u uuid.UUID
-				copy(u[:], b)
-				s = u.String()
-
-			}
+			b := hit.Session.Bytes()
+			var u uuid.UUID
+			copy(u[:], b)
+			s := u.String()
 
 			rs := ""
 			if hit.RefScheme != nil {
