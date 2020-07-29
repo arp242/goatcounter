@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	. "zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 )
 
@@ -22,19 +21,16 @@ func TestSizeStats(t *testing.T) {
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
-	err := UpdateStats(ctx, site.ID, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{}},
 		{Site: site.ID, CreatedAt: now, Size: nil},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	}...)
 
 	var stats goatcounter.Stats
-	err = stats.ListSizes(ctx, now, now)
+	err := stats.ListSizes(ctx, now, now)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,17 +47,14 @@ func TestSizeStats(t *testing.T) {
 	}
 
 	// Update existing.
-	err = UpdateStats(ctx, site.ID, []goatcounter.Hit{
+	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{380, 600, 1}},
 		{Site: site.ID, CreatedAt: now, Size: nil, FirstVisit: true},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	}...)
 
 	stats = goatcounter.Stats{}
 	err = stats.ListSizes(ctx, now, now)

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	. "zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 )
@@ -37,7 +37,7 @@ func TestDataRetention(t *testing.T) {
 		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zdb.Bool(false)},
 	}...)
 
-	err = DataRetention(ctx)
+	err = cron.DataRetention(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

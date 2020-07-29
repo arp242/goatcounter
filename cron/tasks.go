@@ -115,7 +115,7 @@ func PersistAndStat(ctx context.Context) error {
 		grouped[h.Site] = append(grouped[h.Site], h)
 	}
 	for siteID, hits := range grouped {
-		err := UpdateStats(ctx, siteID, hits)
+		err := UpdateStats(ctx, nil, siteID, hits)
 		if err != nil {
 			l.Fields(zlog.F{
 				"site":  siteID,
@@ -131,45 +131,35 @@ func PersistAndStat(ctx context.Context) error {
 	return err
 }
 
-func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) error {
-	var site goatcounter.Site
-	err := site.ByID(ctx, siteID)
-	if err != nil {
-		return err
+func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits []goatcounter.Hit) error {
+	if site == nil {
+		site = new(goatcounter.Site)
+		err := site.ByID(ctx, siteID)
+		if err != nil {
+			return err
+		}
 	}
-	ctx = goatcounter.WithSite(ctx, &site)
+	ctx = goatcounter.WithSite(ctx, site)
 
-	err = updateHitStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "hit_stat: site %d", siteID)
+	funs := []func(context.Context, []goatcounter.Hit) error{
+		updateHitStats,
+		updateHitCounts,
+		updateBrowserStats,
+		updateSystemStats,
+		updateLocationStats,
+		updateRefCounts,
+		updateSizeStats,
 	}
-	err = updateHitCounts(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "hit_count: site %d", siteID)
-	}
-	err = updateBrowserStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "browser_stat: site %d", siteID)
-	}
-	err = updateSystemStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "browser_stat: site %d", siteID)
-	}
-	err = updateLocationStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "location_stat: site %d", siteID)
-	}
-	err = updateRefCounts(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "ref_count: site %d", siteID)
-	}
-	err = updateSizeStats(ctx, hits)
-	if err != nil {
-		return errors.Wrapf(err, "size_stat: site %d", siteID)
+
+	for _, f := range funs {
+		err := f(ctx, hits)
+		if err != nil {
+			return errors.Wrapf(err, "site %d", siteID)
+		}
 	}
 
 	if !site.ReceivedData {
-		_, err = zdb.MustGet(ctx).ExecContext(ctx,
+		_, err := zdb.MustGet(ctx).ExecContext(ctx,
 			`update sites set received_data=1 where id=$1`, siteID)
 		if err != nil {
 			return errors.Wrapf(err, "update received_data: site %d", siteID)
@@ -178,27 +168,47 @@ func UpdateStats(ctx context.Context, siteID int64, hits []goatcounter.Hit) erro
 	return nil
 }
 
+var (
+	sitesOnce sync.Once
+	allSites  map[int64]goatcounter.Site
+)
+
+// ReindexStats re-indexes all the statistics for the given tables; this is
+// intended to be run by the "goatcounter reindex" command.
 func ReindexStats(ctx context.Context, hits []goatcounter.Hit, tables []string) error {
+	sitesOnce.Do(func() {
+		var sites goatcounter.Sites
+		err := sites.UnscopedList(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		allSites = make(map[int64]goatcounter.Site)
+		for _, s := range sites {
+			allSites[s.ID] = s
+		}
+	})
+
 	grouped := make(map[int64][]goatcounter.Hit)
 	for _, h := range hits {
 		grouped[h.Site] = append(grouped[h.Site], h)
 	}
 
 	for siteID, hits := range grouped {
-		var site goatcounter.Site
-		err := site.ByID(ctx, siteID)
-		if err != nil {
-			if zdb.ErrNoRows(err) { // Deleted site.
-				continue
-			}
-			return errors.Errorf("cron.ReindexStats: %w", err)
+		site, ok := allSites[siteID]
+		if !ok {
+			return errors.Errorf("cron.ReindexStats: not in allSites: %d", siteID)
+		}
+		if site.State != goatcounter.StateActive {
+			continue
 		}
 		ctx = goatcounter.WithSite(ctx, &site)
 
+		var err error
 		for _, t := range tables {
 			switch t {
 			case "all":
-				err = UpdateStats(ctx, siteID, hits)
+				err = UpdateStats(ctx, &site, siteID, hits)
 			case "hit_stats":
 				err = updateHitStats(ctx, hits)
 			case "hit_counts":
