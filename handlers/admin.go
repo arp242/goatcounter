@@ -9,7 +9,6 @@ import (
 	"math"
 	"net/http"
 	"net/http/pprof"
-	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
@@ -31,7 +30,10 @@ func (h admin) mount(r chi.Router) {
 	a := r.With(zhttp.Log(true, ""), adminOnly)
 
 	a.Get("/admin", zhttp.Wrap(h.index))
-	a.Get("/admin/sql", zhttp.Wrap(h.sql))
+	a.Get("/admin/sql", zhttp.Wrap(h.pgstat))
+	a.Get("/admin/sql/table/{table}", zhttp.Wrap(h.pgstatTable))
+	a.Post("/admin/sql/explain", zhttp.Wrap(h.explain))
+
 	a.Get("/admin/botlog", zhttp.Wrap(h.botlog))
 	a.Get("/admin/{id}", zhttp.Wrap(h.site))
 	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
@@ -128,74 +130,6 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 		TotalEUR      int
 		TotalEarnings int
 	}{newGlobals(w, r), a, signups, maxSignups, totalUSD, totalEUR, totalEarnings})
-}
-
-func (h admin) sql(w http.ResponseWriter, r *http.Request) error {
-	if Site(r.Context()).ID != 1 {
-		return guru.New(403, "yeah nah")
-	}
-
-	var load string
-	uptime, err := exec.Command("uptime").CombinedOutput()
-	if err == nil {
-		load = strings.TrimSpace(strings.Join(strings.Split(string(uptime), ",")[2:], ", "))
-	}
-	free, err := exec.Command("free", "-m").CombinedOutput()
-	if err != nil {
-		free = nil
-	}
-	// Ignore exit/stderr because:
-	// df: /sys/kernel/debug/tracing: Permission denied
-	df, _ := exec.Command("df", "-hT").Output()
-
-	filter := r.URL.Query().Get("filter")
-	order := r.URL.Query().Get("order")
-	asc := r.URL.Query().Get("asc") != ""
-
-	var stats goatcounter.AdminPgStatStatements
-	err = stats.List(r.Context(), order, asc, filter)
-	if err != nil {
-		return err
-	}
-
-	var act goatcounter.AdminPgStatActivity
-	err = act.List(r.Context())
-	if err != nil {
-		return err
-	}
-
-	var tbls goatcounter.AdminPgStatTables
-	err = tbls.List(r.Context())
-	if err != nil {
-		return err
-	}
-
-	var idx goatcounter.AdminPgStatIndexes
-	err = idx.List(r.Context())
-	if err != nil {
-		return err
-	}
-
-	var prog goatcounter.AdminPgStatProgress
-	err = prog.List(r.Context())
-	if err != nil {
-		return err
-	}
-
-	return zhttp.Template(w, "admin_sql.gohtml", struct {
-		Globals
-		Filter   string
-		Order    string
-		Load     string
-		Free     string
-		Df       string
-		Stats    goatcounter.AdminPgStatStatements
-		Activity goatcounter.AdminPgStatActivity
-		Tables   goatcounter.AdminPgStatTables
-		Indexes  goatcounter.AdminPgStatIndexes
-		Progress goatcounter.AdminPgStatProgress
-	}{newGlobals(w, r), filter, order, load, string(free), string(df), stats, act, tbls,
-		idx, prog})
 }
 
 func (h admin) botlog(w http.ResponseWriter, r *http.Request) error {

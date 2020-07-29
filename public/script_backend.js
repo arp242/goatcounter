@@ -18,7 +18,7 @@
 
 		;[report_errors, period_select, load_refs, tooltip, paginate_pages,
 			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
-			filter_pages, add_ip, fill_tz, draw_chart, bind_scale, tsort,
+			filter_pages, add_ip, fill_tz, draw_chart, bind_scale, pgstat,
 			copy_pre, ref_pages,
 		].forEach(function(f) { f.call() })
 	});
@@ -845,27 +845,76 @@
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
 	};
 
-	// Sort tables, just for the admin.
-	var tsort = function() {
-		$('table.sort th').on('click', function(e) {
-			var th       = $(this),
-				num_sort = th.is('.n'),
-				col      = th.index(),
-				tbody    = th.closest('table').find('>tbody'),
-				rows     = Array.from(tbody.find('>tr')),
-				to_i     = (i) => parseInt(i.replace(/,/g, ''), 10),
-				is_sort  = th.attr('data-sort') === '1'
+	// Various stuff for the SQL stats page.
+	var pgstat = function() {
+		if ($('#system-stats').length === 0)
+			return
 
-			if (num_sort)
-				rows.sort((a, b) => to_i(a.children[col].innerText) < to_i(b.children[col].innerText))
-			else
-				rows.sort((a, b) => a.children[col].innerText.localeCompare(b.children[col].innerText))
-			if (is_sort)
-				rows.reverse()
+		// Sort tables
+		var sort = function(headers) {
+			$(headers || 'table.sort th').on('click', function(e) {
+				var th       = $(this),
+					num_sort = th.is('.n'),
+					col      = th.index(),
+					tbody    = th.closest('table').find('>tbody'),
+					rows     = Array.from(tbody.find('>tr')),
+					to_i     = (i) => parseInt(i.replace(/,/g, ''), 10),
+					is_sort  = th.attr('data-sort') === '1'
 
-			tbody.html('').html(rows)
-			th.closest('table').find('th').attr('data-sort', '0')
-			th.attr('data-sort', is_sort ? '0' : '1')
+				if (num_sort)
+					rows.sort((a, b) => to_i(a.children[col].innerText) < to_i(b.children[col].innerText))
+				else
+					rows.sort((a, b) => a.children[col].innerText.localeCompare(b.children[col].innerText))
+				if (is_sort)
+					rows.reverse()
+
+				tbody.html('').html(rows)
+				th.closest('table').find('th').attr('data-sort', '0')
+				th.attr('data-sort', is_sort ? '0' : '1')
+			})
+		}
+		sort()
+
+		// Collapse sections.
+		$('h2').on('click', function(e) {
+			var next = $(this).next()
+			next.css('display', (next.css('display') === 'none' ? 'block' : 'none'))
+		})
+
+		// Query explain
+		$('#explain form').on('submit', function(e) {
+			e.preventDefault()
+
+			var form = $(this),
+				ta   = form.find('textarea')
+
+			jQuery.ajax({
+				method: 'POST',
+				url:    '/admin/sql/explain',
+				data:   form.serialize(),
+				success: function(data) {
+					form.after($('<pre class="e"></pre>').html(data))
+				}
+			})
+		})
+
+		// Load table details
+		$('.load-table').on('click', function(e) {
+			e.preventDefault()
+
+			var row = $(this).closest('tr')
+			if (row.next().is('.table-detail'))
+				return row.next().remove()
+
+			jQuery.ajax({
+				url: '/admin/sql/table/' + $(this).text(),
+				success: function(data) {
+					var nrow = $('<tr class="table-detail"><td colspan="10"></td></tr>')
+					nrow.find('td').html(data)
+					row.after(nrow)
+					sort(nrow.find('table th'))
+				},
+			})
 		})
 	}
 })();

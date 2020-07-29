@@ -1,6 +1,7 @@
 {{template "_backend_top.gohtml" .}}
 
 <style>
+/* Sort */
 table    { max-width: none !important; }
 td       { white-space: nowrap; vertical-align: top; }
 pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
@@ -9,16 +10,39 @@ th       { text-align: left; }
 input    { float: right; padding: .4em !important; }
 .sort th { color: blue; cursor: pointer; }
 
-#system-stats { display: flex; justify-content: space-between; }
-
+/* Make queryID shorter, but still allow copy/pasting */
 .qid-td    { padding: 0; }
 .qid       { border: 1px solid #eee; width: 1em; line-height: 2em; overflow: hidden; display: block; }
 .qid:hover { width: auto; }
+
+#system-stats { display: flex; justify-content: space-between; }
+h2            { cursor: pointer; }
+.table-detail { background-color: #eee; }
+
+.page { max-width: unset; }
+
+.e {
+	border: 1px solid #ddd;
+	margin: .5em 0;
+}
+.cost {
+	color: red;
+}
 </style>
 
+<h2>Explain</h2>
+<div id="explain">
+	<form>
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<textarea name="query"></textarea>
+		<button type="submit">Submit</button>
+	</form>
+</div>
+
+<h2>System stats</h2>
 <div id="system-stats">
-<pre>{{.Free}}{{.Load}}</pre>
-<pre>{{.Df}}</pre>
+	<pre>{{.Free}}{{.Load}}</pre>
+	<pre>{{.Df}}</pre>
 </div>
 
 <h2>pg_stat_activity</h2>
@@ -63,7 +87,7 @@ input    { float: right; padding: .4em !important; }
 </tbody>
 </table>
 
-<h2>pg_stat_user_tables</h2>
+<h2>Tables</h2>
 <table class="sort">
 <thead><tr>
 	<th>Table</th>
@@ -80,7 +104,7 @@ input    { float: right; padding: .4em !important; }
 <tbody>
 	{{range $s := .Tables}}
 	<tr>
-		<td>{{$s.Table}}</td>
+		<td><a href="#" class="load-table">{{$s.Table}}</a></td>
 		<td class="n">{{$s.TableSize}}M</td>
 		<td class="n">{{$s.IndexesSize}}M</td>
 		<td>
@@ -109,7 +133,7 @@ input    { float: right; padding: .4em !important; }
 </tbody>
 </table>
 
-<h2>pg_stat_user_indexes</h2>
+<h2>Indexes</h2>
 <table class="sort">
 <thead><tr>
 	<th>Index</th>
