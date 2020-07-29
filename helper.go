@@ -77,6 +77,11 @@ func EmailTemplate(tplname string, args interface{}) func() ([]byte, error) {
 	}
 }
 
+func ResetCache() {
+	sitesCacheByID.Flush()
+	sitesCacheHostname.Flush()
+}
+
 func interval(days int) string {
 	if cfg.PgSQL {
 		return fmt.Sprintf(" now() - interval '%d days' ", days)

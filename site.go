@@ -9,9 +9,11 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/patrickmn/go-cache"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
@@ -286,7 +288,12 @@ func (s *Site) Update(ctx context.Context) error {
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set settings=$1, cname=$2, link_domain=$3, updated_at=$4 where id=$5`,
 		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
-	return errors.Wrap(err, "Site.Update")
+	if err != nil {
+		return errors.Wrap(err, "Site.Update")
+	}
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	return nil
 }
 
 // UpdateStripe sets the Stripe customer ID.
@@ -312,7 +319,12 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set stripe=$1, plan=$2, billing_amount=$3, updated_at=$4 where id=$5`,
 		s.Stripe, s.Plan, s.BillingAmount, s.UpdatedAt.Format(zdb.Date), s.ID)
-	return errors.Wrap(err, "Site.UpdateStripe")
+	if err != nil {
+		return errors.Wrap(err, "Site.UpdateStripe")
+	}
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	return nil
 }
 
 // UpdateCnameSetupAt confirms the custom domain was setup correct.
@@ -327,7 +339,12 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set cname_setup_at=$1 where id=$2`,
 		s.CnameSetupAt.Format(zdb.Date), s.ID)
-	return errors.Wrap(err, "Site.UpdateCnameSetupAt")
+	if err != nil {
+		return errors.Wrap(err, "Site.UpdateCnameSetupAt")
+	}
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	return nil
 }
 
 // Delete a site.
@@ -343,17 +360,36 @@ func (s *Site) Delete(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "Site.Delete")
 	}
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
 	s.ID = 0
 	s.UpdatedAt = &t
 	s.State = StateDeleted
 	return nil
 }
 
+var (
+	sitesCacheByID     = cache.New(cache.NoExpiration, -1)
+	sitesCacheHostname = cache.New(cache.NoExpiration, -1)
+)
+
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
-	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, s,
+	k := strconv.FormatInt(id, 10)
+	ss, ok := sitesCacheByID.Get(k)
+	if ok {
+		*s = *ss.(*Site)
+		return nil
+	}
+
+	err := zdb.MustGet(ctx).GetContext(ctx, s,
 		`/* Site.ByID */ select * from sites where id=$1 and state=$2`,
-		id, StateActive), "Site.ByID %d", id)
+		id, StateActive)
+	if err != nil {
+		return errors.Wrapf(err, "Site.ByID %d", id)
+	}
+	sitesCacheByID.SetDefault(k, s)
+	return nil
 }
 
 // ByCode gets a site by code.
@@ -365,11 +401,21 @@ func (s *Site) ByCode(ctx context.Context, code string) error {
 
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
+	id, ok := sitesCacheHostname.Get(host)
+	if ok {
+		return s.ByID(ctx, id.(int64))
+	}
+
 	// Custom domain or serve.
 	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
-		return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
+		err := zdb.MustGet(ctx).GetContext(ctx, s,
 			`/* Site.ByHost */ select * from sites where lower(cname)=lower($1) and state=$2`,
-			zhttp.RemovePort(host), StateActive), "site.ByHost: from custom domain")
+			zhttp.RemovePort(host), StateActive)
+		if err != nil {
+			return errors.Wrap(err, "site.ByHost: from custom domain")
+		}
+		sitesCacheHostname.SetDefault(host, s.ID)
+		return nil
 	}
 
 	// Get from code (e.g. "arp242" in "arp242.goatcounter.com").
@@ -378,9 +424,14 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 		return errors.Errorf("Site.ByHost: no subdomain in host %q", host)
 	}
 
-	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, s,
+	err := zdb.MustGet(ctx).GetContext(ctx, s,
 		`/* Site.ByHost */ select * from sites where lower(code)=lower($1) and state=$2`,
-		host[:p], StateActive), "site.ByHost: from code")
+		host[:p], StateActive)
+	if err != nil {
+		return errors.Wrap(err, "site.ByHost: from code")
+	}
+	sitesCacheHostname.SetDefault(host, s.ID)
+	return nil
 }
 
 // ListSubs lists all subsites, including the current site and parent.
