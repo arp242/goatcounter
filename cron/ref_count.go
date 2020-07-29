@@ -6,12 +6,18 @@ package cron
 
 import (
 	"context"
+	"time"
 
+	"github.com/patrickmn/go-cache"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 )
+
+var cacheRefCount = cache.New(1*time.Hour, 5*time.Minute)
+
+type cacheRefCountEntry struct{ total, totalUnique int }
 
 func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
@@ -55,6 +61,9 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		for _, v := range grouped {
+			cacheRefCount.SetDefault(v.hour+v.path+v.ref,
+				cacheRefCountEntry{total: v.total, totalUnique: v.totalUnique})
+
 			var err error
 			if cfg.PgSQL {
 				_, err = zdb.MustGet(ctx).ExecContext(ctx, `insert into ref_counts
@@ -82,6 +91,12 @@ func existingRefCounts(
 	txctx context.Context, tx zdb.DB, siteID int64,
 	hour, path, ref string,
 ) (int, int, error) {
+
+	cached, ok := cacheRefCount.Get(hour + path + ref)
+	if ok {
+		x := cached.(cacheRefCountEntry)
+		return x.total, x.totalUnique, nil
+	}
 
 	var t, tu int
 	row := tx.QueryRowxContext(txctx, `/* existingRefCounts */

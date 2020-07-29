@@ -7,12 +7,14 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/boombuler/barcode v1.0.0
+	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.7.1
 	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/monoculum/formam v0.0.0-20200527175922-6f3cce7a46cf
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381

@@ -131,6 +131,11 @@ func PersistAndStat(ctx context.Context) error {
 	return err
 }
 
+func ResetCache() {
+	cacheHitCount.Flush()
+	cacheRefCount.Flush()
+}
+
 func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits []goatcounter.Hit) error {
 	if site == nil {
 		site = new(goatcounter.Site)
