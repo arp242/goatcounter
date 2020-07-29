@@ -6,6 +6,7 @@ package cron
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -61,7 +62,7 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		for _, v := range grouped {
-			cacheRefCount.SetDefault(v.hour+v.path+v.ref,
+			cacheRefCount.SetDefault(strconv.FormatInt(siteID, 10)+v.hour+v.path+v.ref,
 				cacheRefCountEntry{total: v.total, totalUnique: v.totalUnique})
 
 			var err error
@@ -92,7 +93,7 @@ func existingRefCounts(
 	hour, path, ref string,
 ) (int, int, error) {
 
-	cached, ok := cacheRefCount.Get(hour + path + ref)
+	cached, ok := cacheRefCount.Get(strconv.FormatInt(siteID, 10) + hour + path + ref)
 	if ok {
 		x := cached.(cacheRefCountEntry)
 		return x.total, x.totalUnique, nil

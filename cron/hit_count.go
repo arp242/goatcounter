@@ -6,6 +6,7 @@ package cron
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -64,7 +65,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		for _, v := range grouped {
-			cacheHitCount.SetDefault(v.hour+v.path,
+			cacheHitCount.SetDefault(strconv.FormatInt(siteID, 10)+v.hour+v.path,
 				cacheHitCountEntry{total: v.total, totalUnique: v.totalUnique})
 
 			var err error
@@ -95,7 +96,7 @@ func existingHitCounts(
 	hour, path string,
 ) (int, int, error) {
 
-	cached, ok := cacheHitCount.Get(hour + path)
+	cached, ok := cacheHitCount.Get(strconv.FormatInt(siteID, 10) + hour + path)
 	if ok {
 		x := cached.(cacheHitCountEntry)
 		return x.total, x.totalUnique, nil
