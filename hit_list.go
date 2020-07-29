@@ -417,40 +417,25 @@ func GetMax(ctx context.Context, start, end time.Time, filter string, daily bool
 		query string
 		args  []interface{}
 	)
-	if daily {
-		if cfg.PgSQL {
-			// PostgreSQL daily.
-			query = `/* getMax daily */
-					select coalesce(sum(total), 0) as t
-					from hit_counts
-					where site=? and hour>=? and hour<=? `
-			args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-			if filter != "" {
-				query += ` and (lower(path) like ? or lower(title) like ?) `
-				args = append(args, filter, filter)
-			}
-			query += `group by path, substring(timezone(?, hour)::varchar, 0, 11)
-					order by t desc
-					limit 1`
-			args = append(args, site.Settings.Timezone.OffsetRFC3339())
-		} else {
-			// SQLite daily
-			query = `
-					select coalesce(sum(total), 0) as t
-					from hit_counts
-					where site=? and hour>=? and hour<=? `
-			args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-			if filter != "" {
-				query += ` and (lower(path) like ? or lower(title) like ?) `
-				args = append(args, filter, filter)
-			}
-			query += `group by path, substr(datetime(hour, ?), 0, 11)
-					order by t desc
-					limit 1`
-			args = append(args, site.Settings.Timezone.OffsetRFC3339())
+	if daily { // Daily
+		query = `/* getMax daily */
+			select coalesce(sum(total), 0) as t
+			from hit_counts
+			where site=? and hour>=? and hour<=? `
+		args = []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+		if filter != "" {
+			query += ` and (lower(path) like ? or lower(title) like ?) `
+			args = append(args, filter, filter)
 		}
-	} else {
-		/* Hourly */
+
+		if cfg.PgSQL {
+			query += ` group by path, date(timezone(?, hour))`
+		} else {
+			query += ` group by path, date(hour, ?)`
+		}
+		query += ` order by t desc limit 1`
+		args = append(args, site.Settings.Timezone.OffsetRFC3339())
+	} else { // Hourly
 		query = `/* getMax hourly */
 				select coalesce(max(total), 0) from hit_counts
 				where site=? and hour>=? and hour<=? `
