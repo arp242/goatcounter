@@ -14,7 +14,6 @@ require (
 	github.com/lib/pq v1.7.1
 	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/monoculum/formam v0.0.0-20200527175922-6f3cce7a46cf
-	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
@@ -28,6 +27,7 @@ require (
 	zgo.at/isbot v0.0.0-20200630090855-51850c1e6580
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
+	zgo.at/zcache v0.0.0-20200730203833-194444fbbca6
 	zgo.at/zdb v0.0.0-20200721051833-b17e8bb8e4ed
 	zgo.at/zhttp v0.0.0-20200727125448-46429e444027
 	zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f

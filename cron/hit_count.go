@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/patrickmn/go-cache"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/zcache"
 	"zgo.at/zdb"
 )
 
-var cacheHitCount = cache.New(1*time.Hour, 5*time.Minute)
+var cacheHitCount = zcache.New(1*time.Hour, 5*time.Minute)
 
 type cacheHitCountEntry struct{ total, totalUnique int }
 
