@@ -323,6 +323,20 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) logout(w http.ResponseWriter, r *http.Request) error {
+	if cfg.GoatcounterCom {
+		isAdmin := false
+		for _, c := range r.Cookies() {
+			if c.Name == "is_admin" {
+				isAdmin = true
+				break
+			}
+		}
+		if isAdmin {
+			zhttp.ClearAuthCookie(w, Site(r.Context()).Domain())
+			return zhttp.SeeOther(w, "https://www.goatcounter.com")
+		}
+	}
+
 	u := goatcounter.GetUser(r.Context())
 	err := u.Logout(r.Context())
 	if err != nil {

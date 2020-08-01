@@ -14,6 +14,14 @@
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
+
+				{{if .GoatcounterCom}}
+					<label>{{checkbox .Site.Settings.AllowAdmin "settings.allow_admin"}}
+						Allow admin access</label>
+					<span>Normally administrators can’t “log in” to your site, but
+						if this is enabled they can. You may be asked to enable this
+						for support requests.</span>
+				{{end}}
 			</fieldset>
 
 			<fieldset id="section-domain">

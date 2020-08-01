@@ -15052,6 +15052,18 @@ input    { float: right; padding: .4em !important; }
 	</fieldset>
 </form>
 
+<form method="post" action="/admin/login/{{.Stat.Site.ID}}" class="vertical">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<fieldset>
+		<legend>Admin access</legend>
+		{{if .Stat.Site.Settings.AllowAdmin}}
+			<button type="submit">View site</button>
+		{{else}}
+			Admin access not enabled.
+		{{end}}
+	</fieldset>
+</form>
+
 <table>
 	<tr><td>Total</td><td>{{nformat .Stat.CountTotal $.Site}}</td></tr>
 	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.Site}}</td></tr>
@@ -15964,6 +15976,8 @@ pageview.</p>
 <p></p>
 <h4>campaigns <sup>array [type: string]</sup></h4>
 <p></p>
+<h4>allow_admin <sup>boolean</sup></h4>
+<p></p>
 <h4>limits <sup><a href="#"></a></sup></h4>
 <p></p>
 
@@ -16751,6 +16765,9 @@ depending on whether daylight savings time is in use at the time instant.</p>
       "title": "SiteSettings",
       "type": "object",
       "properties": {
+        "allow_admin": {
+          "type": "boolean"
+        },
         "campaigns": {
           "type": "array",
           "items": {
@@ -17110,6 +17127,14 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
+
+				{{if .GoatcounterCom}}
+					<label>{{checkbox .Site.Settings.AllowAdmin "settings.allow_admin"}}
+						Allow admin access</label>
+					<span>Normally administrators can’t “log in” to your site, but
+						if this is enabled they can. You may be asked to enable this
+						for support requests.</span>
+				{{end}}
 			</fieldset>
 
 			<fieldset id="section-domain">

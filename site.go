@@ -86,6 +86,7 @@ type SiteSettings struct {
 	IgnoreIPs        zdb.Strings `json:"ignore_ips"`
 	Timezone         *tz.Zone    `json:"timezone"`
 	Campaigns        zdb.Strings `json:"campaigns"`
+	AllowAdmin       bool        `json:"allow_admin"`
 	Limits           struct {
 		Page   int `json:"page"`
 		Ref    int `json:"ref"`

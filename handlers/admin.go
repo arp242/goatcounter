@@ -37,6 +37,7 @@ func (h admin) mount(r chi.Router) {
 	a.Get("/admin/botlog", zhttp.Wrap(h.botlog))
 	a.Get("/admin/{id}", zhttp.Wrap(h.site))
 	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
+	a.Post("/admin/login/{id}", zhttp.Wrap(h.login))
 
 	//aa.Get("/debug/pprof/*", pprof.Index)
 	a.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
@@ -230,4 +231,47 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+}
+
+func (h admin) login(w http.ResponseWriter, r *http.Request) error {
+	if Site(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var site goatcounter.Site
+	err := site.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	var user goatcounter.User
+	err = user.BySite(r.Context(), site.ID)
+	if err != nil {
+		return err
+	}
+
+	if !site.Settings.AllowAdmin {
+		return guru.New(403, "AllowAdmin not enabled")
+	}
+
+	domain := cookieDomain(&site, r)
+	zhttp.SetAuthCookie(w, *user.LoginToken, domain)
+	http.SetCookie(w, &http.Cookie{
+		Domain:   zhttp.RemovePort(domain),
+		Name:     "is_admin",
+		Value:    "1",
+		Path:     "/",
+		Expires:  time.Now().Add(8 * time.Hour),
+		HttpOnly: true,
+		Secure:   zhttp.CookieSecure,
+		SameSite: zhttp.CookieSameSite,
+	})
+
+	return zhttp.SeeOther(w, site.URL())
 }

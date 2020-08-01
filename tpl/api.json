@@ -590,6 +590,9 @@
       "title": "SiteSettings",
       "type": "object",
       "properties": {
+        "allow_admin": {
+          "type": "boolean"
+        },
         "campaigns": {
           "type": "array",
           "items": {
