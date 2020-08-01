@@ -12609,11 +12609,11 @@ tr.target .chart-left { display: block; }
 	.hcharts > div { width: auto; }
 }
 
-.hchart { }
 .hchart .rows >div   { position: relative; margin-bottom: .8em; max-width: 70vw; }
 .hchart .generated .col-name { font-style: italic; }
-.hchart .col-name    { display: inline-block; word-break: break-all; width: calc(100% - 8.5rem); position: relative;
-					   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.hchart .col-name    { display: inline-block; width: calc(100% - 8.5rem); position: relative; }
+.hchart .cutoff      { word-break: break-all; display: inline-block; max-width: calc(100% - 2em);
+                       overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
 .hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: #fbc7ff; }
 .hchart .bar-c       { position: relative; z-index: 1; padding-left: .5rem; display: block; }
 .hchart .col-count   { display: inline-block; width: 4.5rem; text-align: right; vertical-align: bottom; }

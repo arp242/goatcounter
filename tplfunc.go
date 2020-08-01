@@ -260,10 +260,10 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 		if link {
 			ref = fmt.Sprintf(`<a href="#" class="load-detail">`+
 				`<span class="bar" style="width: %s"></span>`+
-				`<span class="bar-c">%s %s</span></a>`, perc, name, visit)
+				`<span class="bar-c"><span class="cutoff">%s</span> %s</span></a>`, perc, name, visit)
 		} else {
 			ref = fmt.Sprintf(`<span class="bar" style="width: %s"></span>`+
-				`<span class="bar-c">%s %s</span>`, perc, name, visit)
+				`<span class="bar-c"><span class="cutoff">%s</span> %s</span>`, perc, name, visit)
 		}
 
 		b.WriteString(fmt.Sprintf(`
