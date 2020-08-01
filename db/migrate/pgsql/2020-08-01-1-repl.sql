@@ -10,7 +10,7 @@ begin;
     alter table size_stats      replica identity using index "size_stats#site#day#width";
     alter table hit_counts      replica identity using index "hit_counts#site#path#hour";
     alter table ref_counts      replica identity using index "ref_counts#site#path#ref#hour";
-    alter table store replica identity using index "store#key";
+    alter table store           replica identity using index "store#key";
 
     alter table hit_stats       replica identity full;
     alter table browser_stats   replica identity full;
