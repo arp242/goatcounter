@@ -293,7 +293,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 	exclude := r.URL.Query().Get("exclude")
 	filter := r.URL.Query().Get("filter")
-	asText := r.URL.Query().Get("as-text") != ""
+	asText := r.URL.Query().Get("as-text") == "true"
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
 		return err
