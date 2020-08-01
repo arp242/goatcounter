@@ -81,32 +81,6 @@ create table hits (
 create index "hits#site#bot#created_at" on hits(site, bot, created_at);
 create index "hits#site#path"           on hits(site, lower(path));
 
-create table sessions (
-	id             serial         primary key,
-	site           integer        not null                 check(site > 0),
-	hash           bytea          null,
-	created_at     timestamp      not null,
-	last_seen      timestamp      not null,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-create unique index "sessions#site#hash" on sessions(site, hash);
-create        index "sessions#last_seen" on sessions(last_seen);
-
-create table session_paths (
-	session        integer        not null,
-	path           varchar        not null,
-
-	foreign key (session) references sessions(id) on delete cascade on update cascade
-);
-create index "session_paths#session#path" on session_paths(session, lower(path));
-
-create table session_salts (
-	previous    int        not null,
-	salt        varchar    not null,
-	created_at  timestamp  not null
-);
-
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -585,4 +559,5 @@ insert into version values
 	('2020-07-03-1-plan-amount'),
 	('2020-07-21-1-memsess'),
 	('2020-07-22-1-memsess');
+
 -- vim:ft=sql

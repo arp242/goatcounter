@@ -393,6 +393,27 @@ commit;
 	insert into version values('2020-07-21-1-memsess');
 commit;
 `),
+	"db/migrate/pgsql/2020-08-01-1-repl.sql": []byte(`begin;
+    drop index "size_stats#site#day#width";
+    create unique index "size_stats#site#day#width" on size_stats(site, day, width);
+    drop index "location_stats#site#day#location";
+    create unique index "location_stats#site#day#location" on location_stats(site, day, location);
+
+    alter table store alter column key set not null;
+
+    alter table location_stats  replica identity using index "location_stats#site#day#location";
+    alter table size_stats      replica identity using index "size_stats#site#day#width";
+    alter table hit_counts      replica identity using index "hit_counts#site#path#hour";
+    alter table ref_counts      replica identity using index "ref_counts#site#path#ref#hour";
+    alter table store replica identity using index "store#key";
+
+    alter table hit_stats       replica identity full;
+    alter table browser_stats   replica identity full;
+    alter table system_stats    replica identity full;
+
+	insert into version values('2020-08-01-1-repl');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -971,6 +992,29 @@ commit;
 	create unique index "store#key" on store(key);
 
 	insert into version values('2020-07-21-1-memsess');
+commit;
+`),
+	"db/migrate/sqlite/2020-08-01-1-repl.sql": []byte(`begin;
+    drop index "size_stats#site#day#width";
+    create unique index "size_stats#site#day#width" on size_stats(site, day, width);
+    drop index "location_stats#site#day#location";
+    create unique index "location_stats#site#day#location" on location_stats(site, day, location);
+
+    -- alter table store alter column key set not null;
+	create table store2 (
+		key     varchar not null,
+		value   text
+	);
+	insert into store2 select key, value from store;
+	drop table store;
+	alter table store2 rename to store;
+	create unique index "store#key" on store(key);
+
+
+	drop index if exists "hits#site#bot#path#created_at";
+	create index "hits#site#path" on hits(site, lower(path));
+
+	insert into version values('2020-08-01-1-repl');
 commit;
 `),
 }
@@ -12863,32 +12907,6 @@ create table hits (
 create index "hits#site#bot#created_at" on hits(site, bot, created_at);
 create index "hits#site#path"           on hits(site, lower(path));
 
-create table sessions (
-	id             serial         primary key,
-	site           integer        not null                 check(site > 0),
-	hash           bytea          null,
-	created_at     timestamp      not null,
-	last_seen      timestamp      not null,
-
-	foreign key (site) references sites(id) on delete restrict on update restrict
-);
-create unique index "sessions#site#hash" on sessions(site, hash);
-create        index "sessions#last_seen" on sessions(last_seen);
-
-create table session_paths (
-	session        integer        not null,
-	path           varchar        not null,
-
-	foreign key (session) references sessions(id) on delete cascade on update cascade
-);
-create index "session_paths#session#path" on session_paths(session, lower(path));
-
-create table session_salts (
-	previous    int        not null,
-	salt        varchar    not null,
-	created_at  timestamp  not null
-);
-
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
 
@@ -13367,6 +13385,7 @@ insert into version values
 	('2020-07-03-1-plan-amount'),
 	('2020-07-21-1-memsess'),
 	('2020-07-22-1-memsess');
+
 -- vim:ft=sql
 `)
 var SchemaSQLite = []byte(`create table sites (
@@ -13393,11 +13412,11 @@ create table users (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 
+	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
+	email_verified int            not null default 0,
 	password       blob           default null,
 	totp_enabled   integer        not null default 0,
 	totp_secret    blob,
-	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
-	email_verified int            not null default 0,
 	role           varchar        not null default ''      check(role in ('', 'a')),
 	login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
 	login_request  varchar        null,
@@ -13473,7 +13492,7 @@ create table hit_counts (
 	total         int        not null,
 	total_unique  int        not null,
 
-	constraint "hit_counts2#site#path#hour" unique(site, path, hour) on conflict replace
+	constraint "hit_counts#site#path#hour" unique(site, path, hour) on conflict replace
 );
 create index "hit_counts#site#hour" on hit_counts(site, hour);
 

@@ -22,11 +22,11 @@ create table users (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 
+	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
+	email_verified int            not null default 0,
 	password       blob           default null,
 	totp_enabled   integer        not null default 0,
 	totp_secret    blob,
-	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
-	email_verified int            not null default 0,
 	role           varchar        not null default ''      check(role in ('', 'a')),
 	login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
 	login_request  varchar        null,
@@ -102,7 +102,7 @@ create table hit_counts (
 	total         int        not null,
 	total_unique  int        not null,
 
-	constraint "hit_counts2#site#path#hour" unique(site, path, hour) on conflict replace
+	constraint "hit_counts#site#path#hour" unique(site, path, hour) on conflict replace
 );
 create index "hit_counts#site#hour" on hit_counts(site, hour);
 

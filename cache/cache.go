@@ -7,40 +7,19 @@ package cache
 import (
 	"time"
 
-	"github.com/bradfitz/gomemcache/memcache"
 	"zgo.at/zcache"
 )
+
+// This is abstracted in a separate package so it'll be easy to add support for
+// memcached or redis in the future.
 
 type Cache interface {
 	SetDefault(k string, x interface{})
 	Get(k string) (interface{}, bool)
+	Delete(k string)
+	Flush()
 }
 
 func New(defaultExpiration, cleanupInterval time.Duration) Cache {
-	//if false {
-	//	return &memcached{mc: memcache.New("10.0.0.1:11211", "10.0.0.2:11211")}
-	//}
-	return &local{cache: zcache.New(defaultExpiration, cleanupInterval)}
-}
-
-// Simple local memory cache.
-type local struct{ cache *zcache.Cache }
-
-func (c *local) Get(k string) (interface{}, bool)   { return c.cache.Get(k) }
-func (c *local) SetDefault(k string, x interface{}) { c.cache.SetDefault(k, x) }
-
-// Memcached cache.
-type memcached struct{ mc *memcache.Client }
-
-func (c *memcached) Get(k string) (interface{}, bool) {
-	// TODO: unserialize this.
-	item, err := c.mc.Get("foo")
-	return item, err == nil
-}
-func (c *memcached) SetDefault(k string, x interface{}) {
-	c.mc.Set(&memcache.Item{
-		Key: k,
-		// TODO: serialize this.
-		Value: []byte("my value"),
-	})
+	return zcache.New(defaultExpiration, cleanupInterval)
 }
