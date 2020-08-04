@@ -11,12 +11,12 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cache"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 )
 
-var cacheRefCount = zcache.New(1*time.Hour, 5*time.Minute)
+var cacheRefCount = cache.New(1*time.Hour, 5*time.Minute)
 
 type cacheRefCountEntry struct{ total, totalUnique int }
 

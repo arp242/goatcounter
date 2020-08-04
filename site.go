@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter/cache"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/tz"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -370,8 +370,8 @@ func (s *Site) Delete(ctx context.Context) error {
 }
 
 var (
-	sitesCacheByID     = zcache.New(zcache.NoExpiration, -1)
-	sitesCacheHostname = zcache.New(zcache.NoExpiration, -1)
+	sitesCacheByID     = cache.New(24*time.Hour, 1*time.Hour)
+	sitesCacheHostname = cache.New(24*time.Hour, 1*time.Hour)
 )
 
 // ByID gets a site by ID.

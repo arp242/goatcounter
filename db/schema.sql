@@ -22,11 +22,11 @@ create table users (
 	id             integer        primary key autoincrement,
 	site           integer        not null                 check(site > 0),
 
+	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
+	email_verified int            not null default 0,
 	password       blob           default null,
 	totp_enabled   integer        not null default 0,
 	totp_secret    blob,
-	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
-	email_verified int            not null default 0,
 	role           varchar        not null default ''      check(role in ('', 'a')),
 	login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
 	login_request  varchar        null,
@@ -78,7 +78,7 @@ create table hits (
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
 create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
-create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
+create index "hits#site#path"                on hits(site, lower(path));
 
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
@@ -102,7 +102,7 @@ create table hit_counts (
 	total         int        not null,
 	total_unique  int        not null,
 
-	constraint "hit_counts2#site#path#hour" unique(site, path, hour) on conflict replace
+	constraint "hit_counts#site#path#hour" unique(site, path, hour) on conflict replace
 );
 create index "hit_counts#site#hour" on hit_counts(site, hour);
 
@@ -156,7 +156,7 @@ create table location_stats (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "location_stats#site#day#location" on location_stats(site, day, location);
+create unique index "location_stats#site#day#location" on location_stats(site, day, location);
 
 create table size_stats (
 	site           integer        not null                 check(site > 0),
@@ -168,7 +168,7 @@ create table size_stats (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "size_stats#site#day#width" on size_stats(site, day, width);
+create unique index "size_stats#site#day#width" on size_stats(site, day, width);
 
 create table iso_3166_1 (
 	name   varchar,
@@ -498,7 +498,7 @@ create table exports (
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
 create table store (
-	key     varchar,
+	key     varchar not null,
 	value   text
 );
 create unique index "store#key" on store(key);
@@ -526,4 +526,5 @@ insert into version values
 	('2020-06-26-1-record-export'),
 	('2020-07-03-1-plan-amount'),
 	('2020-07-21-1-memsess'),
-	('2020-07-22-1-memsess');
+	('2020-07-22-1-memsess'),
+	('2020-08-01-1-repl');
