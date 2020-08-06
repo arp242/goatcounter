@@ -328,6 +328,14 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 	return nil
 }
 
+func (s *Site) UpdateReceivedData(ctx context.Context) error {
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+		`update sites set received_data=1 where id=$1`, s.ID)
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	return errors.Wrap(err, "Site.UpdateReceivedData")
+}
+
 // UpdateCnameSetupAt confirms the custom domain was setup correct.
 func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 	if s.ID == 0 {
