@@ -405,7 +405,7 @@ commit;
     alter table size_stats      replica identity using index "size_stats#site#day#width";
     alter table hit_counts      replica identity using index "hit_counts#site#path#hour";
     alter table ref_counts      replica identity using index "ref_counts#site#path#ref#hour";
-    alter table store replica identity using index "store#key";
+    alter table store           replica identity using index "store#key";
 
     alter table hit_stats       replica identity full;
     alter table browser_stats   replica identity full;
@@ -12919,6 +12919,7 @@ create table hit_stats (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 create index "hit_stats#site#day" on hit_stats(site, day);
+alter table hit_stats replica identity full;
 
 create table hit_counts (
 	site          int        not null check(site>0),
@@ -12932,6 +12933,7 @@ create table hit_counts (
 	constraint "hit_counts#site#path#hour" unique(site, path, hour)
 );
 create index "hit_counts#site#hour" on hit_counts(site, hour);
+alter table hit_counts replica identity using index "hit_counts#site#path#hour";
 
 create table ref_counts (
 	site          int        not null check(site>0),
@@ -12945,6 +12947,7 @@ create table ref_counts (
 	constraint "ref_counts#site#path#ref#hour" unique(site, path, ref, hour)
 );
 create index "ref_counts#site#hour" on ref_counts(site, hour);
+alter table ref_counts replica identity using index "ref_counts#site#path#ref#hour";
 
 create table browser_stats (
 	site           integer        not null                 check(site > 0),
@@ -12958,6 +12961,7 @@ create table browser_stats (
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
 create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
+alter table browser_stats replica identity full;
 
 create table system_stats (
 	site           integer        not null                 check(site > 0),
@@ -12972,6 +12976,7 @@ create table system_stats (
 );
 create index "system_stats#site#day"        on system_stats(site, day);
 create index "system_stats#site#day#system" on system_stats(site, day, system);
+alter table system_stats replica identity full;
 
 create table location_stats (
 	site           integer        not null                 check(site > 0),
@@ -12983,7 +12988,8 @@ create table location_stats (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "location_stats#site#day#location" on location_stats(site, day, location);
+create unique index "location_stats#site#day#location" on location_stats(site, day, location);
+alter table location_stats replica identity using index "location_stats#site#day#location";
 
 create table size_stats (
 	site           integer        not null                 check(site > 0),
@@ -12995,7 +13001,8 @@ create table size_stats (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "size_stats#site#day#width" on size_stats(site, day, width);
+create unique index "size_stats#site#day#width" on size_stats(site, day, width);
+alter table size_stats replica identity using index "size_stats#site#day#width";
 
 create table iso_3166_1 (
 	name   varchar,
@@ -13315,9 +13322,10 @@ create table botlog_ips (
 	hide           int            default 0,
 
 	created_at     timestamp      not null,
-	last_seen      timestamp      not null
+	last_seen      timestamp      not null,
+
+	constraint "botlog_ips#ip" unique(ip)
 );
-create unique index "botlog_ips#ip" on botlog_ips(ip);
 
 create table botlog (
 	id             serial         primary key,
@@ -13352,10 +13360,11 @@ create table exports (
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
 create table store (
-	key     varchar,
+	key     varchar not null,
 	value   text
 );
 create unique index "store#key" on store(key);
+alter table store replica identity using index "store#key";
 
 create table version (name varchar);
 insert into version values
@@ -13384,7 +13393,8 @@ insert into version values
 	('2020-06-26-1-record-export'),
 	('2020-07-03-1-plan-amount'),
 	('2020-07-21-1-memsess'),
-	('2020-07-22-1-memsess');
+	('2020-07-22-1-memsess'),
+	('2020-08-01-1-repl');
 
 -- vim:ft=sql
 `)
@@ -13468,7 +13478,7 @@ create table hits (
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
 create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
-create index "hits#site#bot#path#created_at" on hits(site, bot, lower(path), created_at);
+create index "hits#site#path"                on hits(site, lower(path));
 
 create table hit_stats (
 	site           integer        not null                 check(site > 0),
@@ -13546,7 +13556,7 @@ create table location_stats (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "location_stats#site#day#location" on location_stats(site, day, location);
+create unique index "location_stats#site#day#location" on location_stats(site, day, location);
 
 create table size_stats (
 	site           integer        not null                 check(site > 0),
@@ -13558,7 +13568,7 @@ create table size_stats (
 
 	foreign key (site) references sites(id) on delete restrict on update restrict
 );
-create index "size_stats#site#day#width" on size_stats(site, day, width);
+create unique index "size_stats#site#day#width" on size_stats(site, day, width);
 
 create table iso_3166_1 (
 	name   varchar,
@@ -13888,7 +13898,7 @@ create table exports (
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
 create table store (
-	key     varchar,
+	key     varchar not null,
 	value   text
 );
 create unique index "store#key" on store(key);
@@ -13916,7 +13926,8 @@ insert into version values
 	('2020-06-26-1-record-export'),
 	('2020-07-03-1-plan-amount'),
 	('2020-07-21-1-memsess'),
-	('2020-07-22-1-memsess');
+	('2020-07-22-1-memsess'),
+	('2020-08-01-1-repl');
 `)
 var Templates = map[string][]byte{
 	"tpl/_backend_bottom.gohtml": []byte(`	</div> {{- /* .page */}}

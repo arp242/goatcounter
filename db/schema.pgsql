@@ -496,9 +496,10 @@ create table botlog_ips (
 	hide           int            default 0,
 
 	created_at     timestamp      not null,
-	last_seen      timestamp      not null
+	last_seen      timestamp      not null,
+
+	constraint "botlog_ips#ip" unique(ip)
 );
-create unique index "botlog_ips#ip" on botlog_ips(ip);
 
 create table botlog (
 	id             serial         primary key,
