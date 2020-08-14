@@ -29,6 +29,7 @@ Flags:
   -createdb    Create the database if it doesn't exist yet; only for SQLite.
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
+               See "goatcounter help debug" for a list of modules.
 
 Positional arguments are names of database migrations, either as just the name
 ("2020-01-05-2-foo") or as the file path ("./db/migrate/sqlite/2020-01-05-2-foo.sql").

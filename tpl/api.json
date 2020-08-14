@@ -738,7 +738,7 @@ kommentaar: warning: could not process "Widget" (maps are not supported yet){
           }
         },
         "no_sessions": {
-          "description": "Don't try to count unique visitors; every pageview will be considered a\n\"visit\".",
+          "description": "By default it's an error to send pageviews that don't have either a\nSession or UserAgent and IP set. This avoids accidental errors.\n\nWhen this is set it will just continue without recording sessions for\npageviews that don't have these parameters set.",
           "type": "boolean"
         }
       }
@@ -784,7 +784,7 @@ kommentaar: warning: could not process "Widget" (maps are not supported yet){
           "type": "string"
         },
         "session": {
-          "description": "Normally a session is based on hash(User-Agent+IP+salt), but if you don't\nsend the IP address then we can't determine the session.\n\nIn those cases, you can store your own session identifiers and send them\nalong. Note these will not be stored in the database as the sessionID\n(just as the hashes aren't), they're just used as a unique grouping\nidentifier.\n\nYou can also just disable sessions entirely with NoSessions.",
+          "description": "Normally a session is based on hash(User-Agent+IP+salt), but if you don't\nsend the IP address then we can't determine the session.\n\nIn those cases, you can store your own session identifiers and send them\nalong. Note these will not be stored in the database as the sessionID\n(just as the hashes aren't), they're just used as a unique grouping\nidentifier.",
           "type": "string"
         },
         "size": {

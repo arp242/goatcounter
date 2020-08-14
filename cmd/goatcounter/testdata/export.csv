@@ -1,0 +1,4 @@
+2Path,Title,Event,UserAgent,Browser,System,Session,Bot,Referrer,Referrer scheme,Screen size,Location,FirstVisit,Date
+click-cv-html,HTML source,1,"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",Chrome 86,Windows 7,287fb97cbed4e4f-8e4f5c975b8fee06,0,,,"1280,768,1",AR,1,2020-12-01T00:07:10Z
+/stupid-light.html,Stupid light software,0,"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",Chrome 86,Windows 7,287fb97cbed4e4f-8e4f5c975b8fee06,0,,,"1280,768,1",AR,1,2020-12-01T00:07:44Z
+/static-go.html,Statically compiling Go programs,0,"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15",Safari 14.0,macOS 10.15,c8b722d57674550-bcd20ab1989d7739,0,www.reddit.com,h,"1680,1050,2",RO,1,2020-12-27T00:37:37Z

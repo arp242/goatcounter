@@ -15,7 +15,7 @@ import (
 )
 
 const helpDatabase = `
-The db command accepts three commands:
+The db command accepts three commands;
 
     schema-sqlite      Print the SQLite database schema.
     schema-pgsql       Print the PostgreSQL database schema.

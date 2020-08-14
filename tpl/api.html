@@ -595,8 +595,9 @@ This is stored as JSON in the database.</p>
 		<div class="endpoint model">
 			<p class="info"></p>
 			<h4>no_sessions <sup>boolean</sup></h4>
-<p>Don&#39;t try to count unique visitors; every pageview will be considered a
-&#34;visit&#34;.</p>
+<p>By default it&#39;s an error to send pageviews that don&#39;t have either a
+Session or UserAgent and IP set. This avoids accidental errors.</p><p>When this is set it will just continue without recording sessions for
+pageviews that don&#39;t have these parameters set.</p>
 <h4>hits <sup>array [type: <a href="#handlers.APICountRequestHit">handlers.APICountRequestHit</a>]</sup></h4>
 <p></p>
 
@@ -637,7 +638,7 @@ but not in the future.</p>
 send the IP address then we can&#39;t determine the session.</p><p>In those cases, you can store your own session identifiers and send them
 along. Note these will not be stored in the database as the sessionID
 (just as the hashes aren&#39;t), they&#39;re just used as a unique grouping
-identifier.</p><p>You can also just disable sessions entirely with NoSessions.</p>
+identifier.</p>
 
 		</div>
 		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>

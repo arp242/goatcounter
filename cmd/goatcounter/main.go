@@ -49,6 +49,8 @@ var usage = map[string]string{
 	"database": helpDatabase,
 	"db":       helpDatabase,
 	"listen":   helpListen,
+	"logfile":  helpLogfile,
+	"debug":    helpDebug,
 
 	"version": `
 Show version and build information. This is printed as key=value, separated by
@@ -60,8 +62,7 @@ func init() {
 	errors.Package = "zgo.at/goatcounter"
 }
 
-const usageTop = `
-Usage: goatcounter [command] [flags]
+const usageTop = `Usage: goatcounter [command] [flags]
 
 Commands:
   help         Show help; use "help <topic>" or "help all" for more details.
@@ -69,7 +70,7 @@ Commands:
   migrate      Run database migrations.
   create       Create a new site and user.
   serve        Start HTTP server.
-  import       Import pageviews from export.
+  import       Import pageviews from an export or logfile.
 
 Advanced commands:
   reindex      Recreate the index tables (*_stats, *_count) from the hits.
@@ -79,6 +80,8 @@ Advanced commands:
 
 Extra help topics:
   listen       Detailed documentation on -listen, -tls.
+  logfile      Documentation on importing from logfiles.
+  debug        List of modules accepted by the -debug flag.
 
 See "help <topic>" for more details for the command.
 `

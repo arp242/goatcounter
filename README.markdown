@@ -59,8 +59,8 @@ Features
               async src="//gc.zgo.at/count.js"></script>
 
 - The JavaScript integration is a good option for most, but you can also use a
-  **no-JavaScript image-based tracker** or integrate in your **backend
-  middleware**.
+  **no-JavaScript image-based tracker**, integrate it in your **backend
+  middleware**, or **parse log files**.
 
 [privacy]: https://www.goatcounter.com/privacy
 [sessions]: https://github.com/zgoat/goatcounter/blob/master/docs/sessions.markdown
@@ -73,6 +73,23 @@ Features
 - Self-contained binary: everything – including static assets – is in a single
   ~7M statically compiled binary. The only other thing you need is a SQLite
   database file or PostgreSQL connection (no way around that).
+
+Getting data in to GoatCounter
+------------------------------
+
+There are three ways:
+
+1. Add the JavaScript code on your site; this is the easiest and most common
+   method. Detailed documentation for this is available at
+   https://www.goatcounter.com/code
+
+2. Integrate in your middleware; send data to GoatCounter by calling the API
+   from your backend server middleware. Detailed documentation for this is
+   available at https://www.goatcounter.com/api#backend-integration
+
+3. Parse logfiles. GoatCounter can parse logfiles from nginx, Apache,
+   CloudFront, or any other HTTP middleware or proxy. See `goatcounter help
+   import` for detailed documentation on this.
 
 Running your own
 ----------------

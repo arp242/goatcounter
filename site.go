@@ -322,6 +322,7 @@ func (s *Site) UpdateReceivedData(ctx context.Context) error {
 }
 
 func (s *Site) UpdateFirstHitAt(ctx context.Context, f time.Time) error {
+	f = f.UTC().Add(-12 * time.Hour)
 	s.FirstHitAt = f
 	err := zdb.Exec(ctx,
 		`update sites set first_hit_at=$1 where site_id=$2`,
