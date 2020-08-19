@@ -1,11 +1,11 @@
 language:       'go'
-go:             ['1.14.x']
+go:             ['1.15.x']
 env:            ['GO111MODULE=on']
 go_import_path: 'zgo.at/goatcounter'
 jobs:
   include:
     - {'os': 'linux',   'arch': 'amd64'}
-    - {'os': 'linux',   'arch': 'amd64', 'go': ['1.13.x']}
+    - {'os': 'linux',   'arch': 'amd64', 'go': ['1.14.x']}
     - {'os': 'linux',   'arch': 'arm64'}
     - {'os': 'linux',   'arch': 'ppc64le'}
     - {'os': 'linux',   'arch': 's390x'}
