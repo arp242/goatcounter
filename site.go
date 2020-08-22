@@ -134,6 +134,9 @@ func (s *Site) Defaults(ctx context.Context) {
 	if s.Settings.Limits.Ref == 0 {
 		s.Settings.Limits.Ref = 10
 	}
+	if s.Settings.Timezone == nil {
+		s.Settings.Timezone = tz.UTC
+	}
 
 	s.Code = strings.ToLower(s.Code)
 
