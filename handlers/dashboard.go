@@ -81,9 +81,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			wantWidgets = append(wantWidgets, "refs")
 		}
 	}
-	if filter != "" { // Need this as the bottom charts aren't filtered by path (yet).
-		wantWidgets = append(wantWidgets, "alltotals")
-	}
 	widgetList, err := widgets.NewList(wantWidgets)
 	if err != nil {
 		return err
@@ -115,10 +112,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	shared := widgets.SharedData{Args: args, Site: site}
-	shared.Total, shared.TotalUnique, shared.AllTotalUnique, shared.Max = widgetList.Totals()
-	if shared.AllTotalUnique == 0 {
-		shared.AllTotalUnique = shared.TotalUnique
-	}
+	shared.Total, shared.TotalUnique, shared.AllTotalUniqueUTC, shared.Max = widgetList.Totals()
 	if showRefs != "" {
 		shared.Refs = widgetList.Refs()
 	}

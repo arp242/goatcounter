@@ -17,6 +17,9 @@ import (
 
 // ListBrowsers lists all browser statistics for the given time period.
 func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, limit, offset int) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListBrowsers */
 		select
 			browser as name,
@@ -38,6 +41,9 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, limit, o
 
 // ListBrowser lists all the versions for one browser.
 func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time.Time) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `
 		select
 			browser || ' ' || version as name,
@@ -53,6 +59,9 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 
 // ListSystems lists OS statistics for the given time period.
 func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, limit, offset int) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListSystem */
 		select
 			system as name,
@@ -74,6 +83,9 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, limit, of
 
 // ListSystem lists all the versions for one system.
 func (h *Stats) ListSystem(ctx context.Context, system string, start, end time.Time) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `
 		select
 			system || ' ' || version as name,
@@ -98,6 +110,9 @@ const (
 
 // ListSizes lists all device sizes.
 func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListSizes */
 		select
 			width as name,
@@ -152,6 +167,9 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time) error {
 
 // ListSize lists all sizes for one grouping.
 func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	var where string
 	switch name {
 	case sizePhones:
@@ -210,6 +228,9 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time)
 
 // ListLocations lists all location statistics for the given time period.
 func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, limit, offset int) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListLocations */
 		select
 			iso_3166_1.name as name,

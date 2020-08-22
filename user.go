@@ -372,7 +372,7 @@ func (u *User) SeenUpdates(ctx context.Context) error {
 
 func (u User) Widgets() []string {
 	return []string{
-		"totals", // We always need this.
+		"totals", "alltotals", // We always need this.
 		"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"}
 }
 

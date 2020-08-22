@@ -87,7 +87,7 @@ func (w Toprefs) TemplateData(ctx context.Context, shared SharedData) (string, i
 		Context         context.Context
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUnique, w.TopRefs}
+	}{ctx, shared.AllTotalUniqueUTC, w.TopRefs}
 }
 
 func (w Browsers) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
@@ -95,7 +95,7 @@ func (w Browsers) TemplateData(ctx context.Context, shared SharedData) (string, 
 		Context         context.Context
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUnique, w.Browsers}
+	}{ctx, shared.AllTotalUniqueUTC, w.Browsers}
 }
 
 func (w Systems) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
@@ -103,7 +103,7 @@ func (w Systems) TemplateData(ctx context.Context, shared SharedData) (string, i
 		Context         context.Context
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUnique, w.Systems}
+	}{ctx, shared.AllTotalUniqueUTC, w.Systems}
 }
 
 func (w Sizes) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
@@ -111,7 +111,7 @@ func (w Sizes) TemplateData(ctx context.Context, shared SharedData) (string, int
 		Context         context.Context
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUnique, w.SizeStat}
+	}{ctx, shared.AllTotalUniqueUTC, w.SizeStat}
 }
 
 func (w Locations) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
@@ -119,5 +119,5 @@ func (w Locations) TemplateData(ctx context.Context, shared SharedData) (string,
 		Context         context.Context
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUnique, w.LocStat}
+	}{ctx, shared.AllTotalUniqueUTC, w.LocStat}
 }
