@@ -16018,7 +16018,7 @@ both. There may also be additional data in other fields on errors.</p>
 
 <ul>
   <li><a href="/api.json">/api.json</a> – OpenAPI 2.0 JSON file.</li>
-  <li>Online viewer: <a href="/api2.html">RapiDoc</a>, <a href="https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1)">SwaggerHub</a>, <a href="/api.html">simple HTML</a></li>
+  <li>Online viewer: <a href="/api2.html">RapiDoc</a>, <a href="https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1">SwaggerHub</a>, <a href="/api.html">simple HTML</a></li>
 </ul>
 
 <h2 id="examples">Examples <a href="#examples"></a></h2>

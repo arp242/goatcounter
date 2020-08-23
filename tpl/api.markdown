@@ -78,7 +78,7 @@ API reference docs are available at:
 - Online viewer: [RapiDoc][1], [SwaggerHub][2], [simple HTML][3]
 
 [1]: /api2.html
-[2]: https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1)
+[2]: https://app.swaggerhub.com/apis-docs/Carpetsmoker/GoatCounter/0.1
 [3]: /api.html
 
 
