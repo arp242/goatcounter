@@ -147,7 +147,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 
 	// Linking https://t.co/c3MITw38Yq isn't too useful as that will link back
 	// to the page, so link to the Tweet instead.
-	if refURL.Host == "t.co" {
+	if refURL.Host == "t.co" && len(refURL.Path) > 1 {
 		return "twitter.com/search?q=https%3A%2F%2Ft.co" +
 			url.QueryEscape(refURL.Path), false
 	}
