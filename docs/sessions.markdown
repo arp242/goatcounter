@@ -114,8 +114,9 @@ GoatCounter's solution
 - Create a server-side hash: hash(site.ID, User-Agent, IP, salt) to identify
   the client without storing any personal information directly.
 
-- An hour after a hash is last seen, the hash is removed. This ensures we can
-  track the current browsing session only.
+- Don't persist the hash to disk; this isn't really needed as we just want to
+  track the "browsing session" rather than re-identify someone coming back the
+  next day.
 
 - The salt is rotated every 4 hour on a sliding schedule; when a new pageview
   comes in we try to find an existing session based on the current and previous
@@ -124,6 +125,11 @@ GoatCounter's solution
 
 - If a user visits the next time, they will have the same hash, but the system
   has forgotten about it by then.
+
+The whole hashing thing is *kind of* superfluous since the data is never stored
+to disk with one exception: it's temporarily stored on shutdown, to be read and
+deleted on startup. It doesn't hurt to hash the data though, and better safe
+than sorry.
 
 I considered generating the ID on the client side as a session cookie or
 localStorage,  but this is tricky due to the ePrivacy directive, which requires
@@ -145,26 +151,3 @@ though, but it may be replaced with something else in the future.
 Fathom's solution with multiple hashes seems rather complex, without any clear
 advantages; using just a single hash like this already won't store more
 information than before, and the hash is stored temporarily.
-
-### Technically
-
-We can store the data in memory; when GoatCounter shuts down it's (temporarily)
-dumped to the database, which can be read and deleted on startup.
-
-*Edit 2020-07-22*: Old method was to store it in the DB, but this actually
-causes a lot of DB traffic which isn't really needed. To ensure consistency
-between multiple GoatCounter hosts we use UUIDs instead of an autoincrementing
-counter.
-
-To efficiently query this a new `stats_unique` or `count_unique` column can be
-added to all the `*_stats` tables, which is a copy of the existing columns but
-counting only unique requests.
-
-In the UI we can add a new "show unique visitors" button next to "view by day",
-or perhaps change the UI a bit to show both.
-
-We can add bounce rates to every path, as well as a dashboard thingy for "top
-bounce rates" or the like.
-
-Not entirely sure what I want to conversion rates UI to look like. This also
-requires a new settings tab etc. and is a separate issue.
