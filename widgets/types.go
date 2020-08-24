@@ -16,8 +16,8 @@ type (
 		Total, TotalUnique int
 	}
 	AllTotals struct {
-		html           template.HTML
-		AllTotalUnique int
+		html              template.HTML
+		AllTotalUniqueUTC int
 	}
 	Pages struct {
 		html                   template.HTML

@@ -38,11 +38,11 @@ type (
 		Site *goatcounter.Site
 		Args Args
 
-		Total          int
-		TotalUnique    int
-		AllTotalUnique int
-		Max            int
-		Refs           goatcounter.Stats
+		Total             int
+		TotalUnique       int
+		AllTotalUniqueUTC int
+		Max               int
+		Refs              goatcounter.Stats
 	}
 )
 
@@ -78,7 +78,7 @@ func (l List) Totals() (total, unique, allUnique, max int) {
 		}
 		if w.Name() == "alltotals" {
 			ww := w.(*AllTotals)
-			allUnique = ww.AllTotalUnique
+			allUnique = ww.AllTotalUniqueUTC
 		}
 		if w.Name() == "max" {
 			ww := w.(*Max)
@@ -112,7 +112,7 @@ func (w *Totals) GetData(ctx context.Context, a Args) (err error) {
 }
 
 func (w *AllTotals) GetData(ctx context.Context, a Args) (err error) {
-	_, w.AllTotalUnique, err = goatcounter.GetTotalCount(ctx, a.Start, a.End, "")
+	_, w.AllTotalUniqueUTC, err = goatcounter.GetTotalCountUTC(ctx, a.Start, a.End, "")
 	return err
 }
 

@@ -406,6 +406,30 @@ func GetTotalCount(ctx context.Context, start, end time.Time, filter string) (in
 	return t.T, t.U, errors.Wrap(err, "GetTotalCount")
 }
 
+func GetTotalCountUTC(ctx context.Context, start, end time.Time, filter string) (int, int, error) {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
+	query := `/* GetTotalCountUTC */
+		select
+			coalesce(sum(total), 0) as t,
+			coalesce(sum(total_unique), 0) as u
+		from hit_counts where
+			site=$1 and
+			hour>=$2 and
+			hour<=$3 `
+
+	args := []interface{}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date)}
+	if filter != "" {
+		query += ` and (lower(path) like $4 or lower(title) like $4) `
+		args = append(args, "%"+strings.ToLower(filter)+"%")
+	}
+
+	var t struct{ T, U int }
+	err := zdb.MustGet(ctx).GetContext(ctx, &t, query, args...)
+	return t.T, t.U, errors.Wrap(err, "GetTotalCount")
+}
+
 func GetMax(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {
 	if filter != "" {
 		filter = "%" + filter + "%"
