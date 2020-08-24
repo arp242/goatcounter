@@ -174,7 +174,7 @@ create table iso_3166_1 (
 	name   varchar,
 	alpha2 varchar
 );
-create index "iso_3166_1#alpha2" on iso_3166_1(alpha2);
+create unique index "iso_3166_1#alpha2" on iso_3166_1(alpha2);
 insert into iso_3166_1 (name, alpha2) values
 	('(unknown)', ''),
 
@@ -527,4 +527,5 @@ insert into version values
 	('2020-07-03-1-plan-amount'),
 	('2020-07-21-1-memsess'),
 	('2020-07-22-1-memsess'),
-	('2020-08-01-1-repl');
+	('2020-08-01-1-repl'),
+	('2020-08-24-1-iso_unique');

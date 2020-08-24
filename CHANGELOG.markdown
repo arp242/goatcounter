@@ -15,7 +15,7 @@ master branch
   which is probably a better and less confusing default for most people. There
   is also some more detailed docs available in `goatcounter help listen`.
 
-- Set Cache-Control header for static files (#348
+- Set Cache-Control header for static files (#348)
 
   The `Cache-Control` header is now set for static files. Since the "cache
   busting" happens based on the goatcounter version it's now recommended to set
@@ -56,7 +56,7 @@ master branch
 - Add "text view" mode (#359)
 
   View your data as a simple table without too much graphics; only the main
-  "Pages" overview is implemented and will do the rest later.
+  "Pages" overview is implemented for now.
 
 - Make it easier to skip your own views (#290)
 
@@ -78,6 +78,13 @@ master branch
   This is mostly useful for writing deploy scripts: `goatcounter db
   schema-sqlite` prints the SQLite schema, `schema-pgsql` prints the PostgreSQL
   schema, and `goatcounter db test` tests if the database exists.
+
+- Session hashes are no longer persisted to the database
+
+  This is kind of an internal change, but session hashes are now stored in
+  memory only and never recorded to the database. There's no real reason to
+  persistently store this information, and this is a (small) privacy/GDPR
+  compliance improvement.
 
 
 2020-06-01 v1.3.0
