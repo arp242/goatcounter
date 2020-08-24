@@ -84,14 +84,14 @@ GoatCounter should run on any platform supported by Go, but there are no
 binaries for them (yet); you'll have to build from source for now (it's not
 hard, I promise).
 
-Note this README is for the latest master; use the [`release-1.3`][r-1.3] branch
-for the 1.3 README.
+Note this README is for the latest master; use the [`release-1.4`][r-1.4] branch
+for the 1.4 README.
 
 Generally speaking only the latest release is supported, although critical fixes
 (security, data loss, etc.) may get backported to previous releases.
 
 [releases]: https://github.com/zgoat/goatcounter/releases
-[r-1.3]: https://github.com/zgoat/goatcounter/tree/release-1.3
+[r-1.4]: https://github.com/zgoat/goatcounter/tree/release-1.4
 
 ### Deploy scripts and such
 
@@ -121,7 +121,7 @@ Generally speaking only the latest release is supported, although critical fixes
 
 Compile from source with:
 
-    $ git clone -b release-1.3 https://github.com/zgoat/goatcounter.git
+    $ git clone -b release-1.4 https://github.com/zgoat/goatcounter.git
     $ cd goatcounter
     $ go build -ldflags="-X main.version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 

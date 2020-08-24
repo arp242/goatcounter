@@ -6,8 +6,8 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
-master branch
--------------
+2020-08-24 v1.4.0
+-----------------
 
 - **Change defaults for `-listen`** (#336)
 
