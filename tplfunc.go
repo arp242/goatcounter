@@ -259,7 +259,7 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 
 		if strings.HasPrefix(name, "twitter.com/search?q=") {
 			if i := strings.LastIndex(name, "t.co%2F"); i > -1 {
-				name = "Twitter link: t.co/" + name[i+7:len(name)]
+				name = "Twitter link: t.co/" + name[i+7:]
 			}
 		}
 
