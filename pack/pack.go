@@ -13256,18 +13256,17 @@ tr.target .chart-left { display: block; }
 	.hcharts > div { width: auto; }
 }
 
-.hchart .rows >div   { position: relative; margin-bottom: .8em; max-width: 70vw; }
+.hchart .rows >div   { position: relative; margin-bottom: .8em; }
 .hchart .generated .col-name { font-style: italic; }
 .hchart .col-name    { display: inline-block; width: calc(100% - 8.5rem); position: relative; }
-.hchart .cutoff      { word-break: break-all; display: inline-block; max-width: calc(100% - 2em);
-                       overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.hchart .cutoff      { word-break: break-all; max-width: calc(100% - 2em); }
 .hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: #fbc7ff; }
 .hchart .bar-c       { position: relative; z-index: 1; padding-left: .5rem; display: block; }
-.hchart .col-count   { display: inline-block; width: 4.5rem; text-align: right; vertical-align: bottom; }
-.hchart .col-perc    { width: 2.5em; margin-right: .5rem; }
+.hchart .col-count   { display: inline-block; width: 4.5rem; text-align: right; vertical-align: top; }
+.hchart .col-perc    { width: 2.5em; margin-right: .5rem; vertical-align: top; }
 .hchart .load-more   { display: inline-block; margin-left: .2em; margin-top: .2em; }
 .hchart .load-detail { display: block; color: #252525; }
-.hchart .detail      { padding-left: 3em; padding-right: 5em; border-bottom: 1px solid #bbb; }
+.hchart .detail      { padding: 0 3em; border-bottom: 1px solid #bbb; }
 .load-detail:hover      { text-decoration: none; background-color: #eee; }
 .load-detail:hover .bar { background-color: #ebb7ef; }
 

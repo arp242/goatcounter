@@ -199,7 +199,7 @@ func importSend(url, key string, hits []handlers.APICountRequestHit) error {
 	// Other error
 	default:
 		b, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("%s: %s: %s", url, resp.Status, zstring.Left(string(b), 200))
+		return fmt.Errorf("%s: %s: %s", url, resp.Status, zstring.ElideLeft(string(b), 200))
 	}
 
 	nSent += len(hits)
@@ -394,7 +394,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 	b, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
 		return "", "", nil, fmt.Errorf("%s: %s: %s", url+"/api/v0/me",
-			resp.Status, zstring.Left(string(b), 200))
+			resp.Status, zstring.ElideLeft(string(b), 200))
 	}
 
 	var perm struct {

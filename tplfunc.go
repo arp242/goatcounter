@@ -24,6 +24,7 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
 
@@ -262,14 +263,15 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 			}
 		}
 
+		ename := zstring.ElideCenter(name, 76)
 		var ref string
 		if link {
 			ref = fmt.Sprintf(`<a href="#" class="load-detail">`+
 				`<span class="bar" style="width: %s"></span>`+
-				`<span class="bar-c"><span class="cutoff">%s</span> %s</span></a>`, perc, name, visit)
+				`<span class="bar-c"><span class="cutoff">%s</span> %s</span></a>`, perc, ename, visit)
 		} else {
 			ref = fmt.Sprintf(`<span class="bar" style="width: %s"></span>`+
-				`<span class="bar-c"><span class="cutoff">%s</span> %s</span>`, perc, name, visit)
+				`<span class="bar-c"><span class="cutoff">%s</span> %s</span>`, perc, ename, visit)
 		}
 
 		b.WriteString(fmt.Sprintf(`

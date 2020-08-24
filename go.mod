@@ -33,7 +33,7 @@ require (
 	zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
-	zgo.at/zstd v0.0.0-20200725181426-6695d1971600
+	zgo.at/zstd v0.0.0-20200824042749-ef3212fc7e04
 	zgo.at/zstripe v1.0.0
 	zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a
