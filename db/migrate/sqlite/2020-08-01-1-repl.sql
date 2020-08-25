@@ -14,9 +14,8 @@ begin;
 	alter table store2 rename to store;
 	create unique index "store#key" on store(key);
 
-
 	drop index if exists "hits#site#bot#path#created_at";
-	create index "hits#site#path" on hits(site, lower(path));
+	create index if not exists "hits#site#path" on hits(site, lower(path));
 
 	insert into version values('2020-08-01-1-repl');
 commit;
