@@ -9,7 +9,6 @@ import (
 	"html/template"
 	"net/http"
 	"os/exec"
-	"regexp"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -32,19 +31,13 @@ func (h admin) explain(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	//`explain (analyze, costs, verbose, buffers, format json) `+args.Query)
-
 	var e []string
 	err = zdb.MustGet(r.Context()).SelectContext(r.Context(), &e,
-		`explain analyze `+args.Query)
+		`explain (analyze, costs, verbose, buffers) `+args.Query)
 	if err != nil {
 		return err
 	}
-
-	plan := strings.Join(e, "\n")
-	plan = regexp.MustCompile(`cost=[0-9.]+`).ReplaceAllString(plan, `<span class="cost">$0</span>`)
-
-	return zhttp.String(w, plan)
+	return zhttp.String(w, strings.Join(e, "\n"))
 }
 
 func (h admin) pgstatTable(w http.ResponseWriter, r *http.Request) error {

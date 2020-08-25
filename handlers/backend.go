@@ -130,7 +130,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 				"https://gc.zgo.at", "'sha256-rhp1kopsm+UqtrN5qCeSn81YXeO4wJtXDvQE00OrLoQ='"),
 			header.CSPStyleSrc:    append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:     ds,
-			header.CSPFormAction:  {header.CSPSourceSelf},
+			header.CSPFormAction:  {header.CSPSourceSelf, "https://explain.dalibo.com/new"},
 			header.CSPConnectSrc:  {header.CSPSourceSelf, "https://chat.goatcounter.com", "https://api.stripe.com"},
 			header.CSPFrameSrc:    {"https://js.stripe.com", "https://hooks.stripe.com"},
 			header.CSPManifestSrc: ds,

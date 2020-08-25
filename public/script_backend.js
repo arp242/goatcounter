@@ -893,7 +893,12 @@
 				url:    '/admin/sql/explain',
 				data:   form.serialize(),
 				success: function(data) {
-					form.after($('<pre class="e"></pre>').html(data))
+					form.after($('<pre class="e"></pre>').html(data).append('' +
+						'<form action="https://explain.dalibo.com/new" method="POST" target="_blank">' +
+							`<input type="hidden" name="plan"  value="${data}">` +
+							`<input type="hidden" name="query" value="${form.find('textarea').val()}">` +
+							'<button type="submit">PEV</button>' +
+						'</form>'))
 				}
 			})
 		})
