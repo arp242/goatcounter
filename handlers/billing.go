@@ -201,7 +201,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 		zhttp.Flash(w, "Saved!")
-		return zhttp.JSON(w, "")
+		return zhttp.JSON(w, `{"status":"ok","no_stripe":true}`)
 	}
 
 	body := zstripe.Body{

@@ -379,7 +379,7 @@
 				method: 'POST',
 				data:    {csrf: CSRF, plan: plan, quantity: quantity},
 				success: function(data) {
-					if (data === '')
+					if (data.no_stripe)
 						return location.reload();
 					Stripe(form.attr('data-key')).redirectToCheckout({sessionId: data.id}).
 						then(function(result) { err(result.error ? result.error.message : ''); });
