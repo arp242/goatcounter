@@ -250,30 +250,14 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	query := `insert into sites
+	s.ID, err = insertWithID(ctx, "id", `insert into sites
 		(parent, code, cname, link_domain, settings, plan, created_at)
-		values ($1, $2, $3, $4, $5, $6, $7)`
-	args := []interface{}{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings,
-		s.Plan, s.CreatedAt.Format(zdb.Date)}
-	if cfg.PgSQL {
-		err = zdb.MustGet(ctx).GetContext(ctx, &s.ID, query+" returning id", args...)
-		if err != nil {
-			if zdb.ErrUnique(err) {
-				return guru.New(400, "this site already exists: code or domain must be unique")
-			}
-			return errors.Wrap(err, "Site.Insert")
-		}
-		return nil
+		values ($1, $2, $3, $4, $5, $6, $7)`,
+		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan,
+		s.CreatedAt.Format(zdb.Date))
+	if err != nil && zdb.ErrUnique(err) {
+		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
-
-	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
-	if err != nil {
-		if zdb.ErrUnique(err) {
-			return guru.New(400, "this site already exists: code or domain must be unique")
-		}
-		return errors.Wrap(err, "Site.Insert")
-	}
-	s.ID, err = res.LastInsertId()
 	return errors.Wrap(err, "Site.Insert")
 }
 

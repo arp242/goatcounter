@@ -76,23 +76,12 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 		os.TempDir(), string(os.PathSeparator), site.Code,
 		e.CreatedAt.Format("20060102T150405Z"), startFrom)
 
-	query := `insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`
-	args := []interface{}{e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID}
-
-	if cfg.PgSQL {
-		err := zdb.MustGet(ctx).GetContext(ctx, &e.ID, query+` returning export_id`, args...)
-		if err != nil {
-			return nil, errors.Wrap(err, "Export.Create")
-		}
-	} else {
-		res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
-		if err != nil {
-			return nil, errors.Wrap(err, "Export.Create")
-		}
-		e.ID, err = res.LastInsertId()
-		if err != nil {
-			return nil, errors.Wrap(err, "Export.Create")
-		}
+	var err error
+	e.ID, err = insertWithID(ctx, "export_id",
+		`insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`,
+		e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID)
+	if err != nil {
+		return nil, errors.Wrap(err, "Export.Create")
 	}
 
 	fp, err := os.Create(e.Path)

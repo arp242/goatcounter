@@ -89,6 +89,22 @@ func interval(days int) string {
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)
 }
 
+// Insert a new row and return the ID column id. This works for both PostgreSQL
+// and SQLite.
+func insertWithID(ctx context.Context, idColumn, query string, args ...interface{}) (int64, error) {
+	if cfg.PgSQL {
+		var id int64
+		err := zdb.MustGet(ctx).GetContext(ctx, &id, query+" returning "+idColumn, args...)
+		return id, err
+	}
+
+	r, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return 0, err
+	}
+	return r.LastInsertId()
+}
+
 const numChars = 12
 
 // Compress all the data in to 12 chunks.

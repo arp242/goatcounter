@@ -12862,7 +12862,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				url:    '/admin/sql/explain',
 				data:   form.serialize(),
 				success: function(data) {
-					form.after($('<pre class="e"></pre>').html(data))
+					form.after($('<pre class="e"></pre>').html(data).append('' +
+						'<form action="https://explain.dalibo.com/new" method="POST" target="_blank">' +
+							` + "`" + `<input type="hidden" name="plan"  value="${data}">` + "`" + ` +
+							` + "`" + `<input type="hidden" name="query" value="${form.find('textarea').val()}">` + "`" + ` +
+							'<button type="submit">PEV</button>' +
+						'</form>'))
 				}
 			})
 		})
@@ -15735,13 +15740,8 @@ h2            { cursor: pointer; }
 
 .page { max-width: unset; }
 
-.e {
-	border: 1px solid #ddd;
-	margin: .5em 0;
-}
-.cost {
-	color: red;
-}
+.e { border: 1px solid #ddd; margin: .5em 0; position: relative; }
+.e form { position: absolute; top: 0; right: 0; }
 </style>
 
 <h2>Explain</h2>

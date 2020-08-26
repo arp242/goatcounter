@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
@@ -84,21 +83,10 @@ func (t *APIToken) Insert(ctx context.Context) error {
 		return err
 	}
 
-	query := `insert into api_tokens
+	t.ID, err = insertWithID(ctx, "api_token_id", `insert into api_tokens
 		(site_id, user_id, name, token, permissions, created_at)
-		values ($1, $2, $3, $4, $5, $6)`
-	args := []interface{}{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt.Format(zdb.Date)}
-
-	if cfg.PgSQL {
-		err := zdb.MustGet(ctx).GetContext(ctx, &t.ID, query+` returning api_token_id`, args...)
-		return errors.Wrap(err, "APIToken.Insert")
-	}
-
-	res, err := zdb.MustGet(ctx).ExecContext(ctx, query, args...)
-	if err != nil {
-		return errors.Wrap(err, "APIToken.Insert")
-	}
-	t.ID, err = res.LastInsertId()
+		values ($1, $2, $3, $4, $5, $6)`,
+		t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt.Format(zdb.Date))
 	return errors.Wrap(err, "APIToken.Insert")
 }
 
