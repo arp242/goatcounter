@@ -232,9 +232,9 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 
 	if user.Password == nil {
 		zhttp.FlashError(w,
-			"There is no password set for %q; please use <a href='/user/forgot?email=%[1]s'>Forgot password</a> to set it.",
+			"There is no password set for %q; please reset it",
 			args.Email)
-		return zhttp.SeeOther(w, "/user/new?email="+url.QueryEscape(args.Email))
+		return zhttp.SeeOther(w, "/user/forgot?email="+url.QueryEscape(args.Email))
 	}
 
 	err = bcrypt.CompareHashAndPassword(user.Password, []byte(args.Password))
