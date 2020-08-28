@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	nnow "github.com/jinzhu/now"
 	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
@@ -21,25 +22,23 @@ import (
 
 // reindex
 const usageReindex = `
-GoatCounter keeps several *_stats tables so it's less expensive to generate
-charts. These are normally updated automatically in the background. This command
-recreates these tables. This is mostly for upgrades; you shouldn't have to run
-this in normal usage.
+GoatCounter keeps several *_stats and *_count tables so it's less expensive to
+generate charts. These are normally updated automatically in the background.
+This command recreates these tables. This is mostly for upgrades; you shouldn't
+have to run this in normal usage.
 
 This command may take a while to run on larger sites.
 
 Avoiding race conditions
 
-  You need to be a little bit careful to avoid race conditions with this. It's
-  fine to update older data since goatcounter never writes to it, but updating
-  the current day may result in:
+    You need to be a little bit careful to avoid race conditions with this. It's
+    fine to update older data since goatcounter never writes to it, but updating
+    the current day may result in:
 
-  1. GoatCounter reads data from DB, processes it, updates the DB.
-  2. In the meanwhile reindex updated the data in the DB.
+    1. GoatCounter reads data from DB, processes it, updates the DB.
+    2. In the meanwhile reindex updated the data in the DB.
 
-  For this reason, GoatCounter will only update up to yesterday by default; the
-  process to update everything is wait a day and then run it again with -since
-  <yesterday>.
+    Generally speaking, it's best to not run this while GoatCounter is running.
 
 Flags:
 
@@ -49,14 +48,14 @@ Flags:
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
 
-  -pause       Number of seconds to pause after each day, to give the server
+  -pause       Number of seconds to pause after each month, to give the server
                some breathing room on large sites. Default: 0.
 
   -since       Reindex only statistics since this date instead of all of them;
                as year-month-day in UTC.
 
   -to          Reindex only statistics up to and including this day; as
-               year-month-day in UTC. The default is yesterday.
+               year-month-day in UTC. The default is the current day.
 
   -table       Which tables to reindex: hit_stats, hit_counts, browser_stats,
                system_stats, location_stats, ref_counts, size_stats, or all
@@ -127,7 +126,7 @@ func reindex() (int, error) {
 		}
 	}
 	if *to == "" {
-		lastDay = time.Now().UTC().Add(-24 * time.Hour)
+		lastDay = time.Now().UTC()
 	}
 
 	var sites goatcounter.Sites
@@ -160,6 +159,29 @@ func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause i
 		firstDay = site.CreatedAt
 	}
 
+	now := goatcounter.Now()
+	now = time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
+
+	months := [][]time.Time{
+		{firstDay, nnow.With(firstDay).EndOfMonth()},
+	}
+
+	start := nnow.With(nnow.With(firstDay).EndOfMonth().Add(12 * time.Hour)).BeginningOfMonth()
+	for {
+		if start.After(now) {
+			break
+		}
+
+		end := nnow.With(start).EndOfMonth()
+		if end.After(lastDay) {
+			months = append(months, []time.Time{start, lastDay})
+			break
+		}
+
+		months = append(months, []time.Time{start, end})
+		start = nnow.With(end.Add(12 * time.Hour)).BeginningOfMonth()
+	}
+
 	var allpaths []struct {
 		Site int64
 		Path string
@@ -178,30 +200,22 @@ func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause i
 		pauses = time.Duration(pause) * time.Second
 	}
 
-	now := goatcounter.Now()
-	now = time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
-	day := firstDay
-	for {
+	for _, month := range months {
 		var hits []goatcounter.Hit
-		err := db.SelectContext(ctx, &hits, query, siteID, dayStart(day), dayEnd(day))
+		err := db.SelectContext(ctx, &hits, query, siteID, dayStart(month[0]), dayEnd(month[1]))
 		if err != nil {
 			return err
 		}
 
 		if !quiet {
-			fmt.Fprintf(stdout, "\r\x1b[0Ksite %d %s → %d", siteID, day.Format("2006-01-02"), len(hits))
+			fmt.Fprintf(stdout, "\r\x1b[0Ksite %d %s → %d", siteID, month[0].Format("2006-01"), len(hits))
 		}
 
-		clearDay(db, tables, day.Format("2006-01-02"), siteID)
+		clearMonth(db, tables, month[0].Format("2006-01"), siteID)
 
 		err = cron.ReindexStats(ctx, hits, tables)
 		if err != nil {
 			return err
-		}
-
-		day = day.Add(24 * time.Hour)
-		if day.After(now) || day.After(lastDay) {
-			break
 		}
 
 		if pauses > 0 {
@@ -212,10 +226,10 @@ func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause i
 	return nil
 }
 
-func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
+func clearMonth(db *sqlx.DB, tables []string, month string, siteID int64) {
 	ctx := context.Background()
 
-	where := fmt.Sprintf(" where site=%d and day='%s'", siteID, day)
+	where := fmt.Sprintf(" where site=%d and cast(day as varchar) like '%s-__'", siteID, month)
 	for _, t := range tables {
 		switch t {
 		case "hit_stats":
@@ -223,7 +237,7 @@ func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
 		case "hit_counts":
 			db.MustExecContext(ctx, fmt.Sprintf(
 				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s %%'`,
-				siteID, day))
+				siteID, month))
 		case "browser_stats":
 			db.MustExecContext(ctx, `delete from browser_stats`+where)
 		case "system_stats":
@@ -233,7 +247,7 @@ func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
 		case "ref_counts":
 			db.MustExecContext(ctx, fmt.Sprintf(
 				`delete from ref_counts where site=%d and cast(hour as varchar) like '%s %%'`,
-				siteID, day))
+				siteID, month))
 		case "size_stats":
 			db.MustExecContext(ctx, `delete from size_stats`+where)
 		case "all":
@@ -244,10 +258,10 @@ func clearDay(db *sqlx.DB, tables []string, day string, siteID int64) {
 			db.MustExecContext(ctx, `delete from size_stats`+where)
 			db.MustExecContext(ctx, fmt.Sprintf(
 				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s %%'`,
-				siteID, day))
+				siteID, month))
 			db.MustExecContext(ctx, fmt.Sprintf(
 				`delete from ref_counts where site=%d and cast(hour as varchar) like '%s %%'`,
-				siteID, day))
+				siteID, month))
 		}
 	}
 }

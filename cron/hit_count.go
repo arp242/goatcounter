@@ -44,6 +44,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 				v.hour = hour
 				v.path = h.Path
 				v.event = h.Event
+
 				var err error
 				v.total, v.totalUnique, err = existingHitCounts(ctx, tx,
 					h.Site, hour, v.path)
