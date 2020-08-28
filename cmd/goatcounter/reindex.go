@@ -182,16 +182,6 @@ func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause i
 		start = nnow.With(end.Add(12 * time.Hour)).BeginningOfMonth()
 	}
 
-	var allpaths []struct {
-		Site int64
-		Path string
-	}
-	err := db.SelectContext(ctx, &allpaths,
-		`select path from hits where site=$1 group by path`, siteID)
-	if err != nil {
-		return err
-	}
-
 	// Insert paths.
 	query := `select * from hits where site=$1 and created_at >= $2 and created_at <= $3`
 
@@ -213,7 +203,7 @@ func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause i
 
 		clearMonth(db, tables, month[0].Format("2006-01"), siteID)
 
-		err = cron.ReindexStats(ctx, hits, tables)
+		err = cron.ReindexStats(ctx, site, hits, tables)
 		if err != nil {
 			return err
 		}
@@ -236,7 +226,7 @@ func clearMonth(db *sqlx.DB, tables []string, month string, siteID int64) {
 			db.MustExecContext(ctx, `delete from hit_stats`+where)
 		case "hit_counts":
 			db.MustExecContext(ctx, fmt.Sprintf(
-				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s %%'`,
+				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month))
 		case "browser_stats":
 			db.MustExecContext(ctx, `delete from browser_stats`+where)
@@ -246,7 +236,7 @@ func clearMonth(db *sqlx.DB, tables []string, month string, siteID int64) {
 			db.MustExecContext(ctx, `delete from location_stats`+where)
 		case "ref_counts":
 			db.MustExecContext(ctx, fmt.Sprintf(
-				`delete from ref_counts where site=%d and cast(hour as varchar) like '%s %%'`,
+				`delete from ref_counts where site=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month))
 		case "size_stats":
 			db.MustExecContext(ctx, `delete from size_stats`+where)
@@ -257,10 +247,10 @@ func clearMonth(db *sqlx.DB, tables []string, month string, siteID int64) {
 			db.MustExecContext(ctx, `delete from location_stats`+where)
 			db.MustExecContext(ctx, `delete from size_stats`+where)
 			db.MustExecContext(ctx, fmt.Sprintf(
-				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s %%'`,
+				`delete from hit_counts where site=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month))
 			db.MustExecContext(ctx, fmt.Sprintf(
-				`delete from ref_counts where site=%d and cast(hour as varchar) like '%s %%'`,
+				`delete from ref_counts where site=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month))
 		}
 	}

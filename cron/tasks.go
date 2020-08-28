@@ -131,11 +131,6 @@ func PersistAndStat(ctx context.Context) error {
 	return err
 }
 
-func ResetCache() {
-	cacheHitCount.Flush()
-	cacheRefCount.Flush()
-}
-
 func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits []goatcounter.Hit) error {
 	if site == nil {
 		site = new(goatcounter.Site)
@@ -172,65 +167,41 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 	return nil
 }
 
-var (
-	sitesOnce sync.Once
-	allSites  map[int64]goatcounter.Site
-)
+var cacheReindexAllPaths = make(map[int64][]string)
 
 // ReindexStats re-indexes all the statistics for the given tables; this is
 // intended to be run by the "goatcounter reindex" command.
-func ReindexStats(ctx context.Context, hits []goatcounter.Hit, tables []string) error {
-	sitesOnce.Do(func() {
-		var sites goatcounter.Sites
-		err := sites.UnscopedList(ctx)
-		if err != nil {
-			panic(err)
-		}
-
-		allSites = make(map[int64]goatcounter.Site)
-		for _, s := range sites {
-			allSites[s.ID] = s
-		}
-	})
-
-	grouped := make(map[int64][]goatcounter.Hit)
-	for _, h := range hits {
-		grouped[h.Site] = append(grouped[h.Site], h)
+func ReindexStats(ctx context.Context, site goatcounter.Site, hits []goatcounter.Hit, tables []string) error {
+	if site.State != goatcounter.StateActive {
+		return nil
+	}
+	if len(hits) == 0 {
+		return nil
 	}
 
-	for siteID, hits := range grouped {
-		site, ok := allSites[siteID]
-		if !ok {
-			return errors.Errorf("cron.ReindexStats: not in allSites: %d", siteID)
-		}
-		if site.State != goatcounter.StateActive {
-			continue
-		}
-		ctx = goatcounter.WithSite(ctx, &site)
-
+	ctx = goatcounter.WithSite(ctx, &site)
+	for _, t := range tables {
 		var err error
-		for _, t := range tables {
-			switch t {
-			case "all":
-				err = UpdateStats(ctx, &site, siteID, hits)
-			case "hit_stats":
-				err = updateHitStats(ctx, hits)
-			case "hit_counts":
-				err = updateHitCounts(ctx, hits)
-			case "browser_stats":
-				err = updateBrowserStats(ctx, hits)
-			case "system_stats":
-				err = updateSystemStats(ctx, hits)
-			case "location_stats":
-				err = updateLocationStats(ctx, hits)
-			case "ref_counts":
-				err = updateRefCounts(ctx, hits)
-			case "size_stats":
-				err = updateSizeStats(ctx, hits)
-			}
-			if err != nil {
-				return err
-			}
+		switch t {
+		case "all":
+			err = UpdateStats(ctx, &site, site.ID, hits)
+		case "hit_stats":
+			err = updateHitStats(ctx, hits)
+		case "hit_counts":
+			err = updateHitCounts(ctx, hits)
+		case "browser_stats":
+			err = updateBrowserStats(ctx, hits)
+		case "system_stats":
+			err = updateSystemStats(ctx, hits)
+		case "location_stats":
+			err = updateLocationStats(ctx, hits)
+		case "ref_counts":
+			err = updateRefCounts(ctx, hits)
+		case "size_stats":
+			err = updateSizeStats(ctx, hits)
+		}
+		if err != nil {
+			return err
 		}
 	}
 

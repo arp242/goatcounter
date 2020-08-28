@@ -105,7 +105,6 @@ func DB(t tester) (context.Context, func()) {
 	return ctx, func() {
 		goatcounter.Memstore.Reset()
 		goatcounter.ResetCache()
-		cron.ResetCache()
 
 		// TODO: run after all tests are done.
 		// out, err := exec.Command("dropdb", dbname).CombinedOutput()
