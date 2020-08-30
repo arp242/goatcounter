@@ -24,7 +24,7 @@ import (
 //   path       | /jquery.html
 //   title      | Why I'm still using jQuery in 2019
 //   stats      | [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
-func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
+func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + path.
 		type gt struct {
@@ -49,11 +49,16 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.day = day
 				v.hour = dayHour
 				v.path = h.Path
-				var err error
-				v.count, v.countUnique, v.title, err = existingHitStats(ctx, tx,
-					h.Site, day, v.path)
-				if err != nil {
-					return err
+				if !isReindex {
+					var err error
+					v.count, v.countUnique, v.title, err = existingHitStats(ctx, tx,
+						h.Site, day, v.path)
+					if err != nil {
+						return err
+					}
+				} else {
+					v.count = make([]int, 24)
+					v.countUnique = make([]int, 24)
 				}
 			}
 

@@ -19,7 +19,7 @@ import (
 //     1 | 2019-11-30 | ET       |     1
 //     1 | 2019-11-30 | GR       |     2
 //     1 | 2019-11-30 | MX       |     4
-func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
+func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + location.
 		type gt struct {
@@ -40,11 +40,13 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit) error {
 			if v.count == 0 {
 				v.day = day
 				v.location = h.Location
-				var err error
-				v.count, v.countUnique, err = existingLocationStats(ctx, tx,
-					h.Site, day, v.location)
-				if err != nil {
-					return err
+				if !isReindex {
+					var err error
+					v.count, v.countUnique, err = existingLocationStats(ctx, tx,
+						h.Site, day, v.location)
+					if err != nil {
+						return err
+					}
 				}
 			}
 

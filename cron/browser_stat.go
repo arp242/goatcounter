@@ -21,7 +21,7 @@ import (
 //     1 | 2019-12-17 | Chrome  | 38      |    13
 //     1 | 2019-12-17 | Chrome  | 77      |     2
 //     1 | 2019-12-17 | Opera   | 9       |     1
-func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
+func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + browser + version.
 		type gt struct {
@@ -49,11 +49,13 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.day = day
 				v.browser = browser
 				v.version = version
-				var err error
-				v.count, v.countUnique, err = existingBrowserStats(ctx, tx,
-					h.Site, day, v.browser, v.version)
-				if err != nil {
-					return err
+				if !isReindex {
+					var err error
+					v.count, v.countUnique, err = existingBrowserStats(ctx, tx,
+						h.Site, day, v.browser, v.version)
+					if err != nil {
+						return err
+					}
 				}
 			}
 

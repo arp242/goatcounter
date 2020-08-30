@@ -20,7 +20,7 @@ import (
 //     1 | 2019-11-30 | 380      |     1
 //     1 | 2019-11-30 | 1920     |     2
 //     1 | 2019-11-30 | 1920     |     4
-func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
+func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + width.
 		type gt struct {
@@ -46,11 +46,13 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			if v.count == 0 {
 				v.day = day
 				v.width = width
-				var err error
-				v.count, v.countUnique, err = existingSizeStats(ctx, tx, h.Site,
-					day, v.width)
-				if err != nil {
-					return err
+				if !isReindex {
+					var err error
+					v.count, v.countUnique, err = existingSizeStats(ctx, tx, h.Site,
+						day, v.width)
+					if err != nil {
+						return err
+					}
 				}
 			}
 
