@@ -11,15 +11,15 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/lib/pq v1.7.1
+	github.com/lib/pq v1.8.0
 	github.com/mattn/go-sqlite3 v1.14.1
 	github.com/monoculum/formam v0.0.0-20200527175922-6f3cce7a46cf
 	github.com/teamwork/reload v1.3.2
-	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381
+	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
+	golang.org/x/net v0.0.0-20200822124328-c89045814202
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/tools v0.0.0-20200721223218-6123e77877b2
-	honnef.co/go/tools v0.0.1-2020.1.4
+	honnef.co/go/tools v0.0.1-2020.1.5
 	zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8
 	zgo.at/errors v0.0.0-20200725175708-8255739ad6ec
 	zgo.at/gadget v0.0.0-20200522205438-64412137d778
@@ -27,8 +27,8 @@ require (
 	zgo.at/isbot v0.0.0-20200630090855-51850c1e6580
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
-	zgo.at/zcache v0.0.0-20200730203833-194444fbbca6
-	zgo.at/zdb v0.0.0-20200828062114-ed0413888354
+	zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8
+	zgo.at/zdb v0.0.0-20200828070119-8d678a1339ab
 	zgo.at/zhttp v0.0.0-20200829232351-8138f7b7a1a1
 	zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
