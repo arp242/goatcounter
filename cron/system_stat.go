@@ -14,13 +14,6 @@ import (
 	"zgo.at/zdb/bulk"
 )
 
-// Systems are stored as a count per system/version per day:
-//
-//  site |    day     | system  | version | count
-// ------+------------+---------+---------+------
-//     1 | 2019-12-17 | Chrome  | 38      |    13
-//     1 | 2019-12-17 | Chrome  | 77      |     2
-//     1 | 2019-12-17 | Opera   | 9       |     1
 func updateSystemStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + system.

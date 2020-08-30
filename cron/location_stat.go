@@ -13,12 +13,6 @@ import (
 	"zgo.at/zdb/bulk"
 )
 
-// Location stats are stored as a simple day/location with a count.
-//  site |    day     | location | count
-// ------+------------+----------+-------
-//     1 | 2019-11-30 | ET       |     1
-//     1 | 2019-11-30 | GR       |     2
-//     1 | 2019-11-30 | MX       |     4
 func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + location.

@@ -14,7 +14,7 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/ztest"
+	"zgo.at/zstd/ztest"
 )
 
 func dayStat(days map[int]int) []int {

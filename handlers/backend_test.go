@@ -30,7 +30,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
-	"zgo.at/ztest"
+	"zgo.at/zstd/ztest"
 )
 
 func TestBackendCount(t *testing.T) {

@@ -20,7 +20,7 @@ import (
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
-	"zgo.at/ztest"
+	"zgo.at/zstd/ztest"
 	"zgo.at/zvalidate"
 )
 

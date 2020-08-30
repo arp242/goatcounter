@@ -14,12 +14,6 @@ import (
 	"zgo.at/zdb/bulk"
 )
 
-// Size stats are stored as a simple day/width with a count.
-//  site |    day     | width    | count
-// ------+------------+----------+-------
-//     1 | 2019-11-30 | 380      |     1
-//     1 | 2019-11-30 | 1920     |     2
-//     1 | 2019-11-30 | 1920     |     4
 func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + width.

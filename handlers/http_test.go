@@ -27,7 +27,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
-	"zgo.at/ztest"
+	"zgo.at/zstd/ztest"
 )
 
 type handlerTest struct {

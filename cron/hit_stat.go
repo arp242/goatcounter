@@ -15,15 +15,6 @@ import (
 	"zgo.at/zstd/zjson"
 )
 
-// Hit stats are stored per day/path, the value is a 2-tuple: it lists the
-// counts for every hour. The first is the hour, second the number of hits in
-// that hour:
-//
-//   site       | 1
-//   day        | 2019-12-05
-//   path       | /jquery.html
-//   title      | Why I'm still using jQuery in 2019
-//   stats      | [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		// Group by day + path.

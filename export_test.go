@@ -16,7 +16,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zstd/zjson"
-	"zgo.at/ztest"
+	"zgo.at/zstd/ztest"
 )
 
 func TestExport(t *testing.T) {

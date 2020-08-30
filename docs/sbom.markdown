@@ -38,7 +38,6 @@ Backend
 | zgo.at/zlog                        | v1.0.9                             | MIT     |
 | zgo.at/zpack                       | v1.0.0                             | MIT     |
 | zgo.at/zstripe                     | v1.0.0                             | MIT     |
-| zgo.at/ztest                       | v1.0.1                             | MIT     |
 | zgo.at/zvalidate                   | v1.2.0                             | MIT     |
 
 

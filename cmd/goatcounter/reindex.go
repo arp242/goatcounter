@@ -135,11 +135,11 @@ func reindex() (int, error) {
 		return 1, err
 	}
 
-	for _, s := range sites {
+	for i, s := range sites {
 		if site > 0 && s.ID != site {
 			continue
 		}
-		err := dosite(ctx, s, tables, *pause, firstDay, lastDay, *quiet)
+		err := dosite(ctx, s, tables, *pause, firstDay, lastDay, *quiet, len(sites), i+1)
 		if err != nil {
 			return 1, err
 		}
@@ -151,7 +151,11 @@ func reindex() (int, error) {
 	return 0, nil
 }
 
-func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause int, firstDay, lastDay time.Time, quiet bool) error {
+func dosite(
+	ctx context.Context, site goatcounter.Site, tables []string,
+	pause int, firstDay, lastDay time.Time, quiet bool,
+	nsites, isite int,
+) error {
 	db := zdb.MustGet(ctx).(*sqlx.DB)
 	siteID := site.ID
 
@@ -198,7 +202,7 @@ func dosite(ctx context.Context, site goatcounter.Site, tables []string, pause i
 		}
 
 		if !quiet {
-			fmt.Fprintf(stdout, "\r\x1b[0Ksite %d %s → %d", siteID, month[0].Format("2006-01"), len(hits))
+			fmt.Fprintf(stdout, "\r\x1b[0Ksite %d (%d/%d) %s → %d", siteID, isite, nsites, month[0].Format("2006-01"), len(hits))
 		}
 
 		clearMonth(db, tables, month[0].Format("2006-01"), siteID)
