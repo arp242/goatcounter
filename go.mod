@@ -28,13 +28,14 @@ require (
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20201022032147-22da657c7bcf
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
+	zgo.at/pg_info v0.0.0-20201215104212-161c5ee46a29
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v1.0.0
 	zgo.at/zdb v0.0.0-20201215064121-3bdf9ac70fc1
 	zgo.at/zhttp v0.0.0-20201214071227-714ee8b7a17f
 	zgo.at/zli v0.0.0-20201210061107-1204fda2cf4b
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
-	zgo.at/zpack v1.0.1
+	zgo.at/zpack v1.0.2-0.20201215095635-1a4d171dcd00
 	zgo.at/zstd v0.0.0-20201208030035-69d7042db931
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a

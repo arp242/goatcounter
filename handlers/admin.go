@@ -15,8 +15,10 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/guru"
+	"zgo.at/pg_info/pghandler"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -25,14 +27,13 @@ import (
 
 type admin struct{}
 
-func (h admin) mount(r chi.Router) {
+func (h admin) mount(r chi.Router, db zdb.DB) {
 	//a := r.With(zhttp.Log(true, ""), keyAuth, adminOnly)
 	a := r.With(zhttp.Log(true, ""), adminOnly)
 
 	a.Get("/admin", zhttp.Wrap(h.index))
-	a.Get("/admin/sql", zhttp.Wrap(h.pgstat))
-	a.Get("/admin/sql/table/{table}", zhttp.Wrap(h.pgstatTable))
-	a.Post("/admin/sql/explain", zhttp.Wrap(h.explain))
+
+	a.Mount("/admin/sql", pghandler.New("/admin/sql", db.(*sqlx.DB).DB))
 
 	a.Get("/admin/{id}", zhttp.Wrap(h.site))
 	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
