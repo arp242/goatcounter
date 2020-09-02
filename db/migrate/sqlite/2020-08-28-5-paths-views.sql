@@ -12,14 +12,16 @@ begin;
 		join browsers using (browser_id)
 		join systems using (system_id);
 
-	create view view_hits as
+	create view hits_export as
 		select
+			hits.hit_id,
+			hits.site_id,
+
 			paths.path,
 			paths.title,
 			paths.event,
 
 			user_agents.ua,
-			user_agents.bot as uabot,
 			browsers.name || ' ' || browsers.version as browser,
 			systems.name || ' ' || systems.version as system,
 

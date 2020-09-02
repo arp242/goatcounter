@@ -445,22 +445,16 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 	)
 	if daily {
 		query, args, err = zdb.Query(ctx, `/* getMax daily */
-			with x as (
-				select path_id from paths
-				where
-					site_id=:site
-					{{and path_id in (:filter)}}
-			)
 			select coalesce(sum(total), 0) as t
-			from hit_counts, x
+			from hit_counts
 			where
-				hit_counts.path_id=x.path_id and
-				hit_counts.site_id=1 and
+				hit_counts.site_id=:site and
+				{{path_id in (:filter) and}}
 				hour>=:start and hour<=:end
 			{{group by hit_counts.path_id, date(hour, :tz)}}
 			{{group by hit_counts.path_id, date(timezone(:tz, hour))}}
 			order by t desc
-			limit 1 `,
+			limit 1`,
 			struct {
 				Site           int64
 				Start, End, TZ string
@@ -485,8 +479,7 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 		return 0, errors.Wrap(err, "getMax")
 	}
 
-	db := zdb.MustGet(ctx)
-	err = db.GetContext(ctx, &max, query, args...)
+	err = zdb.MustGet(ctx).GetContext(ctx, &max, query, args...)
 	if err != nil && !zdb.ErrNoRows(err) {
 		return 0, errors.Wrap(err, "getMax")
 	}

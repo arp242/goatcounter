@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
@@ -22,6 +23,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zvalidate"
 )
@@ -565,35 +567,64 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 		return errors.Errorf("days must be at least 14: %d", days)
 	}
 
+	// TODO: ideally this should also delete paths that are no longer
+	// referenced.
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		ival := interval(days)
-		_, err := tx.ExecContext(ctx,
-			`delete from hits where site_id=$1 and created_at < `+ival,
-			s.ID)
-		if err != nil {
-			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
-		}
 
-		_, err = tx.ExecContext(ctx,
-			`delete from hit_counts where site_id=$1 and hour < `+ival,
-			s.ID)
+		var pathIDs []int64
+		err := tx.SelectContext(ctx, &pathIDs, `/* Site.DeleteOlderThan */
+			select path_id from hit_counts where site_id=$1 and hour < `+ival+` group by path_id`, s.ID)
 		if err != nil {
-			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
-		}
-
-		_, err = tx.ExecContext(ctx,
-			`delete from ref_counts where site_id=$1 and hour < `+ival,
-			s.ID)
-		if err != nil {
-			return errors.Wrap(err, "Site.DeleteOlderThan: delete sites")
+			return errors.Wrap(err, "Site.DeleteOlderThan: get paths")
 		}
 
 		for _, t := range statTables {
-			_, err := tx.ExecContext(ctx,
-				`delete from `+t+` where site_id=$1 and day < `+ival,
-				s.ID)
+			_, err := tx.ExecContext(ctx, `delete from `+t+` where site_id=$1 and day < `+ival, s.ID)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan: delete "+t)
+			}
+		}
+
+		_, err = tx.ExecContext(ctx, `delete from hits where site_id=$1 and created_at < `+ival, s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.DeleteOlderThan: delete hits")
+		}
+
+		_, err = tx.ExecContext(ctx, `delete from hit_counts where site_id=$1 and hour < `+ival, s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.DeleteOlderThan: delete hit_counts")
+		}
+
+		_, err = tx.ExecContext(ctx, `delete from ref_counts where site_id=$1 and hour < `+ival, s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.DeleteOlderThan: delete ref_counts")
+		}
+
+		if len(pathIDs) > 0 {
+			db := zdb.MustGet(ctx)
+			query, args, err := sqlx.In(`/* Site.DeleteOlderThan */
+				select path_id from hit_counts where site_id=? and path_id in (?)`,
+				s.ID, pathIDs)
+			if err != nil {
+				return errors.Wrap(err, "Site.DeleteOlderThan")
+			}
+			var remainPath []int64
+			err = tx.SelectContext(ctx, &remainPath, db.Rebind(query), args...)
+			if err != nil {
+				return errors.Wrap(err, "Site.DeleteOlderThan")
+			}
+
+			diff := zint.Difference(pathIDs, remainPath)
+			if len(diff) > 0 {
+				query, args, err := sqlx.In(`delete from paths where site_id=? and path_id in (?)`, s.ID, diff)
+				if err != nil {
+					return errors.Wrap(err, "Site.DeleteOlderThan")
+				}
+				_, err = tx.ExecContext(ctx, db.Rebind(query), args...)
+				if err != nil {
+					return errors.Wrap(err, "Site.DeleteOlderThan")
+				}
 			}
 		}
 

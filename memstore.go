@@ -228,7 +228,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		ctx = WithSite(ctx, &site)
 
 		if h.Session.IsZero() {
-			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.Browser, h.RemoteAddr)
+			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.UserAgentHeader, h.RemoteAddr)
 		}
 
 		// Persist.

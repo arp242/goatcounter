@@ -14,12 +14,17 @@ import (
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
 func ptr(s string) *string { return &s }
+func unref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
 
 type Hit struct {
 	ID          int64        `db:"hit_id" json:"-"`
@@ -36,11 +41,11 @@ type Hit struct {
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"bot" json:"b,omitempty"`
 
-	RefScheme  *string   `db:"ref_scheme" json:"-"`
-	Browser    string    `db:"-" json:"-"`
-	Location   string    `db:"location" json:"-"`
-	FirstVisit zdb.Bool  `db:"first_visit" json:"-"`
-	CreatedAt  time.Time `db:"created_at" json:"-"`
+	RefScheme       *string   `db:"ref_scheme" json:"-"`
+	UserAgentHeader string    `db:"-" json:"-"`
+	Location        string    `db:"location" json:"-"`
+	FirstVisit      zdb.Bool  `db:"first_visit" json:"-"`
+	CreatedAt       time.Time `db:"created_at" json:"-"`
 
 	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
@@ -170,7 +175,7 @@ func (h *Hit) Defaults(ctx context.Context) error {
 		}
 	}
 
-	if h.Ref != "" && h.RefURL != nil {
+	if h.RefScheme == nil && h.Ref != "" && h.RefURL != nil {
 		if h.RefURL.Scheme == "http" || h.RefURL.Scheme == "https" {
 			h.RefScheme = RefSchemeHTTP
 		} else {
@@ -194,7 +199,7 @@ func (h *Hit) Defaults(ctx context.Context) error {
 	h.PathID = path.ID
 
 	// Get or insert user_agent
-	ua := UserAgent{UserAgent: h.Browser}
+	ua := UserAgent{UserAgent: h.UserAgentHeader}
 	err = ua.GetOrInsert(ctx)
 	if err != nil {
 		return errors.Wrap(err, "Hit.Defaults")
@@ -226,10 +231,10 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 		v.Required("path", h.Path)
 		v.UTF8("path", h.Path)
 		v.UTF8("title", h.Title)
-		v.UTF8("browser", h.Browser)
+		v.UTF8("user_agent_header", h.UserAgentHeader)
 		v.Len("path", h.Path, 1, 2048)
 		v.Len("title", h.Title, 0, 1024)
-		v.Len("browser", h.Browser, 0, 512)
+		v.Len("user_agent_header", h.UserAgentHeader, 0, 512)
 	} else {
 		v.Required("path_id", h.PathID)
 		v.Required("user_agent_id", h.UserAgentID)
@@ -241,25 +246,6 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 }
 
 type Hits []Hit
-
-// List all hits for a site, including bot requests.
-func (h *Hits) List(ctx context.Context, limit, paginate int64) (int64, error) {
-	if limit == 0 || limit > 5000 {
-		limit = 5000
-	}
-
-	err := zdb.MustGet(ctx).SelectContext(ctx, h,
-		`select * from hits where site_id=$1 and hit_id>$2 order by hit_id asc limit $3`,
-		MustGetSite(ctx).ID, paginate, limit)
-
-	last := paginate
-	if len(*h) > 0 {
-		hh := *h
-		last = hh[len(hh)-1].ID
-	}
-
-	return last, errors.Wrap(err, "Hits.List")
-}
 
 // TestList lists all hits, for all sites, with browser_id, system_id, and paths
 // set.
@@ -320,40 +306,22 @@ func (h *Hits) Count(ctx context.Context) (int64, error) {
 	return c, errors.Wrap(err, "Hits.Count")
 }
 
-// Purge all paths matching the like pattern.
-func (h *Hits) Purge(ctx context.Context, pathIDs []int64, matchTitle bool) error {
-
+// Purge all paths.
+func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 	query := `/* Hits.Purge */
-		delete from %s where site_id=? and path_id in (?) `
-	if matchTitle {
-		query += ` and lower(title) like lower($2) `
-	}
+		delete from %s where site_id=? and path_id in (?)`
 
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		site := MustGetSite(ctx).ID
 
-		for _, t := range []string{"hits", "hit_stats", "hit_counts", "ref_counts", "paths"} {
+		for _, t := range append(statTables, "hits", "paths") {
 			query, args, err := sqlx.In(fmt.Sprintf(query, t), site, pathIDs)
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
-
 			_, err = tx.ExecContext(ctx, zdb.MustGet(ctx).Rebind(query), args...)
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
-			}
-		}
-
-		// Delete all other stats as well if there's nothing left: not much use
-		// for it.
-		var check Hits
-		n, err := check.Count(ctx)
-		if err == nil && n == 0 {
-			for _, t := range statTables {
-				_, err := tx.ExecContext(ctx, `delete from `+t+` where site_id=$1`, site)
-				if err != nil {
-					zlog.Errorf("Hits.Purge: delete %s: %s", t, err)
-				}
 			}
 		}
 
@@ -387,14 +355,14 @@ type HitStats []HitStat
 func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
 	query, args, err := zdb.Query(ctx, `/* HitStats.ListPathsLike */
 		select
-			path, title,
+			path_id, path, title,
 			sum(total) as count
 		from hit_counts
 		join paths using(path_id)
 		where
 			hit_counts.site_id=:site and
 			(lower(path) like lower(:search) {{or lower(title) like lower(:search)}})
-		group by path, title
+		group by path_id, path, title
 		order by count desc
 	`, struct {
 		Site   int64

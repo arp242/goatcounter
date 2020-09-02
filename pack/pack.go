@@ -843,23 +843,32 @@ commit;
 
 	-- hit_counts
 	alter table hit_counts add constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour);
-	cluster hit_counts using "hit_counts#site_id#path_id#hour";
-	create index "hit_counts#path_id" on hit_counts(path_id);
 	alter table hit_counts replica identity using index "hit_counts#site_id#path_id#hour";
+
+	--create index "hit_counts#path_id" on hit_counts(path_id);
 	drop index "hit_counts#site#hour";
+	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
+	cluster hit_counts using "hit_counts#site_id#hour";
+
 
 	-- ref_counts
 	alter table ref_counts add constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour);
-	cluster ref_counts using "ref_counts#site_id#path_id#ref#hour";
-	create index "ref_counts#path_id" on ref_counts(path_id);
 	alter table ref_counts replica identity using index "ref_counts#site_id#path_id#ref#hour";
+
+	--create index "ref_counts#path_id" on ref_counts(path_id);
 	drop index "ref_counts#site#hour";
+	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
+	cluster ref_counts using "ref_counts#site_id#hour";
+
 
 	-- hit_stats
 	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
-	cluster hit_stats using "hit_stats#site_id#path_id#day";
 	alter table hit_stats replica identity using index "hit_stats#site_id#path_id#day";
+
 	drop index "hit_stats#site#day";
+	create index "hit_stats#site_id#day" on hit_stats(site_id, day);
+	cluster hit_stats using "hit_stats#site_id#day";
+
 
 	-- browser_stats
 	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
@@ -924,14 +933,16 @@ commit;
 		join browsers using (browser_id)
 		join systems using (system_id);
 
-	create view view_hits as
+	create view hits_export as
 		select
+			hits.hit_id,
+			hits.site_id,
+
 			paths.path,
 			paths.title,
 			paths.event,
 
 			user_agents.ua,
-			user_agents.bot as uabot,
 			browsers.name || ' ' || browsers.version as browser,
 			systems.name || ' ' || systems.version as system,
 
@@ -2179,14 +2190,16 @@ commit;
 		join browsers using (browser_id)
 		join systems using (system_id);
 
-	create view view_hits as
+	create view hits_export as
 		select
+			hits.hit_id,
+			hits.site_id,
+
 			paths.path,
 			paths.title,
 			paths.event,
 
 			user_agents.ua,
-			user_agents.bot as uabot,
 			browsers.name || ' ' || browsers.version as browser,
 			systems.name || ' ' || systems.version as system,
 
@@ -18528,10 +18541,6 @@ depending on whether daylight savings time is in use at the time instant.</p>
 		<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
 		<code>\%</code> and <code>\_</code> for the literal characters without special
 		meaning.</p>
-
-	<p><strong>This won’t adjust the browser or location statistics, as they’re not
-		stored per-path.</strong>They will be cleared if you remove all paths
-		though (using <code>%</code>, or if there are no more paths left).</p>
 
 	<form method="get" action="/purge">
 		<input type="text" name="path" placeholder="Path" required autocomplete="off">

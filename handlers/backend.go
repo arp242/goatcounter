@@ -237,11 +237,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	hit := goatcounter.Hit{
-		Site:       site.ID,
-		Browser:    r.UserAgent(),
-		Location:   geo(r.RemoteAddr),
-		CreatedAt:  goatcounter.Now(),
-		RemoteAddr: r.RemoteAddr,
+		Site:            site.ID,
+		UserAgentHeader: r.UserAgent(),
+		Location:        geo(r.RemoteAddr),
+		CreatedAt:       goatcounter.Now(),
+		RemoteAddr:      r.RemoteAddr,
 	}
 
 	err := formam.NewDecoder(&formam.DecoderOptions{TagName: "json"}).Decode(r.URL.Query(), &hit)
@@ -953,7 +953,7 @@ func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
 	ctx := goatcounter.NewContext(r.Context())
 	bgrun.Run(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
-		err := list.Purge(ctx, paths, r.Form.Get("match-title") == "on")
+		err := list.Purge(ctx, paths)
 		if err != nil {
 			zlog.Error(err)
 		}

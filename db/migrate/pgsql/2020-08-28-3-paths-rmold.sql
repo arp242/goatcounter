@@ -40,23 +40,32 @@ begin;
 
 	-- hit_counts
 	alter table hit_counts add constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour);
-	cluster hit_counts using "hit_counts#site_id#path_id#hour";
-	create index "hit_counts#path_id" on hit_counts(path_id);
 	alter table hit_counts replica identity using index "hit_counts#site_id#path_id#hour";
+
+	--create index "hit_counts#path_id" on hit_counts(path_id);
 	drop index "hit_counts#site#hour";
+	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
+	cluster hit_counts using "hit_counts#site_id#hour";
+
 
 	-- ref_counts
 	alter table ref_counts add constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour);
-	cluster ref_counts using "ref_counts#site_id#path_id#ref#hour";
-	create index "ref_counts#path_id" on ref_counts(path_id);
 	alter table ref_counts replica identity using index "ref_counts#site_id#path_id#ref#hour";
+
+	--create index "ref_counts#path_id" on ref_counts(path_id);
 	drop index "ref_counts#site#hour";
+	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
+	cluster ref_counts using "ref_counts#site_id#hour";
+
 
 	-- hit_stats
 	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
-	cluster hit_stats using "hit_stats#site_id#path_id#day";
 	alter table hit_stats replica identity using index "hit_stats#site_id#path_id#day";
+
 	drop index "hit_stats#site#day";
+	create index "hit_stats#site_id#day" on hit_stats(site_id, day);
+	cluster hit_stats using "hit_stats#site_id#day";
+
 
 	-- browser_stats
 	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);

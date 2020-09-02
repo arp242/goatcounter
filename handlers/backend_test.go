@@ -108,9 +108,9 @@ func TestBackendCount(t *testing.T) {
 		{"googlebot", url.Values{"p": {"/a"}, "b": {"150"}}, func(r *http.Request) {
 			r.Header.Set("User-Agent", "GoogleBot/1.0")
 		}, 200, goatcounter.Hit{
-			Path:    "/a",
-			Bot:     int(isbot.BotShort),
-			Browser: "GoogleBot/1.0",
+			Path:            "/a",
+			Bot:             int(isbot.BotShort),
+			UserAgentHeader: "GoogleBot/1.0",
 		}},
 
 		{"bot", url.Values{"p": {"/a"}, "b": {"100"}}, nil, 400, goatcounter.Hit{}},
@@ -172,8 +172,8 @@ func TestBackendCount(t *testing.T) {
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
 			tt.hit.Session = goatcounter.TestSeqSession // Should all be the same session.
-			if tt.hit.Browser == "" {
-				tt.hit.Browser = "GoatCounter test runner/1.0"
+			if tt.hit.UserAgentHeader == "" {
+				tt.hit.UserAgentHeader = "GoatCounter test runner/1.0"
 			}
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
 			if d := ztest.Diff(string(zjson.MustMarshal(h)), string(zjson.MustMarshal(tt.hit))); d != "" {
@@ -417,7 +417,7 @@ func TestBackendPurge(t *testing.T) {
 			bgrun.Wait()
 
 			var hits goatcounter.Hits
-			_, err := hits.List(r.Context(), 0, 0)
+			err := hits.TestList(r.Context(), false)
 			if err != nil {
 				t.Fatal(err)
 			}
