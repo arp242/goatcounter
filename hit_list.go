@@ -8,7 +8,6 @@ import (
 	"context"
 	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"zgo.at/errors"
@@ -22,14 +21,10 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 // List the top paths for this site in the given time period.
 func (h *HitStats) List(
-	ctx context.Context, start, end time.Time, filter string, exclude []int64, daily bool,
+	ctx context.Context, start, end time.Time, pathFilter, exclude []int64, daily bool,
 ) (int, int, bool, error) {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
-
-	if filter != "" {
-		filter = "%" + strings.ToLower(filter) + "%"
-	}
 
 	// List the pages for this page.
 	var more bool
@@ -37,22 +32,15 @@ func (h *HitStats) List(
 		// Get one page more so we can detect if there are more pages after this.
 		limit := int(zint.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
 
-		// ee := make([]int64, len(exclude))
-		// for i := range exclude {
-		// 	n, _ := strconv.ParseInt(exclude[i], 10, 64)
-		// 	ee[i] = n
-		// }
-
-		query, args, err := zdb.Query(db, `/* HitStats.List */
+		query, args, err := zdb.Query(ctx, `/* HitStats.List */
 			with x as (
 				select path_id from hit_counts
-				{{join paths using (path_id)}}
 				where
 					hit_counts.site_id=:site and
 					{{path_id not in (:exclude) and}}
+					{{path_id in (:filter) and}}
 					hour>=:start and
 					hour<=:end
-					{{and (lower(path) like :filter or lower(title) like :filter)}}
 				group by path_id
 				order by sum(total_unique) desc, path_id desc
 				limit :limit
@@ -60,12 +48,13 @@ func (h *HitStats) List(
 			select path_id, paths.path, paths.title, paths.event from x
 			join paths using (path_id)
 		`, struct {
-			Site               int64
-			Start, End, Filter string
-			Limit              int
-			Exclude            []int64
-		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), filter, limit, exclude},
-			filter != "", len(exclude) > 0, filter != "")
+			Site       int64
+			Start, End string
+			Filter     []int64
+			Limit      int
+			Exclude    []int64
+		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter, limit, exclude},
+			len(exclude) > 0, len(pathFilter) > 0)
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
@@ -92,21 +81,21 @@ func (h *HitStats) List(
 		StatsUnique []byte    `db:"stats_unique"`
 	}
 	{
-		query, args, err := zdb.Query(db, `/* HitStats.List */
+		query, args, err := zdb.Query(ctx, `/* HitStats.List */
 			select path_id, day, stats, stats_unique
 			from hit_stats
-			join paths using (path_id)
 			where
 				hit_stats.site_id=:site and
 				day>=:start and
 				day<=:end
-				{{and (lower(path) like :filter or lower(title) like :filter)}}
+				{{and path_id in (:filter)}}
 			order by day asc`,
 			struct {
-				Site               int64
-				Start, End, Filter string
-			}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), filter},
-			filter != "")
+				Site       int64
+				Start, End string
+				Filter     []int64
+			}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter},
+			len(pathFilter) > 0)
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
@@ -156,38 +145,30 @@ func (h *HitStats) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the totals overview of all pages.
-func (h *HitStat) Totals(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {
-	db := zdb.MustGet(ctx)
+func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 
-	join := ""
-	tbl := "hit_counts"
-	if filter != "" {
-		join = ` join paths using (path_id) `
-		tbl = "paths"
-	}
-
-	// select hour, total, total_unique from hit_counts
-	// where site_id=$1 and hour>=$2 and hour<=$3 `
-	query := `/* HitStat.Totals */
-		select hour, total, total_unique
-		from hit_counts
-		` + join + `
-		where ` + tbl + `.site_id=$1 and hour>=$2 and hour<=$3 `
-	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-	if filter != "" {
-		query += ` and (lower(path) like lower($4) or lower(title) like lower($4)) `
-		args = append(args, "%"+filter+"%")
-	}
-	query += ` order by hour asc`
 	var tc []struct {
 		Hour        time.Time `db:"hour"`
 		Total       int       `db:"total"`
 		TotalUnique int       `db:"total_unique"`
 	}
-	err := db.SelectContext(ctx, &tc, query, args...)
+
+	err := zdb.QuerySelect(ctx, &tc, `/* HitStat.Totals */
+		select hour, total, total_unique
+		from hit_counts
+		where
+			site_id=:site and hour>=:start and hour<=:end
+			{{and path_id in (:filter)}}
+		order by hour asc`,
+		struct {
+			Site       int64
+			Start, End string
+			Filter     []int64
+		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter},
+		len(pathFilter) > 0)
 	if err != nil {
-		return 0, errors.Errorf("HitStat.Totals: %w", err)
+		return 0, errors.Wrap(err, "HitStat.Totals")
 	}
 
 	totalst := HitStat{
@@ -407,64 +388,54 @@ func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 	sort.Slice(hh, func(i, j int) bool { return hh[i].CountUnique > hh[j].CountUnique })
 }
 
-func GetTotalCount(ctx context.Context, start, end time.Time, filter string) (int, int, error) {
-	join := ""
-	tbl := "hit_counts"
-	if filter != "" {
-		join = ` join paths using (path_id) `
-		tbl = "paths"
-	}
-
-	query := `/* GetTotalCount */
+func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (int, int, error) {
+	query, args, err := zdb.Query(ctx, `/* GetTotalCount */
 		select
 			coalesce(sum(total), 0) as t,
 			coalesce(sum(total_unique), 0) as u
 			from hit_counts
-			` + join + `
 			where
-				` + tbl + `.site_id=$1 and
-				hour>=$2 and
-				hour<=$3 `
-	args := []interface{}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-	if filter != "" {
-		query += ` and (lower(path) like $4 or lower(title) like $4) `
-		args = append(args, "%"+strings.ToLower(filter)+"%")
+				site_id=:site and
+				hour>=:start and
+				hour<=:end
+				{{and path_id in (:filter)}}`,
+		struct {
+			Site       int64
+			Start, End string
+			Filter     []int64
+		}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter},
+		len(pathFilter) > 0)
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "GetTotalCount")
 	}
 
 	var t struct{ T, U int }
-	err := zdb.MustGet(ctx).GetContext(ctx, &t, query, args...)
+	err = zdb.MustGet(ctx).GetContext(ctx, &t, query, args...)
 	return t.T, t.U, errors.Wrap(err, "GetTotalCount")
 }
 
-func GetTotalCountUTC(ctx context.Context, start, end time.Time, filter string) (int, int, error) {
+func GetTotalCountUTC(ctx context.Context, start, end time.Time, pathFilter []int64) (int, int, error) {
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	query := `/* GetTotalCountUTC */
+	var t struct{ T, U int }
+	err := zdb.QueryGet(ctx, &t, `/* GetTotalCountUTC */
 		select
 			coalesce(sum(total), 0) as t,
 			coalesce(sum(total_unique), 0) as u
-		from hit_counts where
-			site_id=$1 and
-			hour>=$2 and
-			hour<=$3 `
-
-	args := []interface{}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-	if filter != "" {
-		query += ` and (lower(path) like $4 or lower(title) like $4) `
-		args = append(args, "%"+strings.ToLower(filter)+"%")
-	}
-
-	var t struct{ T, U int }
-	err := zdb.MustGet(ctx).GetContext(ctx, &t, query, args...)
+		from hit_counts
+		where site_id=:site and hour>=:start and hour<=:end
+		{{and path_id in (:filter)}}`,
+		struct {
+			Site       int64
+			Start, End string
+			Filter     []int64
+		}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter},
+		len(pathFilter) > 0)
 	return t.T, t.U, errors.Wrap(err, "GetTotalCount")
 }
 
-func GetMax(ctx context.Context, start, end time.Time, filter string, daily bool) (int, error) {
-	if filter != "" {
-		filter = "%" + filter + "%"
-	}
-
+func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 	var (
 		max   int
@@ -473,12 +444,12 @@ func GetMax(ctx context.Context, start, end time.Time, filter string, daily bool
 		err   error
 	)
 	if daily {
-		query, args, err = zdb.Query(zdb.MustGet(ctx), `/* getMax daily */
+		query, args, err = zdb.Query(ctx, `/* getMax daily */
 			with x as (
 				select path_id from paths
 				where
 					site_id=:site
-					{{and (lower(path) like :filter or lower(title) like :filter)}}
+					{{and path_id in (:filter)}}
 			)
 			select coalesce(sum(total), 0) as t
 			from hit_counts, x
@@ -491,22 +462,24 @@ func GetMax(ctx context.Context, start, end time.Time, filter string, daily bool
 			order by t desc
 			limit 1 `,
 			struct {
-				Site                   int64
-				Start, End, TZ, Filter string
+				Site           int64
+				Start, End, TZ string
+				Filter         []int64
 			}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date),
-				site.Settings.Timezone.OffsetRFC3339(), filter},
-			filter != "", !cfg.PgSQL, cfg.PgSQL)
+				site.Settings.Timezone.OffsetRFC3339(), pathFilter},
+			len(pathFilter) > 0, !cfg.PgSQL, cfg.PgSQL)
 	} else {
-		query, args, err = zdb.Query(zdb.MustGet(ctx), `/* getMax hourly */
+		query, args, err = zdb.Query(ctx, `/* getMax hourly */
 				select coalesce(max(total), 0) from hit_counts
-				{{join paths using(path_id)}}
-				where hit_counts.site_id=:site and hour>=:start and hour<=:end
-				{{and (lower(path) like :filter or lower(title) like :filter)}}`,
+				where
+					hit_counts.site_id=:site and hour>=:start and hour<=:end
+					{{and path_id in (:filter)}}`,
 			struct {
-				Site               int64
-				Start, End, Filter string
-			}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), filter},
-			filter != "", filter != "")
+				Site       int64
+				Start, End string
+				Filter     []int64
+			}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter},
+			len(pathFilter) > 0)
 	}
 	if err != nil {
 		return 0, errors.Wrap(err, "getMax")

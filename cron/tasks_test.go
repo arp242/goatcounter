@@ -52,7 +52,7 @@ func TestDataRetention(t *testing.T) {
 	}
 
 	var stats goatcounter.HitStats
-	display, displayUnique, more, err := stats.List(ctx, past.Add(-1*24*time.Hour), now, "", nil, false)
+	display, displayUnique, more, err := stats.List(ctx, past.Add(-1*24*time.Hour), now, nil, nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}

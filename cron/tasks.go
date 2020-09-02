@@ -151,10 +151,8 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 		updateSizeStats,
 	}
 
-	//l := zlog.Module("stats")
 	for _, f := range funs {
 		err := f(ctx, hits, isReindex)
-		//l = l.Since(zruntime.FuncName(f))
 		if err != nil {
 			return errors.Wrapf(err, "site %d", siteID)
 		}

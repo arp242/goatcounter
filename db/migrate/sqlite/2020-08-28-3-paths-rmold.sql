@@ -97,7 +97,8 @@ begin;
 	-- alter table hit_stats rename site to site_id;
 	-- alter table hit_stats drop column path;
 	-- alter table hit_stats drop column title;
-	create table hit_stats2 (
+	drop table hit_stats;
+	create table hit_stats (
 		site_id        integer        not null                 check(site_id > 0),
 		path_id        int            not null                 check(path_id > 0),
 
@@ -107,10 +108,6 @@ begin;
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
-	insert into hit_stats2
-		select site, path_id, day, stats, stats_unique from hit_stats;
-	drop table hit_stats;
-	alter table hit_stats2 rename to hit_stats;
  	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
 
 
@@ -118,7 +115,8 @@ begin;
 	-- alter table hit_counts drop column path;
 	-- alter table hit_counts drop column title;
 	-- alter table hit_counts drop column event;
-	create table hit_counts2 (
+	drop table hit_counts;
+	create table hit_counts (
 		site_id       int        not null check(site_id>0),
 		path_id       int        not null check(path_id > 0),
 
@@ -128,17 +126,14 @@ begin;
 
 		constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) on conflict replace
 	);
-	insert into hit_counts2
-		select site, path_id, hour, total, total_unique from hit_counts;
-	drop table hit_counts;
-	alter table hit_counts2 rename to hit_counts;
 	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
 	create index "hit_counts#path_id"      on hit_counts(path_id);
 
 
 	-- alter table ref_counts     rename site to site_id;
 	-- alter table ref_counts drop column path;
-	create table ref_counts2 (
+	drop table ref_counts;
+	create table ref_counts (
 		site_id       int        not null check(site_id>0),
 		path_id       int        not null check(path_id>0),
 
@@ -150,18 +145,16 @@ begin;
 
 		constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) on conflict replace
 	);
-	insert into ref_counts2
-		select site, path_id, ref, ref_scheme, hour, total, total_unique from ref_counts;
-	drop table ref_counts;
-	alter table ref_counts2 rename to ref_counts;
 	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
 	create index "ref_counts#path_id"   on ref_counts(path_id);
 
 	-- alter table browser_stats rename site to site_id;
 	-- alter table browser_stats drop column browser;
 	-- alter table browser_stats drop column version;
-	create table browser_stats2 (
+	drop table browser_stats;
+	create table browser_stats (
 		site_id        integer        not null                 check(site_id>0),
+		path_id        integer        not null,
 		browser_id     integer        not null,
 
 		day            date           not null                 check(day=strftime('%Y-%m-%d', day)),
@@ -170,18 +163,16 @@ begin;
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
-	insert into browser_stats2
-		select site, browser_id, day, count, count_unique from browser_stats;
-	drop table browser_stats;
-	alter table browser_stats2 rename to browser_stats;
-	create unique index "browser_stats#site_id#day#browser_id" on browser_stats(site_id, day, browser_id);
+	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
 
 
 	-- alter table system_stats rename site to site_id;
 	-- alter table system_stats drop column system;
 	-- alter table system_stats drop column version;
-	create table system_stats2 (
+	drop table system_stats;
+	create table system_stats (
 		site_id        integer        not null                 check(site_id>0),
+		path_id        integer        not null,
 		system_id      integer        not null,
 
 		day            date           not null                 check(day=strftime('%Y-%m-%d', day)),
@@ -190,16 +181,14 @@ begin;
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
-	insert into system_stats2
-		select site, system_id, day, count, count_unique from system_stats;
-	drop table system_stats;
-	alter table system_stats2 rename to system_stats;
-	create unique index "system_stats#site_id#day#system_id" on system_stats(site_id, day, system_id);
+	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
 
 
 	-- alter table location_stats rename site to site_id;
-	create table location_stats2 (
+	drop table location_stats;
+	create table location_stats (
 		site_id        integer        not null                 check(site_id > 0),
+		path_id        integer        not null,
 
 		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 		location       varchar        not null,
@@ -208,16 +197,14 @@ begin;
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
-	insert into location_stats2
-		select site, day, location, count, count_unique from location_stats;
-	drop table location_stats;
-	alter table location_stats2 rename to location_stats;
-	create unique index "location_stats#site_id#day#location" on location_stats(site_id, day, location);
+	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
 
 
 	-- alter table size_stats rename site to site_id;
-	create table size_stats2 (
+	drop table size_stats;
+	create table size_stats (
 		site_id        integer        not null                 check(site_id > 0),
+		path_id        integer        not null,
 
 		day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 		width          int            not null,
@@ -226,11 +213,7 @@ begin;
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
-	insert into size_stats2
-		select site, day, width, count, count_unique from size_stats;
-	drop table size_stats;
-	alter table size_stats2 rename to size_stats;
-	create unique index "size_stats#site_id#day#width" on size_stats(site_id, day, width);
+	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
 
 
  	insert into version values('2020-08-28-3-paths-rmold');

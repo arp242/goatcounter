@@ -214,7 +214,7 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
-func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset int) error {
+func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilter []int64, offset int) error {
 	site := MustGetSite(ctx)
 
 	limit := site.Settings.Limits.Hchart
@@ -222,25 +222,29 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 		limit = 6
 	}
 
-	where := ` where site_id=? and hour>=? and hour<=?`
-	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-	if site.LinkDomain != "" {
-		where += " and ref not like ? "
-		args = append(args, site.LinkDomain+"%")
-	}
-
-	db := zdb.MustGet(ctx)
-	err := db.SelectContext(ctx, &h.Stats, db.Rebind(`/* Stats.ListTopRefs */
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListTopRefs */
 		select
 			coalesce(sum(total), 0) as count,
 			coalesce(sum(total_unique), 0) as count_unique,
 			max(ref_scheme) as ref_scheme,
 			ref as name
-		from ref_counts`+
-		where+`
+		from ref_counts
+		where
+			site_id=:site and hour>=:start and hour<=:end
+			{{and path_id in (:filter)}}
+			{{and ref not like :ref}}
 		group by ref
 		order by count_unique desc
-		limit ? offset ?`), append(args, limit+1, offset)...)
+		limit :limit offset :offset`,
+		struct {
+			Site          int64
+			Start, End    string
+			Filter        []int64
+			Ref           string
+			Limit, Offset int
+		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter,
+			site.LinkDomain + "%", limit, offset},
+		len(pathFilter) > 0, site.LinkDomain != "")
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListAllRefs")
 	}
@@ -249,6 +253,5 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-
 	return nil
 }

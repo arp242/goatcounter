@@ -223,7 +223,6 @@
 				jQuery.ajax({
 					url:     '/pages',
 					data:    append_period({
-						filter: filter,
 						daily:  $('#daily').is(':checked'),
 						max:    get_original_scale(),
 					}),
@@ -250,7 +249,6 @@
 				jQuery.ajax({
 					url:  '/pages',
 					data: append_period({
-						filter:    $('#filter-paths').val(),
 						daily:     $('#daily').is(':checked'),
 						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
@@ -817,6 +815,7 @@
 		data = data || {}
 		data['period-start'] = $('#period-start').val()
 		data['period-end']   = $('#period-end').val()
+		data['filter']       = $('#filter-paths').val()
 		return data
 	}
 

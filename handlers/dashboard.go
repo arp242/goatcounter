@@ -46,8 +46,34 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		hlPeriod = "week"
 	}
 
+	// Get path IDs to filter first, as they're used by the widgets.
+	var (
+		filter     = r.URL.Query().Get("filter")
+		pathFilter = make(chan (struct {
+			Paths []int64
+			Err   error
+		}))
+	)
+	go func() {
+		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("filter", filter).FieldsRequest(r) })
+
+		l := zlog.Module("dashboard")
+
+		var (
+			f   []int64
+			err error
+		)
+		if filter != "" {
+			f, err = goatcounter.PathFilter(r.Context(), filter, true)
+		}
+		pathFilter <- struct {
+			Paths []int64
+			Err   error
+		}{f, err}
+		l.Since("pathfilter")
+	}()
+
 	showRefs := r.URL.Query().Get("showrefs")
-	filter := r.URL.Query().Get("filter")
 	asText := r.URL.Query().Get("as-text") != ""
 	daily, forcedDaily := getDaily(r, start, end)
 
@@ -67,7 +93,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	args := widgets.Args{
 		Start:       start,
 		End:         end,
-		Filter:      filter,
 		Daily:       daily,
 		ShowRefs:    showRefs,
 		ForcedDaily: forcedDaily,
@@ -82,6 +107,12 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 	widgetList, err := widgets.NewList(wantWidgets)
+	if err != nil {
+		return err
+	}
+
+	f := <-pathFilter
+	args.PathFilter, err = f.Paths, f.Err
 	if err != nil {
 		return err
 	}
@@ -157,12 +188,12 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		PeriodStart    time.Time
 		PeriodEnd      time.Time
 		Filter         string
+		PathFilter     []int64
 		Daily          bool
 		ForcedDaily    bool
 		AsText         bool
 		Widgets        widgets.List
 	}{newGlobals(w, r),
-		cd, subs, showRefs, hlPeriod, start, end, filter, daily, forcedDaily,
-		asText, widgetList,
-	})
+		cd, subs, showRefs, hlPeriod, start, end, filter, args.PathFilter,
+		daily, forcedDaily, asText, widgetList})
 }

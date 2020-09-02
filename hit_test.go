@@ -170,8 +170,13 @@ func TestHitStatsList(t *testing.T) {
 
 			gctest.StoreHits(ctx, t, false, tt.in...)
 
+			pathsFilter, err := goatcounter.PathFilter(ctx, tt.inFilter, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			var stats goatcounter.HitStats
-			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude, false)
+			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, pathsFilter, tt.inExclude, false)
 
 			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
 			if got != tt.wantReturn {

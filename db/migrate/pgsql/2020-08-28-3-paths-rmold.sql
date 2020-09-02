@@ -1,7 +1,7 @@
 begin;
-	-----------------------
-	-- Rename id columns --
-	-----------------------
+	------------------------
+	-- Rename/add columns --
+	------------------------
 	alter table sites rename id to site_id;
 
 	alter table users rename id   to user_id;
@@ -10,13 +10,21 @@ begin;
 	alter table hits rename id       to hit_id;
 	alter table hits rename site     to site_id;
 
-	alter table hit_stats      rename site to site_id;
-	alter table hit_counts     rename site to site_id;
-	alter table ref_counts     rename site to site_id;
-	alter table browser_stats  rename site to site_id;
-	alter table system_stats   rename site to site_id;
+	alter table hit_stats  rename site to site_id;
+	alter table hit_counts rename site to site_id;
+	alter table ref_counts rename site to site_id;
+
+	alter table browser_stats rename site to site_id;
+	alter table browser_stats add column path_id int not null;
+
+	alter table system_stats rename site to site_id;
+	alter table system_stats add column path_id int not null;
+
 	alter table location_stats rename site to site_id;
-	alter table size_stats     rename site to site_id;
+	alter table location_stats add column path_id int not null;
+
+	alter table size_stats rename site to site_id;
+	alter table size_stats add column path_id int not null;
 
 	alter table hits drop column session;
 	alter table hits rename session2 to session;
@@ -51,21 +59,27 @@ begin;
 	drop index "hit_stats#site#day";
 
 	-- browser_stats
-	create unique index "browser_stats#site_id#day#browser_id" on browser_stats(site_id, day, browser_id);
-	cluster browser_stats using "browser_stats#site_id#day#browser_id";
-	alter table browser_stats replica identity using index "browser_stats#site_id#day#browser_id";
+	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
+	cluster browser_stats using "browser_stats#site_id#path_id#day#browser_id";
+	alter table browser_stats replica identity using index "browser_stats#site_id#path_id#day#browser_id";
 
 	-- system_stats
-	create unique index "system_stats#site_id#day#system_id" on system_stats(site_id, day, system_id);
-	cluster system_stats using "system_stats#site_id#day#system_id";
-	alter table system_stats replica identity using index "system_stats#site_id#day#system_id";
+	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
+	cluster system_stats using "system_stats#site_id#path_id#day#system_id";
+	alter table system_stats replica identity using index "system_stats#site_id#path_id#day#system_id";
 	drop index "system_stats#site#day";
 
 	-- location_stats
-	cluster location_stats using "location_stats#site#day#location";
+	drop index "location_stats#site#day#location";
+	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
+	cluster location_stats using "location_stats#site_id#path_id#day#location";
+	alter table location_stats replica identity using index "location_stats#site_id#path_id#day#location";
 
 	-- size_stats
-	cluster size_stats using "size_stats#site#day#width";
+	drop index "size_stats#site#day#width";
+	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
+	cluster size_stats using "size_stats#site_id#path_id#day#width";
+	alter table size_stats replica identity using index "size_stats#site_id#path_id#day#width";
 
 	------------------------
 	-- Remove old columns --

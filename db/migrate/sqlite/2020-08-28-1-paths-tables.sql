@@ -41,7 +41,8 @@ begin;
 			max(event)
 		from hits
 		group by site, lower(path);
-	create unique index "paths#site_id#path"  on paths(site_id, lower(path));
+	create unique index "paths#site_id#path" on paths(site_id, lower(path));
+	create        index "paths#path#title"   on paths(lower(path), lower(title));
 
 	insert into user_agents (ua, bot, browser_id, system_id)
 		select browser, max(bot), 0, 0 from hits group by browser;

@@ -275,7 +275,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		E zdb.Bool `db:"event"`
 	}
 
-	query, args, err := zdb.Query(zdb.MustGet(ctx), `
+	query, args, err := zdb.Query(ctx, ` /* Hits.TestList */
 		select
 			hits.*,
 			user_agents.browser_id,
@@ -385,7 +385,7 @@ type HitStats []HitStat
 
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
-	query, args, err := zdb.Query(zdb.MustGet(ctx), `/* HitStats.ListPathsLike */
+	query, args, err := zdb.Query(ctx, `/* HitStats.ListPathsLike */
 		select
 			path, title,
 			sum(total) as count
@@ -425,23 +425,38 @@ type Stats struct {
 }
 
 // ByRef lists all paths by reference.
-func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) error {
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ByRef */
+func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []int64, ref string) error {
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ByRef */
+		with x as (
+			select
+				path_id,
+				coalesce(sum(total), 0) as count,
+				coalesce(sum(total_unique), 0) as count_unique
+			from ref_counts
+			where
+				site_id=:site and
+				hour>=:start and
+				hour<=:end and
+				{{path_id in (:filter) and}}
+				ref=:ref
+			group by path_id
+			order by count desc
+			limit 10
+		)
 		select
-			path as name,
-			coalesce(sum(total), 0) as count,
-			coalesce(sum(total_unique), 0) as count_unique
-		from ref_counts
+			paths.path as name,
+			x.count,
+			x.count_unique
+		from x
 		join paths using(path_id)
-		where
-			paths.site_id=$1 and
-			hour>=$2 and
-			hour<=$3 and
-			ref = $4
-		group by path
-		order by count desc
-		limit 10`,
-		MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref)
+		`,
+		struct {
+			Site       int64
+			Start, End string
+			Filter     []int64
+			Ref        string
+		}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter, ref},
+		len(pathFilter) > 0)
 
 	return errors.Wrap(err, "Stats.ByRef")
 }

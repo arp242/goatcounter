@@ -22,7 +22,6 @@ type Path struct {
 }
 
 func (p *Path) Defaults(ctx context.Context) {
-	// 	p.cleanPath(ctx)
 }
 
 func (p *Path) Validate(ctx context.Context) error {
@@ -68,4 +67,30 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		`insert into paths (site_id, path, title, event) values ($1, $2, $3, $4)`,
 		site.ID, p.Path, p.Title, p.Event)
 	return errors.Wrap(err, "Path.GetOrInsert insert")
+}
+
+// PathFilter returns a list of IDs matching the path name.
+//
+// if matchTitle is true it will match the title as well.
+func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
+	query, args, err := zdb.Query(ctx, `/* PathFilter */
+		select path_id from paths
+		where
+			site_id=:site and
+			(
+				lower(path) like lower(:filter)
+				{{or lower(title) like lower(:filter)}}
+			)`,
+		struct {
+			Site   int64
+			Filter string
+		}{MustGetSite(ctx).ID, "%" + filter + "%"},
+		matchTitle)
+	if err != nil {
+		return nil, errors.Wrap(err, "PathFilter")
+	}
+
+	var paths []int64
+	err = zdb.MustGet(ctx).SelectContext(ctx, &paths, query, args...)
+	return paths, errors.Wrap(err, "PathFilter")
 }

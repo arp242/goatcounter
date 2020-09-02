@@ -297,7 +297,17 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	filter := r.URL.Query().Get("filter")
+	var (
+		filter     = r.URL.Query().Get("filter")
+		pathFilter []int64
+	)
+	if filter != "" {
+		pathFilter, err = goatcounter.PathFilter(r.Context(), filter, true)
+		if err != nil {
+			return err
+		}
+	}
+
 	asText := r.URL.Query().Get("as-text") == "true"
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
@@ -330,6 +340,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		totalHits, totalUnique int
 		totalCountErr          error
 	)
+
 	// Filtering instead of paginating: get new "totals" stats as well.
 	// TODO: also re-render the the horizontal bar charts below, but this isn't
 	// currently possible since not all data is linked to a path.
@@ -341,7 +352,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			maxTotals, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)
+			maxTotals, totalErr = totalPages.Totals(r.Context(), start, end, pathFilter, daily)
 			if totalErr != nil {
 				return
 			}
@@ -360,7 +371,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			max, maxErr = goatcounter.GetMax(r.Context(), start, end, filter, daily)
+			max, maxErr = goatcounter.GetMax(r.Context(), start, end, pathFilter, daily)
 		}()
 
 		wg.Add(1)
@@ -368,13 +379,13 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			totalHits, totalUnique, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, filter)
+			totalHits, totalUnique, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, pathFilter)
 		}()
 	}
 
 	var pages goatcounter.HitStats
 	totalDisplay, totalUniqueDisplay, more, err := pages.List(
-		r.Context(), start, end, filter, exclude, daily)
+		r.Context(), start, end, pathFilter, exclude, daily)
 	if err != nil {
 		return err
 	}
@@ -451,19 +462,30 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 		return v
 	}
 
+	var (
+		filter     = r.URL.Query().Get("filter")
+		pathFilter []int64
+	)
+	if filter != "" {
+		pathFilter, err = goatcounter.PathFilter(r.Context(), filter, true)
+		if err != nil {
+			return err
+		}
+	}
+
 	var detail goatcounter.Stats
 	switch kind {
 	case "browser":
-		err = detail.ListBrowser(r.Context(), name, start, end)
+		err = detail.ListBrowser(r.Context(), name, start, end, pathFilter)
 	case "system":
-		err = detail.ListSystem(r.Context(), name, start, end)
+		err = detail.ListSystem(r.Context(), name, start, end, pathFilter)
 	case "size":
-		err = detail.ListSize(r.Context(), name, start, end)
+		err = detail.ListSize(r.Context(), name, start, end, pathFilter)
 	case "topref":
 		if name == "(unknown)" {
 			name = ""
 		}
-		err = detail.ByRef(r.Context(), start, end, name)
+		err = detail.ByRef(r.Context(), start, end, pathFilter, name)
 	}
 	if err != nil {
 		return err
@@ -489,6 +511,17 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	total := int(v.Integer("total", r.URL.Query().Get("total")))
 	offset := int(v.Integer("offset", r.URL.Query().Get("offset")))
 
+	var (
+		filter     = r.URL.Query().Get("filter")
+		pathFilter []int64
+	)
+	if filter != "" {
+		pathFilter, err = goatcounter.PathFilter(r.Context(), filter, true)
+		if err != nil {
+			return err
+		}
+	}
+
 	showRefs := ""
 	if kind == "ref" {
 		showRefs = r.URL.Query().Get("showrefs")
@@ -506,11 +539,11 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	)
 	switch kind {
 	case "browser":
-		err = page.ListBrowsers(r.Context(), start, end, 6, offset)
+		err = page.ListBrowsers(r.Context(), start, end, pathFilter, 6, offset)
 	case "system":
-		err = page.ListSystems(r.Context(), start, end, 6, offset)
+		err = page.ListSystems(r.Context(), start, end, pathFilter, 6, offset)
 	case "location":
-		err = page.ListLocations(r.Context(), start, end, 6, offset)
+		err = page.ListLocations(r.Context(), start, end, pathFilter, 6, offset)
 		link = false
 	case "ref":
 		err = page.ListRefsByPath(r.Context(), showRefs, start, end, offset)
@@ -518,7 +551,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 		paginate = offset == 0
 		link = false
 	case "topref":
-		err = page.ListTopRefs(r.Context(), start, end, offset)
+		err = page.ListTopRefs(r.Context(), start, end, pathFilter, offset)
 	}
 	if err != nil {
 		return err
