@@ -7,12 +7,14 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -97,6 +99,11 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 
 			// Add database.
 			*r = *r.WithContext(zdb.With(ctx, db))
+			if !cfg.Prod {
+				if c, _ := r.Cookie("debug-explain"); c != nil {
+					*r = *r.WithContext(zdb.With(ctx, zdb.NewExplainDB(db, os.Stdout, c.Value)))
+				}
+			}
 
 			// Load site from subdomain.
 			if loadSite {

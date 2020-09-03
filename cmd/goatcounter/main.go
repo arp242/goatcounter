@@ -180,6 +180,7 @@ func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) 
 		err = gomig.Run(db)
 		return db, err
 	}
+
 	return db, nil
 }
 

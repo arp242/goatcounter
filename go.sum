@@ -114,8 +114,8 @@ zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxy
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8 h1:G10IpV/r+ZtTnjA82MxC3SRBgxYoOOOmb0HpvsHYGr8=
 zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
-zgo.at/zdb v0.0.0-20200828070119-8d678a1339ab h1:l+1HhtJMSDhxwXEs5jQIPeXFmhJu/Q4TzTDZ3RmRy94=
-zgo.at/zdb v0.0.0-20200828070119-8d678a1339ab/go.mod h1:hXkq7AmvmqlTclBnKxMcEYulpaZB2smktaWrzaCptnI=
+zgo.at/zdb v0.0.0-20200903081521-04f2138acff9 h1:3uSzyIuOUaVNzf76baKaHTbNB+zH9cFiH5BUqGe89T4=
+zgo.at/zdb v0.0.0-20200903081521-04f2138acff9/go.mod h1:hXkq7AmvmqlTclBnKxMcEYulpaZB2smktaWrzaCptnI=
 zgo.at/zhttp v0.0.0-20200829232351-8138f7b7a1a1 h1:Jrb2pFRg/AaIQqJiN1bWYoLPkIUnl66wV7M0jxF3jBo=
 zgo.at/zhttp v0.0.0-20200829232351-8138f7b7a1a1/go.mod h1:4vN9RqtJXa0XePvaoFV03A88KvqUokFkJ0Z+86b1r6M=
 zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f h1:OZsv7mHtC8VJkC2ZP5GZW9F5RwWSc/a1A3CvB1FWfTg=
@@ -133,8 +133,7 @@ zgo.at/zstd v0.0.0-20200824042749-ef3212fc7e04/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF
 zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=
 zgo.at/zstripe v1.0.0/go.mod h1:EqblFpMvXAhzZAUUt0EVom06EnN5+D5ESBTSOkwSwTY=
 zgo.at/ztest v0.0.0-20200316134318-cfad86d80b41/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
+zgo.at/ztest v0.0.0-20200526130303-f59d60374e72 h1:eJi5pmYHERPsQ9a7Sw1HW8GXTVFWlHQ+EfZKSzx1Y+Y=
 zgo.at/ztest v0.0.0-20200526130303-f59d60374e72/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
-zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af h1:R4x8P0jEUonoCtK3OGMVJ1Iwq7oMqJDSyBvw8r8b+Zk=
-zgo.at/ztest v0.0.0-20200630024640-d19d80ca68af/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
 zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a h1:CDG+/sJjuKFKFQzRx4G0w7D0+/e2OGWACzYe7w7Vg0o=
 zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a/go.mod h1:SguuRnGmIa4boKWBN8G1l6Z1WWDGRDbkoY6KliwHXPg=

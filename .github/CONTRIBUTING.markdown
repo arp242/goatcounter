@@ -100,3 +100,21 @@ straightforward
   JavaScript.
 
 
+Special cookies
+---------------
+
+These only work in `-dev` mode:
+
+- Set the `debug-delay` cookie to a numerical value to delay the response of
+  every request by *n* seconds. This is mostly intended to debug frontend timing
+  issues.
+
+- Set the `debug-explain` cookie to automatically print all queries and their
+  EXPLAIN. If this is an empty string everything will be printed, and if it's
+  non-empty only queries containing the given string will be printed.
+
+  This only works for PostgreSQL for now.
+
+Pro-tip: setting cookies in the debugger tools is a bit of a pain; I tend to
+just set these cookies once, and set the path to `/asdasd` to "disable" then,
+and back to `/` if I want to enable it again :-)
