@@ -16117,7 +16117,7 @@ id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id
 			font-weight: normal;
 			color: rgb(0, 0, 238);
 
-			 
+
 			width: 1.5em;
 			display: inline-block;
 			text-align: center;
@@ -16182,12 +16182,12 @@ id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id
 <body>
 	<h1>GoatCounter API documentation 0.1</h1>
 
-	
 
-	
+
+
 
 	<h2>Endpoints</h2>
-	
+
 			</div><div>
 			<h3 id="count" class="js-expand">count
 				<a class="permalink" href="#count">§</a></h3>
@@ -16495,7 +16495,7 @@ fields that are sent.</p>
 		</div>
 
 	<h2>Models</h2>
-	
+
 		<h3 id="goatcounter.APIToken">goatcounter.APIToken <a class="permalink" href="#goatcounter.APIToken">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
@@ -16732,7 +16732,7 @@ identifier.</p><p>You can also just disable sessions entirely with NoSessions.</
 Typically, the Location represents the collection of time offsets
 in use in a geographical area. For many Locations the time offset varies
 depending on whether daylight savings time is in use at the time instant.</p>
-			
+
 		</div>
 		<h3 id="tz.Zone">tz.Zone <a class="permalink" href="#tz.Zone">§</a></h3>
 		<div class="endpoint model">
@@ -16752,7 +16752,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 
 	<script>
 		var add = function(endpoint) {
-			
+
 			var topLine = endpoint.getElementsByClassName('endpoint-top')[0]
 			var info = endpoint.getElementsByClassName('endpoint-info')[0]
 			topLine.addEventListener('click', function(e) {
@@ -16760,22 +16760,22 @@ depending on whether daylight savings time is in use at the time instant.</p>
 					return
 
 				e.preventDefault()
-				
+
 				info.style.display = info.style.display === 'block' ? '' : 'block'
 			})
 
-			
-			
-			
-			
-			
+
+
+
+
+
 		}
 
 		var ep = document.getElementsByClassName('endpoint')
 		for (var i = 0; i < ep.length; i++)
 			add(ep[i])
 
-		
+
 		document.addEventListener('click', function(e) {
 			if (e.target.className !== 'js-expand')
 				return
@@ -19461,7 +19461,7 @@ setting everything up.</p>
    the name. The original “intermediate” project in-between my original idea
    and GoatCounter was GoatLetter, a newsletter service with similar
    aesthetics to GoatCounter (something I will finish <em>soon™</em>). Probably
-   subconsciously influenced by MailChip I ended up with “Goat”.<br /><br />
+   subconsciously influenced by MailChimp I ended up with “Goat”.<br /><br />
    I originally wanted to avoid using the word “Analytics” as it's 1)
    associated with invasive tracking like GA 2) something I have trouble
    spelling correctly 😅 “Counter” refers to “counting requests” (as opposed

@@ -29,7 +29,7 @@ GoatCounter.[^gc]
        the name. The original “intermediate” project in-between my original idea
        and GoatCounter was GoatLetter, a newsletter service with similar
        aesthetics to GoatCounter (something I will finish *soon™*). Probably
-       subconsciously influenced by MailChip I ended up with “Goat”.<br><br>
+       subconsciously influenced by MailChimp I ended up with “Goat”.<br><br>
        I originally wanted to avoid using the word “Analytics” as it's 1)
        associated with invasive tracking like GA 2) something I have trouble
        spelling correctly 😅 “Counter” refers to “counting requests” (as opposed
