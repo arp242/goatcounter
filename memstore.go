@@ -206,10 +206,11 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 
 	l := zlog.Module("memstore")
 
+	newHits := make([]Hit, 0, len(hits))
 	ins := bulk.NewInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
 		"ref_scheme", "user_agent_id", "size", "location", "created_at", "bot",
 		"session", "first_visit"})
-	for i, h := range hits {
+	for _, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
 		if h.RefURL != nil {
@@ -244,16 +245,15 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			continue
 		}
 
-		// Some values are sanitized in Hit.Defaults(), make sure this is
-		// reflected in the hits object too, which matters for the hit_stats
-		// generation later.
-		hits[i] = h
+		// Don't return hits that failed validation; otherwise cron will try to
+		// insert them.
+		newHits = append(newHits, h)
 
 		ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
 			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Session, h.FirstVisit)
 	}
 
-	return hits, ins.Finish()
+	return newHits, ins.Finish()
 }
 
 func (m *ms) GetSalt() (cur []byte, prev []byte) {

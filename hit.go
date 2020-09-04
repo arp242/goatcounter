@@ -222,10 +222,9 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 	v.Len("ref", h.Ref, 0, 2048)
 
 	// Small margin as client's clocks may not be 100% accurate.
-	// TODO: makes test fail?
-	//if h.CreatedAt.After(Now().Add(5 * time.Second)) {
-	//v.Append("created_at", "in the future")
-	//}
+	if h.CreatedAt.After(Now().Add(5 * time.Second)) {
+		v.Append("created_at", "in the future")
+	}
 
 	if initial {
 		v.Required("path", h.Path)

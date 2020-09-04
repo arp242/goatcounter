@@ -2,7 +2,6 @@ module zgo.at/goatcounter
 
 go 1.13
 
-replace zgo.at/zdb => ../zdb
 require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.5.1

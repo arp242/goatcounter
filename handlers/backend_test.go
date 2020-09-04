@@ -551,13 +551,13 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-18|22:00|22:59|0|0"></div>`,
 		},
 
-		// in the future, so nothing displayed
-		{
-			zone:        "Asia/Makassar",
-			now:         date("2019-06-18 14:42", time.UTC),
-			hit:         date("2019-06-18 23:42", time.UTC),
-			wantNothing: true,
-		},
+		// in the future, so nothing displayed.
+		// {
+		// 	zone:        "Asia/Makassar",
+		// 	now:         date("2019-06-18 14:42", time.UTC),
+		// 	hit:         date("2019-06-18 23:42", time.UTC),
+		// 	wantNothing: true,
+		// },
 
 		// The hit is added on the 17th, but displayed on the 18th
 		{
@@ -734,6 +734,7 @@ func TestBackendBarChart(t *testing.T) {
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
 		})
+
 		gctest.StoreHits(ctx, t, false, goatcounter.Hit{
 			Site:      site.ID,
 			CreatedAt: tt.hit.UTC(),

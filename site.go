@@ -567,8 +567,6 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 		return errors.Errorf("days must be at least 14: %d", days)
 	}
 
-	// TODO: ideally this should also delete paths that are no longer
-	// referenced.
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		ival := interval(days)
 
