@@ -116,8 +116,8 @@ zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8 h1:G10IpV/r+ZtTnjA82MxC3SRBgxYo
 zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
 zgo.at/zdb v0.0.0-20200903081521-04f2138acff9 h1:3uSzyIuOUaVNzf76baKaHTbNB+zH9cFiH5BUqGe89T4=
 zgo.at/zdb v0.0.0-20200903081521-04f2138acff9/go.mod h1:hXkq7AmvmqlTclBnKxMcEYulpaZB2smktaWrzaCptnI=
-zgo.at/zhttp v0.0.0-20200829232351-8138f7b7a1a1 h1:Jrb2pFRg/AaIQqJiN1bWYoLPkIUnl66wV7M0jxF3jBo=
-zgo.at/zhttp v0.0.0-20200829232351-8138f7b7a1a1/go.mod h1:4vN9RqtJXa0XePvaoFV03A88KvqUokFkJ0Z+86b1r6M=
+zgo.at/zhttp v0.0.0-20200904031734-1998621adf31 h1:/kFeApfgMIkCqThITMiucqDBIEMsDHMAs3H0Py4RJ2I=
+zgo.at/zhttp v0.0.0-20200904031734-1998621adf31/go.mod h1:4vN9RqtJXa0XePvaoFV03A88KvqUokFkJ0Z+86b1r6M=
 zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f h1:OZsv7mHtC8VJkC2ZP5GZW9F5RwWSc/a1A3CvB1FWfTg=
 zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f/go.mod h1:iCNHeIhEG9nQZsmEvf1BDpnQXvbYbUDvokRSwB434M8=
 zgo.at/zlog v0.0.0-20200404052423-adffcc8acd57 h1:sIuh9IpccNlzMsmAvF7EPT87/Ab2XdUJHizsMxbQgM4=
