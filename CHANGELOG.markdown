@@ -6,6 +6,15 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
+2020-09-04 v1.4.1
+-----------------
+
+A few small updates, fixes, and performance enhancements. Nothing major.
+
+You can see a list of changes in the git log:
+https://github.com/zgoat/goatcounter/compare/v1.4.0...v1.4.1
+
+
 2020-08-24 v1.4.0
 -----------------
 
