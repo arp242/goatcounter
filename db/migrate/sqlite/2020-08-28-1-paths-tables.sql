@@ -56,6 +56,7 @@ begin;
 	delete from location_stats;
 	delete from ref_counts;
 	delete from system_stats;
+	delete from size_stats;
 
 	---------------------
 	-- Add new columns --

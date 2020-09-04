@@ -60,6 +60,7 @@ begin;
 	truncate location_stats;
 	truncate ref_counts;
 	truncate system_stats;
+	truncate size_stats;
 
 	---------------------
 	-- Add new columns --

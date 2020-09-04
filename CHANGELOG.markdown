@@ -6,6 +6,26 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
+Unreleased v1.5.0
+-----------------
+
+This release contains quite a few changes to the database layout to make
+everything faster and reduce the size on disk.
+
+1. Run the migrations with `goatcounter serve -automigrate` or `goatcounter
+   migrate`.
+
+2. You may want to run `VACUUM` (or `VACUUM FULL` for PostgreSQL) manually after
+   the migration to free up unused rows. This can't be done automatically from a
+   transaction.
+
+3. Run `goatcounter reindex`.
+
+This may take a while if you've got a lot of data. For about 500,00 pageviews it
+takes about 3 minutes, but if you've got millions of rows it may take an hour or
+more.
+
+
 2020-09-04 v1.4.1
 -----------------
 

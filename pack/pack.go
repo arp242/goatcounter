@@ -764,6 +764,7 @@ commit;
 	truncate location_stats;
 	truncate ref_counts;
 	truncate system_stats;
+	truncate size_stats;
 
 	---------------------
 	-- Add new columns --
@@ -1926,6 +1927,7 @@ commit;
 	delete from location_stats;
 	delete from ref_counts;
 	delete from system_stats;
+	delete from size_stats;
 
 	---------------------
 	-- Add new columns --
@@ -2045,7 +2047,7 @@ commit;
 		user_agent_id  int            not null                 check(user_agent_id > 0)
 	);
 	insert into hits2
-		select id, site, session2, path_id, user_agent_id, bot, ref, ref_scheme, size, location, first_visit, created_at from hits;
+		select id, site, session2, bot, ref, ref_scheme, size, location, first_visit, created_at, path_id, user_agent_id from hits;
 	drop table hits;
 	alter table hits2 rename to hits;
 	create index "hits#site_id#bot#created_at" on hits(site_id, bot, created_at);
