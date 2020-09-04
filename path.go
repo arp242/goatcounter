@@ -6,9 +6,13 @@ package goatcounter
 
 import (
 	"context"
+	"strconv"
+	"time"
 
 	"zgo.at/errors"
+	"zgo.at/zcache"
 	"zgo.at/zdb"
+	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
 
@@ -35,7 +39,6 @@ func (p *Path) Validate(ctx context.Context) error {
 	return v.ErrorOrNil()
 }
 
-// TODO: update title once a day or something?
 func (p *Path) GetOrInsert(ctx context.Context) error {
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
@@ -46,6 +49,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		return err
 	}
 
+	title := p.Title
 	row := db.QueryRowxContext(ctx, `/* Path.GetOrInsert */
 		select * from paths
 		where site_id=$1 and lower(path)=lower($2)
@@ -59,6 +63,13 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		return errors.Errorf("Path.GetOrInsert select: %w", err)
 	}
 	if err == nil {
+		err := p.updateTitle(ctx, p.Title, title)
+		if err != nil {
+			zlog.Fields(zlog.F{
+				"path_id": p.ID,
+				"title":   title,
+			}).Error(err)
+		}
 		return nil
 	}
 
@@ -67,6 +78,49 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		`insert into paths (site_id, path, title, event) values ($1, $2, $3, $4)`,
 		site.ID, p.Path, p.Title, p.Event)
 	return errors.Wrap(err, "Path.GetOrInsert insert")
+}
+
+var changedTitles = zcache.New(48*time.Hour, 1*time.Hour)
+
+func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) error {
+	if newTitle == currentTitle {
+		return nil
+	}
+
+	k := strconv.FormatInt(p.ID, 10)
+	_, ok := changedTitles.Get(k)
+	if !ok {
+		changedTitles.SetDefault(k, []string{newTitle})
+		return nil
+	}
+
+	var titles []string
+	changedTitles.Modify(k, func(v interface{}) interface{} {
+		vv := v.([]string)
+		vv = append(vv, newTitle)
+		titles = vv
+		return vv
+	})
+
+	grouped := make(map[string]int)
+	for _, t := range titles {
+		grouped[t]++
+	}
+
+	for t, n := range grouped {
+		if n > 10 {
+			_, err := zdb.MustGet(ctx).ExecContext(ctx,
+				`update paths set title=$1 where path_id=$2`,
+				t, p.ID)
+			if err != nil {
+				return errors.Wrap(err, "Paths.updateTitle")
+			}
+			changedTitles.Delete(k)
+			break
+		}
+	}
+
+	return nil
 }
 
 // PathFilter returns a list of IDs matching the path name.

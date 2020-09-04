@@ -280,7 +280,6 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		if !ok {
 			sessions[row.Session] = Memstore.SessionID()
 			s = sessions[row.Session]
-		} else {
 		}
 		hit.Session = s
 
