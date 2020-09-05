@@ -313,7 +313,7 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		site := MustGetSite(ctx).ID
 
-		for _, t := range append(statTables, "hits", "paths") {
+		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
 			query, args, err := sqlx.In(fmt.Sprintf(query, t), site, pathIDs)
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)

@@ -145,5 +145,14 @@ func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, e
 
 	var paths []int64
 	err = zdb.MustGet(ctx).SelectContext(ctx, &paths, query, args...)
-	return paths, errors.Wrap(err, "PathFilter")
+	if err != nil {
+		return nil, errors.Wrap(err, "PathFilter")
+	}
+
+	// Nothing matches: make sure there's a slice with an invalid path_id, so
+	// the queries using the result don't select anything.
+	if len(paths) == 0 {
+		paths = []int64{-1}
+	}
+	return paths, nil
 }

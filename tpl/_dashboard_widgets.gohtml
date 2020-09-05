@@ -1,0 +1,12 @@
+<div id="dash-widgets">
+	{{$div := false}}
+	{{range $w := .Widgets}}
+		{{if and (eq $w.Type "hchart") (not $div)}}
+			{{$div = true}}
+			<div class="hcharts">
+		{{end}}
+		{{if and (ne $w.Type "hchart") $div}}</div>{{end}}
+		{{$w.HTML}}
+	{{end}}
+	{{if $div}}</div>{{end}}
+</div>

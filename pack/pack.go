@@ -12554,20 +12554,24 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		TZ_OFFSET    = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
 
-		;[report_errors, period_select, load_refs, tooltip, paginate_pages,
-			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
-			filter_pages, add_ip, fill_tz, draw_chart, bind_scale, pgstat,
-			copy_pre, ref_pages,
+		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
+			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
+			bind_scale, pgstat, copy_pre,
 		].forEach(function(f) { f.call() })
-	});
+	})
+
+	// Set up all the dashboard widget contents (but not the header).
+	var dashboard = function() {
+		[draw_chart, paginate_pages, load_refs, hchart_detail, ref_pages].forEach(function(f) { f.call() })
+	}
 
 	// Set up error reporting.
 	var report_errors = function() {
-		window.onerror = on_error;
+		window.onerror = on_error
 
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
-				return;
+				return
 			var msg = ` + "`" + `Could not load ${settings.url}: ${err}` + "`" + `
 			console.error(msg)
 			on_error(` + "`" + `ajaxError: ${msg}` + "`" + `, settings.url)
@@ -12579,13 +12583,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	var on_error = function(msg, url, line, column, err) {
 		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
 		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
-			return;
+			return
 
 		jQuery.ajax({
 			url:    '/jserr',
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
-		});
+		})
 	}
 
 	// Load pages for reference in Totals
@@ -12699,7 +12703,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	// Add current IP address to ignore_ips.
 	var add_ip = function() {
 		$('#add-ip').on('click', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			jQuery.ajax({
 				url:     '/ip',
@@ -12707,77 +12711,87 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					var input   = $('[name="settings.ignore_ips"]'),
 						current = input.val().split(',').
 							map(function(m) { return m.trim() }).
-							filter(function(m) { return m !== '' });
+							filter(function(m) { return m !== '' })
 
 					if (current.indexOf(data) > -1) {
-						$('#add-ip').after('<span class="err">IP ' + data + ' is already in the list</span>');
-						return;
+						$('#add-ip').after('<span class="err">IP ' + data + ' is already in the list</span>')
+						return
 					}
-					current.push(data);
-					var set = current.join(', ');
+					current.push(data)
+					var set = current.join(', ')
 					input.val(set).
 						trigger('focus')[0].
-						setSelectionRange(set.length, set.length);
+						setSelectionRange(set.length, set.length)
 				},
-			});
-		});
-	};
+			})
+		})
+	}
 
 	// Set the timezone based on the browser's timezone.
 	var fill_tz = function() {
 		$('#set-local-tz').on('click', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			if (!window.Intl || !window.Intl.DateTimeFormat) {
-				alert("Sorry, your browser doesn't support accurate timezone information :-(");
-				return;
+				alert("Sorry, your browser doesn't support accurate timezone information :-(")
+				return
 			}
 
-			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-			$('#timezone [value$="' + zone + '"]').attr('selected', true);
-		});
-	};
+			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+			$('#timezone [value$="' + zone + '"]').attr('selected', true)
+		})
+	}
 
 	// Get the Y-axis scake.
 	var get_original_scale = function(current) { return $('.count-list-pages').attr('data-max') }
 	var get_current_scale  = function(current) { return $('.count-list-pages').attr('data-scale') }
 
-	// Reload the path list when typing in the filter input, so the user won't
+	// Reload the dashboard when typing in the filter input, so the user won't
 	// have to press "enter".
 	var filter_pages = function() {
-		highlight_filter($('#filter-paths').val());
+		highlight_filter($('#filter-paths').val())
 
-		var t;
+		$('#filter-paths').on('keydown', function(e) {
+			if (e.keyCode === 13)  // Don't submit form on enter.
+				e.preventDefault()
+		})
+
+		var t
 		$('#filter-paths').on('input', function(e) {
-			clearTimeout(t);
+			clearTimeout(t)
 			t = setTimeout(function() {
 				var filter = $(e.target).val().trim()
-				push_query('filter', filter)
-				push_query('showrefs', null) // clear as this will be reset
+				push_query({filter: filter, showrefs: null})
 				$('#filter-paths').toggleClass('value', filter !== '')
 
 				var loading = $('<span class="loading"></span>')
 				$(e.target).after(loading)
-				jQuery.ajax({
-					url:     '/pages',
-					data:    append_period({
-						daily:  $('#daily').is(':checked'),
-						max:    get_original_scale(),
-					}),
-					success: function(data) {
-						update_pages(data, true)
-						loading.remove()
-					},
-				});
-			}, 300);
+				// TODO: back button doesn't quite work with this.
+				reload_dashboard(loading.remove)
+			}, 300)
 		})
+	}
 
-		// Don't submit form on enter.
-		$('#filter-paths').on('keydown', function(e) {
-			if (e.keyCode === 13)
-				e.preventDefault()
+	// Reload the widgets on the dashboard.
+	var reload_dashboard = function(done) {
+		jQuery.ajax({
+			url:     '/',
+			data:    append_period({
+				daily:     $('#daily').is(':checked'),
+				'as-text': $('#as-text').is(':checked'),
+				max:       get_original_scale(),
+				reload:    't',
+			}),
+			success: function(data) {
+				$('#dash-widgets').html(data.widgets)
+				$('#dash-timerange').html(data.timerange)
+				dashboard()
+				highlight_filter($('#filter-paths').val())
+				if (done)
+					done()
+			},
 		})
-	};
+	}
 
 	// Paginate the main path overview.
 	var paginate_pages = function() {
@@ -12791,63 +12805,39 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
 						offset:    $('.count-list-pages >tbody >tr').length + 1,
-						'as-text': $('.count-list-text').length > 0,
+						'as-text': $('#as-text').is(':checked'),
 					}),
 					success: function(data) {
-						update_pages(data, false)
+						$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
+						draw_chart()
+
+						highlight_filter($('#filter-paths').val())
+						$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
+
+						$('.total-display').each((_, t) => {
+							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display))
+						})
+						$('.total-unique-display').each((_, t) => {
+							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display))
+						})
+
 						done()
 					},
 				})
 			})
 		})
-	};
-
-	// Update the page list from ajax request on pagination/filter.
-	var update_pages = function(data, from_filter) {
-		if (from_filter) {
-			$('.count-list-pages').attr('data-max', data.max)
-			$('.count-list-pages').attr('data-scale', data.max)
-			$('.totals tbody').replaceWith(data.totals)
-			$('.pages-list tbody').html(data.rows)
-		}
-		else
-			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
-
-		highlight_filter($('#filter-paths').val())
-		$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
-
-		var th = $('.total-hits'),
-		    td = $('.total-display'),
-			tu = $('.total-unique'),
-			ud = $('.total-unique-display')
-		if (from_filter) {
-			th.text(format_int(data.total_hits));
-			td.text(format_int(data.total_display));
-			tu.text(format_int(data.total_unique));
-			ud.text(format_int(data.total_unique_display));
-		}
-		else {
-			td.each((_, t) => {
-				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display));
-			})
-			ud.each((_, t) => {
-				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
-			})
-		}
-
-		draw_chart()
-	};
+	}
 
 	// Highlight a filter pattern in the path and title.
 	var highlight_filter = function(s) {
 		if (s === '')
-			return;
+			return
 		$('.pages-list .count-list-pages > tbody.pages').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
 			if ($(elem).find('b').length)  // Don't apply twice after pagination
 				return
-			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
-		});
-	};
+			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>')
+		})
+	}
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
@@ -12879,30 +12869,30 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		var opts = {toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_CREATED)}
 		new Pikaday($('#period-start')[0], opts)
 		new Pikaday($('#period-end')[0], opts)
-	};
+	}
 
 	// Subscribe with Stripe.
 	var billing_subscribe = function() {
 		var form = $('#billing-form')
 		if (!form.length)
-			return;
+			return
 
 		// Show/hide donation options.
 		$('.plan input, .free input').on('change', function() {
 			var personal = $('input[name="plan"]:checked').val() === 'personal',
-				quantity = parseInt($('#quantity').val(), 10);
+				quantity = parseInt($('#quantity').val(), 10)
 
-			$('.free').css('display', personal ? 'block' : 'none');
-			$('.ask-cc').css('display', personal && quantity === 0 ? 'none' : 'block');
-		}).trigger('change');
+			$('.free').css('display', personal ? 'block' : 'none')
+			$('.ask-cc').css('display', personal && quantity === 0 ? 'none' : 'block')
+		}).trigger('change')
 
 		form.on('submit', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			if (typeof(Stripe) === 'undefined') {
 				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
-					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
-				return;
+					'ensure this domain is allowed to load JavaScript and reload the page to try again.')
+				return
 			}
 
 			form.find('button').attr('disabled', true).text('Redirecting...');
@@ -13090,9 +13080,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			if (SITE_CREATED > end.getTime())
 				return alert('That would be before the site’s creation; GoatCounter is not *that* good ;-)')
 
+			$('#dash-select-period').attr('class', '')
 			set_period(start, end);
 		})
-	};
+	}
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
@@ -13115,10 +13106,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
 			if (init && params['showrefs'] === path) {
 				close()
-				return push_query('showrefs', null)
+				return push_query({showrefs: null})
 			}
 
-			push_query('showrefs', path)
+			push_query({showrefs: path})
 			var done = paginate_button(btn , () => {
 				jQuery.ajax({
 					url:   '/hchart-more',
@@ -13247,7 +13238,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			obj[item[0]] = decodeURIComponent(item[1]);
 		}
 		return obj;
-	};
+	}
 
 	// Join query parameters from {k: v} object to href.
 	var join_query = function(obj) {
@@ -13255,16 +13246,18 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		for (var k in obj)
 			s.push(k + '=' + encodeURIComponent(obj[k]));
 		return (s.length === 0 ? '/' : ('?' + s.join('&')));
-	};
+	}
 
 	// Set one query parameter – leaving the others alone – and push to history.
-	var push_query = function(k, v) {
-		var params = split_query(location.search);
-		if (v === null)
-			delete params[k];
-		else
-			params[k] = v;
-		history.pushState(null, '', join_query(params));
+	var push_query = function(params) {
+		var current = split_query(location.search)
+		for (var k in params) {
+			if (params[k] === null)
+				delete current[k]
+			else
+				current[k] = params[k]
+		}
+		history.pushState(null, '', join_query(current))
 	}
 
 	// Convert "23:45" to "11:45 pm".
@@ -13279,11 +13272,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			return t + ' pm';
 		else
 			return (hour - 12) + t.substr(2) + ' pm';
-	};
+	}
 
-	var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-		          "Sep", "Oct", "Nov", "Dec"];
-	var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+		days   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 	// Format a date according to user configuration.
 	var format_date = function(date) {
@@ -13297,11 +13289,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		// Simple implementation of Go's time format. We only offer the current
 		// formatters, so that's all we support:
-		//   "2006-01-02"
-		//   "02-01-2006"
-		//   "01/02/06"
-		//   "2 Jan 06"
-		//   "Mon Jan 2 2006"
+		//   "2006-01-02", "02-01-2006", "01/02/06", "2 Jan 06", "Mon Jan 2 2006"
 		for (var i = 0; i < items.length; i++) {
 			switch (items[i]) {
 				case '2006': new_date.push(date.getFullYear());                  break;
@@ -13320,7 +13308,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		else if (SETTINGS.date_format.indexOf(' ') > -1)
 			joiner = ' ';
 		return new_date.join(joiner);
-	};
+	}
 
 	// Format a date as year-month-day.
 	var format_date_ymd = function(date) {
@@ -13375,12 +13363,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (navigator.userAgent.match(/Mobile/i))
 			return true;
 		return window.innerWidth <= 800 && window.innerHeight <= 600;
-	};
+	}
 
 	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
 	var quote_re = function(s) {
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
-	};
+	}
 
 	// Various stuff for the SQL stats page.
 	var pgstat = function() {
@@ -16010,6 +15998,19 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	</td>
 </tr></tbody>
 `),
+	"tpl/_dashboard_widgets.gohtml": []byte(`<div id="dash-widgets">
+	{{$div := false}}
+	{{range $w := .Widgets}}
+		{{if and (eq $w.Type "hchart") (not $div)}}
+			{{$div = true}}
+			<div class="hcharts">
+		{{end}}
+		{{if and (ne $w.Type "hchart") $div}}</div>{{end}}
+		{{$w.HTML}}
+	{{end}}
+	{{if $div}}</div>{{end}}
+</div>
+`),
 	"tpl/_email_bottom.gotxt": []byte(`Any problems, questions, comments, or something else to tell me? Just reply to this email.
 
 Cheers,
@@ -18607,17 +18608,19 @@ depending on whether daylight savings time is in use at the time instant.</p>
 	<h3>CSV format</h3>
 	<p>The first line is a header with the field names. The fields, in order, are:</p>
 	<table class="table-left">
-		<tr><th>1,Path</th><td>Path name (e.g. <code>/a.html</code>).
+		<tr><th>2,Path</th><td>Path name (e.g. <code>/a.html</code>).
 			This also doubles as the event name. This header is prefixed
 			with the version export format (see versioning below).</td></tr>
 		<tr><th>Title</th><td>Page title that was sent.</td></tr>
 		<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
+		<tr><th>User-Agent</th><td><code>User-Agent</code> header.</td></tr>
+		<tr><th>Browser</th><td>Browser name and version.</td></tr>
+		<tr><th>System</th><td>System name and version.</td></tr>
+		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
 		<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
 			not, or one of the
 			<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
 			constants if it is.</td></tr>
-		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
-		<tr><th>FirstVisit</th><td>First visit in this session?</td>
 		<tr><th>Referrer</th><td>Referrer data.</td></tr>
 		<tr><th>Referrer scheme</th><td>
 				<code>h</code> – HTTP; an URL;<br>
@@ -18626,9 +18629,9 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				<code>c</code> – Campaign; text string from a campaign parameter;<br>
 				<code>o</code> – Other (e.g. Android apps).
 			</td></tr>
-		<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
 		<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
 		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
+		<tr><th>FirstVisit</th><td>First visit in this session?</td>
 		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
 	</table>
 
@@ -18639,6 +18642,38 @@ depending on whether daylight savings time is in use at the time instant.</p>
 	<p>It’s <strong>strongly recommended</strong> to check this number if you're
 	using a script to import/sync data and error out if it changes. Any future
 	incompatibilities will be documented here.</p>
+
+
+	<details>
+		<summary>Version 1 documentation</summary>
+
+		<p>The first line is a header with the field names. The fields, in order, are:</p>
+		<table class="table-left">
+			<tr><th>1,Path</th><td>Path name (e.g. <code>/a.html</code>).
+				This also doubles as the event name. This header is prefixed
+				with the version export format (see versioning below).</td></tr>
+			<tr><th>Title</th><td>Page title that was sent.</td></tr>
+			<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
+			<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
+				not, or one of the
+				<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
+				constants if it is.</td></tr>
+			<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
+			<tr><th>FirstVisit</th><td>First visit in this session?</td>
+			<tr><th>Referrer</th><td>Referrer data.</td></tr>
+			<tr><th>Referrer scheme</th><td>
+					<code>h</code> – HTTP; an URL;<br>
+					<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
+					add a link to the specific story, so are just recorded as “Hacker News”;<br>
+					<code>c</code> – Campaign; text string from a campaign parameter;<br>
+					<code>o</code> – Other (e.g. Android apps).
+				</td></tr>
+			<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
+			<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
+			<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
+			<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
+		</table>
+	</details>
 </div>
 
 <div class="tab-page">
@@ -19072,16 +19107,7 @@ processed by Stripe (you will need a Credit Card).</p>
 	</div>
 </form>
 
-{{$div := false}}
-{{range $w := .Widgets}}
-	{{if and (eq $w.Type "hchart") (not $div)}}
-		{{$div = true}}
-		<div class="hcharts">
-	{{end}}
-	{{if and (ne $w.Type "hchart") $div}}</div>{{end}}
-	{{$w.HTML}}
-{{end}}
-{{if $div}}</div>{{end}}
+{{template "_dashboard_widgets.gohtml" .}}
 
 {{- template "_backend_bottom.gohtml" . }}
 `),

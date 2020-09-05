@@ -308,7 +308,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	asText := r.URL.Query().Get("as-text") == "true"
+	asText := r.URL.Query().Get("as-text") == "on" || r.URL.Query().Get("as-text") == "true"
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
 		return err

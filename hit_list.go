@@ -56,12 +56,12 @@ func (h *HitStats) List(
 		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter, limit, exclude},
 			len(exclude) > 0, len(pathFilter) > 0)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, false, errors.Wrap(err, "HitStats.List hit_counts")
 		}
 
 		err = db.SelectContext(ctx, h, query, args...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List get hit_counts")
+			return 0, 0, false, errors.Wrap(err, "HitStats.List hit_counts")
 		}
 
 		// Check if there are more entries.
@@ -74,6 +74,10 @@ func (h *HitStats) List(
 	}
 
 	hh := *h
+
+	if len(hh) == 0 { // No data yet.
+		return 0, 0, false, nil
+	}
 
 	// Add stats
 	var st []struct {
@@ -102,12 +106,12 @@ func (h *HitStats) List(
 				Paths      []int64
 			}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), paths})
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List")
+			return 0, 0, false, errors.Wrap(err, "HitStats.List hit_stats")
 		}
 
 		err = db.SelectContext(ctx, &st, query, args...)
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
+			return 0, 0, false, errors.Wrap(err, "HitStats.List hit_stats")
 		}
 	}
 

@@ -584,19 +584,18 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 			}
 		}
 
-		_, err = tx.ExecContext(ctx, `delete from hits where site_id=$1 and created_at < `+ival, s.ID)
-		if err != nil {
-			return errors.Wrap(err, "Site.DeleteOlderThan: delete hits")
-		}
-
 		_, err = tx.ExecContext(ctx, `delete from hit_counts where site_id=$1 and hour < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete hit_counts")
 		}
-
 		_, err = tx.ExecContext(ctx, `delete from ref_counts where site_id=$1 and hour < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete ref_counts")
+		}
+
+		_, err = tx.ExecContext(ctx, `delete from hits where site_id=$1 and created_at < `+ival, s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.DeleteOlderThan: delete hits")
 		}
 
 		if len(pathIDs) > 0 {

@@ -16,6 +16,7 @@ import (
 	"zgo.at/goatcounter/widgets"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
+	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/zsync"
@@ -74,7 +75,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	showRefs := r.URL.Query().Get("showrefs")
-	asText := r.URL.Query().Get("as-text") != ""
+	asText := r.URL.Query().Get("as-text") == "on" || r.URL.Query().Get("as-text") == "true"
 	daily, forcedDaily := getDaily(r, start, end)
 
 	subs, err := site.ListSubs(r.Context())
@@ -177,6 +178,21 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}()
 	if err != nil {
 		return err
+	}
+
+	if r.URL.Query().Get("reload") != "" {
+		t, err := ztpl.ExecuteString("_dashboard_widgets.gohtml", struct {
+			Globals
+			Widgets widgets.List
+		}{newGlobals(w, r), widgetList})
+		if err != nil {
+			return err
+		}
+
+		return zhttp.JSON(w, map[string]string{
+			"widgets":   t,
+			"timerange": tplfunc.Daterange(site.Settings.Timezone.Loc(), start, end),
+		})
 	}
 
 	return zhttp.Template(w, "dashboard.gohtml", struct {
