@@ -127,7 +127,6 @@ begin;
 		constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) on conflict replace
 	);
 	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
-	create index "hit_counts#path_id"      on hit_counts(path_id);
 
 
 	-- alter table ref_counts     rename site to site_id;
@@ -146,7 +145,6 @@ begin;
 		constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) on conflict replace
 	);
 	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
-	create index "ref_counts#path_id"   on ref_counts(path_id);
 
 	-- alter table browser_stats rename site to site_id;
 	-- alter table browser_stats drop column browser;
@@ -164,6 +162,7 @@ begin;
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
 	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
+	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day);
 
 
 	-- alter table system_stats rename site to site_id;
@@ -182,6 +181,7 @@ begin;
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
 	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
+	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day);
 
 
 	-- alter table location_stats rename site to site_id;
@@ -198,6 +198,7 @@ begin;
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
 	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
+    create index "location_stats#site_id#day" on location_stats(site_id, day);
 
 
 	-- alter table size_stats rename site to site_id;
@@ -214,6 +215,7 @@ begin;
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	);
 	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
+    create index "size_stats#site_id#day" on size_stats(site_id, day);
 
 
  	insert into version values('2020-08-28-3-paths-rmold');

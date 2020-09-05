@@ -21,17 +21,28 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, pathFilt
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
 	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListBrowsers */
+		with x as (
+			select
+				browser_id,
+				sum(count) as count,
+				sum(count_unique) as count_unique
+			from browser_stats
+			where
+				site_id=:site and day>=:start and day<=:end
+				{{and path_id in (:filter)}}
+			group by browser_id
+			order by count_unique desc
+		)
 		select
 			browsers.name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from browser_stats
+			sum(x.count) as count,
+			sum(x.count_unique) as count_unique
+		from x
 		join browsers using (browser_id)
-		where site_id=:site and day>=:start and day<=:end
-		{{and path_id in (:filter)}}
-		group by name
-		order by count_unique desc, name asc
-		limit :limit offset :offset`,
+		group by browsers.name
+		order by count_unique desc
+		limit :limit offset :offset
+		`,
 		struct {
 			Site          int64
 			Start, End    string
@@ -60,8 +71,7 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 		from browser_stats
 		join browsers using (browser_id)
 		where
-			site_id=:site and
-			day>=:start and day<=:end and
+			site_id=:site and day>=:start and day<=:end and
 			{{path_id in (:filter) and}}
 			lower(name)=lower(:browser)
 		group by name, version
@@ -83,18 +93,28 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, pathFilte
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
 	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListSystem */
+		with x as (
+			select
+				system_id,
+				sum(count) as count,
+				sum(count_unique) as count_unique
+			from system_stats
+			where
+				site_id=:site and day>=:start and day<=:end
+				{{and path_id in (:filter)}}
+			group by system_id
+			order by count_unique desc
+		)
 		select
 			systems.name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from system_stats
+			sum(x.count) as count,
+			sum(x.count_unique) as count_unique
+		from x
 		join systems using (system_id)
-		where
-			site_id=:site and day>=:start and day<=:end
-			{{and path_id in (:filter)}}
-		group by name
-		order by count_unique desc, name asc
-		limit :limit offset :offset`,
+		group by systems.name
+		order by count_unique desc
+		limit :limit offset :offset
+		`,
 		struct {
 			Site          int64
 			Start, End    string
@@ -283,18 +303,26 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
 	query, args, err := zdb.Query(ctx, `/* Stats.ListLocations */
+		with x as (
+				select
+					location,
+					sum(count) as count,
+					sum(count_unique) as count_unique
+				from location_stats
+				where
+					site_id=:site and day>=:start and day<=:end
+					{{and path_id in (:filter)}}
+				group by location, location
+				order by count_unique desc
+				limit :limit offset :offset
+		)
 		select
-			iso_3166_1.name as name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from location_stats
-		join iso_3166_1 on iso_3166_1.alpha2=location
-		where
-			site_id=:site and day>=:start and day<=:end
-			{{and path_id in (:filter)}}
-		group by location, iso_3166_1.name
+			iso_3166_1.name,
+			x.count,
+			x.count_unique
+		from x
+		join iso_3166_1 on iso_3166_1.alpha2=x.location
 		order by count_unique desc, name asc
-		limit :limit offset :offset
 	`, struct {
 		Site   int64
 		Start  string

@@ -130,8 +130,7 @@ func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, e
 	query, args, err := zdb.Query(ctx, `/* PathFilter */
 		select path_id from paths
 		where
-			site_id=:site and
-			(
+			site_id=:site and (
 				lower(path) like lower(:filter)
 				{{or lower(title) like lower(:filter)}}
 			)`,

@@ -41,8 +41,6 @@ begin;
 	-- hit_counts
 	alter table hit_counts add constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour);
 	alter table hit_counts replica identity using index "hit_counts#site_id#path_id#hour";
-
-	--create index "hit_counts#path_id" on hit_counts(path_id);
 	drop index "hit_counts#site#hour";
 	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
 	cluster hit_counts using "hit_counts#site_id#hour";
@@ -69,26 +67,33 @@ begin;
 
 	-- browser_stats
 	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
-	cluster browser_stats using "browser_stats#site_id#path_id#day#browser_id";
 	alter table browser_stats replica identity using index "browser_stats#site_id#path_id#day#browser_id";
+
+	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day);
+	cluster browser_stats using "browser_stats#site_id#path_id#day#browser_id";
 
 	-- system_stats
 	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
-	cluster system_stats using "system_stats#site_id#path_id#day#system_id";
 	alter table system_stats replica identity using index "system_stats#site_id#path_id#day#system_id";
-	drop index "system_stats#site#day";
+
+	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day);
+	cluster system_stats using "system_stats#site_id#path_id#day#system_id";
 
 	-- location_stats
-	drop index "location_stats#site#day#location";
 	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
-	cluster location_stats using "location_stats#site_id#path_id#day#location";
 	alter table location_stats replica identity using index "location_stats#site_id#path_id#day#location";
 
+	drop index "location_stats#site#day#location";
+    create index "location_stats#site_id#day" on location_stats(site_id, day);
+	cluster location_stats using "location_stats#site_id#day";
+
 	-- size_stats
-	drop index "size_stats#site#day#width";
 	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
-	cluster size_stats using "size_stats#site_id#path_id#day#width";
 	alter table size_stats replica identity using index "size_stats#site_id#path_id#day#width";
+
+	drop index "size_stats#site#day#width";
+    create index "size_stats#site_id#day" on size_stats(site_id, day);
+	cluster size_stats using "size_stats#site_id#day";
 
 	------------------------
 	-- Remove old columns --

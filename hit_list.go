@@ -32,6 +32,7 @@ func (h *HitStats) List(
 		// Get one page more so we can detect if there are more pages after this.
 		limit := int(zint.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
 
+		// TODO: we can probably fold this query in to the hit_stats one below.
 		query, args, err := zdb.Query(ctx, `/* HitStats.List */
 			with x as (
 				select path_id from hit_counts
@@ -39,8 +40,7 @@ func (h *HitStats) List(
 					hit_counts.site_id=:site and
 					{{path_id not in (:exclude) and}}
 					{{path_id in (:filter) and}}
-					hour>=:start and
-					hour<=:end
+					hour>=:start and hour<=:end
 				group by path_id
 				order by sum(total_unique) desc, path_id desc
 				limit :limit
@@ -73,6 +73,8 @@ func (h *HitStats) List(
 		}
 	}
 
+	hh := *h
+
 	// Add stats
 	var st []struct {
 		PathID      int64     `db:"path_id"`
@@ -81,21 +83,24 @@ func (h *HitStats) List(
 		StatsUnique []byte    `db:"stats_unique"`
 	}
 	{
+		paths := make([]int64, len(hh))
+		for i := range hh {
+			paths[i] = hh[i].PathID
+		}
+
 		query, args, err := zdb.Query(ctx, `/* HitStats.List */
 			select path_id, day, stats, stats_unique
 			from hit_stats
 			where
 				hit_stats.site_id=:site and
-				day>=:start and
-				day<=:end
-				{{and path_id in (:filter)}}
+				path_id in (:paths) and
+				day>=:start and day<=:end
 			order by day asc`,
 			struct {
 				Site       int64
 				Start, End string
-				Filter     []int64
-			}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter},
-			len(pathFilter) > 0)
+				Paths      []int64
+			}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), paths})
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List")
 		}
@@ -105,8 +110,6 @@ func (h *HitStats) List(
 			return 0, 0, false, errors.Wrap(err, "HitStats.List get hit_stats")
 		}
 	}
-
-	hh := *h
 
 	// Add the hit_stats.
 	{
@@ -154,6 +157,8 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		TotalUnique int       `db:"total_unique"`
 	}
 
+	// TODO: a lot of the time spent here is in the scan of large number of
+	// rows.
 	err := zdb.QuerySelect(ctx, &tc, `/* HitStat.Totals */
 		select hour, total, total_unique
 		from hit_counts
@@ -395,9 +400,7 @@ func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64
 			coalesce(sum(total_unique), 0) as u
 			from hit_counts
 			where
-				site_id=:site and
-				hour>=:start and
-				hour<=:end
+				site_id=:site and hour>=:start and hour<=:end
 				{{and path_id in (:filter)}}`,
 		struct {
 			Site       int64

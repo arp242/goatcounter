@@ -183,29 +183,34 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 		limit = 10
 	}
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListRefsByPath */
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListRefsByPath */
+		with x as (
+			select path_id from paths
+			where site_id=:site and lower(path)=lower(:path)
+		)
 		select
 			coalesce(sum(total), 0) as count,
 			coalesce(sum(total_unique), 0) as count_unique,
 			max(ref_scheme) as ref_scheme,
 			ref as name
 		from ref_counts
-		join paths using (path_id)
+		join x using (path_id)
 		where
-			paths.site_id=$1 and
-			lower(path)=lower($2) and
-			hour>=$3 and
-			hour<=$4
+			site_id=:site and hour>=:start and hour<=:end
 		group by ref
 		order by count_unique desc, ref desc
-		limit $5 offset $6`,
-		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
+		limit :limit offset :offset`,
+		struct {
+			Site          int64
+			Start, End    string
+			Path          string
+			Limit, Offset int
+		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), path, limit + 1, offset})
 
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-
 	return errors.Wrap(err, "Stats.ListRefsByPath")
 }
 

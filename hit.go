@@ -353,16 +353,19 @@ type HitStats []HitStat
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
 	query, args, err := zdb.Query(ctx, `/* HitStats.ListPathsLike */
+		with x as (
+			select path_id, path, title from paths
+			where site_id=:site and
+			(lower(path) like lower(:search) {{or lower(title) like lower(:search)}})
+		)
 		select
 			path_id, path, title,
 			sum(total) as count
 		from hit_counts
-		join paths using(path_id)
-		where
-			hit_counts.site_id=:site and
-			(lower(path) like lower(:search) {{or lower(title) like lower(:search)}})
+		join x using(path_id)
+		where site_id=:site
 		group by path_id, path, title
-		order by count desc
+		order by count desc;
 	`, struct {
 		Site   int64
 		Search string
@@ -401,9 +404,7 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []in
 				coalesce(sum(total_unique), 0) as count_unique
 			from ref_counts
 			where
-				site_id=:site and
-				hour>=:start and
-				hour<=:end and
+				site_id=:site and hour>=:start and hour<=:end and
 				{{path_id in (:filter) and}}
 				ref=:ref
 			group by path_id
