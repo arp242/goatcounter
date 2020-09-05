@@ -15,20 +15,26 @@ import (
 	"strings"
 
 	"zgo.at/errors"
+	"zgo.at/zlog"
 	"zgo.at/zpack"
+	"zgo.at/zstd/zioutil"
 )
 
 func main() {
+	l := zlog.Module("gen")
+
 	if _, ok := os.LookupEnv("CI"); !ok {
 		err := markdown()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate markdown files: %s\n", err)
 		}
+		l = l.Since("markdown")
 
 		err = kommentaar()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate kommentaar files: %s\n", err)
 		}
+		l = l.Since("kommentaar")
 	}
 
 	err := zpack.Pack(map[string]map[string]string{
@@ -46,6 +52,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	l = l.Since("pack")
+
 	// Don't need to commit this.
 	if _, err := os.Stat("./GeoLite2-Country.mmdb"); err == nil {
 		err := zpack.Pack(map[string]map[string]string{
@@ -58,6 +66,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	l.FieldsSince().Print("done")
 }
 
 var (
@@ -69,6 +78,10 @@ var (
 )
 
 func kommentaar() error {
+	if !zioutil.ChangedFrom("./handlers/api.go", "./tpl/api.json") {
+		return nil
+	}
+
 	commands := map[string][]string{
 		"tpl/api.json": {"-config", "../kommentaar.conf", "-output", "openapi2-jsonindent", "."},
 		"tpl/api.html": {"-config", "../kommentaar.conf", "-output", "html", "."},
@@ -105,6 +118,10 @@ func markdown() error {
 			continue
 		}
 		dst := src[:len(src)-9] + ".gohtml"
+
+		if !zioutil.ChangedFrom(src, dst) {
+			continue
+		}
 
 		out, err := exec.Command("kramdown", "--smart-quotes", "39,39,34,34", src).CombinedOutput()
 		if err != nil {

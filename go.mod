@@ -12,8 +12,8 @@ require (
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.8.0
-	github.com/mattn/go-sqlite3 v1.14.1
-	github.com/monoculum/formam v0.0.0-20200527175922-6f3cce7a46cf
+	github.com/mattn/go-sqlite3 v1.14.2
+	github.com/monoculum/formam v0.0.0-20200905010316-d7a8fbd33677
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
@@ -28,12 +28,12 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8
-	zgo.at/zdb v0.0.0-20200904081751-ba83dd3bc119
-	zgo.at/zhttp v0.0.0-20200904031734-1998621adf31
+	zgo.at/zdb v0.0.0-20200905040742-a9c529b587d5
+	zgo.at/zhttp v0.0.0-20200905040156-067b61c76183
 	zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
-	zgo.at/zstd v0.0.0-20200824042749-ef3212fc7e04
+	zgo.at/zstd v0.0.0-20200905040026-59bd1cd930f3
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a
 )
