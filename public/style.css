@@ -52,7 +52,7 @@ footer > div:first-child { margin-bottom: 1em; }
 
 /* Live demo and screenshots */
 #home-screens     { text-align: center; margin-top: 2em; }
-#home-screens p   { width: 100%; margin-bottom: 2em; }
+#home-screens p   { width: 100%; margin-bottom: 2em; font-weight: bold; }
 #home-screens p a { padding: .3em 1em; border-bottom: 3px solid yellow; transition: color, border .2s; }
 #home-screens p a:hover { text-decoration: none; border-bottom: 3px solid #6491ff; }
 /*
@@ -166,3 +166,9 @@ dt { font-weight: bold; margin-top: 1em; }
 @media (max-width: 35rem) {
 	#donate-form .buttons button { width: 45%; margin-top: 1em; }
 }
+
+
+/*** Documents ***/
+#docs-list    { text-align: center; }
+#docs-list ul { list-style: none; margin: 0; padding: 0; height: 4em;
+	            display: flex; flex-direction: column; flex-wrap: wrap; justify-content: space-between; }

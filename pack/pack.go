@@ -12882,7 +12882,7 @@ footer > div:first-child { margin-bottom: 1em; }
 
 /* Live demo and screenshots */
 #home-screens     { text-align: center; margin-top: 2em; }
-#home-screens p   { width: 100%; margin-bottom: 2em; }
+#home-screens p   { width: 100%; margin-bottom: 2em; font-weight: bold; }
 #home-screens p a { padding: .3em 1em; border-bottom: 3px solid yellow; transition: color, border .2s; }
 #home-screens p a:hover { text-decoration: none; border-bottom: 3px solid #6491ff; }
 /*
@@ -12996,6 +12996,12 @@ dt { font-weight: bold; margin-top: 1em; }
 @media (max-width: 35rem) {
 	#donate-form .buttons button { width: 45%; margin-top: 1em; }
 }
+
+
+/*** Documents ***/
+#docs-list    { text-align: center; }
+#docs-list ul { list-style: none; margin: 0; padding: 0; height: 4em;
+	            display: flex; flex-direction: column; flex-wrap: wrap; justify-content: space-between; }
 `),
 	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
    published under the terms of a slightly modified EUPL v1.2 license, which can
@@ -18479,6 +18485,74 @@ some point (e.g. the parsed User-Agent values).</p>
 
 {{template "_bottom.gohtml" .}}
 `),
+	"tpl/design.gohtml": []byte(`{{/*************************************************************************
+ * This file was generated from tpl/design.markdown. DO NOT EDIT.
+*************************************************************************/}}
+
+{{template "_top.gohtml" .}}
+
+<h1 id="notes-about-goatcounters-design">Notes about GoatCounter's design</h1>
+
+<p>GoatCounter's main design is quite different from various other solutions. The
+main difference is that the statistics are displayed per path on the dashboard,
+rather than as totals.</p>
+
+<p>I originally developed GoatCounter specifically for my own website/blog, where
+"site totals" are fairly useless, and "path totals" are much more useful. I
+think this applies for many sites; if you have a webshop with different
+<code>/category-1</code> and <code>/category-2</code> paths then being able to quickly see which
+categories are popular and being able to see detailed stats for them seems
+pretty useful to me.</p>
+
+<p>The downside of this is that the dashboard can appear as "busy", "intimidating",
+or "overwhelming" at a glance. A simple "630 visitors today" is certainly a lot
+clearer. On the other hand, it's also a lot less useful for many cases.</p>
+
+<p>Is it "more technical"? I don't know; maybe. Personally I think it's just a
+<em>more useful</em> way to display data, and I think (semi-)serious users of all
+technical skills should be able to work with it.</p>
+
+<p>GoatCounter isn't intentionally different – I just built whatever I thought made
+sense. That ended up being somewhat different than many other solutions. Looking
+at the current landscape I think that GoatCounter being somewhat different is
+not a bad thing; There's not much point in just making a copy of an existing
+product right?</p>
+
+<hr />
+
+<p>Some other points about GoatCounter's design:</p>
+
+<ul>
+  <li>
+    <p>It generally tries to minimize clicks.</p>
+
+    <p>For example for example it shows the "day · month (..)" in the top navigation
+as text links quite purposefully, as I find having them there within reach of
+a single click is easier than using a drop-down or some other more advanced UI
+widget. The more advanced widget would probably <em>look</em> better, but isn't
+necessarily easier to use.</p>
+  </li>
+  <li>
+    <p>Focus on useful aggregate statistics rather than not-so-useful detailed
+statistics.</p>
+
+    <p>For example Chromium is just displayed as "Chrome", as are Opera, Edge, and a
+bunch of other Chromium-based browsers. Do you <em>really</em> care if someone is
+using Chrome or Opera? The reason you care about this information is to be
+able to make informed decisions about browser and platform support. Since it's
+the same same engine with the same behaviour, it doesn't really matter.</p>
+
+    <p>Similarly, Firefox on iOS is just displayed as Safari.</p>
+
+    <p>I tried Matomo for a while before I built GoatCounter and it displayed a lot
+of really detailed information about all sorts of stuff. Quite frankly, almost
+all of it was just useless, and getting meaningful aggregate data out of it
+wasn't something I was able to do.</p>
+  </li>
+</ul>
+
+{{template "_bottom.gohtml" .}}
+`),
 	"tpl/email_export_done.gotxt": []byte(`Hi there,
 
 The GoatCounter export you’ve requested is finished, go here to download it:
@@ -18952,9 +19026,7 @@ advice specific to your situation.</p>
 	</div>
 
 	<div id="home-screens" class="two">
-		<p>
-			<a href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a>
-		</p>
+		<p><a href="https://stats.arp242.net" target="_blank" rel="noopener">Live demo</a></p>
 		<img class="zoom" src="{{.Static}}/screenshot.png" alt="Screenshot of the GoatCounter interface">
 		<img class="zoom" src="{{.Static}}/screenshot2.png" alt="Screenshot of the GoatCounter interface">
 	</div>
@@ -18976,9 +19048,9 @@ advice specific to your situation.</p>
 	</div>
 
 	<div>
-		<p>Identify <strong>unique visits</strong> without cookies using a
-			non-identifiable hash
-			(<a href="https://github.com/zgoat/goatcounter/blob/master/docs/sessions.markdown">technical details</a>).
+		<p>Identify <strong>unique visits</strong> without cookies or
+			persistently storing any personal data
+			(<a href="https://github.com/zgoat/goatcounter/blob/master/docs/sessions.markdown#goatcounters-solution">technical details</a>).
 		</p>
 
 		<p>Keeps useful statistics such as <strong>browser</strong> information,
@@ -19014,6 +19086,18 @@ advice specific to your situation.</p>
 			also use a <strong>no-JavaScript image-based tracker</strong> or
 			integrate in your <strong>backend middleware</strong>.</p>
 	</div>
+</div>
+
+<h2 id="docs">Documents</h2>
+<div class="page" id="docs-list">
+	<p>Some documents about GoatCounter that don’t fit the <a href="/help">documentation page</a>:</p>
+	<ul>
+		<li><a href="/why">Why I made GoatCounter</a></li>
+		<li><a href="/design">Notes about GoatCounter's design</a></li>
+
+		<li><a target="_blank" rel="noopener" href="https://www.arp242.net/personal-analytics.html">Analytics on personal websites</a></li>
+		<li><a target="_blank" rel="noopener" href="https://www.arp242.net/dnt.html">Why GoatCounter ignores Do Not Track</a></li>
+	</ul>
 </div>
 
 <h2 id="pricing">Pricing</h2>
