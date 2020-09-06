@@ -160,7 +160,7 @@ The default is to use a SQLite database at `./db/goatcounter.sqlite3`, which
 will be created if it doesn't exist yet. See the `-db` flag and
 `goatcounter help db` to customize this.
 
-GoatCounter will listens on port `*:80` and `*:443` by default. You don't need
+GoatCounter will listen on port `*:80` and `*:443` by default. You don't need
 to run it as root and can grant the appropriate permissions on Linux with:
 
     $ setcap 'cap_net_bind_service=+ep' goatcounter
@@ -178,7 +178,7 @@ the `-db` flag here.
 
 ### Updating
 
-You may need to run run database migrations when updating. Use  `goatcounter
+You may need to run the database migrations when updating. Use  `goatcounter
 -automigrate` to always run all pending migrations on startup. This is the
 easiest way, although arguably not the "best" way.
 
