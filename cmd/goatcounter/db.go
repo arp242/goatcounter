@@ -99,7 +99,7 @@ func database() (int, error) {
 	}
 	cmd := CommandLine.Args()
 
-	if len(os.Args) == 0 {
+	if len(cmd) == 0 {
 		return 1, fmt.Errorf("need a subcommand: schema-sqlite, schema-pgsql, or test")
 	}
 	switch cmd[0] {
