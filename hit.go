@@ -154,7 +154,15 @@ func (h *Hit) Defaults(ctx context.Context) {
 		h.CreatedAt = Now()
 	}
 
-	h.cleanPath(ctx)
+	if h.Event {
+		h.Path = strings.TrimLeft(h.Path, "/")
+		// In case people send "/" as the event path.
+		if h.Path == "" {
+			h.Path = "(no event name)"
+		}
+	} else {
+		h.cleanPath(ctx)
+	}
 
 	// Set campaign.
 	if !h.Event && h.Query != "" {
