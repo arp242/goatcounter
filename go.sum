@@ -114,8 +114,8 @@ zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxy
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8 h1:G10IpV/r+ZtTnjA82MxC3SRBgxYoOOOmb0HpvsHYGr8=
 zgo.at/zcache v0.0.0-20200828020008-df91dc43c1c8/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
-zgo.at/zdb v0.0.0-20200905040742-a9c529b587d5 h1:Y5zNioC/Vv/sZNpkJjw0RdZtvvH5oq/p99dO7Hnt4Us=
-zgo.at/zdb v0.0.0-20200905040742-a9c529b587d5/go.mod h1:wPdLavc+RBsCcH6Af5UW963Wa/0ECpptvSfROE3hovo=
+zgo.at/zdb v0.0.0-20200915102124-36a119a21b96 h1:g+i/lMXjD5W4e+nfCk1vWrH45HM6gzOWd4TNn1nJqwo=
+zgo.at/zdb v0.0.0-20200915102124-36a119a21b96/go.mod h1:wPdLavc+RBsCcH6Af5UW963Wa/0ECpptvSfROE3hovo=
 zgo.at/zhttp v0.0.0-20200914034815-15d6ba77b33b h1:V1QydlDeOVIBjLdd4pilYkHbYAr7GyZxSY5zyeW8up4=
 zgo.at/zhttp v0.0.0-20200914034815-15d6ba77b33b/go.mod h1:X94a4TYkyi27KCFcedmE/eNQqSk6Hq46Zoyqx+GGmNM=
 zgo.at/zli v0.0.0-20200727160635-d9fa18baab0f h1:OZsv7mHtC8VJkC2ZP5GZW9F5RwWSc/a1A3CvB1FWfTg=
