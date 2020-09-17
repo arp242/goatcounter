@@ -277,10 +277,9 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	fp, err := os.Open(export.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			zhttp.FlashError(w, "It looks like there is no export yet.")
-			return zhttp.SeeOther(w, "/settings#tab-export")
+			w.WriteHeader(404)
+			return zhttp.JSON(w, apiError{Error: "it looks like there is no export yet"})
 		}
-
 		return err
 	}
 	defer fp.Close()
