@@ -2,14 +2,12 @@
 
 package goatcounter
 
-// List from https://github.com/matomo-org/referrer-spam-blacklist
-// Last update: 7ffa014 May 21st 2020
 /*
 curl -s https://raw.githubusercontent.com/matomo-org/referrer-spam-blacklist/master/spammers.txt |
         sort -u |
         sed 's!.*!\t"\0": {},!' |
         sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%%/{//!d}' refspam.go |
-		gofmt
+		gofmt > x && mv x refspam.go
 */
 var refspam = map[string]struct{}{
 	// Not spam, but we never really want to accept requests from localhost.
