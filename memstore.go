@@ -316,6 +316,7 @@ func (m *ms) SessionID() zint.Uint128 {
 	return i
 }
 
+// TODO: this can user pathID now, instead of storing the full string.
 func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua, remoteAddr string) (zint.Uint128, zdb.Bool) {
 	sessionHash := hash{userSessionID}
 

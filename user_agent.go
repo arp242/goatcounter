@@ -6,10 +6,13 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"zgo.at/errors"
 	"zgo.at/gadget"
 	"zgo.at/isbot"
+	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zvalidate"
 )
@@ -39,17 +42,27 @@ func (p *UserAgent) ByID(ctx context.Context, id int64) error {
 	return errors.Wrapf(err, "UserAgent.ByID %d", id)
 }
 
+var cacheUA = zcache.New(1*time.Hour, 5*time.Minute)
+
 func (p *UserAgent) GetOrInsert(ctx context.Context) error {
+	shortUA := gadget.Shorten(p.UserAgent)
+
+	c, ok := cacheUA.Get(shortUA)
+	fmt.Println("CACHE", ok, c)
+	if ok {
+		*p = c.(UserAgent)
+		cacheUA.Touch(shortUA, zcache.DefaultExpiration)
+		return nil
+	}
+
 	p.Defaults(ctx)
 	err := p.Validate(ctx)
 	if err != nil {
 		return err
 	}
 
-	shortUA := gadget.Shorten(p.UserAgent)
-
 	row := zdb.MustGet(ctx).QueryRowxContext(ctx, `/* UserAgent.GetOrInsert */
-		select * from user_agents where ua = $1 limit 1`, shortUA)
+		select * from user_agents where ua=$1 limit 1`, shortUA)
 	if row.Err() != nil {
 		return errors.Errorf("UserAgent.GetOrInsert select: %w", row.Err())
 	}
@@ -58,6 +71,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 		return errors.Errorf("UserAgent.GetOrInsert select: %w", err)
 	}
 	if err == nil {
+		cacheUA.SetDefault(shortUA, *p)
 		return nil // Got a row already, no need for a new one.
 	}
 
@@ -84,7 +98,12 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	p.ID, err = insertWithID(ctx, "user_agent_id", `insert into user_agents
 		(ua, bot, browser_id, system_id) values ($1, $2, $3, $4)`,
 		shortUA, p.Bot, p.BrowserID, p.SystemID)
-	return errors.Wrap(err, "UserAgent.GetOrInsert insert")
+	if err != nil {
+		return errors.Wrap(err, "UserAgent.GetOrInsert insert")
+	}
+
+	cacheUA.SetDefault(shortUA, *p)
+	return nil
 }
 
 type Browser struct {

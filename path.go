@@ -39,7 +39,27 @@ func (p *Path) Validate(ctx context.Context) error {
 	return v.ErrorOrNil()
 }
 
+var cachePaths = zcache.New(1*time.Hour, 5*time.Minute)
+
 func (p *Path) GetOrInsert(ctx context.Context) error {
+	title := p.Title
+	k := strconv.FormatInt(p.Site, 10) + p.Path
+	//c, ok := cachePaths.Get(k)
+	//if ok {
+	//	*p = c.(Path)
+
+	//	err := p.updateTitle(ctx, p.Title, title)
+	//	if err != nil {
+	//		zlog.Fields(zlog.F{
+	//			"path_id": p.ID,
+	//			"title":   title,
+	//		}).Error(err)
+	//	}
+
+	//	cachePaths.Touch(k, zcache.DefaultExpiration)
+	//	return nil
+	//}
+
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)
 
@@ -49,7 +69,6 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		return err
 	}
 
-	title := p.Title
 	row := db.QueryRowxContext(ctx, `/* Path.GetOrInsert */
 		select * from paths
 		where site_id=$1 and lower(path)=lower($2)
@@ -70,6 +89,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 				"title":   title,
 			}).Error(err)
 		}
+		cachePaths.SetDefault(k, *p)
 		return nil
 	}
 
@@ -77,7 +97,12 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	p.ID, err = insertWithID(ctx, "path_id",
 		`insert into paths (site_id, path, title, event) values ($1, $2, $3, $4)`,
 		site.ID, p.Path, p.Title, p.Event)
-	return errors.Wrap(err, "Path.GetOrInsert insert")
+	if err != nil {
+		return errors.Wrap(err, "Path.GetOrInsert insert")
+	}
+
+	cachePaths.SetDefault(k, *p)
+	return nil
 }
 
 var changedTitles = zcache.New(48*time.Hour, 1*time.Hour)

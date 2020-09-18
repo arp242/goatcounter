@@ -80,6 +80,9 @@ func EmailTemplate(tplname string, args interface{}) func() ([]byte, error) {
 func ResetCache() {
 	sitesCacheByID.Flush()
 	sitesCacheHostname.Flush()
+	cachePaths.Flush()
+	cacheUA.Flush()
+	changedTitles.Flush()
 }
 
 func interval(days int) string {

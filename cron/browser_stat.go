@@ -101,6 +101,7 @@ func existingBrowserStats(
 	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }
 
+// TODO: probably don't need this now that user_agent.go has a cache too?
 func getUA(ctx context.Context, uaID int64) (browser, system int64) {
 	getUAOnce.Do(func() {
 		var ua []struct {

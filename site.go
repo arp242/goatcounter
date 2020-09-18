@@ -551,7 +551,7 @@ func (s Site) PayExternal() string {
 // user intact.
 func (s Site) DeleteAll(ctx context.Context) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits") {
+		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
 			_, err := tx.ExecContext(ctx, `delete from `+t+` where site_id=$1`, s.ID)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteAll: delete "+t)
