@@ -126,6 +126,24 @@ func Run(name string, f func()) {
 	}()
 }
 
+// RunNoDuplicates is like Run(), but only allows one instance of this name.
+//
+// It will do nothing if there's already something running with this name.
+func RunNoDuplicates(name string, f func()) {
+	if Running(name) {
+		return
+	}
+	Run(name, f)
+}
+
+// Running reports if a function by this name is already running.
+func Running(name string) bool {
+	working.Lock()
+	defer working.Unlock()
+	_, ok := working.m[name]
+	return ok
+}
+
 // Add a new function to the waitgroup and return the done.
 //
 //    done := bgrun.Add()

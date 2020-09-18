@@ -61,12 +61,11 @@ func RunBackground(db zdb.DB) {
 				}
 
 				f := strings.Replace(zruntime.FuncName(t.fun), "zgo.at/goatcounter/cron.", "", 1)
-				bgrun.Run("cron:"+f, func() {
+				bgrun.RunNoDuplicates("cron:"+f, func() {
 					err := t.fun(ctx)
 					if err != nil {
 						l.Error(err)
 					}
-					time.Sleep(4 * time.Second)
 				})
 			}
 		}(t)

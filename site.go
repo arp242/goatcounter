@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cache"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/tz"
+	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -365,8 +365,8 @@ func (s *Site) Delete(ctx context.Context) error {
 }
 
 var (
-	sitesCacheByID     = cache.New(24*time.Hour, 1*time.Hour)
-	sitesCacheHostname = cache.New(24*time.Hour, 1*time.Hour)
+	sitesCacheByID     = zcache.New(24*time.Hour, 1*time.Hour)
+	sitesCacheHostname = zcache.New(24*time.Hour, 1*time.Hour)
 )
 
 // ByID gets a site by ID.
@@ -545,6 +545,8 @@ func (s Site) PayExternal() string {
 	return ""
 }
 
+// DeleteAll deletes all pageviews for this site, keeping the site itself and
+// user intact.
 func (s Site) DeleteAll(ctx context.Context) error {
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits") {
