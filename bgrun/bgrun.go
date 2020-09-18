@@ -64,6 +64,9 @@ func WaitProgress() error {
 			func() {
 				working.Lock()
 				defer working.Unlock()
+				if len(working.m) == 0 {
+					return
+				}
 
 				fmt.Printf("%d tasks: ", len(working.m))
 				l := make([]string, 0, len(working.m))
@@ -76,7 +79,7 @@ func WaitProgress() error {
 				}
 			}()
 
-			time.Sleep(200 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 			func() {
 				working.Lock()
 				defer working.Unlock()
