@@ -27,7 +27,7 @@ script:
   - '[ "$TRAVIS_CPU_ARCH" = "amd64" -a "$TRAVIS_OS_NAME" = "linux" ] && PGSQL=on || PGQSL=off'
 
     # Linter only on Linux as macOS and Windows is slow enough.
-  - 'if [ "$TRAVIS_OS_NAME" = "linux" ]; then  go run ./cmd/check ./...; fi'
+  - 'if [ "$TRAVIS_CPU_ARCH" = "amd64" -a "$TRAVIS_OS_NAME" = "linux" ]; then go run ./cmd/check ./...; fi'
 
     # -race not supported on s390x.
   - 'if [ "$RACE" = "on" ]; then                go test -race -timeout=3m ./...; else go test -timeout=3m ./... ; fi'
