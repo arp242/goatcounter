@@ -324,6 +324,7 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 			}
 		}
 
+		MustGetSite(ctx).ClearCache(true)
 		return nil
 	})
 }

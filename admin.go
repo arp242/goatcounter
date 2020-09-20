@@ -24,7 +24,7 @@ import (
 )
 
 type AdminStat struct {
-	ID            int64     `db:"id"`
+	ID            int64     `db:"site_id"`
 	Parent        *int64    `db:"parent"`
 	Code          string    `db:"code"`
 	Stripe        *string   `db:"stripe"`
@@ -43,7 +43,7 @@ type AdminStats []AdminStat
 func (a *AdminStats) List(ctx context.Context) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, fmt.Sprintf(`/* AdminStats.List */
 		select
-			sites.id,
+			sites.site_id,
 			sites.parent,
 			sites.code,
 			sites.created_at,
@@ -55,7 +55,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 			end) as plan,
 			stripe,
 			sites.link_domain,
-			(select email from users where site_id=sites.id or site_id=sites.parent) as email,
+			(select email from users where site_id=sites.site_id or site_id=sites.parent) as email,
 			coalesce((
 				select sum(hit_counts.total) from hit_counts where site_id=sites.site_id
 			), 0) as total,

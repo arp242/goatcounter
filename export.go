@@ -256,6 +256,18 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		errs       = errors.NewGroup(50)
 		firstHitAt *time.Time
 	)
+	persist := func() {
+		if firstHitAt != nil {
+			err := site.UpdateFirstHitAt(ctx, *firstHitAt)
+			if err != nil {
+				zlog.Error(err)
+			}
+		}
+		if PersistRunner.Watching {
+			PersistRunner.Run <- struct{}{}
+			<-PersistRunner.Wait
+		}
+	}
 	for {
 		line, err := c.Read()
 		if err == io.EOF {
@@ -292,24 +304,10 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 
 		// Spread out the load a bit.
 		if n%5000 == 0 {
-			if firstHitAt != nil {
-				err := site.UpdateFirstHitAt(ctx, *firstHitAt)
-				if err != nil {
-					zlog.Error(err)
-				}
-				firstHitAt = nil
-			}
-
-			time.Sleep(10 * time.Second)
+			persist()
 		}
 	}
-
-	if firstHitAt != nil {
-		err := site.UpdateFirstHitAt(ctx, *firstHitAt)
-		if err != nil {
-			zlog.Error(err)
-		}
-	}
+	persist()
 
 	l.Debugf("imported %d rows", n)
 	if errs.Len() > 0 {

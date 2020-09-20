@@ -12548,16 +12548,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 (function() {
 	'use strict';
 
-	var SETTINGS     = {},
-		CSRF         = '',
-		TZ_OFFSET    = 0,
-		SITE_CREATED = 0
+	var SETTINGS          = {},
+		CSRF              = '',
+		TZ_OFFSET         = 0,
+		SITE_FIRST_HIT_AT = 0
 
 	$(document).ready(function() {
-		SETTINGS     = JSON.parse($('#js-settings').text())
-		CSRF         = $('#js-settings').attr('data-csrf')
-		TZ_OFFSET    = parseInt($('#js-settings').attr('data-offset'), 10) || 0
-		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
+		SETTINGS          = JSON.parse($('#js-settings').text())
+		CSRF              = $('#js-settings').attr('data-csrf')
+		TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
+		SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
 
 		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
 			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
@@ -12871,7 +12871,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
 
-		var opts = {toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_CREATED)}
+		var opts = {toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_FIRST_HIT_AT)}
 		new Pikaday($('#period-start')[0], opts)
 		new Pikaday($('#period-end')[0], opts)
 	}
@@ -13082,7 +13082,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 			if (start > (new Date()).getTime())
 				return alert('That would be in the future.')
-			if (SITE_CREATED > end.getTime())
+			if (SITE_FIRST_HIT_AT > end.getTime())
 				return alert('That would be before the site’s creation; GoatCounter is not *that* good ;-)')
 
 			$('#dash-select-period').attr('class', '')
@@ -15132,7 +15132,7 @@ var Templates = map[string][]byte{
 	{{end}}
 	<span id="js-settings"
 		data-offset="{{.Site.Settings.Timezone.Offset}}"
-		data-created="{{.Site.CreatedAt.Unix}}"
+		data-first-hit-at="{{.Site.FirstHitAt.Unix}}"
 		{{if .User.ID}}data-csrf="{{.User.CSRFToken}}"{{end}}
 	>
 		{{- .Site.Settings.String | unsafe_js -}}

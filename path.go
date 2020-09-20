@@ -44,21 +44,20 @@ var cachePaths = zcache.New(1*time.Hour, 5*time.Minute)
 func (p *Path) GetOrInsert(ctx context.Context) error {
 	title := p.Title
 	k := strconv.FormatInt(p.Site, 10) + p.Path
-	//c, ok := cachePaths.Get(k)
-	//if ok {
-	//	*p = c.(Path)
+	c, ok := cachePaths.Get(k)
+	if ok {
+		*p = c.(Path)
+		cachePaths.Touch(k, zcache.DefaultExpiration)
 
-	//	err := p.updateTitle(ctx, p.Title, title)
-	//	if err != nil {
-	//		zlog.Fields(zlog.F{
-	//			"path_id": p.ID,
-	//			"title":   title,
-	//		}).Error(err)
-	//	}
-
-	//	cachePaths.Touch(k, zcache.DefaultExpiration)
-	//	return nil
-	//}
+		err := p.updateTitle(ctx, p.Title, title)
+		if err != nil {
+			zlog.Fields(zlog.F{
+				"path_id": p.ID,
+				"title":   title,
+			}).Error(err)
+		}
+		return nil
+	}
 
 	db := zdb.MustGet(ctx)
 	site := MustGetSite(ctx)

@@ -111,7 +111,6 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 		}
 		b := *s.BillingAmount
 		n, _ := strconv.ParseInt(b[4:], 10, 32)
-		fmt.Println(b, ">", n)
 
 		if strings.HasPrefix(*s.BillingAmount, "EUR ") {
 			totalEUR += int(n)

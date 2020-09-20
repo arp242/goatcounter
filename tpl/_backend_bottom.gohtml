@@ -21,7 +21,7 @@
 	{{end}}
 	<span id="js-settings"
 		data-offset="{{.Site.Settings.Timezone.Offset}}"
-		data-created="{{.Site.CreatedAt.Unix}}"
+		data-first-hit-at="{{.Site.FirstHitAt.Unix}}"
 		{{if .User.ID}}data-csrf="{{.User.CSRFToken}}"{{end}}
 	>
 		{{- .Site.Settings.String | unsafe_js -}}

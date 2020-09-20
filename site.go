@@ -114,6 +114,22 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 	}
 }
 
+var (
+	sitesCacheByID     = zcache.New(24*time.Hour, 1*time.Hour)
+	sitesCacheHostname = zcache.New(24*time.Hour, 1*time.Hour)
+)
+
+// ClearCache clears the  cache for this site.
+func (s Site) ClearCache(full bool) {
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+
+	// TODO: be more selective about this.
+	if full {
+		cachePaths.Flush()
+		changedTitles.Flush()
+	}
+}
+
 // Defaults sets fields to default values, unless they're already set.
 func (s *Site) Defaults(ctx context.Context) {
 	// New site: Set default settings.
@@ -286,7 +302,7 @@ func (s *Site) Update(ctx context.Context) error {
 		return errors.Wrap(err, "Site.Update")
 	}
 
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	s.ClearCache(false)
 	return nil
 }
 
@@ -317,7 +333,7 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 		return errors.Wrap(err, "Site.UpdateStripe")
 	}
 
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	s.ClearCache(false)
 	return nil
 }
 
@@ -325,7 +341,7 @@ func (s *Site) UpdateReceivedData(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set received_data=1 where site_id=$1`, s.ID)
 
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	s.ClearCache(false)
 	return errors.Wrap(err, "Site.UpdateReceivedData")
 }
 
@@ -335,7 +351,7 @@ func (s *Site) UpdateFirstHitAt(ctx context.Context, f time.Time) error {
 		`update sites set first_hit_at=$1 where site_id=$2`,
 		s.FirstHitAt.Format(zdb.Date), s.ID)
 
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	s.ClearCache(false)
 	return errors.Wrap(err, "Site.UpdateFirstHitAt")
 }
 
@@ -355,7 +371,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 		return errors.Wrap(err, "Site.UpdateCnameSetupAt")
 	}
 
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	s.ClearCache(false)
 	return nil
 }
 
@@ -373,17 +389,13 @@ func (s *Site) Delete(ctx context.Context) error {
 		return errors.Wrap(err, "Site.Delete")
 	}
 
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	s.ClearCache(true)
+
 	s.ID = 0
 	s.UpdatedAt = &t
 	s.State = StateDeleted
 	return nil
 }
-
-var (
-	sitesCacheByID     = zcache.New(24*time.Hour, 1*time.Hour)
-	sitesCacheHostname = zcache.New(24*time.Hour, 1*time.Hour)
-)
 
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
@@ -572,6 +584,7 @@ func (s Site) DeleteAll(ctx context.Context) error {
 			}
 		}
 
+		s.ClearCache(true)
 		return nil
 	})
 }

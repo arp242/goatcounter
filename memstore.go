@@ -39,6 +39,14 @@ var (
 	_ encoding.TextUnmarshaler = &hash{}
 )
 
+// PersistRunner can be used to signal the cron package to run the
+// PeristAndStat() function. We can't use a direct function call due to circular
+// imports.
+var PersistRunner = struct {
+	Run, Wait chan struct{}
+	Watching  bool
+}{make(chan struct{}), make(chan struct{}), false}
+
 // MarshalText converts the data to a human readable representation.
 func (h hash) MarshalText() ([]byte, error) {
 	b := base64.StdEncoding.EncodeToString([]byte(h.v))
