@@ -1,5 +1,6 @@
 begin;
 	-- alter table sites rename id to site_id;
+	-- alter table sites add column first_hit_at timestamp;
 	create table sites2 (
 		site_id        integer        primary key autoincrement,
 		parent         integer        null                     check(parent is null or parent>0),
@@ -16,11 +17,12 @@ begin;
 
 		state          varchar        not null default 'a'     check(state in ('a', 'd')),
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+		first_hit_at   timestamp      not null                 check(first_hit_at = strftime('%Y-%m-%d %H:%M:%S', first_hit_at))
 	);
 	insert into sites2
 		select id, parent, code, link_domain, cname, cname_setup_at, plan, stripe, billing_amount,
-			settings, received_data, state, created_at, updated_at from sites;
+			settings, received_data, state, created_at, updated_at, created_at from sites;
 	drop table sites;
 	alter table sites2 rename to sites;
 	create unique index "sites#code" on sites(lower(code));

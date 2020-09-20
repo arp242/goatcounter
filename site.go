@@ -73,9 +73,10 @@ type Site struct {
 	// pageview.
 	ReceivedData bool `db:"received_data" json:"received_data"`
 
-	State     string     `db:"state" json:"state"`
-	CreatedAt time.Time  `db:"created_at" json:"created_at"`
-	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
+	State      string     `db:"state" json:"state"`
+	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
+	UpdatedAt  *time.Time `db:"updated_at" json:"updated_at"`
+	FirstHitAt time.Time  `db:"first_hit_at" json:"first_hit_at"`
 }
 
 type SiteSettings struct {
@@ -147,6 +148,9 @@ func (s *Site) Defaults(ctx context.Context) {
 	} else {
 		t := Now()
 		s.UpdatedAt = &t
+	}
+	if s.FirstHitAt.IsZero() {
+		s.FirstHitAt = Now()
 	}
 }
 
@@ -253,10 +257,10 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	s.ID, err = insertWithID(ctx, "site_id", `insert into sites
-		(parent, code, cname, link_domain, settings, plan, created_at)
-		values ($1, $2, $3, $4, $5, $6, $7)`,
+		(parent, code, cname, link_domain, settings, plan, created_at, first_hit_at)
+		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
 		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan,
-		s.CreatedAt.Format(zdb.Date))
+		s.CreatedAt.Format(zdb.Date), s.CreatedAt.Format(zdb.Date))
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
@@ -323,6 +327,16 @@ func (s *Site) UpdateReceivedData(ctx context.Context) error {
 
 	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
 	return errors.Wrap(err, "Site.UpdateReceivedData")
+}
+
+func (s *Site) UpdateFirstHitAt(ctx context.Context, f time.Time) error {
+	s.FirstHitAt = f
+	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+		`update sites set first_hit_at=$1 where site_id=$2`,
+		s.FirstHitAt.Format(zdb.Date), s.ID)
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	return errors.Wrap(err, "Site.UpdateFirstHitAt")
 }
 
 // UpdateCnameSetupAt confirms the custom domain was setup correct.

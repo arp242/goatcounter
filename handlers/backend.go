@@ -1083,7 +1083,7 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (
 	}
 
 	// Allow viewing a week before the site was created at the most.
-	c := site.CreatedAt.Add(-24 * time.Hour * 7)
+	c := site.FirstHitAt.Add(-24 * time.Hour * 7)
 	if start.Before(c) {
 		y, m, d := c.In(site.Settings.Timezone.Loc()).Date()
 		start = time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())

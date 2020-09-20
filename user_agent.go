@@ -6,7 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"zgo.at/errors"
@@ -48,7 +47,6 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	shortUA := gadget.Shorten(p.UserAgent)
 
 	c, ok := cacheUA.Get(shortUA)
-	fmt.Println("CACHE", ok, c)
 	if ok {
 		*p = c.(UserAgent)
 		cacheUA.Touch(shortUA, zcache.DefaultExpiration)

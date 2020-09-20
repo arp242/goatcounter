@@ -416,6 +416,7 @@ func TestAPISitesUpdate(t *testing.T) {
 			w := tt.want()
 			w.ID = retSite.ID
 			retSite.CreatedAt = w.CreatedAt
+			retSite.FirstHitAt = w.FirstHitAt
 			retSite.UpdatedAt = nil
 
 			got := string(zjson.MustMarshalIndent(retSite, "", "  "))

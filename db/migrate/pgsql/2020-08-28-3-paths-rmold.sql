@@ -3,6 +3,9 @@ begin;
 	-- Rename/add columns --
 	------------------------
 	alter table sites rename id to site_id;
+	alter table sites add column first_hit_at timestamp;
+	update sites set first_hit_at=created_at;
+	alter table sites alter column first_hit_at set not null;
 
 	alter table users rename id   to user_id;
 	alter table users rename site to site_id;

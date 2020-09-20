@@ -807,6 +807,9 @@ commit;
 	-- Rename/add columns --
 	------------------------
 	alter table sites rename id to site_id;
+	alter table sites add column first_hit_at timestamp;
+	update sites set first_hit_at=created_at;
+	alter table sites alter column first_hit_at set not null;
 
 	alter table users rename id   to user_id;
 	alter table users rename site to site_id;
@@ -1964,6 +1967,7 @@ commit;
 `),
 	"db/migrate/sqlite/2020-08-28-3-paths-rmold.sql": []byte(`begin;
 	-- alter table sites rename id to site_id;
+	-- alter table sites add column first_hit_at timestamp;
 	create table sites2 (
 		site_id        integer        primary key autoincrement,
 		parent         integer        null                     check(parent is null or parent>0),
@@ -1980,11 +1984,12 @@ commit;
 
 		state          varchar        not null default 'a'     check(state in ('a', 'd')),
 		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+		updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+		first_hit_at   timestamp      not null                 check(first_hit_at = strftime('%Y-%m-%d %H:%M:%S', first_hit_at))
 	);
 	insert into sites2
 		select id, parent, code, link_domain, cname, cname_setup_at, plan, stripe, billing_amount,
-			settings, received_data, state, created_at, updated_at from sites;
+			settings, received_data, state, created_at, updated_at, created_at from sites;
 	drop table sites;
 	alter table sites2 rename to sites;
 	create unique index "sites#code" on sites(lower(code));
@@ -17165,6 +17170,8 @@ pageview.</p>
 <p></p>
 <h4>updated_at <sup>string [format: date-time]</sup></h4>
 <p></p>
+<h4>first_hit_at <sup>string [format: date-time]</sup></h4>
+<p></p>
 
 		</div>
 		<h3 id="goatcounter.SiteSettings">goatcounter.SiteSettings <a class="permalink" href="#goatcounter.SiteSettings">§</a></h3>
@@ -17939,6 +17946,10 @@ depending on whether daylight savings time is in use at the time instant.</p>
           "type": "string"
         },
         "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "first_hit_at": {
           "type": "string",
           "format": "date-time"
         },

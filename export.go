@@ -251,9 +251,10 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 	}
 
 	var (
-		sessions = make(map[zint.Uint128]zint.Uint128)
-		n        = 0
-		errs     = errors.NewGroup(50)
+		sessions   = make(map[zint.Uint128]zint.Uint128)
+		n          = 0
+		errs       = errors.NewGroup(50)
+		firstHitAt *time.Time
 	)
 	for {
 		line, err := c.Read()
@@ -274,6 +275,9 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		if errs.Append(err) {
 			continue
 		}
+		if hit.CreatedAt.Before(site.FirstHitAt) {
+			firstHitAt = &hit.CreatedAt
+		}
 
 		// Map session IDs to new session IDs.
 		s, ok := sessions[row.Session]
@@ -287,8 +291,23 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		n++
 
 		// Spread out the load a bit.
-		if cfg.Prod && n%5000 == 0 {
+		if n%5000 == 0 {
+			if firstHitAt != nil {
+				err := site.UpdateFirstHitAt(ctx, *firstHitAt)
+				if err != nil {
+					zlog.Error(err)
+				}
+				firstHitAt = nil
+			}
+
 			time.Sleep(10 * time.Second)
+		}
+	}
+
+	if firstHitAt != nil {
+		err := site.UpdateFirstHitAt(ctx, *firstHitAt)
+		if err != nil {
+			zlog.Error(err)
 		}
 	}
 
