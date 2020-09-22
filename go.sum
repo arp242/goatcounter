@@ -117,10 +117,8 @@ zgo.at/tz v0.0.0-20200520034804-aeba38d94d93 h1:9jisiomiXkQ2K2yTJQOO5fL+Txg+rKxy
 zgo.at/tz v0.0.0-20200520034804-aeba38d94d93/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zcache v1.0.0 h1:jeQ/2ZHw76P4acf7LqFKJeil8NVyAY+bDrvKwq4XTjI=
 zgo.at/zcache v1.0.0/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
-zgo.at/zdb v0.0.0-20200915102124-36a119a21b96 h1:g+i/lMXjD5W4e+nfCk1vWrH45HM6gzOWd4TNn1nJqwo=
-zgo.at/zdb v0.0.0-20200915102124-36a119a21b96/go.mod h1:wPdLavc+RBsCcH6Af5UW963Wa/0ECpptvSfROE3hovo=
-zgo.at/zdb v0.0.0-20200920115401-9c1901acc560 h1:0kS/yslO35aqEB4AM9Z20Z6fyrNOFHTkYiP4YGGhEOU=
-zgo.at/zdb v0.0.0-20200920115401-9c1901acc560/go.mod h1:wPdLavc+RBsCcH6Af5UW963Wa/0ECpptvSfROE3hovo=
+zgo.at/zdb v0.0.0-20200923061356-9d1815fba0b1 h1:2pXNP5YUR7D/ZbLOnez0JjroiPAE2Xi/fhwDDc6kPwQ=
+zgo.at/zdb v0.0.0-20200923061356-9d1815fba0b1/go.mod h1:wPdLavc+RBsCcH6Af5UW963Wa/0ECpptvSfROE3hovo=
 zgo.at/zhttp v0.0.0-20200914034815-15d6ba77b33b h1:V1QydlDeOVIBjLdd4pilYkHbYAr7GyZxSY5zyeW8up4=
 zgo.at/zhttp v0.0.0-20200914034815-15d6ba77b33b/go.mod h1:X94a4TYkyi27KCFcedmE/eNQqSk6Hq46Zoyqx+GGmNM=
 zgo.at/zli v0.0.0-20200908060537-8cba1b84b1e7 h1:GxwpR9/iTt04vVzYjwZc+r2iWVxdK7Ar1hejQS2keV4=

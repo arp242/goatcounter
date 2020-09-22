@@ -26,9 +26,7 @@ func TestUserAgentGetOrInsert(t *testing.T) {
 		}
 
 		want = strings.ReplaceAll(strings.TrimSpace(strings.ReplaceAll(want, "\t", "")), "@", " ")
-		out := zdb.DumpString(ctx, `select * from user_agents`) +
-			zdb.DumpString(ctx, `select * from browsers`) +
-			zdb.DumpString(ctx, `select * from systems`)
+		out := zdb.DumpString(ctx, `select * from view_user_agents`)
 		if d := ztest.Diff(out, want); d != "" {
 			t.Errorf(d)
 		}
@@ -41,12 +39,8 @@ func TestUserAgentGetOrInsert(t *testing.T) {
 			t.Fatal(err)
 		}
 		test(ua, UserAgent{UserAgent: ua.UserAgent, ID: 1, BrowserID: 1, SystemID: 1, Bot: isbot.NoBotNoMatch}, `
-			user_agent_id  ua                                              bot  browser_id  system_id
-			1              ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0  1    1           1
-			browser_id  name     version
-			1           Firefox  79
-			system_id  name   version
-			1          Linux
+			id  bid  sid  bot  browser     system  ua
+			1   1    1    1    Firefox 79  Linux   ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0
 		`)
 	}
 
@@ -57,12 +51,8 @@ func TestUserAgentGetOrInsert(t *testing.T) {
 			t.Fatal(err)
 		}
 		test(ua, UserAgent{UserAgent: ua.UserAgent, ID: 1, BrowserID: 1, SystemID: 1, Bot: isbot.NoBotNoMatch}, `
-			user_agent_id  ua                                              bot  browser_id  system_id
-			1              ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0  1    1           1
-			browser_id  name     version
-			1           Firefox  79
-			system_id  name   version
-			1          Linux
+			id  bid  sid  bot  browser     system  ua
+			1   1    1    1    Firefox 79  Linux   ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0
 		`)
 	}
 
@@ -73,14 +63,9 @@ func TestUserAgentGetOrInsert(t *testing.T) {
 			t.Fatal(err)
 		}
 		test(ua, UserAgent{UserAgent: ua.UserAgent, ID: 2, BrowserID: 1, SystemID: 2, Bot: isbot.NoBotNoMatch}, `
-			user_agent_id  ua                                                      bot  browser_id  system_id
-			1              ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0          1    1           1
-			2              ~Z (~W NT 10.0; Win64; x64; rv:79.0) ~g20100101 ~f79.0  1    1           2
-			browser_id  name     version
-			1           Firefox  79
-			system_id  name     version
-			1          Linux@@@@
-			2          Windows  10
+			id  bid  sid  bot  browser     system      ua
+			1   1    1    1    Firefox 79  Linux       ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0
+			2   2    1    1    Firefox 79  Windows 10  ~Z (~W NT 10.0; Win64; x64; rv:79.0) ~g20100101 ~f79.0
 		`)
 	}
 
@@ -91,16 +76,10 @@ func TestUserAgentGetOrInsert(t *testing.T) {
 			t.Fatal(err)
 		}
 		test(ua, UserAgent{UserAgent: ua.UserAgent, ID: 3, BrowserID: 2, SystemID: 2, Bot: isbot.NoBotNoMatch}, `
-			user_agent_id  ua                                                      bot  browser_id  system_id
-			1              ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0          1    1           1
-			2              ~Z (~W NT 10.0; Win64; x64; rv:79.0) ~g20100101 ~f79.0  1    1           2
-			3              ~Z (~W NT 10.0; Win64; x64; rv:71.0) ~g20100101 ~f71.0  1    2           2
-			browser_id  name     version
-			1           Firefox  79
-			2           Firefox  71
-			system_id  name     version
-			1          Linux@@@@
-			2          Windows  10
+			id  bid  sid  bot  browser     system      ua
+			1   1    1    1    Firefox 79  Linux       ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0
+			2   2    1    1    Firefox 79  Windows 10  ~Z (~W NT 10.0; Win64; x64; rv:79.0) ~g20100101 ~f79.0
+			3   2    2    1    Firefox 71  Windows 10  ~Z (~W NT 10.0; Win64; x64; rv:71.0) ~g20100101 ~f71.0
 		`)
 	}
 }

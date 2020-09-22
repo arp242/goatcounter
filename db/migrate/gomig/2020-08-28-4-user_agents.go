@@ -16,52 +16,59 @@ import (
 )
 
 func UserAgents(db zdb.DB) error {
-	ctx := zdb.With(context.Background(), db)
+	return zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, db zdb.DB) (retErr error) {
+		var err error
+		defer func() {
+			if err == nil {
+				_, retErr = db.ExecContext(ctx, `insert into version values ('2020-08-28-4-user_agents')`)
+			}
+		}()
 
-	var agents []struct {
-		ID        int64  `db:"user_agent_id"`
-		UserAgent string `db:"ua"`
-	}
-	err := db.SelectContext(ctx, &agents,
-		`select user_agent_id, ua from user_agents order by user_agent_id asc`)
-	if err != nil {
-		return err
-	}
-
-	if len(agents) == 0 {
-		return nil
-	}
-
-	errs := errors.NewGroup(1000)
-	for i, u := range agents {
-		if i%100 == 0 {
-			zli.ReplaceLinef("Progress: %d/%d", i, len(agents))
+		var agents []struct {
+			ID        int64  `db:"user_agent_id"`
+			UserAgent string `db:"ua"`
 		}
-		ua := gadget.Parse(u.UserAgent)
-
-		var browser goatcounter.Browser
-		err := browser.GetOrInsert(ctx, ua.BrowserName, ua.BrowserVersion)
+		err = db.SelectContext(ctx, &agents,
+			`select user_agent_id, ua from user_agents order by user_agent_id asc`)
 		if err != nil {
-			errs.Append(err)
-			continue
+			return err
 		}
 
-		var system goatcounter.System
-		err = system.GetOrInsert(ctx, ua.OSName, ua.OSVersion)
-		if err != nil {
-			errs.Append(err)
-			continue
+		if len(agents) == 0 {
+			return nil
 		}
 
-		_, err = db.ExecContext(ctx, `update user_agents
-			set browser_id=$1, system_id=$2, ua=$3 where user_agent_id=$4`,
-			browser.ID, system.ID, gadget.Shorten(u.UserAgent), u.ID)
-		errs.Append(err)
-	}
-	if errs.Len() > 0 {
-		return errs
-	}
+		errs := errors.NewGroup(1000)
+		for i, u := range agents {
+			if i%100 == 0 {
+				zli.ReplaceLinef("Progress: %d/%d", i, len(agents))
+			}
+			ua := gadget.Parse(u.UserAgent)
 
-	fmt.Println("\nDone!")
-	return nil
+			var browser goatcounter.Browser
+			err := browser.GetOrInsert(ctx, ua.BrowserName, ua.BrowserVersion)
+			if err != nil {
+				errs.Append(err)
+				continue
+			}
+
+			var system goatcounter.System
+			err = system.GetOrInsert(ctx, ua.OSName, ua.OSVersion)
+			if err != nil {
+				errs.Append(err)
+				continue
+			}
+
+			_, err = db.ExecContext(ctx, `update user_agents
+				set browser_id=$1, system_id=$2, ua=$3 where user_agent_id=$4`,
+				browser.ID, system.ID, gadget.Shorten(u.UserAgent), u.ID)
+			errs.Append(err)
+		}
+		if errs.Len() > 0 {
+			return errs
+		}
+
+		fmt.Println("\nDone!")
+		return
+	})
 }

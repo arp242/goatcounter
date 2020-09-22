@@ -40,6 +40,5 @@ begin;
 		join systems     using (system_id)
 		order by hit_id asc;
 
-	insert into version values ('2020-08-28-5-paths-views');
+	insert into version values ('2020-08-28-6-paths-views');
 commit;
-

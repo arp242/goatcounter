@@ -6,31 +6,68 @@ begin;
 	alter table sites add column first_hit_at timestamp;
 	update sites set first_hit_at=created_at;
 	alter table sites alter column first_hit_at set not null;
+	alter table sites drop constraint sites_parent_check;
+	alter sequence sites_id_seq rename to sites_site_id_seq;
 
 	alter table users rename id   to user_id;
 	alter table users rename site to site_id;
+	alter table users drop constraint users_site_check;
+	alter sequence users_id_seq rename to users_user_id_seq;
+	alter index "users#site" rename to "users#site_id";
+	alter index "users#site#email" rename to "users#site_id#email";
+	alter table users rename constraint users_site_fkey to users_site_id_fkey;
 
 	alter table hits rename id       to hit_id;
 	alter table hits rename site     to site_id;
+	alter table hits add check(path_id > 0);
+	alter table hits add check(user_agent_id > 0);
+	alter table hits drop column session;
+	alter table hits rename session2 to session;
+	alter table hits rename constraint hits_site_check to hits_site_id_check;
+	alter sequence hits_id_seq rename to hits_hit_id_seq;
+
+	alter table hit_counts rename site to site_id;
+	alter table hit_counts add foreign key (site_id) references sites(site_id) on delete restrict on update restrict;
+	alter table hit_counts add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
+	alter table hit_counts drop constraint hit_counts_site_check;
+
+	alter table ref_counts rename site to site_id;
+	alter table ref_counts add foreign key (site_id) references sites(site_id) on delete restrict on update restrict;
+	alter table ref_counts add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
+	alter table ref_counts drop constraint ref_counts_site_check;
 
 	alter table hit_stats  rename site to site_id;
-	alter table hit_counts rename site to site_id;
-	alter table ref_counts rename site to site_id;
+	alter table hit_stats drop constraint hit_stats_site_check;
+	alter table hit_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
+	alter table hit_stats rename constraint hit_stats_site_fkey to hit_stats_site_id_fkey;
 
 	alter table browser_stats rename site to site_id;
 	alter table browser_stats add column path_id int not null;
+	alter table browser_stats drop constraint browser_stats_site_check;
+	alter table browser_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
+	alter table browser_stats add foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict;
+	alter table browser_stats rename constraint browser_stats_site_fkey to browser_stats_site_id_fkey;
 
 	alter table system_stats rename site to site_id;
+	alter table system_stats drop constraint system_stats_site_check;
 	alter table system_stats add column path_id int not null;
+	alter table system_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
+	alter table system_stats add foreign key (system_id) references systems(system_id) on delete restrict on update restrict;
+	alter table system_stats rename constraint system_stats_site_fkey to system_stats_site_id_fkey;
+	drop index "system_stats#site#day";
 
 	alter table location_stats rename site to site_id;
+	alter table location_stats drop constraint location_stats_site_check;
 	alter table location_stats add column path_id int not null;
+	alter table location_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
+	alter table location_stats rename constraint location_stats_site_fkey to location_stats_site_id_fkey;
 
 	alter table size_stats rename site to site_id;
+	alter table size_stats drop constraint size_stats_site_check;
 	alter table size_stats add column path_id int not null;
+	alter table size_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
+	alter table size_stats rename constraint size_stats_site_fkey to size_stats_site_id_fkey;
 
-	alter table hits drop column session;
-	alter table hits rename session2 to session;
 
 	--------------------------------------
 	-- Make new indexes and constraints --
@@ -52,8 +89,6 @@ begin;
 	-- ref_counts
 	alter table ref_counts add constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour);
 	alter table ref_counts replica identity using index "ref_counts#site_id#path_id#ref#hour";
-
-	--create index "ref_counts#path_id" on ref_counts(path_id);
 	drop index "ref_counts#site#hour";
 	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
 	cluster ref_counts using "ref_counts#site_id#hour";
@@ -97,6 +132,8 @@ begin;
 	drop index "size_stats#site#day#width";
     create index "size_stats#site_id#day" on size_stats(site_id, day);
 	cluster size_stats using "size_stats#site_id#day";
+
+	alter table store replica identity using index "store#key";
 
 	------------------------
 	-- Remove old columns --

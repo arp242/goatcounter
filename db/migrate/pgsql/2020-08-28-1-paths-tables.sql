@@ -7,15 +7,18 @@ begin;
 		site_id        integer        not null,
 		path           varchar        not null,
 		title          varchar        not null default '',
-		event          int            default 0
+		event          int            default 0,
+
+		foreign key (site_id) references sites(id) on delete restrict on update restrict
 	);
 
 	create table user_agents (
 		user_agent_id    serial         primary key,
-		ua               varchar        not null,
-		bot              int            not null,
 		browser_id       int            not null,
-		system_id        int			not null
+		system_id        int			not null,
+
+		ua               varchar        not null,
+		bot              int            not null
 	);
 
 	create table systems (
@@ -65,7 +68,7 @@ begin;
 	---------------------
 	-- Add new columns --
 	---------------------
-	alter table hits          add column path_id       int default 0 not null;
+	alter table hits          add column path_id       int default 0 not null; -- TODO: is default removed?
 	alter table hits          add column user_agent_id int default 0 not null;
 	alter table hit_stats     add column path_id       int not null;
 	alter table hit_counts    add column path_id       int not null;
