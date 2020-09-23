@@ -32,7 +32,7 @@ func help() (int, error) {
 		for _, h := range []string{
 			"help", "version",
 			"migrate", "create", "serve",
-			"reindex", "monitor",
+			"reindex", "buffer", "monitor",
 			"db", "listen",
 		} {
 			head := fmt.Sprintf("─── Help for %q ", h)

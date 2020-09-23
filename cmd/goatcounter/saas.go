@@ -44,7 +44,7 @@ func saas() (int, error) {
 	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
 	CommandLine.StringVar(&stripe, "stripe", "", "")
 	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	dbConnect, test, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
+	dbConnect, testMode, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
 	if err != nil {
 		return 1, err
 	}
@@ -83,7 +83,7 @@ func saas() (int, error) {
 		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), "./public", !dev)
 	}
 
-	doServe(db, test, listen, listenTLS, tlsc, hosts, func() {
+	doServe(db, testMode, listen, listenTLS, tlsc, hosts, func() {
 		zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
 	})
 	return 0, nil
