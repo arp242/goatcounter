@@ -29,7 +29,6 @@ import (
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
 	"zgo.at/isbot"
@@ -71,7 +70,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
 	})
-	r.Get("/status", zhttp.Wrap(h.status()))
 
 	{
 		rr := r.With(zhttp.Headers(nil))
@@ -196,17 +194,6 @@ var geodb = func() *geoip2.Reader {
 func geo(ip string) string {
 	loc, _ := geodb.Country(net.ParseIP(ip))
 	return loc.Country.IsoCode
-}
-
-func (h backend) status() func(w http.ResponseWriter, r *http.Request) error {
-	started := goatcounter.Now()
-	return func(w http.ResponseWriter, r *http.Request) error {
-		return zhttp.JSON(w, map[string]string{
-			"uptime":            goatcounter.Now().Sub(started).String(),
-			"version":           cfg.Version,
-			"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
-		})
-	}
 }
 
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {

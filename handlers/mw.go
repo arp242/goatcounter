@@ -15,7 +15,9 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/guru"
+	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -81,9 +83,28 @@ func delay() func(http.Handler) http.Handler {
 }
 
 func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
+	started := goatcounter.Now()
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
+
+			if r.URL.Path == "/status" {
+				j, err := json.Marshal(map[string]string{
+					"uptime":            goatcounter.Now().Sub(started).String(),
+					"version":           cfg.Version,
+					"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
+				})
+				if err != nil {
+					http.Error(w, err.Error(), 500)
+					return
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(200)
+
+				w.Write(j)
+				return
+			}
 
 			// Add timeout on non-admin pages.
 			if !strings.HasPrefix(r.URL.Path, "/admin") {
