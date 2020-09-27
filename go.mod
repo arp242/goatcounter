@@ -2,6 +2,8 @@ module zgo.at/goatcounter
 
 go 1.13
 
+replace zgo.at/zhttp => ../zhttp
+
 require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.5.1
@@ -29,7 +31,7 @@ require (
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v1.0.0
 	zgo.at/zdb v0.0.0-20200915102124-36a119a21b96
-	zgo.at/zhttp v0.0.0-20200914034815-15d6ba77b33b
+	zgo.at/zhttp v0.0.0-20200927172526-45e4ff8a46bb
 	zgo.at/zli v0.0.0-20200908060537-8cba1b84b1e7
 	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
 	zgo.at/zpack v1.0.1
