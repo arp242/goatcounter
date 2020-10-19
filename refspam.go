@@ -7,7 +7,7 @@ curl -s https://raw.githubusercontent.com/matomo-org/referrer-spam-blacklist/mas
         sort -u |
         sed 's!.*!\t"\0": {},!' |
         sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%%/{//!d}' refspam.go |
-		gofmt > x && mv x refspam.go
+		gofmt > x && mv -f x refspam.go
 */
 var refspam = map[string]struct{}{
 	// Not spam, but we never really want to accept requests from localhost.
@@ -674,7 +674,6 @@ var refspam = map[string]struct{}{
 	"fazika.ru":                            {},
 	"fbdownloader.com":                     {},
 	"feminist.org.ua":                      {},
-	"fialka.tomsk.ru":                      {},
 	"fidalsa.de":                           {},
 	"fierrohack.ru":                        {},
 	"filesclub.net":                        {},
@@ -1237,7 +1236,6 @@ var refspam = map[string]struct{}{
 	"ninacecillia.top":                     {},
 	"no-rx.info":                           {},
 	"nomerounddec.cf":                      {},
-	"novosibirsk.gidro-partner.ru":         {},
 	"novosti-avto.ru":                      {},
 	"novosti-hi-tech.ru":                   {},
 	"novostic.ru":                          {},
@@ -1265,7 +1263,6 @@ var refspam = map[string]struct{}{
 	"officedocuments.net":                  {},
 	"ogorodnic.com":                        {},
 	"okna-systems.pro":                     {},
-	"okna.pp.ua":                           {},
 	"okno.ooo":                             {},
 	"okoshkah.com":                         {},
 	"olovoley.ru":                          {},
@@ -1401,6 +1398,7 @@ var refspam = map[string]struct{}{
 	"primfootball.com":                     {},
 	"print-technology.ru":                  {},
 	"private-service.best":                 {},
+	"prizesk.com ":                         {},
 	"prizrn.site":                          {},
 	"prlog.ru":                             {},
 	"probenzo.com.ua":                      {},
@@ -1470,6 +1468,7 @@ var refspam = map[string]struct{}{
 	"reversing.cc":                         {},
 	"revolgc.pro":                          {},
 	"rfavon.ru":                            {},
+	"rfesc.net":                            {},
 	"rightenergysolutions.com.au":          {},
 	"robocheck.info":                       {},
 	"roof-city.ru":                         {},
@@ -1807,7 +1806,6 @@ var refspam = map[string]struct{}{
 	"ucanfly.ru":                           {},
 	"ucoz.ru":                              {},
 	"udav.net":                             {},
-	"ufa.dienai.ru":                        {},
 	"ufolabs.net":                          {},
 	"uginekologa.com":                      {},
 	"ukrainian-poetry.com":                 {},
@@ -1928,7 +1926,6 @@ var refspam = map[string]struct{}{
 	"websites-reviews.com":                 {},
 	"websocial.me":                         {},
 	"weburlopener.com":                     {},
-	"weebly.com":                           {},
 	"weightbelts.ru":                       {},
 	"wfdesigngroup.com":                    {},
 	"wmasterlead.com":                      {},
