@@ -18355,6 +18355,7 @@ processed by Stripe (you will need a Credit Card).</p>
 
 			Change the email address in the <a href="/settings">settings</a> –
 			<form method="post" action="/user/resend-verify">
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 				<button class="link">Resend email</button>.
 			</form>
 		</div>
