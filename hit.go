@@ -106,6 +106,7 @@ func (h *Hit) cleanPath(ctx context.Context) {
 				q.Del(k)
 			}
 		}
+		q.Del("gclid") // AdWords click ID
 
 		// Some WeChat tracking thing; see e.g:
 		// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fsheshui.me%2Fblogs%2Fexplain-wechat-nsukey-url
