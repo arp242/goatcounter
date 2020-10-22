@@ -315,6 +315,32 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 	return nil
 }
 
+// UpdateCode changes the site's domain code (e.g. "test" in
+// "test.goatcounter.com").
+func (s *Site) UpdateCode(ctx context.Context, code string) error {
+	if s.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	s.Code = code
+
+	s.Defaults(ctx)
+	err := s.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+		`update sites set code=$1, updated_at=$2 where id=$3`,
+		s.Code, s.UpdatedAt.Format(zdb.Date), s.ID)
+	if err != nil {
+		return errors.Wrap(err, "Site.UpdateStripe")
+	}
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	return nil
+}
+
 func (s *Site) UpdateReceivedData(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
 		`update sites set received_data=1 where id=$1`, s.ID)

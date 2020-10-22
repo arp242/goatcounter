@@ -17725,13 +17725,9 @@ depending on whether daylight savings time is in use at the time instant.</p>
 
 				{{if .GoatcounterCom}}
 					<label for="code">Code</label>
-					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
-					{{validate "site.code" .Validate}}
-					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.<br>
-						Changing this isn’t implemented yet; contact
-						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-						if you want to change it.
-					</span>
+					<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
+					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.
+					<a href="/settings/change-code">Change</a>.</span>
 				{{end}}
 
 				{{if .GoatcounterCom}}
@@ -18174,6 +18170,32 @@ depending on whether daylight savings time is in use at the time instant.</p>
 		<p>Note: the site will be ‘soft-deleted’ and the site (and all data) will be permanently deleted after 7 days.</p>
 	{{end}}
 </div>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/backend_settings_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h1>Change site code</h1>
+<p>Change your site code and login domain.</p>
+
+<p><strong>WARNING:</strong> this will take effect
+<strong>immediately</strong> and the old code can be registered again by
+anyone; if you’re already using it on a site then change it as soon as
+possible, or temporarily add two integration codes (with the old and new
+code) to prevent the loss of any pageviews.</p>
+
+<p>
+Current code: <code>{{.Site.Code}}</code> ({{.Site.URL}})
+</p>
+
+<form method="post">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<label for="code">New code</label>
+	<input type="text" name="code" id="code" value="{{.Site.Code}}">
+
+	<button>Change</button>
+	<strong>Will take effect immediately</strong>
+</form>
 
 {{template "_backend_bottom.gohtml" .}}
 `),

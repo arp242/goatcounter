@@ -158,6 +158,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Get("/code", zhttp.Wrap(h.code))
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
+			af.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
+			af.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 				Client:  zhttp.RatelimitIP,
 				Store:   zhttp.NewRatelimitMemory(),
@@ -702,6 +704,31 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Saved!")
 	return zhttp.SeeOther(w, "/settings")
+}
+
+func (h backend) changeCode(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "GET" {
+		return zhttp.Template(w, "backend_settings_code.gohtml", struct {
+			Globals
+		}{newGlobals(w, r)})
+	}
+
+	var args struct {
+		Code string `json:"code"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	site := Site(r.Context())
+	err = site.UpdateCode(r.Context(), args.Code)
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Saved!")
+	return zhttp.SeeOther(w, site.URL()+"/settings")
 }
 
 func (h backend) importFile(w http.ResponseWriter, r *http.Request) error {

@@ -29,13 +29,9 @@
 
 				{{if .GoatcounterCom}}
 					<label for="code">Code</label>
-					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
-					{{validate "site.code" .Validate}}
-					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.<br>
-						Changing this isn’t implemented yet; contact
-						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-						if you want to change it.
-					</span>
+					<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
+					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.
+					<a href="/settings/change-code">Change</a>.</span>
 				{{end}}
 
 				{{if .GoatcounterCom}}
