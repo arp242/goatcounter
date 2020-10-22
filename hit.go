@@ -331,10 +331,10 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bo
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select path, title, sum(total) as count from hit_counts
+		select path, title, sum(total_unique) as count_unique from hit_counts
 		where site=$1 and (lower(path) like lower($2) `+t+`)
 		group by path, title
-		order by count desc
+		order by count_unique desc
 	`, MustGetSite(ctx).ID, path)
 	return errors.Wrap(err, "Hits.ListPathsLike")
 }

@@ -63,6 +63,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		zhttp.WrapWriter)
 
 	api{}.mount(r, db)
+	counter{}.mount(r, db)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))

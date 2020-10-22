@@ -361,7 +361,7 @@ func TestBackendTpl(t *testing.T) {
 			path:     "/purge?path=/asd",
 			auth:     true,
 			wantCode: 200,
-			wantBody: "<tr><td>2</td><td>/asd</td><td>AAA</td></tr>",
+			wantBody: "<tr><td>0</td><td>/asd</td><td>AAA</td></tr>",
 		},
 
 		{
