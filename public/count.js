@@ -28,17 +28,7 @@
 
 		if (is_empty(data.r)) data.r = document.referrer
 		if (is_empty(data.t)) data.t = document.title
-		if (is_empty(data.p)) {
-			var loc = location,
-			    c = document.querySelector('link[rel="canonical"][href]')
-			if (c) {  // May be relative or point to different domain.
-				var a = document.createElement('a')
-				a.href = c.href
-				if (a.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, ''))
-					loc = a
-			}
-			data.p = (loc.pathname + loc.search) || '/'
-		}
+		if (is_empty(data.p)) data.p = get_path()
 
 		if (rcb) data.r = rcb(data.r)
 		if (tcb) data.t = tcb(data.t)
@@ -80,6 +70,19 @@
 		if (s && s.dataset.goatcounter)
 			return s.dataset.goatcounter
 		return (goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
+	}
+
+	// Get current path.
+	var get_path = function() {
+		var loc = location,
+			c = document.querySelector('link[rel="canonical"][href]')
+		if (c) {  // May be relative or point to different domain.
+			var a = document.createElement('a')
+			a.href = c.href
+			if (a.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, ''))
+				loc = a
+		}
+		return (loc.pathname + loc.search) || '/'
 	}
 
 	// Filter some requests that we (probably) don't want to count.
@@ -174,6 +177,45 @@
 			elem.addEventListener('auxclick', f, false)  // Middle click.
 			elem.dataset.goatcounterBound = 'true'
 		})
+	}
+
+	// Add a "visitor counter" frame or image.
+	window.goatcounter.visit_count = function(opt) {
+		opt        = opt        || {}
+		opt.type   = opt.type   || 'html'
+		opt.append = opt.append || 'body'
+		opt.path   = opt.path   || get_path()
+		opt.attr   = opt.attr   || {width: '200', height: '80'}
+		opt.attr['src'] = get_endpoint() + 'er/' + opt.path + '.' + opt.type + '?'
+
+		if (opt.no_branding) {
+			opt.attr['src'] += '&no_branding=1'
+			opt.attr['height'] = '60'
+		}
+		if (opt.style)
+			opt.attr['src'] += '&style=' + encodeURIComponent(opt.style)
+
+		var tag = {png: 'img', svg: 'img', html: 'iframe'}[opt.type]
+		if (!tag) {
+			console.warn('goatcounter.visit_count: unknown type: ' + opt.type)
+			return
+		}
+
+		if (opt.type === 'html') {
+			opt.attr['frameborder'] = '0'
+			opt.attr['scrolling']   = 'no'
+		}
+
+		var d = document.createElement(tag)
+		for (var k in opt.attr)
+			d.setAttribute(k, opt.attr[k])
+
+		var p = document.querySelector(opt.append)
+		if (!p) {
+			console.warn('goatcounter.visit_count: no such element from append: ' + opt.append)
+			return
+		}
+		p.appendChild(d)
 	}
 
 	// Make it easy to skip your own views.

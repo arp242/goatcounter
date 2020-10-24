@@ -2127,17 +2127,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 		if (is_empty(data.r)) data.r = document.referrer
 		if (is_empty(data.t)) data.t = document.title
-		if (is_empty(data.p)) {
-			var loc = location,
-			    c = document.querySelector('link[rel="canonical"][href]')
-			if (c) {  // May be relative or point to different domain.
-				var a = document.createElement('a')
-				a.href = c.href
-				if (a.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, ''))
-					loc = a
-			}
-			data.p = (loc.pathname + loc.search) || '/'
-		}
+		if (is_empty(data.p)) data.p = get_path()
 
 		if (rcb) data.r = rcb(data.r)
 		if (tcb) data.t = tcb(data.t)
@@ -2179,6 +2169,19 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		if (s && s.dataset.goatcounter)
 			return s.dataset.goatcounter
 		return (goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
+	}
+
+	// Get current path.
+	var get_path = function() {
+		var loc = location,
+			c = document.querySelector('link[rel="canonical"][href]')
+		if (c) {  // May be relative or point to different domain.
+			var a = document.createElement('a')
+			a.href = c.href
+			if (a.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, ''))
+				loc = a
+		}
+		return (loc.pathname + loc.search) || '/'
 	}
 
 	// Filter some requests that we (probably) don't want to count.
@@ -2273,6 +2276,45 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			elem.addEventListener('auxclick', f, false)  // Middle click.
 			elem.dataset.goatcounterBound = 'true'
 		})
+	}
+
+	// Add a "visitor counter" frame or image.
+	window.goatcounter.visit_count = function(opt) {
+		opt        = opt        || {}
+		opt.type   = opt.type   || 'html'
+		opt.append = opt.append || 'body'
+		opt.path   = opt.path   || get_path()
+		opt.attr   = opt.attr   || {width: '200', height: '80'}
+		opt.attr['src'] = get_endpoint() + 'er/' + opt.path + '.' + opt.type + '?'
+
+		if (opt.no_branding) {
+			opt.attr['src'] += '&no_branding=1'
+			opt.attr['height'] = '60'
+		}
+		if (opt.style)
+			opt.attr['src'] += '&style=' + encodeURIComponent(opt.style)
+
+		var tag = {png: 'img', svg: 'img', html: 'iframe'}[opt.type]
+		if (!tag) {
+			console.warn('goatcounter.visit_count: unknown type: ' + opt.type)
+			return
+		}
+
+		if (opt.type === 'html') {
+			opt.attr['frameborder'] = '0'
+			opt.attr['scrolling']   = 'no'
+		}
+
+		var d = document.createElement(tag)
+		for (var k in opt.attr)
+			d.setAttribute(k, opt.attr[k])
+
+		var p = document.querySelector(opt.append)
+		if (!p) {
+			console.warn('goatcounter.visit_count: no such element from append: ' + opt.append)
+			return
+		}
+		p.appendChild(d)
 	}
 
 	// Make it easy to skip your own views.
@@ -14589,6 +14631,32 @@ var Templates = map[string][]byte{
 </div>
 </div>
 
+<h2 class="no_toc" id="visitor-counter">Visitor counter</h2>
+
+<p>You can display a page's view count on your website by adding a HTML document or
+image. The easiest way to do this is from the JavaScript integration:</p>
+
+<pre><code>&lt;script&gt;
+    // Append at the end of &lt;body&gt;; can use a CSS selector to append
+    // somewhere else.
+    // Be sure to call this *after* the count.js script is loaded.
+    window.goatcounter.visit_count({append: 'body'})
+&lt;/script&gt;
+</code></pre>
+
+{{if .Site.ID}}
+<strong>Note</strong>: you will need to enable “Allow adding visitor counts on your website”
+in your <a href="/settings#tab-setting">site settings</a>; this defaults to
+<em>off</em> to prevent accidental unintentional leaking of data.
+{{else}}
+<strong>Note</strong>: you will need to enable “Allow adding visitor counts on your website”
+in your site settings; this defaults to <em>off</em> to prevent accidental
+unintentional leaking of data.
+{{end}}
+
+<p>See the <a href="#visitor-counter-customisation">detailed documentation</a> for more
+options and customisations.</p>
+
 <h2 class="no_toc" id="table-of-contents">Table of Contents</h2>
 <ul id="markdown-toc">
   <li><a href="#events" id="markdown-toc-events">Events</a></li>
@@ -14618,6 +14686,12 @@ var Templates = map[string][]byte{
       <li><a href="#using-navigatorsendbeacon" id="markdown-toc-using-navigatorsendbeacon">Using navigator.sendBeacon</a></li>
       <li><a href="#custom-events" id="markdown-toc-custom-events">Custom events</a></li>
       <li><a href="#consent-notice" id="markdown-toc-consent-notice">Consent notice</a></li>
+    </ul>
+  </li>
+  <li><a href="#visitor-counter-customisation" id="markdown-toc-visitor-counter-customisation">Visitor counter customisation</a>    <ul>
+      <li><a href="#customisation" id="markdown-toc-customisation">Customisation</a></li>
+      <li><a href="#advanced" id="markdown-toc-advanced">Advanced</a></li>
+      <li><a href="#json" id="markdown-toc-json">JSON</a></li>
     </ul>
   </li>
   <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>    <ul>
@@ -15025,6 +15099,118 @@ notices</a> for some more details.</p>
     })()
 &lt;/script&gt;
 {{template "code" .}}
+</code></pre>
+
+<h2 id="visitor-counter-customisation">Visitor counter customisation <a href="#visitor-counter-customisation"></a></h2>
+<p>The <code>goatcounter.visit_count()</code> function adds a ‘visitor counter’ to display the
+number of pageviews for a path. The function accepts an object with the
+following options:</p>
+
+<table class="reftable">
+  <thead>
+    <tr>
+      <th style="text-align: left">Setting</th>
+      <th style="text-align: left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code>append</code></td>
+      <td style="text-align: left">HTML selector to append to, can use CSS selectors as accepted by <code>querySelector()</code>. Default is <code>body</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>type</code></td>
+      <td style="text-align: left">Type to add: <code>html</code>, <code>svg</code>, or <code>png</code>. Default is <code>html</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>path</code></td>
+      <td style="text-align: left">Path to display; normally this is detected from the URL, but you can override.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>no_branding</code></td>
+      <td style="text-align: left">Don't display “by GoatCounter” branding; requires a paid account and has no effect on free accounts.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>attr</code></td>
+      <td style="text-align: left">HTML attributes to set or override for the element.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code>style</code></td>
+      <td style="text-align: left">Extra CSS styling for HTML or SVG.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The HTML variant is recommended for most people as it's the easiest to customize
+with CSS. The SVG version can be customized to some degree with CSS as well, and
+the PNG version is a fixed 200×80 image which can't be customized.</p>
+
+<p>The default size is 200×80, or 200×60 if <code>no_branding</code> is added. You can
+override the size by adding <code>width</code> and <code>height</code> in <code>attr</code>.</p>
+
+<p>The special path <code>TOTAL</code> (case-sensitive, no leading <code>/</code>) can be used to display
+the site totals.</p>
+
+<p>The images are cached for 15 minutes, so new pageviews don’t show up right away.</p>
+
+<h4 id="customisation">Customisation <a href="#customisation"></a></h4>
+<p>You can add the <code>style</code> option to customize the looks, this only works for HTML
+and SVG.</p>
+
+<p>Things you can style:</p>
+
+<pre><code>div                 Div Wrapper; HTML only.
+#gcvc-border        Border rect; SVG only.
+#gcvc-for           "Views for this page" text.
+#gcvc-views         Number with views.
+#gcvc-by            “stats by GoatCounter” text.
+</code></pre>
+
+<p>For example, to get a dark colour scheme:</p>
+
+<pre><code>goatcounter.visit_count({append: '#stats', style: ` + "`" + `
+	div { border-color: #fff; background-color: #222; color: #fff; }    ` + "`" + `})
+</code></pre>
+
+<p>Or the same for SVG:</p>
+
+<pre><code>goatcounter.visit_count({append: '#stats', type: 'svg', style: ` + "`" + `
+	#gcvc-border { fill: #222; stroke: #fff; }
+	#gcvc        { fill: #fff; }    ` + "`" + `})
+</code></pre>
+
+<h4 id="advanced">Advanced <a href="#advanced"></a></h4>
+<p>You don't need to use the JavaScript integration, you can also add an iframe or
+image "directly"; the paths are in the form of:</p>
+
+<pre><code>{{.Site.URL}}/counter/[PATH].[EXT]
+</code></pre>
+
+<p>The <code>[PATH]</code> is the full path, including a leading <code>/</code> and the <code>[EXT]</code> is the
+<code>html</code>, <code>png</code>, <code>svg</code>, or <code>json</code> extension. For example
+<code>{{.Site.URL}}/counter//.html</code> will display the view acount for <code>/</code>, and
+<code>{{.Site.URL}}/counter//test.html.html</code> will display the view count for
+<code>/test.html</code>.</p>
+
+<p>There are two query parameters: <code>no_branding</code>, to disable to “stats by
+GoatCounter” text, and <code>style</code> to insert custom styles.</p>
+
+<h4 id="json">JSON <a href="#json"></a></h4>
+<p>The <code>.json</code> extension will return the pageview count in JSON; you can't use this
+with a HTML tag but it can be used if you want to build your own counter in
+JavaScript.</p>
+
+<p>It returns an Object with one value: <code>count_unique</code>, which contains the unique
+visitor count as a formatted string with thousands seperators.</p>
+
+<p>A simple example usage:</p>
+
+<pre><code>var r = new XMLHttpRequest();
+r.addEventListener('load', function() {
+	document.querySelector('#stats').innerText = JSON.parse(this.responseText).count_unique
+})
+r.open('GET', '{{.Site.URL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
+r.send()
 </code></pre>
 
 <h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
@@ -17661,7 +17847,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th><th>Title</th></tr></thead></thead>
 		<tbody>
 			{{range $s := .List}}
-				<tr><td>{{nformat $s.CountUnique $.Site}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
+				<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
 			{{end}}
 		</tbody>
 	</table>
@@ -17822,6 +18008,10 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
+
+				<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
+					Allow adding visitor counts on your website</label>
+				<span>See <a href="/code#visitor-counter">the documentation</a> for details on how to use.</span>
 
 				<label for="data_retention">Data retention in days</label>
 				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">

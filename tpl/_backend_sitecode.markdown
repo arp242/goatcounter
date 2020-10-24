@@ -30,6 +30,33 @@ Integrations
 </div>
 </div>
 
+Visitor counter
+---------------
+{:.no_toc}
+
+You can display a page's view count on your website by adding a HTML document or
+image. The easiest way to do this is from the JavaScript integration:
+
+    <script>
+        // Append at the end of <body>; can use a CSS selector to append
+        // somewhere else.
+        // Be sure to call this *after* the count.js script is loaded.
+        window.goatcounter.visit_count({append: 'body'})
+    </script>
+
+{{if .Site.ID}}
+**Note**: you will need to enable “Allow adding visitor counts on your website”
+in your <a href="/settings#tab-setting">site settings</a>; this defaults to
+*off* to prevent accidental unintentional leaking of data.
+{{else}}
+**Note**: you will need to enable “Allow adding visitor counts on your website”
+in your site settings; this defaults to *off* to prevent accidental
+unintentional leaking of data.
+{{end}}
+
+See the <a href="#visitor-counter-customisation">detailed documentation</a> for more
+options and customisations.
+
 
 Table of Contents
 -----------------
@@ -377,6 +404,91 @@ If you want to add a consent notice, then a simple example might be:
     </script>
     {{template "code" .}}
 
+
+Visitor counter customisation
+-----------------------------
+The `goatcounter.visit_count()` function adds a ‘visitor counter’ to display the
+number of pageviews for a path. The function accepts an object with the
+following options:
+
+{:class="reftable"}
+| Setting       | Description                                                                                            |
+| :------       | :----------                                                                                            |
+| `append`      | HTML selector to append to, can use CSS selectors as accepted by `querySelector()`. Default is `body`. |
+| `type`        | Type to add: `html`, `svg`, or `png`. Default is `html`.                                               |
+| `path`        | Path to display; normally this is detected from the URL, but you can override.                         |
+| `no_branding` | Don't display “by GoatCounter” branding; requires a paid account and has no effect on free accounts.   |
+| `attr`        | HTML attributes to set or override for the element.                                                    |
+| `style`       | Extra CSS styling for HTML or SVG.                                                                     |
+
+The HTML variant is recommended for most people as it's the easiest to customize
+with CSS. The SVG version can be customized to some degree with CSS as well, and
+the PNG version is a fixed 200×80 image which can't be customized.
+
+The default size is 200×80, or 200×60 if `no_branding` is added. You can
+override the size by adding `width` and `height` in `attr`.
+
+The special path `TOTAL` (case-sensitive, no leading `/`) can be used to display
+the site totals.
+
+The images are cached for 15 minutes, so new pageviews don’t show up right away.
+
+#### Customisation
+You can add the `style` option to customize the looks, this only works for HTML
+and SVG.
+
+Things you can style:
+
+    div                 Div Wrapper; HTML only.
+    #gcvc-border        Border rect; SVG only.
+    #gcvc-for           "Views for this page" text.
+    #gcvc-views         Number with views.
+    #gcvc-by            “stats by GoatCounter” text.
+
+For example, to get a dark colour scheme:
+
+	goatcounter.visit_count({append: '#stats', style: `
+		div { border-color: #fff; background-color: #222; color: #fff; }
+   `})
+
+Or the same for SVG:
+
+	goatcounter.visit_count({append: '#stats', type: 'svg', style: `
+		#gcvc-border { fill: #222; stroke: #fff; }
+		#gcvc        { fill: #fff; }
+   `})
+
+#### Advanced
+You don't need to use the JavaScript integration, you can also add an iframe or
+image "directly"; the paths are in the form of:
+
+    {{.Site.URL}}/counter/[PATH].[EXT]
+
+The `[PATH]` is the full path, including a leading `/` and the `[EXT]` is the
+`html`, `png`, `svg`, or `json` extension. For example
+`{{.Site.URL}}/counter//.html` will display the view acount for `/`, and
+`{{.Site.URL}}/counter//test.html.html` will display the view count for
+`/test.html`.
+
+There are two query parameters: `no_branding`, to disable to “stats by
+GoatCounter” text, and `style` to insert custom styles.
+
+#### JSON
+The `.json` extension will return the pageview count in JSON; you can't use this
+with a HTML tag but it can be used if you want to build your own counter in
+JavaScript.
+
+It returns an Object with one value: `count_unique`, which contains the unique
+visitor count as a formatted string with thousands seperators.
+
+A simple example usage:
+
+	var r = new XMLHttpRequest();
+	r.addEventListener('load', function() {
+		document.querySelector('#stats').innerText = JSON.parse(this.responseText).count_unique
+	})
+	r.open('GET', '{{.Site.URL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
+	r.send()
 
 
 Advanced integrations
