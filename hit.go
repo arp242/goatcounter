@@ -336,7 +336,26 @@ func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bo
 		group by path, title
 		order by count desc
 	`, MustGetSite(ctx).ID, path)
-	return errors.Wrap(err, "Hits.ListPathsLike")
+	return errors.Wrap(err, "HitStats.ListPathsLike")
+}
+
+// PathCountUnique gets the total_unique for one path.
+func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select path, sum(total_unique) as count_unique from hit_counts
+		where site=$1 and lower(path) = lower($2)
+		group by path
+	`, MustGetSite(ctx).ID, path)
+	return errors.Wrap(err, "HitStats.PathCountUnique")
+}
+
+// SiteTotalUnique gets the total_unique for all paths.
+func (h *HitStats) SiteTotalUnique(ctx context.Context) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select sum(total_unique) as count_unique from hit_counts
+		where site=$1
+	`, MustGetSite(ctx).ID)
+	return errors.Wrap(err, "HitStats.SiteTotalUnique")
 }
 
 type StatT struct {

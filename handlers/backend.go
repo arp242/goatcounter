@@ -63,6 +63,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		zhttp.WrapWriter)
 
 	api{}.mount(r, db)
+	vcounter{}.mount(r, db)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
@@ -109,12 +110,11 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			"X-Frame-Options":           []string{"deny"},
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
+
 		// https://stripe.com/docs/security#content-security-policy
-		ds := []string{""}
-		if cfg.DomainStatic == "" {
-			ds[0] = header.CSPSourceSelf
-		} else {
-			ds[0] = cfg.DomainStatic
+		ds := []string{header.CSPSourceSelf}
+		if cfg.DomainStatic != "" {
+			ds = append(ds, cfg.DomainStatic)
 		}
 		gc := "https://gc.goatcounter.com"
 		if !cfg.Prod {
@@ -130,7 +130,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			header.CSPFontSrc:     ds,
 			header.CSPFormAction:  {header.CSPSourceSelf, "https://explain.dalibo.com/new"},
 			header.CSPConnectSrc:  {header.CSPSourceSelf, "https://chat.goatcounter.com", "https://api.stripe.com"},
-			header.CSPFrameSrc:    {"https://js.stripe.com", "https://hooks.stripe.com"},
+			header.CSPFrameSrc:    {header.CSPSourceSelf, "https://js.stripe.com", "https://hooks.stripe.com"},
 			header.CSPManifestSrc: ds,
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})

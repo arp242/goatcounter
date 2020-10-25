@@ -127,6 +127,10 @@
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
 
+				<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
+					Allow adding visitor counts on your website</label>
+				<span>See <a href="/code#visitor-counter">the documentation</a> for details on how to use.</span>
+
 				<label for="data_retention">Data retention in days</label>
 				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
 				{{validate "site.settings.data_retention" .Validate}}

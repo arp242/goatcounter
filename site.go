@@ -78,6 +78,7 @@ type Site struct {
 
 type SiteSettings struct {
 	Public           bool        `json:"public"`
+	AllowCounter     bool        `json:"allow_counter"`
 	TwentyFourHours  bool        `json:"twenty_four_hours"`
 	SundayStartsWeek bool        `json:"sunday_starts_week"`
 	DateFormat       string      `json:"date_format"`
