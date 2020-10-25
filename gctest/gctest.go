@@ -22,7 +22,6 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
-	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstring"
@@ -176,10 +175,6 @@ func setupDB(t tester) {
 		if err != nil {
 			t.Fatalf("run migration %q: %s", m[0], err)
 		}
-	}
-	err = gomig.Run(db)
-	if err != nil {
-		t.Fatalf("gomig: %w", err)
 	}
 }
 

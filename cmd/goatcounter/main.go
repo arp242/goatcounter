@@ -163,6 +163,7 @@ func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) 
 		Connect: connect,
 		Migrate: zdb.NewMigrate(nil, migrate,
 			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
+			gomig.Migrations,
 			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL]),
 	}
 	if create {
@@ -174,11 +175,6 @@ func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) 
 	db, err := zdb.Connect(opts)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(migrate) > 0 {
-		err = gomig.Run(db)
-		return db, err
 	}
 
 	return db, nil
