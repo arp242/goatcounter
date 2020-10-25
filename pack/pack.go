@@ -2163,6 +2163,12 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		return '?' + p.join('&')
 	}
 
+	// Show a warning in the console.
+	var warn = function(msg) {
+		if (console && 'warn' in console)
+			console.warn('goatcounter: ' + msg)
+	}
+
 	// Get the endpoint to send requests to.
 	var get_endpoint = function() {
 		var s = document.querySelector('script[data-goatcounter]');
@@ -2207,11 +2213,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
 
 		var endpoint = get_endpoint()
-		if (!endpoint) {
-			if (console && 'warn' in console)
-				console.warn('goatcounter: no endpoint found')
-			return
-		}
+		if (!endpoint)
+			return warn('no endpoint found')
 
 		return endpoint + urlencode(data)
 	}
@@ -2219,18 +2222,12 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	// Count a hit.
 	window.goatcounter.count = function(vars) {
 		var f = goatcounter.filter()
-		if (f) {
-			if (console && 'log' in console)
-				console.warn('goatcounter: not counting because of: ' + f)
-			return
-		}
+		if (f)
+			return warn('not counting because of: ' + f)
 
 		var url = goatcounter.url(vars)
-		if (!url) {
-			if (console && 'log' in console)
-				console.warn('goatcounter: not counting because path callback returned null')
-			return
-		}
+		if (!url)
+			return warn('not counting because path callback returned null')
 
 		var img = document.createElement('img')
 		img.src = url
@@ -2284,21 +2281,15 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		opt.type   = opt.type   || 'html'
 		opt.append = opt.append || 'body'
 		opt.path   = opt.path   || get_path()
-		opt.attr   = opt.attr   || {width: '200', height: '80'}
-		opt.attr['src'] = get_endpoint() + 'er/' + opt.path + '.' + opt.type + '?'
+		opt.attr   = opt.attr   || {width: '200', height: (opt.no_branding ? '60' : '80')}
 
-		if (opt.no_branding) {
-			opt.attr['src'] += '&no_branding=1'
-			opt.attr['height'] = '60'
-		}
-		if (opt.style)
-			opt.attr['src'] += '&style=' + encodeURIComponent(opt.style)
+		opt.attr['src'] = get_endpoint() + 'er/' + encodeURIComponent(opt.path) + '.' + opt.type + '?'
+		if (opt.no_branding) opt.attr['src'] += '&no_branding=1'
+		if (opt.style)       opt.attr['src'] += '&style=' + encodeURIComponent(opt.style)
 
 		var tag = {png: 'img', svg: 'img', html: 'iframe'}[opt.type]
-		if (!tag) {
-			console.warn('goatcounter.visit_count: unknown type: ' + opt.type)
-			return
-		}
+		if (!tag)
+			return warn('visit_count: unknown type: ' + opt.type)
 
 		if (opt.type === 'html') {
 			opt.attr['frameborder'] = '0'
@@ -2310,10 +2301,8 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			d.setAttribute(k, opt.attr[k])
 
 		var p = document.querySelector(opt.append)
-		if (!p) {
-			console.warn('goatcounter.visit_count: no such element from append: ' + opt.append)
-			return
-		}
+		if (!p)
+			return warn('visit_count: append not found: ' + opt.append)
 		p.appendChild(d)
 	}
 
