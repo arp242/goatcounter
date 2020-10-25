@@ -16,6 +16,7 @@ require (
 	github.com/monoculum/formam v0.0.0-20200905010316-d7a8fbd33677
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
+	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5
 	golang.org/x/net v0.0.0-20201024042810-be3efd7ff127
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/tools v0.0.0-20201023174141-c8cfbd0f21e6
