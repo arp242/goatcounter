@@ -15475,7 +15475,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<tr><td colspan="3"><em>Nothing to display</em></td></tr>
 {{- end}}
 `),
-	"tpl/_dashboard_pages_text.gohtml": []byte(`<div class="pages-list pages-list-text">
+	"tpl/_dashboard_pages_text.gohtml": []byte(`<div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}">
 	<h2 class="full-width">Pages <small>
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
 		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
