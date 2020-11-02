@@ -9,6 +9,7 @@ jobs:
     - {'os': 'linux',   'arch': 'arm64'}
     - {'os': 'linux',   'arch': 'ppc64le'}
     - {'os': 'linux',   'arch': 's390x'}
+    - {'os': 'freebsd', 'arch': 'amd64'}
     - {'os': 'osx',     'arch': 'amd64'}
     - {'os': 'windows', 'arch': 'amd64'}
 
