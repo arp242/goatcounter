@@ -6,6 +6,17 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
+2020-11-10, v1.4.2
+------------------
+
+- Add a "visitor counter" image you can add to your website to display the
+  number of visitors, similar to old-style counters back in the ’90s (#398).
+
+- Other than this, it's mostly contains a few minor bugfixes and the like. You
+  can see a list of changes in the git log:
+  https://github.com/zgoat/goatcounter/compare/v1.4.1...v1.4.2
+
+
 2020-09-04 v1.4.1
 -----------------
 

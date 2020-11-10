@@ -593,6 +593,9 @@
         "allow_admin": {
           "type": "boolean"
         },
+        "allow_counter": {
+          "type": "boolean"
+        },
         "campaigns": {
           "type": "array",
           "items": {

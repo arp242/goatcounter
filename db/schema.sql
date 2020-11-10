@@ -486,7 +486,7 @@ create table exports (
 	path              varchar        not null,
 	created_at        timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 
-	finished_at       timestamp                  check(finished_at is null or finished_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	finished_at       timestamp                  check(finished_at is null or finished_at = strftime('%Y-%m-%d %H:%M:%S', finished_at)),
 	last_hit_id       integer,
 	num_rows          integer,
 	size              varchar,
