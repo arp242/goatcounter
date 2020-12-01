@@ -15606,7 +15606,7 @@ Martin
 		<h3>Free</h3>
 		<ul>
 			<li>Free; donation recommended</li>
-			<li><a href="/terms#commercial">Non-commercial</a> use</li>
+			<li><a href="https://www.{{.Domain}}/terms#commercial">Non-commercial</a> use</li>
 			<li>Unlimited sites</li>
 			<li>6 months data retention</li>
 			<li>100k pageviews/month</li>
