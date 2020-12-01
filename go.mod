@@ -19,6 +19,7 @@ require (
 	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
+	golang.org/x/term v0.0.0-20201117132131-f5c789dd3221
 	golang.org/x/tools v0.0.0-20201201030018-7470481624a7
 	honnef.co/go/tools v0.0.1-2020.1.6
 	zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8

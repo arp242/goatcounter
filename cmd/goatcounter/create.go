@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
@@ -81,7 +81,7 @@ func create() (int, error) {
 	if password == "" {
 	getpw:
 		fmt.Printf("Enter password for new user (will not echo): ")
-		pwd, err := terminal.ReadPassword(int(syscall.Stdin))
+		pwd, err := term.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return 3, err
 		}
@@ -91,7 +91,7 @@ func create() (int, error) {
 		}
 
 		fmt.Printf("\nConfirm: ")
-		pwd2, err := terminal.ReadPassword(int(syscall.Stdin))
+		pwd2, err := term.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return 3, err
 		}
