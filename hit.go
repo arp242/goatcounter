@@ -117,6 +117,10 @@ func (h *Hit) cleanPath(ctx context.Context) {
 			q.Del("from")
 		}
 
+		// Cloudflare
+		q.Del("__cf_chl_captcha_tk__")
+		q.Del("__cf_chl_jschl_tk__")
+
 		u.RawQuery = q.Encode()
 		h.Path = u.String()
 	}
