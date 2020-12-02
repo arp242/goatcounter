@@ -120,6 +120,7 @@ func (h *Hit) cleanPath(ctx context.Context) {
 				q.Del(k)
 			}
 		}
+		q.Del("gclid") // AdWords click ID
 
 		// Some WeChat tracking thing; see e.g:
 		// https://translate.google.com/translate?sl=auto&tl=en&u=https%3A%2F%2Fsheshui.me%2Fblogs%2Fexplain-wechat-nsukey-url
@@ -129,6 +130,10 @@ func (h *Hit) cleanPath(ctx context.Context) {
 		if q.Get("from") == "singlemessage" || q.Get("from") == "groupmessage" {
 			q.Del("from")
 		}
+
+		// Cloudflare
+		q.Del("__cf_chl_captcha_tk__")
+		q.Del("__cf_chl_jschl_tk__")
 
 		u.RawQuery = q.Encode()
 		h.Path = u.String()
@@ -379,6 +384,25 @@ func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle 
 
 	err = zdb.MustGet(ctx).SelectContext(ctx, h, query, args...)
 	return errors.Wrap(err, "Hits.ListPathsLike")
+}
+
+// PathCountUnique gets the total_unique for one path.
+func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select path, sum(total_unique) as count_unique from hit_counts
+		where site=$1 and lower(path) = lower($2)
+		group by path
+	`, MustGetSite(ctx).ID, path)
+	return errors.Wrap(err, "HitStats.PathCountUnique")
+}
+
+// SiteTotalUnique gets the total_unique for all paths.
+func (h *HitStats) SiteTotalUnique(ctx context.Context) error {
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select sum(total_unique) as count_unique from hit_counts
+		where site=$1
+	`, MustGetSite(ctx).ID)
+	return errors.Wrap(err, "HitStats.SiteTotalUnique")
 }
 
 type StatT struct {

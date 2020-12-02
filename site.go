@@ -81,6 +81,7 @@ type Site struct {
 
 type SiteSettings struct {
 	Public           bool        `json:"public"`
+	AllowCounter     bool        `json:"allow_counter"`
 	TwentyFourHours  bool        `json:"twenty_four_hours"`
 	SundayStartsWeek bool        `json:"sunday_starts_week"`
 	DateFormat       string      `json:"date_format"`
@@ -334,6 +335,32 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 	}
 
 	s.ClearCache(false)
+	return nil
+}
+
+// UpdateCode changes the site's domain code (e.g. "test" in
+// "test.goatcounter.com").
+func (s *Site) UpdateCode(ctx context.Context, code string) error {
+	if s.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	s.Code = code
+
+	s.Defaults(ctx)
+	err := s.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+		`update sites set code=$1, updated_at=$2 where id=$3`,
+		s.Code, s.UpdatedAt.Format(zdb.Date), s.ID)
+	if err != nil {
+		return errors.Wrap(err, "Site.UpdateStripe")
+	}
+
+	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
 	return nil
 }
 

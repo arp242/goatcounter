@@ -6,6 +6,7 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
+<<<<<<< HEAD
 Unreleased v1.5.0
 -----------------
 
@@ -43,6 +44,17 @@ version 1.5.
 **Note**: the CSV export format was increased to `2`; it now includes the parsed
 browser and system values in addition to the User-Agent header. Version 1.5 will
 not be able to import the older exports from version `1`.
+=======
+2020-11-10, v1.4.2
+------------------
+
+- Add a "visitor counter" image you can add to your website to display the
+  number of visitors, similar to old-style counters back in the ’90s (#398).
+
+- Other than this, it's mostly contains a few minor bugfixes and the like. You
+  can see a list of changes in the git log:
+  https://github.com/zgoat/goatcounter/compare/v1.4.1...v1.4.2
+>>>>>>> master
 
 
 2020-09-04 v1.4.1

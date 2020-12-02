@@ -264,7 +264,12 @@ func vacuumDeleted(ctx context.Context) error {
 					return errors.Errorf("%s: %w", t, err)
 				}
 			}
-			_, err := db.ExecContext(ctx, `delete from sites where site_id=$1`, s.ID)
+			_, err := db.ExecContext(ctx, `delete from exports where site_id=$1`, s.ID)
+			if err != nil {
+				return errors.Errorf("exports: %w", err)
+			}
+
+			_, err = db.ExecContext(ctx, `delete from sites where site_id=$1`, s.ID)
 			return err
 		})
 		if err != nil {

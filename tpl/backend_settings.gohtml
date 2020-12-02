@@ -29,13 +29,9 @@
 
 				{{if .GoatcounterCom}}
 					<label for="code">Code</label>
-					<input type="text" {{/*name="code"*/}} disabled id="code" class="inline" value="{{.Site.Code}}">
-					{{validate "site.code" .Validate}}
-					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.<br>
-						Changing this isn’t implemented yet; contact
-						<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-						if you want to change it.
-					</span>
+					<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
+					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.
+					<a href="/settings/change-code">Change</a>.</span>
 				{{end}}
 
 				{{if .GoatcounterCom}}
@@ -130,6 +126,10 @@
 				<label>{{checkbox .Site.Settings.Public "settings.public"}}
 					Make statistics publicly viewable</label>
 				<span>Anyone can view the statistics without logging in.</span>
+
+				<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
+					Allow adding visitor counts on your website</label>
+				<span>See <a href="/code#visitor-counter">the documentation</a> for details on how to use.</span>
 
 				<label for="data_retention">Data retention in days</label>
 				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">

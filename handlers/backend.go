@@ -29,7 +29,6 @@ import (
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
 	"zgo.at/isbot"
@@ -65,6 +64,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		zhttp.WrapWriter)
 
 	api{}.mount(r, db)
+	vcounter{}.mount(r, db)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
@@ -72,7 +72,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
 	})
-	r.Get("/status", zhttp.Wrap(h.status()))
 
 	{
 		rr := r.With(zhttp.Headers(nil))
@@ -112,12 +111,11 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			"X-Frame-Options":           []string{"deny"},
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
+
 		// https://stripe.com/docs/security#content-security-policy
-		ds := []string{""}
-		if cfg.DomainStatic == "" {
-			ds[0] = header.CSPSourceSelf
-		} else {
-			ds[0] = cfg.DomainStatic
+		ds := []string{header.CSPSourceSelf}
+		if cfg.DomainStatic != "" {
+			ds = append(ds, cfg.DomainStatic)
 		}
 		gc := "https://gc.goatcounter.com"
 		if !cfg.Prod {
@@ -133,7 +131,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			header.CSPFontSrc:     ds,
 			header.CSPFormAction:  {header.CSPSourceSelf, "https://explain.dalibo.com/new"},
 			header.CSPConnectSrc:  {header.CSPSourceSelf, "https://chat.goatcounter.com", "https://api.stripe.com"},
-			header.CSPFrameSrc:    {"https://js.stripe.com", "https://hooks.stripe.com"},
+			header.CSPFrameSrc:    {header.CSPSourceSelf, "https://js.stripe.com", "https://hooks.stripe.com"},
 			header.CSPManifestSrc: ds,
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})
@@ -161,6 +159,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Get("/code", zhttp.Wrap(h.code))
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
+			af.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
+			af.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
 				Client:  zhttp.RatelimitIP,
 				Store:   zhttp.NewRatelimitMemory(),
@@ -197,17 +197,6 @@ var geodb = func() *geoip2.Reader {
 func geo(ip string) string {
 	loc, _ := geodb.Country(net.ParseIP(ip))
 	return loc.Country.IsoCode
-}
-
-func (h backend) status() func(w http.ResponseWriter, r *http.Request) error {
-	started := goatcounter.Now()
-	return func(w http.ResponseWriter, r *http.Request) error {
-		return zhttp.JSON(w, map[string]string{
-			"uptime":            goatcounter.Now().Sub(started).String(),
-			"version":           cfg.Version,
-			"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
-		})
-	}
 }
 
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
@@ -753,6 +742,31 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Saved!")
 	return zhttp.SeeOther(w, "/settings")
+}
+
+func (h backend) changeCode(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "GET" {
+		return zhttp.Template(w, "backend_settings_code.gohtml", struct {
+			Globals
+		}{newGlobals(w, r)})
+	}
+
+	var args struct {
+		Code string `json:"code"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	site := Site(r.Context())
+	err = site.UpdateCode(r.Context(), args.Code)
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Saved!")
+	return zhttp.SeeOther(w, site.URL()+"/settings")
 }
 
 func (h backend) importFile(w http.ResponseWriter, r *http.Request) error {
