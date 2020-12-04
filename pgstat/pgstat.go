@@ -167,8 +167,8 @@ func (a *Tables) List(ctx context.Context) error {
 			n_dead_tup,
 			n_mod_since_analyze,
 
-			pg_table_size(  '"public"."' || relname || '"') / 1024/1024 as table_size,
-			pg_indexes_size('"public"."' || relname || '"') / 1024/1024 as indexes_size
+			pg_table_size(  '"' || schemaname || '"."' || relname || '"'  ) / 1024/1024 as table_size,
+			pg_indexes_size('"' || schemaname || '"."'  || relname || '"') / 1024/1024 as indexes_size
 
 		from pg_stat_user_tables
 		order by table_size desc
@@ -194,7 +194,7 @@ func (a *Indexes) List(ctx context.Context) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, a, `
 		select
 			relname,
-			pg_relation_size('"public"."' || indexrelname || '"') / 1024/1024 as size,
+			pg_relation_size('"' || schemaname || '"."' || indexrelname || '"') / 1024/1024 as size,
 			indexrelname,
 			idx_scan,
 			idx_tup_read,

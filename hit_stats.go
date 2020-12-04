@@ -312,7 +312,7 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 				where
 					site_id=:site and day>=:start and day<=:end
 					{{and path_id in (:filter)}}
-				group by location, location
+				group by location
 				order by count_unique desc
 				limit :limit offset :offset
 		)

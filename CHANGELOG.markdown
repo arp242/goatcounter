@@ -6,12 +6,16 @@ but not every minor bugfix.
 
 The goatcounter.com service generally runs the latest master.
 
-<<<<<<< HEAD
 Unreleased v1.5.0
 -----------------
 
-This release contains quite a few changes to the database layout to make
-everything faster and reduce the size on disk (#383)
+This release contains quite a few changes to the database layout (#383);
+functional changes:
+
+- Some queries are a bit faster, others a bit slower.
+- The Browsers, systems, size, and location stats are filtered if you enter
+  something in "filter paths".
+- Greatly decreases disk storage requirements.
 
 **Action required**:
 
@@ -44,7 +48,10 @@ version 1.5.
 **Note**: the CSV export format was increased to `2`; it now includes the parsed
 browser and system values in addition to the User-Agent header. Version 1.5 will
 not be able to import the older exports from version `1`.
-=======
+
+
+
+
 2020-11-10, v1.4.2
 ------------------
 
@@ -54,7 +61,6 @@ not be able to import the older exports from version `1`.
 - Other than this, it's mostly contains a few minor bugfixes and the like. You
   can see a list of changes in the git log:
   https://github.com/zgoat/goatcounter/compare/v1.4.1...v1.4.2
->>>>>>> master
 
 
 2020-09-04 v1.4.1

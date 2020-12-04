@@ -64,7 +64,16 @@ var groups = map[string]string{
 	"org.telegram.messenger": "Telegram Messenger",
 
 	"com.Slack": "Slack Chat",
+
+	// Baidu
+	"baidu.com":         "Baidu",
+	"c.tieba.baidu.com": "Baidu",
+	"m.baidu.com":       "Baidu",
+	"tieba.baidu.com":   "Baidu",
+	"www.baidu.com":     "Baidu",
 }
+
+// update
 
 var hostAlias = map[string]string{
 	"en.m.wikipedia.org": "en.wikipedia.org",
@@ -95,10 +104,15 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	}
 
 	// Group based on URL.
-	if strings.HasPrefix(refURL.Host, "www.google.") {
+	if strings.HasPrefix(refURL.Host, "www.google.") || strings.HasPrefix(refURL.Host, "google.") {
 		// Group all "google.co.nz", "google.nl", etc. as "Google".
 		return "Google", true
 	}
+
+	if strings.Contains(refURL.Host, "search.yahoo.com") {
+		return "Yahoo", true
+	}
+
 	if g, ok := groups[refURL.Host]; ok {
 		return g, true
 	}

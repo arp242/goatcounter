@@ -887,14 +887,14 @@ commit;
 	create index "sites#parent" on sites(parent) where state='a';
 
 	drop index "hits#site#bot#created_at";
-	create index "hits#site_id#created_at" on hits(site_id, created_at);
+	create index "hits#site_id#created_at" on hits(site_id, created_at desc);
 	cluster hits using "hits#site_id#created_at";
 
 	-- hit_counts
 	alter table hit_counts add constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour);
 	alter table hit_counts replica identity using index "hit_counts#site_id#path_id#hour";
 	drop index "hit_counts#site#hour";
-	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
+	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour desc);
 	cluster hit_counts using "hit_counts#site_id#hour";
 
 
@@ -902,16 +902,16 @@ commit;
 	alter table ref_counts add constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour);
 	alter table ref_counts replica identity using index "ref_counts#site_id#path_id#ref#hour";
 	drop index "ref_counts#site#hour";
-	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
+	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
 	cluster ref_counts using "ref_counts#site_id#hour";
 
 
 	-- hit_stats
-	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
+	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day desc);
 	alter table hit_stats replica identity using index "hit_stats#site_id#path_id#day";
 
 	drop index "hit_stats#site#day";
-	create index "hit_stats#site_id#day" on hit_stats(site_id, day);
+	create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
 	cluster hit_stats using "hit_stats#site_id#day";
 
 
@@ -919,14 +919,14 @@ commit;
 	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
 	alter table browser_stats replica identity using index "browser_stats#site_id#path_id#day#browser_id";
 
-	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day);
+	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day desc);
 	cluster browser_stats using "browser_stats#site_id#path_id#day#browser_id";
 
 	-- system_stats
 	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
 	alter table system_stats replica identity using index "system_stats#site_id#path_id#day#system_id";
 
-	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day);
+	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day desc);
 	cluster system_stats using "system_stats#site_id#path_id#day#system_id";
 
 	-- location_stats
@@ -934,7 +934,7 @@ commit;
 	alter table location_stats replica identity using index "location_stats#site_id#path_id#day#location";
 
 	drop index "location_stats#site#day#location";
-    create index "location_stats#site_id#day" on location_stats(site_id, day);
+    create index "location_stats#site_id#day" on location_stats(site_id, day desc);
 	cluster location_stats using "location_stats#site_id#day";
 
 	-- size_stats
@@ -942,7 +942,7 @@ commit;
 	alter table size_stats replica identity using index "size_stats#site_id#path_id#day#width";
 
 	drop index "size_stats#site#day#width";
-    create index "size_stats#site_id#day" on size_stats(site_id, day);
+    create index "size_stats#site_id#day" on size_stats(site_id, day desc);
 	cluster size_stats using "size_stats#site_id#day";
 
 	alter table store replica identity using index "store#key";
@@ -1026,6 +1026,26 @@ commit;
 		order by hit_id asc;
 
 	insert into version values ('2020-08-28-6-paths-views');
+commit;
+`),
+	"db/migrate/pgsql/2020-08-28-7-refs.sql": []byte(`begin;
+	-- Correct some data while we're at it.
+	update hits set path = regexp_replace(path, '\?__cf_chl_captcha_tk__=.*?(&|$)', '')
+		where path like '%?__cf_chl_captcha_tk__=%';
+
+	update hits set path = regexp_replace(path, '\?__cf_chl_jschl_tk__=.*?(&|$)', '')
+		where path like '%?__cf_chl_jschl_tk__=%';
+
+	update hits set ref='Baidu', ref_scheme='g' where
+		ref like 'baidu.com/%' or
+		ref like 'c.tieba.baidu.com/%' or
+		ref like 'm.baidu.com/%' or
+		ref like 'tieba.baidu.com/%' or
+		ref like 'www.baidu.com/%';
+
+	update hits set ref='Yahoo', ref_scheme='g' where ref like '%search.yahoo.com%';
+
+	insert into versions values('2020-08-28-7-refs');
 commit;
 `),
 }
@@ -2399,6 +2419,26 @@ commit;
 		order by hit_id asc;
 
 	insert into version values ('2020-08-28-6-paths-views');
+commit;
+`),
+	"db/migrate/sqlite/2020-08-28-7-refs.sql": []byte(`begin;
+	-- Correct some data while we're at it.
+	update hits set path = regexp_replace(path, '\?__cf_chl_captcha_tk__=.*?(&|$)', '')
+		where path like '%?__cf_chl_captcha_tk__=%';
+
+	update hits set path = regexp_replace(path, '\?__cf_chl_jschl_tk__=.*?(&|$)', '')
+		where path like '%?__cf_chl_jschl_tk__=%';
+
+	update hits set ref='Baidu', ref_scheme='g' where
+		ref like 'baidu.com/%' or
+		ref like 'c.tieba.baidu.com/%' or
+		ref like 'm.baidu.com/%' or
+		ref like 'tieba.baidu.com/%' or
+		ref like 'www.baidu.com/%';
+
+	update hits set ref='Yahoo', ref_scheme='g' where ref like '%search.yahoo.com%';
+
+	insert into versions values('2020-08-28-7-refs');
 commit;
 `),
 	"db/migrate/sqlite/2020-11-10-1-correct-exports.sql": []byte(`begin;
@@ -12995,7 +13035,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				var loading = $('<span class="loading"></span>')
 				$(e.target).after(loading)
 				// TODO: back button doesn't quite work with this.
-				reload_dashboard(loading.remove)
+				reload_dashboard(() => loading.remove())
 			}, 300)
 		})
 	}

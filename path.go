@@ -157,7 +157,8 @@ func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, e
 			site_id=:site and (
 				lower(path) like lower(:filter)
 				{{or lower(title) like lower(:filter)}}
-			)`,
+			)
+		limit 65500`,
 		struct {
 			Site   int64
 			Filter string

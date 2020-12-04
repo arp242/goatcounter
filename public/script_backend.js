@@ -229,7 +229,7 @@
 				var loading = $('<span class="loading"></span>')
 				$(e.target).after(loading)
 				// TODO: back button doesn't quite work with this.
-				reload_dashboard(loading.remove)
+				reload_dashboard(() => loading.remove())
 			}, 300)
 		})
 	}
