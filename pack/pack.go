@@ -711,9 +711,7 @@ commit;
 		site_id        integer        not null,
 		path           varchar        not null,
 		title          varchar        not null default '',
-		event          int            default 0,
-
-		foreign key (site_id) references sites(id) on delete restrict on update restrict
+		event          int            default 0
 	);
 
 	create table user_agents (
@@ -752,6 +750,9 @@ commit;
 			max(event)
 		from hits
 		group by site, lower(path);
+	alter table paths
+		add constraint paths_site_id_fkey
+		foreign key (site_id) references sites(id) on delete restrict on update restrict;
 	create unique index "paths#site_id#path" on paths(site_id, lower(path));
 	create        index "paths#path#title"   on paths(lower(path), lower(title));
 
@@ -790,11 +791,15 @@ commit;
 	"db/migrate/pgsql/2020-08-28-2-paths-paths.sql": []byte(`begin;
 	alter table hits set unlogged;
 
-	create index tmp on hits(browser);
+	create index tmp1 on hits(browser);
+	create index tmp2 on paths(site_id, lower(path));
+
 	update hits set
 		path_id=(select path_id from paths where paths.site_id=hits.site and lower(paths.path)=lower(hits.path)),
 		user_agent_id=(select user_agent_id from user_agents where ua=hits.browser);
-	drop index tmp;
+
+	drop index tmp1;
+	drop index tmp2;
 
 	update hits set
 		session2=cast(rpad(cast(session as varchar), 16, '0') as bytea)
@@ -2005,11 +2010,15 @@ commit;
 commit;
 `),
 	"db/migrate/sqlite/2020-08-28-2-paths-paths.sql": []byte(`begin;
-	create index tmp on hits(browser);
+	create index tmp1 on hits(browser);
+	create index tmp2 on paths(site_id, lower(path));
+
 	update hits set
 		path_id=(select path_id from paths where paths.site_id=hits.site and paths.path=hits.path),
 		user_agent_id=(select user_agent_id from user_agents where ua=hits.browser);
-	drop index tmp;
+
+	drop index tmp1;
+	drop index tmp2;
 
 	update hits set
 		session2=cast(substr(session || '0000000000000000' , 1, 16) as blob)

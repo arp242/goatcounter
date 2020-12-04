@@ -7,9 +7,7 @@ begin;
 		site_id        integer        not null,
 		path           varchar        not null,
 		title          varchar        not null default '',
-		event          int            default 0,
-
-		foreign key (site_id) references sites(id) on delete restrict on update restrict
+		event          int            default 0
 	);
 
 	create table user_agents (
@@ -48,6 +46,9 @@ begin;
 			max(event)
 		from hits
 		group by site, lower(path);
+	alter table paths
+		add constraint paths_site_id_fkey
+		foreign key (site_id) references sites(id) on delete restrict on update restrict;
 	create unique index "paths#site_id#path" on paths(site_id, lower(path));
 	create        index "paths#path#title"   on paths(lower(path), lower(title));
 
