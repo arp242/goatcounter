@@ -5,11 +5,13 @@
 package handlers
 
 import (
+	"crypto/subtle"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -22,6 +24,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
+	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
 
@@ -80,12 +83,33 @@ func tokenFromHeader(r *http.Request) (string, error) {
 	return b[1], nil
 }
 
+var (
+	bufferKeyOnce sync.Once
+	bufferKey     []byte
+)
+
 func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 	key, err := tokenFromHeader(r)
 	if err != nil {
 		return err
 	}
 
+	// From "goatcounter buffer".
+	if r.Header.Get("X-Goatcounter-Buffer") == "1" && r.URL.Path == "/api/v0/count" {
+		bufferKeyOnce.Do(func() {
+			bufferKey, err = goatcounter.LoadBufferKey(r.Context())
+			if err != nil {
+				zlog.Error(err)
+			}
+		})
+
+		if subtle.ConstantTimeCompare(bufferKey, []byte(key)) == 0 {
+			return guru.New(http.StatusForbidden, "unknown buffer token")
+		}
+		return nil
+	}
+
+	// Regular API token.
 	var token goatcounter.APIToken
 	err = token.ByToken(r.Context(), key)
 	if zdb.ErrNoRows(err) {
@@ -309,29 +333,29 @@ type APICountRequest struct {
 
 type APICountRequestHit struct {
 	// Path of the pageview, or the event name. {required}
-	Path string `json:"path"`
+	Path string `json:"path" query:"p"`
 
 	// Page title, or some descriptive event title.
-	Title string `json:"title"`
+	Title string `json:"title" query:"t"`
 
 	// Is this an event?
-	Event zdb.Bool `json:"event"`
+	Event zdb.Bool `json:"event" query:"e"`
 
 	// Referrer value, can be an URL (i.e. the Referal: header) or any
 	// string.
-	Ref string `json:"ref"`
+	Ref string `json:"ref" query:"r"`
 
 	// Screen size as "x,y,scaling"
-	Size zdb.Floats `json:"size"`
+	Size zdb.Floats `json:"size" query:"s"`
 
 	// Query parameters for this pageview, used to get campaign parameters.
-	Query string `json:"query"`
+	Query string `json:"query" query:"q"`
 
 	// Hint if this should be considered a bot; should be one of the JSBot*`
 	// constants from isbot; note the backend may override this if it
 	// detects a bot using another method.
 	// https://github.com/zgoat/isbot/blob/master/isbot.go#L28
-	Bot int `json:"bot"`
+	Bot int `json:"bot" query:"b"`
 
 	// User-Agent header.
 	UserAgent string `json:"user_agent"`
@@ -357,13 +381,16 @@ type APICountRequestHit struct {
 	//
 	// You can also just disable sessions entirely with NoSessions.
 	Session string `json:"session"`
+
+	// {nodoc}
+	Host string `json:"-"`
 }
 
 // POST /api/v0/count count
 // Count pageviews.
 //
-// This can count one or more pageviews. Pageviews are not persisted immediatly,
-// but persisted in the background every 10 seconds.
+// This can count one or more pageviews. Pageviews are not persisted
+// immediately, but persisted in the background every 10 seconds.
 //
 // The maximum amount of pageviews per request is 100.
 //

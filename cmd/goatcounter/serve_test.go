@@ -19,7 +19,7 @@ func TestServe(t *testing.T) {
 	_, dbc, clean := tmpdb(t)
 	defer clean()
 
-	run(t, 0, []string{"serve", "-go-test-hook-do-not-use",
+	run(t, 0, []string{"serve", "-test-hook-do-not-use=1",
 		"-debug", "all",
 		"-listen", "localhost:31874",
 		"-tls", "none",

@@ -42,6 +42,7 @@ var usage = map[string]string{
 	"reindex": usageReindex,
 	"monitor": usageMonitor,
 	"import":  usageImport,
+	"buffer":  usageBuffer,
 
 	"database": helpDatabase,
 	"db":       helpDatabase,
@@ -70,6 +71,7 @@ Commands:
 
 Advanced commands:
   reindex      Recreate the index tables (*_stats, *_count) from the hits.
+  buffer       Buffer pageview requests until backend is available.
   monitor      Monitor for pageviews.
   db           Print database information and detailed docs on the -db flag.
 
@@ -119,6 +121,8 @@ func main() {
 		code, err = monitor()
 	case "import":
 		code, err = importCmd()
+	case "buffer":
+		code, err = buffer()
 	case "db", "database":
 		code, err = database()
 	}
