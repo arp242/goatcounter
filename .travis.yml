@@ -4,14 +4,17 @@ env:            ['GO111MODULE=on']
 go_import_path: 'zgo.at/goatcounter'
 jobs:
   include:
+    # Only test on Linux/amd64 for now, since Travis introduced a new credit
+    # system, and all these builds take up a lot of credits. Should probably
+    # enable them for release builds though.
     - {'os': 'linux',   'arch': 'amd64'}
-    - {'os': 'linux',   'arch': 'amd64', 'go': ['1.14.x']}
-    - {'os': 'linux',   'arch': 'arm64'}
-    - {'os': 'linux',   'arch': 'ppc64le'}
-    - {'os': 'linux',   'arch': 's390x'}
-    - {'os': 'freebsd', 'arch': 'amd64'}
-    - {'os': 'osx',     'arch': 'amd64'}
-    - {'os': 'windows', 'arch': 'amd64'}
+    #- {'os': 'linux',   'arch': 'arm64'}
+    #- {'os': 'linux',   'arch': 'amd64', 'go': ['1.14.x']}
+    #- {'os': 'linux',   'arch': 'ppc64le'}
+    #- {'os': 'linux',   'arch': 's390x'}
+    #- {'os': 'freebsd', 'arch': 'amd64'}
+    #- {'os': 'osx',     'arch': 'amd64'}
+    #- {'os': 'windows', 'arch': 'amd64'}
 
 # GoatCounter.com actually runs on 12.2, but this is the latest version that
 # seems easily installable on Travis.
