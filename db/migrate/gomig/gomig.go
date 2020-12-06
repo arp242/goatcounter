@@ -9,6 +9,5 @@ import (
 )
 
 var Migrations = map[string]func(zdb.DB) error{
-	"2020-07-22-1-memsess":     MemSess,
 	"2020-08-28-4-user_agents": UserAgents,
 }

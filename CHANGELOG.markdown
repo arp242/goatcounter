@@ -19,14 +19,17 @@ functional changes:
 
 **Action required**:
 
-1. Run the migrations with `goatcounter serve -automigrate` or `goatcounter
+1. You **must** first update to 1.4.2 and run all migrations from that. Updating
+   from older versions directly to 1.5.0 will *not* work!
+
+2. Run the migrations with `goatcounter serve -automigrate` or `goatcounter
    migrate`.
 
-2. You probably want to manually run `VACUUM` (or `VACUUM FULL` for PostgreSQL)
+3. You probably want to manually run `VACUUM` (or `VACUUM FULL` for PostgreSQL)
    after the migration to free up unused rows. This isn't required though; it
    just frees up disk space.
 
-3. Run `goatcounter reindex`.
+4. Run `goatcounter reindex`.
 
 This may take a while if you've got a lot of data. For about 500,000 pageviews
 it takes about 3 minutes on SQLite, but if you've got millions of pageviews it
