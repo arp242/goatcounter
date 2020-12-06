@@ -263,7 +263,7 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 				zlog.Error(err)
 			}
 		}
-		if PersistRunner.Watching {
+		if PersistRunner.Watching.Value() == 1 {
 			PersistRunner.Run <- struct{}{}
 			<-PersistRunner.Wait
 		}

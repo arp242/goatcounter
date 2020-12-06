@@ -52,7 +52,7 @@ func RunBackground(db zdb.DB) {
 	l := zlog.Module("cron")
 
 	go func() {
-		goatcounter.PersistRunner.Watching = true
+		goatcounter.PersistRunner.Watching.Set(1)
 		for {
 			<-goatcounter.PersistRunner.Run
 			bgrun.RunNoDuplicates("cron:PersistAndStat", func() {
