@@ -229,7 +229,10 @@ func buffer() (int, error) {
 		}
 
 		var hit handlers.APICountRequestHit
-		err = formam.NewDecoder(&formam.DecoderOptions{TagName: "query"}).Decode(r.URL.Query(), &hit)
+		err = formam.NewDecoder(&formam.DecoderOptions{
+			TagName:           "query",
+			IgnoreUnknownKeys: true,
+		}).Decode(r.URL.Query(), &hit)
 		if err != nil {
 			zlog.Error(err)
 			http.Error(w, err.Error(), 400)
