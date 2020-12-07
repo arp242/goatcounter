@@ -42,8 +42,9 @@ func (p *Path) Validate(ctx context.Context) error {
 var cachePaths = zcache.New(1*time.Hour, 5*time.Minute)
 
 func (p *Path) GetOrInsert(ctx context.Context) error {
+	site := MustGetSite(ctx)
 	title := p.Title
-	k := strconv.FormatInt(p.Site, 10) + p.Path
+	k := strconv.FormatInt(site.ID, 10) + p.Path
 	c, ok := cachePaths.Get(k)
 	if ok {
 		*p = c.(Path)
@@ -60,7 +61,6 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	}
 
 	db := zdb.MustGet(ctx)
-	site := MustGetSite(ctx)
 
 	p.Defaults(ctx)
 	err := p.Validate(ctx)
