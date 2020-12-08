@@ -389,8 +389,14 @@ func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle 
 // PathCountUnique gets the total_unique for one path.
 func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select path, sum(total_unique) as count_unique from hit_counts
-		where site=$1 and lower(path) = lower($2)
+		with x as (
+			select path_id, path from paths
+			where site_id=$1 and lower(path)=lower($2)
+		)
+		select
+			path,
+			sum((select sum(total_unique) from hit_counts where site_id=$1 and path_id=x.path_id)) as count_unique
+		from x
 		group by path
 	`, MustGetSite(ctx).ID, path)
 	return errors.Wrap(err, "HitStats.PathCountUnique")
@@ -400,7 +406,7 @@ func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
 func (h *HitStats) SiteTotalUnique(ctx context.Context) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select sum(total_unique) as count_unique from hit_counts
-		where site=$1
+		where site_id=$1
 	`, MustGetSite(ctx).ID)
 	return errors.Wrap(err, "HitStats.SiteTotalUnique")
 }
