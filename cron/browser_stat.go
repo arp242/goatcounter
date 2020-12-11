@@ -9,16 +9,11 @@ import (
 	"strconv"
 	"sync"
 
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zlog"
-)
-
-var (
-	userAgentMap map[int64][2]int64
-	getUAOnce    sync.Once
 )
 
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
@@ -47,14 +42,6 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 				v.day = day
 				v.browserID = h.BrowserID
 				v.pathID = h.PathID
-				if !isReindex {
-					var err error
-					v.count, v.countUnique, err = existingBrowserStats(ctx, tx,
-						h.Site, day, v.browserID, v.pathID)
-					if err != nil {
-						return err
-					}
-				}
 			}
 
 			v.count += 1
@@ -67,6 +54,16 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "browser_stats", []string{"site_id", "day",
 			"path_id", "browser_id", "count", "count_unique"})
+		if cfg.PgSQL {
+			ins.OnConflict(`on conflict on constraint "browser_stats#site_id#path_id#day#browser_id" do update set
+				count        = browser_stats.count        + excluded.count,
+				count_unique = browser_stats.count_unique + excluded.count_unique`)
+		} else {
+			ins.OnConflict(`on conflict(site_id, path_id, day, browser_id) do update set
+				count        = browser_stats.count        + excluded.count,
+				count_unique = browser_stats.count_unique + excluded.count_unique`)
+		}
+
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.pathID, v.browserID, v.count, v.countUnique)
 		}
@@ -74,32 +71,10 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 	})
 }
 
-func existingBrowserStats(
-	txctx context.Context, tx zdb.DB, siteID int64,
-	day string, browserID int64,
-	pathID int64,
-) (int, int, error) {
-
-	var c []struct {
-		Count       int `db:"count"`
-		CountUnique int `db:"count_unique"`
-	}
-	err := tx.SelectContext(txctx, &c, `/* existingBrowserStats */
-		select count, count_unique from browser_stats
-		where site_id=$1 and day=$2 and browser_id=$3 and path_id=$4 limit 1`,
-		siteID, day, browserID, pathID)
-	if err != nil {
-		return 0, 0, errors.Wrap(err, "select")
-	}
-	if len(c) == 0 {
-		return 0, 0, nil
-	}
-
-	_, err = tx.ExecContext(txctx, `delete from browser_stats where
-		site_id=$1 and day=$2 and browser_id=$3 and path_id=$4`,
-		siteID, day, browserID, pathID)
-	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
-}
+var (
+	userAgentMap map[int64][2]int64
+	getUAOnce    sync.Once
+)
 
 // TODO: probably don't need this now that user_agent.go has a cache too?
 func getUA(ctx context.Context, uaID int64) (browser, system int64) {

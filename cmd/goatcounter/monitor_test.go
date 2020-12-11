@@ -20,7 +20,6 @@ func TestMonitor(t *testing.T) {
 			"-db", dbc,
 			"-once",
 			"-debug", "all"})
-
 	})
 
 	t.Run("with pageviews", func(t *testing.T) {

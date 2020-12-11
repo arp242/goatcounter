@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"zgo.at/blackmail"
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	_ "zgo.at/goatcounter/gctest" // Set cfg.PgSQL
 	"zgo.at/zdb"
@@ -34,6 +35,9 @@ func TestUsageTabs(t *testing.T) {
 
 func tmpdb(t *testing.T) (context.Context, string, func()) {
 	t.Helper()
+
+	goatcounter.Memstore.Reset()
+	goatcounter.ResetCache()
 
 	var clean func()
 	defer func() {
@@ -64,7 +68,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 			panic(fmt.Sprintf("%s → %s", err, out))
 		}
 
-		tmp = "postgresql://dbname=" + dbname + " sslmode=disable password=x"
+		tmp = "postgresql://dbname=" + dbname + " sslmode=disable host=/tmp"
 	} else {
 		dir, err := ioutil.TempDir("", "goatcounter")
 		if err != nil {
@@ -84,6 +88,8 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 
 	return zdb.With(context.Background(), db), tmp, func() {
 		db.Close()
+		goatcounter.Memstore.Reset()
+		goatcounter.ResetCache()
 		clean()
 	}
 }

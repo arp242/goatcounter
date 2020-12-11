@@ -8,8 +8,8 @@ import (
 	"context"
 	"strconv"
 
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -36,14 +36,6 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 				v.day = day
 				v.location = h.Location
 				v.pathID = h.PathID
-				if !isReindex {
-					var err error
-					v.count, v.countUnique, err = existingLocationStats(ctx, tx,
-						h.Site, day, v.location, v.pathID)
-					if err != nil {
-						return err
-					}
-				}
 			}
 
 			v.count += 1
@@ -56,36 +48,19 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "location_stats", []string{"site_id", "day",
 			"path_id", "location", "count", "count_unique"})
+		if cfg.PgSQL {
+			ins.OnConflict(`on conflict on constraint "location_stats#site_id#path_id#day#location" do update set
+				count        = location_stats.count        + excluded.count,
+				count_unique = location_stats.count_unique + excluded.count_unique`)
+		} else {
+			ins.OnConflict(`on conflict(site_id, path_id, day, location) do update set
+				count        = location_stats.count        + excluded.count,
+				count_unique = location_stats.count_unique + excluded.count_unique`)
+		}
+
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.pathID, v.location, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
-}
-
-func existingLocationStats(
-	txctx context.Context, tx zdb.DB, siteID int64,
-	day, location string,
-	pathID int64,
-) (int, int, error) {
-
-	var c []struct {
-		Count       int `db:"count"`
-		CountUnique int `db:"count_unique"`
-	}
-	err := tx.SelectContext(txctx, &c, `/* existingLocationStats */
-		select count, count_unique from location_stats
-		where site_id=$1 and day=$2 and location=$3 and path_id=$4 limit 1`,
-		siteID, day, location, pathID)
-	if err != nil {
-		return 0, 0, errors.Wrap(err, "select")
-	}
-	if len(c) == 0 {
-		return 0, 0, nil
-	}
-
-	_, err = tx.ExecContext(txctx, `delete from location_stats where
-		site_id=$1 and day=$2 and location=$3 and path_id=$4`,
-		siteID, day, location, pathID)
-	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

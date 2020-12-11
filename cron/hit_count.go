@@ -49,12 +49,12 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 			"hour", "total", "total_unique"})
 		if cfg.PgSQL {
 			ins.OnConflict(`on conflict on constraint "hit_counts#site_id#path_id#hour" do update set
-				total=hit_counts.total + excluded.total,
-				total_unique=hit_counts.total_unique + excluded.total_unique`)
+				total        = hit_counts.total        + excluded.total,
+				total_unique = hit_counts.total_unique + excluded.total_unique`)
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, hour) do update set
-				total=hit_counts.total + excluded.total,
-				total_unique=hit_counts.total_unique + excluded.total_unique`)
+				total        = hit_counts.total        + excluded.total,
+				total_unique = hit_counts.total_unique + excluded.total_unique`)
 		}
 
 		for _, v := range grouped {

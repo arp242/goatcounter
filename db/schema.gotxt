@@ -166,7 +166,7 @@ create table hit_stats (
 	stats          varchar        not null,
 	stats_unique   varchar        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 );
 create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
@@ -219,7 +219,7 @@ create table location_stats (
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 );
 create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
@@ -236,7 +236,7 @@ create table size_stats (
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 );
 create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);

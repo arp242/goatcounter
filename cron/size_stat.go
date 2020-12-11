@@ -8,8 +8,8 @@ import (
 	"context"
 	"strconv"
 
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -41,14 +41,6 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 				v.day = day
 				v.width = width
 				v.pathID = h.PathID
-				if !isReindex {
-					var err error
-					v.count, v.countUnique, err = existingSizeStats(ctx, tx, h.Site,
-						day, v.width, v.pathID)
-					if err != nil {
-						return err
-					}
-				}
 			}
 
 			v.count += 1
@@ -61,36 +53,19 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "size_stats", []string{"site_id", "day",
 			"path_id", "width", "count", "count_unique"})
+		if cfg.PgSQL {
+			ins.OnConflict(`on conflict on constraint "size_stats#site_id#path_id#day#width" do update set
+				count        = size_stats.count        + excluded.count,
+				count_unique = size_stats.count_unique + excluded.count_unique`)
+		} else {
+			ins.OnConflict(`on conflict(site_id, path_id, day, width) do update set
+				count        = size_stats.count        + excluded.count,
+				count_unique = size_stats.count_unique + excluded.count_unique`)
+		}
+
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.pathID, v.width, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
-}
-
-func existingSizeStats(
-	txctx context.Context, tx zdb.DB, siteID int64,
-	day string, width int,
-	pathID int64,
-) (int, int, error) {
-
-	var c []struct {
-		Count       int `db:"count"`
-		CountUnique int `db:"count_unique"`
-	}
-	err := tx.SelectContext(txctx, &c, `/* existingSizeStats */
-		select count, count_unique from size_stats
-		where site_id=$1 and day=$2 and width=$3 and path_id=$4 limit 1`,
-		siteID, day, width, pathID)
-	if err != nil {
-		return 0, 0, errors.Wrap(err, "select")
-	}
-	if len(c) == 0 {
-		return 0, 0, nil
-	}
-
-	_, err = tx.ExecContext(txctx, `delete from size_stats where
-		site_id=$1 and day=$2 and width=$3 and path_id=$4`,
-		siteID, day, width, pathID)
-	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

@@ -63,7 +63,7 @@ func DB(t tester) (context.Context, func()) {
 				}
 			}
 
-			db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
+			db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable host=/tmp")
 		} else {
 			db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
 		}

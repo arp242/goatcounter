@@ -53,11 +53,11 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 			"ref", "hour", "total", "total_unique", "ref_scheme"})
 		if cfg.PgSQL {
 			ins.OnConflict(`on conflict on constraint "ref_counts#site_id#path_id#ref#hour" do update set
-				total = ref_counts.total + excluded.total,
+				total        = ref_counts.total        + excluded.total,
 				total_unique = ref_counts.total_unique + excluded.total_unique`)
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, ref, hour) do update set
-				total = ref_counts.total + excluded.total,
+				total        = ref_counts.total        + excluded.total,
 				total_unique = ref_counts.total_unique + excluded.total_unique`)
 		}
 

@@ -10,6 +10,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zstd/zjson"
@@ -38,16 +39,16 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 				v.day = day
 				v.hour = dayHour
 				v.pathID = h.PathID
-				if !isReindex {
+				v.count = make([]int, 24)
+				v.countUnique = make([]int, 24)
+
+				if !cfg.PgSQL && !isReindex {
 					var err error
 					v.count, v.countUnique, err = existingHitStats(ctx, tx,
 						h.Site, day, v.pathID)
 					if err != nil {
 						return err
 					}
-				} else {
-					v.count = make([]int, 24)
-					v.countUnique = make([]int, 24)
 				}
 			}
 
@@ -62,6 +63,35 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "hit_stats", []string{"site_id", "day", "path_id",
 			"stats", "stats_unique"})
+		if cfg.PgSQL {
+			ins.OnConflict(`on conflict on constraint "hit_stats#site_id#path_id#day" do update set
+				stats = (
+					with x as (
+						select
+							unnest(string_to_array(trim(hit_stats.stats, '[]'), ',')::int[]) as orig,
+							unnest(string_to_array(trim(excluded.stats,  '[]'), ',')::int[]) as new
+					)
+					select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
+				),
+				stats_unique = (
+					with x as (
+						select
+							unnest(string_to_array(trim(hit_stats.stats_unique, '[]'), ',')::int[]) as orig,
+							unnest(string_to_array(trim(excluded.stats_unique,  '[]'), ',')::int[]) as new
+					)
+					select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
+				) `)
+		}
+		// } else {
+		// TODO: merge the arrays here and get rid of existingHitStats();
+		// it's kinda tricky with SQLite :-/
+		//
+		// ins.OnConflict(`on conflict(site_id, path_id, day) do update set
+		// 	stats        = excluded.stats,
+		// 	stats_unique = excluded.stats_unique
+		// `)
+		// }
+
 		for _, v := range grouped {
 			ins.Values(siteID, v.day, v.pathID,
 				zjson.MustMarshal(v.count),
