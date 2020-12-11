@@ -116,7 +116,7 @@ begin;
 		total_unique  integer    not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
+		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
 		constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) on conflict replace
 	);
 	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
@@ -137,7 +137,7 @@ begin;
 		total_unique  integer    not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
+		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
 		constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) on conflict replace
 	);
 	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
@@ -157,7 +157,7 @@ begin;
 		stats_unique   varchar        not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 	);
  	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
 	create        index "hit_stats#site_id#day"         on hit_stats(site_id, day);
@@ -177,7 +177,7 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id)    references sites(site_id)       on delete restrict on update restrict,
-		foreign key (path_id)    references paths(path_id)       on delete restrict on update restrict,
+		-- foreign key (path_id)    references paths(path_id)       on delete restrict on update restrict,
 		foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict
 	);
 	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
@@ -198,7 +198,7 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id)   references sites(site_id)     on delete restrict on update restrict,
-		foreign key (path_id)   references paths(path_id)     on delete restrict on update restrict,
+		-- foreign key (path_id)   references paths(path_id)     on delete restrict on update restrict,
 		foreign key (system_id) references systems(system_id) on delete restrict on update restrict
 	);
 	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
@@ -217,7 +217,7 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 	);
 	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
     create index "location_stats#site_id#day" on location_stats(site_id, day);
@@ -235,7 +235,7 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 	);
 	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
     create index "size_stats#site_id#day" on size_stats(site_id, day);

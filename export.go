@@ -435,7 +435,7 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 	}
 
 	err := zdb.MustGet(ctx).SelectContext(ctx, h,
-		`select * from hits_export where site_id=$1 and hit_id>$2 order by hit_id asc limit $3`,
+		`select * from hits_export where hits.site_id=$1 and hit_id>$2 order by hit_id asc limit $3`,
 		MustGetSite(ctx).ID, paginate, limit)
 
 	hh := *h
