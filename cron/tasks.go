@@ -256,8 +256,8 @@ func vacuumDeleted(ctx context.Context) error {
 
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 			for _, t := range []string{"browser_stats", "system_stats",
-				"hit_stats", "hits", "location_stats", "size_stats", "users",
-				"paths"} {
+				"hit_stats", "hits", "location_stats", "size_stats",
+				"api_tokens", "users", "paths"} {
 
 				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site_id=%d`, t, s.ID))
 				if err != nil {
