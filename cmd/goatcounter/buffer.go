@@ -99,15 +99,17 @@ Environment:
 `
 
 var (
-	isDown    = zsync.NewAtomicInt(-1)
-	reqBuffer chan handlers.APICountRequestHit
-	bufClient = http.Client{Timeout: 3 * time.Second}
-
 	checkBackendTime = 10 * time.Second
 	sendTime         = 3 * time.Second
 )
 
 func buffer() (int, error) {
+	var (
+		isDown    = zsync.NewAtomicInt(-1)
+		reqBuffer chan handlers.APICountRequestHit
+		bufClient = &http.Client{Timeout: 3 * time.Second}
+	)
+
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -159,7 +161,7 @@ func buffer() (int, error) {
 		defer zlog.Recover()
 		checkURL := backend + "/status"
 		for {
-			checkBackend(checkURL)
+			checkBackend(bufClient, checkURL, isDown)
 			time.Sleep(checkBackendTime)
 		}
 	}()
@@ -221,15 +223,35 @@ func buffer() (int, error) {
 		}
 	}()
 
-	// Collect all requests.
-	http.Handle("/", zhttp.RealIP(zhttp.Unpanic(false)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//http.Handle("/", zhttp.RealIP(zhttp.Unpanic(false)(http.HandlerFunc(handle))))
+
+	zlog.Printf("Ready on %s", listen)
+	ch := zhttp.Serve(0, *testMode, &http.Server{
+		Addr:    listen,
+		Handler: zhttp.RealIP(zhttp.Unpanic(false)(handle(reqBuffer, bufClient, isDown))),
+
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       60 * time.Second,
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	})
+
+	<-ch
+	<-ch
+
+	return 0, nil
+}
+
+// Collect all requests.
+func handle(reqBuffer chan handlers.APICountRequestHit, bufClient *http.Client, isDown *zsync.AtomicInt) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if len(reqBuffer) == cap(reqBuffer) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
 		}
 
 		var hit handlers.APICountRequestHit
-		err = formam.NewDecoder(&formam.DecoderOptions{
+		err := formam.NewDecoder(&formam.DecoderOptions{
 			TagName:           "query",
 			IgnoreUnknownKeys: true,
 		}).Decode(r.URL.Query(), &hit)
@@ -250,25 +272,10 @@ func buffer() (int, error) {
 
 		reqBuffer <- hit
 		w.WriteHeader(http.StatusNoContent)
-	}))))
-
-	zlog.Printf("Ready on %s", listen)
-	ch := zhttp.Serve(0, *testMode, &http.Server{
-		Addr: listen,
-
-		ReadHeaderTimeout: 10 * time.Second,
-		ReadTimeout:       60 * time.Second,
-		WriteTimeout:      60 * time.Second,
-		IdleTimeout:       120 * time.Second,
 	})
-
-	<-ch
-	<-ch
-
-	return 0, nil
 }
 
-func checkBackend(url string) {
+func checkBackend(bufClient *http.Client, url string, isDown *zsync.AtomicInt) {
 	var (
 		setTo = int32(1)
 		st    = ""

@@ -46,6 +46,14 @@ func init() {
 	})
 }
 
+func Reset() {
+	goatcounter.Memstore.Reset()
+	goatcounter.ResetCache()
+	dbname = "goatcounter_test_" + zcrypto.Secret64()
+	db = nil
+	tables = make([]string, 0)
+}
+
 // DB starts a new database test.
 func DB(t tester) (context.Context, func()) {
 	cfg.RunningTests = true

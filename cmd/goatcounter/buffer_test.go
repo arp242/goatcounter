@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/goatcounter/handlers"
@@ -19,7 +20,10 @@ import (
 	"zgo.at/zstd/zsync"
 )
 
+// TODO: -count=2 doesn't work as handlers/api.go has:
+//   bufferKeyOnce = sync.Once{}
 func TestBuffer(t *testing.T) {
+	cfg.Reset()
 	ctx, dbc, clean := tmpdb(t)
 	defer clean()
 
@@ -63,6 +67,8 @@ func TestBuffer(t *testing.T) {
 	}))
 
 	_, site := gctest.Site(ctx, t, goatcounter.Site{})
+
+	zdb.Dump(ctx, os.Stdout, `select * from sites`)
 
 	checkBackendTime = 200 * time.Millisecond
 	sendTime = 200 * time.Millisecond
