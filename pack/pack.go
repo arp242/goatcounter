@@ -14654,7 +14654,7 @@ regular browsers).</p>
 
 <h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
 <p>You can use the <code>/api/v0/count</code> API endpoint to send pageviews from essentially
-anywhere, such as you app's middleware.</p>
+anywhere, such as your app's middleware.</p>
 
 <p>The <a href="https://www.goatcounter.com/api">API documentation</a> contains more
 information and some examples.</p>
