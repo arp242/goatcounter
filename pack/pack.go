@@ -18736,63 +18736,77 @@ some point (e.g. the parsed User-Agent values).</p>
 
 <h1 id="notes-about-goatcounters-design">Notes about GoatCounter's design</h1>
 
-<p>GoatCounter's main design is quite different from various other solutions. The
+<p>GoatCounter’s main design is quite different from various other solutions. The
 main difference is that the statistics are displayed per path on the dashboard,
 rather than as totals.</p>
 
 <p>I originally developed GoatCounter specifically for my own website/blog, where
-"site totals" are fairly useless, and "path totals" are much more useful. I
+“site totals” are fairly useless, and “path totals” are much more useful. I
 think this applies for many sites; if you have a webshop with different
 <code>/category-1</code> and <code>/category-2</code> paths then being able to quickly see which
 categories are popular and being able to see detailed stats for them seems
 pretty useful to me.</p>
 
-<p>The downside of this is that the dashboard can appear as "busy", "intimidating",
-or "overwhelming" at a glance. A simple "630 visitors today" is certainly a lot
-clearer. On the other hand, it's also a lot less useful for many cases.</p>
+<p>The downside of this is that the dashboard can appear as “busy”, “intimidating”,
+or “overwhelming” at a glance. A simple “630 visitors today” is certainly a lot
+clearer. On the other hand, it’s also a lot less useful for many cases.</p>
 
-<p>Is it "more technical"? I don't know; maybe. Personally I think it's just a
+<p>Is it “more technical”? I don’t know; maybe. Personally I think it’s just a
 <em>more useful</em> way to display data, and I think (semi-)serious users of all
 technical skills should be able to work with it.</p>
 
-<p>GoatCounter isn't intentionally different – I just built whatever I thought made
+<p>GoatCounter isn’t intentionally different – I just built whatever I thought made
 sense. That ended up being somewhat different than many other solutions. Looking
 at the current landscape I think that GoatCounter being somewhat different is
-not a bad thing; There's not much point in just making a copy of an existing
+not a bad thing; There’s not much point in just making a copy of an existing
 product right?</p>
 
 <hr />
 
-<p>Some other points about GoatCounter's design:</p>
+<p>Some other points about GoatCounter’s design:</p>
 
-<ul>
-  <li>
-    <p>It generally tries to minimize clicks.</p>
+<h2 id="good-user-experience-which-may-not-necessarily-be-the-same-as-looks-nice-at-a-glance">Good user experience, which may not necessarily be the same as “looks nice at a glance” <a href="#good-user-experience-which-may-not-necessarily-be-the-same-as-looks-nice-at-a-glance"></a></h2>
 
-    <p>For example for example it shows the "day · month (..)" in the top navigation
+<p>GoatCounter is very boring. Not for the sake of it, but it’s just a very
+“function over form” kind of design. I generally feel that “flashy” things
+aren’t necessarily better. In fact, they’re not infrequently just worse UX.</p>
+
+<p>For example, some people have proposed that the “locations” could be replaced
+with a map, which looks nicer. I agree, but is it also easier to use? With the
+current “boring” list it tells me everything you more or less need to know in
+just a few seconds. With a map, this is much harder.</p>
+
+<p>I would consider GoatCounter to be very user-centred. I feel that in the last
+decade or so a lot of questions of “design” have shifted too much towards
+“graphical design”, rather than “good user interface design”; these are two very
+different things. Not that graphic design or making things look nice isn’t
+important, but it matters <em>less</em> than user interface design.</p>
+
+<p>Of course, different people have different preferences, which is why I wouldn’t
+object to adding something like an <em>optional</em> feature to display the locations
+overview as a map. But at the same time it seems to me that the current “boring”
+list is better for <em>most</em> users.</p>
+
+<h2 id="minimize-clicks">Minimize clicks <a href="#minimize-clicks"></a></h2>
+<p>For example for example it shows the “day · month (..)” in the top navigation
 as text links quite purposefully, as I find having them there within reach of
 a single click is easier than using a drop-down or some other more advanced UI
-widget. The more advanced widget would probably <em>look</em> better, but isn't
+widget. The more advanced widget would probably <em>look</em> better, but isn’t
 necessarily easier to use.</p>
-  </li>
-  <li>
-    <p>Focus on useful aggregate statistics rather than not-so-useful detailed
-statistics.</p>
 
-    <p>For example Chromium is just displayed as "Chrome", as are Opera, Edge, and a
-bunch of other Chromium-based browsers. Do you <em>really</em> care if someone is
-using Chrome or Opera? The reason you care about this information is to be
-able to make informed decisions about browser and platform support. Since it's
-the same same engine with the same behaviour, it doesn't really matter.</p>
+<h2 id="useful-aggregate-statistics-rather-than-not-so-useful-detailed-statistics">Useful aggregate statistics rather than not-so-useful detailed statistics <a href="#useful-aggregate-statistics-rather-than-not-so-useful-detailed-statistics"></a></h2>
+<p>Chromium is just displayed as “Chrome”, as are Opera, Edge, and a bunch of other
+Chromium-based browsers. Do you <em>really</em> care if someone is using Chrome or
+Opera? The reason you care about this information is to be able to make informed
+decisions about browser and platform support. Since it’s the same same engine
+with the same behaviour, it doesn’t really matter.</p>
 
-    <p>Similarly, Firefox on iOS is just displayed as Safari.</p>
+<p>Similarly, Firefox on iOS is just displayed as Safari.</p>
 
-    <p>I tried Matomo for a while before I built GoatCounter and it displayed a lot
-of really detailed information about all sorts of stuff. Quite frankly, almost
-all of it was just useless, and getting meaningful aggregate data out of it
-wasn't something I was able to do.</p>
-  </li>
-</ul>
+<p>I tried Matomo for a while before I built GoatCounter and it displayed a lot of
+really detailed information about all sorts of stuff. Quite frankly, almost all
+of it was just useless, and getting meaningful aggregate data out of it wasn’t
+something I was able to do.</p>
 
 {{template "_bottom.gohtml" .}}
 `),
