@@ -111,7 +111,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 
 	{
 		headers := http.Header{
-			"Strict-Transport-Security": []string{"max-age=2592000"},
+			"Strict-Transport-Security": []string{"max-age=7776000"},
 			"X-Frame-Options":           []string{"deny"},
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}

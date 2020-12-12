@@ -48,7 +48,7 @@ func init() {
 
 func Reset() {
 	goatcounter.Memstore.Reset()
-	goatcounter.ResetCache()
+	goatcounter.Reset()
 	dbname = "goatcounter_test_" + zcrypto.Secret64()
 	db = nil
 	tables = make([]string, 0)
@@ -111,7 +111,7 @@ func DB(t tester) (context.Context, func()) {
 
 	return ctx, func() {
 		goatcounter.Memstore.Reset()
-		goatcounter.ResetCache()
+		goatcounter.Reset()
 
 		// TODO: run after all tests are done.
 		// out, err := exec.Command("dropdb", dbname).CombinedOutput()

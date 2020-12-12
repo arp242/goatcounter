@@ -40,6 +40,7 @@ func Wait() error {
 	ctx, c := context.WithTimeout(context.Background(), maxWait)
 	defer c()
 
+	// TODO: this won't actually kill the goroutines that are still running.
 	return errors.Wrap(zsync.Wait(ctx, wg), "bgrun.Wait")
 }
 

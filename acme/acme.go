@@ -16,7 +16,6 @@ import (
 	crypto_acme "golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/singleflight"
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
@@ -117,13 +116,16 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 				Cache:  NewCache(dir),
 				Prompt: autocert.AcceptTOS,
 				HostPolicy: func(ctx context.Context, host string) error {
+					// Note: don't use zgo.at/errors here, since it includes
+					// multiline stack trace output, which can't be filtered by
+					// zhttp.logwrap
 					var s goatcounter.Sites
 					ok, err := s.ContainsCNAME(zdb.With(ctx, db), host)
-					if err != nil {
-						return err
+					if err != nil && !zdb.ErrNoRows(err) {
+						return fmt.Errorf("%v", err)
 					}
 					if !ok {
-						return errors.Errorf("ContainsCNAME: unknown host: %q", host)
+						return fmt.Errorf("ContainsCNAME: unknown host: %q", host)
 					}
 					return nil
 				},
@@ -135,7 +137,11 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 		if len(certs) == 0 {
 			panic("-tls: no acme and no certificates")
 		}
-		return &tls.Config{Certificates: certs}, nil, listen
+		return &tls.Config{
+			PreferServerCipherSuites: true,
+			MinVersion:               tls.VersionTLS12,
+			Certificates:             certs,
+		}, nil, listen
 	}
 
 	tlsc := manager.TLSConfig()
@@ -178,20 +184,22 @@ func Make(domain string) error {
 	hello := &tls.ClientHelloInfo{
 		ServerName:        domain,
 		SupportedProtos:   []string{"h2", "http/1.1"},
-		SupportedVersions: []uint16{tls.VersionTLS13, tls.VersionTLS12, tls.VersionTLS11},
-		// ciphers = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+		SupportedVersions: []uint16{tls.VersionTLS13, tls.VersionTLS12},
 		CipherSuites: []uint16{
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
 	}
 
 	_, err := manager.GetCertificate(hello)
-	return errors.Wrap(err, "acme.Make")
+	if err != nil {
+		return fmt.Errorf("acme.Make: %w", err) // No multiline output with zgo.at/errors
+	}
+	return nil
 }
 
 var resolveSelf singleflight.Group
