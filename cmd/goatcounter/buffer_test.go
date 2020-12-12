@@ -24,6 +24,8 @@ import (
 //   bufferKeyOnce = sync.Once{}
 func TestBuffer(t *testing.T) {
 	cfg.Reset()
+	handlers.Reset()
+
 	ctx, dbc, clean := tmpdb(t)
 	defer clean()
 
@@ -69,9 +71,6 @@ func TestBuffer(t *testing.T) {
 	_, site := gctest.Site(ctx, t, goatcounter.Site{})
 
 	zdb.Dump(ctx, os.Stdout, `select * from sites`)
-
-	checkBackendTime = 200 * time.Millisecond
-	sendTime = 200 * time.Millisecond
 
 	errCh := make(chan error)
 	go func() {

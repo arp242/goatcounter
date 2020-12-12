@@ -28,10 +28,10 @@ func TestRun(t *testing.T) {
 }
 
 func TestWait(t *testing.T) {
-	maxWait = 10
+	maxWait = 1 * time.Second
 	defer func() { maxWait = 10 * time.Second }()
 
-	Run("test wait", func() { time.Sleep(5 * time.Second) })
+	Run("test wait", func() { time.Sleep(2 * time.Second) })
 	err := Wait()
 	if err == nil {
 		t.Fatal("error is nil")
@@ -39,4 +39,6 @@ func TestWait(t *testing.T) {
 	if !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatalf("wrong error; %#v", err)
 	}
+
+	time.Sleep(2 * time.Second)
 }

@@ -78,7 +78,7 @@ func EmailTemplate(tplname string, args interface{}) func() ([]byte, error) {
 	}
 }
 
-func ResetCache() {
+func Reset() {
 	sitesCacheByID.Flush()
 	sitesCacheHostname.Flush()
 }

@@ -98,13 +98,11 @@ Environment:
   GOATCOUNTER_BUFFER_SECRET   Secret to use to identify the buffered requests.
 `
 
-var (
-	checkBackendTime = 10 * time.Second
-	sendTime         = 3 * time.Second
-)
-
 func buffer() (int, error) {
 	var (
+		checkBackendTime = 10 * time.Second
+		sendTime         = 3 * time.Second
+
 		isDown    = zsync.NewAtomicInt(-1)
 		reqBuffer chan handlers.APICountRequestHit
 		bufClient = &http.Client{Timeout: 3 * time.Second}
@@ -128,6 +126,11 @@ func buffer() (int, error) {
 	err := CommandLine.Parse(os.Args[2:])
 	if err != nil {
 		return 1, err
+	}
+
+	if *testMode > 0 {
+		checkBackendTime = 200 * time.Millisecond
+		sendTime = 200 * time.Millisecond
 	}
 
 	zlog.Config.SetDebug(*debug)
@@ -222,8 +225,6 @@ func buffer() (int, error) {
 			}
 		}
 	}()
-
-	//http.Handle("/", zhttp.RealIP(zhttp.Unpanic(false)(http.HandlerFunc(handle))))
 
 	zlog.Printf("Ready on %s", listen)
 	ch := zhttp.Serve(0, *testMode, &http.Server{

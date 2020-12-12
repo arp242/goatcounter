@@ -88,6 +88,11 @@ var (
 	bufferKey     []byte
 )
 
+func Reset() {
+	bufferKeyOnce = sync.Once{}
+	bufferKey = make([]byte, 0)
+}
+
 func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 	key, err := tokenFromHeader(r)
 	if err != nil {
