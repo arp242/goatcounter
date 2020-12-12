@@ -43,7 +43,7 @@ will be created.
 
 Or use an URL in -site if you want to send data to another instance:
 
-    $ export API_KEY=[..]
+    $ export GOATCOUNTER_API_KEY=[..]
     $ goatcounter import -site https://stats.example.com
 
 Flags:
@@ -51,6 +51,8 @@ Flags:
   -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
                See "goatcounter help db" for detailed documentation. Default:
                sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
+
+               Only needed if -site is not an URL.
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
 
@@ -118,6 +120,13 @@ func importCmd() (int, error) {
 	if clean != nil {
 		defer clean()
 	}
+
+	err = checkSite(url, key)
+	if err != nil {
+		return 1, err
+	}
+
+	url += "/api/v0/count"
 
 	var n int
 	switch format {
@@ -375,25 +384,29 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 			return "", "", nil, err
 		}
 
-		url = site.URL() + "/api/v0/count"
+		url = site.URL()
 		key = token.Token
 		clean = func() { token.Delete(ctx) }
 	}
 
-	// Verify that the site is live and that we've got the correct permissions.
+	return url, key, clean, nil
+}
+
+// Verify that the site is live and that we've got the correct permissions.
+func checkSite(url, key string) error {
 	r, err := newRequest("GET", url+"/api/v0/me", key, nil)
 	if err != nil {
-		return "", "", nil, err
+		return err
 	}
 
 	resp, err := importClient.Do(r)
 	if err != nil {
-		return "", "", nil, err
+		return err
 	}
 	defer resp.Body.Close()
 	b, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
-		return "", "", nil, fmt.Errorf("%s: %s: %s", url+"/api/v0/me",
+		return fmt.Errorf("%s: %s: %s", url+"/api/v0/me",
 			resp.Status, zstring.ElideLeft(string(b), 200))
 	}
 
@@ -402,11 +415,11 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 	}
 	err = json.Unmarshal(b, &perm)
 	if err != nil {
-		return "", "", nil, err
+		return err
 	}
 	if !perm.Token.Permissions.Count {
-		return "", "", nil, fmt.Errorf("the API toke %q is missing the 'count' permission", perm.Token.Name)
+		return fmt.Errorf("the API token %q is missing the 'count' permission", perm.Token.Name)
 	}
 
-	return url + "/api/v0/count", key, clean, nil
+	return nil
 }

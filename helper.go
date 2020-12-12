@@ -15,6 +15,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/ztpl"
+	"zgo.at/zstd/zcrypto"
 )
 
 // State column values.
@@ -136,4 +137,30 @@ func ChunkStat(stats []Stat) (int, []int) {
 	}
 
 	return max, chunked
+}
+
+func NewBufferKey(ctx context.Context) (string, error) {
+	secret := zcrypto.Secret256()
+	err := zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+		_, err := tx.ExecContext(ctx, `delete from store where key='buffer-secret'`)
+		if err != nil {
+			return err
+		}
+
+		_, err = tx.ExecContext(ctx, `insert into store (key, value) values ('buffer-secret', $1)`, secret)
+		return err
+	})
+	if err != nil {
+		return "", fmt.Errorf("NewBufferKey: %w", err)
+	}
+	return secret, nil
+}
+
+func LoadBufferKey(ctx context.Context) ([]byte, error) {
+	var key []byte
+	err := zdb.MustGet(ctx).GetContext(ctx, &key, `select value from store where key='buffer-secret'`)
+	if err != nil {
+		return nil, fmt.Errorf("LoadBufferKey: %w", err)
+	}
+	return key, nil
 }

@@ -15784,8 +15784,8 @@ id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id
 				<a class="permalink" href="#POST-%2fapi%2fv0%2fcount">§</a>
 			</div>
 			<div class="endpoint-info">
-				<p>This can count one or more pageviews. Pageviews are not persisted immediatly,
-but persisted in the background every 10 seconds.</p><p>The maximum amount of pageviews per request is 100.</p><p>Errors will have the key set to the index of the pageview. Any pageviews not
+				<p>This can count one or more pageviews. Pageviews are not persisted
+immediately, but persisted in the background every 10 seconds.</p><p>The maximum amount of pageviews per request is 100.</p><p>Errors will have the key set to the index of the pageview. Any pageviews not
 listed have been processed and shouldn&#39;t be sent again.</p><p>The response header has the X-Goatcounter-Memstore header set to the time of
 the last time pageviews were persisted to the database. This is useful if you
 want to (roughly) sync up with this.</p>
@@ -16420,7 +16420,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
         "consumes": [
           "application/json"
         ],
-        "description": "This can count one or more pageviews. Pageviews are not persisted immediatly,\nbut persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 100.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.\n\nThe response header has the X-Goatcounter-Memstore header set to the time of\nthe last time pageviews were persisted to the database. This is useful if you\nwant to (roughly) sync up with this.",
+        "description": "This can count one or more pageviews. Pageviews are not persisted\nimmediately, but persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 100.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.\n\nThe response header has the X-Goatcounter-Memstore header set to the time of\nthe last time pageviews were persisted to the database. This is useful if you\nwant to (roughly) sync up with this.",
         "operationId": "POST_api_v0_count",
         "parameters": [
           {

@@ -19,7 +19,7 @@ func TestSaas(t *testing.T) {
 	_, dbc, clean := tmpdb(t)
 	defer clean()
 
-	run(t, 0, []string{"saas", "-go-test-hook-do-not-use",
+	run(t, 0, []string{"saas", "-test-hook-do-not-use=1",
 		"-domain", "goatcounter.com,a.a",
 		"-listen", "localhost:31874",
 		"-tls", "none",

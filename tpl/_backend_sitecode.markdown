@@ -509,7 +509,7 @@ Wrap in a `<noscript>` tag to use this only for people without JavaScript.
 
 ### Tracking from backend middleware
 You can use the `/api/v0/count` API endpoint to send pageviews from essentially
-anywhere, such as you app's middleware.
+anywhere, such as your app's middleware.
 
 The [API documentation](https://www.goatcounter.com/api) contains more
 information and some examples.

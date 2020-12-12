@@ -112,7 +112,7 @@ func serve() (int, error) {
 
 	CommandLine.StringVar(&cfg.Port, "port", "", "")
 	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, test, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
+	dbConnect, testMode, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
 	if err != nil {
 		return 1, err
 	}
@@ -161,7 +161,7 @@ func serve() (int, error) {
 		return 2, err
 	}
 
-	doServe(db, test, listen, listenTLS, tlsc, hosts, func() {
+	doServe(db, testMode, listen, listenTLS, tlsc, hosts, func() {
 		banner()
 		zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
 			len(cnames), listen, dev, strings.Join(cnames, ", "))
@@ -172,19 +172,12 @@ func serve() (int, error) {
 	return 0, nil
 }
 
-func doServe(db *sqlx.DB, test bool, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
+func doServe(db *sqlx.DB, testMode int, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
 	zlog.Module("main").Debug(getVersion())
-	ch := zhttp.Serve(listenTLS, test, &http.Server{
+	ch := zhttp.Serve(listenTLS, testMode, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
-
-		// Set some reasonably high timeouts which should never be reached.
-		// Note that handlers have a 5-second timeout set in handlers/mw.go
-		ReadHeaderTimeout: 10 * time.Second,
-		ReadTimeout:       60 * time.Second,
-		WriteTimeout:      60 * time.Second,
-		IdleTimeout:       120 * time.Second,
 	})
 
 	<-ch
@@ -214,7 +207,7 @@ func doServe(db *sqlx.DB, test bool, listen string, listenTLS uint8, tlsc *tls.C
 	db.Close()
 }
 
-func flagsServe(v *zvalidate.Validator) (string, bool, bool, bool, string, string, string, error) {
+func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string, string, error) {
 	dbConnect := flagDB()
 	debug := flagDebug()
 
@@ -226,7 +219,7 @@ func flagsServe(v *zvalidate.Validator) (string, bool, bool, bool, string, strin
 	flagTLS := CommandLine.String("tls", "", "")
 	errors := CommandLine.String("errors", "", "")
 	from := CommandLine.String("email-from", "", "")
-	test := CommandLine.Bool("go-test-hook-do-not-use", false, "")
+	testMode := CommandLine.Int("test-hook-do-not-use", 0, "")
 
 	err := CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
@@ -248,7 +241,7 @@ func flagsServe(v *zvalidate.Validator) (string, bool, bool, bool, string, strin
 	}
 	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
 
-	return *dbConnect, *test, dev, *automigrate, *listen, *flagTLS, *from, err
+	return *dbConnect, *testMode, dev, *automigrate, *listen, *flagTLS, *from, err
 }
 
 func setupServe(dbConnect, flagTLS string, automigrate bool) (*sqlx.DB, *tls.Config, http.HandlerFunc, uint8, error) {

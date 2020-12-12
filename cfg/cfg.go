@@ -22,3 +22,19 @@ var (
 
 	RunningTests bool
 )
+
+func Reset() {
+	Domain = ""
+	DomainStatic = ""
+	DomainCount = ""
+	URLStatic = ""
+	PgSQL = false
+	Plan = ""
+	Prod = false
+	Version = ""
+	GoatcounterCom = false
+	Serve = false
+	Port = ""
+	EmailFrom = ""
+	RunningTests = false
+}

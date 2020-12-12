@@ -92,6 +92,12 @@ Goals
 Existing solutions
 ------------------
 
+**Note**: this is an overview that was, as far as I know, reasonable accurate in
+early 2019 when I was deciding if I wanted to work on GoatCounter, based on a
+limited set of criteria. It's *not* intended as an accurate long-term
+comparison (products evolve). It's retained here only for historical purposes.
+
+
 ### Matomo (formerly Piwik)
 
 - I found the UX exceedingly hard to use; stuff like "who is visiting which page
@@ -252,16 +258,6 @@ solutions that's free or charge.
   which is the reason I know about it).
 
 - Very small tracking script.
-
-#### statcounter.com
-
-#### https://plausible.io/
-
-- Doesn't give referral insights per-page.
-
-- Open source, but self-hosted is currently not supported.
-
-- Small tracking script.
 
 #### Other
 

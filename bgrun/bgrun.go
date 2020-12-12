@@ -65,10 +65,15 @@ func WaitProgress() error {
 				working.Lock()
 				defer working.Unlock()
 				if len(working.m) == 0 {
+					if term {
+						fmt.Println()
+					}
 					return
 				}
 
-				fmt.Printf("%d tasks: ", len(working.m))
+				if term {
+					fmt.Printf("%d tasks: ", len(working.m))
+				}
 				l := make([]string, 0, len(working.m))
 				for k := range working.m {
 					l = append(l, k)
@@ -84,6 +89,9 @@ func WaitProgress() error {
 				working.Lock()
 				defer working.Unlock()
 				if len(working.m) == 0 {
+					if term {
+						fmt.Println()
+					}
 					return
 				}
 			}()

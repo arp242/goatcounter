@@ -718,7 +718,7 @@ func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 	var ok bool
 	err := zdb.MustGet(ctx).GetContext(ctx, &ok, `/* Sites.ContainsCNAME */
 		select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
-	return ok, errors.Wrap(err, "Sites.ContainsCNAME")
+	return ok, errors.Wrapf(err, "Sites.ContainsCNAME for %q", cname)
 }
 
 // OldSoftDeleted finds all sites which have been soft-deleted more than a week
