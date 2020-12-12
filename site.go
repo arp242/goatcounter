@@ -354,10 +354,10 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set code=$1, updated_at=$2 where id=$3`,
+		`update sites set code=$1, updated_at=$2 where site_id=$3`,
 		s.Code, s.UpdatedAt.Format(zdb.Date), s.ID)
 	if err != nil {
-		return errors.Wrap(err, "Site.UpdateStripe")
+		return errors.Wrap(err, "Site.UpdateCode")
 	}
 
 	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
