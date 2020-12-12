@@ -63,6 +63,9 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		middleware.RedirectSlashes,
 		zhttp.NoStore,
 		zhttp.WrapWriter)
+	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
+		r.Use(zhttp.Log(true, ""))
+	}
 
 	api{}.mount(r, db)
 	vcounter{}.mount(r, db)
@@ -138,10 +141,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		})
 
 		a := r.With(zhttp.Headers(headers), keyAuth)
-		if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
-			a = a.With(zhttp.Log(true, ""))
-		}
-
 		user{}.mount(a)
 		{
 			ap := a.With(loggedInOrPublic)
