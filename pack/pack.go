@@ -13252,34 +13252,6 @@ insert into iso_3166_1 (name, alpha2) values
 
 create table version (name varchar);
 insert into version values
-	('2020-03-18-1-json_settings'),
-	('2020-03-24-1-sessions'),
-	('2020-03-27-1-isbot'),
-	('2020-03-29-1-page_cost'),
-	('2020-04-06-1-event'),
-	('2020-04-16-1-pwauth'),
-	('2020-04-20-1-hitsindex'),
-	('2020-04-22-1-campaigns'),
-	('2020-04-27-1-usage-flags'),
-	('2020-04-28-1-fix'),
-	('2020-05-13-1-unique-path'),
-	('2020-05-16-1-os_stats'),
-	('2020-05-17-1-rm-user-name'),
-	('2020-05-18-1-domain-count'),
-	('2020-05-21-1-ref-count'),
-	('2020-05-23-1-botlog'),
-	('2020-05-23-1-event'),
-	('2020-05-23-1-index'),
-	('2020-05-23-2-drop-ref-stats'),
-	('2020-06-03-1-cname-setup'),
-	('2020-06-18-1-totp'),
-	('2020-06-26-1-api-tokens'),
-	('2020-06-26-1-record-export'),
-	('2020-07-03-1-plan-amount'),
-	('2020-07-21-1-memsess'),
-	('2020-07-22-1-memsess'),
-	('2020-08-01-1-repl'),
-	('2020-08-24-1-iso_unique'),
 	('2020-08-28-1-paths-tables'),
 	('2020-08-28-2-paths-paths'),
 	('2020-08-28-3-paths-rmold'),
@@ -13914,34 +13886,6 @@ insert into iso_3166_1 (name, alpha2) values
 
 create table version (name varchar);
 insert into version values
-	('2020-03-18-1-json_settings'),
-	('2020-03-24-1-sessions'),
-	('2020-03-27-1-isbot'),
-	('2020-03-29-1-page_cost'),
-	('2020-04-06-1-event'),
-	('2020-04-16-1-pwauth'),
-	('2020-04-20-1-hitsindex'),
-	('2020-04-22-1-campaigns'),
-	('2020-04-27-1-usage-flags'),
-	('2020-04-28-1-fix'),
-	('2020-05-13-1-unique-path'),
-	('2020-05-16-1-os_stats'),
-	('2020-05-17-1-rm-user-name'),
-	('2020-05-18-1-domain-count'),
-	('2020-05-21-1-ref-count'),
-	('2020-05-23-1-botlog'),
-	('2020-05-23-1-event'),
-	('2020-05-23-1-index'),
-	('2020-05-23-2-drop-ref-stats'),
-	('2020-06-03-1-cname-setup'),
-	('2020-06-18-1-totp'),
-	('2020-06-26-1-api-tokens'),
-	('2020-06-26-1-record-export'),
-	('2020-07-03-1-plan-amount'),
-	('2020-07-21-1-memsess'),
-	('2020-07-22-1-memsess'),
-	('2020-08-01-1-repl'),
-	('2020-08-24-1-iso_unique'),
 	('2020-08-28-1-paths-tables'),
 	('2020-08-28-2-paths-paths'),
 	('2020-08-28-3-paths-rmold'),
@@ -15120,7 +15064,6 @@ input    { float: right; padding: .4em !important; }
 <p>
 	<a href="/debug/pprof">pprof</a> |
 	<a href="/admin/sql">PostgreSQL</a> |
-	<a href="/admin/botlog">Botlog</a>
 </p>
 
 <h2>Signups</h2>
@@ -15168,56 +15111,6 @@ input    { float: right; padding: .4em !important; }
 		<td>{{tformat $.Site $s.CreatedAt ""}}</td>
 	</tr>
 {{end}}</tbody>
-</table>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/admin_botlog.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<style>
-table    { max-width: none !important; }
-table table { max-width: 25em !important; }
-td       { white-space: nowrap; vertical-align: top; }
-pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
-th       { text-align: left; }
-.n       { text-align: right; }
-input    { float: right; padding: .4em !important; }
-.sort th { color: blue; cursor: pointer; }
-</style>
-
-<h2>IPs</h2>
-<table>
-<thead><tr>
-	<th class="n">Count</th>
-	<th></th>
-	<th>whois</th>
-</thead>
-<tbody>
-	{{range $s := .BotlogIP}}
-	<tr>
-		<td class="n">{{$s.Count}}</td>
-		<td>
-			<table>
-			{{range $o := $s.Links}}
-				<tr>
-					<td>{{index $o 0}}</td>
-					<td><strong>{{index $o 1}}</strong>
-						<a href="https://search.arin.net/rdap/?query={{index $o 1}}">ARIN</a> |
-						<a href="https://apps.db.ripe.net/db-web-ui/query?rflag=true&searchtext={{index $o 1}}">RIPE</a>
-					</td>
-				</tr>
-			{{end}}
-			<tr><td>IP</td><td>{{$s.IP}}</td></tr>
-			<tr><td>PTR</td><td>{{$s.PTR}}</td></tr>
-			<tr><td>Create</td><td>{{$s.CreatedAt.Format "2006-01-02"}}</td></tr>
-			<tr><td>Last</td><td>{{$s.LastSeen.Format "2006-01-02"}}</td></tr>
-			<tr><td>ID</td><td>{{$s.ID}}</td></tr>
-			</table>
-		</td>
-		<td><pre>{{$s.Info}}</pre></td>
-	</tr>
-	{{end}}
-</tbody>
 </table>
 
 {{template "_backend_bottom.gohtml" .}}
