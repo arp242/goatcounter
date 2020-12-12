@@ -40,6 +40,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
@@ -136,7 +137,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		})
 
 		a := r.With(zhttp.Headers(headers), keyAuth)
-		if !cfg.Prod {
+		if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
 			a = a.With(zhttp.Log(true, ""))
 		}
 
