@@ -9,18 +9,20 @@ The goatcounter.com service generally runs the latest master.
 Unreleased v1.5.0
 -----------------
 
-This release contains quite a few changes to the database layout (#383);
-functional changes:
+This release contains some rather large changes to the database layout (#383);
+this means that:
 
-- Some queries are a bit faster, others a bit slower.
+- Somewhat faster queries.
+- Greatly reduced disk space requirements for the database.
 - The Browsers, systems, size, and location stats are filtered if you enter
-  something in "filter paths".
-- Greatly decreases disk storage requirements.
+  something in "filter paths". Previously this always displayed the site totals.
+- "Purge path" now works as expected for all stats (fixes #96).
+- Easier to add new statistics in the future.
 
 **Action required**:
 
-1. You **must** first update to 1.4.2 and run all migrations from that. Updating
-   from older versions directly to 1.5.0 will *not* work!
+1. You **must** first update to 1.4.2 and run all migrations from that.
+   **Updating from older versions directly to 1.5.0 will not work!**
 
 2. Run the migrations with `goatcounter serve -automigrate` or `goatcounter
    migrate`.
@@ -35,24 +37,12 @@ This may take a while if you've got a lot of data. For about 500,000 pageviews
 it takes about 3 minutes on SQLite, but if you've got millions of pageviews it
 may take an hour or more.
 
-What does all of this give you?
-
-- Somewhat faster queries.
-- Greatly reduced disk space requirements for the database.
-- The browser, system, size, and location numbers are now stored per-path, so if
-  you filter to just one page or a set of pages you see the numbers for just
-  those pages.
-- "Purge path" now works as expected for all stats (fixes #96).
-- Easier to add new statistics in the future.
-
 Because this is such a big change there are no changes other than this for
 version 1.5.
 
 **Note**: the CSV export format was increased to `2`; it now includes the parsed
 browser and system values in addition to the User-Agent header. Version 1.5 will
 not be able to import the older exports from version `1`.
-
-
 
 
 2020-11-10, v1.4.2

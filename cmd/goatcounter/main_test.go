@@ -37,7 +37,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 	t.Helper()
 
 	goatcounter.Memstore.Reset()
-	goatcounter.ResetCache()
+	goatcounter.Reset()
 
 	var clean func()
 	defer func() {
@@ -68,7 +68,8 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 			panic(fmt.Sprintf("%s → %s", err, out))
 		}
 
-		tmp = "postgresql://dbname=" + dbname + " sslmode=disable host=/tmp"
+		os.Setenv("PGDATABASE", dbname)
+		tmp = "postgresql://"
 	} else {
 		dir, err := ioutil.TempDir("", "goatcounter")
 		if err != nil {
@@ -89,7 +90,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 	return zdb.With(context.Background(), db), tmp, func() {
 		db.Close()
 		goatcounter.Memstore.Reset()
-		goatcounter.ResetCache()
+		goatcounter.Reset()
 		clean()
 	}
 }

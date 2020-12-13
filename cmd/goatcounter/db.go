@@ -75,6 +75,10 @@ PostgreSQL:
     See the pq documentation for a list of supported parameters:
     https://pkg.go.dev/github.com/lib/pq?tab=doc#hdr-Connection_String_Parameters
 
+    You can also use the standard PG* environment variales:
+
+        PGDATABASE=goatcounter DBHOST=/var/run goatcounter -db 'postgresql://'
+
     You may want to consider lowering the "seq_page_cost" parameter; the query
     planner tends to prefer seq scans instead of index scans for some operations
     with the default of 4, which is much slower.
