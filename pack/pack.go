@@ -307,34 +307,6 @@ commit;
 		join browsers using (browser_id)
 		join systems using (system_id);
 
-	create view hits_export as
-		select
-			hits.hit_id,
-			hits.site_id,
-
-			paths.path,
-			paths.title,
-			paths.event,
-
-			user_agents.ua,
-			browsers.name || ' ' || browsers.version as browser,
-			systems.name || ' ' || systems.version as system,
-
-			hits.session,
-			hits.bot,
-			hits.ref,
-			hits.ref_scheme as ref_s,
-			hits.size,
-			hits.location as loc,
-			hits.first_visit as first,
-			hits.created_at
-		from hits
-		join paths       using (site_id, path_id)
-		join user_agents using (user_agent_id)
-		join browsers    using (browser_id)
-		join systems     using (system_id)
-		order by hit_id asc;
-
 	insert into version values ('2020-08-28-6-paths-views');
 commit;
 `),
@@ -641,6 +613,7 @@ begin;
 		foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict
 		constraint "browser_stats#site_id#path_id#browser_id" unique(site_id, path_id, day, browser_id) on conflict replace
 	);
+	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
 	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day);
 
 
@@ -662,6 +635,7 @@ begin;
 		foreign key (system_id) references systems(system_id) on delete restrict on update restrict
 		constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) on conflict replace
 	);
+	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
 	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day);
 
 
@@ -680,6 +654,7 @@ begin;
 		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 		constraint "location_stats#site_id#path_id#location" unique(site_id, path_id, location) on conflict replace
 	);
+	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
     create index "location_stats#site_id#day" on location_stats(site_id, day);
 
 
@@ -698,6 +673,7 @@ begin;
 		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 		constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) on conflict replace
 	);
+	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
     create index "size_stats#site_id#day" on size_stats(site_id, day);
 
 
@@ -791,8 +767,8 @@ commit;
 	create view view_user_agents as
 		select
 			user_agents.user_agent_id as id,
-			user_agents.system_id as bid,
-			user_agents.browser_id as sid,
+			user_agents.system_id     as bid,
+			user_agents.browser_id    as sid,
 			user_agents.bot,
 			browsers.name || ' ' || browsers.version as browser,
 			systems.name  || ' ' || systems.version as system,
@@ -800,34 +776,6 @@ commit;
 		from user_agents
 		join browsers using (browser_id)
 		join systems using (system_id);
-
-	create view hits_export as
-		select
-			hits.hit_id,
-			hits.site_id,
-
-			paths.path,
-			paths.title,
-			paths.event,
-
-			user_agents.ua,
-			browsers.name || ' ' || browsers.version as browser,
-			systems.name || ' ' || systems.version as system,
-
-			hits.session,
-			hits.bot,
-			hits.ref,
-			hits.ref_scheme as ref_s,
-			hits.size,
-			hits.location as loc,
-			hits.first_visit as first,
-			hits.created_at
-		from hits
-		join paths       using (site_id, path_id)
-		join user_agents using (user_agent_id)
-		join browsers    using (browser_id)
-		join systems     using (system_id)
-		order by hit_id asc;
 
 	insert into version values ('2020-08-28-6-paths-views');
 commit;
@@ -12923,34 +12871,6 @@ create view view_user_agents as
 	join browsers using (browser_id)
 	join systems using (system_id);
 
-create view hits_export as
-	select
-		hits.hit_id,
-		hits.site_id,
-
-		paths.path,
-		paths.title,
-		paths.event,
-
-		user_agents.ua,
-		browsers.name || ' ' || browsers.version as browser,
-		systems.name  || ' ' || systems.version  as system,
-
-		hits.session,
-		hits.bot,
-		hits.ref,
-		hits.ref_scheme as ref_s,
-		hits.size,
-		hits.location as loc,
-		hits.first_visit as first,
-		hits.created_at
-	from hits
-	join paths       using (path_id)
-	join user_agents using (user_agent_id)
-	join browsers    using (browser_id)
-	join systems     using (system_id)
-	order by hit_id asc;
-
 create table iso_3166_1 (
 	name           varchar,
 	alpha2          varchar
@@ -13556,34 +13476,6 @@ create view view_user_agents as
 	from user_agents
 	join browsers using (browser_id)
 	join systems using (system_id);
-
-create view hits_export as
-	select
-		hits.hit_id,
-		hits.site_id,
-
-		paths.path,
-		paths.title,
-		paths.event,
-
-		user_agents.ua,
-		browsers.name || ' ' || browsers.version as browser,
-		systems.name  || ' ' || systems.version  as system,
-
-		hits.session,
-		hits.bot,
-		hits.ref,
-		hits.ref_scheme as ref_s,
-		hits.size,
-		hits.location as loc,
-		hits.first_visit as first,
-		hits.created_at
-	from hits
-	join paths       using (path_id)
-	join user_agents using (user_agent_id)
-	join browsers    using (browser_id)
-	join systems     using (system_id)
-	order by hit_id asc;
 
 create table iso_3166_1 (
 	name           varchar,

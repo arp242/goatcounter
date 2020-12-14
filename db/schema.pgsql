@@ -293,34 +293,6 @@ create view view_user_agents as
 	join browsers using (browser_id)
 	join systems using (system_id);
 
-create view hits_export as
-	select
-		hits.hit_id,
-		hits.site_id,
-
-		paths.path,
-		paths.title,
-		paths.event,
-
-		user_agents.ua,
-		browsers.name || ' ' || browsers.version as browser,
-		systems.name  || ' ' || systems.version  as system,
-
-		hits.session,
-		hits.bot,
-		hits.ref,
-		hits.ref_scheme as ref_s,
-		hits.size,
-		hits.location as loc,
-		hits.first_visit as first,
-		hits.created_at
-	from hits
-	join paths       using (path_id)
-	join user_agents using (user_agent_id)
-	join browsers    using (browser_id)
-	join systems     using (system_id)
-	order by hit_id asc;
-
 create table iso_3166_1 (
 	name           varchar,
 	alpha2          varchar

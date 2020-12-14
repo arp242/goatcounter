@@ -355,7 +355,33 @@ func TestAPICount(t *testing.T) {
 			gctest.StoreHits(ctx, t, false)
 
 			tt.want = strings.TrimSpace(strings.ReplaceAll(tt.want, "\t", ""))
-			got := strings.TrimSpace(zdb.DumpString(ctx, `select * from hits_export`))
+			got := strings.TrimSpace(zdb.DumpString(ctx, `
+				select
+					hits.hit_id,
+					hits.site_id,
+
+					paths.path,
+					paths.title,
+					paths.event,
+
+					user_agents.ua,
+					browsers.name || ' ' || browsers.version as browser,
+					systems.name  || ' ' || systems.version  as system,
+
+					hits.session,
+					hits.bot,
+					hits.ref,
+					hits.ref_scheme as ref_s,
+					hits.size,
+					hits.location as loc,
+					hits.first_visit as first,
+					hits.created_at
+				from hits
+				join paths       using (path_id)
+				join user_agents using (user_agent_id)
+				join browsers    using (browser_id)
+				join systems     using (system_id)
+				order by hit_id asc`))
 
 			if strings.Count(got, "\n") == 0 { // No data, only the header.
 				got = ""

@@ -6,12 +6,13 @@
 package cfg
 
 // Configuration variables.
+//
+// TODO: much of this realy shouldn't be in a global package like this.
 var (
 	Domain         string
 	DomainStatic   string
 	DomainCount    string
 	URLStatic      string
-	PgSQL          bool
 	Plan           string
 	Prod           bool
 	Version        string
@@ -19,6 +20,8 @@ var (
 	Serve          bool
 	Port           string
 	EmailFrom      string
+
+	PgSQL bool // TODO: replace with zdb.PgSQL
 
 	RunningTests bool
 )

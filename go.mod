@@ -30,10 +30,10 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v1.0.0
-	zgo.at/zdb v0.0.0-20200923061356-9d1815fba0b1
-	zgo.at/zhttp v0.0.0-20201211155028-dcd6204b8f79
+	zgo.at/zdb v0.0.0-20201213081133-4595e2d6b53e
+	zgo.at/zhttp v0.0.0-20201213081347-7507eae010a4
 	zgo.at/zli v0.0.0-20201026041953-329215b61bc3
-	zgo.at/zlog v0.0.0-20200519105857-4dc5e4ffe04c
+	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zpack v1.0.1
 	zgo.at/zstd v0.0.0-20201208030035-69d7042db931
 	zgo.at/zstripe v1.0.0

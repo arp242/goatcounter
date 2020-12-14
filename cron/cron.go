@@ -51,13 +51,12 @@ func RunBackground(db zdb.DB) {
 	ctx := zdb.With(context.Background(), db)
 	l := zlog.Module("cron")
 
+	// TODO: should rewrite cron to always respond to channels, and then have
+	// the cron package send those periodically.
 	go func() {
-		goatcounter.PersistRunner.Watching.Set(1)
 		for {
 			<-goatcounter.PersistRunner.Run
 			bgrun.RunNoDuplicates("cron:PersistAndStat", func() {
-				defer func() { goatcounter.PersistRunner.Wait <- struct{}{} }()
-
 				err := PersistAndStat(ctx)
 				if err != nil {
 					l.Error(err)

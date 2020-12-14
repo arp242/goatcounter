@@ -18,6 +18,7 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/gadget"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -263,9 +264,9 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 				zlog.Error(err)
 			}
 		}
-		if PersistRunner.Watching.Value() == 1 {
-			PersistRunner.Run <- struct{}{}
-			<-PersistRunner.Wait
+		PersistRunner.Run <- struct{}{}
+		for bgrun.Running("cron:PersistAndStat") {
+			time.Sleep(250 * time.Millisecond)
 		}
 	}
 	for {
@@ -434,8 +435,35 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 		limit = 5000
 	}
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, h,
-		`select * from hits_export where hits_export.site_id=$1 and hit_id>$2 order by hit_id asc limit $3`,
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select
+			hits.hit_id,
+			hits.site_id,
+
+			paths.path,
+			paths.title,
+			paths.event,
+
+			user_agents.ua,
+			browsers.name || ' ' || browsers.version as browser,
+			systems.name  || ' ' || systems.version  as system,
+
+			hits.session,
+			hits.bot,
+			hits.ref,
+			hits.ref_scheme as ref_s,
+			hits.size,
+			hits.location as loc,
+			hits.first_visit as first,
+			hits.created_at
+		from hits
+		join paths       using (path_id)
+		join user_agents using (user_agent_id)
+		join browsers    using (browser_id)
+		join systems     using (system_id)
+		where hits.site_id=$1 and hit_id>$2
+		order by hit_id asc
+		limit $3`,
 		MustGetSite(ctx).ID, paginate, limit)
 
 	hh := *h

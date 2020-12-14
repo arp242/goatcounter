@@ -76,8 +76,9 @@ var (
 	getUAOnce    sync.Once
 )
 
-// TODO: probably don't need this now that user_agent.go has a cache too?
 func getUA(ctx context.Context, uaID int64) (browser, system int64) {
+	// Load all the user_agents in memory; this speeds up things quite a bit,
+	// and the IDs never change. This is about 4M for 500k rows.
 	getUAOnce.Do(func() {
 		var ua []struct {
 			UserAgentID int64 `db:"user_agent_id"`

@@ -75,7 +75,7 @@ PostgreSQL:
     See the pq documentation for a list of supported parameters:
     https://pkg.go.dev/github.com/lib/pq?tab=doc#hdr-Connection_String_Parameters
 
-    You can also use the standard PG* environment variales:
+    You can also use the standard PG* environment variables:
 
         PGDATABASE=goatcounter DBHOST=/var/run goatcounter -db 'postgresql://'
 

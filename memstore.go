@@ -22,7 +22,6 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zsync"
 )
 
 var (
@@ -44,9 +43,8 @@ var (
 // PeristAndStat() function. We can't use a direct function call due to circular
 // imports.
 var PersistRunner = struct {
-	Run, Wait chan struct{}
-	Watching  *zsync.AtomicInt
-}{make(chan struct{}), make(chan struct{}), zsync.NewAtomicInt(0)}
+	Run chan struct{}
+}{make(chan struct{})}
 
 // MarshalText converts the data to a human readable representation.
 func (h hash) MarshalText() ([]byte, error) {

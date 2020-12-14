@@ -13,6 +13,7 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ztpl"
@@ -27,9 +28,32 @@ func TestExport(t *testing.T) {
 	defer clean()
 
 	dump := func() string {
-		return zdb.DumpString(ctx, `select
-			site_id, path, title, event, ua, browser, system, bot, ref, ref_s, size, loc, first, created_at
-		from hits_export`)
+		return zdb.DumpString(ctx, `
+		select
+			hits.site_id,
+
+			paths.path,
+			paths.title,
+			paths.event,
+
+			user_agents.ua,
+			browsers.name || ' ' || browsers.version as browser,
+			systems.name  || ' ' || systems.version  as system,
+
+			-- hits.session,
+			hits.bot,
+			hits.ref,
+			hits.ref_scheme as ref_s,
+			hits.size,
+			hits.location as loc,
+			hits.first_visit as first,
+			hits.created_at
+		from hits
+		join paths       using (path_id)
+		join user_agents using (user_agent_id)
+		join browsers    using (browser_id)
+		join systems     using (system_id)
+		order by hit_id asc`)
 	}
 
 	d1 := time.Date(2019, 6, 18, 0, 0, 0, 0, time.UTC)
@@ -108,6 +132,7 @@ func TestExport(t *testing.T) {
 		}
 		defer gzfp.Close()
 
+		cron.RunBackground(zdb.MustGet(ctx))
 		goatcounter.Import(ctx, gzfp, true, false)
 
 		_, err = goatcounter.Memstore.Persist(ctx)
