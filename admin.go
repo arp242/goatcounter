@@ -56,7 +56,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 				where site_id=sites.site_id and hit_counts.hour >= %s
 			), 0) as last_month
 		from sites
-		order by last_month desc`, interval(30)))
+		order by last_month desc`, interval(ctx, 30)))
 	if err != nil {
 		return errors.Wrap(err, "AdminStats.List")
 	}
@@ -101,8 +101,8 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 		return err
 	}
 
-	ival30 := interval(30)
-	ival60 := interval(30)
+	ival30 := interval(ctx, 30)
+	ival60 := interval(ctx, 30)
 	err = zdb.MustGet(ctx).GetContext(ctx, a, fmt.Sprintf(`/* *AdminSiteStat.ByID */
 		select
 			coalesce((select hour from hit_counts where site_id=$1 order by hour desc limit 1), '1970-01-01') as last_data,

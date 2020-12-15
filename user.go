@@ -143,7 +143,7 @@ func (u *User) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "User.Insert")
 	}
 
-	if cfg.PgSQL {
+	if zdb.PgSQL(zdb.MustGet(ctx)) {
 		var nu User
 		// No site yet when signing up since it's on www.goatcounter.com
 		err = nu.ByEmail(WithSite(ctx, &Site{ID: u.Site}), u.Email)
@@ -241,7 +241,7 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 func (u *User) ByResetToken(ctx context.Context, key string) error {
 	query := `select * from users where login_request=$1 and site_id=$2 and `
 
-	if cfg.PgSQL {
+	if zdb.PgSQL(zdb.MustGet(ctx)) {
 		query += `reset_at + interval '60 minutes' > now()`
 	} else {
 		query += `datetime(reset_at, '+60 minutes') > datetime()`

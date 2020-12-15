@@ -4,7 +4,7 @@
 
 // +build testpg
 
-package gctest
+package main
 
 func init() {
 	pgSQL = true

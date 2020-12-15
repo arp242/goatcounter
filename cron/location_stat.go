@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
@@ -48,7 +47,7 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "location_stats", []string{"site_id", "day",
 			"path_id", "location", "count", "count_unique"})
-		if cfg.PgSQL {
+		if zdb.PgSQL(zdb.MustGet(ctx)) {
 			ins.OnConflict(`on conflict on constraint "location_stats#site_id#path_id#day#location" do update set
 				count        = location_stats.count        + excluded.count,
 				count_unique = location_stats.count_unique + excluded.count_unique`)

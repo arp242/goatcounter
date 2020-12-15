@@ -622,7 +622,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	}
 
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		ival := interval(days)
+		ival := interval(ctx, days)
 
 		var pathIDs []int64
 		err := tx.SelectContext(ctx, &pathIDs, `/* Site.DeleteOlderThan */
@@ -725,6 +725,6 @@ func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 // ago.
 func (s *Sites) OldSoftDeleted(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, fmt.Sprintf(`/* Sites.OldSoftDeleted */
-		select * from sites where state=$1 and updated_at < %s`, interval(7)),
+		select * from sites where state=$1 and updated_at < %s`, interval(ctx, 7)),
 		StateDeleted), "Sites.OldSoftDeleted")
 }

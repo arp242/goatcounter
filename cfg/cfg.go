@@ -21,8 +21,6 @@ var (
 	Port           string
 	EmailFrom      string
 
-	PgSQL bool // TODO: replace with zdb.PgSQL
-
 	RunningTests bool
 )
 
@@ -31,7 +29,6 @@ func Reset() {
 	DomainStatic = ""
 	DomainCount = ""
 	URLStatic = ""
-	PgSQL = false
 	Plan = ""
 	Prod = false
 	Version = ""

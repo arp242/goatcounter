@@ -16,12 +16,12 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
-	_ "zgo.at/goatcounter/gctest" // Set cfg.PgSQL
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 )
+
+var pgSQL = false
 
 // Make sure usage doesn't contain tabs, as that will mess up formatting in
 // terminals.
@@ -50,7 +50,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 
 	dbname := "goatcounter_" + zcrypto.Secret64()
 	var tmp string
-	if cfg.PgSQL {
+	if pgSQL {
 		// TODO: don't rely on shell commands if possible, as it's quite slow.
 		out, err := exec.Command("createdb", dbname).CombinedOutput()
 		if err != nil {

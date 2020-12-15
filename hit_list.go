@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
@@ -468,7 +467,7 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 				Filter         []int64
 			}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date),
 				site.Settings.Timezone.OffsetRFC3339(), pathFilter},
-			len(pathFilter) > 0, !cfg.PgSQL, cfg.PgSQL)
+			len(pathFilter) > 0, !zdb.PgSQL(zdb.MustGet(ctx)), zdb.PgSQL(zdb.MustGet(ctx)))
 	} else {
 		query, args, err = zdb.Query(ctx, `/* getMax hourly */
 				select coalesce(max(total), 0) from hit_counts

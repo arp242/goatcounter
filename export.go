@@ -216,7 +216,7 @@ type Exports []Export
 
 func (e *Exports) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, e, `/* Exports.List */
-		select * from exports where site_id=$1 and created_at > `+interval(1),
+		select * from exports where site_id=$1 and created_at > `+interval(ctx, 1),
 		MustGetSite(ctx).ID), "Exports.List")
 }
 
