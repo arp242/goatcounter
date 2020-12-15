@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
-	"honnef.co/go/tools/code"
-	"honnef.co/go/tools/facts"
+	"honnef.co/go/tools/analysis/code"
+	"honnef.co/go/tools/analysis/facts"
 )
 
 var Copyright = &analysis.Analyzer{

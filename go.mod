@@ -15,13 +15,13 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.5
 	github.com/monoculum/formam v0.0.0-20200923020755-6f187e4ffe27
 	github.com/teamwork/reload v1.3.2
-	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392
-	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5
-	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
-	golang.org/x/term v0.0.0-20201117132131-f5c789dd3221
-	golang.org/x/tools v0.0.0-20201201030018-7470481624a7
-	honnef.co/go/tools v0.0.1-2020.1.6
+	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
+	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
+	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
+	golang.org/x/tools v0.0.0-20201211185031-d93e913c1a58
+	honnef.co/go/tools v0.1.0
 	zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8
 	zgo.at/errors v0.0.0-20200725175708-8255739ad6ec
 	zgo.at/gadget v0.0.0-20200522205438-64412137d778
@@ -31,8 +31,8 @@ require (
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v1.0.0
 	zgo.at/zdb v0.0.0-20201215064121-3bdf9ac70fc1
-	zgo.at/zhttp v0.0.0-20201213081347-7507eae010a4
-	zgo.at/zli v0.0.0-20201026041953-329215b61bc3
+	zgo.at/zhttp v0.0.0-20201214071227-714ee8b7a17f
+	zgo.at/zli v0.0.0-20201210061107-1204fda2cf4b
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zpack v1.0.1
 	zgo.at/zstd v0.0.0-20201208030035-69d7042db931
