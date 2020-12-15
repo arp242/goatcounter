@@ -38,6 +38,7 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 		zhttp.Unpanic(cfg.Prod),
 		middleware.RedirectSlashes,
 		addctx(db, false),
+		zhttp.WrapWriter,
 		zhttp.Headers(nil))
 	if !cfg.Prod {
 		zhttp.Log(true, "")
