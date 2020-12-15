@@ -27,30 +27,56 @@ func TestHitStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
 	}...)
 
-	var stats goatcounter.HitStats
-	display, displayUnique, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), "", nil, false)
-	if err != nil {
-		t.Fatal(err)
+	check := func(wantT, want0, want1 string) {
+		var stats goatcounter.HitStats
+		display, displayUnique, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), nil, nil, false)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		gotT := fmt.Sprintf("%d %d %t", display, displayUnique, more)
+		if wantT != gotT {
+			t.Fatalf("wrong totals\ngot:  %s\nwant: %s", gotT, wantT)
+		}
+		if len(stats) != 2 {
+			t.Fatalf("len(stats) is not 2: %d", len(stats))
+		}
+
+		got0 := string(zjson.MustMarshal(stats[0]))
+		if got0 != want0 {
+			t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
+		}
+
+		got1 := string(zjson.MustMarshal(stats[1]))
+		if got1 != want1 {
+			t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)
+		}
 	}
 
-	gotT := fmt.Sprintf("%d %d %t", display, displayUnique, more)
-	wantT := "3 1 false"
-	if wantT != gotT {
-		t.Fatalf("wrong totals\ngot:  %s\nwant: %s", gotT, wantT)
-	}
-	if len(stats) != 2 {
-		t.Fatalf("len(stats) is not 2: %d", len(stats))
-	}
+	check("3 1 false",
+		`{"Count":2,"CountUnique":1,"PathID":1,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Max":2,`+
+			`"Stats":[{"Day":"2019-08-31",`+
+			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],`+
+			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":2,"DailyUnique":1}]}`,
+		`{"Count":1,"CountUnique":0,"PathID":2,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Max":1,`+
+			`"Stats":[{"Day":"2019-08-31",`+
+			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
+			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`,
+	)
 
-	want0 := `{"Count":2,"CountUnique":1,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Max":2,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":2,"DailyUnique":1}]}`
-	got0 := string(zjson.MustMarshal(stats[0]))
-	if got0 != want0 {
-		t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
-	}
+	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
+		{Site: site.ID, CreatedAt: now.Add(2 * time.Hour), Path: "/asd", Title: "aSd", FirstVisit: true},
+		{Site: site.ID, CreatedAt: now.Add(2 * time.Hour), Path: "/asd", Title: "aSd"},
+	}...)
 
-	want1 := `{"Count":1,"CountUnique":0,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Max":1,"Stats":[{"Day":"2019-08-31","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`
-	got1 := string(zjson.MustMarshal(stats[1]))
-	if got1 != want1 {
-		t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)
-	}
+	check("5 2 false",
+		`{"Count":4,"CountUnique":2,"PathID":1,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Max":2,`+
+			`"Stats":[{"Day":"2019-08-31",`+
+			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0],`+
+			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],"Daily":4,"DailyUnique":2}]}`,
+		`{"Count":1,"CountUnique":0,"PathID":2,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Max":1,`+
+			`"Stats":[{"Day":"2019-08-31",`+
+			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
+			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`,
+	)
 }

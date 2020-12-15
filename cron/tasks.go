@@ -244,6 +244,7 @@ func renewACME(ctx context.Context) error {
 	return nil
 }
 
+// Permanently delete soft-deleted sites.
 func vacuumDeleted(ctx context.Context) error {
 	var sites goatcounter.Sites
 	err := sites.OldSoftDeleted(ctx)
@@ -253,21 +254,18 @@ func vacuumDeleted(ctx context.Context) error {
 
 	for _, s := range sites {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
-
 		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
-			for _, t := range []string{"browser_stats", "system_stats", "hit_stats", "hits", "location_stats", "size_stats", "users"} {
-				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site=%d`, t, s.ID))
+			for _, t := range []string{"hits", "paths", "hit_counts",
+				"ref_counts", "browser_stats", "system_stats", "hit_stats",
+				"location_stats", "size_stats", "exports", "api_tokens", "users",
+				"sites"} {
+
+				_, err := db.ExecContext(ctx, fmt.Sprintf(`delete from %s where site_id=%d`, t, s.ID))
 				if err != nil {
 					return errors.Errorf("%s: %w", t, err)
 				}
 			}
-			_, err := db.ExecContext(ctx, `delete from exports where site_id=$1`, s.ID)
-			if err != nil {
-				return errors.Errorf("exports: %w", err)
-			}
-
-			_, err = db.ExecContext(ctx, `delete from sites where id=$1`, s.ID)
-			return err
+			return nil
 		})
 		if err != nil {
 			return errors.Errorf("vacuumDeleted: %w", err)

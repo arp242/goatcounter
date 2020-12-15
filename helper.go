@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"time"
 
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/ztpl"
@@ -81,10 +80,14 @@ func EmailTemplate(tplname string, args interface{}) func() ([]byte, error) {
 func Reset() {
 	sitesCacheByID.Flush()
 	sitesCacheHostname.Flush()
+	cachePaths.Flush()
+	cacheUA.Flush()
+	changedTitles.Flush()
 }
 
-func interval(days int) string {
-	if cfg.PgSQL {
+// TODO: Move to zdb
+func interval(ctx context.Context, days int) string {
+	if zdb.PgSQL(zdb.MustGet(ctx)) {
 		return fmt.Sprintf(" now() - interval '%d days' ", days)
 	}
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)
@@ -92,8 +95,10 @@ func interval(days int) string {
 
 // Insert a new row and return the ID column id. This works for both PostgreSQL
 // and SQLite.
+//
+// TODO: Move to zdb
 func insertWithID(ctx context.Context, idColumn, query string, args ...interface{}) (int64, error) {
-	if cfg.PgSQL {
+	if zdb.PgSQL(zdb.MustGet(ctx)) {
 		var id int64
 		err := zdb.MustGet(ctx).GetContext(ctx, &id, query+" returning "+idColumn, args...)
 		return id, err

@@ -6,21 +6,21 @@ package cron
 
 import (
 	"context"
+	"strconv"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
 
 func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + path + ref.
+	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+		// Group by day + pathID + ref.
 		type gt struct {
 			total       int
 			totalUnique int
 			hour        string
-			path        string
+			pathID      int64
 			ref         string
 			refScheme   *string
 		}
@@ -31,11 +31,11 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 			}
 
 			hour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := hour + h.Path + h.Ref
+			k := hour + strconv.FormatInt(h.PathID, 10) + h.Ref
 			v := grouped[k]
 			if v.total == 0 {
 				v.hour = hour
-				v.path = h.Path
+				v.pathID = h.PathID
 				v.ref = h.Ref
 				v.refScheme = h.RefScheme
 			}
@@ -48,20 +48,25 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "ref_counts", []string{"site", "path",
+		ins := bulk.NewInsert(ctx, "ref_counts", []string{"site_id", "path_id",
 			"ref", "hour", "total", "total_unique", "ref_scheme"})
-		if cfg.PgSQL {
-			ins.OnConflict(`on conflict on constraint "ref_counts#site#path#ref#hour" do update set
-				total = ref_counts.total + excluded.total,
+		if zdb.PgSQL(zdb.MustGet(ctx)) {
+			ins.OnConflict(`on conflict on constraint "ref_counts#site_id#path_id#ref#hour" do update set
+				total        = ref_counts.total        + excluded.total,
 				total_unique = ref_counts.total_unique + excluded.total_unique`)
+
+			_, err := db.ExecContext(ctx, `lock table ref_counts in exclusive mode`)
+			if err != nil {
+				return err
+			}
 		} else {
-			ins.OnConflict(`on conflict(site, path, ref, hour) do update set
-				total = ref_counts.total + excluded.total,
+			ins.OnConflict(`on conflict(site_id, path_id, ref, hour) do update set
+				total        = ref_counts.total        + excluded.total,
 				total_unique = ref_counts.total_unique + excluded.total_unique`)
 		}
 
 		for _, v := range grouped {
-			ins.Values(siteID, v.path, v.ref, v.hour, v.total, v.totalUnique, v.refScheme)
+			ins.Values(siteID, v.pathID, v.ref, v.hour, v.total, v.totalUnique, v.refScheme)
 		}
 		return ins.Finish()
 	})

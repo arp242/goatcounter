@@ -6,12 +6,13 @@
 package cfg
 
 // Configuration variables.
+//
+// TODO: much of this realy shouldn't be in a global package like this.
 var (
 	Domain         string
 	DomainStatic   string
 	DomainCount    string
 	URLStatic      string
-	PgSQL          bool
 	Plan           string
 	Prod           bool
 	Version        string
@@ -28,7 +29,6 @@ func Reset() {
 	DomainStatic = ""
 	DomainCount = ""
 	URLStatic = ""
-	PgSQL = false
 	Plan = ""
 	Prod = false
 	Version = ""

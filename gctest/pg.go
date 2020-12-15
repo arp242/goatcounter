@@ -6,10 +6,6 @@
 
 package gctest
 
-import (
-	"zgo.at/goatcounter/cfg"
-)
-
 func init() {
-	cfg.PgSQL = true
+	pgSQL = true
 }

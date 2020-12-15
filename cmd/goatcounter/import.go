@@ -291,7 +291,7 @@ func importCSV(fp io.Reader, url, key string) (int, error) {
 			Ref:       hit.Ref,
 			Size:      hit.Size,
 			Bot:       hit.Bot,
-			UserAgent: hit.Browser,
+			UserAgent: hit.UserAgentHeader,
 			Location:  hit.Location,
 			CreatedAt: hit.CreatedAt,
 			Session:   hit.Session.String(),

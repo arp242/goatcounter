@@ -12,23 +12,22 @@ import (
 	"io"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
+	"zgo.at/gadget"
+	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
-	"zgo.at/zstd/zfloat"
 	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
-const ExportVersion = "1"
+const ExportVersion = "2"
 
 type Export struct {
 	ID     int64 `db:"export_id" json:"id,readonly"`
@@ -98,9 +97,9 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	defer gzfp.Close()
 
 	c := csv.NewWriter(gzfp)
-	c.Write([]string{ExportVersion + "Path", "Title", "Event", "Bot", "Session",
-		"FirstVisit", "Referrer", "Referrer scheme", "Browser", "Screen size",
-		"Location", "Date"})
+	c.Write([]string{ExportVersion + "Path", "Title", "Event", "UserAgent",
+		"Browser", "System", "Session", "Bot", "Referrer", "Referrer scheme",
+		"Screen size", "Location", "FirstVisit", "Date"})
 
 	var exportErr error
 	e.LastHitID = &e.StartFromHitID
@@ -108,10 +107,10 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	e.NumRows = &z
 	for {
 		var (
-			hits Hits
+			hits ExportRows
 			last int64
 		)
-		last, exportErr = hits.List(ctx, 5000, *e.LastHitID)
+		last, exportErr = hits.Export(ctx, 5000, *e.LastHitID)
 		e.LastHitID = &last
 		if len(hits) == 0 {
 			break
@@ -123,26 +122,10 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		*e.NumRows += len(hits)
 
 		for _, hit := range hits {
-			s := ""
-			if hit.OldSession != nil {
-				s = strconv.FormatInt(*hit.OldSession, 10)
-			} else {
-				b := hit.Session.Bytes()
-				var u uuid.UUID
-				copy(u[:], b)
-				s = u.String()
-
-			}
-
-			rs := ""
-			if hit.RefScheme != nil {
-				rs = *hit.RefScheme
-			}
-
-			c.Write([]string{hit.Path, hit.Title, fmt.Sprintf("%t", hit.Event),
-				fmt.Sprintf("%d", hit.Bot), s, fmt.Sprintf("%t", hit.FirstVisit),
-				hit.Ref, rs, hit.Browser, zfloat.Join(hit.Size, ","),
-				hit.Location, hit.CreatedAt.Format(time.RFC3339)})
+			c.Write([]string{hit.Path, hit.Title, hit.Event, hit.UserAgent,
+				hit.Browser, hit.System, hit.Session.String(), hit.Bot, hit.Ref,
+				unref(hit.RefScheme), hit.Size, hit.Location, hit.FirstVisit,
+				hit.CreatedAt})
 		}
 
 		c.Flush()
@@ -233,7 +216,7 @@ type Exports []Export
 
 func (e *Exports) List(ctx context.Context) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, e, `/* Exports.List */
-		select * from exports where site_id=$1 and created_at > `+interval(1),
+		select * from exports where site_id=$1 and created_at > `+interval(ctx, 1),
 		MustGetSite(ctx).ID), "Exports.List")
 }
 
@@ -269,10 +252,23 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 	}
 
 	var (
-		sessions = make(map[string]zint.Uint128)
-		n        = 0
-		errs     = errors.NewGroup(50)
+		sessions   = make(map[zint.Uint128]zint.Uint128)
+		n          = 0
+		errs       = errors.NewGroup(50)
+		firstHitAt *time.Time
 	)
+	persist := func() {
+		if firstHitAt != nil {
+			err := site.UpdateFirstHitAt(ctx, *firstHitAt)
+			if err != nil {
+				zlog.Error(err)
+			}
+		}
+		PersistRunner.Run <- struct{}{}
+		for bgrun.Running("cron:PersistAndStat") {
+			time.Sleep(250 * time.Millisecond)
+		}
+	}
 	for {
 		line, err := c.Read()
 		if err == io.EOF {
@@ -292,11 +288,15 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		if errs.Append(err) {
 			continue
 		}
+		if hit.CreatedAt.Before(site.FirstHitAt) {
+			firstHitAt = &hit.CreatedAt
+		}
 
 		// Map session IDs to new session IDs.
 		s, ok := sessions[row.Session]
 		if !ok {
 			sessions[row.Session] = Memstore.SessionID()
+			s = sessions[row.Session]
 		}
 		hit.Session = s
 
@@ -304,10 +304,11 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		n++
 
 		// Spread out the load a bit.
-		if cfg.Prod && n%5000 == 0 {
-			time.Sleep(10 * time.Second)
+		if n%5000 == 0 {
+			persist()
 		}
 	}
+	persist()
 
 	l.Debugf("imported %d rows", n)
 	if errs.Len() > 0 {
@@ -346,32 +347,49 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 // https://github.com/jszwec/csvutil
 
 type ExportRow struct { // Fields in order!
-	Path       string
-	Title      string
-	Event      string
-	Bot        string
-	Session    string
-	FirstVisit string
-	Ref        string
-	RefScheme  string
-	Browser    string
-	Size       string
-	Location   string
-	CreatedAt  string
+	ID     int64 `db:"hit_id"`
+	SiteID int64 `db:"site_id"`
+
+	Path  string `db:"path"`
+	Title string `db:"title"`
+	Event string `db:"event"`
+
+	UserAgent string `db:"ua"`
+	Browser   string `db:"browser"`
+	System    string `db:"system"`
+
+	Session    zint.Uint128 `db:"session"`
+	Bot        string       `db:"bot"`
+	Ref        string       `db:"ref"`
+	RefScheme  *string      `db:"ref_s"`
+	Size       string       `db:"size"`
+	Location   string       `db:"loc"`
+	FirstVisit string       `db:"first"`
+	CreatedAt  string       `db:"created_at"`
 }
 
 func (row *ExportRow) Read(line []string) error {
+	const offset = 2 // Ignore first n fields
+
 	values := reflect.ValueOf(row).Elem()
-	if len(line) != values.NumField() {
-		return fmt.Errorf("wrong number of fields: %d (want: %d)", len(line), values.NumField())
+	if len(line) != values.NumField()-offset {
+		return fmt.Errorf("wrong number of fields: %d (want: %d)", len(line), values.NumField()-offset)
 	}
 
-	for i := 0; i < len(line); i++ {
+	for i := offset; i <= len(line)+1; i++ {
 		f := values.Field(i)
+		v := line[i-offset]
 
 		switch f.Kind() {
+		default:
+		case reflect.Array:
+			zi, _ := zint.ParseUint128(v, 16)
+			f.Set(reflect.ValueOf(zi))
+		case reflect.Ptr:
+			f.Set(reflect.New(f.Type().Elem()))
+			f.Elem().SetString(v)
 		case reflect.String:
-			f.SetString(line[i])
+			f.SetString(v)
 		}
 	}
 
@@ -380,12 +398,12 @@ func (row *ExportRow) Read(line []string) error {
 
 func (row ExportRow) Hit(siteID int64) (Hit, error) {
 	hit := Hit{
-		Site:     siteID,
-		Path:     row.Path,
-		Title:    row.Title,
-		Ref:      row.Ref,
-		Browser:  row.Browser,
-		Location: row.Location, // TODO: validate from list?
+		Site:            siteID,
+		Path:            row.Path,
+		Title:           row.Title,
+		Ref:             row.Ref,
+		UserAgentHeader: row.UserAgent,
+		Location:        row.Location, // TODO: validate from list?
 	}
 
 	v := zvalidate.New()
@@ -395,9 +413,10 @@ func (row ExportRow) Hit(siteID int64) (Hit, error) {
 	hit.FirstVisit = zdb.Bool(v.Boolean("firstVisit", row.FirstVisit))
 	hit.CreatedAt = v.Date("createdAt", row.CreatedAt, time.RFC3339)
 
-	if row.RefScheme != "" {
-		v.Include("refScheme", row.RefScheme, []string{*RefSchemeHTTP, *RefSchemeOther, *RefSchemeGenerated, *RefSchemeCampaign})
-		hit.RefScheme = &row.RefScheme
+	if unref(row.RefScheme) != "" {
+		v.Include("refScheme", *row.RefScheme,
+			[]string{*RefSchemeHTTP, *RefSchemeOther, *RefSchemeGenerated, *RefSchemeCampaign})
+		hit.RefScheme = row.RefScheme
 	}
 
 	if row.Size != "" {
@@ -406,6 +425,60 @@ func (row ExportRow) Hit(siteID int64) (Hit, error) {
 	}
 
 	return hit, v.ErrorOrNil()
+}
+
+type ExportRows []ExportRow
+
+// Export all hits for a site, including bot requests.
+func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, error) {
+	if limit == 0 || limit > 5000 {
+		limit = 5000
+	}
+
+	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+		select
+			hits.hit_id,
+			hits.site_id,
+
+			paths.path,
+			paths.title,
+			paths.event,
+
+			user_agents.ua,
+			browsers.name || ' ' || browsers.version as browser,
+			systems.name  || ' ' || systems.version  as system,
+
+			hits.session,
+			hits.bot,
+			hits.ref,
+			hits.ref_scheme as ref_s,
+			hits.size,
+			hits.location as loc,
+			hits.first_visit as first,
+			hits.created_at
+		from hits
+		join paths       using (path_id)
+		join user_agents using (user_agent_id)
+		join browsers    using (browser_id)
+		join systems     using (system_id)
+		where hits.site_id=$1 and hit_id>$2
+		order by hit_id asc
+		limit $3`,
+		MustGetSite(ctx).ID, paginate, limit)
+
+	hh := *h
+	for i := range hh {
+		hh[i].UserAgent = gadget.Unshorten(hh[i].UserAgent)
+	}
+	*h = hh
+
+	last := paginate
+	if len(*h) > 0 {
+		hh := *h
+		last = hh[len(hh)-1].ID
+	}
+
+	return last, errors.Wrap(err, "Hits.List")
 }
 
 func importError(l zlog.Log, user User, report error) {

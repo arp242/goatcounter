@@ -263,11 +263,6 @@ func setupServe(dbConnect, flagTLS string, automigrate bool) (*sqlx.DB, *tls.Con
 	}
 
 	cron.RunBackground(db)
-	bgrun.Run("cron:start", func() { // Run all jobs on startup.
-		time.Sleep(3 * time.Second)
-		cron.RunOnce(db)
-	})
-
 	return db, tlsc, acmeh, listenTLS, nil
 }
 

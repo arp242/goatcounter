@@ -6,21 +6,21 @@ package cron
 
 import (
 	"context"
+	"strconv"
 
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
 
 func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + location.
+	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 		type gt struct {
 			count       int
 			countUnique int
 			day         string
 			location    string
+			pathID      int64
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -29,19 +29,12 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + h.Location
+			k := day + h.Location + strconv.FormatInt(h.PathID, 10)
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
 				v.location = h.Location
-				if !isReindex {
-					var err error
-					v.count, v.countUnique, err = existingLocationStats(ctx, tx,
-						h.Site, day, v.location)
-					if err != nil {
-						return err
-					}
-				}
+				v.pathID = h.PathID
 			}
 
 			v.count += 1
@@ -52,37 +45,26 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "location_stats", []string{"site", "day",
-			"location", "count", "count_unique"})
+		ins := bulk.NewInsert(ctx, "location_stats", []string{"site_id", "day",
+			"path_id", "location", "count", "count_unique"})
+		if zdb.PgSQL(zdb.MustGet(ctx)) {
+			ins.OnConflict(`on conflict on constraint "location_stats#site_id#path_id#day#location" do update set
+				count        = location_stats.count        + excluded.count,
+				count_unique = location_stats.count_unique + excluded.count_unique`)
+
+			_, err := db.ExecContext(ctx, `lock table location_stats in exclusive mode`)
+			if err != nil {
+				return err
+			}
+		} else {
+			ins.OnConflict(`on conflict(site_id, path_id, day, location) do update set
+				count        = location_stats.count        + excluded.count,
+				count_unique = location_stats.count_unique + excluded.count_unique`)
+		}
+
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.location, v.count, v.countUnique)
+			ins.Values(siteID, v.day, v.pathID, v.location, v.count, v.countUnique)
 		}
 		return ins.Finish()
 	})
-}
-
-func existingLocationStats(
-	txctx context.Context, tx zdb.DB, siteID int64,
-	day, location string,
-) (int, int, error) {
-
-	var c []struct {
-		Count       int `db:"count"`
-		CountUnique int `db:"count_unique"`
-	}
-	err := tx.SelectContext(txctx, &c, `/* existingLocationStats */
-		select count, count_unique from location_stats
-		where site=$1 and day=$2 and location=$3 limit 1`,
-		siteID, day, location)
-	if err != nil {
-		return 0, 0, errors.Wrap(err, "select")
-	}
-	if len(c) == 0 {
-		return 0, 0, nil
-	}
-
-	_, err = tx.ExecContext(txctx, `delete from location_stats where
-		site=$1 and day=$2 and location=$3`,
-		siteID, day, location)
-	return c[0].Count, c[0].CountUnique, errors.Wrap(err, "delete")
 }

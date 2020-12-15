@@ -6,23 +6,21 @@ package cron
 
 import (
 	"context"
+	"strconv"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 )
 
 func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		// Group by day + path.
+	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+		// Group by day + pathID
 		type gt struct {
 			total       int
 			totalUnique int
 			hour        string
-			event       zdb.Bool
-			path        string
-			title       string
+			pathID      int64
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -31,16 +29,11 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 			}
 
 			hour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := hour + h.Path
+			k := hour + strconv.FormatInt(h.PathID, 10)
 			v := grouped[k]
 			if v.total == 0 {
 				v.hour = hour
-				v.path = h.Path
-				v.event = h.Event
-			}
-
-			if h.Title != "" {
-				v.title = h.Title
+				v.pathID = h.PathID
 			}
 
 			v.total += 1
@@ -51,20 +44,25 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "hit_counts", []string{"site", "path",
-			"title", "event", "hour", "total", "total_unique"})
-		if cfg.PgSQL {
-			ins.OnConflict(`on conflict on constraint "hit_counts#site#path#hour" do update set
-				total=hit_counts.total + excluded.total,
-				total_unique=hit_counts.total_unique + excluded.total_unique`)
+		ins := bulk.NewInsert(ctx, "hit_counts", []string{"site_id", "path_id",
+			"hour", "total", "total_unique"})
+		if zdb.PgSQL(zdb.MustGet(ctx)) {
+			ins.OnConflict(`on conflict on constraint "hit_counts#site_id#path_id#hour" do update set
+				total        = hit_counts.total        + excluded.total,
+				total_unique = hit_counts.total_unique + excluded.total_unique`)
+
+			_, err := db.ExecContext(ctx, `lock table hit_counts in exclusive mode`)
+			if err != nil {
+				return err
+			}
 		} else {
-			ins.OnConflict(`on conflict(site, path, hour) do update set
-				total=hit_counts.total + excluded.total,
-				total_unique=hit_counts.total_unique + excluded.total_unique`)
+			ins.OnConflict(`on conflict(site_id, path_id, hour) do update set
+				total        = hit_counts.total        + excluded.total,
+				total_unique = hit_counts.total_unique + excluded.total_unique`)
 		}
 
 		for _, v := range grouped {
-			ins.Values(siteID, v.path, v.title, v.event, v.hour, v.total, v.totalUnique)
+			ins.Values(siteID, v.pathID, v.hour, v.total, v.totalUnique)
 		}
 		return ins.Finish()
 	})

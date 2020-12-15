@@ -27,6 +27,8 @@ import (
 	"zgo.at/zstd/zstring"
 )
 
+var pgSQL = false
+
 type tester interface {
 	Helper()
 	Fatal(...interface{})
@@ -63,7 +65,7 @@ func DB(t tester) (context.Context, func()) {
 
 	if db == nil {
 		var err error
-		if cfg.PgSQL {
+		if pgSQL {
 			{
 				out, err := exec.Command("createdb", dbname).CombinedOutput()
 				if err != nil {
@@ -71,7 +73,8 @@ func DB(t tester) (context.Context, func()) {
 				}
 			}
 
-			db, err = sqlx.Connect("postgres", "dbname="+dbname+" sslmode=disable password=x")
+			os.Setenv("PGDATABASE", dbname)
+			db, err = sqlx.Connect("postgres", "")
 		} else {
 			db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
 		}
@@ -93,7 +96,7 @@ func DB(t tester) (context.Context, func()) {
 		ctx = zdb.With(ctx, db)
 
 		q := `delete from %s`
-		if cfg.PgSQL {
+		if zdb.PgSQL(zdb.MustGet(ctx)) {
 			// TODO: takes about 450ms, which is rather long. See if we can
 			// speed this up.
 			q = `truncate %s restart identity cascade`
@@ -101,7 +104,7 @@ func DB(t tester) (context.Context, func()) {
 		for _, t := range tables {
 			db.MustExec(fmt.Sprintf(q, t))
 		}
-		if !cfg.PgSQL {
+		if !zdb.PgSQL(zdb.MustGet(ctx)) {
 			db.MustExec(`delete from sqlite_sequence`)
 		}
 	}
@@ -139,7 +142,7 @@ func setupDB(t tester) {
 	}
 	schemapath := top + "/db/schema.sql"
 	migratepath := top + "/db/migrate/sqlite"
-	if cfg.PgSQL {
+	if pgSQL {
 		schemapath = top + "/db/schema.pgsql"
 		migratepath = top + "/db/migrate/pgsql"
 	}
@@ -215,6 +218,9 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 		}
 		if hits[i].Site == 0 {
 			hits[i].Site = 1
+		}
+		if hits[i].Path == "" {
+			hits[i].Path = "/"
 		}
 	}
 

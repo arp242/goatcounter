@@ -1,5 +1,5 @@
 {{range $i, $h := .Pages}}
-	<tr id="{{$h.Path}}"{{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
+	<tr id="{{$h.Path}}" data-id="{{$h.PathID}}" {{if eq $h.Path $.ShowRefs}}class="target"{{end}}>
 		<td class="col-idx">{{sum $.Offset $i}}</td>
 		<td class="col-n col-count">{{nformat $h.CountUnique $.Site}}</td>
 		<td class="col-n">{{nformat $h.Count $.Site}}</td>

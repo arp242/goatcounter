@@ -39,6 +39,13 @@ var (
 	_ encoding.TextUnmarshaler = &hash{}
 )
 
+// PersistRunner can be used to signal the cron package to run the
+// PeristAndStat() function. We can't use a direct function call due to circular
+// imports.
+var PersistRunner = struct {
+	Run chan struct{}
+}{make(chan struct{})}
+
 // MarshalText converts the data to a human readable representation.
 func (h hash) MarshalText() ([]byte, error) {
 	b := base64.StdEncoding.EncodeToString([]byte(h.v))
@@ -204,14 +211,13 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = []Hit{}
 	m.hitMu.Unlock()
 
-	sites := make(map[int64]*Site)
-
 	l := zlog.Module("memstore")
 
-	ins := bulk.NewInsert(ctx, "hits", []string{"site", "path", "ref",
-		"ref_scheme", "browser", "size", "location", "created_at", "bot",
-		"title", "event", "session2", "first_visit"})
-	for i, h := range hits {
+	newHits := make([]Hit, 0, len(hits))
+	ins := bulk.NewInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
+		"ref_scheme", "user_agent_id", "size", "location", "created_at", "bot",
+		"session", "first_visit"})
+	for _, h := range hits {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
 		if h.RefURL != nil {
@@ -221,41 +227,40 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			}
 		}
 
-		site, ok := sites[h.Site]
-		if !ok {
-			site = new(Site)
-			err := site.ByID(ctx, h.Site)
-			if err != nil {
-				l.Field("hit", h).Error(err)
-				continue
-			}
-			sites[h.Site] = site
+		var site Site
+		err := site.ByID(ctx, h.Site)
+		if err != nil {
+			l.Field("hit", h).Error(err)
+			continue
 		}
-		ctx = WithSite(ctx, site)
+		ctx = WithSite(ctx, &site)
 
 		if h.Session.IsZero() {
-			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.Browser, h.RemoteAddr)
+			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.UserAgentHeader, h.RemoteAddr)
 		}
 
 		// Persist.
-		h.Defaults(ctx)
-		err := h.Validate(ctx)
+		err = h.Defaults(ctx)
 		if err != nil {
 			l.Field("hit", h).Error(err)
 			continue
 		}
 
-		// Some values are sanitized in Hit.Defaults(), make sure this is
-		// reflected in the hits object too, which matters for the hit_stats
-		// generation later.
-		hits[i] = h
+		err = h.Validate(ctx, false)
+		if err != nil {
+			l.Field("hit", h).Error(err)
+			continue
+		}
 
-		ins.Values(h.Site, h.Path, h.Ref, h.RefScheme, h.Browser, h.Size,
-			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Title, h.Event,
-			h.Session, h.FirstVisit)
+		// Don't return hits that failed validation; otherwise cron will try to
+		// insert them.
+		newHits = append(newHits, h)
+
+		ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
+			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Session, h.FirstVisit)
 	}
 
-	return hits, ins.Finish()
+	return newHits, ins.Finish()
 }
 
 func (m *ms) GetSalt() (cur []byte, prev []byte) {
@@ -318,6 +323,7 @@ func (m *ms) SessionID() zint.Uint128 {
 	return i
 }
 
+// TODO: this can user pathID now, instead of storing the full string.
 func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua, remoteAddr string) (zint.Uint128, zdb.Bool) {
 	sessionHash := hash{userSessionID}
 

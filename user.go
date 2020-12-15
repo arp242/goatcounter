@@ -23,8 +23,8 @@ const totpSecretLen = 16
 
 // User entry.
 type User struct {
-	ID   int64 `db:"id" json:"id,readonly"`
-	Site int64 `db:"site" json:"site,readonly"`
+	ID   int64 `db:"user_id" json:"id,readonly"`
+	Site int64 `db:"site_id" json:"site,readonly"`
 
 	Email         string     `db:"email" json:"email"`
 	EmailVerified zdb.Bool   `db:"email_verified" json:"email_verified,readonly"`
@@ -129,9 +129,9 @@ func (u *User) Insert(ctx context.Context) error {
 	query := `insert into users `
 	args := []interface{}{u.Site, u.Email, u.Password, u.TOTPSecret, u.CreatedAt.Format(zdb.Date)}
 	if u.EmailVerified {
-		query += ` (site, email, password, totp_secret, created_at, email_verified) values ($1, $2, $3, $4, $5, 1)`
+		query += ` (site_id, email, password, totp_secret, created_at, email_verified) values ($1, $2, $3, $4, $5, 1)`
 	} else {
-		query += ` (site, email, password, totp_secret, created_at, email_token) values ($1, $2, $3, $4, $5, $6)`
+		query += ` (site_id, email, password, totp_secret, created_at, email_token) values ($1, $2, $3, $4, $5, $6)`
 		args = append(args, u.EmailToken)
 	}
 
@@ -143,7 +143,7 @@ func (u *User) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "User.Insert")
 	}
 
-	if cfg.PgSQL {
+	if zdb.PgSQL(zdb.MustGet(ctx)) {
 		var nu User
 		// No site yet when signing up since it's on www.goatcounter.com
 		err = nu.ByEmail(WithSite(ctx, &Site{ID: u.Site}), u.Email)
@@ -173,7 +173,7 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update users set email=$1, updated_at=$2, email_verified=$3, email_token=$4 where id=$5`,
+		`update users set email=$1, updated_at=$2, email_verified=$3, email_token=$4 where user_id=$5`,
 		u.Email, u.UpdatedAt.Format(zdb.Date), u.EmailVerified, u.EmailToken, u.ID)
 	return errors.Wrap(err, "User.Update")
 }
@@ -197,7 +197,7 @@ func (u *User) UpdatePassword(ctx context.Context, pwd string) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx,
-		`update users set password=$1, updated_at=$2 where id=$3`,
+		`update users set password=$1, updated_at=$2 where user_id=$3`,
 		u.Password, u.UpdatedAt.Format(zdb.Date), u.ID)
 	return errors.Wrap(err, "User.UpdatePassword")
 }
@@ -216,7 +216,7 @@ func (u User) CorrectPassword(pwd string) (bool, error) {
 
 func (u *User) VerifyEmail(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update users set email_verified=1, email_token=null where id=$1`,
+		`update users set email_verified=1, email_token=null where user_id=$1`,
 		u.ID)
 	return errors.Wrap(err, "User.VerifyEmail")
 }
@@ -224,7 +224,7 @@ func (u *User) VerifyEmail(ctx context.Context) error {
 // ByEmailToken gets a user by email verification token.
 func (u *User) ByEmailToken(ctx context.Context, key string) error {
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
-		`select * from users where site=$1 and email_token=$2`,
+		`select * from users where site_id=$1 and email_token=$2`,
 		MustGetSite(ctx).IDOrParent(), key), "User.ByEmailToken")
 }
 
@@ -233,16 +233,15 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
 		`select * from users where
 			lower(email)=lower($1) and
-			(site=$2 or site=(select parent from sites where id=$2))
+			(site_id=$2 or site_id=(select parent from sites where user_id=$2))
 		`, email, MustGetSite(ctx).ID), "User.ByEmail")
 }
 
 // ByResetToken gets a user by login request key.
 func (u *User) ByResetToken(ctx context.Context, key string) error {
-	query := `select * from users
-		where login_request=$1 and site=$2 and `
+	query := `select * from users where login_request=$1 and site_id=$2 and `
 
-	if cfg.PgSQL {
+	if zdb.PgSQL(zdb.MustGet(ctx)) {
 		query += `reset_at + interval '60 minutes' > now()`
 	} else {
 		query += `datetime(reset_at, '+60 minutes') > datetime()`
@@ -270,7 +269,7 @@ func (u *User) ByTokenAndSite(ctx context.Context, token string) error {
 	}
 
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
-		`select * from users where login_token=$1 and site=$2`,
+		`select * from users where login_token=$1 and site_id=$2`,
 		token, MustGetSite(ctx).IDOrParent()), "User.ByTokenAndSite")
 }
 
@@ -283,7 +282,7 @@ func (u *User) BySite(ctx context.Context, id int64) error {
 	}
 
 	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, u,
-		`select * from users where site=$1`, s.IDOrParent()), "User.ByID")
+		`select * from users where site_id=$1`, s.IDOrParent()), "User.ByID")
 }
 
 // RequestReset generates a new password reset key.
@@ -292,14 +291,14 @@ func (u *User) RequestReset(ctx context.Context) error {
 	// Recycle the request_login for now; will rename after removing email auth.
 	u.LoginRequest = zcrypto.Secret128P()
 	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set
-		login_request=$1, reset_at=current_timestamp where id=$2 and site=$3`,
+		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.RequestReset")
 }
 
 func (u *User) EnableTOTP(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set totp_enabled=1
-		where id=$1 and site=$2`,
+		where user_id=$1 and site_id=$2`,
 		u.ID, MustGetSite(ctx).IDOrParent())
 	if err != nil {
 		return errors.Wrap(err, "User.EnableTOTP")
@@ -318,7 +317,7 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 	}
 
 	_, err = zdb.MustGet(ctx).ExecContext(ctx, `update users set
-		totp_enabled=0, totp_secret=$1 where id=$2 and site=$3`,
+		totp_enabled=0, totp_secret=$1 where user_id=$2 and site_id=$3`,
 		secret, u.ID, MustGetSite(ctx).IDOrParent())
 	if err != nil {
 		return errors.Wrap(err, "User.DisableTOTP")
@@ -338,7 +337,7 @@ func (u *User) Login(ctx context.Context) error {
 
 	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set
 			login_request=null, login_token=$1, csrf_token=$2
-			where id=$3 and site=$4`,
+			where user_id=$3 and site_id=$4`,
 		u.LoginToken, u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Login")
 }
@@ -349,7 +348,7 @@ func (u *User) Logout(ctx context.Context) error {
 	u.LoginRequest = nil
 	u.LoginAt = nil
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update users set login_token=null, login_request=null where id=$1 and site=$2`,
+		`update users set login_token=null, login_request=null where user_id=$1 and site_id=$2`,
 		u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Logout")
 }
@@ -366,7 +365,7 @@ func (u *User) GetToken() string {
 func (u *User) SeenUpdates(ctx context.Context) error {
 	u.SeenUpdatesAt = Now()
 	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update users set seen_updates_at=$1 where id=$2`, u.SeenUpdatesAt, u.ID)
+		`update users set seen_updates_at=$1 where user_id=$2`, u.SeenUpdatesAt, u.ID)
 	return errors.Wrap(err, "User.SeenUpdatesAt")
 }
 
@@ -381,6 +380,6 @@ type Users []User
 // ByEmail gets all users with this email address.
 func (u *Users) ByEmail(ctx context.Context, email string) error {
 	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, u,
-		`select * from users where lower(email)=lower($1) order by id asc`, email),
+		`select * from users where lower(email)=lower($1) order by user_id asc`, email),
 		"Users.ByEmail")
 }

@@ -1,8 +1,8 @@
 create table sites (
-	id             integer        primary key autoincrement,
-	parent         integer        null                     check(parent is null or parent>0),
+	site_id        integer        primary key autoincrement,
+	parent         integer        null,
 
-	code           varchar        not null                 check(length(code) >= 2   and length(code) <= 50),
+	code           varchar        not null                 check(length(code) >= 2 and length(code) <= 50),
 	link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
 	cname_setup_at timestamp      default null             check(cname_setup_at = strftime('%Y-%m-%d %H:%M:%S', cname_setup_at)),
@@ -10,171 +10,287 @@ create table sites (
 	stripe         varchar        null,
 	billing_amount varchar,
 	settings       varchar        not null,
-	received_data  int            not null default 0,
+	received_data  integer        not null default 0,
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at))
+	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
+	first_hit_at   timestamp      not null                 check(first_hit_at = strftime('%Y-%m-%d %H:%M:%S', first_hit_at))
 );
-create unique index "sites#code" on sites(lower(code));
+create unique index "sites#code"   on sites(lower(code));
+create unique index "sites#cname"  on sites(lower(cname));
+create        index "sites#parent" on sites(parent) where state='a';
 
 create table users (
-	id             integer        primary key autoincrement,
-	site           integer        not null                 check(site > 0),
+	user_id        integer        primary key autoincrement,
+	site_id        integer        not null,
 
 	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
-	email_verified int            not null default 0,
+	email_verified integer        not null default 0,
 	password       blob           default null,
 	totp_enabled   integer        not null default 0,
-	totp_secret    blob,
+	totp_secret    blob    ,
 	role           varchar        not null default ''      check(role in ('', 'a')),
 	login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
 	login_request  varchar        null,
 	login_token    varchar        null,
 	csrf_token     varchar        null,
 	email_token    varchar        null,
-	seen_updates_at timestamp     not null default '1970-01-01 00:00:00' check(seen_updates_at = strftime('%Y-%m-%d %H:%M:%S', seen_updates_at)),
+	seen_updates_at timestamp     not null default current_timestamp check(seen_updates_at = strftime('%Y-%m-%d %H:%M:%S', seen_updates_at)),
 	reset_at       timestamp      null,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 	updated_at     timestamp                               check(updated_at = strftime('%Y-%m-%d %H:%M:%S', updated_at)),
 
-	foreign key (site) references sites(id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
 );
-create        index "users#site"          on users(site);
-create unique index "users#site#email"    on users(site, lower(email));
+create        index "users#site_id"       on users(site_id);
+create unique index "users#site_id#email" on users(site_id, lower(email));
 
 create table api_tokens (
 	api_token_id   integer        primary key autoincrement,
 	site_id        integer        not null,
 	user_id        integer        not null,
-	name           varchar        not null,
-	token          varchar        not null    check(length(token) > 10),
-	permissions    jsonb          not null,
-	created_at     timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
 
-	foreign key (site_id) references sites(id) on delete restrict on update restrict,
-	foreign key (user_id) references users(id) on delete restrict on update restrict
+	name           varchar        not null,
+	token          varchar        not null                 check(length(token) > 10),
+	permissions    varchar        not null,
+	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	foreign key (user_id) references users(user_id) on delete restrict on update restrict
 );
 create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
 
 create table hits (
-	id             integer        primary key autoincrement,
-	site           integer        not null                 check(site > 0),
-	session        integer        default null,
-	session2       blob           default null,
+	hit_id         integer        primary key autoincrement,
+	-- No foreign keys on this as checking them for every insert is
+	-- comparatively expensive.
+	site_id        integer        not null                 check(site_id > 0),
+	path_id        integer        not null                 check(path_id > 0),
+	user_agent_id  integer        not null                 check(user_agent_id > 0),
 
-	path           varchar        not null,
-	title          varchar        not null default '',
-	event          int            default 0,
-	bot            int            default 0,
+	session        blob           default null,
+	bot            integer        default 0,
 	ref            varchar        not null,
 	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
-	browser        varchar        not null,
 	size           varchar        not null default '',
 	location       varchar        not null default '',
-	first_visit    int            default 0,
+	first_visit    integer        default 0,
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
-create index "hits#site#bot#created_at"      on hits(site, bot, created_at);
-create index "hits#site#path"                on hits(site, lower(path));
+create index "hits#site_id#created_at" on hits(site_id, created_at );
 
-create table hit_stats (
-	site           integer        not null                 check(site > 0),
 
-	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
+create table paths (
+	path_id        integer        primary key autoincrement,
+	site_id        integer        not null,
+
 	path           varchar        not null,
 	title          varchar        not null default '',
+	event          integer        default 0,
+
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
+);
+create unique index "paths#site_id#path" on paths(site_id, lower(path));
+create        index "paths#path#title"   on paths(lower(path), lower(title));
+
+create table browsers (
+	browser_id     integer        primary key autoincrement,
+
+	name           varchar,
+	version        varchar
+);
+
+create table systems (
+	system_id      integer        primary key autoincrement,
+
+	name           varchar,
+	version        varchar
+);
+
+create table user_agents (
+	user_agent_id  integer        primary key autoincrement,
+	browser_id     integer        not null,
+	system_id      integer        not null,
+
+	ua             varchar        not null,
+	bot            integer        not null,
+
+	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
+	foreign key (system_id)  references systems(system_id)   on delete restrict on update restrict
+);
+create unique index "user_agents#ua" on user_agents(ua);
+
+create table hit_counts (
+	site_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
+
+	hour           timestamp      not null                 check(hour = strftime('%Y-%m-%d %H:%M:%S', hour)),
+	total          integer        not null,
+	total_unique   integer        not null,
+
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) on conflict replace
+);
+create index "hit_counts#site_id#hour" on hit_counts(site_id, hour );
+
+
+
+create table ref_counts (
+	site_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
+
+	ref            varchar        not null,
+	ref_scheme     varchar        null,
+	hour           timestamp      not null                 check(hour = strftime('%Y-%m-%d %H:%M:%S', hour)),
+	total          integer        not null,
+	total_unique   integer        not null,
+
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) on conflict replace
+);
+create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
+
+
+
+create table hit_stats (
+	site_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
+
+	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	stats          varchar        not null,
 	stats_unique   varchar        not null,
 
-	foreign key (site) references sites(id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) on conflict replace
 );
-create index "hit_stats#site#day" on hit_stats(site, day);
+create index "hit_stats#site_id#day" on hit_stats(site_id, day );
 
-create table hit_counts (
-	site          int        not null check(site>0),
-	path          varchar    not null,
-	title         varchar    not null,
-	event         integer    not null default 0,
-	hour          timestamp  not null check(hour = strftime('%Y-%m-%d %H:%M:%S', hour)),
-	total         int        not null,
-	total_unique  int        not null,
 
-	constraint "hit_counts#site#path#hour" unique(site, path, hour) on conflict replace
-);
-create index "hit_counts#site#hour" on hit_counts(site, hour);
-
-create table ref_counts (
-	site          int        not null check(site>0),
-	path          varchar    not null,
-	ref           varchar    not null,
-	ref_scheme    varchar    null,
-	hour          timestamp  not null check(hour = strftime('%Y-%m-%d %H:%M:%S', hour)),
-	total         int        not null,
-	total_unique  int        not null,
-
-	constraint "ref_counts#site#path#ref#hour" unique(site, path, ref, hour) on conflict replace
-);
-create index "ref_counts#site#hour" on ref_counts(site, hour);
 
 create table browser_stats (
-	site           integer        not null                 check(site > 0),
+	site_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
+	browser_id     integer        not null,
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-	browser        varchar        not null,
-	version        varchar        not null,
-	count          int            not null,
-	count_unique   int            not null,
+	count          integer        not null,
+	count_unique   integer        not null,
 
-	foreign key (site) references sites(id) on delete restrict on update restrict
+	foreign key (site_id)    references sites(site_id)       on delete restrict on update restrict,
+	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
+	constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) on conflict replace
 );
-create index "browser_stats#site#day#browser" on browser_stats(site, day, browser);
+create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day );
+
+
 
 create table system_stats (
-	site           integer        not null                 check(site > 0),
+	site_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
+	system_id      integer        not null,
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-	system         varchar        not null,
-	version        varchar        not null,
-	count          int            not null,
-	count_unique   int            not null,
+	count          integer        not null,
+	count_unique   integer        not null,
 
-	foreign key (site) references sites(id) on delete restrict on update restrict
+	foreign key (site_id)   references sites(site_id)     on delete restrict on update restrict,
+	foreign key (system_id) references systems(system_id) on delete restrict on update restrict,
+	constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) on conflict replace
 );
-create index "system_stats#site#day"        on system_stats(site, day);
-create index "system_stats#site#day#system" on system_stats(site, day, system);
+create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day );
+
+
 
 create table location_stats (
-	site           integer        not null                 check(site > 0),
+	site_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	location       varchar        not null,
-	count          int            not null,
-	count_unique   int            not null,
+	count          integer        not null,
+	count_unique   integer        not null,
 
-	foreign key (site) references sites(id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) on conflict replace
 );
-create unique index "location_stats#site#day#location" on location_stats(site, day, location);
+create index "location_stats#site_id#day" on location_stats(site_id, day );
+
+
 
 create table size_stats (
-	site           integer        not null                 check(site > 0),
+	site_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
-	width          int            not null,
-	count          int            not null,
-	count_unique   int            not null,
+	width          integer        not null,
+	count          integer        not null,
+	count_unique   integer        not null,
 
-	foreign key (site) references sites(id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) on conflict replace
 );
-create unique index "size_stats#site#day#width" on size_stats(site, day, width);
+create index "size_stats#site_id#day" on size_stats(site_id, day );
+
+
+
+create table updates (
+	id             integer        primary key autoincrement,
+	subject        varchar        not null,
+	body           varchar        not null,
+
+	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+	show_at        timestamp      not null                 check(show_at = strftime('%Y-%m-%d %H:%M:%S', show_at))
+);
+create index "updates#show_at" on updates(show_at);
+
+create table exports (
+	export_id      integer        primary key autoincrement,
+	site_id        integer        not null,
+	start_from_hit_id integer     not null,
+
+	path           varchar        not null,
+	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
+
+	finished_at    timestamp                               check(finished_at is null or finished_at = strftime('%Y-%m-%d %H:%M:%S', finished_at)),
+	last_hit_id    integer,
+	num_rows       integer,
+	size           varchar,
+	hash           varchar,
+	error          varchar,
+
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
+);
+create index "exports#site_id#created_at" on exports(site_id, created_at);
+
+create table store (
+	key            varchar        not null,
+	value          text
+);
+create unique index "store#key" on store(key);
+
+
+create view view_user_agents as
+	select
+		user_agents.user_agent_id as id,
+		user_agents.system_id     as bid,
+		user_agents.browser_id    as sid,
+		user_agents.bot,
+		browsers.name || ' ' || browsers.version as browser,
+		systems.name  || ' ' || systems.version as system,
+		user_agents.ua
+	from user_agents
+	join browsers using (browser_id)
+	join systems using (system_id);
 
 create table iso_3166_1 (
-	name   varchar,
-	alpha2 varchar
+	name           varchar,
+	alpha2          varchar
 );
 create unique index "iso_3166_1#alpha2" on iso_3166_1(alpha2);
+
 insert into iso_3166_1 (name, alpha2) values
 	('(unknown)', ''),
 
@@ -468,64 +584,15 @@ insert into iso_3166_1 (name, alpha2) values
 	('Zaire', 'ZR'),
 	('Zimbabwe', 'ZW');
 
-create table updates (
-	id             integer        primary key autoincrement,
-	subject        varchar        not null,
-	body           varchar        not null,
-
-	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-	show_at        timestamp      not null                 check(show_at = strftime('%Y-%m-%d %H:%M:%S', show_at))
-);
-create index "updates#show_at" on updates(show_at);
-
-create table exports (
-	export_id         integer        primary key autoincrement,
-	site_id           integer        not null,
-	start_from_hit_id integer        not null,
-
-	path              varchar        not null,
-	created_at        timestamp      not null    check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at)),
-
-	finished_at       timestamp                  check(finished_at is null or finished_at = strftime('%Y-%m-%d %H:%M:%S', finished_at)),
-	last_hit_id       integer,
-	num_rows          integer,
-	size              varchar,
-	hash              varchar,
-	error             varchar,
-
-	foreign key (site_id) references sites(id) on delete restrict on update restrict
-);
-create index "exports#site_id#created_at" on exports(site_id, created_at);
-
-create table store (
-	key     varchar not null,
-	value   text
-);
-create unique index "store#key" on store(key);
-
 create table version (name varchar);
 insert into version values
-	('2020-03-27-1-isbot'),
-	('2020-03-24-1-sessions'),
-	('2020-04-06-1-event'),
-	('2020-04-16-1-pwauth'),
-	('2020-04-22-1-campaigns'),
-	('2020-04-27-1-usage-flags'),
-	('2020-04-28-1-fix'),
-	('2020-05-13-1-unique-path'),
-	('2020-05-17-1-rm-user-name'),
-	('2020-05-16-1-os_stats'),
-	('2020-05-18-1-domain-count'),
-	('2020-05-21-1-ref-count'),
-	('2020-05-23-1-event'),
-	('2020-05-23-1-index'),
-	('2020-05-23-2-drop-ref-stats'),
-	('2020-06-03-1-cname-setup'),
-	('2020-06-18-1-totp'),
-	('2020-06-26-1-api-tokens'),
-	('2020-06-26-1-record-export'),
-	('2020-07-03-1-plan-amount'),
-	('2020-07-21-1-memsess'),
-	('2020-07-22-1-memsess'),
-	('2020-08-01-1-repl'),
-	('2020-08-24-1-iso_unique');
+	('2020-08-28-1-paths-tables'),
+	('2020-08-28-2-paths-paths'),
+	('2020-08-28-3-paths-rmold'),
+	('2020-08-28-4-user_agents'),
+	('2020-08-28-5-paths-ua-fk'),
+	('2020-08-28-6-paths-views'),
+	('2020-12-11-1-constraint');
+
+
+-- vim:ft=sql:tw=0

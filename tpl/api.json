@@ -555,6 +555,10 @@
           "type": "string",
           "format": "date-time"
         },
+        "first_hit_at": {
+          "type": "string",
+          "format": "date-time"
+        },
         "id": {
           "type": "integer",
           "readOnly": true

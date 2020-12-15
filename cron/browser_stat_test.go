@@ -21,14 +21,14 @@ func TestBrowserStats(t *testing.T) {
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 
 	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Browser: "Firefox/68.0", FirstVisit: true},
-		{Site: site.ID, CreatedAt: now, Browser: "Chrome/77.0.123.666"},
-		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
-		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/68.0", FirstVisit: true},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Chrome/77.0.123.666"},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/69.0"},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/69.0"},
 	}...)
 
 	var stats goatcounter.Stats
-	err := stats.ListBrowsers(ctx, now, now, 10, 0)
+	err := stats.ListBrowsers(ctx, now, now, nil, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,14 +41,14 @@ func TestBrowserStats(t *testing.T) {
 
 	// Update existing.
 	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0", FirstVisit: true},
-		{Site: site.ID, CreatedAt: now, Browser: "Firefox/69.0"},
-		{Site: site.ID, CreatedAt: now, Browser: "Firefox/70.0"},
-		{Site: site.ID, CreatedAt: now, Browser: "Firefox/70.0"},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/69.0", FirstVisit: true},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/69.0"},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/70.0"},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/70.0"},
 	}...)
 
 	stats = goatcounter.Stats{}
-	err = stats.ListBrowsers(ctx, now, now, 10, 0)
+	err = stats.ListBrowsers(ctx, now, now, nil, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestBrowserStats(t *testing.T) {
 
 	// List just Firefox.
 	stats = goatcounter.Stats{}
-	err = stats.ListBrowser(ctx, "Firefox", now, now)
+	err = stats.ListBrowser(ctx, "Firefox", now, now, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

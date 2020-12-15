@@ -5,15 +5,16 @@
 package goatcounter_test
 
 import (
-	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/zdb"
 	"zgo.at/zstd/ztest"
 )
 
@@ -33,7 +34,7 @@ func TestHitStatsList(t *testing.T) {
 	tests := []struct {
 		in         []goatcounter.Hit
 		inFilter   string
-		inExclude  []string
+		inExclude  []int64
 		wantReturn string
 		wantStats  goatcounter.HitStats
 	}{
@@ -127,7 +128,7 @@ func TestHitStatsList(t *testing.T) {
 				{CreatedAt: hit, Path: "/aaaa"},
 			},
 			inFilter:   "a",
-			inExclude:  []string{"/aaaa", "/aaa"},
+			inExclude:  []int64{4, 3},
 			wantReturn: "2 0 false <nil>",
 			wantStats: goatcounter.HitStats{
 				goatcounter.HitStat{Count: 1, Path: "/aa", RefScheme: nil, Stats: []goatcounter.Stat{
@@ -169,12 +170,20 @@ func TestHitStatsList(t *testing.T) {
 
 			gctest.StoreHits(ctx, t, false, tt.in...)
 
+			pathsFilter, err := goatcounter.PathFilter(ctx, tt.inFilter, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			var stats goatcounter.HitStats
-			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, tt.inFilter, tt.inExclude, false)
+			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, pathsFilter, tt.inExclude, false)
 
 			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
 			if got != tt.wantReturn {
 				t.Errorf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
+				zdb.Dump(ctx, os.Stdout, "select * from paths")
+				zdb.Dump(ctx, os.Stdout, "select * from hit_counts")
+				zdb.Dump(ctx, os.Stdout, "select * from hit_stats")
 			}
 
 			out := strings.ReplaceAll(", ", ",\n", fmt.Sprintf("%+v", stats))
@@ -223,10 +232,11 @@ func TestHitDefaultsRef(t *testing.T) {
 		{"android-app://com.example.android", "com.example.android", nil, nil, "o"},
 	}
 
-	ctx := goatcounter.WithSite(context.Background(), &goatcounter.Site{ID: 1})
+	ctx, clean := gctest.DB(t)
+	defer clean()
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
 			h := goatcounter.Hit{Ref: tt.in}
 			h.RefURL, _ = url.Parse(tt.in)
 			h.Defaults(ctx)
@@ -255,7 +265,7 @@ func TestHitDefaultsPath(t *testing.T) {
 		{"/page", "/page"},
 		{"//page/", "/page"},
 		{"//", "/"},
-		{"", "/"},
+		{"", ""},
 
 		{"/page?q=a", "/page?q=a"},
 		{"/page?fbclid=foo", "/page"},
@@ -276,10 +286,11 @@ func TestHitDefaultsPath(t *testing.T) {
 		{"/web/assets/images/social-github.svg", "/web/assets/images/social-github.svg"},
 	}
 
-	ctx := goatcounter.WithSite(context.Background(), &goatcounter.Site{ID: 1})
+	ctx, clean := gctest.DB(t)
+	defer clean()
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.in, func(t *testing.T) {
 			h := goatcounter.Hit{Path: tt.in}
 			h.Defaults(ctx)
 

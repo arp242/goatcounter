@@ -64,7 +64,16 @@ var groups = map[string]string{
 	"org.telegram.messenger": "Telegram Messenger",
 
 	"com.Slack": "Slack Chat",
+
+	// Baidu
+	"baidu.com":         "Baidu",
+	"c.tieba.baidu.com": "Baidu",
+	"m.baidu.com":       "Baidu",
+	"tieba.baidu.com":   "Baidu",
+	"www.baidu.com":     "Baidu",
 }
+
+// update
 
 var hostAlias = map[string]string{
 	"en.m.wikipedia.org": "en.wikipedia.org",
@@ -95,10 +104,15 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	}
 
 	// Group based on URL.
-	if strings.HasPrefix(refURL.Host, "www.google.") {
+	if strings.HasPrefix(refURL.Host, "www.google.") || strings.HasPrefix(refURL.Host, "google.") {
 		// Group all "google.co.nz", "google.nl", etc. as "Google".
 		return "Google", true
 	}
+
+	if strings.Contains(refURL.Host, "search.yahoo.com") {
+		return "Yahoo", true
+	}
+
 	if g, ok := groups[refURL.Host]; ok {
 		return g, true
 	}
@@ -187,28 +201,34 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 		limit = 10
 	}
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ListRefsByPath */
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListRefsByPath */
+		with x as (
+			select path_id from paths
+			where site_id=:site and lower(path)=lower(:path)
+		)
 		select
 			coalesce(sum(total), 0) as count,
 			coalesce(sum(total_unique), 0) as count_unique,
 			max(ref_scheme) as ref_scheme,
 			ref as name
 		from ref_counts
+		join x using (path_id)
 		where
-			site=$1 and
-			lower(path)=lower($2) and
-			hour>=$3 and
-			hour<=$4
+			site_id=:site and hour>=:start and hour<=:end
 		group by ref
 		order by count_unique desc, ref desc
-		limit $5 offset $6`,
-		site.ID, path, start.Format(zdb.Date), end.Format(zdb.Date), limit+1, offset)
+		limit :limit offset :offset`,
+		struct {
+			Site          int64
+			Start, End    string
+			Path          string
+			Limit, Offset int
+		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), path, limit + 1, offset})
 
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-
 	return errors.Wrap(err, "Stats.ListRefsByPath")
 }
 
@@ -217,7 +237,7 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
-func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset int) error {
+func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilter []int64, offset int) error {
 	site := MustGetSite(ctx)
 
 	limit := site.Settings.Limits.Hchart
@@ -225,25 +245,29 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 		limit = 6
 	}
 
-	where := ` where site=? and hour>=? and hour<=?`
-	args := []interface{}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date)}
-	if site.LinkDomain != "" {
-		where += " and ref not like ? "
-		args = append(args, site.LinkDomain+"%")
-	}
-
-	db := zdb.MustGet(ctx)
-	err := db.SelectContext(ctx, &h.Stats, db.Rebind(`/* Stats.ListTopRefs */
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListTopRefs */
 		select
 			coalesce(sum(total), 0) as count,
 			coalesce(sum(total_unique), 0) as count_unique,
 			max(ref_scheme) as ref_scheme,
 			ref as name
-		from ref_counts`+
-		where+`
+		from ref_counts
+		where
+			site_id=:site and hour>=:start and hour<=:end
+			{{and path_id in (:filter)}}
+			{{and ref not like :ref}}
 		group by ref
 		order by count_unique desc
-		limit ? offset ?`), append(args, limit+1, offset)...)
+		limit :limit offset :offset`,
+		struct {
+			Site          int64
+			Start, End    string
+			Filter        []int64
+			Ref           string
+			Limit, Offset int
+		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter,
+			site.LinkDomain + "%", limit, offset},
+		len(pathFilter) > 0, site.LinkDomain != "")
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListAllRefs")
 	}
@@ -252,6 +276,5 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, offset in
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-
 	return nil
 }

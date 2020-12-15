@@ -39,6 +39,7 @@ import (
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstripe"
@@ -225,11 +226,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	hit := goatcounter.Hit{
-		Site:       site.ID,
-		Browser:    r.UserAgent(),
-		Location:   geo(r.RemoteAddr),
-		CreatedAt:  goatcounter.Now(),
-		RemoteAddr: r.RemoteAddr,
+		Site:            site.ID,
+		UserAgentHeader: r.UserAgent(),
+		Location:        geo(r.RemoteAddr),
+		CreatedAt:       goatcounter.Now(),
+		RemoteAddr:      r.RemoteAddr,
 	}
 
 	err := formam.NewDecoder(&formam.DecoderOptions{TagName: "json"}).Decode(r.URL.Query(), &hit)
@@ -248,7 +249,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		hit.Bot = int(bot)
 	}
 
-	err = hit.Validate(r.Context())
+	err = hit.Validate(r.Context(), true)
 	if err != nil {
 		w.Header().Add("X-Goatcounter", fmt.Sprintf("not valid: %s", err))
 		w.WriteHeader(400)
@@ -262,9 +263,23 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
 
-	exclude := r.URL.Query().Get("exclude")
-	filter := r.URL.Query().Get("filter")
-	asText := r.URL.Query().Get("as-text") == "true"
+	exclude, err := zint.Split(r.URL.Query().Get("exclude"), ",")
+	if err != nil {
+		return err
+	}
+
+	var (
+		filter     = r.URL.Query().Get("filter")
+		pathFilter []int64
+	)
+	if filter != "" {
+		pathFilter, err = goatcounter.PathFilter(r.Context(), filter, true)
+		if err != nil {
+			return err
+		}
+	}
+
+	asText := r.URL.Query().Get("as-text") == "on" || r.URL.Query().Get("as-text") == "true"
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
 		return err
@@ -296,18 +311,19 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		totalHits, totalUnique int
 		totalCountErr          error
 	)
+
 	// Filtering instead of paginating: get new "totals" stats as well.
 	// TODO: also re-render the the horizontal bar charts below, but this isn't
 	// currently possible since not all data is linked to a path.
 	//
 	// TODO: use widgets for this.
-	if exclude == "" {
+	if len(exclude) == 0 {
 		wg.Add(1)
 		go func() {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			maxTotals, totalErr = totalPages.Totals(r.Context(), start, end, filter, daily)
+			maxTotals, totalErr = totalPages.Totals(r.Context(), start, end, pathFilter, daily)
 			if totalErr != nil {
 				return
 			}
@@ -326,7 +342,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			max, maxErr = goatcounter.GetMax(r.Context(), start, end, filter, daily)
+			max, maxErr = goatcounter.GetMax(r.Context(), start, end, pathFilter, daily)
 		}()
 
 		wg.Add(1)
@@ -334,13 +350,13 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			totalHits, totalUnique, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, filter)
+			totalHits, totalUnique, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, pathFilter)
 		}()
 	}
 
 	var pages goatcounter.HitStats
 	totalDisplay, totalUniqueDisplay, more, err := pages.List(
-		r.Context(), start, end, filter, strings.Split(exclude, ","), daily)
+		r.Context(), start, end, pathFilter, exclude, daily)
 	if err != nil {
 		return err
 	}
@@ -417,19 +433,30 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 		return v
 	}
 
+	var (
+		filter     = r.URL.Query().Get("filter")
+		pathFilter []int64
+	)
+	if filter != "" {
+		pathFilter, err = goatcounter.PathFilter(r.Context(), filter, true)
+		if err != nil {
+			return err
+		}
+	}
+
 	var detail goatcounter.Stats
 	switch kind {
 	case "browser":
-		err = detail.ListBrowser(r.Context(), name, start, end)
+		err = detail.ListBrowser(r.Context(), name, start, end, pathFilter)
 	case "system":
-		err = detail.ListSystem(r.Context(), name, start, end)
+		err = detail.ListSystem(r.Context(), name, start, end, pathFilter)
 	case "size":
-		err = detail.ListSize(r.Context(), name, start, end)
+		err = detail.ListSize(r.Context(), name, start, end, pathFilter)
 	case "topref":
 		if name == "(unknown)" {
 			name = ""
 		}
-		err = detail.ByRef(r.Context(), start, end, name)
+		err = detail.ByRef(r.Context(), start, end, pathFilter, name)
 	}
 	if err != nil {
 		return err
@@ -455,6 +482,17 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	total := int(v.Integer("total", r.URL.Query().Get("total")))
 	offset := int(v.Integer("offset", r.URL.Query().Get("offset")))
 
+	var (
+		filter     = r.URL.Query().Get("filter")
+		pathFilter []int64
+	)
+	if filter != "" {
+		pathFilter, err = goatcounter.PathFilter(r.Context(), filter, true)
+		if err != nil {
+			return err
+		}
+	}
+
 	showRefs := ""
 	if kind == "ref" {
 		showRefs = r.URL.Query().Get("showrefs")
@@ -472,11 +510,11 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	)
 	switch kind {
 	case "browser":
-		err = page.ListBrowsers(r.Context(), start, end, 6, offset)
+		err = page.ListBrowsers(r.Context(), start, end, pathFilter, 6, offset)
 	case "system":
-		err = page.ListSystems(r.Context(), start, end, 6, offset)
+		err = page.ListSystems(r.Context(), start, end, pathFilter, 6, offset)
 	case "location":
-		err = page.ListLocations(r.Context(), start, end, 6, offset)
+		err = page.ListLocations(r.Context(), start, end, pathFilter, 6, offset)
 		link = false
 	case "ref":
 		err = page.ListRefsByPath(r.Context(), showRefs, start, end, offset)
@@ -484,7 +522,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 		paginate = offset == 0
 		link = false
 	case "topref":
-		err = page.ListTopRefs(r.Context(), start, end, offset)
+		err = page.ListTopRefs(r.Context(), start, end, pathFilter, offset)
 	}
 	if err != nil {
 		return err
@@ -903,10 +941,15 @@ func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) purge(w http.ResponseWriter, r *http.Request) error {
+	paths, err := zint.Split(r.Form.Get("paths"), ",")
+	if err != nil {
+		return err
+	}
+
 	ctx := goatcounter.NewContext(r.Context())
 	bgrun.Run(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
-		err := list.Purge(ctx, r.Form.Get("path"), r.Form.Get("match-title") == "on")
+		err := list.Purge(ctx, paths)
 		if err != nil {
 			zlog.Error(err)
 		}
@@ -1036,7 +1079,7 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (
 	}
 
 	// Allow viewing a week before the site was created at the most.
-	c := site.CreatedAt.Add(-24 * time.Hour * 7)
+	c := site.FirstHitAt.Add(-24 * time.Hour * 7)
 	if start.Before(c) {
 		y, m, d := c.In(site.Settings.Timezone.Loc()).Date()
 		start = time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())

@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"text/template"
 
 	"zgo.at/errors"
 	"zgo.at/zlog"
@@ -35,6 +36,12 @@ func main() {
 			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate kommentaar files: %s\n", err)
 		}
 		l = l.Since("kommentaar")
+
+		err = schema()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate DB schema files: %s\n", err)
+		}
+		l = l.Since("schema")
 	}
 
 	err := zpack.Pack(map[string]map[string]string{
@@ -67,6 +74,110 @@ func main() {
 		}
 	}
 	l.FieldsSince().Print("done")
+}
+
+func schema() error {
+	tpl, err := ioutil.ReadFile("./db/schema.gotxt")
+	if err != nil {
+		return err
+	}
+
+	var pgsql bool
+	t := template.Must(template.New("").Funcs(template.FuncMap{
+		"sqlite": func(s string) string {
+			if pgsql {
+				return ""
+			}
+			return s
+		},
+		"psql": func(s string) string {
+			if pgsql {
+				return s
+			}
+			return ""
+		},
+		"auto_increment": func() string {
+			if pgsql {
+				return "serial         primary key"
+			}
+			return "integer        primary key autoincrement"
+		},
+		"json": func() string {
+			if pgsql {
+				return "json    "
+			}
+			return "varchar "
+		},
+		"jsonb": func() string {
+			if pgsql {
+				return "jsonb    "
+			}
+			return "varchar  "
+		},
+		"blob": func() string {
+			if pgsql {
+				return "bytea   "
+			}
+			return "blob    "
+		},
+		"check_timestamp": func(col string) string {
+			if pgsql {
+				return ""
+			}
+			return "check(" + col + " = strftime('%Y-%m-%d %H:%M:%S', " + col + "))"
+		},
+		"check_date": func(col string) string {
+			if pgsql {
+				return ""
+			}
+			return "check(" + col + " = strftime('%Y-%m-%d', " + col + "))"
+		},
+		"cluster": func(tbl, idx string) string {
+			if pgsql {
+				return `cluster ` + tbl + ` using "` + idx + `";`
+			}
+			return ""
+		},
+		"replica": func(tbl, idx string) string {
+			if pgsql {
+				return `alter table ` + tbl + ` replica identity using index "` + idx + `";`
+			}
+			return ""
+		},
+	}).Parse(string(tpl)))
+
+	{
+		fp, err := os.Create("./db/schema.sql")
+		if err != nil {
+			return (err)
+		}
+
+		err = t.Execute(fp, nil)
+		if err != nil {
+			return err
+		}
+
+		err = fp.Close()
+		if err != nil {
+			return (err)
+		}
+	}
+
+	{
+		pgsql = true
+		fp, err := os.Create("./db/schema.pgsql")
+		if err != nil {
+			return (err)
+		}
+		err = t.Execute(fp, nil)
+
+		err = fp.Close()
+		if err != nil {
+			return (err)
+		}
+	}
+
+	return nil
 }
 
 var (

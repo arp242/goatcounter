@@ -30,7 +30,7 @@ func TestSizeStats(t *testing.T) {
 	}...)
 
 	var stats goatcounter.Stats
-	err := stats.ListSizes(ctx, now, now)
+	err := stats.ListSizes(ctx, now, now, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func TestSizeStats(t *testing.T) {
 	}...)
 
 	stats = goatcounter.Stats{}
-	err = stats.ListSizes(ctx, now, now)
+	err = stats.ListSizes(ctx, now, now, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

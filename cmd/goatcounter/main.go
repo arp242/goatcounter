@@ -161,19 +161,19 @@ func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcoun
 func flagDebug() *string { return CommandLine.String("debug", "", "") }
 
 func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) {
-	cfg.PgSQL = strings.HasPrefix(connect, "postgresql://") || strings.HasPrefix(connect, "postgres://")
+	pgSQL := strings.HasPrefix(connect, "postgresql://") || strings.HasPrefix(connect, "postgres://")
 
 	opts := zdb.ConnectOptions{
 		Connect: connect,
 		Migrate: zdb.NewMigrate(nil, migrate,
-			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
+			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[pgSQL],
 			gomig.Migrations,
-			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL]),
+			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[pgSQL]),
 	}
 	if create {
-		opts.Schema = map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[cfg.PgSQL]
+		opts.Schema = map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[pgSQL]
 	}
-	if !cfg.PgSQL {
+	if !pgSQL {
 		opts.SQLiteHook = goatcounter.SQLiteHook
 	}
 	db, err := zdb.Connect(opts)

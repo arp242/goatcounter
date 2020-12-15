@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
@@ -66,9 +65,9 @@ func migrate() (int, error) {
 
 	if zstring.Contains(CommandLine.Args(), "show") || zstring.Contains(CommandLine.Args(), "list") {
 		m := zdb.NewMigrate(db, []string{"show"},
-			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[cfg.PgSQL],
+			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[zdb.PgSQL(db)],
 			gomig.Migrations,
-			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[cfg.PgSQL])
+			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[zdb.PgSQL(db)])
 		have, ran, err := m.List()
 		if err != nil {
 			return 1, err

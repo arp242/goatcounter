@@ -34,7 +34,6 @@ func (h admin) mount(r chi.Router) {
 	a.Get("/admin/sql/table/{table}", zhttp.Wrap(h.pgstatTable))
 	a.Post("/admin/sql/explain", zhttp.Wrap(h.explain))
 
-	a.Get("/admin/botlog", zhttp.Wrap(h.botlog))
 	a.Get("/admin/{id}", zhttp.Wrap(h.site))
 	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
 	a.Post("/admin/login/{id}", zhttp.Wrap(h.login))
@@ -43,6 +42,7 @@ func (h admin) mount(r chi.Router) {
 	a.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/debug/pprof") {
 			pprof.Index(w, r)
+			return
 		}
 		zhttp.SeeOther(w, fmt.Sprintf("/debug/pprof/%s?%s",
 			r.URL.Path[7:], r.URL.Query().Encode()))
@@ -130,23 +130,6 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 		TotalEUR      int
 		TotalEarnings int
 	}{newGlobals(w, r), a, signups, maxSignups, totalUSD, totalEUR, totalEarnings})
-}
-
-func (h admin) botlog(w http.ResponseWriter, r *http.Request) error {
-	if Site(r.Context()).ID != 1 {
-		return guru.New(403, "yeah nah")
-	}
-
-	var ips goatcounter.AdminBotlogIPs
-	err := ips.List(r.Context())
-	if err != nil {
-		return err
-	}
-
-	return zhttp.Template(w, "admin_botlog.gohtml", struct {
-		Globals
-		BotlogIP goatcounter.AdminBotlogIPs
-	}{newGlobals(w, r), ips})
 }
 
 func (h admin) site(w http.ResponseWriter, r *http.Request) error {

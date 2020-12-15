@@ -5,31 +5,35 @@
 (function() {
 	'use strict';
 
-	var SETTINGS     = {},
-		CSRF         = '',
-		TZ_OFFSET    = 0,
-		SITE_CREATED = 0
+	var SETTINGS          = {},
+		CSRF              = '',
+		TZ_OFFSET         = 0,
+		SITE_FIRST_HIT_AT = 0
 
 	$(document).ready(function() {
-		SETTINGS     = JSON.parse($('#js-settings').text())
-		CSRF         = $('#js-settings').attr('data-csrf')
-		TZ_OFFSET    = parseInt($('#js-settings').attr('data-offset'), 10) || 0
-		SITE_CREATED = $('#js-settings').attr('data-created') * 1000
+		SETTINGS          = JSON.parse($('#js-settings').text())
+		CSRF              = $('#js-settings').attr('data-csrf')
+		TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
+		SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
 
-		;[report_errors, period_select, load_refs, tooltip, paginate_pages,
-			hchart_detail, settings_tabs, billing_subscribe, setup_datepicker,
-			filter_pages, add_ip, fill_tz, draw_chart, bind_scale, pgstat,
-			copy_pre, ref_pages,
+		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
+			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
+			bind_scale, pgstat, copy_pre,
 		].forEach(function(f) { f.call() })
-	});
+	})
+
+	// Set up all the dashboard widget contents (but not the header).
+	var dashboard = function() {
+		[draw_chart, paginate_pages, load_refs, hchart_detail, ref_pages].forEach(function(f) { f.call() })
+	}
 
 	// Set up error reporting.
 	var report_errors = function() {
-		window.onerror = on_error;
+		window.onerror = on_error
 
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
-				return;
+				return
 			var msg = `Could not load ${settings.url}: ${err}`
 			console.error(msg)
 			on_error(`ajaxError: ${msg}`, settings.url)
@@ -41,13 +45,13 @@
 	var on_error = function(msg, url, line, column, err) {
 		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
 		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
-			return;
+			return
 
 		jQuery.ajax({
 			url:    '/jserr',
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
-		});
+		})
 	}
 
 	// Load pages for reference in Totals
@@ -161,7 +165,7 @@
 	// Add current IP address to ignore_ips.
 	var add_ip = function() {
 		$('#add-ip').on('click', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			jQuery.ajax({
 				url:     '/ip',
@@ -169,78 +173,87 @@
 					var input   = $('[name="settings.ignore_ips"]'),
 						current = input.val().split(',').
 							map(function(m) { return m.trim() }).
-							filter(function(m) { return m !== '' });
+							filter(function(m) { return m !== '' })
 
 					if (current.indexOf(data) > -1) {
-						$('#add-ip').after('<span class="err">IP ' + data + ' is already in the list</span>');
-						return;
+						$('#add-ip').after('<span class="err">IP ' + data + ' is already in the list</span>')
+						return
 					}
-					current.push(data);
-					var set = current.join(', ');
+					current.push(data)
+					var set = current.join(', ')
 					input.val(set).
 						trigger('focus')[0].
-						setSelectionRange(set.length, set.length);
+						setSelectionRange(set.length, set.length)
 				},
-			});
-		});
-	};
+			})
+		})
+	}
 
 	// Set the timezone based on the browser's timezone.
 	var fill_tz = function() {
 		$('#set-local-tz').on('click', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			if (!window.Intl || !window.Intl.DateTimeFormat) {
-				alert("Sorry, your browser doesn't support accurate timezone information :-(");
-				return;
+				alert("Sorry, your browser doesn't support accurate timezone information :-(")
+				return
 			}
 
-			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-			$('#timezone [value$="' + zone + '"]').attr('selected', true);
-		});
-	};
+			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+			$('#timezone [value$="' + zone + '"]').attr('selected', true)
+		})
+	}
 
 	// Get the Y-axis scake.
 	var get_original_scale = function(current) { return $('.count-list-pages').attr('data-max') }
 	var get_current_scale  = function(current) { return $('.count-list-pages').attr('data-scale') }
 
-	// Reload the path list when typing in the filter input, so the user won't
+	// Reload the dashboard when typing in the filter input, so the user won't
 	// have to press "enter".
 	var filter_pages = function() {
-		highlight_filter($('#filter-paths').val());
+		highlight_filter($('#filter-paths').val())
 
-		var t;
+		$('#filter-paths').on('keydown', function(e) {
+			if (e.keyCode === 13)  // Don't submit form on enter.
+				e.preventDefault()
+		})
+
+		var t
 		$('#filter-paths').on('input', function(e) {
-			clearTimeout(t);
+			clearTimeout(t)
 			t = setTimeout(function() {
 				var filter = $(e.target).val().trim()
-				push_query('filter', filter)
-				push_query('showrefs', null) // clear as this will be reset
+				push_query({filter: filter, showrefs: null})
 				$('#filter-paths').toggleClass('value', filter !== '')
 
 				var loading = $('<span class="loading"></span>')
 				$(e.target).after(loading)
-				jQuery.ajax({
-					url:     '/pages',
-					data:    append_period({
-						filter: filter,
-						daily:  $('#daily').is(':checked'),
-						max:    get_original_scale(),
-					}),
-					success: function(data) {
-						update_pages(data, true)
-						loading.remove()
-					},
-				});
-			}, 300);
+				// TODO: back button doesn't quite work with this.
+				reload_dashboard(() => loading.remove())
+			}, 300)
 		})
+	}
 
-		// Don't submit form on enter.
-		$('#filter-paths').on('keydown', function(e) {
-			if (e.keyCode === 13)
-				e.preventDefault()
+	// Reload the widgets on the dashboard.
+	var reload_dashboard = function(done) {
+		jQuery.ajax({
+			url:     '/',
+			data:    append_period({
+				daily:     $('#daily').is(':checked'),
+				'as-text': $('#as-text').is(':checked'),
+				max:       get_original_scale(),
+				reload:    't',
+			}),
+			success: function(data) {
+				$('#dash-widgets').html(data.widgets)
+				$('#dash-timerange').html(data.timerange)
+				dashboard()
+				highlight_filter($('#filter-paths').val())
+				if (done)
+					done()
+			},
 		})
-	};
+	}
 
 	// Paginate the main path overview.
 	var paginate_pages = function() {
@@ -250,68 +263,43 @@
 				jQuery.ajax({
 					url:  '/pages',
 					data: append_period({
-						filter:    $('#filter-paths').val(),
 						daily:     $('#daily').is(':checked'),
-						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.id).join(','),
+						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
 						offset:    $('.count-list-pages >tbody >tr').length + 1,
-						'as-text': $('.count-list-text').length > 0,
+						'as-text': $('#as-text').is(':checked'),
 					}),
 					success: function(data) {
-						update_pages(data, false)
+						$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
+						draw_chart()
+
+						highlight_filter($('#filter-paths').val())
+						$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
+
+						$('.total-display').each((_, t) => {
+							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display))
+						})
+						$('.total-unique-display').each((_, t) => {
+							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display))
+						})
+
 						done()
 					},
 				})
 			})
 		})
-	};
-
-	// Update the page list from ajax request on pagination/filter.
-	var update_pages = function(data, from_filter) {
-		if (from_filter) {
-			$('.count-list-pages').attr('data-max', data.max)
-			$('.count-list-pages').attr('data-scale', data.max)
-			$('.totals tbody').replaceWith(data.totals)
-			$('.pages-list tbody').html(data.rows)
-		}
-		else
-			$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
-
-		highlight_filter($('#filter-paths').val())
-		$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
-
-		var th = $('.total-hits'),
-		    td = $('.total-display'),
-			tu = $('.total-unique'),
-			ud = $('.total-unique-display')
-		if (from_filter) {
-			th.text(format_int(data.total_hits));
-			td.text(format_int(data.total_display));
-			tu.text(format_int(data.total_unique));
-			ud.text(format_int(data.total_unique_display));
-		}
-		else {
-			td.each((_, t) => {
-				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display));
-			})
-			ud.each((_, t) => {
-				$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display));
-			})
-		}
-
-		draw_chart()
-	};
+	}
 
 	// Highlight a filter pattern in the path and title.
 	var highlight_filter = function(s) {
 		if (s === '')
-			return;
+			return
 		$('.pages-list .count-list-pages > tbody.pages').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
 			if ($(elem).find('b').length)  // Don't apply twice after pagination
 				return
-			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>');
-		});
-	};
+			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>')
+		})
+	}
 
 	// Setup datepicker fields.
 	var setup_datepicker = function() {
@@ -340,33 +328,33 @@
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
 
-		var opts = {toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_CREATED)}
+		var opts = {toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_FIRST_HIT_AT)}
 		new Pikaday($('#period-start')[0], opts)
 		new Pikaday($('#period-end')[0], opts)
-	};
+	}
 
 	// Subscribe with Stripe.
 	var billing_subscribe = function() {
 		var form = $('#billing-form')
 		if (!form.length)
-			return;
+			return
 
 		// Show/hide donation options.
 		$('.plan input, .free input').on('change', function() {
 			var personal = $('input[name="plan"]:checked').val() === 'personal',
-				quantity = parseInt($('#quantity').val(), 10);
+				quantity = parseInt($('#quantity').val(), 10)
 
-			$('.free').css('display', personal ? 'block' : 'none');
-			$('.ask-cc').css('display', personal && quantity === 0 ? 'none' : 'block');
-		}).trigger('change');
+			$('.free').css('display', personal ? 'block' : 'none')
+			$('.ask-cc').css('display', personal && quantity === 0 ? 'none' : 'block')
+		}).trigger('change')
 
 		form.on('submit', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			if (typeof(Stripe) === 'undefined') {
 				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
-					'ensure this domain is allowed to load JavaScript and reload the page to try again.');
-				return;
+					'ensure this domain is allowed to load JavaScript and reload the page to try again.')
+				return
 			}
 
 			form.find('button').attr('disabled', true).text('Redirecting...');
@@ -551,12 +539,13 @@
 
 			if (start > (new Date()).getTime())
 				return alert('That would be in the future.')
-			if (SITE_CREATED > end.getTime())
+			if (SITE_FIRST_HIT_AT > end.getTime())
 				return alert('That would be before the site’s creation; GoatCounter is not *that* good ;-)')
 
+			$('#dash-select-period').attr('class', '')
 			set_period(start, end);
 		})
-	};
+	}
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
@@ -579,10 +568,10 @@
 			// that gives a somewhat yanky effect (close, wait on xhr, open).
 			if (init && params['showrefs'] === path) {
 				close()
-				return push_query('showrefs', null)
+				return push_query({showrefs: null})
 			}
 
-			push_query('showrefs', path)
+			push_query({showrefs: path})
 			var done = paginate_button(btn , () => {
 				jQuery.ajax({
 					url:   '/hchart-more',
@@ -711,7 +700,7 @@
 			obj[item[0]] = decodeURIComponent(item[1]);
 		}
 		return obj;
-	};
+	}
 
 	// Join query parameters from {k: v} object to href.
 	var join_query = function(obj) {
@@ -719,16 +708,18 @@
 		for (var k in obj)
 			s.push(k + '=' + encodeURIComponent(obj[k]));
 		return (s.length === 0 ? '/' : ('?' + s.join('&')));
-	};
+	}
 
 	// Set one query parameter – leaving the others alone – and push to history.
-	var push_query = function(k, v) {
-		var params = split_query(location.search);
-		if (v === null)
-			delete params[k];
-		else
-			params[k] = v;
-		history.pushState(null, '', join_query(params));
+	var push_query = function(params) {
+		var current = split_query(location.search)
+		for (var k in params) {
+			if (params[k] === null)
+				delete current[k]
+			else
+				current[k] = params[k]
+		}
+		history.pushState(null, '', join_query(current))
 	}
 
 	// Convert "23:45" to "11:45 pm".
@@ -743,11 +734,10 @@
 			return t + ' pm';
 		else
 			return (hour - 12) + t.substr(2) + ' pm';
-	};
+	}
 
-	var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-		          "Sep", "Oct", "Nov", "Dec"];
-	var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+		days   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 	// Format a date according to user configuration.
 	var format_date = function(date) {
@@ -761,11 +751,7 @@
 
 		// Simple implementation of Go's time format. We only offer the current
 		// formatters, so that's all we support:
-		//   "2006-01-02"
-		//   "02-01-2006"
-		//   "01/02/06"
-		//   "2 Jan 06"
-		//   "Mon Jan 2 2006"
+		//   "2006-01-02", "02-01-2006", "01/02/06", "2 Jan 06", "Mon Jan 2 2006"
 		for (var i = 0; i < items.length; i++) {
 			switch (items[i]) {
 				case '2006': new_date.push(date.getFullYear());                  break;
@@ -784,7 +770,7 @@
 		else if (SETTINGS.date_format.indexOf(' ') > -1)
 			joiner = ' ';
 		return new_date.join(joiner);
-	};
+	}
 
 	// Format a date as year-month-day.
 	var format_date_ymd = function(date) {
@@ -817,6 +803,7 @@
 		data = data || {}
 		data['period-start'] = $('#period-start').val()
 		data['period-end']   = $('#period-end').val()
+		data['filter']       = $('#filter-paths').val()
 		return data
 	}
 
@@ -838,12 +825,12 @@
 		if (navigator.userAgent.match(/Mobile/i))
 			return true;
 		return window.innerWidth <= 800 && window.innerHeight <= 600;
-	};
+	}
 
 	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
 	var quote_re = function(s) {
 		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
-	};
+	}
 
 	// Various stuff for the SQL stats page.
 	var pgstat = function() {
@@ -888,6 +875,10 @@
 			var form = $(this),
 				ta   = form.find('textarea')
 
+			var esc = function(v) {
+				return v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+			}
+
 			jQuery.ajax({
 				method: 'POST',
 				url:    '/admin/sql/explain',
@@ -895,8 +886,8 @@
 				success: function(data) {
 					form.after($('<pre class="e"></pre>').html(data).append('' +
 						'<form action="https://explain.dalibo.com/new" method="POST" target="_blank">' +
-							`<input type="hidden" name="plan"  value="${data}">` +
-							`<input type="hidden" name="query" value="${form.find('textarea').val()}">` +
+							`<input type="hidden" name="plan"  value="${esc(data)}">` +
+							`<input type="hidden" name="query" value="${esc(form.find('textarea').val())}">` +
 							'<button type="submit">PEV</button>' +
 						'</form>'))
 				}

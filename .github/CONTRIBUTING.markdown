@@ -48,7 +48,9 @@ General notes
   required).
 
 - Tests can be run with `go test ./...`; nothing special needed. You can run
-  tests against PostgreSQL (instead of SQLite) with `go test -tags=testpg ./...`
+  tests against PostgreSQL (instead of SQLite) with `go test -tags=testpg
+  ./...`. You can use the standard `PG*` environment variables to control the
+  connection (e.g. `PGHOST`, `PGPORT`).
 
 - Run `go generate ./...` before committing; this will generate the
   `pack/pack.go` file, which contains all the static resources for production

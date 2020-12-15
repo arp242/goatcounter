@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -49,6 +50,20 @@ func RunOnce(db zdb.DB) {
 func RunBackground(db zdb.DB) {
 	ctx := zdb.With(context.Background(), db)
 	l := zlog.Module("cron")
+
+	// TODO: should rewrite cron to always respond to channels, and then have
+	// the cron package send those periodically.
+	go func() {
+		for {
+			<-goatcounter.PersistRunner.Run
+			bgrun.RunNoDuplicates("cron:PersistAndStat", func() {
+				err := PersistAndStat(ctx)
+				if err != nil {
+					l.Error(err)
+				}
+			})
+		}
+	}()
 
 	for _, t := range tasks {
 		go func(t task) {

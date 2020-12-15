@@ -5,45 +5,47 @@
 package goatcounter
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net/url"
 	"strings"
-	"text/tabwriter"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
 func ptr(s string) *string { return &s }
+func unref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
 
 type Hit struct {
-	ID      int64        `db:"id" json:"-"`
-	Site    int64        `db:"site" json:"-"`
-	Session zint.Uint128 `db:"session2" json:"-"`
+	ID          int64        `db:"hit_id" json:"-"`
+	Site        int64        `db:"site_id" json:"-"`
+	PathID      int64        `db:"path_id" json:"-"`
+	UserAgentID int64        `db:"user_agent_id" json:"-"`
+	Session     zint.Uint128 `db:"session" json:"-"`
 
-	// Old incremental session IDs; kinda expensive to migrate, and only used
-	// for export. Will migrate later when I refactor the hits table.
-	OldSession *int64 `db:"session" json:"-"`
-
-	Path  string     `db:"path" json:"p,omitempty"`
-	Title string     `db:"title" json:"t,omitempty"`
+	Path  string     `db:"-" json:"p,omitempty"`
+	Title string     `db:"-" json:"t,omitempty"`
 	Ref   string     `db:"ref" json:"r,omitempty"`
-	Event zdb.Bool   `db:"event" json:"e,omitempty"`
+	Event zdb.Bool   `db:"-" json:"e,omitempty"`
 	Size  zdb.Floats `db:"size" json:"s,omitempty"`
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"bot" json:"b,omitempty"`
 
-	RefScheme  *string   `db:"ref_scheme" json:"-"`
-	Browser    string    `db:"browser" json:"-"`
-	Location   string    `db:"location" json:"-"`
-	FirstVisit zdb.Bool  `db:"first_visit" json:"-"`
-	CreatedAt  time.Time `db:"created_at" json:"-"`
+	RefScheme       *string   `db:"ref_scheme" json:"-"`
+	UserAgentHeader string    `db:"-" json:"-"`
+	Location        string    `db:"location" json:"-"`
+	FirstVisit      zdb.Bool  `db:"first_visit" json:"-"`
+	CreatedAt       time.Time `db:"created_at" json:"-"`
 
 	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
@@ -51,13 +53,22 @@ type Hit struct {
 	// Some values we need to pass from the HTTP handler to memstore
 	RemoteAddr    string `db:"-" json:"-"`
 	UserSessionID string `db:"-" json:"-"`
+	BrowserID     int64  `db:"-" json:"-"`
+	SystemID      int64  `db:"-" json:"-"`
 }
 
 func (h *Hit) cleanPath(ctx context.Context) {
+	h.Path = strings.TrimSpace(h.Path)
 	if h.Event {
 		h.Path = strings.TrimLeft(h.Path, "/")
 		return
 	}
+
+	if h.Path == "" { // Don't fill empty path to "/"
+		return
+	}
+
+	h.Path = "/" + strings.Trim(h.Path, "/")
 
 	// Normalize the path when accessed from e.g. offline storage or internet
 	// archive.
@@ -77,6 +88,9 @@ func (h *Hit) cleanPath(ctx context.Context) {
 			u, err := url.Parse(h.Path[20:])
 			if err == nil {
 				h.Path = u.Path
+				if h.Path == "" {
+					h.Path = "/"
+				}
 				if q := u.Query().Encode(); q != "" {
 					h.Path += "?" + q
 				}
@@ -126,32 +140,8 @@ func (h *Hit) cleanPath(ctx context.Context) {
 	}
 }
 
-func (h Hit) String() string {
-	b := new(bytes.Buffer)
-	t := tabwriter.NewWriter(b, 8, 8, 2, ' ', 0)
-	fmt.Fprintf(t, "ID\t%d\n", h.ID)
-	fmt.Fprintf(t, "Site\t%d\n", h.Site)
-	fmt.Fprintf(t, "Session\t%s\n", h.Session.Format(16))
-	fmt.Fprintf(t, "Path\t%q\n", h.Path)
-	fmt.Fprintf(t, "Title\t%q\n", h.Title)
-	fmt.Fprintf(t, "Ref\t%q\n", h.Ref)
-	fmt.Fprintf(t, "Event\t%t\n", h.Event)
-	if h.RefScheme == nil {
-		fmt.Fprintf(t, "RefScheme\t<nil>\n")
-	} else {
-		fmt.Fprintf(t, "RefScheme\t%q\n", *h.RefScheme)
-	}
-	fmt.Fprintf(t, "Browser\t%q\n", h.Browser)
-	fmt.Fprintf(t, "Size\t%q\n", h.Size)
-	fmt.Fprintf(t, "Location\t%q\n", h.Location)
-	fmt.Fprintf(t, "Bot\t%d\n", h.Bot)
-	fmt.Fprintf(t, "CreatedAt\t%s\n", h.CreatedAt)
-	t.Flush()
-	return b.String()
-}
-
 // Defaults sets fields to default values, unless they're already set.
-func (h *Hit) Defaults(ctx context.Context) {
+func (h *Hit) Defaults(ctx context.Context) error {
 	site := MustGetSite(ctx)
 	h.Site = site.ID
 
@@ -176,7 +166,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 		}
 		u, err := url.Parse(h.Query)
 		if err != nil {
-			return
+			return errors.Wrap(err, "Hit.Defaults")
 		}
 		q := u.Query()
 
@@ -190,7 +180,7 @@ func (h *Hit) Defaults(ctx context.Context) {
 		}
 	}
 
-	if h.Ref != "" && h.RefURL != nil {
+	if h.RefScheme == nil && h.Ref != "" && h.RefURL != nil {
 		if h.RefURL.Scheme == "http" || h.RefURL.Scheme == "https" {
 			h.RefScheme = RefSchemeHTTP
 		} else {
@@ -204,32 +194,56 @@ func (h *Hit) Defaults(ctx context.Context) {
 		}
 	}
 	h.Ref = strings.TrimRight(h.Ref, "/")
-	if !h.Event {
-		h.Path = "/" + strings.Trim(h.Path, "/")
+
+	// Get or insert path.
+	path := Path{Path: h.Path, Title: h.Title, Event: h.Event}
+	err := path.GetOrInsert(ctx)
+	if err != nil {
+		return errors.Wrap(err, "Hit.Defaults")
 	}
+	h.PathID = path.ID
+
+	// Get or insert user_agent
+	ua := UserAgent{UserAgent: h.UserAgentHeader}
+	err = ua.GetOrInsert(ctx)
+	if err != nil {
+		return errors.Wrap(err, "Hit.Defaults")
+	}
+	h.UserAgentID = ua.ID
+	h.BrowserID = ua.BrowserID
+	h.SystemID = ua.SystemID
+
+	return nil
 }
 
 // Validate the object.
-func (h *Hit) Validate(ctx context.Context) error {
+func (h *Hit) Validate(ctx context.Context, initial bool) error {
 	v := zvalidate.New()
 
 	v.Required("site", h.Site)
 	//v.Required("session", h.Session)
-	v.Required("path", h.Path)
 	v.Required("created_at", h.CreatedAt)
-	v.UTF8("path", h.Path)
-	v.UTF8("title", h.Title)
 	v.UTF8("ref", h.Ref)
-	v.UTF8("browser", h.Browser)
-
-	v.Len("path", h.Path, 1, 2048)
-	v.Len("title", h.Title, 0, 1024)
 	v.Len("ref", h.Ref, 0, 2048)
-	v.Len("browser", h.Browser, 0, 512)
 
 	// Small margin as client's clocks may not be 100% accurate.
 	if h.CreatedAt.After(Now().Add(5 * time.Second)) {
 		v.Append("created_at", "in the future")
+	}
+
+	if initial {
+		v.Required("path", h.Path)
+		v.UTF8("path", h.Path)
+		v.UTF8("title", h.Title)
+		v.UTF8("user_agent_header", h.UserAgentHeader)
+		v.Len("path", h.Path, 1, 2048)
+		v.Len("title", h.Title, 0, 1024)
+		v.Len("user_agent_header", h.UserAgentHeader, 0, 512)
+	} else {
+		v.Required("path_id", h.PathID)
+		v.Required("user_agent_id", h.UserAgentID)
+		v.Required("browser_id", h.BrowserID)
+		v.Required("system_id", h.SystemID)
 	}
 
 	return v.ErrorOrNil()
@@ -237,71 +251,85 @@ func (h *Hit) Validate(ctx context.Context) error {
 
 type Hits []Hit
 
-// List all hits for a site, including bot requests.
-func (h *Hits) List(ctx context.Context, limit, paginate int64) (int64, error) {
-	if limit == 0 || limit > 5000 {
-		limit = 5000
+// TestList lists all hits, for all sites, with browser_id, system_id, and paths
+// set.
+//
+// This is mostly intended for tests.
+func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
+	var hh []struct {
+		Hit
+		B int64    `db:"browser_id"`
+		S int64    `db:"system_id"`
+		P string   `db:"path"`
+		T string   `db:"title"`
+		E zdb.Bool `db:"event"`
 	}
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, h,
-		`select * from hits where site=$1 and id>$2 order by id asc limit $3`,
-		MustGetSite(ctx).ID, paginate, limit)
-
-	last := paginate
-	if len(*h) > 0 {
-		hh := *h
-		last = hh[len(hh)-1].ID
+	query, args, err := zdb.Query(ctx, ` /* Hits.TestList */
+		select
+			hits.*,
+			user_agents.browser_id,
+			user_agents.system_id,
+			paths.path,
+			paths.title,
+			paths.event
+		from hits
+		join user_agents using (user_agent_id)
+		join paths using (path_id)
+		{{where hits.site_id=:site}}
+		order by hit_id asc`,
+		struct{ Site int64 }{MustGetSite(ctx).ID},
+		siteOnly)
+	if err != nil {
+		return errors.Wrap(err, "Hits.TestList")
 	}
 
-	return last, errors.Wrap(err, "Hits.List")
+	err = zdb.MustGet(ctx).SelectContext(ctx, &hh, query, args...)
+	if err != nil {
+		return errors.Wrap(err, "Hits.TestList")
+	}
+
+	for _, x := range hh {
+		x.Hit.BrowserID = x.B
+		x.Hit.SystemID = x.S
+		x.Hit.Path = x.P
+		x.Hit.Title = x.T
+		x.Hit.Event = x.E
+
+		*h = append(*h, x.Hit)
+	}
+	return nil
 }
 
 // Count the number of pageviews.
 func (h *Hits) Count(ctx context.Context) (int64, error) {
 	var c int64
 	err := zdb.MustGet(ctx).GetContext(ctx, &c,
-		`select coalesce(sum(total), 0) from hit_counts where site=$1`,
+		`select coalesce(sum(total), 0) from hit_counts where site_id=$1`,
 		MustGetSite(ctx).ID)
 	return c, errors.Wrap(err, "Hits.Count")
 }
 
-// Purge all paths matching the like pattern.
-func (h *Hits) Purge(ctx context.Context, path string, matchTitle bool) error {
+// Purge all paths.
+func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 	query := `/* Hits.Purge */
-		delete from %s where site=$1 and lower(path) like lower($2)`
-	if matchTitle {
-		query += ` and lower(title) like lower($2) `
-	}
+		delete from %s where site_id=? and path_id in (?)`
 
 	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
 		site := MustGetSite(ctx).ID
 
-		for _, t := range []string{"hits", "hit_stats", "hit_counts"} {
-			_, err := tx.ExecContext(ctx, fmt.Sprintf(query, t), site, path)
+		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
+			query, args, err := sqlx.In(fmt.Sprintf(query, t), site, pathIDs)
+			if err != nil {
+				return errors.Wrapf(err, "Hits.Purge %s", t)
+			}
+			_, err = tx.ExecContext(ctx, zdb.MustGet(ctx).Rebind(query), args...)
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
 		}
-		_, err := tx.ExecContext(ctx, `/* Hits.Purge */
-			delete from ref_counts where site=$1 and lower(path) like lower($2)`,
-			site, path)
-		if err != nil {
-			return errors.Wrap(err, "Hits.Purge ref_counts")
-		}
 
-		// Delete all other stats as well if there's nothing left: not much use
-		// for it.
-		var check Hits
-		n, err := check.Count(ctx)
-		if err == nil && n == 0 {
-			for _, t := range statTables {
-				_, err := tx.ExecContext(ctx, `delete from `+t+` where site=$1`, site)
-				if err != nil {
-					zlog.Errorf("Hits.Purge: delete %s: %s", t, err)
-				}
-			}
-		}
-
+		MustGetSite(ctx).ClearCache(true)
 		return nil
 	})
 }
@@ -317,6 +345,7 @@ type Stat struct {
 type HitStat struct {
 	Count       int      `db:"count"`
 	CountUnique int      `db:"count_unique"`
+	PathID      int64    `db:"path_id"`
 	Path        string   `db:"path"`
 	Event       zdb.Bool `db:"event"`
 	Title       string   `db:"title"`
@@ -328,26 +357,46 @@ type HitStat struct {
 type HitStats []HitStat
 
 // ListPathsLike lists all paths matching the like pattern.
-func (h *HitStats) ListPathsLike(ctx context.Context, path string, matchTitle bool) error {
-	t := ""
-	if matchTitle {
-		t = " or lower(title) like lower($2) "
+func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
+	query, args, err := zdb.Query(ctx, `/* HitStats.ListPathsLike */
+		with x as (
+			select path_id, path, title from paths
+			where site_id=:site and
+			(lower(path) like lower(:search) {{or lower(title) like lower(:search)}})
+		)
+		select
+			path_id, path, title,
+			sum(total) as count
+		from hit_counts
+		join x using(path_id)
+		where site_id=:site
+		group by path_id, path, title
+		order by count desc;
+	`, struct {
+		Site   int64
+		Search string
+	}{MustGetSite(ctx).ID, search},
+		matchTitle)
+
+	if err != nil {
+		return errors.Wrap(err, "Hits.ListPathsLike")
 	}
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select path, title, sum(total) as count from hit_counts
-		where site=$1 and (lower(path) like lower($2) `+t+`)
-		group by path, title
-		order by count desc
-	`, MustGetSite(ctx).ID, path)
-	return errors.Wrap(err, "HitStats.ListPathsLike")
+	err = zdb.MustGet(ctx).SelectContext(ctx, h, query, args...)
+	return errors.Wrap(err, "Hits.ListPathsLike")
 }
 
 // PathCountUnique gets the total_unique for one path.
 func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
-		select path, sum(total_unique) as count_unique from hit_counts
-		where site=$1 and lower(path) = lower($2)
+		with x as (
+			select path_id, path from paths
+			where site_id=$1 and lower(path)=lower($2)
+		)
+		select
+			path,
+			sum((select sum(total_unique) from hit_counts where site_id=$1 and path_id=x.path_id)) as count_unique
+		from x
 		group by path
 	`, MustGetSite(ctx).ID, path)
 	return errors.Wrap(err, "HitStats.PathCountUnique")
@@ -357,7 +406,7 @@ func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
 func (h *HitStats) SiteTotalUnique(ctx context.Context) error {
 	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
 		select sum(total_unique) as count_unique from hit_counts
-		where site=$1
+		where site_id=$1
 	`, MustGetSite(ctx).ID)
 	return errors.Wrap(err, "HitStats.SiteTotalUnique")
 }
@@ -377,21 +426,36 @@ type Stats struct {
 }
 
 // ByRef lists all paths by reference.
-func (h *Stats) ByRef(ctx context.Context, start, end time.Time, ref string) error {
-	err := zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, `/* Stats.ByRef */
+func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []int64, ref string) error {
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ByRef */
+		with x as (
+			select
+				path_id,
+				coalesce(sum(total), 0) as count,
+				coalesce(sum(total_unique), 0) as count_unique
+			from ref_counts
+			where
+				site_id=:site and hour>=:start and hour<=:end and
+				{{path_id in (:filter) and}}
+				ref=:ref
+			group by path_id
+			order by count desc
+			limit 10
+		)
 		select
-			path as name,
-			coalesce(sum(total), 0) as count,
-			coalesce(sum(total_unique), 0) as count_unique
-		from ref_counts where
-			site=$1 and
-			hour>=$2 and
-			hour<=$3 and
-			ref = $4
-		group by path
-		order by count desc
-		limit 10`,
-		MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), ref)
+			paths.path as name,
+			x.count,
+			x.count_unique
+		from x
+		join paths using(path_id)
+		`,
+		struct {
+			Site       int64
+			Start, End string
+			Filter     []int64
+			Ref        string
+		}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter, ref},
+		len(pathFilter) > 0)
 
 	return errors.Wrap(err, "Stats.ByRef")
 }

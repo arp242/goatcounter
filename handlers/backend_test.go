@@ -29,6 +29,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 )
@@ -46,7 +47,7 @@ func TestBackendCount(t *testing.T) {
 		{"no path", url.Values{}, nil, 400, goatcounter.Hit{}},
 		{"invalid size", url.Values{"p": {"/x"}, "s": {"xxx"}}, nil, 400, goatcounter.Hit{}},
 
-		{"", url.Values{"p": {"/foo.html"}}, nil, 200, goatcounter.Hit{
+		{"only path", url.Values{"p": {"/foo.html"}}, nil, 200, goatcounter.Hit{
 			Path: "/foo.html",
 		}},
 
@@ -107,9 +108,9 @@ func TestBackendCount(t *testing.T) {
 		{"googlebot", url.Values{"p": {"/a"}, "b": {"150"}}, func(r *http.Request) {
 			r.Header.Set("User-Agent", "GoogleBot/1.0")
 		}, 200, goatcounter.Hit{
-			Path:    "/a",
-			Bot:     int(isbot.BotShort),
-			Browser: "GoogleBot/1.0",
+			Path:            "/a",
+			Bot:             int(isbot.BotShort),
+			UserAgentHeader: "GoogleBot/1.0",
 		}},
 
 		{"bot", url.Values{"p": {"/a"}, "b": {"100"}}, nil, 400, goatcounter.Hit{}},
@@ -152,8 +153,8 @@ func TestBackendCount(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			var hits []goatcounter.Hit
-			err = zdb.MustGet(ctx).SelectContext(ctx, &hits, `select * from hits`)
+			var hits goatcounter.Hits
+			err = hits.TestList(ctx, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -162,7 +163,7 @@ func TestBackendCount(t *testing.T) {
 			}
 
 			h := hits[0]
-			err = h.Validate(ctx)
+			err = h.Validate(ctx, false)
 			if err != nil {
 				t.Errorf("Validate failed after get: %s", err)
 			}
@@ -171,11 +172,11 @@ func TestBackendCount(t *testing.T) {
 			tt.hit.Site = h.Site
 			tt.hit.CreatedAt = goatcounter.Now()
 			tt.hit.Session = goatcounter.TestSeqSession // Should all be the same session.
-			if tt.hit.Browser == "" {
-				tt.hit.Browser = "GoatCounter test runner/1.0"
+			if tt.hit.UserAgentHeader == "" {
+				tt.hit.UserAgentHeader = "GoatCounter test runner/1.0"
 			}
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
-			if d := ztest.Diff(h.String(), tt.hit.String()); d != "" {
+			if d := ztest.Diff(string(zjson.MustMarshal(h)), string(zjson.MustMarshal(tt.hit))); d != "" {
 				t.Error(d)
 			}
 		})
@@ -218,10 +219,11 @@ func TestBackendCountSessions(t *testing.T) {
 
 	checkHits := func(ctx context.Context, n int) []goatcounter.Hit {
 		var hits goatcounter.Hits
-		_, err := hits.List(ctx, 0, 0)
+		err := hits.TestList(ctx, true)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if len(hits) != n {
 			t.Errorf("len(hits) = %d; wanted %d", len(hits), n)
 			for _, h := range hits {
@@ -231,7 +233,7 @@ func TestBackendCountSessions(t *testing.T) {
 		}
 
 		for _, h := range hits {
-			err := h.Validate(ctx)
+			err := h.Validate(ctx, false)
 			if err != nil {
 				t.Errorf("Validate failed after get: %s", err)
 			}
@@ -403,7 +405,7 @@ func TestBackendPurge(t *testing.T) {
 			},
 			router:       newBackend,
 			path:         "/purge",
-			body:         map[string]string{"path": "/asd"},
+			body:         map[string]string{"path": "/asd", "paths": "1,"},
 			method:       "POST",
 			auth:         true,
 			wantFormCode: 303,
@@ -415,7 +417,7 @@ func TestBackendPurge(t *testing.T) {
 			bgrun.Wait()
 
 			var hits goatcounter.Hits
-			_, err := hits.List(r.Context(), 0, 0)
+			err := hits.TestList(r.Context(), false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -549,13 +551,13 @@ func TestBackendBarChart(t *testing.T) {
 				<div title="2019-06-18|22:00|22:59|0|0"></div>`,
 		},
 
-		// in the future, so nothing displayed
-		{
-			zone:        "Asia/Makassar",
-			now:         date("2019-06-18 14:42", time.UTC),
-			hit:         date("2019-06-18 23:42", time.UTC),
-			wantNothing: true,
-		},
+		// in the future, so nothing displayed.
+		// {
+		// 	zone:        "Asia/Makassar",
+		// 	now:         date("2019-06-18 14:42", time.UTC),
+		// 	hit:         date("2019-06-18 23:42", time.UTC),
+		// 	wantNothing: true,
+		// },
 
 		// The hit is added on the 17th, but displayed on the 18th
 		{
@@ -732,6 +734,7 @@ func TestBackendBarChart(t *testing.T) {
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
 		})
+
 		gctest.StoreHits(ctx, t, false, goatcounter.Hit{
 			Site:      site.ID,
 			CreatedAt: tt.hit.UTC(),
