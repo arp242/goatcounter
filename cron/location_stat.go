@@ -15,7 +15,7 @@ import (
 )
 
 func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 		type gt struct {
 			count       int
 			countUnique int
@@ -52,6 +52,11 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 			ins.OnConflict(`on conflict on constraint "location_stats#site_id#path_id#day#location" do update set
 				count        = location_stats.count        + excluded.count,
 				count_unique = location_stats.count_unique + excluded.count_unique`)
+
+			_, err := db.ExecContext(ctx, `lock table location_stats in exclusive mode`)
+			if err != nil {
+				return err
+			}
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, day, location) do update set
 				count        = location_stats.count        + excluded.count,

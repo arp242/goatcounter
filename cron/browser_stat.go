@@ -17,7 +17,7 @@ import (
 )
 
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 		type gt struct {
 			count       int
 			countUnique int
@@ -58,6 +58,11 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 			ins.OnConflict(`on conflict on constraint "browser_stats#site_id#path_id#day#browser_id" do update set
 				count        = browser_stats.count        + excluded.count,
 				count_unique = browser_stats.count_unique + excluded.count_unique`)
+
+			_, err := db.ExecContext(ctx, `lock table browser_stats in exclusive mode`)
+			if err != nil {
+				return err
+			}
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, day, browser_id) do update set
 				count        = browser_stats.count        + excluded.count,

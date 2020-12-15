@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/lib/pq v1.8.0
+	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.5
 	github.com/monoculum/formam v0.0.0-20200923020755-6f187e4ffe27
 	github.com/teamwork/reload v1.3.2
@@ -30,7 +30,7 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v1.0.0
-	zgo.at/zdb v0.0.0-20201213081133-4595e2d6b53e
+	zgo.at/zdb v0.0.0-20201215064121-3bdf9ac70fc1
 	zgo.at/zhttp v0.0.0-20201213081347-7507eae010a4
 	zgo.at/zli v0.0.0-20201026041953-329215b61bc3
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f

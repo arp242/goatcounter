@@ -15,7 +15,7 @@ import (
 )
 
 func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 		// Group by day + pathID
 		type gt struct {
 			total       int
@@ -51,6 +51,11 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 			ins.OnConflict(`on conflict on constraint "hit_counts#site_id#path_id#hour" do update set
 				total        = hit_counts.total        + excluded.total,
 				total_unique = hit_counts.total_unique + excluded.total_unique`)
+
+			_, err := db.ExecContext(ctx, `lock table hit_counts in exclusive mode`)
+			if err != nil {
+				return err
+			}
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, hour) do update set
 				total        = hit_counts.total        + excluded.total,

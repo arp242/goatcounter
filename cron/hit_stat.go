@@ -10,14 +10,13 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zstd/zjson"
 )
 
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
 		type gt struct {
 			count       []int
 			countUnique []int
@@ -42,9 +41,9 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 				v.count = make([]int, 24)
 				v.countUnique = make([]int, 24)
 
-				if !cfg.PgSQL && !isReindex {
+				if !zdb.PgSQL(db) && !isReindex {
 					var err error
-					v.count, v.countUnique, err = existingHitStats(ctx, tx,
+					v.count, v.countUnique, err = existingHitStats(ctx, db,
 						h.Site, day, v.pathID)
 					if err != nil {
 						return err
@@ -63,7 +62,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "hit_stats", []string{"site_id", "day", "path_id",
 			"stats", "stats_unique"})
-		if cfg.PgSQL {
+		if zdb.PgSQL(db) {
 			ins.OnConflict(`on conflict on constraint "hit_stats#site_id#path_id#day" do update set
 				stats = (
 					with x as (
@@ -81,6 +80,11 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 					)
 					select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
 				) `)
+
+			_, err := db.ExecContext(ctx, `lock table hit_stats in exclusive mode`)
+			if err != nil {
+				return err
+			}
 		}
 		// } else {
 		// TODO: merge the arrays here and get rid of existingHitStats();
