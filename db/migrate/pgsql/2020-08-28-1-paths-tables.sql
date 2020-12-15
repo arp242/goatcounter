@@ -66,6 +66,10 @@ begin;
 	truncate system_stats;
 	truncate size_stats;
 
+	-- Unused
+	drop table if exists botlog;
+	drop table if exists botlog_ips;
+
 	---------------------
 	-- Add new columns --
 	---------------------

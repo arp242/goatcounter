@@ -42,6 +42,7 @@ func (h admin) mount(r chi.Router) {
 	a.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/debug/pprof") {
 			pprof.Index(w, r)
+			return
 		}
 		zhttp.SeeOther(w, fmt.Sprintf("/debug/pprof/%s?%s",
 			r.URL.Path[7:], r.URL.Query().Encode()))

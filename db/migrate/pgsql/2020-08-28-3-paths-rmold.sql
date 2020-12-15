@@ -93,46 +93,25 @@ begin;
 	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
 	cluster ref_counts using "ref_counts#site_id#hour";
 
-
 	-- hit_stats
-	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day desc);
-	alter table hit_stats replica identity using index "hit_stats#site_id#path_id#day";
-
 	drop index "hit_stats#site#day";
 	create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
-	cluster hit_stats using "hit_stats#site_id#day";
-
 
 	-- browser_stats
-	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
-	alter table browser_stats replica identity using index "browser_stats#site_id#path_id#day#browser_id";
-
 	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day desc);
-	cluster browser_stats using "browser_stats#site_id#path_id#day#browser_id";
 
 	-- system_stats
-	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
-	alter table system_stats replica identity using index "system_stats#site_id#path_id#day#system_id";
-
 	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day desc);
-	cluster system_stats using "system_stats#site_id#path_id#day#system_id";
 
 	-- location_stats
-	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
-	alter table location_stats replica identity using index "location_stats#site_id#path_id#day#location";
-
 	drop index "location_stats#site#day#location";
     create index "location_stats#site_id#day" on location_stats(site_id, day desc);
-	cluster location_stats using "location_stats#site_id#day";
 
 	-- size_stats
-	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
-	alter table size_stats replica identity using index "size_stats#site_id#path_id#day#width";
-
 	drop index "size_stats#site#day#width";
     create index "size_stats#site_id#day" on size_stats(site_id, day desc);
-	cluster size_stats using "size_stats#site_id#day";
 
+	-- store
 	alter table store replica identity using index "store#key";
 
 	------------------------

@@ -90,6 +90,12 @@ func schema() error {
 			}
 			return s
 		},
+		"psql": func(s string) string {
+			if pgsql {
+				return s
+			}
+			return ""
+		},
 		"auto_increment": func() string {
 			if pgsql {
 				return "serial         primary key"

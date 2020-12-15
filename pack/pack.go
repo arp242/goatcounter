@@ -80,6 +80,10 @@ var MigrationsPgSQL = map[string][]byte{
 	truncate system_stats;
 	truncate size_stats;
 
+	-- Unused
+	drop table if exists botlog;
+	drop table if exists botlog_ips;
+
 	---------------------
 	-- Add new columns --
 	---------------------
@@ -215,46 +219,25 @@ commit;
 	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
 	cluster ref_counts using "ref_counts#site_id#hour";
 
-
 	-- hit_stats
-	create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day desc);
-	alter table hit_stats replica identity using index "hit_stats#site_id#path_id#day";
-
 	drop index "hit_stats#site#day";
 	create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
-	cluster hit_stats using "hit_stats#site_id#day";
-
 
 	-- browser_stats
-	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
-	alter table browser_stats replica identity using index "browser_stats#site_id#path_id#day#browser_id";
-
 	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day desc);
-	cluster browser_stats using "browser_stats#site_id#path_id#day#browser_id";
 
 	-- system_stats
-	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
-	alter table system_stats replica identity using index "system_stats#site_id#path_id#day#system_id";
-
 	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day desc);
-	cluster system_stats using "system_stats#site_id#path_id#day#system_id";
 
 	-- location_stats
-	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
-	alter table location_stats replica identity using index "location_stats#site_id#path_id#day#location";
-
 	drop index "location_stats#site#day#location";
     create index "location_stats#site_id#day" on location_stats(site_id, day desc);
-	cluster location_stats using "location_stats#site_id#day";
 
 	-- size_stats
-	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
-	alter table size_stats replica identity using index "size_stats#site_id#path_id#day#width";
-
 	drop index "size_stats#site#day#width";
     create index "size_stats#site_id#day" on size_stats(site_id, day desc);
-	cluster size_stats using "size_stats#site_id#day";
 
+	-- store
 	alter table store replica identity using index "store#key";
 
 	------------------------
@@ -311,11 +294,11 @@ commit;
 commit;
 `),
 	"db/migrate/pgsql/2020-12-11-1-constraint.sql": []byte(`begin;
-	drop index "browser_stats#site_id#path_id#day#browser_id";
-	drop index "hit_stats#site_id#path_id#day";
-	drop index "location_stats#site_id#path_id#day#location";
-	drop index "size_stats#site_id#path_id#day#width";
-	drop index "system_stats#site_id#path_id#day#system_id";
+	drop index if exists "browser_stats#site_id#path_id#day#browser_id";
+	drop index if exists "hit_stats#site_id#path_id#day";
+	drop index if exists "location_stats#site_id#path_id#day#location";
+	drop index if exists "size_stats#site_id#path_id#day#width";
+	drop index if exists "system_stats#site_id#path_id#day#system_id";
 
 	alter table size_stats     add constraint "size_stats#site_id#path_id#day#width"         unique(site_id, path_id, day, width);
 	alter table browser_stats  add constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id);
@@ -328,6 +311,12 @@ commit;
 	alter table hit_stats      replica identity using index "hit_stats#site_id#path_id#day";
 	alter table location_stats replica identity using index "location_stats#site_id#path_id#day#location";
 	alter table system_stats   replica identity using index "system_stats#site_id#path_id#day#system_id";
+
+	cluster size_stats     using "size_stats#site_id#day";
+	cluster browser_stats  using "browser_stats#site_id#path_id#day#browser_id";
+	cluster hit_stats      using "hit_stats#site_id#day";
+	cluster location_stats using "location_stats#site_id#day";
+	cluster system_stats   using "system_stats#site_id#path_id#day#system_id";
 
 	insert into version values('2020-12-11-1-constraint');
 commit;
@@ -548,7 +537,6 @@ begin;
 		total_unique  integer    not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
 		constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) on conflict replace
 	);
 	create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
@@ -569,7 +557,6 @@ begin;
 		total_unique  integer    not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
 		constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) on conflict replace
 	);
 	create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
@@ -589,7 +576,6 @@ begin;
 		stats_unique   varchar        not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 		constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) on conflict replace
 	);
 	create        index "hit_stats#site_id#day"         on hit_stats(site_id, day);
@@ -609,11 +595,9 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id)    references sites(site_id)       on delete restrict on update restrict,
-		-- foreign key (path_id)    references paths(path_id)       on delete restrict on update restrict,
 		foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict
-		constraint "browser_stats#site_id#path_id#browser_id" unique(site_id, path_id, day, browser_id) on conflict replace
+		constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) on conflict replace
 	);
-	create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
 	create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day);
 
 
@@ -631,11 +615,9 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id)   references sites(site_id)     on delete restrict on update restrict,
-		-- foreign key (path_id)   references paths(path_id)     on delete restrict on update restrict,
 		foreign key (system_id) references systems(system_id) on delete restrict on update restrict
 		constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) on conflict replace
 	);
-	create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
 	create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day);
 
 
@@ -651,10 +633,8 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
-		constraint "location_stats#site_id#path_id#location" unique(site_id, path_id, location) on conflict replace
+		constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) on conflict replace
 	);
-	create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
     create index "location_stats#site_id#day" on location_stats(site_id, day);
 
 
@@ -670,10 +650,8 @@ begin;
 		count_unique   integer        not null,
 
 		foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-		-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
 		constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) on conflict replace
 	);
-	create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
     create index "size_stats#site_id#day" on size_stats(site_id, day);
 
 
@@ -12658,7 +12636,7 @@ create table hits (
 
 	created_at     timestamp      not null                 
 );
-create index "hits#site_id#created_at"     on hits(site_id, created_at);
+create index "hits#site_id#created_at" on hits(site_id, created_at desc);
 cluster hits using "hits#site_id#created_at";
 
 create table paths (
@@ -12703,23 +12681,22 @@ create unique index "user_agents#ua" on user_agents(ua);
 
 create table hit_counts (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	hour           timestamp      not null                 ,
 	total          integer        not null,
 	total_unique   integer        not null,
 
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
 	constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) 
 );
-create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
+create index "hit_counts#site_id#hour" on hit_counts(site_id, hour desc);
 cluster hit_counts using "hit_counts#site_id#hour";
 alter table hit_counts replica identity using index "hit_counts#site_id#path_id#hour";
 
 create table ref_counts (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	ref            varchar        not null,
 	ref_scheme     varchar        null,
@@ -12728,8 +12705,6 @@ create table ref_counts (
 	total_unique   integer        not null,
 
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
-
 	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) 
 );
 create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
@@ -12738,23 +12713,22 @@ alter table ref_counts replica identity using index "ref_counts#site_id#path_id#
 
 create table hit_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 ,
 	stats          varchar        not null,
 	stats_unique   varchar        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) 
 );
-create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
-create index        "hit_stats#site_id#day"         on hit_stats(site_id, day);
+create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
 cluster hit_stats using "hit_stats#site_id#day";
 alter table hit_stats replica identity using index "hit_stats#site_id#path_id#day";
 
 create table browser_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 	browser_id     integer        not null,
 
 	day            date           not null                 ,
@@ -12762,17 +12736,16 @@ create table browser_stats (
 	count_unique   integer        not null,
 
 	foreign key (site_id)    references sites(site_id)       on delete restrict on update restrict,
-	-- foreign key (path_id)    references paths(path_id)       on delete restrict on update restrict,
-	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict
+	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
+	constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) 
 );
-create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
-create index        "browser_stats#site_id#browser_id#day"         on browser_stats(site_id, browser_id, day);
+create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day desc);
 cluster browser_stats using "browser_stats#site_id#path_id#day#browser_id";
 alter table browser_stats replica identity using index "browser_stats#site_id#path_id#day#browser_id";
 
 create table system_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 	system_id      integer        not null,
 
 	day            date           not null                 ,
@@ -12780,45 +12753,42 @@ create table system_stats (
 	count_unique   integer        not null,
 
 	foreign key (site_id)   references sites(site_id)     on delete restrict on update restrict,
-	-- foreign key (path_id)   references paths(path_id)     on delete restrict on update restrict,
-	foreign key (system_id) references systems(system_id) on delete restrict on update restrict
+	foreign key (system_id) references systems(system_id) on delete restrict on update restrict,
+	constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) 
 );
-create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
-create index        "system_stats#site_id#system_id#day"         on system_stats(site_id, system_id, day);
+create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day desc);
 cluster system_stats using "system_stats#site_id#path_id#day#system_id";
 alter table system_stats replica identity using index "system_stats#site_id#path_id#day#system_id";
 
 create table location_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 ,
 	location       varchar        not null,
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) 
 );
-create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
-create index        "location_stats#site_id#day"                  on location_stats(site_id, day);
+create index "location_stats#site_id#day" on location_stats(site_id, day desc);
 cluster location_stats using "location_stats#site_id#day";
 alter table location_stats replica identity using index "location_stats#site_id#path_id#day#location";
 
 create table size_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 ,
 	width          integer        not null,
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) 
 );
-create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
-create index        "size_stats#site_id#day"               on size_stats(site_id, day);
+create index "size_stats#site_id#day" on size_stats(site_id, day desc);
 cluster size_stats using "size_stats#site_id#day";
 alter table size_stats replica identity using index "size_stats#site_id#path_id#day#width";
 
@@ -13264,7 +13234,7 @@ create table hits (
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
-create index "hits#site_id#created_at"     on hits(site_id, created_at);
+create index "hits#site_id#created_at" on hits(site_id, created_at );
 
 
 create table paths (
@@ -13309,23 +13279,22 @@ create unique index "user_agents#ua" on user_agents(ua);
 
 create table hit_counts (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	hour           timestamp      not null                 check(hour = strftime('%Y-%m-%d %H:%M:%S', hour)),
 	total          integer        not null,
 	total_unique   integer        not null,
 
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
 	constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) on conflict replace
 );
-create index "hit_counts#site_id#hour" on hit_counts(site_id, hour);
+create index "hit_counts#site_id#hour" on hit_counts(site_id, hour );
 
 
 
 create table ref_counts (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	ref            varchar        not null,
 	ref_scheme     varchar        null,
@@ -13334,8 +13303,6 @@ create table ref_counts (
 	total_unique   integer        not null,
 
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict,
-
 	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) on conflict replace
 );
 create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
@@ -13344,23 +13311,22 @@ create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
 
 create table hit_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	stats          varchar        not null,
 	stats_unique   varchar        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) on conflict replace
 );
-create unique index "hit_stats#site_id#path_id#day" on hit_stats(site_id, path_id, day);
-create index        "hit_stats#site_id#day"         on hit_stats(site_id, day);
+create index "hit_stats#site_id#day" on hit_stats(site_id, day );
 
 
 
 create table browser_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 	browser_id     integer        not null,
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
@@ -13368,17 +13334,16 @@ create table browser_stats (
 	count_unique   integer        not null,
 
 	foreign key (site_id)    references sites(site_id)       on delete restrict on update restrict,
-	-- foreign key (path_id)    references paths(path_id)       on delete restrict on update restrict,
-	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict
+	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
+	constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) on conflict replace
 );
-create unique index "browser_stats#site_id#path_id#day#browser_id" on browser_stats(site_id, path_id, day, browser_id);
-create index        "browser_stats#site_id#browser_id#day"         on browser_stats(site_id, browser_id, day);
+create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day );
 
 
 
 create table system_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 	system_id      integer        not null,
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
@@ -13386,45 +13351,42 @@ create table system_stats (
 	count_unique   integer        not null,
 
 	foreign key (site_id)   references sites(site_id)     on delete restrict on update restrict,
-	-- foreign key (path_id)   references paths(path_id)     on delete restrict on update restrict,
-	foreign key (system_id) references systems(system_id) on delete restrict on update restrict
+	foreign key (system_id) references systems(system_id) on delete restrict on update restrict,
+	constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) on conflict replace
 );
-create unique index "system_stats#site_id#path_id#day#system_id" on system_stats(site_id, path_id, day, system_id);
-create index        "system_stats#site_id#system_id#day"         on system_stats(site_id, system_id, day);
+create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day );
 
 
 
 create table location_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	location       varchar        not null,
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) on conflict replace
 );
-create unique index "location_stats#site_id#path_id#day#location" on location_stats(site_id, path_id, day, location);
-create index        "location_stats#site_id#day"                  on location_stats(site_id, day);
+create index "location_stats#site_id#day" on location_stats(site_id, day );
 
 
 
 create table size_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,
+	path_id        integer        not null,  -- No FK for performance.
 
 	day            date           not null                 check(day = strftime('%Y-%m-%d', day)),
 	width          integer        not null,
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
-	-- foreign key (path_id) references paths(path_id) on delete restrict on update restrict
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) on conflict replace
 );
-create unique index "size_stats#site_id#path_id#day#width" on size_stats(site_id, path_id, day, width);
-create index        "size_stats#site_id#day"               on size_stats(site_id, day);
+create index "size_stats#site_id#day" on size_stats(site_id, day );
 
 
 
