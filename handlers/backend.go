@@ -175,7 +175,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Get("/purge", zhttp.Wrap(h.purgeConfirm))
 			af.Post("/purge", zhttp.Wrap(h.purge))
 			af.Post("/delete", zhttp.Wrap(h.delete))
-			admin{}.mount(af)
+			admin{}.mount(af, db)
 		}
 	}
 }
