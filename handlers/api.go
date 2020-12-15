@@ -391,6 +391,12 @@ type APICountRequestHit struct {
 	Host string `json:"-"`
 }
 
+func (h APICountRequestHit) String() string {
+	return fmt.Sprintf(
+		`{Path: %q, Title: %q, Event: %t, Ref: %q, Size: "%s", Query: %q, Bot: %d, UserAgent: %q, Location: %q, IP: %q, CreatedAt: %q, Session: %q, Host: %q}`,
+		h.Path, h.Title, h.Event, h.Ref, h.Size, h.Query, h.Bot, h.UserAgent, h.Location, h.IP, h.CreatedAt, h.Session, h.Host)
+}
+
 // POST /api/v0/count count
 // Count pageviews.
 //

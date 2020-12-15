@@ -10,7 +10,7 @@ Unreleased v1.5.0
 -----------------
 
 This release contains some rather large changes to the database layout (#383);
-this means that:
+this means:
 
 - Somewhat faster queries.
 - Greatly reduced disk space requirements for the database.
@@ -43,6 +43,12 @@ version 1.5.
 **Note**: the CSV export format was increased to `2`; it now includes the parsed
 browser and system values in addition to the User-Agent header. Version 1.5 will
 not be able to import the older exports from version `1`.
+
+Other changes:
+
+- New `goatcounter buffer` command; this allows buffering of pageviews in case
+  the backend is down, running migrations, etc. See `goatcounter help buffer`
+  for more information.
 
 
 2020-11-10, v1.4.2

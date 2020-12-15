@@ -154,30 +154,25 @@ commit;
 
 	alter table hit_counts rename site to site_id;
 	alter table hit_counts add foreign key (site_id) references sites(site_id) on delete restrict on update restrict;
-	-- alter table hit_counts add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
 	alter table hit_counts drop constraint hit_counts_site_check;
 
 	alter table ref_counts rename site to site_id;
 	alter table ref_counts add foreign key (site_id) references sites(site_id) on delete restrict on update restrict;
-	-- alter table ref_counts add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
 	alter table ref_counts drop constraint ref_counts_site_check;
 
 	alter table hit_stats  rename site to site_id;
 	alter table hit_stats drop constraint hit_stats_site_check;
-	-- alter table hit_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
 	alter table hit_stats rename constraint hit_stats_site_fkey to hit_stats_site_id_fkey;
 
 	alter table browser_stats rename site to site_id;
 	alter table browser_stats add column path_id int not null;
 	alter table browser_stats drop constraint browser_stats_site_check;
-	-- alter table browser_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
 	alter table browser_stats add foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict;
 	alter table browser_stats rename constraint browser_stats_site_fkey to browser_stats_site_id_fkey;
 
 	alter table system_stats rename site to site_id;
 	alter table system_stats drop constraint system_stats_site_check;
 	alter table system_stats add column path_id int not null;
-	-- alter table system_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
 	alter table system_stats add foreign key (system_id) references systems(system_id) on delete restrict on update restrict;
 	alter table system_stats rename constraint system_stats_site_fkey to system_stats_site_id_fkey;
 	drop index "system_stats#site#day";
@@ -185,13 +180,11 @@ commit;
 	alter table location_stats rename site to site_id;
 	alter table location_stats drop constraint location_stats_site_check;
 	alter table location_stats add column path_id int not null;
-	-- alter table location_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
 	alter table location_stats rename constraint location_stats_site_fkey to location_stats_site_id_fkey;
 
 	alter table size_stats rename site to site_id;
 	alter table size_stats drop constraint size_stats_site_check;
 	alter table size_stats add column path_id int not null;
-	-- alter table size_stats add foreign key (path_id) references paths(path_id) on delete restrict on update restrict;
 	alter table size_stats rename constraint size_stats_site_fkey to size_stats_site_id_fkey;
 
 
@@ -13147,7 +13140,8 @@ insert into version values
 	('2020-08-28-3-paths-rmold'),
 	('2020-08-28-4-user_agents'),
 	('2020-08-28-5-paths-ua-fk'),
-	('2020-08-28-6-paths-views');
+	('2020-08-28-6-paths-views'),
+	('2020-12-11-1-constraint');
 
 
 -- vim:ft=sql:tw=0
@@ -13745,7 +13739,8 @@ insert into version values
 	('2020-08-28-3-paths-rmold'),
 	('2020-08-28-4-user_agents'),
 	('2020-08-28-5-paths-ua-fk'),
-	('2020-08-28-6-paths-views');
+	('2020-08-28-6-paths-views'),
+	('2020-12-11-1-constraint');
 
 
 -- vim:ft=sql:tw=0

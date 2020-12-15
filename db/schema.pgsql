@@ -591,7 +591,8 @@ insert into version values
 	('2020-08-28-3-paths-rmold'),
 	('2020-08-28-4-user_agents'),
 	('2020-08-28-5-paths-ua-fk'),
-	('2020-08-28-6-paths-views');
+	('2020-08-28-6-paths-views'),
+	('2020-12-11-1-constraint');
 
 
 -- vim:ft=sql:tw=0

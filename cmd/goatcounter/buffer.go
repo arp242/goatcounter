@@ -11,6 +11,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/monoculum/formam"
@@ -96,6 +98,10 @@ Flags:
 Environment:
 
   GOATCOUNTER_BUFFER_SECRET   Secret to use to identify the buffered requests.
+
+Signals:
+
+  USR1         Dump the contents of the buffer to stderr.
 `
 
 func buffer() (int, error) {
@@ -107,6 +113,26 @@ func buffer() (int, error) {
 		reqBuffer chan handlers.APICountRequestHit
 		bufClient = &http.Client{Timeout: 3 * time.Second}
 	)
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGUSR1)
+	go func() {
+		for {
+			<-c
+			fmt.Printf("SIGUSR1; %d entries in buffer\n", len(reqBuffer))
+			all := make([]handlers.APICountRequestHit, 0, len(reqBuffer))
+			for len(reqBuffer) > 0 {
+				h := <-reqBuffer
+				all = append(all, h)
+				fmt.Fprintln(os.Stderr, h)
+			}
+			for _, h := range all {
+				reqBuffer <- h
+			}
+		}
+	}()
+
+	fmt.Println(os.Getpid())
 
 	dbConnect := flagDB()
 	debug := flagDebug()
