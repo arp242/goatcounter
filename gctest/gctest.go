@@ -24,7 +24,6 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
-	"zgo.at/zstd/zstring"
 )
 
 var pgSQL = false
@@ -36,12 +35,6 @@ type tester interface {
 	Logf(string, ...interface{})
 }
 
-var (
-	dbname = "goatcounter_test_" + zcrypto.Secret64()
-	db     *sqlx.DB
-	tables []string
-)
-
 func init() {
 	sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
 		ConnectHook: goatcounter.SQLiteHook,
@@ -51,80 +44,54 @@ func init() {
 func Reset() {
 	goatcounter.Memstore.Reset()
 	goatcounter.Reset()
-	dbname = "goatcounter_test_" + zcrypto.Secret64()
-	db = nil
-	tables = make([]string, 0)
 }
 
 // DB starts a new database test.
 func DB(t tester) (context.Context, func()) {
-	cfg.RunningTests = true
-
 	t.Helper()
-	ctx := context.Background()
 
-	if db == nil {
-		var err error
-		if pgSQL {
-			{
-				out, err := exec.Command("createdb", dbname).CombinedOutput()
-				if err != nil {
-					t.Fatalf("%s → %s", err, out)
-				}
-			}
+	cfg.RunningTests = true
+	dbname := "goatcounter_test_" + zcrypto.Secret64()
 
-			os.Setenv("PGDATABASE", dbname)
-			db, err = sqlx.Connect("postgres", "")
-		} else {
-			db, err = sqlx.Connect("sqlite3", "file::memory:?cache=shared")
-		}
+	var (
+		db  *sqlx.DB
+		err error
+	)
+	if pgSQL {
+		out, err := exec.Command("createdb", dbname).CombinedOutput()
 		if err != nil {
-			t.Fatalf("connect to DB: %s", err)
-		}
-		ctx = zdb.With(ctx, db)
-
-		setupDB(t)
-
-		tables, err = zdb.ListTables(ctx)
-		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("%s → %s", err, out)
 		}
 
-		exclude := []string{"iso_3166_1", "version"}
-		tables = zstring.Filter(tables, func(t string) bool { return !zstring.Contains(exclude, t) })
+		os.Setenv("PGDATABASE", dbname)
+		db, err = zdb.Connect(zdb.ConnectOptions{
+			Connect: "postgresql://",
+		})
 	} else {
-		ctx = zdb.With(ctx, db)
-
-		q := `delete from %s`
-		if zdb.PgSQL(zdb.MustGet(ctx)) {
-			// TODO: takes about 450ms, which is rather long. See if we can
-			// speed this up.
-			q = `truncate %s restart identity cascade`
-		}
-		for _, t := range tables {
-			db.MustExec(fmt.Sprintf(q, t))
-		}
-		if !zdb.PgSQL(zdb.MustGet(ctx)) {
-			db.MustExec(`delete from sqlite_sequence`)
-		}
+		db, err = zdb.Connect(zdb.ConnectOptions{
+			Connect: "sqlite3://:memory:?cache=shared",
+		})
+	}
+	if err != nil {
+		t.Fatalf("connect to DB: %s", err)
 	}
 
+	ctx := zdb.With(context.Background(), db)
+	setupDB(t, db)
 	goatcounter.Memstore.TestInit(db)
-	ctx = initData(ctx, t)
+	ctx = initData(ctx, db, t)
 
 	return ctx, func() {
 		goatcounter.Memstore.Reset()
 		goatcounter.Reset()
-
-		// TODO: run after all tests are done.
-		// out, err := exec.Command("dropdb", dbname).CombinedOutput()
-		// if err != nil {
-		// 	t.Logf("dropdb: %s → %s", err, out)
-		// }
+		db.Close()
+		if zdb.PgSQL(db) {
+			exec.Command("dropdb", dbname).Run()
+		}
 	}
 }
 
-func setupDB(t tester) {
+func setupDB(t tester, db zdb.DB) {
 	top, err := os.Getwd()
 	if err != nil {
 		t.Fatalf(fmt.Sprintf("cannot get cwd: %s", err))
@@ -168,7 +135,7 @@ func setupDB(t tester) {
 			continue
 		}
 		var ran bool
-		db.Get(&ran, `select 1 from version where name=$1`, m.Name()[:len(m.Name())-4])
+		db.GetContext(context.Background(), &ran, `select 1 from version where name=$1`, m.Name()[:len(m.Name())-4])
 		if ran {
 			continue
 		}
@@ -189,7 +156,7 @@ func setupDB(t tester) {
 	}
 }
 
-func initData(ctx context.Context, t tester) context.Context {
+func initData(ctx context.Context, db zdb.DB, t tester) context.Context {
 	site := goatcounter.Site{Code: "gctest", Plan: goatcounter.PlanPersonal}
 	err := site.Insert(ctx)
 	if err != nil {

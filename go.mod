@@ -31,7 +31,7 @@ require (
 	zgo.at/pg_info v0.0.0-20201217021255-048639cbc5d4
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v1.0.0
-	zgo.at/zdb v0.0.0-20201215064121-3bdf9ac70fc1
+	zgo.at/zdb v0.0.0-20201217223330-e5c516b26bc2
 	zgo.at/zhttp v0.0.0-20201214071227-714ee8b7a17f
 	zgo.at/zli v0.0.0-20201210061107-1204fda2cf4b
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
