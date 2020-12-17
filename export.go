@@ -18,7 +18,6 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/gadget"
-	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -221,9 +220,18 @@ func (e *Exports) List(ctx context.Context) error {
 }
 
 // Import data from an export.
-func Import(ctx context.Context, fp io.Reader, replace, email bool) {
+//
+// The persist() callback will be called for every hit; you usually want to
+// collect a bunch of them and then persist them.
+//
+// After everything is done, this will be called once more with an empty hit and
+// final set to true, to persist the last batch.
+func Import(
+	ctx context.Context, fp io.Reader, replace, email bool,
+	persist func(Hit, bool),
+) (*time.Time, error) {
+
 	site := MustGetSite(ctx)
-	user := GetUser(ctx)
 
 	l := zlog.Module("import").Field("site", site.ID).Field("replace", replace)
 	l.Print("import started")
@@ -231,23 +239,20 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 	c := csv.NewReader(fp)
 	header, err := c.Read()
 	if err != nil {
-		importError(l, *user, err)
-		return
+		return nil, errors.Wrap(err, "goatcounter.Import")
 	}
 
 	if len(header) == 0 || !strings.HasPrefix(header[0], ExportVersion) {
-		importError(l, *user, errors.Errorf(
-			"wrong version of CSV database: %s (expected: %s)",
-			header[0][:1], ExportVersion))
-		return
+		return nil, errors.Errorf(
+			"goatcounter.Import: wrong version of CSV database: %s (expected: %s)",
+			header[0][:1], ExportVersion)
 	}
 
 	if replace {
 		err := site.DeleteAll(ctx)
 		if err != nil {
-			importError(l, *user, err)
 			l.Error(err)
-			return
+			return nil, errors.Wrap(err, "goatcounter.Import")
 		}
 	}
 
@@ -257,18 +262,6 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		errs       = errors.NewGroup(50)
 		firstHitAt *time.Time
 	)
-	persist := func() {
-		if firstHitAt != nil {
-			err := site.UpdateFirstHitAt(ctx, *firstHitAt)
-			if err != nil {
-				zlog.Error(err)
-			}
-		}
-		PersistRunner.Run <- struct{}{}
-		for bgrun.Running("cron:PersistAndStat") {
-			time.Sleep(250 * time.Millisecond)
-		}
-	}
 	for {
 		line, err := c.Read()
 		if err == io.EOF {
@@ -300,17 +293,11 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		}
 		hit.Session = s
 
-		Memstore.Append(hit)
-		n++
-
-		// Spread out the load a bit.
-		if n%5000 == 0 {
-			persist()
-		}
+		persist(hit, false)
 	}
-	persist()
+	persist(Hit{}, true)
 
-	l.Debugf("imported %d rows", n)
+	l.Debugf("import done")
 	if errs.Len() > 0 {
 		l.Error(errs)
 	}
@@ -321,7 +308,7 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 		time.Sleep(10 * time.Second)
 		err = blackmail.Send("GoatCounter import ready",
 			blackmail.From("GoatCounter import", cfg.EmailFrom),
-			blackmail.To(user.Email),
+			blackmail.To(GetUser(ctx).Email),
 			blackmail.BodyMustText(EmailTemplate("email_import_done.gotxt", struct {
 				Site   Site
 				Rows   int
@@ -331,6 +318,8 @@ func Import(ctx context.Context, fp io.Reader, replace, email bool) {
 			l.Error(err)
 		}
 	}
+
+	return firstHitAt, nil
 }
 
 // TODO: would be nice to have generic csv marshal/unmarshaler, so you can do:

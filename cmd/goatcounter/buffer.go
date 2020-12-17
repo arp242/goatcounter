@@ -132,8 +132,6 @@ func buffer() (int, error) {
 		}
 	}()
 
-	fmt.Println(os.Getpid())
-
 	dbConnect := flagDB()
 	debug := flagDebug()
 

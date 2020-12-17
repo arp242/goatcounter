@@ -6,8 +6,8 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
-	"encoding/csv"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -25,7 +25,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
 )
 
@@ -104,9 +103,19 @@ func importCmd() (int, error) {
 	if files[0] == "-" {
 		fp = ioutil.NopCloser(os.Stdin)
 	} else {
-		fp, err = os.Open(files[0])
+		file, err := os.Open(files[0])
 		if err != nil {
 			return 1, err
+		}
+		defer file.Close()
+
+		if strings.HasSuffix(files[0], ".gz") {
+			fp, err = gzip.NewReader(file)
+			if err != nil {
+				return 1, errors.Errorf("could not read as gzip: %w", err)
+			}
+		} else {
+			fp = file
 		}
 		defer fp.Close()
 	}
@@ -133,7 +142,40 @@ func importCmd() (int, error) {
 	default:
 		return 1, fmt.Errorf("unknown -format value: %q", format)
 	case "csv":
-		n, err = importCSV(fp, url, key)
+		n = 0
+		ctx := goatcounter.WithSite(context.Background(), &goatcounter.Site{})
+		hits := make([]handlers.APICountRequestHit, 0, 500)
+		_, err = goatcounter.Import(ctx, fp, false, false, func(hit goatcounter.Hit, final bool) {
+			if !final {
+				hits = append(hits, handlers.APICountRequestHit{
+					Path:      hit.Path,
+					Title:     hit.Title,
+					Event:     hit.Event,
+					Ref:       hit.Ref,
+					Size:      hit.Size,
+					Bot:       hit.Bot,
+					UserAgent: hit.UserAgentHeader,
+					Location:  hit.Location,
+					CreatedAt: hit.CreatedAt,
+					Session:   hit.Session.String(),
+				})
+			}
+
+			if len(hits) >= 500 || final {
+				err := importSend(url, key, hits)
+				if err != nil {
+					fmt.Println()
+					zli.Errorf(err)
+				}
+
+				n += len(hits)
+				if !silent {
+					zli.ReplaceLinef("Imported %d rows", n)
+				}
+
+				hits = make([]handlers.APICountRequestHit, 0, 500)
+			}
+		})
 	}
 	if err != nil {
 		var gErr *errors.Group
@@ -143,10 +185,6 @@ func importCmd() (int, error) {
 		return 1, err
 	}
 
-	if !silent {
-		zli.EraseLine()
-		fmt.Printf("Done! Imported %d rows\n", n)
-	}
 	return 0, nil
 }
 
@@ -171,14 +209,11 @@ func importSend(url, key string, hits []handlers.APICountRequestHit) error {
 		return err
 	}
 
-	if !silent {
-		zli.ReplaceLinef("Sending %d hits to %s…", len(hits), url)
-	}
-
 	r, err := newRequest("POST", url, key, bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
+	r.Header.Set("X-Goatcounter-Import", "yes")
 
 	resp, err := importClient.Do(r)
 	if err != nil {
@@ -187,22 +222,13 @@ func importSend(url, key string, hits []handlers.APICountRequestHit) error {
 	defer resp.Body.Close()
 
 	switch resp.StatusCode {
-	// All okay!
-	case 202:
-		if !silent {
-			fmt.Print(" Okay!")
-		}
-
-	// Rate limit
-	case 429:
+	case 202: // All okay!
+	case 429: // Rate limit
 		s, err := strconv.Atoi(resp.Header.Get("X-Rate-Limit-Reset"))
 		if err != nil {
 			return err
 		}
 
-		if !silent {
-			zli.ReplaceLinef("Rate limited; sleeping for %d seconds\n", s)
-		}
 		time.Sleep(time.Duration(s) * time.Second)
 
 	// Other error
@@ -213,104 +239,12 @@ func importSend(url, key string, hits []handlers.APICountRequestHit) error {
 
 	nSent += len(hits)
 
-	// Sleep until next Memstore cycle.
-	if nSent > 2000 {
-		last, err := time.Parse(time.RFC3339Nano, resp.Header.Get("X-Goatcounter-Memstore"))
-		if err != nil {
-			return err
-		}
-		s := time.Until(last.Add(10_000 * time.Millisecond))
-
-		if !silent {
-			zli.ReplaceLinef("Sent 2,000 pageviews; Waiting %s", s.Round(time.Millisecond))
-		}
-		time.Sleep(s)
-
+	// Give the server's memstore a second to do its job.
+	if nSent > 5000 {
+		time.Sleep(1 * time.Second)
 		nSent = 0
 	}
 	return nil
-}
-
-func importCSV(fp io.Reader, url, key string) (int, error) {
-	c := csv.NewReader(fp)
-	header, err := c.Read()
-	if err != nil {
-		return 0, err
-	}
-	if len(header) == 0 || !strings.HasPrefix(header[0], goatcounter.ExportVersion) {
-		return 0, errors.Errorf(
-			"wrong version of CSV database: %s (expected: %s)",
-			header[0][:1], goatcounter.ExportVersion)
-	}
-
-	var (
-		n        = 0
-		sessions = make(map[zint.Uint128]zint.Uint128)
-		errs     = errors.NewGroup(50)
-		hits     = make([]handlers.APICountRequestHit, 0, 100)
-	)
-	for {
-		line, err := c.Read()
-		if err == io.EOF {
-			break
-		}
-		if errs.Append(err) {
-			if !silent {
-				zli.Errorf(err)
-			}
-			continue
-		}
-
-		var row goatcounter.ExportRow
-		if errs.Append(row.Read(line)) {
-			if !silent {
-				zli.Errorf(err)
-			}
-			continue
-		}
-
-		hit, err := row.Hit(0)
-		if errs.Append(row.Read(line)) {
-			if !silent {
-				zli.Errorf(err)
-			}
-			continue
-		}
-
-		// Map session IDs to new session IDs.
-		s, ok := sessions[hit.Session]
-		if !ok {
-			sessions[hit.Session] = goatcounter.Memstore.SessionID()
-		}
-		hit.Session = s
-
-		hits = append(hits, handlers.APICountRequestHit{
-			Path:      hit.Path,
-			Title:     hit.Title,
-			Event:     hit.Event,
-			Ref:       hit.Ref,
-			Size:      hit.Size,
-			Bot:       hit.Bot,
-			UserAgent: hit.UserAgentHeader,
-			Location:  hit.Location,
-			CreatedAt: hit.CreatedAt,
-			Session:   hit.Session.String(),
-		})
-		if len(hits) >= 100 {
-			if errs.Append(importSend(url, key, hits)) {
-				if !silent {
-					zli.Errorf(err)
-				}
-			}
-			hits = make([]handlers.APICountRequestHit, 0, 100)
-		}
-		n++
-	}
-	if len(hits) > 0 {
-		errs.Append(importSend(url, key, hits))
-	}
-
-	return n, errs.ErrorOrNil()
 }
 
 func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
