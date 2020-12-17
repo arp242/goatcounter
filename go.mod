@@ -7,7 +7,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/arp242/geoip2-golang v1.4.0
 	github.com/boombuler/barcode v1.0.0
-	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-chi/chi v1.5.1
 	github.com/google/uuid v1.1.2
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
@@ -28,7 +28,7 @@ require (
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20201022032147-22da657c7bcf
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
-	zgo.at/pg_info v0.0.0-20201215104212-161c5ee46a29
+	zgo.at/pg_info v0.0.0-20201217021255-048639cbc5d4
 	zgo.at/tz v0.0.0-20200520034804-aeba38d94d93
 	zgo.at/zcache v1.0.0
 	zgo.at/zdb v0.0.0-20201215064121-3bdf9ac70fc1
