@@ -57,6 +57,14 @@ type Hit struct {
 	SystemID      int64  `db:"-" json:"-"`
 }
 
+func (h *Hit) Ignore() bool {
+	// kproxy.com; not easy to get the original path, so just ignore it.
+	if strings.HasPrefix(h.Path, "/servlet/redirect.srv/") {
+		return true
+	}
+	return false
+}
+
 func (h *Hit) cleanPath(ctx context.Context) {
 	h.Path = strings.TrimSpace(h.Path)
 	if h.Event {

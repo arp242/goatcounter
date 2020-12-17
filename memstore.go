@@ -246,6 +246,10 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			continue
 		}
 
+		if h.Ignore() {
+			continue
+		}
+
 		err = h.Validate(ctx, false)
 		if err != nil {
 			l.Field("hit", h).Error(err)
