@@ -82,6 +82,8 @@ func Reset() {
 	sitesCacheHostname.Flush()
 	cachePaths.Flush()
 	cacheUA.Flush()
+	cacheBrowsers.Flush()
+	cacheSystems.Flush()
 	changedTitles.Flush()
 }
 

@@ -11,6 +11,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/gadget"
 	"zgo.at/goatcounter"
+	"zgo.at/isbot"
 	"zgo.at/zdb"
 	"zgo.at/zli"
 )
@@ -59,9 +60,10 @@ func UserAgents(db zdb.DB) error {
 				continue
 			}
 
+			bot := isbot.UserAgent(u.UserAgent)
 			_, err = db.ExecContext(ctx, `update user_agents
-				set browser_id=$1, system_id=$2, ua=$3 where user_agent_id=$4`,
-				browser.ID, system.ID, gadget.Shorten(u.UserAgent), u.ID)
+				set browser_id=$1, system_id=$2, ua=$3, isbot=$4 where user_agent_id=$5`,
+				browser.ID, system.ID, gadget.Shorten(u.UserAgent), bot, u.ID)
 			errs.Append(err)
 		}
 		if errs.Len() > 0 {

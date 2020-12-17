@@ -13,9 +13,11 @@ import (
 	"time"
 
 	nnow "github.com/jinzhu/now"
+	"zgo.at/gadget"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/zdb"
+	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
@@ -53,6 +55,8 @@ Flags:
                system_stats, location_stats, ref_counts, size_stats, or all
                (default).
 
+  -useragents  Redo the bot and browser/system detection on all User-Agent headrs.
+
   -site        Only reindex this site ID. Default is to reindex all.
 
   -quiet       Don't print progress.
@@ -69,6 +73,7 @@ func reindex() (int, error) {
 	table := CommandLine.String("table", "all", "")
 	pause := CommandLine.Int("pause", 0, "")
 	quiet := CommandLine.Bool("quiet", false, "")
+	doUA := CommandLine.Bool("useragents", false, "")
 	var site int64
 	CommandLine.Int64Var(&site, "site", 0, "")
 	err := CommandLine.Parse(os.Args[2:])
@@ -85,7 +90,7 @@ func reindex() (int, error) {
 	for _, t := range tables {
 		v.Include("-table", t, []string{"hit_stats", "hit_counts",
 			"browser_stats", "system_stats", "location_stats",
-			"ref_counts", "size_stats", "all"})
+			"ref_counts", "size_stats", "all", ""})
 	}
 	if v.HasErrors() {
 		return 1, v
@@ -99,6 +104,17 @@ func reindex() (int, error) {
 	}
 	defer db.Close()
 	ctx := zdb.With(context.Background(), db)
+
+	if *doUA {
+		err = userAgents(ctx, silent)
+		if err != nil {
+			return 1, err
+		}
+	}
+
+	if len(tables) == 0 || (len(tables) == 1 && tables[0] == "") {
+		return 0, nil
+	}
 
 	if *since == "" {
 		w := ""
@@ -274,3 +290,29 @@ func clearMonth(db zdb.DB, tables []string, month string, siteID int64) {
 
 func dayStart(t time.Time) string { return t.Format("2006-01-02") + " 00:00:00" }
 func dayEnd(t time.Time) string   { return t.Format("2006-01-02") + " 23:59:59" }
+
+func userAgents(ctx context.Context, silent bool) error {
+	var uas []goatcounter.UserAgent
+	err := zdb.MustGet(ctx).SelectContext(ctx, &uas, `select * from user_agents`)
+	if err != nil {
+		return err
+	}
+
+	for i, ua := range uas {
+		ua.UserAgent = gadget.Unshorten(ua.UserAgent)
+		err := ua.Update(ctx)
+		if err != nil {
+			return err
+		}
+
+		if !silent {
+			if i%500 == 0 {
+				zli.ReplaceLinef("user_agent %d of %d", i, len(uas))
+			}
+		}
+	}
+	if !silent {
+		fmt.Println()
+	}
+	return nil
+}

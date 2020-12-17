@@ -294,6 +294,7 @@ func Import(
 		hit.Session = s
 
 		persist(hit, false)
+		n++
 	}
 	persist(Hit{}, true)
 

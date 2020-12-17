@@ -116,7 +116,7 @@ create table user_agents (
 	system_id      integer        not null,
 
 	ua             varchar        not null,
-	bot            integer        not null,
+	isbot          integer        not null,
 
 	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
 	foreign key (system_id)  references systems(system_id)   on delete restrict on update restrict
@@ -271,19 +271,6 @@ create table store (
 );
 create unique index "store#key" on store(key);
 
-
-create view view_user_agents as
-	select
-		user_agents.user_agent_id as id,
-		user_agents.system_id     as bid,
-		user_agents.browser_id    as sid,
-		user_agents.bot,
-		browsers.name || ' ' || browsers.version as browser,
-		systems.name  || ' ' || systems.version as system,
-		user_agents.ua
-	from user_agents
-	join browsers using (browser_id)
-	join systems using (system_id);
 
 create table iso_3166_1 (
 	name           varchar,
@@ -592,7 +579,8 @@ insert into version values
 	('2020-08-28-4-user_agents'),
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
-	('2020-12-11-1-constraint');
+	('2020-12-11-1-constraint'),
+	('2020-12-17-1-paths-isbot');
 
 
 -- vim:ft=sql:tw=0

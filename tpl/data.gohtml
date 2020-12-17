@@ -17,17 +17,19 @@ applies.</p>
 
 <p>The files are in CSV format with a header and are counted by visitor (rather
 than by pageviews) but data before 9th of May 2020 are per-pageview (as the
-visitor feature didn’t exist yet). The first column is the date, the second
-column the count for that date, and the third column the actual data.</p>
+visitor feature didn’t exist yet).</p>
+
+<p>The <code>User-Agent</code> header is stored in an abbreviated form; this is
+essentially just a series of string replacements.
+<a href="https://github.com/zgoat/gadget/blob/80176bd/gadget.go#L123">details are here</a>.</p>
 
 <p>You can download <em>five</em> files per day only, and the data is updated
-daily at 2AM UTC. I’ll probably add a real-time query UI and some extra data at
-some point (e.g. the parsed User-Agent values).</p>
+weekly every Saturday around 4AM UTC.</p>
 
 <ul>
-	<li><a href="/data/ua.csv.gz">ua.csv.gz</a> – <code>User-Agent</code> headers excluding bots (~13M).</li>
-	<li><a href="/data/bots.csv.gz">bots.csv.gz</a> – <code>User-Agent</code> headers for bots (~150K).</li>
-	<li><a href="/data/screensize.csv.gz">screensize.csv.gz</a> – Screen sizes, as <code>X, Y, devicePixelScaling</code> (~1.5M).</li>
+	<li><a href="/data/ua.csv.gz">ua.csv.gz</a> – <code>User-Agent</code> headers excluding bots (~12M).</li>
+	<li><a href="/data/bots.csv.gz">bots.csv.gz</a> – <code>User-Agent</code> headers for bots (~350K).</li>
+	<li><a href="/data/screensize.csv.gz">screensize.csv.gz</a> – Screen sizes, as <code>X, Y, devicePixelScaling</code> (~400k).</li>
 </ul>
 
 {{template "_bottom.gohtml" .}}

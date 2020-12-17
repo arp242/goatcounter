@@ -269,23 +269,6 @@ commit;
 	insert into version values('2020-08-28-5-paths-ua-fk');
 commit;
 `),
-	"db/migrate/pgsql/2020-08-28-6-paths-views.sql": []byte(`begin;
-	create view view_user_agents as
-		select
-			user_agents.user_agent_id as id,
-			user_agents.system_id     as bid,
-			user_agents.browser_id    as sid,
-			user_agents.bot,
-			browsers.name || ' ' || browsers.version as browser,
-			systems.name  || ' ' || systems.version as system,
-			user_agents.ua
-		from user_agents
-		join browsers using (browser_id)
-		join systems using (system_id);
-
-	insert into version values ('2020-08-28-6-paths-views');
-commit;
-`),
 	"db/migrate/pgsql/2020-12-11-1-constraint.sql": []byte(`begin;
 	drop index if exists "browser_stats#site_id#path_id#day#browser_id";
 	drop index if exists "hit_stats#site_id#path_id#day";
@@ -312,6 +295,13 @@ commit;
 	cluster system_stats   using "system_stats#site_id#path_id#day#system_id";
 
 	insert into version values('2020-12-11-1-constraint');
+commit;
+`),
+	"db/migrate/pgsql/2020-12-17-1-paths-isbot.sql": []byte(`begin;
+	drop view if exists view_user_agents;
+	alter table user_agents rename column bot to isbot;
+
+	insert into version values('2020-12-17-1-paths-isbot');
 commit;
 `),
 }
@@ -734,21 +724,25 @@ commit;
 	insert into version values('2020-08-28-5-paths-ua-fk');
 commit;
 `),
-	"db/migrate/sqlite/2020-08-28-6-paths-views.sql": []byte(`begin;
-	create view view_user_agents as
-		select
-			user_agents.user_agent_id as id,
-			user_agents.system_id     as bid,
-			user_agents.browser_id    as sid,
-			user_agents.bot,
-			browsers.name || ' ' || browsers.version as browser,
-			systems.name  || ' ' || systems.version as system,
-			user_agents.ua
-		from user_agents
-		join browsers using (browser_id)
-		join systems using (system_id);
+	"db/migrate/sqlite/2020-12-17-1-paths-isbot.sql": []byte(`begin;
+	drop view if exists view_user_agents;
+	create table user_agents2 (
+		user_agent_id  integer        primary key autoincrement,
+		browser_id     integer        not null,
+		system_id      integer        not null,
 
-	insert into version values ('2020-08-28-6-paths-views');
+		ua             varchar        not null,
+		isbot          integer        not null,
+
+		foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
+		foreign key (system_id)  references systems(system_id)   on delete restrict on update restrict
+	);
+	insert into user_agents2 select user_agent_id, browser_id, system_id, ua, bot from user_agents;
+	drop table user_agents;
+	alter table user_agents2 rename to user_agents;
+	create unique index "user_agents#ua" on user_agents(ua);
+
+	insert into version values('2020-12-17-1-paths-isbot');
 commit;
 `),
 }
@@ -12583,7 +12577,7 @@ create table user_agents (
 	system_id      integer        not null,
 
 	ua             varchar        not null,
-	bot            integer        not null,
+	isbot          integer        not null,
 
 	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
 	foreign key (system_id)  references systems(system_id)   on delete restrict on update restrict
@@ -12739,19 +12733,6 @@ create table store (
 create unique index "store#key" on store(key);
 alter table store replica identity using index "store#key";
 
-create view view_user_agents as
-	select
-		user_agents.user_agent_id as id,
-		user_agents.system_id     as bid,
-		user_agents.browser_id    as sid,
-		user_agents.bot,
-		browsers.name || ' ' || browsers.version as browser,
-		systems.name  || ' ' || systems.version as system,
-		user_agents.ua
-	from user_agents
-	join browsers using (browser_id)
-	join systems using (system_id);
-
 create table iso_3166_1 (
 	name           varchar,
 	alpha2          varchar
@@ -13059,7 +13040,8 @@ insert into version values
 	('2020-08-28-4-user_agents'),
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
-	('2020-12-11-1-constraint');
+	('2020-12-11-1-constraint'),
+	('2020-12-17-1-paths-isbot');
 
 
 -- vim:ft=sql:tw=0
@@ -13182,7 +13164,7 @@ create table user_agents (
 	system_id      integer        not null,
 
 	ua             varchar        not null,
-	bot            integer        not null,
+	isbot          integer        not null,
 
 	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
 	foreign key (system_id)  references systems(system_id)   on delete restrict on update restrict
@@ -13338,19 +13320,6 @@ create table store (
 create unique index "store#key" on store(key);
 
 
-create view view_user_agents as
-	select
-		user_agents.user_agent_id as id,
-		user_agents.system_id     as bid,
-		user_agents.browser_id    as sid,
-		user_agents.bot,
-		browsers.name || ' ' || browsers.version as browser,
-		systems.name  || ' ' || systems.version as system,
-		user_agents.ua
-	from user_agents
-	join browsers using (browser_id)
-	join systems using (system_id);
-
 create table iso_3166_1 (
 	name           varchar,
 	alpha2          varchar
@@ -13658,7 +13627,8 @@ insert into version values
 	('2020-08-28-4-user_agents'),
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
-	('2020-12-11-1-constraint');
+	('2020-12-11-1-constraint'),
+	('2020-12-17-1-paths-isbot');
 
 
 -- vim:ft=sql:tw=0
@@ -17819,17 +17789,19 @@ applies.</p>
 
 <p>The files are in CSV format with a header and are counted by visitor (rather
 than by pageviews) but data before 9th of May 2020 are per-pageview (as the
-visitor feature didn’t exist yet). The first column is the date, the second
-column the count for that date, and the third column the actual data.</p>
+visitor feature didn’t exist yet).</p>
+
+<p>The <code>User-Agent</code> header is stored in an abbreviated form; this is
+essentially just a series of string replacements.
+<a href="https://github.com/zgoat/gadget/blob/80176bd/gadget.go#L123">details are here</a>.</p>
 
 <p>You can download <em>five</em> files per day only, and the data is updated
-daily at 2AM UTC. I’ll probably add a real-time query UI and some extra data at
-some point (e.g. the parsed User-Agent values).</p>
+weekly every Saturday around 4AM UTC.</p>
 
 <ul>
-	<li><a href="/data/ua.csv.gz">ua.csv.gz</a> – <code>User-Agent</code> headers excluding bots (~13M).</li>
-	<li><a href="/data/bots.csv.gz">bots.csv.gz</a> – <code>User-Agent</code> headers for bots (~150K).</li>
-	<li><a href="/data/screensize.csv.gz">screensize.csv.gz</a> – Screen sizes, as <code>X, Y, devicePixelScaling</code> (~1.5M).</li>
+	<li><a href="/data/ua.csv.gz">ua.csv.gz</a> – <code>User-Agent</code> headers excluding bots (~12M).</li>
+	<li><a href="/data/bots.csv.gz">bots.csv.gz</a> – <code>User-Agent</code> headers for bots (~350K).</li>
+	<li><a href="/data/screensize.csv.gz">screensize.csv.gz</a> – Screen sizes, as <code>X, Y, devicePixelScaling</code> (~400k).</li>
 </ul>
 
 {{template "_bottom.gohtml" .}}

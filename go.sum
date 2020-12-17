@@ -120,10 +120,14 @@ zgo.at/errors v0.0.0-20200725175708-8255739ad6ec h1:lACtQzc1wx9Jutxix4p08EN0EfiG
 zgo.at/errors v0.0.0-20200725175708-8255739ad6ec/go.mod h1:POfgvh1LafF2NZJk6buGYCIhcHWuR/miB3nndyf3ozs=
 zgo.at/gadget v0.0.0-20200522205438-64412137d778 h1:yDRvfHau8/hHdiPcqXeHaebpoe7XfDjmGBto70V0q7s=
 zgo.at/gadget v0.0.0-20200522205438-64412137d778/go.mod h1:1x0AKFOjKScVTzJh+V69Ku6hTwvEM56MlnKOtrjMwSo=
+zgo.at/gadget v0.0.0-20201217063255-80176bd17067 h1:Wm7UIE1VgL8bHMKowFZwANxYubEHKgWcE0VQSWrhlx8=
+zgo.at/gadget v0.0.0-20201217063255-80176bd17067/go.mod h1:1x0AKFOjKScVTzJh+V69Ku6hTwvEM56MlnKOtrjMwSo=
 zgo.at/guru v1.1.0 h1:hvMLOzPnv7XApwJZgxvFxBA8wb6RGPUw9lz8kmq450g=
 zgo.at/guru v1.1.0/go.mod h1:eltnfk6QwmM7ic3OLzmGMjEChP2iLuYXERyliREiA00=
 zgo.at/isbot v0.0.0-20201022032147-22da657c7bcf h1:GalJw7aol326WLydMYRhFdxA+ctYErnQcQieQEXadLo=
 zgo.at/isbot v0.0.0-20201022032147-22da657c7bcf/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
+zgo.at/isbot v0.0.0-20201217063241-a1aab44f6889 h1:80jNd8BRsWVEbIXtExGwVrR/9ck5XnwE08qfhbhBeSY=
+zgo.at/isbot v0.0.0-20201217063241-a1aab44f6889/go.mod h1:/w+LTWbHsV7G5fT41VnwM0kTdk1H/prynfMqaxcBWjA=
 zgo.at/json v0.0.0-20200627042140-d5025253667f h1:o4XL0oDtAzxN+mkVCti8MYz5nLNfbrl17I78rqLWQrk=
 zgo.at/json v0.0.0-20200627042140-d5025253667f/go.mod h1:DUuNIRpNC7/cup+Gy0qhwQEjjlLFXXRZ04VnVv9bf3E=
 zgo.at/pg_info v0.0.0-20201217021255-048639cbc5d4 h1:oG7pMjCt0mKrFTKiCa0tDuXhHMIbYjfSFn0Ytpl5z58=

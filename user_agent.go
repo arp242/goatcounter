@@ -20,7 +20,7 @@ type UserAgent struct {
 	ID        int64  `db:"user_agent_id"`
 	UserAgent string `db:"ua"`
 
-	Bot       uint8 `db:"bot"`
+	Isbot     uint8 `db:"isbot"`
 	BrowserID int64 `db:"browser_id"`
 	SystemID  int64 `db:"system_id"`
 }
@@ -41,7 +41,61 @@ func (p *UserAgent) ByID(ctx context.Context, id int64) error {
 	return errors.Wrapf(err, "UserAgent.ByID %d", id)
 }
 
-var cacheUA = zcache.New(1*time.Hour, 5*time.Minute)
+var (
+	cacheUA       = zcache.New(1*time.Hour, 5*time.Minute)
+	cacheBrowsers = zcache.New(1*time.Hour, 5*time.Minute)
+	cacheSystems  = zcache.New(1*time.Hour, 5*time.Minute)
+)
+
+func (p *UserAgent) Update(ctx context.Context) error {
+	if p.ID == 0 {
+		panic("ID is 0")
+	}
+
+	var (
+		changed = false
+		ua      = gadget.Parse(p.UserAgent)
+		browser Browser
+		system  System
+	)
+	err := browser.GetOrInsert(ctx, ua.BrowserName, ua.BrowserVersion)
+	if err != nil {
+		return errors.Wrap(err, "UserAgent.Update")
+	}
+	if p.BrowserID != browser.ID {
+		changed = true
+		p.BrowserID = browser.ID
+	}
+
+	err = system.GetOrInsert(ctx, ua.OSName, ua.OSVersion)
+	if err != nil {
+		return errors.Wrap(err, "UserAgent.Update")
+	}
+	if p.SystemID != system.ID {
+		changed = true
+		p.SystemID = system.ID
+	}
+
+	bot := isbot.UserAgent(p.UserAgent)
+	if bot != p.Isbot {
+		changed = true
+		p.Isbot = bot
+	}
+
+	if !changed {
+		return nil
+	}
+
+	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+		`update user_agents set isbot=$1, browser_id=$2, system_id=$3 where user_agent_id=$4`,
+		p.Isbot, p.BrowserID, p.SystemID, p.ID)
+	if err != nil {
+		return errors.Wrap(err, "UserAgent.Update")
+	}
+
+	cacheUA.Delete(gadget.Shorten(p.UserAgent))
+	return nil
+}
 
 func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	shortUA := gadget.Shorten(p.UserAgent)
@@ -92,10 +146,10 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	p.SystemID = system.ID
 
 	// Insert new row.
-	p.Bot = isbot.UserAgent(p.UserAgent)
+	p.Isbot = isbot.UserAgent(p.UserAgent)
 	p.ID, err = insertWithID(ctx, "user_agent_id", `insert into user_agents
-		(ua, bot, browser_id, system_id) values ($1, $2, $3, $4)`,
-		shortUA, p.Bot, p.BrowserID, p.SystemID)
+		(ua, isbot, browser_id, system_id) values ($1, $2, $3, $4)`,
+		shortUA, p.Isbot, p.BrowserID, p.SystemID)
 	if err != nil {
 		return errors.Wrap(err, "UserAgent.GetOrInsert insert")
 	}
@@ -111,6 +165,14 @@ type Browser struct {
 }
 
 func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
+	k := name + version
+	c, ok := cacheBrowsers.Get(k)
+	if ok {
+		*b = c.(Browser)
+		cacheBrowsers.Touch(k, zcache.DefaultExpiration)
+		return nil
+	}
+
 	b.Name = name
 	b.Version = version
 
@@ -122,7 +184,11 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 			`insert into browsers (name, version) values ($1, $2)`,
 			name, version)
 	}
-	return errors.Wrap(err, "Browser.GetOrInsert")
+	if err != nil {
+		return errors.Wrap(err, "Browser.GetOrInsert")
+	}
+	cacheBrowsers.SetDefault(k, *b)
+	return nil
 }
 
 type System struct {
@@ -132,6 +198,14 @@ type System struct {
 }
 
 func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
+	k := name + version
+	c, ok := cacheSystems.Get(k)
+	if ok {
+		*s = c.(System)
+		cacheSystems.Touch(k, zcache.DefaultExpiration)
+		return nil
+	}
+
 	s.Name = name
 	s.Version = version
 
@@ -143,5 +217,9 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 			`insert into systems (name, version) values ($1, $2)`,
 			name, version)
 	}
-	return errors.Wrap(err, "System.GetOrInsert")
+	if err != nil {
+		return errors.Wrap(err, "System.GetOrInsert")
+	}
+	cacheSystems.SetDefault(k, *s)
+	return nil
 }
