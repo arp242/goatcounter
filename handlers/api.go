@@ -19,7 +19,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/cron"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -48,7 +47,21 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 		zhttp.Ratelimit(zhttp.RatelimitOptions{
 			Client: zhttp.RatelimitIP,
 			Store:  zhttp.NewRatelimitMemory(),
-			Limit:  zhttp.RatelimitLimit(60, 120),
+			Limit: func(r *http.Request) (int, int64) {
+				// Up batch size for imports; otherwize 500k requests takes
+				// about 35 minutes, most of which is waiting for the rate
+				// limit.
+				//
+				// This isn't secure – the rate limit is mostly intended to
+				// prevent accidental sending of many requests. Hammering GC
+				// with loads of pageviews is already possible if you really
+				// want it through the import UI or just by using a few
+				// different machines.
+				if r.URL.Path == "/api/v0/count" && r.Header.Get("X-Goatcounter-Import") != "" {
+					return 4, 1
+				}
+				return 60, 120
+			},
 		}))
 
 	a.Get("/api/v0/test", zhttp.Wrap(h.test))
@@ -403,14 +416,10 @@ func (h APICountRequestHit) String() string {
 // This can count one or more pageviews. Pageviews are not persisted
 // immediately, but persisted in the background every 10 seconds.
 //
-// The maximum amount of pageviews per request is 100.
+// The maximum amount of pageviews per request is 500.
 //
 // Errors will have the key set to the index of the pageview. Any pageviews not
 // listed have been processed and shouldn't be sent again.
-//
-// The response header has the X-Goatcounter-Memstore header set to the time of
-// the last time pageviews were persisted to the database. This is useful if you
-// want to (roughly) sync up with this.
 //
 // Request body: APICountRequest
 // Response 202: {empty}
@@ -433,9 +442,9 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.JSON(w, apiError{Error: "no hits"})
 	}
 
-	if len(args.Hits) > 100 {
+	if len(args.Hits) > 500 {
 		w.WriteHeader(400)
-		return zhttp.JSON(w, apiError{Error: "maximum amount of pageviews in one batch is 100"})
+		return zhttp.JSON(w, apiError{Error: "maximum amount of pageviews in one batch is 500"})
 	}
 
 	errs := make(map[int]string)
@@ -485,7 +494,10 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	w.Header().Set("X-Goatcounter-Memstore", cron.LastMemstore.Get().Format(time.RFC3339Nano))
+	if goatcounter.Memstore.Len() >= 5000 {
+		goatcounter.PersistRunner.Run <- struct{}{}
+	}
+
 	w.WriteHeader(http.StatusAccepted)
 	return zhttp.JSON(w, respOK)
 }

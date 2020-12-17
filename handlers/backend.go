@@ -773,9 +773,49 @@ func (h backend) importFile(w http.ResponseWriter, r *http.Request) error {
 	}
 	defer fp.Close()
 
+	user := goatcounter.GetUser(r.Context())
 	ctx := goatcounter.NewContext(r.Context())
-	bgrun.Run(fmt.Sprintf("import:%d", Site(ctx).ID),
-		func() { goatcounter.Import(ctx, fp, replace, true) })
+	n := 0
+	bgrun.Run(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
+		firstHitAt, err := goatcounter.Import(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
+			if final {
+				return
+			}
+
+			goatcounter.Memstore.Append(hit)
+			n++
+
+			// Spread out the load a bit.
+			if n%5000 == 0 {
+				goatcounter.PersistRunner.Run <- struct{}{}
+				for bgrun.Running("cron:PersistAndStat") {
+					time.Sleep(250 * time.Millisecond)
+				}
+			}
+		})
+		if err != nil {
+			if e, ok := err.(*errors.StackErr); ok {
+				err = e.Unwrap()
+			}
+
+			sendErr := blackmail.Send("GoatCounter import error",
+				blackmail.From("GoatCounter import", cfg.EmailFrom),
+				blackmail.To(user.Email),
+				blackmail.BodyMustText(goatcounter.EmailTemplate("email_import_error.gotxt", struct {
+					Error error
+				}{err})))
+			if sendErr != nil {
+				zlog.Error(sendErr)
+			}
+		}
+
+		if firstHitAt != nil {
+			err := Site(ctx).UpdateFirstHitAt(ctx, *firstHitAt)
+			if err != nil {
+				zlog.Error(err)
+			}
+		}
+	})
 
 	zhttp.Flash(w, "Import started in the background; you’ll get an email when it’s done.")
 	return zhttp.SeeOther(w, "/settings#tab-export")

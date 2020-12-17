@@ -36,7 +36,7 @@
         "consumes": [
           "application/json"
         ],
-        "description": "This can count one or more pageviews. Pageviews are not persisted\nimmediately, but persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 100.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.\n\nThe response header has the X-Goatcounter-Memstore header set to the time of\nthe last time pageviews were persisted to the database. This is useful if you\nwant to (roughly) sync up with this.",
+        "description": "This can count one or more pageviews. Pageviews are not persisted\nimmediately, but persisted in the background every 10 seconds.\n\nThe maximum amount of pageviews per request is 500.\n\nErrors will have the key set to the index of the pageview. Any pageviews not\nlisted have been processed and shouldn't be sent again.",
         "operationId": "POST_api_v0_count",
         "parameters": [
           {

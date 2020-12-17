@@ -135,10 +135,8 @@
 			</div>
 			<div class="endpoint-info">
 				<p>This can count one or more pageviews. Pageviews are not persisted
-immediately, but persisted in the background every 10 seconds.</p><p>The maximum amount of pageviews per request is 100.</p><p>Errors will have the key set to the index of the pageview. Any pageviews not
-listed have been processed and shouldn&#39;t be sent again.</p><p>The response header has the X-Goatcounter-Memstore header set to the time of
-the last time pageviews were persisted to the database. This is useful if you
-want to (roughly) sync up with this.</p>
+immediately, but persisted in the background every 10 seconds.</p><p>The maximum amount of pageviews per request is 500.</p><p>Errors will have the key set to the index of the pageview. Any pageviews not
+listed have been processed and shouldn&#39;t be sent again.</p>
 					<h4>Request body</h4>
 					<ul>
 						<li><a href="#handlers.APICountRequest">handlers.APICountRequest</a>

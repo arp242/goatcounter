@@ -94,7 +94,11 @@ func (l *lastMemstore) Set(t time.Time) {
 	l.t = t
 }
 
-var LastMemstore lastMemstore
+var LastMemstore = func() *lastMemstore {
+	l := &lastMemstore{}
+	l.Set(goatcounter.Now())
+	return l
+}()
 
 func PersistAndStat(ctx context.Context) error {
 	l := zlog.Module("cron")
