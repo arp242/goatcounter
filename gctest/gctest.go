@@ -58,9 +58,9 @@ func DB(t tester) (context.Context, func()) {
 		err error
 	)
 	if pgSQL {
-		out, err := exec.Command("createdb", dbname).CombinedOutput()
-		if err != nil {
-			t.Fatalf("%s → %s", err, out)
+		out, err2 := exec.Command("createdb", dbname).CombinedOutput()
+		if err2 != nil {
+			t.Fatalf("%s → %s", err2, out)
 		}
 
 		os.Setenv("PGDATABASE", dbname)

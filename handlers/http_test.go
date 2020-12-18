@@ -160,7 +160,7 @@ func login(t *testing.T, r *http.Request) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r.Form.Set("csrf", *u.CSRFToken)
+	r.Form.Set("csrf", *u.Token)
 
 	r.Header.Set("Cookie", "key="+*u.LoginToken)
 }

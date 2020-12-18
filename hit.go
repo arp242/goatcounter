@@ -62,6 +62,11 @@ func (h *Hit) Ignore() bool {
 	if strings.HasPrefix(h.Path, "/servlet/redirect.srv/") {
 		return true
 	}
+	// Almost certainly some broken HTML or whatnot.
+	if strings.Contains(h.Path, "<html>") || strings.Contains(h.Path, "<HTML>") {
+		return true
+	}
+
 	return false
 }
 
