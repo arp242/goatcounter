@@ -22,6 +22,7 @@ import (
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zsync"
 )
@@ -253,7 +254,7 @@ func buffer() (int, error) {
 	zlog.Printf("Ready on %s", listen)
 	ch := zhttp.Serve(0, *testMode, &http.Server{
 		Addr:    listen,
-		Handler: zhttp.RealIP(zhttp.Unpanic(false)(handle(reqBuffer, bufClient, isDown))),
+		Handler: mware.RealIP()(mware.Unpanic()(handle(reqBuffer, bufClient, isDown))),
 
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       60 * time.Second,

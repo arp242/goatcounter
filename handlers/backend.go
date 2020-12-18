@@ -36,6 +36,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
@@ -53,18 +54,18 @@ const DailyView = 90
 
 func (h backend) Mount(r chi.Router, db zdb.DB) {
 	if !cfg.Prod {
-		r.Use(delay())
+		r.Use(mware.Delay(0))
 	}
 
 	r.Use(
-		zhttp.RealIP,
-		zhttp.Unpanic(cfg.Prod),
+		mware.RealIP(),
+		mware.Unpanic(),
 		addctx(db, true),
 		middleware.RedirectSlashes,
-		zhttp.NoStore,
-		zhttp.WrapWriter)
+		mware.NoStore(),
+		mware.WrapWriter())
 	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
-		r.Use(zhttp.Log(true, ""))
+		r.Use(mware.RequestLog(nil))
 	}
 
 	api{}.mount(r, db)
@@ -78,19 +79,19 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 	})
 
 	{
-		rr := r.With(zhttp.Headers(nil))
+		rr := r.With(mware.Headers(nil))
 		rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
 		rr.Post("/jserr", zhttp.HandlerJSErr())
 		rr.Post("/csp", zhttp.HandlerCSP())
 
 		// 4 pageviews/second should be more than enough.
-		rateLimited := rr.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
+		rateLimited := rr.With(mware.Ratelimit(mware.RatelimitOptions{
 			Client: func(r *http.Request) string {
 				// Add in the User-Agent to reduce the problem of multiple
 				// people in the same building hitting the limit.
 				return r.RemoteAddr + r.UserAgent()
 			},
-			Store: zhttp.NewRatelimitMemory(),
+			Store: mware.NewRatelimitMemory(),
 			Limit: func(r *http.Request) (int, int64) {
 				if !cfg.Prod {
 					return 1 << 30, 1
@@ -140,7 +141,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})
 
-		a := r.With(zhttp.Headers(headers), keyAuth)
+		a := r.With(mware.Headers(headers), keyAuth)
 		user{}.mount(a)
 		{
 			ap := a.With(loggedInOrPublic)
@@ -161,10 +162,10 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
 			af.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
-			af.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
-				Client:  zhttp.RatelimitIP,
-				Store:   zhttp.NewRatelimitMemory(),
-				Limit:   zhttp.RatelimitLimit(1, 3600),
+			af.With(mware.Ratelimit(mware.RatelimitOptions{
+				Client:  mware.RatelimitIP,
+				Store:   mware.NewRatelimitMemory(),
+				Limit:   mware.RatelimitLimit(1, 3600),
 				Message: "you can request only one export per hour",
 			})).Post("/export", zhttp.Wrap(h.startExport))
 			af.Get("/export/{id}", zhttp.Wrap(h.downloadExport))

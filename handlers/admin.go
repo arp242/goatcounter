@@ -21,6 +21,8 @@ import (
 	"zgo.at/pg_info/pghandler"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/auth"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
@@ -29,7 +31,7 @@ type admin struct{}
 
 func (h admin) mount(r chi.Router, db zdb.DB) {
 	//a := r.With(zhttp.Log(true, ""), keyAuth, adminOnly)
-	a := r.With(zhttp.Log(true, ""), adminOnly)
+	a := r.With(mware.RequestLog(nil), adminOnly)
 
 	a.Get("/admin", zhttp.Wrap(h.index))
 
@@ -244,7 +246,7 @@ func (h admin) login(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	domain := cookieDomain(&site, r)
-	zhttp.SetAuthCookie(w, *user.LoginToken, domain)
+	auth.SetCookie(w, *user.LoginToken, domain)
 	http.SetCookie(w, &http.Cookie{
 		Domain:   zhttp.RemovePort(domain),
 		Name:     "is_admin",

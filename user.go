@@ -36,7 +36,7 @@ type User struct {
 	ResetAt       *time.Time `db:"reset_at" json:"reset_at,readonly"`
 	LoginRequest  *string    `db:"login_request" json:"-"`
 	LoginToken    *string    `db:"login_token" json:"-"`
-	CSRFToken     *string    `db:"csrf_token" json:"-"`
+	Token         *string    `db:"csrf_token" json:"-"`
 	EmailToken    *string    `db:"email_token" json:"-"`
 	SeenUpdatesAt time.Time  `db:"seen_updates_at" json:"-"`
 
@@ -329,7 +329,7 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
-	u.CSRFToken = zcrypto.Secret256P()
+	u.Token = zcrypto.Secret256P()
 	if u.LoginToken == nil || *u.LoginToken == "" {
 		s := Now().Format("20060102") + "-" + zcrypto.Secret256()
 		u.LoginToken = &s
@@ -338,7 +338,7 @@ func (u *User) Login(ctx context.Context) error {
 	_, err := zdb.MustGet(ctx).ExecContext(ctx, `update users set
 			login_request=null, login_token=$1, csrf_token=$2
 			where user_id=$3 and site_id=$4`,
-		u.LoginToken, u.CSRFToken, u.ID, MustGetSite(ctx).IDOrParent())
+		u.LoginToken, u.Token, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Login")
 }
 
@@ -353,12 +353,12 @@ func (u *User) Logout(ctx context.Context) error {
 	return errors.Wrap(err, "User.Logout")
 }
 
-// GetToken gets the CSRF token.
-func (u *User) GetToken() string {
-	if u.CSRFToken == nil {
+// CSRFToken gets the CSRF token.
+func (u *User) CSRFToken() string {
+	if u.Token == nil {
 		return ""
 	}
-	return *u.CSRFToken
+	return *u.Token
 }
 
 // SeenUpdates marks this user as having seen all updates up until now.

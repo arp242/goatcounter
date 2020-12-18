@@ -26,6 +26,8 @@ import (
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/auth"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
@@ -43,10 +45,10 @@ func (h user) mount(r chi.Router) {
 	r.Post("/user/request-reset", zhttp.Wrap(h.requestReset))
 
 	// Rate limit login attempts.
-	rate := r.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
-		Client: zhttp.RatelimitIP,
-		Store:  zhttp.NewRatelimitMemory(),
-		Limit:  zhttp.RatelimitLimit(20, 60),
+	rate := r.With(mware.Ratelimit(mware.RatelimitOptions{
+		Client: mware.RatelimitIP,
+		Store:  mware.NewRatelimitMemory(),
+		Limit:  mware.RatelimitLimit(20, 60),
 	}))
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
 	rate.Post("/user/totplogin", zhttp.Wrap(h.totpLogin))
@@ -198,7 +200,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), args.LoginMAC})
 	}
 
-	zhttp.SetAuthCookie(w, *u.LoginToken, cookieDomain(site, r))
+	auth.SetCookie(w, *u.LoginToken, cookieDomain(site, r))
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -260,7 +262,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP)})
 	}
 
-	zhttp.SetAuthCookie(w, *user.LoginToken, cookieDomain(site, r))
+	auth.SetCookie(w, *user.LoginToken, cookieDomain(site, r))
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -332,7 +334,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 			}
 		}
 		if isAdmin {
-			zhttp.ClearAuthCookie(w, Site(r.Context()).Domain())
+			auth.ClearCookie(w, Site(r.Context()).Domain())
 			return zhttp.SeeOther(w, "https://www.goatcounter.com")
 		}
 	}
@@ -343,7 +345,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 		zlog.Errorf("logout: %s", err)
 	}
 
-	zhttp.ClearAuthCookie(w, Site(r.Context()).Domain())
+	auth.ClearCookie(w, Site(r.Context()).Domain())
 	return zhttp.SeeOther(w, "/")
 }
 

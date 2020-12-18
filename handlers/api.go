@@ -23,6 +23,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
@@ -44,9 +45,9 @@ type api struct{}
 func (h api) mount(r chi.Router, db zdb.DB) {
 	a := r.With(
 		middleware.AllowContentType("application/json"),
-		zhttp.Ratelimit(zhttp.RatelimitOptions{
-			Client: zhttp.RatelimitIP,
-			Store:  zhttp.NewRatelimitMemory(),
+		mware.Ratelimit(mware.RatelimitOptions{
+			Client: mware.RatelimitIP,
+			Store:  mware.NewRatelimitMemory(),
 			Limit: func(r *http.Request) (int, int64) {
 				// Up batch size for imports; otherwize 500k requests takes
 				// about 35 minutes, most of which is waiting for the rate

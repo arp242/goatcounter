@@ -24,7 +24,9 @@ import (
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/header"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -34,14 +36,14 @@ type website struct{}
 
 func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Use(
-		zhttp.RealIP,
-		zhttp.Unpanic(cfg.Prod),
+		mware.RealIP(),
+		mware.Unpanic(),
 		middleware.RedirectSlashes,
 		addctx(db, false),
-		zhttp.WrapWriter,
-		zhttp.Headers(nil))
+		mware.WrapWriter(),
+		mware.Headers(nil))
 	if !cfg.Prod {
-		zhttp.Log(true, "")
+		mware.RequestLog(nil)
 	}
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
@@ -75,10 +77,10 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	r.Get("/api.html", zhttp.Wrap(h.openAPI))
 	r.Get("/api2.html", zhttp.Wrap(h.openAPI))
 
-	r.With(zhttp.Ratelimit(zhttp.RatelimitOptions{
-		Client:  zhttp.RatelimitIP,
-		Store:   zhttp.NewRatelimitMemory(),
-		Limit:   zhttp.RatelimitLimit(5, 86400),
+	r.With(mware.Ratelimit(mware.RatelimitOptions{
+		Client:  mware.RatelimitIP,
+		Store:   mware.NewRatelimitMemory(),
+		Limit:   mware.RatelimitLimit(5, 86400),
 		Message: "you can download this five times per day only",
 	})).Get("/data/{file}", zhttp.Wrap(h.downloadData))
 }
@@ -246,7 +248,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		zlog.Errorf("login during account creation: %w", err)
 	} else {
-		zhttp.SetAuthCookie(w, *user.LoginToken, cookieDomain(&site, r))
+		auth.SetCookie(w, *user.LoginToken, cookieDomain(&site, r))
 	}
 
 	bgrun.Run("welcome email", func() {

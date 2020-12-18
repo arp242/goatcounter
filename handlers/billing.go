@@ -22,6 +22,7 @@ import (
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstripe"
@@ -31,8 +32,8 @@ import (
 type billing struct{}
 
 func (h billing) mount(pub, auth chi.Router) {
-	pub = pub.With(zhttp.Log(true, ""))
-	auth = auth.With(zhttp.Log(true, ""))
+	pub = pub.With(mware.RequestLog(nil))
+	auth = auth.With(mware.RequestLog(nil))
 
 	auth.Get("/billing", zhttp.Wrap(h.index))
 

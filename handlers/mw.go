@@ -8,7 +8,6 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -20,6 +19,7 @@ import (
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/auth"
 	"zgo.at/zlog"
 )
 
@@ -29,7 +29,7 @@ var (
 		return guru.Errorf(303, "/user/new")
 	}
 
-	loggedIn = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+	loggedIn = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		u := goatcounter.GetUser(r.Context())
 		if u != nil && u.ID > 0 {
 			return nil
@@ -37,7 +37,7 @@ var (
 		return redirect(w, r)
 	})
 
-	loggedInOrPublic = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+	loggedInOrPublic = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		u := goatcounter.GetUser(r.Context())
 		if (u != nil && u.ID > 0) || Site(r.Context()).Settings.Public {
 			return nil
@@ -45,7 +45,7 @@ var (
 		return redirect(w, r)
 	})
 
-	noSubSites = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+	noSubSites = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		if Site(r.Context()).Parent == nil ||
 			*Site(r.Context()).Parent == 0 {
 			return nil
@@ -54,33 +54,19 @@ var (
 		return guru.Errorf(403, "child sites can't access this")
 	})
 
-	adminOnly = zhttp.Filter(func(w http.ResponseWriter, r *http.Request) error {
+	adminOnly = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		if Site(r.Context()).Admin() {
 			return nil
 		}
 		return guru.Errorf(404, "")
 	})
 
-	keyAuth = zhttp.Auth(func(ctx context.Context, key string) (zhttp.User, error) {
+	keyAuth = auth.Add(func(ctx context.Context, key string) (auth.User, error) {
 		u := &goatcounter.User{}
 		err := u.ByTokenAndSite(ctx, key)
 		return u, err
 	})
 )
-
-// Allow debugging frontend timing issues by setting a "debug-delay" cookie.
-func delay() func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if c, _ := r.Cookie("debug-delay"); c != nil {
-				n, _ := strconv.ParseInt(c.Value, 10, 32)
-				zlog.Module("debug-delay").Printf("%ds delay", n)
-				time.Sleep(time.Duration(n) * time.Second)
-			}
-			next.ServeHTTP(w, r)
-		})
-	}
-}
 
 func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 	started := goatcounter.Now()
