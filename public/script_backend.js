@@ -18,7 +18,7 @@
 
 		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
 			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
-			bind_scale, copy_pre,
+			bind_scale, copy_pre, widget_settings,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -443,7 +443,7 @@
 			return;
 
 		var tabs    = '',
-			active  = location.hash.substr(5) || 'setting',
+			active  = location.hash.substr(5) || $('.tab-page.active h2').attr('id') || 'setting',
 			tab     = $('#' + active),
 			section = $('#section-' + active),
 			valid   = !!(tab.length || section.length)
@@ -482,6 +482,24 @@
 				return
 			$('.page > div').css('display', 'none')
 			tab.css('display', 'block')
+		})
+	}
+
+	// Set up the widgets settings tab
+	var widget_settings = function() {
+		var w = $('#widget-settings')
+		if (!w.length)
+			return
+		dragula(w.toArray(), {
+			moves: (el, source, handle, sibling) => handle.className === 'drag-handle',
+		}).on('drop', () => {
+			$('#widget-settings .widget').each((i, el) => { $(el).find('.index').val(i) })
+		})
+		w.find('.widgets-reset').on('click', function(e) {
+			e.preventDefault()
+			var f = $(this).closest('form')
+			f.find('input[name="reset"]').val('true')
+			f.trigger('submit')
 		})
 	}
 

@@ -30,6 +30,7 @@ import (
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/pack"
+	"zgo.at/goatcounter/widgets"
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/tz"
@@ -154,6 +155,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Get("/code", zhttp.Wrap(h.code))
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
+			af.Post("/save-widgets", zhttp.Wrap(h.saveWidgets))
 			af.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
 			af.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 			af.With(mware.Ratelimit(mware.RatelimitOptions{
@@ -513,7 +515,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 		link = false
 	case "ref":
 		err = page.ListRefsByPath(r.Context(), showRefs, start, end, offset)
-		size = site.Settings.Limits.Ref
+		size = site.Settings.LimitRefs()
 		paginate = offset == 0
 		link = false
 	case "topref":
@@ -552,10 +554,10 @@ func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) settings(w http.ResponseWriter, r *http.Request) error {
-	return h.settingsTpl(w, r, nil)
+	return h.settingsTpl(w, r, nil, "")
 }
 
-func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvalidate.Validator) error {
+func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvalidate.Validator, loadTab string) error {
 	var sites goatcounter.Sites
 	err := sites.ListSubs(r.Context())
 	if err != nil {
@@ -574,6 +576,7 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		return err
 	}
 
+	wid := widgets.FromSiteWidgets(Site(r.Context()).Settings.Widgets, widgets.FilterInternal)
 	del := map[string]interface{}{
 		"ContactMe": r.URL.Query().Get("contact_me") == "true",
 		"Reason":    r.URL.Query().Get("reason"),
@@ -587,7 +590,9 @@ func (h backend) settingsTpl(w http.ResponseWriter, r *http.Request, verr *zvali
 		Delete    map[string]interface{}
 		Exports   goatcounter.Exports
 		APITokens goatcounter.APITokens
-	}{newGlobals(w, r), sites, verr, tz.Zones, del, exports, tokens})
+		Widgets   widgets.List
+		LoadTab   string
+	}{newGlobals(w, r), sites, verr, tz.Zones, del, exports, tokens, wid, loadTab})
 }
 
 func (h backend) code(w http.ResponseWriter, r *http.Request) error {
@@ -636,7 +641,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 		// TODO: we return here because formam stops decoding on the first
 		// error. We should really fix this in formam, but it's an incompatible
 		// change.
-		return h.settingsTpl(w, r, &v)
+		return h.settingsTpl(w, r, &v, "")
 	}
 
 	txctx, tx, err := zdb.Begin(r.Context())
@@ -689,7 +694,7 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if v.HasErrors() {
-		return h.settingsTpl(w, r, &v)
+		return h.settingsTpl(w, r, &v, "")
 	}
 
 	err = tx.Commit()
@@ -719,6 +724,90 @@ func (h backend) saveSettings(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Saved!")
 	return zhttp.SeeOther(w, "/settings")
+}
+
+func (h backend) saveWidgets(w http.ResponseWriter, r *http.Request) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	site := Site(r.Context())
+
+	if r.Form.Get("reset") != "" {
+		site.Settings.Widgets = nil
+		site.Defaults(r.Context())
+		err = site.Update(r.Context())
+		if err != nil {
+			return err
+		}
+
+		zhttp.Flash(w, "Reset to defaults!")
+		return zhttp.SeeOther(w, "/settings#tab-dashboard")
+	}
+
+	parse := make(map[string]map[string]string)
+	for k, v := range r.Form {
+		if !strings.HasPrefix(k, "widgets.") {
+			continue
+		}
+		k = k[8:]
+
+		name, key := zstring.Split2(k, ".")
+		if parse[name] == nil {
+			parse[name] = make(map[string]string)
+		}
+		parse[name][key] = v[0]
+	}
+
+	site.Settings.Widgets = make(goatcounter.Widgets, len(parse))
+	for k, v := range parse {
+		pos, err := strconv.Atoi(v["index"])
+		if err != nil {
+			return err
+		}
+		on := true
+		if v["on"] != "on" {
+			on = false
+		}
+
+		s := make(map[string]interface{})
+		for k2, v2 := range v {
+			if !strings.HasPrefix(k2, "s.") {
+				continue
+			}
+
+			// TODO: meh; store on Widget or something.
+			switch k + "." + k2 {
+			case "pages.s.limit_pages", "pages.s.limit_refs":
+				iv, err := strconv.Atoi(v2)
+				if err != nil {
+					return err
+				}
+				s[k2[2:]] = iv
+			default:
+				s[k2[2:]] = v2
+			}
+		}
+
+		site.Settings.Widgets[pos] = map[string]interface{}{
+			"name": k,
+			"on":   on,
+			"s":    s,
+		}
+	}
+
+	err = site.Update(r.Context())
+	if err != nil {
+		var v *zvalidate.Validator
+		if errors.As(err, &v) {
+			return h.settingsTpl(w, r, v, "dashboard")
+		}
+		return err
+	}
+
+	zhttp.Flash(w, "Saved!")
+	return zhttp.SeeOther(w, "/settings#tab-dashboard")
 }
 
 func (h backend) changeCode(w http.ResponseWriter, r *http.Request) error {
@@ -913,7 +1002,7 @@ func (h backend) removeSubsite(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Site ‘%s ’removed.", s.URL())
-	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
+	return zhttp.SeeOther(w, "/settings#tab-sites")
 }
 
 func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
@@ -951,11 +1040,11 @@ func (h backend) addSubsite(w http.ResponseWriter, r *http.Request) error {
 	})
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, "/settings#tab-additional-sites")
+		return zhttp.SeeOther(w, "/settings#tab-sites")
 	}
 
 	zhttp.Flash(w, "Site ‘%s’ added.", site.URL())
-	return zhttp.SeeOther(w, "/settings#tab-additional-sites")
+	return zhttp.SeeOther(w, "/settings#tab-sites")
 }
 
 func (h backend) purgeConfirm(w http.ResponseWriter, r *http.Request) error {

@@ -12,6 +12,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zint"
 )
 
 // ref_scheme column
@@ -196,10 +197,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time.Time, offset int) error {
 	site := MustGetSite(ctx)
 
-	limit := site.Settings.Limits.Ref
-	if limit == 0 {
-		limit = 10
-	}
+	limit := int(zint.NonZero(int64(site.Settings.LimitRefs()), 10))
 
 	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListRefsByPath */
 		with x as (
@@ -240,11 +238,6 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilter []int64, offset int) error {
 	site := MustGetSite(ctx)
 
-	limit := site.Settings.Limits.Hchart
-	if limit == 0 {
-		limit = 6
-	}
-
 	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListTopRefs */
 		select
 			coalesce(sum(total), 0) as count,
@@ -258,21 +251,21 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilte
 			{{and ref not like :ref}}
 		group by ref
 		order by count_unique desc
-		limit :limit offset :offset`,
+		limit 6 offset :offset`,
 		struct {
-			Site          int64
-			Start, End    string
-			Filter        []int64
-			Ref           string
-			Limit, Offset int
+			Site       int64
+			Start, End string
+			Filter     []int64
+			Ref        string
+			Offset     int
 		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter,
-			site.LinkDomain + "%", limit, offset},
+			site.LinkDomain + "%", offset},
 		len(pathFilter) > 0, site.LinkDomain != "")
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListAllRefs")
 	}
 
-	if len(h.Stats) > limit {
+	if len(h.Stats) > 6 {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}

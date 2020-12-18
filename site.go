@@ -80,22 +80,83 @@ type Site struct {
 }
 
 type SiteSettings struct {
-	Public           bool        `json:"public"`
-	AllowCounter     bool        `json:"allow_counter"`
-	TwentyFourHours  bool        `json:"twenty_four_hours"`
-	SundayStartsWeek bool        `json:"sunday_starts_week"`
-	DateFormat       string      `json:"date_format"`
-	NumberFormat     rune        `json:"number_format"`
-	DataRetention    int         `json:"data_retention"`
-	IgnoreIPs        zdb.Strings `json:"ignore_ips"`
-	Timezone         *tz.Zone    `json:"timezone"`
-	Campaigns        zdb.Strings `json:"campaigns"`
-	AllowAdmin       bool        `json:"allow_admin"`
-	Limits           struct {
-		Page   int `json:"page"`
-		Ref    int `json:"ref"`
-		Hchart int `json:"hchart"`
-	} `json:"limits"`
+	// Global site settings.
+
+	Public        bool        `json:"public"`
+	AllowCounter  bool        `json:"allow_counter"`
+	AllowAdmin    bool        `json:"allow_admin"`
+	DataRetention int         `json:"data_retention"`
+	Campaigns     zdb.Strings `json:"campaigns"`
+	IgnoreIPs     zdb.Strings `json:"ignore_ips"`
+
+	// User preferences.
+
+	TwentyFourHours  bool     `json:"twenty_four_hours"`
+	SundayStartsWeek bool     `json:"sunday_starts_week"`
+	DateFormat       string   `json:"date_format"`
+	NumberFormat     rune     `json:"number_format"`
+	Timezone         *tz.Zone `json:"timezone"`
+	Widgets          Widgets  `json:"widgets"`
+}
+
+type Widgets []map[string]interface{}
+
+func (w Widgets) Get(name string) map[string]interface{} {
+	for _, v := range w {
+		if v["name"] == name {
+			return v
+		}
+	}
+	return nil
+}
+
+func (w Widgets) GetSettings(name string) map[string]interface{} {
+	for _, v := range w {
+		if v["name"] == name {
+			s, ok := v["s"]
+			if !ok {
+				return make(map[string]interface{})
+			}
+			return s.(map[string]interface{})
+		}
+	}
+	return nil
+}
+
+func (w Widgets) Has(name string) bool {
+	ww := w.Get(name)
+	b, ok := ww["on"].(bool)
+	if !ok {
+		return false
+	}
+	return b
+}
+
+func (ss SiteSettings) LimitPages() int {
+	v := 10
+	s, ok := ss.Widgets.GetSettings("pages")["limit_pages"]
+	if ok {
+		// float64 when loading from json
+		if f, ok := s.(float64); ok {
+			v = int(f)
+		} else if f, ok := s.(int); ok {
+			v = f
+		}
+	}
+	return v
+}
+
+func (ss SiteSettings) LimitRefs() int {
+	v := 10
+	s, ok := ss.Widgets.GetSettings("pages")["limit_refs"]
+	if ok {
+		if f, ok := s.(float64); ok {
+			v = int(f)
+		} else if f, ok := s.(int); ok {
+			v = f
+		}
+	}
+	return v
 }
 
 func (ss SiteSettings) String() string { return string(zjson.MustMarshal(ss)) }
@@ -148,14 +209,12 @@ func (s *Site) Defaults(ctx context.Context) {
 	if s.Settings.NumberFormat == 0 {
 		s.Settings.NumberFormat = 0x202f
 	}
-	if s.Settings.Limits.Page == 0 {
-		s.Settings.Limits.Page = 10
-	}
-	if s.Settings.Limits.Ref == 0 {
-		s.Settings.Limits.Ref = 10
-	}
 	if s.Settings.Timezone == nil {
 		s.Settings.Timezone = tz.UTC
+	}
+
+	if len(s.Settings.Widgets) == 0 {
+		s.Settings.Widgets = defaultWidgets()
 	}
 
 	s.Code = strings.ToLower(s.Code)
@@ -168,6 +227,18 @@ func (s *Site) Defaults(ctx context.Context) {
 	}
 	if s.FirstHitAt.IsZero() {
 		s.FirstHitAt = Now()
+	}
+}
+
+func defaultWidgets() Widgets {
+	return Widgets{
+		{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": 10, "limit_refs": 10}},
+		{"on": true, "name": "totalpages"},
+		{"on": true, "name": "toprefs"},
+		{"on": true, "name": "browsers"},
+		{"on": true, "name": "systems"},
+		{"on": true, "name": "sizes"},
+		{"on": true, "name": "locations"},
 	}
 }
 
@@ -187,8 +258,24 @@ func (s *Site) Validate(ctx context.Context) error {
 		v.Include("plan", s.Plan, []string{PlanChild})
 	}
 
-	v.Range("settings.limits.page", int64(s.Settings.Limits.Page), 1, 25)
-	v.Range("settings.limits.ref", int64(s.Settings.Limits.Ref), 1, 25)
+	// Must always include all widgets we know about.
+	for _, w := range defaultWidgets() {
+		if s.Settings.Widgets.Get(w["name"].(string)) == nil {
+			v.Append("widgets", fmt.Sprintf("widget %q is missing", w["name"].(string)))
+		}
+	}
+	v.Range("widgets.pages.s.limit_pages", int64(s.Settings.LimitPages()), 1, 25)
+	v.Range("widgets.pages.s.limit_refs", int64(s.Settings.LimitRefs()), 1, 25)
+
+	//return Widgets{
+	//	{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": 10, "limit_refs": 10}},
+	//	{"on": true, "name": "totalpages"},
+	//	{"on": true, "name": "toprefs"},
+	//	{"on": true, "name": "browsers"},
+	//	{"on": true, "name": "systems"},
+	//	{"on": true, "name": "sizes"},
+	//	{"on": true, "name": "locations"},
+	//}
 
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)

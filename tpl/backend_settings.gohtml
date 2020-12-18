@@ -2,7 +2,7 @@
 
 <nav class="tab-nav"></nav>
 
-<div class="tab-page">
+<div class="tab-page{{if eq .LoadTab "setting"}} active{{end}}">
 	<h2 id="setting">Settings</h2>
 	<div class="form-wrap">
 		<form method="post" action="/save-settings" class="vertical">
@@ -15,6 +15,11 @@
 				{{validate "site.link_domain" .Validate}}
 				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
 
+				<label for="user.email">Your email</label>
+				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
+				{{validate "user.email" .Validate}}
+				<span>You will need to re-verify the new address if you change it.</span>
+
 				{{if .GoatcounterCom}}
 					<label>{{checkbox .Site.Settings.AllowAdmin "settings.allow_admin"}}
 						Allow admin access</label>
@@ -22,6 +27,14 @@
 						if this is enabled they can. You may be asked to enable this
 						for support requests.</span>
 				{{end}}
+
+				<label>{{checkbox .Site.Settings.Public "settings.public"}}
+					Make statistics publicly viewable</label>
+				<span>Anyone can view the statistics without logging in.</span>
+
+				<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
+					Allow adding visitor counts on your website</label>
+				<span>See <a href="/code#visitor-counter">the documentation</a> for details on how to use.</span>
 			</fieldset>
 
 			<fieldset id="section-domain">
@@ -64,22 +77,11 @@
 				{{end}}
 			</fieldset>
 
+			{{/*
 			<fieldset id="section-user-pref">
 				<legend>User info and preferences</legend>
-
-				<label for="user.email">Your email</label>
-				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
-				{{validate "user.email" .Validate}}
-				<span>You will need to re-verify the new address if you change it.</span>
-
-				<label for="limits_page">Page size</label>
-				<input type="number" min="1" max="25" name="settings.limits.page" id="limits_page" value="{{.Site.Settings.Limits.Page}}">
-				{{validate "site.settings.limits.page" .Validate}}
-
-				<label for="limits_ref">Referrers page size</label>
-				<input type="number" min="1" max="25" name="settings.limits.ref" id="limits_ref" value="{{.Site.Settings.Limits.Ref}}">
-				{{validate "site.settings.limits.ref" .Validate}}
 			</fieldset>
+			*/}}
 
 			<fieldset id="section-l10n">
 				<legend>Localisation preferences</legend>
@@ -123,14 +125,6 @@
 			<fieldset id="section-tracking">
 				<legend>Tracking</legend>
 
-				<label>{{checkbox .Site.Settings.Public "settings.public"}}
-					Make statistics publicly viewable</label>
-				<span>Anyone can view the statistics without logging in.</span>
-
-				<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
-					Allow adding visitor counts on your website</label>
-				<span>See <a href="/code#visitor-counter">the documentation</a> for details on how to use.</span>
-
 				<label for="data_retention">Data retention in days</label>
 				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
 				{{validate "site.settings.data_retention" .Validate}}
@@ -169,11 +163,45 @@
 	</div>
 </div>
 
-<div class="tab-page">
-	<h2 id="additional-sites">Additional sites</h2>
+<script crossorigin="anonymous" src="{{.Static}}/dragula.js?v={{.Version}}"></script>
+<div class="tab-page{{if eq .LoadTab "dashboard"}} active{{end}}">
+	<h2 id="dashboard">Dashboard</h2>
+
+	<form method="post" action="/save-widgets" id="widget-settings">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<input type="hidden" name="reset" value="">
+
+		{{range $i, $w := .Widgets}}
+			<div class="widget" id="widget-{{$w.Name}}">
+				<span class="drag-handle" title="Drag to reorder"></span>
+				<input type="hidden" name="widgets.{{$w.Name}}.index" value="{{$i}}" class="index">
+				<label class="main">
+					<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.Has $w.Name}}checked{{end}}>
+					<strong>{{$w.Label}}</strong>
+				</label>
+				<input type="hidden" name="widgets.{{$w.Name}}.on" value="off">
+
+				<div>
+					{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
+						<label for="widgets.{{$w.Name}}.s.{{$k}}">{{setting_label $w.Name $k}}</label>
+						<input type="text" name="widgets.{{$w.Name}}.s.{{$k}}" id="widgets.{{$w.Name}}.s.{{$k}}" value="{{$v}}"><br>
+						{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}
+					{{end}}
+				</div>
+			</div>
+		{{end}}
+		<div class="widget-save">
+			<button type="save">Save</button>
+			<button class="widgets-reset">Reset to defaults</button>
+		</div>
+	</form>
+</div>
+
+<div class="tab-page{{if eq .LoadTab "sites"}} active{{end}}">
+	<h2 id="sites">Additional sites</h2>
 	{{if .Site.Parent}}
 		This site has a parent and can't have additional sites of its own.
-		<a href="{{parent_site .Context .Site.Parent}}/settings#tab-additional-sites">Manage the parent’s sites</a>.
+		<a href="{{parent_site .Context .Site.Parent}}/settings#tab-sites">Manage the parent’s sites</a>.
 	{{else}}
 		<p>Add GoatCounter to multiple websites by creating a “child site”,
 			which is a separate GoatCounter site which inherits the plan, users,
@@ -215,7 +243,7 @@
 	{{end}}
 </div>
 
-<div class="tab-page">
+<div class="tab-page{{if eq .LoadTab "purge"}} active{{end}}">
 	<h2 id="purge">Purge</h2>
 	<p>Remove all instances of a page.</p>
 
@@ -234,7 +262,7 @@
 	</form>
 </div>
 
-<div class="tab-page">
+<div class="tab-page{{if eq .LoadTab "export"}} active{{end}}">
 	<h2 id="export">Export/Import</h2>
 
 	<div class="flex-form">
@@ -350,7 +378,7 @@
 	</details>
 </div>
 
-<div class="tab-page">
+<div class="tab-page{{if eq .LoadTab "auth"}} active{{end}}">
 	<h2 id="auth">Password, MFA, API</h2>
 
 	<div class="flex-form">
@@ -469,7 +497,7 @@
 	</form>
 </div>
 
-<div class="tab-page">
+<div class="tab-page{{if eq .LoadTab "delete"}} active{{end}}">
 	<h2 id="delete">Delete {{if or .Site.Parent (not .GoatcounterCom)}}site{{else}}account{{end}}</h2>
 	{{if .Site.Parent}}
 		<p>Note this site has a parent

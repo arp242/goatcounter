@@ -294,6 +294,32 @@ tr.target .chart-left { display: block; }
 	.tab-nav a {  line-height: 2.5em; }
 }
 
+/*** Widget settings
+ *******************/
+.widget {
+	margin-bottom: .5em;
+	border: 1px solid #d6d6d6;
+	background-color: #fafafa;
+	padding: .5em;
+
+	position: relative;
+	padding-left: 2.5em;
+}
+.widget label { display: inline-block; min-width: 9em; margin-bottom: 1em; }
+.widget-save  { display: flex; justify-content: space-between; }
+
+.drag-handle {
+	position: absolute; top: 0; left: 0; width: 1.4em; height: 100%; cursor: move; text-align: center; margin-left: 0;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi2r9//38gYGAEESAAEGAAasgJOgzOKCoAAAAASUVORK5CYII=);
+}
+.drag-handle:hover { background-color: #ddd; }
+
+/* Dragula */
+.gu-mirror       { position: fixed !important; z-index: 9999 !important; opacity: 0 !important; }
+.gu-hide         { display: none !important; }
+.gu-unselectable { user-select: none; -webkit-user-select: none; }
+.gu-transit      { outline: 3px dashed yellow; background-color: lightyellow; }
+
 
 /*** noscript
  *************/
