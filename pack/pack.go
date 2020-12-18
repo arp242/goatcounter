@@ -13666,26 +13666,6 @@ var Templates = map[string][]byte{
 	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
-
-	{{if and .GoatcounterCom (not .Dev)}}
-		<script>
-			window.goatcounter = {
-				title:       function() { return null },
-				referrer:    function() { return null },
-				no_onload:   localStorage.getItem('skipgc') === 't',
-				allow_local: true,
-			}
-		</script>
-		{{if .Dev}}
-			<script data-goatcounter="http://gc.{{.Domain}}/count"
-					async src="{{.Static}}/count.js"></script>
-			<noscript><img src="http://gc.{{.Domain}}/count?p=/noscript-{{.Site.Code | hash}}" alt="" style="float:right"></noscript>
-		{{else}}
-			<script data-goatcounter="https://gc.goatcounter.com/count"
-					async src="https://gc.zgo.at/count.js"></script>
-			<noscript><img src="https://gc.goatcounter.com/count?p=/noscript-{{.Site.Code | hash}}" alt="" style="float:right"></noscript>
-		{{end}}
-	{{end}}
 </body>
 </html>
 `),

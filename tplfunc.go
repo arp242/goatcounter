@@ -7,7 +7,6 @@ package goatcounter
 import (
 	"bytes"
 	"context"
-	"crypto/sha1"
 	"encoding/base32"
 	"encoding/base64"
 	"fmt"
@@ -41,12 +40,6 @@ func init() {
 			return ""
 		}
 		return s.URL()
-	})
-
-	tplfunc.Add("hash", func(s string) string {
-		h := sha1.New()
-		h.Write([]byte(s))
-		return fmt.Sprintf("%x", h.Sum(nil))
 	})
 
 	var (
