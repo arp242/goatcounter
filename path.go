@@ -93,7 +93,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	}
 
 	// Insert new row.
-	p.ID, err = insertWithID(ctx, "path_id",
+	p.ID, err = zdb.InsertID(ctx, "path_id",
 		`insert into paths (site_id, path, title, event) values ($1, $2, $3, $4)`,
 		site.ID, p.Path, p.Title, p.Event)
 	if err != nil {

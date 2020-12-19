@@ -273,7 +273,7 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	s.ID, err = insertWithID(ctx, "site_id", `insert into sites
+	s.ID, err = zdb.InsertID(ctx, "site_id", `insert into sites
 		(parent, code, cname, link_domain, settings, plan, created_at, first_hit_at)
 		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
 		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan,

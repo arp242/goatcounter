@@ -147,7 +147,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 
 	// Insert new row.
 	p.Isbot = isbot.UserAgent(p.UserAgent)
-	p.ID, err = insertWithID(ctx, "user_agent_id", `insert into user_agents
+	p.ID, err = zdb.InsertID(ctx, "user_agent_id", `insert into user_agents
 		(ua, isbot, browser_id, system_id) values ($1, $2, $3, $4)`,
 		shortUA, p.Isbot, p.BrowserID, p.SystemID)
 	if err != nil {
@@ -180,7 +180,7 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 		`select browser_id from browsers where name=$1 and version=$2`,
 		name, version)
 	if zdb.ErrNoRows(err) {
-		b.ID, err = insertWithID(ctx, "browser_id",
+		b.ID, err = zdb.InsertID(ctx, "browser_id",
 			`insert into browsers (name, version) values ($1, $2)`,
 			name, version)
 	}
@@ -213,7 +213,7 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 		`select system_id from systems where name=$1 and version=$2`,
 		name, version)
 	if zdb.ErrNoRows(err) {
-		s.ID, err = insertWithID(ctx, "system_id",
+		s.ID, err = zdb.InsertID(ctx, "system_id",
 			`insert into systems (name, version) values ($1, $2)`,
 			name, version)
 	}

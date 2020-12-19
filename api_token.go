@@ -83,7 +83,7 @@ func (t *APIToken) Insert(ctx context.Context) error {
 		return err
 	}
 
-	t.ID, err = insertWithID(ctx, "api_token_id", `insert into api_tokens
+	t.ID, err = zdb.InsertID(ctx, "api_token_id", `insert into api_tokens
 		(site_id, user_id, name, token, permissions, created_at)
 		values ($1, $2, $3, $4, $5, $6)`,
 		t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt.Format(zdb.Date))
