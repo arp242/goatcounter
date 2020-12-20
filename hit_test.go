@@ -167,8 +167,9 @@ func TestHitStatsList(t *testing.T) {
 				}
 			}
 
+			// TODO: add method to set this properly.
 			site.Settings.Widgets = goatcounter.Widgets{
-				{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": 2, "limit_refs": 10}},
+				{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": float64(2), "limit_refs": float64(10)}},
 			}
 
 			gctest.StoreHits(ctx, t, false, tt.in...)

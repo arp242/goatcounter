@@ -260,7 +260,7 @@ func Import(
 		sessions   = make(map[zint.Uint128]zint.Uint128)
 		n          = 0
 		errs       = errors.NewGroup(50)
-		firstHitAt *time.Time
+		firstHitAt time.Time
 	)
 	for {
 		line, err := c.Read()
@@ -282,7 +282,7 @@ func Import(
 			continue
 		}
 		if hit.CreatedAt.Before(site.FirstHitAt) {
-			firstHitAt = &hit.CreatedAt
+			firstHitAt = hit.CreatedAt
 		}
 
 		// Map session IDs to new session IDs.
@@ -320,7 +320,7 @@ func Import(
 		}
 	}
 
-	return firstHitAt, nil
+	return &firstHitAt, nil
 }
 
 // TODO: would be nice to have generic csv marshal/unmarshaler, so you can do:

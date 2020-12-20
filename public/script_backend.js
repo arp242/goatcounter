@@ -451,6 +451,7 @@
 		if (!tab.length && section.length && location.hash.length > 2)
 			active = section.closest('.tab-page').find('h2').attr('id')
 
+		$('.tab-page.active').removeClass('active')
 		$('.page > div').each(function(i, elem) {
 			var h2 = $(elem).find('h2')
 			if (!h2.length)

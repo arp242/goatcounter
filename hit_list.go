@@ -162,8 +162,10 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 	err := zdb.QuerySelect(ctx, &tc, `/* HitStat.Totals */
 		select hour, sum(total) as total, sum(total_unique) as total_unique
 		from hit_counts
+		{{join paths using (path_id)}}
 		where
-			site_id=:site and hour>=:start and hour<=:end
+			hit_counts.site_id=:site and hour>=:start and hour<=:end
+			{{and paths.event=0}}
 			{{and path_id in (:filter)}}
 		group by hour
 		order by hour asc`,
@@ -172,6 +174,8 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 			Start, End string
 			Filter     []int64
 		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter},
+		site.Settings.TotalsNoEvents(),
+		site.Settings.TotalsNoEvents(),
 		len(pathFilter) > 0)
 	if err != nil {
 		return 0, errors.Wrap(err, "HitStat.Totals")

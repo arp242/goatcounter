@@ -12747,6 +12747,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		if (!tab.length && section.length && location.hash.length > 2)
 			active = section.closest('.tab-page').find('h2').attr('id')
 
+		$('.tab-page.active').removeClass('active')
 		$('.page > div').each(function(i, elem) {
 			var h2 = $(elem).find('h2')
 			if (!h2.length)
@@ -13620,20 +13621,21 @@ tr.target .chart-left { display: block; }
 
 /*** Widget settings
  *******************/
-.widget {
-	margin-bottom: .5em;
-	border: 1px solid #d6d6d6;
-	background-color: #fafafa;
-	padding: .5em;
+.widget                { position: relative; margin-bottom: .5em; padding: .5em; padding-left: 2.5em;
+						 border: 1px solid #d6d6d6; background-color: #fafafa; }
+.widget-save           { display: flex; justify-content: space-between; }
+.widget-settings label { display: inline-block; min-width: 9em; margin-bottom: 1em; }
+.widget-settings       { margin-left: 2em; }
+.widget-settings .help { margin-left: 1em;  }
+.widget-settings br:last-child { display: none; }
 
-	position: relative;
-	padding-left: 2.5em;
+@media (max-width: 46rem) {
+	.widget-settings label { display: block; margin-bottom: 0; }
+	.widget-settings .help { display: block; margin-left: .2em; }
 }
-.widget label { display: inline-block; min-width: 9em; margin-bottom: 1em; }
-.widget-save  { display: flex; justify-content: space-between; }
 
 .drag-handle {
-	position: absolute; top: 0; left: 0; width: 1.4em; height: 100%; cursor: move; text-align: center; margin-left: 0;
+	position: absolute; top: 0; left: 0; width: 2em; height: 100%; cursor: move; text-align: center; margin-left: 0;
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi2r9//38gYGAEESAAEGAAasgJOgzOKCoAAAAASUVORK5CYII=);
 }
 .drag-handle:hover { background-color: #ddd; }
@@ -15925,8 +15927,9 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 
 `),
 	"tpl/_dashboard_totals_row.gohtml": []byte(`<tbody><tr id="TOTAL ">
+	{{if .Site.Settings.TotalsAlign}}<td class="col-count"></td><td class="col-path hide-mobile"></td>{{end}}
 	<td>
-		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
+		<div class="chart chart-bar chart-totalsXX" data-max="{{.Max}}">
 			{{/* TODO: doesn't work well, not sure if there's much value in it anyway?
 			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕&#xfe0e;</a></span>
 			*/}}
@@ -18399,16 +18402,23 @@ depending on whether daylight savings time is in use at the time instant.</p>
 				<span class="drag-handle" title="Drag to reorder"></span>
 				<input type="hidden" name="widgets.{{$w.Name}}.index" value="{{$i}}" class="index">
 				<label class="main">
-					<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.Has $w.Name}}checked{{end}}>
+					<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.On $w.Name}}checked{{end}}>
 					<strong>{{$w.Label}}</strong>
 				</label>
 				<input type="hidden" name="widgets.{{$w.Name}}.on" value="off">
 
-				<div>
+				<div class="widget-settings">
 					{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
-						<label for="widgets.{{$w.Name}}.s.{{$k}}">{{setting_label $w.Name $k}}</label>
-						<input type="text" name="widgets.{{$w.Name}}.s.{{$k}}" id="widgets.{{$w.Name}}.s.{{$k}}" value="{{$v}}"><br>
+						{{ $n := (print "widgets." $w.Name ".s." $k) }}
+						{{if eq $v.Type "checkbox"}}
+							<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
+						{{else}}
+							<label for="{{$n}}">{{$v.Label}}</label>
+							<input type="{{$v.Type}}" name="{{$n}}" id="{{$n}}" value="{{$v.Value}}">
+						{{end}}
+						<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
 						{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}
+						<br>
 					{{end}}
 				</div>
 			</div>

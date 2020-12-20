@@ -1,6 +1,7 @@
 <tbody><tr id="TOTAL ">
+	{{if .Site.Settings.TotalsAlign}}<td class="col-count"></td><td class="col-path hide-mobile"></td>{{end}}
 	<td>
-		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
+		<div class="chart chart-bar chart-totalsXX" data-max="{{.Max}}">
 			{{/* TODO: doesn't work well, not sure if there's much value in it anyway?
 			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕&#xfe0e;</a></span>
 			*/}}
