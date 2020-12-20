@@ -46,6 +46,8 @@ github.com/teamwork/reload v1.3.2 h1:Cfo305GjPi859SWLzh728H/4ovl1qkDndv48QFRjLLA
 github.com/teamwork/reload v1.3.2/go.mod h1:xR3BcLHeCmLBX/2jKDG2vWOLTcql3+aah4puN18lmTo=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+github.com/zgoat/go-sqlite3 v1.14.5-json h1:eCSY7tSjOuTE4LRAmrb3mu4rrFNN78QafrFMhzTfcxU=
+github.com/zgoat/go-sqlite3 v1.14.5-json/go.mod h1:WVKg1VTActs4Qso6iwGbiFih2UIHo0ENGwNd0Lj+XmI=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2 h1:VklqNMn3ovrHsnt90PveolxSbWFaJdECFbxSq0Mqo2M=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=

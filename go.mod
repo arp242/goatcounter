@@ -2,6 +2,11 @@ module zgo.at/goatcounter
 
 go 1.13
 
+// "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it
+// compiles with JSON support without having to specify a build tag, which is
+// inconvenient, easily forgotten, and causes runtime errors.
+replace github.com/mattn/go-sqlite3 => github.com/zgoat/go-sqlite3 v1.14.5-json
+
 require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.6.0
