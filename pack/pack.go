@@ -14551,7 +14551,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 				{{end}}
 			</div>
 			<div class="chart chart-bar" data-max="{{$h.Max}}">
-				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕&#xfe0e;</a></span>
 				<span class="chart-right">{{$n := sum $.Offset $i}}
 					{{- if (eq $i 0)}}<small class="scale" title="Y-axis scale">{{nformat $.Max $.Site}}</small>
 					{{- else if ge $n 11}}<span class="page-n" title="Page ranking">#{{$n}}</span>{{end -}}
@@ -14643,7 +14643,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	<td>
 		<div class="chart chart-bar chart-totals" data-max="{{.Max}}">
 			{{/* TODO: doesn't work well, not sure if there's much value in it anyway?
-			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️&#xfe0e;</a></span>
+			<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕&#xfe0e;</a></span>
 			*/}}
 			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
 			<span class="half"></span>

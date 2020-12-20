@@ -775,7 +775,7 @@ func TestBackendBarChart(t *testing.T) {
 			chart = cleanChart(chart)
 
 			want := `` +
-				`<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕️` + "\ufe0e" + `</a></span>` + "\n" +
+				`<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">` + "↕\ufe0e" + `</a></span>` + "\n" +
 				`<span class="chart-right"><small class="scale" title="Y-axis scale">10</small></span>` + "\n" +
 				`<span class="half"></span>` + "\n" +
 				strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
