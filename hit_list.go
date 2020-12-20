@@ -150,7 +150,7 @@ func (h *HitStats) List(
 // Trailing whitespace is trimmed on paths, so this should never conflict.
 const PathTotals = "TOTAL "
 
-// Totals gets the totals overview of all pages.
+// Totals gets the data for the "Totals" chart/widget.
 func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 
@@ -160,14 +160,13 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		TotalUnique int       `db:"total_unique"`
 	}
 
-	// TODO: a lot of the time spent here is in the scan of large number of
-	// rows.
 	err := zdb.QuerySelect(ctx, &tc, `/* HitStat.Totals */
-		select hour, total, total_unique
+		select hour, sum(total) as total, sum(total_unique) as total_unique
 		from hit_counts
 		where
 			site_id=:site and hour>=:start and hour<=:end
 			{{and path_id in (:filter)}}
+		group by hour
 		order by hour asc`,
 		struct {
 			Site       int64
@@ -441,6 +440,8 @@ func GetTotalCountUTC(ctx context.Context, start, end time.Time, pathFilter []in
 	return t.T, t.U, errors.Wrap(err, "GetTotalCount")
 }
 
+// GetMax gets the path with the higest number of pageviews per hour or day for
+// this date range.
 func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 	var (
@@ -450,15 +451,23 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 		err   error
 	)
 	if daily {
+		// TODO: this reads like ~800k rows and 80M of data for some larger
+		// sites. That's obviously not ideal.
+		//
+		// Precomputing values (e.g. though a materialized view) is hard, as we
+		// need to get everything local to the user's configured TZ: so we can't
+		// calculate daily sums (which is a lot faster).
+		//
+		// So, not sure what to do with this.
 		query, args, err = zdb.Query(ctx, `/* getMax daily */
 			select coalesce(sum(total), 0) as t
 			from hit_counts
 			where
-				hit_counts.site_id=:site and
+				site_id=:site and
 				{{path_id in (:filter) and}}
 				hour>=:start and hour<=:end
-			{{group by hit_counts.path_id, date(hour, :tz)}}
-			{{group by hit_counts.path_id, date(timezone(:tz, hour))}}
+			{{group by path_id, date(hour, :tz)}}
+			{{group by path_id, date(timezone(:tz, hour))}}
 			order by t desc
 			limit 1`,
 			struct {
