@@ -197,18 +197,18 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "dashboard.gohtml", struct {
 		Globals
-		ListCountDomain string
-		SubSites        []string
-		ShowRefs        string
-		SelectedPeriod  string
-		PeriodStart     time.Time
-		PeriodEnd       time.Time
-		Filter          string
-		PathFilter      []int64
-		Daily           bool
-		ForcedDaily     bool
-		AsText          bool
-		Widgets         widgets.List
+		CountDomain    string
+		SubSites       []string
+		ShowRefs       string
+		SelectedPeriod string
+		PeriodStart    time.Time
+		PeriodEnd      time.Time
+		Filter         string
+		PathFilter     []int64
+		Daily          bool
+		ForcedDaily    bool
+		AsText         bool
+		Widgets        widgets.List
 	}{newGlobals(w, r),
 		cd, subs, showRefs, hlPeriod, start, end, filter, args.PathFilter,
 		daily, forcedDaily, asText, wid})
