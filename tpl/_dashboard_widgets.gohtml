@@ -5,7 +5,7 @@
 			{{$div = true}}
 			<div class="hcharts">
 		{{end}}
-		{{if and (ne $w.Type "hchart") $div}}</div>{{end}}
+		{{if and (ne $w.Type "hchart") $div}}</div>{{$div = false}}{{end}}
 		{{$w.HTML}}
 	{{end}}
 	{{if $div}}</div>{{end}}

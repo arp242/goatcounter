@@ -116,6 +116,17 @@ func init() {
 			`<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode" src="%s">`,
 			buf.String()))
 	})
+
+	// TODO: maybe better to define on Widget? Hmm
+	tplfunc.Add("setting_label", func(widget, setting string) string {
+		switch widget + "." + setting {
+		case "pages.limit_pages":
+			return "Page size"
+		case "pages.limit_refs":
+			return "Referrers page size"
+		}
+		return setting
+	})
 }
 
 var textSymbols = []rune{

@@ -28,8 +28,7 @@ func (h *HitStats) List(
 	// List the pages for this page.
 	var more bool
 	{
-		// Get one page more so we can detect if there are more pages after this.
-		limit := int(zint.NonZero(int64(site.Settings.Limits.Page), 10)) + 1
+		limit := int(zint.NonZero(int64(site.Settings.LimitPages()), 10))
 
 		// TODO: we can probably fold this query in to the hit_stats one below.
 		query, args, err := zdb.Query(ctx, `/* HitStats.List */
@@ -52,7 +51,7 @@ func (h *HitStats) List(
 			Filter     []int64
 			Limit      int
 			Exclude    []int64
-		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter, limit, exclude},
+		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter, limit + 1, exclude},
 			len(exclude) > 0, len(pathFilter) > 0)
 		if err != nil {
 			return 0, 0, false, errors.Wrap(err, "HitStats.List hit_counts")
@@ -64,7 +63,7 @@ func (h *HitStats) List(
 		}
 
 		// Check if there are more entries.
-		if len(*h) == limit {
+		if len(*h) > limit {
 			hh := *h
 			hh = hh[:len(hh)-1]
 			*h = hh

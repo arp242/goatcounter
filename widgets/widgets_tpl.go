@@ -11,20 +11,20 @@ import (
 	"zgo.at/goatcounter"
 )
 
-func (w Refs) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Refs) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "", nil
 }
-func (w Totals) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Totals) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "", nil
 }
-func (w AllTotals) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w AllTotals) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "", nil
 }
-func (w Max) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Max) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "", nil
 }
 
-func (w Pages) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	t := "_dashboard_pages.gohtml"
 	if shared.Args.AsText {
 		t = "_dashboard_pages_text.gohtml"
@@ -69,7 +69,7 @@ func (w Pages) TemplateData(ctx context.Context, shared SharedData) (string, int
 	}
 }
 
-func (w Totalpages) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_totals.gohtml", struct {
 		Context         context.Context
 		Site            *goatcounter.Site
@@ -82,7 +82,7 @@ func (w Totalpages) TemplateData(ctx context.Context, shared SharedData) (string
 		shared.TotalUnique}
 }
 
-func (w Toprefs) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_toprefs.gohtml", struct {
 		Context         context.Context
 		TotalUniqueHits int
@@ -90,7 +90,7 @@ func (w Toprefs) TemplateData(ctx context.Context, shared SharedData) (string, i
 	}{ctx, shared.AllTotalUniqueUTC, w.TopRefs}
 }
 
-func (w Browsers) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_browsers.gohtml", struct {
 		Context         context.Context
 		TotalUniqueHits int
@@ -98,7 +98,7 @@ func (w Browsers) TemplateData(ctx context.Context, shared SharedData) (string, 
 	}{ctx, shared.AllTotalUniqueUTC, w.Browsers}
 }
 
-func (w Systems) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_systems.gohtml", struct {
 		Context         context.Context
 		TotalUniqueHits int
@@ -106,7 +106,7 @@ func (w Systems) TemplateData(ctx context.Context, shared SharedData) (string, i
 	}{ctx, shared.AllTotalUniqueUTC, w.Systems}
 }
 
-func (w Sizes) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_sizes.gohtml", struct {
 		Context         context.Context
 		TotalUniqueHits int
@@ -114,7 +114,7 @@ func (w Sizes) TemplateData(ctx context.Context, shared SharedData) (string, int
 	}{ctx, shared.AllTotalUniqueUTC, w.SizeStat}
 }
 
-func (w Locations) TemplateData(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_locations.gohtml", struct {
 		Context         context.Context
 		TotalUniqueHits int

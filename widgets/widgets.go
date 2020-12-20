@@ -11,18 +11,20 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
+	"zgo.at/zstd/zint"
 )
 
 type (
 	Widget interface {
 		GetData(context.Context, Args) error
-		TemplateData(context.Context, SharedData) (string, interface{})
+		RenderHTML(context.Context, SharedData) (string, interface{})
+
 		SetHTML(template.HTML)
-		Clone() Widget
+		HTML() template.HTML
 
 		Name() string
 		Type() string // "full-width", "hchart"
-		HTML() template.HTML
+		Label() string
 	}
 
 	Args struct {
@@ -48,26 +50,48 @@ type (
 
 type List []Widget
 
-func NewList(want []string) (List, error) {
-	list := make(List, len(want))
-	for i := range want {
-		wid, err := New(want[i])
-		if err != nil {
-			return nil, err
-		}
-		list[i] = wid
-	}
-	return list, nil
-}
+var (
+	ShowRefs       zint.Bitflag8 = 0b0001
+	FilterInternal zint.Bitflag8 = 0b0010
+	FilterOff      zint.Bitflag8 = 0b0100
+)
 
-func (l List) Get(name string) Widget {
-	// For a short list using a loop is usually faster.
-	for _, w := range l {
-		if w.Name() == name {
-			return w
-		}
+func FromSiteWidgets(www goatcounter.Widgets, params zint.Bitflag8) List {
+	widgetList := make(List, 0, len(www)+4)
+	if !params.Has(FilterInternal) {
+		widgetList = append(widgetList, NewWidget("totals"))
+		widgetList = append(widgetList, NewWidget("alltotals"))
 	}
-	return nil
+	for _, w := range www {
+		if params.Has(FilterOff) && !w["on"].(bool) {
+			continue
+		}
+
+		name := w["name"].(string)
+		ww := NewWidget(name)
+
+		switch name {
+		case "pages":
+			if !params.Has(FilterInternal) {
+				widgetList = append(widgetList, NewWidget("max"))
+			}
+			if params.Has(ShowRefs) {
+				widgetList = append(widgetList, NewWidget("refs"))
+			}
+
+			wp := ww.(*Pages)
+			if n, ok := w["limit_pages"].(float64); ok {
+				wp.LimitPage = int(n)
+			}
+			if n, ok := w["limit_ref"].(float64); ok {
+				wp.LimitRef = int(n)
+			}
+			ww = wp
+		}
+		widgetList = append(widgetList, ww)
+	}
+
+	return widgetList
 }
 
 func (l List) Totals() (total, unique, allUnique, max int) {
@@ -98,44 +122,60 @@ func (l List) Refs() goatcounter.Stats {
 	panic("should never happen")
 }
 
-func New(name string) (Widget, error) {
-	w, ok := list[name]
-	if ok {
-		return w.Clone(), nil
+func NewWidget(name string) Widget {
+	switch name {
+	case "totals":
+		return &Totals{}
+	case "alltotals":
+		return &AllTotals{}
+	case "max":
+		return &Max{}
+	case "refs":
+		return &Refs{}
+
+	case "pages":
+		return &Pages{}
+	case "totalpages":
+		return &TotalPages{}
+	case "toprefs":
+		return &TopRefs{}
+	case "browsers":
+		return &Browsers{}
+	case "systems":
+		return &Systems{}
+	case "sizes":
+		return &Sizes{}
+	case "locations":
+		return &Locations{}
 	}
-	return nil, fmt.Errorf("unknown widget: %q", name)
+	panic(fmt.Errorf("unknown widget: %q", name))
 }
 
 func (w *Totals) GetData(ctx context.Context, a Args) (err error) {
 	w.Total, w.TotalUnique, err = goatcounter.GetTotalCount(ctx, a.Start, a.End, a.PathFilter)
 	return err
 }
-
 func (w *AllTotals) GetData(ctx context.Context, a Args) (err error) {
 	_, w.AllTotalUniqueUTC, err = goatcounter.GetTotalCountUTC(ctx, a.Start, a.End, a.PathFilter)
 	return err
 }
-
 func (w *Pages) GetData(ctx context.Context, a Args) (err error) {
 	w.Display, w.UniqueDisplay, w.More, err = w.Pages.List(
 		ctx, a.Start, a.End, a.PathFilter, nil, a.Daily)
 	return err
 }
-
 func (w *Max) GetData(ctx context.Context, a Args) (err error) {
 	w.Max, err = goatcounter.GetMax(ctx, a.Start, a.End, a.PathFilter, a.Daily)
 	return err
 }
-
-func (w *Totalpages) GetData(ctx context.Context, a Args) (err error) {
+func (w *TotalPages) GetData(ctx context.Context, a Args) (err error) {
 	w.Max, err = w.Total.Totals(ctx, a.Start, a.End, a.PathFilter, a.Daily)
 	return err
 }
-
 func (w *Refs) GetData(ctx context.Context, a Args) (err error) {
 	return w.Refs.ListRefsByPath(ctx, a.ShowRefs, a.Start, a.End, 0)
 }
-func (w *Toprefs) GetData(ctx context.Context, a Args) (err error) {
+func (w *TopRefs) GetData(ctx context.Context, a Args) (err error) {
 	return w.TopRefs.ListTopRefs(ctx, a.Start, a.End, a.PathFilter, 0)
 }
 func (w *Browsers) GetData(ctx context.Context, a Args) (err error) {
