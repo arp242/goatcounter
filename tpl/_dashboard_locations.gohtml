@@ -1,4 +1,8 @@
 <div class="hchart" data-more="/hchart-more?kind=location">
 	<h2>Locations</h2>
-	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 false true}}
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 false true}}
+	{{end}}
 </div>

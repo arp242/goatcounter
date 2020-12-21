@@ -60,11 +60,11 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 
 	r.Use(
 		mware.RealIP(),
+		mware.WrapWriter(),
 		mware.Unpanic(),
 		addctx(db, true),
 		middleware.RedirectSlashes,
-		mware.NoStore(),
-		mware.WrapWriter())
+		mware.NoStore())
 	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
 		r.Use(mware.RequestLog(nil))
 	}
@@ -73,10 +73,10 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 	vcounter{}.mount(r, db)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
+		zhttp.ErrPage(w, r, guru.New(404, "Not Found"))
 	})
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
-		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
+		zhttp.ErrPage(w, r, guru.New(405, "Method Not Allowed"))
 	})
 
 	{

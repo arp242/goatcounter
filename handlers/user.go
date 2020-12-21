@@ -8,6 +8,7 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/mail"
 	"net/url"
@@ -538,6 +539,12 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 // Make sure to use the currect cookie, since both "custom.example.com" and
 // "example.goatcounter.com" will work if you're using a custom domain.
 func cookieDomain(site *goatcounter.Site, r *http.Request) string {
+	// Don't frob with the domain if we're accessing this over an IP address;
+	// this is mostly to aid testing from mobile devices, where editing
+	// "/etc/hosts" isn't so easy.
+	if net.ParseIP(zhttp.RemovePort(r.Host)) != nil {
+		return ""
+	}
 	if r.Host == site.Domain() {
 		return site.Domain()
 	}

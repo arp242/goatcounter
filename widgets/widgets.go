@@ -21,6 +21,8 @@ type (
 
 		SetHTML(template.HTML)
 		HTML() template.HTML
+		SetErr(error)
+		Err() error
 
 		Name() string
 		Type() string // "full-width", "hchart"

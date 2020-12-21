@@ -15763,12 +15763,20 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_dashboard_browsers.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
 	<h2>Browsers</h2>
-	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{end}}
 </div>
 `),
 	"tpl/_dashboard_locations.gohtml": []byte(`<div class="hchart" data-more="/hchart-more?kind=location">
 	<h2>Locations</h2>
-	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 false true}}
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 false true}}
+	{{end}}
 </div>
 `),
 	"tpl/_dashboard_pages.gohtml": []byte(`<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
@@ -15776,10 +15784,14 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
 		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
 	</small></h2>
-	<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
-		<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>
-	</table>
-	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
+			<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>
+		</table>
+		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+	{{end}}
 </div>
 
 
@@ -15874,17 +15886,29 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_dashboard_sizes.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=size">
 	<h2>Screen size</h2>
-	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{end}}
 </div>
 `),
 	"tpl/_dashboard_systems.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=system" data-more="/hchart-more?kind=system">
 	<h2>Systems</h2>
-	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{end}}
 </div>
 `),
 	"tpl/_dashboard_toprefs.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
 	<h2>Top referrers</h2>
-	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{end}}
 </div>
 `),
 	"tpl/_dashboard_totals.gohtml": []byte(`<div class="totals">
@@ -15892,7 +15916,11 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
 		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
 	</small></h2>
-	<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
+	{{end}}
 </div>
 
 `),

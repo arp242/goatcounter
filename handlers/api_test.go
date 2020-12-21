@@ -125,7 +125,7 @@ func TestAPIBasics(t *testing.T) {
 			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 404)
 
-			want := `{"error":"Not Found"}`
+			want := `{"error":"not found"}`
 			if rr.Body.String() != want {
 				t.Errorf("\nwant: %s\ngot:  %s\n", want, rr.Body.String())
 			}

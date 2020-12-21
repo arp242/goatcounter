@@ -3,6 +3,10 @@
 		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
 		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
 	</small></h2>
-	<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
+	{{end}}
 </div>
 
