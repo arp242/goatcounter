@@ -1,3 +1,5 @@
+name: Go
+
 on:
   push:
     branches: ['master']
@@ -6,13 +8,14 @@ on:
 
 jobs:
   build:
-    name: Build
+    #name: Build
     runs-on: ubuntu-latest
     # Also run on 'macos-latest', 'windows-latest'
     # https://github.com/marketplace/actions/run-on-architecture
     steps:
 
-    - uses: 'actions/setup-go@v2'
+    - name: 'Install Go'
+      uses: 'actions/setup-go@v2'
       with:
         'go-version': '^1.15'
 
@@ -26,4 +29,4 @@ jobs:
 
     - run:  'go test -race -timeout=3m ./...'
 
-    - run:  'go test -tags=testpg -race -timeout=3m ./...'
+    - run:  'PGHOST=localhost go test -tags=testpg -race -timeout=3m ./...'
