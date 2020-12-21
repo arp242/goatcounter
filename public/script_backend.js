@@ -18,7 +18,7 @@
 
 		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
 			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
-			bind_scale, copy_pre, widget_settings,
+			bind_scale, copy_pre, widget_settings, saved_views,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -51,6 +51,50 @@
 			url:    '/jserr',
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
+		})
+	}
+
+	// Save current view.
+	var saved_views = function() {
+		$('#dash-saved-views >span').on('click', function(e) {
+			e.preventDefault()
+			var d = $('#dash-saved-views >div')
+			d.css('display', d.css('display') === 'block' ? 'none' : 'block')
+
+			$('body').on('click.saved-views', function(e) {
+				if ($(e.target).closest('#dash-saved-views').length)
+					return
+				d.css('display', 'none')
+				$('body').off('click.saved-views')
+			})
+		})
+
+		$('.save-current-view').on('click', function(e) {
+			e.preventDefault()
+			var p = $('#dash-select-period').attr('class').substr(7)
+			if (p === '')
+				p = (get_date($('#period-end').val()) - get_date($('#period-start').val())) / 86400000
+
+			var done = paginate_button($(this), () => {
+				jQuery.ajax({
+					url:    '/save-view',
+					method: 'POST',
+					data: {
+						csrf:      CSRF,
+						name:      'default',
+						filter:    $('#filter-paths').val(),
+						daily:     $('#daily').is(':checked'),
+						'as-text': $('#as-text').is(':checked'),
+						period:    p,
+					},
+					success: () => {
+						done()
+						var s = $('<em> Saved!</em>')
+						$(this).after(s)
+						setTimeout(() => s.remove(), 2000)
+					},
+				})
+			})
 		})
 	}
 

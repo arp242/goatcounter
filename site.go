@@ -7,7 +7,6 @@ package goatcounter
 import (
 	"context"
 	"database/sql"
-	"database/sql/driver"
 	"fmt"
 	"strconv"
 	"strings"
@@ -17,14 +16,12 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
-	"zgo.at/json"
 	"zgo.at/tz"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zvalidate"
 )
 
@@ -79,43 +76,6 @@ type Site struct {
 	FirstHitAt time.Time  `db:"first_hit_at" json:"first_hit_at"`
 }
 
-type SiteSettings struct {
-	// Global site settings.
-
-	Public        bool        `json:"public"`
-	AllowCounter  bool        `json:"allow_counter"`
-	AllowAdmin    bool        `json:"allow_admin"`
-	DataRetention int         `json:"data_retention"`
-	Campaigns     zdb.Strings `json:"campaigns"`
-	IgnoreIPs     zdb.Strings `json:"ignore_ips"`
-
-	// User preferences.
-
-	TwentyFourHours  bool     `json:"twenty_four_hours"`
-	SundayStartsWeek bool     `json:"sunday_starts_week"`
-	DateFormat       string   `json:"date_format"`
-	NumberFormat     rune     `json:"number_format"`
-	Timezone         *tz.Zone `json:"timezone"`
-	Widgets          Widgets  `json:"widgets"`
-}
-
-func (ss SiteSettings) String() string { return string(zjson.MustMarshal(ss)) }
-
-// Value implements the SQL Value function to determine what to store in the DB.
-func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
-
-// Scan converts the data returned from the DB into the struct.
-func (ss *SiteSettings) Scan(v interface{}) error {
-	switch vv := v.(type) {
-	case []byte:
-		return json.Unmarshal(vv, ss)
-	case string:
-		return json.Unmarshal([]byte(vv), ss)
-	default:
-		panic(fmt.Sprintf("unsupported type: %T", v))
-	}
-}
-
 var (
 	sitesCacheByID     = zcache.New(24*time.Hour, 1*time.Hour)
 	sitesCacheHostname = zcache.New(24*time.Hour, 1*time.Hour)
@@ -157,6 +117,10 @@ func (s *Site) Defaults(ctx context.Context) {
 		s.Settings.Widgets = defaultWidgets()
 	}
 
+	if len(s.Settings.Views) == 0 {
+		s.Settings.Views = Views{{Name: "default", Period: "week"}}
+	}
+
 	s.Code = strings.ToLower(s.Code)
 
 	if s.CreatedAt.IsZero() {
@@ -194,6 +158,10 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 	v.Range("widgets.pages.s.limit_pages", int64(s.Settings.LimitPages()), 1, 25)
 	v.Range("widgets.pages.s.limit_refs", int64(s.Settings.LimitRefs()), 1, 25)
+
+	if _, i := s.Settings.Views.Get("default"); i == -1 || len(s.Settings.Views) != 1 {
+		v.Append("views", "view not set")
+	}
 
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)

@@ -36,19 +36,27 @@
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
 	<input type="hidden" id="hl-period" name="hl-period" disabled>
 
-	{{/*
 	<div id="dash-saved-views">
-		Saved views: <a href="#">404</a> · <a href="#">blog</a>
-		| <a href="#">Save current view</a>
+		<span>⚙&#xfe0f;</span>
+		<div>
+			<a href="#" class="save-current-view">Save default view</a><br>
+			<small>Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet.</small>
+			<br><br>
+			{{/* TODO: it might be better to load the settings page "inline"
+			here, instead of a settings tab; would also declutter that a bit
+			since we can remove it there. */}}
+			<a href="/settings#tab-dashboard">Configure dashboard layout</a><br>
+			<small>Change what to display on the dashboard and in what order.</small>
+		</div>
 	</div>
-	*/}}
+
 	<div id="dash-main">
 		<div>
 			<span>
 				<input type="text" class="date-input" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
 				<input type="text" class="date-input" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end" value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
 			</span>
-			<span id="dash-select-period" class="period-{{.SelectedPeriod}}">
+			<span id="dash-select-period" class="period-{{.View.Period}}">
 				<span>
 					Last
 					<button class="link" name="period" value="day">day</button> ·
@@ -70,15 +78,17 @@
 		<div>
 			<div class="filter-wrap">
 				<input
-					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+					type="text" autocomplete="off" name="filter" value="{{.View.Filter}}" id="filter-paths"
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
-					{{if .Filter}}class="value"{{end}}>
+					{{if .View.Filter}}class="value"{{end}}>
 			</div>
-			<label><input type="checkbox" name="as-text" id="as-text" {{if .AsText}}checked{{end}}> View as text table</label>
+			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> View as text table</label>
+			<input type="hidden" name="as-text" value="off">
 			{{if .ForcedDaily}}
 				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 			{{else}}
-				<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
+				<label><input type="checkbox" name="daily" id="daily" {{if .View.Daily}}checked{{end}}> View by day</label>
+				<input type="hidden" name="daily" value="off">
 			{{end}}
 		</div>
 	</div>

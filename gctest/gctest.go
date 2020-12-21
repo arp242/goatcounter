@@ -253,6 +253,9 @@ func SwapNow(t *testing.T, date interface{}) func() {
 	)
 	switch dd := date.(type) {
 	case string:
+		if len(dd) == 10 {
+			dd += " 12:00:00"
+		}
 		d, err = time.Parse("2006-01-02 15:04:05", dd)
 	case time.Time:
 		d = dd
