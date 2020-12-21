@@ -99,66 +99,6 @@ type SiteSettings struct {
 	Widgets          Widgets  `json:"widgets"`
 }
 
-type Widgets []map[string]interface{}
-
-func (w Widgets) Get(name string) map[string]interface{} {
-	for _, v := range w {
-		if v["name"] == name {
-			return v
-		}
-	}
-	return nil
-}
-
-func (w Widgets) GetSettings(name string) map[string]interface{} {
-	for _, v := range w {
-		if v["name"] == name {
-			s, ok := v["s"]
-			if !ok {
-				return make(map[string]interface{})
-			}
-			return s.(map[string]interface{})
-		}
-	}
-	return nil
-}
-
-func (w Widgets) Has(name string) bool {
-	ww := w.Get(name)
-	b, ok := ww["on"].(bool)
-	if !ok {
-		return false
-	}
-	return b
-}
-
-func (ss SiteSettings) LimitPages() int {
-	v := 10
-	s, ok := ss.Widgets.GetSettings("pages")["limit_pages"]
-	if ok {
-		// float64 when loading from json
-		if f, ok := s.(float64); ok {
-			v = int(f)
-		} else if f, ok := s.(int); ok {
-			v = f
-		}
-	}
-	return v
-}
-
-func (ss SiteSettings) LimitRefs() int {
-	v := 10
-	s, ok := ss.Widgets.GetSettings("pages")["limit_refs"]
-	if ok {
-		if f, ok := s.(float64); ok {
-			v = int(f)
-		} else if f, ok := s.(int); ok {
-			v = f
-		}
-	}
-	return v
-}
-
 func (ss SiteSettings) String() string { return string(zjson.MustMarshal(ss)) }
 
 // Value implements the SQL Value function to determine what to store in the DB.
@@ -230,18 +170,6 @@ func (s *Site) Defaults(ctx context.Context) {
 	}
 }
 
-func defaultWidgets() Widgets {
-	return Widgets{
-		{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": 10, "limit_refs": 10}},
-		{"on": true, "name": "totalpages"},
-		{"on": true, "name": "toprefs"},
-		{"on": true, "name": "browsers"},
-		{"on": true, "name": "systems"},
-		{"on": true, "name": "sizes"},
-		{"on": true, "name": "locations"},
-	}
-}
-
 var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
 
 // Validate the object.
@@ -266,16 +194,6 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 	v.Range("widgets.pages.s.limit_pages", int64(s.Settings.LimitPages()), 1, 25)
 	v.Range("widgets.pages.s.limit_refs", int64(s.Settings.LimitRefs()), 1, 25)
-
-	//return Widgets{
-	//	{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": 10, "limit_refs": 10}},
-	//	{"on": true, "name": "totalpages"},
-	//	{"on": true, "name": "toprefs"},
-	//	{"on": true, "name": "browsers"},
-	//	{"on": true, "name": "systems"},
-	//	{"on": true, "name": "sizes"},
-	//	{"on": true, "name": "locations"},
-	//}
 
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)

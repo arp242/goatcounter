@@ -9,6 +9,20 @@ The goatcounter.com service generally runs the latest master.
 Unreleased v1.5.0
 -----------------
 
+- Some rather large changes to the database layout (#383) for better efficiency
+  (see below, **action required for upgrade**).
+
+- New `goatcounter buffer` command; this allows buffering of pageviews in case
+  the backend is down, running migrations, etc. See `goatcounter help buffer`
+  for more information.
+
+- You can now configure what's displayed on the dashboard, in what order, and
+  configure some aspects of various "widgets". This is in the
+  *Setting→Dashboard*, and some settings from the main settings page have moved
+  there (#416, #417, #418)
+
+---
+
 This release contains some rather large changes to the database layout (#383);
 this means:
 
@@ -18,8 +32,6 @@ this means:
   something in "filter paths". Previously this always displayed the site totals.
 - "Purge path" now works as expected for all stats (fixes #96).
 - Easier to add new statistics in the future.
-
-**Action required**:
 
 1. You **must** first update to 1.4.2 and run all migrations from that.
    **Updating from older versions directly to 1.5.0 will not work!**
@@ -44,11 +56,6 @@ version 1.5.
 browser and system values in addition to the User-Agent header. Version 1.5 will
 not be able to import the older exports from version `1`.
 
-Other changes:
-
-- New `goatcounter buffer` command; this allows buffering of pageviews in case
-  the backend is down, running migrations, etc. See `goatcounter help buffer`
-  for more information.
 
 
 2020-11-10, v1.4.2

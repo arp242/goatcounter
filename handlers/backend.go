@@ -766,35 +766,17 @@ func (h backend) saveWidgets(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		on := true
-		if v["on"] != "on" {
-			on = false
-		}
 
-		s := make(map[string]interface{})
-		for k2, v2 := range v {
-			if !strings.HasPrefix(k2, "s.") {
-				continue
-			}
-
-			// TODO: meh; store on Widget or something.
-			switch k + "." + k2 {
-			case "pages.s.limit_pages", "pages.s.limit_refs":
-				iv, err := strconv.Atoi(v2)
+		w := goatcounter.Widget{"name": k, "on": v["on"] == "on"}
+		for sName, sVal := range v {
+			if strings.HasPrefix(sName, "s.") {
+				err := w.SetSetting(k, sName[2:], sVal)
 				if err != nil {
 					return err
 				}
-				s[k2[2:]] = iv
-			default:
-				s[k2[2:]] = v2
 			}
 		}
-
-		site.Settings.Widgets[pos] = map[string]interface{}{
-			"name": k,
-			"on":   on,
-			"s":    s,
-		}
+		site.Settings.Widgets[pos] = w
 	}
 
 	err = site.Update(r.Context())

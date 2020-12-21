@@ -176,16 +176,23 @@
 				<span class="drag-handle" title="Drag to reorder"></span>
 				<input type="hidden" name="widgets.{{$w.Name}}.index" value="{{$i}}" class="index">
 				<label class="main">
-					<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.Has $w.Name}}checked{{end}}>
+					<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.On $w.Name}}checked{{end}}>
 					<strong>{{$w.Label}}</strong>
 				</label>
 				<input type="hidden" name="widgets.{{$w.Name}}.on" value="off">
 
-				<div>
+				<div class="widget-settings">
 					{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
-						<label for="widgets.{{$w.Name}}.s.{{$k}}">{{setting_label $w.Name $k}}</label>
-						<input type="text" name="widgets.{{$w.Name}}.s.{{$k}}" id="widgets.{{$w.Name}}.s.{{$k}}" value="{{$v}}"><br>
+						{{ $n := (print "widgets." $w.Name ".s." $k) }}
+						{{if eq $v.Type "checkbox"}}
+							<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
+						{{else}}
+							<label for="{{$n}}">{{$v.Label}}</label>
+							<input type="{{$v.Type}}" name="{{$n}}" id="{{$n}}" value="{{$v.Value}}">
+						{{end}}
+						<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
 						{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}
+						<br>
 					{{end}}
 				</div>
 			</div>
