@@ -47,10 +47,10 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 	}
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		zhttp.ErrPage(w, r, 404, errors.New("Not Found"))
+		zhttp.ErrPage(w, r, guru.New(404, "Not Found"))
 	})
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
-		zhttp.ErrPage(w, r, 405, errors.New("Method Not Allowed"))
+		zhttp.ErrPage(w, r, guru.New(405, "Method Not Allowed"))
 	})
 
 	r.Get("/robots.txt", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {

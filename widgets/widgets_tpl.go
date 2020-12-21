@@ -43,6 +43,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 
 	return t, struct {
 		Context     context.Context
+		Err         error
 		Pages       goatcounter.HitStats
 		Site        *goatcounter.Site
 		PeriodStart time.Time
@@ -62,7 +63,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		Refs     goatcounter.Stats
 		ShowRefs string
 	}{
-		ctx, w.Pages, shared.Site, shared.Args.Start, shared.Args.End, shared.Args.Daily,
+		ctx, w.err, w.Pages, shared.Site, shared.Args.Start, shared.Args.End, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, shared.Max, w.Display,
 		w.UniqueDisplay, shared.Total, shared.TotalUnique,
 		w.More, shared.Refs, shared.Args.ShowRefs,
@@ -72,52 +73,58 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_totals.gohtml", struct {
 		Context         context.Context
+		Err             error
 		Site            *goatcounter.Site
 		Page            goatcounter.HitStat
 		Daily           bool
 		Max             int
 		TotalHits       int
 		TotalUniqueHits int
-	}{ctx, shared.Site, w.Total, shared.Args.Daily, w.Max, shared.Total,
+	}{ctx, w.err, shared.Site, w.Total, shared.Args.Daily, w.Max, shared.Total,
 		shared.TotalUnique}
 }
 
 func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_toprefs.gohtml", struct {
 		Context         context.Context
+		Err             error
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUniqueUTC, w.TopRefs}
+	}{ctx, w.err, shared.AllTotalUniqueUTC, w.TopRefs}
 }
 
 func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_browsers.gohtml", struct {
 		Context         context.Context
+		Err             error
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUniqueUTC, w.Browsers}
+	}{ctx, w.err, shared.AllTotalUniqueUTC, w.Browsers}
 }
 
 func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_systems.gohtml", struct {
 		Context         context.Context
+		Err             error
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUniqueUTC, w.Systems}
+	}{ctx, w.err, shared.AllTotalUniqueUTC, w.Systems}
 }
 
 func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_sizes.gohtml", struct {
 		Context         context.Context
+		Err             error
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUniqueUTC, w.SizeStat}
+	}{ctx, w.err, shared.AllTotalUniqueUTC, w.SizeStat}
 }
 
 func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_locations.gohtml", struct {
 		Context         context.Context
+		Err             error
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, shared.AllTotalUniqueUTC, w.LocStat}
+	}{ctx, w.err, shared.AllTotalUniqueUTC, w.LocStat}
 }

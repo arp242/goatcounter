@@ -5,12 +5,12 @@
 package handlers
 
 import (
+	"context"
 	"html/template"
 	"net/http"
 	"sync"
 	"time"
 
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/widgets"
@@ -111,31 +111,31 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		params |= widgets.ShowRefs
 	}
 	wid := widgets.FromSiteWidgets(site.Settings.Widgets, params)
-	err = func() error {
-		var (
-			wg   sync.WaitGroup
-			errs = errors.NewGroup(20)
-		)
+
+	func() {
+		var wg sync.WaitGroup
 		for _, w := range wid {
 			wg.Add(1)
 			go func(w widgets.Widget) {
 				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("data widget", w).FieldsRequest(r) })
 				defer wg.Done()
 
+				// Create context for every goroutine, so we know which timed out.
+				ctx, cancel := context.WithTimeout(goatcounter.NewContext(r.Context()), 10*time.Second)
+				defer cancel()
+
 				l := zlog.Module("dashboard")
-				errs.Append(w.GetData(r.Context(), args))
+				err := w.GetData(ctx, args)
+				if err != nil {
+					l.FieldsRequest(r).Error(err)
+					_, err = zhttp.UserError(err)
+					w.SetErr(err)
+				}
 				l.Since(w.Name())
 			}(w)
 		}
-
 		zsync.Wait(r.Context(), &wg)
-		return errs.ErrorOrNil()
 	}()
-	// TODO: render template error for widgets that can't load, instead of
-	// crapping out everything.
-	if err != nil {
-		return err
-	}
 
 	// Set shared params.
 	// TODO: better to just copy to every widget, or something.
@@ -146,11 +146,8 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Render widget templates.
-	err = func() error {
-		var (
-			wg   sync.WaitGroup
-			errs = errors.NewGroup(20)
-		)
+	func() {
+		var wg sync.WaitGroup
 		for _, w := range wid {
 			wg.Add(1)
 			go func(w widgets.Widget) {
@@ -162,21 +159,17 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 					return
 				}
 				tpl, err := ztpl.ExecuteString(tplName, tplData)
-				if errs.Append(errors.Wrap(err, w.Name())) {
+				if err != nil {
+					zlog.Error(err)
+					w.SetHTML(template.HTML("template rendering error: " + template.HTMLEscapeString(err.Error())))
 					return
 				}
+
 				w.SetHTML(template.HTML(tpl))
 			}(w)
 		}
-
 		zsync.Wait(r.Context(), &wg)
-		return errs.ErrorOrNil()
 	}()
-	// TODO: render template error for widgets that can't load, instead of
-	// crapping out everything.
-	if err != nil {
-		return err
-	}
 
 	// When reloading the dashboard from e.g. the filter we don't need to render
 	// header/footer/menu, etc. Render just the widgets and return that as JSON.

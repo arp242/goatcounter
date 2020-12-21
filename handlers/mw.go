@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
@@ -68,6 +67,8 @@ var (
 	})
 )
 
+type statusWriter interface{ Status() int }
+
 func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 	started := goatcounter.Now()
 	return func(next http.Handler) http.Handler {
@@ -93,16 +94,24 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 			}
 
 			// Add timeout on non-admin pages.
-			if !strings.HasPrefix(r.URL.Path, "/admin") {
-				var cancel context.CancelFunc
-				ctx, cancel = context.WithTimeout(r.Context(), 10*time.Second)
-				defer func() {
-					cancel()
-					if ctx.Err() == context.DeadlineExceeded {
-						w.WriteHeader(http.StatusGatewayTimeout)
-					}
-				}()
+			t := 3
+			switch {
+			case strings.HasPrefix(r.URL.Path, "/admin"):
+				t = 120
+			case r.URL.Path == "/":
+				t = 11
 			}
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(r.Context(), time.Duration(t)*time.Second)
+			defer func() {
+				cancel()
+				if ctx.Err() == context.DeadlineExceeded {
+					if ww, ok := w.(statusWriter); !ok || ww.Status() == 0 {
+						w.WriteHeader(http.StatusGatewayTimeout)
+						w.Write([]byte("Server timed out"))
+					}
+				}
+			}()
 
 			// Add database.
 			*r = *r.WithContext(zdb.With(ctx, db))
@@ -118,7 +127,7 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				err := s.ByHost(r.Context(), r.Host)
 				if err != nil {
 					if zdb.ErrNoRows(err) {
-						zhttp.ErrPage(w, r, 400, errors.Errorf("no site at this domain (%q)", r.Host))
+						zhttp.ErrPage(w, r, guru.Errorf(400, "no site at this domain (%q)", r.Host))
 						return
 					}
 

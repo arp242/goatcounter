@@ -1,4 +1,8 @@
 <div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
 	<h2>Browsers</h2>
-	{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{if .Err}}
+		<em>Error: {{.Err}}</em>
+	{{else}}
+		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+	{{end}}
 </div>
