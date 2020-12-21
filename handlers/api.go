@@ -508,7 +508,7 @@ type apiSitesResponse struct {
 }
 
 // GET /api/v0/sites sites
-// List the current site and all additional sites.
+// List all sites.
 //
 // Response 200: apiSitesResponse
 func (h api) siteList(w http.ResponseWriter, r *http.Request) error {

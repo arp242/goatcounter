@@ -15290,9 +15290,9 @@ recorded as <code>/path</code>.</p>
 
 <ol>
   <li>
-    <p>Create a new “additional site” for every domain; this is a completely
-separate site which inherits the user, login, plan, etc. You will need to use
-a different site code for every (sub)domain.</p>
+    <p>Create a new site for every domain; this is a completely separate site which
+has the same user, login, plan, etc. You will need to use a different site
+code for every (sub)domain.</p>
   </li>
   <li>
     <p>If you want everything in a single overview then you can add the domain to
@@ -18431,17 +18431,16 @@ depending on whether daylight savings time is in use at the time instant.</p>
 </div>
 
 <div class="tab-page{{if eq .LoadTab "sites"}} active{{end}}">
-	<h2 id="sites">Additional sites</h2>
+	<h2 id="sites">Sites</h2>
 	{{if .Site.Parent}}
+		{{/* TODO: just make this work */}}
 		This site has a parent and can't have additional sites of its own.
 		<a href="{{parent_site .Context .Site.Parent}}/settings#tab-sites">Manage the parent’s sites</a>.
 	{{else}}
-		<p>Add GoatCounter to multiple websites by creating a “child site”,
-			which is a separate GoatCounter site which inherits the plan, users,
-			and logins from the current site, but is otherwise completely
-			separate. The current site’s settings are copied on creation, but
-			are independent afterwards; the only limitation is that child
-			sites can’t have child sites of their own.</p>
+		<p>Add GoatCounter to multiple websites by creating new sites. This will
+			have the same plan, users, and logins as the current site, but is
+			otherwise completely separate. The current site’s settings are
+			copied on creation, but are independent afterwards.</p>
 		<p>You can add as many as you want.</p>
 
 		<form method="post" action="/add">
@@ -19809,7 +19808,7 @@ information.</p>
 <p>The first 14 days are always free, after that <a href="/terms#commercial">commercial</a> users must purchase a plan.</p>
 
 <p>You can use an account on any number of sites/domains; see <em>Settings</em>
-→ <em>Additional sites</em> for separating them out.</p>
+→ <em>sites</em> for separating them out.</p>
 
 <div id="signup-form">
 	<form class="vertical" method="post" action="/signup">

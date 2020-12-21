@@ -260,9 +260,9 @@ recorded as `/path`.
 
 This might be improved at some point in the future; the options right now are:
 
-1. Create a new “additional site” for every domain; this is a completely
-   separate site which inherits the user, login, plan, etc. You will need to use
-   a different site code for every (sub)domain.
+1. Create a new site for every domain; this is a completely separate site which
+   has the same user, login, plan, etc. You will need to use a different site
+   code for every (sub)domain.
 
 2. If you want everything in a single overview then you can add the domain to
    the path, instead of just sending the path:
