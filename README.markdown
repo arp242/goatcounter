@@ -56,8 +56,10 @@ Features
 
 - Integrate on your site with just a **single script tag**:
 
-      <script data-goatcounter="https://yoursite.goatcounter.com/count"
-              async src="//gc.zgo.at/count.js"></script>
+    ```html
+    <script data-goatcounter="https://yoursite.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+    ```
 
 - The JavaScript integration is a good option for most, but you can also use a
   **no-JavaScript image-based tracker** or integrate in your **backend
