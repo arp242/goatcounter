@@ -19,7 +19,7 @@ jobs:
     - name: 'Install PostgreSQL'
       uses: 'harmon758/postgresql-action@v1'
       with:
-        'postgresql version': '12'
+        'postgresql version': '11'
         'postgresql user':    'postgres'
 
     - name: 'Clone'
