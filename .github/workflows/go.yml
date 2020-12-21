@@ -25,7 +25,20 @@ jobs:
     - name: 'Clone'
       uses: 'actions/checkout@v2'
 
+    - name: 'Cache'
+      uses: 'actions/cache@v2'
+      with:
+        # Also:
+        # '$HOME/Library/Caches/go-build'
+        # '$HOME/AppData/Local/go-build'
+        #- 'rm -f "$HOME/.cache/go-build/log.txt" "$HOME/Library/Caches/go-build/log.txt" "$HOME/AppData/Local/go-build/log.txt"'
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+
     - run: 'go test -race -timeout=3m ./...'
     - run: 'psql -h localhost -c "select version()"'
+    - run: 'psql 127.0.0.1 -c "select version()"'
+    - run: 'psql -c "select version()"'
     #- run: 'PGHOST=127.0.0.1 go test -tags=testpg -race -timeout=3m ./...'
     - run: 'go run ./cmd/check ./...'
