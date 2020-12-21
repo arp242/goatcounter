@@ -1,0 +1,29 @@
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    # Also run on 'macos-latest', 'windows-latest'
+    # https://github.com/marketplace/actions/run-on-architecture
+    steps:
+
+    - uses: 'actions/setup-go@v2'
+      with:
+        'go-version': '^1.15'
+
+    - uses: harmon758/postgresql-action@v1
+      with:
+        'postgresql version': '12'
+
+    - uses: 'actions/checkout@v2'
+
+    - run:  'go run ./cmd/check ./...'
+
+    - run:  'go test -race -timeout=3m ./...'
+
+    - run:  'go test -tags=testpg -race -timeout=3m ./...'
