@@ -160,7 +160,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 				}
 				tpl, err := ztpl.ExecuteString(tplName, tplData)
 				if err != nil {
-					zlog.Error(err)
+					zlog.Module("dashboard").FieldsRequest(r).Error(err)
 					w.SetHTML(template.HTML("template rendering error: " + template.HTMLEscapeString(err.Error())))
 					return
 				}

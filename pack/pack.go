@@ -15874,7 +15874,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 
 			<div class="refs hchart" data-more="/hchart-more?kind=ref">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{horizontal_chart $.Context $.Refs $h.CountUnique $.Site.Settings.Limits.Ref false true}}
+					{{horizontal_chart $.Context $.Refs $h.CountUnique $.Site.Settings.LimitRefs false true}}
 				{{end}}
 			</div>
 		</td>
