@@ -298,7 +298,15 @@ func (h api) exportGet(w http.ResponseWriter, r *http.Request) error {
 // GET /api/v0/export/{id}/download export
 // Download an export file.
 //
+// The export may take a while to generate, depending on the size. It will
+// return a 202 Accepted status code if the export ID is still running.
+//
+// Export files are kept for 24 hours, after which they're deleted. This will
+// return a 400 Gone status code if the export has been deleted.
+//
 // Response 200 (text/csv): {data}
+// Response 202: zgo.at/goatcounter/handlers.apiError
+// Response 400: zgo.at/goatcounter/handlers.apiError
 func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	err := h.auth(r, goatcounter.APITokenPermissions{
 		Export: true,
@@ -319,12 +327,18 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	if export.FinishedAt == nil {
+		w.WriteHeader(202)
+		return zhttp.JSON(w, apiError{Error: "still being generated"})
+	}
+
 	fp, err := os.Open(export.Path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			w.WriteHeader(404)
-			return zhttp.JSON(w, apiError{Error: "it looks like there is no export yet"})
+		if os.IsNotExist(err) && export.FinishedAt.Add(24*time.Hour).After(goatcounter.Now()) {
+			w.WriteHeader(400)
+			return zhttp.JSON(w, apiError{Error: "exports are kept for 24 hours; this export file has been deleted"})
 		}
+
 		return err
 	}
 	defer fp.Close()
@@ -404,7 +418,7 @@ type APICountRequestHit struct {
 	// identifier.
 	Session string `json:"session"`
 
-	// {nodoc}
+	// {omitdoc}
 	Host string `json:"-"`
 }
 

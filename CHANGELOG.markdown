@@ -34,7 +34,10 @@ Unreleased v1.5.0
   default). This requires specifying the path to a GeoIP City database, which
   isn't included since it's ~30M (#425)
 
-- There is now a `count.v1.js`, which is a stable version that can use
+- You can import pageviews from logfiles with the `goatcounter import` command;
+  see `goatcounter help import` for details.
+
+- There is now a `count.v*.js`, which are stable versions that can use
   subresource integrity.
 
 - You can use `data-goatcounter-settings` on the `<script>` tag to load the

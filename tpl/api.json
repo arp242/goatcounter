@@ -1,4 +1,4 @@
-kommentaar: warning: could not process "Widget" (maps are not supported yet){
+{
   "swagger": "2.0",
   "info": {
     "title": "GoatCounter",
@@ -162,6 +162,7 @@ kommentaar: warning: could not process "Widget" (maps are not supported yet){
     },
     "/api/v0/export/{id}/download": {
       "get": {
+        "description": "The export may take a while to generate, depending on the size. It will\nreturn a 202 Accepted status code if the export ID is still running.\n\nExport files are kept for 24 hours, after which they're deleted. This will\nreturn a 400 Gone status code if the export has been deleted.",
         "operationId": "GET_api_v0_export_{id}_download",
         "parameters": [
           {
@@ -178,6 +179,12 @@ kommentaar: warning: could not process "Widget" (maps are not supported yet){
         "responses": {
           "200": {
             "description": "200 OK (text/csv data)"
+          },
+          "202": {
+            "description": "202 Accepted",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
           },
           "400": {
             "description": "400 Bad Request",
@@ -808,10 +815,10 @@ kommentaar: warning: could not process "Widget" (maps are not supported yet){
       "title": "apiError",
       "type": "object",
       "properties": {
-        "Error": {
+        "error": {
           "type": "string"
         },
-        "Errors": {
+        "errors": {
           "type": "object"
         }
       }
