@@ -10,6 +10,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	_ "time/tzdata"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
