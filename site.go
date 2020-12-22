@@ -156,7 +156,7 @@ func (s *Site) Validate(ctx context.Context) error {
 			v.Append("widgets", fmt.Sprintf("widget %q is missing", w["name"].(string)))
 		}
 	}
-	v.Range("widgets.pages.s.limit_pages", int64(s.Settings.LimitPages()), 1, 25)
+	v.Range("widgets.pages.s.limit_pages", int64(s.Settings.LimitPages()), 1, 100)
 	v.Range("widgets.pages.s.limit_refs", int64(s.Settings.LimitRefs()), 1, 25)
 
 	if _, i := s.Settings.Views.Get("default"); i == -1 || len(s.Settings.Views) != 1 {

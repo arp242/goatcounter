@@ -12859,6 +12859,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			f.find('input[name="reset"]').val('true')
 			f.trigger('submit')
 		})
+		$('#widgets_pages_s_limit_pages').on('change', function(e) {
+			if (parseInt($(this).val(), 10) > 25)
+				$('#widget-pages label.main').after(
+					'<span class="warn red">Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems.</span>')
+			else
+				$('#widget-pages .warn.red').remove()
+		}).trigger('change')
 	}
 
 	// Fill in start/end periods from buttons.
@@ -18475,12 +18482,13 @@ depending on whether daylight savings time is in use at the time instant.</p>
 
 				<div class="widget-settings">
 					{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
-						{{ $n := (print "widgets." $w.Name ".s." $k) }}
+						{{ $id := (print "widgets_" $w.Name "_s_" $k) }}
+						{{ $n  := (print "widgets." $w.Name ".s." $k) }}
 						{{if eq $v.Type "checkbox"}}
 							<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
 						{{else}}
-							<label for="{{$n}}">{{$v.Label}}</label>
-							<input type="{{$v.Type}}" name="{{$n}}" id="{{$n}}" value="{{$v.Value}}">
+							<label for="{{$id}}">{{$v.Label}}</label>
+							<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}">
 						{{end}}
 						<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
 						{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}

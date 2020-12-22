@@ -183,12 +183,13 @@
 
 				<div class="widget-settings">
 					{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
-						{{ $n := (print "widgets." $w.Name ".s." $k) }}
+						{{ $id := (print "widgets_" $w.Name "_s_" $k) }}
+						{{ $n  := (print "widgets." $w.Name ".s." $k) }}
 						{{if eq $v.Type "checkbox"}}
 							<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
 						{{else}}
-							<label for="{{$n}}">{{$v.Label}}</label>
-							<input type="{{$v.Type}}" name="{{$n}}" id="{{$n}}" value="{{$v.Value}}">
+							<label for="{{$id}}">{{$v.Label}}</label>
+							<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}">
 						{{end}}
 						<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
 						{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}

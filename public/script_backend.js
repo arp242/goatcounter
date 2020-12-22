@@ -544,6 +544,13 @@
 			f.find('input[name="reset"]').val('true')
 			f.trigger('submit')
 		})
+		$('#widgets_pages_s_limit_pages').on('change', function(e) {
+			if (parseInt($(this).val(), 10) > 25)
+				$('#widget-pages label.main').after(
+					'<span class="warn red">Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems.</span>')
+			else
+				$('#widget-pages .warn.red').remove()
+		}).trigger('change')
 	}
 
 	// Fill in start/end periods from buttons.
