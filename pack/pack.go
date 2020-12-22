@@ -321,6 +321,12 @@ commit;
 	insert into version values('2020-12-17-1-paths-isbot');
 commit;
 `),
+	"db/migrate/pgsql/2020-12-21-1-view.sql": []byte(`begin;
+	update sites set settings = jsonb_set(settings, '{views}',
+		'[{"name": "default", "period": "week"}]', true);
+	insert into version values('2020-12-21-1-view');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -776,6 +782,12 @@ commit;
 	create unique index "user_agents#ua" on user_agents(ua);
 
 	insert into version values('2020-12-17-1-paths-isbot');
+commit;
+`),
+	"db/migrate/sqlite/2020-12-21-1-view.sql": []byte(`begin;
+	update sites set settings = json_set(settings, '$.views',
+		json('[{"name": "default", "period": "week"}]'));
+	insert into version values('2020-12-21-1-view');
 commit;
 `),
 }
@@ -1503,8 +1515,15 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	}
 })();
 `),
-	"public/dragula.js": []byte(`(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.dragula = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+	"public/dragula.js": []byte(`/*!
+ * From https://github.com/bevacqua/dragula
+ * Copyright © 2015-2016 Nicolas Bevacqua
+ * The MIT License applies
+ */
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.dragula = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict';
+
+// TODO: we don't actually use much of this, and could be reduced quite a bit.
 
 var cache = {};
 var start = '(?:^|\\s)';
@@ -12314,7 +12333,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
 			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
-			bind_scale, copy_pre, widget_settings,
+			bind_scale, copy_pre, widget_settings, saved_views,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -12347,6 +12366,50 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			url:    '/jserr',
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
+		})
+	}
+
+	// Save current view.
+	var saved_views = function() {
+		$('#dash-saved-views >span').on('click', function(e) {
+			e.preventDefault()
+			var d = $('#dash-saved-views >div')
+			d.css('display', d.css('display') === 'block' ? 'none' : 'block')
+
+			$('body').on('click.saved-views', function(e) {
+				if ($(e.target).closest('#dash-saved-views').length)
+					return
+				d.css('display', 'none')
+				$('body').off('click.saved-views')
+			})
+		})
+
+		$('.save-current-view').on('click', function(e) {
+			e.preventDefault()
+			var p = $('#dash-select-period').attr('class').substr(7)
+			if (p === '')
+				p = (get_date($('#period-end').val()) - get_date($('#period-start').val())) / 86400000
+
+			var done = paginate_button($(this), () => {
+				jQuery.ajax({
+					url:    '/save-view',
+					method: 'POST',
+					data: {
+						csrf:      CSRF,
+						name:      'default',
+						filter:    $('#filter-paths').val(),
+						daily:     $('#daily').is(':checked'),
+						'as-text': $('#as-text').is(':checked'),
+						period:    p,
+					},
+					success: () => {
+						done()
+						var s = $('<em> Saved!</em>')
+						$(this).after(s)
+						setTimeout(() => s.remove(), 2000)
+					},
+				})
+			})
 		})
 	}
 
@@ -13537,10 +13600,16 @@ tr.target .chart-left { display: block; }
 
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/
-#dash-saved-views { text-align: right; margin-right: .3em; }
 #dash-move        { display: flex; justify-content: space-between; align-items: start; padding: .2em; }
 #dash-form        { display: block; padding-bottom: .4em; }
 #dash-form span   { margin-left: 0; } /* Reset from hello-css */
+
+#dash-saved-views       { position: absolute; top: .2em; right: .3em; z-index: 5; max-width: 30em; text-align: right; }
+#dash-saved-views >span { font-size: 20px; padding: .2em; cursor: pointer;
+	                      user-select: none; -webkit-user-select: none; color: #00f; transition: opacity .2s; }
+#dash-saved-views >div  { display: none; margin-right: .5em; padding: .5em; text-align: left;
+						  background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
+#dash-saved-views >span:hover { opacity: .5; }
 
 @media (max-width: 36.5rem) {
 	#dash-move span           { display: block; }
@@ -13549,7 +13618,6 @@ tr.target .chart-left { display: block; }
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
              background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
-
 #dash-main input[type="text"]     { padding: .3em; }
 #dash-main input[type="checkbox"] { vertical-align: middle; }
 #filter-paths                     { width: 18.5em; display: block; }
@@ -19003,19 +19071,27 @@ processed by Stripe (you will need a Credit Card).</p>
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
 	<input type="hidden" id="hl-period" name="hl-period" disabled>
 
-	{{/*
 	<div id="dash-saved-views">
-		Saved views: <a href="#">404</a> · <a href="#">blog</a>
-		| <a href="#">Save current view</a>
+		<span>⚙&#xfe0f;</span>
+		<div>
+			<a href="#" class="save-current-view">Save default view</a><br>
+			<small>Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet.</small>
+			<br><br>
+			{{/* TODO: it might be better to load the settings page "inline"
+			here, instead of a settings tab; would also declutter that a bit
+			since we can remove it there. */}}
+			<a href="/settings#tab-dashboard">Configure dashboard layout</a><br>
+			<small>Change what to display on the dashboard and in what order.</small>
+		</div>
 	</div>
-	*/}}
+
 	<div id="dash-main">
 		<div>
 			<span>
 				<input type="text" class="date-input" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Site .PeriodStart ""}}">–{{- "" -}}
 				<input type="text" class="date-input" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end" value="{{tformat .Site .PeriodEnd ""}}">{{- "" -}}
 			</span>
-			<span id="dash-select-period" class="period-{{.SelectedPeriod}}">
+			<span id="dash-select-period" class="period-{{.View.Period}}">
 				<span>
 					Last
 					<button class="link" name="period" value="day">day</button> ·
@@ -19037,15 +19113,17 @@ processed by Stripe (you will need a Credit Card).</p>
 		<div>
 			<div class="filter-wrap">
 				<input
-					type="text" autocomplete="off" name="filter" value="{{.Filter}}" id="filter-paths"
+					type="text" autocomplete="off" name="filter" value="{{.View.Filter}}" id="filter-paths"
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
-					{{if .Filter}}class="value"{{end}}>
+					{{if .View.Filter}}class="value"{{end}}>
 			</div>
-			<label><input type="checkbox" name="as-text" id="as-text" {{if .AsText}}checked{{end}}> View as text table</label>
+			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> View as text table</label>
+			<input type="hidden" name="as-text" value="off">
 			{{if .ForcedDaily}}
 				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 			{{else}}
-				<label><input type="checkbox" name="daily" id="daily" {{if .Daily}}checked{{end}}> View by day</label>
+				<label><input type="checkbox" name="daily" id="daily" {{if .View.Daily}}checked{{end}}> View by day</label>
+				<input type="hidden" name="daily" value="off">
 			{{end}}
 		</div>
 	</div>

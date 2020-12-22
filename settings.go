@@ -5,10 +5,74 @@
 package goatcounter
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"strconv"
+	"strings"
+
+	"zgo.at/json"
+	"zgo.at/tz"
+	"zgo.at/zdb"
+	"zgo.at/zstd/zjson"
 )
 
+type (
+	// SiteSettings contains all the user-configurable settings for a site, with
+	// the exception of the domain and billing settings.
+	//
+	// This is stored as JSON in the database.
+	SiteSettings struct {
+		// Global site settings.
+
+		Public        bool        `json:"public"`
+		AllowCounter  bool        `json:"allow_counter"`
+		AllowAdmin    bool        `json:"allow_admin"`
+		DataRetention int         `json:"data_retention"`
+		Campaigns     zdb.Strings `json:"campaigns"`
+		IgnoreIPs     zdb.Strings `json:"ignore_ips"`
+
+		// User preferences.
+
+		TwentyFourHours  bool     `json:"twenty_four_hours"`
+		SundayStartsWeek bool     `json:"sunday_starts_week"`
+		DateFormat       string   `json:"date_format"`
+		NumberFormat     rune     `json:"number_format"`
+		Timezone         *tz.Zone `json:"timezone"`
+		Widgets          Widgets  `json:"widgets"`
+		Views            Views    `json:"views"`
+	}
+
+	// Widgets is a list of widgets to be printed, in order.
+	Widgets []Widget
+	Widget  map[string]interface{}
+
+	widgetSettings map[string]widgetSetting
+	widgetSetting  struct {
+		Type  string
+		Label string
+		Help  string
+
+		Value interface{}
+	}
+
+	// Views for the dashboard; these settings apply to all widget and are
+	// configurable in the yellow box at the top.
+	Views []View
+	View  struct {
+		Name   string `json:"name"`
+		Filter string `json:"filter"`
+		Daily  bool   `json:"daily"`
+		AsText bool   `json:"as-text"`
+		Period string `json:"period"` // "week", "week-cur", or n days: "8"
+	}
+)
+
+// Default widgets for new sites.
+//
+// This *must* return a list of all configurable widgets; even if it's off by
+// default.
+//
+// As a function to ensure a global map isn't accidentally modified.
 func defaultWidgets() Widgets {
 	s := defaultWidgetSettings()
 	w := Widgets{}
@@ -18,6 +82,7 @@ func defaultWidgets() Widgets {
 	return w
 }
 
+// List of all settings for widgets with some data.
 func defaultWidgetSettings() map[string]widgetSettings {
 	return map[string]widgetSettings{
 		"pages": map[string]widgetSetting{
@@ -51,15 +116,22 @@ func defaultWidgetSettings() map[string]widgetSettings {
 	}
 }
 
-type widgetSetting struct {
-	Type  string
-	Label string
-	Help  string
+func (ss SiteSettings) String() string { return string(zjson.MustMarshal(ss)) }
 
-	Value interface{}
+// Value implements the SQL Value function to determine what to store in the DB.
+func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
+
+// Scan converts the data returned from the DB into the struct.
+func (ss *SiteSettings) Scan(v interface{}) error {
+	switch vv := v.(type) {
+	case []byte:
+		return json.Unmarshal(vv, ss)
+	case string:
+		return json.Unmarshal([]byte(vv), ss)
+	default:
+		panic(fmt.Sprintf("unsupported type: %T", v))
+	}
 }
-
-type widgetSettings map[string]widgetSetting
 
 func (s widgetSettings) getMap() map[string]interface{} {
 	m := make(map[string]interface{})
@@ -69,8 +141,9 @@ func (s widgetSettings) getMap() map[string]interface{} {
 	return m
 }
 
-type Widget map[string]interface{}
-
+// SetSettings set the setting "setting" for widget "widget" to "value".
+//
+// The value is converted to the correct type for this setting.
 func (w Widget) SetSetting(widget, setting, value string) error {
 	defW, ok := defaultWidgetSettings()[widget]
 	if !ok {
@@ -101,9 +174,6 @@ func (w Widget) SetSetting(widget, setting, value string) error {
 	return nil
 }
 
-// Widgets is a list of widgets to be printed, in order.
-type Widgets []Widget
-
 // Get a widget from the list by name.
 func (w Widgets) Get(name string) Widget {
 	for _, v := range w {
@@ -124,15 +194,17 @@ func (w Widgets) GetSettings(name string) widgetSettings {
 				// {"limit_pages": 10, "limit_refs": 10}},
 				ss := s.(map[string]interface{})
 				for k, v := range ss {
-					d := def[k]
-					d.Value = v
-					def[k] = d
+					if v != nil {
+						d := def[k]
+						d.Value = v
+						def[k] = d
+					}
 				}
 			}
 			return def
 		}
 	}
-	return nil
+	return make(widgetSettings)
 }
 
 // On reports if this setting should be displayed.
@@ -143,6 +215,17 @@ func (w Widgets) On(name string) bool {
 		return false
 	}
 	return b
+}
+
+// Get a view for this site by name and returns the view and index.
+// Returns -1 if this view doesn't exist.
+func (v Views) Get(name string) (View, int) {
+	for i, vv := range v {
+		if strings.EqualFold(vv.Name, name) {
+			return vv, i
+		}
+	}
+	return View{}, -1
 }
 
 // Some shortcuts for getting the settings.

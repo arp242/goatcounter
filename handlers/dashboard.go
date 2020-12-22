@@ -6,11 +6,14 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
+	nnow "github.com/jinzhu/now"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/widgets"
@@ -33,29 +36,49 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Vary", "Cookie")
 	}
 
-	hlPeriod := r.URL.Query().Get("hl-period")
+	// Load view, but override this from query.
+	view, _ := site.Settings.Views.Get("default")
+	q := r.URL.Query()
+
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 	}
 	if start.IsZero() || end.IsZero() {
-		y, m, d := goatcounter.Now().In(site.Settings.Timezone.Loc()).Date()
-		now := time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())
-		start = now.Add(-7 * day).UTC()
-		end = time.Date(y, m, d, 23, 59, 59, 9, now.Location()).UTC().Round(time.Second)
-		hlPeriod = "week"
+		start, end, err = timeRange(view.Period, site.Settings.Timezone.Loc(), site.Settings.SundayStartsWeek)
+		if err != nil {
+			return err
+		}
+	} else {
+		if _, ok := q["hl-period"]; ok {
+			view.Period = q.Get("hl-period")
+		}
+	}
+
+	showRefs := q.Get("showrefs")
+	if _, ok := q["filter"]; ok {
+		view.Filter = q.Get("filter")
+	}
+	if _, ok := q["as-text"]; ok {
+		view.AsText = q.Get("as-text") == "on" || q.Get("as-text") == "true"
+	}
+	if _, ok := q["daily"]; ok {
+		view.Daily = q.Get("daily") == "on" || q.Get("daily") == "true"
+	}
+	_, forcedDaily := getDaily(r, start, end)
+	if forcedDaily {
+		view.Daily = true
 	}
 
 	// Get path IDs to filter first, as they're used by the widgets.
 	var (
-		filter     = r.URL.Query().Get("filter")
 		pathFilter = make(chan (struct {
 			Paths []int64
 			Err   error
 		}))
 	)
 	go func() {
-		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("filter", filter).FieldsRequest(r) })
+		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("filter", view.Filter).FieldsRequest(r) })
 
 		l := zlog.Module("dashboard")
 
@@ -63,8 +86,8 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			f   []int64
 			err error
 		)
-		if filter != "" {
-			f, err = goatcounter.PathFilter(r.Context(), filter, true)
+		if view.Filter != "" {
+			f, err = goatcounter.PathFilter(r.Context(), view.Filter, true)
 		}
 		pathFilter <- struct {
 			Paths []int64
@@ -72,10 +95,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		}{f, err}
 		l.Since("pathfilter")
 	}()
-
-	showRefs := r.URL.Query().Get("showrefs")
-	asText := r.URL.Query().Get("as-text") == "on" || r.URL.Query().Get("as-text") == "true"
-	daily, forcedDaily := getDaily(r, start, end)
 
 	subs, err := site.ListSubs(r.Context())
 	if err != nil {
@@ -93,10 +112,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	args := widgets.Args{
 		Start:       start,
 		End:         end,
-		Daily:       daily,
+		Daily:       view.Daily,
 		ShowRefs:    showRefs,
 		ForcedDaily: forcedDaily,
-		AsText:      asText,
+		AsText:      view.AsText,
 	}
 
 	f := <-pathFilter
@@ -173,7 +192,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// When reloading the dashboard from e.g. the filter we don't need to render
 	// header/footer/menu, etc. Render just the widgets and return that as JSON.
-	if r.URL.Query().Get("reload") != "" {
+	if q.Get("reload") != "" {
 		t, err := ztpl.ExecuteString("_dashboard_widgets.gohtml", struct {
 			Globals
 			Widgets widgets.List
@@ -190,19 +209,79 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "dashboard.gohtml", struct {
 		Globals
-		CountDomain    string
-		SubSites       []string
-		ShowRefs       string
-		SelectedPeriod string
-		PeriodStart    time.Time
-		PeriodEnd      time.Time
-		Filter         string
-		PathFilter     []int64
-		Daily          bool
-		ForcedDaily    bool
-		AsText         bool
-		Widgets        widgets.List
-	}{newGlobals(w, r),
-		cd, subs, showRefs, hlPeriod, start, end, filter, args.PathFilter,
-		daily, forcedDaily, asText, wid})
+		CountDomain string
+		SubSites    []string
+		ShowRefs    string
+
+		PeriodStart time.Time
+		PeriodEnd   time.Time
+		PathFilter  []int64
+		ForcedDaily bool
+		Widgets     widgets.List
+		View        goatcounter.View
+	}{newGlobals(w, r), cd, subs, showRefs, start, end, args.PathFilter,
+		forcedDaily, wid, view})
+}
+
+// Get a time range; the return value is always in UTC, and is the UTC day range
+// corresponding to the given timezone.
+//
+// So, for example a week in +08:00 would be:
+// 2020-12-20 16:00:00 - 2020-12-27 15:59:59
+//
+// Values for rng:
+//
+//   week, month, quarter, half-year, year
+//      The start date is set to exactly this period ago. The end date is set to
+//      the end of the current day.
+//
+//   week-cur, month-cur
+//      The current week or month; both the start and return are modified.
+//
+//   Any digit
+//      Last n days.
+func timeRange(rng string, tz *time.Location, sundayStartsWeek bool) (time.Time, time.Time, error) {
+	y, m, d := goatcounter.Now().In(tz).Date()
+	end := time.Date(y, m, d, 23, 59, 59, 9, tz).Round(time.Second)
+
+	var start time.Time
+	switch rng {
+	case "week":
+		start = time.Date(y, m, d-7, 0, 0, 0, 0, tz)
+	case "month":
+		start = time.Date(y, m-1, d, 0, 0, 0, 0, tz)
+	case "quarter":
+		start = time.Date(y, m-3, d, 0, 0, 0, 0, tz)
+	case "half-year":
+		start = time.Date(y, m-6, d, 0, 0, 0, 0, tz)
+	case "year":
+		start = time.Date(y, m-12, d, 0, 0, 0, 0, tz)
+
+	case "week-cur":
+		n := nnow.New(end)
+		n.WeekStartDay = time.Monday
+		if sundayStartsWeek {
+			n.WeekStartDay = time.Sunday
+		}
+
+		start = n.BeginningOfWeek()
+		end = n.EndOfWeek().Add(-1 * time.Second).Round(1 * time.Second)
+	case "month-cur":
+		n := nnow.New(end)
+		n.WeekStartDay = time.Monday
+		if sundayStartsWeek {
+			n.WeekStartDay = time.Sunday
+		}
+		start = n.BeginningOfMonth()
+		end = n.EndOfMonth().Add(-1 * time.Second).Round(1 * time.Second)
+
+	default:
+		days, err := strconv.Atoi(rng)
+		if err != nil {
+			return time.Time{}, time.Time{}, fmt.Errorf("timeRange: %w", err)
+		}
+		start = time.Date(y, m, d-days, 0, 0, 0, 0, time.UTC)
+	}
+
+	return start.UTC(), end.UTC(), nil
 }

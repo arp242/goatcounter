@@ -28,7 +28,7 @@ require (
 	golang.org/x/tools v0.0.0-20201211185031-d93e913c1a58
 	honnef.co/go/tools v0.1.0
 	zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8
-	zgo.at/errors v0.0.0-20200725175708-8255739ad6ec
+	zgo.at/errors v1.0.0
 	zgo.at/gadget v0.0.0-20201217063255-80176bd17067
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v0.0.0-20201217063241-a1aab44f6889
@@ -41,7 +41,7 @@ require (
 	zgo.at/zli v0.0.0-20201210061107-1204fda2cf4b
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zpack v1.0.2-0.20201215095635-1a4d171dcd00
-	zgo.at/zstd v0.0.0-20201208030035-69d7042db931
+	zgo.at/zstd v0.0.0-20201219074540-1bdc62c5acc9
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a
 )

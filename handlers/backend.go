@@ -66,7 +66,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 		middleware.RedirectSlashes,
 		mware.NoStore())
 	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
-		r.Use(mware.RequestLog(nil))
+		r.Use(mware.RequestLog(nil, "/count"))
 	}
 
 	api{}.mount(r, db)
@@ -156,6 +156,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			af.Get("/ip", zhttp.Wrap(h.ip))
 			af.Post("/save-settings", zhttp.Wrap(h.saveSettings))
 			af.Post("/save-widgets", zhttp.Wrap(h.saveWidgets))
+			af.Post("/save-view", zhttp.Wrap(h.saveView))
 			af.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
 			af.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 			af.With(mware.Ratelimit(mware.RatelimitOptions{
@@ -790,6 +791,23 @@ func (h backend) saveWidgets(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Saved!")
 	return zhttp.SeeOther(w, "/settings#tab-dashboard")
+}
+
+func (h backend) saveView(w http.ResponseWriter, r *http.Request) error {
+	site := Site(r.Context())
+	v, i := site.Settings.Views.Get("default") // TODO: only default view for now.
+	_, err := zhttp.Decode(r, &v)
+	if err != nil {
+		return err
+	}
+
+	site.Settings.Views[i] = v
+	err = site.Update(r.Context())
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, map[string]string{})
 }
 
 func (h backend) changeCode(w http.ResponseWriter, r *http.Request) error {
