@@ -36,19 +36,21 @@
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
 	<input type="hidden" id="hl-period" name="hl-period" disabled>
 
-	<div id="dash-saved-views">
-		<span>⚙&#xfe0f;</span>
-		<div>
-			<a href="#" class="save-current-view">Save default view</a><br>
-			<small>Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet.</small>
-			<br><br>
-			{{/* TODO: it might be better to load the settings page "inline"
-			here, instead of a settings tab; would also declutter that a bit
-			since we can remove it there. */}}
-			<a href="/settings#tab-dashboard">Configure dashboard layout</a><br>
-			<small>Change what to display on the dashboard and in what order.</small>
+	{{if .User.ID}}
+		<div id="dash-saved-views">
+			<span>⚙&#xfe0f;</span>
+			<div>
+				<a href="#" class="save-current-view">Save default view</a><br>
+				<small>Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet.</small>
+				<br><br>
+				{{/* TODO: it might be better to load the settings page "inline"
+				here, instead of a settings tab; would also declutter that a bit
+				since we can remove it there. */}}
+				<a href="/settings#tab-dashboard">Configure dashboard layout</a><br>
+				<small>Change what to display on the dashboard and in what order.</small>
+			</div>
 		</div>
-	</div>
+	{{end}}
 
 	<div id="dash-main">
 		<div>

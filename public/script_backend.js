@@ -58,15 +58,13 @@
 	var saved_views = function() {
 		$('#dash-saved-views >span').on('click', function(e) {
 			e.preventDefault()
+
 			var d = $('#dash-saved-views >div')
 			d.css('display', d.css('display') === 'block' ? 'none' : 'block')
 
-			$('body').on('click.saved-views', function(e) {
-				if ($(e.target).closest('#dash-saved-views').length)
-					return
-				d.css('display', 'none')
-				$('body').off('click.saved-views')
-			})
+			var close = () => { d.css('display', 'none'); $('body').off('.saved-views') }
+			$('body').on('keydown.saved-views', (e) => { if (e.keyCode === 27) close() })
+			$('body').on('click.saved-views',   (e) => { if (!$(e.target).closest('#dash-saved-views').length) close() })
 		})
 
 		$('.save-current-view').on('click', function(e) {

@@ -12373,15 +12373,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	var saved_views = function() {
 		$('#dash-saved-views >span').on('click', function(e) {
 			e.preventDefault()
+
 			var d = $('#dash-saved-views >div')
 			d.css('display', d.css('display') === 'block' ? 'none' : 'block')
 
-			$('body').on('click.saved-views', function(e) {
-				if ($(e.target).closest('#dash-saved-views').length)
-					return
-				d.css('display', 'none')
-				$('body').off('click.saved-views')
-			})
+			var close = () => { d.css('display', 'none'); $('body').off('.saved-views') }
+			$('body').on('keydown.saved-views', (e) => { if (e.keyCode === 27) close() })
+			$('body').on('click.saved-views',   (e) => { if (!$(e.target).closest('#dash-saved-views').length) close() })
 		})
 
 		$('.save-current-view').on('click', function(e) {
@@ -19071,19 +19069,21 @@ processed by Stripe (you will need a Credit Card).</p>
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
 	<input type="hidden" id="hl-period" name="hl-period" disabled>
 
-	<div id="dash-saved-views">
-		<span>⚙&#xfe0f;</span>
-		<div>
-			<a href="#" class="save-current-view">Save default view</a><br>
-			<small>Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet.</small>
-			<br><br>
-			{{/* TODO: it might be better to load the settings page "inline"
-			here, instead of a settings tab; would also declutter that a bit
-			since we can remove it there. */}}
-			<a href="/settings#tab-dashboard">Configure dashboard layout</a><br>
-			<small>Change what to display on the dashboard and in what order.</small>
+	{{if .User.ID}}
+		<div id="dash-saved-views">
+			<span>⚙&#xfe0f;</span>
+			<div>
+				<a href="#" class="save-current-view">Save default view</a><br>
+				<small>Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet.</small>
+				<br><br>
+				{{/* TODO: it might be better to load the settings page "inline"
+				here, instead of a settings tab; would also declutter that a bit
+				since we can remove it there. */}}
+				<a href="/settings#tab-dashboard">Configure dashboard layout</a><br>
+				<small>Change what to display on the dashboard and in what order.</small>
+			</div>
 		</div>
-	</div>
+	{{end}}
 
 	<div id="dash-main">
 		<div>
