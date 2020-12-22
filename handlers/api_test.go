@@ -403,16 +403,8 @@ func TestAPISitesUpdate(t *testing.T) {
 		wantCode     int
 		want         func() goatcounter.Site
 	}{
-		{"POST", `{}`, 200, func() goatcounter.Site {
-			s := stdsite
-			s.Settings.Campaigns = zdb.Strings{} // Gets reset as it's not sent.
-			return s
-		}},
-
-		{"PATCH", `{}`, 200, func() goatcounter.Site {
-			s := stdsite
-			return s
-		}},
+		{"POST", `{}`, 200, func() goatcounter.Site { return stdsite }},
+		{"PATCH", `{}`, 200, func() goatcounter.Site { return stdsite }},
 	}
 
 	perm := goatcounter.APITokenPermissions{SiteCreate: true, SiteRead: true,

@@ -327,6 +327,16 @@ commit;
 	insert into version values('2020-12-21-1-view');
 commit;
 `),
+	"db/migrate/pgsql/2020-12-24-1-user_agent_id_null.sql": []byte(`begin;
+	update sites set settings = jsonb_set(settings, '{collect}', '30', true);
+
+	alter table hits alter column user_agent_id drop not null;
+	alter table hits drop constraint hits_user_agent_id_check;
+	alter table hits add constraint hits_user_agent_id_check check(user_agent_id != 0);
+
+	insert into version values('2020-12-24-1-user_agent_id_null');
+commit;
+`),
 }
 
 var MigrationsSQLite = map[string][]byte{
@@ -788,6 +798,38 @@ commit;
 	update sites set settings = json_set(settings, '$.views',
 		json('[{"name": "default", "period": "week"}]'));
 	insert into version values('2020-12-21-1-view');
+commit;
+`),
+	"db/migrate/sqlite/2020-12-24-1-user_agent_id_null.sql": []byte(`begin;
+	update sites set settings = json_set(settings, '$.collect', json('30'));
+
+	-- alter table hits alter column user_agent_id drop not null;
+	-- alter table hits drop constraint hits_user_agent_id_check;
+	-- alter table hits add constraint hits_user_agent_id_check check(user_agent_id != 0);
+
+	create table hits2 (
+		hit_id         integer        primary key autoincrement,
+		site_id        integer        not null                 check(site_id > 0),
+		path_id        integer        not null                 check(path_id > 0),
+		user_agent_id  integer        null                     check(user_agent_id != 0),
+
+		session        blob           default null,
+		bot            integer        default 0,
+		ref            varchar        not null,
+		ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
+		size           varchar        not null default '',
+		location       varchar        not null default '',
+		first_visit    integer        default 0,
+
+		created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
+	);
+	insert into hits2 (hit_id, site_id, path_id, user_agent_id, session, bot, ref, ref_scheme, size, location, first_visit, created_at)
+		select hit_id, site_id, path_id, user_agent_id, session, bot, ref, ref_scheme, size, location, first_visit, created_at from hits;
+	drop table hits;
+	alter table hits2 rename to hits;
+	create index "hits#site_id#created_at" on hits(site_id, created_at );
+
+	insert into version values('2020-12-24-1-user_agent_id_null');
 commit;
 `),
 }
@@ -13442,8 +13484,9 @@ input.red { border: 1px solid red !important; }
 /* Using display: none means it's ignored by Safary when pressing Enter. */
 button.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
 
-fieldset { margin-bottom: 1em; border: 1px solid #666; }
-legend   { font-weight: bold; }
+fieldset               { margin-bottom: 1em; border: 1px solid #666; }
+legend                 { font-weight: bold; }
+fieldset:target legend { background-color: yellow; }
 
 select#timezone { max-width: 20rem; }
 
@@ -13552,6 +13595,8 @@ tr.target .chart-left { display: block; }
 .hchart .detail      { padding: 0 3em; border-bottom: 1px solid #bbb; }
 .load-detail:hover      { text-decoration: none; background-color: #eee; }
 .load-detail:hover .bar { background-color: #ebb7ef; }
+.hchart .not-collected { text-align: center; padding-bottom: .4em; font-style: italic; }
+
 
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/
@@ -15788,6 +15833,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_dashboard_browsers.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
 	<h2>Browsers</h2>
+	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
@@ -15797,6 +15843,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_dashboard_locations.gohtml": []byte(`<div class="hchart" data-more="/hchart-more?kind=location">
 	<h2>Locations</h2>
+	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
@@ -15911,6 +15958,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_dashboard_sizes.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=size">
 	<h2>Screen size</h2>
+	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
@@ -15920,6 +15968,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_dashboard_systems.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=system" data-more="/hchart-more?kind=system">
 	<h2>Systems</h2>
+	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
@@ -15929,6 +15978,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 `),
 	"tpl/_dashboard_toprefs.gohtml": []byte(`<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
 	<h2>Top referrers</h2>
+	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
@@ -15962,6 +16012,11 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 		</div>
 	</td>
 </tr></tbody>
+`),
+	"tpl/_dashboard_warn_collect.gohtml": []byte(`{{if not .}}
+	<div class="not-collected">Collecting this information is currently <a href="/settings/main#section-collect">disabled in settings</a>.</div>
+{{end}}
+
 `),
 	"tpl/_dashboard_widgets.gohtml": []byte(`<div id="dash-widgets">
 	{{$div := false}}
@@ -16580,7 +16635,7 @@ id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id
 
 {{template "_bottom.gohtml" .}}
 `),
-	"tpl/api.html": []byte(`
+	"tpl/api.html": []byte(`kommentaar: warning: could not process "Widget" (maps are not supported yet)
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16834,7 +16889,7 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 		<div class="endpoint" id="GET-/api/v0/sites">
 			<div class="endpoint-top">
 				<code class="resource"><span class="method">GET</span> /api/v0/sites</code>
-				List the current site and all additional sites.
+				List all sites.
 				<a class="permalink" href="#GET-%2fapi%2fv0%2fsites">§</a>
 			</div>
 			<div class="endpoint-info">
@@ -17094,10 +17149,23 @@ pageview.</p>
 		</div>
 		<h3 id="goatcounter.SiteSettings">goatcounter.SiteSettings <a class="permalink" href="#goatcounter.SiteSettings">§</a></h3>
 		<div class="endpoint model">
-			<p class="info"></p>
+			<p class="info">SiteSettings contains all the user-configurable settings for a site, with
+the exception of the domain and billing settings.
+
+This is stored as JSON in the database.</p>
 			<h4>public <sup>boolean</sup></h4>
 <p></p>
 <h4>allow_counter <sup>boolean</sup></h4>
+<p></p>
+<h4>allow_admin <sup>boolean</sup></h4>
+<p></p>
+<h4>data_retention <sup>integer</sup></h4>
+<p></p>
+<h4>campaigns <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>ignore_ips <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>collect <sup>integer</sup></h4>
 <p></p>
 <h4>twenty_four_hours <sup>boolean</sup></h4>
 <p></p>
@@ -17107,17 +17175,11 @@ pageview.</p>
 <p></p>
 <h4>number_format <sup>string</sup></h4>
 <p></p>
-<h4>data_retention <sup>integer</sup></h4>
-<p></p>
-<h4>ignore_ips <sup>array [type: string]</sup></h4>
-<p></p>
 <h4>timezone <sup></sup></h4>
 <p></p>
-<h4>campaigns <sup>array [type: string]</sup></h4>
+<h4>widgets <sup>array [type: <a href="#goatcounter.Widget">goatcounter.Widget</a>]</sup></h4>
 <p></p>
-<h4>allow_admin <sup>boolean</sup></h4>
-<p></p>
-<h4>limits <sup><a href="#"></a></sup></h4>
+<h4>views <sup>array [type: <a href="#goatcounter.View">goatcounter.View</a>]</sup></h4>
 <p></p>
 
 		</div>
@@ -17145,6 +17207,26 @@ pageview.</p>
 <h4>updated_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p></p>
 
+		</div>
+		<h3 id="goatcounter.View">goatcounter.View <a class="permalink" href="#goatcounter.View">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>name <sup>string</sup></h4>
+<p></p>
+<h4>filter <sup>string</sup></h4>
+<p></p>
+<h4>daily <sup>boolean</sup></h4>
+<p></p>
+<h4>as-text <sup>boolean</sup></h4>
+<p></p>
+<h4>period <sup>string</sup></h4>
+<p>&#34;week&#34;, &#34;week-cur&#34;, or n days: &#34;8&#34;</p>
+
+		</div>
+		<h3 id="goatcounter.Widget">goatcounter.Widget <a class="permalink" href="#goatcounter.Widget">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			
 		</div>
 		<h3 id="handlers.APICountRequest">handlers.APICountRequest <a class="permalink" href="#handlers.APICountRequest">§</a></h3>
 		<div class="endpoint model">
@@ -17260,8 +17342,8 @@ depending on whether daylight savings time is in use at the time instant.</p>
 <p>ID</p>
 <h4>Zone <sup>string</sup></h4>
 <p>Asia/Makassar</p>
-<h4>Abbr <sup>string</sup></h4>
-<p>WITA</p>
+<h4>Abbr <sup>array [type: string]</sup></h4>
+<p>WITA – the correct abbreviation may change depending on the time of year (i.e. CET and CEST, depending on DST).</p>
 <h4>CountryName <sup>string</sup></h4>
 <p>Indonesia</p>
 <h4>Comments <sup>string</sup></h4>
@@ -17312,7 +17394,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 </body>
 </html>
 `),
-	"tpl/api.json": []byte(`{
+	"tpl/api.json": []byte(`kommentaar: warning: could not process "Widget" (maps are not supported yet){
   "swagger": "2.0",
   "info": {
     "title": "GoatCounter",
@@ -17570,7 +17652,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
             }
           }
         },
-        "summary": "List the current site and all additional sites.",
+        "summary": "List all sites.",
         "tags": [
           "sites"
         ]
@@ -17906,6 +17988,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
     },
     "goatcounter.SiteSettings": {
       "title": "SiteSettings",
+      "description": "SiteSettings contains all the user-configurable settings for a site, with\nthe exception of the domain and billing settings.\n\nThis is stored as JSON in the database.",
       "type": "object",
       "properties": {
         "allow_admin": {
@@ -17920,6 +18003,9 @@ depending on whether daylight savings time is in use at the time instant.</p>
             "type": "string"
           }
         },
+        "collect": {
+          "type": "integer"
+        },
         "data_retention": {
           "type": "integer"
         },
@@ -17930,20 +18016,6 @@ depending on whether daylight savings time is in use at the time instant.</p>
           "type": "array",
           "items": {
             "type": "string"
-          }
-        },
-        "limits": {
-          "type": "object",
-          "properties": {
-            "hchart": {
-              "type": "integer"
-            },
-            "page": {
-              "type": "integer"
-            },
-            "ref": {
-              "type": "integer"
-            }
           }
         },
         "number_format": {
@@ -17960,6 +18032,18 @@ depending on whether daylight savings time is in use at the time instant.</p>
         },
         "twenty_four_hours": {
           "type": "boolean"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.View"
+          }
+        },
+        "widgets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.Widget"
+          }
         }
       }
     },
@@ -18012,6 +18096,32 @@ depending on whether daylight savings time is in use at the time instant.</p>
           "readOnly": true
         }
       }
+    },
+    "goatcounter.View": {
+      "title": "View",
+      "type": "object",
+      "properties": {
+        "as-text": {
+          "type": "boolean"
+        },
+        "daily": {
+          "type": "boolean"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "period": {
+          "description": "\"week\", \"week-cur\", or n days: \"8\"",
+          "type": "string"
+        }
+      }
+    },
+    "goatcounter.Widget": {
+      "title": "Widget",
+      "type": "object"
     },
     "handlers.APICountRequest": {
       "title": "APICountRequest",
@@ -18166,8 +18276,11 @@ depending on whether daylight savings time is in use at the time instant.</p>
       "type": "object",
       "properties": {
         "Abbr": {
-          "description": "WITA",
-          "type": "string"
+          "description": "WITA – the correct abbreviation may change depending on the time of year (i.e. CET and CEST, depending on DST).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "Comments": {
           "description": "Borneo (east, south); Sulawesi/Celebes, Bali, Nusa Tengarra; Timor (west)",
@@ -19738,6 +19851,19 @@ incompatibilities will be documented here.</p>
 				header.{{/* <a href="/code#campaigns">Details</a>.
 				Comma-separated; first match takes precedence.*/}}
 			</span>
+		</fieldset>
+
+		<fieldset id="section-collect">
+			<legend>Data collection</legend>
+			<p style="margin-top: 0">If a setting is disabled then there is
+			no way to recover this information after a pageview is recorded,
+			as this won’t be stored.</p>
+
+			<input type="hidden" name="settings.collect[]" value="1">
+			{{range $cf := .Site.Settings.CollectFlags}}
+				<label><input type="checkbox" name="settings.collect[]" value="{{$cf.Flag}}" {{if $.Site.Settings.Collect.Has $cf.Flag}}checked{{end}}>
+					<span style="min-width:5.5em; display:inline-block;">{{$cf.Label}}</span> {{$cf.Help}}</label>
+			{{end}}
 		</fieldset>
 
 		<div class="flex-break"></div>

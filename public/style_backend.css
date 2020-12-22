@@ -99,8 +99,9 @@ input.red { border: 1px solid red !important; }
 /* Using display: none means it's ignored by Safary when pressing Enter. */
 button.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
 
-fieldset { margin-bottom: 1em; border: 1px solid #666; }
-legend   { font-weight: bold; }
+fieldset               { margin-bottom: 1em; border: 1px solid #666; }
+legend                 { font-weight: bold; }
+fieldset:target legend { background-color: yellow; }
 
 select#timezone { max-width: 20rem; }
 
@@ -209,6 +210,8 @@ tr.target .chart-left { display: block; }
 .hchart .detail      { padding: 0 3em; border-bottom: 1px solid #bbb; }
 .load-detail:hover      { text-decoration: none; background-color: #eee; }
 .load-detail:hover .bar { background-color: #ebb7ef; }
+.hchart .not-collected { text-align: center; padding-bottom: .4em; font-style: italic; }
+
 
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/

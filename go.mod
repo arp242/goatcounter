@@ -18,7 +18,8 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.5
-	github.com/monoculum/formam v0.0.0-20200923020755-6f187e4ffe27
+	// https://github.com/monoculum/formam/pull/38
+	github.com/monoculum/formam v0.0.0-20201224092534-2a1a2c48fe6d
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
@@ -41,7 +42,7 @@ require (
 	zgo.at/zli v0.0.0-20201210061107-1204fda2cf4b
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zpack v1.0.2-0.20201215095635-1a4d171dcd00
-	zgo.at/zstd v0.0.0-20201219074540-1bdc62c5acc9
+	zgo.at/zstd v0.0.0-20201224102327-f4ff571ef72b
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a
 )

@@ -16,7 +16,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
-	"zgo.at/tz"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -94,31 +93,8 @@ func (s Site) ClearCache(full bool) {
 
 // Defaults sets fields to default values, unless they're already set.
 func (s *Site) Defaults(ctx context.Context) {
-	// New site: Set default settings.
-	if s.ID == 0 {
-		s.Settings.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
-	}
-
 	if s.State == "" {
 		s.State = StateActive
-	}
-
-	if s.Settings.DateFormat == "" {
-		s.Settings.DateFormat = "2 Jan ’06"
-	}
-	if s.Settings.NumberFormat == 0 {
-		s.Settings.NumberFormat = 0x202f
-	}
-	if s.Settings.Timezone == nil {
-		s.Settings.Timezone = tz.UTC
-	}
-
-	if len(s.Settings.Widgets) == 0 {
-		s.Settings.Widgets = defaultWidgets()
-	}
-
-	if len(s.Settings.Views) == 0 {
-		s.Settings.Views = Views{{Name: "default", Period: "week"}}
 	}
 
 	s.Code = strings.ToLower(s.Code)
@@ -132,6 +108,8 @@ func (s *Site) Defaults(ctx context.Context) {
 	if s.FirstHitAt.IsZero() {
 		s.FirstHitAt = Now()
 	}
+
+	s.Settings.Defaults()
 }
 
 var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)

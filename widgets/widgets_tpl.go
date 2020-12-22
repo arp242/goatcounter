@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
+	"zgo.at/zstd/zint"
 )
 
 func (w Refs) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
@@ -70,6 +71,10 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 	}
 }
 
+func isCol(ctx context.Context, flag zint.Bitflag16) bool {
+	return goatcounter.MustGetSite(ctx).Settings.Collect.Has(flag)
+}
+
 func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_totals.gohtml", struct {
 		Context         context.Context
@@ -88,43 +93,48 @@ func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, int
 	return "_dashboard_toprefs.gohtml", struct {
 		Context         context.Context
 		Err             error
+		IsCollected     bool
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, w.err, shared.AllTotalUniqueUTC, w.TopRefs}
+	}{ctx, w.err, isCol(ctx, goatcounter.CollectReferrer), shared.AllTotalUniqueUTC, w.TopRefs}
 }
 
 func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_browsers.gohtml", struct {
 		Context         context.Context
 		Err             error
+		IsCollected     bool
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, w.err, shared.AllTotalUniqueUTC, w.Browsers}
+	}{ctx, w.err, isCol(ctx, goatcounter.CollectUserAgent), shared.AllTotalUniqueUTC, w.Browsers}
 }
 
 func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_systems.gohtml", struct {
 		Context         context.Context
 		Err             error
+		IsCollected     bool
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, w.err, shared.AllTotalUniqueUTC, w.Systems}
+	}{ctx, w.err, isCol(ctx, goatcounter.CollectUserAgent), shared.AllTotalUniqueUTC, w.Systems}
 }
 
 func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_sizes.gohtml", struct {
 		Context         context.Context
 		Err             error
+		IsCollected     bool
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, w.err, shared.AllTotalUniqueUTC, w.SizeStat}
+	}{ctx, w.err, isCol(ctx, goatcounter.CollectScreenSize), shared.AllTotalUniqueUTC, w.SizeStat}
 }
 
 func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_locations.gohtml", struct {
 		Context         context.Context
 		Err             error
+		IsCollected     bool
 		TotalUniqueHits int
 		Stats           goatcounter.Stats
-	}{ctx, w.err, shared.AllTotalUniqueUTC, w.LocStat}
+	}{ctx, w.err, isCol(ctx, goatcounter.CollectLocation), shared.AllTotalUniqueUTC, w.LocStat}
 }

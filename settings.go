@@ -13,7 +13,20 @@ import (
 	"zgo.at/json"
 	"zgo.at/tz"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
+)
+
+// Settings.Collect values (bitmask)
+// Note: also update CollectFlags() method below.
+const (
+	_                     zint.Bitflag16 = 1 << iota // Skip 1 so we can pass that from tests as "empty".
+	CollectReferrer                                  // 2
+	CollectUserAgent                                 // 4
+	CollectScreenSize                                // 8
+	CollectLocation                                  // 16
+	CollectLocationRegion                            // 32
+	CollectLanguage                                  // 64
 )
 
 type (
@@ -24,12 +37,13 @@ type (
 	SiteSettings struct {
 		// Global site settings.
 
-		Public        bool        `json:"public"`
-		AllowCounter  bool        `json:"allow_counter"`
-		AllowAdmin    bool        `json:"allow_admin"`
-		DataRetention int         `json:"data_retention"`
-		Campaigns     zdb.Strings `json:"campaigns"`
-		IgnoreIPs     zdb.Strings `json:"ignore_ips"`
+		Public        bool           `json:"public"`
+		AllowCounter  bool           `json:"allow_counter"`
+		AllowAdmin    bool           `json:"allow_admin"`
+		DataRetention int            `json:"data_retention"`
+		Campaigns     zdb.Strings    `json:"campaigns"`
+		IgnoreIPs     zdb.Strings    `json:"ignore_ips"`
+		Collect       zint.Bitflag16 `json:"collect"`
 
 		// User preferences.
 
@@ -130,6 +144,73 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 		return json.Unmarshal([]byte(vv), ss)
 	default:
 		panic(fmt.Sprintf("unsupported type: %T", v))
+	}
+}
+
+func (ss *SiteSettings) Defaults() {
+	if ss.DateFormat == "" {
+		ss.DateFormat = "2 Jan ’06"
+	}
+	if ss.NumberFormat == 0 {
+		ss.NumberFormat = 0x202f
+	}
+	if ss.Timezone == nil {
+		ss.Timezone = tz.UTC
+	}
+	if ss.Campaigns == nil {
+		ss.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
+	}
+
+	if len(ss.Widgets) == 0 {
+		ss.Widgets = defaultWidgets()
+	}
+	if len(ss.Views) == 0 {
+		ss.Views = Views{{Name: "default", Period: "week"}}
+	}
+	if ss.Collect == 0 {
+		ss.Collect = CollectReferrer | CollectUserAgent | CollectScreenSize | CollectLocation | CollectLocationRegion
+	}
+}
+
+type CollectFlag struct {
+	Label, Help string
+	Flag        zint.Bitflag16
+}
+
+// CollectFlags returns a list of all flags we know for the Collect settings.
+//func (ss SiteSettings) CollectFlags() []zint.Bitflag8 {
+func (ss SiteSettings) CollectFlags() []CollectFlag {
+	return []CollectFlag{
+		{
+			Label: "Referrer",
+			Help:  "Referrer header and campaign parameters",
+			Flag:  CollectReferrer,
+		},
+		{
+			Label: "User-Agent",
+			Help:  "Browser and OS from User-Agent",
+			Flag:  CollectUserAgent,
+		},
+		{
+			Label: "Size",
+			Help:  "Screen size",
+			Flag:  CollectScreenSize,
+		},
+		{
+			Label: "Country",
+			Help:  "The country name (i.e. Belgium, Indonesia, etc.)",
+			Flag:  CollectLocation,
+		},
+		// {
+		// 	Label: "Region",
+		// 	Help:  "Region (i.e. Texas, Bali, etc.)",
+		// 	Flag:  CollectLocationRegion,
+		// },
+		// {
+		// 	Label: "Language",
+		// 	Help:  "Supported languages from Accept-Language",
+		// 	Flag:  CollectLanguage,
+		// },
 	}
 }
 

@@ -29,9 +29,12 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 			if h.Bot > 0 {
 				continue
 			}
+			if h.UserAgentID == nil {
+				continue
+			}
 
 			if h.BrowserID == 0 {
-				h.BrowserID, _ = getUA(ctx, h.UserAgentID)
+				h.BrowserID, _ = getUA(ctx, *h.UserAgentID)
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
