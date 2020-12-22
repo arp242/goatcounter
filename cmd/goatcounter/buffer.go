@@ -115,6 +115,7 @@ func buffer() (int, error) {
 		bufClient = &http.Client{Timeout: 3 * time.Second}
 	)
 
+	// TODO: this doesn't work on Windows.
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGUSR1)
 	go func() {
