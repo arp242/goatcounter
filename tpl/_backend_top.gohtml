@@ -31,9 +31,9 @@
 						{{- end -}}
 					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
-					<strong id="back"><a href="/settings#tab-sites">←&#xfe0e; Back</a></strong>
+					<strong id="back"><a href="/settings/sites">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
-					<strong id="back"><a href="/settings#tab-purge">←&#xfe0e; Back</a></strong>
+					<strong id="back"><a href="/settings/purge">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/admin/"}}
 					<strong id="back"><a href="/admin">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}

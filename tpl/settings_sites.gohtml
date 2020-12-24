@@ -1,0 +1,49 @@
+{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="sites">Sites</h2>
+
+{{if .Site.Parent}}
+	{{/* TODO: just make this work */}}
+	This site has a parent and can't have additional sites of its own.
+	<a href="{{parent_site .Context .Site.Parent}}/settings/sites">Manage the parent’s sites</a>.
+{{else}}
+	<p>Add GoatCounter to multiple websites by creating new sites. This will
+		have the same plan, users, and logins as the current site, but is
+		otherwise completely separate. The current site’s settings are
+		copied on creation, but are independent afterwards.</p>
+	<p>You can add as many as you want.</p>
+
+	<form method="post" action="/settings/sites/add">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<table class="auto table-left">
+			<thead><tr><th>{{if .GoatcounterCom}}Code{{else}}Domain{{end}}</th><th></th></tr></thead>
+			<tbody>
+				{{range $s := .SubSites}}<tr>
+					{{if $.GoatcounterCom}}
+						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+						<td><a href="/settings/sites/remove/{{$s.ID}}">delete</a></td>
+					{{else}}
+						<td><a href="{{$s.URL}}">{{$s.URL}}</a></td>
+						<td><a href="/settings/sites/remove/{{$s.ID}}">delete</a></td>
+					{{end}}
+				</tr>{{end}}
+
+				<tr>
+					<td>
+						{{if $.GoatcounterCom}}
+							<input type="text" id="code" name="code" placeholder="Code"><br>
+							<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
+						{{else}}
+							<input type="text" id="cname" name="cname" placeholder="Domain"><br>
+							<span class="help">Domain for the new site.</span>
+						{{end}}
+					</td>
+					<td><button type="submit">Add new</button></td>
+				</tr>
+		</tbody></table>
+	</form>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

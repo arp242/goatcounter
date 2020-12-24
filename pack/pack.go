@@ -12331,9 +12331,9 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 		TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
 
-		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
-			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
-			bind_scale, copy_pre, widget_settings, saved_views,
+		;[report_errors, dashboard, period_select, tooltip, billing_subscribe,
+			setup_datepicker, filter_pages, add_ip, fill_tz, bind_scale,
+			copy_pre, widget_settings, saved_views,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -12390,7 +12390,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:    '/save-view',
+					url:    '/settings/view',
 					method: 'POST',
 					data: {
 						csrf:      CSRF,
@@ -12525,7 +12525,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 			e.preventDefault()
 
 			jQuery.ajax({
-				url:     '/ip',
+				url:     '/settings/main/ip',
 				success: function(data) {
 					var input   = $('[name="settings.ignore_ips"]'),
 						current = input.val().split(',').
@@ -12790,56 +12790,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 					},
 				})
 			})
-		})
-	}
-
-	// Set up the tabbed navigation in the settings.
-	var settings_tabs = function() {
-		var nav = $('.tab-nav');
-		if (!nav.length)
-			return;
-
-		var tabs    = '',
-			active  = location.hash.substr(5) || $('.tab-page.active h2').attr('id') || 'setting',
-			tab     = $('#' + active),
-			section = $('#section-' + active),
-			valid   = !!(tab.length || section.length)
-		// Link to a specific section for highlighting: set correct tab page.
-		if (!tab.length && section.length && location.hash.length > 2)
-			active = section.closest('.tab-page').find('h2').attr('id')
-
-		$('.tab-page.active').removeClass('active')
-		$('.page > div').each(function(i, elem) {
-			var h2 = $(elem).find('h2')
-			if (!h2.length)
-				return
-
-			var klass = ''
-			// Only hide stuff if it's a tab we know about, to prevent nothing
-			// being displayed.
-			if (valid)
-				if (h2.attr('id') !== active)
-					$(elem).css('display', 'none')
-				else
-					klass = 'active'
-
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>'
-		})
-		nav.html(tabs)
-		nav.on('click', 'a', function() {
-			nav.find('a').removeClass('active')
-			$(this).addClass('active')
-		})
-
-		$(window).on('hashchange', function() {
-			if (location.hash === '')
-				return
-
-			var tab = $('#' + location.hash.substr(5)).parent()
-			if (!tab.length)
-				return
-			$('.page > div').css('display', 'none')
-			tab.css('display', 'block')
 		})
 	}
 
@@ -15062,7 +15012,7 @@ image. The easiest way to do this is from the JavaScript integration:</p>
 
 {{if .Site.ID}}
 <strong>Note</strong>: you will need to enable “Allow adding visitor counts on your website”
-in your <a href="/settings#tab-setting">site settings</a>; this defaults to
+in your <a href="/settings/main">site settings</a>; this defaults to
 <em>off</em> to prevent accidental unintentional leaking of data.
 {{else}}
 <strong>Note</strong>: you will need to enable “Allow adding visitor counts on your website”
@@ -15748,9 +15698,9 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 						{{- end -}}
 					{{- end -}}
 				{{else if has_prefix .Path "/remove/"}}
-					<strong id="back"><a href="/settings#tab-sites">←&#xfe0e; Back</a></strong>
+					<strong id="back"><a href="/settings/sites">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/purge"}}
-					<strong id="back"><a href="/settings#tab-purge">←&#xfe0e; Back</a></strong>
+					<strong id="back"><a href="/settings/purge">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/admin/"}}
 					<strong id="back"><a href="/admin">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
@@ -16109,6 +16059,17 @@ Martin
 	<a href="https://www.goatcounter.com/contact">Contact</a> if you need more pageviews or want a privately installed hosted option.<br>
 	<a href="https://www.goatcounter.com/help#billing">Pricing FAQ</a>
 </div>
+`),
+	"tpl/_settings_nav.gohtml": []byte(`
+<nav class="tab-nav">
+	<a class="{{if eq .Path "/settings/main"}}active{{end}}"      href="/settings/main">Settings</a>
+	<a class="{{if eq .Path "/settings/dashboard"}}active{{end}}" href="/settings/dashboard">Dashboard</a>
+	<a class="{{if eq .Path "/settings/sites"}}active{{end}}"     href="/settings/sites">Sites</a>
+	<a class="{{if eq .Path "/settings/purge"}}active{{end}}"     href="/settings/purge">Purge</a>
+	<a class="{{if eq .Path "/settings/export"}}active{{end}}"    href="/settings/export">Export/Import</a>
+	<a class="{{if eq .Path "/settings/auth"}}active{{end}}"      href="/settings/auth">Password, MFA, API</a>
+	<a class="{{if eq .Path "/settings/delete"}}active{{end}}"    href="/settings/delete">Delete account</a>
+</nav>
 `),
 	"tpl/_top.gohtml": []byte(`<!DOCTYPE html>
 <html lang="en">
@@ -18253,624 +18214,6 @@ depending on whether daylight savings time is in use at the time instant.</p>
 
 {{template "_backend_bottom.gohtml" .}}
 `),
-	"tpl/backend_purge.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-{{if eq (len .List) 0}}
-	<p>Nothing matches <code>{{.PurgePath}}</code>.</p>
-{{else}}
-	<p>The following paths match <code>{{.PurgePath}}</code>:</p>
-	<table>
-		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th><th>Title</th></tr></thead></thead>
-		<tbody>
-			{{range $s := .List}}
-				<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
-			{{end}}
-		</tbody>
-	</table>
-
-	<form method="post">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<input type="hidden" name="paths" value="{{range $s := .List}}{{$s.PathID}},{{end}}">
-		<button>Yes, purge them all!</button>
-		<strong>This is a destructive operation, and cannot be undone!</strong>
-	</form>
-{{end}}
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/backend_remove.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<p>Are you sure you want to remove the site
-	<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>?<br>
-	This will <strong>remove all associated data</strong>.
-</p>
-{{if .GoatcounterCom}}
-<p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
-	something else, like merge it in to the parent site, or decouple it from the
-	parent site.</p>
-{{end}}
-
-<form method="post">
-	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<button>Yes, delete everything</button>
-</form>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/backend_settings.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<nav class="tab-nav"></nav>
-
-<div class="tab-page{{if eq .LoadTab "setting"}} active{{end}}">
-	<h2 id="setting">Settings</h2>
-	<div class="form-wrap">
-		<form method="post" action="/save-settings" class="vertical">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-			<fieldset id="section-site">
-				<legend>Site settings</legend>
-				<label for="link_domain">Your site</label>
-				<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
-				{{validate "site.link_domain" .Validate}}
-				<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
-
-				<label for="user.email">Your email</label>
-				<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
-				{{validate "user.email" .Validate}}
-				<span>You will need to re-verify the new address if you change it.</span>
-
-				{{if .GoatcounterCom}}
-					<label>{{checkbox .Site.Settings.AllowAdmin "settings.allow_admin"}}
-						Allow admin access</label>
-					<span>Normally administrators can’t “log in” to your site, but
-						if this is enabled they can. You may be asked to enable this
-						for support requests.</span>
-				{{end}}
-
-				<label>{{checkbox .Site.Settings.Public "settings.public"}}
-					Make statistics publicly viewable</label>
-				<span>Anyone can view the statistics without logging in.</span>
-
-				<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
-					Allow adding visitor counts on your website</label>
-				<span>See <a href="/code#visitor-counter">the documentation</a> for details on how to use.</span>
-			</fieldset>
-
-			<fieldset id="section-domain">
-				<legend>Domain settings</legend>
-
-				{{if .GoatcounterCom}}
-					<label for="code">Code</label>
-					<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
-					<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.
-					<a href="/settings/change-code">Change</a>.</span>
-				{{end}}
-
-				{{if .GoatcounterCom}}
-					<label for="cname">Custom domain</label>
-					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
-						{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
-					<span>Custom domain, e.g. <em>“stats.example.com”</em>.
-						{{if not (.Site.PlanCustomDomain .Context)}}
-							Requires Personal Plus or Business plan (you’re
-							on the {{.Site.Plan}} plan; see
-							<a href="/billing">billing</a>).
-						{{else}}
-							{{if .Site.CnameSetupAt}}
-								<br>Domain verified and set up (note: it may take up to an hour for the certificate to work).
-							{{else if .Site.Cname}}
-								<br><span style="color: red;">Not yet verified</span>; set a CNAME record to
-								<code>{{.Site.Code}}.{{.Domain}}</code>.
-								<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
-								Verification runs every 2 hours.
-							{{else}}
-								Set a CNAME record to
-								<code>{{.Site.Code}}.{{.Domain}}</code>.
-								<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
-							{{end}}
-						{{end}}</span>
-				{{else}}
-					<label for="cname">GoatCounter domain</label>
-					<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-					<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
-				{{end}}
-			</fieldset>
-
-			{{/*
-			<fieldset id="section-user-pref">
-				<legend>User info and preferences</legend>
-			</fieldset>
-			*/}}
-
-			<fieldset id="section-l10n">
-				<legend>Localisation preferences</legend>
-
-				<label for="date_format">Date format</label>
-				<select name="settings.date_format" id="date_format">
-					<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-					<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-					<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-					<option {{option_value .Site.Settings.DateFormat "2 Jan ’06"}}>Short text (2 Jan '06)</option>
-					<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
-				</select>
-
-				<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-					24-hour clock (13:00)</label>
-
-				<label>{{checkbox .Site.Settings.SundayStartsWeek "settings.sunday_starts_week"}}
-					Week starts on Sunday</label>
-
-				<label for="number_format">Thousands separator</label>
-				<select name="settings.number_format" id="number_format">
-					<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
-					<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
-				</select>
-				{{validate "site.settings.number_format" .Validate}}
-
-				<label for="timezone">Timezone</label>
-				<select name="settings.timezone" id="timezone">
-					<option {{option_value $.Site.Settings.Timezone.String ".UTC"}}>UTC</option>
-					{{range $tz := .Timezones}}<option {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
-					{{end}}
-				</select>
-				{{validate "site.settings.timezone" .Validate}}
-				<span><a href="#_" id="set-local-tz">Set from browser</a></span>
-			</fieldset>
-
-			<fieldset id="section-tracking">
-				<legend>Tracking</legend>
-
-				<label for="data_retention">Data retention in days</label>
-				<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
-				{{validate "site.settings.data_retention" .Validate}}
-				<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
-
-				<label>Ignore IPs</label>
-				<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
-				{{validate "site.settings.ignore_ips" .Validate}}
-				<span>Never count requests coming from these IP addresses.
-					Comma-separated. Only supports exact matches.
-					<a href="#_" id="add-ip">Add your current IP</a>.
-					{{if .Site.LinkDomain}}<br>
-					Alternatively, <a href="http://{{.Site.LinkDomain}}#toggle-goatcounter">disable for this browser</a> (click again to enable).{{end}}
-				</span>
-
-				<label>Campaign parameters</label>
-				<input type="text" name="settings.campaigns" value="{{.Site.Settings.Campaigns}}">
-				{{validate "site.settings.campaigns" .Validate}}
-				<span>
-					List of parameters to count as ‘campaigns’; if set then the
-					value will be set as the referrer, overriding any Referer
-					header.{{/* <a href="/code#campaigns">Details</a>.
-					Comma-separated; first match takes precedence.*/}}
-				</span>
-			</fieldset>
-
-			<div class="flex-break"></div>
-			<button type="submit">Save</button>
-		</form>
-
-		{{if has_errors .Validate}}
-			<div class="flash flash-e"
-				style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
-			Additional errors:{{.Validate.HTML}}</div>
-		{{end}}
-	</div>
-</div>
-
-<script crossorigin="anonymous" src="{{.Static}}/dragula.js?v={{.Version}}"></script>
-<div class="tab-page{{if eq .LoadTab "dashboard"}} active{{end}}">
-	<h2 id="dashboard">Dashboard</h2>
-
-	<form method="post" action="/save-widgets" id="widget-settings">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<input type="hidden" name="reset" value="">
-
-		{{range $i, $w := .Widgets}}
-			<div class="widget" id="widget-{{$w.Name}}">
-				<span class="drag-handle" title="Drag to reorder"></span>
-				<input type="hidden" name="widgets.{{$w.Name}}.index" value="{{$i}}" class="index">
-				<label class="main">
-					<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.On $w.Name}}checked{{end}}>
-					<strong>{{$w.Label}}</strong>
-				</label>
-				<input type="hidden" name="widgets.{{$w.Name}}.on" value="off">
-
-				<div class="widget-settings">
-					{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
-						{{ $id := (print "widgets_" $w.Name "_s_" $k) }}
-						{{ $n  := (print "widgets." $w.Name ".s." $k) }}
-						{{if eq $v.Type "checkbox"}}
-							<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
-						{{else}}
-							<label for="{{$id}}">{{$v.Label}}</label>
-							<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}">
-						{{end}}
-						<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
-						{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}
-						<br>
-					{{end}}
-				</div>
-			</div>
-		{{end}}
-		<div class="widget-save">
-			<button type="save">Save</button>
-			<button class="widgets-reset">Reset to defaults</button>
-		</div>
-	</form>
-</div>
-
-<div class="tab-page{{if eq .LoadTab "sites"}} active{{end}}">
-	<h2 id="sites">Sites</h2>
-	{{if .Site.Parent}}
-		{{/* TODO: just make this work */}}
-		This site has a parent and can't have additional sites of its own.
-		<a href="{{parent_site .Context .Site.Parent}}/settings#tab-sites">Manage the parent’s sites</a>.
-	{{else}}
-		<p>Add GoatCounter to multiple websites by creating new sites. This will
-			have the same plan, users, and logins as the current site, but is
-			otherwise completely separate. The current site’s settings are
-			copied on creation, but are independent afterwards.</p>
-		<p>You can add as many as you want.</p>
-
-		<form method="post" action="/add">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-			<table class="auto table-left">
-				<thead><tr><th>{{if .GoatcounterCom}}Code{{else}}Domain{{end}}</th><th></th></tr></thead>
-				<tbody>
-					{{range $s := .SubSites}}<tr>
-						{{if $.GoatcounterCom}}
-							<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-							<td><a href="/remove/{{$s.ID}}">delete</a></td>
-						{{else}}
-							<td><a href="{{$s.URL}}">{{$s.URL}}</a></td>
-							<td><a href="/remove/{{$s.ID}}">delete</a></td>
-						{{end}}
-					</tr>{{end}}
-
-					<tr>
-						<td>
-							{{if $.GoatcounterCom}}
-								<input type="text" id="code" name="code" placeholder="Code"><br>
-								<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
-							{{else}}
-								<input type="text" id="cname" name="cname" placeholder="Domain"><br>
-								<span class="help">Domain for the new site.</span>
-							{{end}}
-						</td>
-						<td><button type="submit">Add new</button></td>
-					</tr>
-			</tbody></table>
-		</form>
-	{{end}}
-</div>
-
-<div class="tab-page{{if eq .LoadTab "purge"}} active{{end}}">
-	<h2 id="purge">Purge</h2>
-	<p>Remove all instances of a page.</p>
-
-	<p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
-		<code>/page%.html</code> matches everything starting with <code>/page</code> and
-		ending with <code>.html</code>. <code>_</code> matches any character; e.g.
-		<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
-		<code>\%</code> and <code>\_</code> for the literal characters without special
-		meaning.</p>
-
-	<form method="get" action="/purge">
-		<input type="text" name="path" placeholder="Path" required autocomplete="off">
-		<button type="submit">Purge</button>
-		<span>You will see a preview of matches before anything is deleted</span><br>
-		<label><input type="checkbox" name="match-title"> Match title as well</label>
-	</form>
-</div>
-
-<div class="tab-page{{if eq .LoadTab "export"}} active{{end}}">
-	<h2 id="export">Export/Import</h2>
-
-	<div class="flex-form">
-		<form method="post" action="/export" class="vertical">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-			<fieldset>
-				<legend>Export</legend>
-				<p>Start the process and email you a download link once it’s
-				done. You can only do this once per hour and will override any
-				previous backups you may have.</p>
-
-				<p>This includes all pageviews, including those marked as "bot", which
-				aren't shown in the overview.</p>
-
-				<label for="startFrom">Pagination cursor</label>
-				<input type="number" id="startFrom" name="startFrom">
-				<span>There will be a ‘pagination cursor’ in the email, if you fill this
-					in here it will export only pageviews that were recorded
-					after the previous export.</span><br><br>
-
-				<button type="submit">Start export</button>
-			</fieldset>
-		</form>
-
-		<form method="post" action="/import" enctype="multipart/form-data" class="vertical">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-			<fieldset>
-				<legend>Import</legend>
-
-				<label for="file">CSV file; may be compressed with gzip</label>
-				<input type="file" name="csv" required accept=".csv,.csv.gz">
-
-				<label><input type="checkbox" name="replace"> Clear all existing pageviews.</label>
-				<br>
-
-				<button type="submit">Start import</button>
-			</fieldset>
-		</form>
-	</div>
-
-	<hr>
-
-	<h3>CSV format</h3>
-	<p>The first line is a header with the field names. The fields, in order, are:</p>
-	<table class="table-left">
-		<tr><th>2,Path</th><td>Path name (e.g. <code>/a.html</code>).
-			This also doubles as the event name. This header is prefixed
-			with the version export format (see versioning below).</td></tr>
-		<tr><th>Title</th><td>Page title that was sent.</td></tr>
-		<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
-		<tr><th>User-Agent</th><td><code>User-Agent</code> header.</td></tr>
-		<tr><th>Browser</th><td>Browser name and version.</td></tr>
-		<tr><th>System</th><td>System name and version.</td></tr>
-		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
-		<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
-			not, or one of the
-			<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
-			constants if it is.</td></tr>
-		<tr><th>Referrer</th><td>Referrer data.</td></tr>
-		<tr><th>Referrer scheme</th><td>
-				<code>h</code> – HTTP; an URL;<br>
-				<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
-				add a link to the specific story, so are just recorded as “Hacker News”;<br>
-				<code>c</code> – Campaign; text string from a campaign parameter;<br>
-				<code>o</code> – Other (e.g. Android apps).
-			</td></tr>
-		<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
-		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
-		<tr><th>FirstVisit</th><td>First visit in this session?</td>
-		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
-	</table>
-
-	<h3>Versioning</h3>
-	<p>The format of the CSV file may change in the future; the version of the
-	export file is recorded at the start of the header as a number.</p>
-
-	<p>It’s <strong>strongly recommended</strong> to check this number if you're
-	using a script to import/sync data and error out if it changes. Any future
-	incompatibilities will be documented here.</p>
-
-
-	<details>
-		<summary>Version 1 documentation</summary>
-
-		<p>The first line is a header with the field names. The fields, in order, are:</p>
-		<table class="table-left">
-			<tr><th>1,Path</th><td>Path name (e.g. <code>/a.html</code>).
-				This also doubles as the event name. This header is prefixed
-				with the version export format (see versioning below).</td></tr>
-			<tr><th>Title</th><td>Page title that was sent.</td></tr>
-			<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
-			<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
-				not, or one of the
-				<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
-				constants if it is.</td></tr>
-			<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
-			<tr><th>FirstVisit</th><td>First visit in this session?</td>
-			<tr><th>Referrer</th><td>Referrer data.</td></tr>
-			<tr><th>Referrer scheme</th><td>
-					<code>h</code> – HTTP; an URL;<br>
-					<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
-					add a link to the specific story, so are just recorded as “Hacker News”;<br>
-					<code>c</code> – Campaign; text string from a campaign parameter;<br>
-					<code>o</code> – Other (e.g. Android apps).
-				</td></tr>
-			<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
-			<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
-			<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
-			<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
-		</table>
-	</details>
-</div>
-
-<div class="tab-page{{if eq .LoadTab "auth"}} active{{end}}">
-	<h2 id="auth">Password, MFA, API</h2>
-
-	<div class="flex-form">
-		<form method="post" action="/user/change-password" class="vertical">
-			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-			<fieldset>
-				<legend>Change password</legend>
-
-				{{if .User.Password}}
-					<label for="c_password">Current password</label>
-					<input type="password" name="c_password" id="c_password" required
-						autocomplete="current-password"><br>
-				{{end}}
-
-				<label for="password">New password</label>
-				<input type="password" name="password" id="password" required
-					autocomplete="new-password"><br>
-
-				<label for="password2">New password (confirm)</label>
-				<input type="password" name="password2" id="password2" required
-					autocomplete="new-password"><br>
-
-				<button>Change password</button>
-			</fieldset>
-		</form>
-
-		{{if .User.TOTPEnabled}}
-			<form method="post" action="/user/disable-totp" class="vertical">
-				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-				<fieldset>
-					<legend>Multi-factor authentication</legend>
-
-					<p>MFA is currently enabled for this account.</p>
-
-					<button type="submit">Disable MFA</button>
-				</fieldset>
-			</form>
-		{{else}}
-			<form method="post" action="/user/enable-totp">
-				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-				<fieldset>
-					<legend>Multi-factor authentication</legend>
-					<p>Enable TOTP-based multi-factor authentication by scanning the
-					code in your authenticator app or entering the secret
-					manually.</p>
-
-					<div style="display: flex; justify-content: space-between">
-						{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
-						<div>Secret:<br>{{ .User.TOTPSecret | base32 }}</div>
-					</div>
-
-					<label for="totp_token">Verification token: </label>
-					<input type="text" name="totp_token" id="totp_token" required
-						autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
-					<button type="submit">Enable MFA</button>
-				</fieldset>
-			</form>
-		{{end}}
-	</div>
-	<br>
-
-		<fieldset>
-			<legend>API tokens</legend>
-
-			<a href="https://www.goatcounter.com/api">API documentation</a>
-			<table class="auto table-left">
-				<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
-
-				<tbody>
-					{{range $t := .APITokens}}<tr>
-						<td>{{$t.Name}}</td>
-						<td>
-							{{if $t.Permissions.Count}}Record pageviews{{end}}
-							{{if $t.Permissions.Export}}Export{{end}}
-							{{if $t.Permissions.SiteRead}}Read sites{{end}}
-							{{if $t.Permissions.SiteCreate}}Create sites{{end}}
-							{{if $t.Permissions.SiteUpdate}}Update sites{{end}}
-						</td>
-						<td>{{$t.Token}}</td>
-						<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
-
-						<td>
-							<form method="post" action="/user/api-token/remove/{{$t.ID}}">
-								<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-
-								<button class="link">delete</button>
-							</form>
-						</td>
-					</tr>{{end}}
-
-					<tr>
-						<form method="post" action="/user/api-token">
-							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-
-							<td>
-								<input type="text" id="name" name="name" placeholder="Name">
-							</td>
-							<td>
-								<label title="Record pageviews with /api/v0/count">
-									<input type="checkbox" name="permissions.count">Record pageviews</label><br>
-								<label title="Export data with /api/v0/export">
-									<input type="checkbox" name="permissions.export">Export</label><br>
-								<label><input type="checkbox" name="permissions.site_read">Read sites</label><br>
-								<label><input type="checkbox" name="permissions.site_create">Create sites</label><br>
-								<label><input type="checkbox" name="permissions.site_update">Update sites</label>
-							</td>
-							<td><button type="submit">Add new</button></td>
-						</form>
-					</tr>
-				</tbody>
-			</table>
-		</fieldset>
-	</form>
-</div>
-
-<div class="tab-page{{if eq .LoadTab "delete"}} active{{end}}">
-	<h2 id="delete">Delete {{if or .Site.Parent (not .GoatcounterCom)}}site{{else}}account{{end}}</h2>
-	{{if .Site.Parent}}
-		<p>Note this site has a parent
-			(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
-			this will delete only this subsite, and not the parent.</p>
-	{{end}}
-
-	<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be
-		marked as deleted, and will no longer be accessible. All data will
-		be removed after 7 days.</p>
-
-	<form method="post" action="/delete" class="form-max-width">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-		{{if and (not .Site.Parent) .GoatcounterCom}}
-			<label for="reason">It would be appreciated if you could let me know
-				if there's anything in particular you're missing in GoatCounter,
-				or any other reasons you have for wanting to delete your
-				account. This is entirely optional.</label><br>
-			<textarea id="reason" name="reason" placeholder="Optional reason for deletion">{{index .Delete "Reason"}}</textarea><br><br>
-
-			<label>{{checkbox (index .Delete "ContactMe") "contact_me"}} It’s okay to follow up</label><br>
-			<div style="max-width: 40em; color: #333;">I might contact you
-				with some follow-up questions or commentary if you leave
-				this checked. I won’t try to convince you to stay (I’m not a
-				telecom), but I might ask a question or two, or outline
-				future plans if you’re missing a particular
-				feature.</div><br>
-		{{end}}
-
-		<button type="submit">Delete site</button> (no confirmation)
-	</form>
-	{{if .GoatcounterCom}}
-		<p><a href="/contact">Contact</a> within 7 days if you changed your mind and want to recover your data.</p>
-	{{else}}
-		<p>Note: the site will be ‘soft-deleted’ and the site (and all data) will be permanently deleted after 7 days.</p>
-	{{end}}
-</div>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
-	"tpl/backend_settings_code.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
-
-<h1>Change site code</h1>
-<p>Change your site code and login domain.</p>
-
-<p><strong>WARNING:</strong> this will take effect
-<strong>immediately</strong> and the old code can be registered again by
-anyone; if you’re already using it on a site then change it as soon as
-possible, or temporarily add two integration codes (with the old and new
-code) to prevent the loss of any pageviews.</p>
-
-<p>
-Current code: <code>{{.Site.Code}}</code> ({{.Site.URL}})
-</p>
-
-<form method="post">
-	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<label for="code">New code</label>
-	<input type="text" name="code" id="code" value="{{.Site.Code}}">
-
-	<button>Change</button>
-	<strong>Will take effect immediately</strong>
-</form>
-
-{{template "_backend_bottom.gohtml" .}}
-`),
 	"tpl/backend_updates.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
 
 <h1>Updates</h1>
@@ -19087,7 +18430,7 @@ processed by Stripe (you will need a Credit Card).</p>
 				{{/* TODO: it might be better to load the settings page "inline"
 				here, instead of a settings tab; would also declutter that a bit
 				since we can remove it there. */}}
-				<a href="/settings#tab-dashboard">Configure dashboard layout</a><br>
+				<a href="/settings/dashboard">Configure dashboard layout</a><br>
 				<small>Change what to display on the dashboard and in what order.</small>
 			</div>
 		</div>
@@ -19886,6 +19229,647 @@ information.</p>
 	will be sent to the email on file for your account.</p>
 
 {{template "_bottom.gohtml" .}}
+`),
+	"tpl/settings_auth.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="auth">Password, MFA, API</h2>
+
+<div class="flex-form">
+	<form method="post" action="/user/change-password" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset>
+			<legend>Change password</legend>
+
+			{{if .User.Password}}
+				<label for="c_password">Current password</label>
+				<input type="password" name="c_password" id="c_password" required
+					autocomplete="current-password"><br>
+			{{end}}
+
+			<label for="password">New password</label>
+			<input type="password" name="password" id="password" required
+				autocomplete="new-password"><br>
+
+			<label for="password2">New password (confirm)</label>
+			<input type="password" name="password2" id="password2" required
+				autocomplete="new-password"><br>
+
+			<button>Change password</button>
+		</fieldset>
+	</form>
+
+	{{if .User.TOTPEnabled}}
+		<form method="post" action="/user/disable-totp" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+				<p>MFA is currently enabled for this account.</p>
+				<button type="submit">Disable MFA</button>
+			</fieldset>
+		</form>
+	{{else}}
+		<form method="post" action="/user/enable-totp">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+				<p>Enable TOTP-based multi-factor authentication by scanning the
+				code in your authenticator app or entering the secret
+				manually.</p>
+
+				<div style="display: flex; justify-content: space-between">
+					{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
+					<div>Secret:<br>{{ .User.TOTPSecret | base32 }}</div>
+				</div>
+
+				<label for="totp_token">Verification token: </label>
+				<input type="text" name="totp_token" id="totp_token" required
+					autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
+				<button type="submit">Enable MFA</button>
+			</fieldset>
+		</form>
+	{{end}}
+</div>
+<br>
+
+<fieldset>
+	<legend>API tokens</legend>
+
+	<a href="https://www.goatcounter.com/api">API documentation</a>
+	<table class="auto table-left">
+		<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
+
+		<tbody>
+			{{range $t := .APITokens}}<tr>
+				<td>{{$t.Name}}</td>
+				<td>
+					{{if $t.Permissions.Count}}Record pageviews{{end}}
+					{{if $t.Permissions.Export}}Export{{end}}
+					{{if $t.Permissions.SiteRead}}Read sites{{end}}
+					{{if $t.Permissions.SiteCreate}}Create sites{{end}}
+					{{if $t.Permissions.SiteUpdate}}Update sites{{end}}
+				</td>
+				<td>{{$t.Token}}</td>
+				<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
+
+				<td>
+					<form method="post" action="/user/api-token/remove/{{$t.ID}}">
+						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+						<button class="link">delete</button>
+					</form>
+				</td>
+			</tr>{{end}}
+
+			<tr>
+				<form method="post" action="/user/api-token">
+					<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+					<td>
+						<input type="text" id="name" name="name" placeholder="Name">
+					</td>
+					<td>
+						<label title="Record pageviews with /api/v0/count">
+							<input type="checkbox" name="permissions.count">Record pageviews</label><br>
+						<label title="Export data with /api/v0/export">
+							<input type="checkbox" name="permissions.export">Export</label><br>
+						<label><input type="checkbox" name="permissions.site_read">Read sites</label><br>
+						<label><input type="checkbox" name="permissions.site_create">Create sites</label><br>
+						<label><input type="checkbox" name="permissions.site_update">Update sites</label>
+					</td>
+					<td><button type="submit">Add new</button></td>
+				</form>
+			</tr>
+		</tbody>
+	</table>
+</fieldset>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_changecode.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<h1>Change site code</h1>
+<p>Change your site code and login domain.</p>
+
+<p><strong>WARNING:</strong> this will take effect
+<strong>immediately</strong> and the old code can be registered again by
+anyone; if you’re already using it on a site then change it as soon as
+possible, or temporarily add two integration codes (with the old and new
+code) to prevent the loss of any pageviews.</p>
+
+<p>
+Current code: <code>{{.Site.Code}}</code> ({{.Site.URL}})
+</p>
+
+<form method="post">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<label for="code">New code</label>
+	<input type="text" name="code" id="code" value="{{.Site.Code}}">
+
+	<button>Change</button>
+	<strong>Will take effect immediately</strong>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_dashboard.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="dashboard">Dashboard</h2>
+
+<script crossorigin="anonymous" src="{{.Static}}/dragula.js?v={{.Version}}"></script>
+<form method="post" action="/settings/widgets" id="widget-settings">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<input type="hidden" name="reset" value="">
+
+	{{range $i, $w := .Widgets}}
+		<div class="widget" id="widget-{{$w.Name}}">
+			<span class="drag-handle" title="Drag to reorder"></span>
+			<input type="hidden" name="widgets.{{$w.Name}}.index" value="{{$i}}" class="index">
+			<label class="main">
+				<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.On $w.Name}}checked{{end}}>
+				<strong>{{$w.Label}}</strong>
+			</label>
+			<input type="hidden" name="widgets.{{$w.Name}}.on" value="off">
+
+			<div class="widget-settings">
+				{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
+					{{ $id := (print "widgets_" $w.Name "_s_" $k) }}
+					{{ $n  := (print "widgets." $w.Name ".s." $k) }}
+					{{if eq $v.Type "checkbox"}}
+						<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
+					{{else}}
+						<label for="{{$id}}">{{$v.Label}}</label>
+						<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}">
+					{{end}}
+					<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
+					{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}
+					<br>
+				{{end}}
+			</div>
+		</div>
+	{{end}}
+	<div class="widget-save">
+		<button type="save">Save</button>
+		<button class="widgets-reset">Reset to defaults</button>
+	</div>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_delete.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="delete">Delete {{if or .Site.Parent (not .GoatcounterCom)}}site{{else}}account{{end}}</h2>
+
+{{if .Site.Parent}}
+	<p>Note this site has a parent
+		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+		this will delete only this subsite, and not the parent.</p>
+{{end}}
+
+<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be
+	marked as deleted, and will no longer be accessible. All data will
+	be removed after 7 days.</p>
+
+<form method="post" action="/settings/delete" class="form-max-width">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	{{if and (not .Site.Parent) .GoatcounterCom}}
+		<label for="reason">It would be appreciated if you could let me know
+			if there's anything in particular you're missing in GoatCounter,
+			or any other reasons you have for wanting to delete your
+			account. This is entirely optional.</label><br>
+		<textarea id="reason" name="reason" placeholder="Optional reason for deletion">{{index .Delete "Reason"}}</textarea><br><br>
+
+		<label>{{checkbox (index .Delete "ContactMe") "contact_me"}} It’s okay to follow up</label><br>
+		<div style="max-width: 40em; color: #333;">I might contact you
+			with some follow-up questions or commentary if you leave
+			this checked. I won’t try to convince you to stay (I’m not a
+			telecom), but I might ask a question or two, or outline
+			future plans if you’re missing a particular
+			feature.</div><br>
+	{{end}}
+
+	<button type="submit">Delete site</button> (no confirmation)
+</form>
+{{if .GoatcounterCom}}
+	<p><a href="/contact">Contact</a> within 7 days if you changed your mind and want to recover your data.</p>
+{{else}}
+	<p>Note: the site will be ‘soft-deleted’ and the site (and all data) will be permanently deleted after 7 days.</p>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_export.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="export">Export/Import</h2>
+
+<div class="flex-form">
+	<form method="post" action="/settings/export" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset>
+			<legend>Export</legend>
+			<p>Start the process and email you a download link once it’s
+			done. You can only do this once per hour and will override any
+			previous backups you may have.</p>
+
+			<p>This includes all pageviews, including those marked as "bot", which
+			aren't shown in the overview.</p>
+
+			<label for="startFrom">Pagination cursor</label>
+			<input type="number" id="startFrom" name="startFrom">
+			<span>There will be a ‘pagination cursor’ in the email, if you fill this
+				in here it will export only pageviews that were recorded
+				after the previous export.</span><br><br>
+
+			<button type="submit">Start export</button>
+		</fieldset>
+	</form>
+
+	<form method="post" action="/settings/import" enctype="multipart/form-data" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset>
+			<legend>Import</legend>
+
+			<label for="file">CSV file; may be compressed with gzip</label>
+			<input type="file" name="csv" required accept=".csv,.csv.gz">
+
+			<label><input type="checkbox" name="replace"> Clear all existing pageviews.</label>
+			<br>
+
+			<button type="submit">Start import</button>
+		</fieldset>
+	</form>
+</div>
+
+<hr>
+
+<h3>CSV format</h3>
+<p>The first line is a header with the field names. The fields, in order, are:</p>
+<table class="table-left">
+	<tr><th>2,Path</th><td>Path name (e.g. <code>/a.html</code>).
+		This also doubles as the event name. This header is prefixed
+		with the version export format (see versioning below).</td></tr>
+	<tr><th>Title</th><td>Page title that was sent.</td></tr>
+	<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
+	<tr><th>User-Agent</th><td><code>User-Agent</code> header.</td></tr>
+	<tr><th>Browser</th><td>Browser name and version.</td></tr>
+	<tr><th>System</th><td>System name and version.</td></tr>
+	<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
+	<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
+		not, or one of the
+		<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
+		constants if it is.</td></tr>
+	<tr><th>Referrer</th><td>Referrer data.</td></tr>
+	<tr><th>Referrer scheme</th><td>
+			<code>h</code> – HTTP; an URL;<br>
+			<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
+			add a link to the specific story, so are just recorded as “Hacker News”;<br>
+			<code>c</code> – Campaign; text string from a campaign parameter;<br>
+			<code>o</code> – Other (e.g. Android apps).
+		</td></tr>
+	<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
+	<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
+	<tr><th>FirstVisit</th><td>First visit in this session?</td>
+	<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
+</table>
+
+<h3>Versioning</h3>
+<p>The format of the CSV file may change in the future; the version of the
+export file is recorded at the start of the header as a number.</p>
+
+<p>It’s <strong>strongly recommended</strong> to check this number if you're
+using a script to import/sync data and error out if it changes. Any future
+incompatibilities will be documented here.</p>
+
+
+<details>
+	<summary>Version 1 documentation</summary>
+
+	<p>The first line is a header with the field names. The fields, in order, are:</p>
+	<table class="table-left">
+		<tr><th>1,Path</th><td>Path name (e.g. <code>/a.html</code>).
+			This also doubles as the event name. This header is prefixed
+			with the version export format (see versioning below).</td></tr>
+		<tr><th>Title</th><td>Page title that was sent.</td></tr>
+		<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
+		<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
+			not, or one of the
+			<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
+			constants if it is.</td></tr>
+		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
+		<tr><th>FirstVisit</th><td>First visit in this session?</td>
+		<tr><th>Referrer</th><td>Referrer data.</td></tr>
+		<tr><th>Referrer scheme</th><td>
+				<code>h</code> – HTTP; an URL;<br>
+				<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
+				add a link to the specific story, so are just recorded as “Hacker News”;<br>
+				<code>c</code> – Campaign; text string from a campaign parameter;<br>
+				<code>o</code> – Other (e.g. Android apps).
+			</td></tr>
+		<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
+		<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
+		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
+		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
+	</table>
+</details>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_main.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="setting">Settings</h2>
+
+<div class="form-wrap">
+	<form method="post" action="/settings/main" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset id="section-site">
+			<legend>Site settings</legend>
+			<label for="link_domain">Your site</label>
+			<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
+			{{validate "site.link_domain" .Validate}}
+			<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
+
+			<label for="user.email">Your email</label>
+			<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
+			{{validate "user.email" .Validate}}
+			<span>You will need to re-verify the new address if you change it.</span>
+
+			{{if .GoatcounterCom}}
+				<label>{{checkbox .Site.Settings.AllowAdmin "settings.allow_admin"}}
+					Allow admin access</label>
+				<span>Normally administrators can’t “log in” to your site, but
+					if this is enabled they can. You may be asked to enable this
+					for support requests.</span>
+			{{end}}
+
+			<label>{{checkbox .Site.Settings.Public "settings.public"}}
+				Make statistics publicly viewable</label>
+			<span>Anyone can view the statistics without logging in.</span>
+
+			<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
+				Allow adding visitor counts on your website</label>
+			<span>See <a href="/code#visitor-counter">the documentation</a> for details on how to use.</span>
+		</fieldset>
+
+		<fieldset id="section-domain">
+			<legend>Domain settings</legend>
+
+			{{if .GoatcounterCom}}
+				<label for="code">Code</label>
+				<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
+				<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.
+				<a href="/settings/change-code">Change</a>.</span>
+			{{end}}
+
+			{{if .GoatcounterCom}}
+				<label for="cname">Custom domain</label>
+				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
+					{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
+				<span>Custom domain, e.g. <em>“stats.example.com”</em>.
+					{{if not (.Site.PlanCustomDomain .Context)}}
+						Requires Personal Plus or Business plan (you’re
+						on the {{.Site.Plan}} plan; see
+						<a href="/billing">billing</a>).
+					{{else}}
+						{{if .Site.CnameSetupAt}}
+							<br>Domain verified and set up (note: it may take up to an hour for the certificate to work).
+						{{else if .Site.Cname}}
+							<br><span style="color: red;">Not yet verified</span>; set a CNAME record to
+							<code>{{.Site.Code}}.{{.Domain}}</code>.
+							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+							Verification runs every 2 hours.
+						{{else}}
+							Set a CNAME record to
+							<code>{{.Site.Code}}.{{.Domain}}</code>.
+							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+						{{end}}
+					{{end}}</span>
+			{{else}}
+				<label for="cname">GoatCounter domain</label>
+				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
+				<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
+			{{end}}
+		</fieldset>
+
+		{{/*
+		<fieldset id="section-user-pref">
+			<legend>User info and preferences</legend>
+		</fieldset>
+		*/}}
+
+		<fieldset id="section-l10n">
+			<legend>Localisation preferences</legend>
+
+			<label for="date_format">Date format</label>
+			<select name="settings.date_format" id="date_format">
+				<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+				<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+				<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+				<option {{option_value .Site.Settings.DateFormat "2 Jan ’06"}}>Short text (2 Jan '06)</option>
+				<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+			</select>
+
+			<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
+				24-hour clock (13:00)</label>
+
+			<label>{{checkbox .Site.Settings.SundayStartsWeek "settings.sunday_starts_week"}}
+				Week starts on Sunday</label>
+
+			<label for="number_format">Thousands separator</label>
+			<select name="settings.number_format" id="number_format">
+				<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
+				<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
+				<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
+				<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
+				<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
+				<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
+			</select>
+			{{validate "site.settings.number_format" .Validate}}
+
+			<label for="timezone">Timezone</label>
+			<select name="settings.timezone" id="timezone">
+				<option {{option_value $.Site.Settings.Timezone.String ".UTC"}}>UTC</option>
+				{{range $tz := .Timezones}}<option {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
+				{{end}}
+			</select>
+			{{validate "site.settings.timezone" .Validate}}
+			<span><a href="#_" id="set-local-tz">Set from browser</a></span>
+		</fieldset>
+
+		<fieldset id="section-tracking">
+			<legend>Tracking</legend>
+
+			<label for="data_retention">Data retention in days</label>
+			<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
+			{{validate "site.settings.data_retention" .Validate}}
+			<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
+
+			<label>Ignore IPs</label>
+			<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
+			{{validate "site.settings.ignore_ips" .Validate}}
+			<span>Never count requests coming from these IP addresses.
+				Comma-separated. Only supports exact matches.
+				<a href="#_" id="add-ip">Add your current IP</a>.
+				{{if .Site.LinkDomain}}<br>
+				Alternatively, <a href="http://{{.Site.LinkDomain}}#toggle-goatcounter">disable for this browser</a> (click again to enable).{{end}}
+			</span>
+
+			<label>Campaign parameters</label>
+			<input type="text" name="settings.campaigns" value="{{.Site.Settings.Campaigns}}">
+			{{validate "site.settings.campaigns" .Validate}}
+			<span>
+				List of parameters to count as ‘campaigns’; if set then the
+				value will be set as the referrer, overriding any Referer
+				header.{{/* <a href="/code#campaigns">Details</a>.
+				Comma-separated; first match takes precedence.*/}}
+			</span>
+		</fieldset>
+
+		<div class="flex-break"></div>
+		<button type="submit">Save</button>
+	</form>
+
+	{{if has_errors .Validate}}
+		<div class="flash flash-e"
+			style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
+		Additional errors:{{.Validate.HTML}}</div>
+	{{end}}
+</div>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_purge.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="purge">Purge</h2>
+
+<p>Remove all instances of a page.</p>
+
+<p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
+	<code>/page%.html</code> matches everything starting with <code>/page</code> and
+	ending with <code>.html</code>. <code>_</code> matches any character; e.g.
+	<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
+	<code>\%</code> and <code>\_</code> for the literal characters without special
+	meaning.</p>
+
+<form method="get" action="/settings/purge/confirm">
+	<input type="text" name="path" placeholder="Path" required autocomplete="off">
+	<button type="submit">Purge</button>
+	<span>You will see a preview of matches before anything is deleted</span><br>
+	<label><input type="checkbox" name="match-title"> Match title as well</label>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_purge_confirm.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{if eq (len .List) 0}}
+	<p>Nothing matches <code>{{.PurgePath}}</code>.</p>
+{{else}}
+	<p>The following paths match <code>{{.PurgePath}}</code>:</p>
+	<table>
+		<thead><tr><th style="width: 10em"># of hits</th><th style="text-align: left">Path</th><th>Title</th></tr></thead></thead>
+		<tbody>
+			{{range $s := .List}}
+				<tr><td>{{nformat $s.Count $.Site}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
+			{{end}}
+		</tbody>
+	</table>
+
+	<form method="post" action="/settings/purge">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<input type="hidden" name="paths" value="{{range $s := .List}}{{$s.PathID}},{{end}}">
+		<button>Yes, purge them all!</button>
+		<strong>This is a destructive operation, and cannot be undone!</strong>
+	</form>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_sites.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="sites">Sites</h2>
+
+{{if .Site.Parent}}
+	{{/* TODO: just make this work */}}
+	This site has a parent and can't have additional sites of its own.
+	<a href="{{parent_site .Context .Site.Parent}}/settings/sites">Manage the parent’s sites</a>.
+{{else}}
+	<p>Add GoatCounter to multiple websites by creating new sites. This will
+		have the same plan, users, and logins as the current site, but is
+		otherwise completely separate. The current site’s settings are
+		copied on creation, but are independent afterwards.</p>
+	<p>You can add as many as you want.</p>
+
+	<form method="post" action="/settings/sites/add">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<table class="auto table-left">
+			<thead><tr><th>{{if .GoatcounterCom}}Code{{else}}Domain{{end}}</th><th></th></tr></thead>
+			<tbody>
+				{{range $s := .SubSites}}<tr>
+					{{if $.GoatcounterCom}}
+						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
+						<td><a href="/settings/sites/remove/{{$s.ID}}">delete</a></td>
+					{{else}}
+						<td><a href="{{$s.URL}}">{{$s.URL}}</a></td>
+						<td><a href="/settings/sites/remove/{{$s.ID}}">delete</a></td>
+					{{end}}
+				</tr>{{end}}
+
+				<tr>
+					<td>
+						{{if $.GoatcounterCom}}
+							<input type="text" id="code" name="code" placeholder="Code"><br>
+							<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.</span>
+						{{else}}
+							<input type="text" id="cname" name="cname" placeholder="Domain"><br>
+							<span class="help">Domain for the new site.</span>
+						{{end}}
+					</td>
+					<td><button type="submit">Add new</button></td>
+				</tr>
+		</tbody></table>
+	</form>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}
+`),
+	"tpl/settings_sites_rm_confirm.gohtml": []byte(`{{template "_backend_top.gohtml" .}}
+
+<p>Are you sure you want to remove the site
+	<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>?<br>
+	This will <strong>remove all associated data</strong>.
+</p>
+{{if .GoatcounterCom}}
+<p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
+	something else, like merge it in to the parent site, or decouple it from the
+	parent site.</p>
+{{end}}
+
+<form method="post">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	<button>Yes, delete everything</button>
+</form>
+
+{{template "_backend_bottom.gohtml" .}}
 `),
 	"tpl/signup.gohtml": []byte(`{{template "_top.gohtml" .}}
 

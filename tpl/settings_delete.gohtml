@@ -1,0 +1,44 @@
+{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="delete">Delete {{if or .Site.Parent (not .GoatcounterCom)}}site{{else}}account{{end}}</h2>
+
+{{if .Site.Parent}}
+	<p>Note this site has a parent
+		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
+		this will delete only this subsite, and not the parent.</p>
+{{end}}
+
+<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be
+	marked as deleted, and will no longer be accessible. All data will
+	be removed after 7 days.</p>
+
+<form method="post" action="/settings/delete" class="form-max-width">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	{{if and (not .Site.Parent) .GoatcounterCom}}
+		<label for="reason">It would be appreciated if you could let me know
+			if there's anything in particular you're missing in GoatCounter,
+			or any other reasons you have for wanting to delete your
+			account. This is entirely optional.</label><br>
+		<textarea id="reason" name="reason" placeholder="Optional reason for deletion">{{index .Delete "Reason"}}</textarea><br><br>
+
+		<label>{{checkbox (index .Delete "ContactMe") "contact_me"}} It’s okay to follow up</label><br>
+		<div style="max-width: 40em; color: #333;">I might contact you
+			with some follow-up questions or commentary if you leave
+			this checked. I won’t try to convince you to stay (I’m not a
+			telecom), but I might ask a question or two, or outline
+			future plans if you’re missing a particular
+			feature.</div><br>
+	{{end}}
+
+	<button type="submit">Delete site</button> (no confirmation)
+</form>
+{{if .GoatcounterCom}}
+	<p><a href="/contact">Contact</a> within 7 days if you changed your mind and want to recover your data.</p>
+{{else}}
+	<p>Note: the site will be ‘soft-deleted’ and the site (and all data) will be permanently deleted after 7 days.</p>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

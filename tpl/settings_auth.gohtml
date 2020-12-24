@@ -1,0 +1,119 @@
+{{template "_backend_top.gohtml" .}}
+
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="auth">Password, MFA, API</h2>
+
+<div class="flex-form">
+	<form method="post" action="/user/change-password" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset>
+			<legend>Change password</legend>
+
+			{{if .User.Password}}
+				<label for="c_password">Current password</label>
+				<input type="password" name="c_password" id="c_password" required
+					autocomplete="current-password"><br>
+			{{end}}
+
+			<label for="password">New password</label>
+			<input type="password" name="password" id="password" required
+				autocomplete="new-password"><br>
+
+			<label for="password2">New password (confirm)</label>
+			<input type="password" name="password2" id="password2" required
+				autocomplete="new-password"><br>
+
+			<button>Change password</button>
+		</fieldset>
+	</form>
+
+	{{if .User.TOTPEnabled}}
+		<form method="post" action="/user/disable-totp" class="vertical">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+				<p>MFA is currently enabled for this account.</p>
+				<button type="submit">Disable MFA</button>
+			</fieldset>
+		</form>
+	{{else}}
+		<form method="post" action="/user/enable-totp">
+			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+			<fieldset>
+				<legend>Multi-factor authentication</legend>
+				<p>Enable TOTP-based multi-factor authentication by scanning the
+				code in your authenticator app or entering the secret
+				manually.</p>
+
+				<div style="display: flex; justify-content: space-between">
+					{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
+					<div>Secret:<br>{{ .User.TOTPSecret | base32 }}</div>
+				</div>
+
+				<label for="totp_token">Verification token: </label>
+				<input type="text" name="totp_token" id="totp_token" required
+					autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
+				<button type="submit">Enable MFA</button>
+			</fieldset>
+		</form>
+	{{end}}
+</div>
+<br>
+
+<fieldset>
+	<legend>API tokens</legend>
+
+	<a href="https://www.goatcounter.com/api">API documentation</a>
+	<table class="auto table-left">
+		<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
+
+		<tbody>
+			{{range $t := .APITokens}}<tr>
+				<td>{{$t.Name}}</td>
+				<td>
+					{{if $t.Permissions.Count}}Record pageviews{{end}}
+					{{if $t.Permissions.Export}}Export{{end}}
+					{{if $t.Permissions.SiteRead}}Read sites{{end}}
+					{{if $t.Permissions.SiteCreate}}Create sites{{end}}
+					{{if $t.Permissions.SiteUpdate}}Update sites{{end}}
+				</td>
+				<td>{{$t.Token}}</td>
+				<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
+
+				<td>
+					<form method="post" action="/user/api-token/remove/{{$t.ID}}">
+						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+						<button class="link">delete</button>
+					</form>
+				</td>
+			</tr>{{end}}
+
+			<tr>
+				<form method="post" action="/user/api-token">
+					<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+					<td>
+						<input type="text" id="name" name="name" placeholder="Name">
+					</td>
+					<td>
+						<label title="Record pageviews with /api/v0/count">
+							<input type="checkbox" name="permissions.count">Record pageviews</label><br>
+						<label title="Export data with /api/v0/export">
+							<input type="checkbox" name="permissions.export">Export</label><br>
+						<label><input type="checkbox" name="permissions.site_read">Read sites</label><br>
+						<label><input type="checkbox" name="permissions.site_create">Create sites</label><br>
+						<label><input type="checkbox" name="permissions.site_update">Update sites</label>
+					</td>
+					<td><button type="submit">Add new</button></td>
+				</form>
+			</tr>
+		</tbody>
+	</table>
+</fieldset>
+
+{{template "_backend_bottom.gohtml" .}}

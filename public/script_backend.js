@@ -16,9 +16,9 @@
 		TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
 
-		;[report_errors, dashboard, period_select, tooltip, settings_tabs,
-			billing_subscribe, setup_datepicker, filter_pages, add_ip, fill_tz,
-			bind_scale, copy_pre, widget_settings, saved_views,
+		;[report_errors, dashboard, period_select, tooltip, billing_subscribe,
+			setup_datepicker, filter_pages, add_ip, fill_tz, bind_scale,
+			copy_pre, widget_settings, saved_views,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -75,7 +75,7 @@
 
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:    '/save-view',
+					url:    '/settings/view',
 					method: 'POST',
 					data: {
 						csrf:      CSRF,
@@ -210,7 +210,7 @@
 			e.preventDefault()
 
 			jQuery.ajax({
-				url:     '/ip',
+				url:     '/settings/main/ip',
 				success: function(data) {
 					var input   = $('[name="settings.ignore_ips"]'),
 						current = input.val().split(',').
@@ -475,56 +475,6 @@
 					},
 				})
 			})
-		})
-	}
-
-	// Set up the tabbed navigation in the settings.
-	var settings_tabs = function() {
-		var nav = $('.tab-nav');
-		if (!nav.length)
-			return;
-
-		var tabs    = '',
-			active  = location.hash.substr(5) || $('.tab-page.active h2').attr('id') || 'setting',
-			tab     = $('#' + active),
-			section = $('#section-' + active),
-			valid   = !!(tab.length || section.length)
-		// Link to a specific section for highlighting: set correct tab page.
-		if (!tab.length && section.length && location.hash.length > 2)
-			active = section.closest('.tab-page').find('h2').attr('id')
-
-		$('.tab-page.active').removeClass('active')
-		$('.page > div').each(function(i, elem) {
-			var h2 = $(elem).find('h2')
-			if (!h2.length)
-				return
-
-			var klass = ''
-			// Only hide stuff if it's a tab we know about, to prevent nothing
-			// being displayed.
-			if (valid)
-				if (h2.attr('id') !== active)
-					$(elem).css('display', 'none')
-				else
-					klass = 'active'
-
-			tabs += '<a class="' + klass + '" href="#tab-' + h2.attr('id') + '">' + h2.text() + '</a>'
-		})
-		nav.html(tabs)
-		nav.on('click', 'a', function() {
-			nav.find('a').removeClass('active')
-			$(this).addClass('active')
-		})
-
-		$(window).on('hashchange', function() {
-			if (location.hash === '')
-				return
-
-			var tab = $('#' + location.hash.substr(5)).parent()
-			if (!tab.length)
-				return
-			$('.page > div').css('display', 'none')
-			tab.css('display', 'block')
 		})
 	}
 
