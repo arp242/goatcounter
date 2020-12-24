@@ -28,6 +28,7 @@ import (
 )
 
 func init() {
+	tplfunc.Add("join", strings.Join) // TODO: can be in ztpl
 	tplfunc.Add("base32", base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString)
 	tplfunc.Add("validate", zvalidate.TemplateError)
 	tplfunc.Add("has_errors", zvalidate.TemplateHasErrors)

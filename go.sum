@@ -131,6 +131,8 @@ zgo.at/pg_info v0.0.0-20201217021255-048639cbc5d4 h1:oG7pMjCt0mKrFTKiCa0tDuXhHMI
 zgo.at/pg_info v0.0.0-20201217021255-048639cbc5d4/go.mod h1:90/neDwfjVb4HhkyHSxd5+lEjyuigu5nj+xrJKQNsOw=
 zgo.at/tz v0.0.0-20201222163731-799c833ac652 h1:rARCa4mSetf6r3sEbC2LGTWk7Mq80OA1YYVflPs6aEQ=
 zgo.at/tz v0.0.0-20201222163731-799c833ac652/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
+zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3 h1:o63D/IDzz022XfxoXUln9VpPZYWMKouruzOOi2677Ok=
+zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e h1:xeqK9kWHGW1Hed19DswC46zXoONf0C6ssrDddxb2b0Q=
 zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
 zgo.at/zdb v0.0.0-20201215064121-3bdf9ac70fc1 h1:eawtULWuR7ESK+jcrHrjs9Gxj8b7DRj96PXIFzp3UGU=

@@ -15775,7 +15775,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 					Analytics for <a href="http://{{.Site.LinkDomain}}" target="_blank" rel="noopener">{{.Site.LinkDomain}}</a>.
 				{{end}}
 				The public view is updated once an hour{{if .Site.Settings.Timezone}}; all times are in
-				{{.Site.Settings.Timezone.Abbr}} ({{.Site.Settings.Timezone.OffsetDisplay}}){{end}}
+				{{join .Site.Settings.Timezone.Abbr ", "}} ({{.Site.Settings.Timezone.OffsetDisplay}}){{end}}
 			</div>
 			<div id="signin"><a href="/user/new">Sign in</a></div>
 		{{- end -}}
