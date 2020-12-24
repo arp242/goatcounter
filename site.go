@@ -77,13 +77,13 @@ type Site struct {
 }
 
 var (
-	sitesCacheByID     = zcache.New(24*time.Hour, 1*time.Hour)
-	sitesCacheHostname = zcache.New(24*time.Hour, 1*time.Hour)
+	sitesCache         = zcache.New(24*time.Hour, 1*time.Hour)
+	sitesCacheHostname = zcache.NewProxy(sitesCache)
 )
 
 // ClearCache clears the  cache for this site.
 func (s Site) ClearCache(full bool) {
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	sitesCache.Delete(strconv.FormatInt(s.ID, 10))
 
 	// TODO: be more selective about this.
 	if full {
@@ -333,7 +333,7 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 		return errors.Wrap(err, "Site.UpdateCode")
 	}
 
-	sitesCacheByID.Delete(strconv.FormatInt(s.ID, 10))
+	sitesCache.Delete(strconv.FormatInt(s.ID, 10))
 	return nil
 }
 
@@ -400,7 +400,7 @@ func (s *Site) Delete(ctx context.Context) error {
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
 	k := strconv.FormatInt(id, 10)
-	ss, ok := sitesCacheByID.Get(k)
+	ss, ok := sitesCache.Get(k)
 	if ok {
 		*s = *ss.(*Site)
 		return nil
@@ -412,7 +412,7 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 	if err != nil {
 		return errors.Wrapf(err, "Site.ByID %d", id)
 	}
-	sitesCacheByID.SetDefault(k, s)
+	sitesCache.SetDefault(k, s)
 	return nil
 }
 
@@ -425,9 +425,10 @@ func (s *Site) ByCode(ctx context.Context, code string) error {
 
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
-	id, ok := sitesCacheHostname.Get(host)
+	ss, ok := sitesCacheHostname.Get(host)
 	if ok {
-		return s.ByID(ctx, id.(int64))
+		*s = *ss.(*Site)
+		return nil
 	}
 
 	// Custom domain or serve.
@@ -438,7 +439,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 		if err != nil {
 			return errors.Wrap(err, "site.ByHost: from custom domain")
 		}
-		sitesCacheHostname.SetDefault(host, s.ID)
+		sitesCacheHostname.Set(strconv.FormatInt(s.ID, 10), host, s)
 		return nil
 	}
 
@@ -454,7 +455,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	if err != nil {
 		return errors.Wrap(err, "site.ByHost: from code")
 	}
-	sitesCacheHostname.SetDefault(host, s.ID)
+	sitesCacheHostname.Set(strconv.FormatInt(s.ID, 10), host, s)
 	return nil
 }
 
