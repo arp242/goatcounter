@@ -357,7 +357,7 @@ func (h user) disableTOTP(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return zhttp.SeeOther(w, "/settings#tab-auth")
+	return zhttp.SeeOther(w, "/settings/auth")
 }
 
 func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
@@ -383,14 +383,14 @@ func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
 		tokGen(-1, nil) != int32(tokInt) &&
 		tokGen(1, nil) != int32(tokInt) {
 		zhttp.FlashError(w, mfaError)
-		return zhttp.SeeOther(w, "/settings#tab-auth")
+		return zhttp.SeeOther(w, "/settings/auth")
 	}
 
 	err = u.EnableTOTP(r.Context())
 	if err != nil {
 		return err
 	}
-	return zhttp.SeeOther(w, "/settings#tab-auth")
+	return zhttp.SeeOther(w, "/settings/auth")
 }
 
 func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
@@ -412,13 +412,13 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		}
 		if !ok {
 			zhttp.FlashError(w, "Current password is incorrect.")
-			return zhttp.SeeOther(w, "/settings#tab-change-password")
+			return zhttp.SeeOther(w, "/settings/auth")
 		}
 	}
 
 	if args.Password != args.Password2 {
 		zhttp.FlashError(w, "Password confirmation doesn’t match.")
-		return zhttp.SeeOther(w, "/settings#tab-change-password")
+		return zhttp.SeeOther(w, "/settings/auth")
 	}
 
 	err = u.UpdatePassword(r.Context(), args.Password)
@@ -426,7 +426,7 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		var vErr *zvalidate.Validator
 		if errors.As(err, &vErr) {
 			zhttp.FlashError(w, fmt.Sprintf("%s", err))
-			return zhttp.SeeOther(w, "/settings#tab-change-password")
+			return zhttp.SeeOther(w, "/settings/auth")
 		}
 		return err
 	}
@@ -451,7 +451,7 @@ func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 	user := goatcounter.GetUser(r.Context())
 	if !user.EmailVerified {
 		zhttp.Flash(w, "need to verify your email before you can use the API")
-		return zhttp.SeeOther(w, "/settings#tab-auth")
+		return zhttp.SeeOther(w, "/settings/auth")
 	}
 
 	var token goatcounter.APIToken
@@ -466,7 +466,7 @@ func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Token created")
-	return zhttp.SeeOther(w, "/settings#tab-auth")
+	return zhttp.SeeOther(w, "/settings/auth")
 }
 
 func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
@@ -488,7 +488,7 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Token removed")
-	return zhttp.SeeOther(w, "/settings#tab-auth")
+	return zhttp.SeeOther(w, "/settings/auth")
 }
 
 func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {

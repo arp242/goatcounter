@@ -46,7 +46,7 @@ image. The easiest way to do this is from the JavaScript integration:
 
 {{if .Site.ID}}
 **Note**: you will need to enable “Allow adding visitor counts on your website”
-in your <a href="/settings#tab-setting">site settings</a>; this defaults to
+in your <a href="/settings/main">site settings</a>; this defaults to
 *off* to prevent accidental unintentional leaking of data.
 {{else}}
 **Note**: you will need to enable “Allow adding visitor counts on your website”
