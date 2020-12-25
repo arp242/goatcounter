@@ -239,6 +239,21 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.UserAgentHeader, h.RemoteAddr)
 		}
 
+		if !site.Settings.Collect.Has(CollectReferrer) {
+			h.Ref = ""
+			h.RefScheme = nil
+		}
+		if !site.Settings.Collect.Has(CollectScreenSize) {
+			h.Size = nil
+		}
+		if !site.Settings.Collect.Has(CollectUserAgent) {
+			h.UserAgentHeader = ""
+			h.UserAgentID = nil
+		}
+		if !site.Settings.Collect.Has(CollectLocation) {
+			h.Location = ""
+		}
+
 		// Persist.
 		err = h.Defaults(ctx)
 		if err != nil {

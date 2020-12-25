@@ -30,7 +30,7 @@ type Hit struct {
 	ID          int64        `db:"hit_id" json:"-"`
 	Site        int64        `db:"site_id" json:"-"`
 	PathID      int64        `db:"path_id" json:"-"`
-	UserAgentID int64        `db:"user_agent_id" json:"-"`
+	UserAgentID *int64       `db:"user_agent_id" json:"-"`
 	Session     zint.Uint128 `db:"session" json:"-"`
 
 	Path  string     `db:"-" json:"p,omitempty"`
@@ -217,14 +217,16 @@ func (h *Hit) Defaults(ctx context.Context) error {
 	h.PathID = path.ID
 
 	// Get or insert user_agent
-	ua := UserAgent{UserAgent: h.UserAgentHeader}
-	err = ua.GetOrInsert(ctx)
-	if err != nil {
-		return errors.Wrap(err, "Hit.Defaults")
+	if site.Settings.Collect.Has(CollectUserAgent) {
+		ua := UserAgent{UserAgent: h.UserAgentHeader}
+		err = ua.GetOrInsert(ctx)
+		if err != nil {
+			return errors.Wrap(err, "Hit.Defaults")
+		}
+		h.UserAgentID = &ua.ID
+		h.BrowserID = ua.BrowserID
+		h.SystemID = ua.SystemID
 	}
-	h.UserAgentID = ua.ID
-	h.BrowserID = ua.BrowserID
-	h.SystemID = ua.SystemID
 
 	return nil
 }
@@ -254,9 +256,12 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 		v.Len("user_agent_header", h.UserAgentHeader, 0, 512)
 	} else {
 		v.Required("path_id", h.PathID)
-		v.Required("user_agent_id", h.UserAgentID)
-		v.Required("browser_id", h.BrowserID)
-		v.Required("system_id", h.SystemID)
+
+		if MustGetSite(ctx).Settings.Collect.Has(CollectUserAgent) {
+			v.Required("user_agent_id", h.UserAgentID)
+			v.Required("browser_id", h.BrowserID)
+			v.Required("system_id", h.SystemID)
+		}
 	}
 
 	return v.ErrorOrNil()

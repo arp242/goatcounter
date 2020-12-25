@@ -151,6 +151,19 @@
 			</span>
 		</fieldset>
 
+		<fieldset id="section-collect">
+			<legend>Data collection</legend>
+			<p style="margin-top: 0">If a setting is disabled then there is
+			no way to recover this information after a pageview is recorded,
+			as this won’t be stored.</p>
+
+			<input type="hidden" name="settings.collect[]" value="1">
+			{{range $cf := .Site.Settings.CollectFlags}}
+				<label><input type="checkbox" name="settings.collect[]" value="{{$cf.Flag}}" {{if $.Site.Settings.Collect.Has $cf.Flag}}checked{{end}}>
+					<span style="min-width:5.5em; display:inline-block;">{{$cf.Label}}</span> {{$cf.Help}}</label>
+			{{end}}
+		</fieldset>
+
 		<div class="flex-break"></div>
 		<button type="submit">Save</button>
 	</form>

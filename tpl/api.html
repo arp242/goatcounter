@@ -1,4 +1,4 @@
-
+kommentaar: warning: could not process "Widget" (maps are not supported yet)
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -252,7 +252,7 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 		<div class="endpoint" id="GET-/api/v0/sites">
 			<div class="endpoint-top">
 				<code class="resource"><span class="method">GET</span> /api/v0/sites</code>
-				List the current site and all additional sites.
+				List all sites.
 				<a class="permalink" href="#GET-%2fapi%2fv0%2fsites">§</a>
 			</div>
 			<div class="endpoint-info">
@@ -512,10 +512,23 @@ pageview.</p>
 		</div>
 		<h3 id="goatcounter.SiteSettings">goatcounter.SiteSettings <a class="permalink" href="#goatcounter.SiteSettings">§</a></h3>
 		<div class="endpoint model">
-			<p class="info"></p>
+			<p class="info">SiteSettings contains all the user-configurable settings for a site, with
+the exception of the domain and billing settings.
+
+This is stored as JSON in the database.</p>
 			<h4>public <sup>boolean</sup></h4>
 <p></p>
 <h4>allow_counter <sup>boolean</sup></h4>
+<p></p>
+<h4>allow_admin <sup>boolean</sup></h4>
+<p></p>
+<h4>data_retention <sup>integer</sup></h4>
+<p></p>
+<h4>campaigns <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>ignore_ips <sup>array [type: string]</sup></h4>
+<p></p>
+<h4>collect <sup>integer</sup></h4>
 <p></p>
 <h4>twenty_four_hours <sup>boolean</sup></h4>
 <p></p>
@@ -525,17 +538,11 @@ pageview.</p>
 <p></p>
 <h4>number_format <sup>string</sup></h4>
 <p></p>
-<h4>data_retention <sup>integer</sup></h4>
-<p></p>
-<h4>ignore_ips <sup>array [type: string]</sup></h4>
-<p></p>
 <h4>timezone <sup></sup></h4>
 <p></p>
-<h4>campaigns <sup>array [type: string]</sup></h4>
+<h4>widgets <sup>array [type: <a href="#goatcounter.Widget">goatcounter.Widget</a>]</sup></h4>
 <p></p>
-<h4>allow_admin <sup>boolean</sup></h4>
-<p></p>
-<h4>limits <sup><a href="#"></a></sup></h4>
+<h4>views <sup>array [type: <a href="#goatcounter.View">goatcounter.View</a>]</sup></h4>
 <p></p>
 
 		</div>
@@ -563,6 +570,26 @@ pageview.</p>
 <h4>updated_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p></p>
 
+		</div>
+		<h3 id="goatcounter.View">goatcounter.View <a class="permalink" href="#goatcounter.View">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>name <sup>string</sup></h4>
+<p></p>
+<h4>filter <sup>string</sup></h4>
+<p></p>
+<h4>daily <sup>boolean</sup></h4>
+<p></p>
+<h4>as-text <sup>boolean</sup></h4>
+<p></p>
+<h4>period <sup>string</sup></h4>
+<p>&#34;week&#34;, &#34;week-cur&#34;, or n days: &#34;8&#34;</p>
+
+		</div>
+		<h3 id="goatcounter.Widget">goatcounter.Widget <a class="permalink" href="#goatcounter.Widget">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			
 		</div>
 		<h3 id="handlers.APICountRequest">handlers.APICountRequest <a class="permalink" href="#handlers.APICountRequest">§</a></h3>
 		<div class="endpoint model">
@@ -678,8 +705,8 @@ depending on whether daylight savings time is in use at the time instant.</p>
 <p>ID</p>
 <h4>Zone <sup>string</sup></h4>
 <p>Asia/Makassar</p>
-<h4>Abbr <sup>string</sup></h4>
-<p>WITA</p>
+<h4>Abbr <sup>array [type: string]</sup></h4>
+<p>WITA – the correct abbreviation may change depending on the time of year (i.e. CET and CEST, depending on DST).</p>
 <h4>CountryName <sup>string</sup></h4>
 <p>Indonesia</p>
 <h4>Comments <sup>string</sup></h4>

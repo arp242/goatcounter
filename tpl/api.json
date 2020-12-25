@@ -1,4 +1,4 @@
-{
+kommentaar: warning: could not process "Widget" (maps are not supported yet){
   "swagger": "2.0",
   "info": {
     "title": "GoatCounter",
@@ -256,7 +256,7 @@
             }
           }
         },
-        "summary": "List the current site and all additional sites.",
+        "summary": "List all sites.",
         "tags": [
           "sites"
         ]
@@ -592,6 +592,7 @@
     },
     "goatcounter.SiteSettings": {
       "title": "SiteSettings",
+      "description": "SiteSettings contains all the user-configurable settings for a site, with\nthe exception of the domain and billing settings.\n\nThis is stored as JSON in the database.",
       "type": "object",
       "properties": {
         "allow_admin": {
@@ -606,6 +607,9 @@
             "type": "string"
           }
         },
+        "collect": {
+          "type": "integer"
+        },
         "data_retention": {
           "type": "integer"
         },
@@ -616,20 +620,6 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
-        },
-        "limits": {
-          "type": "object",
-          "properties": {
-            "hchart": {
-              "type": "integer"
-            },
-            "page": {
-              "type": "integer"
-            },
-            "ref": {
-              "type": "integer"
-            }
           }
         },
         "number_format": {
@@ -646,6 +636,18 @@
         },
         "twenty_four_hours": {
           "type": "boolean"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.View"
+          }
+        },
+        "widgets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.Widget"
+          }
         }
       }
     },
@@ -698,6 +700,32 @@
           "readOnly": true
         }
       }
+    },
+    "goatcounter.View": {
+      "title": "View",
+      "type": "object",
+      "properties": {
+        "as-text": {
+          "type": "boolean"
+        },
+        "daily": {
+          "type": "boolean"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "period": {
+          "description": "\"week\", \"week-cur\", or n days: \"8\"",
+          "type": "string"
+        }
+      }
+    },
+    "goatcounter.Widget": {
+      "title": "Widget",
+      "type": "object"
     },
     "handlers.APICountRequest": {
       "title": "APICountRequest",
@@ -852,8 +880,11 @@
       "type": "object",
       "properties": {
         "Abbr": {
-          "description": "WITA",
-          "type": "string"
+          "description": "WITA – the correct abbreviation may change depending on the time of year (i.e. CET and CEST, depending on DST).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "Comments": {
           "description": "Borneo (east, south); Sulawesi/Celebes, Bali, Nusa Tengarra; Timor (west)",
