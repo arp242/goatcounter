@@ -277,8 +277,8 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time,
 	grouped := make(map[string]int)
 	groupedUnique := make(map[string]int)
 	for i := range h.Stats {
-		grouped[fmt.Sprintf("\ufe0e↔ %spx", h.Stats[i].Name)] += h.Stats[i].Count
-		groupedUnique[fmt.Sprintf("\ufe0e↔ %spx", h.Stats[i].Name)] += h.Stats[i].CountUnique
+		grouped[fmt.Sprintf("↔\ufe0e %spx", h.Stats[i].Name)] += h.Stats[i].Count
+		groupedUnique[fmt.Sprintf("↔\ufe0e %spx", h.Stats[i].Name)] += h.Stats[i].CountUnique
 	}
 
 	ns := make([]StatT, len(grouped))

@@ -198,7 +198,7 @@ func (ss SiteSettings) CollectFlags() []CollectFlag {
 		},
 		{
 			Label: "Country",
-			Help:  "The country name (i.e. Belgium, Indonesia, etc.)",
+			Help:  "Country name (i.e. Belgium, Indonesia, etc.)",
 			Flag:  CollectLocation,
 		},
 		// {

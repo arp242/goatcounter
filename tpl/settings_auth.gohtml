@@ -49,12 +49,10 @@
 				code in your authenticator app or entering the secret
 				manually.</p>
 
-				<div style="display: flex; justify-content: space-between">
-					{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
-					<div>Secret:<br>{{ .User.TOTPSecret | base32 }}</div>
-				</div>
+				<div>Secret: <code>{{ .User.TOTPSecret | base32 }}</code></div>
+				{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}<br>
 
-				<label for="totp_token">Verification token: </label>
+				<label for="totp_token">Verification token: </label><br>
 				<input type="text" name="totp_token" id="totp_token" required
 					autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
 				<button type="submit">Enable MFA</button>

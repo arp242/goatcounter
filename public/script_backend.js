@@ -479,6 +479,11 @@
 	}
 
 	// Set up the widgets settings tab
+	//
+	// TODO: my iPhone selects text on dragging. I can't get it to stop doing
+	// that no matter what; it always re-selects afterwards.
+	// https://github.com/bevacqua/dragula/issues/306
+	// ... okay?
 	var widget_settings = function() {
 		var w = $('#widget-settings')
 		if (!w.length)

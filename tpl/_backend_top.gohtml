@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	{{template "_favicon.gohtml" .}}
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
@@ -30,12 +30,10 @@
 							{{- end -}}
 						{{- end -}}
 					{{- end -}}
-				{{else if has_prefix .Path "/remove/"}}
+				{{else if has_prefix .Path "/settings/sites/remove/"}}
 					<strong id="back"><a href="/settings/sites">←&#xfe0e; Back</a></strong>
-				{{else if has_prefix .Path "/purge"}}
+				{{else if has_prefix .Path "/settings/purge"}}
 					<strong id="back"><a href="/settings/purge">←&#xfe0e; Back</a></strong>
-				{{else if has_prefix .Path "/admin/"}}
-					<strong id="back"><a href="/admin">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
 					<strong id="back"><a href="/billing">←&#xfe0e; Back</a></strong>
 				{{else}}

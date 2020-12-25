@@ -12836,6 +12836,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	}
 
 	// Set up the widgets settings tab
+	//
+	// TODO: my iPhone selects text on dragging. I can't get it to stop doing
+	// that no matter what; it always re-selects afterwards.
+	// https://github.com/bevacqua/dragula/issues/306
+	// ... okay?
 	var widget_settings = function() {
 		var w = $('#widget-settings')
 		if (!w.length)
@@ -13382,6 +13387,13 @@ dt { font-weight: bold; margin-top: 1em; }
 #docs-list    { text-align: center; }
 #docs-list ul { list-style: none; margin: 0; padding: 0; height: 4em;
 	            display: flex; flex-direction: column; flex-wrap: wrap; justify-content: space-between; }
+
+/* Force inputs to be 16px, so that iPhone won't zoom on select, which is
+ * super annoying and 100% pointless.
+ * https://stackoverflow.com/a/16255670/660921 */
+@supports (-webkit-overflow-scrolling: touch) {
+	input, select, textarea { font-size: 16px !important; }
+}
 `),
 	"public/style_backend.css": []byte(`/* Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
    published under the terms of a slightly modified EUPL v1.2 license, which can
@@ -13672,19 +13684,14 @@ tr.target .chart-left { display: block; }
 
 /*** Settings tabs
  ******************/
-.tab-nav {
-	padding: 1em;
-	background-color: #f8f8d9;
-	border: 1px solid #dede89;
-	border-radius: 2px;
-	justify-content: left;
-}
+.tab-nav               { padding: 1em; justify-content: left; border-radius: 2px;
+						 background-color: #f8f8d9; border: 1px solid #dede89; }
 .tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
-@media (max-width: 30rem) {
-	.tab-nav { flex-wrap: wrap; justify-content: center; }
-	.tab-nav a {  line-height: 2.5em; }
+@media (max-width: 40rem) {
+	.tab-nav   { flex-wrap: wrap; justify-content: center; }
+	.tab-nav a { line-height: 2.5em; }
 }
 
 /*** Widget settings
@@ -13783,6 +13790,14 @@ h3 + h4          { margin-top: .3em; }
 .pre-copy-wrap { position: relative; }
 .pre-copy      { position: absolute; right: 0; top: calc(-2em - 1px); padding: .3em 1em;
 				 color: #000; background-color: #f5f5f5; border-top: 1px solid #d5d5d5; border-left: 1px solid #d5d5d5; }
+
+
+/* Force inputs to be 16px, so that iPhone won't zoom on select, which is
+ * super annoying and 100% pointless.
+ * https://stackoverflow.com/a/16255670/660921 */
+@supports (-webkit-overflow-scrolling: touch) {
+	input, select, textarea { font-size: 16px !important; }
+}
 `),
 }
 
@@ -13856,7 +13871,7 @@ create table hits (
 	-- comparatively expensive.
 	site_id        integer        not null                 check(site_id > 0),
 	path_id        integer        not null                 check(path_id > 0),
-	user_agent_id  integer        not null                 check(user_agent_id > 0),
+	user_agent_id  integer        null                     check(user_agent_id != 0),
 
 	session        bytea          default null,
 	bot            integer        default 0,
@@ -14368,7 +14383,9 @@ insert into version values
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
 	('2020-12-11-1-constraint'),
-	('2020-12-17-1-paths-isbot');
+	('2020-12-17-1-paths-isbot'),
+	('2020-12-21-1-view'),
+	('2020-12-24-1-user_agent_id_null');
 
 
 -- vim:ft=sql:tw=0
@@ -14443,7 +14460,7 @@ create table hits (
 	-- comparatively expensive.
 	site_id        integer        not null                 check(site_id > 0),
 	path_id        integer        not null                 check(path_id > 0),
-	user_agent_id  integer        not null                 check(user_agent_id > 0),
+	user_agent_id  integer        null                     check(user_agent_id != 0),
 
 	session        blob           default null,
 	bot            integer        default 0,
@@ -14955,7 +14972,9 @@ insert into version values
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
 	('2020-12-11-1-constraint'),
-	('2020-12-17-1-paths-isbot');
+	('2020-12-17-1-paths-isbot'),
+	('2020-12-21-1-view'),
+	('2020-12-24-1-user_agent_id_null');
 
 
 -- vim:ft=sql:tw=0
@@ -15714,7 +15733,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 <html lang="en">
 <head>
 	{{template "_favicon.gohtml" .}}
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
@@ -15742,12 +15761,10 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 							{{- end -}}
 						{{- end -}}
 					{{- end -}}
-				{{else if has_prefix .Path "/remove/"}}
+				{{else if has_prefix .Path "/settings/sites/remove/"}}
 					<strong id="back"><a href="/settings/sites">←&#xfe0e; Back</a></strong>
-				{{else if has_prefix .Path "/purge"}}
+				{{else if has_prefix .Path "/settings/purge"}}
 					<strong id="back"><a href="/settings/purge">←&#xfe0e; Back</a></strong>
-				{{else if has_prefix .Path "/admin/"}}
-					<strong id="back"><a href="/admin">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
 					<strong id="back"><a href="/billing">←&#xfe0e; Back</a></strong>
 				{{else}}
@@ -15804,7 +15821,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 				introMessage:        'Questions or feedback? Chat here!',
 				autoResponse:        'Checking availability; please wait a minute…',
 				autoNoResponse:      'It seems that no one is available to answer right now. Please tell us how we can ' +
-				                     'contact you, and we will get back to you as soon as we can.',
+				                     'contact you, and we will get back to you as soon as we can, or send an email to support@goatcounter.com',
 			};
 		</script>
 		<script src="https://goatcounter.herokuapp.com/js/widget.js"></script>
@@ -16130,7 +16147,7 @@ Martin
 <html lang="en">
 <head>
 	{{template "_favicon.gohtml" .}}
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="{{.MetaDesc}}">
 	<title>GoatCounter web analytics</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
@@ -19394,12 +19411,10 @@ information.</p>
 				code in your authenticator app or entering the secret
 				manually.</p>
 
-				<div style="display: flex; justify-content: space-between">
-					{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}
-					<div>Secret:<br>{{ .User.TOTPSecret | base32 }}</div>
-				</div>
+				<div>Secret: <code>{{ .User.TOTPSecret | base32 }}</code></div>
+				{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}<br>
 
-				<label for="totp_token">Verification token: </label>
+				<label for="totp_token">Verification token: </label><br>
 				<input type="text" name="totp_token" id="totp_token" required
 					autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
 				<button type="submit">Enable MFA</button>
@@ -19609,7 +19624,7 @@ Current code: <code>{{.Site.Code}}</code> ({{.Site.URL}})
 		</fieldset>
 	</form>
 
-	<form method="post" action="/settings/import" enctype="multipart/form-data" class="vertical">
+	<form method="post" action="/settings/export/import" enctype="multipart/form-data" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
