@@ -3,7 +3,7 @@
 package goatcounter
 
 /*
-curl -s https://raw.githubusercontent.com/matomo-org/referrer-spam-blacklist/master/spammers.txt |
+curl -s https://raw.githubusercontent.com/matomo-org/referrer-spam-list/master/spammers.txt |
         sort -u |
         sed 's!.*!\t"\0": {},!' |
         sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%%/{//!d}' refspam.go |
@@ -963,6 +963,7 @@ var refspam = map[string]struct{}{
 	"justkillingti.me":                     {},
 	"justprofit.xyz":                       {},
 	"jweber.ru":                            {},
+	"jyrxd.com":                            {},
 	"kabbalah-red-bracelets.com":           {},
 	"kabinet-5ka.ru":                       {},
 	"kabinet-alfaclick.ru":                 {},
@@ -1242,6 +1243,7 @@ var refspam = map[string]struct{}{
 	"nicola.top":                           {},
 	"niki-mlt.ru":                          {},
 	"ninacecillia.top":                     {},
+	"niuting.org":                          {},
 	"no-rx.info":                           {},
 	"nomerounddec.cf":                      {},
 	"novosti-avto.ru":                      {},

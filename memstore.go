@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -200,6 +201,31 @@ func (m *ms) Len() int {
 	return l
 }
 
+var (
+	refspamSubdomains []string
+	refspamOnce       sync.Once
+)
+
+func isRefspam(host string) bool {
+	if _, ok := refspam[host]; ok {
+		return true
+	}
+
+	refspamOnce.Do(func() {
+		refspamSubdomains = make([]string, 0, len(refspam))
+		for v := range refspam {
+			refspamSubdomains = append(refspamSubdomains, "."+v)
+		}
+	})
+
+	for _, v := range refspamSubdomains {
+		if strings.HasSuffix(host, v) {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	if m.Len() == 0 {
 		return nil, nil
@@ -221,7 +247,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		// Ignore spammers.
 		h.RefURL, _ = url.Parse(h.Ref)
 		if h.RefURL != nil {
-			if _, ok := refspam[h.RefURL.Host]; ok {
+			if isRefspam(h.RefURL.Host) {
 				l.Debugf("refspam ignored: %q", h.RefURL.Host)
 				continue
 			}
