@@ -665,6 +665,34 @@ func (s *Sites) ListSubs(ctx context.Context) error {
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
 }
 
+// ForThisAccount gets all sites associated with this account.
+func (s *Sites) ForThisAccount(ctx context.Context, excludeCurrent bool) error {
+	site := MustGetSite(ctx)
+	err := zdb.MustGet(ctx).SelectContext(ctx, s, `/* Sites.ForThisAccount */
+		select * from sites
+		where state=$1 and (parent=$2 or site_id=$2) or (
+			parent  = (select parent from sites where site_id=$2) or
+			site_id = (select parent from sites where site_id=$2)
+		) and state=$1
+		order by code
+		`, StateActive, site.ID)
+	if err != nil {
+		return errors.Wrap(err, "Sites.ForThisAccount")
+	}
+
+	if excludeCurrent {
+		ss := *s
+		for i := range ss {
+			if ss[i].ID == site.ID {
+				*s = append(ss[:i], ss[i+1:]...)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // ContainsCNAME reports if there is a site with this CNAME set.
 func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 	var ok bool

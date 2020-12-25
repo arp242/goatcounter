@@ -20211,7 +20211,7 @@ incompatibilities will be documented here.</p>
 
 {{template "_settings_nav.gohtml" .}}
 
-<h2 id="sites">Sites</h2>
+<h2>Sites</h2>
 
 {{if .Site.Parent}}
 	{{/* TODO: just make this work */}}
@@ -20232,11 +20232,10 @@ incompatibilities will be documented here.</p>
 				{{range $s := .SubSites}}<tr>
 					{{if $.GoatcounterCom}}
 						<td><a href="//{{$s.Code}}.{{$.Domain}}">{{$s.Code}}</a></td>
-						<td><a href="/settings/sites/remove/{{$s.ID}}">delete</a></td>
 					{{else}}
 						<td><a href="{{$s.URL}}">{{$s.URL}}</a></td>
-						<td><a href="/settings/sites/remove/{{$s.ID}}">delete</a></td>
 					{{end}}
+					<td><a href="/settings/sites/remove/{{$s.ID}}">delete</a></td>
 				</tr>{{end}}
 
 				<tr>
@@ -20254,6 +20253,25 @@ incompatibilities will be documented here.</p>
 		</tbody></table>
 	</form>
 {{end}}
+
+<h2>Copy settings</h2>
+<p>Copy all settings from the current site except the domain name.</p>
+
+<p>Note this includes the data retention and collection settings!</p>
+
+<form method="post" action="/settings/sites/copySettings">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+	{{range $s := .SubSites}}<tr>
+		{{if ne $s.ID $.Site.ID}}
+		<label><input type="checkbox" name="sites[]" value="{{$s.ID}}">
+			{{if $.GoatcounterCom}}{{$s.Code}}{{else}}{{$s.URL}}{{end}}</label><br>
+		{{end}}
+	{{end}}
+	<br>
+	<label><input type="checkbox" name="allsites"> All sites</label><br><br>
+	<button type="submit">Copy</button>
+</form>
+
 
 {{template "_backend_bottom.gohtml" .}}
 `),

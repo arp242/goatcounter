@@ -10,16 +10,28 @@ Unreleased v1.5.0
 -----------------
 
 - Some rather large changes to the database layout (#383) for better efficiency
-  (see below, **action required for upgrade**).
+  (**see below, action required for upgrade**).
 
 - New `goatcounter buffer` command; this allows buffering of pageviews in case
   the backend is down, running migrations, etc. See `goatcounter help buffer`
   for more information.
 
 - You can now configure what's displayed on the dashboard, in what order, and
-  configure some aspects of various "widgets". This is in the
-  *Setting→Dashboard*, and some settings from the main settings page have moved
-  there (#416, #417, #418)
+  configure some aspects of various "widgets". This is in the *Setting →
+  Dashboard*, and some settings from the main settings page have moved there.
+  (#416, #417, #418)
+
+- You can save a default view for the dashboard: instead of always loading the
+  last week by default, you can now configure it to load the last month, or view
+  by day, or anything you want really. (#419)
+
+- You can choose which data to collect; you can disable collecting any
+  User-Agent, location, or Referrer information. (#423)
+
+- There is now a `count.v1.js`, which is a stable version that can use
+  subresource integrity.
+
+- You can copy settings from a site to other sites in *Settings → Sites*.
 
 ---
 

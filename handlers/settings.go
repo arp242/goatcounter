@@ -59,6 +59,7 @@ func (h settings) mount(r chi.Router) {
 	r.Post("/settings/sites/add", zhttp.Wrap(h.sitesAdd))
 	r.Get("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemoveConfirm))
 	r.Post("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemove))
+	r.Post("/settings/sites/copySettings", zhttp.Wrap(h.sitesCopySettings))
 
 	r.Get("/settings/purge", zhttp.Wrap(h.purge(nil)))
 	r.Get("/settings/purge/confirm", zhttp.Wrap(h.purgeConfirm))
@@ -307,7 +308,7 @@ func (h settings) dashboardSave(w http.ResponseWriter, r *http.Request) error {
 func (h settings) sites(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		var sites goatcounter.Sites
-		err := sites.ListSubs(r.Context())
+		err := sites.ForThisAccount(r.Context(), true)
 		if err != nil {
 			return err
 		}
@@ -400,6 +401,50 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Site ‘%s ’removed.", s.URL())
+	return zhttp.SeeOther(w, "/settings/sites")
+}
+
+func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) error {
+	master := Site(r.Context())
+
+	var args struct {
+		Sites    []int64 `json:"sites"`
+		AllSites bool    `json:"allsites"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	var copies goatcounter.Sites
+	if args.AllSites {
+		err := copies.ForThisAccount(r.Context(), true)
+		if err != nil {
+			return err
+		}
+	} else {
+		for _, c := range args.Sites {
+			var s goatcounter.Site
+			err := s.ByID(r.Context(), c)
+			if err != nil {
+				return err
+			}
+			if s.Parent == nil || *s.Parent != master.ID {
+				return guru.Errorf(http.StatusForbidden, "yeah nah, site %d doesn't belong to you", s.ID)
+			}
+			copies = append(copies, s)
+		}
+	}
+
+	for _, c := range copies {
+		c.Settings = master.Settings
+		err := c.Update(r.Context())
+		if err != nil {
+			return err
+		}
+	}
+
+	zhttp.Flash(w, "Settings copied to the selected sites.")
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
