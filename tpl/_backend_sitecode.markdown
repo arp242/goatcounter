@@ -514,7 +514,7 @@ anywhere, such as your app's middleware.
 The [API documentation](https://www.goatcounter.com/api) contains more
 information and some examples.
 
-### Location of count.js and loading it locally
+### Location of count.js
 You can load the `count.js` script anywhere on your page, but it’s recommended
 to load it just before the closing `</body>` tag if possible.
 
@@ -525,11 +525,31 @@ might as well put it in the best location if possible. Just insert it in the
 `<head>` or anywhere in the `<body>` if your CMS doesn’t have an option to add
 it there.
 
-You can also host the `count.js` script yourself, or include it in your page
-directly inside `<script>` tags. You won’t get any new features or other
-updates, but the `/count` endpoint is guaranteed to remain compatible so it
-should never break (any future incompatible changes will be a different
-endpoint, such as `/count/v2`).
+### Subresource integrity and versioning
+For most people `{{.CountDomain}}/count.js` should be fine, but if you want you
+can verify the integrity of the externally loaded script with SRI; currently
+published versions:
+
+- **v1** (25 Dec 2020, up to date with `count.js`):
+
+      <script data-goatcounter="{{.Site.URL}}/count"
+              async src="//{{.CountDomain}}/count.v1.js"
+              crossorigin="anonymous"
+              integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"></script>
+
+This will verify the integrity of the script to ensure there are no changes, and
+browsers will refuse to run it if there are.
+
+You won’t get any updates, with this – the versioned script will always remain
+the same. Any existing version of `count.js` is guaranteed to remain compatible,
+but you may need to update it in the future for new features.
+
+### Self-hosting count.js
+You can host the `count.js` script yourself, or include it in your page directly
+inside `<script>` tags. You won’t get any new features or other updates, but the
+`/count` endpoint is guaranteed to remain compatible so it should never break
+(any future incompatible changes will be a different endpoint, such as
+`/count/v2`).
 
 Be sure to include the `data-goatcounter` attribute on the script tag or set
 `goatcounter.endpoint` so GoatCounter knows where to send the pageviews to:
@@ -545,6 +565,9 @@ Be sure to include the `data-goatcounter` attribute on the script tag or set
 
         // [.. contents of count.js ..]
     </script>
+
+Any existing version of `count.js` is guaranteed to remain compatible, but you
+may need to update it in the future for new features.
 
 ### Setting the endpoint in JavaScript
 Normally GoatCounter gets the endpoint to send pageviews to from the

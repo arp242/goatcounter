@@ -139,7 +139,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 				billing{}.mount(a, af)
 			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
-			r.Get("/code", zhttp.Wrap(h.code))
+			af.Get("/code", zhttp.Wrap(h.code))
 
 			settings{}.mount(af)
 			admin{}.mount(af, db)

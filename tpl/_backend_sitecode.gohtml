@@ -98,7 +98,9 @@ options and customisations.</p>
   <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>    <ul>
       <li><a href="#image-based-tracking-without-javascript" id="markdown-toc-image-based-tracking-without-javascript">Image-based tracking without JavaScript</a></li>
       <li><a href="#tracking-from-backend-middleware" id="markdown-toc-tracking-from-backend-middleware">Tracking from backend middleware</a></li>
-      <li><a href="#location-of-countjs-and-loading-it-locally" id="markdown-toc-location-of-countjs-and-loading-it-locally">Location of count.js and loading it locally</a></li>
+      <li><a href="#location-of-countjs" id="markdown-toc-location-of-countjs">Location of count.js</a></li>
+      <li><a href="#subresource-integrity-and-versioning" id="markdown-toc-subresource-integrity-and-versioning">Subresource integrity and versioning</a></li>
+      <li><a href="#self-hosting-countjs" id="markdown-toc-self-hosting-countjs">Self-hosting count.js</a></li>
       <li><a href="#setting-the-endpoint-in-javascript" id="markdown-toc-setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript</a></li>
     </ul>
   </li>
@@ -637,7 +639,7 @@ anywhere, such as your app's middleware.</p>
 <p>The <a href="https://www.goatcounter.com/api">API documentation</a> contains more
 information and some examples.</p>
 
-<h3 id="location-of-countjs-and-loading-it-locally">Location of count.js and loading it locally <a href="#location-of-countjs-and-loading-it-locally"></a></h3>
+<h3 id="location-of-countjs">Location of count.js <a href="#location-of-countjs"></a></h3>
 <p>You can load the <code>count.js</code> script anywhere on your page, but it’s recommended
 to load it just before the closing <code>&lt;/body&gt;</code> tag if possible.</p>
 
@@ -648,11 +650,36 @@ might as well put it in the best location if possible. Just insert it in the
 <code>&lt;head&gt;</code> or anywhere in the <code>&lt;body&gt;</code> if your CMS doesn’t have an option to add
 it there.</p>
 
-<p>You can also host the <code>count.js</code> script yourself, or include it in your page
-directly inside <code>&lt;script&gt;</code> tags. You won’t get any new features or other
-updates, but the <code>/count</code> endpoint is guaranteed to remain compatible so it
-should never break (any future incompatible changes will be a different
-endpoint, such as <code>/count/v2</code>).</p>
+<h3 id="subresource-integrity-and-versioning">Subresource integrity and versioning <a href="#subresource-integrity-and-versioning"></a></h3>
+<p>For most people <code>{{.CountDomain}}/count.js</code> should be fine, but if you want you
+can verify the integrity of the externally loaded script with SRI; currently
+published versions:</p>
+
+<ul>
+  <li>
+    <p><strong>v1</strong> (25 Dec 2020, up to date with <code>count.js</code>):</p>
+
+    <pre><code>&lt;script data-goatcounter="{{.Site.URL}}/count"
+        async src="//{{.CountDomain}}/count.v1.js"
+        crossorigin="anonymous"
+        integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"&gt;&lt;/script&gt;
+</code></pre>
+  </li>
+</ul>
+
+<p>This will verify the integrity of the script to ensure there are no changes, and
+browsers will refuse to run it if there are.</p>
+
+<p>You won’t get any updates, with this – the versioned script will always remain
+the same. Any existing version of <code>count.js</code> is guaranteed to remain compatible,
+but you may need to update it in the future for new features.</p>
+
+<h3 id="self-hosting-countjs">Self-hosting count.js <a href="#self-hosting-countjs"></a></h3>
+<p>You can host the <code>count.js</code> script yourself, or include it in your page directly
+inside <code>&lt;script&gt;</code> tags. You won’t get any new features or other updates, but the
+<code>/count</code> endpoint is guaranteed to remain compatible so it should never break
+(any future incompatible changes will be a different endpoint, such as
+<code>/count/v2</code>).</p>
 
 <p>Be sure to include the <code>data-goatcounter</code> attribute on the script tag or set
 <code>goatcounter.endpoint</code> so GoatCounter knows where to send the pageviews to:</p>
@@ -669,6 +696,9 @@ endpoint, such as <code>/count/v2</code>).</p>
     // [.. contents of count.js ..]
 &lt;/script&gt;
 </code></pre>
+
+<p>Any existing version of <code>count.js</code> is guaranteed to remain compatible, but you
+may need to update it in the future for new features.</p>
 
 <h3 id="setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript <a href="#setting-the-endpoint-in-javascript"></a></h3>
 <p>Normally GoatCounter gets the endpoint to send pageviews to from the
