@@ -154,7 +154,7 @@ func (h *Hit) cleanPath(ctx context.Context) {
 }
 
 // Defaults sets fields to default values, unless they're already set.
-func (h *Hit) Defaults(ctx context.Context) error {
+func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 	site := MustGetSite(ctx)
 	h.Site = site.ID
 
@@ -207,6 +207,10 @@ func (h *Hit) Defaults(ctx context.Context) error {
 		}
 	}
 	h.Ref = strings.TrimRight(h.Ref, "/")
+
+	if initial {
+		return nil
+	}
 
 	// Get or insert path.
 	path := Path{Path: h.Path, Title: h.Title, Event: h.Event}

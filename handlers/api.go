@@ -478,7 +478,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			continue
 		}
 
-		hit.Defaults(r.Context())
+		hit.Defaults(r.Context(), true) // don't get UA/Path; memstore will do that.
 		err = hit.Validate(r.Context(), true)
 		if err != nil {
 			errs[i] = err.Error()

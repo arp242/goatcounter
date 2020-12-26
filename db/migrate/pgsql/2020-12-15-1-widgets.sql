@@ -8,8 +8,8 @@ begin;
 		{"name": "systems",    "on": true},
 		{"name": "sizes",      "on": true},
 		{"name": "locations",  "on": true}]', true);
-	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_pages}', settings->'limits'->'page');
-	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_refs}',  settings->'limits'->'ref');
+	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_pages}', coalesce(settings->'limits'->'page', to_jsonb(10)));
+	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_refs}',  coalesce(settings->'limits'->'ref', to_jsonb(10)));
 	update sites set settings = settings#-'{limits}';
 
 	insert into version values('2020-12-15-1-widgets');

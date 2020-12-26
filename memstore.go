@@ -281,7 +281,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		}
 
 		// Persist.
-		err = h.Defaults(ctx)
+		err = h.Defaults(ctx, false)
 		if err != nil {
 			l.Field("hit", h).Error(err)
 			continue

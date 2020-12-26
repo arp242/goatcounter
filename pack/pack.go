@@ -307,8 +307,8 @@ commit;
 		{"name": "systems",    "on": true},
 		{"name": "sizes",      "on": true},
 		{"name": "locations",  "on": true}]', true);
-	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_pages}', settings->'limits'->'page');
-	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_refs}',  settings->'limits'->'ref');
+	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_pages}', coalesce(settings->'limits'->'page', to_jsonb(10)));
+	update sites set settings = jsonb_set(settings, '{widgets,0,s,limit_refs}',  coalesce(settings->'limits'->'ref', to_jsonb(10)));
 	update sites set settings = settings#-'{limits}';
 
 	insert into version values('2020-12-15-1-widgets');
@@ -14046,7 +14046,7 @@ var SchemaPgSQL = []byte(`create table sites (
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
 	stripe         varchar        null,
 	billing_amount varchar,
-	settings       json           not null,
+	settings       jsonb          not null,
 	received_data  integer        not null default 0,
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
@@ -14617,6 +14617,7 @@ insert into version values
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
 	('2020-12-11-1-constraint'),
+	('2020-12-15-1-widgets.sql'),
 	('2020-12-17-1-paths-isbot'),
 	('2020-12-21-1-view'),
 	('2020-12-24-1-user_agent_id_null');
@@ -15206,6 +15207,7 @@ insert into version values
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
 	('2020-12-11-1-constraint'),
+	('2020-12-15-1-widgets.sql'),
 	('2020-12-17-1-paths-isbot'),
 	('2020-12-21-1-view'),
 	('2020-12-24-1-user_agent_id_null');

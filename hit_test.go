@@ -243,7 +243,7 @@ func TestHitDefaultsRef(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			h := goatcounter.Hit{Ref: tt.in}
 			h.RefURL, _ = url.Parse(tt.in)
-			h.Defaults(ctx)
+			h.Defaults(ctx, false)
 
 			if tt.wantOriginal != nil && *tt.wantOriginal == "_" {
 				tt.wantOriginal = &tt.in
@@ -296,7 +296,7 @@ func TestHitDefaultsPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
 			h := goatcounter.Hit{Path: tt.in}
-			h.Defaults(ctx)
+			h.Defaults(ctx, false)
 
 			if h.Path != tt.wantPath {
 				t.Fatalf("wrong Path\nout:  %#v\nwant: %#v\n",

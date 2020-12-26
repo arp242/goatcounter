@@ -102,12 +102,6 @@ func schema() error {
 			}
 			return "integer        primary key autoincrement"
 		},
-		"json": func() string {
-			if pgsql {
-				return "json    "
-			}
-			return "varchar "
-		},
 		"jsonb": func() string {
 			if pgsql {
 				return "jsonb    "
