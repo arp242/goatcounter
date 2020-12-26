@@ -170,6 +170,10 @@ func (ss *SiteSettings) Defaults() {
 	if ss.Collect == 0 {
 		ss.Collect = CollectReferrer | CollectUserAgent | CollectScreenSize | CollectLocation | CollectLocationRegion
 	}
+	// Collecting region without country makes no sense.
+	if ss.Collect.Has(CollectLocationRegion) {
+		ss.Collect |= CollectLocation
+	}
 }
 
 type CollectFlag struct {
@@ -201,11 +205,11 @@ func (ss SiteSettings) CollectFlags() []CollectFlag {
 			Help:  "Country name (i.e. Belgium, Indonesia, etc.)",
 			Flag:  CollectLocation,
 		},
-		// {
-		// 	Label: "Region",
-		// 	Help:  "Region (i.e. Texas, Bali, etc.)",
-		// 	Flag:  CollectLocationRegion,
-		// },
+		{
+			Label: "Region",
+			Help:  "Region (i.e. Texas, Bali, etc.)",
+			Flag:  CollectLocationRegion,
+		},
 		// {
 		// 	Label: "Language",
 		// 	Help:  "Supported languages from Accept-Language",

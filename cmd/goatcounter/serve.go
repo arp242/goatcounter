@@ -95,6 +95,14 @@ Flags:
   -static      Serve static files from a different domain, such as a CDN or
                cookieless domain. Default: not set.
 
+  -geodb       Path to mmdb GeoIP database; can be either the City or Country
+               version, but regional information is only recorded with the City
+               version.
+
+               This parameter is optional; GoatCounter comes with a Countries
+               version built-in; you only need this if you want to use a
+               newer/different version, or if you want to record regions.
+
   -dev         Start in "dev mode".
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
@@ -220,6 +228,7 @@ func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string
 	errors := CommandLine.String("errors", "", "")
 	from := CommandLine.String("email-from", "", "")
 	testMode := CommandLine.Int("test-hook-do-not-use", 0, "")
+	geodb := CommandLine.String("geodb", "", "")
 
 	err := CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
@@ -240,6 +249,8 @@ func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string
 		v.URL("-smtp", *smtp)
 	}
 	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
+
+	goatcounter.InitGeoDB(*geodb)
 
 	return *dbConnect, *testMode, dev, *automigrate, *listen, *flagTLS, *from, err
 }

@@ -28,6 +28,12 @@ Unreleased v1.5.0
 - You can choose which data to collect; you can disable collecting any
   User-Agent, location, or Referrer information. (#423)
 
+- Ability to record state/province/district in addition to country, so it
+  records "US-TX" or "NL-NB" instead of "United States" or "Netherlands". This
+  option can be disabled separately from recording the country (enabled by
+  default). This requires specifying the path to a GeoIP City database, which
+  isn't included since it's ~30M (#425)
+
 - There is now a `count.v1.js`, which is a stable version that can use
   subresource integrity.
 

@@ -37,6 +37,12 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 				v.pathID = h.PathID
 			}
 
+			// Call this for the side-effect of creating the rows in the
+			// locations table. Should be the case in almost all codepaths, but
+			// just to be sure. This is all cached, so there's very little
+			// overhead.
+			(&goatcounter.Location{}).ByCode(ctx, h.Location)
+
 			v.count += 1
 			if h.FirstVisit {
 				v.countUnique += 1

@@ -304,24 +304,25 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 
 	query, args, err := zdb.Query(ctx, `/* Stats.ListLocations */
 		with x as (
-				select
-					location,
-					sum(count) as count,
-					sum(count_unique) as count_unique
-				from location_stats
-				where
-					site_id=:site and day>=:start and day<=:end
-					{{and path_id in (:filter)}}
-				group by location
-				order by count_unique desc
+			select
+				substr(location, 0, 3) as loc,
+				sum(count)             as count,
+				sum(count_unique)      as count_unique
+			from location_stats
+			where
+				site_id = :site and day >= :start and day <= :end
+				{{and path_id in (:filter)}}
+			group by loc
+			order by count_unique desc
 				limit :limit offset :offset
 		)
 		select
-			iso_3166_1.name,
-			x.count,
-			x.count_unique
+			locations.iso_3166_2   as id,
+			locations.country_name as name,
+			x.count                as count,
+			x.count_unique         as count_unique
 		from x
-		join iso_3166_1 on iso_3166_1.alpha2=x.location
+		join locations on locations.iso_3166_2 = x.loc
 		order by count_unique desc, name asc
 	`, struct {
 		Site   int64
@@ -346,4 +347,31 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
 	return nil
+}
+
+// ListLocation lists all divisions for a location
+func (h *Stats) ListLocation(ctx context.Context, country string, start, end time.Time, pathFilter []int64) error {
+	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
+	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListLocation */
+		select
+			coalesce(region_name, '(unknown)') as name,
+			sum(count) as count,
+			sum(count_unique) as count_unique
+		from location_stats
+		join locations on location = iso_3166_2
+		where
+			site_id = :site and day >= :start and day <= :end and
+			{{path_id in (:filter) and}}
+			country = :country
+		group by iso_3166_2, name
+		order by count_unique desc, name asc`,
+		struct {
+			Site       int64
+			Start, End string
+			Filter     []int64
+			Country    string
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, country},
+		len(pathFilter) > 0)
+	return errors.Wrap(err, "Stats.ListLocation")
 }

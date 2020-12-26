@@ -33,7 +33,7 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `{false [{Firefox 3 1 <nil>} {Chrome 1 0 <nil>}]}`
+	want := `{false [{ Firefox 3 1 <nil>} { Chrome 1 0 <nil>}]}`
 	out := fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -53,7 +53,7 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{Firefox 7 2 <nil>} {Chrome 1 0 <nil>}]}`
+	want = `{false [{ Firefox 7 2 <nil>} { Chrome 1 0 <nil>}]}`
 	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -66,7 +66,7 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{Firefox 68 1 1 <nil>} {Firefox 69 4 1 <nil>} {Firefox 70 2 0 <nil>}]}`
+	want = `{false [{ Firefox 68 1 1 <nil>} { Firefox 69 4 1 <nil>} { Firefox 70 2 0 <nil>}]}`
 	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)

@@ -279,6 +279,14 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		if !site.Settings.Collect.Has(CollectLocation) {
 			h.Location = ""
 		}
+		if !site.Settings.Collect.Has(CollectLocationRegion) && strings.ContainsRune(h.Location, '-') {
+			var l Location
+			err := l.ByCode(ctx, h.Location[:2])
+			if err != nil {
+				zlog.Errorf("lookup %q: %w", h.Location[:2], err)
+			}
+			h.Location = l.ISO3166_2
+		}
 
 		// Persist.
 		err = h.Defaults(ctx, false)

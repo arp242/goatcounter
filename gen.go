@@ -12,10 +12,14 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 
+	"github.com/oschwald/geoip2-golang"
+	"github.com/oschwald/maxminddb-golang"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/pack"
 	"zgo.at/zlog"
 	"zgo.at/zpack"
 	"zgo.at/zstd/zioutil"
@@ -23,6 +27,14 @@ import (
 
 func main() {
 	l := zlog.Module("gen")
+
+	if len(os.Args) > 1 && os.Args[1] == "locations" {
+		err := locations()
+		if err != nil {
+			l.Error(err)
+		}
+		return
+	}
 
 	if _, ok := os.LookupEnv("CI"); !ok {
 		err := markdown()
@@ -255,6 +267,58 @@ func markdown() error {
 		err = dest.Close()
 		if err != nil {
 			return err
+		}
+	}
+
+	return nil
+}
+
+func locations() error {
+	db, err := maxminddb.FromBytes(pack.GeoDB)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	type x struct {
+		Ccode, Rcode, Cname, Rname string
+	}
+	var (
+		all  = make(map[string]x)
+		iter = db.Data()
+	)
+	for iter.Next() {
+		var r geoip2.City
+		err = iter.Data(&r)
+		if err != nil {
+			return err
+		}
+
+		if r.Country.IsoCode == "" {
+			continue
+		}
+
+		all[r.Country.IsoCode] = x{
+			Ccode: r.Country.IsoCode,
+			Cname: r.Country.Names["en"],
+		}
+	}
+
+	allSort := make([]x, 0, len(all))
+	for _, v := range all {
+		allSort = append(allSort, v)
+	}
+	sort.Slice(allSort, func(i, j int) bool {
+		return allSort[i].Ccode+allSort[i].Rcode < allSort[j].Ccode+allSort[j].Rcode
+	})
+
+	fmt.Println("insert into locations (country, country_name, region, region_name) values")
+	for i, v := range allSort {
+		fmt.Printf("\t('%s', '%s', '', '')", v.Ccode, strings.ReplaceAll(v.Cname, "'", "''"))
+		if i == len(all)-1 {
+			fmt.Println(";")
+		} else {
+			fmt.Println(",")
 		}
 	}
 

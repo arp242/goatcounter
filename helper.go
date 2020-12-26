@@ -85,6 +85,7 @@ func Reset() {
 	cacheBrowsers.Flush()
 	cacheSystems.Flush()
 	changedTitles.Flush()
+	locationsCache.Flush()
 }
 
 // TODO: Move to zdb

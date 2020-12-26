@@ -451,7 +451,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	errs := make(map[int]string)
 	for i, a := range args.Hits {
 		if a.Location == "" && a.IP != "" {
-			a.Location = geo(a.IP)
+			a.Location = (goatcounter.Location{}).LookupIP(r.Context(), a.IP)
 		}
 
 		hit := goatcounter.Hit{
