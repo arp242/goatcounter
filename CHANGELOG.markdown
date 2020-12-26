@@ -33,6 +33,19 @@ Unreleased v1.5.0
 
 - You can copy settings from a site to other sites in *Settings → Sites*.
 
+- Add a `gcbench` utility for inserting random pageviews in a database; for
+  testing and comparing performance. This might be useful for end-users too in
+  some cases, for example to see how much performance difference SQLite and
+  PostgreSQL will give you, or to test if frobbing with server settings makes a
+  difference:
+
+      $ go run ./cmd/gcbench -db sqlite://db/gcbench.sqlite3 -ndays=90 -npaths=100 -nhits=1_000_000
+      $ go run ./cmd/gcbench -db postgresql://dbname=gcbench -ndays=90 -npaths=100 -nhits=1_000_000
+
+  Right now it doesn't try super-hard to simulate read-world usage patterns: the
+  distribution is always uniform, but it still gives a reasonably accurate
+  indication for comparison purposes.
+
 ---
 
 This release contains some rather large changes to the database layout (#383);
