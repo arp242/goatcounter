@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -124,8 +125,9 @@ func database() (int, error) {
 			return 2, err
 		}
 		defer db.Close()
+
 		var i int
-		err = db.Get(&i, `select 1 from version`)
+		err = db.GetContext(context.Background(), &i, `select 1 from version`)
 		if err != nil {
 			return 2, fmt.Errorf("select 1 from version: %w", err)
 		}

@@ -15,10 +15,8 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/jmoiron/sqlx"
 	"zgo.at/goatcounter"
 	"zgo.at/guru"
-	"zgo.at/pg_info/pghandler"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
@@ -35,7 +33,8 @@ func (h admin) mount(r chi.Router, db zdb.DB) {
 
 	a.Get("/admin", zhttp.Wrap(h.index))
 
-	a.Mount("/admin/sql", pghandler.New("/admin/sql", db.(*sqlx.DB).DB))
+	// TODO
+	// a.Mount("/admin/sql", pghandler.New("/admin/sql", db.(*sqlx.DB).DB))
 
 	a.Get("/admin/{id}", zhttp.Wrap(h.site))
 	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))

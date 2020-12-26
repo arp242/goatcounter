@@ -12,7 +12,6 @@ import (
 	"strings"
 	_ "time/tzdata"
 
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"           // PostgreSQL database driver.
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"zgo.at/errors"
@@ -161,7 +160,7 @@ func printMsg(code int, usageText, msg string, args ...interface{}) {
 func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcounter.sqlite3", "") }
 func flagDebug() *string { return CommandLine.String("debug", "", "") }
 
-func connectDB(connect string, migrate []string, create bool) (*sqlx.DB, error) {
+func connectDB(connect string, migrate []string, create bool) (zdb.DBCloser, error) {
 	pgSQL := strings.HasPrefix(connect, "postgresql://") || strings.HasPrefix(connect, "postgres://")
 
 	opts := zdb.ConnectOptions{

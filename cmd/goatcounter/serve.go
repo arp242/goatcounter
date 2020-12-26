@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/jmoiron/sqlx"
 	"github.com/teamwork/reload"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
@@ -172,7 +171,7 @@ func serve() (int, error) {
 	return 0, nil
 }
 
-func doServe(db *sqlx.DB, testMode int, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
+func doServe(db zdb.DBCloser, testMode int, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
 	zlog.Module("main").Debug(getVersion())
 	ch := zhttp.Serve(listenTLS, testMode, &http.Server{
 		Addr:      listen,
@@ -204,6 +203,7 @@ func doServe(db *sqlx.DB, testMode int, listen string, listenTLS uint8, tlsc *tl
 	zlog.Print("Waiting for background tasks to finish; send HUP, TERM, or INT twice to force kill (may lose data!)")
 	time.Sleep(10 * time.Millisecond)
 	bgrun.WaitProgressAndLog()
+
 	db.Close()
 }
 
@@ -244,7 +244,7 @@ func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string
 	return *dbConnect, *testMode, dev, *automigrate, *listen, *flagTLS, *from, err
 }
 
-func setupServe(dbConnect, flagTLS string, automigrate bool) (*sqlx.DB, *tls.Config, http.HandlerFunc, uint8, error) {
+func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DBCloser, *tls.Config, http.HandlerFunc, uint8, error) {
 	if !cfg.Prod {
 		setupReload()
 	}

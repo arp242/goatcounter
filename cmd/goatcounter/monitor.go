@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -70,7 +71,7 @@ func monitor() (int, error) {
 		l.Debug("check")
 
 		var n int
-		err := db.Get(&n, fmt.Sprintf(query, *period))
+		err := db.GetContext(context.Background(), &n, fmt.Sprintf(query, *period))
 		if err != nil {
 			if *once {
 				return 2, err

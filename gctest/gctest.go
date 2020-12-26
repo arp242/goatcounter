@@ -17,7 +17,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/mattn/go-sqlite3"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
@@ -54,7 +53,7 @@ func DB(t tester) (context.Context, func()) {
 	dbname := "goatcounter_test_" + zcrypto.Secret64()
 
 	var (
-		db  *sqlx.DB
+		db  zdb.DBCloser
 		err error
 	)
 	if pgSQL {
