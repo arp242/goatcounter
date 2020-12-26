@@ -151,7 +151,7 @@ create table ref_counts (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) 
 );
-create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
+create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
 cluster ref_counts using "ref_counts#site_id#hour";
 alter table ref_counts replica identity using index "ref_counts#site_id#path_id#ref#hour";
 
@@ -583,7 +583,8 @@ insert into version values
 	('2020-12-15-1-widgets.sql'),
 	('2020-12-17-1-paths-isbot'),
 	('2020-12-21-1-view'),
-	('2020-12-24-1-user_agent_id_null');
+	('2020-12-24-1-user_agent_id_null'),
+	('2020-12-26-sqlite-order');
 
 
 -- vim:ft=sql:tw=0

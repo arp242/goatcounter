@@ -80,7 +80,7 @@ create table hits (
 
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
 );
-create index "hits#site_id#created_at" on hits(site_id, created_at {{psql "desc"}});
+create index "hits#site_id#created_at" on hits(site_id, created_at desc);
 {{cluster "hits" "hits#site_id#created_at"}}
 
 create table paths (
@@ -134,7 +134,7 @@ create table hit_counts (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) {{sqlite "on conflict replace"}}
 );
-create index "hit_counts#site_id#hour" on hit_counts(site_id, hour {{psql "desc"}});
+create index "hit_counts#site_id#hour" on hit_counts(site_id, hour desc);
 {{cluster "hit_counts" "hit_counts#site_id#hour"}}
 {{replica "hit_counts" "hit_counts#site_id#path_id#hour"}}
 
@@ -151,7 +151,7 @@ create table ref_counts (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) {{sqlite "on conflict replace"}}
 );
-create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
+create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
 {{cluster "ref_counts" "ref_counts#site_id#hour"}}
 {{replica "ref_counts" "ref_counts#site_id#path_id#ref#hour"}}
 
@@ -166,7 +166,7 @@ create table hit_stats (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) {{sqlite "on conflict replace"}}
 );
-create index "hit_stats#site_id#day" on hit_stats(site_id, day {{psql "desc"}});
+create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
 {{cluster "hit_stats" "hit_stats#site_id#day"}}
 {{replica "hit_stats" "hit_stats#site_id#path_id#day"}}
 
@@ -183,7 +183,7 @@ create table browser_stats (
 	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
 	constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) {{sqlite "on conflict replace"}}
 );
-create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day {{psql "desc"}});
+create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day desc);
 {{cluster "browser_stats" "browser_stats#site_id#path_id#day#browser_id"}}
 {{replica "browser_stats" "browser_stats#site_id#path_id#day#browser_id"}}
 
@@ -200,7 +200,7 @@ create table system_stats (
 	foreign key (system_id) references systems(system_id) on delete restrict on update restrict,
 	constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) {{sqlite "on conflict replace"}}
 );
-create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day {{psql "desc"}});
+create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day desc);
 {{cluster "system_stats" "system_stats#site_id#path_id#day#system_id"}}
 {{replica "system_stats" "system_stats#site_id#path_id#day#system_id"}}
 
@@ -216,7 +216,7 @@ create table location_stats (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) {{sqlite "on conflict replace"}}
 );
-create index "location_stats#site_id#day" on location_stats(site_id, day {{psql "desc"}});
+create index "location_stats#site_id#day" on location_stats(site_id, day desc);
 {{cluster "location_stats" "location_stats#site_id#day"}}
 {{replica "location_stats" "location_stats#site_id#path_id#day#location"}}
 
@@ -232,7 +232,7 @@ create table size_stats (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) {{sqlite "on conflict replace"}}
 );
-create index "size_stats#site_id#day" on size_stats(site_id, day {{psql "desc"}});
+create index "size_stats#site_id#day" on size_stats(site_id, day desc);
 {{cluster "size_stats" "size_stats#site_id#day"}}
 {{replica "size_stats" "size_stats#site_id#path_id#day#width"}}
 
@@ -583,7 +583,8 @@ insert into version values
 	('2020-12-15-1-widgets.sql'),
 	('2020-12-17-1-paths-isbot'),
 	('2020-12-21-1-view'),
-	('2020-12-24-1-user_agent_id_null');
+	('2020-12-24-1-user_agent_id_null'),
+	('2020-12-26-sqlite-order');
 
 
 -- vim:ft=sql:tw=0

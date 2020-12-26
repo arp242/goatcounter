@@ -80,7 +80,7 @@ create table hits (
 
 	created_at     timestamp      not null                 check(created_at = strftime('%Y-%m-%d %H:%M:%S', created_at))
 );
-create index "hits#site_id#created_at" on hits(site_id, created_at );
+create index "hits#site_id#created_at" on hits(site_id, created_at desc);
 
 
 create table paths (
@@ -134,7 +134,7 @@ create table hit_counts (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) on conflict replace
 );
-create index "hit_counts#site_id#hour" on hit_counts(site_id, hour );
+create index "hit_counts#site_id#hour" on hit_counts(site_id, hour desc);
 
 
 
@@ -151,7 +151,7 @@ create table ref_counts (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) on conflict replace
 );
-create index "ref_counts#site_id#hour" on ref_counts(site_id, hour);
+create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
 
 
 
@@ -166,7 +166,7 @@ create table hit_stats (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) on conflict replace
 );
-create index "hit_stats#site_id#day" on hit_stats(site_id, day );
+create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
 
 
 
@@ -183,7 +183,7 @@ create table browser_stats (
 	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
 	constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) on conflict replace
 );
-create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day );
+create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day desc);
 
 
 
@@ -200,7 +200,7 @@ create table system_stats (
 	foreign key (system_id) references systems(system_id) on delete restrict on update restrict,
 	constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) on conflict replace
 );
-create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day );
+create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day desc);
 
 
 
@@ -216,7 +216,7 @@ create table location_stats (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) on conflict replace
 );
-create index "location_stats#site_id#day" on location_stats(site_id, day );
+create index "location_stats#site_id#day" on location_stats(site_id, day desc);
 
 
 
@@ -232,7 +232,7 @@ create table size_stats (
 	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) on conflict replace
 );
-create index "size_stats#site_id#day" on size_stats(site_id, day );
+create index "size_stats#site_id#day" on size_stats(site_id, day desc);
 
 
 
@@ -583,7 +583,8 @@ insert into version values
 	('2020-12-15-1-widgets.sql'),
 	('2020-12-17-1-paths-isbot'),
 	('2020-12-21-1-view'),
-	('2020-12-24-1-user_agent_id_null');
+	('2020-12-24-1-user_agent_id_null'),
+	('2020-12-26-sqlite-order');
 
 
 -- vim:ft=sql:tw=0
