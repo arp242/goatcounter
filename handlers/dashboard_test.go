@@ -18,7 +18,6 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/tz"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 )
@@ -40,8 +39,6 @@ func TestDashboard(t *testing.T) {
 }
 
 func TestDashboardBarChart(t *testing.T) {
-	zlog.Config.Debug = []string{}
-
 	id := tz.MustNew("", "Asia/Makassar").Loc()
 	hi := tz.MustNew("", "Pacific/Honolulu").Loc()
 

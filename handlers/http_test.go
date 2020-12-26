@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
 
@@ -26,7 +25,7 @@ import (
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
-	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztest"
 )
 
@@ -54,7 +53,7 @@ func init() {
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.GoatcounterCom = true
-	if zstring.Contains(os.Args, "-test.v=true") {
+	if zruntime.TestVerbose() {
 		zlog.Config.Debug = []string{"all"}
 	} else {
 		zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
