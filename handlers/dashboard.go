@@ -157,11 +157,17 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	// Set shared params.
-	// TODO: better to just copy to every widget, or something.
 	shared := widgets.SharedData{Args: args, Site: site}
-	shared.Total, shared.TotalUnique, shared.AllTotalUniqueUTC, shared.Max = wid.Totals()
-	if showRefs != "" {
-		shared.Refs = wid.Refs()
+	tc := wid.Get("totalcount").(*widgets.TotalCount)
+	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC = tc.Total, tc.TotalUnique, tc.TotalUniqueUTC
+
+	// Copy max and refs to pages; they're in separate "widgets" so they can run
+	// in parallel.
+	if p := wid.Get("pages"); p != nil {
+		p.(*widgets.Pages).Max = wid.Get("max").(*widgets.Max).Max
+		if showRefs != "" {
+			p.(*widgets.Pages).Refs = wid.Get("refs").(*widgets.Refs).Refs
+		}
 	}
 
 	// Render widget templates.
@@ -213,14 +219,16 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		SubSites    []string
 		ShowRefs    string
 
-		PeriodStart time.Time
-		PeriodEnd   time.Time
-		PathFilter  []int64
-		ForcedDaily bool
-		Widgets     widgets.List
-		View        goatcounter.View
+		PeriodStart    time.Time
+		PeriodEnd      time.Time
+		PathFilter     []int64
+		ForcedDaily    bool
+		Widgets        widgets.List
+		View           goatcounter.View
+		TotalUnique    int
+		TotalUniqueUTC int
 	}{newGlobals(w, r), cd, subs, showRefs, start, end, args.PathFilter,
-		forcedDaily, wid, view})
+		forcedDaily, wid, view, shared.TotalUnique, shared.TotalUniqueUTC})
 }
 
 // Get a time range; the return value is always in UTC, and is the UTC day range

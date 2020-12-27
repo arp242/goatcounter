@@ -12931,9 +12931,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 						highlight_filter($('#filter-paths').val())
 						$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
 
-						$('.total-display').each((_, t) => {
-							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display))
-						})
 						$('.total-unique-display').each((_, t) => {
 							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display))
 						})
@@ -13040,6 +13037,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 	// Paginate and show details for the horizontal charts.
 	var hchart_detail = function() {
+		var get_total = () => $('.js-total-unique-utc').text()
+
 		// Paginate.
 		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
@@ -13420,18 +13419,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	}
 
 	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
-	var format_int = function(n) {
-		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format));
-	}
+	var format_int = (n) => (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format))
 
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var s = str.split('-')
 		return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
-	}
-
-	var get_total = function() {
-		return $('.total-unique').text().replace(/[^0-9]/g, '')
 	}
 
 	// Append period-start and period-end values to the data object.
@@ -13457,16 +13450,10 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
-	var is_mobile = function() {
-		if (navigator.userAgent.match(/Mobile/i))
-			return true;
-		return window.innerWidth <= 800 && window.innerHeight <= 600;
-	}
+	var is_mobile = () => navigator.userAgent.match(/Mobile/i) || (window.innerWidth <= 800 && window.innerHeight <= 600)
 
 	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
-	var quote_re = function(s) {
-		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
-	}
+	var quote_re = (s) => s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
 })();
 `),
 	"public/style.css": []byte(`/* Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
@@ -16144,7 +16131,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+		{{horizontal_chart .Context .Stats .TotalUniqueUTC 6 true true}}
 	{{end}}
 </div>
 `),
@@ -16154,14 +16141,14 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 false true}}
+		{{horizontal_chart .Context .Stats .TotalUniqueUTC 6 false true}}
 	{{end}}
 </div>
 `),
 	"tpl/_dashboard_pages.gohtml": []byte(`<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 	<h2 class="full-width">Pages <small>
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
-		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+		{{nformat .TotalUnique $.Site}} visits shown
 	</small></h2>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
@@ -16221,7 +16208,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	"tpl/_dashboard_pages_text.gohtml": []byte(`<div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}">
 	<h2 class="full-width">Pages <small>
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
-		<span class='total-unique'>{{nformat .TotalUniqueHits $.Site}}</span> visits shown
+		<span class='total-unique'>{{nformat .TotalUnique $.Site}}</span> visits shown
 	</small></h2>
 	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
 		<thead><tr>
@@ -16269,7 +16256,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+		{{horizontal_chart .Context .Stats .TotalUniqueUTC 6 true true}}
 	{{end}}
 </div>
 `),
@@ -16279,7 +16266,7 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+		{{horizontal_chart .Context .Stats .TotalUniqueUTC 6 true true}}
 	{{end}}
 </div>
 `),
@@ -16289,14 +16276,14 @@ want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
 	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUniqueHits 6 true true}}
+		{{horizontal_chart .Context .Stats .TotalUnique 6 true true}}
 	{{end}}
 </div>
 `),
 	"tpl/_dashboard_totals.gohtml": []byte(`<div class="totals">
 	<h2 class="full-width">Totals <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
-		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
+		<span>{{nformat .TotalUnique $.Site}}</span> visits;
+		<span>{{nformat .Total $.Site}}</span> pageviews
 	</small></h2>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
@@ -18916,6 +18903,8 @@ processed by Stripe (you will need a Credit Card).</p>
 		</div>
 	</div>
 </form>
+<span class="hide js-total-unique">{{.TotalUnique}}</span>
+<span class="hide js-total-unique-utc">{{.TotalUniqueUTC}}</span>
 
 {{template "_dashboard_widgets.gohtml" .}}
 

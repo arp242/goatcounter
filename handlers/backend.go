@@ -317,7 +317,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			totalHits, totalUnique, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, pathFilter)
+			totalHits, totalUnique, _, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, pathFilter)
 		}()
 	}
 

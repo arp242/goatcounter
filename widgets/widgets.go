@@ -38,15 +38,14 @@ type (
 		AsText      bool
 	}
 
+	// SharedData gets passed to every widget.
 	SharedData struct {
 		Site *goatcounter.Site
 		Args Args
 
-		Total             int
-		TotalUnique       int
-		AllTotalUniqueUTC int
-		Max               int
-		Refs              goatcounter.Stats
+		Total          int
+		TotalUnique    int
+		TotalUniqueUTC int
 	}
 )
 
@@ -61,8 +60,8 @@ var (
 func FromSiteWidgets(www goatcounter.Widgets, params zint.Bitflag8) List {
 	widgetList := make(List, 0, len(www)+4)
 	if !params.Has(FilterInternal) {
-		widgetList = append(widgetList, NewWidget("totals"))
-		widgetList = append(widgetList, NewWidget("alltotals"))
+		// We always need these to know the total number of pageviews.
+		widgetList = append(widgetList, NewWidget("totalcount"))
 	}
 	for _, w := range www {
 		if params.Has(FilterOff) && !w["on"].(bool) {
@@ -96,40 +95,20 @@ func FromSiteWidgets(www goatcounter.Widgets, params zint.Bitflag8) List {
 	return widgetList
 }
 
-func (l List) Totals() (total, unique, allUnique, max int) {
+// Get a widget from the list by name.
+func (l List) Get(name string) Widget {
 	for _, w := range l {
-		if w.Name() == "totals" {
-			ww := w.(*Totals)
-			total, unique = ww.Total, ww.TotalUnique
-		}
-		if w.Name() == "alltotals" {
-			ww := w.(*AllTotals)
-			allUnique = ww.AllTotalUniqueUTC
-		}
-		if w.Name() == "max" {
-			ww := w.(*Max)
-			max = ww.Max
+		if w.Name() == name {
+			return w
 		}
 	}
-	return
-}
-
-func (l List) Refs() goatcounter.Stats {
-	for _, w := range l {
-		if w.Name() == "refs" {
-			ww := w.(*Refs)
-			return ww.Refs
-		}
-	}
-	panic("should never happen")
+	return nil
 }
 
 func NewWidget(name string) Widget {
 	switch name {
-	case "totals":
-		return &Totals{}
-	case "alltotals":
-		return &AllTotals{}
+	case "totalcount":
+		return &TotalCount{}
 	case "max":
 		return &Max{}
 	case "refs":
@@ -153,14 +132,11 @@ func NewWidget(name string) Widget {
 	panic(fmt.Errorf("unknown widget: %q", name))
 }
 
-func (w *Totals) GetData(ctx context.Context, a Args) (err error) {
-	w.Total, w.TotalUnique, err = goatcounter.GetTotalCount(ctx, a.Start, a.End, a.PathFilter)
+func (w *TotalCount) GetData(ctx context.Context, a Args) (err error) {
+	w.Total, w.TotalUnique, w.TotalUniqueUTC, err = goatcounter.GetTotalCount(ctx, a.Start, a.End, a.PathFilter)
 	return err
 }
-func (w *AllTotals) GetData(ctx context.Context, a Args) (err error) {
-	_, w.AllTotalUniqueUTC, err = goatcounter.GetTotalCountUTC(ctx, a.Start, a.End, a.PathFilter)
-	return err
-}
+
 func (w *Pages) GetData(ctx context.Context, a Args) (err error) {
 	w.Display, w.UniqueDisplay, w.More, err = w.Pages.List(
 		ctx, a.Start, a.End, a.PathFilter, nil, a.Daily)

@@ -318,9 +318,6 @@
 						highlight_filter($('#filter-paths').val())
 						$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
 
-						$('.total-display').each((_, t) => {
-							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display))
-						})
 						$('.total-unique-display').each((_, t) => {
 							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display))
 						})
@@ -427,6 +424,8 @@
 
 	// Paginate and show details for the horizontal charts.
 	var hchart_detail = function() {
+		var get_total = () => $('.js-total-unique-utc').text()
+
 		// Paginate.
 		$('.hcharts .load-more').on('click', function(e) {
 			e.preventDefault();
@@ -807,18 +806,12 @@
 	}
 
 	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
-	var format_int = function(n) {
-		return (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format));
-	}
+	var format_int = (n) => (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format))
 
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {
 		var s = str.split('-')
 		return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
-	}
-
-	var get_total = function() {
-		return $('.total-unique').text().replace(/[^0-9]/g, '')
 	}
 
 	// Append period-start and period-end values to the data object.
@@ -844,14 +837,8 @@
 	}
 
 	// Check if this is a mobile browser. Probably not 100% reliable.
-	var is_mobile = function() {
-		if (navigator.userAgent.match(/Mobile/i))
-			return true;
-		return window.innerWidth <= 800 && window.innerHeight <= 600;
-	}
+	var is_mobile = () => navigator.userAgent.match(/Mobile/i) || (window.innerWidth <= 800 && window.innerHeight <= 600)
 
 	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
-	var quote_re = function(s) {
-		return s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&');
-	}
+	var quote_re = (s) => s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
 })();

@@ -1,7 +1,7 @@
 <div class="totals">
 	<h2 class="full-width">Totals <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueHits $.Site}}</span> visits;
-		<span class='total-display'>{{nformat .TotalHits $.Site}}</span> pageviews
+		<span>{{nformat .TotalUnique $.Site}}</span> visits;
+		<span>{{nformat .Total $.Site}}</span> pageviews
 	</small></h2>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
