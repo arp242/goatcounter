@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.com/zgoat/goatcounter.svg?branch=master)](https://travis-ci.com/zgoat/goatcounter)
 [![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
 
 GoatCounter is an open source web analytics platform available as a hosted
