@@ -17,5 +17,5 @@ begin;
 	create index "location_stats#site_id#day" on location_stats(site_id, day desc);
 	create index "size_stats#site_id#day" on size_stats(site_id, day desc);
 
-	insert into version values('2020-12-26-sqlite-order');
+	insert into version values('2020-12-26-1-sqlite-order');
 commit;

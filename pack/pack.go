@@ -422,7 +422,7 @@ commit;
 	create index tmp2 on paths(site_id, lower(path));
 
 	update hits set
-		path_id=(select path_id from paths where paths.site_id=hits.site and paths.path=hits.path),
+		path_id=(select path_id from paths where paths.site_id=hits.site and lower(paths.path)=lower(hits.path)),
 		user_agent_id=(select user_agent_id from user_agents where ua=hits.browser);
 
 	drop index tmp1;
@@ -832,7 +832,7 @@ commit;
 	insert into version values('2020-12-24-1-user_agent_id_null');
 commit;
 `),
-	"db/migrate/sqlite/2020-12-26-sqlite-order.sql": []byte(`begin;
+	"db/migrate/sqlite/2020-12-26-1-sqlite-order.sql": []byte(`begin;
 	drop index "hits#site_id#created_at";
 	drop index "hit_counts#site_id#hour";
 	drop index "ref_counts#site_id#hour";
@@ -851,7 +851,7 @@ commit;
 	create index "location_stats#site_id#day" on location_stats(site_id, day desc);
 	create index "size_stats#site_id#day" on size_stats(site_id, day desc);
 
-	insert into version values('2020-12-26-sqlite-order');
+	insert into version values('2020-12-26-1-sqlite-order');
 commit;
 `),
 }
