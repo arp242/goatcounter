@@ -125,6 +125,19 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 			if loadSite {
 				var s goatcounter.Site
 				err := s.ByHost(r.Context(), r.Host)
+
+				// Special case so "http://localhost:8081" works: we don't
+				// really need to bother with host match on dev if there's just
+				// one site.
+				if !cfg.Prod {
+					var sites goatcounter.Sites
+					err2 := sites.UnscopedList(r.Context())
+					if err2 == nil && len(sites) == 1 {
+						s = sites[0]
+						err = nil
+					}
+				}
+
 				if err != nil {
 					if zdb.ErrNoRows(err) {
 						err = guru.Errorf(400, "no site at this domain (%q)", r.Host)
