@@ -471,7 +471,6 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 		err = page.ListSystems(r.Context(), start, end, pathFilter, 6, offset)
 	case "location":
 		err = page.ListLocations(r.Context(), start, end, pathFilter, 6, offset)
-		link = false
 	case "ref":
 		err = page.ListRefsByPath(r.Context(), showRefs, start, end, offset)
 		size = site.Settings.LimitRefs()

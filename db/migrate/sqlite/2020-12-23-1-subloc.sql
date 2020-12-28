@@ -14,7 +14,7 @@ begin;
 	insert into locations (country, country_name, region, region_name) values ('', '(unknown)', '', ''); -- id=1 is special.
 
 	update sites set settings = json_set(settings, '$.collect',
-		json_extract('$.collect') + 32);
+		coalesce(json_extract('$.collect') + 32, 63));
 
 	insert into locations (country, country_name, region, region_name) values
 		('AD', 'Andorra', '', ''),
