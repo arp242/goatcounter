@@ -432,7 +432,7 @@
 
 			var btn   = $(this),
 				chart = btn.closest('[data-more]'),
-				rows  = chart.find('.rows')
+				rows  = chart.find('>.rows')
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
 					url:     chart.attr('data-more'),
