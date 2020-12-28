@@ -22,7 +22,7 @@ require (
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.9.0
-	github.com/mattn/go-sqlite3 v1.14.5
+	github.com/mattn/go-sqlite3 v1.14.6
 	// https://github.com/monoculum/formam/pull/38
 	github.com/monoculum/formam v0.0.0-20201224092534-2a1a2c48fe6d
 	github.com/oschwald/geoip2-golang v1.4.0
@@ -43,7 +43,7 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3
 	zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e
-	zgo.at/zdb v0.0.0-20201226130624-84add0ccc003
+	zgo.at/zdb v0.0.0-20201228093502-c15f9acf4dad
 	zgo.at/zhttp v0.0.0-20201222222554-9c9e1d2d6f2c
 	zgo.at/zli v0.0.0-20201226102249-f33eeb78b623
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
