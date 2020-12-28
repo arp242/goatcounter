@@ -27,17 +27,12 @@ import (
 
 var pgSQL = false
 
-type tester interface {
-	Helper()
-	Fatal(...interface{})
-	Fatalf(string, ...interface{})
-	Logf(string, ...interface{})
-}
-
 func init() {
 	sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
 		ConnectHook: goatcounter.SQLiteHook,
 	})
+
+	goatcounter.InitGeoDB("")
 }
 
 func Reset() {
@@ -46,7 +41,7 @@ func Reset() {
 }
 
 // DB starts a new database test.
-func DB(t tester) (context.Context, func()) {
+func DB(t testing.TB) (context.Context, func()) {
 	t.Helper()
 
 	cfg.RunningTests = true
@@ -90,7 +85,7 @@ func DB(t tester) (context.Context, func()) {
 	}
 }
 
-func setupDB(t tester, db zdb.DB) {
+func setupDB(t testing.TB, db zdb.DB) {
 	top, err := os.Getwd()
 	if err != nil {
 		t.Fatalf(fmt.Sprintf("cannot get cwd: %s", err))
@@ -155,7 +150,7 @@ func setupDB(t tester, db zdb.DB) {
 	}
 }
 
-func initData(ctx context.Context, db zdb.DB, t tester) context.Context {
+func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
 	site := goatcounter.Site{Code: "gctest", Plan: goatcounter.PlanPersonal}
 	err := site.Insert(ctx)
 	if err != nil {

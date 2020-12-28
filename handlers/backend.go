@@ -7,20 +7,17 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/arp242/geoip2-golang"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/monoculum/formam"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
@@ -153,19 +150,6 @@ var gif = []byte{0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x1, 0x0, 0x1, 0x0, 0x80,
 	0x1, 0x0, 0x2c, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x1, 0x0, 0x0, 0x2, 0x2, 0x4c,
 	0x1, 0x0, 0x3b}
 
-var geodb = func() *geoip2.Reader {
-	g, err := geoip2.FromBytes(pack.GeoDB)
-	if err != nil {
-		panic(err)
-	}
-	return g
-}()
-
-func geo(ip string) string {
-	loc, _ := geodb.Country(net.ParseIP(ip))
-	return loc.Country.IsoCode
-}
-
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "image/gif")
@@ -195,9 +179,12 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	hit := goatcounter.Hit{
 		Site:            site.ID,
 		UserAgentHeader: r.UserAgent(),
-		Location:        geo(r.RemoteAddr),
 		CreatedAt:       goatcounter.Now(),
 		RemoteAddr:      r.RemoteAddr,
+	}
+	if site.Settings.Collect.Has(goatcounter.CollectLocation) {
+		var l goatcounter.Location
+		hit.Location = l.LookupIP(r.Context(), r.RemoteAddr)
 	}
 
 	err := formam.NewDecoder(&formam.DecoderOptions{TagName: "json"}).Decode(r.URL.Query(), &hit)
@@ -393,7 +380,7 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 	name := r.URL.Query().Get("name")
 	kind := r.URL.Query().Get("kind")
 	v.Required("name", name)
-	v.Include("kind", kind, []string{"browser", "system", "size", "topref"})
+	v.Include("kind", kind, []string{"browser", "system", "size", "topref", "location"})
 	v.Required("kind", kind)
 	total := int(v.Integer("total", r.URL.Query().Get("total")))
 	if v.HasErrors() {
@@ -419,6 +406,8 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 		err = detail.ListSystem(r.Context(), name, start, end, pathFilter)
 	case "size":
 		err = detail.ListSize(r.Context(), name, start, end, pathFilter)
+	case "location":
+		err = detail.ListLocation(r.Context(), name, start, end, pathFilter)
 	case "topref":
 		if name == "(unknown)" {
 			name = ""

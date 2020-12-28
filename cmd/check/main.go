@@ -45,6 +45,7 @@ import (
 	"golang.org/x/tools/go/analysis/passes/testinggoroutine"
 
 	// Staticcheck
+	"honnef.co/go/tools/config"
 	"honnef.co/go/tools/simple"
 	"honnef.co/go/tools/staticcheck"
 	"honnef.co/go/tools/stylecheck"
@@ -87,6 +88,8 @@ func main() {
 		testinggoroutine.Analyzer,
 	}
 
+	config.DefaultConfig.Initialisms = append(config.DefaultConfig.Initialisms, "ISO")
+
 	// Most of staticcheck.
 	for _, v := range simple.Analyzers {
 		checks = append(checks, v)
@@ -110,6 +113,14 @@ func main() {
 		// The documentation of an exported function should start with
 		// the function's name.
 		if k == "ST1020" {
+			continue
+		}
+		// Skip for now due to bug in staticcheck in locations.go
+		// TODO: lint:[..] directives don't seem to work. Actually,
+		// staticcheck error codes are also ignored. Guess that's some frontend
+		// it added on x/analysis?
+		// TODO: send patch upstream.
+		if k == "ST1003" {
 			continue
 		}
 		checks = append(checks, v)

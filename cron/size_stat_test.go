@@ -35,12 +35,12 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `{false [{Phones 0 0 <nil>}
-{Large phones, small tablets 1 0 <nil>}
-{Tablets and small laptops 0 0 <nil>}
-{Computer monitors 2 1 <nil>}
-{Computer monitors larger than HD 0 0 <nil>}
-{(unknown) 2 0 <nil>}]}`
+	want := `{false [{ Phones 0 0 <nil>}
+{ Large phones, small tablets 1 0 <nil>}
+{ Tablets and small laptops 0 0 <nil>}
+{ Computer monitors 2 1 <nil>}
+{ Computer monitors larger than HD 0 0 <nil>}
+{ (unknown) 2 0 <nil>}]}`
 	out := strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
 		t.Errorf("\nwant:\n%s\nout:\n%s", want, out)
@@ -62,12 +62,12 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{Phones 1 0 <nil>}
-{Large phones, small tablets 3 0 <nil>}
-{Tablets and small laptops 0 0 <nil>}
-{Computer monitors 4 2 <nil>}
-{Computer monitors larger than HD 0 0 <nil>}
-{(unknown) 3 1 <nil>}]}`
+	want = `{false [{ Phones 1 0 <nil>}
+{ Large phones, small tablets 3 0 <nil>}
+{ Tablets and small laptops 0 0 <nil>}
+{ Computer monitors 4 2 <nil>}
+{ Computer monitors larger than HD 0 0 <nil>}
+{ (unknown) 3 1 <nil>}]}`
 	out = strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)

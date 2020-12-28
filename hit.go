@@ -436,6 +436,7 @@ func (h *HitStats) SiteTotalUnique(ctx context.Context) error {
 type StatT struct {
 	// TODO: should be Stat, but that's already taken and don't want to rename
 	// everything right now.
+	ID          string  `db:"id"`
 	Name        string  `db:"name"`
 	Count       int     `db:"count"`
 	CountUnique int     `db:"count_unique"`

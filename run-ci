@@ -1,0 +1,11 @@
+#!/bin/sh
+# mick-image: go
+
+e=0
+set -x
+
+go run ./cmd/check ./...                    || e=1
+go test -race -timeout=3m ./...             || e=1
+go test -race -timeout=3m -tags pgsql ./... || e=1
+
+exit $e

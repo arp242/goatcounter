@@ -268,13 +268,17 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 				`<span class="bar-c"><span class="cutoff">%s</span> %s</span>`, perc, ename, visit)
 		}
 
+		id := s.ID
+		if id == "" {
+			id = name
+		}
 		b.WriteString(fmt.Sprintf(`
 			<div class="%[1]s" data-name="%[2]s">
 				<span class="col-count col-perc">%[3]s</span>
 				<span class="col-name">%[4]s</span>
 				<span class="col-count">%[5]s</span>
 			</div>`,
-			class, name, perc, ref,
+			class, id, perc, ref,
 			tplfunc.Number(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat)))
 	}
 	b.WriteString(`</div>`)

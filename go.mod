@@ -2,16 +2,20 @@ module zgo.at/goatcounter
 
 go 1.13
 
-replace zgo.at/zdb => ../zdb
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it
 // compiles with JSON support without having to specify a build tag, which is
 // inconvenient, easily forgotten, and causes runtime errors.
 replace github.com/mattn/go-sqlite3 => github.com/zgoat/go-sqlite3 v1.14.5-json
 
+// https://github.com/oschwald/maxminddb-golang/pull/75
+replace github.com/oschwald/maxminddb-golang => github.com/zgoat/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664
+
+// https://github.com/oschwald/geoip2-golang/pull/68
+replace github.com/oschwald/geoip2-golang => github.com/zgoat/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06
+
 require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.6.0
-	github.com/arp242/geoip2-golang v1.4.0
 	github.com/boombuler/barcode v1.0.0
 	github.com/go-chi/chi v1.5.1
 	github.com/google/uuid v1.1.2
@@ -21,6 +25,8 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.5
 	// https://github.com/monoculum/formam/pull/38
 	github.com/monoculum/formam v0.0.0-20201224092534-2a1a2c48fe6d
+	github.com/oschwald/geoip2-golang v1.4.0
+	github.com/oschwald/maxminddb-golang v1.8.0
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
@@ -42,7 +48,7 @@ require (
 	zgo.at/zli v0.0.0-20201226102249-f33eeb78b623
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zpack v1.0.2-0.20201215095635-1a4d171dcd00
-	zgo.at/zstd v0.0.0-20201224102327-f4ff571ef72b
+	zgo.at/zstd v0.0.0-20201227165557-c822e638e28c
 	zgo.at/zstripe v1.0.0
-	zgo.at/zvalidate v0.0.0-20200611174908-64a702efab5a
+	zgo.at/zvalidate v0.0.0-20201227171559-09b756b3b132
 )
