@@ -196,32 +196,33 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 // ListRefsByPath lists all references for a path.
 func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time.Time, offset int) error {
 	site := MustGetSite(ctx)
-
 	limit := int(zint.NonZero(int64(site.Settings.LimitRefs()), 10))
 
 	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListRefsByPath */
 		with x as (
 			select path_id from paths
-			where site_id=:site and lower(path)=lower(:path)
+			where site_id = :site and lower(path) = lower(:path)
 		)
 		select
-			coalesce(sum(total), 0) as count,
+			coalesce(sum(total), 0)        as count,
 			coalesce(sum(total_unique), 0) as count_unique,
-			max(ref_scheme) as ref_scheme,
-			ref as name
+			max(ref_scheme)                as ref_scheme,
+			ref                            as name
 		from ref_counts
 		join x using (path_id)
 		where
-			site_id=:site and hour>=:start and hour<=:end
+			site_id = :site and hour >= :start and hour <= :end
 		group by ref
 		order by count_unique desc, ref desc
 		limit :limit offset :offset`,
-		struct {
-			Site          int64
-			Start, End    string
-			Path          string
-			Limit, Offset int
-		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), path, limit + 1, offset})
+		zdb.A{
+			"site":   site.ID,
+			"start":  start.Format(zdb.Date),
+			"end":    end.Format(zdb.Date),
+			"path":   path,
+			"limit":  limit + 1,
+			"offset": offset,
+		})
 
 	if len(h.Stats) > limit {
 		h.More = true
@@ -240,27 +241,27 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilte
 
 	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListTopRefs */
 		select
-			coalesce(sum(total), 0) as count,
+			coalesce(sum(total), 0)        as count,
 			coalesce(sum(total_unique), 0) as count_unique,
-			max(ref_scheme) as ref_scheme,
-			ref as name
+			max(ref_scheme)                as ref_scheme,
+			ref                            as name
 		from ref_counts
 		where
-			site_id=:site and hour>=:start and hour<=:end
-			{{and path_id in (:filter)}}
-			{{and ref not like :ref}}
+			site_id = :site and hour >= :start and hour <= :end
+			{{:filter     and path_id in (:filter)}}
+			{{:has_domain and ref not like :ref}}
 		group by ref
 		order by count_unique desc
 		limit 6 offset :offset`,
-		struct {
-			Site       int64
-			Start, End string
-			Filter     []int64
-			Ref        string
-			Offset     int
-		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter,
-			site.LinkDomain + "%", offset},
-		len(pathFilter) > 0, site.LinkDomain != "")
+		zdb.A{
+			"site":       site.ID,
+			"start":      start.Format(zdb.Date),
+			"end":        end.Format(zdb.Date),
+			"filter":     pathFilter,
+			"ref":        site.LinkDomain + "%",
+			"offset":     offset,
+			"has_domain": site.LinkDomain != "",
+		})
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListAllRefs")
 	}

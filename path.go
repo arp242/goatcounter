@@ -151,25 +151,20 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 //
 // if matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
-	query, args, err := zdb.Query(ctx, `/* PathFilter */
+	var paths []int64
+	err := zdb.QuerySelect(ctx, &paths, `/* PathFilter */
 		select path_id from paths
 		where
-			site_id=:site and (
+			site_id = :site and (
 				lower(path) like lower(:filter)
-				{{or lower(title) like lower(:filter)}}
+				{{:match_title or lower(title) like lower(:filter)}}
 			)
 		limit 65500`,
-		struct {
-			Site   int64
-			Filter string
-		}{MustGetSite(ctx).ID, "%" + filter + "%"},
-		matchTitle)
-	if err != nil {
-		return nil, errors.Wrap(err, "PathFilter")
-	}
-
-	var paths []int64
-	err = zdb.MustGet(ctx).SelectContext(ctx, &paths, query, args...)
+		zdb.A{
+			"site":        MustGetSite(ctx).ID,
+			"filter":      "%" + filter + "%",
+			"match_title": matchTitle,
+		})
 	if err != nil {
 		return nil, errors.Wrap(err, "PathFilter")
 	}

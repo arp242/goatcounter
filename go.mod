@@ -13,6 +13,9 @@ replace github.com/oschwald/maxminddb-golang => github.com/zgoat/maxminddb-golan
 // https://github.com/oschwald/geoip2-golang/pull/68
 replace github.com/oschwald/geoip2-golang => github.com/zgoat/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06
 
+// https://github.com/jmoiron/sqlx/pull/680
+replace github.com/jmoiron/sqlx => github.com/zgoat/sqlx v1.2.1-0.20201228123424-c5cc0d957b92
+
 require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.6.0
@@ -20,7 +23,7 @@ require (
 	github.com/go-chi/chi v1.5.1
 	github.com/google/uuid v1.1.2
 	github.com/jinzhu/now v1.1.1
-	github.com/jmoiron/sqlx v1.2.0
+	github.com/jmoiron/sqlx v1.2.1-0.20201120164427-00c6e74d816a
 	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.6
 	// https://github.com/monoculum/formam/pull/38
@@ -43,7 +46,7 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3
 	zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e
-	zgo.at/zdb v0.0.0-20201228093502-c15f9acf4dad
+	zgo.at/zdb v0.0.0-20201228125305-8487b1980069
 	zgo.at/zhttp v0.0.0-20201222222554-9c9e1d2d6f2c
 	zgo.at/zli v0.0.0-20201226102249-f33eeb78b623
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f

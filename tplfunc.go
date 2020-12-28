@@ -241,11 +241,11 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 			name = "(unknown)"
 		}
 		class := ""
-		if name == "(unknown)" || (s.RefScheme != nil && *s.RefScheme == *RefSchemeGenerated) {
+		if name == "(unknown)" || (s.RefScheme != nil && string(*s.RefScheme) == *RefSchemeGenerated) {
 			class = "generated"
 		}
 		visit := ""
-		if !link && s.RefScheme != nil && *s.RefScheme == *RefSchemeHTTP {
+		if !link && s.RefScheme != nil && string(*s.RefScheme) == *RefSchemeHTTP {
 			visit = fmt.Sprintf(
 				`<sup class="go"><a rel="noopener" target="_blank" href="http://%s">visit</a></sup>`,
 				name)

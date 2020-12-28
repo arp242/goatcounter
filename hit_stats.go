@@ -28,8 +28,8 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, pathFilt
 				sum(count_unique) as count_unique
 			from browser_stats
 			where
-				site_id=:site and day>=:start and day<=:end
-				{{and path_id in (:filter)}}
+				site_id = :site and day >= :start and day <= :end
+				{{:filter and path_id in (:filter)}}
 			group by browser_id
 			order by count_unique desc
 		)
@@ -41,15 +41,15 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, pathFilt
 		join browsers using (browser_id)
 		group by browsers.name
 		order by count_unique desc
-		limit :limit offset :offset
-		`,
+		limit :limit offset :offset`,
 		struct {
-			Site          int64
-			Start, End    string
-			Filter        []int64
-			Limit, Offset int
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset},
-		len(pathFilter) > 0)
+			Site   int64
+			Start  string
+			End    string
+			Filter []int64
+			Limit  int
+			Offset int
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset})
 
 	if len(h.Stats) > limit {
 		h.More = true
@@ -71,19 +71,18 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 		from browser_stats
 		join browsers using (browser_id)
 		where
-			site_id=:site and day>=:start and day<=:end and
-			{{path_id in (:filter) and}}
-			lower(name)=lower(:browser)
+			site_id = :site and day >= :start and day <= :end and
+			{{:filter path_id in (:filter) and}}
+			lower(name) = lower(:browser)
 		group by name, version
 		order by count_unique desc, name asc `,
 		struct {
-			Site       int64
-			Start, End string
-			Filter     []int64
-			Browser    string
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, browser},
-		len(pathFilter) > 0)
-
+			Site    int64
+			Start   string
+			End     string
+			Filter  []int64
+			Browser string
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, browser})
 	return errors.Wrap(err, "Stats.ListBrowser")
 }
 
@@ -100,8 +99,8 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, pathFilte
 				sum(count_unique) as count_unique
 			from system_stats
 			where
-				site_id=:site and day>=:start and day<=:end
-				{{and path_id in (:filter)}}
+				site_id = :site and day >= :start and day <= :end
+				{{:filter and path_id in (:filter)}}
 			group by system_id
 			order by count_unique desc
 		)
@@ -113,15 +112,15 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, pathFilte
 		join systems using (system_id)
 		group by systems.name
 		order by count_unique desc
-		limit :limit offset :offset
-		`,
+		limit :limit offset :offset`,
 		struct {
-			Site          int64
-			Start, End    string
-			Filter        []int64
-			Limit, Offset int
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset},
-		len(pathFilter) > 0)
+			Site   int64
+			Start  string
+			End    string
+			Filter []int64
+			Limit  int
+			Offset int
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset})
 
 	if len(h.Stats) > limit {
 		h.More = true
@@ -143,18 +142,18 @@ func (h *Stats) ListSystem(ctx context.Context, system string, start, end time.T
 		from system_stats
 		join systems using (system_id)
 		where
-			site_id=:site and day>=:start and day<=:end and
-			{{path_id in (:filter) and}}
-			lower(name)=lower(:system)
+			site_id = :site and day >= :start and day <= :end and
+			{{:filter path_id in (:filter) and}}
+			lower(name) = lower(:system)
 		group by name, version
 		order by count_unique desc, name asc`,
 		struct {
-			Site       int64
-			Start, End string
-			Filter     []int64
-			System     string
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, system},
-		len(pathFilter) > 0)
+			Site   int64
+			Start  string
+			End    string
+			Filter []int64
+			System string
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, system})
 	return errors.Wrap(err, "Stats.ListSystem")
 }
 
@@ -178,16 +177,17 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time, pathFilter 
 			sum(count) as count,
 			sum(count_unique) as count_unique
 		from size_stats
-		where site_id=:site and day>=:start and day<=:end
-		{{and path_id in (:filter)}}
+		where
+			site_id = :site and day >= :start and day <= :end
+			{{:filter and path_id in (:filter)}}
 		group by width
 		order by count_unique desc, name asc`,
 		struct {
-			Site       int64
-			Start, End string
-			Filter     []int64
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter},
-		len(pathFilter) > 0)
+			Site   int64
+			Start  string
+			End    string
+			Filter []int64
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter})
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListSize")
 	}
@@ -253,6 +253,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time,
 		return errors.Errorf("Stats.ListSizes: invalid value for name: %#v", name)
 	}
 
+	// TODO: where can be paramters
 	err := zdb.QuerySelect(ctx, &h.Stats, fmt.Sprintf(`/* Stats.ListSize */
 		select
 			width as name,
@@ -260,16 +261,16 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time,
 			sum(count_unique) as count_unique
 		from size_stats
 		where
-			site_id=:site and day>=:start and day<=:end
-			{{and path_id in (:filter)}}
+			site_id = :site and day >= :start and day <= :end
+			{{:filter and path_id in (:filter)}}
 			and %s
 		group by width`, where),
 		struct {
-			Site       int64
-			Start, End string
-			Filter     []int64
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter},
-		len(pathFilter) > 0)
+			Site   int64
+			Start  string
+			End    string
+			Filter []int64
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter})
 	if err != nil {
 		return errors.Wrap(err, "Stats.ListSize")
 	}
@@ -302,7 +303,7 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	query, args, err := zdb.Query(ctx, `/* Stats.ListLocations */
+	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListLocations */
 		with x as (
 			select
 				substr(location, 0, 3) as loc,
@@ -311,10 +312,10 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 			from location_stats
 			where
 				site_id = :site and day >= :start and day <= :end
-				{{and path_id in (:filter)}}
+				{{:filter and path_id in (:filter)}}
 			group by loc
 			order by count_unique desc
-				limit :limit offset :offset
+			limit :limit offset :offset
 		)
 		select
 			locations.iso_3166_2   as id,
@@ -323,55 +324,47 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 			x.count_unique         as count_unique
 		from x
 		join locations on locations.iso_3166_2 = x.loc
-		order by count_unique desc, name asc
-	`, struct {
-		Site   int64
-		Start  string
-		End    string
-		Filter []int64
-		Limit  int
-		Offset int
-	}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset},
-		len(pathFilter) > 0)
-	if err != nil {
-		return errors.Wrap(err, "Stats.ListLocations")
-	}
-
-	err = zdb.MustGet(ctx).SelectContext(ctx, &h.Stats, query, args...)
-	if err != nil {
-		return errors.Wrap(err, "Stats.ListLocations")
-	}
+		order by count_unique desc, name asc`,
+		struct {
+			Site   int64
+			Start  string
+			End    string
+			Filter []int64
+			Limit  int
+			Offset int
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset})
 
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-	return nil
+	return errors.Wrap(err, "Stats.ListLocations")
 }
 
 // ListLocation lists all divisions for a location
 func (h *Stats) ListLocation(ctx context.Context, country string, start, end time.Time, pathFilter []int64) error {
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
+
 	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListLocation */
 		select
 			coalesce(region_name, '(unknown)') as name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
+			sum(count)                         as count,
+			sum(count_unique)                  as count_unique
 		from location_stats
 		join locations on location = iso_3166_2
 		where
 			site_id = :site and day >= :start and day <= :end and
-			{{path_id in (:filter) and}}
+			{{:filter path_id in (:filter) and}}
 			country = :country
 		group by iso_3166_2, name
 		order by count_unique desc, name asc`,
 		struct {
-			Site       int64
-			Start, End string
-			Filter     []int64
-			Country    string
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, country},
-		len(pathFilter) > 0)
+			Site    int64
+			Start   string
+			End     string
+			Filter  []int64
+			Country string
+		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, country})
 	return errors.Wrap(err, "Stats.ListLocation")
 }

@@ -287,7 +287,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		E zdb.Bool `db:"event"`
 	}
 
-	query, args, err := zdb.Query(ctx, ` /* Hits.TestList */
+	err := zdb.QuerySelect(ctx, &hh, `/* Hits.TestList */
 		select
 			hits.*,
 			user_agents.browser_id,
@@ -298,15 +298,12 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		from hits
 		join user_agents using (user_agent_id)
 		join paths using (path_id)
-		{{where hits.site_id=:site}}
+		{{:site_only where hits.site_id = :site}}
 		order by hit_id asc`,
-		struct{ Site int64 }{MustGetSite(ctx).ID},
-		siteOnly)
-	if err != nil {
-		return errors.Wrap(err, "Hits.TestList")
-	}
-
-	err = zdb.MustGet(ctx).SelectContext(ctx, &hh, query, args...)
+		zdb.A{
+			"site":      MustGetSite(ctx).ID,
+			"site_only": siteOnly,
+		})
 	if err != nil {
 		return errors.Wrap(err, "Hits.TestList")
 	}
@@ -380,31 +377,25 @@ type HitStats []HitStat
 
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
-	query, args, err := zdb.Query(ctx, `/* HitStats.ListPathsLike */
+	err := zdb.QuerySelect(ctx, h, `/* HitStats.ListPathsLike */
 		with x as (
 			select path_id, path, title from paths
-			where site_id=:site and
-			(lower(path) like lower(:search) {{or lower(title) like lower(:search)}})
+			where site_id = :site and
+			(lower(path) like lower(:search) {{:match_title or lower(title) like lower(:search)}})
 		)
 		select
 			path_id, path, title,
 			sum(total) as count
 		from hit_counts
 		join x using(path_id)
-		where site_id=:site
+		where site_id = :site
 		group by path_id, path, title
-		order by count desc;
-	`, struct {
-		Site   int64
-		Search string
-	}{MustGetSite(ctx).ID, search},
-		matchTitle)
-
-	if err != nil {
-		return errors.Wrap(err, "Hits.ListPathsLike")
-	}
-
-	err = zdb.MustGet(ctx).SelectContext(ctx, h, query, args...)
+		order by count desc`,
+		zdb.A{
+			"site":        MustGetSite(ctx).ID,
+			"search":      search,
+			"match_title": matchTitle,
+		})
 	return errors.Wrap(err, "Hits.ListPathsLike")
 }
 
@@ -459,7 +450,7 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []in
 			from ref_counts
 			where
 				site_id=:site and hour>=:start and hour<=:end and
-				{{path_id in (:filter) and}}
+				{{:filter path_id in (:filter) and}}
 				ref=:ref
 			group by path_id
 			order by count desc
@@ -470,15 +461,14 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []in
 			x.count,
 			x.count_unique
 		from x
-		join paths using(path_id)
-		`,
-		struct {
-			Site       int64
-			Start, End string
-			Filter     []int64
-			Ref        string
-		}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter, ref},
-		len(pathFilter) > 0)
+		join paths using(path_id)`,
+		zdb.A{
+			"site":   MustGetSite(ctx).ID,
+			"start":  start.Format(zdb.Date),
+			"end":    end.Format(zdb.Date),
+			"filter": pathFilter,
+			"ref":    ref,
+		})
 
 	return errors.Wrap(err, "Stats.ByRef")
 }
