@@ -36,9 +36,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Vary", "Cookie")
 	}
 
+	q := r.URL.Query()
+
 	// Load view, but override this from query.
 	view, _ := site.Settings.Views.Get("default")
-	q := r.URL.Query()
 
 	start, end, err := getPeriod(w, r, site)
 	if err != nil {
@@ -50,9 +51,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 	} else {
-		if _, ok := q["hl-period"]; ok {
-			view.Period = q.Get("hl-period")
-		}
+		view.Period = q.Get("hl-period")
 	}
 
 	showRefs := q.Get("showrefs")
