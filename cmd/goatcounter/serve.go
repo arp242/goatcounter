@@ -202,7 +202,7 @@ func doServe(db zdb.DBCloser, testMode int, listen string, listenTLS uint8, tlsc
 	}()
 
 	bgrun.Run("shutdown", func() {
-		err := cron.PersistAndStat(zdb.With(context.Background(), db))
+		err := cron.PersistAndStat(zdb.WithDB(context.Background(), db))
 		if err != nil {
 			zlog.Error(err)
 		}
@@ -357,7 +357,7 @@ func flagFrom(from string, v *zvalidate.Validator) {
 
 func lsSites(db zdb.DB) ([]string, error) {
 	var sites goatcounter.Sites
-	err := sites.UnscopedList(zdb.With(context.Background(), db))
+	err := sites.UnscopedList(zdb.WithDB(context.Background(), db))
 	if err != nil {
 		return nil, err
 	}

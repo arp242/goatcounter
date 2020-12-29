@@ -120,7 +120,7 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 					// multiline stack trace output, which can't be filtered by
 					// zhttp.logwrap
 					var s goatcounter.Sites
-					ok, err := s.ContainsCNAME(zdb.With(ctx, db), host)
+					ok, err := s.ContainsCNAME(zdb.WithDB(ctx, db), host)
 					if err != nil && !zdb.ErrNoRows(err) {
 						return fmt.Errorf("%v", err)
 					}

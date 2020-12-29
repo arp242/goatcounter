@@ -344,7 +344,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		site.Cname = &args.Cname
 	}
 
-	err = zdb.TX(r.Context(), func(ctx context.Context, tx zdb.DB) error {
+	err = zdb.TX(r.Context(), func(ctx context.Context) error {
 		err := site.Insert(ctx)
 		if err != nil {
 			return err

@@ -30,7 +30,7 @@ func (h *HitStats) List(
 		limit := int(zint.NonZero(int64(site.Settings.LimitPages()), 10))
 
 		// TODO: we can probably fold this query in to the hit_stats one below.
-		err := zdb.QuerySelect(ctx, h, `/* HitStats.List */
+		err := zdb.Select(ctx, h, `/* HitStats.List */
 			with x as (
 				select path_id from hit_counts
 				where
@@ -84,7 +84,7 @@ func (h *HitStats) List(
 			paths[i] = hh[i].PathID
 		}
 
-		err := zdb.QuerySelect(ctx, &st, `/* HitStats.List */
+		err := zdb.Select(ctx, &st, `/* HitStats.List */
 			select path_id, day, stats, stats_unique
 			from hit_stats
 			where
@@ -149,7 +149,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		TotalUnique int       `db:"total_unique"`
 	}
 
-	err := zdb.QuerySelect(ctx, &tc, `/* HitStat.Totals */
+	err := zdb.Select(ctx, &tc, `/* HitStat.Totals */
 		select hour, sum(total) as total, sum(total_unique) as total_unique
 		from hit_counts
 		{{:noevents join paths using (path_id)}}
@@ -407,7 +407,7 @@ func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64
 
 	// TODO: optimize this by just selecting the few hours before/after TZ diff
 	// for the UTC.
-	err := zdb.QueryGet(ctx, &t, `/* GetTotalCount */
+	err := zdb.Get(ctx, &t, `/* GetTotalCount */
 		select
 			coalesce(sum(total), 0)                as total,
 			coalesce(sum(total_unique), 0)         as total_unique,
@@ -474,8 +474,8 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 				PgSQL  bool
 			}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date),
 				site.Settings.Timezone.OffsetRFC3339(), pathFilter,
-				zdb.SQLite(zdb.MustGet(ctx)),
-				zdb.PgSQL(zdb.MustGet(ctx))})
+				zdb.SQLite(ctx),
+				zdb.PgSQL(ctx)})
 	} else {
 		query, args, err = zdb.Query(ctx, `/* GetMax hourly */
 			select coalesce(max(total), 0) from hit_counts

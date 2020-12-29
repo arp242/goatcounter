@@ -70,7 +70,7 @@ func DB(t testing.TB) (context.Context, func()) {
 		t.Fatalf("connect to DB: %s", err)
 	}
 
-	ctx := zdb.With(context.Background(), db)
+	ctx := zdb.WithDB(context.Background(), db)
 	setupDB(t, db)
 	goatcounter.Memstore.TestInit(db)
 	ctx = initData(ctx, db, t)
@@ -79,7 +79,7 @@ func DB(t testing.TB) (context.Context, func()) {
 		goatcounter.Memstore.Reset()
 		goatcounter.Reset()
 		db.Close()
-		if zdb.PgSQL(db) {
+		if zdb.PgSQL(ctx) {
 			exec.Command("dropdb", dbname).Run()
 		}
 	}

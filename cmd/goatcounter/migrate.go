@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -63,11 +64,13 @@ func migrate() (int, error) {
 	}
 	defer db.Close()
 
+	ctx := zdb.WithDB(context.Background(), db)
+
 	if zstring.Contains(CommandLine.Args(), "show") || zstring.Contains(CommandLine.Args(), "list") {
 		m := zdb.NewMigrate(db, []string{"show"},
-			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[zdb.PgSQL(db)],
+			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[zdb.PgSQL(ctx)],
 			gomig.Migrations,
-			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[zdb.PgSQL(db)])
+			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[zdb.PgSQL(ctx)])
 		have, ran, err := m.List()
 		if err != nil {
 			return 1, err

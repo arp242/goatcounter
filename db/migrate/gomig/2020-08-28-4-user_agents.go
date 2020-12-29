@@ -17,7 +17,9 @@ import (
 )
 
 func UserAgents(db zdb.DB) error {
-	return zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, db zdb.DB) (retErr error) {
+	return zdb.TX(zdb.WithDB(context.Background(), db), func(ctx context.Context) (retErr error) {
+		db := zdb.MustGet(ctx)
+
 		var err error
 		defer func() {
 			if err == nil {

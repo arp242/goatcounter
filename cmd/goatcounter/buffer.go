@@ -173,7 +173,7 @@ func buffer() (int, error) {
 		}
 		defer db.Close()
 
-		secret, err := goatcounter.NewBufferKey(zdb.With(context.Background(), db))
+		secret, err := goatcounter.NewBufferKey(zdb.WithDB(context.Background(), db))
 		if err != nil {
 			return 1, err
 		}

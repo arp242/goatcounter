@@ -16,7 +16,9 @@ import (
 )
 
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context) error {
+		db := zdb.MustGet(ctx)
+
 		type gt struct {
 			count       int
 			countUnique int
@@ -56,7 +58,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "browser_stats", []string{"site_id", "day",
 			"path_id", "browser_id", "count", "count_unique"})
-		if zdb.PgSQL(zdb.MustGet(ctx)) {
+		if zdb.PgSQL(ctx) {
 			ins.OnConflict(`on conflict on constraint "browser_stats#site_id#path_id#day#browser_id" do update set
 				count        = browser_stats.count        + excluded.count,
 				count_unique = browser_stats.count_unique + excluded.count_unique`)

@@ -149,7 +149,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	p.Isbot = isbot.UserAgent(p.UserAgent)
 	p.ID, err = zdb.InsertID(ctx, "user_agent_id", `insert into user_agents
 		(ua, isbot, browser_id, system_id) values ($1, $2, $3, $4)`,
-		shortUA, p.Isbot, p.BrowserID, p.SystemID)
+		[]interface{}{shortUA, p.Isbot, p.BrowserID, p.SystemID})
 	if err != nil {
 		return errors.Wrap(err, "UserAgent.GetOrInsert insert")
 	}
@@ -182,7 +182,7 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 	if zdb.ErrNoRows(err) {
 		b.ID, err = zdb.InsertID(ctx, "browser_id",
 			`insert into browsers (name, version) values ($1, $2)`,
-			name, version)
+			[]interface{}{name, version})
 	}
 	if err != nil {
 		return errors.Wrap(err, "Browser.GetOrInsert")
@@ -215,7 +215,7 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 	if zdb.ErrNoRows(err) {
 		s.ID, err = zdb.InsertID(ctx, "system_id",
 			`insert into systems (name, version) values ($1, $2)`,
-			name, version)
+			[]interface{}{name, version})
 	}
 	if err != nil {
 		return errors.Wrap(err, "System.GetOrInsert")

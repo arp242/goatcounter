@@ -113,13 +113,13 @@ func create() (int, error) {
 
 	var ps goatcounter.Site
 	if parent != "" {
-		ps, err = findParent(zdb.With(context.Background(), db), parent)
+		ps, err = findParent(zdb.WithDB(context.Background(), db), parent)
 		if err != nil {
 			return 1, err
 		}
 	}
 
-	err = zdb.TX(zdb.With(context.Background(), db), func(ctx context.Context, tx zdb.DB) error {
+	err = zdb.TX(zdb.WithDB(context.Background(), db), func(ctx context.Context) error {
 		s := goatcounter.Site{
 			Code:  "serve-" + zcrypto.Secret64(),
 			Cname: &domain,

@@ -95,7 +95,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	// Insert new row.
 	p.ID, err = zdb.InsertID(ctx, "path_id",
 		`insert into paths (site_id, path, title, event) values ($1, $2, $3, $4)`,
-		site.ID, p.Path, p.Title, p.Event)
+		[]interface{}{site.ID, p.Path, p.Title, p.Event})
 	if err != nil {
 		return errors.Wrap(err, "Path.GetOrInsert insert")
 	}
@@ -152,7 +152,7 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 // if matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
 	var paths []int64
-	err := zdb.QuerySelect(ctx, &paths, `/* PathFilter */
+	err := zdb.Select(ctx, &paths, `/* PathFilter */
 		select path_id from paths
 		where
 			site_id = :site and (

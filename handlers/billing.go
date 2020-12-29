@@ -243,7 +243,7 @@ func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
 		return guru.New(400, "No Stripe customer for this site?")
 	}
 
-	err := zdb.TX(r.Context(), func(ctx context.Context, db zdb.DB) error {
+	err := zdb.TX(r.Context(), func(ctx context.Context) error {
 		err := site.UpdateStripe(r.Context(), *site.Stripe, goatcounter.PlanPersonal, "")
 		if err != nil {
 			return err
@@ -326,7 +326,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 			return zhttp.String(w, "okay")
 		}
 
-		ctx := zdb.With(context.Background(), zdb.MustGet(r.Context()))
+		ctx := zdb.WithDB(context.Background(), zdb.MustGet(r.Context()))
 		bgrun.Run("stripe", func() {
 			l := zlog.Module("billing").FieldsRequest(r).Field("session", s)
 			id, err := strconv.ParseInt(s.ClientReferenceID, 10, 64)

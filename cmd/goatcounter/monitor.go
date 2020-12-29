@@ -54,12 +54,13 @@ func monitor() (int, error) {
 		return 2, err
 	}
 	defer db.Close()
+	ctx := zdb.WithDB(context.Background(), db)
 
 	query := `/* monitor */ select count(*) from hits where `
 	if *site > 0 {
 		query += fmt.Sprintf(`site_id=%d and `, *site)
 	}
-	if zdb.PgSQL(db) {
+	if zdb.PgSQL(ctx) {
 		query += ` created_at > now() - interval '%d seconds'`
 	} else {
 		query += ` created_at > datetime(datetime(), '-%d seconds')`

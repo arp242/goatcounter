@@ -87,7 +87,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 		t.Fatal(err)
 	}
 
-	return zdb.With(context.Background(), db), tmp, func() {
+	return zdb.WithDB(context.Background(), db), tmp, func() {
 		db.Close()
 		goatcounter.Memstore.Reset()
 		goatcounter.Reset()

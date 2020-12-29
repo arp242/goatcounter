@@ -14,7 +14,9 @@ import (
 )
 
 func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context) error {
+		db := zdb.MustGet(ctx)
+
 		// Group by day + pathID + ref.
 		type gt struct {
 			total       int
@@ -50,7 +52,7 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "ref_counts", []string{"site_id", "path_id",
 			"ref", "hour", "total", "total_unique", "ref_scheme"})
-		if zdb.PgSQL(zdb.MustGet(ctx)) {
+		if zdb.PgSQL(ctx) {
 			ins.OnConflict(`on conflict on constraint "ref_counts#site_id#path_id#ref#hour" do update set
 				total        = ref_counts.total        + excluded.total,
 				total_unique = ref_counts.total_unique + excluded.total_unique`)

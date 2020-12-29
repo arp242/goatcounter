@@ -198,7 +198,7 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 	site := MustGetSite(ctx)
 	limit := int(zint.NonZero(int64(site.Settings.LimitRefs()), 10))
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListRefsByPath */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListRefsByPath */
 		with x as (
 			select path_id from paths
 			where site_id = :site and lower(path) = lower(:path)
@@ -239,7 +239,7 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilter []int64, offset int) error {
 	site := MustGetSite(ctx)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListTopRefs */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListTopRefs */
 		select
 			coalesce(sum(total), 0)        as count,
 			coalesce(sum(total_unique), 0) as count_unique,

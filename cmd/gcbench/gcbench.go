@@ -57,7 +57,7 @@ func main() {
 		Connect: dbConnect.String(),
 	})
 	zli.F(err)
-	ctx := zdb.With(context.Background(), db)
+	ctx := zdb.WithDB(context.Background(), db)
 
 	siteID := siteFlag.Int64()
 	var site goatcounter.Site

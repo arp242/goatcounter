@@ -14,7 +14,9 @@ import (
 )
 
 func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context) error {
+		db := zdb.MustGet(ctx)
+
 		type gt struct {
 			count       int
 			countUnique int
@@ -53,7 +55,7 @@ func updateLocationStats(ctx context.Context, hits []goatcounter.Hit, isReindex 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := bulk.NewInsert(ctx, "location_stats", []string{"site_id", "day",
 			"path_id", "location", "count", "count_unique"})
-		if zdb.PgSQL(zdb.MustGet(ctx)) {
+		if zdb.PgSQL(ctx) {
 			ins.OnConflict(`on conflict on constraint "location_stats#site_id#path_id#day#location" do update set
 				count        = location_stats.count        + excluded.count,
 				count_unique = location_stats.count_unique + excluded.count_unique`)

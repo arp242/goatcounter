@@ -72,7 +72,7 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 		l.CountryName, l.RegionName = findGeoName(l.Country, l.Region)
 		l.ID, err = zdb.InsertID(ctx, "location_id", `insert into locations
  			(country, region, country_name, region_name) values ($1, $2, $3, $4)`,
-			l.Country, l.Region, l.CountryName, l.RegionName)
+			[]interface{}{l.Country, l.Region, l.CountryName, l.RegionName})
 	}
 	if err != nil {
 		return errors.Wrap(err, "Location.ByCode")
@@ -117,7 +117,7 @@ func (l *Location) Lookup(ctx context.Context, ip string) error {
 		// and these kind of things change over time.
 		l.ID, err = zdb.InsertID(ctx, "location_id", `insert into locations
 			(country, region, country_name, region_name) values ($1, $2, $3, $4)`,
-			l.Country, l.Region, l.CountryName, l.RegionName)
+			[]interface{}{l.Country, l.Region, l.CountryName, l.RegionName})
 	}
 	if err != nil {
 		return errors.Wrap(err, "Location.Lookup")

@@ -77,7 +77,7 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 	var err error
 	e.ID, err = zdb.InsertID(ctx, "export_id",
 		`insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`,
-		e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID)
+		[]interface{}{e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID})
 	if err != nil {
 		return nil, errors.Wrap(err, "Export.Create")
 	}

@@ -227,8 +227,8 @@ func (s *Site) Insert(ctx context.Context) error {
 	s.ID, err = zdb.InsertID(ctx, "site_id", `insert into sites
 		(parent, code, cname, link_domain, settings, plan, created_at, first_hit_at)
 		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan,
-		s.CreatedAt.Format(zdb.Date), s.CreatedAt.Format(zdb.Date))
+		[]interface{}{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan,
+			s.CreatedAt.Format(zdb.Date), s.CreatedAt.Format(zdb.Date)})
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
@@ -555,9 +555,9 @@ func (s Site) PayExternal() string {
 // DeleteAll deletes all pageviews for this site, keeping the site itself and
 // user intact.
 func (s Site) DeleteAll(ctx context.Context) error {
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context) error {
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
-			_, err := tx.ExecContext(ctx, `delete from `+t+` where site_id=$1`, s.ID)
+			err := zdb.Exec(ctx, `delete from `+t+` where site_id=:id`, zdb.A{"id": s.ID})
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteAll: delete "+t)
 			}
@@ -573,8 +573,10 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 		return errors.Errorf("days must be at least 14: %d", days)
 	}
 
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context) error {
 		ival := interval(ctx, days)
+
+		tx := zdb.MustGet(ctx)
 
 		var pathIDs []int64
 		err := tx.SelectContext(ctx, &pathIDs, `/* Site.DeleteOlderThan */

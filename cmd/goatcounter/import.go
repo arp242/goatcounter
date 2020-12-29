@@ -271,7 +271,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 			return "", "", nil, err
 		}
 		defer db.Close()
-		ctx := zdb.With(context.Background(), db)
+		ctx := zdb.WithDB(context.Background(), db)
 
 		var site goatcounter.Site
 		siteID, intErr := strconv.ParseInt(siteFlag, 10, 64)

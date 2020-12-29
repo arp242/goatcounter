@@ -103,7 +103,7 @@ func reindex() (int, error) {
 		return 2, err
 	}
 	defer db.Close()
-	ctx := zdb.With(context.Background(), db)
+	ctx := zdb.WithDB(context.Background(), db)
 
 	if *doUA {
 		err = userAgents(ctx, silent)
@@ -207,8 +207,10 @@ func dosite(
 	}
 
 	for _, month := range months {
-		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
-			if zdb.PgSQL(db) {
+		err := zdb.TX(ctx, func(ctx context.Context) error {
+			db := zdb.MustGet(ctx)
+
+			if zdb.PgSQL(ctx) {
 				_, err := db.ExecContext(ctx, `lock table hits, hit_counts, hit_stats, size_stats, location_stats, browser_stats, system_stats
 					in exclusive mode`)
 				if err != nil {

@@ -20,7 +20,7 @@ func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, pathFilt
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListBrowsers */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListBrowsers */
 		with x as (
 			select
 				browser_id,
@@ -63,7 +63,7 @@ func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListBrowser */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListBrowser */
 		select
 			name || ' ' || version as name,
 			sum(count) as count,
@@ -91,7 +91,7 @@ func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, pathFilte
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListSystem */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListSystem */
 		with x as (
 			select
 				system_id,
@@ -134,7 +134,7 @@ func (h *Stats) ListSystem(ctx context.Context, system string, start, end time.T
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListSystem */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListSystem */
 		select
 			name || ' ' || version as name,
 			sum(count) as count,
@@ -171,7 +171,7 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time, pathFilter 
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListSizes */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListSizes */
 		select
 			width as name,
 			sum(count) as count,
@@ -254,7 +254,7 @@ func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time,
 	}
 
 	// TODO: where can be paramters
-	err := zdb.QuerySelect(ctx, &h.Stats, fmt.Sprintf(`/* Stats.ListSize */
+	err := zdb.Select(ctx, &h.Stats, fmt.Sprintf(`/* Stats.ListSize */
 		select
 			width as name,
 			sum(count) as count,
@@ -303,7 +303,7 @@ func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFil
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListLocations */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListLocations */
 		with x as (
 			select
 				substr(location, 0, 3) as loc,
@@ -346,7 +346,7 @@ func (h *Stats) ListLocation(ctx context.Context, country string, start, end tim
 	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ListLocation */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListLocation */
 		select
 			coalesce(region_name, '(unknown)') as name,
 			sum(count)                         as count,

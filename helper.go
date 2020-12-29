@@ -65,7 +65,7 @@ func GetUser(ctx context.Context) *User {
 // Useful for tests, or for "removing" the timeout on the request context so it
 // can be passed to background functions.
 func NewContext(ctx context.Context) context.Context {
-	n := zdb.With(context.Background(), zdb.MustGet(ctx))
+	n := zdb.WithDB(context.Background(), zdb.MustGet(ctx))
 	n = context.WithValue(n, ctxkey.User, GetUser(ctx))
 	n = context.WithValue(n, ctxkey.Site, GetSite(ctx))
 	return n
@@ -90,7 +90,7 @@ func Reset() {
 
 // TODO: Move to zdb
 func interval(ctx context.Context, days int) string {
-	if zdb.PgSQL(zdb.MustGet(ctx)) {
+	if zdb.PgSQL(ctx) {
 		return fmt.Sprintf(" now() - interval '%d days' ", days)
 	}
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)
@@ -128,13 +128,13 @@ func ChunkStat(stats []Stat) (int, []int) {
 
 func NewBufferKey(ctx context.Context) (string, error) {
 	secret := zcrypto.Secret256()
-	err := zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
-		_, err := tx.ExecContext(ctx, `delete from store where key='buffer-secret'`)
+	err := zdb.TX(ctx, func(ctx context.Context) error {
+		err := zdb.Exec(ctx, `delete from store where key='buffer-secret'`, nil)
 		if err != nil {
 			return err
 		}
 
-		_, err = tx.ExecContext(ctx, `insert into store (key, value) values ('buffer-secret', $1)`, secret)
+		err = zdb.Exec(ctx, `insert into store (key, value) values ('buffer-secret', :s)`, zdb.A{"s": secret})
 		return err
 	})
 	if err != nil {

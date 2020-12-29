@@ -258,7 +258,9 @@ func vacuumDeleted(ctx context.Context) error {
 
 	for _, s := range sites {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
-		err := zdb.TX(ctx, func(ctx context.Context, db zdb.DB) error {
+		err := zdb.TX(ctx, func(ctx context.Context) error {
+			db := zdb.MustGet(ctx)
+
 			for _, t := range []string{"hits", "paths", "hit_counts",
 				"ref_counts", "browser_stats", "system_stats", "hit_stats",
 				"location_stats", "size_stats", "exports", "api_tokens", "users",

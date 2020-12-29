@@ -287,7 +287,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		E zdb.Bool `db:"event"`
 	}
 
-	err := zdb.QuerySelect(ctx, &hh, `/* Hits.TestList */
+	err := zdb.Select(ctx, &hh, `/* Hits.TestList */
 		select
 			hits.*,
 			user_agents.browser_id,
@@ -334,7 +334,7 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 	query := `/* Hits.Purge */
 		delete from %s where site_id=? and path_id in (?)`
 
-	return zdb.TX(ctx, func(ctx context.Context, tx zdb.DB) error {
+	return zdb.TX(ctx, func(ctx context.Context) error {
 		site := MustGetSite(ctx).ID
 
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
@@ -342,7 +342,7 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
-			_, err = tx.ExecContext(ctx, zdb.MustGet(ctx).Rebind(query), args...)
+			_, err = zdb.MustGet(ctx).ExecContext(ctx, zdb.MustGet(ctx).Rebind(query), args...)
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
@@ -377,7 +377,7 @@ type HitStats []HitStat
 
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
-	err := zdb.QuerySelect(ctx, h, `/* HitStats.ListPathsLike */
+	err := zdb.Select(ctx, h, `/* HitStats.ListPathsLike */
 		with x as (
 			select path_id, path, title from paths
 			where site_id = :site and
@@ -441,7 +441,7 @@ type Stats struct {
 
 // ByRef lists all paths by reference.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []int64, ref string) error {
-	err := zdb.QuerySelect(ctx, &h.Stats, `/* Stats.ByRef */
+	err := zdb.Select(ctx, &h.Stats, `/* Stats.ByRef */
 		with x as (
 			select
 				path_id,

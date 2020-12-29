@@ -114,10 +114,10 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 			}()
 
 			// Add database.
-			*r = *r.WithContext(zdb.With(ctx, db))
+			*r = *r.WithContext(zdb.WithDB(ctx, db))
 			if !cfg.Prod {
 				if c, _ := r.Cookie("debug-explain"); c != nil {
-					*r = *r.WithContext(zdb.With(ctx, zdb.NewExplainDB(db.(zdb.DBCloser), os.Stdout, c.Value)))
+					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewExplainDB(db.(zdb.DBCloser), os.Stdout, c.Value)))
 				}
 			}
 

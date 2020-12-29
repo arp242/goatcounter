@@ -36,7 +36,7 @@ var stopped = zsync.NewAtomicInt(0)
 
 // RunOnce runs all tasks once and returns.
 func RunOnce(db zdb.DB) {
-	ctx := zdb.With(context.Background(), db)
+	ctx := zdb.WithDB(context.Background(), db)
 	l := zlog.Module("cron")
 	for _, t := range tasks {
 		err := t.fun(ctx)
@@ -48,7 +48,7 @@ func RunOnce(db zdb.DB) {
 
 // RunBackground runs tasks in the background according to the given schedule.
 func RunBackground(db zdb.DB) {
-	ctx := zdb.With(context.Background(), db)
+	ctx := zdb.WithDB(context.Background(), db)
 	l := zlog.Module("cron")
 
 	// TODO: should rewrite cron to always respond to channels, and then have
@@ -91,7 +91,7 @@ func RunBackground(db zdb.DB) {
 // on shutdown.
 func Wait(db zdb.DB) {
 	stopped.Set(1)
-	ctx := zdb.With(context.Background(), db)
+	ctx := zdb.WithDB(context.Background(), db)
 	for _, t := range tasks {
 		err := t.fun(ctx)
 		if err != nil {
