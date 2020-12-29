@@ -163,12 +163,12 @@ func flagDebug() *string { return CommandLine.String("debug", "", "") }
 func connectDB(connect string, migrate []string, create bool) (zdb.DBCloser, error) {
 	pgSQL := strings.HasPrefix(connect, "postgresql://") || strings.HasPrefix(connect, "postgres://")
 
-	opts := zdb.ConnectOptions{
-		Connect: connect,
-		Migrate: zdb.NewMigrate(nil, migrate,
+	opts := zdb.ConnectOptions{Connect: connect}
+	if migrate != nil {
+		opts.Migrate = zdb.NewMigrate(nil, migrate,
 			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[pgSQL],
 			gomig.Migrations,
-			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[pgSQL]),
+			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[pgSQL])
 	}
 	if create {
 		opts.Schema = map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[pgSQL]

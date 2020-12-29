@@ -59,7 +59,7 @@ Flags:
 
   -site        Only reindex this site ID. Default is to reindex all.
 
-  -quiet       Don't print progress.
+  -silent      Don't print progress.
 `
 
 // TODO: re-do the way this works. Instead of operating on the database directly
@@ -72,7 +72,7 @@ func reindex() (int, error) {
 	to := CommandLine.String("to", "", "")
 	table := CommandLine.String("table", "all", "")
 	pause := CommandLine.Int("pause", 0, "")
-	quiet := CommandLine.Bool("quiet", false, "")
+	silent := CommandLine.Bool("silent", false, "")
 	doUA := CommandLine.Bool("useragents", false, "")
 	var site int64
 	CommandLine.Int64Var(&site, "site", 0, "")
@@ -106,7 +106,7 @@ func reindex() (int, error) {
 	ctx := zdb.WithDB(context.Background(), db)
 
 	if *doUA {
-		err = userAgents(ctx, silent)
+		err = userAgents(ctx, *silent)
 		if err != nil {
 			return 1, err
 		}
@@ -153,13 +153,13 @@ func reindex() (int, error) {
 		if site > 0 && s.ID != site {
 			continue
 		}
-		err := dosite(ctx, s, tables, *pause, firstDay, lastDay, *quiet, len(sites), i+1)
+		err := dosite(ctx, s, tables, *pause, firstDay, lastDay, *silent, len(sites), i+1)
 		if err != nil {
 			return 1, err
 		}
 	}
 
-	if !*quiet {
+	if !*silent {
 		fmt.Fprintln(stdout, "")
 	}
 	return 0, nil
@@ -167,7 +167,7 @@ func reindex() (int, error) {
 
 func dosite(
 	ctx context.Context, site goatcounter.Site, tables []string,
-	pause int, firstDay, lastDay time.Time, quiet bool,
+	pause int, firstDay, lastDay time.Time, silent bool,
 	nsites, isite int,
 ) error {
 	siteID := site.ID
@@ -224,7 +224,7 @@ func dosite(
 				return err
 			}
 
-			if !quiet {
+			if !silent {
 				fmt.Fprintf(stdout, "\r\x1b[0Ksite %d (%d/%d) %s → %d", siteID, isite, nsites, month[0].Format("2006-01"), len(hits))
 			}
 

@@ -15,7 +15,7 @@ import (
 )
 
 const helpDatabase = `
-The db command accepts one of three commands;
+The db command accepts three commands:
 
     schema-sqlite      Print the SQLite database schema.
     schema-pgsql       Print the PostgreSQL database schema.
@@ -23,23 +23,23 @@ The db command accepts one of three commands;
                        success, 2 if there's a DB connection error, and 1 on any
                        other error. This requires setting a -db flag.
 
-These are mostly useful for setting up new instances in scripts, e.g.:
+This is useful for setting up new instances in scripts, e.g.:
 
     goatcounter db -db [..] test  # Note: -db must come before test!
     if [ $? -eq 2 ]; then
-        createdb goatcounter5
-        goatcounter db schema-pgsql | psql goatcounter5
+        createdb goatcounter
+        goatcounter db schema-pgsql | psql goatcounter
     fi
 
 Detailed documentation on the -db flag:
 
-GoatCounter can use SQLite and PostgreSQL. All commands accept the -db flag to
-customize the database connection string.
+    GoatCounter can use SQLite and PostgreSQL. All commands accept the -db flag
+    to customize the database connection string.
 
-You can select a database engine by using "sqlite://[..]" for SQLite, or
-"postgresql://[..]" (or "postgres://[..]") for PostgreSQL.
+    You can select a database engine by using "sqlite://[..]" for SQLite, or
+    "postgresql://[..]" (or "postgres://[..]") for PostgreSQL.
 
-There are no plans to support other database engines such as MySQL/MariaDB.
+    There are no plans to support other database engines such as MySQL/MariaDB.
 
 SQLite:
 
@@ -54,9 +54,9 @@ SQLite:
     See the go-sqlite3 documentation for a list of supported parameters:
     https://github.com/mattn/go-sqlite3/#connection-string
 
-    _journal_mode=wal is always added unless explicitly overridden. Generally
-    speaking using a Write-Ahead-Log is more suitable for GoatCounter than the
-    default DELETE journaling.
+    _journal_mode=wal is always added unless explicitly overridden. Usually the
+    Write Ahead Log is more suitable for GoatCounter than the default DELETE
+    journaling.
 
     The database is automatically created for the "serve" command, but you need
     to add -createdb to any other commands to create the database. This is to
@@ -82,10 +82,9 @@ PostgreSQL:
 
     You may want to consider lowering the "seq_page_cost" parameter; the query
     planner tends to prefer seq scans instead of index scans for some operations
-    with the default of 4, which is much slower.
-
-    I found that 0.5 is a fairly good setting, you can set it in your
-    postgresql.conf file, or just for one database with:
+    with the default of 4, which is much slower. I found that 0.5 is a fairly
+    good setting, you can set it in your postgresql.conf file, or just for one
+    database with:
 
         alter database goatcounter set seq_page_cost=.5
 

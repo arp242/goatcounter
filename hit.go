@@ -66,6 +66,10 @@ func (h *Hit) Ignore() bool {
 	if strings.Contains(h.Path, "<html>") || strings.Contains(h.Path, "<HTML>") {
 		return true
 	}
+	// Don't record favicon from logfiles.
+	if h.Path == "/favicon.ico" {
+		return true
+	}
 
 	return false
 }

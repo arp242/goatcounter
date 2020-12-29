@@ -301,7 +301,7 @@ insert into version values
 	('2020-08-28-5-paths-ua-fk'),
 	('2020-08-28-6-paths-views'),
 	('2020-12-11-1-constraint'),
-	('2020-12-15-1-widgets.sql'),
+	('2020-12-15-1-widgets'),
 	('2020-12-17-1-paths-isbot'),
 	('2020-12-21-1-view'),
 	('2020-12-24-1-user_agent_id_null'),

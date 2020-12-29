@@ -234,7 +234,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hitMu.Lock()
 	hits := make([]Hit, len(m.hits))
 	copy(hits, m.hits)
-	m.hits = []Hit{}
+	m.hits = make([]Hit, 0, 16)
 	m.hitMu.Unlock()
 
 	l := zlog.Module("memstore")

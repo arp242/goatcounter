@@ -255,7 +255,7 @@ func buffer() (int, error) {
 	zlog.Printf("Ready on %s", listen)
 	ch := zhttp.Serve(0, *testMode, &http.Server{
 		Addr:    listen,
-		Handler: mware.RealIP()(mware.Unpanic()(handle(reqBuffer, bufClient, isDown))),
+		Handler: mware.RealIP()(mware.Unpanic()(handleBuffer(reqBuffer, bufClient, isDown, silent))),
 
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       60 * time.Second,
@@ -270,7 +270,9 @@ func buffer() (int, error) {
 }
 
 // Collect all requests.
-func handle(reqBuffer chan handlers.APICountRequestHit, bufClient *http.Client, isDown *zsync.AtomicInt) http.Handler {
+func handleBuffer(
+	reqBuffer chan handlers.APICountRequestHit, bufClient *http.Client, isDown *zsync.AtomicInt, silent bool,
+) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if len(reqBuffer) == cap(reqBuffer) {
 			w.WriteHeader(http.StatusTooManyRequests)

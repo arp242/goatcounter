@@ -71,8 +71,6 @@ Environment:
                         must have "count" permission.
 `
 
-var silent bool
-
 func importCmd() (int, error) {
 	// So it uses https URLs in site.URL()
 	// TODO: should fix it to always use https even on dev and get rid of the
@@ -83,6 +81,7 @@ func importCmd() (int, error) {
 	debug := flagDebug()
 
 	var format, siteFlag string
+	var silent bool
 	CommandLine.StringVar(&siteFlag, "site", "", "")
 	CommandLine.StringVar(&format, "format", "csv", "")
 	CommandLine.BoolVar(&silent, "silent", false, "")

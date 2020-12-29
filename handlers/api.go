@@ -462,7 +462,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			Size:            a.Size,
 			Query:           a.Query,
 			Bot:             a.Bot,
-			CreatedAt:       a.CreatedAt,
+			CreatedAt:       a.CreatedAt.UTC(),
 			UserAgentHeader: a.UserAgent,
 			Location:        a.Location,
 			RemoteAddr:      a.IP,

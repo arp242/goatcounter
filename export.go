@@ -298,7 +298,7 @@ func Import(
 	}
 	persist(Hit{}, true)
 
-	l.Debugf("import done")
+	l.Printf("imported %d rows", n)
 	if errs.Len() > 0 {
 		l.Error(errs)
 	}
@@ -469,20 +469,4 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 	}
 
 	return last, errors.Wrap(err, "Hits.List")
-}
-
-func importError(l zlog.Log, user User, report error) {
-	if e, ok := report.(*errors.StackErr); ok {
-		report = e.Unwrap()
-	}
-
-	err := blackmail.Send("GoatCounter import error",
-		blackmail.From("GoatCounter import", cfg.EmailFrom),
-		blackmail.To(user.Email),
-		blackmail.BodyMustText(EmailTemplate("email_import_error.gotxt", struct {
-			Error error
-		}{report})))
-	if err != nil {
-		l.Error(err)
-	}
 }
