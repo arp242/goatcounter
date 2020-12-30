@@ -453,7 +453,7 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 		// calculate daily sums (which is a lot faster).
 		//
 		// So, not sure what to do with this.
-		query, args, err = zdb.Query(ctx, `/* GetMax daily */
+		query, args, err = zdb.Prepare(ctx, `/* GetMax daily */
 			select coalesce(sum(total), 0) as t
 			from hit_counts
 			where
@@ -477,7 +477,7 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 				zdb.SQLite(ctx),
 				zdb.PgSQL(ctx)})
 	} else {
-		query, args, err = zdb.Query(ctx, `/* GetMax hourly */
+		query, args, err = zdb.Prepare(ctx, `/* GetMax hourly */
 			select coalesce(max(total), 0) from hit_counts
 			where
 				hit_counts.site_id = :site and hour >= :start and hour <= :end
@@ -493,7 +493,7 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 		return 0, errors.Wrap(err, "getMax")
 	}
 
-	err = zdb.MustGet(ctx).GetContext(ctx, &max, query, args...)
+	err = zdb.Get(ctx, &max, query, args...)
 	if err != nil && !zdb.ErrNoRows(err) {
 		return 0, errors.Wrap(err, "getMax")
 	}

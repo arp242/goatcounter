@@ -6,7 +6,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
 	"strings"
@@ -208,10 +207,8 @@ func dosite(
 
 	for _, month := range months {
 		err := zdb.TX(ctx, func(ctx context.Context) error {
-			db := zdb.MustGet(ctx)
-
 			if zdb.PgSQL(ctx) {
-				_, err := db.ExecContext(ctx, `lock table hits, hit_counts, hit_stats, size_stats, location_stats, browser_stats, system_stats
+				err := zdb.Exec(ctx, `lock table hits, hit_counts, hit_stats, size_stats, location_stats, browser_stats, system_stats
 					in exclusive mode`)
 				if err != nil {
 					return err
@@ -219,7 +216,7 @@ func dosite(
 			}
 
 			var hits []goatcounter.Hit
-			err := db.SelectContext(ctx, &hits, query, siteID, dayStart(month[0]), dayEnd(month[1]))
+			err := zdb.Select(ctx, &hits, query, siteID, dayStart(month[0]), dayEnd(month[1]))
 			if err != nil {
 				return err
 			}
@@ -228,7 +225,7 @@ func dosite(
 				fmt.Fprintf(stdout, "\r\x1b[0Ksite %d (%d/%d) %s → %d", siteID, isite, nsites, month[0].Format("2006-01"), len(hits))
 			}
 
-			clearMonth(db, tables, month[0].Format("2006-01"), siteID)
+			clearMonth(ctx, tables, month[0].Format("2006-01"), siteID)
 
 			return cron.ReindexStats(ctx, site, hits, tables)
 		})
@@ -244,46 +241,44 @@ func dosite(
 	return nil
 }
 
-func must(r sql.Result, err error) {
+func must(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
-func clearMonth(db zdb.DB, tables []string, month string, siteID int64) {
-	ctx := context.Background()
-
+func clearMonth(ctx context.Context, tables []string, month string, siteID int64) {
 	where := fmt.Sprintf(" where site_id=%d and cast(day as varchar) like '%s-__'", siteID, month)
 	for _, t := range tables {
 		switch t {
 		case "hit_stats":
-			must(db.ExecContext(ctx, `delete from hit_stats`+where))
+			must(zdb.Exec(ctx, `delete from hit_stats`+where))
 		case "hit_counts":
-			must(db.ExecContext(ctx, fmt.Sprintf(
+			must(zdb.Exec(ctx, fmt.Sprintf(
 				`delete from hit_counts where site_id=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month)))
 		case "browser_stats":
-			must(db.ExecContext(ctx, `delete from browser_stats`+where))
+			must(zdb.Exec(ctx, `delete from browser_stats`+where))
 		case "system_stats":
-			must(db.ExecContext(ctx, `delete from system_stats`+where))
+			must(zdb.Exec(ctx, `delete from system_stats`+where))
 		case "location_stats":
-			must(db.ExecContext(ctx, `delete from location_stats`+where))
+			must(zdb.Exec(ctx, `delete from location_stats`+where))
 		case "ref_counts":
-			must(db.ExecContext(ctx, fmt.Sprintf(
+			must(zdb.Exec(ctx, fmt.Sprintf(
 				`delete from ref_counts where site_id=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month)))
 		case "size_stats":
-			must(db.ExecContext(ctx, `delete from size_stats`+where))
+			must(zdb.Exec(ctx, `delete from size_stats`+where))
 		case "all":
-			must(db.ExecContext(ctx, `delete from hit_stats`+where))
-			must(db.ExecContext(ctx, `delete from browser_stats`+where))
-			must(db.ExecContext(ctx, `delete from system_stats`+where))
-			must(db.ExecContext(ctx, `delete from location_stats`+where))
-			must(db.ExecContext(ctx, `delete from size_stats`+where))
-			must(db.ExecContext(ctx, fmt.Sprintf(
+			must(zdb.Exec(ctx, `delete from hit_stats`+where))
+			must(zdb.Exec(ctx, `delete from browser_stats`+where))
+			must(zdb.Exec(ctx, `delete from system_stats`+where))
+			must(zdb.Exec(ctx, `delete from location_stats`+where))
+			must(zdb.Exec(ctx, `delete from size_stats`+where))
+			must(zdb.Exec(ctx, fmt.Sprintf(
 				`delete from hit_counts where site_id=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month)))
-			must(db.ExecContext(ctx, fmt.Sprintf(
+			must(zdb.Exec(ctx, fmt.Sprintf(
 				`delete from ref_counts where site_id=%d and cast(hour as varchar) like '%s-%%'`,
 				siteID, month)))
 		}
@@ -295,7 +290,7 @@ func dayEnd(t time.Time) string   { return t.Format("2006-01-02") + " 23:59:59" 
 
 func userAgents(ctx context.Context, silent bool) error {
 	var uas []goatcounter.UserAgent
-	err := zdb.MustGet(ctx).SelectContext(ctx, &uas, `select * from user_agents`)
+	err := zdb.Select(ctx, &uas, `select * from user_agents`)
 	if err != nil {
 		return err
 	}

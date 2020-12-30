@@ -181,8 +181,8 @@ func (s *Site) Validate(ctx context.Context) error {
 		}
 
 		var cname uint8
-		err := zdb.MustGet(ctx).GetContext(ctx, &cname,
-			`select 1 from sites where lower(cname)=lower($1) and site_id!=$2 limit 1`,
+		err := zdb.Get(ctx, &cname,
+			`select 1 from sites where lower(cname) = lower($1) and site_id != $2 limit 1`,
 			s.Cname, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
@@ -198,8 +198,8 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	if !v.HasErrors() {
 		var code uint8
-		err := zdb.MustGet(ctx).GetContext(ctx, &code,
-			`select 1 from sites where lower(code)=lower($1) and site_id!=$2 limit 1`,
+		err := zdb.Get(ctx, &code,
+			`select 1 from sites where lower(code) = lower($1) and site_id != $2 limit 1`,
 			s.Code, s.ID)
 		if err != nil && err != sql.ErrNoRows {
 			return err
@@ -224,11 +224,9 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	s.ID, err = zdb.InsertID(ctx, "site_id", `insert into sites
-		(parent, code, cname, link_domain, settings, plan, created_at, first_hit_at)
-		values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-		[]interface{}{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan,
-			s.CreatedAt.Format(zdb.Date), s.CreatedAt.Format(zdb.Date)})
+	s.ID, err = zdb.InsertID(ctx, "site_id",
+		`insert into sites (parent, code, cname, link_domain, settings, plan, created_at, first_hit_at) values (?, ?, ?, ?, ?, ?, ?, ?)`,
+		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date), s.CreatedAt.Format(zdb.Date))
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
@@ -247,7 +245,7 @@ func (s *Site) Update(ctx context.Context) error {
 		return err
 	}
 
-	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+	err = zdb.Exec(ctx,
 		`update sites set settings=$1, cname=$2, link_domain=$3, updated_at=$4 where site_id=$5`,
 		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
 	if err != nil {
@@ -278,7 +276,7 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 		s.BillingAmount = &amount
 	}
 
-	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+	err = zdb.Exec(ctx,
 		`update sites set stripe=$1, plan=$2, billing_amount=$3, updated_at=$4 where site_id=$5`,
 		s.Stripe, s.Plan, s.BillingAmount, s.UpdatedAt.Format(zdb.Date), s.ID)
 	if err != nil {
@@ -304,7 +302,7 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 		return err
 	}
 
-	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+	err = zdb.Exec(ctx,
 		`update sites set code=$1, updated_at=$2 where site_id=$3`,
 		s.Code, s.UpdatedAt.Format(zdb.Date), s.ID)
 	if err != nil {
@@ -316,8 +314,7 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 }
 
 func (s *Site) UpdateReceivedData(ctx context.Context) error {
-	_, err := zdb.MustGet(ctx).ExecContext(ctx,
-		`update sites set received_data=1 where site_id=$1`, s.ID)
+	err := zdb.Exec(ctx, `update sites set received_data=1 where site_id=$1`, s.ID)
 
 	s.ClearCache(false)
 	return errors.Wrap(err, "Site.UpdateReceivedData")
@@ -325,7 +322,7 @@ func (s *Site) UpdateReceivedData(ctx context.Context) error {
 
 func (s *Site) UpdateFirstHitAt(ctx context.Context, f time.Time) error {
 	s.FirstHitAt = f
-	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+	err := zdb.Exec(ctx,
 		`update sites set first_hit_at=$1 where site_id=$2`,
 		s.FirstHitAt.Format(zdb.Date), s.ID)
 
@@ -342,7 +339,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 	n := Now()
 	s.CnameSetupAt = &n
 
-	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+	err := zdb.Exec(ctx,
 		`update sites set cname_setup_at=$1 where site_id=$2`,
 		s.CnameSetupAt.Format(zdb.Date), s.ID)
 	if err != nil {
@@ -360,7 +357,7 @@ func (s *Site) Delete(ctx context.Context) error {
 	}
 
 	t := Now()
-	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+	err := zdb.Exec(ctx,
 		`update sites set state=$1, updated_at=$2 where site_id=$3 or parent=$3`,
 		StateDeleted, t.Format(zdb.Date), s.ID)
 	if err != nil {
@@ -384,7 +381,7 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 		return nil
 	}
 
-	err := zdb.MustGet(ctx).GetContext(ctx, s,
+	err := zdb.Get(ctx, s,
 		`/* Site.ByID */ select * from sites where site_id=$1 and state=$2`,
 		id, StateActive)
 	if err != nil {
@@ -396,7 +393,7 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 
 // ByCode gets a site by code.
 func (s *Site) ByCode(ctx context.Context, code string) error {
-	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, s,
+	return errors.Wrapf(zdb.Get(ctx, s,
 		`/* Site.ByCode */ select * from sites where code=$1 and state=$2`,
 		code, StateActive), "Site.ByCode %s", code)
 }
@@ -411,7 +408,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 
 	// Custom domain or serve.
 	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
-		err := zdb.MustGet(ctx).GetContext(ctx, s,
+		err := zdb.Get(ctx, s,
 			`/* Site.ByHost */ select * from sites where lower(cname)=lower($1) and state=$2`,
 			zhttp.RemovePort(host), StateActive)
 		if err != nil {
@@ -427,7 +424,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 		return errors.Errorf("Site.ByHost: no subdomain in host %q", host)
 	}
 
-	err := zdb.MustGet(ctx).GetContext(ctx, s,
+	err := zdb.Get(ctx, s,
 		`/* Site.ByHost */ select * from sites where lower(code)=lower($1) and state=$2`,
 		host[:p], StateActive)
 	if err != nil {
@@ -444,7 +441,7 @@ func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 		col = "cname"
 	}
 	var codes []string
-	err := zdb.MustGet(ctx).SelectContext(ctx, &codes, `/* Site.ListSubs */
+	err := zdb.Select(ctx, &codes, `/* Site.ListSubs */
 		select `+col+` from sites
 		where state=$1 and (parent=$2 or site_id=$2) or (
 			parent  = (select parent from sites where site_id=$2) or
@@ -576,38 +573,35 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	return zdb.TX(ctx, func(ctx context.Context) error {
 		ival := interval(ctx, days)
 
-		tx := zdb.MustGet(ctx)
-
 		var pathIDs []int64
-		err := tx.SelectContext(ctx, &pathIDs, `/* Site.DeleteOlderThan */
+		err := zdb.Select(ctx, &pathIDs, `/* Site.DeleteOlderThan */
 			select path_id from hit_counts where site_id=$1 and hour < `+ival+` group by path_id`, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: get paths")
 		}
 
 		for _, t := range statTables {
-			_, err := tx.ExecContext(ctx, `delete from `+t+` where site_id=$1 and day < `+ival, s.ID)
+			err := zdb.Exec(ctx, `delete from `+t+` where site_id=$1 and day < `+ival, s.ID)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan: delete "+t)
 			}
 		}
 
-		_, err = tx.ExecContext(ctx, `delete from hit_counts where site_id=$1 and hour < `+ival, s.ID)
+		err = zdb.Exec(ctx, `delete from hit_counts where site_id=$1 and hour < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete hit_counts")
 		}
-		_, err = tx.ExecContext(ctx, `delete from ref_counts where site_id=$1 and hour < `+ival, s.ID)
+		err = zdb.Exec(ctx, `delete from ref_counts where site_id=$1 and hour < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete ref_counts")
 		}
 
-		_, err = tx.ExecContext(ctx, `delete from hits where site_id=$1 and created_at < `+ival, s.ID)
+		err = zdb.Exec(ctx, `delete from hits where site_id=$1 and created_at < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete hits")
 		}
 
 		if len(pathIDs) > 0 {
-			db := zdb.MustGet(ctx)
 			query, args, err := sqlx.In(`/* Site.DeleteOlderThan */
 				select path_id from hit_counts where site_id=? and path_id in (?)`,
 				s.ID, pathIDs)
@@ -615,7 +609,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 				return errors.Wrap(err, "Site.DeleteOlderThan")
 			}
 			var remainPath []int64
-			err = tx.SelectContext(ctx, &remainPath, db.Rebind(query), args...)
+			err = zdb.Select(ctx, &remainPath, query, args...)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan")
 			}
@@ -626,7 +620,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 				if err != nil {
 					return errors.Wrap(err, "Site.DeleteOlderThan")
 				}
-				_, err = tx.ExecContext(ctx, db.Rebind(query), args...)
+				err = zdb.Exec(ctx, query, args...)
 				if err != nil {
 					return errors.Wrap(err, "Site.DeleteOlderThan")
 				}
@@ -647,7 +641,7 @@ type Sites []Site
 
 // UnscopedList lists all sites, not scoped to the current user.
 func (s *Sites) UnscopedList(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s,
+	return errors.Wrap(zdb.Select(ctx, s,
 		`/* Sites.List */ select * from sites where state=$1`,
 		StateActive), "Sites.List")
 }
@@ -655,14 +649,14 @@ func (s *Sites) UnscopedList(ctx context.Context) error {
 // UnscopedListCnames all sites that have CNAME set, not scoped to the current
 // user.
 func (s *Sites) UnscopedListCnames(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, `/* Sites.ListCnames */
+	return errors.Wrap(zdb.Select(ctx, s, `/* Sites.ListCnames */
 		select * from sites where state=$1 and cname is not null`,
 		StateActive), "Sites.List")
 }
 
 // ListSubs lists all subsites for the current site.
 func (s *Sites) ListSubs(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, `/* Sites.ListSubs */
+	return errors.Wrap(zdb.Select(ctx, s, `/* Sites.ListSubs */
 		select * from sites where parent=$1 and state=$2 order by code`,
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
 }
@@ -670,7 +664,7 @@ func (s *Sites) ListSubs(ctx context.Context) error {
 // ForThisAccount gets all sites associated with this account.
 func (s *Sites) ForThisAccount(ctx context.Context, excludeCurrent bool) error {
 	site := MustGetSite(ctx)
-	err := zdb.MustGet(ctx).SelectContext(ctx, s, `/* Sites.ForThisAccount */
+	err := zdb.Select(ctx, s, `/* Sites.ForThisAccount */
 		select * from sites
 		where state=$1 and (parent=$2 or site_id=$2) or (
 			parent  = (select parent from sites where site_id=$2) or
@@ -698,7 +692,7 @@ func (s *Sites) ForThisAccount(ctx context.Context, excludeCurrent bool) error {
 // ContainsCNAME reports if there is a site with this CNAME set.
 func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 	var ok bool
-	err := zdb.MustGet(ctx).GetContext(ctx, &ok, `/* Sites.ContainsCNAME */
+	err := zdb.Get(ctx, &ok, `/* Sites.ContainsCNAME */
 		select 1 from sites where lower(cname)=lower($1) limit 1`, cname)
 	return ok, errors.Wrapf(err, "Sites.ContainsCNAME for %q", cname)
 }
@@ -706,7 +700,7 @@ func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 // OldSoftDeleted finds all sites which have been soft-deleted more than a week
 // ago.
 func (s *Sites) OldSoftDeleted(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, s, fmt.Sprintf(`/* Sites.OldSoftDeleted */
+	return errors.Wrap(zdb.Select(ctx, s, fmt.Sprintf(`/* Sites.OldSoftDeleted */
 		select * from sites where state=$1 and updated_at < %s`, interval(ctx, 7)),
 		StateDeleted), "Sites.OldSoftDeleted")
 }

@@ -32,7 +32,7 @@ func TestBuffer(t *testing.T) {
 	run(t, 0, []string{"buffer", "-generate-key", "-db", dbc})
 
 	var key string
-	err := zdb.MustGet(ctx).GetContext(ctx, &key,
+	err := zdb.Get(ctx, &key,
 		`select value from store where key='buffer-secret'`)
 	if err != nil {
 		t.Fatal(err)
@@ -47,8 +47,8 @@ func TestBuffer(t *testing.T) {
 	}
 
 	i := zsync.NewAtomicInt(0)
-	handle := handlers.NewBackend(zdb.MustGet(ctx), nil)
-	goatcounter.Memstore.TestInit(zdb.MustGet(ctx))
+	handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil)
+	goatcounter.Memstore.TestInit(zdb.MustGetDB(ctx))
 
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ii := i.Add(1)
@@ -89,7 +89,7 @@ func TestBuffer(t *testing.T) {
 
 	cron.PersistAndStat(ctx)
 	var out int
-	err = zdb.MustGet(ctx).GetContext(ctx, &out, `select count(*) from hits`)
+	err = zdb.Get(ctx, &out, `select count(*) from hits`)
 	if err != nil {
 		t.Fatal(err)
 	}

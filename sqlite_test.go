@@ -17,7 +17,7 @@ func TestSQLiteJSON(t *testing.T) {
 	defer clean()
 
 	var out string
-	err := zdb.MustGet(ctx).GetContext(ctx, &out, `select json('["a"  ,  "b"]')`)
+	err := zdb.Get(ctx, &out, `select json('["a"  ,  "b"]')`)
 	if err != nil {
 		t.Fatal(err)
 	}

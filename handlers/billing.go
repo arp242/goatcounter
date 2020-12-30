@@ -326,7 +326,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 			return zhttp.String(w, "okay")
 		}
 
-		ctx := zdb.WithDB(context.Background(), zdb.MustGet(r.Context()))
+		ctx := zdb.WithDB(context.Background(), zdb.MustGetDB(r.Context()))
 		bgrun.Run("stripe", func() {
 			l := zlog.Module("billing").FieldsRequest(r).Field("session", s)
 			id, err := strconv.ParseInt(s.ClientReferenceID, 10, 64)

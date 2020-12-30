@@ -353,7 +353,7 @@ func TestDashboardBarChart(t *testing.T) {
 		r.Host = site.Code + "." + cfg.Domain
 		login(t, r)
 
-		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 
 		doc, err := goquery.NewDocumentFromReader(rr.Body)

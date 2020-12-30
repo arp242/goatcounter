@@ -28,7 +28,7 @@ func TestMemstore(t *testing.T) {
 	}
 
 	var count int
-	err = zdb.MustGet(ctx).GetContext(ctx, &count, `select count(*) from hits`)
+	err = zdb.Get(ctx, &count, `select count(*) from hits`)
 	if err != nil {
 		t.Fatal(err)
 	}

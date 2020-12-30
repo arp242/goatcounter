@@ -91,7 +91,7 @@ func runTest(
 					login(t, r)
 				}
 
-				tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+				tt.router(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 				ztest.Code(t, rr, tt.wantCode)
 				if !strings.Contains(rr.Body.String(), tt.wantBody) {
 					t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
@@ -123,7 +123,7 @@ func runTest(
 				login(t, r)
 			}
 
-			tt.router(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			tt.router(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantFormCode)
 			if !strings.Contains(rr.Body.String(), tt.wantFormBody) {
 				t.Errorf("wrong body\nwant: %q\ngot:  %q", tt.wantFormBody, rr.Body.String())

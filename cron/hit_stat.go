@@ -17,8 +17,6 @@ import (
 
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context) error {
-		db := zdb.MustGet(ctx)
-
 		type gt struct {
 			count       []int
 			countUnique []int
@@ -45,8 +43,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 
 				if !zdb.PgSQL(ctx) && !isReindex {
 					var err error
-					v.count, v.countUnique, err = existingHitStats(ctx, db,
-						h.Site, day, v.pathID)
+					v.count, v.countUnique, err = existingHitStats(ctx, h.Site, day, v.pathID)
 					if err != nil {
 						return err
 					}
@@ -83,7 +80,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 					select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
 				) `)
 
-			_, err := db.ExecContext(ctx, `lock table hit_stats in exclusive mode`)
+			err := zdb.Exec(ctx, `lock table hit_stats in exclusive mode`)
 			if err != nil {
 				return err
 			}
@@ -107,16 +104,13 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 	})
 }
 
-func existingHitStats(
-	txctx context.Context, tx zdb.DB, siteID int64,
-	day string, pathID int64,
-) ([]int, []int, error) {
+func existingHitStats(ctx context.Context, siteID int64, day string, pathID int64) ([]int, []int, error) {
 
 	var ex []struct {
 		Stats       []byte `db:"stats"`
 		StatsUnique []byte `db:"stats_unique"`
 	}
-	err := tx.SelectContext(txctx, &ex, `/* existingHitStats */
+	err := zdb.Select(ctx, &ex, `/* existingHitStats */
 		select stats, stats_unique from hit_stats
 		where site_id=$1 and day=$2 and path_id=$3 limit 1`,
 		siteID, day, pathID)
@@ -127,7 +121,7 @@ func existingHitStats(
 		return make([]int, 24), make([]int, 24), nil
 	}
 
-	_, err = tx.ExecContext(txctx, `delete from hit_stats where
+	err = zdb.Exec(ctx, `delete from hit_stats where
 		site_id=$1 and day=$2 and path_id=$3`,
 		siteID, day, pathID)
 	if err != nil {

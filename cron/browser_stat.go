@@ -17,8 +17,6 @@ import (
 
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context) error {
-		db := zdb.MustGet(ctx)
-
 		type gt struct {
 			count       int
 			countUnique int
@@ -63,7 +61,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 				count        = browser_stats.count        + excluded.count,
 				count_unique = browser_stats.count_unique + excluded.count_unique`)
 
-			_, err := db.ExecContext(ctx, `lock table browser_stats in exclusive mode`)
+			err := zdb.Exec(ctx, `lock table browser_stats in exclusive mode`)
 			if err != nil {
 				return err
 			}
@@ -94,7 +92,7 @@ func getUA(ctx context.Context, uaID int64) (browser, system int64) {
 			BrowserID   int64 `db:"browser_id"`
 			SystemID    int64 `db:"system_id"`
 		}
-		err := zdb.MustGet(ctx).SelectContext(ctx, &ua,
+		err := zdb.Select(ctx, &ua,
 			`select user_agent_id, browser_id, system_id from user_agents`)
 		if err != nil {
 			panic(err)

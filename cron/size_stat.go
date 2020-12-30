@@ -15,8 +15,6 @@ import (
 
 func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context) error {
-		db := zdb.MustGet(ctx)
-
 		type gt struct {
 			count       int
 			countUnique int
@@ -59,7 +57,7 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 				count        = size_stats.count        + excluded.count,
 				count_unique = size_stats.count_unique + excluded.count_unique`)
 
-			_, err := db.ExecContext(ctx, `lock table size_stats in exclusive mode`)
+			err := zdb.Exec(ctx, `lock table size_stats in exclusive mode`)
 			if err != nil {
 				return err
 			}

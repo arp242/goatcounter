@@ -36,7 +36,7 @@ func (p *UserAgent) Validate(ctx context.Context) error {
 }
 
 func (p *UserAgent) ByID(ctx context.Context, id int64) error {
-	err := zdb.MustGet(ctx).GetContext(ctx, p, `/* UserAgent.ByID */
+	err := zdb.Get(ctx, p, `/* UserAgent.ByID */
 		select * from user_agents where user_agent_id=$1`, id)
 	return errors.Wrapf(err, "UserAgent.ByID %d", id)
 }
@@ -86,7 +86,7 @@ func (p *UserAgent) Update(ctx context.Context) error {
 		return nil
 	}
 
-	_, err = zdb.MustGet(ctx).ExecContext(ctx,
+	err = zdb.Exec(ctx,
 		`update user_agents set isbot=$1, browser_id=$2, system_id=$3 where user_agent_id=$4`,
 		p.Isbot, p.BrowserID, p.SystemID, p.ID)
 	if err != nil {
@@ -113,12 +113,8 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 		return err
 	}
 
-	row := zdb.MustGet(ctx).QueryRowxContext(ctx, `/* UserAgent.GetOrInsert */
-		select * from user_agents where ua=$1 limit 1`, shortUA)
-	if row.Err() != nil {
-		return errors.Errorf("UserAgent.GetOrInsert select: %w", row.Err())
-	}
-	err = row.StructScan(p)
+	err = zdb.Get(ctx, p, `/* UserAgent.GetOrInsert */
+		select * from user_agents where ua = $1 limit 1`, shortUA)
 	if err != nil && !zdb.ErrNoRows(err) {
 		return errors.Errorf("UserAgent.GetOrInsert select: %w", err)
 	}
@@ -147,9 +143,9 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 
 	// Insert new row.
 	p.Isbot = isbot.UserAgent(p.UserAgent)
-	p.ID, err = zdb.InsertID(ctx, "user_agent_id", `insert into user_agents
-		(ua, isbot, browser_id, system_id) values ($1, $2, $3, $4)`,
-		[]interface{}{shortUA, p.Isbot, p.BrowserID, p.SystemID})
+	p.ID, err = zdb.InsertID(ctx, "user_agent_id",
+		`insert into user_agents (ua, isbot, browser_id, system_id) values (?, ?, ?, ?)`,
+		shortUA, p.Isbot, p.BrowserID, p.SystemID)
 	if err != nil {
 		return errors.Wrap(err, "UserAgent.GetOrInsert insert")
 	}
@@ -176,13 +172,13 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 	b.Name = name
 	b.Version = version
 
-	err := zdb.MustGet(ctx).GetContext(ctx, &b.ID,
+	err := zdb.Get(ctx, &b.ID,
 		`select browser_id from browsers where name=$1 and version=$2`,
 		name, version)
 	if zdb.ErrNoRows(err) {
 		b.ID, err = zdb.InsertID(ctx, "browser_id",
-			`insert into browsers (name, version) values ($1, $2)`,
-			[]interface{}{name, version})
+			`insert into browsers (name, version) values (?, ?)`,
+			name, version)
 	}
 	if err != nil {
 		return errors.Wrap(err, "Browser.GetOrInsert")
@@ -209,13 +205,13 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 	s.Name = name
 	s.Version = version
 
-	err := zdb.MustGet(ctx).GetContext(ctx, &s.ID,
+	err := zdb.Get(ctx, &s.ID,
 		`select system_id from systems where name=$1 and version=$2`,
 		name, version)
 	if zdb.ErrNoRows(err) {
 		s.ID, err = zdb.InsertID(ctx, "system_id",
-			`insert into systems (name, version) values ($1, $2)`,
-			[]interface{}{name, version})
+			`insert into systems (name, version) values (?, ?)`,
+			name, version)
 	}
 	if err != nil {
 		return errors.Wrap(err, "System.GetOrInsert")

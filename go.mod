@@ -5,7 +5,7 @@ go 1.13
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it
 // compiles with JSON support without having to specify a build tag, which is
 // inconvenient, easily forgotten, and causes runtime errors.
-replace github.com/mattn/go-sqlite3 => github.com/zgoat/go-sqlite3 v1.14.5-json
+replace github.com/mattn/go-sqlite3 => github.com/zgoat/go-sqlite3 v1.14.6-json
 
 // https://github.com/oschwald/maxminddb-golang/pull/75
 replace github.com/oschwald/maxminddb-golang => github.com/zgoat/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664
@@ -46,7 +46,7 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3
 	zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e
-	zgo.at/zdb v0.0.0-20201229100941-260f78c0584b
+	zgo.at/zdb v0.0.0-20201230221703-1c334f9465a5
 	zgo.at/zhttp v0.0.0-20201222222554-9c9e1d2d6f2c
 	zgo.at/zli v0.0.0-20201226102249-f33eeb78b623
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f

@@ -60,23 +60,16 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		return nil
 	}
 
-	db := zdb.MustGet(ctx)
-
 	p.Defaults(ctx)
 	err := p.Validate(ctx)
 	if err != nil {
 		return err
 	}
 
-	row := db.QueryRowxContext(ctx, `/* Path.GetOrInsert */
+	err = zdb.Get(ctx, p, `/* Path.GetOrInsert */
 		select * from paths
-		where site_id=$1 and lower(path)=lower($2)
-		limit 1`,
-		site.ID, p.Path)
-	if row.Err() != nil {
-		return errors.Errorf("Path.GetOrInsert select: %w", row.Err())
-	}
-	err = row.StructScan(p)
+		where site_id = $1 and lower(path) = lower($2)
+		limit 1`, site.ID, p.Path)
 	if err != nil && !zdb.ErrNoRows(err) {
 		return errors.Errorf("Path.GetOrInsert select: %w", err)
 	}
@@ -94,8 +87,8 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 
 	// Insert new row.
 	p.ID, err = zdb.InsertID(ctx, "path_id",
-		`insert into paths (site_id, path, title, event) values ($1, $2, $3, $4)`,
-		[]interface{}{site.ID, p.Path, p.Title, p.Event})
+		`insert into paths (site_id, path, title, event) values (?, ?, ?, ?)`,
+		site.ID, p.Path, p.Title, p.Event)
 	if err != nil {
 		return errors.Wrap(err, "Path.GetOrInsert insert")
 	}
@@ -133,9 +126,7 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 
 	for t, n := range grouped {
 		if n > 10 {
-			_, err := zdb.MustGet(ctx).ExecContext(ctx,
-				`update paths set title=$1 where path_id=$2`,
-				t, p.ID)
+			err := zdb.Exec(ctx, `update paths set title=$1 where path_id=$2`, t, p.ID)
 			if err != nil {
 				return errors.Wrap(err, "Paths.updateTitle")
 			}

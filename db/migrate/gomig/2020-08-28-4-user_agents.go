@@ -18,12 +18,10 @@ import (
 
 func UserAgents(db zdb.DB) error {
 	return zdb.TX(zdb.WithDB(context.Background(), db), func(ctx context.Context) (retErr error) {
-		db := zdb.MustGet(ctx)
-
 		var err error
 		defer func() {
 			if err == nil {
-				_, retErr = db.ExecContext(ctx, `insert into version values ('2020-08-28-4-user_agents')`)
+				retErr = zdb.Exec(ctx, `insert into version values ('2020-08-28-4-user_agents')`)
 			}
 		}()
 
@@ -31,7 +29,7 @@ func UserAgents(db zdb.DB) error {
 			ID        int64  `db:"user_agent_id"`
 			UserAgent string `db:"ua"`
 		}
-		err = db.SelectContext(ctx, &agents,
+		err = zdb.Select(ctx, &agents,
 			`select user_agent_id, ua from user_agents order by user_agent_id asc`)
 		if err != nil {
 			return err
@@ -63,7 +61,7 @@ func UserAgents(db zdb.DB) error {
 			}
 
 			bot := isbot.UserAgent(u.UserAgent)
-			_, err = db.ExecContext(ctx, `update user_agents
+			err = zdb.Exec(ctx, `update user_agents
 				set browser_id=$1, system_id=$2, ua=$3, isbot=$4 where user_agent_id=$5`,
 				browser.ID, system.ID, gadget.Shorten(u.UserAgent), bot, u.ID)
 			errs.Append(err)

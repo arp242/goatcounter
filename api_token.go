@@ -83,27 +83,26 @@ func (t *APIToken) Insert(ctx context.Context) error {
 		return err
 	}
 
-	t.ID, err = zdb.InsertID(ctx, "api_token_id", `insert into api_tokens
-		(site_id, user_id, name, token, permissions, created_at)
-		values ($1, $2, $3, $4, $5, $6)`, []interface{}{
-		t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt.Format(zdb.Date)})
+	t.ID, err = zdb.InsertID(ctx, "api_token_id",
+		`insert into api_tokens (site_id, user_id, name, token, permissions, created_at) values (?, ?, ?, ?, ?, ?)`,
+		t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt.Format(zdb.Date))
 	return errors.Wrap(err, "APIToken.Insert")
 }
 
 func (t *APIToken) ByID(ctx context.Context, id int64) error {
-	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, t,
-		`/* APIToken.ByID */ select * from api_tokens where api_token_id=$1 and site_id=$2`,
+	return errors.Wrapf(zdb.Get(ctx, t, `/* APIToken.ByID */
+		select * from api_tokens where api_token_id=$1 and site_id=$2`,
 		id, MustGetSite(ctx).ID), "APIToken.ByID %d", id)
 }
 
 func (t *APIToken) ByToken(ctx context.Context, token string) error {
-	return errors.Wrap(zdb.MustGet(ctx).GetContext(ctx, t,
+	return errors.Wrap(zdb.Get(ctx, t,
 		`/* APIToken.ByID */ select * from api_tokens where token=$1 and site_id=$2`,
 		token, MustGetSite(ctx).ID), "APIToken.ByToken")
 }
 
 func (t *APIToken) Delete(ctx context.Context) error {
-	_, err := zdb.MustGet(ctx).ExecContext(ctx,
+	err := zdb.Exec(ctx,
 		`/* APIToken.Delete */ delete from api_tokens where api_token_id=$1 and site_id=$2`,
 		t.ID, MustGetSite(ctx).ID)
 	return errors.Wrapf(err, "APIToken.Delete %d", t.ID)
@@ -112,7 +111,7 @@ func (t *APIToken) Delete(ctx context.Context) error {
 type APITokens []APIToken
 
 func (t *APITokens) List(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, t,
+	return errors.Wrap(zdb.Select(ctx, t,
 		`select * from api_tokens where site_id=$1 and user_id=$2`,
 		MustGetSite(ctx).ID, GetUser(ctx).ID), "APITokens.List")
 }

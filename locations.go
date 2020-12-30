@@ -64,15 +64,14 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 		return nil
 	}
 
-	err := zdb.MustGet(ctx).GetContext(ctx, l,
-		`select * from locations where iso_3166_2 = $1`, code)
+	err := zdb.Get(ctx, l, `select * from locations where iso_3166_2 = $1`, code)
 	if zdb.ErrNoRows(err) {
 		l.ISO3166_2 = code
 		l.Country, l.Region = zstring.Split2(code, "-")
 		l.CountryName, l.RegionName = findGeoName(l.Country, l.Region)
-		l.ID, err = zdb.InsertID(ctx, "location_id", `insert into locations
- 			(country, region, country_name, region_name) values ($1, $2, $3, $4)`,
-			[]interface{}{l.Country, l.Region, l.CountryName, l.RegionName})
+		l.ID, err = zdb.InsertID(ctx, "location_id",
+			`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
+			l.Country, l.Region, l.CountryName, l.RegionName)
 	}
 	if err != nil {
 		return errors.Wrap(err, "Location.ByCode")
@@ -109,15 +108,15 @@ func (l *Location) Lookup(ctx context.Context, ip string) error {
 		return nil
 	}
 
-	err = zdb.MustGet(ctx).GetContext(ctx, l,
+	err = zdb.Get(ctx, l,
 		`select * from locations where country = $1 and region = $2`,
 		l.Country, l.Region)
 	if zdb.ErrNoRows(err) {
 		// Insert new entries; we seed it on creation, but not on every update
 		// and these kind of things change over time.
-		l.ID, err = zdb.InsertID(ctx, "location_id", `insert into locations
-			(country, region, country_name, region_name) values ($1, $2, $3, $4)`,
-			[]interface{}{l.Country, l.Region, l.CountryName, l.RegionName})
+		l.ID, err = zdb.InsertID(ctx, "location_id",
+			`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
+			l.Country, l.Region, l.CountryName, l.RegionName)
 	}
 	if err != nil {
 		return errors.Wrap(err, "Location.Lookup")

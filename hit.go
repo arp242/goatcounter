@@ -327,7 +327,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 // Count the number of pageviews.
 func (h *Hits) Count(ctx context.Context) (int64, error) {
 	var c int64
-	err := zdb.MustGet(ctx).GetContext(ctx, &c,
+	err := zdb.Get(ctx, &c,
 		`select coalesce(sum(total), 0) from hit_counts where site_id=$1`,
 		MustGetSite(ctx).ID)
 	return c, errors.Wrap(err, "Hits.Count")
@@ -346,7 +346,7 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
-			_, err = zdb.MustGet(ctx).ExecContext(ctx, zdb.MustGet(ctx).Rebind(query), args...)
+			err = zdb.Exec(ctx, query, args...)
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
@@ -405,26 +405,30 @@ func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle 
 
 // PathCountUnique gets the total_unique for one path.
 func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* HitStats.PathCountUnique */
+	err := zdb.Select(ctx, h, `/* HitStats.PathCountUnique */
 		with x as (
 			select path_id, path from paths
-			where site_id=$1 and lower(path)=lower($2)
+			where site_id = :site and lower(path) = lower(:path)
 		)
 		select
 			path,
-			coalesce(sum((select sum(total_unique) from hit_counts where site_id=3241 and path_id=x.path_id)), 0) as count_unique
+			coalesce(sum(
+				(select sum(total_unique) from hit_counts where site_id = :site and path_id = x.path_id)
+			), 0) as count_unique
 		from x
-		group by path
-	`, MustGetSite(ctx).ID, path)
+		group by path`,
+		zdb.A{
+			"site": MustGetSite(ctx).ID,
+			"path": path,
+		})
 	return errors.Wrap(err, "HitStats.PathCountUnique")
 }
 
 // SiteTotalUnique gets the total_unique for all paths.
 func (h *HitStats) SiteTotalUnique(ctx context.Context) error {
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `/* *HitStats.SiteTotalUnique */
+	err := zdb.Select(ctx, h, `/* *HitStats.SiteTotalUnique */
 		select sum(total_unique) as count_unique from hit_counts
-		where site_id=$1
-	`, MustGetSite(ctx).ID)
+		where site_id=$1`, MustGetSite(ctx).ID)
 	return errors.Wrap(err, "HitStats.SiteTotalUnique")
 }
 

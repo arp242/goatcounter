@@ -76,7 +76,7 @@ func TestAPIBasics(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			delete(r.Header, "Authorization")
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 403)
 
 			want := `{"error":"no Authorization header"}`
@@ -91,7 +91,7 @@ func TestAPIBasics(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			r.Header.Set("Authorization", r.Header.Get("Authorization")+"x")
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 403)
 
 			want := `{"error":"unknown token"}`
@@ -108,7 +108,7 @@ func TestAPIBasics(t *testing.T) {
 			defer clean()
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{})
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 403)
 
 			want := `{"error":"requires [count export] permissions"}`
@@ -122,7 +122,7 @@ func TestAPIBasics(t *testing.T) {
 			defer clean()
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/doesnt-exist", nil, goatcounter.APITokenPermissions{})
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 404)
 
 			want := `{"error":"not found"}`
@@ -138,7 +138,7 @@ func TestAPIBasics(t *testing.T) {
 				strings.NewReader(`{"status":500}`),
 				goatcounter.APITokenPermissions{})
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
 
 			want := `{"error":"unexpected error code ‘`
@@ -154,7 +154,7 @@ func TestAPIBasics(t *testing.T) {
 				strings.NewReader(`{{{{`),
 				goatcounter.APITokenPermissions{})
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
 
 			want := `{"error":"invalid JSON:`
@@ -170,7 +170,7 @@ func TestAPIBasics(t *testing.T) {
 				strings.NewReader(`{"panic":true}`),
 				goatcounter.APITokenPermissions{})
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
 
 			want := `{"error":"unexpected error code ‘`
@@ -186,7 +186,7 @@ func TestAPIBasics(t *testing.T) {
 
 			r.Header.Set("Content-Type", "text/html")
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 415)
 
 			want := `<!DOCTYPE html>`
@@ -208,7 +208,7 @@ func TestAPIBasics(t *testing.T) {
 				})),
 				goatcounter.APITokenPermissions{})
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
 
 			want := `{"errors":{"e":["must be a valid email address"],"r":["must be set"]}}`
@@ -224,7 +224,7 @@ func TestAPIBasics(t *testing.T) {
 
 		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
-		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 	})
 
@@ -239,7 +239,7 @@ func TestAPIBasics(t *testing.T) {
 			Export: true, Count: true,
 		})
 
-		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 	})
 }
@@ -346,7 +346,7 @@ func TestAPICount(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/count",
 				bytes.NewReader(zjson.MustMarshal(tt.body)), perm)
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 			if !jsonCmp(rr.Body.String(), tt.wantRet) {
 				t.Errorf("\nout:  %s\nwant: %s", rr.Body.String(), tt.wantRet)
@@ -420,7 +420,7 @@ func TestAPISitesUpdate(t *testing.T) {
 			r, rr := newAPITest(ctx, t, tt.method, fmt.Sprintf("/api/v0/sites/%d", site.ID),
 				strings.NewReader(tt.body), perm)
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
 			var retSite goatcounter.Site

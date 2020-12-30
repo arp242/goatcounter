@@ -12,7 +12,6 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zsync"
@@ -34,21 +33,8 @@ var tasks = []task{
 
 var stopped = zsync.NewAtomicInt(0)
 
-// RunOnce runs all tasks once and returns.
-func RunOnce(db zdb.DB) {
-	ctx := zdb.WithDB(context.Background(), db)
-	l := zlog.Module("cron")
-	for _, t := range tasks {
-		err := t.fun(ctx)
-		if err != nil {
-			l.Error(err)
-		}
-	}
-}
-
 // RunBackground runs tasks in the background according to the given schedule.
-func RunBackground(db zdb.DB) {
-	ctx := zdb.WithDB(context.Background(), db)
+func RunBackground(ctx context.Context) {
 	l := zlog.Module("cron")
 
 	// TODO: should rewrite cron to always respond to channels, and then have
@@ -84,18 +70,5 @@ func RunBackground(db zdb.DB) {
 				})
 			}
 		}(t)
-	}
-}
-
-// Wait for all running tasks to finish and then run all tasks for consistency
-// on shutdown.
-func Wait(db zdb.DB) {
-	stopped.Set(1)
-	ctx := zdb.WithDB(context.Background(), db)
-	for _, t := range tasks {
-		err := t.fun(ctx)
-		if err != nil {
-			zlog.Module("cron").Error(err)
-		}
 	}
 }

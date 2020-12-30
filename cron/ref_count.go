@@ -15,8 +15,6 @@ import (
 
 func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
 	return zdb.TX(ctx, func(ctx context.Context) error {
-		db := zdb.MustGet(ctx)
-
 		// Group by day + pathID + ref.
 		type gt struct {
 			total       int
@@ -57,7 +55,7 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 				total        = ref_counts.total        + excluded.total,
 				total_unique = ref_counts.total_unique + excluded.total_unique`)
 
-			_, err := db.ExecContext(ctx, `lock table ref_counts in exclusive mode`)
+			err := zdb.Exec(ctx, `lock table ref_counts in exclusive mode`)
 			if err != nil {
 				return err
 			}

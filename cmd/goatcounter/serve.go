@@ -273,7 +273,7 @@ func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DBCloser, *tls
 		return nil, nil, nil, 0, err
 	}
 
-	cron.RunBackground(db)
+	cron.RunBackground(zdb.WithDB(context.Background(), db))
 	return db, tlsc, acmeh, listenTLS, nil
 }
 

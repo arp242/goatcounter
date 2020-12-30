@@ -132,7 +132,7 @@ func TestExport(t *testing.T) {
 		}
 		defer gzfp.Close()
 
-		cron.RunBackground(zdb.MustGet(ctx))
+		cron.RunBackground(ctx)
 		goatcounter.Import(ctx, gzfp, true, false, func(hit goatcounter.Hit, final bool) {
 			if !final {
 				goatcounter.Memstore.Append(hit)

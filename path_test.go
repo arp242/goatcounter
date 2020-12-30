@@ -18,7 +18,7 @@ func TestPathsUpdateTitle(t *testing.T) {
 
 	wantTitle := func(want string) {
 		var got string
-		err := zdb.MustGet(ctx).GetContext(ctx, &got, `select title from paths limit 1`)
+		err := zdb.Get(ctx, &got, `select title from paths limit 1`)
 		if err != nil {
 			t.Fatal(err)
 		}

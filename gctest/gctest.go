@@ -31,7 +31,6 @@ func init() {
 	sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
 		ConnectHook: goatcounter.SQLiteHook,
 	})
-
 	goatcounter.InitGeoDB("")
 }
 

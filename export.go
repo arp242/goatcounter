@@ -55,7 +55,7 @@ type Export struct {
 }
 
 func (e *Export) ByID(ctx context.Context, id int64) error {
-	return errors.Wrapf(zdb.MustGet(ctx).GetContext(ctx, e,
+	return errors.Wrapf(zdb.Get(ctx, e,
 		`/* Export.ByID */ select * from exports where export_id=$1 and site_id=$2`,
 		id, MustGetSite(ctx).ID), "Export.ByID %d", id)
 }
@@ -76,8 +76,8 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 
 	var err error
 	e.ID, err = zdb.InsertID(ctx, "export_id",
-		`insert into exports (site_id, path, created_at, start_from_hit_id) values ($1, $2, $3, $4)`,
-		[]interface{}{e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID})
+		`insert into exports (site_id, path, created_at, start_from_hit_id) values (?, ?, ?, ?)`,
+		e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Export.Create")
 	}
@@ -142,7 +142,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	if exportErr != nil {
 		l.Field("export", e).Error(exportErr)
 
-		_, err := zdb.MustGet(ctx).ExecContext(ctx,
+		err := zdb.Exec(ctx,
 			`update exports set error=$1 where export_id=$2`,
 			exportErr.Error(), e.ID)
 		if err != nil {
@@ -187,7 +187,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	}
 
 	now := Now().Format(zdb.Date)
-	_, err = zdb.MustGet(ctx).ExecContext(ctx, `update exports set
+	err = zdb.Exec(ctx, `update exports set
 		finished_at=$1, num_rows=$2, size=$3, hash=$4, last_hit_id=$5
 		where export_id=$6`,
 		&now, e.NumRows, e.Size, e.Hash, e.LastHitID, e.ID)
@@ -214,7 +214,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 type Exports []Export
 
 func (e *Exports) List(ctx context.Context) error {
-	return errors.Wrap(zdb.MustGet(ctx).SelectContext(ctx, e, `/* Exports.List */
+	return errors.Wrap(zdb.Select(ctx, e, `/* Exports.List */
 		select * from exports where site_id=$1 and created_at > `+interval(ctx, 1),
 		MustGetSite(ctx).ID), "Exports.List")
 }
@@ -425,7 +425,7 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 		limit = 5000
 	}
 
-	err := zdb.MustGet(ctx).SelectContext(ctx, h, `
+	err := zdb.Select(ctx, h, `
 		select
 			hits.hit_id,
 			hits.site_id,

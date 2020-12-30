@@ -128,7 +128,7 @@ func TestBackendCount(t *testing.T) {
 			}
 			login(t, r)
 
-			newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			if h := rr.Header().Get("X-Goatcounter"); h != "" {
 				t.Logf("X-Goatcounter: %s", h)
 			}
@@ -195,7 +195,7 @@ func TestBackendCountSessions(t *testing.T) {
 		r, rr := newTest(ctx, "GET", "/count?"+query.Encode(), nil)
 		r.Host = site.Code + "." + cfg.Domain
 		r.Header.Set("User-Agent", ua)
-		newBackend(zdb.MustGet(ctx)).ServeHTTP(rr, r)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		if h := rr.Header().Get("X-Goatcounter"); h != "" {
 			t.Logf("X-Goatcounter: %s", h)
 		}
@@ -335,7 +335,7 @@ func BenchmarkCount(b *testing.B) {
 	r.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0")
 	r.Header.Set("Referer", "https://example.com/foo")
 
-	handler := newBackend(zdb.MustGet(ctx)).ServeHTTP
+	handler := newBackend(zdb.MustGetDB(ctx)).ServeHTTP
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -65,7 +65,7 @@ func GetUser(ctx context.Context) *User {
 // Useful for tests, or for "removing" the timeout on the request context so it
 // can be passed to background functions.
 func NewContext(ctx context.Context) context.Context {
-	n := zdb.WithDB(context.Background(), zdb.MustGet(ctx))
+	n := zdb.WithDB(context.Background(), zdb.MustGetDB(ctx))
 	n = context.WithValue(n, ctxkey.User, GetUser(ctx))
 	n = context.WithValue(n, ctxkey.Site, GetSite(ctx))
 	return n
@@ -145,7 +145,7 @@ func NewBufferKey(ctx context.Context) (string, error) {
 
 func LoadBufferKey(ctx context.Context) ([]byte, error) {
 	var key []byte
-	err := zdb.MustGet(ctx).GetContext(ctx, &key, `select value from store where key='buffer-secret'`)
+	err := zdb.Get(ctx, &key, `select value from store where key='buffer-secret'`)
 	if err != nil {
 		return nil, fmt.Errorf("LoadBufferKey: %w", err)
 	}

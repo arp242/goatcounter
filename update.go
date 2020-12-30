@@ -35,19 +35,18 @@ type Updates []Update
 // HasSince reports if there are any updates since the given date.
 func (u *Updates) HasSince(ctx context.Context, since time.Time) (bool, error) {
 	var has bool
-	err := zdb.MustGet(ctx).GetContext(ctx, &has,
-		`select 1 from updates where show_at >= $1`, since)
+	err := zdb.Get(ctx, &has, `select 1 from updates where show_at >= $1`, since)
 	if zdb.ErrNoRows(err) {
 		err = nil
 	}
-	return has, errors.Wrap(err, "Updates.ListUnseen")
+	return has, errors.Wrap(err, "Updates.HasSince")
 }
 
 // List all updates.
 func (u *Updates) List(ctx context.Context, since time.Time) error {
-	err := zdb.MustGet(ctx).SelectContext(ctx, u, `select * from updates order by show_at desc`)
+	err := zdb.Select(ctx, u, `select * from updates order by show_at desc`)
 	if err != nil {
-		return errors.Wrap(err, "Updates.ListUnseen")
+		return errors.Wrap(err, "Updates.List")
 	}
 
 	uu := *u
