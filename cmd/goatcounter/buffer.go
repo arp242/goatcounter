@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/monoculum/formam"
@@ -24,6 +23,7 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zos"
 	"zgo.at/zstd/zsync"
 )
 
@@ -115,9 +115,8 @@ func buffer() (int, error) {
 		bufClient = &http.Client{Timeout: 3 * time.Second}
 	)
 
-	// TODO: this doesn't work on Windows.
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGUSR1)
+	signal.Notify(c, zos.SIGUSR1)
 	go func() {
 		for {
 			<-c

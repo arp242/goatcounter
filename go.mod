@@ -21,7 +21,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/boombuler/barcode v1.0.0
 	github.com/go-chi/chi v1.5.1
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.1.3
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.2.1-0.20201120164427-00c6e74d816a
 	github.com/lib/pq v1.9.0
@@ -48,10 +48,10 @@ require (
 	zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e
 	zgo.at/zdb v0.0.0-20201230221703-1c334f9465a5
 	zgo.at/zhttp v0.0.0-20201222222554-9c9e1d2d6f2c
-	zgo.at/zli v0.0.0-20201226102249-f33eeb78b623
+	zgo.at/zli v0.0.0-20201230084248-ca997f720e5a
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zpack v1.0.2-0.20201215095635-1a4d171dcd00
-	zgo.at/zstd v0.0.0-20201227165557-c822e638e28c
+	zgo.at/zstd v0.0.0-20201231144414-2b983f0b6470
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20201227171559-09b756b3b132
 )

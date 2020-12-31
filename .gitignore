@@ -1,5 +1,6 @@
 # "go build" binary.
 /goatcounter
+/goatcounter.*
 /goatcounter-*
 
 # UPX creates temporary files.
