@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -20,6 +21,8 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
 	"zgo.at/zlog"
+	"zgo.at/zstd/znet"
+	"zgo.at/zstd/zstring"
 )
 
 var (
@@ -126,15 +129,30 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				var s goatcounter.Site
 				err := s.ByHost(r.Context(), r.Host)
 
-				// Special case so "http://localhost:8081" works: we don't
-				// really need to bother with host match on dev if there's just
-				// one site.
-				if !cfg.Prod {
+				if err != nil && cfg.Serve {
+					// If there's just one site then we can just serve that;
+					// most people probably have just one site so it's all
+					// grand.
+					//
+					// Do print a warning in the console though.
 					var sites goatcounter.Sites
 					err2 := sites.UnscopedList(r.Context())
 					if err2 == nil && len(sites) == 1 {
 						s = sites[0]
 						err = nil
+
+						if r.URL.Path == "/" {
+							zlog.Printf(zstring.WordWrap(fmt.Sprintf(""+
+								"accessing the site on domain %q, but the configured domain is %q; "+
+								"this will work fine as long as you only have one site, but you *need* to use the "+
+								"configured domain if you add a second site so GoatCounter will know which site to use.",
+								znet.RemovePort(r.Host), *s.Cname), strings.Repeat(" ", 25), 55))
+						}
+					}
+					if err2 == nil && len(sites) == 0 {
+						err = guru.Errorf(400, ""+
+							`no sites created yet; create a new site from the commandline with `+
+							`"goatcounter create -domain [..] -email [..]"`)
 					}
 				}
 

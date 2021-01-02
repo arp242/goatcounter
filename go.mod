@@ -51,7 +51,7 @@ require (
 	zgo.at/zli v0.0.0-20210102181013-33768b083e81
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zpack v1.0.2-0.20201215095635-1a4d171dcd00
-	zgo.at/zstd v0.0.0-20210102201316-f587f1da7d03
+	zgo.at/zstd v0.0.0-20210102212947-d703d5300a4b
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20201227171559-09b756b3b132
 )
