@@ -8,7 +8,7 @@ your authenticator app.</p>
 	<input type="hidden" id="loginmac" name="loginmac" value="{{ .LoginMAC }}">
 	<label for="totp_token">MFA Token</label>
 	<input type="text" name="totp_token" id="totp_token"
-		inputmode="numeric" pattern="[0-9]*"
+		inputmode="numeric" pattern="[0-9]*" autofocus
 		required autocomplete="one-time-code"><br>
 	<button>Sign in</button>
 </form>
