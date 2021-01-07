@@ -6,7 +6,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -253,6 +252,8 @@ func timeRange(rng string, tz *time.Location, sundayStartsWeek bool) (time.Time,
 
 	var start time.Time
 	switch rng {
+	case "day":
+		start = time.Date(y, m, d, 0, 0, 0, 0, tz)
 	case "week":
 		start = time.Date(y, m, d-7, 0, 0, 0, 0, tz)
 	case "month":
@@ -285,7 +286,8 @@ func timeRange(rng string, tz *time.Location, sundayStartsWeek bool) (time.Time,
 	default:
 		days, err := strconv.Atoi(rng)
 		if err != nil {
-			return time.Time{}, time.Time{}, fmt.Errorf("timeRange: %w", err)
+			zlog.Field("rng", rng).Error(err)
+			return timeRange("week", tz, sundayStartsWeek)
 		}
 		start = time.Date(y, m, d-days, 0, 0, 0, 0, time.UTC)
 	}
