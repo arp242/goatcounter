@@ -197,7 +197,12 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	defer tx.Rollback()
 
 	// Create site.
-	tz, err := tz.New((goatcounter.Location{}).LookupIP(r.Context(), r.RemoteAddr), args.Timezone)
+	lookup := (goatcounter.Location{}).LookupIP(r.Context(), r.RemoteAddr)
+	var cc string
+	if len(lookup) > 0 {
+		cc = strings.Split(lookup, "-")[0]
+	}
+	tz, err := tz.New(cc, args.Timezone)
 	if err != nil {
 		zlog.FieldsRequest(r).Fields(zlog.F{
 			"timezone": args.Timezone,
