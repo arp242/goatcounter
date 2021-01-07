@@ -15260,7 +15260,7 @@ var Templates = map[string][]byte{
 `),
 	"tpl/_backend_signin.gohtml": []byte(`<form method="post" action="/user/requestlogin" class="vertical">
 	<label for="email">Email address</label>
-	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
+	<input type="email" name="email" id="email" value="{{.Email}}" autofocus required><br>
 
 	<label for="password">Password</label>
 	<input type="password" name="password" id="password" required
@@ -20469,7 +20469,7 @@ your authenticator app.</p>
 	<input type="hidden" id="loginmac" name="loginmac" value="{{ .LoginMAC }}">
 	<label for="totp_token">MFA Token</label>
 	<input type="text" name="totp_token" id="totp_token"
-		inputmode="numeric" pattern="[0-9]*"
+		inputmode="numeric" pattern="[0-9]*" autofocus
 		required autocomplete="one-time-code"><br>
 	<button>Sign in</button>
 </form>

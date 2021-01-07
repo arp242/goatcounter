@@ -252,7 +252,7 @@ func timeRange(rng string, tz *time.Location, sundayStartsWeek bool) (time.Time,
 
 	var start time.Time
 	switch rng {
-	case "day":
+	case "0", "day":
 		start = time.Date(y, m, d, 0, 0, 0, 0, tz)
 	case "week":
 		start = time.Date(y, m, d-7, 0, 0, 0, 0, tz)
