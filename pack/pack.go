@@ -19027,7 +19027,7 @@ something I was able to do.</p>
 	"tpl/email_export_done.gotxt": []byte(`Hi there,
 
 The GoatCounter export you’ve requested is finished, go here to download it:
-{{.Site.URL}}/export/{{.Export.ID}}
+{{.Site.URL}}/settings/export/{{.Export.ID}}
 
 {{nformat .Export.NumRows .Site}} rows have been exported with a file size of {{.Export.Size}}M.
 
