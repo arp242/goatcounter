@@ -551,9 +551,11 @@
 				return alert('That would be in the future.')
 
 			switch (this.value) {
-				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
+				case 'day-b':     start.setDate(start.getDate()   - 1); end.setDate(end.getDate()   - 1); break;
+				case 'week-b':    start.setDate(start.getDate()   - 7); end.setDate(end.getDate()   - 7); break;
 				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
+				case 'day-f':     start.setDate(start.getDate()   + 1); end.setDate(end.getDate()   + 1); break;
+				case 'week-f':    start.setDate(start.getDate()   + 7); end.setDate(end.getDate()   + 7); break;
 				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
 			}
 			if (start.getDate() === 1 && this.value.substr(0, 5) === 'month')

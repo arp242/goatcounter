@@ -13716,9 +13716,11 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 				return alert('That would be in the future.')
 
 			switch (this.value) {
-				case 'week-b':    start.setDate(start.getDate() - 7);   end.setDate(end.getDate() - 7);   break;
+				case 'day-b':     start.setDate(start.getDate()   - 1); end.setDate(end.getDate()   - 1); break;
+				case 'week-b':    start.setDate(start.getDate()   - 7); end.setDate(end.getDate()   - 7); break;
 				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'week-f':    start.setDate(start.getDate() + 7);   end.setDate(end.getDate() + 7);   break;
+				case 'day-f':     start.setDate(start.getDate()   + 1); end.setDate(end.getDate()   + 1); break;
+				case 'week-f':    start.setDate(start.getDate()   + 7); end.setDate(end.getDate()   + 7); break;
 				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
 			}
 			if (start.getDate() === 1 && this.value.substr(0, 5) === 'month')
@@ -18885,6 +18887,7 @@ processed by Stripe (you will need a Credit Card).</p>
 		<div>
 			←&#xfe0e; back
 			<span>
+				<button class="link" name="move" value="day-b">day</button> ·
 				<button class="link" name="move" value="week-b">week</button> ·
 				<button class="link" name="move" value="month-b">month</button>
 			</span>
@@ -18892,6 +18895,7 @@ processed by Stripe (you will need a Credit Card).</p>
 		<div id="dash-timerange">{{daterange .Site.Settings.Timezone.Loc .PeriodStart .PeriodEnd}}</div>
 		<div>
 			<span>
+				<button class="link" name="move" value="day-f">day</button> ·
 				<button class="link" name="move" value="week-f">week</button> ·
 				<button class="link" name="move" value="month-f">month</button>
 			</span>
