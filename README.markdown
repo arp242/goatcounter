@@ -207,6 +207,12 @@ it:
        $ goatcounter serve \
            -db 'postgresql://user=goatcounter dbname=goatcounter sslmode=disable'
 
+   The following example will connect to postgresql via unix socket:
+
+       $ goatcounter serve \
+           -db 'postgresql://host=/run/postgresql dbname=goatcounter sslmode=disable'
+
+
    See the [pq docs][pq] for more details on the connection string.
 
 3. You can compile goatcounter without cgo if you don't use SQLite:
