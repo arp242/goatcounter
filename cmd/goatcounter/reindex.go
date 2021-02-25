@@ -97,7 +97,7 @@ func reindex() (int, error) {
 
 	zlog.Config.SetDebug(*debug)
 
-	db, err := connectDB(*dbConnect, nil, false)
+	db, err := connectDB(*dbConnect, nil, false, true)
 	if err != nil {
 		return 2, err
 	}
@@ -122,7 +122,7 @@ func reindex() (int, error) {
 		}
 
 		var first string
-		err := db.GetContext(ctx, &first, `select created_at from hits `+w+` order by created_at asc limit 1`)
+		err := db.Get(ctx, &first, `select created_at from hits `+w+` order by created_at asc limit 1`)
 		if err != nil {
 			if zdb.ErrNoRows(err) {
 				return 0, nil

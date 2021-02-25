@@ -21,6 +21,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zdb/bulk"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 )
@@ -118,7 +119,7 @@ func (m *ms) Init(db zdb.DB) error {
 	defer m.sessionMu.Unlock()
 
 	var s []byte
-	err := db.GetContext(context.Background(), &s,
+	err := db.Get(context.Background(), &s,
 		`select value from store where key='session'`)
 	if err != nil {
 		if zdb.ErrNoRows(err) {
@@ -155,7 +156,7 @@ func (m *ms) Init(db zdb.DB) error {
 		m.saltRotated = stored.SaltRotated
 	}
 
-	_, err = db.ExecContext(context.Background(), `delete from store where key='session'`)
+	err = db.Exec(context.Background(), `delete from store where key='session'`)
 	if err != nil {
 		return fmt.Errorf("Memstore.Init: delete DB store: %w", err)
 	}
@@ -181,7 +182,7 @@ func (m *ms) StoreSessions(db zdb.DB) {
 		return
 	}
 
-	_, err = db.ExecContext(context.Background(),
+	err = db.Exec(context.Background(),
 		`insert into store (key, value) values ('session', $1)`, d)
 	if err != nil {
 		zlog.Error(err)
@@ -377,7 +378,7 @@ func (m *ms) SessionID() zint.Uint128 {
 }
 
 // TODO: this can user pathID now, instead of storing the full string.
-func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua, remoteAddr string) (zint.Uint128, zdb.Bool) {
+func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
 	sessionHash := hash{userSessionID}
 
 	if userSessionID == "" {
@@ -406,7 +407,7 @@ func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua,
 		if !seenPath {
 			m.sessionPaths[id][path] = struct{}{}
 		}
-		return id, zdb.Bool(!seenPath)
+		return id, zbool.Bool(!seenPath)
 	}
 
 	// New session

@@ -15,6 +15,7 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zvalidate"
 )
@@ -27,9 +28,9 @@ type User struct {
 	Site int64 `db:"site_id" json:"site,readonly"`
 
 	Email         string     `db:"email" json:"email"`
-	EmailVerified zdb.Bool   `db:"email_verified" json:"email_verified,readonly"`
+	EmailVerified zbool.Bool `db:"email_verified" json:"email_verified,readonly"`
 	Password      []byte     `db:"password" json:"-"`
-	TOTPEnabled   zdb.Bool   `db:"totp_enabled" json:"totp_enabled,readonly"`
+	TOTPEnabled   zbool.Bool `db:"totp_enabled" json:"totp_enabled,readonly"`
 	TOTPSecret    []byte     `db:"totp_secret" json:"-"`
 	Role          string     `db:"role" json:"role,readonly"`
 	LoginAt       *time.Time `db:"login_at" json:"login_at,readonly"`
@@ -119,7 +120,7 @@ func (u *User) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "User.Insert")
 	}
 
-	u.TOTPEnabled = zdb.Bool(false)
+	u.TOTPEnabled = zbool.Bool(false)
 	u.TOTPSecret = make([]byte, totpSecretLen)
 	_, err = rand.Read(u.TOTPSecret)
 	if err != nil {
@@ -293,7 +294,7 @@ func (u *User) EnableTOTP(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "User.EnableTOTP")
 	}
-	u.TOTPEnabled = zdb.Bool(true)
+	u.TOTPEnabled = zbool.Bool(true)
 	return nil
 }
 
@@ -313,7 +314,7 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 		return errors.Wrap(err, "User.DisableTOTP")
 	}
 	u.TOTPSecret = secret
-	u.TOTPEnabled = zdb.Bool(false)
+	u.TOTPEnabled = zbool.Bool(false)
 	return nil
 }
 

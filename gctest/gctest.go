@@ -8,12 +8,8 @@ package gctest
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
@@ -21,8 +17,10 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
+	"zgo.at/zstd/zgo"
 )
 
 var pgSQL = false
@@ -46,31 +44,24 @@ func DB(t testing.TB) (context.Context, func()) {
 	cfg.RunningTests = true
 	dbname := "goatcounter_test_" + zcrypto.Secret64()
 
-	var (
-		db  zdb.DBCloser
-		err error
-	)
+	conn := "sqlite3://:memory:?cache=shared"
 	if pgSQL {
-		out, err2 := exec.Command("createdb", dbname).CombinedOutput()
-		if err2 != nil {
-			t.Fatalf("%s → %s", err2, out)
-		}
-
 		os.Setenv("PGDATABASE", dbname)
-		db, err = zdb.Connect(zdb.ConnectOptions{
-			Connect: "postgresql://",
-		})
-	} else {
-		db, err = zdb.Connect(zdb.ConnectOptions{
-			Connect: "sqlite3://:memory:?cache=shared",
-		})
+		conn = "postgresql://"
 	}
+
+	db, err := zdb.Connect(zdb.ConnectOptions{
+		Connect:      conn,
+		Files:        os.DirFS(zgo.ModuleRoot()),
+		Create:       true,
+		Migrate:      []string{"all"},
+		GoMigrations: gomig.Migrations,
+	})
 	if err != nil {
 		t.Fatalf("connect to DB: %s", err)
 	}
 
 	ctx := zdb.WithDB(context.Background(), db)
-	setupDB(t, db)
 	goatcounter.Memstore.TestInit(db)
 	ctx = initData(ctx, db, t)
 
@@ -80,71 +71,6 @@ func DB(t testing.TB) (context.Context, func()) {
 		db.Close()
 		if zdb.PgSQL(ctx) {
 			exec.Command("dropdb", dbname).Run()
-		}
-	}
-}
-
-func setupDB(t testing.TB, db zdb.DB) {
-	top, err := os.Getwd()
-	if err != nil {
-		t.Fatalf(fmt.Sprintf("cannot get cwd: %s", err))
-	}
-	for {
-		if filepath.Base(top) == "goatcounter" {
-			break
-		}
-		top = filepath.Dir(top)
-		// Hit root path, I don't know how that will appear on Windows so check
-		// the len(). Should never happen anyway.
-		if len(top) < 5 {
-			break
-		}
-	}
-	schemapath := top + "/db/schema.sql"
-	migratepath := top + "/db/migrate/sqlite"
-	if pgSQL {
-		schemapath = top + "/db/schema.pgsql"
-		migratepath = top + "/db/migrate/pgsql"
-	}
-
-	s, err := ioutil.ReadFile(schemapath)
-	if err != nil {
-		t.Fatalf("read schema: %v", err)
-	}
-	schema := string(s)
-	_, err = db.ExecContext(context.Background(), schema)
-	if err != nil {
-		t.Fatalf("run schema %q: %v", schemapath, err)
-	}
-
-	migs, err := ioutil.ReadDir(migratepath)
-	if err != nil {
-		t.Fatalf("read migration directory: %s", err)
-	}
-
-	var migrations [][]string
-	for _, m := range migs {
-		if !strings.HasSuffix(m.Name(), ".sql") {
-			continue
-		}
-		var ran bool
-		db.GetContext(context.Background(), &ran, `select 1 from version where name=$1`, m.Name()[:len(m.Name())-4])
-		if ran {
-			continue
-		}
-
-		mp := fmt.Sprintf("%s/%s", migratepath, m.Name())
-		mb, err := ioutil.ReadFile(mp)
-		if err != nil {
-			t.Fatalf("read migration: %s", err)
-		}
-		migrations = append(migrations, []string{mp, string(mb)})
-	}
-
-	for _, m := range migrations {
-		_, err = db.ExecContext(context.Background(), m[1])
-		if err != nil {
-			t.Fatalf("run migration %q: %s", m[0], err)
 		}
 	}
 }

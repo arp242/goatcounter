@@ -13,6 +13,7 @@ import (
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zvalidate"
 )
 
@@ -20,9 +21,9 @@ type Path struct {
 	ID   int64 `db:"path_id"`
 	Site int64 `db:"site_id"`
 
-	Path  string   `db:"path"`
-	Title string   `db:"title"`
-	Event zdb.Bool `db:"event"`
+	Path  string     `db:"path"`
+	Title string     `db:"title"`
+	Event zbool.Bool `db:"event"`
 }
 
 func (p *Path) Defaults(ctx context.Context) {
@@ -151,7 +152,7 @@ func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, e
 				{{:match_title or lower(title) like lower(:filter)}}
 			)
 		limit 65500`,
-		zdb.A{
+		zdb.P{
 			"site":        MustGetSite(ctx).ID,
 			"filter":      "%" + filter + "%",
 			"match_title": matchTitle,

@@ -49,7 +49,7 @@ func monitor() (int, error) {
 
 	zlog.Config.SetDebug(*debug)
 
-	db, err := connectDB(*dbConnect, nil, false)
+	db, err := connectDB(*dbConnect, nil, false, true)
 	if err != nil {
 		return 2, err
 	}
@@ -72,7 +72,7 @@ func monitor() (int, error) {
 		l.Debug("check")
 
 		var n int
-		err := db.GetContext(context.Background(), &n, fmt.Sprintf(query, *period))
+		err := db.Get(context.Background(), &n, fmt.Sprintf(query, *period))
 		if err != nil {
 			if *once {
 				return 2, err

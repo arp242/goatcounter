@@ -21,6 +21,7 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
@@ -398,9 +399,9 @@ func (row ExportRow) Hit(siteID int64) (Hit, error) {
 
 	v := zvalidate.New()
 	v.Required("path", row.Path)
-	hit.Event = zdb.Bool(v.Boolean("event", row.Event))
+	hit.Event = zbool.Bool(v.Boolean("event", row.Event))
 	hit.Bot = int(v.Integer("bot", row.Bot))
-	hit.FirstVisit = zdb.Bool(v.Boolean("firstVisit", row.FirstVisit))
+	hit.FirstVisit = zbool.Bool(v.Boolean("firstVisit", row.FirstVisit))
 	hit.CreatedAt = v.Date("createdAt", row.CreatedAt, time.RFC3339)
 
 	if unref(row.RefScheme) != "" {

@@ -94,7 +94,7 @@ func TestCollect(t *testing.T) {
 		Path:     "/test",
 		Ref:      "https://example.com",
 		Location: "NL",
-		Size:     zdb.Floats{5, 6, 7},
+		Size:     Floats{5, 6, 7},
 	}
 	gctest.StoreHits(ctx, t, false, h)
 

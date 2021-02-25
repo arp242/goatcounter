@@ -77,7 +77,7 @@ func TestBackendCount(t *testing.T) {
 			Title:     "XX",
 			Ref:       "example.com",
 			RefScheme: ztest.SP("h"),
-			Size:      zdb.Floats{40, 50, 1},
+			Size:      goatcounter.Floats{40, 50, 1},
 		}},
 
 		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=XXX"}}, nil, 200, goatcounter.Hit{

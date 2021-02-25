@@ -12,7 +12,6 @@ import (
 
 	"zgo.at/json"
 	"zgo.at/tz"
-	"zgo.at/zdb"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 )
@@ -41,8 +40,8 @@ type (
 		AllowCounter  bool           `json:"allow_counter"`
 		AllowAdmin    bool           `json:"allow_admin"`
 		DataRetention int            `json:"data_retention"`
-		Campaigns     zdb.Strings    `json:"campaigns"`
-		IgnoreIPs     zdb.Strings    `json:"ignore_ips"`
+		Campaigns     Strings        `json:"campaigns"`
+		IgnoreIPs     Strings        `json:"ignore_ips"`
 		Collect       zint.Bitflag16 `json:"collect"`
 
 		// User preferences.

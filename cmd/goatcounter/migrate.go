@@ -5,14 +5,13 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/db/migrate/gomig"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
@@ -58,19 +57,18 @@ func migrate() (int, error) {
 
 	zlog.Config.SetDebug(*debug)
 
-	db, err := connectDB(*dbConnect, CommandLine.Args(), createdb)
+	db, err := connectDB(*dbConnect, nil, createdb, true)
 	if err != nil {
 		return 2, err
 	}
 	defer db.Close()
 
-	ctx := zdb.WithDB(context.Background(), db)
+	m, err := zdb.NewMigrate(db, goatcounter.DB, gomig.Migrations)
+	if err != nil {
+		return 1, err
+	}
 
 	if zstring.Contains(CommandLine.Args(), "show") || zstring.Contains(CommandLine.Args(), "list") {
-		m := zdb.NewMigrate(db, []string{"show"},
-			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[zdb.PgSQL(ctx)],
-			gomig.Migrations,
-			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[zdb.PgSQL(ctx)])
 		have, ran, err := m.List()
 		if err != nil {
 			return 1, err
@@ -80,6 +78,12 @@ func migrate() (int, error) {
 		} else {
 			fmt.Fprintln(stdout, "No pending migrations")
 		}
+		return 0, nil
+	}
+
+	err = m.Run(CommandLine.Args()...)
+	if err != nil {
+		return 1, err
 	}
 
 	return 0, nil

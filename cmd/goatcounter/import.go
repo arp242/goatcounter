@@ -265,7 +265,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 		}
 
 	default:
-		db, err := connectDB(dbConnect, nil, false)
+		db, err := connectDB(dbConnect, nil, false, true)
 		if err != nil {
 			return "", "", nil, err
 		}

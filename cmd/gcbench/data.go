@@ -4,9 +4,9 @@
 
 package main
 
-import "zgo.at/zdb"
+import "zgo.at/goatcounter"
 
-var sizes = []zdb.Floats{
+var sizes = []goatcounter.Floats{
 	{1920, 1080, 1},
 	{1366, 768, 1},
 	{375, 667, 2},

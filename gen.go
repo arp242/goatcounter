@@ -58,12 +58,8 @@ func main() {
 
 	err := zpack.Pack(map[string]map[string]string{
 		"./pack/pack.go": {
-			"Public":           "./public",
-			"Templates":        "./tpl",
-			"SchemaSQLite":     "./db/schema.sql",
-			"SchemaPgSQL":      "./db/schema.pgsql",
-			"MigrationsSQLite": "./db/migrate/sqlite",
-			"MigrationsPgSQL":  "./db/migrate/pgsql",
+			"Public":    "./public",
+			"Templates": "./tpl",
 		},
 	}, "/.keep", "public/fonts/LICENSE", ".markdown", "/index.html")
 	if err != nil {
@@ -73,18 +69,6 @@ func main() {
 
 	l = l.Since("pack")
 
-	// Don't need to commit this.
-	if _, err := os.Stat("./GeoLite2-Country.mmdb"); err == nil {
-		err := zpack.Pack(map[string]map[string]string{
-			"./pack/geodb.go": {
-				"GeoDB": "./GeoLite2-Country.mmdb",
-			},
-		})
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-	}
 	l.FieldsSince().Print("done")
 }
 
@@ -153,7 +137,7 @@ func schema() error {
 	}).Parse(string(tpl)))
 
 	{
-		fp, err := os.Create("./db/schema.sql")
+		fp, err := os.Create("./db/schema-sqlite.sql")
 		if err != nil {
 			return (err)
 		}
@@ -171,7 +155,7 @@ func schema() error {
 
 	{
 		pgsql = true
-		fp, err := os.Create("./db/schema.pgsql")
+		fp, err := os.Create("./db/schema-postgres.sql")
 		if err != nil {
 			return (err)
 		}

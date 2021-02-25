@@ -44,7 +44,7 @@ func (h *HitStats) List(
 			)
 			select path_id, paths.path, paths.title, paths.event from x
 			join paths using (path_id)`,
-			zdb.A{
+			zdb.P{
 				"site":    site.ID,
 				"start":   start.Format(zdb.Date),
 				"end":     end.Format(zdb.Date),

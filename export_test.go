@@ -69,7 +69,7 @@ func TestExport(t *testing.T) {
 			UserAgentHeader: "Mozilla/5.0 (X11; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0",
 			Title:           "Other",
 			Location:        "ID",
-			Size:            zdb.Floats{1024, 768, 1},
+			Size:            goatcounter.Floats{1024, 768, 1},
 			Ref:             "https://example.com/p",
 		},
 	}...)

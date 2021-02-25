@@ -19,6 +19,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/json"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zvalidate"
@@ -274,7 +275,7 @@ func TestAPICount(t *testing.T) {
 		// Fill in most fields.
 		{
 			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
-				{Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: zdb.Floats{42, 666, 2}},
+				{Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: goatcounter.Floats{42, 666, 2}},
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  ua           browser    system  session                           bot  ref  ref_s  size      loc  first  created_at
@@ -285,7 +286,7 @@ func TestAPICount(t *testing.T) {
 		// Event
 		{
 			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
-				{Event: zdb.Bool(true), Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: zdb.Floats{42, 666, 2}},
+				{Event: zbool.Bool(true), Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: goatcounter.Floats{42, 666, 2}},
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  ua           browser    system  session                           bot  ref  ref_s  size      loc  first  created_at

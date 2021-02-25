@@ -16,8 +16,8 @@ import (
 	"zgo.at/zli"
 )
 
-func UserAgents(db zdb.DB) error {
-	return zdb.TX(zdb.WithDB(context.Background(), db), func(ctx context.Context) (retErr error) {
+func UserAgents(ctx context.Context) error {
+	return zdb.TX(ctx, func(ctx context.Context) (retErr error) {
 		var err error
 		defer func() {
 			if err == nil {

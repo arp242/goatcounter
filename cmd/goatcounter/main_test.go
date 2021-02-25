@@ -51,23 +51,12 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 	dbname := "goatcounter_" + zcrypto.Secret64()
 	var tmp string
 	if pgSQL {
-		// TODO: don't rely on shell commands if possible, as it's quite slow.
-		out, err := exec.Command("createdb", dbname).CombinedOutput()
-		if err != nil {
-			panic(fmt.Sprintf("%s → %s", err, out))
-		}
 		clean = func() {
 			out, err := exec.Command("dropdb", dbname).CombinedOutput()
 			if err != nil {
 				panic(fmt.Sprintf("%s → %s", err, out))
 			}
 		}
-
-		out, err = exec.Command("psql", dbname, "-c", `\i ../../db/schema.pgsql`).CombinedOutput()
-		if err != nil {
-			panic(fmt.Sprintf("%s → %s", err, out))
-		}
-
 		os.Setenv("PGDATABASE", dbname)
 		tmp = "postgresql://"
 	} else {
@@ -75,14 +64,12 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		clean = func() {
-			os.RemoveAll(dir)
-		}
 
+		clean = func() { os.RemoveAll(dir) }
 		tmp = "sqlite://" + dir + "/goatcounter.sqlite3"
 	}
 
-	db, err := connectDB(tmp, []string{"all"}, true)
+	db, err := connectDB(tmp, []string{"all"}, true, false)
 	if err != nil {
 		t.Fatal(err)
 	}

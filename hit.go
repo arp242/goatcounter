@@ -14,6 +14,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
@@ -36,16 +37,16 @@ type Hit struct {
 	Path  string     `db:"-" json:"p,omitempty"`
 	Title string     `db:"-" json:"t,omitempty"`
 	Ref   string     `db:"ref" json:"r,omitempty"`
-	Event zdb.Bool   `db:"-" json:"e,omitempty"`
-	Size  zdb.Floats `db:"size" json:"s,omitempty"`
+	Event zbool.Bool `db:"-" json:"e,omitempty"`
+	Size  Floats     `db:"size" json:"s,omitempty"`
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"bot" json:"b,omitempty"`
 
-	RefScheme       *string   `db:"ref_scheme" json:"-"`
-	UserAgentHeader string    `db:"-" json:"-"`
-	Location        string    `db:"location" json:"-"`
-	FirstVisit      zdb.Bool  `db:"first_visit" json:"-"`
-	CreatedAt       time.Time `db:"created_at" json:"-"`
+	RefScheme       *string    `db:"ref_scheme" json:"-"`
+	UserAgentHeader string     `db:"-" json:"-"`
+	Location        string     `db:"location" json:"-"`
+	FirstVisit      zbool.Bool `db:"first_visit" json:"-"`
+	CreatedAt       time.Time  `db:"created_at" json:"-"`
 
 	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
 	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
@@ -284,11 +285,11 @@ type Hits []Hit
 func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 	var hh []struct {
 		Hit
-		B int64    `db:"browser_id"`
-		S int64    `db:"system_id"`
-		P string   `db:"path"`
-		T string   `db:"title"`
-		E zdb.Bool `db:"event"`
+		B int64      `db:"browser_id"`
+		S int64      `db:"system_id"`
+		P string     `db:"path"`
+		T string     `db:"title"`
+		E zbool.Bool `db:"event"`
 	}
 
 	err := zdb.Select(ctx, &hh, `/* Hits.TestList */
@@ -304,7 +305,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		join paths using (path_id)
 		{{:site_only where hits.site_id = :site}}
 		order by hit_id asc`,
-		zdb.A{
+		zdb.P{
 			"site":      MustGetSite(ctx).ID,
 			"site_only": siteOnly,
 		})
@@ -366,13 +367,13 @@ type Stat struct {
 }
 
 type HitStat struct {
-	Count       int      `db:"count"`
-	CountUnique int      `db:"count_unique"`
-	PathID      int64    `db:"path_id"`
-	Path        string   `db:"path"`
-	Event       zdb.Bool `db:"event"`
-	Title       string   `db:"title"`
-	RefScheme   *string  `db:"ref_scheme"`
+	Count       int        `db:"count"`
+	CountUnique int        `db:"count_unique"`
+	PathID      int64      `db:"path_id"`
+	Path        string     `db:"path"`
+	Event       zbool.Bool `db:"event"`
+	Title       string     `db:"title"`
+	RefScheme   *string    `db:"ref_scheme"`
 	Max         int
 	Stats       []Stat
 }
@@ -395,7 +396,7 @@ func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle 
 		where site_id = :site
 		group by path_id, path, title
 		order by count desc`,
-		zdb.A{
+		zdb.P{
 			"site":        MustGetSite(ctx).ID,
 			"search":      search,
 			"match_title": matchTitle,
@@ -417,7 +418,7 @@ func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
 			), 0) as count_unique
 		from x
 		group by path`,
-		zdb.A{
+		zdb.P{
 			"site": MustGetSite(ctx).ID,
 			"path": path,
 		})
@@ -470,7 +471,7 @@ func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []in
 			x.count_unique
 		from x
 		join paths using(path_id)`,
-		zdb.A{
+		zdb.P{
 			"site":   MustGetSite(ctx).ID,
 			"start":  start.Format(zdb.Date),
 			"end":    end.Format(zdb.Date),

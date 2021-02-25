@@ -12,7 +12,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/zdb"
+	"zgo.at/zstd/zbool"
 )
 
 func TestDataRetention(t *testing.T) {
@@ -31,10 +31,10 @@ func TestDataRetention(t *testing.T) {
 	past := now.Add(-40 * 24 * time.Hour)
 
 	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zdb.Bool(true)},
-		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zdb.Bool(false)},
-		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zdb.Bool(true)},
-		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zdb.Bool(false)},
+		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zbool.Bool(true)},
+		{Site: site.ID, CreatedAt: now, Path: "/a", FirstVisit: zbool.Bool(false)},
+		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zbool.Bool(true)},
+		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zbool.Bool(false)},
 	}...)
 
 	err = cron.DataRetention(ctx)

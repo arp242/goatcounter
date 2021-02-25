@@ -215,7 +215,7 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 		group by ref
 		order by count_unique desc, ref desc
 		limit :limit offset :offset`,
-		zdb.A{
+		zdb.P{
 			"site":   site.ID,
 			"start":  start.Format(zdb.Date),
 			"end":    end.Format(zdb.Date),
@@ -253,7 +253,7 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilte
 		group by ref
 		order by count_unique desc
 		limit 6 offset :offset`,
-		zdb.A{
+		zdb.P{
 			"site":       site.ID,
 			"start":      start.Format(zdb.Date),
 			"end":        end.Format(zdb.Date),

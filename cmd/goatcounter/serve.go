@@ -179,7 +179,7 @@ func serve() (int, error) {
 	return 0, nil
 }
 
-func doServe(db zdb.DBCloser, testMode int, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
+func doServe(db zdb.DB, testMode int, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
 	zlog.Module("main").Debug(getVersion())
 	ch := zhttp.Serve(listenTLS, testMode, &http.Server{
 		Addr:      listen,
@@ -255,12 +255,12 @@ func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string
 	return *dbConnect, *testMode, dev, *automigrate, *listen, *flagTLS, *from, err
 }
 
-func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DBCloser, *tls.Config, http.HandlerFunc, uint8, error) {
+func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DB, *tls.Config, http.HandlerFunc, uint8, error) {
 	if !cfg.Prod {
 		setupReload()
 	}
 
-	db, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: nil}[automigrate], true)
+	db, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: {"list"}}[automigrate], true, cfg.Prod)
 	if err != nil {
 		return nil, nil, nil, 0, err
 	}

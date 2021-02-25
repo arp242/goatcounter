@@ -5,7 +5,10 @@
 package goatcounter
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"io"
 	"net"
 
 	"github.com/oschwald/geoip2-golang"
@@ -25,21 +28,29 @@ var geodb *geoip2.Reader
 //
 // It will use the embeded "Countries" database if path is an empty string.
 func InitGeoDB(path string) {
-	if path == "" {
-		g, err := geoip2.FromBytes(pack.GeoDB)
+	var err error
+
+	if path != "" {
+		geodb, err = geoip2.Open(path)
 		if err != nil {
 			panic(err)
 		}
-		geodb = g
+		pack.GeoDB = nil // Save some memory.
 		return
 	}
 
-	pack.GeoDB = nil
-	g, err := geoip2.Open(path)
+	gz, err := gzip.NewReader(bytes.NewReader(pack.GeoDB))
 	if err != nil {
 		panic(err)
 	}
-	geodb = g
+	d, err := io.ReadAll(gz)
+	if err != nil {
+		panic(err)
+	}
+	geodb, err = geoip2.FromBytes(d)
+	if err != nil {
+		panic(err)
+	}
 }
 
 type Location struct {

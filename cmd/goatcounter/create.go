@@ -105,7 +105,7 @@ func create() (int, error) {
 		password = string(pwd)
 	}
 
-	db, err := connectDB(*dbConnect, nil, createdb)
+	db, err := connectDB(*dbConnect, nil, createdb, true)
 	if err != nil {
 		return 2, err
 	}

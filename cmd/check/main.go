@@ -123,6 +123,7 @@ func main() {
 		if k == "ST1003" {
 			continue
 		}
+
 		checks = append(checks, v)
 	}
 

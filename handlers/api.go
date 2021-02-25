@@ -25,6 +25,7 @@ import (
 	"zgo.at/zhttp/header"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zvalidate"
 )
 
@@ -358,14 +359,14 @@ type APICountRequestHit struct {
 	Title string `json:"title" query:"t"`
 
 	// Is this an event?
-	Event zdb.Bool `json:"event" query:"e"`
+	Event zbool.Bool `json:"event" query:"e"`
 
 	// Referrer value, can be an URL (i.e. the Referal: header) or any
 	// string.
 	Ref string `json:"ref" query:"r"`
 
 	// Screen size as "x,y,scaling"
-	Size zdb.Floats `json:"size" query:"s"`
+	Size goatcounter.Floats `json:"size" query:"s"`
 
 	// Query parameters for this pageview, used to get campaign parameters.
 	Query string `json:"query" query:"q"`

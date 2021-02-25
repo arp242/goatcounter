@@ -37,6 +37,8 @@ Unreleased v1.5.0
 - There is now a `count.v1.js`, which is a stable version that can use
   subresource integrity.
 
+- The database for PostgreSQL is now created automatically.
+
 - You can copy settings from a site to other sites in *Settings → Sites*.
 
 - Add a `gcbench` utility for inserting random pageviews in a database; for

@@ -10,7 +10,7 @@ import (
 	"os"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/pack"
+	"zgo.at/goatcounter"
 	"zgo.at/zdb"
 )
 
@@ -110,10 +110,18 @@ func database() (int, error) {
 	default:
 		return 1, fmt.Errorf("unknown subcommand: %q", os.Args[2])
 	case "schema-sqlite":
-		fmt.Println(string(pack.SchemaSQLite))
+		d, err := goatcounter.DB.ReadFile("schema-sqlite.sql")
+		if err != nil {
+			return 1, err
+		}
+		fmt.Println(string(d))
 		return 0, nil
 	case "schema-pgsql":
-		fmt.Println(string(pack.SchemaPgSQL))
+		d, err := goatcounter.DB.ReadFile("schema-postgres.sql")
+		if err != nil {
+			return 1, err
+		}
+		fmt.Println(string(d))
 		return 0, nil
 	case "test":
 		if *dbConnect == "" {
@@ -126,7 +134,7 @@ func database() (int, error) {
 		defer db.Close()
 
 		var i int
-		err = db.GetContext(context.Background(), &i, `select 1 from version`)
+		err = db.Get(context.Background(), &i, `select 1 from version`)
 		if err != nil {
 			return 2, fmt.Errorf("select 1 from version: %w", err)
 		}

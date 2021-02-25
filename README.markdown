@@ -139,7 +139,7 @@ Or to build a statically linked binary:
 
 You'll now have a `goatcounter` binary in the current directory.
 
-You need Go 1.13 or newer and a C compiler (for SQLite), or compile it with
+You need Go 1.16 or newer and a C compiler (for SQLite), or compile it with
 `CGO_ENABLED=0 go build` and use PostgreSQL.
 
 It's recommended to use the latest release as in the above command. The master
@@ -189,34 +189,23 @@ Use `goatcounter migrate show` to get a list of pending migrations.
 
 ### PostgreSQL
 
-Both SQLite and PostgreSQL are supported. SQLite should work well for the vast
-majority of people and is the recommended database engine. PostgreSQL will not
-be faster in most cases, and the chief reason for adding support in the first
-place is to support load balancing web requests over multiple servers. To use
-it:
+Both SQLite and PostgreSQL are supported. SQLite should work well for most
+smaller sites, but PostgreSQL gives some better performance:
 
-1. Create the database, unlike SQLite it's not done automatically (you may need
-   to modify the `-db` flag):
+1. Run with custom `-db` flag:
 
-       $ createdb goatcounter
-       $ psql goatcounter -c '\i db/schema.pgsql'
-       $ goatcounter -db 'postgresql://dbname=goatcounter' migrate all
-
-2. Run with custom `-db` flag:
-
-       $ goatcounter serve \
-           -db 'postgresql://user=goatcounter dbname=goatcounter sslmode=disable'
+       $ goatcounter serve -db 'postgresql://dbname=goatcounter'
 
    See the [pq docs][pq] for more details on the connection string.
 
-3. You can compile goatcounter without cgo if you don't use SQLite:
+2. You can compile goatcounter without cgo if you don't use SQLite:
 
        $ CGO_ENABLED=0 go build -ldflags="-X main.version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
    Functionally it doesn't matter too much, but builds will be a bit easier and
    faster as it won't require a C compiler.
 
-[pq]: https://godoc.org/github.com/lib/pq
+[pq]: https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters
 
 ### Development/testing
 

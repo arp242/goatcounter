@@ -7,6 +7,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"runtime"
 	"strings"
@@ -17,9 +18,9 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/db/migrate/gomig"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
+	"zgo.at/zlog"
+	"zgo.at/zstd/zgo"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zvalidate"
 )
@@ -160,28 +161,25 @@ func printMsg(code int, usageText, msg string, args ...interface{}) {
 func flagDB() *string    { return CommandLine.String("db", "sqlite://db/goatcounter.sqlite3", "") }
 func flagDebug() *string { return CommandLine.String("debug", "", "") }
 
-func connectDB(connect string, migrate []string, create bool) (zdb.DBCloser, error) {
-	pgSQL := strings.HasPrefix(connect, "postgresql://") || strings.HasPrefix(connect, "postgres://")
-
-	opts := zdb.ConnectOptions{Connect: connect}
-	if migrate != nil {
-		opts.Migrate = zdb.NewMigrate(nil, migrate,
-			map[bool]map[string][]byte{true: pack.MigrationsPgSQL, false: pack.MigrationsSQLite}[pgSQL],
-			gomig.Migrations,
-			map[bool]string{true: "db/migrate/pgsql", false: "db/migrate/sqlite"}[pgSQL])
-	}
-	if create {
-		opts.Schema = map[bool][]byte{true: pack.SchemaPgSQL, false: pack.SchemaSQLite}[pgSQL]
-	}
-	if !pgSQL {
-		opts.SQLiteHook = goatcounter.SQLiteHook
-	}
-	db, err := zdb.Connect(opts)
-	if err != nil {
-		return nil, err
+func connectDB(connect string, migrate []string, create, prod bool) (zdb.DB, error) {
+	var files fs.FS = goatcounter.DB
+	if !prod {
+		files = os.DirFS(zgo.ModuleRoot())
 	}
 
-	return db, nil
+	db, err := zdb.Connect(zdb.ConnectOptions{
+		Connect:    connect,
+		Files:      files,
+		Migrate:    migrate,
+		Create:     create,
+		SQLiteHook: goatcounter.SQLiteHook,
+	})
+	var pErr *zdb.PendingMigrationsError
+	if errors.As(err, &pErr) {
+		zlog.Printf("WARNING: %s", err)
+		err = nil
+	}
+	return db, err
 }
 
 func getVersion() string {
