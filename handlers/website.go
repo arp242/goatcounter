@@ -19,7 +19,6 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
@@ -111,7 +110,8 @@ func (h website) openAPI(w http.ResponseWriter, r *http.Request) error {
 	if _, err := os.Stat(p); err == nil {
 		return zhttp.File(w, p)
 	}
-	return zhttp.Bytes(w, pack.Templates[p])
+	return nil
+	//return zhttp.Bytes(w, pack.Templates[p])
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {

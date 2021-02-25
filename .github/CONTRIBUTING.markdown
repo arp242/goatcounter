@@ -24,10 +24,6 @@ Starting it
 
        127.0.0.1 goatcounter.localhost www.goatcounter.localhost static.goatcounter.localhost code.goatcounter.localhost
 
-4. Don't forget to run `go generate ./...` before building a release binary;
-   this will generate the `pack/pack.go` file which contains all static assets
-   (JS/CSS, templates, DB migrations).
-
 
 General notes
 -------------
@@ -51,10 +47,6 @@ General notes
   tests against PostgreSQL (instead of SQLite) with `go test -tags=testpg
   ./...`. You can use the standard `PG*` environment variables to control the
   connection (e.g. `PGHOST`, `PGPORT`).
-
-- Run `go generate ./...` before committing; this will generate the
-  `pack/pack.go` file, which contains all the static resources for production
-  use (so it can be deployed as a self-contained binary).
 
 - I don't run any linters at the moment other than `go vet`, as several years of
   experience with them showed that they're useful about half the time, and just

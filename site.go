@@ -18,9 +18,9 @@ import (
 	"zgo.at/guru"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
-	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/znet"
 	"zgo.at/zvalidate"
 )
 
@@ -410,7 +410,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
 		err := zdb.Get(ctx, s,
 			`/* Site.ByHost */ select * from sites where lower(cname)=lower($1) and state=$2`,
-			zhttp.RemovePort(host), StateActive)
+			znet.RemovePort(host), StateActive)
 		if err != nil {
 			return errors.Wrap(err, "site.ByHost: from custom domain")
 		}
@@ -468,7 +468,7 @@ func (s Site) Display() string {
 	if s.Cname != nil && s.CnameSetupAt != nil {
 		return *s.Cname
 	}
-	return fmt.Sprintf("%s.%s", s.Code, zhttp.RemovePort(cfg.Domain))
+	return fmt.Sprintf("%s.%s", s.Code, znet.RemovePort(cfg.Domain))
 }
 
 // URL to this site.

@@ -6,15 +6,17 @@ package handlers
 
 import (
 	"context"
+	"io/fs"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zgo"
 	"zgo.at/zstripe"
 )
 
@@ -77,7 +79,7 @@ func NewWebsite(db zdb.DB) chi.Router {
 	return r
 }
 
-func NewStatic(r chi.Router, dir string, prod bool) chi.Router {
+func NewStatic(r chi.Router, prod bool) chi.Router {
 	var cache map[string]int
 	if prod {
 		cache = map[string]int{
@@ -85,7 +87,14 @@ func NewStatic(r chi.Router, dir string, prod bool) chi.Router {
 			"*":         86400 * 30,
 		}
 	}
-	r.Get("/*", zhttp.NewStatic(dir, "*", cache, pack.Public).ServeHTTP)
+
+	var files fs.FS = goatcounter.Static
+	if !prod {
+		files = os.DirFS(zgo.ModuleRoot())
+	}
+	files, _ = fs.Sub(files, "public")
+
+	r.Get("/*", zhttp.NewStatic("*", files, cache).ServeHTTP)
 	return r
 }
 
@@ -98,7 +107,7 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc) chi.Router {
 	}
 
 	if !cfg.GoatcounterCom {
-		NewStatic(r, "./public", cfg.Prod)
+		NewStatic(r, cfg.Prod)
 	}
 
 	return r

@@ -9,9 +9,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 
@@ -20,10 +22,10 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zgo"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztest"
@@ -47,9 +49,9 @@ func init() {
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter,
 		blackmail.MailerOut(new(bytes.Buffer)))
 
-	pack.Templates = nil
-	pack.Public = nil
-	ztpl.Init("../tpl", nil)
+	files, _ := fs.Sub(os.DirFS(zgo.ModuleRoot()), "tpl")
+	ztpl.Init(files)
+
 	ztest.DefaultHost = "test.example.com"
 	cfg.Domain = "example.com"
 	cfg.GoatcounterCom = true

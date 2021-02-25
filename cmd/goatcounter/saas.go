@@ -15,6 +15,7 @@ import (
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
+	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
@@ -73,14 +74,14 @@ func saas() (int, error) {
 	}
 
 	// Set up HTTP handler and servers.
-	d := zhttp.RemovePort(cfg.Domain)
+	d := znet.RemovePort(cfg.Domain)
 	hosts := map[string]http.Handler{
 		d:          zhttp.RedirectHost("//www." + cfg.Domain),
 		"www." + d: handlers.NewWebsite(db),
 		"*":        handlers.NewBackend(db, acmeh),
 	}
 	if dev {
-		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), "./public", !dev)
+		hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
 	}
 
 	doServe(db, testMode, listen, listenTLS, tlsc, hosts, func() {

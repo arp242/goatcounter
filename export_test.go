@@ -16,13 +16,11 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
-	"zgo.at/zhttp/ztpl"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
 )
 
 func TestExport(t *testing.T) {
-	ztpl.Init("tpl", nil)
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 	ctx, clean := gctest.DB(t)
 	defer clean()

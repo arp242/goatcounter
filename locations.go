@@ -13,7 +13,6 @@ import (
 
 	"github.com/oschwald/geoip2-golang"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -35,11 +34,11 @@ func InitGeoDB(path string) {
 		if err != nil {
 			panic(err)
 		}
-		pack.GeoDB = nil // Save some memory.
+		GeoDB = nil // Save some memory.
 		return
 	}
 
-	gz, err := gzip.NewReader(bytes.NewReader(pack.GeoDB))
+	gz, err := gzip.NewReader(bytes.NewReader(GeoDB))
 	if err != nil {
 		panic(err)
 	}

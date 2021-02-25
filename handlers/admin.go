@@ -22,6 +22,7 @@ import (
 	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
+	"zgo.at/zstd/znet"
 	"zgo.at/zvalidate"
 )
 
@@ -247,7 +248,7 @@ func (h admin) login(w http.ResponseWriter, r *http.Request) error {
 	domain := cookieDomain(&site, r)
 	auth.SetCookie(w, *user.LoginToken, domain)
 	http.SetCookie(w, &http.Cookie{
-		Domain:   zhttp.RemovePort(domain),
+		Domain:   znet.RemovePort(domain),
 		Name:     "is_admin",
 		Value:    "1",
 		Path:     "/",

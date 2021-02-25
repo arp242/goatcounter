@@ -8,6 +8,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,12 +27,13 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
-	"zgo.at/goatcounter/pack"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zli"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zgo"
+	"zgo.at/zstd/znet"
 	"zgo.at/zvalidate"
 )
 
@@ -160,7 +162,7 @@ func serve() (int, error) {
 	if cfg.DomainStatic != "" {
 		// May not be needed, but just in case the DomainStatic isn't an
 		// external CDN.
-		hosts[zhttp.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), "./public", !dev)
+		hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
 	}
 
 	cnames, err := lsSites(db)
@@ -265,7 +267,16 @@ func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DB, *tls.Confi
 		return nil, nil, nil, 0, err
 	}
 
-	ztpl.Init("tpl", pack.Templates)
+	var files fs.FS = goatcounter.Templates
+	if !cfg.Prod {
+		files = os.DirFS(zgo.ModuleRoot())
+	}
+	files, err = fs.Sub(files, "tpl")
+	if err != nil {
+		return nil, nil, nil, 0, err
+	}
+	ztpl.Init(files)
+
 	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS)
 
 	err = goatcounter.Memstore.Init(db)
@@ -282,10 +293,8 @@ func setupReload() {
 		return
 	}
 
-	pack.Templates = nil
-	pack.Public = nil
 	go func() {
-		err := reload.Do(zlog.Module("main").Debugf, reload.Dir("./tpl", ztpl.Reload))
+		err := reload.Do(zlog.Module("main").Debugf, reload.Dir("./tpl", func() { ztpl.Reload("./tpl") }))
 		if err != nil {
 			panic(errors.Errorf("reload.Do: %v", err))
 		}
@@ -332,7 +341,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 func flagFrom(from string, v *zvalidate.Validator) {
 	if from == "" {
 		if cfg.Domain != "" { // saas only.
-			from = "support@" + zhttp.RemovePort(cfg.Domain)
+			from = "support@" + znet.RemovePort(cfg.Domain)
 		} else {
 			u, err := user.Current()
 			if err != nil {

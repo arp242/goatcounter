@@ -19,9 +19,8 @@ import (
 	"github.com/oschwald/geoip2-golang"
 	"github.com/oschwald/maxminddb-golang"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/pack"
+	"zgo.at/goatcounter"
 	"zgo.at/zlog"
-	"zgo.at/zpack"
 	"zgo.at/zstd/zioutil"
 )
 
@@ -55,19 +54,6 @@ func main() {
 		}
 		l = l.Since("schema")
 	}
-
-	err := zpack.Pack(map[string]map[string]string{
-		"./pack/pack.go": {
-			"Public":    "./public",
-			"Templates": "./tpl",
-		},
-	}, "/.keep", "public/fonts/LICENSE", ".markdown", "/index.html")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
-	l = l.Since("pack")
 
 	l.FieldsSince().Print("done")
 }
@@ -258,7 +244,7 @@ func markdown() error {
 }
 
 func locations() error {
-	db, err := maxminddb.FromBytes(pack.GeoDB)
+	db, err := maxminddb.FromBytes(goatcounter.GeoDB)
 	if err != nil {
 		return err
 	}
