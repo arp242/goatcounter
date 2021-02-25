@@ -208,7 +208,7 @@
 	}
 
 	// Make it easy to skip your own views.
-	if (location.hash === '#toggle-goatcounter')
+	if (location.hash === '#toggle-goatcounter') {
 		if (localStorage.getItem('skipgc') === 't') {
 			localStorage.removeItem('skipgc', 't')
 			alert('GoatCounter tracking is now ENABLED in this browser.')
@@ -217,6 +217,7 @@
 			localStorage.setItem('skipgc', 't')
 			alert('GoatCounter tracking is now DISABLED in this browser until ' + location + ' is loaded again.')
 		}
+	}
 
 	if (!goatcounter.no_onload) {
 		var go = function() {
