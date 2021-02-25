@@ -171,6 +171,9 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	size := "0"
 	if err == nil {
 		size = fmt.Sprintf("%.1f", float64(stat.Size())/1024/1024)
+		if size == "0.0" {
+			size = "0.1"
+		}
 	}
 	e.Size = &size
 
