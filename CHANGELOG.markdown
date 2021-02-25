@@ -37,6 +37,9 @@ Unreleased v1.5.0
 - There is now a `count.v1.js`, which is a stable version that can use
   subresource integrity.
 
+- You can use `data-goatcounter-settings` on the `<script>` tag to load the
+  settings (this requires `count.v2.js` or newer).
+
 - The database for PostgreSQL is now created automatically.
 
 - You can copy settings from a site to other sites in *Settings → Sites*.

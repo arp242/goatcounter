@@ -78,6 +78,7 @@ options and customisations.</p>
     </ul>
   </li>
   <li><a href="#examples" id="markdown-toc-examples">Examples</a>    <ul>
+      <li><a href="#using-data-goatcounter-settings" id="markdown-toc-using-data-goatcounter-settings">Using data-goatcounter-settings</a></li>
       <li><a href="#load-only-on-production" id="markdown-toc-load-only-on-production">Load only on production</a></li>
       <li><a href="#skip-own-views" id="markdown-toc-skip-own-views">Skip own views</a></li>
       <li><a href="#custom-path-and-referrer" id="markdown-toc-custom-path-and-referrer">Custom path and referrer</a></li>
@@ -143,8 +144,9 @@ needed to send pageviews to GoatCounter (which are loaded with a “tracking
 pixel”).</p>
 
 <h2 id="customizing">Customizing <a href="#customizing"></a></h2>
-<p>Customisation is done with the <code>window.goatcounter</code> object; the following keys
-are supported:</p>
+<p>Customisation can be done with the <code>window.goatcounter</code> object or
+<code>data-goatcounter-settings</code> attribute on the script; the following keys are
+supported:</p>
 
 <h3 id="settings">Settings <a href="#settings"></a></h3>
 
@@ -292,6 +294,20 @@ campaigns).</p>
 
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
+<h3 id="using-data-goatcounter-settings">Using data-goatcounter-settings <a href="#using-data-goatcounter-settings"></a></h3>
+<p>The <code>data-goatcounter-settings</code> attribute on the script can set to a JSON object
+to configure the settings; this will <strong>override</strong> anything that's already
+present in <code>window.goatcounter</code>. For example to set <code>no_onload</code>:</p>
+
+<pre><code>  &lt;script data-goatcounter="{{.Site.URL}}/count"
+          data-goatcounter-settings='{"no_onload":true}'
+          async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>This prevents having to add a new <code>&lt;script&gt;</code> with inline JS.</p>
+
+<p>This is supported for all the settings documented above except <code>endpoint</code>.</p>
+
 <h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
 <p>You can check <code>location.host</code> if you want to load GoatCounter only on
 <code>production.com</code> and not <code>staging.com</code> or <code>development.com</code>; for example:</p>
@@ -314,7 +330,7 @@ Tracking</em>). All requests from any IP address added here will be ignored.</p>
 <p>You can also add <code>#toggle-goatcounter</code> to your site's URL to block your browser;
 for example:</p>
 
-<pre><code>https://example.com**#toggle-goatcounter**
+<pre><code>https://example.com#toggle-goatcounter
 </code></pre>
 
 <p>If you filled in the domain in your settings then there should be a link there.
@@ -416,7 +432,6 @@ for navigation then you probably <em>don’t</em> want to do this.</p>
 </code></pre>
 
 <h3 id="using-navigatorsendbeacon">Using navigator.sendBeacon <a href="#using-navigatorsendbeacon"></a></h3>
-
 <p>You can use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon"><code>navigator.sendBeacon()</code></a> with GoatCounter, for example to
 send events when someone closes a page:</p>
 
@@ -657,7 +672,17 @@ published versions:</p>
 
 <ul>
   <li>
-    <p><strong>v1</strong> (25 Dec 2020, up to date with <code>count.js</code>):</p>
+    <p>count.js (not yet versioned):</p>
+
+    <ul>
+      <li>Allow loading settings from <code>data-goatcounter-settings</code> on the <code>script</code> tag.</li>
+      <li>Increase timeout from 3 seconds to 10 seconds.</li>
+      <li>Add braces around <code>if</code> since some minifiers can't deal with "dangling else"
+well (the code is correct, it's the minifier that's broken).</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>v1</strong> (25 Dec 2020):</p>
 
     <pre><code>&lt;script data-goatcounter="{{.Site.URL}}/count"
         async src="//{{.CountDomain}}/count.v1.js"

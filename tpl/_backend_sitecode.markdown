@@ -101,8 +101,9 @@ pixel”).
 
 Customizing
 -----------
-Customisation is done with the `window.goatcounter` object; the following keys
-are supported:
+Customisation can be done with the `window.goatcounter` object or
+`data-goatcounter-settings` attribute on the script; the following keys are
+supported:
 
 ### Settings
 
@@ -207,6 +208,19 @@ campaigns).
 Examples
 --------
 
+### Using data-goatcounter-settings
+The `data-goatcounter-settings` attribute on the script can set to a JSON object
+to configure the settings; this will **override** anything that's already
+present in `window.goatcounter`. For example to set `no_onload`:
+
+      <script data-goatcounter="{{.Site.URL}}/count"
+              data-goatcounter-settings='{"no_onload":true}'
+              async src="//{{.CountDomain}}/count.js"></script>
+
+This prevents having to add a new `<script>` with inline JS.
+
+This is supported for all the settings documented above except `endpoint`.
+
 ### Load only on production
 You can check `location.host` if you want to load GoatCounter only on
 `production.com` and not `staging.com` or `development.com`; for example:
@@ -228,7 +242,7 @@ Tracking*). All requests from any IP address added here will be ignored.
 You can also add `#toggle-goatcounter` to your site's URL to block your browser;
 for example:
 
-    https://example.com**#toggle-goatcounter**
+    https://example.com#toggle-goatcounter
 
 If you filled in the domain in your settings then there should be a link there.
 If you edit it in your URL bar you may have to reload the page with F5 for it to
@@ -318,7 +332,6 @@ Custom `count()` example for hooking in to an SPA nagivating by `#`:
     {{template "code" .}}
 
 ### Using navigator.sendBeacon
-
 You can use [`navigator.sendBeacon()`][beacon] with GoatCounter, for example to
 send events when someone closes a page:
 
@@ -530,12 +543,20 @@ For most people `{{.CountDomain}}/count.js` should be fine, but if you want you
 can verify the integrity of the externally loaded script with SRI; currently
 published versions:
 
-- **v1** (25 Dec 2020, up to date with `count.js`):
+- count.js (not yet versioned):
+
+  - Allow loading settings from `data-goatcounter-settings` on the `script` tag.
+  - Increase timeout from 3 seconds to 10 seconds.
+  - Add braces around `if` since some minifiers can't deal with "dangling else"
+    well (the code is correct, it's the minifier that's broken).
+
+- **v1** (25 Dec 2020):
 
       <script data-goatcounter="{{.Site.URL}}/count"
               async src="//{{.CountDomain}}/count.v1.js"
               crossorigin="anonymous"
               integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"></script>
+
 
 This will verify the integrity of the script to ensure there are no changes, and
 browsers will refuse to run it if there are.

@@ -503,13 +503,23 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 	"public/count.js": []byte(`// GoatCounter: https://www.goatcounter.com
 // This file (and *only* this file) is released under the ISC license:
 // https://opensource.org/licenses/ISC
-(function() {
+;(function() {
 	'use strict';
 
-	if (window.goatcounter && window.goatcounter.vars)  // Compatibility
+	if (window.goatcounter && window.goatcounter.vars)  // Compatibility with very old version; do not use.
 		window.goatcounter = window.goatcounter.vars
 	else
 		window.goatcounter = window.goatcounter || {}
+
+	// Load settings from data-goatcounter-settings.
+	var s = document.querySelector('script[data-goatcounter]')
+	if (s && s.dataset.goatcounterSettings) {
+		try         { var set = JSON.parse(s.dataset.goatcounterSettings) }
+		catch (err) { console.error('invalid JSON in data-goatcounter-settings: ' + err) }
+		for (var k in set)
+			if (['no_onload', 'no_events', 'allow_local', 'allow_frame', 'path', 'title', 'referrer', 'event'].indexOf(k) > -1)
+				window.goatcounter[k] = set[k]
+	}
 
 	// Get all data we're going to send off to the counter endpoint.
 	var get_data = function(vars) {
@@ -574,7 +584,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 	// Get the endpoint to send requests to.
 	var get_endpoint = function() {
-		var s = document.querySelector('script[data-goatcounter]');
+		var s = document.querySelector('script[data-goatcounter]')
 		if (s && s.dataset.goatcounter)
 			return s.dataset.goatcounter
 		return (goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
@@ -591,6 +601,14 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 				loc = a
 		}
 		return (loc.pathname + loc.search) || '/'
+	}
+
+	// Run function after DOM is loaded.
+	var on_load = function(f) {
+		if (document.body === null)
+			document.addEventListener('DOMContentLoaded', function() { f() }, false)
+		else
+			f()
 	}
 
 	// Filter some requests that we (probably) don't want to count.
@@ -639,7 +657,7 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 		img.setAttribute('aria-hidden', 'true')
 
 		var rm = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
-		setTimeout(rm, 3000)  // In case the onload isn't triggered.
+		setTimeout(rm, 10000)  // In case the onload isn't triggered.
 		img.addEventListener('load', rm, false)
 		document.body.appendChild(img)
 	}
@@ -680,37 +698,39 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 
 	// Add a "visitor counter" frame or image.
 	window.goatcounter.visit_count = function(opt) {
-		opt        = opt        || {}
-		opt.type   = opt.type   || 'html'
-		opt.append = opt.append || 'body'
-		opt.path   = opt.path   || get_path()
-		opt.attr   = opt.attr   || {width: '200', height: (opt.no_branding ? '60' : '80')}
+		on_load(function() {
+			opt        = opt        || {}
+			opt.type   = opt.type   || 'html'
+			opt.append = opt.append || 'body'
+			opt.path   = opt.path   || get_path()
+			opt.attr   = opt.attr   || {width: '200', height: (opt.no_branding ? '60' : '80')}
 
-		opt.attr['src'] = get_endpoint() + 'er/' + encodeURIComponent(opt.path) + '.' + opt.type + '?'
-		if (opt.no_branding) opt.attr['src'] += '&no_branding=1'
-		if (opt.style)       opt.attr['src'] += '&style=' + encodeURIComponent(opt.style)
+			opt.attr['src'] = get_endpoint() + 'er/' + encodeURIComponent(opt.path) + '.' + opt.type + '?'
+			if (opt.no_branding) opt.attr['src'] += '&no_branding=1'
+			if (opt.style)       opt.attr['src'] += '&style=' + encodeURIComponent(opt.style)
 
-		var tag = {png: 'img', svg: 'img', html: 'iframe'}[opt.type]
-		if (!tag)
-			return warn('visit_count: unknown type: ' + opt.type)
+			var tag = {png: 'img', svg: 'img', html: 'iframe'}[opt.type]
+			if (!tag)
+				return warn('visit_count: unknown type: ' + opt.type)
 
-		if (opt.type === 'html') {
-			opt.attr['frameborder'] = '0'
-			opt.attr['scrolling']   = 'no'
-		}
+			if (opt.type === 'html') {
+				opt.attr['frameborder'] = '0'
+				opt.attr['scrolling']   = 'no'
+			}
 
-		var d = document.createElement(tag)
-		for (var k in opt.attr)
-			d.setAttribute(k, opt.attr[k])
+			var d = document.createElement(tag)
+			for (var k in opt.attr)
+				d.setAttribute(k, opt.attr[k])
 
-		var p = document.querySelector(opt.append)
-		if (!p)
-			return warn('visit_count: append not found: ' + opt.append)
-		p.appendChild(d)
+			var p = document.querySelector(opt.append)
+			if (!p)
+				return warn('visit_count: append not found: ' + opt.append)
+			p.appendChild(d)
+		})
 	}
 
 	// Make it easy to skip your own views.
-	if (location.hash === '#toggle-goatcounter')
+	if (location.hash === '#toggle-goatcounter') {
 		if (localStorage.getItem('skipgc') === 't') {
 			localStorage.removeItem('skipgc', 't')
 			alert('GoatCounter tracking is now ENABLED in this browser.')
@@ -719,19 +739,14 @@ h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
 			localStorage.setItem('skipgc', 't')
 			alert('GoatCounter tracking is now DISABLED in this browser until ' + location + ' is loaded again.')
 		}
+	}
 
-	if (!goatcounter.no_onload) {
-		var go = function() {
+	if (!goatcounter.no_onload)
+		on_load(function() {
 			goatcounter.count()
 			if (!goatcounter.no_events)
 				goatcounter.bind_events()
-		}
-
-		if (document.body === null)
-			document.addEventListener('DOMContentLoaded', function() { go() }, false)
-		else
-			go()
-	}
+		})
 })();
 `),
 	"public/count.v1.js": []byte(`// GoatCounter: https://www.goatcounter.com
@@ -13329,6 +13344,7 @@ options and customisations.</p>
     </ul>
   </li>
   <li><a href="#examples" id="markdown-toc-examples">Examples</a>    <ul>
+      <li><a href="#using-data-goatcounter-settings" id="markdown-toc-using-data-goatcounter-settings">Using data-goatcounter-settings</a></li>
       <li><a href="#load-only-on-production" id="markdown-toc-load-only-on-production">Load only on production</a></li>
       <li><a href="#skip-own-views" id="markdown-toc-skip-own-views">Skip own views</a></li>
       <li><a href="#custom-path-and-referrer" id="markdown-toc-custom-path-and-referrer">Custom path and referrer</a></li>
@@ -13394,8 +13410,9 @@ needed to send pageviews to GoatCounter (which are loaded with a “tracking
 pixel”).</p>
 
 <h2 id="customizing">Customizing <a href="#customizing"></a></h2>
-<p>Customisation is done with the <code>window.goatcounter</code> object; the following keys
-are supported:</p>
+<p>Customisation can be done with the <code>window.goatcounter</code> object or
+<code>data-goatcounter-settings</code> attribute on the script; the following keys are
+supported:</p>
 
 <h3 id="settings">Settings <a href="#settings"></a></h3>
 
@@ -13543,6 +13560,20 @@ campaigns).</p>
 
 <h2 id="examples">Examples <a href="#examples"></a></h2>
 
+<h3 id="using-data-goatcounter-settings">Using data-goatcounter-settings <a href="#using-data-goatcounter-settings"></a></h3>
+<p>The <code>data-goatcounter-settings</code> attribute on the script can set to a JSON object
+to configure the settings; this will <strong>override</strong> anything that's already
+present in <code>window.goatcounter</code>. For example to set <code>no_onload</code>:</p>
+
+<pre><code>  &lt;script data-goatcounter="{{.Site.URL}}/count"
+          data-goatcounter-settings='{"no_onload":true}'
+          async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>This prevents having to add a new <code>&lt;script&gt;</code> with inline JS.</p>
+
+<p>This is supported for all the settings documented above except <code>endpoint</code>.</p>
+
 <h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
 <p>You can check <code>location.host</code> if you want to load GoatCounter only on
 <code>production.com</code> and not <code>staging.com</code> or <code>development.com</code>; for example:</p>
@@ -13565,7 +13596,7 @@ Tracking</em>). All requests from any IP address added here will be ignored.</p>
 <p>You can also add <code>#toggle-goatcounter</code> to your site's URL to block your browser;
 for example:</p>
 
-<pre><code>https://example.com**#toggle-goatcounter**
+<pre><code>https://example.com#toggle-goatcounter
 </code></pre>
 
 <p>If you filled in the domain in your settings then there should be a link there.
@@ -13667,7 +13698,6 @@ for navigation then you probably <em>don’t</em> want to do this.</p>
 </code></pre>
 
 <h3 id="using-navigatorsendbeacon">Using navigator.sendBeacon <a href="#using-navigatorsendbeacon"></a></h3>
-
 <p>You can use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon"><code>navigator.sendBeacon()</code></a> with GoatCounter, for example to
 send events when someone closes a page:</p>
 
@@ -13908,7 +13938,17 @@ published versions:</p>
 
 <ul>
   <li>
-    <p><strong>v1</strong> (25 Dec 2020, up to date with <code>count.js</code>):</p>
+    <p>count.js (not yet versioned):</p>
+
+    <ul>
+      <li>Allow loading settings from <code>data-goatcounter-settings</code> on the <code>script</code> tag.</li>
+      <li>Increase timeout from 3 seconds to 10 seconds.</li>
+      <li>Add braces around <code>if</code> since some minifiers can't deal with "dangling else"
+well (the code is correct, it's the minifier that's broken).</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>v1</strong> (25 Dec 2020):</p>
 
     <pre><code>&lt;script data-goatcounter="{{.Site.URL}}/count"
         async src="//{{.CountDomain}}/count.v1.js"
