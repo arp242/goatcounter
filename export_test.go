@@ -100,7 +100,7 @@ func TestExport(t *testing.T) {
 			"created_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
 			"finished_at": null,
 			"num_rows": 5,
-			"size": "0.0",
+			"size": "0.1",
 			"hash": "sha256-8a34b87e1ae93292e61984f723fbe6cda8a95dbefc0762ac2864bc98a1a13bc1",
 			"error": null
 		}`, "\t", "")
