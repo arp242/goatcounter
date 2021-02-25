@@ -18,6 +18,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cfg"
+	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zgo"
@@ -168,11 +169,12 @@ func connectDB(connect string, migrate []string, create, prod bool) (zdb.DB, err
 	}
 
 	db, err := zdb.Connect(zdb.ConnectOptions{
-		Connect:    connect,
-		Files:      files,
-		Migrate:    migrate,
-		Create:     create,
-		SQLiteHook: goatcounter.SQLiteHook,
+		Connect:      connect,
+		Files:        files,
+		Migrate:      migrate,
+		GoMigrations: gomig.Migrations,
+		Create:       create,
+		SQLiteHook:   goatcounter.SQLiteHook,
 	})
 	var pErr *zdb.PendingMigrationsError
 	if errors.As(err, &pErr) {

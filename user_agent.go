@@ -177,11 +177,11 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 		name, version)
 	if zdb.ErrNoRows(err) {
 		b.ID, err = zdb.InsertID(ctx, "browser_id",
-			`insert into browsers (name, version) values (?, ?)`,
+			`insert into browsers (name, version) values ($1, $2)`,
 			name, version)
 	}
 	if err != nil {
-		return errors.Wrap(err, "Browser.GetOrInsert")
+		return errors.Wrapf(err, "Browser.GetOrInsert %q %q", name, version)
 	}
 	cacheBrowsers.SetDefault(k, *b)
 	return nil
@@ -210,11 +210,11 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 		name, version)
 	if zdb.ErrNoRows(err) {
 		s.ID, err = zdb.InsertID(ctx, "system_id",
-			`insert into systems (name, version) values (?, ?)`,
+			`insert into systems (name, version) values ($1, $2)`,
 			name, version)
 	}
 	if err != nil {
-		return errors.Wrap(err, "System.GetOrInsert")
+		return errors.Wrapf(err, "System.GetOrInsert %q %q", name, version)
 	}
 	cacheSystems.SetDefault(k, *s)
 	return nil

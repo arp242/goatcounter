@@ -8,4 +8,5 @@ import "context"
 
 var Migrations = map[string]func(context.Context) error{
 	"2020-08-28-4-user_agents": UserAgents,
+	"2021-02-25-1-ua_version":  UserAgentVersion,
 }

@@ -53,9 +53,10 @@ func DB(t testing.TB) (context.Context, func()) {
 	db, err := zdb.Connect(zdb.ConnectOptions{
 		Connect:      conn,
 		Files:        os.DirFS(zgo.ModuleRoot()),
-		Create:       true,
 		Migrate:      []string{"all"},
 		GoMigrations: gomig.Migrations,
+		Create:       true,
+		SQLiteHook:   goatcounter.SQLiteHook,
 	})
 	if err != nil {
 		t.Fatalf("connect to DB: %s", err)
