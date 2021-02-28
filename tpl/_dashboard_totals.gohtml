@@ -1,7 +1,12 @@
 <div class="totals">
 	<h2 class="full-width">Totals <small>
-		<span>{{nformat .TotalUnique $.Site}}</span> visits;
-		<span>{{nformat .Total $.Site}}</span> pageviews
+		{{if .Site.Settings.TotalsNoEvents}}
+			<span>{{nformat (sub .TotalUnique .TotalEventsUnique) $.Site}}</span> visits;
+			<span>{{nformat (sub .Total .TotalEvents) $.Site}}</span> pageviews
+		{{else}}
+			<span>{{nformat .TotalUnique $.Site}}</span> visits;
+			<span>{{nformat .Total $.Site}}</span> pageviews
+		{{end}}
 	</small></h2>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>

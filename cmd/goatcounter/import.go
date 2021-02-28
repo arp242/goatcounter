@@ -10,7 +10,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -100,7 +99,7 @@ func importCmd() (int, error) {
 
 	var fp io.ReadCloser
 	if files[0] == "-" {
-		fp = ioutil.NopCloser(os.Stdin)
+		fp = io.NopCloser(os.Stdin)
 	} else {
 		file, err := os.Open(files[0])
 		if err != nil {
@@ -232,7 +231,7 @@ func importSend(url, key string, hits []handlers.APICountRequestHit) error {
 
 	// Other error
 	default:
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("%s: %s: %s", url, resp.Status, zstring.ElideLeft(string(b), 200))
 	}
 
@@ -337,7 +336,7 @@ func checkSite(url, key string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	b, _ := ioutil.ReadAll(resp.Body)
+	b, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("%s: %s: %s", url+"/api/v0/me",
 			resp.Status, zstring.ElideLeft(string(b), 200))

@@ -10,7 +10,6 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
-	"zgo.at/zdb/bulk"
 )
 
 func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
@@ -48,7 +47,7 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := bulk.NewInsert(ctx, "ref_counts", []string{"site_id", "path_id",
+		ins := zdb.NewBulkInsert(ctx, "ref_counts", []string{"site_id", "path_id",
 			"ref", "hour", "total", "total_unique", "ref_scheme"})
 		if zdb.PgSQL(ctx) {
 			ins.OnConflict(`on conflict on constraint "ref_counts#site_id#path_id#ref#hour" do update set

@@ -8,7 +8,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -60,7 +59,7 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 		os.Setenv("PGDATABASE", dbname)
 		tmp = "postgresql://"
 	} else {
-		dir, err := ioutil.TempDir("", "goatcounter")
+		dir, err := os.MkdirTemp("", "goatcounter")
 		if err != nil {
 			t.Fatal(err)
 		}

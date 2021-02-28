@@ -43,9 +43,11 @@ type (
 		Site *goatcounter.Site
 		Args Args
 
-		Total          int
-		TotalUnique    int
-		TotalUniqueUTC int
+		Total             int
+		TotalUnique       int
+		TotalUniqueUTC    int
+		TotalEvents       int
+		TotalEventsUnique int
 	}
 )
 
@@ -133,7 +135,7 @@ func NewWidget(name string) Widget {
 }
 
 func (w *TotalCount) GetData(ctx context.Context, a Args) (err error) {
-	w.Total, w.TotalUnique, w.TotalUniqueUTC, err = goatcounter.GetTotalCount(ctx, a.Start, a.End, a.PathFilter)
+	w.Total, w.TotalUnique, w.TotalUniqueUTC, w.TotalEvents, w.TotalEventsUnique, err = goatcounter.GetTotalCount(ctx, a.Start, a.End, a.PathFilter)
 	return err
 }
 

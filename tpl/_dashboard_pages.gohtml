@@ -1,5 +1,6 @@
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
 	<h2 class="full-width">Pages <small>
+		{{/* TODO: make option to split counts between events and regular pageviews */}}
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
 		{{nformat .TotalUnique $.Site}} visits shown
 	</small></h2>

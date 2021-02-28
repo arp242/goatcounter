@@ -13,10 +13,11 @@ import (
 // Unselectable "internal" widgets.
 type (
 	TotalCount struct {
-		err                error
-		html               template.HTML
-		Total, TotalUnique int
-		TotalUniqueUTC     int
+		err                            error
+		html                           template.HTML
+		Total, TotalUnique             int
+		TotalEvents, TotalEventsUnique int
+		TotalUniqueUTC                 int
 	}
 	Max struct {
 		err  error

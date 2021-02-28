@@ -395,43 +395,30 @@ func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 // UTC. This is needed since the _stats tables are per day, rather than
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
-func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (int, int, int, error) {
+func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (int, int, int, int, int, error) {
+	site := MustGetSite(ctx)
+
 	startUTC := start.In(MustGetSite(ctx).Settings.Timezone.Location)
 	endUTC := end.In(MustGetSite(ctx).Settings.Timezone.Location)
 
 	var t struct {
-		Total          int `db:"total"`
-		TotalUnique    int `db:"total_unique"`
-		TotalUniqueUTC int `db:"total_unique_utc"`
+		Total             int `db:"total"`
+		TotalUnique       int `db:"total_unique"`
+		TotalUniqueUTC    int `db:"total_unique_utc"`
+		TotalEvents       int `db:"total_events"`
+		TotalEventsUnique int `db:"total_events_unique"`
 	}
-
-	// TODO: optimize this by just selecting the few hours before/after TZ diff
-	// for the UTC.
-	err := zdb.Get(ctx, &t, `/* GetTotalCount */
-		select
-			coalesce(sum(total), 0)                as total,
-			coalesce(sum(total_unique), 0)         as total_unique,
-			(select coalesce(sum(total_unique), 0) as total_unique_utc
-				from hit_counts
-				where
-					site_id = :site and hour >= :startutc and hour <= :endutc
-					{{:filter and path_id in (:filter)}}
-			) as total_unique_utc
-		from hit_counts
-		where
-			site_id = :site and hour >= :start and hour <= :end
-			{{:filter and path_id in (:filter)}}`,
-		struct {
-			Site     int64
-			Start    string
-			End      string
-			StartUTC string
-			EndUTC   string
-			Filter   []int64
-		}{MustGetSite(ctx).ID, start.Format(zdb.Date), end.Format(zdb.Date),
-			startUTC.Format(zdb.Date), endUTC.Format(zdb.Date),
-			pathFilter})
-	return t.Total, t.TotalUnique, t.TotalUniqueUTC, errors.Wrap(err, "GetTotalCount")
+	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", zdb.P{
+		"site":      site.ID,
+		"start":     start.Format(zdb.Date),
+		"end":       end.Format(zdb.Date),
+		"start_utc": startUTC.Format(zdb.Date),
+		"end_utc":   endUTC.Format(zdb.Date),
+		"filter":    pathFilter,
+		"no_events": site.Settings.TotalsNoEvents(),
+		"tz":        site.Settings.Timezone.Offset(),
+	})
+	return t.Total, t.TotalUnique, t.TotalUniqueUTC, t.TotalEvents, t.TotalEventsUnique, errors.Wrap(err, "GetTotalCount")
 }
 
 // GetMax gets the path with the higest number of pageviews per hour or day for

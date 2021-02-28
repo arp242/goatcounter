@@ -320,6 +320,9 @@ func (ss SiteSettings) LimitPages() int {
 func (ss SiteSettings) LimitRefs() int {
 	return int(ss.Widgets.GetSettings("pages")["limit_refs"].Value.(float64))
 }
+func (ss SiteSettings) SplitEvents() bool {
+	return ss.Widgets.GetSettings("pages")["split_events"].Value.(bool)
+}
 func (ss SiteSettings) TotalsAlign() bool {
 	return ss.Widgets.GetSettings("totalpages")["align"].Value.(bool)
 }

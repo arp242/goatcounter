@@ -262,8 +262,9 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		maxTotals int
 		maxErr    error
 
-		totalHits, totalUnique int
-		totalCountErr          error
+		totalHits, totalUnique         int
+		totalUniqueEvents, totalEvents int
+		totalCountErr                  error
 	)
 
 	// Filtering instead of paginating: get new "totals" stats as well.
@@ -304,7 +305,8 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
 			defer wg.Done()
 
-			totalHits, totalUnique, _, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, pathFilter)
+			totalHits, totalUnique, _, totalEvents, totalUniqueEvents, totalCountErr =
+				goatcounter.GetTotalCount(r.Context(), start, end, pathFilter)
 		}()
 	}
 
@@ -364,6 +366,8 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		"total_display":        totalDisplay,
 		"total_unique":         totalUnique,
 		"total_unique_display": totalUniqueDisplay,
+		"total_unqiue_events":  totalUniqueEvents,
+		"total_events":         totalEvents,
 		"max":                  max,
 		"more":                 more,
 	})

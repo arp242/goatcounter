@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -241,7 +241,7 @@ func buffer() (int, error) {
 				}
 
 				if resp.StatusCode >= 300 {
-					b, _ := ioutil.ReadAll(resp.Body)
+					b, _ := io.ReadAll(resp.Body)
 					zlog.Errorf("  Sending %s FAILED: %s\n%s", r.URL, resp.Status, b)
 				} else if !silent {
 					zlog.Printf("  Sending %s OKAY\n", r.URL)

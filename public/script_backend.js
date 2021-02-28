@@ -673,6 +673,7 @@
 
 		$('body').on('mouseenter', '[title]', function(e) {
 			var t     = $(e.target).closest('[title]'),
+				ev    = $(e.target).closest('tr').hasClass('event'),
 				title = t.attr('title')
 
 			// Reformat the title in the chart.
@@ -686,7 +687,7 @@
 					title = `${format_date(day)} ${un24(start)} – ${un24(end)}`
 				}
 
-				title += !views ? ', future' : `, ${unique} visits; <span class="views">${views} pageviews</span>`
+				title += !views ? ', future' : `, ${unique} ${ev ? 'unique clicks' : 'visits'}; <span class="views">${views} ${ev ? 'total clicks' : 'pageviews'}</span>`
 			}
 			t.attr('data-title', title).removeAttr('title')
 

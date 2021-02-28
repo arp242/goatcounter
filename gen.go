@@ -8,7 +8,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -21,7 +20,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zioutil"
+	"zgo.at/zstd/zio"
 )
 
 func main() {
@@ -59,7 +58,7 @@ func main() {
 }
 
 func schema() error {
-	tpl, err := ioutil.ReadFile("./db/schema.gotxt")
+	tpl, err := os.ReadFile("./db/schema.gotxt")
 	if err != nil {
 		return err
 	}
@@ -165,7 +164,7 @@ var (
 )
 
 func kommentaar() error {
-	if !zioutil.ChangedFrom("./handlers/api.go", "./tpl/api.json") {
+	if !zio.ChangedFrom("./handlers/api.go", "./tpl/api.json") {
 		return nil
 	}
 
@@ -183,7 +182,7 @@ func kommentaar() error {
 			return errors.Errorf("running kommentaar: %s\n%s", err, out)
 		}
 
-		err = ioutil.WriteFile(file, out, 0666)
+		err = os.WriteFile(file, out, 0666)
 		if err != nil {
 			return errors.Errorf("kommentaar: %s\n%s", err)
 		}
@@ -194,7 +193,7 @@ func kommentaar() error {
 // Don't really need to generate Markdown on requests, and don't want to
 // implement caching; so just go generate it.
 func markdown() error {
-	ls, err := ioutil.ReadDir("./tpl")
+	ls, err := os.ReadDir("./tpl")
 	if err != nil {
 		return err
 	}
@@ -206,7 +205,7 @@ func markdown() error {
 		}
 		dst := src[:len(src)-9] + ".gohtml"
 
-		if !zioutil.ChangedFrom(src, dst) {
+		if !zio.ChangedFrom(src, dst) {
 			continue
 		}
 

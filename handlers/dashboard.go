@@ -157,7 +157,9 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	// Set shared params.
 	shared := widgets.SharedData{Args: args, Site: site}
 	tc := wid.Get("totalcount").(*widgets.TotalCount)
-	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC = tc.Total, tc.TotalUnique, tc.TotalUniqueUTC
+	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEvents,
+		shared.TotalEventsUnique = tc.Total, tc.TotalUnique, tc.TotalUniqueUTC,
+		tc.TotalEvents, tc.TotalEventsUnique
 
 	// Copy max and refs to pages; they're in separate "widgets" so they can run
 	// in parallel.

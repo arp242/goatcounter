@@ -19,7 +19,6 @@ import (
 	"github.com/google/uuid"
 	"zgo.at/json"
 	"zgo.at/zdb"
-	"zgo.at/zdb/bulk"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
@@ -241,7 +240,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	l := zlog.Module("memstore")
 
 	newHits := make([]Hit, 0, len(hits))
-	ins := bulk.NewInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
+	ins := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
 		"ref_scheme", "user_agent_id", "size", "location", "created_at", "bot",
 		"session", "first_visit"})
 	for _, h := range hits {

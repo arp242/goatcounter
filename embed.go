@@ -11,6 +11,7 @@ import "embed"
 //go:embed db/schema-postgres.sql
 //go:embed db/schema-sqlite.sql
 //go:embed db/migrate/*.sql
+//go:embed db/query/*.sql
 var DB embed.FS
 
 // Static contains all the static files to serve.
