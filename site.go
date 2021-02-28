@@ -310,6 +310,7 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 	}
 
 	sitesCache.Delete(strconv.FormatInt(s.ID, 10))
+	sitesCacheHostname.Flush()
 	return nil
 }
 
