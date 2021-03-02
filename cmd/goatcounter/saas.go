@@ -68,7 +68,7 @@ func saas() (int, error) {
 		return 1, v
 	}
 
-	db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate)
+	db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate, testMode)
 	if err != nil {
 		return 2, err
 	}

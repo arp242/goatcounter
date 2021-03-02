@@ -33,7 +33,7 @@ func help() (int, error) {
 			"help", "version",
 			"migrate", "create", "serve",
 			"reindex", "buffer", "monitor",
-			"db", "listen",
+			"db", "listen", "logfile", "debug",
 		} {
 			head := fmt.Sprintf("─── Help for %q ", h)
 			fmt.Fprintf(stdout, "%s%s\n\n",
@@ -168,4 +168,23 @@ Using a non-standard port:
     accessible on :9000 or if there's a proxy in front of it redirecting :80 and
     :443 to :9000. Since most people will use the standard ports you need to
     explicitly tell GoatCounter to use a non-standard port.
+`
+
+const helpDebug = `
+List of debug modules for the -debug flag; you can add multiple separated by
+commas.
+
+    all            How debug logs for all of the below.
+
+    acme           ACME certificate creation.
+    cron           Background "cron" jobs.
+    cron-acme      Cron jobs for ACME certificate creations.
+    dashboard      Dashboard view.
+    export         Export creation.
+    import         Imports.
+    import-api     Imports from the API.
+    memstore       Storing of pageviews in the database.
+    monitor        Additional logs in "goatcounter monitor" .
+    startup        Some additional logs during startup.
+    vacuum         Deletion of old deleted sites and old pageviews.
 `

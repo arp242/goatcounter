@@ -341,8 +341,11 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 }
 
 type APICountRequest struct {
-	// Don't try to count unique visitors; every pageview will be considered a
-	// "visit".
+	// By default it's an error to send pageviews that don't have either a
+	// Session or UserAgent and IP set. This avoids accidental errors.
+	//
+	// When this is set it will just continue without recording sessions for
+	// pageviews that don't have these parameters set.
 	NoSessions bool `json:"no_sessions"`
 
 	// TODO: This is a new struct just because Kommentaar can't deal with it
@@ -398,8 +401,6 @@ type APICountRequestHit struct {
 	// along. Note these will not be stored in the database as the sessionID
 	// (just as the hashes aren't), they're just used as a unique grouping
 	// identifier.
-	//
-	// You can also just disable sessions entirely with NoSessions.
 	Session string `json:"session"`
 
 	// {nodoc}
@@ -449,7 +450,11 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.JSON(w, apiError{Error: "maximum amount of pageviews in one batch is 500"})
 	}
 
-	errs := make(map[int]string)
+	var (
+		errs       = make(map[int]string)
+		firstHitAt *time.Time
+		site       = Site(r.Context())
+	)
 	for i, a := range args.Hits {
 		if a.Location == "" && a.IP != "" {
 			a.Location = (goatcounter.Location{}).LookupIP(r.Context(), a.IP)
@@ -486,9 +491,11 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			continue
 		}
 
+		if hit.CreatedAt.Before(site.CreatedAt) {
+			firstHitAt = &hit.CreatedAt
+		}
 		goatcounter.Memstore.Append(hit)
 	}
-
 	if len(errs) > 0 {
 		w.WriteHeader(400)
 		return zhttp.JSON(w, map[string]interface{}{
@@ -498,6 +505,16 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 
 	if goatcounter.Memstore.Len() >= 5000 {
 		goatcounter.PersistRunner.Run <- struct{}{}
+	}
+
+	if firstHitAt != nil {
+		err := site.UpdateFirstHitAt(r.Context(), *firstHitAt)
+		if err != nil {
+			zlog.Module("api-import").Fields(zlog.F{
+				"site":       site.ID,
+				"firstHitAt": firstHitAt.String(),
+			}).Error(err)
+		}
 	}
 
 	w.WriteHeader(http.StatusAccepted)

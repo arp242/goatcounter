@@ -234,7 +234,6 @@ func Import(
 	ctx context.Context, fp io.Reader, replace, email bool,
 	persist func(Hit, bool),
 ) (*time.Time, error) {
-
 	site := MustGetSite(ctx)
 
 	l := zlog.Module("import").Field("site", site.ID).Field("replace", replace)

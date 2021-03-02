@@ -108,6 +108,7 @@ Flags:
   -dev         Start in "dev mode".
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
+               See "goatcounter help debug" for a list of modules.
 
 Environment:
 
@@ -150,7 +151,7 @@ func serve() (int, error) {
 		return 1, v
 	}
 
-	db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate)
+	db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate, testMode)
 	if err != nil {
 		return 2, err
 	}
@@ -182,7 +183,8 @@ func serve() (int, error) {
 }
 
 func doServe(db zdb.DB, testMode int, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
-	zlog.Module("main").Debug(getVersion())
+	var sig = make(chan os.Signal, 1)
+	zlog.Module("startup").Debug(getVersion())
 	ch := zhttp.Serve(listenTLS, testMode, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
@@ -194,11 +196,11 @@ func doServe(db zdb.DB, testMode int, listen string, listenTLS uint8, tlsc *tls.
 	<-ch
 
 	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGHUP, syscall.SIGTERM, os.Interrupt /*SIGINT*/)
-		<-c
+		//c := make(chan os.Signal, 1)
+		signal.Notify(sig, syscall.SIGHUP, syscall.SIGTERM, os.Interrupt /*SIGINT*/)
+		<-sig
 		zli.Colorln("One more to kill…", zli.Bold)
-		<-c
+		<-sig
 		zli.Colorln("Force killing", zli.Bold)
 		os.Exit(99)
 	}()
@@ -257,7 +259,7 @@ func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string
 	return *dbConnect, *testMode, dev, *automigrate, *listen, *flagTLS, *from, err
 }
 
-func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DB, *tls.Config, http.HandlerFunc, uint8, error) {
+func setupServe(dbConnect, flagTLS string, automigrate bool, testMode int) (zdb.DB, *tls.Config, http.HandlerFunc, uint8, error) {
 	if !cfg.Prod {
 		setupReload()
 	}
@@ -279,7 +281,11 @@ func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DB, *tls.Confi
 
 	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS)
 
-	err = goatcounter.Memstore.Init(db)
+	if testMode > 0 {
+		err = goatcounter.Memstore.TestInit(db)
+	} else {
+		err = goatcounter.Memstore.Init(db)
+	}
 	if err != nil {
 		return nil, nil, nil, 0, err
 	}
@@ -294,7 +300,7 @@ func setupReload() {
 	}
 
 	go func() {
-		err := reload.Do(zlog.Module("main").Debugf, reload.Dir("./tpl", func() { ztpl.Reload("./tpl") }))
+		err := reload.Do(zlog.Module("startup").Debugf, reload.Dir("./tpl", func() { ztpl.Reload("./tpl") }))
 		if err != nil {
 			panic(errors.Errorf("reload.Do: %v", err))
 		}

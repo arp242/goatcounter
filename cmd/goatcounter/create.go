@@ -46,6 +46,7 @@ Other flags:
   -createdb    Create the database if it doesn't exist yet; only for SQLite.
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
+               See "goatcounter help debug" for a list of modules.
 `
 
 func create() (int, error) {

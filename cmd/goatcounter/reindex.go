@@ -40,6 +40,7 @@ Flags:
                sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
+               See "goatcounter help debug" for a list of modules.
 
   -pause       Number of seconds to pause after each month, to give the server
                some breathing room on large sites. Default: 0.

@@ -82,13 +82,6 @@ func tmpdb(t *testing.T) (context.Context, string, func()) {
 }
 
 func run(t *testing.T, wantCode int, args []string) {
-	cwd, _ := os.Getwd()
-	err := os.Chdir("../../")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.Chdir(cwd)
-
 	// Reset flags in case of -count 2
 	CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 	os.Args = append([]string{"goatcounter"}, args...)

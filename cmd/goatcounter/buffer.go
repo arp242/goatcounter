@@ -85,6 +85,7 @@ Flags:
                Only needed for -generate-key
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
+               See "goatcounter help debug" for a list of modules.
 
   -silent      Don't show informational messages about the buffer size.
 
@@ -253,9 +254,8 @@ func buffer() (int, error) {
 
 	zlog.Printf("Ready on %s", listen)
 	ch := zhttp.Serve(0, *testMode, &http.Server{
-		Addr:    listen,
-		Handler: mware.RealIP()(mware.Unpanic()(handleBuffer(reqBuffer, bufClient, isDown, silent))),
-
+		Addr:              listen,
+		Handler:           mware.RealIP()(mware.Unpanic()(handleBuffer(reqBuffer, bufClient, isDown, silent))),
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       60 * time.Second,
 		WriteTimeout:      60 * time.Second,
