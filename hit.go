@@ -450,34 +450,12 @@ type Stats struct {
 
 // ByRef lists all paths by reference.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []int64, ref string) error {
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ByRef */
-		with x as (
-			select
-				path_id,
-				coalesce(sum(total), 0) as count,
-				coalesce(sum(total_unique), 0) as count_unique
-			from ref_counts
-			where
-				site_id=:site and hour>=:start and hour<=:end and
-				{{:filter path_id in (:filter) and}}
-				ref=:ref
-			group by path_id
-			order by count desc
-			limit 10
-		)
-		select
-			paths.path as name,
-			x.count,
-			x.count_unique
-		from x
-		join paths using(path_id)`,
-		zdb.P{
-			"site":   MustGetSite(ctx).ID,
-			"start":  start.Format(zdb.Date),
-			"end":    end.Format(zdb.Date),
-			"filter": pathFilter,
-			"ref":    ref,
-		})
-
+	err := zdb.Select(ctx, &h.Stats, "load:hit.Stats.ByRef", zdb.P{
+		"site":   MustGetSite(ctx).ID,
+		"start":  start,
+		"end":    end,
+		"filter": pathFilter,
+		"ref":    ref,
+	})
 	return errors.Wrap(err, "Stats.ByRef")
 }

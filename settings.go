@@ -142,7 +142,7 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 	case string:
 		return json.Unmarshal([]byte(vv), ss)
 	default:
-		panic(fmt.Sprintf("unsupported type: %T", v))
+		return fmt.Errorf("SiteSettings.Scan: unsupported type: %T", v)
 	}
 }
 

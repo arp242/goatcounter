@@ -46,8 +46,8 @@ func (h *HitStats) List(
 			join paths using (path_id)`,
 			zdb.P{
 				"site":    site.ID,
-				"start":   start.Format(zdb.Date),
-				"end":     end.Format(zdb.Date),
+				"start":   start,
+				"end":     end,
 				"filter":  pathFilter,
 				"limit":   limit + 1,
 				"exclude": exclude,
@@ -149,24 +149,13 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		TotalUnique int       `db:"total_unique"`
 	}
 
-	err := zdb.Select(ctx, &tc, `/* HitStat.Totals */
-		select hour, sum(total) as total, sum(total_unique) as total_unique
-		from hit_counts
-		{{:noevents join paths using (path_id)}}
-		where
-			hit_counts.site_id = :site and hour >= :start and hour <= :end
-			{{:noevents and paths.event = 0}}
-			{{:filter and path_id in (:filter)}}
-		group by hour
-		order by hour asc`,
-		struct {
-			Site     int64
-			Start    string
-			End      string
-			Filter   []int64
-			NoEvents bool
-		}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter,
-			site.Settings.TotalsNoEvents()})
+	err := zdb.Select(ctx, &tc, "load:hit_stat.Totals", zdb.P{
+		"site":      site.ID,
+		"start":     start,
+		"end":       end,
+		"filter":    pathFilter,
+		"no_events": site.Settings.TotalsNoEvents(),
+	})
 	if err != nil {
 		return 0, errors.Wrap(err, "HitStat.Totals")
 	}
@@ -398,9 +387,6 @@ func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (int, int, int, int, int, error) {
 	site := MustGetSite(ctx)
 
-	startUTC := start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	endUTC := end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
 	var t struct {
 		Total             int `db:"total"`
 		TotalUnique       int `db:"total_unique"`
@@ -410,10 +396,10 @@ func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64
 	}
 	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", zdb.P{
 		"site":      site.ID,
-		"start":     start.Format(zdb.Date),
-		"end":       end.Format(zdb.Date),
-		"start_utc": startUTC.Format(zdb.Date),
-		"end_utc":   endUTC.Format(zdb.Date),
+		"start":     start,
+		"end":       end,
+		"start_utc": start.In(site.Settings.Timezone.Location),
+		"end_utc":   end.In(site.Settings.Timezone.Location),
 		"filter":    pathFilter,
 		"no_events": site.Settings.TotalsNoEvents(),
 		"tz":        site.Settings.Timezone.Offset(),
@@ -426,61 +412,32 @@ func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64
 func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 	var (
-		max   int
-		query string
-		args  []interface{}
-		err   error
+		query  string
+		params zdb.P
 	)
 	if daily {
-		// TODO: this reads like ~800k rows and 80M of data for some larger
-		// sites. That's obviously not ideal.
-		//
-		// Precomputing values (e.g. though a materialized view) is hard, as we
-		// need to get everything local to the user's configured TZ: so we can't
-		// calculate daily sums (which is a lot faster).
-		//
-		// So, not sure what to do with this.
-		query, args, err = zdb.Prepare(ctx, `/* GetMax daily */
-			select coalesce(sum(total), 0) as t
-			from hit_counts
-			where
-				site_id = :site and
-				{{:filter path_id in (:filter) and}}
-				hour >= :start and hour <= :end
-			{{:sqlite group by path_id, date(hour, :tz)}}
-			{{:pgsql  group by path_id, date(timezone(:tz, hour))}}
-			order by t desc
-			limit 1`,
-			struct {
-				Site   int64
-				Start  string
-				End    string
-				TZ     string
-				Filter []int64
-				SQLite bool
-				PgSQL  bool
-			}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date),
-				site.Settings.Timezone.OffsetRFC3339(), pathFilter,
-				zdb.SQLite(ctx),
-				zdb.PgSQL(ctx)})
+		query = "load:hit_list.GetMax-daily"
+		params = zdb.P{
+			"site":   site.ID,
+			"start":  start,
+			"end":    end,
+			"tz":     site.Settings.Timezone.OffsetRFC3339(),
+			"filter": pathFilter,
+			"sqlite": zdb.SQLite(ctx),
+			"pgsql":  zdb.PgSQL(ctx),
+		}
 	} else {
-		query, args, err = zdb.Prepare(ctx, `/* GetMax hourly */
-			select coalesce(max(total), 0) from hit_counts
-			where
-				hit_counts.site_id = :site and hour >= :start and hour <= :end
-				{{:filter and path_id in (:filter)}}`,
-			struct {
-				Site   int64
-				Start  string
-				End    string
-				Filter []int64
-			}{site.ID, start.Format(zdb.Date), end.Format(zdb.Date), pathFilter})
-	}
-	if err != nil {
-		return 0, errors.Wrap(err, "getMax")
+		query = "load:hit_list.GetMax-hourly"
+		params = zdb.P{
+			"site":   site.ID,
+			"start":  start,
+			"end":    end,
+			"filter": pathFilter,
+		}
 	}
 
-	err = zdb.Get(ctx, &max, query, args...)
+	var max int
+	err := zdb.Get(ctx, &max, query, params)
 	if err != nil && !zdb.ErrNoRows(err) {
 		return 0, errors.Wrap(err, "getMax")
 	}

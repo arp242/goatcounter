@@ -127,7 +127,7 @@ func (u *User) Insert(ctx context.Context) error {
 	}
 
 	query := `insert into users `
-	args := []interface{}{u.Site, u.Email, u.Password, u.TOTPSecret, u.CreatedAt.Format(zdb.Date)}
+	args := []interface{}{u.Site, u.Email, u.Password, u.TOTPSecret, u.CreatedAt}
 	if u.EmailVerified {
 		query += ` (site_id, email, password, totp_secret, created_at, email_verified) values ($1, $2, $3, $4, $5, 1)`
 	} else {
@@ -164,7 +164,7 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 
 	err = zdb.Exec(ctx,
 		`update users set email=$1, updated_at=$2, email_verified=$3, email_token=$4 where user_id=$5`,
-		u.Email, u.UpdatedAt.Format(zdb.Date), u.EmailVerified, u.EmailToken, u.ID)
+		u.Email, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID)
 	return errors.Wrap(err, "User.Update")
 }
 
@@ -188,7 +188,7 @@ func (u *User) UpdatePassword(ctx context.Context, pwd string) error {
 
 	err = zdb.Exec(ctx,
 		`update users set password=$1, updated_at=$2 where user_id=$3`,
-		u.Password, u.UpdatedAt.Format(zdb.Date), u.ID)
+		u.Password, u.UpdatedAt, u.ID)
 	return errors.Wrap(err, "User.UpdatePassword")
 }
 

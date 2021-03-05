@@ -77,7 +77,7 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 	var err error
 	e.ID, err = zdb.InsertID(ctx, "export_id",
 		`insert into exports (site_id, path, created_at, start_from_hit_id) values (?, ?, ?, ?)`,
-		e.SiteID, e.Path, e.CreatedAt.Format(zdb.Date), e.StartFromHitID)
+		e.SiteID, e.Path, e.CreatedAt, e.StartFromHitID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Export.Create")
 	}
@@ -189,7 +189,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		return
 	}
 
-	now := Now().Format(zdb.Date)
+	now := Now()
 	err = zdb.Exec(ctx, `update exports set
 		finished_at=$1, num_rows=$2, size=$3, hash=$4, last_hit_id=$5
 		where export_id=$6`,

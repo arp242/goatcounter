@@ -217,8 +217,8 @@ func (h *Stats) ListRefsByPath(ctx context.Context, path string, start, end time
 		limit :limit offset :offset`,
 		zdb.P{
 			"site":   site.ID,
-			"start":  start.Format(zdb.Date),
-			"end":    end.Format(zdb.Date),
+			"start":  start,
+			"end":    end,
 			"path":   path,
 			"limit":  limit + 1,
 			"offset": offset,
@@ -255,8 +255,8 @@ func (h *Stats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilte
 		limit 6 offset :offset`,
 		zdb.P{
 			"site":       site.ID,
-			"start":      start.Format(zdb.Date),
-			"end":        end.Format(zdb.Date),
+			"start":      start,
+			"end":        end,
 			"filter":     pathFilter,
 			"ref":        site.LinkDomain + "%",
 			"offset":     offset,

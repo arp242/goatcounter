@@ -219,7 +219,7 @@ func (s *Site) Insert(ctx context.Context) error {
 
 	s.ID, err = zdb.InsertID(ctx, "site_id",
 		`insert into sites (parent, code, cname, link_domain, settings, plan, created_at, first_hit_at) values (?, ?, ?, ?, ?, ?, ?, ?)`,
-		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan, s.CreatedAt.Format(zdb.Date), s.CreatedAt.Format(zdb.Date))
+		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan, s.CreatedAt, s.CreatedAt)
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
@@ -240,7 +240,7 @@ func (s *Site) Update(ctx context.Context) error {
 
 	err = zdb.Exec(ctx,
 		`update sites set settings=$1, cname=$2, link_domain=$3, updated_at=$4 where site_id=$5`,
-		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt.Format(zdb.Date), s.ID)
+		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Update")
 	}
@@ -271,7 +271,7 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 
 	err = zdb.Exec(ctx,
 		`update sites set stripe=$1, plan=$2, billing_amount=$3, updated_at=$4 where site_id=$5`,
-		s.Stripe, s.Plan, s.BillingAmount, s.UpdatedAt.Format(zdb.Date), s.ID)
+		s.Stripe, s.Plan, s.BillingAmount, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateStripe")
 	}
@@ -297,7 +297,7 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 
 	err = zdb.Exec(ctx,
 		`update sites set code=$1, updated_at=$2 where site_id=$3`,
-		s.Code, s.UpdatedAt.Format(zdb.Date), s.ID)
+		s.Code, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateCode")
 	}
@@ -319,7 +319,7 @@ func (s *Site) UpdateFirstHitAt(ctx context.Context, f time.Time) error {
 	s.FirstHitAt = f
 	err := zdb.Exec(ctx,
 		`update sites set first_hit_at=$1 where site_id=$2`,
-		s.FirstHitAt.Format(zdb.Date), s.ID)
+		s.FirstHitAt, s.ID)
 
 	s.ClearCache(ctx, false)
 	return errors.Wrap(err, "Site.UpdateFirstHitAt")
@@ -336,7 +336,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 
 	err := zdb.Exec(ctx,
 		`update sites set cname_setup_at=$1 where site_id=$2`,
-		s.CnameSetupAt.Format(zdb.Date), s.ID)
+		s.CnameSetupAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateCnameSetupAt")
 	}
@@ -354,7 +354,7 @@ func (s *Site) Delete(ctx context.Context) error {
 	t := Now()
 	err := zdb.Exec(ctx,
 		`update sites set state=$1, updated_at=$2 where site_id=$3 or parent=$3`,
-		StateDeleted, t.Format(zdb.Date), s.ID)
+		StateDeleted, t, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Delete")
 	}

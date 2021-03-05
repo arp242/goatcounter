@@ -310,7 +310,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		newHits = append(newHits, h)
 
 		ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
-			h.Location, h.CreatedAt.Format(zdb.Date), h.Bot, h.Session, h.FirstVisit)
+			h.Location, h.CreatedAt, h.Bot, h.Session, h.FirstVisit)
 	}
 
 	return newHits, ins.Finish()
