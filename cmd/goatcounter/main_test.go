@@ -5,19 +5,18 @@
 package main
 
 import (
+	"bytes"
 	"context"
-	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 	"testing"
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
-	"zgo.at/zdb"
+	"zgo.at/goatcounter/gctest"
+	"zgo.at/zli"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zcrypto"
 )
 
 var pgSQL = false
@@ -32,78 +31,50 @@ func TestUsageTabs(t *testing.T) {
 	}
 }
 
-func tmpdb(t *testing.T) (context.Context, string, func()) {
+func startTest(t *testing.T) (
+	exit *zli.TestExit, in *bytes.Buffer, out *bytes.Buffer,
+	ctx context.Context, dbc string, clean func(),
+) {
 	t.Helper()
 
-	goatcounter.Memstore.Reset()
-	goatcounter.Reset()
-
-	var clean func()
-	defer func() {
-		r := recover()
-		if r != nil {
-			clean()
-			panic(r)
-		}
-	}()
-
-	dbname := "goatcounter_" + zcrypto.Secret64()
-	var tmp string
-	if pgSQL {
-		clean = func() {
-			out, err := exec.Command("dropdb", dbname).CombinedOutput()
-			if err != nil {
-				panic(fmt.Sprintf("%s → %s", err, out))
-			}
-		}
-		os.Setenv("PGDATABASE", dbname)
-		tmp = "postgresql://"
-	} else {
-		dir, err := os.MkdirTemp("", "goatcounter")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		clean = func() { os.RemoveAll(dir) }
-		tmp = "sqlite://" + dir + "/goatcounter.sqlite3"
-	}
-
-	db, err := connectDB(tmp, []string{"all"}, true, false)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return zdb.WithDB(context.Background(), db), tmp, func() {
-		db.Close()
-		goatcounter.Memstore.Reset()
-		goatcounter.Reset()
-		clean()
-	}
-}
-
-func run(t *testing.T, wantCode int, args []string) {
-	// Reset flags in case of -count 2
-	CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
-	os.Args = append([]string{"goatcounter"}, args...)
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
-
 	zlog.Config.Outputs = []zlog.OutputFunc{
 		func(l zlog.Log) {
-			out := stdout
+			out := zli.Stdout
 			if l.Level == zlog.LevelErr {
-				out = stderr
+				out = zli.Stderr
 			}
 			fmt.Fprintln(out, zlog.Config.Format(l))
 		},
 	}
 
-	// Return exit code.
-	var code int
-	exit = func(c int) { code = c }
+	goatcounter.Memstore.Reset()
+	goatcounter.Reset()
 
-	main()
+	ctx, dbClean := gctest.DBFile(t)
 
-	if code != wantCode {
-		t.Fatalf("exit code %d; want %d", code, wantCode)
+	exit, in, out, zliClean := zli.Test()
+	return exit, in, out, ctx, os.Getenv("GCTEST_CONNECT"), func() {
+		zliClean()
+		dbClean()
+	}
+}
+
+func runCmdStop(t *testing.T, exit *zli.TestExit, ready chan<- struct{}, stop chan struct{}, cmd string, args ...string) {
+	defer exit.Recover()
+	cmdMain(zli.NewFlags(append([]string{"goatcounter", cmd}, args...)), ready, stop)
+}
+
+func runCmd(t *testing.T, exit *zli.TestExit, cmd string, args ...string) {
+	ready := make(chan struct{}, 1)
+	stop := make(chan struct{})
+	runCmdStop(t, exit, ready, stop, cmd, args...)
+	<-ready
+}
+
+func wantExit(t *testing.T, exit *zli.TestExit, out *bytes.Buffer, want int) {
+	t.Helper()
+	if int(*exit) != want {
+		t.Errorf("wrong exit: %d; want: %d\n%s", *exit, want, out.String())
 	}
 }

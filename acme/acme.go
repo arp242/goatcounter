@@ -78,8 +78,6 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 			panic(fmt.Sprintf("wrong value for -tls: %q", f))
 		case f == "":
 			panic(fmt.Sprintf("wrong value for -tls: %q", flag))
-		case f == "tls":
-			listen += zhttp.ServeTLS
 		case f == "rdr":
 			listen += zhttp.ServeRedirect
 		case strings.HasSuffix(f, ".pem"):

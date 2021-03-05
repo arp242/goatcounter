@@ -11,24 +11,49 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	ctx, dbc, clean := tmpdb(t)
+	exit, _, out, ctx, dbc, clean := startTest(t)
 	defer clean()
 
-	run(t, 0, []string{"create",
-		"-email", "foo@foo.foo",
-		"-domain", "stats.stats",
-		"-password", "password",
-		"-db", dbc})
+	{
+		runCmd(t, exit, "create",
+			"-db="+dbc,
+			"-email=foo@foo.foo",
+			"-domain=stats.stats",
+			"-password=password")
+		wantExit(t, exit, out, 0)
 
-	var s goatcounter.Site
-	err := s.ByID(ctx, 1)
-	if err != nil {
-		t.Fatal(err)
+		var s goatcounter.Site
+		err := s.ByID(ctx, 2)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var u goatcounter.User
+		err = u.BySite(ctx, s.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
-	var u goatcounter.User
-	err = u.BySite(ctx, s.ID)
-	if err != nil {
-		t.Fatal(err)
+	{
+		runCmd(t, exit, "create",
+			"-db="+dbc,
+			"-parent=1",
+			"-domain=stats2.stats",
+			"-password=password")
+		wantExit(t, exit, out, 0)
+
+		var s goatcounter.Site
+		err := s.ByID(ctx, 3)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if *s.Parent != 1 {
+			t.Fatalf("s.Parent = %d", *s.Parent)
+		}
+		var u goatcounter.User
+		err = u.BySite(ctx, s.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 }

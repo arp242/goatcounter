@@ -7,11 +7,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
+	"zgo.at/zli"
 )
 
 const helpDatabase = `
@@ -95,51 +95,55 @@ PostgreSQL:
         psql goatcounter < ./db/schema.pgsql
 `
 
-func database() (int, error) {
-	dbConnect := CommandLine.String("db", "", "")
-	err := CommandLine.Parse(os.Args[2:])
-	if err != nil {
-		return 1, err
-	}
-	cmd := CommandLine.Args()
+func cmdDb(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+	defer func() { ready <- struct{}{} }()
 
-	if len(cmd) == 0 {
-		return 1, fmt.Errorf("need a subcommand: schema-sqlite, schema-pgsql, or test")
+	var (
+		dbConnect = f.String("", "db")
+	)
+	err := f.Parse()
+	if err != nil {
+		return err
 	}
-	switch cmd[0] {
+
+	cmd := f.Shift()
+	switch cmd {
 	default:
-		return 1, fmt.Errorf("unknown subcommand: %q", os.Args[2])
+		return errors.Errorf(`unknown command for "db": %q`, cmd)
+	case "":
+		return errors.New("need a subcommand: schema-sqlite, schema-pgsql, or test")
+
 	case "schema-sqlite":
-		d, err := goatcounter.DB.ReadFile("schema-sqlite.sql")
+		d, err := goatcounter.DB.ReadFile("db/schema-sqlite.sql")
 		if err != nil {
-			return 1, err
+			return err
 		}
-		fmt.Println(string(d))
-		return 0, nil
+		fmt.Fprint(zli.Stdout, string(d))
+		return nil
 	case "schema-pgsql":
-		d, err := goatcounter.DB.ReadFile("schema-postgres.sql")
+		d, err := goatcounter.DB.ReadFile("db/schema-postgres.sql")
 		if err != nil {
-			return 1, err
+			return err
 		}
-		fmt.Println(string(d))
-		return 0, nil
+		fmt.Fprint(zli.Stdout, string(d))
+		return nil
 	case "test":
-		if *dbConnect == "" {
-			return 1, errors.New("must add -db flag")
+		if !dbConnect.Set() {
+			return errors.New("must add -db flag")
 		}
-		db, err := zdb.Connect(zdb.ConnectOptions{Connect: *dbConnect})
+		db, err := zdb.Connect(zdb.ConnectOptions{Connect: dbConnect.String()})
 		if err != nil {
-			return 2, err
+			return err
 		}
 		defer db.Close()
 
 		var i int
 		err = db.Get(context.Background(), &i, `select 1 from version`)
 		if err != nil {
-			return 2, fmt.Errorf("select 1 from version: %w", err)
+			return fmt.Errorf("select 1 from version: %w", err)
 		}
-		fmt.Println("DB seems okay")
+		fmt.Fprintln(zli.Stdout, "DB seems okay")
 	}
 
-	return 0, nil
+	return nil
 }

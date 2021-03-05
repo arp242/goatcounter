@@ -7,10 +7,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"zgo.at/zdb"
+	"zgo.at/zli"
 	"zgo.at/zlog"
 )
 
@@ -37,63 +37,69 @@ Flags:
   -site        Limit the check to just one site; makes the query faster.
 `
 
-func monitor() (int, error) {
-	dbConnect := flagDB()
-	debug := flagDebug()
-	period := CommandLine.Int("period", 120, "")
-	once := CommandLine.Bool("once", false, "")
-	site := CommandLine.Int("site", 0, "")
-	err := CommandLine.Parse(os.Args[2:])
+func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+	var (
+		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		debug     = f.String("", "debug").Pointer()
+		period    = f.Int(120, "period").Pointer()
+		once      = f.Bool(false, "once").Pointer()
+		site      = f.Int(0, "site").Pointer()
+	)
+	err := f.Parse()
 	if err != nil {
-		return 2, err
+		return err
 	}
 
-	zlog.Config.SetDebug(*debug)
+	return func(dbConnect, debug string, period, site int, once bool) error {
+		zlog.Config.SetDebug(debug)
 
-	db, err := connectDB(*dbConnect, nil, false, true)
-	if err != nil {
-		return 2, err
-	}
-	defer db.Close()
-	ctx := zdb.WithDB(context.Background(), db)
-
-	query := `/* monitor */ select count(*) from hits where `
-	if *site > 0 {
-		query += fmt.Sprintf(`site_id=%d and `, *site)
-	}
-	if zdb.PgSQL(ctx) {
-		query += ` created_at > now() - interval '%d seconds'`
-	} else {
-		query += ` created_at > datetime(datetime(), '-%d seconds')`
-	}
-
-	l := zlog.Module("monitor")
-	d := time.Duration(*period) * time.Second
-	for {
-		l.Debug("check")
-
-		var n int
-		err := db.Get(context.Background(), &n, fmt.Sprintf(query, *period))
+		db, err := connectDB(dbConnect, nil, false, true)
 		if err != nil {
-			if *once {
-				return 2, err
-			}
-			l.Error(err)
+			return err
 		}
-		if n == 0 {
-			l.Errorf("no hits")
+		defer db.Close()
+		ctx := zdb.WithDB(context.Background(), db)
+
+		query := `/* monitor */ select count(*) from hits where `
+		if site > 0 {
+			query += fmt.Sprintf(`site_id=%d and `, site)
+		}
+		if zdb.PgSQL(ctx) {
+			query += ` created_at > now() - interval '%d seconds'`
 		} else {
-			l.Printf("%d hits", n)
+			query += ` created_at > datetime(datetime(), '-%d seconds')`
 		}
 
-		if *once {
+		l := zlog.Module("monitor")
+		timer := time.NewTicker(time.Duration(period) * time.Second)
+		ready <- struct{}{}
+		for {
+			var n int
+			err := db.Get(context.Background(), &n, fmt.Sprintf(query, period))
+			if err != nil {
+				if once {
+					return err
+				}
+				l.Error(err)
+			}
 			if n == 0 {
-				return 1, nil
+				l.Errorf("no hits in last %d seconds", period)
 			} else {
-				return 0, nil
+				l.Printf("%d hits in last %d seconds", n, period)
+			}
+
+			if once {
+				if n == 0 {
+					return fmt.Errorf("no hits in last %d seconds", period)
+				}
+				return nil
+			}
+
+			select {
+			case <-timer.C:
+			case <-stop:
+				return nil
 			}
 		}
-
-		time.Sleep(d)
-	}
+	}(*dbConnect, *debug, *period, *site, *once)
 }

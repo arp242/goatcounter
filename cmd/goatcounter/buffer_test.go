@@ -23,14 +23,16 @@ import (
 // TODO: -count=2 doesn't work as handlers/api.go has:
 //   bufferKeyOnce = sync.Once{}
 func TestBuffer(t *testing.T) {
-	t.Skip() // TODO: flaky
+	t.Skip() // TODO
+
+	exit, _, out, ctx, dbc, clean := startTest(t)
+	defer clean()
+
 	cfg.Reset()
 	handlers.Reset()
 
-	ctx, dbc, clean := tmpdb(t)
-	defer clean()
-
-	run(t, 0, []string{"buffer", "-generate-key", "-db", dbc})
+	runCmd(t, exit, "buffer", "-generate-key", "-db="+dbc)
+	wantExit(t, exit, out, 0)
 
 	var key string
 	err := zdb.Get(ctx, &key,
@@ -70,9 +72,6 @@ func TestBuffer(t *testing.T) {
 	}))
 
 	_, site := gctest.Site(ctx, t, goatcounter.Site{})
-
-	zdb.Dump(ctx, os.Stdout, `select * from sites`)
-
 	errCh := make(chan error)
 	go func() {
 		time.Sleep(100 * time.Millisecond)
@@ -85,21 +84,25 @@ func TestBuffer(t *testing.T) {
 		}
 	}()
 
-	// TODO: random -listen
-	run(t, 0, []string{"buffer", "-backend", s.URL, "-test-hook-do-not-use=2"})
+	ready := make(chan struct{}, 1)
+	stop := make(chan struct{})
+	go runCmdStop(t, exit, ready, stop, "buffer", "-backend="+s.URL)
+	<-ready
 
 	cron.PersistAndStat(ctx)
-	var out int
-	err = zdb.Get(ctx, &out, `select count(*) from hits`)
+	var got int
+	err = zdb.Get(ctx, &got, `select count(*) from hits`)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	want := 1
-	if out != want {
-		t.Fatalf("\nout:  %d\nwant: %d", out, want)
+	if got != want {
+		t.Errorf("\ngot:  %d\nwant: %d\nstdout: %s", got, want, out)
 	}
 
+	<-stop
+	mainDone.Wait()
 	if err := <-errCh; err != nil {
 		t.Fatal(err)
 	}

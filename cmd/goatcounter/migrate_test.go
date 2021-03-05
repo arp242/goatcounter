@@ -9,9 +9,13 @@ import (
 )
 
 func TestMigrate(t *testing.T) {
-	_, dbc, clean := tmpdb(t)
+	exit, _, out, _, dbc, clean := startTest(t)
 	defer clean()
 
-	run(t, 0, []string{"migrate",
-		"-db", dbc})
+	runCmd(t, exit, "migrate", "-db="+dbc, "show")
+	wantExit(t, exit, out, 0)
+	want := "No pending migrations\n"
+	if out.String() != want {
+		t.Error()
+	}
 }

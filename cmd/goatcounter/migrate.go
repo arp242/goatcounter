@@ -6,13 +6,13 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
+	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
 )
@@ -41,51 +41,50 @@ Note: you can also use -automigrate flag for the serve command to run migrations
 on startup.
 `
 
-func migrate() (int, error) {
-	if len(os.Args) == 2 {
-		return 1, errors.New("need a migration or command")
-	}
+func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+	defer func() { ready <- struct{}{} }()
 
-	dbConnect := flagDB()
-	debug := flagDebug()
-
-	var createdb bool
-	CommandLine.BoolVar(&createdb, "createdb", false, "")
-	err := CommandLine.Parse(os.Args[2:])
+	var (
+		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		debug     = f.String("", "debug").Pointer()
+		createdb  = f.Bool(false, "createdb").Pointer()
+	)
+	err := f.Parse()
 	if err != nil {
-		return 1, err
+		return err
 	}
 
-	zlog.Config.SetDebug(*debug)
-
-	db, err := connectDB(*dbConnect, nil, createdb, true)
-	if err != nil {
-		return 2, err
-	}
-	defer db.Close()
-
-	m, err := zdb.NewMigrate(db, goatcounter.DB, gomig.Migrations)
-	if err != nil {
-		return 1, err
+	if len(f.Args) == 0 {
+		return errors.New("need a migration or command")
 	}
 
-	if zstring.Contains(CommandLine.Args(), "show") || zstring.Contains(CommandLine.Args(), "list") {
-		have, ran, err := m.List()
+	return func(dbConnect, debug string, createdb bool) error {
+		zlog.Config.SetDebug(debug)
+
+		db, err := connectDB(dbConnect, nil, createdb, true)
 		if err != nil {
-			return 1, err
+			return err
 		}
-		if d := zstring.Difference(have, ran); len(d) > 0 {
-			fmt.Fprintf(stdout, "Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
-		} else {
-			fmt.Fprintln(stdout, "No pending migrations")
+		defer db.Close()
+
+		m, err := zdb.NewMigrate(db, goatcounter.DB, gomig.Migrations)
+		if err != nil {
+			return err
 		}
-		return 0, nil
-	}
 
-	err = m.Run(CommandLine.Args()...)
-	if err != nil {
-		return 1, err
-	}
+		if zstring.Contains(f.Args, "show") || zstring.Contains(f.Args, "list") {
+			have, ran, err := m.List()
+			if err != nil {
+				return err
+			}
+			if d := zstring.Difference(have, ran); len(d) > 0 {
+				fmt.Fprintf(zli.Stdout, "Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
+			} else {
+				fmt.Fprintln(zli.Stdout, "No pending migrations")
+			}
+			return nil
+		}
 
-	return 0, nil
+		return m.Run(f.Args...)
+	}(*dbConnect, *debug, *createdb)
 }

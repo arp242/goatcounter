@@ -117,92 +117,106 @@ Environment:
                %TMP%, %TEMP%, and %USERPROFILE%.
 `
 
-func serve() (int, error) {
+func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	v := zvalidate.New()
 
-	CommandLine.StringVar(&cfg.Port, "port", "", "")
-	CommandLine.StringVar(&cfg.DomainStatic, "static", "", "")
-	dbConnect, testMode, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
+	var (
+		port         = f.String("", "port").Pointer()
+		domainStatic = f.String("", "static").Pointer()
+	)
+	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(f, &v)
 	if err != nil {
-		return 1, err
+		return err
 	}
 
-	cfg.Serve = true
-	if flagTLS == "" {
-		flagTLS = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
-	}
+	return func(port, domainStatic string) error {
+		cfg.Port = port
+		cfg.DomainStatic = domainStatic
 
-	if cfg.DomainStatic != "" {
-		if p := strings.Index(cfg.DomainStatic, ":"); p > -1 {
-			v.Domain("-static", cfg.DomainStatic[:p])
-		} else {
-			v.Domain("-static", cfg.DomainStatic)
+		cfg.Serve = true
+		if flagTLS == "" {
+			flagTLS = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 		}
-		cfg.URLStatic = "//" + cfg.DomainStatic
-		cfg.DomainCount = cfg.DomainStatic
-	}
 
-	if cfg.Port != "" {
-		cfg.Port = ":" + cfg.Port
-	}
-
-	flagFrom(from, &v)
-	if v.HasErrors() {
-		return 1, v
-	}
-
-	db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate, testMode)
-	if err != nil {
-		return 2, err
-	}
-
-	// Set up HTTP handler and servers.
-	hosts := map[string]http.Handler{
-		"*": handlers.NewBackend(db, acmeh),
-	}
-	if cfg.DomainStatic != "" {
-		// May not be needed, but just in case the DomainStatic isn't an
-		// external CDN.
-		hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
-	}
-
-	cnames, err := lsSites(db)
-	if err != nil {
-		return 2, err
-	}
-
-	doServe(db, testMode, listen, listenTLS, tlsc, hosts, func() {
-		banner()
-		zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
-			len(cnames), listen, dev, strings.Join(cnames, ", "))
-		if len(cnames) == 0 {
-			zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
+		if cfg.DomainStatic != "" {
+			if p := strings.Index(cfg.DomainStatic, ":"); p > -1 {
+				v.Domain("-static", cfg.DomainStatic[:p])
+			} else {
+				v.Domain("-static", cfg.DomainStatic)
+			}
+			cfg.URLStatic = "//" + cfg.DomainStatic
+			cfg.DomainCount = cfg.DomainStatic
 		}
-	})
-	return 0, nil
+
+		if cfg.Port != "" {
+			cfg.Port = ":" + cfg.Port
+		}
+
+		flagFrom(from, &v)
+		if v.HasErrors() {
+			return v
+		}
+
+		db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate)
+		if err != nil {
+			return err
+		}
+
+		// Set up HTTP handler and servers.
+		hosts := map[string]http.Handler{
+			"*": handlers.NewBackend(db, acmeh),
+		}
+		if cfg.DomainStatic != "" {
+			// May not be needed, but just in case the DomainStatic isn't an
+			// external CDN.
+			hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
+		}
+
+		cnames, err := lsSites(db)
+		if err != nil {
+			return err
+		}
+
+		return doServe(db, listen, listenTLS, tlsc, hosts, stop, func() {
+			banner()
+			zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
+				len(cnames), listen, dev, strings.Join(cnames, ", "))
+			if len(cnames) == 0 {
+				zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
+			}
+			ready <- struct{}{}
+		})
+	}(*port, *domainStatic)
 }
 
-func doServe(db zdb.DB, testMode int, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler, start func()) {
+func doServe(
+	db zdb.DB, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler,
+	stop chan struct{},
+	start func(),
+) error {
+
 	var sig = make(chan os.Signal, 1)
 	zlog.Module("startup").Debug(getVersion())
-	ch := zhttp.Serve(listenTLS, testMode, &http.Server{
+	ch, err := zhttp.Serve(listenTLS, stop, &http.Server{
 		Addr:      listen,
 		Handler:   zhttp.HostRoute(hosts),
 		TLSConfig: tlsc,
 	})
+	if err != nil {
+		return err
+	}
 
-	<-ch
+	<-ch // Server is set up
 	start()
-	<-ch
 
+	<-ch // Shutdown
 	go func() {
-		//c := make(chan os.Signal, 1)
 		signal.Notify(sig, syscall.SIGHUP, syscall.SIGTERM, os.Interrupt /*SIGINT*/)
 		<-sig
 		zli.Colorln("One more to kill…", zli.Bold)
 		<-sig
 		zli.Colorln("Force killing", zli.Bold)
-		os.Exit(99)
+		os.Exit(99) // TODO: zli.Exit?
 	}()
 
 	bgrun.Run("shutdown", func() {
@@ -217,33 +231,33 @@ func doServe(db zdb.DB, testMode int, listen string, listenTLS uint8, tlsc *tls.
 	bgrun.WaitProgressAndLog()
 
 	db.Close()
+	return nil
 }
 
-func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string, string, error) {
-	dbConnect := flagDB()
-	debug := flagDebug()
+func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
+	var (
+		dbConnect   = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		debug       = f.String("", "debug").Pointer()
+		dev         = f.Bool(false, "dev").Pointer()
+		automigrate = f.Bool(false, "automigrate").Pointer()
+		listen      = f.String(":443", "listen").Pointer()
+		smtp        = f.String(blackmail.ConnectWriter, "smtp").Pointer()
+		flagTLS     = f.String("", "tls").Pointer()
+		errors      = f.String("", "errors").Pointer()
+		from        = f.String("", "email-from").Pointer()
+		geodb       = f.String("", "geodb").Pointer()
+	)
+	err := f.Parse()
 
-	var dev bool
-	CommandLine.BoolVar(&dev, "dev", false, "")
-	automigrate := CommandLine.Bool("automigrate", false, "")
-	listen := CommandLine.String("listen", ":443", "")
-	smtp := CommandLine.String("smtp", blackmail.ConnectWriter, "")
-	flagTLS := CommandLine.String("tls", "", "")
-	errors := CommandLine.String("errors", "", "")
-	from := CommandLine.String("email-from", "", "")
-	testMode := CommandLine.Int("test-hook-do-not-use", 0, "")
-	geodb := CommandLine.String("geodb", "", "")
-
-	err := CommandLine.Parse(os.Args[2:])
 	zlog.Config.SetDebug(*debug)
-	cfg.Prod = !dev
-	zhttp.LogUnknownFields = dev
-	zhttp.CookieSecure = !dev
+	cfg.Prod = !*dev
+	zhttp.LogUnknownFields = *dev
+	zhttp.CookieSecure = !*dev
 	if *flagTLS == "none" {
 		zhttp.CookieSecure = false
 	}
 
-	if !dev {
+	if !*dev {
 		zlog.Config.FmtTime = "Jan _2 15:04:05 "
 	}
 
@@ -256,10 +270,10 @@ func flagsServe(v *zvalidate.Validator) (string, int, bool, bool, string, string
 
 	goatcounter.InitGeoDB(*geodb)
 
-	return *dbConnect, *testMode, dev, *automigrate, *listen, *flagTLS, *from, err
+	return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, err
 }
 
-func setupServe(dbConnect, flagTLS string, automigrate bool, testMode int) (zdb.DB, *tls.Config, http.HandlerFunc, uint8, error) {
+func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DB, *tls.Config, http.HandlerFunc, uint8, error) {
 	if !cfg.Prod {
 		setupReload()
 	}
@@ -281,11 +295,7 @@ func setupServe(dbConnect, flagTLS string, automigrate bool, testMode int) (zdb.
 
 	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS)
 
-	if testMode > 0 {
-		err = goatcounter.Memstore.TestInit(db)
-	} else {
-		err = goatcounter.Memstore.Init(db)
-	}
+	err = goatcounter.Memstore.Init(db)
 	if err != nil {
 		return nil, nil, nil, 0, err
 	}
@@ -337,7 +347,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				if err != nil {
 					// Just output to stderr I guess, can't really do much more if
 					// zlog fails.
-					fmt.Fprintf(stderr, "emailerrors: %s\n", err)
+					fmt.Fprintf(zli.Stderr, "emailerrors: %s\n", err)
 				}
 			})
 		})
@@ -387,4 +397,19 @@ func lsSites(db zdb.DB) ([]string, error) {
 	}
 
 	return cnames, nil
+}
+
+func banner() {
+	fmt.Fprint(zli.Stdout, `
+┏━━━━━━━━━━━━━━━━━━━━━ Thank you for using GoatCounter! ━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                             ┃
+┃ Great you're choosing to self-host GoatCounter! I'd just like to put a      ┃
+┃ reminder here that I work on this full-time; it's not a side-project.       ┃
+┃ Please consider making a financial contribution according to your means if  ┃
+┃ this is useful for you to ensure the long-term viability. Thank you :-)     ┃
+┃                                                                             ┃
+┃                   https://www.goatcounter.com/contribute                    ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+`)
 }

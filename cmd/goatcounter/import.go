@@ -163,91 +163,87 @@ Date and time parsing:
     The full documentation is available at https://pkg.go.dev/time
 `
 
-func importCmd() (int, error) {
+func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+	defer func() { ready <- struct{}{} }() // TODO
+
 	// So it uses https URLs in site.URL()
 	// TODO: should fix it to always use https even on dev and get rid of the
 	// exceptions.
 	cfg.Prod = true
 
-	dbConnect := flagDB()
-	debug := flagDebug()
-
 	var (
-		format, siteFlag, date, tyme, datetime string
-		silent, follow                         bool
-		testMode                               int64
+		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		debug     = f.String("", "debug").Pointer()
+		siteFlag  = f.String("", "site").Pointer()
+		format    = f.String("csv", "format").Pointer()
+		date      = f.String("", "date").Pointer()
+		tyme      = f.String("", "time").Pointer()
+		datetime  = f.String("", "datetime").Pointer()
+		silent    = f.Bool(false, "silent").Pointer()
+		follow    = f.Bool(false, "follow").Pointer()
 	)
-	CommandLine.StringVar(&siteFlag, "site", "", "")
-	CommandLine.StringVar(&format, "format", "csv", "")
-	CommandLine.BoolVar(&silent, "silent", false, "")
-	CommandLine.BoolVar(&follow, "follow", false, "")
-	CommandLine.StringVar(&date, "date", "", "")
-	CommandLine.StringVar(&tyme, "time", "", "")
-	CommandLine.StringVar(&datetime, "datetime", "", "")
-	CommandLine.Int64Var(&testMode, "test-hook-do-not-use", 0, "")
-	err := CommandLine.Parse(os.Args[2:])
+	err := f.Parse()
 	if err != nil {
-		return 1, err
+		return err
 	}
 
-	files := CommandLine.Args()
-	if len(files) == 0 {
-		return 1, fmt.Errorf("need a filename")
-	}
-	if len(files) > 1 {
-		return 1, fmt.Errorf("can only specify one filename")
-	}
-
-	var fp io.ReadCloser
-	if files[0] == "-" {
-		fp = io.NopCloser(os.Stdin)
-	} else {
-		file, err := os.Open(files[0])
-		if err != nil {
-			return 1, err
+	return func(dbConnect, debug, siteFlag, format, date, tyme, datetime string, silent, follow bool) error {
+		files := f.Args
+		if len(files) == 0 {
+			return fmt.Errorf("need a filename")
 		}
-		defer file.Close()
+		if len(files) > 1 {
+			return fmt.Errorf("can only specify one filename")
+		}
 
-		fp = file
-		if strings.HasSuffix(files[0], ".gz") {
-			fp, err = gzip.NewReader(file)
+		var fp io.ReadCloser
+		if files[0] == "-" {
+			fp = io.NopCloser(os.Stdin)
+		} else {
+			file, err := os.Open(files[0])
 			if err != nil {
-				return 1, errors.Errorf("could not read as gzip: %w", err)
+				return err
 			}
+			defer file.Close()
+
+			fp = file
+			if strings.HasSuffix(files[0], ".gz") {
+				fp, err = gzip.NewReader(file)
+				if err != nil {
+					return errors.Errorf("could not read as gzip: %w", err)
+				}
+			}
+			defer fp.Close()
 		}
-		defer fp.Close()
-	}
 
-	zlog.Config.SetDebug(*debug)
+		zlog.Config.SetDebug(debug)
 
-	url, key, clean, err := findSite(siteFlag, *dbConnect)
-	if err != nil {
-		return 1, err
-	}
-	if clean != nil {
-		defer clean()
-	}
-
-	err = checkSite(url, key)
-	if err != nil {
-		return 1, err
-	}
-
-	url += "/api/v0/count"
-
-	switch format {
-	default:
-		err = importLog(fp, url, key, files[0], format, date, tyme, datetime, follow, silent, testMode)
-	case "csv":
-		if follow {
-			return 1, fmt.Errorf("cannot use -follow with -format=csv")
+		url, key, clean, err := findSite(siteFlag, dbConnect)
+		if err != nil {
+			return err
 		}
-		err = importCSV(fp, url, key, silent)
-	}
-	if err != nil {
-		return 1, err
-	}
-	return 0, nil
+		if clean != nil {
+			defer clean()
+		}
+
+		err = checkSite(url, key)
+		if err != nil {
+			return err
+		}
+
+		url += "/api/v0/count"
+
+		switch format {
+		default:
+			err = importLog(fp, url, key, files[0], format, date, tyme, datetime, follow, silent)
+		case "csv":
+			if follow {
+				return fmt.Errorf("cannot use -follow with -format=csv")
+			}
+			err = importCSV(fp, url, key, silent)
+		}
+		return err
+	}(*dbConnect, *debug, *siteFlag, *format, *date, *tyme, *datetime, *silent, *follow)
 }
 
 func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
@@ -271,9 +267,9 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 		}
 
 		if len(hits) >= 500 || final {
-			err := importSend(url, key, silent, false, hits, 0)
+			err := importSend(url, key, silent, false, hits /*, 0*/)
 			if err != nil {
-				fmt.Println()
+				fmt.Fprintln(zli.Stdout)
 				zli.Errorf(err)
 			}
 
@@ -288,7 +284,7 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 	return err
 }
 
-func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime string, follow, silent bool, testMode int64) error {
+func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime string, follow, silent bool) error {
 	var (
 		scan *logscan.Scanner
 		err  error
@@ -307,20 +303,17 @@ func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime st
 
 	// Persist every 10 seconds because it may take a while for 100 pageviews to
 	// arrive when using -follow.
-	d := 10 * time.Second
-	if testMode > 0 {
-		d = 1 * time.Second
-	}
+	d := 10 * time.Second // TODO: add flag for this, so it's easier to test.
 	t := time.NewTicker(d)
 
 	go func() {
 		for {
 			<-t.C
-			persistLog(hits, url, key, silent, follow, testMode)
+			persistLog(hits, url, key, silent, follow)
 		}
 	}()
 
-	defer persistLog(hits, url, key, silent, follow, testMode)
+	defer persistLog(hits, url, key, silent, follow)
 	for {
 		line, err := scan.Line()
 		if err == io.EOF {
@@ -334,7 +327,7 @@ func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime st
 			continue
 		}
 
-		zlog.Module("import").Debug(line)
+		//zlog.Module("import").Debug(line)
 
 		hit := handlers.APICountRequestHit{
 			Path:      line.Path(),
@@ -365,7 +358,7 @@ func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime st
 		hits <- hit
 		if len(hits) >= cap(hits) {
 			t.Reset(d)
-			if persistLog(hits, url, key, silent, follow, testMode) {
+			if persistLog(hits, url, key, silent, follow) {
 				break
 			}
 		}
@@ -382,7 +375,7 @@ func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime st
 
 // Send everything off if we have 100 entries or if 10 seconds expired,
 // whichever happens first.
-func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent, follow bool, testMode int64) bool {
+func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent, follow bool) bool {
 	l := len(hits)
 	if l == 0 {
 		return false
@@ -392,10 +385,7 @@ func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent
 		collect[i] = <-hits
 	}
 
-	err := importSend(url, key, silent, follow, collect, testMode)
-	if errors.Is(err, errStopImport) {
-		return true
-	}
+	err := importSend(url, key, silent, follow, collect)
 	if err != nil {
 		zlog.Error(err)
 	}
@@ -407,9 +397,7 @@ var (
 	nSent        int64
 )
 
-var errStopImport = errors.New("testMode stop")
-
-func importSend(url, key string, silent, follow bool, hits []handlers.APICountRequestHit, testMode int64) error {
+func importSend(url, key string, silent, follow bool, hits []handlers.APICountRequestHit) error {
 	body, err := json.Marshal(handlers.APICountRequest{NoSessions: true, Hits: hits})
 	if err != nil {
 		return err
@@ -435,9 +423,6 @@ func importSend(url, key string, silent, follow bool, hits []handlers.APICountRe
 
 	// Give the server's memstore a second to do its job;
 	nSent += int64(len(hits))
-	if testMode > 0 && nSent >= testMode {
-		return errStopImport
-	}
 	if !follow {
 		if nSent%5000 == 0 {
 			time.Sleep(1 * time.Second)

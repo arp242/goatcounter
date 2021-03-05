@@ -5,7 +5,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/zhttp"
+	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zstring"
@@ -21,7 +21,6 @@ import (
 	"zgo.at/zvalidate"
 )
 
-// saas
 const usageSaas = `
 This runs goatcounter.com
 
@@ -38,71 +37,59 @@ This command is undocumented on purpose. Get in touch if you think you need this
 (but you probably don't) and we'll see what can be done to fix you up.
 `
 
-func saas() (int, error) {
+func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	v := zvalidate.New()
 
-	var stripe, domain, plan string
-	CommandLine.StringVar(&domain, "domain", "goatcounter.localhost:8081,static.goatcounter.localhost:8081", "")
-	CommandLine.StringVar(&stripe, "stripe", "", "")
-	CommandLine.StringVar(&plan, "plan", goatcounter.PlanPersonal, "")
-	dbConnect, testMode, dev, automigrate, listen, flagTLS, from, err := flagsServe(&v)
+	var (
+		domain = f.String("goatcounter.localhost:8081,static.goatcounter.localhost:8081", "domain").Pointer()
+		stripe = f.String("", "stripe").Pointer()
+		plan   = f.String(goatcounter.PlanPersonal, "plan").Pointer()
+	)
+	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(f, &v)
 	if err != nil {
-		return 1, err
+		return err
 	}
 
-	cfg.GoatcounterCom = true
-	cfg.Plan = plan
-	if flagTLS == "" {
-		flagTLS = map[bool]string{true: "none", false: "acme"}[dev]
-	}
+	return func(domain, stripe, plan string) error {
+		cfg.GoatcounterCom = true
+		cfg.Plan = plan
+		if flagTLS == "" {
+			flagTLS = map[bool]string{true: "none", false: "acme"}[dev]
+		}
 
-	v.Include("-plan", plan, goatcounter.Plans)
-	flagStripe(stripe, &v)
-	flagDomain(domain, &v)
-	flagFrom(from, &v)
-	if cfg.Prod && cfg.Domain != "goatcounter.com" {
-		v.Append("saas", "can only run on goatcounter.com")
-	}
+		v.Include("-plan", plan, goatcounter.Plans)
+		flagStripe(stripe, &v)
+		flagDomain(domain, &v)
+		flagFrom(from, &v)
+		if cfg.Prod && cfg.Domain != "goatcounter.com" {
+			v.Append("saas", "can only run on goatcounter.com")
+		}
 
-	if v.HasErrors() {
-		return 1, v
-	}
+		if v.HasErrors() {
+			return v
+		}
 
-	db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate, testMode)
-	if err != nil {
-		return 2, err
-	}
+		db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate)
+		if err != nil {
+			return err
+		}
 
-	// Set up HTTP handler and servers.
-	d := znet.RemovePort(cfg.Domain)
-	hosts := map[string]http.Handler{
-		d:          zhttp.RedirectHost("//www." + cfg.Domain),
-		"www." + d: handlers.NewWebsite(db),
-		"*":        handlers.NewBackend(db, acmeh),
-	}
-	if dev {
-		hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
-	}
+		// Set up HTTP handler and servers.
+		d := znet.RemovePort(cfg.Domain)
+		hosts := map[string]http.Handler{
+			d:          zhttp.RedirectHost("//www." + cfg.Domain),
+			"www." + d: handlers.NewWebsite(db),
+			"*":        handlers.NewBackend(db, acmeh),
+		}
+		if dev {
+			hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
+		}
 
-	doServe(db, testMode, listen, listenTLS, tlsc, hosts, func() {
-		zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
-	})
-	return 0, nil
-}
-
-func banner() {
-	fmt.Print(`
-┏━━━━━━━━━━━━━━━━━━━━━ Thank you for using GoatCounter! ━━━━━━━━━━━━━━━━━━━━━━┓
-┃                                                                             ┃
-┃ Great you're choosing to self-host GoatCounter! I'd just like to put a      ┃
-┃ reminder here that I work on this full-time; it's not a side-project.       ┃
-┃ Please consider making a financial contribution according to your means if  ┃
-┃ this is useful for you to ensure the long-term viability. Thank you :-)     ┃
-┃                                                                             ┃
-┃                   https://www.goatcounter.com/contribute                    ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-`)
+		return doServe(db, listen, listenTLS, tlsc, hosts, stop, func() {
+			zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
+			ready <- struct{}{}
+		})
+	}(*domain, *stripe, *plan)
 }
 
 func flagStripe(stripe string, v *zvalidate.Validator) {

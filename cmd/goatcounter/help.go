@@ -6,7 +6,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"unicode/utf8"
 
@@ -15,43 +14,114 @@ import (
 )
 
 func printHelp(t string) {
-	fmt.Fprint(stdout, zli.Usage(zli.UsageTrim|zli.UsageHeaders, t))
+	fmt.Fprint(zli.Stdout, zli.Usage(zli.UsageTrim|zli.UsageHeaders, t))
 }
 
-func help() (int, error) {
+func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+	defer func() { ready <- struct{}{} }()
+
 	zli.WantColor = true
 
-	if len(os.Args) == 2 {
-		printHelp(usage[""])
-		return 0, nil
+	// Don't parse any flags, just grep out non-flags and print help for those.
+	// TODO: would be better if zli.Flags would continue parsing after an
+	// unknown flag, as "-site 1" will try to load the help for "1".
+	// Still, being able to add "-h" at the end of a command is pretty
+	// convenient IMO.
+	var topics []string
+	for _, a := range f.Args {
+		if len(a) == 0 || a[0] == '-' {
+			continue
+		}
+		if a == "all" {
+			topics = []string{"help", "version", "migrate", "create", "serve",
+				"reindex", "buffer", "monitor", "db", "listen", "logfile", "debug"}
+			break
+		}
+		topics = append(topics, strings.ToLower(a))
 	}
 
-	if os.Args[2] == "all" {
+	switch len(topics) {
+	case 0:
 		printHelp(usage[""])
-		fmt.Println()
-		for _, h := range []string{
-			"help", "version",
-			"migrate", "create", "serve",
-			"reindex", "buffer", "monitor",
-			"db", "listen", "logfile", "debug",
-		} {
-			head := fmt.Sprintf("─── Help for %q ", h)
-			fmt.Fprintf(stdout, "%s%s\n\n",
+	case 1:
+		text, ok := usage[topics[0]]
+		if !ok {
+			return errors.Errorf("no help topic for %q", topics[0])
+		}
+		printHelp(text)
+	default:
+		for _, t := range topics {
+			text, ok := usage[t]
+			if !ok {
+				return errors.Errorf("no help topic for %q", t)
+			}
+
+			head := fmt.Sprintf("─── Help for %q ", t)
+			fmt.Fprintf(zli.Stdout, "%s%s\n\n",
 				zli.Colorf(head, zli.Bold),
 				strings.Repeat("─", 80-utf8.RuneCountInString(head)))
-			printHelp(usage[h])
-			fmt.Println()
+			printHelp(text)
+			fmt.Fprintln(zli.Stdout, "")
 		}
-		return 0, nil
 	}
-
-	t, ok := usage[os.Args[2]]
-	if !ok {
-		return 1, errors.Errorf("no help topic for %q", os.Args[2])
-	}
-	printHelp(t)
-	return 0, nil
+	return nil
 }
+
+var usage = map[string]string{
+	"":        usageTop,
+	"help":    usageHelp,
+	"serve":   usageServe,
+	"create":  usageCreate,
+	"migrate": usageMigrate,
+	"saas":    usageSaas,
+	"reindex": usageReindex,
+	"monitor": usageMonitor,
+	"import":  usageImport,
+	"buffer":  usageBuffer,
+
+	"database": helpDatabase,
+	"db":       helpDatabase,
+	"listen":   helpListen,
+	"logfile":  helpLogfile,
+	"debug":    helpDebug,
+
+	"version": `
+Show version and build information. This is printed as key=value, separated by
+semicolons.
+`,
+}
+
+var usageTopics = func() []string {
+	t := make([]string, 0, len(usage))
+	for k := range usage {
+		t = append(t, k)
+	}
+	return t
+}()
+
+const usageTop = `Usage: goatcounter [command] [flags]
+
+GoatCounter is a web analytics platform. https://github.com/zgoat/goatcounter
+Use "help <topic>" or "cmd -h" for more details for a command or topic.
+
+Commands:
+  help         Show help; use "help <topic>" or "help all" for more details.
+  version      Show version and build information and exit.
+  create       Create a new site and user.
+  serve        Start HTTP server.
+  import       Import pageviews from an export or logfile.
+
+  migrate      Run database migrations.
+  reindex      Recreate the index tables (*_stats, *_count) from the hits.
+  buffer       Buffer pageview requests until backend is available.
+  monitor      Monitor for pageviews.
+  db           Print database information and detailed docs on the -db flag.
+
+Extra help topics:
+  listen       Detailed documentation on -listen and -tls flags.
+  logfile      Documentation on importing from logfiles.
+  debug        List of modules accepted by the -debug flag.
+`
 
 const usageHelp = `
 Show help; use "help commands" to dispay detailed help for a command, or "help

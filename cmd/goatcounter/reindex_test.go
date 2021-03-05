@@ -6,11 +6,55 @@ package main
 
 import (
 	"testing"
+
+	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/gctest"
+	"zgo.at/zdb"
 )
 
 func TestReindex(t *testing.T) {
-	_, dbc, clean := tmpdb(t)
+	reset := gctest.SwapNow(t, "2020-06-18")
+	defer reset()
+	exit, _, out, ctx, dbc, clean := startTest(t)
 	defer clean()
 
-	run(t, 0, []string{"reindex", "-db", dbc})
+	gctest.StoreHits(ctx, t, false, goatcounter.Hit{})
+
+	tables := []string{"hit_stats", "system_stats", "browser_stats",
+		"location_stats", "size_stats", "hit_counts", "ref_counts"}
+
+	for _, tbl := range tables {
+		err := zdb.Exec(ctx, `delete from `+tbl)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	runCmd(t, exit, "reindex", "-db="+dbc)
+	wantExit(t, exit, out, 0)
+
+	var got string
+	for _, tbl := range tables {
+		got += zdb.DumpString(ctx, `select * from `+tbl)
+	}
+
+	want := `
+		site_id  path_id  day                  stats                                              stats_unique
+		1        1        2020-06-18 00:00:00  [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		site_id  path_id  system_id  day                  count  count_unique
+		1        1        1          2020-06-18 00:00:00  1      0
+		site_id  path_id  browser_id  day                  count  count_unique
+		1        1        1           2020-06-18 00:00:00  1      0
+		site_id  path_id  day                  location  count  count_unique
+		1        1        2020-06-18 00:00:00            1      0
+		site_id  path_id  day                  width  count  count_unique
+		1        1        2020-06-18 00:00:00  0      1      0
+		site_id  path_id  hour                 total  total_unique
+		1        1        2020-06-18 12:00:00  1      0
+		site_id  path_id  ref  ref_scheme  hour                 total  total_unique
+		1        1             NULL        2020-06-18 12:00:00  1      0`
+
+	if d := zdb.Diff(got, want); d != "" {
+		t.Error(d)
+	}
 }

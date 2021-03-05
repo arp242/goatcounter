@@ -5,24 +5,43 @@
 package main
 
 import (
-	"runtime"
+	"bytes"
+	"io"
+	"net/http"
 	"testing"
 )
 
 func TestSaas(t *testing.T) {
-	// I don't know why, but this doesn't work in Windows; I think it may be
-	// related to permission issues for binding to a port or some such?
-	if runtime.GOOS == "windows" {
-		t.Skip()
-	}
-
-	_, dbc, clean := tmpdb(t)
+	exit, _, _, _, dbc, clean := startTest(t)
 	defer clean()
 
-	run(t, 0, []string{"saas", "-test-hook-do-not-use=1",
-		"-domain", "goatcounter.com,a.a",
-		"-listen", "localhost:31874",
-		"-tls", "none",
-		"-stripe", "sk_test_x:pk_test_x:whsec_x",
-		"-db", dbc})
+	ready := make(chan struct{}, 1)
+	stop := make(chan struct{})
+	go func() {
+		runCmdStop(t, exit, ready, stop, "saas",
+			"-db="+dbc,
+			"-debug=all",
+			"-domain=goatcounter.com,a.a",
+			"-listen=localhost:31874",
+			"-stripe=sk_test_x:pk_test_x:whsec_x",
+			"-tls=none")
+	}()
+	<-ready
+
+	resp, err := http.Get("http://localhost:31874/status")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	b, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		t.Errorf("status %d: %s", resp.StatusCode, b)
+	}
+	if !bytes.Contains(b, []byte("last_persisted_at")) {
+		t.Errorf("%s", b)
+	}
+
+	stop <- struct{}{}
+	mainDone.Wait()
 }

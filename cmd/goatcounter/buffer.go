@@ -22,6 +22,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
+	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zos"
 	"zgo.at/zstd/zsync"
@@ -106,7 +107,7 @@ Signals:
   USR1         Dump the contents of the buffer to stderr.
 `
 
-func buffer() (int, error) {
+func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		checkBackendTime = 10 * time.Second
 		sendTime         = 3 * time.Second
@@ -121,7 +122,7 @@ func buffer() (int, error) {
 	go func() {
 		for {
 			<-c
-			fmt.Printf("SIGUSR1; %d entries in buffer\n", len(reqBuffer))
+			fmt.Fprintf(zli.Stdout, "SIGUSR1; %d entries in buffer\n", len(reqBuffer))
 			all := make([]handlers.APICountRequestHit, 0, len(reqBuffer))
 			for len(reqBuffer) > 0 {
 				h := <-reqBuffer
@@ -134,138 +135,139 @@ func buffer() (int, error) {
 		}
 	}()
 
-	dbConnect := flagDB()
-	debug := flagDebug()
-
 	var (
-		listen, backend string
-		bufSize         int
-		genKey, silent  bool
+		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		debug     = f.String("", "debug").Pointer()
+		listen    = f.String("localhost:8082", "listen").Pointer()
+		backend   = f.String("https://localhost", "backend").Pointer()
+		bufSize   = f.Int(500_000, "bufsize").Pointer()
+		silent    = f.Bool(false, "silent").Pointer()
+		genKey    = f.Bool(false, "generate-key").Pointer()
 	)
-	CommandLine.StringVar(&listen, "listen", "localhost:8082", "")
-	CommandLine.StringVar(&backend, "backend", "https://localhost", "")
-	CommandLine.IntVar(&bufSize, "bufsize", 500_000, "")
-	CommandLine.BoolVar(&silent, "silent", false, "")
-	CommandLine.BoolVar(&genKey, "generate-key", false, "")
-	testMode := CommandLine.Int("test-hook-do-not-use", 0, "")
-
-	err := CommandLine.Parse(os.Args[2:])
+	err := f.Parse()
 	if err != nil {
-		return 1, err
+		return err
 	}
 
-	if *testMode > 0 {
-		checkBackendTime = 200 * time.Millisecond
-		sendTime = 200 * time.Millisecond
-	}
+	return func(dbConnect, debug, listen, backend string, bufSize int, silent, genKey bool) error {
+		// TODO
+		// if testMode > 0 {
+		// 	checkBackendTime = 200 * time.Millisecond
+		// 	sendTime = 200 * time.Millisecond
+		// }
 
-	zlog.Config.SetDebug(*debug)
+		zlog.Config.SetDebug(debug)
 
-	key := os.Getenv("GOATCOUNTER_BUFFER_SECRET")
-	if key == "" && !genKey {
-		return 1, errors.New("need to set GOATCOUNTER_BUFFER_SECRET; use 'goatcounter buffer -generate-key' to create a new one")
-	}
+		key := os.Getenv("GOATCOUNTER_BUFFER_SECRET")
+		if key == "" && !genKey {
+			return errors.New("need to set GOATCOUNTER_BUFFER_SECRET; use 'goatcounter buffer -generate-key' to create a new one")
+		}
 
-	if genKey {
-		db, err := connectDB(*dbConnect, nil, false, true)
+		if genKey {
+			ready <- struct{}{}
+			db, err := connectDB(dbConnect, nil, false, true)
+			if err != nil {
+				return err
+			}
+			defer db.Close()
+
+			secret, err := goatcounter.NewBufferKey(zdb.WithDB(context.Background(), db))
+			if err != nil {
+				return err
+			}
+
+			fmt.Fprintln(zli.Stdout, "Your new secret key is:")
+			fmt.Fprintln(zli.Stdout, secret)
+			return nil
+		}
+
+		reqBuffer = make(chan handlers.APICountRequestHit, bufSize)
+
+		// Ping backend status.
+		go func() {
+			defer zlog.Recover()
+			checkURL := backend + "/status"
+			for {
+				checkBackend(bufClient, checkURL, isDown)
+				time.Sleep(checkBackendTime)
+			}
+		}()
+
+		// Send buffered requests.
+		go func() {
+			defer zlog.Recover()
+
+			for {
+				time.Sleep(sendTime)
+
+				if isDown.Value() != 0 {
+					continue
+				}
+
+				l := len(reqBuffer)
+				if l == 0 {
+					continue
+				}
+				if l > 100 {
+					l = 100
+				}
+
+				grouped := make(map[string][]handlers.APICountRequestHit)
+				for i := 0; i < l; i++ {
+					h := <-reqBuffer
+					grouped[h.Host] = append(grouped[h.Host], h)
+				}
+
+				for host, hits := range grouped {
+					j, err := json.Marshal(handlers.APICountRequest{Hits: hits})
+					if err != nil {
+						zlog.Error(err)
+						continue
+					}
+
+					r, err := newRequest("POST", backend+"/api/v0/count", key, bytes.NewReader(j))
+					if err != nil {
+						zlog.Error(err)
+						continue
+					}
+
+					r.Host = host
+					r.Header.Set("X-Goatcounter-Buffer", "1")
+					resp, err := bufClient.Do(r)
+					if err != nil {
+						zlog.Error(err)
+						continue
+					}
+
+					if resp.StatusCode >= 300 {
+						b, _ := io.ReadAll(resp.Body)
+						zlog.Errorf("  Sending %s FAILED: %s\n%s", r.URL, resp.Status, b)
+					} else if !silent {
+						zlog.Printf("  Sending %s OKAY\n", r.URL)
+					}
+					resp.Body.Close()
+				}
+			}
+		}()
+
+		zlog.Printf("Ready on %s", listen)
+		ch, err := zhttp.Serve(0, stop, &http.Server{
+			Addr:              listen,
+			Handler:           mware.RealIP()(mware.Unpanic()(handleBuffer(reqBuffer, bufClient, isDown, silent))),
+			ReadHeaderTimeout: 10 * time.Second,
+			ReadTimeout:       60 * time.Second,
+			WriteTimeout:      60 * time.Second,
+			IdleTimeout:       120 * time.Second,
+		})
 		if err != nil {
-			return 1, err
-		}
-		defer db.Close()
-
-		secret, err := goatcounter.NewBufferKey(zdb.WithDB(context.Background(), db))
-		if err != nil {
-			return 1, err
+			return nil
 		}
 
-		fmt.Println("Your new secret key is:")
-		fmt.Println(secret)
-		return 0, nil
-	}
-
-	reqBuffer = make(chan handlers.APICountRequestHit, bufSize)
-
-	// Ping backend status.
-	go func() {
-		defer zlog.Recover()
-		checkURL := backend + "/status"
-		for {
-			checkBackend(bufClient, checkURL, isDown)
-			time.Sleep(checkBackendTime)
-		}
-	}()
-
-	// Send buffered requests.
-	go func() {
-		defer zlog.Recover()
-
-		for {
-			time.Sleep(sendTime)
-
-			if isDown.Value() != 0 {
-				continue
-			}
-
-			l := len(reqBuffer)
-			if l == 0 {
-				continue
-			}
-			if l > 100 {
-				l = 100
-			}
-
-			grouped := make(map[string][]handlers.APICountRequestHit)
-			for i := 0; i < l; i++ {
-				h := <-reqBuffer
-				grouped[h.Host] = append(grouped[h.Host], h)
-			}
-
-			for host, hits := range grouped {
-				j, err := json.Marshal(handlers.APICountRequest{Hits: hits})
-				if err != nil {
-					zlog.Error(err)
-					continue
-				}
-
-				r, err := newRequest("POST", backend+"/api/v0/count", key, bytes.NewReader(j))
-				if err != nil {
-					zlog.Error(err)
-					continue
-				}
-
-				r.Host = host
-				r.Header.Set("X-Goatcounter-Buffer", "1")
-				resp, err := bufClient.Do(r)
-				if err != nil {
-					zlog.Error(err)
-					continue
-				}
-
-				if resp.StatusCode >= 300 {
-					b, _ := io.ReadAll(resp.Body)
-					zlog.Errorf("  Sending %s FAILED: %s\n%s", r.URL, resp.Status, b)
-				} else if !silent {
-					zlog.Printf("  Sending %s OKAY\n", r.URL)
-				}
-				resp.Body.Close()
-			}
-		}
-	}()
-
-	zlog.Printf("Ready on %s", listen)
-	ch := zhttp.Serve(0, *testMode, &http.Server{
-		Addr:              listen,
-		Handler:           mware.RealIP()(mware.Unpanic()(handleBuffer(reqBuffer, bufClient, isDown, silent))),
-		ReadHeaderTimeout: 10 * time.Second,
-		ReadTimeout:       60 * time.Second,
-		WriteTimeout:      60 * time.Second,
-		IdleTimeout:       120 * time.Second,
-	})
-
-	<-ch
-	<-ch
-
-	return 0, nil
+		<-ch
+		ready <- struct{}{}
+		<-ch
+		return nil
+	}(*dbConnect, *debug, *listen, *backend, *bufSize, *silent, *genKey)
 }
 
 // Collect all requests.

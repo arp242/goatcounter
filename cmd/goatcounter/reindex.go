@@ -7,8 +7,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
-	"strings"
 	"time"
 
 	nnow "github.com/jinzhu/now"
@@ -65,104 +63,107 @@ Flags:
 // TODO: re-do the way this works. Instead of operating on the database directly
 // send a signal to goatcounter to reindex stuff. This makes it easier to deal
 // with locking from the application level, especially for SQLite.
-func reindex() (int, error) {
-	dbConnect := flagDB()
-	debug := flagDebug()
-	since := CommandLine.String("since", "", "")
-	to := CommandLine.String("to", "", "")
-	table := CommandLine.String("table", "all", "")
-	pause := CommandLine.Int("pause", 0, "")
-	silent := CommandLine.Bool("silent", false, "")
-	doUA := CommandLine.Bool("useragents", false, "")
-	var site int64
-	CommandLine.Int64Var(&site, "site", 0, "")
-	err := CommandLine.Parse(os.Args[2:])
+func cmdReindex(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+	defer func() { ready <- struct{}{} }()
+
+	var (
+		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		debug     = f.String("", "debug").Pointer()
+		since     = f.String("", "since").Pointer()
+		to        = f.String("", "to").Pointer()
+		tables    = f.StringList([]string{"all"}, "table").Pointer()
+		pause     = f.Int(0, "pause").Pointer()
+		silent    = f.Bool(false, "silent").Pointer()
+		doUA      = f.Bool(false, "useragents").Pointer()
+		site      = f.Int64(0, "site").Pointer()
+	)
+	err := f.Parse()
 	if err != nil {
-		return 1, err
+		return err
 	}
 
-	tables := strings.Split(*table, ",")
+	return func(dbConnect, debug, since, to string, tables []string, pause int, silent, doUA bool, site int64) error {
+		v := zvalidate.New()
+		firstDay := v.Date("-since", since, "2006-01")
+		lastDay := v.Date("-to", to, "2006-01")
 
-	v := zvalidate.New()
-	firstDay := v.Date("-since", *since, "2006-01")
-	lastDay := v.Date("-to", *to, "2006-01")
-
-	for _, t := range tables {
-		v.Include("-table", t, []string{"hit_stats", "hit_counts",
-			"browser_stats", "system_stats", "location_stats",
-			"ref_counts", "size_stats", "all", ""})
-	}
-	if v.HasErrors() {
-		return 1, v
-	}
-
-	zlog.Config.SetDebug(*debug)
-
-	db, err := connectDB(*dbConnect, nil, false, true)
-	if err != nil {
-		return 2, err
-	}
-	defer db.Close()
-	ctx := zdb.WithDB(context.Background(), db)
-
-	if *doUA {
-		err = userAgents(ctx, *silent)
-		if err != nil {
-			return 1, err
+		for _, t := range tables {
+			v.Include("-table", t, []string{"hit_stats", "hit_counts",
+				"browser_stats", "system_stats", "location_stats",
+				"ref_counts", "size_stats", "all", ""})
 		}
-	}
-
-	if len(tables) == 0 || (len(tables) == 1 && tables[0] == "") {
-		return 0, nil
-	}
-
-	if *since == "" {
-		w := ""
-		if site > 0 {
-			w = fmt.Sprintf(" where site_id=%d ", site)
+		if v.HasErrors() {
+			return v
 		}
 
-		var first string
-		err := db.Get(ctx, &first, `select created_at from hits `+w+` order by created_at asc limit 1`)
+		zlog.Config.SetDebug(debug)
+
+		db, err := connectDB(dbConnect, nil, false, true)
 		if err != nil {
-			if zdb.ErrNoRows(err) {
-				return 0, nil
+			return err
+		}
+		defer db.Close()
+		ctx := zdb.WithDB(context.Background(), db)
+
+		if doUA {
+			err = userAgents(ctx, silent)
+			if err != nil {
+				return err
 			}
-			return 1, err
 		}
 
-		firstDay, err = time.Parse("2006-01", first[:7])
+		if len(tables) == 0 || (len(tables) == 1 && tables[0] == "") {
+			return nil
+		}
+
+		if since == "" {
+			w := ""
+			if site > 0 {
+				w = fmt.Sprintf(" where site_id=%d ", site)
+			}
+
+			var first string
+			err := db.Get(ctx, &first, `select created_at from hits `+w+` order by created_at asc limit 1`)
+			if err != nil {
+				if zdb.ErrNoRows(err) {
+					return nil
+				}
+				return err
+			}
+
+			firstDay, err = time.Parse("2006-01", first[:7])
+			if err != nil {
+				return err
+			}
+		}
+		if to == "" {
+			lastDay = time.Now().UTC()
+		}
+
+		var sites goatcounter.Sites
+		err = sites.UnscopedList(ctx)
 		if err != nil {
-			return 1, err
+			return err
 		}
-	}
-	if *to == "" {
-		lastDay = time.Now().UTC()
-	}
 
-	var sites goatcounter.Sites
-	err = sites.UnscopedList(ctx)
-	if err != nil {
-		return 1, err
-	}
+		firstDay = nnow.New(firstDay).BeginningOfMonth()
+		lastDay = nnow.New(lastDay).EndOfMonth()
 
-	firstDay = nnow.New(firstDay).BeginningOfMonth()
-	lastDay = nnow.New(lastDay).EndOfMonth()
-
-	for i, s := range sites {
-		if site > 0 && s.ID != site {
-			continue
+		for i, s := range sites {
+			if site > 0 && s.ID != site {
+				continue
+			}
+			err := dosite(ctx, s, tables, pause, firstDay, lastDay, silent, len(sites), i+1)
+			if err != nil {
+				return err
+			}
 		}
-		err := dosite(ctx, s, tables, *pause, firstDay, lastDay, *silent, len(sites), i+1)
-		if err != nil {
-			return 1, err
-		}
-	}
 
-	if !*silent {
-		fmt.Fprintln(stdout, "")
-	}
-	return 0, nil
+		if !silent {
+			fmt.Fprintln(zli.Stdout, "")
+		}
+		return nil
+	}(*dbConnect, *debug, *since, *to, *tables, *pause, *silent, *doUA, *site)
 }
 
 func dosite(
@@ -223,7 +224,7 @@ func dosite(
 			}
 
 			if !silent {
-				fmt.Fprintf(stdout, "\r\x1b[0Ksite %d (%d/%d) %s → %d", siteID, isite, nsites, month[0].Format("2006-01"), len(hits))
+				fmt.Fprintf(zli.Stdout, "\r\x1b[0Ksite %d (%d/%d) %s → %d", siteID, isite, nsites, month[0].Format("2006-01"), len(hits))
 			}
 
 			clearMonth(ctx, tables, month[0].Format("2006-01"), siteID)
@@ -310,7 +311,7 @@ func userAgents(ctx context.Context, silent bool) error {
 		}
 	}
 	if !silent {
-		fmt.Println()
+		fmt.Fprintln(zli.Stdout)
 	}
 	return nil
 }

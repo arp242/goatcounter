@@ -40,15 +40,34 @@ func Reset() {
 // DB starts a new database test.
 func DB(t testing.TB) (context.Context, func()) {
 	t.Helper()
+	return db(t, false)
+}
+
+// DBFile is like DB(), but guarantees that the database will be written to
+// disk, whereas DB() may store it in memory.
+//
+// You can get the connection string from the GCTEST_CONNECT environment
+// variable.
+func DBFile(t testing.TB) (context.Context, func()) {
+	t.Helper()
+	return db(t, true)
+}
+
+func db(t testing.TB, storeFile bool) (context.Context, func()) {
+	t.Helper()
 
 	cfg.RunningTests = true
 	dbname := "goatcounter_test_" + zcrypto.Secret64()
 
 	conn := "sqlite3://:memory:?cache=shared"
+	if storeFile {
+		conn = "sqlite://" + t.TempDir() + "/goatcounter.sqlite3"
+	}
 	if pgSQL {
 		os.Setenv("PGDATABASE", dbname)
 		conn = "postgresql://"
 	}
+	os.Setenv("GCTEST_CONNECT", conn)
 
 	db, err := zdb.Connect(zdb.ConnectOptions{
 		Connect:      conn,
