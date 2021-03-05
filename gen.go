@@ -177,7 +177,7 @@ func kommentaar() error {
 		cmd := exec.Command("kommentaar", args...)
 		cmd.Dir = "./handlers"
 
-		out, err := cmd.CombinedOutput()
+		out, err := cmd.Output()
 		if err != nil {
 			return errors.Errorf("running kommentaar: %s\n%s", err, out)
 		}

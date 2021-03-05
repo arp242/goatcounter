@@ -1,4 +1,4 @@
-kommentaar: warning: could not process "Widget" (maps are not supported yet)
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,13 +196,19 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 				<a class="permalink" href="#GET-%2fapi%2fv0%2fexport%2f%7bid%7d%2fdownload">§</a>
 			</div>
 			<div class="endpoint-info">
-				<p></p>
+				<p>The export may take a while to generate, depending on the size. It will
+return a 202 Accepted status code if the export ID is still running.</p><p>Export files are kept for 24 hours, after which they&#39;re deleted. This will
+return a 400 Gone status code if the export has been deleted.</p>
 
 				<h4>Responses</h4>
 				<ul>
 					<li><code class="param-name">200 OK</code>
 								<p>200 OK (text/csv data)</p>
 							<sup>(text/csv)</sup>
+					</li>
+					<li><code class="param-name">202 Accepted</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">400 Bad Request</code>
 								<a href="#handlers.apiError">handlers.apiError</a>
@@ -644,9 +650,9 @@ identifier.</p>
 		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
-			<h4>Error <sup>string</sup></h4>
+			<h4>error <sup>string</sup></h4>
 <p></p>
-<h4>Errors <sup><a href="#"></a></sup></h4>
+<h4>errors <sup><a href="#"></a></sup></h4>
 <p></p>
 
 		</div>
