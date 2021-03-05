@@ -17,7 +17,7 @@ require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/boombuler/barcode v1.0.1
-	github.com/go-chi/chi v1.5.3
+	github.com/go-chi/chi/v5 v5.0.0
 	github.com/google/uuid v1.2.0
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.3.1

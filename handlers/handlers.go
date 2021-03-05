@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"

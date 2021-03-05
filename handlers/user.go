@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"code.soquee.net/otp"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/xsrftoken"
 	"zgo.at/blackmail"

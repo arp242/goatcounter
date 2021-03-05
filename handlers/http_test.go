@@ -17,7 +17,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"

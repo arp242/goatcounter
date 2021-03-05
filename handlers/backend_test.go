@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/isbot"

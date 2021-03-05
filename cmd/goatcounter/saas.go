@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/zhttp"
