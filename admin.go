@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 )
 
@@ -119,7 +118,7 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 
 // ByCode gets stats for a single site.
 func (a *AdminSiteStat) ByCode(ctx context.Context, code string) error {
-	err := a.Site.ByHost(ctx, code+"."+cfg.Domain)
+	err := a.Site.ByHost(ctx, code+"."+Config(ctx).Domain)
 	if err != nil {
 		return err
 	}

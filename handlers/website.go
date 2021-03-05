@@ -18,7 +18,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
@@ -33,7 +32,7 @@ import (
 
 type website struct{}
 
-func (h website) Mount(r *chi.Mux, db zdb.DB) {
+func (h website) Mount(r *chi.Mux, db zdb.DB, dev bool) {
 	r.Use(
 		mware.RealIP(),
 		mware.Unpanic(),
@@ -41,7 +40,7 @@ func (h website) Mount(r *chi.Mux, db zdb.DB) {
 		addctx(db, false),
 		mware.WrapWriter(),
 		mware.Headers(nil))
-	if !cfg.Prod {
+	if dev {
 		mware.RequestLog(nil)
 	}
 
@@ -129,7 +128,7 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 			err = s.ByID(r.Context(), u.Site)
 			if err == nil {
 				loggedIn = template.HTML(fmt.Sprintf("Logged in as %s on <a href='%s'>%[2]s</a>",
-					template.HTMLEscapeString(u.Email), template.HTMLEscapeString(s.URL())))
+					template.HTMLEscapeString(u.Email), template.HTMLEscapeString(s.URL(r.Context()))))
 			}
 		}
 	}
@@ -171,7 +170,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain, Plan: cfg.Plan}
+	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain, Plan: goatcounter.Config(r.Context()).Plan}
 	user := goatcounter.User{Email: args.Email, Password: []byte(args.Password)}
 
 	v := zvalidate.New()
@@ -258,19 +257,19 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	bgrun.Run("welcome email", func() {
 		err := blackmail.Send("Welcome to GoatCounter!",
-			blackmail.From("GoatCounter", cfg.EmailFrom),
+			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(user.Email),
 			blackmail.BodyMustText(goatcounter.EmailTemplate("email_welcome.gotxt", struct {
 				Site        goatcounter.Site
 				User        goatcounter.User
 				CountDomain string
-			}{site, user, cfg.DomainCount})))
+			}{site, user, goatcounter.Config(r.Context()).DomainCount})))
 		if err != nil {
 			zlog.Errorf("welcome email: %s", err)
 		}
 	})
 
-	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL()))
+	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL(r.Context())))
 }
 
 func (h website) forgot(w http.ResponseWriter, r *http.Request) error {
@@ -289,7 +288,7 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 		CountDomain string
 		Site        goatcounter.Site
 	}{newGlobals(w, r), "forgot", "Site integration code – GoatCounter",
-		cfg.DomainCount, goatcounter.Site{Code: "MYCODE"}})
+		goatcounter.Config(r.Context()).DomainCount, goatcounter.Site{Code: "MYCODE"}})
 }
 
 func (h website) downloadData(w http.ResponseWriter, r *http.Request) error {
@@ -353,7 +352,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 	bgrun.Run("email:sites", func() {
 		defer zlog.Recover()
 		err := blackmail.Send("Your GoatCounter sites",
-			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
+			mail.Address{Name: "GoatCounter", Address: goatcounter.Config(r.Context()).EmailFrom},
 			blackmail.To(args.Email),
 			blackmail.BodyMustText(goatcounter.EmailTemplate("email_forgot_site.gotxt", struct {
 				Sites goatcounter.Sites
@@ -376,5 +375,5 @@ func (h website) contribute(w http.ResponseWriter, r *http.Request) error {
 		StripePublicKey string
 		SKU             string
 	}{newGlobals(w, r), "contribute", "Contribute – GoatCounter",
-		zstripe.PublicKey, stripePlans[cfg.Prod]["donate"]})
+		zstripe.PublicKey, stripePlans[goatcounter.Config(r.Context()).Prod]["donate"]})
 }

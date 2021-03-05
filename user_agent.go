@@ -6,7 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"time"
 
 	"zgo.at/errors"
 	"zgo.at/gadget"
@@ -40,12 +39,6 @@ func (p *UserAgent) ByID(ctx context.Context, id int64) error {
 		select * from user_agents where user_agent_id=$1`, id)
 	return errors.Wrapf(err, "UserAgent.ByID %d", id)
 }
-
-var (
-	cacheUA       = zcache.New(1*time.Hour, 5*time.Minute)
-	cacheBrowsers = zcache.New(1*time.Hour, 5*time.Minute)
-	cacheSystems  = zcache.New(1*time.Hour, 5*time.Minute)
-)
 
 func (p *UserAgent) Update(ctx context.Context) error {
 	if p.ID == 0 {
@@ -93,17 +86,17 @@ func (p *UserAgent) Update(ctx context.Context) error {
 		return errors.Wrap(err, "UserAgent.Update")
 	}
 
-	cacheUA.Delete(gadget.Shorten(p.UserAgent))
+	cacheUA(ctx).Delete(gadget.Shorten(p.UserAgent))
 	return nil
 }
 
 func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	shortUA := gadget.Shorten(p.UserAgent)
 
-	c, ok := cacheUA.Get(shortUA)
+	c, ok := cacheUA(ctx).Get(shortUA)
 	if ok {
 		*p = c.(UserAgent)
-		cacheUA.Touch(shortUA, zcache.DefaultExpiration)
+		cacheUA(ctx).Touch(shortUA, zcache.DefaultExpiration)
 		return nil
 	}
 
@@ -119,7 +112,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 		return errors.Errorf("UserAgent.GetOrInsert select: %w", err)
 	}
 	if err == nil {
-		cacheUA.SetDefault(shortUA, *p)
+		cacheUA(ctx).SetDefault(shortUA, *p)
 		return nil // Got a row already, no need for a new one.
 	}
 
@@ -150,7 +143,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 		return errors.Wrap(err, "UserAgent.GetOrInsert insert")
 	}
 
-	cacheUA.SetDefault(shortUA, *p)
+	cacheUA(ctx).SetDefault(shortUA, *p)
 	return nil
 }
 
@@ -162,10 +155,10 @@ type Browser struct {
 
 func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 	k := name + version
-	c, ok := cacheBrowsers.Get(k)
+	c, ok := cacheBrowsers(ctx).Get(k)
 	if ok {
 		*b = c.(Browser)
-		cacheBrowsers.Touch(k, zcache.DefaultExpiration)
+		cacheBrowsers(ctx).Touch(k, zcache.DefaultExpiration)
 		return nil
 	}
 
@@ -183,7 +176,7 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Browser.GetOrInsert %q %q", name, version)
 	}
-	cacheBrowsers.SetDefault(k, *b)
+	cacheBrowsers(ctx).SetDefault(k, *b)
 	return nil
 }
 
@@ -195,10 +188,10 @@ type System struct {
 
 func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 	k := name + version
-	c, ok := cacheSystems.Get(k)
+	c, ok := cacheSystems(ctx).Get(k)
 	if ok {
 		*s = c.(System)
-		cacheSystems.Touch(k, zcache.DefaultExpiration)
+		cacheSystems(ctx).Touch(k, zcache.DefaultExpiration)
 		return nil
 	}
 
@@ -216,6 +209,6 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 	if err != nil {
 		return errors.Wrapf(err, "System.GetOrInsert %q %q", name, version)
 	}
-	cacheSystems.SetDefault(k, *s)
+	cacheSystems(ctx).SetDefault(k, *s)
 	return nil
 }

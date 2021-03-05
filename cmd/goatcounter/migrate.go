@@ -61,7 +61,7 @@ func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	return func(dbConnect, debug string, createdb bool) error {
 		zlog.Config.SetDebug(debug)
 
-		db, err := connectDB(dbConnect, nil, createdb, true)
+		db, _, err := connectDB(dbConnect, nil, createdb, true)
 		if err != nil {
 			return err
 		}

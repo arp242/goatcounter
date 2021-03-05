@@ -20,7 +20,6 @@ import (
 	"github.com/go-chi/chi"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ztpl"
@@ -53,8 +52,8 @@ func init() {
 	ztpl.Init(files)
 
 	ztest.DefaultHost = "test.example.com"
-	cfg.Domain = "example.com"
-	cfg.GoatcounterCom = true
+	// cfg.Domain = "example.com"
+	// cfg.GoatcounterCom = true
 	if zruntime.TestVerbose() {
 		zlog.Config.Debug = []string{"all"}
 	} else {
@@ -170,7 +169,7 @@ func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Re
 	site := Site(ctx)
 	r, rr := ztest.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()
 	r.Header.Set("User-Agent", "GoatCounter test runner/1.0")
-	r.Host = site.Code + "." + cfg.Domain
+	r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
 	return r, rr
 }
 

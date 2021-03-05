@@ -13,7 +13,6 @@ import (
 
 	"github.com/oschwald/geoip2-golang"
 	"zgo.at/errors"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
@@ -65,11 +64,9 @@ type Location struct {
 	ISO3166_2 string `db:"iso_3166_2"` //lint:ignore ST1003 staticcheck bug
 }
 
-var locationsCache = zcache.New(zcache.NoExpiration, zcache.NoExpiration)
-
 // ByCode gets a location by ISO-3166-2 code; e.g. "US" or "US-TX".
 func (l *Location) ByCode(ctx context.Context, code string) error {
-	if ll, ok := locationsCache.Get(code); ok {
+	if ll, ok := cacheLoc(ctx).Get(code); ok {
 		*l = *ll.(*Location)
 		return nil
 	}
@@ -87,7 +84,7 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 		return errors.Wrap(err, "Location.ByCode")
 	}
 
-	locationsCache.SetDefault(l.ISO3166_2, l)
+	cacheLoc(ctx).SetDefault(l.ISO3166_2, l)
 	return nil
 }
 
@@ -113,7 +110,7 @@ func (l *Location) Lookup(ctx context.Context, ip string) error {
 	if l.Region != "" {
 		l.ISO3166_2 += "-" + l.Region
 	}
-	if ll, ok := locationsCache.Get(l.ISO3166_2); ok {
+	if ll, ok := cacheLoc(ctx).Get(l.ISO3166_2); ok {
 		*l = *ll.(*Location)
 		return nil
 	}
@@ -132,7 +129,7 @@ func (l *Location) Lookup(ctx context.Context, ip string) error {
 		return errors.Wrap(err, "Location.Lookup")
 	}
 
-	locationsCache.SetDefault(l.ISO3166_2, l)
+	cacheLoc(ctx).SetDefault(l.ISO3166_2, l)
 	return nil
 }
 

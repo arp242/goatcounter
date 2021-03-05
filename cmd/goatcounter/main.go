@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"os"
@@ -16,7 +17,6 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zli"
@@ -49,7 +49,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	mainDone.Add(1)
 	defer mainDone.Done()
 
-	cfg.Version = version
+	goatcounter.Version = version
 
 	cmd := f.Shift()
 	if zstring.ContainsAny(f.Args, "-h", "-help", "--help") {
@@ -99,7 +99,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	zli.Exit(0)
 }
 
-func connectDB(connect string, migrate []string, create, prod bool) (zdb.DB, error) {
+func connectDB(connect string, migrate []string, create, prod bool) (zdb.DB, context.Context, error) {
 	var files fs.FS = goatcounter.DB
 	if !prod {
 		files = os.DirFS(zgo.ModuleRoot())
@@ -118,7 +118,7 @@ func connectDB(connect string, migrate []string, create, prod bool) (zdb.DB, err
 		zlog.Printf("WARNING: %s", err)
 		err = nil
 	}
-	return db, err
+	return db, goatcounter.NewContext(db), err
 }
 
 func getVersion() string {

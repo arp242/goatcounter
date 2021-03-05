@@ -231,7 +231,7 @@ func renewACME(ctx context.Context) error {
 	for _, s := range sites {
 		func(ctx context.Context, s goatcounter.Site) {
 			bgrun.Run("renewACME:"+*s.Cname, func() {
-				err := acme.Make(*s.Cname)
+				err := acme.Make(ctx, *s.Cname)
 				if err != nil {
 					zlog.Module("cron-acme").Error(err)
 					return

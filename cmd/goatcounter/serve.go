@@ -9,6 +9,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io/fs"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,7 +25,6 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/zdb"
@@ -130,54 +130,60 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	}
 
 	return func(port, domainStatic string) error {
-		cfg.Port = port
-		cfg.DomainStatic = domainStatic
-
-		cfg.Serve = true
 		if flagTLS == "" {
 			flagTLS = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
 		}
 
-		if cfg.DomainStatic != "" {
-			if p := strings.Index(cfg.DomainStatic, ":"); p > -1 {
-				v.Domain("-static", cfg.DomainStatic[:p])
+		var domainCount, urlStatic string
+		if domainStatic != "" {
+			if p := strings.Index(domainStatic, ":"); p > -1 {
+				v.Domain("-static", domainStatic[:p])
 			} else {
-				v.Domain("-static", cfg.DomainStatic)
+				v.Domain("-static", domainStatic)
 			}
-			cfg.URLStatic = "//" + cfg.DomainStatic
-			cfg.DomainCount = cfg.DomainStatic
+			urlStatic = "//" + domainStatic
+			domainCount = domainStatic
 		}
 
-		if cfg.Port != "" {
-			cfg.Port = ":" + cfg.Port
-		}
-
-		flagFrom(from, &v)
+		//from := flagFrom(from, "cfg.Domain", &v)
+		from := flagFrom(from, "", &v)
 		if v.HasErrors() {
 			return v
 		}
 
-		db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate)
+		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dev, flagTLS, automigrate)
 		if err != nil {
 			return err
 		}
+
+		c := goatcounter.Config(ctx)
+		c.EmailFrom = from
+		c.Port = port
+		c.DomainStatic = domainStatic
+		c.Serve = true
+		c.URLStatic = urlStatic
+		c.DomainCount = domainCount
+
+		// if cfg.Port != "" {
+		// 	cfg.Port = ":" + cfg.Port
+		// }
 
 		// Set up HTTP handler and servers.
 		hosts := map[string]http.Handler{
-			"*": handlers.NewBackend(db, acmeh),
+			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic),
 		}
-		if cfg.DomainStatic != "" {
+		if domainStatic != "" {
 			// May not be needed, but just in case the DomainStatic isn't an
 			// external CDN.
-			hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
+			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
 		}
 
-		cnames, err := lsSites(db)
+		cnames, err := lsSites(ctx)
 		if err != nil {
 			return err
 		}
 
-		return doServe(db, listen, listenTLS, tlsc, hosts, stop, func() {
+		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
 			banner()
 			zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
 				len(cnames), listen, dev, strings.Join(cnames, ", "))
@@ -189,18 +195,18 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	}(*port, *domainStatic)
 }
 
-func doServe(
-	db zdb.DB, listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler,
-	stop chan struct{},
-	start func(),
+func doServe(ctx context.Context, db zdb.DB,
+	listen string, listenTLS uint8, tlsc *tls.Config, hosts map[string]http.Handler,
+	stop chan struct{}, start func(),
 ) error {
 
 	var sig = make(chan os.Signal, 1)
 	zlog.Module("startup").Debug(getVersion())
 	ch, err := zhttp.Serve(listenTLS, stop, &http.Server{
-		Addr:      listen,
-		Handler:   zhttp.HostRoute(hosts),
-		TLSConfig: tlsc,
+		Addr:        listen,
+		Handler:     zhttp.HostRoute(hosts),
+		TLSConfig:   tlsc,
+		BaseContext: func(net.Listener) context.Context { return ctx },
 	})
 	if err != nil {
 		return err
@@ -220,7 +226,7 @@ func doServe(
 	}()
 
 	bgrun.Run("shutdown", func() {
-		err := cron.PersistAndStat(zdb.WithDB(context.Background(), db))
+		err := cron.PersistAndStat(goatcounter.CopyContextValues(ctx))
 		if err != nil {
 			zlog.Error(err)
 		}
@@ -250,7 +256,6 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 	err := f.Parse()
 
 	zlog.Config.SetDebug(*debug)
-	cfg.Prod = !*dev
 	zhttp.LogUnknownFields = *dev
 	zhttp.CookieSecure = !*dev
 	if *flagTLS == "none" {
@@ -273,35 +278,35 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 	return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, err
 }
 
-func setupServe(dbConnect, flagTLS string, automigrate bool) (zdb.DB, *tls.Config, http.HandlerFunc, uint8, error) {
-	if !cfg.Prod {
+func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {
+	if dev {
 		setupReload()
 	}
 
-	db, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: {"list"}}[automigrate], true, cfg.Prod)
+	db, ctx, err := connectDB(dbConnect, map[bool][]string{false: {"all"}, true: {"list"}}[automigrate], true, dev)
 	if err != nil {
-		return nil, nil, nil, 0, err
+		return nil, nil, nil, nil, 0, err
 	}
 
 	var files fs.FS = goatcounter.Templates
-	if !cfg.Prod {
+	if dev {
 		files = os.DirFS(zgo.ModuleRoot())
 	}
 	files, err = fs.Sub(files, "tpl")
 	if err != nil {
-		return nil, nil, nil, 0, err
+		return nil, nil, nil, nil, 0, err
 	}
 	ztpl.Init(files)
 
-	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS)
+	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS, dev)
 
 	err = goatcounter.Memstore.Init(db)
 	if err != nil {
-		return nil, nil, nil, 0, err
+		return nil, nil, nil, nil, 0, err
 	}
 
-	cron.RunBackground(zdb.WithDB(context.Background(), db))
-	return db, tlsc, acmeh, listenTLS, nil
+	cron.RunBackground(goatcounter.CopyContextValues(ctx))
+	return db, ctx, tlsc, acmeh, listenTLS, nil
 }
 
 func setupReload() {
@@ -354,10 +359,10 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 	}
 }
 
-func flagFrom(from string, v *zvalidate.Validator) {
+func flagFrom(from, domain string, v *zvalidate.Validator) string {
 	if from == "" {
-		if cfg.Domain != "" { // saas only.
-			from = "support@" + znet.RemovePort(cfg.Domain)
+		if domain != "" { // saas only.
+			from = "support@" + znet.RemovePort(domain)
 		} else {
 			u, err := user.Current()
 			if err != nil {
@@ -372,17 +377,16 @@ func flagFrom(from string, v *zvalidate.Validator) {
 
 	}
 
-	cfg.EmailFrom = from
-
 	// TODO
 	// if zmail.SMTP != "stdout" {
 	// 	v.Email("-email-from", from, fmt.Sprintf("%q is not a valid email address", from))
 	// }
+	return from
 }
 
-func lsSites(db zdb.DB) ([]string, error) {
+func lsSites(ctx context.Context) ([]string, error) {
 	var sites goatcounter.Sites
-	err := sites.UnscopedList(zdb.WithDB(context.Background(), db))
+	err := sites.UnscopedList(goatcounter.CopyContextValues(ctx))
 	if err != nil {
 		return nil, err
 	}

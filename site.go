@@ -14,9 +14,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
@@ -75,19 +73,14 @@ type Site struct {
 	FirstHitAt time.Time  `db:"first_hit_at" json:"first_hit_at"`
 }
 
-var (
-	sitesCache         = zcache.New(24*time.Hour, 1*time.Hour)
-	sitesCacheHostname = zcache.NewProxy(sitesCache)
-)
-
 // ClearCache clears the  cache for this site.
-func (s Site) ClearCache(full bool) {
-	sitesCache.Delete(strconv.FormatInt(s.ID, 10))
+func (s Site) ClearCache(ctx context.Context, full bool) {
+	cacheSites(ctx).Delete(strconv.FormatInt(s.ID, 10))
 
 	// TODO: be more selective about this.
 	if full {
-		cachePaths.Flush()
-		changedTitles.Flush()
+		cachePaths(ctx).Flush()
+		cacheChangedTitles(ctx).Flush()
 	}
 }
 
@@ -176,8 +169,8 @@ func (s *Site) Validate(ctx context.Context) error {
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
-		if cfg.GoatcounterCom && strings.HasSuffix(*s.Cname, cfg.Domain) {
-			v.Append("cname", "cannot end with %q", cfg.Domain)
+		if Config(ctx).GoatcounterCom && strings.HasSuffix(*s.Cname, Config(ctx).Domain) {
+			v.Append("cname", "cannot end with %q", Config(ctx).Domain)
 		}
 
 		var cname uint8
@@ -252,7 +245,7 @@ func (s *Site) Update(ctx context.Context) error {
 		return errors.Wrap(err, "Site.Update")
 	}
 
-	s.ClearCache(false)
+	s.ClearCache(ctx, false)
 	return nil
 }
 
@@ -283,7 +276,7 @@ func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) 
 		return errors.Wrap(err, "Site.UpdateStripe")
 	}
 
-	s.ClearCache(false)
+	s.ClearCache(ctx, false)
 	return nil
 }
 
@@ -309,15 +302,15 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 		return errors.Wrap(err, "Site.UpdateCode")
 	}
 
-	sitesCache.Delete(strconv.FormatInt(s.ID, 10))
-	sitesCacheHostname.Flush()
+	cacheSites(ctx).Delete(strconv.FormatInt(s.ID, 10))
+	cacheSitesHost(ctx).Flush()
 	return nil
 }
 
 func (s *Site) UpdateReceivedData(ctx context.Context) error {
 	err := zdb.Exec(ctx, `update sites set received_data=1 where site_id=$1`, s.ID)
 
-	s.ClearCache(false)
+	s.ClearCache(ctx, false)
 	return errors.Wrap(err, "Site.UpdateReceivedData")
 }
 
@@ -328,7 +321,7 @@ func (s *Site) UpdateFirstHitAt(ctx context.Context, f time.Time) error {
 		`update sites set first_hit_at=$1 where site_id=$2`,
 		s.FirstHitAt.Format(zdb.Date), s.ID)
 
-	s.ClearCache(false)
+	s.ClearCache(ctx, false)
 	return errors.Wrap(err, "Site.UpdateFirstHitAt")
 }
 
@@ -348,7 +341,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 		return errors.Wrap(err, "Site.UpdateCnameSetupAt")
 	}
 
-	s.ClearCache(false)
+	s.ClearCache(ctx, false)
 	return nil
 }
 
@@ -366,7 +359,7 @@ func (s *Site) Delete(ctx context.Context) error {
 		return errors.Wrap(err, "Site.Delete")
 	}
 
-	s.ClearCache(true)
+	s.ClearCache(ctx, true)
 
 	s.ID = 0
 	s.UpdatedAt = &t
@@ -377,7 +370,7 @@ func (s *Site) Delete(ctx context.Context) error {
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
 	k := strconv.FormatInt(id, 10)
-	ss, ok := sitesCache.Get(k)
+	ss, ok := cacheSites(ctx).Get(k)
 	if ok {
 		*s = *ss.(*Site)
 		return nil
@@ -389,7 +382,7 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 	if err != nil {
 		return errors.Wrapf(err, "Site.ByID %d", id)
 	}
-	sitesCache.SetDefault(k, s)
+	cacheSites(ctx).SetDefault(k, s)
 	return nil
 }
 
@@ -402,21 +395,21 @@ func (s *Site) ByCode(ctx context.Context, code string) error {
 
 // ByHost gets a site by host name.
 func (s *Site) ByHost(ctx context.Context, host string) error {
-	ss, ok := sitesCacheHostname.Get(host)
+	ss, ok := cacheSitesHost(ctx).Get(host)
 	if ok {
 		*s = *ss.(*Site)
 		return nil
 	}
 
 	// Custom domain or serve.
-	if cfg.Serve || !strings.HasSuffix(host, cfg.Domain) {
+	if Config(ctx).Serve || !strings.HasSuffix(host, Config(ctx).Domain) {
 		err := zdb.Get(ctx, s,
 			`/* Site.ByHost */ select * from sites where lower(cname)=lower($1) and state=$2`,
 			znet.RemovePort(host), StateActive)
 		if err != nil {
 			return errors.Wrap(err, "site.ByHost: from custom domain")
 		}
-		sitesCacheHostname.Set(strconv.FormatInt(s.ID, 10), host, s)
+		cacheSitesHost(ctx).Set(strconv.FormatInt(s.ID, 10), host, s)
 		return nil
 	}
 
@@ -432,14 +425,14 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	if err != nil {
 		return errors.Wrap(err, "site.ByHost: from code")
 	}
-	sitesCacheHostname.Set(strconv.FormatInt(s.ID, 10), host, s)
+	cacheSitesHost(ctx).Set(strconv.FormatInt(s.ID, 10), host, s)
 	return nil
 }
 
 // ListSubs lists all subsites, including the current site and parent.
 func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 	col := "code"
-	if cfg.Serve {
+	if Config(ctx).Serve {
 		col = "cname"
 	}
 	var codes []string
@@ -456,34 +449,34 @@ func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 
 // Domain gets the global default domain, or this site's configured custom
 // domain.
-func (s Site) Domain() string {
+func (s Site) Domain(ctx context.Context) string {
 	if s.Cname != nil && s.CnameSetupAt != nil {
 		return *s.Cname
 	}
-	return cfg.Domain
+	return Config(ctx).Domain
 }
 
 // Display format: just the domain (cname or code+domain).
 //
 //lint:ignore U1001 used in template.
-func (s Site) Display() string {
+func (s Site) Display(ctx context.Context) string {
 	if s.Cname != nil && s.CnameSetupAt != nil {
 		return *s.Cname
 	}
-	return fmt.Sprintf("%s.%s", s.Code, znet.RemovePort(cfg.Domain))
+	return fmt.Sprintf("%s.%s", s.Code, znet.RemovePort(Config(ctx).Domain))
 }
 
 // URL to this site.
-func (s Site) URL() string {
+func (s Site) URL(ctx context.Context) string {
 	if s.Cname != nil && s.CnameSetupAt != nil {
 		return fmt.Sprintf("http%s://%s%s",
-			map[bool]string{true: "s", false: ""}[cfg.Prod],
-			*s.Cname, cfg.Port)
+			map[bool]string{true: "s", false: ""}[Config(ctx).Prod],
+			*s.Cname, Config(ctx).Port)
 	}
 
 	return fmt.Sprintf("http%s://%s.%s%s",
-		map[bool]string{true: "s", false: ""}[cfg.Prod],
-		s.Code, cfg.Domain, cfg.Port)
+		map[bool]string{true: "s", false: ""}[Config(ctx).Prod],
+		s.Code, Config(ctx).Domain, Config(ctx).Port)
 }
 
 // PlanCustomDomain reports if this site's plan allows custom domains.
@@ -562,7 +555,7 @@ func (s Site) DeleteAll(ctx context.Context) error {
 			}
 		}
 
-		s.ClearCache(true)
+		s.ClearCache(ctx, true)
 		return nil
 	})
 }

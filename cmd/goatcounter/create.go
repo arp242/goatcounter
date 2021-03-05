@@ -14,7 +14,6 @@ import (
 	"golang.org/x/term"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
@@ -68,7 +67,6 @@ func cmdCreate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 	return func(dbConnect, debug, domain, email, parent, password string, createdb bool) error {
 		zlog.Config.SetDebug(debug)
-		cfg.Serve = true
 
 		v := zvalidate.New()
 		v.Required("-domain", domain)
@@ -81,12 +79,13 @@ func cmdCreate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return v
 		}
 
-		db, err := connectDB(dbConnect, nil, createdb, true)
+		db, ctx, err := connectDB(dbConnect, nil, createdb, true)
 		if err != nil {
 			return err
 		}
 		defer db.Close()
-		ctx := zdb.WithDB(context.Background(), db)
+
+		goatcounter.Config(ctx).Serve = true
 
 		err = (&goatcounter.Site{}).ByHost(ctx, domain)
 		if err == nil {
@@ -122,7 +121,7 @@ func cmdCreate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		var ps goatcounter.Site
 		if parent != "" {
-			ps, err = findParent(zdb.WithDB(context.Background(), db), parent)
+			ps, err = findParent(ctx, parent)
 			if err != nil {
 				return err
 			}

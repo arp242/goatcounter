@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/zhttp"
 	"zgo.at/zli"
@@ -49,19 +48,18 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	if err != nil {
 		return err
 	}
+	prod := !dev
 
 	return func(domain, stripe, plan string) error {
-		cfg.GoatcounterCom = true
-		cfg.Plan = plan
 		if flagTLS == "" {
 			flagTLS = map[bool]string{true: "none", false: "acme"}[dev]
 		}
 
 		v.Include("-plan", plan, goatcounter.Plans)
 		flagStripe(stripe, &v)
-		flagDomain(domain, &v)
-		flagFrom(from, &v)
-		if cfg.Prod && cfg.Domain != "goatcounter.com" {
+		domain, domainStatic, domainCount, urlStatic := flagDomain(domain, &v)
+		from = flagFrom(from, domain, &v)
+		if prod && domain != "goatcounter.com" {
 			v.Append("saas", "can only run on goatcounter.com")
 		}
 
@@ -69,24 +67,33 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return v
 		}
 
-		db, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, flagTLS, automigrate)
+		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dev, flagTLS, automigrate)
 		if err != nil {
 			return err
 		}
 
+		c := goatcounter.Config(ctx)
+		c.GoatcounterCom = true
+		c.Plan = plan
+		c.Domain = domain
+		c.DomainStatic = domainStatic
+		c.DomainCount = domainCount
+		c.URLStatic = urlStatic
+		c.EmailFrom = from
+
 		// Set up HTTP handler and servers.
-		d := znet.RemovePort(cfg.Domain)
+		d := znet.RemovePort(domain)
 		hosts := map[string]http.Handler{
-			d:          zhttp.RedirectHost("//www." + cfg.Domain),
-			"www." + d: handlers.NewWebsite(db),
-			"*":        handlers.NewBackend(db, acmeh),
+			d:          zhttp.RedirectHost("//www." + domain),
+			"www." + d: handlers.NewWebsite(db, dev),
+			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic),
 		}
 		if dev {
-			hosts[znet.RemovePort(cfg.DomainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
+			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), !dev)
 		}
 
-		return doServe(db, listen, listenTLS, tlsc, hosts, stop, func() {
-			zlog.Printf("serving %q on %q; dev=%t", cfg.Domain, listen, dev)
+		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
+			zlog.Printf("serving %q on %q; dev=%t", domain, listen, dev)
 			ready <- struct{}{}
 		})
 	}(*domain, *stripe, *plan)
@@ -119,9 +126,15 @@ func flagStripe(stripe string, v *zvalidate.Validator) {
 	}
 }
 
-func flagDomain(domain string, v *zvalidate.Validator) {
+func flagDomain(domain string, v *zvalidate.Validator) (string, string, string, string) {
 	l := strings.Split(domain, ",")
 
+	var (
+		rDomain      string
+		domainStatic string
+		domainCount  string
+		urlStatic    string
+	)
 	switch len(l) {
 	default:
 		v.Append("-domain", "too many domains")
@@ -140,14 +153,15 @@ func flagDomain(domain string, v *zvalidate.Validator) {
 
 			switch i {
 			case 0:
-				cfg.Domain = d
+				rDomain = d
 			case 1:
-				cfg.DomainStatic = d
-				cfg.DomainCount = d
-				cfg.URLStatic = "//" + d
+				domainStatic = d
+				domainCount = d
+				urlStatic = "//" + d
 			case 2:
-				cfg.DomainCount = d
+				domainCount = d
 			}
 		}
 	}
+	return rDomain, domainStatic, domainCount, urlStatic
 }

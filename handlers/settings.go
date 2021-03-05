@@ -24,7 +24,6 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/widgets"
 	"zgo.at/guru"
 	"zgo.at/tz"
@@ -125,7 +124,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	user := goatcounter.GetUser(txctx)
 
 	emailChanged := false
-	if cfg.GoatcounterCom && args.User.Email != user.Email {
+	if goatcounter.Config(r.Context()).GoatcounterCom && args.User.Email != user.Email {
 		emailChanged = true
 	}
 
@@ -175,13 +174,13 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if emailChanged {
-		sendEmailVerify(site, user)
+		sendEmailVerify(site, user, goatcounter.Config(r.Context()).EmailFrom)
 	}
 
 	if makecert {
-		ctx := goatcounter.NewContext(r.Context())
+		ctx := goatcounter.CopyContextValues(r.Context())
 		bgrun.Run(fmt.Sprintf("acme.Make:%s", args.Cname), func() {
-			err := acme.Make(args.Cname)
+			err := acme.Make(ctx, args.Cname)
 			if err != nil {
 				zlog.Field("domain", args.Cname).Error(err)
 				return
@@ -220,7 +219,7 @@ func (h settings) changeCode(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Saved!")
-	return zhttp.SeeOther(w, site.URL()+"/settings/main")
+	return zhttp.SeeOther(w, site.URL(r.Context())+"/settings/main")
 }
 
 func (h settings) ip(w http.ResponseWriter, r *http.Request) error {
@@ -337,7 +336,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		Plan:     goatcounter.PlanChild,
 		Settings: parent.Settings,
 	}
-	if cfg.GoatcounterCom {
+	if goatcounter.Config(r.Context()).GoatcounterCom {
 		site.Code = args.Code
 	} else {
 		site.Code = "serve-" + zcrypto.Secret64()
@@ -349,7 +348,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		if !cfg.GoatcounterCom {
+		if !goatcounter.Config(r.Context()).GoatcounterCom {
 			return site.UpdateCnameSetupAt(ctx)
 		}
 		return nil
@@ -359,7 +358,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/settings/sites")
 	}
 
-	zhttp.Flash(w, "Site ‘%s’ added.", site.URL())
+	zhttp.Flash(w, "Site ‘%s’ added.", site.URL(r.Context()))
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
@@ -400,7 +399,7 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "Site ‘%s ’removed.", s.URL())
+	zhttp.Flash(w, "Site ‘%s ’removed.", s.URL(r.Context()))
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
@@ -480,7 +479,7 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := goatcounter.NewContext(r.Context())
+	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
 		err := list.Purge(ctx, paths)
@@ -568,7 +567,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	defer fp.Close()
 
 	user := goatcounter.GetUser(r.Context())
-	ctx := goatcounter.NewContext(r.Context())
+	ctx := goatcounter.CopyContextValues(r.Context())
 	n := 0
 	bgrun.Run(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
 		firstHitAt, err := goatcounter.Import(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
@@ -593,7 +592,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			sendErr := blackmail.Send("GoatCounter import error",
-				blackmail.From("GoatCounter import", cfg.EmailFrom),
+				blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
 				blackmail.To(user.Email),
 				blackmail.BodyMustText(goatcounter.EmailTemplate("email_import_error.gotxt", struct {
 					Error error
@@ -630,7 +629,7 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := goatcounter.NewContext(r.Context())
+	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run(fmt.Sprintf("export web:%d", Site(ctx).ID),
 		func() { export.Run(ctx, fp, true) })
 
@@ -672,7 +671,7 @@ func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
 func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
 
-	if cfg.GoatcounterCom {
+	if goatcounter.Config(r.Context()).GoatcounterCom {
 		var args struct {
 			Reason    string `json:"reason"`
 			ContactMe bool   `json:"contact_me"`
@@ -682,7 +681,7 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 			zlog.Error(err)
 		}
 
-		has, err := hasPlan(site)
+		has, err := hasPlan(r.Context(), site)
 		if err != nil {
 			return err
 		}
@@ -708,8 +707,8 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 				}
 
 				blackmail.Send("GoatCounter deletion",
-					blackmail.From("GoatCounter deletion", cfg.EmailFrom),
-					blackmail.To(cfg.EmailFrom),
+					blackmail.From("GoatCounter deletion", goatcounter.Config(r.Context()).EmailFrom),
+					blackmail.To(goatcounter.Config(r.Context()).EmailFrom),
 					blackmail.Bodyf(`Deleted: %s (%d): contact_me: %s; reason: %s`,
 						site.Code, site.ID, contact, args.Reason))
 			})
@@ -727,11 +726,11 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		return zhttp.SeeOther(w, p.URL())
+		return zhttp.SeeOther(w, p.URL(r.Context()))
 	}
 
-	if cfg.GoatcounterCom {
-		return zhttp.SeeOther(w, "https://"+cfg.Domain)
+	if goatcounter.Config(r.Context()).GoatcounterCom {
+		return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
 	}
 	return zhttp.SeeOther(w, "/")
 }

@@ -53,12 +53,11 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	return func(dbConnect, debug string, period, site int, once bool) error {
 		zlog.Config.SetDebug(debug)
 
-		db, err := connectDB(dbConnect, nil, false, true)
+		db, ctx, err := connectDB(dbConnect, nil, false, true)
 		if err != nil {
 			return err
 		}
 		defer db.Close()
-		ctx := zdb.WithDB(context.Background(), db)
 
 		query := `/* monitor */ select count(*) from hits where `
 		if site > 0 {

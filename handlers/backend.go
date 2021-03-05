@@ -17,7 +17,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/monoculum/formam"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
@@ -38,8 +37,8 @@ type backend struct{}
 // DailyView forces the "view by day" if the number of selected days is larger than this.
 const DailyView = 90
 
-func (h backend) Mount(r chi.Router, db zdb.DB) {
-	if !cfg.Prod {
+func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
+	if dev {
 		r.Use(mware.Delay(0))
 	}
 
@@ -79,7 +78,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 			},
 			Store: mware.NewRatelimitMemory(),
 			Limit: func(r *http.Request) (int, int64) {
-				if !cfg.Prod {
+				if dev {
 					return 1 << 30, 1
 				}
 				// From httpbuf
@@ -105,8 +104,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB) {
 
 		// https://stripe.com/docs/security#content-security-policy
 		ds := []string{header.CSPSourceSelf}
-		if cfg.DomainStatic != "" {
-			ds = append(ds, cfg.DomainStatic)
+		if domainStatic != "" {
+			ds = append(ds, domainStatic)
 		}
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc:  {header.CSPSourceNone},
@@ -522,11 +521,12 @@ func (h backend) code(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	cd := cfg.DomainCount
+	cd := goatcounter.Config(r.Context()).DomainCount
 	if cd == "" {
-		cd = Site(r.Context()).Domain()
-		if cfg.Port != "" {
-			cd += ":" + cfg.Port
+		cd = Site(r.Context()).Domain(r.Context())
+		port := goatcounter.Config(r.Context()).Port
+		if port != "" {
+			cd += ":" + port
 		}
 	}
 
@@ -537,8 +537,8 @@ func (h backend) code(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), sites, cd})
 }
 
-func hasPlan(site *goatcounter.Site) (bool, error) {
-	if !cfg.GoatcounterCom || site.Plan == goatcounter.PlanChild ||
+func hasPlan(ctx context.Context, site *goatcounter.Site) (bool, error) {
+	if !goatcounter.Config(ctx).GoatcounterCom || site.Plan == goatcounter.PlanChild ||
 		site.Stripe == nil || *site.Stripe == "" || site.FreePlan() || site.PayExternal() != "" {
 		return false, nil
 	}

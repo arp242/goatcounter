@@ -12,7 +12,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
@@ -85,14 +84,14 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 }
 
 // Hash the password, replacing the plain-text one.
-func (u *User) hashPassword() error {
+func (u *User) hashPassword(ctx context.Context) error {
 	// Length is capped to 50 characters in Validate.
 	if len(u.Password) > 50 {
 		return errors.Errorf("User.hashPassword: already hashed")
 	}
 
 	cost := bcrypt.DefaultCost
-	if cfg.RunningTests { // Otherwise tests take 1.5s extra
+	if Config(ctx).RunningTests { // Otherwise tests take 1.5s extra
 		cost = bcrypt.MinCost
 	}
 	pwd, err := bcrypt.GenerateFromPassword(u.Password, cost)
@@ -115,7 +114,7 @@ func (u *User) Insert(ctx context.Context) error {
 		return err
 	}
 
-	err = u.hashPassword()
+	err = u.hashPassword(ctx)
 	if err != nil {
 		return errors.Wrap(err, "User.Insert")
 	}
@@ -182,7 +181,7 @@ func (u *User) UpdatePassword(ctx context.Context, pwd string) error {
 		return err
 	}
 
-	err = u.hashPassword()
+	err = u.hashPassword(ctx)
 	if err != nil {
 		return errors.Wrap(err, "User.UpdatePassword")
 	}

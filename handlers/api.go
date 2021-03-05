@@ -98,6 +98,7 @@ func tokenFromHeader(r *http.Request) (string, error) {
 	return b[1], nil
 }
 
+// TODO: don't use global.
 var (
 	bufferKeyOnce sync.Once
 	bufferKey     []byte
@@ -260,7 +261,7 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := goatcounter.NewContext(r.Context())
+	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run(fmt.Sprintf("export api:%d", export.SiteID), func() { export.Run(ctx, fp, false) })
 
 	w.WriteHeader(http.StatusAccepted)

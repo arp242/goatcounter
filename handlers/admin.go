@@ -208,7 +208,7 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 		args.Amount = c + " " + args.Amount
 	}
 
-	ctx := goatcounter.WithSite(goatcounter.NewContext(r.Context()), &site)
+	ctx := goatcounter.WithSite(goatcounter.CopyContextValues(r.Context()), &site)
 	err = site.UpdateStripe(ctx, args.Stripe, args.Plan, args.Amount)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
@@ -258,5 +258,5 @@ func (h admin) login(w http.ResponseWriter, r *http.Request) error {
 		SameSite: zhttp.CookieSameSite,
 	})
 
-	return zhttp.SeeOther(w, site.URL())
+	return zhttp.SeeOther(w, site.URL(r.Context()))
 }

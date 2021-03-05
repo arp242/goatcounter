@@ -17,7 +17,6 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/singleflight"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -58,7 +57,7 @@ func (d cache) Put(ctx context.Context, key string, data []byte) error {
 
 // Setup returns a tls.Config and http-01 verification based on the value of the
 // -tls cmdline flag.
-func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
+func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uint8) {
 	if flag == "" {
 		return nil, nil, 0
 	}
@@ -105,7 +104,7 @@ func Setup(db zdb.DB, flag string) (*tls.Config, http.HandlerFunc, uint8) {
 			}
 
 			c := &crypto_acme.Client{DirectoryURL: autocert.DefaultACMEDirectory}
-			if !cfg.Prod {
+			if dev {
 				c.DirectoryURL = "https://acme-staging-v02.api.letsencrypt.org/directory"
 			}
 
@@ -171,11 +170,11 @@ func Enabled() bool {
 }
 
 // Make a new certificate for the domain.
-func Make(domain string) error {
+func Make(ctx context.Context, domain string) error {
 	if manager == nil {
 		panic("acme.MakeCert: no manager, use Setup() first")
 	}
-	if !validForwarding(domain) {
+	if !validForwarding(ctx, domain) {
 		return nil
 	}
 
@@ -202,17 +201,17 @@ func Make(domain string) error {
 
 var resolveSelf singleflight.Group
 
-func validForwarding(domain string) bool {
+func validForwarding(ctx context.Context, domain string) bool {
 	x, _, _ := resolveSelf.Do("resolveSelf", func() (interface{}, error) {
 		// For "serve" we don't know what the end destination will be, so always
 		// check.
-		if cfg.Serve {
+		if goatcounter.Config(ctx).Serve {
 			return []string{}, nil
 		}
 
-		addrs, err := net.LookupHost(cfg.Domain)
+		addrs, err := net.LookupHost(goatcounter.Config(ctx).Domain)
 		if err != nil {
-			l.Errorf("could not look up host %q: %s", cfg.Domain, err)
+			l.Errorf("could not look up host %q: %s", goatcounter.Config(ctx).Domain, err)
 			return []string{}, nil
 		}
 

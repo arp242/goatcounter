@@ -14,7 +14,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/tz"
 	"zgo.at/zdb"
@@ -350,7 +349,7 @@ func TestDashboardBarChart(t *testing.T) {
 		})
 
 		r, rr := newTest(ctx, "GET", url, nil)
-		r.Host = site.Code + "." + cfg.Domain
+		r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
 		login(t, r)
 
 		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)

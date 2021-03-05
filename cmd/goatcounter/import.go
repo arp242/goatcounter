@@ -19,11 +19,9 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/goatcounter/logscan"
 	"zgo.at/json"
-	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
@@ -164,13 +162,6 @@ Date and time parsing:
 `
 
 func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
-	defer func() { ready <- struct{}{} }() // TODO
-
-	// So it uses https URLs in site.URL()
-	// TODO: should fix it to always use https even on dev and get rid of the
-	// exceptions.
-	cfg.Prod = true
-
 	var (
 		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
@@ -235,8 +226,9 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		switch format {
 		default:
-			err = importLog(fp, url, key, files[0], format, date, tyme, datetime, follow, silent)
+			err = importLog(fp, ready, url, key, files[0], format, date, tyme, datetime, follow, silent)
 		case "csv":
+			ready <- struct{}{}
 			if follow {
 				return fmt.Errorf("cannot use -follow with -format=csv")
 			}
@@ -284,7 +276,7 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 	return err
 }
 
-func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime string, follow, silent bool) error {
+func importLog(fp io.ReadCloser, ready chan<- struct{}, url, key, file, format, date, tyme, datetime string, follow, silent bool) error {
 	var (
 		scan *logscan.Scanner
 		err  error
@@ -314,6 +306,7 @@ func importLog(fp io.ReadCloser, url, key, file, format, date, tyme, datetime st
 	}()
 
 	defer persistLog(hits, url, key, silent, follow)
+	ready <- struct{}{}
 	for {
 		line, err := scan.Line()
 		if err == io.EOF {
@@ -460,12 +453,16 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 		}
 
 	default:
-		db, err := connectDB(dbConnect, nil, false, true)
+		db, ctx, err := connectDB(dbConnect, nil, false, true)
 		if err != nil {
 			return "", "", nil, err
 		}
 		defer db.Close()
-		ctx := zdb.WithDB(context.Background(), db)
+
+		// So it uses https URLs in site.URL()
+		// TODO: should fix it to always use https even on dev and get rid of the
+		// exceptions.
+		goatcounter.Config(ctx).Prod = true
 
 		var site goatcounter.Site
 		siteID, intErr := strconv.ParseInt(siteFlag, 10, 64)
@@ -512,7 +509,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 			return "", "", nil, err
 		}
 
-		url = site.URL()
+		url = site.URL(ctx)
 		key = token.Token
 		clean = func() { token.Delete(ctx) }
 	}

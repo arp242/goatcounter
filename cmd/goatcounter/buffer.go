@@ -6,7 +6,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,7 +18,6 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/json"
-	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zli"
@@ -165,13 +163,13 @@ func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		if genKey {
 			ready <- struct{}{}
-			db, err := connectDB(dbConnect, nil, false, true)
+			db, ctx, err := connectDB(dbConnect, nil, false, true)
 			if err != nil {
 				return err
 			}
 			defer db.Close()
 
-			secret, err := goatcounter.NewBufferKey(zdb.WithDB(context.Background(), db))
+			secret, err := goatcounter.NewBufferKey(ctx)
 			if err != nil {
 				return err
 			}

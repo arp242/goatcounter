@@ -60,7 +60,7 @@ func TestLocations(t *testing.T) {
 	// Run it multiple times, since it should always give the same resuts.
 	run()
 	run()
-	Reset() // Purge cache
+	ctx = NewContext(zdb.MustGetDB(ctx)) // Reset cache
 	run()
 }
 

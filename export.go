@@ -18,7 +18,6 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/gadget"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
@@ -135,7 +134,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		}
 
 		// Small amount of breathing space.
-		if cfg.Prod {
+		if Config(ctx).Prod {
 			time.Sleep(500 * time.Millisecond)
 		}
 	}
@@ -203,7 +202,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		site := MustGetSite(ctx)
 		user := GetUser(ctx)
 		err = blackmail.Send("GoatCounter export ready",
-			blackmail.From("GoatCounter export", cfg.EmailFrom),
+			blackmail.From("GoatCounter export", Config(ctx).EmailFrom),
 			blackmail.To(user.Email),
 			blackmail.BodyMustText(EmailTemplate("email_export_done.gotxt", struct {
 				Site   Site
@@ -311,7 +310,7 @@ func Import(
 		// updating all the rows.
 		time.Sleep(10 * time.Second)
 		err = blackmail.Send("GoatCounter import ready",
-			blackmail.From("GoatCounter import", cfg.EmailFrom),
+			blackmail.From("GoatCounter import", Config(ctx).EmailFrom),
 			blackmail.To(GetUser(ctx).Email),
 			blackmail.BodyMustText(EmailTemplate("email_import_done.gotxt", struct {
 				Site   Site

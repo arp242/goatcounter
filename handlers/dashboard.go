@@ -14,7 +14,6 @@ import (
 
 	nnow "github.com/jinzhu/now"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/widgets"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
@@ -99,11 +98,11 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	cd := cfg.DomainCount
+	cd := goatcounter.Config(r.Context()).DomainCount
 	if cd == "" {
-		cd = Site(r.Context()).Domain()
-		if cfg.Port != "" {
-			cd += ":" + cfg.Port
+		cd = Site(r.Context()).Domain(r.Context())
+		if goatcounter.Config(r.Context()).Port != "" {
+			cd += ":" + goatcounter.Config(r.Context()).Port
 		}
 	}
 
@@ -138,7 +137,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 				defer wg.Done()
 
 				// Create context for every goroutine, so we know which timed out.
-				ctx, cancel := context.WithTimeout(goatcounter.NewContext(r.Context()), 10*time.Second)
+				ctx, cancel := context.WithTimeout(goatcounter.CopyContextValues(r.Context()), 10*time.Second)
 				defer cancel()
 
 				l := zlog.Module("dashboard")

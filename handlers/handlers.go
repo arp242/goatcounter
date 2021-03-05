@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
@@ -47,21 +46,21 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Site:           goatcounter.GetSite(r.Context()),
 		Path:           r.URL.Path,
 		Flash:          zhttp.ReadFlash(w, r),
-		Static:         cfg.URLStatic,
-		Domain:         cfg.Domain,
-		Version:        cfg.Version,
+		Static:         goatcounter.Config(r.Context()).URLStatic,
+		Domain:         goatcounter.Config(r.Context()).Domain,
+		Version:        goatcounter.Version,
 		Billing:        zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
-		GoatcounterCom: cfg.GoatcounterCom,
-		Dev:            !cfg.Prod,
-		Port:           cfg.Port,
+		GoatcounterCom: goatcounter.Config(r.Context()).GoatcounterCom,
+		Dev:            !goatcounter.Config(r.Context()).Prod,
+		Port:           goatcounter.Config(r.Context()).Port,
 	}
 	if g.User == nil {
 		g.User = &goatcounter.User{}
 	}
-	if cfg.DomainStatic == "" {
-		g.StaticDomain = goatcounter.GetSite(r.Context()).Domain()
+	if goatcounter.Config(r.Context()).DomainStatic == "" {
+		g.StaticDomain = goatcounter.GetSite(r.Context()).Domain(r.Context())
 	} else {
-		g.StaticDomain = cfg.DomainStatic
+		g.StaticDomain = goatcounter.Config(r.Context()).DomainStatic
 	}
 
 	var err error
@@ -73,15 +72,15 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	return g
 }
 
-func NewWebsite(db zdb.DB) chi.Router {
+func NewWebsite(db zdb.DB, dev bool) chi.Router {
 	r := chi.NewRouter()
-	website{}.Mount(r, db)
+	website{}.Mount(r, db, dev)
 	return r
 }
 
-func NewStatic(r chi.Router, prod bool) chi.Router {
+func NewStatic(r chi.Router, dev bool) chi.Router {
 	var cache map[string]int
-	if prod {
+	if !dev {
 		cache = map[string]int{
 			"/count.js": 86400,
 			"*":         86400 * 30,
@@ -89,7 +88,7 @@ func NewStatic(r chi.Router, prod bool) chi.Router {
 	}
 
 	var files fs.FS = goatcounter.Static
-	if !prod {
+	if dev {
 		files = os.DirFS(zgo.ModuleRoot())
 	}
 	files, _ = fs.Sub(files, "public")
@@ -98,16 +97,16 @@ func NewStatic(r chi.Router, prod bool) chi.Router {
 	return r
 }
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc) chi.Router {
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, domainStatic string) chi.Router {
 	r := chi.NewRouter()
-	backend{}.Mount(r, db)
+	backend{}.Mount(r, db, dev, domainStatic)
 
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
 	}
 
-	if !cfg.GoatcounterCom {
-		NewStatic(r, cfg.Prod)
+	if !goatcounterCom {
+		NewStatic(r, dev)
 	}
 
 	return r

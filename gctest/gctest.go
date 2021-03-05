@@ -15,7 +15,6 @@ import (
 
 	"github.com/mattn/go-sqlite3"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
@@ -34,7 +33,6 @@ func init() {
 
 func Reset() {
 	goatcounter.Memstore.Reset()
-	goatcounter.Reset()
 }
 
 // DB starts a new database test.
@@ -56,7 +54,6 @@ func DBFile(t testing.TB) (context.Context, func()) {
 func db(t testing.TB, storeFile bool) (context.Context, func()) {
 	t.Helper()
 
-	cfg.RunningTests = true
 	dbname := "goatcounter_test_" + zcrypto.Secret64()
 
 	conn := "sqlite3://:memory:?cache=shared"
@@ -81,13 +78,14 @@ func db(t testing.TB, storeFile bool) (context.Context, func()) {
 		t.Fatalf("connect to DB: %s", err)
 	}
 
-	ctx := zdb.WithDB(context.Background(), db)
+	ctx := goatcounter.NewContext(db)
+	goatcounter.Config(ctx).RunningTests = true
+	goatcounter.Config(ctx).Plan = goatcounter.PlanPersonal
 	goatcounter.Memstore.TestInit(db)
 	ctx = initData(ctx, db, t)
 
 	return ctx, func() {
 		goatcounter.Memstore.Reset()
-		goatcounter.Reset()
 		db.Close()
 		if zdb.PgSQL(ctx) {
 			exec.Command("dropdb", dbname).Run()

@@ -39,7 +39,7 @@ func init() {
 			zlog.Error(err)
 			return ""
 		}
-		return s.URL()
+		return s.URL(ctx)
 	})
 
 	var (

@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/guru"
 	"zgo.at/json"
@@ -81,7 +80,7 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 			if r.URL.Path == "/status" {
 				j, err := json.Marshal(map[string]string{
 					"uptime":            goatcounter.Now().Sub(started).String(),
-					"version":           cfg.Version,
+					"version":           goatcounter.Version,
 					"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
 				})
 				if err != nil {
@@ -116,11 +115,11 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				}
 			}()
 
-			// Add database.
-			*r = *r.WithContext(zdb.WithDB(ctx, db))
-			if !cfg.Prod {
+			// Wrap in explainDB for testing.
+			//*r = *r.WithContext(zdb.WithDB(ctx, db))
+			if !goatcounter.Config(r.Context()).Prod {
 				if c, _ := r.Cookie("debug-explain"); c != nil {
-					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewExplainDB(db, os.Stdout, c.Value)))
+					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewExplainDB(zdb.MustGetDB(ctx), os.Stdout, c.Value)))
 				}
 			}
 
@@ -129,7 +128,7 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				var s goatcounter.Site
 				err := s.ByHost(r.Context(), r.Host)
 
-				if err != nil && cfg.Serve {
+				if err != nil && goatcounter.Config(r.Context()).Serve {
 					// If there's just one site then we can just serve that;
 					// most people probably have just one site so it's all
 					// grand.

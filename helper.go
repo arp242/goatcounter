@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"time"
 
+	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 	"zgo.at/zhttp/ztpl"
@@ -60,32 +61,61 @@ func GetUser(ctx context.Context) *User {
 	return u
 }
 
-// NewContext creates a new context with the all the request values set.
+// CopyContextValues creates a new context with the all the request values set.
 //
 // Useful for tests, or for "removing" the timeout on the request context so it
 // can be passed to background functions.
-func NewContext(ctx context.Context) context.Context {
+func CopyContextValues(ctx context.Context) context.Context {
 	n := zdb.WithDB(context.Background(), zdb.MustGetDB(ctx))
-	n = context.WithValue(n, ctxkey.User, GetUser(ctx))
-	n = context.WithValue(n, ctxkey.Site, GetSite(ctx))
+
+	if c := ctx.Value(keyCacheSites); c != nil {
+		n = context.WithValue(n, keyCacheSites, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyCacheUA); c != nil {
+		n = context.WithValue(n, keyCacheUA, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyCacheBrowsers); c != nil {
+		n = context.WithValue(n, keyCacheBrowsers, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyCacheSystems); c != nil {
+		n = context.WithValue(n, keyCacheSystems, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyCachePaths); c != nil {
+		n = context.WithValue(n, keyCachePaths, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyCacheLoc); c != nil {
+		n = context.WithValue(n, keyCacheLoc, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyChangedTitles); c != nil {
+		n = context.WithValue(n, keyChangedTitles, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyCacheSitesProxy); c != nil {
+		n = context.WithValue(n, keyCacheSitesProxy, c.(*zcache.Proxy))
+	}
+	if c := Config(ctx); c != nil {
+		n = context.WithValue(n, keyConfig, c)
+	}
+	if s := GetSite(ctx); s != nil {
+		n = context.WithValue(n, ctxkey.Site, s)
+	}
+	if u := GetUser(ctx); u != nil {
+		n = context.WithValue(n, ctxkey.User, u)
+	}
 	return n
+}
+
+// NewContext creates a new context with all values set.
+func NewContext(db zdb.DB) context.Context {
+	ctx := zdb.WithDB(context.Background(), db)
+	ctx = NewCache(ctx)
+	ctx = NewConfig(ctx)
+	return ctx
 }
 
 func EmailTemplate(tplname string, args interface{}) func() ([]byte, error) {
 	return func() ([]byte, error) {
 		return ztpl.ExecuteBytes(tplname, args)
 	}
-}
-
-func Reset() {
-	sitesCache.Flush()
-	sitesCacheHostname.Flush()
-	cachePaths.Flush()
-	cacheUA.Flush()
-	cacheBrowsers.Flush()
-	cacheSystems.Flush()
-	changedTitles.Flush()
-	locationsCache.Flush()
 }
 
 // TODO: Move to zdb

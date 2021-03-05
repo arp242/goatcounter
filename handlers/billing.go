@@ -17,7 +17,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zdb"
@@ -209,9 +208,9 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		"mode":                                 "subscription",
 		"payment_method_types[]":               "card",
 		"client_reference_id":                  strconv.FormatInt(site.ID, 10),
-		"success_url":                          site.URL() + "/billing?return=success",
-		"cancel_url":                           site.URL() + "/billing?return=cancel",
-		"subscription_data[items][][plan]":     stripePlans[cfg.Prod][args.Plan],
+		"success_url":                          site.URL(r.Context()) + "/billing?return=success",
+		"cancel_url":                           site.URL(r.Context()) + "/billing?return=cancel",
+		"subscription_data[items][][plan]":     stripePlans[goatcounter.Config(r.Context()).Prod][args.Plan],
 		"subscription_data[items][][quantity]": args.Quantity,
 	}
 	if site.Stripe != nil && !site.FreePlan() {
@@ -343,7 +342,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			var plan string
-			for name, p := range stripePlans[cfg.Prod] {
+			for name, p := range stripePlans[goatcounter.Config(r.Context()).Prod] {
 				if p == s.DisplayItems[0].Plan.ID {
 					plan = name
 				}

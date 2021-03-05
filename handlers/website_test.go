@@ -8,37 +8,34 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 )
 
 func TestWebsiteTpl(t *testing.T) {
 	tests := []handlerTest{
 		{
 			name:     "index",
-			router:   NewWebsite,
+			router:   newWebsite,
 			path:     "/",
 			wantCode: 200,
 			wantBody: "doesn’t track users with",
 		},
 		{
 			name:     "help",
-			router:   NewWebsite,
+			router:   newWebsite,
 			path:     "/help",
 			wantCode: 200,
 			wantBody: "I don’t see my pageviews?",
 		},
 		{
 			name:     "privacy",
-			router:   NewWebsite,
+			router:   newWebsite,
 			path:     "/privacy",
 			wantCode: 200,
 			wantBody: "Screen size",
 		},
 		{
 			name:     "terms",
-			router:   NewWebsite,
+			router:   newWebsite,
 			path:     "/terms",
 			wantCode: 200,
 			wantBody: "The “services” are any software, application, product, or service",
@@ -46,7 +43,7 @@ func TestWebsiteTpl(t *testing.T) {
 
 		{
 			name:     "status",
-			router:   NewWebsite,
+			router:   newWebsite,
 			path:     "/status",
 			wantCode: 200,
 			wantBody: "uptime",
@@ -54,7 +51,7 @@ func TestWebsiteTpl(t *testing.T) {
 
 		{
 			name:     "signup",
-			router:   NewWebsite,
+			router:   newWebsite,
 			path:     "/signup",
 			wantCode: 200,
 			wantBody: `<label for="email">Email address</label>`,
@@ -71,7 +68,7 @@ func TestWebsiteSignup(t *testing.T) {
 		{
 			name:         "basic",
 			method:       "POST",
-			router:       NewWebsite,
+			router:       newWebsite,
 			path:         "/signup",
 			body:         signupArgs{Code: "xxx", Email: "m@example.com", TuringTest: "9", Password: "coconuts"},
 			wantCode:     303,
@@ -81,7 +78,7 @@ func TestWebsiteSignup(t *testing.T) {
 		{
 			name:         "no-code",
 			method:       "POST",
-			router:       NewWebsite,
+			router:       newWebsite,
 			path:         "/signup",
 			body:         signupArgs{Email: "m@example.com", TuringTest: "9", Password: "coconuts"},
 			wantCode:     200,
@@ -91,7 +88,6 @@ func TestWebsiteSignup(t *testing.T) {
 		},
 	}
 
-	cfg.Plan = goatcounter.PlanPersonal
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 			// TODO: test state

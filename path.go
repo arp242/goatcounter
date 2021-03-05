@@ -7,7 +7,6 @@ package goatcounter
 import (
 	"context"
 	"strconv"
-	"time"
 
 	"zgo.at/errors"
 	"zgo.at/zcache"
@@ -39,16 +38,14 @@ func (p *Path) Validate(ctx context.Context) error {
 	return v.ErrorOrNil()
 }
 
-var cachePaths = zcache.New(1*time.Hour, 5*time.Minute)
-
 func (p *Path) GetOrInsert(ctx context.Context) error {
 	site := MustGetSite(ctx)
 	title := p.Title
 	k := strconv.FormatInt(site.ID, 10) + p.Path
-	c, ok := cachePaths.Get(k)
+	c, ok := cachePaths(ctx).Get(k)
 	if ok {
 		*p = c.(Path)
-		cachePaths.Touch(k, zcache.DefaultExpiration)
+		cachePaths(ctx).Touch(k, zcache.DefaultExpiration)
 
 		err := p.updateTitle(ctx, p.Title, title)
 		if err != nil {
@@ -81,7 +78,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 				"title":   title,
 			}).Error(err)
 		}
-		cachePaths.SetDefault(k, *p)
+		cachePaths(ctx).SetDefault(k, *p)
 		return nil
 	}
 
@@ -93,11 +90,9 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		return errors.Wrap(err, "Path.GetOrInsert insert")
 	}
 
-	cachePaths.SetDefault(k, *p)
+	cachePaths(ctx).SetDefault(k, *p)
 	return nil
 }
-
-var changedTitles = zcache.New(48*time.Hour, 1*time.Hour)
 
 func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) error {
 	if newTitle == currentTitle {
@@ -105,14 +100,14 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 	}
 
 	k := strconv.FormatInt(p.ID, 10)
-	_, ok := changedTitles.Get(k)
+	_, ok := cacheChangedTitles(ctx).Get(k)
 	if !ok {
-		changedTitles.SetDefault(k, []string{newTitle})
+		cacheChangedTitles(ctx).SetDefault(k, []string{newTitle})
 		return nil
 	}
 
 	var titles []string
-	changedTitles.Modify(k, func(v interface{}) interface{} {
+	cacheChangedTitles(ctx).Modify(k, func(v interface{}) interface{} {
 		vv := v.([]string)
 		vv = append(vv, newTitle)
 		titles = vv
@@ -130,7 +125,7 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 			if err != nil {
 				return errors.Wrap(err, "Paths.updateTitle")
 			}
-			changedTitles.Delete(k)
+			cacheChangedTitles(ctx).Delete(k)
 			break
 		}
 	}

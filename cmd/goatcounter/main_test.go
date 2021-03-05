@@ -49,7 +49,6 @@ func startTest(t *testing.T) (
 	}
 
 	goatcounter.Memstore.Reset()
-	goatcounter.Reset()
 
 	ctx, dbClean := gctest.DBFile(t)
 

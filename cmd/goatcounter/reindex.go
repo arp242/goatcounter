@@ -98,12 +98,11 @@ func cmdReindex(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		zlog.Config.SetDebug(debug)
 
-		db, err := connectDB(dbConnect, nil, false, true)
+		db, ctx, err := connectDB(dbConnect, nil, false, true)
 		if err != nil {
 			return err
 		}
 		defer db.Close()
-		ctx := zdb.WithDB(context.Background(), db)
 
 		if doUA {
 			err = userAgents(ctx, silent)

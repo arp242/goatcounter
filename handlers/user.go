@@ -22,7 +22,6 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -141,8 +140,8 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 
 	bgrun.Run("email:password", func() {
 		err := blackmail.Send(
-			fmt.Sprintf("Password reset for %s", site.Domain()),
-			blackmail.From("GoatCounter login", cfg.EmailFrom),
+			fmt.Sprintf("Password reset for %s", site.Domain(r.Context())),
+			blackmail.From("GoatCounter login", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(u.Email),
 			blackmail.BodyMustText(goatcounter.EmailTemplate("email_password_reset.gotxt", struct {
 				Site goatcounter.Site
@@ -325,7 +324,7 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) logout(w http.ResponseWriter, r *http.Request) error {
-	if cfg.GoatcounterCom {
+	if goatcounter.Config(r.Context()).GoatcounterCom {
 		isAdmin := false
 		for _, c := range r.Cookies() {
 			if c.Name == "is_admin" {
@@ -334,7 +333,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 			}
 		}
 		if isAdmin {
-			auth.ClearCookie(w, Site(r.Context()).Domain())
+			auth.ClearCookie(w, Site(r.Context()).Domain(r.Context()))
 			return zhttp.SeeOther(w, "https://www.goatcounter.com")
 		}
 	}
@@ -345,7 +344,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 		zlog.Errorf("logout: %s", err)
 	}
 
-	auth.ClearCookie(w, Site(r.Context()).Domain())
+	auth.ClearCookie(w, Site(r.Context()).Domain(r.Context()))
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -441,7 +440,7 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/")
 	}
 
-	sendEmailVerify(Site(r.Context()), user)
+	sendEmailVerify(Site(r.Context()), user, goatcounter.Config(r.Context()).EmailFrom)
 	zhttp.Flash(w, "Sent to %q", user.Email)
 	return zhttp.SeeOther(w, "/")
 }
@@ -490,10 +489,10 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings/auth")
 }
 
-func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User) {
+func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User, emailFrom string) {
 	bgrun.Run("email:verify", func() {
 		err := blackmail.Send("Verify your email",
-			mail.Address{Name: "GoatCounter", Address: cfg.EmailFrom},
+			mail.Address{Name: "GoatCounter", Address: emailFrom},
 			blackmail.To(user.Email),
 			blackmail.BodyMustText(goatcounter.EmailTemplate("email_verify.gotxt", struct {
 				Site goatcounter.Site
@@ -538,8 +537,8 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 // Make sure to use the currect cookie, since both "custom.example.com" and
 // "example.goatcounter.com" will work if you're using a custom domain.
 func cookieDomain(site *goatcounter.Site, r *http.Request) string {
-	if r.Host == site.Domain() {
-		return site.Domain()
+	if r.Host == site.Domain(r.Context()) {
+		return site.Domain(r.Context())
 	}
-	return cfg.Domain
+	return goatcounter.Config(r.Context()).Domain
 }

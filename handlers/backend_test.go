@@ -14,7 +14,6 @@ import (
 
 	"github.com/go-chi/chi"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cfg"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
@@ -122,7 +121,7 @@ func TestBackendCount(t *testing.T) {
 			})
 
 			r, rr := newTest(ctx, "GET", "/count?"+tt.query.Encode(), nil)
-			r.Host = site.Code + "." + cfg.Domain
+			r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
 			if tt.set != nil {
 				tt.set(r)
 			}
@@ -193,7 +192,7 @@ func TestBackendCountSessions(t *testing.T) {
 		query := url.Values{"p": {"/" + zcrypto.Secret64()}}
 
 		r, rr := newTest(ctx, "GET", "/count?"+query.Encode(), nil)
-		r.Host = site.Code + "." + cfg.Domain
+		r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
 		r.Header.Set("User-Agent", ua)
 		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		if h := rr.Header().Get("X-Goatcounter"); h != "" {
@@ -351,6 +350,5 @@ func date(s string, tz *time.Location) time.Time {
 	return d
 }
 
-func newBackend(db zdb.DB) chi.Router {
-	return NewBackend(db, nil)
-}
+func newBackend(db zdb.DB) chi.Router { return NewBackend(db, nil, true, true, "example.com") }
+func newWebsite(db zdb.DB) chi.Router { return NewWebsite(db, true) }
