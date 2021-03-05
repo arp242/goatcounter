@@ -213,6 +213,12 @@ smaller sites, but PostgreSQL gives some better performance:
 
        $ goatcounter serve -db 'postgresql://dbname=goatcounter'
 
+   The following example will connect to postgresql via unix socket:
+
+       $ goatcounter serve \
+           -db 'postgresql://host=/run/postgresql dbname=goatcounter sslmode=disable'
+
+
    See the [pq docs][pq] for more details on the connection string.
 
 2. You can compile goatcounter without cgo if you don't use SQLite:
