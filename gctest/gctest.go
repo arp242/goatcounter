@@ -47,6 +47,8 @@ func DB(t testing.TB) (context.Context, func()) {
 // You can get the connection string from the GCTEST_CONNECT environment
 // variable.
 func DBFile(t testing.TB) (context.Context, func()) {
+	// TODO: now that we have t.Cleanup() we can use that, instead of returning
+	// a function.
 	t.Helper()
 	return db(t, true)
 }
