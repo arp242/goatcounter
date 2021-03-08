@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"zgo.at/goatcounter"
+	. "zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztest"
@@ -26,27 +26,34 @@ func dayStat(days map[int]int) []int {
 	return s
 }
 
+func PSP(s *string) string {
+	if s == nil {
+		return "<nil>"
+	}
+	return *s
+}
+
 func TestHitStatsList(t *testing.T) {
 	start := time.Date(2019, 8, 10, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2019, 8, 17, 23, 59, 59, 0, time.UTC)
 	hit := start.Add(1 * time.Second)
 
 	tests := []struct {
-		in         []goatcounter.Hit
+		in         []Hit
 		inFilter   string
 		inExclude  []int64
 		wantReturn string
-		wantStats  goatcounter.HitStats
+		wantStats  HitStats
 	}{
 		{
-			in: []goatcounter.Hit{
+			in: []Hit{
 				{CreatedAt: hit, Path: "/asd"},
 				{CreatedAt: hit.Add(40 * time.Hour), Path: "/asd/"},
 				{CreatedAt: hit.Add(100 * time.Hour), Path: "/zxc"},
 			},
 			wantReturn: "3 0 false <nil>",
-			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 2, Path: "/asd", RefScheme: nil, Stats: []goatcounter.Stat{
+			wantStats: HitStats{
+				HitStat{Count: 2, Path: "/asd", RefScheme: nil, Stats: []Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(map[int]int{6: 1})},
@@ -56,7 +63,7 @@ func TestHitStatsList(t *testing.T) {
 					{Day: "2019-08-16", Hourly: dayStat(nil)},
 					{Day: "2019-08-17", Hourly: dayStat(nil)},
 				}},
-				goatcounter.HitStat{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
+				HitStat{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []Stat{
 					{Day: "2019-08-10", Hourly: dayStat(nil)},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -69,14 +76,14 @@ func TestHitStatsList(t *testing.T) {
 			},
 		},
 		{
-			in: []goatcounter.Hit{
+			in: []Hit{
 				{CreatedAt: hit, Path: "/asd"},
 				{CreatedAt: hit, Path: "/zxc"},
 			},
 			inFilter:   "x",
 			wantReturn: "1 0 false <nil>",
-			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []goatcounter.Stat{
+			wantStats: HitStats{
+				HitStat{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -89,7 +96,7 @@ func TestHitStatsList(t *testing.T) {
 			},
 		},
 		{
-			in: []goatcounter.Hit{
+			in: []Hit{
 				{CreatedAt: hit, Path: "/a"},
 				{CreatedAt: hit, Path: "/aa"},
 				{CreatedAt: hit, Path: "/aaa"},
@@ -97,8 +104,8 @@ func TestHitStatsList(t *testing.T) {
 			},
 			inFilter:   "a",
 			wantReturn: "2 0 true <nil>",
-			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 1, Path: "/aaaa", RefScheme: nil, Stats: []goatcounter.Stat{
+			wantStats: HitStats{
+				HitStat{Count: 1, Path: "/aaaa", RefScheme: nil, Stats: []Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -108,7 +115,7 @@ func TestHitStatsList(t *testing.T) {
 					{Day: "2019-08-16", Hourly: dayStat(nil)},
 					{Day: "2019-08-17", Hourly: dayStat(nil)},
 				}},
-				goatcounter.HitStat{Count: 1, Path: "/aaa", RefScheme: nil, Stats: []goatcounter.Stat{
+				HitStat{Count: 1, Path: "/aaa", RefScheme: nil, Stats: []Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -121,7 +128,7 @@ func TestHitStatsList(t *testing.T) {
 			},
 		},
 		{
-			in: []goatcounter.Hit{
+			in: []Hit{
 				{CreatedAt: hit, Path: "/a"},
 				{CreatedAt: hit, Path: "/aa"},
 				{CreatedAt: hit, Path: "/aaa"},
@@ -130,8 +137,8 @@ func TestHitStatsList(t *testing.T) {
 			inFilter:   "a",
 			inExclude:  []int64{4, 3},
 			wantReturn: "2 0 false <nil>",
-			wantStats: goatcounter.HitStats{
-				goatcounter.HitStat{Count: 1, Path: "/aa", RefScheme: nil, Stats: []goatcounter.Stat{
+			wantStats: HitStats{
+				HitStat{Count: 1, Path: "/aa", RefScheme: nil, Stats: []Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -141,7 +148,7 @@ func TestHitStatsList(t *testing.T) {
 					{Day: "2019-08-16", Hourly: dayStat(nil)},
 					{Day: "2019-08-17", Hourly: dayStat(nil)},
 				}},
-				goatcounter.HitStat{Count: 1, Path: "/a", RefScheme: nil, Stats: []goatcounter.Stat{
+				HitStat{Count: 1, Path: "/a", RefScheme: nil, Stats: []Stat{
 					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
 					{Day: "2019-08-11", Hourly: dayStat(nil)},
 					{Day: "2019-08-12", Hourly: dayStat(nil)},
@@ -160,7 +167,7 @@ func TestHitStatsList(t *testing.T) {
 			ctx, clean := gctest.DB(t)
 			defer clean()
 
-			site := goatcounter.MustGetSite(ctx)
+			site := MustGetSite(ctx)
 			for j := range tt.in {
 				if tt.in[j].Site == 0 {
 					tt.in[j].Site = site.ID
@@ -168,18 +175,18 @@ func TestHitStatsList(t *testing.T) {
 			}
 
 			// TODO: add method to set this properly.
-			site.Settings.Widgets = goatcounter.Widgets{
+			site.Settings.Widgets = Widgets{
 				{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": float64(2), "limit_refs": float64(10)}},
 			}
 
 			gctest.StoreHits(ctx, t, false, tt.in...)
 
-			pathsFilter, err := goatcounter.PathFilter(ctx, tt.inFilter, true)
+			pathsFilter, err := PathFilter(ctx, tt.inFilter, true)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			var stats goatcounter.HitStats
+			var stats HitStats
 			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, pathsFilter, tt.inExclude, false)
 
 			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
@@ -241,7 +248,7 @@ func TestHitDefaultsRef(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			h := goatcounter.Hit{Ref: tt.in}
+			h := Hit{Ref: tt.in}
 			h.RefURL, _ = url.Parse(tt.in)
 			h.Defaults(ctx, false)
 
@@ -295,7 +302,7 @@ func TestHitDefaultsPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
-			h := goatcounter.Hit{Path: tt.in}
+			h := Hit{Path: tt.in}
 			h.Defaults(ctx, false)
 
 			if h.Path != tt.wantPath {
@@ -306,9 +313,24 @@ func TestHitDefaultsPath(t *testing.T) {
 	}
 }
 
-func PSP(s *string) string {
-	if s == nil {
-		return "<nil>"
+func TestStatsByRef(t *testing.T) {
+	ctx, clean := gctest.DB(t)
+	defer clean()
+
+	gctest.StoreHits(ctx, t, false,
+		Hit{Path: "/a", Ref: "https://example.com"},
+		Hit{Path: "/b", Ref: "https://example.com"},
+		Hit{Path: "/a", Ref: "https://example.org"})
+
+	var s Stats
+	err := s.ByRef(ctx, Now().Add(-1*time.Hour), Now().Add(1*time.Hour), []int64{1}, "example.com")
+	if err != nil {
+		t.Fatal(err)
 	}
-	return *s
+
+	want := `{false [{ /a 1 0 <nil>}]}`
+	got := fmt.Sprintf("%v", s)
+	if got != want {
+		t.Fatalf("\nout:  %v\nwant: %v\n", got, want)
+	}
 }

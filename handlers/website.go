@@ -2,7 +2,7 @@
 // published under the terms of a slightly modified EUPL v1.2 license, which can
 // be found in the LICENSE file or at https://license.goatcounter.com
 
-package handlers // import "zgo.at/goatcounter/handlers"
+package handlers
 
 import (
 	"fmt"
@@ -109,8 +109,7 @@ func (h website) openAPI(w http.ResponseWriter, r *http.Request) error {
 	if _, err := os.Stat(p); err == nil {
 		return zhttp.File(w, p)
 	}
-	return nil
-	//return zhttp.Bytes(w, pack.Templates[p])
+	return guru.New(404, "Not Found")
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {

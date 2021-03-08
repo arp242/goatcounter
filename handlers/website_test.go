@@ -11,55 +11,36 @@ import (
 )
 
 func TestWebsiteTpl(t *testing.T) {
-	tests := []handlerTest{
-		{
-			name:     "index",
-			router:   newWebsite,
-			path:     "/",
-			wantCode: 200,
-			wantBody: "doesn’t track users with",
-		},
-		{
-			name:     "help",
-			router:   newWebsite,
-			path:     "/help",
-			wantCode: 200,
-			wantBody: "I don’t see my pageviews?",
-		},
-		{
-			name:     "privacy",
-			router:   newWebsite,
-			path:     "/privacy",
-			wantCode: 200,
-			wantBody: "Screen size",
-		},
-		{
-			name:     "terms",
-			router:   newWebsite,
-			path:     "/terms",
-			wantCode: 200,
-			wantBody: "The “services” are any software, application, product, or service",
-		},
-
-		{
-			name:     "status",
-			router:   newWebsite,
-			path:     "/status",
-			wantCode: 200,
-			wantBody: "uptime",
-		},
-
-		{
-			name:     "signup",
-			router:   newWebsite,
-			path:     "/signup",
-			wantCode: 200,
-			wantBody: `<label for="email">Email address</label>`,
-		},
+	tests := []struct {
+		path, want string
+	}{
+		{"/", "doesn’t track users with"},
+		{"/help", "I don’t see my pageviews?"},
+		{"/privacy", "Screen size"},
+		{"/gdpr", "consult a lawyer"},
+		{"/terms", "The “services” are any software, application, product, or service"},
+		{"/contact", "Public Telegram Group"},
+		{"/contribute", "One-time donation"},
+		{"/code", "Setting the endpoint in JavaScript"},
+		{"/why", "Footnotes"},
+		{"/data", "CSV format with a header"},
+		{"/api", "Backend integration"},
+		{"/design", "Firefox on iOS is just displayed as Safari"},
+		{"/status", "uptime"},
+		{"/signup", `<label for="email">Email address</label>`},
+		{"/user/forgot", "Forgot domain"},
+		// {"/api.html", "GoatCounter API documentation"},
+		// {"/api.json", `"description": "API for GoatCounter"`},
 	}
 
 	for _, tt := range tests {
-		runTest(t, tt, nil)
+		runTest(t, handlerTest{
+			name:     tt.path,
+			path:     tt.path,
+			router:   newWebsite,
+			wantCode: 200,
+			wantBody: tt.want,
+		}, nil)
 	}
 }
 

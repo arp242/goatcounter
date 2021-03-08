@@ -448,7 +448,7 @@ type Stats struct {
 	Stats []StatT
 }
 
-// ByRef lists all paths by reference.
+// ByRef lists all paths by referrer.
 func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []int64, ref string) error {
 	err := zdb.Select(ctx, &h.Stats, "load:hit.Stats.ByRef", zdb.P{
 		"site":   MustGetSite(ctx).ID,

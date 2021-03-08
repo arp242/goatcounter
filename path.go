@@ -121,7 +121,7 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 
 	for t, n := range grouped {
 		if n > 10 {
-			err := zdb.Exec(ctx, `update paths set title=$1 where path_id=$2`, t, p.ID)
+			err := zdb.Exec(ctx, `update paths set title = $1 where path_id = $2`, t, p.ID)
 			if err != nil {
 				return errors.Wrap(err, "Paths.updateTitle")
 			}
@@ -138,6 +138,13 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 // if matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
 	var paths []int64
+
+	// The limit is here because that's the limit in SQL parameters; the
+	// returned []int64 is passed as parameters later on.
+	//
+	// Having (and scrolling!) more than 65k pages is a rather curious usage
+	// pattern: it has happened, but this was just because they were sending
+	// data with many unique IDs in the URL which really ought to be removed.
 	err := zdb.Select(ctx, &paths, `/* PathFilter */
 		select path_id from paths
 		where

@@ -148,8 +148,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		Total       int       `db:"total"`
 		TotalUnique int       `db:"total_unique"`
 	}
-
-	err := zdb.Select(ctx, &tc, "load:hit_stat.Totals", zdb.P{
+	err := zdb.Select(ctx, &tc, "load:hit_list.HitStat.Totals", zdb.P{
 		"site":      site.ID,
 		"start":     start,
 		"end":       end,
@@ -377,6 +376,14 @@ func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 	sort.Slice(hh, func(i, j int) bool { return hh[i].CountUnique > hh[j].CountUnique })
 }
 
+type TotalCount struct {
+	Total             int `db:"total"`
+	TotalUnique       int `db:"total_unique"`
+	TotalUniqueUTC    int `db:"total_unique_utc"`
+	TotalEvents       int `db:"total_events"`
+	TotalEventsUnique int `db:"total_events_unique"`
+}
+
 // GetTotalCount gets the total number of pageviews for the selected timeview in
 // the timezone the user configured.
 //
@@ -384,16 +391,10 @@ func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
 // UTC. This is needed since the _stats tables are per day, rather than
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
-func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (int, int, int, int, int, error) {
+func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (TotalCount, error) {
 	site := MustGetSite(ctx)
 
-	var t struct {
-		Total             int `db:"total"`
-		TotalUnique       int `db:"total_unique"`
-		TotalUniqueUTC    int `db:"total_unique_utc"`
-		TotalEvents       int `db:"total_events"`
-		TotalEventsUnique int `db:"total_events_unique"`
-	}
+	var t TotalCount
 	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", zdb.P{
 		"site":      site.ID,
 		"start":     start,
@@ -404,7 +405,7 @@ func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64
 		"no_events": site.Settings.TotalsNoEvents(),
 		"tz":        site.Settings.Timezone.Offset(),
 	})
-	return t.Total, t.TotalUnique, t.TotalUniqueUTC, t.TotalEvents, t.TotalEventsUnique, errors.Wrap(err, "GetTotalCount")
+	return t, errors.Wrap(err, "GetTotalCount")
 }
 
 // GetMax gets the path with the higest number of pageviews per hour or day for
