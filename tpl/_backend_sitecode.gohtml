@@ -2,7 +2,7 @@
  * This file was generated from tpl/_backend_sitecode.markdown. DO NOT EDIT.
 *************************************************************************/}}
 
-{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
+{{define "code"}}&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
@@ -12,7 +12,7 @@
 
 <div style="text-align: center">
 <label for="int-url">Endpoint</label><br />
-<input type="text" value="{{.Site.URL}}/count" style="width: 28em" /><br />
+<input type="text" value="{{.Site.URL .Context}}/count" style="width: 28em" /><br />
 <span style="color: #999">You’ll need to copy this to the integration settings</span>
 
 <style>
@@ -99,6 +99,7 @@ options and customisations.</p>
   <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>    <ul>
       <li><a href="#image-based-tracking-without-javascript" id="markdown-toc-image-based-tracking-without-javascript">Image-based tracking without JavaScript</a></li>
       <li><a href="#tracking-from-backend-middleware" id="markdown-toc-tracking-from-backend-middleware">Tracking from backend middleware</a></li>
+      <li><a href="#importing-pageviews-from-logfiles" id="markdown-toc-importing-pageviews-from-logfiles">Importing pageviews from logfiles</a></li>
       <li><a href="#location-of-countjs" id="markdown-toc-location-of-countjs">Location of count.js</a></li>
       <li><a href="#subresource-integrity-and-versioning" id="markdown-toc-subresource-integrity-and-versioning">Subresource integrity and versioning</a></li>
       <li><a href="#self-hosting-countjs" id="markdown-toc-self-hosting-countjs">Self-hosting count.js</a></li>
@@ -136,7 +137,7 @@ referrer.</p>
 <p>You’ll need to add the following if you use a <code>Content-Security-Policy</code>:</p>
 
 <pre><code>script-src  https://{{.CountDomain}}
-img-src     {{.Site.URL}}/count
+img-src     {{.Site.URL .Context}}/count
 </code></pre>
 
 <p>The <code>script-src</code> is needed to load the <code>count.js</code> script, and the <code>img-src</code> is
@@ -299,7 +300,7 @@ campaigns).</p>
 to configure the settings; this will <strong>override</strong> anything that's already
 present in <code>window.goatcounter</code>. For example to set <code>no_onload</code>:</p>
 
-<pre><code>  &lt;script data-goatcounter="{{.Site.URL}}/count"
+<pre><code>  &lt;script data-goatcounter="{{.Site.URL .Context}}/count"
           data-goatcounter-settings='{"no_onload":true}'
           async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;
 </code></pre>
@@ -601,13 +602,13 @@ and SVG.</p>
 <p>You don't need to use the JavaScript integration, you can also add an iframe or
 image "directly"; the paths are in the form of:</p>
 
-<pre><code>{{.Site.URL}}/counter/[PATH].[EXT]
+<pre><code>{{.Site.URL .Context}}/counter/[PATH].[EXT]
 </code></pre>
 
 <p>The <code>[PATH]</code> is the full path, including a leading <code>/</code> and the <code>[EXT]</code> is the
 <code>html</code>, <code>png</code>, <code>svg</code>, or <code>json</code> extension. For example
-<code>{{.Site.URL}}/counter//.html</code> will display the view acount for <code>/</code>, and
-<code>{{.Site.URL}}/counter//test.html.html</code> will display the view count for
+<code>{{.Site.URL .Context}}/counter//.html</code> will display the view acount for <code>/</code>, and
+<code>{{.Site.URL .Context}}/counter//test.html.html</code> will display the view count for
 <code>/test.html</code>.</p>
 
 <p>There are two query parameters: <code>no_branding</code>, to disable to “stats by
@@ -627,7 +628,7 @@ visitor count as a formatted string with thousands seperators.</p>
 r.addEventListener('load', function() {
 	document.querySelector('#stats').innerText = JSON.parse(this.responseText).count_unique
 })
-r.open('GET', '{{.Site.URL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
+r.open('GET', '{{.Site.URL .Context}}/counter/' + encodeURIComponent(location.pathname) + '.json')
 r.send()
 </code></pre>
 
@@ -637,7 +638,7 @@ r.send()
 <p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
 an image on your site:</p>
 
-<pre><code>&lt;img src="{{.Site.URL}}/count?p=/test-img"&gt;
+<pre><code>&lt;img src="{{.Site.URL .Context}}/count?p=/test-img"&gt;
 </code></pre>
 
 <p>This won’t allow recording the referrer or screen size, and may also increase
@@ -653,6 +654,31 @@ anywhere, such as your app's middleware.</p>
 
 <p>The <a href="https://www.goatcounter.com/api">API documentation</a> contains more
 information and some examples.</p>
+
+<h3 id="importing-pageviews-from-logfiles">Importing pageviews from logfiles <a href="#importing-pageviews-from-logfiles"></a></h3>
+<p>You can send data from logfiles with the <code>goatcounter import</code> command; for
+example:</p>
+
+<pre><code>$ export GOATCOUNTER_API_KEY=...
+$ goatcounter import -follow -format=combined -site='{{.Site.URL .Context}}' /var/log/nginx/access_log
+</code></pre>
+
+<p>This will keep watching the file for changes and report new pageviews as they
+come in. You can also batch import the data from logfiles by dropping the
+<code>-follow</code> flag.</p>
+
+<p>See <code>goatcounter help import</code> and <code>goatcounter help logfile</code> for more details.</p>
+
+<p>The biggest advantage of this is that you won't need to add any JavaScript to
+your site and that nothing will be blocked by adblockers, but there are a few
+downsides as well:</p>
+
+<ul>
+  <li>There will be more bot requests.</li>
+  <li>Some data won't be available: screen sizes, page titles.</li>
+  <li>It won't disambiguate to canonical paths from <code>&lt;link rel="canonical"&gt;</code>; i.e.
+<code>/page</code> and <code>/page?x=y</code> will show up as two different paths.</li>
+</ul>
 
 <h3 id="location-of-countjs">Location of count.js <a href="#location-of-countjs"></a></h3>
 <p>You can load the <code>count.js</code> script anywhere on your page, but it’s recommended
@@ -684,7 +710,7 @@ well (the code is correct, it's the minifier that's broken).</li>
   <li>
     <p><strong>v1</strong> (25 Dec 2020):</p>
 
-    <pre><code>&lt;script data-goatcounter="{{.Site.URL}}/count"
+    <pre><code>&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
         async src="//{{.CountDomain}}/count.v1.js"
         crossorigin="anonymous"
         integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"&gt;&lt;/script&gt;
@@ -709,14 +735,14 @@ inside <code>&lt;script&gt;</code> tags. You won’t get any new features or oth
 <p>Be sure to include the <code>data-goatcounter</code> attribute on the script tag or set
 <code>goatcounter.endpoint</code> so GoatCounter knows where to send the pageviews to:</p>
 
-<pre><code>&lt;script data-goatcounter="{{.Site.URL}}/count"&gt;
+<pre><code>&lt;script data-goatcounter="{{.Site.URL .Context}}/count"&gt;
     // [.. contents of count.js ..]
 &lt;/script&gt;
 
 // or:
 
 &lt;script&gt;
-    window.goatcounter = {endpoint: '{{.Site.URL}}/count'}
+    window.goatcounter = {endpoint: '{{.Site.URL .Context}}/count'}
 
     // [.. contents of count.js ..]
 &lt;/script&gt;

@@ -3,13 +3,13 @@ Hi there,
 Welcome to your GoatCounter account!
 
 Please go here to verify your email address:
-{{.Site.URL}}/user/verify/{{.User.EmailToken}}
+{{.Site.URL .Context}}/user/verify/{{.User.EmailToken}}
 
 Getting started is pretty easy, just add the following JavaScript anywhere on the page:
 
-	<script data-goatcounter="{{.Site.URL}}/count"
+	<script data-goatcounter="{{.Site.URL .Context}}/count"
 			async src="//{{.CountDomain}}/count.js"></script>
 
-Further documentation is available at {{.Site.URL}}/code
+Further documentation is available at {{.Site.URL .Context}}/code
 
 {{template "_email_bottom.gotxt" .}}

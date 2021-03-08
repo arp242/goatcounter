@@ -54,11 +54,7 @@
 	</dd>
 
 	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
-	<dd>GoatCounter does not collect data which can be used to identify a
-		person, and you almost certainly don’t need to ask for consent
-		See Recital 26, <em>“Not applicable to anonymous data”</em>.
-		See <a href="/gdpr">the GDPR page</a> for details.
-	</dd>
+	<dd>You probably don’t need them. The <a href="/gdpr">the GDPR page</a> goes in to some detail about this.</dd>
 
 	<dt id="custom-domain">How do I set up a custom domain? <a href="#custom-domain">§</a></dt>
 	<dd>
@@ -69,7 +65,33 @@
 		take a few hours for everything to work. <code>mine.{{.Domain}}</code>
 		will continue to work.<br><br>
 
-		You will need a Business plan to set up a custom domain.
+		You will need a Business plan to set up a custom domain.<br><br>
+
+		<em>Note that Custom domains will not prevent adblockers from
+			recognizing GoatCounter; it’s only intended as a “vanity domain”.</em>
+	</dd>
+
+	{{/* Note: naming this id="adblock" will mean uBlock will remove it... */}}
+	<dt id="blocked">How do adblockers deal with GoatCounter? <a href="#blocked">§</a></dt>
+	<dd>
+		Most of them block goatcounter.com; there’s not much that can be done
+		about that, and there’s also not much I <em>want</em> to do about this.
+		If people decide they want to block GoatCounter then they’re free to do
+		so.<br><br>
+
+		By my estimate about a third of pageviews are missed due to adblockers;
+		but this can vary greatly on the type of site and audience.<br><br>
+
+		That said, there are some options:<br><br>
+
+		<ol>
+			<li>Self-host GoatCounter; when self-hosting GoatCounter nothing is
+				served from goatcounter.com or associated domains, and
+				adblockers will not block it.</li>
+			<li>Import pageviews from logfiles; GoatCounter can import pageviews
+				from web server logfiles; you can send this data to
+				goatcounter.com. See <a href="/code#importing-pageviews-from-logfiles">the documentation for details</a>.</li>
+		</ol>
 	</dd>
 
 	<dt id="status-code">Is there any way to record HTTP status codes? <a href="#status-code">§</a></dt>
@@ -91,45 +113,6 @@
 </dl>
 
 <h3 id="billing">Pricing and billing <a href="#billing"></a></h3>
-<dl>
-	<dt id="exceed-plan">What happens if I go over the amount of pageviews for my plan? <a href="#exceed-plan">§</a></dt>
-	<dd>I’ll be in touch if you consistently go over the number over pageviews,
-		but there is no automated process to shut down accounts or anything like
-		that. It’s not a problem if you go over the pageviews in a single spike
-		of traffic because you wrote something that got shared a lot.</dd>
-
-	<dt id="commercial">What is “Commercial Use”? <a href="#commercial">§</a></dt>
-	<dd>A website is considered “commercial” if the primary goal is to sell or
-		advertise paid products or services.<br><br>
-
-		There is a large amount of grey area between strictly ‘personal’ and
-		‘commercial’; for example selling a service as a side-project which
-		provides just a little bit of pocket money is ‘commercial’, but also
-		‘personal’. As a rule, things like “pocket-money side-projects” are
-		considered personal, especially if they’re open source. Just get in
-		touch if you’re unsure and I’ll tell you if it’s considered personal.
-	</dd>
-
-	<dt id="charity">Is there any discount for charities, non-profit organisations, startups, etc? <a href="#charity">§</a></dt>
-	<dd>
-		The short answer is ”not really”. The longer answer is that it depends
-		on the individual case.<br><br>
-
-		To give an example, Amnesty International is undoubtedly a charity doing
-		great work, and I’d be honoured to facilitate that. But they also have a
-		~€300 million/year income and it seems to me that asking them for
-		€15/month so I can make a living isn't unreasonable, regardless of their
-		charitable work. After all, people employed by Amnesty are getting paid
-		too, and I also need to pay my rent, food, etc. 😅<br><br>
-
-		Most charities don’t have the kind of endowment Amnesty has, so if
-		you’re running a small charity, non-profit, or one-person startup where
-		€15/month would be a prohibitively large cost then feel free to get in
-		touch and we’ll see what we can arrange.<br><br>
-
-		I’ll be happy to revisit this policy once GoatCounter starts becoming
-		financially sustainable, but right now it’s still quite far from that.
-	</dd>
-</dl>
+{{template "_billing_help.gohtml" .}}
 
 {{template "_bottom.gohtml" .}}

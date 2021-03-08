@@ -8,8 +8,8 @@
 			<li>Free; donation recommended</li>
 			<li><a href="https://www.{{.Domain}}/terms#commercial">Non-commercial</a> use</li>
 			<li>Unlimited sites</li>
-			<li>6 months data retention</li>
 			<li>100k pageviews/month</li>
+			<li>2.4M maximum pageviews </li>
 			<li class="empty">&nbsp;</li>
 			<li class="empty">&nbsp;</li>
 		</ul>
@@ -24,8 +24,8 @@
 			<li>€5/month</li>
 			<li>Commercial use</li>
 			<li>Unlimited sites</li>
-			<li>12 months data retention</li>
 			<li>100k pageviews/month</li>
+			<li>4.8M maximum pageviews</li>
 			<li>Custom domain</li>
 			<li class="empty">&nbsp;</li>
 		</ul>
@@ -40,8 +40,8 @@
 			<li>€15/month</li>
 			<li>Commercial use</li>
 			<li>Unlimited sites</li>
-			<li>Unlimited data retention</li>
 			<li>500k pageviews/month</li>
+			<li>24M maximum pageviews</li>
 			<li>Custom domain</li>
 			<li class="empty">&nbsp;</li>
 		</ul>
@@ -56,8 +56,8 @@
 			<li>€30/month</li>
 			<li>Commercial use</li>
 			<li>Unlimited sites</li>
-			<li>Unlimited data retention</li>
 			<li>1M pageviews/month</li>
+			<li>Unlimited total pageviews</li>
 			<li>Custom domain</li>
 			<li>Phone support</li>
 		</ul>
@@ -65,5 +65,20 @@
 {{if .Site}}</span></fieldset>{{else}}</div>{{end}}
 <div id="home-pricing-custom">
 	<a href="https://www.goatcounter.com/contact">Contact</a> if you need more pageviews or want a privately installed hosted option.<br>
-	<a href="https://www.goatcounter.com/help#billing">Pricing FAQ</a>
+</div>
+	<!--
+	<a href="https://www.goatcounter.com/help#billing">Pricing FAQ</a><br>
+	-->
+
+<div id="home-pricing-faq">
+	<h3 id="pricing-faq">Pricing FAQ</h3>
+	{{template "_billing_help.gohtml" .}}
+
+	<!--
+	<em>Notes:</em>
+	<ul>
+		<li>Custom domains will <em>not</em> bypass adblockers.</li>
+		<li>“Maximum pageviews” is the total amount of pageviews or events you can store.</li>
+	</ul>
+	-->
 </div>

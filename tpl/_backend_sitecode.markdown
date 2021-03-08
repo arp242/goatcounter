@@ -1,4 +1,4 @@
-{{define "code"}}&lt;script data-goatcounter="{{.Site.URL}}/count"
+{{define "code"}}&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
 
@@ -10,7 +10,7 @@ Integrations
 
 <div style="text-align: center">
 <label for="int-url">Endpoint</label><br>
-<input type="text" value="{{.Site.URL}}/count" style="width: 28em"><br>
+<input type="text" value="{{.Site.URL .Context}}/count" style="width: 28em"><br>
 <span style="color: #999">You’ll need to copy this to the integration settings</span>
 
 <style>
@@ -93,7 +93,7 @@ Content security policy
 You’ll need to add the following if you use a `Content-Security-Policy`:
 
     script-src  https://{{.CountDomain}}
-    img-src     {{.Site.URL}}/count
+    img-src     {{.Site.URL .Context}}/count
 
 The `script-src` is needed to load the `count.js` script, and the `img-src` is
 needed to send pageviews to GoatCounter (which are loaded with a “tracking
@@ -213,7 +213,7 @@ The `data-goatcounter-settings` attribute on the script can set to a JSON object
 to configure the settings; this will **override** anything that's already
 present in `window.goatcounter`. For example to set `no_onload`:
 
-      <script data-goatcounter="{{.Site.URL}}/count"
+      <script data-goatcounter="{{.Site.URL .Context}}/count"
               data-goatcounter-settings='{"no_onload":true}'
               async src="//{{.CountDomain}}/count.js"></script>
 
@@ -475,12 +475,12 @@ Or the same for SVG:
 You don't need to use the JavaScript integration, you can also add an iframe or
 image "directly"; the paths are in the form of:
 
-    {{.Site.URL}}/counter/[PATH].[EXT]
+    {{.Site.URL .Context}}/counter/[PATH].[EXT]
 
 The `[PATH]` is the full path, including a leading `/` and the `[EXT]` is the
 `html`, `png`, `svg`, or `json` extension. For example
-`{{.Site.URL}}/counter//.html` will display the view acount for `/`, and
-`{{.Site.URL}}/counter//test.html.html` will display the view count for
+`{{.Site.URL .Context}}/counter//.html` will display the view acount for `/`, and
+`{{.Site.URL .Context}}/counter//test.html.html` will display the view count for
 `/test.html`.
 
 There are two query parameters: `no_branding`, to disable to “stats by
@@ -500,7 +500,7 @@ A simple example usage:
 	r.addEventListener('load', function() {
 		document.querySelector('#stats').innerText = JSON.parse(this.responseText).count_unique
 	})
-	r.open('GET', '{{.Site.URL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
+	r.open('GET', '{{.Site.URL .Context}}/counter/' + encodeURIComponent(location.pathname) + '.json')
 	r.send()
 
 
@@ -511,7 +511,7 @@ Advanced integrations
 The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
 an image on your site:
 
-    <img src="{{.Site.URL}}/count?p=/test-img">
+    <img src="{{.Site.URL .Context}}/count?p=/test-img">
 
 This won’t allow recording the referrer or screen size, and may also increase
 the number of bot requests (we do our best to filter this out, but it’s hard to
@@ -526,6 +526,28 @@ anywhere, such as your app's middleware.
 
 The [API documentation](https://www.goatcounter.com/api) contains more
 information and some examples.
+
+### Importing pageviews from logfiles
+You can send data from logfiles with the `goatcounter import` command; for
+example:
+
+	$ export GOATCOUNTER_API_KEY=...
+	$ goatcounter import -follow -format=combined -site='{{.Site.URL .Context}}' /var/log/nginx/access_log
+
+This will keep watching the file for changes and report new pageviews as they
+come in. You can also batch import the data from logfiles by dropping the
+`-follow` flag.
+
+See `goatcounter help import` and `goatcounter help logfile` for more details.
+
+The biggest advantage of this is that you won't need to add any JavaScript to
+your site and that nothing will be blocked by adblockers, but there are a few
+downsides as well:
+
+- There will be more bot requests.
+- Some data won't be available: screen sizes, page titles.
+- It won't disambiguate to canonical paths from `<link rel="canonical">`; i.e.
+  `/page` and `/page?x=y` will show up as two different paths.
 
 ### Location of count.js
 You can load the `count.js` script anywhere on your page, but it’s recommended
@@ -552,7 +574,7 @@ published versions:
 
 - **v1** (25 Dec 2020):
 
-      <script data-goatcounter="{{.Site.URL}}/count"
+      <script data-goatcounter="{{.Site.URL .Context}}/count"
               async src="//{{.CountDomain}}/count.v1.js"
               crossorigin="anonymous"
               integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"></script>
@@ -575,14 +597,14 @@ inside `<script>` tags. You won’t get any new features or other updates, but t
 Be sure to include the `data-goatcounter` attribute on the script tag or set
 `goatcounter.endpoint` so GoatCounter knows where to send the pageviews to:
 
-    <script data-goatcounter="{{.Site.URL}}/count">
+    <script data-goatcounter="{{.Site.URL .Context}}/count">
         // [.. contents of count.js ..]
     </script>
 
     // or:
 
     <script>
-        window.goatcounter = {endpoint: '{{.Site.URL}}/count'}
+        window.goatcounter = {endpoint: '{{.Site.URL .Context}}/count'}
 
         // [.. contents of count.js ..]
     </script>

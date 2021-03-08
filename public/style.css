@@ -39,11 +39,11 @@ footer > div:first-child { margin-bottom: 1em; }
 #home-top        { padding: 0 1em; margin-bottom: 3rem; }
 
 /* Intro text */
-#home-intro      { margin: 1em 0; text-align: center; max-width: 40em; margin: 0 auto; margin-bottom: 4em; }
-#home-intro strong    { font-weight: normal; font-size: 1.8em; line-height: 1.5em; }
-#home-intro strong em { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
-#home-intro a { font-size: 1rem; margin-top: -2em; }
-#home-intro p { text-align: center; }
+#home-intro        { margin: 1em 0; text-align: center; max-width: 40em; margin: 0 auto; margin-bottom: 4em; }
+#home-intro strong { font-weight: normal; font-size: 1.8em; line-height: 1.5em; }
+#home-intro em     { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
+#home-intro a      { font-size: 1rem; margin-top: -2em; }
+#home-intro p      { text-align: center; }
 
 /* Login button */
 #home-login       { text-align: center; }
@@ -91,6 +91,15 @@ img.imgzoom-loading { cursor: wait !important; }
 	#home-pricing h3          { padding-top: .5em; }
 	#home-signup a            { width: auto; }
 }
+
+#home-pricing-faq      { font-size: .9rem; }
+#home-pricing-faq h3   { margin-bottom: 0; text-align: center; }
+#home-pricing-faq dt   { text-align: center; }
+#home-pricing-faq dt a { display: none; }
+#home-pricing-faq dl   { max-width: 50em; margin: 0 auto; text-align: center; }
+#home-pricing-faq dt   { display: inline; font-weight: normal; color: #00f; transition: color .2s; cursor: pointer; }
+#home-pricing-faq dt:hover { text-decoration: underline; color: #6491ff; }
+#home-pricing-faq dd   { background-color: #fff; padding: .4em 1em; padding: 0; margin: 0; overflow: hidden; height: 0; text-align: left; }
 
 /*** Home features ***/
 #features          { margin-top: 3rem; }

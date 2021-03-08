@@ -52,15 +52,18 @@
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
 					{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
 				<span>Custom domain, e.g. <em>“stats.example.com”</em>.
+					<strong>Note:</strong> This <em>won’t</em> prevent many
+					adblockers and such from blocking GoatCounter, and is just
+					intended as a nice “vanity domain”.<br><br>
 					{{if not (.Site.PlanCustomDomain .Context)}}
 						Requires Personal Plus or Business plan (you’re
 						on the {{.Site.Plan}} plan; see
 						<a href="/billing">billing</a>).
 					{{else}}
 						{{if .Site.CnameSetupAt}}
-							<br>Domain verified and set up (note: it may take up to an hour for the certificate to work).
+							Domain verified and set up (note: it may take up to an hour for the certificate to work).
 						{{else if .Site.Cname}}
-							<br><span style="color: red;">Not yet verified</span>; set a CNAME record to
+							<span style="color: red;">Not yet verified</span>; set a CNAME record to
 							<code>{{.Site.Code}}.{{.Domain}}</code>.
 							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
 							Verification runs every 2 hours.
