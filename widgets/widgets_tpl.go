@@ -38,6 +38,9 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 			}
 		}
 	}
+	if w.Max == 0 {
+		w.Max = 10
+	}
 
 	return t, struct {
 		Context     context.Context

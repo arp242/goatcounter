@@ -8,7 +8,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
+	"zgo.at/zdb"
 )
+
+func newWebsite(db zdb.DB) chi.Router { return NewWebsite(db, true) }
 
 func TestWebsiteTpl(t *testing.T) {
 	tests := []struct {

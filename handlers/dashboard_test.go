@@ -45,6 +45,7 @@ func TestDashboardBarChart(t *testing.T) {
 		zone                  string
 		now, hit              time.Time
 		wantHourly, wantDaily string
+		wantText              string
 		wantNothing           bool
 	}
 
@@ -348,75 +349,137 @@ func TestDashboardBarChart(t *testing.T) {
 			Path:      "/a",
 		})
 
-		r, rr := newTest(ctx, "GET", url, nil)
-		r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
-		login(t, r)
+		t.Run("text", func(t *testing.T) {
+			r, rr := newTest(ctx, "GET", url+"&as-text=on", nil)
+			r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
+			login(t, r)
 
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
-		ztest.Code(t, rr, 200)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, 200)
 
-		doc, err := goquery.NewDocumentFromReader(rr.Body)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if tt.wantNothing {
-			// TODO: test this
-			return
-		}
-
-		cleanChart := func(h string) string {
-			h = strings.ReplaceAll(h, "</div>", "</div>\n")
-			h = strings.ReplaceAll(h, "</div>\n</div>", "</div></div>")
-			return strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(h, "<"))
-		}
-
-		t.Run("pages", func(t *testing.T) {
-			c := doc.Find(".pages-list .chart.chart-bar")
-			if c.Length() != 1 {
-				t.Fatalf("c.Length: %d", c.Length())
-			}
-			chart, err := c.Eq(0).Html()
+			doc, err := goquery.NewDocumentFromReader(rr.Body)
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart = cleanChart(chart)
-
-			want := `` +
-				`<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">` + "↕\ufe0e" + `</a></span>` + "\n" +
-				`<span class="chart-right"><small class="scale" title="Y-axis scale">10</small></span>` + "\n" +
-				`<span class="half"></span>` + "\n" +
-				strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
-
-			if d := ztest.Diff(chart, want); d != "" {
-				t.Error(d)
-				if zstring.Contains(os.Args, "-test.v=true") {
-					fmt.Println("pages:\n" + chart)
-				}
+			if tt.wantNothing {
+				// TODO: test this
+				return
 			}
+
+			t.Run("pages", func(t *testing.T) {
+				c := doc.Find(".pages")
+				if c.Length() != 1 {
+					t.Fatalf("c.Length: %d", c.Length())
+				}
+
+				out, err := goquery.OuterHtml(c.Find("tr"))
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				out = strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(out, "<"))
+				out = strings.TrimSpace(regexp.MustCompile(`[ \t]+`).ReplaceAllString(out, " "))
+				out = regexp.MustCompile(`(?m)^\s+$`).ReplaceAllString(out, "")
+				out = regexp.MustCompile("\n+").ReplaceAllString(out, "\n")
+
+				// want := strings.TrimSpace(strings.ReplaceAll(tt.wantText, "\t", ""))
+				want := strings.TrimSpace(strings.ReplaceAll(`
+					<tr id="/a" data-id="1" class=" ">
+					<td class="col-idx">1</td>
+					<td class="col-n col-count">0</td>
+					<td class="col-n">1</td>
+					<td class="col-p">
+					<a class="load-refs rlink" href="#">/a</a>
+					<div class="refs hchart" data-more="/hchart-more?kind=ref">
+					</div>
+					</td>
+					<td class="col-t"><em>(no title)</em>
+					</td>
+					<td class="col-d"><span>            </span></td>
+					</tr>`, "\t", ""))
+
+				if d := ztest.Diff(out, want); d != "" {
+					t.Error(d)
+					fmt.Println("\n" + out)
+				}
+			})
+
+			t.Run("totals", func(t *testing.T) {
+				// TODO: not implemented yet.
+			})
 		})
 
-		t.Run("totals", func(t *testing.T) {
-			c := doc.Find(".totals .chart.chart-bar")
-			if c.Length() != 1 {
-				t.Fatalf("c.Length: %d", c.Length())
-			}
-			chart, err := c.Eq(0).Html()
+		t.Run("standard", func(t *testing.T) {
+			r, rr := newTest(ctx, "GET", url, nil)
+			r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
+			login(t, r)
+
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, 200)
+
+			doc, err := goquery.NewDocumentFromReader(rr.Body)
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart = cleanChart(chart)
-
-			want := `` +
-				`<span class="chart-right"><small class="scale" title="Y-axis scale">10</small></span>` + "\n" +
-				`<span class="half"></span>` + "\n" +
-				strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
-
-			if d := ztest.Diff(chart, want); d != "" {
-				t.Error(d)
-				if zstring.Contains(os.Args, "-test.v=true") {
-					fmt.Println("totals:\n" + chart)
-				}
+			if tt.wantNothing {
+				// TODO: test this
+				return
 			}
+
+			cleanChart := func(h string) string {
+				h = strings.ReplaceAll(h, "</div>", "</div>\n")
+				h = strings.ReplaceAll(h, "</div>\n</div>", "</div></div>")
+				return strings.TrimSpace(regexp.MustCompile(`[ \t]+<`).ReplaceAllString(h, "<"))
+			}
+
+			t.Run("pages", func(t *testing.T) {
+				c := doc.Find(".pages-list .chart.chart-bar")
+				if c.Length() != 1 {
+					t.Fatalf("c.Length: %d", c.Length())
+				}
+				chart, err := c.Eq(0).Html()
+				if err != nil {
+					t.Fatal(err)
+				}
+				chart = cleanChart(chart)
+
+				want := `` +
+					`<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">` + "↕\ufe0e" + `</a></span>` + "\n" +
+					`<span class="chart-right"><small class="scale" title="Y-axis scale">10</small></span>` + "\n" +
+					`<span class="half"></span>` + "\n" +
+					strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
+
+				if d := ztest.Diff(chart, want); d != "" {
+					t.Error(d)
+					if zstring.Contains(os.Args, "-test.v=true") {
+						fmt.Println("pages:\n" + chart)
+					}
+				}
+			})
+
+			t.Run("totals", func(t *testing.T) {
+				c := doc.Find(".totals .chart.chart-bar")
+				if c.Length() != 1 {
+					t.Fatalf("c.Length: %d", c.Length())
+				}
+				chart, err := c.Eq(0).Html()
+				if err != nil {
+					t.Fatal(err)
+				}
+				chart = cleanChart(chart)
+
+				want := `` +
+					`<span class="chart-right"><small class="scale" title="Y-axis scale">10</small></span>` + "\n" +
+					`<span class="half"></span>` + "\n" +
+					strings.TrimSpace(strings.ReplaceAll(want, "\t", ""))
+
+				if d := ztest.Diff(chart, want); d != "" {
+					t.Error(d)
+					if zstring.Contains(os.Args, "-test.v=true") {
+						fmt.Println("totals:\n" + chart)
+					}
+				}
+			})
 		})
 	}
 

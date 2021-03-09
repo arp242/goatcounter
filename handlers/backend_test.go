@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -22,6 +23,48 @@ import (
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
 )
+
+func TestBackendTpl(t *testing.T) {
+	tests := []struct {
+		page, want string
+	}{
+		{"/settings/main", "Data retention in days"},
+		{"/settings/dashboard", "Paths overview"},
+		{"/settings/sites", "Copy all settings from the current site except the domain name"},
+		{"/settings/purge", "Remove all instances of a page"},
+		{"/settings/export", "The first line is a header with the field names"},
+		{"/settings/auth", "API documentation"},
+		{"/settings/delete", "the site will be ‘soft-deleted’"},
+		{"/settings/change-code", "Change your site code and login domain"},
+
+		{"/updates", "Updates"},
+		{"/code", "Insert the code below to add GoatCounter"},
+
+		// TODO: Not found, as it's not running in "saas mode".
+		//{"/billing", "XXXX"},
+	}
+
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			ctx, clean := gctest.DB(t)
+			defer clean()
+			ctx, site := gctest.Site(ctx, t, goatcounter.Site{
+				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+			})
+
+			r, rr := newTest(ctx, "GET", tt.page, nil)
+			r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
+			login(t, r)
+
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, 200)
+
+			if !strings.Contains(rr.Body.String(), tt.want) {
+				t.Errorf("doesn't contain %q in: %s", tt.want, rr.Body.String())
+			}
+		})
+	}
+}
 
 func TestBackendCount(t *testing.T) {
 	defer gctest.SwapNow(t, "2019-06-18 14:42:00")()
@@ -351,4 +394,3 @@ func date(s string, tz *time.Location) time.Time {
 }
 
 func newBackend(db zdb.DB) chi.Router { return NewBackend(db, nil, true, true, "example.com") }
-func newWebsite(db zdb.DB) chi.Router { return NewWebsite(db, true) }
