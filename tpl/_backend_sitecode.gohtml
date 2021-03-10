@@ -5,6 +5,7 @@
 {{define "code"}}&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
+<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews {{if .Site.ID}}({{.Site.Domain .Context}} and/or gc.zgo.at domain){{end}}.</p>
 
 {{if eq .Path "/code"}}
 
