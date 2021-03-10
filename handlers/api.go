@@ -490,10 +490,10 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		switch {
-		case hit.UserAgentHeader != "" && a.IP != "":
-			// Handle as usual in memstore.
 		case a.Session != "":
 			hit.UserSessionID = a.Session
+		case hit.UserAgentHeader != "" && a.IP != "":
+			// Handle as usual in memstore.
 		case !args.NoSessions:
 			errs[i] = "session or browser/IP not set; use no_sessions if you don't want to track unique visits"
 			continue

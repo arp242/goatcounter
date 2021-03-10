@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"zgo.at/blackmail"
@@ -31,6 +32,8 @@ func TestUsageTabs(t *testing.T) {
 	}
 }
 
+var mu sync.Mutex
+
 func startTest(t *testing.T) (
 	exit *zli.TestExit, in *bytes.Buffer, out *bytes.Buffer,
 	ctx context.Context, dbc string, clean func(),
@@ -38,6 +41,9 @@ func startTest(t *testing.T) (
 	t.Helper()
 
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
+
+	// TODO: should really have helper function in zlog.
+	mu.Lock()
 	zlog.Config.Outputs = []zlog.OutputFunc{
 		func(l zlog.Log) {
 			out := zli.Stdout
@@ -47,6 +53,7 @@ func startTest(t *testing.T) (
 			fmt.Fprintln(out, zlog.Config.Format(l))
 		},
 	}
+	mu.Unlock()
 
 	goatcounter.Memstore.Reset()
 

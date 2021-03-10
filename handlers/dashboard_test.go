@@ -531,8 +531,7 @@ func TestTimeRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.rng+"-"+tt.now, func(t *testing.T) {
-			clean := gctest.SwapNow(t, tt.now)
-			defer clean()
+			defer gctest.SwapNow(t, tt.now)()
 
 			t.Run("UTC", func(t *testing.T) {
 				start, end, err := timeRange(tt.rng, time.UTC, false)

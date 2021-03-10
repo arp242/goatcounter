@@ -77,7 +77,7 @@ func TestNew(t *testing.T) {
 
 			i := 0
 			for {
-				data, err := scan.Line()
+				data, err := scan.Line(context.Background())
 				if err == io.EOF {
 					break
 				}
@@ -172,7 +172,7 @@ func TestNewFollow(t *testing.T) {
 
 	data := []Line{}
 	for {
-		line, err := scan.Line()
+		line, err := scan.Line(ctx)
 		if err == io.EOF {
 			break
 		}

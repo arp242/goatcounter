@@ -13,8 +13,7 @@ import (
 )
 
 func TestReindex(t *testing.T) {
-	reset := gctest.SwapNow(t, "2020-06-18")
-	defer reset()
+	defer gctest.SwapNow(t, "2020-06-18")()
 	exit, _, out, ctx, dbc, clean := startTest(t)
 	defer clean()
 

@@ -188,12 +188,17 @@ func (s Scanner) DateFormats() (date, time, datetime string) {
 }
 
 // Line processes a single line.
-func (s Scanner) Line() (Line, error) {
-	r := <-s.read
-	if r.Err != nil {
-		return nil, r.Err
+func (s Scanner) Line(ctx context.Context) (Line, error) {
+	var line string
+	select {
+	case <-ctx.Done():
+		return Line{}, io.EOF
+	case r := <-s.read:
+		if r.Err != nil {
+			return nil, r.Err
+		}
+		line = r.String()
 	}
-	line := r.String()
 
 	parsed := make(Line, len(s.names))
 	for _, sub := range s.re.FindAllStringSubmatchIndex(line, -1) {

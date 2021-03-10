@@ -14,8 +14,7 @@ import (
 )
 
 func TestGetMax(t *testing.T) {
-	reset := gctest.SwapNow(t, "2020-06-18 12:00:00")
-	defer reset()
+	defer gctest.SwapNow(t, "2020-06-18 12:00:00")()
 	ctx, clean := gctest.DB(t)
 	defer clean()
 
@@ -67,8 +66,7 @@ func TestGetMax(t *testing.T) {
 }
 
 func TestGetTotalCount(t *testing.T) {
-	reset := gctest.SwapNow(t, "2020-06-18 12:00:00")
-	defer reset()
+	defer gctest.SwapNow(t, "2020-06-18 12:00:00")()
 	ctx, clean := gctest.DB(t)
 	defer clean()
 
@@ -96,8 +94,7 @@ func TestGetTotalCount(t *testing.T) {
 }
 
 func TestHitStatTotals(t *testing.T) {
-	reset := gctest.SwapNow(t, "2020-06-18 12:00:00")
-	defer reset()
+	defer gctest.SwapNow(t, "2020-06-18 12:00:00")()
 	ctx, clean := gctest.DB(t)
 	defer clean()
 

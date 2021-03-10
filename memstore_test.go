@@ -84,8 +84,7 @@ func TestNextUUID(t *testing.T) {
 func TestCollect(t *testing.T) {
 	ctx, clean := gctest.DB(t)
 	defer clean()
-	clean2 := gctest.SwapNow(t, "2020-06-18")
-	defer clean2()
+	defer gctest.SwapNow(t, "2020-06-18")()
 
 	ctx, site := gctest.Site(ctx, t, Site{Settings: SiteSettings{Collect: 1}})
 

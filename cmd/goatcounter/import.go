@@ -222,11 +222,9 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return err
 		}
 
-		url += "/api/v0/count"
-
 		switch format {
 		default:
-			err = importLog(fp, ready, url, key, files[0], format, date, tyme, datetime, follow, silent)
+			err = importLog(fp, ready, stop, url, key, files[0], format, date, tyme, datetime, follow, silent)
 		case "csv":
 			ready <- struct{}{}
 			if follow {
@@ -259,7 +257,7 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 		}
 
 		if len(hits) >= 500 || final {
-			err := importSend(url, key, silent, false, hits /*, 0*/)
+			err := importSend(url, key, silent, false, hits)
 			if err != nil {
 				fmt.Fprintln(zli.Stdout)
 				zli.Errorf(err)
@@ -276,7 +274,11 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 	return err
 }
 
-func importLog(fp io.ReadCloser, ready chan<- struct{}, url, key, file, format, date, tyme, datetime string, follow, silent bool) error {
+func importLog(
+	fp io.ReadCloser,
+	ready chan<- struct{}, stop <-chan struct{},
+	url, key, file, format, date, tyme, datetime string, follow, silent bool,
+) error {
 	var (
 		scan *logscan.Scanner
 		err  error
@@ -305,10 +307,16 @@ func importLog(fp io.ReadCloser, ready chan<- struct{}, url, key, file, format, 
 		}
 	}()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		<-stop
+		cancel()
+	}()
+
 	defer persistLog(hits, url, key, silent, follow)
 	ready <- struct{}{}
 	for {
-		line, err := scan.Line()
+		line, err := scan.Line(ctx)
 		if err == io.EOF {
 			break
 		}
@@ -396,7 +404,7 @@ func importSend(url, key string, silent, follow bool, hits []handlers.APICountRe
 		return err
 	}
 
-	r, err := newRequest("POST", url, key, bytes.NewReader(body))
+	r, err := newRequest("POST", url+"/api/v0/count", key, bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
@@ -442,7 +450,6 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 	switch {
 	case strings.HasPrefix(siteFlag, "http://") || strings.HasPrefix(siteFlag, "https://"):
 		url = strings.TrimRight(siteFlag, "/")
-		url = strings.TrimSuffix(url, "/api/v0/count")
 		if !strings.HasPrefix(url, "http") {
 			url = "https://" + url
 		}
