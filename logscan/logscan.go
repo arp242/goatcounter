@@ -14,12 +14,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bmatcuk/doublestar/v3"
 	"zgo.at/errors"
 	"zgo.at/follow"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zstring"
 )
 
 var reFormat = regexp.MustCompile(`\\\$[\w-_]+`)
+
+var fields = []string{"ignore", "time", "date", "datetime", "remote_addr",
+	"xff", "method", "status", "http", "path", "query", "referrer",
+	"user_agent", "host", "content_type", "timing_sec", "timing_milli",
+	"timing_micro", "size"}
 
 func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string, string, string, error) {
 	of := format
@@ -81,10 +88,11 @@ func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string,
 		case "http":
 			p = `HTTP/[\d.]+`
 		case "path":
-			p = `/.*?` // `/.*[^ ]`
+			p = `/.*\b`
 		case "query":
 		case "referrer":
 		case "user_agent":
+		case "content_type":
 
 		case "timing_sec":
 			p = `[\d.]+`
@@ -100,6 +108,69 @@ func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string,
 	}
 	re, err := regexp.Compile(pat)
 	return re, date, tyme, datetime, err
+}
+
+const (
+	excludeContains = 0
+	excludeGlob     = 1
+	excludeRe       = 2
+)
+
+type excludePattern struct {
+	kind    int            // exclude* constant
+	negate  bool           // ! present
+	field   string         // "path", "content_type"
+	pattern string         // ".gif", "*.gif"
+	re      *regexp.Regexp // only if kind=excludeRe
+}
+
+func processExcludes(exclude []string) ([]excludePattern, error) {
+	// "static" needs to expand to two values.
+	for i, e := range exclude {
+		switch e {
+		case "static":
+			// Note: maybe check if using glob patterns is faster?
+			exclude[i] = `path:re:.*\.(:?js|css|gif|jpe?g|png|svg|ico|web[mp]|mp[34])$`
+			exclude = append(exclude, `content_type:re:^(?:text/(?:css|javascript)|image/(?:png|gif|jpeg|svg\+xml|webp)).*?`)
+		case "html":
+			exclude[i] = "content_type:^text/html.*?"
+		case "redirect":
+			exclude[i] = "status:glob:30[0123]"
+		}
+	}
+
+	patterns := make([]excludePattern, 0, len(exclude))
+	for _, e := range exclude {
+		var p excludePattern
+		if strings.HasPrefix(e, "!") {
+			p.negate = true
+			e = e[1:]
+		}
+
+		p.field, p.pattern = zstring.Split2(e, ":")
+		if !zstring.Contains(fields, p.field) {
+			return nil, fmt.Errorf("invalid field %q in exclude pattern %q", p.field, e)
+		}
+		if p.pattern == "" {
+			return nil, fmt.Errorf("no pattern in %q", e)
+		}
+
+		var err error
+		switch {
+		case strings.HasPrefix(p.pattern, "glob:"):
+			p.kind, p.pattern = excludeGlob, p.pattern[5:]
+			_, err = doublestar.Match(p.pattern, "")
+		case strings.HasPrefix(p.pattern, "re:"):
+			p.kind, p.pattern = excludeRe, p.pattern[3:]
+			p.re, err = regexp.Compile(p.pattern)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("invalid exclude pattern: %q: %w", e, err)
+		}
+		patterns = append(patterns, p)
+	}
+
+	return patterns, nil
 }
 
 const (
@@ -143,33 +214,35 @@ type Scanner struct {
 	names []string
 
 	date, time, datetime string
+
+	exclude []excludePattern
 }
 
 // New processes all the lines in the reader.
-func New(in io.Reader, format, date, tyme, datetime string) (*Scanner, error) {
-	re, date, tyme, datetime, err := processFormat(format, date, tyme, datetime)
+func New(in io.Reader, format, date, tyme, datetime string, exclude []string) (*Scanner, error) {
+	s, err := makeNew(format, date, tyme, datetime, exclude)
 	if err != nil {
-		return nil, errors.Errorf("logscan.New: %w", err)
+		return nil, fmt.Errorf("logscan.New: %w", err)
 	}
 
 	data := make(chan follow.Data)
-	scan := bufio.NewScanner(in)
 	go func() {
+		scan := bufio.NewScanner(in)
 		for scan.Scan() {
 			data <- follow.Data{Bytes: scan.Bytes()}
 		}
 		data <- follow.Data{Err: io.EOF}
 	}()
-
-	return &Scanner{read: data, re: re, names: re.SubexpNames(), date: date, time: tyme, datetime: datetime}, nil
+	s.read = data
+	return s, nil
 }
 
 // NewFollow follows a file for new lines and processes them. Existing lines are
 // not processed.
-func NewFollow(ctx context.Context, file string, format, date, tyme, datetime string) (*Scanner, error) {
-	re, date, tyme, datetime, err := processFormat(format, date, tyme, datetime)
+func NewFollow(ctx context.Context, file, format, date, tyme, datetime string, exclude []string) (*Scanner, error) {
+	s, err := makeNew(format, date, tyme, datetime, exclude)
 	if err != nil {
-		return nil, errors.Errorf("logscan.New: %w", err)
+		return nil, fmt.Errorf("logscan.NewFollow: %w", err)
 	}
 
 	f := follow.New()
@@ -179,8 +252,28 @@ func NewFollow(ctx context.Context, file string, format, date, tyme, datetime st
 			zlog.Error(errors.Errorf("logscan.NewFollow: %w", err))
 		}
 	}()
+	s.read = f.Data
+	return s, nil
+}
 
-	return &Scanner{read: f.Data, re: re, names: re.SubexpNames(), date: date, time: tyme, datetime: datetime}, nil
+func makeNew(format, date, tyme, datetime string, exclude []string) (*Scanner, error) {
+	re, date, tyme, datetime, err := processFormat(format, date, tyme, datetime)
+	if err != nil {
+		return nil, err
+	}
+	excludePatt, err := processExcludes(exclude)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Scanner{
+		re:       re,
+		names:    re.SubexpNames(),
+		date:     date,
+		time:     tyme,
+		datetime: datetime,
+		exclude:  excludePatt,
+	}, nil
 }
 
 func (s Scanner) DateFormats() (date, time, datetime string) {
@@ -189,6 +282,7 @@ func (s Scanner) DateFormats() (date, time, datetime string) {
 
 // Line processes a single line.
 func (s Scanner) Line(ctx context.Context) (Line, error) {
+start:
 	var line string
 	select {
 	case <-ctx.Done():
@@ -210,7 +304,43 @@ func (s Scanner) Line(ctx context.Context) (Line, error) {
 			parsed[s.names[i/2]] = v
 		}
 	}
+
+	if s.MatchExcludes(parsed) {
+		// Could use "return Line(ctx) as well, but if many lines are excluded
+		// that will run out of stack space. So just restart the function from
+		// the top waiting for the s.read channel.
+		goto start
+	}
+
 	return parsed, nil
+}
+
+func (s Scanner) MatchExcludes(line Line) bool {
+	for _, e := range s.exclude {
+		if line.exclude(e) {
+			return true
+		}
+	}
+	return false
+}
+
+func (l Line) exclude(e excludePattern) bool {
+	var m bool
+	switch e.kind {
+	default:
+		m = strings.Contains(l[e.field], e.pattern)
+	case excludeGlob:
+		// We use doublstar instead of filepath.Match() because the latter
+		// doesn't support "**" and "{a,b}" patterns, but of which are very
+		// useful here.
+		m, _ = doublestar.Match(e.pattern, l[e.field])
+	case excludeRe:
+		m = e.re.MatchString(l[e.field])
+	}
+	if e.negate {
+		return !m
+	}
+	return m
 }
 
 func toI(s string) int {
@@ -233,6 +363,7 @@ func (l Line) Path() string          { return l["path"] }
 func (l Line) Query() string         { return l["query"] }
 func (l Line) Referrer() string      { return l["referrer"] }
 func (l Line) UserAgent() string     { return l["user_agent"] }
+func (l Line) ContentType() string   { return l["content_type"] }
 func (l Line) Status() int           { return toI(l["status"]) }
 func (l Line) Size() int             { return toI(l["size"]) }
 

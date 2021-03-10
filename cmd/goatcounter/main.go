@@ -95,6 +95,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	if err != nil {
 		zli.Errorf(err)
 		zli.Exit(1)
+		return
 	}
 	zli.Exit(0)
 }

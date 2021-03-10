@@ -79,7 +79,7 @@ func runImportBg(ctx context.Context, t *testing.T, exit *zli.TestExit, args ...
 		"-site=http://test.localhost:9876",
 		"-debug=all"}, args...)...)
 	<-ready
-	time.Sleep(100 * time.Millisecond) // Tiny sleep for delay between "ready" and start of loop.
+	time.Sleep(200 * time.Millisecond) // Tiny sleep for delay between "ready" and start of loop.
 
 	return stop, runImportClean(ctx, t)
 }
@@ -170,9 +170,9 @@ func TestImport(t *testing.T) {
 
 		got := zdb.DumpString(ctx, `select * from hits`)
 		want := `
-			        hit_id  site_id  path_id  user_agent_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at
-			        1       1        1        1              00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           1            2000-10-10 20:55:36
-			        2       1        1        1              00112233445566778899aabbccddef01  0                                NULL                        0            2000-10-10 20:55:36`
+			hit_id  site_id  path_id  user_agent_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at
+			1       1        1        1              00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           1            2000-10-10 20:55:36
+			2       1        1        1              00112233445566778899aabbccddef01  0                                NULL                        0            2000-10-10 20:55:36`
 		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace); d != "" {
 			t.Error(d)
 		}

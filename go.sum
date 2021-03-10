@@ -6,6 +6,8 @@ github.com/PuerkitoBio/goquery v1.6.1 h1:FgjbQZKl5HTmcn4sKBgvx8vv63nhyhIpv7lJpFG
 github.com/PuerkitoBio/goquery v1.6.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/andybalholm/cascadia v1.1.0 h1:BuuO6sSfQNFRu1LppgbD25Hr2vLYW25JvxHs5zzsLTo=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
+github.com/bmatcuk/doublestar/v3 v3.0.0 h1:TQtVPlDnAYwcrVNB2JiGuMc++H5qzWZd9PhkNo5WyHI=
+github.com/bmatcuk/doublestar/v3 v3.0.0/go.mod h1:6PcTVMw80pCY1RVuoqu3V++99uQB3vsSYKPTd8AWA0k=
 github.com/boombuler/barcode v1.0.1 h1:NDBbPmhS+EqABEs5Kg3n/5ZNjy73Pz7SIV+KCeqyXcs=
 github.com/boombuler/barcode v1.0.1/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
@@ -118,14 +120,15 @@ zgo.at/zdb v0.0.0-20210308104349-c05f048f9b04 h1:tuLrd9BhSf5TNL7gZYFVeTAnoknOZTp
 zgo.at/zdb v0.0.0-20210308104349-c05f048f9b04/go.mod h1:DEan59xckewyyFspSZvKPTxvsSdgCGptujStaTPpYu0=
 zgo.at/zhttp v0.0.0-20210309183433-b3a06bbb3ae6 h1:JqADyLQjPfcQHTUOWHwjs8AZq/rVl0n0o9SLnLTYQqE=
 zgo.at/zhttp v0.0.0-20210309183433-b3a06bbb3ae6/go.mod h1:bTOX08VmmBHeXqnXzrIGYVJa1Ah1gxctRh1VQgRsbug=
-zgo.at/zli v0.0.0-20210309082040-aee5a914ad3b h1:vWFg+PpQYTQAIKIajY0TJG19o0e9LTmK1jg92aj71vQ=
-zgo.at/zli v0.0.0-20210309082040-aee5a914ad3b/go.mod h1:iCNHeIhEG9nQZsmEvf1BDpnQXvbYbUDvokRSwB434M8=
+zgo.at/zli v0.0.0-20210310102828-e74d81bf1798 h1:odcL1IFewIqUoKzT1UbbjJFrWVH2cHkJuMB59aVxmz4=
+zgo.at/zli v0.0.0-20210310102828-e74d81bf1798/go.mod h1:iCNHeIhEG9nQZsmEvf1BDpnQXvbYbUDvokRSwB434M8=
 zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f h1:ySpTSREDks0yr4Hu/52uelg+KFkYLP4Hf4tOB0po27g=
 zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
 zgo.at/zstd v0.0.0-20201227115323-a0ab493434c7/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
 zgo.at/zstd v0.0.0-20210225153322-0b0ac4d9c4b3/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
-zgo.at/zstd v0.0.0-20210308103101-00f359b7edb4 h1:ielHiORdht0NucKwIrZ7v28xJEpF/lJAL2xE6ZPyR40=
 zgo.at/zstd v0.0.0-20210308103101-00f359b7edb4/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
+zgo.at/zstd v0.0.0-20210310054817-c39eb9b7df25 h1:ReirJVohT6z7zXJQDJcetsZ0YABES34kCssoPFhX3O0=
+zgo.at/zstd v0.0.0-20210310054817-c39eb9b7df25/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
 zgo.at/zstripe v1.0.0 h1:rfBrWEUpveYFZKNo4rdc3Fvhb9LEzbMIyL76EXAmXDk=
 zgo.at/zstripe v1.0.0/go.mod h1:EqblFpMvXAhzZAUUt0EVom06EnN5+D5ESBTSOkwSwTY=
 zgo.at/ztest v0.0.0-20200526130303-f59d60374e72 h1:eJi5pmYHERPsQ9a7Sw1HW8GXTVFWlHQ+EfZKSzx1Y+Y=

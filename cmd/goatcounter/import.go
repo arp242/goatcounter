@@ -92,6 +92,48 @@ Flags:
                This follows Go's time format; see "goatcounter help logfile" for
                an overview on how this works.
 
+  -exclude     Exclude pageviews that match the given patterns; this flag can be
+               given more than once. If no -exclude flag is given then "-exclude
+               static -exclude redirect" is used. Use -exclude='' to not exclude
+               anything.
+
+               The syntax is [field]:[pattern]; the [field] is one of the fields
+               listed in "help logile". The pattern can be prefixed with "glob:"
+               or "re:" to get globbing or regular expressions:
+
+                   path:.gif                             Anywhere in the path
+                   path:glob:/public/**.{gif,jpg,jpeg}   Any image in /public
+                   path:re:\.(gif|jpe?g)$                Any image
+
+               If the first character is "!" then the exclude pattern will be
+               inverted: everything that does *not* match the pattern is
+               excluded.
+
+               Regular expressions are not anchored by default, so "path:re:/x"
+               will match both "/x/y" and "/y/x". Use ^ or $ to anchor them.
+
+               Glob patterns need to match the full string; "path:glob:/x" will
+               match only "/x". Use "/x/**" to match everything starting with
+               "/x".
+               Supported glob patterns: *, **, ?, [..], [!..], {..,..}
+               See: https://pkg.go.dev/github.com/bmatcuk/doublestar/v3#Match
+
+               There are the following special values:
+
+                   static      Images, videos, audio files, CSS, and JS files
+                               based on the filename and content_type.
+                   html        content_type text/html (mostly useful as !html).
+                   redirect    Exclude redirects (300-303 responses).
+
+               For example, to exclude all static files, all non-GET requests,
+               and everything in the /private/ directory:
+
+                   $ goatcounter import -format combined \
+                       -exclude static \
+                       -exclude '!method:GET' \
+                       -exclude 'path:glob:/private/**' \
+                       access_log
+
 Environment:
 
   GOATCOUNTER_API_KEY   API key to use if you're connecting to a remote API;
@@ -126,6 +168,7 @@ List of format specifiers:
 Some format specifiers that are not (yet) used anywhere:
 
     host           Server name of the server serving the request.
+    content_type   Content-Type header of the response.
     timing_sec     Time to serve the request in seconds, with possible decimal.
     timing_milli   Time to serve the request in milliseconds.
     timing_micro   Time to serve the request in microseconds.
@@ -172,13 +215,14 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		datetime  = f.String("", "datetime").Pointer()
 		silent    = f.Bool(false, "silent").Pointer()
 		follow    = f.Bool(false, "follow").Pointer()
+		exclude   = f.StringList(nil, "exclude").Pointer()
 	)
 	err := f.Parse()
 	if err != nil {
 		return err
 	}
 
-	return func(dbConnect, debug, siteFlag, format, date, tyme, datetime string, silent, follow bool) error {
+	return func(dbConnect, debug, siteFlag, format, date, tyme, datetime string, silent, follow bool, exclude []string) error {
 		files := f.Args
 		if len(files) == 0 {
 			return fmt.Errorf("need a filename")
@@ -224,7 +268,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		switch format {
 		default:
-			err = importLog(fp, ready, stop, url, key, files[0], format, date, tyme, datetime, follow, silent)
+			err = importLog(fp, ready, stop, url, key, files[0], format, date, tyme, datetime, follow, silent, exclude)
 		case "csv":
 			ready <- struct{}{}
 			if follow {
@@ -233,7 +277,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			err = importCSV(fp, url, key, silent)
 		}
 		return err
-	}(*dbConnect, *debug, *siteFlag, *format, *date, *tyme, *datetime, *silent, *follow)
+	}(*dbConnect, *debug, *siteFlag, *format, *date, *tyme, *datetime, *silent, *follow, *exclude)
 }
 
 func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
@@ -277,7 +321,7 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 func importLog(
 	fp io.ReadCloser,
 	ready chan<- struct{}, stop <-chan struct{},
-	url, key, file, format, date, tyme, datetime string, follow, silent bool,
+	url, key, file, format, date, tyme, datetime string, follow, silent bool, exclude []string,
 ) error {
 	var (
 		scan *logscan.Scanner
@@ -285,9 +329,9 @@ func importLog(
 	)
 	if follow && file != "-" {
 		fp.Close()
-		scan, err = logscan.NewFollow(context.Background(), file, format, date, tyme, datetime)
+		scan, err = logscan.NewFollow(context.Background(), file, format, date, tyme, datetime, exclude)
 	} else {
-		scan, err = logscan.New(fp, format, date, tyme, datetime)
+		scan, err = logscan.New(fp, format, date, tyme, datetime, exclude)
 	}
 	if err != nil {
 		return err
@@ -322,10 +366,6 @@ func importLog(
 		}
 		if err != nil {
 			return err
-		}
-		// Almost certainly don't want to track this.
-		if line.Path() == "/favicon.ico" || (line.Status() >= 300 && line.Status() <= 399) {
-			continue
 		}
 
 		//zlog.Module("import").Debug(line)
