@@ -229,9 +229,12 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 			p    = float64(s.CountUnique) / float64(total) * 100
 			perc string
 		)
-		if p < .5 {
+		switch {
+		case p == 0:
+			perc = "0%"
+		case p < .5:
 			perc = fmt.Sprintf("%.1f%%", p)[1:]
-		} else {
+		default:
 			perc = fmt.Sprintf("%.0f%%", math.Round(p))
 		}
 
