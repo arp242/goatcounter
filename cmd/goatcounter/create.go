@@ -79,7 +79,7 @@ func cmdCreate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return v
 		}
 
-		db, ctx, err := connectDB(dbConnect, nil, createdb, false)
+		db, ctx, err := connectDB(dbConnect, []string{"pending"}, createdb, false)
 		if err != nil {
 			return err
 		}

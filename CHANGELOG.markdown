@@ -12,6 +12,12 @@ Unreleased v1.5.0
 - Some rather large changes to the database layout (#383) for better efficiency
   (**see below, action required for upgrade**).
 
+- The `goatcounter migrate` behaves a bit different (**incompatible**):
+
+  - `goatcounter migrate pending` lists only pending migrations, and will use
+    exit code 1 if there are any pending migrations.
+  - `goatcounter migrate list` lists all migrations, always exits with 0.
+
 - New `goatcounter buffer` command; this allows buffering of pageviews in case
   the backend is down, running migrations, etc. See `goatcounter help buffer`
   for more information.

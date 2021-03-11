@@ -505,7 +505,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 		}
 
 	default:
-		db, ctx, err := connectDB(dbConnect, nil, false, false)
+		db, ctx, err := connectDB(dbConnect, []string{"pending"}, false, false)
 		if err != nil {
 			return "", "", nil, err
 		}

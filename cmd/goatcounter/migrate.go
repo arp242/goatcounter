@@ -34,8 +34,13 @@ Flags:
 Positional arguments are names of database migrations, either as just the name
 ("2020-01-05-2-foo") or as the file path ("./db/migrate/sqlite/2020-01-05-2-foo.sql").
 
-Use "all" to run all migrations that haven't been run yet, or "show" to only
-display pending migrations.
+Special values:
+
+    all         Run all pending migrations.
+    pending     Show pending migrations but do not run anything. Exits with 1 if
+                there are pending migrations, or 0 if there aren't.
+    list        List all migrations; pending migrations are prefixed with
+                "pending: ". Always exits with 0.
 
 Note: you can also use -automigrate flag for the serve command to run migrations
 on startup.
@@ -72,16 +77,31 @@ func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return err
 		}
 
-		if zstring.Contains(f.Args, "show") || zstring.Contains(f.Args, "list") {
+		if zstring.ContainsAny(f.Args, "pending", "list") {
 			have, ran, err := m.List()
 			if err != nil {
 				return err
 			}
-			if d := zstring.Difference(have, ran); len(d) > 0 {
-				fmt.Fprintf(zli.Stdout, "Pending migrations:\n\t%s\n", strings.Join(d, "\n\t"))
-			} else {
-				fmt.Fprintln(zli.Stdout, "No pending migrations")
+			diff := zstring.Difference(have, ran)
+			pending := "no pending migrations"
+			if len(diff) > 0 {
+				pending = fmt.Sprintf("pending migrations:\n\t%s", strings.Join(diff, "\n\t"))
 			}
+
+			if zstring.Contains(f.Args, "list") {
+				for i := range have {
+					if zstring.Contains(diff, have[i]) {
+						have[i] = "pending: " + have[i]
+					}
+				}
+				fmt.Fprintln(zli.Stdout, strings.Join(have, "\n"))
+				return nil
+			}
+
+			if len(diff) > 0 {
+				return errors.New(pending)
+			}
+			fmt.Fprintln(zli.Stdout, pending)
 			return nil
 		}
 

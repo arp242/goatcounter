@@ -113,10 +113,11 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 		GoMigrations: gomig.Migrations,
 		Create:       create,
 		SQLiteHook:   goatcounter.SQLiteHook,
+		MigrateLog:   func(name string) { zlog.Printf("ran migration %q", name) },
 	})
 	var pErr *zdb.PendingMigrationsError
 	if errors.As(err, &pErr) {
-		zlog.Printf("WARNING: %s", err)
+		zlog.Errorf("%s; continuing but things may be broken", err)
 		err = nil
 	}
 	return db, goatcounter.NewContext(db), err

@@ -282,7 +282,7 @@ func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (z
 		setupReload()
 	}
 
-	db, ctx, err := connectDB(dbConnect, map[bool][]string{false: {"all"}, true: {"list"}}[automigrate], true, dev)
+	db, ctx, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: {"pending"}}[automigrate], true, dev)
 	if err != nil {
 		return nil, nil, nil, nil, 0, err
 	}
