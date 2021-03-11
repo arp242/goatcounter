@@ -566,17 +566,22 @@ For most people `{{.CountDomain}}/count.js` should be fine, but if you want you
 can verify the integrity of the externally loaded script with SRI; currently
 published versions:
 
-- count.js (not yet versioned):
+- **v2** (11 Mar 2021):
 
   - Allow loading settings from `data-goatcounter-settings` on the `script` tag.
   - Increase timeout from 3 seconds to 10 seconds.
   - Add braces around `if` since some minifiers can't deal with "dangling else"
     well (the code is correct, it's the minifier that's broken).
 
+      <script data-goatcounter="{{.Site.URL .Context}}/count"
+              async src="//{{.CountDomain}}/count.v2.js"
+              crossorigin="anonymous"
+              integrity="sha384-PeYXrhTyEaBBz91ANMgpSbfN1kjioQNPHNDbMvevUVLJoWrVEjDCpKb71TehNAlj"></script>
+
 - **v1** (25 Dec 2020):
 
       <script data-goatcounter="{{.Site.URL .Context}}/count"
-              async src="//{{.CountDomain}}/count.v1.js"
+              async src="//{{.CountDomain}}/count.v2.js"
               crossorigin="anonymous"
               integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"></script>
 

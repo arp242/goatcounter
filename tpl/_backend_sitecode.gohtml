@@ -699,20 +699,24 @@ published versions:</p>
 
 <ul>
   <li>
-    <p>count.js (not yet versioned):</p>
+    <p><strong>v2</strong> (11 Mar 2021):</p>
 
     <ul>
       <li>Allow loading settings from <code>data-goatcounter-settings</code> on the <code>script</code> tag.</li>
       <li>Increase timeout from 3 seconds to 10 seconds.</li>
-      <li>Add braces around <code>if</code> since some minifiers can't deal with "dangling else"
-well (the code is correct, it's the minifier that's broken).</li>
+      <li>
+        <p>Add braces around <code>if</code> since some minifiers can't deal with "dangling else"
+well (the code is correct, it's the minifier that's broken).</p>
+
+        <script data-goatcounter="{{.Site.URL .Context}}/count" async="" src="//{{.CountDomain}}/count.v2.js" crossorigin="anonymous" integrity="sha384-PeYXrhTyEaBBz91ANMgpSbfN1kjioQNPHNDbMvevUVLJoWrVEjDCpKb71TehNAlj"></script>
+      </li>
     </ul>
   </li>
   <li>
     <p><strong>v1</strong> (25 Dec 2020):</p>
 
     <pre><code>&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
-        async src="//{{.CountDomain}}/count.v1.js"
+        async src="//{{.CountDomain}}/count.v2.js"
         crossorigin="anonymous"
         integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"&gt;&lt;/script&gt;
 </code></pre>
