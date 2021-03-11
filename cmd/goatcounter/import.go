@@ -274,6 +274,9 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			if follow {
 				return fmt.Errorf("cannot use -follow with -format=csv")
 			}
+			if len(exclude) > 0 {
+				return fmt.Errorf("cannot use -exclude with -format=csv")
+			}
 			err = importCSV(fp, url, key, silent)
 		}
 		return err
