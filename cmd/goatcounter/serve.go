@@ -268,7 +268,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 	flagErrors(*errors, v)
 
 	if *smtp != blackmail.ConnectDirect && *smtp != blackmail.ConnectWriter {
-		v.URL("-smtp", *smtp)
+		v.URLLocal("-smtp", *smtp)
 	}
 	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
 

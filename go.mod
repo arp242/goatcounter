@@ -50,5 +50,5 @@ require (
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zstd v0.0.0-20210310054817-c39eb9b7df25
 	zgo.at/zstripe v1.0.0
-	zgo.at/zvalidate v0.0.0-20201227171559-09b756b3b132
+	zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036
 )
