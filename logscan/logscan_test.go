@@ -6,7 +6,6 @@ package logscan
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -20,12 +19,12 @@ import (
 )
 
 func TestErrors(t *testing.T) {
-	_, err := New(strings.NewReader(""), "log:$xxx", "", "", "")
+	_, err := New(strings.NewReader(""), "log:$xxx", "", "", "", nil)
 	if !ztest.ErrorContains(err, "unknown format specifier: $xxx") {
 		t.Error(err)
 	}
 
-	_, err = New(strings.NewReader(""), "xxx", "", "", "")
+	_, err = New(strings.NewReader(""), "xxx", "", "", "", nil)
 	if !ztest.ErrorContains(err, "unknown format: xxx") {
 		t.Error(err)
 	}
@@ -70,7 +69,7 @@ func TestNew(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			scan, err := New(fp, f.Name(), "", "", "")
+			scan, err := New(fp, f.Name(), "", "", "", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -111,7 +110,8 @@ func TestNew(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				fmt.Println(dt)
+				_ = dt
+				//fmt.Println(dt)
 				i++
 			}
 		})
@@ -130,7 +130,7 @@ func TestNewFollow(t *testing.T) {
 
 	ctx, stop := context.WithCancel(context.Background())
 
-	scan, err := NewFollow(ctx, tmp, "combined-vhost", "", "", "")
+	scan, err := NewFollow(ctx, tmp, "combined-vhost", "", "", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -290,5 +290,90 @@ func TestNewFollow(t *testing.T) {
 		if !reflect.DeepEqual(data[i], want[i]) {
 			t.Errorf("line %d\nwant: %#v\ngot:  %#v", i, want[i], data[i])
 		}
+	}
+}
+
+func TestExclude(t *testing.T) {
+	tests := []struct {
+		exclude []string
+		lines   []string
+		want    []string
+		wantErr string
+	}{
+		{[]string{""}, nil, nil, "invalid field"},
+		{[]string{"xx:yy"}, nil, nil, "invalid field"},
+		{[]string{"path:"}, nil, nil, "no pattern"},
+		{[]string{}, []string{"/path", "/p"}, []string{"/path", "/p"}, ""},
+
+		{[]string{"path:/p"},
+			[]string{"/path", "/p"},
+			nil,
+			""},
+
+		{[]string{"path:re:/p$"},
+			[]string{"/path", "/p"},
+			[]string{"/path"},
+			""},
+		{[]string{"path:glob:/p"},
+			[]string{"/path", "/p"},
+			[]string{"/path"},
+			""},
+
+		{[]string{"!path:re:/p$"},
+			[]string{"/path", "/p"},
+			[]string{"/p"},
+			""},
+		{[]string{"!path:glob:/p"},
+			[]string{"/path", "/p"},
+			[]string{"/p"},
+			""},
+
+		{[]string{"path:glob:/private/**"},
+			[]string{"/path/private", "/private/path/x"},
+			[]string{"/path/private"},
+			""},
+
+		{[]string{"path:re:/private"},
+			[]string{"/path/private", "/private/path/x"},
+			nil,
+			""},
+
+		{[]string{"path:re:^/private"},
+			[]string{"/path/private", "/private/path/x"},
+			[]string{"/path/private"},
+			""},
+	}
+
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			tmp, err := os.Open(ztest.TempFile(t, strings.Join(tt.lines, "\n")))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			scan, err := New(tmp, "log:$path", "", "", "", tt.exclude)
+			if !ztest.ErrorContains(err, tt.wantErr) {
+				t.Fatal(err)
+			}
+			if tt.wantErr != "" {
+				return
+			}
+
+			var got []string
+			for {
+				data, err := scan.Line(context.Background())
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+				got = append(got, data.Path())
+			}
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("\ngot:  %#v\nwant: %#v", got, tt.want)
+			}
+		})
 	}
 }

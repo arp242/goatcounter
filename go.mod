@@ -2,9 +2,6 @@ module zgo.at/goatcounter
 
 go 1.16
 
-replace zgo.at/zstd => ../zstd
-replace zgo.at/zli => ../zli
-
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it
 // compiles with JSON support without having to specify a build tag, which is
 // inconvenient, easily forgotten, and causes runtime errors.
@@ -19,6 +16,7 @@ replace github.com/oschwald/geoip2-golang => github.com/zgoat/geoip2-golang v1.4
 require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.6.1
+	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.0
 	github.com/google/uuid v1.2.0
@@ -48,9 +46,9 @@ require (
 	zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e
 	zgo.at/zdb v0.0.0-20210308104349-c05f048f9b04
 	zgo.at/zhttp v0.0.0-20210309183433-b3a06bbb3ae6
-	zgo.at/zli v0.0.0-20210309082040-aee5a914ad3b
+	zgo.at/zli v0.0.0-20210310102828-e74d81bf1798
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
-	zgo.at/zstd v0.0.0-20210308103101-00f359b7edb4
+	zgo.at/zstd v0.0.0-20210310054817-c39eb9b7df25
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20201227171559-09b756b3b132
 )
