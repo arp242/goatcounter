@@ -41,16 +41,19 @@ Overview:
 
         $ goatcounter import -follow /var/log/nginx/access.log
 
-    This requires a running GoatCounter instance; it's a front-end for the API
-    rather than a tool to modify the database directly. If you add an ID or site
-    code as the -site flag an API key can be generated automatically, but this
-    requires access to the database.
+    This requires a running GoatCounter server; it sends requests to the API
+    instead of modifying the database directly. If you use an ID or site code in
+    the -site flag an API key is generated automatically, which is the only
+    database access it needs.
 
-    Alternatively, use an URL in -site if you want to send data to a remote
-    instance:
+    Use an URL in -site if you want to send data to a remote instance without
+    requiring database access:
 
-        $ export GOATCOUNTER_API_KEY=..
-        $ goatcounter import -site https://stats.example.com export.csv.gz
+        $ export GOATCOUNTER_API_KEY=[..]
+        $ goatcounter import -site=https://stats.example.com export.csv.gz
+
+    You can create an API key in "Settings → Password, MFA, API" and requires
+    the "Record pageviews" permission.
 
 Flags:
 
@@ -136,8 +139,7 @@ Flags:
 
 Environment:
 
-  GOATCOUNTER_API_KEY   API key to use if you're connecting to a remote API;
-                        must have "count" permission.
+  GOATCOUNTER_API_KEY   API key; requires "Record pageviews" permission.
 `
 
 const helpLogfile = `
