@@ -53,7 +53,7 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	return func(dbConnect, debug string, period, site int, once bool) error {
 		zlog.Config.SetDebug(debug)
 
-		db, ctx, err := connectDB(dbConnect, nil, false, true)
+		db, ctx, err := connectDB(dbConnect, nil, false, false)
 		if err != nil {
 			return err
 		}

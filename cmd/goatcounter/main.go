@@ -100,9 +100,9 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	zli.Exit(0)
 }
 
-func connectDB(connect string, migrate []string, create, prod bool) (zdb.DB, context.Context, error) {
+func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
 	var files fs.FS = goatcounter.DB
-	if !prod {
+	if dev {
 		files = os.DirFS(zgo.ModuleRoot())
 	}
 

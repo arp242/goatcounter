@@ -48,7 +48,6 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	if err != nil {
 		return err
 	}
-	prod := !dev
 
 	return func(domain, stripe, plan string) error {
 		if flagTLS == "" {
@@ -59,7 +58,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		flagStripe(stripe, &v)
 		domain, domainStatic, domainCount, urlStatic := flagDomain(domain, &v)
 		from = flagFrom(from, domain, &v)
-		if prod && domain != "goatcounter.com" {
+		if !dev && domain != "goatcounter.com" {
 			v.Append("saas", "can only run on goatcounter.com")
 		}
 

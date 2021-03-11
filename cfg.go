@@ -14,7 +14,7 @@ type GlobalConfig struct {
 	DomainCount    string
 	URLStatic      string
 	Plan           string
-	Prod           bool
+	Dev            bool
 	Version        string
 	GoatcounterCom bool
 	Serve          bool

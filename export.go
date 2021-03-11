@@ -134,7 +134,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		}
 
 		// Small amount of breathing space.
-		if Config(ctx).Prod {
+		if !Config(ctx).Dev {
 			time.Sleep(500 * time.Millisecond)
 		}
 	}

@@ -470,12 +470,12 @@ func (s Site) Display(ctx context.Context) string {
 func (s Site) URL(ctx context.Context) string {
 	if s.Cname != nil && s.CnameSetupAt != nil {
 		return fmt.Sprintf("http%s://%s%s",
-			map[bool]string{true: "s", false: ""}[Config(ctx).Prod],
+			map[bool]string{true: "", false: "s"}[Config(ctx).Dev],
 			*s.Cname, Config(ctx).Port)
 	}
 
 	return fmt.Sprintf("http%s://%s.%s%s",
-		map[bool]string{true: "s", false: ""}[Config(ctx).Prod],
+		map[bool]string{true: "", false: "s"}[Config(ctx).Dev],
 		s.Code, Config(ctx).Domain, Config(ctx).Port)
 }
 

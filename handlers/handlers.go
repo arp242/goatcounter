@@ -51,7 +51,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Version:        goatcounter.Version,
 		Billing:        zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
 		GoatcounterCom: goatcounter.Config(r.Context()).GoatcounterCom,
-		Dev:            !goatcounter.Config(r.Context()).Prod,
+		Dev:            goatcounter.Config(r.Context()).Dev,
 		Port:           goatcounter.Config(r.Context()).Port,
 	}
 	if g.User == nil {

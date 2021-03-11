@@ -505,7 +505,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 		}
 
 	default:
-		db, ctx, err := connectDB(dbConnect, nil, false, true)
+		db, ctx, err := connectDB(dbConnect, nil, false, false)
 		if err != nil {
 			return "", "", nil, err
 		}
@@ -514,7 +514,7 @@ func findSite(siteFlag, dbConnect string) (string, string, func(), error) {
 		// So it uses https URLs in site.URL()
 		// TODO: should fix it to always use https even on dev and get rid of the
 		// exceptions.
-		goatcounter.Config(ctx).Prod = true
+		// goatcounter.Config(ctx).Prod = true
 
 		var site goatcounter.Site
 		siteID, intErr := strconv.ParseInt(siteFlag, 10, 64)

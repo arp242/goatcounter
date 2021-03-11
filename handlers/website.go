@@ -374,5 +374,5 @@ func (h website) contribute(w http.ResponseWriter, r *http.Request) error {
 		StripePublicKey string
 		SKU             string
 	}{newGlobals(w, r), "contribute", "Contribute – GoatCounter",
-		zstripe.PublicKey, stripePlans[goatcounter.Config(r.Context()).Prod]["donate"]})
+		zstripe.PublicKey, stripePlans[goatcounter.Config(r.Context()).Dev]["donate"]})
 }

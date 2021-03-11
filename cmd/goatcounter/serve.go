@@ -59,12 +59,11 @@ Flags:
   -tls         Serve over tls. This is a comma-separated list with any of:
 
                  none                   Don't serve any TLS
-                 tls                    Accept TLS connections on -listen
                  path/to/file.pem       TLS certificate and keyfile, in one file
                  acme[:cache]           Create TLS certificates with ACME
                  rdr                    Redirect port 80 to the -listen port
 
-               Default: "acme,tls,rdr", or "none" when -dev is given.
+               Default: "acme,rdr", or "none" when -dev is given.
                See "goatcounter help listen" for more detailed documentation.
 
   -port        Port your site is publicly accessible on. Only needed if it's
@@ -131,7 +130,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 	return func(port, domainStatic string) error {
 		if flagTLS == "" {
-			flagTLS = map[bool]string{true: "none", false: "acme,tls,rdr"}[dev]
+			flagTLS = map[bool]string{true: "none", false: "acme,rdr"}[dev]
 		}
 
 		var domainCount, urlStatic string

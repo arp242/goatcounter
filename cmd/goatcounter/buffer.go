@@ -163,7 +163,7 @@ func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		if genKey {
 			ready <- struct{}{}
-			db, ctx, err := connectDB(dbConnect, nil, false, true)
+			db, ctx, err := connectDB(dbConnect, nil, false, false)
 			if err != nil {
 				return err
 			}

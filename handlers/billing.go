@@ -148,14 +148,14 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 var stripePlans = map[bool]map[string]string{
-	true: { // Production
+	false: { // Production
 		"personal":     "plan_GLVKIvCvCjzT2u",
 		"personalplus": "plan_GlJxixkxNZZOct",
 		"business":     "plan_GLVGCVzLaPA3cY",
 		"businessplus": "plan_GLVHJUi21iV4Wh",
 		"donate":       "sku_H9jE6zFGzh6KKb",
 	},
-	false: { // Test data
+	true: { // Test data
 		"personal":     "plan_GLWnXaogEns1n2",
 		"personalplus": "plan_GlJvCPdCeUpww3",
 		"business":     "plan_GLWoJ72fcNGoUD",
@@ -210,7 +210,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		"client_reference_id":                  strconv.FormatInt(site.ID, 10),
 		"success_url":                          site.URL(r.Context()) + "/billing?return=success",
 		"cancel_url":                           site.URL(r.Context()) + "/billing?return=cancel",
-		"subscription_data[items][][plan]":     stripePlans[goatcounter.Config(r.Context()).Prod][args.Plan],
+		"subscription_data[items][][plan]":     stripePlans[goatcounter.Config(r.Context()).Dev][args.Plan],
 		"subscription_data[items][][quantity]": args.Quantity,
 	}
 	if site.Stripe != nil && !site.FreePlan() {
@@ -342,7 +342,7 @@ func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			var plan string
-			for name, p := range stripePlans[goatcounter.Config(r.Context()).Prod] {
+			for name, p := range stripePlans[goatcounter.Config(r.Context()).Dev] {
 				if p == s.DisplayItems[0].Plan.ID {
 					plan = name
 				}
