@@ -285,7 +285,7 @@ func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (z
 		return nil, nil, nil, nil, 0, err
 	}
 
-	fsys, err := zfs.EmbedOrFS(goatcounter.Templates, "tpl", dev)
+	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "tpl", dev)
 	if err != nil {
 		return nil, nil, nil, nil, 0, err
 	}

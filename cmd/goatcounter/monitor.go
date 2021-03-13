@@ -63,7 +63,7 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		if site > 0 {
 			query += fmt.Sprintf(`site_id=%d and `, site)
 		}
-		if zdb.PgSQL(ctx) {
+		if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
 			query += ` created_at > now() - interval '%d seconds'`
 		} else {
 			query += ` created_at > datetime(datetime(), '-%d seconds')`

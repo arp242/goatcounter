@@ -69,7 +69,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 		r.Use(mware.RequestLog(nil, "/count"))
 	}
 
-	fsys, err := zfs.EmbedOrFS(goatcounter.Templates, "", dev)
+	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "", dev)
 	if err != nil {
 		panic(err)
 	}

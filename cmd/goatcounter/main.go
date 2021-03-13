@@ -100,7 +100,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 }
 
 func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
-	fsys, err := zfs.EmbedOrFS(goatcounter.DB, "db", dev)
+	fsys, err := zfs.EmbedOrDir(goatcounter.DB, "db", dev)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -50,7 +50,7 @@ var Now = func() time.Time { return time.Now().UTC() }
 
 // TODO: Move to zdb
 func interval(ctx context.Context, days int) string {
-	if zdb.PgSQL(ctx) {
+	if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
 		return fmt.Sprintf(" now() - interval '%d days' ", days)
 	}
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)

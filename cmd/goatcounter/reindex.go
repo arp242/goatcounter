@@ -208,7 +208,7 @@ func dosite(
 
 	for _, month := range months {
 		err := zdb.TX(ctx, func(ctx context.Context) error {
-			if zdb.PgSQL(ctx) {
+			if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
 				err := zdb.Exec(ctx, `lock table hits, hit_counts, hit_stats, size_stats, location_stats, browser_stats, system_stats
 					in exclusive mode`)
 				if err != nil {

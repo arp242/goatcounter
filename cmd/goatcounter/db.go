@@ -119,7 +119,11 @@ func cmdDb(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		if err != nil {
 			return err
 		}
-		d, err = zdb.SchemaTemplate(cmd == "schema-pgsql", string(d))
+		driver := zdb.DriverSQLite
+		if cmd == "schema-pgsql" {
+			driver = zdb.DriverPostgreSQL
+		}
+		d, err = zdb.SchemaTemplate(driver, string(d))
 		if err != nil {
 			return err
 		}

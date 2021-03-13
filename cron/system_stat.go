@@ -53,7 +53,7 @@ func updateSystemStats(ctx context.Context, hits []goatcounter.Hit, isReindex bo
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := zdb.NewBulkInsert(ctx, "system_stats", []string{"site_id", "day",
 			"path_id", "system_id", "count", "count_unique"})
-		if zdb.PgSQL(ctx) {
+		if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
 			ins.OnConflict(`on conflict on constraint "system_stats#site_id#path_id#day#system_id" do update set
 				count        = system_stats.count        + excluded.count,
 				count_unique = system_stats.count_unique + excluded.count_unique`)

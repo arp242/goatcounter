@@ -45,7 +45,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id",
 			"hour", "total", "total_unique"})
-		if zdb.PgSQL(ctx) {
+		if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
 			ins.OnConflict(`on conflict on constraint "hit_counts#site_id#path_id#hour" do update set
 				total        = hit_counts.total        + excluded.total,
 				total_unique = hit_counts.total_unique + excluded.total_unique`)

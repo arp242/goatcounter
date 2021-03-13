@@ -38,7 +38,7 @@ import (
 func NewWebsite(db zdb.DB, dev bool) chi.Router {
 	r := chi.NewRouter()
 
-	fsys, err := zfs.EmbedOrFS(goatcounter.Templates, "", dev)
+	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "", dev)
 	if err != nil {
 		panic(err)
 	}

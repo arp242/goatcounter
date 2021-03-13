@@ -77,7 +77,7 @@ func NewStatic(r chi.Router, dev bool) chi.Router {
 			"*":         86400 * 30,
 		}
 	}
-	fsys, err := zfs.EmbedOrFS(goatcounter.Static, "public", dev)
+	fsys, err := zfs.EmbedOrDir(goatcounter.Static, "public", dev)
 	if err != nil {
 		panic(err)
 	}
