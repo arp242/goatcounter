@@ -91,7 +91,7 @@ func (u *User) hashPassword(ctx context.Context) error {
 	}
 
 	cost := bcrypt.DefaultCost
-	if Config(ctx).RunningTests { // Otherwise tests take 1.5s extra
+	if Config(ctx).BcryptMinCost { // Otherwise every test take 1.5s extra
 		cost = bcrypt.MinCost
 	}
 	pwd, err := bcrypt.GenerateFromPassword(u.Password, cost)

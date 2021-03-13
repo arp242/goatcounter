@@ -2,6 +2,11 @@ module zgo.at/goatcounter
 
 go 1.16
 
+replace zgo.at/errors => ../errors
+replace zgo.at/zhttp => ../zhttp
+replace zgo.at/zdb => ../zdb
+replace zgo.at/zstd => ../zstd
+
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it
 // compiles with JSON support without having to specify a build tag, which is
 // inconvenient, easily forgotten, and causes runtime errors.
@@ -43,7 +48,7 @@ require (
 	zgo.at/isbot v0.0.0-20201217063241-a1aab44f6889
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3
-	zgo.at/zcache v1.0.1-0.20201224082040-4b746633475e
+	zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6
 	zgo.at/zdb v0.0.0-20210311032756-6d19490979b9
 	zgo.at/zhttp v0.0.0-20210309183433-b3a06bbb3ae6
 	zgo.at/zli v0.0.0-20210310102828-e74d81bf1798

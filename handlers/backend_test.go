@@ -28,6 +28,10 @@ func TestBackendTpl(t *testing.T) {
 	tests := []struct {
 		page, want string
 	}{
+		{"/updates", "Updates"},
+		{"/code", "Insert the code below to add GoatCounter"},
+
+		// Settings
 		{"/settings/main", "Data retention in days"},
 		{"/settings/dashboard", "Paths overview"},
 		{"/settings/sites", "Copy all settings from the current site except the domain name"},
@@ -37,8 +41,15 @@ func TestBackendTpl(t *testing.T) {
 		{"/settings/delete", "the site will be ‘soft-deleted’"},
 		{"/settings/change-code", "Change your site code and login domain"},
 
-		{"/updates", "Updates"},
-		{"/code", "Insert the code below to add GoatCounter"},
+		// Shared
+		{"/help", "I don’t see my pageviews?"},
+		{"/gdpr", "consult a lawyer"},
+		{"/contact", "Public Telegram Group"},
+		{"/contribute", "One-time donation"},
+		{"/api", "Backend integration"},
+		{"/api.html", "GoatCounter API documentation"},
+		{"/api2.html", "<rapi-doc"},
+		{"/api.json", `"description": "API for GoatCounter"`},
 
 		// TODO: Not found, as it's not running in "saas mode".
 		//{"/billing", "XXXX"},

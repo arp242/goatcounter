@@ -31,6 +31,14 @@ func init() {
 	goatcounter.InitGeoDB("")
 }
 
+func Context(db zdb.DB) context.Context {
+	ctx := goatcounter.NewContext(db)
+	goatcounter.Config(ctx).BcryptMinCost = true
+	goatcounter.Config(ctx).Plan = goatcounter.PlanPersonal
+	goatcounter.Config(ctx).Domain = "example.com"
+	return ctx
+}
+
 func Reset() {
 	goatcounter.Memstore.Reset()
 }
@@ -80,9 +88,7 @@ func db(t testing.TB, storeFile bool) (context.Context, func()) {
 		t.Fatalf("connect to DB: %s", err)
 	}
 
-	ctx := goatcounter.NewContext(db)
-	goatcounter.Config(ctx).RunningTests = true
-	goatcounter.Config(ctx).Plan = goatcounter.PlanPersonal
+	ctx := Context(db)
 	goatcounter.Memstore.TestInit(db)
 	ctx = initData(ctx, db, t)
 

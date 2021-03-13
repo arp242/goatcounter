@@ -330,8 +330,8 @@ func (l Line) exclude(e excludePattern) bool {
 	default:
 		m = strings.Contains(l[e.field], e.pattern)
 	case excludeGlob:
-		// We use doublstar instead of filepath.Match() because the latter
-		// doesn't support "**" and "{a,b}" patterns, but of which are very
+		// We use doublestar instead of filepath.Match() because the latter
+		// doesn't support "**" and "{a,b}" patterns, both of which are very
 		// useful here.
 		m, _ = doublestar.Match(e.pattern, l[e.field])
 	case excludeRe:

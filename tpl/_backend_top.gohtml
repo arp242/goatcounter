@@ -32,12 +32,12 @@
 					{{- end -}}
 				{{else if has_prefix .Path "/settings/sites/remove/"}}
 					<strong id="back"><a href="/settings/sites">←&#xfe0e; Back</a></strong>
-				{{else if has_prefix .Path "/settings/purge"}}
+				{{else if has_prefix .Path "/settings/purge/confirm"}}
 					<strong id="back"><a href="/settings/purge">←&#xfe0e; Back</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
 					<strong id="back"><a href="/billing">←&#xfe0e; Back</a></strong>
 				{{else}}
-					<strong id="back"><a href="/">←&#xfe0e; Back</a></strong>
+					<strong id="back"><a href="/">←&#xfe0e; Dashboard</a></strong>
 				{{end}}
 			</div>
 			<div>

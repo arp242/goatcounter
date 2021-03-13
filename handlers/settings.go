@@ -174,7 +174,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if emailChanged {
-		sendEmailVerify(site, user, goatcounter.Config(r.Context()).EmailFrom)
+		sendEmailVerify(r.Context(), site, user, goatcounter.Config(r.Context()).EmailFrom)
 	}
 
 	if makecert {
@@ -594,9 +594,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 			sendErr := blackmail.Send("GoatCounter import error",
 				blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
 				blackmail.To(user.Email),
-				blackmail.BodyMustText(goatcounter.EmailTemplate("email_import_error.gotxt", struct {
-					Error error
-				}{err})))
+				blackmail.BodyMustText(goatcounter.TplEmailImportError{err}.Render))
 			if sendErr != nil {
 				zlog.Error(sendErr)
 			}

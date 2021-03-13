@@ -12,10 +12,10 @@ func TestMigrate(t *testing.T) {
 	exit, _, out, _, dbc, clean := startTest(t)
 	defer clean()
 
-	runCmd(t, exit, "migrate", "-db="+dbc, "show")
+	runCmd(t, exit, "migrate", "-db="+dbc, "pending")
 	wantExit(t, exit, out, 0)
-	want := "No pending migrations\n"
+	want := "no pending migrations\n"
 	if out.String() != want {
-		t.Error()
+		t.Error(out.String())
 	}
 }

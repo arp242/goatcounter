@@ -73,6 +73,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		c := goatcounter.Config(ctx)
 		c.GoatcounterCom = true
+		c.Dev = dev
 		c.Plan = plan
 		c.Domain = domain
 		c.DomainStatic = domainStatic

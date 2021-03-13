@@ -51,8 +51,8 @@ footer > div:first-child { margin-bottom: 1em; }
 #home-login p     { font-size: .8em; margin-top: 1.3em; }
 
 /* Live demo and screenshots */
-#home-screens     { text-align: center; margin-top: 2em; }
-#home-screens p   { width: 100%; margin-bottom: 2em; font-weight: bold; }
+#home-screens     { text-align: center; margin-top: 1em; }
+#home-screens p   { width: 100%; margin-bottom: 3em; font-weight: bold; }
 #home-screens p a { padding: .3em 1em; border-bottom: 3px solid yellow; transition: color, border .2s; }
 #home-screens p a:hover { text-decoration: none; border-bottom: 3px solid #6491ff; }
 /*
@@ -181,6 +181,9 @@ dt { font-weight: bold; margin-top: 1em; }
 #docs-list    { text-align: center; }
 #docs-list ul { list-style: none; margin: 0; padding: 0; height: 4em;
 	            display: flex; flex-direction: column; flex-wrap: wrap; justify-content: space-between; }
+@media (max-width: 35rem) {
+	#docs-list ul { height: auto; }
+}
 
 /* Force inputs to be 16px, so that iPhone won't zoom on select, which is
  * super annoying and 100% pointless.

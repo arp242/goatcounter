@@ -8,7 +8,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"io/fs"
 	"net"
 	"net/http"
 	"os"
@@ -32,7 +31,7 @@ import (
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zli"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zgo"
+	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/znet"
 	"zgo.at/zvalidate"
 )
@@ -157,15 +156,14 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		c := goatcounter.Config(ctx)
 		c.EmailFrom = from
-		c.Port = port
+		if port != "" {
+			c.Port = ":" + port
+		}
 		c.DomainStatic = domainStatic
 		c.Serve = true
+		c.Dev = dev
 		c.URLStatic = urlStatic
 		c.DomainCount = domainCount
-
-		// if cfg.Port != "" {
-		// 	cfg.Port = ":" + cfg.Port
-		// }
 
 		// Set up HTTP handler and servers.
 		hosts := map[string]http.Handler{
@@ -287,15 +285,11 @@ func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (z
 		return nil, nil, nil, nil, 0, err
 	}
 
-	var files fs.FS = goatcounter.Templates
-	if dev {
-		files = os.DirFS(zgo.ModuleRoot())
-	}
-	files, err = fs.Sub(files, "tpl")
+	fsys, err := zfs.EmbedOrFS(goatcounter.Templates, "tpl", dev)
 	if err != nil {
 		return nil, nil, nil, nil, 0, err
 	}
-	ztpl.Init(files)
+	ztpl.Init(fsys)
 
 	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS, dev)
 

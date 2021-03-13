@@ -20,22 +20,25 @@ func TestWebsiteTpl(t *testing.T) {
 		path, want string
 	}{
 		{"/", "doesn’t track users with"},
-		{"/help", "I don’t see my pageviews?"},
 		{"/privacy", "Screen size"},
-		{"/gdpr", "consult a lawyer"},
 		{"/terms", "The “services” are any software, application, product, or service"},
-		{"/contact", "Public Telegram Group"},
-		{"/contribute", "One-time donation"},
 		{"/code", "Setting the endpoint in JavaScript"},
 		{"/why", "Footnotes"},
 		{"/data", "CSV format with a header"},
-		{"/api", "Backend integration"},
 		{"/design", "Firefox on iOS is just displayed as Safari"},
 		{"/status", "uptime"},
 		{"/signup", `<label for="email">Email address</label>`},
 		{"/user/forgot", "Forgot domain"},
-		// {"/api.html", "GoatCounter API documentation"},
-		// {"/api.json", `"description": "API for GoatCounter"`},
+
+		// Shared
+		{"/help", "I don’t see my pageviews?"},
+		{"/gdpr", "consult a lawyer"},
+		{"/contact", "Public Telegram Group"},
+		{"/contribute", "One-time donation"},
+		{"/api", "Backend integration"},
+		{"/api.html", "GoatCounter API documentation"},
+		{"/api2.html", "<rapi-doc"},
+		{"/api.json", `"description": "API for GoatCounter"`},
 	}
 
 	for _, tt := range tests {

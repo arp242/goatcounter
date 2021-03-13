@@ -1,6 +1,6 @@
 Hi there,
 
 Please go here to verify your GoatCounter email address:
-{{.Site.URL .Context}}/user/verify/{{.User.EmailToken}}
+{{unsafe (.Site.URL .Context)}}/user/verify/{{.User.EmailToken}}
 
 {{template "_email_bottom.gotxt" .}}

@@ -13,12 +13,15 @@
 		for (var i=0; i<dt.length; i++) {
 			dt[i].addEventListener('click', function(e) {
 				var dd = e.target.nextElementSibling
+				dd.classList.add('cbox')
 				if (dd.style.height === 'auto') {
 					dd.style.padding = '0'
 					dd.style.height = '0'
+					dd.style.marginBottom = '0'
 				} else {
 					dd.style.padding = '.3em 1em'
 					dd.style.height = 'auto'
+					dd.style.marginBottom = '1em'
 				}
 			})
 		}

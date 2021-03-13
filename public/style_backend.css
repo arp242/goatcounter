@@ -341,7 +341,9 @@ noscript p { margin: .5em; }
 #home-pricing        { border: none; padding: 0; }
 #home-pricing input  { display: none; }
 #home-pricing input:checked+label { background-color: #f7f7f7; }
+
 /* Copy from style.css */
+.cbox                { box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
 #home-pricing >span  { display: flex; justify-content: space-between; text-align: center; align-items: flex-start; }
 #home-pricing label  { box-shadow: 0 0 4px #cdc8a4; background-color: #fff; width: calc(25% - .5em); }
 #home-pricing h3     { margin: .5em 0; }
@@ -361,6 +363,16 @@ noscript p { margin: .5em; }
 	#home-pricing h3           { padding-top: .5em; }
 	#home-signup a             { width: auto; }
 }
+
+#home-pricing-faq      { font-size: .9rem; }
+#home-pricing-faq h3   { margin-bottom: 0; text-align: center; }
+#home-pricing-faq dt   { text-align: center; }
+#home-pricing-faq dt a { display: none; }
+#home-pricing-faq dl   { max-width: 50em; margin: 0 auto; text-align: center; }
+#home-pricing-faq dt   { display: inline; font-weight: normal; color: #00f; transition: color .2s; cursor: pointer; }
+#home-pricing-faq dt:hover { text-decoration: underline; color: #6491ff; }
+#home-pricing-faq dd   { background-color: #fff; padding: .4em 1em; padding: 0; margin: 0; overflow: hidden; height: 0; text-align: left; }
+
 /* End copy */
 
 

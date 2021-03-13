@@ -204,10 +204,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		err = blackmail.Send("GoatCounter export ready",
 			blackmail.From("GoatCounter export", Config(ctx).EmailFrom),
 			blackmail.To(user.Email),
-			blackmail.BodyMustText(EmailTemplate("email_export_done.gotxt", struct {
-				Site   Site
-				Export Export
-			}{*site, *e})))
+			blackmail.BodyMustText(TplEmailExportDone{ctx, *site, *e}.Render))
 		if err != nil {
 			l.Error(err)
 		}
@@ -312,11 +309,7 @@ func Import(
 		err = blackmail.Send("GoatCounter import ready",
 			blackmail.From("GoatCounter import", Config(ctx).EmailFrom),
 			blackmail.To(GetUser(ctx).Email),
-			blackmail.BodyMustText(EmailTemplate("email_import_done.gotxt", struct {
-				Site   Site
-				Rows   int
-				Errors *errors.Group
-			}{*site, n, errs})))
+			blackmail.BodyMustText(TplEmailImportDone{*site, n, errs}.Render))
 		if err != nil {
 			l.Error(err)
 		}

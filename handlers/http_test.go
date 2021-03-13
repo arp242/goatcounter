@@ -63,12 +63,13 @@ func init() {
 
 func TestMain(m *testing.M) {
 	os.Exit(ztpl.TestTemplateExecution(m,
-		"", "admin.gohtml", "admin_site.gohtml", "admin_sql.gohtml",
+		"", "admin.gohtml", "admin_site.gohtml",
 		// TODO: test these too.
 		"billing.gohtml", "billing_cancel.gohtml",
 
 		"user_forgot_pw.gohtml", "user_reset.gohtml", "totp.gohtml",
 
+		// Tested in tpl_test.go
 		"email_export_done.gotxt", "email_forgot_site.gotxt",
 		"email_import_done.gotxt", "email_import_error.gotxt",
 		"email_password_reset.gotxt", "email_verify.gotxt",

@@ -7,7 +7,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"os"
 	"runtime"
 	"sync"
@@ -21,7 +20,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zgo"
+	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
 )
@@ -101,14 +100,14 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 }
 
 func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
-	var files fs.FS = goatcounter.DB
-	if dev {
-		files = os.DirFS(zgo.ModuleRoot())
+	fsys, err := zfs.EmbedOrFS(goatcounter.DB, "db", dev)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	db, err := zdb.Connect(zdb.ConnectOptions{
 		Connect:      connect,
-		Files:        files,
+		Files:        fsys,
 		Migrate:      migrate,
 		GoMigrations: gomig.Migrations,
 		Create:       create,

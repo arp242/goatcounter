@@ -72,6 +72,7 @@ func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 		defer db.Close()
 
+		// TODO: Read from fs on dev
 		m, err := zdb.NewMigrate(db, goatcounter.DB, gomig.Migrations)
 		if err != nil {
 			return err

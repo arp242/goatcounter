@@ -11,148 +11,24 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"sort"
 	"strings"
-	"text/template"
 
-	"github.com/oschwald/geoip2-golang"
-	"github.com/oschwald/maxminddb-golang"
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zio"
+	"zgo.at/zstd/zruntime"
 )
 
 func main() {
-	l := zlog.Module("gen")
-
-	if len(os.Args) > 1 && os.Args[1] == "locations" {
-		err := locations()
-		if err != nil {
-			l.Error(err)
-		}
+	if _, ok := os.LookupEnv("CI"); ok {
 		return
 	}
 
-	if _, ok := os.LookupEnv("CI"); !ok {
-		err := markdown()
+	for _, f := range []func() error{markdown, kommentaar} {
+		err := f()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate markdown files: %s\n", err)
-		}
-		l = l.Since("markdown")
-
-		err = kommentaar()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate kommentaar files: %s\n", err)
-		}
-		l = l.Since("kommentaar")
-
-		err = schema()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "non-fatal error: unable to generate DB schema files: %s\n", err)
-		}
-		l = l.Since("schema")
-	}
-
-	l.FieldsSince().Print("done")
-}
-
-func schema() error {
-	tpl, err := os.ReadFile("./db/schema.gotxt")
-	if err != nil {
-		return err
-	}
-
-	var pgsql bool
-	t := template.Must(template.New("").Funcs(template.FuncMap{
-		"sqlite": func(s string) string {
-			if pgsql {
-				return ""
-			}
-			return s
-		},
-		"psql": func(s string) string {
-			if pgsql {
-				return s
-			}
-			return ""
-		},
-		"auto_increment": func() string {
-			if pgsql {
-				return "serial         primary key"
-			}
-			return "integer        primary key autoincrement"
-		},
-		"jsonb": func() string {
-			if pgsql {
-				return "jsonb    "
-			}
-			return "varchar  "
-		},
-		"blob": func() string {
-			if pgsql {
-				return "bytea   "
-			}
-			return "blob    "
-		},
-		"check_timestamp": func(col string) string {
-			if pgsql {
-				return ""
-			}
-			return "check(" + col + " = strftime('%Y-%m-%d %H:%M:%S', " + col + "))"
-		},
-		"check_date": func(col string) string {
-			if pgsql {
-				return ""
-			}
-			return "check(" + col + " = strftime('%Y-%m-%d', " + col + "))"
-		},
-		"cluster": func(tbl, idx string) string {
-			if pgsql {
-				return `cluster ` + tbl + ` using "` + idx + `";`
-			}
-			return ""
-		},
-		"replica": func(tbl, idx string) string {
-			if pgsql {
-				return `alter table ` + tbl + ` replica identity using index "` + idx + `";`
-			}
-			return ""
-		},
-	}).Parse(string(tpl)))
-
-	{
-		fp, err := os.Create("./db/schema-sqlite.sql")
-		if err != nil {
-			return (err)
-		}
-
-		err = t.Execute(fp, nil)
-		if err != nil {
-			return err
-		}
-
-		err = fp.Close()
-		if err != nil {
-			return (err)
+			fmt.Fprintf(os.Stderr, "%s: %s\n", zruntime.FuncName(f), err)
 		}
 	}
-
-	{
-		pgsql = true
-		fp, err := os.Create("./db/schema-postgres.sql")
-		if err != nil {
-			return (err)
-		}
-		err = t.Execute(fp, nil)
-
-		err = fp.Close()
-		if err != nil {
-			return (err)
-		}
-	}
-
-	return nil
 }
 
 var (
@@ -190,8 +66,8 @@ func kommentaar() error {
 	return nil
 }
 
-// Don't really need to generate Markdown on requests, and don't want to
-// implement caching; so just go generate it.
+// TODO: implement something to generate and cache markdown on requests, so we
+// can get rid of the generate step.
 func markdown() error {
 	ls, err := os.ReadDir("./tpl")
 	if err != nil {
@@ -236,58 +112,6 @@ func markdown() error {
 		err = dest.Close()
 		if err != nil {
 			return err
-		}
-	}
-
-	return nil
-}
-
-func locations() error {
-	db, err := maxminddb.FromBytes(goatcounter.GeoDB)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	type x struct {
-		Ccode, Rcode, Cname, Rname string
-	}
-	var (
-		all  = make(map[string]x)
-		iter = db.Data()
-	)
-	for iter.Next() {
-		var r geoip2.City
-		err = iter.Data(&r)
-		if err != nil {
-			return err
-		}
-
-		if r.Country.IsoCode == "" {
-			continue
-		}
-
-		all[r.Country.IsoCode] = x{
-			Ccode: r.Country.IsoCode,
-			Cname: r.Country.Names["en"],
-		}
-	}
-
-	allSort := make([]x, 0, len(all))
-	for _, v := range all {
-		allSort = append(allSort, v)
-	}
-	sort.Slice(allSort, func(i, j int) bool {
-		return allSort[i].Ccode+allSort[i].Rcode < allSort[j].Ccode+allSort[j].Rcode
-	})
-
-	fmt.Println("insert into locations (country, country_name, region, region_name) values")
-	for i, v := range allSort {
-		fmt.Printf("\t('%s', '%s', '', '')", v.Ccode, strings.ReplaceAll(v.Cname, "'", "''"))
-		if i == len(all)-1 {
-			fmt.Println(";")
-		} else {
-			fmt.Println(",")
 		}
 	}
 

@@ -4,12 +4,15 @@
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="{{.MetaDesc}}">
-	<title>GoatCounter: open source web analytics</title>
+	<title>GoatCounter – open source web analytics</title>
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
 	<link rel="canonical" href="https://{{.Domain}}{{if ne .Page "home"}}/{{.Page}}{{end}}">
 </head>
 
 <body>
+	{{if ne .Page "home"}}<nav class="center">
+		<strong id="back"><a href="/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
+	</nav>{{end}}
 	<div class="page page-{{.Page}}">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}

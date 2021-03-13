@@ -79,7 +79,7 @@ func runImportBg(ctx context.Context, t *testing.T, exit *zli.TestExit, args ...
 		"-site=http://test.localhost:9876",
 		"-debug=all"}, args...)...)
 	<-ready
-	time.Sleep(200 * time.Millisecond) // Tiny sleep for delay between "ready" and start of loop.
+	time.Sleep(500 * time.Millisecond) // Tiny sleep for delay between "ready" and start of loop.
 
 	return stop, runImportClean(ctx, t)
 }
@@ -141,7 +141,7 @@ func writeLines(t *testing.T, fp *os.File, lines ...string) {
 		t.Fatal(err)
 	}
 	// Give import some time to make sure it's processed.
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(1000 * time.Millisecond)
 }
 
 func TestImport(t *testing.T) {
@@ -187,7 +187,7 @@ func TestImport(t *testing.T) {
 			`127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] "GET /test.html HTTP/1.1" 200 2326 "http://www.example.com/start.html" "Mozilla/5.0"`,
 			4)...)
 		stop <- struct{}{}
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 		err := cron.PersistAndStat(ctx)
 		if err != nil {
 			t.Fatal(err)
@@ -219,7 +219,7 @@ func TestImport(t *testing.T) {
 			`127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] "GET /test.html HTTP/1.1" 200 2326 "http://www.example.com/start.html" "Mozilla/5.0"`,
 			100)...)
 		stop <- struct{}{}
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 		err := cron.PersistAndStat(ctx)
 		if err != nil {
 			t.Fatal(err)

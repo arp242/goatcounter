@@ -113,15 +113,13 @@ func cmdDb(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	case "":
 		return errors.New("need a subcommand: schema-sqlite, schema-pgsql, or test")
 
-	case "schema-sqlite":
-		d, err := goatcounter.DB.ReadFile("db/schema-sqlite.sql")
+	case "schema-sqlite", "schema-pgsql":
+		// TODO: Read from fs on dev
+		d, err := goatcounter.DB.ReadFile("db/schema.gotxt")
 		if err != nil {
 			return err
 		}
-		fmt.Fprint(zli.Stdout, string(d))
-		return nil
-	case "schema-pgsql":
-		d, err := goatcounter.DB.ReadFile("db/schema-postgres.sql")
+		d, err = zdb.SchemaTemplate(cmd == "schema-pgsql", string(d))
 		if err != nil {
 			return err
 		}

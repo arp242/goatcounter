@@ -6,16 +6,13 @@ package handlers
 
 import (
 	"context"
-	"io/fs"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter"
-	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zgo"
+	"zgo.at/zstd/zfs"
 	"zgo.at/zstripe"
 )
 
@@ -72,12 +69,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	return g
 }
 
-func NewWebsite(db zdb.DB, dev bool) chi.Router {
-	r := chi.NewRouter()
-	website{}.Mount(r, db, dev)
-	return r
-}
-
 func NewStatic(r chi.Router, dev bool) chi.Router {
 	var cache map[string]int
 	if !dev {
@@ -86,28 +77,11 @@ func NewStatic(r chi.Router, dev bool) chi.Router {
 			"*":         86400 * 30,
 		}
 	}
-
-	var files fs.FS = goatcounter.Static
-	if dev {
-		files = os.DirFS(zgo.ModuleRoot())
-	}
-	files, _ = fs.Sub(files, "public")
-
-	r.Get("/*", zhttp.NewStatic("*", files, cache).ServeHTTP)
-	return r
-}
-
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, domainStatic string) chi.Router {
-	r := chi.NewRouter()
-	backend{}.Mount(r, db, dev, domainStatic)
-
-	if acmeh != nil {
-		r.Get("/.well-known/acme-challenge/{key}", acmeh)
+	fsys, err := zfs.EmbedOrFS(goatcounter.Static, "public", dev)
+	if err != nil {
+		panic(err)
 	}
 
-	if !goatcounterCom {
-		NewStatic(r, dev)
-	}
-
+	r.Get("/*", zhttp.NewStatic("*", fsys, cache).ServeHTTP)
 	return r
 }

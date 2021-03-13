@@ -1,9 +1,18 @@
-{{define "code"}}&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
+{{template "_top.gohtml" .}}
+<!-- _ -->
+
+Site code
+=========
+{{if .FromWWW}}
+<p class="flash flash-i">Note: replace <code>{{.SiteURL}}</code> with the URL
+to your actual site in the examples below. This will be done automatically if
+you view the docs linked from your site in the top-right corner.</p>
+{{end}}
+
+{{define "code"}}&lt;script data-goatcounter="{{.SiteURL}}/count"
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
 <pre>{{template "code" .}}</pre>
-<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews {{if .Site.ID}}({{.Site.Domain .Context}} and/or gc.zgo.at domain){{end}}.</p>
-
-{{if eq .Path "/code"}}
+<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews ({{.SiteDomain}} and/or gc.zgo.at domain).</p>
 
 Integrations
 ------------
@@ -11,7 +20,7 @@ Integrations
 
 <div style="text-align: center">
 <label for="int-url">Endpoint</label><br>
-<input type="text" value="{{.Site.URL .Context}}/count" style="width: 28em"><br>
+<input type="text" value="{{.SiteURL}}/count" style="width: 28em"><br>
 <span style="color: #999">You’ll need to copy this to the integration settings</span>
 
 <style>
@@ -45,14 +54,14 @@ image. The easiest way to do this is from the JavaScript integration:
         window.goatcounter.visit_count({append: 'body'})
     </script>
 
-{{if .Site.ID}}
-**Note**: you will need to enable “Allow adding visitor counts on your website”
-in your <a href="/settings/main">site settings</a>; this defaults to
-*off* to prevent accidental unintentional leaking of data.
-{{else}}
+{{if .FromWWW}}
 **Note**: you will need to enable “Allow adding visitor counts on your website”
 in your site settings; this defaults to *off* to prevent accidental
 unintentional leaking of data.
+{{else}}
+**Note**: you will need to enable “Allow adding visitor counts on your website”
+in your <a href="/settings/main">site settings</a>; this defaults to
+*off* to prevent accidental unintentional leaking of data.
 {{end}}
 
 See the <a href="#visitor-counter-customisation">detailed documentation</a> for more
@@ -94,7 +103,7 @@ Content security policy
 You’ll need to add the following if you use a `Content-Security-Policy`:
 
     script-src  https://{{.CountDomain}}
-    img-src     {{.Site.URL .Context}}/count
+    img-src     {{.SiteURL}}/count
 
 The `script-src` is needed to load the `count.js` script, and the `img-src` is
 needed to send pageviews to GoatCounter (which are loaded with a “tracking
@@ -214,7 +223,7 @@ The `data-goatcounter-settings` attribute on the script can set to a JSON object
 to configure the settings; this will **override** anything that's already
 present in `window.goatcounter`. For example to set `no_onload`:
 
-      <script data-goatcounter="{{.Site.URL .Context}}/count"
+      <script data-goatcounter="{{.SiteURL}}/count"
               data-goatcounter-settings='{"no_onload":true}'
               async src="//{{.CountDomain}}/count.js"></script>
 
@@ -476,12 +485,12 @@ Or the same for SVG:
 You don't need to use the JavaScript integration, you can also add an iframe or
 image "directly"; the paths are in the form of:
 
-    {{.Site.URL .Context}}/counter/[PATH].[EXT]
+    {{.SiteURL}}/counter/[PATH].[EXT]
 
 The `[PATH]` is the full path, including a leading `/` and the `[EXT]` is the
 `html`, `png`, `svg`, or `json` extension. For example
-`{{.Site.URL .Context}}/counter//.html` will display the view acount for `/`, and
-`{{.Site.URL .Context}}/counter//test.html.html` will display the view count for
+`{{.SiteURL}}/counter//.html` will display the view acount for `/`, and
+`{{.SiteURL}}/counter//test.html.html` will display the view count for
 `/test.html`.
 
 There are two query parameters: `no_branding`, to disable to “stats by
@@ -501,7 +510,7 @@ A simple example usage:
 	r.addEventListener('load', function() {
 		document.querySelector('#stats').innerText = JSON.parse(this.responseText).count_unique
 	})
-	r.open('GET', '{{.Site.URL .Context}}/counter/' + encodeURIComponent(location.pathname) + '.json')
+	r.open('GET', '{{.SiteURL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
 	r.send()
 
 
@@ -512,7 +521,7 @@ Advanced integrations
 The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
 an image on your site:
 
-    <img src="{{.Site.URL .Context}}/count?p=/test-img">
+    <img src="{{.SiteURL}}/count?p=/test-img">
 
 This won’t allow recording the referrer or screen size, and may also increase
 the number of bot requests (we do our best to filter this out, but it’s hard to
@@ -533,7 +542,7 @@ You can send data from logfiles with the `goatcounter import` command; for
 example:
 
 	$ export GOATCOUNTER_API_KEY=...
-	$ goatcounter import -follow -format=combined -site='{{.Site.URL .Context}}' /var/log/nginx/access_log
+	$ goatcounter import -follow -format=combined -site='{{.SiteURL}}' /var/log/nginx/access_log
 
 This will keep watching the file for changes and report new pageviews as they
 come in. You can also batch import the data from logfiles by dropping the
@@ -573,14 +582,14 @@ published versions:
   - Add braces around `if` since some minifiers can't deal with "dangling else"
     well (the code is correct, it's the minifier that's broken).
 
-      <script data-goatcounter="{{.Site.URL .Context}}/count"
+      <script data-goatcounter="{{.SiteURL}}/count"
               async src="//{{.CountDomain}}/count.v2.js"
               crossorigin="anonymous"
               integrity="sha384-PeYXrhTyEaBBz91ANMgpSbfN1kjioQNPHNDbMvevUVLJoWrVEjDCpKb71TehNAlj"></script>
 
 - **v1** (25 Dec 2020):
 
-      <script data-goatcounter="{{.Site.URL .Context}}/count"
+      <script data-goatcounter="{{.SiteURL}}/count"
               async src="//{{.CountDomain}}/count.v2.js"
               crossorigin="anonymous"
               integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"></script>
@@ -603,14 +612,14 @@ inside `<script>` tags. You won’t get any new features or other updates, but t
 Be sure to include the `data-goatcounter` attribute on the script tag or set
 `goatcounter.endpoint` so GoatCounter knows where to send the pageviews to:
 
-    <script data-goatcounter="{{.Site.URL .Context}}/count">
+    <script data-goatcounter="{{.SiteURL}}/count">
         // [.. contents of count.js ..]
     </script>
 
     // or:
 
     <script>
-        window.goatcounter = {endpoint: '{{.Site.URL .Context}}/count'}
+        window.goatcounter = {endpoint: '{{.SiteURL}}/count'}
 
         // [.. contents of count.js ..]
     </script>
@@ -645,4 +654,5 @@ For example, to send to different sites depending on the current hostname:
 
 Note that `data-goatcounter` will always override any `goatcounter.endpoint`.
 
-{{end}} {{/* if eq .Path "/settings" */}}
+{{template "_bottom.gohtml" .}}
+

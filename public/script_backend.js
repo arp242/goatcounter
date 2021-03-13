@@ -378,6 +378,15 @@
 		if (!form.length)
 			return
 
+		// Pricing FAQ
+		$('dt').on('click', function(e) {
+			var dd = $(e.target).next().addClass('cbox')
+			if (dd[0].style.height === 'auto')
+				dd.css({padding: '0', height: '0', marginBottom: '0'})
+			else
+				dd.css({padding: '.3em 1em', height: 'auto', marginBottom: '1em'})
+		})
+
 		// Show/hide donation options.
 		$('.plan input, .free input').on('change', function() {
 			var personal = $('input[name="plan"]:checked').val() === 'personal',

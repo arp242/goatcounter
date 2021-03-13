@@ -20,7 +20,7 @@ is useful for you to ensure the long-term viability.</p>
 </ul>
 
 <h2 id="donate">One-time donation</h2>
-
+{{if .FromWWW}}
 <p>You can also send a one-time donation with the form below; the payments are
 processed by Stripe (you will need a Credit Card).</p>
 
@@ -41,5 +41,10 @@ processed by Stripe (you will need a Credit Card).</p>
 		<span>(in increments of €5)</span>
 	</div>
 </form>
+{{else}}
+<p>You can use the form at
+	<a href="https://www.goatcounter.com/contribute">goatcounter.com/contribute</a>
+	to make a one-time donation.</p>
+{{end}}
 
 {{template "_bottom.gohtml" .}}

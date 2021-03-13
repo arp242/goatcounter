@@ -25,6 +25,7 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
@@ -32,10 +33,25 @@ import (
 	"zgo.at/zvalidate"
 )
 
-type backend struct{}
-
 // DailyView forces the "view by day" if the number of selected days is larger than this.
 const DailyView = 90
+
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, domainStatic string) chi.Router {
+	r := chi.NewRouter()
+	backend{}.Mount(r, db, dev, domainStatic)
+
+	if acmeh != nil {
+		r.Get("/.well-known/acme-challenge/{key}", acmeh)
+	}
+
+	if !goatcounterCom {
+		NewStatic(r, dev)
+	}
+
+	return r
+}
+
+type backend struct{}
 
 func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 	if dev {
@@ -53,6 +69,11 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 		r.Use(mware.RequestLog(nil, "/count"))
 	}
 
+	fsys, err := zfs.EmbedOrFS(goatcounter.Templates, "", dev)
+	if err != nil {
+		panic(err)
+	}
+	website{fsys, false}.MountShared(r)
 	api{}.mount(r, db)
 	vcounter{}.mount(r, db)
 
@@ -66,11 +87,14 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 	{
 		rr := r.With(mware.Headers(nil))
 		rr.Get("/robots.txt", zhttp.HandlerRobots([][]string{{"User-agent: *", "Disallow: /"}}))
+		rr.Get("/security.txt", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return zhttp.Text(w, "Contact: support@goatcounter.com")
+		}))
 		rr.Post("/jserr", zhttp.HandlerJSErr())
 		rr.Post("/csp", zhttp.HandlerCSP())
 
 		// 4 pageviews/second should be more than enough.
-		rateLimited := rr.With(mware.Ratelimit(mware.RatelimitOptions{
+		rate := rr.With(mware.Ratelimit(mware.RatelimitOptions{
 			Client: func(r *http.Request) string {
 				// Add in the User-Agent to reduce the problem of multiple
 				// people in the same building hitting the limit.
@@ -90,9 +114,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 				return 4, 1
 			},
 		}))
-		countHandler := zhttp.Wrap(h.count)
-		rateLimited.Get("/count", countHandler)
-		rateLimited.Post("/count", countHandler) // to support navigator.sendBeacon (JS)
+		rate.Get("/count", zhttp.Wrap(h.count))
+		rate.Post("/count", zhttp.Wrap(h.count)) // to support navigator.sendBeacon (JS)
 	}
 
 	{
@@ -135,7 +158,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 				billing{}.mount(a, af)
 			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
-			af.Get("/code", zhttp.Wrap(h.code))
 
 			settings{}.mount(af)
 			admin{}.mount(af, db)
@@ -510,29 +532,6 @@ func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
 		Updates goatcounter.Updates
 		SeenAt  time.Time
 	}{newGlobals(w, r), up, seenat})
-}
-
-func (h backend) code(w http.ResponseWriter, r *http.Request) error {
-	var sites goatcounter.Sites
-	err := sites.ListSubs(r.Context())
-	if err != nil {
-		return err
-	}
-
-	cd := goatcounter.Config(r.Context()).DomainCount
-	if cd == "" {
-		cd = Site(r.Context()).Domain(r.Context())
-		port := goatcounter.Config(r.Context()).Port
-		if port != "" {
-			cd += ":" + port
-		}
-	}
-
-	return zhttp.Template(w, "backend_code.gohtml", struct {
-		Globals
-		SubSites    goatcounter.Sites
-		CountDomain string
-	}{newGlobals(w, r), sites, cd})
 }
 
 func hasPlan(ctx context.Context, site *goatcounter.Site) (bool, error) {

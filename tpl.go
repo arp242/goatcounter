@@ -13,7 +13,6 @@ import (
 	"html/template"
 	"image/png"
 	"math"
-	"strconv"
 	"strings"
 	"time"
 
@@ -21,6 +20,7 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"zgo.at/errors"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/ztpl"
 	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
@@ -42,16 +42,9 @@ func init() {
 		return s.URL(ctx)
 	})
 
-	var (
-		ss = time.Date(2019, 9, 16, 0, 0, 0, 0, time.UTC)
-		sl = time.Date(2019, 11, 7, 0, 0, 0, 0, time.UTC)
-	)
-	tplfunc.Add("before_size", func(createdAt time.Time) bool { return createdAt.Before(ss) })
-	tplfunc.Add("before_loc", func(createdAt time.Time) bool { return createdAt.Before(sl) })
-
 	// Implemented as function for performance.
-	tplfunc.Add("bar_chart", BarChart)
-	tplfunc.Add("text_chart", TextChart)
+	tplfunc.Add("bar_chart", barChart)
+	tplfunc.Add("text_chart", textChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
 
 	// Override defaults to take site settings in to account.
@@ -65,35 +58,10 @@ func init() {
 		return tplfunc.Number(n, s.Settings.NumberFormat)
 	})
 
-	tplfunc.Add("nformat64", func(n int64) string {
-		s := strconv.FormatInt(n, 10)
-		if len(s) < 4 {
-			return s
-		}
-
-		b := []byte(s)
-		for i, j := 0, len(b)-1; i < j; i, j = i+1, j-1 {
-			b[i], b[j] = b[j], b[i]
-		}
-
-		var out []rune
-		for i := range b {
-			if i > 0 && i%3 == 0 && ',' > 1 {
-				out = append(out, ',')
-			}
-			out = append(out, rune(b[i]))
-		}
-
-		for i, j := 0, len(out)-1; i < j; i, j = i+1, j-1 {
-			out[i], out[j] = out[j], out[i]
-		}
-		return string(out)
-	})
-
 	tplfunc.Add("totp_barcode", func(email, s string) template.HTML {
-		totpURI := fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s)
-		buf := bytes.NewBufferString("data:image/png;base64,")
-		qrCode, err := qr.Encode(totpURI, qr.M, qr.Auto)
+		qrCode, err := qr.Encode(
+			fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s),
+			qr.M, qr.Auto)
 		if err != nil {
 			zlog.Error(errors.Wrap(err, "encoding QR code"))
 			return template.HTML("Error generating the QR code; this has been logged for investigation.")
@@ -105,8 +73,8 @@ func init() {
 			return template.HTML("Error generating the QR code; this has been logged for investigation.")
 		}
 
-		e := base64.NewEncoder(base64.StdEncoding, buf)
-		err = png.Encode(e, qrCode)
+		buf := bytes.NewBufferString("data:image/png;base64,")
+		err = png.Encode(base64.NewEncoder(base64.StdEncoding, buf), qrCode)
 		if err != nil {
 			zlog.Error(errors.Wrap(err, "encoding QR code as PNG"))
 			return template.HTML("Error generating the QR code; this has been logged for investigation.")
@@ -130,7 +98,7 @@ var textSymbols = []rune{
 	'█',      // U+2588 FULL BLOCK
 }
 
-func TextChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
+func textChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
 	_, chunked := ChunkStat(stats)
 	symb := make([]rune, 0, 12)
 	for _, chunk := range chunked {
@@ -140,7 +108,7 @@ func TextChart(ctx context.Context, stats []Stat, max int, daily bool) template.
 	return template.HTML(symb)
 }
 
-func BarChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
+func barChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
 	site := MustGetSite(ctx)
 	now := Now().In(site.Settings.Timezone.Loc())
 	today := now.Format("2006-01-02")
@@ -292,3 +260,50 @@ func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link
 
 	return template.HTML(b.String())
 }
+
+type (
+	TplEmailWelcome struct {
+		Context     context.Context
+		Site        Site
+		User        User
+		CountDomain string
+	}
+	TplEmailForgotSite struct {
+		Context context.Context
+		Sites   Sites
+		Email   string
+	}
+	TplEmailPasswordReset struct {
+		Context context.Context
+		Site    Site
+		User    User
+	}
+	TplEmailVerify struct {
+		Context context.Context
+		Site    Site
+		User    User
+	}
+	TplEmailImportError struct {
+		Error error
+	}
+	TplEmailExportDone struct {
+		Context context.Context
+		Site    Site
+		Export  Export
+	}
+	TplEmailImportDone struct {
+		Site   Site
+		Rows   int
+		Errors *errors.Group
+	}
+)
+
+var E = ztpl.ExecuteBytes
+
+func (t TplEmailWelcome) Render() ([]byte, error)       { return E("email_welcome.gotxt", t) }
+func (t TplEmailForgotSite) Render() ([]byte, error)    { return E("email_forgot_site.gotxt", t) }
+func (t TplEmailPasswordReset) Render() ([]byte, error) { return E("email_password_reset.gotxt", t) }
+func (t TplEmailVerify) Render() ([]byte, error)        { return E("email_verify.gotxt", t) }
+func (t TplEmailImportError) Render() ([]byte, error)   { return E("email_import_error.gotxt", t) }
+func (t TplEmailExportDone) Render() ([]byte, error)    { return E("email_export_done.gotxt", t) }
+func (t TplEmailImportDone) Render() ([]byte, error)    { return E("email_import_done.gotxt", t) }

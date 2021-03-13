@@ -5,12 +5,13 @@
 <h2 id="delete">Delete {{if or .Site.Parent (not .GoatcounterCom)}}site{{else}}account{{end}}</h2>
 
 {{if .Site.Parent}}
+	{{/* TODO: just make this work */}}
 	<p>Note this site has a parent
 		(<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}</a>),
 		this will delete only this subsite, and not the parent.</p>
 {{end}}
 
-<p>The site {{if not .Site.Parent}}and all subsites{{end}} will be
+<p>The site {{if not .Site.Parent}}and all associated sites{{end}} will be
 	marked as deleted, and will no longer be accessible. All data will
 	be removed after 7 days.</p>
 

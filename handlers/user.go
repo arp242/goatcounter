@@ -5,6 +5,7 @@
 package handlers
 
 import (
+	"context"
 	"crypto/sha1"
 	"errors"
 	"fmt"
@@ -138,15 +139,13 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run("email:password", func() {
 		err := blackmail.Send(
-			fmt.Sprintf("Password reset for %s", site.Domain(r.Context())),
-			blackmail.From("GoatCounter login", goatcounter.Config(r.Context()).EmailFrom),
+			fmt.Sprintf("Password reset for %s", site.Domain(ctx)),
+			blackmail.From("GoatCounter login", goatcounter.Config(ctx).EmailFrom),
 			blackmail.To(u.Email),
-			blackmail.BodyMustText(goatcounter.EmailTemplate("email_password_reset.gotxt", struct {
-				Site goatcounter.Site
-				User goatcounter.User
-			}{*site, *u})))
+			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render))
 		if err != nil {
 			zlog.Errorf("password reset: %s", err)
 		}
@@ -440,7 +439,7 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/")
 	}
 
-	sendEmailVerify(Site(r.Context()), user, goatcounter.Config(r.Context()).EmailFrom)
+	sendEmailVerify(r.Context(), Site(r.Context()), user, goatcounter.Config(r.Context()).EmailFrom)
 	zhttp.Flash(w, "Sent to %q", user.Email)
 	return zhttp.SeeOther(w, "/")
 }
@@ -489,15 +488,13 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings/auth")
 }
 
-func sendEmailVerify(site *goatcounter.Site, user *goatcounter.User, emailFrom string) {
+func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcounter.User, emailFrom string) {
+	ctx = goatcounter.CopyContextValues(ctx)
 	bgrun.Run("email:verify", func() {
 		err := blackmail.Send("Verify your email",
 			mail.Address{Name: "GoatCounter", Address: emailFrom},
 			blackmail.To(user.Email),
-			blackmail.BodyMustText(goatcounter.EmailTemplate("email_verify.gotxt", struct {
-				Site goatcounter.Site
-				User goatcounter.User
-			}{*site, *user})))
+			blackmail.BodyMustText(goatcounter.TplEmailVerify{ctx, *site, *user}.Render))
 		if err != nil {
 			zlog.Errorf("blackmail: %s", err)
 		}

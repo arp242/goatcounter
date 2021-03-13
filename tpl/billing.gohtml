@@ -1,7 +1,9 @@
 {{template "_backend_top.gohtml" .}}
 
 {{if .Site.Parent}}
-	<p>Please manage the billing at the parent site: <a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}/billing</a></p>
+	{{/* TODO: just make this work */}}
+	<p>Please manage the billing at the main site:
+		<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}/billing</a></p>
 {{else if and .Site.Stripe .Subscribed}}
 	{{if .FreePlan}}
 		<p>Currently using the <em>Personal free</em> plan for non-commercial usage.</p>
