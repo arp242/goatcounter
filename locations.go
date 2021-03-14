@@ -76,9 +76,7 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 		l.ISO3166_2 = code
 		l.Country, l.Region = zstring.Split2(code, "-")
 		l.CountryName, l.RegionName = findGeoName(l.Country, l.Region)
-		l.ID, err = zdb.InsertID(ctx, "location_id",
-			`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
-			l.Country, l.Region, l.CountryName, l.RegionName)
+		err = l.insert(ctx)
 	}
 	if err != nil {
 		return errors.Wrap(err, "Location.ByCode")
@@ -119,11 +117,7 @@ func (l *Location) Lookup(ctx context.Context, ip string) error {
 		`select * from locations where country = $1 and region = $2`,
 		l.Country, l.Region)
 	if zdb.ErrNoRows(err) {
-		// Insert new entries; we seed it on creation, but not on every update
-		// and these kind of things change over time.
-		l.ID, err = zdb.InsertID(ctx, "location_id",
-			`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
-			l.Country, l.Region, l.CountryName, l.RegionName)
+		err = l.insert(ctx)
 	}
 	if err != nil {
 		return errors.Wrap(err, "Location.Lookup")
@@ -140,6 +134,20 @@ func (l Location) LookupIP(ctx context.Context, ip string) string {
 		return "" // Special ID: "unknown".
 	}
 	return l.ISO3166_2
+}
+
+func (l *Location) insert(ctx context.Context) (err error) {
+	l.ID, err = zdb.InsertID(ctx, "location_id",
+		`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
+		l.Country, l.Region, l.CountryName, l.RegionName)
+
+	// Make sure there is an entry for the country as well.
+	cErr := zdb.Exec(ctx, `insert into locations (country, country_name, region, region_name) values (?, ?, '', '')`,
+		l.Country, l.CountryName)
+	if err != nil && !zdb.ErrUnique(cErr) {
+		zlog.Error(cErr)
+	}
+	return err
 }
 
 // This takes ~13s for a full iteration for the Cities database on my laptop

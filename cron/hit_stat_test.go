@@ -27,7 +27,7 @@ func TestHitStats(t *testing.T) {
 	}...)
 
 	check := func(wantT, want0, want1 string) {
-		var stats goatcounter.HitStats
+		var stats goatcounter.HitLists
 		display, displayUnique, more, err := stats.List(ctx, now.Add(-1*time.Hour), now.Add(1*time.Hour), nil, nil, false)
 		if err != nil {
 			t.Fatal(err)

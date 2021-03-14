@@ -6,155 +6,103 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
-	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"zgo.at/errors"
 	"zgo.at/zdb"
 )
 
+type HitStat struct {
+	ID          string  `db:"id"`
+	Name        string  `db:"name"`
+	Count       int     `db:"count"`
+	CountUnique int     `db:"count_unique"`
+	RefScheme   *string `db:"ref_scheme"`
+}
+
+type HitStats struct {
+	More  bool
+	Stats []HitStat
+}
+
+func asUTCDate(s *Site, t time.Time) string {
+	return t.In(s.Settings.Timezone.Location).Format("2006-01-02")
+}
+
+// ByRef lists all paths by referrer.
+func (h *HitStats) ByRef(ctx context.Context, start, end time.Time, pathFilter []int64, ref string) error {
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ByRef", zdb.P{
+		"site":   MustGetSite(ctx).ID,
+		"start":  start,
+		"end":    end,
+		"filter": pathFilter,
+		"ref":    ref,
+	})
+	return errors.Wrap(err, "HitStats.ByRef")
+}
+
 // ListBrowsers lists all browser statistics for the given time period.
-func (h *Stats) ListBrowsers(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListBrowsers */
-		with x as (
-			select
-				browser_id,
-				sum(count) as count,
-				sum(count_unique) as count_unique
-			from browser_stats
-			where
-				site_id = :site and day >= :start and day <= :end
-				{{:filter and path_id in (:filter)}}
-			group by browser_id
-			order by count_unique desc
-		)
-		select
-			browsers.name,
-			sum(x.count) as count,
-			sum(x.count_unique) as count_unique
-		from x
-		join browsers using (browser_id)
-		group by browsers.name
-		order by count_unique desc
-		limit :limit offset :offset`,
-		struct {
-			Site   int64
-			Start  string
-			End    string
-			Filter []int64
-			Limit  int
-			Offset int
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset})
-
+func (h *HitStats) ListBrowsers(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowsers", zdb.P{
+		"site":   site.ID,
+		"start":  asUTCDate(site, start),
+		"end":    asUTCDate(site, end),
+		"filter": pathFilter,
+		"limit":  limit + 1,
+		"offset": offset,
+	})
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-	return errors.Wrap(err, "Stats.ListBrowsers browsers")
+	return errors.Wrap(err, "HitStats.ListBrowsers")
 }
 
 // ListBrowser lists all the versions for one browser.
-func (h *Stats) ListBrowser(ctx context.Context, browser string, start, end time.Time, pathFilter []int64) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListBrowser */
-		select
-			name || ' ' || version as name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from browser_stats
-		join browsers using (browser_id)
-		where
-			site_id = :site and day >= :start and day <= :end and
-			{{:filter path_id in (:filter) and}}
-			lower(name) = lower(:browser)
-		group by name, version
-		order by count_unique desc, name asc `,
-		struct {
-			Site    int64
-			Start   string
-			End     string
-			Filter  []int64
-			Browser string
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, browser})
-	return errors.Wrap(err, "Stats.ListBrowser")
+func (h *HitStats) ListBrowser(ctx context.Context, browser string, start, end time.Time, pathFilter []int64) error {
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowser", zdb.P{
+		"site":    site.ID,
+		"start":   asUTCDate(site, start),
+		"end":     asUTCDate(site, end),
+		"filter":  pathFilter,
+		"browser": browser,
+	})
+	return errors.Wrap(err, "HitStats.ListBrowser")
 }
 
 // ListSystems lists OS statistics for the given time period.
-func (h *Stats) ListSystems(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListSystem */
-		with x as (
-			select
-				system_id,
-				sum(count) as count,
-				sum(count_unique) as count_unique
-			from system_stats
-			where
-				site_id = :site and day >= :start and day <= :end
-				{{:filter and path_id in (:filter)}}
-			group by system_id
-			order by count_unique desc
-		)
-		select
-			systems.name,
-			sum(x.count) as count,
-			sum(x.count_unique) as count_unique
-		from x
-		join systems using (system_id)
-		group by systems.name
-		order by count_unique desc
-		limit :limit offset :offset`,
-		struct {
-			Site   int64
-			Start  string
-			End    string
-			Filter []int64
-			Limit  int
-			Offset int
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset})
-
+func (h *HitStats) ListSystems(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystems", zdb.P{
+		"site":   site.ID,
+		"start":  asUTCDate(site, start),
+		"end":    asUTCDate(site, end),
+		"filter": pathFilter,
+		"limit":  limit + 1,
+		"offset": offset,
+	})
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-	return errors.Wrap(err, "Stats.ListSystems")
+	return errors.Wrap(err, "HitStats.ListSystems")
 }
 
 // ListSystem lists all the versions for one system.
-func (h *Stats) ListSystem(ctx context.Context, system string, start, end time.Time, pathFilter []int64) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListSystem */
-		select
-			name || ' ' || version as name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from system_stats
-		join systems using (system_id)
-		where
-			site_id = :site and day >= :start and day <= :end and
-			{{:filter path_id in (:filter) and}}
-			lower(name) = lower(:system)
-		group by name, version
-		order by count_unique desc, name asc`,
-		struct {
-			Site   int64
-			Start  string
-			End    string
-			Filter []int64
-			System string
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, system})
-	return errors.Wrap(err, "Stats.ListSystem")
+func (h *HitStats) ListSystem(ctx context.Context, system string, start, end time.Time, pathFilter []int64) error {
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystem", zdb.P{
+		"site":   site.ID,
+		"start":  asUTCDate(site, start),
+		"end":    asUTCDate(site, end),
+		"filter": pathFilter,
+		"system": system,
+	})
+	return errors.Wrap(err, "HitStats.ListSystem")
 }
 
 const (
@@ -167,33 +115,20 @@ const (
 )
 
 // ListSizes lists all device sizes.
-func (h *Stats) ListSizes(ctx context.Context, start, end time.Time, pathFilter []int64) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListSizes */
-		select
-			width as name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from size_stats
-		where
-			site_id = :site and day >= :start and day <= :end
-			{{:filter and path_id in (:filter)}}
-		group by width
-		order by count_unique desc, name asc`,
-		struct {
-			Site   int64
-			Start  string
-			End    string
-			Filter []int64
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter})
+func (h *HitStats) ListSizes(ctx context.Context, start, end time.Time, pathFilter []int64) error {
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSizes", zdb.P{
+		"site":   site.ID,
+		"start":  asUTCDate(site, start),
+		"end":    asUTCDate(site, end),
+		"filter": pathFilter,
+	})
 	if err != nil {
-		return errors.Wrap(err, "Stats.ListSize")
+		return errors.Wrap(err, "HitStats.ListSize")
 	}
 
 	// Group a bit more user-friendly.
-	ns := []StatT{
+	ns := []HitStat{
 		{Name: sizePhones, Count: 0, CountUnique: 0},
 		{Name: sizeLargePhones, Count: 0, CountUnique: 0},
 		{Name: sizeTablets, Count: 0, CountUnique: 0},
@@ -231,140 +166,74 @@ func (h *Stats) ListSizes(ctx context.Context, start, end time.Time, pathFilter 
 }
 
 // ListSize lists all sizes for one grouping.
-func (h *Stats) ListSize(ctx context.Context, name string, start, end time.Time, pathFilter []int64) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	var where string
+func (h *HitStats) ListSize(ctx context.Context, name string, start, end time.Time, pathFilter []int64) error {
+	var (
+		min_size, max_size int
+		empty              bool
+	)
 	switch name {
 	case sizePhones:
-		where = "width != 0 and width <= 384"
+		max_size = 384
 	case sizeLargePhones:
-		where = "width != 0 and width <= 1024 and width > 384"
+		min_size, max_size = 384, 1024
 	case sizeTablets:
-		where = "width != 0 and width <= 1440 and width > 1024"
+		min_size, max_size = 1024, 1440
 	case sizeDesktop:
-		where = "width != 0 and width <= 1920 and width > 1440"
+		min_size, max_size = 1440, 1920
 	case sizeDesktopHD:
-		where = "width != 0 and width > 1920"
+		min_size, max_size = 1920, 99999
 	case sizeUnknown:
-		where = "width = 0"
+		empty = true
 	default:
-		return errors.Errorf("Stats.ListSizes: invalid value for name: %#v", name)
+		return errors.Errorf("HitStats.ListSizes: invalid value for name: %#v", name)
 	}
 
-	// TODO: where can be paramters
-	err := zdb.Select(ctx, &h.Stats, fmt.Sprintf(`/* Stats.ListSize */
-		select
-			width as name,
-			sum(count) as count,
-			sum(count_unique) as count_unique
-		from size_stats
-		where
-			site_id = :site and day >= :start and day <= :end
-			{{:filter and path_id in (:filter)}}
-			and %s
-		group by width`, where),
-		struct {
-			Site   int64
-			Start  string
-			End    string
-			Filter []int64
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter})
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSize", zdb.P{
+		"site":     site.ID,
+		"start":    asUTCDate(site, start),
+		"end":      asUTCDate(site, end),
+		"filter":   pathFilter,
+		"min_size": min_size,
+		"max_size": max_size,
+		"empty":    empty,
+	})
 	if err != nil {
-		return errors.Wrap(err, "Stats.ListSize")
+		return errors.Wrap(err, "HitStats.ListSize")
 	}
-
-	grouped := make(map[string]int)
-	groupedUnique := make(map[string]int)
-	for i := range h.Stats {
-		grouped[fmt.Sprintf("↔\ufe0e %spx", h.Stats[i].Name)] += h.Stats[i].Count
-		groupedUnique[fmt.Sprintf("↔\ufe0e %spx", h.Stats[i].Name)] += h.Stats[i].CountUnique
+	for i := range h.Stats { // TODO: see if we can do this in SQL.
+		h.Stats[i].Name = strings.ReplaceAll(h.Stats[i].Name, "↔", "↔\ufe0e")
 	}
-
-	ns := make([]StatT, len(grouped))
-	i := 0
-	for width, count := range grouped {
-		ns[i] = StatT{
-			Name:        width,
-			Count:       count,
-			CountUnique: groupedUnique[width],
-		}
-		i++
-	}
-	sort.Slice(ns, func(i int, j int) bool { return ns[i].Count > ns[j].Count })
-	h.Stats = ns
-
 	return nil
 }
 
 // ListLocations lists all location statistics for the given time period.
-func (h *Stats) ListLocations(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListLocations */
-		with x as (
-			select
-				substr(location, 0, 3) as loc,
-				sum(count)             as count,
-				sum(count_unique)      as count_unique
-			from location_stats
-			where
-				site_id = :site and day >= :start and day <= :end
-				{{:filter and path_id in (:filter)}}
-			group by loc
-			order by count_unique desc, loc
-			limit :limit offset :offset
-		)
-		select
-			locations.iso_3166_2   as id,
-			locations.country_name as name,
-			x.count                as count,
-			x.count_unique         as count_unique
-		from x
-		join locations on locations.iso_3166_2 = x.loc
-		order by count_unique desc, name asc`,
-		struct {
-			Site   int64
-			Start  string
-			End    string
-			Filter []int64
-			Limit  int
-			Offset int
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, limit + 1, offset})
-
+func (h *HitStats) ListLocations(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocations", zdb.P{
+		"site":   site.ID,
+		"start":  asUTCDate(site, start),
+		"end":    asUTCDate(site, end),
+		"filter": pathFilter,
+		"limit":  limit + 1,
+		"offset": offset,
+	})
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
-	return errors.Wrap(err, "Stats.ListLocations")
+	return errors.Wrap(err, "HitStats.ListLocations")
 }
 
 // ListLocation lists all divisions for a location
-func (h *Stats) ListLocation(ctx context.Context, country string, start, end time.Time, pathFilter []int64) error {
-	start = start.In(MustGetSite(ctx).Settings.Timezone.Location)
-	end = end.In(MustGetSite(ctx).Settings.Timezone.Location)
-
-	err := zdb.Select(ctx, &h.Stats, `/* Stats.ListLocation */
-		select
-			coalesce(region_name, '(unknown)') as name,
-			sum(count)                         as count,
-			sum(count_unique)                  as count_unique
-		from location_stats
-		join locations on location = iso_3166_2
-		where
-			site_id = :site and day >= :start and day <= :end and
-			{{:filter path_id in (:filter) and}}
-			country = :country
-		group by iso_3166_2, name
-		order by count_unique desc, name asc`,
-		struct {
-			Site    int64
-			Start   string
-			End     string
-			Filter  []int64
-			Country string
-		}{MustGetSite(ctx).ID, start.Format("2006-01-02"), end.Format("2006-01-02"), pathFilter, country})
-	return errors.Wrap(err, "Stats.ListLocation")
+func (h *HitStats) ListLocation(ctx context.Context, country string, start, end time.Time, pathFilter []int64) error {
+	site := MustGetSite(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocation", zdb.P{
+		"site":    site.ID,
+		"start":   asUTCDate(site, start),
+		"end":     asUTCDate(site, end),
+		"filter":  pathFilter,
+		"country": country,
+	})
+	return errors.Wrap(err, "HitStats.ListLocation")
 }

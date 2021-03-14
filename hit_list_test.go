@@ -6,12 +6,189 @@ package goatcounter_test
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"testing"
+	"time"
 
 	. "zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/ztest"
 )
+
+func TestHitStatsList(t *testing.T) {
+	start := time.Date(2019, 8, 10, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2019, 8, 17, 23, 59, 59, 0, time.UTC)
+	hit := start.Add(1 * time.Second)
+
+	tests := []struct {
+		in         []Hit
+		inFilter   string
+		inExclude  []int64
+		wantReturn string
+		wantStats  HitLists
+	}{
+		{
+			in: []Hit{
+				{CreatedAt: hit, Path: "/asd"},
+				{CreatedAt: hit.Add(40 * time.Hour), Path: "/asd/"},
+				{CreatedAt: hit.Add(100 * time.Hour), Path: "/zxc"},
+			},
+			wantReturn: "3 0 false <nil>",
+			wantStats: HitLists{
+				HitList{Count: 2, Path: "/asd", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Hourly: dayStat(nil)},
+					{Day: "2019-08-12", Hourly: dayStat(map[int]int{6: 1})},
+					{Day: "2019-08-13", Hourly: dayStat(nil)},
+					{Day: "2019-08-14", Hourly: dayStat(nil)},
+					{Day: "2019-08-15", Hourly: dayStat(nil)},
+					{Day: "2019-08-16", Hourly: dayStat(nil)},
+					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				}},
+				HitList{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", Hourly: dayStat(nil)},
+					{Day: "2019-08-11", Hourly: dayStat(nil)},
+					{Day: "2019-08-12", Hourly: dayStat(nil)},
+					{Day: "2019-08-13", Hourly: dayStat(nil)},
+					{Day: "2019-08-14", Hourly: dayStat(map[int]int{18: 1})},
+					{Day: "2019-08-15", Hourly: dayStat(nil)},
+					{Day: "2019-08-16", Hourly: dayStat(nil)},
+					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				}},
+			},
+		},
+		{
+			in: []Hit{
+				{CreatedAt: hit, Path: "/asd"},
+				{CreatedAt: hit, Path: "/zxc"},
+			},
+			inFilter:   "x",
+			wantReturn: "1 0 false <nil>",
+			wantStats: HitLists{
+				HitList{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Hourly: dayStat(nil)},
+					{Day: "2019-08-12", Hourly: dayStat(nil)},
+					{Day: "2019-08-13", Hourly: dayStat(nil)},
+					{Day: "2019-08-14", Hourly: dayStat(nil)},
+					{Day: "2019-08-15", Hourly: dayStat(nil)},
+					{Day: "2019-08-16", Hourly: dayStat(nil)},
+					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				}},
+			},
+		},
+		{
+			in: []Hit{
+				{CreatedAt: hit, Path: "/a"},
+				{CreatedAt: hit, Path: "/aa"},
+				{CreatedAt: hit, Path: "/aaa"},
+				{CreatedAt: hit, Path: "/aaaa"},
+			},
+			inFilter:   "a",
+			wantReturn: "2 0 true <nil>",
+			wantStats: HitLists{
+				HitList{Count: 1, Path: "/aaaa", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Hourly: dayStat(nil)},
+					{Day: "2019-08-12", Hourly: dayStat(nil)},
+					{Day: "2019-08-13", Hourly: dayStat(nil)},
+					{Day: "2019-08-14", Hourly: dayStat(nil)},
+					{Day: "2019-08-15", Hourly: dayStat(nil)},
+					{Day: "2019-08-16", Hourly: dayStat(nil)},
+					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				}},
+				HitList{Count: 1, Path: "/aaa", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Hourly: dayStat(nil)},
+					{Day: "2019-08-12", Hourly: dayStat(nil)},
+					{Day: "2019-08-13", Hourly: dayStat(nil)},
+					{Day: "2019-08-14", Hourly: dayStat(nil)},
+					{Day: "2019-08-15", Hourly: dayStat(nil)},
+					{Day: "2019-08-16", Hourly: dayStat(nil)},
+					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				}},
+			},
+		},
+		{
+			in: []Hit{
+				{CreatedAt: hit, Path: "/a"},
+				{CreatedAt: hit, Path: "/aa"},
+				{CreatedAt: hit, Path: "/aaa"},
+				{CreatedAt: hit, Path: "/aaaa"},
+			},
+			inFilter:   "a",
+			inExclude:  []int64{4, 3},
+			wantReturn: "2 0 false <nil>",
+			wantStats: HitLists{
+				HitList{Count: 1, Path: "/aa", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Hourly: dayStat(nil)},
+					{Day: "2019-08-12", Hourly: dayStat(nil)},
+					{Day: "2019-08-13", Hourly: dayStat(nil)},
+					{Day: "2019-08-14", Hourly: dayStat(nil)},
+					{Day: "2019-08-15", Hourly: dayStat(nil)},
+					{Day: "2019-08-16", Hourly: dayStat(nil)},
+					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				}},
+				HitList{Count: 1, Path: "/a", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", Hourly: dayStat(nil)},
+					{Day: "2019-08-12", Hourly: dayStat(nil)},
+					{Day: "2019-08-13", Hourly: dayStat(nil)},
+					{Day: "2019-08-14", Hourly: dayStat(nil)},
+					{Day: "2019-08-15", Hourly: dayStat(nil)},
+					{Day: "2019-08-16", Hourly: dayStat(nil)},
+					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				}},
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			ctx := gctest.DB(t)
+
+			site := MustGetSite(ctx)
+			for j := range tt.in {
+				if tt.in[j].Site == 0 {
+					tt.in[j].Site = site.ID
+				}
+			}
+
+			// TODO: add method to set this properly.
+			site.Settings.Widgets = Widgets{
+				{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": float64(2), "limit_refs": float64(10)}},
+			}
+
+			gctest.StoreHits(ctx, t, false, tt.in...)
+
+			pathsFilter, err := PathFilter(ctx, tt.inFilter, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			var stats HitLists
+			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, pathsFilter, tt.inExclude, false)
+
+			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
+			if got != tt.wantReturn {
+				t.Errorf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
+				zdb.Dump(ctx, os.Stdout, "select * from paths")
+				zdb.Dump(ctx, os.Stdout, "select * from hit_counts")
+				zdb.Dump(ctx, os.Stdout, "select * from hit_stats")
+			}
+
+			out := strings.ReplaceAll(", ", ",\n", fmt.Sprintf("%+v", stats))
+			want := strings.ReplaceAll(", ", ",\n", fmt.Sprintf("%+v", tt.wantStats))
+			if d := ztest.Diff(out, want); d != "" {
+				t.Fatal(d)
+			}
+		})
+	}
+}
 
 func TestGetMax(t *testing.T) {
 	gctest.SetNow(t, "2020-06-18 12:00:00")
@@ -91,7 +268,7 @@ func TestGetTotalCount(t *testing.T) {
 	}
 }
 
-func TestHitStatTotals(t *testing.T) {
+func TestHitListTotals(t *testing.T) {
 	gctest.SetNow(t, "2020-06-18 12:00:00")
 	ctx := gctest.DB(t)
 
@@ -128,7 +305,7 @@ func TestHitStatTotals(t *testing.T) {
 				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
 		}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			var hs HitStat
+			var hs HitList
 			count, err := hs.Totals(ctx, start, end, filter, false)
 			if err != nil {
 				t.Fatal(err)
@@ -161,7 +338,7 @@ func TestHitStatTotals(t *testing.T) {
 		}
 
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			var hs HitStat
+			var hs HitList
 			count, err := hs.Totals(ctx, start, end, filter, true)
 			if err != nil {
 				t.Fatal(err)

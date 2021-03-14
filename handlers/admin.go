@@ -88,14 +88,14 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var (
-		signups    []goatcounter.Stat
+		signups    []goatcounter.HitListStat
 		maxSignups int
 	)
 	for k, v := range grouped {
 		if v > maxSignups {
 			maxSignups = v
 		}
-		signups = append(signups, goatcounter.Stat{
+		signups = append(signups, goatcounter.HitListStat{
 			Day:          k,
 			Hourly:       []int{v},
 			HourlyUnique: []int{v},
@@ -127,7 +127,7 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "admin.gohtml", struct {
 		Globals
 		Stats         goatcounter.AdminStats
-		Signups       []goatcounter.Stat
+		Signups       []goatcounter.HitListStat
 		MaxSignups    int
 		TotalUSD      int
 		TotalEUR      int

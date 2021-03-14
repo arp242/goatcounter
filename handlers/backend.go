@@ -277,7 +277,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		wg sync.WaitGroup
 
 		totalTpl   string
-		totalPages goatcounter.HitStat
+		totalPages goatcounter.HitList
 		totalErr   error
 
 		maxTotals int
@@ -306,7 +306,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 			totalTpl, totalErr = ztpl.ExecuteString("_dashboard_totals_row.gohtml", struct {
 				Context context.Context
 				Site    *goatcounter.Site
-				Page    goatcounter.HitStat
+				Page    goatcounter.HitList
 				Daily   bool
 				Max     int
 			}{r.Context(), site, totalPages, daily, maxTotals})
@@ -329,7 +329,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		}()
 	}
 
-	var pages goatcounter.HitStats
+	var pages goatcounter.HitLists
 	totalDisplay, totalUniqueDisplay, more, err := pages.List(
 		r.Context(), start, end, pathFilter, exclude, daily)
 	if err != nil {
@@ -343,7 +343,7 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 
 	tpl, err := ztpl.ExecuteString(t, struct {
 		Context     context.Context
-		Pages       goatcounter.HitStats
+		Pages       goatcounter.HitLists
 		Site        *goatcounter.Site
 		PeriodStart time.Time
 		PeriodEnd   time.Time
@@ -421,7 +421,7 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	var detail goatcounter.Stats
+	var detail goatcounter.HitStats
 	switch kind {
 	case "browser":
 		err = detail.ListBrowser(r.Context(), name, start, end, pathFilter)
@@ -482,7 +482,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var (
-		page     goatcounter.Stats
+		page     goatcounter.HitStats
 		size     = 6
 		paginate = false
 		link     = true

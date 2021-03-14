@@ -34,45 +34,45 @@ type (
 		html                   template.HTML
 		Display, UniqueDisplay int
 		More                   bool
-		Pages                  goatcounter.HitStats
-		Refs                   goatcounter.Stats
+		Pages                  goatcounter.HitLists
+		Refs                   goatcounter.HitStats
 		Max                    int
 	}
 	TotalPages struct {
 		err   error
 		html  template.HTML
 		Max   int
-		Total goatcounter.HitStat
+		Total goatcounter.HitList
 	}
 	Refs struct {
 		err  error
 		html template.HTML
-		Refs goatcounter.Stats
+		Refs goatcounter.HitStats
 	}
 	TopRefs struct {
 		err     error
 		html    template.HTML
-		TopRefs goatcounter.Stats
+		TopRefs goatcounter.HitStats
 	}
 	Browsers struct {
 		err      error
 		html     template.HTML
-		Browsers goatcounter.Stats
+		Browsers goatcounter.HitStats
 	}
 	Systems struct {
 		err     error
 		html    template.HTML
-		Systems goatcounter.Stats
+		Systems goatcounter.HitStats
 	}
 	Sizes struct {
 		err      error
 		html     template.HTML
-		SizeStat goatcounter.Stats
+		SizeStat goatcounter.HitStats
 	}
 	Locations struct {
 		err     error
 		html    template.HTML
-		LocStat goatcounter.Stats
+		LocStat goatcounter.HitStats
 	}
 )
 

@@ -12,25 +12,73 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 )
 
+type HitList struct {
+	Count       int        `db:"count"`
+	CountUnique int        `db:"count_unique"`
+	PathID      int64      `db:"path_id"`
+	Path        string     `db:"path"`
+	Event       zbool.Bool `db:"event"`
+	Title       string     `db:"title"`
+	RefScheme   *string    `db:"ref_scheme"`
+	Max         int
+	Stats       []HitListStat
+}
+
+type HitListStat struct {
+	Day          string
+	Hourly       []int
+	HourlyUnique []int
+	Daily        int
+	DailyUnique  int
+}
+
+type HitLists []HitList
+
+// ListPathsLike lists all paths matching the like pattern.
+func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
+	err := zdb.Select(ctx, h, "load:hit_list.ListPathsLike", zdb.P{
+		"site":        MustGetSite(ctx).ID,
+		"search":      search,
+		"match_title": matchTitle,
+	})
+	return errors.Wrap(err, "Hits.ListPathsLike")
+}
+
+// PathCountUnique gets the total_unique for one path.
+func (h *HitLists) PathCountUnique(ctx context.Context, path string) error {
+	err := zdb.Select(ctx, h, "load:hit_list.PathCountUnique", zdb.P{
+		"site": MustGetSite(ctx).ID,
+		"path": path,
+	})
+	return errors.Wrap(err, "HitLists.PathCountUnique")
+}
+
+// SiteTotalUnique gets the total_unique for all paths.
+func (h *HitLists) SiteTotalUnique(ctx context.Context) error {
+	err := zdb.Select(ctx, h, `/* *HitLists.SiteTotalUnique */
+		select sum(total_unique) as count_unique from hit_counts
+		where site_id=$1`, MustGetSite(ctx).ID)
+	return errors.Wrap(err, "HitLists.SiteTotalUnique")
+}
+
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 // List the top paths for this site in the given time period.
-func (h *HitStats) List(
+func (h *HitLists) List(
 	ctx context.Context, start, end time.Time, pathFilter, exclude []int64, daily bool,
 ) (int, int, bool, error) {
 	site := MustGetSite(ctx)
 
-	// List the pages for this page.
+	// List the pages for this page; this gets the path_id, path, title.
 	var more bool
 	{
 		limit := int(zint.NonZero(int64(site.Settings.LimitPages()), 10))
-
-		// TODO: we can probably fold this query in to the hit_stats one below.
-		err := zdb.Select(ctx, h, `/* HitStats.List */
+		err := zdb.Select(ctx, h, `/* HitLists.List */
 			with x as (
 				select path_id from hit_counts
 				where
@@ -53,7 +101,7 @@ func (h *HitStats) List(
 				"exclude": exclude,
 			})
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List hit_counts")
+			return 0, 0, false, errors.Wrap(err, "HitLists.List hit_counts")
 		}
 
 		// Check if there are more entries.
@@ -65,13 +113,12 @@ func (h *HitStats) List(
 		}
 	}
 
-	hh := *h
-
-	if len(hh) == 0 { // No data yet.
+	if len(*h) == 0 { // No data yet.
 		return 0, 0, false, nil
 	}
 
-	// Add stats
+	// Get stats for every page.
+	hh := *h
 	var st []struct {
 		PathID      int64     `db:"path_id"`
 		Day         time.Time `db:"day"`
@@ -84,7 +131,7 @@ func (h *HitStats) List(
 			paths[i] = hh[i].PathID
 		}
 
-		err := zdb.Select(ctx, &st, `/* HitStats.List */
+		err := zdb.Select(ctx, &st, `/* HitLists.List */
 			select path_id, day, stats, stats_unique
 			from hit_stats
 			where
@@ -92,14 +139,14 @@ func (h *HitStats) List(
 				path_id in (:paths) and
 				day >= :start and day <= :end
 			order by day asc`,
-			struct {
-				Site  int64
-				Start string
-				End   string
-				Paths []int64
-			}{site.ID, start.Format("2006-01-02"), end.Format("2006-01-02"), paths})
+			zdb.P{
+				"site":  site.ID,
+				"start": start.Format("2006-01-02"),
+				"end":   end.Format("2006-01-02"),
+				"paths": paths,
+			})
 		if err != nil {
-			return 0, 0, false, errors.Wrap(err, "HitStats.List hit_stats")
+			return 0, 0, false, errors.Wrap(err, "HitLists.List hit_stats")
 		}
 	}
 
@@ -111,7 +158,7 @@ func (h *HitStats) List(
 					var x, y []int
 					zjson.MustUnmarshal(s.Stats, &x)
 					zjson.MustUnmarshal(s.StatsUnique, &y)
-					hh[i].Stats = append(hh[i].Stats, Stat{
+					hh[i].Stats = append(hh[i].Stats, HitListStat{
 						Day:          s.Day.Format("2006-01-02"),
 						Hourly:       x,
 						HourlyUnique: y,
@@ -140,7 +187,7 @@ func (h *HitStats) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the data for the "Totals" chart/widget.
-func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
+func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 
 	var tc []struct {
@@ -148,7 +195,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		Total       int       `db:"total"`
 		TotalUnique int       `db:"total_unique"`
 	}
-	err := zdb.Select(ctx, &tc, "load:hit_list.HitStat.Totals", zdb.P{
+	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", zdb.P{
 		"site":      site.ID,
 		"start":     start,
 		"end":       end,
@@ -156,20 +203,20 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		"no_events": site.Settings.TotalsNoEvents(),
 	})
 	if err != nil {
-		return 0, errors.Wrap(err, "HitStat.Totals")
+		return 0, errors.Wrap(err, "HitList.Totals")
 	}
 
-	totalst := HitStat{
+	totalst := HitList{
 		Path:  PathTotals,
 		Title: "",
 	}
-	stats := make(map[string]Stat)
+	stats := make(map[string]HitListStat)
 	for _, t := range tc {
 		d := t.Hour.Format("2006-01-02")
 		hour, _ := strconv.ParseInt(t.Hour.Format("15"), 10, 32)
 		s, ok := stats[d]
 		if !ok {
-			s = Stat{
+			s = HitListStat{
 				Day:          d,
 				Hourly:       make([]int, 24),
 				HourlyUnique: make([]int, 24),
@@ -200,7 +247,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		return totalst.Stats[i].Day < totalst.Stats[j].Day
 	})
 
-	hh := []HitStat{totalst}
+	hh := []HitList{totalst}
 	fillBlankDays(hh, start, end)
 	applyOffset(hh, *site)
 
@@ -227,7 +274,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 }
 
 // The database stores everything in UTC, so we need to apply
-// the offset for HitStats.List()
+// the offset for HitLists.List()
 //
 // Let's say we have two days with an offset of UTC+2, this means we
 // need to transform this:
@@ -254,7 +301,7 @@ func (h *HitStat) Totals(ctx context.Context, start, end time.Time, pathFilter [
 //
 // Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
 // know how to do that otherwise.
-func applyOffset(hh HitStats, site Site) {
+func applyOffset(hh HitLists, site Site) {
 	if len(hh) == 0 {
 		return
 	}
@@ -307,7 +354,7 @@ func applyOffset(hh HitStats, site Site) {
 	}
 }
 
-func fillBlankDays(hh HitStats, start, end time.Time) {
+func fillBlankDays(hh HitLists, start, end time.Time) {
 	// Should Never Happen™ but if it does the below loop will never break, so
 	// be safe.
 	if start.After(end) {
@@ -318,7 +365,7 @@ func fillBlankDays(hh HitStats, start, end time.Time) {
 	for i := range hh {
 		var (
 			day     = start.Add(-24 * time.Hour)
-			newStat []Stat
+			newStat []HitListStat
 			j       int
 		)
 
@@ -330,7 +377,7 @@ func fillBlankDays(hh HitStats, start, end time.Time) {
 				newStat = append(newStat, hh[i].Stats[j])
 				j++
 			} else {
-				newStat = append(newStat, Stat{Day: dayFmt, Hourly: allDays, HourlyUnique: allDays})
+				newStat = append(newStat, HitListStat{Day: dayFmt, Hourly: allDays, HourlyUnique: allDays})
 			}
 			if dayFmt == endFmt {
 				break
@@ -341,7 +388,7 @@ func fillBlankDays(hh HitStats, start, end time.Time) {
 	}
 }
 
-func addTotals(hh HitStats, daily bool, totalDisplay, totalUniqueDisplay *int) {
+func addTotals(hh HitLists, daily bool, totalDisplay, totalUniqueDisplay *int) {
 	for i := range hh {
 		for j := range hh[i].Stats {
 			for k := range hh[i].Stats[j].Hourly {

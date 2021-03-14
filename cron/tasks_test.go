@@ -50,7 +50,7 @@ func TestDataRetention(t *testing.T) {
 		t.Errorf("len(hits) is %d\n%v", len(hits), hits)
 	}
 
-	var stats goatcounter.HitStats
+	var stats goatcounter.HitLists
 	display, displayUnique, more, err := stats.List(ctx, past.Add(-1*24*time.Hour), now, nil, nil, false)
 	if err != nil {
 		t.Fatal(err)

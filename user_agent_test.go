@@ -93,3 +93,42 @@ func TestUserAgentGetOrInsert(t *testing.T) {
 		`)
 	}
 }
+
+func TestUserAgentUpdate(t *testing.T) {
+	ctx := gctest.DB(t)
+
+	ua := UserAgent{UserAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0"}
+	err := ua.GetOrInsert(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	oldB := ua.BrowserID
+	oldS := ua.SystemID
+
+	{
+		err = ua.Update(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if ua.BrowserID != oldB || ua.SystemID != oldS {
+			t.Errorf("browser %d == %d; system %d == %d", oldB, ua.BrowserID, oldS, ua.SystemID)
+		}
+	}
+
+	{
+		ua.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0"
+		err = zdb.Exec(ctx, `update user_agents set ua=? where user_agent_id=?`,
+			ua.UserAgent, ua.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = ua.Update(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if ua.BrowserID == oldB || ua.SystemID == oldS {
+			t.Errorf("browser %d == %d; system %d == %d", oldB, ua.BrowserID, oldS, ua.SystemID)
+		}
+	}
+}

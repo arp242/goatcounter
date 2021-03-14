@@ -45,7 +45,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 	return t, struct {
 		Context     context.Context
 		Err         error
-		Pages       goatcounter.HitStats
+		Pages       goatcounter.HitLists
 		Site        *goatcounter.Site
 		PeriodStart time.Time
 		PeriodEnd   time.Time
@@ -63,7 +63,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		TotalEventsUnique int
 		MorePages         bool
 
-		Refs     goatcounter.Stats
+		Refs     goatcounter.HitStats
 		ShowRefs string
 	}{
 		ctx, w.err, w.Pages, shared.Site, shared.Args.Start, shared.Args.End, shared.Args.Daily,
@@ -82,7 +82,7 @@ func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, 
 		Context           context.Context
 		Err               error
 		Site              *goatcounter.Site
-		Page              goatcounter.HitStat
+		Page              goatcounter.HitList
 		Daily             bool
 		Max               int
 		Total             int
@@ -99,7 +99,7 @@ func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, int
 		Err         error
 		IsCollected bool
 		TotalUnique int
-		Stats       goatcounter.Stats
+		Stats       goatcounter.HitStats
 	}{ctx, w.err, isCol(ctx, goatcounter.CollectReferrer), shared.TotalUnique, w.TopRefs}
 }
 
@@ -109,7 +109,7 @@ func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, in
 		Err            error
 		IsCollected    bool
 		TotalUniqueUTC int
-		Stats          goatcounter.Stats
+		Stats          goatcounter.HitStats
 	}{ctx, w.err, isCol(ctx, goatcounter.CollectUserAgent), shared.TotalUniqueUTC, w.Browsers}
 }
 
@@ -119,7 +119,7 @@ func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, int
 		Err            error
 		IsCollected    bool
 		TotalUniqueUTC int
-		Stats          goatcounter.Stats
+		Stats          goatcounter.HitStats
 	}{ctx, w.err, isCol(ctx, goatcounter.CollectUserAgent), shared.TotalUniqueUTC, w.Systems}
 }
 
@@ -129,7 +129,7 @@ func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		Err            error
 		IsCollected    bool
 		TotalUniqueUTC int
-		Stats          goatcounter.Stats
+		Stats          goatcounter.HitStats
 	}{ctx, w.err, isCol(ctx, goatcounter.CollectScreenSize), shared.TotalUniqueUTC, w.SizeStat}
 }
 
@@ -139,6 +139,6 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, i
 		Err            error
 		IsCollected    bool
 		TotalUniqueUTC int
-		Stats          goatcounter.Stats
+		Stats          goatcounter.HitStats
 	}{ctx, w.err, isCol(ctx, goatcounter.CollectLocation), shared.TotalUniqueUTC, w.LocStat}
 }

@@ -98,7 +98,7 @@ var textSymbols = []rune{
 	'█',      // U+2588 FULL BLOCK
 }
 
-func textChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
+func textChart(ctx context.Context, stats []HitListStat, max int, daily bool) template.HTML {
 	_, chunked := ChunkStat(stats)
 	symb := make([]rune, 0, 12)
 	for _, chunk := range chunked {
@@ -108,7 +108,7 @@ func textChart(ctx context.Context, stats []Stat, max int, daily bool) template.
 	return template.HTML(symb)
 }
 
-func barChart(ctx context.Context, stats []Stat, max int, daily bool) template.HTML {
+func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) template.HTML {
 	site := MustGetSite(ctx)
 	now := Now().In(site.Settings.Timezone.Loc())
 	today := now.Format("2006-01-02")
@@ -177,7 +177,7 @@ func barChart(ctx context.Context, stats []Stat, max int, daily bool) template.H
 	return template.HTML(b.String())
 }
 
-func HorizontalChart(ctx context.Context, stats Stats, total, pageSize int, link, paginate bool) template.HTML {
+func HorizontalChart(ctx context.Context, stats HitStats, total, pageSize int, link, paginate bool) template.HTML {
 	if total == 0 {
 		return `<em>Nothing to display</em>`
 	}

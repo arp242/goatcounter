@@ -281,7 +281,7 @@ type Hits []Hit
 // TestList lists all hits, for all sites, with browser_id, system_id, and paths
 // set.
 //
-// This is mostly intended for tests.
+// This is intended for tests.
 func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 	var hh []struct {
 		Hit
@@ -356,106 +356,4 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 		MustGetSite(ctx).ClearCache(ctx, true)
 		return nil
 	})
-}
-
-type Stat struct {
-	Day          string
-	Hourly       []int
-	HourlyUnique []int
-	Daily        int
-	DailyUnique  int
-}
-
-type HitStat struct {
-	Count       int        `db:"count"`
-	CountUnique int        `db:"count_unique"`
-	PathID      int64      `db:"path_id"`
-	Path        string     `db:"path"`
-	Event       zbool.Bool `db:"event"`
-	Title       string     `db:"title"`
-	RefScheme   *string    `db:"ref_scheme"`
-	Max         int
-	Stats       []Stat
-}
-
-type HitStats []HitStat
-
-// ListPathsLike lists all paths matching the like pattern.
-func (h *HitStats) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
-	err := zdb.Select(ctx, h, `/* HitStats.ListPathsLike */
-		with x as (
-			select path_id, path, title from paths
-			where site_id = :site and
-			(lower(path) like lower(:search) {{:match_title or lower(title) like lower(:search)}})
-		)
-		select
-			path_id, path, title,
-			sum(total) as count
-		from hit_counts
-		join x using(path_id)
-		where site_id = :site
-		group by path_id, path, title
-		order by count desc`,
-		zdb.P{
-			"site":        MustGetSite(ctx).ID,
-			"search":      search,
-			"match_title": matchTitle,
-		})
-	return errors.Wrap(err, "Hits.ListPathsLike")
-}
-
-// PathCountUnique gets the total_unique for one path.
-func (h *HitStats) PathCountUnique(ctx context.Context, path string) error {
-	err := zdb.Select(ctx, h, `/* HitStats.PathCountUnique */
-		with x as (
-			select path_id, path from paths
-			where site_id = :site and lower(path) = lower(:path)
-		)
-		select
-			path,
-			coalesce(sum(
-				(select sum(total_unique) from hit_counts where site_id = :site and path_id = x.path_id)
-			), 0) as count_unique
-		from x
-		group by path`,
-		zdb.P{
-			"site": MustGetSite(ctx).ID,
-			"path": path,
-		})
-	return errors.Wrap(err, "HitStats.PathCountUnique")
-}
-
-// SiteTotalUnique gets the total_unique for all paths.
-func (h *HitStats) SiteTotalUnique(ctx context.Context) error {
-	err := zdb.Select(ctx, h, `/* *HitStats.SiteTotalUnique */
-		select sum(total_unique) as count_unique from hit_counts
-		where site_id=$1`, MustGetSite(ctx).ID)
-	return errors.Wrap(err, "HitStats.SiteTotalUnique")
-}
-
-type StatT struct {
-	// TODO: should be Stat, but that's already taken and don't want to rename
-	// everything right now.
-	ID          string  `db:"id"`
-	Name        string  `db:"name"`
-	Count       int     `db:"count"`
-	CountUnique int     `db:"count_unique"`
-	RefScheme   *string `db:"ref_scheme"`
-}
-
-type Stats struct {
-	More  bool
-	Stats []StatT
-}
-
-// ByRef lists all paths by referrer.
-func (h *Stats) ByRef(ctx context.Context, start, end time.Time, pathFilter []int64, ref string) error {
-	err := zdb.Select(ctx, &h.Stats, "load:hit.Stats.ByRef", zdb.P{
-		"site":   MustGetSite(ctx).ID,
-		"start":  start,
-		"end":    end,
-		"filter": pathFilter,
-		"ref":    ref,
-	})
-	return errors.Wrap(err, "Stats.ByRef")
 }

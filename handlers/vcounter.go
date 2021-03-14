@@ -69,7 +69,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var (
-		hs  goatcounter.HitStats
+		hs  goatcounter.HitLists
 		err error
 	)
 	if total {
@@ -81,7 +81,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	if len(hs) == 0 {
-		hs = goatcounter.HitStats{{}}
+		hs = goatcounter.HitLists{{}}
 	}
 	count := tplfunc.Number(hs[0].CountUnique, site.Settings.NumberFormat)
 

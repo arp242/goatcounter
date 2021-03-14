@@ -26,7 +26,7 @@ func TestBrowserStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/69.0"},
 	}...)
 
-	var stats goatcounter.Stats
+	var stats goatcounter.HitStats
 	err := stats.ListBrowsers(ctx, now, now, nil, 10, 0)
 	if err != nil {
 		t.Fatal(err)
@@ -46,7 +46,7 @@ func TestBrowserStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/70.0"},
 	}...)
 
-	stats = goatcounter.Stats{}
+	stats = goatcounter.HitStats{}
 	err = stats.ListBrowsers(ctx, now, now, nil, 10, 0)
 	if err != nil {
 		t.Fatal(err)
@@ -59,7 +59,7 @@ func TestBrowserStats(t *testing.T) {
 	}
 
 	// List just Firefox.
-	stats = goatcounter.Stats{}
+	stats = goatcounter.HitStats{}
 	err = stats.ListBrowser(ctx, "Firefox", now, now, nil)
 	if err != nil {
 		t.Fatal(err)

@@ -59,7 +59,7 @@ func interval(ctx context.Context, days int) string {
 const numChars = 12
 
 // Compress all the data in to 12 chunks.
-func ChunkStat(stats []Stat) (int, []int) {
+func ChunkStat(stats []HitListStat) (int, []int) {
 	var (
 		chunked   = make([]int, numChars)
 		chunkSize = len(stats) * 24 / numChars

@@ -460,7 +460,7 @@ func (h settings) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 	path := strings.TrimSpace(r.URL.Query().Get("path"))
 	title := r.URL.Query().Get("match-title") == "on"
 
-	var list goatcounter.HitStats
+	var list goatcounter.HitLists
 	err := list.ListPathsLike(r.Context(), path, title)
 	if err != nil {
 		return err
@@ -469,7 +469,7 @@ func (h settings) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "settings_purge_confirm.gohtml", struct {
 		Globals
 		PurgePath string
-		List      goatcounter.HitStats
+		List      goatcounter.HitLists
 	}{newGlobals(w, r), path, list})
 }
 

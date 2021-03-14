@@ -28,7 +28,7 @@ func TestSizeStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Size: nil},
 	}...)
 
-	var stats goatcounter.Stats
+	var stats goatcounter.HitStats
 	err := stats.ListSizes(ctx, now, now, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -55,7 +55,7 @@ func TestSizeStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Size: nil, FirstVisit: true},
 	}...)
 
-	stats = goatcounter.Stats{}
+	stats = goatcounter.HitStats{}
 	err = stats.ListSizes(ctx, now, now, nil)
 	if err != nil {
 		t.Fatal(err)

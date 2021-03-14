@@ -40,6 +40,7 @@ func (p *UserAgent) ByID(ctx context.Context, id int64) error {
 	return errors.Wrapf(err, "UserAgent.ByID %d", id)
 }
 
+// Update this useragent; re-parse it and set the new Browser/System (if any).
 func (p *UserAgent) Update(ctx context.Context) error {
 	if p.ID == 0 {
 		panic("ID is 0")
