@@ -16,8 +16,7 @@ import (
 )
 
 func TestDataRetention(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	site := goatcounter.Site{Code: "bbbb", Plan: goatcounter.PlanPersonal,
 		Settings: goatcounter.SiteSettings{DataRetention: 30}}

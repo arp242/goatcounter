@@ -14,9 +14,8 @@ import (
 )
 
 func TestGetMax(t *testing.T) {
-	defer gctest.SwapNow(t, "2020-06-18 12:00:00")()
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	gctest.SetNow(t, "2020-06-18 12:00:00")
+	ctx := gctest.DB(t)
 
 	start := Now()
 	end := Now()
@@ -66,9 +65,8 @@ func TestGetMax(t *testing.T) {
 }
 
 func TestGetTotalCount(t *testing.T) {
-	defer gctest.SwapNow(t, "2020-06-18 12:00:00")()
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	gctest.SetNow(t, "2020-06-18 12:00:00")
+	ctx := gctest.DB(t)
 
 	start := Now()
 	end := Now()
@@ -94,9 +92,8 @@ func TestGetTotalCount(t *testing.T) {
 }
 
 func TestHitStatTotals(t *testing.T) {
-	defer gctest.SwapNow(t, "2020-06-18 12:00:00")()
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	gctest.SetNow(t, "2020-06-18 12:00:00")
+	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/a", FirstVisit: true},

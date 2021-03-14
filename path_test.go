@@ -13,8 +13,7 @@ import (
 )
 
 func TestPathsUpdateTitle(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	wantTitle := func(want string) {
 		var got string

@@ -72,8 +72,7 @@ func newAPITest(ctx context.Context, t *testing.T,
 func TestAPIBasics(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		t.Run("no-auth", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			delete(r.Header, "Authorization")
@@ -87,8 +86,7 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("wrong-auth", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			r.Header.Set("Authorization", r.Header.Get("Authorization")+"x")
@@ -105,8 +103,7 @@ func TestAPIBasics(t *testing.T) {
 			body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 				"perm": goatcounter.APITokenPermissions{Export: true, Count: true},
 			}))
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{})
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
@@ -119,8 +116,7 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("404", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/doesnt-exist", nil, goatcounter.APITokenPermissions{})
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
@@ -133,8 +129,7 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("500", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{"status":500}`),
 				goatcounter.APITokenPermissions{})
@@ -149,8 +144,7 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("invalid json", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{{{{`),
 				goatcounter.APITokenPermissions{})
@@ -165,8 +159,7 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("panic", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{"panic":true}`),
 				goatcounter.APITokenPermissions{})
@@ -181,8 +174,7 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("ct", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 			r.Header.Set("Content-Type", "text/html")
@@ -201,8 +193,7 @@ func TestAPIBasics(t *testing.T) {
 			v.Required("r", "")
 			v.Email("e", "asd")
 
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 					"validate": v,
@@ -220,9 +211,7 @@ func TestAPIBasics(t *testing.T) {
 	})
 
 	t.Run("no-perm", func(t *testing.T) {
-		ctx, clean := gctest.DB(t)
-		defer clean()
-
+		ctx := gctest.DB(t)
 		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
 
 		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
@@ -230,8 +219,7 @@ func TestAPIBasics(t *testing.T) {
 	})
 
 	t.Run("check-perm", func(t *testing.T) {
-		ctx, clean := gctest.DB(t)
-		defer clean()
+		ctx := gctest.DB(t)
 
 		body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 			"perm": goatcounter.APITokenPermissions{Export: true, Count: true},
@@ -337,13 +325,12 @@ func TestAPICount(t *testing.T) {
 		},
 	}
 
-	defer gctest.SwapNow(t, "2020-06-18 14:42:00")()
+	gctest.SetNow(t, "2020-06-18 14:42:00")
 	perm := goatcounter.APITokenPermissions{Count: true}
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/count",
 				bytes.NewReader(zjson.MustMarshal(tt.body)), perm)
 
@@ -413,8 +400,7 @@ func TestAPISitesUpdate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 
 			site := Site(ctx)
 

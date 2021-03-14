@@ -43,7 +43,7 @@ func Reset() {
 }
 
 // DB starts a new database test.
-func DB(t testing.TB) (context.Context, func()) {
+func DB(t testing.TB) context.Context {
 	t.Helper()
 	return db(t, false)
 }
@@ -53,14 +53,12 @@ func DB(t testing.TB) (context.Context, func()) {
 //
 // You can get the connection string from the GCTEST_CONNECT environment
 // variable.
-func DBFile(t testing.TB) (context.Context, func()) {
-	// TODO: now that we have t.Cleanup() we can use that, instead of returning
-	// a function.
+func DBFile(t testing.TB) context.Context {
 	t.Helper()
 	return db(t, true)
 }
 
-func db(t testing.TB, storeFile bool) (context.Context, func()) {
+func db(t testing.TB, storeFile bool) context.Context {
 	t.Helper()
 
 	dbname := "goatcounter_test_" + zcrypto.Secret64()
@@ -91,13 +89,15 @@ func db(t testing.TB, storeFile bool) (context.Context, func()) {
 	goatcounter.Memstore.TestInit(db)
 	ctx = initData(ctx, db, t)
 
-	return ctx, func() {
+	t.Cleanup(func() {
 		goatcounter.Memstore.Reset()
 		db.Close()
 		if db.Driver() == zdb.DriverPostgreSQL {
 			exec.Command("dropdb", dbname).Run()
 		}
-	}
+	})
+
+	return ctx
 }
 
 func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
@@ -190,7 +190,7 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 	return ctx, site
 }
 
-func SwapNow(t *testing.T, date interface{}) func() {
+func SetNow(t *testing.T, date interface{}) {
 	var (
 		d   time.Time
 		err error
@@ -213,7 +213,7 @@ func SwapNow(t *testing.T, date interface{}) func() {
 	}
 
 	goatcounter.Now = func() time.Time { return d }
-	return func() {
+	t.Cleanup(func() {
 		goatcounter.Now = func() time.Time { return time.Now().UTC() }
-	}
+	})
 }

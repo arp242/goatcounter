@@ -14,8 +14,7 @@ func TestBuffer(t *testing.T) {
 	t.Skip() // TODO
 
 	/*
-		exit, _, out, ctx, dbc, clean := startTest(t)
-		defer clean()
+		exit, _, out, ctx, dbc := startTest(t)
 
 		handlers.Reset()
 

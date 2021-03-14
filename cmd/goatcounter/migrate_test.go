@@ -9,8 +9,7 @@ import (
 )
 
 func TestMigrate(t *testing.T) {
-	exit, _, out, _, dbc, clean := startTest(t)
-	defer clean()
+	exit, _, out, _, dbc := startTest(t)
 
 	runCmd(t, exit, "migrate", "-db="+dbc, "pending")
 	wantExit(t, exit, out, 0)

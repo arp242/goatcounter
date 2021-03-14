@@ -14,8 +14,7 @@ import (
 )
 
 func TestMonitorOnce(t *testing.T) {
-	exit, _, out, ctx, dbc, clean := startTest(t)
-	defer clean()
+	exit, _, out, ctx, dbc := startTest(t)
 
 	t.Run("no pageviews", func(t *testing.T) {
 		runCmd(t, exit, "monitor",
@@ -43,8 +42,7 @@ func TestMonitorOnce(t *testing.T) {
 }
 
 func TestMonitorLoop(t *testing.T) {
-	exit, _, out, ctx, dbc, clean := startTest(t)
-	defer clean()
+	exit, _, out, ctx, dbc := startTest(t)
 
 	gctest.StoreHits(ctx, t, false, goatcounter.Hit{})
 

@@ -14,8 +14,7 @@ import (
 )
 
 func TestBrowserStats(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	site := goatcounter.MustGetSite(ctx)
 	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)

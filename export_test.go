@@ -22,8 +22,7 @@ import (
 
 func TestExport(t *testing.T) {
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	dump := func() string {
 		return zdb.DumpString(ctx, `

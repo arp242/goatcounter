@@ -16,8 +16,7 @@ import (
 )
 
 func TestSiteInsert(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	s := Site{Code: "the-code", Plan: PlanPersonal}
 	err := s.Insert(ctx)
@@ -66,8 +65,7 @@ func TestSiteValidate(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 
 			if tt.prefn != nil {
 				tt.prefn(ctx)

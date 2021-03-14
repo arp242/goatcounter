@@ -13,23 +13,18 @@ import (
 
 func TestDB(t *testing.T) {
 	zlog.SetDebug("gctest")
-	fmt.Println("Run 1")
-	_, clean := DB(t)
-	clean()
+	t.Run("", func(t *testing.T) {
+		fmt.Println("Run 1")
+		DB(t)
+	})
 
-	fmt.Println("\nRun 2")
-	_, clean = DB(t)
-	clean()
+	t.Run("", func(t *testing.T) {
+		fmt.Println("\nRun 2")
+		DB(t)
+	})
 
-	fmt.Println("\nRun 3")
-	_, clean = DB(t)
-	clean()
+	t.Run("", func(t *testing.T) {
+		fmt.Println("\nRun 3")
+		DB(t)
+	})
 }
-
-// func BenchmarkTestDBDB(b *testing.B) {
-// 	b.ReportAllocs()
-// 	for n := 0; n < b.N; n++ {
-// 		_, clean := DB(b)
-// 		clean()
-// 	}
-// }

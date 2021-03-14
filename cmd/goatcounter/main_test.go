@@ -36,7 +36,7 @@ var mu sync.Mutex
 
 func startTest(t *testing.T) (
 	exit *zli.TestExit, in *bytes.Buffer, out *bytes.Buffer,
-	ctx context.Context, dbc string, clean func(),
+	ctx context.Context, dbc string,
 ) {
 	t.Helper()
 
@@ -57,13 +57,10 @@ func startTest(t *testing.T) (
 
 	goatcounter.Memstore.Reset()
 
-	ctx, dbClean := gctest.DBFile(t)
+	ctx = gctest.DBFile(t)
 
-	exit, in, out, zliClean := zli.Test()
-	return exit, in, out, ctx, os.Getenv("GCTEST_CONNECT"), func() {
-		zliClean()
-		dbClean()
-	}
+	exit, in, out = zli.Test(t)
+	return exit, in, out, ctx, os.Getenv("GCTEST_CONNECT")
 }
 
 func runCmdStop(t *testing.T, exit *zli.TestExit, ready chan<- struct{}, stop chan struct{}, cmd string, args ...string) {

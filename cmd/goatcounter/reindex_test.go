@@ -13,9 +13,8 @@ import (
 )
 
 func TestReindex(t *testing.T) {
-	defer gctest.SwapNow(t, "2020-06-18")()
-	exit, _, out, ctx, dbc, clean := startTest(t)
-	defer clean()
+	gctest.SetNow(t, "2020-06-18")
+	exit, _, out, ctx, dbc := startTest(t)
 
 	gctest.StoreHits(ctx, t, false, goatcounter.Hit{})
 

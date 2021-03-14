@@ -2,6 +2,7 @@ module zgo.at/goatcounter
 
 go 1.16
 
+replace zgo.at/zli => ../zli
 replace zgo.at/errors => ../errors
 replace zgo.at/zhttp => ../zhttp
 replace zgo.at/zstd => ../zstd

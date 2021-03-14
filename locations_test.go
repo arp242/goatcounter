@@ -15,8 +15,7 @@ import (
 )
 
 func TestLocations(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	run := func() {
 		{
@@ -65,8 +64,7 @@ func TestLocations(t *testing.T) {
 }
 
 func BenchmarkLocationsByCode(b *testing.B) {
-	ctx, clean := gctest.DB(b)
-	defer clean()
+	ctx := gctest.DB(b)
 
 	b.ReportAllocs()
 	b.ResetTimer()

@@ -15,8 +15,7 @@ import (
 )
 
 func TestMemstore(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	for i := 0; i < 2000; i++ {
 		Memstore.Append(gen(ctx))
@@ -54,9 +53,8 @@ func TestNextUUID(t *testing.T) {
 11223344556677-8899aabbccddef03
 11223344556677-8899aabbccddeeff`
 
-	func() {
-		_, clean := gctest.DB(t)
-		defer clean()
+	t.Run("", func(t *testing.T) {
+		gctest.DB(t)
 
 		got := Memstore.SessionID().Format(16) + "\n" +
 			Memstore.SessionID().Format(16) + "\n" +
@@ -65,11 +63,10 @@ func TestNextUUID(t *testing.T) {
 		if got != want {
 			t.Errorf("wrong:\n%s", got)
 		}
-	}()
+	})
 
-	func() {
-		_, clean := gctest.DB(t)
-		defer clean()
+	t.Run("", func(t *testing.T) {
+		gctest.DB(t)
 
 		got := Memstore.SessionID().Format(16) + "\n" +
 			Memstore.SessionID().Format(16) + "\n" +
@@ -78,13 +75,12 @@ func TestNextUUID(t *testing.T) {
 		if got != want {
 			t.Errorf("wrong after reset:\n%s", got)
 		}
-	}()
+	})
 }
 
 func TestCollect(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
-	defer gctest.SwapNow(t, "2020-06-18")()
+	ctx := gctest.DB(t)
+	gctest.SetNow(t, "2020-06-18")
 
 	ctx, site := gctest.Site(ctx, t, Site{Settings: SiteSettings{Collect: 1}})
 

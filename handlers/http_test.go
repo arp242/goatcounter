@@ -97,8 +97,7 @@ func runTest(
 
 		if tt.wantCode > 0 {
 			t.Run(sn, func(t *testing.T) {
-				ctx, clean := gctest.DB(t)
-				defer clean()
+				ctx := gctest.DB(t)
 
 				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(zjson.MustMarshal(tt.body)))
 				if tt.setup != nil {
@@ -126,8 +125,7 @@ func runTest(
 		}
 
 		t.Run("form", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 
 			form := formBody(tt.body)
 			r, rr := newTest(ctx, tt.method, tt.path, strings.NewReader(form))

@@ -335,8 +335,7 @@ func TestDashboardBarChart(t *testing.T) {
 	}
 
 	run := func(t *testing.T, tt testcase, url, want string) {
-		ctx, clean := gctest.DB(t)
-		defer clean()
+		ctx := gctest.DB(t)
 
 		ctx, site := gctest.Site(ctx, t, goatcounter.Site{
 			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
@@ -485,7 +484,7 @@ func TestDashboardBarChart(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.zone, func(t *testing.T) {
-			defer gctest.SwapNow(t, tt.now.UTC())()
+			gctest.SetNow(t, tt.now.UTC())
 
 			t.Run("hourly", func(t *testing.T) {
 				run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18", tt.wantHourly)
@@ -531,7 +530,7 @@ func TestTimeRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.rng+"-"+tt.now, func(t *testing.T) {
-			defer gctest.SwapNow(t, tt.now)()
+			gctest.SetNow(t, tt.now)
 
 			t.Run("UTC", func(t *testing.T) {
 				start, end, err := timeRange(tt.rng, time.UTC, false)

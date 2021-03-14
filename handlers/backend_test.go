@@ -57,8 +57,7 @@ func TestBackendTpl(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 			ctx, site := gctest.Site(ctx, t, goatcounter.Site{
 				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
 			})
@@ -78,7 +77,7 @@ func TestBackendTpl(t *testing.T) {
 }
 
 func TestBackendCount(t *testing.T) {
-	defer gctest.SwapNow(t, "2019-06-18 14:42:00")()
+	gctest.SetNow(t, "2019-06-18 14:42:00")
 
 	tests := []struct {
 		name     string
@@ -167,8 +166,7 @@ func TestBackendCount(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 
 			ctx, site := gctest.Site(ctx, t, goatcounter.Site{
 				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
@@ -231,8 +229,7 @@ func TestBackendCountSessions(t *testing.T) {
 	goatcounter.Now = func() time.Time { return now }
 	defer func() { goatcounter.Now = func() time.Time { return time.Now().UTC() } }()
 
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	ctx1, _ := gctest.Site(ctx, t, goatcounter.Site{
 		CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
@@ -376,8 +373,7 @@ func TestBackendCountSessions(t *testing.T) {
 }
 
 func BenchmarkCount(b *testing.B) {
-	ctx, clean := gctest.DB(b)
-	defer clean()
+	ctx := gctest.DB(b)
 
 	r, rr := newTest(ctx, "GET", "/count", nil)
 	r.URL.RawQuery = url.Values{

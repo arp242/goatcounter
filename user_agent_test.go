@@ -17,8 +17,7 @@ import (
 )
 
 func TestUserAgentGetOrInsert(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	test := func(gotUA, wantUA UserAgent, want string) {
 		if !reflect.DeepEqual(gotUA, wantUA) {

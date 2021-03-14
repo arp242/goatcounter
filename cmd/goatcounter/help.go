@@ -23,10 +23,10 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	zli.WantColor = true
 
 	// Don't parse any flags, just grep out non-flags and print help for those.
+	//
 	// TODO: would be better if zli.Flags would continue parsing after an
-	// unknown flag, as "-site 1" will try to load the help for "1".
-	// Still, being able to add "-h" at the end of a command is pretty
-	// convenient IMO.
+	// unknown flag, as "-site 1" will try to load the help for "1". Still,
+	// being able to add "-h" at the end of a command is pretty convenient IMO.
 	var topics []string
 	for _, a := range f.Args {
 		if len(a) == 0 || a[0] == '-' {

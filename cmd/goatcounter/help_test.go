@@ -11,8 +11,7 @@ import (
 )
 
 func TestHelp(t *testing.T) {
-	exit, _, out, clean := zli.Test()
-	defer clean()
+	exit, _, out := zli.Test(t)
 
 	{
 		runCmd(t, exit, "help", "db")

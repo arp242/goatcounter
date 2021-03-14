@@ -12,8 +12,7 @@ import (
 )
 
 func TestSaas(t *testing.T) {
-	exit, _, _, _, dbc, clean := startTest(t)
-	defer clean()
+	exit, _, _, _, dbc := startTest(t)
 
 	ready := make(chan struct{}, 1)
 	stop := make(chan struct{})

@@ -15,8 +15,7 @@ import (
 )
 
 func TestListRefsByPath(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/x", Ref: "http://example.com"},

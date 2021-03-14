@@ -164,8 +164,7 @@ func TestHitStatsList(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			ctx, clean := gctest.DB(t)
-			defer clean()
+			ctx := gctest.DB(t)
 
 			site := MustGetSite(ctx)
 			for j := range tt.in {
@@ -243,8 +242,7 @@ func TestHitDefaultsRef(t *testing.T) {
 		{"android-app://com.example.android", "com.example.android", nil, nil, "o"},
 	}
 
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
@@ -297,8 +295,7 @@ func TestHitDefaultsPath(t *testing.T) {
 		{"/web/assets/images/social-github.svg", "/web/assets/images/social-github.svg"},
 	}
 
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
@@ -314,8 +311,7 @@ func TestHitDefaultsPath(t *testing.T) {
 }
 
 func TestStatsByRef(t *testing.T) {
-	ctx, clean := gctest.DB(t)
-	defer clean()
+	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/a", Ref: "https://example.com"},

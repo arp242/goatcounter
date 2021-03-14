@@ -11,8 +11,7 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	exit, _, out, ctx, dbc, clean := startTest(t)
-	defer clean()
+	exit, _, out, ctx, dbc := startTest(t)
 
 	{
 		runCmd(t, exit, "create",

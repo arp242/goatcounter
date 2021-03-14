@@ -114,7 +114,6 @@ func cmdDb(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return errors.New("need a subcommand: schema-sqlite, schema-pgsql, or test")
 
 	case "schema-sqlite", "schema-pgsql":
-		// TODO: Read from fs on dev
 		d, err := goatcounter.DB.ReadFile("db/schema.gotxt")
 		if err != nil {
 			return err

@@ -13,8 +13,7 @@ import (
 )
 
 func TestSQLiteJSON(t *testing.T) {
-	ctx, clean := zdb.StartTest(t)
-	defer clean()
+	ctx := zdb.StartTest(t)
 
 	var out string
 	err := zdb.Get(ctx, &out, `select json('["a"  ,  "b"]')`)
