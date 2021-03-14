@@ -2,12 +2,6 @@ module zgo.at/goatcounter
 
 go 1.16
 
-replace zgo.at/zli => ../zli
-replace zgo.at/errors => ../errors
-replace zgo.at/zhttp => ../zhttp
-replace zgo.at/zstd => ../zstd
-replace zgo.at/zdb => ../zdb
-
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it
 // compiles with JSON support without having to specify a build tag, which is
 // inconvenient, easily forgotten, and causes runtime errors.
@@ -32,7 +26,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/monoculum/formam v0.0.0-20210131081218-41b48e2a724b
 	github.com/oschwald/geoip2-golang v1.4.0
-	github.com/oschwald/maxminddb-golang v1.8.0
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
@@ -42,7 +35,7 @@ require (
 	golang.org/x/tools v0.1.0
 	honnef.co/go/tools v0.1.2
 	zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8
-	zgo.at/errors v1.0.0
+	zgo.at/errors v1.0.1-0.20210313142254-4e0fb19b1249
 	zgo.at/follow v0.0.0-20201229040459-c683c36702b6
 	zgo.at/gadget v0.0.0-20210225052028-befd29935cb7
 	zgo.at/guru v1.1.0
@@ -50,11 +43,11 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3
 	zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6
-	zgo.at/zdb v0.0.0-20210311032756-6d19490979b9
-	zgo.at/zhttp v0.0.0-20210309183433-b3a06bbb3ae6
-	zgo.at/zli v0.0.0-20210310102828-e74d81bf1798
+	zgo.at/zdb v0.0.0-20210314014430-5fb69a0434a4
+	zgo.at/zhttp v0.0.0-20210313142737-b939d047b688
+	zgo.at/zli v0.0.0-20210314013617-b1271a855459
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
-	zgo.at/zstd v0.0.0-20210310054817-c39eb9b7df25
+	zgo.at/zstd v0.0.0-20210313150607-8c18d68ca2d0
 	zgo.at/zstripe v1.0.0
 	zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036
 )
