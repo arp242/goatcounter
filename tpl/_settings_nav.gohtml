@@ -6,5 +6,7 @@
 	<a class="{{if eq .Path "/settings/purge"}}active{{end}}"     href="/settings/purge">Purge</a>
 	<a class="{{if eq .Path "/settings/export"}}active{{end}}"    href="/settings/export">Export/Import</a>
 	<a class="{{if eq .Path "/settings/auth"}}active{{end}}"      href="/settings/auth">Password, MFA, API</a>
+	{{if .GoatcounterCom}}
 	<a class="{{if eq .Path "/settings/delete"}}active{{end}}"    href="/settings/delete">Delete account</a>
+	{{end}}
 </nav>

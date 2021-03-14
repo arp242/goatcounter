@@ -336,7 +336,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 	return nil
 }
 
-// Delete a site.
+// Delete a site and all child sites.
 func (s *Site) Delete(ctx context.Context) error {
 	if s.ID == 0 {
 		return errors.New("ID == 0")

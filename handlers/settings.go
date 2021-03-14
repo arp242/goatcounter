@@ -712,79 +712,77 @@ func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			"Reason":    r.URL.Query().Get("reason"),
 		}
 
+		var sites goatcounter.Sites
+		err := sites.ForThisAccount(r.Context(), false)
+		if err != nil {
+			return err
+		}
+
 		return zhttp.Template(w, "settings_delete.gohtml", struct {
 			Globals
+			Sites    goatcounter.Sites
 			Validate *zvalidate.Validator
 			Delete   map[string]interface{}
-		}{newGlobals(w, r), verr, del})
+		}{newGlobals(w, r), sites, verr, del})
 	}
 }
 
 func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
-	site := Site(r.Context())
+	var args struct {
+		Reason    string `json:"reason"`
+		ContactMe bool   `json:"contact_me"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		zlog.Error(err)
+	}
 
-	if goatcounter.Config(r.Context()).GoatcounterCom {
-		var args struct {
-			Reason    string `json:"reason"`
-			ContactMe bool   `json:"contact_me"`
-		}
-		_, err := zhttp.Decode(r, &args)
-		if err != nil {
-			zlog.Error(err)
-		}
-
-		has, err := hasPlan(r.Context(), site)
+	mainSite := Site(r.Context())
+	if mainSite.Parent != nil {
+		err := mainSite.ByID(r.Context(), *mainSite.Parent)
 		if err != nil {
 			return err
 		}
-		if has {
-			zhttp.FlashError(w, "This site still has a Stripe subscription; cancel that first on the billing page.")
-			q := url.Values{}
-			q.Set("reason", args.Reason)
-			q.Set("contact_me", fmt.Sprintf("%t", args.ContactMe))
-			return zhttp.SeeOther(w, "/settings/delete?"+q.Encode())
-		}
-
-		if args.Reason != "" {
-			bgrun.Run("email:deletion", func() {
-				contact := "false"
-				if args.ContactMe {
-					var u goatcounter.User
-					err := u.BySite(r.Context(), site.ID)
-					if err != nil {
-						zlog.Error(err)
-					} else {
-						contact = u.Email
-					}
-				}
-
-				blackmail.Send("GoatCounter deletion",
-					blackmail.From("GoatCounter deletion", goatcounter.Config(r.Context()).EmailFrom),
-					blackmail.To(goatcounter.Config(r.Context()).EmailFrom),
-					blackmail.Bodyf(`Deleted: %s (%d): contact_me: %s; reason: %s`,
-						site.Code, site.ID, contact, args.Reason))
-			})
-		}
 	}
 
-	err := site.Delete(r.Context())
+	has, err := hasPlan(r.Context(), mainSite)
 	if err != nil {
 		return err
 	}
-
-	if site.Parent != nil {
-		var p goatcounter.Site
-		err := p.ByID(r.Context(), *site.Parent)
-		if err != nil {
-			return err
-		}
-		return zhttp.SeeOther(w, p.URL(r.Context()))
+	if has {
+		zhttp.FlashError(w, "This account still has a Stripe subscription; cancel that first on the billing page.")
+		q := url.Values{}
+		q.Set("reason", args.Reason)
+		q.Set("contact_me", fmt.Sprintf("%t", args.ContactMe))
+		return zhttp.SeeOther(w, "/settings/delete?"+q.Encode())
 	}
 
-	if goatcounter.Config(r.Context()).GoatcounterCom {
-		return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
+	if args.Reason != "" {
+		bgrun.Run("email:deletion", func() {
+			contact := "false"
+			if args.ContactMe {
+				var u goatcounter.User
+				err := u.BySite(r.Context(), mainSite.ID)
+				if err != nil {
+					zlog.Error(err)
+				} else {
+					contact = u.Email
+				}
+			}
+
+			blackmail.Send("GoatCounter deletion",
+				blackmail.From("GoatCounter deletion", goatcounter.Config(r.Context()).EmailFrom),
+				blackmail.To(goatcounter.Config(r.Context()).EmailFrom),
+				blackmail.Bodyf(`Deleted: %s (%d): contact_me: %s; reason: %s`,
+					mainSite.Code, mainSite.ID, contact, args.Reason))
+		})
 	}
-	return zhttp.SeeOther(w, "/")
+
+	err = mainSite.Delete(r.Context())
+	if err != nil {
+		return err
+	}
+	return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
 }
 
 func (h settings) viewSave(w http.ResponseWriter, r *http.Request) error {
