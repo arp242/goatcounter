@@ -14,6 +14,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zstring"
 )
 
@@ -27,6 +28,9 @@ Flags:
                sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
   -createdb    Create the database if it doesn't exist yet; only for SQLite.
+
+  -dev         Load migrations from filesystem, rather than using the migrations
+               compiled in the binary.
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
                See "goatcounter help debug" for a list of modules.
@@ -53,6 +57,7 @@ func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		createdb  = f.Bool(false, "createdb").Pointer()
+		dev       = f.Bool(false, "dev").Pointer()
 	)
 	err := f.Parse()
 	if err != nil {
@@ -63,7 +68,7 @@ func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return errors.New("need a migration or command")
 	}
 
-	return func(dbConnect, debug string, createdb bool) error {
+	return func(dbConnect, debug string, createdb, dev bool) error {
 		zlog.Config.SetDebug(debug)
 
 		db, _, err := connectDB(dbConnect, nil, createdb, false)
@@ -72,8 +77,11 @@ func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 		defer db.Close()
 
-		// TODO: Read from fs on dev
-		m, err := zdb.NewMigrate(db, goatcounter.DB, gomig.Migrations)
+		fsys, err := zfs.EmbedOrDir(goatcounter.DB, "", dev)
+		if err != nil {
+			return err
+		}
+		m, err := zdb.NewMigrate(db, fsys, gomig.Migrations)
 		if err != nil {
 			return err
 		}
@@ -107,5 +115,5 @@ func cmdMigrate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 
 		return m.Run(f.Args...)
-	}(*dbConnect, *debug, *createdb)
+	}(*dbConnect, *debug, *createdb, *dev)
 }
