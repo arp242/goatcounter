@@ -2,9 +2,8 @@ ChangeLog for GoatCounter
 =========================
 
 This list is not comprehensive, and only lists new features and major changes,
-but not every minor bugfix.
-
-The goatcounter.com service generally runs the latest master.
+but not every minor bugfix. The goatcounter.com service generally runs the
+latest master.
 
 Unreleased v1.5.0
 -----------------
@@ -18,6 +17,17 @@ Unreleased v1.5.0
     exit code 1 if there are any pending migrations.
   - `goatcounter migrate list` lists all migrations, always exits with 0.
 
+- The build flag to set the version changed from (**incompatible**):
+
+      -ldflags="-X main.version=..."
+
+  to:
+
+      -ldflags="-X zgo.at/goatcounter.Version=..."
+
+- You can import pageviews from logfiles with the `goatcounter import` command;
+  see `goatcounter help import` for details.
+
 - New `goatcounter buffer` command; this allows buffering of pageviews in case
   the backend is down, running migrations, etc. See `goatcounter help buffer`
   for more information.
@@ -27,7 +37,7 @@ Unreleased v1.5.0
   Dashboard*, and some settings from the main settings page have moved there.
   (#416, #417, #418)
 
-- You can save a default view for the dashboard: instead of always loading the
+- You can save a default view for the dashboard. Instead of always loading the
   last week by default, you can now configure it to load the last month, or view
   by day, or anything you want really. (#419)
 
@@ -40,16 +50,14 @@ Unreleased v1.5.0
   default). This requires specifying the path to a GeoIP City database, which
   isn't included since it's ~30M (#425)
 
-- You can import pageviews from logfiles with the `goatcounter import` command;
-  see `goatcounter help import` for details.
-
-- There is now a `count.v*.js`, which are stable versions that can use
-  subresource integrity.
+- There are now stable `count.v*.js` scripts that can use subresource integrity.
+  See the integration code for a list and hashes.
 
 - You can use `data-goatcounter-settings` on the `<script>` tag to load the
   settings (this requires `count.v2.js` or newer).
 
-- The database for PostgreSQL is now created automatically.
+- The database for PostgreSQL is now created automatically; you no longer need
+  to do this manually.
 
 - You can copy settings from a site to other sites in *Settings → Sites*.
 
@@ -90,17 +98,13 @@ this means:
 
 4. Run `goatcounter reindex`.
 
-This may take a while if you've got a lot of data. For about 500,000 pageviews
-it takes about 3 minutes on SQLite, but if you've got millions of pageviews it
-may take an hour or more.
-
-Because this is such a big change there are no changes other than this for
-version 1.5.
+All of this may take a while if you've got a lot of data. For about 500,000
+pageviews it takes about 3 minutes on SQLite, but if you've got millions of
+pageviews it may take an hour or more.
 
 **Note**: the CSV export format was increased to `2`; it now includes the parsed
 browser and system values in addition to the User-Agent header. Version 1.5 will
 not be able to import the older exports from version `1`.
-
 
 
 2020-11-10, v1.4.2

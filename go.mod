@@ -3,11 +3,8 @@ module zgo.at/goatcounter
 go 1.16
 
 replace zgo.at/errors => ../errors
-
 replace zgo.at/zhttp => ../zhttp
-
 replace zgo.at/zstd => ../zstd
-
 replace zgo.at/zdb => ../zdb
 
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it

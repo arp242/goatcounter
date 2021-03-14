@@ -74,7 +74,6 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		c := goatcounter.Config(ctx)
 		c.GoatcounterCom = true
 		c.Dev = dev
-		c.Plan = plan
 		c.Domain = domain
 		c.DomainStatic = domainStatic
 		c.DomainCount = domainCount
@@ -85,7 +84,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		d := znet.RemovePort(domain)
 		hosts := map[string]http.Handler{
 			d:          zhttp.RedirectHost("//www." + domain),
-			"www." + d: handlers.NewWebsite(db, dev),
+			"www." + d: handlers.NewWebsite(db, dev, plan),
 			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic),
 		}
 		if dev {

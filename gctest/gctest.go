@@ -34,7 +34,6 @@ func init() {
 func Context(db zdb.DB) context.Context {
 	ctx := goatcounter.NewContext(db)
 	goatcounter.Config(ctx).BcryptMinCost = true
-	goatcounter.Config(ctx).Plan = goatcounter.PlanPersonal
 	goatcounter.Config(ctx).Domain = "example.com"
 	return ctx
 }

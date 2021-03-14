@@ -25,8 +25,6 @@ import (
 	"zgo.at/zstd/zstring"
 )
 
-var version = "dev"
-
 func init() {
 	errors.Package = "zgo.at/goatcounter"
 }
@@ -47,8 +45,6 @@ var mainDone sync.WaitGroup
 func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	mainDone.Add(1)
 	defer mainDone.Done()
-
-	goatcounter.Version = version
 
 	cmd := f.Shift()
 	if zstring.ContainsAny(f.Args, "-h", "-help", "--help") {
@@ -124,6 +120,6 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 
 func getVersion() string {
 	return fmt.Sprintf("version=%s; go=%s; GOOS=%s; GOARCH=%s; race=%t; cgo=%t",
-		version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
+		goatcounter.Version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
 		zruntime.Race, zruntime.CGO)
 }

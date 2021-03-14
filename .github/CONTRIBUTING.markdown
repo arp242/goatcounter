@@ -1,10 +1,11 @@
-You can get in touch on GitHub issues or the
-[Telegram group](https://t.me/goatcounter) if you have any questions or
-problems.
+You can get in touch on GitHub issues or the [Telegram group][t] if you have any
+questions or problems.
 
 Don't be afraid to just ask if you're struggling with something. Chances are
 that I can quickly give you an answer or point you in the right direction by
 spending just a few minutes.
+
+[t]: https://t.me/goatcounter
 
 Starting it
 -----------
@@ -48,10 +49,8 @@ General notes
   ./...`. You can use the standard `PG*` environment variables to control the
   connection (e.g. `PGHOST`, `PGPORT`).
 
-- I don't run any linters at the moment other than `go vet`, as several years of
-  experience with them showed that they're useful about half the time, and just
-  noise the other half. But do try to follow standard go linter guidelines when
-  reasonable and, of course, gofmt your code.
+- Use `go run ./cmd/check ./...` to run some various linters and the like, such
+  as `go vet` and some others.
 
 - Keep lines under 80 characters if possible, but don't bend over backwards to
   do so: it's usually okay for a function definition or call to be 85 characters
@@ -69,9 +68,9 @@ straightforward
 
 - The "models" are contained in /site.go, /hit.go, etc. [site.go](/site.go) is
   probably the best place to look at to get an overview of the patterns used.
+  Most of this is fairly straight-forward and uncomplicated.
 
-- HTTP handlers go in /handlers; most of the interesting stuff is in
-  [handlers/backend.go](/handlers/backend.go).
+- HTTP handlers go in /handlers.
 
 - `/count` – which records pageviews – is dealt different than most other
   requests: instead of persisting to the DB immediately it's added to memstore
@@ -80,13 +79,13 @@ straightforward
 
 - Hits ("pageviews") are stored in the `hits` table with minimal processing; for
   the most part, this table isn't queried directly for reasons of performance.
-  When inserting new rows in the table the various `*_stats` tables are updated
-  as well, which contain a more efficient aggregation of the data (`hit_stats`,
-  browser_stats`, etc.)
+  When inserting new rows in the table the various `*_stats` and `*_count`
+  tables are updated which contain a more efficient aggregation of the data
+  (`hit_stats`, browser_stats`, etc.) This is done through the `cron` package.
 
-- Templates live in /tpl, and are standard Go templates. The Go template library
-  is a bit idiosyncratic, but once you "get" it they're quite pleasant to work
-  with (I can't find a good/gentle "getting started with Go templates"
+- Templates live in `/tpl`, and are standard Go templates. The Go template
+  library is a bit idiosyncratic, but once you "get" it they're quite pleasant
+  to work with (I can't find a good/gentle "getting started with Go templates"
   introduction, let me know if you know of one; but just ask if you're
   struggling with this).
 

@@ -13,7 +13,10 @@ import (
 	"zgo.at/zhttp/ctxkey"
 )
 
-var Version = ""
+// Version of GoatCounter; set at compile-time with:
+//
+//   -ldflags="-X zgo.at/goatcounter.Version=XXXX"
+var Version = "dev"
 
 var (
 	keyCacheSites      = &struct{ n string }{""}
@@ -33,9 +36,7 @@ type GlobalConfig struct {
 	DomainStatic   string
 	DomainCount    string
 	URLStatic      string
-	Plan           string
 	Dev            bool
-	Version        string
 	GoatcounterCom bool
 	Serve          bool
 	Port           string

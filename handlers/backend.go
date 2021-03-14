@@ -73,7 +73,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 	if err != nil {
 		panic(err)
 	}
-	website{fsys, false}.MountShared(r)
+	website{fsys, false, ""}.MountShared(r)
 	api{}.mount(r, db)
 	vcounter{}.mount(r, db)
 
