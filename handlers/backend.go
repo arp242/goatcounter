@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -148,7 +147,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 		{
 			ap := a.With(loggedInOrPublic)
 			ap.Get("/", zhttp.Wrap(h.dashboard))
-			ap.Get("/pages", zhttp.Wrap(h.pages))
+			ap.Get("/pages-more", zhttp.Wrap(h.pagesMore))
 			ap.Get("/hchart-detail", zhttp.Wrap(h.hchartDetail))
 			ap.Get("/hchart-more", zhttp.Wrap(h.hchartMore))
 		}
@@ -235,7 +234,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Bytes(w, gif)
 }
 
-func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
+func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
 
 	exclude, err := zint.Split(r.URL.Query().Get("exclude"), ",")
@@ -272,63 +271,6 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	}
 	offset := int(o)
 
-	// Load new totals unless this is for pagination.
-	var (
-		wg sync.WaitGroup
-
-		totalTpl   string
-		totalPages goatcounter.HitList
-		totalErr   error
-
-		maxTotals int
-		maxErr    error
-
-		totalCount    goatcounter.TotalCount
-		totalCountErr error
-	)
-
-	// Filtering instead of paginating: get new "totals" stats as well.
-	// TODO: also re-render the the horizontal bar charts below, but this isn't
-	// currently possible since not all data is linked to a path.
-	//
-	// TODO: use widgets for this.
-	if len(exclude) == 0 {
-		wg.Add(1)
-		go func() {
-			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
-			defer wg.Done()
-
-			maxTotals, totalErr = totalPages.Totals(r.Context(), start, end, pathFilter, daily)
-			if totalErr != nil {
-				return
-			}
-
-			totalTpl, totalErr = ztpl.ExecuteString("_dashboard_totals_row.gohtml", struct {
-				Context context.Context
-				Site    *goatcounter.Site
-				Page    goatcounter.HitList
-				Daily   bool
-				Max     int
-			}{r.Context(), site, totalPages, daily, maxTotals})
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
-			defer wg.Done()
-
-			max, maxErr = goatcounter.GetMax(r.Context(), start, end, pathFilter, daily)
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.FieldsRequest(r) })
-			defer wg.Done()
-
-			totalCount, totalCountErr = goatcounter.GetTotalCount(r.Context(), start, end, pathFilter)
-		}()
-	}
-
 	var pages goatcounter.HitLists
 	totalDisplay, totalUniqueDisplay, more, err := pages.List(
 		r.Context(), start, end, pathFilter, exclude, daily)
@@ -340,7 +282,6 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 	if asText {
 		t = "_dashboard_pages_text_rows.gohtml"
 	}
-
 	tpl, err := ztpl.ExecuteString(t, struct {
 		Context     context.Context
 		Pages       goatcounter.HitLists
@@ -366,25 +307,9 @@ func (h backend) pages(w http.ResponseWriter, r *http.Request) error {
 		paths[i] = pages[i].Path
 	}
 
-	wg.Wait()
-	if totalErr != nil {
-		return totalErr
-	}
-	if maxErr != nil {
-		return maxErr
-	}
-	if totalCountErr != nil {
-		return totalCountErr
-	}
-
 	return zhttp.JSON(w, map[string]interface{}{
 		"rows":                 tpl,
-		"totals":               totalTpl,
 		"paths":                paths,
-		"total_hits":           totalCount.Total,
-		"total_unique":         totalCount.TotalUnique,
-		"total_unqiue_events":  totalCount.TotalEventsUnique,
-		"total_events":         totalCount.TotalEvents,
 		"total_display":        totalDisplay,
 		"total_unique_display": totalUniqueDisplay,
 		"max":                  max,

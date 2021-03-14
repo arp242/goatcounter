@@ -98,16 +98,10 @@ func tokenFromHeader(r *http.Request) (string, error) {
 	return b[1], nil
 }
 
-// TODO: don't use global.
 var (
 	bufferKeyOnce sync.Once
 	bufferKey     []byte
 )
-
-func Reset() {
-	bufferKeyOnce = sync.Once{}
-	bufferKey = make([]byte, 0)
-}
 
 func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 	key, err := tokenFromHeader(r)
@@ -123,7 +117,6 @@ func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 				zlog.Error(err)
 			}
 		})
-
 		if subtle.ConstantTimeCompare(bufferKey, []byte(key)) == 0 {
 			return guru.New(http.StatusForbidden, "unknown buffer token")
 		}

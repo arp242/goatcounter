@@ -303,7 +303,7 @@
 			e.preventDefault()
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:  '/pages',
+					url:  '/pages-more',
 					data: append_period({
 						daily:     $('#daily').is(':checked'),
 						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),

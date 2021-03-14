@@ -29,19 +29,12 @@ import (
 type admin struct{}
 
 func (h admin) mount(r chi.Router, db zdb.DB) {
-	//a := r.With(zhttp.Log(true, ""), keyAuth, adminOnly)
 	a := r.With(mware.RequestLog(nil), adminOnly)
-
 	a.Get("/admin", zhttp.Wrap(h.index))
-
-	// TODO
-	// a.Mount("/admin/sql", pghandler.New("/admin/sql", db.(*sqlx.DB).DB))
-
 	a.Get("/admin/{id}", zhttp.Wrap(h.site))
 	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
 	a.Post("/admin/login/{id}", zhttp.Wrap(h.login))
 
-	//aa.Get("/debug/pprof/*", pprof.Index)
 	a.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/debug/pprof") {
 			pprof.Index(w, r)
