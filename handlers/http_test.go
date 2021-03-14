@@ -22,6 +22,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
+	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zgo"
@@ -42,6 +43,7 @@ type handlerTest struct {
 	wantFormCode int
 	wantBody     string
 	wantFormBody string
+	want         string
 }
 
 func init() {
@@ -64,15 +66,20 @@ func init() {
 func TestMain(m *testing.M) {
 	os.Exit(ztpl.TestTemplateExecution(m,
 		"", "admin.gohtml", "admin_site.gohtml",
-		// TODO: test these too.
-		"billing.gohtml", "billing_cancel.gohtml",
-
-		"user_forgot_pw.gohtml", "user_reset.gohtml", "totp.gohtml",
 
 		// Tested in tpl_test.go
 		"email_export_done.gotxt", "email_forgot_site.gotxt",
 		"email_import_done.gotxt", "email_import_error.gotxt",
 		"email_password_reset.gotxt", "email_verify.gotxt",
+
+		// TODO: won't work in serve mode.
+		"billing.gohtml", "billing_cancel.gohtml",
+
+		// TODO: only works if not logged in.
+		"user_forgot_pw.gohtml", "user_reset.gohtml",
+
+		// TODO: part of TOTP flow; kinda tricky to test.
+		"totp.gohtml",
 	))
 
 }
@@ -139,6 +146,9 @@ func runTest(
 			}
 
 			tt.router(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			if f := zhttp.ReadFlash(rr, r); f != nil {
+				t.Logf("flash message (%s): %s", f.Level, f.Message)
+			}
 			ztest.Code(t, rr, tt.wantFormCode)
 			if !strings.Contains(rr.Body.String(), tt.wantFormBody) {
 				t.Errorf("wrong body\nwant: %q\ngot:  %q", tt.wantFormBody, rr.Body.String())

@@ -307,7 +307,7 @@ func (h settings) dashboardSave(w http.ResponseWriter, r *http.Request) error {
 func (h settings) sites(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		var sites goatcounter.Sites
-		err := sites.ForThisAccount(r.Context(), true)
+		err := sites.ForThisAccount(r.Context(), false)
 		if err != nil {
 			return err
 		}
@@ -330,26 +330,63 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	parent := Site(r.Context())
-	site := goatcounter.Site{
-		Parent:   &parent.ID,
-		Plan:     goatcounter.PlanChild,
-		Settings: parent.Settings,
-	}
-	if goatcounter.Config(r.Context()).GoatcounterCom {
-		site.Code = args.Code
-	} else {
-		site.Code = "serve-" + zcrypto.Secret64()
-		site.Cname = &args.Cname
+	mainSite := Site(r.Context())
+	if mainSite.Parent != nil {
+		err := mainSite.ByID(r.Context(), *mainSite.Parent)
+		if err != nil {
+			return err
+		}
 	}
 
+	var (
+		newSite goatcounter.Site
+		addr    = args.Code
+	)
+	if goatcounter.Config(r.Context()).GoatcounterCom {
+		newSite.Code = args.Code
+	} else {
+		newSite.Code = "serve-" + zcrypto.Secret64()
+		newSite.Cname = &args.Cname
+		addr = args.Cname
+	}
+
+	// Undelete previous soft-deleted site.
+	id, err := newSite.Exists(r.Context())
+	if err != nil {
+		return err
+	}
+	if id > 0 {
+		err := newSite.ByIDState(r.Context(), id, goatcounter.StateDeleted)
+		if err != nil {
+			if zdb.ErrNoRows(err) {
+				return guru.Errorf(400, "%q already exists", addr)
+			}
+			return err
+		}
+		if newSite.Parent == nil || *newSite.Parent != mainSite.ID {
+			return guru.Errorf(400, "%q already exists", addr)
+		}
+
+		err = newSite.Undelete(r.Context(), newSite.ID)
+		if err != nil {
+			return err
+		}
+
+		zhttp.Flash(w, "Site ‘%s’ was previously deleted; restored site with all data.", newSite.URL(r.Context()))
+		return zhttp.SeeOther(w, "/settings/sites")
+	}
+
+	// Create new site.
+	newSite.Parent = &mainSite.ID
+	newSite.Plan = goatcounter.PlanChild
+	newSite.Settings = Site(r.Context()).Settings
 	err = zdb.TX(r.Context(), func(ctx context.Context) error {
-		err := site.Insert(ctx)
+		err = newSite.Insert(ctx)
 		if err != nil {
 			return err
 		}
 		if !goatcounter.Config(r.Context()).GoatcounterCom {
-			return site.UpdateCnameSetupAt(ctx)
+			return newSite.UpdateCnameSetupAt(ctx)
 		}
 		return nil
 	})
@@ -358,7 +395,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/settings/sites")
 	}
 
-	zhttp.Flash(w, "Site ‘%s’ added.", site.URL(r.Context()))
+	zhttp.Flash(w, "Site ‘%s’ added.", newSite.URL(r.Context()))
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
@@ -377,7 +414,7 @@ func (h settings) sitesRemoveConfirm(w http.ResponseWriter, r *http.Request) err
 
 	return zhttp.Template(w, "settings_sites_rm_confirm.gohtml", struct {
 		Globals
-		Site goatcounter.Site
+		Rm goatcounter.Site
 	}{newGlobals(w, r), s})
 }
 
@@ -394,12 +431,29 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	site := Site(r.Context())
+	if !(s.ID == site.ID || (s.Parent != nil && *s.Parent == site.ID)) {
+		return guru.New(404, "Not Found")
+	}
+
+	sID := s.ID
 	err = s.Delete(r.Context())
 	if err != nil {
 		return err
 	}
 
-	zhttp.Flash(w, "Site ‘%s ’removed.", s.URL(r.Context()))
+	zhttp.Flash(w, "Site ‘%s’ removed.", s.URL(r.Context()))
+
+	// Redirect to parent if we're removing the current site.
+	if sID == Site(r.Context()).ID && s.Parent != nil {
+		var parent goatcounter.Site
+		err = parent.ByID(r.Context(), *s.Parent)
+		if err != nil {
+			zlog.Error(err)
+			return zhttp.SeeOther(w, "/")
+		}
+		return zhttp.SeeOther(w, parent.URL(r.Context()))
+	}
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 

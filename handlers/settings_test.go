@@ -14,6 +14,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/zdb"
 )
 
 func TestSettingsTpl(t *testing.T) {
@@ -91,6 +92,228 @@ func TestSettingsPurge(t *testing.T) {
 			}
 			if len(hits) != 1 {
 				t.Errorf("%d hits in DB; expected 1:\n%v", len(hits), hits)
+			}
+		})
+	}
+}
+
+func TestSettingsSitesAdd(t *testing.T) {
+	tests := []handlerTest{
+		{
+			name:         "new site",
+			setup:        func(ctx context.Context, t *testing.T) {},
+			router:       newBackend,
+			path:         "/settings/sites/add",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 303,
+			want: `
+				site_id  code   cname            plan      parent  state
+				1        gctes  NULL             personal  NULL    a
+				2        serve  add.example.com  child     1       a`,
+		},
+		{
+			name: "already exists for this account",
+			setup: func(ctx context.Context, t *testing.T) {
+				one := int64(1)
+				cn := "add.example.com"
+				s := goatcounter.Site{
+					Parent: &one,
+					Cname:  &cn,
+					Code:   "add",
+					Plan:   goatcounter.PlanChild,
+				}
+				err := s.Insert(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+			router:       newBackend,
+			path:         "/settings/sites/add",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 400,
+			wantFormBody: "already exists",
+			want: `
+				site_id  code   cname            plan      parent  state
+				1        gctes  NULL             personal  NULL    a
+				2        add    add.example.com  child     1       a`,
+		},
+		{
+			name: "already exists on other account",
+			setup: func(ctx context.Context, t *testing.T) {
+				cn := "add.example.com"
+				s := goatcounter.Site{
+					Cname: &cn,
+					Code:  "add",
+					Plan:  goatcounter.PlanPersonal,
+				}
+				err := s.Insert(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+			router:       newBackend,
+			path:         "/settings/sites/add",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 400,
+			wantFormBody: "already exists",
+			want: `
+				site_id  code   cname            plan      parent  state
+				1        gctes  NULL             personal  NULL    a
+				2        add    add.example.com  personal  NULL    a`,
+		},
+		{
+			name: "undelete",
+			setup: func(ctx context.Context, t *testing.T) {
+				one := int64(1)
+				cn := "add.example.com"
+				s := goatcounter.Site{
+					Parent: &one,
+					Cname:  &cn,
+					Code:   "add",
+					Plan:   goatcounter.PlanChild,
+				}
+				err := s.Insert(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+				err = s.Delete(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+			router:       newBackend,
+			path:         "/settings/sites/add",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 303,
+			want: `
+				site_id  code   cname            plan      parent  state
+				1        gctes  NULL             personal  NULL    a
+				2        add    add.example.com  child     1       a`,
+		},
+		{
+			name: "undelete other account",
+			setup: func(ctx context.Context, t *testing.T) {
+				cn := "add.example.com"
+				s := goatcounter.Site{
+					Cname: &cn,
+					Code:  "add",
+					Plan:  goatcounter.PlanPersonal,
+				}
+				err := s.Insert(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+				err = s.Delete(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+			router:       newBackend,
+			path:         "/settings/sites/add",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 400,
+			wantFormBody: "already exists",
+			want: `
+				site_id  code   cname            plan      parent  state
+				1        gctes  NULL             personal  NULL    a
+				2        add    add.example.com  personal  NULL    d`,
+		},
+	}
+
+	for _, tt := range tests {
+		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+			got := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
+			if d := zdb.Diff(got, tt.want); d != "" {
+				t.Error(d)
+			}
+		})
+	}
+}
+
+func TestSettingsSitesRemove(t *testing.T) {
+	tests := []handlerTest{
+		{
+			name: "remove",
+			setup: func(ctx context.Context, t *testing.T) {
+				one := int64(1)
+				cn := "add.example.com"
+				s := goatcounter.Site{
+					Parent: &one,
+					Cname:  &cn,
+					Code:   "add",
+					Plan:   goatcounter.PlanChild,
+				}
+				err := s.Insert(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+			router:       newBackend,
+			path:         "/settings/sites/remove/2",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 303,
+			want: `
+				site_id  code   cname            plan      parent  state
+				1        gctes  NULL             personal  NULL    a
+				2        add    add.example.com  child     1       d`,
+		},
+		{
+			name:         "remove self",
+			setup:        func(ctx context.Context, t *testing.T) {},
+			router:       newBackend,
+			path:         "/settings/sites/remove/1",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 303,
+			want: `
+				site_id  code   cname  plan      parent  state
+				1        gctes  NULL   personal  NULL    d`,
+		},
+		{
+			name: "remove other account",
+			setup: func(ctx context.Context, t *testing.T) {
+				cn := "add.example.com"
+				s := goatcounter.Site{
+					Cname: &cn,
+					Code:  "add",
+					Plan:  goatcounter.PlanPersonal,
+				}
+				err := s.Insert(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+			router:       newBackend,
+			path:         "/settings/sites/remove/2",
+			body:         map[string]string{"cname": "add.example.com"},
+			method:       "POST",
+			auth:         true,
+			wantFormCode: 404,
+			want: `
+				site_id  code   cname            plan      parent  state
+				1        gctes  NULL             personal  NULL    a
+				2        add    add.example.com  personal  NULL    a`,
+		},
+	}
+
+	for _, tt := range tests {
+		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+			got := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
+			if d := zdb.Diff(got, tt.want); d != "" {
+				t.Error(d)
 			}
 		})
 	}

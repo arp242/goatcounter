@@ -158,7 +158,6 @@ func TestHitStatsList(t *testing.T) {
 				}
 			}
 
-			// TODO: add method to set this properly.
 			site.Settings.Widgets = Widgets{
 				{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": float64(2), "limit_refs": float64(10)}},
 			}

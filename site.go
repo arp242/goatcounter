@@ -166,6 +166,10 @@ func (s *Site) Validate(ctx context.Context) error {
 		}
 	}
 
+	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
+		v.Append("stripe", "not a valid Stripe customer ID")
+	}
+
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
@@ -173,32 +177,19 @@ func (s *Site) Validate(ctx context.Context) error {
 			v.Append("cname", "cannot end with %q", Config(ctx).Domain)
 		}
 
-		var cname uint8
-		err := zdb.Get(ctx, &cname,
-			`select 1 from sites where lower(cname) = lower($1) and site_id != $2 limit 1`,
-			s.Cname, s.ID)
-		if err != nil && err != sql.ErrNoRows {
-			return err
-		}
-		if cname == 1 {
-			v.Append("cname", "already exists")
-		}
-	}
-
-	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
-		v.Append("stripe", "not a valid Stripe customer ID")
 	}
 
 	if !v.HasErrors() {
-		var code uint8
-		err := zdb.Get(ctx, &code,
-			`select 1 from sites where lower(code) = lower($1) and site_id != $2 limit 1`,
-			s.Code, s.ID)
-		if err != nil && err != sql.ErrNoRows {
+		exists, err := s.Exists(ctx)
+		if err != nil {
 			return err
 		}
-		if code == 1 {
-			v.Append("code", "already exists")
+		if exists > 0 {
+			field := "code"
+			if s.Cname != nil {
+				field = "cname"
+			}
+			v.Append(field, "already exists")
 		}
 	}
 
@@ -367,8 +358,49 @@ func (s *Site) Delete(ctx context.Context) error {
 	return nil
 }
 
+func (s Site) Undelete(ctx context.Context, id int64) error {
+	s.State = StateActive
+	s.ID = id
+	err := zdb.Exec(ctx, `update sites set state = ? where site_id = ?`, StateActive, id)
+	if err != nil {
+		return fmt.Errorf("Site.Undelete %d: %w", id, err)
+	}
+
+	s.ClearCache(ctx, false)
+	return errors.Wrap(s.ByID(ctx, id), "Site.Undelete")
+}
+
+// Exists checks if this site already exists, based on either the Cname or Code
+// field.
+func (s Site) Exists(ctx context.Context) (int64, error) {
+	var (
+		id     int64
+		query  = `select site_id from sites where lower(code) = lower($1) and site_id != $2 limit 1`
+		params = zdb.L{s.Code, s.ID}
+	)
+	if s.Cname != nil {
+		query = `select site_id from sites where lower(cname) = lower($1) and site_id != $2 limit 1`
+		params = zdb.L{s.Cname, s.ID}
+	}
+
+	err := zdb.Get(ctx, &id, query, params...)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, fmt.Errorf("Site.Exists: %w", err)
+	}
+	return id, nil
+}
+
 // ByID gets a site by ID.
 func (s *Site) ByID(ctx context.Context, id int64) error {
+	err := s.ByIDState(ctx, id, StateActive)
+	if err != nil {
+		return fmt.Errorf("Site.ByID: %w", errors.Unwrap(err))
+	}
+	return nil
+}
+
+// ByIDState gets a site by ID and state. This may return deleted sites.
+func (s *Site) ByIDState(ctx context.Context, id int64, state string) error {
 	k := strconv.FormatInt(id, 10)
 	ss, ok := cacheSites(ctx).Get(k)
 	if ok {
@@ -378,9 +410,9 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 
 	err := zdb.Get(ctx, s,
 		`/* Site.ByID */ select * from sites where site_id=$1 and state=$2`,
-		id, StateActive)
+		id, state)
 	if err != nil {
-		return errors.Wrapf(err, "Site.ByID %d", id)
+		return errors.Wrapf(err, "Site.ByIDState %d", id)
 	}
 	cacheSites(ctx).SetDefault(k, s)
 	return nil

@@ -1,8 +1,8 @@
 {{template "_backend_top.gohtml" .}}
 
 <p>Are you sure you want to remove the site
-	<a href="//{{.Site.Code}}.{{.Domain}}">{{.Site.Code}}</a>?<br>
-	This will <strong>remove all associated data</strong>.
+	<a href="//{{.Rm.Code}}.{{.Domain}}">{{.Rm.Domain .Context}}</a>?<br>
+	This will <strong>remove all associated data</strong>{{if eq .Rm.ID .Site.ID}} and is the <strong>current site</strong>{{end}}.
 </p>
 {{if .GoatcounterCom}}
 <p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
