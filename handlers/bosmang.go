@@ -235,11 +235,12 @@ func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var user goatcounter.User
-	err = user.BySite(r.Context(), site.ID)
+	var users goatcounter.Users
+	err = users.List(r.Context(), site.ID)
 	if err != nil {
 		return err
 	}
+	user := users[0]
 
 	if !site.Settings.AllowBosmang {
 		return guru.New(403, "AllowBosmang not enabled")

@@ -33,8 +33,8 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			continue
 		}
 		if a == "all" {
-			topics = []string{"help", "version", "migrate", "create", "serve",
-				"reindex", "buffer", "monitor", "db", "listen", "logfile", "debug"}
+			topics = []string{"help", "version", "serve", "reindex", "buffer",
+				"monitor", "db", "listen", "logfile", "debug"}
 			break
 		}
 		topics = append(topics, strings.ToLower(a))
@@ -71,19 +71,15 @@ var usage = map[string]string{
 	"":        usageTop,
 	"help":    usageHelp,
 	"serve":   usageServe,
-	"create":  usageCreate,
-	"migrate": usageMigrate,
 	"saas":    usageSaas,
 	"reindex": usageReindex,
 	"monitor": usageMonitor,
 	"import":  usageImport,
 	"buffer":  usageBuffer,
-
-	"database": helpDatabase,
-	"db":       helpDatabase,
-	"listen":   helpListen,
-	"logfile":  helpLogfile,
-	"debug":    helpDebug,
+	"db":      helpDB,
+	"listen":  helpListen,
+	"logfile": helpLogfile,
+	"debug":   helpDebug,
 
 	"version": `
 Show version and build information. This is printed as key=value, separated by
@@ -107,15 +103,13 @@ Use "help <topic>" or "cmd -h" for more details for a command or topic.
 Commands:
   help         Show help; use "help <topic>" or "help all" for more details.
   version      Show version and build information and exit.
-  create       Create a new site and user.
   serve        Start HTTP server.
   import       Import pageviews from an export or logfile.
 
-  migrate      Run database migrations.
+  db           Modify the database and print database info.
   reindex      Recreate the index tables (*_stats, *_count) from the hits.
   buffer       Buffer pageview requests until backend is available.
   monitor      Monitor for pageviews.
-  db           Print database information and detailed docs on the -db flag.
 
 Extra help topics:
   listen       Detailed documentation on -listen and -tls flags.
@@ -233,10 +227,10 @@ Proxy Setup:
 Using a non-standard port:
 
     If you make GoatCounter publicly accessibly on non-standard port (i.e. not
-    80 or 443) then you must add the -port flag to tell GoatCounter which port
-    to use in various redirects, messages, and emails:
+    80 or 443) then you must add the -public-port flag to tell GoatCounter which
+       port to use in various redirects, messages, and emails:
 
-        goatcounter serve -listen :9000 -port 9000
+        goatcounter serve -listen :9000 -public-port 9000
 
     This may seem redundant, but it's hard for GoatCounter to tell if it's
     accessible on :9000 or if there's a proxy in front of it redirecting :80 and
@@ -259,6 +253,7 @@ commas.
     import-api     Imports from the API.
     memstore       Storing of pageviews in the database.
     monitor        Additional logs in "goatcounter monitor" .
+    cli-trace      Show stack traces in errors on the CLI.
     startup        Some additional logs during startup.
     vacuum         Deletion of old deleted sites and old pageviews.
 `

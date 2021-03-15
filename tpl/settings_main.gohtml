@@ -9,6 +9,7 @@
 
 		<fieldset id="section-site">
 			<legend>Site settings</legend>
+
 			<label for="link_domain">Your site</label>
 			<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 			{{validate "site.link_domain" .Validate}}
@@ -46,9 +47,9 @@
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
 					{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
 				<span>Custom domain, e.g. <em>“stats.example.com”</em>.
-					<strong>Note:</strong> This <em>won’t</em> prevent many
-					adblockers and such from blocking GoatCounter, and is just
-					intended as a nice “vanity domain”.<br><br>
+					<strong>Note:</strong> This <em>won’t</em> prevent most
+					adblockers from blocking GoatCounter, and is just intended
+					as a nice “vanity domain”.<br><br>
 					{{if not (.Site.PlanCustomDomain .Context)}}
 						Requires Personal Plus or Business plan (you’re
 						on the {{.Site.Plan}} plan; see
@@ -133,7 +134,7 @@
 
 	{{if has_errors .Validate}}
 		<div class="flash flash-e"
-			style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
+			style="position: fixed; bottom: 0; right: .5em; min-width: 20em; z-index: 5; text-align: left;">
 		Additional errors:{{.Validate.HTML}}</div>
 	{{end}}
 </div>

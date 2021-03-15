@@ -463,29 +463,7 @@
           "type": "string"
         },
         "permissions": {
-          "$ref": "#/definitions/goatcounter.APITokenPermissions"
-        }
-      }
-    },
-    "goatcounter.APITokenPermissions": {
-      "title": "APITokenPermissions",
-      "description": "APITokenPermissions are the permissions an API token has.\n\nTODO: this shoud really be a bitmask; this is awkward to deal with.",
-      "type": "object",
-      "properties": {
-        "count": {
-          "type": "boolean"
-        },
-        "export": {
-          "type": "boolean"
-        },
-        "site_create": {
-          "type": "boolean"
-        },
-        "site_read": {
-          "type": "boolean"
-        },
-        "site_update": {
-          "type": "boolean"
+          "type": "integer"
         }
       }
     },
@@ -669,6 +647,13 @@
       "description": "User entry.",
       "type": "object",
       "properties": {
+        "access": {
+          "type": "object",
+          "readOnly": true,
+          "additionalProperties": {
+            "$ref": "#/definitions/goatcounter.UserAccess"
+          }
+        },
         "created_at": {
           "type": "string",
           "format": "date-time",
@@ -695,10 +680,6 @@
           "format": "date-time",
           "readOnly": true
         },
-        "role": {
-          "type": "string",
-          "readOnly": true
-        },
         "settings": {
           "$ref": "#/definitions/goatcounter.UserSettings"
         },
@@ -719,6 +700,7 @@
     },
     "goatcounter.UserSettings": {
       "title": "UserSettings",
+      "description": "UserSettings are all user preferences.",
       "type": "object",
       "properties": {
         "date_format": {

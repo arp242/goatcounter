@@ -267,7 +267,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	// Create user.
 	user.Site = site.ID
 	user.Settings = site.UserDefaults
-	err = user.Insert(txctx)
+	err = user.Insert(txctx, false)
 	if err != nil {
 		var vErr *zvalidate.Validator
 		if !errors.As(err, &vErr) {

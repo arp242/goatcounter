@@ -53,11 +53,14 @@ var stripePlans = map[bool]map[string]string{
 type billing struct{}
 
 func (h billing) mount(pub, auth chi.Router) {
+	auth = auth.With(requireAccess(goatcounter.AccessAdmin))
+
 	// Already added in backend.
 	if !zstring.Contains(zlog.Config.Debug, "req") && !zstring.Contains(zlog.Config.Debug, "all") {
 		pub = pub.With(mware.RequestLog(nil))
 		auth = auth.With(mware.RequestLog(nil))
 	}
+
 	// Not specific to any domain, and works on any (valid) domain.
 	pub.Post("/stripe-webhook", zhttp.Wrap(h.webhook))
 

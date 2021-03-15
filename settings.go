@@ -52,7 +52,7 @@ type (
 		CollectRegions Strings        `json:"collect_regions"`
 	}
 
-	// UserSetting are all user preferences.
+	// UserSettings are all user preferences.
 	UserSettings struct {
 		TwentyFourHours  bool     `json:"twenty_four_hours"`
 		SundayStartsWeek bool     `json:"sunday_starts_week"`

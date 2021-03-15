@@ -27,7 +27,10 @@ func TestTpl(t *testing.T) {
 	user := User{Email: "a@example.com", EmailToken: sp("T-EMAIL"), LoginRequest: sp("T-LOGIN-REQ")}
 
 	files, _ := fs.Sub(os.DirFS(zgo.ModuleRoot()), "tpl")
-	ztpl.Init(files)
+	err := ztpl.Init(files)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	errs := errors.NewGroup(4)
 	errs.Append(errors.New("err: <1>"))
@@ -47,6 +50,7 @@ func TestTpl(t *testing.T) {
 		{TplEmailImportError{errors.Unwrap(errors.New("oh noes"))}},
 		{TplEmailImportDone{site, 42, errors.NewGroup(10)}},
 		{TplEmailImportDone{site, 42, errs}},
+		{TplEmailAddUser{ctx, site, user, "foo@example.com"}},
 
 		{TplEmailExportDone{ctx, site, user, Export{
 			ID:        2,

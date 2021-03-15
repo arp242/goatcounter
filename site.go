@@ -288,6 +288,49 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 	return nil
 }
 
+func (s *Site) UpdateParent(ctx context.Context, newParent *int64) error {
+	if s.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	s.Parent = newParent
+	if newParent != nil {
+		s.Plan = PlanChild
+	}
+
+	s.Defaults(ctx)
+	err := s.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = zdb.TX(ctx, func(ctx context.Context) error {
+		var users Users
+		err := users.BySite(ctx, s.ID)
+		if err != nil {
+			return err
+		}
+
+		for _, u := range users {
+			u.Site = *newParent
+			err := u.UpdateSite(ctx)
+			if err != nil {
+				return err
+			}
+		}
+
+		return zdb.Exec(ctx,
+			`update sites set parent=?, plan=?, updated_at=? where site_id=?`,
+			s.Parent, s.Plan, s.UpdatedAt, s.ID)
+	})
+	if err != nil {
+		return errors.Wrap(err, "Site.UpdateParent")
+	}
+
+	s.ClearCache(ctx, false)
+	return nil
+}
+
 // UpdateCode changes the site's domain code (e.g. "test" in
 // "test.goatcounter.com").
 func (s *Site) UpdateCode(ctx context.Context, code string) error {
@@ -354,9 +397,20 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 }
 
 // Delete a site and all child sites.
-func (s *Site) Delete(ctx context.Context) error {
+func (s *Site) Delete(ctx context.Context, deleteChildren bool) error {
 	if s.ID == 0 {
 		return errors.New("ID == 0")
+	}
+
+	if !deleteChildren {
+		var n int
+		err := zdb.Get(ctx, &n, `select count(*) from sites where parent = ?`, s.ID)
+		if err != nil {
+			return errors.Wrap(err, "Site.Delete")
+		}
+		if n > 0 {
+			return fmt.Errorf("Site.Delete: site %d has %d linked sites", s.ID, n)
+		}
 	}
 
 	t := Now()
@@ -399,6 +453,7 @@ func (s Site) Exists(ctx context.Context) (int64, error) {
 		query = `select site_id from sites where lower(cname) = lower($1) and site_id != $2 limit 1`
 		params = zdb.L{s.Cname, s.ID}
 	}
+	params = append(params)
 
 	err := zdb.Get(ctx, &id, query, params...)
 	if err != nil && err != sql.ErrNoRows {
@@ -439,18 +494,6 @@ func (s *Site) ByIDState(ctx context.Context, id int64, state string) error {
 func (s *Site) ByStripe(ctx context.Context, stripe string) error {
 	err := zdb.Get(ctx, s, `select * from sites where stripe=$1`, stripe)
 	return errors.Wrapf(err, "Site.ByStripe %s", stripe)
-}
-
-// GetMain gets the "main" site for this account; either the current site or the
-// parent one.
-func (s *Site) GetMain(ctx context.Context) error {
-	if s.ID == 0 {
-		return errors.New("s.ID == 0")
-	}
-	if s.Parent != nil {
-		return s.ByID(ctx, *s.Parent)
-	}
-	return nil
 }
 
 // ByCode gets a site by code.
@@ -496,6 +539,15 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	return nil
 }
 
+// Find a site: by ID if ident is a number, or by host if it's not.
+func (s *Site) Find(ctx context.Context, ident string) error {
+	id, err := strconv.ParseInt(ident, 10, 64)
+	if err == nil {
+		return errors.Wrap(s.ByID(ctx, id), "Site.Find")
+	}
+	return errors.Wrap(s.ByHost(ctx, ident), "Site.Find")
+}
+
 // ListSubs lists all subsites, including the current site and parent.
 func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
 	col := "cname"
@@ -524,8 +576,6 @@ func (s Site) Domain(ctx context.Context) string {
 }
 
 // Display format: just the domain (cname or code+domain).
-//
-//lint:ignore U1001 used in template.
 func (s Site) Display(ctx context.Context) string {
 	if s.Cname != nil && s.CnameSetupAt != nil {
 		return *s.Cname
@@ -566,6 +616,18 @@ func (s Site) IDOrParent() int64 {
 		return *s.Parent
 	}
 	return s.ID
+}
+
+// GetMain gets the "main" site for this account; either the current site or the
+// parent one.
+func (s *Site) GetMain(ctx context.Context) error {
+	if s.ID == 0 {
+		return errors.New("s.ID == 0")
+	}
+	if s.Parent != nil {
+		return s.ByID(ctx, *s.Parent)
+	}
+	return nil
 }
 
 //lint:ignore U1001 used in template (via ShowPayBanner)
@@ -773,4 +835,38 @@ func (s *Sites) ExpiredPlans(ctx context.Context) error {
 	err := zdb.Select(ctx, s, `/* Sites.ExpiredPlans */
 		select * from sites where ? > plan_cancel_at`, Now())
 	return errors.Wrap(err, "Sites.ExpiredPlans")
+}
+
+// Find sites: by ID if ident is a number, or by host if it's not.
+func (s *Sites) Find(ctx context.Context, ident []string) error {
+	ids, strs := splitIntStr(ident)
+	err := zdb.Select(ctx, s, `select * from sites where
+		{{:ids site_id in (:ids) or}}
+		{{:strs! 0=1}}
+		{{:strs cname in (:strs)}}`,
+		zdb.P{"ids": ids, "strs": strs})
+	return errors.Wrap(err, "Sites.Find")
+}
+
+// IDs gets a list of all IDs for these sites.
+func (s *Sites) IDs() []int64 {
+	ids := make([]int64, 0, len(*s))
+	for _, ss := range *s {
+		ids = append(ids, ss.ID)
+	}
+	return ids
+}
+
+// Delete all sites in this selection.
+func (s *Sites) Delete(ctx context.Context, deleteChildren bool) error {
+	err := zdb.TX(ctx, func(ctx context.Context) error {
+		for _, ss := range *s {
+			err := ss.Delete(ctx, deleteChildren)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return errors.Wrap(err, "Sites.Delete")
 }

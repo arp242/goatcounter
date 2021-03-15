@@ -65,7 +65,7 @@ Flags:
                Default: "acme,rdr", or "http" when -dev is given.
                See "goatcounter help listen" for more detailed documentation.
 
-  -port        Port your site is publicly accessible on. Only needed if it's
+  -public-port Port your site is publicly accessible on. Only needed if it's
                not 80 or 443.
 
   -automigrate Automatically run all pending migrations on startup.
@@ -119,7 +119,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	v := zvalidate.New()
 
 	var (
-		port         = f.String("", "port").Pointer()
+		port         = f.String("", "public-port").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
 	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(f, &v)
@@ -288,7 +288,13 @@ func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (z
 	if err != nil {
 		return nil, nil, nil, nil, 0, err
 	}
-	ztpl.Init(fsys)
+	err = ztpl.Init(fsys)
+	if err != nil {
+		if !dev {
+			return nil, nil, nil, nil, 0, err
+		}
+		zlog.Error(err)
+	}
 
 	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS, dev)
 
@@ -307,7 +313,11 @@ func setupReload() {
 	}
 
 	go func() {
-		err := reload.Do(zlog.Module("startup").Debugf, reload.Dir("./tpl", func() { ztpl.Reload("./tpl") }))
+		err := reload.Do(zlog.Module("startup").Debugf, reload.Dir("./tpl", func() {
+			if err := ztpl.Reload("./tpl"); err != nil {
+				zlog.Error(err)
+			}
+		}))
 		if err != nil {
 			panic(errors.Errorf("reload.Do: %v", err))
 		}

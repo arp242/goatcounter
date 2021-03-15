@@ -13,7 +13,6 @@ import (
 	"net/mail"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"code.soquee.net/otp"
@@ -40,7 +39,7 @@ const (
 type user struct{}
 
 func (h user) mount(r chi.Router) {
-	r.Get("/user/new", zhttp.Wrap(h.new))
+	r.Get("/user/new", zhttp.Wrap(h.login))
 	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
 	r.Post("/user/request-reset", zhttp.Wrap(h.requestReset))
 
@@ -62,20 +61,16 @@ func (h user) mount(r chi.Router) {
 	auth.Post("/user/disable-totp", zhttp.Wrap(h.disableTOTP))
 	auth.Post("/user/enable-totp", zhttp.Wrap(h.enableTOTP))
 	auth.Post("/user/resend-verify", zhttp.Wrap(h.resendVerify))
-	auth.Post("/user/api-token", zhttp.Wrap(h.newAPIToken))
-	auth.Post("/user/api-token/remove/{id}", zhttp.Wrap(h.deleteAPIToken))
+
+	admin := auth.With(requireAccess(goatcounter.AccessAdmin))
+	admin.Post("/user/api-token", zhttp.Wrap(h.newAPIToken))
+	admin.Post("/user/api-token/remove/{id}", zhttp.Wrap(h.deleteAPIToken))
 }
 
-func (h user) new(w http.ResponseWriter, r *http.Request) error {
+func (h user) login(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
 	if u != nil && u.ID > 0 {
 		return zhttp.SeeOther(w, "/")
-	}
-
-	var user goatcounter.User
-	err := user.BySite(r.Context(), Site(r.Context()).IDOrParent())
-	if err != nil {
-		return err
 	}
 
 	return zhttp.Template(w, "user.gohtml", struct {
@@ -113,18 +108,6 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	site := Site(r.Context())
-	var user goatcounter.User
-	err = user.BySite(r.Context(), site.IDOrParent())
-	if err != nil {
-		return err
-	}
-
-	if !strings.EqualFold(args.Email, user.Email) {
-		zhttp.FlashError(w, "Unknown email: %q", args.Email)
-		return zhttp.SeeOther(w, "/user/forgot")
-	}
-
 	err = u.ByEmail(r.Context(), args.Email)
 	if err != nil {
 		if zdb.ErrNoRows(err) {
@@ -139,6 +122,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	site := Site(r.Context())
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run("email:password", func() {
 		err := blackmail.Send(
@@ -166,12 +150,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site := Site(r.Context())
-
-	var u goatcounter.User
-	err = u.BySite(r.Context(), site.IDOrParent())
-	if err != nil {
-		return err
-	}
+	u := goatcounter.GetUser(r.Context())
 
 	valid := xsrftoken.Valid(args.LoginMAC, *u.LoginToken, strconv.FormatInt(u.ID, 10), actionTOTP)
 	if !valid {
@@ -204,30 +183,27 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 
 func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
-	if u != nil && u.ID > 0 {
+	if u != nil && u.ID > 0 { // Already logged in.
 		return zhttp.SeeOther(w, "/")
-	}
-
-	site := Site(r.Context())
-
-	var user goatcounter.User
-	err := user.BySite(r.Context(), site.IDOrParent())
-	if err != nil {
-		return err
 	}
 
 	args := struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
-	_, err = zhttp.Decode(r, &args)
+	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
 
-	if !strings.EqualFold(args.Email, user.Email) {
-		zhttp.FlashError(w, "Wrong password for %q", args.Email)
-		return zhttp.SeeOther(w, "/user/new")
+	var user goatcounter.User
+	err = user.ByEmail(r.Context(), args.Email)
+	if err != nil {
+		if zdb.ErrNoRows(err) {
+			zhttp.FlashError(w, "User %q not found", args.Email)
+			return zhttp.SeeOther(w, "/user/new")
+		}
+		return err
 	}
 
 	if user.Password == nil {
@@ -260,7 +236,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		}{newGlobals(w, r), xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP)})
 	}
 
-	auth.SetCookie(w, *user.LoginToken, cookieDomain(site, r))
+	auth.SetCookie(w, *user.LoginToken, cookieDomain(Site(r.Context()), r))
 	return zhttp.SeeOther(w, "/")
 }
 
@@ -291,7 +267,8 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 	var user goatcounter.User
 	err := user.ByResetToken(r.Context(), chi.URLParam(r, "key"))
 	if err != nil {
-		return guru.New(http.StatusForbidden, "could find the user for the given token; perhaps it's expired or has already been used?")
+		return guru.New(http.StatusForbidden,
+			"could find the user for the given token; perhaps it's expired or has already been used?")
 	}
 
 	var args struct {
@@ -308,7 +285,19 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/user/new")
 	}
 
-	err = user.UpdatePassword(r.Context(), args.Password)
+	err = zdb.TX(r.Context(), func(ctx context.Context) error {
+		err = user.UpdatePassword(ctx, args.Password)
+		if err != nil {
+			return err
+		}
+
+		// Might as well verify the email here, as you can only get the token
+		// from email.
+		if !user.EmailVerified {
+			return user.VerifyEmail(ctx)
+		}
+		return nil
+	})
 	if err != nil {
 		var vErr *zvalidate.Validator
 		if errors.As(err, &vErr) {

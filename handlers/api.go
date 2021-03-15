@@ -26,6 +26,7 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
+	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
@@ -103,7 +104,7 @@ var (
 	bufferKey     []byte
 )
 
-func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
+func (h api) auth(r *http.Request, require zint.Bitflag64) error {
 	key, err := tokenFromHeader(r)
 	if err != nil {
 		return err
@@ -134,24 +135,26 @@ func (h api) auth(r *http.Request, perm goatcounter.APITokenPermissions) error {
 	}
 
 	var user goatcounter.User
-	err = user.BySite(r.Context(), token.SiteID)
+	err = user.ByID(r.Context(), token.UserID)
 	if err != nil {
 		return err
 	}
 
+	// API is only for admins at the moment; other users shouldn't be able to
+	// create an API key, but just in case.
+	if !user.AccessAdmin() {
+		return guru.New(401, "only admins can create/use API keys")
+	}
+
 	*r = *r.WithContext(goatcounter.WithUser(r.Context(), &user))
 
-	var need []string
-	if perm.Count && !token.Permissions.Count {
-		need = append(need, "count")
+	if require == 0 {
+		return nil
 	}
-	if perm.Export && !token.Permissions.Export {
-		need = append(need, "export")
+	if !token.Permissions.Has(require) {
+		return guru.Errorf(http.StatusForbidden, "requires %s permissions",
+			goatcounter.APIToken{Permissions: require}.FormatPermissions())
 	}
-	if len(need) > 0 {
-		return guru.Errorf(http.StatusForbidden, "requires %s permissions", need)
-	}
-
 	return nil
 }
 
@@ -163,11 +166,11 @@ type apiExportRequest struct {
 // For testing various generic properties about the API.
 func (h api) test(w http.ResponseWriter, r *http.Request) error {
 	var args struct {
-		Perm     goatcounter.APITokenPermissions `json:"perm"`
-		Status   int                             `json:"status"`
-		Panic    bool                            `json:"panic"`
-		Validate zvalidate.Validator             `json:"validate"`
-		Context  bool                            `json:"context"`
+		Perm     zint.Bitflag64      `json:"perm"`
+		Status   int                 `json:"status"`
+		Panic    bool                `json:"panic"`
+		Validate zvalidate.Validator `json:"validate"`
+		Context  bool                `json:"context"`
 	}
 
 	_, err := zhttp.Decode(r, &args)
@@ -218,7 +221,7 @@ type meResponse struct {
 //
 // Response 200: meResponse
 func (h api) me(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{})
+	err := h.auth(r, 0)
 	if err != nil {
 		return err
 	}
@@ -245,9 +248,7 @@ func (h api) me(w http.ResponseWriter, r *http.Request) error {
 // Request body: apiExportRequest
 // Response 202: zgo.at/goatcounter.Export
 func (h api) export(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		Export: true,
-	})
+	err := h.auth(r, goatcounter.APIPermExport)
 	if err != nil {
 		return err
 	}
@@ -276,9 +277,7 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 //
 // Response 200: zgo.at/goatcounter.Export
 func (h api) exportGet(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		Export: true,
-	})
+	err := h.auth(r, goatcounter.APIPermExport)
 	if err != nil {
 		return err
 	}
@@ -311,9 +310,7 @@ func (h api) exportGet(w http.ResponseWriter, r *http.Request) error {
 // Response 202: zgo.at/goatcounter/handlers.apiError
 // Response 400: zgo.at/goatcounter/handlers.apiError
 func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		Export: true,
-	})
+	err := h.auth(r, goatcounter.APIPermExport)
 	if err != nil {
 		return err
 	}
@@ -445,9 +442,7 @@ func (h APICountRequestHit) String() string {
 // Request body: APICountRequest
 // Response 202: {empty}
 func (h api) count(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		Count: true,
-	})
+	err := h.auth(r, goatcounter.APIPermCount)
 	if err != nil {
 		return err
 	}
@@ -548,9 +543,7 @@ type apiSitesResponse struct {
 //
 // Response 200: apiSitesResponse
 func (h api) siteList(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		SiteRead: true,
-	})
+	err := h.auth(r, goatcounter.APIPermSiteRead)
 	if err != nil {
 		return err
 	}
@@ -592,9 +585,7 @@ func (h api) siteFind(r *http.Request) (*goatcounter.Site, error) {
 //
 // Response 200: goatcounter.Site
 func (h api) siteGet(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		SiteRead: true,
-	})
+	err := h.auth(r, goatcounter.APIPermSiteRead)
 	if err != nil {
 		return err
 	}
@@ -612,9 +603,7 @@ func (h api) siteGet(w http.ResponseWriter, r *http.Request) error {
 // Request body: goatcounter.Site
 // Response 200: goatcounter.Site
 func (h api) siteCreate(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		SiteCreate: true,
-	})
+	err := h.auth(r, goatcounter.APIPermSiteCreate)
 	if err != nil {
 		return err
 	}
@@ -652,9 +641,7 @@ type apiSiteUpdateRequest struct {
 // Request body: apiSiteUpdateRequest
 // Response 200: goatcounter.Site
 func (h api) siteUpdate(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APITokenPermissions{
-		SiteUpdate: true,
-	})
+	err := h.auth(r, goatcounter.APIPermSiteUpdate)
 	if err != nil {
 		return err
 	}

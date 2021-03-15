@@ -43,7 +43,7 @@
 			<div>
 				{{if .GoatcounterCom}}<a href="/updates" class="{{if .HasUpdates}}updates{{end}} {{if eq .Path "/updates"}}active{{end}}">Updates</a> |{{end}}
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
-				<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
+				{{if .User.AccessSettings}}<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |{{end}}
 				<a {{if has_prefix .Path "/user"}}class="active" {{end}}href="/user">{{.User.Email}}</a> |
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
