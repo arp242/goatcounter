@@ -11,6 +11,8 @@ you view the docs linked from your site in the top-right corner.</p>
 
 {{define "code"}}&lt;script data-goatcounter="{{.SiteURL}}/count"
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
+
+Getting started is pretty easy, just add the following JavaScript anywhere on the page:
 <pre>{{template "code" .}}</pre>
 <p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews ({{.SiteDomain}} and/or gc.zgo.at domain).</p>
 

@@ -46,15 +46,6 @@ var (
 		return redirect(w, r)
 	})
 
-	noSubSites = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
-		if Site(r.Context()).Parent == nil ||
-			*Site(r.Context()).Parent == 0 {
-			return nil
-		}
-		zlog.FieldsRequest(r).Errorf("noSubSites")
-		return guru.Errorf(403, "child sites can't access this")
-	})
-
 	adminOnly = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		if Site(r.Context()).Admin() {
 			return nil
@@ -116,7 +107,6 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 			}()
 
 			// Wrap in explainDB for testing.
-			//*r = *r.WithContext(zdb.WithDB(ctx, db))
 			if goatcounter.Config(r.Context()).Dev {
 				if c, _ := r.Cookie("debug-explain"); c != nil {
 					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewLogDB(zdb.MustGetDB(ctx),

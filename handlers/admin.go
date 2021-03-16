@@ -169,20 +169,15 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 	id := v.Integer("id", chi.URLParam(r, "id"))
 
 	var args struct {
-		Stripe string `json:"stripe"`
-		Amount string `json:"amount"`
-		Plan   string `json:"plan"`
+		Stripe       string `json:"stripe"`
+		Amount       string `json:"amount"`
+		Plan         string `json:"plan"`
+		PlanPending  string `json:"plan_pending"`
+		PlanCancelAt string `json:"plan_cancel_at"`
 	}
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
-	}
-
-	v.Required("plan", args.Plan)
-	v.Include("plan", args.Plan, goatcounter.Plans)
-	if v.HasErrors() {
-		zhttp.FlashError(w, v.Error())
 		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
 	}
 
@@ -193,16 +188,28 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
 	}
 
-	c := "EUR"
-	if strings.HasPrefix(args.Stripe, "cus_github") {
-		c = "USD"
+	site.Stripe, site.BillingAmount, site.PlanPending, site.PlanCancelAt = nil, nil, nil, nil
+
+	site.Plan = args.Plan
+	if args.Stripe != "" {
+		site.Stripe = &args.Stripe
 	}
-	if args.Amount != "" && !strings.HasPrefix(args.Amount, c) {
-		args.Amount = c + " " + args.Amount
+	if args.Amount != "" {
+		site.BillingAmount = &args.Amount
+	}
+	if args.PlanPending != "" {
+		site.PlanPending = &args.PlanPending
+	}
+	if args.PlanCancelAt != "" {
+		t, err := time.Parse("2006-01-02 15:04:05", args.PlanCancelAt)
+		if err != nil {
+			return err
+		}
+		site.PlanCancelAt = &t
 	}
 
 	ctx := goatcounter.WithSite(goatcounter.CopyContextValues(r.Context()), &site)
-	err = site.UpdateStripe(ctx, args.Stripe, args.Plan, args.Amount)
+	err = site.UpdateStripe(ctx)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))

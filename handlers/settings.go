@@ -330,12 +330,9 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	mainSite := Site(r.Context())
-	if mainSite.Parent != nil {
-		err := mainSite.ByID(r.Context(), *mainSite.Parent)
-		if err != nil {
-			return err
-		}
+	mainSite, err := MainSite(r.Context())
+	if err != nil {
+		return err
 	}
 
 	var (
@@ -737,12 +734,9 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		zlog.Error(err)
 	}
 
-	mainSite := Site(r.Context())
-	if mainSite.Parent != nil {
-		err := mainSite.ByID(r.Context(), *mainSite.Parent)
-		if err != nil {
-			return err
-		}
+	mainSite, err := MainSite(r.Context())
+	if err != nil {
+		return err
 	}
 
 	has, err := hasPlan(r.Context(), mainSite)

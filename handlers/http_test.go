@@ -68,20 +68,13 @@ func TestMain(m *testing.M) {
 		"", "admin.gohtml", "admin_site.gohtml",
 
 		// Tested in tpl_test.go
-		"email_export_done.gotxt", "email_forgot_site.gotxt",
-		"email_import_done.gotxt", "email_import_error.gotxt",
-		"email_password_reset.gotxt", "email_verify.gotxt",
+		"email_export_done.gotxt", "email_forgot_site.gotxt", "email_import_done.gotxt",
+		"email_import_error.gotxt", "email_password_reset.gotxt", "email_verify.gotxt",
 
-		// TODO: won't work in serve mode.
-		"billing.gohtml", "billing_cancel.gohtml",
-
-		// TODO: only works if not logged in.
-		"user_forgot_pw.gohtml", "user_reset.gohtml",
-
-		// TODO: part of TOTP flow; kinda tricky to test.
-		"totp.gohtml",
+		"billing.gohtml",                             // TODO: hard to test; requires a browser.
+		"user_forgot_pw.gohtml", "user_reset.gohtml", // TODO: only works if not logged in.
+		"totp.gohtml", // TODO: part of TOTP flow; kinda tricky to test.
 	))
-
 }
 
 func runTest(

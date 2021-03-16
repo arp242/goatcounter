@@ -25,13 +25,13 @@ import (
 // Plan column values.
 const (
 	PlanPersonal     = "personal"
-	PlanPersonalPlus = "personalplus" // This is really the "starter" plan.
+	PlanStarter      = "personalplus"
 	PlanBusiness     = "business"
 	PlanBusinessPlus = "businessplus"
 	PlanChild        = "child"
 )
 
-var Plans = []string{PlanPersonal, PlanPersonalPlus, PlanBusiness, PlanBusinessPlus}
+var Plans = []string{PlanPersonal, PlanStarter, PlanBusiness, PlanBusinessPlus}
 
 var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
@@ -53,13 +53,16 @@ type Site struct {
 	// When the CNAME was verified.
 	CnameSetupAt *time.Time `db:"cname_setup_at" json:"cname_setup_at,readonly"`
 
-	// Domain code (arp242, which makes arp242.goatcounter.com)
+	// Domain code (arp242, which makes arp242.goatcounter.com). Only used for
+	// goatcounter.com and not when self-hosting.
 	Code string `db:"code" json:"code"`
 
 	// Site domain for linking (www.arp242.net).
 	LinkDomain    string       `db:"link_domain" json:"link_domain"`
 	Plan          string       `db:"plan" json:"plan"`
+	PlanPending   *string      `db:"plan_pending" json:"plan_pending"`
 	Stripe        *string      `db:"stripe" json:"-"`
+	PlanCancelAt  *time.Time   `db:"plan_cancel_at" json:"plan_cancel_at"`
 	BillingAmount *string      `db:"billing_amount" json:"-"`
 	Settings      SiteSettings `db:"settings" json:"setttings"`
 
@@ -119,6 +122,13 @@ func (s *Site) Validate(ctx context.Context) error {
 		v.Include("plan", s.Plan, Plans)
 	} else {
 		v.Include("plan", s.Plan, []string{PlanChild})
+	}
+
+	if s.PlanPending != nil {
+		v.Include("plan_pending", *s.PlanPending, Plans)
+		if s.Parent != nil {
+			v.Append("plan_pending", "can't be set if there's a parent")
+		}
 	}
 
 	// Must always include all widgets we know about.
@@ -201,7 +211,6 @@ func (s *Site) Insert(ctx context.Context) error {
 	if s.ID > 0 {
 		return errors.New("ID > 0")
 	}
-
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
@@ -217,12 +226,11 @@ func (s *Site) Insert(ctx context.Context) error {
 	return errors.Wrap(err, "Site.Insert")
 }
 
-// Update existing.
+// Update existing site. Sets settings, cname, link_domain.
 func (s *Site) Update(ctx context.Context) error {
 	if s.ID == 0 {
 		return errors.New("ID == 0")
 	}
-
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
@@ -230,7 +238,7 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	err = zdb.Exec(ctx,
-		`update sites set settings=$1, cname=$2, link_domain=$3, updated_at=$4 where site_id=$5`,
+		`update sites set settings=?, cname=?, link_domain=?, updated_at=? where site_id=?`,
 		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Update")
@@ -240,29 +248,20 @@ func (s *Site) Update(ctx context.Context) error {
 	return nil
 }
 
-// UpdateStripe sets the Stripe customer ID.
-func (s *Site) UpdateStripe(ctx context.Context, stripeID, plan, amount string) error {
+// UpdateStripe sets the billing info.
+func (s *Site) UpdateStripe(ctx context.Context) error {
 	if s.ID == 0 {
 		return errors.New("ID == 0")
 	}
-
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
 	if err != nil {
 		return err
 	}
 
-	s.Stripe = &stripeID
-	s.Plan = plan
-	if amount == "" {
-		s.BillingAmount = nil
-	} else {
-		s.BillingAmount = &amount
-	}
-
 	err = zdb.Exec(ctx,
-		`update sites set stripe=$1, plan=$2, billing_amount=$3, updated_at=$4 where site_id=$5`,
-		s.Stripe, s.Plan, s.BillingAmount, s.UpdatedAt, s.ID)
+		`update sites set stripe=?, plan=?, plan_pending=?, billing_amount=?, plan_cancel_at=?, updated_at=? where site_id=?`,
+		s.Stripe, s.Plan, s.PlanPending, s.BillingAmount, s.PlanCancelAt, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateStripe")
 	}
@@ -418,6 +417,24 @@ func (s *Site) ByIDState(ctx context.Context, id int64, state string) error {
 	return nil
 }
 
+// ByStripe gets a site by the Stripe customer ID.
+func (s *Site) ByStripe(ctx context.Context, stripe string) error {
+	err := zdb.Get(ctx, s, `select * from sites where stripe=$1`, stripe)
+	return errors.Wrapf(err, "Site.ByStripe %s", stripe)
+}
+
+// GetMain gets the "main" site for this account; either the current site or the
+// parent one.
+func (s *Site) GetMain(ctx context.Context) error {
+	if s.ID == 0 {
+		return errors.New("s.ID == 0")
+	}
+	if s.Parent != nil {
+		return s.ByID(ctx, *s.Parent)
+	}
+	return nil
+}
+
 // ByCode gets a site by code.
 func (s *Site) ByCode(ctx context.Context, code string) error {
 	return errors.Wrapf(zdb.Get(ctx, s,
@@ -522,8 +539,7 @@ func (s Site) PlanCustomDomain(ctx context.Context) bool {
 		}
 		return ps.PlanCustomDomain(ctx)
 	}
-
-	return s.Plan == PlanPersonalPlus || s.Plan == PlanBusiness || s.Plan == PlanBusinessPlus
+	return s.Plan == PlanStarter || s.Plan == PlanBusiness || s.Plan == PlanBusinessPlus
 }
 
 // IDOrParent gets this site's ID or the parent ID if that's set.
@@ -562,6 +578,8 @@ func (s Site) FreePlan() bool {
 	return s.Stripe != nil && strings.HasPrefix(*s.Stripe, "cus_free_")
 }
 
+// PayExternal gets the external payment name, or an empty string if there is
+// none.
 func (s Site) PayExternal() string {
 	if s.Stripe == nil {
 		return ""
@@ -730,4 +748,11 @@ func (s *Sites) OldSoftDeleted(ctx context.Context) error {
 	return errors.Wrap(zdb.Select(ctx, s, fmt.Sprintf(`/* Sites.OldSoftDeleted */
 		select * from sites where state=$1 and updated_at < %s`, interval(ctx, 7)),
 		StateDeleted), "Sites.OldSoftDeleted")
+}
+
+// ExpiredPlans finds all sites which have a plan that's expired.
+func (s *Sites) ExpiredPlans(ctx context.Context) error {
+	err := zdb.Select(ctx, s, `/* Sites.ExpiredPlans */
+		select * from sites where ? > plan_cancel_at`, Now())
+	return errors.Wrap(err, "Sites.ExpiredPlans")
 }

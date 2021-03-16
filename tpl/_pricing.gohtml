@@ -1,7 +1,7 @@
 {{if .Site}}<fieldset id="home-pricing" class="plan"><span>{{else}}<div id="home-pricing">{{end}}
-	{{if .Site}}
+	{{if .Site -}}
 		<input type="radio" name="plan" id="personal" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
-	{{end}}
+	{{- end}}
 	{{if .Site}}<label for="personal">{{else}}<div>{{end}}
 		<h3>Free</h3>
 		<ul>
@@ -15,9 +15,9 @@
 		</ul>
 	{{if .Site}}</label>{{else}}</div>{{end}}
 
-	{{if .Site}}
+	{{if .Site -}}
 		<input type="radio" name="plan" id="personalplus" value="personalplus" {{if eq .Site.Plan "starter"}}checked{{end}}>
-	{{end}}
+	{{- end}}
 	{{if .Site}}<label for="personalplus">{{else}}<div>{{end}}
 		<h3>Starter</h3>
 		<ul>
@@ -31,9 +31,9 @@
 		</ul>
 	{{if .Site}}</label>{{else}}</div>{{end}}
 
-	{{if .Site}}
+	{{if .Site -}}
 		<input type="radio" name="plan" id="business" value="business" {{if eq .Site.Plan "business"}}checked{{end}}>
-	{{end}}
+	{{- end}}
 	{{if .Site}}<label for="business">{{else}}<div>{{end}}
 		<h3>Business</h3>
 		<ul>
@@ -47,9 +47,9 @@
 		</ul>
 	{{if .Site}}</label>{{else}}</div>{{end}}
 
-	{{if .Site}}
+	{{if .Site -}}
 		<input type="radio" name="plan" id="businessplus" value="businessplus" {{if eq .Site.Plan "businessplus"}}checked{{end}}>
-	{{end}}
+	{{- end}}
 	{{if .Site}}<label for="businessplus">{{else}}<div>{{end}}
 		<h3>Business Plus</h3>
 		<ul>
@@ -66,19 +66,7 @@
 <div id="home-pricing-custom">
 	<a href="/contact">Contact</a> if you need more pageviews or want a privately installed hosted option.<br>
 </div>
-	<!--
-	<a href="https://www.goatcounter.com/help#billing">Pricing FAQ</a><br>
-	-->
-
 <div id="home-pricing-faq">
 	<h3 id="pricing-faq">Pricing FAQ</h3>
 	{{template "_billing_help.gohtml" .}}
-
-	<!--
-	<em>Notes:</em>
-	<ul>
-		<li>Custom domains will <em>not</em> bypass adblockers.</li>
-		<li>“Maximum pageviews” is the total amount of pageviews or events you can store.</li>
-	</ul>
-	-->
 </div>

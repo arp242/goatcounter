@@ -27,6 +27,7 @@ var tasks = []task{
 	{DataRetention, 1 * time.Hour},
 	{renewACME, 2 * time.Hour},
 	{vacuumDeleted, 12 * time.Hour},
+	{cancelPlan, 12 * time.Hour},
 	{oldExports, 1 * time.Hour},
 	{sessions, 1 * time.Minute},
 }

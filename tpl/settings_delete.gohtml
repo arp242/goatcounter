@@ -4,9 +4,7 @@
 
 <h2 id="delete">Delete account</h2>
 
-<p>The site {{if gt (len .Sites) 1}}and all associated sites{{end}} will be
-	marked as deleted, and will no longer be accessible. All data will be removed
-	after 7 days.</p>
+<p>The site{{if gt (len .Sites) 1}} and all associated sites{{end}} will be marked as deleted and will no longer be accessible, but no data is removed. After 7 days all data will be permanently removed.</p>
 
 {{if gt (len .Sites) 1}}
 	<div class="flash flash-e" style="text-align: left;">

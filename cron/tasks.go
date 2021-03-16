@@ -278,6 +278,27 @@ func vacuumDeleted(ctx context.Context) error {
 	return nil
 }
 
+// Unset plans after cancellation
+func cancelPlan(ctx context.Context) error {
+	var sites goatcounter.Sites
+	err := sites.ExpiredPlans(ctx)
+	if err != nil {
+		return errors.Errorf("cancelPlans: %w", err)
+	}
+
+	for _, s := range sites {
+		s.BillingAmount = nil
+		s.Plan = goatcounter.PlanPersonal
+		s.PlanPending = nil
+		s.PlanCancelAt = nil
+		err := s.UpdateStripe(ctx)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func sessions(ctx context.Context) error {
 	goatcounter.Memstore.EvictSessions()
 	goatcounter.Memstore.RefreshSalt()

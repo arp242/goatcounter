@@ -31,6 +31,7 @@ require (
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
 	golang.org/x/net v0.0.0-20210222171744-9060382bd457
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sys v0.0.0-20210305215415-5cdee2b1b5a0 // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 	golang.org/x/tools v0.1.0
 	honnef.co/go/tools v0.1.2
@@ -47,7 +48,7 @@ require (
 	zgo.at/zhttp v0.0.0-20210313142737-b939d047b688
 	zgo.at/zli v0.0.0-20210314013617-b1271a855459
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
-	zgo.at/zstd v0.0.0-20210313150607-8c18d68ca2d0
-	zgo.at/zstripe v1.0.0
+	zgo.at/zstd v0.0.0-20210316125320-8107c8cfb5a7
+	zgo.at/zstripe v1.1.1-0.20210316152211-8d12125402d1
 	zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036
 )

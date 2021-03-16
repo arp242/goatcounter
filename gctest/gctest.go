@@ -34,7 +34,7 @@ func init() {
 func Context(db zdb.DB) context.Context {
 	ctx := goatcounter.NewContext(db)
 	goatcounter.Config(ctx).BcryptMinCost = true
-	goatcounter.Config(ctx).Domain = "example.com"
+	goatcounter.Config(ctx).Domain = "localhost"
 	return ctx
 }
 
@@ -108,7 +108,7 @@ func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
 	}
 	ctx = goatcounter.WithSite(ctx, &site)
 
-	user := goatcounter.User{Site: site.ID, Email: "test@example.com", Password: []byte("coconuts")}
+	user := goatcounter.User{Site: site.ID, Email: "test@gctest.localhost", Password: []byte("coconuts")}
 	err = user.Insert(ctx)
 	if err != nil {
 		t.Fatalf("create user: %s", err)

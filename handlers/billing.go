@@ -2,6 +2,12 @@
 // published under the terms of a slightly modified EUPL v1.2 license, which can
 // be found in the LICENSE file or at https://license.goatcounter.com
 
+/* Test webhooks with the Stripe CLI:
+
+./stripe listen -sjl -f 'arp242.goatcounter.localhost:8081/stripe-webhook' \
+	-e checkout.session.completed,customer.subscription.updated,customer.subscription.deleted
+*/
+
 package handlers
 
 import (
@@ -10,7 +16,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/blackmail"
@@ -19,34 +24,53 @@ import (
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/guru"
 	"zgo.at/json"
-	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
 
+var stripePlans = map[bool]map[string]string{
+	false: { // Production
+		"personal":     "plan_GLVKIvCvCjzT2u",
+		"personalplus": "plan_GlJxixkxNZZOct",
+		"business":     "plan_GLVGCVzLaPA3cY",
+		"businessplus": "plan_GLVHJUi21iV4Wh",
+		"donate":       "sku_H9jE6zFGzh6KKb",
+	},
+	true: { // Test data
+		"personal":     "price_1IVVd4E5ASM7XVaUGld6Fwys",
+		"personalplus": "price_1IVVbtE5ASM7XVaUABPNZewg",
+		"business":     "price_1IVVh1E5ASM7XVaUK3q5leCi",
+		"businessplus": "price_1IVVg6E5ASM7XVaUZrJwlrfn",
+		"donate":       "sku_J7l6316cimcIC5",
+	},
+}
+
 type billing struct{}
 
 func (h billing) mount(pub, auth chi.Router) {
-	pub = pub.With(mware.RequestLog(nil))
-	auth = auth.With(mware.RequestLog(nil))
+	// Already added in backend.
+	if !zstring.Contains(zlog.Config.Debug, "req") && !zstring.Contains(zlog.Config.Debug, "all") {
+		pub = pub.With(mware.RequestLog(nil))
+		auth = auth.With(mware.RequestLog(nil))
+	}
+	// Not specific to any domain, and works on any (valid) domain.
+	pub.Post("/stripe-webhook", zhttp.Wrap(h.webhook))
 
 	auth.Get("/billing", zhttp.Wrap(h.index))
-
-	pauth := auth.With(noSubSites)
-	pauth.Post("/billing/start", zhttp.Wrap(h.start))
-	pauth.Get("/billing/cancel", zhttp.Wrap(h.confirmCancel))
-	pauth.Post("/billing/cancel", zhttp.Wrap(h.cancel))
-
-	// These are not specific to any domain.
-	pub.Post("/stripe-webhook", zhttp.Wrap(h.stripeWebhook))
+	auth.Post("/billing/manage", zhttp.Wrap(h.manage))
+	auth.Post("/billing/start", zhttp.Wrap(h.start))
 }
 
 func (h billing) index(w http.ResponseWriter, r *http.Request) error {
-	site := Site(r.Context())
+	mainSite, err := MainSite(r.Context())
+	if err != nil {
+		return err
+	}
 
 	switch r.URL.Query().Get("return") {
 	case "cancel":
@@ -54,52 +78,60 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 
 	case "success":
 		// Verify that the webhook was processed correct.
-		if site.Stripe == nil || site.UpdatedAt.Before(goatcounter.Now().Add(-1*time.Minute)) {
+		if mainSite.Stripe == nil {
 			zhttp.Flash(w, "The payment processor reported success, but we're still processing the payment")
 			stripe := ""
-			if site.Stripe != nil {
-				stripe = *site.Stripe
+			if mainSite.Stripe != nil {
+				stripe = *mainSite.Stripe
 			}
 			zlog.Fields(zlog.F{
-				"siteID":   site.ID,
+				"siteID":   mainSite.ID,
 				"stripeID": stripe,
 			}).Errorf("stripe not processed")
 		} else {
 			bgrun.Run("email:subscription", func() {
-				blackmail.Send("New GoatCounter subscription "+site.Plan,
+				blackmail.Send("New GoatCounter subscription "+mainSite.Plan,
 					blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
 					blackmail.To("billing@goatcounter.com"),
-					blackmail.Bodyf(`New subscription: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
+					blackmail.Bodyf(`New subscription: %s (%d) %s`, mainSite.Code, mainSite.ID, *mainSite.Stripe))
 			})
-
 			zhttp.Flash(w, "Payment processed successfully!")
 		}
 	}
 
-	external := site.PayExternal()
-	var payment, next string
+	external := mainSite.PayExternal()
+	var payment, next, cancel string
 	if external != "" {
 		payment = external
 	}
-	if site.Stripe != nil && !site.FreePlan() && external == "" {
+
+	// Load current data from the Stripe API.
+	if mainSite.Stripe != nil && !mainSite.FreePlan() && external == "" {
+		payment = "[Error loading data from Stripe]"
+
 		var customer struct {
 			Subscriptions struct {
 				Data []struct {
-					CancelAtPeriodEnd bool            `json:"cancel_at_period_end"`
-					CurrentPeriodEnd  zjson.Timestamp `json:"current_period_end"`
-					Plan              struct {
+					CancelAt zjson.Timestamp `json:"cancel_at"`
+					Plan     struct {
 						Quantity int `json:"quantity"`
 					} `json:"plan"`
 				} `json:"data"`
 			} `json:"subscriptions"`
 		}
 		_, err := zstripe.Request(&customer, "GET",
-			fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
+			fmt.Sprintf("/v1/customers/%s", *mainSite.Stripe), zstripe.Body{
+				"expand[]": "subscriptions",
+			}.Encode())
 		if err != nil {
 			return err
 		}
 
 		if len(customer.Subscriptions.Data) > 0 {
+			if !customer.Subscriptions.Data[0].CancelAt.IsZero() {
+				cancel = customer.Subscriptions.Data[0].CancelAt.Format("Jan 2, 2006")
+			}
+
 			var methods struct {
 				Data []struct {
 					Card struct {
@@ -109,7 +141,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				} `json:"data"`
 			}
 			_, err = zstripe.Request(&methods, "GET", "/v1/payment_methods", zstripe.Body{
-				"customer": *site.Stripe,
+				"customer": *mainSite.Stripe,
 				"type":     "card",
 			}.Encode())
 			if err != nil {
@@ -125,7 +157,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				Created   zjson.Timestamp `json:"created"`
 			}
 			_, err = zstripe.Request(&invoice, "GET", "/v1/invoices/upcoming", zstripe.Body{
-				"customer": *site.Stripe,
+				"customer": *mainSite.Stripe,
 			}.Encode())
 			if err != nil {
 				return err
@@ -135,43 +167,39 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	var sites goatcounter.Sites
+	err = sites.ForThisAccount(r.Context(), false)
+	if err != nil {
+		return err
+	}
+
 	return zhttp.Template(w, "billing.gohtml", struct {
 		Globals
+		MainSite        *goatcounter.Site
+		Sites           goatcounter.Sites
 		StripePublicKey string
 		Payment         string
 		Next            string
+		Cancel          string
 		Subscribed      bool
-		FreePlan        bool
 		External        string
-	}{newGlobals(w, r), zstripe.PublicKey, payment, next,
-		payment != "", site.FreePlan(), external})
-}
-
-var stripePlans = map[bool]map[string]string{
-	false: { // Production
-		"personal":     "plan_GLVKIvCvCjzT2u",
-		"personalplus": "plan_GlJxixkxNZZOct",
-		"business":     "plan_GLVGCVzLaPA3cY",
-		"businessplus": "plan_GLVHJUi21iV4Wh",
-		"donate":       "sku_H9jE6zFGzh6KKb",
-	},
-	true: { // Test data
-		"personal":     "plan_GLWnXaogEns1n2",
-		"personalplus": "plan_GlJvCPdCeUpww3",
-		"business":     "plan_GLWoJ72fcNGoUD",
-		"businessplus": "plan_GLWootweDZnKBk",
-		"donate":       "sku_H9iAuKytd1eeN9",
-	},
+	}{newGlobals(w, r), mainSite, sites, zstripe.PublicKey, payment, next,
+		cancel, payment != "", external})
 }
 
 func (h billing) start(w http.ResponseWriter, r *http.Request) error {
-	site := Site(r.Context())
+	mainSite := Site(r.Context())
+	err := mainSite.GetMain(r.Context())
+	if err != nil {
+		return err
+	}
 
 	var args struct {
 		Plan     string `json:"plan"`
 		Quantity string `json:"quantity"`
+		NoDonate string `json:"nodonate"`
 	}
-	_, err := zhttp.Decode(r, &args)
+	_, err = zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
@@ -180,23 +208,27 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	// detail which I can't reproduce :-/
 	zlog.Fields(zlog.F{
 		"args": args,
-		"site": site.Code,
+		"site": mainSite.Code,
 	}).Printf("billing/start")
 
 	v := zvalidate.New()
 	v.Required("plan", args.Plan)
 	v.Include("plan", args.Plan, goatcounter.Plans)
 	v.Required("quantity", args.Quantity)
-	quantity := v.Integer("quantity", args.Quantity)
+	v.Integer("quantity", args.Quantity)
 	if v.HasErrors() {
 		return v
 	}
 
-	// Use dummy Stripe customer for personal plan without donations.
-	if args.Plan == goatcounter.PlanPersonal && quantity == 0 {
-		err := site.UpdateStripe(r.Context(),
-			fmt.Sprintf("cus_free_%d", site.ID),
-			goatcounter.PlanPersonal, "")
+	// Use dummy Stripe customer for personal plan without donations; don't need
+	// to send anything to Stripe.
+	if args.Plan == goatcounter.PlanPersonal && args.NoDonate == "true" {
+		mainSite.Stripe = zstring.NewPointer(fmt.Sprintf("cus_free_%d", mainSite.ID)).P
+		mainSite.BillingAmount = nil
+		mainSite.Plan = goatcounter.PlanPersonal
+		mainSite.PlanPending = nil
+		mainSite.PlanCancelAt = nil
+		err := mainSite.UpdateStripe(r.Context())
 		if err != nil {
 			return err
 		}
@@ -207,14 +239,14 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	body := zstripe.Body{
 		"mode":                                 "subscription",
 		"payment_method_types[]":               "card",
-		"client_reference_id":                  strconv.FormatInt(site.ID, 10),
-		"success_url":                          site.URL(r.Context()) + "/billing?return=success",
-		"cancel_url":                           site.URL(r.Context()) + "/billing?return=cancel",
+		"client_reference_id":                  strconv.FormatInt(mainSite.ID, 10),
+		"success_url":                          mainSite.URL(r.Context()) + "/billing?return=success",
+		"cancel_url":                           mainSite.URL(r.Context()) + "/billing?return=cancel",
 		"subscription_data[items][][plan]":     stripePlans[goatcounter.Config(r.Context()).Dev][args.Plan],
 		"subscription_data[items][][quantity]": args.Quantity,
 	}
-	if site.Stripe != nil && !site.FreePlan() {
-		body["customer"] = *site.Stripe
+	if mainSite.Stripe != nil && !mainSite.FreePlan() {
+		body["customer"] = *mainSite.Stripe
 	} else {
 		body["customer_email"] = goatcounter.GetUser(r.Context()).Email
 	}
@@ -225,144 +257,172 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		return errors.Errorf("zstripe failed: %w; body: %s", err, body.Encode())
 	}
 
-	return zhttp.JSON(w, id)
-}
-
-func (h billing) cancel(w http.ResponseWriter, r *http.Request) error {
-	var customer struct {
-		Subscriptions struct {
-			Data []struct {
-				ID string `json:"id"`
-			} `json:"data"`
-		} `json:"subscriptions"`
-	}
-
-	site := Site(r.Context())
-	if site.Stripe == nil {
-		return guru.New(400, "No Stripe customer for this site?")
-	}
-
-	err := zdb.TX(r.Context(), func(ctx context.Context) error {
-		err := site.UpdateStripe(r.Context(), *site.Stripe, goatcounter.PlanPersonal, "")
-		if err != nil {
-			return err
-		}
-
-		_, err = zstripe.Request(&customer, "GET",
-			fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
-		if err != nil {
-			return err
-		}
-
-		if len(customer.Subscriptions.Data) == 0 {
-			zhttp.FlashError(w, "No current subscriptions")
-			return zhttp.SeeOther(w, "/billing")
-		}
-		if len(customer.Subscriptions.Data) > 1 {
-			return errors.Errorf(
-				"billing.cancel: unexpected number of subscriptions for site %d/%s",
-				site.ID, *site.Stripe)
-		}
-
-		_, err = zstripe.Request(nil, "DELETE",
-			fmt.Sprintf("/v1/subscriptions/%s", customer.Subscriptions.Data[0].ID),
-			zstripe.Body{"prorate": "true"}.Encode())
-		return err
-	})
+	mainSite.PlanPending = &args.Plan
+	err = mainSite.UpdateStripe(r.Context())
 	if err != nil {
 		return err
 	}
 
-	bgrun.Run("email:cancellation", func() {
-		blackmail.Send("GoatCounter cancellation",
-			blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
-			blackmail.To("billing@goatcounter.com"),
-			blackmail.Bodyf(`Cancelled: %s (%d) %s`, site.Code, site.ID, *site.Stripe))
-	})
+	return zhttp.JSON(w, id)
+}
 
-	zhttp.Flash(w, "Plan cancelled; you will be refunded for the remaining period.")
-	return zhttp.SeeOther(w, "/billing")
+func (h billing) manage(w http.ResponseWriter, r *http.Request) error {
+	mainSite, err := MainSite(r.Context())
+	if err != nil {
+		return err
+	}
+
+	if mainSite.Stripe == nil {
+		return guru.New(400, "no Stripe customer for this account?")
+	}
+
+	var s struct {
+		URL string `json:"url"`
+	}
+	_, err = zstripe.Request(&s, "POST", "/v1/billing_portal/sessions", zstripe.Body{
+		"customer":   *mainSite.Stripe,
+		"return_url": mainSite.URL(r.Context()) + "/billing",
+	}.Encode())
+	if err != nil {
+		return err
+	}
+	return zhttp.SeeOther(w, s.URL)
 }
 
 type Session struct {
 	ClientReferenceID string `json:"client_reference_id"`
 	Customer          string `json:"customer"`
-	DisplayItems      []struct {
-		Amount   int    `json:"amount"`
-		Currency string `json:"currency"`
-		Quantity int    `json:"quantity"`
-		Plan     struct {
-			ID string `json:"id"`
-		} `json:"plan"`
-	} `json:"display_items"`
+	AmountTotal       int    `json:"amount_total"`
+	Currency          string `json:"currency"`
 }
 
-// Test webhooks with the Stripe CLI:
-//   ./stripe listen  --forward-to 'arp242.goatcounter.localhost:8081/stripe-webhook'
-func (h billing) stripeWebhook(w http.ResponseWriter, r *http.Request) error {
+func (h billing) webhook(w http.ResponseWriter, r *http.Request) error {
 	var event zstripe.Event
 	err := event.Read(r)
 	if err != nil {
 		return err
 	}
 
+	var f func(zstripe.Event, http.ResponseWriter, *http.Request) error
 	switch event.Type {
+	default:
+		return zhttp.String(w, "not handling this webhook")
+
 	case "checkout.session.completed":
-		var s Session
-		err := json.Unmarshal(event.Data.Raw, &s)
-		if err != nil {
-			return err
-		}
-
-		if strings.HasPrefix(s.ClientReferenceID, "one-time") {
-			bgrun.Run("email:donation", func() {
-				t := "New one-time donation: " + s.ClientReferenceID
-				blackmail.Send(t,
-					blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
-					blackmail.To("billing@goatcounter.com"),
-					blackmail.Bodyf(t))
-			})
-			return zhttp.String(w, "okay")
-		}
-
-		ctx := zdb.WithDB(context.Background(), zdb.MustGetDB(r.Context()))
-		bgrun.Run("stripe", func() {
-			l := zlog.Module("billing").FieldsRequest(r).Field("session", s)
-			id, err := strconv.ParseInt(s.ClientReferenceID, 10, 64)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-
-			var site goatcounter.Site
-			err = site.ByID(ctx, id)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-
-			var plan string
-			for name, p := range stripePlans[goatcounter.Config(r.Context()).Dev] {
-				if p == s.DisplayItems[0].Plan.ID {
-					plan = name
-				}
-			}
-
-			amount := fmt.Sprintf("%s %d", strings.ToUpper(s.DisplayItems[0].Currency),
-				s.DisplayItems[0].Amount*s.DisplayItems[0].Quantity/100)
-			err = site.UpdateStripe(ctx, s.Customer, plan, amount)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-		})
+		f = h.webhookCheckout
+	case "customer.subscription.updated":
+		f = h.webhookUpdate
+	case "customer.subscription.deleted":
+		f = h.webhookDelete
 	}
 
+	err = f(event, w, r)
+	if err != nil {
+		zlog.Module("billing").FieldsRequest(r).Field("json", string(event.Data.Raw)).Error(err)
+		return guru.WithCode(400, err)
+	}
 	return zhttp.String(w, "okay")
 }
 
-func (h billing) confirmCancel(w http.ResponseWriter, r *http.Request) error {
-	return zhttp.Template(w, "billing_cancel.gohtml", struct {
-		Globals
-	}{newGlobals(w, r)})
+type Subscription struct {
+	CancelAt zjson.Timestamp `json:"cancel_at"`
+	Customer string          `json:"customer"`
+	Items    struct {
+		Data []struct {
+			Quantity int `json:"quantity"`
+			Price    struct {
+				ID         string `json:"id"`
+				Currency   string `json:"currency"`
+				UnitAmount int    `json:"unit_amount"`
+			} `json:"price"`
+		} `json:"data"`
+	} `json:"items"`
+}
+
+func (h billing) webhookUpdate(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
+	var s Subscription
+	err := json.Unmarshal(event.Data.Raw, &s)
+	if err != nil {
+		return err
+	}
+
+	var (
+		currency = strings.ToUpper(s.Items.Data[0].Price.Currency)
+		amount   = (s.Items.Data[0].Price.UnitAmount * s.Items.Data[0].Quantity) / 100
+	)
+
+	plan, err := getPlan(r.Context(), s)
+	if err != nil {
+		return err
+	}
+
+	var site goatcounter.Site
+	err = site.ByStripe(r.Context(), s.Customer)
+	if err != nil {
+		return err
+	}
+
+	site.PlanCancelAt = nil
+	if !s.CancelAt.IsZero() {
+		site.PlanCancelAt = &s.CancelAt.Time
+	}
+
+	site.Plan = plan
+	site.BillingAmount = zstring.NewPointer(fmt.Sprintf("%s %d", currency, amount)).P
+	return site.UpdateStripe(r.Context())
+}
+
+func (h billing) webhookDelete(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
+	// I don't think we ever need to handle this, since cancellations are
+	// already pushed with an update. But log for now just in case.
+	fmt.Println(string(event.Data.Raw))
+	return nil
+}
+
+func getPlan(ctx context.Context, s Subscription) (string, error) {
+	planID := s.Items.Data[0].Price.ID
+	for k, v := range stripePlans[goatcounter.Config(ctx).Dev] {
+		if v == planID {
+			return k, nil
+		}
+	}
+	return "", fmt.Errorf("unknown plan: %q", planID)
+}
+
+func (h billing) webhookCheckout(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
+	var s Session
+	err := json.Unmarshal(event.Data.Raw, &s)
+	if err != nil {
+		return err
+	}
+
+	// No processing needed for one-time donations.
+	if strings.HasPrefix(s.ClientReferenceID, "one-time") {
+		bgrun.Run("email:donation", func() {
+			t := "New one-time donation: " + s.ClientReferenceID
+			blackmail.Send(t,
+				blackmail.From("GoatCounter Billing", "billing@goatcounter.com"),
+				blackmail.To("billing@goatcounter.com"),
+				blackmail.Bodyf(t))
+		})
+		return nil
+	}
+
+	id, err := strconv.ParseInt(s.ClientReferenceID, 10, 64)
+	if err != nil {
+		return fmt.Errorf("ClientReferenceID: %w", err)
+	}
+
+	var site goatcounter.Site
+	err = site.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	site.Stripe = &s.Customer
+	site.BillingAmount = zstring.NewPointer(fmt.Sprintf("%s %d", strings.ToUpper(s.Currency), s.AmountTotal/100)).P
+	site.Plan = *site.PlanPending
+	site.PlanPending = nil
+	site.PlanCancelAt = nil
+	return site.UpdateStripe(r.Context())
 }

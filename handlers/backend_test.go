@@ -29,7 +29,7 @@ func TestBackendTpl(t *testing.T) {
 		page, want string
 	}{
 		{"/updates", "Updates"},
-		{"/code", "Insert the code below to add GoatCounter"},
+		{"/code", "add the following JavaScript anywhere on the page"},
 
 		// Settings
 		{"/settings/main", "Data retention in days"},
@@ -38,7 +38,7 @@ func TestBackendTpl(t *testing.T) {
 		{"/settings/purge", "Remove all instances of a page"},
 		{"/settings/export", "The first line is a header with the field names"},
 		{"/settings/auth", "API documentation"},
-		{"/settings/delete", "the site will be ‘soft-deleted’"},
+		{"/settings/delete", "The site will be marked as deleted"},
 		{"/settings/change-code", "Change your site code and login domain"},
 
 		// Shared

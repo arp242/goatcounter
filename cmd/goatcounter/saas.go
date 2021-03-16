@@ -104,6 +104,13 @@ func flagStripe(stripe string, v *zvalidate.Validator) {
 		return
 	}
 
+	if zstring.ContainsAny(zlog.Config.Debug, "stripe", "all") {
+		zstripe.DebugURL = true
+		zstripe.DebugRespBody = true
+		zstripe.DebugReqBody = true
+	}
+
+	zstripe.StripeVersion = "2020-08-27"
 	for _, k := range zstring.Fields(stripe, ":") {
 		switch {
 		case strings.HasPrefix(k, "sk_"):

@@ -19,6 +19,17 @@ import (
 // Site calls goatcounter.MustGetSite; it's just shorter :-)
 func Site(ctx context.Context) *goatcounter.Site { return goatcounter.MustGetSite(ctx) }
 
+// MainSite gets the "main" site
+func MainSite(ctx context.Context) (site *goatcounter.Site, err error) {
+	site = goatcounter.MustGetSite(ctx)
+	if site.Parent != nil {
+		p := *site.Parent
+		site = new(goatcounter.Site)
+		err = site.ByID(ctx, p)
+	}
+	return site, err
+}
+
 type Globals struct {
 	Context        context.Context
 	User           *goatcounter.User

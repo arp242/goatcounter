@@ -1,58 +1,62 @@
 {{template "_backend_top.gohtml" .}}
 
-{{if .Site.Parent}}
-	{{/* TODO: just make this work */}}
-	<p>Please manage the billing at the main site:
-		<a href="{{parent_site .Context .Site.Parent}}/billing">{{parent_site .Context .Site.Parent}}/billing</a></p>
-{{else if and .Site.Stripe .Subscribed}}
-	{{if .FreePlan}}
-		<p>Currently using the <em>Personal free</em> plan for non-commercial usage.</p>
+{{if .Subscribed}}
+	<p>Currently on the <em>{{if eq .MainSite.Plan "personalplus"}}starter{{else}}{{.MainSite.Plan}}{{end}}</em> plan; paying with {{.Payment}}.</p>
+
+	{{if .External}}
+		The plan was set up through your contribution at {{.External}}, and can’t be cancelled or changed here.<br>
+		Get in touch at <a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+		if you want to change it or have any questions about it.
 	{{else}}
-		<p>Currently on the <em>{{.Site.Plan}}</em> plan; paying with {{.Payment}}.</p>
-		{{if .External}}
-			The plan was set up through you contribution at {{.External}}, and
-			can’t be cancelled or changed here.<br>
-			Get in touch at
-			<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-			if you want to change it or have any questions about it.
-		{{else}}
-			<p>{{.Next}}</p>
-			<p><a href="/billing/cancel">Cancel or change</a></p>
-		{{end}}
+		<p>
+			{{if .Cancel}}
+				This subscription is scheduled to be <strong>cancelled</strong> on {{.Cancel}}
+			{{else}}
+				{{.Next}}
+			{{end}}
+		</p>
+		<form method="post" action="/billing/manage" id="billing-manage">
+			<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
+			<button type="submit" class="link">Manage subscription</button>
+		</form>
 	{{end}}
 {{else}}
-	<script src="https://js.stripe.com/v3"></script>
-	<div id="stripe-error"></div>
-	<form method="post" action="/billing/start" id="billing-form" data-key="{{.StripePublicKey}}">
-		<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
 
-		{{template "_pricing.gohtml" .}}
+<script src="https://js.stripe.com/v3"></script>
+<div id="stripe-error"></div>
+<h1>Plans</h1>
+<form method="post" action="/billing/start" id="billing-form" data-key="{{.StripePublicKey}}">
+	<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
 
-		<fieldset class="free">
-			<legend>Optional payments</legend>
-			<p>GoatCounter is free for personal non-commercial use (see
-				<a href="//www.{{.Domain}}/terms#commercial">ToS for definition</a>),
-				but a small monthly donation is encouraged so I can pay my rent
-				and such 😅</p>
-			<p>Even just a small €1/month would be greatly appreciated! Fill in
-				0 to disable the banner without a donation.</p>
+	{{- template "_pricing.gohtml" . -}}
 
-			<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="3" min="0"> /month
+	<fieldset class="free" style="margin: auto; margin-top: 1em; max-width: 50em;">
+		<legend>Optional donation</legend>
+		<p>GoatCounter is free for personal non-commercial use, but a small
+		monthly donation is encouraged so I can pay my rent and such 😅 Even
+		just a small €1/month would be greatly appreciated!</p>
 
-			<p>Other ways to contribute:</p>
-			<ul>
-				<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a></li>
-				<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable</li>
-			</ul>
-		</fieldset>
+		<span title="Euro">€</span> <input type="number" name="quantity" id="quantity" value="3" min="1"> /month
 
-		<center>
-			<button type="submit">Continue</button>
-			<p class="ask-cc">You’ll be asked for credit card details on the next page.
-				<a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you
-				need a payment option other than credit card (e.g. IBAN transfer).</p>
-		</center>
-	</form>
-{{end}}
+		<p>Other ways to contribute:</p>
+		<ul>
+			<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a></li>
+			<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable</li>
+		</ul>
+	</fieldset>
+
+	<center>
+		<button type="submit">Continue</button>
+		{{if not .MainSite.Stripe}}
+			<div class="free"><br><button class="link" id="nodonate">Disable banner without donating</button></div>
+		{{end}}
+
+		<p><small>
+			You’ll be asked for credit card details on the next page<span class="free" style="margin: 0"> if you choose to donate</span>.<br>
+			<a href="/contact" target="_blank">Contact</a> if you need a payment option other than credit card (e.g. IBAN transfer).
+		</small></p>
+	</center>
+</form>
+{{end}} {{/* if .Subscribed */}}
 
 {{template "_backend_bottom.gohtml" .}}

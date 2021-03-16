@@ -388,13 +388,12 @@
 		})
 
 		// Show/hide donation options.
-		$('.plan input, .free input').on('change', function() {
-			var personal = $('input[name="plan"]:checked').val() === 'personal',
-				quantity = parseInt($('#quantity').val(), 10)
-
-			$('.free').css('display', personal ? 'block' : 'none')
-			$('.ask-cc').css('display', personal && quantity === 0 ? 'none' : 'block')
+		$('.plan input').on('change', function() {
+			$('.free').css('display', $('input[name="plan"]:checked').val() === 'personal' ? '' : 'none')
 		}).trigger('change')
+
+		var nodonate = false
+		$('button').on('click', function() { nodonate = this.id === 'nodonate' })
 
 		form.on('submit', function(e) {
 			e.preventDefault()
@@ -405,15 +404,15 @@
 				return
 			}
 
-			form.find('button').attr('disabled', true).text('Redirecting...');
+			form.find('button[type="submit"]').attr('disabled', true).text('Redirecting...')
+			var err      = function(e) { $('#stripe-error').text(e); },
+				plan     = $('input[name="plan"]:checked').val(),
+				quantity = (plan === 'personal' ? (parseInt($('#quantity').val(), 10) || 0) : 1)
 
-			var err = function(e) { $('#stripe-error').text(e); },
-				plan = $('input[name="plan"]:checked').val(),
-				quantity = (plan === 'personal' ? (parseInt($('#quantity').val(), 10) || 0) : 1);
 			jQuery.ajax({
 				url:    '/billing/start',
 				method: 'POST',
-				data:    {csrf: CSRF, plan: plan, quantity: quantity},
+				data:    {csrf: CSRF, plan: plan, quantity: quantity, nodonate: nodonate},
 				success: function(data) {
 					if (data.no_stripe)
 						return location.reload();
@@ -425,7 +424,7 @@
 					on_error(`/billing/start: csrf: ${csrf}; plan: ${plan}; q: ${quantity}; xhr: ${xhr}`)
 				},
 				complete: function() {
-					form.find('button').attr('disabled', false).text('Continue');
+					form.find('button[type="submit"]').attr('disabled', false).text('Continue');
 				},
 			});
 		});
