@@ -132,11 +132,11 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc:  {header.CSPSourceNone},
 			header.CSPImgSrc:      append(ds, "data:"),
-			header.CSPScriptSrc:   append(ds, "https://chat.goatcounter.com", "https://js.stripe.com"),
+			header.CSPScriptSrc:   append(ds, "https://js.stripe.com"),
 			header.CSPStyleSrc:    append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:     ds,
-			header.CSPFormAction:  {header.CSPSourceSelf, "https://explain.dalibo.com/new"},
-			header.CSPConnectSrc:  {header.CSPSourceSelf, "https://chat.goatcounter.com", "https://api.stripe.com"},
+			header.CSPFormAction:  {header.CSPSourceSelf},
+			header.CSPConnectSrc:  {header.CSPSourceSelf, "https://api.stripe.com"},
 			header.CSPFrameSrc:    {header.CSPSourceSelf, "https://js.stripe.com", "https://hooks.stripe.com"},
 			header.CSPManifestSrc: ds,
 			// Too much noise: header.CSPReportURI:  {"/csp"},
