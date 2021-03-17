@@ -17,6 +17,7 @@ import (
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/znet"
 	"zgo.at/zvalidate"
@@ -47,24 +48,38 @@ type Site struct {
 	ID     int64  `db:"site_id" json:"id,readonly"`
 	Parent *int64 `db:"parent" json:"parent,readonly"`
 
-	// Custom domain, e.g. "stats.example.com"
+	// Custom domain, e.g. "stats.example.com".
+	//
+	// When self-hosting this is the domain/vhost your site is accessible at.
 	Cname *string `db:"cname" json:"cname"`
 
 	// When the CNAME was verified.
 	CnameSetupAt *time.Time `db:"cname_setup_at" json:"cname_setup_at,readonly"`
 
-	// Domain code (arp242, which makes arp242.goatcounter.com). Only used for
-	// goatcounter.com and not when self-hosting.
+	// Domain code (e.g. "arp242", which makes arp242.goatcounter.com). Only
+	// used for goatcounter.com and not when self-hosting.
 	Code string `db:"code" json:"code"`
 
 	// Site domain for linking (www.arp242.net).
-	LinkDomain    string       `db:"link_domain" json:"link_domain"`
-	Plan          string       `db:"plan" json:"plan"`
-	PlanPending   *string      `db:"plan_pending" json:"plan_pending"`
-	Stripe        *string      `db:"stripe" json:"-"`
-	PlanCancelAt  *time.Time   `db:"plan_cancel_at" json:"plan_cancel_at"`
-	BillingAmount *string      `db:"billing_amount" json:"-"`
-	Settings      SiteSettings `db:"settings" json:"setttings"`
+	LinkDomain string `db:"link_domain" json:"link_domain"`
+
+	// Plan currently subscribed to.
+	Plan string `db:"plan" json:"plan,readonly"`
+
+	// Plan this site tried to subscribe to, but payment hasn't been verified
+	// yet.
+	PlanPending *string `db:"plan_pending" json:"plan_pending,readonly"`
+
+	// Stripe customer ID.
+	Stripe *string `db:"stripe" json:"stripe,readonly"`
+
+	// When this plan is scheduled to be cancelled.
+	PlanCancelAt *time.Time `db:"plan_cancel_at" json:"plan_cancel_at,readonly"`
+
+	// Amount is being paid for the plan.
+	BillingAmount *string `db:"billing_amount" json:"billing_amount,readonly"`
+
+	Settings SiteSettings `db:"settings" json:"setttings"`
 
 	// Whether this site has received any data; will be true after the first
 	// pageview.
@@ -93,16 +108,21 @@ func (s *Site) Defaults(ctx context.Context) {
 		s.State = StateActive
 	}
 
+	n := Now()
+
+	if Config(ctx).Serve {
+		s.Code = "serve-" + zcrypto.Secret64()
+		s.CnameSetupAt = &n
+	}
 	s.Code = strings.ToLower(s.Code)
 
 	if s.CreatedAt.IsZero() {
-		s.CreatedAt = Now()
+		s.CreatedAt = n
 	} else {
-		t := Now()
-		s.UpdatedAt = &t
+		s.UpdatedAt = &n
 	}
 	if s.FirstHitAt.IsZero() {
-		s.FirstHitAt = Now()
+		s.FirstHitAt = n
 	}
 
 	s.Settings.Defaults()
@@ -114,9 +134,16 @@ var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
 func (s *Site) Validate(ctx context.Context) error {
 	v := zvalidate.New()
 
-	v.Required("code", s.Code)
+	if Config(ctx).Serve {
+		v.Required("cname", s.Cname)
+	} else {
+		v.Required("plan", s.Plan)
+		v.Required("code", s.Code)
+		v.Len("code", s.Code, 2, 50)
+		v.Exclude("code", s.Code, reserved)
+	}
+
 	v.Required("state", s.State)
-	v.Required("plan", s.Plan)
 	v.Include("state", s.State, States)
 	if s.Parent == nil {
 		v.Include("plan", s.Plan, Plans)
@@ -155,8 +182,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	}
 
 	v.Domain("link_domain", s.LinkDomain)
-	v.Len("code", s.Code, 2, 50)
-	v.Exclude("code", s.Code, reserved)
+
 	// TODO: compat with older requirements, otherwise various update functions
 	// will error out.
 	if !s.CreatedAt.IsZero() && s.CreatedAt.Before(noUnderscore) {
@@ -218,8 +244,8 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	s.ID, err = zdb.InsertID(ctx, "site_id",
-		`insert into sites (parent, code, cname, link_domain, settings, plan, created_at, first_hit_at) values (?, ?, ?, ?, ?, ?, ?, ?)`,
-		s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan, s.CreatedAt, s.CreatedAt)
+		`insert into sites (parent, code, cname, link_domain, settings, plan, created_at, first_hit_at, cname_setup_at) values (?)`,
+		zdb.L{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}

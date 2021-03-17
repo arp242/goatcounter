@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -21,6 +22,7 @@ import (
 	"zgo.at/zhttp/auth"
 	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
+	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
 )
 
@@ -69,10 +71,17 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 			ctx := r.Context()
 
 			if r.URL.Path == "/status" {
-				j, err := json.Marshal(map[string]string{
-					"uptime":            goatcounter.Now().Sub(started).String(),
+				v, _ := zdb.MustGetDB(ctx).Version(ctx)
+				j, err := json.Marshal(map[string]interface{}{
+					"uptime":            goatcounter.Now().Sub(started).Round(time.Second).String(),
 					"version":           goatcounter.Version,
 					"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
+					"database":          zdb.Driver(ctx).String() + " " + string(v),
+					"go":                runtime.Version(),
+					"GOOS":              runtime.GOOS,
+					"GOARCH":            runtime.GOARCH,
+					"race":              zruntime.Race,
+					"cgo":               zruntime.CGO,
 				})
 				if err != nil {
 					http.Error(w, err.Error(), 500)

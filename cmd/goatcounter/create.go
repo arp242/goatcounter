@@ -17,7 +17,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zcrypto"
 	"zgo.at/zvalidate"
 )
 
@@ -130,7 +129,6 @@ func cmdCreate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		err = zdb.TX(ctx, func(ctx context.Context) error {
 			d := domain
 			s := goatcounter.Site{
-				Code:  "serve-" + zcrypto.Secret64(),
 				Cname: &d,
 				Plan:  goatcounter.PlanBusinessPlus,
 			}
@@ -140,11 +138,6 @@ func cmdCreate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				s.Plan = goatcounter.PlanChild
 			}
 			err := s.Insert(ctx)
-			if err != nil {
-				return err
-			}
-
-			err = s.UpdateCnameSetupAt(ctx)
 			if err != nil {
 				return err
 			}

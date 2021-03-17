@@ -20,7 +20,9 @@ import (
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zvalidate"
 )
@@ -210,6 +212,18 @@ func TestAPIBasics(t *testing.T) {
 		})
 	})
 
+	t.Run("context", func(t *testing.T) {
+		ctx := gctest.DB(t)
+		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
+			bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
+				"context": true,
+			})),
+			goatcounter.APITokenPermissions{})
+
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 200)
+	})
+
 	t.Run("no-perm", func(t *testing.T) {
 		ctx := gctest.DB(t)
 		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
@@ -382,25 +396,110 @@ func TestAPICount(t *testing.T) {
 	}
 }
 
-func TestAPISitesUpdate(t *testing.T) {
-	stdsite := goatcounter.Site{Code: "gctest", Plan: "personal"}
-	stdsite.Defaults(context.Background())
+func TestAPISitesCreate(t *testing.T) {
+	gctest.SetNow(t, "2020-06-18 12:13:14")
+	now := goatcounter.Now()
 
 	tests := []struct {
-		method, body string
-		wantCode     int
-		want         func() goatcounter.Site
+		serve    bool
+		body     string
+		wantCode int
+		want     func(*goatcounter.Site)
 	}{
-		{"POST", `{}`, 200, func() goatcounter.Site { return stdsite }},
-		{"PATCH", `{}`, 200, func() goatcounter.Site { return stdsite }},
+		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
+			s.Code = "apitest"
+			s.Parent = zint.NewPointer64(1).P
+			s.Plan = "child"
+		}},
+		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
+			s.Cname = zstring.NewPointer("apitest.localhost").P
+			s.Parent = zint.NewPointer64(1).P
+			s.Plan = "child"
+			s.CnameSetupAt = &now
+		}},
+
+		// Ignore plan.
+		{false, `{"code":"apitest","plan":"personal"}`, 200, func(s *goatcounter.Site) {
+			s.Code = "apitest"
+			s.Parent = zint.NewPointer64(1).P
+			s.Plan = "child"
+		}},
+		{true, `{"cname":"apitest.localhost","plan":"personal"}`, 200, func(s *goatcounter.Site) {
+			s.Cname = zstring.NewPointer("apitest.localhost").P
+			s.Parent = zint.NewPointer64(1).P
+			s.Plan = "child"
+			s.CnameSetupAt = &now
+		}},
 	}
 
-	perm := goatcounter.APITokenPermissions{SiteCreate: true, SiteRead: true,
-		SiteUpdate: true}
-
+	perm := goatcounter.APITokenPermissions{SiteCreate: true, SiteRead: true, SiteUpdate: true}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
+			goatcounter.Config(ctx).Serve = tt.serve
+
+			r, rr := newAPITest(ctx, t, "PUT", "/api/v0/sites",
+				strings.NewReader(tt.body), perm)
+
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			var retSite goatcounter.Site
+			d := json.NewDecoder(rr.Body)
+			d.AllowReadonlyFields()
+			err := d.Decode(&retSite)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			var w goatcounter.Site
+			w.Defaults(ctx)
+			tt.want(&w)
+
+			w.ID = retSite.ID
+			if tt.serve {
+				retSite.Code = w.Code
+			}
+			retSite.CreatedAt = w.CreatedAt
+			retSite.FirstHitAt = w.FirstHitAt
+			retSite.UpdatedAt = nil
+
+			got := string(zjson.MustMarshalIndent(retSite, "", "  "))
+			want := string(zjson.MustMarshalIndent(w, "", "  "))
+			if d := ztest.Diff(got, want); d != "" {
+				t.Error(d)
+			}
+		})
+	}
+}
+
+func TestAPISitesUpdate(t *testing.T) {
+	gctest.SetNow(t, "2020-06-18 12:13:14")
+	now := goatcounter.Now()
+
+	tests := []struct {
+		serve        bool
+		method, body string
+		wantCode     int
+		want         func(s *goatcounter.Site)
+	}{
+		{false, "PATCH", `{}`, 200, func(s *goatcounter.Site) {
+			s.Code = "gctest"
+			s.Plan = "personal"
+		}},
+		{false, "POST", `{}`, 200, func(s *goatcounter.Site) {
+			s.Code = "gctest"
+			s.Plan = "personal"
+		}},
+	}
+
+	_ = now
+
+	perm := goatcounter.APITokenPermissions{SiteCreate: true, SiteRead: true, SiteUpdate: true}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			ctx := gctest.DB(t)
+			goatcounter.Config(ctx).Serve = tt.serve
 
 			site := Site(ctx)
 
@@ -418,7 +517,10 @@ func TestAPISitesUpdate(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			w := tt.want()
+			var w goatcounter.Site
+			w.Defaults(ctx)
+			tt.want(&w)
+
 			w.ID = retSite.ID
 			retSite.CreatedAt = w.CreatedAt
 			retSite.FirstHitAt = w.FirstHitAt

@@ -446,7 +446,7 @@ fields that are sent.</p>
 		</div>
 		<h3 id="goatcounter.APITokenPermissions">goatcounter.APITokenPermissions <a class="permalink" href="#goatcounter.APITokenPermissions">§</a></h3>
 		<div class="endpoint model">
-			<p class="info"></p>
+			<p class="info">TODO: this shoud really be a bitmask; this is awkward to deal with.</p>
 			<h4>count <sup>boolean</sup></h4>
 <p></p>
 <h4>export <sup>boolean</sup></h4>
@@ -492,15 +492,25 @@ fields that are sent.</p>
 <h4>parent <sup>integer [readonly]</sup></h4>
 <p></p>
 <h4>cname <sup>string</sup></h4>
-<p>Custom domain, e.g. &#34;stats.example.com&#34;</p>
+<p>Custom domain, e.g. &#34;stats.example.com&#34;.</p><p>When self-hosting this is the domain/vhost your site is accessible at.</p>
 <h4>cname_setup_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p>When the CNAME was verified.</p>
 <h4>code <sup>string</sup></h4>
-<p>Domain code (arp242, which makes arp242.goatcounter.com)</p>
+<p>Domain code (e.g. &#34;arp242&#34;, which makes arp242.goatcounter.com). Only
+used for goatcounter.com and not when self-hosting.</p>
 <h4>link_domain <sup>string</sup></h4>
 <p>Site domain for linking (www.arp242.net).</p>
-<h4>plan <sup>string</sup></h4>
-<p></p>
+<h4>plan <sup>string [readonly]</sup></h4>
+<p>Plan currently subscribed to.</p>
+<h4>plan_pending <sup>string [readonly]</sup></h4>
+<p>Plan this site tried to subscribe to, but payment hasn&#39;t been verified
+yet.</p>
+<h4>stripe <sup>string [readonly]</sup></h4>
+<p>Stripe customer ID.</p>
+<h4>plan_cancel_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p>When this plan is scheduled to be cancelled.</p>
+<h4>billing_amount <sup>string [readonly]</sup></h4>
+<p>Amount is being paid for the plan.</p>
 <h4>setttings <sup></sup></h4>
 <p></p>
 <h4>received_data <sup>boolean</sup></h4>

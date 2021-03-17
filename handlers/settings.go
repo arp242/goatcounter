@@ -32,7 +32,6 @@ import (
 	"zgo.at/zhttp/header"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
@@ -342,7 +341,6 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.Config(r.Context()).GoatcounterCom {
 		newSite.Code = args.Code
 	} else {
-		newSite.Code = "serve-" + zcrypto.Secret64()
 		newSite.Cname = &args.Cname
 		addr = args.Cname
 	}

@@ -469,6 +469,7 @@
     },
     "goatcounter.APITokenPermissions": {
       "title": "APITokenPermissions",
+      "description": "TODO: this shoud really be a bitmask; this is awkward to deal with.",
       "type": "object",
       "properties": {
         "count": {
@@ -544,8 +545,13 @@
       "title": "Site",
       "type": "object",
       "properties": {
+        "billing_amount": {
+          "description": "Amount is being paid for the plan.",
+          "type": "string",
+          "readOnly": true
+        },
         "cname": {
-          "description": "Custom domain, e.g. \"stats.example.com\"",
+          "description": "Custom domain, e.g. \"stats.example.com\".\n\nWhen self-hosting this is the domain/vhost your site is accessible at.",
           "type": "string"
         },
         "cname_setup_at": {
@@ -555,7 +561,7 @@
           "readOnly": true
         },
         "code": {
-          "description": "Domain code (arp242, which makes arp242.goatcounter.com)",
+          "description": "Domain code (e.g. \"arp242\", which makes arp242.goatcounter.com). Only\nused for goatcounter.com and not when self-hosting.",
           "type": "string"
         },
         "created_at": {
@@ -579,7 +585,20 @@
           "readOnly": true
         },
         "plan": {
-          "type": "string"
+          "description": "Plan currently subscribed to.",
+          "type": "string",
+          "readOnly": true
+        },
+        "plan_cancel_at": {
+          "description": "When this plan is scheduled to be cancelled.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "plan_pending": {
+          "description": "Plan this site tried to subscribe to, but payment hasn't been verified\nyet.",
+          "type": "string",
+          "readOnly": true
         },
         "received_data": {
           "description": "Whether this site has received any data; will be true after the first\npageview.",
@@ -590,6 +609,11 @@
         },
         "state": {
           "type": "string"
+        },
+        "stripe": {
+          "description": "Stripe customer ID.",
+          "type": "string",
+          "readOnly": true
         },
         "updated_at": {
           "type": "string",

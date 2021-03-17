@@ -42,8 +42,8 @@ func TestDb(t *testing.T) {
 	{
 		runCmd(t, exit, "db", "test", "-db=sqlite://yeah_nah_doesnt_exist")
 		wantExit(t, exit, out, 1)
-		if !strings.Contains(out.String(), `database "yeah_nah_doesnt_exist" doesn't exist`) {
-			t.Error()
+		if !strings.Contains(out.String(), `doesn't exist`) {
+			t.Error(out.String())
 		}
 		out.Reset()
 	}

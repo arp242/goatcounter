@@ -167,6 +167,7 @@ func (h api) test(w http.ResponseWriter, r *http.Request) error {
 		Status   int                             `json:"status"`
 		Panic    bool                            `json:"panic"`
 		Validate zvalidate.Validator             `json:"validate"`
+		Context  bool                            `json:"context"`
 	}
 
 	_, err := zhttp.Decode(r, &args)
@@ -193,6 +194,15 @@ func (h api) test(w http.ResponseWriter, r *http.Request) error {
 			return errors.New("oh noes!")
 		}
 		return guru.Errorf(args.Status, "status %d", args.Status)
+	}
+
+	if args.Context {
+		v, _ := zdb.MustGetDB(r.Context()).Version(r.Context())
+		return zhttp.JSON(w, map[string]interface{}{
+			"site_id": Site(r.Context()).ID,
+			"serve":   goatcounter.Config(r.Context()).Serve,
+			"db":      v,
+		})
 	}
 
 	return zhttp.JSON(w, args)

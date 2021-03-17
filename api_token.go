@@ -30,6 +30,7 @@ type APIToken struct {
 	CreatedAt time.Time `db:"created_at" json:"-"`
 }
 
+// TODO: this shoud really be a bitmask; this is awkward to deal with.
 type APITokenPermissions struct {
 	Count      bool `db:"count" json:"count"`
 	Export     bool `db:"export" json:"export"`
