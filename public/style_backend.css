@@ -381,6 +381,7 @@ noscript p { margin: .5em; }
  **********************/
 .update p        { margin-left: 2em; }
 .update > em + p, .update > em + strong + p { margin-top: 0; }
+.update pre      { max-width: 50em; margin-left: 2em; }
 .update-new      { background-color: yellow; padding: 0 .3em; }
 h3 + h4          { margin-top: .3em; }
 .reftable        { margin-top: 1em; }
