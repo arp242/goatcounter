@@ -48,7 +48,7 @@ func TestTpl(t *testing.T) {
 		{TplEmailImportDone{site, 42, errors.NewGroup(10)}},
 		{TplEmailImportDone{site, 42, errs}},
 
-		{TplEmailExportDone{ctx, site, Export{
+		{TplEmailExportDone{ctx, site, user, Export{
 			ID:        2,
 			NumRows:   ip(42),
 			Size:      sp("42"),

@@ -71,6 +71,21 @@ func WithUser(ctx context.Context, u *User) context.Context {
 // GetUser gets the currently logged in user.
 func GetUser(ctx context.Context) *User {
 	u, _ := ctx.Value(ctxkey.User).(*User)
+	if u == nil || u.ID == 0 {
+		s := GetSite(ctx)
+		if s != nil {
+			return &User{Settings: s.UserDefaults}
+		}
+	}
+	return u
+}
+
+// MustGetUser behaves as GetUser(), panicking if this fails.
+func MustGetUser(ctx context.Context) *User {
+	u := GetUser(ctx)
+	if u == nil {
+		panic("MustGetUser: no user on context")
+	}
 	return u
 }
 

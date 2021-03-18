@@ -51,7 +51,7 @@
 
 <p><strong>This includes the data retention and collection settings!</strong></p>
 
-<form method="post" action="/settings/sites/copySettings">
+<form method="post" action="/settings/sites/copy-settings">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	{{range $s := .SubSites}}<tr>
 		{{if ne $s.ID $.Site.ID}}

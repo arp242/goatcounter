@@ -8,12 +8,13 @@ import (
 	"context"
 	"strconv"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
 )
 
 func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context) error {
+	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		// Group by day + pathID + ref.
 		type gt struct {
 			total       int
@@ -68,5 +69,5 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 			ins.Values(siteID, v.pathID, v.ref, v.hour, v.total, v.totalUnique, v.refScheme)
 		}
 		return ins.Finish()
-	})
+	}), "cron.updateRefCounts")
 }

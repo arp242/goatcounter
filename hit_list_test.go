@@ -152,13 +152,14 @@ func TestHitStatsList(t *testing.T) {
 			ctx := gctest.DB(t)
 
 			site := MustGetSite(ctx)
+			user := MustGetUser(ctx)
 			for j := range tt.in {
 				if tt.in[j].Site == 0 {
 					tt.in[j].Site = site.ID
 				}
 			}
 
-			site.Settings.Widgets = Widgets{
+			user.Settings.Widgets = Widgets{
 				{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": float64(2), "limit_refs": float64(10)}},
 			}
 

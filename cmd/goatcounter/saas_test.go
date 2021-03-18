@@ -23,7 +23,7 @@ func TestSaas(t *testing.T) {
 			"-domain=goatcounter.com,a.a",
 			"-listen=localhost:31874",
 			"-stripe=sk_test_x:pk_test_x:whsec_x",
-			"-tls=none")
+			"-tls=http")
 	}()
 	<-ready
 

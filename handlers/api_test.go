@@ -57,7 +57,7 @@ func newAPITest(ctx context.Context, t *testing.T,
 
 	token := goatcounter.APIToken{
 		SiteID:      Site(ctx).ID,
-		UserID:      goatcounter.GetUser(ctx).ID,
+		UserID:      User(ctx).ID,
 		Name:        "test",
 		Permissions: perm,
 	}

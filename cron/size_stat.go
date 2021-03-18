@@ -8,12 +8,13 @@ import (
 	"context"
 	"strconv"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
 )
 
 func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context) error {
+	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count       int
 			countUnique int
@@ -70,5 +71,5 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool
 			ins.Values(siteID, v.day, v.pathID, v.width, v.count, v.countUnique)
 		}
 		return ins.Finish()
-	})
+	}), "cron.updateSizeStats")
 }

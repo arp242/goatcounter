@@ -20,7 +20,7 @@ func TestServe(t *testing.T) {
 		"-db="+dbc,
 		"-debug=all",
 		"-listen=localhost:31874",
-		"-tls=none")
+		"-tls=http")
 	<-ready
 
 	resp, err := http.Get("http://localhost:31874/status")

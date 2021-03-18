@@ -1,11 +1,11 @@
 <div class="totals">
 	<h2 class="full-width">Totals <small>
-		{{if .Site.Settings.TotalsNoEvents}}
-			<span>{{nformat (sub .TotalUnique .TotalEventsUnique) $.Site}}</span> visits;
-			<span>{{nformat (sub .Total .TotalEvents) $.Site}}</span> pageviews
+		{{if .User.Settings.TotalsNoEvents}}
+			<span>{{nformat (sub .TotalUnique .TotalEventsUnique) $.User}}</span> visits;
+			<span>{{nformat (sub .Total .TotalEvents) $.User}}</span> pageviews
 		{{else}}
-			<span>{{nformat .TotalUnique $.Site}}</span> visits;
-			<span>{{nformat .Total $.Site}}</span> pageviews
+			<span>{{nformat .TotalUnique $.User}}</span> visits;
+			<span>{{nformat .Total $.User}}</span> pageviews
 		{{end}}
 	</small></h2>
 	{{if .Err}}

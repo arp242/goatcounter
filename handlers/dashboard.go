@@ -13,6 +13,7 @@ import (
 	"time"
 
 	nnow "github.com/jinzhu/now"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/widgets"
 	"zgo.at/zhttp"
@@ -26,10 +27,11 @@ const day = 24 * time.Hour
 
 func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
+	user := User(r.Context())
 
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
-	if site.Settings.Public && goatcounter.GetUser(r.Context()).ID == 0 {
+	if site.Settings.Public && User(r.Context()).ID == 0 {
 		w.Header().Set("Cache-Control", "public,max-age=3600")
 		w.Header().Set("Vary", "Cookie")
 	}
@@ -37,14 +39,14 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	q := r.URL.Query()
 
 	// Load view, but override this from query.
-	view, _ := site.Settings.Views.Get("default")
+	view, _ := user.Settings.Views.Get("default")
 
-	start, end, err := getPeriod(w, r, site)
+	start, end, err := getPeriod(w, r, site, user)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 	}
 	if start.IsZero() || end.IsZero() {
-		start, end, err = timeRange(view.Period, site.Settings.Timezone.Loc(), site.Settings.SundayStartsWeek)
+		start, end, err = timeRange(view.Period, user.Settings.Timezone.Loc(), bool(user.Settings.SundayStartsWeek))
 		if err != nil {
 			return err
 		}
@@ -126,7 +128,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	if showRefs != "" {
 		params |= widgets.ShowRefs
 	}
-	wid := widgets.FromSiteWidgets(site.Settings.Widgets, params)
+	wid := widgets.FromSiteWidgets(user.Settings.Widgets, params)
 
 	func() {
 		var wg sync.WaitGroup
@@ -154,7 +156,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	// Set shared params.
-	shared := widgets.SharedData{Args: args, Site: site}
+	shared := widgets.SharedData{Args: args, Site: site, User: user}
 	tc := wid.Get("totalcount").(*widgets.TotalCount)
 	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEvents,
 		shared.TotalEventsUnique = tc.Total, tc.TotalUnique, tc.TotalUniqueUTC,
@@ -208,7 +210,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 		return zhttp.JSON(w, map[string]string{
 			"widgets":   t,
-			"timerange": tplfunc.Daterange(site.Settings.Timezone.Loc(), start, end),
+			"timerange": tplfunc.Daterange(user.Settings.Timezone.Loc(), start, end),
 		})
 	}
 
@@ -287,7 +289,7 @@ func timeRange(rng string, tz *time.Location, sundayStartsWeek bool) (time.Time,
 	default:
 		days, err := strconv.Atoi(rng)
 		if err != nil {
-			zlog.Field("rng", rng).Error(err)
+			zlog.Field("rng", rng).Error(errors.Errorf("timeRange: %w", err))
 			return timeRange("week", tz, sundayStartsWeek)
 		}
 		start = time.Date(y, m, d-days, 0, 0, 0, 0, time.UTC)

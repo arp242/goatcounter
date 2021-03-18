@@ -46,7 +46,7 @@ func startServer(ctx context.Context, t *testing.T, exit *zli.TestExit, dbc stri
 	ready := make(chan struct{}, 1)
 	stop := make(chan struct{})
 	go runCmdStop(t, exit, ready, stop, "serve",
-		"-tls=none",
+		"-tls=http",
 		"-db="+dbc,
 		"-listen=localhost:9876",
 		"-debug=all")

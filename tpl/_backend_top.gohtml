@@ -42,9 +42,9 @@
 			</div>
 			<div>
 				{{if .GoatcounterCom}}<a href="/updates" class="{{if .HasUpdates}}updates{{end}} {{if eq .Path "/updates"}}active{{end}}">Updates</a> |{{end}}
-				<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">Site code</a> |
-				{{if .Billing}}<a {{if has_prefix .Path "/billing"}}class="active" {{end}}href="/billing">Billing</a> |{{end}}
+				<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">Settings</a> |
+				<a {{if has_prefix .Path "/user"}}class="active" {{end}}href="/user">{{.User.Email}}</a> |
 				<form method="post" action="/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 					<button class="link">Sign out</button>
@@ -55,8 +55,8 @@
 				{{if .Site.LinkDomain -}}
 					Analytics for <a href="http://{{.Site.LinkDomain}}" target="_blank" rel="noopener">{{.Site.LinkDomain}}</a>.
 				{{end}}
-				The public view is updated once an hour{{if .Site.Settings.Timezone}}; all times are in
-				{{join .Site.Settings.Timezone.Abbr ", "}} ({{.Site.Settings.Timezone.OffsetDisplay}}){{end}}
+				The public view is updated once an hour{{if .User.Settings.Timezone}}; all times are in
+				{{join .User.Settings.Timezone.Abbr ", "}} ({{.User.Settings.Timezone.OffsetDisplay}}){{end}}
 			</div>
 			<div id="signin"><a href="/user/new">Sign in</a></div>
 		{{- end -}}

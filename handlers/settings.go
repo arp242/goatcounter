@@ -13,7 +13,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -24,16 +23,13 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/widgets"
 	"zgo.at/guru"
-	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
 
@@ -43,21 +39,33 @@ func (h settings) mount(r chi.Router) {
 	r.Get("/settings", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.SeeOther(w, "/settings/main")
 	}))
+	r.Get("/user", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		zhttp.SeeOther(w, "/user/pref")
+	}))
 
+	// User settings.
+	r.Get("/user/pref", zhttp.Wrap(h.userPref(nil)))
+	r.Post("/user/pref", zhttp.Wrap(h.userPrefSave))
+
+	r.Get("/user/dashboard", zhttp.Wrap(h.userDashboard(nil)))
+	r.Post("/user/dashboard", zhttp.Wrap(h.userDashboardSave))
+	r.Post("/user/view", zhttp.Wrap(h.userViewSave))
+
+	r.Get("/user/auth", zhttp.Wrap(h.userAuth(nil)))
+	r.Get("/user/api", zhttp.Wrap(h.userAPI(nil)))
+
+	// Site settings.
 	r.Get("/settings/main", zhttp.Wrap(h.main(nil)))
 	r.Post("/settings/main", zhttp.Wrap(h.mainSave))
 	r.Get("/settings/main/ip", zhttp.Wrap(h.ip))
 	r.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
 	r.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 
-	r.Get("/settings/dashboard", zhttp.Wrap(h.dashboard(nil)))
-	r.Post("/settings/dashboard", zhttp.Wrap(h.dashboardSave))
-
 	r.Get("/settings/sites", zhttp.Wrap(h.sites(nil)))
 	r.Post("/settings/sites/add", zhttp.Wrap(h.sitesAdd))
 	r.Get("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemoveConfirm))
 	r.Post("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemove))
-	r.Post("/settings/sites/copySettings", zhttp.Wrap(h.sitesCopySettings))
+	r.Post("/settings/sites/copy-settings", zhttp.Wrap(h.sitesCopySettings))
 
 	r.Get("/settings/purge", zhttp.Wrap(h.purge(nil)))
 	r.Get("/settings/purge/confirm", zhttp.Wrap(h.purgeConfirm))
@@ -73,22 +81,21 @@ func (h settings) mount(r chi.Router) {
 		Message: "you can request only one export per hour",
 	})).Post("/settings/export", zhttp.Wrap(h.exportStart))
 
-	r.Get("/settings/auth", zhttp.Wrap(h.auth(nil)))
-
-	r.Get("/settings/delete", zhttp.Wrap(h.delete(nil)))
-	r.Post("/settings/delete", zhttp.Wrap(h.deleteDo))
-
-	r.Post("/settings/view", zhttp.Wrap(h.viewSave))
+	r.Get("/settings/delete-account", zhttp.Wrap(h.delete(nil)))
+	r.Post("/settings/delete-account", zhttp.Wrap(h.deleteDo))
 }
 
 func (h settings) main(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Template(w, "settings_main.gohtml", struct {
 			Globals
-			Validate  *zvalidate.Validator
-			Timezones []*tz.Zone
-		}{newGlobals(w, r), verr, tz.Zones})
+			Validate *zvalidate.Validator
+		}{newGlobals(w, r), verr})
 	}
+}
+
+func (h settings) ip(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.String(w, r.RemoteAddr)
 }
 
 func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
@@ -98,7 +105,6 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 		Cname      string                   `json:"cname"`
 		LinkDomain string                   `json:"link_domain"`
 		Settings   goatcounter.SiteSettings `json:"settings"`
-		User       goatcounter.User         `json:"user"`
 	}{}
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
@@ -114,33 +120,10 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 		return h.main(&v)(w, r)
 	}
 
-	txctx, tx, err := zdb.Begin(r.Context())
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	user := goatcounter.GetUser(txctx)
-
-	emailChanged := false
-	if goatcounter.Config(r.Context()).GoatcounterCom && args.User.Email != user.Email {
-		emailChanged = true
-	}
-
-	user.Email = args.User.Email
-	err = user.Update(txctx, emailChanged)
-	if err != nil {
-		var vErr *zvalidate.Validator
-		if !errors.As(err, &vErr) {
-			return err
-		}
-		v.Sub("user", "", err)
-	}
-
-	site := Site(txctx)
+	site := Site(r.Context())
 	site.Settings = args.Settings
 	site.LinkDomain = args.LinkDomain
-	if args.Cname != "" && !site.PlanCustomDomain(txctx) {
+	if args.Cname != "" && !site.PlanCustomDomain(r.Context()) {
 		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
 	}
 
@@ -154,7 +137,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 		site.Cname = &args.Cname
 	}
 
-	err = site.Update(txctx)
+	err = site.Update(r.Context())
 	if err != nil {
 		var vErr *zvalidate.Validator
 		if !errors.As(err, &vErr) {
@@ -165,15 +148,6 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 
 	if v.HasErrors() {
 		return h.main(&v)(w, r)
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
-
-	if emailChanged {
-		sendEmailVerify(r.Context(), site, user, goatcounter.Config(r.Context()).EmailFrom)
 	}
 
 	if makecert {
@@ -219,88 +193,6 @@ func (h settings) changeCode(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Saved!")
 	return zhttp.SeeOther(w, site.URL(r.Context())+"/settings/main")
-}
-
-func (h settings) ip(w http.ResponseWriter, r *http.Request) error {
-	return zhttp.String(w, r.RemoteAddr)
-}
-
-func (h settings) dashboard(verr *zvalidate.Validator) zhttp.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) error {
-		return zhttp.Template(w, "settings_dashboard.gohtml", struct {
-			Globals
-			Validate *zvalidate.Validator
-			Widgets  widgets.List
-		}{newGlobals(w, r), verr,
-			widgets.FromSiteWidgets(Site(r.Context()).Settings.Widgets, widgets.FilterInternal),
-		})
-	}
-}
-
-func (h settings) dashboardSave(w http.ResponseWriter, r *http.Request) error {
-	err := r.ParseForm()
-	if err != nil {
-		return err
-	}
-
-	site := Site(r.Context())
-
-	if r.Form.Get("reset") != "" {
-		site.Settings.Widgets = nil
-		site.Defaults(r.Context())
-		err = site.Update(r.Context())
-		if err != nil {
-			return err
-		}
-
-		zhttp.Flash(w, "Reset to defaults!")
-		return zhttp.SeeOther(w, "/settings/dashboard")
-	}
-
-	parse := make(map[string]map[string]string)
-	for k, v := range r.Form {
-		if !strings.HasPrefix(k, "widgets.") {
-			continue
-		}
-		k = k[8:]
-
-		name, key := zstring.Split2(k, ".")
-		if parse[name] == nil {
-			parse[name] = make(map[string]string)
-		}
-		parse[name][key] = v[0]
-	}
-
-	site.Settings.Widgets = make(goatcounter.Widgets, len(parse))
-	for k, v := range parse {
-		pos, err := strconv.Atoi(v["index"])
-		if err != nil {
-			return err
-		}
-
-		w := goatcounter.Widget{"name": k, "on": v["on"] == "on"}
-		for sName, sVal := range v {
-			if strings.HasPrefix(sName, "s.") {
-				err := w.SetSetting(k, sName[2:], sVal)
-				if err != nil {
-					return err
-				}
-			}
-		}
-		site.Settings.Widgets[pos] = w
-	}
-
-	err = site.Update(r.Context())
-	if err != nil {
-		var v *zvalidate.Validator
-		if errors.As(err, &v) {
-			return h.dashboard(v)(w, r)
-		}
-		return err
-	}
-
-	zhttp.Flash(w, "Saved!")
-	return zhttp.SeeOther(w, "/settings/dashboard")
 }
 
 func (h settings) sites(verr *zvalidate.Validator) zhttp.HandlerFunc {
@@ -615,7 +507,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	}
 	defer fp.Close()
 
-	user := goatcounter.GetUser(r.Context())
+	user := User(r.Context())
 	ctx := goatcounter.CopyContextValues(r.Context())
 	n := 0
 	bgrun.Run(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
@@ -682,22 +574,6 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
 	return zhttp.SeeOther(w, "/settings/export")
-}
-
-func (h settings) auth(verr *zvalidate.Validator) zhttp.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) error {
-		var tokens goatcounter.APITokens
-		err := tokens.List(r.Context())
-		if err != nil {
-			return err
-		}
-
-		return zhttp.Template(w, "settings_auth.gohtml", struct {
-			Globals
-			Validate  *zvalidate.Validator
-			APITokens goatcounter.APITokens
-		}{newGlobals(w, r), verr, tokens})
-	}
 }
 
 func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
@@ -775,21 +651,4 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
-}
-
-func (h settings) viewSave(w http.ResponseWriter, r *http.Request) error {
-	site := Site(r.Context())
-	v, i := site.Settings.Views.Get("default") // TODO: only default view for now.
-	_, err := zhttp.Decode(r, &v)
-	if err != nil {
-		return err
-	}
-
-	site.Settings.Views[i] = v
-	err = site.Update(r.Context())
-	if err != nil {
-		return err
-	}
-
-	return zhttp.JSON(w, map[string]string{})
 }

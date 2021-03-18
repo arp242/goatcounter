@@ -1,5 +1,4 @@
 {{template "_backend_top.gohtml" .}}
-
 {{template "_settings_nav.gohtml" .}}
 
 <h2 id="setting">Settings</h2>
@@ -14,11 +13,6 @@
 			<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 			{{validate "site.link_domain" .Validate}}
 			<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
-
-			<label for="user.email">Your email</label>
-			<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
-			{{validate "user.email" .Validate}}
-			<span>You will need to re-verify the new address if you change it.</span>
 
 			{{if .GoatcounterCom}}
 				<label>{{checkbox .Site.Settings.AllowBosmang "settings.allow_bosmang"}}
@@ -78,51 +72,6 @@
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 				<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
 			{{end}}
-		</fieldset>
-
-		{{/*
-		<fieldset id="section-user-pref">
-			<legend>User info and preferences</legend>
-		</fieldset>
-		*/}}
-
-		<fieldset id="section-l10n">
-			<legend>Localisation preferences</legend>
-
-			<label for="date_format">Date format</label>
-			<select name="settings.date_format" id="date_format">
-				<option {{option_value .Site.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
-				<option {{option_value .Site.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
-				<option {{option_value .Site.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
-				<option {{option_value .Site.Settings.DateFormat "2 Jan ’06"}}>Short text (2 Jan '06)</option>
-				<option {{option_value .Site.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
-			</select>
-
-			<label>{{checkbox .Site.Settings.TwentyFourHours "settings.twenty_four_hours"}}
-				24-hour clock (13:00)</label>
-
-			<label>{{checkbox .Site.Settings.SundayStartsWeek "settings.sunday_starts_week"}}
-				Week starts on Sunday</label>
-
-			<label for="number_format">Thousands separator</label>
-			<select name="settings.number_format" id="number_format">
-				<option {{option_value (string .Site.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
-				<option {{option_value (string .Site.Settings.NumberFormat) "160"}}>Space (42 123)</option>
-				<option {{option_value (string .Site.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
-				<option {{option_value (string .Site.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
-				<option {{option_value (string .Site.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
-				<option {{option_value (string .Site.Settings.NumberFormat) "1"}}>None (42123)</option>
-			</select>
-			{{validate "site.settings.number_format" .Validate}}
-
-			<label for="timezone">Timezone</label>
-			<select name="settings.timezone" id="timezone">
-				<option {{option_value $.Site.Settings.Timezone.String ".UTC"}}>UTC</option>
-				{{range $tz := .Timezones}}<option {{option_value $.Site.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
-				{{end}}
-			</select>
-			{{validate "site.settings.timezone" .Validate}}
-			<span><a href="#_" id="set-local-tz">Set from browser</a></span>
 		</fieldset>
 
 		<fieldset id="section-tracking">

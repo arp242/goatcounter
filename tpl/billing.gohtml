@@ -1,4 +1,5 @@
 {{template "_backend_top.gohtml" .}}
+{{template "_settings_nav.gohtml" .}}
 
 {{if .Subscribed}}
 	<p>Currently on the <em>{{if eq .MainSite.Plan "personalplus"}}starter{{else}}{{.MainSite.Plan}}{{end}}</em> plan; paying with {{.Payment}}.</p>

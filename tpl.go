@@ -47,15 +47,15 @@ func init() {
 	tplfunc.Add("text_chart", textChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
 
-	// Override defaults to take site settings in to account.
-	tplfunc.Add("tformat", func(s *Site, t time.Time, fmt string) string {
+	// Override defaults to take user settings in to account.
+	tplfunc.Add("tformat", func(t time.Time, fmt string, u User) string {
 		if fmt == "" {
 			fmt = "2006-01-02"
 		}
-		return t.In(s.Settings.Timezone.Loc()).Format(fmt)
+		return t.In(u.Settings.Timezone.Loc()).Format(fmt)
 	})
-	tplfunc.Add("nformat", func(n int, s Site) string {
-		return tplfunc.Number(n, s.Settings.NumberFormat)
+	tplfunc.Add("nformat", func(n int, u User) string {
+		return tplfunc.Number(n, u.Settings.NumberFormat)
 	})
 
 	tplfunc.Add("totp_barcode", func(email, s string) template.HTML {
@@ -109,8 +109,8 @@ func textChart(ctx context.Context, stats []HitListStat, max int, daily bool) te
 }
 
 func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) template.HTML {
-	site := MustGetSite(ctx)
-	now := Now().In(site.Settings.Timezone.Loc())
+	user := MustGetUser(ctx)
+	now := Now().In(user.Settings.Timezone.Loc())
 	today := now.Format("2006-01-02")
 
 	var (
@@ -138,8 +138,8 @@ func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) tem
 			}
 
 			b.WriteString(fmt.Sprintf(`<div%s title="%s|%s|%s"></div>`,
-				st, stat.Day, tplfunc.Number(stat.Daily, site.Settings.NumberFormat),
-				tplfunc.Number(stat.DailyUnique, site.Settings.NumberFormat)))
+				st, stat.Day, tplfunc.Number(stat.Daily, user.Settings.NumberFormat),
+				tplfunc.Number(stat.DailyUnique, user.Settings.NumberFormat)))
 		}
 
 	// Hourly view.
@@ -168,8 +168,8 @@ func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) tem
 				}
 				b.WriteString(fmt.Sprintf(`<div%s title="%s|%[3]d:00|%[3]d:59|%s|%s"></div>`,
 					st, stat.Day, shour,
-					tplfunc.Number(s, site.Settings.NumberFormat),
-					tplfunc.Number(stat.HourlyUnique[shour], site.Settings.NumberFormat)))
+					tplfunc.Number(s, user.Settings.NumberFormat),
+					tplfunc.Number(stat.HourlyUnique[shour], user.Settings.NumberFormat)))
 			}
 		}
 	}
@@ -249,7 +249,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total, pageSize int, l
 				<span class="col-count">%[5]s</span>
 			</div>`,
 			class, id, perc, ref,
-			tplfunc.Number(s.CountUnique, MustGetSite(ctx).Settings.NumberFormat)))
+			tplfunc.Number(s.CountUnique, MustGetUser(ctx).Settings.NumberFormat)))
 	}
 	b.WriteString(`</div>`)
 
@@ -289,6 +289,7 @@ type (
 	TplEmailExportDone struct {
 		Context context.Context
 		Site    Site
+		User    User
 		Export  Export
 	}
 	TplEmailImportDone struct {

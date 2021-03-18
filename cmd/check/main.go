@@ -18,7 +18,6 @@ import (
 	"golang.org/x/tools/go/analysis/passes/bools"
 	"golang.org/x/tools/go/analysis/passes/buildtag"
 	"golang.org/x/tools/go/analysis/passes/cgocall"
-	"golang.org/x/tools/go/analysis/passes/composite"
 	"golang.org/x/tools/go/analysis/passes/copylock"
 	"golang.org/x/tools/go/analysis/passes/errorsas"
 	"golang.org/x/tools/go/analysis/passes/httpresponse"
@@ -60,7 +59,7 @@ func main() {
 		bools.Analyzer,
 		buildtag.Analyzer,
 		cgocall.Analyzer,
-		composite.Analyzer,
+		// composite.Analyzer,
 		copylock.Analyzer,
 		errorsas.Analyzer,
 		httpresponse.Analyzer,

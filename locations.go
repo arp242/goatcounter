@@ -140,14 +140,18 @@ func (l *Location) insert(ctx context.Context) (err error) {
 	l.ID, err = zdb.InsertID(ctx, "location_id",
 		`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
 		l.Country, l.Region, l.CountryName, l.RegionName)
+	if err != nil {
+		return err
+	}
 
 	// Make sure there is an entry for the country as well.
-	cErr := zdb.Exec(ctx, `insert into locations (country, country_name, region, region_name) values (?, ?, '', '')`,
-		l.Country, l.CountryName)
-	if err != nil && !zdb.ErrUnique(cErr) {
-		zlog.Error(cErr)
+	if l.Region != "" {
+		err := (&Location{}).ByCode(ctx, l.Country)
+		if err != nil {
+			return err
+		}
 	}
-	return err
+	return nil
 }
 
 // This takes ~13s for a full iteration for the Cities database on my laptop

@@ -31,14 +31,18 @@ func TestBackendTpl(t *testing.T) {
 		{"/updates", "Updates"},
 		{"/code", "add the following JavaScript anywhere on the page"},
 
+		// User settings
+		{"/user/dashboard", "Paths overview"},
+		{"/user/pref", "Your email"},
+		{"/user/auth", "Change password"},
+		{"/user/api", "API documentation"},
+
 		// Settings
 		{"/settings/main", "Data retention in days"},
-		{"/settings/dashboard", "Paths overview"},
 		{"/settings/sites", "Copy all settings from the current site except the domain name"},
-		{"/settings/purge", "Remove all instances of a page"},
+		{"/settings/purge", "Remove all pageviews for a page"},
 		{"/settings/export", "The first line is a header with the field names"},
-		{"/settings/auth", "API documentation"},
-		{"/settings/delete", "The site will be marked as deleted"},
+		{"/settings/delete-account", "The site will be marked as deleted"},
 		{"/settings/change-code", "Change your site code and login domain"},
 
 		// Shared
@@ -58,9 +62,7 @@ func TestBackendTpl(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			ctx, site := gctest.Site(ctx, t, goatcounter.Site{
-				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
-			})
+			site := Site(ctx)
 
 			r, rr := newTest(ctx, "GET", tt.page, nil)
 			r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
@@ -168,9 +170,10 @@ func TestBackendCount(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := gctest.DB(t)
 
-			ctx, site := gctest.Site(ctx, t, goatcounter.Site{
+			site := goatcounter.Site{
 				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
-			})
+			}
+			ctx = gctest.Site(ctx, t, &site, nil)
 
 			r, rr := newTest(ctx, "GET", "/count?"+tt.query.Encode(), nil)
 			r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
@@ -231,12 +234,12 @@ func TestBackendCountSessions(t *testing.T) {
 
 	ctx := gctest.DB(t)
 
-	ctx1, _ := gctest.Site(ctx, t, goatcounter.Site{
+	ctx1 := gctest.Site(ctx, t, &goatcounter.Site{
 		CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
-	})
-	ctx2, _ := gctest.Site(ctx, t, goatcounter.Site{
+	}, nil)
+	ctx2 := gctest.Site(ctx, t, &goatcounter.Site{
 		CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
-	})
+	}, nil)
 
 	send := func(ctx context.Context, ua string) {
 		site := Site(ctx)

@@ -2,9 +2,9 @@
 
 {{template "_settings_nav.gohtml" .}}
 
-<h2 id="purge">Purge</h2>
+<h2 id="purge">Delete pageviews</h2>
 
-<p>Remove all instances of a page.</p>
+<p>Remove all pageviews for a page.</p>
 
 <p>Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
 	<code>/page%.html</code> matches everything starting with <code>/page</code> and
@@ -15,7 +15,7 @@
 
 <form method="get" action="/settings/purge/confirm">
 	<input type="text" name="path" placeholder="Path" required autocomplete="off">
-	<button type="submit">Purge</button>
+	<button type="submit">Delete pageviews</button>
 	<span>You will see a preview of matches before anything is deleted</span><br>
 	<label><input type="checkbox" name="match-title"> Match title as well</label>
 </form>

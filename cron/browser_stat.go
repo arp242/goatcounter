@@ -9,13 +9,14 @@ import (
 	"strconv"
 	"sync"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )
 
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context) error {
+	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count       int
 			countUnique int
@@ -74,7 +75,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex b
 			ins.Values(siteID, v.day, v.pathID, v.browserID, v.count, v.countUnique)
 		}
 		return ins.Finish()
-	})
+	}), "cron.updateBrowserStats")
 }
 
 var (

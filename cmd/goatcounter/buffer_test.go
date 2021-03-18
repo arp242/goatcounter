@@ -65,12 +65,12 @@ func TestBuffer(t *testing.T) {
 		handle.ServeHTTP(w, r)
 	}))
 
-	_, site := gctest.Site(ctx, t, goatcounter.Site{})
+	ctx = gctest.Site(ctx, t, nil, nil)
 	errCh := make(chan error)
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 		r, _ := http.NewRequest("GET", "http://localhost:8082/count?p=/xxx", nil)
-		r.Host = site.Code + ".localhost"
+		r.Host = goatcounter.MustGetSite(ctx).Code + ".localhost"
 		resp, err := http.DefaultClient.Do(r)
 		errCh <- err
 		if resp.Body != nil {

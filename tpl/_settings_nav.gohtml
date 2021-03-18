@@ -1,12 +1,12 @@
-
 <nav class="tab-nav">
 	<a class="{{if eq .Path "/settings/main"}}active{{end}}"      href="/settings/main">Settings</a>
-	<a class="{{if eq .Path "/settings/dashboard"}}active{{end}}" href="/settings/dashboard">Dashboard</a>
 	<a class="{{if eq .Path "/settings/sites"}}active{{end}}"     href="/settings/sites">Sites</a>
-	<a class="{{if eq .Path "/settings/purge"}}active{{end}}"     href="/settings/purge">Purge</a>
+	<a class="{{if eq .Path "/settings/purge"}}active{{end}}"     href="/settings/purge">Delete pageviews</a>
 	<a class="{{if eq .Path "/settings/export"}}active{{end}}"    href="/settings/export">Export/Import</a>
-	<a class="{{if eq .Path "/settings/auth"}}active{{end}}"      href="/settings/auth">Password, MFA, API</a>
+	{{if .Billing}}
+	<a class="{{if eq .Path "/billing"}}active{{end}}"            href="/billing">Billing</a>
+	{{end}}
 	{{if .GoatcounterCom}}
-	<a class="{{if eq .Path "/settings/delete"}}active{{end}}"    href="/settings/delete">Delete account</a>
+	<a class="{{if eq .Path "/settings/delete-account"}}active{{end}}"    href="/settings/delete-account">Delete account</a>
 	{{end}}
 </nav>

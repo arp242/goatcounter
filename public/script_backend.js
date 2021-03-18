@@ -5,13 +5,13 @@
 ;(function() {
 	'use strict';
 
-	var SETTINGS          = {},
+	var USER_SETTINGS     = {},
 		CSRF              = '',
 		TZ_OFFSET         = 0,
 		SITE_FIRST_HIT_AT = 0
 
 	$(document).ready(function() {
-		SETTINGS          = JSON.parse($('#js-settings').text())
+		USER_SETTINGS     = JSON.parse($('#js-settings').text())
 		CSRF              = $('#js-settings').attr('data-csrf')
 		TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
@@ -80,7 +80,7 @@
 
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:    '/settings/view',
+					url:    '/user/view',
 					method: 'POST',
 					data: {
 						csrf:      CSRF,
@@ -372,7 +372,7 @@
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
 
-		var opts = {toString: format_date_ymd, parse: get_date, firstDay: SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_FIRST_HIT_AT)}
+		var opts = {toString: format_date_ymd, parse: get_date, firstDay: USER_SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_FIRST_HIT_AT)}
 		new Pikaday($('#period-start')[0], opts)
 		new Pikaday($('#period-end')[0], opts)
 	}
@@ -538,7 +538,7 @@
 				case 'half-year': start.setMonth(start.getMonth() - 6); break;
 				case 'year':      start.setFullYear(start.getFullYear() - 1); break;
 				case 'week-cur':
-					if (SETTINGS.sunday_starts_week)
+					if (USER_SETTINGS.sunday_starts_week)
 						start.setDate(start.getDate() - start.getDay());
 					else
 						start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6));
@@ -762,7 +762,7 @@
 
 	// Convert "23:45" to "11:45 pm".
 	var un24 = function(t) {
-		if (SETTINGS.twenty_four_hours)
+		if (USER_SETTINGS.twenty_four_hours)
 			return t
 
 		var hour = parseInt(t.substr(0, 2), 10);
@@ -784,7 +784,7 @@
 
 		var m = date.getMonth() + 1,
 			d = date.getDate(),
-			items = SETTINGS.date_format.split(/[-/\s]/),
+			items = USER_SETTINGS.date_format.split(/[-/\s]/),
 			new_date = [];
 
 		// Simple implementation of Go's time format. We only offer the current
@@ -803,9 +803,9 @@
 		}
 
 		var joiner = '-';
-		if (SETTINGS.date_format.indexOf('/') > -1)
+		if (USER_SETTINGS.date_format.indexOf('/') > -1)
 			joiner = '/';
-		else if (SETTINGS.date_format.indexOf(' ') > -1)
+		else if (USER_SETTINGS.date_format.indexOf(' ') > -1)
 			joiner = ' ';
 		return new_date.join(joiner);
 	}
@@ -822,7 +822,7 @@
 	}
 
 	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
-	var format_int = (n) => (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(SETTINGS.number_format))
+	var format_int = (n) => (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(USER_SETTINGS.number_format))
 
 	// Create Date() object from year-month-day string.
 	var get_date = function(str) {

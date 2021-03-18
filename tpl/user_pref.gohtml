@@ -1,0 +1,71 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_user_nav.gohtml" .}}
+
+<h2 id="setting">Preferences</h2>
+<div class="form-wrap">
+	<form method="post" action="/user/pref" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset>
+			<legend>User information</legend>
+
+			<label for="user.email">Your email</label>
+
+			<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
+			{{validate "email" .Validate}}
+			<span>You will need to re-verify the new address if you change it.</span>
+		</fieldset>
+
+		<fieldset>
+			<legend>Localisation</legend>
+
+			<label for="date_format">Date format</label>
+			<select name="user.settings.date_format" id="date_format">
+				<option {{option_value .User.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
+				<option {{option_value .User.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
+				<option {{option_value .User.Settings.DateFormat "01/02/06"}}>month/day/year (01/02/06)</option>
+				<option {{option_value .User.Settings.DateFormat "2 Jan ’06"}}>Short text (2 Jan '06)</option>
+				<option {{option_value .User.Settings.DateFormat "Mon Jan 2 2006"}}>Long text (Mon Jan 2 2006)</option>
+			</select>
+
+			<label>{{checkbox .User.Settings.TwentyFourHours "user.settings.twenty_four_hours"}}
+				24-hour clock (13:00)</label>
+
+			<label>{{checkbox .User.Settings.SundayStartsWeek "user.settings.sunday_starts_week"}}
+				Week starts on Sunday</label>
+
+			<label for="number_format">Thousands separator</label>
+			<select name="user.settings.number_format" id="number_format">
+				<option {{option_value (string .User.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
+				<option {{option_value (string .User.Settings.NumberFormat) "160"}}>Space (42 123)</option>
+				<option {{option_value (string .User.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
+				<option {{option_value (string .User.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
+				<option {{option_value (string .User.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
+				<option {{option_value (string .User.Settings.NumberFormat) "1"}}>None (42123)</option>
+			</select>
+			{{validate "settings.number_format" .Validate}}
+
+			<label for="timezone">Timezone</label>
+			<select name="user.settings.timezone" id="timezone">
+				<option {{option_value $.User.Settings.Timezone.String ".UTC"}}>UTC</option>
+				{{range $tz := .Timezones}}<option {{option_value $.User.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
+				{{end}}
+			</select>
+			{{validate "settings.timezone" .Validate}}
+			<span><a href="#_" id="set-local-tz">Set from browser</a></span>
+		</fieldset>
+
+		<div class="flex-break"></div>
+
+		<button type="submit">Save</button>
+		<label style="margin-left: 3em"><input type="checkbox" name="set_site"> Also set as default for new users and the public view (if enabled).</label>
+	</form>
+
+	{{if has_errors .Validate}}
+		<div class="flash flash-e"
+			style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
+		Additional errors:{{.Validate.HTML}}</div>
+	{{end}}
+</div>
+
+{{template "_backend_bottom.gohtml" .}}

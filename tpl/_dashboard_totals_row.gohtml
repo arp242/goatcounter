@@ -1,8 +1,8 @@
 <tbody><tr id="TOTAL ">
-	{{if .Site.Settings.TotalsAlign}}<td class="col-count"></td><td class="col-path hide-mobile"></td>{{end}}
+	{{if .User.Settings.TotalsAlign}}<td class="col-count"></td><td class="col-path hide-mobile"></td>{{end}}
 	<td>
 		<div class="chart chart-bar chart-totalsXX" data-max="{{.Max}}">
-			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.Site}}</small></span>
+			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.User}}</small></span>
 			<span class="half"></span>
 			{{bar_chart .Context .Page.Stats .Max .Daily}}
 		</div>

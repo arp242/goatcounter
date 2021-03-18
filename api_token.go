@@ -30,6 +30,8 @@ type APIToken struct {
 	CreatedAt time.Time `db:"created_at" json:"-"`
 }
 
+// APITokenPermissions are the permissions an API token has.
+//
 // TODO: this shoud really be a bitmask; this is awkward to deal with.
 type APITokenPermissions struct {
 	Count      bool `db:"count" json:"count"`

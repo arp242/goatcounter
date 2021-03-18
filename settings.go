@@ -42,8 +42,6 @@ type (
 	//
 	// This is stored as JSON in the database.
 	SiteSettings struct {
-		// Global site settings.
-
 		Public         bool           `json:"public"`
 		AllowCounter   bool           `json:"allow_counter"`
 		AllowBosmang   bool           `json:"allow_bosmang"`
@@ -52,9 +50,10 @@ type (
 		IgnoreIPs      Strings        `json:"ignore_ips"`
 		Collect        zint.Bitflag16 `json:"collect"`
 		CollectRegions Strings        `json:"collect_regions"`
+	}
 
-		// User preferences.
-
+	// UserSetting are all user preferences.
+	UserSettings struct {
 		TwentyFourHours  bool     `json:"twenty_four_hours"`
 		SundayStartsWeek bool     `json:"sunday_starts_week"`
 		DateFormat       string   `json:"date_format"`
@@ -138,12 +137,8 @@ func defaultWidgetSettings() map[string]widgetSettings {
 	}
 }
 
-func (ss SiteSettings) String() string { return string(zjson.MustMarshal(ss)) }
-
-// Value implements the SQL Value function to determine what to store in the DB.
+func (ss SiteSettings) String() string               { return string(zjson.MustMarshal(ss)) }
 func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
-
-// Scan converts the data returned from the DB into the struct.
 func (ss *SiteSettings) Scan(v interface{}) error {
 	switch vv := v.(type) {
 	case []byte:
@@ -154,27 +149,24 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 		return fmt.Errorf("SiteSettings.Scan: unsupported type: %T", v)
 	}
 }
+func (ss UserSettings) String() string               { return string(zjson.MustMarshal(ss)) }
+func (ss UserSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
+func (ss *UserSettings) Scan(v interface{}) error {
+	switch vv := v.(type) {
+	case []byte:
+		return json.Unmarshal(vv, ss)
+	case string:
+		return json.Unmarshal([]byte(vv), ss)
+	default:
+		return fmt.Errorf("UserSettings.Scan: unsupported type: %T", v)
+	}
+}
 
 func (ss *SiteSettings) Defaults() {
-	if ss.DateFormat == "" {
-		ss.DateFormat = "2 Jan ’06"
-	}
-	if ss.NumberFormat == 0 {
-		ss.NumberFormat = 0x202f
-	}
-	if ss.Timezone == nil {
-		ss.Timezone = tz.UTC
-	}
 	if ss.Campaigns == nil {
 		ss.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
 	}
 
-	if len(ss.Widgets) == 0 {
-		ss.Widgets = defaultWidgets()
-	}
-	if len(ss.Views) == 0 {
-		ss.Views = Views{{Name: "default", Period: "week"}}
-	}
 	if ss.Collect == 0 {
 		ss.Collect = CollectReferrer | CollectUserAgent | CollectScreenSize | CollectLocation | CollectLocationRegion | CollectSession
 	}
@@ -188,19 +180,6 @@ func (ss *SiteSettings) Defaults() {
 
 func (ss *SiteSettings) Validate() error {
 	v := zvalidate.New()
-
-	// Must always include all widgets we know about.
-	for _, w := range defaultWidgets() {
-		if ss.Widgets.Get(w["name"].(string)) == nil {
-			v.Append("widgets", fmt.Sprintf("widget %q is missing", w["name"].(string)))
-		}
-	}
-	v.Range("widgets.pages.s.limit_pages", int64(ss.LimitPages()), 1, 100)
-	v.Range("widgets.pages.s.limit_refs", int64(ss.LimitRefs()), 1, 25)
-
-	if _, i := ss.Views.Get("default"); i == -1 || len(ss.Views) != 1 {
-		v.Append("views", "view not set")
-	}
 
 	if ss.DataRetention > 0 {
 		v.Range("data_retention", int64(ss.DataRetention), 14, 0)
@@ -290,7 +269,7 @@ func (w Widget) SetSetting(widget, setting, value string) error {
 	case "number":
 		n, err := strconv.Atoi(value)
 		if err != nil {
-			return err
+			return fmt.Errorf("Widget.SetSetting: setting %q for widget %q: %w", setting, widget, err)
 		}
 		s[setting] = float64(n)
 	case "checkbox":
@@ -356,20 +335,58 @@ func (v Views) Get(name string) (View, int) {
 	return View{}, -1
 }
 
+func (ss *UserSettings) Defaults() {
+	if ss.DateFormat == "" {
+		ss.DateFormat = "2 Jan ’06"
+	}
+	if ss.NumberFormat == 0 {
+		ss.NumberFormat = 0x202f
+	}
+	if ss.Timezone == nil {
+		ss.Timezone = tz.UTC
+	}
+
+	if len(ss.Widgets) == 0 {
+		ss.Widgets = defaultWidgets()
+	}
+	if len(ss.Views) == 0 {
+		ss.Views = Views{{Name: "default", Period: "week"}}
+	}
+}
+
+func (ss *UserSettings) Validate() error {
+	v := zvalidate.New()
+
+	// Must always include all widgets we know about.
+	for _, w := range defaultWidgets() {
+		if ss.Widgets.Get(w["name"].(string)) == nil {
+			v.Append("widgets", fmt.Sprintf("widget %q is missing", w["name"].(string)))
+		}
+	}
+	v.Range("widgets.pages.s.limit_pages", int64(ss.LimitPages()), 1, 100)
+	v.Range("widgets.pages.s.limit_refs", int64(ss.LimitRefs()), 1, 25)
+
+	if _, i := ss.Views.Get("default"); i == -1 || len(ss.Views) != 1 {
+		v.Append("views", "view not set")
+	}
+
+	return v.ErrorOrNil()
+}
+
 // Some shortcuts for getting the settings.
 
-func (ss SiteSettings) LimitPages() int {
+func (ss UserSettings) LimitPages() int {
 	return int(ss.Widgets.GetSettings("pages")["limit_pages"].Value.(float64))
 }
-func (ss SiteSettings) LimitRefs() int {
+func (ss UserSettings) LimitRefs() int {
 	return int(ss.Widgets.GetSettings("pages")["limit_refs"].Value.(float64))
 }
-func (ss SiteSettings) SplitEvents() bool {
+func (ss UserSettings) SplitEvents() bool {
 	return ss.Widgets.GetSettings("pages")["split_events"].Value.(bool)
 }
-func (ss SiteSettings) TotalsAlign() bool {
+func (ss UserSettings) TotalsAlign() bool {
 	return ss.Widgets.GetSettings("totalpages")["align"].Value.(bool)
 }
-func (ss SiteSettings) TotalsNoEvents() bool {
+func (ss UserSettings) TotalsNoEvents() bool {
 	return ss.Widgets.GetSettings("totalpages")["no-events"].Value.(bool)
 }

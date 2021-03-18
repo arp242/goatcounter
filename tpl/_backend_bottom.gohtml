@@ -8,11 +8,11 @@
 		</div>
 	{{end}}
 	<span id="js-settings"
-		data-offset="{{.Site.Settings.Timezone.Offset}}"
+		data-offset="{{.User.Settings.Timezone.Offset}}"
 		data-first-hit-at="{{.Site.FirstHitAt.Unix}}"
 		{{if .User.ID}}data-csrf="{{.User.CSRFToken}}"{{end}}
 	>
-		{{- .Site.Settings.String | unsafe_js -}}
+		{{- .User.Settings.String | unsafe_js -}}
 	</span>
 
 	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>

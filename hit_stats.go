@@ -27,8 +27,8 @@ type HitStats struct {
 	Stats []HitStat
 }
 
-func asUTCDate(s *Site, t time.Time) string {
-	return t.In(s.Settings.Timezone.Location).Format("2006-01-02")
+func asUTCDate(u *User, t time.Time) string {
+	return t.In(u.Settings.Timezone.Location).Format("2006-01-02")
 }
 
 // ByRef lists all paths by referrer.
@@ -46,10 +46,11 @@ func (h *HitStats) ByRef(ctx context.Context, start, end time.Time, pathFilter [
 // ListBrowsers lists all browser statistics for the given time period.
 func (h *HitStats) ListBrowsers(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowsers", zdb.P{
 		"site":   site.ID,
-		"start":  asUTCDate(site, start),
-		"end":    asUTCDate(site, end),
+		"start":  asUTCDate(user, start),
+		"end":    asUTCDate(user, end),
 		"filter": pathFilter,
 		"limit":  limit + 1,
 		"offset": offset,
@@ -64,10 +65,11 @@ func (h *HitStats) ListBrowsers(ctx context.Context, start, end time.Time, pathF
 // ListBrowser lists all the versions for one browser.
 func (h *HitStats) ListBrowser(ctx context.Context, browser string, start, end time.Time, pathFilter []int64) error {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowser", zdb.P{
 		"site":    site.ID,
-		"start":   asUTCDate(site, start),
-		"end":     asUTCDate(site, end),
+		"start":   asUTCDate(user, start),
+		"end":     asUTCDate(user, end),
 		"filter":  pathFilter,
 		"browser": browser,
 	})
@@ -77,10 +79,11 @@ func (h *HitStats) ListBrowser(ctx context.Context, browser string, start, end t
 // ListSystems lists OS statistics for the given time period.
 func (h *HitStats) ListSystems(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystems", zdb.P{
 		"site":   site.ID,
-		"start":  asUTCDate(site, start),
-		"end":    asUTCDate(site, end),
+		"start":  asUTCDate(user, start),
+		"end":    asUTCDate(user, end),
 		"filter": pathFilter,
 		"limit":  limit + 1,
 		"offset": offset,
@@ -95,10 +98,11 @@ func (h *HitStats) ListSystems(ctx context.Context, start, end time.Time, pathFi
 // ListSystem lists all the versions for one system.
 func (h *HitStats) ListSystem(ctx context.Context, system string, start, end time.Time, pathFilter []int64) error {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystem", zdb.P{
 		"site":   site.ID,
-		"start":  asUTCDate(site, start),
-		"end":    asUTCDate(site, end),
+		"start":  asUTCDate(user, start),
+		"end":    asUTCDate(user, end),
 		"filter": pathFilter,
 		"system": system,
 	})
@@ -117,10 +121,11 @@ const (
 // ListSizes lists all device sizes.
 func (h *HitStats) ListSizes(ctx context.Context, start, end time.Time, pathFilter []int64) error {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSizes", zdb.P{
 		"site":   site.ID,
-		"start":  asUTCDate(site, start),
-		"end":    asUTCDate(site, end),
+		"start":  asUTCDate(user, start),
+		"end":    asUTCDate(user, end),
 		"filter": pathFilter,
 	})
 	if err != nil {
@@ -189,10 +194,11 @@ func (h *HitStats) ListSize(ctx context.Context, name string, start, end time.Ti
 	}
 
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSize", zdb.P{
 		"site":     site.ID,
-		"start":    asUTCDate(site, start),
-		"end":      asUTCDate(site, end),
+		"start":    asUTCDate(user, start),
+		"end":      asUTCDate(user, end),
 		"filter":   pathFilter,
 		"min_size": min_size,
 		"max_size": max_size,
@@ -210,10 +216,11 @@ func (h *HitStats) ListSize(ctx context.Context, name string, start, end time.Ti
 // ListLocations lists all location statistics for the given time period.
 func (h *HitStats) ListLocations(ctx context.Context, start, end time.Time, pathFilter []int64, limit, offset int) error {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocations", zdb.P{
 		"site":   site.ID,
-		"start":  asUTCDate(site, start),
-		"end":    asUTCDate(site, end),
+		"start":  asUTCDate(user, start),
+		"end":    asUTCDate(user, end),
 		"filter": pathFilter,
 		"limit":  limit + 1,
 		"offset": offset,
@@ -228,10 +235,11 @@ func (h *HitStats) ListLocations(ctx context.Context, start, end time.Time, path
 // ListLocation lists all divisions for a location
 func (h *HitStats) ListLocation(ctx context.Context, country string, start, end time.Time, pathFilter []int64) error {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocation", zdb.P{
 		"site":    site.ID,
-		"start":   asUTCDate(site, start),
-		"end":     asUTCDate(site, end),
+		"start":   asUTCDate(user, start),
+		"end":     asUTCDate(user, end),
 		"filter":  pathFilter,
 		"country": country,
 	})

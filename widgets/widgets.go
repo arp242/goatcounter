@@ -41,6 +41,7 @@ type (
 	// SharedData gets passed to every widget.
 	SharedData struct {
 		Site *goatcounter.Site
+		User *goatcounter.User
 		Args Args
 
 		Total             int

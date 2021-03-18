@@ -250,7 +250,10 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 			"args":     fmt.Sprintf("%#v\n", args),
 		}).Error(err)
 	}
-	site.Settings = goatcounter.SiteSettings{Timezone: tz}
+	site.UserDefaults = goatcounter.UserSettings{
+		Timezone:        tz,
+		TwentyFourHours: true,
+	}
 
 	err = site.Insert(txctx)
 	if err != nil {
@@ -263,6 +266,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	// Create user.
 	user.Site = site.ID
+	user.Settings = site.UserDefaults
 	err = user.Insert(txctx)
 	if err != nil {
 		var vErr *zvalidate.Validator

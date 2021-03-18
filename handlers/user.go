@@ -67,7 +67,7 @@ func (h user) mount(r chi.Router) {
 }
 
 func (h user) new(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	if u != nil && u.ID > 0 {
 		return zhttp.SeeOther(w, "/")
 	}
@@ -85,7 +85,7 @@ func (h user) new(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) forgot(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	if u != nil && u.ID > 0 {
 		return zhttp.SeeOther(w, "/")
 	}
@@ -99,7 +99,7 @@ func (h user) forgot(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	if u != nil && u.ID > 0 {
 		return zhttp.SeeOther(w, "/")
 	}
@@ -203,7 +203,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	if u != nil && u.ID > 0 {
 		return zhttp.SeeOther(w, "/")
 	}
@@ -337,7 +337,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	err := u.Logout(r.Context())
 	if err != nil {
 		zlog.Errorf("logout: %s", err)
@@ -348,17 +348,18 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) disableTOTP(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	err := u.DisableTOTP(r.Context())
 	if err != nil {
 		return err
 	}
 
-	return zhttp.SeeOther(w, "/settings/auth")
+	zhttp.Flash(w, "Multi-factor authentication disabled.")
+	return zhttp.SeeOther(w, "/user/auth")
 }
 
 func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	var args struct {
 		Token string `json:"totp_token"`
 	}
@@ -380,18 +381,20 @@ func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
 		tokGen(-1, nil) != int32(tokInt) &&
 		tokGen(1, nil) != int32(tokInt) {
 		zhttp.FlashError(w, mfaError)
-		return zhttp.SeeOther(w, "/settings/auth")
+		return zhttp.SeeOther(w, "/user/auth")
 	}
 
 	err = u.EnableTOTP(r.Context())
 	if err != nil {
 		return err
 	}
-	return zhttp.SeeOther(w, "/settings/auth")
+
+	zhttp.Flash(w, "Multi-factor authentication enabled.")
+	return zhttp.SeeOther(w, "/user/auth")
 }
 
 func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	var args struct {
 		CPassword string `json:"c_password"`
 		Password  string `json:"password"`
@@ -409,13 +412,13 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		}
 		if !ok {
 			zhttp.FlashError(w, "Current password is incorrect.")
-			return zhttp.SeeOther(w, "/settings/auth")
+			return zhttp.SeeOther(w, "/user/auth")
 		}
 	}
 
 	if args.Password != args.Password2 {
 		zhttp.FlashError(w, "Password confirmation doesn’t match.")
-		return zhttp.SeeOther(w, "/settings/auth")
+		return zhttp.SeeOther(w, "/user/auth")
 	}
 
 	err = u.UpdatePassword(r.Context(), args.Password)
@@ -423,17 +426,17 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		var vErr *zvalidate.Validator
 		if errors.As(err, &vErr) {
 			zhttp.FlashError(w, fmt.Sprintf("%s", err))
-			return zhttp.SeeOther(w, "/settings/auth")
+			return zhttp.SeeOther(w, "/user/auth")
 		}
 		return err
 	}
 
 	zhttp.Flash(w, "Password changed")
-	return zhttp.SeeOther(w, "/")
+	return zhttp.SeeOther(w, "/user/auth")
 }
 
 func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
-	user := goatcounter.GetUser(r.Context())
+	user := User(r.Context())
 	if user.EmailVerified {
 		zhttp.Flash(w, "%q is already verified", user.Email)
 		return zhttp.SeeOther(w, "/")
@@ -445,10 +448,10 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
-	user := goatcounter.GetUser(r.Context())
+	user := User(r.Context())
 	if !user.EmailVerified {
 		zhttp.Flash(w, "need to verify your email before you can use the API")
-		return zhttp.SeeOther(w, "/settings/auth")
+		return zhttp.SeeOther(w, "/user/auth")
 	}
 
 	var token goatcounter.APIToken
@@ -463,7 +466,7 @@ func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Token created")
-	return zhttp.SeeOther(w, "/settings/auth")
+	return zhttp.SeeOther(w, "/user/api")
 }
 
 func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
@@ -485,7 +488,7 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Token removed")
-	return zhttp.SeeOther(w, "/settings/auth")
+	return zhttp.SeeOther(w, "/user/api")
 }
 
 func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcounter.User, emailFrom string) {

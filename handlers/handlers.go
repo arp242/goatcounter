@@ -18,6 +18,7 @@ import (
 
 // Site calls goatcounter.MustGetSite; it's just shorter :-)
 func Site(ctx context.Context) *goatcounter.Site { return goatcounter.MustGetSite(ctx) }
+func User(ctx context.Context) *goatcounter.User { return goatcounter.MustGetUser(ctx) }
 
 // MainSite gets the "main" site
 func MainSite(ctx context.Context) (site *goatcounter.Site, err error) {

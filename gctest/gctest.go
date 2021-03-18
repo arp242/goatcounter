@@ -62,6 +62,9 @@ func DBFile(t testing.TB) context.Context {
 	return db(t, true)
 }
 
+// TODO: this should use zdb.StartTest()
+// TODO: we can create unlogged tables in PostgreSQL, which should be faster:
+//   create unlogged table foo [..]
 func db(t testing.TB, storeFile bool) context.Context {
 	t.Helper()
 
@@ -112,7 +115,7 @@ func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
 	}
 	ctx = goatcounter.WithSite(ctx, &site)
 
-	user := goatcounter.User{Site: site.ID, Email: "test@gctest.localhost", Password: []byte("coconuts")}
+	user := goatcounter.User{Site: site.ID, Email: "test@gctest.localhost", EmailVerified: true, Password: []byte("coconuts")}
 	err = user.Insert(ctx)
 	if err != nil {
 		t.Fatalf("create user: %s", err)
@@ -163,12 +166,20 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 	return hits
 }
 
-func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Context, goatcounter.Site) {
+// Site creates a new user/site pair.
+//
+// You can set values for the site by passing the sute or user parameters, but
+// they may be nul to just set them to some sensible defaults.
+func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatcounter.User) context.Context {
+	if site == nil {
+		site = &goatcounter.Site{}
+	}
+	if user == nil {
+		user = &goatcounter.User{}
+	}
+
 	if site.Code == "" {
-		site.Code = zcrypto.Secret64()
-		if len(site.Code) > 50 {
-			site.Code = site.Code[:50]
-		}
+		site.Code = "gctest-" + zcrypto.Secret64()
 	}
 	if site.Plan == "" {
 		site.Plan = goatcounter.PlanPersonal
@@ -178,20 +189,22 @@ func Site(ctx context.Context, t *testing.T, site goatcounter.Site) (context.Con
 	if err != nil {
 		t.Fatal(err)
 	}
-	ctx = goatcounter.WithSite(ctx, &site)
+	ctx = goatcounter.WithSite(ctx, site)
 
-	user := goatcounter.User{
-		Site:     site.ID,
-		Email:    "test@example.com",
-		Password: []byte("coconuts"),
+	user.Site = site.ID
+	if user.Email == "" {
+		user.Email = "test@example.com"
+	}
+	if len(user.Password) == 0 {
+		user.Password = []byte("coconuts")
 	}
 	err = user.Insert(ctx)
 	if err != nil {
 		t.Fatalf("get/create user: %s", err)
 	}
-	ctx = goatcounter.WithUser(ctx, &user)
+	ctx = goatcounter.WithUser(ctx, user)
 
-	return ctx, site
+	return ctx
 }
 
 func SetNow(t *testing.T, date interface{}) {

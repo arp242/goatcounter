@@ -469,7 +469,7 @@
     },
     "goatcounter.APITokenPermissions": {
       "title": "APITokenPermissions",
-      "description": "TODO: this shoud really be a bitmask; this is awkward to deal with.",
+      "description": "APITokenPermissions are the permissions an API token has.\n\nTODO: this shoud really be a bitmask; this is awkward to deal with.",
       "type": "object",
       "properties": {
         "count": {
@@ -618,6 +618,9 @@
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "user_defaults": {
+          "$ref": "#/definitions/goatcounter.UserSettings"
         }
       }
     },
@@ -641,11 +644,14 @@
         "collect": {
           "type": "integer"
         },
+        "collect_regions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "data_retention": {
           "type": "integer"
-        },
-        "date_format": {
-          "type": "string"
         },
         "ignore_ips": {
           "type": "array",
@@ -653,32 +659,8 @@
             "type": "string"
           }
         },
-        "number_format": {
-          "type": "string"
-        },
         "public": {
           "type": "boolean"
-        },
-        "sunday_starts_week": {
-          "type": "boolean"
-        },
-        "timezone": {
-          "$ref": "#/definitions/tz.Zone"
-        },
-        "twenty_four_hours": {
-          "type": "boolean"
-        },
-        "views": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/goatcounter.View"
-          }
-        },
-        "widgets": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/goatcounter.Widget"
-          }
         }
       }
     },
@@ -717,6 +699,9 @@
           "type": "string",
           "readOnly": true
         },
+        "settings": {
+          "$ref": "#/definitions/goatcounter.UserSettings"
+        },
         "site": {
           "type": "integer",
           "readOnly": true
@@ -729,6 +714,39 @@
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        }
+      }
+    },
+    "goatcounter.UserSettings": {
+      "title": "UserSettings",
+      "type": "object",
+      "properties": {
+        "date_format": {
+          "type": "string"
+        },
+        "number_format": {
+          "type": "string"
+        },
+        "sunday_starts_week": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "$ref": "#/definitions/tz.Zone"
+        },
+        "twenty_four_hours": {
+          "type": "boolean"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.View"
+          }
+        },
+        "widgets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.Widget"
+          }
         }
       }
     },
