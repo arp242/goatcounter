@@ -324,14 +324,14 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 
 func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 	if goatcounter.Config(r.Context()).GoatcounterCom {
-		isAdmin := false
+		isBosmang := false
 		for _, c := range r.Cookies() {
-			if c.Name == "is_admin" {
-				isAdmin = true
+			if c.Name == "is_bosmang" {
+				isBosmang = true
 				break
 			}
 		}
-		if isAdmin {
+		if isBosmang {
 			auth.ClearCookie(w, Site(r.Context()).Domain(r.Context()))
 			return zhttp.SeeOther(w, "https://www.goatcounter.com")
 		}

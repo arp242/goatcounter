@@ -702,8 +702,8 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	})
 }
 
-// Admin reports if this site is an admin.
-func (s Site) Admin() bool {
+// TODO: should probably be on the user.
+func (s Site) Bosmang() bool {
 	return s.ID == 1
 }
 

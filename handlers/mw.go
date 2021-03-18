@@ -48,8 +48,8 @@ var (
 		return redirect(w, r)
 	})
 
-	adminOnly = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
-		if Site(r.Context()).Admin() {
+	bosmangOnly = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
+		if Site(r.Context()).Bosmang() {
 			return nil
 		}
 		return guru.Errorf(404, "")
@@ -95,10 +95,10 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				return
 			}
 
-			// Add timeout on non-admin pages.
+			// Add timeout on non-bosmang pages.
 			t := 3
 			switch {
-			case strings.HasPrefix(r.URL.Path, "/admin"):
+			case strings.HasPrefix(r.URL.Path, "/bosmang"):
 				t = 120
 			case r.URL.Path == "/":
 				t = 11

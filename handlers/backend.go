@@ -159,7 +159,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 			af.Get("/updates", zhttp.Wrap(h.updates))
 
 			settings{}.mount(af)
-			admin{}.mount(af, db)
+			bosmang{}.mount(af, db)
 		}
 	}
 }

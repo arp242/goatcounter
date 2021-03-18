@@ -1,8 +1,8 @@
 {{template "_backend_top.gohtml" .}}
 
-<h2>Admin</h2>
+<h2>Bosmang</h2>
 
-<form method="post" action="/admin/{{.Stat.Site.ID}}/gh-sponsor" class="vertical">
+<form method="post" action="/bosmang/{{.Stat.Site.ID}}/gh-sponsor" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>
 		<legend>Set plan</legend>
@@ -58,11 +58,11 @@
 	</fieldset>
 </form>
 
-<form method="post" action="/admin/login/{{.Stat.Site.ID}}" class="vertical">
+<form method="post" action="/bosmang/login/{{.Stat.Site.ID}}" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>
 		<legend>Admin access</legend>
-		{{if .Stat.Site.Settings.AllowAdmin}}
+		{{if .Stat.Site.Settings.AllowBosmang}}
 			<button type="submit">View site</button>
 		{{else}}
 			Admin access not enabled.
@@ -76,7 +76,7 @@
 	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.Site}}</td></tr>
 	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
 	{{if .Stat.Site.Parent}}
-		<tr><td>Parent</td><td><a href="/admin/{{.Stat.Site.Parent}}">/admin/{{.Stat.Site.Parent}}</a></td></tr>
+		<tr><td>Parent</td><td><a href="/bosmang/{{.Stat.Site.Parent}}">/bosmang/{{.Stat.Site.Parent}}</a></td></tr>
 	{{end}}
 </table>
 

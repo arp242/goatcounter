@@ -46,7 +46,7 @@ type (
 
 		Public         bool           `json:"public"`
 		AllowCounter   bool           `json:"allow_counter"`
-		AllowAdmin     bool           `json:"allow_admin"`
+		AllowBosmang   bool           `json:"allow_bosmang"`
 		DataRetention  int            `json:"data_retention"`
 		Campaigns      Strings        `json:"campaigns"`
 		IgnoreIPs      Strings        `json:"ignore_ips"`

@@ -26,14 +26,14 @@ import (
 	"zgo.at/zvalidate"
 )
 
-type admin struct{}
+type bosmang struct{}
 
-func (h admin) mount(r chi.Router, db zdb.DB) {
-	a := r.With(mware.RequestLog(nil), adminOnly)
-	a.Get("/admin", zhttp.Wrap(h.index))
-	a.Get("/admin/{id}", zhttp.Wrap(h.site))
-	a.Post("/admin/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
-	a.Post("/admin/login/{id}", zhttp.Wrap(h.login))
+func (h bosmang) mount(r chi.Router, db zdb.DB) {
+	a := r.With(mware.RequestLog(nil), bosmangOnly)
+	a.Get("/bosmang", zhttp.Wrap(h.index))
+	a.Get("/bosmang/{id}", zhttp.Wrap(h.site))
+	a.Post("/bosmang/{id}/gh-sponsor", zhttp.Wrap(h.ghSponsor))
+	a.Post("/bosmang/login/{id}", zhttp.Wrap(h.login))
 
 	a.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/debug/pprof") {
@@ -49,14 +49,14 @@ func (h admin) mount(r chi.Router, db zdb.DB) {
 	a.Get("/debug/pprof/trace", pprof.Trace)
 }
 
-func (h admin) index(w http.ResponseWriter, r *http.Request) error {
+func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {
 	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
 
-	l := zlog.Module("admin")
+	l := zlog.Module("bosmang")
 
-	var a goatcounter.AdminStats
+	var a goatcounter.BosmangStats
 	err := a.List(r.Context())
 	if err != nil {
 		return err
@@ -116,10 +116,10 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 	}
 	totalEarnings := totalEUR + int(math.Round((float64(totalUSD)+24)*0.9)) // $24 from Patreon
 
-	l.FieldsSince().Debug("admin")
-	return zhttp.Template(w, "admin.gohtml", struct {
+	l.FieldsSince().Debug("bosmang")
+	return zhttp.Template(w, "bosmang.gohtml", struct {
 		Globals
-		Stats         goatcounter.AdminStats
+		Stats         goatcounter.BosmangStats
 		Signups       []goatcounter.HitListStat
 		MaxSignups    int
 		TotalUSD      int
@@ -128,7 +128,7 @@ func (h admin) index(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), a, signups, maxSignups, totalUSD, totalEUR, totalEarnings})
 }
 
-func (h admin) site(w http.ResponseWriter, r *http.Request) error {
+func (h bosmang) site(w http.ResponseWriter, r *http.Request) error {
 	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -140,7 +140,7 @@ func (h admin) site(w http.ResponseWriter, r *http.Request) error {
 		code = chi.URLParam(r, "id")
 	}
 
-	var a goatcounter.AdminSiteStat
+	var a goatcounter.BosmangSiteStat
 	var err error
 	if id > 0 {
 		err = a.ByID(r.Context(), id)
@@ -154,13 +154,13 @@ func (h admin) site(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return zhttp.Template(w, "admin_site.gohtml", struct {
+	return zhttp.Template(w, "bosmang_site.gohtml", struct {
 		Globals
-		Stat goatcounter.AdminSiteStat
+		Stat goatcounter.BosmangSiteStat
 	}{newGlobals(w, r), a})
 }
 
-func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
+func (h bosmang) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -178,14 +178,14 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+		return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
 	}
 
 	var site goatcounter.Site
 	err = site.ByID(r.Context(), id)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+		return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
 	}
 
 	site.Stripe, site.BillingAmount, site.PlanPending, site.PlanCancelAt = nil, nil, nil, nil
@@ -212,13 +212,13 @@ func (h admin) ghSponsor(w http.ResponseWriter, r *http.Request) error {
 	err = site.UpdateStripe(ctx)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+		return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
 	}
 
-	return zhttp.SeeOther(w, fmt.Sprintf("/admin/%d", id))
+	return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
 }
 
-func (h admin) login(w http.ResponseWriter, r *http.Request) error {
+func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
 	if Site(r.Context()).ID != 1 {
 		return guru.New(403, "yeah nah")
 	}
@@ -241,15 +241,15 @@ func (h admin) login(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	if !site.Settings.AllowAdmin {
-		return guru.New(403, "AllowAdmin not enabled")
+	if !site.Settings.AllowBosmang {
+		return guru.New(403, "AllowBosmang not enabled")
 	}
 
 	domain := cookieDomain(&site, r)
 	auth.SetCookie(w, *user.LoginToken, domain)
 	http.SetCookie(w, &http.Cookie{
 		Domain:   znet.RemovePort(domain),
-		Name:     "is_admin",
+		Name:     "is_bosmang",
 		Value:    "1",
 		Path:     "/",
 		Expires:  time.Now().Add(8 * time.Hour),

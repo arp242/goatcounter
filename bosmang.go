@@ -14,7 +14,7 @@ import (
 	"zgo.at/zdb"
 )
 
-type AdminStat struct {
+type BosmangStat struct {
 	ID            int64     `db:"site_id"`
 	Parent        *int64    `db:"parent"`
 	Code          string    `db:"code"`
@@ -28,11 +28,11 @@ type AdminStat struct {
 	Total         int       `db:"total"`
 }
 
-type AdminStats []AdminStat
+type BosmangStats []BosmangStat
 
 // List stats for all sites, for all time.
-func (a *AdminStats) List(ctx context.Context) error {
-	err := zdb.Select(ctx, a, fmt.Sprintf(`/* AdminStats.List */
+func (a *BosmangStats) List(ctx context.Context) error {
+	err := zdb.Select(ctx, a, fmt.Sprintf(`/* BosmangStats.List */
 		select
 			sites.site_id,
 			sites.parent,
@@ -57,7 +57,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 		from sites
 		order by last_month desc`, interval(ctx, 30)))
 	if err != nil {
-		return errors.Wrap(err, "AdminStats.List")
+		return errors.Wrap(err, "BosmangStats.List")
 	}
 
 	// Add all the child plan counts to the parents.
@@ -79,7 +79,7 @@ func (a *AdminStats) List(ctx context.Context) error {
 	return nil
 }
 
-type AdminSiteStat struct {
+type BosmangSiteStat struct {
 	Site           Site      `db:"-"`
 	User           User      `db:"-"`
 	LastData       time.Time `db:"last_data"`
@@ -89,7 +89,7 @@ type AdminSiteStat struct {
 }
 
 // ByID gets stats for a single site.
-func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
+func (a *BosmangSiteStat) ByID(ctx context.Context, id int64) error {
 	err := a.Site.ByID(ctx, id)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 
 	ival30 := interval(ctx, 30)
 	ival60 := interval(ctx, 30)
-	err = zdb.Get(ctx, a, fmt.Sprintf(`/* *AdminSiteStat.ByID */
+	err = zdb.Get(ctx, a, fmt.Sprintf(`/* *BosmangSiteStat.ByID */
 		select
 			coalesce((select hour from hit_counts where site_id=$1 order by hour desc limit 1), '1970-01-01') as last_data,
 			coalesce((select sum(total) from hit_counts where site_id=$1), 0) as count_total,
@@ -113,11 +113,11 @@ func (a *AdminSiteStat) ByID(ctx context.Context, id int64) error {
 				and hour <= %[1]s
 			), 0) as count_prev_month
 		`, ival30, ival60), id)
-	return errors.Wrap(err, "AdminSiteStats.ByID")
+	return errors.Wrap(err, "BosmangSiteStats.ByID")
 }
 
 // ByCode gets stats for a single site.
-func (a *AdminSiteStat) ByCode(ctx context.Context, code string) error {
+func (a *BosmangSiteStat) ByCode(ctx context.Context, code string) error {
 	err := a.Site.ByHost(ctx, code+"."+Config(ctx).Domain)
 	if err != nil {
 		return err

@@ -13,7 +13,7 @@ input    { float: right; padding: .4em !important; }
 
 <p>
 	<a href="/debug/pprof">pprof</a> |
-	<a href="/admin/sql">PostgreSQL</a> |
+	<a href="/bosmang/sql">PostgreSQL</a> |
 </p>
 
 <h2>Signups</h2>
@@ -37,7 +37,7 @@ input    { float: right; padding: .4em !important; }
 	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
 		<td class="n">{{nformat $s.LastMonth $.Site}}</td>
 		<td class="n">{{nformat $s.Total $.Site}}</td>
-		<td><a href="/admin/{{$s.ID}}">{{$s.Code}}</a></td>
+		<td><a href="/bosmang/{{$s.ID}}">{{$s.Code}}</a></td>
 		<td>{{$s.LinkDomain}}<br>{{$s.Email}}</td>
 		<td>
 			{{if $s.Stripe}}

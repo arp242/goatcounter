@@ -626,7 +626,7 @@
       "description": "SiteSettings contains all the user-configurable settings for a site, with\nthe exception of the domain and billing settings.\n\nThis is stored as JSON in the database.",
       "type": "object",
       "properties": {
-        "allow_admin": {
+        "allow_bosmang": {
           "type": "boolean"
         },
         "allow_counter": {
