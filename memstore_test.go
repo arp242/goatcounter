@@ -6,12 +6,12 @@ package goatcounter_test
 
 import (
 	"context"
-	"strings"
 	"testing"
 
 	. "zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zint"
 )
 
 func TestMemstore(t *testing.T) {
@@ -78,28 +78,77 @@ func TestNextUUID(t *testing.T) {
 	})
 }
 
-func TestCollect(t *testing.T) {
-	ctx := gctest.DB(t)
-	gctest.SetNow(t, "2020-06-18")
+func TestMemstoreCollect(t *testing.T) {
+	all := func() zint.Bitflag16 {
+		s := SiteSettings{}
+		s.Defaults()
+		return s.Collect
+	}()
 
-	ctx, site := gctest.Site(ctx, t, Site{Settings: SiteSettings{Collect: 1}})
+	tests := []struct {
+		collect        zint.Bitflag16
+		collectRegions Strings
+		want           string
+	}{
+		{all, Strings{}, `
+			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
+			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
+			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID-BA     1
+		`},
 
-	h := Hit{
-		Site:     site.ID,
-		Path:     "/test",
-		Ref:      "https://example.com",
-		Location: "NL",
-		Size:     Floats{5, 6, 7},
+		{CollectNothing, Strings{}, `
+			user_agent_id  session                           bot  ref  ref_scheme  size  location  first_visit
+			NULL           00000000000000000000000000000000  0         NULL                        0
+			NULL           00000000000000000000000000000000  0         NULL                        0
+		`},
+
+		{all ^ CollectLocationRegion, Strings{}, `
+			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
+			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
+			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID        1
+		`},
+
+		{all, Strings{"US"}, `
+			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
+			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
+			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID        1
+		`},
+		{all, Strings{"ID"}, `
+			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
+			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
+			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID-BA     1
+		`},
 	}
-	gctest.StoreHits(ctx, t, false, h)
 
-	out := strings.TrimSpace(zdb.DumpString(ctx, `select * from hits`))
-	want := strings.TrimSpace(`
-hit_id  site_id  path_id  user_agent_id  session                           bot  ref  ref_scheme  size  location  first_visit  created_at
-1       2        1        NULL           00112233445566778899aabbccddeeff  0         NULL                        0            2020-06-18 12:00:00`)
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			ctx := gctest.DB(t)
+			gctest.SetNow(t, "2020-06-18")
 
-	if out != want {
-		t.Error(out)
+			ctx, site := gctest.Site(ctx, t, Site{Settings: SiteSettings{
+				Collect:        tt.collect,
+				CollectRegions: tt.collectRegions,
+			}})
+
+			gctest.StoreHits(ctx, t, false, Hit{
+				Site:     site.ID,
+				Path:     "/test",
+				Ref:      "https://example.com",
+				Location: "NL",
+				Size:     Floats{5, 6, 7},
+			}, Hit{
+				Site:       site.ID,
+				Path:       "/other",
+				Query:      "ref=xxx",
+				Location:   "ID-BA",
+				Size:       Floats{5, 6, 7},
+				FirstVisit: true,
+			})
+
+			got := zdb.DumpString(ctx, `select user_agent_id, session, bot, ref, ref_scheme, size, location, first_visit from hits`)
+			if d := zdb.Diff(got, tt.want); d != "" {
+				t.Error(d)
+			}
+		})
 	}
-
 }

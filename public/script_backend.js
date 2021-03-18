@@ -47,6 +47,11 @@
 		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
 			return
 
+		// I don't what kind of shitty thing is spamming me with this, but I've
+		// gotten a lot of them and I'm getting tired of it.
+		if (msg.IndexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen"))
+			return
+
 		jQuery.ajax({
 			url:    '/jserr',
 			method: 'POST',

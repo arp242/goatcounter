@@ -163,8 +163,19 @@
 			<input type="hidden" name="settings.collect[]" value="1">
 			{{range $cf := .Site.Settings.CollectFlags}}
 				<label><input type="checkbox" name="settings.collect[]" value="{{$cf.Flag}}" {{if $.Site.Settings.Collect.Has $cf.Flag}}checked{{end}}>
-					<span style="min-width:5.5em; display:inline-block;">{{$cf.Label}}</span> {{$cf.Help}}</label>
+					<span style="min-width: 5.5em; display: inline-block;">{{$cf.Label}}</span>
+					<div>{{$cf.Help}}</div></label>
+				{{if eq $cf.Label "Region"}}
+					<div style="margin-left: 2em;">
+						<label for="collect_regions">For the following countries only:</label>
+						<input type="text" id="collect_regions" name="settings.collect_regions" value="{{$.Site.Settings.CollectRegions}}">
+						<span class="help">List of country codes
+							(<a href="https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes#Current_ISO_3166_country_codes" target="_blank">list</a>;
+							use the alpha-2 code); leave blank to collect for all countries (if enabled).</span>
+					</div>
+				{{end}}
 			{{end}}
+
 		</fieldset>
 
 		<div class="flex-break"></div>

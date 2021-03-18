@@ -17,16 +17,10 @@ import (
 // Ints stores a slice of []int64 as a comma-separated string.
 type Ints []int64
 
-func (l Ints) String() string {
-	return zint.Join(l, ", ")
-}
+func (l Ints) String() string                { return zint.Join(l, ", ") }
+func (l Ints) Value() (driver.Value, error)  { return zint.Join(l, ","), nil }
+func (l *Ints) UnmarshalText(v []byte) error { return l.Scan(v) }
 
-// Value determines what to store in the DB.
-func (l Ints) Value() (driver.Value, error) {
-	return zint.Join(l, ","), nil
-}
-
-// Scan converts the data from the DB.
 func (l *Ints) Scan(v interface{}) error {
 	if v == nil {
 		return nil
@@ -37,30 +31,18 @@ func (l *Ints) Scan(v interface{}) error {
 	return err
 }
 
-// MarshalText converts the data to a human readable representation.
 func (l Ints) MarshalText() ([]byte, error) {
 	v, err := l.Value()
 	return []byte(fmt.Sprintf("%s", v)), err
 }
 
-// UnmarshalText parses text in to the Go data structure.
-func (l *Ints) UnmarshalText(v []byte) error {
-	return l.Scan(v)
-}
-
 // Floats stores a slice of []float64 as a comma-separated string.
 type Floats []float64
 
-func (l Floats) String() string {
-	return zfloat.Join(l, ", ")
-}
+func (l Floats) String() string                { return zfloat.Join(l, ", ") }
+func (l Floats) Value() (driver.Value, error)  { return zfloat.Join(l, ","), nil }
+func (l *Floats) UnmarshalText(v []byte) error { return l.Scan(v) }
 
-// Value determines what to store in the DB.
-func (l Floats) Value() (driver.Value, error) {
-	return zfloat.Join(l, ","), nil
-}
-
-// Scan converts the data from the DB.
 func (l *Floats) Scan(v interface{}) error {
 	if v == nil {
 		return nil
@@ -71,42 +53,52 @@ func (l *Floats) Scan(v interface{}) error {
 	return err
 }
 
-// MarshalText converts the data to a human readable representation.
 func (l Floats) MarshalText() ([]byte, error) {
 	v, err := l.Value()
 	return []byte(fmt.Sprintf("%s", v)), err
 }
 
-// UnmarshalText parses text in to the Go data structure.
-func (l *Floats) UnmarshalText(v []byte) error {
-	return l.Scan(v)
-}
-
 // Strings stores a slice of []string as a comma-separated string.
-//
-// Note this only works for simple strings (e.g. enums), it DOES NOT ESCAPE
-// COMMAS, and you will run in to problems if you use it for arbitrary text.
-//
-// You're probably better off using e.g. arrays in PostgreSQL or JSON in SQLite,
-// if you can. This is intended just for simple cross-SQL-engine use cases.
 type Strings []string
 
-func (l Strings) String() string {
-	return strings.Join(l, ", ")
-}
-
-// Value determines what to store in the DB.
+func (l Strings) String() string { return strings.Join(l, ", ") }
 func (l Strings) Value() (driver.Value, error) {
 	return strings.Join(zstring.Filter(l, zstring.FilterEmpty), ","), nil
 }
+func (l *Strings) UnmarshalText(v []byte) error { return l.Scan(v) }
 
-// Scan converts the data from the DB.
+// TODO: move to zstd/zstring
+func splitAny(s string, seps ...string) []string {
+	var split []string
+	for {
+		var i int
+		for _, sep := range seps {
+			i = strings.Index(s, sep)
+			if i >= 0 {
+				break
+			}
+		}
+		if i < 0 {
+			if len(s) > 0 {
+				split = append(split, s)
+			}
+			break
+		}
+		split = append(split, s[:i])
+		s = s[i+1:]
+	}
+
+	return split
+}
+
 func (l *Strings) Scan(v interface{}) error {
 	if v == nil {
 		return nil
 	}
-	strs := []string{}
-	for _, s := range strings.Split(fmt.Sprintf("%s", v), ",") {
+
+	split := splitAny(fmt.Sprintf("%s", v), ",", " ")
+	strs := make([]string, 0, len(split))
+	for _, s := range split {
 		s = strings.TrimSpace(s)
 		if s == "" {
 			continue
@@ -117,13 +109,7 @@ func (l *Strings) Scan(v interface{}) error {
 	return nil
 }
 
-// MarshalText converts the data to a human readable representation.
 func (l Strings) MarshalText() ([]byte, error) {
 	v, err := l.Value()
 	return []byte(fmt.Sprintf("%s", v)), err
-}
-
-// UnmarshalText parses text in to the Go data structure.
-func (l *Strings) UnmarshalText(v []byte) error {
-	return l.Scan(v)
 }

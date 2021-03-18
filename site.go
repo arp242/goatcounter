@@ -158,6 +158,8 @@ func (s *Site) Validate(ctx context.Context) error {
 		}
 	}
 
+	v.Domain("link_domain", s.LinkDomain)
+
 	// Must always include all widgets we know about.
 	for _, w := range defaultWidgets() {
 		if s.Settings.Widgets.Get(w["name"].(string)) == nil {
@@ -180,8 +182,6 @@ func (s *Site) Validate(ctx context.Context) error {
 			v.IP("settings.ignore_ips", ip)
 		}
 	}
-
-	v.Domain("link_domain", s.LinkDomain)
 
 	// TODO: compat with older requirements, otherwise various update functions
 	// will error out.

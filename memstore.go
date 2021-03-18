@@ -23,6 +23,7 @@ import (
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zstring"
 )
 
 var (
@@ -261,11 +262,17 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		}
 		ctx = WithSite(ctx, &site)
 
-		if h.Session.IsZero() {
+		if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) {
 			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.UserAgentHeader, h.RemoteAddr)
 		}
 
+		if !site.Settings.Collect.Has(CollectSession) {
+			h.Session = zint.Uint128{}
+			h.FirstVisit = false
+		}
+
 		if !site.Settings.Collect.Has(CollectReferrer) {
+			h.Query = ""
 			h.Ref = ""
 			h.RefScheme = nil
 		}
@@ -279,13 +286,19 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		if !site.Settings.Collect.Has(CollectLocation) {
 			h.Location = ""
 		}
-		if !site.Settings.Collect.Has(CollectLocationRegion) && strings.ContainsRune(h.Location, '-') {
-			var l Location
-			err := l.ByCode(ctx, h.Location[:2])
-			if err != nil {
-				zlog.Errorf("lookup %q: %w", h.Location[:2], err)
+		if strings.ContainsRune(h.Location, '-') {
+			trim := !site.Settings.Collect.Has(CollectLocationRegion)
+			if !trim && len(site.Settings.CollectRegions) > 0 {
+				trim = !zstring.Contains(site.Settings.CollectRegions, h.Location[:2])
 			}
-			h.Location = l.ISO3166_2
+			if trim {
+				var l Location
+				err := l.ByCode(ctx, h.Location[:2])
+				if err != nil {
+					zlog.Errorf("lookup %q: %w", h.Location[:2], err)
+				}
+				h.Location = l.ISO3166_2
+			}
 		}
 
 		// Persist.

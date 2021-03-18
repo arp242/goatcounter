@@ -20,6 +20,13 @@ import (
 func TestHitStats(t *testing.T) {
 	ctx := gctest.DB(t)
 
+	s := MustGetSite(ctx)
+	s.Settings.CollectRegions = Strings{}
+	err := s.Update(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/x", Location: "NL-NB", Size: []float64{1920, 1080, 1}, UserAgentHeader: "Mozilla/5.0 (X11; Linux x86_64; rv:81.0) Gecko/20100101 Firefox/81.0", FirstVisit: true},
 		Hit{Path: "/x", Location: "NL-NB", Size: []float64{1920, 1080, 1}, UserAgentHeader: "Mozilla/5.0 (X11; Linux x86_64; rv:81.0) Gecko/20100101 Firefox/81.0"},

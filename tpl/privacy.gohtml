@@ -10,7 +10,7 @@
 	<li><code>Referer</code> header.</li>
 	<li><code>User-Agent</code> header.</li>
 	<li>Screen size.</li>
-	<li>Country name based on IP address.</li>
+	<li>Country and region name based on IP address.</li>
 	<li>A hash of the IP address, User-Agent, and random number.</li>
 </ul>
 
@@ -20,7 +20,7 @@ above.</p>
 
 <p>No personal information (such as IP address) is collected; a hash of the IP
 address, User-Agent, and a random number (“salt”) is kept in the process memory
-for 8 hours at the most to identify a browsing session.</p>
+for 8 hours to identify a browsing session, and is never stored to disk.</p>
 
 <p>There is no information stored in the browser with cookies, localStorage, or
 other methods.</p>

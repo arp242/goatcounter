@@ -153,7 +153,7 @@ func TestStrings(t *testing.T) {
 		}
 
 		for _, tc := range cases {
-			t.Run(fmt.Sprintf("%v", tc.in), func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				out, err := tc.in.Value()
 				if err != nil {
 					t.Fatal(err)
@@ -174,6 +174,7 @@ func TestStrings(t *testing.T) {
 			{"", Strings{}, ""},
 			{"1", Strings{"1"}, ""},
 			{"4, 5", Strings{"4", "5"}, ""},
+			{"4 5", Strings{"4", "5"}, ""},
 			{"1, 1", Strings{"1", "1"}, ""},
 			{"1,", Strings{"1"}, ""},
 			{"1,,,,", Strings{"1"}, ""},
@@ -183,7 +184,7 @@ func TestStrings(t *testing.T) {
 		}
 
 		for _, tc := range cases {
-			t.Run(fmt.Sprintf("%v", tc.in), func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				out := Strings{}
 				err := out.Scan(tc.in)
 				if !ztest.ErrorContains(err, tc.wantErr) {
@@ -207,7 +208,7 @@ func TestStrings(t *testing.T) {
 		}
 
 		for _, tc := range cases {
-			t.Run(fmt.Sprintf("%v", tc.in), func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				out, err := tc.in.MarshalText()
 				if !ztest.ErrorContains(err, tc.wantErr) {
 					t.Errorf("\nout:  %#v\nwant: %#v\n", err, tc.wantErr)
@@ -230,7 +231,7 @@ func TestStrings(t *testing.T) {
 		}
 
 		for _, tc := range cases {
-			t.Run(fmt.Sprintf("%v", tc.in), func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				var out Strings
 				err := out.UnmarshalText(tc.in)
 				if !ztest.ErrorContains(err, tc.wantErr) {
