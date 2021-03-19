@@ -160,7 +160,6 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			c.Port = ":" + port
 		}
 		c.DomainStatic = domainStatic
-		c.Serve = true
 		c.Dev = dev
 		c.URLStatic = urlStatic
 		c.DomainCount = domainCount

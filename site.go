@@ -110,7 +110,7 @@ func (s *Site) Defaults(ctx context.Context) {
 
 	n := Now()
 
-	if Config(ctx).Serve {
+	if !Config(ctx).GoatcounterCom {
 		s.Code = "serve-" + zcrypto.Secret64()
 		s.CnameSetupAt = &n
 	}
@@ -134,13 +134,13 @@ var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
 func (s *Site) Validate(ctx context.Context) error {
 	v := zvalidate.New()
 
-	if Config(ctx).Serve {
-		v.Required("cname", s.Cname)
-	} else {
+	if Config(ctx).GoatcounterCom {
 		v.Required("plan", s.Plan)
 		v.Required("code", s.Code)
 		v.Len("code", s.Code, 2, 50)
 		v.Exclude("code", s.Code, reserved)
+	} else {
+		v.Required("cname", s.Cname)
 	}
 
 	v.Required("state", s.State)
@@ -477,7 +477,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	}
 
 	// Custom domain or serve.
-	if Config(ctx).Serve || !strings.HasSuffix(host, Config(ctx).Domain) {
+	if !Config(ctx).GoatcounterCom || !strings.HasSuffix(host, Config(ctx).Domain) {
 		err := zdb.Get(ctx, s,
 			`/* Site.ByHost */ select * from sites where lower(cname)=lower($1) and state=$2`,
 			znet.RemovePort(host), StateActive)
@@ -506,9 +506,9 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 
 // ListSubs lists all subsites, including the current site and parent.
 func (s *Site) ListSubs(ctx context.Context) ([]string, error) {
-	col := "code"
-	if Config(ctx).Serve {
-		col = "cname"
+	col := "cname"
+	if Config(ctx).GoatcounterCom {
+		col = "code"
 	}
 	var codes []string
 	err := zdb.Select(ctx, &codes, `/* Site.ListSubs */

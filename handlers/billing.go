@@ -223,7 +223,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	// Use dummy Stripe customer for personal plan without donations; don't need
 	// to send anything to Stripe.
 	if args.Plan == goatcounter.PlanPersonal && args.NoDonate == "true" {
-		mainSite.Stripe = zstring.NewPointer(fmt.Sprintf("cus_free_%d", mainSite.ID)).P
+		mainSite.Stripe = zstring.NewPtr(fmt.Sprintf("cus_free_%d", mainSite.ID)).P
 		mainSite.BillingAmount = nil
 		mainSite.Plan = goatcounter.PlanPersonal
 		mainSite.PlanPending = nil
@@ -368,7 +368,7 @@ func (h billing) webhookUpdate(event zstripe.Event, w http.ResponseWriter, r *ht
 	}
 
 	site.Plan = plan
-	site.BillingAmount = zstring.NewPointer(fmt.Sprintf("%s %d", currency, amount)).P
+	site.BillingAmount = zstring.NewPtr(fmt.Sprintf("%s %d", currency, amount)).P
 	return site.UpdateStripe(r.Context())
 }
 
@@ -420,7 +420,7 @@ func (h billing) webhookCheckout(event zstripe.Event, w http.ResponseWriter, r *
 	}
 
 	site.Stripe = &s.Customer
-	site.BillingAmount = zstring.NewPointer(fmt.Sprintf("%s %d", strings.ToUpper(s.Currency), s.AmountTotal/100)).P
+	site.BillingAmount = zstring.NewPtr(fmt.Sprintf("%s %d", strings.ToUpper(s.Currency), s.AmountTotal/100)).P
 	site.Plan = *site.PlanPending
 	site.PlanPending = nil
 	site.PlanCancelAt = nil

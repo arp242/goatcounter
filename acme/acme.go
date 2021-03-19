@@ -205,7 +205,7 @@ func validForwarding(ctx context.Context, domain string) bool {
 	x, _, _ := resolveSelf.Do("resolveSelf", func() (interface{}, error) {
 		// For "serve" we don't know what the end destination will be, so always
 		// check.
-		if goatcounter.Config(ctx).Serve {
+		if !goatcounter.Config(ctx).GoatcounterCom {
 			return []string{}, nil
 		}
 

@@ -200,7 +200,7 @@ func (h api) test(w http.ResponseWriter, r *http.Request) error {
 		v, _ := zdb.MustGetDB(r.Context()).Version(r.Context())
 		return zhttp.JSON(w, map[string]interface{}{
 			"site_id": Site(r.Context()).ID,
-			"serve":   goatcounter.Config(r.Context()).Serve,
+			"serve":   !goatcounter.Config(r.Context()).GoatcounterCom,
 			"db":      v,
 		})
 	}

@@ -1,8 +1,8 @@
 Hi there,
 
-You requested a list of GoatCounter sites associated with ‘{{unsafe .Email}}’:
+You requested a list of GoatCounter sites associated with ‘{{.Email}}’:
 {{range $s := .Sites}}
-- {{unsafe ($s.URL $.Context)}}
+- {{$s.URL $.Context}}
 {{else}}
 There are no GoatCounter domains associated with this email.
 {{end}}

@@ -175,8 +175,6 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// if goatcounter.Config(r.Context()).Serve {
-	// }
 	return zhttp.Template(w, t+".gohtml", struct {
 		Globals
 		Page     string

@@ -3,7 +3,7 @@ Hi there,
 Welcome to your GoatCounter account!
 
 Please go here to verify your email address:
-{{unsafe (.Site.URL .Context)}}/user/verify/{{.User.EmailToken}}
+{{.Site.URL .Context}}/user/verify/{{.User.EmailToken}}
 
 Getting started is pretty easy, just add the following JavaScript anywhere on the page:
 
@@ -12,6 +12,6 @@ Getting started is pretty easy, just add the following JavaScript anywhere on th
 
 Don’t see any pageviews in your testing? This is probably because your adblocker is blocking GoatCounter – not much can (or should) be done about that on GoatCounter’s end.
 
-Further documentation is available at {{unsafe (.Site.URL .Context)}}/code
+Further documentation is available at {{.Site.URL .Context}}/code
 
 {{template "_email_bottom.gotxt" .}}

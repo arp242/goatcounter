@@ -38,7 +38,6 @@ type GlobalConfig struct {
 	URLStatic      string
 	Dev            bool
 	GoatcounterCom bool
-	Serve          bool
 	Port           string
 	EmailFrom      string
 	BcryptMinCost  bool

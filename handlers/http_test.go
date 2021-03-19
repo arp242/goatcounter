@@ -54,8 +54,6 @@ func init() {
 	ztpl.Init(files)
 
 	ztest.DefaultHost = "test.example.com"
-	// cfg.Domain = "example.com"
-	// cfg.GoatcounterCom = true
 	if zruntime.TestVerbose() {
 		zlog.Config.Debug = []string{"all"}
 	} else {

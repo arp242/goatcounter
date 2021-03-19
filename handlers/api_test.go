@@ -408,12 +408,12 @@ func TestAPISitesCreate(t *testing.T) {
 	}{
 		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = zint.NewPointer64(1).P
+			s.Parent = zint.NewPtr64(1).P
 			s.Plan = "child"
 		}},
 		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
-			s.Cname = zstring.NewPointer("apitest.localhost").P
-			s.Parent = zint.NewPointer64(1).P
+			s.Cname = zstring.NewPtr("apitest.localhost").P
+			s.Parent = zint.NewPtr64(1).P
 			s.Plan = "child"
 			s.CnameSetupAt = &now
 		}},
@@ -421,12 +421,12 @@ func TestAPISitesCreate(t *testing.T) {
 		// Ignore plan.
 		{false, `{"code":"apitest","plan":"personal"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = zint.NewPointer64(1).P
+			s.Parent = zint.NewPtr64(1).P
 			s.Plan = "child"
 		}},
 		{true, `{"cname":"apitest.localhost","plan":"personal"}`, 200, func(s *goatcounter.Site) {
-			s.Cname = zstring.NewPointer("apitest.localhost").P
-			s.Parent = zint.NewPointer64(1).P
+			s.Cname = zstring.NewPtr("apitest.localhost").P
+			s.Parent = zint.NewPtr64(1).P
 			s.Plan = "child"
 			s.CnameSetupAt = &now
 		}},
@@ -436,7 +436,7 @@ func TestAPISitesCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			goatcounter.Config(ctx).Serve = tt.serve
+			goatcounter.Config(ctx).GoatcounterCom = !tt.serve
 
 			r, rr := newAPITest(ctx, t, "PUT", "/api/v0/sites",
 				strings.NewReader(tt.body), perm)
@@ -485,10 +485,12 @@ func TestAPISitesUpdate(t *testing.T) {
 	}{
 		{false, "PATCH", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
+			s.Cname = zstring.NewPtr("gctest.localhost").P
 			s.Plan = "personal"
 		}},
 		{false, "POST", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
+			//s.Cname = zstring.NewPtr("gctest.localhost").P
 			s.Plan = "personal"
 		}},
 	}
@@ -499,7 +501,7 @@ func TestAPISitesUpdate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			goatcounter.Config(ctx).Serve = tt.serve
+			goatcounter.Config(ctx).GoatcounterCom = !tt.serve
 
 			site := Site(ctx)
 

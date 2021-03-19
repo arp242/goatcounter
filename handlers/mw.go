@@ -123,17 +123,15 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				}
 			}
 
-			// Load site from subdomain.
+			// Load site from domain.
 			if loadSite {
-				var s goatcounter.Site
+				var s goatcounter.Site // code
 				err := s.ByHost(r.Context(), r.Host)
 
-				if err != nil && goatcounter.Config(r.Context()).Serve {
-					// If there's just one site then we can just serve that;
-					// most people probably have just one site so it's all
-					// grand.
-					//
-					// Do print a warning in the console though.
+				// If there's just one site then we can just serve that; most
+				// people probably have just one site so it's all grand. Do
+				// print a warning in the console though.
+				if err != nil && !goatcounter.Config(r.Context()).GoatcounterCom {
 					var sites goatcounter.Sites
 					err2 := sites.UnscopedList(r.Context())
 					if err2 == nil && len(sites) == 1 {

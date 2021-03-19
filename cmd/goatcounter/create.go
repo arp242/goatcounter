@@ -84,8 +84,6 @@ func cmdCreate(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 		defer db.Close()
 
-		goatcounter.Config(ctx).Serve = true
-
 		err = (&goatcounter.Site{}).ByHost(ctx, domain)
 		if err == nil {
 			return fmt.Errorf("there is already a site for the domain %q", domain)

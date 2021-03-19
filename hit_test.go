@@ -10,6 +10,7 @@ import (
 
 	. "zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 )
 
@@ -19,13 +20,6 @@ func dayStat(days map[int]int) []int {
 		s[k] = v
 	}
 	return s
-}
-
-func PSP(s *string) string {
-	if s == nil {
-		return "<nil>"
-	}
-	return *s
 }
 
 func TestHitDefaultsRef(t *testing.T) {
@@ -83,7 +77,7 @@ func TestHitDefaultsRef(t *testing.T) {
 			}
 			if *h.RefScheme != tt.wantScheme {
 				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n",
-					PSP(h.RefScheme), tt.wantScheme)
+					zstring.Ptr{h.RefScheme}.String(), tt.wantScheme)
 			}
 		})
 	}

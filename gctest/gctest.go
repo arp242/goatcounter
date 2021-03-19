@@ -20,6 +20,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zgo"
+	"zgo.at/zstd/zstring"
 )
 
 var pgSQL = false
@@ -31,13 +32,16 @@ func init() {
 	goatcounter.InitGeoDB("")
 }
 
+// Context creates a new test context.
 func Context(db zdb.DB) context.Context {
 	ctx := goatcounter.NewContext(db)
 	goatcounter.Config(ctx).BcryptMinCost = true
-	goatcounter.Config(ctx).Domain = "localhost"
+	goatcounter.Config(ctx).GoatcounterCom = true
+	goatcounter.Config(ctx).Domain = "test"
 	return ctx
 }
 
+// Reset global state.
 func Reset() {
 	goatcounter.Memstore.Reset()
 }
@@ -101,7 +105,7 @@ func db(t testing.TB, storeFile bool) context.Context {
 }
 
 func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
-	site := goatcounter.Site{Code: "gctest", Plan: goatcounter.PlanPersonal}
+	site := goatcounter.Site{Code: "gctest", Cname: zstring.NewPtr("gctest.localhost").P, Plan: goatcounter.PlanPersonal}
 	err := site.Insert(ctx)
 	if err != nil {
 		t.Fatalf("create site: %s", err)

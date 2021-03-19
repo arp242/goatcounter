@@ -16,6 +16,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
 
@@ -58,7 +59,7 @@ func (u *User) Defaults(ctx context.Context) {
 	}
 
 	if !u.EmailVerified {
-		u.EmailToken = zcrypto.Secret192P()
+		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
 	}
 }
 
@@ -159,7 +160,7 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 
 	if emailChanged {
 		u.EmailVerified = false
-		u.EmailToken = zcrypto.Secret192P()
+		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
 	}
 
 	err = zdb.Exec(ctx,
@@ -279,7 +280,7 @@ func (u *User) BySite(ctx context.Context, id int64) error {
 func (u *User) RequestReset(ctx context.Context) error {
 	// TODO: rename
 	// Recycle the request_login for now; will rename after removing email auth.
-	u.LoginRequest = zcrypto.Secret128P()
+	u.LoginRequest = zstring.NewPtr(zcrypto.Secret128()).P
 	err := zdb.Exec(ctx, `update users set
 		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
@@ -319,7 +320,7 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
-	u.Token = zcrypto.Secret256P()
+	u.Token = zstring.NewPtr(zcrypto.Secret256()).P
 	if u.LoginToken == nil || *u.LoginToken == "" {
 		s := Now().Format("20060102") + "-" + zcrypto.Secret256()
 		u.LoginToken = &s
