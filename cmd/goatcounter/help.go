@@ -155,8 +155,8 @@ listen and tls flags:
     server setups GoatCounter can be used in, the flag accepts a bunch of
     different options as a comma-separated list with any combination of:
 
-        none        Don't serve any TLS; this is the same as just leaving it
-                    blank (-tls '') but more explicit/readable.
+        http        Don't serve any TLS; you can still generate ACME
+                    certificates though.
 
         tls         Accept TLS connections on -listen; if this isn't added it
                     will accept regular non-https connections, but may still

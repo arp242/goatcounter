@@ -51,7 +51,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 	return func(domain, stripe, plan string) error {
 		if flagTLS == "" {
-			flagTLS = map[bool]string{true: "none", false: "acme"}[dev]
+			flagTLS = map[bool]string{true: "http", false: "acme"}[dev]
 		}
 
 		v.Include("-plan", plan, goatcounter.Plans)

@@ -20,7 +20,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zstring"
 )
 
 var (
@@ -63,13 +62,14 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 	}
 
 	s := strings.Split(flag, ",")
-	if len(s) == 0 || zstring.Contains(s, "none") {
+	if len(s) == 0 {
 		return nil, nil, 0
 	}
 
 	var (
-		listen uint8
-		certs  []tls.Certificate
+		listen    uint8
+		listenTLS = true
+		certs     []tls.Certificate
 	)
 	for _, f := range s {
 		switch {
@@ -77,6 +77,8 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 			panic(fmt.Sprintf("wrong value for -tls: %q", f))
 		case f == "":
 			panic(fmt.Sprintf("wrong value for -tls: %q", flag))
+		case f == "http":
+			listenTLS = false
 		case f == "rdr":
 			listen += zhttp.ServeRedirect
 		case strings.HasSuffix(f, ".pem"):
@@ -131,6 +133,9 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 	}
 
 	if manager == nil {
+		if !listenTLS {
+			return nil, nil, listen
+		}
 		if len(certs) == 0 {
 			panic("-tls: no acme and no certificates")
 		}
@@ -141,23 +146,26 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 		}, nil, listen
 	}
 
-	tlsc := manager.TLSConfig()
-	if len(certs) > 0 {
-		// The standard GetCertificate() prefers ACME over the .pem files, but
-		// this isn't what we want for goatcounter.com since we have a
-		// DNS-verified *.goatcounter.com ACME certificate that we want to load
-		// first, and then fall back to the "custom.domain.com" ACME certs.
-		//
-		// The .pem files are managed externally, because dns-01 verification is
-		// a bit tricky and not really something that needs to be part of
-		// GoatCounter.
-		tlsc.GetCertificate = func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-			for _, c := range certs {
-				if c.Leaf.VerifyHostname(hello.ServerName) == nil {
-					return &c, nil
+	var tlsc *tls.Config
+	if listenTLS {
+		tlsc = manager.TLSConfig()
+		if len(certs) > 0 {
+			// The standard GetCertificate() prefers ACME over the .pem files, but
+			// this isn't what we want for goatcounter.com since we have a
+			// DNS-verified *.goatcounter.com ACME certificate that we want to load
+			// first, and then fall back to the "custom.domain.com" ACME certs.
+			//
+			// The .pem files are managed externally, because dns-01 verification is
+			// a bit tricky and not really something that needs to be part of
+			// GoatCounter.
+			tlsc.GetCertificate = func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+				for _, c := range certs {
+					if c.Leaf.VerifyHostname(hello.ServerName) == nil {
+						return &c, nil
+					}
 				}
+				return manager.GetCertificate(hello)
 			}
-			return manager.GetCertificate(hello)
 		}
 	}
 
@@ -167,6 +175,10 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 // Enabled reports if ACME is enabled.
 func Enabled() bool {
 	return manager != nil
+}
+
+func Reset() {
+	manager = nil
 }
 
 // Make a new certificate for the domain.
