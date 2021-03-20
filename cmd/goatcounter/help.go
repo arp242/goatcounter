@@ -178,7 +178,7 @@ listen and tls flags:
         file.pem    TLS certificate and keyfile, in one file. This can be used
                     as an alternative to Let's Encrypt if you already have a
                     certificate from your domain from a CA. This can use used
-                    multiple times (e.g. "-tls tls,file1.pem,file2.pem").
+                    multiple times (e.g. "-tls file1.pem,file2.pem").
 
                     This can also be combined with the acme option: GoatCounter
                     will try to use a certificate file for the domain first, and
@@ -187,21 +187,25 @@ listen and tls flags:
 
     Some common examples:
 
-        -tls tls,acme,rdr
-            This is the default setting.
+        -tls acme,rdr
+            This is the default setting: serve on TLS, redirect port 80, and
+            generate ACME certificates.
 
-        -tls tls,rdr,acme:/home/gc/.acme
+        -tls rdr,acme:/home/gc/.acme
             The default setting, but with a different cache directory.
 
-        -tls tls,/etc/tls/stats.example.com.pem
+        -tls /etc/tls/stats.example.com.pem
             Don't use ACME, but use a certificate from a CA. No port 80 redirect.
+
+        -tls http
+            Don't serve over TLS, but use regular unencrypted HTTP.
 
 Proxy Setup:
 
     If you want to serve GoatCounter behind a proxy (HAproxy, Varnish, Hitch,
     nginx, Caddy, whatnot) then you'll want to use something like:
 
-        goatcounter serve -listen localhost:8081 -tls none
+        goatcounter serve -listen localhost:8081 -tls http
 
     And then forward requests on port 80 and 443 for your domain to
     localhost:8081. This assumes that the proxy will take care of the TLS
@@ -209,7 +213,7 @@ Proxy Setup:
 
     You can still use GoatCounter's ACME if you want:
 
-        goatcounter serve -listen localhost:8081 -tls tls,acme
+        goatcounter serve -listen localhost:8081 -tls http,acme
 
     You will have to make the proxy reads the *.pem files from the acme cache
     directory. You may have to reload or restart the proxy for it to pick up new

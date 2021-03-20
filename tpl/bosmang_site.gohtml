@@ -71,9 +71,9 @@
 </form>
 
 <table>
-	<tr><td>Total</td><td>{{nformat .Stat.CountTotal $.Site}}</td></tr>
-	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.Site}}</td></tr>
-	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.Site}}</td></tr>
+	<tr><td>Total</td><td>{{nformat .Stat.CountTotal $.User}}</td></tr>
+	<tr><td>Last month</td><td>{{nformat .Stat.CountLastMonth $.User}}</td></tr>
+	<tr><td>Previous month</td><td>{{nformat .Stat.CountPrevMonth $.User}}</td></tr>
 	<tr><td>Last data received</td><td>{{.Stat.LastData}}</td></tr>
 	{{if .Stat.Site.Parent}}
 		<tr><td>Parent</td><td><a href="/bosmang/{{.Stat.Site.Parent}}">/bosmang/{{.Stat.Site.Parent}}</a></td></tr>

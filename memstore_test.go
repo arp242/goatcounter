@@ -125,10 +125,11 @@ func TestMemstoreCollect(t *testing.T) {
 			ctx := gctest.DB(t)
 			gctest.SetNow(t, "2020-06-18")
 
-			ctx, site := gctest.Site(ctx, t, Site{Settings: SiteSettings{
+			site := Site{Settings: SiteSettings{
 				Collect:        tt.collect,
 				CollectRegions: tt.collectRegions,
-			}})
+			}}
+			ctx = gctest.Site(ctx, t, &site, nil)
 
 			gctest.StoreHits(ctx, t, false, Hit{
 				Site:     site.ID,

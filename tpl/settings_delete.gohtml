@@ -1,5 +1,4 @@
 {{template "_backend_top.gohtml" .}}
-
 {{template "_settings_nav.gohtml" .}}
 
 <h2 id="delete">Delete account</h2>
@@ -15,7 +14,7 @@
 </div>
 {{end}}
 
-<form method="post" action="/settings/delete" class="form-max-width">
+<form method="post" action="/settings/delete-account" class="form-max-width">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 	<label for="reason">It would be appreciated if you could let me know

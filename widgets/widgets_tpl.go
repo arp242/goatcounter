@@ -43,10 +43,12 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 	}
 
 	return t, struct {
-		Context     context.Context
+		Context context.Context
+		Site    *goatcounter.Site
+		User    *goatcounter.User
+
 		Err         error
 		Pages       goatcounter.HitLists
-		Site        *goatcounter.Site
 		PeriodStart time.Time
 		PeriodEnd   time.Time
 		Daily       bool
@@ -66,7 +68,8 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		Refs     goatcounter.HitStats
 		ShowRefs string
 	}{
-		ctx, w.err, w.Pages, shared.Site, shared.Args.Start, shared.Args.End, shared.Args.Daily,
+		ctx, shared.Site, shared.User,
+		w.err, w.Pages, shared.Args.Start, shared.Args.End, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, w.Max, w.Display,
 		w.UniqueDisplay, shared.Total, shared.TotalUnique, shared.TotalEvents, shared.TotalEventsUnique,
 		w.More, w.Refs, shared.Args.ShowRefs,
@@ -79,9 +82,11 @@ func isCol(ctx context.Context, flag zint.Bitflag16) bool {
 
 func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	return "_dashboard_totals.gohtml", struct {
-		Context           context.Context
+		Context context.Context
+		Site    *goatcounter.Site
+		User    *goatcounter.User
+
 		Err               error
-		Site              *goatcounter.Site
 		Page              goatcounter.HitList
 		Daily             bool
 		Max               int
@@ -89,7 +94,8 @@ func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, 
 		TotalUnique       int
 		TotalEvents       int
 		TotalEventsUnique int
-	}{ctx, w.err, shared.Site, w.Total, shared.Args.Daily, w.Max, shared.Total,
+	}{ctx, shared.Site, shared.User,
+		w.err, w.Total, shared.Args.Daily, w.Max, shared.Total,
 		shared.TotalUnique, shared.TotalEvents, shared.TotalEventsUnique}
 }
 

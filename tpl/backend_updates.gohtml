@@ -4,7 +4,7 @@
 
 {{range $u := .Updates}}
 	<div class="update">
-		<strong>{{$u.Subject}}</strong> – <em>{{$u.ShowAt.Format $.Site.Settings.DateFormat}}</em>
+		<strong>{{$u.Subject}}</strong> – <em>{{$u.ShowAt.Format $.User.Settings.DateFormat}}</em>
 		{{if $u.ShowAt.After $.SeenAt}}<strong class="update-new">New</strong>{{end}}
 		{{$u.Body|unsafe}}
 	</div>

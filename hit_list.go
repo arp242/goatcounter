@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
@@ -73,11 +74,12 @@ func (h *HitLists) List(
 	ctx context.Context, start, end time.Time, pathFilter, exclude []int64, daily bool,
 ) (int, int, bool, error) {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 
 	// List the pages for this page; this gets the path_id, path, title.
 	var more bool
 	{
-		limit := int(zint.NonZero(int64(site.Settings.LimitPages()), 10))
+		limit := int(zint.NonZero(int64(user.Settings.LimitPages()), 10))
 		err := zdb.Select(ctx, h, `/* HitLists.List */
 			with x as (
 				select path_id from hit_counts
@@ -172,7 +174,7 @@ func (h *HitLists) List(
 	fillBlankDays(hh, start, end)
 
 	// Apply TZ offset.
-	applyOffset(hh, *site)
+	applyOffset(hh, user.Settings.Timezone)
 
 	// Add total and max.
 	var totalDisplay, totalUniqueDisplay int
@@ -189,6 +191,7 @@ const PathTotals = "TOTAL "
 // Totals gets the data for the "Totals" chart/widget.
 func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 
 	var tc []struct {
 		Hour        time.Time `db:"hour"`
@@ -200,7 +203,7 @@ func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter [
 		"start":     start,
 		"end":       end,
 		"filter":    pathFilter,
-		"no_events": site.Settings.TotalsNoEvents(),
+		"no_events": user.Settings.TotalsNoEvents(),
 	})
 	if err != nil {
 		return 0, errors.Wrap(err, "HitList.Totals")
@@ -249,7 +252,7 @@ func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter [
 
 	hh := []HitList{totalst}
 	fillBlankDays(hh, start, end)
-	applyOffset(hh, *site)
+	applyOffset(hh, user.Settings.Timezone)
 
 	if daily {
 		for i := range hh[0].Stats {
@@ -301,12 +304,12 @@ func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter [
 //
 // Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
 // know how to do that otherwise.
-func applyOffset(hh HitLists, site Site) {
+func applyOffset(hh HitLists, tz *tz.Zone) {
 	if len(hh) == 0 {
 		return
 	}
 
-	offset := site.Settings.Timezone.Offset()
+	offset := tz.Offset()
 	if offset%60 != 0 {
 		offset += 30
 	}
@@ -440,17 +443,18 @@ type TotalCount struct {
 // calculations are accurate.
 func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (TotalCount, error) {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 
 	var t TotalCount
 	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", zdb.P{
 		"site":      site.ID,
 		"start":     start,
 		"end":       end,
-		"start_utc": start.In(site.Settings.Timezone.Location),
-		"end_utc":   end.In(site.Settings.Timezone.Location),
+		"start_utc": start.In(user.Settings.Timezone.Location),
+		"end_utc":   end.In(user.Settings.Timezone.Location),
 		"filter":    pathFilter,
-		"no_events": site.Settings.TotalsNoEvents(),
-		"tz":        site.Settings.Timezone.Offset(),
+		"no_events": user.Settings.TotalsNoEvents(),
+		"tz":        user.Settings.Timezone.Offset(),
 	})
 	return t, errors.Wrap(err, "GetTotalCount")
 }
@@ -459,6 +463,7 @@ func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64
 // this date range.
 func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
+	user := MustGetUser(ctx)
 	var (
 		query  string
 		params zdb.P
@@ -469,7 +474,7 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 			"site":   site.ID,
 			"start":  start,
 			"end":    end,
-			"tz":     site.Settings.Timezone.OffsetRFC3339(),
+			"tz":     user.Settings.Timezone.OffsetRFC3339(),
 			"filter": pathFilter,
 			"pgsql":  zdb.Driver(ctx) == zdb.DriverPostgreSQL,
 			"sqlite": zdb.Driver(ctx) == zdb.DriverSQLite,

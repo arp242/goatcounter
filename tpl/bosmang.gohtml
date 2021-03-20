@@ -35,8 +35,8 @@ input    { float: right; padding: .4em !important; }
 </tr></thead>
 <tbody>{{range $s := .Stats}}
 	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
-		<td class="n">{{nformat $s.LastMonth $.Site}}</td>
-		<td class="n">{{nformat $s.Total $.Site}}</td>
+		<td class="n">{{nformat $s.LastMonth $.User}}</td>
+		<td class="n">{{nformat $s.Total $.User}}</td>
 		<td><a href="/bosmang/{{$s.ID}}">{{$s.Code}}</a></td>
 		<td>{{$s.LinkDomain}}<br>{{$s.Email}}</td>
 		<td>
@@ -58,7 +58,7 @@ input    { float: right; padding: .4em !important; }
 				{{end}}
 			{{end}}
 		</td>
-		<td>{{tformat $.Site $s.CreatedAt ""}}</td>
+		<td>{{tformat $s.CreatedAt "" $.User}}</td>
 	</tr>
 {{end}}</tbody>
 </table>

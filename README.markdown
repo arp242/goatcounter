@@ -13,7 +13,7 @@ restrictions.
 See [docs/rationale.markdown](docs/rationale.markdown) for some more details on
 the *"why?"* of this project.
 
-There's a live demo at [https://stats2.arp242.net](https://stats2.arp242.net).
+There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
 Please consider [contributing financially][sponsor] if you're self-hosting
 GoatCounter so I can pay my rent :-) GoatCounter is sponsored by a grant from

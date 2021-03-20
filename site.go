@@ -79,7 +79,8 @@ type Site struct {
 	// Amount is being paid for the plan.
 	BillingAmount *string `db:"billing_amount" json:"billing_amount,readonly"`
 
-	Settings SiteSettings `db:"settings" json:"setttings"`
+	Settings     SiteSettings `db:"settings" json:"setttings"`
+	UserDefaults UserSettings `db:"user_defaults" json:"user_defaults"`
 
 	// Whether this site has received any data; will be true after the first
 	// pageview.
@@ -126,6 +127,7 @@ func (s *Site) Defaults(ctx context.Context) {
 	}
 
 	s.Settings.Defaults()
+	s.UserDefaults.Defaults()
 }
 
 var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
@@ -160,18 +162,8 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	v.Domain("link_domain", s.LinkDomain)
 
-	// Must always include all widgets we know about.
-	for _, w := range defaultWidgets() {
-		if s.Settings.Widgets.Get(w["name"].(string)) == nil {
-			v.Append("widgets", fmt.Sprintf("widget %q is missing", w["name"].(string)))
-		}
-	}
-	v.Range("widgets.pages.s.limit_pages", int64(s.Settings.LimitPages()), 1, 100)
-	v.Range("widgets.pages.s.limit_refs", int64(s.Settings.LimitRefs()), 1, 25)
-
-	if _, i := s.Settings.Views.Get("default"); i == -1 || len(s.Settings.Views) != 1 {
-		v.Append("views", "view not set")
-	}
+	v.Sub("settings", "", s.Settings.Validate())
+	v.Sub("user_defaults", "", s.UserDefaults.Validate())
 
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
@@ -243,9 +235,9 @@ func (s *Site) Insert(ctx context.Context) error {
 		return err
 	}
 
-	s.ID, err = zdb.InsertID(ctx, "site_id",
-		`insert into sites (parent, code, cname, link_domain, settings, plan, created_at, first_hit_at, cname_setup_at) values (?)`,
-		zdb.L{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.Plan, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
+	s.ID, err = zdb.InsertID(ctx, "site_id", `insert into sites (
+		parent, code, cname, link_domain, settings, user_defaults, plan, created_at, first_hit_at, cname_setup_at) values (?)`,
+		zdb.L{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.UserDefaults, s.Plan, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
@@ -264,8 +256,8 @@ func (s *Site) Update(ctx context.Context) error {
 	}
 
 	err = zdb.Exec(ctx,
-		`update sites set settings=?, cname=?, link_domain=?, updated_at=? where site_id=?`,
-		s.Settings, s.Cname, s.LinkDomain, s.UpdatedAt, s.ID)
+		`update sites set settings=?, user_defaults=?, cname=?, link_domain=?, updated_at=? where site_id=?`,
+		s.Settings, s.UserDefaults, s.Cname, s.LinkDomain, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Update")
 	}

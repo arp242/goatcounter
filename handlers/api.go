@@ -233,7 +233,7 @@ func (h api) me(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 	return zhttp.JSON(w, meResponse{User: *u, Token: token})
 }
 

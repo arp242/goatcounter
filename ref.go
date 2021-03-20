@@ -196,7 +196,8 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 // ListRefsByPath lists all references for a path.
 func (h *HitStats) ListRefsByPath(ctx context.Context, path string, start, end time.Time, offset int) error {
 	site := MustGetSite(ctx)
-	limit := int(zint.NonZero(int64(site.Settings.LimitRefs()), 10))
+	user := MustGetUser(ctx)
+	limit := int(zint.NonZero(int64(user.Settings.LimitRefs()), 10))
 
 	err := zdb.Select(ctx, &h.Stats, "load:ref.ListRefsByPath.sql", zdb.P{
 		"site":   site.ID,

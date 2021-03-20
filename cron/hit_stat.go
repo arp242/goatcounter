@@ -15,7 +15,7 @@ import (
 )
 
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
-	return zdb.TX(ctx, func(ctx context.Context) error {
+	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count       []int
 			countUnique []int
@@ -100,7 +100,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool)
 				zjson.MustMarshal(v.countUnique))
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
-	})
+	}), "cron.updateHitStats")
 }
 
 func existingHitStats(ctx context.Context, siteID int64, day string, pathID int64) ([]int, []int, error) {

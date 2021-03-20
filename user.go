@@ -27,19 +27,20 @@ type User struct {
 	ID   int64 `db:"user_id" json:"id,readonly"`
 	Site int64 `db:"site_id" json:"site,readonly"`
 
-	Email         string     `db:"email" json:"email"`
-	EmailVerified zbool.Bool `db:"email_verified" json:"email_verified,readonly"`
-	Password      []byte     `db:"password" json:"-"`
-	TOTPEnabled   zbool.Bool `db:"totp_enabled" json:"totp_enabled,readonly"`
-	TOTPSecret    []byte     `db:"totp_secret" json:"-"`
-	Role          string     `db:"role" json:"role,readonly"`
-	LoginAt       *time.Time `db:"login_at" json:"login_at,readonly"`
-	ResetAt       *time.Time `db:"reset_at" json:"reset_at,readonly"`
-	LoginRequest  *string    `db:"login_request" json:"-"`
-	LoginToken    *string    `db:"login_token" json:"-"`
-	Token         *string    `db:"csrf_token" json:"-"`
-	EmailToken    *string    `db:"email_token" json:"-"`
-	SeenUpdatesAt time.Time  `db:"seen_updates_at" json:"-"`
+	Email         string       `db:"email" json:"email"`
+	EmailVerified zbool.Bool   `db:"email_verified" json:"email_verified,readonly"`
+	Password      []byte       `db:"password" json:"-"`
+	TOTPEnabled   zbool.Bool   `db:"totp_enabled" json:"totp_enabled,readonly"`
+	TOTPSecret    []byte       `db:"totp_secret" json:"-"`
+	Role          string       `db:"role" json:"role,readonly"`
+	LoginAt       *time.Time   `db:"login_at" json:"login_at,readonly"`
+	ResetAt       *time.Time   `db:"reset_at" json:"reset_at,readonly"`
+	LoginRequest  *string      `db:"login_request" json:"-"`
+	LoginToken    *string      `db:"login_token" json:"-"`
+	Token         *string      `db:"csrf_token" json:"-"`
+	EmailToken    *string      `db:"email_token" json:"-"`
+	SeenUpdatesAt time.Time    `db:"seen_updates_at" json:"-"`
+	Settings      UserSettings `db:"settings" json:"settings"`
 
 	CreatedAt time.Time  `db:"created_at" json:"created_at,readonly"`
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at,readonly"`
@@ -61,6 +62,8 @@ func (u *User) Defaults(ctx context.Context) {
 	if !u.EmailVerified {
 		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
 	}
+
+	u.Settings.Defaults()
 }
 
 // Validate the object.
@@ -80,6 +83,8 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 			v.Append("password", "must be between 8 and 50 bytes")
 		}
 	}
+
+	v.Sub("settings", "", u.Settings.Validate())
 
 	return v.ErrorOrNil()
 }
@@ -128,15 +133,16 @@ func (u *User) Insert(ctx context.Context) error {
 	}
 
 	query := `insert into users `
-	args := []interface{}{u.Site, u.Email, u.Password, u.TOTPSecret, u.CreatedAt}
+	args := zdb.L{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.CreatedAt}
 	if u.EmailVerified {
-		query += ` (site_id, email, password, totp_secret, created_at, email_verified) values ($1, $2, $3, $4, $5, 1)`
+		query += ` (site_id, email, password, totp_secret, settings, created_at, email_verified) values (?)`
+		args = append(args, 1)
 	} else {
-		query += ` (site_id, email, password, totp_secret, created_at, email_token) values ($1, $2, $3, $4, $5, $6)`
+		query += ` (site_id, email, password, totp_secret, settings, created_at, email_token) values (?)`
 		args = append(args, u.EmailToken)
 	}
 
-	u.ID, err = zdb.InsertID(ctx, "user_id", query, args...)
+	u.ID, err = zdb.InsertID(ctx, "user_id", query, args)
 	if err != nil {
 		if zdb.ErrUnique(err) {
 			return guru.New(400, "this user already exists")
@@ -146,7 +152,7 @@ func (u *User) Insert(ctx context.Context) error {
 	return nil
 }
 
-// Update this user's name, email.
+// Update this user's name, email, and settings.
 func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	if u.ID == 0 {
 		return errors.New("ID == 0")
@@ -163,9 +169,16 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
 	}
 
-	err = zdb.Exec(ctx,
-		`update users set email=$1, updated_at=$2, email_verified=$3, email_token=$4 where user_id=$5`,
-		u.Email, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID)
+	s := MustGetSite(ctx)
+	err = s.GetMain(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = zdb.Exec(ctx, `update users
+		set email=?, settings=?, updated_at=?, email_verified=?, email_token=?
+		where user_id=? and site_id=?`,
+		u.Email, u.Settings, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID, s.ID)
 	return errors.Wrap(err, "User.Update")
 }
 

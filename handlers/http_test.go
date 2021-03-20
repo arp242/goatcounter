@@ -156,9 +156,8 @@ func runTest(
 func login(t *testing.T, r *http.Request) {
 	t.Helper()
 
-	u := goatcounter.GetUser(r.Context())
-
 	// Login user
+	u := User(r.Context())
 	err := u.Login(r.Context())
 	if err != nil {
 		t.Fatal(err)

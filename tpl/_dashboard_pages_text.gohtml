@@ -1,7 +1,7 @@
 <div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}">
 	<h2 class="full-width">Pages <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.Site}}</span> out of
-		<span class='total-unique'>{{nformat .TotalUnique $.Site}}</span> visits shown
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of
+		<span class='total-unique'>{{nformat .TotalUnique $.User}}</span> visits shown
 	</small></h2>
 	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
 		<thead><tr>

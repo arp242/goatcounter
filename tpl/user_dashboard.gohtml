@@ -1,11 +1,10 @@
 {{template "_backend_top.gohtml" .}}
-
-{{template "_settings_nav.gohtml" .}}
+{{template "_user_nav.gohtml" .}}
 
 <h2 id="dashboard">Dashboard</h2>
 
 <script crossorigin="anonymous" src="{{.Static}}/dragula.js?v={{.Version}}"></script>
-<form method="post" action="/settings/dashboard" id="widget-settings">
+<form method="post" action="/user/dashboard" id="widget-settings">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<input type="hidden" name="reset" value="">
 
@@ -14,13 +13,13 @@
 			<span class="drag-handle" title="Drag to reorder"></span>
 			<input type="hidden" name="widgets.{{$w.Name}}.index" value="{{$i}}" class="index">
 			<label class="main">
-				<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.Site.Settings.Widgets.On $w.Name}}checked{{end}}>
+				<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.User.Settings.Widgets.On $w.Name}}checked{{end}}>
 				<strong>{{$w.Label}}</strong>
 			</label>
 			<input type="hidden" name="widgets.{{$w.Name}}.on" value="off">
 
 			<div class="widget-settings">
-				{{range $k, $v := $.Site.Settings.Widgets.GetSettings $w.Name}}
+				{{range $k, $v := $.User.Settings.Widgets.GetSettings $w.Name}}
 					{{ $id := (print "widgets_" $w.Name "_s_" $k) }}
 					{{ $n  := (print "widgets." $w.Name ".s." $k) }}
 					{{if eq $v.Type "checkbox"}}
@@ -37,7 +36,11 @@
 		</div>
 	{{end}}
 	<div class="widget-save">
-		<button type="save">Save</button>
+		<div>
+			<button type="save">Save</button>
+			<label style="margin-left: 3em"><input type="checkbox" name="set_site"> Also set as default for new users and the public view (if enabled).</label>
+		</div>
+
 		<button class="widgets-reset">Reset to defaults</button>
 	</div>
 </form>

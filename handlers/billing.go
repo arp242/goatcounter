@@ -248,7 +248,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	if mainSite.Stripe != nil && !mainSite.FreePlan() {
 		body["customer"] = *mainSite.Stripe
 	} else {
-		body["customer_email"] = goatcounter.GetUser(r.Context()).Email
+		body["customer_email"] = User(r.Context()).Email
 	}
 
 	var id zstripe.ID

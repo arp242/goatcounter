@@ -337,10 +337,12 @@ func TestDashboardBarChart(t *testing.T) {
 	run := func(t *testing.T, tt testcase, url, want string) {
 		ctx := gctest.DB(t)
 
-		ctx, site := gctest.Site(ctx, t, goatcounter.Site{
-			CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
-			Settings:  goatcounter.SiteSettings{Timezone: tz.MustNew("", tt.zone)},
-		})
+		site := goatcounter.Site{
+			CreatedAt:    time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+			UserDefaults: goatcounter.UserSettings{Timezone: tz.MustNew("", tt.zone)},
+		}
+		user := goatcounter.User{Settings: site.UserDefaults}
+		ctx = gctest.Site(ctx, t, &site, &user)
 
 		gctest.StoreHits(ctx, t, false, goatcounter.Hit{
 			Site:      site.ID,

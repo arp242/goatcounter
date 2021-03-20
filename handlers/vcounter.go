@@ -83,7 +83,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	if len(hs) == 0 {
 		hs = goatcounter.HitLists{{}}
 	}
-	count := tplfunc.Number(hs[0].CountUnique, site.Settings.NumberFormat)
+	count := tplfunc.Number(hs[0].CountUnique, site.UserDefaults.NumberFormat)
 
 	switch ext {
 	default:

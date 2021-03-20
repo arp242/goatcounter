@@ -119,7 +119,7 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 			if goatcounter.Config(r.Context()).Dev {
 				if c, _ := r.Cookie("debug-explain"); c != nil {
 					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewLogDB(zdb.MustGetDB(ctx),
-						os.Stdout, zdb.DumpQuery|zdb.DumpExplain, c.Value)))
+						os.Stderr, zdb.DumpQuery|zdb.DumpExplain, c.Value)))
 				}
 			}
 

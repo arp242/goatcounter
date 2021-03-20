@@ -236,6 +236,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
+	user := User(r.Context())
 
 	exclude, err := zint.Split(r.URL.Query().Get("exclude"), ",")
 	if err != nil {
@@ -254,7 +255,7 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	asText := r.URL.Query().Get("as-text") == "on" || r.URL.Query().Get("as-text") == "true"
-	start, end, err := getPeriod(w, r, site)
+	start, end, err := getPeriod(w, r, site, user)
 	if err != nil {
 		return err
 	}
@@ -319,7 +320,9 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 
 // TODO: don't hard-code limit to 10, and allow pagination here too.
 func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
-	start, end, err := getPeriod(w, r, Site(r.Context()))
+	site := Site(r.Context())
+	user := User(r.Context())
+	start, end, err := getPeriod(w, r, site, user)
 	if err != nil {
 		return err
 	}
@@ -373,8 +376,9 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 
 func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
+	user := User(r.Context())
 
-	start, end, err := getPeriod(w, r, site)
+	start, end, err := getPeriod(w, r, site, user)
 	if err != nil {
 		return err
 	}
@@ -421,7 +425,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 		err = page.ListLocations(r.Context(), start, end, pathFilter, 6, offset)
 	case "ref":
 		err = page.ListRefsByPath(r.Context(), showRefs, start, end, offset)
-		size = site.Settings.LimitRefs()
+		size = user.Settings.LimitRefs()
 		paginate = offset == 0
 		link = false
 	case "topref":
@@ -438,7 +442,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
-	u := goatcounter.GetUser(r.Context())
+	u := User(r.Context())
 
 	var up goatcounter.Updates
 	err := up.List(r.Context(), u.SeenUpdatesAt)
@@ -493,19 +497,19 @@ func hasPlan(ctx context.Context, site *goatcounter.Site) (bool, error) {
 	return true, nil
 }
 
-func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (time.Time, time.Time, error) {
+func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, user *goatcounter.User) (time.Time, time.Time, error) {
 	var start, end time.Time
 
 	if d := r.URL.Query().Get("period-start"); d != "" {
 		var err error
-		start, err = time.ParseInLocation("2006-01-02", d, site.Settings.Timezone.Loc())
+		start, err = time.ParseInLocation("2006-01-02", d, user.Settings.Timezone.Loc())
 		if err != nil {
 			return start, end, guru.Errorf(400, "Invalid start date: %q", d)
 		}
 	}
 	if d := r.URL.Query().Get("period-end"); d != "" {
 		var err error
-		end, err = time.ParseInLocation("2006-01-02 15:04:05", d+" 23:59:59", site.Settings.Timezone.Loc())
+		end, err = time.ParseInLocation("2006-01-02 15:04:05", d+" 23:59:59", user.Settings.Timezone.Loc())
 		if err != nil {
 			return start, end, guru.Errorf(400, "Invalid end date: %q", d)
 		}
@@ -514,8 +518,8 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site) (
 	// Allow viewing a week before the site was created at the most.
 	c := site.FirstHitAt.Add(-24 * time.Hour * 7)
 	if start.Before(c) {
-		y, m, d := c.In(site.Settings.Timezone.Loc()).Date()
-		start = time.Date(y, m, d, 0, 0, 0, 0, site.Settings.Timezone.Loc())
+		y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
+		start = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
 	}
 
 	return start.UTC(), end.UTC(), nil

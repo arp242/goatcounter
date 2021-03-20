@@ -1,0 +1,72 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_user_nav.gohtml" .}}
+
+<h2 id="auth">API</h2>
+{{if not .User.EmailVerified}}
+	<p>You need to verify your email before you can use the API; a link was sent to {{.User.Email}}.</p>
+
+	Change the email address in the <a href="/user/pref">settings</a> –
+	<form method="post" action="/user/resend-verify">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<button class="link">Resend email</button>.
+	</form>
+</div>
+{{else}}
+	<p>GoatCounter comes with a limited API; currently you can count pageviews
+	from the API, create, delete, and edit sites, and create exports.</p>
+	<p><a href="/api">API documentation</a></p>
+
+	<fieldset>
+		<legend>API tokens</legend>
+
+		<table class="auto table-left">
+			<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
+
+			<tbody>
+				{{/* TODO: add last used as well */}}
+				{{range $t := .APITokens}}<tr>
+					<td>{{$t.Name}}</td>
+					<td>
+						{{if $t.Permissions.Count}}Record pageviews{{end}}
+						{{if $t.Permissions.Export}}Export{{end}}
+						{{if $t.Permissions.SiteRead}}Read sites{{end}}
+						{{if $t.Permissions.SiteCreate}}Create sites{{end}}
+						{{if $t.Permissions.SiteUpdate}}Update sites{{end}}
+					</td>
+					<td>{{$t.Token}}</td>
+					<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
+
+					<td>
+						<form method="post" action="/user/api-token/remove/{{$t.ID}}">
+							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+							<button class="link">delete</button>
+						</form>
+					</td>
+				</tr>{{end}}
+
+				<tr>
+					<form method="post" action="/user/api-token">
+						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+						<td>
+							<input type="text" id="name" name="name" placeholder="Name">
+						</td>
+						<td>
+							<label title="Record pageviews with /api/v0/count">
+								<input type="checkbox" name="permissions.count">Record pageviews</label><br>
+							<label title="Export data with /api/v0/export">
+								<input type="checkbox" name="permissions.export">Export</label><br>
+							<label><input type="checkbox" name="permissions.site_read">Read sites</label><br>
+							<label><input type="checkbox" name="permissions.site_create">Create sites</label><br>
+							<label><input type="checkbox" name="permissions.site_update">Update sites</label>
+						</td>
+						<td><button type="submit">Add new</button></td>
+					</form>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}
