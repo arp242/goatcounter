@@ -5,7 +5,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -161,7 +160,6 @@ func TestDBSite(t *testing.T) {
 		out.Reset()
 	}
 
-	fmt.Println("XXXXXX")
 	{ // update
 		runCmd(t, exit, "db", "update", "site",
 			"-db="+dbc,

@@ -100,6 +100,8 @@ func TestSettingsPurge(t *testing.T) {
 }
 
 func TestSettingsSitesAdd(t *testing.T) {
+	t.Skip()
+
 	tests := []handlerTest{
 		{
 			name:         "new site",
@@ -226,8 +228,6 @@ func TestSettingsSitesAdd(t *testing.T) {
 		},
 	}
 
-	t.Skip()
-
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
 			have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
@@ -239,6 +239,8 @@ func TestSettingsSitesAdd(t *testing.T) {
 }
 
 func TestSettingsSitesRemove(t *testing.T) {
+	t.Skip()
+
 	tests := []handlerTest{
 		{
 			name: "remove",
@@ -302,8 +304,6 @@ func TestSettingsSitesRemove(t *testing.T) {
 				2        serve  add.example.com   personal  NULL    a`,
 		},
 	}
-
-	t.Skip()
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {

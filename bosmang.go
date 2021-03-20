@@ -46,7 +46,10 @@ func (a *BosmangStats) List(ctx context.Context) error {
 			end) as plan,
 			stripe,
 			sites.link_domain,
-			(select email from users where site_id=sites.site_id or site_id=sites.parent) as email,
+			(
+				select array_to_string(array_agg(email || ' → ' || cast(access->'all' as varchar)), ', ')
+				from users where site_id=sites.site_id or site_id=sites.parent
+			) as email,
 			coalesce((
 				select sum(hit_counts.total) from hit_counts where site_id=sites.site_id
 			), 0) as total,

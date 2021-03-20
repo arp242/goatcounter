@@ -453,7 +453,6 @@ func (s Site) Exists(ctx context.Context) (int64, error) {
 		query = `select site_id from sites where lower(cname) = lower($1) and site_id != $2 limit 1`
 		params = zdb.L{s.Cname, s.ID}
 	}
-	params = append(params)
 
 	err := zdb.Get(ctx, &id, query, params...)
 	if err != nil && err != sql.ErrNoRows {

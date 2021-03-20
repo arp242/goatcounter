@@ -5,7 +5,7 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-2020-03-20 v2.0.0-rc1
+2021-03-20 v2.0.0-rc1
 ---------------------
 
 The version is bumped to 2.0 because this contains a number of incompatible
@@ -18,9 +18,42 @@ a 2.0 release next week or so.
 
 An overview of **incompatible** changes:
 
-- There are some rather large changes to the database layout (#383) for better
-  efficiency; migration instructions are listed below (*you really want to read
-  this*)!
+- There are some rather large changes to the database layout for better
+  efficiency; this means:
+
+  - Somewhat faster queries.
+  - Greatly reduced disk space requirements for the database.
+  - The Browsers, systems, size, and location stats are filtered if you enter
+    something in "filter paths". Previously this always displayed the site
+    totals.
+  - "Purge path" now works as expected for all stats.
+  - Easier to add new statistics in the future.
+
+  To update:
+
+  1. You **must** first update to 1.4.2 and run all migrations from that.
+     **Updating from older versions directly to 2.0.0 will not work!**
+
+  2. Run the migrations with `goatcounter serve -automigrate` or `goatcounter
+     migrate`.
+
+  3. You probably want to manually run `VACUUM` (or `VACUUM FULL` for
+     PostgreSQL) after the migration to free up unused rows. This isn't strictly
+     required, but frees up disk space, and removes some of the autovacuum
+     pressure that will run in the background.
+
+  4. Run `goatcounter reindex`.
+
+  All of this may take a while if you've got a lot of data. For about 500,000
+  pageviews it takes about 3 minutes on SQLite, but if you've got millions of
+  pageviews it may take an hour or more.
+
+  If you want to keep pageviews while this is running you can:
+
+  1. Write it to a logfile from a proxy or temporary HTTP server and run
+     `goatcounter import` on this after the migrations are done.
+
+  2. Use `goatcounter buffer`.
 
 - `goatcounter migrate` is now `goatcounter db migrate`. It also behaves a bit
   different:
@@ -82,14 +115,14 @@ An overview of **incompatible** changes:
 - You can now configure what's displayed on the dashboard, in what order, and
   configure some aspects of various "widgets". You can set it in *User
   preferences → Dashboard*. Some settings from the main settings page have moved
-  there. (#416, #417, #418)
+  there.
 
 - You can save a default view for the dashboard. Instead of always loading the
   last week by default, you can now configure it to load the last month, or view
-  by day, or anything you want really. (#419)
+  by day, or anything you want really.
 
 - You can choose which data to collect; you can disable collecting any
-  User-Agent, location, Referrer information. (#423)
+  User-Agent, location, Referrer information.
 
 - Ability to record state/province/district in addition to country, so it
   records "US-TX" or "NL-NB" instead of "United States" or "Netherlands".
@@ -99,7 +132,7 @@ An overview of **incompatible** changes:
   RU, CH`).
 
   This requires specifying the path to a GeoIP City database, which isn't
-  included since it's ~30M (#425)
+  included since it's ~30M.
 
 - There are now stable `count.v*.js` scripts that can use subresource integrity.
   See the integration code for a list and hashes.
@@ -135,48 +168,12 @@ An overview of **incompatible** changes:
 
 - Many other minor changes and improvements.
 
----
-
-This release contains some rather large changes to the database layout (#383);
-this means:
-
-- Somewhat faster queries.
-- Greatly reduced disk space requirements for the database.
-- The Browsers, systems, size, and location stats are filtered if you enter
-  something in "filter paths". Previously this always displayed the site totals.
-- "Purge path" now works as expected for all stats (fixes #96).
-- Easier to add new statistics in the future.
-
-1. You **must** first update to 1.4.2 and run all migrations from that.
-   **Updating from older versions directly to 2.0.0 will not work!**
-
-2. Run the migrations with `goatcounter serve -automigrate` or `goatcounter
-   migrate`.
-
-3. You probably want to manually run `VACUUM` (or `VACUUM FULL` for PostgreSQL)
-   after the migration to free up unused rows. This isn't strictly required, but
-   frees up disk space, and removes some of the autovacuum pressure that will
-   run in the background.
-
-4. Run `goatcounter reindex`.
-
-All of this may take a while if you've got a lot of data. For about 500,000
-pageviews it takes about 3 minutes on SQLite, but if you've got millions of
-pageviews it may take an hour or more.
-
-If you want to keep pageviews while this is running you can:
-
-1. Write it to a logfile from a proxy or temporary HTTP server and run
-   `goatcounter import` on this after the migrations are done.
-
-2. Use `goatcounter buffer`.
-
 
 2020-11-10, v1.4.2
 ------------------
 
 - Add a "visitor counter" image you can add to your website to display the
-  number of visitors, similar to old-style counters back in the ’90s (#398).
+  number of visitors, similar to old-style counters back in the ’90s.
 
 - Other than this, it's mostly contains a few minor bugfixes and the like. You
   can see a list of changes in the git log:
@@ -195,24 +192,24 @@ https://github.com/zgoat/goatcounter/compare/v1.4.0...v1.4.1
 2020-08-24 v1.4.0
 -----------------
 
-- **Change defaults for `-listen`** (#336)
+- **Change defaults for `-listen`**.
 
   The default for the `-listen` flag changed from `localhost:8081` to `:443`,
   which is probably a better and less confusing default for most people. There
   is also some more detailed docs available in `goatcounter help listen`.
 
-- Set Cache-Control header for static files (#348)
+- Set Cache-Control header for static files.
 
   The `Cache-Control` header is now set for static files. Since the "cache
   busting" happens based on the goatcounter version it's now recommended to set
   this if you're compiling GoatCounter yourself. See the updated README for
   instructions.
 
-- Add multi-factor auth (#306)
+- Add multi-factor auth.
 
   TOTP-based multi-factor auth is now supported.
 
-- Better export, export API, add import feature (#316, #318, #329)
+- Better export, export API, add import feature.
 
   You can now import the CSV exports, useful for migrating from self-hosted to
   goatcounter.com or vice versa, or for migrating from other systems. There is a
@@ -225,36 +222,36 @@ https://github.com/zgoat/goatcounter/compare/v1.4.0...v1.4.1
 
   See http://goatcounter.com/api for details on the export API.
 
-- API for sending pageviews (#357)
+- API for sending pageviews.
 
   Doing that with the regular `/count` is actually quite painful, as you quickly
   run in to ratelimits, need to set specific headers, etc. Adding an API
   endpoint for that makes things much easier.
 
-- API for creating and editing additional sites (#361)
+- API for creating and editing additional sites.
 
-- Some redesigns (#324, #315, #321 #320)
+- Some redesigns.
 
   The "Totals" is now placed below the Pages; I think it makes more sense there.
   The Y-axis for the totals is now also independent. There's also been a quite a
   few restylings.
 
-- Add "text view" mode (#359)
+- Add "text view" mode.
 
   View your data as a simple table without too much graphics; only the main
   "Pages" overview is implemented for now.
 
-- Make it easier to skip your own views (#290)
+- Make it easier to skip your own views.
 
   Previously this required adding custom code, but now loading any page with
   `#toggle-goatcounter` added will enable/disable the GoatCounter tracking for
   that browser.
 
-- Can now manage "additional sites" from self-hosted GoatCounter (#363)
+- Can now manage "additional sites" from self-hosted GoatCounter.
 
   This wasn't possible before for no other reason than laziness on my part 🙃
 
-- public/count.js is now ISC licensed (#309)
+- public/count.js is now ISC licensed.
 
   Previously the EUPL applied, which is fairly restrictive and may prevent
   people from including/self-hosting the count.js script.
@@ -280,7 +277,7 @@ Note: this release contains quite a few database migrations; they make take a
 minute to run (depending on your table size), and you may want to run a `VACUUM`
 afterwards.
 
-- Remove email auth, replace `-auth` with `-email-from` (#263, #270)
+- Remove email auth, replace `-auth` with `-email-from`.
 
   As mentioned in the 1.2 release the email authentication is now removed. You
   can still reset the password for old accounts.
@@ -292,7 +289,7 @@ afterwards.
   **Action required**: if you set the email address with `-auth` you'll have to
   change it to `-email-from`.
 
-- Add OS stats, improve accuracy of browser stats (#261)
+- Add OS stats, improve accuracy of browser stats.
 
   GoatCounter now tracks the OS/platform in addition to just the browser, and
   the accuracy of the browser stats should be improved.
@@ -306,22 +303,22 @@ afterwards.
 
       $ goatcounter reindex -table system_stats,browser_stats
 
-- Improve performance (#265, #273, #274)
+- Improve performance.
 
   Increase performance by quite a bit on large sites and time ranges.
 
-- Remove the per-path scaling (#267)
+- Remove the per-path scaling.
 
   Previously GoatCounter would scale the Y-axis different for every path in the
   dashboard, but this was more confusing than helpful. It's now always scaled to
   the maximum of all paths in the selected date range and filter, with a field
   to scale it lower on-demand if desired.
 
-- Add totals overview (#271)
+- Add totals overview.
 
   Add chart with totals for the selected date range and filter.
 
-- Add `goatcounter.url()`, `goatcounter.filter()` (#272, #253)
+- Add `goatcounter.url()`, `goatcounter.filter()`.
 
   Adds two new methods to the `count.js` script so it's easier to use write own
   implementation. In addition the script will now issue a `console.warn()` if a
@@ -334,7 +331,7 @@ afterwards.
 There are a number of changes in 1.2, and a few which require a bit of action
 when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
 
-- Password authentication (#232)
+- Password authentication.
 
   The email-based authentication has been deprecated in favour of password
   authentication.
@@ -343,7 +340,7 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
   notification about this). Email authentication still works, but will be
   removed in the next release, after which updating the password will be tricky.
 
-- Unique visit tracking (#212)
+- Unique visit tracking.
 
   GoatCounter now tracks unique visits (without using cookies).
 
@@ -373,26 +370,26 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
 
   And then run `goatcounter reindex`.
 
-- Improve bot detection (#219)
+- Improve bot detection.
 
   The bot detection is now improved; this will be applied to older pageviews in
   the database with a migration, but the cached statistics aren't updated
   automatically (as it can take a while for larger sites). Use the `reindex`
   command to fully update older pageviews (this is entirely optional).
 
-- Track events (#215)
+- Track events.
 
   There is now better support to track events; see the updated documentation on
   the Site Code page for details.
 
-- Better support for campaigns (#238)
+- Better support for campaigns.
 
   There is now a "campaign parameters" setting; if the URL matches one of these
   parameters it will be set as the referrer (overriding the `Referer` header).
 
   The default is `utm_campaign, utm_source, ref`.
 
-- Better export (#221)
+- Better export.
 
   The export was a quick feature added in the first version, but didn't scale
   well to larger sites with a lot of pageviews. This now works well for any
@@ -429,7 +426,7 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
 2020-03-18 v1.1.0
 -----------------
 
-- **Incompatible** Improve CLI UX (#154, #173, #175, #181)
+- **Incompatible** Improve CLI UX.
 
   The entire CLI has been redone; the original wasn't very user-friendly for
   self-hosting. See `goatcounter help` for the full docs, but in brief:
@@ -447,7 +444,7 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
       o goatcounter -migrate       →  goatcounter migrate
       o goatcounter -migrate auto  →  goatcounter serve -automigrate
 
-- **Action required** Show top referrals (#192)
+- **Action required** Show top referrals.
 
   To populate the ref_stats and size_stats tables for older data, update first
   and then run:
@@ -455,28 +452,28 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
       $ goatcounter reindex -confirm -table ref_stats
       $ goatcounter reindex -confirm -table size_stats
 
-- Charts are displayed in local timezone (#155)
+- Charts are displayed in local timezone.
 
-- Add "IgnoreIPs" setting to ignore your own views (#128)
+- Add "IgnoreIPs" setting to ignore your own views.
 
-- Link to paths by adding a new domain setting (#138)
+- Link to paths by adding a new domain setting.
 
-- Add configurable data retention (#134)
+- Add configurable data retention.
 
-- Allow configuring the thousands separator (#132)
+- Allow configuring the thousands separator.
 
-- Allow filtering pages in the dashboard (#106)
+- Allow filtering pages in the dashboard.
 
-- Improve the integration code (#122)
+- Improve the integration code.
 
-- Allow sending emails without a relay (#184)
+- Allow sending emails without a relay.
 
-- Add get_query() to count.js to get query parameter (#199)
+- Add get_query() to count.js to get query parameter.
 
-- Allow viewing the charts by day, instead of only by hour (#169)
+- Allow viewing the charts by day, instead of only by hour.
 
 
 2020-01-13 v1.0.0
 -----------------
 
-Initial release.
+Initial stable release.
