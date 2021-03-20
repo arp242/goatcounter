@@ -5,7 +5,9 @@
 your authenticator app.</p>
 
 <form method="post" action="/user/totplogin" class="vertical">
-	<input type="hidden" id="loginmac" name="loginmac" value="{{ .LoginMAC }}">
+	<input type="hidden" name="loginmac" value="{{.LoginMAC}}">
+	<input type="hidden" name="user_logintoken" value="{{.LoginToken}}">
+
 	<label for="totp_token">MFA Token</label>
 	<input type="text" name="totp_token" id="totp_token"
 		inputmode="numeric" pattern="[0-9]*" autofocus

@@ -74,9 +74,9 @@ func TestMain(m *testing.M) {
 		"email_import_error.gotxt", "email_password_reset.gotxt", "email_verify.gotxt",
 		"email_adduser.gotxt",
 
-		"billing.gohtml",                             // TODO: hard to test; requires a browser.
-		"user_forgot_pw.gohtml", "user_reset.gohtml", // TODO: only works if not logged in.
-		"totp.gohtml", // TODO: part of TOTP flow; kinda tricky to test.
+		// TODO: hard to test; requires a browser as the JS generates secret
+		// Stripe stuff in JS.
+		"billing.gohtml",
 	))
 }
 

@@ -36,6 +36,8 @@ const (
 	mfaError   = "Token did not match; perhaps you waited too long? Try again."
 )
 
+var testTOTP = false
+
 type user struct{}
 
 func (h user) mount(r chi.Router) {
@@ -50,6 +52,10 @@ func (h user) mount(r chi.Router) {
 		Limit:  mware.RatelimitLimit(20, 60),
 	}))
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
+	r.Get("/user/requestlogin", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Redirect, as panic()s and such can end up here.
+		zhttp.SeeOther(w, "/user/new")
+	}))
 	rate.Post("/user/totplogin", zhttp.Wrap(h.totpLogin))
 	rate.Get("/user/reset/{key}", zhttp.Wrap(h.reset))
 	rate.Get("/user/verify/{key}", zhttp.Wrap(h.verify))
@@ -139,48 +145,6 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/user/forgot")
 }
 
-func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
-	args := struct {
-		LoginMAC string `json:"loginmac"`
-		Token    string `json:"totp_token"`
-	}{}
-	_, err := zhttp.Decode(r, &args)
-	if err != nil {
-		return err
-	}
-
-	site := Site(r.Context())
-	u := goatcounter.GetUser(r.Context())
-
-	valid := xsrftoken.Valid(args.LoginMAC, *u.LoginToken, strconv.FormatInt(u.ID, 10), actionTOTP)
-	if !valid {
-		zhttp.Flash(w, "Invalid login")
-		return zhttp.SeeOther(w, "/")
-	}
-
-	tokGen := otp.NewOTP(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
-	tokInt, err := strconv.ParseInt(args.Token, 10, 32)
-	if err != nil {
-		return err
-	}
-
-	// Check a 30 second window on either side of the current time as well. It's
-	// common for clocks to be slightly out of sync and this prevents most errors
-	// and is what the spec recommends.
-	if tokGen(0, nil) != int32(tokInt) &&
-		tokGen(-1, nil) != int32(tokInt) &&
-		tokGen(1, nil) != int32(tokInt) {
-		zhttp.FlashError(w, mfaError)
-		return zhttp.Template(w, "totp.gohtml", struct {
-			Globals
-			LoginMAC string
-		}{newGlobals(w, r), args.LoginMAC})
-	}
-
-	auth.SetCookie(w, *u.LoginToken, cookieDomain(site, r))
-	return zhttp.SeeOther(w, "/")
-}
-
 func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
 	if u != nil && u.ID > 0 { // Already logged in.
@@ -230,14 +194,66 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if user.TOTPEnabled {
-		return zhttp.Template(w, "totp.gohtml", struct {
-			Globals
-			LoginMAC string
-		}{newGlobals(w, r), xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP)})
+		return h.totpForm(w, r, *user.LoginToken,
+			xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP))
 	}
 
 	auth.SetCookie(w, *user.LoginToken, cookieDomain(Site(r.Context()), r))
 	return zhttp.SeeOther(w, "/")
+}
+
+func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
+	args := struct {
+		LoginMAC       string `json:"loginmac"`
+		UserLoginToken string `json:"user_logintoken"`
+		Token          string `json:"totp_token"`
+	}{}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	var u goatcounter.User
+	err = u.ByTokenAndSite(r.Context(), args.UserLoginToken)
+	if err != nil {
+		return err
+	}
+
+	valid := xsrftoken.Valid(args.LoginMAC, *u.LoginToken, strconv.FormatInt(u.ID, 10), actionTOTP)
+	if testTOTP {
+		valid = true
+	}
+	if !valid {
+		zhttp.Flash(w, "Invalid login")
+		return zhttp.SeeOther(w, "/user/new")
+	}
+
+	tokInt, err := strconv.ParseInt(args.Token, 10, 32)
+	if err != nil {
+		return err
+	}
+
+	// Check a 30 second window on either side of the current time as well. It's
+	// common for clocks to be slightly out of sync and this prevents most
+	// errors and is what the spec recommends.
+	if !testTOTP {
+		tokGen := otp.NewOTP(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
+		if tokGen(0, nil) != int32(tokInt) && tokGen(-1, nil) != int32(tokInt) && tokGen(1, nil) != int32(tokInt) {
+			zhttp.FlashError(w, mfaError)
+			return h.totpForm(w, r, *u.LoginToken, args.LoginMAC)
+		}
+	}
+
+	auth.SetCookie(w, *u.LoginToken, cookieDomain(Site(r.Context()), r))
+	return zhttp.SeeOther(w, "/")
+}
+
+func (h user) totpForm(w http.ResponseWriter, r *http.Request, loginToken, loginMAC string) error {
+	return zhttp.Template(w, "totp.gohtml", struct {
+		Globals
+		LoginToken string
+		LoginMAC   string
+	}{newGlobals(w, r), loginToken, loginMAC})
 }
 
 func (h user) reset(w http.ResponseWriter, r *http.Request) error {

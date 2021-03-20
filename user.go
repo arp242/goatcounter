@@ -357,8 +357,7 @@ func (u *User) RequestReset(ctx context.Context) error {
 }
 
 func (u *User) EnableTOTP(ctx context.Context) error {
-	err := zdb.Exec(ctx, `update users set totp_enabled=1
-		where user_id=$1 and site_id=$2`,
+	err := zdb.Exec(ctx, `update users set totp_enabled=1 where user_id=$1 and site_id=$2`,
 		u.ID, MustGetSite(ctx).IDOrParent())
 	if err != nil {
 		return errors.Wrap(err, "User.EnableTOTP")
