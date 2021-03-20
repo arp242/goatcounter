@@ -20,7 +20,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/teamwork/reload"
 	"zgo.at/blackmail"
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
@@ -319,7 +318,7 @@ func setupReload() {
 			}
 		}))
 		if err != nil {
-			panic(errors.Errorf("reload.Do: %v", err))
+			zlog.Errorf("reload.Do: %v", err)
 		}
 	}()
 }
