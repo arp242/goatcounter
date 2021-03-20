@@ -596,9 +596,10 @@ func cmdDBDelete(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bo
 }
 
 func cmdDBSite(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool) error {
+	// TODO(depr): The second values are for compat with <2.0
 	var (
-		vhost = f.String("", "vhost")
-		link  = f.String("", "link")
+		vhost = f.String("", "vhost", "domain")
+		link  = f.String("", "link", "parent")
 		find  *[]string
 		email stringFlag
 		pwd   stringFlag
@@ -607,8 +608,8 @@ func cmdDBSite(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool
 		find = f.StringList(nil, "find").Pointer()
 	}
 	if cmd == "create" {
-		email = f.String("", "user.email")
-		pwd = f.String("", "user.password")
+		email = f.String("", "user.email", "email")
+		pwd = f.String("", "user.password", "password")
 	}
 	db, ctx, err := dbParseFlag(f, dbConnect, debug, createdb)
 	if err != nil {

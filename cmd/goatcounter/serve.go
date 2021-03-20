@@ -118,7 +118,8 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	v := zvalidate.New()
 
 	var (
-		port         = f.String("", "public-port").Pointer()
+		// TODO(depr): -port is for compat with <2.0
+		port         = f.String("", "public-port", "port").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
 	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(f, &v)
@@ -183,7 +184,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
 				len(cnames), listen, dev, strings.Join(cnames, ", "))
 			if len(cnames) == 0 {
-				zlog.Errorf("No sites yet; create a new site with:\n    goatcounter create -domain [..] -email [..]")
+				zlog.Errorf("No sites yet; create a new site with:\n    goatcounter db create -vhost=.. -user.email=..")
 			}
 			ready <- struct{}{}
 		})

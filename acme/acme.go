@@ -77,8 +77,11 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 			panic(fmt.Sprintf("wrong value for -tls: %q", f))
 		case f == "":
 			panic(fmt.Sprintf("wrong value for -tls: %q", flag))
-		case f == "http":
+		case f == "http" || f == "none": // TODO(depr): none is for compat with <2.0
 			listenTLS = false
+		case f == "tls":
+			// TODO(depr): for compat with <2.0; doesn't do anything as "acme"
+			// and .pem files imply you can TLS.
 		case f == "rdr":
 			listen += zhttp.ServeRedirect
 		case strings.HasSuffix(f, ".pem"):

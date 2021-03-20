@@ -159,7 +159,7 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 					if err2 == nil && len(sites) == 0 {
 						err = guru.Errorf(400, ""+
 							`no sites created yet; create a new site from the commandline with `+
-							`"goatcounter create -domain [..] -email [..]"`)
+							`"goatcounter db create -vhost=.. -user.email=.."`)
 					}
 				}
 
