@@ -62,7 +62,8 @@ func DBFile(t testing.TB) context.Context {
 	return db(t, true)
 }
 
-// TODO: this should use zdb.StartTest()
+// TODO: this should use zdb.StartTest(); need to be able to pass in some
+// zdb.ConnectOptions{} to that though.
 // TODO: we can create unlogged tables in PostgreSQL, which should be faster:
 //   create unlogged table foo [..]
 func db(t testing.TB, storeFile bool) context.Context {
@@ -115,8 +116,14 @@ func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
 	}
 	ctx = goatcounter.WithSite(ctx, &site)
 
-	user := goatcounter.User{Site: site.ID, Email: "test@gctest.localhost", EmailVerified: true, Password: []byte("coconuts")}
-	err = user.Insert(ctx)
+	user := goatcounter.User{
+		Site:          site.ID,
+		Access:        goatcounter.UserAccesses{"all": goatcounter.AccessAdmin},
+		Email:         "test@gctest.localhost",
+		EmailVerified: true,
+		Password:      []byte("coconuts"),
+	}
+	err = user.Insert(ctx, false)
 	if err != nil {
 		t.Fatalf("create user: %s", err)
 	}
@@ -198,7 +205,10 @@ func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatc
 	if len(user.Password) == 0 {
 		user.Password = []byte("coconuts")
 	}
-	err = user.Insert(ctx)
+	if user.Access == nil {
+		user.Access = goatcounter.UserAccesses{"all": goatcounter.AccessAdmin}
+	}
+	err = user.Insert(ctx, false)
 	if err != nil {
 		t.Fatalf("get/create user: %s", err)
 	}

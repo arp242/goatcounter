@@ -8,7 +8,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
@@ -180,7 +179,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				err = s.Delete(ctx)
+				err = s.Delete(ctx, false)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -208,7 +207,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				err = s.Delete(ctx)
+				err = s.Delete(ctx, false)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -227,37 +226,16 @@ func TestSettingsSitesAdd(t *testing.T) {
 		},
 	}
 
-	t.Run("serve", func(t *testing.T) {
-		t.Skip() // TODO: Fix these.
+	t.Skip()
 
-		for _, tt := range tests {
-			s := tt.setup
-			tt.setup = func(ctx context.Context, t *testing.T) {
-				goatcounter.Config(ctx).GoatcounterCom = false
-				s(ctx, t)
+	for _, tt := range tests {
+		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+			have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
+			if d := zdb.Diff(have, tt.want); d != "" {
+				t.Error(d)
 			}
-
-			runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-				have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
-				if d := zdb.Diff(have, tt.want); d != "" {
-					t.Error(d)
-				}
-			})
-		}
-	})
-
-	t.Run("saas", func(t *testing.T) {
-		t.Skip() // TODO: Fix these.
-
-		for _, tt := range tests {
-			runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-				have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
-				if d := zdb.Diff(have, tt.want); d != "" {
-					t.Error(d)
-				}
-			})
-		}
-	})
+		})
+	}
 }
 
 func TestSettingsSitesRemove(t *testing.T) {
@@ -325,37 +303,14 @@ func TestSettingsSitesRemove(t *testing.T) {
 		},
 	}
 
-	t.Run("serve", func(t *testing.T) {
-		t.Skip() // TODO: Fix these.
+	t.Skip()
 
-		for _, tt := range tests {
-			s := tt.setup
-			tt.setup = func(ctx context.Context, t *testing.T) {
-				goatcounter.Config(ctx).GoatcounterCom = false
-				s(ctx, t)
+	for _, tt := range tests {
+		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
+			have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
+			if d := zdb.Diff(have, tt.want); d != "" {
+				t.Error(d)
 			}
-
-			runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-				have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
-				if d := zdb.Diff(have, tt.want); d != "" {
-					t.Error(d)
-				}
-			})
-		}
-	})
-
-	t.Run("saas", func(t *testing.T) {
-		t.Skip() // TODO: Fix these.
-
-		for _, tt := range tests {
-			tt.want = strings.ReplaceAll(tt.want, `  serve  `, `  add    `)
-
-			runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-				have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
-				if d := zdb.Diff(have, tt.want); d != "" {
-					t.Error(d)
-				}
-			})
-		}
-	})
+		})
+	}
 }

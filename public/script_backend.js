@@ -18,7 +18,7 @@
 
 		;[report_errors, dashboard, period_select, tooltip, billing_subscribe,
 			setup_datepicker, filter_pages, add_ip, fill_tz, bind_scale,
-			copy_pre, widget_settings, saved_views,
+			copy_pre, widget_settings, saved_views, bind_confirm,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -635,6 +635,14 @@
 					},
 				})
 			})
+		})
+	}
+
+	// Show confirmation on everything with data-confirm.
+	var bind_confirm = function() {
+		$('body').on('click submit', '[data-confirm]', function(e) {
+			if (!confirm($(this).attr('data-confirm')))
+				e.preventDefault()
 		})
 	}
 

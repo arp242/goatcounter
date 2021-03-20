@@ -6,16 +6,26 @@ package goatcounter
 
 import (
 	"context"
-	"database/sql/driver"
-	"fmt"
+	"strings"
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
-	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
+)
+
+// APIToken permissions.
+//
+// DO NOT change the values of these constants; they're stored in the database.
+const (
+	APIPermNothing    zint.Bitflag64 = 1 << iota
+	APIPermCount                     // 2
+	APIPermExport                    // 4
+	APIPermSiteRead                  // 8
+	APIPermSiteCreate                // 16
+	APIPermSiteUpdate                // 32
 )
 
 type APIToken struct {
@@ -23,39 +33,83 @@ type APIToken struct {
 	SiteID int64 `db:"site_id" json:"-"`
 	UserID int64 `db:"user_id" json:"-"`
 
-	Name        string              `db:"name" json:"name"`
-	Token       string              `db:"token" json:"-"`
-	Permissions APITokenPermissions `db:"permissions" json:"permissions"`
+	Name        string         `db:"name" json:"name"`
+	Token       string         `db:"token" json:"-"`
+	Permissions zint.Bitflag64 `db:"permissions" json:"permissions"`
 
 	CreatedAt time.Time `db:"created_at" json:"-"`
 }
 
-// APITokenPermissions are the permissions an API token has.
-//
-// TODO: this shoud really be a bitmask; this is awkward to deal with.
-type APITokenPermissions struct {
-	Count      bool `db:"count" json:"count"`
-	Export     bool `db:"export" json:"export"`
-	SiteRead   bool `db:"site_read" json:"site_read"`
-	SiteCreate bool `db:"site_create" json:"site_create"`
-	SiteUpdate bool `db:"site_update" json:"site_update"`
+type PermissionFlag struct {
+	Label, Help string
+	Flag        zint.Bitflag64
 }
 
-func (tp APITokenPermissions) String() string { return string(zjson.MustMarshal(tp)) }
-
-// Value implements the SQL Value function to determine what to store in the DB.
-func (tp APITokenPermissions) Value() (driver.Value, error) { return json.Marshal(tp) }
-
-// Scan converts the data returned from the DB into the struct.
-func (tp *APITokenPermissions) Scan(v interface{}) error {
-	switch vv := v.(type) {
-	case []byte:
-		return json.Unmarshal(vv, tp)
-	case string:
-		return json.Unmarshal([]byte(vv), tp)
-	default:
-		panic(fmt.Sprintf("unsupported type: %T", v))
+// PermissionFlags returns a list of all flags we know for the Permissions settings.
+func (t APIToken) PermissionFlags(only ...zint.Bitflag64) []PermissionFlag {
+	if len(only) > 1 {
+		for _, o := range only[1:] {
+			only[0] |= o
+		}
 	}
+
+	all := []PermissionFlag{
+		{
+			Label: "Record pageviews",
+			Help:  "Record pageviews with /api/v0/count",
+			Flag:  APIPermCount,
+		},
+		{
+			Label: "Export",
+			Help:  "Export data with /api/v0/export",
+			Flag:  APIPermExport,
+		},
+		{
+			Label: "Read sites",
+			Flag:  APIPermSiteRead,
+		},
+		{
+			Label: "Create sites",
+			Flag:  APIPermSiteCreate,
+		},
+		{
+			Label: "Update sites",
+			Flag:  APIPermSiteUpdate,
+		},
+	}
+
+	if len(only) == 0 {
+		return all
+	}
+
+	filter := make([]PermissionFlag, 0, len(all))
+	for _, a := range all {
+		if !only[0].Has(a.Flag) {
+			continue
+		}
+		filter = append(filter, a)
+	}
+	return filter
+}
+
+func (t APIToken) FormatPermissions() string {
+	var all []string
+	if t.Permissions.Has(APIPermCount) {
+		all = append(all, "count")
+	}
+	if t.Permissions.Has(APIPermExport) {
+		all = append(all, "export")
+	}
+	if t.Permissions.Has(APIPermSiteRead) {
+		all = append(all, "site-read")
+	}
+	if t.Permissions.Has(APIPermSiteCreate) {
+		all = append(all, "site-create")
+	}
+	if t.Permissions.Has(APIPermSiteUpdate) {
+		all = append(all, "site-update")
+	}
+	return "'" + strings.Join(all, "', '") + "'"
 }
 
 // Defaults sets fields to default values, unless they're already set.
@@ -71,6 +125,9 @@ func (t *APIToken) Validate(ctx context.Context) error {
 	v.Required("site_id", t.SiteID)
 	v.Required("user_id", t.SiteID)
 	v.Required("token", t.Token)
+	if t.Permissions == 1 {
+		v.Append("permissions", "must set at least one permission")
+	}
 	return v.ErrorOrNil()
 }
 
@@ -87,9 +144,26 @@ func (t *APIToken) Insert(ctx context.Context) error {
 	}
 
 	t.ID, err = zdb.InsertID(ctx, "api_token_id",
-		`insert into api_tokens (site_id, user_id, name, token, permissions, created_at) values (?, ?, ?, ?, ?, ?)`,
-		t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt)
+		`insert into api_tokens (site_id, user_id, name, token, permissions, created_at) values (?)`,
+		zdb.L{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt})
 	return errors.Wrap(err, "APIToken.Insert")
+}
+
+// Update the name and permissions.
+func (t *APIToken) Update(ctx context.Context) error {
+	if t.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	t.Defaults(ctx)
+	err := t.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = zdb.Exec(ctx, `update api_tokens set name=?, permissions=? where api_token_id=?`,
+		t.Name, t.Permissions, t.ID)
+	return errors.Wrap(err, "APIToken.Update")
 }
 
 func (t *APIToken) ByID(ctx context.Context, id int64) error {
@@ -117,4 +191,38 @@ func (t *APITokens) List(ctx context.Context) error {
 	return errors.Wrap(zdb.Select(ctx, t,
 		`select * from api_tokens where site_id=$1 and user_id=$2`,
 		MustGetSite(ctx).ID, GetUser(ctx).ID), "APITokens.List")
+}
+
+// Find API tokens: by ID if ident is a number, or by token if it's not.
+func (t *APITokens) Find(ctx context.Context, ident []string) error {
+	ids, strs := splitIntStr(ident)
+	err := zdb.Select(ctx, t, `select * from api_tokens where
+		{{:ids api_token_id in (:ids) or}}
+		{{:strs! 0=1}}
+		{{:strs token in (:strs)}}`,
+		zdb.P{"ids": ids, "strs": strs})
+	return errors.Wrap(err, "APITokens.Find")
+}
+
+// IDs gets a list of all IDs for these API tokens.
+func (t *APITokens) IDs() []int64 {
+	ids := make([]int64, 0, len(*t))
+	for _, tt := range *t {
+		ids = append(ids, tt.ID)
+	}
+	return ids
+}
+
+// Delete all API tokens in this selection.
+func (t *APITokens) Delete(ctx context.Context, _ bool) error {
+	err := zdb.TX(ctx, func(ctx context.Context) error {
+		for _, tt := range *t {
+			err := tt.Delete(WithSite(ctx, &Site{ID: tt.SiteID}))
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return errors.Wrap(err, "Users.Delete")
 }

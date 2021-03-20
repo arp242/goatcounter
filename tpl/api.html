@@ -440,24 +440,7 @@ fields that are sent.</p>
 			<p class="info"></p>
 			<h4>name <sup>string</sup></h4>
 <p></p>
-<h4>permissions <sup></sup></h4>
-<p></p>
-
-		</div>
-		<h3 id="goatcounter.APITokenPermissions">goatcounter.APITokenPermissions <a class="permalink" href="#goatcounter.APITokenPermissions">§</a></h3>
-		<div class="endpoint model">
-			<p class="info">APITokenPermissions are the permissions an API token has.
-
-TODO: this shoud really be a bitmask; this is awkward to deal with.</p>
-			<h4>count <sup>boolean</sup></h4>
-<p></p>
-<h4>export <sup>boolean</sup></h4>
-<p></p>
-<h4>site_read <sup>boolean</sup></h4>
-<p></p>
-<h4>site_create <sup>boolean</sup></h4>
-<p></p>
-<h4>site_update <sup>boolean</sup></h4>
+<h4>permissions <sup>integer</sup></h4>
 <p></p>
 
 		</div>
@@ -567,7 +550,7 @@ This is stored as JSON in the database.</p>
 <p></p>
 <h4>totp_enabled <sup>boolean [readonly]</sup></h4>
 <p></p>
-<h4>role <sup>string [readonly]</sup></h4>
+<h4>access <sup><a href="#"></a> [readonly]</sup></h4>
 <p></p>
 <h4>login_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p></p>
@@ -583,7 +566,7 @@ This is stored as JSON in the database.</p>
 		</div>
 		<h3 id="goatcounter.UserSettings">goatcounter.UserSettings <a class="permalink" href="#goatcounter.UserSettings">§</a></h3>
 		<div class="endpoint model">
-			<p class="info"></p>
+			<p class="info">UserSettings are all user preferences.</p>
 			<h4>twenty_four_hours <sup>boolean</sup></h4>
 <p></p>
 <h4>sunday_starts_week <sup>boolean</sup></h4>

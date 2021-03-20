@@ -10,6 +10,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"strconv"
 	"time"
 
 	"zgo.at/zdb"
@@ -110,4 +111,20 @@ func LoadBufferKey(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("LoadBufferKey: %w", err)
 	}
 	return key, nil
+}
+
+func splitIntStr(ident []string) ([]int64, []string) {
+	var (
+		ids  []int64
+		strs []string
+	)
+	for _, i := range ident {
+		id, err := strconv.ParseInt(i, 10, 64)
+		if err == nil {
+			ids = append(ids, id)
+		} else {
+			strs = append(strs, i)
+		}
+	}
+	return ids, strs
 }

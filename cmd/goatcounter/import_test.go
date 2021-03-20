@@ -35,8 +35,7 @@ func startServer(ctx context.Context, t *testing.T, exit *zli.TestExit, dbc stri
 		t.Fatal(err)
 	}
 
-	key := goatcounter.APIToken{SiteID: 1, UserID: 1, Name: "test",
-		Permissions: goatcounter.APITokenPermissions{Count: true}}
+	key := goatcounter.APIToken{SiteID: 1, UserID: 1, Name: "test", Permissions: goatcounter.APIPermCount}
 	err = key.Insert(ctx)
 	if err != nil {
 		t.Fatal(err)

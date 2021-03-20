@@ -36,53 +36,70 @@ import (
 type settings struct{}
 
 func (h settings) mount(r chi.Router) {
-	r.Get("/settings", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		zhttp.SeeOther(w, "/settings/main")
-	}))
-	r.Get("/user", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		zhttp.SeeOther(w, "/user/pref")
-	}))
+	{ // User settings.
+		r.Get("/user", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			zhttp.SeeOther(w, "/user/pref")
+		}))
 
-	// User settings.
-	r.Get("/user/pref", zhttp.Wrap(h.userPref(nil)))
-	r.Post("/user/pref", zhttp.Wrap(h.userPrefSave))
+		r.Get("/user/pref", zhttp.Wrap(h.userPref(nil)))
+		r.Post("/user/pref", zhttp.Wrap(h.userPrefSave))
 
-	r.Get("/user/dashboard", zhttp.Wrap(h.userDashboard(nil)))
-	r.Post("/user/dashboard", zhttp.Wrap(h.userDashboardSave))
-	r.Post("/user/view", zhttp.Wrap(h.userViewSave))
+		r.Get("/user/dashboard", zhttp.Wrap(h.userDashboard(nil)))
+		r.Post("/user/dashboard", zhttp.Wrap(h.userDashboardSave))
+		r.Post("/user/view", zhttp.Wrap(h.userViewSave))
 
-	r.Get("/user/auth", zhttp.Wrap(h.userAuth(nil)))
-	r.Get("/user/api", zhttp.Wrap(h.userAPI(nil)))
+		r.Get("/user/auth", zhttp.Wrap(h.userAuth(nil)))
+	}
 
-	// Site settings.
-	r.Get("/settings/main", zhttp.Wrap(h.main(nil)))
-	r.Post("/settings/main", zhttp.Wrap(h.mainSave))
-	r.Get("/settings/main/ip", zhttp.Wrap(h.ip))
-	r.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
-	r.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
+	{ // Site settings.
+		set := r.With(requireAccess(goatcounter.AccessSettings))
 
-	r.Get("/settings/sites", zhttp.Wrap(h.sites(nil)))
-	r.Post("/settings/sites/add", zhttp.Wrap(h.sitesAdd))
-	r.Get("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemoveConfirm))
-	r.Post("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemove))
-	r.Post("/settings/sites/copy-settings", zhttp.Wrap(h.sitesCopySettings))
+		set.Get("/settings", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			zhttp.SeeOther(w, "/settings/main")
+		}))
+		set.Get("/settings/main", zhttp.Wrap(h.main(nil)))
+		set.Post("/settings/main", zhttp.Wrap(h.mainSave))
+		set.Get("/settings/main/ip", zhttp.Wrap(h.ip))
+		set.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
+		set.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 
-	r.Get("/settings/purge", zhttp.Wrap(h.purge(nil)))
-	r.Get("/settings/purge/confirm", zhttp.Wrap(h.purgeConfirm))
-	r.Post("/settings/purge", zhttp.Wrap(h.purgeDo))
+		set.Get("/settings/purge", zhttp.Wrap(h.purge(nil)))
+		set.Get("/settings/purge/confirm", zhttp.Wrap(h.purgeConfirm))
+		set.Post("/settings/purge", zhttp.Wrap(h.purgeDo))
 
-	r.Get("/settings/export", zhttp.Wrap(h.export(nil)))
-	r.Get("/settings/export/{id}", zhttp.Wrap(h.exportDownload))
-	r.Post("/settings/export/import", zhttp.Wrap(h.exportImport))
-	r.With(mware.Ratelimit(mware.RatelimitOptions{
-		Client:  mware.RatelimitIP,
-		Store:   mware.NewRatelimitMemory(),
-		Limit:   mware.RatelimitLimit(1, 3600),
-		Message: "you can request only one export per hour",
-	})).Post("/settings/export", zhttp.Wrap(h.exportStart))
+		set.Get("/settings/export", zhttp.Wrap(h.export(nil)))
+		set.Get("/settings/export/{id}", zhttp.Wrap(h.exportDownload))
+		set.Post("/settings/export/import", zhttp.Wrap(h.exportImport))
+		set.With(mware.Ratelimit(mware.RatelimitOptions{
+			Client:  mware.RatelimitIP,
+			Store:   mware.NewRatelimitMemory(),
+			Limit:   mware.RatelimitLimit(1, 3600),
+			Message: "you can request only one export per hour",
+		})).Post("/settings/export", zhttp.Wrap(h.exportStart))
+	}
 
-	r.Get("/settings/delete-account", zhttp.Wrap(h.delete(nil)))
-	r.Post("/settings/delete-account", zhttp.Wrap(h.deleteDo))
+	{ // Admin settings
+		admin := r.With(requireAccess(goatcounter.AccessAdmin))
+
+		admin.Get("/user/api", zhttp.Wrap(h.userAPI(nil)))
+
+		admin.Get("/settings/sites", zhttp.Wrap(h.sites(nil)))
+		admin.Post("/settings/sites/add", zhttp.Wrap(h.sitesAdd))
+		admin.Get("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemoveConfirm))
+		admin.Post("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemove))
+		admin.Post("/settings/sites/copy-settings", zhttp.Wrap(h.sitesCopySettings))
+
+		admin.Get("/settings/users", zhttp.Wrap(h.users(nil)))
+		admin.Get("/settings/users/add", zhttp.Wrap(h.usersForm(nil, nil)))
+		admin.Get("/settings/users/{id}", zhttp.Wrap(h.usersForm(nil, nil)))
+		admin.Post("/settings/users/add", zhttp.Wrap(h.usersAdd))
+		admin.Post("/settings/users/{id}", zhttp.Wrap(h.usersEdit))
+		admin.Post("/settings/users/remove/{id}", zhttp.Wrap(h.usersRemove))
+
+		admin.Get("/settings/delete-account", zhttp.Wrap(h.delete(nil)))
+		admin.Post("/settings/delete-account", zhttp.Wrap(h.deleteDo))
+	}
+
 }
 
 func (h settings) main(verr *zvalidate.Validator) zhttp.HandlerFunc {
@@ -324,7 +341,7 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	sID := s.ID
-	err = s.Delete(r.Context())
+	err = s.Delete(r.Context(), false)
 	if err != nil {
 		return err
 	}
@@ -629,13 +646,8 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		bgrun.Run("email:deletion", func() {
 			contact := "false"
 			if args.ContactMe {
-				var u goatcounter.User
-				err := u.BySite(r.Context(), mainSite.ID)
-				if err != nil {
-					zlog.Error(err)
-				} else {
-					contact = u.Email
-				}
+				u := goatcounter.GetUser(r.Context())
+				contact = u.Email
 			}
 
 			blackmail.Send("GoatCounter deletion",
@@ -646,9 +658,226 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	err = mainSite.Delete(r.Context())
+	err = mainSite.Delete(r.Context(), true)
 	if err != nil {
 		return err
 	}
 	return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
+}
+
+func (h settings) users(verr *zvalidate.Validator) zhttp.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		mainSite, err := MainSite(r.Context())
+		if err != nil {
+			return err
+		}
+
+		var users goatcounter.Users
+		err = users.List(r.Context(), mainSite.ID)
+		if err != nil {
+			return err
+		}
+
+		return zhttp.Template(w, "settings_users.gohtml", struct {
+			Globals
+			Users    goatcounter.Users
+			Validate *zvalidate.Validator
+		}{newGlobals(w, r), users, verr})
+	}
+}
+
+func (h settings) usersForm(newUser *goatcounter.User, pErr error) zhttp.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		var sites goatcounter.Sites
+		err := sites.ForThisAccount(r.Context(), false)
+		if err != nil {
+			return err
+		}
+
+		edit := newUser != nil && newUser.ID > 0
+		if newUser == nil {
+			newUser = &goatcounter.User{
+				Access: goatcounter.UserAccesses{"all": goatcounter.AccessSettings},
+			}
+
+			v := zvalidate.New()
+			id := v.Integer("id", chi.URLParam(r, "id"))
+			if v.HasErrors() {
+				return v
+			}
+			if id > 0 {
+				edit = true
+				err := newUser.ByID(r.Context(), id)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		var vErr *zvalidate.Validator
+		if errors.As(pErr, &vErr) {
+			pErr = nil
+		}
+		if pErr != nil {
+			zlog.Error(pErr)
+			var code int
+			code, pErr = zhttp.UserError(pErr)
+			w.WriteHeader(code)
+		}
+
+		return zhttp.Template(w, "settings_users_form.gohtml", struct {
+			Globals
+			Sites    goatcounter.Sites
+			NewUser  goatcounter.User
+			Validate *zvalidate.Validator
+			Error    error
+			Edit     bool
+		}{newGlobals(w, r), sites, *newUser, vErr, pErr, edit})
+	}
+}
+
+func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
+	var args struct {
+		Email    string                   `json:"email"`
+		Password string                   `json:"password"`
+		Access   goatcounter.UserAccesses `json:"access"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	mainSite := Site(r.Context())
+	err = mainSite.GetMain(r.Context())
+	if err != nil {
+		return err
+	}
+
+	newUser := goatcounter.User{
+		Email:  args.Email,
+		Site:   mainSite.ID,
+		Access: args.Access,
+	}
+	if args.Password != "" {
+		newUser.Password = []byte(args.Password)
+	}
+	if !goatcounter.Config(r.Context()).GoatcounterCom {
+		newUser.EmailVerified = true
+	}
+
+	err = zdb.TX(r.Context(), func(ctx context.Context) error {
+		err := newUser.Insert(ctx, args.Password == "")
+		if err != nil {
+			return err
+		}
+		if args.Password == "" {
+			return newUser.RequestReset(ctx)
+		}
+		return nil
+	})
+	if err != nil {
+		return h.usersForm(&newUser, err)(w, r)
+	}
+
+	ctx := goatcounter.CopyContextValues(r.Context())
+	bgrun.Run(fmt.Sprintf("adduser:%d", newUser.ID), func() {
+		err := blackmail.Send(fmt.Sprintf("A GoatCounter account was created for you at %s", mainSite.Display(ctx)),
+			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
+			blackmail.To(newUser.Email),
+			blackmail.BodyMustText(goatcounter.TplEmailAddUser{ctx, *mainSite, newUser, goatcounter.GetUser(ctx).Email}.Render),
+		)
+		if err != nil {
+			zlog.Errorf(": %s", err)
+		}
+	})
+
+	zhttp.Flash(w, "User ‘%s’ added.", newUser.Email)
+	return zhttp.SeeOther(w, "/settings/users")
+}
+
+func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var args struct {
+		Email    string                   `json:"email"`
+		Password string                   `json:"password"`
+		Access   goatcounter.UserAccesses `json:"access"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	mainSite := Site(r.Context())
+	err = mainSite.GetMain(r.Context())
+	if err != nil {
+		return err
+	}
+
+	var editUser goatcounter.User
+	err = editUser.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	emailChanged := editUser.Email != args.Email
+	editUser.Email = args.Email
+	editUser.Access = args.Access
+
+	err = zdb.TX(r.Context(), func(ctx context.Context) error {
+		err = editUser.Update(ctx, emailChanged)
+		if err != nil {
+			return err
+		}
+
+		if args.Password != "" {
+			err = editUser.UpdatePassword(ctx, args.Password)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return h.usersForm(&editUser, err)(w, r)
+	}
+
+	zhttp.Flash(w, "User ‘%s’ edited.", editUser.Email)
+	return zhttp.SeeOther(w, "/settings/users")
+}
+
+func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	mainSite := Site(r.Context())
+	err := mainSite.GetMain(r.Context())
+	if err != nil {
+		return err
+	}
+
+	var user goatcounter.User
+	err = user.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	if user.Site != mainSite.ID {
+		return guru.New(404, "Not Found")
+	}
+
+	err = user.Delete(r.Context(), false)
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "User ‘%s’ removed.", user.Email)
+	return zhttp.SeeOther(w, "/settings/users")
 }

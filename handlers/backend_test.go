@@ -41,6 +41,9 @@ func TestBackendTpl(t *testing.T) {
 		// Settings
 		{"/settings/main", "Data retention in days"},
 		{"/settings/sites", "Copy all settings from the current site except the domain name"},
+		{"/settings/users", "Access"},
+		{"/settings/users/add", "Password"},
+		{"/settings/users/1", "Password"},
 		{"/settings/purge", "Remove all pageviews for a page"},
 		{"/settings/export", "The first line is a header with the field names"},
 		{"/settings/delete-account", "The site will be marked as deleted"},

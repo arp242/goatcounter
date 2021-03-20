@@ -8,11 +8,15 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
+	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"zgo.at/errors"
 	"zgo.at/guru"
+	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
@@ -32,7 +36,8 @@ type User struct {
 	Password      []byte       `db:"password" json:"-"`
 	TOTPEnabled   zbool.Bool   `db:"totp_enabled" json:"totp_enabled,readonly"`
 	TOTPSecret    []byte       `db:"totp_secret" json:"-"`
-	Role          string       `db:"role" json:"role,readonly"`
+	Role          string       `db:"role" json:"-"` // TODO: unused
+	Access        UserAccesses `db:"access" json:"access,readonly"`
 	LoginAt       *time.Time   `db:"login_at" json:"login_at,readonly"`
 	ResetAt       *time.Time   `db:"reset_at" json:"reset_at,readonly"`
 	LoginRequest  *string      `db:"login_request" json:"-"`
@@ -49,7 +54,7 @@ type User struct {
 // Defaults sets fields to default values, unless they're already set.
 func (u *User) Defaults(ctx context.Context) {
 	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set in website.
-		u.Site = s.ID
+		u.Site = s.IDOrParent()
 	}
 
 	if u.CreatedAt.IsZero() {
@@ -109,20 +114,24 @@ func (u *User) hashPassword(ctx context.Context) error {
 }
 
 // Insert a new row.
-func (u *User) Insert(ctx context.Context) error {
+func (u *User) Insert(ctx context.Context, allowBlankPassword bool) error {
 	if u.ID > 0 {
 		return errors.New("ID > 0")
 	}
 
+	hasPassword := !(u.Password == nil && allowBlankPassword)
+
 	u.Defaults(ctx)
-	err := u.Validate(ctx, true)
+	err := u.Validate(ctx, hasPassword)
 	if err != nil {
 		return err
 	}
 
-	err = u.hashPassword(ctx)
-	if err != nil {
-		return errors.Wrap(err, "User.Insert")
+	if hasPassword {
+		err = u.hashPassword(ctx)
+		if err != nil {
+			return errors.Wrap(err, "User.Insert")
+		}
 	}
 
 	u.TOTPEnabled = zbool.Bool(false)
@@ -133,12 +142,12 @@ func (u *User) Insert(ctx context.Context) error {
 	}
 
 	query := `insert into users `
-	args := zdb.L{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.CreatedAt}
+	args := zdb.L{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.Access, u.CreatedAt}
 	if u.EmailVerified {
-		query += ` (site_id, email, password, totp_secret, settings, created_at, email_verified) values (?)`
+		query += ` (site_id, email, password, totp_secret, settings, access, created_at, email_verified) values (?)`
 		args = append(args, 1)
 	} else {
-		query += ` (site_id, email, password, totp_secret, settings, created_at, email_token) values (?)`
+		query += ` (site_id, email, password, totp_secret, settings, access, created_at, email_token) values (?)`
 		args = append(args, u.EmailToken)
 	}
 
@@ -152,7 +161,26 @@ func (u *User) Insert(ctx context.Context) error {
 	return nil
 }
 
-// Update this user's name, email, and settings.
+// Delete this user.
+func (u *User) Delete(ctx context.Context, lastAdmin bool) error {
+	if !lastAdmin {
+		var admins Users
+		err := admins.BySite(ctx, u.Site)
+		if err != nil {
+			return errors.Wrap(err, "User.Delete")
+		}
+		admins = admins.Admins()
+		if len(admins) == 1 && admins[0].ID == u.ID {
+			return fmt.Errorf("can't delete last admin user for site %d", u.Site)
+		}
+	}
+
+	err := zdb.Exec(ctx, `delete from users where user_id=? and site_id=?`,
+		u.ID, MustGetSite(ctx).ID)
+	return errors.Wrap(err, "User.Delete")
+}
+
+// Update this user's name, email, settings, and access.
 func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	if u.ID == 0 {
 		return errors.New("ID == 0")
@@ -164,7 +192,7 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 		return err
 	}
 
-	if emailChanged {
+	if emailChanged && Config(ctx).GoatcounterCom {
 		u.EmailVerified = false
 		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
 	}
@@ -172,14 +200,30 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	s := MustGetSite(ctx)
 	err = s.GetMain(ctx)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "User.Update")
 	}
 
 	err = zdb.Exec(ctx, `update users
-		set email=?, settings=?, updated_at=?, email_verified=?, email_token=?
+		set email=?, settings=?, access=?, updated_at=?, email_verified=?, email_token=?
 		where user_id=? and site_id=?`,
-		u.Email, u.Settings, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID, s.ID)
+		u.Email, u.Settings, u.Access, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID, s.ID)
 	return errors.Wrap(err, "User.Update")
+}
+
+// UpdateSite updates this user's siteID (i.e. moves it to another site).
+func (u *User) UpdateSite(ctx context.Context) error {
+	if u.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	u.Defaults(ctx)
+	err := u.Validate(ctx, false)
+	if err != nil {
+		return err
+	}
+
+	err = zdb.Exec(ctx, `update users set site_id=? where user_id=?`, u.Site, u.ID)
+	return errors.Wrap(err, "User.UpdateSite")
 }
 
 // UpdatePassword updates this user's password.
@@ -232,13 +276,37 @@ func (u *User) ByEmailToken(ctx context.Context, key string) error {
 		MustGetSite(ctx).IDOrParent(), key), "User.ByEmailToken")
 }
 
+// ByID gets a user by id.
+func (u *User) ByID(ctx context.Context, id int64) error {
+	err := zdb.Get(ctx, u, `select * from users where user_id=? and site_id=?`,
+		id, MustGetSite(ctx).IDOrParent())
+	return errors.Wrap(err, "User.ByID")
+}
+
 // ByEmail gets a user by email address.
 func (u *User) ByEmail(ctx context.Context, email string) error {
-	return errors.Wrap(zdb.Get(ctx, u,
-		`select * from users where
-			lower(email)=lower($1) and
-			(site_id=$2 or site_id=(select parent from sites where user_id=$2))
-		`, email, MustGetSite(ctx).ID), "User.ByEmail")
+	err := zdb.Get(ctx, u, `select * from users where lower(email) = lower(?) and site_id = ?`,
+		email, MustGetSite(ctx).IDOrParent())
+	return errors.Wrap(err, "User.ByEmail")
+}
+
+// Find a user: by ID if ident is a number, or by email if it's not.
+func (u *User) Find(ctx context.Context, ident string) error {
+	id, err := strconv.ParseInt(ident, 10, 64)
+	if err == nil {
+		return errors.Wrap(u.ByID(ctx, id), "User.Find")
+	}
+
+	s, email := zstring.Split2(ident, ",")
+
+	var site Site
+	err = site.Find(ctx, s)
+	if err != nil {
+		return errors.Wrap(err, "User.Find")
+	}
+
+	err = u.ByEmail(WithSite(ctx, &site), email)
+	return errors.Wrap(err, "User.Find")
 }
 
 // ByResetToken gets a user by login request key.
@@ -275,18 +343,6 @@ func (u *User) ByTokenAndSite(ctx context.Context, token string) error {
 	return errors.Wrap(zdb.Get(ctx, u,
 		`select * from users where login_token=$1 and site_id=$2`,
 		token, MustGetSite(ctx).IDOrParent()), "User.ByTokenAndSite")
-}
-
-// BySite gets a user by site.
-func (u *User) BySite(ctx context.Context, id int64) error {
-	var s Site
-	err := s.ByID(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	return errors.Wrap(zdb.Get(ctx, u,
-		`select * from users where site_id=$1`, s.IDOrParent()), "User.ByID")
 }
 
 // RequestReset generates a new password reset key.
@@ -373,11 +429,135 @@ func (u *User) SeenUpdates(ctx context.Context) error {
 	return errors.Wrap(err, "User.SeenUpdatesAt")
 }
 
+// Admin reports if this is an admin user for this site.
+func (u User) Admin() bool {
+	return u.Access["all"] == AccessAdmin
+}
+
+// HasAccess checks if this user has access to this site for the permission.
+func (u User) HasAccess(check UserAccess) bool {
+	switch check {
+	default:
+		return false
+	case AccessAdmin:
+		return u.Access["all"] == AccessAdmin
+	case AccessSettings:
+		return u.Access["all"] == AccessAdmin || u.Access["all"] == AccessSettings
+	case AccessReadOnly:
+		return u.Access["all"] == AccessAdmin || u.Access["all"] == AccessSettings || u.Access["all"] == AccessReadOnly
+	}
+}
+
+func (u User) AccessAdmin() bool    { return u.Access["all"] == AccessAdmin }
+func (u User) AccessSettings() bool { return u.AccessAdmin() || u.Access["all"] == AccessSettings }
+
 type Users []User
+
+// List all users for a site.
+func (u *Users) List(ctx context.Context, siteID int64) error {
+	var s Site
+	err := s.ByID(ctx, siteID)
+	if err != nil {
+		return err
+	}
+	return errors.Wrap(zdb.Select(ctx, u,
+		`select * from users where site_id=$1`, s.IDOrParent()), "Users.List")
+}
+
+// Admins returns just the admins in this user list.
+func (u Users) Admins() Users {
+	n := make(Users, 0, len(u))
+	for _, uu := range u {
+		if uu.Admin() {
+			n = append(n, uu)
+		}
+	}
+	return n
+}
 
 // ByEmail gets all users with this email address.
 func (u *Users) ByEmail(ctx context.Context, email string) error {
-	return errors.Wrap(zdb.Select(ctx, u,
-		`select * from users where lower(email)=lower($1) order by user_id asc`, email),
-		"Users.ByEmail")
+	err := zdb.Select(ctx, u,
+		`select * from users where lower(email)=lower($1) order by user_id asc`, email)
+	return errors.Wrap(err, "Users.ByEmail")
+}
+
+// BySite gets all users for a site.
+func (u *Users) BySite(ctx context.Context, siteID int64) error {
+	err := zdb.Select(ctx, u,
+		`select * from users where site_id=? order by user_id asc`, siteID)
+	return errors.Wrap(err, "Users.BySite")
+}
+
+// Find users: by ID if ident is a number, or by email if it's not.
+func (u *Users) Find(ctx context.Context, ident []string) error {
+	ids, strs := splitIntStr(ident)
+	err := zdb.Select(ctx, u, `select * from users where
+		{{:ids user_id in (:ids) or}}
+		{{:strs! 0=1}}
+		{{:strs email in (:strs)}}`,
+		zdb.P{"ids": ids, "strs": strs})
+	return errors.Wrap(err, "Users.Find")
+}
+
+// IDs gets a list of all IDs for these users.
+func (u *Users) IDs() []int64 {
+	ids := make([]int64, 0, len(*u))
+	for _, uu := range *u {
+		ids = append(ids, uu.ID)
+	}
+	return ids
+}
+
+type (
+	UserAccesses map[string]UserAccess
+	UserAccess   string
+)
+
+const (
+	AccessReadOnly UserAccess = "r"
+	AccessSettings UserAccess = "s"
+	AccessAdmin    UserAccess = "a"
+)
+
+func (u UserAccess) String() string {
+	switch u {
+	case AccessReadOnly:
+		return "read only"
+	case AccessSettings:
+		return "settings"
+	case AccessAdmin:
+		return "admin"
+	default:
+		panic(fmt.Sprintf("UserAccess is %q; should never happpen", string(u)))
+	}
+}
+
+// Value implements the SQL Value function to determine what to store in the DB.
+func (u UserAccesses) Value() (driver.Value, error) { return json.Marshal(u) }
+
+// Scan converts the data returned from the DB into the struct.
+func (u *UserAccesses) Scan(v interface{}) error {
+	switch vv := v.(type) {
+	case []byte:
+		return json.Unmarshal(vv, u)
+	case string:
+		return json.Unmarshal([]byte(vv), u)
+	default:
+		return fmt.Errorf("XXX.Scan: unsupported type: %T", v)
+	}
+}
+
+// Delete all users in this selection.
+func (u *Users) Delete(ctx context.Context, force bool) error {
+	err := zdb.TX(ctx, func(ctx context.Context) error {
+		for _, uu := range *u {
+			err := uu.Delete(WithSite(ctx, &Site{ID: uu.Site}), force)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return errors.Wrap(err, "Users.Delete")
 }

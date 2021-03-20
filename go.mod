@@ -2,6 +2,10 @@ module zgo.at/goatcounter
 
 go 1.16
 
+replace zgo.at/zli => ../zli
+
+replace zgo.at/zdb => ../zdb
+
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint, so it
 // compiles with JSON support without having to specify a build tag, which is
 // inconvenient, easily forgotten, and causes runtime errors.
@@ -31,8 +35,6 @@ require (
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
 	golang.org/x/net v0.0.0-20210222171744-9060382bd457
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20210305215415-5cdee2b1b5a0 // indirect
-	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 	golang.org/x/tools v0.1.0
 	honnef.co/go/tools v0.1.2
 	zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8
@@ -44,9 +46,9 @@ require (
 	zgo.at/json v0.0.0-20200627042140-d5025253667f
 	zgo.at/tz v0.0.0-20201224084217-b40a2f90fff3
 	zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6
-	zgo.at/zdb v0.0.0-20210318054623-eb213ac15ed2
+	zgo.at/zdb v0.0.0-20210320140256-9484d51b1276
 	zgo.at/zhttp v0.0.0-20210320020704-01b030f096b0
-	zgo.at/zli v0.0.0-20210314013617-b1271a855459
+	zgo.at/zli v0.0.0-20210320140236-196b190f9ac7
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
 	zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58
 	zgo.at/zstripe v1.1.1-0.20210316152211-8d12125402d1

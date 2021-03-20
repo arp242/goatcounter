@@ -44,6 +44,7 @@ type handlerTest struct {
 	wantBody     string
 	wantFormBody string
 	want         string
+	serve        bool
 }
 
 func init() {
@@ -51,7 +52,10 @@ func init() {
 		blackmail.MailerOut(new(bytes.Buffer)))
 
 	files, _ := fs.Sub(os.DirFS(zgo.ModuleRoot()), "tpl")
-	ztpl.Init(files)
+	err := ztpl.Init(files)
+	if err != nil {
+		panic(err)
+	}
 
 	ztest.DefaultHost = "test.example.com"
 	if zruntime.TestVerbose() {
@@ -68,6 +72,7 @@ func TestMain(m *testing.M) {
 		// Tested in tpl_test.go
 		"email_export_done.gotxt", "email_forgot_site.gotxt", "email_import_done.gotxt",
 		"email_import_error.gotxt", "email_password_reset.gotxt", "email_verify.gotxt",
+		"email_adduser.gotxt",
 
 		"billing.gohtml",                             // TODO: hard to test; requires a browser.
 		"user_forgot_pw.gohtml", "user_reset.gohtml", // TODO: only works if not logged in.
@@ -96,6 +101,7 @@ func runTest(
 		if tt.wantCode > 0 {
 			t.Run(sn, func(t *testing.T) {
 				ctx := gctest.DB(t)
+				goatcounter.Config(ctx).GoatcounterCom = !tt.serve
 
 				r, rr := newTest(ctx, tt.method, tt.path, bytes.NewReader(zjson.MustMarshal(tt.body)))
 				if tt.setup != nil {
@@ -124,6 +130,7 @@ func runTest(
 
 		t.Run("form", func(t *testing.T) {
 			ctx := gctest.DB(t)
+			goatcounter.Config(ctx).GoatcounterCom = !tt.serve
 
 			form := formBody(tt.body)
 			r, rr := newTest(ctx, tt.method, tt.path, strings.NewReader(form))

@@ -1,0 +1,29 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_settings_nav.gohtml" .}}
+
+<h2>Users</h2>
+<table class="auto table-left">
+	<thead><tr><th>Email</th><th>Access</th><th></th></tr></thead>
+	<tbody>
+		{{range $u := .Users}}<tr>
+			<td>{{$u.Email}}</td>
+			<td>{{index $u.Access "all"}}</td>
+			<td>
+				{{if and $.GoatcounterCom (eq (len $.Users.Admins) 1) $u.Admin}}
+					Can’t delete or edit last admin user
+				{{else}}
+					<a href="/settings/users/{{$u.ID}}">edit</a> |
+					<form method="post" action="/settings/users/remove/{{$u.ID}}" data-confirm="Delete {{$u.Email}}?">
+						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+						<button class="link">delete</button>
+					</form>
+				{{end}}
+				{{if eq $u.ID $.User.ID}}&nbsp;&nbsp;&nbsp;(current){{end}}
+			</td>
+		</tr>{{end}}
+</tbody></table>
+<br>
+
+<a href="/settings/users/add">Add new user</a>
+
+{{template "_backend_bottom.gohtml" .}}

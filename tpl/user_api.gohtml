@@ -27,11 +27,9 @@
 				{{range $t := .APITokens}}<tr>
 					<td>{{$t.Name}}</td>
 					<td>
-						{{if $t.Permissions.Count}}Record pageviews{{end}}
-						{{if $t.Permissions.Export}}Export{{end}}
-						{{if $t.Permissions.SiteRead}}Read sites{{end}}
-						{{if $t.Permissions.SiteCreate}}Create sites{{end}}
-						{{if $t.Permissions.SiteUpdate}}Update sites{{end}}
+						{{range $pf := $.Empty.PermissionFlags $t.Permissions}}
+						{{$pf.Label}}<br>
+						{{end}}
 					</td>
 					<td>{{$t.Token}}</td>
 					<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
@@ -53,13 +51,12 @@
 							<input type="text" id="name" name="name" placeholder="Name">
 						</td>
 						<td>
-							<label title="Record pageviews with /api/v0/count">
-								<input type="checkbox" name="permissions.count">Record pageviews</label><br>
-							<label title="Export data with /api/v0/export">
-								<input type="checkbox" name="permissions.export">Export</label><br>
-							<label><input type="checkbox" name="permissions.site_read">Read sites</label><br>
-							<label><input type="checkbox" name="permissions.site_create">Create sites</label><br>
-							<label><input type="checkbox" name="permissions.site_update">Update sites</label>
+							<input type="hidden" name="permissions[]" value="1">
+							{{range $pf := .Empty.PermissionFlags}}
+								<label {{if $pf.Help}}title="{{$pf.Help}}"{{end}}>
+									<input type="checkbox" name="permissions[]" value="{{$pf.Flag}}">
+									{{$pf.Label}}</label><br>
+							{{end}}
 						</td>
 						<td><button type="submit">Add new</button></td>
 					</form>

@@ -48,7 +48,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		if args.SetSite {
+		if args.User.AccessSettings() && args.SetSite {
 			s := Site(ctx)
 			s.UserDefaults = args.User.Settings
 			return s.Update(ctx)
@@ -141,7 +141,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		if err != nil {
 			return err
 		}
-		if r.Form.Get("set_site") != "" {
+		if user.AccessSettings() && r.Form.Get("set_site") != "" {
 			s := Site(ctx)
 			s.UserDefaults = user.Settings
 			return s.Update(ctx)
@@ -181,7 +181,8 @@ func (h settings) userAPI(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			Globals
 			Validate  *zvalidate.Validator
 			APITokens goatcounter.APITokens
-		}{newGlobals(w, r), verr, tokens})
+			Empty     goatcounter.APIToken
+		}{newGlobals(w, r), verr, tokens, goatcounter.APIToken{}})
 	}
 }
 

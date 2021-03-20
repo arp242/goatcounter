@@ -58,7 +58,10 @@
 		<div class="flex-break"></div>
 
 		<button type="submit">Save</button>
-		<label style="margin-left: 3em"><input type="checkbox" name="set_site"> Also set as default for new users and the public view (if enabled).</label>
+		{{if .User.AccessSettings}}
+			<label style="margin-left: 3em"><input type="checkbox" name="set_site">
+				Also set as default for new users and the public view (if enabled).</label>
+		{{end}}
 	</form>
 
 	{{if has_errors .Validate}}

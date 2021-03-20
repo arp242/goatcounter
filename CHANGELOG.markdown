@@ -5,19 +5,53 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-Unreleased v1.5.0
------------------
+2020-03-20 v2.0.0-rc1
+---------------------
 
-- Some rather large changes to the database layout (#383) for better efficiency
-  (**see below, action required for upgrade**).
+The version is bumped to 2.0 because this contains a number of incompatible
+changes: several CLI commands got changed, and it includes some large database
+migrations – running them is a bit more complex than the standard migrations.
 
-- The `goatcounter migrate` behaves a bit different (**incompatible**):
+Because this includes so many changes I'll do a Release Candidate first. Please
+report issues if you have any problems! Barring unexpected large issues I'll do
+a 2.0 release next week or so.
 
-  - `goatcounter migrate pending` lists only pending migrations, and will use
+An overview of **incompatible** changes:
+
+- There are some rather large changes to the database layout (#383) for better
+  efficiency; migration instructions are listed below (*you really want to read
+  this*)!
+
+- `goatcounter migrate` is now `goatcounter db migrate`. It also behaves a bit
+  different:
+
+  - `goatcounter db migrate pending` lists only pending migrations, and will use
     exit code 1 if there are any pending migrations.
-  - `goatcounter migrate list` lists all migrations, always exits with 0.
+  - `goatcounter db migrate list` lists all migrations, always exits with 0.
 
-- The build flag to set the version changed from (**incompatible**):
+- The `none` value got removed from the `-tls` flag; use `tls=http` to not serve
+  TLS. This was confusingly named as you can do `-tls=none,acme` to still
+  generate ACME certificates, but `none` implies that nothing is done.
+
+- `goatcounter create` is now `goatcounter db site create`, and some flags got
+  changed:
+
+  - `-domain` is now `-vhost`.
+  - `-parent` is now `-link`.
+  - `-email` is now `-user.email`.
+  - `-password` is now `-user.password`.
+
+- The `-port` flag for `goatcounter serve` is renamed to `-public-port`. This
+  should clarify that this isn't the *listen* port, but just the port
+  GoatCounter is publicly accessible on.
+
+- The `-site` flag got removed from `goatcounter import`; you can now only use
+  `-url` to set a GoatCounter site to import to. The automagic API key creation
+  was more confusing than anything else.
+
+  You can use `goatcounter db create apitoken` to create an API key from the CLI.
+
+- If you build from source, the build flag to set the version changed from:
 
       -ldflags="-X main.version=..."
 
@@ -25,41 +59,66 @@ Unreleased v1.5.0
 
       -ldflags="-X zgo.at/goatcounter.Version=..."
 
-- You can import pageviews from logfiles with the `goatcounter import` command;
-  see `goatcounter help import` for details.
+- The CSV export format was increased to `2`; it now includes the parsed browser
+  and system values in addition to the User-Agent header. Version 2.0 will not
+  be able to import the older exports from version `1`.
 
-- New `goatcounter buffer` command; this allows buffering of pageviews in case
-  the backend is down, running migrations, etc. See `goatcounter help buffer`
-  for more information.
+
+**Other changes**:
+
+- You can read pageviews from logfiles with the `goatcounter import` command;
+  you can also send pageviews to goatcounter.com with this (you don’t need to
+  self-host it). See `goatcounter help import` and the site code documentation
+  for details.
+
+- You can now create multiple users; before there was always a single one. You
+  can add users in *Settings → Users*.
+
+  As a consequence, "Site settings" and "User preferences" are now split in to
+  two screens. The Settings button in the top-right now displays only site
+  settings, and clicking on your email address in the top right displays user
+  preferences, which every user can configure to their liking.
 
 - You can now configure what's displayed on the dashboard, in what order, and
-  configure some aspects of various "widgets". This is in the *Setting →
-  Dashboard*, and some settings from the main settings page have moved there.
-  (#416, #417, #418)
+  configure some aspects of various "widgets". You can set it in *User
+  preferences → Dashboard*. Some settings from the main settings page have moved
+  there. (#416, #417, #418)
 
 - You can save a default view for the dashboard. Instead of always loading the
   last week by default, you can now configure it to load the last month, or view
   by day, or anything you want really. (#419)
 
 - You can choose which data to collect; you can disable collecting any
-  User-Agent, location, or Referrer information. (#423)
+  User-Agent, location, Referrer information. (#423)
 
 - Ability to record state/province/district in addition to country, so it
-  records "US-TX" or "NL-NB" instead of "United States" or "Netherlands". This
-  option can be disabled separately from recording the country (enabled by
-  default). This requires specifying the path to a GeoIP City database, which
-  isn't included since it's ~30M (#425)
+  records "US-TX" or "NL-NB" instead of "United States" or "Netherlands".
+
+  This option can be disabled separately from recording the country (enabled by
+  default) and you can set which countries to record it for (defaults to `US,
+  RU, CH`).
+
+  This requires specifying the path to a GeoIP City database, which isn't
+  included since it's ~30M (#425)
 
 - There are now stable `count.v*.js` scripts that can use subresource integrity.
   See the integration code for a list and hashes.
 
 - You can use `data-goatcounter-settings` on the `<script>` tag to load the
-  settings (this requires `count.v2.js` or newer).
+  settings (requires `count.v2.js` or newer).
+
+- New `goatcounter buffer` command; this allows buffering of pageviews in case
+  the backend is down, running migrations, etc. See `goatcounter help buffer`
+  for more information.
 
 - The database for PostgreSQL is now created automatically; you no longer need
   to do this manually.
 
 - You can copy settings from a site to other sites in *Settings → Sites*.
+
+- Add `goatcounter db` command; you can now edit and delete sites, users, and
+  API keys from the CLI. The `create` and `migrate` commands are now merged in
+  to this as subcommands.
 
 - Add a `gcbench` utility for inserting random pageviews in a database; for
   testing and comparing performance. This might be useful for end-users too in
@@ -74,6 +133,8 @@ Unreleased v1.5.0
   distribution is always uniform, but it still gives a reasonably accurate
   indication for comparison purposes.
 
+- Many other minor changes and improvements.
+
 ---
 
 This release contains some rather large changes to the database layout (#383);
@@ -87,14 +148,15 @@ this means:
 - Easier to add new statistics in the future.
 
 1. You **must** first update to 1.4.2 and run all migrations from that.
-   **Updating from older versions directly to 1.5.0 will not work!**
+   **Updating from older versions directly to 2.0.0 will not work!**
 
 2. Run the migrations with `goatcounter serve -automigrate` or `goatcounter
    migrate`.
 
 3. You probably want to manually run `VACUUM` (or `VACUUM FULL` for PostgreSQL)
-   after the migration to free up unused rows. This isn't required though; it
-   just frees up disk space.
+   after the migration to free up unused rows. This isn't strictly required, but
+   frees up disk space, and removes some of the autovacuum pressure that will
+   run in the background.
 
 4. Run `goatcounter reindex`.
 
@@ -102,9 +164,12 @@ All of this may take a while if you've got a lot of data. For about 500,000
 pageviews it takes about 3 minutes on SQLite, but if you've got millions of
 pageviews it may take an hour or more.
 
-**Note**: the CSV export format was increased to `2`; it now includes the parsed
-browser and system values in addition to the User-Agent header. Version 1.5 will
-not be able to import the older exports from version `1`.
+If you want to keep pageviews while this is running you can:
+
+1. Write it to a logfile from a proxy or temporary HTTP server and run
+   `goatcounter import` on this after the migrations are done.
+
+2. Use `goatcounter buffer`.
 
 
 2020-11-10, v1.4.2

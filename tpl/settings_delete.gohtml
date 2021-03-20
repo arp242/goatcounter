@@ -14,7 +14,8 @@
 </div>
 {{end}}
 
-<form method="post" action="/settings/delete-account" class="form-max-width">
+<form method="post" action="/settings/delete-account" class="form-max-width"
+	data-confirm="Are you sure you want to delete your entire account?">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 	<label for="reason">It would be appreciated if you could let me know
@@ -30,7 +31,7 @@
 		or two, or outline future plans if you’re missing a particular
 		feature.</div><br>
 
-	<button type="submit">Delete site</button> (no confirmation)
+	<button type="submit">Delete site</button>
 </form>
 <p><a href="/contact">Contact</a> within 7 days if you changed your mind and want to recover your data.</p>
 

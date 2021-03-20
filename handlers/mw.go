@@ -48,6 +48,16 @@ var (
 		return redirect(w, r)
 	})
 
+	requireAccess = func(atLeast goatcounter.UserAccess) func(http.Handler) http.Handler {
+		return auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
+			u := goatcounter.GetUser(r.Context())
+			if u != nil && u.ID > 0 && u.HasAccess(atLeast) {
+				return nil
+			}
+			return guru.Errorf(401, "Not allowed to view this page")
+		})
+	}
+
 	bosmangOnly = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		if Site(r.Context()).Bosmang() {
 			return nil

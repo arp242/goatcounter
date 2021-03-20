@@ -52,7 +52,7 @@ func jsonCmp(a, b string) bool {
 
 func newAPITest(ctx context.Context, t *testing.T,
 	method, path string, body io.Reader,
-	perm goatcounter.APITokenPermissions,
+	perm zint.Bitflag64,
 ) (*http.Request, *httptest.ResponseRecorder) {
 
 	token := goatcounter.APIToken{
@@ -75,7 +75,7 @@ func TestAPIBasics(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		t.Run("no-auth", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, 0)
 
 			delete(r.Header, "Authorization")
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
@@ -89,7 +89,7 @@ func TestAPIBasics(t *testing.T) {
 
 		t.Run("wrong-auth", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, 0)
 
 			r.Header.Set("Authorization", r.Header.Get("Authorization")+"x")
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
@@ -103,15 +103,15 @@ func TestAPIBasics(t *testing.T) {
 
 		t.Run("no-perm", func(t *testing.T) {
 			body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
-				"perm": goatcounter.APITokenPermissions{Export: true, Count: true},
+				"perm": goatcounter.APIPermExport | goatcounter.APIPermCount,
 			}))
 			ctx := gctest.DB(t)
-			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{})
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, 0)
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 403)
 
-			want := `{"error":"requires [count export] permissions"}`
+			want := `{"error":"requires 'count', 'export' permissions"}`
 			if rr.Body.String() != want {
 				t.Errorf("\nwant: %s\ngot:  %s\n", want, rr.Body.String())
 			}
@@ -119,7 +119,7 @@ func TestAPIBasics(t *testing.T) {
 
 		t.Run("404", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			r, rr := newAPITest(ctx, t, "POST", "/api/v0/doesnt-exist", nil, goatcounter.APITokenPermissions{})
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/doesnt-exist", nil, 0)
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 404)
@@ -134,7 +134,7 @@ func TestAPIBasics(t *testing.T) {
 			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{"status":500}`),
-				goatcounter.APITokenPermissions{})
+				0)
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
@@ -149,7 +149,7 @@ func TestAPIBasics(t *testing.T) {
 			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{{{{`),
-				goatcounter.APITokenPermissions{})
+				0)
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
@@ -164,7 +164,7 @@ func TestAPIBasics(t *testing.T) {
 			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{"panic":true}`),
-				goatcounter.APITokenPermissions{})
+				0)
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
@@ -177,7 +177,7 @@ func TestAPIBasics(t *testing.T) {
 
 		t.Run("ct", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, 0)
 
 			r.Header.Set("Content-Type", "text/html")
 
@@ -200,7 +200,7 @@ func TestAPIBasics(t *testing.T) {
 				bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 					"validate": v,
 				})),
-				goatcounter.APITokenPermissions{})
+				0)
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
@@ -218,7 +218,7 @@ func TestAPIBasics(t *testing.T) {
 			bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
 				"context": true,
 			})),
-			goatcounter.APITokenPermissions{})
+			0)
 
 		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
@@ -226,7 +226,7 @@ func TestAPIBasics(t *testing.T) {
 
 	t.Run("no-perm", func(t *testing.T) {
 		ctx := gctest.DB(t)
-		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, goatcounter.APITokenPermissions{})
+		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, 0)
 
 		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
@@ -236,11 +236,10 @@ func TestAPIBasics(t *testing.T) {
 		ctx := gctest.DB(t)
 
 		body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
-			"perm": goatcounter.APITokenPermissions{Export: true, Count: true},
+			"perm": goatcounter.APIPermExport | goatcounter.APIPermCount,
 		}))
-		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, goatcounter.APITokenPermissions{
-			Export: true, Count: true,
-		})
+		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body,
+			goatcounter.APIPermExport|goatcounter.APIPermCount)
 
 		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
@@ -340,7 +339,7 @@ func TestAPICount(t *testing.T) {
 	}
 
 	gctest.SetNow(t, "2020-06-18 14:42:00")
-	perm := goatcounter.APITokenPermissions{Count: true}
+	perm := goatcounter.APIPermCount
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
@@ -432,7 +431,7 @@ func TestAPISitesCreate(t *testing.T) {
 		}},
 	}
 
-	perm := goatcounter.APITokenPermissions{SiteCreate: true, SiteRead: true, SiteUpdate: true}
+	perm := goatcounter.APIPermSiteCreate | goatcounter.APIPermSiteRead | goatcounter.APIPermSiteUpdate
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
@@ -497,7 +496,7 @@ func TestAPISitesUpdate(t *testing.T) {
 
 	_ = now
 
-	perm := goatcounter.APITokenPermissions{SiteCreate: true, SiteRead: true, SiteUpdate: true}
+	perm := goatcounter.APIPermSiteCreate | goatcounter.APIPermSiteRead | goatcounter.APIPermSiteUpdate
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
