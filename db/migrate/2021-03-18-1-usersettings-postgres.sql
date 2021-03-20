@@ -1,4 +1,11 @@
 alter table sites add column user_defaults jsonb not null default '{}';
+
+-- Need to set this first to ensure the below doesn't fail: it was added later
+-- and some sites don't have it set if they never saved their settings since it
+-- got added.
+update sites set settings = jsonb_set(settings, '{sunday_starts_week}', 'false')
+where cast(settings->'sunday_starts_week' as varchar) is null;
+
 update sites set user_defaults = (
     select
         jsonb_set(jsonb_set(jsonb_set(jsonb_set(jsonb_set(jsonb_set(jsonb_set('{}',
