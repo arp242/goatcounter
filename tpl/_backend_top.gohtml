@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
 </head>
 
-<body>
+<body {{if eq .Path "/updates"}}id="page-updates"{{end}}>
 	<noscript>
 		<p>GoatCounter requires JavaScript enabled to function well; please allow JavaScript to run from {{.StaticDomain}}.</p>
 		<!--

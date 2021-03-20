@@ -379,13 +379,17 @@ noscript p { margin: .5em; }
 
 /*** Updates overview
  **********************/
-.update p        { margin-left: 2em; }
-.update > em + p, .update > em + strong + p { margin-top: 0; }
-.update pre      { max-width: 50em; margin-left: 2em; }
-.update-new      { background-color: yellow; padding: 0 .3em; }
-h3 + h4          { margin-top: .3em; }
-.reftable        { margin-top: 1em; }
-.table-left th   { text-align: left; }
+#page-updates .page       { background-color: #eee; box-shadow: none; }
+.update, #page-updates h1 { margin: 1em 0; padding: .5em; background-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,.2); }
+.update p                 { margin-left: 2em; }
+.update > em + p, .update > em + strong + p { margin-top: .5em; }
+.update pre               { max-width: 50em; margin-left: 2em; }
+.update-new               { background-color: yellow; padding: 0 .3em; }
+h3 + h4                   { margin-top: .3em; }
+.reftable                 { margin-top: 1em; }
+.table-left th            { text-align: left; }
+.update hr                { border-top: 1px solid #ddd; max-width: 50em; font-size: 1rem; margin: 0; }
+.update hr:before         { content: ""; }
 
 
 /*** Loading indicator
