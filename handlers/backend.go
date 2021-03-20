@@ -284,9 +284,8 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 		t = "_dashboard_pages_text_rows.gohtml"
 	}
 	tpl, err := ztpl.ExecuteString(t, struct {
-		Context     context.Context
+		Globals
 		Pages       goatcounter.HitLists
-		Site        *goatcounter.Site
 		PeriodStart time.Time
 		PeriodEnd   time.Time
 		Daily       bool
@@ -297,7 +296,7 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
-	}{r.Context(), pages, site, start, end, daily, forcedDaily, int(max),
+	}{newGlobals(w, r), pages, start, end, daily, forcedDaily, int(max),
 		offset, false, ""})
 	if err != nil {
 		return err

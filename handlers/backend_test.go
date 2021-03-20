@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"sort"
@@ -373,6 +374,57 @@ func TestBackendCountSessions(t *testing.T) {
 	hits2 = checkHits(ctx2, 4)
 	want = []int{1, 1, 2, 3, 3, 1, 2, 1, 3, 4, 5}
 	checkSess(append(hits1, hits2...), want)
+}
+
+func TestBackendPagesMore(t *testing.T) {
+	ctx := gctest.DB(t)
+	site := Site(ctx)
+	now := goatcounter.Now()
+
+	gctest.StoreHits(ctx, t, false,
+		goatcounter.Hit{Path: "/1"},
+		goatcounter.Hit{Path: "/2"},
+		goatcounter.Hit{Path: "/3"},
+		goatcounter.Hit{Path: "/4"},
+		goatcounter.Hit{Path: "/5"},
+		goatcounter.Hit{Path: "/6"},
+		goatcounter.Hit{Path: "/7"},
+		goatcounter.Hit{Path: "/8"},
+		goatcounter.Hit{Path: "/9"},
+		goatcounter.Hit{Path: "/10"},
+	)
+	url := fmt.Sprintf(
+		"/pages-more?exclude=1,2,3,4,5&max=10&period-start=%s&period-end=%s",
+		now.Format("2006-01-02"), now.Format("2006-01-02"))
+
+	r, rr := newTest(ctx, "GET", url, nil)
+	r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
+	login(t, r)
+	newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+	ztest.Code(t, rr, 200)
+
+	var body map[string]interface{}
+	zjson.MustUnmarshal(rr.Body.Bytes(), &body)
+	delete(body, "rows")
+	have := string(zjson.MustMarshalIndent(body, "", "\t"))
+
+	want := `{
+		"max": 10,
+		"more": false,
+		"paths": [
+			"/10",
+			"/9",
+			"/8",
+			"/7",
+			"/6"
+		],
+		"total_display": 5,
+		"total_unique_display": 0
+	}`
+
+	if d := ztest.Diff(have, want, ztest.DiffNormalizeWhitespace); d != "" {
+		t.Error(d)
+	}
 }
 
 func BenchmarkCount(b *testing.B) {
