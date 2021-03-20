@@ -325,7 +325,7 @@ start:
 		}
 
 		return errors.Errorf("unknown command for \"db\": %q\n%s", cmd, helpDBShort)
-	case "":
+	case "", zli.CommandNoneGiven:
 		return errors.New("\"db\" needs a subcommand\n" + helpDBShort)
 	case "help":
 		zli.WantColor = true
@@ -382,7 +382,7 @@ func getTable(f *zli.Flags, cmd string) (string, error) {
 	switch tbl {
 	default:
 		return "", errors.Errorf("unknown table %q\n%s", tbl, helpDBShort)
-	case "":
+	case "", zli.CommandNoneGiven:
 		return "", errors.Errorf("%q commands needs a table name\n%s", cmd, helpDBShort)
 	case "help":
 		zli.WantColor = true

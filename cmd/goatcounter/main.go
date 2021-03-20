@@ -60,7 +60,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 		zli.Errorf("unknown command: %q", cmd)
 		zli.Exit(1)
 		return
-	case "", "help":
+	case "", "help", zli.CommandNoneGiven:
 		run = cmdHelp
 	case "version":
 		fmt.Fprintln(zli.Stdout, getVersion())
