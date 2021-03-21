@@ -1,0 +1,54 @@
+<ul>
+	<li>Open a <a href="https://github.com/zgoat/goatcounter/issues/new">GitHub
+		issue</a>. It’s fine to use this for support requests or general
+		questions, as GitHub issues are public and the answers may be useful for
+		others in the future.</li>
+
+	<li>Email:
+		<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>.</li>
+
+	<li>Telegram: <a href="tel:+447553065803">+44 755 306 5803</a>;
+		WhatsApp: <a href="tel:+62225157937">+62 22 515 7937</a>;
+		Signal:   <a href="tel:+6281339263297">+62 8133 9263 297</a>.
+	</li>
+
+	<li>There’s a <a href="https://t.me/goatcounter" target="_blank" rel="noopener">Public Telegram Group</a>.</li>
+</ul>
+
+<form method="post" action="/contact" class="contact-form">
+	<input type="hidden" name="return" value="{{if .a}}{{.a.Return}}{{else}}{{.r}}{{end}}">
+
+	<strong>Send message</strong>
+	<div class="f">
+		<div>
+			<label for="email">Email</label><br>
+			<input type="text" id="email" name="email" {{if .a}}value="{{.a.Email}}"{{end}}><br>
+			{{if .v}}{{validate "email" .v}}{{end}}
+			<span>Make sure this is correct</span>
+		</div>
+
+		<div>
+			<label for="turing">Enter 9 here</label><br>
+			<input type="text" id="turing" name="turing" {{if .a}}value="{{.a.Turing}}"{{end}}><br>
+			{{if .v}}{{validate "turing" .v}}{{end}}
+			<span>Just to verify that you’re human</span>
+		</div>
+	</div>
+
+	<div>
+		<label for="message">Your message</label><br>
+		<textarea id="message" name="message">{{if .a}}{{.a.Message}}{{end}}</textarea><br>
+		{{if .v}}{{validate "message" .v}}{{end}}
+		<button type="submit">Send</button>
+	</div>
+
+	{{if .v}}
+		{{if has_errors .v}}
+			<div class="flash flash-e"
+				style="position: fixed; bottom: 0; right: .5em; min-width: 20em; z-index: 5; text-align: left;">
+			Additional errors:{{.v.HTML}}</div>
+		{{end}}
+	{{end}}
+
+	<div id="scroll-target"></div>
+</form>

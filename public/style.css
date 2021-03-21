@@ -191,3 +191,14 @@ dt { font-weight: bold; margin-top: 1em; }
 @supports (-webkit-overflow-scrolling: touch) {
 	input, select, textarea { font-size: 16px !important; }
 }
+
+/*** Contact form ***/
+.contact-form          { display: block; max-width: 40em; padding: 1rem; padding-top: 0; margin-left: 3em;
+						 background-color: #f9f9f9; box-shadow: 0 0 6px rgba(0,0,0,.2); }
+.contact-form strong   { margin-bottom: .5em; }
+.contact-form span     { color: #555; font-size: .9rem; }
+.contact-form >div     { max-width: 40em; }
+.contact-form .f       { display: flex; justify-content: space-between; margin-bottom: 1em; }
+.contact-form button   { margin: 0; margin-top: 1em; }
+.contact-form textarea { font-family: monospace; }
+.contact-form .err     { display: block; color: red; }

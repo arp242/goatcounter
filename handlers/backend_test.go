@@ -30,7 +30,11 @@ func TestBackendTpl(t *testing.T) {
 		page, want string
 	}{
 		{"/updates", "Updates"},
-		{"/code", "add the following JavaScript anywhere on the page"},
+
+		{"/code/start", "Getting started"},
+
+		// rdr
+		// {"/api", "Backend integration"},
 
 		// User settings
 		{"/user/dashboard", "Paths overview"},
@@ -45,7 +49,7 @@ func TestBackendTpl(t *testing.T) {
 		{"/settings/users/add", "Password"},
 		{"/settings/users/1", "Password"},
 		{"/settings/purge", "Remove all pageviews for a page"},
-		{"/settings/export", "The first line is a header with the field names"},
+		{"/settings/export", "includes all pageviews"},
 		{"/settings/delete-account", "The site will be marked as deleted"},
 		{"/settings/change-code", "Change your site code and login domain"},
 
@@ -54,7 +58,6 @@ func TestBackendTpl(t *testing.T) {
 		{"/gdpr", "consult a lawyer"},
 		{"/contact", "Public Telegram Group"},
 		{"/contribute", "One-time donation"},
-		{"/api", "Backend integration"},
 		{"/api.html", "GoatCounter API documentation"},
 		{"/api2.html", "<rapi-doc"},
 		{"/api.json", `"description": "API for GoatCounter"`},
@@ -64,7 +67,7 @@ func TestBackendTpl(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run("", func(t *testing.T) {
+		t.Run(tt.page, func(t *testing.T) {
 			ctx := gctest.DB(t)
 			site := Site(ctx)
 

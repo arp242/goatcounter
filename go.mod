@@ -25,6 +25,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/monoculum/formam v0.0.0-20210131081218-41b48e2a724b
 	github.com/oschwald/geoip2-golang v1.4.0
+	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.3.2
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
@@ -32,7 +33,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/tools v0.1.0
 	honnef.co/go/tools v0.1.2
-	zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8
+	zgo.at/blackmail v0.0.0-20210321151525-a218c2f584be
 	zgo.at/errors v1.0.1-0.20210313142254-4e0fb19b1249
 	zgo.at/follow v0.0.0-20201229040459-c683c36702b6
 	zgo.at/gadget v0.0.0-20210225052028-befd29935cb7

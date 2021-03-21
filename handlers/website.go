@@ -102,13 +102,19 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 
 func (h website) MountShared(r chi.Router) {
 	r.Get("/code", zhttp.Wrap(h.code))
+	r.Get("/code/*", zhttp.Wrap(h.code))
 	r.Get("/contribute", zhttp.Wrap(h.contribute))
 	r.Get("/api.json", zhttp.Wrap(h.openAPI))
 	r.Get("/api.html", zhttp.Wrap(h.openAPI))
 	r.Get("/api2.html", zhttp.Wrap(h.openAPI))
-	for _, t := range []string{"help", "gdpr", "api", "contact"} {
+	r.Post("/contact", zhttp.Wrap(h.contact))
+	for _, t := range []string{"help", "gdpr", "contact"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
+
+	r.Get("/api", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/code/api")
+	}))
 }
 
 var metaDesc = map[string]string{
@@ -124,6 +130,67 @@ var metaDesc = map[string]string{
 	"data":       "GoatCounter data",
 	"api":        "API – GoatCounter",
 	"design":     "GoatCounter design",
+}
+
+func (h website) contact(w http.ResponseWriter, r *http.Request) error {
+	type argsT struct {
+		Email   string `json:"email"`
+		Turing  string `json:"turing"`
+		Message string `json:"message"`
+		Return  string `json:"return"`
+	}
+	var args argsT
+
+	render := func(reported error) error {
+		var v zvalidate.Validator
+		if !errors.As(reported, &v) {
+			return reported
+		}
+
+		return zhttp.Template(w, "contact.gohtml", struct {
+			Globals
+			Page     string
+			MetaDesc string
+			Site     goatcounter.Site
+			User     goatcounter.User
+
+			Form     bool
+			Args     argsT
+			Validate *zvalidate.Validator
+		}{newGlobals(w, r), "contact", "", goatcounter.Site{},
+			goatcounter.User{},
+			true, args,
+			&v})
+	}
+
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	v := zvalidate.New()
+	v.Required("email", args.Email)
+	v.Required("turing", args.Turing)
+	v.Required("message", args.Message)
+	email := v.Email("email", args.Email)
+	if strings.TrimSpace(args.Turing) != "9" {
+		v.Append("turing", "must be 9")
+	}
+	v.Len("message", args.Message, 20, 0)
+	if v.HasErrors() {
+		return render(v)
+	}
+
+	err = blackmail.Send("GoatCounter message",
+		email,
+		blackmail.To("support@goatcounter.com"),
+		blackmail.BodyText(append([]byte(args.Message), "\n"...)))
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Message sent!")
+	return zhttp.SeeOther(w, args.Return)
 }
 
 func (h website) openAPI(w http.ResponseWriter, r *http.Request) error {
@@ -180,7 +247,11 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 		Page     string
 		MetaDesc string
 		LoggedIn template.HTML
-	}{newGlobals(w, r), t, metaDesc[t], loggedIn})
+
+		// For the message form
+		Validate *zvalidate.Validator
+		Args     interface{}
+	}{newGlobals(w, r), t, metaDesc[t], loggedIn, nil, nil})
 }
 
 func (h website) signup(w http.ResponseWriter, r *http.Request) error {
@@ -339,16 +410,28 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	// TODO: redirect to index if this doesn't exist.
+	cp := chi.URLParam(r, "*")
+	if cp == "" {
+		return zhttp.MovedPermanently(w, "/code/start")
+	}
+
 	return zhttp.Template(w, "code.gohtml", struct {
 		Globals
 		Page        string
+		CodePage    string
 		MetaDesc    string
 		CountDomain string
 		SiteURL     string
 		SiteDomain  string
 		FromWWW     bool
-	}{newGlobals(w, r), "code", "Site integration code – GoatCounter",
-		dc, site.URL(r.Context()), site.Domain(r.Context()), h.fromWWW})
+
+		// For the message form
+		Validate *zvalidate.Validator
+		Args     interface{}
+	}{newGlobals(w, r), "code", cp, "Site integration code – GoatCounter",
+		dc, site.URL(r.Context()), site.Domain(r.Context()), h.fromWWW,
+		nil, nil})
 }
 
 func (h website) downloadData(w http.ResponseWriter, r *http.Request) error {

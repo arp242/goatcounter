@@ -4,6 +4,8 @@
 
 <h2 id="export">Export/Import</h2>
 
+<p>The format of the CSV file is <a href="/code/export">documented over here</a>.</p>
+
 <div class="flex-form">
 	<form method="post" action="/settings/export" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -43,77 +45,5 @@
 		</fieldset>
 	</form>
 </div>
-
-<hr>
-
-<h3>CSV format</h3>
-<p>The first line is a header with the field names. The fields, in order, are:</p>
-<table class="table-left">
-	<tr><th>2,Path</th><td>Path name (e.g. <code>/a.html</code>).
-		This also doubles as the event name. This header is prefixed
-		with the version export format (see versioning below).</td></tr>
-	<tr><th>Title</th><td>Page title that was sent.</td></tr>
-	<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
-	<tr><th>User-Agent</th><td><code>User-Agent</code> header.</td></tr>
-	<tr><th>Browser</th><td>Browser name and version.</td></tr>
-	<tr><th>System</th><td>System name and version.</td></tr>
-	<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
-	<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
-		not, or one of the
-		<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
-		constants if it is.</td></tr>
-	<tr><th>Referrer</th><td>Referrer data.</td></tr>
-	<tr><th>Referrer scheme</th><td>
-			<code>h</code> – HTTP; an URL;<br>
-			<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
-			add a link to the specific story, so are just recorded as “Hacker News”;<br>
-			<code>c</code> – Campaign; text string from a campaign parameter;<br>
-			<code>o</code> – Other (e.g. Android apps).
-		</td></tr>
-	<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
-	<tr><th>Location</th><td>ISO 3166-2 country code (either "US" or "US-TX")</td></tr>
-	<tr><th>FirstVisit</th><td>First visit in this session?</td>
-	<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
-</table>
-
-<h3>Versioning</h3>
-<p>The format of the CSV file may change in the future; the version of the
-export file is recorded at the start of the header as a number.</p>
-
-<p>It’s <strong>strongly recommended</strong> to check this number if you're
-using a script to import/sync data and error out if it changes. Any future
-incompatibilities will be documented here.</p>
-
-
-<details>
-	<summary>Version 1 documentation</summary>
-
-	<p>The first line is a header with the field names. The fields, in order, are:</p>
-	<table class="table-left">
-		<tr><th>1,Path</th><td>Path name (e.g. <code>/a.html</code>).
-			This also doubles as the event name. This header is prefixed
-			with the version export format (see versioning below).</td></tr>
-		<tr><th>Title</th><td>Page title that was sent.</td></tr>
-		<tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
-		<tr><th>Bot</th><td>If this is a bot request; <code>0</code> if it's
-			not, or one of the
-			<a href="https://pkg.go.dev/zgo.at/isbot?tab=doc#pkg-constants">isbot</a>
-			constants if it is.</td></tr>
-		<tr><th>Session</th><td>The session ID, to track unique visitors.</td>
-		<tr><th>FirstVisit</th><td>First visit in this session?</td>
-		<tr><th>Referrer</th><td>Referrer data.</td></tr>
-		<tr><th>Referrer scheme</th><td>
-				<code>h</code> – HTTP; an URL;<br>
-				<code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
-				add a link to the specific story, so are just recorded as “Hacker News”;<br>
-				<code>c</code> – Campaign; text string from a campaign parameter;<br>
-				<code>o</code> – Other (e.g. Android apps).
-			</td></tr>
-		<tr><th>Browser</th><td><code>User-Agent</code> header.</td></tr>
-		<tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
-		<tr><th>Location</th><td>ISO 3166-1 country code.</td></tr>
-		<tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
-	</table>
-</details>
 
 {{template "_backend_bottom.gohtml" .}}

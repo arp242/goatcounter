@@ -18,7 +18,7 @@
 
 		;[report_errors, dashboard, period_select, tooltip, billing_subscribe,
 			setup_datepicker, filter_pages, add_ip, fill_tz, bind_scale,
-			copy_pre, widget_settings, saved_views, bind_confirm,
+			widget_settings, saved_views, bind_confirm,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -124,26 +124,6 @@
 					}
 				})
 			})
-		})
-	}
-
-	// Add copy button to <pre>.
-	var copy_pre = function() {
-		$('.site-code pre').each((_, elem) => {
-			var btn = $('<a href="#" class="pre-copy">📋 Copy</a>').on('click', (e) => {
-				e.preventDefault()
-
-				var i = $('<textarea />').val(elem.innerText).css('position', 'absolute').appendTo('body')
-				i[0].select()
-				i[0].setSelectionRange(0, elem.innerText.length)
-				document.execCommand('copy')
-				i.remove()
-			})
-
-			// Need relative positioned wrapper.
-			var wrap = $('<div class="pre-copy-wrap">').html($(elem).clone())
-			$(elem).replaceWith(wrap)
-			wrap.prepend(btn)
 		})
 	}
 

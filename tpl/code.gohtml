@@ -1,801 +1,166 @@
-{{/*************************************************************************
- * This file was generated from tpl/code.markdown. DO NOT EDIT.
-*************************************************************************/}}
-
-{{template "_top.gohtml" .}}
-<!-- _ --></p>
-
-<h1 id="site-code">Site code</h1>
-{{if .FromWWW}}
-<p class="flash flash-i">Note: replace <code>{{.SiteURL}}</code> with the URL
-to your actual site in the examples below. This will be done automatically if
-you view the docs linked from your site in the top-right corner.</p>
-{{end}}
-
-{{define "code"}}&lt;script data-goatcounter="{{.SiteURL}}/count"
-        async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;{{end}}
-
-<p>Getting started is pretty easy, just add the following JavaScript anywhere on the page:</p>
-<pre>{{template "code" .}}</pre>
-<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews ({{.SiteDomain}} and/or gc.zgo.at domain).</p>
-
-<h2 class="no_toc" id="integrations">Integrations</h2>
-
-<div style="text-align: center">
-<label for="int-url">Endpoint</label><br />
-<input type="text" value="{{.SiteURL}}/count" style="width: 28em" /><br />
-<span style="color: #999">You’ll need to copy this to the integration settings</span>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{{template "_favicon.gohtml" .}}
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="{{.MetaDesc}}">
+	<title>GoatCounter documentation</title>
+	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
+	<link rel="canonical" href="https://{{.Domain}}/{{.Page}}/{{.CodePage}}">
 
 <style>
-.integrations         { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1em; margin-bottom: 2em; }
-.integrations a img   { float: left; }
-.integrations a       { line-height: 40px; padding: 10px; width: 10em; margin: 1em; box-shadow: 0 0 4px #cdc8a4; }
-.integrations a:hover { text-decoration: none; color: #00f; background-color: #f7f7f7; }
+footer.center       { margin-top: 2em; }
+nav.center          { max-width: 80em; padding-left: 19em; }
+
+.code-wrap          { display: flex; max-width: 80em; }
+.code-wrap >div     { overflow: hidden; padding: 6px; margin: -6px; margin-right: 6px; }
+.code-nav           { flex-shrink: 0; width: 18em; height: 100%; padding: .5em; margin-right: .6em;
+				      background-color: #f6f3da; color: #252525; box-shadow: 0 0 4px #cdc8a4; }
+.code-nav select    { display: none; }
+.code-nav ul        { list-style: none; margin: 0; padding: 0; }
+.code-nav a         { display: block; margin: .3em 0; padding-left: .3em; border-left: 3px solid transparent; }
+.code-nav li >ul a  { margin-left: .5em; }
+.code-nav .active a { border-left-color: #999; }
+.code-nav strong    { font-size: .9rem; }
+.page-code          { padding: 1em; background-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,.2); }
+h3                  { margin-bottom: .2em; }
+h3 + p              { margin-top: 0; }
+h4                  { margin-bottom: .2em; }
+h4 + p              { margin-top: 0; }
+hr                  { margin: 0; }
+.table-left th      { text-align: left; }
+
+.pre-copy-wrap { position: relative; }
+.pre-copy      { position: absolute; right: 0; top: calc(-2em - 1px); padding: .3em 1em;
+				 color: #000; background-color: #f5f5f5; border-top: 1px solid #d5d5d5; border-left: 1px solid #d5d5d5; }
+
+@media (min-height: 46rem) {
+	.code-nav { position: sticky; top: 0; }
+}
+
+@media (max-width: 50rem) {
+	nav.center       { padding-left: 1em; }
+	.code-wrap       { flex-direction: column; padding: 0; }
+	.code-wrap >div  { margin: 0; padding: 0; }
+	.code-nav        { width: auto; margin-bottom: 1em; }
+	.code-nav ul     { display: none; }
+	.code-nav select { display: block; background-color: #fff; width: 100%; }
+}
 </style>
-
-<div class="integrations">
-<a href="https://github.com/zgoat/goatcounter-wordpress">
-    <img width="40" height="40" src="{{.Static}}/int-logo/wp.png" /> WordPress</a>
-<a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">
-    <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg" /> Gatsby</a>
-<a href="https://www.schlix.com/extensions/analytics/goatcounter.html">
-    <img width="40" height="40" src="{{.Static}}/int-logo/schlix.png" /> schlix</a>
-</div>
-</div>
-
-<h2 class="no_toc" id="visitor-counter">Visitor counter</h2>
-
-<p>You can display a page's view count on your website by adding a HTML document or
-image. The easiest way to do this is from the JavaScript integration:</p>
-
-<pre><code>&lt;script&gt;
-    // Append at the end of &lt;body&gt;; can use a CSS selector to append
-    // somewhere else.
-    // Be sure to call this *after* the count.js script is loaded.
-    window.goatcounter.visit_count({append: 'body'})
-&lt;/script&gt;
-</code></pre>
-
-{{if .FromWWW}}
-<strong>Note</strong>: you will need to enable “Allow adding visitor counts on your website”
-in your site settings; this defaults to <em>off</em> to prevent accidental
-unintentional leaking of data.
-{{else}}
-<strong>Note</strong>: you will need to enable “Allow adding visitor counts on your website”
-in your <a href="/settings/main">site settings</a>; this defaults to
-<em>off</em> to prevent accidental unintentional leaking of data.
-{{end}}
-
-<p>See the <a href="#visitor-counter-customisation">detailed documentation</a> for more
-options and customisations.</p>
-
-<h2 class="no_toc" id="table-of-contents">Table of Contents</h2>
-<ul id="markdown-toc">
-  <li><a href="#site-code" id="markdown-toc-site-code">Site code</a>    <ul>
-      <li><a href="#events" id="markdown-toc-events">Events</a></li>
-      <li><a href="#content-security-policy" id="markdown-toc-content-security-policy">Content security policy</a></li>
-      <li><a href="#customizing" id="markdown-toc-customizing">Customizing</a>        <ul>
-          <li><a href="#settings" id="markdown-toc-settings">Settings</a></li>
-          <li><a href="#data-parameters" id="markdown-toc-data-parameters">Data parameters</a></li>
-          <li><a href="#methods" id="markdown-toc-methods">Methods</a>            <ul>
-              <li><a href="#countvars" id="markdown-toc-countvars"><code>count(vars)</code></a></li>
-            </ul>
-          </li>
-          <li><a href="#urlvars" id="markdown-toc-urlvars"><code>url(vars)</code></a></li>
-          <li><a href="#filter" id="markdown-toc-filter"><code>filter()</code></a>            <ul>
-              <li><a href="#bindevents" id="markdown-toc-bindevents"><code>bind_events()</code></a></li>
-              <li><a href="#getqueryname" id="markdown-toc-getqueryname"><code>get_query(name)</code></a></li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li><a href="#examples" id="markdown-toc-examples">Examples</a>        <ul>
-          <li><a href="#using-data-goatcounter-settings" id="markdown-toc-using-data-goatcounter-settings">Using data-goatcounter-settings</a></li>
-          <li><a href="#load-only-on-production" id="markdown-toc-load-only-on-production">Load only on production</a></li>
-          <li><a href="#skip-own-views" id="markdown-toc-skip-own-views">Skip own views</a></li>
-          <li><a href="#custom-path-and-referrer" id="markdown-toc-custom-path-and-referrer">Custom path and referrer</a></li>
-          <li><a href="#multiple-domains" id="markdown-toc-multiple-domains">Multiple domains</a></li>
-          <li><a href="#ignore-query-parameters-in-path" id="markdown-toc-ignore-query-parameters-in-path">Ignore query parameters in path</a></li>
-          <li><a href="#spa" id="markdown-toc-spa">SPA</a></li>
-          <li><a href="#using-navigatorsendbeacon" id="markdown-toc-using-navigatorsendbeacon">Using navigator.sendBeacon</a></li>
-          <li><a href="#custom-events" id="markdown-toc-custom-events">Custom events</a></li>
-          <li><a href="#consent-notice" id="markdown-toc-consent-notice">Consent notice</a></li>
-        </ul>
-      </li>
-      <li><a href="#visitor-counter-customisation" id="markdown-toc-visitor-counter-customisation">Visitor counter customisation</a>        <ul>
-          <li><a href="#customisation" id="markdown-toc-customisation">Customisation</a></li>
-          <li><a href="#advanced" id="markdown-toc-advanced">Advanced</a></li>
-          <li><a href="#json" id="markdown-toc-json">JSON</a></li>
-        </ul>
-      </li>
-      <li><a href="#advanced-integrations" id="markdown-toc-advanced-integrations">Advanced integrations</a>        <ul>
-          <li><a href="#image-based-tracking-without-javascript" id="markdown-toc-image-based-tracking-without-javascript">Image-based tracking without JavaScript</a></li>
-          <li><a href="#tracking-from-backend-middleware" id="markdown-toc-tracking-from-backend-middleware">Tracking from backend middleware</a></li>
-          <li><a href="#importing-pageviews-from-logfiles" id="markdown-toc-importing-pageviews-from-logfiles">Importing pageviews from logfiles</a></li>
-          <li><a href="#location-of-countjs" id="markdown-toc-location-of-countjs">Location of count.js</a></li>
-          <li><a href="#subresource-integrity-and-versioning" id="markdown-toc-subresource-integrity-and-versioning">Subresource integrity and versioning</a></li>
-          <li><a href="#self-hosting-countjs" id="markdown-toc-self-hosting-countjs">Self-hosting count.js</a></li>
-          <li><a href="#setting-the-endpoint-in-javascript" id="markdown-toc-setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript</a></li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="events">Events <a href="#events"></a></h2>
-<p>GoatCounter will automatically bind a click event on any element with the
-<code>data-goatcounter-click</code> attribute; for example to track clicks to an external
-link as <code>ext-example.com</code>:</p>
-
-<pre><code>&lt;a href="https://example.com" data-goatcounter-click="ext-example.com"&gt;Example&lt;/a&gt;
-</code></pre>
-
-<p>The <code>name</code> or <code>id</code> attribute will be used if <code>data-goatcounter-click</code> is empty,
-in that order.</p>
-
-<p>You can use <code>data-goatcounter-title</code> and <code>data-goatcounter-referrer</code> to set the
-title and/or referrer:</p>
-
-<pre><code>&lt;a href="https://example.com"
-   data-goatcounter-click="ext-example.com"
-   data-goatcounter-title="Example event"
-   data-goatcounter-referrer="hello"
-&gt;Example&lt;/a&gt;
-</code></pre>
-
-<p>The regular <code>title</code> attribute or the element’s HTML (capped to 200 characters)
-is used if <code>data-goatcounter-title</code> is empty. There is no default for the
-referrer.</p>
-
-<h2 id="content-security-policy">Content security policy <a href="#content-security-policy"></a></h2>
-<p>You’ll need to add the following if you use a <code>Content-Security-Policy</code>:</p>
-
-<pre><code>script-src  https://{{.CountDomain}}
-img-src     {{.SiteURL}}/count
-</code></pre>
-
-<p>The <code>script-src</code> is needed to load the <code>count.js</code> script, and the <code>img-src</code> is
-needed to send pageviews to GoatCounter (which are loaded with a “tracking
-pixel”).</p>
-
-<h2 id="customizing">Customizing <a href="#customizing"></a></h2>
-<p>Customisation can be done with the <code>window.goatcounter</code> object or
-<code>data-goatcounter-settings</code> attribute on the script; the following keys are
-supported:</p>
-
-<h3 id="settings">Settings <a href="#settings"></a></h3>
-
-<table class="reftable">
-  <thead>
-    <tr>
-      <th style="text-align: left">Setting</th>
-      <th style="text-align: left">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left"><code>no_onload</code></td>
-      <td style="text-align: left">Don’t do anything on page load. If you want to call <code>count()</code> manually. Also won’t bind events.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>no_events</code></td>
-      <td style="text-align: left">Don’t bind click events.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>allow_local</code></td>
-      <td style="text-align: left">Allow requests from local addresses (<code>localhost</code>, <code>192.168.0.0</code>, etc.) for testing the integration locally.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>allow_frame</code></td>
-      <td style="text-align: left">Allow requests when the page is loaded in a frame or iframe.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>endpoint</code></td>
-      <td style="text-align: left">Customize the endpoint for sending pageviews to; see <a href="#setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript </a>.</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="data-parameters">Data parameters <a href="#data-parameters"></a></h3>
-<p>You can customize the data sent to GoatCounter; the default value will be used
-if the value is <code>null</code> or <code>undefined</code>, but <em>not</em> on empty string, <code>0</code>, or
-anything else!</p>
-
-<p>The value can be a callback: the default value is passed and the return value is
-sent to the server. Nothing is sent if the return value from the <code>path</code> callback
-is <code>null</code>.</p>
-
-<table class="reftable">
-  <thead>
-    <tr>
-      <th style="text-align: left">Variable</th>
-      <th style="text-align: left">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left"><code>path</code></td>
-      <td style="text-align: left">Page path (without domain) or event name. Default is the value of <code>&lt;link rel="canonical"&gt;</code> if it exists, or <code>location.pathname + location.search</code>.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>title</code></td>
-      <td style="text-align: left">Human-readable title. Default is <code>document.title</code>.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>referrer</code></td>
-      <td style="text-align: left">Where the user came from; can be an URL (<code>https://example.com</code>) or any string (<code>June Newsletter</code>). Default is to use the <code>Referer</code> header.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>event</code></td>
-      <td style="text-align: left">Treat the <code>path</code> as an event, rather than a URL. Boolean.</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="methods">Methods <a href="#methods"></a></h3>
-
-<h4 id="countvars"><code>count(vars)</code> <a href="#countvars"></a></h4>
-<p>Send a pageview or event to GoatCounter; the <code>vars</code> parameter is an object as
-described in the Data section above, and will be merged in to the global
-<code>window.goatcounter</code>, taking precedence.</p>
-
-<p>Be aware that the script is loaded with <code>async</code> by default, so <code>count()</code> may not
-yet be available on click events and the like. Use <code>setInterval()</code> to wait until
-it’s available:</p>
-
-<pre><code>elem.addEventListener('click', function() {
-    var t = setInterval(function() {
-        if (window.goatcounter &amp;&amp; window.goatcounter.count) {
-            clearInterval(t)
-            goatconter.count()
-        }
-    }, 100)
-})
-</code></pre>
-
-<p>The default implementation already handles this, and you only need to worry
-about this if you call <code>count()</code> manually.</p>
-
-<h3 id="urlvars"><code>url(vars)</code> <a href="#urlvars"></a></h3>
-<p>Get URL to send to the server; the <code>vars</code> parameter behaves as <code>count()</code>.</p>
-
-<p>Note that you may want to use <code>filter()</code> to exclude prerender requests and
-various other things.</p>
-
-<h3 id="filter"><code>filter()</code> <a href="#filter"></a></h3>
-<p>Determine if this request should be filtered; this returns a string with the
-reason or <code>false</code>.</p>
-
-<p>This will filter pre-render requests, frames (unless <code>allow_frame</code> is set), and
-local requests (unless <code>allow_local</code> is set).</p>
-
-<p>Example usage:</p>
-
-<pre><code>var f = goatcounter.filter()
-if (f) {
-    if (console &amp;&amp; 'log' in console)
-        console.warn('goatcounter: not counting because of: ' + f)
-    return
-}
-</code></pre>
-
-<h4 id="bindevents"><code>bind_events()</code> <a href="#bindevents"></a></h4>
-<p>Bind a click event to every element with <code>data-goatcounter-click</code>. Called on
-page load unless <code>no_onload</code> or <code>no_events</code> is set. You may need to call this
-manually if you insert elements after the page loads.</p>
-
-<h4 id="getqueryname"><code>get_query(name)</code> <a href="#getqueryname"></a></h4>
-<p>Get a single query parameter from the current page’s URL; returns <code>undefined</code> if
-the parameter doesn’t exist. This is useful if you want to get the <code>referrer</code>
-from the URL:</p>
-
-<pre><code>&lt;script&gt;
-    window.goatcounter = {
-        referrer: function() {
-            return goatcounter.get_query('ref') ||
-                goatcounter.get_query('utm_campaign') ||
-                goatcounter.get_query('utm_source') ||
-                document.referrer
-        },
-    }
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<p>Note there is also a <em>Campaign Parameters</em> setting, which is probably easier for
-most people. This is just if you want to get the campaign on only some pages, or
-want to do some more advanced filtering (such as only including your own
-campaigns).</p>
-
-<h2 id="examples">Examples <a href="#examples"></a></h2>
-
-<h3 id="using-data-goatcounter-settings">Using data-goatcounter-settings <a href="#using-data-goatcounter-settings"></a></h3>
-<p>The <code>data-goatcounter-settings</code> attribute on the script can set to a JSON object
-to configure the settings; this will <strong>override</strong> anything that's already
-present in <code>window.goatcounter</code>. For example to set <code>no_onload</code>:</p>
-
-<pre><code>  &lt;script data-goatcounter="{{.SiteURL}}/count"
-          data-goatcounter-settings='{"no_onload":true}'
-          async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;
-</code></pre>
-
-<p>This prevents having to add a new <code>&lt;script&gt;</code> with inline JS.</p>
-
-<p>This is supported for all the settings documented above except <code>endpoint</code>.</p>
-
-<h3 id="load-only-on-production">Load only on production <a href="#load-only-on-production"></a></h3>
-<p>You can check <code>location.host</code> if you want to load GoatCounter only on
-<code>production.com</code> and not <code>staging.com</code> or <code>development.com</code>; for example:</p>
-
-<pre><code>&lt;script&gt;
-    // Only load on production environment.
-    if (window.location.host !== 'production.com')
-        window.goatcounter = {no_onload: true}
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<p>Note that <a href="https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72">request from localhost are already
-ignored</a>.</p>
-
-<h3 id="skip-own-views">Skip own views <a href="#skip-own-views"></a></h3>
-<p>There is a ‘Ignore IPs’ settings in your site’s settings (<em>Settings →
-Tracking</em>). All requests from any IP address added here will be ignored.</p>
-
-<p>You can also add <code>#toggle-goatcounter</code> to your site's URL to block your browser;
-for example:</p>
-
-<pre><code>https://example.com#toggle-goatcounter
-</code></pre>
-
-<p>If you filled in the domain in your settings then there should be a link there.
-If you edit it in your URL bar you may have to reload the page with F5 for it to
-work (you should get a popup).</p>
-
-<h3 id="custom-path-and-referrer">Custom path and referrer <a href="#custom-path-and-referrer"></a></h3>
-<p>A basic example with some custom logic for <code>path</code>:</p>
-
-<pre><code>&lt;script&gt;
-    window.goatcounter = {
-        // The passed value is the default.
-        path: function(p) {
-            // Don't track the home page.
-            if (p === '/')
-                return null
-
-            // Remove .html from all other page links.
-            return p.replace(/\.html$/, '')
-        },
-    }
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<h3 id="multiple-domains">Multiple domains <a href="#multiple-domains"></a></h3>
-<p>GoatCounter doesn’t store the domain a pageview belongs to; if you add
-GoatCounter to several (sub)domain then there’s no way to distinguish between
-requests to <code>a.example.com/path</code> and <code>b.example.com/path</code> as they’re both
-recorded as <code>/path</code>.</p>
-
-<p>This might be improved at some point in the future; the options right now are:</p>
-
-<ol>
-  <li>
-    <p>Create a new site for every domain; this is a completely separate site which
-has the same user, login, plan, etc. You will need to use a different site
-code for every (sub)domain.</p>
-  </li>
-  <li>
-    <p>If you want everything in a single overview then you can add the domain to
-the path, instead of just sending the path:</p>
-
-    <pre><code>&lt;script&gt;
-    window.goatcounter = {
-        path: function(p) { return location.host + p }
-    }
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-    <p>For subdomains it it might be more useful to just add the first domain label
-instead of the full domain here, or perhaps just a short static string
-identifying the source.</p>
-  </li>
-</ol>
-
-<h3 id="ignore-query-parameters-in-path">Ignore query parameters in path <a href="#ignore-query-parameters-in-path"></a></h3>
-<p>The value of <code>&lt;link rel="canonical"&gt;</code> will be used automatically, and is the
-easiest way to ignore extraneous query parameters:</p>
-
-<pre><code>&lt;link rel="canonical" href="https://example.com/path.html"&gt;
-</code></pre>
-
-<p>The <code>href</code> can also be relative (e.g. <code>/path.html</code>. Be sure to understand the
-potential SEO effects before adding a canonical URL; if you use query parameters
-for navigation then you probably <em>don’t</em> want to do this.</p>
-
-<p>Alternatively you can send a custom <code>path</code> without the query parameters:</p>
-
-<pre><code>&lt;script&gt;
-    window.goatcounter = {
-        path: location.pathname || '/',
-    }
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<p>You can add individual query parameters with <code>get_query()</code>:</p>
-
-<pre><code>window.goatcounter = {
-    path: (location.pathname + '?page=' + get_query('page')) || '/',
-}
-</code></pre>
-
-<h3 id="spa">SPA <a href="#spa"></a></h3>
-<p>Custom <code>count()</code> example for hooking in to an SPA nagivating by <code>#</code>:</p>
-
-<pre><code>&lt;script&gt;
-    window.goatcounter = {no_onload: true}
-
-    window.addEventListener('hashchange', function(e) {
-        window.goatcounter.count({
-            path: location.pathname + location.search + location.hash,
-        })
-    })
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<h3 id="using-navigatorsendbeacon">Using navigator.sendBeacon <a href="#using-navigatorsendbeacon"></a></h3>
-<p>You can use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon"><code>navigator.sendBeacon()</code></a> with GoatCounter, for example to
-send events when someone closes a page:</p>
-
-<pre><code>&lt;script&gt;
-    if (goatcounter.filter())
-        return
-    navigator.sendBeacon(goatcounter.url({
-        event: true,
-        path: function(p) {
-            return 'unload-' + p
-        },
-    }))
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<h3 id="custom-events">Custom events <a href="#custom-events"></a></h3>
-<p>You can send an event by setting the <code>event</code> parameter to <code>true</code> in <code>count()</code>.
-For example:</p>
-
-<pre><code>$('#banana').on('click', function(e) {
-    window.goatcounter.count({
-        path:  'click-banana',
-        title: 'Yellow curvy fruit',
-        event: true,
-    })
-})
-</code></pre>
-
-<p>Note that the <code>path</code> doubles as the event name. There is currently no real way
-to record the path with the event, although you can send it as part of the event
-name:</p>
-
-<pre><code>window.goatcounter.count({
-    path:  function(p) { 'click-banana-' + p },
-    event: true,
-})
-</code></pre>
-
-<p>The callback will have the regular <code>path</code> passed to it, and you can add an event
-name there; you can also use <code>window.location.pathname</code> directly; the biggest
-difference with the passed value is that <code>&lt;link rel="canonical"&gt;</code> is taken in to
-account.</p>
-
-<h3 id="consent-notice">Consent notice <a href="#consent-notice"></a></h3>
-<p>It is my understanding that GoatCounter does not need GDPR consent notices, but
-right no-one can be 100% sure, lacking case law and clarification from the
-member states' regulatory agents. See <a href="https://www.goatcounter.com/gdpr">GDPR consent
-notices</a> for some more details.</p>
-
-<p>If you want to add a consent notice, then a simple example might be:</p>
-
-<pre><code>&lt;script&gt;
-    (function() {
-        // Consent already given
-        if (localStorage.getItem('consent') === 't')
-            return
-
-        // Don't do anyting on load.
-        window.goatcounter = {no_onload: true}
-
-        // Create a simple banner.
-        var agree = document.createElement('a')
-        agree.innerHTML = 'Yeah, I agree'
-        agree.style.position = 'fixed'
-        agree.style.left = '0'
-        agree.style.right = '0'
-        agree.style.bottom = '0'
-        agree.style.textAlign = 'center'
-        agree.style.backgroundColor = 'pink'
-
-        // Send the event on click.
-        agree.addEventListener('click', function(e) {
-            e.preventDefault()
-            localStorage.setItem('consent', 't')
-            agree.parentNode.removeChild(agree)
-
-            window.goatcounter.count()       // Send pageview.
-            window.goatcounter.bind_events() // If you use events.
-        })
-
-        document.body.appendChild(agree)
-    })()
-&lt;/script&gt;
-{{template "code" .}}
-</code></pre>
-
-<h2 id="visitor-counter-customisation">Visitor counter customisation <a href="#visitor-counter-customisation"></a></h2>
-<p>The <code>goatcounter.visit_count()</code> function adds a ‘visitor counter’ to display the
-number of pageviews for a path. The function accepts an object with the
-following options:</p>
-
-<table class="reftable">
-  <thead>
-    <tr>
-      <th style="text-align: left">Setting</th>
-      <th style="text-align: left">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left"><code>append</code></td>
-      <td style="text-align: left">HTML selector to append to, can use CSS selectors as accepted by <code>querySelector()</code>. Default is <code>body</code>.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>type</code></td>
-      <td style="text-align: left">Type to add: <code>html</code>, <code>svg</code>, or <code>png</code>. Default is <code>html</code>.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>path</code></td>
-      <td style="text-align: left">Path to display; normally this is detected from the URL, but you can override.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>no_branding</code></td>
-      <td style="text-align: left">Don't display “by GoatCounter” branding; requires a paid account and has no effect on free accounts.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>attr</code></td>
-      <td style="text-align: left">HTML attributes to set or override for the element.</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"><code>style</code></td>
-      <td style="text-align: left">Extra CSS styling for HTML or SVG.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>The HTML variant is recommended for most people as it's the easiest to customize
-with CSS. The SVG version can be customized to some degree with CSS as well, and
-the PNG version is a fixed 200×80 image which can't be customized.</p>
-
-<p>The default size is 200×80, or 200×60 if <code>no_branding</code> is added. You can
-override the size by adding <code>width</code> and <code>height</code> in <code>attr</code>.</p>
-
-<p>The special path <code>TOTAL</code> (case-sensitive, no leading <code>/</code>) can be used to display
-the site totals.</p>
-
-<p>The images are cached for 15 minutes, so new pageviews don’t show up right away.</p>
-
-<h4 id="customisation">Customisation <a href="#customisation"></a></h4>
-<p>You can add the <code>style</code> option to customize the looks, this only works for HTML
-and SVG.</p>
-
-<p>Things you can style:</p>
-
-<pre><code>div                 Div Wrapper; HTML only.
-#gcvc-border        Border rect; SVG only.
-#gcvc-for           "Views for this page" text.
-#gcvc-views         Number with views.
-#gcvc-by            “stats by GoatCounter” text.
-</code></pre>
-
-<p>For example, to get a dark colour scheme:</p>
-
-<pre><code>goatcounter.visit_count({append: '#stats', style: `
-	div { border-color: #fff; background-color: #222; color: #fff; }    `})
-</code></pre>
-
-<p>Or the same for SVG:</p>
-
-<pre><code>goatcounter.visit_count({append: '#stats', type: 'svg', style: `
-	#gcvc-border { fill: #222; stroke: #fff; }
-	#gcvc        { fill: #fff; }    `})
-</code></pre>
-
-<h4 id="advanced">Advanced <a href="#advanced"></a></h4>
-<p>You don't need to use the JavaScript integration, you can also add an iframe or
-image "directly"; the paths are in the form of:</p>
-
-<pre><code>{{.SiteURL}}/counter/[PATH].[EXT]
-</code></pre>
-
-<p>The <code>[PATH]</code> is the full path, including a leading <code>/</code> and the <code>[EXT]</code> is the
-<code>html</code>, <code>png</code>, <code>svg</code>, or <code>json</code> extension. For example
-<code>{{.SiteURL}}/counter//.html</code> will display the view acount for <code>/</code>, and
-<code>{{.SiteURL}}/counter//test.html.html</code> will display the view count for
-<code>/test.html</code>.</p>
-
-<p>There are two query parameters: <code>no_branding</code>, to disable to “stats by
-GoatCounter” text, and <code>style</code> to insert custom styles.</p>
-
-<h4 id="json">JSON <a href="#json"></a></h4>
-<p>The <code>.json</code> extension will return the pageview count in JSON; you can't use this
-with a HTML tag but it can be used if you want to build your own counter in
-JavaScript.</p>
-
-<p>It returns an Object with one value: <code>count_unique</code>, which contains the unique
-visitor count as a formatted string with thousands seperators.</p>
-
-<p>A simple example usage:</p>
-
-<pre><code>var r = new XMLHttpRequest();
-r.addEventListener('load', function() {
-	document.querySelector('#stats').innerText = JSON.parse(this.responseText).count_unique
-})
-r.open('GET', '{{.SiteURL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
-r.send()
-</code></pre>
-
-<h2 id="advanced-integrations">Advanced integrations <a href="#advanced-integrations"></a></h2>
-
-<h3 id="image-based-tracking-without-javascript">Image-based tracking without JavaScript <a href="#image-based-tracking-without-javascript"></a></h3>
-<p>The endpoint returns a small 1×1 GIF image. A simple no-JS way would be to load
-an image on your site:</p>
-
-<pre><code>&lt;img src="{{.SiteURL}}/count?p=/test-img"&gt;
-</code></pre>
-
-<p>This won’t allow recording the referrer or screen size, and may also increase
-the number of bot requests (we do our best to filter this out, but it’s hard to
-get all of them, since many spam scrapers and such disguise themselves as
-regular browsers).</p>
-
-<p>Wrap in a <code>&lt;noscript&gt;</code> tag to use this only for people without JavaScript.</p>
-
-<h3 id="tracking-from-backend-middleware">Tracking from backend middleware <a href="#tracking-from-backend-middleware"></a></h3>
-<p>You can use the <code>/api/v0/count</code> API endpoint to send pageviews from essentially
-anywhere, such as your app's middleware.</p>
-
-<p>The <a href="https://www.goatcounter.com/api">API documentation</a> contains more
-information and some examples.</p>
-
-<h3 id="importing-pageviews-from-logfiles">Importing pageviews from logfiles <a href="#importing-pageviews-from-logfiles"></a></h3>
-<p>You can send data from logfiles with the <code>goatcounter import</code> command; for
-example:</p>
-
-<pre><code>$ export GOATCOUNTER_API_KEY=...
-$ goatcounter import -follow -format=combined -site='{{.SiteURL}}' /var/log/nginx/access_log
-</code></pre>
-
-<p>This will keep watching the file for changes and report new pageviews as they
-come in. You can also batch import the data from logfiles by dropping the
-<code>-follow</code> flag.</p>
-
-<p>See <code>goatcounter help import</code> and <code>goatcounter help logfile</code> for more details.</p>
-
-<p>The biggest advantage of this is that you won't need to add any JavaScript to
-your site and that nothing will be blocked by adblockers, but there are a few
-downsides as well:</p>
-
-<ul>
-  <li>There will be more bot requests.</li>
-  <li>Some data won't be available: screen sizes, page titles.</li>
-  <li>It won't disambiguate to canonical paths from <code>&lt;link rel="canonical"&gt;</code>; i.e.
-<code>/page</code> and <code>/page?x=y</code> will show up as two different paths.</li>
-</ul>
-
-<h3 id="location-of-countjs">Location of count.js <a href="#location-of-countjs"></a></h3>
-<p>You can load the <code>count.js</code> script anywhere on your page, but it’s recommended
-to load it just before the closing <code>&lt;/body&gt;</code> tag if possible.</p>
-
-<p>The reason for this is that downloading the <code>count.js</code> script will take up some
-bandwidth which could be better used for the actual assets needed to render the
-site. The script is quite small (about 2K), so it’s not a huge difference, but
-might as well put it in the best location if possible. Just insert it in the
-<code>&lt;head&gt;</code> or anywhere in the <code>&lt;body&gt;</code> if your CMS doesn’t have an option to add
-it there.</p>
-
-<h3 id="subresource-integrity-and-versioning">Subresource integrity and versioning <a href="#subresource-integrity-and-versioning"></a></h3>
-<p>For most people <code>{{.CountDomain}}/count.js</code> should be fine, but if you want you
-can verify the integrity of the externally loaded script with SRI; currently
-published versions:</p>
-
-<ul>
-  <li>
-    <p><strong>v2</strong> (11 Mar 2021):</p>
-
-    <ul>
-      <li>Allow loading settings from <code>data-goatcounter-settings</code> on the <code>script</code> tag.</li>
-      <li>Increase timeout from 3 seconds to 10 seconds.</li>
-      <li>
-        <p>Add braces around <code>if</code> since some minifiers can't deal with "dangling else"
-well (the code is correct, it's the minifier that's broken).</p>
-
-        <script data-goatcounter="{{.SiteURL}}/count" async="" src="//{{.CountDomain}}/count.v2.js" crossorigin="anonymous" integrity="sha384-PeYXrhTyEaBBz91ANMgpSbfN1kjioQNPHNDbMvevUVLJoWrVEjDCpKb71TehNAlj"></script>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>v1</strong> (25 Dec 2020):</p>
-
-    <pre><code>&lt;script data-goatcounter="{{.SiteURL}}/count"
-        async src="//{{.CountDomain}}/count.v2.js"
-        crossorigin="anonymous"
-        integrity="sha384-RD/1OXO6tEoPGqxhwMKSsVlE5Y1g/pv/Pf2ZOcsIONjNf1O+HPABMM4MmHd3l5x4"&gt;&lt;/script&gt;
-</code></pre>
-  </li>
-</ul>
-
-<p>This will verify the integrity of the script to ensure there are no changes, and
-browsers will refuse to run it if there are.</p>
-
-<p>You won’t get any updates, with this – the versioned script will always remain
-the same. Any existing version of <code>count.js</code> is guaranteed to remain compatible,
-but you may need to update it in the future for new features.</p>
-
-<h3 id="self-hosting-countjs">Self-hosting count.js <a href="#self-hosting-countjs"></a></h3>
-<p>You can host the <code>count.js</code> script yourself, or include it in your page directly
-inside <code>&lt;script&gt;</code> tags. You won’t get any new features or other updates, but the
-<code>/count</code> endpoint is guaranteed to remain compatible so it should never break
-(any future incompatible changes will be a different endpoint, such as
-<code>/count/v2</code>).</p>
-
-<p>Be sure to include the <code>data-goatcounter</code> attribute on the script tag or set
-<code>goatcounter.endpoint</code> so GoatCounter knows where to send the pageviews to:</p>
-
-<pre><code>&lt;script data-goatcounter="{{.SiteURL}}/count"&gt;
-    // [.. contents of count.js ..]
-&lt;/script&gt;
-
-// or:
-
-&lt;script&gt;
-    window.goatcounter = {endpoint: '{{.SiteURL}}/count'}
-
-    // [.. contents of count.js ..]
-&lt;/script&gt;
-</code></pre>
-
-<p>Any existing version of <code>count.js</code> is guaranteed to remain compatible, but you
-may need to update it in the future for new features.</p>
-
-<h3 id="setting-the-endpoint-in-javascript">Setting the endpoint in JavaScript <a href="#setting-the-endpoint-in-javascript"></a></h3>
-<p>Normally GoatCounter gets the endpoint to send pageviews to from the
-<code>data-goatcounter</code> attribute on the <code>&lt;script&gt;</code> tag, but in some cases you may
-want to modify that in JavaScript; you can use <code>goatcounter.endpoint</code> for that.</p>
-
-<p>For example, to send to different sites depending on the current hostname:</p>
-
-<pre><code>&lt;script&gt;
-    var code = '';
-    switch (location.hostname) {
-    case 'example.com':
-        code = 'a'
-        break
-    case 'example.org':
-        code = 'b'
-        break
-    default:
-        code = 'c'
-    }
-    window.goatcounter = {
-        endpoint: 'https://' + code + '.goatcounter.com/count',
-    }
-&lt;/script&gt;
-&lt;script async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;
-</code></pre>
-
-<p>Note that <code>data-goatcounter</code> will always override any <code>goatcounter.endpoint</code>.</p>
-
-{{template "_bottom.gohtml" .}}
-
+</head>
+
+<body>
+	<nav class="center">
+		<strong id="back"><a href="/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
+	</nav>
+
+	<div class="center code-wrap">
+		<nav class="code-nav">
+			{{code_nav .CodePage}}
+		</nav>
+
+		<div>
+			<div class="page-code">
+				{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
+
+				<h1>{{code_hdr .CodePage}}</h1>
+				{{markdown .CodePage .}}
+			</div>
+
+			<h2 style="border:0; margin-bottom: .2rem; margin-left: .5rem;">Questions or problems?</h2>
+			<div class="page-code">
+				<p style="margin-top: 0">Feel free to get in touch if you’ve got any questions or having any problems; a
+				lot of times they can be resolved without too much problems.</p>
+
+				<p>Ways to contact me: <a href="#" class="show-contact">show</a> </p>
+				<div style="display: none;" class="contact">
+					{{template "_contact.gohtml" (map "v" .Validate "r" (printf "/code/%s" .CodePage) "a" .Args)}}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{{template "_bottom_links.gohtml" .}}
+
+	{{if .GoatcounterCom}}
+		{{if .Dev}}
+			<script data-goatcounter="//goatcounter.{{.Domain}}/count"
+					data-goatcounter-settings='{"allow_local":true}'
+					async src="{{.Static}}/count.js"></script>
+		{{else}}
+			<script data-goatcounter="https://goatcounter.goatcounter.com/count"
+					async src="//gc.zgo.at/count.js"></script>
+		{{end}}
+
+		{{if eq .CodePage "visitor-counter"}}
+				<script>
+					var t = setInterval(function() {
+						if (window.goatcounter && window.goatcounter.visit_count) {
+							clearInterval(t)
+							window.goatcounter.visit_count({append: '#vc-html', type: 'html'})
+							window.goatcounter.visit_count({append: '#vc-png',  type: 'png'})
+							window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg'})
+							window.goatcounter.visit_count({append: '#vc-html', type: 'html', path: 'TOTAL'})
+							window.goatcounter.visit_count({append: '#vc-png',  type: 'png',  path: 'TOTAL'})
+							window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg',  path: 'TOTAL'})
+						}
+					}, 100)
+				</script>
+		{{end}}
+	{{end}}
+
+	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+	<script>
+		document.querySelector('select').addEventListener('change', function(e) {
+			window.location = '/code/' + this.value
+		})
+		document.querySelector('.show-contact').addEventListener('click', function(e) {
+			e.preventDefault()
+			document.querySelector('.contact').style.display = ''
+			this.parentNode.removeChild(this)
+			window.location.hash = '#scroll-target'
+		})
+
+		// Add copy button to <pre>.
+		document.querySelectorAll('pre').forEach(function(pre) {
+			// if (pre.clientHeight > pre.scrollHeight - 6)
+			// 	return
+
+			var btn = document.createElement('a')
+			btn.href        = '#'
+			btn.className   = 'pre-copy'
+			btn.style.right = (pre.offsetWidth - pre.clientWidth - 2) + 'px'
+			btn.innerHTML   = '📋 Copy'
+
+			btn.addEventListener('click', function(e) {
+				e.preventDefault()
+
+				var t = document.createElement('textarea')
+				t.value = pre.innerText
+				t.style.position = 'absolute'
+				document.body.appendChild(t)
+
+				t.select()
+				t.setSelectionRange(0, pre.innerText.length)
+				document.execCommand('copy')
+				document.body.removeChild(t)
+
+				btn.innerHTML = '📋 Done'
+				setTimeout(function() { btn.innerHTML = '📋 Copy' }, 1000)
+			}, false)
+
+			//pre.parentNode.appendChild(btn)
+
+			// TODO: can probably un-jQuery this.
+			var wrap = $('<div class="pre-copy-wrap">').html($(pre).clone())
+			$(pre).replaceWith(wrap)
+			wrap.prepend(btn)
+
+			var prev = wrap.prev()
+			if (prev.is('p'))
+				prev.css('padding-right', '6em')
+		})
+	</script>
+</body>
+</html>

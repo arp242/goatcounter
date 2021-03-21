@@ -22,7 +22,6 @@ func TestWebsiteTpl(t *testing.T) {
 		{"/", "doesn’t track users with"},
 		{"/privacy", "Screen size"},
 		{"/terms", "The “services” are any software, application, product, or service"},
-		{"/code", "Setting the endpoint in JavaScript"},
 		{"/why", "Footnotes"},
 		{"/data", "CSV format with a header"},
 		{"/design", "Firefox on iOS is just displayed as Safari"},
@@ -30,12 +29,17 @@ func TestWebsiteTpl(t *testing.T) {
 		{"/signup", `<label for="email">Email address</label>`},
 		{"/user/forgot", "Forgot domain"},
 
+		{"/code/start", "Getting started"},
+
 		// Shared
+
+		// rdr
+		// {"/api", "Backend integration"},
+
 		{"/help", "I don’t see my pageviews?"},
 		{"/gdpr", "consult a lawyer"},
 		{"/contact", "Public Telegram Group"},
 		{"/contribute", "One-time donation"},
-		{"/api", "Backend integration"},
 		{"/api.html", "GoatCounter API documentation"},
 		{"/api2.html", "<rapi-doc"},
 		{"/api.json", `"description": "API for GoatCounter"`},
