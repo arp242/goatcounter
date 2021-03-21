@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -726,25 +725,17 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 		}
 
 		if len(pathIDs) > 0 {
-			query, args, err := sqlx.In(`/* Site.DeleteOlderThan */
+			var remainPath []int64
+			err := zdb.Select(ctx, &remainPath, `/* Site.DeleteOlderThan */
 				select path_id from hit_counts where site_id=? and path_id in (?)`,
 				s.ID, pathIDs)
-			if err != nil {
-				return errors.Wrap(err, "Site.DeleteOlderThan")
-			}
-			var remainPath []int64
-			err = zdb.Select(ctx, &remainPath, query, args...)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan")
 			}
 
 			diff := zint.Difference(pathIDs, remainPath)
 			if len(diff) > 0 {
-				query, args, err := sqlx.In(`delete from paths where site_id=? and path_id in (?)`, s.ID, diff)
-				if err != nil {
-					return errors.Wrap(err, "Site.DeleteOlderThan")
-				}
-				err = zdb.Exec(ctx, query, args...)
+				err = zdb.Exec(ctx, `delete from paths where site_id=? and path_id in (?)`, s.ID, diff)
 				if err != nil {
 					return errors.Wrap(err, "Site.DeleteOlderThan")
 				}

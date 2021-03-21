@@ -21,7 +21,6 @@ require (
 	github.com/go-chi/chi/v5 v5.0.0
 	github.com/google/uuid v1.2.0
 	github.com/jinzhu/now v1.1.1
-	github.com/jmoiron/sqlx v1.3.1
 	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/monoculum/formam v0.0.0-20210131081218-41b48e2a724b

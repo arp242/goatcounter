@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"zgo.at/errors"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
@@ -343,11 +342,7 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 		site := MustGetSite(ctx).ID
 
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
-			query, args, err := sqlx.In(fmt.Sprintf(query, t), site, pathIDs)
-			if err != nil {
-				return errors.Wrapf(err, "Hits.Purge %s", t)
-			}
-			err = zdb.Exec(ctx, query, args...)
+			err := zdb.Exec(ctx, fmt.Sprintf(query, t), site, pathIDs)
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
