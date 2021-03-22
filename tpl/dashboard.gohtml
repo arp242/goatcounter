@@ -38,7 +38,7 @@
 	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 	<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
-	<input type="hidden" id="hl-period" name="hl-period" disabled>
+	<input type="hidden" id="hl-period" name="hl-period" value="{{.View.Period}}" disabled>
 
 	{{if .User.ID}}
 		<div id="dash-saved-views">

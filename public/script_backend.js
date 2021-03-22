@@ -503,11 +503,12 @@
 	// Fill in start/end periods from buttons.
 	var period_select = function() {
 		$('#dash-main input[type="checkbox"]').on('click', function(e) {
+			$('#hl-period').attr('disabled', false)
 			$(this).closest('form').trigger('submit')
 		})
 
 		$('#dash-select-period').on('click', 'button', function(e) {
-			e.preventDefault();
+			e.preventDefault()
 
 			var start = new Date(), end = new Date();
 			switch (this.value) {
@@ -530,8 +531,8 @@
 					break;
 			}
 
-			$('#hl-period').val(this.value).attr('disabled', false);
-			set_period(start, end);
+			$('#hl-period').val(this.value).attr('disabled', false)
+			set_period(start, end)
 		})
 
 		$('#dash-move').on('click', 'button', function(e) {
