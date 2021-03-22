@@ -32,6 +32,8 @@ github.com/monoculum/formam v0.0.0-20210131081218-41b48e2a724b h1:Iwvedi9ZDiJXu1
 github.com/monoculum/formam v0.0.0-20210131081218-41b48e2a724b/go.mod h1:JKa2av1XVkGjhxdLS59nDoXa2JpmIHpnURWNbzCtXtc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/russross/blackfriday/v2 v2.1.0 h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
+github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
@@ -98,8 +100,8 @@ gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.1.2 h1:SMdYLJl312RXuxXziCCHhRsp/tvct9cGKey0yv95tZM=
 honnef.co/go/tools v0.1.2/go.mod h1:NgwopIslSNH47DimFoV78dnkksY2EFtX0ajyb3K/las=
-zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8 h1:EH+JcNhhh/daSO+EXnjn9oig/rbnn3+BNpC4i+CkFvs=
-zgo.at/blackmail v0.0.0-20200703094839-f1e44ef1dbb8/go.mod h1:fKGBHQ4ObWXVRrjvrKrXl6Q6vMtiiB8A0NZDJnHYSH4=
+zgo.at/blackmail v0.0.0-20210321151525-a218c2f584be h1:Vkm7ZNfN36xw2Rr0tHEW+M1vXPCOYgSzHQNpHFX8ooc=
+zgo.at/blackmail v0.0.0-20210321151525-a218c2f584be/go.mod h1:EWa/z/DNEeH3ss1/AyTEXuqFfcUs89Mr971ul8qT9+8=
 zgo.at/errors v1.0.1-0.20210313142254-4e0fb19b1249 h1:2omJRHHcR1x7itExvYb2+qmBjtMtEuzCLac5ISYolYI=
 zgo.at/errors v1.0.1-0.20210313142254-4e0fb19b1249/go.mod h1:POfgvh1LafF2NZJk6buGYCIhcHWuR/miB3nndyf3ozs=
 zgo.at/follow v0.0.0-20201229040459-c683c36702b6 h1:+Oi7Bk4uovBGngL9AEJxOc0rctOofPkGxJdzb2lY8K0=
@@ -131,7 +133,5 @@ zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58 h1:6z7tHmpauV/vIJvJeSkjgfvc2drnyX
 zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstripe v1.1.1-0.20210316152211-8d12125402d1 h1:VzSFX90iw1s8ebAinxmK1yzSEm0T6ZhneD1LgNztuQo=
 zgo.at/zstripe v1.1.1-0.20210316152211-8d12125402d1/go.mod h1:bIBaT9rsnc+uWMSf+6UXjDHhlwxLgcU7jahxUMU+j+k=
-zgo.at/ztest v0.0.0-20200526130303-f59d60374e72 h1:eJi5pmYHERPsQ9a7Sw1HW8GXTVFWlHQ+EfZKSzx1Y+Y=
-zgo.at/ztest v0.0.0-20200526130303-f59d60374e72/go.mod h1:xGKONSdBgBNBcHRbi+yY9xFSre7ip8gRsQBS9QW/J2I=
 zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036 h1:/yrJE2uvYnZJM0rcy2u5Vfikbs/7urUJZtGRXZ6NoaY=
 zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036/go.mod h1:mImsbmiaM1IACLiGYh0363nrUwmpW/5ws+s8rpxGVGs=

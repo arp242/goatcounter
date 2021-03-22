@@ -1,16 +1,3 @@
-{{template "%%top.gohtml" .}}
-{{define "sh_header"}}#!/bin/sh<br>
-token=\[your api token]
-api=https://\[my code].goatcounter.com/api/v0
-curl() {
-    \command curl \
-        -H 'Content-Type: application/json' \
-        -H "Authorization: Bearer $token" \
-        "$@"
-}{{end}}
-
-GoatCounter API
-===============
 GoatCounter has a rudimentary API; this is far from feature-complete, but solves
 some common use cases.
 
@@ -132,5 +119,3 @@ sync your local database every hour or so:
 
     # Start new export starting from the cursor.
     id=$(curl -X POST "$api/export" --data "{\"start_from_hit_id\":$start}" | jq .id)
-
-{{template "%%bottom.gohtml" .}}

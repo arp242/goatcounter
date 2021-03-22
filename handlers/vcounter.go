@@ -94,7 +94,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 			"count_unique": count,
 		})
 	case "html":
-		w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 		s := html
 		if noBranding {
@@ -150,6 +150,10 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 			Face: fontFace,
 			Dot:  fixed.P(0, 22),
 		}
+
+		// TODO: the PNG doesn't seem to draw the thin space, so just use a
+		// regular space.
+		count = strings.ReplaceAll(count, "\u202f", " ")
 		drw.DrawString(count)
 
 		start := 100 - drw.Dot.X.Round()/2

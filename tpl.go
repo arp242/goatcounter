@@ -12,17 +12,23 @@ import (
 	"fmt"
 	"html/template"
 	"image/png"
+	"io/fs"
 	"math"
+	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
+	"github.com/russross/blackfriday/v2"
 	"zgo.at/errors"
+	"zgo.at/zcache"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
@@ -46,6 +52,147 @@ func init() {
 	tplfunc.Add("bar_chart", barChart)
 	tplfunc.Add("text_chart", textChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
+
+	var mdCache = zcache.New(zcache.NoExpiration, zcache.NoExpiration)
+	tplfunc.Add("markdown", func(file string, scope interface{}) template.HTML {
+		ctx := reflect.ValueOf(scope).FieldByName("Context").Elem().Interface().(context.Context)
+		if !Config(ctx).Dev {
+			if c, ok := mdCache.Get(file); ok {
+				return c.(template.HTML)
+			}
+		}
+
+		fsys, err := zfs.EmbedOrDir(Templates, "tpl", Config(ctx).Dev)
+		if err != nil {
+			panic(err)
+		}
+		fsys, err = zfs.SubIfExists(fsys, "tpl/code")
+		if err != nil {
+			panic(err)
+		}
+		f, err := fs.ReadFile(fsys, file+".markdown")
+		if err != nil {
+			panic(err)
+		}
+
+		md := renderMarkdown(f)
+		t, err := template.New("md").Parse(string(md))
+		if err != nil {
+			panic(err)
+		}
+
+		// {{if .FromWWW}}
+		// 	<p class="flash flash-i">Note: replace <code>{{.SiteURL}}</code> with the URL
+		// 	to your actual site in the examples below. This will be done automatically if
+		// 	you view the docs linked from your site in the top-right corner.</p>
+		// {{end}}
+		t = template.Must(t.New("code").Parse(`&lt;script data-goatcounter="{{.SiteURL}}/count"` + "\n" +
+			`        async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;`))
+		t = template.Must(t.New("sh_header").Parse(`#!/bin/sh` + "\n" +
+			`token=\[your api token]` + "\n" +
+			`api=https://\[my code].goatcounter.com/api/v0` + "\n" +
+			`curl() {` + "\n" +
+			`    \command curl \` + "\n" +
+			`        -H 'Content-Type: application/json' \` + "\n" +
+			`        -H "Authorization: Bearer $token" \` + "\n" +
+			`        "$@"` + "\n" +
+			`}`))
+
+		html := new(bytes.Buffer)
+		err = t.ExecuteTemplate(html, "md", scope)
+		if err != nil {
+			panic(err)
+		}
+
+		mdCache.SetDefault(file, template.HTML(html.String()))
+		return template.HTML(html.String())
+	})
+
+	type x struct {
+		href, label string
+		items       []x
+	}
+	links := []x{
+		{label: "Basics", items: []x{
+			{href: "start", label: "Getting started"},
+			// {href: "wordpress", label: "WordPress"},
+			{href: "visitor-counter", label: "Visitor counter"},
+			{href: "events", label: "Events"},
+			{href: "csp", label: "Content-Security-Policy"},
+			{href: "js", label: "JavaScript API"}}},
+		{label: "Other ways to get data in GoatCounter", items: []x{
+			{href: "pixel", label: "Tracking pixel"},
+			{href: "logfile", label: "Server logfiles"},
+			{href: "backend", label: "From app backend or other sources"}}},
+		{label: "How can I…", items: []x{
+			{href: "skip-dev", label: "Prevent tracking my own pageviews?"},
+			{href: "path", label: "Control the path that's sent to GoatCounter?"},
+			{href: "modify", label: "Change data before it's send to GoatCounter?"},
+			{href: "domains", label: "Track multiple domains/sites?"},
+			{href: "spa", label: "Add GoatCounter to a SPA?"},
+			{href: "beacon", label: "Use navigator.sendBeacon?"},
+			{href: "countjs-versions", label: "count.js versions and SRI"},
+			{href: "countjs-host", label: "Host count.js somewhere else?"}}},
+		{label: "Other", items: []x{
+			// TODO: add "adblock" page?
+			{href: "export", label: "Exports"},
+			{href: "api", label: "API"}}},
+	}
+	tplfunc.Add("code_nav", func(active string) template.HTML {
+		var (
+			dropdown = new(strings.Builder)
+			list     = new(strings.Builder)
+			w        func([]x)
+			e        = template.HTMLEscapeString
+		)
+
+		w = func(l []x) {
+			for _, ll := range l {
+				if len(ll.items) > 0 {
+					fmt.Fprintf(list, `<li><strong>%s</strong><ul>`, e(ll.label))
+					fmt.Fprintf(dropdown, `<optgroup label="%s">`, e(ll.label))
+					w(ll.items)
+					list.WriteString("</ul></li>")
+					dropdown.WriteString("</optgroup>")
+					continue
+				}
+
+				list.WriteString("<li")
+				dropdown.WriteString(`<option`)
+				if ll.href == active {
+					list.WriteString(` class="active"`)
+					dropdown.WriteString(` selected`)
+				}
+
+				fmt.Fprintf(list, `><a href="%s">%s</a></li>`, e(ll.href), e(ll.label))
+				fmt.Fprintf(dropdown, ` value="%s">%s</option>`, e(ll.href), e(ll.label))
+			}
+		}
+
+		dropdown.WriteString("<select>")
+		list.WriteString("<ul>")
+		w(links)
+		dropdown.WriteString("</select>")
+		list.WriteString("</ul>")
+		return template.HTML(dropdown.String() + list.String())
+	})
+	tplfunc.Add("code_hdr", func(active string) template.HTML {
+		var w func([]x) string
+		w = func(l []x) string {
+			for _, ll := range l {
+				if ll.href == active {
+					return strings.TrimRight(ll.label, "?")
+				}
+				if len(ll.items) > 0 {
+					if r := w(ll.items); r != "" {
+						return r
+					}
+				}
+			}
+			return ""
+		}
+		return template.HTML(w(links))
+	})
 
 	// Override defaults to take user settings in to account.
 	tplfunc.Add("tformat", func(t time.Time, fmt string, u User) string {
@@ -84,6 +231,45 @@ func init() {
 			`<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode" src="%s">`,
 			buf.String()))
 	})
+}
+
+var (
+	reTemplate    = regexp.MustCompile(`{{(\w+ .*?)(?:&ldquo;|&quot;)(.+?)(?:&rdquo;|&quot;)(.*?)}}`)
+	reHeaderLinks = regexp.MustCompile(`<h([2-6]) id="(.*?)">(.*?)<\/h[2-6]>`)
+
+	markdownOpt = []blackfriday.Option{
+		blackfriday.WithNoExtensions(),
+		blackfriday.WithExtensions(blackfriday.NoExtensions |
+			blackfriday.NoIntraEmphasis |
+			blackfriday.Tables |
+			blackfriday.FencedCode |
+			blackfriday.Strikethrough |
+			blackfriday.SpaceHeadings |
+			blackfriday.HeadingIDs |
+			blackfriday.AutoHeadingIDs |
+			blackfriday.BackslashLineBreak |
+			blackfriday.Autolink |
+			blackfriday.Footnotes,
+		),
+
+		blackfriday.WithRenderer(blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{Flags: blackfriday.HTMLFlagsNone |
+			blackfriday.Smartypants |
+			blackfriday.SmartypantsFractions |
+			blackfriday.SmartypantsDashes |
+			blackfriday.FootnoteReturnLinks,
+		})),
+	}
+)
+
+// Render Markdown with our flags.
+//
+// This also hacks around things a bit to ensure that template directives aren't
+// mangled.
+func renderMarkdown(in []byte) []byte {
+	md := blackfriday.Run(in, markdownOpt...)
+	md = reTemplate.ReplaceAll(md, []byte(`{{$1 "$2"$3}}`))
+	md = reHeaderLinks.ReplaceAll(md, []byte(`<h$1 id="$2">$3 <a href="#$2"></a></h$1>`))
+	return md
 }
 
 var textSymbols = []rune{
