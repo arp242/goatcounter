@@ -97,14 +97,14 @@ GoatCounter should run on any platform supported by Go, but there are no
 binaries for them (yet); you'll have to build from source if you want to run it
 on e.g. FreeBSD or macOS.
 
-Note this README is for the latest master; use the [`release-1.4`][r-1.4] branch
-for the 1.4 README.
+Note this README is for the latest master; use the [`release-2.0`][r-2.0] branch
+for the 2.0 README.
 
 Generally speaking only the latest release is supported, although critical fixes
 (security, data loss, etc.) may get backported to previous releases.
 
 [releases]: https://github.com/zgoat/goatcounter/releases
-[r-1.4]: https://github.com/zgoat/goatcounter/tree/release-1.4
+[r-2.0]: https://github.com/zgoat/goatcounter/tree/release-2.0
 
 ### Deploy scripts and such
 
@@ -136,9 +136,12 @@ Generally speaking only the latest release is supported, although critical fixes
 
 ### Building from source
 
+You need Go 1.16 or newer and a C compiler (for SQLite). If you compile it with
+`CGO_ENABLED=0` you don't need a C compiler but can only use PostgreSQL.
+
 Compile from source with:
 
-    $ git clone -b release-1.4 https://github.com/zgoat/goatcounter.git
+    $ git clone -b release-2.0 https://github.com/zgoat/goatcounter.git
     $ cd goatcounter
     $ go build -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
@@ -156,13 +159,20 @@ To build a fully statically linked binary:
         -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static" \
         ./cmd/goatcounter
 
-You need Go 1.16 or newer and a C compiler (for SQLite). If you compile it with
-`CGO_ENABLED=0 go build` you don't need a C compiler, but can only use PostgreSQL.
-
 It's recommended to use the latest release as in the above command. The master
 branch should be reasonably stable but no guarantees, and sometimes I don't
 write detailed release/upgrade notes until the actual release so you may run in
 to surprises.
+
+You can compile goatcounter without cgo if you're planning to use PostgreSQL and
+don't use SQLite:
+
+    $ CGO_ENABLED=0 go build \
+        -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI')" \
+        ./cmd/goatcounter
+
+Functionally it doesn't matter too much, but builds will be a bit easier and
+faster as it won't require a C compiler.
 
 ### Running
 
@@ -173,6 +183,11 @@ You can start a server with:
 The default is to use an SQLite database at `./db/goatcounter.sqlite3`, which
 will be created if it doesn't exist yet. See the `-db` flag and `goatcounter
 help db` to customize this.
+
+Both SQLite and PostgreSQL are supported. SQLite should work well for most
+smaller sites, but PostgreSQL gives better performance. There are [some
+benchmarks over here][bench] to give some indication of what performance to
+expect from SQLite and PostgreSQL.
 
 GoatCounter will listen on port `*:80` and `*:443` by default. You don't need
 to run it as root and can grant the appropriate permissions on Linux with:
@@ -190,6 +205,8 @@ This will ask for a password for your new account; you can also add a password
 on the commandline with `-password`. You must also pass the `-db` flag here if
 you use something other than the default.
 
+[bench]: https://github.com/zgoat/goatcounter/blob/master/docs/benchmark.markdown
+
 ### Updating
 
 You may need to run the database migrations when updating. Use  `goatcounter
@@ -205,30 +222,17 @@ Use `goatcounter migrate pending` to get a list of pending migrations, or
 
 ### PostgreSQL
 
-Both SQLite and PostgreSQL are supported. SQLite should work well for most
-smaller sites, but PostgreSQL gives some better performance:
+To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
 
-1. Run with custom `-db` flag:
+    $ goatcounter serve -db 'postgresql://dbname=goatcounter'
+    $ goatcounter serve -db 'postgresql://host=/run/postgresql dbname=goatcounter sslmode=disable'
 
-       $ goatcounter serve -db 'postgresql://dbname=goatcounter'
+This follows the format in the `psql` CLI; you can also use the `PG*`
+environment variables:
 
-   Or use a socket:
+   $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql://'
 
-       $ goatcounter serve \
-           -db 'postgresql://host=/run/postgresql dbname=goatcounter sslmode=disable'
-
-   You can also use the `PG*` environment variables:
-
-       $ PGDATABASE=goatcounter DBHOST=/var/run goatcounter serve -db 'postgresql://'
-
-   See `goatcounter help db` and the [pq docs][pq] for more details.
-
-2. You can compile goatcounter without cgo if you don't use SQLite:
-
-       $ CGO_ENABLED=0 go build -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
-
-   Functionally it doesn't matter too much, but builds will be a bit easier and
-   faster as it won't require a C compiler.
+See `goatcounter help db` and the [pq docs][pq] for more details.
 
 [pq]: https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters
 

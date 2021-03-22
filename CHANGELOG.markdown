@@ -5,23 +5,12 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-Changes since rc1
+2021-03-29 v2.0.0
 -----------------
-- MFA login was broken 🤦
-- Make sure GoatCounter works even when the `tzdata` package isn't available.
-- Revamped integration documentation; what started as a single short page grew
-  in to a rather long chaotic page so clean that up a bit.
-
-2021-03-20 v2.0.0-rc1
----------------------
 
 The version is bumped to 2.0 because this contains a number of incompatible
 changes: several CLI commands got changed, and it includes some large database
 migrations – running them is a bit more complex than the standard migrations.
-
-Because this includes so many changes I'll do a Release Candidate first. Please
-report issues if you have any problems! Barring unexpected large issues I'll do
-a 2.0 release next week or so.
 
 An overview of **incompatible** changes:
 
@@ -174,6 +163,9 @@ An overview of **incompatible** changes:
   indication for comparison purposes.
 
 - Many other minor changes and improvements.
+
+- For changes since RC1 see:
+  https://github.com/zgoat/goatcounter/compare/v2.0.0-rc1...v2.0.0
 
 
 2020-11-10, v1.4.2

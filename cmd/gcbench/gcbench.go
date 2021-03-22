@@ -133,12 +133,14 @@ func main() {
 		})
 		zli.F(err)
 
+		first := time.Now().Add(-time.Duration(r.nDays) * 24 * time.Hour)
+
 		r.ctx = goatcounter.NewContext(r.db)
 		s := goatcounter.Site{
-			Cname:    zstring.NewPtr("gcbench.localhost").P,
-			Plan:     goatcounter.PlanBusinessPlus,
-			Settings: goatcounter.SiteSettings{Public: true},
-			// site.FirstHitAt = dates[len(dates)-1]
+			Cname:      zstring.NewPtr("gcbench.localhost").P,
+			Plan:       goatcounter.PlanBusinessPlus,
+			Settings:   goatcounter.SiteSettings{Public: true},
+			FirstHitAt: first,
 		}
 		zli.F(s.Insert(r.ctx))
 		r.ctx = goatcounter.WithSite(r.ctx, &s)
