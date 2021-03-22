@@ -410,10 +410,29 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// TODO: redirect to index if this doesn't exist.
 	cp := chi.URLParam(r, "*")
 	if cp == "" {
 		return zhttp.MovedPermanently(w, "/code/start")
+	}
+
+	{
+		fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "tpl", goatcounter.Config(r.Context()).Dev)
+		if err != nil {
+			return err
+		}
+		fsys, err = zfs.SubIfExists(fsys, "tpl/code")
+		if err != nil {
+			return err
+		}
+
+		_, err = fs.Stat(fsys, cp+".markdown")
+		if err != nil {
+			if !errors.Is(err, os.ErrNotExist) {
+				return err
+			}
+			w.WriteHeader(404)
+			cp = "404"
+		}
 	}
 
 	return zhttp.Template(w, "code.gohtml", struct {

@@ -134,7 +134,8 @@ func init() {
 			{href: "countjs-versions", label: "count.js versions and SRI"},
 			{href: "countjs-host", label: "Host count.js somewhere else?"}}},
 		{label: "Other", items: []x{
-			// TODO: add "adblock" page?
+			// TODO: add "adblock" page
+			// TODO: add "campiagns page"; link in "settings_main".
 			{href: "export", label: "Exports"},
 			{href: "api", label: "API"}}},
 	}
@@ -177,6 +178,9 @@ func init() {
 		return template.HTML(dropdown.String() + list.String())
 	})
 	tplfunc.Add("code_hdr", func(active string) template.HTML {
+		if active == "404" {
+			return "404: Not Found"
+		}
 		var w func([]x) string
 		w = func(l []x) string {
 			for _, ll := range l {
