@@ -572,7 +572,7 @@
 
 			var params = split_query(location.search),
 				btn    = $(this),
-				row    = $(this).closest('tr'),
+				row    = btn.closest('tr'),
 				path   = row.attr('id'),
 				init   = btn .is('.load-refs'),
 				close  = function() {
