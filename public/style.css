@@ -61,11 +61,14 @@ footer > div:first-child { margin-bottom: 1em; }
 
 #home-screens img     { box-shadow: 0 0 6px rgba(0,0,0,.2); }
 @media (min-width: 45rem) {
-	#home-screens     { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
-	#home-screens img { width: 49%; }
+	#home-screens            { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; }
+	#home-screens figure     { width: 32%; }
+	#home-screens img        { cursor: pointer; }
+	#home-screens figcaption { margin-bottom: .4em; }
 }
 @media (max-width: 45rem) {
-	#home-screens img { margin-bottom: 1em; }
+	#home-screens figure     { margin-bottom: 1em; }
+	#home-screens figcaption { font-weight: bold; }
 }
 
 img.imgzoom-loading { cursor: wait !important; }
