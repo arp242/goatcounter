@@ -8,10 +8,13 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"zgo.at/errors"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zstring"
 )
 
 type BosmangStat struct {
@@ -20,7 +23,6 @@ type BosmangStat struct {
 	Code          string    `db:"code"`
 	Stripe        *string   `db:"stripe"`
 	BillingAmount *string   `db:"billing_amount"`
-	LinkDomain    string    `db:"link_domain"`
 	Email         string    `db:"email"`
 	CreatedAt     time.Time `db:"created_at"`
 	Plan          string    `db:"plan"`
@@ -32,98 +34,135 @@ type BosmangStats []BosmangStat
 
 // List stats for all sites, for all time.
 func (a *BosmangStats) List(ctx context.Context) error {
-	err := zdb.Select(ctx, a, fmt.Sprintf(`/* BosmangStats.List */
-		select
-			sites.site_id,
-			sites.parent,
-			sites.code,
-			sites.created_at,
-			sites.billing_amount,
-			(case
-				when sites.stripe is null then 'free'
-				when substr(sites.stripe, 0, 9) = 'cus_free' then 'free'
-				else sites.plan
-			end) as plan,
-			stripe,
-			sites.link_domain,
-			(
-				select array_to_string(array_agg(email || ' → ' || cast(access->'all' as varchar)), ', ')
-				from users where site_id=sites.site_id or site_id=sites.parent
-			) as email,
-			coalesce((
-				select sum(hit_counts.total) from hit_counts where site_id=sites.site_id
-			), 0) as total,
-			coalesce((
-				select sum(hit_counts.total) from hit_counts
-				where site_id=sites.site_id and hit_counts.hour >= %s
-			), 0) as last_month
-		from sites
-		order by last_month desc`, interval(ctx, 30)))
+	err := zdb.Select(ctx, a, "load:bosmang.List", zdb.DumpExplain)
 	if err != nil {
 		return errors.Wrap(err, "BosmangStats.List")
 	}
 
 	// Add all the child plan counts to the parents.
+	type x struct {
+		total, last_month int
+		code              string
+	}
+	ch := make(map[int64][]x)
 	aa := *a
 	for _, s := range aa {
-		if s.Plan != PlanChild {
+		if s.Parent == nil {
+			continue
+		}
+		ch[*s.Parent] = append(ch[*s.Parent], x{code: s.Code, total: s.Total, last_month: s.LastMonth})
+	}
+
+	filter := make(BosmangStats, 0, len(aa))
+	curr := strings.NewReplacer("EUR ", "€", "USD ", "$")
+	for _, s := range aa {
+		c, ok := ch[s.ID]
+		if !ok {
 			continue
 		}
 
-		for i, s2 := range aa {
-			if s2.ID == *s.Parent {
-				aa[i].Total += s.Total
-				aa[i].LastMonth += s.LastMonth
-				break
-			}
+		for _, cc := range c {
+			s.Total += cc.total
+			s.LastMonth += cc.last_month
+			s.Code += " | " + cc.code
 		}
+
+		if s.BillingAmount != nil {
+			s.BillingAmount = zstring.NewPtr(curr.Replace(*s.BillingAmount)).P
+		}
+		filter = append(filter, s)
 	}
-	sort.Slice(aa, func(i, j int) bool { return aa[i].LastMonth > aa[j].LastMonth })
+
+	sort.Slice(filter, func(i, j int) bool { return filter[i].LastMonth > filter[j].LastMonth })
+	*a = filter
 	return nil
 }
 
 type BosmangSiteStat struct {
-	Site           Site      `db:"-"`
-	Users          Users     `db:"-"`
-	LastData       time.Time `db:"last_data"`
-	CountTotal     int       `db:"count_total"`
-	CountLastMonth int       `db:"count_last_month"`
-	CountPrevMonth int       `db:"count_prev_month"`
+	MainSite Site  `db:"-"`
+	Sites    Sites `db:"-"`
+	Users    Users `db:"-"`
+
+	Stats []struct {
+		Code           string    `db:"code"`
+		LastData       time.Time `db:"last_data"`
+		CountTotal     int       `db:"count_total"`
+		CountLastMonth int       `db:"count_last_month"`
+		CountPrevMonth int       `db:"count_prev_month"`
+	}
 }
 
 // ByID gets stats for a single site.
 func (a *BosmangSiteStat) ByID(ctx context.Context, id int64) error {
-	err := a.Site.ByID(ctx, id)
+	err := a.MainSite.ByID(ctx, id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
-
+	err = a.MainSite.GetMain(ctx)
+	if err != nil {
+		return errors.Wrap(err, "BosmangSiteStats.ByID")
+	}
+	err = a.Sites.ForThisAccount(WithSite(ctx, &a.MainSite), false)
+	if err != nil {
+		return errors.Wrap(err, "BosmangSiteStats.ByID")
+	}
 	err = a.Users.List(ctx, id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
 
-	ival30 := interval(ctx, 30)
-	ival60 := interval(ctx, 30)
-	err = zdb.Get(ctx, a, fmt.Sprintf(`/* *BosmangSiteStat.ByID */
-		select
-			coalesce((select hour from hit_counts where site_id=$1 order by hour desc limit 1), '1970-01-01') as last_data,
-			coalesce((select sum(total) from hit_counts where site_id=$1), 0) as count_total,
-			coalesce((select sum(total) from hit_counts where site_id=$1
-				and hour >= %[1]s), 0) as count_last_month,
-			coalesce((select sum(total) from hit_counts where site_id=$1
-				and hour >= %[2]s
-				and hour <= %[1]s
-			), 0) as count_prev_month
-		`, ival30, ival60), id)
+	var (
+		ival30 = interval(ctx, 30)
+		ival60 = interval(ctx, 60)
+		query  []string
+	)
+	for _, s := range a.Sites {
+		query = append(query, fmt.Sprintf(`
+			select
+				(select code from sites where site_id=%[1]d),
+
+				coalesce((
+					select hour from hit_counts where site_id=%[1]d order by hour desc limit 1),
+				'1970-01-01') as last_data,
+
+				coalesce((
+					select sum(total) from hit_counts where site_id=%[1]d),
+				0) as count_total,
+
+				coalesce((
+					select sum(total) from hit_counts where site_id=%[1]d
+					and hour >= %[2]s),
+				0) as count_last_month,
+
+				coalesce((
+					select sum(total) from hit_counts where site_id=%[1]d and hour >= %[3]s and hour <= %[2]s
+				), 0) as count_prev_month
+			`, s.ID, ival30, ival60))
+	}
+
+	err = zdb.Select(ctx, &a.Stats,
+		"/* BosmangSiteStat.ByID */\n"+strings.Join(query, "union\n")+"\norder by count_total desc")
 	return errors.Wrap(err, "BosmangSiteStats.ByID")
 }
 
-// ByCode gets stats for a single site.
-func (a *BosmangSiteStat) ByCode(ctx context.Context, code string) error {
-	err := a.Site.ByHost(ctx, code+"."+Config(ctx).Domain)
+// Find gets stats for a single site.
+func (a *BosmangSiteStat) Find(ctx context.Context, ident string) error {
+	id, err := strconv.ParseInt(ident, 10, 64)
+	switch {
+	case id > 0:
+		// Do nothing
+	case strings.ContainsRune(ident, '@'):
+		var u User
+		err = u.ByEmail(ctx, ident)
+		id = u.Site
+	default:
+		var s Site
+		err = s.ByCode(ctx, ident)
+		id = s.ID
+	}
 	if err != nil {
 		return err
 	}
-	return a.ByID(ctx, a.Site.ID)
+
+	return a.ByID(ctx, id)
 }

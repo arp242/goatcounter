@@ -8,48 +8,42 @@ th       { text-align: left; }
 .n       { text-align: right; }
 input    { float: right; padding: .4em !important; }
 .sort th { color: blue; cursor: pointer; }
+.c       { white-space: normal; }
+.s a     { display: block; text-align: right; }
 </style>
 <style>.plan-free { background-color: #eaeaea; }</style>
 
-<p>
-	<a href="/debug/pprof">pprof</a> |
-	<a href="/bosmang/sql">PostgreSQL</a> |
-</p>
+<p><a href="/debug/pprof">pprof</a></p>
 
 <h2>Signups</h2>
 <div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
-
-<h2>Income</h2>
-<p>${{.TotalUSD}} GitHub + €{{.TotalEUR}} Stripe + $24 Patreon ≈ €{{.TotalEarnings}}</p>
-
+{{/* <h2>Income</h2> <p>${{.TotalUSD}} GitHub + €{{.TotalEUR}} Stripe + $24 Patreon ≈ €{{.TotalEarnings}}</p> */}}
 
 <h2>Sites</h2>
 <table class="sort">
 <thead><tr>
-	<th class="n">Last month</th>
-	<th class="n">Total hits</th>
+	<th class="n" style="width: 6em">Total hits</th>
+	<th class="n" style="width: 6em">Last 30d</th>
 	<th>Site</th>
-	<th>Domain/Email</th>
+	<th>Codes</th>
 	<th>Plan</th>
+	<th class="n">€</th>
 	<th>Created at</th>
 </tr></thead>
 <tbody>{{range $s := .Stats}}
 	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
-		<td class="n">{{nformat $s.LastMonth $.User}}</td>
 		<td class="n">{{nformat $s.Total $.User}}</td>
-		<td><a href="/bosmang/{{$s.ID}}">{{$s.Code}}</a></td>
-		<td>{{$s.LinkDomain}}<br>{{$s.Email}}</td>
+		<td class="n">{{nformat $s.LastMonth $.User}}</td>
+		<td class="s"><a href="/bosmang/{{$s.ID}}">{{$s.ID}}</a></td>
+		<td class="c">{{$s.Code}}</td>
 		<td>
-			{{if $s.Stripe}}
-				{{if eq $s.Plan "free"}}z{{end}}{{$s.Plan}}
+			{{- if $s.Stripe -}}
 				{{- if has_prefix $s.Stripe "cus_github" -}}
-					; <a href="https://github.com/{{substr $s.Stripe 11 -1}}">GitHub</a>
+					<a href="https://github.com/{{substr $s.Stripe 11 -1}}">
 				{{- else if not (has_prefix $s.Stripe "cus_free_") -}}
-					; <a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">Stripe</a>
-				{{end}}
-				{{if ne $s.Plan "free"}}
-					<br>{{if $s.BillingAmount}}{{$s.BillingAmount}}{{else}}UNKNOWN{{end}}
-				{{end}}
+					<a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">
+				{{- end -}}
+				{{- if eq $s.Plan "free" -}}z{{end}}{{$s.Plan}}</a>
 			{{else}}
 				{{if eq $s.Plan "child"}}
 					child of <a href="#{{$s.Parent}}">{{$s.Parent}}</a>
@@ -57,6 +51,9 @@ input    { float: right; padding: .4em !important; }
 					zfree
 				{{end}}
 			{{end}}
+		</td>
+		<td class="n">
+			{{- if ne $s.Plan "free"}}{{if $s.BillingAmount}}{{$s.BillingAmount}}{{else}}???{{end}}{{end}}
 		</td>
 		<td>{{tformat $s.CreatedAt "" $.User}}</td>
 	</tr>

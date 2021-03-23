@@ -394,7 +394,7 @@ func TestDashboardBarChart(t *testing.T) {
 					<div class="refs hchart" data-more="/hchart-more?kind=ref">
 					</div>
 					</td>
-					<td class="col-t"><em>(no title)</em>
+					<td class="col-t page-title"><em>(no title)</em>
 					</td>
 					<td class="col-d"><span>            </span></td>
 					</tr>`, "\t", ""))
