@@ -135,7 +135,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 			header.CSPScriptSrc:   append(ds, "https://js.stripe.com"),
 			header.CSPStyleSrc:    append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
 			header.CSPFontSrc:     ds,
-			header.CSPFormAction:  {header.CSPSourceSelf},
+			header.CSPFormAction:  {header.CSPSourceSelf, "https://billing.stripe.com"},
 			header.CSPConnectSrc:  {header.CSPSourceSelf, "https://api.stripe.com"},
 			header.CSPFrameSrc:    {header.CSPSourceSelf, "https://js.stripe.com", "https://hooks.stripe.com"},
 			header.CSPManifestSrc: ds,
