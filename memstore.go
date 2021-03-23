@@ -66,10 +66,10 @@ type ms struct {
 	hits  []Hit
 
 	sessionMu     sync.RWMutex
-	sessions      map[hash]zint.Uint128                // Hash → sessionID
-	sessionHashes map[zint.Uint128]hash                // sessionID → hash
-	sessionPaths  map[zint.Uint128]map[string]struct{} // SessionID → Path
-	sessionSeen   map[zint.Uint128]int64               // SessionID → lastseen
+	sessions      map[hash]zint.Uint128               // Hash → sessionID
+	sessionHashes map[zint.Uint128]hash               // sessionID → hash
+	sessionPaths  map[zint.Uint128]map[int64]struct{} // SessionID → path_id
+	sessionSeen   map[zint.Uint128]int64              // SessionID → lastseen
 	curSalt       []byte
 	prevSalt      []byte
 	saltRotated   time.Time
@@ -80,13 +80,13 @@ type ms struct {
 var Memstore ms
 
 type storedSession struct {
-	Sessions    map[hash]zint.Uint128                `json:"sessions"`
-	Hashes      map[zint.Uint128]hash                `json:"hashes"`
-	Paths       map[zint.Uint128]map[string]struct{} `json:"paths"`
-	Seen        map[zint.Uint128]int64               `json:"seen"`
-	CurSalt     []byte                               `json:"cur_salt"`
-	PrevSalt    []byte                               `json:"prev_salt"`
-	SaltRotated time.Time                            `json:"salt_rotated"`
+	Sessions    map[hash]zint.Uint128               `json:"sessions"`
+	Hashes      map[zint.Uint128]hash               `json:"hashes"`
+	Paths       map[zint.Uint128]map[int64]struct{} `json:"paths"`
+	Seen        map[zint.Uint128]int64              `json:"seen"`
+	CurSalt     []byte                              `json:"cur_salt"`
+	PrevSalt    []byte                              `json:"prev_salt"`
+	SaltRotated time.Time                           `json:"salt_rotated"`
 }
 
 func (m *ms) Reset() {
@@ -95,7 +95,7 @@ func (m *ms) Reset() {
 
 	m.sessions = make(map[hash]zint.Uint128)
 	m.sessionHashes = make(map[zint.Uint128]hash)
-	m.sessionPaths = make(map[zint.Uint128]map[string]struct{})
+	m.sessionPaths = make(map[zint.Uint128]map[int64]struct{})
 	m.sessionSeen = make(map[zint.Uint128]int64)
 	m.curSalt = []byte(zcrypto.Secret256())
 	m.prevSalt = []byte(zcrypto.Secret256())
@@ -263,7 +263,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		ctx = WithSite(ctx, &site)
 
 		if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) {
-			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.UserSessionID, h.Path, h.UserAgentHeader, h.RemoteAddr)
+			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.PathID, h.UserSessionID, h.UserAgentHeader, h.RemoteAddr)
 		}
 
 		if !site.Settings.Collect.Has(CollectSession) {
@@ -389,8 +389,7 @@ func (m *ms) SessionID() zint.Uint128 {
 	return i
 }
 
-// TODO: this can user pathID now, instead of storing the full string.
-func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
+func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
 	sessionHash := hash{userSessionID}
 
 	if userSessionID == "" {
@@ -415,9 +414,9 @@ func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua,
 
 	if ok { // Existing session
 		m.sessionSeen[id] = Now().Unix()
-		_, seenPath := m.sessionPaths[id][path]
+		_, seenPath := m.sessionPaths[id][pathID]
 		if !seenPath {
-			m.sessionPaths[id][path] = struct{}{}
+			m.sessionPaths[id][pathID] = struct{}{}
 		}
 		return id, zbool.Bool(!seenPath)
 	}
@@ -425,7 +424,7 @@ func (m *ms) session(ctx context.Context, siteID int64, userSessionID, path, ua,
 	// New session
 	id = m.SessionID()
 	m.sessions[sessionHash] = id
-	m.sessionPaths[id] = map[string]struct{}{path: struct{}{}}
+	m.sessionPaths[id] = map[int64]struct{}{pathID: struct{}{}}
 	m.sessionSeen[id] = Now().Unix()
 	m.sessionHashes[id] = sessionHash
 	return id, true
