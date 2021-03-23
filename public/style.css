@@ -8,20 +8,15 @@ u              { text-decoration: none; box-shadow: inset 0 -.175em yellow, inse
 
 .cbox { box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
 
-footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between; }
-footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
+footer                  { line-height: 2.5em; padding: .5em; text-align: center;  justify-content: space-between; }
+footer a                { font-weight: bold; color: #252525; margin: 0 .5em; }
 
 @media (max-width: 54em) {
-	footer      { text-align: left; justify-content: space-around; }
-	footer a    { display: block; padding: .5em 0; }
 	footer span { display: none; }
 }
-
-/* TODO: bit of a temporary solution to make sure all links are visible with the
- * "chat bubble" from intergram. I'd like to redesign that entire thing, but ...
- * right now also a lot of other stuff to do, so this will have to do. */
-footer                   { display: block; }
-footer > div:first-child { margin-bottom: 1em; }
+@media (max-width: 44em) {
+	footer >div:first-child { border-bottom: 1px solid #aaa; }
+}
 
 .page { position: relative; }
 
@@ -97,12 +92,14 @@ img.imgzoom-loading { cursor: wait !important; }
 
 #home-pricing-faq      { font-size: .9rem; }
 #home-pricing-faq h3   { margin-bottom: 0; text-align: center; }
-#home-pricing-faq dt   { text-align: center; }
-#home-pricing-faq dt a { display: none; }
 #home-pricing-faq dl   { max-width: 50em; margin: 0 auto; text-align: center; }
-#home-pricing-faq dt   { display: inline; font-weight: normal; color: #00f; transition: color .2s; cursor: pointer; }
+#home-pricing-faq dt   { text-align: center; margin: .2em 0; font-weight: normal; color: #00f; transition: color .2s; cursor: pointer; }
+#home-pricing-faq dt a { display: none; }
 #home-pricing-faq dt:hover { text-decoration: underline; color: #6491ff; }
 #home-pricing-faq dd   { background-color: #fff; padding: .4em 1em; padding: 0; margin: 0; overflow: hidden; height: 0; text-align: left; }
+@media (max-width: 37rem) {
+	#home-pricing-faq dt { margin: .5em 0; }
+}
 
 /*** Home features ***/
 #features          { margin-top: 3rem; }
@@ -186,6 +183,7 @@ dt { font-weight: bold; margin-top: 1em; }
 	            display: flex; flex-direction: column; flex-wrap: wrap; justify-content: space-between; }
 @media (max-width: 35rem) {
 	#docs-list ul { height: auto; }
+	#docs-list li { margin: .5em 0; }
 }
 
 /* Force inputs to be 16px, so that iPhone won't zoom on select, which is

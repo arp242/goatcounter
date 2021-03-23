@@ -366,12 +366,14 @@ noscript p { margin: .5em; }
 
 #home-pricing-faq      { font-size: .9rem; }
 #home-pricing-faq h3   { margin-bottom: 0; text-align: center; }
-#home-pricing-faq dt   { text-align: center; }
-#home-pricing-faq dt a { display: none; }
 #home-pricing-faq dl   { max-width: 50em; margin: 0 auto; text-align: center; }
-#home-pricing-faq dt   { display: inline; font-weight: normal; color: #00f; transition: color .2s; cursor: pointer; }
+#home-pricing-faq dt   { text-align: center; margin: .2em 0; font-weight: normal; color: #00f; transition: color .2s; cursor: pointer; }
+#home-pricing-faq dt a { display: none; }
 #home-pricing-faq dt:hover { text-decoration: underline; color: #6491ff; }
 #home-pricing-faq dd   { background-color: #fff; padding: .4em 1em; padding: 0; margin: 0; overflow: hidden; height: 0; text-align: left; }
+@media (max-width: 37rem) {
+	#home-pricing-faq dt { margin: .5em 0; }
+}
 
 /* End copy */
 

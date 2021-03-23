@@ -35,7 +35,7 @@ You can also remove the `async` attribute.
 
 An example of how this looks with the default settings:
 
-<div style="display: flex; justify-content: space-around; text-align: center;">
+<div id="vc-example">
 <div id="vc-html">HTML<br></div>
 <div id="vc-svg">SVG<br></div>
 <div id="vc-png">PNG<br></div>

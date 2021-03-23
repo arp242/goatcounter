@@ -8,8 +8,11 @@
 		fill_code()
 		fill_tz()
 		setup_donate()
+		billing_faq()
+	}
 
-		var dt = document.querySelectorAll('dt')
+	var billing_faq = function() {
+		var dt = document.querySelectorAll('#home-pricing-faq dt')
 		for (var i=0; i<dt.length; i++) {
 			dt[i].addEventListener('click', function(e) {
 				var dd = e.target.nextElementSibling
