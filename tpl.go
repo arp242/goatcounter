@@ -23,7 +23,6 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"github.com/russross/blackfriday/v2"
 	"zgo.at/errors"
-	"zgo.at/zcache"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
 	"zgo.at/zhttp/ztpl/tplfunc"
@@ -53,15 +52,8 @@ func init() {
 	tplfunc.Add("text_chart", textChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
 
-	var mdCache = zcache.New(zcache.NoExpiration, zcache.NoExpiration)
 	tplfunc.Add("markdown", func(file string, scope interface{}) template.HTML {
 		ctx := reflect.ValueOf(scope).FieldByName("Context").Elem().Interface().(context.Context)
-		if !Config(ctx).Dev {
-			if c, ok := mdCache.Get(file); ok {
-				return c.(template.HTML)
-			}
-		}
-
 		fsys, err := zfs.EmbedOrDir(Templates, "tpl", Config(ctx).Dev)
 		if err != nil {
 			panic(err)
@@ -104,7 +96,6 @@ func init() {
 			panic(err)
 		}
 
-		mdCache.SetDefault(file, template.HTML(html.String()))
 		return template.HTML(html.String())
 	})
 
