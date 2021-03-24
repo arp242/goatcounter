@@ -275,12 +275,10 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) {
 			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.PathID, h.UserSessionID, h.UserAgentHeader, h.RemoteAddr)
 		}
-
 		if !site.Settings.Collect.Has(CollectSession) {
 			h.Session = zint.Uint128{}
 			h.FirstVisit = false
 		}
-
 		if !site.Settings.Collect.Has(CollectReferrer) {
 			h.Query = ""
 			h.Ref = ""
@@ -315,6 +313,12 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			continue
 		}
 
+		err = h.FindCampaign(ctx) // TODO: move to defaults?
+		if err != nil {
+			l.Field("hit", h).Error(err)
+			continue
+		}
+
 		err = h.Validate(ctx, false)
 		if err != nil {
 			l.Field("hit", h).Error(err)
@@ -326,7 +330,8 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		newHits = append(newHits, h)
 
 		ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
-			h.Location, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
+			h.Location, h.CreatedAt.Round(time.Second), h.Bot, h.Session,
+			h.FirstVisit)
 	}
 
 	return newHits, ins.Finish()

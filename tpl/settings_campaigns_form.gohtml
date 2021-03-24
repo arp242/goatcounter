@@ -1,0 +1,112 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_settings_nav.gohtml" .}}
+
+<h2>{{if .Edit}}Edit campaign {{.NewC.Name}}{{else}}Add a new campaign{{end}}</h2>
+{{if .Error}}<div class="flash flash-e">{{.Error}}</div>{{end}}
+
+<style>
+.path-new { display: none; }
+select    { max-width: 20em; }
+
+.campaign-goal { }
+.campaign-goal input[type="number"] { display: inline; }
+.campaign-goal select               { display: inline; min-width: 4em; }
+</style>
+
+<form method="post" action="/settings/campaigns/{{if2 .Edit .NewC.ID "add"}}" class="vertical side-by-side" id="campaign-form">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	<fieldset>
+		<legend style="width: 0; padding: 0;">&nbsp;</legend>
+
+		<label for="name">Name</label>
+		<input type="text" name="name" id="name" value="{{.NewC.Name}}">
+		{{validate "name" .Validate}}
+
+		<label for="notes">Notes</label>
+		<textarea name="notes" id="notes">{{.NewC.Notes}}</textarea>
+		{{validate "notes" .Validate}}
+	</fieldset>
+
+	<fieldset>
+		<legend>Campaign value</legend>
+
+		<label for="value">Value of a converstion</label>
+		<input type="text" name="value" id="value" value="{{if .NewC.Value}}{{.NewC.Value}}{{end}}">
+		{{validate "value" .Validate}}
+		<span>The monetary value of a single conversation; may include a
+			currency (e.g. ‘1€’ or ‘$1’). Can be left empty.</span>
+
+		<div class="campaign-goal">
+			<label for="goat">Goal</label>
+			<input type="number" name="goal" id="goal">
+			{{validate "goal" .Validate}}
+			<select name="goal_type">
+				<option value="0">Number of conversions</option>
+				<option value="1">Conversion %</option>
+				<option value="2">Total value</option>
+			</select>
+			<select>
+				<option>/week</option>
+				<option>/month</option>
+				<option>/quarter</option>
+			</select>
+		</div>
+		<span>Goals for this campaign; can be left empty.</span>
+	</fieldset>
+
+	<fieldset>
+		<legend>Target location</legend>
+		<p>Select a path or event as the target; once a visitors hit this,
+			it will be counted as a conversion.</p>
+		<p><a href="#" class="toggle-path">Add new</a></p>
+
+		<div class="path-existing">
+			<label for="path_id">Existing</label>
+			<select name="path_id">
+				<optgroup label="Events">
+					{{range $p := $.Paths}}
+						{{if $p.Event}}<option value="{{$p.ID}}">{{$p.Path}}</option>{{end}}
+					{{end}}
+				</optgroup>
+				<optgroup label="Pages">
+					{{range $p := $.Paths}}
+						{{if not $p.Event}}<option value="{{$p.ID}}">{{$p.Path}}</option>{{end}}
+					{{end}}
+				</optgroup>
+			</select>
+		</div>
+
+		<div class="path-new">
+			<label for="new_path">Add new</label>
+			<input type="text" name="new_path" id="new_path" disabled>
+		</div>
+	</fieldset>
+
+	<fieldset>
+		<legend>Parameters</legend>
+
+		<label for="params">Parameters</label>
+		<input type="text" name="params" id="params" value="{{.NewC.Params}}">
+		{{validate "params" .Validate}}
+		<span>The query parameter to look for on the entry page. Will look for this
+			value in any of the Campaign parameters in the site settings.
+			You can add multiple parameters. Can also use
+			<code>name=value</code> to only look in a specific query
+			parameter.
+		</span>
+	</fieldset>
+
+	<div class="flex-break"></div>
+
+	<div>
+		<button type="submit">{{if .Edit}}Edit{{else}}Add new{{end}}</button>
+	</div>
+</form>
+{{if has_errors .Validate}}
+	<div class="flash flash-e"
+		style="position: fixed; bottom: 0; right: .5em; min-width: 20em; z-index: 5; text-align: left;">
+	Additional errors:{{.Validate.HTML}}</div>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

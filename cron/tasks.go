@@ -157,6 +157,7 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 		updateSystemStats,
 		updateLocationStats,
 		updateSizeStats,
+		updateCampaignStats,
 	}
 
 	for _, f := range funs {

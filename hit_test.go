@@ -130,3 +130,6 @@ func TestHitDefaultsPath(t *testing.T) {
 		})
 	}
 }
+
+func TestHitFindCampaign(t *testing.T) {
+}

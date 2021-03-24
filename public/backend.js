@@ -12,8 +12,9 @@
 		window.SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
 
 		;[report_errors, bind_tooltip, bind_confirm].forEach((f) => f.call())
-		;[page_dashboard, page_billing, page_settings_main, page_user_pref, page_user_dashboard, page_bosmang]
-			.forEach((f) => document.body.id === f.name.replace(/_/g, '-') && f.call())
+		;[page_dashboard, page_billing, page_settings_main, page_settings_campaigns,
+			page_user_pref, page_user_dashboard, page_bosmang,
+		].forEach((f) => document.body.id === f.name.replace(/_/g, '-') && f.call())
 	})
 
 	// Set up error reporting.
@@ -152,6 +153,25 @@
 						setSelectionRange(set.length, set.length)
 				},
 			})
+		})
+	}
+
+	var page_settings_campaigns = function() {
+		$('.toggle-path').on('click', function(e) {
+			e.preventDefault()
+
+			var show = $('.path-new'),
+				hide = $('.path-existing')
+
+			if ($(this).attr('data-new') === '1') {
+				$(this).text('Add new').attr('data-new', '0')
+				;[show, hide] = [hide, show]
+			}
+			else
+				$(this).text('Use existing').attr('data-new', '1')
+
+			show.css('display', 'block').find('input, select').attr('disabled', false)
+			hide.css('display', 'none').find('input, select').attr('disabled', true)
 		})
 	}
 

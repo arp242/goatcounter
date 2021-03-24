@@ -320,6 +320,10 @@ func (ss SiteSettings) CollectFlags() []CollectFlag {
 	}
 }
 
+func (ss SiteSettings) CollectReferrer() bool {
+	return ss.Collect.Has(CollectReferrer)
+}
+
 func (s *WidgetSettings) Set(k string, v interface{}) {
 	ss := *s
 	m := ss[k]

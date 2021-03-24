@@ -56,6 +56,11 @@ type Hit struct {
 	UserSessionID string `db:"-" json:"-"`
 	BrowserID     int64  `db:"-" json:"-"`
 	SystemID      int64  `db:"-" json:"-"`
+
+	// Campaign ID is attached in memstore, but doesn't really need to be stored
+	// in the database as we can reconstruct it later from the hits table.
+	// TODO: would make some queries/inspecting data easier though...
+	CampaignID int64 `db:"-" json:"-"`
 }
 
 func (h *Hit) Ignore() bool {
@@ -73,6 +78,57 @@ func (h *Hit) Ignore() bool {
 	}
 
 	return false
+}
+
+// FindCampaign finds a campaign based on this Hit's Query parameters.
+//
+// This will set the CampaignID parameter if a match is found.
+func (h *Hit) FindCampaign(ctx context.Context) error {
+	if h.Query == "" {
+		return nil
+	}
+
+	query, err := url.ParseQuery(strings.TrimLeft(h.Query, "?"))
+	if err != nil {
+		return errors.Wrap(err, "Hit.FindCampaign")
+	}
+
+	var c Campaigns
+	err = c.List(ctx) // TODO: cache!
+	if err != nil {
+		return errors.Wrap(err, "Hit.FindCampaign")
+	}
+
+	site := MustGetSite(ctx)
+
+	// TODO: there are too many loops here.
+	// The Campaign.Params should probably be stored a bit different.
+outer:
+	for _, cc := range c {
+		for _, p := range cc.Params {
+			names := site.Settings.Campaigns
+			match := p
+
+			if i := strings.IndexRune(p, '='); i >= 0 {
+				names = []string{p[:i]}
+				match = p[i+1:]
+			}
+
+			for _, n := range names {
+				v, ok := query[n]
+				if ok {
+					for _, vv := range v {
+						if strings.ToLower(vv) == strings.ToLower(match) {
+							h.CampaignID = cc.ID
+							break outer
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func (h *Hit) cleanPath(ctx context.Context) {

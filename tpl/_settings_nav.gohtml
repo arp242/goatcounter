@@ -1,5 +1,6 @@
 <nav class="tab-nav">
 	<a class="{{if has_prefix .Path "/settings/main"}}active{{end}}"      href="/settings/main">Settings</a>
+	<a class="{{if has_prefix .Path "/settings/campaigns"}}active{{end}}" href="/settings/campaigns">Campaigns</a>
 	<a class="{{if has_prefix .Path "/settings/purge"}}active{{end}}"     href="/settings/purge">Delete pageviews</a>
 	<a class="{{if has_prefix .Path "/settings/export"}}active{{end}}"    href="/settings/export">Export/Import</a>
 

@@ -1,0 +1,54 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_settings_nav.gohtml" .}}
+
+{{if not .Site.Settings.CollectReferrer}}
+<div class="flash flash-e">
+	Collecting referrer information is disabled in <a href="/settings/main#section-collect"> settings</a>. This needs to be enabled for campaigns to work.
+</div>
+{{end}}
+
+{{define "campaigns-table"}}
+	<table class="auto">
+		<table><thead><tr>
+			<th class="left">Name</th>
+			<th class="left">Target path or event</th>
+			<th class="left">Parameters</th>
+			<th class="left">Goal</th>
+			<th class="left">Value</th>
+		</tr></thead>
+
+		<tbody>
+			{{range $c := .list}}<tr>
+				<td>{{$c.Name}}</td>
+				<td>{{$c.Path.Path}}</td>
+				<td>{{$c.Params}}</td>
+				<td>{{if $c.Value}}{{$c.Value}} {{$c.ValueDesc}}{{end}}</td>
+				<td>{{if $c.Goal}}{{$c.Goal}} {{$c.GoalType}}{{end}}</td>
+				<td>
+					<a href="/settings/campaigns/{{$c.ID}}">edit</a> |
+					<form method="post" action="/settings/campaigns/state/{{$c.ID}}">
+						<input type="hidden" name="csrf" value="{{$.csrf}}">
+						{{if eq $c.State "a"}}<button class="link" name="state" value="c">archive</button>
+						{{else}}<button class="link" name="state" value="a">restore</button>{{end}}
+						| <button class="link" name="state" value="d" data-confirm="Delete {{$c.Name}}?">delete</button>
+					</form>
+				</td>
+			</tr>{{end}}
+	</tbody></table>
+{{end}}
+
+<h2>Campaigns</h2>
+{{template "campaigns-table" (map "list" .Campaigns "csrf" .User.CSRFToken)}}
+{{if eq (len .Campaigns) 0}}
+<div><em>No active campaigns</em></div>
+{{end}}
+
+<br><a href="/settings/campaigns/add">Add new campaign</a>
+
+{{if gt (len .Archived) 0}}
+<h3>Archived</h3>
+{{template "campaigns-table" (map "list" .Archived "csrf" .User.CSRFToken)}}
+{{end}}
+
+
+{{template "_backend_bottom.gohtml" .}}

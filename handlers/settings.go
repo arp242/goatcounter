@@ -74,9 +74,23 @@ func (h settings) mount(r chi.Router) {
 		set.Get("/settings/purge/confirm", zhttp.Wrap(h.purgeConfirm))
 		set.Post("/settings/purge", zhttp.Wrap(h.purgeDo))
 
+		set.Get("/settings/campaigns", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.campaigns(nil)(w, r)
+		}))
+		set.Get("/settings/campaigns/add", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.campaignsForm(nil, nil)(w, r)
+		}))
+		set.Get("/settings/campaigns/{id}", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.campaignsForm(nil, nil)(w, r)
+		}))
+		set.Post("/settings/campaigns/add", zhttp.Wrap(h.campaignsAdd))
+		set.Post("/settings/campaigns/{id}", zhttp.Wrap(h.campaignsEdit))
+		set.Post("/settings/campaigns/state/{id}", zhttp.Wrap(h.campaignsState))
+
 		set.Get("/settings/export", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
 			return h.export(nil)(w, r)
 		}))
+
 		set.Get("/settings/export/{id}", zhttp.Wrap(h.exportDownload))
 		set.Post("/settings/export/import", zhttp.Wrap(h.exportImport))
 		set.With(mware.Ratelimit(mware.RatelimitOptions{
@@ -911,4 +925,170 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, "User ‘%s’ removed.", user.Email)
 	return zhttp.SeeOther(w, "/settings/users")
+}
+
+func (h settings) campaigns(verr *zvalidate.Validator) zhttp.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		var c goatcounter.Campaigns
+		err := c.List(r.Context())
+		if err != nil {
+			return err
+		}
+		err = c.WithPaths(r.Context())
+		if err != nil {
+			return err
+		}
+
+		var arch goatcounter.Campaigns
+		err = arch.ListArchived(r.Context())
+		if err != nil {
+			return err
+		}
+		err = arch.WithPaths(r.Context())
+		if err != nil {
+			return err
+		}
+
+		return zhttp.Template(w, "settings_campaigns.gohtml", struct {
+			Globals
+			Validate  *zvalidate.Validator
+			Campaigns goatcounter.Campaigns
+			Archived  goatcounter.Campaigns
+		}{newGlobals(w, r), verr, c, arch})
+	}
+}
+
+func (h settings) campaignsForm(newC *goatcounter.Campaign, pErr error) zhttp.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		edit := newC != nil && newC.ID > 0
+		if newC == nil {
+			newC = &goatcounter.Campaign{}
+
+			v := zvalidate.New()
+			id := v.Integer("id", chi.URLParam(r, "id"))
+			if v.HasErrors() {
+				return v
+			}
+			if id > 0 {
+				edit = true
+				err := newC.ByID(r.Context(), id)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		var vErr *zvalidate.Validator
+		if errors.As(pErr, &vErr) {
+			pErr = nil
+		}
+		if pErr != nil {
+			zlog.Error(pErr)
+			var code int
+			code, pErr = zhttp.UserError(pErr)
+			w.WriteHeader(code)
+		}
+
+		var p goatcounter.Paths
+		err := p.List(r.Context())
+		if err != nil {
+			return err
+		}
+
+		return zhttp.Template(w, "settings_campaigns_form.gohtml", struct {
+			Globals
+			NewC     goatcounter.Campaign
+			Paths    goatcounter.Paths
+			Validate *zvalidate.Validator
+			Error    error
+			Edit     bool
+		}{newGlobals(w, r), *newC, p, vErr, pErr, edit})
+	}
+}
+
+func (h settings) campaignsAdd(w http.ResponseWriter, r *http.Request) error {
+	// formam doesn't like "" for ints; it's all a bit tricky to fix in formam,
+	// so just delete the values here.
+	//
+	// TODO: I'm a bit tired of formam; look for other options.
+	//
+	// Want:
+	// - Specific information on which field failed, and continue parsing.
+	// - Allow "" as empty numbers.
+	// - User-friendly errors.
+	for k, v := range r.Form {
+		if (k == "value" || k == "goal") && len(v) == 1 && v[0] == "" {
+			delete(r.Form, k)
+		}
+	}
+
+	var c goatcounter.Campaign
+	_, err := zhttp.Decode(r, &c)
+	if err != nil {
+		return h.campaignsForm(&c, err)(w, r)
+	}
+
+	err = c.Insert(r.Context())
+	if err != nil {
+		return h.campaignsForm(&c, err)(w, r)
+	}
+
+	zhttp.Flash(w, "Campaign ‘%s’ added.", c.Name)
+	return zhttp.SeeOther(w, "/settings/campaigns")
+}
+
+func (h settings) campaignsEdit(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var c goatcounter.Campaign
+	err := c.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	_, err = zhttp.Decode(r, &c)
+	if err != nil {
+		return h.campaignsForm(&c, err)(w, r)
+	}
+
+	err = c.Update(r.Context())
+	if err != nil {
+		return h.campaignsForm(&c, err)(w, r)
+	}
+
+	zhttp.Flash(w, "Campaign ‘%s’ edited.", c.Name)
+	return zhttp.SeeOther(w, "/settings/campaigns")
+}
+
+func (h settings) campaignsState(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	id := v.Integer("id", chi.URLParam(r, "id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	var c goatcounter.Campaign
+	err := c.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	err = c.SetState(r.Context(), r.FormValue("state"))
+	if err != nil {
+		return err
+	}
+
+	verb := "removed"
+	if c.State == goatcounter.StateArchived {
+		verb = "archived"
+	} else if c.State == goatcounter.StateActive {
+		verb = "restored"
+	}
+
+	zhttp.Flash(w, "Campaign ‘%s’ %s.", c.Name, verb)
+	return zhttp.SeeOther(w, "/settings/campaigns")
 }

@@ -339,7 +339,7 @@ noscript p { margin: .5em; }
 
 /*** Billing
  *************/
-#billing-form fieldset legend+p     { margin-top: 0; }
+fieldset legend+p     { margin-top: 0; }
 #billing-form fieldset p:last-child { margin-bottom: 0; }
 #stripe-error                       { color: red; }
 

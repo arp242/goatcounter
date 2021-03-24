@@ -133,6 +133,13 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 	return nil
 }
 
+type Paths []Path
+
+func (p *Paths) List(ctx context.Context) error {
+	err := zdb.Select(ctx, p, `select * from paths where site_id=?`, MustGetSite(ctx).ID)
+	return errors.Wrap(err, "Paths.List")
+}
+
 // PathFilter returns a list of IDs matching the path name.
 //
 // if matchTitle is true it will match the title as well.

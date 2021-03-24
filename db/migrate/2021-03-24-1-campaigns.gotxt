@@ -1,0 +1,35 @@
+create table campaigns (
+	campaign_id    {{auto_increment}},
+	site_id        int            not null,
+	path_id        int            not null,
+
+	name           varchar        not null,
+	notes          varchar        not null,
+	params         varchar        not null,
+
+	value          int,
+	value_unit     varchar,
+	value_desc     varchar,
+	goal           int,
+	goal_type      varchar,
+
+	state          varchar        not null default 'a',
+	created_at     timestamp      not null,
+	updated_at     timestamp
+);
+create index "campaigns#site_id" on campaigns(site_id);
+
+create table campaign_stats (
+	site_id        integer        not null,
+
+	day            date           not null                 {{check_date "day"}},
+	session        bytea          not null,
+	campaign_id    integer        not null,
+	count          integer        not null,
+	count_unique   integer        not null,
+
+	constraint "campaign_stats#site_id#day#session#campaign_id" unique(site_id, day, session,campaign_id) {{sqlite "on conflict replace"}}
+);
+-- create index "campaign_stats#site_id#day" on campaign_stats(site_id, day desc);
+-- {{cluster "campaign_stats" "campaign_stats#site_id#day"}}
+-- {{replica "campaign_stats" "campaign_stats#site_id#day#campaign_id"}}

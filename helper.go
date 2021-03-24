@@ -22,6 +22,7 @@ import (
 //
 //go:embed db/schema.gotxt
 //go:embed db/migrate/*.sql
+//go:embed db/migrate/*.gotxt
 //go:embed db/query/*.sql
 var DB embed.FS
 
@@ -40,9 +41,10 @@ var GeoDB []byte
 
 // State column values.
 const (
-	StateActive  = "a"
-	StateRequest = "r"
-	StateDeleted = "d"
+	StateActive   = "a"
+	StateRequest  = "r"
+	StateDeleted  = "d"
+	StateArchived = "c"
 )
 
 var States = []string{StateActive, StateRequest, StateDeleted}
