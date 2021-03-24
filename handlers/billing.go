@@ -231,7 +231,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 
 	// Use dummy Stripe customer for personal plan without donations; don't need
 	// to send anything to Stripe.
-	if args.Plan == goatcounter.PlanPersonal && args.NoDonate == "true" {
+	if args.Plan == goatcounter.PlanPersonal && (args.NoDonate == "true" || args.Quantity == "0") {
 		mainSite.Stripe = zstring.NewPtr(fmt.Sprintf("cus_free_%d", mainSite.ID)).P
 		mainSite.BillingAmount = nil
 		mainSite.Plan = goatcounter.PlanPersonal
