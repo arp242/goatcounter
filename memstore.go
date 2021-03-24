@@ -392,8 +392,6 @@ func (m *ms) SessionID() zint.Uint128 {
 }
 
 func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
-	fmt.Println(siteID, pathID, ua, remoteAddr)
-
 	sessionHash := hash{userSessionID}
 
 	if userSessionID == "" {

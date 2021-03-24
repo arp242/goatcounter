@@ -7,9 +7,12 @@ create table sites (
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
 	cname_setup_at timestamp      default null             {{check_timestamp "cname_setup_at"}},
 	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
+	plan_pending   varchar        null,
+	plan_cancel_at timestamp,
 	stripe         varchar        null,
 	billing_amount varchar,
 	settings       {{jsonb}}      not null,
+	user_defaults  {{jsonb}}      not null default '{}',
 	received_data  integer        not null default 0,
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
@@ -31,6 +34,7 @@ create table users (
 	totp_enabled   integer        not null default 0,
 	totp_secret    {{blob}},
 	role           varchar        not null default ''      check(role in ('', 'a')),
+	access         {{jsonb}}      not null default '{"all":"a"}',
 	login_at       timestamp      null                     {{check_timestamp "login_at"}},
 	login_request  varchar        null,
 	login_token    varchar        null,
@@ -38,6 +42,7 @@ create table users (
 	email_token    varchar        null,
 	seen_updates_at timestamp     not null default current_timestamp {{check_timestamp "seen_updates_at"}},
 	reset_at       timestamp      null,
+	settings       {{jsonb}}      not null default '{}',
 
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
 	updated_at     timestamp                               {{check_timestamp "updated_at"}},
@@ -304,9 +309,14 @@ insert into version values
 	('2020-12-15-1-widgets'),
 	('2020-12-17-1-paths-isbot'),
 	('2020-12-21-1-view'),
+	('2020-12-23-1-subloc'),
 	('2020-12-24-1-user_agent_id_null'),
-	('2020-12-26-1-sqlite-order'),
-	('2020-12-23-1-subloc');
-
+	('2020-12-26-1-order'),
+	('2021-02-25-1-ua_version'),
+	('2021-03-15-1-user-access'),
+	('2021-03-16-1-billing'),
+	('2021-03-17-1-collect-session'),
+	('2021-03-18-1-usersettings'),
+	('2021-03-20-1-tokens');
 
 -- vim:ft=sql:tw=0
