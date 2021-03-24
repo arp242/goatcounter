@@ -163,6 +163,12 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 				"customer": *mainSite.Stripe,
 			}.Encode())
 			if err != nil {
+				var stripeErr zstripe.Error
+				if errors.As(err, &stripeErr) && stripeErr.StripeError.Code == "invoice_upcoming_none" {
+					err = nil
+				}
+			}
+			if err != nil {
 				return err
 			}
 			next = fmt.Sprintf("Next invoice will be for €%d on %s.",
