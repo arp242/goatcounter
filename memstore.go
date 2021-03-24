@@ -117,6 +117,12 @@ func (m *ms) Init(db zdb.DB) error {
 	m.Reset()
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
+	defer func() {
+		err := db.Exec(context.Background(), `delete from store where key='session'`)
+		if err != nil {
+			zlog.Errorf("Memstore.Init: delete DB store: %w", err)
+		}
+	}()
 
 	var s []byte
 	err := db.Get(context.Background(), &s,
@@ -125,13 +131,15 @@ func (m *ms) Init(db zdb.DB) error {
 		if zdb.ErrNoRows(err) {
 			return nil
 		}
-		return fmt.Errorf("Memstore.Init: load from DB store: %w", err)
+		zlog.Errorf("Memstore.Init: load from DB store: %w", err)
+		return nil
 	}
 
 	var stored storedSession
 	err = json.Unmarshal(s, &stored)
 	if err != nil {
-		return fmt.Errorf("Memstore.Init: %w", err)
+		zlog.Errorf("Memstore.Init: %w", err)
+		return nil
 	}
 
 	if stored.Sessions != nil {
@@ -154,11 +162,6 @@ func (m *ms) Init(db zdb.DB) error {
 	}
 	if !stored.SaltRotated.IsZero() {
 		m.saltRotated = stored.SaltRotated
-	}
-
-	err = db.Exec(context.Background(), `delete from store where key='session'`)
-	if err != nil {
-		return fmt.Errorf("Memstore.Init: delete DB store: %w", err)
 	}
 
 	return nil
@@ -262,6 +265,12 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		}
 		ctx = WithSite(ctx, &site)
 
+		err = h.Defaults(ctx, false)
+		if err != nil {
+			l.Field("hit", h).Error(err)
+			continue
+		}
+
 		if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) {
 			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.PathID, h.UserSessionID, h.UserAgentHeader, h.RemoteAddr)
 		}
@@ -299,13 +308,6 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 				}
 				h.Location = l.ISO3166_2
 			}
-		}
-
-		// Persist.
-		err = h.Defaults(ctx, false)
-		if err != nil {
-			l.Field("hit", h).Error(err)
-			continue
 		}
 
 		if h.Ignore() {
@@ -390,6 +392,8 @@ func (m *ms) SessionID() zint.Uint128 {
 }
 
 func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
+	fmt.Println(siteID, pathID, ua, remoteAddr)
+
 	sessionHash := hash{userSessionID}
 
 	if userSessionID == "" {
