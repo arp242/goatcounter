@@ -263,8 +263,6 @@ tfoot tr:first-child {
 td, th {
   padding: .2em .5em;
   hyphens: none;
-}
-td.left, th.left  {
   text-align: left;
 }
 td.right, th.right {

@@ -16,7 +16,7 @@ CSV format
 
 The first line is a header with the field names. The fields, in order, are:
 
-<table class="table-left">
+<table>
 <tr><th>2,Path</th><td>Path name (e.g. <code>/a.html</code>).
     This also doubles as the event name. This header is prefixed
     with the version export format (see versioning below).</td></tr>
@@ -55,7 +55,7 @@ here.
 <summary>Version 1 documentation</summary>
 
 <p>The first line is a header with the field names. The fields, in order, are:</p>
-<table class="table-left">
+<table>
 <tr><th>1,Path</th><td>Path name (e.g. <code>/a.html</code>).
     This also doubles as the event name. This header is prefixed
     with the version export format (see versioning below).</td></tr>

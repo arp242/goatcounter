@@ -12,7 +12,7 @@
 
 <form method="post" action="/settings/sites/add">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<table class="auto table-left">
+	<table class="auto">
 		<thead><tr><th>{{if .GoatcounterCom}}Code{{else}}Domain{{end}}</th><th></th></tr></thead>
 		<tbody>
 			{{range $s := .SubSites}}<tr>
