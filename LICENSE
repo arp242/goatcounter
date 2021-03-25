@@ -12,7 +12,8 @@ Motivation for choosing the EUPL: https://www.arp242.net/license.html
 The count.js integration script is licensed under the permissive ISC license to
 ease integrating it. GoatCounter also contains various 3rd-party components,
 most of which are MIT or BSD licensed (the licenses for which are included in
-this file as well).
+this file as well). See docs/sbom.markdown for a list of all dependencies and
+their licenses.
 
 
 ––– public/count.js; ISC license ––––––––––––––––––––––––––––––––––––––––––––––
