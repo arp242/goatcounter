@@ -119,7 +119,7 @@ func PersistAndStat(ctx context.Context) error {
 		grouped[h.Site] = append(grouped[h.Site], h)
 	}
 	for siteID, hits := range grouped {
-		err := UpdateStats(ctx, nil, siteID, hits, false)
+		err := UpdateStats(ctx, nil, siteID, hits)
 		if err != nil {
 			l.Fields(zlog.F{
 				"site":  siteID,
@@ -135,7 +135,7 @@ func PersistAndStat(ctx context.Context) error {
 	return err
 }
 
-func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits []goatcounter.Hit, isReindex bool) error {
+func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits []goatcounter.Hit) error {
 	if site == nil {
 		site = new(goatcounter.Site)
 		err := site.ByID(ctx, siteID)
@@ -145,7 +145,7 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 	}
 	ctx = goatcounter.WithSite(ctx, site)
 
-	funs := []func(context.Context, []goatcounter.Hit, bool) error{
+	funs := []func(context.Context, []goatcounter.Hit) error{
 		updateHitCounts,
 		updateRefCounts,
 		updateHitStats,
@@ -156,7 +156,7 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 	}
 
 	for _, f := range funs {
-		err := f(ctx, hits, isReindex)
+		err := f(ctx, hits)
 		if err != nil {
 			return errors.Wrapf(err, "site %d", siteID)
 		}
@@ -186,23 +186,23 @@ func ReindexStats(ctx context.Context, site goatcounter.Site, hits []goatcounter
 		var err error
 		switch t {
 		case "all":
-			err = UpdateStats(ctx, &site, site.ID, hits, true)
+			err = UpdateStats(ctx, &site, site.ID, hits)
 
 		case "hit_counts":
-			err = updateHitCounts(ctx, hits, true)
+			err = updateHitCounts(ctx, hits)
 		case "ref_counts":
-			err = updateRefCounts(ctx, hits, true)
+			err = updateRefCounts(ctx, hits)
 
 		case "hit_stats":
-			err = updateHitStats(ctx, hits, true)
+			err = updateHitStats(ctx, hits)
 		case "browser_stats":
-			err = updateBrowserStats(ctx, hits, true)
+			err = updateBrowserStats(ctx, hits)
 		case "system_stats":
-			err = updateSystemStats(ctx, hits, true)
+			err = updateSystemStats(ctx, hits)
 		case "location_stats":
-			err = updateLocationStats(ctx, hits, true)
+			err = updateLocationStats(ctx, hits)
 		case "size_stats":
-			err = updateSizeStats(ctx, hits, true)
+			err = updateSizeStats(ctx, hits)
 		}
 		if err != nil {
 			return err

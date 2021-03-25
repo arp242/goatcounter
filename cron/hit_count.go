@@ -13,7 +13,7 @@ import (
 	"zgo.at/zdb"
 )
 
-func updateHitCounts(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
+func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		// Group by day + pathID
 		type gt struct {

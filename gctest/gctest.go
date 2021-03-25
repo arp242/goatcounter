@@ -164,7 +164,7 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 	}
 
 	for s := range sites {
-		err = cron.UpdateStats(ctx, nil, s, hits, false)
+		err = cron.UpdateStats(ctx, nil, s, hits)
 		if err != nil {
 			t.Fatal(err)
 		}

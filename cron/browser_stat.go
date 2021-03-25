@@ -15,7 +15,7 @@ import (
 	"zgo.at/zlog"
 )
 
-func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit, isReindex bool) error {
+func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count       int
