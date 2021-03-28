@@ -622,6 +622,8 @@
 	// Show confirmation on everything with data-confirm.
 	var bind_confirm = function() {
 		$('body').on('click submit', '[data-confirm]', function(e) {
+			if (e.type === 'click' && $(this).is('form'))
+				return
 			if (!confirm($(this).attr('data-confirm')))
 				e.preventDefault()
 		})

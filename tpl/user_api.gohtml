@@ -35,9 +35,8 @@
 					<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
 
 					<td>
-						<form method="post" action="/user/api-token/remove/{{$t.ID}}">
+						<form method="post" action="/user/api-token/remove/{{$t.ID}}" data-confirm="Delete token {{$t.Name}}?">
 							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-
 							<button class="link">delete</button>
 						</form>
 					</td>
