@@ -58,7 +58,7 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 		mware.RealIP(),
 		mware.Unpanic(),
 		middleware.RedirectSlashes,
-		addctx(db, false),
+		addctx(db, false, 10),
 		mware.WrapWriter(),
 		mware.Headers(nil))
 	if dev {
@@ -284,7 +284,8 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain, Plan: h.defaultPlan}
-	user := goatcounter.User{Email: args.Email, Password: []byte(args.Password)}
+	user := goatcounter.User{Email: args.Email, Password: []byte(args.Password),
+		Access: goatcounter.UserAccesses{"all": goatcounter.AccessAdmin}}
 
 	v := zvalidate.New()
 	if strings.TrimSpace(args.TuringTest) != "9" {

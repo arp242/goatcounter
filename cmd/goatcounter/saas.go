@@ -85,7 +85,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		hosts := map[string]http.Handler{
 			d:          zhttp.RedirectHost("//www." + domain),
 			"www." + d: handlers.NewWebsite(db, dev, plan),
-			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic),
+			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic, 10),
 		}
 		if dev {
 			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev)

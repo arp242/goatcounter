@@ -26,7 +26,12 @@ func TestUserTpl(t *testing.T) {
 			name:   "user_new",
 			router: newBackend,
 			setup: func(ctx context.Context, t *testing.T) {
-				u := goatcounter.User{Site: 1, Email: "user_test@example.com", Password: []byte("coconuts")}
+				u := goatcounter.User{
+					Site:     1,
+					Email:    "user_test@example.com",
+					Password: []byte("coconuts"),
+					Access:   goatcounter.UserAccesses{"all": goatcounter.AccessAdmin},
+				}
 				err := u.Insert(ctx, false)
 				if err != nil {
 					t.Fatal(err)

@@ -33,9 +33,9 @@ import (
 // DailyView forces the "view by day" if the number of selected days is larger than this.
 const DailyView = 90
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, domainStatic string) chi.Router {
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, domainStatic string, dashTimeout int) chi.Router {
 	r := chi.NewRouter()
-	backend{}.Mount(r, db, dev, domainStatic)
+	backend{dashTimeout}.Mount(r, db, dev, domainStatic, dashTimeout)
 
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
@@ -48,9 +48,9 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, dom
 	return r
 }
 
-type backend struct{}
+type backend struct{ dashTimeout int }
 
-func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
+func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout int) {
 	if dev {
 		r.Use(mware.Delay(0))
 	}
@@ -59,7 +59,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string) {
 		mware.RealIP(),
 		mware.WrapWriter(),
 		mware.Unpanic(),
-		addctx(db, true),
+		addctx(db, true, dashTimeout),
 		middleware.RedirectSlashes,
 		mware.NoStore())
 	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {

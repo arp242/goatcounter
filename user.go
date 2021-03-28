@@ -79,6 +79,9 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 	v.Required("email", u.Email)
 	v.Len("email", u.Email, 5, 255)
 	v.Email("email", u.Email)
+	if len(u.Access) == 0 {
+		v.Append("access", "must be set")
+	}
 
 	if validatePassword {
 		sp := string(u.Password)

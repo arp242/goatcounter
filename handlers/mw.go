@@ -74,7 +74,7 @@ var (
 
 type statusWriter interface{ Status() int }
 
-func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
+func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.Handler {
 	started := goatcounter.Now()
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -105,13 +105,10 @@ func addctx(db zdb.DB, loadSite bool) func(http.Handler) http.Handler {
 				return
 			}
 
-			// Add timeout on non-bosmang pages.
+			// Add timeout.
 			t := 3
-			switch {
-			case strings.HasPrefix(r.URL.Path, "/bosmang"):
-				t = 120
-			case r.URL.Path == "/":
-				t = 11
+			if r.URL.Path == "/" {
+				t = dashTimeout + 1
 			}
 			var cancel context.CancelFunc
 			ctx, cancel = context.WithTimeout(r.Context(), time.Duration(t)*time.Second)

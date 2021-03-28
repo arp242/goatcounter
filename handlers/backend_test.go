@@ -158,4 +158,4 @@ func date(s string, tz *time.Location) time.Time {
 	return d
 }
 
-func newBackend(db zdb.DB) chi.Router { return NewBackend(db, nil, true, true, "example.com") }
+func newBackend(db zdb.DB) chi.Router { return NewBackend(db, nil, true, true, "example.com", 10) }

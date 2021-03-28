@@ -166,7 +166,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		// Set up HTTP handler and servers.
 		hosts := map[string]http.Handler{
-			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic),
+			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic, 60),
 		}
 		if domainStatic != "" {
 			// May not be needed, but just in case the DomainStatic isn't an

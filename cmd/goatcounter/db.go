@@ -89,6 +89,9 @@ create and update commands:
     flags for create and update are identical, except that "update" also needs a
     -find flag; this is documented above in the show command.
 
+    You may need to restart GoatCounter for some changes to take effect due to
+    caching.
+
     You can add multiple -find flags to update multiple rows.
 
     Flags marked with * are required for create; for update only the flags that
@@ -681,6 +684,7 @@ func cmdDBSiteCreate(ctx context.Context, vhost, email, link, pwd string) error 
 				Password:      []byte(pwd),
 				EmailVerified: true,
 				Settings:      s.UserDefaults,
+				Access:        goatcounter.UserAccesses{"all": goatcounter.AccessAdmin},
 			}).Insert(ctx, false)
 			if err != nil {
 				return err

@@ -44,7 +44,7 @@ func TestBuffer(t *testing.T) {
 	}
 
 	i := zsync.NewAtomicInt(0)
-	handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil, false, false, "")
+	handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil, false, false, "", 10)
 	goatcounter.Memstore.TestInit(zdb.MustGetDB(ctx))
 
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
