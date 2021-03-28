@@ -13,7 +13,6 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -34,24 +33,14 @@ const usage = `gcbench inserts random data in a goatcounter database.
 
 This can be used to give a rough indication of performance expectations.
 
+For some details see: https://github.com/zgoat/goatcounter/blob/master/docs/benchmark.markdown
+
 Flags:
 
     -tmpdir     Temporary directory to use, for SQLite. Default: /tmp/gcbench.
 
                 Note that /tmp/ is often a tmpfs (stored in memory) and may not
                 be indicative of actual performance.
-
-    -report     Reports to generate; this flag can be given more than once.
-
-                Format is "name,query params", where name is just a name to
-                display in the output, and query params are the dashboad query
-                parameters to select a time range.
-
-                Default if no flags are given:
-
-                    -report 'week,'
-                    -report 'month,period-start=2021-02-23&period-end=2021-03-23'
-                    -report 'year,period-start=2020-03-23&period-end=2021-03-23'
 
 The database is set up though the positional arguments which list the test
 profile to run; the format is:
@@ -72,8 +61,8 @@ This will use SQLite, insert 1 million pageviews, spread out over 500 paths, and
 
 You can also use an existing database by using a connect flag; for example:
 
-    sqlite:///home/martin/.cache/gcbench/gctest_20210323T164251_2000_1_1.sqlite3
-    postgres://dbname=gctest_20210323T164251_2000_1_1
+    sqlite:///home/martin/.cache/gcbench/gcbench_20210323T164251_2000_1_1.sqlite3
+    postgres://dbname=gcbench_20210323T164251_2000_1_1
 
 This won't insert any pageviews and will just re-run the ports. This assumes the
 pageviews are on site_id=1.
@@ -84,51 +73,25 @@ for tweaking or re-running.
 Inserting the data is not very fast; especially the SQLite database can take a
 *long* time if you want to insert many millions of rows (about 24 hours for 10
 million rows on my laptop).
-
-A few notes on performance:
-
-Usually inserting pageviews shouldn't really be a performance concern; while "it
-takes 24 hours to insert 10 million pageviews" sounds really slow, it still
-amounts to ~120/second (and PostgreSQL is much faster). Also, my laptop isn't
-all that fast (the script is single-threaded and single-core performance isn't
-very good).
-
-The dashboard can be an issue; much depends on the "shape" of your data. For
-example a site with 10M pageviews spread out over 50 paths will usually be fine
-in both SQLite and PostgreSQL, but 1M pageviews spread out over 200,000 paths
-will be more problematic: it means it has to sum up a lot more rows.
 `
 
 type run struct {
+	db                      zdb.DB
 	ctx                     context.Context
 	flag, dbConnect, dbname string
 	nHits, nPaths, nDays    int
-	noinsert                bool
-
-	results map[string]time.Duration
 }
 
 func main() {
 	f := zli.NewFlags(os.Args)
 	var (
-		help       = f.Bool(false, "h", "help")
-		tmpdir     = f.String("/tmp/gcbench", "tmpdir")
-		reportFlag = f.StringList([]string{
-			"week,",
-			"month,period-start=2021-02-23&period-end=2021-03-23",
-			"year,period-start=2020-03-23&period-end=2021-03-23",
-		}, "reports")
+		help   = f.Bool(false, "h", "help")
+		tmpdir = f.String("/tmp/gcbench", "tmpdir")
 	)
 	zli.F(f.Parse())
 	if len(f.Args) == 0 || help.Bool() || zstring.Contains(f.Args, "help") {
 		fmt.Print(usage)
 		return
-	}
-
-	reports := map[string]string{}
-	for _, r := range reportFlag.Strings() {
-		k, v := zstring.Split2(r, ",")
-		reports[k] = v
 	}
 
 	zli.F(os.MkdirAll(tmpdir.String(), 0755))
@@ -140,21 +103,6 @@ func main() {
 		r := run{flag: a}
 
 		dbConnect, h, p, d := zstring.Split4(a, ",")
-		if strings.Contains(dbConnect, "://") {
-			r.dbConnect = dbConnect
-			db, err := zdb.Connect(zdb.ConnectOptions{
-				Connect:      r.dbConnect,
-				Create:       true,
-				GoMigrations: gomig.Migrations,
-				Files:        goatcounter.DB,
-			})
-			zli.F(err)
-
-			r.ctx = goatcounter.NewContext(db)
-			r.noinsert = true
-			runs = append(runs, r)
-			continue
-		}
 
 		gi := func(s, wr string) int {
 			i, err := strconv.ParseInt(strings.ReplaceAll(s, "_", ""), 10, 32)
@@ -163,7 +111,7 @@ func main() {
 		}
 		r.nHits, r.nPaths, r.nDays = gi(h, "nHits"), gi(p, "nPaths"), gi(d, "nDays")
 
-		r.dbname = fmt.Sprintf("gctest_%s_%d_%d_%d",
+		r.dbname = fmt.Sprintf("gcbench_%s_%d_%d_%d",
 			n.Format("20060102T150405"), r.nHits, r.nPaths, r.nDays)
 
 		switch dbConnect {
@@ -176,7 +124,8 @@ func main() {
 			r.dbConnect = "postgres://dbname=" + r.dbname
 		}
 
-		db, err := zdb.Connect(zdb.ConnectOptions{
+		var err error
+		r.db, err = zdb.Connect(zdb.ConnectOptions{
 			Connect:      r.dbConnect,
 			Create:       true,
 			GoMigrations: gomig.Migrations,
@@ -184,7 +133,7 @@ func main() {
 		})
 		zli.F(err)
 
-		r.ctx = goatcounter.NewContext(db)
+		r.ctx = goatcounter.NewContext(r.db)
 		s := goatcounter.Site{
 			Cname:    zstring.NewPtr("gcbench.localhost").P,
 			Plan:     goatcounter.PlanBusinessPlus,
@@ -198,6 +147,7 @@ func main() {
 			Site:     s.ID,
 			Email:    "gcbench@gcbench.localhost",
 			Password: []byte("password"),
+			Access:   goatcounter.UserAccesses{"all": goatcounter.AccessAdmin},
 		}
 		zli.F(u.Insert(r.ctx, false))
 		r.ctx = goatcounter.WithUser(r.ctx, &u)
@@ -214,28 +164,18 @@ func main() {
 	fmt.Println("Inserting data")
 	for _, r := range runs {
 		fmt.Print("  ", r.flag)
-		if r.noinsert {
-			fmt.Println(" \t skipping insert as this is a DB connection string")
-			continue
-		}
-
 		err := insert(r)
 		if err != nil {
 			zli.Errorf("       ERROR inserting data in %s (%s): %s; continuing with the next one",
 				r.dbname, r.flag, err)
 		}
 		zli.ReplaceLinef("  %s \t done\n", r.flag)
+		r.db.Close()
 	}
-
 	fmt.Println()
-	for _, r := range runs {
-		report(&r, reports)
+}
 
-		fmt.Println(r.flag)
-		for k, v := range r.results {
-			fmt.Println("  ", k, "\t", v)
-		}
-	}
+func connect() {
 }
 
 // TODO: bulk inserting data with memstore/cron is pretty darn slow if you want
@@ -314,28 +254,6 @@ func insert(r run) error {
 		return zdb.Exec(r.ctx, "checkpoint")
 	}
 	return zdb.Exec(r.ctx, "pragma wal_checkpoint")
-}
-
-func report(r *run, reports map[string]string) {
-	var serve *exec.Cmd
-	go func() {
-		serve = exec.Command("goatcounter", "serve", "-db", r.dbConnect, "-tls=http", "-listen=localhost:9999", "-public-port=9999")
-		// serve.Stdout = os.Stdout
-		// serve.Stderr = os.Stderr
-		zli.F(serve.Start())
-	}()
-	time.Sleep(2 * time.Second)
-	defer serve.Process.Kill()
-
-	for _, q := range reports {
-		req("http://gcbench.localhost:9999?" + q)
-	}
-
-	r.results = make(map[string]time.Duration)
-	for n, q := range reports {
-		time.Sleep(500 * time.Millisecond)
-		r.results[n] = req("http://gcbench.localhost:9999?" + q)
-	}
 }
 
 func req(url string) time.Duration {
