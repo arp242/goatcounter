@@ -209,9 +209,10 @@ func getFormat(format, date, time, datetime string) (string, string, string, str
 }
 
 type Scanner struct {
-	read  chan follow.Data
-	re    *regexp.Regexp
-	names []string
+	read   chan follow.Data
+	re     *regexp.Regexp
+	names  []string
+	lineno uint64
 
 	date, time, datetime string
 
@@ -281,7 +282,7 @@ func (s Scanner) DateFormats() (date, time, datetime string) {
 }
 
 // Line processes a single line.
-func (s Scanner) Line(ctx context.Context) (Line, error) {
+func (s *Scanner) Line(ctx context.Context) (Line, error) {
 start:
 	var line string
 	select {
@@ -292,9 +293,12 @@ start:
 			return nil, r.Err
 		}
 		line = r.String()
+		s.lineno++
 	}
 
-	parsed := make(Line, len(s.names))
+	parsed := make(Line, len(s.names)+2)
+	parsed["_line"] = line
+	parsed["_lineno"] = strconv.FormatUint(s.lineno, 10)
 	for _, sub := range s.re.FindAllStringSubmatchIndex(line, -1) {
 		for i := 2; i < len(sub); i += 2 {
 			v := line[sub[i]:sub[i+1]]
@@ -351,9 +355,15 @@ func toI64(s string) int64 {
 	n, _ := strconv.ParseInt(s, 10, 64)
 	return n
 }
+func toUi64(s string) uint64 {
+	n, _ := strconv.ParseUint(s, 10, 64)
+	return n
+}
 
 type Line map[string]string
 
+func (l Line) Line() string          { return l["_line"] }
+func (l Line) LineNo() uint64        { return toUi64(l["_lineno"]) }
 func (l Line) Host() string          { return l["host"] }
 func (l Line) RemoteAddr() string    { return l["remote_addr"] }
 func (l Line) XForwardedFor() string { return l["xff"] }

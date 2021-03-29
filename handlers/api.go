@@ -420,6 +420,11 @@ type APICountRequestHit struct {
 
 	// {omitdoc}
 	Host string `json:"-"`
+
+	// {omitdoc} Line when importing, for displaying errors.
+	Line string `json:"-"`
+	// {omitdoc} Line when importing, for displaying errors.
+	LineNo uint64 `json:"-"`
 }
 
 func (h APICountRequestHit) String() string {

@@ -357,9 +357,9 @@ func importLog(
 			return err
 		}
 
-		//zlog.Module("import").Debug(line)
-
 		hit := handlers.APICountRequestHit{
+			Line:      line.Line(),
+			LineNo:    line.LineNo(),
 			Path:      line.Path(),
 			Ref:       line.Referrer(),
 			Query:     line.Query(),
@@ -388,27 +388,18 @@ func importLog(
 		hits <- hit
 		if len(hits) >= cap(hits) {
 			t.Reset(d)
-			if persistLog(hits, url, key, silent, follow) {
-				break
-			}
+			persistLog(hits, url, key, silent, follow)
 		}
 	}
 	return nil
 }
 
-// TODO: also add titles in the background.
-// Ehm, probably best to let memstore do its job and insert path
-// rows, and then run goroutine in background to update the lot?
-//
-// Maybe just select where title = '' and then try to update those
-// one-by-one.
-
 // Send everything off if we have 100 entries or if 10 seconds expired,
 // whichever happens first.
-func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent, follow bool) bool {
+func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent, follow bool) {
 	l := len(hits)
 	if l == 0 {
-		return false
+		return
 	}
 	collect := make([]handlers.APICountRequestHit, l)
 	for i := 0; i < l; i++ {
@@ -419,7 +410,7 @@ func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent
 	if err != nil {
 		zlog.Error(err)
 	}
-	return false
+	return
 }
 
 var (
@@ -448,6 +439,21 @@ func importSend(url, key string, silent, follow bool, hits []handlers.APICountRe
 
 	if resp.StatusCode != 202 {
 		b, _ := io.ReadAll(resp.Body)
+		var gcErr struct {
+			Errors map[int]string `json:"errors"`
+		}
+		err := json.Unmarshal(b, &gcErr)
+		if err == nil {
+			for i, e := range gcErr.Errors {
+				zlog.Fields(zlog.F{
+					"lineno": hits[i].LineNo,
+					"line":   strings.TrimRight(hits[i].Line, "\r\n"),
+					"error":  strings.TrimSpace(e),
+				}).Errorf("error processing line %d", hits[i].LineNo)
+			}
+			return nil
+		}
+
 		return fmt.Errorf("%s: %s: %s", url, resp.Status, b)
 	}
 

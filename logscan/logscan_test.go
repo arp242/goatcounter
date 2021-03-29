@@ -37,6 +37,7 @@ func TestNew(t *testing.T) {
 	}
 	want := []Line{
 		{
+			"_lineno":     "1",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -49,6 +50,7 @@ func TestNew(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "2",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -99,6 +101,8 @@ func TestNew(t *testing.T) {
 					delete(w, "referrer")
 					delete(w, "user_agent")
 				}
+
+				delete(data, "_line")
 
 				if !reflect.DeepEqual(data, w) {
 					t.Errorf("\nwant: %v\ngot:  %v", w, data)
@@ -189,6 +193,7 @@ func TestNewFollow(t *testing.T) {
 
 	want := []Line{
 		{
+			"_lineno":     "1",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -201,6 +206,7 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "2",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -213,6 +219,7 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "3",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -225,6 +232,7 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "4",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.org",
 			"http":        "HTTP/1.1",
@@ -237,6 +245,7 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "5",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -249,6 +258,7 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "6",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -261,6 +271,7 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "7",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -273,6 +284,7 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
+			"_lineno":     "8",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.org",
 			"http":        "HTTP/1.1",
@@ -287,6 +299,7 @@ func TestNewFollow(t *testing.T) {
 	}
 
 	for i := range data {
+		delete(data[i], "_line")
 		if !reflect.DeepEqual(data[i], want[i]) {
 			t.Errorf("line %d\nwant: %#v\ngot:  %#v", i, want[i], data[i])
 		}
