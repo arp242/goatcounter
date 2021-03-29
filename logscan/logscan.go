@@ -88,7 +88,7 @@ func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string,
 		case "http":
 			p = `HTTP/[\d.]+`
 		case "path":
-			p = `/.*\b`
+			p = `/.*?`
 		case "query":
 		case "referrer":
 		case "user_agent":
@@ -106,7 +106,7 @@ func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string,
 	if err != nil {
 		return nil, "", "", "", fmt.Errorf("invalid -format value: %w", err)
 	}
-	re, err := regexp.Compile(pat)
+	re, err := regexp.Compile("^" + pat + "$")
 	return re, date, tyme, datetime, err
 }
 
@@ -229,7 +229,7 @@ func New(in io.Reader, format, date, tyme, datetime string, exclude []string) (*
 	go func() {
 		scan := bufio.NewScanner(in)
 		for scan.Scan() {
-			data <- follow.Data{Bytes: scan.Bytes()}
+			data <- follow.Data{Bytes: append([]byte(nil), scan.Bytes()...)}
 		}
 		data <- follow.Data{Err: io.EOF}
 	}()

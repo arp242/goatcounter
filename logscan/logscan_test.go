@@ -41,7 +41,7 @@ func TestNew(t *testing.T) {
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
 			"method":      "GET",
-			"path":        "/test.html",
+			"path":        "/",
 			"remote_addr": "127.0.0.1",
 			"size":        "2326",
 			"status":      "200",
@@ -351,7 +351,7 @@ func TestExclude(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			scan, err := New(tmp, "log:$path", "", "", "", tt.exclude)
+			scan, err := New(tmp, `log:$path`, "", "", "", tt.exclude)
 			if !ztest.ErrorContains(err, tt.wantErr) {
 				t.Fatal(err)
 			}
