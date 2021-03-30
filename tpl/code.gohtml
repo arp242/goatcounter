@@ -85,31 +85,29 @@ hr                  { margin: 0; }
 
 	{{template "_bottom_links.gohtml" .}}
 
-	{{if .GoatcounterCom}}
-		{{if .Dev}}
-			<script data-goatcounter="//goatcounter.{{.Domain}}/count"
-					data-goatcounter-settings='{"allow_local":true}'
-					async src="{{.Static}}/count.js"></script>
-		{{else}}
-			<script data-goatcounter="https://goatcounter.goatcounter.com/count"
-					async src="//gc.zgo.at/count.js"></script>
-		{{end}}
+	{{if .Dev}}
+		<script data-goatcounter="//goatcounter.{{.Domain}}/count"
+				data-goatcounter-settings='{"allow_local":true}'
+				async src="{{.Static}}/count.js"></script>
+	{{else}}
+		<script data-goatcounter="https://goatcounter.goatcounter.com/count"
+				async src="//gc.zgo.at/count.js"></script>
+	{{end}}
 
-		{{if eq .CodePage "visitor-counter"}}
-				<script>
-					var t = setInterval(function() {
-						if (window.goatcounter && window.goatcounter.visit_count) {
-							clearInterval(t)
-							window.goatcounter.visit_count({append: '#vc-html', type: 'html'})
-							window.goatcounter.visit_count({append: '#vc-png',  type: 'png'})
-							window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg'})
-							window.goatcounter.visit_count({append: '#vc-html', type: 'html', path: 'TOTAL'})
-							window.goatcounter.visit_count({append: '#vc-png',  type: 'png',  path: 'TOTAL'})
-							window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg',  path: 'TOTAL'})
-						}
-					}, 100)
-				</script>
-		{{end}}
+	{{if eq .CodePage "visitor-counter"}}
+			<script>
+				var t = setInterval(function() {
+					if (window.goatcounter && window.goatcounter.visit_count) {
+						clearInterval(t)
+						window.goatcounter.visit_count({append: '#vc-html', type: 'html'})
+						window.goatcounter.visit_count({append: '#vc-png',  type: 'png'})
+						window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg'})
+						window.goatcounter.visit_count({append: '#vc-html', type: 'html', path: 'TOTAL'})
+						window.goatcounter.visit_count({append: '#vc-png',  type: 'png',  path: 'TOTAL'})
+						window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg',  path: 'TOTAL'})
+					}
+				}, 100)
+			</script>
 	{{end}}
 
 	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>

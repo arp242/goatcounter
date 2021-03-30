@@ -9,7 +9,7 @@ but you may need to update it in the future for new features.
 
 Latest
 ------
-- No changes.
+- Support `start` and `end` in the visitor counter.
 
 
 v2 (11 Mar 2021)

@@ -51,19 +51,28 @@ func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle 
 }
 
 // PathCountUnique gets the total_unique for one path.
-func (h *HitLists) PathCountUnique(ctx context.Context, path string) error {
+func (h *HitLists) PathCountUnique(ctx context.Context, path string, start, end time.Time) error {
 	err := zdb.Select(ctx, h, "load:hit_list.PathCountUnique", zdb.P{
-		"site": MustGetSite(ctx).ID,
-		"path": path,
+		"site":  MustGetSite(ctx).ID,
+		"path":  path,
+		"start": start,
+		"end":   end,
 	})
 	return errors.Wrap(err, "HitLists.PathCountUnique")
 }
 
 // SiteTotalUnique gets the total_unique for all paths.
-func (h *HitLists) SiteTotalUnique(ctx context.Context) error {
+func (h *HitLists) SiteTotalUnique(ctx context.Context, start, end time.Time) error {
 	err := zdb.Select(ctx, h, `/* *HitLists.SiteTotalUnique */
-		select sum(total_unique) as count_unique from hit_counts
-		where site_id=$1`, MustGetSite(ctx).ID)
+			select sum(total_unique) as count_unique from hit_counts
+			where site_id = :site
+			{{:start and hour >= :start}}
+			{{:end   and hour <= :end}}
+		`, zdb.P{
+		"site":  MustGetSite(ctx).ID,
+		"start": start,
+		"end":   end,
+	})
 	return errors.Wrap(err, "HitLists.SiteTotalUnique")
 }
 

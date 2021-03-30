@@ -18,7 +18,7 @@ import (
 	"zgo.at/zstd/ztest"
 )
 
-func TestHitStatsList(t *testing.T) {
+func TestHitListsList(t *testing.T) {
 	start := time.Date(2019, 8, 10, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2019, 8, 17, 23, 59, 59, 0, time.UTC)
 	hit := start.Add(1 * time.Second)
@@ -351,4 +351,94 @@ func TestHitListTotals(t *testing.T) {
 			}
 		}
 	})
+}
+
+func TestHitListsPathCountUnique(t *testing.T) {
+	gctest.SetNow(t, "2020-06-18")
+	ctx := gctest.DB(t)
+
+	gctest.StoreHits(ctx, t, false,
+		Hit{FirstVisit: true, Path: "/"},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
+
+		Hit{FirstVisit: false, Path: "/"},
+		Hit{FirstVisit: true, Path: "/a"},
+		Hit{FirstVisit: true, Path: "/a", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+	)
+
+	{
+		var hl HitLists
+		err := hl.PathCountUnique(ctx, "/", time.Time{}, time.Time{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := `[{0 5 0 / false  <nil> 0 []}]`
+		have := fmt.Sprintf("%v", hl)
+		if have != want {
+			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+		}
+	}
+
+	{
+		var hl HitLists
+		err := hl.PathCountUnique(ctx, "/",
+			Now().Add(-8*24*time.Hour),
+			Now().Add(-1*24*time.Hour))
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := `[{0 2 0 / false  <nil> 0 []}]`
+		have := fmt.Sprintf("%v", hl)
+		if have != want {
+			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+		}
+	}
+}
+
+func TestHitListSiteTotalUnique(t *testing.T) {
+	gctest.SetNow(t, "2020-06-18")
+	ctx := gctest.DB(t)
+
+	gctest.StoreHits(ctx, t, false,
+		Hit{FirstVisit: true, Path: "/"},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
+
+		Hit{FirstVisit: false, Path: "/"},
+		Hit{FirstVisit: true, Path: "/a"},
+		Hit{FirstVisit: true, Path: "/a", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+	)
+
+	{
+		var hl HitLists
+		err := hl.SiteTotalUnique(ctx, time.Time{}, time.Time{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := `[{0 7 0  false  <nil> 0 []}]`
+		have := fmt.Sprintf("%v", hl)
+		if have != want {
+			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+		}
+	}
+
+	{
+		var hl HitLists
+		err := hl.SiteTotalUnique(ctx,
+			Now().Add(-8*24*time.Hour),
+			Now().Add(-1*24*time.Hour))
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := `[{0 3 0  false  <nil> 0 []}]`
+		have := fmt.Sprintf("%v", hl)
+		if have != want {
+			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+		}
+	}
 }

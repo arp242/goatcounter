@@ -70,9 +70,14 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 	if err != nil {
 		panic(err)
 	}
+	static, err := zfs.EmbedOrDir(goatcounter.Static, "public", dev)
+	if err != nil {
+		panic(err)
+	}
+
 	website{fsys, false, ""}.MountShared(r)
 	api{}.mount(r, db)
-	vcounter{}.mount(r, db)
+	vcounter{static}.mount(r)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		zhttp.ErrPage(w, r, guru.New(404, "Not Found"))
