@@ -1,7 +1,3 @@
--- FKs are fine, but it still gives errors with this (even when defer is on).
--- After export & import it's fine 🤷
-pragma foreign_keys = off;
-
 -- alter table sites rename id to site_id;
 -- alter table sites add column first_hit_at timestamp;
 -- alter table sites drop constraint sites_parent_check;

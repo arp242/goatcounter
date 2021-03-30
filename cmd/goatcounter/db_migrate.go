@@ -19,7 +19,10 @@ import (
 )
 
 func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
-	var dev = f.Bool(false, "dev").Pointer()
+	var (
+		dev  = f.Bool(false, "dev").Pointer()
+		test = f.Bool(false, "test").Pointer()
+	)
 	err := f.Parse()
 	if err != nil {
 		return err
@@ -29,7 +32,7 @@ func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 		return errors.New("need a migration or command")
 	}
 
-	return func(dbConnect, debug string, createdb, dev bool) error {
+	return func(dbConnect, debug string, createdb, dev, test bool) error {
 		zlog.Config.SetDebug(debug)
 
 		db, _, err := connectDB(dbConnect, nil, createdb, false)
@@ -46,6 +49,8 @@ func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 		if err != nil {
 			return err
 		}
+
+		m.Test(test)
 
 		if zstring.ContainsAny(f.Args, "pending", "list") {
 			have, ran, err := m.List()
@@ -76,5 +81,5 @@ func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 		}
 
 		return m.Run(f.Args...)
-	}(*dbConnect, *debug, *createdb, *dev)
+	}(*dbConnect, *debug, *createdb, *dev, *test)
 }

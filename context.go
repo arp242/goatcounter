@@ -159,22 +159,57 @@ func NewConfig(ctx context.Context) context.Context {
 }
 
 func Config(ctx context.Context) *GlobalConfig {
-	return ctx.Value(keyConfig).(*GlobalConfig)
+	if c := ctx.Value(keyConfig); c != nil {
+		return c.(*GlobalConfig)
+	}
+	return &GlobalConfig{}
 }
 
-func cacheSites(ctx context.Context) *zcache.Cache { return ctx.Value(keyCacheSites).(*zcache.Cache) }
-func cacheUA(ctx context.Context) *zcache.Cache    { return ctx.Value(keyCacheUA).(*zcache.Cache) }
+func cacheSites(ctx context.Context) *zcache.Cache {
+	if c := ctx.Value(keyCacheSites); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
+}
+func cacheUA(ctx context.Context) *zcache.Cache {
+	if c := ctx.Value(keyCacheUA); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
+}
 func cacheBrowsers(ctx context.Context) *zcache.Cache {
-	return ctx.Value(keyCacheBrowsers).(*zcache.Cache)
+	if c := ctx.Value(keyCacheBrowsers); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
 }
 func cacheSystems(ctx context.Context) *zcache.Cache {
-	return ctx.Value(keyCacheSystems).(*zcache.Cache)
+	if c := ctx.Value(keyCacheSystems); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
 }
-func cachePaths(ctx context.Context) *zcache.Cache { return ctx.Value(keyCachePaths).(*zcache.Cache) }
-func cacheLoc(ctx context.Context) *zcache.Cache   { return ctx.Value(keyCacheLoc).(*zcache.Cache) }
+func cachePaths(ctx context.Context) *zcache.Cache {
+	if c := ctx.Value(keyCachePaths); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
+}
+func cacheLoc(ctx context.Context) *zcache.Cache {
+	if c := ctx.Value(keyCacheLoc); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
+}
 func cacheChangedTitles(ctx context.Context) *zcache.Cache {
-	return ctx.Value(keyChangedTitles).(*zcache.Cache)
+	if c := ctx.Value(keyChangedTitles); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
 }
 func cacheSitesHost(ctx context.Context) *zcache.Proxy {
-	return ctx.Value(keyCacheSitesProxy).(*zcache.Proxy)
+	if c := ctx.Value(keyCacheSitesProxy); c != nil {
+		return c.(*zcache.Proxy)
+	}
+	return zcache.NewProxy(zcache.New(0, 0))
 }

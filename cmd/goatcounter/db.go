@@ -154,6 +154,10 @@ migrate command:
         -dev        Load migrations from filesystem, rather than using the
                     migrations compiled in the binary.
 
+        -test       Rollback migration after running the migrations instead of
+                    committing it. Useful to test if migrations will run
+                    correctly without actually altering the database.
+
     Positional arguments are names of the migration, either as just the name
     ("2020-01-05-2-x") or as the file path ("./db/migrate/2020-01-05-2-x.sql").
 

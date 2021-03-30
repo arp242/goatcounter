@@ -5,6 +5,14 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+2021-03-29 v2.0.1
+-----------------
+- Fix migrations 🤦 They worked when they were written, but a bunch of things
+  changed in GoatCounter and some older ones didn't run any more.
+- Add `-test` flag to `goatcounter db migrate` to rollback a migration, so it's
+  easier to test if migrations will run correctly without actually changing the
+  database.
+
 2021-03-29 v2.0.0
 -----------------
 
@@ -57,6 +65,10 @@ An overview of **incompatible** changes:
   - `goatcounter db migrate pending` lists only pending migrations, and will use
     exit code 1 if there are any pending migrations.
   - `goatcounter db migrate list` lists all migrations, always exits with 0.
+
+- If you use PostgreSQL you need PostgreSQL 12 or newer; this was already the
+  case before and you could run in to some edge cases where things didn't work,
+  but this is enforced now.
 
 - The `none` value got removed from the `-tls` flag; use `tls=http` to not serve
   TLS. This was confusingly named as you can do `-tls=none,acme` to still
