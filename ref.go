@@ -95,7 +95,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 
 	// Always remove protocol.
 	refURL.Scheme = ""
-	if p := strings.Index(ref, ":"); p > -1 && p < 7 {
+	if p := strings.Index(ref, "://"); p > -1 && p < 7 {
 		ref = ref[p+3:]
 	}
 
