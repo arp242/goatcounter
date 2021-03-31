@@ -230,7 +230,7 @@ func doServe(ctx context.Context, db zdb.DB,
 	})
 	zlog.Print("Waiting for background tasks to finish; send HUP, TERM, or INT twice to force kill (may lose data!)")
 	time.Sleep(10 * time.Millisecond)
-	bgrun.WaitProgressAndLog()
+	bgrun.WaitProgressAndLog(context.Background())
 
 	db.Close()
 	return nil

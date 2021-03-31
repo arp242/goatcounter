@@ -26,8 +26,7 @@ import (
 )
 
 var (
-	wg      = new(sync.WaitGroup)
-	maxWait = 2 * time.Minute
+	wg = new(sync.WaitGroup)
 
 	working struct {
 		sync.Mutex
@@ -36,16 +35,13 @@ var (
 )
 
 // Wait for all goroutines to finish for a maximum of maxWait.
-func Wait() error {
-	ctx, c := context.WithTimeout(context.Background(), maxWait)
-	defer c()
-
+func Wait(ctx context.Context) error {
 	// TODO: this won't actually kill the goroutines that are still running.
 	return errors.Wrap(zsync.Wait(ctx, wg), "bgrun.Wait")
 }
 
 // WaitProgress calls Wait() and prints which tasks it's waiting for.
-func WaitProgress() error {
+func WaitProgress(ctx context.Context) error {
 	term := zli.IsTerminal(os.Stdout.Fd())
 
 	go func() {
@@ -99,7 +95,7 @@ func WaitProgress() error {
 		}
 	}()
 
-	err := Wait()
+	err := Wait(ctx)
 	if term {
 		zli.EraseLine()
 		fmt.Print(" done \n")
@@ -108,8 +104,8 @@ func WaitProgress() error {
 }
 
 // WaitAndLog calls Wait() and logs any errors.
-func WaitAndLog() {
-	err := Wait()
+func WaitAndLog(ctx context.Context) {
+	err := Wait(ctx)
 	if err != nil {
 		zlog.Error(err)
 	}
@@ -117,8 +113,8 @@ func WaitAndLog() {
 
 // WaitProgressAndLog calls Wait(), prints which tasks it's waiting for, and
 // logs any errors.
-func WaitProgressAndLog() {
-	err := WaitProgress()
+func WaitProgressAndLog(ctx context.Context) {
+	err := WaitProgress(ctx)
 	if err != nil {
 		zlog.Error(err)
 	}
