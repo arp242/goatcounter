@@ -33,6 +33,10 @@ func TestHitDefaultsRef(t *testing.T) {
 		wantOriginal *string
 		wantScheme   string
 	}{
+		{"", "", nil, nil, ""},
+
+		{"xx:", "", nil, nil, "o"}, // Empty as "xx:" is parsed as the scheme.
+
 		// Split out query parameters.
 		{"https://arp242.net", a, nil, nil, "h"},
 		{"https://arp242.net?a=b", a, ztest.SP("a=b"), nil, "h"},
@@ -75,7 +79,7 @@ func TestHitDefaultsRef(t *testing.T) {
 				t.Fatalf("wrong Ref\nout:  %#v\nwant: %#v\n",
 					h.Ref, tt.wantRef)
 			}
-			if *h.RefScheme != tt.wantScheme {
+			if (zstring.Ptr{h.RefScheme}).Val() != tt.wantScheme {
 				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n",
 					zstring.Ptr{h.RefScheme}.String(), tt.wantScheme)
 			}

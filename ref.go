@@ -94,10 +94,8 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	}
 
 	// Always remove protocol.
+	ref = strings.TrimPrefix(ref, refURL.Scheme)
 	refURL.Scheme = ""
-	if p := strings.Index(ref, "://"); p > -1 && p < 7 {
-		ref = ref[p+3:]
-	}
 
 	// Normalize some hosts.
 	if a, ok := hostAlias[refURL.Host]; ok {
@@ -177,14 +175,12 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	q := refURL.Query()
 	refURL.RawQuery = ""
 
-	// Google analytics tracking parameters.
-	q.Del("utm_source")
+	q.Del("utm_source") // Google analytics tracking parameters.
 	q.Del("utm_medium")
 	q.Del("utm_campaign")
 	q.Del("utm_term")
 
-	// Cloudflare
-	q.Del("__cf_chl_captcha_tk__")
+	q.Del("__cf_chl_captcha_tk__") // Cloudflare
 	q.Del("__cf_chl_jschl_tk__")
 
 	if len(q) == 0 {
