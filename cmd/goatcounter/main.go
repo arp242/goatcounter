@@ -13,8 +13,6 @@ import (
 	"sync"
 	_ "time/tzdata"
 
-	_ "github.com/lib/pq"           // PostgreSQL database driver.
-	_ "github.com/mattn/go-sqlite3" // SQLite database driver.
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/db/migrate/gomig"

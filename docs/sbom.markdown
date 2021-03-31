@@ -17,7 +17,6 @@ Direct dependencies:
 | github.com/go-chi/chi                | MIT          | HTTP routing                                          |
 | github.com/google/uuid               | BSD-3-Clause | Generate UUIDs for sessions.                          |
 | github.com/jinzhu/now                | MIT          | Make some date calculations easier.                   |
-| github.com/lib/pq                    | MIT          | PostgreSQL database support                           |
 | github.com/mattn/go-sqlite3          | MIT          | SQLite database support                               |
 | github.com/monoculum/formam          | Apache-2.0   | Decode HTTP forms to Go structs.                      |
 | github.com/oschwald/geoip2-golang    | ISC          | Get location from IP address.                         |
@@ -61,6 +60,7 @@ Indirect transient dependencies; not these may not actually be used/compiled in:
 | github.com/fsnotify/fsnotify    | BSD-3-Clause |
 | github.com/go-sql-driver/mysql  | MPL-2.0      |
 | github.com/kisielk/gotool       | MIT          |
+| github.com/lib/pq               | MIT          |
 | github.com/pmezard/go-difflib   | BSD-3-Clause |
 | github.com/stretchr/objx        | MIT          |
 | github.com/stretchr/testify     | MIT          |

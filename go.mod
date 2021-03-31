@@ -18,21 +18,20 @@ require (
 	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
-	github.com/go-chi/chi/v5 v5.0.0
+	github.com/go-chi/chi/v5 v5.0.2
 	github.com/google/uuid v1.2.0
-	github.com/jinzhu/now v1.1.1
-	github.com/lib/pq v1.9.0
+	github.com/jinzhu/now v1.1.2
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/monoculum/formam v0.0.0-20210131081218-41b48e2a724b
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.3.2
-	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
-	golang.org/x/net v0.0.0-20210222171744-9060382bd457
+	golang.org/x/net v0.0.0-20210330230544-e57232859fb2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/tools v0.1.0
-	honnef.co/go/tools v0.1.2
+	honnef.co/go/tools v0.1.3
 	zgo.at/blackmail v0.0.0-20210321151525-a218c2f584be
 	zgo.at/errors v1.0.1-0.20210313142254-4e0fb19b1249
 	zgo.at/follow v0.0.0-20201229040459-c683c36702b6
@@ -44,9 +43,9 @@ require (
 	zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6
 	zgo.at/zdb v0.0.0-20210330090954-50c0e439a221
 	zgo.at/zhttp v0.0.0-20210322090048-05c142e74205
-	zgo.at/zli v0.0.0-20210320140236-196b190f9ac7
+	zgo.at/zli v0.0.0-20210330134141-b5f2a73532d6
 	zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f
-	zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58
+	zgo.at/zstd v0.0.0-20210322015326-ca7824321150
 	zgo.at/zstripe v1.1.1-0.20210316152211-8d12125402d1
 	zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036
 )
