@@ -5,17 +5,31 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+
+2021-04-02 v2.0.2
+-----------------
+- Fix migration order.
+
+- Don't display the expected "Memstore.Init: json: cannot unmarshal number /
+  into Go struct field storedSession.paths of type int64" error log on startup;
+  this got displayed once, but was a bit confusing.
+
+- Display a message on startup after the first update to direct people towards
+  the 2.0 release notes and "goatcounter reindex".
+
+
 2021-03-29 v2.0.1
 -----------------
 - Fix migrations 🤦 They worked when they were written, but a bunch of things
   changed in GoatCounter and some older ones didn't run any more.
+
 - Add `-test` flag to `goatcounter db migrate` to rollback a migration, so it's
   easier to test if migrations will run correctly without actually changing the
   database.
 
+
 2021-03-29 v2.0.0
 -----------------
-
 The version is bumped to 2.0 because this contains a number of incompatible
 changes: several CLI commands got changed, and it includes some large database
 migrations – running them is a bit more complex than the standard migrations.
