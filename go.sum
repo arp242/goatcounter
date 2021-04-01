@@ -117,8 +117,8 @@ zgo.at/tz v0.0.0-20210320184244-8641ea282782 h1:hjTA0gzsTh4jgBipiGs4XenI4WicjgkT
 zgo.at/tz v0.0.0-20210320184244-8641ea282782/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6 h1:RL5eJBmMrEKJuKrqgC5tvAqHod2dpXWcritarx0ScgE=
 zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
-zgo.at/zdb v0.0.0-20210330090954-50c0e439a221 h1:3K3b0oMG0WTIkoN224op+rrEjI/OLAAUjBOXvLsZw7E=
-zgo.at/zdb v0.0.0-20210330090954-50c0e439a221/go.mod h1:tnI0OEy3ce0PaMNfBb+yy7QMuUZsmTjxtRK830h+z9I=
+zgo.at/zdb v0.0.0-20210331235435-1e498efc283d h1:kzFseyP/EY0w3utoOER537GOkhNovnH0/uDc1qMRF7g=
+zgo.at/zdb v0.0.0-20210331235435-1e498efc283d/go.mod h1:Tx/SdSc2mc3lKh1A4JtSNT6rELCPhbpuhWDaszSG0Ig=
 zgo.at/zhttp v0.0.0-20210322090048-05c142e74205 h1:PAjj9hAUbUlNnJDCNfyGQ56C+n+OwYx6vSlO8kGllIo=
 zgo.at/zhttp v0.0.0-20210322090048-05c142e74205/go.mod h1:wAm+WUMhy6HHfBMQoXoFv7tzkv+R3HAEbqpwLxKXNq4=
 zgo.at/zli v0.0.0-20210330134141-b5f2a73532d6 h1:gt3Pih5WXe7zD3PGVaM1KTA0j0k+/99DQAdVMLPRrYY=
@@ -129,8 +129,8 @@ zgo.at/zstd v0.0.0-20201227115323-a0ab493434c7/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF
 zgo.at/zstd v0.0.0-20210316013649-797051a460ef/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstd v0.0.0-20210319081021-26379cd4f78f/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
-zgo.at/zstd v0.0.0-20210322015326-ca7824321150 h1:Cho/3jDZ0/a5W8xLBWQp96DYe3d7GLuGHOQMIV+o+/E=
-zgo.at/zstd v0.0.0-20210322015326-ca7824321150/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
+zgo.at/zstd v0.0.0-20210401002859-777a5c70cb38 h1:vOpJJ/8v9svuw/rp9J0NOBmGmOONGGd7UZ/Re8/bHTY=
+zgo.at/zstd v0.0.0-20210401002859-777a5c70cb38/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstripe v1.1.1-0.20210316152211-8d12125402d1 h1:VzSFX90iw1s8ebAinxmK1yzSEm0T6ZhneD1LgNztuQo=
 zgo.at/zstripe v1.1.1-0.20210316152211-8d12125402d1/go.mod h1:bIBaT9rsnc+uWMSf+6UXjDHhlwxLgcU7jahxUMU+j+k=
 zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036 h1:/yrJE2uvYnZJM0rcy2u5Vfikbs/7urUJZtGRXZ6NoaY=

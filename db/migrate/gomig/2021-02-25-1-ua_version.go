@@ -13,96 +13,87 @@ import (
 )
 
 func UserAgentVersion(ctx context.Context) error {
-	return zdb.TX(ctx, func(ctx context.Context) (retErr error) {
-		var err error
-		defer func() {
-			if err == nil {
-				retErr = zdb.Exec(ctx, `insert into version values ('2021-02-25-1-ua_version')`)
-			}
-		}()
+	// Systems
+	var systems []goatcounter.System
+	err := zdb.Select(ctx, &systems,
+		`select * from systems where version != '' and name not in ('Linux', 'Windows') order by system_id`)
+	if err != nil {
+		return err
+	}
 
-		// Systems
-		var systems []goatcounter.System
-		err = zdb.Select(ctx, &systems,
-			`select * from systems where version != '' and name not in ('Linux', 'Windows') order by system_id`)
+	for _, s := range systems {
+		n := toNumber(s.Version)
+		if n == s.Version {
+			continue
+		}
+
+		oldID := s.ID
+		err = s.GetOrInsert(ctx, s.Name, n)
 		if err != nil {
 			return err
 		}
 
-		for _, s := range systems {
-			n := toNumber(s.Version)
-			if n == s.Version {
-				continue
-			}
-
-			oldID := s.ID
-			err = s.GetOrInsert(ctx, s.Name, n)
-			if err != nil {
+		err = zdb.Exec(ctx, `update user_agents set system_id = $1 where system_id = $2`, s.ID, oldID)
+		if err != nil {
+			if !zdb.ErrUnique(err) {
 				return err
 			}
-
-			err = zdb.Exec(ctx, `update user_agents set system_id = $1 where system_id = $2`, s.ID, oldID)
-			if err != nil {
-				if !zdb.ErrUnique(err) {
-					return err
-				}
-				err = nil
-			}
-
-			// Just delete these; they're not many and it's a bit tricky to
-			// update correctly.
-			err = zdb.Exec(ctx, `delete from system_stats where system_id = $1`, oldID)
-			if err != nil {
-				return err
-			}
-			err = zdb.Exec(ctx, `delete from systems where system_id = $1`, oldID)
-			if err != nil {
-				return err
-			}
+			err = nil
 		}
 
-		// Browsers
-		var browsers []goatcounter.Browser
-		err = zdb.Select(ctx, &browsers,
-			`select * from browsers where version != '' order by browser_id`)
+		// Just delete these; they're not many and it's a bit tricky to
+		// update correctly.
+		err = zdb.Exec(ctx, `delete from system_stats where system_id = $1`, oldID)
+		if err != nil {
+			return err
+		}
+		err = zdb.Exec(ctx, `delete from systems where system_id = $1`, oldID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Browsers
+	var browsers []goatcounter.Browser
+	err = zdb.Select(ctx, &browsers,
+		`select * from browsers where version != '' order by browser_id`)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range browsers {
+		n := toNumber(s.Version)
+		if n == s.Version {
+			continue
+		}
+
+		oldID := s.ID
+		err = s.GetOrInsert(ctx, s.Name, n)
 		if err != nil {
 			return err
 		}
 
-		for _, s := range browsers {
-			n := toNumber(s.Version)
-			if n == s.Version {
-				continue
-			}
-
-			oldID := s.ID
-			err = s.GetOrInsert(ctx, s.Name, n)
-			if err != nil {
+		err = zdb.Exec(ctx, `update user_agents set browser_id = $1 where browser_id = $2`, s.ID, oldID)
+		if err != nil {
+			if !zdb.ErrUnique(err) {
 				return err
 			}
-
-			err = zdb.Exec(ctx, `update user_agents set browser_id = $1 where browser_id = $2`, s.ID, oldID)
-			if err != nil {
-				if !zdb.ErrUnique(err) {
-					return err
-				}
-				err = nil
-			}
-
-			// Just delete these; they're not many and it's a bit tricky to
-			// update correctly.
-			err = zdb.Exec(ctx, `delete from browser_stats where browser_id = $1`, oldID)
-			if err != nil {
-				return err
-			}
-			err = zdb.Exec(ctx, `delete from browsers where browser_id = $1`, oldID)
-			if err != nil {
-				return err
-			}
+			err = nil
 		}
 
-		return nil
-	})
+		// Just delete these; they're not many and it's a bit tricky to
+		// update correctly.
+		err = zdb.Exec(ctx, `delete from browser_stats where browser_id = $1`, oldID)
+		if err != nil {
+			return err
+		}
+		err = zdb.Exec(ctx, `delete from browsers where browser_id = $1`, oldID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func toNumber(v string) string {

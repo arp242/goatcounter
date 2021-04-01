@@ -20,6 +20,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/teamwork/reload"
 	"zgo.at/blackmail"
+	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/acme"
 	"zgo.at/goatcounter/bgrun"
@@ -31,7 +32,9 @@ import (
 	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
+	"zgo.at/zstd/zio"
 	"zgo.at/zstd/znet"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
 
@@ -181,6 +184,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
 			banner()
+			startupMsg(db)
 			zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
 				len(cnames), listen, dev, strings.Join(cnames, ", "))
 			if len(cnames) == 0 {
@@ -282,6 +286,10 @@ func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (z
 	db, ctx, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: {"pending"}}[automigrate], true, dev)
 	if err != nil {
 		return nil, nil, nil, nil, 0, err
+	}
+
+	if dev && (!zio.Exists("db/migrate") || !zio.Exists("tpl") || !zio.Exists("public")) {
+		return nil, nil, nil, nil, 0, errors.New("-dev flag was given but this doesn't seem like a GoatCounter source directory")
 	}
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "tpl", dev)
@@ -418,4 +426,40 @@ func banner() {
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 `)
+}
+
+func startupMsg(db zdb.DB) {
+	var msg string
+	err := db.Get(context.Background(), &msg, `select value from store where key='display-once'`)
+	if err != nil {
+		if !zdb.ErrNoRows(err) {
+			zlog.Error(err)
+		}
+		return
+	}
+
+	err = db.Exec(context.Background(), `delete from store where key='display-once'`)
+	if err != nil {
+		zlog.Error(err)
+	}
+
+	fmt.Fprintln(zli.Stdout, box(msg, zli.Red))
+}
+
+func box(msg string, borderColor zli.Color) string {
+	r := func(s string) string { return zli.Colorf(s, borderColor) }
+	b := r("┃")
+
+	s := strings.Split(msg, "\n")
+	for i := range s {
+		s[i] = b + " " + zstring.AlignLeft(s[i], 76) + b
+	}
+	msg = strings.Join(s, "\n")
+
+	return `` +
+		r("┏━━ NOTICE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓") + "\n" +
+		b + "                                                                             " + b + "\n" +
+		msg + "\n" +
+		b + "                                                                             " + b + "\n" +
+		r("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛") + "\n"
 }
