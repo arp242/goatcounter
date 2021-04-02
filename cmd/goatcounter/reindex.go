@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	nnow "github.com/jinzhu/now"
@@ -297,8 +298,13 @@ func userAgents(ctx context.Context, silent bool) error {
 	}
 
 	for i, ua := range uas {
+		err := setShort(ctx, ua)
+		if err != nil {
+			return err
+		}
+
 		ua.UserAgent = gadget.Unshorten(ua.UserAgent)
-		err := ua.Update(ctx)
+		err = ua.Update(ctx)
 		if err != nil {
 			return err
 		}
@@ -312,5 +318,39 @@ func userAgents(ctx context.Context, silent bool) error {
 	if !silent {
 		fmt.Fprintln(zli.Stdout)
 	}
+	return nil
+}
+
+func setShort(ctx context.Context, ua goatcounter.UserAgent) error {
+	if strings.ContainsRune(ua.UserAgent, '~') {
+		return nil
+	}
+
+	s := gadget.Shorten(ua.UserAgent)
+	if s == ua.UserAgent {
+		return nil
+	}
+
+	err := zdb.Exec(ctx, `update user_agents set ua=? where user_agent_id=?`, s, ua.ID)
+	if err == nil || !zdb.ErrUnique(err) {
+		return err
+	}
+
+	var dup goatcounter.UserAgent
+	err = zdb.Get(ctx, &dup, `select * from user_agents where ua=?`, s)
+	if err != nil {
+		return err
+	}
+
+	err = zdb.Exec(ctx, `update hits set user_agent_id=? where user_agent_id=?`,
+		dup.ID, ua.ID)
+	if err != nil {
+		return err
+	}
+	err = zdb.Exec(ctx, `delete from user_agents where user_agent_id=?`, ua.ID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
