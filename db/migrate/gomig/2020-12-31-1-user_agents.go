@@ -7,6 +7,7 @@ package gomig
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"zgo.at/errors"
 	"zgo.at/gadget"
@@ -36,6 +37,11 @@ func UserAgents(ctx context.Context) error {
 		if i%100 == 0 {
 			zli.ReplaceLinef("Progress: %d/%d", i, len(agents))
 		}
+
+		if strings.ContainsRune(u.UserAgent, '~') {
+			u.UserAgent = gadget.Unshorten(u.UserAgent)
+		}
+
 		ua := gadget.Parse(u.UserAgent)
 
 		var browser goatcounter.Browser
@@ -55,7 +61,7 @@ func UserAgents(ctx context.Context) error {
 		bot := isbot.UserAgent(u.UserAgent)
 		err = zdb.Exec(ctx, `update user_agents
 				set browser_id=$1, system_id=$2, ua=$3, isbot=$4 where user_agent_id=$5`,
-			browser.ID, system.ID, gadget.Shorten(u.UserAgent), bot, u.ID)
+			browser.ID, system.ID, u.UserAgent, bot, u.ID)
 		errs.Append(err)
 	}
 	if errs.Len() > 0 {
