@@ -19,6 +19,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
+	"zgo.at/goatcounter/cron"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -51,19 +52,15 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 			Client: mware.RatelimitIP,
 			Store:  mware.NewRatelimitMemory(),
 			Limit: func(r *http.Request) (int, int64) {
-				// Up batch size for imports; otherwize 500k requests takes
-				// about 35 minutes, most of which is waiting for the rate
-				// limit.
-				//
-				// This isn't secure – the rate limit is mostly intended to
-				// prevent accidental sending of many requests. Hammering GC
-				// with loads of pageviews is already possible if you really
-				// want it through the import UI or just by using a few
-				// different machines.
-				if r.URL.Path == "/api/v0/count" && r.Header.Get("X-Goatcounter-Import") != "" {
-					return 4, 1
+				if r.URL.Path == "/api/v0/count" {
+					// Memstore is taking a while to persist; don't add to it.
+					l := goatcounter.Now().Sub(cron.LastMemstore.Get())
+					if l > 20*time.Second {
+						return 0, 5
+					}
+					return 4, 10 // 4 reqs/10 seconds
 				}
-				return 60, 120
+				return 60, 120 // 60 reqs/120 seconds
 			},
 		}))
 

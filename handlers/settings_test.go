@@ -85,7 +85,7 @@ func TestSettingsPurge(t *testing.T) {
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			bgrun.Wait()
+			bgrun.Wait(context.Background())
 
 			var hits goatcounter.Hits
 			err := hits.TestList(r.Context(), false)

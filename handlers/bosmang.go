@@ -5,11 +5,12 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"net/http/pprof"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -34,18 +35,26 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a.Post("/bosmang/{id}/update-billing", zhttp.Wrap(h.updateBilling))
 	a.Post("/bosmang/login/{id}", zhttp.Wrap(h.login))
 
-	a.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/debug/pprof") {
+	a.Get("/bosmang/pprof*", func(w http.ResponseWriter, r *http.Request) {
+		switch chi.URLParam(r, "*") {
+		case "", "/":
+			ww := httptest.NewRecorder()
+			pprof.Index(ww, r)
+			b := bytes.ReplaceAll(ww.Body.Bytes(), []byte("href='"), []byte("href='/bosmang/pprof/"))
+			b = bytes.ReplaceAll(b, []byte(`href="`), []byte(`href="/bosmang/pprof/`))
+			w.WriteHeader(ww.Code)
+			w.Write(b)
+		case "/profile":
+			pprof.Profile(w, r)
+		case "/symbol":
+			pprof.Symbol(w, r)
+		case "/trace":
+			pprof.Trace(w, r)
+		default:
+			r.URL.Path = "/debug/pprof" + chi.URLParam(r, "*")
 			pprof.Index(w, r)
-			return
 		}
-		zhttp.SeeOther(w, fmt.Sprintf("/debug/pprof/%s?%s",
-			r.URL.Path[7:], r.URL.Query().Encode()))
 	})
-	a.Get("/debug/pprof/cmdline", pprof.Cmdline)
-	a.Get("/debug/pprof/profile", pprof.Profile)
-	a.Get("/debug/pprof/symbol", pprof.Symbol)
-	a.Get("/debug/pprof/trace", pprof.Trace)
 }
 
 func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {

@@ -10,9 +10,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -430,20 +432,31 @@ func importSend(url, key string, silent, follow bool, hits []handlers.APICountRe
 	}
 	r.Header.Set("X-Goatcounter-Import", "yes")
 
+	i := 0
+retry:
 	zlog.Module("import-api").Debugf("POST %s with %d hits", url, len(hits))
 	resp, err := importClient.Do(r)
 	if err != nil {
-		return err
+		if i > 5 {
+			return err
+		}
+
+		i++
+		w := (time.Duration(math.Pow(float64(i), 2)) * time.Second).Round(time.Second)
+		fmt.Fprintf(zli.Stderr, "non-fatal error; retrying in %s: %s\n", w, err)
+		time.Sleep(w)
+		goto retry
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 202 {
-		b, _ := io.ReadAll(resp.Body)
+	showError := func(fatal bool) error {
+		var b []byte
+		b, _ = io.ReadAll(resp.Body)
 		var gcErr struct {
 			Errors map[int]string `json:"errors"`
 		}
-		err := json.Unmarshal(b, &gcErr)
-		if err == nil {
+		jsErr := json.Unmarshal(b, &gcErr)
+		if jsErr == nil {
 			for i, e := range gcErr.Errors {
 				zlog.Fields(zlog.F{
 					"lineno": hits[i].LineNo,
@@ -451,10 +464,26 @@ func importSend(url, key string, silent, follow bool, hits []handlers.APICountRe
 					"error":  strings.TrimSpace(e),
 				}).Errorf("error processing line %d", hits[i].LineNo)
 			}
-			return nil
 		}
+		err := fmt.Errorf("%s: %s: %s", url, resp.Status, b)
+		if fatal {
+			return err
+		}
+		fmt.Fprintln(zli.Stderr, err.Error())
+		return nil
+	}
 
-		return fmt.Errorf("%s: %s: %s", url, resp.Status, b)
+	switch resp.StatusCode {
+	case 200, 202:
+		// Success, do nothing.
+	case http.StatusTooManyRequests:
+		s, _ := strconv.Atoi(resp.Header.Get("X-Rate-Limit-Reset"))
+		time.Sleep((time.Duration(s) + 1) * time.Second)
+		return importSend(url, key, silent, follow, hits)
+	case 400:
+		return showError(false)
+	default:
+		return showError(true)
 	}
 
 	// Give the server's memstore a second to do its job;

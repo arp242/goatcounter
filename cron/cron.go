@@ -44,10 +44,12 @@ func RunBackground(ctx context.Context) {
 		for {
 			<-goatcounter.PersistRunner.Run
 			bgrun.RunNoDuplicates("cron:PersistAndStat", func() {
+				done := timeout("PersistAndStat", 10*time.Second)
 				err := PersistAndStat(ctx)
 				if err != nil {
 					l.Error(err)
 				}
+				done <- struct{}{}
 			})
 		}
 	}()
@@ -64,12 +66,28 @@ func RunBackground(ctx context.Context) {
 
 				f := strings.Replace(zruntime.FuncName(t.fun), "zgo.at/goatcounter/cron.", "", 1)
 				bgrun.RunNoDuplicates("cron:"+f, func() {
+					done := timeout(f, 10*time.Second)
 					err := t.fun(ctx)
 					if err != nil {
 						l.Error(err)
 					}
+					done <- struct{}{}
 				})
 			}
 		}(t)
 	}
+}
+
+func timeout(f string, d time.Duration) chan struct{} {
+	done := make(chan struct{})
+	go func() {
+		t := time.NewTimer(d)
+		select {
+		case <-t.C:
+			zlog.Errorf("cron task %s is taking longer than %s", f, d)
+		case <-done:
+			t.Stop()
+		}
+	}()
+	return done
 }

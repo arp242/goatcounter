@@ -18,7 +18,7 @@ func TestRun(t *testing.T) {
 		time.Sleep(200 * time.Millisecond)
 		i = 1
 	})
-	err := Wait()
+	err := Wait(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -28,11 +28,11 @@ func TestRun(t *testing.T) {
 }
 
 func TestWait(t *testing.T) {
-	maxWait = 1 * time.Second
-	defer func() { maxWait = 10 * time.Second }()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
 
 	Run("test wait", func() { time.Sleep(2 * time.Second) })
-	err := Wait()
+	err := Wait(ctx)
 	if err == nil {
 		t.Fatal("error is nil")
 	}

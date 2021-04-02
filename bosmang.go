@@ -34,7 +34,7 @@ type BosmangStats []BosmangStat
 
 // List stats for all sites, for all time.
 func (a *BosmangStats) List(ctx context.Context) error {
-	err := zdb.Select(ctx, a, "load:bosmang.List", zdb.DumpExplain)
+	err := zdb.Select(ctx, a, "load:bosmang.List")
 	if err != nil {
 		return errors.Wrap(err, "BosmangStats.List")
 	}
@@ -58,6 +58,7 @@ func (a *BosmangStats) List(ctx context.Context) error {
 	for _, s := range aa {
 		c, ok := ch[s.ID]
 		if !ok {
+			filter = append(filter, s)
 			continue
 		}
 
