@@ -249,6 +249,7 @@ func handleBuffer(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/_list" {
 			all := make([]handlers.APICountRequestHit, 0, len(reqBuffer))
+			fmt.Fprintf(os.Stderr, "buffer len: %d\n", len(reqBuffer))
 			for len(reqBuffer) > 0 {
 				h := <-reqBuffer
 				all = append(all, h)

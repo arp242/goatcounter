@@ -189,6 +189,19 @@ func init() {
 		return template.HTML(w(links))
 	})
 
+	tplfunc.Add("dformat", func(t time.Time, withTime bool, u User) string {
+		f := u.Settings.DateFormat
+		if withTime {
+			if u.Settings.TwentyFourHours {
+				f += " 15:04"
+			} else {
+				f += " 03:04"
+			}
+		}
+
+		return t.In(u.Settings.Timezone.Loc()).Format(f)
+	})
+
 	// Override defaults to take user settings in to account.
 	tplfunc.Add("tformat", func(t time.Time, fmt string, u User) string {
 		if fmt == "" {

@@ -211,11 +211,20 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	}
 }
 
+func (e Export) Exists() bool {
+	if e.Path == "" {
+		return false
+	}
+
+	_, err := os.Stat(e.Path)
+	return err == nil
+}
+
 type Exports []Export
 
 func (e *Exports) List(ctx context.Context) error {
 	return errors.Wrap(zdb.Select(ctx, e, `/* Exports.List */
-		select * from exports where site_id=$1 and created_at > `+interval(ctx, 1),
+		select * from exports where site_id=$1 order by created_at desc limit 10`,
 		MustGetSite(ctx).ID), "Exports.List")
 }
 

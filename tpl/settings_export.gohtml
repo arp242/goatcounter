@@ -45,4 +45,40 @@
 	</form>
 </div>
 
+<br>
+<h3>Last 10 exports</h3>
+<div><table>
+<thead><tr>
+	<th>Started</th>
+	<th>Finished</th>
+	<th>Started from pagination cursor</th>
+	<th>Pagination cursor</th>
+	<th>Size</th>
+	<th>Hash</th>
+	<th></th>
+</tr></thead>
+
+<tbody>
+	{{range $e := .Exports}}
+		<tr>
+			<td>{{dformat $e.CreatedAt  true $.User}}</td>
+			<td>{{if $e.FinishedAt}}{{dformat $e.FinishedAt true $.User}}{{else}}<em>in progress</em>{{end}}</td>
+			<td>{{$e.StartFromHitID}}</td>
+			<td>{{if $e.LastHitID}}{{$e.LastHitID}}{{end}}</td>
+
+			<td>{{if $e.NumRows}}{{$e.Size}}M; {{nformat $e.NumRows $.User}} rows{{end}}</td>
+			<td class="hash"><input style="width: 8em" value="{{$e.Hash}}"></td>
+			<td>
+				{{if and $e.Exists $e.FinishedAt}}
+					<a href="/settings/export/{{$e.ID}}">download</a>
+				{{else}}
+					<em>{{if $e.FinishedAt}}expired{{else}}not yet ready{{end}}</em>
+				{{end}}
+			</td>
+		</tr>
+	{{else}}
+		<tr><td colspan="4"><em>No recent exports.</em></td></tr>
+	{{end}}
+</tbody></table></div>
+
 {{template "_backend_bottom.gohtml" .}}

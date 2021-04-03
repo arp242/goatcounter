@@ -5,10 +5,17 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+Unreleased
+----------
+- List exports in Settings → Export/Import.
+
+
 2021-04-02 v2.0.3
 -----------------
 - Fix if you had already run the broken migrations in 2.0.0 or 2.0.1.
+
 - Handle failures in `goatcounter import` a bit more gracefully.
+
 
 2021-04-02 v2.0.2
 -----------------
