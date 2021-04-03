@@ -54,7 +54,7 @@ func TestMonitorLoop(t *testing.T) {
 		"-debug=all")
 	<-ready
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 	stop <- struct{}{}
 	mainDone.Wait()
 
