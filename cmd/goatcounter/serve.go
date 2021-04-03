@@ -263,7 +263,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 	}
 
 	if !*dev {
-		zlog.Config.FmtTime = "Jan _2 15:04:05 "
+		zlog.Config.SetFmtTime("Jan _2 15:04:05 ")
 	}
 
 	flagErrors(*errors, v)
@@ -349,7 +349,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 
 		v.Email("-errors", from)
 		v.Email("-errors", to)
-		zlog.Config.Outputs = append(zlog.Config.Outputs, func(l zlog.Log) {
+		zlog.Config.AppendOutputs(func(l zlog.Log) {
 			if l.Level != zlog.LevelErr {
 				return
 			}

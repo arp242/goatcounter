@@ -44,15 +44,13 @@ func startTest(t *testing.T) (
 
 	// TODO: should really have helper function in zlog.
 	mu.Lock()
-	zlog.Config.Outputs = []zlog.OutputFunc{
-		func(l zlog.Log) {
-			out := zli.Stdout
-			if l.Level == zlog.LevelErr {
-				out = zli.Stderr
-			}
-			fmt.Fprintln(out, zlog.Config.Format(l))
-		},
-	}
+	zlog.Config.SetOutputs(func(l zlog.Log) {
+		out := zli.Stdout
+		if l.Level == zlog.LevelErr {
+			out = zli.Stderr
+		}
+		fmt.Fprintln(out, zlog.Config.Format(l))
+	})
 	mu.Unlock()
 
 	goatcounter.Memstore.Reset()

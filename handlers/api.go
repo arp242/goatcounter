@@ -101,6 +101,12 @@ var (
 	bufferKey     []byte
 )
 
+// ResetBufferKey resets the buffer key, for tests.
+func ResetBufferKey() {
+	bufferKeyOnce = sync.Once{}
+	bufferKey = []byte{}
+}
+
 func (h api) auth(r *http.Request, require zint.Bitflag64) error {
 	key, err := tokenFromHeader(r)
 	if err != nil {

@@ -102,6 +102,7 @@ var LastMemstore = func() *lastMemstore {
 
 func PersistAndStat(ctx context.Context) error {
 	l := zlog.Module("cron")
+	l.Debug("PersistAndStat started")
 
 	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {

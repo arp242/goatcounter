@@ -10,7 +10,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/signal"
 	"time"
 
 	"github.com/monoculum/formam"
@@ -22,7 +21,6 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zli"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zos"
 	"zgo.at/zstd/zsync"
 )
 
@@ -72,6 +70,8 @@ insert it manually from SQL with:
 
     insert into store (key, value) values ('buffer-secret', 'your-secret')
 
+A special /_list endpoint can be used to display the contents of the buffer.
+
 Flags:
 
   -generate-key  Create a new secret key. This will invalidate any previously
@@ -99,39 +99,19 @@ Flags:
 Environment:
 
   GOATCOUNTER_BUFFER_SECRET   Secret to use to identify the buffered requests.
-
-Signals:
-
-  USR1         Dump the contents of the buffer to stderr.
 `
+
+var (
+	bufCheckBackendTime = 10 * time.Second
+	bufSendTime         = 3 * time.Second
+)
 
 func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
-		checkBackendTime = 10 * time.Second
-		sendTime         = 3 * time.Second
-
 		isDown    = zsync.NewAtomicInt(-1)
 		reqBuffer chan handlers.APICountRequestHit
 		bufClient = &http.Client{Timeout: 3 * time.Second}
 	)
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, zos.SIGUSR1)
-	go func() {
-		for {
-			<-c
-			fmt.Fprintf(zli.Stdout, "SIGUSR1; %d entries in buffer\n", len(reqBuffer))
-			all := make([]handlers.APICountRequestHit, 0, len(reqBuffer))
-			for len(reqBuffer) > 0 {
-				h := <-reqBuffer
-				all = append(all, h)
-				fmt.Fprintln(os.Stderr, h)
-			}
-			for _, h := range all {
-				reqBuffer <- h
-			}
-		}
-	}()
 
 	var (
 		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
@@ -148,12 +128,6 @@ func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	}
 
 	return func(dbConnect, debug, listen, backend string, bufSize int, silent, genKey bool) error {
-		// TODO
-		// if testMode > 0 {
-		// 	checkBackendTime = 200 * time.Millisecond
-		// 	sendTime = 200 * time.Millisecond
-		// }
-
 		zlog.Config.SetDebug(debug)
 
 		key := os.Getenv("GOATCOUNTER_BUFFER_SECRET")
@@ -187,7 +161,7 @@ func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			checkURL := backend + "/status"
 			for {
 				checkBackend(bufClient, checkURL, isDown)
-				time.Sleep(checkBackendTime)
+				time.Sleep(bufCheckBackendTime)
 			}
 		}()
 
@@ -196,7 +170,7 @@ func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			defer zlog.Recover()
 
 			for {
-				time.Sleep(sendTime)
+				time.Sleep(bufSendTime)
 
 				if isDown.Value() != 0 {
 					continue
@@ -273,6 +247,24 @@ func handleBuffer(
 	reqBuffer chan handlers.APICountRequestHit, bufClient *http.Client, isDown *zsync.AtomicInt, silent bool,
 ) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/_list" {
+			all := make([]handlers.APICountRequestHit, 0, len(reqBuffer))
+			for len(reqBuffer) > 0 {
+				h := <-reqBuffer
+				all = append(all, h)
+				fmt.Fprintln(os.Stderr, h)
+			}
+			for _, h := range all {
+				reqBuffer <- h
+			}
+
+			w.Header().Set("Content-Type", "text/plain")
+			fmt.Fprintf(w, "buffer len: %d\n", len(reqBuffer))
+			fmt.Fprintf(w, "backend status: %d\n", isDown.Value())
+			fmt.Fprintln(w, "contents dumped to stderr")
+			return
+		}
+
 		if len(reqBuffer) == cap(reqBuffer) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
