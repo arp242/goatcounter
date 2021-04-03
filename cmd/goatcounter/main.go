@@ -156,7 +156,7 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 		GoMigrations: gomig.Migrations,
 		Create:       create,
 		SQLiteHook:   goatcounter.SQLiteHook,
-		MigrateLog:   func(name string) { zlog.Printf("ran migration %q", name) },
+		MigrateLog:   func(name string) { zlog.Printf("running migration %q", name) },
 	})
 	var pErr *zdb.PendingMigrationsError
 	if errors.As(err, &pErr) {
