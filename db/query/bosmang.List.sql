@@ -18,8 +18,11 @@ select
 	end) as plan,
 	stripe,
 	coalesce(x.t, 0) as total,
-	coalesce(y.t, 0) as last_month
+	coalesce(y.t, 0) as last_month,
+	(coalesce(x.t, 0) / extract('days' from now() - created_at)*30.5)::int as avg
 from sites
 left join x using (site_id)
 left join y using (site_id)
+where
+	y.t > 10000 or x.t > 500000 or billing_amount is not null
 order by last_month desc

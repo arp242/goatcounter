@@ -18,7 +18,7 @@
 
 		;[report_errors, dashboard, period_select, tooltip, billing_subscribe,
 			setup_datepicker, filter_pages, add_ip, fill_tz, bind_scale,
-			widget_settings, saved_views, bind_confirm,
+			widget_settings, saved_views, bind_confirm, page_bosmang,
 		].forEach(function(f) { f.call() })
 	})
 
@@ -848,4 +848,27 @@
 
 	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
 	var quote_re = (s) => s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
+
+	var page_bosmang = function() {
+		$('table.sort th').on('click', function(e) {
+			var th       = $(this),
+				num_sort = th.is('.n'),
+				col      = th.index(),
+				tbody    = th.closest('table').find('>tbody'),
+				rows     = Array.from(tbody.find('>tr')),
+				to_i     = (i) => parseInt(i.replace(/,/g, ''), 10),
+				is_sort  = th.attr('data-sort') === '1'
+
+			if (num_sort)
+				rows.sort((a, b) => to_i(a.children[col].innerText) < to_i(b.children[col].innerText))
+			else
+				rows.sort((a, b) => a.children[col].innerText.localeCompare(b.children[col].innerText))
+			if (is_sort)
+				rows.reverse()
+
+			tbody.html('').html(rows)
+			th.closest('table').find('th').attr('data-sort', '0')
+			th.attr('data-sort', is_sort ? '0' : '1')
+		})
+	}
 })();

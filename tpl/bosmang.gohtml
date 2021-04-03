@@ -22,6 +22,7 @@ input    { float: right; padding: .4em !important; }
 <thead><tr>
 	<th class="n" style="width: 6em">Total hits</th>
 	<th class="n" style="width: 6em">Last 30d</th>
+	<th class="n" style="width: 6em">Avg.</th>
 	<th>Site</th>
 	<th>Codes</th>
 	<th>Plan</th>
@@ -32,6 +33,7 @@ input    { float: right; padding: .4em !important; }
 	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
 		<td class="n">{{nformat $s.Total $.User}}</td>
 		<td class="n">{{nformat $s.LastMonth $.User}}</td>
+		<td class="n">{{nformat $s.Avg $.User}}</td>
 		<td class="s"><a href="/bosmang/{{$s.ID}}">{{$s.ID}}</a></td>
 		<td class="c">{{$s.Code}}</td>
 		<td>

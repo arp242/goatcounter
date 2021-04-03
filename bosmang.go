@@ -28,6 +28,7 @@ type BosmangStat struct {
 	Plan          string    `db:"plan"`
 	LastMonth     int       `db:"last_month"`
 	Total         int       `db:"total"`
+	Avg           int       `db:"avg"`
 }
 
 type BosmangStats []BosmangStat
