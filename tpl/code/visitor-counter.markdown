@@ -47,14 +47,16 @@ Customisation
 The `goatcounter.visit_count()` function accepts an object with the following
 options:
 
-| Setting       | Description                                                                                            |
-| :------       | :----------                                                                                            |
-| `append`      | HTML selector to append to, can use CSS selectors as accepted by `querySelector()`. Default is `body`. |
-| `type`        | Type to add: `html`, `svg`, or `png`. Default is `html`.                                               |
-| `path`        | Path to display; normally this is detected from the URL, but you can override it.                      |
-| `no_branding` | Don't display “by GoatCounter” branding; requires a paid account and has no effect on free accounts.   |
-| `attr`        | HTML attributes to set or override for the element, only when `type` is `html`.                        |
-| `style`       | Extra CSS styling for HTML or SVG; only when `type` is `html` or `svg`.                                |
+| Setting       | Description                                                                                                       |
+| :------       | :----------                                                                                                       |
+| `append`      | HTML selector to append to, can use CSS selectors as accepted by `querySelector()`. Default is `body`.            |
+| `type`        | Type to add: `html`, `svg`, or `png`. Default is `html`.                                                          |
+| `path`        | Path to display; normally this is detected from the URL, but you can override it.                                 |
+| `no_branding` | Don't display “by GoatCounter” branding; requires a paid account and has no effect on free accounts.              |
+| `attr`        | HTML attributes to set or override for the element, only when `type` is `html`.                                   |
+| `style`       | Extra CSS styling for HTML or SVG; only when `type` is `html` or `svg`.                                           |
+| `start`       | Start date; default is to include everything. As `year-month-day` or `week`, `month`, `year` for this period ago. |
+| `end`         | End date; default is to include everything. As `year-month-day`.                                                  |
 
 The HTML variant is recommended for most people as it's the easiest to customize
 with CSS. The SVG version can be customized to some degree with CSS as well, and
@@ -66,7 +68,7 @@ override the size by adding `width` and `height` in `attr`.
 The special path `TOTAL` (case-sensitive, no leading `/`) can be used to display
 the site totals.
 
-The images are cached for 15 minutes, so new pageviews don’t show up right away.
+The images are cached for 30 minutes, so new pageviews don’t show up right away.
 
 ### CSS
 You can add the `style` option to customize the looks, this only works for HTML
@@ -103,12 +105,12 @@ image "directly"; the paths are in the form of:
 - The `[EXT]` is the `html`, `png`, `svg`, or `json` extension.
 
 For example
-`{{.SiteURL}}/counter//.html` will display the view acount for `/`, and
+`{{.SiteURL}}/counter//.html` will display the view account for `/`, and
 `{{.SiteURL}}/counter//test.html.html` will display the view count for
 `/test.html`.
 
-There are two query parameters: `no_branding`, to disable to “stats by
-GoatCounter” text (for paid accounts), and `style` to insert custom styles.
+There are four query parameters: `no_branding`, `style`, `start`, and `end`,
+which correspond to the settings in the table.
 
 ### JSON
 The `.json` extension will return the pageview count in JSON; you can't use this
@@ -116,7 +118,7 @@ with a HTML tag but it can be used if you want to build your own counter in
 JavaScript.
 
 It returns an Object with one value: `count_unique`, which contains the unique
-visitor count as a formatted string with thousands seperators.
+visitor count as a formatted string with thousands separators.
 
 A simple example usage:
 
