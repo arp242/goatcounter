@@ -8,11 +8,11 @@ import (
 	"context"
 	"net/url"
 	"strings"
-	"time"
 
 	"zgo.at/errors"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/ztime"
 )
 
 // ref_scheme column
@@ -190,15 +190,15 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 }
 
 // ListRefsByPath lists all references for a path.
-func (h *HitStats) ListRefsByPath(ctx context.Context, path string, start, end time.Time, offset int) error {
+func (h *HitStats) ListRefsByPath(ctx context.Context, path string, rng ztime.Range, offset int) error {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 	limit := int(zint.NonZero(int64(user.Settings.LimitRefs()), 10))
 
 	err := zdb.Select(ctx, &h.Stats, "load:ref.ListRefsByPath.sql", zdb.P{
 		"site":   site.ID,
-		"start":  start,
-		"end":    end,
+		"start":  rng.Start,
+		"end":    rng.End,
 		"path":   path,
 		"limit":  limit + 1,
 		"offset": offset,
@@ -216,12 +216,12 @@ func (h *HitStats) ListRefsByPath(ctx context.Context, path string, start, end t
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
-func (h *HitStats) ListTopRefs(ctx context.Context, start, end time.Time, pathFilter []int64, offset int) error {
+func (h *HitStats) ListTopRefs(ctx context.Context, rng ztime.Range, pathFilter []int64, offset int) error {
 	site := MustGetSite(ctx)
 	err := zdb.Select(ctx, &h.Stats, "load:ref.ListTopRefs.sql", zdb.P{
 		"site":       site.ID,
-		"start":      start,
-		"end":        end,
+		"start":      rng.Start,
+		"end":        rng.End,
 		"filter":     pathFilter,
 		"ref":        site.LinkDomain + "%",
 		"offset":     offset,

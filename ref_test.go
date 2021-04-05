@@ -14,6 +14,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestListRefsByPath(t *testing.T) {
@@ -25,11 +26,10 @@ func TestListRefsByPath(t *testing.T) {
 		Hit{Path: "/x", Ref: "http://example.org"},
 		Hit{Path: "/y", Ref: "http://example.org"})
 
-	start := time.Now().UTC().Add(-1 * time.Hour)
-	end := time.Now().UTC().Add(1 * time.Hour)
+	rng := ztime.NewRange(ztime.Now().Add(-1 * time.Hour)).To(ztime.Now().Add(1 * time.Hour))
 
 	var s HitStats
-	err := s.ListRefsByPath(ctx, "/x", start, end, 0)
+	err := s.ListRefsByPath(ctx, "/x", rng, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,12 +53,11 @@ func TestListTopRefs(t *testing.T) {
 		Hit{Path: "/y", Ref: "http://example.org", FirstVisit: true},
 		Hit{Path: "/x", Ref: "http://example.org"})
 
-	start := time.Now().UTC().Add(-1 * time.Hour)
-	end := time.Now().UTC().Add(1 * time.Hour)
+	rng := ztime.NewRange(ztime.Now().Add(-1 * time.Hour)).To(ztime.Now().Add(1 * time.Hour))
 
 	{
 		var s HitStats
-		err := s.ListTopRefs(ctx, start, end, nil, 0)
+		err := s.ListTopRefs(ctx, rng, nil, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -91,7 +90,7 @@ func TestListTopRefs(t *testing.T) {
 
 	{
 		var s HitStats
-		err := s.ListTopRefs(ctx, start, end, []int64{2}, 0)
+		err := s.ListTopRefs(ctx, rng, []int64{2}, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

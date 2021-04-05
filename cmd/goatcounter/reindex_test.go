@@ -10,10 +10,11 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
+	"zgo.at/zstd/ztime"
 )
 
 func TestReindex(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18")
+	ztime.SetNow(t, "2020-06-18 12:00:00")
 	exit, _, out, ctx, dbc := startTest(t)
 
 	gctest.StoreHits(ctx, t, false, goatcounter.Hit{})

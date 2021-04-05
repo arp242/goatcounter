@@ -29,6 +29,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -304,7 +305,7 @@ func textChart(ctx context.Context, stats []HitListStat, max int, daily bool) te
 
 func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) template.HTML {
 	user := MustGetUser(ctx)
-	now := Now().In(user.Settings.Timezone.Loc())
+	now := ztime.Now().In(user.Settings.Timezone.Loc())
 	today := now.Format("2006-01-02")
 
 	var (

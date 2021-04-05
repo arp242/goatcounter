@@ -17,6 +17,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -177,27 +178,27 @@ func dosite(
 		firstDay = site.FirstHitAt
 	}
 
-	now := goatcounter.Now()
+	now := ztime.Now()
 	now = time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
 
 	months := [][]time.Time{
-		{firstDay, nnow.With(firstDay).EndOfMonth()},
+		{firstDay, ztime.EndOf(firstDay, ztime.Month)},
 	}
 
-	start := nnow.With(nnow.With(firstDay).EndOfMonth().Add(12 * time.Hour)).BeginningOfMonth()
+	start := ztime.Time{firstDay}.Add(1, ztime.Month).StartOf(ztime.Month).Time
 	for {
 		if start.After(now) {
 			break
 		}
 
-		end := nnow.With(start).EndOfMonth()
+		end := ztime.EndOf(start, ztime.Month)
 		if end.After(lastDay) {
 			months = append(months, []time.Time{start, lastDay})
 			break
 		}
 
 		months = append(months, []time.Time{start, end})
-		start = nnow.With(end.Add(12 * time.Hour)).BeginningOfMonth()
+		start = ztime.StartOf(end.Add(12*time.Hour), ztime.Month)
 	}
 
 	query := `select * from hits where site_id=$1 and bot=0 and created_at>=$2 and created_at<=$3`

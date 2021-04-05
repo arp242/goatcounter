@@ -24,6 +24,7 @@ import (
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztime"
 )
 
 var (
@@ -75,7 +76,7 @@ var (
 type statusWriter interface{ Status() int }
 
 func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.Handler {
-	started := goatcounter.Now()
+	started := ztime.Now()
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -83,7 +84,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 			if r.URL.Path == "/status" {
 				v, _ := zdb.MustGetDB(ctx).Version(ctx)
 				j, err := json.Marshal(map[string]interface{}{
-					"uptime":            goatcounter.Now().Sub(started).Round(time.Second).String(),
+					"uptime":            ztime.Now().Sub(started).Round(time.Second).String(),
 					"version":           goatcounter.Version,
 					"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
 					"database":          zdb.Driver(ctx).String() + " " + string(v),

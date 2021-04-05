@@ -18,6 +18,7 @@ import (
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
+	"zgo.at/zstd/ztime"
 )
 
 func oldExports(ctx context.Context) error {
@@ -45,7 +46,7 @@ func oldExports(ctx context.Context) error {
 			continue
 		}
 
-		if st.ModTime().Before(goatcounter.Now().Add(-24 * time.Hour)) {
+		if st.ModTime().Before(ztime.Now().Add(-24 * time.Hour)) {
 			err := os.Remove(f)
 			if err != nil {
 				zlog.Errorf("cron.oldExports: %s", err)
@@ -96,7 +97,7 @@ func (l *lastMemstore) Set(t time.Time) {
 
 var LastMemstore = func() *lastMemstore {
 	l := &lastMemstore{}
-	l.Set(goatcounter.Now())
+	l.Set(ztime.Now())
 	return l
 }()
 
@@ -132,7 +133,7 @@ func PersistAndStat(ctx context.Context) error {
 	if len(hits) > 0 {
 		l.Since("stats").FieldsSince().Debugf("persisted %d hits", len(hits))
 	}
-	LastMemstore.Set(goatcounter.Now())
+	LastMemstore.Set(ztime.Now())
 	return err
 }
 

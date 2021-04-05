@@ -28,6 +28,7 @@ import (
 	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zstd/zfilepath"
 	"zgo.at/zstd/zfs"
+	"zgo.at/zstd/ztime"
 )
 
 type vcounter struct{ files fs.FS }
@@ -37,7 +38,7 @@ func (h vcounter) mount(r chi.Router) {
 	c := r.With(middleware.Compress(2), func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Cache-Control", "public")
-			w.Header().Set("Expires", goatcounter.Now().Add(30*time.Minute).Format(time.RFC1123Z))
+			w.Header().Set("Expires", ztime.Now().Add(30*time.Minute).Format(time.RFC1123Z))
 			next.ServeHTTP(w, r)
 		})
 	})
@@ -109,27 +110,27 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var (
-		start, end time.Time
-		err        error
+		rng ztime.Range
+		err error
 	)
 	startArg := r.URL.Query().Get("start")
 	if startArg != "" {
 		switch startArg {
 		case "week":
-			start = goatcounter.Now().Add(-7 * 24 * time.Hour)
+			rng.Start = ztime.Now().Add(-7 * 24 * time.Hour)
 		case "month":
-			start = goatcounter.Now().Add(-30 * 24 * time.Hour)
+			rng.Start = ztime.Now().Add(-30 * 24 * time.Hour)
 		case "year":
-			start = goatcounter.Now().Add(-365 * 24 * time.Hour)
+			rng.Start = ztime.Now().Add(-365 * 24 * time.Hour)
 		default:
-			start, err = time.Parse("2006-01-02", startArg)
+			rng.Start, err = time.Parse("2006-01-02", startArg)
 		}
 		if err != nil {
 			return err
 		}
 	}
 	if s := r.URL.Query().Get("end"); s != "" {
-		end, err = time.Parse("2006-01-02", s)
+		rng.End, err = time.Parse("2006-01-02", s)
 		if err != nil {
 			return err
 		}
@@ -137,9 +138,9 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 
 	var hs goatcounter.HitLists
 	if total {
-		err = hs.SiteTotalUnique(r.Context(), start, end)
+		err = hs.SiteTotalUnique(r.Context(), rng)
 	} else {
-		err = hs.PathCountUnique(r.Context(), path, start, end)
+		err = hs.PathCountUnique(r.Context(), path, rng)
 	}
 	if err != nil {
 		return err

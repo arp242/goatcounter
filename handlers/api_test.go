@@ -24,6 +24,7 @@ import (
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -257,7 +258,7 @@ func TestAPICount(t *testing.T) {
 
 		// {
 		// 	APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
-		// 		{Path: "/", CreatedAt: goatcounter.Now().Add(5 * time.Minute)},
+		// 		{Path: "/", CreatedAt: ztime.Now().Add(5 * time.Minute)},
 		// 	}}, 400, `{"errors":{"0":"created_at: in the future.\n"}}`, "",
 		// },
 
@@ -338,7 +339,7 @@ func TestAPICount(t *testing.T) {
 		},
 	}
 
-	gctest.SetNow(t, "2020-06-18 14:42:00")
+	ztime.SetNow(t, "2020-06-18 14:42:00")
 	perm := goatcounter.APIPermCount
 
 	for _, tt := range tests {
@@ -396,8 +397,8 @@ func TestAPICount(t *testing.T) {
 }
 
 func TestAPISitesCreate(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18 12:13:14")
-	now := goatcounter.Now()
+	ztime.SetNow(t, "2020-06-18 12:13:14")
+	now := ztime.Now()
 
 	tests := []struct {
 		serve    bool
@@ -473,8 +474,8 @@ func TestAPISitesCreate(t *testing.T) {
 }
 
 func TestAPISitesUpdate(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18 12:13:14")
-	now := goatcounter.Now()
+	ztime.SetNow(t, "2020-06-18 12:13:14")
+	now := ztime.Now()
 
 	tests := []struct {
 		serve        bool

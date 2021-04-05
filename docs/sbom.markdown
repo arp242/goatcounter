@@ -16,7 +16,6 @@ Direct dependencies:
 | github.com/boombuler/barcode         | MIT          | Generating the QR code for MFA                        |
 | github.com/go-chi/chi                | MIT          | HTTP routing                                          |
 | github.com/google/uuid               | BSD-3-Clause | Generate UUIDs for sessions.                          |
-| github.com/jinzhu/now                | MIT          | Make some date calculations easier.                   |
 | github.com/mattn/go-sqlite3          | MIT          | SQLite database support                               |
 | github.com/monoculum/formam          | Apache-2.0   | Decode HTTP forms to Go structs.                      |
 | github.com/oschwald/geoip2-golang    | ISC          | Get location from IP address.                         |

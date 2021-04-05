@@ -6,10 +6,10 @@ package widgets
 
 import (
 	"context"
-	"time"
 
 	"zgo.at/goatcounter"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/ztime"
 )
 
 func (w Refs) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
@@ -49,8 +49,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 
 		Err         error
 		Pages       goatcounter.HitLists
-		PeriodStart time.Time
-		PeriodEnd   time.Time
+		Period      ztime.Range
 		Daily       bool
 		ForcedDaily bool
 		Offset      int
@@ -69,7 +68,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		ShowRefs string
 	}{
 		ctx, shared.Site, shared.User,
-		w.err, w.Pages, shared.Args.Start, shared.Args.End, shared.Args.Daily,
+		w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, w.Max, w.Display,
 		w.UniqueDisplay, shared.Total, shared.TotalUnique, shared.TotalEvents, shared.TotalEventsUnique,
 		w.More, w.Refs, shared.Args.ShowRefs,

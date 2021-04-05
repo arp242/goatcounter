@@ -19,6 +19,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestDashboard(t *testing.T) {
@@ -486,7 +487,7 @@ func TestDashboardBarChart(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.zone, func(t *testing.T) {
-			gctest.SetNow(t, tt.now.UTC())
+			ztime.SetNow(t, tt.now.UTC().Format("2006-01-02 15:04:05"))
 
 			t.Run("hourly", func(t *testing.T) {
 				run(t, tt, "/?period-start=2019-06-17&period-end=2019-06-18", tt.wantHourly)
@@ -532,16 +533,12 @@ func TestTimeRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.rng+"-"+tt.now, func(t *testing.T) {
-			gctest.SetNow(t, tt.now)
+			ztime.SetNow(t, tt.now)
 
 			t.Run("UTC", func(t *testing.T) {
-				start, end, err := timeRange(tt.rng, time.UTC, false)
-				if err != nil {
-					t.Fatal(err)
-				}
-
-				gotStart := start.Format("2006-01-02 15:04:05")
-				gotEnd := end.Format("2006-01-02 15:04:05")
+				rng := timeRange(tt.rng, time.UTC, false)
+				gotStart := rng.Start.Format("2006-01-02 15:04:05")
+				gotEnd := rng.End.Format("2006-01-02 15:04:05")
 
 				if gotStart != tt.wantStart || gotEnd != tt.wantEnd {
 					t.Errorf("\ngot:  %q, %q\nwant: %q, %q",

@@ -20,10 +20,11 @@ import (
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestBackendCount(t *testing.T) {
-	gctest.SetNow(t, "2019-06-18 14:42:00")
+	ztime.SetNow(t, "2019-06-18 14:42:00")
 
 	tests := []struct {
 		name     string
@@ -158,7 +159,7 @@ func TestBackendCount(t *testing.T) {
 
 			tt.hit.ID = h.ID
 			tt.hit.Site = h.Site
-			tt.hit.CreatedAt = goatcounter.Now()
+			tt.hit.CreatedAt = ztime.Now()
 			tt.hit.Session = goatcounter.TestSeqSession // Should all be the same session.
 			if tt.hit.UserAgentHeader == "" {
 				tt.hit.UserAgentHeader = "GoatCounter test runner/1.0"
@@ -173,8 +174,8 @@ func TestBackendCount(t *testing.T) {
 
 func TestBackendCountSessions(t *testing.T) {
 	now := time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC)
-	goatcounter.Now = func() time.Time { return now }
-	defer func() { goatcounter.Now = func() time.Time { return time.Now().UTC() } }()
+	ztime.Now = func() time.Time { return now }
+	defer func() { ztime.Now = func() time.Time { return time.Now().UTC() } }()
 
 	ctx := gctest.DB(t)
 

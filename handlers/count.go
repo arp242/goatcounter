@@ -12,6 +12,7 @@ import (
 	"zgo.at/goatcounter"
 	"zgo.at/isbot"
 	"zgo.at/zhttp"
+	"zgo.at/zstd/ztime"
 )
 
 // Use GIF because it's the smallest filesize (PNG is 116 bytes, vs 43 for GIF).
@@ -49,7 +50,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	hit := goatcounter.Hit{
 		Site:            site.ID,
 		UserAgentHeader: r.UserAgent(),
-		CreatedAt:       goatcounter.Now(),
+		CreatedAt:       ztime.Now(),
 		RemoteAddr:      r.RemoteAddr,
 	}
 	if site.Settings.Collect.Has(goatcounter.CollectLocation) {

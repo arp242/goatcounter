@@ -12,6 +12,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/ztime"
 )
 
 func TestMemstore(t *testing.T) {
@@ -123,7 +124,7 @@ func TestMemstoreCollect(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			gctest.SetNow(t, "2020-06-18")
+			ztime.SetNow(t, "2020-06-18")
 
 			site := Site{Settings: SiteSettings{
 				Collect:        tt.collect,
