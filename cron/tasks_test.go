@@ -13,6 +13,7 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zstd/zbool"
+	"zgo.at/zstd/ztime"
 )
 
 func TestDataRetention(t *testing.T) {
@@ -51,7 +52,9 @@ func TestDataRetention(t *testing.T) {
 	}
 
 	var stats goatcounter.HitLists
-	display, displayUnique, more, err := stats.List(ctx, past.Add(-1*24*time.Hour), now, nil, nil, false)
+	display, displayUnique, more, err := stats.List(ctx,
+		ztime.NewRange(past.Add(-1*24*time.Hour)).To(now),
+		nil, nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}

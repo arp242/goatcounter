@@ -16,6 +16,7 @@ import (
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/ztime"
 )
 
 type HitList struct {
@@ -51,18 +52,18 @@ func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle 
 }
 
 // PathCountUnique gets the total_unique for one path.
-func (h *HitLists) PathCountUnique(ctx context.Context, path string, start, end time.Time) error {
+func (h *HitLists) PathCountUnique(ctx context.Context, path string, rng ztime.Range) error {
 	err := zdb.Select(ctx, h, "load:hit_list.PathCountUnique", zdb.P{
 		"site":  MustGetSite(ctx).ID,
 		"path":  path,
-		"start": start,
-		"end":   end,
+		"start": rng.Start,
+		"end":   rng.End,
 	})
 	return errors.Wrap(err, "HitLists.PathCountUnique")
 }
 
 // SiteTotalUnique gets the total_unique for all paths.
-func (h *HitLists) SiteTotalUnique(ctx context.Context, start, end time.Time) error {
+func (h *HitLists) SiteTotalUnique(ctx context.Context, rng ztime.Range) error {
 	err := zdb.Select(ctx, h, `/* *HitLists.SiteTotalUnique */
 			select sum(total_unique) as count_unique from hit_counts
 			where site_id = :site
@@ -70,8 +71,8 @@ func (h *HitLists) SiteTotalUnique(ctx context.Context, start, end time.Time) er
 			{{:end   and hour <= :end}}
 		`, zdb.P{
 		"site":  MustGetSite(ctx).ID,
-		"start": start,
-		"end":   end,
+		"start": rng.Start,
+		"end":   rng.End,
 	})
 	return errors.Wrap(err, "HitLists.SiteTotalUnique")
 }
@@ -80,7 +81,7 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 // List the top paths for this site in the given time period.
 func (h *HitLists) List(
-	ctx context.Context, start, end time.Time, pathFilter, exclude []int64, daily bool,
+	ctx context.Context, rng ztime.Range, pathFilter, exclude []int64, daily bool,
 ) (int, int, bool, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
@@ -105,8 +106,8 @@ func (h *HitLists) List(
 			join paths using (path_id)`,
 			zdb.P{
 				"site":    site.ID,
-				"start":   start,
-				"end":     end,
+				"start":   rng.Start,
+				"end":     rng.End,
 				"filter":  pathFilter,
 				"limit":   limit + 1,
 				"exclude": exclude,
@@ -152,8 +153,8 @@ func (h *HitLists) List(
 			order by day asc`,
 			zdb.P{
 				"site":  site.ID,
-				"start": start.Format("2006-01-02"),
-				"end":   end.Format("2006-01-02"),
+				"start": rng.Start.Format("2006-01-02"),
+				"end":   rng.End.Format("2006-01-02"),
 				"paths": paths,
 			})
 		if err != nil {
@@ -180,7 +181,7 @@ func (h *HitLists) List(
 	}
 
 	// Fill in blank days.
-	fillBlankDays(hh, start, end)
+	fillBlankDays(hh, rng)
 
 	// Apply TZ offset.
 	applyOffset(hh, user.Settings.Timezone)
@@ -198,7 +199,7 @@ func (h *HitLists) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the data for the "Totals" chart/widget.
-func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
+func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
@@ -209,8 +210,8 @@ func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter [
 	}
 	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", zdb.P{
 		"site":      site.ID,
-		"start":     start,
-		"end":       end,
+		"start":     rng.Start,
+		"end":       rng.End,
 		"filter":    pathFilter,
 		"no_events": user.Settings.TotalsNoEvents(),
 	})
@@ -260,7 +261,7 @@ func (h *HitList) Totals(ctx context.Context, start, end time.Time, pathFilter [
 	})
 
 	hh := []HitList{totalst}
-	fillBlankDays(hh, start, end)
+	fillBlankDays(hh, rng)
 	applyOffset(hh, user.Settings.Timezone)
 
 	if daily {
@@ -366,17 +367,17 @@ func applyOffset(hh HitLists, tz *tz.Zone) {
 	}
 }
 
-func fillBlankDays(hh HitLists, start, end time.Time) {
+func fillBlankDays(hh HitLists, rng ztime.Range) {
 	// Should Never Happen™ but if it does the below loop will never break, so
 	// be safe.
-	if start.After(end) {
+	if rng.Start.After(rng.End) {
 		return
 	}
 
-	endFmt := end.Format("2006-01-02")
+	endFmt := rng.End.Format("2006-01-02")
 	for i := range hh {
 		var (
-			day     = start.Add(-24 * time.Hour)
+			day     = rng.Start.Add(-24 * time.Hour)
 			newStat []HitListStat
 			j       int
 		)
@@ -450,17 +451,17 @@ type TotalCount struct {
 // UTC. This is needed since the _stats tables are per day, rather than
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
-func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64) (TotalCount, error) {
+func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64) (TotalCount, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
 	var t TotalCount
 	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", zdb.P{
 		"site":      site.ID,
-		"start":     start,
-		"end":       end,
-		"start_utc": start.In(user.Settings.Timezone.Location),
-		"end_utc":   end.In(user.Settings.Timezone.Location),
+		"start":     rng.Start,
+		"end":       rng.End,
+		"start_utc": rng.Start.In(user.Settings.Timezone.Location),
+		"end_utc":   rng.End.In(user.Settings.Timezone.Location),
 		"filter":    pathFilter,
 		"no_events": user.Settings.TotalsNoEvents(),
 		"tz":        user.Settings.Timezone.Offset(),
@@ -470,7 +471,7 @@ func GetTotalCount(ctx context.Context, start, end time.Time, pathFilter []int64
 
 // GetMax gets the path with the higest number of pageviews per hour or day for
 // this date range.
-func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily bool) (int, error) {
+func GetMax(ctx context.Context, rng ztime.Range, pathFilter []int64, daily bool) (int, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 	var (
@@ -481,8 +482,8 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 		query = "load:hit_list.GetMax-daily"
 		params = zdb.P{
 			"site":   site.ID,
-			"start":  start,
-			"end":    end,
+			"start":  rng.Start,
+			"end":    rng.End,
 			"tz":     user.Settings.Timezone.OffsetRFC3339(),
 			"filter": pathFilter,
 			"pgsql":  zdb.Driver(ctx) == zdb.DriverPostgreSQL,
@@ -492,8 +493,8 @@ func GetMax(ctx context.Context, start, end time.Time, pathFilter []int64, daily
 		query = "load:hit_list.GetMax-hourly"
 		params = zdb.P{
 			"site":   site.ID,
-			"start":  start,
-			"end":    end,
+			"start":  rng.Start,
+			"end":    rng.End,
 			"filter": pathFilter,
 		}
 	}

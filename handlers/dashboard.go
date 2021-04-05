@@ -12,15 +12,14 @@ import (
 	"sync"
 	"time"
 
-	nnow "github.com/jinzhu/now"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/widgets"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/ztpl"
-	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zsync"
+	"zgo.at/zstd/ztime"
 )
 
 const day = 24 * time.Hour
@@ -41,12 +40,12 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	// Load view, but override this from query.
 	view, _ := user.Settings.Views.Get("default")
 
-	start, end, err := getPeriod(w, r, site, user)
+	rng, err := getPeriod(w, r, site, user)
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 	}
-	if start.IsZero() || end.IsZero() {
-		start, end, err = timeRange(view.Period, user.Settings.Timezone.Loc(), bool(user.Settings.SundayStartsWeek))
+	if rng.Start.IsZero() || rng.End.IsZero() {
+		rng = timeRange(view.Period, user.Settings.Timezone.Loc(), bool(user.Settings.SundayStartsWeek))
 		if err != nil {
 			return err
 		}
@@ -64,7 +63,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	if _, ok := q["daily"]; ok {
 		view.Daily = q.Get("daily") == "on" || q.Get("daily") == "true"
 	}
-	_, forcedDaily := getDaily(r, start, end)
+	_, forcedDaily := getDaily(r, rng)
 	if forcedDaily {
 		view.Daily = true
 	}
@@ -109,8 +108,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := widgets.Args{
-		Start:       start,
-		End:         end,
+		Rng:         rng,
 		Daily:       view.Daily,
 		ShowRefs:    showRefs,
 		ForcedDaily: forcedDaily,
@@ -198,6 +196,8 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		zsync.Wait(r.Context(), &wg)
 	}()
 
+	rng = rng.In(user.Settings.Timezone.Loc())
+
 	// When reloading the dashboard from e.g. the filter we don't need to render
 	// header/footer/menu, etc. Render just the widgets and return that as JSON.
 	if q.Get("reload") != "" {
@@ -211,26 +211,24 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 		return zhttp.JSON(w, map[string]string{
 			"widgets":   t,
-			"timerange": tplfunc.Daterange(user.Settings.Timezone.Loc(), start, end),
+			"timerange": rng.String(),
 		})
 	}
 
 	return zhttp.Template(w, "dashboard.gohtml", struct {
 		Globals
-		CountDomain string
-		SubSites    []string
-		ShowRefs    string
-
-		PeriodStart    time.Time
-		PeriodEnd      time.Time
+		CountDomain    string
+		SubSites       []string
+		ShowRefs       string
+		Period         ztime.Range
 		PathFilter     []int64
 		ForcedDaily    bool
 		Widgets        widgets.List
 		View           goatcounter.View
 		TotalUnique    int
 		TotalUniqueUTC int
-	}{newGlobals(w, r), cd, subs, showRefs, start, end, args.PathFilter,
-		forcedDaily, wid, view, shared.TotalUnique, shared.TotalUniqueUTC})
+	}{newGlobals(w, r), cd, subs, showRefs, rng,
+		args.PathFilter, forcedDaily, wid, view, shared.TotalUnique, shared.TotalUniqueUTC})
 }
 
 // Get a time range; the return value is always in UTC, and is the UTC day range
@@ -250,51 +248,31 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 //
 //   Any digit
 //      Last n days.
-func timeRange(rng string, tz *time.Location, sundayStartsWeek bool) (time.Time, time.Time, error) {
-	y, m, d := goatcounter.Now().In(tz).Date()
-	end := time.Date(y, m, d, 23, 59, 59, 9, tz).Round(time.Second)
-
-	var start time.Time
-	switch rng {
+func timeRange(r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
+	rng := ztime.NewRange(ztime.Now().In(tz)).Current(ztime.Day)
+	switch r {
 	case "0", "day":
-		start = time.Date(y, m, d, 0, 0, 0, 0, tz)
-	case "week":
-		start = time.Date(y, m, d-7, 0, 0, 0, 0, tz)
-	case "month":
-		start = time.Date(y, m-1, d, 0, 0, 0, 0, tz)
-	case "quarter":
-		start = time.Date(y, m-3, d, 0, 0, 0, 0, tz)
-	case "half-year":
-		start = time.Date(y, m-6, d, 0, 0, 0, 0, tz)
-	case "year":
-		start = time.Date(y, m-12, d, 0, 0, 0, 0, tz)
-
 	case "week-cur":
-		n := nnow.New(end)
-		n.WeekStartDay = time.Monday
-		if sundayStartsWeek {
-			n.WeekStartDay = time.Sunday
-		}
-
-		start = n.BeginningOfWeek()
-		end = n.EndOfWeek().Add(-1 * time.Second).Round(1 * time.Second)
+		rng = rng.Current(ztime.Week(sundayStartsWeek))
 	case "month-cur":
-		n := nnow.New(end)
-		n.WeekStartDay = time.Monday
-		if sundayStartsWeek {
-			n.WeekStartDay = time.Sunday
-		}
-		start = n.BeginningOfMonth()
-		end = n.EndOfMonth().Add(-1 * time.Second).Round(1 * time.Second)
-
+		rng = rng.Current(ztime.Month)
+	case "week":
+		rng = rng.Last(ztime.Week(sundayStartsWeek))
+	case "month":
+		rng = rng.Last(ztime.Month)
+	case "quarter":
+		rng = rng.Last(ztime.Quarter)
+	case "half-year":
+		rng = rng.Last(ztime.HalfYear)
+	case "year":
+		rng = rng.Last(ztime.Year)
 	default:
-		days, err := strconv.Atoi(rng)
+		days, err := strconv.Atoi(r)
 		if err != nil {
-			zlog.Field("rng", rng).Error(errors.Errorf("timeRange: %w", err))
+			zlog.Field("rng", r).Error(errors.Errorf("timeRange: %w", err))
 			return timeRange("week", tz, sundayStartsWeek)
 		}
-		start = time.Date(y, m, d-days, 0, 0, 0, 0, time.UTC)
+		rng.Start = ztime.Add(rng.Start, -days, ztime.Day)
 	}
-
-	return start.UTC(), end.UTC(), nil
+	return rng.UTC()
 }

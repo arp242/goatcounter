@@ -21,6 +21,7 @@ import (
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -58,9 +59,9 @@ func (u *User) Defaults(ctx context.Context) {
 	}
 
 	if u.CreatedAt.IsZero() {
-		u.CreatedAt = Now()
+		u.CreatedAt = ztime.Now()
 	} else {
-		t := Now()
+		t := ztime.Now()
 		u.UpdatedAt = &t
 	}
 
@@ -393,7 +394,7 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 func (u *User) Login(ctx context.Context) error {
 	u.Token = zstring.NewPtr(zcrypto.Secret256()).P
 	if u.LoginToken == nil || *u.LoginToken == "" {
-		s := Now().Format("20060102") + "-" + zcrypto.Secret256()
+		s := ztime.Now().Format("20060102") + "-" + zcrypto.Secret256()
 		u.LoginToken = &s
 	}
 
@@ -425,7 +426,7 @@ func (u *User) CSRFToken() string {
 
 // SeenUpdates marks this user as having seen all updates up until now.
 func (u *User) SeenUpdates(ctx context.Context) error {
-	u.SeenUpdatesAt = Now()
+	u.SeenUpdatesAt = ztime.Now()
 	err := zdb.Exec(ctx,
 		`update users set seen_updates_at=$1 where user_id=$2`, u.SeenUpdatesAt, u.ID)
 	return errors.Wrap(err, "User.SeenUpdatesAt")

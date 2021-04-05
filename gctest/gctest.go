@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	"testing"
-	"time"
 
 	"github.com/mattn/go-sqlite3"
 	"zgo.at/goatcounter"
@@ -215,32 +214,4 @@ func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatc
 	ctx = goatcounter.WithUser(ctx, user)
 
 	return ctx
-}
-
-func SetNow(t *testing.T, date interface{}) {
-	var (
-		d   time.Time
-		err error
-	)
-	switch dd := date.(type) {
-	case string:
-		if len(dd) == 10 {
-			dd += " 12:00:00"
-		}
-		d, err = time.Parse("2006-01-02 15:04:05", dd)
-	case time.Time:
-		d = dd
-	case *time.Time:
-		d = *dd
-	default:
-		t.Fatalf("unknown type: %T", date)
-	}
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	goatcounter.Now = func() time.Time { return d }
-	t.Cleanup(func() {
-		goatcounter.Now = func() time.Time { return time.Now().UTC() }
-	})
 }

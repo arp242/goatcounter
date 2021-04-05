@@ -15,6 +15,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestHitStats(t *testing.T) {
@@ -33,8 +34,7 @@ func TestHitStats(t *testing.T) {
 		Hit{Path: "/y", Location: "ID-BA", Size: []float64{800, 600, 2}, UserAgentHeader: "Mozilla/5.0 (X11; Linux x86_64; Ubuntu; rv:79.0) Gecko/20100101 Firefox/79.0", FirstVisit: true},
 	)
 
-	start := Now()
-	end := Now()
+	rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 	cmp := func(t *testing.T, want string, stats ...HitStats) {
 		t.Helper()
@@ -52,12 +52,12 @@ func TestHitStats(t *testing.T) {
 		// Browsers
 		{
 			var list HitStats
-			err := list.ListBrowsers(ctx, start, end, filter, 5, 0)
+			err := list.ListBrowsers(ctx, rng, filter, 5, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListBrowser(ctx, "Firefox", start, end, filter)
+			err = get.ListBrowser(ctx, "Firefox", rng, filter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -96,12 +96,12 @@ func TestHitStats(t *testing.T) {
 		// Systems
 		{
 			var list HitStats
-			err := list.ListSystems(ctx, start, end, filter, 5, 0)
+			err := list.ListSystems(ctx, rng, filter, 5, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListSystem(ctx, "Linux", start, end, filter)
+			err = get.ListSystem(ctx, "Linux", rng, filter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -140,12 +140,12 @@ func TestHitStats(t *testing.T) {
 		// Sizes
 		{
 			var list HitStats
-			err := list.ListSizes(ctx, start, end, filter)
+			err := list.ListSizes(ctx, rng, filter)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListSize(ctx, "Computer monitors", start, end, filter)
+			err = get.ListSize(ctx, "Computer monitors", rng, filter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -212,12 +212,12 @@ func TestHitStats(t *testing.T) {
 		// Locations
 		{
 			var list HitStats
-			err := list.ListLocations(ctx, start, end, filter, 5, 0)
+			err := list.ListLocations(ctx, rng, filter, 5, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListLocation(ctx, "ID", start, end, filter)
+			err = get.ListLocation(ctx, "ID", rng, filter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -230,7 +230,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var getRegion HitStats
-			err = getRegion.ListLocation(ctx, "ID", start, end, filter)
+			err = getRegion.ListLocation(ctx, "ID", rng, filter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -292,7 +292,7 @@ func TestListSizes(t *testing.T) {
 		sizeUnknown     = "(unknown)"
 	)
 
-	now := Now()
+	now := ztime.Now()
 	widths := []struct {
 		w    float64
 		name string
@@ -320,7 +320,7 @@ func TestListSizes(t *testing.T) {
 
 	t.Run("ListSizes", func(t *testing.T) {
 		var s HitStats
-		err := s.ListSizes(ctx, now, now, nil)
+		err := s.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -382,7 +382,7 @@ func TestListSizes(t *testing.T) {
 		var got string
 		for _, w := range widths {
 			var s HitStats
-			err := s.ListSize(ctx, w.name, now, now, nil)
+			err := s.ListSize(ctx, w.name, ztime.NewRange(now).To(now), nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -486,7 +486,7 @@ func TestStatsByRef(t *testing.T) {
 		Hit{Path: "/a", Ref: "https://example.org"})
 
 	var s HitStats
-	err := s.ByRef(ctx, Now().Add(-1*time.Hour), Now().Add(1*time.Hour), []int64{1}, "example.com")
+	err := s.ByRef(ctx, ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)), []int64{1}, "example.com")
 	if err != nil {
 		t.Fatal(err)
 	}

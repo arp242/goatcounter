@@ -28,6 +28,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -54,7 +55,7 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 			Limit: func(r *http.Request) (int, int64) {
 				if r.URL.Path == "/api/v0/count" {
 					// Memstore is taking a while to persist; don't add to it.
-					l := goatcounter.Now().Sub(cron.LastMemstore.Get())
+					l := ztime.Now().Sub(cron.LastMemstore.Get())
 					if l > 20*time.Second {
 						return 0, 5
 					}
@@ -337,7 +338,7 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 
 	fp, err := os.Open(export.Path)
 	if err != nil {
-		if os.IsNotExist(err) && export.FinishedAt.Add(24*time.Hour).After(goatcounter.Now()) {
+		if os.IsNotExist(err) && export.FinishedAt.Add(24*time.Hour).After(ztime.Now()) {
 			w.WriteHeader(400)
 			return zhttp.JSON(w, apiError{Error: "exports are kept for 24 hours; this export file has been deleted"})
 		}

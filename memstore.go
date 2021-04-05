@@ -24,6 +24,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztime"
 )
 
 var (
@@ -99,7 +100,7 @@ func (m *ms) Reset() {
 	m.sessionSeen = make(map[zint.Uint128]int64)
 	m.curSalt = []byte(zcrypto.Secret256())
 	m.prevSalt = []byte(zcrypto.Secret256())
-	m.saltRotated = Now()
+	m.saltRotated = ztime.Now()
 	TestSeqSession = zint.Uint128{TestSession[0], TestSession[1] + 1}
 }
 
@@ -341,7 +342,7 @@ func (m *ms) RefreshSalt() {
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	if m.saltRotated.Add(4 * time.Hour).After(Now()) {
+	if m.saltRotated.Add(4 * time.Hour).After(ztime.Now()) {
 		return
 	}
 
@@ -356,7 +357,7 @@ func (m *ms) EvictSessions() {
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	ev := Now().Add(-4 * time.Hour).Unix()
+	ev := ztime.Now().Add(-4 * time.Hour).Unix()
 	for sID, seen := range m.sessionSeen {
 		if seen > ev {
 			continue
@@ -415,7 +416,7 @@ func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, u
 	}
 
 	if ok { // Existing session
-		m.sessionSeen[id] = Now().Unix()
+		m.sessionSeen[id] = ztime.Now().Unix()
 		_, seenPath := m.sessionPaths[id][pathID]
 		if !seenPath {
 			m.sessionPaths[id][pathID] = struct{}{}
@@ -427,7 +428,7 @@ func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, u
 	id = m.SessionID()
 	m.sessions[sessionHash] = id
 	m.sessionPaths[id] = map[int64]struct{}{pathID: struct{}{}}
-	m.sessionSeen[id] = Now().Unix()
+	m.sessionSeen[id] = ztime.Now().Unix()
 	m.sessionHashes[id] = sessionHash
 	return id, true
 }

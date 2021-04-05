@@ -13,6 +13,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -116,7 +117,7 @@ func (t APIToken) FormatPermissions() string {
 func (t *APIToken) Defaults(ctx context.Context) {
 	t.SiteID = MustGetSite(ctx).ID
 	t.Token = zcrypto.Secret256()
-	t.CreatedAt = Now()
+	t.CreatedAt = ztime.Now()
 }
 
 func (t *APIToken) Validate(ctx context.Context) error {

@@ -16,12 +16,13 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestHitListsList(t *testing.T) {
-	start := time.Date(2019, 8, 10, 0, 0, 0, 0, time.UTC)
-	end := time.Date(2019, 8, 17, 23, 59, 59, 0, time.UTC)
-	hit := start.Add(1 * time.Second)
+	rng := ztime.NewRange(time.Date(2019, 8, 10, 0, 0, 0, 0, time.UTC)).
+		To(time.Date(2019, 8, 17, 23, 59, 59, 0, time.UTC))
+	hit := rng.Start.Add(1 * time.Second)
 
 	tests := []struct {
 		in         []Hit
@@ -171,7 +172,7 @@ func TestHitListsList(t *testing.T) {
 			}
 
 			var stats HitLists
-			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, start, end, pathsFilter, tt.inExclude, false)
+			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, false)
 
 			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
 			if got != tt.wantReturn {
@@ -191,11 +192,10 @@ func TestHitListsList(t *testing.T) {
 }
 
 func TestGetMax(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18 12:00:00")
+	ztime.SetNow(t, "2020-06-18 12:00:00")
 	ctx := gctest.DB(t)
 
-	start := Now()
-	end := Now()
+	rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/a"},
@@ -215,7 +215,7 @@ func TestGetMax(t *testing.T) {
 	t.Run("hourly", func(t *testing.T) {
 		want := []int{11, 11, 10, 11}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			got, err := GetMax(ctx, start, end, filter, false)
+			got, err := GetMax(ctx, rng, filter, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -229,7 +229,7 @@ func TestGetMax(t *testing.T) {
 	t.Run("daily", func(t *testing.T) {
 		want := []int{11, 11, 10, 11}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			got, err := GetMax(ctx, start, end, filter, true)
+			got, err := GetMax(ctx, rng, filter, true)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -242,11 +242,10 @@ func TestGetMax(t *testing.T) {
 }
 
 func TestGetTotalCount(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18 12:00:00")
+	ztime.SetNow(t, "2020-06-18 12:00:00")
 	ctx := gctest.DB(t)
 
-	start := Now()
-	end := Now()
+	rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/a", FirstVisit: true},
@@ -256,7 +255,7 @@ func TestGetTotalCount(t *testing.T) {
 		Hit{Path: "ev", FirstVisit: false, Event: true})
 
 	{
-		tt, err := GetTotalCount(ctx, start, end, nil)
+		tt, err := GetTotalCount(ctx, rng, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -269,7 +268,7 @@ func TestGetTotalCount(t *testing.T) {
 }
 
 func TestHitListTotals(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18 12:00:00")
+	ztime.SetNow(t, "2020-06-18 12:00:00")
 	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
@@ -288,8 +287,7 @@ func TestHitListTotals(t *testing.T) {
 	)
 
 	t.Run("hourly", func(t *testing.T) {
-		start := Now()
-		end := Now()
+		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 		want := []string{
 			`12 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
@@ -306,7 +304,7 @@ func TestHitListTotals(t *testing.T) {
 		}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			var hs HitList
-			count, err := hs.Totals(ctx, start, end, filter, false)
+			count, err := hs.Totals(ctx, rng, filter, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -320,8 +318,7 @@ func TestHitListTotals(t *testing.T) {
 	})
 
 	t.Run("daily", func(t *testing.T) {
-		start := Now()
-		end := Now()
+		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 		want := []string{
 			`12 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
@@ -339,7 +336,7 @@ func TestHitListTotals(t *testing.T) {
 
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			var hs HitList
-			count, err := hs.Totals(ctx, start, end, filter, true)
+			count, err := hs.Totals(ctx, rng, filter, true)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -354,24 +351,24 @@ func TestHitListTotals(t *testing.T) {
 }
 
 func TestHitListsPathCountUnique(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18")
+	ztime.SetNow(t, "2020-06-18")
 	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{FirstVisit: true, Path: "/"},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
 
 		Hit{FirstVisit: false, Path: "/"},
 		Hit{FirstVisit: true, Path: "/a"},
-		Hit{FirstVisit: true, Path: "/a", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/a", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
 	)
 
 	{
 		var hl HitLists
-		err := hl.PathCountUnique(ctx, "/", time.Time{}, time.Time{})
+		err := hl.PathCountUnique(ctx, "/", ztime.Range{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -384,9 +381,9 @@ func TestHitListsPathCountUnique(t *testing.T) {
 
 	{
 		var hl HitLists
-		err := hl.PathCountUnique(ctx, "/",
-			Now().Add(-8*24*time.Hour),
-			Now().Add(-1*24*time.Hour))
+		err := hl.PathCountUnique(ctx, "/", ztime.NewRange(
+			ztime.Now().Add(-8*24*time.Hour)).
+			To(ztime.Now().Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -399,24 +396,24 @@ func TestHitListsPathCountUnique(t *testing.T) {
 }
 
 func TestHitListSiteTotalUnique(t *testing.T) {
-	gctest.SetNow(t, "2020-06-18")
+	ztime.SetNow(t, "2020-06-18")
 	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{FirstVisit: true, Path: "/"},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
 
 		Hit{FirstVisit: false, Path: "/"},
 		Hit{FirstVisit: true, Path: "/a"},
-		Hit{FirstVisit: true, Path: "/a", CreatedAt: Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/a", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
 	)
 
 	{
 		var hl HitLists
-		err := hl.SiteTotalUnique(ctx, time.Time{}, time.Time{})
+		err := hl.SiteTotalUnique(ctx, ztime.Range{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -429,9 +426,9 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 
 	{
 		var hl HitLists
-		err := hl.SiteTotalUnique(ctx,
-			Now().Add(-8*24*time.Hour),
-			Now().Add(-1*24*time.Hour))
+		err := hl.SiteTotalUnique(ctx, ztime.NewRange(
+			ztime.Now().Add(-8*24*time.Hour)).
+			To(ztime.Now().Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}

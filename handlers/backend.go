@@ -26,6 +26,7 @@ import (
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
@@ -188,11 +189,11 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	asText := r.URL.Query().Get("as-text") == "on" || r.URL.Query().Get("as-text") == "true"
-	start, end, err := getPeriod(w, r, site, user)
+	rng, err := getPeriod(w, r, site, user)
 	if err != nil {
 		return err
 	}
-	daily, forcedDaily := getDaily(r, start, end)
+	daily, forcedDaily := getDaily(r, rng)
 	m, err := strconv.ParseInt(r.URL.Query().Get("max"), 10, 64)
 	if err != nil {
 		return err
@@ -207,7 +208,7 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 
 	var pages goatcounter.HitLists
 	totalDisplay, totalUniqueDisplay, more, err := pages.List(
-		r.Context(), start, end, pathFilter, exclude, daily)
+		r.Context(), rng, pathFilter, exclude, daily)
 	if err != nil {
 		return err
 	}
@@ -219,8 +220,7 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 	tpl, err := ztpl.ExecuteString(t, struct {
 		Globals
 		Pages       goatcounter.HitLists
-		PeriodStart time.Time
-		PeriodEnd   time.Time
+		Period      ztime.Range
 		Daily       bool
 		ForcedDaily bool
 		Max         int
@@ -229,7 +229,7 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 		// Dummy values so template won't error out.
 		Refs     bool
 		ShowRefs string
-	}{newGlobals(w, r), pages, start, end, daily, forcedDaily, int(max),
+	}{newGlobals(w, r), pages, rng, daily, forcedDaily, int(max),
 		offset, false, ""})
 	if err != nil {
 		return err
@@ -254,7 +254,7 @@ func (h backend) pagesMore(w http.ResponseWriter, r *http.Request) error {
 func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
 	user := User(r.Context())
-	start, end, err := getPeriod(w, r, site, user)
+	rng, err := getPeriod(w, r, site, user)
 	if err != nil {
 		return err
 	}
@@ -284,18 +284,18 @@ func (h backend) hchartDetail(w http.ResponseWriter, r *http.Request) error {
 	var detail goatcounter.HitStats
 	switch kind {
 	case "browser":
-		err = detail.ListBrowser(r.Context(), name, start, end, pathFilter)
+		err = detail.ListBrowser(r.Context(), name, rng, pathFilter)
 	case "system":
-		err = detail.ListSystem(r.Context(), name, start, end, pathFilter)
+		err = detail.ListSystem(r.Context(), name, rng, pathFilter)
 	case "size":
-		err = detail.ListSize(r.Context(), name, start, end, pathFilter)
+		err = detail.ListSize(r.Context(), name, rng, pathFilter)
 	case "location":
-		err = detail.ListLocation(r.Context(), name, start, end, pathFilter)
+		err = detail.ListLocation(r.Context(), name, rng, pathFilter)
 	case "topref":
 		if name == "(unknown)" {
 			name = ""
 		}
-		err = detail.ByRef(r.Context(), start, end, pathFilter, name)
+		err = detail.ByRef(r.Context(), rng, pathFilter, name)
 	}
 	if err != nil {
 		return err
@@ -310,7 +310,7 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
 	user := User(r.Context())
 
-	start, end, err := getPeriod(w, r, site, user)
+	rng, err := getPeriod(w, r, site, user)
 	if err != nil {
 		return err
 	}
@@ -350,18 +350,18 @@ func (h backend) hchartMore(w http.ResponseWriter, r *http.Request) error {
 	)
 	switch kind {
 	case "browser":
-		err = page.ListBrowsers(r.Context(), start, end, pathFilter, 6, offset)
+		err = page.ListBrowsers(r.Context(), rng, pathFilter, 6, offset)
 	case "system":
-		err = page.ListSystems(r.Context(), start, end, pathFilter, 6, offset)
+		err = page.ListSystems(r.Context(), rng, pathFilter, 6, offset)
 	case "location":
-		err = page.ListLocations(r.Context(), start, end, pathFilter, 6, offset)
+		err = page.ListLocations(r.Context(), rng, pathFilter, 6, offset)
 	case "ref":
-		err = page.ListRefsByPath(r.Context(), showRefs, start, end, offset)
+		err = page.ListRefsByPath(r.Context(), showRefs, rng, offset)
 		size = user.Settings.LimitRefs()
 		paginate = offset == 0
 		link = false
 	case "topref":
-		err = page.ListTopRefs(r.Context(), start, end, pathFilter, offset)
+		err = page.ListTopRefs(r.Context(), rng, pathFilter, offset)
 	}
 	if err != nil {
 		return err
@@ -429,36 +429,36 @@ func hasPlan(ctx context.Context, site *goatcounter.Site) (bool, error) {
 	return true, nil
 }
 
-func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, user *goatcounter.User) (time.Time, time.Time, error) {
-	var start, end time.Time
+func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, user *goatcounter.User) (ztime.Range, error) {
+	var rng ztime.Range
 
 	if d := r.URL.Query().Get("period-start"); d != "" {
 		var err error
-		start, err = time.ParseInLocation("2006-01-02", d, user.Settings.Timezone.Loc())
+		rng.Start, err = time.ParseInLocation("2006-01-02", d, user.Settings.Timezone.Loc())
 		if err != nil {
-			return start, end, guru.Errorf(400, "Invalid start date: %q", d)
+			return rng, guru.Errorf(400, "Invalid start date: %q", d)
 		}
 	}
 	if d := r.URL.Query().Get("period-end"); d != "" {
 		var err error
-		end, err = time.ParseInLocation("2006-01-02 15:04:05", d+" 23:59:59", user.Settings.Timezone.Loc())
+		rng.End, err = time.ParseInLocation("2006-01-02 15:04:05", d+" 23:59:59", user.Settings.Timezone.Loc())
 		if err != nil {
-			return start, end, guru.Errorf(400, "Invalid end date: %q", d)
+			return rng, guru.Errorf(400, "Invalid end date: %q", d)
 		}
 	}
 
 	// Allow viewing a week before the site was created at the most.
 	c := site.FirstHitAt.Add(-24 * time.Hour * 7)
-	if start.Before(c) {
+	if rng.Start.Before(c) {
 		y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
-		start = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
+		rng.Start = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
 	}
 
-	return start.UTC(), end.UTC(), nil
+	return rng.From(rng.Start).To(rng.End).UTC(), nil
 }
 
-func getDaily(r *http.Request, start, end time.Time) (daily bool, forced bool) {
-	if end.Sub(start).Hours()/24 >= DailyView {
+func getDaily(r *http.Request, rng ztime.Range) (daily bool, forced bool) {
+	if rng.End.Sub(rng.Start).Hours()/24 >= DailyView {
 		return true, true
 	}
 	d := strings.ToLower(r.URL.Query().Get("daily"))

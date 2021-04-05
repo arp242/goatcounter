@@ -18,6 +18,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestUserTpl(t *testing.T) {
@@ -72,7 +73,7 @@ func TestUserLogin(t *testing.T) {
 	if l := rr.Header().Get("Location"); l != "/" {
 		t.Error(l)
 	}
-	if c := rr.Header().Get("Set-Cookie"); !strings.HasPrefix(c, "key="+goatcounter.Now().Format("20060102")+"-") {
+	if c := rr.Header().Get("Set-Cookie"); !strings.HasPrefix(c, "key="+ztime.Now().Format("20060102")+"-") {
 		t.Error(c)
 	}
 }
@@ -224,7 +225,7 @@ func TestUserLoginMFA(t *testing.T) {
 	if l := rr.Header().Get("Location"); l != "/" {
 		t.Error(l)
 	}
-	if c := rr.Header().Get("Set-Cookie"); !strings.HasPrefix(c, "key="+goatcounter.Now().Format("20060102")+"-") {
+	if c := rr.Header().Get("Set-Cookie"); !strings.HasPrefix(c, "key="+ztime.Now().Format("20060102")+"-") {
 		t.Error(c)
 	}
 }

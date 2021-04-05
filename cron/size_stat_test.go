@@ -12,6 +12,7 @@ import (
 
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestSizeStats(t *testing.T) {
@@ -29,7 +30,7 @@ func TestSizeStats(t *testing.T) {
 	}...)
 
 	var stats goatcounter.HitStats
-	err := stats.ListSizes(ctx, now, now, nil)
+	err := stats.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +57,7 @@ func TestSizeStats(t *testing.T) {
 	}...)
 
 	stats = goatcounter.HitStats{}
-	err = stats.ListSizes(ctx, now, now, nil)
+	err = stats.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

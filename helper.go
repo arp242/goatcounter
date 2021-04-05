@@ -11,7 +11,6 @@ import (
 	"embed"
 	"fmt"
 	"strconv"
-	"time"
 
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
@@ -45,9 +44,6 @@ const (
 )
 
 var States = []string{StateActive, StateRequest, StateDeleted}
-
-// Now gets the current time in UTC; can be overwritten in tests.
-var Now = func() time.Time { return time.Now().UTC() }
 
 // TODO: Move to zdb
 func interval(ctx context.Context, days int) string {

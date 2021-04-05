@@ -8,10 +8,10 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"time"
 
 	"zgo.at/goatcounter"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/ztime"
 )
 
 type (
@@ -30,7 +30,7 @@ type (
 	}
 
 	Args struct {
-		Start, End  time.Time
+		Rng         ztime.Range
 		PathFilter  []int64
 		Daily       bool
 		ForcedDaily bool
@@ -136,38 +136,38 @@ func NewWidget(name string) Widget {
 }
 
 func (w *TotalCount) GetData(ctx context.Context, a Args) (err error) {
-	w.TotalCount, err = goatcounter.GetTotalCount(ctx, a.Start, a.End, a.PathFilter)
+	w.TotalCount, err = goatcounter.GetTotalCount(ctx, a.Rng, a.PathFilter)
 	return err
 }
 
 func (w *Pages) GetData(ctx context.Context, a Args) (err error) {
 	w.Display, w.UniqueDisplay, w.More, err = w.Pages.List(
-		ctx, a.Start, a.End, a.PathFilter, nil, a.Daily)
+		ctx, a.Rng, a.PathFilter, nil, a.Daily)
 	return err
 }
 func (w *Max) GetData(ctx context.Context, a Args) (err error) {
-	w.Max, err = goatcounter.GetMax(ctx, a.Start, a.End, a.PathFilter, a.Daily)
+	w.Max, err = goatcounter.GetMax(ctx, a.Rng, a.PathFilter, a.Daily)
 	return err
 }
 func (w *TotalPages) GetData(ctx context.Context, a Args) (err error) {
-	w.Max, err = w.Total.Totals(ctx, a.Start, a.End, a.PathFilter, a.Daily)
+	w.Max, err = w.Total.Totals(ctx, a.Rng, a.PathFilter, a.Daily)
 	return err
 }
 func (w *Refs) GetData(ctx context.Context, a Args) (err error) {
-	return w.Refs.ListRefsByPath(ctx, a.ShowRefs, a.Start, a.End, 0)
+	return w.Refs.ListRefsByPath(ctx, a.ShowRefs, a.Rng, 0)
 }
 func (w *TopRefs) GetData(ctx context.Context, a Args) (err error) {
-	return w.TopRefs.ListTopRefs(ctx, a.Start, a.End, a.PathFilter, 0)
+	return w.TopRefs.ListTopRefs(ctx, a.Rng, a.PathFilter, 0)
 }
 func (w *Browsers) GetData(ctx context.Context, a Args) (err error) {
-	return w.Browsers.ListBrowsers(ctx, a.Start, a.End, a.PathFilter, 6, 0)
+	return w.Browsers.ListBrowsers(ctx, a.Rng, a.PathFilter, 6, 0)
 }
 func (w *Systems) GetData(ctx context.Context, a Args) (err error) {
-	return w.Systems.ListSystems(ctx, a.Start, a.End, a.PathFilter, 6, 0)
+	return w.Systems.ListSystems(ctx, a.Rng, a.PathFilter, 6, 0)
 }
 func (w *Sizes) GetData(ctx context.Context, a Args) (err error) {
-	return w.SizeStat.ListSizes(ctx, a.Start, a.End, a.PathFilter)
+	return w.SizeStat.ListSizes(ctx, a.Rng, a.PathFilter)
 }
 func (w *Locations) GetData(ctx context.Context, a Args) (err error) {
-	return w.LocStat.ListLocations(ctx, a.Start, a.End, a.PathFilter, 6, 0)
+	return w.LocStat.ListLocations(ctx, a.Rng, a.PathFilter, 6, 0)
 }

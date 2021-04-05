@@ -19,6 +19,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/znet"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -108,7 +109,7 @@ func (s *Site) Defaults(ctx context.Context) {
 		s.State = StateActive
 	}
 
-	n := Now()
+	n := ztime.Now()
 
 	if !Config(ctx).GoatcounterCom {
 		s.Code = "serve-" + zcrypto.Secret64()
@@ -381,7 +382,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
-	n := Now()
+	n := ztime.Now()
 	s.CnameSetupAt = &n
 
 	err := zdb.Exec(ctx,
@@ -412,7 +413,7 @@ func (s *Site) Delete(ctx context.Context, deleteChildren bool) error {
 		}
 	}
 
-	t := Now()
+	t := ztime.Now()
 	err := zdb.Exec(ctx,
 		`update sites set state=$1, updated_at=$2 where site_id=$3 or parent=$3`,
 		StateDeleted, t, s.ID)
@@ -649,7 +650,7 @@ func (s Site) ShowPayBanner(ctx context.Context) bool {
 	if s.Stripe != nil {
 		return false
 	}
-	return -Now().Sub(s.CreatedAt.Add(trialPeriod)) < 0
+	return -ztime.Now().Sub(s.CreatedAt.Add(trialPeriod)) < 0
 }
 
 func (s Site) FreePlan() bool {
@@ -823,7 +824,7 @@ func (s *Sites) OldSoftDeleted(ctx context.Context) error {
 // ExpiredPlans finds all sites which have a plan that's expired.
 func (s *Sites) ExpiredPlans(ctx context.Context) error {
 	err := zdb.Select(ctx, s, `/* Sites.ExpiredPlans */
-		select * from sites where ? > plan_cancel_at`, Now())
+		select * from sites where ? > plan_cancel_at`, ztime.Now())
 	return errors.Wrap(err, "Sites.ExpiredPlans")
 }
 

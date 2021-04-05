@@ -5,6 +5,7 @@
 package main
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
@@ -12,6 +13,7 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zli"
+	"zgo.at/zstd/ztime"
 )
 
 func TestDBSchema(t *testing.T) {
@@ -50,7 +52,7 @@ func TestDBTest(t *testing.T) {
 
 func TestDBQuery(t *testing.T) {
 	exit, _, out, ctx, dbc := startTest(t)
-	gctest.SetNow(t, "2020-06-18")
+	ztime.SetNow(t, "2020-06-18")
 
 	runCmd(t, exit, "db", "query", "-db="+dbc, "select site_id, code from sites order by site_id")
 	wantExit(t, exit, out, 0)
@@ -190,10 +192,10 @@ func TestDBSite(t *testing.T) {
 			"-db="+dbc,
 			"-find=1", "-find=update.example.com")
 		wantExit(t, exit, out, 0)
-		if !strings.HasPrefix(out.String(), `site_id         1`) {
+		if !grep(out.String(), `site_id +1`) {
 			t.Error(out.String())
 		}
-		if !strings.Contains(out.String(), `site_id         2`) {
+		if !grep(out.String(), `site_id +2`) {
 			t.Error(out.String())
 		}
 		out.Reset()
@@ -268,6 +270,10 @@ func TestDBSite(t *testing.T) {
 	}
 }
 
+func grep(s, find string) bool {
+	return regexp.MustCompile(find).MatchString(s)
+}
+
 func TestDBUser(t *testing.T) {
 	exit, _, out, ctx, dbc := startTest(t)
 
@@ -322,10 +328,10 @@ func TestDBUser(t *testing.T) {
 			"-db="+dbc,
 			"-find=1", "-find=new@new.new")
 		wantExit(t, exit, out, 0)
-		if !strings.HasPrefix(out.String(), `user_id          1`) {
+		if !grep(out.String(), `user_id +1`) {
 			t.Error(out.String())
 		}
-		if !strings.Contains(out.String(), `user_id          2`) {
+		if !grep(out.String(), `user_id +2`) {
 			t.Error(out.String())
 		}
 		out.Reset()

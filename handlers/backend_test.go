@@ -17,6 +17,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 )
 
 func TestBackendTpl(t *testing.T) {
@@ -82,7 +83,7 @@ func TestBackendTpl(t *testing.T) {
 func TestBackendPagesMore(t *testing.T) {
 	ctx := gctest.DB(t)
 	site := Site(ctx)
-	now := goatcounter.Now()
+	now := ztime.Now()
 
 	gctest.StoreHits(ctx, t, false,
 		goatcounter.Hit{Path: "/1"},
