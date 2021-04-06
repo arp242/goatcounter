@@ -63,7 +63,7 @@ func loadVCFiles(fsys fs.FS) {
 		`<br><span id="gcvc-by">stats by GoatCounter</span>`, "",
 		"76px", "56px").Replace(html)
 	svgNoBranding = strings.NewReplacer(
-		`<text id="gcvc-by" x="50%" y="70">stats by GoatCounter</text>`, "",
+		`<text id="gcvc-by" x="50%%" y="70">stats by GoatCounter</text>`, "",
 		`height="80" viewBox="0 0 200 80"`, `height="60" viewBox="0 0 200 60"`,
 		`height="78"`, `height="58"`).Replace(svg)
 
@@ -94,6 +94,8 @@ func loadVCFiles(fsys fs.FS) {
 }
 
 func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
+	loadVCFilesOnce.Do(func() { loadVCFiles(h.files) })
+
 	site := Site(r.Context())
 	if !site.Settings.AllowCounter {
 		return guru.New(http.StatusForbidden, "Need to enable the ‘allow using the visitor counter’ setting")
@@ -183,8 +185,6 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 
 		return zhttp.String(w, fmt.Sprintf(s, style, count))
 	case "png":
-		loadVCFilesOnce.Do(func() { loadVCFiles(h.files) })
-
 		src := pngImg
 		if total {
 			src = pngImgTotal
