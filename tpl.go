@@ -203,6 +203,14 @@ func init() {
 		return t.In(u.Settings.Timezone.Loc()).Format(f)
 	})
 
+	tplfunc.Add("path_id", func(p string) string {
+		p = strings.ReplaceAll(strings.TrimLeft(p, "/"), "/", "-")
+		if p == "" {
+			return "dashboard"
+		}
+		return p
+	})
+
 	// Override defaults to take user settings in to account.
 	tplfunc.Add("tformat", func(t time.Time, fmt string, u User) string {
 		if fmt == "" {
