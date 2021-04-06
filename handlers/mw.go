@@ -70,7 +70,7 @@ var (
 		u := &goatcounter.User{}
 		err := u.ByTokenAndSite(ctx, key)
 		return u, err
-	})
+	}, "/bosmang/profile/setrate")
 )
 
 type statusWriter interface{ Status() int }

@@ -146,6 +146,11 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})
 
+		{
+			af := r.With(keyAuth, loggedIn)
+			bosmang{}.mount(af, db)
+		}
+
 		a := r.With(mware.Headers(headers), keyAuth)
 		user{}.mount(a)
 		{
@@ -161,9 +166,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 				billing{}.mount(a, af)
 			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
-
 			settings{}.mount(af)
-			bosmang{}.mount(af, db)
 		}
 	}
 }
