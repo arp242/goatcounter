@@ -29,6 +29,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
@@ -213,13 +214,6 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	// Temporary log, since I got some JS "Bad Request" errors without any
-	// detail which I can't reproduce :-/
-	zlog.Fields(zlog.F{
-		"args": args,
-		"site": mainSite.Code,
-	}).Printf("billing/start")
-
 	v := zvalidate.New()
 	v.Required("plan", args.Plan)
 	v.Include("plan", args.Plan, goatcounter.Plans)
@@ -253,6 +247,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		"cancel_url":                           mainSite.URL(r.Context()) + "/billing?return=cancel",
 		"subscription_data[items][][plan]":     stripePlans[goatcounter.Config(r.Context()).Dev][args.Plan],
 		"subscription_data[items][][quantity]": args.Quantity,
+		"subscription_data[metadata][site_id]": strconv.FormatInt(mainSite.ID, 10),
 	}
 	if mainSite.Stripe != nil && !mainSite.FreePlan() {
 		body["customer"] = *mainSite.Stripe
@@ -298,12 +293,35 @@ func (h billing) manage(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, s.URL)
 }
 
-type Session struct {
-	ClientReferenceID string `json:"client_reference_id"`
-	Customer          string `json:"customer"`
-	AmountTotal       int    `json:"amount_total"`
-	Currency          string `json:"currency"`
-}
+type (
+	// https://stripe.com/docs/api/checkout/sessions/object
+	Session struct {
+		ClientReferenceID string `json:"client_reference_id"`
+		Customer          string `json:"customer"`
+		AmountTotal       int    `json:"amount_total"`
+		Currency          string `json:"currency"`
+	}
+
+	// https://stripe.com/docs/api/subscriptions/object
+	Subscription struct {
+		CancelAt           zjson.Timestamp `json:"cancel_at"`
+		BillingCycleAnchor zjson.Timestamp `json:"billing_cycle_anchor"`
+		Customer           string          `json:"customer"`
+		Metadata           struct {
+			SiteID zjson.Int `json:"site_id"`
+		} `json:"metadata"`
+		Items struct {
+			Data []struct {
+				Quantity int `json:"quantity"`
+				Price    struct {
+					ID         string `json:"id"`
+					Currency   string `json:"currency"`
+					UnitAmount int    `json:"unit_amount"`
+				} `json:"price"`
+			} `json:"data"`
+		} `json:"items"`
+	}
+)
 
 func (h billing) webhook(w http.ResponseWriter, r *http.Request) error {
 	var event zstripe.Event
@@ -312,17 +330,15 @@ func (h billing) webhook(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var f func(zstripe.Event, http.ResponseWriter, *http.Request) error
-	switch event.Type {
-	default:
+	f, ok := map[string]func(zstripe.Event, http.ResponseWriter, *http.Request) error{
+		zstripe.EventCheckoutSessionCompleted:    h.whCheckout,
+		zstripe.EventCustomerSubscriptionCreated: h.whSubscriptionUpdated,
+		zstripe.EventCustomerSubscriptionUpdated: h.whSubscriptionUpdated,
+		zstripe.EventCustomerSubscriptionDeleted: h.whSubscriptionDeleted,
+	}[event.Type]
+	if !ok {
+		w.WriteHeader(202)
 		return zhttp.String(w, "not handling this webhook")
-
-	case "checkout.session.completed":
-		f = h.webhookCheckout
-	case "customer.subscription.updated":
-		f = h.webhookUpdate
-	case "customer.subscription.deleted":
-		f = h.webhookDelete
 	}
 
 	err = f(event, w, r)
@@ -333,22 +349,7 @@ func (h billing) webhook(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.String(w, "okay")
 }
 
-type Subscription struct {
-	CancelAt zjson.Timestamp `json:"cancel_at"`
-	Customer string          `json:"customer"`
-	Items    struct {
-		Data []struct {
-			Quantity int `json:"quantity"`
-			Price    struct {
-				ID         string `json:"id"`
-				Currency   string `json:"currency"`
-				UnitAmount int    `json:"unit_amount"`
-			} `json:"price"`
-		} `json:"data"`
-	} `json:"items"`
-}
-
-func (h billing) webhookUpdate(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
+func (h billing) whSubscriptionUpdated(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
 	var s Subscription
 	err := json.Unmarshal(event.Data.Raw, &s)
 	if err != nil {
@@ -367,8 +368,16 @@ func (h billing) webhookUpdate(event zstripe.Event, w http.ResponseWriter, r *ht
 
 	var site goatcounter.Site
 	err = site.ByStripe(r.Context(), s.Customer)
+
+	// In theory we should be able to get the Stripe customer ID from the
+	// checkout.session.completed webhook, but for some reason this isn't always
+	// sent. On the created event we also have the metadata.site_id.
+	if err != nil && s.Metadata.SiteID > 0 {
+		err = site.ByID(r.Context(), int64(s.Metadata.SiteID))
+	}
 	if err != nil {
-		return err
+		return fmt.Errorf("whSubscriptionUpdated: cannot find Stripe customer %q (metadata: %d), %w",
+			s.Customer, s.Metadata.SiteID, err)
 	}
 
 	site.PlanCancelAt = nil
@@ -376,29 +385,27 @@ func (h billing) webhookUpdate(event zstripe.Event, w http.ResponseWriter, r *ht
 		site.PlanCancelAt = &s.CancelAt.Time
 	}
 
+	if site.Stripe == nil {
+		site.Stripe = &s.Customer
+	}
 	site.Plan = plan
 	site.BillingAmount = zstring.NewPtr(fmt.Sprintf("%s %d", currency, amount)).P
+	if s.BillingCycleAnchor.IsZero() {
+		site.BillingAnchor = nil
+	} else {
+		site.BillingAnchor = &s.BillingCycleAnchor.Time
+	}
 	return site.UpdateStripe(r.Context())
 }
 
-func (h billing) webhookDelete(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
+func (h billing) whSubscriptionDeleted(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
 	// I don't think we ever need to handle this, since cancellations are
 	// already pushed with an update. But log for now just in case.
 	fmt.Println(string(event.Data.Raw))
 	return nil
 }
 
-func getPlan(ctx context.Context, s Subscription) (string, error) {
-	planID := s.Items.Data[0].Price.ID
-	for k, v := range stripePlans[goatcounter.Config(ctx).Dev] {
-		if v == planID {
-			return k, nil
-		}
-	}
-	return "", fmt.Errorf("unknown plan: %q", planID)
-}
-
-func (h billing) webhookCheckout(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
+func (h billing) whCheckout(event zstripe.Event, w http.ResponseWriter, r *http.Request) error {
 	var s Session
 	err := json.Unmarshal(event.Data.Raw, &s)
 	if err != nil {
@@ -428,10 +435,22 @@ func (h billing) webhookCheckout(event zstripe.Event, w http.ResponseWriter, r *
 		return err
 	}
 
+	n := ztime.Now()
 	site.Stripe = &s.Customer
 	site.BillingAmount = zstring.NewPtr(fmt.Sprintf("%s %d", strings.ToUpper(s.Currency), s.AmountTotal/100)).P
+	site.BillingAnchor = &n
 	site.Plan = *site.PlanPending
 	site.PlanPending = nil
 	site.PlanCancelAt = nil
 	return site.UpdateStripe(r.Context())
+}
+
+func getPlan(ctx context.Context, s Subscription) (string, error) {
+	planID := s.Items.Data[0].Price.ID
+	for k, v := range stripePlans[goatcounter.Config(ctx).Dev] {
+		if v == planID {
+			return k, nil
+		}
+	}
+	return "", fmt.Errorf("unknown plan: %q", planID)
 }

@@ -79,12 +79,21 @@ type Site struct {
 	// Amount is being paid for the plan.
 	BillingAmount *string `db:"billing_amount" json:"billing_amount,readonly"`
 
+	// "Anchor" for the billing period.
+	//
+	// This is the time someone subscribed to a plan; and their billing period
+	// will start on this day.
+	BillingAnchor *time.Time `db:"billing_anchor" json:"billing_anchor,readonly"`
+
 	Settings     SiteSettings `db:"settings" json:"setttings"`
 	UserDefaults UserSettings `db:"user_defaults" json:"user_defaults"`
 
 	// Whether this site has received any data; will be true after the first
 	// pageview.
 	ReceivedData bool `db:"received_data" json:"received_data"`
+
+	// {omitdoc}
+	Notes string `db:"notes" json:"-"`
 
 	State      string     `db:"state" json:"state"`
 	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
@@ -278,8 +287,8 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 	}
 
 	err = zdb.Exec(ctx,
-		`update sites set stripe=?, plan=?, plan_pending=?, billing_amount=?, plan_cancel_at=?, updated_at=? where site_id=?`,
-		s.Stripe, s.Plan, s.PlanPending, s.BillingAmount, s.PlanCancelAt, s.UpdatedAt, s.ID)
+		`update sites set stripe=?, plan=?, plan_pending=?, billing_amount=?, billing_anchor=?, plan_cancel_at=?, updated_at=? where site_id=?`,
+		s.Stripe, s.Plan, s.PlanPending, s.BillingAmount, s.BillingAnchor, s.PlanCancelAt, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateStripe")
 	}

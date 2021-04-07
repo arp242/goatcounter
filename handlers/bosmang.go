@@ -5,6 +5,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"sort"
@@ -130,6 +131,7 @@ func (h bosmang) updateBilling(w http.ResponseWriter, r *http.Request) error {
 		Plan         string `json:"plan"`
 		PlanPending  string `json:"plan_pending"`
 		PlanCancelAt string `json:"plan_cancel_at"`
+		Notes        string `json:"notes"`
 	}
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
@@ -165,7 +167,13 @@ func (h bosmang) updateBilling(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.WithSite(goatcounter.CopyContextValues(r.Context()), &site)
-	err = site.UpdateStripe(ctx)
+	err = zdb.TX(ctx, func(ctx context.Context) error {
+		err := site.UpdateStripe(ctx)
+		if err != nil {
+			return err
+		}
+		return zdb.Exec(ctx, `update sites set notes=? where site_id=?`, args.Notes, site.ID)
+	})
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
 		return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))

@@ -48,6 +48,10 @@
 
 		<label for="plan_cancel_at">Cancel at</label>
 		<input type="text" name="plan_cancel_at" id="plan_cancel_at" value="{{if .Stat.MainSite.PlanCancelAt}}{{.Stat.MainSite.PlanCancelAt.Format "2006-01-02 15:04:05"}}{{end}}">
+
+		<label for="notes">Notes</label>
+		<textarea id="notes" name="notes" style="max-width: 50em; height: 5em;">{{.Stat.MainSite.Notes}}</textarea>
+
 		<br>
 		<button type="submit">Update</button>
 	</fieldset>

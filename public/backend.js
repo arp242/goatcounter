@@ -188,6 +188,7 @@
 		var nodonate = false
 		$('button').on('click', function() { nodonate = this.id === 'nodonate' })
 
+		// Create new Stripe subscription.
 		var form = $('#billing-form')
 		form.on('submit', function(e) {
 			e.preventDefault()
