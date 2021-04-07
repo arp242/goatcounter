@@ -30,6 +30,8 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zjson"
+	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
 
@@ -238,10 +240,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	mainSite, err := MainSite(r.Context())
-	if err != nil {
-		return err
-	}
+	account := Account(r.Context())
 
 	var (
 		newSite goatcounter.Site
@@ -267,7 +266,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 			}
 			return err
 		}
-		if newSite.Parent == nil || *newSite.Parent != mainSite.ID {
+		if newSite.Parent == nil || *newSite.Parent != account.ID {
 			return guru.Errorf(400, "%q already exists", addr)
 		}
 
@@ -281,7 +280,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Create new site.
-	newSite.Parent = &mainSite.ID
+	newSite.Parent = &account.ID
 	newSite.Plan = goatcounter.PlanChild
 	newSite.Settings = Site(r.Context()).Settings
 	err = zdb.TX(r.Context(), func(ctx context.Context) error {
@@ -625,12 +624,9 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		zlog.Error(err)
 	}
 
-	mainSite, err := MainSite(r.Context())
-	if err != nil {
-		return err
-	}
+	account := Account(r.Context())
 
-	has, err := hasPlan(r.Context(), mainSite)
+	has, err := hasPlan(r.Context(), account)
 	if err != nil {
 		return err
 	}
@@ -654,26 +650,56 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 				blackmail.From("GoatCounter deletion", goatcounter.Config(r.Context()).EmailFrom),
 				blackmail.To(goatcounter.Config(r.Context()).EmailFrom),
 				blackmail.Bodyf(`Deleted: %s (%d): contact_me: %s; reason: %s`,
-					mainSite.Code, mainSite.ID, contact, args.Reason))
+					account.Code, account.ID, contact, args.Reason))
 		})
 	}
 
-	err = mainSite.Delete(r.Context(), true)
+	err = account.Delete(r.Context(), true)
 	if err != nil {
 		return err
 	}
 	return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
 }
 
+func hasPlan(ctx context.Context, site *goatcounter.Site) (bool, error) {
+	if !goatcounter.Config(ctx).GoatcounterCom || site.Plan == goatcounter.PlanChild || !site.StripeCustomer() {
+		return false, nil
+	}
+
+	var customer struct {
+		Subscriptions struct {
+			Data []struct {
+				CancelAtPeriodEnd bool            `json:"cancel_at_period_end"`
+				CurrentPeriodEnd  zjson.Timestamp `json:"current_period_end"`
+				Plan              struct {
+					Quantity int `json:"quantity"`
+				} `json:"plan"`
+			} `json:"data"`
+		} `json:"subscriptions"`
+	}
+	_, err := zstripe.Request(&customer, "GET",
+		fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
+	if err != nil {
+		return false, err
+	}
+
+	if len(customer.Subscriptions.Data) == 0 {
+		return false, nil
+	}
+
+	if customer.Subscriptions.Data[0].CancelAtPeriodEnd {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func (h settings) users(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		mainSite, err := MainSite(r.Context())
-		if err != nil {
-			return err
-		}
+		account := Account(r.Context())
 
 		var users goatcounter.Users
-		err = users.List(r.Context(), mainSite.ID)
+		err := users.List(r.Context(), account.ID)
 		if err != nil {
 			return err
 		}
@@ -747,15 +773,11 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	mainSite := Site(r.Context())
-	err = mainSite.GetMain(r.Context())
-	if err != nil {
-		return err
-	}
+	account := Account(r.Context())
 
 	newUser := goatcounter.User{
 		Email:  args.Email,
-		Site:   mainSite.ID,
+		Site:   account.ID,
 		Access: args.Access,
 	}
 	if args.Password != "" {
@@ -781,10 +803,10 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run(fmt.Sprintf("adduser:%d", newUser.ID), func() {
-		err := blackmail.Send(fmt.Sprintf("A GoatCounter account was created for you at %s", mainSite.Display(ctx)),
+		err := blackmail.Send(fmt.Sprintf("A GoatCounter account was created for you at %s", account.Display(ctx)),
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(newUser.Email),
-			blackmail.BodyMustText(goatcounter.TplEmailAddUser{ctx, *mainSite, newUser, goatcounter.GetUser(ctx).Email}.Render),
+			blackmail.BodyMustText(goatcounter.TplEmailAddUser{ctx, *account, newUser, goatcounter.GetUser(ctx).Email}.Render),
 		)
 		if err != nil {
 			zlog.Errorf(": %s", err)
@@ -812,16 +834,15 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	mainSite := Site(r.Context())
-	err = mainSite.GetMain(r.Context())
-	if err != nil {
-		return err
-	}
-
 	var editUser goatcounter.User
 	err = editUser.ByID(r.Context(), id)
 	if err != nil {
 		return err
+	}
+
+	account := Account(r.Context())
+	if account.ID != editUser.Site {
+		return guru.New(404, "Not Found")
 	}
 
 	emailChanged := editUser.Email != args.Email
@@ -857,19 +878,15 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 		return v
 	}
 
-	mainSite := Site(r.Context())
-	err := mainSite.GetMain(r.Context())
-	if err != nil {
-		return err
-	}
+	account := Account(r.Context())
 
 	var user goatcounter.User
-	err = user.ByID(r.Context(), id)
+	err := user.ByID(r.Context(), id)
 	if err != nil {
 		return err
 	}
 
-	if user.Site != mainSite.ID {
+	if user.Site != account.ID {
 		return guru.New(404, "Not Found")
 	}
 

@@ -325,15 +325,6 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 	return nil
 }
 
-// Count the number of pageviews.
-func (h *Hits) Count(ctx context.Context) (int64, error) {
-	var c int64
-	err := zdb.Get(ctx, &c,
-		`select coalesce(sum(total), 0) from hit_counts where site_id=$1`,
-		MustGetSite(ctx).ID)
-	return c, errors.Wrap(err, "Hits.Count")
-}
-
 // Purge all paths.
 func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 	query := `/* Hits.Purge */

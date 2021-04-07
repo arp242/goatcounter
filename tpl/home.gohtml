@@ -109,6 +109,13 @@
 
 <h2 id="pricing">Pricing</h2>
 {{template "_pricing.gohtml" .}}
+<div id="home-pricing-custom">
+	<a href="/contact">Contact</a> if you need more pageviews or want a privately installed hosted option.<br>
+</div>
+<div id="home-pricing-faq">
+	<h3 id="pricing-faq">Pricing FAQ</h3>
+	{{template "_billing_help.gohtml" .}}
+</div>
 <div id="home-signup">
 	<a class="hlink cbox" href="/signup"><img src="{{.Static}}/index.svg" alt=""> Sign up</a>
 </div>

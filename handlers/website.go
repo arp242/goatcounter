@@ -35,7 +35,7 @@ import (
 	"zgo.at/zvalidate"
 )
 
-func NewWebsite(db zdb.DB, dev bool, defaultPlan string) chi.Router {
+func NewWebsite(db zdb.DB, dev bool) chi.Router {
 	r := chi.NewRouter()
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "", dev)
@@ -43,14 +43,13 @@ func NewWebsite(db zdb.DB, dev bool, defaultPlan string) chi.Router {
 		panic(err)
 	}
 
-	website{fsys, true, defaultPlan}.Mount(r, db, dev)
+	website{fsys, true}.Mount(r, db, dev)
 	return r
 }
 
 type website struct {
-	templates   fs.FS
-	fromWWW     bool
-	defaultPlan string
+	templates fs.FS
+	fromWWW   bool
 }
 
 func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
@@ -283,7 +282,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain, Plan: h.defaultPlan}
+	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain, Plan: goatcounter.PlanTrial}
 	user := goatcounter.User{Email: args.Email, Password: []byte(args.Password),
 		Access: goatcounter.UserAccesses{"all": goatcounter.AccessAdmin}}
 

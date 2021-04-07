@@ -39,6 +39,37 @@ type HitListStat struct {
 	DailyUnique  int
 }
 
+// PathCountUnique gets the total_unique for one path.
+func (h *HitList) PathCountUnique(ctx context.Context, path string, rng ztime.Range) error {
+	err := zdb.Get(ctx, h, "load:hit_list.PathCountUnique", zdb.P{
+		"site":  MustGetSite(ctx).ID,
+		"path":  path,
+		"start": rng.Start,
+		"end":   rng.End,
+	})
+	return errors.Wrap(err, "HitList.PathCountUnique")
+}
+
+// SiteTotal gets the total counts for all paths.
+//
+// This always uses UTC.
+func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
+	err := zdb.Get(ctx, h, `/* *HitList.SiteTotalUTC */
+			select
+				coalesce(sum(total), 0)        as count,
+				coalesce(sum(total_unique), 0) as count_unique
+			from hit_counts
+			where site_id = :site
+			{{:start and hour >= :start}}
+			{{:end   and hour <= :end}}
+		`, zdb.P{
+		"site":  MustGetSite(ctx).ID,
+		"start": rng.Start,
+		"end":   rng.End,
+	})
+	return errors.Wrap(err, "HitList.SiteTotalUTC")
+}
+
 type HitLists []HitList
 
 // ListPathsLike lists all paths matching the like pattern.
@@ -49,32 +80,6 @@ func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle 
 		"match_title": matchTitle,
 	})
 	return errors.Wrap(err, "Hits.ListPathsLike")
-}
-
-// PathCountUnique gets the total_unique for one path.
-func (h *HitLists) PathCountUnique(ctx context.Context, path string, rng ztime.Range) error {
-	err := zdb.Select(ctx, h, "load:hit_list.PathCountUnique", zdb.P{
-		"site":  MustGetSite(ctx).ID,
-		"path":  path,
-		"start": rng.Start,
-		"end":   rng.End,
-	})
-	return errors.Wrap(err, "HitLists.PathCountUnique")
-}
-
-// SiteTotalUnique gets the total_unique for all paths.
-func (h *HitLists) SiteTotalUnique(ctx context.Context, rng ztime.Range) error {
-	err := zdb.Select(ctx, h, `/* *HitLists.SiteTotalUnique */
-			select sum(total_unique) as count_unique from hit_counts
-			where site_id = :site
-			{{:start and hour >= :start}}
-			{{:end   and hour <= :end}}
-		`, zdb.P{
-		"site":  MustGetSite(ctx).ID,
-		"start": rng.Start,
-		"end":   rng.End,
-	})
-	return errors.Wrap(err, "HitLists.SiteTotalUnique")
 }
 
 var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}

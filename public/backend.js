@@ -172,7 +172,7 @@
 
 	var page_billing = function() {
 		// Pricing FAQ
-		$('dt').on('click', function(e) {
+		$('#home-pricing-faq dt').on('click', function(e) {
 			var dd = $(e.target).next().addClass('cbox')
 			if (dd[0].style.height === 'auto')
 				dd.css({padding: '0', height: '0', marginBottom: '0'})
@@ -199,11 +199,14 @@
 				return
 			}
 
-			form.find('button[type="submit"]').attr('disabled', true).text('Redirecting...')
 			var err      = function(e) { $('#stripe-error').text(e); },
 				plan     = $('input[name="plan"]:checked').val(),
 				quantity = (plan === 'personal' ? (parseInt($('#quantity').val(), 10) || 0) : 1)
 
+			if (!plan)
+				return alert('You need to select a plan')
+
+			form.find('button[type="submit"]').attr('disabled', true).text('Redirecting...')
 			jQuery.ajax({
 				url:    '/billing/start',
 				method: 'POST',
@@ -258,7 +261,7 @@
 				col      = th.index(),
 				tbody    = th.closest('table').find('>tbody'),
 				rows     = Array.from(tbody.find('>tr')),
-				to_i     = (i) => parseInt(i.replace(/,/g, ''), 10),
+				to_i     = (i) => parseInt(i.replace(/[^0-9.]/g, ''), 10) || 0,
 				is_sort  = th.attr('data-sort') === '1'
 
 			if (num_sort)

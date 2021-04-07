@@ -42,19 +42,17 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		domain = f.String("goatcounter.localhost:8081,static.goatcounter.localhost:8081", "domain").Pointer()
 		stripe = f.String("", "stripe").Pointer()
-		plan   = f.String(goatcounter.PlanPersonal, "plan").Pointer()
 	)
 	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
 
-	return func(domain, stripe, plan string) error {
+	return func(domain, stripe string) error {
 		if flagTLS == "" {
 			flagTLS = map[bool]string{true: "http", false: "acme"}[dev]
 		}
 
-		v.Include("-plan", plan, goatcounter.Plans)
 		flagStripe(stripe, &v)
 		domain, domainStatic, domainCount, urlStatic := flagDomain(domain, &v)
 		from = flagFrom(from, domain, &v)
@@ -84,7 +82,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		d := znet.RemovePort(domain)
 		hosts := map[string]http.Handler{
 			d:          zhttp.RedirectHost("//www." + domain),
-			"www." + d: handlers.NewWebsite(db, dev, plan),
+			"www." + d: handlers.NewWebsite(db, dev),
 			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic, 10),
 		}
 		if dev {
@@ -95,7 +93,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			zlog.Printf("serving %q on %q; dev=%t", domain, listen, dev)
 			ready <- struct{}{}
 		})
-	}(*domain, *stripe, *plan)
+	}(*domain, *stripe)
 }
 
 func flagStripe(stripe string, v *zvalidate.Validator) {

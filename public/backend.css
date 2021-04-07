@@ -61,6 +61,7 @@ form .err  { color: red; display: block; }
 span.red  { color: red; }
 input.red { border: 1px solid red !important; }
 
+/* TODO: replace with .side-by-side? */
 @media (min-width: 55rem) {
 	.form-wrap form          { display: flex; flex-wrap: wrap; }
 	.form-wrap form fieldset { width: 48%; }
@@ -347,7 +348,7 @@ noscript p { margin: .5em; }
 /* Copy from style.css */
 .cbox                { box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
 #home-pricing >span  { display: flex; justify-content: space-between; text-align: center; align-items: flex-start; }
-#home-pricing label  { box-shadow: 0 0 4px #cdc8a4; background-color: #fff; width: calc(25% - .5em); }
+#home-pricing label  { box-shadow: 0 0 4px #aaa; background-color: #fff; width: calc(25% - .5em); }
 #home-pricing h3     { margin: .5em 0; }
 #home-pricing ul     { list-style: none; padding: 0; line-height: 2.5em; }
 #home-signup         { text-align: center; margin-top: 2em; }
@@ -414,3 +415,25 @@ h3 + h4                   { margin-top: .3em; }
 @supports (-webkit-overflow-scrolling: touch) {
 	input, select, textarea { font-size: 16px !important; }
 }
+
+#usage strong  { display: inline-block; width: 14em; }
+#usage .perc   { display: inline-block; width: 2em; text-align: right; margin-right: 1em; }
+
+@media (min-width: 55rem) {
+	.side-by-side          { display: flex; flex-wrap: wrap; justify-content: space-between; }
+	.side-by-side >*       { width: 49%; }
+	.side-by-side.boxed >* { width: 49.8%; }
+}
+
+.side-by-side.boxed        { margin-top: 1em; }
+.side-by-side.boxed >*     { position: relative; padding: .25em .75em; margin-bottom: 1em; border: 1px solid #666; }
+
+.side-by-side.boxed >* >h2,
+.side-by-side.boxed >* >h3,
+.side-by-side.boxed >* >h4
+.side-by-side.boxed >* >h5
+.side-by-side.boxed >* >h6 { position: absolute; top: -.5em; left: .5em; font-size: 1rem; line-height: 1;
+						     padding: 0 .2em; margin: 0; border: 0; background-color: #fff; }
+
+dl { max-width: 50em; }
+dt { font-weight: bold; margin-top: 1em; }

@@ -186,6 +186,12 @@ func login(t *testing.T, r *http.Request) {
 	r.Header.Set("Cookie", "key="+*u.LoginToken)
 }
 
+func newLoginTest(t *testing.T, ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
+	r, rr := newTest(ctx, method, path, body)
+	login(t, r)
+	return r, rr
+}
+
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
 	site := Site(ctx)
 	r, rr := ztest.NewRequest(method, path, body).WithContext(ctx), httptest.NewRecorder()

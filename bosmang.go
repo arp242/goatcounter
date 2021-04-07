@@ -6,8 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -20,7 +18,7 @@ import (
 type BosmangStat struct {
 	ID            int64     `db:"site_id"`
 	Parent        *int64    `db:"parent"`
-	Code          string    `db:"code"`
+	Codes         string    `db:"codes"`
 	Stripe        *string   `db:"stripe"`
 	BillingAmount *string   `db:"billing_amount"`
 	Email         string    `db:"email"`
@@ -40,71 +38,34 @@ func (a *BosmangStats) List(ctx context.Context) error {
 		return errors.Wrap(err, "BosmangStats.List")
 	}
 
-	// Add all the child plan counts to the parents.
-	type x struct {
-		total, last_month int
-		code              string
-	}
-	ch := make(map[int64][]x)
-	aa := *a
-	for _, s := range aa {
-		if s.Parent == nil {
-			continue
-		}
-		ch[*s.Parent] = append(ch[*s.Parent], x{code: s.Code, total: s.Total, last_month: s.LastMonth})
-	}
-
-	filter := make(BosmangStats, 0, len(aa))
 	curr := strings.NewReplacer("EUR ", "€", "USD ", "$")
-	for _, s := range aa {
-		c, ok := ch[s.ID]
-		if !ok {
-			filter = append(filter, s)
-			continue
+	aa := *a
+	for i := range aa {
+		if aa[i].BillingAmount != nil {
+			aa[i].BillingAmount = zstring.NewPtr(curr.Replace(*aa[i].BillingAmount)).P
 		}
-
-		for _, cc := range c {
-			s.Total += cc.total
-			s.LastMonth += cc.last_month
-			s.Code += " | " + cc.code
-		}
-
-		if s.BillingAmount != nil {
-			s.BillingAmount = zstring.NewPtr(curr.Replace(*s.BillingAmount)).P
-		}
-		filter = append(filter, s)
 	}
-
-	sort.Slice(filter, func(i, j int) bool { return filter[i].LastMonth > filter[j].LastMonth })
-	*a = filter
 	return nil
 }
 
 type BosmangSiteStat struct {
-	MainSite Site  `db:"-"`
-	Sites    Sites `db:"-"`
-	Users    Users `db:"-"`
-
-	Stats []struct {
-		Code           string    `db:"code"`
-		LastData       time.Time `db:"last_data"`
-		CountTotal     int       `db:"count_total"`
-		CountLastMonth int       `db:"count_last_month"`
-		CountPrevMonth int       `db:"count_prev_month"`
-	}
+	Account Site
+	Sites   Sites
+	Users   Users
+	Usage   AccountUsage
 }
 
 // ByID gets stats for a single site.
 func (a *BosmangSiteStat) ByID(ctx context.Context, id int64) error {
-	err := a.MainSite.ByID(ctx, id)
+	err := a.Account.ByID(ctx, id)
 	if err != nil {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
-	err = a.MainSite.GetMain(ctx)
+	err = a.Account.GetMain(ctx)
 	if err != nil {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
-	err = a.Sites.ForThisAccount(WithSite(ctx, &a.MainSite), false)
+	err = a.Sites.ForThisAccount(WithSite(ctx, &a.Account), false)
 	if err != nil {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
@@ -113,37 +74,7 @@ func (a *BosmangSiteStat) ByID(ctx context.Context, id int64) error {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
 
-	var (
-		ival30 = interval(ctx, 30)
-		ival60 = interval(ctx, 60)
-		query  []string
-	)
-	for _, s := range a.Sites {
-		query = append(query, fmt.Sprintf(`
-			select
-				(select code from sites where site_id=%[1]d),
-
-				coalesce((
-					select hour from hit_counts where site_id=%[1]d order by hour desc limit 1),
-				'1970-01-01') as last_data,
-
-				coalesce((
-					select sum(total) from hit_counts where site_id=%[1]d),
-				0) as count_total,
-
-				coalesce((
-					select sum(total) from hit_counts where site_id=%[1]d
-					and hour >= %[2]s),
-				0) as count_last_month,
-
-				coalesce((
-					select sum(total) from hit_counts where site_id=%[1]d and hour >= %[3]s and hour <= %[2]s
-				), 0) as count_prev_month
-			`, s.ID, ival30, ival60))
-	}
-
-	err = zdb.Select(ctx, &a.Stats,
-		"/* BosmangSiteStat.ByID */\n"+strings.Join(query, "union\n")+"\norder by count_total desc")
+	err = a.Usage.Get(WithSite(ctx, &a.Account))
 	return errors.Wrap(err, "BosmangSiteStats.ByID")
 }
 

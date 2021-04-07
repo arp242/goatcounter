@@ -13,16 +13,19 @@ is useful for you to ensure the long-term viability.</p>
 <p>Ways to contribute:</p>
 
 <ul>
-	<li><a href="https://github.com/sponsors/arp242">GitHub sponsor</a></li>
+	<li><a href="https://github.com/sponsors/arp242">GitHub sponsor</a> – includes a one-time donation option.</li>
 	<li>Subscribe to a plan on www.goatcounter.com</li>
 	<li><a href="https://patreon.com/arp242">Patreon</a></li>
 	<li>goatcounter.com is a Brave Verified Creator, and you can send Brave rewards.</li>
 </ul>
 
 <h2 id="donate">One-time donation</h2>
+
 {{if .FromWWW}}
 <p>You can also send a one-time donation with the form below; the payments are
-processed by Stripe (you will need a Credit Card).</p>
+processed by Stripe (you will need a Credit Card). You can also use
+<a href="https://github.com/sponsors/arp242">GitHub sponsors</a> to make a
+one-time donation.</p>
 
 <script src="https://js.stripe.com/v3"></script>
 <form method="get" action="" id="donate-form" data-key="{{.StripePublicKey}}" data-sku="{{.SKU}}" >
@@ -43,8 +46,8 @@ processed by Stripe (you will need a Credit Card).</p>
 </form>
 {{else}}
 <p>You can use the form at
-	<a href="https://www.goatcounter.com/contribute">goatcounter.com/contribute</a>
-	to make a one-time donation.</p>
+	<a href="https://www.goatcounter.com/contribute">goatcounter.com/contribute</a> or
+	<a href="https://github.com/sponsors/arp242">GitHub sponsors</a> to make a one-time donation.</p>
 {{end}}
 
 {{template "_bottom.gohtml" .}}

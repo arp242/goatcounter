@@ -1,31 +1,88 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
-{{if .Subscribed}}
-	<p>Currently on the <em>{{if eq .MainSite.Plan "personalplus"}}starter{{else}}{{.MainSite.Plan}}{{end}}</em> plan; paying with {{.Payment}}.</p>
+<div class="side-by-side boxed">
+	<div>
+		<h2>Plan info</h2>
+		<p>Currently using the <em>{{.Usage.Plan.Name}}</em> plan; the limits
+		for this are {{nformat .Usage.Plan.MonthlyHits .User}} pageviews a
+		month, with {{if .Usage.Plan.MaxHits}}{{nformat .Usage.Plan.MaxHits .User}}{{else}}unlimited{{end}} total pageviews.</p>
 
-	{{if .External}}
-		The plan was set up through your contribution at {{.External}}, and can’t be cancelled or changed here.<br>
-		Get in touch at <a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-		if you want to change it or have any questions about it.
-	{{else}}
+		{{if and .Account.Subscribed .Account.PayExternal}}
+			The plan was set up through your contribution at {{.Account.PayExternal}}, and can’t be cancelled or changed here.<br>
+			Get in touch at <a href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+			if you want to change it or have any questions about it.
+		{{else if .Account.Subscribed}}
+			<p>
+				{{if .Account.PlanCancelAt}}
+					This subscription is scheduled to be <strong>cancelled</strong> on {{.Account.PlanCancelAt.Format "Jan"}} {{ord .Account.NextInvoice.Day}}.
+				{{else}}
+					Your next invoice will be on {{.Account.NextInvoice.Format "Jan"}} {{ord .Account.NextInvoice.Day}}.
+				{{end}}
+			</p>
+			<form method="post" action="/billing/manage" id="billing-manage">
+				<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
+				<button type="submit" class="link">Manage subscription</button>
+			</form>
+		{{end}}
+	</div>
+
+	<div id="usage">
+		<h2>Usage</h2>
+		<p>Your billing period starts at the {{.Account.BillingAnchorDay | ord}} of every month, at which point the monthly limits reset.</p>
+
 		<p>
-			{{if .Cancel}}
-				This subscription is scheduled to be <strong>cancelled</strong> on {{.Cancel}}
+			<strong>Total pageviews stored:</strong>
+			{{if .Usage.Plan.MaxHits}}
+			<span class="perc">{{percentage .Usage.Total.Total .Usage.Plan.MaxHits | printf "%.0f"}}%</span>
+			({{nformat .Usage.Total.Total .User}} out of {{nformat .Usage.Plan.MaxHits .User}})
 			{{else}}
-				{{.Next}}
+			<span class="perc">-</span>
+			{{nformat .Usage.Total.Total .User}} (no limit)
 			{{end}}
+			<br>
+			<strong>Pageviews this billing period:</strong>
+			<span class="perc">{{percentage .Usage.Total.ThisPeriod .Usage.Plan.MonthlyHits | printf "%.0f"}}%</span>
+			({{nformat .Usage.Total.ThisPeriod .User}} out of {{nformat .Usage.Plan.MonthlyHits .User}})
+			<br>
+			<strong>Pageviews last billing period:</strong>
+			<span class="perc">{{percentage .Usage.Total.PrevPeriod .Usage.Plan.MonthlyHits | printf "%.0f"}}%</span>
+			({{nformat .Usage.Total.PrevPeriod .User}})
 		</p>
-		<form method="post" action="/billing/manage" id="billing-manage">
-			<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
-			<button type="submit" class="link">Manage subscription</button>
-		</form>
-	{{end}}
+
+		{{if gt (len .Usage.Stats) 1}}
+		<table>
+			<thead>
+				<tr>
+					<th>Site</th>
+					<th>Total</th>
+					<th>This billing period</th>
+					<th>Previous billing period</th>
+				</tr>
+			</thead>
+			<tbody>
+			{{range $u := .Usage.Stats}}
+				<tr>
+					<td>{{$u.Code}}</td>
+					<td>{{nformat $u.Total $.User}}</td>
+					<td>{{nformat $u.ThisPeriod $.User}}</td>
+					<td>{{nformat $u.PrevPeriod $.User}}</td>
+				</tr>
+			{{end}}
+			</tbody></table>
+		{{end}}
+	</div>
+</div>
+
+{{if .Account.Subscribed}}
+<h2>Billing FAQ</h2>
+{{template "_billing_help.gohtml" .}}
+
 {{else}}
 
 <script src="https://js.stripe.com/v3"></script>
 <div id="stripe-error"></div>
-<h1>Plans</h1>
+<h1>Subscribe to a plan</h1>
 <form method="post" action="/billing/start" id="billing-form" data-key="{{.StripePublicKey}}">
 	<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
 
@@ -41,14 +98,16 @@
 
 		<p>Other ways to contribute:</p>
 		<ul>
-			<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a></li>
+			<li><a href="https://github.com/sponsors/arp242">GitHub sponsors</a> (also includes a one-time donation option).</li>
+			<li><a href="https://patreon.com/arp242">Patreon</a></li>
 			<li><a href="https://www.goatcounter.com/contribute#donate">One-time donation</a>; recurring payments are preferred as it’s more predictable</li>
+			<li>goatcounter.com is a Brave Verified Creator, and you can send Brave rewards.</li>
 		</ul>
 	</fieldset>
 
 	<center>
 		<button type="submit">Continue</button>
-		{{if not .MainSite.Stripe}}
+		{{if not .Account.Stripe}}
 			<div class="free"><br><button class="link" id="nodonate"><strong>Disable banner without donating</strong></button></div>
 		{{end}}
 
@@ -58,6 +117,11 @@
 		</small></p>
 	</center>
 </form>
-{{end}} {{/* if .Subscribed */}}
+<div id="home-pricing-faq">
+	<h3 id="pricing-faq">Pricing FAQ</h3>
+	{{template "_billing_help.gohtml" .}}
+</div>
+
+{{end}}
 
 {{template "_backend_bottom.gohtml" .}}

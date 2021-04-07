@@ -9,6 +9,11 @@ Unreleased
 ----------
 - List exports in Settings → Export/Import.
 
+- The visitor counter now supports the `start` and `end` parameters and the JSON
+  endpoint returns `count` as well, to get the total pageview count.
+
+- The billing page displays the account usage.
+
 
 2021-04-02 v2.0.3
 -----------------

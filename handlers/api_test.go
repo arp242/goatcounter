@@ -486,12 +486,12 @@ func TestAPISitesUpdate(t *testing.T) {
 		{false, "PATCH", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
 			s.Cname = zstring.NewPtr("gctest.localhost").P
-			s.Plan = "personal"
+			s.Plan = goatcounter.PlanFree
 		}},
 		{false, "POST", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
 			//s.Cname = zstring.NewPtr("gctest.localhost").P
-			s.Plan = "personal"
+			s.Plan = goatcounter.PlanFree
 		}},
 	}
 

@@ -5,6 +5,7 @@ table    { max-width: none !important; }
 td       { white-space: nowrap; vertical-align: top; }
 pre      { white-space: pre-wrap; border: 0; background-color: transparent; margin: 0; }
 th       { text-align: left; }
+tr:hover { background-color: #f9f9f9; }
 .n       { text-align: right; }
 input    { float: right; padding: .4em !important; }
 .sort th { color: blue; cursor: pointer; }
@@ -23,7 +24,7 @@ input    { float: right; padding: .4em !important; }
 	<th class="n" style="width: 6em">Total hits</th>
 	<th class="n" style="width: 6em">Last 30d</th>
 	<th class="n" style="width: 6em">Avg.</th>
-	<th>Site</th>
+	<th class="s n">Site</th>
 	<th>Codes</th>
 	<th>Plan</th>
 	<th class="n">€</th>
@@ -34,27 +35,19 @@ input    { float: right; padding: .4em !important; }
 		<td class="n">{{nformat $s.Total $.User}}</td>
 		<td class="n">{{nformat $s.LastMonth $.User}}</td>
 		<td class="n">{{nformat $s.Avg $.User}}</td>
-		<td class="s"><a href="/bosmang/{{$s.ID}}">{{$s.ID}}</a></td>
-		<td class="c">{{$s.Code}}</td>
+		<td class="s n"><a href="/bosmang/{{$s.ID}}">{{$s.ID}}</a></td>
+		<td class="c">{{$s.Codes}}</td>
 		<td>
 			{{- if $s.Stripe -}}
 				{{- if has_prefix $s.Stripe "cus_github" -}}
 					<a href="https://github.com/{{substr $s.Stripe 11 -1}}">
-				{{- else if not (has_prefix $s.Stripe "cus_free_") -}}
+				{{- else if $s.Stripe -}}
 					<a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">
 				{{- end -}}
-				{{- if eq $s.Plan "free" -}}z{{end}}{{$s.Plan}}</a>
-			{{else}}
-				{{if eq $s.Plan "child"}}
-					child of <a href="#{{$s.Parent}}">{{$s.Parent}}</a>
-				{{else}}
-					zfree
-				{{end}}
-			{{end}}
+			{{- end -}}
+			{{- if eq $s.Plan "free" -}}z{{end}}{{$s.Plan}}{{if $s.Stripe}}</a>{{end}}
 		</td>
-		<td class="n">
-			{{- if ne $s.Plan "free"}}{{if $s.BillingAmount}}{{$s.BillingAmount}}{{else}}???{{end}}{{end}}
-		</td>
+		<td class="n">{{if $s.BillingAmount}}{{$s.BillingAmount}}{{end}}</td>
 		<td>{{tformat $s.CreatedAt "" $.User}}</td>
 	</tr>
 {{end}}</tbody>

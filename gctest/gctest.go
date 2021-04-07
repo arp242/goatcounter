@@ -108,7 +108,7 @@ func db(t testing.TB, storeFile bool) context.Context {
 }
 
 func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
-	site := goatcounter.Site{Code: "gctest", Cname: zstring.NewPtr("gctest.localhost").P, Plan: goatcounter.PlanPersonal}
+	site := goatcounter.Site{Code: "gctest", Cname: zstring.NewPtr("gctest.localhost").P, Plan: goatcounter.PlanFree}
 	err := site.Insert(ctx)
 	if err != nil {
 		t.Fatalf("create site: %s", err)
@@ -188,7 +188,7 @@ func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatc
 		site.Code = "gctest-" + zcrypto.Secret64()
 	}
 	if site.Plan == "" {
-		site.Plan = goatcounter.PlanPersonal
+		site.Plan = goatcounter.PlanFree
 	}
 
 	err := site.Insert(ctx)
@@ -196,6 +196,10 @@ func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatc
 		t.Fatal(err)
 	}
 	ctx = goatcounter.WithSite(ctx, site)
+	err = site.UpdateStripe(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	user.Site = site.ID
 	if user.Email == "" {

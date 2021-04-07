@@ -1,6 +1,6 @@
 {{if .Site}}<fieldset id="home-pricing" class="plan"><span>{{else}}<div id="home-pricing">{{end}}
 	{{if .Site -}}
-		<input type="radio" name="plan" id="personal" value="personal" {{if eq .Site.Plan "personal"}}checked{{end}}>
+		<input type="radio" name="plan" id="personal" value="personal" {{if or (eq .Site.Plan "personal") (eq .Site.Plan "free")}}checked{{end}}>
 	{{- end}}
 	{{if .Site}}<label for="personal">{{else}}<div>{{end}}
 		<h3>Free</h3>
@@ -16,9 +16,9 @@
 	{{if .Site}}</label>{{else}}</div>{{end}}
 
 	{{if .Site -}}
-		<input type="radio" name="plan" id="personalplus" value="personalplus" {{if eq .Site.Plan "starter"}}checked{{end}}>
+		<input type="radio" name="plan" id="starter" value="starter" {{if eq .Site.Plan "starter"}}checked{{end}}>
 	{{- end}}
-	{{if .Site}}<label for="personalplus">{{else}}<div>{{end}}
+	{{if .Site}}<label for="starter">{{else}}<div>{{end}}
 		<h3>Starter</h3>
 		<ul>
 			<li>€5/month</li>
@@ -63,10 +63,3 @@
 		</ul>
 	{{if .Site}}</label>{{else}}</div>{{end}}
 {{if .Site}}</span></fieldset>{{else}}</div>{{end}}
-<div id="home-pricing-custom">
-	<a href="/contact">Contact</a> if you need more pageviews or want a privately installed hosted option.<br>
-</div>
-<div id="home-pricing-faq">
-	<h3 id="pricing-faq">Pricing FAQ</h3>
-	{{template "_billing_help.gohtml" .}}
-</div>

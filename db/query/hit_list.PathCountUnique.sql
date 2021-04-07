@@ -4,13 +4,13 @@ with x as (
 )
 select
 	path,
-	coalesce(sum((
-		select sum(total_unique)
+	(
+		select coalesce(sum(total_unique), 0)
 		from hit_counts where
 			site_id = :site and
 			path_id = x.path_id
 			{{:start and hour >= :start}}
 			{{:end   and hour <= :end}}
-	)), 0) as count_unique
+	) as count_unique
 from x
-group by path
+group by path, path_id

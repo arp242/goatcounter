@@ -367,12 +367,12 @@ func TestHitListsPathCountUnique(t *testing.T) {
 	)
 
 	{
-		var hl HitLists
+		var hl HitList
 		err := hl.PathCountUnique(ctx, "/", ztime.Range{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `[{0 5 0 / false  <nil> 0 []}]`
+		want := `{0 5 0 / false  <nil> 0 []}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
@@ -380,14 +380,14 @@ func TestHitListsPathCountUnique(t *testing.T) {
 	}
 
 	{
-		var hl HitLists
+		var hl HitList
 		err := hl.PathCountUnique(ctx, "/", ztime.NewRange(
 			ztime.Now().Add(-8*24*time.Hour)).
 			To(ztime.Now().Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `[{0 2 0 / false  <nil> 0 []}]`
+		want := `{0 2 0 / false  <nil> 0 []}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
@@ -412,12 +412,12 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 	)
 
 	{
-		var hl HitLists
-		err := hl.SiteTotalUnique(ctx, ztime.Range{})
+		var hl HitList
+		err := hl.SiteTotalUTC(ctx, ztime.Range{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `[{0 7 0  false  <nil> 0 []}]`
+		want := `{8 7 0  false  <nil> 0 []}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
@@ -425,14 +425,14 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 	}
 
 	{
-		var hl HitLists
-		err := hl.SiteTotalUnique(ctx, ztime.NewRange(
+		var hl HitList
+		err := hl.SiteTotalUTC(ctx, ztime.NewRange(
 			ztime.Now().Add(-8*24*time.Hour)).
 			To(ztime.Now().Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `[{0 3 0  false  <nil> 0 []}]`
+		want := `{3 3 0  false  <nil> 0 []}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)

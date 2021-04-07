@@ -2,66 +2,68 @@
 
 <h2>Bosmang</h2>
 
-<form method="post" action="/bosmang/{{.Stat.MainSite.ID}}/update-billing" class="vertical">
+<form method="post" action="/bosmang/{{.Stat.Account.ID}}/update-billing" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>
 		<legend>Set plan</legend>
 
-		{{if .Stat.MainSite.Stripe}}
-			{{- if has_prefix .Stat.MainSite.Stripe "cus_github" -}}
-				<a href="https://github.com/{{substr .Stat.MainSite.Stripe 11 -1}}">GitHub</a>
-			{{- else if not (has_prefix .Stat.MainSite.Stripe "cus_free_") -}}
-				<a href="https://dashboard.stripe.com/customers/{{.Stat.MainSite.Stripe}}">Stripe</a>
+		{{if .Stat.Account.Stripe}}
+			{{- if has_prefix .Stat.Account.Stripe "cus_github" -}}
+				<a href="https://github.com/{{substr .Stat.Account.Stripe 11 -1}}">GitHub</a>
+			{{- else -}}
+				<a href="https://dashboard.stripe.com/customers/{{.Stat.Account.Stripe}}">Stripe</a>
 			{{end}}
 		{{end}}
 
-		<label for="stripe">Stripe customer (GitHub: <code>cus_github_[user]</code>, free: <code>cus_free_[id]</code>)</label>
-		<input type="text" name="stripe" id="stripe" value="{{if .Stat.MainSite.Stripe}}{{.Stat.MainSite.Stripe}}{{end}}">
+		<label for="stripe">Stripe customer (GitHub: <code>cus_github_[user]</code>)</label>
+		<input type="text" name="stripe" id="stripe" value="{{if .Stat.Account.Stripe}}{{.Stat.Account.Stripe}}{{end}}">
 
 		<label for="currency">Amount (as "EUR 5"; USD for GitHub, EUR otherwise)</label>
-		<input type="text" name="amount" id="amount" value="{{if .Stat.MainSite.BillingAmount}}{{.Stat.MainSite.BillingAmount}}{{end}}">
+		<input type="text" name="amount" id="amount" value="{{if .Stat.Account.BillingAmount}}{{.Stat.Account.BillingAmount}}{{end}}">
 
 		<label for="plan">Plan</label>
 		<select name="plan" id="plan">
-			<option {{option_value .Stat.MainSite.Plan "personal"}}>personal</option>
-			<option {{option_value .Stat.MainSite.Plan "personalplus"}}>starter</option>
-			<option {{option_value .Stat.MainSite.Plan "business"}}>business</option>
-			<option {{option_value .Stat.MainSite.Plan "businessplus"}}>businessplus</option>
+			<option {{option_value .Stat.Account.Plan "trial"}}>trial</option>
+			<option {{option_value .Stat.Account.Plan "free"}}>free</option>
+			<option {{option_value .Stat.Account.Plan "personal"}}>personal</option>
+			<option {{option_value .Stat.Account.Plan "starter"}}>starter</option>
+			<option {{option_value .Stat.Account.Plan "business"}}>business</option>
+			<option {{option_value .Stat.Account.Plan "businessplus"}}>businessplus</option>
 		</select>
 
 		<label for="plan_pending">Plan pending</label>
 		<select name="plan_pending" id="plan_pending">
-			{{if .Stat.MainSite.PlanPending}}
-				<option {{option_value .Stat.MainSite.PlanPending ""}}>nil</option>
-				<option {{option_value .Stat.MainSite.PlanPending "personal"}}>personal</option>
-				<option {{option_value .Stat.MainSite.PlanPending "personalplus"}}>starter</option>
-				<option {{option_value .Stat.MainSite.PlanPending "business"}}>business</option>
-				<option {{option_value .Stat.MainSite.PlanPending "businessplus"}}>businessplus</option>
+			{{if .Stat.Account.PlanPending}}
+				<option {{option_value .Stat.Account.PlanPending ""}}>nil</option>
+				<option {{option_value .Stat.Account.PlanPending "personal"}}>personal</option>
+				<option {{option_value .Stat.Account.PlanPending "starter"}}>starter</option>
+				<option {{option_value .Stat.Account.PlanPending "business"}}>business</option>
+				<option {{option_value .Stat.Account.PlanPending "businessplus"}}>businessplus</option>
 			{{else}}
 				<option value="">nil</option>
 				<option value="personal">personal</option>
-				<option value="personalplus">starter</option>
+				<option value="starter">starter</option>
 				<option value="business">business</option>
 				<option value="businessplus">businessplus</option>
 			{{end}}
 		</select>
 
 		<label for="plan_cancel_at">Cancel at</label>
-		<input type="text" name="plan_cancel_at" id="plan_cancel_at" value="{{if .Stat.MainSite.PlanCancelAt}}{{.Stat.MainSite.PlanCancelAt.Format "2006-01-02 15:04:05"}}{{end}}">
+		<input type="text" name="plan_cancel_at" id="plan_cancel_at" value="{{if .Stat.Account.PlanCancelAt}}{{.Stat.Account.PlanCancelAt.Format "2006-01-02 15:04:05"}}{{end}}">
 
 		<label for="notes">Notes</label>
-		<textarea id="notes" name="notes" style="max-width: 50em; height: 5em;">{{.Stat.MainSite.Notes}}</textarea>
+		<textarea id="notes" name="notes" style="max-width: 50em; height: 5em;">{{.Stat.Account.Notes}}</textarea>
 
 		<br>
 		<button type="submit">Update</button>
 	</fieldset>
 </form>
 
-<form method="post" action="/bosmang/login/{{.Stat.MainSite.ID}}" class="vertical">
+<form method="post" action="/bosmang/login/{{.Stat.Account.ID}}" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>
 		<legend>Admin access</legend>
-		{{if .Stat.MainSite.Settings.AllowBosmang}}
+		{{if .Stat.Account.Settings.AllowBosmang}}
 			<button type="submit">View site</button>
 		{{else}}
 			Admin access not enabled.
@@ -73,20 +75,24 @@
 	<thead>
 		<tr>
 			<th>Code</th>
-			<th>Last data received</th>
 			<th>Total</th>
-			<th>Last 30 days</th>
-			<th>30-60 days ago</th>
+			<th>Current period</th>
+			<th>Last period</th>
 		</tr>
 	</thead>
 	<tbody>
-		{{range $s := .Stat.Stats}}
+		<tr style="background-color: yellow;">
+			<td>Total</td>
+			<td>{{nformat .Stat.Usage.Total.Total .User}}</td>
+			<td>{{nformat .Stat.Usage.Total.ThisPeriod .User}}</td>
+			<td>{{nformat .Stat.Usage.Total.PrevPeriod .User}}</td>
+		</tr>
+		{{range $s := .Stat.Usage.Stats}}
 			<tr>
 				<td>{{$s.Code}}</td>
-				<td>{{$s.LastData.Format "2006-01-02"}}</td>
-				<td>{{nformat $s.CountTotal $.User}}</td>
-				<td>{{nformat $s.CountLastMonth $.User}}</td>
-				<td>{{nformat $s.CountPrevMonth $.User}}</td>
+				<td>{{nformat $s.Total $.User}}</td>
+				<td>{{nformat $s.ThisPeriod $.User}}</td>
+				<td>{{nformat $s.PrevPeriod $.User}}</td>
 			</tr>
 		{{end}}
 	</tbody>

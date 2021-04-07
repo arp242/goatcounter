@@ -138,19 +138,16 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	var hs goatcounter.HitLists
+	var hl goatcounter.HitList
 	if total {
-		err = hs.SiteTotalUnique(r.Context(), rng)
+		err = hl.SiteTotalUTC(r.Context(), rng)
 	} else {
-		err = hs.PathCountUnique(r.Context(), path, rng)
+		err = hl.PathCountUnique(r.Context(), path, rng)
 	}
 	if err != nil {
 		return err
 	}
-	if len(hs) == 0 {
-		hs = goatcounter.HitLists{{}}
-	}
-	count := tplfunc.Number(hs[0].CountUnique, site.UserDefaults.NumberFormat)
+	count := tplfunc.Number(hl.CountUnique, site.UserDefaults.NumberFormat)
 
 	switch ext {
 	default:

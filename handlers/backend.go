@@ -5,7 +5,6 @@
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -24,7 +23,6 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstripe"
@@ -76,7 +74,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		panic(err)
 	}
 
-	website{fsys, false, ""}.MountShared(r)
+	website{fsys, false}.MountShared(r)
 	api{}.mount(r, db)
 	vcounter{static}.mount(r)
 
@@ -396,40 +394,6 @@ func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
 		Updates goatcounter.Updates
 		SeenAt  time.Time
 	}{newGlobals(w, r), up, seenat})
-}
-
-func hasPlan(ctx context.Context, site *goatcounter.Site) (bool, error) {
-	if !goatcounter.Config(ctx).GoatcounterCom || site.Plan == goatcounter.PlanChild ||
-		site.Stripe == nil || *site.Stripe == "" || site.FreePlan() || site.PayExternal() != "" {
-		return false, nil
-	}
-
-	var customer struct {
-		Subscriptions struct {
-			Data []struct {
-				CancelAtPeriodEnd bool            `json:"cancel_at_period_end"`
-				CurrentPeriodEnd  zjson.Timestamp `json:"current_period_end"`
-				Plan              struct {
-					Quantity int `json:"quantity"`
-				} `json:"plan"`
-			} `json:"data"`
-		} `json:"subscriptions"`
-	}
-	_, err := zstripe.Request(&customer, "GET",
-		fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
-	if err != nil {
-		return false, err
-	}
-
-	if len(customer.Subscriptions.Data) == 0 {
-		return false, nil
-	}
-
-	if customer.Subscriptions.Data[0].CancelAtPeriodEnd {
-		return false, nil
-	}
-
-	return true, nil
 }
 
 func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, user *goatcounter.User) (ztime.Range, error) {

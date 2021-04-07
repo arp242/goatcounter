@@ -13,7 +13,7 @@ import (
 	"zgo.at/zdb"
 )
 
-func newWebsite(db zdb.DB) chi.Router { return NewWebsite(db, true, "personal") }
+func newWebsite(db zdb.DB) chi.Router { return NewWebsite(db, true) }
 
 func TestWebsiteTpl(t *testing.T) {
 	tests := []struct {

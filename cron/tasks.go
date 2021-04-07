@@ -290,7 +290,7 @@ func cancelPlan(ctx context.Context) error {
 
 	for _, s := range sites {
 		s.BillingAmount = nil
-		s.Plan = goatcounter.PlanPersonal
+		s.Plan = goatcounter.PlanFree
 		s.PlanPending = nil
 		s.PlanCancelAt = nil
 		err := s.UpdateStripe(ctx)

@@ -19,20 +19,23 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/znet"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
 // Plan column values.
 const (
+	PlanTrial        = "trial"
+	PlanFree         = "free"
 	PlanPersonal     = "personal"
-	PlanStarter      = "personalplus"
+	PlanStarter      = "starter"
 	PlanBusiness     = "business"
 	PlanBusinessPlus = "businessplus"
 	PlanChild        = "child"
 )
 
-var Plans = []string{PlanPersonal, PlanStarter, PlanBusiness, PlanBusinessPlus}
+var PlanCodes = []string{PlanTrial, PlanFree, PlanPersonal, PlanStarter, PlanBusiness, PlanBusinessPlus}
 
 var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
@@ -78,6 +81,9 @@ type Site struct {
 
 	// Amount is being paid for the plan.
 	BillingAmount *string `db:"billing_amount" json:"billing_amount,readonly"`
+
+	// Maximum number of extra pageviews to charge for.
+	ExtraPageviews *int `db:"extra_pageviews" json:"extra_pageviews,readonly"`
 
 	// "Anchor" for the billing period.
 	//
@@ -157,13 +163,13 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Required("state", s.State)
 	v.Include("state", s.State, States)
 	if s.Parent == nil {
-		v.Include("plan", s.Plan, Plans)
+		v.Include("plan", s.Plan, PlanCodes)
 	} else {
 		v.Include("plan", s.Plan, []string{PlanChild})
 	}
 
 	if s.PlanPending != nil {
-		v.Include("plan_pending", *s.PlanPending, Plans)
+		v.Include("plan_pending", *s.PlanPending, PlanCodes)
 		if s.Parent != nil {
 			v.Append("plan_pending", "can't be set if there's a parent")
 		}
@@ -646,24 +652,19 @@ var trialPeriod = time.Hour * 24 * 14
 //
 //lint:ignore U1001 used in template.
 func (s Site) ShowPayBanner(ctx context.Context) bool {
-	if s.Parent != nil {
-		var ps Site
-		err := ps.ByID(ctx, *s.Parent)
-		if err != nil {
-			zlog.Error(err)
-			return false
-		}
-		return ps.ShowPayBanner(ctx)
-	}
-
-	if s.Stripe != nil {
-		return false
-	}
-	return -ztime.Now().Sub(s.CreatedAt.Add(trialPeriod)) < 0
+	account := GetAccount(ctx)
+	return account.Plan == PlanTrial && -ztime.Now().Sub(account.CreatedAt.Add(trialPeriod)) < 0
 }
 
-func (s Site) FreePlan() bool {
-	return s.Stripe != nil && strings.HasPrefix(*s.Stripe, "cus_free_")
+// StripeCustomer reports if this Stripe column refers to a Stripe customer.
+func (s Site) StripeCustomer() bool {
+	return s.Stripe != nil && !zstring.HasPrefixes(*s.Stripe, "cus_github", "cus_patreon_")
+}
+
+// Subscribed reports if this customer is currently a paying customer subscribed
+// to a plan. This may be payed outside of GoatCounter (e.g. GitHub).
+func (s Site) Subscribed() bool {
+	return s.BillingAmount != nil
 }
 
 // PayExternal gets the external payment name, or an empty string if there is
@@ -759,6 +760,26 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 // TODO: should probably be on the user.
 func (s Site) Bosmang() bool {
 	return s.ID == 1
+}
+
+func (s Site) BillingAnchorDay() int {
+	if s.BillingAnchor == nil {
+		return 1
+	}
+	return s.BillingAnchor.Day()
+}
+
+func (s Site) NextInvoice() time.Time {
+	if s.BillingAnchor == nil {
+		return ztime.Time{ztime.Now()}.Add(1, ztime.Month).StartOf(ztime.Month).Time
+	}
+
+	diff := ztime.NewRange(*s.BillingAnchor).To(ztime.Now()).Diff(ztime.Month)
+	if ztime.Now().Day() > s.BillingAnchor.Day() {
+		diff.Months++
+	}
+	n := ztime.Add(*s.BillingAnchor, diff.Months, ztime.Month)
+	return ztime.StartOf(n, ztime.Day)
 }
 
 // Sites is a list of sites.
@@ -869,4 +890,119 @@ func (s *Sites) Delete(ctx context.Context, deleteChildren bool) error {
 		return nil
 	})
 	return errors.Wrap(err, "Sites.Delete")
+}
+
+// Plan represents a plan people can subscribe to.
+type Plan struct {
+	Code        string
+	Name        string
+	Price       int
+	MaxHits     int
+	MonthlyHits int
+}
+
+type Plans []Plan
+
+func (p Plans) Find(s *Site) Plan {
+	for _, pp := range p {
+		if pp.Code == s.Plan {
+			return pp
+		}
+	}
+	return Plan{}
+}
+
+var planDetails = Plans{
+	{
+		Code:        PlanTrial,
+		Name:        "Free",
+		MaxHits:     2_400_00,
+		MonthlyHits: 100_000,
+	}, {
+		Code:        PlanFree,
+		Name:        "Free",
+		MaxHits:     2_400_00,
+		MonthlyHits: 100_000,
+	}, {
+		Code:        PlanPersonal,
+		Name:        "Personal",
+		MaxHits:     2_400_00,
+		MonthlyHits: 100_000,
+	}, {
+		Code:        PlanStarter,
+		Name:        "Starter",
+		MaxHits:     4_800_000,
+		MonthlyHits: 100_000,
+		Price:       500,
+	}, {
+		Code:        PlanBusiness,
+		Name:        "Business",
+		MaxHits:     24_000_000,
+		MonthlyHits: 500_000,
+		Price:       1500,
+	}, {
+		Code:        PlanBusinessPlus,
+		Name:        "Business plus",
+		MaxHits:     0,
+		MonthlyHits: 1_000_000,
+		Price:       3000,
+	}, {
+		Code: PlanChild,
+		Name: "Child",
+	},
+}
+
+type AccountUsage struct {
+	Plan                          Plan
+	ThisStart, PrevStart, PrevEnd time.Time
+	Stats                         []AccountUsageStats
+	Total                         AccountUsageStats
+}
+
+type AccountUsageStats struct {
+	Code       string `db:"code"`
+	Total      int    `db:"total"`
+	ThisPeriod int    `db:"this_period"`
+	PrevPeriod int    `db:"prev_period"`
+}
+
+func (a *AccountUsage) Get(ctx context.Context) error {
+	account := GetAccount(ctx)
+	a.Plan = planDetails.Find(account)
+
+	var sites Sites
+	err := sites.ForThisAccount(WithSite(ctx, account), false)
+	if err != nil {
+		return errors.Wrap(err, "AccountUsage.Get")
+	}
+
+	a.ThisStart = ztime.Add(account.NextInvoice(), -1, ztime.Month)
+	a.PrevStart = ztime.Add(a.ThisStart, -1, ztime.Month)
+	a.PrevEnd = ztime.EndOf(a.ThisStart.AddDate(0, 0, -1), ztime.Day)
+	var query []string
+	for _, s := range sites {
+		query = append(query, fmt.Sprintf(`select
+			(select code from sites where site_id=%[1]d) as code,
+			(select coalesce(sum(total), 0) from hit_counts where site_id=%[1]d)                                     as total,
+			(select coalesce(sum(total), 0) from hit_counts where site_id=%[1]d and hour>='%[2]s')                   as this_period,
+			(select coalesce(sum(total), 0) from hit_counts where site_id=%[1]d and hour>='%[3]s' and hour<'%[4]s')  as prev_period`,
+			s.ID,
+			a.ThisStart.Format("2006-01-02 15:04:05"),
+			a.PrevStart.Format("2006-01-02 15:04:05"),
+			a.PrevEnd.Format("2006-01-02 15:04:05"),
+		))
+	}
+
+	err = zdb.Select(ctx, &a.Stats,
+		"/* AccountUsage.Get */\n"+strings.Join(query, "\nunion ")+"\norder by code asc")
+	if err != nil {
+		return errors.Wrap(err, "AccountUsage.Get")
+	}
+
+	for _, s := range a.Stats {
+		a.Total.PrevPeriod += s.PrevPeriod
+		a.Total.ThisPeriod += s.ThisPeriod
+		a.Total.Total += s.Total
+	}
+	return nil
 }

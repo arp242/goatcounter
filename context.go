@@ -6,6 +6,7 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"zgo.at/zcache"
@@ -59,6 +60,17 @@ func MustGetSite(ctx context.Context) *Site {
 	s, ok := ctx.Value(ctxkey.Site).(*Site)
 	if !ok {
 		panic("MustGetSite: no site on context")
+	}
+	return s
+}
+
+// GetAccount gets this site's "account site" on which the users, billing, etc.
+// are stored.
+func GetAccount(ctx context.Context) *Site {
+	s := MustGetSite(ctx)
+	err := s.GetMain(ctx)
+	if err != nil {
+		panic(fmt.Errorf("GetAccount: %w", err))
 	}
 	return s
 }

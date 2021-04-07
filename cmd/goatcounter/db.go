@@ -651,9 +651,9 @@ func cmdDBSiteCreate(ctx context.Context, vhost, email, link, pwd string) error 
 		return fmt.Errorf("there is already a site for the host %q", vhost)
 	}
 
-	var mainSite goatcounter.Site
+	var account goatcounter.Site
 	if link != "" {
-		mainSite, err = findParent(ctx, link)
+		account, err = findParent(ctx, link)
 		if err != nil {
 			return nil
 		}
@@ -672,9 +672,9 @@ func cmdDBSiteCreate(ctx context.Context, vhost, email, link, pwd string) error 
 			Cname: &vhost,
 			Plan:  goatcounter.PlanBusinessPlus,
 		}
-		if mainSite.ID > 0 {
+		if account.ID > 0 {
 			s.Parent, s.Settings, s.UserDefaults, s.Plan =
-				&mainSite.ID, mainSite.Settings, mainSite.UserDefaults, goatcounter.PlanChild
+				&account.ID, account.Settings, account.UserDefaults, goatcounter.PlanChild
 		}
 		err := s.Insert(ctx)
 		if err != nil {

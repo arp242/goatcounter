@@ -16,6 +16,7 @@ import (
 	"math"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -34,6 +35,29 @@ import (
 )
 
 func init() {
+	tplfunc.Add("percentage", func(n, total int) float64 {
+		return float64(n) / float64(total) * 100
+	})
+
+	tplfunc.Add("ord", func(n int) template.HTML {
+		s := "th"
+		switch n % 10 {
+		case 1:
+			if n%100 != 11 {
+				s = "st"
+			}
+		case 2:
+			if n%100 != 12 {
+				s = "nd"
+			}
+		case 3:
+			if n%100 != 13 {
+				s = "rd"
+			}
+		}
+		return template.HTML(strconv.Itoa(n) + "<sup>" + s + "</sup>")
+	})
+
 	tplfunc.Add("base32", base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString)
 	tplfunc.Add("validate", zvalidate.TemplateError)
 	tplfunc.Add("has_errors", zvalidate.TemplateHasErrors)
