@@ -76,9 +76,10 @@
 
 	// Fill in start/end periods from buttons.
 	var hdr_select_period = function() {
+		// Reload dashboard when clicking a checkbox.
 		$('#dash-main input[type="checkbox"]').on('click', function(e) {
 			$('#hl-period').attr('disabled', false)
-			$(this).closest('form').trigger('submit')
+			$('#dash-form').trigger('submit')
 		})
 
 		$('#dash-select-period').on('click', 'button', function(e) {
@@ -141,10 +142,10 @@
 
 	// Setup datepicker fields.
 	var hdr_datepicker = function() {
-		if ($('#dash-form').length === 0)
-			return
-
 		$('#dash-form').on('submit', function(e) {
+			// Remove the "off" checkbox placeholders.
+			$('#dash-form :checked').each((_, c) => $(`input[name="${c.name}"][value="off"]`).prop('disabled', true))
+
 			if (get_date($('#period-start').val()) <= get_date($('#period-end').val()))
 				return
 
