@@ -42,8 +42,8 @@ github.com/teamwork/reload v1.3.2/go.mod h1:xR3BcLHeCmLBX/2jKDG2vWOLTcql3+aah4pu
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/zgoat/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06 h1:/md7SQZ+4voVLjIopx8nKqpnxWJ0hhjsPHRVx2yJcx0=
 github.com/zgoat/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06/go.mod h1:G1gi89KVrG9jLzIPvR7hk/0pg0zfzp+FeRWnYzyF9c0=
-github.com/zgoat/go-sqlite3 v1.14.6-json h1:oqwtDqwiA1X7CnHT+5tHm10mBWHiP+ZmhikvWLlqpnM=
-github.com/zgoat/go-sqlite3 v1.14.6-json/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
+github.com/zgoat/go-sqlite3 v1.13.1-0.20210408065100-83b1a4c5ab68 h1:kp5gCPcgLsUng626BCMnomVgaZh7d+9Zi/lzr1kN/VA=
+github.com/zgoat/go-sqlite3 v1.13.1-0.20210408065100-83b1a4c5ab68/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/zgoat/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664 h1:hvMqpKZXmzFPQyQd68TH904EyG6RcDLvtSO2kV4o81Q=
 github.com/zgoat/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664/go.mod h1:RXZtst0N6+FY/3qCNmZMBApR19cdQj43/NM9VkrNAis=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
