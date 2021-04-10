@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstripe"
 )
 
 func oldExports(ctx context.Context) error {
@@ -304,5 +306,56 @@ func cancelPlan(ctx context.Context) error {
 func sessions(ctx context.Context) error {
 	goatcounter.Memstore.EvictSessions()
 	goatcounter.Memstore.RefreshSalt()
+	return nil
+}
+
+// Report usage to Strip; the pricing plan is set up to use the highest value,
+// so just report the current value.
+func reportUsage(ctx context.Context) error {
+	var sites goatcounter.Sites
+	err := sites.UnscopedList(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range sites {
+		if s.ExtraPageviews == nil {
+			continue
+		}
+		if s.ExtraPageviewsSub == nil {
+			zlog.Errorf("ExtraPageviewsSub == nil for site %d", s.ID)
+			continue
+		}
+
+		var usage goatcounter.AccountUsage
+		err := usage.Get(goatcounter.WithSite(ctx, &s))
+		if err != nil {
+			zlog.Error(err)
+			continue
+		}
+
+		if usage.Plan.MonthlyHits > usage.Total.ThisPeriod {
+			fmt.Println("C", usage.Plan.MonthlyHits, usage.Total.ThisPeriod)
+			continue
+		}
+
+		charge := (usage.Total.ThisPeriod - usage.Plan.MonthlyHits) / 10_000
+		if *s.ExtraPageviews > 0 && float64(charge)*0.20 > float64(*s.ExtraPageviews) {
+			charge = int(float64(*s.ExtraPageviews) / 0.20)
+			fmt.Println("XX MAX", charge)
+		}
+
+		zlog.Printf("reporting usage for %d: %d (€%.2f)", s.ID, charge, float64(charge)*0.20)
+
+		_, err = zstripe.Request(nil, "POST", "/v1/subscription_items/"+*s.ExtraPageviewsSub+"/usage_records", zstripe.Body{
+			"quantity":  strconv.Itoa(charge),
+			"timestamp": strconv.FormatInt(ztime.Now().UTC().Unix(), 10),
+			"action":    "set",
+		}.Encode())
+		if err != nil {
+			zlog.Error(err)
+		}
+	}
+
 	return nil
 }

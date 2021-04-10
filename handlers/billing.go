@@ -42,6 +42,7 @@ var stripePlans = map[bool]map[string]string{
 		goatcounter.PlanBusiness:     "plan_GLVGCVzLaPA3cY",
 		goatcounter.PlanBusinessPlus: "plan_GLVHJUi21iV4Wh",
 		"donate":                     "sku_H9jE6zFGzh6KKb",
+		"pageviews":                  "price_1IcOIeE5ASM7XVaUA9fNx6dp",
 	},
 	true: { // Test data
 		goatcounter.PlanPersonal:     "price_1IVVd4E5ASM7XVaUGld6Fwys",
@@ -49,6 +50,7 @@ var stripePlans = map[bool]map[string]string{
 		goatcounter.PlanBusiness:     "price_1IVVh1E5ASM7XVaUK3q5leCi",
 		goatcounter.PlanBusinessPlus: "price_1IVVg6E5ASM7XVaUZrJwlrfn",
 		"donate":                     "sku_J7l6316cimcIC5",
+		"pageviews":                  "price_1IeaEwE5ASM7XVaUK4S9ETU2",
 	},
 }
 
@@ -69,6 +71,7 @@ func (h billing) mount(pub, auth chi.Router) {
 	auth.Get("/billing", zhttp.Wrap(h.index))
 	auth.Post("/billing/manage", zhttp.Wrap(h.manage))
 	auth.Post("/billing/start", zhttp.Wrap(h.start))
+	auth.Post("/billing/extra", zhttp.Wrap(h.extra))
 }
 
 func (h billing) index(w http.ResponseWriter, r *http.Request) error {
@@ -177,6 +180,84 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, id)
+}
+
+func (h billing) extra(w http.ResponseWriter, r *http.Request) error {
+	var args struct {
+		AllowExtra bool `json:"allow_extra"`
+		MaxExtra   int  `json:"max_extra"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	account := Account(r.Context())
+	pvPrice := stripePlans[goatcounter.Config(r.Context()).Dev]["pageviews"]
+
+	var sub struct {
+		Data []struct {
+			ID    string `json:"id"`
+			Items struct {
+				Data []struct {
+					ID   string `json:"id"`
+					Plan struct {
+						ID string `json:"id"`
+					} `json:"plan"`
+				} `json:"data"`
+			} `json:"items"`
+		} `json:"data"`
+	}
+	_, err = zstripe.Request(&sub, "GET", "/v1/subscriptions", zstripe.Body{
+		"customer": *account.Stripe,
+	}.Encode())
+	if err != nil {
+		return err
+	}
+	if len(sub.Data) == 0 {
+		return guru.New(400, "no subscriptions found")
+	}
+
+	found := ""
+	for _, item := range sub.Data[0].Items.Data {
+		if item.Plan.ID == pvPrice {
+			found = item.ID
+			break
+		}
+	}
+
+	var si zstripe.ID
+	if args.AllowExtra && found == "" {
+		_, err = zstripe.Request(&si, "POST", "/v1/subscription_items", zstripe.Body{
+			"subscription": sub.Data[0].ID,
+			"price":        pvPrice,
+		}.Encode())
+	} else if !args.AllowExtra && found != "" {
+		_, err = zstripe.Request(&si, "DELETE", "/v1/subscription_items/"+found, zstripe.Body{
+			"clear_usage":    "true",
+			"proration_date": strconv.FormatInt(account.NextInvoice().Unix(), 10),
+		}.Encode())
+	}
+	if err != nil {
+		return err
+	}
+
+	account.ExtraPageviews = nil
+	account.ExtraPageviewsSub = nil
+	if args.AllowExtra {
+		account.ExtraPageviews = &args.MaxExtra
+		account.ExtraPageviewsSub = &found
+		if found == "" {
+			account.ExtraPageviewsSub = &si.ID
+		}
+	}
+	err = account.UpdateStripe(r.Context())
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "Saved!")
+	return zhttp.SeeOther(w, "/billing")
 }
 
 func (h billing) manage(w http.ResponseWriter, r *http.Request) error {

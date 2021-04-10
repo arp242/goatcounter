@@ -510,7 +510,4 @@
 
 	// Quote special regexp characters. https://locutus.io/php/pcre/preg_quote/
 	var quote_re = (s) => s.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
-
-	// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
-	var format_int = (n) => (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(USER_SETTINGS.number_format))
 })();

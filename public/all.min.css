@@ -328,7 +328,7 @@ input[type="range"],
 input[type="number"],
 textarea,
 select {
-  font: 1em/100% sans-serif;
+  font: 1em/100% 'Lato', sans-serif;
 }
 textarea,
 button:not(.link),
@@ -388,6 +388,7 @@ form span {
 fieldset {
   border: 1px solid #aaa;
 }
+fieldset legend+p     { margin-top: 0; }
 .vertical input[type="text"],
 .vertical input[type="search"],
 .vertical input[type="tel"],

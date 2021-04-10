@@ -85,6 +85,9 @@ type Site struct {
 	// Maximum number of extra pageviews to charge for.
 	ExtraPageviews *int `db:"extra_pageviews" json:"extra_pageviews,readonly"`
 
+	// subscription_item in Stripe for extra pageviews (si_ ...)
+	ExtraPageviewsSub *string `db:"extra_pageviews_sub" json:"-"`
+
 	// "Anchor" for the billing period.
 	//
 	// This is the time someone subscribed to a plan; and their billing period
@@ -181,7 +184,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Sub("user_defaults", "", s.UserDefaults.Validate())
 
 	if s.Settings.DataRetention > 0 {
-		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 14, 0)
+		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 31, 0)
 	}
 
 	if len(s.Settings.IgnoreIPs) > 0 {
@@ -292,9 +295,10 @@ func (s *Site) UpdateStripe(ctx context.Context) error {
 		return err
 	}
 
-	err = zdb.Exec(ctx,
-		`update sites set stripe=?, plan=?, plan_pending=?, billing_amount=?, billing_anchor=?, plan_cancel_at=?, updated_at=? where site_id=?`,
-		s.Stripe, s.Plan, s.PlanPending, s.BillingAmount, s.BillingAnchor, s.PlanCancelAt, s.UpdatedAt, s.ID)
+	err = zdb.Exec(ctx, `update sites
+		set stripe=?, plan=?, plan_pending=?, billing_amount=?, extra_pageviews=?, extra_pageviews_sub=?, billing_anchor=?, plan_cancel_at=?, updated_at=?
+		where site_id=?`,
+		s.Stripe, s.Plan, s.PlanPending, s.BillingAmount, s.ExtraPageviews, s.ExtraPageviewsSub, s.BillingAnchor, s.PlanCancelAt, s.UpdatedAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateStripe")
 	}
@@ -782,6 +786,15 @@ func (s Site) NextInvoice() time.Time {
 	return ztime.StartOf(n, ztime.Day)
 }
 
+func (s Site) ThisBillingPeriod() ztime.Range {
+	return ztime.NewRange(ztime.Add(s.NextInvoice(), -1, ztime.Month)).To(ztime.Now())
+}
+
+func (s Site) PreviousBillingPeriod() ztime.Range {
+	c := s.ThisBillingPeriod()
+	return ztime.NewRange(ztime.Add(c.Start, -1, ztime.Month)).To(ztime.EndOf(c.Start.AddDate(0, 0, -1), ztime.Day))
+}
+
 // Sites is a list of sites.
 type Sites []Site
 
@@ -903,7 +916,7 @@ type Plan struct {
 
 type Plans []Plan
 
-func (p Plans) Find(s *Site) Plan {
+func (p Plans) Find(s Site) Plan {
 	for _, pp := range p {
 		if pp.Code == s.Plan {
 			return pp
@@ -968,7 +981,7 @@ type AccountUsageStats struct {
 
 func (a *AccountUsage) Get(ctx context.Context) error {
 	account := GetAccount(ctx)
-	a.Plan = planDetails.Find(account)
+	a.Plan = planDetails.Find(*account)
 
 	var sites Sites
 	err := sites.ForThisAccount(WithSite(ctx, account), false)

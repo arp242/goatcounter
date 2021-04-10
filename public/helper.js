@@ -34,6 +34,9 @@ var un24 = function(t) {
 		return (hour - 12) + t.substr(2) + ' pm'
 }
 
+// Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
+var format_int = (n) => (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(USER_SETTINGS.number_format))
+
 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 	days   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 

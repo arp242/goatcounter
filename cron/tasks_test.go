@@ -20,7 +20,7 @@ func TestDataRetention(t *testing.T) {
 	ctx := gctest.DB(t)
 
 	site := goatcounter.Site{Code: "bbbb", Plan: goatcounter.PlanPersonal,
-		Settings: goatcounter.SiteSettings{DataRetention: 30}}
+		Settings: goatcounter.SiteSettings{DataRetention: 31}}
 	err := site.Insert(ctx)
 	if err != nil {
 		t.Fatal(err)

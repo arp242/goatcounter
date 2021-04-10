@@ -30,6 +30,7 @@ var tasks = []task{
 	{cancelPlan, 12 * time.Hour},
 	{oldExports, 1 * time.Hour},
 	{sessions, 1 * time.Minute},
+	{reportUsage, 12 * time.Hour},
 }
 
 var stopped = zsync.NewAtomicInt(0)

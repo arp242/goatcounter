@@ -416,8 +416,8 @@ h3 + h4                   { margin-top: .3em; }
 	input, select, textarea { font-size: 16px !important; }
 }
 
-#usage strong  { display: inline-block; width: 14em; }
-#usage .perc   { display: inline-block; width: 2em; text-align: right; margin-right: 1em; }
+#usage .total strong { display: inline-block; width: 14em; }
+#usage .total .perc  { display: inline-block; width: 2em; text-align: right; margin-right: 1em; }
 
 @media (min-width: 55rem) {
 	.side-by-side          { display: flex; flex-wrap: wrap; justify-content: space-between; }
@@ -432,8 +432,14 @@ h3 + h4                   { margin-top: .3em; }
 .side-by-side.boxed >* >h3,
 .side-by-side.boxed >* >h4
 .side-by-side.boxed >* >h5
-.side-by-side.boxed >* >h6 { position: absolute; top: -.5em; left: .5em; font-size: 1rem; line-height: 1;
+.side-by-side.boxed >* >h6,
+.fset-header >strong       { position: absolute; top: -.5em; left: .5em; font-size: 1rem; line-height: 1;
 						     padding: 0 .2em; margin: 0; border: 0; background-color: #fff; }
+.fset-header               { position: relative; margin: 0 -.75em; margin-top: 2em; border-top: 1px solid #666; }
 
 dl { max-width: 50em; }
 dt { font-weight: bold; margin-top: 1em; }
+
+.input-prefix input   { padding-left: 1.8em !important; }
+.input-prefix         { position: relative; }
+.input-prefix .prefix { position: absolute; left: 0; top: 0; line-height: 2.55em; padding: 0 .3em 0 .5em; }

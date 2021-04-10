@@ -180,16 +180,33 @@
 				dd.css({padding: '.3em 1em', height: 'auto', marginBottom: '1em'})
 		})
 
+		// Extra pageviews.
+		$('#allow_extra').on('change', function(e) {
+			$('#extra-limit').css('display', this.checked ? '' : 'none')
+			$('#max_extra').trigger('change')
+		}).trigger('change')
+		$('#max_extra').on('change', function(e) {
+			var p  = $('#n-pageviews'),
+				n  = parseInt($(this).val(), 10) * 50000,
+				pv = {business: 500_000, businessplus: 1_000_000}[p.attr('data-plan')] || 100_000,
+				pn = {personal: 'Personal', personalplus: 'Starter', business: 'Business', businessplus: 'Business plus'}[p.attr('data-plan')]
+
+			var t = $('#allow_extra').is(':checked') ? 'There is no limit on the number of pageviews.' : ''
+			if (n)
+				t = `Your limit will be <strong>${format_int(pv+n)}</strong> pageviews (${format_int(pv)} from the ${pn} plan, plus ${format_int(n)} extra).`
+			p.html(t)
+		}).trigger('change')
+
 		// Show/hide donation options.
 		$('.plan input').on('change', function() {
 			$('.free').css('display', $('input[name="plan"]:checked').val() === 'personal' ? '' : 'none')
 		}).trigger('change')
 
-		var nodonate = false
-		$('button').on('click', function() { nodonate = this.id === 'nodonate' })
+		var form     = $('#billing-form'),
+			nodonate = false
+		form.find('button').on('click', function() { nodonate = this.id === 'nodonate' })
 
 		// Create new Stripe subscription.
-		var form = $('#billing-form')
 		form.on('submit', function(e) {
 			e.preventDefault()
 

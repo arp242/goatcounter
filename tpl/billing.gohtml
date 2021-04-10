@@ -25,32 +25,64 @@
 				<button type="submit" class="link">Manage subscription</button>
 			</form>
 		{{end}}
+
+		{{if .Account.Subscribed}}
+			<form method="post" action="/billing/extra" class="vertical">
+				<input type="hidden" name="csrf" id="csrf" value="{{.User.CSRFToken}}">
+				<div class="fset-header"><strong>Extra pageviews</strong></div>
+
+				<p>Additional pageviews can be added for €0.20 per 10k pageviews,
+					charged based on actual usage. So if you use 100,000 pageviews
+					then you’ll be charged €1 extra. <a href="#extra-pageviews">Details</a></p>
+
+				<div class="side-by-side">
+					<div>
+						<label><input type="checkbox" name="allow_extra" id="allow_extra"
+							{{if .Account.ExtraPageviews}}checked{{end}}> Allow charging for extra pageviews</label>
+					</div>
+					<div id="extra-limit" style="display: none">
+						<label for="max_extra">Maximum charge</label>
+						<div class="input-wrap input-prefix">
+							<span class="prefix">€</span>
+							<input type="number" name="max_extra" id="max_extra" value="{{if .Account.ExtraPageviews}}{{.Account.ExtraPageviews}}{{else}}0{{end}}">
+							<span style="float:left">Set to 0 or blank to not set any limit.</span>
+						</div>
+					</div>
+				</div>
+				<p id="n-pageviews" data-plan="{{.Account.Plan}}"></p>
+
+				<button type="submit">Save</button>
+			</form>
+		{{end}}
 	</div>
 
 	<div id="usage">
 		<h2>Usage</h2>
 		<p>Your billing period starts at the {{.Account.BillingAnchorDay | ord}} of every month, at which point the monthly limits reset.</p>
 
-		<p>
+		<p class="total">
 			<strong>Total pageviews stored:</strong>
 			{{if .Usage.Plan.MaxHits}}
-			<span class="perc">{{percentage .Usage.Total.Total .Usage.Plan.MaxHits | printf "%.0f"}}%</span>
+			<strong class="perc">{{percentage .Usage.Total.Total .Usage.Plan.MaxHits | printf "%.0f"}}%</strong>
 			({{nformat .Usage.Total.Total .User}} out of {{nformat .Usage.Plan.MaxHits .User}})
 			{{else}}
-			<span class="perc">-</span>
+			<strong class="perc">-</strong>
 			{{nformat .Usage.Total.Total .User}} (no limit)
 			{{end}}
 			<br>
 			<strong>Pageviews this billing period:</strong>
-			<span class="perc">{{percentage .Usage.Total.ThisPeriod .Usage.Plan.MonthlyHits | printf "%.0f"}}%</span>
+			<strong class="perc">{{percentage .Usage.Total.ThisPeriod .Usage.Plan.MonthlyHits | printf "%.0f"}}%</strong>
 			({{nformat .Usage.Total.ThisPeriod .User}} out of {{nformat .Usage.Plan.MonthlyHits .User}})
 			<br>
 			<strong>Pageviews last billing period:</strong>
-			<span class="perc">{{percentage .Usage.Total.PrevPeriod .Usage.Plan.MonthlyHits | printf "%.0f"}}%</span>
+			<strong class="perc">{{percentage .Usage.Total.PrevPeriod .Usage.Plan.MonthlyHits | printf "%.0f"}}%</strong>
 			({{nformat .Usage.Total.PrevPeriod .User}})
 		</p>
 
 		{{if gt (len .Usage.Stats) 1}}
+
+		<div class="fset-header"><strong>Breakdown by site</strong></div>
+		<br>
 		<table>
 			<thead>
 				<tr>

@@ -48,6 +48,9 @@
 			{{end}}
 		</select>
 
+		<label for="extra_pageviews">Extra pageviews</label>
+		<input disabled type="text" name="extra_pageviews" id="extra_pageviews"
+			value="{{if .Stat.Account.ExtraPageviews}}{{.Stat.Account.ExtraPageviews}} / {{.Stat.Account.ExtraPageviewsSub}}{{end}}">
 		<label for="plan_cancel_at">Cancel at</label>
 		<input type="text" name="plan_cancel_at" id="plan_cancel_at" value="{{if .Stat.Account.PlanCancelAt}}{{.Stat.Account.PlanCancelAt.Format "2006-01-02 15:04:05"}}{{end}}">
 
