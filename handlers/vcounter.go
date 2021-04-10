@@ -156,6 +156,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		return zhttp.JSON(w, map[string]string{
 			"count_unique": count,
+			"count":        tplfunc.Number(hl.Count, site.UserDefaults.NumberFormat),
 		})
 	case "html":
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
