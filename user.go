@@ -201,8 +201,7 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
 	}
 
-	s := MustGetSite(ctx)
-	err = s.GetMain(ctx)
+	account, err := GetAccount(ctx)
 	if err != nil {
 		return errors.Wrap(err, "User.Update")
 	}
@@ -210,7 +209,7 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	err = zdb.Exec(ctx, `update users
 		set email=?, settings=?, access=?, updated_at=?, email_verified=?, email_token=?
 		where user_id=? and site_id=?`,
-		u.Email, u.Settings, u.Access, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID, s.ID)
+		u.Email, u.Settings, u.Access, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID, account.ID)
 	return errors.Wrap(err, "User.Update")
 }
 

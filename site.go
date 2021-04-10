@@ -15,7 +15,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/guru"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/znet"
@@ -616,16 +615,8 @@ func (s Site) URL(ctx context.Context) string {
 
 // PlanCustomDomain reports if this site's plan allows custom domains.
 func (s Site) PlanCustomDomain(ctx context.Context) bool {
-	if s.Parent != nil {
-		var ps Site
-		err := ps.ByID(ctx, *s.Parent)
-		if err != nil {
-			zlog.Error(err)
-			return false
-		}
-		return ps.PlanCustomDomain(ctx)
-	}
-	return s.Plan == PlanStarter || s.Plan == PlanBusiness || s.Plan == PlanBusinessPlus
+	account := MustGetAccount(ctx)
+	return account.Plan == PlanStarter || account.Plan == PlanBusiness || account.Plan == PlanBusinessPlus
 }
 
 // IDOrParent gets this site's ID or the parent ID if that's set.
@@ -636,18 +627,6 @@ func (s Site) IDOrParent() int64 {
 	return s.ID
 }
 
-// GetMain gets the "main" site for this account; either the current site or the
-// parent one.
-func (s *Site) GetMain(ctx context.Context) error {
-	if s.ID == 0 {
-		return errors.New("s.ID == 0")
-	}
-	if s.Parent != nil {
-		return s.ByID(ctx, *s.Parent)
-	}
-	return nil
-}
-
 //lint:ignore U1001 used in template (via ShowPayBanner)
 var trialPeriod = time.Hour * 24 * 14
 
@@ -656,7 +635,7 @@ var trialPeriod = time.Hour * 24 * 14
 //
 //lint:ignore U1001 used in template.
 func (s Site) ShowPayBanner(ctx context.Context) bool {
-	account := GetAccount(ctx)
+	account := MustGetAccount(ctx)
 	return account.Plan == PlanTrial && -ztime.Now().Sub(account.CreatedAt.Add(trialPeriod)) < 0
 }
 
@@ -980,11 +959,14 @@ type AccountUsageStats struct {
 }
 
 func (a *AccountUsage) Get(ctx context.Context) error {
-	account := GetAccount(ctx)
+	account, err := GetAccount(ctx)
+	if err != nil {
+		return fmt.Errorf("AccountUsage: %w", err)
+	}
 	a.Plan = planDetails.Find(*account)
 
 	var sites Sites
-	err := sites.ForThisAccount(WithSite(ctx, account), false)
+	err = sites.ForThisAccount(WithSite(ctx, account), false)
 	if err != nil {
 		return errors.Wrap(err, "AccountUsage.Get")
 	}

@@ -17,7 +17,6 @@ import (
 
 type BosmangStat struct {
 	ID            int64     `db:"site_id"`
-	Parent        *int64    `db:"parent"`
 	Codes         string    `db:"codes"`
 	Stripe        *string   `db:"stripe"`
 	BillingAmount *string   `db:"billing_amount"`
@@ -57,14 +56,17 @@ type BosmangSiteStat struct {
 
 // ByID gets stats for a single site.
 func (a *BosmangSiteStat) ByID(ctx context.Context, id int64) error {
-	err := a.Account.ByID(ctx, id)
+	var s Site
+	err := s.ByID(ctx, id)
 	if err != nil {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
-	err = a.Account.GetMain(ctx)
+
+	acc, err := GetAccount(WithSite(ctx, &s))
 	if err != nil {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
+	a.Account = *acc
 	err = a.Sites.ForThisAccount(WithSite(ctx, &a.Account), false)
 	if err != nil {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")

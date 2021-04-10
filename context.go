@@ -66,13 +66,26 @@ func MustGetSite(ctx context.Context) *Site {
 
 // GetAccount gets this site's "account site" on which the users, billing, etc.
 // are stored.
-func GetAccount(ctx context.Context) *Site {
+func GetAccount(ctx context.Context) (*Site, error) {
 	s := MustGetSite(ctx)
-	err := s.GetMain(ctx)
-	if err != nil {
-		panic(fmt.Errorf("GetAccount: %w", err))
+	if s.Parent == nil {
+		return s, nil
 	}
-	return s
+
+	var account Site
+	err := account.ByID(ctx, *s.Parent)
+	if err != nil {
+		return nil, fmt.Errorf("GetAccount: %w", err)
+	}
+	return s, nil
+}
+
+func MustGetAccount(ctx context.Context) *Site {
+	a, err := GetAccount(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return a
 }
 
 // WithUser adds the site to the context.

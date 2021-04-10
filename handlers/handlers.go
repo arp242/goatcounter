@@ -18,7 +18,7 @@ import (
 
 // Site calls goatcounter.MustGetSite; it's just shorter :-)
 func Site(ctx context.Context) *goatcounter.Site    { return goatcounter.MustGetSite(ctx) }
-func Account(ctx context.Context) *goatcounter.Site { return goatcounter.GetAccount(ctx) }
+func Account(ctx context.Context) *goatcounter.Site { return goatcounter.MustGetAccount(ctx) }
 func User(ctx context.Context) *goatcounter.User    { return goatcounter.MustGetUser(ctx) }
 
 type Globals struct {
