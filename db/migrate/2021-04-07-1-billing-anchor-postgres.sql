@@ -8,6 +8,7 @@ alter table sites drop constraint sites_plan_check;
 update sites set plan='starter'           where plan='personalplus';
 update sites set plan='trial'             where stripe is null;
 update sites set plan='free', stripe=null where stripe like 'cus_free_%';
+update sites set plan='child'             where parent is not null;
 
 update sites
 	set settings = jsonb_set(to_jsonb(settings), '{data_retention}', '31', true)
