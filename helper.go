@@ -10,8 +10,10 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"math"
 	"strconv"
 
+	"github.com/mattn/go-sqlite3"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 )
@@ -44,6 +46,19 @@ const (
 )
 
 var States = []string{StateActive, StateRequest, StateDeleted}
+
+var SQLiteHook = func(c *sqlite3.SQLiteConn) error {
+	return c.RegisterFunc("percent_diff", func(start, final int) float64 {
+		if start == 0 {
+			return math.Inf(0)
+		}
+		return float64(float64((final-start)/start) * 100)
+	}, true)
+}
+
+func init() {
+	sqlite3.SQLiteTimestampFormats = []string{"2006-01-02 15:04:05", "2006-01-02"}
+}
 
 // TODO: Move to zdb
 func interval(ctx context.Context, days int) string {

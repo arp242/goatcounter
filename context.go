@@ -77,7 +77,7 @@ func GetAccount(ctx context.Context) (*Site, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetAccount: %w", err)
 	}
-	return s, nil
+	return &account, nil
 }
 
 func MustGetAccount(ctx context.Context) *Site {

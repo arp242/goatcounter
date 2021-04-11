@@ -15,6 +15,25 @@ import (
 	"zgo.at/zvalidate"
 )
 
+func TestGetAccount(t *testing.T) {
+	ctx := gctest.DB(t)
+
+	a := MustGetAccount(ctx)
+	if a.ID != MustGetSite(ctx).ID {
+		t.Fatal()
+	}
+
+	ctx2 := gctest.Site(ctx, t, &Site{Plan: PlanChild, Parent: &MustGetSite(ctx).ID}, nil)
+	a2 := MustGetAccount(ctx2)
+	if a2.ID != MustGetSite(ctx).ID {
+		t.Fatal()
+	}
+
+	if MustGetSite(ctx).ID != 1 || MustGetSite(ctx2).ID != 2 {
+		t.Fatal() // Make sure original isn't modified.
+	}
+}
+
 func TestSiteInsert(t *testing.T) {
 	ctx := gctest.DB(t)
 
