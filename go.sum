@@ -117,6 +117,8 @@ zgo.at/tz v0.0.0-20210320184244-8641ea282782 h1:hjTA0gzsTh4jgBipiGs4XenI4WicjgkT
 zgo.at/tz v0.0.0-20210320184244-8641ea282782/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
 zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6 h1:RL5eJBmMrEKJuKrqgC5tvAqHod2dpXWcritarx0ScgE=
 zgo.at/zcache v1.0.1-0.20210312004611-f411987af2e6/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
+zgo.at/zcache v1.0.1-0.20210412145246-76039d792310 h1:lJ2j+bNqtRmn8TOJDZXqeaTuG856QzYGxXghRPw2iH8=
+zgo.at/zcache v1.0.1-0.20210412145246-76039d792310/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
 zgo.at/zdb v0.0.0-20210404083826-4b56a56ff9c2 h1:Nf3DXBogfEKbqj6EAsYXexVeHFXh3azOaMHNkaygjPo=
 zgo.at/zdb v0.0.0-20210404083826-4b56a56ff9c2/go.mod h1:/5ivwA2UCOm7okVDqkOGjty2W5XiklbcJP6nvbhxjzg=
 zgo.at/zhttp v0.0.0-20210406130420-4305e5d998af h1:2Q40coHQ0rtVLcUhARK6WRYTRb7BfewBaxm70UvMFPg=

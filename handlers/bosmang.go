@@ -30,6 +30,7 @@ type bosmang struct{}
 func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a := r.With(mware.RequestLog(nil), bosmangOnly)
 	a.Get("/bosmang", zhttp.Wrap(h.index))
+	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
 	a.Get("/bosmang/{id}", zhttp.Wrap(h.site))
 	a.Post("/bosmang/{id}/update-billing", zhttp.Wrap(h.updateBilling))
 	a.Post("/bosmang/login/{id}", zhttp.Wrap(h.login))
@@ -95,6 +96,22 @@ func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {
 		Signups    []goatcounter.HitListStat
 		MaxSignups int
 	}{newGlobals(w, r), a, signups, maxSignups})
+}
+
+func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
+	if Site(r.Context()).ID != 1 {
+		return guru.New(403, "yeah nah")
+	}
+
+	cache := goatcounter.ListCache(r.Context())
+
+	return zhttp.Template(w, "bosmang_cache.gohtml", struct {
+		Globals
+		Cache map[string]struct {
+			Size  int64
+			Items map[string]string
+		}
+	}{newGlobals(w, r), cache})
 }
 
 func (h bosmang) site(w http.ResponseWriter, r *http.Request) error {

@@ -1,0 +1,18 @@
+{{template "_backend_top.gohtml" .}}
+
+<style>
+td              { vertical-align: top; }
+.page >table    { max-width: none; }
+pre             { max-height: 4em; margin: 0; border: none; }
+pre:hover       { max-height: none; }
+</style>
+
+{{range $k, $v := .Cache}}
+	<h2>{{$k}} {{$v.Size}}K</h2>
+	<table><tbody>
+		{{range $k2, $v2 := $v.Items}}<tr><td><code>{{$k2}}<code></td><td><pre>{{$v2}}</pre></td></tr>{{end}}
+	</tbody></table>
+{{end}}
+
+
+{{template "_backend_bottom.gohtml" .}}

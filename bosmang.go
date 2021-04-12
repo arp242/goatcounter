@@ -6,12 +6,16 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/zcache"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
 )
 
@@ -100,4 +104,58 @@ func (a *BosmangSiteStat) Find(ctx context.Context, ident string) error {
 	}
 
 	return a.ByID(ctx, id)
+}
+
+func ListCache(ctx context.Context) map[string]struct {
+	Size  int64
+	Items map[string]string
+} {
+	c := make(map[string]struct {
+		Size  int64
+		Items map[string]string
+	})
+
+	caches := map[string]func(context.Context) *zcache.Cache{
+		"sites":          cacheSites,
+		"ua":             cacheUA,
+		"browsers":       cacheBrowsers,
+		"systems":        cacheSystems,
+		"paths":          cachePaths,
+		"loc":            cacheLoc,
+		"changed_titles": cacheChangedTitles,
+	}
+
+	for name, f := range caches {
+		var (
+			content = f(ctx).Items()
+			s       = zruntime.SizeOf(content)
+			items   = make(map[string]string)
+		)
+		for k, v := range content {
+			items[k] = fmt.Sprintf("%s\n", zjson.MustMarshalIndent(v.Object, "", "  "))
+			s += c[name].Size + zruntime.SizeOf(v.Object)
+		}
+		c[name] = struct {
+			Size  int64
+			Items map[string]string
+		}{s / 1024, items}
+	}
+
+	{
+		var (
+			name    = "sites_host"
+			content = cacheSitesHost(ctx).Items()
+			s       = zruntime.SizeOf(content)
+			items   = make(map[string]string)
+		)
+		for k, v := range content {
+			items[k] = v
+			s += c[name].Size + zruntime.SizeOf(v)
+		}
+		c[name] = struct {
+			Size  int64
+			Items map[string]string
+		}{s / 1024, items}
+	}
+	return c
 }
