@@ -1,9 +1,14 @@
-<div class="hchart" data-detail="/hchart-detail?kind=location" data-more="/hchart-more?kind=location">
-	<h2>Locations</h2>
-	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
-	{{if .Err}}
-		<em>Error: {{.Err}}</em>
-	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUniqueUTC 6 true true}}
-	{{end}}
-</div>
+{{- $x := horizontal_chart .Context .Stats .TotalUniqueUTC (eq .Country "") true}}
+{{- if .RowsOnly -}}
+	{{- $x -}}
+{{- else -}}
+	<div class="hchart" data-widget="{{.ID}}">
+		<h2>Locations{{if .Country}} for {{.CountryName}}{{end}}</h2>
+		{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
+		{{if .Err}}
+			<em>Error: {{.Err}}</em>
+		{{else}}
+			{{$x}}
+		{{end}}
+	</div>
+{{- end -}}

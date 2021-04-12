@@ -245,29 +245,76 @@
 		})
 	}
 
-	// TODO: my iPhone selects text on dragging. I can't get it to stop doing
-	// that no matter what; it always re-selects afterwards.
-	// https://github.com/bevacqua/dragula/issues/306
-	// ... okay?
 	var page_user_dashboard = function() {
+		// Add new widget.
+		$('.widget-add-new select').on('change', function(e) {
+			e.preventDefault()
+			if (this.selectedIndex === 0)
+				return
+
+			jQuery.ajax({
+				url:     '/user/dashboard/widget/' + this.selectedOptions[0].value,
+				success: function(data) {
+					var i    = 1 + $('.index').toArray().map((e) => parseInt(e.value, 10)).sort().pop(),
+						html = $(data.replace(/widgets([\[_])0([\]_])/g, `widgets$1${i}$2`))
+					html.find('.index').val(i)
+					$('.widget-add-new').before(html)
+
+					var s = $('.widget-add-new select')
+					s[0].selectedIndex = 0
+					s.trigger('blur')
+				},
+			})
+		})
+
+		// Remove widget.
+		$('#widget-settings').on('click', '.dashboard-rm', function(e) {
+			e.preventDefault()
+			$(this).closest('.widget').remove()
+		})
+
+		// Show settings
+		$('#widget-settings').on('click', 'a.show-s', function(e) {
+			e.preventDefault()
+			var s = $(this).closest('.widget').find('.widget-settings')
+			s.css('display', s.css('display') === 'none' ? 'block' : 'none')
+		})
+		// Show settings with errors.
+		$('.widget-settings').each(function(i, w) {
+			if ($(w).find('.err').length)
+				$(w).css('display', 'block')
+		})
+
+		// Set of drag & drop.
+		//
+		// TODO: my iPhone selects text on dragging. I can't get it to stop doing
+		// that no matter what; it always re-selects afterwards.
+		// https://github.com/bevacqua/dragula/issues/306
+		// ... okay?
 		var w = $('#widget-settings')
 		dragula(w.toArray(), {
 			moves: (el, source, handle, sibling) => handle.className === 'drag-handle',
 		}).on('drop', () => {
 			$('#widget-settings .widget').each((i, el) => { $(el).find('.index').val(i) })
 		})
+
+		// Reset to defaults.
 		w.find('.widgets-reset').on('click', function(e) {
 			e.preventDefault()
 			var f = $(this).closest('form')
 			f.find('input[name="reset"]').val('true')
 			f.trigger('submit')
 		})
-		$('#widgets_pages_s_limit_pages').on('change', function(e) {
-			if (parseInt($(this).val(), 10) > 25)
-				$('#widget-pages label.main').after(
-					'<span class="warn red">Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems.</span>')
-			else
-				$('#widget-pages .warn.red').remove()
+
+		// Warn when setting high limit.
+		$('.widget-pages').on('change', function(e) {
+			var w = $(this),
+				v = parseInt(w.find('input[name$="limit_pages"]').val(), 10)
+			w.find('.warn.red').remove()
+
+			if (v > 25)
+				w.find('.widget-settings').prepend(
+					'<span class="warn red">Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems.<br><br></span>')
 		}).trigger('change')
 	}
 

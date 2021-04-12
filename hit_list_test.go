@@ -153,15 +153,10 @@ func TestHitListsList(t *testing.T) {
 			ctx := gctest.DB(t)
 
 			site := MustGetSite(ctx)
-			user := MustGetUser(ctx)
 			for j := range tt.in {
 				if tt.in[j].Site == 0 {
 					tt.in[j].Site = site.ID
 				}
-			}
-
-			user.Settings.Widgets = Widgets{
-				{"on": true, "name": "pages", "s": map[string]interface{}{"limit_pages": float64(2), "limit_refs": float64(10)}},
 			}
 
 			gctest.StoreHits(ctx, t, false, tt.in...)
@@ -172,7 +167,7 @@ func TestHitListsList(t *testing.T) {
 			}
 
 			var stats HitLists
-			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, false)
+			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, 2, false)
 
 			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
 			if got != tt.wantReturn {
@@ -255,7 +250,7 @@ func TestGetTotalCount(t *testing.T) {
 		Hit{Path: "ev", FirstVisit: false, Event: true})
 
 	{
-		tt, err := GetTotalCount(ctx, rng, nil)
+		tt, err := GetTotalCount(ctx, rng, nil, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -304,7 +299,7 @@ func TestHitListTotals(t *testing.T) {
 		}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			var hs HitList
-			count, err := hs.Totals(ctx, rng, filter, false)
+			count, err := hs.Totals(ctx, rng, filter, false, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -336,7 +331,7 @@ func TestHitListTotals(t *testing.T) {
 
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			var hs HitList
-			count, err := hs.Totals(ctx, rng, filter, true)
+			count, err := hs.Totals(ctx, rng, filter, true, false)
 			if err != nil {
 				t.Fatal(err)
 			}

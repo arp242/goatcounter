@@ -281,7 +281,7 @@ func (h billing) manage(w http.ResponseWriter, r *http.Request) error {
 }
 
 type (
-	// https://stripe.com/docs/api/checkout/sessions/object
+	// Session https://stripe.com/docs/api/checkout/sessions/object
 	Session struct {
 		ClientReferenceID string `json:"client_reference_id"`
 		Customer          string `json:"customer"`
@@ -289,7 +289,7 @@ type (
 		Currency          string `json:"currency"`
 	}
 
-	// https://stripe.com/docs/api/subscriptions/object
+	// Subscription https://stripe.com/docs/api/subscriptions/object
 	Subscription struct {
 		CancelAt           zjson.Timestamp `json:"cancel_at"`
 		BillingCycleAnchor zjson.Timestamp `json:"billing_cycle_anchor"`

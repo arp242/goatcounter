@@ -5,8 +5,10 @@
 package goatcounter
 
 import (
+	"context"
 	"database/sql/driver"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -67,13 +69,16 @@ type (
 	Widgets []Widget
 	Widget  map[string]interface{}
 
-	widgetSettings map[string]widgetSetting
-	widgetSetting  struct {
-		Type  string
-		Label string
-		Help  string
-
-		Value interface{}
+	WidgetSettings map[string]WidgetSetting
+	WidgetSetting  struct {
+		Type        string
+		Hidden      bool
+		Label       string
+		Help        string
+		Options     [][2]string
+		OptionsFunc func(context.Context) [][2]string
+		Validate    func(*zvalidate.Validator, interface{})
+		Value       interface{}
 	}
 
 	// Views for the dashboard; these settings apply to all widget and are
@@ -98,40 +103,115 @@ func defaultWidgets() Widgets {
 	s := defaultWidgetSettings()
 	w := Widgets{}
 	for _, n := range []string{"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"} {
-		w = append(w, map[string]interface{}{"on": true, "name": n, "s": s[n].getMap()})
+		w = append(w, map[string]interface{}{"n": n, "s": s[n].getMap()})
 	}
 	return w
 }
 
 // List of all settings for widgets with some data.
-func defaultWidgetSettings() map[string]widgetSettings {
-	return map[string]widgetSettings{
-		"pages": map[string]widgetSetting{
-			"limit_pages": widgetSetting{
+func defaultWidgetSettings() map[string]WidgetSettings {
+	return map[string]WidgetSettings{
+		"pages": map[string]WidgetSetting{
+			"limit_pages": WidgetSetting{
 				Type:  "number",
 				Label: "Page size",
 				Help:  "Number of pages to load",
 				Value: float64(10),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit_pages", int64(val.(float64)), 1, 100)
+				},
 			},
-			"limit_refs": widgetSetting{
+			"limit_refs": WidgetSetting{
 				Type:  "number",
 				Label: "Referrers page size",
 				Help:  "Number of referrers to load when clicking on a path",
 				Value: float64(10),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit_pages", int64(val.(float64)), 1, 100)
+				},
 			},
 		},
-		"totalpages": map[string]widgetSetting{
-			"align": widgetSetting{
+		"totalpages": map[string]WidgetSetting{
+			"align": WidgetSetting{
 				Type:  "checkbox",
 				Label: "Align with pages",
 				Help:  "Add margin to the left so it aligns with pages charts",
 				Value: false,
 			},
-			"no-events": widgetSetting{
+			"no-events": WidgetSetting{
 				Type:  "checkbox",
 				Label: "Exclude events",
 				Help:  "Don't include events in the Totals overview",
 				Value: false,
+			},
+		},
+		"toprefs": map[string]WidgetSetting{
+			"limit": WidgetSetting{
+				Type:  "number",
+				Label: "Page size",
+				Help:  "Number of pages to load",
+				Value: float64(6),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit", int64(val.(float64)), 1, 20)
+				},
+			},
+			"key": WidgetSetting{Hidden: true},
+		},
+		"browsers": map[string]WidgetSetting{
+			"limit": WidgetSetting{
+				Type:  "number",
+				Label: "Page size",
+				Help:  "Number of pages to load",
+				Value: float64(6),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit", int64(val.(float64)), 1, 20)
+				},
+			},
+			"key": WidgetSetting{Hidden: true},
+		},
+		"systems": map[string]WidgetSetting{
+			"limit": WidgetSetting{
+				Type:  "number",
+				Label: "Page size",
+				Help:  "Number of pages to load",
+				Value: float64(6),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit", int64(val.(float64)), 1, 20)
+				},
+			},
+			"key": WidgetSetting{Hidden: true},
+		},
+		"sizes": map[string]WidgetSetting{
+			"key": WidgetSetting{Hidden: true},
+		},
+		"locations": map[string]WidgetSetting{
+			"limit": WidgetSetting{
+				Type:  "number",
+				Label: "Page size",
+				Help:  "Number of pages to load",
+				Value: float64(6),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit", int64(val.(float64)), 1, 20)
+				},
+			},
+			"key": WidgetSetting{
+				Type:  "select",
+				Label: "Show regions",
+				Help:  "Show regions for this country instead of a country list",
+				Value: "",
+				OptionsFunc: func(ctx context.Context) [][2]string {
+					var l Locations
+					err := l.ListCountries(ctx)
+					if err != nil {
+						panic(err)
+					}
+					countries := make([][2]string, 0, len(l)+1)
+					countries = append(countries, [2]string{"", ""})
+					for _, ll := range l {
+						countries = append(countries, [2]string{ll.Country, ll.CountryName})
+					}
+					return countries
+				},
 			},
 		},
 	}
@@ -182,7 +262,7 @@ func (ss *SiteSettings) Validate() error {
 	v := zvalidate.New()
 
 	if ss.DataRetention > 0 {
-		v.Range("data_retention", int64(ss.DataRetention), 14, 0)
+		v.Range("data_retention", int64(ss.DataRetention), 31, 0)
 	}
 
 	if len(ss.IgnoreIPs) > 0 {
@@ -240,12 +320,63 @@ func (ss SiteSettings) CollectFlags() []CollectFlag {
 	}
 }
 
-func (s widgetSettings) getMap() map[string]interface{} {
+func (s *WidgetSettings) Set(k string, v interface{}) {
+	ss := *s
+	m := ss[k]
+	m.Value = v
+	ss[k] = m
+}
+
+func (s WidgetSettings) getMap() map[string]interface{} {
 	m := make(map[string]interface{})
 	for k, v := range s {
 		m[k] = v.Value
 	}
 	return m
+}
+
+// HasSettings reports if there are any non-hidden settings.
+func (s WidgetSettings) HasSettings() bool {
+	for _, ss := range s {
+		if !ss.Hidden {
+			return true
+		}
+	}
+	return false
+}
+
+// Display all values that are different from the default.
+func (s WidgetSettings) Display(wname string) string {
+	defaults := defaultWidgetSettings()[wname]
+
+	order := make([]string, 0, len(s))
+	for k := range s {
+		order = append(order, k)
+	}
+	sort.Strings(order)
+
+	str := make([]string, 0, len(s))
+	for _, k := range order {
+		ss := s[k]
+		if ss.Hidden {
+			continue
+		}
+		if ss.Value == defaults[k].Value {
+			continue
+		}
+
+		l := strings.ToLower(ss.Label)
+		if ss.Type == "checkbox" {
+			str = append(str, l)
+		} else {
+			str = append(str, fmt.Sprintf("%s: %v", l, ss.Value))
+		}
+	}
+	return strings.Join(str, ", ")
+}
+
+func NewWidget(name string) Widget {
+	return Widget{"n": name}
 }
 
 // SetSettings set the setting "setting" for widget "widget" to "value".
@@ -274,54 +405,50 @@ func (w Widget) SetSetting(widget, setting, value string) error {
 		s[setting] = float64(n)
 	case "checkbox":
 		s[setting] = value == "on"
-	case "text":
+	case "text", "select":
 		s[setting] = value
 	}
 	w["s"] = s
 	return nil
 }
 
-// Get a widget from the list by name.
-func (w Widgets) Get(name string) Widget {
-	for _, v := range w {
-		if v["name"] == name {
-			return v
+// Name gets this widget's name.
+func (w Widget) Name() string { return w["n"].(string) }
+
+func (w Widget) GetSetting(n string) interface{} {
+	for k, v := range w.GetSettings() {
+		if k == n {
+			return v.Value
 		}
 	}
 	return nil
 }
 
 // GetSettings gets all setting for this widget.
-func (w Widgets) GetSettings(name string) widgetSettings {
-	for _, v := range w {
-		if v["name"] == name {
-			def := defaultWidgetSettings()[name]
-			s, ok := v["s"]
-			if ok {
-				// {"limit_pages": 10, "limit_refs": 10}},
-				ss := s.(map[string]interface{})
-				for k, v := range ss {
-					if v != nil {
-						d := def[k]
-						d.Value = v
-						def[k] = d
-					}
-				}
+func (w Widget) GetSettings() WidgetSettings {
+	def := defaultWidgetSettings()[w.Name()]
+	s, ok := w["s"]
+	if ok {
+		for k, v := range s.(map[string]interface{}) {
+			if v != nil {
+				d := def[k]
+				d.Value = v
+				def[k] = d
 			}
-			return def
 		}
 	}
-	return make(widgetSettings)
+	return def
 }
 
-// On reports if this setting should be displayed.
-func (w Widgets) On(name string) bool {
-	ww := w.Get(name)
-	b, ok := ww["on"].(bool)
-	if !ok {
-		return false
+// Get all widget from the list by name.
+func (w Widgets) Get(name string) Widgets {
+	var r Widgets
+	for _, v := range w {
+		if v["n"] == name {
+			r = append(r, v)
+		}
 	}
-	return b
+	return r
 }
 
 // Get a view for this site by name and returns the view and index.
@@ -357,36 +484,20 @@ func (ss *UserSettings) Defaults() {
 func (ss *UserSettings) Validate() error {
 	v := zvalidate.New()
 
-	// Must always include all widgets we know about.
-	for _, w := range defaultWidgets() {
-		if ss.Widgets.Get(w["name"].(string)) == nil {
-			v.Append("widgets", fmt.Sprintf("widget %q is missing", w["name"].(string)))
+	for i, w := range ss.Widgets {
+		for _, s := range w.GetSettings() {
+			if s.Validate == nil {
+				continue
+			}
+			vv := zvalidate.New()
+			s.Validate(&vv, s.Value)
+			v.Sub("widgets", strconv.Itoa(i), vv)
 		}
 	}
-	v.Range("widgets.pages.s.limit_pages", int64(ss.LimitPages()), 1, 100)
-	v.Range("widgets.pages.s.limit_refs", int64(ss.LimitRefs()), 1, 25)
 
 	if _, i := ss.Views.Get("default"); i == -1 || len(ss.Views) != 1 {
 		v.Append("views", "view not set")
 	}
 
 	return v.ErrorOrNil()
-}
-
-// Some shortcuts for getting the settings.
-
-func (ss UserSettings) LimitPages() int {
-	return int(ss.Widgets.GetSettings("pages")["limit_pages"].Value.(float64))
-}
-func (ss UserSettings) LimitRefs() int {
-	return int(ss.Widgets.GetSettings("pages")["limit_refs"].Value.(float64))
-}
-func (ss UserSettings) SplitEvents() bool {
-	return ss.Widgets.GetSettings("pages")["split_events"].Value.(bool)
-}
-func (ss UserSettings) TotalsAlign() bool {
-	return ss.Widgets.GetSettings("totalpages")["align"].Value.(bool)
-}
-func (ss UserSettings) TotalsNoEvents() bool {
-	return ss.Widgets.GetSettings("totalpages")["no-events"].Value.(bool)
 }

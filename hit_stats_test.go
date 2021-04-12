@@ -57,7 +57,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListBrowser(ctx, "Firefox", rng, filter)
+			err = get.ListBrowser(ctx, "Firefox", rng, filter, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -101,7 +101,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListSystem(ctx, "Linux", rng, filter)
+			err = get.ListSystem(ctx, "Linux", rng, filter, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -145,7 +145,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListSize(ctx, "Computer monitors", rng, filter)
+			err = get.ListSize(ctx, "Computer monitors", rng, filter, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -217,7 +217,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListLocation(ctx, "ID", rng, filter)
+			err = get.ListLocation(ctx, "ID", rng, filter, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -230,7 +230,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var getRegion HitStats
-			err = getRegion.ListLocation(ctx, "ID", rng, filter)
+			err = getRegion.ListLocation(ctx, "ID", rng, filter, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -382,7 +382,7 @@ func TestListSizes(t *testing.T) {
 		var got string
 		for _, w := range widths {
 			var s HitStats
-			err := s.ListSize(ctx, w.name, ztime.NewRange(now).To(now), nil)
+			err := s.ListSize(ctx, w.name, ztime.NewRange(now).To(now), nil, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -486,7 +486,8 @@ func TestStatsByRef(t *testing.T) {
 		Hit{Path: "/a", Ref: "https://example.org"})
 
 	var s HitStats
-	err := s.ByRef(ctx, ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)), []int64{1}, "example.com")
+	err := s.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)),
+		[]int64{1}, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

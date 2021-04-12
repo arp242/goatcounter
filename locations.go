@@ -154,6 +154,18 @@ func (l *Location) insert(ctx context.Context) (err error) {
 	return nil
 }
 
+type Locations []Location
+
+// ListCountries lists all counties. The region code/name will always be blank.
+func (l *Locations) ListCountries(ctx context.Context) error {
+	err := zdb.Select(ctx, l, `
+		select country, country_name
+        from locations
+        where country != '' and country_name != '' and region = ''
+        order by country_name`)
+	return errors.Wrap(err, "Locations.ListCountries")
+}
+
 // This takes ~13s for a full iteration for the Cities database on my laptop
 // (Countries is much faster, ~100ms) which is not a great worst case scenario,
 // but in most cases it should be (much) faster, and this should get called

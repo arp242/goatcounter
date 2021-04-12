@@ -7,16 +7,16 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strconv"
-	"strings"
+	"sort"
 
+	"github.com/go-chi/chi/v5"
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/widgets"
+	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
 
@@ -71,69 +71,77 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/user/pref")
 }
 
+func (h settings) userDashboardWidget(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "_user_dashboard_widgets.gohtml", struct {
+		Globals
+		Widgets widgets.List
+
+		Validate *zvalidate.Validator
+	}{newGlobals(w, r),
+		widgets.List{widgets.FromSiteWidget(goatcounter.NewWidget(chi.URLParam(r, "name")))},
+		nil})
+}
+
 func (h settings) userDashboard(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Template(w, "user_dashboard.gohtml", struct {
 			Globals
-			Validate *zvalidate.Validator
-			Widgets  widgets.List
+			Validate      *zvalidate.Validator
+			Widgets       widgets.List
+			CanAddWidgets widgets.List
 		}{newGlobals(w, r), verr,
 			widgets.FromSiteWidgets(User(r.Context()).Settings.Widgets, widgets.FilterInternal),
+			widgets.ListAllWidgets(),
 		})
 	}
 }
 
 func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) error {
-	err := r.ParseForm()
+	var args struct {
+		Reset   bool `json:"reset"`
+		SetSite bool `json:"set_site"`
+		Widgets []struct {
+			Name  string            `json:"name"`
+			Index int               `json:"index"`
+			S     map[string]string `json:"s"`
+		} `json:"widgets"`
+	}
+	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
 
+	if len(args.Widgets) == 0 {
+		return guru.New(400, "Must add at least one thing; an empty dashboard is a bit pointless, no?")
+	}
+
 	user := User(r.Context())
 
-	if r.Form.Get("reset") != "" {
+	if args.Reset {
 		user.Settings.Widgets = nil
 		user.Defaults(r.Context())
 		err = user.Update(r.Context(), false)
 		if err != nil {
 			return err
 		}
-
 		zhttp.Flash(w, "Reset to defaults!")
 		return zhttp.SeeOther(w, "/user/dashboard")
 	}
 
-	parse := make(map[string]map[string]string)
-	for k, v := range r.Form {
-		if !strings.HasPrefix(k, "widgets.") {
+	sort.Slice(args.Widgets, func(i, j int) bool {
+		return args.Widgets[i].Index < args.Widgets[j].Index
+	})
+
+	user.Settings.Widgets = make(goatcounter.Widgets, 0, len(args.Widgets))
+	for _, v := range args.Widgets {
+		if v.Name == "" { // Can include blank entries since the array indexes aren't reordered.
 			continue
 		}
-		k = k[8:]
-
-		name, key := zstring.Split2(k, ".")
-		if parse[name] == nil {
-			parse[name] = make(map[string]string)
+		w := goatcounter.Widget{"n": v.Name}
+		for kk, vv := range v.S {
+			w.SetSetting(v.Name, kk, vv)
 		}
-		parse[name][key] = v[0]
-	}
-
-	user.Settings.Widgets = make(goatcounter.Widgets, len(parse))
-	for k, v := range parse {
-		pos, err := strconv.Atoi(v["index"])
-		if err != nil {
-			return err
-		}
-
-		w := goatcounter.Widget{"name": k, "on": v["on"] == "on"}
-		for sName, sVal := range v {
-			if strings.HasPrefix(sName, "s.") {
-				err := w.SetSetting(k, sName[2:], sVal)
-				if err != nil {
-					return err
-				}
-			}
-		}
-		user.Settings.Widgets[pos] = w
+		user.Settings.Widgets = append(user.Settings.Widgets, w)
 	}
 
 	err = zdb.TX(r.Context(), func(ctx context.Context) error {
@@ -141,7 +149,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		if err != nil {
 			return err
 		}
-		if user.AccessSettings() && r.Form.Get("set_site") != "" {
+		if user.AccessSettings() && args.SetSite {
 			s := Site(ctx)
 			s.UserDefaults = user.Settings
 			return s.Update(ctx)

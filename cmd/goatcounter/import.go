@@ -412,7 +412,6 @@ func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent
 	if err != nil {
 		zlog.Error(err)
 	}
-	return
 }
 
 var (

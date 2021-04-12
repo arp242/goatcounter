@@ -10,3 +10,4 @@ where
 	{{:empty    and width = 0}}
 group by width
 order by count_unique desc, name asc
+limit :limit offset :offset

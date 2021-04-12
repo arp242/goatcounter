@@ -30,9 +30,9 @@
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}
 			</div>
-			<div class="refs hchart" data-more="/hchart-more?kind=ref">
+			<div class="hchart refs">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{horizontal_chart $.Context $.Refs $h.CountUnique $.User.Settings.LimitRefs false true}}
+					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "CountUnique" $h.CountUnique)}}
 				{{end}}
 			</div>
 		</td>

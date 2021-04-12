@@ -1,4 +1,4 @@
-<div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
+<div class="pages-list {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	<h2 class="full-width">Pages <small>
 		{{/* TODO: make option to split counts between events and regular pageviews */}}
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of

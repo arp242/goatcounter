@@ -404,7 +404,7 @@ func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) tem
 	return template.HTML(b.String())
 }
 
-func HorizontalChart(ctx context.Context, stats HitStats, total, pageSize int, link, paginate bool) template.HTML {
+func HorizontalChart(ctx context.Context, stats HitStats, total int, link, paginate bool) template.HTML {
 	if total == 0 {
 		return `<em>Nothing to display</em>`
 	}
@@ -414,10 +414,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total, pageSize int, l
 		b         strings.Builder
 	)
 	b.WriteString(`<div class="rows">`)
-	for i, s := range stats.Stats {
-		if pageSize > 0 && i > pageSize {
-			break
-		}
+	for _, s := range stats.Stats {
 		displayed += s.CountUnique
 
 		var (
@@ -456,7 +453,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total, pageSize int, l
 
 		ename := zstring.ElideCenter(name, 76)
 		var ref string
-		if link {
+		if link && ename != "(unknown)" {
 			ref = fmt.Sprintf(`<a href="#" class="load-detail">`+
 				`<span class="bar" style="width: %s"></span>`+
 				`<span class="bar-c"><span class="cutoff">%s</span> %s</span></a>`, perc, ename, visit)
@@ -470,7 +467,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total, pageSize int, l
 			id = name
 		}
 		b.WriteString(fmt.Sprintf(`
-			<div class="%[1]s" data-name="%[2]s">
+			<div class="%[1]s" data-key="%[2]s">
 				<span class="col-count col-perc">%[3]s</span>
 				<span class="col-name">%[4]s</span>
 				<span class="col-count">%[5]s</span>

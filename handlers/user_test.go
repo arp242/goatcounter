@@ -109,7 +109,7 @@ func TestUserForgot(t *testing.T) {
 		if f == nil {
 			t.Error("f == nil")
 		}
-		if f.Message != `Email sent to "test@gctest.localhost"` {
+		if f != nil && f.Message != `Email sent to "test@gctest.localhost"` {
 			t.Error(f)
 		}
 	}
@@ -148,7 +148,7 @@ func TestUserForgot(t *testing.T) {
 		if f == nil {
 			t.Error("f == nil")
 		}
-		if f.Message != `Password reset; use your new password to login.` {
+		if f != nil && f.Message != `Password reset; use your new password to login.` {
 			t.Error(f)
 		}
 	}
