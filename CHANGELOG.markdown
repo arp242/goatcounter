@@ -5,6 +5,12 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+2021-04-13 v2.0.4
+-----------------
+- Deal with duplicate entries in the `user_agents` table in the migration
+  instead of erroring out; mostly fixes a situation that could happen if you ran
+  the broken migrations in 2.0.0 or 2.0.1.
+
 2021-04-02 v2.0.3
 -----------------
 - Fix if you had already run the broken migrations in 2.0.0 or 2.0.1.
