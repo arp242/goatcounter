@@ -17,19 +17,64 @@ import (
 	"zgo.at/zli"
 )
 
+type agentsT []struct {
+	ID        int64  `db:"user_agent_id"`
+	UserAgent string `db:"ua"`
+}
+
+func getAgents(ctx context.Context) (agentsT, error) {
+	var agents agentsT
+	err := zdb.Select(ctx, &agents, `select user_agent_id, ua from user_agents order by user_agent_id asc`)
+	return agents, err
+}
+
 func UserAgents(ctx context.Context) error {
-	var agents []struct {
-		ID        int64  `db:"user_agent_id"`
-		UserAgent string `db:"ua"`
-	}
-	err := zdb.Select(ctx, &agents,
-		`select user_agent_id, ua from user_agents order by user_agent_id asc`)
+	agents, err := getAgents(ctx)
 	if err != nil {
 		return err
 	}
-
 	if len(agents) == 0 {
 		return nil
+	}
+
+	// Remove duplicates first.
+	deleted := make(map[int64]struct{})
+	for _, u := range agents {
+		if _, ok := deleted[u.ID]; ok {
+			continue
+		}
+
+		if strings.ContainsRune(u.UserAgent, '~') {
+			u.UserAgent = gadget.Unshorten(u.UserAgent)
+		} else {
+			u.UserAgent = gadget.Shorten(u.UserAgent)
+		}
+
+		var dupes []int64
+		err := zdb.Select(ctx, &dupes, `select user_agent_id from user_agents where ua=? and user_agent_id != ?`,
+			u.UserAgent, u.ID)
+		if err != nil {
+			return err
+		}
+		if len(dupes) > 0 {
+			fmt.Printf("%d → dupes: %v\n", u.ID, dupes)
+			err := zdb.Exec(ctx, `update hits set user_agent_id=? where user_agent_id in (?)`, u.ID, dupes)
+			if err != nil {
+				return err
+			}
+			err = zdb.Exec(ctx, `delete from user_agents where user_agent_id in (?)`, dupes)
+			if err != nil {
+				return err
+			}
+			for _, d := range dupes {
+				deleted[d] = struct{}{}
+			}
+		}
+	}
+
+	agents, err = getAgents(ctx)
+	if err != nil {
+		return err
 	}
 
 	errs := errors.NewGroup(1000)
@@ -61,8 +106,8 @@ func UserAgents(ctx context.Context) error {
 		bot := isbot.UserAgent(u.UserAgent)
 		err = zdb.Exec(ctx, `update user_agents
 				set browser_id=$1, system_id=$2, ua=$3, isbot=$4 where user_agent_id=$5`,
-			browser.ID, system.ID, u.UserAgent, bot, u.ID)
-		errs.Append(err)
+			browser.ID, system.ID, gadget.Shorten(u.UserAgent), bot, u.ID)
+		errs.Append(errors.Wrapf(err, "update user_agent %d", u.ID))
 	}
 	if errs.Len() > 0 {
 		return errs
