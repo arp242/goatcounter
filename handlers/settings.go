@@ -59,17 +59,23 @@ func (h settings) mount(r chi.Router) {
 		set.Get("/settings", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			zhttp.SeeOther(w, "/settings/main")
 		}))
-		set.Get("/settings/main", zhttp.Wrap(h.main(nil)))
+		set.Get("/settings/main", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.main(nil)(w, r)
+		}))
 		set.Post("/settings/main", zhttp.Wrap(h.mainSave))
 		set.Get("/settings/main/ip", zhttp.Wrap(h.ip))
 		set.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
 		set.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 
-		set.Get("/settings/purge", zhttp.Wrap(h.purge(nil)))
+		set.Get("/settings/purge", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.purge(nil)(w, r)
+		}))
 		set.Get("/settings/purge/confirm", zhttp.Wrap(h.purgeConfirm))
 		set.Post("/settings/purge", zhttp.Wrap(h.purgeDo))
 
-		set.Get("/settings/export", zhttp.Wrap(h.export(nil)))
+		set.Get("/settings/export", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.export(nil)(w, r)
+		}))
 		set.Get("/settings/export/{id}", zhttp.Wrap(h.exportDownload))
 		set.Post("/settings/export/import", zhttp.Wrap(h.exportImport))
 		set.With(mware.Ratelimit(mware.RatelimitOptions{
@@ -83,22 +89,36 @@ func (h settings) mount(r chi.Router) {
 	{ // Admin settings
 		admin := r.With(requireAccess(goatcounter.AccessAdmin))
 
-		admin.Get("/user/api", zhttp.Wrap(h.userAPI(nil)))
+		admin.Get("/user/api", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.userAPI(nil)(w, r)
+		}))
 
-		admin.Get("/settings/sites", zhttp.Wrap(h.sites(nil)))
+		admin.Get("/settings/sites", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.sites(nil)(w, r)
+		}))
 		admin.Post("/settings/sites/add", zhttp.Wrap(h.sitesAdd))
 		admin.Get("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemoveConfirm))
 		admin.Post("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemove))
 		admin.Post("/settings/sites/copy-settings", zhttp.Wrap(h.sitesCopySettings))
 
-		admin.Get("/settings/users", zhttp.Wrap(h.users(nil)))
-		admin.Get("/settings/users/add", zhttp.Wrap(h.usersForm(nil, nil)))
-		admin.Get("/settings/users/{id}", zhttp.Wrap(h.usersForm(nil, nil)))
+		admin.Get("/settings/users", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.users(nil)(w, r)
+		}))
+
+		admin.Get("/settings/users/add", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.usersForm(nil, nil)(w, r)
+		}))
+		admin.Get("/settings/users/{id}", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.usersForm(nil, nil)(w, r)
+		}))
+
 		admin.Post("/settings/users/add", zhttp.Wrap(h.usersAdd))
 		admin.Post("/settings/users/{id}", zhttp.Wrap(h.usersEdit))
 		admin.Post("/settings/users/remove/{id}", zhttp.Wrap(h.usersRemove))
 
-		admin.Get("/settings/delete-account", zhttp.Wrap(h.delete(nil)))
+		admin.Get("/settings/delete-account", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.delete(nil)(w, r)
+		}))
 		admin.Post("/settings/delete-account", zhttp.Wrap(h.deleteDo))
 	}
 
@@ -714,12 +734,6 @@ func (h settings) users(verr *zvalidate.Validator) zhttp.HandlerFunc {
 
 func (h settings) usersForm(newUser *goatcounter.User, pErr error) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		var sites goatcounter.Sites
-		err := sites.ForThisAccount(r.Context(), false)
-		if err != nil {
-			return err
-		}
-
 		edit := newUser != nil && newUser.ID > 0
 		if newUser == nil {
 			newUser = &goatcounter.User{
@@ -753,12 +767,11 @@ func (h settings) usersForm(newUser *goatcounter.User, pErr error) zhttp.Handler
 
 		return zhttp.Template(w, "settings_users_form.gohtml", struct {
 			Globals
-			Sites    goatcounter.Sites
 			NewUser  goatcounter.User
 			Validate *zvalidate.Validator
 			Error    error
 			Edit     bool
-		}{newGlobals(w, r), sites, *newUser, vErr, pErr, edit})
+		}{newGlobals(w, r), *newUser, vErr, pErr, edit})
 	}
 }
 

@@ -67,7 +67,7 @@ func init() {
 
 func TestMain(m *testing.M) {
 	os.Exit(ztpl.TestTemplateExecution(m,
-		"", "bosmang.gohtml", "bosmang_site.gohtml",
+		"", "bosmang.gohtml", "bosmang_site.gohtml", "bosmang_cache.gohtml",
 
 		// Tested in tpl_test.go
 		"email_export_done.gotxt", "email_forgot_site.gotxt", "email_import_done.gotxt",
