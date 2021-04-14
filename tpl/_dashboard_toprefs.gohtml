@@ -1,4 +1,4 @@
-{{- $x := horizontal_chart .Context .Stats .TotalUnique true true -}}
+{{- $x := horizontal_chart .Context .Stats .TotalUnique (not .RowsOnly) true -}}
 {{- if .RowsOnly -}}
 	{{- $x -}}
 {{- else -}}
