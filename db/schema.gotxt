@@ -317,6 +317,7 @@ insert into version values
 	('2021-03-16-1-billing'),
 	('2021-03-17-1-collect-session'),
 	('2021-03-18-1-usersettings'),
-	('2021-03-20-1-tokens');
+	('2021-03-20-1-tokens'),
+	('2021-03-29-1-widgets');
 
 -- vim:ft=sql:tw=0

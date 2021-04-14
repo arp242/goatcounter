@@ -61,7 +61,7 @@ func TestBrowserStats(t *testing.T) {
 
 	// List just Firefox.
 	stats = goatcounter.HitStats{}
-	err = stats.ListBrowser(ctx, "Firefox", ztime.NewRange(now).To(now), nil)
+	err = stats.ListBrowser(ctx, "Firefox", ztime.NewRange(now).To(now), nil, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

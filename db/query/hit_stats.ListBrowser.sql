@@ -10,3 +10,4 @@ where
 	lower(name) = lower(:browser)
 group by name, version
 order by count_unique desc, name asc
+limit :limit offset :offset

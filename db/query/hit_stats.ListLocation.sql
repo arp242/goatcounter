@@ -10,3 +10,4 @@ where
 	country = :country
 group by iso_3166_2, name
 order by count_unique desc, name asc
+limit :limit offset :offset

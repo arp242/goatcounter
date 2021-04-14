@@ -10,4 +10,4 @@ where
 	{{:has_domain and ref not like :ref}}
 group by ref
 order by count_unique desc, ref
-limit 6 offset :offset
+limit :limit offset :offset

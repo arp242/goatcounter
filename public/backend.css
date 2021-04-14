@@ -302,13 +302,16 @@ tr.target .chart-left { display: block; }
 
 /*** Widget settings
  *******************/
-.widget                { position: relative; margin-bottom: .5em; padding: .5em; padding-left: 2.5em;
-						 border: 1px solid #d6d6d6; background-color: #fafafa; }
-.widget-save           { display: flex; justify-content: space-between; }
-.widget-settings label { display: inline-block; min-width: 9em; margin-bottom: 1em; }
-.widget-settings       { margin-left: 2em; }
-.widget-settings .help { margin-left: 1em;  }
+.widget                 { position: relative; margin-bottom: .5em; padding-left: 2em; border-top: 1px solid #e6e6e6; box-shadow: 2px 2px 2px rgba(0,0,0,.2); }
+.widget .header         { display: flex; justify-content: space-between; padding: .5em; }
+.widget .header strong  { display: inline-block; width: 12em; }
+.widget .show-s         { display: inline-block; width: 2em; text-align: center; }
+.widget-save            { display: flex; justify-content: space-between; }
+.widget-settings label  { display: inline-block; min-width: 9em; margin-bottom: 1em; }
+.widget-settings        { display: none; margin-top: .5em; margin-left: 2em; }
+.widget-settings .help  { margin-left: 1em;  }
 .widget-settings br:last-child { display: none; }
+.widget-add-new         { margin: 1em 0 1.5em 2.1em; }
 
 @media (max-width: 46rem) {
 	.widget-settings label { display: block; margin-bottom: 0; }

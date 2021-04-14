@@ -14,7 +14,6 @@ import (
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
-	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztime"
 )
@@ -86,7 +85,7 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 // List the top paths for this site in the given time period.
 func (h *HitLists) List(
-	ctx context.Context, rng ztime.Range, pathFilter, exclude []int64, daily bool,
+	ctx context.Context, rng ztime.Range, pathFilter, exclude []int64, limit int, daily bool,
 ) (int, int, bool, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
@@ -94,7 +93,6 @@ func (h *HitLists) List(
 	// List the pages for this page; this gets the path_id, path, title.
 	var more bool
 	{
-		limit := int(zint.NonZero(int64(user.Settings.LimitPages()), 10))
 		err := zdb.Select(ctx, h, `/* HitLists.List */
 			with x as (
 				select path_id from hit_counts
@@ -204,7 +202,7 @@ func (h *HitLists) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the data for the "Totals" chart/widget.
-func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int64, daily bool) (int, error) {
+func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int64, daily, noEvents bool) (int, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
@@ -218,7 +216,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 		"start":     rng.Start,
 		"end":       rng.End,
 		"filter":    pathFilter,
-		"no_events": user.Settings.TotalsNoEvents(),
+		"no_events": noEvents,
 	})
 	if err != nil {
 		return 0, errors.Wrap(err, "HitList.Totals")
@@ -456,7 +454,7 @@ type TotalCount struct {
 // UTC. This is needed since the _stats tables are per day, rather than
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
-func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64) (TotalCount, error) {
+func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64, noEvents bool) (TotalCount, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
@@ -468,7 +466,7 @@ func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64) (To
 		"start_utc": rng.Start.In(user.Settings.Timezone.Location),
 		"end_utc":   rng.End.In(user.Settings.Timezone.Location),
 		"filter":    pathFilter,
-		"no_events": user.Settings.TotalsNoEvents(),
+		"no_events": noEvents,
 		"tz":        user.Settings.Timezone.Offset(),
 	})
 	return t, errors.Wrap(err, "GetTotalCount")

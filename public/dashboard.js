@@ -332,24 +332,27 @@
 	var paginate_pages = function() {
 		$('.pages-list >.load-more').on('click', function(e) {
 			e.preventDefault()
-			var done = paginate_button($(this), () => {
+
+			var btn   = $(this),
+				pages = $(this).closest('.pages-list')
+			var done = paginate_button(btn, () => {
 				jQuery.ajax({
-					url:  '/pages-more',
+					url:  '/load-widget',
 					data: append_period({
+						widget:    pages.attr('data-widget'),
 						daily:     $('#daily').is(':checked'),
-						exclude:   $('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
+						exclude:   pages.find('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
-						offset:    $('.count-list-pages >tbody >tr').length + 1,
 						'as-text': $('#as-text').is(':checked'),
 					}),
 					success: function(data) {
-						$('.pages-list .count-list-pages > tbody.pages').append(data.rows)
+						pages.find('.count-list-pages >tbody.pages').append(data.html)
 						draw_chart()
 
 						highlight_filter($('#filter-paths').val())
-						$('.pages-list >.load-more').css('display', data.more ? 'inline-block' : 'none')
+						btn.css('display', data.more ? 'inline-block' : 'none')
 
-						$('.total-unique-display').each((_, t) => {
+						pages.find('.total-unique-display').each((_, t) => {
 							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display))
 						})
 
@@ -360,70 +363,15 @@
 		})
 	}
 
-	// Paginate and show details for the horizontal charts.
-	var hchart_detail = function() {
-		var get_total = () => $('.js-total-unique-utc').text()
-
-		// Paginate.
-		$('.hcharts .load-more').on('click', function(e) {
-			e.preventDefault();
-
-			var btn   = $(this),
-				chart = btn.closest('[data-more]'),
-				rows  = chart.find('>.rows')
-			var done = paginate_button($(this), () => {
-				jQuery.ajax({
-					url:     chart.attr('data-more'),
-					data:    append_period({total: get_total(), offset: rows.find('>div').length}),
-					success: function(data) {
-						rows.append($(data.html).find('>div'))
-						if (!data.more)
-							btn.css('display', 'none')
-						done()
-					},
-				})
-			})
-		})
-
-		// Load detail.
-		$('.hchart').on('click', '.load-detail', function(e) {
-			e.preventDefault()
-
-			var btn   = $(this),
-				row   = btn.closest('div[data-name]'),
-				chart = btn.closest('.hchart'),
-				url   = chart.attr('data-detail'),
-				name  = row.attr('data-name')
-			if (!url || !name)
-				return;
-			if (row.next().is('.detail'))
-				return row.next().remove()
-
-			var l = btn.find('.bar-c')
-			l.addClass('loading')
-			var done = paginate_button(l, () => {
-				jQuery.ajax({
-					url:     url,
-					data:    append_period({name: name, total: get_total()}),
-					success: function(data) {
-						chart.find('.detail').remove()
-						row.after($('<div class="detail"></div>').html(data.html))
-						done()
-					},
-				})
-			})
-		})
-	}
-
-
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages, .totals').on('click', '.load-refs, .hchart .load-more', function(e) {
+		$('.count-list-pages').on('click', '.load-refs, .hchart .load-more', function(e) {
 			e.preventDefault()
 
 			var params = split_query(location.search),
 				btn    = $(this),
 				row    = btn.closest('tr'),
+				widget = row.closest('.pages-list').attr('data-widget'),
 				path   = row.attr('id'),
 				init   = btn .is('.load-refs'),
 				close  = function() {
@@ -443,12 +391,12 @@
 			push_query({showrefs: path})
 			var done = paginate_button(btn , () => {
 				jQuery.ajax({
-					url:   '/hchart-more',
+					url:   '/load-widget',
 					data: append_period({
-						kind:    'ref',
-						total:    row.find('>.col-count').text().replace(/[^0-9]+/g, ''),
-						showrefs: path,
-						offset:   row.find('.refs .rows>div').length,
+						widget: widget,
+						key:    path,
+						total:  row.find('>.col-count').text().replace(/[^0-9]+/g, ''),
+						offset: row.find('.refs .rows>div').length,
 					}),
 					success: function(data) {
 						row.addClass('target')
@@ -463,6 +411,70 @@
 							if (!data.more)
 								btn.css('display', 'none')
 						}
+						done()
+					},
+				})
+			})
+		})
+	}
+
+	// Paginate and show details for the horizontal charts.
+	var hchart_detail = function() {
+		var get_total = () => $('.js-total-unique-utc').text()
+
+		// Paginate the horizontal charts.
+		$('.hcharts').on('click', '.load-more', function(e) {
+			e.preventDefault();
+
+			var btn   = $(this),
+				chart = btn.closest('.hchart'),
+				key   = chart.attr('data-key'),
+				rows  = chart.find('>.rows')
+			var done = paginate_button($(this), () => {
+				jQuery.ajax({
+					url:  '/load-widget',
+					data: append_period({
+						widget: chart.attr('data-widget'),
+						total:  get_total(),
+						key:    key,
+						offset: rows.find('>div:not(.hchart)').length,
+					}),
+					success: function(data) {
+						rows.append($(data.html).find('>div'))
+						if (!data.more)
+							btn.css('display', 'none')
+						done()
+					},
+				})
+			})
+		})
+
+		// Load detail.
+		$('.hchart').on('click', '.load-detail', function(e) {
+			e.preventDefault()
+
+			var btn    = $(this),
+				row    = btn.closest('div[data-key]'),
+				chart  = row.closest('.hchart'),
+				widget = chart.attr('data-widget'),
+				key    = row.attr('data-key')
+			if (row.next().is('.detail'))
+				return row.next().remove()
+
+			var l = btn.find('.bar-c')
+			l.addClass('loading')
+			var done = paginate_button(l, () => {
+				jQuery.ajax({
+					url:     '/load-widget',
+					data:    append_period({
+						widget: widget,
+						key:    key,
+						total:  get_total(),
+						//offset: rows.find('>div').length,
+					}),
+					success: function(data) {
+						chart.find('.detail').remove()
+						row.after($(`<div class="hchart detail" data-widget="${widget}" data-key="${key}"></div>`).html(data.html))
 						done()
 					},
 				})

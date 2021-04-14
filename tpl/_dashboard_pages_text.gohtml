@@ -1,4 +1,4 @@
-<div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}">
+<div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	<h2 class="full-width">Pages <small>
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of
 		<span class='total-unique'>{{nformat .TotalUnique $.User}}</span> visits shown

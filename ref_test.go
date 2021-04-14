@@ -29,7 +29,7 @@ func TestListRefsByPath(t *testing.T) {
 	rng := ztime.NewRange(ztime.Now().Add(-1 * time.Hour)).To(ztime.Now().Add(1 * time.Hour))
 
 	var s HitStats
-	err := s.ListRefsByPath(ctx, "/x", rng, 0)
+	err := s.ListRefsByPath(ctx, "/x", rng, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func TestListTopRefs(t *testing.T) {
 
 	{
 		var s HitStats
-		err := s.ListTopRefs(ctx, rng, nil, 0)
+		err := s.ListTopRefs(ctx, rng, nil, 10, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -90,7 +90,7 @@ func TestListTopRefs(t *testing.T) {
 
 	{
 		var s HitStats
-		err := s.ListTopRefs(ctx, rng, []int64{2}, 0)
+		err := s.ListTopRefs(ctx, rng, []int64{2}, 10, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

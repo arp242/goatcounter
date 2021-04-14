@@ -8,33 +8,17 @@
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<input type="hidden" name="reset" value="">
 
-	{{range $i, $w := .Widgets}}
-		<div class="widget" id="widget-{{$w.Name}}">
-			<span class="drag-handle" title="Drag to reorder"></span>
-			<input type="hidden" name="widgets.{{$w.Name}}.index" value="{{$i}}" class="index">
-			<label class="main">
-				<input type="checkbox" name="widgets.{{$w.Name}}.on" {{if $.User.Settings.Widgets.On $w.Name}}checked{{end}}>
-				<strong>{{$w.Label}}</strong>
-			</label>
-			<input type="hidden" name="widgets.{{$w.Name}}.on" value="off">
+	{{template "_user_dashboard_widgets.gohtml" .}}
 
-			<div class="widget-settings">
-				{{range $k, $v := $.User.Settings.Widgets.GetSettings $w.Name}}
-					{{ $id := (print "widgets_" $w.Name "_s_" $k) }}
-					{{ $n  := (print "widgets." $w.Name ".s." $k) }}
-					{{if eq $v.Type "checkbox"}}
-						<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
-					{{else}}
-						<label for="{{$id}}">{{$v.Label}}</label>
-						<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}">
-					{{end}}
-					<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
-					{{validate (print "widgets." $w.Name ".s." $k) $.Validate}}
-					<br>
-				{{end}}
-			</div>
-		</div>
-	{{end}}
+	<div class="widget-add-new">
+		<select>
+			<option>Add new</option>
+			{{range $w := .CanAddWidgets}}
+				<option value="{{$w.Name}}">{{$w.Label}}</option>
+			{{end}}
+		</select>
+	</div>
+
 	<div class="widget-save">
 		<div>
 			<button type="save">Save</button>
@@ -46,5 +30,11 @@
 		<button class="widgets-reset">Reset to defaults</button>
 	</div>
 </form>
+
+{{if has_errors .Validate}}
+	<div class="flash flash-e"
+		style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
+	Additional errors:{{.Validate.HTML}}</div>
+{{end}}
 
 {{template "_backend_bottom.gohtml" .}}

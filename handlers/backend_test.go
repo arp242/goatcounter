@@ -7,6 +7,7 @@ package handlers
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -98,7 +99,7 @@ func TestBackendPagesMore(t *testing.T) {
 		goatcounter.Hit{Path: "/10"},
 	)
 	url := fmt.Sprintf(
-		"/pages-more?exclude=1,2,3,4,5&max=10&period-start=%s&period-end=%s",
+		"/load-widget?widget=0&exclude=1,2,3,4,5&max=10&period-start=%s&period-end=%s",
 		now.Format("2006-01-02"), now.Format("2006-01-02"))
 
 	r, rr := newTest(ctx, "GET", url, nil)
@@ -109,26 +110,40 @@ func TestBackendPagesMore(t *testing.T) {
 
 	var body map[string]interface{}
 	zjson.MustUnmarshal(rr.Body.Bytes(), &body)
-	delete(body, "rows")
-	have := string(zjson.MustMarshalIndent(body, "", "\t"))
 
-	want := `{
-		"max": 10,
+	haveHTML := grep("tr id=", string(body["html"].(string)))
+	wantHTML := `
+        <tr id="/10" data-id="10" class=" ">
+        <tr id="/9" data-id="9" class=" ">
+        <tr id="/8" data-id="8" class=" ">
+        <tr id="/7" data-id="7" class=" ">
+        <tr id="/6" data-id="6" class=" ">`
+
+	delete(body, "html")
+	haveJSON := string(zjson.MustMarshalIndent(body, "", "\t"))
+	wantJSON := `{
 		"more": false,
-		"paths": [
-			"/10",
-			"/9",
-			"/8",
-			"/7",
-			"/6"
-		],
-		"total_display": 5,
 		"total_unique_display": 0
 	}`
 
-	if d := ztest.Diff(have, want, ztest.DiffNormalizeWhitespace); d != "" {
+	if d := ztest.Diff(haveHTML, wantHTML, ztest.DiffNormalizeWhitespace); d != "" {
 		t.Error(d)
 	}
+	if d := ztest.Diff(haveJSON, wantJSON, ztest.DiffNormalizeWhitespace); d != "" {
+		t.Error(d)
+	}
+}
+
+func grep(pat, lines string) string {
+	s := strings.Split(lines, "\n")
+	r := make([]string, 0, len(s)/2)
+	re := regexp.MustCompile(pat)
+	for _, l := range s {
+		if re.MatchString(l) {
+			r = append(r, l)
+		}
+	}
+	return strings.Join(r, "\n")
 }
 
 func BenchmarkCount(b *testing.B) {

@@ -10,9 +10,9 @@
 				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
 			{{end}}
 
-			<div class="refs hchart" data-more="/hchart-more?kind=ref">
+			<div class="refs hchart">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{horizontal_chart $.Context $.Refs $h.CountUnique $.User.Settings.LimitRefs false true}}
+					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "CountUnique" $h.CountUnique)}}
 				{{end}}
 			</div>
 		</td>

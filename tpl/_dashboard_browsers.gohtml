@@ -1,9 +1,14 @@
-<div class="hchart" data-detail="/hchart-detail?kind=browser" data-more="/hchart-more?kind=browser">
-	<h2>Browsers</h2>
-	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
-	{{if .Err}}
-		<em>Error: {{.Err}}</em>
-	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUniqueUTC 6 true true}}
-	{{end}}
-</div>
+{{- $x := horizontal_chart .Context .Stats .TotalUniqueUTC true true -}}
+{{- if .RowsOnly -}}
+	{{- $x -}}
+{{- else -}}
+	<div class="hchart" data-widget="{{.ID}}">
+		<h2>Browsers</h2>
+		{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
+		{{if .Err}}
+			<em>Error: {{.Err}}</em>
+		{{else}}
+			{{$x}}
+		{{end}}
+	</div>
+{{- end -}}

@@ -74,6 +74,9 @@ func TestMain(m *testing.M) {
 		"email_import_error.gotxt", "email_password_reset.gotxt", "email_verify.gotxt",
 		"email_adduser.gotxt",
 
+		// TODO
+		"_dashboard_pages_refs.gohtml",
+
 		// TODO: hard to test; requires a browser as the JS generates secret
 		// Stripe stuff in JS.
 		"billing.gohtml",

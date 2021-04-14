@@ -1,9 +1,14 @@
-<div class="hchart" data-detail="/hchart-detail?kind=topref" data-more="/hchart-more?kind=topref">
-	<h2>Top referrers</h2>
-	{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
-	{{if .Err}}
-		<em>Error: {{.Err}}</em>
-	{{else}}
-		{{horizontal_chart .Context .Stats .TotalUnique 6 true true}}
-	{{end}}
-</div>
+{{- $x := horizontal_chart .Context .Stats .TotalUnique true true -}}
+{{- if .RowsOnly -}}
+	{{- $x -}}
+{{- else -}}
+	<div class="hchart" data-widget="{{.ID}}">
+		<h2>Top referrers</h2>
+		{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
+		{{if .Err}}
+			<em>Error: {{.Err}}</em>
+		{{else}}
+			{{$x}}
+		{{end}}
+	</div>
+{{- end -}}

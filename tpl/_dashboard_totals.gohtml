@@ -1,8 +1,9 @@
 <div class="totals">
 	<h2 class="full-width">Totals <small>
-		{{if .User.Settings.TotalsNoEvents}}
+		{{if .NoEvents}}
 			<span>{{nformat (sub .TotalUnique .TotalEventsUnique) $.User}}</span> visits;
-			<span>{{nformat (sub .Total .TotalEvents) $.User}}</span> pageviews
+			<span>{{nformat (sub .Total .TotalEvents) $.User}}</span> pageviews,
+			excluding events
 		{{else}}
 			<span>{{nformat .TotalUnique $.User}}</span> visits;
 			<span>{{nformat .Total $.User}}</span> pageviews

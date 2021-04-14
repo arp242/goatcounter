@@ -11,7 +11,6 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/zdb"
-	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
 )
 
@@ -190,13 +189,9 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 }
 
 // ListRefsByPath lists all references for a path.
-func (h *HitStats) ListRefsByPath(ctx context.Context, path string, rng ztime.Range, offset int) error {
-	site := MustGetSite(ctx)
-	user := MustGetUser(ctx)
-	limit := int(zint.NonZero(int64(user.Settings.LimitRefs()), 10))
-
+func (h *HitStats) ListRefsByPath(ctx context.Context, path string, rng ztime.Range, limit, offset int) error {
 	err := zdb.Select(ctx, &h.Stats, "load:ref.ListRefsByPath.sql", zdb.P{
-		"site":   site.ID,
+		"site":   MustGetSite(ctx).ID,
 		"start":  rng.Start,
 		"end":    rng.End,
 		"path":   path,
@@ -209,31 +204,4 @@ func (h *HitStats) ListRefsByPath(ctx context.Context, path string, rng ztime.Ra
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
 	return errors.Wrap(err, "HitStats.ListRefsByPath")
-}
-
-// ListTopRefs lists all ref statistics for the given time period, excluding
-// referrals from the configured LinkDomain.
-//
-// The returned count is the count without LinkDomain, and is different from the
-// total number of hits.
-func (h *HitStats) ListTopRefs(ctx context.Context, rng ztime.Range, pathFilter []int64, offset int) error {
-	site := MustGetSite(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:ref.ListTopRefs.sql", zdb.P{
-		"site":       site.ID,
-		"start":      rng.Start,
-		"end":        rng.End,
-		"filter":     pathFilter,
-		"ref":        site.LinkDomain + "%",
-		"offset":     offset,
-		"has_domain": site.LinkDomain != "",
-	})
-	if err != nil {
-		return errors.Wrap(err, "HitStats.ListAllRefs")
-	}
-
-	if len(h.Stats) > 6 {
-		h.More = true
-		h.Stats = h.Stats[:len(h.Stats)-1]
-	}
-	return nil
 }
