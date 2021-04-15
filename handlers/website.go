@@ -85,7 +85,9 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 
 	r.Get("/signup", zhttp.Wrap(h.signup))
 	r.Post("/signup", zhttp.Wrap(h.doSignup))
-	r.Get("/user/forgot", zhttp.Wrap(h.forgot))
+	r.Get("/user/forgot", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return h.forgot(nil, "", "")(w, r)
+	}))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
 	for _, t := range []string{"", "privacy", "terms", "why", "data", "design"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
@@ -387,12 +389,80 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL(r.Context())))
 }
 
-func (h website) forgot(w http.ResponseWriter, r *http.Request) error {
-	return zhttp.Template(w, "user_forgot_code.gohtml", struct {
-		Globals
-		Page     string
-		MetaDesc string
-	}{newGlobals(w, r), "forgot", "Forgot domain – GoatCounter"})
+func (h website) forgot(err error, email, turingTest string) zhttp.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		v := zvalidate.As(err)
+		if v != nil {
+			err = nil
+		}
+		return zhttp.Template(w, "user_forgot_code.gohtml", struct {
+			Globals
+			Page       string
+			MetaDesc   string
+			Err        error
+			Validate   *zvalidate.Validator
+			Email      string
+			TuringTest string
+		}{newGlobals(w, r), "forgot", "Forgot domain – GoatCounter",
+			err, v, email, turingTest})
+	}
+}
+
+func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
+	var args struct {
+		Email      string `json:"email"`
+		TuringTest string `json:"turing_test"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return h.forgot(err, args.Email, args.TuringTest)(w, r)
+	}
+
+	v := zvalidate.New()
+	v.Required("email", args.Email)
+	v.Required("turing_test", args.TuringTest)
+	v.Email("email", args.Email)
+	if strings.TrimSpace(args.TuringTest) != "9" {
+		v.Append("turing", "must be 9")
+	}
+	if v.HasErrors() {
+		return h.forgot(v, args.Email, args.TuringTest)(w, r)
+	}
+
+	var users goatcounter.Users
+	err = users.ByEmail(r.Context(), args.Email)
+	if err != nil {
+		return h.forgot(err, args.Email, args.TuringTest)(w, r)
+	}
+
+	var sites goatcounter.Sites
+	for _, u := range users {
+		var s goatcounter.Site
+		err := s.ByID(r.Context(), u.Site)
+		if zdb.ErrNoRows(err) { // Deleted site.
+			continue
+		}
+		if err != nil {
+			return err
+		}
+
+		sites = append(sites, s)
+	}
+
+	ctx := goatcounter.CopyContextValues(r.Context())
+	bgrun.Run("email:sites", func() {
+		defer zlog.Recover()
+		err := blackmail.Send("Your GoatCounter sites",
+			mail.Address{Name: "GoatCounter", Address: goatcounter.Config(ctx).EmailFrom},
+			blackmail.To(args.Email),
+			blackmail.BodyMustText(goatcounter.TplEmailForgotSite{ctx, sites, args.Email}.Render))
+		if err != nil {
+			zlog.Error(err)
+		}
+	})
+
+	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
+	return zhttp.SeeOther(w, "/user/forgot")
 }
 
 func (h website) code(w http.ResponseWriter, r *http.Request) error {
@@ -480,51 +550,6 @@ func (h website) downloadData(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("Content-Type", "application/gzip")
 	return zhttp.Stream(w, fp)
-}
-
-func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
-	var args struct {
-		Email string `json:"email"`
-	}
-	_, err := zhttp.Decode(r, &args)
-	if err != nil {
-		return err
-	}
-
-	var users goatcounter.Users
-	err = users.ByEmail(r.Context(), args.Email)
-	if err != nil {
-		return err
-	}
-
-	var sites goatcounter.Sites
-	for _, u := range users {
-		var s goatcounter.Site
-		err := s.ByID(r.Context(), u.Site)
-		if zdb.ErrNoRows(err) { // Deleted site.
-			continue
-		}
-		if err != nil {
-			return err
-		}
-
-		sites = append(sites, s)
-	}
-
-	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run("email:sites", func() {
-		defer zlog.Recover()
-		err := blackmail.Send("Your GoatCounter sites",
-			mail.Address{Name: "GoatCounter", Address: goatcounter.Config(ctx).EmailFrom},
-			blackmail.To(args.Email),
-			blackmail.BodyMustText(goatcounter.TplEmailForgotSite{ctx, sites, args.Email}.Render))
-		if err != nil {
-			zlog.Error(err)
-		}
-	})
-
-	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
-	return zhttp.SeeOther(w, "/user/forgot")
 }
 
 func (h website) contribute(w http.ResponseWriter, r *http.Request) error {

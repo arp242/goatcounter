@@ -48,5 +48,5 @@ require (
 	zgo.at/zprof v0.0.0-20210408083551-44ef6d69c2ec
 	zgo.at/zstd v0.0.0-20210407180706-4f614239d22d
 	zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08
-	zgo.at/zvalidate v0.0.0-20210311035759-a017d2572036
+	zgo.at/zvalidate v0.0.0-20210415003959-d3c7c37d3304
 )

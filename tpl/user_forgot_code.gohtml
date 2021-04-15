@@ -1,11 +1,21 @@
 {{template "_top.gohtml" .}}
 
 <h1>Forgot domain</h1>
+{{- if .Err}}<div class="flash flash-e">{{.Err}}</div>{{end -}}
+
 <p>Email a list of all domains associated with an email address.</p>
 
-<form method="post" action="/user/forgot">
+<form method="post" action="/user/forgot" class="vertical">
 	<label for="email">Email address</label>
-	<input type="email" name="email" id="email" required>
+	<input type="email" name="email" id="email" value="{{.Email}}" required>
+	{{validate "email" .Validate}}
+
+	<label for="turing_test">Fill in 9 here</label>
+	<input type="text" name="turing_test" id="turing_test" value="{{.TuringTest}}" required>
+	{{validate "turing_test" .Validate}}
+	<span class="help">Just a little verification that you’re human :-)</span>
+
+	<br><br>
 	<button>Send login URL</button>
 </form>
 
