@@ -34,7 +34,7 @@ select
 	plan,
 	stripe,
 	grouped.last_month,
-	(coalesce(total, 0) / extract('days' from now() - created_at)*30.5)::int as avg
+	(coalesce(total, 0) / greatest(extract('days' from now() - created_at), 1) * 30.5)::int as avg
 from grouped
 join sites using (site_id)
 where last_month > 10000 or total > 500000 or billing_amount is not null
