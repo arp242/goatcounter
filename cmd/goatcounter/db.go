@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
@@ -205,6 +206,8 @@ query command:
     anything, so use with care. Can be useful in cases where you don't have a
     psql or sqlite3 CLI available.
 
+    Only runs one query, unless -format=exec is given.
+
     -format         Format to print, accepted values:
 
                         table     ASCII table, one row per line (default).
@@ -212,6 +215,9 @@ query command:
                         csv       CSV (includes header).
                         json      JSON, as an array of objects.
                         html      HTML table.
+                        exec      Execute the query but don't return result.
+                                  Mostly useful for multiple "create table"
+                                  queries.
 
     There are a few special values to get some data:
 
@@ -417,6 +423,8 @@ func getFormat(format string) (zdb.DumpArg, error) {
 		return zdb.DumpJSON, nil
 	case "html":
 		return zdb.DumpHTML, nil
+	case "exec":
+		return -1, nil
 	default:
 		return 0, fmt.Errorf("-format: unknown value: %q", format)
 	}
@@ -485,21 +493,26 @@ func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 	if err != nil {
 		return err
 	}
-	if len(f.Args) != 1 {
-		return errors.New("must give exactly one parameter")
+
+	query, err := zli.InputOrArgs(f.Args, " ", false)
+	if err != nil {
+		return err
+	}
+	if len(query) == 0 || query[0] == "" {
+		return errors.New("need a query")
 	}
 
 	zlog.Config.SetDebug(*debug)
 
-	db, ctx, err := connectDB(*dbConnect, []string{"pending"}, *createdb, false)
+	db, ctx, err := connectDB(*dbConnect, nil, *createdb, false)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	q, err := db.Load(ctx, "db.query."+f.Args[0]+".sql")
+	q, err := db.Load(ctx, "db.query."+query[0]+".sql")
 	if err != nil {
-		q = f.Args[0]
+		q = strings.Join(query, " ")
 	}
 
 	dump, err := getFormat(format.String())
@@ -507,6 +520,9 @@ func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 		return err
 	}
 
+	if dump == -1 {
+		return zdb.Exec(ctx, q)
+	}
 	zdb.Dump(ctx, zli.Stdout, q, dump)
 	return nil
 }

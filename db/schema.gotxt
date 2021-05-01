@@ -297,7 +297,8 @@ create table iso_3166_1 (
 create unique index "iso_3166_1#alpha2" on iso_3166_1(alpha2);
 
 
-create table version (name varchar);
+create table if not exists version (name varchar);
+delete from version;
 insert into version values
 	('2020-08-28-1-paths-tables'),
 	('2020-08-28-2-paths-paths'),
@@ -318,6 +319,7 @@ insert into version values
 	('2021-03-17-1-collect-session'),
 	('2021-03-18-1-usersettings'),
 	('2021-03-20-1-tokens'),
-	('2021-03-29-1-widgets');
+	('2021-03-29-1-widgets'),
+	('2021-04-01-1-store-warn');
 
 -- vim:ft=sql:tw=0
