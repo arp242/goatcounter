@@ -26,7 +26,7 @@ This accepts the following query parameters:
 | Query | count.js   | Description                                                 |
 | :---- | :--------  | :----------                                                 |
 | `p`   | `path`     | Page path or event name.                                    |
-| `t`   | `tite`     | Page title.                                                 |
+| `t`   | `title`    | Page title.                                                 |
 | `r`   | `referrer` | Referrer value; usually the Referer header.                 |
 | `e`   | `event`    | event; as boolean (`true`, `false`, `1`, `0`, `on`, `off`). |
 | `q`   | -          | Query parameters, for getting campaigns.                    |
@@ -51,4 +51,4 @@ values:
 - `153` – Generic WebDriver-based headless browser.
 
 [isbot]: https://github.com/zgoat/isbot/blob/master/isbot.go#L46
-[cjs]: https://github.com/zgoat/goatcounter/blob/master/public/count.js#L52
+[cjs]: https://github.com/zgoat/goatcounter/blob/master/public/count.js#L54
