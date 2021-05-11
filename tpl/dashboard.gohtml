@@ -6,30 +6,23 @@
 			Please verify your email by clicking the link sent to {{.User.Email}}.
 			<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
 
-			Change the email address in the <a href="/user">settings</a> –
+			Change the email address in the <a href="/user">settings</a>.
 			<form method="post" action="/user/resend-verify">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-				<button class="link">Resend email</button>.
+				<button class="link">{{.T "button/resend-email|Resend email"}}</button>.
 			</form>
 		</div>
 	{{end}}
 
 	{{if not .Site.ReceivedData}}
 		<div class="flash flash-i">
-			<p><strong>No data received</strong> – GoatCounter hasn’t received any
-			data yet.<br>
-			Getting started is pretty easy, just add the following JavaScript
-			anywhere on the page:</p>
+			<p><strong>No data received</strong> – GoatCounter hasn’t received any data yet.<br>
+			Getting started is pretty easy, just add the following JavaScript anywhere on the page:</p>
 
 			<pre>&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
         async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;</pre>
-			<p>Check if your adblocker is blocking GoatCounter if you don’t see
-				any pageviews ({{.Site.Domain .Context}} and/or gc.zgo.at
-				domain).</p>
-
-			<p>This message will disappear once we receive data; see
-				<a href="/code">Site code</a> in the top menu for further
-				documentation and ready-made integrations.</p>
+			<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews ({{.Site.Domain .Context}} and/or gc.zgo.at domain).</p>
+			<p>This message will disappear once we receive data; see <a href="/code">Site code</a> in the top menu for further documentation and ready-made integrations.</p>
 		</div>
 	{{end}}
 {{end}} {{/* .User.ID */}}

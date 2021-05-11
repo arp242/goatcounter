@@ -1,14 +1,14 @@
 {{template "_backend_top.gohtml" .}}
 
-<h1>Reset password for {{.User.Email}} at {{.Site.Display .Context}}</h1>
+<h1>{{.T "header/reset-password|Reset password for %(email) at %(site-name)" .User.Email (.Site.Display .Context)}}</h1>
 <form method="post" action="/user/reset/{{.Key}}" class="vertical">
-	<label for="password">New password</label>
+	<label for="password">{{.T "label/new-password|New password"}}</label>
 	<input type="password" name="password" id="password" autocomplete="new-password" required><br>
 
-	<label for="password2">New password (confirm)</label>
+	<label for="password2">{{.T "label/new-password-confirm|New password (confirm)"}}</label>
 	<input type="password" name="password2" id="password2" autocomplete="new-password" required><br>
 
-	<button>Reset password</button>
+	<button>{{.T "button/reset-password|Reset password"}}</button>
 </form>
 
 {{template "_backend_bottom.gohtml" .}}

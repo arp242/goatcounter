@@ -117,7 +117,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	err = u.ByEmail(r.Context(), args.Email)
 	if err != nil {
 		if zdb.ErrNoRows(err) {
-			zhttp.FlashError(w, "Not an account on this site: %q", args.Email)
+			zhttp.FlashError(w, T(r.Context(), "error/reset-user-no-account|Not an account on this site: %(email)", args.Email))
 			return zhttp.SeeOther(w, fmt.Sprintf("/user/new?email=%s", url.QueryEscape(args.Email)))
 		}
 		return err
@@ -132,16 +132,16 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run("email:password", func() {
 		err := blackmail.Send(
-			fmt.Sprintf("Password reset for %s", site.Domain(ctx)),
+			T(ctx, "error/reset-user-email-subject|Password reset for %(domain)", site.Domain(ctx)),
 			blackmail.From("GoatCounter login", goatcounter.Config(ctx).EmailFrom),
 			blackmail.To(u.Email),
-			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render))
+			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render)) // TODO(t)
 		if err != nil {
 			zlog.Errorf("password reset: %s", err)
 		}
 	})
 
-	zhttp.Flash(w, "Email sent to %q", args.Email)
+	zhttp.Flash(w, T(r.Context(), "notify/reset-user-sent|Email sent to %(email)", args.Email))
 	return zhttp.SeeOther(w, "/user/forgot")
 }
 
@@ -164,25 +164,23 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	err = user.ByEmail(r.Context(), args.Email)
 	if err != nil {
 		if zdb.ErrNoRows(err) {
-			zhttp.FlashError(w, "User %q not found", args.Email)
+			zhttp.FlashError(w, T(r.Context(), "error/login-not-found|User %(email) not found", args.Email))
 			return zhttp.SeeOther(w, "/user/new")
 		}
 		return err
 	}
 
 	if user.Password == nil {
-		zhttp.FlashError(w,
-			"There is no password set for %q; please reset it",
-			args.Email)
+		zhttp.FlashError(w, T(r.Context(), "error/login-no-password|There is no password set for %(email); please reset it", args.Email))
 		return zhttp.SeeOther(w, "/user/forgot?email="+url.QueryEscape(args.Email))
 	}
 
 	err = bcrypt.CompareHashAndPassword(user.Password, []byte(args.Password))
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			zhttp.FlashError(w, "Wrong password for %q", args.Email)
+			zhttp.FlashError(w, T(r.Context(), "error/login-wrong-pwd|Wrong password for %(email)", args.Email))
 		} else {
-			zhttp.FlashError(w, "Something went wrong :-( An error has been logged for investigation.")
+			zhttp.FlashError(w, "Something went wrong :-( An error has been logged for investigation.") // TODO: should be more generic
 			zlog.Error(err)
 		}
 		return zhttp.SeeOther(w, "/user/new?email="+url.QueryEscape(args.Email))
@@ -224,7 +222,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 		valid = true
 	}
 	if !valid {
-		zhttp.Flash(w, "Invalid login")
+		zhttp.Flash(w, T(r.Context(), "error/login-invalid|Invalid login"))
 		return zhttp.SeeOther(w, "/user/new")
 	}
 
@@ -266,7 +264,8 @@ func (h user) reset(w http.ResponseWriter, r *http.Request) error {
 		if !zdb.ErrNoRows(err) {
 			zlog.Error(err)
 		}
-		return guru.New(http.StatusForbidden, "could find the user for the given token; perhaps it's expired or has already been used?")
+		return guru.New(http.StatusForbidden, T(r.Context(),
+			"error/login-token-expired|Could find the user for the given token; perhaps it's expired or has already been used?"))
 	}
 
 	user.ID = 0 // Don't count as logged in.

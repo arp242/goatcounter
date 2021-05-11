@@ -1,11 +1,10 @@
 <form method="post" action="/user/requestlogin" class="vertical">
-	<label for="email">Email address</label>
+	<label for="email">{{.T "label/email-address|Email address"}}</label>
 	<input type="email" name="email" id="email" value="{{.Email}}" autofocus required><br>
 
-	<label for="password">Password</label>
-	<input type="password" name="password" id="password" required
-		autocomplete="current-password"><br>
-	<button>Sign in</button>
+	<label for="password">{{.T "label/password|Password"}}</label>
+	<input type="password" name="password" id="password" required autocomplete="current-password"><br>
+	<button>{{.T "button/sign-in|Sign in"}}</button>
 </form>
 
-<p><a href="/user/forgot">Forgot password?</a></p>
+<p><a href="/user/forgot">{{.T "button/forgot-password|Forgot password?"}}</a></p>

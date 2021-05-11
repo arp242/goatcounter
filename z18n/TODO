@@ -1,0 +1,47 @@
+Add ability to add context to messages; for example:
+
+    Last
+    <button class="link" name="period" value="day">day</button> ·
+    <button class="link" name="period" value="week">week</button> ·
+
+"last" isn't very clear, and can be translated in multiple ways.
+
+Maybe just as a comment?
+
+  {{/* z18n: followed by day, week, etc. To go back one period. */}}
+  {{t "last|Last"}}
+
+Or maybe just keep it in a separate file instead of inline?
+
+
+---
+
+Add support for localizing numbers, dates.
+
+---
+
+Figure out what to do with stuff like:
+
+	Please verify your email by clicking the link sent to {{.User.Email}}.
+	<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
+
+	Change the email address in the <a href="/user">settings</a> –
+	<form method="post" action="/user/resend-verify">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<button class="link">Resend email</button>.
+	</form>
+
+I'd really like to avoid embeding HTML in translation strings, but we need to
+mark what needs wrapped in HTML *somehow*.
+
+We could use the existing [[ .. ]] syntax for this:
+
+	{{t .Context "change-email|Change the email address in the [[settings]]"}}
+
+But we need a way to say what HTML to add:
+
+	{{t .Context "change-email|Change the email address in the [[settings]]" "<a href=\"/user\">" "</a>"}}
+
+
+	l.T(ctx, "Highlight %(email)", z18n.Em(email))           Wrap in <em> tag
+	l.T(ctx, "Link %(email)", z18n.A(email, "/foo/bar"))     Wrap in <a> tag

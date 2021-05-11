@@ -1,6 +1,6 @@
 {{template "_backend_top.gohtml" .}}
 
-<h1>Sign in at {{.Site.Display .Context}}</h1>
+<h1>{{.T "header/sign-in-at|Sign in at %(name)" (.Site.Display .Context)}}</h1>
 {{template "_backend_signin.gohtml" .}}
 
 {{template "_backend_bottom.gohtml" .}}
