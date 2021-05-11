@@ -10,6 +10,7 @@ but you may need to update it in the future for new features.
 Latest
 ------
 - Support `start` and `end` in the visitor counter.
+- Update localhost filter to include `0.0.0.0`
 
 
 v2 (11 Mar 2021)
