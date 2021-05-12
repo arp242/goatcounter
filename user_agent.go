@@ -71,9 +71,9 @@ func (p *UserAgent) Update(ctx context.Context) error {
 	}
 
 	bot := isbot.UserAgent(p.UserAgent)
-	if bot != p.Isbot {
+	if uint8(bot) != p.Isbot {
 		changed = true
-		p.Isbot = bot
+		p.Isbot = uint8(bot)
 	}
 
 	if !changed {
@@ -136,7 +136,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	p.SystemID = system.ID
 
 	// Insert new row.
-	p.Isbot = isbot.UserAgent(p.UserAgent)
+	p.Isbot = uint8(isbot.UserAgent(p.UserAgent))
 	p.ID, err = zdb.InsertID(ctx, "user_agent_id",
 		`insert into user_agents (ua, isbot, browser_id, system_id) values (?, ?, ?, ?)`,
 		shortUA, p.Isbot, p.BrowserID, p.SystemID)

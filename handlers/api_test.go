@@ -256,12 +256,6 @@ func TestAPICount(t *testing.T) {
 	}{
 		{APICountRequest{}, 400, `{"error":"no hits"}`, ``},
 
-		// {
-		// 	APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
-		// 		{Path: "/", CreatedAt: ztime.Now().Add(5 * time.Minute)},
-		// 	}}, 400, `{"errors":{"0":"created_at: in the future.\n"}}`, "",
-		// },
-
 		{
 			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
 				{Path: "/foo"},
@@ -337,6 +331,42 @@ func TestAPICount(t *testing.T) {
 			1       1        /foo         0                           00112233445566778899aabbccddef01  0         NULL              1      2020-06-18 14:42:00
 			`,
 		},
+
+		// Filter bots
+		{
+			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
+				{Path: "/foo"},
+				{Path: "/foo", UserAgent: "curl/7.8"},
+			}},
+			202, respOK, `
+			hit_id  site_id  path  title  event  ua        browser   system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0                                  00112233445566778899aabbccddef01  0         NULL              1      2020-06-18 14:42:00
+			2       1        /foo         0      curl/7.8  curl 7.8          00112233445566778899aabbccddef02  7         NULL              1      2020-06-18 14:42:00
+			`,
+		},
+
+		// Filter IP
+		{
+			APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
+				{Path: "/foo", IP: "1.1.1.1"},
+			}},
+			202, respOK, ``,
+		},
+		{
+			APICountRequest{NoSessions: true, Filter: []string{"ip"}, Hits: []APICountRequestHit{
+				{Path: "/foo", IP: "1.1.1.1"},
+			}},
+			202, respOK, ``,
+		},
+		{
+			APICountRequest{NoSessions: true, Filter: []string{}, Hits: []APICountRequestHit{
+				{Path: "/foo", IP: "1.1.1.1"},
+			}},
+			202, respOK, `
+			hit_id  site_id  path  title  event  ua  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0                           00112233445566778899aabbccddef01  0         NULL         AU   1      2020-06-18 14:42:00
+			`,
+		},
 	}
 
 	ztime.SetNow(t, "2020-06-18 14:42:00")
@@ -345,6 +375,13 @@ func TestAPICount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
+			site := Site(ctx)
+			site.Settings.IgnoreIPs = []string{"1.1.1.1"}
+			err := site.Update(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/count",
 				bytes.NewReader(zjson.MustMarshal(tt.body)), perm)
 

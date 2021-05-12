@@ -528,6 +528,12 @@
           "type": "string",
           "readOnly": true
         },
+        "billing_anchor": {
+          "description": "\"Anchor\" for the billing period.\n\nThis is the time someone subscribed to a plan; and their billing period\nwill start on this day.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "cname": {
           "description": "Custom domain, e.g. \"stats.example.com\".\n\nWhen self-hosting this is the domain/vhost your site is accessible at.",
           "type": "string"
@@ -545,6 +551,11 @@
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "extra_pageviews": {
+          "description": "Maximum number of extra pageviews to charge for.",
+          "type": "integer",
+          "readOnly": true
         },
         "first_hit_at": {
           "type": "string",
@@ -762,7 +773,15 @@
       "title": "APICountRequest",
       "type": "object",
       "properties": {
+        "filter": {
+          "description": "Filter pageviews; accepted values:\n\n ip Ignore requests coming from IP addresses listed in \"Settings → Ignore IP\". Requires the IP field to be set.\n\n[\"ip\"] is used if this field isn't sent; send an empty array ([]) to not\nfilter anything.\n\nThe X-Goatcounter-Filter header will be set to a list of indexes if any\npageviews are filtered; for example:\n\n X-Goatcounter-Filter: 5, 10\n\nThis header will be omitted if nothing is filtered.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "hits": {
+          "description": "Hits is the list of pageviews.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/handlers.APICountRequestHit"

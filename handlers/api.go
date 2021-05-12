@@ -21,6 +21,7 @@ import (
 	"zgo.at/goatcounter/bgrun"
 	"zgo.at/goatcounter/cron"
 	"zgo.at/guru"
+	"zgo.at/isbot"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
@@ -28,6 +29,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
@@ -367,9 +369,22 @@ type APICountRequest struct {
 	// pageviews that don't have these parameters set.
 	NoSessions bool `json:"no_sessions"`
 
-	// TODO: This is a new struct just because Kommentaar can't deal with it
-	// otherwise... Need to rewrite a lot of that.
+	// Filter pageviews; accepted values:
+	//
+	//   ip     Ignore requests coming from IP addresses listed in "Settings → Ignore IP". Requires the IP field to be set.
+	//
+	// ["ip"] is used if this field isn't sent; send an empty array ([]) to not
+	// filter anything.
+	//
+	// The X-Goatcounter-Filter header will be set to a list of indexes if any
+	// pageviews are filtered; for example:
+	//
+	//    X-Goatcounter-Filter: 5, 10
+	//
+	// This header will be omitted if nothing is filtered.
+	Filter []string `json:"filter"`
 
+	// Hits is the list of pageviews.
 	Hits []APICountRequestHit `json:"hits"`
 }
 
@@ -466,18 +481,30 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(400)
 		return zhttp.JSON(w, apiError{Error: "no hits"})
 	}
-
 	if len(args.Hits) > 500 {
 		w.WriteHeader(400)
 		return zhttp.JSON(w, apiError{Error: "maximum amount of pageviews in one batch is 500"})
 	}
+	if args.Filter == nil {
+		args.Filter = []string{"ip"}
+	}
+	filterIP := zstring.Remove(&args.Filter, "ip")
+	if len(args.Filter) > 0 {
+		return zhttp.JSON(w, apiError{Error: fmt.Sprintf("unknown value in Filter: %v", args.Filter)})
+	}
 
 	var (
 		errs       = make(map[int]string)
+		filter     []int
 		firstHitAt *time.Time
 		site       = Site(r.Context())
 	)
 	for i, a := range args.Hits {
+		if filterIP && a.IP != "" && zstring.Contains(site.Settings.IgnoreIPs, a.IP) {
+			filter = append(filter, i)
+			continue
+		}
+
 		if a.Location == "" && a.IP != "" {
 			a.Location = (goatcounter.Location{}).LookupIP(r.Context(), a.IP)
 		}
@@ -494,6 +521,12 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			UserAgentHeader: a.UserAgent,
 			Location:        a.Location,
 			RemoteAddr:      a.IP,
+		}
+
+		if a.UserAgent != "" {
+			if b := isbot.UserAgent(a.UserAgent); isbot.Is(b) {
+				hit.Bot = int(b)
+			}
 		}
 
 		switch {
@@ -517,6 +550,10 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			firstHitAt = &hit.CreatedAt
 		}
 		goatcounter.Memstore.Append(hit)
+	}
+
+	if len(filter) > 0 {
+		w.Header().Set("X-Goatcounter-Filter", zint.Join(filter, ", "))
 	}
 	if len(errs) > 0 {
 		w.WriteHeader(400)

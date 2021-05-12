@@ -496,6 +496,11 @@ yet.</p>
 <p>When this plan is scheduled to be cancelled.</p>
 <h4>billing_amount <sup>string [readonly]</sup></h4>
 <p>Amount is being paid for the plan.</p>
+<h4>extra_pageviews <sup>integer [readonly]</sup></h4>
+<p>Maximum number of extra pageviews to charge for.</p>
+<h4>billing_anchor <sup>string [format: date-time] [readonly]</sup></h4>
+<p>&#34;Anchor&#34; for the billing period.</p><p>This is the time someone subscribed to a plan; and their billing period
+will start on this day.</p>
 <h4>setttings <sup></sup></h4>
 <p></p>
 <h4>user_defaults <sup></sup></h4>
@@ -610,8 +615,12 @@ This is stored as JSON in the database.</p>
 <p>By default it&#39;s an error to send pageviews that don&#39;t have either a
 Session or UserAgent and IP set. This avoids accidental errors.</p><p>When this is set it will just continue without recording sessions for
 pageviews that don&#39;t have these parameters set.</p>
+<h4>filter <sup>array [type: string]</sup></h4>
+<p>Filter pageviews; accepted values:</p><p> ip Ignore requests coming from IP addresses listed in &#34;Settings → Ignore IP&#34;. Requires the IP field to be set.</p><p>[&#34;ip&#34;] is used if this field isn&#39;t sent; send an empty array ([]) to not
+filter anything.</p><p>The X-Goatcounter-Filter header will be set to a list of indexes if any
+pageviews are filtered; for example:</p><p> X-Goatcounter-Filter: 5, 10</p><p>This header will be omitted if nothing is filtered.</p>
 <h4>hits <sup>array [type: <a href="#handlers.APICountRequestHit">handlers.APICountRequestHit</a>]</sup></h4>
-<p></p>
+<p>Hits is the list of pageviews.</p>
 
 		</div>
 		<h3 id="handlers.APICountRequestHit">handlers.APICountRequestHit <a class="permalink" href="#handlers.APICountRequestHit">§</a></h3>
