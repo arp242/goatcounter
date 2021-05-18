@@ -31,7 +31,7 @@ The following settings are supported:
 For examaple, to allow requests from local sources with:
 `data-goatcounter-settings`:
 
-    <script data-goatcounter="http://arp242.goatcounter.localhost:8081/count"
+    <script data-goatcounter="{{.SiteURL}}/count"
             data-goatcounter-settings='{"allow_local": true}'
             async src="//static.goatcounter.localhost:8081/count.js"></script>
 
@@ -71,7 +71,7 @@ Like with the settings above, you can use both the `data-goatcounter-settings`
 attribute and `window.goatcounter` object. For example, to always send `/hello`
 as the path:
 
-    <script data-goatcounter="http://arp242.goatcounter.localhost:8081/count"
+    <script data-goatcounter="{{.SiteURL}}/count"
             data-goatcounter-settings='{"path": "/hello"}'
             async src="//static.goatcounter.localhost:8081/count.js"></script>
 

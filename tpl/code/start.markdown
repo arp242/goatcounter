@@ -42,7 +42,6 @@ Here are some things you may want to look at after setting up the above:
 - If you're not seeing any pageviews then chances are your browser's adblocker
   is blocking it. Disable it and check again. It can take about 10 seconds for
   pageviews to appear, but this should never be longer.
-  [Details](/code/adblock).
 
 - You may want to consider adding a canonical link, for example:
 

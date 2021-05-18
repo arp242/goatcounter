@@ -7,7 +7,7 @@ There is no way for GoatCounter to know if `?hello` is a meaningful query
 parameter, as it may be used for navigation.
 
 In practice, a lot of crawlers and scripts load the page with extra query
-parameters. GoatCounter automatically strips te most common ones.
+parameters. GoatCounter automatically strips the most common ones.
 
 Using a canonical URL
 ---------------------
