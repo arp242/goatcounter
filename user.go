@@ -317,9 +317,9 @@ func (u *User) ByResetToken(ctx context.Context, key string) error {
 	query := `select * from users where login_request=$1 and site_id=$2 and `
 
 	if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
-		query += `reset_at + interval '60 minutes' > now()`
+		query += `reset_at + interval '72 hours' > now()`
 	} else {
-		query += `datetime(reset_at, '+60 minutes') > datetime()`
+		query += `datetime(reset_at, '+72 hours') > datetime()`
 	}
 
 	return errors.Wrap(zdb.Get(ctx, u, query,
