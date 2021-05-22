@@ -30,6 +30,7 @@ require (
 	golang.org/x/image v0.0.0-20210504121937-7319ad40d33e
 	golang.org/x/net v0.0.0-20210521195947-fe42d452be8f
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/text v0.3.6
 	golang.org/x/tools v0.1.1
 	honnef.co/go/tools v0.1.4
 	zgo.at/blackmail v0.0.0-20210321151525-a218c2f584be

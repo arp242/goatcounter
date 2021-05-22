@@ -109,8 +109,10 @@ func TestUserForgot(t *testing.T) {
 		if f == nil {
 			t.Error("f == nil")
 		}
-		if f != nil && f.Message != `Email sent to "test@gctest.localhost"` {
-			t.Error(f)
+
+		want := `Email sent to test@gctest.localhost`
+		if f != nil && f.Message != want {
+			t.Errorf("flash wrong:\nwant: %q\nhave: %q", want, f.Message)
 		}
 	}
 

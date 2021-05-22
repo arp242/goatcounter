@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
@@ -20,6 +21,8 @@ import (
 func Site(ctx context.Context) *goatcounter.Site    { return goatcounter.MustGetSite(ctx) }
 func Account(ctx context.Context) *goatcounter.Site { return goatcounter.MustGetAccount(ctx) }
 func User(ctx context.Context) *goatcounter.User    { return goatcounter.MustGetUser(ctx) }
+
+var T = z18n.T
 
 type Globals struct {
 	Context        context.Context
@@ -36,6 +39,10 @@ type Globals struct {
 	GoatcounterCom bool
 	Dev            bool
 	Port           string
+}
+
+func (g Globals) T(msg string, data ...interface{}) string {
+	return z18n.T(g.Context, msg, data...)
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {

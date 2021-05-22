@@ -13,8 +13,10 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/text/language"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/z18n"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zdb"
@@ -72,6 +74,8 @@ var (
 		return u, err
 	}, "/bosmang/profile/setrate")
 )
+
+var bundle = z18n.NewBundle(language.MustParse("en-UK"))
 
 type statusWriter interface{ Status() int }
 
@@ -174,6 +178,10 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 
 				*r = *r.WithContext(goatcounter.WithSite(r.Context(), &s))
 			}
+
+			// Add z18n.
+			var siteLang, userLang string // TODO: load from site/user preferences.
+			*r = *r.WithContext(z18n.With(r.Context(), bundle.Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
 
 			next.ServeHTTP(w, r)
 		})

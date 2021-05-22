@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"zgo.at/goatcounter/z18n"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
@@ -153,6 +154,9 @@ func CopyContextValues(ctx context.Context) context.Context {
 	}
 	if u := GetUser(ctx); u != nil {
 		n = context.WithValue(n, ctxkey.User, u)
+	}
+	if l := z18n.Get(ctx); l != nil {
+		n = z18n.With(n, l)
 	}
 	return n
 }
