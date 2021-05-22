@@ -8,11 +8,8 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"sync"
 
-	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
 )
@@ -31,7 +28,7 @@ type (
 
 		Name() string
 		Type() string // "full-width", "hchart"
-		Label() string
+		Label(context.Context) string
 	}
 
 	Args struct {
@@ -148,81 +145,6 @@ func NewWidget(name string, id int) Widget {
 	panic(fmt.Errorf("unknown widget: %q", name))
 }
 
-func (w *TotalCount) GetData(ctx context.Context, a Args) (more bool, err error) {
-	w.TotalCount, err = goatcounter.GetTotalCount(ctx, a.Rng, a.PathFilter, w.NoEvents)
-	return false, err
-}
-func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
-	if w.Ref != "" {
-		err := w.Refs.ListRefsByPath(ctx, w.Ref, a.Rng, w.LimitRefs, a.Offset)
-		return w.Refs.More, err
-	}
-
-	var (
-		wg   sync.WaitGroup
-		errs = errors.NewGroup(2)
-	)
-	if a.ShowRefs != "" {
-		wg.Add(1)
-		go func() {
-			defer zlog.Recover()
-			defer wg.Done()
-			errs.Append(w.Refs.ListRefsByPath(ctx, a.ShowRefs, a.Rng, w.LimitRefs, a.Offset))
-		}()
-	}
-
-	var err error
-	w.Display, w.UniqueDisplay, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Daily)
-	errs.Append(err)
-
-	wg.Wait()
-	return w.More, errs.ErrorOrNil()
-}
-func (w *Max) GetData(ctx context.Context, a Args) (more bool, err error) {
-	w.Max, err = goatcounter.GetMax(ctx, a.Rng, a.PathFilter, a.Daily)
-	return false, err
-}
-func (w *TotalPages) GetData(ctx context.Context, a Args) (more bool, err error) {
-	w.Max, err = w.Total.Totals(ctx, a.Rng, a.PathFilter, a.Daily, w.NoEvents)
-	return false, err
-}
-func (w *TopRefs) GetData(ctx context.Context, a Args) (more bool, err error) {
-	if w.Ref != "" {
-		err = w.TopRefs.ListTopRef(ctx, w.Ref, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	} else {
-		err = w.TopRefs.ListTopRefs(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	}
-	return w.TopRefs.More, err
-}
-func (w *Browsers) GetData(ctx context.Context, a Args) (more bool, err error) {
-	if w.Browser != "" {
-		err = w.Browsers.ListBrowser(ctx, w.Browser, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	} else {
-		err = w.Browsers.ListBrowsers(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	}
-	return w.Browsers.More, err
-}
-func (w *Systems) GetData(ctx context.Context, a Args) (more bool, err error) {
-	if w.System != "" {
-		err = w.Systems.ListSystem(ctx, w.System, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	} else {
-		err = w.Systems.ListSystems(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	}
-	return w.Systems.More, err
-}
-func (w *Sizes) GetData(ctx context.Context, a Args) (more bool, err error) {
-	if w.Size != "" {
-		err = w.SizeStat.ListSize(ctx, w.Size, a.Rng, a.PathFilter, 6, a.Offset)
-	} else {
-		err = w.SizeStat.ListSizes(ctx, a.Rng, a.PathFilter)
-	}
-	return w.SizeStat.More, err
-}
-func (w *Locations) GetData(ctx context.Context, a Args) (more bool, err error) {
-	if w.Country != "" {
-		err = w.LocStat.ListLocation(ctx, w.Country, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	} else {
-		err = w.LocStat.ListLocations(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
-	}
-	return w.LocStat.More, err
+func isCol(ctx context.Context, flag zint.Bitflag16) bool {
+	return goatcounter.MustGetSite(ctx).Settings.Collect.Has(flag)
 }

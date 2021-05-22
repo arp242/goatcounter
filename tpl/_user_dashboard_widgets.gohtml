@@ -7,7 +7,7 @@
 		<div class="header">
 			<div>
 				{{if $w.Settings.HasSettings}}<a href="#" class="show-s" title="Settings">⚙️&#xfe0e;</a>{{else}}<span class="show-s"></span>{{end}}
-				<strong class="main">{{$w.Label}}</strong>
+				<strong class="main">{{$w.Label $.Context}}</strong>
 				{{$s := $w.Settings.Display $w.Name}}
 				{{if $s}}({{$s}}){{end}}
 			</div>

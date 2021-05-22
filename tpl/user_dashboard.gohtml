@@ -1,7 +1,7 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_user_nav.gohtml" .}}
 
-<h2 id="dashboard">Dashboard</h2>
+<h2 id="dashboard">{{.T "header/dashboard|Dashboard"}}</h2>
 
 <script crossorigin="anonymous" src="{{.Static}}/dragula.js?v={{.Version}}"></script>
 <form method="post" action="/user/dashboard" id="widget-settings">
@@ -12,22 +12,23 @@
 
 	<div class="widget-add-new">
 		<select>
-			<option>Add new</option>
+			<option>{{.T "label/add-new|Add new"}}</option>
 			{{range $w := .CanAddWidgets}}
-				<option value="{{$w.Name}}">{{$w.Label}}</option>
+				<option value="{{$w.Name}}">{{$w.Label $.Context}}</option>
 			{{end}}
 		</select>
 	</div>
 
 	<div class="widget-save">
 		<div>
-			<button type="save">Save</button>
+			<button type="save">{{.T "button/save|Save"}}</button>
 			{{if .User.AccessSettings}}
-				<label style="margin-left: 3em"><input type="checkbox" name="set_site"> Also set as default for new users and the public view (if enabled).</label>
+				<label style="margin-left: 3em"><input type="checkbox" name="set_site">
+					{{.T "help-save-widgets|Also set as default for new users and the public view (if enabled)."}}</label>
 			{{end}}
 		</div>
 
-		<button class="widgets-reset">Reset to defaults</button>
+		<button class="widgets-reset">{{.T "button/reset-defaults|Reset to defaults"}}</button>
 	</div>
 </form>
 
