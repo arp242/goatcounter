@@ -13,8 +13,8 @@ import (
 	"zgo.at/errors"
 	. "zgo.at/goatcounter"
 	"zgo.at/goatcounter/gctest"
-	"zgo.at/zhttp/ztpl"
 	"zgo.at/zstd/zgo"
+	"zgo.at/ztpl"
 )
 
 func TestTpl(t *testing.T) {

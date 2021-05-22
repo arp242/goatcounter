@@ -23,12 +23,12 @@ import (
 	"zgo.at/goatcounter/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zgo"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztest"
+	"zgo.at/ztpl"
 )
 
 type handlerTest struct {

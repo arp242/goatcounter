@@ -18,11 +18,11 @@ import (
 	"zgo.at/goatcounter/widgets"
 	"zgo.at/guru"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ztpl"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zsync"
 	"zgo.at/zstd/ztime"
+	"zgo.at/ztpl"
 	"zgo.at/zvalidate"
 )
 

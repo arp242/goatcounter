@@ -23,10 +23,10 @@ import (
 	"zgo.at/goatcounter/cron"
 	"zgo.at/goatcounter/db/migrate/gomig"
 	"zgo.at/zdb"
-	"zgo.at/zhttp/ztpl/tplfunc"
 	"zgo.at/zli"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstring"
+	"zgo.at/ztpl/tplfunc"
 )
 
 const usage = `gcbench inserts random data in a goatcounter database.

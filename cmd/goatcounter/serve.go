@@ -28,13 +28,13 @@ import (
 	"zgo.at/goatcounter/handlers"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/ztpl"
 	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zio"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zstring"
+	"zgo.at/ztpl"
 	"zgo.at/zvalidate"
 )
 
