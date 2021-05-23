@@ -36,6 +36,10 @@ import (
 )
 
 func init() {
+	tplfunc.Add("t", func(ctx context.Context, msg string, data ...interface{}) string {
+		return z18n.T(ctx, msg, data...)
+	})
+
 	tplfunc.Add("percentage", func(n, total int) float64 {
 		return float64(n) / float64(total) * 100
 	})
