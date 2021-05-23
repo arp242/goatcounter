@@ -104,6 +104,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 				}
 
 				w.Header().Set("Content-Type", "application/json")
+				w.Header().Set("Access-Control-Allow-Origin", "*")
 				w.WriteHeader(200)
 
 				w.Write(j)
