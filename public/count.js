@@ -113,7 +113,7 @@
 
 	// Filter some requests that we (probably) don't want to count.
 	goatcounter.filter = function() {
-		if ('visibilityState' in document && (document.visibilityState === 'prerender' || document.visibilityState === 'hidden'))
+		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return 'visibilityState'
 		if (!goatcounter.allow_frame && location !== parent.location)
 			return 'frame'
@@ -245,7 +245,21 @@
 
 	if (!goatcounter.no_onload)
 		on_load(function() {
-			goatcounter.count()
+			// 1. Page is visible, count request.
+			// 2. Page is not yet visible; wait until it switches to 'visible' and count.
+			// See #487
+			if (!('visibilityState' in document) || document.visibilityState === 'visible')
+				goatcounter.count()
+			else {
+				var f = function(e) {
+					if (document.visibilityState !== 'visible')
+						return
+					document.removeEventListener('visibilitychange', f)
+					goatcounter.count()
+				}
+				document.addEventListener('visibilitychange', f)
+			}
+
 			if (!goatcounter.no_events)
 				goatcounter.bind_events()
 		})
