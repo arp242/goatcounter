@@ -42,10 +42,12 @@ type entry struct {
 //
 // Can add "z18n convert" to convert from those formats, to send to translators
 // etc.
+//
+// TODO: find context too.
 func main() {
-	found := findGo("./...")
+	found := findGo("./...") // TODO: flag
 
-	for k, v := range findTpl("./tpl") {
+	for k, v := range findTpl("./tpl") { // TODO: flag
 		e, ok := found[k]
 		if ok {
 			e.loc = append(e.loc, v.loc...)
@@ -83,6 +85,7 @@ func findTpl(pattern string) map[string]entry {
 	err := filepath.WalkDir(pattern, func(path string, d fs.DirEntry, err error) error {
 		zli.F(err)
 
+		// TODO: add flag for specifying the extenions.
 		if d.IsDir() || !zstring.HasSuffixes(d.Name(), ".gotxt", ".gohtml") {
 			return nil
 		}
@@ -113,7 +116,7 @@ func findTpl(pattern string) map[string]entry {
 			case *parse.FieldNode:
 				name = strings.Join(f.Ident, ".")
 			}
-			if name != "t" && name != "T" {
+			if name != "t" && name != "T" { // TODO: add flag
 				return false
 			}
 
@@ -189,7 +192,7 @@ func findGo(pattern string) map[string]entry {
 				default:
 					return true
 				case *ast.Ident:
-					if cc.Name != "T" {
+					if cc.Name != "T" { // TODO: add flag
 						return true
 					}
 				case *ast.SelectorExpr:

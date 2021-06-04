@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"context"
+	"html/template"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -41,8 +42,8 @@ type Globals struct {
 	Port           string
 }
 
-func (g Globals) T(msg string, data ...interface{}) string {
-	return z18n.T(g.Context, msg, data...)
+func (g Globals) T(msg string, data ...interface{}) template.HTML {
+	return template.HTML(z18n.T(g.Context, msg, data...))
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {

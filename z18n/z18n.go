@@ -11,6 +11,8 @@ import (
 	"zgo.at/zstd/zstring"
 )
 
+// TODO: Add support for localizing numbers, dates.
+
 type (
 	// Bundle is a "bundle" of all translations and localisations.
 	Bundle struct {
@@ -39,7 +41,8 @@ type (
 	// Msg is a localized message.
 	Msg struct {
 		id     string
-		data   []interface{}
+		vars   []interface{}
+		tags   []Tagger
 		plural Plural
 		other  string
 	}
@@ -115,12 +118,19 @@ func (l Locale) T(id string, data ...interface{}) string {
 		id, def = id[:p], id[p+1:]
 	}
 
-	var pl Plural
+	var (
+		pl   Plural
+		vars []interface{}
+		tags []Tagger
+	)
 	for i, d := range data {
 		if p, ok := d.(Plural); ok {
 			pl = p
 			data = append(data[:i], data[i+1:]...)
-			break
+		} else if t, ok := d.(Tagger); ok {
+			tags = append(tags, t)
+		} else {
+			vars = append(vars, d)
 		}
 	}
 
@@ -132,7 +142,8 @@ func (l Locale) T(id string, data ...interface{}) string {
 		msg, ok := m[id]
 		if ok {
 			msg.id = id
-			msg.data = data
+			msg.vars = vars
+			msg.tags = tags
 			msg.plural = pl
 			return msg.String()
 		}
@@ -141,7 +152,8 @@ func (l Locale) T(id string, data ...interface{}) string {
 	return Msg{
 		id:     id,
 		other:  def,
-		data:   data,
+		tags:   tags,
+		vars:   vars,
 		plural: pl,
 	}.String()
 }
@@ -157,23 +169,38 @@ var funcmap = map[string]func(string) string{
 	"lower": strings.ToLower,
 }
 
-var rmButtonMarker = strings.NewReplacer("[[", "", "]]", "")
-
 //   %(word)                 Replace
 //   %%(word)                Literal "%(word)"
 //   %(word ucfirst)         Apply function
 //   %(word lower ucfirst)   Apply two functions
 //
+//   %[text]
+//
 // Functions are mainly useful in languages that require some capitalisation,
 // e.g. in German most proper nouns are capitalized. This allows varying this
 // per translation.
+//
+// TODO: don't use positional, find by name instead.
 func (m Msg) tpl(str string) string {
-	return zstring.ReplacePairs(rmButtonMarker.Replace(str), "%(", ")", func(i int, match string) string {
-		if i > len(m.data) {
+	str = zstring.ReplacePairs(str, "%[", "]", func(i int, match string) string {
+		if i > len(m.tags) {
 			return fmt.Sprintf("z18n: too many variables (%d)", i)
 		}
 
-		v := zstring.String(m.data[i])
+		sp := strings.IndexRune(match, ' ')
+		varname, text := strings.TrimSpace(match[2:sp]), strings.TrimSpace(match[sp+1:len(match)-1])
+		_ = varname
+
+		v := m.tags[i]
+		return v.Open() + text + v.Close()
+	})
+
+	str = zstring.ReplacePairs(str, "%(", ")", func(i int, match string) string {
+		if i > len(m.vars) {
+			return fmt.Sprintf("z18n: too many variables (%d)", i)
+		}
+
+		v := zstring.String(m.vars[i])
 		if !strings.Contains(match, " ") {
 			return v
 		}
@@ -187,6 +214,8 @@ func (m Msg) tpl(str string) string {
 		}
 		return v
 	})
+
+	return str
 }
 
 // String displays this string as "other".

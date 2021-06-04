@@ -11,14 +11,16 @@ func mkbundle() *Bundle {
 	b.AddMessages(language.English, map[string]Msg{
 		"hello":     Msg{other: "Hello"},
 		"hello-loc": Msg{other: "Hello, %(loc)!"},
-		"btn":       Msg{other: "[[Button]]"},
-		"btn2":      Msg{other: "[[Button %(x)]]"},
+		"btn":       Msg{other: "%[btn Button]"},
+		"btn2":      Msg{other: "%[btn Button %(x)]"},
+		"btn3":      Msg{other: "%[btn Send]"},
 	})
 	b.AddMessages(language.Dutch, map[string]Msg{
 		"hello":     Msg{other: "Hallo"},
 		"hello-loc": Msg{other: "Hallo, %(loc)!"},
-		"btn":       Msg{other: "[[Knop]]"},
-		"btn2":      Msg{other: "[[Knop %(x)]]"},
+		"btn":       Msg{other: "%[btn Knop]"},
+		"btn2":      Msg{other: "%[btn Knop %(x)]"},
+		"btn3":      Msg{other: "%[btn Verstuur]"},
 	})
 	return b
 }
@@ -43,8 +45,9 @@ func TestT(t *testing.T) {
 		{"%(var)", nil, "%(var)", "%(var)"},
 
 		// Buttons
-		{"btn|[[Button]]", nil, "Button", "Knop"},
-		{"btn2|[[Button %(x)]]", []interface{}{"XXX"}, "Button XXX", "Knop XXX"},
+		{"btn|%[btn Button]", []interface{}{Tag("a", `href="/foo"`)}, `<a href="/foo">Button</a>`, `<a href="/foo">Knop</a>`},
+		{"btn2|%[btn Button %(var)]", []interface{}{Tag("a", `href="/foo"`), "X"}, `<a href="/foo">Button X</a>`, `<a href="/foo">Knop X</a>`},
+		{"btn3", []interface{}{TagNone()}, `Send`, `Verstuur`},
 
 		// Plural.
 		{"hello", []interface{}{N(5)}, "Hello", "Hallo"},
@@ -63,12 +66,12 @@ func TestT(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			haveEN := en.T(tt.id, tt.data...)
 			if haveEN != tt.wantEN {
-				t.Errorf("English wrong\nhave: %q\nwant: %q", haveEN, tt.wantEN)
+				t.Errorf("English wrong\nhave: %s\nwant: %s", haveEN, tt.wantEN)
 			}
 
 			haveNL := nl.T(tt.id, tt.data...)
 			if haveNL != tt.wantNL {
-				t.Errorf("Dutch wrong\nhave: %q\nwant: %q", haveNL, tt.wantNL)
+				t.Errorf("Dutch wrong\nhave: %s\nwant: %s", haveNL, tt.wantNL)
 			}
 		})
 	}

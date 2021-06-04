@@ -36,8 +36,8 @@ import (
 )
 
 func init() {
-	tplfunc.Add("t", func(ctx context.Context, msg string, data ...interface{}) string {
-		return z18n.T(ctx, msg, data...)
+	tplfunc.Add("t", func(ctx context.Context, msg string, data ...interface{}) template.HTML {
+		return template.HTML(z18n.T(ctx, msg, data...))
 	})
 
 	tplfunc.Add("percentage", func(n, total int) float64 {

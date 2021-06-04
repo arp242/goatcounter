@@ -13,7 +13,7 @@
 	<label for="turing_test">{{.T "label/turing-test|Fill in 9 here"}}</label>
 	<input type="text" name="turing_test" id="turing_test" value="{{.TuringTest}}" required>
 	{{validate "turing_test" .Validate}}
-	<span class="help">{{.T "turing-test-help|Just a little verification that you’re human :-)"}}</span>
+	<span class="help">{{.T "help/turing-test|Just a little verification that you’re human :-)"}}</span>
 
 	<br><br>
 	<button>{{.T "button/send-login-url|Send login URL"}}</button>
