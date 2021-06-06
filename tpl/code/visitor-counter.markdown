@@ -132,4 +132,4 @@ A simple example usage:
         })
         r.open('GET', '{{.SiteURL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
         r.send()
-    </scrip>
+    </script>
