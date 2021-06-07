@@ -1,4 +1,7 @@
-{{if not .}}
-	<div class="not-collected">Collecting this information is currently <a href="/settings/main#section-collect">disabled in settings</a>.</div>
+{{if not .IsCollected}}
+	<div class="not-collected">
+		{{t .Context "p/collect-disabled|Collecting this information is currently %[link disabled in settings]."
+			(tag "a" `href="/settings/main#section-collect"`)}}
+	</div>
 {{end}}
 

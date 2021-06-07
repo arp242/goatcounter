@@ -35,7 +35,7 @@
 {{if has_errors .Validate}}
 	<div class="flash flash-e"
 		style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
-	Additional errors:{{.Validate.HTML}}</div>
+	{{.T "p/additional-errors|Additional errors"}}:{{.Validate.HTML}}</div>
 {{end}}
 
 {{template "_backend_bottom.gohtml" .}}

@@ -3,7 +3,7 @@
 
 {{define "access"}}
 	{{$all := eq (print .site) "all"}}
-	<label><input type="radio" name="access[{{.site}}]" value="r" {{if eq .v "r"}}checked{{end}}       > Read only</label>
+	<label><input type="radio" name="access[{{.site}}]" value="r" {{if eq .v "r"}}checked{{end}}> Read only</label>
 	<label><input type="radio" name="access[{{.site}}]" value="s" {{if eq .v "s"}}checked{{end}}> Can change settings, except billing and site/user management</label>
 	{{if $all}}
 	<label><input type="radio" name="access[{{.site}}]" value="a" {{if eq .v "a"}}checked{{end}}> Full access</label>
@@ -58,7 +58,7 @@
 	{{if has_errors .Validate}}
 		<div class="flash flash-e"
 			style="position: fixed; bottom: 0; right: .5em; min-width: 20em; z-index: 5; text-align: left;">
-		Additional errors:{{.Validate.HTML}}</div>
+		{{.T "p/additional-errors|Additional errors"}}:{{.Validate.HTML}}</div>
 	{{end}}
 
 	<button type="submit">{{if .Edit}}Edit{{else}}Add new{{end}}</button>

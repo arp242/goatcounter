@@ -10,7 +10,7 @@
 		{{end}}
 	</small></h2>
 	{{if .Err}}
-		<em>Error: {{.Err}}</em>
+		<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>
 	{{else}}
 		<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
 	{{end}}

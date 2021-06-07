@@ -12,12 +12,11 @@
 	</form>
 </div>
 {{else}}
-	<p>GoatCounter comes with a limited API; currently you can count pageviews
-	from the API, create, delete, and edit sites, and create exports.</p>
-	<p><a href="/api">API documentation</a></p>
+	<p>{{.T "p/api-intro|GoatCounter comes with a limited API; currently you can count pageviews from the API, create, delete, and edit sites, and create exports."}}</p>
+	<p><a href="/api">{{.T "link/api-docs|API documentation"}}</a></p>
 
 	<fieldset>
-		<legend>API tokens</legend>
+		<legend>{{.T "header/api-tokens|API tokens"}}</legend>
 
 		<table class="auto">
 			<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
@@ -37,7 +36,7 @@
 					<td>
 						<form method="post" action="/user/api-token/remove/{{$t.ID}}" data-confirm="Delete token {{$t.Name}}?">
 							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-							<button class="link">delete</button>
+							<button class="link">{{.T "button/delete|delete"}}</button>
 						</form>
 					</td>
 				</tr>{{end}}
@@ -57,7 +56,7 @@
 									{{$pf.Label}}</label><br>
 							{{end}}
 						</td>
-						<td><button type="submit">Add new</button></td>
+						<td><button type="submit">{{.T "button/add-new|Add new"}}</button></td>
 					</form>
 				</tr>
 			</tbody>

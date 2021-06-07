@@ -1,25 +1,34 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_user_nav.gohtml" .}}
 
-<h2 id="setting">Preferences</h2>
+<h2 id="setting">{{.T "header/preferences|Preferences"}}</h2>
 <div class="form-wrap">
 	<form method="post" action="/user/pref" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
-			<legend>User information</legend>
+			<legend>{{.T "header/user-info|User information"}}</legend>
 
-			<label for="user.email">Your email</label>
+			<label for="user.email">{{.T "label/your-email|Your email"}}</label>
 
 			<input type="text" name="user.email" id="user.email" value="{{.User.Email}}">
 			{{validate "email" .Validate}}
-			<span>You will need to re-verify the new address if you change it.</span>
+			<span>{{.T "help/your-email|You will need to re-verify the new address if you change it."}}</span>
 		</fieldset>
 
 		<fieldset>
-			<legend>Localisation</legend>
+			<legend>{{.T "header/l10n|Localisation"}}</legend>
 
-			<label for="date_format">Date format</label>
+			{{/*
+			<label for="language">{{.T "label/lang|Language"}}</label>
+			<select name="user.settings.language" id="language">
+				<option {{option_value .User.Settings.Language "en-GB"}}>English</option>
+				<option {{option_value .User.Settings.Language "nl-NL"}}>Nederlands</option>
+			</select>
+			{{validate "settings.language" .Validate}}
+			*/}}
+
+			<label for="date_format">{{.T "label/date-fmt|Date format"}}</label>
 			<select name="user.settings.date_format" id="date_format">
 				<option {{option_value .User.Settings.DateFormat "2006-01-02"}}>year-month-day (2006-01-02)</option>
 				<option {{option_value .User.Settings.DateFormat "02-01-2006"}}>day-month-year (02-01-2006)</option>
@@ -57,7 +66,7 @@
 
 		<div class="flex-break"></div>
 
-		<button type="submit">Save</button>
+		<button type="submit">{{.T "button/save|Save"}}</button>
 		{{if .User.AccessSettings}}
 			<label style="margin-left: 3em"><input type="checkbox" name="set_site">
 				Also set as default for new users and the public view (if enabled).</label>
@@ -67,7 +76,7 @@
 	{{if has_errors .Validate}}
 		<div class="flash flash-e"
 			style="position: fixed; bottom: 0; right: 0; min-width: 20em; z-index: 5; text-align: left;">
-		Additional errors:{{.Validate.HTML}}</div>
+		{{.T "p/additional-errors|Additional errors"}}:{{.Validate.HTML}}</div>
 	{{end}}
 </div>
 

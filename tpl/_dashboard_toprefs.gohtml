@@ -3,10 +3,10 @@
 	{{- $x -}}
 {{- else -}}
 	<div class="hchart" data-widget="{{.ID}}">
-		<h2>Top referrers</h2>
-		{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
+		<h2>{{t .Context "header/toprefs|Top referrers"}}</h2>
+		{{template "_dashboard_warn_collect.gohtml" (map "IsCollected" .IsCollected "Context" .Context)}}
 		{{if .Err}}
-			<em>Error: {{.Err}}</em>
+			<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>
 		{{else}}
 			{{$x}}
 		{{end}}

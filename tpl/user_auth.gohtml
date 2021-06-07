@@ -1,29 +1,26 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_user_nav.gohtml" .}}
 
-<h2 id="auth">Password & MFA</h2>
+<h2 id="auth">{{.T "header/passwd-mfa|Password & MFA"}}</h2>
 <div class="flex-form">
 	<form method="post" action="/user/change-password" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
-			<legend>Change password</legend>
+			<legend>{{.T "header/change-passwd|Change password"}}</legend>
 
 			{{if .User.Password}}
-				<label for="c_password">Current password</label>
-				<input type="password" name="c_password" id="c_password" required
-					autocomplete="current-password"><br>
+				<label for="c_password">{{.T "label/current-passwd|Current password"}}</label>
+				<input type="password" name="c_password" id="c_password" required autocomplete="current-password"><br>
 			{{end}}
 
-			<label for="password">New password</label>
-			<input type="password" name="password" id="password" required
-				autocomplete="new-password"><br>
+			<label for="password">{{.T "label/new-passwd|New password"}}</label>
+			<input type="password" name="password" id="password" required autocomplete="new-password"><br>
 
-			<label for="password2">New password (confirm)</label>
-			<input type="password" name="password2" id="password2" required
-				autocomplete="new-password"><br>
+			<label for="password2">{{.T "label/new-passwd-confirm|New password (confirm)"}}</label>
+			<input type="password" name="password2" id="password2" required autocomplete="new-password"><br>
 
-			<button>Change password</button>
+			<button>{{.T "button/change-passwd|Change password"}}</button>
 		</fieldset>
 	</form>
 
@@ -32,9 +29,10 @@
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			<fieldset>
-				<legend>Multi-factor authentication</legend>
-				<p>MFA is currently enabled for this account.</p>
-				<button type="submit">Disable MFA</button>
+				<legend>{{.T "header/mfa|Multi-factor authentication"}}</legend>
+
+				<p>{{.T "p/disable-mfa|MFA is currently enabled for this account."}}</p>
+				<button type="submit">{{.T "button/disable-mfa|Disable MFA"}}</button>
 			</fieldset>
 		</form>
 	{{else}}
@@ -42,18 +40,18 @@
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			<fieldset>
-				<legend>Multi-factor authentication</legend>
-				<p>Enable TOTP-based multi-factor authentication by scanning the
-				code in your authenticator app or entering the secret
-				manually.</p>
+				<legend>{{.T "header/mfa|Multi-factor authentication"}}</legend>
 
-				<div>Secret: <code>{{ .User.TOTPSecret | base32 }}</code></div>
+				<p>{{.T "p/enable-mfa|Enable TOTP-based multi-factor authentication by scanning the code in your authenticator app or entering the secret manually."}}</p>
+
+				{{/* z18n: "Secret" as in the secret MFA token; for example: "Secret: VNUZWLNDEVS6OTBVQK7FFTCLA4" */}}
+				<div>{{.T "label/secret|Secret"}}: <code>{{ .User.TOTPSecret | base32 }}</code></div>
 				{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}<br>
 
-				<label for="totp_token">Verification token: </label><br>
+				<label for="totp_token">{{.T "label/verifictation-token|Verification token"}}: </label><br>
 				<input type="text" name="totp_token" id="totp_token" required
 					autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
-				<button type="submit">Enable MFA</button>
+				<button type="submit">{{.T "button/enable-mfa|Enable MFA"}}</button>
 			</fieldset>
 		</form>
 	{{end}}

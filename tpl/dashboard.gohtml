@@ -3,10 +3,13 @@
 {{if .User.ID}}
 	{{if not .User.EmailVerified}}
 		<div class="flash flash-i">
-			Please verify your email by clicking the link sent to {{.User.Email}}.
-			<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
+			{{.T "p/verify-email|Please verify your email by clicking the link sent to %(email). %[sup (Why?)]" (map
+				"email" .User.Email
+				"sup"   (tag "a" `class="sup" href="https://www.goatcounter.com/help#verify-email" target="_blank"`)
+			)}}<br>
 
-			Change the email address in the <a href="/user">settings</a>.
+			{{.T "p/change-email|Change the email address in the %[link settings]." (tag "a" `href="/user"`)}}
+
 			<form method="post" action="/user/resend-verify">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 				<button class="link">{{.T "button/resend-email|Resend email"}}</button>.
@@ -16,13 +19,22 @@
 
 	{{if not .Site.ReceivedData}}
 		<div class="flash flash-i">
-			<p><strong>No data received</strong> – GoatCounter hasn’t received any data yet.<br>
-			Getting started is pretty easy, just add the following JavaScript anywhere on the page:</p>
+			{{.T `p/no-data|<p>
+				%[bold No data received] – GoatCounter hasn’t received any data yet.<br>
+				Getting started is pretty easy, just add the following JavaScript anywhere on the page:</p>
 
-			<pre>&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
-        async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;</pre>
-			<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews ({{.Site.Domain .Context}} and/or gc.zgo.at domain).</p>
-			<p>This message will disappear once we receive data; see <a href="/code">Site code</a> in the top menu for further documentation and ready-made integrations.</p>
+				%[pre %(js_code)]
+
+				<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews (%(domain) and/or gc.zgo.at domain).</p>
+
+				<p>This message will disappear once we receive data; see %[link_docs Site code] in the top menu for further documentation and ready-made integrations.</p>`
+				(map
+				"bold"      (tag "strong" "")
+				"pre"       (tag "pre" "")
+				"domain"    (.Site.Domain .Context)
+				"link_docs" (tag "a" `href="/code"`)
+				"js_code"   (printf "<script data-goatcounter=\"%s/count\"\n        async src=\"//%s/count.js\"></script>" (.Site.URL .Context) .CountDomain)
+			)}}
 		</div>
 	{{end}}
 {{end}} {{/* .User.ID */}}
@@ -37,14 +49,14 @@
 		<div id="dash-saved-views">
 			<span>⚙&#xfe0f;</span>
 			<div>
-				<a href="#" class="save-current-view">Save default view</a><br>
-				<small>Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet.</small>
+				<a href="#" class="save-current-view">{{.T "button/save-default-view|Save default view"}}</a><br>
+				<small>{{.T "help/save-default-view|Save the current view (i.e. all the settings in the yellow box) as the default to load when nothing is selected yet."}}</small>
 				<br><br>
 				{{/* TODO: it might be better to load the settings page "inline"
 				here, instead of a settings tab; would also declutter that a bit
 				since we can remove it there. */}}
-				<a href="/user/dashboard">Configure dashboard layout</a><br>
-				<small>Change what to display on the dashboard and in what order.</small>
+				<a href="/user/dashboard">{{.T "button/cfg-dashboard|Configure dashboard layout"}}</a><br>
+				<small>{{.T "help/cfg-dashboard|Change what to display on the dashboard and in what order."}}</small>
 			</div>
 		</div>
 	{{end}}
@@ -57,19 +69,19 @@
 			</span>
 			<span id="dash-select-period" class="period-{{.View.Period}}">
 				<span>
-					Last
-					<button class="link" name="period" value="day">day</button> ·
-					<button class="link" name="period" value="week">week</button> ·
-					<button class="link" name="period" value="month">month</button> ·
-					<button class="link" name="period" value="quarter">quarter</button> ·
-					<button class="link" name="period" value="half-year">half year</button> ·
-					<button class="link" name="period" value="year">year</button>
+					{{.T "nav-dash/last|Last"}} {{/* z18n: as in: "Last [day] [week] [month] ...*/}}
+					<button class="link" name="period" value="day">{{.T "nav-dash/day|day"}}</button> ·
+					<button class="link" name="period" value="week">{{.T "nav-dash/week|week"}}</button> ·
+					<button class="link" name="period" value="month">{{.T "nav-dash/month|month"}}</button> ·
+					<button class="link" name="period" value="quarter">{{.T "nav-dash/quarter|quarter"}}</button> ·
+					<button class="link" name="period" value="half-year">{{.T "nav-dash/half-year|half year"}}</button> ·
+					<button class="link" name="period" value="year">{{.T "nav-dash/year|year"}}</button>
 				</span>
 
 				<span>
-					Current
-					<button class="link" name="period" value="week-cur">week</button> ·
-					<button class="link" name="period" value="month-cur">month</button>
+					{{.T "nav-dash/current|Current"}} {{/* z18n: as in: "Current [week] [month] ...*/}}
+					<button class="link" name="period" value="week-cur">{{.T "nav-dash/week|week"}}</button> ·
+					<button class="link" name="period" value="month-cur">{{.T "nav-dash/month|month"}}</button>
 				</span>
 			</span>
 		</div>
@@ -78,36 +90,37 @@
 			<div class="filter-wrap">
 				<input
 					type="text" autocomplete="off" name="filter" value="{{.View.Filter}}" id="filter-paths"
-					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
+					placeholder="Filter paths" title="{{.T "nav-dash/filter|Filter the list of paths; matched case-insensitive on path and title"}}"
 					{{if .View.Filter}}class="value"{{end}}>
 			</div>
-			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> View as text table</label>
+			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> {{.T "nav-dash/as-text|View as text table"}}</label>
 			<input type="hidden" name="as-text" value="off">
 			{{if .ForcedDaily}}
-				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
+				<label title="{{.T "nav-dash/forced-daily|Cannot use the hourly view for a time range of more than 90 days"}}">
+					<input type="checkbox" name="daily" checked disabled> {{.T "nav-dash/by-day|View by day"}}</label>
 			{{else}}
-				<label><input type="checkbox" name="daily" id="daily" {{if .View.Daily}}checked{{end}}> View by day</label>
+				<label><input type="checkbox" name="daily" id="daily" {{if .View.Daily}}checked{{end}}> {{.T "nav-dash/by-day|View by day"}}</label>
 				<input type="hidden" name="daily" value="off">
 			{{end}}
 		</div>
 	</div>
 	<div id="dash-move">
 		<div>
-			←&#xfe0e; back
+			←&#xfe0e; {{.T "nav-dash/back|back"}}  {{/* z18n: as in: "← back [day] [week] [month]" */}}
 			<span>
-				<button class="link" name="move" value="day-b">day</button> ·
-				<button class="link" name="move" value="week-b">week</button> ·
-				<button class="link" name="move" value="month-b">month</button>
+				<button class="link" name="move" value="day-b">{{.T "nav-dash/day|day"}}</button> ·
+				<button class="link" name="move" value="week-b">{{.T "nav-dash/week|week"}}</button> ·
+				<button class="link" name="move" value="month-b">{{.T "nav-dash/month|month"}}</button>
 			</span>
 		</div>
 		<div id="dash-timerange">{{.Period}}</div>
 		<div>
 			<span>
-				<button class="link" name="move" value="day-f">day</button> ·
-				<button class="link" name="move" value="week-f">week</button> ·
-				<button class="link" name="move" value="month-f">month</button>
+				<button class="link" name="move" value="day-f">{{.T "nav-dash/day|day"}}</button> ·
+				<button class="link" name="move" value="week-f">{{.T "nav-dash/week|week"}}</button> ·
+				<button class="link" name="move" value="month-f">{{.T "nav-dash/month|month"}}</button>
 			</span>
-			forward →&#xfe0e;
+			{{.T "nav-dash/forward|forward"}} →&#xfe0e; {{/* z18n: as in: "[day] [week] [month] forward →" */}}
 		</div>
 	</div>
 </form>

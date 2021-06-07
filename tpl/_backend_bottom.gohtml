@@ -2,9 +2,10 @@
 	{{template "_bottom_links.gohtml" .}}
 	{{if and .User.ID .Billing (eq .Path "/") (.Site.ShowPayBanner .Context)}}
 		<div id="trial-expired">
-			<p>Hey hey; you’ve been using GoatCounter for more than 14 days.<br>
-				Please choose if you want to subscribe to a plan or continue with the
-				free plan on the <a href="/billing">billing page</a>.</p>
+			<p>{{.T `nav-bot/trial-expired|Hey hey; you’ve been using GoatCounter for more than 14 days.<br>
+				Please choose if you want to subscribe to a plan or continue with the free plan on the %[link billing page].`
+				(tag "a" `href="/billing"`)}}
+			</p>
 		</div>
 	{{end}}
 	<span id="js-settings"

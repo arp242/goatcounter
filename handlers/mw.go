@@ -75,7 +75,11 @@ var (
 	}, "/bosmang/profile/setrate")
 )
 
-var bundle = z18n.NewBundle(language.MustParse("en-UK"))
+var bundle = func() *z18n.Bundle {
+	b := z18n.NewBundle(language.MustParse("en-GB"))
+	//b.AddMessages(language.MustParse("nl-NL"), msg.NL_NL())
+	return b
+}()
 
 type statusWriter interface{ Status() int }
 
@@ -180,10 +184,26 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 				*r = *r.WithContext(goatcounter.WithSite(r.Context(), &s))
 			}
 
-			// Add z18n.
-			var siteLang, userLang string // TODO: load from site/user preferences.
-			*r = *r.WithContext(z18n.With(r.Context(), bundle.Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
+			// Make sure there's always a z18n object.
+			*r = *r.WithContext(z18n.With(r.Context(), bundle.Locale(r.Header.Get("Accept-Language"))))
 
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func addz18n() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var siteLang, userLang string
+			if s := goatcounter.GetSite(r.Context()); s != nil {
+				siteLang = s.UserDefaults.Language
+			}
+			if u := goatcounter.GetUser(r.Context()); u != nil {
+				userLang = u.Settings.Language
+			}
+
+			*r = *r.WithContext(z18n.With(r.Context(), bundle.Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
 			next.ServeHTTP(w, r)
 		})
 	}

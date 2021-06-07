@@ -1,6 +1,6 @@
 {{range $i, $w := .Widgets}}
 	<div class="widget widget-{{$w.Name}}">
-		<span class="drag-handle" title="Drag to reorder"></span>
+		<span class="drag-handle" title="{{$.T "help/drag-reorder|Drag to reorder"}}"></span>
 		<input type="hidden" name="widgets[{{$i}}].index" value="{{$i}}" class="index">
 		<input type="hidden" name="widgets[{{$i}}].name" value="{{$w.Name}}">
 
@@ -11,7 +11,7 @@
 				{{$s := $w.Settings.Display $w.Name}}
 				{{if $s}}({{$s}}){{end}}
 			</div>
-			<a href="#" class="dashboard-rm" tabindex="-1">Remove</a>
+			<a href="#" class="dashboard-rm" tabindex="-1">{{$.T "button/remove|Remove"}}</a>
 		</div>
 
 		<div class="widget-settings">

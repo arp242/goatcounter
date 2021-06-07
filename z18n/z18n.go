@@ -3,6 +3,7 @@ package z18n
 
 import (
 	"context"
+	"html/template"
 	"strings"
 
 	"golang.org/x/text/language"
@@ -134,6 +135,13 @@ func (l Locale) T(id string, data ...interface{}) string {
 			pl = p
 		} else if p, ok := d.(P); ok {
 			params = p
+		} else if p, ok := d.(map[string]interface{}); ok {
+			params = p
+		} else if p, ok := d.(map[string]string); ok {
+			params = make(P, len(p))
+			for k, v := range p {
+				params[k] = v
+			}
 		} else {
 			oneVar, params = true, P{"": d}
 		}
@@ -182,6 +190,10 @@ func (m Msg) tpl(str string) string {
 		vars  = zstring.IndexPairs(str, "%(", ")")
 		total = len(tags) + len(vars)
 	)
+	// fmt.Printf("XXX %q\n", str)
+	// if len(m.data) > 0 || total > 0 {
+	// 	fmt.Printf("\tvars: %v; tags: %v\n\t%#v\n\n", tags, vars, m.data)
+	// }
 	if total == 0 {
 		return str
 	}
@@ -194,6 +206,8 @@ func (m Msg) tpl(str string) string {
 	return m.tplVars(str, vars)
 }
 
+// TODO: allow %[br]
+// TODO: allow nesting: %[sup %[a some link text]]
 func (m Msg) tplTags(str string, pairs [][]int) string {
 	for _, p := range pairs {
 		start, end := p[0], p[1]
@@ -215,7 +229,8 @@ func (m Msg) tplTags(str string, pairs [][]int) string {
 			continue
 		}
 
-		str = str[:start] + t.Open() + text + t.Close() + str[end+1:]
+		// TODO: allow option for not escaping.
+		str = str[:start] + t.Open() + template.HTMLEscapeString(text) + t.Close() + str[end+1:]
 	}
 	return str
 }
@@ -235,7 +250,8 @@ func (m Msg) tplVars(str string, pairs [][]int) string {
 			continue
 		}
 
-		str = str[:start] + zstring.String(val) + str[end+1:]
+		// TODO: allow option for not escaping.
+		str = str[:start] + template.HTMLEscapeString(zstring.String(val)) + str[end+1:]
 	}
 	return str
 }
@@ -270,4 +286,9 @@ func T(ctx context.Context, id string, data ...interface{}) string {
 		return ""
 	}
 	return l.T(id, data...)
+}
+
+// Thtml is like T, but returns template.HTML instead of a string.
+func Thtml(ctx context.Context, id string, data ...interface{}) template.HTML {
+	return template.HTML(T(ctx, id, data...))
 }

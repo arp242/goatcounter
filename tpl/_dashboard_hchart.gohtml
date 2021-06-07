@@ -4,9 +4,9 @@
 {{- else -}}
 	<div class="hchart" data-widget="{{.ID}}">
 		<h2>{{.Header}}</h2>
-		{{template "_dashboard_warn_collect.gohtml" .IsCollected}}
+		{{template "_dashboard_warn_collect.gohtml" (map "IsCollected" .IsCollected "Context" .Context)}}
 		{{if .Err}}
-			<em>Error: {{.Err}}</em>
+			<em>{{.T "p/error|Error: %(error-message)" .Err}}</em>
 		{{else}}
 			{{$x}}
 		{{end}}

@@ -5,27 +5,27 @@
 		</td>
 		<td class="col-path hide-mobile">
 			<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a><br>
-			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
-			{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
+			<small class="page-title {{if not $h.Title}}no-title{{end}}">{{if $h.Title}}{{$h.Title}}{{else}}<em>({{t $.Context "no-title|no title"}})</em>{{end}}</small>
+			{{if $h.Event}}<sup class="label-event">{{t $.Context "event|event"}}</sup>{{end}}
 
 			{{if and $.Site.LinkDomain (not $h.Event)}}
-				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+				<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">{{t $.Context "link/goto-path|Go to %(path)" (concat "" $.Site.LinkDomain $h.Path)}}</a></small>
 			{{end}}
 		</td>
 		<td>
 			<div class="show-mobile">
 				<a class="load-refs rlink" title="{{$h.Path}}" href="#">{{$h.Path}}</a>
 				<small class="page-title {{if not $h.Title}}no-title{{end}}">| {{if $h.Title}}{{$h.Title}}{{else}}<em>(no title)</em>{{end}}</small>
-				{{if $h.Event}}<sup class="label-event">event</sup>{{end}}
+				{{if $h.Event}}<sup class="label-event">{{t $.Context "event|event"}}</sup>{{end}}
 				{{if and $.Site.LinkDomain (not $h.Event)}}
-					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">Go to {{$.Site.LinkDomain}}{{$h.Path}}</a></small>
+					<br><small class="go"><a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">{{t $.Context "link/goto-path|Go to %(path)" (concat "" $.Site.LinkDomain $h.Path)}}</a></small>
 				{{end}}
 			</div>
 			<div class="chart chart-bar" data-max="{{$h.Max}}">
-				<span class="chart-left"><a href="#" class="rescale" title="Scale Y axis to max">↕&#xfe0e;</a></span>
+				<span class="chart-left"><a href="#" class="rescale" title="{{t $.Context "scale-y|Scale Y axis to max"}}">↕&#xfe0e;</a></span>
 				<span class="chart-right">{{$n := sum $.Offset $i}}
-					{{- if (eq $i 0)}}<small class="scale" title="Y-axis scale">{{nformat $.Max $.User}}</small>
-					{{- else if ge $n 11}}<span class="page-n" title="Page ranking">#{{$n}}</span>{{end -}}
+					{{- if (eq $i 0)}}<small class="scale" title="{{t $.Context "y-scale|Y-axis scale"}}">{{nformat $.Max $.User}}</small>
+					{{- else if ge $n 11}}<span class="page-n" title="{{t $.Context "page-ranking|Page ranking"}}">#{{$n}}</span>{{end -}}
 				</span>
 				<span class="half"></span>
 				{{bar_chart $.Context .Stats $.Max $.Daily}}

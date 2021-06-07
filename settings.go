@@ -58,6 +58,7 @@ type (
 	UserSettings struct {
 		TwentyFourHours  bool     `json:"twenty_four_hours"`
 		SundayStartsWeek bool     `json:"sunday_starts_week"`
+		Language         string   `json:"language"`
 		DateFormat       string   `json:"date_format"`
 		NumberFormat     rune     `json:"number_format"`
 		Timezone         *tz.Zone `json:"timezone"`
@@ -463,6 +464,9 @@ func (v Views) Get(name string) (View, int) {
 }
 
 func (ss *UserSettings) Defaults() {
+	if ss.Language == "" {
+		ss.Language = "en-GB"
+	}
 	if ss.DateFormat == "" {
 		ss.DateFormat = "2 Jan ’06"
 	}

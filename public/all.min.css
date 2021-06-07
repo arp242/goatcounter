@@ -273,16 +273,17 @@ table td.right {
     font-variant-numeric: tabular-nums;
     font-family: sans-serif;
 }
-sup, sub {
+sup, sub, .sup, .sub {
   height: 0;
   line-height: 1;
   vertical-align: baseline;
   position: relative;
+  font-size: smaller;
 }
-sup {
+sup, .sup {
   bottom: 1ex;
 }
-sub {
+sub, .sub {
   top: .5ex;
 }
 hr {

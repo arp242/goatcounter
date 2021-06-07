@@ -61,7 +61,7 @@ func (h user) mount(r chi.Router) {
 	rate.Get("/user/verify/{key}", zhttp.Wrap(h.verify))
 	rate.Post("/user/reset/{key}", zhttp.Wrap(h.doReset))
 
-	auth := r.With(loggedIn)
+	auth := r.With(loggedIn, addz18n())
 	auth.Post("/user/logout", zhttp.Wrap(h.logout))
 	auth.Post("/user/change-password", zhttp.Wrap(h.changePassword))
 	auth.Post("/user/disable-totp", zhttp.Wrap(h.disableTOTP))

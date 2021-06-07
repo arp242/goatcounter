@@ -136,19 +136,19 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		})
 
 		{
-			af := r.With(keyAuth, loggedIn)
+			af := r.With(keyAuth, loggedIn, addz18n())
 			bosmang{}.mount(af, db)
 		}
 
-		a := r.With(mware.Headers(headers), keyAuth)
+		a := r.With(mware.Headers(headers), keyAuth, addz18n())
 		user{}.mount(a)
 		{
-			ap := a.With(loggedInOrPublic)
+			ap := a.With(loggedInOrPublic, addz18n())
 			ap.Get("/", zhttp.Wrap(h.dashboard))
 			ap.Get("/load-widget", zhttp.Wrap(h.loadWidget))
 		}
 		{
-			af := a.With(loggedIn)
+			af := a.With(loggedIn, addz18n())
 			if zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "" {
 				billing{}.mount(a, af)
 			}

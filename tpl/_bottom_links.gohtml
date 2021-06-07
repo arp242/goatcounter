@@ -1,12 +1,12 @@
 <footer class="center cbox">
 	<div>
-		<a {{if .Site}}target="_blank" rel="noopener"{{end}} href="https://www.goatcounter.com">Home</a><span> |</span>
-		<a href="/contact"   >Contact</a><span> |</span>
-		<a href="/help"      >Documentation</a><span> |</span>
-		<a href="/contribute">Contribute</a>
+		<a {{if .Site}}target="_blank" rel="noopener"{{end}} href="https://www.goatcounter.com">{{.T "nav-bot/home|Home"}}</a><span> |</span>
+		<a href="/contact"   >{{.T "nav-bot/contact|Contact"}}</a><span> |</span>
+		<a href="/help"      >{{.T "nav-bot/docs|Documentation"}}</a><span> |</span>
+		<a href="/contribute">{{.T "nav-bot/contribute|Contribute"}}</a>
 	</div>
 	<div>
-		<a href="https://github.com/zgoat/goatcounter"                 target="_blank" rel="noopener">Source code</a><span> |</span>
+		<a href="https://github.com/zgoat/goatcounter"                 target="_blank" rel="noopener">{{.T "nav-bot/src|Source code"}}</a><span> |</span>
 		<a href="https://nlnet.nl/project/GoatCounter/"                target="_blank" rel="noopener">NLnet NGI0</a><span> |</span>
 		<a href="https://github.com/sponsors/arp242"                   target="_blank" rel="noopener">GitHub sponsors</a><span> |</span>
 		<a href="https://patreon.com/arp242"                           target="_blank" rel="noopener">Patreon</a><span> |</span>

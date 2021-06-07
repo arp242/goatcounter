@@ -1,16 +1,16 @@
 <nav class="tab-nav">
-	<a class="{{if has_prefix .Path "/settings/main"}}active{{end}}"   href="/settings/main">{{.T "link/set|Settings"}}</a>
-	<a class="{{if has_prefix .Path "/settings/purge"}}active{{end}}"  href="/settings/purge">{{.T "link/rm|Delete pageviews"}}</a>
-	<a class="{{if has_prefix .Path "/settings/export"}}active{{end}}" href="/settings/export">{{.T "link/imp|Import"}}</a>
+	<a class="{{if has_prefix .Path "/settings/main"}}active{{end}}"   href="/settings/main">{{.T "link/settings|Settings"}}</a>
+	<a class="{{if has_prefix .Path "/settings/purge"}}active{{end}}"  href="/settings/purge">{{.T "link/rm-views|Delete pageviews"}}</a>
+	<a class="{{if has_prefix .Path "/settings/export"}}active{{end}}" href="/settings/export">{{.T "link/import|Import"}}</a>
 
 	{{if .User.AccessAdmin}}
 	<a class="{{if has_prefix .Path "/settings/users"}}active{{end}}"  href="/settings/users">{{.T "link/users|Users"}}</a>
 	<a class="{{if has_prefix .Path "/settings/sites"}}active{{end}}"  href="/settings/sites">{{.T "link/sites|Sites"}}</a>
 		{{if .Billing}}
-		<a class="{{if has_prefix .Path "/billing"}}active{{end}}"     href="/billing">{{.T "link/bil|Billing"}}</a>
+		<a class="{{if has_prefix .Path "/billing"}}active{{end}}"     href="/billing">{{.T "link/billing|Billing"}}</a>
 		{{end}}
 		{{if .GoatcounterCom}}
-		<a class="{{if has_prefix .Path "/settings/delete-account"}}active{{end}}" href="/settings/delete-account">{{.T "link/rm-ac|Delete account"}}</a>
+		<a class="{{if has_prefix .Path "/settings/delete-account"}}active{{end}}" href="/settings/delete-account">{{.T "link/rm-account|Delete account"}}</a>
 		{{end}}
 	{{end}}
 </nav>

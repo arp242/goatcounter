@@ -51,6 +51,9 @@ prefixes:
     error/     Error messages
     link/      Links
     p/         Paragraphs of text
+    top-nav/   Navigation at top
+    bot-nav/   Navigation at bottom
+    dash-nav/  Dashboard navigation
 
 ----
 
@@ -63,27 +66,21 @@ Files to be translated:
     handlers/settings_user.go
     handlers/user.go
 
-    tpl/_backend_bottom.gohtml
-    tpl/_backend_signin.gohtml
-    tpl/_backend_top.gohtml
-    tpl/_bottom_links.gohtml
-    tpl/_dashboard_hchart.gohtml
     tpl/_dashboard_pages.gohtml
-    tpl/_dashboard_pages_refs.gohtml
-    tpl/_dashboard_pages_rows.gohtml
     tpl/_dashboard_pages_text.gohtml
-    tpl/_dashboard_pages_text_rows.gohtml
-    tpl/_dashboard_toprefs.gohtml
     tpl/_dashboard_totals.gohtml
-    tpl/_dashboard_totals_row.gohtml
-    tpl/_dashboard_warn_collect.gohtml
-    tpl/_dashboard_widgets.gohtml
+    tpl/settings_changecode.gohtml
+    tpl/settings_delete.gohtml
+    tpl/settings_export.gohtml
+    tpl/settings_main.gohtml
+    tpl/settings_sites.gohtml
+    tpl/settings_sites_rm_confirm.gohtml
+    tpl/settings_users.gohtml
+    tpl/settings_users_form.gohtml
+    tpl/user_api.gohtml
+    tpl/user_pref.gohtml
+
     tpl/_email_bottom.gotxt
-    tpl/_top.gohtml
-    tpl/_user_dashboard_widgets.gohtml
-    tpl/_user_nav.gohtml
-    tpl/backend_updates.gohtml
-    tpl/dashboard.gohtml
     tpl/email_adduser.gotxt
     tpl/email_export_done.gotxt
     tpl/email_forgot_site.gotxt
@@ -92,23 +89,5 @@ Files to be translated:
     tpl/email_password_reset.gotxt
     tpl/email_verify.gotxt
     tpl/email_welcome.gotxt
-    tpl/settings_changecode.gohtml
-    tpl/settings_delete.gohtml
-    tpl/settings_export.gohtml
-    tpl/settings_main.gohtml
-    tpl/settings_purge.gohtml
-    tpl/settings_purge_confirm.gohtml
-    tpl/settings_sites.gohtml
-    tpl/settings_sites_rm_confirm.gohtml
-    tpl/settings_users.gohtml
-    tpl/settings_users_form.gohtml
-    tpl/totp.gohtml
-    tpl/user.gohtml
-    tpl/user_api.gohtml
-    tpl/user_auth.gohtml
-    tpl/user_dashboard.gohtml
-    tpl/user_forgot_code.gohtml
-    tpl/user_forgot_pw.gohtml
-    tpl/user_pref.gohtml
 
     public/backend.js
