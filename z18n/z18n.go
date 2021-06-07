@@ -3,7 +3,6 @@ package z18n
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"golang.org/x/text/language"
@@ -40,11 +39,11 @@ type (
 
 	// Msg is a localized message.
 	Msg struct {
-		id     string
-		vars   []interface{}
-		tags   []Tagger
-		plural Plural
-		other  string
+		ID     string
+		Plural Plural
+		Other  string
+		data   P
+		oneVar bool
 	}
 )
 
@@ -98,39 +97,45 @@ func (b *Bundle) addTag(tag language.Tag) {
 	b.matcher = language.NewMatcher(b.tags)
 }
 
+type P map[string]interface{}
+
 // T translates a message for this locale.
 //
-// It will return the message in the bundler's defaultLag if the message is not
+// It will return the message in the bundler's defaultLang if the message is not
 // translated in this language (yet).
 //
 // The ID can contain any character except a |. Everything after the first | is
 // used as the default message.
 //
-// Example:
+// Variables can be inserted as %(varname), and text can be wrapped in HTML tags
+// with %[varname translated text]. Wrapping in HTML requires passing a Tagger
+// interface (such as Tag).
 //
-//   T("asd")                                          Just ID
-//   T("asd", email)                                   With ID and params
-//   T("asd|default msg %(email)", email)              With default message and params.
-//   T("asd|default msg: %(email)", email, z18n.N(5))  Apply pluralisation.
+// Pass N() as any argument to apply pluralisation.
 func (l Locale) T(id string, data ...interface{}) string {
 	def := ""
 	if p := strings.Index(id, "|"); p > -1 {
 		id, def = id[:p], id[p+1:]
 	}
 
+	// data can contain be any of three things:
+	//   - A Plural, *AND*
+	//   - A P for mapped variables, *OR*
+	//   - Anything else for a single variable.
+	// The z18n tool checks the parameters, so we don't need to do a lot of that
+	// here and we can be a bit relaxed.
 	var (
-		pl   Plural
-		vars []interface{}
-		tags []Tagger
+		pl     Plural
+		params P
+		oneVar bool
 	)
-	for i, d := range data {
+	for _, d := range data {
 		if p, ok := d.(Plural); ok {
 			pl = p
-			data = append(data[:i], data[i+1:]...)
-		} else if t, ok := d.(Tagger); ok {
-			tags = append(tags, t)
+		} else if p, ok := d.(P); ok {
+			params = p
 		} else {
-			vars = append(vars, d)
+			oneVar, params = true, P{"": d}
 		}
 	}
 
@@ -141,20 +146,20 @@ func (l Locale) T(id string, data ...interface{}) string {
 	if ok {
 		msg, ok := m[id]
 		if ok {
-			msg.id = id
-			msg.vars = vars
-			msg.tags = tags
-			msg.plural = pl
+			msg.ID = id
+			msg.data = params
+			msg.oneVar = oneVar
+			msg.Plural = pl
 			return msg.String()
 		}
 	}
 
 	return Msg{
-		id:     id,
-		other:  def,
-		tags:   tags,
-		vars:   vars,
-		plural: pl,
+		ID:     id,
+		Other:  def,
+		data:   params,
+		oneVar: oneVar,
+		Plural: pl,
 	}.String()
 }
 
@@ -166,55 +171,72 @@ type Plural int
 func N(n int) Plural { return Plural(n) }
 
 var funcmap = map[string]func(string) string{
-	"lower": strings.ToLower,
+	"lower":       strings.ToLower,
+	"upper":       strings.ToUpper,
+	"upper_first": zstring.UpperFirst,
 }
 
-//   %(word)                 Replace
-//   %%(word)                Literal "%(word)"
-//   %(word ucfirst)         Apply function
-//   %(word lower ucfirst)   Apply two functions
-//
-//   %[text]
-//
-// Functions are mainly useful in languages that require some capitalisation,
-// e.g. in German most proper nouns are capitalized. This allows varying this
-// per translation.
-//
-// TODO: don't use positional, find by name instead.
 func (m Msg) tpl(str string) string {
-	str = zstring.ReplacePairs(str, "%[", "]", func(i int, match string) string {
-		if i > len(m.tags) {
-			return fmt.Sprintf("z18n: too many variables (%d)", i)
+	var (
+		tags  = zstring.IndexPairs(str, "%[", "]")
+		vars  = zstring.IndexPairs(str, "%(", ")")
+		total = len(tags) + len(vars)
+	)
+	if total == 0 {
+		return str
+	}
+
+	str = m.tplTags(str, tags)
+
+	// We need to check this again, as the indexes probably changed.
+	// TODO: this can be more efficient.
+	vars = zstring.IndexPairs(str, "%(", ")")
+	return m.tplVars(str, vars)
+}
+
+func (m Msg) tplTags(str string, pairs [][]int) string {
+	for _, p := range pairs {
+		start, end := p[0], p[1]
+		text := str[start+2 : end]
+		varname, text := zstring.Split2(text, " ")
+
+		key := varname
+		if m.oneVar {
+			key = ""
+		}
+		value, ok := m.data[key]
+		if !ok { // TODO: update CLI to detect this
+			str = str[:start] + "%(z18n ERROR: no value for " + varname + ")" + str[end+1:]
+			continue
+		}
+		t, ok := value.(Tagger)
+		if !ok { // TODO: update CLI to detect this.
+			str = str[:start] + "%(z18n ERROR: value for " + varname + " is not a Tagger)" + str[end+1:]
+			continue
 		}
 
-		sp := strings.IndexRune(match, ' ')
-		varname, text := strings.TrimSpace(match[2:sp]), strings.TrimSpace(match[sp+1:len(match)-1])
-		_ = varname
+		str = str[:start] + t.Open() + text + t.Close() + str[end+1:]
+	}
+	return str
+}
 
-		v := m.tags[i]
-		return v.Open() + text + v.Close()
-	})
+func (m Msg) tplVars(str string, pairs [][]int) string {
+	for _, p := range pairs {
+		start, end := p[0], p[1]
+		varname := str[start+2 : end]
 
-	str = zstring.ReplacePairs(str, "%(", ")", func(i int, match string) string {
-		if i > len(m.vars) {
-			return fmt.Sprintf("z18n: too many variables (%d)", i)
+		key := varname
+		if m.oneVar {
+			key = ""
+		}
+		val, ok := m.data[key]
+		if !ok { // TODO: update CLI to detect this
+			str = str[:start] + "%(z18n ERROR: no value for " + varname + ")" + str[end+1:]
+			continue
 		}
 
-		v := zstring.String(m.vars[i])
-		if !strings.Contains(match, " ") {
-			return v
-		}
-
-		funs := strings.Fields(match)[1:]
-		for _, f := range funs {
-			fn, ok := funcmap[f]
-			if ok {
-				v = fn(v)
-			}
-		}
-		return v
-	})
-
+		str = str[:start] + zstring.String(val) + str[end+1:]
+	}
 	return str
 }
 
@@ -222,10 +244,10 @@ func (m Msg) tpl(str string) string {
 func (m Msg) String() string {
 	// TODO: implement plurals.
 
-	if m.other != "" {
-		return m.tpl(m.other)
+	if m.Other != "" {
+		return m.tpl(m.Other)
 	}
-	return m.id
+	return m.ID
 }
 
 var ctxkey = &struct{}{}

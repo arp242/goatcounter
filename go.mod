@@ -15,9 +15,11 @@ replace github.com/oschwald/geoip2-golang => github.com/zgoat/geoip2-golang v1.4
 
 require (
 	code.soquee.net/otp v0.0.1
+	github.com/BurntSushi/toml v0.3.1
 	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-chi/chi/v5 v5.0.3
 	github.com/google/uuid v1.2.0
 	github.com/jinzhu/now v1.1.2

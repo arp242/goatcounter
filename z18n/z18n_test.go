@@ -9,52 +9,78 @@ import (
 func mkbundle() *Bundle {
 	b := NewBundle(language.English)
 	b.AddMessages(language.English, map[string]Msg{
-		"hello":     Msg{other: "Hello"},
-		"hello-loc": Msg{other: "Hello, %(loc)!"},
-		"btn":       Msg{other: "%[btn Button]"},
-		"btn2":      Msg{other: "%[btn Button %(x)]"},
-		"btn3":      Msg{other: "%[btn Send]"},
+		"hello":     Msg{Other: "Hello"},
+		"hello-loc": Msg{Other: "Hello, %(loc)!"},
+		"btn":       Msg{Other: "%[btn Button]"},
+		"btn2":      Msg{Other: "Hello %[btn1 Button], %[btn2 another] XX"},
+		"btn3":      Msg{Other: "%[btn Button %(var)]"},
+		"btn4":      Msg{Other: "%[btn Send]"},
 	})
 	b.AddMessages(language.Dutch, map[string]Msg{
-		"hello":     Msg{other: "Hallo"},
-		"hello-loc": Msg{other: "Hallo, %(loc)!"},
-		"btn":       Msg{other: "%[btn Knop]"},
-		"btn2":      Msg{other: "%[btn Knop %(x)]"},
-		"btn3":      Msg{other: "%[btn Verstuur]"},
+		"hello":     Msg{Other: "Hallo"},
+		"hello-loc": Msg{Other: "Hallo, %(loc)!"},
+		"btn":       Msg{Other: "%[btn Knop]"},
+		"btn2":      Msg{Other: "Hallo %[btn1 Knop], %[btn2 nog een] XX"},
+		"btn3":      Msg{Other: "%[btn Knop %(var)]"},
+		"btn4":      Msg{Other: "%[btn Verstuur]"},
 	})
 	return b
 }
 
 func TestT(t *testing.T) {
 	tests := []struct {
+		name   string
 		id     string
 		data   []interface{}
 		wantEN string
 		wantNL string
 	}{
-		{"hello", nil, "Hello", "Hallo"},
-		{"hello-loc", []interface{}{"z18n"}, "Hello, z18n!", "Hallo, z18n!"},
+		{"empty string",
+			"", nil, "", ""},
+		{"basic string",
+			"hello", nil, "Hello", "Hallo"},
+		{"default message",
+			"id|Default msg", nil, "Default msg", "Default msg"},
+		{"unknown key",
+			"unknown", nil, "unknown", "unknown"},
 
-		{"id|Default msg", nil, "Default msg", "Default msg"},
-		{"unknown", nil, "unknown", "unknown"},
+		// Variables
+		{"variable",
+			"hello-loc", []interface{}{"z18n"}, "Hello, z18n!", "Hallo, z18n!"},
+		{"variable in default msg",
+			"|%(var)", []interface{}{"xx"}, "xx", "xx"},
+		{"variable in id",
+			"%(var)", nil, "%(var)", "%(var)"},
 
-		// Placeholders
-		{"|%(var)", []interface{}{"xx"}, "xx", "xx"},
-		{"|$%(var)", []interface{}{"xx"}, "$xx", "$xx"},
-		{"|%%(var)", []interface{}{"xx"}, "%(var)", "%(var)"},
-		{"%(var)", nil, "%(var)", "%(var)"},
+		{"two variables",
+			"|%(var) %(bar)", []interface{}{P{"var": "xx", "bar": "yy"}}, "xx yy", "xx yy"},
 
-		// Buttons
-		{"btn|%[btn Button]", []interface{}{Tag("a", `href="/foo"`)}, `<a href="/foo">Button</a>`, `<a href="/foo">Knop</a>`},
-		{"btn2|%[btn Button %(var)]", []interface{}{Tag("a", `href="/foo"`), "X"}, `<a href="/foo">Button X</a>`, `<a href="/foo">Knop X</a>`},
-		{"btn3", []interface{}{TagNone()}, `Send`, `Verstuur`},
+		// HTML
+		{"html",
+			"btn|%[btn Button]", []interface{}{Tag("a", `href="/foo"`)},
+			`<a href="/foo">Button</a>`, `<a href="/foo">Knop</a>`},
+		{"html two", "btn2", []interface{}{P{
+			"btn1": Tag("a", `href="/btn1"`),
+			"btn2": Tag("a", `href="/btn2"`),
+		}},
+			`Hello <a href="/btn1">Button</a>, <a href="/btn2">another</a> XX`,
+			`Hallo <a href="/btn1">Knop</a>, <a href="/btn2">nog een</a> XX`,
+		},
+		{"var inside html", "btn3|%[btn Button %(var)]", []interface{}{P{
+			"var": "X",
+			"btn": Tag("a", `href="/foo"`),
+		}},
+			`<a href="/foo">Button X</a>`, `<a href="/foo">Knop X</a>`},
+
+		{"tag none", "btn4", []interface{}{TagNone()}, `Send`, `Verstuur`},
 
 		// Plural.
-		{"hello", []interface{}{N(5)}, "Hello", "Hallo"},
-		{"hello-loc", []interface{}{N(5), "z18n"}, "Hello, z18n!", "Hallo, z18n!"},
+		{"plural", "hello", []interface{}{N(5)}, "Hello", "Hallo"},
+		{"plural", "hello-loc", []interface{}{N(5), "z18n"}, "Hello, z18n!", "Hallo, z18n!"},
 
-		//{"hello-loc", nil, "Hello", "Hallo"}, // TODO: panic
-		//{"hello", []interface{}{"hmm"}, "Hello", "Hallo"}, // TODO: don't silently ignore extra data
+		// Errors
+		{"extra params", "hello", []interface{}{"X"}, "Hello", "Hallo"},
+		{"no vars", "hello-loc", nil, "Hello, %(z18n ERROR: no value for loc)!", "Hallo, %(z18n ERROR: no value for loc)!"},
 	}
 
 	b := mkbundle()
@@ -63,12 +89,11 @@ func TestT(t *testing.T) {
 	nl := b.Locale("nl_NL")
 
 	for _, tt := range tests {
-		t.Run("", func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			haveEN := en.T(tt.id, tt.data...)
 			if haveEN != tt.wantEN {
 				t.Errorf("English wrong\nhave: %s\nwant: %s", haveEN, tt.wantEN)
 			}
-
 			haveNL := nl.T(tt.id, tt.data...)
 			if haveNL != tt.wantNL {
 				t.Errorf("Dutch wrong\nhave: %s\nwant: %s", haveNL, tt.wantNL)
@@ -89,9 +114,24 @@ func BenchmarkT(b *testing.B) {
 	bundle := mkbundle()
 	nl := bundle.Locale("nl_NL")
 
-	b.ReportAllocs()
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		_ = nl.T("btn2", "a")
-	}
+
+	b.Run("string", func(b *testing.B) {
+		b.ReportAllocs()
+		for n := 0; n < b.N; n++ {
+			_ = nl.T("hello", "a")
+		}
+	})
+	b.Run("one-variable", func(b *testing.B) {
+		b.ReportAllocs()
+		for n := 0; n < b.N; n++ {
+			_ = nl.T("hello-loc", "a")
+		}
+	})
+	b.Run("one-tag", func(b *testing.B) {
+		b.ReportAllocs()
+		for n := 0; n < b.N; n++ {
+			_ = nl.T("btn", Tag("a", `href="/foo"`))
+		}
+	})
 }

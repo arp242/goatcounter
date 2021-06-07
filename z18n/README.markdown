@@ -74,21 +74,32 @@ The placeholder syntax is as follows:
     %(word ucfirst)         Apply function
     %(word lower ucfirst)   Apply two functions
 
+If you have only one variable then you can pass it directly; if you have more
+than one you will need to use a map:
+
+    l.T("email-me|Email me at: %(email) or %(email2)", z18n.P{
+        "email": email,
+        "email": email2,
+    })
 
 ### HTML
 
 You can use `%[varname text]` as a placeholder for HTML tags; this is intended
 to be used with the `z18n.Tag()` function. This removes the need to put (most)
-HTML inside translation strings, and makes updating links etc. easier.
+HTML inside translation strings, and makes updating links etc. easier:
 
     l.T("docs|You can find out more %[from the documentation]")
         z18n.Tag("a", `href="/docs" class="link"`))
 
-Variables can be inside `%[..]` tags:
+As with %(..) variables, you can pass it directly for a single parameter but
+will need to use a map if you use multiple.
 
-    l.T("email-me|%[Email me at %(email)] to find out more",
-        z18n.Tag("a", `href="mailto:me@example.com"`),
-        email)
+Variables can be used inside `%[..]` tags:
+
+    l.T("email-me|%[link Email me at %(email)] to find out more", z18n.P{
+        "link": z18n.Tag("a", `href="mailto:me@example.com"`),
+        "email": email,
+    })
 
 It's not possible to nest these tags: `%[%[two tags]]` won't work. You can add
 your own tags by implementing the `Tagger` interface, for example if you need
