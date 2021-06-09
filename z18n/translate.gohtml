@@ -1,0 +1,46 @@
+{{template "_backend_top.gohtml" .}}
+
+<h1>Translate GoatCounter</h1>
+<form class="vertical">
+	<fieldset>
+		<legend>Load existing language</legend>
+		<a href="">Dutch</a> ·
+		<a href="">English</a>
+	</fieldset>
+	<fieldset>
+		<legend>Add new language</legend>
+
+		<label>Language code</label>
+		<input type="text" name="code">
+		<span>As [language]-[variant] BCP 47 tag; for example ‘pt-PT’ or ‘pt-BR’ for Portugese as used in Portugal or Brazil.</span>
+
+		<label>Base translation</label>
+		<select name="base"></select>
+		<span>
+			Copy translations from an existing one; this is mainly useful to
+			modify a few small things for a regional variant. These translations
+			will "remain" linked to new translations will show up for the
+			regional one.
+		</span>
+
+		<label>English name</label>
+		<input type="text" name="name-en">
+		<span>For example ‘German’ or ‘Russian’</span>
+
+		<label>Local name</label>
+		<input type="text" name="name-local">
+		<span>For example ‘Deutsch’ or ‘Русский’; will be shown in the language selector</span>
+
+		<br><br>
+		<button type="submit">Save</button>
+	</fieldset>
+</form>
+
+<!--
+<button>Save draft</button>
+
+<p>15 unsubmitted changes</p>
+<button>Save and submit for review</button>
+-->
+
+{{template "_backend_bottom.gohtml" .}}

@@ -103,9 +103,9 @@ func (e Entries) Go() (string, error) {
 		fmt.Fprintf(buf, "ID: %q,\n", ff.ID)
 
 		if strings.ContainsRune(ff.Default, '\n') {
-			fmt.Fprintf(buf, "Other: `%s`,\n", goRawQuote.Replace(ff.Default))
+			fmt.Fprintf(buf, "Default: `%s`,\n", goRawQuote.Replace(ff.Default))
 		} else {
-			fmt.Fprintf(buf, "Other: %q,\n", ff.Default)
+			fmt.Fprintf(buf, "Default: %q,\n", ff.Default)
 		}
 		buf.WriteString("},\n\n")
 	}

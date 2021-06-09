@@ -21,6 +21,7 @@ require (
 	github.com/boombuler/barcode v1.0.1
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-chi/chi/v5 v5.0.3
+	github.com/goodsign/monday v1.0.0
 	github.com/google/uuid v1.2.0
 	github.com/jinzhu/now v1.1.2
 	github.com/mattn/go-sqlite3 v1.14.6

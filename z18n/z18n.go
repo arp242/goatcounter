@@ -3,7 +3,9 @@ package z18n
 
 import (
 	"context"
+	"fmt"
 	"html/template"
+	"strconv"
 	"strings"
 
 	"golang.org/x/text/language"
@@ -16,6 +18,8 @@ import (
 type (
 	// Bundle is a "bundle" of all translations and localisations.
 	Bundle struct {
+		NoHTML bool
+
 		defaultLang language.Tag
 		tags        []language.Tag
 		matcher     language.Matcher
@@ -40,11 +44,20 @@ type (
 
 	// Msg is a localized message.
 	Msg struct {
-		ID     string
-		Plural Plural
-		Other  string
-		data   P
+		bundle *Bundle
+		tag    language.Tag
 		oneVar bool
+		data   P
+
+		ID     string  // Message ID.
+		Plural *Plural // Plural value; may be nil.
+
+		Default string // CLDR "other" plural (default is more intuitive IMO).
+		Zero    string // CLDR "zero" plural.
+		One     string // CLDR "one" plural.
+		Two     string // CLDR "two" plural.
+		Few     string // CLDR "few" plural.
+		Many    string // CLDR "many" plural.
 	}
 )
 
@@ -126,25 +139,27 @@ func (l Locale) T(id string, data ...interface{}) string {
 	// The z18n tool checks the parameters, so we don't need to do a lot of that
 	// here and we can be a bit relaxed.
 	var (
-		pl     Plural
-		params P
+		pl     *Plural
+		params = make(P)
 		oneVar bool
 	)
 	for _, d := range data {
 		if p, ok := d.(Plural); ok {
-			pl = p
+			pl = &p
 		} else if p, ok := d.(P); ok {
 			params = p
 		} else if p, ok := d.(map[string]interface{}); ok {
 			params = p
 		} else if p, ok := d.(map[string]string); ok {
-			params = make(P, len(p))
 			for k, v := range p {
 				params[k] = v
 			}
 		} else {
 			oneVar, params = true, P{"": d}
 		}
+	}
+	if pl != nil {
+		params["n"] = pl
 	}
 
 	_, i, _ := l.bundle.matcher.Match(l.tags...)
@@ -158,22 +173,28 @@ func (l Locale) T(id string, data ...interface{}) string {
 			msg.data = params
 			msg.oneVar = oneVar
 			msg.Plural = pl
-			return msg.String()
+			msg.bundle = l.bundle
+			msg.tag = tag
+			return msg.Display()
 		}
 	}
 
 	return Msg{
-		ID:     id,
-		Other:  def,
-		data:   params,
-		oneVar: oneVar,
-		Plural: pl,
-	}.String()
+		bundle:  l.bundle,
+		ID:      id,
+		Default: def,
+		data:    params,
+		oneVar:  oneVar,
+		Plural:  pl,
+		tag:     tag,
+	}.Display()
 }
 
 // Plural signals to T that this parameter is used to pluralize the string,
 // rather than a data parameter.
 type Plural int
+
+func (p Plural) String() string { return strconv.Itoa(int(p)) }
 
 // N returns a plural of n.
 func N(n int) Plural { return Plural(n) }
@@ -182,6 +203,7 @@ var funcmap = map[string]func(string) string{
 	"lower":       strings.ToLower,
 	"upper":       strings.ToUpper,
 	"upper_first": zstring.UpperFirst,
+	"html":        template.HTMLEscapeString,
 }
 
 func (m Msg) tpl(str string) string {
@@ -229,8 +251,10 @@ func (m Msg) tplTags(str string, pairs [][]int) string {
 			continue
 		}
 
-		// TODO: allow option for not escaping.
-		str = str[:start] + t.Open() + template.HTMLEscapeString(text) + t.Close() + str[end+1:]
+		if !m.bundle.NoHTML {
+			text = template.HTMLEscapeString(text)
+		}
+		str = str[:start] + t.Open() + text + t.Close() + str[end+1:]
 	}
 	return str
 }
@@ -250,20 +274,53 @@ func (m Msg) tplVars(str string, pairs [][]int) string {
 			continue
 		}
 
-		// TODO: allow option for not escaping.
-		str = str[:start] + template.HTMLEscapeString(zstring.String(val)) + str[end+1:]
+		// TODO: raw function; actually, other funs got lost as well?
+		// zstring.String(val)
+		v := l10n(m.tag, val)
+		if !m.bundle.NoHTML {
+			v = template.HTMLEscapeString(v)
+		}
+		str = str[:start] + v + str[end+1:]
 	}
 	return str
 }
 
-// String displays this string as "other".
-func (m Msg) String() string {
-	// TODO: implement plurals.
-
-	if m.Other != "" {
-		return m.tpl(m.Other)
+// String displays this string as "other", or the ID if this isn't set.
+func (m Msg) Display() string {
+	if m.Plural == nil {
+		if m.Default != "" {
+			return m.tpl(m.Default)
+		}
+		return m.ID
 	}
-	return m.ID
+
+	// Only error failure is on invalid type, so it's safe to ignore.
+	op, _ := plural.NewOperands(int(*m.Plural))
+
+	form := m.bundle.pluralRules.Rule(m.tag).PluralFormFunc(op)
+	var s string
+	switch form {
+	case plural.Zero:
+		s = m.Zero
+	case plural.One:
+		s = m.One
+	case plural.Two:
+		s = m.Two
+	case plural.Few:
+		s = m.Few
+	case plural.Many:
+		s = m.Many
+	case plural.Other:
+		s = m.Default
+	}
+	if s == "" {
+		if form == plural.Other {
+			return "unknown"
+		}
+		return fmt.Sprintf("%%(z18n ERROR: plural form %s is empty for %s)", form, m.tag)
+	}
+
+	return m.tpl(s)
 }
 
 var ctxkey = &struct{}{}
