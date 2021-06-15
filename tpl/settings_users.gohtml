@@ -1,7 +1,7 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
-<h2>Users</h2>
+<h2>{{.T "header/users|Users"}}</h2>
 <table class="auto">
 	<thead><tr><th>Email</th><th>Access</th><th></th></tr></thead>
 	<tbody>
@@ -24,6 +24,6 @@
 </tbody></table>
 <br>
 
-<a href="/settings/users/add">Add new user</a>
+<a href="/settings/users/add">{{.T "link/add-user|Add new user"}}</a>
 
 {{template "_backend_bottom.gohtml" .}}

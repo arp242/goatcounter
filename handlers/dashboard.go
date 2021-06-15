@@ -348,7 +348,7 @@ func timeRange(r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
 	default:
 		days, err := strconv.Atoi(r)
 		if err != nil {
-			zlog.Field("rng", r).Error(errors.Errorf("timeRange: %w", err))
+			zlog.Field("rng", r).Error(errors.Errorf(T(r.Context(),"error/timerange|timeRange: %(error)"), err))
 			return timeRange("week", tz, sundayStartsWeek)
 		}
 		rng.Start = ztime.Add(rng.Start, -days, ztime.Day)
@@ -363,14 +363,14 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 		var err error
 		rng.Start, err = time.ParseInLocation("2006-01-02", d, user.Settings.Timezone.Loc())
 		if err != nil {
-			return rng, guru.Errorf(400, "Invalid start date: %q", d)
+			return rng, guru.Errorf(400, T(r.Context(),"error/invalid-start-date|Invalid start date: %(date)"), d)
 		}
 	}
 	if d := r.URL.Query().Get("period-end"); d != "" {
 		var err error
 		rng.End, err = time.ParseInLocation("2006-01-02 15:04:05", d+" 23:59:59", user.Settings.Timezone.Loc())
 		if err != nil {
-			return rng, guru.Errorf(400, "Invalid end date: %q", d)
+			return rng, guru.Errorf(400, T(r.Context(),"error/invalid-end-date|Invalid end date: %(date)"), d)
 		}
 	}
 

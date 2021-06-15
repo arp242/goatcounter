@@ -6,14 +6,14 @@
 	This will <strong>remove all associated data</strong>{{if eq .Rm.ID .Site.ID}} and is the <strong>current site</strong>{{end}}.
 </p>
 {{if .GoatcounterCom}}
-<p><a href="//{{.Domain}}/contact" target="_blank">Contact</a> if you want to do
+<p><a href="//{{.Domain}}/contact" target="_blank">{{.T "link/contact|Contact"}}</a> if you want to do
 	something else, like merge it in to another site, or decouple it to a new
 	account.</p>
 {{end}}
 
 <form method="post">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<button>Yes, delete everything</button>
+	<button>{{.T "button/delete-everything|Yes, delete everything"}}</button>
 </form>
 
 {{template "_backend_bottom.gohtml" .}}
