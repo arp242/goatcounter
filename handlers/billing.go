@@ -79,16 +79,16 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 
 	switch r.URL.Query().Get("return") {
 	case "cancel":
-		zhttp.FlashError(w, "Payment cancelled.")
+		zhttp.FlashError(w, T(r.Context(),"error/payment-cancelled|Payment cancelled."))
 
 	case "success":
 		// Verify that the webhook was processed correct.
 		if !account.Subscribed() {
-			zhttp.Flash(w, "The payment processor reported success, but we're still processing the payment")
+			zhttp.Flash(w, T(r.Context(),"notify/payment-processing|The payment processor reported success, but we're still processing the payment"))
 			zlog.Fields(zlog.F{
 				"siteID":   account.ID,
 				"stripeID": zstring.Ptr{account.Stripe}.String(),
-			}).Errorf("stripe not processed")
+			}).Errorf(T(r.Context(),"error/stripe-not-processed|stripe not processed"))
 		} else {
 			bgrun.Run("email:subscription", func() {
 				blackmail.Send("New GoatCounter subscription "+account.Plan,
@@ -96,7 +96,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 					blackmail.To("billing@goatcounter.com"),
 					blackmail.Bodyf(`New subscription: %s (%d) %s`, account.Code, account.ID, *account.Stripe))
 			})
-			zhttp.Flash(w, "Payment processed successfully!")
+			zhttp.Flash(w, T(r.Context(),"notify/payment-processed|Payment processed successfully!"))
 		}
 	}
 
@@ -147,7 +147,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		zhttp.Flash(w, "Saved!")
+		zhttp.Flash(w, T(r.Context(),"notify/saved|Saved!"))
 		return zhttp.JSON(w, `{"status":"ok","no_stripe":true}`)
 	}
 
@@ -170,7 +170,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	var id zstripe.ID
 	_, err = zstripe.Request(&id, "POST", "/v1/checkout/sessions", body.Encode())
 	if err != nil {
-		return errors.Errorf("zstripe failed: %w; body: %s", err, body.Encode())
+		return errors.Errorf(T(r.Context(),"error/zstripe-failer|zstripe failed: %(error); body: %(body)"), err, body.Encode())
 	}
 
 	account.PlanPending = &args.Plan
@@ -215,7 +215,7 @@ func (h billing) extra(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	if len(sub.Data) == 0 {
-		return guru.New(400, "no subscriptions found")
+		return guru.New(400, T(r.Context(),"error/no-subscription|no subscriptions found"))
 	}
 
 	found := ""
@@ -264,7 +264,7 @@ func (h billing) manage(w http.ResponseWriter, r *http.Request) error {
 	account := Account(r.Context())
 
 	if account.Stripe == nil {
-		return guru.New(400, "no Stripe customer for this account?")
+		return guru.New(400, T(r.Context(),"notify/no-stripe-customer|no Stripe customer for this account?"))
 	}
 
 	var s struct {
@@ -325,7 +325,7 @@ func (h billing) webhook(w http.ResponseWriter, r *http.Request) error {
 	}[event.Type]
 	if !ok {
 		w.WriteHeader(202)
-		return zhttp.String(w, "not handling this webhook")
+		return zhttp.String(w, T(r.Context(),"notify/not.handling.webhook|not handling this webhook"))
 	}
 
 	err = f(event, w, r)
@@ -363,7 +363,7 @@ func (h billing) whSubscriptionUpdated(event zstripe.Event, w http.ResponseWrite
 		err = site.ByID(r.Context(), int64(s.Metadata.SiteID))
 	}
 	if err != nil {
-		return fmt.Errorf("whSubscriptionUpdated: cannot find Stripe customer %q (metadata: %d), %w",
+		return fmt.Errorf(T(r.Context(),"error/stripe-customer-not-found|whSubscriptionUpdated: cannot find Stripe customer %(customer) (metadata: %(Metadata.SiteID)), %(err)"),
 			s.Customer, s.Metadata.SiteID, err)
 	}
 
@@ -439,5 +439,5 @@ func getPlan(ctx context.Context, s Subscription) (string, error) {
 			return k, nil
 		}
 	}
-	return "", fmt.Errorf("unknown plan: %q", planID)
+	return "", fmt.Errorf(T(r.Context(),"error/unknown-plan|unknown plan: %(planid)"), planID)
 }

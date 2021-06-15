@@ -1,13 +1,13 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
-<h2>Sites</h2>
+<h2>{{.T "header/sites|Sites"}}</h2>
 
-<p>Add GoatCounter to multiple websites by creating new sites. All sites will
+<p>{{.T "p/add-goatcounter-to-multiple-websites|Add GoatCounter to multiple websites by creating new sites. All sites will
 	share the same plan, users, and logins, but are otherwise completely
 	separate. The current site’s settings are copied on creation, but are
-	independent afterwards.</p>
-<p>You can add as many as you want.</p>
+	independent afterwards."}}</p>
+<p>{{.T "p/add-many|You can add as many as you want."}}</p>
 
 <form method="post" action="/settings/sites/add">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -45,10 +45,10 @@
 	</tbody></table>
 </form>
 
-<h2>Copy settings</h2>
-<p>Copy all settings from the current site except the domain name.</p>
+<h2>{{.T "header/copy-settings|Copy settings"}}</h2>
+<p>{{.T "p/copy-settings-from-current-site|Copy all settings from the current site except the domain name."}}</p>
 
-<p><strong>This includes the data retention and collection settings!</strong></p>
+<p><strong>{{.T "p/text-data-retention|This includes the data retention and collection settings!"}}</strong></p>
 
 <form method="post" action="/settings/sites/copy-settings">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -59,8 +59,8 @@
 		{{end}}
 	{{end}}
 	<br>
-	<label><input type="checkbox" name="allsites"> All sites</label><br><br>
-	<button type="submit">Copy</button>
+	<label><input type="checkbox" name="allsites"> {{.T "label/all-sites|All sites"}}</label><br><br>
+	<button type="submit">{{.T "button/copy|Copy"}}</button>
 </form>
 
 {{template "_backend_bottom.gohtml" .}}

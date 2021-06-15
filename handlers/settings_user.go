@@ -67,7 +67,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 		sendEmailVerify(r.Context(), Site(r.Context()), &args.User, goatcounter.Config(r.Context()).EmailFrom)
 	}
 
-	zhttp.Flash(w, "Saved!")
+	zhttp.Flash(w, T(r.Context(),"notify/saved|Saved!"))
 	return zhttp.SeeOther(w, "/user/pref")
 }
 
@@ -112,7 +112,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 	}
 
 	if len(args.Widgets) == 0 {
-		return guru.New(400, "Must add at least one thing; an empty dashboard is a bit pointless, no?")
+		return guru.New(400, T(r.Context(),"notify/add-one-thing|Must add at least one thing; an empty dashboard is a bit pointless, no?"))
 	}
 
 	user := User(r.Context())
@@ -124,7 +124,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		if err != nil {
 			return err
 		}
-		zhttp.Flash(w, "Reset to defaults!")
+		zhttp.Flash(w, T(r.Context(),"notify/reset-to-default|Reset to defaults!"))
 		return zhttp.SeeOther(w, "/user/dashboard")
 	}
 
