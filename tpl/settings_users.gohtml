@@ -15,7 +15,7 @@
 					<a href="/settings/users/{{$u.ID}}">edit</a> |
 					<form method="post" action="/settings/users/remove/{{$u.ID}}" data-confirm="Delete {{$u.Email}}?">
 						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-						<button class="link">delete</button>
+						<button class="link">{{.T "button/delete-small|delete"}}</button>
 					</form>
 				{{end}}
 				{{if eq $u.ID $.User.ID}}&nbsp;&nbsp;&nbsp;(current){{end}}

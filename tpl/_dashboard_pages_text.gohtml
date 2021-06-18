@@ -3,6 +3,14 @@
 		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of
 		<span class='total-unique'>{{nformat .TotalUnique $.User}}</span> visits shown
 	</small></h2>
+	{{/*
+	TODO: after finialising the format for nested HTML
+	{{t .Context "header/pages|Pages %[small %(n) out of %(total) visits shown]" (dict
+		"small" (tag "small")
+		"n"     (nformat .TotalUniqueDisplay $.User)
+		"total" (nformat .TotalUnique $.User)
+	)}}
+	*/}}
 	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
 		<thead><tr>
 			<th class="col-idx"></th>
