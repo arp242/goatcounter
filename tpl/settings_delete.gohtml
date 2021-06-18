@@ -15,7 +15,7 @@
 {{end}}
 
 <form method="post" action="/settings/delete-account" class="form-max-width"
-	data-confirm="Are you sure you want to delete your entire account?">
+	data-confirm={{.T "label/delete-account-confirmation|Are you sure you want to delete your entire account?"}}>
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 	<label for="reason">{{.T "label/request-account-deletion-information|It would be appreciated if you could let me know

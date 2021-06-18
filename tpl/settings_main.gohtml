@@ -13,19 +13,19 @@
 			<label for="link_domain">{{.T "label/your-site|Your site"}}</label>
 			<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 			{{validate "site.link_domain" .Validate}}
-			<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
+			<span>{{.T "p/site-domain-link-to-page|Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview."}}</span>
 
 			{{if .GoatcounterCom}}
 				<label>{{checkbox .Site.Settings.AllowBosmang "settings.allow_bosmang"}}
 					{{.T "label/allow-admin-access|Allow admin access"}}</label>
-				<span>Normally administrators can’t “log in” to your site, but
+				<span>{{.T "restricted-admin-access|Normally administrators can’t “log in” to your site, but
 					if this is enabled they can. You may be asked to enable this
-					for support requests.</span>
+					for support requests."}}</span>
 			{{end}}
 
 			<label>{{checkbox .Site.Settings.Public "settings.public"}}
 				{{.T "label/make-statistics-viewable|Make statistics publicly viewable"}}</label>
-			<span>Anyone can view the statistics without logging in.</span>
+			<span>{{.T "p/all-access-statistics|Anyone can view the statistics without logging in."}}</span>
 
 			<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
 				{{.T "label/allow-visitor-counts|Allow adding visitor counts on your website"}}</label>

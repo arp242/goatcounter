@@ -283,12 +283,12 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		err := newSite.ByIDState(r.Context(), id, goatcounter.StateDeleted)
 		if err != nil {
 			if zdb.ErrNoRows(err) {
-				return guru.Errorf(400, T(r.Context(),"error/address-exists|%(address) already exists"), addr)
+				return guru.Errorf(400, T(r.Context(),"error/address-exists|%(addr) already exists", addr))
 			}
 			return err
 		}
 		if newSite.Parent == nil || *newSite.Parent != account.ID {
-			return guru.Errorf(400, T(r.Context(),"error/address-exists|%(address) already exists"), addr)
+			return guru.Errorf(400, T(r.Context(),"error/address-exists|%(addr) already exists", addr))
 		}
 
 		err = newSite.Undelete(r.Context(), newSite.ID)
@@ -296,7 +296,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		zhttp.Flash(w, T(r.Context(),"notify/restored-previously-deleted-site|Site ‘%(url)’ was previously deleted; restored site with all data."), newSite.URL(r.Context()))
+		zhttp.Flash(w, T(r.Context(),"notify/restored-previously-deleted-site|Site ‘%(url)’ was previously deleted; restored site with all data.", newSite.URL(r.Context())))
 		return zhttp.SeeOther(w, "/settings/sites")
 	}
 
@@ -366,7 +366,7 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(),"notify/site-removed|Site ‘%(url)’ removed."), s.URL(r.Context()))
+	zhttp.Flash(w, T(r.Context(),"notify/site-removed|Site ‘%(url)’ removed.", s.URL(r.Context())))
 
 	// Redirect to parent if we're removing the current site.
 	if sID == Site(r.Context()).ID && s.Parent != nil {
@@ -407,7 +407,7 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 				return err
 			}
 			if s.Parent == nil || *s.Parent != master.ID {
-				return guru.Errorf(http.StatusForbidden, T(r.Context(),"error/site-not-yours|yeah nah, site %(id) doesn't belong to you"), s.ID)
+				return guru.Errorf(http.StatusForbidden, T(r.Context(),"error/site-not-yours|yeah nah, site %(id) doesn't belong to you", s.ID))
 			}
 			copies = append(copies, s)
 		}
@@ -539,7 +539,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	if strings.HasSuffix(head.Filename, ".gz") {
 		fp, err = gzip.NewReader(file)
 		if err != nil {
-			return guru.Errorf(400, T(r.Context(),"error/could-not-read|could not read as gzip: %(error)"), err)
+			return guru.Errorf(400, T(r.Context(),"error/could-not-read|could not read as gzip: %(err)", err))
 		}
 	}
 	defer fp.Close()
@@ -586,7 +586,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(),"notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done.)")
+	zhttp.Flash(w, T(r.Context(),"notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done."))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 
@@ -827,7 +827,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(),"notify/user-added|User ‘%(email)’ added."), newUser.Email)
+	zhttp.Flash(w, T(r.Context(),"notify/user-added|User ‘%(email)’ added.", newUser.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
 
@@ -856,7 +856,7 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 
 	account := Account(r.Context())
 	if account.ID != editUser.Site {
-		return guru.New(404, "Not Found")
+		return guru.New(404, T(r.Context(),"notify/not-found|Not Found"))
 	}
 
 	emailChanged := editUser.Email != args.Email
@@ -881,7 +881,7 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 		return h.usersForm(&editUser, err)(w, r)
 	}
 
-	zhttp.Flash(w, "User ‘%s’ edited.", editUser.Email)
+	zhttp.Flash(w, T(r.Context(),"notify/users-edited|User ‘%(email)’ edited.", editUser.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
 
@@ -909,6 +909,6 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(),"notify/user-removed|User ‘%(email)’ removed."), user.Email)
+	zhttp.Flash(w, T(r.Context(),"notify/user-removed|User ‘%(email)’ removed.", user.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
