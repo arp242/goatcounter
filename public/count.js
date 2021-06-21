@@ -157,7 +157,6 @@
 		img.setAttribute('aria-hidden', 'true')
 
 		var rm = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
-		setTimeout(rm, 10000)  // In case the onload isn't triggered.
 		img.addEventListener('load', rm, false)
 		document.body.appendChild(img)
 	}

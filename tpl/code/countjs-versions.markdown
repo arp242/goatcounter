@@ -11,6 +11,10 @@ Latest
 ------
 - Support `start` and `end` in the visitor counter.
 - Update localhost filter to include `0.0.0.0`
+- Tabs opened in the background didn't always get accounted for (see #487 for
+  details).
+- Remove the timeout; this was already increased from 3 to 10 seconds in v2.
+  Tracking will now happen no matter how long it takes for the page to load.
 
 
 v2 (11 Mar 2021)
