@@ -3,7 +3,7 @@
 
 <h2>{{.T "header/users|Users"}}</h2>
 <table class="auto">
-	<thead><tr><th>Email</th><th>Access</th><th></th></tr></thead>
+	<thead><tr><th>{{.T "header/email|Email"}}</th><th>{{.T "header/access|Access"}}</th><th></th></tr></thead>
 	<tbody>
 		{{range $u := .Users}}<tr>
 			<td>{{$u.Email}}</td>
