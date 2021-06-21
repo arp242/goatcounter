@@ -23,7 +23,7 @@ import (
 	"zgo.at/zstd/zsync"
 	"zgo.at/zstd/ztime"
 	"zgo.at/ztpl"
-	"zgo.at/zvalidate"	
+	"zgo.at/zvalidate"
 )
 
 // DailyView forces the "view by day" if the number of selected days is larger than this.
@@ -363,14 +363,14 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 		var err error
 		rng.Start, err = time.ParseInLocation("2006-01-02", d, user.Settings.Timezone.Loc())
 		if err != nil {
-			return rng, guru.Errorf(400, T(r.Context(),"error/invalid-start-date|Invalid start date: %(d)", d))
+			return rng, guru.Errorf(400, T(r.Context(), "error/invalid-start-date|Invalid start date: %(d)", d))
 		}
 	}
 	if d := r.URL.Query().Get("period-end"); d != "" {
 		var err error
 		rng.End, err = time.ParseInLocation("2006-01-02 15:04:05", d+" 23:59:59", user.Settings.Timezone.Loc())
 		if err != nil {
-			return rng, guru.Errorf(400, T(r.Context(),"error/invalid-end-date|Invalid end date: %(d)", d))
+			return rng, guru.Errorf(400, T(r.Context(), "error/invalid-end-date|Invalid end date: %(d)", d))
 		}
 	}
 
