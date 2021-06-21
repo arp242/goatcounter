@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/z18n"
+	"zgo.at/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
