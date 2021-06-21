@@ -199,7 +199,7 @@ certificate generation; `goatcounter help listen` documents this in depth.
 
 You can create new sites with the `db create site` command:
 
-    $ goatcounter db create site -email me@example.com -domain stats.example.com
+    $ goatcounter db create site -vhost stats.example.com -user.email me@example.com
 
 This will ask for a password for your new account; you can also add a password
 on the commandline with `-password`. You must also pass the `-db` flag here if

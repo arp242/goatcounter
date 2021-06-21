@@ -15,7 +15,7 @@ release on GitHub:
 You can create additional sites with:
 
     $ cd /home/goatcounter
-    $ ./bin/goatcounter db create site -domain example.com -email me@example.com
+    $ ./bin/goatcounter db create site -vhost example.com -user.email me@example.com
 
 Files are stored in `/home/goatcounter`; see `/var/log/goatcounter/current` for
 logs; and you can configure the flags in `/etc/conf.d/goatcounter`
