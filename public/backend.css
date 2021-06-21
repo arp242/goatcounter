@@ -38,14 +38,17 @@ footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
 	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
 }
 
-nav {
-	display: flex;
-	justify-content: space-between;
-	padding-right: .5em;
+nav                    { display: flex; justify-content: space-between; padding-right: .5em; }
+nav #usermenu          { text-align: right; min-width: 21em; }
+nav .updates           { font-weight: bold; background-color: yellow; }
+nav #signin            { white-space: nowrap; margin-left: 1em; }
+nav #back              { white-space: nowrap; margin-right: 1em; }
+nav .sites-list        { position: absolute; visibility: hidden; }
+nav .sites-list-select { display: none; padding: 0 .6em; background-color: #fff; }
+@media (max-width: 87rem) {
+	nav { padding-left: .5em; }
 }
-nav .updates { font-weight: bold; background-color: yellow; }
-nav #signin  { white-space: nowrap; margin-left: 1em; }
-nav #back    { white-space: nowrap; margin-right: 1em; }
+
 
 h2            { margin-bottom: .4em; }
 h2 small      { font-size: .9rem; font-weight: normal; margin-right: .1em; line-height: 1rem; }

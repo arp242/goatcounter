@@ -7,7 +7,7 @@
 
 	// Set up the entire dashboard page.
 	var page_dashboard = function() {
-		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views].forEach((f) => f.call())
+		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views, hdr_sites].forEach((f) => f.call())
 	}
 	window.page_dashboard = page_dashboard  // Directly setting window loses the name attr 🤷
 
@@ -238,6 +238,32 @@
 				})
 			})
 		})
+	}
+
+	// Set up the "site switcher".
+	var hdr_sites = function() {
+		var list       = $('.sites-list'),
+			select     = $('.sites-list-select'),
+			list_width = list.width()
+
+		select.on('change', function() { window.location = this.value })
+
+		// The sites-list has 'visibility: hidden' on initial load, so we can
+		// get the rendered width; only need to do this once as it won't change.
+		$(window).on('resize', function() {
+			var show_dropdown = list_width > $('nav.center').width() - $('#usermenu').width() -
+			                    $('.sites-header').width() - (15 * window.devicePixelRatio)
+
+			select.css('display', show_dropdown ? 'inline-block' : 'none')
+			if (show_dropdown)
+				list.css('display', 'none')
+			else
+				list.css({display: 'inline', visibility: 'visible'})
+		}).trigger('resize')
+
+		// Load as absolute initially, so an overflowing list won't cause the
+		// page to wobble on load.
+		list.css('position', 'static')
 	}
 
 	// Load pages for reference in Totals

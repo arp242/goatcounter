@@ -22,14 +22,25 @@
 			<div>
 				{{if eq .Path "/"}}
 					{{- if gt (len .SubSites) 1 -}}
-						{{/* z18n: "Site switcher", a list of sites will follow; e.g. "Sites: [site1] [site2]" */}}
-						{{.T "top-nav/sites|Sites:"}}
-						{{- range $i, $s := .SubSites -}}
-							{{- if gt $i 0 -}}|{{- end -}}
-							{{if $.GoatcounterCom}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
-							{{else}} <a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
-							{{- end -}}
-						{{- end -}}
+						<div id="sites">
+							{{/* z18n: "Site switcher", a list of sites will follow; e.g. "Sites: [site1] [site2]" */ -}}
+							<span class="sites-header">{{.T "top-nav/sites|Sites:"}}</span>
+							<select class="sites-list-select">
+								{{range $i, $s := .SubSites -}}
+									{{if $.GoatcounterCom}}<option{{if eq $s $.Site.Code}} selected{{end}} value="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</option>
+									{{else}}<option{{if eq $s (deref_s $.Site.Cname)}} selected{{end}} value="//{{$s}}{{$.Port}}">{{$s}}</option>
+									{{end -}}
+								{{end}}
+							</select>
+							<span class="sites-list">
+								{{range $i, $s := .SubSites -}}
+									{{- if gt $i 0 -}}|{{- end -}}
+									{{if $.GoatcounterCom}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
+									{{else}} <a{{if eq $s (deref_s $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+									{{end -}}
+								{{end}}
+							</span>
+						</div>
 					{{- end -}}
 				{{else if has_prefix .Path "/settings/sites/remove/"}}
 					<strong id="back"><a href="/settings/sites">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
@@ -41,7 +52,7 @@
 					<strong id="back"><a href="/">←&#xfe0e; {{.T "top-nav/dashboard|Dashboard"}}</a></strong>
 				{{end}}
 			</div>
-			<div>
+			<div id="usermenu">
 				{{if .GoatcounterCom}}<a href="/updates" class="{{if .HasUpdates}}updates{{end}} {{if eq .Path "/updates"}}active{{end}}">{{.T "top-nav/updates|Updates"}}</a> |{{end}}
 				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">{{.T "top-nav/site-code|Site code"}}</a> |
 				{{if .User.AccessSettings}}<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">{{.T "top-nav/settings|Settings"}}</a> |{{end}}
