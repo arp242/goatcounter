@@ -18,9 +18,8 @@
 			{{if .GoatcounterCom}}
 				<label>{{checkbox .Site.Settings.AllowBosmang "settings.allow_bosmang"}}
 					{{.T "label/allow-admin-access|Allow admin access"}}</label>
-				<span>{{.T "restricted-admin-access|Normally administrators can’t “log in” to your site, but
-					if this is enabled they can. You may be asked to enable this
-					for support requests."}}</span>
+				<span>{{.T `restricted-admin-access|
+					Normally administrators can’t “log in” to your site, but if this is enabled they can. You may be asked to enable this for support requests.`}}</span>
 			{{end}}
 
 			<label>{{checkbox .Site.Settings.Public "settings.public"}}
@@ -106,9 +105,9 @@
 
 		<fieldset id="section-collect">
 			<legend>{{.T "header/data-collection|Data collection"}}</legend>
-			<p style="margin-top: 0">{{.T "p/setting-recovery-disabled-information|If a setting is disabled then there is
-			no way to recover this information after a pageview is recorded,
-			as this won’t be stored."}}</p>
+			<p style="margin-top: 0">{{.T `p/setting-recovery-disabled-information|
+				If a setting is disabled then there is no way to recover this information after a pageview is recorded, as this won’t be stored.
+			`}}</p>
 
 			<input type="hidden" name="settings.collect[]" value="1">
 			{{range $cf := .Site.Settings.CollectFlags}}
