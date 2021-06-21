@@ -22,7 +22,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
 	"zgo.at/goatcounter/bgrun"
-	"zgo.at/goatcounter/z18n"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zhttp"
@@ -89,7 +88,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 			zlog.Fields(zlog.F{
 				"siteID":   account.ID,
 				"stripeID": zstring.Ptr{account.Stripe}.String(),
-			}).Errorf(T(r.Context(), "error/stripe-not-processed|stripe not processed"))
+			}).Errorf("stripe not processed")
 		} else {
 			bgrun.Run("email:subscription", func() {
 				blackmail.Send("New GoatCounter subscription "+account.Plan,
@@ -171,7 +170,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	var id zstripe.ID
 	_, err = zstripe.Request(&id, "POST", "/v1/checkout/sessions", body.Encode())
 	if err != nil {
-		return errors.Errorf(T(r.Context(), "error/zstripe-failer|zstripe failed: %(error); body: %(body)", z18n.P{"error": err, "body": body.Encode()}))
+		return errors.Errorf("zstripe failed: %w; body: %s", err, body.Encode())
 	}
 
 	account.PlanPending = &args.Plan
@@ -216,7 +215,7 @@ func (h billing) extra(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	if len(sub.Data) == 0 {
-		return guru.New(400, T(r.Context(), "error/no-subscription|no subscriptions found"))
+		return guru.New(400, "no subscriptions found")
 	}
 
 	found := ""
@@ -265,7 +264,7 @@ func (h billing) manage(w http.ResponseWriter, r *http.Request) error {
 	account := Account(r.Context())
 
 	if account.Stripe == nil {
-		return guru.New(400, T(r.Context(), "notify/no-stripe-customer|no Stripe customer for this account?"))
+		return guru.New(400, "no Stripe customer for this account?")
 	}
 
 	var s struct {
@@ -326,7 +325,7 @@ func (h billing) webhook(w http.ResponseWriter, r *http.Request) error {
 	}[event.Type]
 	if !ok {
 		w.WriteHeader(202)
-		return zhttp.String(w, T(r.Context(), "notify/not-handling-webhook|not handling this webhook"))
+		return zhttp.String(w, "not handling this webhook")
 	}
 
 	err = f(event, w, r)
@@ -364,8 +363,8 @@ func (h billing) whSubscriptionUpdated(event zstripe.Event, w http.ResponseWrite
 		err = site.ByID(r.Context(), int64(s.Metadata.SiteID))
 	}
 	if err != nil {
-		return fmt.Errorf(T(r.Context(), "error/stripe-customer-not-found|whSubscriptionUpdated: cannot find Stripe customer %(customer) (metadata: %(siteId)), %(error)",
-			z18n.P{"customer": s.Customer, "siteId": s.Metadata.SiteID, "error": err}))
+		return fmt.Errorf("whSubscriptionUpdated: cannot find Stripe customer %q (metadata: %d), %w",
+			s.Customer, s.Metadata.SiteID, err)
 	}
 
 	site.PlanCancelAt = nil
@@ -440,5 +439,5 @@ func getPlan(ctx context.Context, s Subscription) (string, error) {
 			return k, nil
 		}
 	}
-	return "", fmt.Errorf(T(ctx, "error/unknown-plan|unknown plan: %(planID)", planID))
+	return "", fmt.Errorf("unknown plan: %q", planID)
 }

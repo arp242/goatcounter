@@ -3,7 +3,18 @@
 
 <h2 id="delete">{{.T "header/delete-account|Delete account"}}</h2>
 
-<p>The site{{if gt (len .Sites) 1}} and all associated sites{{end}} will be marked as deleted and will no longer be accessible, but no data is removed. After 7 days all data will be permanently removed.</p>
+{{if gt (len .Sites) 1}}
+	<p>{{.T `p/delete-account-multi-site|
+		The site and all associated sites will be marked as deleted and will no
+		longer be accessible, but no data is removed. After 7 days all data will be
+		permanently removed.
+	`}}</p>
+{{else}}
+	<p>{{.T `p/delete-account-one-site|
+		The site will be marked as deleted and will no longer be accessible, but no
+		data is removed. After 7 days all data will be permanently removed.
+	`}}</p>
+{{end}}
 
 {{if gt (len .Sites) 1}}
 	<div class="flash flash-e" style="text-align: left;">
@@ -35,6 +46,8 @@
 
 	<button type="submit">{{.T "button/delete-site|Delete site"}}</button>
 </form>
-<p><a href="/contact">{{.T "link/contact|Contact"}}</a>{{.T "p/request-data-recovery|within 7 days if you changed your mind and want to recover your data."}}</p>
+{{.T "p/request-data-recovery|%[link Contact] within 7 days if you changed your mind and want to recover your data."
+	(tag "a" `href="/contact"`)
+}}</p>
 
 {{template "_backend_bottom.gohtml" .}}
