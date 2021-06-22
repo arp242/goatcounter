@@ -6,7 +6,7 @@
 		<h2>{{.Header}}</h2>
 		{{template "_dashboard_warn_collect.gohtml" (map "IsCollected" .IsCollected "Context" .Context)}}
 		{{if .Err}}
-			<em>{{.T "p/error|Error: %(error-message)" .Err}}</em>
+			<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>
 		{{else}}
 			{{$x}}
 		{{end}}
