@@ -6,7 +6,7 @@
 	<div class="update">
 		<strong>{{$u.Subject}}</strong> – <em>{{$u.ShowAt.Format $.User.Settings.DateFormat}}</em>
 		{{/* z18n: "New" as in an update notification marked as new/unread. */}}
-		{{if $u.ShowAt.After $.SeenAt}}<strong class="update-new">{{.T "header/new|New"}}</strong>{{end}}
+		{{if $u.ShowAt.After $.SeenAt}}<strong class="update-new">{{$.T "header/new|New"}}</strong>{{end}}
 		{{$u.Body|unsafe}}
 	</div>
 {{end}}
