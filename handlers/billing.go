@@ -137,7 +137,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Don't need to send anything to Stripe.
-	if args.NoDonate {
+	if args.NoDonate || (args.Plan == goatcounter.PlanPersonal && args.Quantity == "0") {
 		account.Plan = goatcounter.PlanFree
 		account.Stripe = nil
 		account.BillingAmount = nil
