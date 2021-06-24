@@ -463,7 +463,7 @@
 						widget: chart.attr('data-widget'),
 						total:  get_total(),
 						key:    key,
-						offset: rows.find('>div:not(.hchart)').length,
+						offset: rows.find('div:not(.hchart)').length,
 					}),
 					success: function(data) {
 						rows.append($(data.html).find('>div'))
