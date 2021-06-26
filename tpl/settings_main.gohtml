@@ -37,34 +37,38 @@
 			{{if .GoatcounterCom}}
 				<label for="code">{{.T "label/code|Code"}}</label>
 				<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
-				<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.
-				<a href="/settings/change-code">{{.T "link/change|Change"}}</a>.</span>
+				<span class="help">
+				{{.T `label/change-code|You will access your account at https://<em>[my-code]</em>.%(domain) – %[link Change].`
+					(map
+						"domain" .Domain
+						"link"   (tag "a" `href="/settings/change-code"`)
+					)}}
+				</span>
 			{{end}}
 
 			{{if .GoatcounterCom}}
 				<label for="cname">{{.T "label/custom-domain|Custom domain"}}</label>
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
 					{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
-				<span>Custom domain, e.g. <em>“stats.example.com”</em>.
+				<span>
+					Custom domain, e.g. <em>“stats.example.com”</em>.
 					<strong>Note:</strong> This <em>won’t</em> prevent most
 					adblockers from blocking GoatCounter, and is just intended
 					as a nice “vanity domain”.<br><br>
 					{{if not (.Site.PlanCustomDomain .Context)}}
-						Requires Personal Plus or Business plan (you’re
-						on the {{.Site.Plan}} plan; see
-						<a href="/billing">{{.T "link/billing|billing"}}</a>).
+						Requires Personal Plus or Business plan (you’re on the {{.Site.Plan}} plan; see <a href="/billing">billing</a>).
 					{{else}}
 						{{if .Site.CnameSetupAt}}
 							Domain verified and set up (note: it may take up to an hour for the certificate to work).
 						{{else if .Site.Cname}}
 							<span style="color: red;">Not yet verified</span>; set a CNAME record to
 							<code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">{{.T "link/detailed-instructions|Detailed instructions"}}</a>.
+							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
 							Verification runs every 2 hours.
 						{{else}}
 							Set a CNAME record to
 							<code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">{{.T "link/detailed-instructions|Detailed instructions"}}</a>.
+							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
 						{{end}}
 					{{end}}</span>
 			{{else}}
@@ -87,9 +91,9 @@
 			{{validate "site.settings.ignore_ips" .Validate}}
 			<span>Never count requests coming from these IP addresses.
 				Comma-separated. Only supports exact matches.
-				<a href="#_" id="add-ip">{{.T "link/add-current-ip|Add your current IP"}}</a>.
+				<a href="#_" id="add-ip">Add your current IP</a>.
 				{{if .Site.LinkDomain}}<br>
-				Alternatively, <a href="http://{{.Site.LinkDomain}}#toggle-goatcounter">{{.T "link/disable-for-browser|disable for this browser"}}</a> (click again to enable).{{end}}
+				Alternatively, <a href="http://{{.Site.LinkDomain}}#toggle-goatcounter">disable for this browser</a> (click again to enable).{{end}}
 			</span>
 
 			<label>{{.T "label/campaign-parameters|Campaign parameters"}}</label>

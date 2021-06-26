@@ -1,14 +1,26 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
-<p>Are you sure you want to remove the site
-	<a href="//{{.Rm.Code}}.{{.Domain}}">{{.Rm.Domain .Context}}</a>?<br>
-	This will <strong>remove all associated data</strong>{{if eq .Rm.ID .Site.ID}} and is the <strong>current site</strong>{{end}}.
-</p>
+{{$vars := map
+	"link"     (tag "a" (printf `href="//%s.%s"` .Rm.Code .Domain))
+	"sitename" (.Rm.Domain .Context)
+}}
+{{if eq .Rm.ID .Site.ID}}
+	<p>{{.T `p/remove-site-confirm-current|
+		Are you sure you want to remove the site %[link %(sitename)]?<br>
+		This will <strong>remove all associated data</strong> and is the <strong>current site</strong>.
+	` $vars}}</p>
+{{else}}
+	<p>{{.T `p/remove-site-confirm|
+		Are you sure you want to remove the site %[link %(sitename)]?<br>
+		This will <strong>remove all associated data</strong>.
+	` $vars}}</p>
+{{end}}
+
 {{if .GoatcounterCom}}
-<p><a href="//{{.Domain}}/contact" target="_blank">{{.T "link/contact|Contact"}}</a> if you want to do
-	something else, like merge it in to another site, or decouple it to a new
-	account.</p>
+<p>{{.T `p/remove-site-confirm-contact|
+	%[link Contact] if you want to do something else, like merge it in to another site, or decouple it to a new account.
+	` (tag "a" (printf `target="_blank" href="//%s/contact"` .Domain))}}</p>
 {{end}}
 
 <form method="post">

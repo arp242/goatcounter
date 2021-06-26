@@ -29,7 +29,7 @@
 					{{else}}
 						<a href="/settings/sites/remove/{{$s.ID}}">delete</a>
 					{{end}}
-					{{if eq $s.ID $.Site.ID}}&nbsp;&nbsp;&nbsp;(current){{end}}
+					{{if eq $s.ID $.Site.ID}}&nbsp;&nbsp;&nbsp;{{$.T "label/mark-current|(current)"}}{{end}}
 				</td>
 			</tr>{{end}}
 

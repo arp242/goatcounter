@@ -13,12 +13,14 @@
 					{{$.T "p/last-user|Can’t delete or edit last admin user"}}
 				{{else}}
 					<a href="/settings/users/{{$u.ID}}">{{$.T "button/edit|edit"}}</a> |
-					<form method="post" action="/settings/users/remove/{{$u.ID}}" data-confirm="Delete {{$u.Email}}?">
+					<form method="post" action="/settings/users/remove/{{$u.ID}}"
+						data-confirm="{{$.T "confirm/delete-user|Delete %(email)?" $u.Email}}"
+					>
 						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
 						<button class="link">{{$.T "button/delete|delete"}}</button>
 					</form>
 				{{end}}
-				{{if eq $u.ID $.User.ID}}&nbsp;&nbsp;&nbsp;{{$.T "label/mark-current-user|(current)"}}{{end}}
+				{{if eq $u.ID $.User.ID}}&nbsp;&nbsp;&nbsp;{{$.T "label/mark-current|(current)"}}{{end}}
 			</td>
 		</tr>{{end}}
 </tbody></table>

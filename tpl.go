@@ -415,7 +415,7 @@ func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) tem
 
 func HorizontalChart(ctx context.Context, stats HitStats, total int, link, paginate bool) template.HTML {
 	if total == 0 {
-		return template.HTML("<em>" + z18n.T(ctx, "nothing-to-display|Nothing to display") + "</em>")
+		return template.HTML("<em>" + z18n.T(ctx, "dashboard/nothing-to-display|Nothing to display") + "</em>")
 	}
 
 	var (

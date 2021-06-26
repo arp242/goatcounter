@@ -265,7 +265,7 @@ func (h user) reset(w http.ResponseWriter, r *http.Request) error {
 			zlog.Error(err)
 		}
 		return guru.New(http.StatusForbidden, T(r.Context(),
-			"error/login-token-expired|Could find the user for the given token; perhaps it's expired or has already been used?"))
+			"error/login-token-expired|Could not find the user for the given token; perhaps it's expired or has already been used?"))
 	}
 
 	user.ID = 0 // Don't count as logged in.
@@ -435,26 +435,26 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/password-changed|Password changed"))
+	zhttp.Flash(w, T(r.Context(), "notify/password-changed|Password changed."))
 	return zhttp.SeeOther(w, "/user/auth")
 }
 
 func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 	user := User(r.Context())
 	if user.EmailVerified {
-		zhttp.Flash(w, T(r.Context(), "notify/email-already-verified|%(email) is already verified", user.Email))
+		zhttp.Flash(w, T(r.Context(), "notify/email-already-verified|%(email) is already verified.", user.Email))
 		return zhttp.SeeOther(w, "/")
 	}
 
 	sendEmailVerify(r.Context(), Site(r.Context()), user, goatcounter.Config(r.Context()).EmailFrom)
-	zhttp.Flash(w, T(r.Context(), "notify/sent-to-email|Sent to %(email)", user.Email))
+	zhttp.Flash(w, T(r.Context(), "notify/sent-to-email|Sent to %(email).", user.Email))
 	return zhttp.SeeOther(w, "/")
 }
 
 func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 	user := User(r.Context())
 	if !user.EmailVerified {
-		zhttp.Flash(w, T(r.Context(), "notify/need-email-verification-for-api|need to verify your email before you can use the API"))
+		zhttp.Flash(w, T(r.Context(), "notify/need-email-verification-for-api|You need to verify your email before you can use the API."))
 		return zhttp.SeeOther(w, "/user/auth")
 	}
 
@@ -469,7 +469,7 @@ func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/token-created|Token created"))
+	zhttp.Flash(w, T(r.Context(), "notify/api-token-created|API token created."))
 	return zhttp.SeeOther(w, "/user/api")
 }
 
@@ -491,7 +491,7 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/token-removed|Token removed"))
+	zhttp.Flash(w, T(r.Context(), "notify/api-token-removed|API token removed."))
 	return zhttp.SeeOther(w, "/user/api")
 }
 
@@ -514,18 +514,18 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 	err := user.ByEmailToken(r.Context(), key)
 	if err != nil {
 		if zdb.ErrNoRows(err) {
-			return guru.New(400, T(r.Context(), "error/token-already-used|unknown token; perhaps it was already used?"))
+			return guru.New(400, T(r.Context(), "error/token-already-used|Unknown token; perhaps it was already used?"))
 		}
 		return err
 	}
 
 	if user.EmailVerified {
-		zhttp.Flash(w, T(r.Context(), "notify/email-already-used|%(email) is already verified", user.Email))
+		zhttp.Flash(w, T(r.Context(), "notify/email-already-used|%(email) is already verified.", user.Email))
 		return zhttp.SeeOther(w, "/")
 	}
 
 	if key != *user.EmailToken {
-		zhttp.FlashError(w, T(r.Context(), "error/wrong-verification-key|Wrong verification key"))
+		zhttp.FlashError(w, T(r.Context(), "error/wrong-verification-key|Wrong verification key."))
 		return zhttp.SeeOther(w, "/")
 	}
 

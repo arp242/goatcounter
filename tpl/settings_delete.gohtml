@@ -18,7 +18,7 @@
 
 {{if gt (len .Sites) 1}}
 	<div class="flash flash-e" style="text-align: left;">
-	<p><strong>{{len .Sites}} {{.T "p/notify-site-deletion|sites will be deleted"}}</strong>:</p>
+	<p><strong>{{.T "p/notify-site-deletion|%(number) sites will be deleted" (len .Sites)}}</strong>:</p>
 	<ul>{{range $s := .Sites}}
 			<li>{{$s.Domain $.Context}}</li>
 	{{end}}</ul>
@@ -29,15 +29,15 @@
 	data-confirm={{.T "label/delete-account-confirmation|Are you sure you want to delete your entire account?"}}>
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
-	<label for="reason">{{.T `label/request-account-deletion-information|
+	<label for="reason">{{.T `label/delete-account-reason|
 		It would be appreciated if you could let me know if there's anything in
 		particular you're missing in GoatCounter, or any other reasons you have
 		for wanting to delete your account. This is entirely optional.
 	`}}</label><br>
-	<textarea id="reason" name="reason" placeholder="Optional reason for deletion">{{index .Delete "Reason"}}</textarea><br><br>
+	<textarea id="reason" name="reason" placeholder="{{.T "label/delete-account-reason-placeholder|Optional reason for deletion"}}">{{index .Delete "Reason"}}</textarea><br><br>
 
-	<label>{{checkbox (index .Delete "ContactMe") "contact_me"}} {{.T "label/follow-up|It’s okay to follow up"}}</label><br>
-	<div style="max-width: 40em; color: #333;">{{.T `p/request-follow-up-information|
+	<label>{{checkbox (index .Delete "ContactMe") "contact_me"}} {{.T "label/delete-account-follow-up|It’s okay to follow up"}}</label><br>
+	<div style="max-width: 40em; color: #333;">{{.T `label/delete-account-contact|
 		I might contact you with some follow-up questions or commentary if you
 		check this. I won’t try to convince you to stay (I’m not a telecom), but
 		I might ask a question or two, or outline future plans if you’re missing

@@ -502,7 +502,7 @@ func (h settings) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	fp, err := os.Open(export.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			zhttp.FlashError(w, T(r.Context(), "error/export-expired|It looks like there is no export yet or the export has expired"))
+			zhttp.FlashError(w, T(r.Context(), "error/export-expired|It looks like there is no export yet or the export has expired."))
 			return zhttp.SeeOther(w, "/settings/export")
 		}
 
@@ -539,7 +539,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	if strings.HasSuffix(head.Filename, ".gz") {
 		fp, err = gzip.NewReader(file)
 		if err != nil {
-			return guru.Errorf(400, T(r.Context(), "error/could-not-read|could not read as gzip: %(err)", err))
+			return guru.Errorf(400, T(r.Context(), "error/could-not-read|Could not read as gzip: %(err)", err))
 		}
 	}
 	defer fp.Close()
