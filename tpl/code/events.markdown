@@ -39,7 +39,7 @@ There is currently no real way to record the path with the event, although you
 can send it as part of the event name:
 
     window.goatcounter.count({
-        path:  function(p) { 'click-banana-' + p },
+        path:  function(p) { return 'click-banana-' + p },
         event: true,
     })
 
