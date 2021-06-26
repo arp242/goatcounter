@@ -40,7 +40,7 @@ require (
 	zgo.at/zstd v0.0.0-20210628014301-6fe5ffd0474c
 	zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08
 	zgo.at/ztpl v0.0.0-20210522104216-89fb2373a16b
-	zgo.at/zvalidate v0.0.0-20210415003959-d3c7c37d3304
+	zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f
 )
 
 // "Fork" of go-sqlite3 which: is updated to SQLite 3.35.4 and removes the

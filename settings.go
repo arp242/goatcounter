@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"zgo.at/json"
 	"zgo.at/tz"
@@ -44,7 +45,8 @@ type (
 	//
 	// This is stored as JSON in the database.
 	SiteSettings struct {
-		Public         bool           `json:"public"`
+		Public         string         `json:"public"`
+		Secret         string         `json:"secret"`
 		AllowCounter   bool           `json:"allow_counter"`
 		AllowBosmang   bool           `json:"allow_bosmang"`
 		DataRetention  int            `json:"data_retention"`
@@ -274,6 +276,12 @@ func (ss *SiteSettings) Defaults() {
 func (ss *SiteSettings) Validate() error {
 	v := zvalidate.New()
 
+	v.Include("public", ss.Public, []string{"private", "secret", "public"})
+	if ss.Public == "secret" {
+		v.Len("secret", ss.Secret, 8, 40)
+		v.Contains("secret", ss.Secret, []*unicode.RangeTable{zvalidate.AlphaNumeric}, nil)
+	}
+
 	if ss.DataRetention > 0 {
 		v.Range("data_retention", int64(ss.DataRetention), 31, 0)
 	}
@@ -285,6 +293,14 @@ func (ss *SiteSettings) Validate() error {
 	}
 
 	return v.ErrorOrNil()
+}
+
+func (ss SiteSettings) CanView(token string) bool {
+	return ss.Public == "public" || (ss.Public == "secret" && token == ss.Secret)
+}
+
+func (ss SiteSettings) IsPublic() bool {
+	return ss.Public == "public"
 }
 
 type CollectFlag struct {

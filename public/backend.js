@@ -153,6 +153,25 @@
 				},
 			})
 		})
+
+		// Generate random token.
+		$('#rnd-secret').on('click', function(e) {
+			e.preventDefault()
+			$('#settings-secret').val(Array.from(window.crypto.getRandomValues(new Uint8Array(20)), (c) => c.toString(36)).join(''))
+			$('#settings-secret').trigger('change')
+		})
+
+		// Show secret token.
+		$('#settings-public').on('change', function(e) {
+			$('#secret').css('display', $(this).val() === 'secret' ? 'block' : 'none')
+			if ($('#settings-secret').val() === '')
+				$('#rnd-secret').trigger('click')
+		}).trigger('change')
+
+		// Update redirect link.
+		$('#settings-secret').on('change', function(e) {
+			$('#secret-url').val(`${location.protocol}//${location.host}?access-token=${this.value}`)
+		}).trigger('change')
 	}
 
 	var page_user_pref = function() {

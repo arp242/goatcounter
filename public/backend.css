@@ -303,6 +303,10 @@ tr.target .chart-left { display: block; }
 	.tab-nav a { line-height: 2.5em; }
 }
 
+/*** Settings page
+ *******************/
+#page-settings-main #secret { display: none; margin-left: 1em; padding-left: 1em; border-left: 1px solid #aaa; }
+
 /*** Widget settings
  *******************/
 .widget                 { position: relative; margin-bottom: .5em; padding-left: 2em; border-top: 1px solid #e6e6e6; box-shadow: 2px 2px 2px rgba(0,0,0,.2); }

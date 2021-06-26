@@ -35,7 +35,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
-	if site.Settings.Public && User(r.Context()).ID == 0 {
+	if site.Settings.IsPublic() && User(r.Context()).ID == 0 {
 		w.Header().Set("Cache-Control", "public,max-age=3600")
 		w.Header().Set("Vary", "Cookie")
 	}

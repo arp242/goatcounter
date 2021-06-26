@@ -22,14 +22,28 @@
 					Normally administrators can’t “log in” to your site, but if this is enabled they can. You may be asked to enable this for support requests.`}}</span>
 			{{end}}
 
-			<label>{{checkbox .Site.Settings.Public "settings.public"}}
-				{{.T "label/make-statistics-viewable|Make statistics publicly viewable"}}</label>
-			<span>{{.T "p/all-access-statistics|Anyone can view the statistics without logging in."}}</span>
-
 			<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
 				{{.T "label/allow-visitor-counts|Allow adding visitor counts on your website"}}</label>
 			<span>{{.T "help/allow-visitor-counts|See %[link the documentation] for details on how to use."
 				(tag "a" `href="/code/visitor-counter"`)}}</span>
+
+			<label for="settings.public">{{.T "label/dashboard-public|Dashboard viewable by"}}</label>
+			<select name="settings.public" id="settings-public">
+				<option {{option_value .Site.Settings.Public "private"}}>{{.T "label/public-private|Only logged in users"}}</option>
+				<option {{option_value .Site.Settings.Public "secret"}}>{{.T "label/public-private|Logged in users or with secret token"}}</option>
+				<option {{option_value .Site.Settings.Public "public"}}>{{.T "label/public-private|Anyone"}}</option>
+			</select>
+			<span>{{.T "help/public|Control who can view the dashboard."}}</span>
+
+			<div id="secret">
+				<label for="settings-secret">{{.T "label/secret-token|Secret token"}}</label>
+				<input type="text" name="settings.secret" id="settings-secret" value="{{.Site.Settings.Secret}}">
+				<a href="#" id="rnd-secret">{{.T "link/generate-random|Generate random secret."}}</a><br>
+				{{validate "site.settings.secret" .Validate}}
+
+				{{.T "label/secret-access|Secret access URL:"}}
+				<input type="text" id="secret-url" style="width:100%" readonly>
+			</div>
 		</fieldset>
 
 		<fieldset id="section-domain">
