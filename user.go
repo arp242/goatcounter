@@ -537,6 +537,7 @@ const (
 	AccessAdmin    UserAccess = "a"
 )
 
+// TODO(i18n): this is not translated.
 func (u UserAccess) String() string {
 	switch u {
 	case AccessReadOnly:

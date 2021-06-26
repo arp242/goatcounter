@@ -319,7 +319,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/settings/sites")
 	}
 
-	zhttp.Flash(w, "Site ‘%s’ added.", newSite.URL(r.Context()))
+	zhttp.Flash(w, T(r.Context(), "notify/site-added|Site ‘%(url)’ added.", newSite.URL(r.Context())))
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 

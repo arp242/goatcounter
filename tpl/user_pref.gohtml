@@ -69,7 +69,7 @@
 		<button type="submit">{{.T "button/save|Save"}}</button>
 		{{if .User.AccessSettings}}
 			<label style="margin-left: 3em"><input type="checkbox" name="set_site">
-				Also set as default for new users and the public view (if enabled).</label>
+				{{.T "label/set-default|Also set as default for new users and the public view (if enabled)."}}</label>
 		{{end}}
 	</form>
 

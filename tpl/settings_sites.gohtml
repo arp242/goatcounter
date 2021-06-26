@@ -15,7 +15,7 @@
 <form method="post" action="/settings/sites/add">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<table class="auto">
-		<thead><tr><th>{{if .GoatcounterCom}}Code{{else}}Domain{{end}}</th><th></th></tr></thead>
+		<thead><tr><th>{{if .GoatcounterCom}}{{.T "header/code|Code"}}{{else}}{{.T "header/domain|Domain"}}{{end}}</th><th></th></tr></thead>
 		<tbody>
 			{{range $s := .SubSites}}<tr>
 				{{if $.GoatcounterCom}}
@@ -25,9 +25,9 @@
 				{{end}}
 				<td>
 					{{if and $.GoatcounterCom (not $s.Parent)}}
-						Can’t delete main site
+						{{$.T "error/delete-main-site|Can’t delete main site"}}
 					{{else}}
-						<a href="/settings/sites/remove/{{$s.ID}}">delete</a>
+						<a href="/settings/sites/remove/{{$s.ID}}">{{$.T "button/delete|delete"}}</a>
 					{{end}}
 					{{if eq $s.ID $.Site.ID}}&nbsp;&nbsp;&nbsp;{{$.T "label/mark-current|(current)"}}{{end}}
 				</td>
@@ -37,10 +37,11 @@
 				<td>
 					{{if $.GoatcounterCom}}
 						<input type="text" id="code" name="code" placeholder="Code"><br>
-						<span class="help">You will access your site at https://<em>[my-code]</em>.{{.Domain}}.</span>
+						<span class="help">{{.T "help/code-access|You will access your site at https://<em>[my-code]</em>.%(domain)."
+							.Domain }}</span>
 					{{else}}
 						<input type="text" id="cname" name="cname" placeholder="Domain"><br>
-						<span class="help">Domain to access this site from.</span>
+						<span class="help">{{.T "help/domain-access|Domain to access this site from."}}</span>
 					{{end}}
 				</td>
 				<td><button type="submit">{{.T "button/add-new|Add new"}}</button></td>

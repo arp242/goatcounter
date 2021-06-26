@@ -152,6 +152,8 @@ func (h *HitStats) ListSystem(ctx context.Context, system string, rng ztime.Rang
 	return errors.Wrap(err, "HitStats.ListSystem")
 }
 
+// TODO(i18n): translate this. Theses values are used as the key to get the
+// details.
 const (
 	sizePhones      = "Phones"
 	sizeLargePhones = "Large phones, small tablets"

@@ -28,7 +28,8 @@
 
 			<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
 				{{.T "label/allow-visitor-counts|Allow adding visitor counts on your website"}}</label>
-			<span>See <a href="/code/visitor-counter">the documentation</a> for details on how to use.</span>
+			<span>{{.T "help/allow-visitor-counts|See %[link the documentation] for details on how to use."
+				(tag "a" `href="/code/visitor-counter"`)}}</span>
 		</fieldset>
 
 		<fieldset id="section-domain">
@@ -50,60 +51,68 @@
 				<label for="cname">{{.T "label/custom-domain|Custom domain"}}</label>
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
 					{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
-				<span>
+				<span>{{.T `help/custom-domain|
 					Custom domain, e.g. <em>“stats.example.com”</em>.
 					<strong>Note:</strong> This <em>won’t</em> prevent most
 					adblockers from blocking GoatCounter, and is just intended
-					as a nice “vanity domain”.<br><br>
+					as a nice “vanity domain”.
+				`}}<br><br>
+
 					{{if not (.Site.PlanCustomDomain .Context)}}
-						Requires Personal Plus or Business plan (you’re on the {{.Site.Plan}} plan; see <a href="/billing">billing</a>).
+						{{.T `help/custom-domain-plan|
+						Requires Personal Plus or Business plan (you’re on the %(plan) plan; see %[link billing]).` (map
+							"plan"  .Site.Plan
+							"link" (tag "a" `href="/billing"`)
+						)}}
 					{{else}}
 						{{if .Site.CnameSetupAt}}
-							Domain verified and set up (note: it may take up to an hour for the certificate to work).
+							{{.T "help/custom-domain-verified|Domain verified and set up (note: it may take up to an hour for the certificate to work)."}}
 						{{else if .Site.Cname}}
-							<span style="color: red;">Not yet verified</span>; set a CNAME record to
-							<code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
-							Verification runs every 2 hours.
+							{{.T `help/custom-domain-error|
+								%[error Not yet verified]; set a CNAME record to <code>%(domain)</code> – %[docs detailed instructions].
+								The verification runs every 2 hours.` (map
+									"domain" ""
+									"error" (tag "span" `style="color: red;"`)
+									"docs"  (tag "a"
+									`href="https://www.goatcounter.com/help#custom-domain" target="_blank"`)
+							)}}
 						{{else}}
-							Set a CNAME record to
-							<code>{{.Site.Code}}.{{.Domain}}</code>.
-							<a href="https://www.goatcounter.com/help#custom-domain" target="_blank">Detailed instructions</a>.
+							{{.T `help/custom-domain-cname|Set a CNAME record to <code>%(domain)</code> – %[docs detailed instructions].` (map
+								"docs"   (tag "a" `href="https://www.goatcounter.com/help#custom-domain" target="_blank"`)
+								"domain" (printf "%s.%s" .Site.Code .Domain))}}
 						{{end}}
 					{{end}}</span>
 			{{else}}
-				<label for="cname">{{.T "label/goat-counter-domain|GoatCounter domain"}}</label>
+				<label for="cname">{{.T "label/goatcounter-domain|GoatCounter domain"}}</label>
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
-				<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
+				<span>{{.T "help/goatcounter-domain|Your GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>."}}</span>
 			{{end}}
 		</fieldset>
 
 		<fieldset id="section-tracking">
 			<legend>{{.T "header/tracking|Tracking"}}</legend>
 
-			<label for="data_retention">{{.T "label/data-retention-days|Data retention in days"}}</label>
+			<label for="data_retention">{{.T "label/data-retention|Data retention in days"}}</label>
 			<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
 			{{validate "site.settings.data_retention" .Validate}}
-			<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
+			<span class="help">{{.T "help/data-retention|Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete."}}</span>
 
 			<label>{{.T "label/ignore-ips|Ignore IPs"}}</label>
 			<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
 			{{validate "site.settings.ignore_ips" .Validate}}
-			<span>Never count requests coming from these IP addresses.
-				Comma-separated. Only supports exact matches.
-				<a href="#_" id="add-ip">Add your current IP</a>.
+			<span>{{.T `help/ignore-ips|
+				Never count requests coming from these IP addresses. Comma-separated. Only supports exact matches. %[link Add your current IP].`
+					(tag "a" `href="#_" id="add-ip"`)}}
 				{{if .Site.LinkDomain}}<br>
-				Alternatively, <a href="http://{{.Site.LinkDomain}}#toggle-goatcounter">disable for this browser</a> (click again to enable).{{end}}
+					<span>{{.T `help/ignore-ips-2|Alternatively, %[link disable for this browser] (click again to enable).`
+						(tag "a" (printf `target="_blank" href="http://%s#toggle-goatcounter"` .Site.LinkDomain))}}
+				{{end}}
 			</span>
 
 			<label>{{.T "label/campaign-parameters|Campaign parameters"}}</label>
 			<input type="text" name="settings.campaigns" value="{{.Site.Settings.Campaigns}}">
 			{{validate "site.settings.campaigns" .Validate}}
-			<span>
-				List of parameters to count as ‘campaigns’; if set then the
-				value will be set as the referrer, overriding any Referer
-				header.{{/* <a href="/code#campaigns">Details</a>.
-				Comma-separated; first match takes precedence.*/}}
+			<span>{{.T `help/campaign-parameters|List of parameters to count as ‘campaigns’; if set then the value will be set as the referrer, overriding any Referer header.`}}
 			</span>
 		</fieldset>
 

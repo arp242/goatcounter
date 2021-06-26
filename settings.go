@@ -110,6 +110,18 @@ func defaultWidgets() Widgets {
 }
 
 // List of all settings for widgets with some data.
+//
+// TODO(i18n): translate this. Not sure what the best way is as I don't want to
+// pass around a context or z18n.Locale.
+//
+// One way would be to mark these strings here:
+//
+//    Label: z18n.Mark("widget/pages/limit|Number of pages to load")
+//
+// And then in the template instead of doing {{$v.Label}}, call {{$.T $v.Label}}.
+//
+// Because the strings are "marked" here the z18n CLI can find them, and we can
+// just pass the value to T().
 func defaultWidgetSettings() map[string]WidgetSettings {
 	return map[string]WidgetSettings{
 		"pages": map[string]WidgetSetting{

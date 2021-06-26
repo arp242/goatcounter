@@ -1,14 +1,26 @@
 <div class="totals">
-	<h2 class="full-width">Totals <small>
+	<h2 class="full-width">{{t .Context "dashboard/totals/header|Totals"}}
+		{{/* TODO(z18n): would be nice if we could just insert %(num-visits) without
+		the explicit %[..], as there's nothing to translate in there. */}}
 		{{if .NoEvents}}
-			<span>{{nformat (sub .TotalUnique .TotalEventsUnique) $.User}}</span> visits;
-			<span>{{nformat (sub .Total .TotalEvents) $.User}}</span> pageviews,
-			excluding events
+			<small>{{t .Context `dashboard/totals/num-visits|%[wrap1 %(num-visits)] visits; %[wrap2 %(num-views)] pageviews; excluding events`
+				(map
+					"wrap1"      (tag "span" ``)
+					"wrap2"      (tag "span" ``)
+					"num-visits" (nformat (sub .TotalUnique .TotalEventsUnique) $.User)
+					"num-views"  (nformat (sub .Total .TotalEvents) $.User)
+				)}}</small>
 		{{else}}
-			<span>{{nformat .TotalUnique $.User}}</span> visits;
-			<span>{{nformat .Total $.User}}</span> pageviews
+			<small>{{t .Context `dashboard/totals/num-visits|%[wrap1 %(num-visits)] visits; %[wrap2 %(num-views)] pageviews`
+				(map
+					"wrap1"      (tag "span" ``)
+					"wrap2"      (tag "span" ``)
+					"num-visits" (nformat .TotalUnique $.User)
+					"num-views"  (nformat .Total $.User)
+				)}}</small>
 		{{end}}
-	</small></h2>
+	</h2>
+
 	{{if .Err}}
 		<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>
 	{{else}}

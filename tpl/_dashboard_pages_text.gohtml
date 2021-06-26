@@ -1,6 +1,6 @@
 <div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	<h2 class="full-width">{{t .Context "dashboard/pages/header|Pages"}}
-		{{/* TODO: would be nice if we could just insert %(num-visits) without
+		{{/* TODO(z18n): would be nice if we could just insert %(num-visits) without
 		the explicit %[..], as there's nothing to translate in there. */}}
 		<small>{{t .Context `dashboard/pages/num-visits|%[wrap1 %(num-visits)] out of %[wrap2 %(total-visits)] visits shown`
 			(map

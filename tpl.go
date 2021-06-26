@@ -255,6 +255,7 @@ func init() {
 		return tplfunc.Number(n, u.Settings.NumberFormat)
 	})
 
+	// TODO(i18n): add translations.
 	tplfunc.Add("totp_barcode", func(email, s string) template.HTML {
 		qrCode, err := qr.Encode(
 			fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s),
@@ -439,6 +440,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 			perc = fmt.Sprintf("%.0f%%", math.Round(p))
 		}
 
+		// TODO(i18n): translate "(unknown)" and "visit", and "show more".
 		name := template.HTMLEscapeString(s.Name)
 		if name == "" {
 			name = "(unknown)"

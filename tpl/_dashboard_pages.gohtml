@@ -1,17 +1,16 @@
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	{{/* TODO: make option to split counts between events and regular pageviews */}}
-	<h2 class="full-width">Pages <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of
-		{{nformat .TotalUnique $.User}} visits shown
-	</small></h2>
-	{{/*
-	TODO: bit tricky due to nested HTML
-	{{t .Context "header/pages|Pages %[small %(n) out of %(total) visits shown]" (dict
-		"small" (tag "small")
-		"n"     (nformat .TotalUniqueDisplay $.User)
-		"total" (nformat .TotalUnique $.User)
-	)}}
-	*/}}
+	{{/* TODO(z18n): would be nice if we could just insert %(num-visits) without
+	the explicit %[..], as there's nothing to translate in there. */}}
+	<h2 class="full-width">{{t .Context "dashboard/pages/header|Pages"}}
+	<small>{{t .Context `dashboard/pages/num-visits|%[wrap1 %(num-visits)] out of %[wrap2 %(total-visits)] visits shown`
+		(map
+			"wrap1"        (tag "span" `class="total-unique-display"`)
+			"wrap2"        (tag "span" `class="total-unique"`)
+			"num-visits"   (nformat .TotalUniqueDisplay $.User)
+			"total-visits" (nformat .TotalUnique $.User)
+		)}}</small>
+	</h2>
 
 	{{if .Err}}
 		<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>

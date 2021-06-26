@@ -41,7 +41,7 @@
 
 <form id="dash-form">
 	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
-	<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
+	<button type="submit" tabindex="-1" class="hide-btn" aria-label="{{.T "button/submit|Submit"}}"></button>
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
 	<input type="hidden" id="hl-period" name="hl-period" value="{{.View.Period}}" disabled>
 
@@ -64,8 +64,14 @@
 	<div id="dash-main">
 		<div>
 			<span>
-				<input type="text" class="date-input" autocomplete="off" title="Start of date range to display" id="period-start" name="period-start" value="{{tformat .Period.Start "" .User}}">–{{- "" -}}
-				<input type="text" class="date-input" autocomplete="off" title="End of date range to display"   id="period-end"   name="period-end" value="{{tformat .Period.End "" .User}}">{{- "" -}}
+				<input type="text" class="date-input" autocomplete="off" id="period-start" name="period-start"
+					title="{{.T "nav-dash/start-date|Start of date range to display"}}"
+					value="{{tformat .Period.Start "" .User}}"
+				>–{{- "" -}}
+				<input type="text" class="date-input" autocomplete="off" id="period-end" name="period-end"
+					title="{{.T "nav-dash/end-date|End of date range to display"}}"
+					value="{{tformat .Period.End "" .User}}"
+				>{{- "" -}}
 			</span>
 			<span id="dash-select-period" class="period-{{.View.Period}}">
 				<span>
@@ -90,7 +96,8 @@
 			<div class="filter-wrap">
 				<input
 					type="text" autocomplete="off" name="filter" value="{{.View.Filter}}" id="filter-paths"
-					placeholder="Filter paths" title="{{.T "nav-dash/filter|Filter the list of paths; matched case-insensitive on path and title"}}"
+					placeholder="{{.T "nav-dash/filter|Filter paths"}}"
+					title="{{.T "nav-dash/filter-tooltip|Filter the list of paths; matched case-insensitive on path and title"}}"
 					{{if .View.Filter}}class="value"{{end}}>
 			</div>
 			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> {{.T "nav-dash/as-text|View as text table"}}</label>
@@ -113,6 +120,7 @@
 				<button class="link" name="move" value="month-b">{{.T "nav-dash/month|month"}}</button>
 			</span>
 		</div>
+		{{/* TODO(i18n): this needs to be translated */}}
 		<div id="dash-timerange">{{.Period}}</div>
 		<div>
 			<span>
