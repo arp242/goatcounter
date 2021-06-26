@@ -11,6 +11,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -313,13 +314,20 @@ func (u *User) Find(ctx context.Context, ident string) error {
 }
 
 // ByResetToken gets a user by login request key.
+//
+// This can be used in two contexts: the user requested a password reset, or the
+// user was invited to create a new account.
 func (u *User) ByResetToken(ctx context.Context, key string) error {
-	query := `select * from users where login_request=$1 and site_id=$2 and `
+	timeout := "2 hours"
+	if strings.HasPrefix(key, "invite-") {
+		timeout = "168 hours"
+	}
 
+	query := `select * from users where login_request=$1 and site_id=$2 and `
 	if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
-		query += `reset_at + interval '72 hours' > now()`
+		query += fmt.Sprintf(`reset_at + interval '%s' > now()`, timeout)
 	} else {
-		query += `datetime(reset_at, '+72 hours') > datetime()`
+		query += fmt.Sprintf(`datetime(reset_at, '+%s') > datetime()`, timeout)
 	}
 
 	return errors.Wrap(zdb.Get(ctx, u, query,
@@ -350,9 +358,16 @@ func (u *User) ByTokenAndSite(ctx context.Context, token string) error {
 
 // RequestReset generates a new password reset key.
 func (u *User) RequestReset(ctx context.Context) error {
-	// TODO: rename
-	// Recycle the request_login for now; will rename after removing email auth.
+	// TODO: rename this, as it's now used for password resets.
 	u.LoginRequest = zstring.NewPtr(zcrypto.Secret128()).P
+	err := zdb.Exec(ctx, `update users set
+		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
+		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
+	return errors.Wrap(err, "User.RequestReset")
+}
+
+func (u *User) InviteToken(ctx context.Context) error {
+	u.LoginRequest = zstring.NewPtr("invite-" + zcrypto.Secret128()).P
 	err := zdb.Exec(ctx, `update users set
 		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())

@@ -807,7 +807,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 		if args.Password == "" {
-			return newUser.RequestReset(ctx)
+			return newUser.InviteToken(ctx)
 		}
 		return nil
 	})
