@@ -1,59 +1,62 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
-<h2 id="setting">Settings</h2>
+<h2 id="setting">{{.T "header/settings|Settings"}}</h2>
 
 <div class="form-wrap">
 	<form method="post" action="/settings/main" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset id="section-site">
-			<legend>Site settings</legend>
+			<legend>{{.T "header/site-settings|Site settings"}}</legend>
 
-			<label for="link_domain">Your site</label>
+			<label for="link_domain">{{.T "label/your-site|Your site"}}</label>
 			<input type="text" name="link_domain" id="link_domain" value="{{.Site.LinkDomain}}">
 			{{validate "site.link_domain" .Validate}}
-			<span>Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview.</span>
+			<span>{{.T "p/site-domain-link-to-page|Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview."}}</span>
 
 			{{if .GoatcounterCom}}
 				<label>{{checkbox .Site.Settings.AllowBosmang "settings.allow_bosmang"}}
-					Allow admin access</label>
-				<span>Normally administrators can’t “log in” to your site, but
-					if this is enabled they can. You may be asked to enable this
-					for support requests.</span>
+					{{.T "label/allow-admin-access|Allow admin access"}}</label>
+				<span>{{.T `restricted-admin-access|
+					Normally administrators can’t “log in” to your site, but if this is enabled they can. You may be asked to enable this for support requests.`}}</span>
 			{{end}}
 
 			<label>{{checkbox .Site.Settings.Public "settings.public"}}
-				Make statistics publicly viewable</label>
-			<span>Anyone can view the statistics without logging in.</span>
+				{{.T "label/make-statistics-viewable|Make statistics publicly viewable"}}</label>
+			<span>{{.T "p/all-access-statistics|Anyone can view the statistics without logging in."}}</span>
 
 			<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
-				Allow adding visitor counts on your website</label>
+				{{.T "label/allow-visitor-counts|Allow adding visitor counts on your website"}}</label>
 			<span>See <a href="/code/visitor-counter">the documentation</a> for details on how to use.</span>
 		</fieldset>
 
 		<fieldset id="section-domain">
-			<legend>Domain settings</legend>
+			<legend>{{.T "header/domain-settings|Domain settings"}}</legend>
 
 			{{if .GoatcounterCom}}
-				<label for="code">Code</label>
+				<label for="code">{{.T "label/code|Code"}}</label>
 				<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
-				<span class="help">You will access your account at https://<em>[my-code]</em>.{{.Domain}}.
-				<a href="/settings/change-code">Change</a>.</span>
+				<span class="help">
+				{{.T `label/change-code|You will access your account at https://<em>[my-code]</em>.%(domain) – %[link Change].`
+					(map
+						"domain" .Domain
+						"link"   (tag "a" `href="/settings/change-code"`)
+					)}}
+				</span>
 			{{end}}
 
 			{{if .GoatcounterCom}}
-				<label for="cname">Custom domain</label>
+				<label for="cname">{{.T "label/custom-domain|Custom domain"}}</label>
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}"
 					{{if not (.Site.PlanCustomDomain .Context)}}disabled{{end}}>
-				<span>Custom domain, e.g. <em>“stats.example.com”</em>.
+				<span>
+					Custom domain, e.g. <em>“stats.example.com”</em>.
 					<strong>Note:</strong> This <em>won’t</em> prevent most
 					adblockers from blocking GoatCounter, and is just intended
 					as a nice “vanity domain”.<br><br>
 					{{if not (.Site.PlanCustomDomain .Context)}}
-						Requires Personal Plus or Business plan (you’re
-						on the {{.Site.Plan}} plan; see
-						<a href="/billing">billing</a>).
+						Requires Personal Plus or Business plan (you’re on the {{.Site.Plan}} plan; see <a href="/billing">billing</a>).
 					{{else}}
 						{{if .Site.CnameSetupAt}}
 							Domain verified and set up (note: it may take up to an hour for the certificate to work).
@@ -69,21 +72,21 @@
 						{{end}}
 					{{end}}</span>
 			{{else}}
-				<label for="cname">GoatCounter domain</label>
+				<label for="cname">{{.T "label/goat-counter-domain|GoatCounter domain"}}</label>
 				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 				<span>You GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>.</span>
 			{{end}}
 		</fieldset>
 
 		<fieldset id="section-tracking">
-			<legend>Tracking</legend>
+			<legend>{{.T "header/tracking|Tracking"}}</legend>
 
-			<label for="data_retention">Data retention in days</label>
+			<label for="data_retention">{{.T "label/data-retention-days|Data retention in days"}}</label>
 			<input type="number" name="settings.data_retention" id="limits_page" value="{{.Site.Settings.DataRetention}}">
 			{{validate "site.settings.data_retention" .Validate}}
 			<span class="help">Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete.</span>
 
-			<label>Ignore IPs</label>
+			<label>{{.T "label/ignore-ips|Ignore IPs"}}</label>
 			<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
 			{{validate "site.settings.ignore_ips" .Validate}}
 			<span>Never count requests coming from these IP addresses.
@@ -93,7 +96,7 @@
 				Alternatively, <a href="http://{{.Site.LinkDomain}}#toggle-goatcounter">disable for this browser</a> (click again to enable).{{end}}
 			</span>
 
-			<label>Campaign parameters</label>
+			<label>{{.T "label/campaign-parameters|Campaign parameters"}}</label>
 			<input type="text" name="settings.campaigns" value="{{.Site.Settings.Campaigns}}">
 			{{validate "site.settings.campaigns" .Validate}}
 			<span>
@@ -105,10 +108,10 @@
 		</fieldset>
 
 		<fieldset id="section-collect">
-			<legend>Data collection</legend>
-			<p style="margin-top: 0">If a setting is disabled then there is
-			no way to recover this information after a pageview is recorded,
-			as this won’t be stored.</p>
+			<legend>{{.T "header/data-collection|Data collection"}}</legend>
+			<p style="margin-top: 0">{{.T `p/setting-recovery-disabled-information|
+				If a setting is disabled then there is no way to recover this information after a pageview is recorded, as this won’t be stored.
+			`}}</p>
 
 			<input type="hidden" name="settings.collect[]" value="1">
 			{{range $cf := .Site.Settings.CollectFlags}}
@@ -117,11 +120,11 @@
 					<div>{{$cf.Help}}</div></label>
 				{{if eq $cf.Label "Region"}}
 					<div style="margin-left: 2em;">
-						<label for="collect_regions">For the following countries only:</label>
+						<label for="collect_regions">{{$.T "label/for-following-countries|For the following countries only:"}}</label>
 						<input type="text" id="collect_regions" name="settings.collect_regions" value="{{$.Site.Settings.CollectRegions}}">
-						<span class="help">List of country codes
-							(<a href="https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes#Current_ISO_3166_country_codes" target="_blank">list</a>;
-							use the alpha-2 code); leave blank to collect for all countries (if enabled).</span>
+						<span class="help">{{$.T `help/for-the-following-countries|
+							List of country codes (%[link list]; use the alpha-2 code); leave blank to collect for all countries (if enabled).
+						` (tag "a" `href="https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes#Current_ISO_3166_country_codes" target="_blank"`)}}</span>
 					</div>
 				{{end}}
 			{{end}}
@@ -129,7 +132,7 @@
 		</fieldset>
 
 		<div class="flex-break"></div>
-		<button type="submit">Save</button>
+		<button type="submit">{{.T "button/save|Save"}}</button>
 	</form>
 
 	{{if has_errors .Validate}}

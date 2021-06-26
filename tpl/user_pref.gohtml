@@ -38,12 +38,12 @@
 			</select>
 
 			<label>{{checkbox .User.Settings.TwentyFourHours "user.settings.twenty_four_hours"}}
-				24-hour clock (13:00)</label>
+				{{.T "label/24-hour-clock|24-hour clock (13:00)"}}</label>
 
 			<label>{{checkbox .User.Settings.SundayStartsWeek "user.settings.sunday_starts_week"}}
-				Week starts on Sunday</label>
+				{{.T "label/week-start|Week starts on Sunday"}}</label>
 
-			<label for="number_format">Thousands separator</label>
+			<label for="number_format">{{.T "label/thousand-separator|Thousands separator"}}</label>
 			<select name="user.settings.number_format" id="number_format">
 				<option {{option_value (string .User.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
 				<option {{option_value (string .User.Settings.NumberFormat) "160"}}>Space (42 123)</option>
@@ -54,14 +54,14 @@
 			</select>
 			{{validate "settings.number_format" .Validate}}
 
-			<label for="timezone">Timezone</label>
+			<label for="timezone">{{.T "label/timezone|Timezone"}}</label>
 			<select name="user.settings.timezone" id="timezone">
 				<option {{option_value $.User.Settings.Timezone.String ".UTC"}}>UTC</option>
 				{{range $tz := .Timezones}}<option {{option_value $.User.Settings.Timezone.String $tz.String}}>{{$tz.Display}}</option>
 				{{end}}
 			</select>
 			{{validate "settings.timezone" .Validate}}
-			<span><a href="#_" id="set-local-tz">Set from browser</a></span>
+			<span><a href="#_" id="set-local-tz">{{.T "link/set-from-browser|Set from browser"}}</a></span>
 		</fieldset>
 
 		<div class="flex-break"></div>

@@ -1,25 +1,27 @@
 {{template "_backend_top.gohtml" .}}
 
-<h1>Change site code</h1>
-<p>Change your site code and login domain.</p>
+<h1>{{.T "header/change-code|Change site code"}}</h1>
+<p>{{.T `p/change-code-request|
+	<p>Change your site code and login domain.</p>
 
-<p><strong>WARNING:</strong> this will take effect
-<strong>immediately</strong> and the old code can be registered again by
-anyone; if you’re already using it on a site then change it as soon as
-possible, or temporarily add two integration codes (with the old and new
-code) to prevent the loss of any pageviews.</p>
+	<p><strong>WARNING:</strong> this will take effect <strong>immediately</strong>
+	and the old code can be registered again by anyone; if you’re already using it
+	on a site then change it as soon as possible, or temporarily add two integration
+	codes (with the old and new code) to prevent the loss of any pageviews.</p>
 
-<p>
-Current code: <code>{{.Site.Code}}</code> ({{.Site.URL .Context}})
-</p>
+	<p>Current code: <code>%(current-code)</code> (%(current-url))</p>
+` (map
+	"current-code" .Site.Code
+	"current-url"  (.Site.URL .Context)
+)}}</p>
 
 <form method="post">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<label for="code">New code</label>
+	<label for="code">{{.T "label/new-code|New code"}}</label>
 	<input type="text" name="code" id="code" value="{{.Site.Code}}">
 
-	<button>Change</button>
-	<strong>Will take effect immediately</strong>
+	<button>{{.T "button/change|Change"}}</button>
+	<strong>{{.T "p/notify-immediate-change|Will take effect immediately"}}</strong>
 </form>
 
 {{template "_backend_bottom.gohtml" .}}

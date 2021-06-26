@@ -79,12 +79,12 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 
 	switch r.URL.Query().Get("return") {
 	case "cancel":
-		zhttp.FlashError(w, "Payment cancelled.")
+		zhttp.FlashError(w, T(r.Context(), "error/payment-cancelled|Payment cancelled."))
 
 	case "success":
 		// Verify that the webhook was processed correct.
 		if !account.Subscribed() {
-			zhttp.Flash(w, "The payment processor reported success, but we're still processing the payment")
+			zhttp.Flash(w, T(r.Context(), "notify/payment-processing|The payment processor reported success, but we're still processing the payment"))
 			zlog.Fields(zlog.F{
 				"siteID":   account.ID,
 				"stripeID": zstring.Ptr{account.Stripe}.String(),
@@ -96,7 +96,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 					blackmail.To("billing@goatcounter.com"),
 					blackmail.Bodyf(`New subscription: %s (%d) %s`, account.Code, account.ID, *account.Stripe))
 			})
-			zhttp.Flash(w, "Payment processed successfully!")
+			zhttp.Flash(w, T(r.Context(), "notify/payment-processed|Payment processed successfully!"))
 		}
 	}
 
@@ -147,7 +147,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		zhttp.Flash(w, "Saved!")
+		zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
 		return zhttp.JSON(w, `{"status":"ok","no_stripe":true}`)
 	}
 

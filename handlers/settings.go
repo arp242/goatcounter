@@ -164,7 +164,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	site.Settings = args.Settings
 	site.LinkDomain = args.LinkDomain
 	if args.Cname != "" && !site.PlanCustomDomain(r.Context()) {
-		return guru.New(http.StatusForbidden, "need a business plan to set custom domain")
+		return guru.New(http.StatusForbidden, T(r.Context(), "notify/need-business-plan-custom-domain|need a business plan to set custom domain"))
 	}
 
 	makecert := false
@@ -206,7 +206,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	zhttp.Flash(w, "Saved!")
+	zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
 	return zhttp.SeeOther(w, "/settings")
 }
 
@@ -231,7 +231,7 @@ func (h settings) changeCode(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "Saved!")
+	zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
 	return zhttp.SeeOther(w, site.URL(r.Context())+"/settings/main")
 }
 
@@ -283,12 +283,12 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		err := newSite.ByIDState(r.Context(), id, goatcounter.StateDeleted)
 		if err != nil {
 			if zdb.ErrNoRows(err) {
-				return guru.Errorf(400, "%q already exists", addr)
+				return guru.Errorf(400, T(r.Context(), "error/address-exists|%(addr) already exists", addr))
 			}
 			return err
 		}
 		if newSite.Parent == nil || *newSite.Parent != account.ID {
-			return guru.Errorf(400, "%q already exists", addr)
+			return guru.Errorf(400, T(r.Context(), "error/address-exists|%(addr) already exists", addr))
 		}
 
 		err = newSite.Undelete(r.Context(), newSite.ID)
@@ -296,7 +296,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		zhttp.Flash(w, "Site ‘%s’ was previously deleted; restored site with all data.", newSite.URL(r.Context()))
+		zhttp.Flash(w, T(r.Context(), "notify/restored-previously-deleted-site|Site ‘%(url)’ was previously deleted; restored site with all data.", newSite.URL(r.Context())))
 		return zhttp.SeeOther(w, "/settings/sites")
 	}
 
@@ -357,7 +357,7 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 
 	site := Site(r.Context())
 	if !(s.ID == site.ID || (s.Parent != nil && *s.Parent == site.ID)) {
-		return guru.New(404, "Not Found")
+		return guru.New(404, T(r.Context(), "error/not-found|Not Found"))
 	}
 
 	sID := s.ID
@@ -366,7 +366,7 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "Site ‘%s’ removed.", s.URL(r.Context()))
+	zhttp.Flash(w, T(r.Context(), "notify/site-removed|Site ‘%(url)’ removed.", s.URL(r.Context())))
 
 	// Redirect to parent if we're removing the current site.
 	if sID == Site(r.Context()).ID && s.Parent != nil {
@@ -407,7 +407,7 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 				return err
 			}
 			if s.Parent == nil || *s.Parent != master.ID {
-				return guru.Errorf(http.StatusForbidden, "yeah nah, site %d doesn't belong to you", s.ID)
+				return guru.Errorf(http.StatusForbidden, T(r.Context(), "error/site-not-yours|yeah nah, site %(id) doesn't belong to you", s.ID))
 			}
 			copies = append(copies, s)
 		}
@@ -421,7 +421,7 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 		}
 	}
 
-	zhttp.Flash(w, "Settings copied to the selected sites.")
+	zhttp.Flash(w, T(r.Context(), "notify/settings-copied-to-site|Settings copied to the selected sites."))
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
@@ -466,7 +466,7 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, "Started in the background; may take about 10-20 seconds to fully process.")
+	zhttp.Flash(w, T(r.Context(), "notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
 	return zhttp.SeeOther(w, "/settings/purge")
 }
 
@@ -502,7 +502,7 @@ func (h settings) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	fp, err := os.Open(export.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			zhttp.FlashError(w, "It looks like there is no export yet or the export has expired")
+			zhttp.FlashError(w, T(r.Context(), "error/export-expired|It looks like there is no export yet or the export has expired."))
 			return zhttp.SeeOther(w, "/settings/export")
 		}
 
@@ -539,7 +539,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	if strings.HasSuffix(head.Filename, ".gz") {
 		fp, err = gzip.NewReader(file)
 		if err != nil {
-			return guru.Errorf(400, "could not read as gzip: %w", err)
+			return guru.Errorf(400, T(r.Context(), "error/could-not-read|Could not read as gzip: %(err)", err))
 		}
 	}
 	defer fp.Close()
@@ -586,7 +586,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, "Import started in the background; you’ll get an email when it’s done.")
+	zhttp.Flash(w, T(r.Context(), "notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done."))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 
@@ -609,7 +609,7 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 	bgrun.Run(fmt.Sprintf("export web:%d", Site(ctx).ID),
 		func() { export.Run(ctx, fp, true) })
 
-	zhttp.Flash(w, "Export started in the background; you’ll get an email with a download link when it’s done.")
+	zhttp.Flash(w, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 
@@ -652,7 +652,7 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	if has {
-		zhttp.FlashError(w, "This account still has a Stripe subscription; cancel that first on the billing page.")
+		zhttp.FlashError(w, T(r.Context(), "error/account-has-stripe-subscription|This account still has a Stripe subscription; cancel that first on the billing page."))
 		q := url.Values{}
 		q.Set("reason", args.Reason)
 		q.Set("contact_me", fmt.Sprintf("%t", args.ContactMe))
@@ -827,7 +827,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, "User ‘%s’ added.", newUser.Email)
+	zhttp.Flash(w, T(r.Context(), "notify/user-added|User ‘%(email)’ added.", newUser.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
 
@@ -856,7 +856,7 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 
 	account := Account(r.Context())
 	if account.ID != editUser.Site {
-		return guru.New(404, "Not Found")
+		return guru.New(404, T(r.Context(), "notify/not-found|Not Found"))
 	}
 
 	emailChanged := editUser.Email != args.Email
@@ -881,7 +881,7 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 		return h.usersForm(&editUser, err)(w, r)
 	}
 
-	zhttp.Flash(w, "User ‘%s’ edited.", editUser.Email)
+	zhttp.Flash(w, T(r.Context(), "notify/users-edited|User ‘%(email)’ edited.", editUser.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
 
@@ -901,7 +901,7 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if user.Site != account.ID {
-		return guru.New(404, "Not Found")
+		return guru.New(404, T(r.Context(), "error/not-found|Not Found"))
 	}
 
 	err = user.Delete(r.Context(), false)
@@ -909,6 +909,6 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "User ‘%s’ removed.", user.Email)
+	zhttp.Flash(w, T(r.Context(), "notify/user-removed|User ‘%(email)’ removed.", user.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }

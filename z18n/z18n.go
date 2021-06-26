@@ -206,6 +206,8 @@ var funcmap = map[string]func(string) string{
 	"html":        template.HTMLEscapeString,
 }
 
+var show = false
+
 func (m Msg) tpl(str string) string {
 	var (
 		tags  = zstring.IndexPairs(str, "%[", "]")
@@ -217,6 +219,9 @@ func (m Msg) tpl(str string) string {
 	// 	fmt.Printf("\tvars: %v; tags: %v\n\t%#v\n\n", tags, vars, m.data)
 	// }
 	if total == 0 {
+		if show {
+			return "«" + str + "»"
+		}
 		return str
 	}
 
@@ -225,6 +230,9 @@ func (m Msg) tpl(str string) string {
 	// We need to check this again, as the indexes probably changed.
 	// TODO: this can be more efficient.
 	vars = zstring.IndexPairs(str, "%(", ")")
+	if show {
+		return "«" + m.tplVars(str, vars) + "»"
+	}
 	return m.tplVars(str, vars)
 }
 

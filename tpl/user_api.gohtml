@@ -1,14 +1,14 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_user_nav.gohtml" .}}
 
-<h2 id="auth">API</h2>
+<h2 id="auth">{{.T "header/api|API"}}</h2>
 {{if not .User.EmailVerified}}
 	<p>You need to verify your email before you can use the API; a link was sent to {{.User.Email}}.</p>
 
-	Change the email address in the <a href="/user/pref">settings</a> –
+	Change the email address in the <a href="/user/pref">{{.T "link/settings|settings"}}</a> –
 	<form method="post" action="/user/resend-verify">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-		<button class="link">Resend email</button>.
+		<button class="link">{{.T "button/resend-email|Resend email"}}</button>.
 	</form>
 </div>
 {{else}}
@@ -19,7 +19,7 @@
 		<legend>{{.T "header/api-tokens|API tokens"}}</legend>
 
 		<table class="auto">
-			<thead><tr><th>Name</th><th>Permissions</th><th>Token</th><th>Created at</th><th></th></tr></thead>
+			<thead><tr><th>{{.T "header/name|Name"}}</th><th>{{.T "header/permissions|Permissions"}}</th><th>{{.T "header/token|Token"}}</th><th>{{.T "header/created-at|Created at"}}</th><th></th></tr></thead>
 
 			<tbody>
 				{{/* TODO: add last used as well */}}

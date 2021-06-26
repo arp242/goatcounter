@@ -3,35 +3,46 @@
 
 {{define "access"}}
 	{{$all := eq (print .site) "all"}}
-	<label><input type="radio" name="access[{{.site}}]" value="r" {{if eq .v "r"}}checked{{end}}> Read only</label>
-	<label><input type="radio" name="access[{{.site}}]" value="s" {{if eq .v "s"}}checked{{end}}> Can change settings, except billing and site/user management</label>
+	<label><input type="radio" name="access[{{.site}}]" value="r" {{if eq .v "r"}}checked{{end}}>
+		{{t .Context "label/read-only|Read only"}}</label>
+	<label><input type="radio" name="access[{{.site}}]" value="s" {{if eq .v "s"}}checked{{end}}>
+		{{t .Context "label/change-settings-limited|Can change settings, except billing and site/user management"}}</label>
 	{{if $all}}
-	<label><input type="radio" name="access[{{.site}}]" value="a" {{if eq .v "a"}}checked{{end}}> Full access</label>
+	<label><input type="radio" name="access[{{.site}}]" value="a" {{if eq .v "a"}}checked{{end}}>
+		{{t .Context "label/full-access|Full access"}}</label>
 	{{end}}
 {{end}}
 
-<h2>{{if .Edit}}Edit user {{.NewUser.Email}}{{else}}Add a new user{{end}}</h2>
+<h2>{{if .Edit}}{{.T "header/edit-user|Edit user"}} {{.NewUser.Email}}{{else}}{{.T "header/add-new-user|Add a new user"}}{{end}}</h2>
 {{if .Error}}<div class="flash flash-e">{{.Error}}</div>{{end}}
 
 <form method="post" action="{{if .Edit}}/settings/users/{{.NewUser.ID}}{{else}}/settings/users/add{{end}}" id="users-form" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>
-		<legend>User information</legend>
+		<legend>{{.T "header/user-information|User information"}}</legend>
 
-		<label for="email">Email</label>
-		<input type="text" autocomplete="new-password" id="email" name="email" placeholder="Email" value="{{.NewUser.Email}}">
+		<label for="email">{{.T "label/email|Email"}}</label>
+		<input type="text" autocomplete="new-password" id="email" name="email" placeholder="{{.T "label/email|Email"}}" value="{{.NewUser.Email}}">
 		{{validate "email" .Validate}}
-		<span>Email to login with{{if .GoatcounterCom}}; must be confirmed{{end}}.</span>
+		{{if .GoatcounterCom}}
+			<span>{{.T "help/new-user-email-confirm|Email to login with; must be confirmed."}}</span>
+		{{else}}
+			<span>{{.T "help/new-user-email|Email to login with."}}</span>
+		{{end}}
 
-		<label for="password">Password</label>
-		<input type="password" autocomplete="new-password" id="password" name="password" placeholder="Password">
+		<label for="password">{{.T "label/password|Password"}}</label>
+		<input type="password" autocomplete="new-password" id="password" name="password" placeholder="{{.T "label/password|Password"}}">
 		{{validate "password" .Validate}}
-		<span>{{if .Edit}}Leave blank to keep it unchanged.{{else}}Can be blank to send a password reset email.{{end}}</span>
+		{{if .Edit}}
+			<span>{{.T "help/password-edit|Leave blank to keep it unchanged."}}</span>
+		{{else}}
+			<span>{{.T "help/password-new-user|Can be blank to send a password reset email."}}</span>
+		{{end}}
 	</fieldset>
 
 	<fieldset class="global-access">
-		<legend>Allow access</legend>
-		{{template "access" (map "site" "all" "v" (index .NewUser.Access "all"))}}
+		<legend>{{.T "header/allow-access|Allow access"}}</legend>
+		{{template "access" (map "site" "all" "v" (index .NewUser.Access "all") "Context" .Context)}}
 	</fieldset>
 
 	<div id="full-access"></div>
@@ -39,7 +50,7 @@
 	{{/*
 	TODO: implement per-site access to; for now global access is fine.
 	<fieldset id="access-sites">
-		<legend>Allow access to sites <sup><a href="#" id="per-site">Set access per site</a></sup></legend>
+		<legend>{{.T "header/allow-site-access|Allow access to sites"}} <sup><a href="#" id="per-site">{{.T "header/set-site-access|Set access per site"}}</a></sup></legend>
 
 		{{range $s := .Sites}}
 			<label><input type="checkbox" checked> {{$s.Display $.Context}}</label><br>
@@ -48,7 +59,7 @@
 			</div>
 		{{end}}
 		<br>
-		<label><input type="checkbox" checked> Give access to newly created sites</label><br>
+		<label><input type="checkbox" checked> {{.T "label/give-access-new-site|Give access to newly created sites"}}</label><br>
 		<div class="site-access">
 			{{template "access" "new"}}
 		</div>
@@ -61,8 +72,7 @@
 		{{.T "p/additional-errors|Additional errors"}}:{{.Validate.HTML}}</div>
 	{{end}}
 
-	<button type="submit">{{if .Edit}}Edit{{else}}Add new{{end}}</button>
+	<button type="submit">{{if .Edit}}{{.T "button/edit|Edit"}}{{else}}{{.T "button/add-new|Add new"}}{{end}}</button>
 </form>
-
 
 {{template "_backend_bottom.gohtml" .}}

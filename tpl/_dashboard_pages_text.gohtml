@@ -1,16 +1,24 @@
 <div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
-	<h2 class="full-width">Pages <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of
-		<span class='total-unique'>{{nformat .TotalUnique $.User}}</span> visits shown
-	</small></h2>
+	<h2 class="full-width">{{t .Context "dashboard/pages/header|Pages"}}
+		{{/* TODO: would be nice if we could just insert %(num-visits) without
+		the explicit %[..], as there's nothing to translate in there. */}}
+		<small>{{t .Context `dashboard/pages/num-visits|%[wrap1 %(num-visits)] out of %[wrap2 %(total-visits)] visits shown`
+			(map
+				"wrap1"        (tag "span" `class="total-unique-display"`)
+				"wrap2"        (tag "span" `class="total-unique"`)
+				"num-visits"   (nformat .TotalUniqueDisplay $.User)
+				"total-visits" (nformat .TotalUnique $.User)
+			)}}</small>
+	</h2>
+
 	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
 		<thead><tr>
 			<th class="col-idx"></th>
-			<th class="col-n">Visits</th>
-			<th class="col-n" title="Pageviews">Views</th>
-			<th class="col-p">Path</th>
-			<th class="col-t">Title</th>
-			<th class="col-d" title="Every bar represents 1/12th of the selected time range">Stats</th>
+			<th class="col-n">{{t .Context "dashboard/pages/visits|Visits"}}</th>
+			<th class="col-n" title="{{t .Context "dashboard/pages/pageviews|Pageviews"}}">{{t .Context "dashboard/pages/views|Views"}}</th>
+			<th class="col-p">{{t .Context "dashboard/pages/path|Path"}}</th>
+			<th class="col-t">{{t .Context "dashboard/pages/title|Title"}}</th>
+			<th class="col-d" title="{{t .Context "dashboard/pages/stats-tooltip|Every bar represents 1/12th of the selected time range"}}">{{t .Context "dashboard/pages/stats|Stats"}}</th>
 		</tr></thead>
 		<tbody class="pages">{{template "_dashboard_pages_text_rows.gohtml" .}}</tbody>
 	</table>
