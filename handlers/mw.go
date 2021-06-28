@@ -45,9 +45,30 @@ var (
 
 	loggedInOrPublic = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		u := goatcounter.GetUser(r.Context())
-		if (u != nil && u.ID > 0) || Site(r.Context()).Settings.Public {
+		if u != nil && u.ID > 0 {
 			return nil
 		}
+		s := Site(r.Context())
+		if s.Settings.IsPublic() {
+			return nil
+		}
+		if a := r.URL.Query().Get("access-token"); s.Settings.CanView(a) {
+			// Set cookie for auth and redirect. This prevents accidental
+			// leaking of the secret by copy/pasting the URL, screenshots, etc.
+			http.SetCookie(w, &http.Cookie{
+				Name:     "access-token",
+				Value:    a,
+				Path:     "/",
+				HttpOnly: true,
+				Secure:   zhttp.CookieSecure,
+				SameSite: zhttp.CookieSameSite,
+			})
+			return guru.Errorf(303, "/")
+		}
+		if c, err := r.Cookie("access-token"); err == nil && s.Settings.CanView(c.Value) {
+			return nil
+		}
+
 		return redirect(w, r)
 	})
 
