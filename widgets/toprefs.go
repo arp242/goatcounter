@@ -9,7 +9,7 @@ import (
 	"html/template"
 
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/z18n"
+	"zgo.at/z18n"
 )
 
 type TopRefs struct {

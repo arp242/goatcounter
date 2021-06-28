@@ -34,6 +34,7 @@ Direct dependencies:
 | zgo.at/isbot                         | MIT          | Detect bots.                                          |
 | zgo.at/json                          | MIT          | encoding/json with ,readonly tag                      |
 | zgo.at/tz                            | MIT          | Present timezones in dropdown nicely.                 |
+| zgo.at/z18n                          | MIT          | Translations and localisation                         |
 | zgo.at/zcache                        | MIT          | In-memory caching.                                    |
 | zgo.at/zdb                           | MIT          | Database access layer                                 |
 | zgo.at/zhttp                         | MIT          | HTTP tools                                            |

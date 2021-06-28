@@ -11,7 +11,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/z18n"
+	"zgo.at/z18n"
 	"zgo.at/zlog"
 	"zgo.at/zstd/ztime"
 )

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"zgo.at/goatcounter/z18n"
+	"zgo.at/z18n"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
