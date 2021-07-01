@@ -261,7 +261,9 @@ func (ss *SiteSettings) Defaults() {
 	if ss.Campaigns == nil {
 		ss.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
 	}
-
+	if ss.Public == "" {
+		ss.Public = "public"
+	}
 	if ss.Collect == 0 {
 		ss.Collect = CollectReferrer | CollectUserAgent | CollectScreenSize | CollectLocation | CollectLocationRegion | CollectSession
 	}
