@@ -12,12 +12,12 @@ This might be improved at some point in the future; the options right now are:
 2. If you want everything in a single overview then you can add the domain to
    the path, instead of just sending the path:
 
-       <script>
-           window.goatcounter = {
-               path: function(p) { return location.host + p }
-           }
-       </script>
-       {{template "code" .}}
+        <script>
+            window.goatcounter = {
+                path: function(p) { return location.host + p }
+            }
+        </script>
+        {{template "code" .}}
 
    For subdomains it it might be more useful to just add the first domain label
    instead of the full domain here, or perhaps just a short static string
