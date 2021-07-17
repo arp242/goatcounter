@@ -119,7 +119,7 @@
 					(tag "a" `href="#_" id="add-ip"`)}}
 				{{if .Site.LinkDomain}}<br>
 					<span>{{.T `help/ignore-ips-2|Alternatively, %[link disable for this browser] (click again to enable).`
-						(tag "a" (printf `target="_blank" href="http://%s#toggle-goatcounter"` .Site.LinkDomain))}}
+						(tag "a" (printf `target="_blank" href="%s#toggle-goatcounter"` (.Site.LinkDomainURL true)))}}
 				{{end}}
 			</span>
 

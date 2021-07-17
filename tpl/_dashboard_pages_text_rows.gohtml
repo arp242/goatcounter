@@ -8,7 +8,7 @@
 
 			{{if and $.Site.LinkDomain (not $h.Event)}}
 				<br><small class="go">
-					<a target="_blank" rel="noopener" href="https://{{$.Site.LinkDomain}}{{$h.Path}}">{{t $.Context "link/goto-path|Go to %(path)" (concat "" $.Site.LinkDomain $h.Path)}}</a>
+					<a target="_blank" rel="noopener" href="{{$.Site.LinkDomainURL true $h.Path}}">{{t $.Context "link/goto-path|Go to %(path)" ($.Site.LinkDomainURL false $h.Path)}}</a>
 				</small>
 			{{end}}
 

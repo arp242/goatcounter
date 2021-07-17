@@ -8,6 +8,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -177,7 +178,7 @@ func (s *Site) Validate(ctx context.Context) error {
 		}
 	}
 
-	v.Domain("link_domain", s.LinkDomain)
+	v.URL("link_domain", s.LinkDomain)
 
 	v.Sub("settings", "", s.Settings.Validate())
 	v.Sub("user_defaults", "", s.UserDefaults.Validate())
@@ -221,7 +222,6 @@ func (s *Site) Validate(ctx context.Context) error {
 		if Config(ctx).GoatcounterCom && strings.HasSuffix(*s.Cname, Config(ctx).Domain) {
 			v.Append("cname", "cannot end with %q", Config(ctx).Domain)
 		}
-
 	}
 
 	if !v.HasErrors() {
@@ -611,6 +611,19 @@ func (s Site) URL(ctx context.Context) string {
 	return fmt.Sprintf("http%s://%s.%s%s",
 		map[bool]string{true: "", false: "s"}[Config(ctx).Dev],
 		s.Code, Config(ctx).Domain, Config(ctx).Port)
+}
+
+// LinkDomainURL creates a valid url to the configured LinkDomain.
+func (s Site) LinkDomainURL(withProto bool, paths ...string) string {
+	if s.LinkDomain == "" {
+		return ""
+	}
+	if withProto && !zstring.HasPrefixes(s.LinkDomain, "http://", "https://") {
+		s.LinkDomain = "http://" + s.LinkDomain
+	} else if !withProto {
+		s.LinkDomain = zstring.TrimPrefixes(s.LinkDomain, "http://", "https://")
+	}
+	return strings.TrimRight(s.LinkDomain, "/") + path.Join(paths...)
 }
 
 // PlanCustomDomain reports if this site's plan allows custom domains.
