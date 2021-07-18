@@ -139,7 +139,7 @@ func main() {
 		s := goatcounter.Site{
 			Cname:      zstring.NewPtr("gcbench.localhost").P,
 			Plan:       goatcounter.PlanBusinessPlus,
-			Settings:   goatcounter.SiteSettings{Public: true},
+			Settings:   goatcounter.SiteSettings{Public: "public"},
 			FirstHitAt: first,
 		}
 		zli.F(s.Insert(r.ctx))
