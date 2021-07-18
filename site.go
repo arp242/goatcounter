@@ -921,17 +921,17 @@ var planDetails = Plans{
 	{
 		Code:        PlanTrial,
 		Name:        "Free",
-		MaxHits:     2_400_00,
+		MaxHits:     2_400_000,
 		MonthlyHits: 100_000,
 	}, {
 		Code:        PlanFree,
 		Name:        "Free",
-		MaxHits:     2_400_00,
+		MaxHits:     2_400_000,
 		MonthlyHits: 100_000,
 	}, {
 		Code:        PlanPersonal,
 		Name:        "Personal",
-		MaxHits:     2_400_00,
+		MaxHits:     2_400_000,
 		MonthlyHits: 100_000,
 	}, {
 		Code:        PlanStarter,
