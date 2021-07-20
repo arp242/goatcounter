@@ -38,15 +38,15 @@ type HitListStat struct {
 	DailyUnique  int
 }
 
-// PathCountUnique gets the total_unique for one path.
-func (h *HitList) PathCountUnique(ctx context.Context, path string, rng ztime.Range) error {
-	err := zdb.Get(ctx, h, "load:hit_list.PathCountUnique", zdb.P{
+// PathCount gets the total and total_unique for one path.
+func (h *HitList) PathCount(ctx context.Context, path string, rng ztime.Range) error {
+	err := zdb.Get(ctx, h, "load:hit_list.PathCount", zdb.P{
 		"site":  MustGetSite(ctx).ID,
 		"path":  path,
 		"start": rng.Start,
 		"end":   rng.End,
 	})
-	return errors.Wrap(err, "HitList.PathCountUnique")
+	return errors.Wrap(err, "HitList.PathCount")
 }
 
 // SiteTotal gets the total counts for all paths.

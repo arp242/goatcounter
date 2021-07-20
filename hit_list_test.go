@@ -345,7 +345,7 @@ func TestHitListTotals(t *testing.T) {
 	})
 }
 
-func TestHitListsPathCountUnique(t *testing.T) {
+func TestHitListsPathCount(t *testing.T) {
 	ztime.SetNow(t, "2020-06-18")
 	ctx := gctest.DB(t)
 
@@ -355,19 +355,19 @@ func TestHitListsPathCountUnique(t *testing.T) {
 		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
 		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
 		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
-
 		Hit{FirstVisit: false, Path: "/"},
+
 		Hit{FirstVisit: true, Path: "/a"},
 		Hit{FirstVisit: true, Path: "/a", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
 	)
 
 	{
 		var hl HitList
-		err := hl.PathCountUnique(ctx, "/", ztime.Range{})
+		err := hl.PathCount(ctx, "/", ztime.Range{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{0 5 0 / false  <nil> 0 []}`
+		want := `{6 5 0 / false  <nil> 0 []}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
@@ -376,13 +376,13 @@ func TestHitListsPathCountUnique(t *testing.T) {
 
 	{
 		var hl HitList
-		err := hl.PathCountUnique(ctx, "/", ztime.NewRange(
+		err := hl.PathCount(ctx, "/", ztime.NewRange(
 			ztime.Now().Add(-8*24*time.Hour)).
 			To(ztime.Now().Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{0 2 0 / false  <nil> 0 []}`
+		want := `{2 2 0 / false  <nil> 0 []}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)

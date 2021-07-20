@@ -142,7 +142,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	if total {
 		err = hl.SiteTotalUTC(r.Context(), rng)
 	} else {
-		err = hl.PathCountUnique(r.Context(), path, rng)
+		err = hl.PathCount(r.Context(), path, rng)
 	}
 	if err != nil {
 		return err
