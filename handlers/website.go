@@ -27,7 +27,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
-	"zgo.at/zhttp/header"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
@@ -89,16 +88,9 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 		return h.forgot(nil, "", "")(w, r)
 	}))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
-	for _, t := range []string{"", "privacy", "terms", "why", "data", "design"} {
+	for _, t := range []string{"", "privacy", "terms", "why", "design"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
-
-	r.With(mware.Ratelimit(mware.RatelimitOptions{
-		Client:  mware.RatelimitIP,
-		Store:   mware.NewRatelimitMemory(),
-		Limit:   mware.RatelimitLimit(5, 86400),
-		Message: "you can download this five times per day only",
-	})).Get("/data/{file}", zhttp.Wrap(h.downloadData))
 }
 
 func (h website) MountShared(r chi.Router) {
@@ -128,7 +120,6 @@ var metaDesc = map[string]string{
 	"contribute": "Contribute – GoatCounter",
 	"code":       "Site integration code – GoatCounter",
 	"why":        "Why I made GoatCounter",
-	"data":       "GoatCounter data",
 	"api":        "API – GoatCounter",
 	"design":     "GoatCounter design",
 }
@@ -521,35 +512,6 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 	}{newGlobals(w, r), "code", cp, "Site integration code – GoatCounter",
 		dc, site.URL(r.Context()), site.Domain(r.Context()), h.fromWWW,
 		nil, nil})
-}
-
-func (h website) downloadData(w http.ResponseWriter, r *http.Request) error {
-	file := chi.URLParam(r, "file")
-	if file == "" {
-		return guru.New(400, "need file name")
-	}
-	switch file {
-	case "ua.csv.gz", "bots.csv.gz", "screensize.csv.gz":
-	default:
-		return guru.Errorf(400, "unknown file name: %q", file)
-	}
-
-	fp, err := os.Open("/tmp/" + file)
-	if err != nil {
-		return err
-	}
-	defer fp.Close()
-
-	err = header.SetContentDisposition(w.Header(), header.DispositionArgs{
-		Type:     header.TypeAttachment,
-		Filename: file,
-	})
-	if err != nil {
-		return err
-	}
-
-	w.Header().Set("Content-Type", "application/gzip")
-	return zhttp.Stream(w, fp)
 }
 
 func (h website) contribute(w http.ResponseWriter, r *http.Request) error {

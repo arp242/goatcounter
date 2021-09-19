@@ -23,7 +23,6 @@ func TestWebsiteTpl(t *testing.T) {
 		{"/privacy", "Screen size"},
 		{"/terms", "The “services” are any software, application, product, or service"},
 		{"/why", "Footnotes"},
-		{"/data", "CSV format with a header"},
 		{"/design", "Firefox on iOS is just displayed as Safari"},
 		{"/status", "uptime"},
 		{"/signup", `<label for="email">Email address</label>`},
