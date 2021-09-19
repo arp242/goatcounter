@@ -91,27 +91,27 @@ func main() {
 
 	// Most of staticcheck.
 	for _, v := range simple.Analyzers {
-		checks = append(checks, v)
+		checks = append(checks, v.Analyzer)
 	}
-	for k, v := range staticcheck.Analyzers {
-		if k == "SA5008" {
+	for _, v := range staticcheck.Analyzers {
+		if v.Analyzer.Name == "SA5008" {
 			// Skip struct tags check, as our modified JSON adds a new ,readonly tag and this will error:
 			//   unknown JSON option "readonly"
 			// TODO: write a patch to staticcheck to allow adding fields or
 			// something.
 			continue
 		}
-		checks = append(checks, v)
+		checks = append(checks, v.Analyzer)
 	}
-	for k, v := range stylecheck.Analyzers {
+	for _, v := range stylecheck.Analyzers {
 		// - At least one file in a non-main package should have a package comment
 		// - The comment should be of the form "Package x ..."
-		if k == "ST1000" {
+		if v.Analyzer.Name == "ST1000" {
 			continue
 		}
 		// The documentation of an exported function should start with
 		// the function's name.
-		if k == "ST1020" {
+		if v.Analyzer.Name == "ST1020" {
 			continue
 		}
 		// Skip for now due to bug in staticcheck in locations.go
@@ -119,11 +119,11 @@ func main() {
 		// staticcheck error codes are also ignored. Guess that's some frontend
 		// it added on x/analysis?
 		// TODO: send patch upstream.
-		if k == "ST1003" {
+		if v.Analyzer.Name == "ST1003" {
 			continue
 		}
 
-		checks = append(checks, v)
+		checks = append(checks, v.Analyzer)
 	}
 
 	// Our own stuff.
