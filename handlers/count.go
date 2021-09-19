@@ -58,7 +58,10 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		hit.Location = l.LookupIP(r.Context(), r.RemoteAddr)
 	}
 
-	err := formam.NewDecoder(&formam.DecoderOptions{TagName: "json"}).Decode(r.URL.Query(), &hit)
+	err := formam.NewDecoder(&formam.DecoderOptions{
+		TagName:           "json",
+		IgnoreUnknownKeys: true,
+	}).Decode(r.URL.Query(), &hit)
 	if err != nil {
 		w.Header().Add("X-Goatcounter", fmt.Sprintf("error decoding parameters: %s", err))
 		w.WriteHeader(400)
