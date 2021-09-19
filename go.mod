@@ -1,6 +1,6 @@
 module zgo.at/goatcounter
 
-go 1.16
+go 1.17
 
 require (
 	code.soquee.net/otp v0.0.1
@@ -41,6 +41,20 @@ require (
 	zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08
 	zgo.at/ztpl v0.0.0-20210522104216-89fb2373a16b
 	zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f
+)
+
+require (
+	github.com/BurntSushi/toml v0.3.2-0.20210624061728-01bfc69d1057 // indirect
+	github.com/andybalholm/cascadia v1.1.0 // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/go-sql-driver/mysql v1.5.0 // indirect
+	github.com/jmoiron/sqlx v1.3.1 // indirect
+	github.com/lib/pq v1.9.0 // indirect
+	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
+	golang.org/x/mod v0.4.2 // indirect
+	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
+	golang.org/x/term v0.0.0-20210317153231-de623e64d2a6 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
 
 // "Fork" of go-sqlite3 which: is updated to SQLite 3.35.4 and removes the
