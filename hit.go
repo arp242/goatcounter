@@ -153,6 +153,12 @@ func (h *Hit) cleanPath(ctx context.Context) {
 		q.Del("__cf_chl_captcha_tk__")
 		q.Del("__cf_chl_jschl_tk__")
 
+		// Added by Weibo.cn (a sort of Chinese Twitter), with a random ID:
+		//   /?continueFlag=4020a77be9019cf14fefc373267aa46e
+		//   /?continueFlag=c397418f4346f293408b311b1bc819d4
+		// Presumably a tracking thing?
+		q.Del("continueFlag")
+
 		u.RawQuery = q.Encode()
 		h.Path = "/" + strings.Trim(u.String(), "/")
 	}
