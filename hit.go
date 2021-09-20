@@ -154,7 +154,7 @@ func (h *Hit) cleanPath(ctx context.Context) {
 		q.Del("__cf_chl_jschl_tk__")
 
 		u.RawQuery = q.Encode()
-		h.Path = u.String()
+		h.Path = "/" + strings.Trim(u.String(), "/")
 	}
 }
 

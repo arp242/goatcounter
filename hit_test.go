@@ -99,6 +99,7 @@ func TestHitDefaultsPath(t *testing.T) {
 
 		{"/page?q=a", "/page?q=a"},
 		{"/page?fbclid=foo", "/page"},
+		{"/page/?fbclid=foo", "/page"},
 		{"/page?fbclid=foo&a=b", "/page?a=b"},
 		{"/page?", "/page"},
 		{"/page?", "/page"},
