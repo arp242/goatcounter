@@ -9,8 +9,8 @@ with x as (
 		{{:filter path_id in (:filter) and}}
 		ref = :ref
 	group by path_id
-	order by count desc
-	limit 10
+	order by count_unique desc
+	limit :limit offset :offset
 )
 select
 	paths.path as name,
