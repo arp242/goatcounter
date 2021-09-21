@@ -37,7 +37,7 @@ func TestWebsiteTpl(t *testing.T) {
 
 		{"/help", "I don’t see my pageviews?"},
 		{"/gdpr", "consult a lawyer"},
-		{"/contact", "Public Telegram Group"},
+		{"/contact", "Send message"},
 		{"/contribute", "One-time donation"},
 		{"/api.html", "GoatCounter API documentation"},
 		{"/api2.html", "<rapi-doc"},
