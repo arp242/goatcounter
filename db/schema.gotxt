@@ -6,14 +6,20 @@ create table sites (
 	link_domain    varchar        not null default ''      check(link_domain = '' or (length(link_domain) >= 4 and length(link_domain) <= 255)),
 	cname          varchar        null                     check(cname is null or (length(cname) >= 4 and length(cname) <= 255)),
 	cname_setup_at timestamp      default null             {{check_timestamp "cname_setup_at"}},
-	plan           varchar        not null                 check(plan in ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')),
-	plan_pending   varchar        null,
-	plan_cancel_at timestamp,
-	stripe         varchar        null,
-	billing_amount varchar,
 	settings       {{jsonb}}      not null,
 	user_defaults  {{jsonb}}      not null default '{}',
 	received_data  integer        not null default 0,
+
+	-- Billing related stuff.
+	plan                varchar        not null,
+	plan_pending        varchar        null,
+	plan_cancel_at      timestamp,
+	stripe              varchar        null,
+	billing_amount      varchar,
+	billing_anchor      timestamp,
+	notes               text           not null default '',
+	extra_pageviews     int,
+	extra_pageviews_sub varchar,
 
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
@@ -100,6 +106,7 @@ create table paths (
 );
 create unique index "paths#site_id#path" on paths(site_id, lower(path));
 create        index "paths#path#title"   on paths(lower(path), lower(title));
+{{cluster "paths" "paths#site_id#path"}}
 
 create table browsers (
 	browser_id     {{auto_increment}},
@@ -320,6 +327,9 @@ insert into version values
 	('2021-03-18-1-usersettings'),
 	('2021-03-20-1-tokens'),
 	('2021-03-29-1-widgets'),
-	('2021-04-01-1-store-warn');
+	('2021-04-01-1-store-warn'),
+	('2021-04-02-1-cluster-paths'),
+	('2021-04-07-1-billing-anchor'),
+	('2021-06-27-1-public');
 
 -- vim:ft=sql:tw=0
