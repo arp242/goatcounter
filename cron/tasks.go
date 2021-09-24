@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/acme"
-	"zgo.at/goatcounter/bgrun"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/acme"
+	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/ztime"

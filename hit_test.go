@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"testing"
 
-	. "zgo.at/goatcounter"
-	"zgo.at/goatcounter/gctest"
+	. "zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 )

@@ -13,9 +13,9 @@ import (
 	"testing"
 
 	"github.com/mattn/go-sqlite3"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cron"
-	"zgo.at/goatcounter/db/migrate/gomig"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zgo"

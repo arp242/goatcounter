@@ -14,8 +14,8 @@ import (
 
 	"github.com/monoculum/formam"
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/handlers"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/handlers"
 	"zgo.at/json"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"

@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/handlers"
-	"zgo.at/goatcounter/logscan"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/handlers"
+	"zgo.at/goatcounter/v2/logscan"
 	"zgo.at/json"
 	"zgo.at/zli"
 	"zgo.at/zlog"

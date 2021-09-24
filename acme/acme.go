@@ -16,7 +16,7 @@ import (
 	crypto_acme "golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/singleflight"
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"

@@ -7,8 +7,8 @@ package main
 import (
 	"testing"
 
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/gctest"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
 )

@@ -19,9 +19,9 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/gadget"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cron"
-	"zgo.at/goatcounter/db/migrate/gomig"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zstd/zcrypto"

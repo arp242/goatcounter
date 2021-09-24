@@ -8,7 +8,7 @@ import (
 	"context"
 	"html/template"
 
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/z18n"
 )
 

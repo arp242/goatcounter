@@ -7,8 +7,8 @@ package acme_test
 import (
 	"testing"
 
-	. "zgo.at/goatcounter/acme"
-	"zgo.at/goatcounter/gctest"
+	. "zgo.at/goatcounter/v2/acme"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zruntime"

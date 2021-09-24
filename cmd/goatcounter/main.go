@@ -14,8 +14,8 @@ import (
 	_ "time/tzdata"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/db/migrate/gomig"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/db/migrate/gomig"
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
@@ -25,7 +25,7 @@ import (
 )
 
 func init() {
-	errors.Package = "zgo.at/goatcounter"
+	errors.Package = "zgo.at/goatcounter/v2"
 }
 
 type command func(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error

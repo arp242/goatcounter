@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"golang.org/x/text/language"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/z18n"

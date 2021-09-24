@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zli"

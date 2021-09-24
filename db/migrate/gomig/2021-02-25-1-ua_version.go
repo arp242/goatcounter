@@ -8,7 +8,7 @@ import (
 	"context"
 	"strings"
 
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
 )
 

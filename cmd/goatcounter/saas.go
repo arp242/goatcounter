@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/handlers"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/handlers"
 	"zgo.at/zhttp"
 	"zgo.at/zli"
 	"zgo.at/zlog"

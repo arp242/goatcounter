@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 )

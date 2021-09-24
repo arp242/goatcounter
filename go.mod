@@ -1,4 +1,4 @@
-module zgo.at/goatcounter
+module zgo.at/goatcounter/v2
 
 go 1.17
 

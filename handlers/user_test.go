@@ -13,8 +13,8 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/gctest"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/ztest"

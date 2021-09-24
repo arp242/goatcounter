@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cron"
-	"zgo.at/goatcounter/gctest"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/ztime"
 )

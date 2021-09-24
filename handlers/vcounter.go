@@ -22,7 +22,7 @@ import (
 	"golang.org/x/image/font/gofont/gobold"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zfilepath"

@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/widgets"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/widgets"
 	"zgo.at/guru"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"

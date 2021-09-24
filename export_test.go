@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"zgo.at/blackmail"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cron"
-	"zgo.at/goatcounter/gctest"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"

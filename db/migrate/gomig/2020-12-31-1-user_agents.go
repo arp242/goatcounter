@@ -11,7 +11,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/gadget"
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
 	"zgo.at/zli"

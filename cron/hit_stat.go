@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"

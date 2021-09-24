@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	"github.com/monoculum/formam"
-	"zgo.at/goatcounter"
+	"zgo.at/goatcounter/v2"
 	"zgo.at/isbot"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/ztime"

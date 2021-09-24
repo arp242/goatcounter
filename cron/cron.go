@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/bgrun"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zsync"
@@ -65,7 +65,7 @@ func RunBackground(ctx context.Context) {
 					return
 				}
 
-				f := strings.Replace(zruntime.FuncName(t.fun), "zgo.at/goatcounter/cron.", "", 1)
+				f := strings.Replace(zruntime.FuncName(t.fun), "zgo.at/goatcounter/v2/cron.", "", 1)
 				bgrun.RunNoDuplicates("cron:"+f, func() {
 					done := timeout(f, 10*time.Second)
 					err := t.fun(ctx)

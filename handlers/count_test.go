@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/gctest"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"

@@ -4,7 +4,7 @@
 
 package main
 
-import "zgo.at/goatcounter"
+import "zgo.at/goatcounter/v2"
 
 var sizes = []goatcounter.Floats{
 	{1920, 1080, 1},

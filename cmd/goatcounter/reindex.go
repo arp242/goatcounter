@@ -12,8 +12,8 @@ import (
 
 	nnow "github.com/jinzhu/now"
 	"zgo.at/gadget"
-	"zgo.at/goatcounter"
-	"zgo.at/goatcounter/cron"
+	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/zdb"
 	"zgo.at/zli"
 	"zgo.at/zlog"
