@@ -4,23 +4,23 @@ go 1.17
 
 require (
 	code.soquee.net/otp v0.0.1
-	github.com/PuerkitoBio/goquery v1.6.1
+	github.com/PuerkitoBio/goquery v1.7.1
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.4
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/now v1.1.2
 	github.com/mattn/go-sqlite3 v1.14.6
-	github.com/monoculum/formam v0.0.0-20210131081218-41b48e2a724b
+	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.3.2
-	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
-	golang.org/x/net v0.0.0-20210917221730-978cfadd31cf
+	golang.org/x/net v0.0.0-20211007125505-59d4e928ea9d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
-	golang.org/x/tools v0.1.6
+	golang.org/x/tools v0.1.7
 	honnef.co/go/tools v0.2.1
 	zgo.at/blackmail v0.0.0-20210321151525-a218c2f584be
 	zgo.at/errors v1.0.1-0.20210313142254-4e0fb19b1249
@@ -45,7 +45,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v0.3.2-0.20210624061728-01bfc69d1057 // indirect
-	github.com/andybalholm/cascadia v1.1.0 // indirect
+	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/jmoiron/sqlx v1.3.1 // indirect
