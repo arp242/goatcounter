@@ -242,94 +242,102 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = make([]Hit, 0, 16)
 	m.hitMu.Unlock()
 
-	l := zlog.Module("memstore")
-
 	newHits := make([]Hit, 0, len(hits))
 	ins := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
 		"ref_scheme", "user_agent_id", "size", "location", "created_at", "bot",
 		"session", "first_visit"})
 	for _, h := range hits {
-		// Ignore spammers.
-		h.RefURL, _ = url.Parse(h.Ref)
-		if h.RefURL != nil {
-			if isRefspam(h.RefURL.Host) {
-				l.Debugf("refspam ignored: %q", h.RefURL.Host)
-				continue
-			}
-		}
+		if m.processHit(ctx, &h) {
+			// Don't return hits that failed validation; otherwise cron will try to
+			// insert them.
+			newHits = append(newHits, h)
 
-		var site Site
-		err := site.ByID(ctx, h.Site)
-		if err != nil {
-			l.Field("hit", h).Error(err)
-			continue
+			ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
+				h.Location, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
 		}
-		ctx = WithSite(ctx, &site)
-
-		err = h.Defaults(ctx, false)
-		if err != nil {
-			l.Field("hit", h).Error(err)
-			continue
-		}
-
-		if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) {
-			h.Session, h.FirstVisit = m.session(ctx, site.ID, h.PathID, h.UserSessionID, h.UserAgentHeader, h.RemoteAddr)
-		}
-
-		if !site.Settings.Collect.Has(CollectSession) {
-			h.Session = zint.Uint128{}
-			h.FirstVisit = false
-		}
-
-		if !site.Settings.Collect.Has(CollectReferrer) {
-			h.Query = ""
-			h.Ref = ""
-			h.RefScheme = nil
-		}
-		if !site.Settings.Collect.Has(CollectScreenSize) {
-			h.Size = nil
-		}
-		if !site.Settings.Collect.Has(CollectUserAgent) {
-			h.UserAgentHeader = ""
-			h.UserAgentID = nil
-		}
-		if !site.Settings.Collect.Has(CollectLocation) {
-			h.Location = ""
-		}
-		if strings.ContainsRune(h.Location, '-') {
-			trim := !site.Settings.Collect.Has(CollectLocationRegion)
-			if !trim && len(site.Settings.CollectRegions) > 0 {
-				trim = !zstring.Contains(site.Settings.CollectRegions, h.Location[:2])
-			}
-			if trim {
-				var l Location
-				err := l.ByCode(ctx, h.Location[:2])
-				if err != nil {
-					zlog.Errorf("lookup %q: %w", h.Location[:2], err)
-				}
-				h.Location = l.ISO3166_2
-			}
-		}
-
-		if h.Ignore() {
-			continue
-		}
-
-		err = h.Validate(ctx, false)
-		if err != nil {
-			l.Field("hit", h).Error(err)
-			continue
-		}
-
-		// Don't return hits that failed validation; otherwise cron will try to
-		// insert them.
-		newHits = append(newHits, h)
-
-		ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
-			h.Location, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
 	}
 
 	return newHits, ins.Finish()
+}
+
+func (m *ms) processHit(ctx context.Context, h *Hit) bool {
+	defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("hit", fmt.Sprintf("%#v", h)) })
+
+	l := zlog.Module("memstore")
+
+	// Ignore spammers.
+	h.RefURL, _ = url.Parse(h.Ref)
+	if h.RefURL != nil {
+		if isRefspam(h.RefURL.Host) {
+			l.Debugf("refspam ignored: %q", h.RefURL.Host)
+			return false
+		}
+	}
+
+	var site Site
+	err := site.ByID(ctx, h.Site)
+	if err != nil {
+		l.Field("hit", h).Error(err)
+		return false
+	}
+	ctx = WithSite(ctx, &site)
+
+	err = h.Defaults(ctx, false)
+	if err != nil {
+		l.Field("hit", h).Error(err)
+		return false
+	}
+
+	if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) {
+		h.Session, h.FirstVisit = m.session(ctx, site.ID, h.PathID, h.UserSessionID, h.UserAgentHeader, h.RemoteAddr)
+	}
+
+	if !site.Settings.Collect.Has(CollectSession) {
+		h.Session = zint.Uint128{}
+		h.FirstVisit = false
+	}
+
+	if !site.Settings.Collect.Has(CollectReferrer) {
+		h.Query = ""
+		h.Ref = ""
+		h.RefScheme = nil
+	}
+	if !site.Settings.Collect.Has(CollectScreenSize) {
+		h.Size = nil
+	}
+	if !site.Settings.Collect.Has(CollectUserAgent) {
+		h.UserAgentHeader = ""
+		h.UserAgentID = nil
+	}
+	if !site.Settings.Collect.Has(CollectLocation) {
+		h.Location = ""
+	}
+	if strings.ContainsRune(h.Location, '-') {
+		trim := !site.Settings.Collect.Has(CollectLocationRegion)
+		if !trim && len(site.Settings.CollectRegions) > 0 {
+			trim = !zstring.Contains(site.Settings.CollectRegions, h.Location[:2])
+		}
+		if trim {
+			var l Location
+			err := l.ByCode(ctx, h.Location[:2])
+			if err != nil {
+				zlog.Errorf("lookup %q: %w", h.Location[:2], err)
+			}
+			h.Location = l.ISO3166_2
+		}
+	}
+
+	if h.Ignore() {
+		return false
+	}
+
+	err = h.Validate(ctx, false)
+	if err != nil {
+		l.Field("hit", h).Error(err)
+		return false
+	}
+
+	return true
 }
 
 func (m *ms) GetSalt() (cur []byte, prev []byte) {
