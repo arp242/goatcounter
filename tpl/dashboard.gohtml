@@ -1,39 +1,16 @@
-{{- template "_backend_top.gohtml" . -}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{{template "_favicon.gohtml" .}}
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
+	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
+</head>
 
-{{if .User.ID}}
-	{{if not .User.EmailVerified}}
-		<div class="flash flash-i">
-			Please verify your email by clicking the link sent to {{.User.Email}}.
-			<sup>(<a href="https://www.goatcounter.com/help#verify-email" target="_blank">Why?</a>)</sup><br>
-
-			Change the email address in the <a href="/user">settings</a> –
-			<form method="post" action="/user/resend-verify">
-				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-				<button class="link">Resend email</button>.
-			</form>
-		</div>
-	{{end}}
-
-	{{if not .Site.ReceivedData}}
-		<div class="flash flash-i">
-			<p><strong>No data received</strong> – GoatCounter hasn’t received any
-			data yet.<br>
-			Getting started is pretty easy, just add the following JavaScript
-			anywhere on the page:</p>
-
-			<pre>&lt;script data-goatcounter="{{.Site.URL .Context}}/count"
-        async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;</pre>
-			<p>Check if your adblocker is blocking GoatCounter if you don’t see
-				any pageviews ({{.Site.Domain .Context}} and/or gc.zgo.at
-				domain).</p>
-
-			<p>This message will disappear once we receive data; see
-				<a href="/code">Site code</a> in the top menu for further
-				documentation and ready-made integrations.</p>
-		</div>
-	{{end}}
-{{end}} {{/* .User.ID */}}
-
+<div class="page">
+	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
 <form id="dash-form">
 	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 	<button type="submit" tabindex="-1" class="hide-btn" aria-label="Submit"></button>
@@ -64,19 +41,19 @@
 			</span>
 			<span id="dash-select-period" class="period-{{.View.Period}}">
 				<span>
-					Last
-					<button class="link" name="period" value="day">day</button> ·
-					<button class="link" name="period" value="week">week</button> ·
-					<button class="link" name="period" value="month">month</button> ·
-					<button class="link" name="period" value="quarter">quarter</button> ·
-					<button class="link" name="period" value="half-year">half year</button> ·
-					<button class="link" name="period" value="year">year</button>
+					后退
+					<button class="link" name="period" value="day">一天</button> ·
+					<button class="link" name="period" value="week">一周</button> ·
+					<button class="link" name="period" value="month">一月</button> ·
+					<button class="link" name="period" value="quarter">180天</button> ·
+					<button class="link" name="period" value="half-year">半年</button> ·
+					<button class="link" name="period" value="year">一年</button>
 				</span>
 
 				<span>
-					Current
-					<button class="link" name="period" value="week-cur">week</button> ·
-					<button class="link" name="period" value="month-cur">month</button>
+					当前
+					<button class="link" name="period" value="week-cur">一周</button> ·
+					<button class="link" name="period" value="month-cur">一月</button>
 				</span>
 			</span>
 		</div>
@@ -88,12 +65,12 @@
 					placeholder="Filter paths" title="Filter the list of paths; matched case-insensitive on path and title"
 					{{if .View.Filter}}class="value"{{end}}>
 			</div>
-			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> View as text table</label>
+			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> 根据表格方式查看 </label>
 			<input type="hidden" name="as-text" value="off">
 			{{if .ForcedDaily}}
 				<label title="Cannot use the hourly view for a time range of more than 90 days"><input type="checkbox" name="daily" checked disabled> View by day</label>
 			{{else}}
-				<label><input type="checkbox" name="daily" id="daily" {{if .View.Daily}}checked{{end}}> View by day</label>
+				<label><input type="checkbox" name="daily" id="daily" {{if .View.Daily}}checked{{end}}> 根据天数查看 </label>
 				<input type="hidden" name="daily" value="off">
 			{{end}}
 		</div>
@@ -102,17 +79,17 @@
 		<div>
 			←&#xfe0e; back
 			<span>
-				<button class="link" name="move" value="day-b">day</button> ·
-				<button class="link" name="move" value="week-b">week</button> ·
-				<button class="link" name="move" value="month-b">month</button>
+				<button class="link" name="move" value="day-b">一天</button> ·
+				<button class="link" name="move" value="week-b">一周</button> ·
+				<button class="link" name="move" value="month-b">一月</button>
 			</span>
 		</div>
 		<div id="dash-timerange">{{daterange .User.Settings.Timezone.Loc .PeriodStart .PeriodEnd}}</div>
 		<div>
 			<span>
-				<button class="link" name="move" value="day-f">day</button> ·
-				<button class="link" name="move" value="week-f">week</button> ·
-				<button class="link" name="move" value="month-f">month</button>
+				<button class="link" name="move" value="day-f">一天</button> ·
+				<button class="link" name="move" value="week-f">一周</button> ·
+				<button class="link" name="move" value="month-f">一月</button>
 			</span>
 			forward →&#xfe0e;
 		</div>
@@ -123,4 +100,24 @@
 
 {{template "_dashboard_widgets.gohtml" .}}
 
-{{- template "_backend_bottom.gohtml" . }}
+	</div> {{- /* .page */}}
+	{{if and .User.ID .Billing (eq .Path "/") (.Site.ShowPayBanner .Context)}}
+		<div id="trial-expired">
+			<p>Hey hey; you’ve been using GoatCounter for more than 14 days.<br>
+				Please choose if you want to subscribe to a plan or continue with the
+				free plan on the <a href="/billing">billing page</a>.</p>
+		</div>
+	{{end}}
+	<span id="js-settings"
+		data-offset="{{.User.Settings.Timezone.Offset}}"
+		data-first-hit-at="{{.Site.FirstHitAt.Unix}}"
+		{{if .User.ID}}data-csrf="{{.User.CSRFToken}}"{{end}}
+	>
+		{{- .User.Settings.String | unsafe_js -}}
+	</span>
+
+	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
+</body>
+</html>

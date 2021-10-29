@@ -1,18 +1,18 @@
 <div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}">
-	<h2 class="full-width">Pages <small>
-		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of
-		<span class='total-unique'>{{nformat .TotalUnique $.User}}</span> visits shown
+	<h2 class="full-width">页面 <small>
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> 来自
+		<span class='total-unique'>{{nformat .TotalUnique $.User}}</span> 的访问
 	</small></h2>
 	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
 		<thead><tr>
 			<th class="col-idx"></th>
-			<th class="col-n">Visits</th>
+			<th class="col-n">访问</th>
 			<th class="col-n" title="Pageviews">Views</th>
-			<th class="col-p">Path</th>
-			<th class="col-t">Title</th>
+			<th class="col-p">路径</th>
+			<th class="col-t">标题</th>
 			<th class="col-d" title="Every bar represents 1/12th of the selected time range">Stats</th>
 		</tr></thead>
 		<tbody class="pages">{{template "_dashboard_pages_text_rows.gohtml" .}}</tbody>
 	</table>
-	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>显示更多</a>
 </div>

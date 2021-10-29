@@ -1,11 +1,11 @@
 <div class="totals">
-	<h2 class="full-width">Totals <small>
+	<h2 class="full-width">总计访问量 <small>
 		{{if .User.Settings.TotalsNoEvents}}
-			<span>{{nformat (sub .TotalUnique .TotalEventsUnique) $.User}}</span> visits;
-			<span>{{nformat (sub .Total .TotalEvents) $.User}}</span> pageviews
+			<span>{{nformat (sub .TotalUnique .TotalEventsUnique) $.User}}</span> 访问;
+			<span>{{nformat (sub .Total .TotalEvents) $.User}}</span> 浏览量
 		{{else}}
-			<span>{{nformat .TotalUnique $.User}}</span> visits;
-			<span>{{nformat .Total $.User}}</span> pageviews
+			<span>{{nformat .TotalUnique $.User}}</span> 访问;
+			<span>{{nformat .Total $.User}}</span> 浏览量
 		{{end}}
 	</small></h2>
 	{{if .Err}}
@@ -14,4 +14,3 @@
 		<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
 	{{end}}
 </div>
-

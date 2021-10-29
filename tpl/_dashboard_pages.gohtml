@@ -1,8 +1,11 @@
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}">
-	<h2 class="full-width">Pages <small>
+	<h2 class="full-width">网页访问量 <small>
 		{{/* TODO: make option to split counts between events and regular pageviews */}}
-		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span> out of
-		{{nformat .TotalUnique $.User}} visits shown
+		显示了
+		{{nformat .TotalUnique $.User}}
+		次访问中的
+		<span class="total-unique-display">{{nformat .TotalUniqueDisplay $.User}}</span>
+		次
 	</small></h2>
 	{{if .Err}}
 		<em>Error: {{.Err}}</em>
@@ -10,8 +13,6 @@
 		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 			<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>
 		</table>
-		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>Show more</a>
+		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>显示更多</a>
 	{{end}}
 </div>
-
-
