@@ -4,9 +4,9 @@
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
-	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
-	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
-	<link rel="stylesheet" href="{{.Static}}/style_backend.css?v={{.Version}}">
+	<link rel="stylesheet" href="https://sxic.cqu.edu.cn/goatcounter/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="https://sxic.cqu.edu.cn/goatcounter/pikaday.css?v={{.Version}}">
+	<link rel="stylesheet" href="https://sxic.cqu.edu.cn/goatcounter/style_backend.css?v={{.Version}}">
 </head>
 
 <div class="page">
@@ -116,8 +116,8 @@
 		{{- .User.Settings.String | unsafe_js -}}
 	</span>
 
-	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>
-	<script crossorigin="anonymous" src="{{.Static}}/script_backend.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="https://sxic.cqu.edu.cn/goatcounter/jquery.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="https://sxic.cqu.edu.cn/goatcounter/pikaday.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="https://sxic.cqu.edu.cn/goatcounter/script_backend.js?v={{.Version}}"></script>
 </body>
 </html>

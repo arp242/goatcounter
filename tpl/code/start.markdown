@@ -22,11 +22,11 @@ Integrations
 
 <div class="integrations">
 <a href="https://github.com/zgoat/goatcounter-wordpress">
-    <img width="40" height="40" src="{{.Static}}/int-logo/wp.png"> WordPress</a>
+    <img width="40" height="40" src="https://sxic.cqu.edu.cn/goatcounter/int-logo/wp.png"> WordPress</a>
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">
-    <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg"> Gatsby</a>
+    <img width="40" height="40" src="https://sxic.cqu.edu.cn/goatcounter/int-logo/gatsby.svg"> Gatsby</a>
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">
-    <img width="40" height="40" src="{{.Static}}/int-logo/schlix.png"> schlix</a>
+    <img width="40" height="40" src="https://sxic.cqu.edu.cn/goatcounter/int-logo/schlix.png"> schlix</a>
 </div>
 </div>
 

@@ -5,8 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="{{.MetaDesc}}">
 	<title>GoatCounter documentation</title>
-	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
-	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
+	<link rel="stylesheet" href="https://sxic.cqu.edu.cn/goatcounter/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="https://sxic.cqu.edu.cn/goatcounter/style.css?v={{.Version}}">
 	<link rel="canonical" href="https://{{.Domain}}/{{.Page}}/{{.CodePage}}">
 
 <style>
@@ -89,7 +89,7 @@ hr                  { margin: 0; }
 		{{if .Dev}}
 			<script data-goatcounter="//goatcounter.{{.Domain}}/count"
 					data-goatcounter-settings='{"allow_local":true}'
-					async src="{{.Static}}/count.js"></script>
+					async src="https://sxic.cqu.edu.cn/goatcounter/count.js"></script>
 		{{else}}
 			<script data-goatcounter="https://goatcounter.goatcounter.com/count"
 					async src="//gc.zgo.at/count.js"></script>
@@ -112,7 +112,7 @@ hr                  { margin: 0; }
 		{{end}}
 	{{end}}
 
-	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+	<script crossorigin="anonymous" src="https://sxic.cqu.edu.cn/goatcounter/jquery.js?v={{.Version}}"></script>
 	<script>
 		document.querySelector('select').addEventListener('change', function(e) {
 			window.location = '/code/' + this.value
