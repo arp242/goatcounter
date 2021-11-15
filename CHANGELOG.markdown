@@ -212,7 +212,7 @@ An overview of **incompatible** changes:
 - Many other minor changes and improvements.
 
 - For changes since RC1 see:
-  https://github.com/zgoat/goatcounter/compare/v2.0.0-rc1...v2.0.0
+  https://github.com/arp242/goatcounter/compare/v2.0.0-rc1...v2.0.0
 
 
 2020-11-10, v1.4.2
@@ -223,7 +223,7 @@ An overview of **incompatible** changes:
 
 - Other than this, it's mostly contains a few minor bugfixes and the like. You
   can see a list of changes in the git log:
-  https://github.com/zgoat/goatcounter/compare/v1.4.1...v1.4.2
+  https://github.com/arp242/goatcounter/compare/v1.4.1...v1.4.2
 
 
 2020-09-04 v1.4.1
@@ -232,7 +232,7 @@ An overview of **incompatible** changes:
 A few small updates, fixes, and performance enhancements. Nothing major.
 
 You can see a list of changes in the git log:
-https://github.com/zgoat/goatcounter/compare/v1.4.0...v1.4.1
+https://github.com/arp242/goatcounter/compare/v1.4.0...v1.4.1
 
 
 2020-08-24 v1.4.0
@@ -458,7 +458,7 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
 
 - Small bugfix release which fixes some small issues and improves a few small
   documentation issues. List of changes:
-  https://github.com/zgoat/goatcounter/compare/v1.1.0...v1.1.1
+  https://github.com/arp242/goatcounter/compare/v1.1.0...v1.1.1
 
 - The biggest change is that the `saas` command no longer works (and is no
   longer documented). It was only ever useful for hosting goatcounter.com, and

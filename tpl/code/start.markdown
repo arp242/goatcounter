@@ -21,7 +21,7 @@ Integrations
 </style>
 
 <div class="integrations">
-<a href="https://github.com/zgoat/goatcounter-wordpress">
+<a href="https://github.com/arp242/goatcounter-wordpress">
     <img width="40" height="40" src="{{.Static}}/int-logo/wp.png"> WordPress</a>
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">
     <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg"> Gatsby</a>

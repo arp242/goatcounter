@@ -28,4 +28,4 @@ You can check `location.host` if you want to load GoatCounter only on
 Request from `localhost` and the most common private networks are [already
 ignored][l] unless you add `allow_local`.
 
-[l]: https://github.com/zgoat/goatcounter/blob/9525be9/public/count.js#L69-L72
+[l]: https://github.com/arp242/goatcounter/blob/9525be9/public/count.js#L69-L72

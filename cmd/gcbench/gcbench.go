@@ -33,7 +33,7 @@ const usage = `gcbench inserts random data in a goatcounter database.
 
 This can be used to give a rough indication of performance expectations.
 
-For some details see: https://github.com/zgoat/goatcounter/blob/master/docs/benchmark.markdown
+For some details see: https://github.com/arp242/goatcounter/blob/master/docs/benchmark.markdown
 
 Flags:
 

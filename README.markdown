@@ -64,7 +64,7 @@ Features
 
 [privacy]: https://www.goatcounter.com/privacy
 [gdpr]: https://www.goatcounter.com/gdpr
-[sessions]: https://github.com/zgoat/goatcounter/blob/master/docs/sessions.markdown
+[sessions]: https://github.com/arp242/goatcounter/blob/master/docs/sessions.markdown
 
 
 Getting data in to GoatCounter
@@ -103,8 +103,8 @@ for the 2.0 README.
 Generally speaking only the latest release is supported, although critical fixes
 (security, data loss, etc.) may get backported to previous releases.
 
-[releases]: https://github.com/zgoat/goatcounter/releases
-[r-2.0]: https://github.com/zgoat/goatcounter/tree/release-2.0
+[releases]: https://github.com/arp242/goatcounter/releases
+[r-2.0]: https://github.com/arp242/goatcounter/tree/release-2.0
 
 ### Deploy scripts and such
 
@@ -141,7 +141,7 @@ You need Go 1.16 or newer and a C compiler (for SQLite). If you compile it with
 
 Compile from source with:
 
-    $ git clone -b release-2.0 https://github.com/zgoat/goatcounter.git
+    $ git clone -b release-2.0 https://github.com/arp242/goatcounter.git
     $ cd goatcounter
     $ go build -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
@@ -205,7 +205,7 @@ This will ask for a password for your new account; you can also add a password
 on the commandline with `-password`. You must also pass the `-db` flag here if
 you use something other than the default.
 
-[bench]: https://github.com/zgoat/goatcounter/blob/master/docs/benchmark.markdown
+[bench]: https://github.com/arp242/goatcounter/blob/master/docs/benchmark.markdown
 
 ### Updating
 

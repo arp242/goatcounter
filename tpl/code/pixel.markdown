@@ -50,5 +50,5 @@ values:
 - `152` – Selenium headless browser.
 - `153` – Generic WebDriver-based headless browser.
 
-[isbot]: https://github.com/zgoat/isbot/blob/master/isbot.go#L46
-[cjs]: https://github.com/zgoat/goatcounter/blob/master/public/count.js#L54
+[isbot]: https://github.com/arp242/isbot/blob/master/isbot.go#L46
+[cjs]: https://github.com/arp242/goatcounter/blob/master/public/count.js#L54

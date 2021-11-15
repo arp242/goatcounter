@@ -62,10 +62,10 @@ require (
 // "Fork" of go-sqlite3 which: is updated to SQLite 3.35.4 and removes the
 // sqlite_json build constraint so it compiles with JSON support without having
 // to specify a build tag.
-replace github.com/mattn/go-sqlite3 => github.com/zgoat/go-sqlite3 v1.13.1-0.20210919090901-28392ef30942
+replace github.com/mattn/go-sqlite3 => github.com/arp242/go-sqlite3 v1.13.1-0.20210919090901-28392ef30942
 
 // https://github.com/oschwald/maxminddb-golang/pull/75
-replace github.com/oschwald/maxminddb-golang => github.com/zgoat/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664
+replace github.com/oschwald/maxminddb-golang => github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664
 
 // https://github.com/oschwald/geoip2-golang/pull/68
-replace github.com/oschwald/geoip2-golang => github.com/zgoat/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06
+replace github.com/oschwald/geoip2-golang => github.com/arp242/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06

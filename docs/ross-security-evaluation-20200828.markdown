@@ -16,7 +16,7 @@ the project).
 
 ### Tasks Performed
 
-- Scanned the repository at https://github.com/zgoat/goatcounter (v1.4)
+- Scanned the repository at https://github.com/arp242/goatcounter (v1.4)
 - Performed automated web security scanning of a self hosted version of GoatCounter (v1.4)
 - Performed automated static code analysis of the Golang code (v1.4)
 - Manual validation of security issues discovered in automated security scan
@@ -76,20 +76,20 @@ Implemented fixes
   been changed to static text. Note the injected code didn't actually get
   executed because the Content-Security-Policy doesn't allow `unsafe-inline`.
 
-  https://github.com/zgoat/zhttp/commit/2ed780c084b49bc8fca673d8df9b9c46710633be
-  https://github.com/zgoat/goatcounter/commit/11ee784281d74007736272d59cf15d839fbf9af3
+  https://github.com/arp242/zhttp/commit/2ed780c084b49bc8fca673d8df9b9c46710633be
+  https://github.com/arp242/goatcounter/commit/11ee784281d74007736272d59cf15d839fbf9af3
 
 - The CSRF tokens were already implemented, but the application didn't actually
   abort if they're missing or wrong >_< The SameSite flag on the cookie already
   prevented CSRF attacks, but doesn't hurt to add an additional protection, so
   now the app aborts if it's missing.
 
-  https://github.com/zgoat/zhttp/commit/c645d9182aace886d49d1364cb37ff13c12b67a7
+  https://github.com/arp242/zhttp/commit/c645d9182aace886d49d1364cb37ff13c12b67a7
 
 - The `X-Forwarded-For` header now allows only valid IP addresses, and filters
   out non-public addresses such as localhost, RFC1918, etc.
 
-  https://github.com/zgoat/zhttp/commit/3eb3df60ddebfbe954e4b1521ece0628901f259b
+  https://github.com/arp242/zhttp/commit/3eb3df60ddebfbe954e4b1521ece0628901f259b
 
 - The SHA1 isn't used for crypto purposes, and not a problem in this use case.
   GoatCounter is added on the goatcounter backend as well so I have some insight

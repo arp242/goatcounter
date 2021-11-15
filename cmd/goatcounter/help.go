@@ -97,7 +97,7 @@ var usageTopics = func() []string {
 
 const usageTop = `Usage: goatcounter [command] [flags]
 
-GoatCounter is a web analytics platform. https://github.com/zgoat/goatcounter
+GoatCounter is a web analytics platform. https://github.com/arp242/goatcounter
 Use "help <topic>" or "cmd -h" for more details for a command or topic.
 
 Commands:

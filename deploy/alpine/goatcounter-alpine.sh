@@ -18,7 +18,7 @@
 # https://www.linode.com/?r=7acaf75737436d859e785dd5c9abe1ae99b4387e
 #
 # This script's source at the GoatCounter repo is:
-# https://github.com/zgoat/goatcounter/blob/master/deploy/alpine
+# https://github.com/arp242/goatcounter/blob/master/deploy/alpine
 #
 # It should be fine to run this more than once; and can be used to upgrade to a
 # newer version.
@@ -68,7 +68,7 @@ mkdir -p /home/goatcounter/bin
 dst="/home/goatcounter/bin/goatcounter-$v"
 if [ ! -f "$dst" ]; then
 	curl -L \
-		"https://github.com/zgoat/goatcounter/releases/download/$v/goatcounter-$v-linux-amd64.gz" |
+		"https://github.com/arp242/goatcounter/releases/download/$v/goatcounter-$v-linux-amd64.gz" |
 		gzip -d > "$dst"
 fi
 chmod a+x "$dst"
