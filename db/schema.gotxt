@@ -39,7 +39,7 @@ create table users (
 	password       {{blob}}       default null,
 	totp_enabled   integer        not null default 0,
 	totp_secret    {{blob}},
-	role           varchar        not null default ''      check(role in ('', 'a')),
+	role           varchar        not null default '',
 	access         {{jsonb}}      not null default '{"all":"a"}',
 	login_at       timestamp      null                     {{check_timestamp "login_at"}},
 	login_request  varchar        null,

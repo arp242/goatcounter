@@ -753,11 +753,6 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	})
 }
 
-// TODO: should probably be on the user.
-func (s Site) Bosmang() bool {
-	return s.ID == 1
-}
-
 func (s Site) BillingAnchorDay() int {
 	if s.BillingAnchor == nil {
 		return 1

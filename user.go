@@ -28,6 +28,11 @@ import (
 
 const totpSecretLen = 16
 
+const (
+	UserRoleNormal  = ""
+	UserRoleBosmang = "bosmang"
+)
+
 // User entry.
 type User struct {
 	ID   int64 `db:"user_id" json:"id,readonly"`
@@ -38,7 +43,7 @@ type User struct {
 	Password      []byte       `db:"password" json:"-"`
 	TOTPEnabled   zbool.Bool   `db:"totp_enabled" json:"totp_enabled,readonly"`
 	TOTPSecret    []byte       `db:"totp_secret" json:"-"`
-	Role          string       `db:"role" json:"-"` // TODO: unused
+	Role          string       `db:"role" json:"-"`
 	Access        UserAccesses `db:"access" json:"access,readonly"`
 	LoginAt       *time.Time   `db:"login_at" json:"login_at,readonly"`
 	ResetAt       *time.Time   `db:"reset_at" json:"reset_at,readonly"`
@@ -467,6 +472,7 @@ func (u User) HasAccess(check UserAccess) bool {
 
 func (u User) AccessAdmin() bool    { return u.Access["all"] == AccessAdmin }
 func (u User) AccessSettings() bool { return u.AccessAdmin() || u.Access["all"] == AccessSettings }
+func (u User) Bosmang() bool        { return u.Role == UserRoleBosmang }
 
 type Users []User
 

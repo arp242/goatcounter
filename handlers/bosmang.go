@@ -38,10 +38,6 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 }
 
 func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {
-	if Site(r.Context()).ID != 1 {
-		return guru.New(403, "yeah nah")
-	}
-
 	var (
 		wg         sync.WaitGroup
 		signups    []goatcounter.HitListStat
@@ -99,12 +95,7 @@ func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
-	if Site(r.Context()).ID != 1 {
-		return guru.New(403, "yeah nah")
-	}
-
 	cache := goatcounter.ListCache(r.Context())
-
 	return zhttp.Template(w, "bosmang_cache.gohtml", struct {
 		Globals
 		Cache map[string]struct {
@@ -115,10 +106,6 @@ func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h bosmang) site(w http.ResponseWriter, r *http.Request) error {
-	if Site(r.Context()).ID != 1 {
-		return guru.New(403, "yeah nah")
-	}
-
 	var a goatcounter.BosmangSiteStat
 	err := a.Find(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
@@ -135,10 +122,6 @@ func (h bosmang) site(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h bosmang) updateBilling(w http.ResponseWriter, r *http.Request) error {
-	if Site(r.Context()).ID != 1 {
-		return guru.New(403, "yeah nah")
-	}
-
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 
@@ -200,10 +183,6 @@ func (h bosmang) updateBilling(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
-	if Site(r.Context()).ID != 1 {
-		return guru.New(403, "yeah nah")
-	}
-
 	v := zvalidate.New()
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {

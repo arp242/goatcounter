@@ -92,7 +92,7 @@ func (a *BosmangSiteStat) Find(ctx context.Context, ident string) error {
 		// Do nothing
 	case strings.ContainsRune(ident, '@'):
 		var u User
-		err = u.ByEmail(ctx, ident)
+		err = zdb.Get(ctx, &u, `select * from users where lower(email) = lower(?)`, ident)
 		id = u.Site
 	default:
 		var s Site

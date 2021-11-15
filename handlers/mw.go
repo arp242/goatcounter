@@ -83,7 +83,7 @@ var (
 	}
 
 	bosmangOnly = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
-		if Site(r.Context()).Bosmang() {
+		if User(r.Context()).Bosmang() {
 			return nil
 		}
 		return guru.Errorf(404, "")
