@@ -1,22 +1,16 @@
 <div class="totals">
 	<h2 class="full-width">{{t .Context "dashboard/totals/header|Totals"}}
-		{{/* TODO(z18n): would be nice if we could just insert %(num-visits) without
-		the explicit %[..], as there's nothing to translate in there. */}}
 		{{if .NoEvents}}
-			<small>{{t .Context `dashboard/totals/num-visits|%[wrap1 %(num-visits)] visits; %[wrap2 %(num-views)] pageviews; excluding events`
+			<small>{{t .Context `dashboard/totals/num-visits|%(num-visits) visits; %(num-views) pageviews; excluding events`
 				(map
-					"wrap1"      (tag "span" ``)
-					"wrap2"      (tag "span" ``)
-					"num-visits" (nformat (sub .TotalUnique .TotalEventsUnique) $.User)
-					"num-views"  (nformat (sub .Total .TotalEvents) $.User)
+					"num-visits" (tag "span" `` (nformat (sub .TotalUnique .TotalEventsUnique) $.User))
+					"num-views"  (tag "span" `` (nformat (sub .Total .TotalEvents) $.User))
 				)}}</small>
 		{{else}}
-			<small>{{t .Context `dashboard/totals/num-visits|%[wrap1 %(num-visits)] visits; %[wrap2 %(num-views)] pageviews`
+			<small>{{t .Context `dashboard/totals/num-visits|%(num-visits) visits; %(num-views) pageviews`
 				(map
-					"wrap1"      (tag "span" ``)
-					"wrap2"      (tag "span" ``)
-					"num-visits" (nformat .TotalUnique $.User)
-					"num-views"  (nformat .Total $.User)
+					"num-visits" (tag "span" `` (nformat .TotalUnique $.User))
+					"num-views"  (tag "span" `` (nformat .Total $.User))
 				)}}</small>
 		{{end}}
 	</h2>

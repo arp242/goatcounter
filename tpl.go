@@ -540,13 +540,13 @@ type (
 	}
 )
 
-var E = ztpl.ExecuteBytes
+var tplE = ztpl.ExecuteBytes
 
-func (t TplEmailWelcome) Render() ([]byte, error)       { return E("email_welcome.gotxt", t) }
-func (t TplEmailForgotSite) Render() ([]byte, error)    { return E("email_forgot_site.gotxt", t) }
-func (t TplEmailPasswordReset) Render() ([]byte, error) { return E("email_password_reset.gotxt", t) }
-func (t TplEmailVerify) Render() ([]byte, error)        { return E("email_verify.gotxt", t) }
-func (t TplEmailAddUser) Render() ([]byte, error)       { return E("email_adduser.gotxt", t) }
-func (t TplEmailImportError) Render() ([]byte, error)   { return E("email_import_error.gotxt", t) }
-func (t TplEmailExportDone) Render() ([]byte, error)    { return E("email_export_done.gotxt", t) }
-func (t TplEmailImportDone) Render() ([]byte, error)    { return E("email_import_done.gotxt", t) }
+func (t TplEmailWelcome) Render() ([]byte, error)       { return tplE("email_welcome.gotxt", t) }
+func (t TplEmailForgotSite) Render() ([]byte, error)    { return tplE("email_forgot_site.gotxt", t) }
+func (t TplEmailPasswordReset) Render() ([]byte, error) { return tplE("email_password_reset.gotxt", t) }
+func (t TplEmailVerify) Render() ([]byte, error)        { return tplE("email_verify.gotxt", t) }
+func (t TplEmailAddUser) Render() ([]byte, error)       { return tplE("email_adduser.gotxt", t) }
+func (t TplEmailImportError) Render() ([]byte, error)   { return tplE("email_import_error.gotxt", t) }
+func (t TplEmailExportDone) Render() ([]byte, error)    { return tplE("email_export_done.gotxt", t) }
+func (t TplEmailImportDone) Render() ([]byte, error)    { return tplE("email_import_done.gotxt", t) }

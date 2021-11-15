@@ -1,6 +1,6 @@
 {{if not .IsCollected}}
 	<div class="not-collected">
-		{{t .Context "p/collect-disabled|Collecting this information is currently %[link disabled in settings]."
+		{{t .Context "p/collect-disabled|Collecting this information is currently %[disabled in settings]."
 			(tag "a" `href="/settings/main#section-collect"`)}}
 	</div>
 {{end}}

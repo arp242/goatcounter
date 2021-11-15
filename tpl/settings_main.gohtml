@@ -24,14 +24,14 @@
 
 			<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
 				{{.T "label/allow-visitor-counts|Allow adding visitor counts on your website"}}</label>
-			<span>{{.T "help/allow-visitor-counts|See %[link the documentation] for details on how to use."
+			<span>{{.T "help/allow-visitor-counts|See %[the documentation] for details on how to use."
 				(tag "a" `href="/code/visitor-counter"`)}}</span>
 
 			<label for="settings.public">{{.T "label/dashboard-public|Dashboard viewable by"}}</label>
 			<select name="settings.public" id="settings-public">
 				<option {{option_value .Site.Settings.Public "private"}}>{{.T "label/public-private|Only logged in users"}}</option>
-				<option {{option_value .Site.Settings.Public "secret"}}>{{.T "label/public-private|Logged in users or with secret token"}}</option>
-				<option {{option_value .Site.Settings.Public "public"}}>{{.T "label/public-private|Anyone"}}</option>
+				<option {{option_value .Site.Settings.Public "secret"}}>{{.T "label/public-token|Logged in users or with secret token"}}</option>
+				<option {{option_value .Site.Settings.Public "public"}}>{{.T "label/public-anyone|Anyone"}}</option>
 			</select>
 			<span>{{.T "help/public|Control who can view the dashboard."}}</span>
 
@@ -53,7 +53,7 @@
 				<label for="code">{{.T "label/code|Code"}}</label>
 				<input type="text" disabled id="code" class="inline" value="{{.Site.Code}}">
 				<span class="help">
-				{{.T `label/change-code|You will access your account at https://<em>[my-code]</em>.%(domain) – %[link Change].`
+				{{.T `label/change-code|You will access your account at https://<em>[my-code]</em>.%(domain) – %[%link change].`
 					(map
 						"domain" .Domain
 						"link"   (tag "a" `href="/settings/change-code"`)
@@ -74,7 +74,7 @@
 
 					{{if not (.Site.PlanCustomDomain .Context)}}
 						{{.T `help/custom-domain-plan|
-						Requires Personal Plus or Business plan (you’re on the %(plan) plan; see %[link billing]).` (map
+						Requires Personal Plus or Business plan (you’re on the %(plan) plan; see %[%link billing]).` (map
 							"plan"  .Site.Plan
 							"link" (tag "a" `href="/billing"`)
 						)}}
@@ -83,7 +83,7 @@
 							{{.T "help/custom-domain-verified|Domain verified and set up (note: it may take up to an hour for the certificate to work)."}}
 						{{else if .Site.Cname}}
 							{{.T `help/custom-domain-error|
-								%[error Not yet verified]; set a CNAME record to <code>%(domain)</code> – %[docs detailed instructions].
+								%[%error Not yet verified]; set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions].
 								The verification runs every 2 hours.` (map
 									"domain" ""
 									"error" (tag "span" `style="color: red;"`)
@@ -91,7 +91,7 @@
 									`href="https://www.goatcounter.com/help#custom-domain" target="_blank"`)
 							)}}
 						{{else}}
-							{{.T `help/custom-domain-cname|Set a CNAME record to <code>%(domain)</code> – %[docs detailed instructions].` (map
+							{{.T `help/custom-domain-cname|Set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions].` (map
 								"docs"   (tag "a" `href="https://www.goatcounter.com/help#custom-domain" target="_blank"`)
 								"domain" (printf "%s.%s" .Site.Code .Domain))}}
 						{{end}}
@@ -115,10 +115,10 @@
 			<input type="text" name="settings.ignore_ips" value="{{.Site.Settings.IgnoreIPs}}">
 			{{validate "site.settings.ignore_ips" .Validate}}
 			<span>{{.T `help/ignore-ips|
-				Never count requests coming from these IP addresses. Comma-separated. Only supports exact matches. %[link Add your current IP].`
+				Never count requests coming from these IP addresses. Comma-separated. Only supports exact matches. %[Add your current IP].`
 					(tag "a" `href="#_" id="add-ip"`)}}
 				{{if .Site.LinkDomain}}<br>
-					<span>{{.T `help/ignore-ips-2|Alternatively, %[link disable for this browser] (click again to enable).`
+					<span>{{.T `help/ignore-ips-2|Alternatively, %[disable for this browser] (click again to enable).`
 						(tag "a" (printf `target="_blank" href="%s#toggle-goatcounter"` (.Site.LinkDomainURL true)))}}
 				{{end}}
 			</span>
@@ -146,7 +146,7 @@
 						<label for="collect_regions">{{$.T "label/for-following-countries|For the following countries only:"}}</label>
 						<input type="text" id="collect_regions" name="settings.collect_regions" value="{{$.Site.Settings.CollectRegions}}">
 						<span class="help">{{$.T `help/for-the-following-countries|
-							List of country codes (%[link list]; use the alpha-2 code); leave blank to collect for all countries (if enabled).
+							List of country codes (%[list]; use the alpha-2 code); leave blank to collect for all countries (if enabled).
 						` (tag "a" `href="https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes#Current_ISO_3166_country_codes" target="_blank"`)}}</span>
 					</div>
 				{{end}}

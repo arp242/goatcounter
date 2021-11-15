@@ -3,12 +3,12 @@
 {{if .User.ID}}
 	{{if not .User.EmailVerified}}
 		<div class="flash flash-i">
-			{{.T "p/verify-email|Please verify your email by clicking the link sent to %(email). %[sup (Why?)]" (map
+			{{.T "p/verify-email|Please verify your email by clicking the link sent to %(email). %[%sup (Why?)]" (map
 				"email" .User.Email
 				"sup"   (tag "a" `class="sup" href="https://www.goatcounter.com/help#verify-email" target="_blank"`)
 			)}}<br>
 
-			{{.T "p/change-email|Change the email address in the %[link settings]." (tag "a" `href="/user"`)}}
+			{{.T "p/change-email|Change the email address in the %[settings]." (tag "a" `href="/user"`)}}
 
 			<form method="post" action="/user/resend-verify">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -20,14 +20,14 @@
 	{{if not .Site.ReceivedData}}
 		<div class="flash flash-i">
 			{{.T `p/no-data|<p>
-				%[bold No data received] – GoatCounter hasn’t received any data yet.<br>
+				%[%bold No data received] – GoatCounter hasn’t received any data yet.<br>
 				Getting started is pretty easy, just add the following JavaScript anywhere on the page:</p>
 
-				%[pre %(js_code)]
+				%[%pre %(js_code)]
 
 				<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews (%(domain) and/or gc.zgo.at domain).</p>
 
-				<p>This message will disappear once we receive data; see %[link_docs Site code] in the top menu for further documentation and ready-made integrations.</p>`
+				<p>This message will disappear once we receive data; see %[%link_docs Site code] in the top menu for further documentation and ready-made integrations.</p>`
 				(map
 				"bold"      (tag "strong" "")
 				"pre"       (tag "pre" "")

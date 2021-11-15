@@ -1,4 +1,4 @@
-Hi there,
+{{template "_email_top.gotxt" .}}
 
 Welcome to your GoatCounter account!
 

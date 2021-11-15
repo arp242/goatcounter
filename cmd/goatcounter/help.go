@@ -58,7 +58,7 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 			head := fmt.Sprintf("─── Help for %q ", t)
 			fmt.Fprintf(zli.Stdout, "%s%s\n\n",
-				zli.Colorf(head, zli.Bold),
+				zli.Colorize(head, zli.Bold),
 				strings.Repeat("─", 80-utf8.RuneCountInString(head)))
 			printHelp(text)
 			fmt.Fprintln(zli.Stdout, "")

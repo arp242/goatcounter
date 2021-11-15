@@ -132,10 +132,10 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.Run("email:password", func() {
 		err := blackmail.Send(
-			T(ctx, "error/reset-user-email-subject|Password reset for %(domain)", site.Domain(ctx)),
+			T(ctx, "email/reset-user-email-subject|Password reset for %(domain)", site.Domain(ctx)),
 			blackmail.From("GoatCounter login", goatcounter.Config(ctx).EmailFrom),
 			blackmail.To(u.Email),
-			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render)) // TODO(t)
+			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render))
 		if err != nil {
 			zlog.Errorf("password reset: %s", err)
 		}
@@ -296,7 +296,7 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if args.Password != args.Password2 {
-		zhttp.FlashError(w, T(r.Context(), "error/password-confirmation-does-not-match|Password confirmation doesn’t match."))
+		zhttp.FlashError(w, T(r.Context(), "error/password-does-not-match|Password confirmation doesn’t match."))
 		return zhttp.SeeOther(w, "/user/new")
 	}
 
@@ -520,7 +520,7 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if user.EmailVerified {
-		zhttp.Flash(w, T(r.Context(), "notify/email-already-used|%(email) is already verified.", user.Email))
+		zhttp.Flash(w, T(r.Context(), "notify/email-already-verified|%(email) is already verified.", user.Email))
 		return zhttp.SeeOther(w, "/")
 	}
 

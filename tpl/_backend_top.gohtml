@@ -65,10 +65,9 @@
 		{{else if .Site.Settings.IsPublic}}
 			<div style="margin-left: .3em;">
 				{{if .Site.LinkDomain -}}
-					{{.T "top-nav/public-link|Analytics for %[link %(domain)]." (map
-						"link"   (tag "a" (printf `target="_blank" rel="noopener" href="%s"` (.Site.LinkDomainURL true)))
-						"domain" .Site.LinkDomain
-					)}}
+					{{.T "top-nav/public-link|Analytics for %(domain)."
+						(tag "a" (printf `target="_blank" rel="noopener" href="%s"` (.Site.LinkDomainURL true)) .Site.LinkDomain)
+					}}
 				{{end}}
 				{{.T "top-nav/public-time|The public view is updated once an hour; all times are in %(timezone-name) (%(timezone-offset))." (map
 					"timezone-name"   (join .User.Settings.Timezone.Abbr ", ")

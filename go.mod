@@ -2,12 +2,14 @@ module zgo.at/goatcounter/v2
 
 go 1.17
 
+//replace zgo.at/z18n => ../Golib/z18n
+
 require (
 	code.soquee.net/otp v0.0.1
-	github.com/PuerkitoBio/goquery v1.7.1
+	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
-	github.com/go-chi/chi/v5 v5.0.4
+	github.com/go-chi/chi/v5 v5.0.5
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/now v1.1.2
 	github.com/mattn/go-sqlite3 v1.14.6
@@ -15,37 +17,37 @@ require (
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.3.2
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
-	golang.org/x/net v0.0.0-20211007125505-59d4e928ea9d
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.7
-	honnef.co/go/tools v0.2.1
-	zgo.at/blackmail v0.0.0-20210321151525-a218c2f584be
+	honnef.co/go/tools v0.2.2
+	zgo.at/blackmail v0.0.0-20211017230812-0ef11ee68c38
 	zgo.at/errors v1.0.1-0.20210313142254-4e0fb19b1249
-	zgo.at/follow v0.0.0-20201229040459-c683c36702b6
-	zgo.at/gadget v0.0.0-20210225052028-befd29935cb7
+	zgo.at/follow v0.0.0-20211017230838-112008350298
+	zgo.at/gadget v0.0.0-20211017230912-e9a0ecc62867
 	zgo.at/guru v1.1.0
-	zgo.at/isbot v0.0.0-20210512054941-d1f89ea37986
-	zgo.at/json v0.0.0-20200627042140-d5025253667f
-	zgo.at/tz v0.0.0-20210320184244-8641ea282782
-	zgo.at/z18n v0.0.0-20210628021318-311bb2053a95
+	zgo.at/isbot v0.0.0-20211017231009-742e7be1c6d8
+	zgo.at/json v0.0.0-20211017213340-cc8bf51df08c
+	zgo.at/tz v0.0.0-20211017223207-006eae99adf6
+	zgo.at/z18n v0.0.0-20211115142744-a40027b8d213
 	zgo.at/zcache v1.0.1-0.20210412145246-76039d792310
-	zgo.at/zdb v0.0.0-20210512041154-a6be15a82747
-	zgo.at/zhttp v0.0.0-20211008141613-bca048c56d70
-	zgo.at/zli v0.0.0-20210625065259-d03e49b7c9ea
+	zgo.at/zdb v0.0.0-20211017231039-b6fbb7dc2e5c
+	zgo.at/zhttp v0.0.0-20211018125702-1f1d27dead4c
+	zgo.at/zli v0.0.0-20211017231103-84f8e371c324
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
-	zgo.at/zprof v0.0.0-20210408083551-44ef6d69c2ec
-	zgo.at/zstd v0.0.0-20210628014301-6fe5ffd0474c
+	zgo.at/zprof v0.0.0-20211017223351-20543d9cf990
+	zgo.at/zstd v0.0.0-20211017205211-017273d7d29c
 	zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08
-	zgo.at/ztpl v0.0.0-20210522104216-89fb2373a16b
+	zgo.at/ztpl v0.0.0-20211017232908-7dce3dc79277
 	zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f
 )
 
 require (
-	github.com/BurntSushi/toml v0.3.2-0.20210624061728-01bfc69d1057 // indirect
-	github.com/andybalholm/cascadia v1.2.0 // indirect
+	github.com/BurntSushi/toml v0.4.1 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/jmoiron/sqlx v1.3.1 // indirect

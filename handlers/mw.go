@@ -7,8 +7,10 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -23,6 +25,8 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
 	"zgo.at/zlog"
+	"zgo.at/zstd/zfilepath"
+	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
@@ -98,7 +102,25 @@ var (
 
 var bundle = func() *z18n.Bundle {
 	b := z18n.NewBundle(language.MustParse("en-GB"))
-	//b.AddMessages(language.MustParse("nl-NL"), msg.NL_NL())
+
+	fsys, err := zfs.EmbedOrDir(goatcounter.Translations, ".", true)
+	if err != nil {
+		panic(err)
+	}
+
+	ls, err := fs.Glob(fsys, "i18n/*.toml")
+	if err != nil {
+		panic(err)
+	}
+	if len(ls) == 0 {
+		panic("no translation files?")
+	}
+
+	for _, l := range ls {
+		tag, _ := zfilepath.SplitExt(filepath.Base(l))
+		b.ReadMessages(fsys, language.MustParse(tag), l)
+	}
+
 	return b
 }()
 

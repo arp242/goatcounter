@@ -1,13 +1,9 @@
 {{template "_backend_top.gohtml" .}}
 
 {{if eq (len .List) 0}}
-<p>{{.T "p/no-matches|Nothing matches %[quote %(query)]." (map
-	"quote" (tag "code" "")
-	"query" .PurgePath)}}
+	<p>{{.T "p/no-matches|Nothing matches %(query)." (tag "code" "" .PurgePath)}}</p>
 {{else}}
-	<p>{{.T "p/rm-pageview-match|The following paths match %[quote %(query)]:" (map
-		"quote" (tag "code" "")
-		"query" .PurgePath)}}
+	<p>{{.T "p/rm-pageview-match|The following paths match %(query):" (tag "code" "" .PurgePath)}}</p>
 	<table>
 		<thead><tr>
 			<th style="width: 10em">{{.T "header/n-hits|# of hits"}}</th>

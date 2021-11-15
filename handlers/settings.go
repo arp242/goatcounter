@@ -407,7 +407,7 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 				return err
 			}
 			if s.Parent == nil || *s.Parent != master.ID {
-				return guru.Errorf(http.StatusForbidden, T(r.Context(), "error/site-not-yours|yeah nah, site %(id) doesn't belong to you", s.ID))
+				return guru.Errorf(http.StatusForbidden, "yeah nah, site %d doesn't belong to you", s.ID)
 			}
 			copies = append(copies, s)
 		}

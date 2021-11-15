@@ -1,0 +1,1340 @@
+# Standaardtermen gebruikt:
+#
+# pageviews = pageviews
+# visits    = bezoeken
+# user      = gebruiker
+# site      = site
+# dashboard = dashboard
+
+
+# tpl/settings_sites.gohtml:47
+# tpl/settings_users_form.gohtml:75
+["button/add-new"]
+default = "Nieuw"
+
+# tpl/settings_users.gohtml:29
+["button/add-user"]
+default = "Nieuwe gebruiker"
+
+# tpl/dashboard.gohtml:58
+["button/cfg-dashboard"]
+default = "Configureer dashboard layout"
+
+# tpl/settings_changecode.gohtml:23
+["button/change"]
+default = "Veranderen"
+
+# tpl/user_auth.gohtml:23
+["button/change-passwd"]
+default = "Verander wachtwoord"
+
+# tpl/settings_sites.gohtml:67
+["button/copy"]
+default = "Kopieer"
+
+# tpl/settings_purge_confirm.gohtml:23
+["button/delete-all"]
+default = "Verwijder alles!"
+
+# tpl/settings_sites_rm_confirm.gohtml:25
+["button/delete-everything"]
+default = "Verwijder alles"
+
+# tpl/settings_delete.gohtml:47
+["button/delete-site"]
+default = "Verwijder site"
+
+# tpl/user_auth.gohtml:35
+["button/disable-mfa"]
+default = "Zet MFA uit"
+
+# tpl/settings_users_form.gohtml:75
+["button/edit"]
+default = "Aanpassen"
+
+# tpl/user_auth.gohtml:54
+["button/enable-mfa"]
+default = "Stel MFA in"
+
+# tpl/_backend_signin.gohtml:10
+["button/forgot-password"]
+default = "Wachtwoord vergeten?"
+
+# tpl/user_forgot_pw.gohtml:9
+["button/request-reset"]
+default = "Vraag nieuwe wachtwoord aan"
+
+# tpl/dashboard.gohtml:15
+# tpl/user_api.gohtml:11
+["button/resend-email"]
+default = "Email opnieuw versturen"
+
+# tpl/user_dashboard.gohtml:31
+["button/reset-defaults"]
+default = "Terug naar standaardinstellingen"
+
+# tpl/user_reset.gohtml:11
+["button/reset-password"]
+default = "Wachtwoord opnieuw instellen"
+
+# tpl/settings_purge.gohtml:19
+["button/rm-hits"]
+default = "Verwijder pageviews"
+
+# tpl/settings_main.gohtml:158
+# tpl/user_dashboard.gohtml:24
+# tpl/user_pref.gohtml:69
+["button/save"]
+default = "Opslaan"
+
+# tpl/dashboard.gohtml:52
+["button/save-default-view"]
+default = "Standaard view opslaan"
+
+# tpl/user_forgot_code.gohtml:19
+["button/send-login-url"]
+default = "Stuur login URL"
+
+# tpl/_backend_signin.gohtml:7
+# tpl/totp.gohtml:14
+["button/sign-in"]
+default = "Inloggen"
+
+# tpl/settings_export.gohtml:32
+["button/start-export"]
+default = "Start export"
+
+# tpl/settings_export.gohtml:48
+["button/start-import"]
+default = "Start import"
+
+# tpl/dashboard.gohtml:44
+["button/submit"]
+default = "Versturen"
+
+# tpl.go:419
+["dashboard/nothing-to-display"]
+default = "Niks om weer te geven"
+
+# tpl/_dashboard_pages.gohtml:3
+# tpl/_dashboard_pages_text.gohtml:2
+["dashboard/pages/header"]
+default = "Pagina’s"
+
+# tpl/_dashboard_pages.gohtml:4
+# tpl/_dashboard_pages_text.gohtml:3
+["dashboard/pages/num-visits"]
+default = "%(num-visits) van %(total-visits) bezoeken getoond"
+
+# tpl/_dashboard_pages_text.gohtml:14
+["dashboard/pages/pageviews"]
+default = "Pageviews"
+
+# tpl/_dashboard_pages_text.gohtml:15
+["dashboard/pages/path"]
+default = "Pad"
+
+# tpl/_dashboard_pages_text.gohtml:17
+["dashboard/pages/stats"]
+default = "Stats"
+
+# tpl/_dashboard_pages_text.gohtml:17
+["dashboard/pages/stats-tooltip"]
+default = "Elke staaf is 1/12de van de geselecteerde tijdselectie"
+
+# tpl/_dashboard_pages_text.gohtml:16
+["dashboard/pages/title"]
+default = "Titel"
+
+# tpl/_dashboard_pages_text.gohtml:14
+["dashboard/pages/views"]
+default = "Views"
+
+# tpl/_dashboard_pages_text.gohtml:13
+["dashboard/pages/visits"]
+default = "Bezoeken"
+
+# tpl/_dashboard_totals.gohtml:2
+["dashboard/totals/header"]
+default = "Totaal"
+
+# tpl/_dashboard_totals.gohtml:4
+# tpl/_dashboard_totals.gohtml:10
+["dashboard/totals/num-visits"]
+default = "%(num-visits) bezoeken; %(num-views) pageviews"
+
+# handlers/settings.go:655
+["error/account-has-stripe-subscription"]
+default = "Deze account heeft een betaalde Stripe abonnement; deze moet eerst opgezegd worden op de facturering pagina."
+
+# handlers/settings.go:286
+# handlers/settings.go:291
+["error/address-exists"]
+default = "%(addr) bestaat al"
+
+# handlers/settings.go:542
+["error/could-not-read"]
+default = "Kan niet als gzip lezen:: %(err)"
+
+# handlers/settings.go:505
+["error/export-expired"]
+default = "Deze export is nog niet klaar of is verlopen."
+
+# handlers/user.go:418
+["error/incorrect-password"]
+default = "Huidig wachtwoord is incorrect."
+
+# handlers/dashboard.go:373
+["error/invalid-end-date"]
+default = "Ongeldige einddatum: %(date)"
+
+# handlers/dashboard.go:366
+["error/invalid-start-date"]
+default = "Ongeldige startdatum: %(date)"
+
+# handlers/user.go:225
+["error/login-invalid"]
+default = "Ongeldige login"
+
+# handlers/user.go:174
+["error/login-no-password"]
+default = "Er is geen wachtwoord voor %(email); vraag deze opnieuw aan"
+
+# handlers/user.go:167
+["error/login-not-found"]
+default = "Gebruiker %(email) niet gevonden"
+
+# handlers/user.go:267
+["error/login-token-expired"]
+default = "Kon geen gebruiker vinden voor het gegeven token; deze kan verlopen of al gebruikt zijn."
+
+# handlers/user.go:181
+["error/login-wrong-pwd"]
+default = "Verkeerd wachtwoord voor %(email)"
+
+# handlers/backend.go:73
+# handlers/settings.go:360
+# handlers/settings.go:904
+["error/not-found"]
+default = "Niet gevonden"
+
+# handlers/user.go:299
+# handlers/user.go:424
+["error/password-does-not-match"]
+default = "Wachtwoord bevestiging komt niet overeen."
+
+# handlers/billing.go:82
+["error/payment-cancelled"]
+default = "Betaling stopgezet."
+
+# handlers/user.go:135
+["email/reset-user-email-subject"]
+default = "Wachtwoord opnieuw instellen voor %(domain)"
+
+# handlers/user.go:120
+["error/reset-user-no-account"]
+default = "Geen gebruiker op deze site: %(email)"
+
+# handlers/user.go:517
+["error/token-already-used"]
+default = "Onbekend token; wellicht dat het al gebruikt is?"
+
+# handlers/user.go:528
+["error/wrong-verification-key"]
+default = "Wrong verification key."
+
+# tpl/user_forgot_code.gohtml:6
+["forgot-domain-help"]
+default = "Email een lijst met alle domeinen voor een emailadres."
+
+# tpl/settings_users.gohtml:6
+["header/access"]
+default = "Toegang"
+
+# tpl/settings_users_form.gohtml:16
+["header/add-new-user"]
+default = "Maak een nieuwe gebruiker"
+
+# tpl/settings_users_form.gohtml:44
+["header/allow-access"]
+default = "Rechten"
+
+# tpl/user_api.gohtml:4
+["header/api"]
+default = "API"
+
+# tpl/user_api.gohtml:19
+["header/api-tokens"]
+default = "API tokens"
+
+# widgets/browsers.go:57
+["header/browsers"]
+default = "Browsers"
+
+# tpl/settings_changecode.gohtml:3
+["header/change-code"]
+default = "Change site code"
+
+# tpl/user_auth.gohtml:10
+["header/change-passwd"]
+default = "Verander wachtwoord"
+
+# tpl/settings_sites.gohtml:18
+["header/code"]
+default = "Code"
+
+# tpl/settings_sites.gohtml:52
+["header/copy-settings"]
+default = "Kopieer instellingen"
+
+# tpl/user_api.gohtml:22
+["header/created-at"]
+default = "Gemaakt op"
+
+# tpl/user_dashboard.gohtml:4
+["header/dashboard"]
+default = "Dashboard"
+
+# tpl/settings_main.gohtml:134
+["header/data-collection"]
+default = "Data collection"
+
+# tpl/settings_delete.gohtml:4
+["header/delete-account"]
+default = "Delete account"
+
+# tpl/settings_sites.gohtml:18
+["header/domain"]
+default = "Domain"
+
+# tpl/settings_main.gohtml:50
+["header/domain-settings"]
+default = "Domain settings"
+
+# tpl/settings_users_form.gohtml:16
+["header/edit-user"]
+default = "Gebruiker %(email) aanpassen"
+
+# tpl/settings_users.gohtml:6
+["header/email"]
+default = "Email"
+
+# tpl/settings_export.gohtml:14
+["header/export"]
+default = "Export"
+
+# tpl/settings_export.gohtml:4
+["header/export-or-import"]
+default = "Export/Import"
+
+# tpl/settings_export.gohtml:58
+["header/finished"]
+default = "Klaar"
+
+# tpl/user_forgot_code.gohtml:3
+["header/forgot-domain"]
+default = "Domein vergeten"
+
+# tpl/user_forgot_pw.gohtml:3
+["header/forgot-password"]
+default = "Wachtwoord vergeten"
+
+# tpl/settings_export.gohtml:62
+["header/hash"]
+default = "Hash"
+
+# tpl/settings_export.gohtml:40
+["header/import"]
+default = "Import"
+
+# tpl/user_pref.gohtml:20
+["header/l10n"]
+default = "Lokalisatie"
+
+# tpl/settings_export.gohtml:54
+["header/last-10-exports"]
+default = "Laatste 10 exports"
+
+# widgets/locations.go:57
+["header/locations"]
+default = "Locaties"
+
+# widgets/locations.go:64
+["header/locations-for"]
+default = "Locaties voor %(country)"
+
+# tpl/user_auth.gohtml:32
+# tpl/user_auth.gohtml:43
+["header/mfa"]
+default = "Multi-factor authenticatie"
+
+# tpl/settings_purge_confirm.gohtml:9
+["header/n-hits"]
+default = "# of hits"
+
+# tpl/user_api.gohtml:22
+["header/name"]
+default = "Naam"
+
+# tpl/settings_export.gohtml:60
+["header/pagination-cursor"]
+default = "Pagination cursor"
+
+# tpl/user_auth.gohtml:4
+["header/passwd-mfa"]
+default = "Password & MFA"
+
+# tpl/settings_purge_confirm.gohtml:10
+["header/path"]
+default = "Pad"
+
+# tpl/user_api.gohtml:22
+["header/permissions"]
+default = "Rechten"
+
+# tpl/user_pref.gohtml:4
+["header/preferences"]
+default = "Instellingen"
+
+# tpl/user_reset.gohtml:3
+["header/reset-password"]
+default = "Wachtwoord opnieuw instellen voor %(email) op %(site-name)"
+
+# tpl/settings_purge.gohtml:4
+["header/rm-hits"]
+default = "Verwijder pageviews"
+
+# tpl/settings_main.gohtml:4
+["header/settings"]
+default = "Instellingen"
+
+# tpl/user.gohtml:3
+["header/sign-in-at"]
+default = "Inloggen op %(name)"
+
+# tpl/settings_main.gohtml:11
+["header/site-settings"]
+default = "Site settings"
+
+# tpl/settings_sites.gohtml:4
+["header/sites"]
+default = "Sites"
+
+# tpl/settings_export.gohtml:61
+["header/size"]
+default = "Size"
+
+# widgets/sizes.go:52
+["header/sizes"]
+default = "Schermen"
+
+# tpl/settings_export.gohtml:59
+["header/start-pagination-cursor"]
+default = "Started from pagination cursor"
+
+# tpl/settings_export.gohtml:57
+["header/started"]
+default = "Started"
+
+# widgets/systems.go:57
+["header/systems"]
+default = "Systemen"
+
+# tpl/settings_purge_confirm.gohtml:11
+["header/title"]
+default = "Titel"
+
+# tpl/user_api.gohtml:22
+["header/token"]
+default = "Token"
+
+# tpl/_dashboard_toprefs.gohtml:6
+["header/toprefs"]
+default = "Top referrers"
+
+# tpl/settings_main.gohtml:107
+["header/tracking"]
+default = "Tracking"
+
+# tpl/backend_updates.gohtml:3
+["header/updated"]
+default = "Updates"
+
+# tpl/user_pref.gohtml:10
+["header/user-info"]
+default = "Gebruikersinformatie"
+
+# tpl/settings_users_form.gohtml:22
+["header/user-information"]
+default = "Gebruiker details"
+
+# tpl/settings_users.gohtml:4
+["header/users"]
+default = "Gebruikers"
+
+# tpl/settings_main.gohtml:27
+["help/allow-visitor-counts"]
+default = "Zie %[de documentatie] voor details."
+
+# tpl/settings_main.gohtml:129
+["help/campaign-parameters"]
+default = "List of parameters to count as ‘campaigns’; if set then the value will be set as the referrer, overriding any Referer header."
+
+# tpl/dashboard.gohtml:59
+["help/cfg-dashboard"]
+default = "Verander wat er op het dashboard weergegeven wordt, en in welke volgorde."
+
+# tpl/settings_sites.gohtml:40
+["help/code-access"]
+default = "You will access your site at https://<em>[my-code]</em>.%(domain)."
+
+# tpl/settings_main.gohtml:68
+["help/custom-domain"]
+default = """
+Custom domain, e.g. <em>“stats.example.com”</em>.
+<strong>Note:</strong> This <em>won’t</em> prevent most
+adblockers from blocking GoatCounter, and is just intended
+as a nice “vanity domain”.
+"""
+
+# tpl/settings_main.gohtml:94
+["help/custom-domain-cname"]
+default = "Set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions]."
+
+# tpl/settings_main.gohtml:85
+["help/custom-domain-error"]
+default = """
+%[%error Not yet verified]; set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions].
+The verification runs every 2 hours.
+"""
+
+# tpl/settings_main.gohtml:76
+["help/custom-domain-plan"]
+default = "Requires Personal Plus or Business plan (you’re on the %(plan) plan; see %[%link billing])."
+
+# tpl/settings_main.gohtml:83
+["help/custom-domain-verified"]
+default = "Domain verified and set up (note: it may take up to an hour for the certificate to work)."
+
+# tpl/settings_main.gohtml:112
+["help/data-retention"]
+default = "Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete."
+
+# tpl/settings_sites.gohtml:44
+["help/domain-access"]
+default = "Domain to access this site from."
+
+# tpl/settings_main.gohtml:102
+["help/goatcounter-domain"]
+default = "Your GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>."
+
+# tpl/settings_main.gohtml:117
+["help/ignore-ips"]
+default = "Verwerk geen pageviews van deze IP adressen. Meerdere waarden gescheiden door komma's. Ondersteund alleen exacte matches. %[Voeg huidig IP toe]."
+
+# tpl/settings_main.gohtml:121
+["help/ignore-ips-2"]
+default = "Of %[zet uit voor deze browser] (klik nogmaals om weer aan te zetten)."
+
+# tpl/settings_users_form.gohtml:30
+["help/new-user-email"]
+default = "Email om mee in te loggen."
+
+# tpl/settings_users_form.gohtml:28
+["help/new-user-email-confirm"]
+default = "Email om mee in te loggen; moet bevestigd worden."
+
+# tpl/settings_purge_confirm.gohtml:24
+["help/no-undo"]
+default = "Dit is een destructieve actie, en kan niet ongedaan worden!"
+
+# tpl/settings_users_form.gohtml:37
+["help/password-edit"]
+default = "Laat leeg om het onveranderd te laten."
+
+# tpl/settings_users_form.gohtml:39
+["help/password-new-user"]
+default = "Laat leeg om email te sturen om wachtwoord in te stellen."
+
+# tpl/settings_main.gohtml:36
+["help/public"]
+default = "Stel in wie het dashboard kan zien."
+
+# tpl/settings_purge.gohtml:20
+["help/rm-hits"]
+default = "Je ziet eerst een preview voordat er iets verwijderd wordt"
+
+# tpl/dashboard.gohtml:53
+["help/save-default-view"]
+default = "Sla huidige view (alle instellingen in het gele vak) op als de standaard om te laden als er nog niks geselecteerd is."
+
+# tpl/user_forgot_code.gohtml:16
+["help/turing-test"]
+default = "Verificatie dat je mens bent :-)"
+
+# tpl/user_pref.gohtml:16
+["help/your-email"]
+default = "Je moet je nieuw emailadres opnieuw verifiëren als je het veranderd."
+
+# tpl/user_pref.gohtml:41
+["label/24-hour-clock"]
+default = "24-uurs klok (13:00)"
+
+# tpl/user_dashboard.gohtml:15
+["label/add-new"]
+default = "Maak nieuw"
+
+# tpl/settings_sites.gohtml:66
+["label/all-sites"]
+default = "Alle sites"
+
+# tpl/settings_main.gohtml:20
+["label/allow-admin-access"]
+default = "Allow admin access"
+
+# tpl/settings_main.gohtml:26
+["label/allow-visitor-counts"]
+default = "Allow adding visitor counts on your website"
+
+# widgets/browsers.go:29
+["label/browser-stats"]
+default = "Browser stats"
+
+# tpl/settings_main.gohtml:126
+["label/campaign-parameters"]
+default = "Campaign parameters"
+
+# tpl/settings_main.gohtml:56
+["label/change-code"]
+default = "You will access your account at https://<em>[my-code]</em>.%(domain) – %[%link change]."
+
+# tpl/settings_export.gohtml:45
+["label/clear-pageviews"]
+default = "Verwijder alle bestaande pageviews."
+
+# tpl/settings_main.gohtml:53
+["label/code"]
+default = "Code"
+
+# tpl/settings_export.gohtml:42
+["label/csv-compress-format"]
+default = "CSV bestand; kan met gzip gecomprimeerd zijn"
+
+# tpl/user_auth.gohtml:13
+["label/current-passwd"]
+default = "Huidig wachtwoord"
+
+# tpl/settings_main.gohtml:65
+["label/custom-domain"]
+default = "Eigen domein"
+
+# tpl/settings_main.gohtml:30
+["label/dashboard-public"]
+default = "Dashboard zichtbaar voor"
+
+# tpl/settings_main.gohtml:109
+["label/data-retention"]
+default = "Data retentie in dagen"
+
+# tpl/user_pref.gohtml:31
+["label/date-fmt"]
+default = "Date format"
+
+# tpl/settings_delete.gohtml:29
+["label/delete-account-confirmation"]
+default = "Weet je zeker dat je je hele account wilt verwijderen?"
+
+# tpl/settings_delete.gohtml:40
+["label/delete-account-contact"]
+default = """
+I might contact you with some follow-up questions or commentary if you
+check this. I won’t try to convince you to stay (I’m not a telecom), but
+I might ask a question or two, or outline future plans if you’re missing
+a particular feature.
+"""
+
+# tpl/settings_delete.gohtml:39
+["label/delete-account-follow-up"]
+default = "It’s okay to follow up"
+
+# tpl/settings_delete.gohtml:32
+["label/delete-account-reason"]
+default = """
+It would be appreciated if you could let me know if there's anything in
+particular you're missing in GoatCounter, or any other reasons you have
+for wanting to delete your account. This is entirely optional.
+"""
+
+# tpl/settings_delete.gohtml:37
+["label/delete-account-reason-placeholder"]
+default = "Optional reason for deletion"
+
+# tpl/settings_users_form.gohtml:24
+# tpl/settings_users_form.gohtml:25
+["label/email"]
+default = "Email"
+
+# tpl/_backend_signin.gohtml:2
+# tpl/user_forgot_code.gohtml:9
+# tpl/user_forgot_pw.gohtml:6
+["label/email-address"]
+default = "Emailadres"
+
+# tpl/settings_main.gohtml:100
+["label/goatcounter-domain"]
+default = "GoatCounter domein"
+
+# tpl/settings_main.gohtml:114
+["label/ignore-ips"]
+default = "Negeer IPs"
+
+# widgets/locations.go:29
+["label/loc-stats"]
+default = "Locatie stats"
+
+# tpl/settings_purge.gohtml:21
+["label/match-title"]
+default = "Zoek ook op titel"
+
+# tpl/totp.gohtml:10
+["label/mfa-token"]
+default = "MFA Token"
+
+# tpl/settings_changecode.gohtml:20
+["label/new-code"]
+default = "Nieuwe code"
+
+# tpl/user_reset.gohtml:5
+["label/new-password"]
+default = "Nieuw wachtwoord"
+
+# tpl/user_reset.gohtml:8
+["label/new-password-confirm"]
+default = "Nieuw wachtwoord (bevestiging)"
+
+# tpl/settings_export.gohtml:24
+["label/pagination-cursor"]
+default = "Pagination cursor"
+
+# tpl/_backend_signin.gohtml:5
+# tpl/settings_users_form.gohtml:33
+# tpl/settings_users_form.gohtml:34
+["label/password"]
+default = "Wachtwoord"
+
+# widgets/pages.go:37
+["label/paths"]
+default = "Overzicht paden"
+
+# tpl/settings_main.gohtml:32
+# tpl/settings_main.gohtml:33
+# tpl/settings_main.gohtml:34
+["label/public-anyone"]
+default = "Iedereen"
+
+# tpl/user_auth.gohtml:48
+["label/secret"]
+default = "Secret"
+
+# tpl/settings_main.gohtml:44
+["label/secret-access"]
+default = "Secret access URL:"
+
+# tpl/settings_main.gohtml:39
+["label/secret-token"]
+default = "Secret token"
+
+# tpl/user_dashboard.gohtml:27
+# tpl/user_pref.gohtml:72
+["label/set-default"]
+default = "Also set as default for new users and the public view (if enabled)."
+
+# widgets/sizes.go:28
+["label/size-stats"]
+default = "Size stats"
+
+# widgets/systems.go:29
+["label/system-stats"]
+default = "System stats"
+
+# tpl/user_pref.gohtml:46
+["label/thousand-separator"]
+default = "Thousands separator"
+
+# tpl/user_pref.gohtml:57
+["label/timezone"]
+default = "Tijdzone"
+
+# widgets/toprefs.go:28
+["label/topref"]
+default = "Top referrals"
+
+# widgets/total_pages.go:29
+["label/total-pageviews"]
+default = "Total site pageviews"
+
+# tpl/user_forgot_code.gohtml:13
+["label/turing-test"]
+default = "Vul hier 9 in"
+
+# tpl/user_auth.gohtml:51
+["label/verifictation-token"]
+default = "Verification token"
+
+# tpl/user_pref.gohtml:44
+["label/week-start"]
+default = "Week begint op zondag"
+
+# tpl/user_pref.gohtml:12
+["label/your-email"]
+default = "Jouw email"
+
+# tpl/settings_main.gohtml:13
+["label/your-site"]
+default = "Jouw site"
+
+# tpl/_user_nav.gohtml:6
+["link/api"]
+default = "API"
+
+# tpl/user_api.gohtml:16
+["link/api-docs"]
+default = "API documentatie"
+
+# tpl/_settings_nav.gohtml:10
+["link/billing"]
+default = "Facturering"
+
+# tpl/_user_nav.gohtml:3
+["link/dashboard"]
+default = "Dashboard"
+
+# tpl/settings_main.gohtml:41
+["link/generate-random"]
+default = "Generate random secret."
+
+# tpl/_settings_nav.gohtml:4
+["link/import"]
+default = "Import"
+
+# tpl/_user_nav.gohtml:4
+["link/passwd-mfa"]
+default = "Wachtwoord & MFA"
+
+# tpl/_user_nav.gohtml:2
+["link/preferences"]
+default = "Instellingen"
+
+# tpl/_settings_nav.gohtml:13
+["link/rm-account"]
+default = "Verwijder account"
+
+# tpl/_settings_nav.gohtml:3
+["link/rm-views"]
+default = "Verwijder pageviews"
+
+# tpl/user_pref.gohtml:64
+["link/set-from-browser"]
+default = "Stel in van brower"
+
+# tpl/_settings_nav.gohtml:2
+# tpl/user_api.gohtml:8
+["link/settings"]
+default = "Instellingen"
+
+# tpl/_dashboard_pages.gohtml:17
+# tpl/_dashboard_pages_text.gohtml:21
+["link/show-more"]
+default = "Toon meer"
+
+# tpl/_settings_nav.gohtml:8
+["link/sites"]
+default = "Sites"
+
+# tpl/_settings_nav.gohtml:7
+["link/users"]
+default = "Gebruikers"
+
+# tpl/_bottom_links.gohtml:4
+["nav-bot/contact"]
+default = "Contact"
+
+# tpl/_bottom_links.gohtml:6
+["nav-bot/contribute"]
+default = "Contribute"
+
+# tpl/_bottom_links.gohtml:5
+["nav-bot/docs"]
+default = "Documentatie"
+
+# tpl/_bottom_links.gohtml:3
+["nav-bot/home"]
+default = "Home"
+
+# tpl/_bottom_links.gohtml:9
+["nav-bot/src"]
+default = "Source code"
+
+# tpl/_backend_bottom.gohtml:5
+["nav-bot/trial-expired"]
+default = """
+Hey hey; you’ve been using GoatCounter for more than 14 days.<br>
+Please choose if you want to subscribe to a plan or continue with the free plan on the %[billing page].
+"""
+
+# tpl/dashboard.gohtml:103
+["nav-dash/as-text"]
+default = "Als tekst tabel"
+
+# tpl/dashboard.gohtml:116
+["nav-dash/back"]
+default = "eerder"
+
+# tpl/dashboard.gohtml:107
+# tpl/dashboard.gohtml:109
+["nav-dash/by-day"]
+default = "Per dag"
+
+# tpl/dashboard.gohtml:88
+["nav-dash/current"]
+default = "Huidige"
+
+# tpl/dashboard.gohtml:79
+# tpl/dashboard.gohtml:118
+# tpl/dashboard.gohtml:127
+["nav-dash/day"]
+default = "dag"
+
+# tpl/dashboard.gohtml:72
+["nav-dash/end-date"]
+default = "Einddatum om te tonen"
+
+# tpl/dashboard.gohtml:99
+["nav-dash/filter"]
+default = "Filter paden"
+
+# tpl/dashboard.gohtml:100
+["nav-dash/filter-tooltip"]
+default = "Filter de lijst met paden; hoofdletter ongevoelig en filtert op de padnaam en titel"
+
+# tpl/dashboard.gohtml:106
+["nav-dash/forced-daily"]
+default = "Kan niet per uur bekijken voor meer dan 90 dagen"
+
+# tpl/dashboard.gohtml:131
+["nav-dash/forward"]
+default = "later"
+
+# tpl/dashboard.gohtml:83
+["nav-dash/half-year"]
+default = "half jaar"
+
+# tpl/dashboard.gohtml:78
+["nav-dash/last"]
+default = "Laatste"
+
+# tpl/dashboard.gohtml:81
+# tpl/dashboard.gohtml:90
+# tpl/dashboard.gohtml:120
+# tpl/dashboard.gohtml:129
+["nav-dash/month"]
+default = "maand"
+
+# tpl/dashboard.gohtml:82
+["nav-dash/quarter"]
+default = "kwartaal"
+
+# tpl/dashboard.gohtml:68
+["nav-dash/start-date"]
+default = "Startdatum om te tonen"
+
+# tpl/dashboard.gohtml:80
+# tpl/dashboard.gohtml:89
+# tpl/dashboard.gohtml:119
+# tpl/dashboard.gohtml:128
+["nav-dash/week"]
+default = "week"
+
+# tpl/dashboard.gohtml:84
+["nav-dash/year"]
+default = "jaar"
+
+# handlers/settings_user.go:115
+["notify/add-one-thing"]
+default = "Must add at least one thing; an empty dashboard is a bit pointless, no?"
+
+# handlers/user.go:472
+["notify/api-token-created"]
+default = "API token gemaakt."
+
+# handlers/user.go:494
+["notify/api-token-removed"]
+default = "API token verwijderd."
+
+# handlers/user.go:361
+["notify/disabled-multi-factor-auth"]
+default = "Multi-factor authenticatie uitgezet."
+
+# handlers/user.go:445
+["notify/email-already-verified"]
+default = "%(email) is al geverifieerd."
+
+# handlers/settings.go:612
+["notify/export-started-in-background"]
+default = "Export in de achtergrond gestart; je krijgt een email met een download link als deze klaar is."
+
+# handlers/settings.go:589
+["notify/import-started-in-background"]
+default = "Import in de achtergrond gestart; je krijgt een email als deze klaar is."
+
+# handlers/user.go:325
+["notify/login-after-password-reset"]
+default = "Wachtwoord opnieuw ingesteld; gebruik het nieuwe wachtwoord om in te loggen."
+
+# handlers/user.go:396
+["notify/multi-factor-auth-enabled"]
+default = "Multi-factor authenticatie aangezet."
+
+# handlers/settings.go:167
+["notify/need-business-plan-custom-domain"]
+default = "need a business plan to set custom domain"
+
+# handlers/user.go:457
+["notify/need-email-verification-for-api"]
+default = "You need to verify your email before you can use the API."
+
+# handlers/user.go:286
+["notify/no-user-for-token"]
+default = "could find the user for the given token; perhaps it's expired or has already been used?"
+
+# handlers/settings.go:859
+["notify/not-found"]
+default = "Niet gevonden"
+
+# handlers/user.go:438
+["notify/password-changed"]
+default = "Wachtwoord veranderd."
+
+# handlers/billing.go:99
+["notify/payment-processed"]
+default = "Betaling verwerkt!"
+
+# handlers/billing.go:87
+["notify/payment-processing"]
+default = "The payment processor reported success, but we're still processing the payment"
+
+# handlers/settings_user.go:127
+["notify/reset-to-default"]
+default = "Reset to defaults!"
+
+# handlers/user.go:144
+["notify/reset-user-sent"]
+default = "Email verstuurd naar %(email)"
+
+# handlers/settings.go:299
+["notify/restored-previously-deleted-site"]
+default = "Site ‘%(url)’ was previously deleted; restored site with all data."
+
+# handlers/billing.go:150
+# handlers/settings.go:209
+# handlers/settings.go:234
+# handlers/settings_user.go:70
+["notify/saved"]
+default = "Opgeslagen!"
+
+# handlers/user.go:450
+["notify/sent-to-email"]
+default = "Verstuurd naar %(email)."
+
+# handlers/settings.go:424
+["notify/settings-copied-to-site"]
+default = "Instellingen gekopieerd naar de geselecteerde sites."
+
+# handlers/settings.go:322
+["notify/site-added"]
+default = "Site ‘%(url)’ gemaakt."
+
+# handlers/settings.go:369
+["notify/site-removed"]
+default = "Site ‘%(url)’ verwijderd."
+
+# handlers/settings.go:469
+["notify/started-background-process"]
+default = "In de achtergrond gestart; kan 10-20 seconden duren voordat dit volledig klaar is."
+
+# handlers/settings.go:830
+["notify/user-added"]
+default = "Gebruiker ‘%(email)’ gemaakt."
+
+# handlers/settings.go:912
+["notify/user-removed"]
+default = "Gebruiker ‘%(email)’ verwijderd."
+
+# handlers/settings.go:884
+["notify/users-edited"]
+default = "Gebruiker ‘%(email)’ aangepast."
+
+# tpl/settings_sites.gohtml:6
+["p/add-goatcounter-to-multiple-websites"]
+default = """
+<p>Add GoatCounter to multiple websites by creating new sites. All sites
+will share the same plan, users, and logins, but are otherwise completely
+separate. The current site’s settings are copied on creation, but are
+independent afterwards.</p>
+
+<p>You can add as many as you want.</p>
+"""
+
+# tpl/_contact.gohtml:42
+# tpl/settings_main.gohtml:164
+# tpl/settings_users_form.gohtml:72
+# tpl/signup.gohtml:65
+# tpl/user_dashboard.gohtml:38
+# tpl/user_pref.gohtml:79
+["p/additional-errors"]
+default = "Additional errors"
+
+# tpl/user_api.gohtml:15
+["p/api-intro"]
+default = "GoatCounter comes with a limited API; currently you can count pageviews from the API, create, delete, and edit sites, and create exports."
+
+# tpl/settings_changecode.gohtml:4
+["p/change-code-request"]
+default = """
+<p>Change your site code and login domain.</p>
+
+<p><strong>WARNING:</strong> this will take effect <strong>immediately</strong>
+and the old code can be registered again by anyone; if you’re already using it
+on a site then change it as soon as possible, or temporarily add two integration
+codes (with the old and new code) to prevent the loss of any pageviews.</p>
+
+<p>Current code: <code>%(current-code)</code> (%(current-url))</p>
+"""
+
+# tpl/dashboard.gohtml:11
+["p/change-email"]
+default = "Change the email address in the %[settings]."
+
+# tpl/_dashboard_warn_collect.gohtml:3
+["p/collect-disabled"]
+default = "Collecting this information is currently %[disabled in settings]."
+
+# tpl/settings_sites.gohtml:53
+["p/copy-settings-from-current-site"]
+default = "Copy all settings from the current site except the domain name."
+
+# tpl/settings_export.gohtml:6
+["p/csv-file-format"]
+default = "The format of the CSV file is %[documented over here]."
+
+# tpl/settings_delete.gohtml:7
+["p/delete-account-multi-site"]
+default = """
+The site and all associated sites will be marked as deleted and will no
+longer be accessible, but no data is removed. After 7 days all data will be
+permanently removed.
+"""
+
+# tpl/settings_delete.gohtml:13
+["p/delete-account-one-site"]
+default = """
+The site will be marked as deleted and will no longer be accessible, but no
+data is removed. After 7 days all data will be permanently removed.
+"""
+
+# tpl/user_auth.gohtml:34
+["p/disable-mfa"]
+default = "MFA is currently enabled for this account."
+
+# tpl/user_auth.gohtml:45
+["p/enable-mfa"]
+default = "Enable TOTP-based multi-factor authentication by scanning the code in your authenticator app or entering the secret manually."
+
+# tpl/_dashboard_hchart.gohtml:9
+# tpl/_dashboard_pages.gohtml:12
+# tpl/_dashboard_toprefs.gohtml:9
+# tpl/_dashboard_totals.gohtml:19
+["p/error"]
+default = "Foutmelding: %(error-message)"
+
+# tpl/settings_export.gohtml:15
+["p/export-process"]
+default = """
+<p>Start the process and email you a download link once it’s
+done. You can only do this once per hour and will override any
+previous backups you may have.</p>
+
+<p>This includes all pageviews, including those marked as \"bot\",
+which aren't shown in the overview.</p>
+"""
+
+# tpl/totp.gohtml:4
+["p/have-mfa"]
+default = "This account is protected with multi-factor auth; please enter the code from your authenticator app."
+
+# tpl/dashboard.gohtml:22
+["p/no-data"]
+default = """
+<p>
+%[%bold No data received] – GoatCounter hasn’t received any data yet.<br>
+Getting started is pretty easy, just add the following JavaScript anywhere on the page:</p>
+
+%[%pre %(js_code)]
+
+<p>Check if your adblocker is blocking GoatCounter if you don’t see any pageviews (%(domain) and/or gc.zgo.at domain).</p>
+
+<p>This message will disappear once we receive data; see %[%link_docs Site code] in the top menu for further documentation and ready-made integrations.</p>
+"""
+
+# tpl/settings_purge_confirm.gohtml:4
+["p/no-matches"]
+default = "Nothing matches %(query)."
+
+# tpl/settings_changecode.gohtml:24
+["p/notify-immediate-change"]
+default = "Will take effect immediately"
+
+# tpl/settings_export.gohtml:26
+["p/notify-pagination-cursor"]
+default = """
+There will be a ‘pagination cursor’ in the email, if you fill
+this in here it will export only pageviews that were recorded
+after the previous export.
+"""
+
+# tpl/settings_delete.gohtml:21
+["p/notify-site-deletion"]
+default = "%(number) sites will be deleted"
+
+# tpl/settings_sites_rm_confirm.gohtml:11
+["p/remove-site-confirm"]
+default = """
+Are you sure you want to remove the site %(sitename)?<br>
+This will <strong>remove all associated data</strong>.
+"""
+
+# tpl/settings_sites_rm_confirm.gohtml:18
+["p/remove-site-confirm-contact"]
+default = "%[Contact] if you want to do something else, like merge it in to another site, or decouple it to a new account."
+
+# tpl/settings_sites_rm_confirm.gohtml:6
+["p/remove-site-confirm-current"]
+default = """
+Are you sure you want to remove the site %(sitename)?<br>
+This will <strong>remove all associated data</strong> and is the <strong>current site</strong>.
+"""
+
+# tpl/settings_delete.gohtml:49
+["p/request-data-recovery"]
+default = "%[Contact] within 7 days if you changed your mind and want to recover your data."
+
+# tpl/settings_purge.gohtml:6
+["p/rm-hits"]
+default = "Verwijder alle pageviews voor een pad."
+
+# tpl/settings_purge.gohtml:8
+["p/rm-hits-help"]
+default = """
+Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
+<code>/page%.html</code> matches everything starting with <code>/page</code> and
+ending with <code>.html</code>. <code>_</code> matches any character; e.g.
+<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
+<code>\\%</code> and <code>\\_</code> for the literal characters without special
+meaning.
+"""
+
+# tpl/settings_purge_confirm.gohtml:6
+["p/rm-pageview-match"]
+default = "De volgende paden werden gevonden voor %(query):"
+
+# tpl/settings_main.gohtml:135
+["p/setting-recovery-disabled-information"]
+default = "Als een optie is uitgeschakeld dan is er geen mogelijkheid deze informatie later toch nog op te halen omdat dit niet wordt opgeslagen."
+
+# tpl/_user_nav.gohtml:9
+["p/settings-all-sites"]
+default = "Deze instellingen hebben effect op alles sites waar je toegang tot hebt."
+
+# tpl/settings_main.gohtml:16
+["p/site-domain-link-to-page"]
+default = "Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview."
+
+# tpl/settings_sites.gohtml:55
+["p/text-data-retention"]
+default = "This includes the data retention and collection settings!"
+
+# tpl/dashboard.gohtml:6
+["p/verify-email"]
+default = "Please verify your email by clicking the link sent to %(email). %[%sup (Why?)]"
+
+# tpl/settings_main.gohtml:21
+["restricted-admin-access"]
+default = "Normally administrators can’t “log in” to your site, but if this is enabled they can. You may be asked to enable this for support requests."
+
+# tpl/_backend_top.gohtml:46
+# tpl/_backend_top.gohtml:48
+# tpl/_backend_top.gohtml:50
+["top-nav/back"]
+default = "Terug"
+
+# tpl/_backend_top.gohtml:52
+["top-nav/dashboard"]
+default = "Dashboard"
+
+# tpl/_backend_top.gohtml:14
+["top-nav/need-js"]
+default = "GoatCounter heeft JavaScript nodig om goed te kunnen functioneren."
+
+# tpl/_backend_top.gohtml:68
+["top-nav/public-link"]
+default = "Analytics voor %(domain)."
+
+# tpl/_backend_top.gohtml:72
+["top-nav/public-time"]
+default = "De publieke view wordt eenmaal per uur geüpdate; alle tijden zijn in %(timezone-name) (%(timezone-offset))."
+
+# tpl/_backend_top.gohtml:58
+["top-nav/settings"]
+default = "Instellingen"
+
+# tpl/_backend_top.gohtml:77
+["top-nav/sign-in"]
+default = "Inloggen"
+
+# tpl/_backend_top.gohtml:62
+["top-nav/sign-out"]
+default = "Uitloggen"
+
+# tpl/_backend_top.gohtml:57
+["top-nav/site-code"]
+default = "Site code"
+
+# tpl/_backend_top.gohtml:27
+["top-nav/sites"]
+default = "Sites:"
+
+# tpl/_backend_top.gohtml:56
+["top-nav/updates"]
+default = "Updates"
+
+# tpl/_backend_top.gohtml:59
+["top-nav/user"]
+default = "Gebruiker"
+
+# tpl/email_password_reset.gotxt:1
+["email/password-reset"]
+default = """Iemand heeft een verzoek gedaan om je wachtwoord op GoatCounter opnieuw in te stellen.
+
+Dat kan door naar deze link te gaan:
+%(link)"""
+
+# tpl/_email_top.gotxt:1
+["email/header"]
+default = "Hallo,"
+
+# tpl/_email_bottom.gotxt:1
+["email/signature"]
+default = """Problemen, vragen, opmerkingen, of iets anders te vertellen? Antwoord op deze email.
+
+Groeten,
+Martin"""

@@ -13,7 +13,7 @@
 	{{end}}
 {{end}}
 
-<h2>{{if .Edit}}{{.T "header/edit-user|Edit user"}} {{.NewUser.Email}}{{else}}{{.T "header/add-new-user|Add a new user"}}{{end}}</h2>
+<h2>{{if .Edit}}{{.T "header/edit-user|Edit user %(email)" .NewUser.Email}}{{else}}{{.T "header/add-new-user|Add a new user"}}{{end}}</h2>
 {{if .Error}}<div class="flash flash-e">{{.Error}}</div>{{end}}
 
 <form method="post" action="{{if .Edit}}/settings/users/{{.NewUser.ID}}{{else}}/settings/users/add{{end}}" id="users-form" class="vertical">

@@ -33,6 +33,10 @@ var Static embed.FS
 //go:embed tpl/*
 var Templates embed.FS
 
+// Translations contains all translation messages.
+//go:embed i18n/*
+var Translations embed.FS
+
 // GeoDB contains the GeoIP countries database.
 //
 //go:embed pack/GeoLite2-Country.mmdb.gz

@@ -73,7 +73,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		zhttp.ErrPage(w, r, guru.New(404, T(r.Context(), "error/not-found|Not Found")))
 	})
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
-		zhttp.ErrPage(w, r, guru.New(405, T(r.Context(), "error/method-not-allowed|Method Not Allowed")))
+		zhttp.ErrPage(w, r, guru.New(405, "Method Not Allowed"))
 	})
 
 	{

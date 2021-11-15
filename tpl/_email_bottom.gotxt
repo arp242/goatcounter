@@ -1,4 +1,4 @@
-Any problems, questions, comments, or something else to tell me? Just reply to this email.
+{{t .Context `email/signature|Any problems, questions, comments, or something else to tell me? Just reply to this email.
 
 Cheers,
-Martin
+Martin`}}

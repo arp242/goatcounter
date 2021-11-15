@@ -1,4 +1,4 @@
-Hi there,
+{{template "_email_top.gotxt" .}}
 
 {{.AddedBy}} created an account for you at {{.Site.URL .Context}}
 

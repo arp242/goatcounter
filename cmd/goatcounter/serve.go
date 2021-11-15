@@ -447,7 +447,7 @@ func startupMsg(db zdb.DB) {
 }
 
 func box(msg string, borderColor zli.Color) string {
-	r := func(s string) string { return zli.Colorf(s, borderColor) }
+	r := func(s string) string { return zli.Colorize(s, borderColor) }
 	b := r("┃")
 
 	s := strings.Split(msg, "\n")

@@ -1,4 +1,4 @@
-Hi there,
+{{template "_email_top.gotxt" .}}
 
 Your import is finished; {{.Rows}} pageviews were imported successfully {{if eq .Errors.Len 0}}and there were no errors{{else}}but some pageviews could not be imported{{end}}.
 {{if gt .Errors.Len 0}}
