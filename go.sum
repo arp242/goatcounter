@@ -7,6 +7,12 @@ github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0g
 github.com/PuerkitoBio/goquery v1.8.0/go.mod h1:ypIiRMtY7COPGk+I/YbZLbxsxn9g5ejnI2HSMtkjZvI=
 github.com/andybalholm/cascadia v1.3.1 h1:nhxRkql1kdYCc8Snf7D5/D3spOX+dBgjA6u8x004T2c=
 github.com/andybalholm/cascadia v1.3.1/go.mod h1:R4bJ1UQfqADjvDa4P6HZHLh/3OxWWEqc0Sk8XGwHqvA=
+github.com/arp242/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06 h1:rixtl++vUTZD/Y7USpx72TZopIdbScrTuRnEuDoMMR4=
+github.com/arp242/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06/go.mod h1:G1gi89KVrG9jLzIPvR7hk/0pg0zfzp+FeRWnYzyF9c0=
+github.com/arp242/go-sqlite3 v1.13.1-0.20210919090901-28392ef30942 h1:cqZMMqHULc92GXwQor8x+xkK+s4U4w+arMOiNedfhHg=
+github.com/arp242/go-sqlite3 v1.13.1-0.20210919090901-28392ef30942/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
+github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664 h1:dmj4nhkeg9oq8UpM8XmcCrDEOEdak8zMzobLJ2LGUEY=
+github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664/go.mod h1:RXZtst0N6+FY/3qCNmZMBApR19cdQj43/NM9VkrNAis=
 github.com/bmatcuk/doublestar/v3 v3.0.0 h1:TQtVPlDnAYwcrVNB2JiGuMc++H5qzWZd9PhkNo5WyHI=
 github.com/bmatcuk/doublestar/v3 v3.0.0/go.mod h1:6PcTVMw80pCY1RVuoqu3V++99uQB3vsSYKPTd8AWA0k=
 github.com/boombuler/barcode v1.0.1 h1:NDBbPmhS+EqABEs5Kg3n/5ZNjy73Pz7SIV+KCeqyXcs=
@@ -41,12 +47,6 @@ github.com/teamwork/reload v1.3.2 h1:Cfo305GjPi859SWLzh728H/4ovl1qkDndv48QFRjLLA
 github.com/teamwork/reload v1.3.2/go.mod h1:xR3BcLHeCmLBX/2jKDG2vWOLTcql3+aah4puN18lmTo=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-github.com/zgoat/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06 h1:/md7SQZ+4voVLjIopx8nKqpnxWJ0hhjsPHRVx2yJcx0=
-github.com/zgoat/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06/go.mod h1:G1gi89KVrG9jLzIPvR7hk/0pg0zfzp+FeRWnYzyF9c0=
-github.com/zgoat/go-sqlite3 v1.13.1-0.20210919090901-28392ef30942 h1:i6GaowBbPYXf/IT2Og4ZOfVELEr63ITMymSd+Nd91xg=
-github.com/zgoat/go-sqlite3 v1.13.1-0.20210919090901-28392ef30942/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
-github.com/zgoat/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664 h1:hvMqpKZXmzFPQyQd68TH904EyG6RcDLvtSO2kV4o81Q=
-github.com/zgoat/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664/go.mod h1:RXZtst0N6+FY/3qCNmZMBApR19cdQj43/NM9VkrNAis=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
