@@ -319,7 +319,7 @@ func Import(
 		err = blackmail.Send("GoatCounter import ready",
 			blackmail.From("GoatCounter import", Config(ctx).EmailFrom),
 			blackmail.To(GetUser(ctx).Email),
-			blackmail.BodyMustText(TplEmailImportDone{*site, n, errs}.Render))
+			blackmail.BodyMustText(TplEmailImportDone{ctx, *site, n, errs}.Render))
 		if err != nil {
 			l.Error(err)
 		}

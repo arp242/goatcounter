@@ -525,7 +525,8 @@ type (
 		AddedBy string
 	}
 	TplEmailImportError struct {
-		Error error
+		Context context.Context
+		Error   error
 	}
 	TplEmailExportDone struct {
 		Context context.Context
@@ -534,9 +535,10 @@ type (
 		Export  Export
 	}
 	TplEmailImportDone struct {
-		Site   Site
-		Rows   int
-		Errors *errors.Group
+		Context context.Context
+		Site    Site
+		Rows    int
+		Errors  *errors.Group
 	}
 )
 

@@ -13,9 +13,11 @@ import (
 	"testing"
 
 	"github.com/mattn/go-sqlite3"
+	"golang.org/x/text/language"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
+	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zgo"
@@ -34,6 +36,7 @@ func init() {
 // Context creates a new test context.
 func Context(db zdb.DB) context.Context {
 	ctx := goatcounter.NewContext(db)
+	ctx = z18n.With(ctx, z18n.NewBundle(language.BritishEnglish).Locale("en-GB"))
 	goatcounter.Config(ctx).BcryptMinCost = true
 	goatcounter.Config(ctx).GoatcounterCom = true
 	goatcounter.Config(ctx).Domain = "test"

@@ -47,9 +47,9 @@ func TestTpl(t *testing.T) {
 		{TplEmailForgotSite{ctx, []Site{}, "test@example.com"}},
 		{TplEmailPasswordReset{ctx, site, user}},
 		{TplEmailVerify{ctx, site, user}},
-		{TplEmailImportError{errors.Unwrap(errors.New("oh noes"))}},
-		{TplEmailImportDone{site, 42, errors.NewGroup(10)}},
-		{TplEmailImportDone{site, 42, errs}},
+		{TplEmailImportError{ctx, errors.Unwrap(errors.New("oh noes"))}},
+		{TplEmailImportDone{ctx, site, 42, errors.NewGroup(10)}},
+		{TplEmailImportDone{ctx, site, 42, errs}},
 		{TplEmailAddUser{ctx, site, user, "foo@example.com"}},
 
 		{TplEmailExportDone{ctx, site, user, Export{
