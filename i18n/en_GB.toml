@@ -23,6 +23,10 @@ default = "Change password"
 ["button/copy"]
 default = "Copy"
 
+# tpl/settings_delete.gohtml:47
+["button/delete-account"]
+default = "Delete account, all sites, and all data"
+
 # tpl/settings_purge_confirm.gohtml:23
 ["button/delete-all"]
 default = "Yes, delete them all!"
@@ -30,10 +34,6 @@ default = "Yes, delete them all!"
 # tpl/settings_sites_rm_confirm.gohtml:25
 ["button/delete-everything"]
 default = "Yes, delete everything"
-
-# tpl/settings_delete.gohtml:47
-["button/delete-site"]
-default = "Delete site"
 
 # tpl/user_auth.gohtml:35
 ["button/disable-mfa"]
