@@ -30,8 +30,8 @@
 			<label for="settings.public">{{.T "label/dashboard-public|Dashboard viewable by"}}</label>
 			<select name="settings.public" id="settings-public">
 				<option {{option_value .Site.Settings.Public "private"}}>{{.T "label/public-private|Only logged in users"}}</option>
-				<option {{option_value .Site.Settings.Public "secret"}}>{{.T "label/public-token|Logged in users or with secret token"}}</option>
-				<option {{option_value .Site.Settings.Public "public"}}>{{.T "label/public-anyone|Anyone"}}</option>
+				<option {{option_value .Site.Settings.Public "secret"}}>{{.T  "label/public-token|Logged in users or with secret token"}}</option>
+				<option {{option_value .Site.Settings.Public "public"}}>{{.T  "label/public-anyone|Anyone"}}</option>
 			</select>
 			<span>{{.T "help/public|Control who can view the dashboard."}}</span>
 

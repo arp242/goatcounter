@@ -64,7 +64,7 @@ default = "Resend email"
 ["button/reset-defaults"]
 default = "Reset to defaults"
 
-# tpl/user_reset.gohtml:11
+# tpl/user_reset.gohtml:14
 ["button/reset-password"]
 default = "Reset password"
 
@@ -74,7 +74,7 @@ default = "Delete pageviews"
 
 # tpl/settings_main.gohtml:158
 # tpl/user_dashboard.gohtml:24
-# tpl/user_pref.gohtml:69
+# tpl/user_pref.gohtml:67
 ["button/save"]
 default = "Save"
 
@@ -154,6 +154,32 @@ default = "Totals"
 ["dashboard/totals/num-visits"]
 default = "%(num-visits) visits; %(num-views) pageviews"
 
+# tpl/_email_top.gotxt:1
+["email/header"]
+default = "Hi there,"
+
+# tpl/email_password_reset.gotxt:3
+["email/password-reset"]
+default = """
+Someone (hopefully you) requested to reset the password on your GoatCounter account.
+
+You can do this here:
+%(link)
+"""
+
+# handlers/user.go:135
+["email/reset-user-email-subject"]
+default = "Password reset for %(domain)"
+
+# tpl/_email_bottom.gotxt:1
+["email/signature"]
+default = """
+Any problems, questions, comments, or something else to tell me? Just reply to this email.
+
+Cheers,
+Martin
+"""
+
 # handlers/settings.go:655
 ["error/account-has-stripe-subscription"]
 default = "This account still has a Stripe subscription; cancel that first on the billing page."
@@ -203,10 +229,6 @@ default = "Could not find the user for the given token; perhaps it's expired or 
 ["error/login-wrong-pwd"]
 default = "Wrong password for %(email)"
 
-# handlers/backend.go:76
-["error/method-not-allowed"]
-default = "Method Not Allowed"
-
 # handlers/backend.go:73
 # handlers/settings.go:360
 # handlers/settings.go:904
@@ -214,9 +236,6 @@ default = "Method Not Allowed"
 default = "Not Found"
 
 # handlers/user.go:299
-["error/password-confirmation-does-not-match"]
-default = "Password confirmation doesn’t match."
-
 # handlers/user.go:424
 ["error/password-does-not-match"]
 default = "Password confirmation doesn’t match."
@@ -225,17 +244,9 @@ default = "Password confirmation doesn’t match."
 ["error/payment-cancelled"]
 default = "Payment cancelled."
 
-# handlers/user.go:135
-["error/reset-user-email-subject"]
-default = "Password reset for %(domain)"
-
 # handlers/user.go:120
 ["error/reset-user-no-account"]
 default = "Not an account on this site: %(email)"
-
-# handlers/settings.go:410
-["error/site-not-yours"]
-default = "yeah nah, site %(id) doesn't belong to you"
 
 # handlers/user.go:517
 ["error/token-already-used"]
@@ -578,7 +589,7 @@ default = "Just a little verification that you’re human :-)"
 ["help/your-email"]
 default = "You will need to re-verify the new address if you change it."
 
-# tpl/user_pref.gohtml:41
+# tpl/user_pref.gohtml:39
 ["label/24-hour-clock"]
 default = "24-hour clock (13:00)"
 
@@ -638,7 +649,7 @@ default = "Dashboard viewable by"
 ["label/data-retention"]
 default = "Data retention in days"
 
-# tpl/user_pref.gohtml:31
+# tpl/user_pref.gohtml:29
 ["label/date-fmt"]
 default = "Date format"
 
@@ -690,6 +701,10 @@ default = "GoatCounter domain"
 ["label/ignore-ips"]
 default = "Ignore IPs"
 
+# tpl/user_pref.gohtml:22
+["label/lang"]
+default = "Language"
+
 # widgets/locations.go:29
 ["label/loc-stats"]
 default = "Location stats"
@@ -706,11 +721,13 @@ default = "MFA Token"
 ["label/new-code"]
 default = "New code"
 
-# tpl/user_reset.gohtml:5
+# tpl/user_auth.gohtml:17
+# tpl/user_reset.gohtml:8
 ["label/new-password"]
 default = "New password"
 
-# tpl/user_reset.gohtml:8
+# tpl/user_auth.gohtml:20
+# tpl/user_reset.gohtml:11
 ["label/new-password-confirm"]
 default = "New password (confirm)"
 
@@ -728,11 +745,17 @@ default = "Password"
 ["label/paths"]
 default = "Paths overview"
 
-# tpl/settings_main.gohtml:32
-# tpl/settings_main.gohtml:33
 # tpl/settings_main.gohtml:34
-["label/public-private"]
+["label/public-anyone"]
 default = "Anyone"
+
+# tpl/settings_main.gohtml:32
+["label/public-private"]
+default = "Only logged in users"
+
+# tpl/settings_main.gohtml:33
+["label/public-token"]
+default = "Logged in users or with secret token"
 
 # tpl/user_auth.gohtml:48
 ["label/secret"]
@@ -747,7 +770,7 @@ default = "Secret access URL:"
 default = "Secret token"
 
 # tpl/user_dashboard.gohtml:27
-# tpl/user_pref.gohtml:72
+# tpl/user_pref.gohtml:70
 ["label/set-default"]
 default = "Also set as default for new users and the public view (if enabled)."
 
@@ -759,11 +782,11 @@ default = "Size stats"
 ["label/system-stats"]
 default = "System stats"
 
-# tpl/user_pref.gohtml:46
+# tpl/user_pref.gohtml:44
 ["label/thousand-separator"]
 default = "Thousands separator"
 
-# tpl/user_pref.gohtml:57
+# tpl/user_pref.gohtml:55
 ["label/timezone"]
 default = "Timezone"
 
@@ -783,7 +806,7 @@ default = "Fill in 9 here"
 ["label/verifictation-token"]
 default = "Verification token"
 
-# tpl/user_pref.gohtml:44
+# tpl/user_pref.gohtml:42
 ["label/week-start"]
 default = "Week starts on Sunday"
 
@@ -835,7 +858,7 @@ default = "Delete account"
 ["link/rm-views"]
 default = "Delete pageviews"
 
-# tpl/user_pref.gohtml:64
+# tpl/user_pref.gohtml:62
 ["link/set-from-browser"]
 default = "Set from browser"
 
@@ -977,11 +1000,8 @@ default = "API token removed."
 ["notify/disabled-multi-factor-auth"]
 default = "Multi-factor authentication disabled."
 
-# handlers/user.go:523
-["notify/email-already-used"]
-default = "%(email) is already verified."
-
 # handlers/user.go:445
+# handlers/user.go:523
 ["notify/email-already-verified"]
 default = "%(email) is already verified."
 
@@ -1096,7 +1116,7 @@ independent afterwards.</p>
 # tpl/settings_users_form.gohtml:72
 # tpl/signup.gohtml:65
 # tpl/user_dashboard.gohtml:38
-# tpl/user_pref.gohtml:79
+# tpl/user_pref.gohtml:77
 ["p/additional-errors"]
 default = "Additional errors"
 
@@ -1327,22 +1347,3 @@ default = "Updates"
 ["top-nav/user"]
 default = "User"
 
-# tpl/email_password_reset.gotxt:1
-["email/password-reset"]
-default = """Someone (hopefully you) requested to reset the password on your GoatCounter account.
-
-You can do this here:
-%(link)
-"""
-
-# tpl/_email_top.gotxt:1
-["email/header"]
-default = "Hi there,"
-
-# tpl/_email_bottom.gotxt:1
-["email/signature"]
-default = """Any problems, questions, comments, or something else to tell me? Just reply to this email.
-
-Cheers,
-Martin
-"""
