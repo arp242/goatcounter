@@ -228,7 +228,7 @@ Using a non-standard port:
 
     If you make GoatCounter publicly accessibly on non-standard port (i.e. not
     80 or 443) then you must add the -public-port flag to tell GoatCounter which
-       port to use in various redirects, messages, and emails:
+    port to use in various redirects, messages, and emails:
 
         goatcounter serve -listen :9000 -public-port 9000
 

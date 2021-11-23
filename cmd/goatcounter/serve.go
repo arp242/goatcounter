@@ -122,7 +122,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 	var (
 		// TODO(depr): -port is for compat with <2.0
-		port         = f.String("", "public-port", "port").Pointer()
+		port         = f.Int(0, "public-port", "port").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
 	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(f, &v)
@@ -130,7 +130,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return err
 	}
 
-	return func(port, domainStatic string) error {
+	return func(port int, domainStatic string) error {
 		if flagTLS == "" {
 			flagTLS = map[bool]string{true: "http", false: "acme,rdr"}[dev]
 		}
@@ -159,8 +159,8 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		c := goatcounter.Config(ctx)
 		c.EmailFrom = from
-		if port != "" {
-			c.Port = ":" + port
+		if port > 0 {
+			c.Port = fmt.Sprintf(":%d", port)
 		}
 		c.DomainStatic = domainStatic
 		c.Dev = dev
