@@ -7,12 +7,17 @@ latest master.
 
 Unreleased
 ----------
+This release requires Go 1.17 to build.
+
+- Support for translations; see https://www.goatcounter/translations for details
+  how to translate GoatCounter.
+
 - List exports in Settings → Export/Import.
 
 - The visitor counter now supports the `start` and `end` parameters and the JSON
   endpoint returns `count` as well, to get the total pageview count.
 
-- The billing page displays the account usage.
+- Various small fixes.
 
 2021-04-13 v2.0.4
 -----------------

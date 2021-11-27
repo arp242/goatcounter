@@ -2,8 +2,6 @@ module zgo.at/goatcounter/v2
 
 go 1.17
 
-//replace zgo.at/z18n => ../Golib/z18n
-
 require (
 	code.soquee.net/otp v0.0.1
 	github.com/PuerkitoBio/goquery v1.8.0
@@ -32,14 +30,14 @@ require (
 	zgo.at/isbot v0.0.0-20211017231009-742e7be1c6d8
 	zgo.at/json v0.0.0-20211017213340-cc8bf51df08c
 	zgo.at/tz v0.0.0-20211017223207-006eae99adf6
-	zgo.at/z18n v0.0.0-20211115142744-a40027b8d213
+	zgo.at/z18n v0.0.0-20211127170859-65a95bd90189
 	zgo.at/zcache v1.0.1-0.20210412145246-76039d792310
 	zgo.at/zdb v0.0.0-20211017231039-b6fbb7dc2e5c
 	zgo.at/zhttp v0.0.0-20211018125702-1f1d27dead4c
 	zgo.at/zli v0.0.0-20211017231103-84f8e371c324
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211017223351-20543d9cf990
-	zgo.at/zstd v0.0.0-20211017205211-017273d7d29c
+	zgo.at/zstd v0.0.0-20211127155518-f07bbf9ab397
 	zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08
 	zgo.at/ztpl v0.0.0-20211017232908-7dce3dc79277
 	zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f

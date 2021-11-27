@@ -144,17 +144,16 @@ listen and tls flags:
         -listen localhost:8081     Listen on localhost:8081
         -listen :8081              Listen on :8081 for all addresses
 
-    The -tls flag controls the TLS setup, as well as redirecting port 80 the
-    -listen port with a 301 status code. Because there are a few different
-    server setups GoatCounter can be used in, the flag accepts a bunch of
-    different options as a comma-separated list with any combination of:
+    The -tls flag controls the TLS setup, as well as redirecting port 80 to the
+    -listen port with a 301. The flag accepts a bunch of different options as a
+    comma-separated list with any combination of:
 
         http        Don't serve any TLS; you can still generate ACME
                     certificates though.
 
-        tls         Accept TLS connections on -listen; if this isn't added it
-                    will accept regular non-https connections, but may still
-                    generate certificates with ACME (useful for proxy or dev).
+        tls         Accept TLS connections on -listen. This is always done
+                    unless "http" is added so this is never needed, but can be
+                    useful to clarify that TLS is used.
 
         rdr         Redirect port 80 to the -listen port; as mentioned it's
                     required for Let's Encrypt to be available on port 80. You

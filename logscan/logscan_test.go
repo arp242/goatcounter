@@ -130,7 +130,7 @@ func TestNewFollow(t *testing.T) {
 		`example.org:127.0.0.1 - - [10/Oct/2001:13:55:36 -0700] "GET /other.html HTTP/1.1" 200 2326 "http://www.example.com/start.html" "Mozilla/5.0"`,
 	}
 
-	tmp := ztest.TempFile(t, lines[0]+"\n")
+	tmp := ztest.TempFile(t, "", lines[0]+"\n")
 
 	ctx, stop := context.WithCancel(context.Background())
 
@@ -359,7 +359,7 @@ func TestExclude(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			tmp, err := os.Open(ztest.TempFile(t, strings.Join(tt.lines, "\n")))
+			tmp, err := os.Open(ztest.TempFile(t, "", strings.Join(tt.lines, "\n")))
 			if err != nil {
 				t.Fatal(err)
 			}

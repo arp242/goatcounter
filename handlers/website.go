@@ -88,7 +88,7 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 		return h.forgot(nil, "", "")(w, r)
 	}))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
-	for _, t := range []string{"", "privacy", "terms", "why", "design"} {
+	for _, t := range []string{"", "privacy", "terms", "why", "design", "translating"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
 }
@@ -111,17 +111,18 @@ func (h website) MountShared(r chi.Router) {
 }
 
 var metaDesc = map[string]string{
-	"":           "Simple web statistics. No tracking of personal data.",
-	"help":       "Help and support – GoatCounter",
-	"privacy":    "Privacy policy – GoatCounter",
-	"gdpr":       "GDPR consent notices – GoatCounter",
-	"terms":      "Terms of Service – GoatCounter",
-	"contact":    "Contact – GoatCounter",
-	"contribute": "Contribute – GoatCounter",
-	"code":       "Site integration code – GoatCounter",
-	"why":        "Why I made GoatCounter",
-	"api":        "API – GoatCounter",
-	"design":     "GoatCounter design",
+	"":            "Simple web statistics. No tracking of personal data.",
+	"help":        "Help and support – GoatCounter",
+	"privacy":     "Privacy policy – GoatCounter",
+	"gdpr":        "GDPR consent notices – GoatCounter",
+	"terms":       "Terms of Service – GoatCounter",
+	"contact":     "Contact – GoatCounter",
+	"contribute":  "Contribute – GoatCounter",
+	"code":        "Site integration code – GoatCounter",
+	"why":         "Why I made GoatCounter",
+	"api":         "API – GoatCounter",
+	"design":      "GoatCounter design",
+	"translating": "Translating GoatCounter",
 }
 
 func (h website) contact(w http.ResponseWriter, r *http.Request) error {

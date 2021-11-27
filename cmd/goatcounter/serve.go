@@ -72,17 +72,18 @@ Flags:
 
   -automigrate Automatically run all pending migrations on startup.
 
-  -smtp        SMTP server, as URL (e.g. "smtp://user:pass@server").
+  -smtp        SMTP relay server, as URL (e.g. "smtp://user:pass@server").
 
-               A special value of "stdout" means no emails will be sent and
-               emails will be printed to stdout only. This is the default.
+               A special value of "stdout" will print emails to stdout without
+               actually sending them.  This is the default.
 
-               If this is blank emails will be sent without using a relay; this
-               should work fine, but deliverability will usually be worse (i.e.
-               it will be more likely to end up in the spam box). This usually
-               requires rDNS properly set up, and GoatCounter will *not* retry
-               on errors. Using stdout, a local smtp relay, or a mailtrap.io box
-               is probably better unless you really know what you're doing.
+               If this is an empty string (-smtp='') emails will be sent without
+               using a relay. This implementation is very simple and
+               deliverability will usually be bad (i.e. it will end up in the
+               spam box, or just be outright rejected). This usually requires
+               rDNS properly set up, and GoatCounter will *not* retry on errors.
+               Using a local smtp relay is almost always better unless you
+               really know what you're doing.
 
   -email-from  From: address in emails. Default: <user>@<hostname>
 

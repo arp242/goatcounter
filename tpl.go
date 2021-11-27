@@ -38,6 +38,7 @@ import (
 func init() {
 	tplfunc.Add("t", z18n.Thtml)
 	tplfunc.Add("tag", z18n.Tag)
+	tplfunc.Add("plural", z18n.N)
 
 	// TODO: move to ztpl
 	tplfunc.Add("concat", func(sep string, strs ...string) string {

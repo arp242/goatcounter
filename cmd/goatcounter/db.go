@@ -237,6 +237,11 @@ Detailed documentation on the -db flag:
 
     There are no plans to support other database engines such as MySQL/MariaDB.
 
+    SQLite should work fine for most smaller site like blogs and such, but for
+    more serious usage PostgreSQL is recommended. Some basic benchmarks
+    comparing the two can be found here:
+    https://github.com/arp242/goatcounter/blob/master/docs/benchmark.markdown
+
     The database is automatically created for the "serve" command, but you need
     to add -createdb to any other commands to create the database. This is to
     prevent accidentally operating on the wrong (new) database.

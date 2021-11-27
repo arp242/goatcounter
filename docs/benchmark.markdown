@@ -42,8 +42,9 @@ overview.
 Results
 -------
 
-The times are the average of 10 requests; after 60 seconds GoatCounter will kill
-the query; `>60s` means it timed out.
+The times are the average of 10 requests accessing the dashboard with the given
+date range. After 60 seconds GoatCounter will kill the query; `>60s` means it
+timed out.
 
 
 ### SQLite
@@ -103,9 +104,9 @@ Many smaller sites will have much fewer than 1 million pageview and 1,000 paths
 though. If you're running GoatCounter on a small website then the cheapest
 $5/month should be enough.
 
-The amount of pageviews it can record isn't benchmarked here, but should be 100/s
-even on smaller machines. You'll likely hit in to performance problems on the
-dashboard before you hit this.
+The amount of pageviews it can record isn't benchmarked here, but should be
+hundreds/second even on smaller machines. You'll likely hit in to performance
+problems on the dashboard before you hit problems there.
 
 You can find the "raw" output from `hey` over here:
 https://gist.github.com/arp242/ae9d409e47dfe1021ab0b4ff3e5faba7
@@ -114,7 +115,7 @@ https://gist.github.com/arp242/ae9d409e47dfe1021ab0b4ff3e5faba7
 Benchmark details
 -----------------
 
-You can use `./cmd/gcbench` to set up a database. The the help on that for some
+You can use `./cmd/gcbench` to set up a database. The help on that for some
 details.
 
 I used [hey][hey] to run the actual benchmarks with a simple script:

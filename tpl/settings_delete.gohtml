@@ -20,7 +20,7 @@
 	<div class="flash flash-e" style="text-align: left;">
 	<p><strong>{{.T "p/notify-site-deletion|%(number) sites will be deleted" (len .Sites)}}</strong>:</p>
 	<ul>{{range $s := .Sites}}
-			<li>{{$s.Domain $.Context}}</li>
+		<li>{{$s.Domain $.Context}}</li>
 	{{end}}</ul>
 </div>
 {{end}}
