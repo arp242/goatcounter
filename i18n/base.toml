@@ -1,6 +1,6 @@
 [__meta__]
   base-file = true
-  generated = 2021-11-27T17:07:54Z
+  generated = 2021-11-27T22:17:01Z
   [__meta__.options]
     fun = ["z18n.T", "z18n.Locale.T", "T"]
     paths = ["."]
@@ -120,8 +120,16 @@
   loc     = ["tpl/dashboard.gohtml:44"]
   default = "Submit"
 
+["dashboard/day-ago"]
+  loc     = ["handlers/dashboard.go:205"]
+  default = ""
+
+["dashboard/month-ago"]
+  loc     = ["handlers/dashboard.go:207"]
+  default = ""
+
 ["dashboard/nothing-to-display"]
-  loc     = ["/home/martin/code/goatcounter/tpl.go:420"]
+  loc     = ["tpl.go:420"]
   default = "Nothing to display"
 
 ["dashboard/pages/header"]
@@ -166,6 +174,10 @@
   loc     = ["tpl/_dashboard_pages_text.gohtml:13"]
   default = "Visits"
 
+["dashboard/today"]
+  loc     = ["handlers/dashboard.go:203"]
+  default = "Today"
+
 ["dashboard/totals/header"]
   loc     = ["tpl/_dashboard_totals.gohtml:2"]
   default = "Totals"
@@ -176,6 +188,14 @@
     "tpl/_dashboard_totals.gohtml:10",
   ]
   default = "%(num-visits) visits; %(num-views) pageviews"
+
+["dashboard/week-ago"]
+  loc     = ["handlers/dashboard.go:206"]
+  default = ""
+
+["dashboard/yesterday"]
+  loc     = ["handlers/dashboard.go:204"]
+  default = "Yesterday"
 
 ["email/header"]
   loc     = ["tpl/_email_top.gotxt:1"]
@@ -191,7 +211,7 @@ You can do this here:
 """
 
 ["email/reset-user-email-subject"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:135"]
+  loc     = ["handlers/user.go:135"]
   default = "Password reset for %(domain)"
 
 ["email/signature"]
@@ -204,85 +224,85 @@ Martin
 """
 
 ["error/account-has-stripe-subscription"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:655"]
+  loc     = ["handlers/settings.go:655"]
   default = "This account still has a Stripe subscription; cancel that first on the billing page."
 
 ["error/address-exists"]
   loc     = [
-    "/home/martin/code/goatcounter/handlers/settings.go:286",
-    "/home/martin/code/goatcounter/handlers/settings.go:291",
+    "handlers/settings.go:286",
+    "handlers/settings.go:291",
   ]
   default = "%(addr) already exists"
 
 ["error/could-not-read"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:542"]
+  loc     = ["handlers/settings.go:542"]
   default = "Could not read as gzip: %(err)"
 
 ["error/export-expired"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:505"]
+  loc     = ["handlers/settings.go:505"]
   default = "It looks like there is no export yet or the export has expired."
 
 ["error/incorrect-password"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:418"]
+  loc     = ["handlers/user.go:418"]
   default = "Current password is incorrect."
 
 ["error/invalid-end-date"]
-  loc     = ["/home/martin/code/goatcounter/handlers/dashboard.go:373"]
+  loc     = ["handlers/dashboard.go:383"]
   default = "Invalid end date: %(date)"
 
 ["error/invalid-start-date"]
-  loc     = ["/home/martin/code/goatcounter/handlers/dashboard.go:366"]
+  loc     = ["handlers/dashboard.go:376"]
   default = "Invalid start date: %(date)"
 
 ["error/login-invalid"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:225"]
+  loc     = ["handlers/user.go:225"]
   default = "Invalid login"
 
 ["error/login-no-password"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:174"]
+  loc     = ["handlers/user.go:174"]
   default = "There is no password set for %(email); please reset it"
 
 ["error/login-not-found"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:167"]
+  loc     = ["handlers/user.go:167"]
   default = "User %(email) not found"
 
 ["error/login-token-expired"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:267"]
+  loc     = ["handlers/user.go:267"]
   default = "Could not find the user for the given token; perhaps it's expired or has already been used?"
 
 ["error/login-wrong-pwd"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:181"]
+  loc     = ["handlers/user.go:181"]
   default = "Wrong password for %(email)"
 
 ["error/not-found"]
   loc     = [
-    "/home/martin/code/goatcounter/handlers/backend.go:73",
-    "/home/martin/code/goatcounter/handlers/settings.go:360",
-    "/home/martin/code/goatcounter/handlers/settings.go:904",
+    "handlers/backend.go:73",
+    "handlers/settings.go:360",
+    "handlers/settings.go:904",
   ]
   default = "Not Found"
 
 ["error/password-does-not-match"]
   loc     = [
-    "/home/martin/code/goatcounter/handlers/user.go:299",
-    "/home/martin/code/goatcounter/handlers/user.go:424",
+    "handlers/user.go:299",
+    "handlers/user.go:424",
   ]
   default = "Password confirmation doesn’t match."
 
 ["error/payment-cancelled"]
-  loc     = ["/home/martin/code/goatcounter/handlers/billing.go:82"]
+  loc     = ["handlers/billing.go:82"]
   default = "Payment cancelled."
 
 ["error/reset-user-no-account"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:120"]
+  loc     = ["handlers/user.go:120"]
   default = "Not an account on this site: %(email)"
 
 ["error/token-already-used"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:517"]
+  loc     = ["handlers/user.go:517"]
   default = "Unknown token; perhaps it was already used?"
 
 ["error/wrong-verification-key"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:528"]
+  loc     = ["handlers/user.go:528"]
   default = "Wrong verification key."
 
 ["forgot-domain-help"]
@@ -310,7 +330,7 @@ Martin
   default = "API tokens"
 
 ["header/browsers"]
-  loc     = ["/home/martin/code/goatcounter/widgets/browsers.go:57"]
+  loc     = ["widgets/browsers.go:57"]
   default = "Browsers"
 
 ["header/change-code"]
@@ -398,11 +418,11 @@ Martin
   default = "Last 10 exports"
 
 ["header/locations"]
-  loc     = ["/home/martin/code/goatcounter/widgets/locations.go:57"]
+  loc     = ["widgets/locations.go:57"]
   default = "Locations"
 
 ["header/locations-for"]
-  loc     = ["/home/martin/code/goatcounter/widgets/locations.go:64"]
+  loc     = ["widgets/locations.go:64"]
   default = "Locations for %(country)"
 
 ["header/mfa"]
@@ -469,7 +489,7 @@ Martin
   default = "Size"
 
 ["header/sizes"]
-  loc     = ["/home/martin/code/goatcounter/widgets/sizes.go:63"]
+  loc     = ["widgets/sizes.go:63"]
   default = "Sizes"
 
 ["header/start-pagination-cursor"]
@@ -481,7 +501,7 @@ Martin
   default = "Started"
 
 ["header/systems"]
-  loc     = ["/home/martin/code/goatcounter/widgets/systems.go:57"]
+  loc     = ["widgets/systems.go:57"]
   default = "Systems"
 
 ["header/title"]
@@ -641,7 +661,7 @@ The verification runs every 2 hours.
   default = "Allow adding visitor counts on your website"
 
 ["label/browser-stats"]
-  loc     = ["/home/martin/code/goatcounter/widgets/browsers.go:29"]
+  loc     = ["widgets/browsers.go:29"]
   default = "Browser stats"
 
 ["label/campaign-parameters"]
@@ -741,7 +761,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Language"
 
 ["label/loc-stats"]
-  loc     = ["/home/martin/code/goatcounter/widgets/locations.go:29"]
+  loc     = ["widgets/locations.go:29"]
   default = "Location stats"
 
 ["label/match-title"]
@@ -783,7 +803,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Password"
 
 ["label/paths"]
-  loc     = ["/home/martin/code/goatcounter/widgets/pages.go:37"]
+  loc     = ["widgets/pages.go:37"]
   default = "Paths overview"
 
 ["label/public-anyone"]
@@ -818,31 +838,31 @@ for wanting to delete your account. This is entirely optional.
   default = "Also set as default for new users and the public view (if enabled)."
 
 ["label/size-desktop"]
-  loc     = ["/home/martin/code/goatcounter/tpl.go:456"]
+  loc     = ["tpl.go:456"]
   default = "Computer monitors"
 
 ["label/size-desktophd"]
-  loc     = ["/home/martin/code/goatcounter/tpl.go:458"]
+  loc     = ["tpl.go:458"]
   default = "Computer monitors larger than HD"
 
 ["label/size-largephones"]
-  loc     = ["/home/martin/code/goatcounter/tpl.go:452"]
+  loc     = ["tpl.go:452"]
   default = "Large phones, small tablets"
 
 ["label/size-phones"]
-  loc     = ["/home/martin/code/goatcounter/tpl.go:450"]
+  loc     = ["tpl.go:450"]
   default = "Phones"
 
 ["label/size-stats"]
-  loc     = ["/home/martin/code/goatcounter/widgets/sizes.go:28"]
+  loc     = ["widgets/sizes.go:28"]
   default = "Size stats"
 
 ["label/size-tablets"]
-  loc     = ["/home/martin/code/goatcounter/tpl.go:454"]
+  loc     = ["tpl.go:454"]
   default = "Tablets and small laptops"
 
 ["label/system-stats"]
-  loc     = ["/home/martin/code/goatcounter/widgets/systems.go:29"]
+  loc     = ["widgets/systems.go:29"]
   default = "System stats"
 
 ["label/thousand-separator"]
@@ -854,11 +874,11 @@ for wanting to delete your account. This is entirely optional.
   default = "Timezone"
 
 ["label/topref"]
-  loc     = ["/home/martin/code/goatcounter/widgets/toprefs.go:28"]
+  loc     = ["widgets/toprefs.go:28"]
   default = "Top referrals"
 
 ["label/total-pageviews"]
-  loc     = ["/home/martin/code/goatcounter/widgets/total_pages.go:29"]
+  loc     = ["widgets/total_pages.go:29"]
   default = "Total site pageviews"
 
 ["label/turing-test"]
@@ -1060,123 +1080,123 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   default = "year"
 
 ["notify/add-one-thing"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings_user.go:115"]
+  loc     = ["handlers/settings_user.go:115"]
   default = "Must add at least one thing; an empty dashboard is a bit pointless, no?"
 
 ["notify/api-token-created"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:472"]
+  loc     = ["handlers/user.go:472"]
   default = "API token created."
 
 ["notify/api-token-removed"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:494"]
+  loc     = ["handlers/user.go:494"]
   default = "API token removed."
 
 ["notify/disabled-multi-factor-auth"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:361"]
+  loc     = ["handlers/user.go:361"]
   default = "Multi-factor authentication disabled."
 
 ["notify/email-already-verified"]
   loc     = [
-    "/home/martin/code/goatcounter/handlers/user.go:445",
-    "/home/martin/code/goatcounter/handlers/user.go:523",
+    "handlers/user.go:445",
+    "handlers/user.go:523",
   ]
   default = "%(email) is already verified."
 
 ["notify/export-started-in-background"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:612"]
+  loc     = ["handlers/settings.go:612"]
   default = "Export started in the background; you’ll get an email with a download link when it’s done."
 
 ["notify/import-started-in-background"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:589"]
+  loc     = ["handlers/settings.go:589"]
   default = "Import started in the background; you’ll get an email when it’s done."
 
 ["notify/login-after-password-reset"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:325"]
+  loc     = ["handlers/user.go:325"]
   default = "Password reset; use your new password to login."
 
 ["notify/multi-factor-auth-enabled"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:396"]
+  loc     = ["handlers/user.go:396"]
   default = "Multi-factor authentication enabled."
 
 ["notify/need-business-plan-custom-domain"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:167"]
+  loc     = ["handlers/settings.go:167"]
   default = "need a business plan to set custom domain"
 
 ["notify/need-email-verification-for-api"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:457"]
+  loc     = ["handlers/user.go:457"]
   default = "You need to verify your email before you can use the API."
 
 ["notify/no-user-for-token"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:286"]
+  loc     = ["handlers/user.go:286"]
   default = "could find the user for the given token; perhaps it's expired or has already been used?"
 
 ["notify/not-found"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:859"]
+  loc     = ["handlers/settings.go:859"]
   default = "Not Found"
 
 ["notify/password-changed"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:438"]
+  loc     = ["handlers/user.go:438"]
   default = "Password changed."
 
 ["notify/payment-processed"]
-  loc     = ["/home/martin/code/goatcounter/handlers/billing.go:99"]
+  loc     = ["handlers/billing.go:99"]
   default = "Payment processed successfully!"
 
 ["notify/payment-processing"]
-  loc     = ["/home/martin/code/goatcounter/handlers/billing.go:87"]
+  loc     = ["handlers/billing.go:87"]
   default = "The payment processor reported success, but we're still processing the payment"
 
 ["notify/reset-to-default"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings_user.go:127"]
+  loc     = ["handlers/settings_user.go:127"]
   default = "Reset to defaults!"
 
 ["notify/reset-user-sent"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:144"]
+  loc     = ["handlers/user.go:144"]
   default = "Email sent to %(email)"
 
 ["notify/restored-previously-deleted-site"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:299"]
+  loc     = ["handlers/settings.go:299"]
   default = "Site ‘%(url)’ was previously deleted; restored site with all data."
 
 ["notify/saved"]
   loc     = [
-    "/home/martin/code/goatcounter/handlers/billing.go:150",
-    "/home/martin/code/goatcounter/handlers/settings.go:209",
-    "/home/martin/code/goatcounter/handlers/settings.go:234",
-    "/home/martin/code/goatcounter/handlers/settings_user.go:70",
+    "handlers/billing.go:150",
+    "handlers/settings.go:209",
+    "handlers/settings.go:234",
+    "handlers/settings_user.go:70",
   ]
   default = "Saved!"
 
 ["notify/sent-to-email"]
-  loc     = ["/home/martin/code/goatcounter/handlers/user.go:450"]
+  loc     = ["handlers/user.go:450"]
   default = "Sent to %(email)."
 
 ["notify/settings-copied-to-site"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:424"]
+  loc     = ["handlers/settings.go:424"]
   default = "Settings copied to the selected sites."
 
 ["notify/site-added"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:322"]
+  loc     = ["handlers/settings.go:322"]
   default = "Site ‘%(url)’ added."
 
 ["notify/site-removed"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:369"]
+  loc     = ["handlers/settings.go:369"]
   default = "Site ‘%(url)’ removed."
 
 ["notify/started-background-process"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:469"]
+  loc     = ["handlers/settings.go:469"]
   default = "Started in the background; may take about 10-20 seconds to fully process."
 
 ["notify/user-added"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:830"]
+  loc     = ["handlers/settings.go:830"]
   default = "User ‘%(email)’ added."
 
 ["notify/user-removed"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:912"]
+  loc     = ["handlers/settings.go:912"]
   default = "User ‘%(email)’ removed."
 
 ["notify/users-edited"]
-  loc     = ["/home/martin/code/goatcounter/handlers/settings.go:884"]
+  loc     = ["handlers/settings.go:884"]
   default = "User ‘%(email)’ edited."
 
 ["p/add-goatcounter-to-multiple-websites"]
@@ -1433,6 +1453,6 @@ meaning.
   default = "User"
 
 ["unknown"]
-  loc     = ["/home/martin/code/goatcounter/tpl.go:464"]
+  loc     = ["tpl.go:464"]
   default = "(unknown)"
 

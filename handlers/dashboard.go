@@ -17,6 +17,7 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/widgets"
 	"zgo.at/guru"
+	"zgo.at/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
@@ -198,7 +199,16 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		zsync.Wait(r.Context(), &wg)
 	}()
 
-	rng = rng.In(user.Settings.Timezone.Loc())
+	rng = rng.In(user.Settings.Timezone.Loc()).Locale(ztime.RangeLocale{
+		Today:     func() string { return T(r.Context(), "dashboard/today|Today") },
+		Yesterday: func() string { return T(r.Context(), "dashboard/yesterday|Yesterday") },
+		DayAgo:    func(n int) string { return T(r.Context(), "dashboard/day-ago", z18n.Plural(n)) },
+		WeekAgo:   func(n int) string { return T(r.Context(), "dashboard/week-ago", z18n.Plural(n)) },
+		MonthAgo:  func(n int) string { return T(r.Context(), "dashboard/month-ago", z18n.Plural(n)) },
+		Month: func(m time.Month) string {
+			return z18n.Get(r.Context()).MonthName(time.Date(0, m, 0, 0, 0, 0, 0, time.UTC), z18n.TimeFormatFull)
+		},
+	})
 
 	// When reloading the dashboard from e.g. the filter we don't need to render
 	// header/footer/menu, etc. Render just the widgets and return that as JSON.

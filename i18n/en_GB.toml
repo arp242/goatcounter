@@ -1,0 +1,20 @@
+[__meta__]
+  generated = 2021-11-25T14:01:49Z
+  language = "en-GB"
+  maintainers = ["Martin Tournoij <martin@arp242.net>"]
+  no-update = true
+
+["dashboard/day-ago"]
+  loc     = ["/home/martin/code/goatcounter/handlers/dashboard.go:205"]
+  one     = "1 day ago"
+  default = "%(n) days ago"
+
+["dashboard/week-ago"]
+  loc     = ["/home/martin/code/goatcounter/handlers/dashboard.go:206"]
+  one     = "1 week ago"
+  default = "%(n) weeks ago"
+
+["dashboard/month-ago"]
+  loc     = ["/home/martin/code/goatcounter/handlers/dashboard.go:207"]
+  one     = "1 month ago"
+  default = "%(n) months ago"
