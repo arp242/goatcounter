@@ -49,8 +49,6 @@ func (w *Sizes) GetData(ctx context.Context, a Args) (more bool, err error) {
 }
 
 func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
-	header := z18n.T(ctx, "header/sizes|Sizes")
-
 	return "_dashboard_hchart.gohtml", struct {
 		Context        context.Context
 		ID             int
@@ -62,5 +60,6 @@ func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		Stats          goatcounter.HitStats
 		Detail         string
 	}{ctx, w.id, shared.RowsOnly, w.err, isCol(ctx, goatcounter.CollectScreenSize),
-		header, shared.TotalUniqueUTC, w.Stats, w.Detail}
+		z18n.T(ctx, "header/sizes|Sizes"),
+		shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

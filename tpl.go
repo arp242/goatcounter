@@ -441,13 +441,31 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 			perc = fmt.Sprintf("%.0f%%", math.Round(p))
 		}
 
-		// TODO(i18n): translate "(unknown)" and "visit", and "show more".
-		name := template.HTMLEscapeString(s.Name)
+		name := ""
+		if s.Name != "" {
+			name = template.HTMLEscapeString(s.Name)
+		} else {
+			switch s.ID {
+			case sizePhones:
+				name = z18n.T(ctx, "label/size-phones|Phones")
+			case sizeLargePhones:
+				name = z18n.T(ctx, "label/size-largephones|Large phones, small tablets")
+			case sizeTablets:
+				name = z18n.T(ctx, "label/size-tablets|Tablets and small laptops")
+			case sizeDesktop:
+				name = z18n.T(ctx, "label/size-desktop|Computer monitors")
+			case sizeDesktopHD:
+				name = z18n.T(ctx, "label/size-desktophd|Computer monitors larger than HD")
+			}
+		}
+
+		unknown := false
 		if name == "" {
-			name = "(unknown)"
+			name = z18n.T(ctx, "unknown|(unknown)")
+			unknown = true
 		}
 		class := ""
-		if name == "(unknown)" || (s.RefScheme != nil && string(*s.RefScheme) == *RefSchemeGenerated) {
+		if unknown || (s.RefScheme != nil && string(*s.RefScheme) == *RefSchemeGenerated) {
 			class = "generated"
 		}
 		visit := ""
@@ -465,7 +483,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 
 		ename := zstring.ElideCenter(name, 76)
 		var ref string
-		if link && ename != "(unknown)" {
+		if link && !unknown {
 			ref = fmt.Sprintf(`<a href="#" class="load-detail">`+
 				`<span class="bar" style="width: %s"></span>`+
 				`<span class="bar-c"><span class="cutoff">%s</span> %s</span></a>`, perc, ename, visit)
@@ -491,7 +509,9 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 
 	// Add pagination link.
 	if paginate && stats.More {
-		b.WriteString(`<a href="#", class="load-more">Show more</a>`)
+		b.WriteString(`<a href="#", class="load-more">`)
+		b.WriteString(z18n.T(ctx, "link/show-more|Show more"))
+		b.WriteString("</a>")
 	}
 
 	return template.HTML(b.String())

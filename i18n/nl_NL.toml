@@ -465,7 +465,7 @@ Martin
   default = "Size"
 
 ["header/sizes"]
-  loc     = ["/home/martin/code/goatcounter/widgets/sizes.go:52"]
+  loc     = ["/home/martin/code/goatcounter/widgets/sizes.go:63"]
   default = "Schermen"
 
 ["header/start-pagination-cursor"]
@@ -813,9 +813,29 @@ for wanting to delete your account. This is entirely optional.
   ]
   default = "Stel ook in als standaard voor nieuwe gebruikers en het publiek toegankelijk dashboard (als deze aan staat)"
 
+["label/size-desktop"]
+  loc     = ["/home/martin/code/goatcounter/tpl.go:456"]
+  default = "Computerschermen"
+
+["label/size-desktophd"]
+  loc     = ["/home/martin/code/goatcounter/tpl.go:458"]
+  default = "Computerschermen groter dan HD"
+
+["label/size-largephones"]
+  loc     = ["/home/martin/code/goatcounter/tpl.go:452"]
+  default = "Grote telefoons, kleine tablets"
+
+["label/size-phones"]
+  loc     = ["/home/martin/code/goatcounter/tpl.go:450"]
+  default = "Telefoons"
+
 ["label/size-stats"]
   loc     = ["/home/martin/code/goatcounter/widgets/sizes.go:28"]
   default = "Size stats"
+
+["label/size-tablets"]
+  loc     = ["/home/martin/code/goatcounter/tpl.go:454"]
+  default = "Tablets en kleine laptops"
 
 ["label/system-stats"]
   loc     = ["/home/martin/code/goatcounter/widgets/systems.go:29"]
@@ -1409,4 +1429,8 @@ meaning.
 ["top-nav/user"]
   loc     = ["tpl/_backend_top.gohtml:59"]
   default = "Gebruiker"
+
+["unknown"]
+  loc     = ["/home/martin/code/goatcounter/tpl.go:464"]
+  default = "(onbekend)"
 

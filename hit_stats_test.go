@@ -145,7 +145,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListSize(ctx, "Computer monitors", rng, filter, 10, 0)
+			err = get.ListSize(ctx, "desktop", rng, filter, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -153,43 +153,43 @@ func TestHitStats(t *testing.T) {
 				"More": false,
 				"Stats": [
 					{
-						"ID": "",
-						"Name": "Phones",
+						"ID": "phone",
+						"Name": "",
 						"Count": 0,
 						"CountUnique": 0,
 						"RefScheme": null
 					},
 					{
-						"ID": "",
-						"Name": "Large phones, small tablets",
+						"ID": "largephone",
+						"Name": "",
 						"Count": 1,
 						"CountUnique": 1,
 						"RefScheme": null
 					},
 					{
-						"ID": "",
-						"Name": "Tablets and small laptops",
+						"ID": "tablet",
+						"Name": "",
 						"Count": 0,
 						"CountUnique": 0,
 						"RefScheme": null
 					},
 					{
-						"ID": "",
-						"Name": "Computer monitors",
+						"ID": "desktop",
+						"Name": "",
 						"Count": 2,
 						"CountUnique": 1,
 						"RefScheme": null
 					},
 					{
-						"ID": "",
-						"Name": "Computer monitors larger than HD",
+						"ID": "desktophd",
+						"Name": "",
 						"Count": 0,
 						"CountUnique": 0,
 						"RefScheme": null
 					},
 					{
-						"ID": "",
-						"Name": "(unknown)",
+						"ID": "unknown",
+						"Name": "",
 						"Count": 0,
 						"CountUnique": 0,
 						"RefScheme": null
@@ -284,18 +284,18 @@ func TestListSizes(t *testing.T) {
 
 	// Copy from hit_stats
 	const (
-		sizePhones      = "Phones"
-		sizeLargePhones = "Large phones, small tablets"
-		sizeTablets     = "Tablets and small laptops"
-		sizeDesktop     = "Computer monitors"
-		sizeDesktopHD   = "Computer monitors larger than HD"
-		sizeUnknown     = "(unknown)"
+		sizePhones      = "phone"
+		sizeLargePhones = "largephone"
+		sizeTablets     = "tablet"
+		sizeDesktop     = "desktop"
+		sizeDesktopHD   = "desktophd"
+		sizeUnknown     = "unknown"
 	)
 
 	now := ztime.Now()
 	widths := []struct {
-		w    float64
-		name string
+		w  float64
+		id string
 	}{
 		{0, sizeUnknown},
 		{300, sizePhones},
@@ -330,43 +330,43 @@ func TestListSizes(t *testing.T) {
 			"More": false,
 			"Stats": [
 				{
-					"ID": "",
-					"Name": "Phones",
+					"ID": "phone",
+					"Name": "",
 					"Count": 2,
 					"CountUnique": 1,
 					"RefScheme": null
 				},
 				{
-					"ID": "",
-					"Name": "Large phones, small tablets",
+					"ID": "largephone",
+					"Name": "",
 					"Count": 2,
 					"CountUnique": 1,
 					"RefScheme": null
 				},
 				{
-					"ID": "",
-					"Name": "Tablets and small laptops",
+					"ID": "tablet",
+					"Name": "",
 					"Count": 2,
 					"CountUnique": 1,
 					"RefScheme": null
 				},
 				{
-					"ID": "",
-					"Name": "Computer monitors",
+					"ID": "desktop",
+					"Name": "",
 					"Count": 2,
 					"CountUnique": 1,
 					"RefScheme": null
 				},
 				{
-					"ID": "",
-					"Name": "Computer monitors larger than HD",
+					"ID": "desktophd",
+					"Name": "",
 					"Count": 6,
 					"CountUnique": 3,
 					"RefScheme": null
 				},
 				{
-					"ID": "",
-					"Name": "(unknown)",
+					"ID": "unknown",
+					"Name": "",
 					"Count": 2,
 					"CountUnique": 1,
 					"RefScheme": null
@@ -382,7 +382,7 @@ func TestListSizes(t *testing.T) {
 		var got string
 		for _, w := range widths {
 			var s HitStats
-			err := s.ListSize(ctx, w.name, ztime.NewRange(now).To(now), nil, 10, 0)
+			err := s.ListSize(ctx, w.id, ztime.NewRange(now).To(now), nil, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -152,15 +152,13 @@ func (h *HitStats) ListSystem(ctx context.Context, system string, rng ztime.Rang
 	return errors.Wrap(err, "HitStats.ListSystem")
 }
 
-// TODO(i18n): translate this. Theses values are used as the key to get the
-// details.
 const (
-	sizePhones      = "Phones"
-	sizeLargePhones = "Large phones, small tablets"
-	sizeTablets     = "Tablets and small laptops"
-	sizeDesktop     = "Computer monitors"
-	sizeDesktopHD   = "Computer monitors larger than HD"
-	sizeUnknown     = "(unknown)"
+	sizePhones      = "phone"
+	sizeLargePhones = "largephone"
+	sizeTablets     = "tablet"
+	sizeDesktop     = "desktop"
+	sizeDesktopHD   = "desktophd"
+	sizeUnknown     = "unknown"
 )
 
 // ListSizes lists all device sizes.
@@ -178,12 +176,12 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 
 	// Group a bit more user-friendly.
 	ns := []HitStat{
-		{Name: sizePhones, Count: 0, CountUnique: 0},
-		{Name: sizeLargePhones, Count: 0, CountUnique: 0},
-		{Name: sizeTablets, Count: 0, CountUnique: 0},
-		{Name: sizeDesktop, Count: 0, CountUnique: 0},
-		{Name: sizeDesktopHD, Count: 0, CountUnique: 0},
-		{Name: sizeUnknown, Count: 0, CountUnique: 0},
+		{ID: sizePhones, Count: 0, CountUnique: 0},
+		{ID: sizeLargePhones, Count: 0, CountUnique: 0},
+		{ID: sizeTablets, Count: 0, CountUnique: 0},
+		{ID: sizeDesktop, Count: 0, CountUnique: 0},
+		{ID: sizeDesktopHD, Count: 0, CountUnique: 0},
+		{ID: sizeUnknown, Count: 0, CountUnique: 0},
 	}
 
 	for i := range h.Stats {
@@ -215,12 +213,12 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 }
 
 // ListSize lists all sizes for one grouping.
-func (h *HitStats) ListSize(ctx context.Context, name string, rng ztime.Range, pathFilter []int64, limit, offset int) error {
+func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pathFilter []int64, limit, offset int) error {
 	var (
 		min_size, max_size int
 		empty              bool
 	)
-	switch name {
+	switch id {
 	case sizePhones:
 		max_size = 384
 	case sizeLargePhones:
@@ -234,7 +232,7 @@ func (h *HitStats) ListSize(ctx context.Context, name string, rng ztime.Range, p
 	case sizeUnknown:
 		empty = true
 	default:
-		return errors.Errorf("HitStats.ListSizes: invalid value for name: %#v", name)
+		return errors.Errorf("HitStats.ListSizes: invalid value for name: %#v", id)
 	}
 
 	user := MustGetUser(ctx)
