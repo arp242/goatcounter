@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	nnow "github.com/jinzhu/now"
 	"zgo.at/gadget"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
@@ -147,8 +146,8 @@ func cmdReindex(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return err
 		}
 
-		firstDay = nnow.New(firstDay).BeginningOfMonth()
-		lastDay = nnow.New(lastDay).EndOfMonth()
+		firstDay = ztime.Time{firstDay}.StartOf(ztime.Month).Time
+		lastDay = ztime.Time{lastDay}.EndOf(ztime.Month).Time
 
 		for i, s := range sites {
 			if site > 0 && s.ID != site {

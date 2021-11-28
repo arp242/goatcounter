@@ -7,17 +7,16 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
-	github.com/go-chi/chi/v5 v5.0.5
+	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
-	github.com/jinzhu/now v1.1.2
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.3.2
-	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+	golang.org/x/net v0.0.0-20211123203042-d83791d6bcd9
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.7
@@ -60,7 +59,7 @@ require (
 // "Fork" of go-sqlite3 which: is updated to SQLite 3.35.4 and removes the
 // sqlite_json build constraint so it compiles with JSON support without having
 // to specify a build tag.
-replace github.com/mattn/go-sqlite3 => github.com/arp242/go-sqlite3 v1.13.1-0.20210919090901-28392ef30942
+replace github.com/mattn/go-sqlite3 => github.com/arp242/go-sqlite3 v1.13.1-0.20211128201706-eea7f4911537
 
 // https://github.com/oschwald/maxminddb-golang/pull/75
 replace github.com/oschwald/maxminddb-golang => github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664

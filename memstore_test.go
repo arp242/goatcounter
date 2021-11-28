@@ -82,7 +82,7 @@ func TestNextUUID(t *testing.T) {
 func TestMemstoreCollect(t *testing.T) {
 	all := func() zint.Bitflag16 {
 		s := SiteSettings{}
-		s.Defaults()
+		s.Defaults(context.Background())
 		return s.Collect
 	}()
 
