@@ -145,7 +145,7 @@ func (s *Site) Defaults(ctx context.Context) {
 	}
 
 	s.Settings.Defaults()
-	s.UserDefaults.Defaults()
+	s.UserDefaults.Defaults(ctx)
 }
 
 var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
@@ -181,7 +181,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.URL("link_domain", s.LinkDomain)
 
 	v.Sub("settings", "", s.Settings.Validate())
-	v.Sub("user_defaults", "", s.UserDefaults.Validate())
+	v.Sub("user_defaults", "", s.UserDefaults.Validate(ctx))
 
 	if s.Settings.DataRetention > 0 {
 		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 31, 0)

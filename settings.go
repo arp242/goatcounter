@@ -103,8 +103,8 @@ type (
 // default.
 //
 // As a function to ensure a global map isn't accidentally modified.
-func defaultWidgets() Widgets {
-	s := defaultWidgetSettings()
+func defaultWidgets(ctx context.Context) Widgets {
+	s := defaultWidgetSettings(ctx)
 	w := Widgets{}
 	for _, n := range []string{"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"} {
 		w = append(w, map[string]interface{}{"n": n, "s": s[n].getMap()})
@@ -113,25 +113,13 @@ func defaultWidgets() Widgets {
 }
 
 // List of all settings for widgets with some data.
-//
-// TODO(i18n): translate this. Not sure what the best way is as I don't want to
-// pass around a context or z18n.Locale.
-//
-// One way would be to mark these strings here:
-//
-//    Label: z18n.Mark("widget/pages/limit|Number of pages to load")
-//
-// And then in the template instead of doing {{$v.Label}}, call {{$.T $v.Label}}.
-//
-// Because the strings are "marked" here the z18n CLI can find them, and we can
-// just pass the value to T().
-func defaultWidgetSettings() map[string]WidgetSettings {
+func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 	return map[string]WidgetSettings{
 		"pages": map[string]WidgetSetting{
 			"limit_pages": WidgetSetting{
 				Type:  "number",
-				Label: "Page size",
-				Help:  "Number of pages to load",
+				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(10),
 				Validate: func(v *zvalidate.Validator, val interface{}) {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
@@ -139,8 +127,8 @@ func defaultWidgetSettings() map[string]WidgetSettings {
 			},
 			"limit_refs": WidgetSetting{
 				Type:  "number",
-				Label: "Referrers page size",
-				Help:  "Number of referrers to load when clicking on a path",
+				Label: z18n.T(ctx, "widget-setting/label/ref-page-size|Referrers page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/ref-page-size|Number of referrers to load when clicking on a path"),
 				Value: float64(10),
 				Validate: func(v *zvalidate.Validator, val interface{}) {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
@@ -150,22 +138,22 @@ func defaultWidgetSettings() map[string]WidgetSettings {
 		"totalpages": map[string]WidgetSetting{
 			"align": WidgetSetting{
 				Type:  "checkbox",
-				Label: "Align with pages",
-				Help:  "Add margin to the left so it aligns with pages charts",
+				Label: z18n.T(ctx, "widget-setting/label/align|Align with pages"),
+				Help:  z18n.T(ctx, "widget-setting/help/align|Add margin to the left so it aligns with pages charts"),
 				Value: false,
 			},
 			"no-events": WidgetSetting{
 				Type:  "checkbox",
-				Label: "Exclude events",
-				Help:  "Don't include events in the Totals overview",
+				Label: z18n.T(ctx, "widget-setting/label/no-events|Exclude events"),
+				Help:  z18n.T(ctx, "widget-setting/help/no-events|Don't include events in the Totals overview"),
 				Value: false,
 			},
 		},
 		"toprefs": map[string]WidgetSetting{
 			"limit": WidgetSetting{
 				Type:  "number",
-				Label: "Page size",
-				Help:  "Number of pages to load",
+				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
 				Validate: func(v *zvalidate.Validator, val interface{}) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
@@ -176,8 +164,8 @@ func defaultWidgetSettings() map[string]WidgetSettings {
 		"browsers": map[string]WidgetSetting{
 			"limit": WidgetSetting{
 				Type:  "number",
-				Label: "Page size",
-				Help:  "Number of pages to load",
+				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
 				Validate: func(v *zvalidate.Validator, val interface{}) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
@@ -188,8 +176,8 @@ func defaultWidgetSettings() map[string]WidgetSettings {
 		"systems": map[string]WidgetSetting{
 			"limit": WidgetSetting{
 				Type:  "number",
-				Label: "Page size",
-				Help:  "Number of pages to load",
+				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
 				Validate: func(v *zvalidate.Validator, val interface{}) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
@@ -203,8 +191,8 @@ func defaultWidgetSettings() map[string]WidgetSettings {
 		"locations": map[string]WidgetSetting{
 			"limit": WidgetSetting{
 				Type:  "number",
-				Label: "Page size",
-				Help:  "Number of pages to load",
+				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
 				Validate: func(v *zvalidate.Validator, val interface{}) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
@@ -212,8 +200,8 @@ func defaultWidgetSettings() map[string]WidgetSettings {
 			},
 			"key": WidgetSetting{
 				Type:  "select",
-				Label: "Show regions",
-				Help:  "Show regions for this country instead of a country list",
+				Label: z18n.T(ctx, "widget-setting/label/regions|Show regions"),
+				Help:  z18n.T(ctx, "widget-setting/help/regions|Show regions for this country instead of a country list"),
 				Value: "",
 				OptionsFunc: func(ctx context.Context) [][2]string {
 					var l Locations
@@ -378,8 +366,8 @@ func (s WidgetSettings) HasSettings() bool {
 }
 
 // Display all values that are different from the default.
-func (s WidgetSettings) Display(wname string) string {
-	defaults := defaultWidgetSettings()[wname]
+func (s WidgetSettings) Display(ctx context.Context, wname string) string {
+	defaults := defaultWidgetSettings(ctx)[wname]
 
 	order := make([]string, 0, len(s))
 	for k := range s {
@@ -414,8 +402,8 @@ func NewWidget(name string) Widget {
 // SetSettings set the setting "setting" for widget "widget" to "value".
 //
 // The value is converted to the correct type for this setting.
-func (w Widget) SetSetting(widget, setting, value string) error {
-	defW, ok := defaultWidgetSettings()[widget]
+func (w Widget) SetSetting(ctx context.Context, widget, setting, value string) error {
+	defW, ok := defaultWidgetSettings(ctx)[widget]
 	if !ok {
 		return fmt.Errorf("Widget.SetSetting: no such widget %q", widget)
 	}
@@ -447,8 +435,8 @@ func (w Widget) SetSetting(widget, setting, value string) error {
 // Name gets this widget's name.
 func (w Widget) Name() string { return w["n"].(string) }
 
-func (w Widget) GetSetting(n string) interface{} {
-	for k, v := range w.GetSettings() {
+func (w Widget) GetSetting(ctx context.Context, n string) interface{} {
+	for k, v := range w.GetSettings(ctx) {
 		if k == n {
 			return v.Value
 		}
@@ -457,8 +445,8 @@ func (w Widget) GetSetting(n string) interface{} {
 }
 
 // GetSettings gets all setting for this widget.
-func (w Widget) GetSettings() WidgetSettings {
-	def := defaultWidgetSettings()[w.Name()]
+func (w Widget) GetSettings(ctx context.Context) WidgetSettings {
+	def := defaultWidgetSettings(ctx)[w.Name()]
 	s, ok := w["s"]
 	if ok {
 		for k, v := range s.(map[string]interface{}) {
@@ -494,7 +482,7 @@ func (v Views) Get(name string) (View, int) {
 	return View{}, -1
 }
 
-func (ss *UserSettings) Defaults() {
+func (ss *UserSettings) Defaults(ctx context.Context) {
 	if ss.Language == "" {
 		ss.Language = "en-GB"
 	}
@@ -509,18 +497,18 @@ func (ss *UserSettings) Defaults() {
 	}
 
 	if len(ss.Widgets) == 0 {
-		ss.Widgets = defaultWidgets()
+		ss.Widgets = defaultWidgets(ctx)
 	}
 	if len(ss.Views) == 0 {
 		ss.Views = Views{{Name: "default", Period: "week"}}
 	}
 }
 
-func (ss *UserSettings) Validate() error {
+func (ss *UserSettings) Validate(ctx context.Context) error {
 	v := zvalidate.New()
 
 	for i, w := range ss.Widgets {
-		for _, s := range w.GetSettings() {
+		for _, s := range w.GetSettings(ctx) {
 			if s.Validate == nil {
 				continue
 			}

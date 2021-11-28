@@ -62,14 +62,14 @@ var (
 	FilterInternal zint.Bitflag8 = 0b0001
 )
 
-func FromSiteWidget(w goatcounter.Widget) Widget {
+func FromSiteWidget(ctx context.Context, w goatcounter.Widget) Widget {
 	ww := NewWidget(w.Name(), 0)
-	ww.SetSettings(w.GetSettings())
+	ww.SetSettings(w.GetSettings(ctx))
 
 	return ww
 }
 
-func FromSiteWidgets(www goatcounter.Widgets, params zint.Bitflag8) List {
+func FromSiteWidgets(ctx context.Context, www goatcounter.Widgets, params zint.Bitflag8) List {
 	widgetList := make(List, 0, len(www)+4)
 	if !params.Has(FilterInternal) {
 		// We always need these to know the total number of pageviews.
@@ -77,7 +77,7 @@ func FromSiteWidgets(www goatcounter.Widgets, params zint.Bitflag8) List {
 	}
 	for i, w := range www {
 		ww := NewWidget(w.Name(), i)
-		ww.SetSettings(w.GetSettings())
+		ww.SetSettings(w.GetSettings(ctx))
 
 		switch w.Name() {
 		case "pages":

@@ -75,7 +75,7 @@ func (u *User) Defaults(ctx context.Context) {
 		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
 	}
 
-	u.Settings.Defaults()
+	u.Settings.Defaults(ctx)
 }
 
 // Validate the object.
@@ -99,7 +99,7 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 		}
 	}
 
-	v.Sub("settings", "", u.Settings.Validate())
+	v.Sub("settings", "", u.Settings.Validate(ctx))
 
 	return v.ErrorOrNil()
 }

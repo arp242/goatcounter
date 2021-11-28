@@ -128,7 +128,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Load widgets data from the database.
-	wid := widgets.FromSiteWidgets(user.Settings.Widgets, 0)
+	wid := widgets.FromSiteWidgets(r.Context(), user.Settings.Widgets, 0)
 
 	if w := wid.Get("totalpages"); w != nil {
 		wid.Get("totalcount").(*widgets.TotalCount).NoEvents = w.Settings()["no-events"].Value.(bool)
@@ -275,7 +275,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 		},
 	}
 
-	wid := widgets.FromSiteWidget(user.Settings.Widgets[widget])
+	wid := widgets.FromSiteWidget(r.Context(), user.Settings.Widgets[widget])
 	if key != "" {
 		s := wid.Settings()
 		s.Set("key", key)

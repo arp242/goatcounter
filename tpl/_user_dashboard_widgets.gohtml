@@ -8,7 +8,7 @@
 			<div>
 				{{if $w.Settings.HasSettings}}<a href="#" class="show-s" title="Settings">⚙️&#xfe0e;</a>{{else}}<span class="show-s"></span>{{end}}
 				<strong class="main">{{$w.Label $.Context}}</strong>
-				{{$s := $w.Settings.Display $w.Name}}
+				{{$s := $w.Settings.Display $.Context $w.Name}}
 				{{if $s}}({{$s}}){{end}}
 			</div>
 			<a href="#" class="dashboard-rm" tabindex="-1">{{$.T "button/remove|Remove"}}</a>

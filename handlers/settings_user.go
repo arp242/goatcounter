@@ -78,7 +78,7 @@ func (h settings) userDashboardWidget(w http.ResponseWriter, r *http.Request) er
 
 		Validate *zvalidate.Validator
 	}{newGlobals(w, r),
-		widgets.List{widgets.FromSiteWidget(goatcounter.NewWidget(chi.URLParam(r, "name")))},
+		widgets.List{widgets.FromSiteWidget(r.Context(), goatcounter.NewWidget(chi.URLParam(r, "name")))},
 		nil})
 }
 
@@ -90,7 +90,7 @@ func (h settings) userDashboard(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			Widgets       widgets.List
 			CanAddWidgets widgets.List
 		}{newGlobals(w, r), verr,
-			widgets.FromSiteWidgets(User(r.Context()).Settings.Widgets, widgets.FilterInternal),
+			widgets.FromSiteWidgets(r.Context(), User(r.Context()).Settings.Widgets, widgets.FilterInternal),
 			widgets.ListAllWidgets(),
 		})
 	}
@@ -139,7 +139,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		}
 		w := goatcounter.Widget{"n": v.Name}
 		for kk, vv := range v.S {
-			w.SetSetting(v.Name, kk, vv)
+			w.SetSetting(r.Context(), v.Name, kk, vv)
 		}
 		user.Settings.Widgets = append(user.Settings.Widgets, w)
 	}

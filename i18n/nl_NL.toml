@@ -205,51 +205,51 @@
   default = "Gisteren"
 
 ["data-collect/help/country"]
-  loc     = ["settings.go:340"]
+  loc     = ["settings.go:327"]
   default = "Naam van het land, b.v. België, Indonesië, enz."
 
 ["data-collect/help/referrer"]
-  loc     = ["settings.go:325"]
+  loc     = ["settings.go:312"]
   default = "Referer header en campagneparameters."
 
 ["data-collect/help/region"]
-  loc     = ["settings.go:345"]
+  loc     = ["settings.go:332"]
   default = "Regio, b.v. Texas, Bali, enz. De details hiervoor verschillen per land."
 
 ["data-collect/help/sessions"]
-  loc     = ["settings.go:320"]
+  loc     = ["settings.go:307"]
   default = "Houd unieke bezoekers bij voor 8 uur; als je dit uitzet dan wordt iemand die de pagina herlaad met F5 als 2 pageviews getoond in plaats van 1."
 
 ["data-collect/help/size"]
-  loc     = ["settings.go:335"]
+  loc     = ["settings.go:322"]
   default = "Scrermformaat."
 
 ["data-collect/help/user-agent"]
-  loc     = ["settings.go:330"]
+  loc     = ["settings.go:317"]
   default = "User-Agent header om de browser en het systeem op te halen."
 
 ["data-collect/label/country"]
-  loc     = ["settings.go:339"]
+  loc     = ["settings.go:326"]
   default = "Land"
 
 ["data-collect/label/referrer"]
-  loc     = ["settings.go:324"]
+  loc     = ["settings.go:311"]
   default = "Referrer"
 
 ["data-collect/label/region"]
-  loc     = ["settings.go:344"]
+  loc     = ["settings.go:331"]
   default = "Regio"
 
 ["data-collect/label/sessions"]
-  loc     = ["settings.go:319"]
+  loc     = ["settings.go:306"]
   default = "Sessies"
 
 ["data-collect/label/size"]
-  loc     = ["settings.go:334"]
+  loc     = ["settings.go:321"]
   default = "Scherm"
 
 ["data-collect/label/user-agent"]
-  loc     = ["settings.go:329"]
+  loc     = ["settings.go:316"]
   default = "User-Agent"
 
 ["datepicker/keyboard"]
@@ -1543,4 +1543,56 @@ betekenis.
 ["unknown"]
   loc     = ["tpl.go:464"]
   default = "(onbekend)"
+
+["widget-setting/help/align"]
+  loc     = ["settings.go:142"]
+  default = "Marge aan de linkerkant zodat de grafieken uitlijnen"
+
+["widget-setting/help/no-events"]
+  loc     = ["settings.go:148"]
+  default = "Toon geen events in het totaaloverzicht"
+
+["widget-setting/help/page-size"]
+  loc     = [
+    "settings.go:122",
+    "settings.go:156",
+    "settings.go:168",
+    "settings.go:180",
+    "settings.go:195",
+  ]
+  default = "Lengte per pagina"
+
+["widget-setting/help/ref-page-size"]
+  loc     = ["settings.go:131"]
+  default = "Aantal referrers om te laden wanneer je op een pad klikt"
+
+["widget-setting/help/regions"]
+  loc     = ["settings.go:204"]
+  default = "Toon regio's voor dit land in plaats van een lijst met landen"
+
+["widget-setting/label/align"]
+  loc     = ["settings.go:141"]
+  default = "Lijn uit met pagina's"
+
+["widget-setting/label/no-events"]
+  loc     = ["settings.go:147"]
+  default = "Zonder events"
+
+["widget-setting/label/page-size"]
+  loc     = [
+    "settings.go:121",
+    "settings.go:155",
+    "settings.go:167",
+    "settings.go:179",
+    "settings.go:194",
+  ]
+  default = "Paginalengte"
+
+["widget-setting/label/ref-page-size"]
+  loc     = ["settings.go:130"]
+  default = "Referrers paginalegte"
+
+["widget-setting/label/regions"]
+  loc     = ["settings.go:203"]
+  default = "Toon regio's"
 

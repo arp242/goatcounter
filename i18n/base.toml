@@ -206,51 +206,51 @@
   default = "Yesterday"
 
 ["data-collect/help/country"]
-  loc     = ["settings.go:340"]
+  loc     = ["settings.go:327"]
   default = "Country name, for example Belgium, Indonesia, etc."
 
 ["data-collect/help/referrer"]
-  loc     = ["settings.go:325"]
+  loc     = ["settings.go:312"]
   default = "Referer header and campaign parameters."
 
 ["data-collect/help/region"]
-  loc     = ["settings.go:345"]
+  loc     = ["settings.go:332"]
   default = "Region, for example Texas, Bali, etc. The details for this differ per country."
 
 ["data-collect/help/sessions"]
-  loc     = ["settings.go:320"]
+  loc     = ["settings.go:307"]
   default = "Track unique visitors for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1"
 
 ["data-collect/help/size"]
-  loc     = ["settings.go:335"]
+  loc     = ["settings.go:322"]
   default = "Screen size."
 
 ["data-collect/help/user-agent"]
-  loc     = ["settings.go:330"]
+  loc     = ["settings.go:317"]
   default = "User-Agent header to get the browser and system name and version."
 
 ["data-collect/label/country"]
-  loc     = ["settings.go:339"]
+  loc     = ["settings.go:326"]
   default = "Country"
 
 ["data-collect/label/referrer"]
-  loc     = ["settings.go:324"]
+  loc     = ["settings.go:311"]
   default = "Referrer"
 
 ["data-collect/label/region"]
-  loc     = ["settings.go:344"]
+  loc     = ["settings.go:331"]
   default = "Region"
 
 ["data-collect/label/sessions"]
-  loc     = ["settings.go:319"]
+  loc     = ["settings.go:306"]
   default = "Sessions"
 
 ["data-collect/label/size"]
-  loc     = ["settings.go:334"]
+  loc     = ["settings.go:321"]
   default = "Size"
 
 ["data-collect/label/user-agent"]
-  loc     = ["settings.go:329"]
+  loc     = ["settings.go:316"]
   default = "User-Agent"
 
 ["datepicker/keyboard"]
@@ -1544,4 +1544,56 @@ meaning.
 ["unknown"]
   loc     = ["tpl.go:464"]
   default = "(unknown)"
+
+["widget-setting/help/align"]
+  loc     = ["settings.go:142"]
+  default = "Add margin to the left so it aligns with pages charts"
+
+["widget-setting/help/no-events"]
+  loc     = ["settings.go:148"]
+  default = "Don't include events in the Totals overview"
+
+["widget-setting/help/page-size"]
+  loc     = [
+    "settings.go:122",
+    "settings.go:156",
+    "settings.go:168",
+    "settings.go:180",
+    "settings.go:195",
+  ]
+  default = "Number of pages to load"
+
+["widget-setting/help/ref-page-size"]
+  loc     = ["settings.go:131"]
+  default = "Number of referrers to load when clicking on a path"
+
+["widget-setting/help/regions"]
+  loc     = ["settings.go:204"]
+  default = "Show regions for this country instead of a country list"
+
+["widget-setting/label/align"]
+  loc     = ["settings.go:141"]
+  default = "Align with pages"
+
+["widget-setting/label/no-events"]
+  loc     = ["settings.go:147"]
+  default = "Exclude events"
+
+["widget-setting/label/page-size"]
+  loc     = [
+    "settings.go:121",
+    "settings.go:155",
+    "settings.go:167",
+    "settings.go:179",
+    "settings.go:194",
+  ]
+  default = "Page size"
+
+["widget-setting/label/ref-page-size"]
+  loc     = ["settings.go:130"]
+  default = "Referrers page size"
+
+["widget-setting/label/regions"]
+  loc     = ["settings.go:203"]
+  default = "Show regions"
 
