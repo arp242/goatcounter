@@ -204,6 +204,54 @@
   loc     = ["handlers/dashboard.go:204"]
   default = "Gisteren"
 
+["data-collect/help/country"]
+  loc     = ["settings.go:340"]
+  default = "Naam van het land, b.v. België, Indonesië, enz."
+
+["data-collect/help/referrer"]
+  loc     = ["settings.go:325"]
+  default = "Referer header en campagneparameters."
+
+["data-collect/help/region"]
+  loc     = ["settings.go:345"]
+  default = "Regio, b.v. Texas, Bali, enz. De details hiervoor verschillen per land."
+
+["data-collect/help/sessions"]
+  loc     = ["settings.go:320"]
+  default = "Houd unieke bezoekers bij voor 8 uur; als je dit uitzet dan wordt iemand die de pagina herlaad met F5 als 2 pageviews getoond in plaats van 1."
+
+["data-collect/help/size"]
+  loc     = ["settings.go:335"]
+  default = "Scrermformaat."
+
+["data-collect/help/user-agent"]
+  loc     = ["settings.go:330"]
+  default = "User-Agent header om de browser en het systeem op te halen."
+
+["data-collect/label/country"]
+  loc     = ["settings.go:339"]
+  default = "Land"
+
+["data-collect/label/referrer"]
+  loc     = ["settings.go:324"]
+  default = "Referrer"
+
+["data-collect/label/region"]
+  loc     = ["settings.go:344"]
+  default = "Regio"
+
+["data-collect/label/sessions"]
+  loc     = ["settings.go:319"]
+  default = "Sessies"
+
+["data-collect/label/size"]
+  loc     = ["settings.go:334"]
+  default = "Scherm"
+
+["data-collect/label/user-agent"]
+  loc     = ["settings.go:329"]
+  default = "User-Agent"
+
 ["datepicker/keyboard"]
   loc     = ["handlers/handlers.go:75"]
   default = "Gebruik de cursortoetsen om een datum te kiezen"
@@ -1397,7 +1445,6 @@ site</strong>.
   loc     = ["tpl/settings_purge.gohtml:6"]
   default = "Verwijder alle pageviews voor een pad."
 
-# XXX
 ["p/rm-hits-help"]
   loc     = ["tpl/settings_purge.gohtml:8"]
   default = """

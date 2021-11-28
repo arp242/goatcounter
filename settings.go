@@ -15,6 +15,7 @@ import (
 
 	"zgo.at/json"
 	"zgo.at/tz"
+	"zgo.at/z18n"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zvalidate"
@@ -311,41 +312,41 @@ type CollectFlag struct {
 }
 
 // CollectFlags returns a list of all flags we know for the Collect settings.
-func (ss SiteSettings) CollectFlags() []CollectFlag {
+func (ss SiteSettings) CollectFlags(ctx context.Context) []CollectFlag {
 	return []CollectFlag{
 		{
-			Label: "Sessions",
-			Help:  "Track unique visitors for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1",
+			Label: z18n.T(ctx, "data-collect/label/sessions|Sessions"),
+			Help:  z18n.T(ctx, "data-collect/help/sessions|Track unique visitors for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1"),
 			Flag:  CollectSession,
 		},
 		{
-			Label: "Referrer",
-			Help:  "Referer header and campaign parameters.",
+			Label: z18n.T(ctx, "data-collect/label/referrer|Referrer"),
+			Help:  z18n.T(ctx, "data-collect/help/referrer|Referer header and campaign parameters."),
 			Flag:  CollectReferrer,
 		},
 		{
-			Label: "User-Agent",
-			Help:  "User-Agent header to get the browser and system name and version.",
+			Label: z18n.T(ctx, "data-collect/label/user-agent|User-Agent"),
+			Help:  z18n.T(ctx, "data-collect/help/user-agent|User-Agent header to get the browser and system name and version."),
 			Flag:  CollectUserAgent,
 		},
 		{
-			Label: "Size",
-			Help:  "Screen size.",
+			Label: z18n.T(ctx, "data-collect/label/size|Size"),
+			Help:  z18n.T(ctx, "data-collect/help/size|Screen size."),
 			Flag:  CollectScreenSize,
 		},
 		{
-			Label: "Country",
-			Help:  "Country name, for example Belgium, Indonesia, etc.",
+			Label: z18n.T(ctx, "data-collect/label/country|Country"),
+			Help:  z18n.T(ctx, "data-collect/help/country|Country name, for example Belgium, Indonesia, etc."),
 			Flag:  CollectLocation,
 		},
 		{
-			Label: "Region",
-			Help:  "Region, for example Texas, Bali, etc. The details for this differ per country.",
+			Label: z18n.T(ctx, "data-collect/label/region|Region"),
+			Help:  z18n.T(ctx, "data-collect/help/region|Region, for example Texas, Bali, etc. The details for this differ per country."),
 			Flag:  CollectLocationRegion,
 		},
 		// {
-		// 	Label: "Language",
-		// 	Help:  "Supported languages from Accept-Language",
+		// 	Label: z18n.T(ctx, "data-collect/label/language|Language"),
+		// 	Help:  z18n.T(ctx, "data-collect/help/language|Supported languages from Accept-Language"),
 		// 	Flag:  CollectLanguage,
 		// },
 	}

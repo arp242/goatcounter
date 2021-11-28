@@ -205,6 +205,54 @@
   loc     = ["handlers/dashboard.go:204"]
   default = "Yesterday"
 
+["data-collect/help/country"]
+  loc     = ["settings.go:340"]
+  default = "Country name, for example Belgium, Indonesia, etc."
+
+["data-collect/help/referrer"]
+  loc     = ["settings.go:325"]
+  default = "Referer header and campaign parameters."
+
+["data-collect/help/region"]
+  loc     = ["settings.go:345"]
+  default = "Region, for example Texas, Bali, etc. The details for this differ per country."
+
+["data-collect/help/sessions"]
+  loc     = ["settings.go:320"]
+  default = "Track unique visitors for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1"
+
+["data-collect/help/size"]
+  loc     = ["settings.go:335"]
+  default = "Screen size."
+
+["data-collect/help/user-agent"]
+  loc     = ["settings.go:330"]
+  default = "User-Agent header to get the browser and system name and version."
+
+["data-collect/label/country"]
+  loc     = ["settings.go:339"]
+  default = "Country"
+
+["data-collect/label/referrer"]
+  loc     = ["settings.go:324"]
+  default = "Referrer"
+
+["data-collect/label/region"]
+  loc     = ["settings.go:344"]
+  default = "Region"
+
+["data-collect/label/sessions"]
+  loc     = ["settings.go:319"]
+  default = "Sessions"
+
+["data-collect/label/size"]
+  loc     = ["settings.go:334"]
+  default = "Size"
+
+["data-collect/label/user-agent"]
+  loc     = ["settings.go:329"]
+  default = "User-Agent"
+
 ["datepicker/keyboard"]
   loc     = ["handlers/handlers.go:75"]
   default = "Use the arrow keys to pick a date"

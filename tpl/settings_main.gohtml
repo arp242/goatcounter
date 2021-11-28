@@ -137,7 +137,7 @@
 			`}}</p>
 
 			<input type="hidden" name="settings.collect[]" value="1">
-			{{range $cf := .Site.Settings.CollectFlags}}
+			{{range $cf := .Site.Settings.CollectFlags .Context}}
 				<label><input type="checkbox" name="settings.collect[]" value="{{$cf.Flag}}" {{if $.Site.Settings.Collect.Has $cf.Flag}}checked{{end}}>
 					<span style="min-width: 5.5em; display: inline-block;">{{$cf.Label}}</span>
 					<div>{{$cf.Help}}</div></label>
