@@ -122,8 +122,8 @@ zgo.at/json v0.0.0-20211017213340-cc8bf51df08c h1:+1NJehERsfdFM/8hLp/StIgPOJjqqx
 zgo.at/json v0.0.0-20211017213340-cc8bf51df08c/go.mod h1:DUuNIRpNC7/cup+Gy0qhwQEjjlLFXXRZ04VnVv9bf3E=
 zgo.at/tz v0.0.0-20211017223207-006eae99adf6 h1:5YGaOhnrchO+rebbvxJ4+ZOLYygCLh5JDLJg6kCilyw=
 zgo.at/tz v0.0.0-20211017223207-006eae99adf6/go.mod h1:A/XeaYjeMGoXptRB3EcR80tgir37tJnzCb6itDaHPxo=
-zgo.at/z18n v0.0.0-20211128012012-1891f434c9d9 h1:0eiKeYL2PGNybK2ZhEUxnuHC6IPoRgZfy5xFewFxkCM=
-zgo.at/z18n v0.0.0-20211128012012-1891f434c9d9/go.mod h1:LpazcRBXMC6DM7jumIJZuKCsoztLMZ0djXTJW6NjtOI=
+zgo.at/z18n v0.0.0-20211128135632-b6cd9496e035 h1:13/+KqrsV0UseZ/Cb6RCTy5XmRRmjL0dgUprsdzIK2g=
+zgo.at/z18n v0.0.0-20211128135632-b6cd9496e035/go.mod h1:/2n2t9+1VoEd4n1OHABYm3AfRL1JohJIWwUP/so8ZeQ=
 zgo.at/zcache v1.0.1-0.20210412145246-76039d792310 h1:lJ2j+bNqtRmn8TOJDZXqeaTuG856QzYGxXghRPw2iH8=
 zgo.at/zcache v1.0.1-0.20210412145246-76039d792310/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
 zgo.at/zdb v0.0.0-20211017231039-b6fbb7dc2e5c h1:Lkq98SGQ0Vi14YFLNZEOlNcropRf0FuIy8wJL/S0HeY=
@@ -146,7 +146,8 @@ zgo.at/zstd v0.0.0-20211128012218-5ef7cc4bcc03 h1:izdY6FRQ9utJOf+sh0R1pEPdn1PK8v
 zgo.at/zstd v0.0.0-20211128012218-5ef7cc4bcc03/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08 h1:c5+QSfo9AQfeigy/GsUGu+cq5JHJ8qo9KiNRoLeqhX4=
 zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08/go.mod h1:bIBaT9rsnc+uWMSf+6UXjDHhlwxLgcU7jahxUMU+j+k=
-zgo.at/ztpl v0.0.0-20211017232908-7dce3dc79277 h1:FicTpGqTvbeeRMA4tp+hmQ3vthoNoTr8KFq04l/uDec=
 zgo.at/ztpl v0.0.0-20211017232908-7dce3dc79277/go.mod h1:mhjSF7+pfwMjNhDgmw9Ywr1CixzeVWuvMjF7gLJT8Uw=
+zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4 h1:/GHTN42or9pD7HVnlQohlC+QegKpwBn9hhE0Fa8zJPc=
+zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4/go.mod h1:mhjSF7+pfwMjNhDgmw9Ywr1CixzeVWuvMjF7gLJT8Uw=
 zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f h1:gxnihBTZQ8W6tJCvlJCakO2ekiaeI3Dm6UEAzln4qAo=
 zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f/go.mod h1:WiF1dChwUrGhTRTPCe96HbJSkj9ztxARSgP+tEWAdJ0=

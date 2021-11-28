@@ -1,6 +1,6 @@
 [__meta__]
   base-file = true
-  generated = 2021-11-27T22:17:01Z
+  generated = 2021-11-28T06:13:41Z
   [__meta__.options]
     fun = ["z18n.T", "z18n.Locale.T", "T"]
     paths = ["."]
@@ -11,6 +11,7 @@
   loc     = [
     "tpl/settings_sites.gohtml:47",
     "tpl/settings_users_form.gohtml:75",
+    "tpl/user_api.gohtml:59",
   ]
   default = "Add new"
 
@@ -34,6 +35,14 @@
   loc     = ["tpl/settings_sites.gohtml:67"]
   default = "Copy"
 
+["button/delete"]
+  loc     = [
+    "tpl/settings_sites.gohtml:30",
+    "tpl/settings_users.gohtml:20",
+    "tpl/user_api.gohtml:39",
+  ]
+  default = "delete"
+
 ["button/delete-account"]
   loc     = ["tpl/settings_delete.gohtml:47"]
   default = "Delete account, all sites, and all data"
@@ -51,7 +60,10 @@
   default = "Disable MFA"
 
 ["button/edit"]
-  loc     = ["tpl/settings_users_form.gohtml:75"]
+  loc     = [
+    "tpl/settings_users.gohtml:15",
+    "tpl/settings_users_form.gohtml:75",
+  ]
   default = "Edit"
 
 ["button/enable-mfa"]
@@ -61,6 +73,10 @@
 ["button/forgot-password"]
   loc     = ["tpl/_backend_signin.gohtml:10"]
   default = "Forgot password?"
+
+["button/remove"]
+  loc     = ["tpl/_user_dashboard_widgets.gohtml:14"]
+  default = "Remove"
 
 ["button/request-reset"]
   loc     = ["tpl/user_forgot_pw.gohtml:9"]
@@ -119,6 +135,10 @@
 ["button/submit"]
   loc     = ["tpl/dashboard.gohtml:44"]
   default = "Submit"
+
+["confirm/delete-user"]
+  loc     = ["tpl/settings_users.gohtml:17"]
+  default = "Delete %(email)?"
 
 ["dashboard/day-ago"]
   loc     = ["handlers/dashboard.go:205"]
@@ -318,6 +338,10 @@ Martin
   loc     = ["handlers/handlers.go:67"]
   default = "That would be before the site’s creation; GoatCounter is not *that* good ;-)"
 
+["error/delete-main-site"]
+  loc     = ["tpl/settings_sites.gohtml:28"]
+  default = "Can’t delete main site"
+
 ["error/export-expired"]
   loc     = ["handlers/settings.go:505"]
   default = "It looks like there is no export yet or the export has expired."
@@ -388,6 +412,14 @@ Martin
 ["error/wrong-verification-key"]
   loc     = ["handlers/user.go:528"]
   default = "Wrong verification key."
+
+["event"]
+  loc     = [
+    "tpl/_dashboard_pages_rows.gohtml:9",
+    "tpl/_dashboard_pages_rows.gohtml:19",
+    "tpl/_dashboard_pages_text_rows.gohtml:22",
+  ]
+  default = "event"
 
 ["forgot-domain-help"]
   loc     = ["tpl/user_forgot_code.gohtml:6"]
@@ -523,6 +555,10 @@ Martin
 ["header/name"]
   loc     = ["tpl/user_api.gohtml:22"]
   default = "Name"
+
+["header/new"]
+  loc     = ["tpl/backend_updates.gohtml:9"]
+  default = "New"
 
 ["header/pagination-cursor"]
   loc     = ["tpl/settings_export.gohtml:60"]
@@ -671,6 +707,14 @@ The verification runs every 2 hours.
 ["help/domain-access"]
   loc     = ["tpl/settings_sites.gohtml:44"]
   default = "Domain to access this site from."
+
+["help/drag-reorder"]
+  loc     = ["tpl/_user_dashboard_widgets.gohtml:3"]
+  default = "Drag to reorder"
+
+["help/for-the-following-countries"]
+  loc     = ["tpl/settings_main.gohtml:148"]
+  default = "List of country codes (%[list]; use the alpha-2 code); leave blank to collect for all countries (if enabled)."
 
 ["help/goatcounter-domain"]
   loc     = ["tpl/settings_main.gohtml:102"]
@@ -832,6 +876,10 @@ for wanting to delete your account. This is entirely optional.
   ]
   default = "Email address"
 
+["label/for-following-countries"]
+  loc     = ["tpl/settings_main.gohtml:146"]
+  default = "For the following countries only:"
+
 ["label/goatcounter-domain"]
   loc     = ["tpl/settings_main.gohtml:100"]
   default = "GoatCounter domain"
@@ -847,6 +895,13 @@ for wanting to delete your account. This is entirely optional.
 ["label/loc-stats"]
   loc     = ["widgets/locations.go:29"]
   default = "Location stats"
+
+["label/mark-current"]
+  loc     = [
+    "tpl/settings_sites.gohtml:32",
+    "tpl/settings_users.gohtml:23",
+  ]
+  default = "(current)"
 
 ["label/match-title"]
   loc     = ["tpl/settings_purge.gohtml:21"]
@@ -1005,6 +1060,14 @@ for wanting to delete your account. This is entirely optional.
   loc     = ["tpl/settings_main.gohtml:41"]
   default = "Generate random secret."
 
+["link/goto-path"]
+  loc     = [
+    "tpl/_dashboard_pages_rows.gohtml:12",
+    "tpl/_dashboard_pages_rows.gohtml:21",
+    "tpl/_dashboard_pages_text_rows.gohtml:11",
+  ]
+  default = "Go to %(path)"
+
 ["link/import"]
   loc     = ["tpl/_settings_nav.gohtml:4"]
   default = "Import"
@@ -1162,6 +1225,13 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 ["nav-dash/year"]
   loc     = ["tpl/dashboard.gohtml:84"]
   default = "year"
+
+["no-title"]
+  loc     = [
+    "tpl/_dashboard_pages_rows.gohtml:8",
+    "tpl/_dashboard_pages_text_rows.gohtml:21",
+  ]
+  default = "no title"
 
 ["notify/add-one-thing"]
   loc     = ["handlers/settings_user.go:115"]
@@ -1386,6 +1456,10 @@ which aren't shown in the overview.</p>
   loc     = ["tpl/totp.gohtml:4"]
   default = "This account is protected with multi-factor auth; please enter the code from your authenticator app."
 
+["p/last-user"]
+  loc     = ["tpl/settings_users.gohtml:13"]
+  default = "Can’t delete or edit last admin user"
+
 ["p/no-data"]
   loc     = ["tpl/dashboard.gohtml:22"]
   default = """
@@ -1485,9 +1559,17 @@ meaning.
   loc     = ["tpl/dashboard.gohtml:6"]
   default = "Please verify your email by clicking the link sent to %(email). %[%sup (Why?)]"
 
+["page-ranking"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:28"]
+  default = "Page ranking"
+
 ["restricted-admin-access"]
   loc     = ["tpl/settings_main.gohtml:21"]
   default = "Normally administrators can’t “log in” to your site, but if this is enabled they can. You may be asked to enable this for support requests."
+
+["scale-y"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:25"]
+  default = "Scale Y axis to max"
 
 ["top-nav/back"]
   loc     = [
@@ -1596,4 +1678,8 @@ meaning.
 ["widget-setting/label/regions"]
   loc     = ["settings.go:203"]
   default = "Show regions"
+
+["y-scale"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:27"]
+  default = "Y-axis scale"
 

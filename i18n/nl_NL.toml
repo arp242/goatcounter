@@ -7,6 +7,7 @@
   loc     = [
     "tpl/settings_sites.gohtml:47",
     "tpl/settings_users_form.gohtml:75",
+    "tpl/user_api.gohtml:59",
   ]
   default = "Nieuw"
 
@@ -30,6 +31,14 @@
   loc     = ["tpl/settings_sites.gohtml:67"]
   default = "Kopieer"
 
+["button/delete"]
+  loc     = [
+    "tpl/settings_sites.gohtml:30",
+    "tpl/settings_users.gohtml:20",
+    "tpl/user_api.gohtml:39",
+  ]
+  default = "verwijderen"
+
 ["button/delete-account"]
   loc     = ["tpl/settings_delete.gohtml:47"]
   default = "Verwijder account, alle sites, en alle data"
@@ -47,7 +56,10 @@
   default = "Zet MFA uit"
 
 ["button/edit"]
-  loc     = ["tpl/settings_users_form.gohtml:75"]
+  loc     = [
+    "tpl/settings_users.gohtml:15",
+    "tpl/settings_users_form.gohtml:75",
+  ]
   default = "Aanpassen"
 
 ["button/enable-mfa"]
@@ -57,6 +69,10 @@
 ["button/forgot-password"]
   loc     = ["tpl/_backend_signin.gohtml:10"]
   default = "Wachtwoord vergeten?"
+
+["button/remove"]
+  loc     = ["tpl/_user_dashboard_widgets.gohtml:14"]
+  default = "Verwijderen"
 
 ["button/request-reset"]
   loc     = ["tpl/user_forgot_pw.gohtml:9"]
@@ -115,6 +131,10 @@
 ["button/submit"]
   loc     = ["tpl/dashboard.gohtml:44"]
   default = "Versturen"
+
+["confirm/delete-user"]
+  loc     = ["tpl/settings_users.gohtml:17"]
+  default = "%(email) verwijderen?"
 
 ["dashboard/day-ago"]
   loc     = ["handlers/dashboard.go:205"]
@@ -317,6 +337,10 @@ Martin
   loc     = ["handlers/handlers.go:67"]
   default = "Dat zou voor de aanmaakdatum van de site zijn; GoatCounter is nou ook weer niet *zo* goed ;-)"
 
+["error/delete-main-site"]
+  loc     = ["tpl/settings_sites.gohtml:28"]
+  default = "Kan de hoofdsite niet verwijderen"
+
 ["error/export-expired"]
   loc     = ["handlers/settings.go:505"]
   default = "Deze export is nog niet klaar of is verlopen."
@@ -387,6 +411,14 @@ Martin
 ["error/wrong-verification-key"]
   loc     = ["handlers/user.go:528"]
   default = "Wrong verification key."
+
+["event"]
+  loc     = [
+    "tpl/_dashboard_pages_rows.gohtml:9",
+    "tpl/_dashboard_pages_rows.gohtml:19",
+    "tpl/_dashboard_pages_text_rows.gohtml:22",
+  ]
+  default = "event"
 
 ["forgot-domain-help"]
   loc     = ["tpl/user_forgot_code.gohtml:6"]
@@ -522,6 +554,10 @@ Martin
 ["header/name"]
   loc     = ["tpl/user_api.gohtml:22"]
   default = "Naam"
+
+["header/new"]
+  loc     = ["tpl/backend_updates.gohtml:9"]
+  default = "Nieuw"
 
 ["header/pagination-cursor"]
   loc     = ["tpl/settings_export.gohtml:60"]
@@ -669,6 +705,14 @@ De verificatie checkt elke 2 uur.
 ["help/domain-access"]
   loc     = ["tpl/settings_sites.gohtml:44"]
   default = "Domein voor deze site."
+
+["help/drag-reorder"]
+  loc     = ["tpl/_user_dashboard_widgets.gohtml:3"]
+  default = "Versleep om te herordenen"
+
+["help/for-the-following-countries"]
+  loc     = ["tpl/settings_main.gohtml:148"]
+  default = "Lijst met landcodes (%[lijst]; gebruik de alpha-2 code); laat leeg om te verzamelen voor alle landen (als dit aan staat)."
 
 ["help/goatcounter-domain"]
   loc     = ["tpl/settings_main.gohtml:102"]
@@ -828,6 +872,10 @@ of een andere reden. Dit is compleet optioneel.
   ]
   default = "Emailadres"
 
+["label/for-following-countries"]
+  loc     = ["tpl/settings_main.gohtml:146"]
+  default = "Alleen voor de landen:"
+
 ["label/goatcounter-domain"]
   loc     = ["tpl/settings_main.gohtml:100"]
   default = "GoatCounter domein"
@@ -843,6 +891,13 @@ of een andere reden. Dit is compleet optioneel.
 ["label/loc-stats"]
   loc     = ["widgets/locations.go:29"]
   default = "Locatie stats"
+
+["label/mark-current"]
+  loc     = [
+    "tpl/settings_sites.gohtml:32",
+    "tpl/settings_users.gohtml:23",
+  ]
+  default = "(huidig)"
 
 ["label/match-title"]
   loc     = ["tpl/settings_purge.gohtml:21"]
@@ -1001,6 +1056,14 @@ of een andere reden. Dit is compleet optioneel.
   loc     = ["tpl/settings_main.gohtml:41"]
   default = "Genereer nieuwe geheime code."
 
+["link/goto-path"]
+  loc     = [
+    "tpl/_dashboard_pages_rows.gohtml:12",
+    "tpl/_dashboard_pages_rows.gohtml:21",
+    "tpl/_dashboard_pages_text_rows.gohtml:11",
+  ]
+  default = "Ga naar %(path)"
+
 ["link/import"]
   loc     = ["tpl/_settings_nav.gohtml:4"]
   default = "Import"
@@ -1158,6 +1221,13 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 ["nav-dash/year"]
   loc     = ["tpl/dashboard.gohtml:84"]
   default = "jaar"
+
+["no-title"]
+  loc     = [
+    "tpl/_dashboard_pages_rows.gohtml:8",
+    "tpl/_dashboard_pages_text_rows.gohtml:21",
+  ]
+  default = "geen titel"
 
 ["notify/add-one-thing"]
   loc     = ["handlers/settings_user.go:115"]
@@ -1383,6 +1453,10 @@ zijn, welke niet getoond worden in het overzicht.</p>
   loc     = ["tpl/totp.gohtml:4"]
   default = "Deze account is beschermd met multi-factor authenticatie; gebruik de authenticatie applicatie om een code te genereren"
 
+["p/last-user"]
+  loc     = ["tpl/settings_users.gohtml:13"]
+  default = "Kan laatste admingebruiker niet verwijderen of aanpassen"
+
 ["p/no-data"]
   loc     = ["tpl/dashboard.gohtml:22"]
   default = """
@@ -1484,9 +1558,17 @@ betekenis.
   loc     = ["tpl/dashboard.gohtml:6"]
   default = "Verifieer je email via de link verstuurd naar %(email). %[%sup (Waarom?)]"
 
+["page-ranking"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:28"]
+  default = "Pagina ranking"
+
 ["restricted-admin-access"]
   loc     = ["tpl/settings_main.gohtml:21"]
   default = "Normaal gesproken kunnen admins niet bij je site, maar als dit aanstaat kan dat wel. Dit wordt soms gevraagd voor support."
+
+["scale-y"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:25"]
+  default = "Schaal Y-as naar maximaal"
 
 ["top-nav/back"]
   loc     = [
@@ -1595,4 +1677,8 @@ betekenis.
 ["widget-setting/label/regions"]
   loc     = ["settings.go:203"]
   default = "Toon regio's"
+
+["y-scale"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:27"]
+  default = "Y-as schaal"
 
