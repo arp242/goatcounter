@@ -183,16 +183,6 @@ func (s *Site) Validate(ctx context.Context) error {
 	v.Sub("settings", "", s.Settings.Validate())
 	v.Sub("user_defaults", "", s.UserDefaults.Validate(ctx))
 
-	if s.Settings.DataRetention > 0 {
-		v.Range("settings.data_retention", int64(s.Settings.DataRetention), 31, 0)
-	}
-
-	if len(s.Settings.IgnoreIPs) > 0 {
-		for _, ip := range s.Settings.IgnoreIPs {
-			v.IP("settings.ignore_ips", ip)
-		}
-	}
-
 	// TODO: compat with older requirements, otherwise various update functions
 	// will error out.
 	if !s.CreatedAt.IsZero() && s.CreatedAt.Before(noUnderscore) {
