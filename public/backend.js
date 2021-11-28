@@ -6,12 +6,13 @@
 	'use strict';
 
 	$(document).ready(function() {
+		window.I18N              = JSON.parse($('#js-i18n').text())
 		window.USER_SETTINGS     = JSON.parse($('#js-settings').text())
 		window.CSRF              = $('#js-settings').attr('data-csrf')
 		window.TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		window.SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
 
-		;[report_errors, bind_tooltip, bind_confirm].forEach((f) => f.call())
+		;[report_errors, bind_tooltip, bind_confirm, translate_calendar].forEach((f) => f.call())
 		;[page_dashboard, page_billing, page_settings_main, page_user_pref, page_user_dashboard, page_bosmang]
 			.forEach((f) => document.body.id === f.name.replace(/_/g, '-') && f.call())
 	})
@@ -22,7 +23,7 @@
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return
-			var msg = `Could not load ${settings.url}: ${err}`
+			var msg = T("error/load-url", settings.url, err)
 			console.error(msg)
 			on_error(`ajaxError: ${msg}`, settings.url)
 			alert(msg)
@@ -119,7 +120,13 @@
 					title = `${format_date(day)} ${un24(start)} – ${un24(end)}`
 				}
 
-				title += !views ? ', future' : `, ${unique} ${ev ? 'unique clicks' : 'visits'}; <span class="views">${views} ${ev ? 'total clicks' : 'pageviews'}</span>`
+				title += ', '
+				if (!views)
+					title += T('dashboard/future')
+				else if (ev)
+					title += T('dashboard/tooltip-event', {unique: unique, clicks: `<span class="views">${views}`}) + '</span>'
+				else
+					title += T('dashboard/totals/num-visits', {'num-visits': unique, 'num-views': `<span class="views">${views}`}) + '</span>'
 			}
 			t.attr('data-title', title).removeAttr('title')
 
@@ -332,8 +339,7 @@
 			w.find('.warn.red').remove()
 
 			if (v > 25)
-				w.find('.widget-settings').prepend(
-					'<span class="warn red">Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems.<br><br></span>')
+				w.find('.widget-settings').prepend('<span class="warn red">' + T('p/slow') + '<br><br></span>')
 		}).trigger('change')
 	}
 

@@ -64,6 +64,8 @@ type Location struct {
 	//     locale       text,  -- nl_NL
 	//     messages     text,  [{"Netherlands": "Nederland", ..}]
 	//   );
+	//
+	// Also: we can actually do this in JS with Intl.DisplayNames
 
 	CountryName string `db:"country_name"`
 	RegionName  string `db:"region_name"`

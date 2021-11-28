@@ -15,6 +15,7 @@
 	>
 		{{- .User.Settings.String | unsafe_js -}}
 	</span>
+	<span id="js-i18n">{{.JSTranslations | json}}</span>
 
 	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
 	<script crossorigin="anonymous" src="{{.Static}}/pikaday.js?v={{.Version}}"></script>

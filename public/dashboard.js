@@ -117,7 +117,7 @@
 
 			// TODO: make something nicer than alert()s.
 			if (this.value.substr(-2) === '-f' && end.getTime() > (new Date()).getTime())
-				return alert('That would be in the future.')
+				return alert(T('error/date-future'))
 
 			switch (this.value) {
 				case 'day-b':     start.setDate(start.getDate()   - 1); end.setDate(end.getDate()   - 1); break;
@@ -131,9 +131,9 @@
 				end = new Date(start.getFullYear(), start.getMonth() + 1, 0)
 
 			if (start > (new Date()).getTime())
-				return alert('That would be in the future.')
+				return alert(T('error/date-future'))
 			if (SITE_FIRST_HIT_AT > end.getTime())
-				return alert('That would be before the site’s creation; GoatCounter is not *that* good ;-)')
+				return alert(T('error/date-past'))
 
 			$('#dash-select-period').attr('class', '')
 			set_period(start, end);
@@ -151,7 +151,7 @@
 
 			e.preventDefault()
 			if (!$('#period-end').hasClass('red'))
-				$('#period-end').addClass('red').after(' <span class="red">end date before start date</span>')
+				$('#period-end').addClass('red').after(' <span class="red">' + T('error/date-mismatch') + '</span>')
 		})
 
 		// Change to type="date" on mobile as that gives a better experience.
@@ -167,7 +167,20 @@
 				css('width', 'auto');  // Make sure there's room for UI chrome.
 		}
 
-		var opts = {toString: format_date_ymd, parse: get_date, firstDay: USER_SETTINGS.sunday_starts_week?0:1, minDate: new Date(SITE_FIRST_HIT_AT)}
+		var opts = {
+			toString: format_date_ymd,
+			parse:    get_date,
+			firstDay: USER_SETTINGS.sunday_starts_week ? 0 : 1,
+			minDate:  new Date(SITE_FIRST_HIT_AT),
+			i18n: {
+				ariaLabel:     T('datepicker/keyboard'),
+				previousMonth: T('datepicker/month-prev'),
+				nextMonth:     T('datepicker/month-next'),
+				weekdays:      days,
+				weekdaysShort: daysShort,
+				months:        months,
+			},
+		}
 		new Pikaday($('#period-start')[0], opts)
 		new Pikaday($('#period-end')[0], opts)
 	}
@@ -231,7 +244,7 @@
 					},
 					success: () => {
 						done()
-						var s = $('<em> Saved!</em>')
+						var s = $('<em> ' + T('notify/saved') + '</em>')
 						$(this).after(s)
 						setTimeout(() => s.remove(), 2000)
 					},

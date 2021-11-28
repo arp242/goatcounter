@@ -37,8 +37,31 @@ var un24 = function(t) {
 // Format a number with a thousands separator. https://stackoverflow.com/a/2901298/660921
 var format_int = (n) => (n+'').replace(/\B(?=(\d{3})+(?!\d))/g, String.fromCharCode(USER_SETTINGS.number_format))
 
-var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-	days   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+var months      = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+	days        = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+	daysShort   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+var translate_calendar = function() {
+	if (!window.Intl || !window.Intl.DateTimeFormat)
+		return;
+
+	var long  = new Intl.DateTimeFormat(USER_SETTINGS.language, {month: 'long'}),
+		short = new Intl.DateTimeFormat(USER_SETTINGS.language, {month: 'short'})
+	for (var m=0; m<12; m++) {
+		var t = Date.UTC(2017, m, 1, 0, 0, 0)
+		months[m - 1]      = long.format(t)
+		monthsShort[m - 1] = short.format(t)
+	}
+
+	var long  = new Intl.DateTimeFormat(USER_SETTINGS.language, {weekday: 'long'}),
+		short = new Intl.DateTimeFormat(USER_SETTINGS.language, {weekday: 'short'})
+	for (var d=0; d<7; d++) {
+		var t = Date.UTC(2017, 0, d+1, 0, 0, 0)
+		days[d]      = long.format(t)
+		daysShort[d] = short.format(t)
+	}
+}
 
 // Format a date according to user configuration.
 var format_date = function(date) {
@@ -60,8 +83,8 @@ var format_date = function(date) {
 			case '01':   new_date.push(m >= 10 ? m : ('0' + m));             break;
 			case '02':   new_date.push(d >= 10 ? d : ('0' + d));             break;
 			case '2':    new_date.push(d);                                   break;
-			case 'Jan':  new_date.push(months[date.getMonth()]);             break;
-			case 'Mon':  new_date.push(days[date.getDay()]);                 break;
+			case 'Jan':  new_date.push(monthsShort[date.getMonth()]);        break;
+			case 'Mon':  new_date.push(daysShort[date.getDay()]);            break;
 		}
 	}
 
@@ -88,4 +111,19 @@ var format_date_ymd = function(date) {
 var get_date = function(str) {
 	var s = str.split('-')
 	return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
+}
+
+// Simple z18n-compatible transate.
+var T = function(id, params) {
+	var str = window.I18N[id]
+	if (!str) {
+		console.warn(`No translation for ${id}`)
+		return id;
+	}
+	if (typeof params === 'undefined')
+		params = {}
+	else if (typeof params !== 'object')
+		params['__one__'] = params
+
+	return str.replace(/%\((.+?)\)/g, (_, varname) => params[varname] || params['__one__'])
 }

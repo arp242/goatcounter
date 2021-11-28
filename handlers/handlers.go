@@ -40,6 +40,7 @@ type Globals struct {
 	GoatcounterCom bool
 	Dev            bool
 	Port           string
+	JSTranslations map[string]string
 }
 
 func (g Globals) T(msg string, data ...interface{}) template.HTML {
@@ -47,19 +48,34 @@ func (g Globals) T(msg string, data ...interface{}) template.HTML {
 }
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
+	ctx := r.Context()
 	g := Globals{
-		Context:        r.Context(),
-		User:           goatcounter.GetUser(r.Context()),
-		Site:           goatcounter.GetSite(r.Context()),
+		Context:        ctx,
+		User:           goatcounter.GetUser(ctx),
+		Site:           goatcounter.GetSite(ctx),
 		Path:           r.URL.Path,
 		Flash:          zhttp.ReadFlash(w, r),
-		Static:         goatcounter.Config(r.Context()).URLStatic,
-		Domain:         goatcounter.Config(r.Context()).Domain,
+		Static:         goatcounter.Config(ctx).URLStatic,
+		Domain:         goatcounter.Config(ctx).Domain,
 		Version:        goatcounter.Version,
 		Billing:        zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
-		GoatcounterCom: goatcounter.Config(r.Context()).GoatcounterCom,
-		Dev:            goatcounter.Config(r.Context()).Dev,
-		Port:           goatcounter.Config(r.Context()).Port,
+		GoatcounterCom: goatcounter.Config(ctx).GoatcounterCom,
+		Dev:            goatcounter.Config(ctx).Dev,
+		Port:           goatcounter.Config(ctx).Port,
+		JSTranslations: map[string]string{
+			"error/date-future":           T(ctx, "error/date-future|That would be in the future"),
+			"error/date-past":             T(ctx, "error/date-past|That would be before the site’s creation; GoatCounter is not *that* good ;-)"),
+			"error/date-mismatch":         T(ctx, "error/date-mismatch|end date is before start date"),
+			"error/load-url":              T(ctx, "error/load-url|Could not load %(url): %(error)", z18n.P{"url": "%(url)", "error": "%(error)"}),
+			"notify/saved":                T(ctx, "notify/saved|Saved!"),
+			"p/slow":                      T(ctx, "p/slow|Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems."),
+			"dashboard/future":            T(ctx, "dashboard/future|future"),
+			"dashboard/tooltip-event":     T(ctx, "dashboard/tooltip-event|%(unique) clicks; %(clicks) total clicks", z18n.P{"unique": "%(unique)", "clicks": "%(clicks)"}),
+			"dashboard/totals/num-visits": T(ctx, "dashboard/totals/num-visits|%(num-visits) visits; %(num-views) pageviews", z18n.P{"num-visits": "%(num-visits)", "num-views": "%(num-views)"}),
+			"datepicker/keyboard":         T(ctx, "datepicker/keyboard|Use the arrow keys to pick a date"),
+			"datepicker/month-prev":       T(ctx, "datepicker/month-prev|Previous month"),
+			"datepicker/month-next":       T(ctx, "datepicker/month-next|Next month"),
+		},
 	}
 	if g.User == nil {
 		g.User = &goatcounter.User{}

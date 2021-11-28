@@ -122,6 +122,10 @@
   one     = "1 dag geleden"
 
 
+["dashboard/future"]
+  loc     = ["handlers/handlers.go:72"]
+  default = "toekomst"
+
 ["dashboard/month-ago"]
   loc     = ["handlers/dashboard.go:207"]
   default = "%(n) maanden geleden"
@@ -178,6 +182,15 @@
   loc     = ["handlers/dashboard.go:203"]
   default = "Vandaag"
 
+["dashboard/tooltip-event"]
+  loc     = ["handlers/handlers.go:73"]
+  default = "%(unique) kliks; %(clicks) totaal kliks"
+
+# No longer used (2021-11-28 04:36:02 +0000 UTC)
+# ["dashboard/tooltip-pageview"]
+#   loc     = ["handlers/handlers.go:74"]
+#   default = "%(unique) bezoeken; %(views) pageviews"
+
 ["dashboard/totals/header"]
   loc     = ["tpl/_dashboard_totals.gohtml:2"]
   default = "Totaal"
@@ -198,6 +211,18 @@
 ["dashboard/yesterday"]
   loc     = ["handlers/dashboard.go:204"]
   default = "Gisteren"
+
+["datepicker/keyboard"]
+  loc     = ["handlers/handlers.go:75"]
+  default = "Gebruik de cursortoetsen om een datum te kiezen"
+
+["datepicker/month-next"]
+  loc     = ["handlers/handlers.go:77"]
+  default = "Vorige maand"
+
+["datepicker/month-prev"]
+  loc     = ["handlers/handlers.go:76"]
+  default = "Volgende maand"
 
 ["email/header"]
   loc     = ["tpl/_email_top.gotxt:1"]
@@ -240,6 +265,18 @@ Martin
   loc     = ["handlers/settings.go:542"]
   default = "Kan niet als gzip lezen:: %(err)"
 
+["error/date-future"]
+  loc     = ["handlers/handlers.go:66"]
+  default = "Dat zou in de toekomst zijn"
+
+["error/date-mismatch"]
+  loc     = ["handlers/handlers.go:68"]
+  default = "einddatum is voor de startdatum"
+
+["error/date-past"]
+  loc     = ["handlers/handlers.go:67"]
+  default = "Dat zou voor de aanmaakdatum van de site zijn; GoatCounter is nou ook weer niet *zo* goed ;-)"
+
 ["error/export-expired"]
   loc     = ["handlers/settings.go:505"]
   default = "Deze export is nog niet klaar of is verlopen."
@@ -255,6 +292,10 @@ Martin
 ["error/invalid-start-date"]
   loc     = ["handlers/dashboard.go:376"]
   default = "Ongeldige startdatum: %(date)"
+
+["error/load-url"]
+  loc     = ["handlers/handlers.go:69"]
+  default = "Kon %(url) niet laden: %(error)"
 
 ["error/login-invalid"]
   loc     = ["handlers/user.go:225"]
@@ -1019,7 +1060,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   loc     = [
     "tpl/dashboard.gohtml:79",
     "tpl/dashboard.gohtml:118",
-    "tpl/dashboard.gohtml:127",
+    "tpl/dashboard.gohtml:126",
   ]
   default = "dag"
 
@@ -1040,7 +1081,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   default = "Kan niet per uur bekijken voor meer dan 90 dagen"
 
 ["nav-dash/forward"]
-  loc     = ["tpl/dashboard.gohtml:131"]
+  loc     = ["tpl/dashboard.gohtml:130"]
   default = "later"
 
 ["nav-dash/half-year"]
@@ -1056,7 +1097,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
     "tpl/dashboard.gohtml:81",
     "tpl/dashboard.gohtml:90",
     "tpl/dashboard.gohtml:120",
-    "tpl/dashboard.gohtml:129",
+    "tpl/dashboard.gohtml:128",
   ]
   default = "maand"
 
@@ -1073,7 +1114,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
     "tpl/dashboard.gohtml:80",
     "tpl/dashboard.gohtml:89",
     "tpl/dashboard.gohtml:119",
-    "tpl/dashboard.gohtml:128",
+    "tpl/dashboard.gohtml:127",
   ]
   default = "week"
 
@@ -1163,6 +1204,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 ["notify/saved"]
   loc     = [
     "handlers/billing.go:150",
+    "handlers/handlers.go:70",
     "handlers/settings.go:209",
     "handlers/settings.go:234",
     "handlers/settings_user.go:70",
@@ -1391,6 +1433,10 @@ meaning.
 ["p/site-domain-link-to-page"]
   loc     = ["tpl/settings_main.gohtml:16"]
   default = "Domein voor je site, b.v.<em>“www.example.com”</em>, gebruikt om naar de site te linken in het overzicht."
+
+["p/slow"]
+  loc     = ["handlers/handlers.go:71"]
+  default = "Het kan langzaam zijn om veel pagina's te laden, met name op wat oudere apparaten. Zet dit getal lager als je problemen ondervind."
 
 ["p/text-data-retention"]
   loc     = ["tpl/settings_sites.gohtml:55"]

@@ -124,6 +124,10 @@
   loc     = ["handlers/dashboard.go:205"]
   default = ""
 
+["dashboard/future"]
+  loc     = ["handlers/handlers.go:72"]
+  default = "future"
+
 ["dashboard/month-ago"]
   loc     = ["handlers/dashboard.go:207"]
   default = ""
@@ -178,6 +182,10 @@
   loc     = ["handlers/dashboard.go:203"]
   default = "Today"
 
+["dashboard/tooltip-event"]
+  loc     = ["handlers/handlers.go:73"]
+  default = "%(unique) clicks; %(clicks) total clicks"
+
 ["dashboard/totals/header"]
   loc     = ["tpl/_dashboard_totals.gohtml:2"]
   default = "Totals"
@@ -196,6 +204,18 @@
 ["dashboard/yesterday"]
   loc     = ["handlers/dashboard.go:204"]
   default = "Yesterday"
+
+["datepicker/keyboard"]
+  loc     = ["handlers/handlers.go:75"]
+  default = "Use the arrow keys to pick a date"
+
+["datepicker/month-next"]
+  loc     = ["handlers/handlers.go:77"]
+  default = "Next month"
+
+["datepicker/month-prev"]
+  loc     = ["handlers/handlers.go:76"]
+  default = "Previous month"
 
 ["email/header"]
   loc     = ["tpl/_email_top.gotxt:1"]
@@ -238,6 +258,18 @@ Martin
   loc     = ["handlers/settings.go:542"]
   default = "Could not read as gzip: %(err)"
 
+["error/date-future"]
+  loc     = ["handlers/handlers.go:66"]
+  default = "That would be in the future"
+
+["error/date-mismatch"]
+  loc     = ["handlers/handlers.go:68"]
+  default = "end date is before start date"
+
+["error/date-past"]
+  loc     = ["handlers/handlers.go:67"]
+  default = "That would be before the site’s creation; GoatCounter is not *that* good ;-)"
+
 ["error/export-expired"]
   loc     = ["handlers/settings.go:505"]
   default = "It looks like there is no export yet or the export has expired."
@@ -253,6 +285,10 @@ Martin
 ["error/invalid-start-date"]
   loc     = ["handlers/dashboard.go:376"]
   default = "Invalid start date: %(date)"
+
+["error/load-url"]
+  loc     = ["handlers/handlers.go:69"]
+  default = "Could not load %(url): %(error)"
 
 ["error/login-invalid"]
   loc     = ["handlers/user.go:225"]
@@ -1017,7 +1053,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   loc     = [
     "tpl/dashboard.gohtml:79",
     "tpl/dashboard.gohtml:118",
-    "tpl/dashboard.gohtml:127",
+    "tpl/dashboard.gohtml:126",
   ]
   default = "day"
 
@@ -1038,7 +1074,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   default = "Cannot use the hourly view for a time range of more than 90 days"
 
 ["nav-dash/forward"]
-  loc     = ["tpl/dashboard.gohtml:131"]
+  loc     = ["tpl/dashboard.gohtml:130"]
   default = "forward"
 
 ["nav-dash/half-year"]
@@ -1054,7 +1090,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
     "tpl/dashboard.gohtml:81",
     "tpl/dashboard.gohtml:90",
     "tpl/dashboard.gohtml:120",
-    "tpl/dashboard.gohtml:129",
+    "tpl/dashboard.gohtml:128",
   ]
   default = "month"
 
@@ -1071,7 +1107,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
     "tpl/dashboard.gohtml:80",
     "tpl/dashboard.gohtml:89",
     "tpl/dashboard.gohtml:119",
-    "tpl/dashboard.gohtml:128",
+    "tpl/dashboard.gohtml:127",
   ]
   default = "week"
 
@@ -1161,6 +1197,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 ["notify/saved"]
   loc     = [
     "handlers/billing.go:150",
+    "handlers/handlers.go:70",
     "handlers/settings.go:209",
     "handlers/settings.go:234",
     "handlers/settings_user.go:70",
@@ -1387,6 +1424,10 @@ meaning.
 ["p/site-domain-link-to-page"]
   loc     = ["tpl/settings_main.gohtml:16"]
   default = "Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview."
+
+["p/slow"]
+  loc     = ["handlers/handlers.go:71"]
+  default = "Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems."
 
 ["p/text-data-retention"]
   loc     = ["tpl/settings_sites.gohtml:55"]
