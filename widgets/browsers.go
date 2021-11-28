@@ -54,8 +54,6 @@ func (w *Browsers) GetData(ctx context.Context, a Args) (more bool, err error) {
 }
 
 func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
-	header := z18n.T(ctx, "header/browsers|Browsers")
-
 	return "_dashboard_hchart.gohtml", struct {
 		Context        context.Context
 		ID             int
@@ -67,5 +65,6 @@ func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, in
 		Stats          goatcounter.HitStats
 		Detail         string
 	}{ctx, w.id, shared.RowsOnly, w.err, isCol(ctx, goatcounter.CollectUserAgent),
-		header, shared.TotalUniqueUTC, w.Stats, w.Detail}
+		z18n.T(ctx, "header/browsers|Browsers"),
+		shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

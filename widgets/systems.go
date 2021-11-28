@@ -54,8 +54,6 @@ func (w *Systems) GetData(ctx context.Context, a Args) (more bool, err error) {
 }
 
 func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
-	header := z18n.T(ctx, "header/systems|Systems")
-
 	return "_dashboard_hchart.gohtml", struct {
 		Context        context.Context
 		ID             int
@@ -67,5 +65,6 @@ func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, int
 		Stats          goatcounter.HitStats
 		Detail         string
 	}{ctx, w.id, shared.RowsOnly, w.err, isCol(ctx, goatcounter.CollectUserAgent),
-		header, shared.TotalUniqueUTC, w.Stats, w.Detail}
+		z18n.T(ctx, "header/systems|Systems"),
+		shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

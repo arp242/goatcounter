@@ -54,19 +54,8 @@ func InitGeoDB(path string) {
 type Location struct {
 	ID int64 `db:"location_id"`
 
-	Country string `db:"country"`
-	Region  string `db:"region"`
-
-	// TODO(i18n): the geoDB actually contains translated country names, but we
-	// don't store them. We can run the country name through z18n, i.e.
-	//
-	//   create table locations_i18n (
-	//     locale       text,  -- nl_NL
-	//     messages     text,  [{"Netherlands": "Nederland", ..}]
-	//   );
-	//
-	// Also: we can actually do this in JS with Intl.DisplayNames
-
+	Country     string `db:"country"`
+	Region      string `db:"region"`
 	CountryName string `db:"country_name"`
 	RegionName  string `db:"region_name"`
 

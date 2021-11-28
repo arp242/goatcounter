@@ -256,7 +256,6 @@ func init() {
 		return tplfunc.Number(n, u.Settings.NumberFormat)
 	})
 
-	// TODO(i18n): add translations.
 	tplfunc.Add("totp_barcode", func(email, s string) template.HTML {
 		qrCode, err := qr.Encode(
 			fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s),

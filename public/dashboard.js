@@ -7,7 +7,7 @@
 
 	// Set up the entire dashboard page.
 	var page_dashboard = function() {
-		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views, hdr_sites].forEach((f) => f.call())
+		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views, hdr_sites, translate_locations].forEach((f) => f.call())
 	}
 	window.page_dashboard = page_dashboard  // Directly setting window loses the name attr 🤷
 
@@ -364,6 +364,40 @@
 			})
 			chart.dataset.done = 't'
 			chart.style.display = 'flex'
+		})
+	}
+
+	// Translate country names; we do this in JavaScript with Intl, which works
+	// fairly well and keeps the backend/database a lot simpler.
+	var translate_locations = function() {
+		if (!window.Intl || !window.Intl.DisplayNames)
+			return;
+
+		var names = new Intl.DisplayNames([USER_SETTINGS.language], {type: 'region'})
+		var set = function(chart) {
+			chart.find('div[data-key]').each((_, e) => {
+				if (e.dataset.key.substr(0, 1) === '(') // Skip "(unknown)"
+					return
+				var n = names.of(e.dataset.key)
+				if (n)
+					$(e).find('.col-name .bar-c .cutoff').text(n)
+			})
+		}
+
+		USER_SETTINGS.widgets.forEach((w, i) => {
+			if (w.n === 'locations') {
+				var chart = $(`.hchart[data-widget=${i}]`)
+				set(chart)
+
+				var obs = new MutationObserver((mut) => {
+					if (mut[0].addedNodes.length === 0 || mut[0].addedNodes[0].className !== 'rows')
+						return
+					obs.disconnect()  // Not strictly needed, but just in case to prevent infinite looping.
+					set(chart)
+					obs.observe(chart.find('.rows')[0], {childList: true})
+				})
+				obs.observe(chart.find('.rows')[0], {childList: true})
+			}
 		})
 	}
 
