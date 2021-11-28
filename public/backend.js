@@ -11,6 +11,8 @@
 		window.CSRF              = $('#js-settings').attr('data-csrf')
 		window.TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		window.SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
+		if (!USER_SETTINGS.language)
+			USER_SETTINGS.language = 'en'
 
 		;[report_errors, bind_tooltip, bind_confirm, translate_calendar].forEach((f) => f.call())
 		;[page_dashboard, page_billing, page_settings_main, page_user_pref, page_user_dashboard, page_bosmang]
