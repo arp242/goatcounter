@@ -121,7 +121,6 @@
   default = "%(n) dagen geleden"
   one     = "1 dag geleden"
 
-
 ["dashboard/future"]
   loc     = ["handlers/handlers.go:72"]
   default = "toekomst"
@@ -130,7 +129,6 @@
   loc     = ["handlers/dashboard.go:207"]
   default = "%(n) maanden geleden"
   one     = "1 maand geleden"
-
 
 ["dashboard/nothing-to-display"]
   loc     = ["tpl.go:420"]
@@ -186,11 +184,6 @@
   loc     = ["handlers/handlers.go:73"]
   default = "%(unique) kliks; %(clicks) totaal kliks"
 
-# No longer used (2021-11-28 04:36:02 +0000 UTC)
-# ["dashboard/tooltip-pageview"]
-#   loc     = ["handlers/handlers.go:74"]
-#   default = "%(unique) bezoeken; %(views) pageviews"
-
 ["dashboard/totals/header"]
   loc     = ["tpl/_dashboard_totals.gohtml:2"]
   default = "Totaal"
@@ -206,7 +199,6 @@
   loc     = ["handlers/dashboard.go:206"]
   default = "%(n) weken geleden"
   one     = "1 week geleden"
-
 
 ["dashboard/yesterday"]
   loc     = ["handlers/dashboard.go:204"]
@@ -378,7 +370,7 @@ Martin
 
 ["header/change-code"]
   loc     = ["tpl/settings_changecode.gohtml:3"]
-  default = "Change site code"
+  default = "Verander sitecode"
 
 ["header/change-passwd"]
   loc     = ["tpl/user_auth.gohtml:10"]
@@ -406,15 +398,15 @@ Martin
 
 ["header/delete-account"]
   loc     = ["tpl/settings_delete.gohtml:4"]
-  default = "Delete account"
+  default = "Verwijder account"
 
 ["header/domain"]
   loc     = ["tpl/settings_sites.gohtml:18"]
-  default = "Domain"
+  default = "Domein"
 
 ["header/domain-settings"]
   loc     = ["tpl/settings_main.gohtml:50"]
-  default = "Domain settings"
+  default = "Domeininstellingen"
 
 ["header/edit-user"]
   loc     = ["tpl/settings_users_form.gohtml:16"]
@@ -485,7 +477,7 @@ Martin
 
 ["header/pagination-cursor"]
   loc     = ["tpl/settings_export.gohtml:60"]
-  default = "Pagination cursor"
+  default = "Cursor"
 
 ["header/passwd-mfa"]
   loc     = ["tpl/user_auth.gohtml:4"]
@@ -529,7 +521,7 @@ Martin
 
 ["header/size"]
   loc     = ["tpl/settings_export.gohtml:61"]
-  default = "Size"
+  default = "Bestandsgrootte"
 
 ["header/sizes"]
   loc     = ["widgets/sizes.go:63"]
@@ -537,11 +529,11 @@ Martin
 
 ["header/start-pagination-cursor"]
   loc     = ["tpl/settings_export.gohtml:59"]
-  default = "Started from pagination cursor"
+  default = "Cursor"
 
 ["header/started"]
   loc     = ["tpl/settings_export.gohtml:57"]
-  default = "Started"
+  default = "Gestart"
 
 ["header/systems"]
   loc     = ["widgets/systems.go:57"]
@@ -585,7 +577,7 @@ Martin
 
 ["help/campaign-parameters"]
   loc     = ["tpl/settings_main.gohtml:129"]
-  default = "List of parameters to count as ‘campaigns’; if set then the value will be set as the referrer, overriding any Referer header."
+  default = "Lijst van parameters om als campagnes te gebruiken; als deze aanwezig is zal het als referrer gebruikt worden, en de Referrer header overschrijven."
 
 ["help/cfg-dashboard"]
   loc     = ["tpl/dashboard.gohtml:59"]
@@ -593,47 +585,46 @@ Martin
 
 ["help/code-access"]
   loc     = ["tpl/settings_sites.gohtml:40"]
-  default = "You will access your site at https://<em>[my-code]</em>.%(domain)."
+  default = "Je account is beschikbaar op https://<em>[mijn-code]</em>.%(domein)."
 
 ["help/custom-domain"]
   loc     = ["tpl/settings_main.gohtml:68"]
   default = """
-Custom domain, e.g. <em>“stats.example.com”</em>.
-<strong>Note:</strong> This <em>won’t</em> prevent most
-adblockers from blocking GoatCounter, and is just intended
-as a nice “vanity domain”.
+Eigen domein, b.v. <em>“stats.example.com”</em>. <strong>Let op:</strong> Dit
+zal <em>niet</em> de meeste adblokers ervan weerhouden om GoatCounter te
+blokkeren, en is alleen bedoeld als een “vanity domain”.
 """
 
 ["help/custom-domain-cname"]
   loc     = ["tpl/settings_main.gohtml:94"]
-  default = "Set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions]."
+  default = "Zet een CNAME record naar <code>%(domain)</code> – %[%docs gedetailleerde instructies]."
 
 ["help/custom-domain-error"]
   loc     = ["tpl/settings_main.gohtml:85"]
   default = """
-%[%error Not yet verified]; set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions].
-The verification runs every 2 hours.
+%[%error Nog niet geverifieerd]; zet een CNAME record naar <code>%(domain)</code> – %[%docs gedetailleerde instructies].
+De verificatie checkt elke 2 uur.
 """
 
 ["help/custom-domain-plan"]
   loc     = ["tpl/settings_main.gohtml:76"]
-  default = "Requires Personal Plus or Business plan (you’re on the %(plan) plan; see %[%link billing])."
+  default = "Vereist Personal Plus of Business plan (je hebt het %(plan) plan; zie %[%link facturering])."
 
 ["help/custom-domain-verified"]
   loc     = ["tpl/settings_main.gohtml:83"]
-  default = "Domain verified and set up (note: it may take up to an hour for the certificate to work)."
+  default = "Domein geverifieerd en actief (N.B.: het kan nog een uur duren voordat het TLS certificaat werkt)."
 
 ["help/data-retention"]
   loc     = ["tpl/settings_main.gohtml:112"]
-  default = "Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete."
+  default = "Pageviews en alle geassocieerde data zullen permanent verwijderd worden na zoveel dagen. <code>0</code> om nooit te verwijderen."
 
 ["help/domain-access"]
   loc     = ["tpl/settings_sites.gohtml:44"]
-  default = "Domain to access this site from."
+  default = "Domein voor deze site."
 
 ["help/goatcounter-domain"]
   loc     = ["tpl/settings_main.gohtml:102"]
-  default = "Your GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>."
+  default = "GoatCounter installatie domein, b.v. <em>“stats.example.com”</em>."
 
 ["help/ignore-ips"]
   loc     = ["tpl/settings_main.gohtml:117"]
@@ -697,11 +688,11 @@ The verification runs every 2 hours.
 
 ["label/allow-admin-access"]
   loc     = ["tpl/settings_main.gohtml:20"]
-  default = "Allow admin access"
+  default = "Admin toegang toestaan"
 
 ["label/allow-visitor-counts"]
   loc     = ["tpl/settings_main.gohtml:26"]
-  default = "Allow adding visitor counts on your website"
+  default = "Toestaan de statestieken te tonen op je website"
 
 ["label/browser-stats"]
   loc     = ["widgets/browsers.go:29"]
@@ -709,11 +700,11 @@ The verification runs every 2 hours.
 
 ["label/campaign-parameters"]
   loc     = ["tpl/settings_main.gohtml:126"]
-  default = "Campaign parameters"
+  default = "Campagneparameters"
 
 ["label/change-code"]
   loc     = ["tpl/settings_main.gohtml:56"]
-  default = "You will access your account at https://<em>[my-code]</em>.%(domain) – %[%link change]."
+  default = "Je gebruikt je account op https://<em>[mijn-code]</em>.%(domain) – %[%link verander]."
 
 ["label/clear-pageviews"]
   loc     = ["tpl/settings_export.gohtml:45"]
@@ -745,7 +736,7 @@ The verification runs every 2 hours.
 
 ["label/date-fmt"]
   loc     = ["tpl/user_pref.gohtml:29"]
-  default = "Date format"
+  default = "Formaat datum"
 
 ["label/delete-account-confirmation"]
   loc     = ["tpl/settings_delete.gohtml:29"]
@@ -754,27 +745,25 @@ The verification runs every 2 hours.
 ["label/delete-account-contact"]
   loc     = ["tpl/settings_delete.gohtml:40"]
   default = """
-I might contact you with some follow-up questions or commentary if you
-check this. I won’t try to convince you to stay (I’m not a telecom), but
-I might ask a question or two, or outline future plans if you’re missing
-a particular feature.
+Soms volg ik op met een vraag of opmerking als je dit aanzet. Ik ben geen Ziggo
+en is niet bedoeld om te smeken om toch te blijven, maar soms is er wel eens een
+vraag te beantwoorden of iets anders interessants te melden.
 """
 
 ["label/delete-account-follow-up"]
   loc     = ["tpl/settings_delete.gohtml:39"]
-  default = "It’s okay to follow up"
+  default = "Het is okay om contact op te nemen"
 
 ["label/delete-account-reason"]
   loc     = ["tpl/settings_delete.gohtml:32"]
   default = """
-It would be appreciated if you could let me know if there's anything in
-particular you're missing in GoatCounter, or any other reasons you have
-for wanting to delete your account. This is entirely optional.
+Ik hoor graag waarom je je account verwijderd, bijvoorbeeld omdat je iets mist
+of een andere reden. Dit is compleet optioneel.
 """
 
 ["label/delete-account-reason-placeholder"]
   loc     = ["tpl/settings_delete.gohtml:37"]
-  default = "Optional reason for deletion"
+  default = "Optionele reden voor verwijderen"
 
 ["label/email"]
   loc     = [
@@ -801,7 +790,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["label/lang"]
   loc     = ["tpl/user_pref.gohtml:22"]
-  default = "Language"
+  default = "Taal"
 
 ["label/loc-stats"]
   loc     = ["widgets/locations.go:29"]
@@ -835,7 +824,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["label/pagination-cursor"]
   loc     = ["tpl/settings_export.gohtml:24"]
-  default = "Pagination cursor"
+  default = "Starten vanaf cursor"
 
 ["label/password"]
   loc     = [
@@ -855,7 +844,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["label/public-private"]
   loc     = ["tpl/settings_main.gohtml:32"]
-  default = "Allen ingelogde gebruikers"
+  default = "Alleen ingelogde gebruikers"
 
 ["label/public-token"]
   loc     = ["tpl/settings_main.gohtml:33"]
@@ -898,7 +887,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["label/size-stats"]
   loc     = ["widgets/sizes.go:28"]
-  default = "Size stats"
+  default = "Schermformaten"
 
 ["label/size-tablets"]
   loc     = ["tpl.go:454"]
@@ -906,7 +895,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["label/system-stats"]
   loc     = ["widgets/systems.go:29"]
-  default = "System stats"
+  default = "Systeem stats"
 
 ["label/thousand-separator"]
   loc     = ["tpl/user_pref.gohtml:44"]
@@ -962,7 +951,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["link/generate-random"]
   loc     = ["tpl/settings_main.gohtml:41"]
-  default = "Generate random secret."
+  default = "Genereer nieuwe geheime code."
 
 ["link/import"]
   loc     = ["tpl/_settings_nav.gohtml:4"]
@@ -986,7 +975,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["link/set-from-browser"]
   loc     = ["tpl/user_pref.gohtml:62"]
-  default = "Stel in van brower"
+  default = "Stel in van browser"
 
 ["link/settings"]
   loc     = [
@@ -1016,7 +1005,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["nav-bot/contribute"]
   loc     = ["tpl/_bottom_links.gohtml:6"]
-  default = "Contribute"
+  default = "Bijdragen"
 
 ["nav-bot/docs"]
   loc     = ["tpl/_bottom_links.gohtml:5"]
@@ -1028,7 +1017,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["nav-bot/src"]
   loc     = ["tpl/_bottom_links.gohtml:9"]
-  default = "Source code"
+  default = "Broncode"
 
 ["nav-bot/trial-expired"]
   loc     = ["tpl/_backend_bottom.gohtml:5"]
@@ -1171,7 +1160,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 
 ["notify/no-user-for-token"]
   loc     = ["handlers/user.go:286"]
-  default = "could find the user for the given token; perhaps it's expired or has already been used?"
+  default = "kon geen gebruiker vinden voor dit token; deze kan verlopen of al gebruik zijn."
 
 ["notify/not-found"]
   loc     = ["handlers/settings.go:859"]
@@ -1191,7 +1180,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 
 ["notify/reset-to-default"]
   loc     = ["handlers/settings_user.go:127"]
-  default = "Reset to defaults!"
+  default = "Hersteld naar standaardinstellingen!"
 
 ["notify/reset-user-sent"]
   loc     = ["handlers/user.go:144"]
@@ -1199,7 +1188,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 
 ["notify/restored-previously-deleted-site"]
   loc     = ["handlers/settings.go:299"]
-  default = "Site ‘%(url)’ was previously deleted; restored site with all data."
+  default = "Site ‘%(url)’ was eerder verwijderd; de site is nu hersteld met alle data."
 
 ["notify/saved"]
   loc     = [
@@ -1246,12 +1235,12 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 ["p/add-goatcounter-to-multiple-websites"]
   loc     = ["tpl/settings_sites.gohtml:6"]
   default = """
-<p>Add GoatCounter to multiple websites by creating new sites. All sites
-will share the same plan, users, and logins, but are otherwise completely
-separate. The current site’s settings are copied on creation, but are
-independent afterwards.</p>
+<p>Voeg GoatCounter op meerdere sites websites door nieuwe sites te maken. Alle
+sites hebben hetzelfde plan, gebruikers, en logins, maar zijn verder compleet
+apart. De instellingen van de huidige site worden gekopieerd bij het aanmaken,
+maar zijn daarna los.</p>
 
-<p>You can add as many as you want.</p>
+<p>Je kan zoveel sites maken als je wil.</p>
 """
 
 ["p/additional-errors"]
@@ -1263,23 +1252,23 @@ independent afterwards.</p>
     "tpl/user_dashboard.gohtml:38",
     "tpl/user_pref.gohtml:77",
   ]
-  default = "Additional errors"
+  default = "Foutmeldingen"
 
 ["p/api-intro"]
   loc     = ["tpl/user_api.gohtml:15"]
-  default = "GoatCounter comes with a limited API; currently you can count pageviews from the API, create, delete, and edit sites, and create exports."
+  default = "GoatCounter komt met een beperkte API; op het moment kan je pageviews met de API sturen, en sites en exports beheren."
 
 ["p/change-code-request"]
   loc     = ["tpl/settings_changecode.gohtml:4"]
   default = """
-<p>Change your site code and login domain.</p>
+<p>Verander de site code en login domein.</p>
 
-<p><strong>WARNING:</strong> this will take effect <strong>immediately</strong>
-and the old code can be registered again by anyone; if you’re already using it
-on a site then change it as soon as possible, or temporarily add two integration
-codes (with the old and new code) to prevent the loss of any pageviews.</p>
+<p><strong>PAS OP:</strong> dit wordt <strong>meteen veranderd</strong> en de
+oude code kan door iedereen opnieuw geregistreerd worden. Je moet dit dus zsm.
+veranderen op je site, of tijdelijk twee GoatCounter integraties toevoegen op de
+site (de oude en nieuwe code) om te voorkomen dat pageviews verloren gaan.</p>
 
-<p>Current code: <code>%(current-code)</code> (%(current-url))</p>
+<p>Huidige code: <code>%(current-code)</code> (%(current-url))</p>
 """
 
 ["p/change-email"]
@@ -1301,16 +1290,17 @@ codes (with the old and new code) to prevent the loss of any pageviews.</p>
 ["p/delete-account-multi-site"]
   loc     = ["tpl/settings_delete.gohtml:7"]
   default = """
-The site and all associated sites will be marked as deleted and will no
-longer be accessible, but no data is removed. After 7 days all data will be
-permanently removed.
+De site en alle data wordt gemarkeerd als verwijderd en is niet meer
+toegankelijk, maar er wordt nog nog niks daadwerkelijk verwijderd. Na 7 dagen
+wordt alle data permanent verwijderd.
 """
 
 ["p/delete-account-one-site"]
   loc     = ["tpl/settings_delete.gohtml:13"]
   default = """
-The site will be marked as deleted and will no longer be accessible, but no
-data is removed. After 7 days all data will be permanently removed.
+De site en alle data wordt gemarkeerd als verwijderd en is niet meer
+toegankelijk, maar er wordt nog nog niks daadwerkelijk verwijderd. Na 7 dagen
+wordt alle data permanent verwijderd.
 """
 
 ["p/disable-mfa"]
@@ -1333,12 +1323,12 @@ data is removed. After 7 days all data will be permanently removed.
 ["p/export-process"]
   loc     = ["tpl/settings_export.gohtml:15"]
   default = """
-<p>Start the process and email you a download link once it’s
-done. You can only do this once per hour and will override any
-previous backups you may have.</p>
+<p>Start het proces  en email een download link zodra deze klaar is. Je kan dit
+maximaal eenmaal per uur doen, en overschrijft elke vorige backups indien
+aanwezig.</p>
 
-<p>This includes all pageviews, including those marked as \"bot\",
-which aren't shown in the overview.</p>
+<p>Hier zitten alle pageviews in, inclusief pageviews die als \"bot\" gemarkeerd
+zijn, welke niet getoond worden in het overzicht.</p>
 """
 
 ["p/have-mfa"]
@@ -1372,9 +1362,8 @@ de pagina:</p>
 ["p/notify-pagination-cursor"]
   loc     = ["tpl/settings_export.gohtml:26"]
   default = """
-There will be a ‘pagination cursor’ in the email, if you fill
-this in here it will export only pageviews that were recorded
-after the previous export.
+Er is een ‘cursor’ in de email, als je deze hier invuld dan worden alleen
+pageviews opgenomen van na de vorige export.
 """
 
 ["p/notify-site-deletion"]
@@ -1384,38 +1373,40 @@ after the previous export.
 ["p/remove-site-confirm"]
   loc     = ["tpl/settings_sites_rm_confirm.gohtml:11"]
   default = """
-Are you sure you want to remove the site %(sitename)?<br>
-This will <strong>remove all associated data</strong>.
+Weet je zeker dat je de site %(sitename) wilt verwijderen?<br>
+Dit zal <strong>alle data verwijderen</strong>.
 """
 
 ["p/remove-site-confirm-contact"]
   loc     = ["tpl/settings_sites_rm_confirm.gohtml:18"]
-  default = "%[Contact] if you want to do something else, like merge it in to another site, or decouple it to a new account."
+  default = "%[Contact] als je iets anders wilt doen, zoals het samenvoegen met een andere site of naar een andere account verplaatsen."
 
 ["p/remove-site-confirm-current"]
   loc     = ["tpl/settings_sites_rm_confirm.gohtml:6"]
   default = """
-Are you sure you want to remove the site %(sitename)?<br>
-This will <strong>remove all associated data</strong> and is the <strong>current site</strong>.
+Weet je zeker dat je de site %(sitename) wilt verwijderen?<br>
+Dit zal <strong>alle data verwijderen</strong> en dit is <strong>de huidige
+site</strong>.
 """
 
 ["p/request-data-recovery"]
   loc     = ["tpl/settings_delete.gohtml:49"]
-  default = "%[Contact] within 7 days if you changed your mind and want to recover your data."
+  default = "%[Contact] binnen 7 dagen als je je account hersteld wil hebben."
 
 ["p/rm-hits"]
   loc     = ["tpl/settings_purge.gohtml:6"]
   default = "Verwijder alle pageviews voor een pad."
 
+# XXX
 ["p/rm-hits-help"]
   loc     = ["tpl/settings_purge.gohtml:8"]
   default = """
-Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
-<code>/page%.html</code> matches everything starting with <code>/page</code> and
-ending with <code>.html</code>. <code>_</code> matches any character; e.g.
-<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
-<code>\\%</code> and <code>\\_</code> for the literal characters without special
-meaning.
+Zoeken is hoofdletterongevoelig. Gebruik <code>%</code> als een wildcard; b.v.
+<code>/page%.html</code> matched alles dat met <code>/page</code> begint en op
+<code>.html</code> eindigt. <code>_</code> matched elk karakter; b.v.
+<code>_.html</code> matched <code>a.html</code> en <code>b.html</code>. Gebruik
+<code>\\%</code> en <code>\\_</code> om deze tekens te gebruiken zonder speciale
+betekenis.
 """
 
 ["p/rm-pageview-match"]
@@ -1448,7 +1439,7 @@ meaning.
 
 ["restricted-admin-access"]
   loc     = ["tpl/settings_main.gohtml:21"]
-  default = "Normally administrators can’t “log in” to your site, but if this is enabled they can. You may be asked to enable this for support requests."
+  default = "Normaal gesproken kunnen admins niet bij je site, maar als dit aanstaat kan dat wel. Dit wordt soms gevraagd voor support."
 
 ["top-nav/back"]
   loc     = [
