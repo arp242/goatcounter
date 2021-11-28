@@ -17,7 +17,8 @@ import (
 
 // Version of GoatCounter; set at compile-time with:
 //
-//   -ldflags="-X zgo.at/goatcounter.Version=XXXX"
+//   -ldflags="-X zgo.at/goatcounter/v2.Version=XXXX"
+
 var Version = "dev"
 
 var (

@@ -143,7 +143,7 @@ Compile from source with:
 
     $ git clone -b release-2.0 https://github.com/arp242/goatcounter.git
     $ cd goatcounter
-    $ go build -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
+    $ go build -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
 You'll now have a `goatcounter` binary in the current directory.
 

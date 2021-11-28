@@ -3,6 +3,7 @@
 // be found in the LICENSE file or at https://license.goatcounter.com
 
 //go:build testpg
+// +build testpg
 
 package gctest
 
