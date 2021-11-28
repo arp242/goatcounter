@@ -246,7 +246,7 @@ func (ss *UserSettings) Scan(v interface{}) error {
 	}
 }
 
-func (ss *SiteSettings) Defaults() {
+func (ss *SiteSettings) Defaults(ctx context.Context) {
 	if ss.Campaigns == nil {
 		ss.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
 	}
@@ -264,8 +264,8 @@ func (ss *SiteSettings) Defaults() {
 	}
 }
 
-func (ss *SiteSettings) Validate() error {
-	v := zvalidate.New()
+func (ss *SiteSettings) Validate(ctx context.Context) error {
+	v := NewValidate(ctx)
 
 	v.Include("public", ss.Public, []string{"private", "secret", "public"})
 	if ss.Public == "secret" {
@@ -505,14 +505,14 @@ func (ss *UserSettings) Defaults(ctx context.Context) {
 }
 
 func (ss *UserSettings) Validate(ctx context.Context) error {
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 
 	for i, w := range ss.Widgets {
 		for _, s := range w.GetSettings(ctx) {
 			if s.Validate == nil {
 				continue
 			}
-			vv := zvalidate.New()
+			vv := NewValidate(ctx)
 			s.Validate(&vv, s.Value)
 			v.Sub("widgets", strconv.Itoa(i), vv)
 		}

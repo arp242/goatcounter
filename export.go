@@ -24,7 +24,6 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zvalidate"
 )
 
 const ExportVersion = "2"
@@ -286,7 +285,7 @@ func Import(
 			continue
 		}
 
-		hit, err := row.Hit(site.ID)
+		hit, err := row.Hit(ctx, site.ID)
 		if errs.Append(err) {
 			continue
 		}
@@ -391,7 +390,7 @@ func (row *ExportRow) Read(line []string) error {
 	return nil
 }
 
-func (row ExportRow) Hit(siteID int64) (Hit, error) {
+func (row ExportRow) Hit(ctx context.Context, siteID int64) (Hit, error) {
 	hit := Hit{
 		Site:            siteID,
 		Path:            row.Path,
@@ -401,7 +400,7 @@ func (row ExportRow) Hit(siteID int64) (Hit, error) {
 		Location:        row.Location, // TODO: validate from list?
 	}
 
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 	v.Required("path", row.Path)
 	hit.Event = zbool.Bool(v.Boolean("event", row.Event))
 	hit.Bot = int(v.Integer("bot", row.Bot))

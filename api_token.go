@@ -14,7 +14,6 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zvalidate"
 )
 
 // APIToken permissions.
@@ -121,7 +120,7 @@ func (t *APIToken) Defaults(ctx context.Context) {
 }
 
 func (t *APIToken) Validate(ctx context.Context) error {
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 	v.Required("name", t.Name)
 	v.Required("site_id", t.SiteID)
 	v.Required("user_id", t.SiteID)

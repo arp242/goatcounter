@@ -13,7 +13,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
-	"zgo.at/zvalidate"
 )
 
 type Path struct {
@@ -28,7 +27,7 @@ type Path struct {
 func (p *Path) Defaults(ctx context.Context) {}
 
 func (p *Path) Validate(ctx context.Context) error {
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 
 	v.UTF8("path", p.Path)
 	v.UTF8("title", p.Title)

@@ -151,7 +151,7 @@
   one     = "1 maand geleden"
 
 ["dashboard/nothing-to-display"]
-  loc     = ["tpl.go:420"]
+  loc     = ["tpl.go:419"]
   default = "Niks om weer te geven"
 
 ["dashboard/pages/header"]
@@ -397,7 +397,7 @@ Martin
   default = "Wachtwoord bevestiging komt niet overeen."
 
 ["error/payment-cancelled"]
-  loc     = ["handlers/billing.go:82"]
+  loc     = ["handlers/billing.go:81"]
   default = "Betaling stopgezet."
 
 ["error/reset-user-no-account"]
@@ -445,7 +445,7 @@ Martin
   default = "API tokens"
 
 ["header/browsers"]
-  loc     = ["widgets/browsers.go:57"]
+  loc     = ["widgets/browsers.go:68"]
   default = "Browsers"
 
 ["header/change-code"]
@@ -620,7 +620,7 @@ Martin
   default = "Gestart"
 
 ["header/systems"]
-  loc     = ["widgets/systems.go:57"]
+  loc     = ["widgets/systems.go:68"]
   default = "Systemen"
 
 ["header/title"]
@@ -973,19 +973,19 @@ of een andere reden. Dit is compleet optioneel.
   default = "Stel ook in als standaard voor nieuwe gebruikers en het publiek toegankelijk dashboard (als deze aan staat)"
 
 ["label/size-desktop"]
-  loc     = ["tpl.go:456"]
+  loc     = ["tpl.go:455"]
   default = "Computerschermen"
 
 ["label/size-desktophd"]
-  loc     = ["tpl.go:458"]
+  loc     = ["tpl.go:457"]
   default = "Computerschermen groter dan HD"
 
 ["label/size-largephones"]
-  loc     = ["tpl.go:452"]
+  loc     = ["tpl.go:451"]
   default = "Grote telefoons, kleine tablets"
 
 ["label/size-phones"]
-  loc     = ["tpl.go:450"]
+  loc     = ["tpl.go:449"]
   default = "Telefoons"
 
 ["label/size-stats"]
@@ -993,7 +993,7 @@ of een andere reden. Dit is compleet optioneel.
   default = "Schermformaten"
 
 ["label/size-tablets"]
-  loc     = ["tpl.go:454"]
+  loc     = ["tpl.go:453"]
   default = "Tablets en kleine laptops"
 
 ["label/system-stats"]
@@ -1289,11 +1289,11 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   default = "Wachtwoord veranderd."
 
 ["notify/payment-processed"]
-  loc     = ["handlers/billing.go:99"]
+  loc     = ["handlers/billing.go:98"]
   default = "Betaling verwerkt!"
 
 ["notify/payment-processing"]
-  loc     = ["handlers/billing.go:87"]
+  loc     = ["handlers/billing.go:86"]
   default = "The payment processor reported success, but we're still processing the payment"
 
 ["notify/reset-to-default"]
@@ -1310,7 +1310,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 
 ["notify/saved"]
   loc     = [
-    "handlers/billing.go:150",
+    "handlers/billing.go:149",
     "handlers/handlers.go:70",
     "handlers/settings.go:209",
     "handlers/settings.go:234",
@@ -1623,8 +1623,88 @@ betekenis.
   default = "Gebruiker"
 
 ["unknown"]
-  loc     = ["tpl.go:464"]
+  loc     = ["tpl.go:463"]
   default = "(onbekend)"
+
+["validate/bool"]
+  loc     = ["helper.go:165"]
+  default = "kan geen boolean zijn"
+
+["validate/color"]
+  loc     = ["helper.go:159"]
+  default = "moet een geldige kleurcode zijn"
+
+["validate/contains"]
+  loc     = ["helper.go:171"]
+  default = "kan niet de tekens %s bevatten"
+
+["validate/date"]
+  loc     = ["helper.go:166"]
+  default = "moet een datum als ‘%s’ zijn"
+
+["validate/domain"]
+  loc     = ["helper.go:153"]
+  default = "moet een geldig domein zijn"
+
+["validate/email"]
+  loc     = ["helper.go:156"]
+  default = "moet een geldig emailadres zijn"
+
+["validate/exclude"]
+  loc     = ["helper.go:162"]
+  default = "kan niet ‘%s’ zijn"
+
+["validate/hostname"]
+  loc     = ["helper.go:154"]
+  default = "moet een geldige hostname zijn"
+
+["validate/include"]
+  loc     = ["helper.go:163"]
+  default = "moet één van ‘%s’ zijn"
+
+["validate/int"]
+  loc     = ["helper.go:164"]
+  default = "moet een heel getal zijn"
+
+["validate/ip"]
+  loc     = ["helper.go:158"]
+  default = "moet een geldig IP-adres zijn"
+
+["validate/ipv4"]
+  loc     = ["helper.go:157"]
+  default = "moet een geldig IPv4-adres zijn"
+
+["validate/len-longer"]
+  loc     = ["helper.go:160"]
+  default = "moet langer dan %d tekens zijn"
+
+["validate/len-shorter"]
+  loc     = ["helper.go:161"]
+  default = "moet korter dan %d tekens zijn"
+
+["validate/phone"]
+  loc     = ["helper.go:167"]
+  default = "moet een geldig telefoonnummer zijn"
+
+["validate/range-higher"]
+  loc     = ["helper.go:168"]
+  default = "moet %d of hoger zijn"
+
+["validate/range-lower"]
+  loc     = ["helper.go:169"]
+  default = "moet %d of lager zijn"
+
+["validate/required"]
+  loc     = ["helper.go:152"]
+  default = "is verplicht"
+
+["validate/url"]
+  loc     = ["helper.go:155"]
+  default = "moet een geldige URL zijn"
+
+["validate/utf8"]
+  loc     = ["helper.go:170"]
+  default = "moet UTF-8 zijn"
 
 ["widget-setting/help/align"]
   loc     = ["settings.go:142"]

@@ -16,7 +16,6 @@ import (
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zvalidate"
 )
 
 func ptr(s string) *string { return &s }
@@ -248,7 +247,7 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 
 // Validate the object.
 func (h *Hit) Validate(ctx context.Context, initial bool) error {
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 
 	v.Required("site", h.Site)
 	//v.Required("session", h.Session)

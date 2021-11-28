@@ -32,7 +32,6 @@ import (
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstripe"
-	"zgo.at/zvalidate"
 )
 
 var stripePlans = map[bool]map[string]string{
@@ -127,7 +126,7 @@ func (h billing) start(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	v.Required("plan", args.Plan)
 	v.Include("plan", args.Plan, goatcounter.PlanCodes)
 	v.Required("quantity", args.Quantity)

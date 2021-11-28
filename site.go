@@ -21,7 +21,6 @@ import (
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zvalidate"
 )
 
 // Plan column values.
@@ -144,7 +143,7 @@ func (s *Site) Defaults(ctx context.Context) {
 		s.FirstHitAt = n
 	}
 
-	s.Settings.Defaults()
+	s.Settings.Defaults(ctx)
 	s.UserDefaults.Defaults(ctx)
 }
 
@@ -152,7 +151,7 @@ var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
 
 // Validate the object.
 func (s *Site) Validate(ctx context.Context) error {
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 
 	if Config(ctx).GoatcounterCom {
 		v.Required("plan", s.Plan)
@@ -180,7 +179,7 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	v.URL("link_domain", s.LinkDomain)
 
-	v.Sub("settings", "", s.Settings.Validate())
+	v.Sub("settings", "", s.Settings.Validate(ctx))
 	v.Sub("user_defaults", "", s.UserDefaults.Validate(ctx))
 
 	// TODO: compat with older requirements, otherwise various update functions

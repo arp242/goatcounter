@@ -23,7 +23,6 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zvalidate"
 )
 
 const totpSecretLen = 16
@@ -80,7 +79,7 @@ func (u *User) Defaults(ctx context.Context) {
 
 // Validate the object.
 func (u *User) Validate(ctx context.Context, validatePassword bool) error {
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 
 	v.Required("site", u.Site)
 	v.Required("email", u.Email)

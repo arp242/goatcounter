@@ -288,7 +288,7 @@ func (h api) exportGet(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v
@@ -321,7 +321,7 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v
@@ -604,7 +604,7 @@ func (h api) siteList(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h api) siteFind(r *http.Request) (*goatcounter.Site, error) {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return nil, v

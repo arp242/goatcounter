@@ -250,7 +250,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	var (
 		widget     = int(v.Integer("widget", r.URL.Query().Get("widget")))
 		key        = r.URL.Query().Get("key")

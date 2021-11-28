@@ -139,7 +139,7 @@ func (h settings) ip(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 
 	args := struct {
 		Cname      string                   `json:"cname"`
@@ -324,7 +324,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) sitesRemoveConfirm(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v
@@ -343,7 +343,7 @@ func (h settings) sitesRemoveConfirm(w http.ResponseWriter, r *http.Request) err
 }
 
 func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v
@@ -487,7 +487,7 @@ func (h settings) export(verr *zvalidate.Validator) zhttp.HandlerFunc {
 }
 
 func (h settings) exportDownload(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v
@@ -523,7 +523,7 @@ func (h settings) exportDownload(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	replace := v.Boolean("replace", r.Form.Get("replace"))
 	if v.HasErrors() {
 		return v
@@ -593,7 +593,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 	r.ParseForm()
 
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	startFrom := v.Integer("startFrom", r.Form.Get("startFrom"))
 	if v.HasErrors() {
 		return v
@@ -741,7 +741,7 @@ func (h settings) usersForm(newUser *goatcounter.User, pErr error) zhttp.Handler
 				Access: goatcounter.UserAccesses{"all": goatcounter.AccessSettings},
 			}
 
-			v := zvalidate.New()
+			v := goatcounter.NewValidate(r.Context())
 			id := v.Integer("id", chi.URLParam(r, "id"))
 			if v.HasErrors() {
 				return v
@@ -832,7 +832,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v
@@ -886,7 +886,7 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v

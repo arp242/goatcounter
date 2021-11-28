@@ -474,7 +474,7 @@ func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
+	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
 	if v.HasErrors() {
 		return v

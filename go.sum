@@ -149,5 +149,5 @@ zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08/go.mod h1:bIBaT9rsnc+uWMSf+6
 zgo.at/ztpl v0.0.0-20211017232908-7dce3dc79277/go.mod h1:mhjSF7+pfwMjNhDgmw9Ywr1CixzeVWuvMjF7gLJT8Uw=
 zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4 h1:/GHTN42or9pD7HVnlQohlC+QegKpwBn9hhE0Fa8zJPc=
 zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4/go.mod h1:mhjSF7+pfwMjNhDgmw9Ywr1CixzeVWuvMjF7gLJT8Uw=
-zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f h1:gxnihBTZQ8W6tJCvlJCakO2ekiaeI3Dm6UEAzln4qAo=
-zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f/go.mod h1:WiF1dChwUrGhTRTPCe96HbJSkj9ztxARSgP+tEWAdJ0=
+zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62 h1:PUoQjNzZ5g4QDYrXNCCyTYMZnPWwOAmVVkSSxUtmDwI=
+zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62/go.mod h1:WiF1dChwUrGhTRTPCe96HbJSkj9ztxARSgP+tEWAdJ0=

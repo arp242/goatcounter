@@ -153,7 +153,7 @@
   default = ""
 
 ["dashboard/nothing-to-display"]
-  loc     = ["tpl.go:420"]
+  loc     = ["tpl.go:419"]
   default = "Nothing to display"
 
 ["dashboard/pages/header"]
@@ -398,7 +398,7 @@ Martin
   default = "Password confirmation doesn’t match."
 
 ["error/payment-cancelled"]
-  loc     = ["handlers/billing.go:82"]
+  loc     = ["handlers/billing.go:81"]
   default = "Payment cancelled."
 
 ["error/reset-user-no-account"]
@@ -446,7 +446,7 @@ Martin
   default = "API tokens"
 
 ["header/browsers"]
-  loc     = ["widgets/browsers.go:57"]
+  loc     = ["widgets/browsers.go:68"]
   default = "Browsers"
 
 ["header/change-code"]
@@ -621,7 +621,7 @@ Martin
   default = "Started"
 
 ["header/systems"]
-  loc     = ["widgets/systems.go:57"]
+  loc     = ["widgets/systems.go:68"]
   default = "Systems"
 
 ["header/title"]
@@ -977,19 +977,19 @@ for wanting to delete your account. This is entirely optional.
   default = "Also set as default for new users and the public view (if enabled)."
 
 ["label/size-desktop"]
-  loc     = ["tpl.go:456"]
+  loc     = ["tpl.go:455"]
   default = "Computer monitors"
 
 ["label/size-desktophd"]
-  loc     = ["tpl.go:458"]
+  loc     = ["tpl.go:457"]
   default = "Computer monitors larger than HD"
 
 ["label/size-largephones"]
-  loc     = ["tpl.go:452"]
+  loc     = ["tpl.go:451"]
   default = "Large phones, small tablets"
 
 ["label/size-phones"]
-  loc     = ["tpl.go:450"]
+  loc     = ["tpl.go:449"]
   default = "Phones"
 
 ["label/size-stats"]
@@ -997,7 +997,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Size stats"
 
 ["label/size-tablets"]
-  loc     = ["tpl.go:454"]
+  loc     = ["tpl.go:453"]
   default = "Tablets and small laptops"
 
 ["label/system-stats"]
@@ -1293,11 +1293,11 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   default = "Password changed."
 
 ["notify/payment-processed"]
-  loc     = ["handlers/billing.go:99"]
+  loc     = ["handlers/billing.go:98"]
   default = "Payment processed successfully!"
 
 ["notify/payment-processing"]
-  loc     = ["handlers/billing.go:87"]
+  loc     = ["handlers/billing.go:86"]
   default = "The payment processor reported success, but we're still processing the payment"
 
 ["notify/reset-to-default"]
@@ -1314,7 +1314,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
 
 ["notify/saved"]
   loc     = [
-    "handlers/billing.go:150",
+    "handlers/billing.go:149",
     "handlers/handlers.go:70",
     "handlers/settings.go:209",
     "handlers/settings.go:234",
@@ -1624,8 +1624,88 @@ meaning.
   default = "User"
 
 ["unknown"]
-  loc     = ["tpl.go:464"]
+  loc     = ["tpl.go:463"]
   default = "(unknown)"
+
+["validate/bool"]
+  loc     = ["helper.go:165"]
+  default = "must be a boolean"
+
+["validate/color"]
+  loc     = ["helper.go:159"]
+  default = "must be a valid color code"
+
+["validate/contains"]
+  loc     = ["helper.go:171"]
+  default = "cannot contain the characters %s"
+
+["validate/date"]
+  loc     = ["helper.go:166"]
+  default = "must be a date as ‘%s’"
+
+["validate/domain"]
+  loc     = ["helper.go:153"]
+  default = "must be a valid domain"
+
+["validate/email"]
+  loc     = ["helper.go:156"]
+  default = "must be a valid email address"
+
+["validate/exclude"]
+  loc     = ["helper.go:162"]
+  default = "cannot be ‘%s’"
+
+["validate/hostname"]
+  loc     = ["helper.go:154"]
+  default = "must be a valid hostname"
+
+["validate/include"]
+  loc     = ["helper.go:163"]
+  default = "must be one of ‘%s’"
+
+["validate/int"]
+  loc     = ["helper.go:164"]
+  default = "must be a whole number"
+
+["validate/ip"]
+  loc     = ["helper.go:158"]
+  default = "must be a valid IPv4 or IPv6 address"
+
+["validate/ipv4"]
+  loc     = ["helper.go:157"]
+  default = "must be a valid IPv4 address"
+
+["validate/len-longer"]
+  loc     = ["helper.go:160"]
+  default = "must be longer than %d characters"
+
+["validate/len-shorter"]
+  loc     = ["helper.go:161"]
+  default = "must be shorter than %d characters"
+
+["validate/phone"]
+  loc     = ["helper.go:167"]
+  default = "must be a valid phone number"
+
+["validate/range-higher"]
+  loc     = ["helper.go:168"]
+  default = "must be %d or higher"
+
+["validate/range-lower"]
+  loc     = ["helper.go:169"]
+  default = "must be %d or lower"
+
+["validate/required"]
+  loc     = ["helper.go:152"]
+  default = "must be set"
+
+["validate/url"]
+  loc     = ["helper.go:155"]
+  default = "must be a valid url"
+
+["validate/utf8"]
+  loc     = ["helper.go:170"]
+  default = "must be UTF-8"
 
 ["widget-setting/help/align"]
   loc     = ["settings.go:142"]

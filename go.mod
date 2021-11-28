@@ -40,7 +40,7 @@ require (
 	zgo.at/zstd v0.0.0-20211128012218-5ef7cc4bcc03
 	zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08
 	zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4
-	zgo.at/zvalidate v0.0.0-20210627041111-7942ce72d87f
+	zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62
 )
 
 require (

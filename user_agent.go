@@ -12,7 +12,6 @@ import (
 	"zgo.at/isbot"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
-	"zgo.at/zvalidate"
 )
 
 type UserAgent struct {
@@ -28,7 +27,7 @@ func (p *UserAgent) Defaults(ctx context.Context) {
 }
 
 func (p *UserAgent) Validate(ctx context.Context) error {
-	v := zvalidate.New()
+	v := NewValidate(ctx)
 	// UserAgent may be an empty string, as some browsers send that.
 	v.UTF8("user_agent", p.UserAgent)
 	return v.ErrorOrNil()
