@@ -202,9 +202,9 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	rng = rng.In(user.Settings.Timezone.Loc()).Locale(ztime.RangeLocale{
 		Today:     func() string { return T(r.Context(), "dashboard/today|Today") },
 		Yesterday: func() string { return T(r.Context(), "dashboard/yesterday|Yesterday") },
-		DayAgo:    func(n int) string { return T(r.Context(), "dashboard/day-ago", z18n.Plural(n)) },
-		WeekAgo:   func(n int) string { return T(r.Context(), "dashboard/week-ago", z18n.Plural(n)) },
-		MonthAgo:  func(n int) string { return T(r.Context(), "dashboard/month-ago", z18n.Plural(n)) },
+		DayAgo:    func(n int) string { return T(r.Context(), "dashboard/day-ago|%(n) days ago", z18n.Plural(n)) },
+		WeekAgo:   func(n int) string { return T(r.Context(), "dashboard/week-ago|%(n) weeks ago", z18n.Plural(n)) },
+		MonthAgo:  func(n int) string { return T(r.Context(), "dashboard/month-ago|%(n) months ago", z18n.Plural(n)) },
 		Month: func(m time.Month) string {
 			return z18n.Get(r.Context()).MonthName(time.Date(0, m, 0, 0, 0, 0, 0, time.UTC), z18n.TimeFormatFull)
 		},

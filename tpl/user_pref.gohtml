@@ -25,6 +25,7 @@
 				<option {{option_value .User.Settings.Language "nl-NL"}}>Nederlands</option>
 			</select>
 			{{validate "settings.language" .Validate}}
+			<span><a href="/i18n">{{.T "link/add-translation|Add or update translations"}}</a></span>
 
 			<label for="date_format">{{.T "label/date-fmt|Date format"}}</label>
 			<select name="user.settings.date_format" id="date_format">

@@ -24,6 +24,7 @@ func TestWebsiteTpl(t *testing.T) {
 		{"/terms", "The “services” are any software, application, product, or service"},
 		{"/why", "Footnotes"},
 		{"/design", "Firefox on iOS is just displayed as Safari"},
+		{"/translating", "translate GoatCounter"},
 		{"/status", "uptime"},
 		{"/signup", `<label for="email">Email address</label>`},
 		{"/user/forgot", "Forgot domain"},

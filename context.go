@@ -30,6 +30,7 @@ var (
 	keyCacheLoc        = &struct{ n string }{""}
 	keyChangedTitles   = &struct{ n string }{""}
 	keyCacheSitesProxy = &struct{ n string }{""}
+	keyCacheI18n       = &struct{ n string }{""}
 
 	keyConfig = &struct{ n string }{""}
 )
@@ -141,6 +142,9 @@ func CopyContextValues(ctx context.Context) context.Context {
 	if c := ctx.Value(keyCacheLoc); c != nil {
 		n = context.WithValue(n, keyCacheLoc, c.(*zcache.Cache))
 	}
+	if c := ctx.Value(keyCacheI18n); c != nil {
+		n = context.WithValue(n, keyCacheI18n, c.(*zcache.Cache))
+	}
 	if c := ctx.Value(keyChangedTitles); c != nil {
 		n = context.WithValue(n, keyChangedTitles, c.(*zcache.Cache))
 	}
@@ -180,6 +184,7 @@ func NewCache(ctx context.Context) context.Context {
 	ctx = context.WithValue(ctx, keyCacheSystems, zcache.New(1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCachePaths, zcache.New(1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheLoc, zcache.New(zcache.NoExpiration, zcache.NoExpiration))
+	ctx = context.WithValue(ctx, keyCacheI18n, zcache.New(zcache.NoExpiration, zcache.NoExpiration))
 	ctx = context.WithValue(ctx, keyChangedTitles, zcache.New(48*time.Hour, 1*time.Hour))
 	return ctx
 }
@@ -227,6 +232,12 @@ func cachePaths(ctx context.Context) *zcache.Cache {
 }
 func cacheLoc(ctx context.Context) *zcache.Cache {
 	if c := ctx.Value(keyCacheLoc); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
+}
+func cacheI18n(ctx context.Context) *zcache.Cache {
+	if c := ctx.Value(keyCacheI18n); c != nil {
 		return c.(*zcache.Cache)
 	}
 	return zcache.New(0, 0)

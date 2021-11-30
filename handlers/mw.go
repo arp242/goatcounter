@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/text/language"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/guru"
@@ -23,7 +22,6 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
@@ -96,22 +94,6 @@ var (
 		return u, err
 	}, "/bosmang/profile/setrate")
 )
-
-var bundle = func() *z18n.Bundle {
-	b := z18n.NewBundle(language.MustParse("en-GB"))
-
-	fsys, err := zfs.EmbedOrDir(goatcounter.Translations, ".", true)
-	if err != nil {
-		panic(err)
-	}
-
-	err = b.ReadMessagesFromDir(fsys, "i18n/*.toml")
-	if err != nil {
-		panic(err)
-	}
-
-	return b
-}()
 
 type statusWriter interface{ Status() int }
 
@@ -217,7 +199,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 			}
 
 			// Make sure there's always a z18n object.
-			*r = *r.WithContext(z18n.With(r.Context(), bundle.Locale(r.Header.Get("Accept-Language"))))
+			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.GetBundle(r.Context()).Locale(r.Header.Get("Accept-Language"))))
 
 			next.ServeHTTP(w, r)
 		})
@@ -234,8 +216,7 @@ func addz18n() func(http.Handler) http.Handler {
 			if u := goatcounter.GetUser(r.Context()); u != nil {
 				userLang = u.Settings.Language
 			}
-
-			*r = *r.WithContext(z18n.With(r.Context(), bundle.Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
+			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.GetBundle(r.Context()).Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
 			next.ServeHTTP(w, r)
 		})
 	}

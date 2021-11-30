@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	code.soquee.net/otp v0.0.1
+	github.com/BurntSushi/toml v0.4.1
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
@@ -29,21 +30,20 @@ require (
 	zgo.at/isbot v0.0.0-20211017231009-742e7be1c6d8
 	zgo.at/json v0.0.0-20211017213340-cc8bf51df08c
 	zgo.at/tz v0.0.0-20211017223207-006eae99adf6
-	zgo.at/z18n v0.0.0-20211128135632-b6cd9496e035
+	zgo.at/z18n v0.0.0-20211201165718-dcb4d6bc9ea0
 	zgo.at/zcache v1.0.1-0.20210412145246-76039d792310
 	zgo.at/zdb v0.0.0-20211017231039-b6fbb7dc2e5c
 	zgo.at/zhttp v0.0.0-20211018125702-1f1d27dead4c
 	zgo.at/zli v0.0.0-20211017231103-84f8e371c324
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211017223351-20543d9cf990
-	zgo.at/zstd v0.0.0-20211128012218-5ef7cc4bcc03
+	zgo.at/zstd v0.0.0-20211201154120-0e6864ea6110
 	zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08
 	zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4
 	zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62
 )
 
 require (
-	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
