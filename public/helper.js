@@ -50,8 +50,8 @@ var translate_calendar = function() {
 		short = new Intl.DateTimeFormat(USER_SETTINGS.language, {month: 'short'})
 	for (var m=0; m<12; m++) {
 		var t = Date.UTC(2017, m, 1, 0, 0, 0)
-		months[m - 1]      = long.format(t)
-		monthsShort[m - 1] = short.format(t)
+		months[m]      = long.format(t)
+		monthsShort[m] = short.format(t)
 	}
 
 	var long  = new Intl.DateTimeFormat(USER_SETTINGS.language, {weekday: 'long'}),
