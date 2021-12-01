@@ -320,6 +320,7 @@ insert into version values
 	('2020-12-23-1-subloc'),
 	('2020-12-24-1-user_agent_id_null'),
 	('2020-12-26-1-order'),
+	('2020-12-31-1-user_agents'),
 	('2021-02-25-1-ua_version'),
 	('2021-03-15-1-user-access'),
 	('2021-03-16-1-billing'),

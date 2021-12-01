@@ -19,6 +19,9 @@ Aside from a number of small fixes and improvements, major changes include:
 - The visitor counter now supports the `start` and `end` parameters and the JSON
   endpoint returns `count` as well, to get the total pageview count.
 
+- You can now make the dashboard viewable to anyone who has a secret token (e.g.
+  https://mystats.example.com?access-token=5g4..)
+
 This release requires Go 1.17 to build.
 
 2021-04-13 v2.0.4

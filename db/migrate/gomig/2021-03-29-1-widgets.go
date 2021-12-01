@@ -27,22 +27,7 @@ func Widgets(ctx context.Context) error {
 		}
 
 		for _, u := range users {
-			var site goatcounter.Site
-			err = site.ByID(ctx, u.Site)
-			if err != nil {
-				err = site.ByIDState(ctx, u.Site, goatcounter.StateDeleted)
-				if err != nil {
-					return err
-				}
-			}
-			ctx = goatcounter.WithSite(ctx, &site)
-			var user goatcounter.User
-			err = user.ByID(ctx, u.ID)
-			if err != nil {
-				return err
-			}
-
-			{
+			{ // Update user settings.
 				var s map[string]interface{}
 				err := json.Unmarshal(u.Settings, &s)
 				if err != nil {
@@ -70,7 +55,17 @@ func Widgets(ctx context.Context) error {
 					return errors.Wrapf(err, "set user %d", u.ID)
 				}
 			}
-			{
+
+			{ // Update user defaults on site.
+				var site struct {
+					ID           int                      `db:"site_id"`
+					UserDefaults goatcounter.UserSettings `db:"user_defaults"`
+				}
+				err = zdb.Get(ctx, &site, `select site_id, user_defaults from sites where site_id = ?`, u.Site)
+				if err != nil {
+					return err
+				}
+
 				var wid goatcounter.Widgets
 				for _, v := range site.UserDefaults.Widgets {
 					w := goatcounter.Widget{"n": v["name"]}
