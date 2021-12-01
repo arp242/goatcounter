@@ -5,19 +5,21 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-Unreleased
-----------
-This release requires Go 1.17 to build.
+2021-12-01 v2.1
+---------------
+Aside from a number of small fixes and improvements, major changes include:
 
 - Support for translations; see https://www.goatcounter/translations for details
   how to translate GoatCounter.
 
-- List exports in Settings → Export/Import.
+- The import path is now updated to use "zgo.at/goatcounter/v2" so that e.g. "go
+  install zgo.at/goatcounter/v2" works. This should have been done with the 2.0
+  release, but I didn't realize how this all worked.
 
 - The visitor counter now supports the `start` and `end` parameters and the JSON
   endpoint returns `count` as well, to get the total pageview count.
 
-- Various small fixes.
+This release requires Go 1.17 to build.
 
 2021-04-13 v2.0.4
 -----------------

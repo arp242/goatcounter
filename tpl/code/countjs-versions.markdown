@@ -9,6 +9,15 @@ but you may need to update it in the future for new features.
 
 Latest
 ------
+No changes
+
+v3 (1 Dec 2021)
+---------------
+    <script data-goatcounter="{{.SiteURL}}/count"
+            async src="//{{.CountDomain}}/count.v3.js"
+            crossorigin="anonymous"
+            integrity="sha384-QGgNMMRFTi8ul5kHJ+vXysPe8gySvSA/Y3rpXZiRLzKPIw8CWY+a3ObKmQsyDr+a"></script>
+
 - Support `start` and `end` in the visitor counter.
 - Update localhost filter to include `0.0.0.0`
 - Tabs opened in the background didn't always get accounted for (see #487 for
