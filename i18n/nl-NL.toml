@@ -733,6 +733,7 @@ of een andere reden. Dit is compleet optioneel.
   default = "Jouw site"
 
 ["link/add-translation"]
+  default = "Wijzig of maak nieuwe vertalingen"
 
 ["link/api"]
   default = "API"
