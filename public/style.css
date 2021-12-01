@@ -203,3 +203,9 @@ dt { font-weight: bold; margin-top: 1em; }
 .contact-form button   { margin: 0; margin-top: 1em; }
 .contact-form textarea { font-family: monospace; }
 .contact-form .err     { display: block; color: red; }
+
+/* Work around Firefox mobile not displaying validation errors :-/ This at least
+ * gives *some* hint something has gone wrong. This is so broken that I'm not
+ * going to bother writing a JS thing.
+ * https://github.com/arp242/goatcounter/issues/529 */
+input:user-invalid { outline: 1px solid #f00 !important; box-shadow: 0 0 .2em #f00 !important; background-color: #feeaea; }

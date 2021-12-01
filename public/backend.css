@@ -454,3 +454,9 @@ dt { font-weight: bold; margin-top: 1em; }
 .input-prefix input   { padding-left: 1.8em !important; }
 .input-prefix         { position: relative; }
 .input-prefix .prefix { position: absolute; left: 0; top: 0; line-height: 2.55em; padding: 0 .3em 0 .5em; }
+
+/* Work around Firefox mobile not displaying validation errors :-/ This at least
+ * gives *some* hint something has gone wrong. This is so broken that I'm not
+ * going to bother writing a JS thing.
+ * https://github.com/arp242/goatcounter/issues/529 */
+input:user-invalid { outline: 1px solid #f00 !important; box-shadow: 0 0 .2em #f00 !important; background-color: #feeaea; }
