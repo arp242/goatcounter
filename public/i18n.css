@@ -1,0 +1,38 @@
+#i18n-header         { padding: .5em 1em; background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; margin-bottom: 1em; }
+#i18n-controls label { margin-right: 1em; }
+
+#i18n-syntax    { padding: .2em .5em; font-size: 14px; color: #000; background-color: #fff; box-shadow: 0 0 2px #aaa; }
+#i18n-syntax p  { margin: 0; }
+#i18n-syntax ul { margin: 0; }
+#i18n-syntax li { margin-bottom: .5em; }
+
+.i18n-message        { position: relative; margin-bottom: 1em; }
+.i18n-strings        { clear: both; display: flex; align-items: center; }
+.i18n-original       { position: relative; width: 35%; padding-right: .5em; white-space: pre-wrap; }
+.i18n-translate      { position: relative; width: 65%; }
+.i18n-message textarea { height: 42px; }
+.has-plural textarea   { margin: 0; margin-bottom: -1px; }
+
+.i18n-plural       { margin-bottom: .5em; }
+.i18n-plural >div  { display: flex; align-items: center; margin-left: 2em; }
+.i18n-plural label { width: 6em; }
+
+.i18n-id             { position: absolute; font-size: 14px; right: .3em; top: -1.1em; background-color: #fff; }
+.has-plural .i18n-id { top: 0; }
+
+.i18n-info    { display: none; z-index: 10; position: absolute; right: -1px; bottom: 100%; width: 30em; padding: .5em;
+                background-color: #f6f6f6; outline: 1px solid #00f; box-shadow: 0 0 .2em #00f; border-radius: 2px; }
+.i18n-info p  { margin: 0; }
+.i18n-info ul { list-style: none; margin: 0; padding: 0; }
+
+.i18n-status         { display: none; position: absolute; left: -.7em; top: -.7em; }
+.i18n-untrans        { color: #00f; }
+.i18n-unused         { color: #00f; }
+.i18n-err            { color: #f00; }
+.i18n-changed        { color: #00f; }
+.i18n-ok             { color: #0f0; }
+.i18n-message[data-status="untrans"] .i18n-untrans { display: block; }
+.i18n-message[data-status="unused"]  .i18n-unused  { display: block; }
+.i18n-message[data-status="err"]     .i18n-err     { display: block; }
+.i18n-message[data-status="changed"] .i18n-changed { display: block; }
+.i18n-message[data-status="ok"]      .i18n-ok      { display: block; }

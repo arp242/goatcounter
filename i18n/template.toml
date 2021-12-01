@@ -1,16 +1,18 @@
 [__meta__]
-  base-file = true
-  generated = 2021-11-28T06:13:41Z
+  generated = 2021-11-29T19:38:18Z
+  language = "en-GB"
+  template = true
   [__meta__.options]
     fun = ["z18n.T", "z18n.Locale.T", "T"]
+    language = "en_GB"
     paths = ["."]
     tpl-ext = [".T", "t"]
     tpl-fun = ["gohtml", "gotxt"]
 
 ["button/add-new"]
-  loc     = [
+  loc = [
     "tpl/settings_sites.gohtml:47",
-    "tpl/settings_users_form.gohtml:75",
+    "tpl/settings_users_form.gohtml:58",
     "tpl/user_api.gohtml:59",
   ]
   default = "Add new"
@@ -20,7 +22,7 @@
   default = "Add new user"
 
 ["button/cfg-dashboard"]
-  loc     = ["tpl/dashboard.gohtml:58"]
+  loc     = ["tpl/dashboard.gohtml:56"]
   default = "Configure dashboard layout"
 
 ["button/change"]
@@ -36,7 +38,7 @@
   default = "Copy"
 
 ["button/delete"]
-  loc     = [
+  loc = [
     "tpl/settings_sites.gohtml:30",
     "tpl/settings_users.gohtml:20",
     "tpl/user_api.gohtml:39",
@@ -60,9 +62,9 @@
   default = "Disable MFA"
 
 ["button/edit"]
-  loc     = [
+  loc = [
     "tpl/settings_users.gohtml:15",
-    "tpl/settings_users_form.gohtml:75",
+    "tpl/settings_users_form.gohtml:58",
   ]
   default = "Edit"
 
@@ -83,7 +85,7 @@
   default = "Request password reset"
 
 ["button/resend-email"]
-  loc     = [
+  loc = [
     "tpl/dashboard.gohtml:15",
     "tpl/user_api.gohtml:11",
   ]
@@ -102,10 +104,10 @@
   default = "Delete pageviews"
 
 ["button/save"]
-  loc     = [
+  loc = [
     "tpl/settings_main.gohtml:158",
     "tpl/user_dashboard.gohtml:24",
-    "tpl/user_pref.gohtml:67",
+    "tpl/user_pref.gohtml:68",
   ]
   default = "Save"
 
@@ -118,7 +120,7 @@
   default = "Send login URL"
 
 ["button/sign-in"]
-  loc     = [
+  loc = [
     "tpl/_backend_signin.gohtml:7",
     "tpl/totp.gohtml:14",
   ]
@@ -142,7 +144,7 @@
 
 ["dashboard/day-ago"]
   loc     = ["handlers/dashboard.go:205"]
-  default = ""
+  default = "%(n) days ago"
 
 ["dashboard/future"]
   loc     = ["handlers/handlers.go:72"]
@@ -150,21 +152,21 @@
 
 ["dashboard/month-ago"]
   loc     = ["handlers/dashboard.go:207"]
-  default = ""
+  default = "%(n) months ago"
 
 ["dashboard/nothing-to-display"]
   loc     = ["tpl.go:419"]
   default = "Nothing to display"
 
 ["dashboard/pages/header"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_pages.gohtml:3",
     "tpl/_dashboard_pages_text.gohtml:2",
   ]
   default = "Pages"
 
 ["dashboard/pages/num-visits"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_pages.gohtml:4",
     "tpl/_dashboard_pages_text.gohtml:3",
   ]
@@ -211,7 +213,7 @@
   default = "Totals"
 
 ["dashboard/totals/num-visits"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_totals.gohtml:4",
     "tpl/_dashboard_totals.gohtml:10",
   ]
@@ -219,7 +221,7 @@
 
 ["dashboard/week-ago"]
   loc     = ["handlers/dashboard.go:206"]
-  default = ""
+  default = "%(n) weeks ago"
 
 ["dashboard/yesterday"]
   loc     = ["handlers/dashboard.go:204"]
@@ -316,7 +318,7 @@ Martin
   default = "This account still has a Stripe subscription; cancel that first on the billing page."
 
 ["error/address-exists"]
-  loc     = [
+  loc = [
     "handlers/settings.go:286",
     "handlers/settings.go:291",
   ]
@@ -383,7 +385,7 @@ Martin
   default = "Wrong password for %(email)"
 
 ["error/not-found"]
-  loc     = [
+  loc = [
     "handlers/backend.go:73",
     "handlers/settings.go:360",
     "handlers/settings.go:904",
@@ -391,7 +393,7 @@ Martin
   default = "Not Found"
 
 ["error/password-does-not-match"]
-  loc     = [
+  loc = [
     "handlers/user.go:299",
     "handlers/user.go:424",
   ]
@@ -414,7 +416,7 @@ Martin
   default = "Wrong verification key."
 
 ["event"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_pages_rows.gohtml:9",
     "tpl/_dashboard_pages_rows.gohtml:19",
     "tpl/_dashboard_pages_text_rows.gohtml:22",
@@ -542,7 +544,7 @@ Martin
   default = "Locations for %(country)"
 
 ["header/mfa"]
-  loc     = [
+  loc = [
     "tpl/user_auth.gohtml:32",
     "tpl/user_auth.gohtml:43",
   ]
@@ -665,7 +667,7 @@ Martin
   default = "List of parameters to count as ‘campaigns’; if set then the value will be set as the referrer, overriding any Referer header."
 
 ["help/cfg-dashboard"]
-  loc     = ["tpl/dashboard.gohtml:59"]
+  loc     = ["tpl/dashboard.gohtml:57"]
   default = "Change what to display on the dashboard and in what order."
 
 ["help/code-access"]
@@ -769,7 +771,7 @@ The verification runs every 2 hours.
   default = "You will need to re-verify the new address if you change it."
 
 ["label/24-hour-clock"]
-  loc     = ["tpl/user_pref.gohtml:39"]
+  loc     = ["tpl/user_pref.gohtml:40"]
   default = "24-hour clock (13:00)"
 
 ["label/add-new"]
@@ -829,7 +831,7 @@ The verification runs every 2 hours.
   default = "Data retention in days"
 
 ["label/date-fmt"]
-  loc     = ["tpl/user_pref.gohtml:29"]
+  loc     = ["tpl/user_pref.gohtml:30"]
   default = "Date format"
 
 ["label/delete-account-confirmation"]
@@ -862,14 +864,14 @@ for wanting to delete your account. This is entirely optional.
   default = "Optional reason for deletion"
 
 ["label/email"]
-  loc     = [
+  loc = [
     "tpl/settings_users_form.gohtml:24",
     "tpl/settings_users_form.gohtml:25",
   ]
   default = "Email"
 
 ["label/email-address"]
-  loc     = [
+  loc = [
     "tpl/_backend_signin.gohtml:2",
     "tpl/user_forgot_code.gohtml:9",
     "tpl/user_forgot_pw.gohtml:6",
@@ -897,7 +899,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Location stats"
 
 ["label/mark-current"]
-  loc     = [
+  loc = [
     "tpl/settings_sites.gohtml:32",
     "tpl/settings_users.gohtml:23",
   ]
@@ -916,14 +918,14 @@ for wanting to delete your account. This is entirely optional.
   default = "New code"
 
 ["label/new-password"]
-  loc     = [
+  loc = [
     "tpl/user_auth.gohtml:17",
     "tpl/user_reset.gohtml:8",
   ]
   default = "New password"
 
 ["label/new-password-confirm"]
-  loc     = [
+  loc = [
     "tpl/user_auth.gohtml:20",
     "tpl/user_reset.gohtml:11",
   ]
@@ -934,7 +936,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Pagination cursor"
 
 ["label/password"]
-  loc     = [
+  loc = [
     "tpl/_backend_signin.gohtml:5",
     "tpl/settings_users_form.gohtml:33",
     "tpl/settings_users_form.gohtml:34",
@@ -959,6 +961,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["label/secret"]
   loc     = ["tpl/user_auth.gohtml:48"]
+  context = '"Secret" as in the secret MFA token; for example: "Secret: VNUZWLNDEVS6OTBVQK7FFTCLA4"'
   default = "Secret"
 
 ["label/secret-access"]
@@ -970,9 +973,9 @@ for wanting to delete your account. This is entirely optional.
   default = "Secret token"
 
 ["label/set-default"]
-  loc     = [
+  loc = [
     "tpl/user_dashboard.gohtml:27",
-    "tpl/user_pref.gohtml:70",
+    "tpl/user_pref.gohtml:71",
   ]
   default = "Also set as default for new users and the public view (if enabled)."
 
@@ -1005,11 +1008,11 @@ for wanting to delete your account. This is entirely optional.
   default = "System stats"
 
 ["label/thousand-separator"]
-  loc     = ["tpl/user_pref.gohtml:44"]
+  loc     = ["tpl/user_pref.gohtml:45"]
   default = "Thousands separator"
 
 ["label/timezone"]
-  loc     = ["tpl/user_pref.gohtml:55"]
+  loc     = ["tpl/user_pref.gohtml:56"]
   default = "Timezone"
 
 ["label/topref"]
@@ -1029,7 +1032,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Verification token"
 
 ["label/week-start"]
-  loc     = ["tpl/user_pref.gohtml:42"]
+  loc     = ["tpl/user_pref.gohtml:43"]
   default = "Week starts on Sunday"
 
 ["label/your-email"]
@@ -1039,6 +1042,10 @@ for wanting to delete your account. This is entirely optional.
 ["label/your-site"]
   loc     = ["tpl/settings_main.gohtml:13"]
   default = "Your site"
+
+["link/add-translation"]
+  loc     = ["tpl/user_pref.gohtml:28"]
+  default = "Add or update translations"
 
 ["link/api"]
   loc     = ["tpl/_user_nav.gohtml:6"]
@@ -1061,7 +1068,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Generate random secret."
 
 ["link/goto-path"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_pages_rows.gohtml:12",
     "tpl/_dashboard_pages_rows.gohtml:21",
     "tpl/_dashboard_pages_text_rows.gohtml:11",
@@ -1089,18 +1096,18 @@ for wanting to delete your account. This is entirely optional.
   default = "Delete pageviews"
 
 ["link/set-from-browser"]
-  loc     = ["tpl/user_pref.gohtml:62"]
+  loc     = ["tpl/user_pref.gohtml:63"]
   default = "Set from browser"
 
 ["link/settings"]
-  loc     = [
+  loc = [
     "tpl/_settings_nav.gohtml:2",
     "tpl/user_api.gohtml:8",
   ]
   default = "settings"
 
 ["link/show-more"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_pages.gohtml:17",
     "tpl/_dashboard_pages_text.gohtml:21",
   ]
@@ -1134,100 +1141,93 @@ for wanting to delete your account. This is entirely optional.
   loc     = ["tpl/_bottom_links.gohtml:9"]
   default = "Source code"
 
-["nav-bot/trial-expired"]
-  loc     = ["tpl/_backend_bottom.gohtml:5"]
-  default = """
-Hey hey; you’ve been using GoatCounter for more than 14 days.<br>
-Please choose if you want to subscribe to a plan or continue with the free plan on the %[billing page].
-"""
-
 ["nav-dash/as-text"]
-  loc     = ["tpl/dashboard.gohtml:103"]
+  loc     = ["tpl/dashboard.gohtml:101"]
   default = "View as text table"
 
 ["nav-dash/back"]
-  loc     = ["tpl/dashboard.gohtml:116"]
+  loc     = ["tpl/dashboard.gohtml:114"]
   default = "back"
 
 ["nav-dash/by-day"]
-  loc     = [
+  loc = [
+    "tpl/dashboard.gohtml:105",
     "tpl/dashboard.gohtml:107",
-    "tpl/dashboard.gohtml:109",
   ]
   default = "View by day"
 
 ["nav-dash/current"]
-  loc     = ["tpl/dashboard.gohtml:88"]
+  loc     = ["tpl/dashboard.gohtml:86"]
   default = "Current"
 
 ["nav-dash/day"]
-  loc     = [
-    "tpl/dashboard.gohtml:79",
-    "tpl/dashboard.gohtml:118",
-    "tpl/dashboard.gohtml:126",
+  loc = [
+    "tpl/dashboard.gohtml:77",
+    "tpl/dashboard.gohtml:116",
+    "tpl/dashboard.gohtml:124",
   ]
   default = "day"
 
 ["nav-dash/end-date"]
-  loc     = ["tpl/dashboard.gohtml:72"]
+  loc     = ["tpl/dashboard.gohtml:70"]
   default = "End of date range to display"
 
 ["nav-dash/filter"]
-  loc     = ["tpl/dashboard.gohtml:99"]
+  loc     = ["tpl/dashboard.gohtml:97"]
   default = "Filter paths"
 
 ["nav-dash/filter-tooltip"]
-  loc     = ["tpl/dashboard.gohtml:100"]
+  loc     = ["tpl/dashboard.gohtml:98"]
   default = "Filter the list of paths; matched case-insensitive on path and title"
 
 ["nav-dash/forced-daily"]
-  loc     = ["tpl/dashboard.gohtml:106"]
+  loc     = ["tpl/dashboard.gohtml:104"]
   default = "Cannot use the hourly view for a time range of more than 90 days"
 
 ["nav-dash/forward"]
-  loc     = ["tpl/dashboard.gohtml:130"]
+  loc     = ["tpl/dashboard.gohtml:128"]
   default = "forward"
 
 ["nav-dash/half-year"]
-  loc     = ["tpl/dashboard.gohtml:83"]
+  loc     = ["tpl/dashboard.gohtml:81"]
   default = "half year"
 
 ["nav-dash/last"]
-  loc     = ["tpl/dashboard.gohtml:78"]
+  loc     = ["tpl/dashboard.gohtml:76"]
   default = "Last"
 
 ["nav-dash/month"]
-  loc     = [
-    "tpl/dashboard.gohtml:81",
-    "tpl/dashboard.gohtml:90",
-    "tpl/dashboard.gohtml:120",
-    "tpl/dashboard.gohtml:128",
+  loc = [
+    "tpl/dashboard.gohtml:79",
+    "tpl/dashboard.gohtml:88",
+    "tpl/dashboard.gohtml:118",
+    "tpl/dashboard.gohtml:126",
   ]
   default = "month"
 
 ["nav-dash/quarter"]
-  loc     = ["tpl/dashboard.gohtml:82"]
+  loc     = ["tpl/dashboard.gohtml:80"]
   default = "quarter"
 
 ["nav-dash/start-date"]
-  loc     = ["tpl/dashboard.gohtml:68"]
+  loc     = ["tpl/dashboard.gohtml:66"]
   default = "Start of date range to display"
 
 ["nav-dash/week"]
-  loc     = [
-    "tpl/dashboard.gohtml:80",
-    "tpl/dashboard.gohtml:89",
-    "tpl/dashboard.gohtml:119",
-    "tpl/dashboard.gohtml:127",
+  loc = [
+    "tpl/dashboard.gohtml:78",
+    "tpl/dashboard.gohtml:87",
+    "tpl/dashboard.gohtml:117",
+    "tpl/dashboard.gohtml:125",
   ]
   default = "week"
 
 ["nav-dash/year"]
-  loc     = ["tpl/dashboard.gohtml:84"]
+  loc     = ["tpl/dashboard.gohtml:82"]
   default = "year"
 
 ["no-title"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_pages_rows.gohtml:8",
     "tpl/_dashboard_pages_text_rows.gohtml:21",
   ]
@@ -1250,7 +1250,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   default = "Multi-factor authentication disabled."
 
 ["notify/email-already-verified"]
-  loc     = [
+  loc = [
     "handlers/user.go:445",
     "handlers/user.go:523",
   ]
@@ -1313,7 +1313,7 @@ Please choose if you want to subscribe to a plan or continue with the free plan 
   default = "Site ‘%(url)’ was previously deleted; restored site with all data."
 
 ["notify/saved"]
-  loc     = [
+  loc = [
     "handlers/billing.go:149",
     "handlers/handlers.go:70",
     "handlers/settings.go:209",
@@ -1366,13 +1366,13 @@ independent afterwards.</p>
 """
 
 ["p/additional-errors"]
-  loc     = [
+  loc = [
     "tpl/_contact.gohtml:42",
     "tpl/settings_main.gohtml:164",
-    "tpl/settings_users_form.gohtml:72",
+    "tpl/settings_users_form.gohtml:55",
     "tpl/signup.gohtml:65",
     "tpl/user_dashboard.gohtml:38",
-    "tpl/user_pref.gohtml:77",
+    "tpl/user_pref.gohtml:78",
   ]
   default = "Additional errors"
 
@@ -1433,7 +1433,7 @@ data is removed. After 7 days all data will be permanently removed.
   default = "Enable TOTP-based multi-factor authentication by scanning the code in your authenticator app or entering the secret manually."
 
 ["p/error"]
-  loc     = [
+  loc = [
     "tpl/_dashboard_hchart.gohtml:9",
     "tpl/_dashboard_pages.gohtml:12",
     "tpl/_dashboard_toprefs.gohtml:9",
@@ -1572,15 +1572,16 @@ meaning.
   default = "Scale Y axis to max"
 
 ["top-nav/back"]
-  loc     = [
+  loc = [
     "tpl/_backend_top.gohtml:46",
     "tpl/_backend_top.gohtml:48",
     "tpl/_backend_top.gohtml:50",
+    "tpl/_backend_top.gohtml:52",
   ]
   default = "Back"
 
 ["top-nav/dashboard"]
-  loc     = ["tpl/_backend_top.gohtml:52"]
+  loc     = ["tpl/_backend_top.gohtml:54"]
   default = "Dashboard"
 
 ["top-nav/need-js"]
@@ -1588,39 +1589,40 @@ meaning.
   default = "GoatCounter requires JavaScript enabled to function well; please allow JavaScript to run from %(domain)."
 
 ["top-nav/public-link"]
-  loc     = ["tpl/_backend_top.gohtml:68"]
+  loc     = ["tpl/_backend_top.gohtml:70"]
   default = "Analytics for %(domain)."
 
 ["top-nav/public-time"]
-  loc     = ["tpl/_backend_top.gohtml:72"]
+  loc     = ["tpl/_backend_top.gohtml:74"]
   default = "The public view is updated once an hour; all times are in %(timezone-name) (%(timezone-offset))."
 
 ["top-nav/settings"]
-  loc     = ["tpl/_backend_top.gohtml:58"]
+  loc     = ["tpl/_backend_top.gohtml:60"]
   default = "Settings"
 
 ["top-nav/sign-in"]
-  loc     = ["tpl/_backend_top.gohtml:77"]
+  loc     = ["tpl/_backend_top.gohtml:79"]
   default = "Sign in"
 
 ["top-nav/sign-out"]
-  loc     = ["tpl/_backend_top.gohtml:62"]
+  loc     = ["tpl/_backend_top.gohtml:64"]
   default = "Sign out"
 
 ["top-nav/site-code"]
-  loc     = ["tpl/_backend_top.gohtml:57"]
+  loc     = ["tpl/_backend_top.gohtml:59"]
   default = "Site code"
 
 ["top-nav/sites"]
   loc     = ["tpl/_backend_top.gohtml:27"]
+  context = '"Site switcher", a list of sites will follow; e.g. "Sites: [site1] [site2]"'
   default = "Sites:"
 
 ["top-nav/updates"]
-  loc     = ["tpl/_backend_top.gohtml:56"]
+  loc     = ["tpl/_backend_top.gohtml:58"]
   default = "Updates"
 
 ["top-nav/user"]
-  loc     = ["tpl/_backend_top.gohtml:59"]
+  loc     = ["tpl/_backend_top.gohtml:61"]
   default = "User"
 
 ["unknown"]
@@ -1628,83 +1630,83 @@ meaning.
   default = "(unknown)"
 
 ["validate/bool"]
-  loc     = ["helper.go:165"]
+  loc     = ["helper.go:161"]
   default = "must be a boolean"
 
 ["validate/color"]
-  loc     = ["helper.go:159"]
+  loc     = ["helper.go:155"]
   default = "must be a valid color code"
 
 ["validate/contains"]
-  loc     = ["helper.go:171"]
+  loc     = ["helper.go:167"]
   default = "cannot contain the characters %s"
 
 ["validate/date"]
-  loc     = ["helper.go:166"]
+  loc     = ["helper.go:162"]
   default = "must be a date as ‘%s’"
 
 ["validate/domain"]
-  loc     = ["helper.go:153"]
+  loc     = ["helper.go:149"]
   default = "must be a valid domain"
 
 ["validate/email"]
-  loc     = ["helper.go:156"]
+  loc     = ["helper.go:152"]
   default = "must be a valid email address"
 
 ["validate/exclude"]
-  loc     = ["helper.go:162"]
+  loc     = ["helper.go:158"]
   default = "cannot be ‘%s’"
 
 ["validate/hostname"]
-  loc     = ["helper.go:154"]
+  loc     = ["helper.go:150"]
   default = "must be a valid hostname"
 
 ["validate/include"]
-  loc     = ["helper.go:163"]
+  loc     = ["helper.go:159"]
   default = "must be one of ‘%s’"
 
 ["validate/int"]
-  loc     = ["helper.go:164"]
+  loc     = ["helper.go:160"]
   default = "must be a whole number"
 
 ["validate/ip"]
-  loc     = ["helper.go:158"]
+  loc     = ["helper.go:154"]
   default = "must be a valid IPv4 or IPv6 address"
 
 ["validate/ipv4"]
-  loc     = ["helper.go:157"]
+  loc     = ["helper.go:153"]
   default = "must be a valid IPv4 address"
 
 ["validate/len-longer"]
-  loc     = ["helper.go:160"]
+  loc     = ["helper.go:156"]
   default = "must be longer than %d characters"
 
 ["validate/len-shorter"]
-  loc     = ["helper.go:161"]
+  loc     = ["helper.go:157"]
   default = "must be shorter than %d characters"
 
 ["validate/phone"]
-  loc     = ["helper.go:167"]
+  loc     = ["helper.go:163"]
   default = "must be a valid phone number"
 
 ["validate/range-higher"]
-  loc     = ["helper.go:168"]
+  loc     = ["helper.go:164"]
   default = "must be %d or higher"
 
 ["validate/range-lower"]
-  loc     = ["helper.go:169"]
+  loc     = ["helper.go:165"]
   default = "must be %d or lower"
 
 ["validate/required"]
-  loc     = ["helper.go:152"]
+  loc     = ["helper.go:148"]
   default = "must be set"
 
 ["validate/url"]
-  loc     = ["helper.go:155"]
+  loc     = ["helper.go:151"]
   default = "must be a valid url"
 
 ["validate/utf8"]
-  loc     = ["helper.go:170"]
+  loc     = ["helper.go:166"]
   default = "must be UTF-8"
 
 ["widget-setting/help/align"]
@@ -1716,7 +1718,7 @@ meaning.
   default = "Don't include events in the Totals overview"
 
 ["widget-setting/help/page-size"]
-  loc     = [
+  loc = [
     "settings.go:122",
     "settings.go:156",
     "settings.go:168",
@@ -1742,7 +1744,7 @@ meaning.
   default = "Exclude events"
 
 ["widget-setting/label/page-size"]
-  loc     = [
+  loc = [
     "settings.go:121",
     "settings.go:155",
     "settings.go:167",

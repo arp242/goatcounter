@@ -1,0 +1,48 @@
+{{- template "_backend_top.gohtml" . -}}
+<link rel="stylesheet" href="{{.Static}}/i18n.css?v={{.Version}}">
+
+<h1>GoatCounter translations</h1>
+<h2>Instructions</h2>
+<p>Anyone can help translate GoatCounter; how this works:</p>
+<ul>
+	<li>To test a new translation you can set it as active in the list below. If
+		you edit an existing language changed will immediately show up.</li>
+	<li>Feel free to edit this as much as you want, changes will show up for you
+		only; nothing is changed for anyone else.</li>
+	<li>To push changes click “send changes”, this will email me the file you’ve
+		edited. e.g. it’s like sending a pull request.</li>
+	<li>You can’t view what other people are working on at the moment; to
+		prevent duplicate work especially for new translations or other large
+		changes I encourage people to either
+		<a target="_blank" href="https://github.com/arp242/goatcounter/issues/new?title=New%20translation:">create a tracking issue</a>
+		and/or email <a target="_blank" href="mailto:support@goatcounter.com">support@goatcounter.com</a>
+		first to coördinate things.</li>
+</ul>
+
+<h2>Edit translations</h2>
+<ul>
+	{{range $f := .Files}}
+		<li><a style="display: inline-block; width: 10em;" href="/i18n/{{index $f 0}}">{{index $f 1}}</a> –
+			<form method="post" action="/i18n/set/{{index $f 0}}">
+				<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+				<input type="hidden" name="language" value="{{index $f 0}}">
+				<button class="link">set as active</button>
+			</form>
+		</li>
+	{{end}}
+</ul>
+
+<h2>Create new</h2>
+<form method="post" action="/i18n" class="vertical">
+	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+	<label for="language">Language</label>
+	<input type="text" name="language" id="language">
+	<span>As country code (i.e. 'de' for Germany) with optional region tag (i.e. 'de-DE' or 'de-AT' for Germany or Austria</span>
+	<br><br>
+	<button>Create</button>
+</form>
+
+<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+<script crossorigin="anonymous" src="{{.Static}}/i18n.js?v={{.Version}}"></script>
+{{- template "_backend_bottom.gohtml" . }}

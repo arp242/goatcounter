@@ -1,0 +1,135 @@
+{{- template "_backend_top.gohtml" . -}}
+<link rel="stylesheet" href="{{.Static}}/i18n.css?v={{.Version}}">
+
+<div id="i18n-syntax">
+	<p>Translations are done with <a href="https://github.com/arp242/z18n">z18n</a>; a quick rundown of the syntax:</p>
+
+	<ul>
+		<li>Translation strings support variables, which look like <code>Hello, %(name)</code>.</li>
+
+		<li>A second type of variable looks like <code>Click %[here]</code> This
+			will be wrapped in some HTML, such as a link or button. The
+			<code>here</code> will be put inside the HTML and should be
+			translated.</li>
+
+		<li>A related form is:
+			<code>Click %[%varname here] or %[%othervar there].</code>
+			<code>%varname</code> and <code>othervar</code> are the names of the variables, and should
+			<em>not</em> be translated. The <code>here</code> and <code>there</code> should.</p></li>
+	</ul>
+</div>
+
+<div id="i18n-header">
+	<div style="display: flex; justify-content: space-between;">
+		<div>
+			Language: {{.File.Language}}<br>
+			{{if .File.Maintainers}}Maintainers: {{join .File.Maintainers ", "}}{{else}}No maintainers{{end}}<br>
+			<br>
+			Note: all fields will be saved automatically.
+		</div>
+
+		{{/*
+		<div style="width: 60%">
+			<label for="comments" style="text-align: right">Comments/instructions for translators</label><br>
+			<textarea name="comments" id="comments">{{.File.Comments}}</textarea>
+		</div>
+		*/}}
+	</div>
+
+	<div style="display: flex; justify-content: space-between;">
+		<div id="i18n-controls">
+			Show:
+			<label><input type="radio" name="i18n-show" value="all" checked>all</label>
+			<label><input type="radio" name="i18n-show" value="untrans">untranslated only</label>
+			{{/*
+			TODO
+			<label><input type="radio" name="i18n-show" value="unused">unused only</label>
+			{{if .EditingExisting}}
+			<label><input type="radio" name="i18n-show" value="override">changed</label>
+			{{end}}
+			*/}}
+		</div>
+
+		{{/*
+		TODO:
+		- Merge from template
+		- Delete
+		*/}}
+		<form method="POST" action="/i18n/submit/{{.TOMLFile}}">
+			<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+			<button>Send changes</button>
+		</form>
+	</div>
+</div>
+
+{{range $e := .File.Strings}}
+	{{$o := index $.Base.Strings $e.ID}}
+	{{$status := ""}}
+	{{if not $e.Default}}              {{$status = "untrans"}}
+	{{else if eq $e.Updated "unused"}} {{$status = "unused"}}
+	{{else if false}}                  {{$status = "err"}}
+	{{else if false}}                  {{$status = "changed"}}
+	{{else}}                           {{$status = "ok"}}
+	{{end}}
+
+	{{/* TODO: add HasPlural helper or some such */}}
+	<div class="i18n-message{{if $e.One}} has-plural{{end}}" data-id="{{$e.ID}}" data-status="{{$status}}">
+		<div class="i18n-info">
+			<strong>{{$e.ID}}</strong>
+			{{if $o.Context}}<p>{{$o.Context}}</p>{{end}}
+			<ul>
+				{{range $l := $o.Loc}}
+					<li><a target="_blank" tabindex="-1" href="https://github.com/arp242/goatcounter/blob/master/{{call $.FormatLink $l}}">{{$l}}</a></li>
+				{{end}}
+			</ul>
+		</div>
+		<div class="i18n-strings">
+			<div class="i18n-original">{{$o.Default}}</div>
+			<div class="i18n-translate">
+				<div class="i18n-status i18n-untrans" title="Untranslated">⏳&#xfe0e;</div>
+				<div class="i18n-status i18n-unused" title="Unused">🗑&#xfe0e;</div>
+				<div class="i18n-status i18n-err" title="Error">✘&#xfe0e;</div>
+				<div class="i18n-status i18n-changed" title="Changed">📝&#xfe0e;</div>
+				<div class="i18n-status i18n-ok" title="Saved">✔&#xfe0e;</div>
+
+				{{/* TODO: add HasPlural() to Entry, or something. */}}
+				{{if $e.One}}
+					<div class="i18n-plural">
+						<strong>Pluralized value</strong>
+						<div>
+							<label for="default-{{$e.ID}}">Default</label>
+							<textarea data-field="default" id="default-{{$e.ID}}">{{$e.Default}}</textarea>
+						</div>
+						<div>
+							<label for="one-{{$e.ID}}">One</label>
+							<textarea data-field="one" id="one-{{$e.ID}}">{{$e.One}}</textarea>
+						</div>
+						<div>
+							<label for="zero-{{$e.ID}}">Zero</label>
+							<textarea data-field="zero" id="zero-{{$e.ID}}">{{$e.Zero}}</textarea>
+						</div>
+						<div>
+							<label for="two-{{$e.ID}}">Two</label>
+							<textarea data-field="two" id="two-{{$e.ID}}">{{$e.Two}}</textarea>
+						</div>
+						<div>
+							<label for="few-{{$e.ID}}">Few</label>
+							<textarea data-field="few" id="few-{{$e.ID}}">{{$e.Few}}</textarea>
+						</div>
+						<div>
+							<label for="one-{{$e.ID}}">Many</label>
+							<textarea data-field="many" id="many-{{$e.ID}}">{{$e.Many}}</textarea>
+						</div>
+					</div>
+				{{else}}
+					<textarea data-field="default" id="default-{{$e.ID}}">{{$e.Default}}</textarea>
+				{{end}}
+				<span class="i18n-id">{{$e.ID}}</span>
+			</div>
+		</div>
+	</div>
+{{end}}
+
+<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+<script crossorigin="anonymous" src="{{.Static}}/i18n.js?v={{.Version}}"></script>
+{{- template "_backend_bottom.gohtml" . }}

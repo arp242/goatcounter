@@ -4,292 +4,198 @@
   maintainers = ["Martin Tournoij <martin@arp242.net>"]
 
 ["button/add-new"]
-  loc     = [
-    "tpl/settings_sites.gohtml:47",
-    "tpl/settings_users_form.gohtml:75",
-    "tpl/user_api.gohtml:59",
-  ]
   default = "Nieuw"
 
 ["button/add-user"]
-  loc     = ["tpl/settings_users.gohtml:29"]
   default = "Nieuwe gebruiker"
 
 ["button/cfg-dashboard"]
-  loc     = ["tpl/dashboard.gohtml:58"]
   default = "Configureer dashboard layout"
 
 ["button/change"]
-  loc     = ["tpl/settings_changecode.gohtml:23"]
   default = "Veranderen"
 
 ["button/change-passwd"]
-  loc     = ["tpl/user_auth.gohtml:23"]
   default = "Verander wachtwoord"
 
 ["button/copy"]
-  loc     = ["tpl/settings_sites.gohtml:67"]
   default = "Kopieer"
 
 ["button/delete"]
-  loc     = [
-    "tpl/settings_sites.gohtml:30",
-    "tpl/settings_users.gohtml:20",
-    "tpl/user_api.gohtml:39",
-  ]
   default = "verwijderen"
 
 ["button/delete-account"]
-  loc     = ["tpl/settings_delete.gohtml:47"]
   default = "Verwijder account, alle sites, en alle data"
 
 ["button/delete-all"]
-  loc     = ["tpl/settings_purge_confirm.gohtml:23"]
   default = "Verwijder alles!"
 
 ["button/delete-everything"]
-  loc     = ["tpl/settings_sites_rm_confirm.gohtml:25"]
   default = "Verwijder alles"
 
 ["button/disable-mfa"]
-  loc     = ["tpl/user_auth.gohtml:35"]
   default = "Zet MFA uit"
 
 ["button/edit"]
-  loc     = [
-    "tpl/settings_users.gohtml:15",
-    "tpl/settings_users_form.gohtml:75",
-  ]
   default = "Aanpassen"
 
 ["button/enable-mfa"]
-  loc     = ["tpl/user_auth.gohtml:54"]
   default = "Stel MFA in"
 
 ["button/forgot-password"]
-  loc     = ["tpl/_backend_signin.gohtml:10"]
   default = "Wachtwoord vergeten?"
 
 ["button/remove"]
-  loc     = ["tpl/_user_dashboard_widgets.gohtml:14"]
   default = "Verwijderen"
 
 ["button/request-reset"]
-  loc     = ["tpl/user_forgot_pw.gohtml:9"]
   default = "Vraag nieuwe wachtwoord aan"
 
 ["button/resend-email"]
-  loc     = [
-    "tpl/dashboard.gohtml:15",
-    "tpl/user_api.gohtml:11",
-  ]
   default = "Email opnieuw versturen"
 
 ["button/reset-defaults"]
-  loc     = ["tpl/user_dashboard.gohtml:31"]
   default = "Terug naar standaardinstellingen"
 
 ["button/reset-password"]
-  loc     = ["tpl/user_reset.gohtml:14"]
   default = "Wachtwoord opnieuw instellen"
 
 ["button/rm-hits"]
-  loc     = ["tpl/settings_purge.gohtml:19"]
   default = "Verwijder pageviews"
 
 ["button/save"]
-  loc     = [
-    "tpl/settings_main.gohtml:158",
-    "tpl/user_dashboard.gohtml:24",
-    "tpl/user_pref.gohtml:67",
-  ]
   default = "Opslaan"
 
 ["button/save-default-view"]
-  loc     = ["tpl/dashboard.gohtml:52"]
   default = "Standaard view opslaan"
 
 ["button/send-login-url"]
-  loc     = ["tpl/user_forgot_code.gohtml:19"]
   default = "Stuur login URL"
 
 ["button/sign-in"]
-  loc     = [
-    "tpl/_backend_signin.gohtml:7",
-    "tpl/totp.gohtml:14",
-  ]
   default = "Inloggen"
 
 ["button/start-export"]
-  loc     = ["tpl/settings_export.gohtml:32"]
   default = "Start export"
 
 ["button/start-import"]
-  loc     = ["tpl/settings_export.gohtml:48"]
   default = "Start import"
 
 ["button/submit"]
-  loc     = ["tpl/dashboard.gohtml:44"]
   default = "Versturen"
 
 ["confirm/delete-user"]
-  loc     = ["tpl/settings_users.gohtml:17"]
   default = "%(email) verwijderen?"
 
 ["dashboard/day-ago"]
-  loc     = ["handlers/dashboard.go:205"]
   default = "%(n) dagen geleden"
   one     = "1 dag geleden"
 
 ["dashboard/future"]
-  loc     = ["handlers/handlers.go:72"]
   default = "toekomst"
 
 ["dashboard/month-ago"]
-  loc     = ["handlers/dashboard.go:207"]
   default = "%(n) maanden geleden"
   one     = "1 maand geleden"
 
 ["dashboard/nothing-to-display"]
-  loc     = ["tpl.go:419"]
   default = "Niks om weer te geven"
 
 ["dashboard/pages/header"]
-  loc     = [
-    "tpl/_dashboard_pages.gohtml:3",
-    "tpl/_dashboard_pages_text.gohtml:2",
-  ]
   default = "Pagina’s"
 
 ["dashboard/pages/num-visits"]
-  loc     = [
-    "tpl/_dashboard_pages.gohtml:4",
-    "tpl/_dashboard_pages_text.gohtml:3",
-  ]
   default = "%(num-visits) van %(total-visits) bezoeken getoond"
 
 ["dashboard/pages/pageviews"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:14"]
   default = "Pageviews"
 
 ["dashboard/pages/path"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:15"]
   default = "Pad"
 
 ["dashboard/pages/stats"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:17"]
   default = "Stats"
 
 ["dashboard/pages/stats-tooltip"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:17"]
   default = "Elke staaf is 1/12de van de geselecteerde tijdselectie"
 
 ["dashboard/pages/title"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:16"]
   default = "Titel"
 
 ["dashboard/pages/views"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:14"]
   default = "Views"
 
 ["dashboard/pages/visits"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:13"]
   default = "Bezoeken"
 
 ["dashboard/today"]
-  loc     = ["handlers/dashboard.go:203"]
   default = "Vandaag"
 
 ["dashboard/tooltip-event"]
-  loc     = ["handlers/handlers.go:73"]
   default = "%(unique) kliks; %(clicks) totaal kliks"
 
 ["dashboard/totals/header"]
-  loc     = ["tpl/_dashboard_totals.gohtml:2"]
   default = "Totaal"
 
 ["dashboard/totals/num-visits"]
-  loc     = [
-    "tpl/_dashboard_totals.gohtml:4",
-    "tpl/_dashboard_totals.gohtml:10",
-  ]
   default = "%(num-visits) bezoeken; %(num-views) pageviews"
 
 ["dashboard/week-ago"]
-  loc     = ["handlers/dashboard.go:206"]
   default = "%(n) weken geleden"
   one     = "1 week geleden"
 
 ["dashboard/yesterday"]
-  loc     = ["handlers/dashboard.go:204"]
   default = "Gisteren"
 
 ["data-collect/help/country"]
-  loc     = ["settings.go:327"]
   default = "Naam van het land, b.v. België, Indonesië, enz."
 
 ["data-collect/help/referrer"]
-  loc     = ["settings.go:312"]
   default = "Referer header en campagneparameters."
 
 ["data-collect/help/region"]
-  loc     = ["settings.go:332"]
   default = "Regio, b.v. Texas, Bali, enz. De details hiervoor verschillen per land."
 
 ["data-collect/help/sessions"]
-  loc     = ["settings.go:307"]
   default = "Houd unieke bezoekers bij voor 8 uur; als je dit uitzet dan wordt iemand die de pagina herlaad met F5 als 2 pageviews getoond in plaats van 1."
 
 ["data-collect/help/size"]
-  loc     = ["settings.go:322"]
   default = "Scrermformaat."
 
 ["data-collect/help/user-agent"]
-  loc     = ["settings.go:317"]
   default = "User-Agent header om de browser en het systeem op te halen."
 
 ["data-collect/label/country"]
-  loc     = ["settings.go:326"]
   default = "Land"
 
 ["data-collect/label/referrer"]
-  loc     = ["settings.go:311"]
   default = "Referrer"
 
 ["data-collect/label/region"]
-  loc     = ["settings.go:331"]
   default = "Regio"
 
 ["data-collect/label/sessions"]
-  loc     = ["settings.go:306"]
   default = "Sessies"
 
 ["data-collect/label/size"]
-  loc     = ["settings.go:321"]
   default = "Scherm"
 
 ["data-collect/label/user-agent"]
-  loc     = ["settings.go:316"]
   default = "User-Agent"
 
 ["datepicker/keyboard"]
-  loc     = ["handlers/handlers.go:75"]
   default = "Gebruik de cursortoetsen om een datum te kiezen"
 
 ["datepicker/month-next"]
-  loc     = ["handlers/handlers.go:77"]
   default = "Vorige maand"
 
 ["datepicker/month-prev"]
-  loc     = ["handlers/handlers.go:76"]
   default = "Volgende maand"
 
 ["email/header"]
-  loc     = ["tpl/_email_top.gotxt:1"]
   default = "Hallo,"
 
 ["email/password-reset"]
-  loc     = ["tpl/email_password_reset.gotxt:3"]
   default = """
 Iemand heeft een verzoek gedaan om je wachtwoord op GoatCounter opnieuw in te stellen.
 
@@ -298,11 +204,9 @@ Dat kan door naar deze link te gaan:
 """
 
 ["email/reset-user-email-subject"]
-  loc     = ["handlers/user.go:135"]
   default = "Wachtwoord opnieuw instellen voor %(domain)"
 
 ["email/signature"]
-  loc     = ["tpl/_email_bottom.gotxt:1"]
   default = """
 Problemen, vragen, opmerkingen, of iets anders te vertellen? Antwoord op deze email.
 
@@ -311,368 +215,264 @@ Martin
 """
 
 ["error/account-has-stripe-subscription"]
-  loc     = ["handlers/settings.go:655"]
   default = "Deze account heeft een betaalde Stripe abonnement; deze moet eerst opgezegd worden op de facturering pagina."
 
 ["error/address-exists"]
-  loc     = [
-    "handlers/settings.go:286",
-    "handlers/settings.go:291",
-  ]
   default = "%(addr) bestaat al"
 
 ["error/could-not-read"]
-  loc     = ["handlers/settings.go:542"]
   default = "Kan niet als gzip lezen:: %(err)"
 
 ["error/date-future"]
-  loc     = ["handlers/handlers.go:66"]
   default = "Dat zou in de toekomst zijn"
 
 ["error/date-mismatch"]
-  loc     = ["handlers/handlers.go:68"]
   default = "einddatum is voor de startdatum"
 
 ["error/date-past"]
-  loc     = ["handlers/handlers.go:67"]
   default = "Dat zou voor de aanmaakdatum van de site zijn; GoatCounter is nou ook weer niet *zo* goed ;-)"
 
 ["error/delete-main-site"]
-  loc     = ["tpl/settings_sites.gohtml:28"]
   default = "Kan de hoofdsite niet verwijderen"
 
 ["error/export-expired"]
-  loc     = ["handlers/settings.go:505"]
   default = "Deze export is nog niet klaar of is verlopen."
 
 ["error/incorrect-password"]
-  loc     = ["handlers/user.go:418"]
   default = "Huidig wachtwoord is incorrect."
 
 ["error/invalid-end-date"]
-  loc     = ["handlers/dashboard.go:383"]
   default = "Ongeldige einddatum: %(date)"
 
 ["error/invalid-start-date"]
-  loc     = ["handlers/dashboard.go:376"]
   default = "Ongeldige startdatum: %(date)"
 
 ["error/load-url"]
-  loc     = ["handlers/handlers.go:69"]
   default = "Kon %(url) niet laden: %(error)"
 
 ["error/login-invalid"]
-  loc     = ["handlers/user.go:225"]
   default = "Ongeldige login"
 
 ["error/login-no-password"]
-  loc     = ["handlers/user.go:174"]
   default = "Er is geen wachtwoord voor %(email); vraag deze opnieuw aan"
 
 ["error/login-not-found"]
-  loc     = ["handlers/user.go:167"]
   default = "Gebruiker %(email) niet gevonden"
 
 ["error/login-token-expired"]
-  loc     = ["handlers/user.go:267"]
   default = "Kon geen gebruiker vinden voor het gegeven token; deze kan verlopen of al gebruikt zijn."
 
 ["error/login-wrong-pwd"]
-  loc     = ["handlers/user.go:181"]
   default = "Verkeerd wachtwoord voor %(email)"
 
 ["error/not-found"]
-  loc     = [
-    "handlers/backend.go:73",
-    "handlers/settings.go:360",
-    "handlers/settings.go:904",
-  ]
   default = "Niet gevonden"
 
 ["error/password-does-not-match"]
-  loc     = [
-    "handlers/user.go:299",
-    "handlers/user.go:424",
-  ]
   default = "Wachtwoord bevestiging komt niet overeen."
 
 ["error/payment-cancelled"]
-  loc     = ["handlers/billing.go:81"]
   default = "Betaling stopgezet."
 
 ["error/reset-user-no-account"]
-  loc     = ["handlers/user.go:120"]
   default = "Geen gebruiker op deze site: %(email)"
 
 ["error/token-already-used"]
-  loc     = ["handlers/user.go:517"]
   default = "Onbekend token; wellicht dat het al gebruikt is?"
 
 ["error/wrong-verification-key"]
-  loc     = ["handlers/user.go:528"]
   default = "Wrong verification key."
 
 ["event"]
-  loc     = [
-    "tpl/_dashboard_pages_rows.gohtml:9",
-    "tpl/_dashboard_pages_rows.gohtml:19",
-    "tpl/_dashboard_pages_text_rows.gohtml:22",
-  ]
   default = "event"
 
 ["forgot-domain-help"]
-  loc     = ["tpl/user_forgot_code.gohtml:6"]
   default = "Email een lijst met alle domeinen voor een emailadres."
 
 ["header/access"]
-  loc     = ["tpl/settings_users.gohtml:6"]
   default = "Toegang"
 
 ["header/add-new-user"]
-  loc     = ["tpl/settings_users_form.gohtml:16"]
   default = "Maak een nieuwe gebruiker"
 
 ["header/allow-access"]
-  loc     = ["tpl/settings_users_form.gohtml:44"]
   default = "Rechten"
 
 ["header/api"]
-  loc     = ["tpl/user_api.gohtml:4"]
   default = "API"
 
 ["header/api-tokens"]
-  loc     = ["tpl/user_api.gohtml:19"]
   default = "API tokens"
 
 ["header/browsers"]
-  loc     = ["widgets/browsers.go:68"]
   default = "Browsers"
 
 ["header/change-code"]
-  loc     = ["tpl/settings_changecode.gohtml:3"]
   default = "Verander sitecode"
 
 ["header/change-passwd"]
-  loc     = ["tpl/user_auth.gohtml:10"]
   default = "Verander wachtwoord"
 
 ["header/code"]
-  loc     = ["tpl/settings_sites.gohtml:18"]
   default = "Code"
 
 ["header/copy-settings"]
-  loc     = ["tpl/settings_sites.gohtml:52"]
   default = "Kopieer instellingen"
 
 ["header/created-at"]
-  loc     = ["tpl/user_api.gohtml:22"]
   default = "Gemaakt op"
 
 ["header/dashboard"]
-  loc     = ["tpl/user_dashboard.gohtml:4"]
   default = "Dashboard"
 
 ["header/data-collection"]
-  loc     = ["tpl/settings_main.gohtml:134"]
   default = "Datacollectie"
 
 ["header/delete-account"]
-  loc     = ["tpl/settings_delete.gohtml:4"]
   default = "Verwijder account"
 
 ["header/domain"]
-  loc     = ["tpl/settings_sites.gohtml:18"]
   default = "Domein"
 
 ["header/domain-settings"]
-  loc     = ["tpl/settings_main.gohtml:50"]
   default = "Domeininstellingen"
 
 ["header/edit-user"]
-  loc     = ["tpl/settings_users_form.gohtml:16"]
   default = "Gebruiker %(email) aanpassen"
 
 ["header/email"]
-  loc     = ["tpl/settings_users.gohtml:6"]
   default = "Email"
 
 ["header/export"]
-  loc     = ["tpl/settings_export.gohtml:14"]
   default = "Export"
 
 ["header/export-or-import"]
-  loc     = ["tpl/settings_export.gohtml:4"]
   default = "Export/Import"
 
 ["header/finished"]
-  loc     = ["tpl/settings_export.gohtml:58"]
   default = "Klaar"
 
 ["header/forgot-domain"]
-  loc     = ["tpl/user_forgot_code.gohtml:3"]
   default = "Domein vergeten"
 
 ["header/forgot-password"]
-  loc     = ["tpl/user_forgot_pw.gohtml:3"]
   default = "Wachtwoord vergeten"
 
 ["header/hash"]
-  loc     = ["tpl/settings_export.gohtml:62"]
   default = "Hash"
 
 ["header/import"]
-  loc     = ["tpl/settings_export.gohtml:40"]
   default = "Import"
 
 ["header/l10n"]
-  loc     = ["tpl/user_pref.gohtml:20"]
   default = "Lokalisatie"
 
 ["header/last-10-exports"]
-  loc     = ["tpl/settings_export.gohtml:54"]
   default = "Laatste 10 exports"
 
 ["header/locations"]
-  loc     = ["widgets/locations.go:57"]
   default = "Locaties"
 
 ["header/locations-for"]
-  loc     = ["widgets/locations.go:64"]
   default = "Locaties voor %(country)"
 
 ["header/mfa"]
-  loc     = [
-    "tpl/user_auth.gohtml:32",
-    "tpl/user_auth.gohtml:43",
-  ]
   default = "Multi-factor authenticatie"
 
 ["header/n-hits"]
-  loc     = ["tpl/settings_purge_confirm.gohtml:9"]
   default = "# of hits"
 
 ["header/name"]
-  loc     = ["tpl/user_api.gohtml:22"]
   default = "Naam"
 
 ["header/new"]
-  loc     = ["tpl/backend_updates.gohtml:9"]
   default = "Nieuw"
 
 ["header/pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:60"]
   default = "Cursor"
 
 ["header/passwd-mfa"]
-  loc     = ["tpl/user_auth.gohtml:4"]
   default = "Password & MFA"
 
 ["header/path"]
-  loc     = ["tpl/settings_purge_confirm.gohtml:10"]
   default = "Pad"
 
 ["header/permissions"]
-  loc     = ["tpl/user_api.gohtml:22"]
   default = "Rechten"
 
 ["header/preferences"]
-  loc     = ["tpl/user_pref.gohtml:4"]
   default = "Instellingen"
 
 ["header/reset-password"]
-  loc     = ["tpl/user_reset.gohtml:3"]
   default = "Wachtwoord opnieuw instellen voor %(email) op %(site-name)"
 
 ["header/rm-hits"]
-  loc     = ["tpl/settings_purge.gohtml:4"]
   default = "Verwijder pageviews"
 
 ["header/settings"]
-  loc     = ["tpl/settings_main.gohtml:4"]
   default = "Instellingen"
 
 ["header/sign-in-at"]
-  loc     = ["tpl/user.gohtml:3"]
   default = "Inloggen op %(name)"
 
 ["header/site-settings"]
-  loc     = ["tpl/settings_main.gohtml:11"]
   default = "Site settings"
 
 ["header/sites"]
-  loc     = ["tpl/settings_sites.gohtml:4"]
   default = "Sites"
 
 ["header/size"]
-  loc     = ["tpl/settings_export.gohtml:61"]
   default = "Bestandsgrootte"
 
 ["header/sizes"]
-  loc     = ["widgets/sizes.go:63"]
   default = "Schermformaten"
 
 ["header/start-pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:59"]
   default = "Cursor"
 
 ["header/started"]
-  loc     = ["tpl/settings_export.gohtml:57"]
   default = "Gestart"
 
 ["header/systems"]
-  loc     = ["widgets/systems.go:68"]
   default = "Systemen"
 
 ["header/title"]
-  loc     = ["tpl/settings_purge_confirm.gohtml:11"]
   default = "Titel"
 
 ["header/token"]
-  loc     = ["tpl/user_api.gohtml:22"]
   default = "Token"
 
 ["header/toprefs"]
-  loc     = ["tpl/_dashboard_toprefs.gohtml:6"]
   default = "Top referrers"
 
 ["header/tracking"]
-  loc     = ["tpl/settings_main.gohtml:107"]
   default = "Tracking"
 
 ["header/updated"]
-  loc     = ["tpl/backend_updates.gohtml:3"]
   default = "Updates"
 
 ["header/user-info"]
-  loc     = ["tpl/user_pref.gohtml:10"]
   default = "Gebruikersinformatie"
 
 ["header/user-information"]
-  loc     = ["tpl/settings_users_form.gohtml:22"]
   default = "Gebruiker details"
 
 ["header/users"]
-  loc     = ["tpl/settings_users.gohtml:4"]
   default = "Gebruikers"
 
 ["help/allow-visitor-counts"]
-  loc     = ["tpl/settings_main.gohtml:27"]
   default = "Zie %[de documentatie] voor details."
 
 ["help/campaign-parameters"]
-  loc     = ["tpl/settings_main.gohtml:129"]
   default = "Lijst van parameters om als campagnes te gebruiken; als deze aanwezig is zal het als referrer gebruikt worden, en de Referrer header overschrijven."
 
 ["help/cfg-dashboard"]
-  loc     = ["tpl/dashboard.gohtml:59"]
   default = "Verander wat er op het dashboard weergegeven wordt, en in welke volgorde."
 
 ["help/code-access"]
-  loc     = ["tpl/settings_sites.gohtml:40"]
   default = "Je account is beschikbaar op https://<em>[mijn-code]</em>.%(domein)."
 
 ["help/custom-domain"]
-  loc     = ["tpl/settings_main.gohtml:68"]
   default = """
 Eigen domein, b.v. <em>“stats.example.com”</em>. <strong>Let op:</strong> Dit
 zal <em>niet</em> de meeste adblokers ervan weerhouden om GoatCounter te
@@ -680,162 +480,123 @@ blokkeren, en is alleen bedoeld als een “vanity domain”.
 """
 
 ["help/custom-domain-cname"]
-  loc     = ["tpl/settings_main.gohtml:94"]
   default = "Zet een CNAME record naar <code>%(domain)</code> – %[%docs gedetailleerde instructies]."
 
 ["help/custom-domain-error"]
-  loc     = ["tpl/settings_main.gohtml:85"]
   default = """
 %[%error Nog niet geverifieerd]; zet een CNAME record naar <code>%(domain)</code> – %[%docs gedetailleerde instructies].
 De verificatie checkt elke 2 uur.
 """
 
 ["help/custom-domain-plan"]
-  loc     = ["tpl/settings_main.gohtml:76"]
   default = "Vereist Personal Plus of Business plan (je hebt het %(plan) plan; zie %[%link facturering])."
 
 ["help/custom-domain-verified"]
-  loc     = ["tpl/settings_main.gohtml:83"]
   default = "Domein geverifieerd en actief (N.B.: het kan nog een uur duren voordat het TLS certificaat werkt)."
 
 ["help/data-retention"]
-  loc     = ["tpl/settings_main.gohtml:112"]
   default = "Pageviews en alle geassocieerde data zullen permanent verwijderd worden na zoveel dagen. <code>0</code> om nooit te verwijderen."
 
 ["help/domain-access"]
-  loc     = ["tpl/settings_sites.gohtml:44"]
   default = "Domein voor deze site."
 
 ["help/drag-reorder"]
-  loc     = ["tpl/_user_dashboard_widgets.gohtml:3"]
   default = "Versleep om te herordenen"
 
 ["help/for-the-following-countries"]
-  loc     = ["tpl/settings_main.gohtml:148"]
   default = "Lijst met landcodes (%[lijst]; gebruik de alpha-2 code); laat leeg om te verzamelen voor alle landen (als dit aan staat)."
 
 ["help/goatcounter-domain"]
-  loc     = ["tpl/settings_main.gohtml:102"]
   default = "GoatCounter installatie domein, b.v. <em>“stats.example.com”</em>."
 
 ["help/ignore-ips"]
-  loc     = ["tpl/settings_main.gohtml:117"]
   default = "Verwerk geen pageviews van deze IP adressen. Meerdere waarden gescheiden door komma's. Ondersteund alleen exacte matches. %[Voeg huidig IP toe]."
 
 ["help/ignore-ips-2"]
-  loc     = ["tpl/settings_main.gohtml:121"]
   default = "Of %[zet uit voor deze browser] (klik nogmaals om weer aan te zetten)."
 
 ["help/new-user-email"]
-  loc     = ["tpl/settings_users_form.gohtml:30"]
   default = "Email om mee in te loggen."
 
 ["help/new-user-email-confirm"]
-  loc     = ["tpl/settings_users_form.gohtml:28"]
   default = "Email om mee in te loggen; moet bevestigd worden."
 
 ["help/no-undo"]
-  loc     = ["tpl/settings_purge_confirm.gohtml:24"]
   default = "Dit is een destructieve actie, en kan niet ongedaan worden!"
 
 ["help/password-edit"]
-  loc     = ["tpl/settings_users_form.gohtml:37"]
   default = "Laat leeg om het onveranderd te laten."
 
 ["help/password-new-user"]
-  loc     = ["tpl/settings_users_form.gohtml:39"]
   default = "Laat leeg om email te sturen om wachtwoord in te stellen."
 
 ["help/public"]
-  loc     = ["tpl/settings_main.gohtml:36"]
   default = "Stel in wie het dashboard kan zien."
 
 ["help/rm-hits"]
-  loc     = ["tpl/settings_purge.gohtml:20"]
   default = "Je ziet eerst een preview voordat er iets verwijderd wordt"
 
 ["help/save-default-view"]
-  loc     = ["tpl/dashboard.gohtml:53"]
   default = "Sla huidige view (alle instellingen in het gele vak) op als de standaard om te laden als er nog niks geselecteerd is."
 
 ["help/turing-test"]
-  loc     = ["tpl/user_forgot_code.gohtml:16"]
   default = "Verificatie dat je mens bent :-)"
 
 ["help/your-email"]
-  loc     = ["tpl/user_pref.gohtml:16"]
   default = "Je moet je nieuw emailadres opnieuw verifiëren als je het veranderd."
 
 ["label/24-hour-clock"]
-  loc     = ["tpl/user_pref.gohtml:39"]
   default = "24-uurs klok (13:00)"
 
 ["label/add-new"]
-  loc     = ["tpl/user_dashboard.gohtml:15"]
   default = "Maak nieuw"
 
 ["label/all-sites"]
-  loc     = ["tpl/settings_sites.gohtml:66"]
   default = "Alle sites"
 
 ["label/allow-admin-access"]
-  loc     = ["tpl/settings_main.gohtml:20"]
   default = "Admin toegang toestaan"
 
 ["label/allow-visitor-counts"]
-  loc     = ["tpl/settings_main.gohtml:26"]
   default = "Toestaan de statestieken te tonen op je website"
 
 ["label/browser-stats"]
-  loc     = ["widgets/browsers.go:29"]
   default = "Browser stats"
 
 ["label/campaign-parameters"]
-  loc     = ["tpl/settings_main.gohtml:126"]
   default = "Campagneparameters"
 
 ["label/change-code"]
-  loc     = ["tpl/settings_main.gohtml:56"]
   default = "Je gebruikt je account op https://<em>[mijn-code]</em>.%(domain) – %[%link verander]."
 
 ["label/clear-pageviews"]
-  loc     = ["tpl/settings_export.gohtml:45"]
   default = "Verwijder alle bestaande pageviews."
 
 ["label/code"]
-  loc     = ["tpl/settings_main.gohtml:53"]
   default = "Code"
 
 ["label/csv-compress-format"]
-  loc     = ["tpl/settings_export.gohtml:42"]
   default = "CSV bestand; kan met gzip gecomprimeerd zijn"
 
 ["label/current-passwd"]
-  loc     = ["tpl/user_auth.gohtml:13"]
   default = "Huidig wachtwoord"
 
 ["label/custom-domain"]
-  loc     = ["tpl/settings_main.gohtml:65"]
   default = "Eigen domein"
 
 ["label/dashboard-public"]
-  loc     = ["tpl/settings_main.gohtml:30"]
   default = "Dashboard zichtbaar voor"
 
 ["label/data-retention"]
-  loc     = ["tpl/settings_main.gohtml:109"]
   default = "Dataretentie in dagen"
 
 ["label/date-fmt"]
-  loc     = ["tpl/user_pref.gohtml:29"]
   default = "Formaat datum"
 
 ["label/delete-account-confirmation"]
-  loc     = ["tpl/settings_delete.gohtml:29"]
   default = "Weet je zeker dat je je hele account wilt verwijderen?"
 
 ["label/delete-account-contact"]
-  loc     = ["tpl/settings_delete.gohtml:40"]
   default = """
 Soms volg ik op met een vraag of opmerking als je dit aanzet. Ik ben geen Ziggo
 en is niet bedoeld om te smeken om toch te blijven, maar soms is er wel eens een
@@ -843,515 +604,338 @@ vraag te beantwoorden of iets anders interessants te melden.
 """
 
 ["label/delete-account-follow-up"]
-  loc     = ["tpl/settings_delete.gohtml:39"]
   default = "Het is okay om contact op te nemen"
 
 ["label/delete-account-reason"]
-  loc     = ["tpl/settings_delete.gohtml:32"]
   default = """
 Ik hoor graag waarom je je account verwijderd, bijvoorbeeld omdat je iets mist
 of een andere reden. Dit is compleet optioneel.
 """
 
 ["label/delete-account-reason-placeholder"]
-  loc     = ["tpl/settings_delete.gohtml:37"]
   default = "Optionele reden voor verwijderen"
 
 ["label/email"]
-  loc     = [
-    "tpl/settings_users_form.gohtml:24",
-    "tpl/settings_users_form.gohtml:25",
-  ]
   default = "Email"
 
 ["label/email-address"]
-  loc     = [
-    "tpl/_backend_signin.gohtml:2",
-    "tpl/user_forgot_code.gohtml:9",
-    "tpl/user_forgot_pw.gohtml:6",
-  ]
   default = "Emailadres"
 
 ["label/for-following-countries"]
-  loc     = ["tpl/settings_main.gohtml:146"]
   default = "Alleen voor de landen:"
 
 ["label/goatcounter-domain"]
-  loc     = ["tpl/settings_main.gohtml:100"]
   default = "GoatCounter domein"
 
 ["label/ignore-ips"]
-  loc     = ["tpl/settings_main.gohtml:114"]
   default = "Negeer IPs"
 
 ["label/lang"]
-  loc     = ["tpl/user_pref.gohtml:22"]
   default = "Taal"
 
 ["label/loc-stats"]
-  loc     = ["widgets/locations.go:29"]
   default = "Locatie stats"
 
 ["label/mark-current"]
-  loc     = [
-    "tpl/settings_sites.gohtml:32",
-    "tpl/settings_users.gohtml:23",
-  ]
   default = "(huidig)"
 
 ["label/match-title"]
-  loc     = ["tpl/settings_purge.gohtml:21"]
   default = "Zoek ook op titel"
 
 ["label/mfa-token"]
-  loc     = ["tpl/totp.gohtml:10"]
   default = "MFA Token"
 
 ["label/new-code"]
-  loc     = ["tpl/settings_changecode.gohtml:20"]
   default = "Nieuwe code"
 
 ["label/new-password"]
-  loc     = [
-    "tpl/user_auth.gohtml:17",
-    "tpl/user_reset.gohtml:8",
-  ]
   default = "Nieuw wachtwoord"
 
 ["label/new-password-confirm"]
-  loc     = [
-    "tpl/user_auth.gohtml:20",
-    "tpl/user_reset.gohtml:11",
-  ]
   default = "Nieuw wachtwoord (bevestiging)"
 
 ["label/pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:24"]
   default = "Starten vanaf cursor"
 
 ["label/password"]
-  loc     = [
-    "tpl/_backend_signin.gohtml:5",
-    "tpl/settings_users_form.gohtml:33",
-    "tpl/settings_users_form.gohtml:34",
-  ]
   default = "Wachtwoord"
 
 ["label/paths"]
-  loc     = ["widgets/pages.go:37"]
   default = "Overzicht paden"
 
 ["label/public-anyone"]
-  loc     = ["tpl/settings_main.gohtml:34"]
   default = "Iedereen"
 
 ["label/public-private"]
-  loc     = ["tpl/settings_main.gohtml:32"]
   default = "Alleen ingelogde gebruikers"
 
 ["label/public-token"]
-  loc     = ["tpl/settings_main.gohtml:33"]
   default = "Ingelogde gebruikers of gebruikers met geheime code"
 
 ["label/secret"]
-  loc     = ["tpl/user_auth.gohtml:48"]
   default = "Geheime code"
 
 ["label/secret-access"]
-  loc     = ["tpl/settings_main.gohtml:44"]
   default = "Geheime toegang URL:"
 
 ["label/secret-token"]
-  loc     = ["tpl/settings_main.gohtml:39"]
   default = "Geheim"
 
 ["label/set-default"]
-  loc     = [
-    "tpl/user_dashboard.gohtml:27",
-    "tpl/user_pref.gohtml:70",
-  ]
   default = "Stel ook in als standaard voor nieuwe gebruikers en het publiek toegankelijk dashboard (als deze aan staat)"
 
 ["label/size-desktop"]
-  loc     = ["tpl.go:455"]
   default = "Computerschermen"
 
 ["label/size-desktophd"]
-  loc     = ["tpl.go:457"]
   default = "Computerschermen groter dan HD"
 
 ["label/size-largephones"]
-  loc     = ["tpl.go:451"]
   default = "Grote telefoons, kleine tablets"
 
 ["label/size-phones"]
-  loc     = ["tpl.go:449"]
   default = "Telefoons"
 
 ["label/size-stats"]
-  loc     = ["widgets/sizes.go:28"]
   default = "Schermformaten"
 
 ["label/size-tablets"]
-  loc     = ["tpl.go:453"]
   default = "Tablets en kleine laptops"
 
 ["label/system-stats"]
-  loc     = ["widgets/systems.go:29"]
   default = "Systeem stats"
 
 ["label/thousand-separator"]
-  loc     = ["tpl/user_pref.gohtml:44"]
   default = "Teken voor nummergroepering"
 
 ["label/timezone"]
-  loc     = ["tpl/user_pref.gohtml:55"]
   default = "Tijdzone"
 
 ["label/topref"]
-  loc     = ["widgets/toprefs.go:28"]
   default = "Top referrals"
 
 ["label/total-pageviews"]
-  loc     = ["widgets/total_pages.go:29"]
   default = "Pageviews totaal"
 
 ["label/turing-test"]
-  loc     = ["tpl/user_forgot_code.gohtml:13"]
   default = "Vul hier 9 in"
 
 ["label/verifictation-token"]
-  loc     = ["tpl/user_auth.gohtml:51"]
   default = "Verificatie token"
 
 ["label/week-start"]
-  loc     = ["tpl/user_pref.gohtml:42"]
   default = "Week begint op zondag"
 
 ["label/your-email"]
-  loc     = ["tpl/user_pref.gohtml:12"]
   default = "Jouw email"
 
 ["label/your-site"]
-  loc     = ["tpl/settings_main.gohtml:13"]
   default = "Jouw site"
 
+["link/add-translation"]
+
 ["link/api"]
-  loc     = ["tpl/_user_nav.gohtml:6"]
   default = "API"
 
 ["link/api-docs"]
-  loc     = ["tpl/user_api.gohtml:16"]
   default = "API documentatie"
 
 ["link/billing"]
-  loc     = ["tpl/_settings_nav.gohtml:10"]
   default = "Facturering"
 
 ["link/dashboard"]
-  loc     = ["tpl/_user_nav.gohtml:3"]
   default = "Dashboard"
 
 ["link/generate-random"]
-  loc     = ["tpl/settings_main.gohtml:41"]
   default = "Genereer nieuwe geheime code."
 
 ["link/goto-path"]
-  loc     = [
-    "tpl/_dashboard_pages_rows.gohtml:12",
-    "tpl/_dashboard_pages_rows.gohtml:21",
-    "tpl/_dashboard_pages_text_rows.gohtml:11",
-  ]
   default = "Ga naar %(path)"
 
 ["link/import"]
-  loc     = ["tpl/_settings_nav.gohtml:4"]
   default = "Import"
 
 ["link/passwd-mfa"]
-  loc     = ["tpl/_user_nav.gohtml:4"]
   default = "Wachtwoord & MFA"
 
 ["link/preferences"]
-  loc     = ["tpl/_user_nav.gohtml:2"]
   default = "Instellingen"
 
 ["link/rm-account"]
-  loc     = ["tpl/_settings_nav.gohtml:13"]
   default = "Verwijder account"
 
 ["link/rm-views"]
-  loc     = ["tpl/_settings_nav.gohtml:3"]
   default = "Verwijder pageviews"
 
 ["link/set-from-browser"]
-  loc     = ["tpl/user_pref.gohtml:62"]
   default = "Stel in van browser"
 
 ["link/settings"]
-  loc     = [
-    "tpl/_settings_nav.gohtml:2",
-    "tpl/user_api.gohtml:8",
-  ]
   default = "Instellingen"
 
 ["link/show-more"]
-  loc     = [
-    "tpl/_dashboard_pages.gohtml:17",
-    "tpl/_dashboard_pages_text.gohtml:21",
-  ]
   default = "Toon meer"
 
 ["link/sites"]
-  loc     = ["tpl/_settings_nav.gohtml:8"]
   default = "Sites"
 
 ["link/users"]
-  loc     = ["tpl/_settings_nav.gohtml:7"]
   default = "Gebruikers"
 
 ["nav-bot/contact"]
-  loc     = ["tpl/_bottom_links.gohtml:4"]
   default = "Contact"
 
 ["nav-bot/contribute"]
-  loc     = ["tpl/_bottom_links.gohtml:6"]
   default = "Bijdragen"
 
 ["nav-bot/docs"]
-  loc     = ["tpl/_bottom_links.gohtml:5"]
   default = "Documentatie"
 
 ["nav-bot/home"]
-  loc     = ["tpl/_bottom_links.gohtml:3"]
   default = "Home"
 
 ["nav-bot/src"]
-  loc     = ["tpl/_bottom_links.gohtml:9"]
   default = "Broncode"
 
-["nav-bot/trial-expired"]
-  loc     = ["tpl/_backend_bottom.gohtml:5"]
-  default = """
-Hey hey; you’ve been using GoatCounter for more than 14 days.<br>
-Please choose if you want to subscribe to a plan or continue with the free plan on the %[billing page].
-"""
-
 ["nav-dash/as-text"]
-  loc     = ["tpl/dashboard.gohtml:103"]
   default = "Als tekst tabel"
 
 ["nav-dash/back"]
-  loc     = ["tpl/dashboard.gohtml:116"]
   default = "eerder"
 
 ["nav-dash/by-day"]
-  loc     = [
-    "tpl/dashboard.gohtml:107",
-    "tpl/dashboard.gohtml:109",
-  ]
   default = "Per dag"
 
 ["nav-dash/current"]
-  loc     = ["tpl/dashboard.gohtml:88"]
   default = "Huidige"
 
 ["nav-dash/day"]
-  loc     = [
-    "tpl/dashboard.gohtml:79",
-    "tpl/dashboard.gohtml:118",
-    "tpl/dashboard.gohtml:126",
-  ]
   default = "dag"
 
 ["nav-dash/end-date"]
-  loc     = ["tpl/dashboard.gohtml:72"]
   default = "Einddatum om te tonen"
 
 ["nav-dash/filter"]
-  loc     = ["tpl/dashboard.gohtml:99"]
   default = "Filter paden"
 
 ["nav-dash/filter-tooltip"]
-  loc     = ["tpl/dashboard.gohtml:100"]
   default = "Filter de lijst met paden; hoofdletter ongevoelig en filtert op de padnaam en titel"
 
 ["nav-dash/forced-daily"]
-  loc     = ["tpl/dashboard.gohtml:106"]
   default = "Kan niet per uur bekijken voor meer dan 90 dagen"
 
 ["nav-dash/forward"]
-  loc     = ["tpl/dashboard.gohtml:130"]
   default = "later"
 
 ["nav-dash/half-year"]
-  loc     = ["tpl/dashboard.gohtml:83"]
   default = "half jaar"
 
 ["nav-dash/last"]
-  loc     = ["tpl/dashboard.gohtml:78"]
   default = "Laatste"
 
 ["nav-dash/month"]
-  loc     = [
-    "tpl/dashboard.gohtml:81",
-    "tpl/dashboard.gohtml:90",
-    "tpl/dashboard.gohtml:120",
-    "tpl/dashboard.gohtml:128",
-  ]
   default = "maand"
 
 ["nav-dash/quarter"]
-  loc     = ["tpl/dashboard.gohtml:82"]
   default = "kwartaal"
 
 ["nav-dash/start-date"]
-  loc     = ["tpl/dashboard.gohtml:68"]
   default = "Startdatum om te tonen"
 
 ["nav-dash/week"]
-  loc     = [
-    "tpl/dashboard.gohtml:80",
-    "tpl/dashboard.gohtml:89",
-    "tpl/dashboard.gohtml:119",
-    "tpl/dashboard.gohtml:127",
-  ]
   default = "week"
 
 ["nav-dash/year"]
-  loc     = ["tpl/dashboard.gohtml:84"]
   default = "jaar"
 
 ["no-title"]
-  loc     = [
-    "tpl/_dashboard_pages_rows.gohtml:8",
-    "tpl/_dashboard_pages_text_rows.gohtml:21",
-  ]
   default = "geen titel"
 
 ["notify/add-one-thing"]
-  loc     = ["handlers/settings_user.go:115"]
   default = "Minimaal 1 ding nodig op het dashboard."
 
 ["notify/api-token-created"]
-  loc     = ["handlers/user.go:472"]
   default = "API token gemaakt."
 
 ["notify/api-token-removed"]
-  loc     = ["handlers/user.go:494"]
   default = "API token verwijderd."
 
 ["notify/disabled-multi-factor-auth"]
-  loc     = ["handlers/user.go:361"]
   default = "Multi-factor authenticatie uitgezet."
 
 ["notify/email-already-verified"]
-  loc     = [
-    "handlers/user.go:445",
-    "handlers/user.go:523",
-  ]
   default = "%(email) is al geverifieerd."
 
 ["notify/export-started-in-background"]
-  loc     = ["handlers/settings.go:612"]
   default = "Export in de achtergrond gestart; je krijgt een email met een download link als deze klaar is."
 
 ["notify/import-started-in-background"]
-  loc     = ["handlers/settings.go:589"]
   default = "Import in de achtergrond gestart; je krijgt een email als deze klaar is."
 
 ["notify/login-after-password-reset"]
-  loc     = ["handlers/user.go:325"]
   default = "Wachtwoord opnieuw ingesteld; gebruik het nieuwe wachtwoord om in te loggen."
 
 ["notify/multi-factor-auth-enabled"]
-  loc     = ["handlers/user.go:396"]
   default = "Multi-factor authenticatie aangezet."
 
 ["notify/need-business-plan-custom-domain"]
-  loc     = ["handlers/settings.go:167"]
   default = "business plan nodig voor eigen domein"
 
 ["notify/need-email-verification-for-api"]
-  loc     = ["handlers/user.go:457"]
   default = "Je moet eerst je email bevestigen voordat je de API kan gebruiken."
 
 ["notify/no-user-for-token"]
-  loc     = ["handlers/user.go:286"]
   default = "kon geen gebruiker vinden voor dit token; deze kan verlopen of al gebruik zijn."
 
 ["notify/not-found"]
-  loc     = ["handlers/settings.go:859"]
   default = "Niet gevonden"
 
 ["notify/password-changed"]
-  loc     = ["handlers/user.go:438"]
   default = "Wachtwoord veranderd."
 
 ["notify/payment-processed"]
-  loc     = ["handlers/billing.go:98"]
   default = "Betaling verwerkt!"
 
 ["notify/payment-processing"]
-  loc     = ["handlers/billing.go:86"]
   default = "The payment processor reported success, but we're still processing the payment"
 
 ["notify/reset-to-default"]
-  loc     = ["handlers/settings_user.go:127"]
   default = "Hersteld naar standaardinstellingen!"
 
 ["notify/reset-user-sent"]
-  loc     = ["handlers/user.go:144"]
   default = "Email verstuurd naar %(email)"
 
 ["notify/restored-previously-deleted-site"]
-  loc     = ["handlers/settings.go:299"]
   default = "Site ‘%(url)’ was eerder verwijderd; de site is nu hersteld met alle data."
 
 ["notify/saved"]
-  loc     = [
-    "handlers/billing.go:149",
-    "handlers/handlers.go:70",
-    "handlers/settings.go:209",
-    "handlers/settings.go:234",
-    "handlers/settings_user.go:70",
-  ]
   default = "Opgeslagen!"
 
 ["notify/sent-to-email"]
-  loc     = ["handlers/user.go:450"]
   default = "Verstuurd naar %(email)."
 
 ["notify/settings-copied-to-site"]
-  loc     = ["handlers/settings.go:424"]
   default = "Instellingen gekopieerd naar de geselecteerde sites."
 
 ["notify/site-added"]
-  loc     = ["handlers/settings.go:322"]
   default = "Site ‘%(url)’ gemaakt."
 
 ["notify/site-removed"]
-  loc     = ["handlers/settings.go:369"]
   default = "Site ‘%(url)’ verwijderd."
 
 ["notify/started-background-process"]
-  loc     = ["handlers/settings.go:469"]
   default = "In de achtergrond gestart; kan 10-20 seconden duren voordat dit volledig klaar is."
 
 ["notify/user-added"]
-  loc     = ["handlers/settings.go:830"]
   default = "Gebruiker ‘%(email)’ gemaakt."
 
 ["notify/user-removed"]
-  loc     = ["handlers/settings.go:912"]
   default = "Gebruiker ‘%(email)’ verwijderd."
 
 ["notify/users-edited"]
-  loc     = ["handlers/settings.go:884"]
   default = "Gebruiker ‘%(email)’ aangepast."
 
 ["p/add-goatcounter-to-multiple-websites"]
-  loc     = ["tpl/settings_sites.gohtml:6"]
   default = """
 <p>Voeg GoatCounter op meerdere sites websites door nieuwe sites te maken. Alle
 sites hebben hetzelfde plan, gebruikers, en logins, maar zijn verder compleet
@@ -1362,22 +946,12 @@ maar zijn daarna los.</p>
 """
 
 ["p/additional-errors"]
-  loc     = [
-    "tpl/_contact.gohtml:42",
-    "tpl/settings_main.gohtml:164",
-    "tpl/settings_users_form.gohtml:72",
-    "tpl/signup.gohtml:65",
-    "tpl/user_dashboard.gohtml:38",
-    "tpl/user_pref.gohtml:77",
-  ]
   default = "Foutmeldingen"
 
 ["p/api-intro"]
-  loc     = ["tpl/user_api.gohtml:15"]
   default = "GoatCounter komt met een beperkte API; op het moment kan je pageviews met de API sturen, en sites en exports beheren."
 
 ["p/change-code-request"]
-  loc     = ["tpl/settings_changecode.gohtml:4"]
   default = """
 <p>Verander de site code en login domein.</p>
 
@@ -1390,23 +964,18 @@ site (de oude en nieuwe code) om te voorkomen dat pageviews verloren gaan.</p>
 """
 
 ["p/change-email"]
-  loc     = ["tpl/dashboard.gohtml:11"]
   default = "Verander je emailadres in de %[instellingen]."
 
 ["p/collect-disabled"]
-  loc     = ["tpl/_dashboard_warn_collect.gohtml:3"]
   default = "Het verzamelen van deze informatie is uitgezet %[in instellingen]."
 
 ["p/copy-settings-from-current-site"]
-  loc     = ["tpl/settings_sites.gohtml:53"]
   default = "Kopieer alle instellingen van de huidige site muv. de domeinnaam."
 
 ["p/csv-file-format"]
-  loc     = ["tpl/settings_export.gohtml:6"]
   default = "Het CSV-formaat is %[hier gedocumenteerd]."
 
 ["p/delete-account-multi-site"]
-  loc     = ["tpl/settings_delete.gohtml:7"]
   default = """
 De site en alle data wordt gemarkeerd als verwijderd en is niet meer
 toegankelijk, maar er wordt nog nog niks daadwerkelijk verwijderd. Na 7 dagen
@@ -1414,7 +983,6 @@ wordt alle data permanent verwijderd.
 """
 
 ["p/delete-account-one-site"]
-  loc     = ["tpl/settings_delete.gohtml:13"]
   default = """
 De site en alle data wordt gemarkeerd als verwijderd en is niet meer
 toegankelijk, maar er wordt nog nog niks daadwerkelijk verwijderd. Na 7 dagen
@@ -1422,24 +990,15 @@ wordt alle data permanent verwijderd.
 """
 
 ["p/disable-mfa"]
-  loc     = ["tpl/user_auth.gohtml:34"]
   default = "MFA is aan voor deze account."
 
 ["p/enable-mfa"]
-  loc     = ["tpl/user_auth.gohtml:45"]
   default = "Zet TOTP multi-factor authenticatie aan door de code te scannen in je authenticatie app, of door de geheime code handmatig in te voeren."
 
 ["p/error"]
-  loc     = [
-    "tpl/_dashboard_hchart.gohtml:9",
-    "tpl/_dashboard_pages.gohtml:12",
-    "tpl/_dashboard_toprefs.gohtml:9",
-    "tpl/_dashboard_totals.gohtml:19",
-  ]
   default = "Foutmelding: %(error-message)"
 
 ["p/export-process"]
-  loc     = ["tpl/settings_export.gohtml:15"]
   default = """
 <p>Start het proces  en email een download link zodra deze klaar is. Je kan dit
 maximaal eenmaal per uur doen, en overschrijft elke vorige backups indien
@@ -1450,15 +1009,12 @@ zijn, welke niet getoond worden in het overzicht.</p>
 """
 
 ["p/have-mfa"]
-  loc     = ["tpl/totp.gohtml:4"]
   default = "Deze account is beschermd met multi-factor authenticatie; gebruik de authenticatie applicatie om een code te genereren"
 
 ["p/last-user"]
-  loc     = ["tpl/settings_users.gohtml:13"]
   default = "Kan laatste admingebruiker niet verwijderen of aanpassen"
 
 ["p/no-data"]
-  loc     = ["tpl/dashboard.gohtml:22"]
   default = """
 <p>
 %[%bold Geen data] – GoatCounter heeft nog geen data ontvangen.<br>
@@ -1474,37 +1030,30 @@ de pagina:</p>
 """
 
 ["p/no-matches"]
-  loc     = ["tpl/settings_purge_confirm.gohtml:4"]
   default = "Geen resultaten voor %(query)."
 
 ["p/notify-immediate-change"]
-  loc     = ["tpl/settings_changecode.gohtml:24"]
   default = "Heeft onmiddellijk effect"
 
 ["p/notify-pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:26"]
   default = """
 Er is een ‘cursor’ in de email, als je deze hier invuld dan worden alleen
 pageviews opgenomen van na de vorige export.
 """
 
 ["p/notify-site-deletion"]
-  loc     = ["tpl/settings_delete.gohtml:21"]
   default = "%(number) sites zullen verwijderd worden"
 
 ["p/remove-site-confirm"]
-  loc     = ["tpl/settings_sites_rm_confirm.gohtml:11"]
   default = """
 Weet je zeker dat je de site %(sitename) wilt verwijderen?<br>
 Dit zal <strong>alle data verwijderen</strong>.
 """
 
 ["p/remove-site-confirm-contact"]
-  loc     = ["tpl/settings_sites_rm_confirm.gohtml:18"]
   default = "%[Contact] als je iets anders wilt doen, zoals het samenvoegen met een andere site of naar een andere account verplaatsen."
 
 ["p/remove-site-confirm-current"]
-  loc     = ["tpl/settings_sites_rm_confirm.gohtml:6"]
   default = """
 Weet je zeker dat je de site %(sitename) wilt verwijderen?<br>
 Dit zal <strong>alle data verwijderen</strong> en dit is <strong>de huidige
@@ -1512,15 +1061,12 @@ site</strong>.
 """
 
 ["p/request-data-recovery"]
-  loc     = ["tpl/settings_delete.gohtml:49"]
   default = "%[Contact] binnen 7 dagen als je je account hersteld wil hebben."
 
 ["p/rm-hits"]
-  loc     = ["tpl/settings_purge.gohtml:6"]
   default = "Verwijder alle pageviews voor een pad."
 
 ["p/rm-hits-help"]
-  loc     = ["tpl/settings_purge.gohtml:8"]
   default = """
 Zoeken is hoofdletterongevoelig. Gebruik <code>%</code> als een wildcard; b.v.
 <code>/page%.html</code> matched alles dat met <code>/page</code> begint en op
@@ -1531,234 +1077,164 @@ betekenis.
 """
 
 ["p/rm-pageview-match"]
-  loc     = ["tpl/settings_purge_confirm.gohtml:6"]
   default = "De volgende paden werden gevonden voor %(query):"
 
 ["p/setting-recovery-disabled-information"]
-  loc     = ["tpl/settings_main.gohtml:135"]
   default = "Als een optie is uitgeschakeld dan is er geen mogelijkheid deze informatie later toch nog op te halen omdat dit niet wordt opgeslagen."
 
 ["p/settings-all-sites"]
-  loc     = ["tpl/_user_nav.gohtml:9"]
   default = "Deze instellingen hebben effect op alles sites waar je toegang tot hebt."
 
 ["p/site-domain-link-to-page"]
-  loc     = ["tpl/settings_main.gohtml:16"]
   default = "Domein voor je site, b.v.<em>“www.example.com”</em>, gebruikt om naar de site te linken in het overzicht."
 
 ["p/slow"]
-  loc     = ["handlers/handlers.go:71"]
   default = "Het kan langzaam zijn om veel pagina's te laden, met name op wat oudere apparaten. Zet dit getal lager als je problemen ondervind."
 
 ["p/text-data-retention"]
-  loc     = ["tpl/settings_sites.gohtml:55"]
   default = "Dit is inclusief de dataretentie en datacollectie instelllingen!"
 
 ["p/verify-email"]
-  loc     = ["tpl/dashboard.gohtml:6"]
   default = "Verifieer je email via de link verstuurd naar %(email). %[%sup (Waarom?)]"
 
 ["page-ranking"]
-  loc     = ["tpl/_dashboard_pages_rows.gohtml:28"]
   default = "Pagina ranking"
 
 ["restricted-admin-access"]
-  loc     = ["tpl/settings_main.gohtml:21"]
   default = "Normaal gesproken kunnen admins niet bij je site, maar als dit aanstaat kan dat wel. Dit wordt soms gevraagd voor support."
 
 ["scale-y"]
-  loc     = ["tpl/_dashboard_pages_rows.gohtml:25"]
   default = "Schaal Y-as naar maximaal"
 
 ["top-nav/back"]
-  loc     = [
-    "tpl/_backend_top.gohtml:46",
-    "tpl/_backend_top.gohtml:48",
-    "tpl/_backend_top.gohtml:50",
-  ]
   default = "Terug"
 
 ["top-nav/dashboard"]
-  loc     = ["tpl/_backend_top.gohtml:52"]
   default = "Dashboard"
 
 ["top-nav/need-js"]
-  loc     = ["tpl/_backend_top.gohtml:14"]
   default = "GoatCounter heeft JavaScript nodig om goed te kunnen functioneren."
 
 ["top-nav/public-link"]
-  loc     = ["tpl/_backend_top.gohtml:68"]
   default = "Analytics voor %(domain)."
 
 ["top-nav/public-time"]
-  loc     = ["tpl/_backend_top.gohtml:72"]
   default = "De publieke view wordt eenmaal per uur geüpdate; alle tijden zijn in %(timezone-name) (%(timezone-offset))."
 
 ["top-nav/settings"]
-  loc     = ["tpl/_backend_top.gohtml:58"]
   default = "Instellingen"
 
 ["top-nav/sign-in"]
-  loc     = ["tpl/_backend_top.gohtml:77"]
   default = "Inloggen"
 
 ["top-nav/sign-out"]
-  loc     = ["tpl/_backend_top.gohtml:62"]
   default = "Uitloggen"
 
 ["top-nav/site-code"]
-  loc     = ["tpl/_backend_top.gohtml:57"]
   default = "Site code"
 
 ["top-nav/sites"]
-  loc     = ["tpl/_backend_top.gohtml:27"]
   default = "Sites:"
 
 ["top-nav/updates"]
-  loc     = ["tpl/_backend_top.gohtml:56"]
   default = "Updates"
 
 ["top-nav/user"]
-  loc     = ["tpl/_backend_top.gohtml:59"]
   default = "Gebruiker"
 
 ["unknown"]
-  loc     = ["tpl.go:463"]
   default = "(onbekend)"
 
 ["validate/bool"]
-  loc     = ["helper.go:165"]
   default = "kan geen boolean zijn"
 
 ["validate/color"]
-  loc     = ["helper.go:159"]
   default = "moet een geldige kleurcode zijn"
 
 ["validate/contains"]
-  loc     = ["helper.go:171"]
   default = "kan niet de tekens %s bevatten"
 
 ["validate/date"]
-  loc     = ["helper.go:166"]
   default = "moet een datum als ‘%s’ zijn"
 
 ["validate/domain"]
-  loc     = ["helper.go:153"]
   default = "moet een geldig domein zijn"
 
 ["validate/email"]
-  loc     = ["helper.go:156"]
   default = "moet een geldig emailadres zijn"
 
 ["validate/exclude"]
-  loc     = ["helper.go:162"]
   default = "kan niet ‘%s’ zijn"
 
 ["validate/hostname"]
-  loc     = ["helper.go:154"]
   default = "moet een geldige hostname zijn"
 
 ["validate/include"]
-  loc     = ["helper.go:163"]
   default = "moet één van ‘%s’ zijn"
 
 ["validate/int"]
-  loc     = ["helper.go:164"]
   default = "moet een heel getal zijn"
 
 ["validate/ip"]
-  loc     = ["helper.go:158"]
   default = "moet een geldig IP-adres zijn"
 
 ["validate/ipv4"]
-  loc     = ["helper.go:157"]
   default = "moet een geldig IPv4-adres zijn"
 
 ["validate/len-longer"]
-  loc     = ["helper.go:160"]
   default = "moet langer dan %d tekens zijn"
 
 ["validate/len-shorter"]
-  loc     = ["helper.go:161"]
   default = "moet korter dan %d tekens zijn"
 
 ["validate/phone"]
-  loc     = ["helper.go:167"]
   default = "moet een geldig telefoonnummer zijn"
 
 ["validate/range-higher"]
-  loc     = ["helper.go:168"]
   default = "moet %d of hoger zijn"
 
 ["validate/range-lower"]
-  loc     = ["helper.go:169"]
   default = "moet %d of lager zijn"
 
 ["validate/required"]
-  loc     = ["helper.go:152"]
   default = "is verplicht"
 
 ["validate/url"]
-  loc     = ["helper.go:155"]
   default = "moet een geldige URL zijn"
 
 ["validate/utf8"]
-  loc     = ["helper.go:170"]
   default = "moet UTF-8 zijn"
 
 ["widget-setting/help/align"]
-  loc     = ["settings.go:142"]
   default = "Marge aan de linkerkant zodat de grafieken uitlijnen"
 
 ["widget-setting/help/no-events"]
-  loc     = ["settings.go:148"]
   default = "Toon geen events in het totaaloverzicht"
 
 ["widget-setting/help/page-size"]
-  loc     = [
-    "settings.go:122",
-    "settings.go:156",
-    "settings.go:168",
-    "settings.go:180",
-    "settings.go:195",
-  ]
   default = "Lengte per pagina"
 
 ["widget-setting/help/ref-page-size"]
-  loc     = ["settings.go:131"]
   default = "Aantal referrers om te laden wanneer je op een pad klikt"
 
 ["widget-setting/help/regions"]
-  loc     = ["settings.go:204"]
   default = "Toon regio's voor dit land in plaats van een lijst met landen"
 
 ["widget-setting/label/align"]
-  loc     = ["settings.go:141"]
   default = "Lijn uit met pagina's"
 
 ["widget-setting/label/no-events"]
-  loc     = ["settings.go:147"]
   default = "Zonder events"
 
 ["widget-setting/label/page-size"]
-  loc     = [
-    "settings.go:121",
-    "settings.go:155",
-    "settings.go:167",
-    "settings.go:179",
-    "settings.go:194",
-  ]
   default = "Paginalengte"
 
 ["widget-setting/label/ref-page-size"]
-  loc     = ["settings.go:130"]
   default = "Referrers paginalegte"
 
 ["widget-setting/label/regions"]
-  loc     = ["settings.go:203"]
   default = "Toon regio's"
 
 ["y-scale"]
-  loc     = ["tpl/_dashboard_pages_rows.gohtml:27"]
   default = "Y-as schaal"
 

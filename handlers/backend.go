@@ -154,6 +154,8 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
 			settings{}.mount(af)
+
+			Newi18n().mount(af)
 		}
 	}
 }

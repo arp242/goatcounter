@@ -48,6 +48,8 @@
 					<strong id="back"><a href="/settings/purge">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else if has_prefix .Path "/billing/"}}
 					<strong id="back"><a href="/billing">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
+				{{else if has_prefix .Path "/i18n/"}}
+					<strong id="back"><a href="/i18n">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else}}
 					<strong id="back"><a href="/">←&#xfe0e; {{.T "top-nav/dashboard|Dashboard"}}</a></strong>
 				{{end}}
