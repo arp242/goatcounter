@@ -150,6 +150,9 @@
 ["data-collect/help/country"]
   default = "Naam van het land, b.v. België, Indonesië, enz."
 
+["data-collect/help/language"]
+  default = "Talen verstuurd met Accept-Language"
+
 ["data-collect/help/referrer"]
   default = "Referer header en campagneparameters."
 
@@ -167,6 +170,9 @@
 
 ["data-collect/label/country"]
   default = "Land"
+
+["data-collect/label/language"]
+  default = "Taal"
 
 ["data-collect/label/referrer"]
   default = "Referrer"
@@ -366,6 +372,9 @@ Martin
 
 ["header/l10n"]
   default = "Lokalisatie"
+
+["header/languages"]
+  default = "Talen"
 
 ["header/last-10-exports"]
   default = "Laatste 10 exports"
@@ -575,6 +584,9 @@ De verificatie checkt elke 2 uur.
 ["label/code"]
   default = "Code"
 
+["label/collected-since"]
+  default = "Verzameld sinds 2 dec."
+
 ["label/csv-compress-format"]
   default = "CSV bestand; kan met gzip gecomprimeerd zijn"
 
@@ -632,6 +644,9 @@ of een andere reden. Dit is compleet optioneel.
 
 ["label/lang"]
   default = "Taal"
+
+["label/language-stats"]
+  default = "Taal stats"
 
 ["label/loc-stats"]
   default = "Locatie stats"

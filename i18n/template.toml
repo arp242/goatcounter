@@ -228,51 +228,59 @@
   default = "Yesterday"
 
 ["data-collect/help/country"]
-  loc     = ["settings.go:327"]
+  loc     = ["settings.go:338"]
   default = "Country name, for example Belgium, Indonesia, etc."
 
+["data-collect/help/language"]
+  loc     = ["settings.go:348"]
+  default = "Supported languages from Accept-Language"
+
 ["data-collect/help/referrer"]
-  loc     = ["settings.go:312"]
+  loc     = ["settings.go:323"]
   default = "Referer header and campaign parameters."
 
 ["data-collect/help/region"]
-  loc     = ["settings.go:332"]
+  loc     = ["settings.go:343"]
   default = "Region, for example Texas, Bali, etc. The details for this differ per country."
 
 ["data-collect/help/sessions"]
-  loc     = ["settings.go:307"]
+  loc     = ["settings.go:318"]
   default = "Track unique visitors for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1"
 
 ["data-collect/help/size"]
-  loc     = ["settings.go:322"]
+  loc     = ["settings.go:333"]
   default = "Screen size."
 
 ["data-collect/help/user-agent"]
-  loc     = ["settings.go:317"]
+  loc     = ["settings.go:328"]
   default = "User-Agent header to get the browser and system name and version."
 
 ["data-collect/label/country"]
-  loc     = ["settings.go:326"]
+  loc     = ["settings.go:337"]
   default = "Country"
 
+["data-collect/label/language"]
+  loc     = ["settings.go:347"]
+  default = "Language"
+
 ["data-collect/label/referrer"]
-  loc     = ["settings.go:311"]
+  loc     = ["settings.go:322"]
   default = "Referrer"
 
 ["data-collect/label/region"]
-  loc     = ["settings.go:331"]
+  loc     = ["settings.go:342"]
   default = "Region"
 
 ["data-collect/label/sessions"]
-  loc     = ["settings.go:306"]
+  loc     = ["settings.go:317"]
   default = "Sessions"
 
 ["data-collect/label/size"]
-  loc     = ["settings.go:321"]
+  loc     = ["settings.go:332"]
   default = "Size"
 
 ["data-collect/label/user-agent"]
-  loc     = ["settings.go:316"]
+  loc     = ["settings.go:327"]
   default = "User-Agent"
 
 ["datepicker/keyboard"]
@@ -530,6 +538,10 @@ Martin
 ["header/l10n"]
   loc     = ["tpl/user_pref.gohtml:20"]
   default = "Localisation"
+
+["header/languages"]
+  loc     = ["widgets/languages.go:49"]
+  default = "Languages"
 
 ["header/last-10-exports"]
   loc     = ["tpl/settings_export.gohtml:54"]
@@ -810,6 +822,10 @@ The verification runs every 2 hours.
   loc     = ["tpl/settings_main.gohtml:53"]
   default = "Code"
 
+["label/collected-since"]
+  loc     = ["tpl/_dashboard_hchart.gohtml:7"]
+  default = "Collected since 2 Dec 2021"
+
 ["label/csv-compress-format"]
   loc     = ["tpl/settings_export.gohtml:42"]
   default = "CSV file; may be compressed with gzip"
@@ -893,6 +909,10 @@ for wanting to delete your account. This is entirely optional.
 ["label/lang"]
   loc     = ["tpl/user_pref.gohtml:22"]
   default = "Language"
+
+["label/language-stats"]
+  loc     = ["widgets/languages.go:28"]
+  default = "Language stats"
 
 ["label/loc-stats"]
   loc     = ["widgets/locations.go:29"]
@@ -1434,7 +1454,7 @@ data is removed. After 7 days all data will be permanently removed.
 
 ["p/error"]
   loc = [
-    "tpl/_dashboard_hchart.gohtml:9",
+    "tpl/_dashboard_hchart.gohtml:11",
     "tpl/_dashboard_pages.gohtml:12",
     "tpl/_dashboard_toprefs.gohtml:9",
     "tpl/_dashboard_totals.gohtml:19",
@@ -1724,6 +1744,7 @@ meaning.
     "settings.go:168",
     "settings.go:180",
     "settings.go:195",
+    "settings.go:225",
   ]
   default = "Number of pages to load"
 
@@ -1750,6 +1771,7 @@ meaning.
     "settings.go:167",
     "settings.go:179",
     "settings.go:194",
+    "settings.go:224",
   ]
   default = "Page size"
 

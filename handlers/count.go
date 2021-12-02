@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/monoculum/formam"
+	"golang.org/x/text/language"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/isbot"
 	"zgo.at/zhttp"
@@ -56,6 +57,16 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	if site.Settings.Collect.Has(goatcounter.CollectLocation) {
 		var l goatcounter.Location
 		hit.Location = l.LookupIP(r.Context(), r.RemoteAddr)
+	}
+
+	if site.Settings.Collect.Has(goatcounter.CollectLanguage) {
+		tags, _, _ := language.ParseAcceptLanguage(r.Header.Get("Accept-Language"))
+		if len(tags) > 0 {
+			base, c := tags[0].Base()
+			if c == language.Exact || c == language.High {
+				hit.Language = base.ISO3()
+			}
+		}
 	}
 
 	err := formam.NewDecoder(&formam.DecoderOptions{

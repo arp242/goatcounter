@@ -44,6 +44,7 @@ type Hit struct {
 	RefScheme       *string    `db:"ref_scheme" json:"-"`
 	UserAgentHeader string     `db:"-" json:"-"`
 	Location        string     `db:"location" json:"-"`
+	Language        string     `db:"language" json:"-"`
 	FirstVisit      zbool.Bool `db:"first_visit" json:"-"`
 	CreatedAt       time.Time  `db:"created_at" json:"-"`
 

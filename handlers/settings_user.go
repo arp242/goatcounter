@@ -111,10 +111,6 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	if len(args.Widgets) == 0 {
-		return guru.New(400, T(r.Context(), "notify/add-one-thing|Must add at least one thing; an empty dashboard is a bit pointless, no?"))
-	}
-
 	user := User(r.Context())
 
 	if args.Reset {
@@ -126,6 +122,10 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		}
 		zhttp.Flash(w, T(r.Context(), "notify/reset-to-default|Reset to defaults!"))
 		return zhttp.SeeOther(w, "/user/dashboard")
+	}
+
+	if len(args.Widgets) == 0 {
+		return guru.New(400, T(r.Context(), "notify/add-one-thing|Must add at least one thing; an empty dashboard is a bit pointless, no?"))
 	}
 
 	sort.Slice(args.Widgets, func(i, j int) bool {

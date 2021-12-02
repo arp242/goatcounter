@@ -156,6 +156,7 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 		updateBrowserStats,
 		updateSystemStats,
 		updateLocationStats,
+		updateLanguageStats,
 		updateSizeStats,
 	}
 
@@ -205,6 +206,8 @@ func ReindexStats(ctx context.Context, site goatcounter.Site, hits []goatcounter
 			err = updateSystemStats(ctx, hits)
 		case "location_stats":
 			err = updateLocationStats(ctx, hits)
+		case "language_stats":
+			err = updateLanguageStats(ctx, hits)
 		case "size_stats":
 			err = updateSizeStats(ctx, hits)
 		}
@@ -263,10 +266,10 @@ func vacuumDeleted(ctx context.Context) error {
 	for _, s := range sites {
 		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
 		err := zdb.TX(ctx, func(ctx context.Context) error {
-			for _, t := range []string{"hits", "paths", "hit_counts",
-				"ref_counts", "browser_stats", "system_stats", "hit_stats",
-				"location_stats", "size_stats", "exports", "api_tokens", "users",
-				"sites"} {
+			for _, t := range []string{"hits", "paths",
+				"hit_counts", "ref_counts",
+				"browser_stats", "system_stats", "hit_stats", "location_stats", "language_stats", "size_stats",
+				"exports", "api_tokens", "users", "sites"} {
 
 				err := zdb.Exec(ctx, fmt.Sprintf(`delete from %s where site_id=%d`, t, s.ID))
 				if err != nil {

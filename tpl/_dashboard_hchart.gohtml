@@ -1,9 +1,11 @@
-{{- $x := horizontal_chart .Context .Stats .TotalUniqueUTC (not .RowsOnly) true -}}
+{{- $x := horizontal_chart .Context .Stats .TotalUniqueUTC (and (not .RowsOnly) .HasSubMenu) true -}}
 {{- if .RowsOnly -}}
 	{{- $x -}}
 {{- else -}}
 	<div class="hchart" data-widget="{{.ID}}">
-		<h2>{{.Header}}</h2>
+		<h2>{{.Header}}{{if eq .ID 7}}<sup style="float: right; font-size: 1rem;">
+				{{t .Context "label/collected-since|Collected since 2 Dec 2021"}}
+			</sup>{{end}}</h2>
 		{{template "_dashboard_warn_collect.gohtml" (map "IsCollected" .IsCollected "Context" .Context)}}
 		{{if .Err}}
 			<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>

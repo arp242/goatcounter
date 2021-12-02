@@ -58,13 +58,14 @@ func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, in
 		Context        context.Context
 		ID             int
 		RowsOnly       bool
+		HasSubMenu     bool
 		Err            error
 		IsCollected    bool
 		Header         string
 		TotalUniqueUTC int
 		Stats          goatcounter.HitStats
 		Detail         string
-	}{ctx, w.id, shared.RowsOnly, w.err, isCol(ctx, goatcounter.CollectUserAgent),
+	}{ctx, w.id, shared.RowsOnly, true, w.err, isCol(ctx, goatcounter.CollectUserAgent),
 		z18n.T(ctx, "header/browsers|Browsers"),
 		shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

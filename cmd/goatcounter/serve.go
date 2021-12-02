@@ -418,10 +418,9 @@ func banner() {
 	fmt.Fprint(zli.Stdout, `
 ┏━━━━━━━━━━━━━━━━━━━━━ Thank you for using GoatCounter! ━━━━━━━━━━━━━━━━━━━━━━┓
 ┃                                                                             ┃
-┃ Great you're choosing to self-host GoatCounter! I'd just like to put a      ┃
-┃ reminder here that I work on this full-time; it's not a side-project.       ┃
-┃ Please consider making a financial contribution according to your means if  ┃
-┃ this is useful for you to ensure the long-term viability. Thank you :-)     ┃
+┃ Great you're choosing to self-host GoatCounter! Please consider making a    ┃
+┃ financial contribution according to your means if this is useful for you to ┃
+┃ ensure the long-term viability. Thank you :-)                               ┃
 ┃                                                                             ┃
 ┃                   https://www.goatcounter.com/contribute                    ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
