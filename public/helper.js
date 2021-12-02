@@ -44,12 +44,14 @@ var months      = ['January', 'February', 'March', 'April', 'May', 'June', 'July
 
 var translate_calendar = function() {
 	if (!window.Intl || !window.Intl.DateTimeFormat)
-		return;
+		return
+	if (USER_SETTINGS.language.substr(0, 2) === 'en')
+		return
 
 	var long  = new Intl.DateTimeFormat(USER_SETTINGS.language, {month: 'long'}),
 		short = new Intl.DateTimeFormat(USER_SETTINGS.language, {month: 'short'})
 	for (var m=0; m<12; m++) {
-		var t = Date.UTC(2017, m, 1, 0, 0, 0)
+		var t = new Date(2017, m, 1, 0, 0, 0)
 		months[m]      = long.format(t)
 		monthsShort[m] = short.format(t)
 	}
@@ -57,7 +59,7 @@ var translate_calendar = function() {
 	var long  = new Intl.DateTimeFormat(USER_SETTINGS.language, {weekday: 'long'}),
 		short = new Intl.DateTimeFormat(USER_SETTINGS.language, {weekday: 'short'})
 	for (var d=0; d<7; d++) {
-		var t = Date.UTC(2017, 0, d+1, 0, 0, 0)
+		var t = new Date(2017, 0, d+1, 0, 0, 0)
 		days[d]      = long.format(t)
 		daysShort[d] = short.format(t)
 	}
