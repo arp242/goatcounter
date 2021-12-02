@@ -26,7 +26,6 @@ GoatCounter so I can pay my rent :-) GoatCounter is sponsored by a grant from
 
 Features
 --------
-
 - **Privacy-aware**; doesn’t track users with unique identifiers and doesn't
   need a GDPR notice. Fine-grained **control over which data is collected**.
   Also see the [privacy policy][privacy] and [GDPR consent notices][gdpr].
@@ -69,7 +68,6 @@ Features
 
 Getting data in to GoatCounter
 ------------------------------
-
 There are three ways:
 
 1. Add the JavaScript code on your site; this is the easiest and most common
@@ -87,27 +85,25 @@ There are three ways:
 
 Running your own
 ----------------
-
 The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
 are statically compiled, contain everything you need, and should work in pretty
 much any Linux environment. The only other thing you need is somewhere to store
 a SQLite database file or a PostgreSQL connection.
 
 GoatCounter should run on any platform supported by Go, but there are no
-binaries for them (yet); you'll have to build from source if you want to run it
-on e.g. FreeBSD or macOS.
+binaries for them (yet) as cross-compiling SQLite is somewhat complex. You'll
+have to build from source if you want to run it on e.g. FreeBSD or macOS.
 
-Note this README is for the latest master; use the [`release-2.0`][r-2.0] branch
-for the 2.0 README.
+Note this README is for the latest master; use the [`release-2.1`][latest]
+branch for the 2.1 README.
 
 Generally speaking only the latest release is supported, although critical fixes
 (security, data loss, etc.) may get backported to previous releases.
 
 [releases]: https://github.com/arp242/goatcounter/releases
-[r-2.0]: https://github.com/arp242/goatcounter/tree/release-2.0
+[latest]: https://github.com/arp242/goatcounter/tree/release-2.1
 
 ### Deploy scripts and such
-
 - ["StackScript" for Linode][stackscript]; Alpine Linux VPS; you can also use
   this for other Alpine Linux machines.
 
@@ -135,13 +131,12 @@ Generally speaking only the latest release is supported, although critical fixes
 
 
 ### Building from source
-
-You need Go 1.16 or newer and a C compiler (for SQLite). If you compile it with
+You need Go 1.17 or newer and a C compiler (for SQLite). If you compile it with
 `CGO_ENABLED=0` you don't need a C compiler but can only use PostgreSQL.
 
 Compile from source with:
 
-    $ git clone -b release-2.0 https://github.com/arp242/goatcounter.git
+    $ git clone -b release-2.1 https://github.com/arp242/goatcounter.git
     $ cd goatcounter
     $ go build -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
@@ -156,7 +151,7 @@ follow any particular format, you can also set this to the current date or
 To build a fully statically linked binary:
 
     $ go build -tags osusergo,netgo,sqlite_omit_load_extension \
-        -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static" \
+        -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static" \
         ./cmd/goatcounter
 
 It's recommended to use the latest release as in the above command. The master
@@ -175,7 +170,6 @@ Functionally it doesn't matter too much, but builds will be a bit easier and
 faster as it won't require a C compiler.
 
 ### Running
-
 You can start a server with:
 
     $ goatcounter serve
@@ -208,7 +202,6 @@ you use something other than the default.
 [bench]: https://github.com/arp242/goatcounter/blob/master/docs/benchmark.markdown
 
 ### Updating
-
 You may need to run the database migrations when updating. Use  `goatcounter
 serve -automigrate` to always run all pending migrations on startup. This is the
 easiest way, although arguably not the "best" way.
@@ -221,7 +214,6 @@ Use `goatcounter migrate pending` to get a list of pending migrations, or
 `goatcounter migrate list` to show all migrations.
 
 ### PostgreSQL
-
 To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
 
     $ goatcounter serve -db 'postgresql://dbname=goatcounter'
@@ -237,7 +229,6 @@ See `goatcounter help db` and the [pq docs][pq] for more details.
 [pq]: https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters
 
 ### Development/testing
-
 You can start a test/development server with:
 
     $ goatcounter serve -dev
