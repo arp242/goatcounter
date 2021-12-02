@@ -5,8 +5,13 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-2021-12-01 v2.1
----------------
+Unreleased
+----------
+- GoatCounter can now collect language statistics as well, from the
+  `Accept-Language` HTTP header.
+
+2021-12-01 v2.1.0
+-----------------
 Aside from a number of small fixes and improvements, major changes include:
 
 - Support for translations; see https://www.goatcounter/translations for details

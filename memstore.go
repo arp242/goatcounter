@@ -244,7 +244,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 
 	newHits := make([]Hit, 0, len(hits))
 	ins := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
-		"ref_scheme", "user_agent_id", "size", "location", "created_at", "bot",
+		"ref_scheme", "user_agent_id", "size", "location", "language", "created_at", "bot",
 		"session", "first_visit"})
 	for _, h := range hits {
 		if m.processHit(ctx, &h) {
@@ -253,7 +253,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			newHits = append(newHits, h)
 
 			ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
-				h.Location, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
+				h.Location, h.Language, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
 		}
 	}
 
@@ -308,6 +308,9 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	if !site.Settings.Collect.Has(CollectUserAgent) {
 		h.UserAgentHeader = ""
 		h.UserAgentID = nil
+	}
+	if !site.Settings.Collect.Has(CollectLanguage) {
+		h.Language = ""
 	}
 	if !site.Settings.Collect.Has(CollectLocation) {
 		h.Location = ""

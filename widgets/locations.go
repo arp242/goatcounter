@@ -68,12 +68,13 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, i
 		Context        context.Context
 		ID             int
 		RowsOnly       bool
+		HasSubMenu     bool
 		Err            error
 		IsCollected    bool
 		Header         string
 		TotalUniqueUTC int
 		Stats          goatcounter.HitStats
 		Detail         string
-	}{ctx, w.id, shared.RowsOnly, w.err, isCol(ctx, goatcounter.CollectLocation),
+	}{ctx, w.id, shared.RowsOnly, true, w.err, isCol(ctx, goatcounter.CollectLocation),
 		header, shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

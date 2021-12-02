@@ -106,7 +106,7 @@ type (
 func defaultWidgets(ctx context.Context) Widgets {
 	s := defaultWidgetSettings(ctx)
 	w := Widgets{}
-	for _, n := range []string{"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations"} {
+	for _, n := range []string{"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations", "languages"} {
 		w = append(w, map[string]interface{}{"n": n, "s": s[n].getMap()})
 	}
 	return w
@@ -215,6 +215,17 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 						countries = append(countries, [2]string{ll.Country, ll.CountryName})
 					}
 					return countries
+				},
+			},
+		},
+		"languages": map[string]WidgetSetting{
+			"limit": WidgetSetting{
+				Type:  "number",
+				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
+				Value: float64(6),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
 			},
 		},
@@ -332,11 +343,11 @@ func (ss SiteSettings) CollectFlags(ctx context.Context) []CollectFlag {
 			Help:  z18n.T(ctx, "data-collect/help/region|Region, for example Texas, Bali, etc. The details for this differ per country."),
 			Flag:  CollectLocationRegion,
 		},
-		// {
-		// 	Label: z18n.T(ctx, "data-collect/label/language|Language"),
-		// 	Help:  z18n.T(ctx, "data-collect/help/language|Supported languages from Accept-Language"),
-		// 	Flag:  CollectLanguage,
-		// },
+		{
+			Label: z18n.T(ctx, "data-collect/label/language|Language"),
+			Help:  z18n.T(ctx, "data-collect/help/language|Supported languages from Accept-Language"),
+			Flag:  CollectLanguage,
+		},
 	}
 }
 

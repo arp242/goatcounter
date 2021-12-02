@@ -44,7 +44,7 @@ var reserved = []string{
 }
 
 var statTables = []string{"hit_stats", "system_stats", "browser_stats",
-	"location_stats", "size_stats"}
+	"location_stats", "language_stats", "size_stats"}
 
 type Site struct {
 	ID     int64  `db:"site_id" json:"id,readonly"`

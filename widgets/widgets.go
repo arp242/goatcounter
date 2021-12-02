@@ -112,6 +112,7 @@ func ListAllWidgets() List {
 	return List{
 		NewWidget("browsers", 0),
 		NewWidget("locations", 0),
+		NewWidget("languages", 0),
 		NewWidget("pages", 0),
 		NewWidget("sizes", 0),
 		NewWidget("systems", 0),
@@ -141,6 +142,8 @@ func NewWidget(name string, id int) Widget {
 		return &Sizes{id: id}
 	case "locations":
 		return &Locations{id: id}
+	case "languages":
+		return &Languages{id: id}
 	}
 	panic(fmt.Errorf("unknown widget: %q", name))
 }

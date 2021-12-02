@@ -53,13 +53,14 @@ func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		Context        context.Context
 		ID             int
 		RowsOnly       bool
+		HasSubMenu     bool
 		Err            error
 		IsCollected    bool
 		Header         string
 		TotalUniqueUTC int
 		Stats          goatcounter.HitStats
 		Detail         string
-	}{ctx, w.id, shared.RowsOnly, w.err, isCol(ctx, goatcounter.CollectScreenSize),
+	}{ctx, w.id, shared.RowsOnly, true, w.err, isCol(ctx, goatcounter.CollectScreenSize),
 		z18n.T(ctx, "header/sizes|Sizes"),
 		shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

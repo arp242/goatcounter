@@ -20,7 +20,8 @@ func TestReindex(t *testing.T) {
 	gctest.StoreHits(ctx, t, false, goatcounter.Hit{})
 
 	tables := []string{"hit_stats", "system_stats", "browser_stats",
-		"location_stats", "size_stats", "hit_counts", "ref_counts"}
+		"location_stats", "language_stats", "size_stats", "hit_counts",
+		"ref_counts"}
 
 	for _, tbl := range tables {
 		err := zdb.Exec(ctx, `delete from `+tbl)
@@ -46,6 +47,8 @@ func TestReindex(t *testing.T) {
 		1        1        1           2020-06-18 00:00:00  1      0
 		site_id  path_id  day                  location  count  count_unique
 		1        1        2020-06-18 00:00:00            1      0
+        site_id  path_id  day                  language  count  count_unique
+        1        1        2020-06-18 00:00:00            1      0
 		site_id  path_id  day                  width  count  count_unique
 		1        1        2020-06-18 00:00:00  0      1      0
 		site_id  path_id  hour                 total  total_unique

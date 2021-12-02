@@ -51,8 +51,8 @@ Flags:
                year-month in UTC. The default is the current month.
 
   -table       Which tables to reindex: hit_stats, hit_counts, browser_stats,
-               system_stats, location_stats, ref_counts, size_stats, or all
-               (default).
+               system_stats, location_stats, ref_counts, size_stats,
+               language_stats, or all (default).
 
   -useragents  Redo the bot and browser/system detection on all User-Agent headrs.
 
@@ -91,7 +91,7 @@ func cmdReindex(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		for _, t := range tables {
 			v.Include("-table", t, []string{"hit_stats", "hit_counts",
 				"browser_stats", "system_stats", "location_stats",
-				"ref_counts", "size_stats", "all", ""})
+				"language_stats", "ref_counts", "size_stats", "all", ""})
 		}
 		if v.HasErrors() {
 			return v
@@ -210,7 +210,7 @@ func dosite(
 	for _, month := range months {
 		err := zdb.TX(ctx, func(ctx context.Context) error {
 			if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
-				err := zdb.Exec(ctx, `lock table hits, hit_counts, hit_stats, size_stats, location_stats, browser_stats, system_stats
+				err := zdb.Exec(ctx, `lock table hits, hit_counts, hit_stats, size_stats, location_stats, language_stats, browser_stats, system_stats
 					in exclusive mode`)
 				if err != nil {
 					return err
@@ -265,6 +265,8 @@ func clearMonth(ctx context.Context, tables []string, month string, siteID int64
 			must(zdb.Exec(ctx, `delete from system_stats`+where))
 		case "location_stats":
 			must(zdb.Exec(ctx, `delete from location_stats`+where))
+		case "language_stats":
+			must(zdb.Exec(ctx, `delete from language_stats`+where))
 		case "ref_counts":
 			must(zdb.Exec(ctx, fmt.Sprintf(
 				`delete from ref_counts where site_id=%d and cast(hour as varchar) like '%s-%%'`,
@@ -276,6 +278,7 @@ func clearMonth(ctx context.Context, tables []string, month string, siteID int64
 			must(zdb.Exec(ctx, `delete from browser_stats`+where))
 			must(zdb.Exec(ctx, `delete from system_stats`+where))
 			must(zdb.Exec(ctx, `delete from location_stats`+where))
+			must(zdb.Exec(ctx, `delete from language_stats`+where))
 			must(zdb.Exec(ctx, `delete from size_stats`+where))
 			must(zdb.Exec(ctx, fmt.Sprintf(
 				`delete from hit_counts where site_id=%d and cast(hour as varchar) like '%s-%%'`,

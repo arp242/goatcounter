@@ -270,7 +270,7 @@ func (h *HitStats) ListLocations(ctx context.Context, rng ztime.Range, pathFilte
 		"filter": pathFilter,
 		"limit":  limit + 1,
 		"offset": offset,
-	})
+	}, zdb.DumpAll)
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]
@@ -295,4 +295,22 @@ func (h *HitStats) ListLocation(ctx context.Context, country string, rng ztime.R
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
 	return errors.Wrap(err, "HitStats.ListLocation")
+}
+
+// ListLanguages lists all language statistics for the given time period.
+func (h *HitStats) ListLanguages(ctx context.Context, rng ztime.Range, pathFilter []int64, limit, offset int) error {
+	user := MustGetUser(ctx)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLanguages", zdb.P{
+		"site":   MustGetSite(ctx).ID,
+		"start":  asUTCDate(user, rng.Start),
+		"end":    asUTCDate(user, rng.End),
+		"filter": pathFilter,
+		"limit":  limit + 1,
+		"offset": offset,
+	})
+	if len(h.Stats) > limit {
+		h.More = true
+		h.Stats = h.Stats[:len(h.Stats)-1]
+	}
+	return errors.Wrap(err, "HitStats.ListLanguages")
 }
