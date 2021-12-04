@@ -270,7 +270,7 @@ func (h *HitStats) ListLocations(ctx context.Context, rng ztime.Range, pathFilte
 		"filter": pathFilter,
 		"limit":  limit + 1,
 		"offset": offset,
-	}, zdb.DumpAll)
+	})
 	if len(h.Stats) > limit {
 		h.More = true
 		h.Stats = h.Stats[:len(h.Stats)-1]

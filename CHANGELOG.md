@@ -14,8 +14,8 @@ Unreleased
 -----------------
 Aside from a number of small fixes and improvements, major changes include:
 
-- Support for translations; see https://www.goatcounter/translations for details
-  how to translate GoatCounter.
+- Support for translations; see https://www.goatcounter.com/translating for
+  details how to translate GoatCounter.
 
 - The import path is now updated to use "zgo.at/goatcounter/v2" so that e.g. "go
   install zgo.at/goatcounter/v2" works. This should have been done with the 2.0
