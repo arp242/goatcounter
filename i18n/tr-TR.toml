@@ -2,7 +2,7 @@
   comments = ""
   generated = 2021-11-29T19:38:18Z
   language = "tr-TR"
-  maintainers = []
+  maintainers = ["Taylan Tatlı <taylantatli90@gmail.com>"]
 
 ["button/add-new"]
   default = "Yeni ekle"
