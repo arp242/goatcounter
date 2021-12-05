@@ -242,7 +242,7 @@ tr.target .chart-left { display: block; }
              background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
 #dash-main input[type="text"]     { padding: .3em; }
 #dash-main input[type="checkbox"] { vertical-align: middle; }
-#filter-paths                     { width: 18.5em; display: block; }
+#filter-paths                     { width: 18.5em; display: block; margin-left: auto; }
 #dash-main .date-input            { width: 9em; text-align: center; }
 
 .filter-wrap                 { position: relative; text-align: right; }
