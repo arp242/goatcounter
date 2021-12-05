@@ -23,6 +23,7 @@
 			<select name="user.settings.language" id="language">
 				<option {{option_value .User.Settings.Language "en-GB"}}>English</option>
 				<option {{option_value .User.Settings.Language "nl-NL"}}>Nederlands</option>
+				<option {{option_value .User.Settings.Language "tr-TR"}}>Türkçe</option>
 			</select>
 			{{validate "settings.language" .Validate}}
 			<span><a href="/i18n">{{.T "link/add-translation|Add or update translations"}}</a></span>

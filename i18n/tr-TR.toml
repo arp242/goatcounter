@@ -1,0 +1,1251 @@
+[__meta__]
+  comments = ""
+  generated = 2021-11-29T19:38:18Z
+  language = "tr-TR"
+  maintainers = []
+
+["button/add-new"]
+  default = "Yeni ekle"
+
+["button/add-user"]
+  default = "Yeni kullanıcı ekle"
+
+["button/cfg-dashboard"]
+  default = "Pano düzenini yapılandır"
+
+["button/change"]
+  default = "Değiştir"
+
+["button/change-passwd"]
+  default = "Parolayı değiştir"
+
+["button/copy"]
+  default = "Kopyala"
+
+["button/delete"]
+  default = "sil"
+
+["button/delete-account"]
+  default = "Hesabı, tüm siteleri ve verileri sil"
+
+["button/delete-all"]
+  default = "Evet, hepsini sil!"
+
+["button/delete-everything"]
+  default = "Evet, her şeyi sil"
+
+["button/disable-mfa"]
+  default = "MFA'yı etkisizleştir"
+
+["button/edit"]
+  default = "Düzenle"
+
+["button/enable-mfa"]
+  default = "MFA'YI etkinleştir"
+
+["button/forgot-password"]
+  default = "Parolayı mı unuttunuz?"
+
+["button/remove"]
+  default = "Kaldır"
+
+["button/request-reset"]
+  default = "Parola sıfırlamayı iste"
+
+["button/resend-email"]
+  default = "Emaili tekrar gönder"
+
+["button/reset-defaults"]
+  default = "Varsayılanlara sıfırla"
+
+["button/reset-password"]
+  default = "Parolayı sıfırla"
+
+["button/rm-hits"]
+  default = "Sayfa görüntülemelerini sil"
+
+["button/save"]
+  default = "Kaydet"
+
+["button/save-default-view"]
+  default = "Varsayılan görünümü kaydet"
+
+["button/send-login-url"]
+  default = "Giriş bağlantısını gönder"
+
+["button/sign-in"]
+  default = "Giriş"
+
+["button/start-export"]
+  default = "Dışa aktarmayı başlat"
+
+["button/start-import"]
+  default = "İçe aktarmayı başlat"
+
+["button/submit"]
+  default = "Gönder"
+
+["confirm/delete-user"]
+  default = "%(email)'i sil?"
+
+["dashboard/day-ago"]
+  default = "%(n) gün önce"
+  one = "%(n) gün önce"
+
+["dashboard/future"]
+  default = "gelecek"
+
+["dashboard/month-ago"]
+  default = "%(n) ay önce"
+  one = "%(n) ay önce"
+
+["dashboard/nothing-to-display"]
+  default = "Gösterilecek bir şey yok"
+
+["dashboard/pages/header"]
+  default = "Sayfa"
+
+["dashboard/pages/num-visits"]
+  default = "%(total-visits) ziyaretin %(num-visits) kadarı gösteriliyor"
+
+["dashboard/pages/pageviews"]
+  default = "Sayfa görüntüleme"
+
+["dashboard/pages/path"]
+  default = "Yol"
+
+["dashboard/pages/stats"]
+  default = "İstatistikler"
+
+["dashboard/pages/stats-tooltip"]
+  default = "Her çubuk, seçilen zaman aralığının 1/12'sini temsil eder"
+
+["dashboard/pages/title"]
+  default = "Başlık"
+
+["dashboard/pages/views"]
+  default = "Görüntülemeler"
+
+["dashboard/pages/visits"]
+  default = "Ziyaretler"
+
+["dashboard/today"]
+  default = "Bugün"
+
+["dashboard/tooltip-event"]
+  default = "%(unique) tıklama; %(clicks) toplam tıklama"
+
+["dashboard/totals/header"]
+  default = "Toplam"
+
+["dashboard/totals/num-visits"]
+  default = "%(num-visits) ziyaret; %(num-views) sayfa görüntüleme"
+
+["dashboard/week-ago"]
+  default = "%(n) hafta önce"
+  one = "%(n) hafta önce"
+
+["dashboard/yesterday"]
+  default = "Dün"
+
+["data-collect/help/country"]
+  default = "Ülke adı, örneğin Belçika, Endonezya vs."
+
+["data-collect/help/language"]
+  default = "Accept-Language tarafından desteklenen diller"
+
+["data-collect/help/referrer"]
+  default = "Yönlendiren üstbilgisi ve kampanya parametreleri"
+
+["data-collect/help/region"]
+  default = "Bölge, örneğin Teksas, Bali vs. Bunun ayrıntıları bölgeye göre değişiklik gösterir."
+
+["data-collect/help/sessions"]
+  default = "Tekil ziyaretçileri 8 saate kadar takip et; eğer bunu etkisizleştirirseniz, birisi örneğin sayfayı yenilemek için F5 tuşuna bastığında 1 yerine 2 sayfa görüntüleme olarak gösterilir"
+
+["data-collect/help/size"]
+  default = "Ekran boyutu."
+
+["data-collect/help/user-agent"]
+  default = "Tarayıcı, sistem adı ve sürümünü almak için User-Agent üstbilgisi"
+
+["data-collect/label/country"]
+  default = "Ülke"
+
+["data-collect/label/language"]
+  default = "Dil"
+
+["data-collect/label/referrer"]
+  default = "Yönlendiren"
+
+["data-collect/label/region"]
+  default = "Bölge"
+
+["data-collect/label/sessions"]
+  default = "Oturumlar"
+
+["data-collect/label/size"]
+  default = "Boyut"
+
+["data-collect/label/user-agent"]
+  default = "User-Agent"
+
+["datepicker/keyboard"]
+  default = "Tarih seçmek için yön tuşlarını kullanın"
+
+["datepicker/month-next"]
+  default = "Gelecek ay"
+
+["datepicker/month-prev"]
+  default = "Geçtiğimiz ay"
+
+["email/header"]
+  default = "Merhaba,"
+
+["email/password-reset"]
+  default = """
+Birisi (umarım siz) GoatCounter hesabınızdaki şifreyi sıfırlamak istedi.
+
+Bunu buradan yapabilirsiniz:
+%(link)
+"""
+
+["email/reset-user-email-subject"]
+  default = "%(domain) için parola sıfırlama"
+
+["email/signature"]
+  default = """
+Herhangi bir sorun, soru, yorum veya bana söylemek istediğiniz başka bir şey mi var? Bu e-postayı yanıtlayın.
+
+Sevgilerle,
+Martin
+"""
+
+["error/account-has-stripe-subscription"]
+  default = "Bu hesabın hala bir Stripe aboneliği var; önce faturalandırma sayfasından bunu iptal edin."
+
+["error/address-exists"]
+  default = "%(addr) zaten mevcut"
+
+["error/could-not-read"]
+  default = "Gzip olarak okunamadı: %(err)"
+
+["error/date-future"]
+  default = "Bu gelecekte olurdu"
+
+["error/date-mismatch"]
+  default = "bitiş tarihi başlangıç ​​tarihinden önce"
+
+["error/date-past"]
+  default = "Bu, sitenin oluşturulmasından öncesi olurdu; GoatCounter *o kadar* iyi değil ;-)"
+
+["error/delete-main-site"]
+  default = "Ana site silinemez"
+
+["error/export-expired"]
+  default = "Henüz dışa aktarma yapılmamış veya dışa aktarmanın süresi dolmuş gibi görünüyor."
+
+["error/incorrect-password"]
+  default = "Mevcut parola yanlış."
+
+["error/invalid-end-date"]
+  default = "Geçersiz bitiş tarihi: %(date)"
+
+["error/invalid-start-date"]
+  default = "Geçersiz başlangıç tarihi: %(date)"
+
+["error/load-url"]
+  default = "%(url) yüklenemedi: %(error)"
+
+["error/login-invalid"]
+  default = "Geçersiz giriş"
+
+["error/login-no-password"]
+  default = "%(email) için ayarlanmış bir şifre yok; lütfen sıfırla"
+
+["error/login-not-found"]
+  default = "%(email) kullanıcısı bulunamadı"
+
+["error/login-token-expired"]
+  default = "Verilen belirteç için kullanıcı bulunamadı; belki de süresi dolmuş veya zaten kullanılmış?"
+
+["error/login-wrong-pwd"]
+  default = "%(email) için yanlış şifre"
+
+["error/not-found"]
+  default = "Bulunamadı"
+
+["error/password-does-not-match"]
+  default = "Şifre onayı eşleşmiyor."
+
+["error/payment-cancelled"]
+  default = "Ödeme iptal edildi."
+
+["error/reset-user-no-account"]
+  default = "Bu sitede bir hesap yok: %(email)"
+
+["error/token-already-used"]
+  default = "Bilinmeyen belirteç; belki de çoktan kullanılmıştır?"
+
+["error/wrong-verification-key"]
+  default = "Yanlış doğrulama anahtarı."
+
+["event"]
+  default = "etkinlik"
+
+["forgot-domain-help"]
+  default = "Bir e-posta adresiyle ilişkili tüm alanların listesini e-postayla gönderin."
+
+["header/access"]
+  default = "Erişim"
+
+["header/add-new-user"]
+  default = "Yeni kullanıcı ekle"
+
+["header/allow-access"]
+  default = "Erişime izin ver"
+
+["header/api"]
+  default = "API"
+
+["header/api-tokens"]
+  default = "API belirteçleri"
+
+["header/browsers"]
+  default = "Tarayıcılar"
+
+["header/change-code"]
+  default = "Site kodunu değiştir"
+
+["header/change-passwd"]
+  default = "Parolayı değiştir"
+
+["header/code"]
+  default = "Kod"
+
+["header/copy-settings"]
+  default = "Ayarları kopyala"
+
+["header/created-at"]
+  default = "Oluşturulma tarihi"
+
+["header/dashboard"]
+  default = "Pano"
+
+["header/data-collection"]
+  default = "Veri toplama"
+
+["header/delete-account"]
+  default = "Hesabı sil"
+
+["header/domain"]
+  default = "Alan adı"
+
+["header/domain-settings"]
+  default = "Alan adı ayarları"
+
+["header/edit-user"]
+  default = "%(email) kullanıcısını düzenle"
+
+["header/email"]
+  default = "E-posta"
+
+["header/export"]
+  default = "Dışa aktar"
+
+["header/export-or-import"]
+  default = "Dışa/İçe aktar"
+
+["header/finished"]
+  default = "Bitti"
+
+["header/forgot-domain"]
+  default = "Alan adını unuttum"
+
+["header/forgot-password"]
+  default = "Parolayı unuttum"
+
+["header/hash"]
+  default = "Hash"
+
+["header/import"]
+  default = "İçe aktar"
+
+["header/l10n"]
+  default = "Yerelleştirme"
+
+["header/languages"]
+  default = "Diller"
+
+["header/last-10-exports"]
+  default = "Son 10 dışa aktarma"
+
+["header/locations"]
+  default = "Konumlar"
+
+["header/locations-for"]
+  default = "%(country) için konumlar"
+
+["header/mfa"]
+  default = "Çok faktörlü kimlik doğrulama"
+
+["header/n-hits"]
+  default = "# hit"
+
+["header/name"]
+  default = "İsim"
+
+["header/new"]
+  default = "Yeni"
+
+["header/pagination-cursor"]
+  default = "Sayfalandırma imleci"
+
+["header/passwd-mfa"]
+  default = "Parola & ÇFKD"
+
+["header/path"]
+  default = "Yol"
+
+["header/permissions"]
+  default = "İzinler"
+
+["header/preferences"]
+  default = "Tercihler"
+
+["header/reset-password"]
+  default = "%(site-name) adresindeki %(email) için parolayı sıfırla"
+
+["header/rm-hits"]
+  default = "Sayfa görüntülemelerini sil"
+
+["header/settings"]
+  default = "Ayarlar"
+
+["header/sign-in-at"]
+  default = "%(name) adresinde oturum açın"
+
+["header/site-settings"]
+  default = "Site ayarları"
+
+["header/sites"]
+  default = "Siteler"
+
+["header/size"]
+  default = "Boyut"
+
+["header/sizes"]
+  default = "Boyutlar"
+
+["header/start-pagination-cursor"]
+  default = "Sayfalandırma imlecinden başlatıldı"
+
+["header/started"]
+  default = "Başladı"
+
+["header/systems"]
+  default = "Sistemler"
+
+["header/title"]
+  default = "Başlık"
+
+["header/token"]
+  default = "Belirteç"
+
+["header/toprefs"]
+  default = "En çok yönlendirenler"
+
+["header/tracking"]
+  default = "İzleme"
+
+["header/updated"]
+  default = "Güncellemeler"
+
+["header/user-info"]
+  default = "Kullanıcı bilgisi"
+
+["header/user-information"]
+  default = "Kullanıcı bilgisi"
+
+["header/users"]
+  default = "Kullanıcılar"
+
+["help/allow-visitor-counts"]
+  default = "Nasıl kullanılacağına ilişkin ayrıntılar için %[belgeler]e bakın"
+
+["help/campaign-parameters"]
+  default = '"Kampanya" olarak sayılacak parametrelerin listesi; eğer ayarlanırsa, verilen değer herhangi bir Yönlendirici üstbilgisini geçersiz kılarak yönlendiren olarak ayarlanır.'
+
+["help/cfg-dashboard"]
+  default = "Panoda nelerin ve hangi sırayla görüntüleneceğini değiştirin."
+
+["help/code-access"]
+  default = "Sitenize https://<em>[benim-kodum]</em>.%(domain) adresinden erişeceksiniz."
+
+["help/custom-domain"]
+  default = """
+Özel alan adı, örn. <em>“stats.ornek.com”</em>.
+<strong>Not:</strong> Bu çoğu reklam engelleyisinin GoatCounter'ı engellemesini <em>önlemeyecektir</em>, burada sadece özel alan adı belirlemek amaçlanmıştır.
+"""
+
+["help/custom-domain-cname"]
+  default = "<code>%(domain)</code> için CNAME kaydı oluşturun – %[%docs detaylı talimatlar]."
+
+["help/custom-domain-error"]
+  default = """
+%[%error Henüz doğrulanmadı]; <code>%(domain)</code> için CNAME kaydı oluşturun – %[%docs detaylı talimatlar].
+Doğrulama her 2 saatte bir çalışır.
+"""
+
+["help/custom-domain-plan"]
+  default = "Kişisel Plus veya İş planı gerektirir (sizin planınız %(plan); %[%link faturalandırma]ya bakın)."
+
+["help/custom-domain-verified"]
+  default = "Etki alanı doğrulandı ve kuruldu (not: sertifikanın çalışması bir saat kadar sürebilir)."
+
+["help/data-retention"]
+  default = "Sayfa görüntülemeleri ve ilişkili tüm veriler, bu kadar gün sonra kalıcı olarak silinecektir. Asla silmemek için <code>0</code> olarak ayarlayın."
+
+["help/domain-access"]
+  default = "Bu siteye erişmek için alan adı."
+
+["help/drag-reorder"]
+  default = "Yeniden sıralamak için sürükleyin"
+
+["help/for-the-following-countries"]
+  default = "Ülke kodlarının listesi (%[list]; alpha-2 kodu kullanın); tüm ülkeler için toplamak üzere boş bırakın (etkinleştirilmişse)."
+
+["help/goatcounter-domain"]
+  default = "GoatCounter kurulumunuzun etki alanı, örn. <em>“stats.ornek.com”</em>"
+
+["help/ignore-ips"]
+  default = "Bu IP adreslerinden gelen istekleri asla saymayın. Virgülle ayırın. Yalnızca tam eşleşmeleri destekler. %[Mevcut IP adresinizi ekleyin]."
+
+["help/ignore-ips-2"]
+  default = "Alternatif olarak, %[bu tarayıcı için devre dışı bırakın] (etkinleştirmek için tekrar tıklayın)."
+
+["help/new-user-email"]
+  default = "Giriş yapmak için e-posta."
+
+["help/new-user-email-confirm"]
+  default = "Giriş yapmak için e-posta; doğrulanmalıdır."
+
+["help/no-undo"]
+  default = "Bu yıkıcı bir işlemdir ve geri alınamaz!"
+
+["help/password-edit"]
+  default = "Değişmemesi için boş bırakın."
+
+["help/password-new-user"]
+  default = "Parola sıfırlama e-postası göndermek için boş olabilir."
+
+["help/public"]
+  default = "Panoyu kimlerin görüntüleyebileceğini kontrol edin."
+
+["help/rm-hits"]
+  default = "Herhangi bir şey silinmeden önce eşleşmelerin bir önizlemesini göreceksiniz"
+
+["help/save-default-view"]
+  default = "Geçerli görünümü (yani sarı kutudaki tüm ayarları) henüz hiçbir şey seçilmediğinde yüklenecek varsayılan olarak kaydedin."
+
+["help/turing-test"]
+  default = "İnsan olduğunuzu kanıtlamak için küçük bir doğrulama :-)"
+
+["help/your-email"]
+  default = "Değiştirirseniz yeni adresi yeniden doğrulamanız gerekir."
+
+["label/24-hour-clock"]
+  default = "24 saatlik zaman (13:00)"
+
+["label/add-new"]
+  default = "Yeni ekle"
+
+["label/all-sites"]
+  default = "Tüm siteler"
+
+["label/allow-admin-access"]
+  default = "Yönetici erişimine izin verin"
+
+["label/allow-visitor-counts"]
+  default = "Sitenize ziyaretçi sayısı eklemeye izin verin"
+
+["label/browser-stats"]
+  default = "Tarayıcı istatistikleri"
+
+["label/campaign-parameters"]
+  default = "Kampanya parametreleri"
+
+["label/change-code"]
+  default = "Hesabınıza https://<em>[benim-kodum]</em>.%(domain) adresinden erişeceksiniz  – %[%link değiştir]."
+
+["label/clear-pageviews"]
+  default = "Mevcut tüm sayfa görüntülemelerini temizleyin."
+
+["label/code"]
+  default = "Kod"
+
+["label/collected-since"]
+  default = "2 Ara 2021'den beri toplanmıştır"
+
+["label/csv-compress-format"]
+  default = "CSV dosyası; gzip ile sıkıştırılmış olabilir"
+
+["label/current-passwd"]
+  default = "Mevcut parola"
+
+["label/custom-domain"]
+  default = "Özel alan adı"
+
+["label/dashboard-public"]
+  default = "Panoyu görüntüleyebilir"
+
+["label/data-retention"]
+  default = "Gün cinsinden veri saklama süresi"
+
+["label/date-fmt"]
+  default = "Tarih biçimi"
+
+["label/delete-account-confirmation"]
+  default = "Tüm hesabınızı silmek istediğinizden emin misiniz?"
+
+["label/delete-account-contact"]
+  default = """
+Bunu işaretlerseniz bazı soru ve yorumlar için sizinle iletişime geçebilirim.
+Sizi kalmanız için ikna etmeyeceğim (telekom değilim), fakat bir-iki soru
+sorabilirim ya da kaçırdığınız belirli bir özellik varsa onları özetleyebilirim.
+"""
+
+["label/delete-account-follow-up"]
+  default = "Takip sorun değil"
+
+["label/delete-account-reason"]
+  default = """
+GoatCounter'da özellikle bulamadığınız bir şey varsa veya
+hesabınızı silmek istemenizin başka sebepleri varsa
+bana bildirirseniz çok memnun olurum. Bu tamamen isteğe bağlıdır.
+"""
+
+["label/delete-account-reason-placeholder"]
+  default = "Silme için isteğe bağlı neden"
+
+["label/email"]
+  default = "E-posta"
+
+["label/email-address"]
+  default = "E-posta adresi"
+
+["label/for-following-countries"]
+  default = "Yalnızca aşağıdaki ülkeler için:"
+
+["label/goatcounter-domain"]
+  default = "GoatCounter alan adı"
+
+["label/ignore-ips"]
+  default = "IP'leri yoksay"
+
+["label/lang"]
+  default = "Dil"
+
+["label/language-stats"]
+  default = "Dil istatistikleri"
+
+["label/loc-stats"]
+  default = "Konum istatistikleri"
+
+["label/mark-current"]
+  default = "(mevcut)"
+
+["label/match-title"]
+  default = "Başlığı da eşleştir"
+
+["label/mfa-token"]
+  default = "ÇFKD Belirteci"
+
+["label/new-code"]
+  default = "Yeni kod"
+
+["label/new-password"]
+  default = "Yeni parola"
+
+["label/new-password-confirm"]
+  default = "Yeni parola (doğrulama)"
+
+["label/pagination-cursor"]
+  default = "Sayfalandırma imleci"
+
+["label/password"]
+  default = "Parola"
+
+["label/paths"]
+  default = "Yollara genel bakış"
+
+["label/public-anyone"]
+  default = "Herhangi biri"
+
+["label/public-private"]
+  default = "Sadece oturum açmış kullanıcılar"
+
+["label/public-token"]
+  default = "Oturum açmış kullanıcılar veya gizli belirteçle"
+
+["label/secret"]
+  default = "Gizli bilgi"
+
+["label/secret-access"]
+  default = "Gizli erişim URL'si:"
+
+["label/secret-token"]
+  default = "Gizli belirteç"
+
+["label/set-default"]
+  default = "Ayrıca yeni kullanıcılar ve herkese açık görünüm için varsayılan olarak ayarlayın (etkinleştirilmişse)."
+
+["label/size-desktop"]
+  default = "Bilgisayar monitörleri"
+
+["label/size-desktophd"]
+  default = "HD'den daha büyük bilgisayar monitörleri"
+
+["label/size-largephones"]
+  default = "Büyük telefonlar, küçük tabletler"
+
+["label/size-phones"]
+  default = "Telefonlar"
+
+["label/size-stats"]
+  default = "Boyut istatistikleri"
+
+["label/size-tablets"]
+  default = "Tabletler ve küçük dizüstü bilgisayarlar"
+
+["label/system-stats"]
+  default = "Sistem istatistikleri"
+
+["label/thousand-separator"]
+  default = "Binlik ayırıcı"
+
+["label/timezone"]
+  default = "Saat dilimi"
+
+["label/topref"]
+  default = "En çok yönlendirenler"
+
+["label/total-pageviews"]
+  default = "Toplam site sayfa görüntüleme sayısı"
+
+["label/turing-test"]
+  default = "Buraya 9 yazın"
+
+["label/verifictation-token"]
+  default = "Doğrulama belirteci"
+
+["label/week-start"]
+  default = "Hafta Pazar günü başlar"
+
+["label/your-email"]
+  default = "E-posta adresiniz"
+
+["label/your-site"]
+  default = "Siteniz"
+
+["link/add-translation"]
+  default = "Çevirileri ekleyin veya güncelleyin"
+
+["link/api"]
+  default = "API"
+
+["link/api-docs"]
+  default = "API belgeleri"
+
+["link/billing"]
+  default = "Faturalandırma"
+
+["link/dashboard"]
+  default = "Pano"
+
+["link/generate-random"]
+  default = "Rastgele gizli bilgi oluşturun"
+
+["link/goto-path"]
+  default = "%(path) adresine git"
+
+["link/import"]
+  default = "İçe aktar"
+
+["link/passwd-mfa"]
+  default = "Parola & ÇFKD"
+
+["link/preferences"]
+  default = "Tercihler"
+
+["link/rm-account"]
+  default = "Hesabı sil"
+
+["link/rm-views"]
+  default = "Sayfa görüntülemelerini sil"
+
+["link/set-from-browser"]
+  default = "Tarayıcıdan ayarla"
+
+["link/settings"]
+  default = "Ayarlar"
+
+["link/show-more"]
+  default = "Daha fazla göster"
+
+["link/sites"]
+  default = "Siteler"
+
+["link/users"]
+  default = "Kullanıcılar"
+
+["nav-bot/contact"]
+  default = "İletişim"
+
+["nav-bot/contribute"]
+  default = "Katkıda bulun"
+
+["nav-bot/docs"]
+  default = "Belgeler"
+
+["nav-bot/home"]
+  default = "Anasayfa"
+
+["nav-bot/src"]
+  default = "Kaynak kodu"
+
+["nav-dash/as-text"]
+  default = "Metin tablosu olarak görüntüle"
+
+["nav-dash/back"]
+  default = "geri"
+
+["nav-dash/by-day"]
+  default = "Güne göre görüntüle"
+
+["nav-dash/current"]
+  default = "Şimdiki"
+
+["nav-dash/day"]
+  default = "gün"
+
+["nav-dash/end-date"]
+  default = "Görüntülenecek tarih aralığının sonu"
+
+["nav-dash/filter"]
+  default = "Yolları filtrele"
+
+["nav-dash/filter-tooltip"]
+  default = "Yolların listesini filtrele; yol ve başlıkta büyük/küçük harfe duyarsız eşleşir"
+
+["nav-dash/forced-daily"]
+  default = "90 günden uzun bir zaman aralığı için saatlik görünüm kullanılamaz"
+
+["nav-dash/forward"]
+  default = "ileri"
+
+["nav-dash/half-year"]
+  default = "yarım yıl"
+
+["nav-dash/last"]
+  default = "Geçen"
+
+["nav-dash/month"]
+  default = "ay"
+
+["nav-dash/quarter"]
+  default = "çeyrek"
+
+["nav-dash/start-date"]
+  default = "Görüntülenecek tarih aralığının başlangıcı"
+
+["nav-dash/week"]
+  default = "hafta"
+
+["nav-dash/year"]
+  default = "yıl"
+
+["no-title"]
+  default = "başlık yok"
+
+["notify/add-one-thing"]
+  default = "En az bir tane şey eklemelisiniz; boş bir pano biraz anlamsız, değil mi?"
+
+["notify/api-token-created"]
+  default = "API belirteci oluşturuldu."
+
+["notify/api-token-removed"]
+  default = "API belirteci kaldırıldı."
+
+["notify/disabled-multi-factor-auth"]
+  default = "Çok faktörlü kimlik doğrulama devre dışı bırakıldı."
+
+["notify/email-already-verified"]
+  default = "%(email) zaten doğrulandı."
+
+["notify/export-started-in-background"]
+  default = "Dışa aktarma işlemi arka planda başladı; tamamlandığında indirme bağlantısı içeren bir e-posta alacaksınız."
+
+["notify/import-started-in-background"]
+  default = "İçe aktarma işlemi arka planda başladı; tamamlandığında bir e-posta alacaksınız."
+
+["notify/login-after-password-reset"]
+  default = "Parola sıfırlandı; giriş yapmak için yeni şifrenizi kullanın."
+
+["notify/multi-factor-auth-enabled"]
+  default = "Çok faktörlü kimlik doğrulama etkinleştirildi."
+
+["notify/need-business-plan-custom-domain"]
+  default = "özel alan adı ayarlamak için bir iş planına ihtiyacınız var"
+
+["notify/need-email-verification-for-api"]
+  default = "API'yi kullanmadan önce e-postanızı doğrulamanız gerekir."
+
+["notify/no-user-for-token"]
+  default = "verilen belirteç için kullanıcı bulunamadı; belki de süresi dolmuş veya zaten kullanılmış?"
+
+["notify/not-found"]
+  default = "Bulunamadı"
+
+["notify/password-changed"]
+  default = "Parola değişti."
+
+["notify/payment-processed"]
+  default = "Ödeme başarıyla işlendi!"
+
+["notify/payment-processing"]
+  default = "Ödeme işlemcisi ödemenin başarılı olduğunu bildirdi, fakat biz hâlâ ödemeyi işlemeye devam ediyoruz"
+
+["notify/reset-to-default"]
+  default = "Varsayılanlara dön!"
+
+["notify/reset-user-sent"]
+  default = "%(email) adresine e-posta gönderildi"
+
+["notify/restored-previously-deleted-site"]
+  default = "‘%(url)’ sitesi daha önceden silinmişti; site tüm verileriyle beraber geri yüklendi."
+
+["notify/saved"]
+  default = "Kaydedildi!"
+
+["notify/sent-to-email"]
+  default = "%(email) adresine gönderildi."
+
+["notify/settings-copied-to-site"]
+  default = "Ayarlar seçilen sitelere kopyalandı."
+
+["notify/site-added"]
+  default = "Site ‘%(url)’ eklendi."
+
+["notify/site-removed"]
+  default = "Site ‘%(url)’ kaldırıldı."
+
+["notify/started-background-process"]
+  default = "Arka planda başladı; tamamen işlenmesi yaklaşık 10-20 saniye sürebilir."
+
+["notify/user-added"]
+  default = "Kullanıcı ‘%(email)’ eklendi."
+
+["notify/user-removed"]
+  default = "Kullanıcı ‘%(email)’ kaldırıldı."
+
+["notify/users-edited"]
+  default = "Kullanıcı ‘%(email)’ düzenlendi."
+
+["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>Yeni siteler oluşturarak GoatCounter'ı birden çok web sitesine ekleyin.
+Tüm siteler aynı planı, kullanıcıları ve girişleri paylaşacak fakat onun dışında
+tamamen ayrı olacaklar. Mevcut sitenin ayarları oluşturmadan sonra kopyalanacak
+fakat sonrasında bu ayarlardan tamamen bağımsız olacak.</p>
+
+<p>İstediğiniz kadar ekleyebilirsiniz.</p>
+"""
+
+["p/additional-errors"]
+  default = "Ek hatalar"
+
+["p/api-intro"]
+  default = "GoatCounter sınırlı bir API ile birlikte gelir; şu anda API ile sayfa görüntülemelerini görebilir, siteler oluşturabilir, silebilir, düzenleyebilir ve dışa aktarma işlemleri oluşturabilirsiniz."
+
+["p/change-code-request"]
+  default = """
+<p>Site kodunuzu ve giriş alan adınızı değiştirin.</p>
+
+<p><strong>UYARI:</strong> bu işlem <strong>anında</strong> devreye girecek
+ve eski kod başkaları tarafından tekrar kaydedilebilir olacaktır; eğer bu kodu
+şu an bir sitede kullanıyorsanız mümkün olan en kısa zamanda değiştirin,
+veya sayfa görüntüleme verilerinde herhangi bir veri kaybı yaşamamak için
+geçici bir süreliğine iki tane kod (eski ve yeniyi beraber) kullanın.</p>
+
+<p>Mevcut kod: <code>%(current-code)</code> (%(current-url))</p>
+"""
+
+["p/change-email"]
+  default = "%[ayarlar]dan e-posta adresini değiştirin."
+
+["p/collect-disabled"]
+  default = "Bu bilgilerin toplanması şu anda %[ayarlardan devre dışı bırakılmıştır]."
+
+["p/copy-settings-from-current-site"]
+  default = "Etki alanı adı dışındaki tüm ayarları geçerli siteden kopyalayın."
+
+["p/csv-file-format"]
+  default = "CSV dosyasının formatı %[burada belgelenmiştir] şeklindedir."
+
+["p/delete-account-multi-site"]
+  default = """
+Bu site ve tüm ilişkili siteler silinmiş olarak işaretlenecek
+ve erişilmez olacaktır, ancak hiçbir veri silinmeyecektir.
+7 gün sonra tüm veriler tamamen silinecektir.
+"""
+
+["p/delete-account-one-site"]
+  default = """
+Bu site silinmiş olarak işaretlenecek ve erişilmez olacaktır, ancak hiçbir
+veri silinmeyecektir. 7 gün sonra tüm veriler tamamen silinecektir.
+"""
+
+["p/disable-mfa"]
+  default = "ÇFKD şu anda bu hesap için etkin."
+
+["p/enable-mfa"]
+  default = "Doğrulayıcı uygulamanızdaki kodu tarayarak veya gizli anahtarı manuel olarak girerek TOTP tabanlı çok faktörlü kimlik doğrulamayı etkinleştirin."
+
+["p/error"]
+  default = "Hata: %(error-message)"
+
+["p/export-process"]
+  default = """
+<p>İşlemi başlatın ve tamamlanınca size bir indirme bağlantısı gönderilsin. Bunu sadece saatte bir yapabilirsiniz ve sahip olabileceğiniz önceki yedeklerin üstüne yazılır.</p>
+
+<p>Bu, \"bot\" olarak işaretlenenler –ki bunlar genel görünümde görünmez– de dahil olmak üzere tüm sayfa görüntülemelerini içerir.</p>
+"""
+
+["p/have-mfa"]
+  default = "Bu hesap çok faktörlü kimlik doğrulama ile korunmaktadır; lütfen kimlik doğrulama uygulamanızdaki kodu girin."
+
+["p/last-user"]
+  default = "Son yönetici silinemez veya düzenlenemez"
+
+["p/no-data"]
+  default = """
+<p>
+%[%bold Hiçbir veri alınmadı] – GoatCounter henüz hiç veri almadı.<br>
+Başlamak oldukça kolaydır, sadece aşağıdaki JavaScript kodunu sayfanızda herhangi bir yere ekleyin:</p>
+
+%[%pre %(js_code)]
+
+<p>Eğer herhangi bir sayfa görüntüleme bilgisi göremiyorsanız reklam engelleyicinizin GoatCounter'ı engelleyip engellemediğini kontrol edin (%(domain) ve/veya gc.zgo.at adresi).</p>
+
+<p>Veri almaya başladığımızda bu mesaj kaybolacak; daha fazla açıklama ve hazır bütünleşmeler için üst menüdeki %[%link_docs Site kodu] bölümüne bakın.</p>
+"""
+
+["p/no-matches"]
+  default = "Eşleşme yok %(query)."
+
+["p/notify-immediate-change"]
+  default = "Hemen devreye girecek"
+
+["p/notify-pagination-cursor"]
+  default = """
+Burayı doldurursanız e-postanızda bir \"sayfalandırma imleci\" olacak,
+yalnızca önceki dışa aktarmadan sonra toplanan sayfa gösterimlerini
+dışa aktaracaktır.
+"""
+
+["p/notify-site-deletion"]
+  default = "%(number) adet site silinecek"
+
+["p/remove-site-confirm"]
+  default = """
+%(sitename) sitesini kaldırmak istediğinizden emin misiniz?<br>
+Bu, <strong>ilişkili tüm verileri kaldıracak</strong>.
+"""
+
+["p/remove-site-confirm-contact"]
+  default = "Başka bir siteyle birleştirmek veya yeni bir hesaba ayırmak gibi başka bir şey yapmak istiyorsanız %[iletişime geçin]"
+
+["p/remove-site-confirm-current"]
+  default = """
+%(sitename) sitesini kaldırmak istediğinizden emin misiniz?<br>
+Bu, <strong>şu anki geçerli site</strong> ve <strong>bu siteyle ilişkili tüm veriler kaldırılacak</strong>.
+"""
+
+["p/request-data-recovery"]
+  default = "Eğer fikrinizi değiştirirseniz ve verileriniz kurtarmak isterseniz 7 gün içinde %[iletişime geçin]."
+
+["p/rm-hits"]
+  default = "Bir sayfanın tüm sayfa görüntülemelerini kaldırın."
+
+["p/rm-hits-help"]
+  default = """
+Eşleşmeler büyük/küçük harfe duyarsızdır. <code>%</code> karakterini joker karakter olarak destekler, örn.;
+<code>/page%.html</code> satırı <code>/page</code> ile başlayan ve <code>.html</code> ile biten
+her şeyle eşleşir. <code>_</code> karakteri herhangi bir karakterle eşleşir, örn.;
+<code>_.html</code> satırı <code>a.html</code> ve <code>b.html</code> ile eşleşir.
+<code>\\%</code> ve <code>\\_</code> kodlarını özel anlamı olmayan tam karakter
+eşleşmeleri için kullanın.
+"""
+
+["p/rm-pageview-match"]
+  default = "Aşağıdaki yollar %(query) ile eşleşiyor:"
+
+["p/setting-recovery-disabled-information"]
+  default = "Bir ayar devre dışı bırakılırsa, bir sayfa görüntüleme kaydedildikten sonra bu bilgileri kurtarmanın bir yolu yoktur, çünkü bu saklanmayacaktır."
+
+["p/settings-all-sites"]
+  default = "Bu ayarlar, erişiminiz olan tüm siteler için geçerli olur."
+
+["p/site-domain-link-to-page"]
+  default = "Sitenizin etki alanı, örn. <em>“www.ornek.com”</em>, genel görünümde sayfaya bağlantı vermek için kullanılır."
+
+["p/slow"]
+  default = "Çok fazla sayfanın yüklenmesi, özellikle yavaş cihazlarda yavaş olabilir. Performans sorunları yaşıyorsanız daha düşük bir değere ayarlayın."
+
+["p/text-data-retention"]
+  default = "Buna veri saklama ve toplama ayarları dahildir!"
+
+["p/verify-email"]
+  default = "Lütfen %(email) adresine gönderilen bağlantıyı kullanarak e-posta adresinizi doğrulayın. %[%sup (Neden?)]"
+
+["page-ranking"]
+  default = "Sayfa sıralaması"
+
+["restricted-admin-access"]
+  default = 'Normalde yöneticiler sitenizde "oturum açamaz", ancak bunu etkinleştirirseniz açabilirler. Destek istekleriniz için bunun etkinleştirilmesi istenebilir.'
+
+["scale-y"]
+  default = "Y eksenini maksimuma ölçeklendir"
+
+["top-nav/back"]
+  default = "Geri"
+
+["top-nav/dashboard"]
+  default = "Pano"
+
+["top-nav/need-js"]
+  default = "GoatCounter'ın düzgün çalışması için JavaScript'in etkinleştirilmesi gerekir; lütfen JavaScript'in %(domain) adresinde çalışmasına izin verin."
+
+["top-nav/public-link"]
+  default = "%(domain) için analizler."
+
+["top-nav/public-time"]
+  default = "Herkese açık görünüm saatte bir güncellenir; tüm saatler %(timezone-name) (%(timezone-offset)) zaman dilimindedir."
+
+["top-nav/settings"]
+  default = "Ayarlar"
+
+["top-nav/sign-in"]
+  default = "Giriş"
+
+["top-nav/sign-out"]
+  default = "Çıkış"
+
+["top-nav/site-code"]
+  default = "Site kodu"
+
+["top-nav/sites"]
+  default = "Siteler:"
+
+["top-nav/updates"]
+  default = "Güncellemeler"
+
+["top-nav/user"]
+  default = "Kullanıcı"
+
+["unknown"]
+  default = "(bilinmeyen)"
+
+["validate/bool"]
+  default = "boolean olmalı"
+
+["validate/color"]
+  default = "geçerli bir renk kodu olmalıdır"
+
+["validate/contains"]
+  default = "%s karakterlerini içeremez"
+
+["validate/date"]
+  default = "‘%s’ şeklinde bir tarih olmalıdır"
+
+["validate/domain"]
+  default = "geçerli bir alan adı olmalı"
+
+["validate/email"]
+  default = "geçerli bir e-posta adresi olmalı"
+
+["validate/exclude"]
+  default = "‘%s’ olamaz"
+
+["validate/hostname"]
+  default = "geçerli bir ana bilgisayar adı olmalı"
+
+["validate/include"]
+  default = "‘%s’'den biri olmalı"
+
+["validate/int"]
+  default = "tam sayı olmalı"
+
+["validate/ip"]
+  default = "geçerli bir IPv4 veya IPv6 adresi olmalı"
+
+["validate/ipv4"]
+  default = "geçerli bir IPv4 adresi olmalı"
+
+["validate/len-longer"]
+  default = "%d karakterden uzun olmalı"
+
+["validate/len-shorter"]
+  default = "%d karakterden kısa olmalı"
+
+["validate/phone"]
+  default = "geçerli bir telefon numarası olmalı"
+
+["validate/range-higher"]
+  default = "%d veya daha yüksek olmalı"
+
+["validate/range-lower"]
+  default = "%d veya daha düşük olmalı"
+
+["validate/required"]
+  default = "ayarlanmış olmalı"
+
+["validate/url"]
+  default = "geçerli bir url olmalı"
+
+["validate/utf8"]
+  default = "UTF-8 olmalı"
+
+["widget-setting/help/align"]
+  default = "Sayfa grafikleriyle hizalanması için sola kenar boşluğu ekleyin"
+
+["widget-setting/help/no-events"]
+  default = "Toplam görünümde etkinleri dahil etme"
+
+["widget-setting/help/page-size"]
+  default = "Yüklenecek sayfa sayısı"
+
+["widget-setting/help/ref-page-size"]
+  default = "Bir yola tıklandığında yüklenecek yönlendirici sayısı"
+
+["widget-setting/help/regions"]
+  default = "Ülke listesi yerine bu ülke için bölgeleri göster"
+
+["widget-setting/label/align"]
+  default = "Sayfalarla hizala"
+
+["widget-setting/label/no-events"]
+  default = "Etkinlikleri hariç tut"
+
+["widget-setting/label/page-size"]
+  default = "Sayfa boyutu"
+
+["widget-setting/label/ref-page-size"]
+  default = "Yönlendiricilerin sayfa boyutu"
+
+["widget-setting/label/regions"]
+  default = "Bölgeleri göster"
+
+["y-scale"]
+  default = "Y ekseni ölçeği"
