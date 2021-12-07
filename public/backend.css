@@ -169,15 +169,13 @@ tr:hover .chart-left,
 tr.target .chart-left { display: block; }
 
 .chart-right { position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem;
-	           text-align: center; background-color: #fff; }
+			   line-height: 1; text-align: center; background-color: #fff; }
 .page-n      { color: #555; font-size: .8em; }
 
-.chart-bar             { display: flex; align-items: flex-end; }
-.chart-bar > div       { position: relative; flex-grow: 1; background: #9a15a4; }
-.chart-bar > div > div { position: absolute; left: 0; bottom: 0; width: 100%; }
-.chart-bar > .f        { background-color: #eee; }
-.chart-bar > .half     { border-top: 1px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; }
-.chart-bar > #cursor   { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, .2); }
+.chart-line canvas { display: block; height: 50px; width: 100%; }
+.chart-bar canvas  { display: block; height: 50px; width: 100%; }
+
+.chart.chart-line, .chart.chart-bar { border: unset; }
 
 
 /*** Text pageviews

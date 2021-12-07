@@ -109,10 +109,14 @@ var format_date_ymd = function(date) {
 		(d >= 10 ? d : ('0' + d));
 }
 
-// Create Date() object from year-month-day string.
+// Create Date() object from "year-month-day hour:min:sec" string. Any of the
+// parts to the right may be missing: "2017-06" will create a date on June 1st.
 var get_date = function(str) {
-	var s = str.split('-')
-	return new Date(s[0], parseInt(s[1], 10) - 1, s[2])
+	let s = str.split(/[: -]/)
+	return new Date(s[0],
+		parseInt((s[1] || 1), 10) - 1,
+		(s[2] || 1),
+		(s[3] || 0), (s[4] || 0), (s[5] || 0))
 }
 
 // Simple z18n-compatible transate.

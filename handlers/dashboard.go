@@ -63,9 +63,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	if _, ok := q["filter"]; ok {
 		view.Filter = q.Get("filter")
 	}
-	if _, ok := q["as-text"]; ok {
-		view.AsText = q.Get("as-text") == "on" || q.Get("as-text") == "true"
-	}
 	if _, ok := q["daily"]; ok {
 		view.Daily = q.Get("daily") == "on" || q.Get("daily") == "true"
 	}
@@ -117,7 +114,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		Rng:         rng,
 		Daily:       view.Daily,
 		ForcedDaily: forcedDaily,
-		AsText:      view.AsText,
 		ShowRefs:    showRefs,
 	}
 
@@ -291,7 +287,6 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 
 		args.RowsOnly = true
 		args.Args.Daily, args.Args.ForcedDaily = getDaily(r, rng)
-		args.Args.AsText = r.URL.Query().Get("as-text") == "on" || r.URL.Query().Get("as-text") == "true"
 
 		if key != "" {
 			p.Ref = key

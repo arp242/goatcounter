@@ -29,7 +29,6 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zstring"
-	"zgo.at/zstd/ztime"
 	"zgo.at/ztpl"
 	"zgo.at/ztpl/tplfunc"
 	"zgo.at/zvalidate"
@@ -83,7 +82,6 @@ func init() {
 	})
 
 	// Implemented as function for performance.
-	tplfunc.Add("bar_chart", barChart)
 	tplfunc.Add("text_chart", textChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
 
@@ -345,75 +343,6 @@ func textChart(ctx context.Context, stats []HitListStat, max int, daily bool) te
 	return template.HTML(symb)
 }
 
-func barChart(ctx context.Context, stats []HitListStat, max int, daily bool) template.HTML {
-	user := MustGetUser(ctx)
-	now := ztime.Now().In(user.Settings.Timezone.Loc())
-	today := now.Format("2006-01-02")
-
-	var (
-		future bool
-		b      strings.Builder
-	)
-	switch daily {
-	// Daily view.
-	case true:
-		for _, stat := range stats {
-			if future {
-				b.WriteString(fmt.Sprintf(`<div title="%s" class="f"></div>`, stat.Day))
-				continue
-			}
-
-			if stat.Day == today {
-				future = true
-			}
-
-			h := math.Round(float64(stat.Daily) / float64(max) / 0.01)
-			st := ""
-			if h > 0 {
-				hu := math.Round(float64(stat.DailyUnique) / float64(max) / 0.01)
-				st = fmt.Sprintf(` style="height:%.0f%%" data-u="%.0f%%"`, h, hu)
-			}
-
-			b.WriteString(fmt.Sprintf(`<div%s title="%s|%s|%s"></div>`,
-				st, stat.Day, tplfunc.Number(stat.Daily, user.Settings.NumberFormat),
-				tplfunc.Number(stat.DailyUnique, user.Settings.NumberFormat)))
-		}
-
-	// Hourly view.
-	case false:
-		hour := now.Hour()
-		for i, stat := range stats {
-			for shour, s := range stat.Hourly {
-				if future {
-					b.WriteString(fmt.Sprintf(`<div title="%s|%[2]d:00|%[2]d:59" class="f"></div>`,
-						stat.Day, shour))
-					continue
-				}
-
-				if stat.Day == today && shour > hour {
-					if i == len(stats)-1 { // Don't display future if end date is today.
-						break
-					}
-					future = true
-				}
-
-				h := math.Round(float64(s) / float64(max) / 0.01)
-				st := ""
-				if h > 0 {
-					hu := math.Round(float64(stat.HourlyUnique[shour]) / float64(max) / 0.01)
-					st = fmt.Sprintf(` style="height:%.0f%%" data-u="%.0f%%"`, h, hu)
-				}
-				b.WriteString(fmt.Sprintf(`<div%s title="%s|%[3]d:00|%[3]d:59|%s|%s"></div>`,
-					st, stat.Day, shour,
-					tplfunc.Number(s, user.Settings.NumberFormat),
-					tplfunc.Number(stat.HourlyUnique[shour], user.Settings.NumberFormat)))
-			}
-		}
-	}
-
-	return template.HTML(b.String())
-}
-
 func HorizontalChart(ctx context.Context, stats HitStats, total int, link, paginate bool) template.HTML {
 	if total == 0 {
 		return template.HTML("<em>" + z18n.T(ctx, "dashboard/nothing-to-display|Nothing to display") + "</em>")
@@ -421,7 +350,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 
 	var (
 		displayed int
-		b         strings.Builder
+		b         = new(strings.Builder)
 	)
 	b.WriteString(`<div class="rows">`)
 	for _, s := range stats.Stats {
@@ -495,14 +424,15 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 		if id == "" {
 			id = name
 		}
-		b.WriteString(fmt.Sprintf(`
+		fmt.Fprintf(b, `
 			<div class="%[1]s" data-key="%[2]s">
 				<span class="col-count col-perc">%[3]s</span>
 				<span class="col-name">%[4]s</span>
 				<span class="col-count">%[5]s</span>
 			</div>`,
 			class, id, perc, ref,
-			tplfunc.Number(s.CountUnique, MustGetUser(ctx).Settings.NumberFormat)))
+			tplfunc.Number(s.CountUnique, MustGetUser(ctx).Settings.NumberFormat),
+		)
 	}
 	b.WriteString(`</div>`)
 

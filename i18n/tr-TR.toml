@@ -1,5 +1,4 @@
 [__meta__]
-  comments = ""
   generated = 2021-11-29T19:38:18Z
   language = "tr-TR"
   maintainers = ["Taylan Tatlı <taylantatli90@gmail.com>"]
@@ -90,14 +89,14 @@
 
 ["dashboard/day-ago"]
   default = "%(n) gün önce"
-  one = "%(n) gün önce"
+  one     = "%(n) gün önce"
 
 ["dashboard/future"]
   default = "gelecek"
 
 ["dashboard/month-ago"]
   default = "%(n) ay önce"
-  one = "%(n) ay önce"
+  one     = "%(n) ay önce"
 
 ["dashboard/nothing-to-display"]
   default = "Gösterilecek bir şey yok"
@@ -143,7 +142,7 @@
 
 ["dashboard/week-ago"]
   default = "%(n) hafta önce"
-  one = "%(n) hafta önce"
+  one     = "%(n) hafta önce"
 
 ["dashboard/yesterday"]
   default = "Dün"
@@ -815,6 +814,7 @@ bana bildirirseniz çok memnun olurum. Bu tamamen isteğe bağlıdır.
   default = "Kaynak kodu"
 
 ["nav-dash/as-text"]
+  updated = "removed"
   default = "Metin tablosu olarak görüntüle"
 
 ["nav-dash/back"]
@@ -1101,6 +1101,7 @@ eşleşmeleri için kullanın.
   default = "Sitenizin etki alanı, örn. <em>“www.ornek.com”</em>, genel görünümde sayfaya bağlantı vermek için kullanılır."
 
 ["p/slow"]
+  updated = "removed"
   default = "Çok fazla sayfanın yüklenmesi, özellikle yavaş cihazlarda yavaş olabilir. Performans sorunları yaşıyorsanız daha düşük bir değere ayarlayın."
 
 ["p/text-data-retention"]
@@ -1220,6 +1221,8 @@ eşleşmeleri için kullanın.
 ["widget-setting/help/align"]
   default = "Sayfa grafikleriyle hizalanması için sola kenar boşluğu ekleyin"
 
+["widget-setting/help/chart-style"]
+
 ["widget-setting/help/no-events"]
   default = "Toplam görünümde etkinleri dahil etme"
 
@@ -1235,6 +1238,8 @@ eşleşmeleri için kullanın.
 ["widget-setting/label/align"]
   default = "Sayfalarla hizala"
 
+["widget-setting/label/chart-style"]
+
 ["widget-setting/label/no-events"]
   default = "Etkinlikleri hariç tut"
 
@@ -1247,5 +1252,12 @@ eşleşmeleri için kullanın.
 ["widget-setting/label/regions"]
   default = "Bölgeleri göster"
 
+["widget-settings/bar-chart"]
+
+["widget-settings/line-chart"]
+
+["widget-settings/text-chart"]
+
 ["y-scale"]
   default = "Y ekseni ölçeği"
+

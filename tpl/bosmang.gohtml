@@ -15,7 +15,9 @@ input    { float: right; padding: .4em !important; }
 <style>.plan-free { background-color: #eaeaea; }</style>
 
 <h2>Signups</h2>
-<div class="chart chart-bar">{{bar_chart $.Context .Signups .MaxSignups false}}</div>
+<div class="chart chart-bar" data-stats="{{.Signups}}" data-max="{{.MaxSignups}}">
+	<canvas></canvas>
+</div>
 {{/* <h2>Income</h2> <p>${{.TotalUSD}} GitHub + €{{.TotalEUR}} Stripe + $24 Patreon ≈ €{{.TotalEarnings}}</p> */}}
 
 <h2>Sites</h2>

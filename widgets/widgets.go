@@ -37,7 +37,6 @@ type (
 		PathFilter  []int64
 		Daily       bool
 		ForcedDaily bool
-		AsText      bool
 		ShowRefs    string
 	}
 
