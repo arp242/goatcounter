@@ -70,9 +70,9 @@ var format_date = function(date) {
 	if (typeof(date) === 'string')
 		date = get_date(date)
 
-	var m = date.getMonth() + 1,
-		d = date.getDate(),
-		items = USER_SETTINGS.date_format.split(/[-/\s]/),
+	var m        = date.getMonth() + 1,
+		d        = date.getDate(),
+		items    = USER_SETTINGS.date_format.split(/[-/\s]/),
 		new_date = []
 
 	// Simple implementation of Go's time format. We only offer the current
@@ -126,6 +126,5 @@ var T = function(id, params) {
 		params = {}
 	else if (typeof params !== 'object')
 		params['__one__'] = params
-
-	return str.replace(/%\((.+?)\)/g, (_, varname) => params[varname] || params['__one__'])
+	return str.replace(/%\((.+?)\)/g, (_, varname) => params[varname] !== 'undefined' ?  params[varname] : params['__one__'])
 }
