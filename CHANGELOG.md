@@ -10,7 +10,7 @@ Unreleased
 - GoatCounter can now collect language statistics as well, from the
   `Accept-Language` HTTP header.
 
-- New translations: Turkish.
+- New translations: Spanish (Chilean), Turkish.
 
 2021-12-01 v2.1.0
 -----------------
