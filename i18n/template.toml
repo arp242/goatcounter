@@ -145,6 +145,7 @@
 ["dashboard/day-ago"]
   loc     = ["handlers/dashboard.go:205"]
   default = "%(n) days ago"
+  one     = "1 day ago"
 
 ["dashboard/future"]
   loc     = ["handlers/handlers.go:72"]
@@ -153,6 +154,7 @@
 ["dashboard/month-ago"]
   loc     = ["handlers/dashboard.go:207"]
   default = "%(n) months ago"
+  one     = "1 month ago"
 
 ["dashboard/nothing-to-display"]
   loc     = ["tpl.go:419"]
@@ -222,6 +224,7 @@
 ["dashboard/week-ago"]
   loc     = ["handlers/dashboard.go:206"]
   default = "%(n) weeks ago"
+  one     = "1 week ago"
 
 ["dashboard/yesterday"]
   loc     = ["handlers/dashboard.go:204"]

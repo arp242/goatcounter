@@ -31,7 +31,7 @@
 		{{/*
 		<div style="width: 60%">
 			<label for="comments" style="text-align: right">Comments/instructions for translators</label><br>
-			<textarea name="comments" id="comments">{{.File.Comments}}</textarea>
+			<textarea name="comments" id="comments">{{if ne .File.Comments "|user|"}}{{.File.Comments}}{{end}}</textarea>
 		</div>
 		*/}}
 	</div>
@@ -57,7 +57,7 @@
 		*/}}
 		<form method="POST" action="/i18n/submit/{{.TOMLFile}}">
 			<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-			<button>Send changes</button>
+			<button>Send changes<br><small>Changes are saved automatically; use this when you're finished</small></button>
 		</form>
 	</div>
 </div>
@@ -93,7 +93,7 @@
 				<div class="i18n-status i18n-ok" title="Saved">✔&#xfe0e;</div>
 
 				{{/* TODO: add HasPlural() to Entry, or something. */}}
-				{{if $e.One}}
+				{{if $o.One}}
 					<div class="i18n-plural">
 						<strong>Pluralized value</strong>
 						<div>
