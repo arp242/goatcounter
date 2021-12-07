@@ -97,14 +97,28 @@ func FromSiteWidgets(ctx context.Context, www goatcounter.Widgets, params zint.B
 	return widgetList
 }
 
-// Get a widget from the list by name.
-func (l List) Get(name string) Widget {
+// GetOne gets the first widget in the list by name.
+//
+// You usually want to use Get()! Only intended to get "internal" widgets where
+// you know it will always have exactly one in the list.
+func (l List) GetOne(name string) Widget {
 	for _, w := range l {
 		if w.Name() == name {
 			return w
 		}
 	}
 	return nil
+}
+
+// Get all widgets from the list by name.
+func (l List) Get(name string) []Widget {
+	list := make([]Widget, 0, 1)
+	for _, w := range l {
+		if w.Name() == name {
+			list = append(list, w)
+		}
+	}
+	return list
 }
 
 // ListAllWidgets returns a static list of all widgets that this user can add.

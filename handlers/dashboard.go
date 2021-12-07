@@ -130,8 +130,8 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	// Load widgets data from the database.
 	wid := widgets.FromSiteWidgets(r.Context(), user.Settings.Widgets, 0)
 
-	if w := wid.Get("totalpages"); w != nil {
-		wid.Get("totalcount").(*widgets.TotalCount).NoEvents = w.Settings()["no-events"].Value.(bool)
+	for _, w := range wid.Get("totalpages") {
+		wid.GetOne("totalcount").(*widgets.TotalCount).NoEvents = w.Settings()["no-events"].Value.(bool)
 	}
 
 	func() {
@@ -162,15 +162,15 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// Set shared params.
 	shared := widgets.SharedData{Args: args, Site: site, User: user}
-	tc := wid.Get("totalcount").(*widgets.TotalCount)
+	tc := wid.GetOne("totalcount").(*widgets.TotalCount)
 	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEvents, shared.TotalEventsUnique =
 		tc.Total, tc.TotalUnique, tc.TotalUniqueUTC, tc.TotalEvents, tc.TotalEventsUnique
 
 	// Copy max and refs to pages; they're in separate "widgets" so they can run
 	// in parallel.
-	if p := wid.Get("pages"); p != nil {
-		pp := p.(*widgets.Pages)
-		pp.Max = wid.Get("max").(*widgets.Max).Max
+	max := wid.GetOne("max").(*widgets.Max)
+	for _, p := range wid.Get("pages") {
+		p.(*widgets.Pages).Max = max.Max
 	}
 
 	// Render widget templates.
