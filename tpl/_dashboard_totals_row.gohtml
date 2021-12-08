@@ -1,10 +1,9 @@
 <tbody><tr id="TOTAL ">
 	{{if .Align}}<td class="col-count"></td><td class="col-path hide-mobile"></td>{{end}}
 	<td>
-		<div class="chart chart-bar chart-totalsXX" data-max="{{.Max}}">
+		<div class="chart chart-{{$.Style}}" data-max="{{.Max}}" data-stats="{{.Page.Stats | json}}" data-daily="{{.Daily}}">
 			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.User}}</small></span>
-			<span class="half"></span>
-			{{bar_chart .Context .Page.Stats .Max .Daily}}
+			<canvas></canvas>
 		</div>
 	</td>
 </tr></tbody>

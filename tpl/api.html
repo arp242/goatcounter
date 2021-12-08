@@ -52,7 +52,7 @@
 			font-weight: normal;
 			color: rgb(0, 0, 238);
 
-			 
+
 			width: 1.5em;
 			display: inline-block;
 			text-align: center;
@@ -117,12 +117,12 @@
 <body>
 	<h1>GoatCounter API documentation 0.1</h1>
 
-	
 
-	
+
+
 
 	<h2>Endpoints</h2>
-	
+
 			</div><div>
 			<h3 id="count" class="js-expand">count
 				<a class="permalink" href="#count">§</a></h3>
@@ -434,7 +434,7 @@ fields that are sent.</p>
 		</div>
 
 	<h2>Models</h2>
-	
+
 		<h3 id="goatcounter.APIToken">goatcounter.APIToken <a class="permalink" href="#goatcounter.APIToken">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
@@ -597,8 +597,6 @@ This is stored as JSON in the database.</p>
 <p></p>
 <h4>daily <sup>boolean</sup></h4>
 <p></p>
-<h4>as-text <sup>boolean</sup></h4>
-<p></p>
 <h4>period <sup>string</sup></h4>
 <p>&#34;week&#34;, &#34;week-cur&#34;, or n days: &#34;8&#34;</p>
 
@@ -606,7 +604,7 @@ This is stored as JSON in the database.</p>
 		<h3 id="goatcounter.Widget">goatcounter.Widget <a class="permalink" href="#goatcounter.Widget">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
-			
+
 		</div>
 		<h3 id="handlers.APICountRequest">handlers.APICountRequest <a class="permalink" href="#handlers.APICountRequest">§</a></h3>
 		<div class="endpoint model">
@@ -718,7 +716,7 @@ identifier.</p>
 Typically, the Location represents the collection of time offsets
 in use in a geographical area. For many Locations the time offset varies
 depending on whether daylight savings time is in use at the time instant.</p>
-			
+
 		</div>
 		<h3 id="tz.Zone">tz.Zone <a class="permalink" href="#tz.Zone">§</a></h3>
 		<div class="endpoint model">
@@ -738,7 +736,7 @@ depending on whether daylight savings time is in use at the time instant.</p>
 
 	<script>
 		var add = function(endpoint) {
-			
+
 			var topLine = endpoint.getElementsByClassName('endpoint-top')[0]
 			var info = endpoint.getElementsByClassName('endpoint-info')[0]
 			topLine.addEventListener('click', function(e) {
@@ -746,22 +744,22 @@ depending on whether daylight savings time is in use at the time instant.</p>
 					return
 
 				e.preventDefault()
-				
+
 				info.style.display = info.style.display === 'block' ? '' : 'block'
 			})
 
-			
-			
-			
-			
-			
+
+
+
+
+
 		}
 
 		var ep = document.getElementsByClassName('endpoint')
 		for (var i = 0; i < ep.length; i++)
 			add(ep[i])
 
-		
+
 		document.addEventListener('click', function(e) {
 			if (e.target.className !== 'js-expand')
 				return

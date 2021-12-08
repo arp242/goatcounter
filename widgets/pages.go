@@ -23,6 +23,7 @@ type Pages struct {
 	s    goatcounter.WidgetSettings
 
 	Ref                    string
+	Style                  string
 	Limit, LimitRefs       int
 	Display, UniqueDisplay int
 	More                   bool
@@ -51,6 +52,9 @@ func (w *Pages) SetSettings(s goatcounter.WidgetSettings) {
 	}
 	if x := s["key"].Value; x != nil {
 		w.Ref = x.(string)
+	}
+	if x := s["style"].Value; x != nil {
+		w.Style = x.(string)
 	}
 }
 
@@ -97,7 +101,8 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 	}
 
 	t := "_dashboard_pages"
-	if shared.Args.AsText {
+
+	if w.Style == "text" {
 		t += "_text"
 	}
 	if shared.RowsOnly {
@@ -106,7 +111,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 	t += ".gohtml"
 
 	// Correct max for chunked data in text view.
-	if shared.Args.AsText {
+	if w.Style == "text" {
 		w.Max = 0
 		for _, p := range w.Pages {
 			m, _ := goatcounter.ChunkStat(p.Stats)
@@ -142,6 +147,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		TotalEventsUnique int
 		MorePages         bool
 
+		Style    string
 		Refs     goatcounter.HitStats
 		ShowRefs string
 	}{
@@ -149,6 +155,6 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		w.id, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, w.Max, w.Display,
 		w.UniqueDisplay, shared.Total, shared.TotalUnique, shared.TotalEvents, shared.TotalEventsUnique,
-		w.More, w.Refs, shared.Args.ShowRefs,
+		w.More, w.Style, w.Refs, shared.Args.ShowRefs,
 	}
 }

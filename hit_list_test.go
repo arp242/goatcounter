@@ -208,7 +208,7 @@ func TestGetMax(t *testing.T) {
 	)
 
 	t.Run("hourly", func(t *testing.T) {
-		want := []int{11, 11, 10, 11}
+		want := []int{10, 10, 10, 10}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			got, err := GetMax(ctx, rng, filter, false)
 			if err != nil {
@@ -222,7 +222,7 @@ func TestGetMax(t *testing.T) {
 	})
 
 	t.Run("daily", func(t *testing.T) {
-		want := []int{11, 11, 10, 11}
+		want := []int{10, 10, 10, 10}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			got, err := GetMax(ctx, rng, filter, true)
 			if err != nil {

@@ -7,7 +7,8 @@ package gomig
 import "context"
 
 var Migrations = map[string]func(context.Context) error{
-	"2020-12-31-1-user_agents": UserAgents,
-	"2021-02-25-1-ua_version":  UserAgentVersion,
-	"2021-03-29-1-widgets":     Widgets,
+	"2020-12-31-1-user_agents":    UserAgents,
+	"2021-02-25-1-ua_version":     UserAgentVersion,
+	"2021-03-29-1-widgets":        Widgets,
+	"2021-12-08-1-set-chart-text": KeepAsText,
 }

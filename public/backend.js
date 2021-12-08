@@ -68,42 +68,16 @@
 			if (t.is('.rlink') && t[0].offsetWidth >= t[0].scrollWidth)
 				return
 
-			var pos = {left: e.pageX, top: (e.pageY + 20)}
-			// Position on top for the chart-bar.
-			if (t.closest('.chart-bar').length > 0 && t.closest('.chart-left, .chart-right').length === 0) {
-				var x = t.offset().left
-				pos = {
-					left: (x + 8),
-					top:  (t.parent().position().top),
-				}
-			}
-
-			tip.remove().html(t.attr('data-title')).css(pos)
-
+			tip.remove().html(t.attr('data-title')).css({left: e.pageX, top: (e.pageY + 20)})
 			t.one('mouseleave', () => { tip.remove() })
 			$('body').append(tip)
-
-			// Move to left of cursor if there isn't enough space.
-			if (tip.height() > 30)
-				tip.css('left', 0).css('left', pos.left - tip.width() - 8)
-		}
-
-		// Translucent hover effect; need a new div because the height isn't 100%
-		var add_cursor = function(t) {
-			if (t.closest('.chart-bar').length === 0 || t.is('#cursor') || t.closest('.chart-left, .chart-right').length > 0)
-				return
-
-			$('#cursor').remove()
-			t.parent().append($('<span id="cursor"></span>').
-				on('mouseleave', function() { $(this).remove() }).
-				attr('title', t.attr('data-title')).
-				css({width: t.width(), left: t.position().left}))
+			if (tip.height() > 30)  // Move to left if there isn't enough space.
+				tip.css('left', 0).css('left', e.pageX - tip.width() - 8)
 		}
 
 		$('body').on('mouseenter', '[data-title]', function(e) {
 			var t = $(e.target).closest('[data-title]')
 			display(e, t)
-			add_cursor(t)
 		})
 
 		$('body').on('mouseenter', '[title]', function(e) {
@@ -111,29 +85,8 @@
 				ev    = $(e.target).closest('tr').hasClass('event'),
 				title = t.attr('title')
 
-			// Reformat the title in the chart.
-			if (t.is('div') && t.closest('.chart-bar').length > 0) {
-				if ($('.pages-list').hasClass('pages-list-daily')) {
-					var [day, views, unique] = title.split('|')
-					title = `${format_date(day)}`
-				}
-				else {
-					var [day, start, end, views, unique] = title.split('|')
-					title = `${format_date(day)} ${un24(start)} – ${un24(end)}`
-				}
-
-				title += ', '
-				if (!views)
-					title += T('dashboard/future')
-				else if (ev)
-					title += T('dashboard/tooltip-event', {unique: unique, clicks: `<span class="views">${views}`}) + '</span>'
-				else
-					title += T('dashboard/totals/num-visits', {'num-visits': unique, 'num-views': `<span class="views">${views}`}) + '</span>'
-			}
 			t.attr('data-title', title).removeAttr('title')
-
 			display(e, t)
-			add_cursor(t)
 		})
 	}
 
@@ -333,16 +286,6 @@
 			f.find('input[name="reset"]').val('true')
 			f.trigger('submit')
 		})
-
-		// Warn when setting high limit.
-		$('.widget-pages').on('change', function(e) {
-			var w = $(this),
-				v = parseInt(w.find('input[name$="limit_pages"]').val(), 10)
-			w.find('.warn.red').remove()
-
-			if (v > 25)
-				w.find('.widget-settings').prepend('<span class="warn red">' + T('p/slow') + '<br><br></span>')
-		}).trigger('change')
 	}
 
 	var page_bosmang = function() {

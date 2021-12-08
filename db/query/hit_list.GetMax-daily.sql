@@ -6,7 +6,7 @@
 -- sums (which is a lot faster).
 --
 -- So, not sure what to do with this.
-select coalesce(sum(total), 0) as t
+select coalesce(sum(total_unique), 0) as t
 from hit_counts
 where
 	site_id = :site and

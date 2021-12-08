@@ -68,7 +68,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 			"error/date-mismatch":         T(ctx, "error/date-mismatch|end date is before start date"),
 			"error/load-url":              T(ctx, "error/load-url|Could not load %(url): %(error)", z18n.P{"url": "%(url)", "error": "%(error)"}),
 			"notify/saved":                T(ctx, "notify/saved|Saved!"),
-			"p/slow":                      T(ctx, "p/slow|Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems."),
 			"dashboard/future":            T(ctx, "dashboard/future|future"),
 			"dashboard/tooltip-event":     T(ctx, "dashboard/tooltip-event|%(unique) clicks; %(clicks) total clicks", z18n.P{"unique": "%(unique)", "clicks": "%(clicks)"}),
 			"dashboard/totals/num-visits": T(ctx, "dashboard/totals/num-visits|%(num-visits) visits; %(num-views) pageviews", z18n.P{"num-visits": "%(num-visits)", "num-views": "%(num-views)"}),

@@ -92,7 +92,7 @@
 			</span>
 		</div>
 
-		<div>
+		<div style="text-align: right">
 			<div class="filter-wrap">
 				<input
 					type="text" autocomplete="off" name="filter" value="{{.View.Filter}}" id="filter-paths"
@@ -100,8 +100,6 @@
 					title="{{.T "nav-dash/filter-tooltip|Filter the list of paths; matched case-insensitive on path and title"}}"
 					{{if .View.Filter}}class="value"{{end}}>
 			</div>
-			<label><input type="checkbox" name="as-text" id="as-text" {{if .View.AsText}}checked{{end}}> {{.T "nav-dash/as-text|View as text table"}}</label>
-			<input type="hidden" name="as-text" value="off">
 			{{if .ForcedDaily}}
 				<label title="{{.T "nav-dash/forced-daily|Cannot use the hourly view for a time range of more than 90 days"}}">
 					<input type="checkbox" name="daily" checked disabled> {{.T "nav-dash/by-day|View by day"}}</label>

@@ -10,6 +10,19 @@ Unreleased
 - GoatCounter can now collect language statistics as well, from the
   `Accept-Language` HTTP header.
 
+- Charts are now drawn as a line chart by default; you can choose to use bar
+  charts in the widget settings menu by selecting the "chart style" for the
+  "Paths overview" and/or "Total site pageviews"
+
+  Both charts are also completely reïmplemented by drawing on a canvas instead
+  of aligning divs in a flexbox because rendering thousands of divs in a flexbox
+  is actually fairly slow.
+
+- The "View as text table" button in the header moved to the "Chart style"
+  section mentioned above; this checkbox was added before the configurable
+  dashboard feature, and especially now that you can set a chart style it makes
+  more sense to set it there.
+
 - New translations: Spanish (Chilean), Turkish.
 
 2021-12-01 v2.1.0

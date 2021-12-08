@@ -747,9 +747,6 @@
       "title": "View",
       "type": "object",
       "properties": {
-        "as-text": {
-          "type": "boolean"
-        },
         "daily": {
           "type": "boolean"
         },

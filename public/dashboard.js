@@ -13,7 +13,7 @@
 
 	// Set up all the dashboard widget contents (but not the header).
 	var dashboard_widgets = function() {
-		;[draw_chart, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale].forEach((f) => f.call())
+		;[draw_all_charts, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale].forEach((f) => f.call())
 	}
 
 	// Get the Y-axis scale.
@@ -26,7 +26,6 @@
 			url:     '/',
 			data:    append_period({
 				daily:     $('#daily').is(':checked'),
-				'as-text': $('#as-text').is(':checked'),
 				max:       get_original_scale(),
 				reload:    't',
 			}),
@@ -239,7 +238,6 @@
 						name:      'default',
 						filter:    $('#filter-paths').val(),
 						daily:     $('#daily').is(':checked'),
-						'as-text': $('#as-text').is(':checked'),
 						period:    p,
 					},
 					success: () => {
@@ -305,7 +303,24 @@
 		})
 	}
 
+	// Keep an array of charts so we can stop them on resize, otherwise the
+	// resize and mouse event will be bound twice.
+	//
+	// TODO: this is rather ugly; charty.js should handle this really. Actually,
+	// what we really want is that calling charty() will just stop/unbind any
+	// previous charts; but removeEventListener will only accept a function
+	// reference. Should implement some simply jQuery-like namespaces:
+	//
+	//   canvas.on('mousemouse.charty', ...)
+	//
+	// So we can then do:
+	//
+	//   canvas.off('.charty', ...)
+	var charts = []
+
 	// Bind the Y-axis scale actions.
+	//
+	// TODO: fix for new charts.
 	var bind_scale = function() {
 		$('.count-list').on('click', '.rescale', function(e) {
 			e.preventDefault()
@@ -313,57 +328,148 @@
 			var scale = $(this).closest('.chart').attr('data-max')
 			$('.pages-list .scale').html(format_int(scale))
 			$('.pages-list .count-list-pages').attr('data-scale', scale)
-			$('.pages-list .chart-bar').each((_, c) => { c.dataset.done = '' })
-			draw_chart()
+
+			charts.forEach((c) => { c.stop() })
+			charts = []
+			draw_all_charts()
 		})
 	}
 
-	// Replace the "height:" style with a background gradient and set the height
-	// to 100%.
-	//
-	// This way you can still hover the entire height.
-	var draw_chart = function() {
-		var scale = parseInt(get_current_scale(), 10) / parseInt(get_original_scale(), 10)
-		$('.chart-bar').each(function(i, chart) {
-			if (chart.dataset.done === 't')
+	// Draw all charts.
+	var draw_all_charts = function() {
+		$('.chart-line, .chart-bar').each(function(i, chart) {
+			// Use setTimeout to force the browser to actually render this ASAP;
+			// without it, the charts will all be displayed at the same time,
+			// rather than one-by-one as they're generated.
+			//
+			// It's not super-slow to make them, but it's just a split second
+			// where the chart is blank, and it's better with this, especially
+			// on long timeviews and/or with many pages displayed at once.
+			//
+			// TODO: possibly move this to charty.js?
+			setTimeout(() => draw_chart(chart), 0)
+		})
+	}
+
+	// Draw this chart
+	var draw_chart = function(chart) {
+		var canvas  = $(chart).find('canvas')[0],
+			ctx     = canvas.getContext('2d', {alpha: false}),
+			stats   = JSON.parse(chart.dataset.stats),
+			max     = Math.max(10, parseInt(chart.dataset.max, 10)),
+			scale   = parseInt($(chart).closest('.count-list-pages').attr('data-scale'), 0),
+			daily   = chart.dataset.daily === 'true',
+			isBar   = $(chart).is('.chart-bar'),
+			isEvent = $(chart).closest('tr').hasClass('event'),
+			isPages = $(chart).closest('.count-list-pages').length > 0,
+			ndays   = (get_date($('#period-end').val()) - get_date($('#period-start').val())) / (86400*1000)
+
+		if (isPages && scale)
+			max = scale
+
+		var data
+		if (daily)
+			data = stats.map((s) => [s.DailyUnique]).reduce((a, b) => a.concat(b))
+		else
+			data = stats.map((s) => s.HourlyUnique).reduce((a, b) => a.concat(b))
+
+		let futureFrom = 0
+		var chart = charty(ctx, data, {
+			mode: isBar ? 'bar' : 'line',
+			max:  max,
+			line: {
+				color: '#9a15a4',
+				//fill: '#fbc7ff',
+				fill: '#fdecfe',
+				width: daily || ndays <= 14 ? 2 : 1
+			},
+			bar:  {color: '#9a15a4'},
+			done: (chart) => {
+				// Show future as greyed out.
+				let last   = stats[stats.length - 1].Day + (daily ? '' : ' 23:59:59'),
+					future = last > format_date_ymd(new Date()) + (daily ? '' : ' 23:59:59')
+				if (future) {
+					let width  = chart.barWidth() * ((get_date(last) - new Date()) / ((daily ? 86400 : 3600) * 1000))
+					futureFrom = canvas.width - width - chart.pad()
+
+					ctx.fillStyle = '#ddd'
+					ctx.beginPath()
+					ctx.fillRect(futureFrom, chart.pad()-1, width, canvas.height - chart.pad()*2+2)
+				}
+			},
+		})
+		charts.push(chart)
+
+		// Show tooltip and highlight position on mouse hover.
+		var tip   = $('<div id="tooltip"></div>'),
+			reset = {x: -1, y: -1, f: () => {}}
+		chart.mouse(function(i, x, y, w, h, offset, ev) {
+			if (ev == 'leave') {
+				tip.remove()
+				reset.f()
+				return
+			}
+			else if (ev === 'enter') { }
+			else if (x === reset.x)
 				return
 
-			// Don't repaint/reflow on every bar update.
-			chart.style.display = 'none'
+			var day    = daily ? stats[i] : stats[Math.floor(i / 24)],
+				start  = (i % 24) + ':00',
+				end    = (i % 24) + ':59',
+				visits = daily ? day.DailyUnique : day.HourlyUnique[i%24],
+				views  = daily ? day.Daily       : day.Hourly[i%24]
 
-			var is_pages = $(chart).closest('.count-list-pages').length > 0
-			$(chart).find('>div').each(function(i, bar) {
-				if (bar.dataset.h !== undefined)
-					var h = bar.dataset.h
-				else {
-					var h = bar.style.height
-					bar.dataset.h = h
-					bar.style.height = '100%'
+			let title = ''
+			if (daily)
+				title = `${format_date(day.Day)}, `
+			else
+				title = `${format_date(day.Day)} ${un24(start)} – ${un24(end)}; `
+			if (futureFrom && x >= futureFrom - 1)
+				title += T('dashboard/future')
+			else if (isEvent) {
+				title += T('dashboard/tooltip-event', {
+					unique: format_int(visits),
+					clicks: `<span class="views">${format_int(views)}`,
+				}) + '</span>'
+			}
+			else {
+				title += T('dashboard/totals/num-visits', {
+					'num-visits': format_int(visits),
+					'num-views':  `<span class="views">${format_int(views)}`,
+				}) + '</span>'
+			}
+
+			tip.remove()
+			tip.html(title)
+			$('body').append(tip)
+			tip.css({
+				left: (offset.left + x) + 'px',
+				top:  (offset.top - tip.height() - 10) + 'px',
+			})
+			if (tip.height() > 30)
+				tip.css('left', 0).css('left', x + offset.left - tip.width() - 8)
+
+			reset.f()
+			reset = chart.draw(x, 0, w, h, function() {
+				ctx.strokeStyle = '#999'
+				ctx.fillStyle   = 'rgba(99, 99, 99, .5)'
+				ctx.lineWidth   = 1
+
+				ctx.beginPath()
+				if (isBar) {
+					ctx.moveTo(x, 2.5)
+					ctx.lineTo(x+w, 2.5)
+					ctx.lineTo(x+w, 47.5)
+					ctx.lineTo(x, 47.5)
+					ctx.lineTo(x, 2.5)
+					ctx.fill()
 				}
-
-				if (bar.className === 'f')
-					return
-				else if (h === '')
-					bar.style.background = 'transparent'
 				else {
-					var hu = bar.dataset.u
-					if (is_pages && scale && scale !== 1) {
-						h  = (parseInt(h, 10)  / scale) + '%'
-						hu = (parseInt(hu, 10) / scale) + '%'
-					}
-
-					bar.style.background = `
-						linear-gradient(to top,
-						#9a15a4 0%,
-						#9a15a4 ${hu},
-						#ddd ${hu},
-						#ddd ${h},
-						transparent ${h},
-						transparent 100%)`
+					ctx.moveTo(x + ctx.lineWidth/2, 2.5)
+					ctx.lineTo(x + ctx.lineWidth/2, 47.5)
+					ctx.stroke()
 				}
 			})
-			chart.dataset.done = 't'
-			chart.style.display = 'flex'
 		})
 	}
 
@@ -421,11 +527,10 @@
 						daily:     $('#daily').is(':checked'),
 						exclude:   pages.find('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
-						'as-text': $('#as-text').is(':checked'),
 					}),
 					success: function(data) {
 						pages.find('.count-list-pages >tbody.pages').append(data.html)
-						draw_chart()
+						draw_all_charts()
 
 						highlight_filter($('#filter-paths').val())
 						btn.css('display', data.more ? 'inline-block' : 'none')

@@ -92,7 +92,6 @@ type (
 		Name   string `json:"name"`
 		Filter string `json:"filter"`
 		Daily  bool   `json:"daily"`
-		AsText bool   `json:"as-text"`
 		Period string `json:"period"` // "week", "week-cur", or n days: "8"
 	}
 )
@@ -134,6 +133,20 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
 				},
 			},
+			"style": WidgetSetting{
+				Type:  "select",
+				Label: z18n.T(ctx, "widget-setting/label/chart-style|Chart style"),
+				Help:  z18n.T(ctx, "widget-setting/help/chart-style|How to draw the charts"),
+				Value: "line",
+				Options: [][2]string{
+					[2]string{"line", z18n.T(ctx, "widget-settings/line-chart|Line chart")},
+					[2]string{"bar", z18n.T(ctx, "widget-settings/bar-chart|Bar chart")},
+					[2]string{"text", z18n.T(ctx, "widget-settings/text-chart|Text table")},
+				},
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Include("style", val.(string), []string{"line", "bar", "text"})
+				},
+			},
 		},
 		"totalpages": map[string]WidgetSetting{
 			"align": WidgetSetting{
@@ -147,6 +160,19 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/no-events|Exclude events"),
 				Help:  z18n.T(ctx, "widget-setting/help/no-events|Don't include events in the Totals overview"),
 				Value: false,
+			},
+			"style": WidgetSetting{
+				Type:  "select",
+				Label: z18n.T(ctx, "widget-setting/label/chart-style|Chart style"),
+				Help:  z18n.T(ctx, "widget-setting/help/chart-style|How to draw the charts"),
+				Value: "line",
+				Options: [][2]string{
+					[2]string{"line", z18n.T(ctx, "widget-settings/line-chart|Line chart")},
+					[2]string{"bar", z18n.T(ctx, "widget-settings/bar-chart|Bar chart")},
+				},
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Include("style", val.(string), []string{"line", "bar"})
+				},
 			},
 		},
 		"toprefs": map[string]WidgetSetting{

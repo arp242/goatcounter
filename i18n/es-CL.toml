@@ -2,7 +2,7 @@
   comments = "For some notes, see: https://github.com/arp242/goatcounter/issues/538"
   generated = 2021-11-29T19:38:18Z
   language = "es-CL"
-  maintainers = ['confor <nitoducci@gmail.com>']
+  maintainers = ["confor <nitoducci@gmail.com>"]
 
 ["button/add-new"]
   default = "Añadir"
@@ -813,6 +813,7 @@ Martin
   default = "Código fuente"
 
 ["nav-dash/as-text"]
+  updated = "removed"
   default = "Ver tabla sólo con texto"
 
 ["nav-dash/back"]
@@ -1068,6 +1069,7 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
   default = 'El dominio de tu sitio, por ej. <em>"www.example.com"</em>, usado para enlaces en la página principal'
 
 ["p/slow"]
+  updated = "removed"
   default = "Cargar muchas páginas puede ser lento, especialmente en dispositivos lentos. Usa una cantidad menor si es que tienes problemas de rendimiento."
 
 ["p/text-data-retention"]
@@ -1187,6 +1189,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["widget-setting/help/align"]
   default = "Añadir margen a la izquierda para que el gráfico quede alineado con los gráficos de las páginas"
 
+["widget-setting/help/chart-style"]
+
 ["widget-setting/help/no-events"]
   default = "No incluir eventos en el gráfico de visitas totales"
 
@@ -1202,6 +1206,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["widget-setting/label/align"]
   default = "Alinear con páginas"
 
+["widget-setting/label/chart-style"]
+
 ["widget-setting/label/no-events"]
   default = "Excluir eventos"
 
@@ -1214,5 +1220,12 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["widget-setting/label/regions"]
   default = "Mostrar regiones"
 
+["widget-settings/bar-chart"]
+
+["widget-settings/line-chart"]
+
+["widget-settings/text-chart"]
+
 ["y-scale"]
   default = "Escala del eje Y"
+

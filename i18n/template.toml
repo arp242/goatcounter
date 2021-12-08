@@ -107,7 +107,7 @@
   loc = [
     "tpl/settings_main.gohtml:158",
     "tpl/user_dashboard.gohtml:24",
-    "tpl/user_pref.gohtml:68",
+    "tpl/user_pref.gohtml:70",
   ]
   default = "Save"
 
@@ -143,21 +143,21 @@
   default = "Delete %(email)?"
 
 ["dashboard/day-ago"]
-  loc     = ["handlers/dashboard.go:205"]
+  loc     = ["handlers/dashboard.go:201"]
   default = "%(n) days ago"
   one     = "1 day ago"
 
 ["dashboard/future"]
-  loc     = ["handlers/handlers.go:72"]
+  loc     = ["handlers/handlers.go:71"]
   default = "future"
 
 ["dashboard/month-ago"]
-  loc     = ["handlers/dashboard.go:207"]
+  loc     = ["handlers/dashboard.go:203"]
   default = "%(n) months ago"
   one     = "1 month ago"
 
 ["dashboard/nothing-to-display"]
-  loc     = ["tpl.go:419"]
+  loc     = ["tpl.go:348"]
   default = "Nothing to display"
 
 ["dashboard/pages/header"]
@@ -203,11 +203,11 @@
   default = "Visits"
 
 ["dashboard/today"]
-  loc     = ["handlers/dashboard.go:203"]
+  loc     = ["handlers/dashboard.go:199"]
   default = "Today"
 
 ["dashboard/tooltip-event"]
-  loc     = ["handlers/handlers.go:73"]
+  loc     = ["handlers/handlers.go:72"]
   default = "%(unique) clicks; %(clicks) total clicks"
 
 ["dashboard/totals/header"]
@@ -222,80 +222,80 @@
   default = "%(num-visits) visits; %(num-views) pageviews"
 
 ["dashboard/week-ago"]
-  loc     = ["handlers/dashboard.go:206"]
+  loc     = ["handlers/dashboard.go:202"]
   default = "%(n) weeks ago"
   one     = "1 week ago"
 
 ["dashboard/yesterday"]
-  loc     = ["handlers/dashboard.go:204"]
+  loc     = ["handlers/dashboard.go:200"]
   default = "Yesterday"
 
 ["data-collect/help/country"]
-  loc     = ["settings.go:338"]
+  loc     = ["settings.go:364"]
   default = "Country name, for example Belgium, Indonesia, etc."
 
 ["data-collect/help/language"]
-  loc     = ["settings.go:348"]
+  loc     = ["settings.go:374"]
   default = "Supported languages from Accept-Language"
 
 ["data-collect/help/referrer"]
-  loc     = ["settings.go:323"]
+  loc     = ["settings.go:349"]
   default = "Referer header and campaign parameters."
 
 ["data-collect/help/region"]
-  loc     = ["settings.go:343"]
+  loc     = ["settings.go:369"]
   default = "Region, for example Texas, Bali, etc. The details for this differ per country."
 
 ["data-collect/help/sessions"]
-  loc     = ["settings.go:318"]
+  loc     = ["settings.go:344"]
   default = "Track unique visitors for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1"
 
 ["data-collect/help/size"]
-  loc     = ["settings.go:333"]
+  loc     = ["settings.go:359"]
   default = "Screen size."
 
 ["data-collect/help/user-agent"]
-  loc     = ["settings.go:328"]
+  loc     = ["settings.go:354"]
   default = "User-Agent header to get the browser and system name and version."
 
 ["data-collect/label/country"]
-  loc     = ["settings.go:337"]
+  loc     = ["settings.go:363"]
   default = "Country"
 
 ["data-collect/label/language"]
-  loc     = ["settings.go:347"]
+  loc     = ["settings.go:373"]
   default = "Language"
 
 ["data-collect/label/referrer"]
-  loc     = ["settings.go:322"]
+  loc     = ["settings.go:348"]
   default = "Referrer"
 
 ["data-collect/label/region"]
-  loc     = ["settings.go:342"]
+  loc     = ["settings.go:368"]
   default = "Region"
 
 ["data-collect/label/sessions"]
-  loc     = ["settings.go:317"]
+  loc     = ["settings.go:343"]
   default = "Sessions"
 
 ["data-collect/label/size"]
-  loc     = ["settings.go:332"]
+  loc     = ["settings.go:358"]
   default = "Size"
 
 ["data-collect/label/user-agent"]
-  loc     = ["settings.go:327"]
+  loc     = ["settings.go:353"]
   default = "User-Agent"
 
 ["datepicker/keyboard"]
-  loc     = ["handlers/handlers.go:75"]
+  loc     = ["handlers/handlers.go:74"]
   default = "Use the arrow keys to pick a date"
 
 ["datepicker/month-next"]
-  loc     = ["handlers/handlers.go:77"]
+  loc     = ["handlers/handlers.go:76"]
   default = "Next month"
 
 ["datepicker/month-prev"]
-  loc     = ["handlers/handlers.go:76"]
+  loc     = ["handlers/handlers.go:75"]
   default = "Previous month"
 
 ["email/header"]
@@ -364,11 +364,11 @@ Martin
   default = "Current password is incorrect."
 
 ["error/invalid-end-date"]
-  loc     = ["handlers/dashboard.go:383"]
+  loc     = ["handlers/dashboard.go:378"]
   default = "Invalid end date: %(date)"
 
 ["error/invalid-start-date"]
-  loc     = ["handlers/dashboard.go:376"]
+  loc     = ["handlers/dashboard.go:371"]
   default = "Invalid start date: %(date)"
 
 ["error/load-url"]
@@ -459,7 +459,7 @@ Martin
   default = "API tokens"
 
 ["header/browsers"]
-  loc     = ["widgets/browsers.go:68"]
+  loc     = ["widgets/browsers.go:69"]
   default = "Browsers"
 
 ["header/change-code"]
@@ -626,7 +626,7 @@ Martin
   default = "Size"
 
 ["header/sizes"]
-  loc     = ["widgets/sizes.go:63"]
+  loc     = ["widgets/sizes.go:64"]
   default = "Sizes"
 
 ["header/start-pagination-cursor"]
@@ -638,7 +638,7 @@ Martin
   default = "Started"
 
 ["header/systems"]
-  loc     = ["widgets/systems.go:68"]
+  loc     = ["widgets/systems.go:69"]
   default = "Systems"
 
 ["header/title"]
@@ -786,7 +786,7 @@ The verification runs every 2 hours.
   default = "You will need to re-verify the new address if you change it."
 
 ["label/24-hour-clock"]
-  loc     = ["tpl/user_pref.gohtml:40"]
+  loc     = ["tpl/user_pref.gohtml:42"]
   default = "24-hour clock (13:00)"
 
 ["label/add-new"]
@@ -850,7 +850,7 @@ The verification runs every 2 hours.
   default = "Data retention in days"
 
 ["label/date-fmt"]
-  loc     = ["tpl/user_pref.gohtml:30"]
+  loc     = ["tpl/user_pref.gohtml:32"]
   default = "Date format"
 
 ["label/delete-account-confirmation"]
@@ -967,7 +967,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Password"
 
 ["label/paths"]
-  loc     = ["widgets/pages.go:37"]
+  loc     = ["widgets/pages.go:38"]
   default = "Paths overview"
 
 ["label/public-anyone"]
@@ -998,24 +998,24 @@ for wanting to delete your account. This is entirely optional.
 ["label/set-default"]
   loc = [
     "tpl/user_dashboard.gohtml:27",
-    "tpl/user_pref.gohtml:71",
+    "tpl/user_pref.gohtml:73",
   ]
   default = "Also set as default for new users and the public view (if enabled)."
 
 ["label/size-desktop"]
-  loc     = ["tpl.go:455"]
+  loc     = ["tpl.go:384"]
   default = "Computer monitors"
 
 ["label/size-desktophd"]
-  loc     = ["tpl.go:457"]
+  loc     = ["tpl.go:386"]
   default = "Computer monitors larger than HD"
 
 ["label/size-largephones"]
-  loc     = ["tpl.go:451"]
+  loc     = ["tpl.go:380"]
   default = "Large phones, small tablets"
 
 ["label/size-phones"]
-  loc     = ["tpl.go:449"]
+  loc     = ["tpl.go:378"]
   default = "Phones"
 
 ["label/size-stats"]
@@ -1023,7 +1023,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Size stats"
 
 ["label/size-tablets"]
-  loc     = ["tpl.go:453"]
+  loc     = ["tpl.go:382"]
   default = "Tablets and small laptops"
 
 ["label/system-stats"]
@@ -1031,11 +1031,11 @@ for wanting to delete your account. This is entirely optional.
   default = "System stats"
 
 ["label/thousand-separator"]
-  loc     = ["tpl/user_pref.gohtml:45"]
+  loc     = ["tpl/user_pref.gohtml:47"]
   default = "Thousands separator"
 
 ["label/timezone"]
-  loc     = ["tpl/user_pref.gohtml:56"]
+  loc     = ["tpl/user_pref.gohtml:58"]
   default = "Timezone"
 
 ["label/topref"]
@@ -1043,7 +1043,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Top referrals"
 
 ["label/total-pageviews"]
-  loc     = ["widgets/total_pages.go:29"]
+  loc     = ["widgets/total_pages.go:30"]
   default = "Total site pageviews"
 
 ["label/turing-test"]
@@ -1055,7 +1055,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Verification token"
 
 ["label/week-start"]
-  loc     = ["tpl/user_pref.gohtml:43"]
+  loc     = ["tpl/user_pref.gohtml:45"]
   default = "Week starts on Sunday"
 
 ["label/your-email"]
@@ -1067,7 +1067,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Your site"
 
 ["link/add-translation"]
-  loc     = ["tpl/user_pref.gohtml:28"]
+  loc     = ["tpl/user_pref.gohtml:30"]
   default = "Add or update translations"
 
 ["link/api"]
@@ -1119,7 +1119,7 @@ for wanting to delete your account. This is entirely optional.
   default = "Delete pageviews"
 
 ["link/set-from-browser"]
-  loc     = ["tpl/user_pref.gohtml:63"]
+  loc     = ["tpl/user_pref.gohtml:65"]
   default = "Set from browser"
 
 ["link/settings"]
@@ -1164,18 +1164,14 @@ for wanting to delete your account. This is entirely optional.
   loc     = ["tpl/_bottom_links.gohtml:9"]
   default = "Source code"
 
-["nav-dash/as-text"]
-  loc     = ["tpl/dashboard.gohtml:101"]
-  default = "View as text table"
-
 ["nav-dash/back"]
-  loc     = ["tpl/dashboard.gohtml:114"]
+  loc     = ["tpl/dashboard.gohtml:112"]
   default = "back"
 
 ["nav-dash/by-day"]
   loc = [
+    "tpl/dashboard.gohtml:103",
     "tpl/dashboard.gohtml:105",
-    "tpl/dashboard.gohtml:107",
   ]
   default = "View by day"
 
@@ -1186,8 +1182,8 @@ for wanting to delete your account. This is entirely optional.
 ["nav-dash/day"]
   loc = [
     "tpl/dashboard.gohtml:77",
-    "tpl/dashboard.gohtml:116",
-    "tpl/dashboard.gohtml:124",
+    "tpl/dashboard.gohtml:114",
+    "tpl/dashboard.gohtml:122",
   ]
   default = "day"
 
@@ -1204,11 +1200,11 @@ for wanting to delete your account. This is entirely optional.
   default = "Filter the list of paths; matched case-insensitive on path and title"
 
 ["nav-dash/forced-daily"]
-  loc     = ["tpl/dashboard.gohtml:104"]
+  loc     = ["tpl/dashboard.gohtml:102"]
   default = "Cannot use the hourly view for a time range of more than 90 days"
 
 ["nav-dash/forward"]
-  loc     = ["tpl/dashboard.gohtml:128"]
+  loc     = ["tpl/dashboard.gohtml:126"]
   default = "forward"
 
 ["nav-dash/half-year"]
@@ -1223,8 +1219,8 @@ for wanting to delete your account. This is entirely optional.
   loc = [
     "tpl/dashboard.gohtml:79",
     "tpl/dashboard.gohtml:88",
-    "tpl/dashboard.gohtml:118",
-    "tpl/dashboard.gohtml:126",
+    "tpl/dashboard.gohtml:116",
+    "tpl/dashboard.gohtml:124",
   ]
   default = "month"
 
@@ -1240,8 +1236,8 @@ for wanting to delete your account. This is entirely optional.
   loc = [
     "tpl/dashboard.gohtml:78",
     "tpl/dashboard.gohtml:87",
-    "tpl/dashboard.gohtml:117",
-    "tpl/dashboard.gohtml:125",
+    "tpl/dashboard.gohtml:115",
+    "tpl/dashboard.gohtml:123",
   ]
   default = "week"
 
@@ -1257,7 +1253,7 @@ for wanting to delete your account. This is entirely optional.
   default = "no title"
 
 ["notify/add-one-thing"]
-  loc     = ["handlers/settings_user.go:115"]
+  loc     = ["handlers/settings_user.go:128"]
   default = "Must add at least one thing; an empty dashboard is a bit pointless, no?"
 
 ["notify/api-token-created"]
@@ -1324,7 +1320,7 @@ for wanting to delete your account. This is entirely optional.
   default = "The payment processor reported success, but we're still processing the payment"
 
 ["notify/reset-to-default"]
-  loc     = ["handlers/settings_user.go:127"]
+  loc     = ["handlers/settings_user.go:123"]
   default = "Reset to defaults!"
 
 ["notify/reset-user-sent"]
@@ -1395,7 +1391,7 @@ independent afterwards.</p>
     "tpl/settings_users_form.gohtml:55",
     "tpl/signup.gohtml:65",
     "tpl/user_dashboard.gohtml:38",
-    "tpl/user_pref.gohtml:78",
+    "tpl/user_pref.gohtml:80",
   ]
   default = "Additional errors"
 
@@ -1570,10 +1566,6 @@ meaning.
   loc     = ["tpl/settings_main.gohtml:16"]
   default = "Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview."
 
-["p/slow"]
-  loc     = ["handlers/handlers.go:71"]
-  default = "Loading many pages may be slow, especially on slower devices. Set it to something lower if you’re experiencing performance problems."
-
 ["p/text-data-retention"]
   loc     = ["tpl/settings_sites.gohtml:55"]
   default = "This includes the data retention and collection settings!"
@@ -1583,7 +1575,7 @@ meaning.
   default = "Please verify your email by clicking the link sent to %(email). %[%sup (Why?)]"
 
 ["page-ranking"]
-  loc     = ["tpl/_dashboard_pages_rows.gohtml:28"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:29"]
   default = "Page ranking"
 
 ["restricted-admin-access"]
@@ -1649,7 +1641,7 @@ meaning.
   default = "User"
 
 ["unknown"]
-  loc     = ["tpl.go:463"]
+  loc     = ["tpl.go:392"]
   default = "(unknown)"
 
 ["validate/bool"]
@@ -1733,60 +1725,92 @@ meaning.
   default = "must be UTF-8"
 
 ["widget-setting/help/align"]
-  loc     = ["settings.go:142"]
+  loc     = ["settings.go:155"]
   default = "Add margin to the left so it aligns with pages charts"
 
+["widget-setting/help/chart-style"]
+  loc = [
+    "settings.go:139",
+    "settings.go:167",
+  ]
+  default = "How to draw the charts"
+
 ["widget-setting/help/no-events"]
-  loc     = ["settings.go:148"]
+  loc     = ["settings.go:161"]
   default = "Don't include events in the Totals overview"
 
 ["widget-setting/help/page-size"]
   loc = [
-    "settings.go:122",
-    "settings.go:156",
-    "settings.go:168",
-    "settings.go:180",
-    "settings.go:195",
-    "settings.go:225",
+    "settings.go:121",
+    "settings.go:182",
+    "settings.go:194",
+    "settings.go:206",
+    "settings.go:221",
+    "settings.go:251",
   ]
   default = "Number of pages to load"
 
 ["widget-setting/help/ref-page-size"]
-  loc     = ["settings.go:131"]
+  loc     = ["settings.go:130"]
   default = "Number of referrers to load when clicking on a path"
 
 ["widget-setting/help/regions"]
-  loc     = ["settings.go:204"]
+  loc     = ["settings.go:230"]
   default = "Show regions for this country instead of a country list"
 
 ["widget-setting/label/align"]
-  loc     = ["settings.go:141"]
+  loc     = ["settings.go:154"]
   default = "Align with pages"
 
+["widget-setting/label/chart-style"]
+  loc = [
+    "settings.go:138",
+    "settings.go:166",
+  ]
+  default = "Chart style"
+
 ["widget-setting/label/no-events"]
-  loc     = ["settings.go:147"]
+  loc     = ["settings.go:160"]
   default = "Exclude events"
 
 ["widget-setting/label/page-size"]
   loc = [
-    "settings.go:121",
-    "settings.go:155",
-    "settings.go:167",
-    "settings.go:179",
-    "settings.go:194",
-    "settings.go:224",
+    "settings.go:120",
+    "settings.go:181",
+    "settings.go:193",
+    "settings.go:205",
+    "settings.go:220",
+    "settings.go:250",
   ]
   default = "Page size"
 
 ["widget-setting/label/ref-page-size"]
-  loc     = ["settings.go:130"]
+  loc     = ["settings.go:129"]
   default = "Referrers page size"
 
 ["widget-setting/label/regions"]
-  loc     = ["settings.go:203"]
+  loc     = ["settings.go:229"]
   default = "Show regions"
 
+["widget-settings/bar-chart"]
+  loc = [
+    "settings.go:143",
+    "settings.go:171",
+  ]
+  default = "Bar chart"
+
+["widget-settings/line-chart"]
+  loc = [
+    "settings.go:142",
+    "settings.go:170",
+  ]
+  default = "Line chart"
+
+["widget-settings/text-chart"]
+  loc     = ["settings.go:144"]
+  default = "Text table"
+
 ["y-scale"]
-  loc     = ["tpl/_dashboard_pages_rows.gohtml:27"]
+  loc     = ["tpl/_dashboard_pages_rows.gohtml:28"]
   default = "Y-axis scale"
 
