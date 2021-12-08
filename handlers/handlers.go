@@ -94,7 +94,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	return g
 }
 
-func NewStatic(r chi.Router, dev bool) chi.Router {
+func NewStatic(r chi.Router, dev, goatcounterCom bool) chi.Router {
 	var cache map[string]int
 	if !dev {
 		cache = map[string]int{

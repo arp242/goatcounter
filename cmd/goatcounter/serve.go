@@ -175,7 +175,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		if domainStatic != "" {
 			// May not be needed, but just in case the DomainStatic isn't an
 			// external CDN.
-			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev)
+			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev, false)
 		}
 
 		cnames, err := lsSites(ctx)

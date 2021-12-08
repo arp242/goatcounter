@@ -86,7 +86,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic, 10),
 		}
 		if dev {
-			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev)
+			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev, true)
 		}
 
 		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {

@@ -32,7 +32,7 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, dom
 	}
 
 	if !goatcounterCom {
-		NewStatic(r, dev)
+		NewStatic(r, dev, goatcounterCom)
 	}
 
 	return r
@@ -54,6 +54,9 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		mware.NoStore())
 	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
 		r.Use(mware.RequestLog(nil, "/count"))
+	}
+	if true {
+		r.Use(middleware.NewCompressor(5).Handler)
 	}
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "", dev)
