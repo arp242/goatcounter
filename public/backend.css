@@ -394,7 +394,7 @@ noscript p { margin: .5em; }
 /*** Updates overview
  **********************/
 #page-updates .page       { background-color: #eee; box-shadow: none; }
-.update, #page-updates h1 { margin: 1em 0; padding: .5em; background-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,.2); }
+.update, #page-updates h1 { margin: 0 0 1em 0; padding: .5em; background-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,.2); }
 .update p                 { margin-left: 2em; }
 .update > em + p, .update > em + strong + p { margin-top: .5em; }
 .update pre               { max-width: 50em; margin-left: 2em; }
