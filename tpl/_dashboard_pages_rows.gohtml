@@ -22,7 +22,7 @@
 				{{end}}
 			</div>
 			<div class="chart chart-{{$.Style}}" data-max="{{$h.Max}}" data-stats="{{.Stats | json}}" data-daily="{{$.Daily}}">
-				<span class="chart-left"><a href="#" class="rescale" title="{{t $.Context "scale-y|Scale Y axis to max"}}">↕&#xfe0e;</a></span>
+				<span class="chart-left"><a href="#" class="rescale" title="{{t $.Context "scale-y|Scale the Y-axis of all charts the to highest value in this chart (%(n))" $h.Max}}">↕&#xfe0e;</a></span>
 				<canvas height="50"></canvas>
 				<span class="chart-right">{{$n := sum $.Offset $i}}
 					{{- if (eq $i 0)}}<small class="scale" title="{{t $.Context "y-scale|Y-axis scale"}}">{{nformat $.Max $.User}}</small>
