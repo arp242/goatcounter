@@ -101,7 +101,6 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 	}
 
 	t := "_dashboard_pages"
-
 	if w.Style == "text" {
 		t += "_text"
 	}
@@ -117,6 +116,26 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 			m, _ := goatcounter.ChunkStat(p.Stats)
 			if m > w.Max {
 				w.Max = m
+			}
+		}
+	} else if len(w.Pages) > 0 && len(w.Pages[0].Stats) > 0 {
+		// Set days in the future to -1; we filter this in the JS when rendering
+		// the chart.
+		// It's easier to do this here because JavaScript Date() has piss-poor
+		// support for timezones.
+		//
+		// Only remove them if the last day is today: for everything else we
+		// want to display the future as "greyed out".
+		var (
+			now   = ztime.Now().In(goatcounter.MustGetUser(ctx).Settings.Timezone.Loc())
+			today = now.Format("2006-01-02")
+			hour  = now.Hour()
+		)
+		if w.Pages[0].Stats[len(w.Pages[0].Stats)-1].Day == today {
+			for i := range w.Pages {
+				j := len(w.Pages[i].Stats) - 1
+				w.Pages[i].Stats[j].Hourly = w.Pages[i].Stats[j].Hourly[:hour+1]
+				w.Pages[i].Stats[j].HourlyUnique = w.Pages[i].Stats[j].HourlyUnique[:hour+1]
 			}
 		}
 	}
