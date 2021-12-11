@@ -23,7 +23,7 @@ Unreleased
   dashboard feature, and especially now that you can set a chart style it makes
   more sense to set it there.
 
-- New translations: Spanish (Chilean), Turkish.
+- New translations: Italian, Spanish (Chilean), Turkish.
 
 2021-12-01 v2.1.0
 -----------------
