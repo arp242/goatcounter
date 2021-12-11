@@ -880,6 +880,18 @@ func (s *Sites) Delete(ctx context.Context, deleteChildren bool) error {
 	return errors.Wrap(err, "Sites.Delete")
 }
 
+// ListIDs lists all sites with the given IDs.
+func (s *Sites) ListIDs(ctx context.Context, ids ...int64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	err := zdb.Select(ctx, s,
+		`select * from sites where state=? and site_id in (?) order by created_at desc`,
+		StateActive, ids)
+	return errors.Wrap(err, "Sites.ListIDs")
+}
+
 // Plan represents a plan people can subscribe to.
 type Plan struct {
 	Code        string

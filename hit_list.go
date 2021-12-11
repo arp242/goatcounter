@@ -513,3 +513,31 @@ func GetMax(ctx context.Context, rng ztime.Range, pathFilter []int64, daily bool
 	}
 	return max, nil
 }
+
+// DiffTotal gets the total visit difference for a path compared to the same
+// previous time period.
+//
+// e.g. if called with start=2020-01-20; end=2020-01-2020-01-27, then it will
+// compare this to start=2020-01-12; end=2020-01-19
+//
+// The return value is in the same order as paths.
+func (h HitLists) DiffTotal(ctx context.Context, rng ztime.Range) ([]float64, error) {
+	d := -rng.End.Sub(rng.Start)
+	prev := ztime.NewRange(rng.Start.Add(d)).To(rng.End.Add(d))
+
+	paths := make([]int64, 0, len(h))
+	for _, hh := range h {
+		paths = append(paths, hh.PathID)
+	}
+
+	var diffs []float64
+	err := zdb.Select(ctx, &diffs, "load:hit_list.DiffTotal", zdb.P{
+		"site":      MustGetSite(ctx).ID,
+		"start":     rng.Start,
+		"end":       rng.End,
+		"prevstart": prev.Start,
+		"prevend":   prev.End,
+		"paths":     paths,
+	})
+	return diffs, errors.Wrap(err, "HitList.DiffTotal")
+}

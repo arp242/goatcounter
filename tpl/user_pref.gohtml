@@ -66,6 +66,19 @@
 			<span><a href="#_" id="set-local-tz">{{.T "link/set-from-browser|Set from browser"}}</a></span>
 		</fieldset>
 
+		<fieldset id="section-email-reports">
+			<legend>{{.T "header/email-reports|Email reports"}}</legend>
+			<label for="email_reports">{{.T "label/email-reports|Send email reports"}}</label>
+			<select name="user.settings.email_reports" id="email_reports">
+				<option {{option_value .User.Settings.EmailReports.String "0"}}>{{.T "email-report/never|Never"}}</option>
+				<option {{option_value .User.Settings.EmailReports.String "1"}}>{{.T "email-report/daily|Daily"}}</option>
+				<option {{option_value .User.Settings.EmailReports.String "2"}}>{{.T "email-report/weekly|Weekly"}}</option>
+				<option {{option_value .User.Settings.EmailReports.String "3"}}>{{.T "email-report/two-weeks|Every two weeks"}}</option>
+				<option {{option_value .User.Settings.EmailReports.String "4"}}>{{.T "email-report/monthly|Monthly"}}</option>
+			</select>
+			<span>{{.T "help/email-reports|Reports are sent on the first day of the new period (e.g. first day of the month)."}}</span>
+		</fieldset>
+
 		<div class="flex-break"></div>
 
 		<button type="submit">{{.T "button/save|Save"}}</button>

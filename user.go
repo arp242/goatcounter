@@ -19,6 +19,7 @@ import (
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zdb"
+	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstring"
@@ -47,6 +48,9 @@ type User struct {
 	SeenUpdatesAt time.Time    `db:"seen_updates_at" json:"-"`
 	Settings      UserSettings `db:"settings" json:"settings"`
 
+	// Keep track when the last email report was sent, so we don't double-send them.
+	LastReportAt time.Time `db:"last_report_at" json:"last_report_at"`
+
 	CreatedAt time.Time  `db:"created_at" json:"created_at,readonly"`
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at,readonly"`
 }
@@ -62,6 +66,10 @@ func (u *User) Defaults(ctx context.Context) {
 	} else {
 		t := ztime.Now()
 		u.UpdatedAt = &t
+	}
+
+	if u.LastReportAt.IsZero() {
+		u.LastReportAt = ztime.Now()
 	}
 
 	if !u.EmailVerified {
@@ -145,12 +153,12 @@ func (u *User) Insert(ctx context.Context, allowBlankPassword bool) error {
 	}
 
 	query := `insert into users `
-	args := zdb.L{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.Access, u.CreatedAt}
+	args := zdb.L{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.Access, u.CreatedAt, u.LastReportAt}
 	if u.EmailVerified {
-		query += ` (site_id, email, password, totp_secret, settings, access, created_at, email_verified) values (?)`
+		query += ` (site_id, email, password, totp_secret, settings, access, created_at, last_report_at, email_verified) values (?)`
 		args = append(args, 1)
 	} else {
-		query += ` (site_id, email, password, totp_secret, settings, access, created_at, email_token) values (?)`
+		query += ` (site_id, email, password, totp_secret, settings, access, created_at, last_report_at, email_token) values (?)`
 		args = append(args, u.EmailToken)
 	}
 
@@ -206,9 +214,9 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	}
 
 	err = zdb.Exec(ctx, `update users
-		set email=?, settings=?, access=?, updated_at=?, email_verified=?, email_token=?
+		set email=?, settings=?, access=?, updated_at=?, email_verified=?, email_token=?, last_report_at=?
 		where user_id=? and site_id=?`,
-		u.Email, u.Settings, u.Access, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.ID, account.ID)
+		u.Email, u.Settings, u.Access, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.LastReportAt, u.ID, account.ID)
 	return errors.Wrap(err, "User.Update")
 }
 
@@ -463,6 +471,42 @@ func (u User) HasAccess(check UserAccess) bool {
 func (u User) AccessSuperuser() bool { return u.Access["all"] == AccessSuperuser }
 func (u User) AccessAdmin() bool     { return u.AccessSuperuser() || u.Access["all"] == AccessAdmin }
 func (u User) AccessSettings() bool  { return u.AccessAdmin() || u.Access["all"] == AccessSettings }
+
+// EmailReportRange gets the time range of the next report to send out.
+//
+// user.LastReportAt is set when a report is sent; to get the range for the new
+// report we take LastReportAt, go to the start and end of the period, and if
+// the endDate > now then send out a new report and set LastReportAt.
+//
+// The cronjob will send the report if the current date is after the end date.
+func (u User) EmailReportRange() ztime.Range {
+	var (
+		start, end ztime.Time
+		lastReport = ztime.Time{u.LastReportAt.In(u.Settings.Timezone.Loc())}
+		week       = ztime.Week(u.Settings.SundayStartsWeek)
+	)
+	switch u.Settings.EmailReports.Int() {
+	case EmailReportNever:
+		return ztime.Range{}
+
+	case EmailReportDaily:
+		start, end = lastReport.StartOf(ztime.Day), lastReport.EndOf(ztime.Day)
+
+	case EmailReportBiWeekly:
+		start, end = lastReport.StartOf(week), lastReport.EndOf(week).Add(1, week)
+
+	case EmailReportMonthly:
+		start, end = lastReport.StartOf(ztime.Month), lastReport.EndOf(ztime.Month)
+
+	case EmailReportWeekly:
+		start, end = lastReport.StartOf(week), lastReport.EndOf(week)
+	default:
+		zlog.Errorf("invalid EmailReports value for user %d: %d", u.ID, u.Settings.EmailReports.Int())
+		return ztime.Range{}
+	}
+
+	return ztime.NewRange(start.Time.Truncate(time.Second)).To(end.Time.Truncate(time.Second))
+}
 
 type Users []User
 

@@ -40,6 +40,18 @@ const (
 	CollectSession                       // 128
 )
 
+// UserSettings.EmailReport values.
+const (
+	EmailReportNever = iota // Email once after 2 weeks; for new sites.
+	EmailReportDaily
+	EmailReportWeekly
+	EmailReportBiWeekly
+	EmailReportMonthly
+)
+
+var EmailReports = []int{EmailReportNever, EmailReportDaily, EmailReportWeekly,
+	EmailReportBiWeekly, EmailReportMonthly}
+
 type (
 	// SiteSettings contains all the user-configurable settings for a site, with
 	// the exception of the domain and billing settings.
@@ -67,6 +79,7 @@ type (
 		Timezone         *tz.Zone `json:"timezone"`
 		Widgets          Widgets  `json:"widgets"`
 		Views            Views    `json:"views"`
+		EmailReports     zint.Int `json:"email_reports"`
 	}
 
 	// Widgets is a list of widgets to be printed, in order.
@@ -557,6 +570,10 @@ func (ss *UserSettings) Validate(ctx context.Context) error {
 
 	if _, i := ss.Views.Get("default"); i == -1 || len(ss.Views) != 1 {
 		v.Append("views", z18n.T(ctx, "view not set"))
+	}
+
+	if !zint.Contains(EmailReports, ss.EmailReports.Int()) {
+		v.Append("email_reports", "invalid value")
 	}
 
 	return v.ErrorOrNil()

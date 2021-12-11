@@ -36,6 +36,7 @@ var Tasks = []Task{
 	{"rm old exports", oldExports, 1 * time.Hour},
 	{"cycle sessions", sessions, 1 * time.Minute},
 	{"report usage", reportUsage, 12 * time.Hour},
+	{"send email reports", EmailReports, 1 * time.Hour},
 }
 
 var stopped = zsync.NewAtomicInt(0)

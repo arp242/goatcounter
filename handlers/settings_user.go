@@ -17,6 +17,7 @@ import (
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -35,13 +36,23 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 		User    goatcounter.User `json:"user"`
 		SetSite bool             `json:"set_site"`
 	}{*User(r.Context()), false}
-	oldEmail := args.User.Email
+	var (
+		oldEmail   = args.User.Email
+		oldReports = args.User.Settings.EmailReports
+	)
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
 
-	emailChanged := goatcounter.Config(r.Context()).GoatcounterCom && oldEmail != args.User.Email
+	var (
+		emailChanged     = goatcounter.Config(r.Context()).GoatcounterCom && oldEmail != args.User.Email
+		reportingChanged = goatcounter.Config(r.Context()).GoatcounterCom && oldReports != args.User.Settings.EmailReports
+	)
+
+	if reportingChanged {
+		args.User.LastReportAt = ztime.Now()
+	}
 
 	err = zdb.TX(r.Context(), func(ctx context.Context) error {
 		err = args.User.Update(ctx, emailChanged)
