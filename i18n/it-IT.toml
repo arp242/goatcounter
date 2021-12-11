@@ -821,13 +821,13 @@ La verifica è effettuata ogni 2 ore.
   default = "Visualizza come tabella"
 
 ["nav-dash/back"]
-  default = "back"
+  default = "indietro"
 
 ["nav-dash/by-day"]
   default = "Visualizza per giorno"
 
 ["nav-dash/current"]
-  default = "Corrente"
+  default = "Questo/a"
 
 ["nav-dash/day"]
   default = "Giorno"
@@ -851,7 +851,7 @@ La verifica è effettuata ogni 2 ore.
   default = "semestre"
 
 ["nav-dash/last"]
-  default = "Ultimo"
+  default = "Ultimo/a"
 
 ["nav-dash/month"]
   default = "mese"
