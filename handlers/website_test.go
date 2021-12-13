@@ -20,16 +20,16 @@ func TestWebsiteTpl(t *testing.T) {
 		path, want string
 	}{
 		{"/", "doesn’t track users with"},
-		{"/privacy", "Screen size"},
-		{"/terms", "The “services” are any software, application, product, or service"},
+		{"/help/privacy", "Screen size"},
+		{"/help/terms", "The “services” are any software, application, product, or service"},
 		{"/why", "Footnotes"},
 		{"/design", "Firefox on iOS is just displayed as Safari"},
-		{"/translating", "translate GoatCounter"},
+		{"/help/translating", "translate GoatCounter"},
 		{"/status", "uptime"},
 		{"/signup", `<label for="email">Email address</label>`},
 		{"/user/forgot", "Forgot domain"},
 
-		{"/code/start", "Getting started"},
+		{"/help/start", "Getting started"},
 
 		// Shared
 
@@ -37,7 +37,7 @@ func TestWebsiteTpl(t *testing.T) {
 		// {"/api", "Backend integration"},
 
 		{"/help", "I don’t see my pageviews?"},
-		{"/gdpr", "consult a lawyer"},
+		{"/help/gdpr", "consult a lawyer"},
 		{"/contact", "Send message"},
 		{"/contribute", "One-time donation"},
 		{"/api.html", "GoatCounter API documentation"},

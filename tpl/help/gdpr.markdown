@@ -1,8 +1,3 @@
-{{template "%%top.gohtml" .}}
-
-GDPR consent notices
-====================
-
 The short version is that GoatCounter *probably* doesn’t require a GDPR consent
 notice, on the basis that 1) no personally identifiable information is
 collected, and 2) it is in the legitimate interest of a site’s owner to see how
@@ -90,7 +85,4 @@ be sure. There is an example for it on the "Site Code" page in your dashboard.
 Other than that, it’s advised you consult a lawyer if you want detailed legal
 advice specific to your situation.
 
-
 [gdpr]: https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R0679
-
-{{template "%%bottom.gohtml" .}}

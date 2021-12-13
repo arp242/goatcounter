@@ -56,7 +56,7 @@
 			</div>
 			<div id="usermenu">
 				{{if .GoatcounterCom}}<a href="/updates" class="{{if .HasUpdates}}updates{{end}} {{if eq .Path "/updates"}}active{{end}}">{{.T "top-nav/updates|Updates"}}</a> |{{end}}
-				<a {{if eq .Path "/code"}}class="active" {{end}}href="/code">{{.T "top-nav/site-code|Site code"}}</a> |
+				<a {{if eq .Path "/help"}}class="active" {{end}}href="/help">{{.T "top-nav/documentation|Documentation"}}</a> |
 				{{if .User.AccessSettings}}<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">{{.T "top-nav/settings|Settings"}}</a> |{{end}}
 				<a {{if has_prefix .Path "/user"}}class="active" {{end}}href="/user">{{.T "top-nav/user|User"}}</a> |
 				<form method="post" action="/user/logout">

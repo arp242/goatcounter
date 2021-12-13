@@ -91,7 +91,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		fsys, err = zfs.SubIfExists(fsys, "tpl/code")
+		fsys, err = zfs.SubIfExists(fsys, "tpl/help")
 		if err != nil {
 			panic(err)
 		}
@@ -135,6 +135,7 @@ func init() {
 	type x struct {
 		href, label string
 		items       []x
+		gcCom       bool
 	}
 	links := []x{
 		{label: "Basics", items: []x{
@@ -160,23 +161,36 @@ func init() {
 		{label: "Other", items: []x{
 			// TODO: add "adblock" page
 			// TODO: add "campiagns page"; link in "settings_main".
-			{href: "export", label: "Exports"},
-			{href: "api", label: "API"}}},
+			{href: "export", label: "Export format"},
+			{href: "api", label: "API"},
+			{href: "faq", label: "FAQ"},
+			{href: "translating", label: "Translating GoatCounter"}}},
+		{label: "Legal", items: []x{
+			{href: "gdpr", label: "GDPR consent notices"},
+
+			// TODO: goatcounter.com only
+			{href: "terms", label: "Terms of use", gcCom: true},
+			{href: "privacy", label: "Privacy policy", gcCom: true},
+		}},
 	}
-	tplfunc.Add("code_nav", func(active string) template.HTML {
+	tplfunc.Add("help_nav", func(ctx context.Context, active string) template.HTML {
 		var (
 			dropdown = new(strings.Builder)
 			list     = new(strings.Builder)
-			w        func([]x)
+			w        func(context.Context, []x)
 			e        = template.HTMLEscapeString
+			gcCom    = Config(ctx).GoatcounterCom
 		)
-
-		w = func(l []x) {
+		w = func(ctx context.Context, l []x) {
 			for _, ll := range l {
+				if ll.gcCom && !gcCom {
+					continue
+				}
+
 				if len(ll.items) > 0 {
 					fmt.Fprintf(list, `<li><strong>%s</strong><ul>`, e(ll.label))
 					fmt.Fprintf(dropdown, `<optgroup label="%s">`, e(ll.label))
-					w(ll.items)
+					w(ctx, ll.items)
 					list.WriteString("</ul></li>")
 					dropdown.WriteString("</optgroup>")
 					continue
@@ -196,30 +210,30 @@ func init() {
 
 		dropdown.WriteString("<select>")
 		list.WriteString("<ul>")
-		w(links)
+		w(ctx, links)
 		dropdown.WriteString("</select>")
 		list.WriteString("</ul>")
 		return template.HTML(dropdown.String() + list.String())
 	})
-	tplfunc.Add("code_hdr", func(active string) template.HTML {
+	tplfunc.Add("help_hdr", func(ctx context.Context, active string) template.HTML {
 		if active == "404" {
 			return "404: Not Found"
 		}
-		var w func([]x) string
-		w = func(l []x) string {
+		var w func(context.Context, []x) string
+		w = func(ctx context.Context, l []x) string {
 			for _, ll := range l {
 				if ll.href == active {
 					return strings.TrimRight(ll.label, "?")
 				}
 				if len(ll.items) > 0 {
-					if r := w(ll.items); r != "" {
+					if r := w(ctx, ll.items); r != "" {
 						return r
 					}
 				}
 			}
 			return ""
 		}
-		return template.HTML(w(links))
+		return template.HTML(w(ctx, links))
 	})
 
 	tplfunc.Add("dformat", func(t time.Time, withTime bool, u User) string {

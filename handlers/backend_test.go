@@ -27,7 +27,7 @@ func TestBackendTpl(t *testing.T) {
 	}{
 		{"/updates", "Updates"},
 
-		{"/code/start", "Getting started"},
+		{"/help/start", "Getting started"},
 
 		// rdr
 		// {"/api", "Backend integration"},

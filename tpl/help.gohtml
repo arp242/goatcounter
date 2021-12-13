@@ -1,120 +1,166 @@
-{{template "_top.gohtml" .}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{{template "_favicon.gohtml" .}}
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="{{.MetaDesc}}">
+	<title>GoatCounter documentation</title>
+	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
+	<link rel="canonical" href="https://{{.Domain}}/{{.Page}}/{{.CodePage}}">
 
-<h1>GoatCounter documentation</h1>
+<style>
+footer.center       { margin-top: 2em; }
+nav.center          { max-width: 80em; padding-left: 19em; }
 
-<p>
-	Other documentation pages:<br>
-	  <a href="/gdpr">GDPR consent notices</a>
-	| <a href="/code">Site integration code</a>
-	| <a href="/api">API</a>
-	{{if .GoatcounterCom}}
-		| <a href="/privacy">Privacy policy</a>
-		| <a href="/terms">Terms of use</a>
+.code-wrap          { display: flex; max-width: 80em; }
+.code-wrap >div     { overflow: hidden; padding: 6px; margin: -6px; margin-right: 6px; }
+.code-nav           { flex-shrink: 0; width: 18em; height: 100%; padding: .5em; margin-right: .6em;
+				      background-color: #f6f3da; color: #252525; box-shadow: 0 0 4px #cdc8a4; }
+.code-nav select    { display: none; }
+.code-nav ul        { list-style: none; margin: 0; padding: 0; }
+.code-nav a         { display: block; margin: .3em 0; padding-left: .3em; border-left: 3px solid transparent; }
+.code-nav li >ul a  { margin-left: .5em; }
+.code-nav .active a { border-left-color: #999; }
+.code-nav strong    { font-size: .9rem; }
+.page-code          { padding: 1em; background-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,.2); }
+h3                  { margin-bottom: .2em; }
+h3 + p              { margin-top: 0; }
+h4                  { margin-bottom: .2em; }
+h4 + p              { margin-top: 0; }
+hr                  { margin: 0; }
+
+.pre-copy-wrap { position: relative; }
+.pre-copy      { position: absolute; right: 0; top: calc(-2em - 1px); padding: .3em 1em;
+				 color: #000; background-color: #f5f5f5; border-top: 1px solid #d5d5d5; border-left: 1px solid #d5d5d5; }
+
+#vc-example    { display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center; }
+#vc-example >* { width: 200px; }
+
+@media (min-height: 46rem) {
+	.code-nav { position: sticky; top: 0; }
+}
+
+@media (max-width: 50rem) {
+	nav.center       { padding-left: 1em; }
+	.code-wrap       { flex-direction: column; padding: 0; }
+	.code-wrap >div  { margin: 0; padding: 0; }
+	.code-nav        { position: sticky; top: 0; z-index: 10; width: auto; margin-bottom: 1em; }
+	.code-nav ul     { display: none; }
+	.code-nav select { display: block; background-color: #fff; width: 100%; }
+}
+</style>
+</head>
+
+<body>
+	<nav class="center">
+		<strong id="back"><a href="/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
+	</nav>
+
+	<div class="center code-wrap">
+		<nav class="code-nav">
+			{{help_nav .Context .CodePage}}
+		</nav>
+
+		<div>
+			<div class="page-code">
+				{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
+
+				<h1>{{help_hdr .Context .CodePage}}</h1>
+				{{markdown .CodePage .}}
+			</div>
+
+			<h2 style="border:0; margin-bottom: .2rem; margin-left: .5rem;">Questions or problems?</h2>
+			<div class="page-code">
+				<p style="margin-top: 0">Feel free to get in touch if you’ve got any questions or having any problems; a
+				lot of times they can be resolved without too much problems.</p>
+
+				<p>Ways to contact me: <a href="#" class="show-contact">show</a> </p>
+				<div style="display: none;" class="contact">
+					{{template "_contact.gohtml" (map "v" .Validate "r" (printf "/help/%s" .CodePage) "a" .Args)}}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{{template "_bottom_links.gohtml" .}}
+
+	{{if .Dev}}
+		<script data-goatcounter="//goatcounter.{{.Domain}}/count"
+				data-goatcounter-settings='{"allow_local":true}'
+				async src="{{.Static}}/count.js"></script>
+	{{else}}
+		<script data-goatcounter="https://goatcounter.goatcounter.com/count"
+				async src="//gc.zgo.at/count.js"></script>
 	{{end}}
-</p>
 
-<h2>FAQ</h2>
+	{{if eq .CodePage "visitor-counter"}}
+			<script>
+				var t = setInterval(function() {
+					if (window.goatcounter && window.goatcounter.visit_count) {
+						clearInterval(t)
+						window.goatcounter.visit_count({append: '#vc-html', type: 'html'})
+						window.goatcounter.visit_count({append: '#vc-png',  type: 'png'})
+						window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg'})
+						window.goatcounter.visit_count({append: '#vc-html', type: 'html', path: 'TOTAL'})
+						window.goatcounter.visit_count({append: '#vc-png',  type: 'png',  path: 'TOTAL'})
+						window.goatcounter.visit_count({append: '#vc-svg',  type: 'svg',  path: 'TOTAL'})
+					}
+				}, 100)
+			</script>
+	{{end}}
 
-<h3 id="general">General <a href="#general"></a></h3>
-<dl>
-	<dt id="no-pageviews">I don’t see my pageviews? <a href="#no-pageviews">§</a></dt>
-	<dd>For reasons of efficiency the statistics are updated once every 10
-	seconds.</dd>
+	<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
+	<script>
+		document.querySelector('select').addEventListener('change', function(e) {
+			window.location = '/code/' + this.value
+		})
+		document.querySelector('.show-contact').addEventListener('click', function(e) {
+			e.preventDefault()
+			document.querySelector('.contact').style.display = ''
+			this.parentNode.removeChild(this)
+			window.location.hash = '#scroll-target'
+		})
 
-	<dt id="no-data">What does <em>(no data)</em> mean in the referrers list? <a href="#no-data">§</a></dt>
-	<dd>No Referer was sent; this can mean that the user directly accessed the
-		URL (e.g. from their bookmarks or typing it), that they disabled sending the
-		Referer header, or that the link they clicked on disabled the Referer header
-		with <code>rel="noreferer"</code>.
-	</dd>
+		// Add copy button to <pre>.
+		document.querySelectorAll('pre').forEach(function(pre) {
+			// if (pre.clientHeight > pre.scrollHeight - 6)
+			// 	return
 
+			var btn = document.createElement('a')
+			btn.href        = '#'
+			btn.className   = 'pre-copy'
+			btn.style.right = (pre.offsetWidth - pre.clientWidth - 2) + 'px'
+			btn.innerHTML   = '📋 Copy'
 
-	<dt id="bots">How are bots and crawlers counted? <a href="#bots">§</a></dt>
-	<dd>They’re not; all bots and crawlers that identify themselves as such are ignored.<br>
-		It’s easy for a malicious script to disguise itself as Firefox or
-		Chrome, and it’s hard to reliably detect this. In practice it’s unlikely
-		that 100% of all bots are ignored (this is a general problem with
-		analytics, and not specific to GoatCounter).</dd>
+			btn.addEventListener('click', function(e) {
+				e.preventDefault()
 
-	<dt id="dnt">How is the <code>Do-Not-Track</code> header handled? <a href="#dnt">§</a></dt>
-	<dd>It’s ignored for several reasons: it’s effectively abandoned with a low
-		adoption rate, mostly intended for persistent cross-site tracking (which
-		GoatCounter doesn’t do), and I feel there are some fundamental concerns
-		with the approach. See
-		<a href="https://www.arp242.net/dnt.html" target="_blank" rel="noopener">Why GoatCounter ignores Do Not Track</a>
-		for a more in-depth explanation.
-		<br><br>
-		You can still implement it yourself by putting this at the start of the
-		GoatCounter script:
-<pre>&lt;script&gt;
-	window.goatcounter = {
-		no_onload: ('doNotTrack' in navigator && navigator.doNotTrack === '1'),
-	};
-&lt;/script&gt;
-&lt;script data-goatcounter="[..]"
-        async src="//gc.zgo.at/count.js"&gt;&lt;/script&gt;</pre>
-	</dd>
+				var t = document.createElement('textarea')
+				t.value = pre.innerText
+				t.style.position = 'absolute'
+				document.body.appendChild(t)
 
-	<dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
-	<dd>You probably don’t need them. The <a href="/gdpr">the GDPR page</a> goes in to some detail about this.</dd>
+				t.select()
+				t.setSelectionRange(0, pre.innerText.length)
+				document.execCommand('copy')
+				document.body.removeChild(t)
 
-	<dt id="custom-domain">How do I set up a custom domain? <a href="#custom-domain">§</a></dt>
-	<dd>
-		Add a <code>CNAME</code> record pointing to your GoatCounter subdomain:
-		<pre>stats   IN CNAME    mine.{{.Domain}}.</pre>
+				btn.innerHTML = '📋 Done'
+				setTimeout(function() { btn.innerHTML = '📋 Copy' }, 1000)
+			}, false)
 
-		Then update the GoatCounter settings with your custom domain. It might
-		take a few hours for everything to work. <code>mine.{{.Domain}}</code>
-		will continue to work.<br><br>
+			//pre.parentNode.appendChild(btn)
 
-		You will need a Business plan to set up a custom domain.<br><br>
+			// TODO: can probably un-jQuery this.
+			var wrap = $('<div class="pre-copy-wrap">').html($(pre).clone())
+			$(pre).replaceWith(wrap)
+			wrap.prepend(btn)
 
-		<em>Note that Custom domains will not prevent adblockers from
-			recognizing GoatCounter; it’s only intended as a “vanity domain”.</em>
-	</dd>
-
-	{{/* Note: naming this id="adblock" will mean uBlock will remove it... */}}
-	<dt id="blocked">How do adblockers deal with GoatCounter? <a href="#blocked">§</a></dt>
-	<dd>
-		Most of them block goatcounter.com; there’s not much that can be done
-		about that, and there’s also not much I <em>want</em> to do about this.
-		If people decide they want to block GoatCounter then they’re free to do
-		so.<br><br>
-
-		By my estimate about a third of pageviews are missed due to adblockers;
-		but this can vary greatly on the type of site and audience.<br><br>
-
-		That said, there are some options:<br><br>
-
-		<ol>
-			<li>Self-host GoatCounter; when self-hosting GoatCounter nothing is
-				served from goatcounter.com or associated domains, and
-				adblockers will not block it.</li>
-			<li>Import pageviews from logfiles; GoatCounter can import pageviews
-				from web server logfiles; you can send this data to
-				goatcounter.com. See <a href="/code/logfile">the documentation for details</a>.</li>
-		</ol>
-	</dd>
-
-	<dt id="status-code">Is there any way to record HTTP status codes? <a href="#status-code">§</a></dt>
-	<dd>
-		Not directly, but if you include the status code in your error page’s
-		title you can filter by it. Also see
-		<a href="https://github.com/arp242/goatcounter/issues/3#issuecomment-578202761">issue #3</a>.
-	</dd>
-
-	<dt id="verify-email">Why do I need to verify my email? <a href="#verify-email">§</a></dt>
-	<dd>
-		Having some means of contact is useful in case of questions, problems,
-		or other reasons for communicating.
-		<br>
-		For example, if you’re sending many (millions) of pageviews then I’d rather
-		contact you to discuss options than just shut down the account. Not
-		having any means to get in touch would leave me in an awkward position.
-	</dd>
-</dl>
-
-<h3 id="billing">Pricing and billing <a href="#billing"></a></h3>
-{{template "_billing_help.gohtml" .}}
-
-{{template "_bottom.gohtml" .}}
+			var prev = wrap.prev()
+			if (prev.is('p'))
+				prev.css('padding-right', '6em')
+		})
+	</script>
+</body>
+</html>

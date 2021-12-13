@@ -88,37 +88,54 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 		return h.forgot(nil, "", "")(w, r)
 	}))
 	r.Post("/user/forgot", zhttp.Wrap(h.doForgot))
-	for _, t := range []string{"", "privacy", "terms", "why", "design", "translating"} {
+	for _, t := range []string{"", "why", "design"} {
 		r.Get("/"+t, zhttp.Wrap(h.tpl))
 	}
+
+	r.Get("/translating", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/help/translating")
+	}))
 }
 
 func (h website) MountShared(r chi.Router) {
-	r.Get("/code", zhttp.Wrap(h.code))
-	r.Get("/code/*", zhttp.Wrap(h.code))
+	r.Get("/help", zhttp.Wrap(h.help))
+	r.Get("/help/*", zhttp.Wrap(h.help))
 	r.Get("/contribute", zhttp.Wrap(h.contribute))
 	r.Get("/api.json", zhttp.Wrap(h.openAPI))
 	r.Get("/api.html", zhttp.Wrap(h.openAPI))
 	r.Get("/api2.html", zhttp.Wrap(h.openAPI))
 	r.Post("/contact", zhttp.Wrap(h.contact))
-	for _, t := range []string{"help", "gdpr", "contact"} {
-		r.Get("/"+t, zhttp.Wrap(h.tpl))
-	}
 
+	r.Get("/contact", zhttp.Wrap(h.tpl))
+
+	r.Get("/terms", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/help/terms")
+	}))
+	r.Get("/privacy", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/help/privacy")
+	}))
+	r.Get("/gdpr", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/help/gdpr")
+	}))
 	r.Get("/api", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return zhttp.MovedPermanently(w, "/code/api")
+		return zhttp.MovedPermanently(w, "/help/api")
+	}))
+	r.Get("/code", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/help")
+	}))
+	r.Get("/code/*", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/help/"+chi.URLParam(r, "*"))
 	}))
 }
 
 var metaDesc = map[string]string{
 	"":            "Simple web statistics. No tracking of personal data.",
-	"help":        "Help and support – GoatCounter",
 	"privacy":     "Privacy policy – GoatCounter",
 	"gdpr":        "GDPR consent notices – GoatCounter",
 	"terms":       "Terms of Service – GoatCounter",
 	"contact":     "Contact – GoatCounter",
 	"contribute":  "Contribute – GoatCounter",
-	"code":        "Site integration code – GoatCounter",
+	"help":        "Documentation – GoatCounter",
 	"why":         "Why I made GoatCounter",
 	"api":         "API – GoatCounter",
 	"design":      "GoatCounter design",
@@ -457,7 +474,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/user/forgot")
 }
 
-func (h website) code(w http.ResponseWriter, r *http.Request) error {
+func (h website) help(w http.ResponseWriter, r *http.Request) error {
 	site := goatcounter.GetSite(r.Context())
 	if site == nil {
 		site = &goatcounter.Site{Code: "MYCODE"}
@@ -474,7 +491,7 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 
 	cp := chi.URLParam(r, "*")
 	if cp == "" {
-		return zhttp.MovedPermanently(w, "/code/start")
+		return zhttp.MovedPermanently(w, "/help/start")
 	}
 
 	{
@@ -482,7 +499,7 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		fsys, err = zfs.SubIfExists(fsys, "tpl/code")
+		fsys, err = zfs.SubIfExists(fsys, "tpl/help")
 		if err != nil {
 			return err
 		}
@@ -497,7 +514,7 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return zhttp.Template(w, "code.gohtml", struct {
+	return zhttp.Template(w, "help.gohtml", struct {
 		Globals
 		Page        string
 		CodePage    string
@@ -510,7 +527,7 @@ func (h website) code(w http.ResponseWriter, r *http.Request) error {
 		// For the message form
 		Validate *zvalidate.Validator
 		Args     interface{}
-	}{newGlobals(w, r), "code", cp, "Site integration code – GoatCounter",
+	}{newGlobals(w, r), "help", cp, "Documentation – GoatCounter",
 		dc, site.URL(r.Context()), site.Domain(r.Context()), h.fromWWW,
 		nil, nil})
 }
