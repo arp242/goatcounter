@@ -80,6 +80,8 @@ func TestMain(m *testing.M) {
 		"_dashboard_pages_refs.gohtml",
 		"_dashboard_pages_text.gohtml",
 		"_dashboard_pages_text_rows.gohtml",
+		"bosmang_sites.gohtml",
+		"settings_server.gohtml",
 
 		// TODO: hard to test; requires a browser as the JS generates secret
 		// Stripe stuff in JS.

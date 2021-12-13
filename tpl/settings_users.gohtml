@@ -9,7 +9,7 @@
 			<td>{{$u.Email}}</td>
 			<td>{{index $u.Access "all"}}</td>
 			<td>
-				{{if and $.GoatcounterCom (eq (len $.Users.Admins) 1) $u.Admin}}
+				{{if and $.GoatcounterCom (eq (len $.Users.Admins) 1) $u.AccessAdmin}}
 					{{$.T "p/last-user|Can’t delete or edit last admin user"}}
 				{{else}}
 					<a href="/settings/users/{{$u.ID}}">{{$.T "button/edit|edit"}}</a> |

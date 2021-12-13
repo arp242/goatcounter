@@ -28,6 +28,9 @@ import (
 	"zgo.at/zstd/ztime"
 )
 
+// Started is set when the server is started.
+var Started time.Time
+
 var (
 	redirect = func(w http.ResponseWriter, r *http.Request) error {
 		zhttp.Flash(w, "Need to log in")
@@ -81,13 +84,6 @@ var (
 		})
 	}
 
-	bosmangOnly = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
-		if User(r.Context()).Bosmang() {
-			return nil
-		}
-		return guru.Errorf(404, "")
-	})
-
 	keyAuth = auth.Add(func(ctx context.Context, key string) (auth.User, error) {
 		u := &goatcounter.User{}
 		err := u.ByTokenAndSite(ctx, key)
@@ -98,7 +94,7 @@ var (
 type statusWriter interface{ Status() int }
 
 func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.Handler {
-	started := ztime.Now()
+	Started = ztime.Now()
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -106,9 +102,9 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 			if r.URL.Path == "/status" {
 				v, _ := zdb.MustGetDB(ctx).Version(ctx)
 				j, err := json.Marshal(map[string]interface{}{
-					"uptime":            ztime.Now().Sub(started).Round(time.Second).String(),
+					"uptime":            ztime.Now().Sub(Started).Round(time.Second).String(),
 					"version":           goatcounter.Version,
-					"last_persisted_at": cron.LastMemstore.Get().Format(time.RFC3339Nano),
+					"last_persisted_at": cron.LastMemstore.Get().Round(time.Second).Format(time.RFC3339),
 					"database":          zdb.Driver(ctx).String() + " " + string(v),
 					"go":                runtime.Version(),
 					"GOOS":              runtime.GOOS,

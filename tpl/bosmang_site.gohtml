@@ -1,6 +1,6 @@
 {{template "_backend_top.gohtml" .}}
 
-<h2>Bosmang</h2>
+<h2>Sites</h2>
 
 <form method="post" action="/bosmang/{{.Stat.Account.ID}}/update-billing" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">

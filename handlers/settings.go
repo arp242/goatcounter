@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -23,6 +24,7 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/acme"
 	"zgo.at/goatcounter/v2/bgrun"
+	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -31,6 +33,8 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zruntime"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
@@ -55,6 +59,7 @@ func (h settings) mount(r chi.Router) {
 	}
 
 	{ // Site settings.
+		r.With(requireAccess(goatcounter.AccessSuperuser)).Get("/settings/server", zhttp.Wrap(h.bosmang))
 		set := r.With(requireAccess(goatcounter.AccessSettings))
 
 		set.Get("/settings", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -848,6 +853,10 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	if args.Access["all"] == goatcounter.AccessSuperuser && !User(r.Context()).AccessSuperuser() {
+		return guru.New(400, "can't set 'superuser' if you're not a superuser yourself.")
+	}
+
 	var editUser goatcounter.User
 	err = editUser.ByID(r.Context(), id)
 	if err != nil {
@@ -911,4 +920,30 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 
 	zhttp.Flash(w, T(r.Context(), "notify/user-removed|User ‘%(email)’ removed.", user.Email))
 	return zhttp.SeeOther(w, "/settings/users")
+}
+
+func (h settings) bosmang(w http.ResponseWriter, r *http.Request) error {
+	dbVersion, _ := zdb.MustGetDB(r.Context()).Version(r.Context())
+	return zhttp.Template(w, "settings_server.gohtml", struct {
+		Globals
+		Uptime          string
+		Version         string
+		LastPersistedAt string
+		Database        string
+		Go              string
+		GOOS            string
+		GOARCH          string
+		Race            bool
+		Cgo             bool
+	}{newGlobals(w, r),
+		ztime.Now().Sub(Started).Round(time.Second).String(),
+		goatcounter.Version,
+		cron.LastMemstore.Get().Round(time.Second).Format(time.RFC3339),
+		zdb.Driver(r.Context()).String() + " " + string(dbVersion),
+		runtime.Version(),
+		runtime.GOOS,
+		runtime.GOARCH,
+		zruntime.Race,
+		zruntime.CGO,
+	})
 }

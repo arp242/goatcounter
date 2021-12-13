@@ -28,16 +28,34 @@ import (
 type bosmang struct{}
 
 func (h bosmang) mount(r chi.Router, db zdb.DB) {
-	a := r.With(mware.RequestLog(nil), bosmangOnly)
+	a := r.With(mware.RequestLog(nil), requireAccess(goatcounter.AccessSuperuser))
 	a.Get("/bosmang", zhttp.Wrap(h.index))
+
 	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
-	a.Get("/bosmang/{id}", zhttp.Wrap(h.site))
-	a.Post("/bosmang/{id}/update-billing", zhttp.Wrap(h.updateBilling))
-	a.Post("/bosmang/login/{id}", zhttp.Wrap(h.login))
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
+
+	a.Get("/bosmang/sites", zhttp.Wrap(h.sites))
+	a.Get("/bosmang/sites/{id}", zhttp.Wrap(h.site))
+	a.Post("/bosmang/sites/{id}/update-billing", zhttp.Wrap(h.updateBilling))
+	a.Post("/bosmang/sites/login/{id}", zhttp.Wrap(h.login))
 }
 
 func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "bosmang.gohtml", struct{ Globals }{newGlobals(w, r)})
+}
+
+func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
+	cache := goatcounter.ListCache(r.Context())
+	return zhttp.Template(w, "bosmang_cache.gohtml", struct {
+		Globals
+		Cache map[string]struct {
+			Size  int64
+			Items map[string]string
+		}
+	}{newGlobals(w, r), cache})
+}
+
+func (h bosmang) sites(w http.ResponseWriter, r *http.Request) error {
 	var (
 		wg         sync.WaitGroup
 		signups    []goatcounter.HitListStat
@@ -86,23 +104,12 @@ func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {
 		return bgErr
 	}
 
-	return zhttp.Template(w, "bosmang.gohtml", struct {
+	return zhttp.Template(w, "bosmang_sites.gohtml", struct {
 		Globals
 		Stats      goatcounter.BosmangStats
 		Signups    []goatcounter.HitListStat
 		MaxSignups int
 	}{newGlobals(w, r), a, signups, maxSignups})
-}
-
-func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
-	cache := goatcounter.ListCache(r.Context())
-	return zhttp.Template(w, "bosmang_cache.gohtml", struct {
-		Globals
-		Cache map[string]struct {
-			Size  int64
-			Items map[string]string
-		}
-	}{newGlobals(w, r), cache})
 }
 
 func (h bosmang) site(w http.ResponseWriter, r *http.Request) error {

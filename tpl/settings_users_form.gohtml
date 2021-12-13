@@ -10,6 +10,10 @@
 	{{if $all}}
 	<label><input type="radio" name="access[{{.site}}]" value="a" {{if eq .v "a"}}checked{{end}}>
 		{{t .Context "label/full-access|Full access"}}</label>
+		{{if .superuser}}
+			<label><input type="radio" name="access[{{.site}}]" value="*" {{if eq .v "*"}}checked{{end}}>
+				{{t .Context "label/access-superuser|Full access, including server settings"}}</label>
+		{{end}}
 	{{end}}
 {{end}}
 
@@ -42,7 +46,12 @@
 
 	<fieldset class="global-access">
 		<legend>{{.T "header/allow-access|Allow access"}}</legend>
-		{{template "access" (map "site" "all" "v" (index .NewUser.Access "all") "Context" .Context)}}
+		{{template "access" (map
+			"Context"   .Context
+			"site"      "all"
+			"v"         (index .NewUser.Access "all")
+			"superuser" .User.AccessSuperuser
+		)}}
 	</fieldset>
 
 	<div id="full-access"></div>

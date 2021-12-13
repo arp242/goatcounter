@@ -27,11 +27,6 @@ import (
 
 const totpSecretLen = 16
 
-const (
-	UserRoleNormal  = ""
-	UserRoleBosmang = "bosmang"
-)
-
 // User entry.
 type User struct {
 	ID   int64 `db:"user_id" json:"id,readonly"`
@@ -42,7 +37,6 @@ type User struct {
 	Password      []byte       `db:"password" json:"-"`
 	TOTPEnabled   zbool.Bool   `db:"totp_enabled" json:"totp_enabled,readonly"`
 	TOTPSecret    []byte       `db:"totp_secret" json:"-"`
-	Role          string       `db:"role" json:"-"`
 	Access        UserAccesses `db:"access" json:"access,readonly"`
 	LoginAt       *time.Time   `db:"login_at" json:"login_at,readonly"`
 	ResetAt       *time.Time   `db:"reset_at" json:"reset_at,readonly"`
@@ -450,28 +444,25 @@ func (u *User) SeenUpdates(ctx context.Context) error {
 	return errors.Wrap(err, "User.SeenUpdatesAt")
 }
 
-// Admin reports if this is an admin user for this site.
-func (u User) Admin() bool {
-	return u.Access["all"] == AccessAdmin
-}
-
 // HasAccess checks if this user has access to this site for the permission.
 func (u User) HasAccess(check UserAccess) bool {
 	switch check {
 	default:
 		return false
+	case AccessSuperuser:
+		return u.Access["all"] == AccessSuperuser
 	case AccessAdmin:
-		return u.Access["all"] == AccessAdmin
+		return u.Access["all"] == AccessSuperuser || u.Access["all"] == AccessAdmin
 	case AccessSettings:
-		return u.Access["all"] == AccessAdmin || u.Access["all"] == AccessSettings
+		return u.Access["all"] == AccessSuperuser || u.Access["all"] == AccessAdmin || u.Access["all"] == AccessSettings
 	case AccessReadOnly:
-		return u.Access["all"] == AccessAdmin || u.Access["all"] == AccessSettings || u.Access["all"] == AccessReadOnly
+		return u.Access["all"] == AccessSuperuser || u.Access["all"] == AccessAdmin || u.Access["all"] == AccessSettings || u.Access["all"] == AccessReadOnly
 	}
 }
 
-func (u User) AccessAdmin() bool    { return u.Access["all"] == AccessAdmin }
-func (u User) AccessSettings() bool { return u.AccessAdmin() || u.Access["all"] == AccessSettings }
-func (u User) Bosmang() bool        { return u.Role == UserRoleBosmang }
+func (u User) AccessSuperuser() bool { return u.Access["all"] == AccessSuperuser }
+func (u User) AccessAdmin() bool     { return u.AccessSuperuser() || u.Access["all"] == AccessAdmin }
+func (u User) AccessSettings() bool  { return u.AccessAdmin() || u.Access["all"] == AccessSettings }
 
 type Users []User
 
@@ -486,11 +477,11 @@ func (u *Users) List(ctx context.Context, siteID int64) error {
 		`select * from users where site_id=$1`, s.IDOrParent()), "Users.List")
 }
 
-// Admins returns just the admins in this user list.
+// Admins returns just the admins and superusers in this user list.
 func (u Users) Admins() Users {
 	n := make(Users, 0, len(u))
 	for _, uu := range u {
-		if uu.Admin() {
+		if uu.AccessSuperuser() || uu.AccessAdmin() {
 			n = append(n, uu)
 		}
 	}
@@ -537,9 +528,10 @@ type (
 )
 
 const (
-	AccessReadOnly UserAccess = "r"
-	AccessSettings UserAccess = "s"
-	AccessAdmin    UserAccess = "a"
+	AccessReadOnly  UserAccess = "r"
+	AccessSettings  UserAccess = "s"
+	AccessAdmin     UserAccess = "a"
+	AccessSuperuser UserAccess = "*"
 )
 
 // TODO: this is not translated.
@@ -551,6 +543,8 @@ func (u UserAccess) String() string {
 		return "settings"
 	case AccessAdmin:
 		return "admin"
+	case AccessSuperuser:
+		return "superuser"
 	default:
 		panic(fmt.Sprintf("UserAccess is %q; should never happpen", string(u)))
 	}

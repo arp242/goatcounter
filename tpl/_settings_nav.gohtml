@@ -13,4 +13,7 @@
 		<a class="{{if has_prefix .Path "/settings/delete-account"}}active{{end}}" href="/settings/delete-account">{{.T "link/rm-account|Delete account"}}</a>
 		{{end}}
 	{{end}}
+	{{if .User.AccessSuperuser}}
+		<a class="{{if has_prefix .Path "/settings/server"}}active{{end}}"  href="/settings/server">Server management</a>
+	{{end}}
 </nav>

@@ -23,6 +23,22 @@ Unreleased
   dashboard feature, and especially now that you can set a chart style it makes
   more sense to set it there.
 
+- There is a "server management" tab in the settings which allows viewing and
+  editing some server internals. This page is only available to users with the
+  (new) "server management" access.
+
+  All sites with just one user have this user's permissions automatically
+  "upgraded"; sites with more than one user since I don't know which user should
+  have which permissions.
+
+  To prevent updating users, you can use (*before* running migrations):
+
+      % goatcounter db query "insert into version values ('2021-12-13-2-superuser')"
+
+  To update an existing user, you can use:
+
+      % goatcounter db update users -access superuser -find=martin@arp242.net
+
 - New translations: Italian, Spanish (Chilean), Turkish.
 
 2021-12-01 v2.1.0

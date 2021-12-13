@@ -1,0 +1,24 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="setting">Server management</h2>
+
+<pre>
+Version:           {{.Version}}
+Go:                {{.Go}} {{.GOOS}}/{{.GOARCH}} (race={{.Race}} cgo={{.Cgo}})
+Database:          {{.Database}}
+Uptime:            {{.Uptime}}
+Last persisted at: {{.LastPersistedAt}}
+</pre>
+
+<p>Various special pages for server management; these pages are available only
+to users with “server mangagement” access set.</p>
+<ul>
+<li><a href="/bosmang/cache">Cache</a> – in-memory cache information.</li>
+<li><a href="/bosmang/profile">Profile</a> – various Go internal performance metrics (pprof).</li>
+{{if .GoatcounterCom}}
+<li><a href="/bosmang/sites">Sites</a></li>
+{{end}}
+</ul>
+
+{{template "_backend_bottom.gohtml" .}}

@@ -130,6 +130,8 @@ create and update commands:
                         settings    Can change settings, except billing and
                                     site/user management.
                         admin       Full access.
+                        superuser   Full access, including the "server
+                                    management" page.
 
         -password   Password; will be asked interactively if omitted.
 
@@ -709,7 +711,7 @@ func cmdDBSiteCreate(ctx context.Context, vhost, email, link, pwd string) error 
 				Password:      []byte(pwd),
 				EmailVerified: true,
 				Settings:      s.UserDefaults,
-				Access:        goatcounter.UserAccesses{"all": goatcounter.AccessAdmin},
+				Access:        goatcounter.UserAccesses{"all": goatcounter.AccessSuperuser},
 			}).Insert(ctx, false)
 			if err != nil {
 				return err
@@ -806,7 +808,7 @@ func cmdDBUserCreate(ctx context.Context,
 	v.Required("-site", findSite)
 	v.Required("-email", email)
 	v.Required("-access", access)
-	v.Include("-access", access, []string{"readonly", "settings", "admin"})
+	v.Include("-access", access, []string{"readonly", "settings", "admin", "superuser"})
 	if v.HasErrors() {
 		return v
 	}
@@ -896,9 +898,10 @@ func cmdDBUserUpdate(ctx context.Context, find []string,
 func getAccess(a string) goatcounter.UserAccesses {
 	return goatcounter.UserAccesses{
 		"all": map[string]goatcounter.UserAccess{
-			"readonly": goatcounter.AccessReadOnly,
-			"settings": goatcounter.AccessSettings,
-			"admin":    goatcounter.AccessAdmin,
+			"readonly":  goatcounter.AccessReadOnly,
+			"settings":  goatcounter.AccessSettings,
+			"admin":     goatcounter.AccessAdmin,
+			"superuser": goatcounter.AccessSuperuser,
 		}[a],
 	}
 }
