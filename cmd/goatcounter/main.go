@@ -163,12 +163,19 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 		zlog.Errorf("%s; continuing but things may be broken", err)
 		err = nil
 	}
+
+	// TODO: maybe ask for confirmation here?
 	var cErr *zdb.NotExistError
 	if errors.As(err, &cErr) {
-		// TODO: maybe ask for confirmation here?
-		err = fmt.Errorf("%s database at %q doesn't exist.\n"+
-			"Add the -createdb flag to create this database if you're sure this is the right location",
-			cErr.Driver, cErr.DB)
+		if cErr.DB == "" {
+			err = fmt.Errorf("%s database at %q exists but is empty.\n"+
+				"Add the -createdb flag to create this database if you're sure this is the right location",
+				cErr.Driver, connect)
+		} else {
+			err = fmt.Errorf("%s database at %q doesn't exist.\n"+
+				"Add the -createdb flag to create this database if you're sure this is the right location",
+				cErr.Driver, cErr.DB)
+		}
 	}
 	if err != nil {
 		return nil, nil, err

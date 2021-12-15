@@ -10,7 +10,7 @@ require (
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
-	github.com/mattn/go-sqlite3 v1.14.6
+	github.com/mattn/go-sqlite3 v1.14.9
 	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -32,7 +32,7 @@ require (
 	zgo.at/tz v0.0.0-20211017223207-006eae99adf6
 	zgo.at/z18n v0.0.0-20211201221236-c1ccdacc3808
 	zgo.at/zcache v1.0.1-0.20210412145246-76039d792310
-	zgo.at/zdb v0.0.0-20211017231039-b6fbb7dc2e5c
+	zgo.at/zdb v0.0.0-20211215072801-97f44107a819
 	zgo.at/zhttp v0.0.0-20211213094732-dd554e63f604
 	zgo.at/zli v0.0.0-20211017231103-84f8e371c324
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
@@ -46,9 +46,9 @@ require (
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/go-sql-driver/mysql v1.5.0 // indirect
-	github.com/jmoiron/sqlx v1.3.1 // indirect
-	github.com/lib/pq v1.9.0 // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/jmoiron/sqlx v1.3.4 // indirect
+	github.com/lib/pq v1.10.4 // indirect
 	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e // indirect

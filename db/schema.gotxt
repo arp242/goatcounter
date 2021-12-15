@@ -307,6 +307,7 @@ create unique index "iso_3166_1#alpha2" on iso_3166_1(alpha2);
 create table if not exists version (name varchar);
 delete from version;
 insert into version values
+	-- 2.0
 	('2020-08-28-1-paths-tables'),
 	('2020-08-28-2-paths-paths'),
 	('2020-08-28-3-paths-rmold'),
@@ -327,6 +328,8 @@ insert into version values
 	('2021-03-17-1-collect-session'),
 	('2021-03-18-1-usersettings'),
 	('2021-03-20-1-tokens'),
+
+	-- 2.1
 	('2021-03-29-1-widgets'),
 	('2021-04-01-1-store-warn'),
 	('2021-04-02-1-cluster-paths'),
