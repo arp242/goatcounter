@@ -91,7 +91,7 @@ func KeepAsText(ctx context.Context) error {
 	})
 
 	if err == nil {
-		//err = zdb.Exec(ctx, `insert into version values ('2021-12-08-1-set-chart-text')`)
+		err = zdb.Exec(ctx, `insert into version values ('2021-12-08-1-set-chart-text')`)
 	}
 	return err
 }

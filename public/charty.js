@@ -56,6 +56,7 @@
 		window.addEventListener('resize', r)
 
 		self = {
+			ctx:      () => ctx,
 			barWidth: () => barWidth,
 			pad:      () => pad,
 

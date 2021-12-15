@@ -319,8 +319,6 @@
 	var charts = []
 
 	// Bind the Y-axis scale actions.
-	//
-	// TODO: fix for new charts.
 	var bind_scale = function() {
 		$('.count-list').on('click', '.rescale', function(e) {
 			e.preventDefault()
@@ -329,7 +327,10 @@
 			$('.pages-list .scale').html(format_int(scale))
 			$('.pages-list .count-list-pages').attr('data-scale', scale)
 
-			charts.forEach((c) => { c.stop() })
+			charts.forEach((c) => {
+				c.ctx().canvas.dataset.done = ''
+				c.stop()
+			})
 			charts = []
 			draw_all_charts()
 		})
@@ -352,16 +353,20 @@
 	}
 
 	// Draw this chart
-	var draw_chart = function(chart) {
-		var canvas  = $(chart).find('canvas')[0],
-			ctx     = canvas.getContext('2d', {alpha: false}),
-			stats   = JSON.parse(chart.dataset.stats),
-			max     = Math.max(10, parseInt(chart.dataset.max, 10)),
-			scale   = parseInt($(chart).closest('.count-list-pages').attr('data-scale'), 0),
-			daily   = chart.dataset.daily === 'true',
-			isBar   = $(chart).is('.chart-bar'),
-			isEvent = $(chart).closest('tr').hasClass('event'),
-			isPages = $(chart).closest('.count-list-pages').length > 0,
+	var draw_chart = function(c) {
+		var canvas  = $(c).find('canvas')[0]
+		if (canvas.dataset.done === 't')
+			return
+		canvas.dataset.done = 't'
+
+		var ctx     = canvas.getContext('2d', {alpha: false}),
+			stats   = JSON.parse(c.dataset.stats),
+			max     = Math.max(10, parseInt(c.dataset.max, 10)),
+			scale   = parseInt($(c).closest('.count-list-pages').attr('data-scale'), 0),
+			daily   = c.dataset.daily === 'true',
+			isBar   = $(c).is('.chart-bar'),
+			isEvent = $(c).closest('tr').hasClass('event'),
+			isPages = $(c).closest('.count-list-pages').length > 0,
 			ndays   = (get_date($('#period-end').val()) - get_date($('#period-start').val())) / (86400*1000)
 
 		if (isPages && scale)
