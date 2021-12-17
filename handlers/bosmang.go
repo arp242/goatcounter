@@ -16,6 +16,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/bgrun"
+	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -31,20 +32,20 @@ type bosmang struct{}
 
 func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a := r.With(mware.RequestLog(nil), requireAccess(goatcounter.AccessSuperuser))
-	a.Get("/bosmang", zhttp.Wrap(h.index))
+
+	r.Get("/bosmang", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		return zhttp.MovedPermanently(w, "/settings/server")
+	}))
 
 	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
 	a.Get("/bosmang/bgrun", zhttp.Wrap(h.bgrun))
+	a.Get("/bosmang/metrics", zhttp.Wrap(h.metrics))
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
 
 	a.Get("/bosmang/sites", zhttp.Wrap(h.sites))
 	a.Get("/bosmang/sites/{id}", zhttp.Wrap(h.site))
 	a.Post("/bosmang/sites/{id}/update-billing", zhttp.Wrap(h.updateBilling))
 	a.Post("/bosmang/sites/login/{id}", zhttp.Wrap(h.login))
-}
-
-func (h bosmang) index(w http.ResponseWriter, r *http.Request) error {
-	return zhttp.Template(w, "bosmang.gohtml", struct{ Globals }{newGlobals(w, r)})
 }
 
 func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
@@ -78,6 +79,13 @@ func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
 		History []bgrun.Job
 		Metrics map[string]ztime.Durations
 	}{newGlobals(w, r), bgrun.List(), hist, metrics})
+}
+
+func (h bosmang) metrics(w http.ResponseWriter, r *http.Request) error {
+	return zhttp.Template(w, "bosmang_metrics.gohtml", struct {
+		Globals
+		Metrics metrics.Metrics
+	}{newGlobals(w, r), metrics.List()})
 }
 
 func (h bosmang) sites(w http.ResponseWriter, r *http.Request) error {

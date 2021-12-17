@@ -11,6 +11,7 @@ import (
 	"github.com/monoculum/formam"
 	"golang.org/x/text/language"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/isbot"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/ztime"
@@ -23,6 +24,9 @@ var gif = []byte{0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x1, 0x0, 0x1, 0x0, 0x80,
 	0x1, 0x0, 0x3b}
 
 func (h backend) count(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/count")
+	defer m.Done()
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "image/gif")
 

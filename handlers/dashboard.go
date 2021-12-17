@@ -15,6 +15,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/goatcounter/v2/widgets"
 	"zgo.at/guru"
 	"zgo.at/z18n"
@@ -31,6 +32,9 @@ import (
 const DailyView = 90
 
 func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("dashboard")
+	defer m.Done()
+
 	site := Site(r.Context())
 	user := User(r.Context())
 

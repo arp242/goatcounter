@@ -20,6 +20,7 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
@@ -466,6 +467,9 @@ func (h APICountRequestHit) String() string {
 // Request body: APICountRequest
 // Response 202: {empty}
 func (h api) count(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/api/v0/count")
+	defer m.Done()
+
 	err := h.auth(r, goatcounter.APIPermCount)
 	if err != nil {
 		return err

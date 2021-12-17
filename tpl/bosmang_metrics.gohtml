@@ -1,0 +1,17 @@
+{{template "_backend_top.gohtml" .}}
+
+<h1>Metrics</h1>
+
+{{range $v := .Metrics}}
+<pre>{{$v.Tag}} (over last {{$v.Times.Len}} invocations)
+	Total:  {{$v.Times.Sum | round_duration}}
+	Min:    {{$v.Times.Min | round_duration}}
+	Max:    {{$v.Times.Max | round_duration}}
+	Median: {{$v.Times.Median | round_duration}}
+	Mean:   {{$v.Times.Mean | round_duration}}
+    {{distribute_durations $v.Times 4}}</pre>
+{{else}}
+	Nothing recorded yet.
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}
