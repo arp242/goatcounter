@@ -49,7 +49,7 @@ func (h user) mount(r chi.Router) {
 	rate := r.With(mware.Ratelimit(mware.RatelimitOptions{
 		Client: mware.RatelimitIP,
 		Store:  mware.NewRatelimitMemory(),
-		Limit:  mware.RatelimitLimit(20, 60),
+		Limit:  rateLimits.login,
 	}))
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
 	r.Get("/user/requestlogin", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

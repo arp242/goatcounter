@@ -39,6 +39,9 @@ Unreleased
 
       % goatcounter db update users -access superuser -find=martin@arp242.net
 
+- Add `-ratelimit` flag to configure the built-in ratelimits (the default values
+  are unchanged). See `goatcounter help serve` for details.
+
 - New translations: Italian, Spanish (Chilean), Turkish.
 
 2021-12-01 v2.1.0

@@ -62,9 +62,9 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 					if l > 20*time.Second {
 						return 0, 5
 					}
-					return 4, 10 // 4 reqs/10 seconds
+					return rateLimits.apiCount(r)
 				}
-				return 60, 120 // 60 reqs/120 seconds
+				return rateLimits.api(r)
 			},
 		}))
 

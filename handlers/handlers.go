@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -13,10 +14,40 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstripe"
 )
+
+var rateLimits = struct {
+	count, api, apiCount, export, login func(*http.Request) (int, int64)
+}{
+	count:    mware.RatelimitLimit(4, 1),
+	api:      mware.RatelimitLimit(4, 10),
+	apiCount: mware.RatelimitLimit(60, 120),
+	export:   mware.RatelimitLimit(1, 3600),
+	login:    mware.RatelimitLimit(20, 60),
+}
+
+// Set the rate limits.
+func SetRateLimit(name string, reqs int, secs int64) {
+	r := mware.RatelimitLimit(reqs, secs)
+	switch name {
+	case "count":
+		rateLimits.count = r
+	case "api":
+		rateLimits.api = r
+	case "apiCount":
+		rateLimits.apiCount = r
+	case "export":
+		rateLimits.export = r
+	case "login":
+		rateLimits.login = r
+	default:
+		panic(fmt.Sprintf("handlers.SetRateLimit: invalid name: %q", name))
+	}
+}
 
 // Site calls goatcounter.MustGetSite; it's just shorter :-)
 func Site(ctx context.Context) *goatcounter.Site    { return goatcounter.MustGetSite(ctx) }

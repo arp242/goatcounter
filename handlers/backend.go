@@ -106,7 +106,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 				if r.RemoteAddr == "127.0.0.1" {
 					return 1 << 14, 1
 				}
-				return 4, 1
+				return rateLimits.count(r)
 			},
 		}))
 		rate.Get("/count", zhttp.Wrap(h.count))

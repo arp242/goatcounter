@@ -106,6 +106,20 @@ Flags:
                version built-in; you only need this if you want to use a
                newer/different version, or if you want to record regions.
 
+  -ratelimit   Set rate limits for various actions; the syntax is
+               "name:num-requests/seconds"; multiple values are separated by
+               a comma. The defaults are:
+
+                   count:4/1            4 requests / second
+                   api:4/10             4 requests / 10 seconds
+                   api-count:60,120    60 requests / 2 minutes
+                   export:1/3600        1 requests / hour
+                   login:20/60         20 requests / minute
+
+               If one of the names is omitted it will fall back to the default
+               value; for example "-ratelimit export:3/3600,api:100/1" will use
+               the default for "count", "login", etc.
+
   -dev         Start in "dev mode".
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
@@ -253,6 +267,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 		errors      = f.String("", "errors").Pointer()
 		from        = f.String("", "email-from").Pointer()
 		geodb       = f.String("", "geodb").Pointer()
+		ratelimit   = f.String("", "ratelimit").Pointer()
 	)
 	err := f.Parse()
 
@@ -275,6 +290,27 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
 
 	goatcounter.InitGeoDB(*geodb)
+
+	if *ratelimit != "" {
+		for _, r := range strings.Split(*ratelimit, ",") {
+			name, spec := zstring.Split2(r, ":")
+			reqs, secs := zstring.Split2(spec, "/")
+
+			v := zvalidate.New()
+			v.Required("name", name)
+			v.Required("requests", reqs)
+			v.Required("seconds", secs)
+			name = v.Include("name", name, []string{"count", "api", "api-count", "export", "login"})
+			r := v.Integer("requests", reqs)
+			s := v.Integer("seconds", secs)
+			if v.HasErrors() {
+				return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from,
+					fmt.Errorf("invalid -ratelimit flag: %q: %w", *ratelimit, v)
+			}
+
+			handlers.SetRateLimit(name, int(r), s)
+		}
+	}
 
 	return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, err
 }
