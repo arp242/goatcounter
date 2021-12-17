@@ -199,11 +199,16 @@ func (m *ms) Append(hits ...Hit) {
 	m.hitMu.Unlock()
 }
 
+func (m *ms) SessionsLen() int {
+	m.sessionMu.Lock()
+	defer m.sessionMu.Unlock()
+	return len(m.sessions)
+}
+
 func (m *ms) Len() int {
 	m.hitMu.Lock()
-	l := len(m.hits)
-	m.hitMu.Unlock()
-	return l
+	defer m.hitMu.Unlock()
+	return len(m.hits)
 }
 
 var (

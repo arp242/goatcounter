@@ -2,6 +2,29 @@
 
 <h1>Background jobs</h1>
 
+<h2>Registered tasks</h2>
+<table>
+<thead><tr>
+	<th>Run every</th>
+	<th>ID</th>
+	<th>Description</th>
+	<th></th>
+</tr></thead>
+<tbody>
+	{{range $i, $t := .Tasks}}
+		<tr>
+			<td>{{$t.Period}}</td>
+			<td>{{$t.ID}}</td>
+			<td>{{$t.Desc}}</td>
+			<td><form method="post" action="/bosmang/bgrun/{{$i}}">
+				<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+				<button class="link" title="Run the task now; this won't reset the timer for the scheduled task">Run now</button>
+			</form></td>
+		</tr>
+	{{end}}
+</tbody>
+</table>
+
 <h2>Currently running</h2>
 <table>
 <thead><tr>

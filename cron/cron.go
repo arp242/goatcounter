@@ -17,20 +17,25 @@ import (
 	"zgo.at/zstd/zsync"
 )
 
-type task struct {
-	fun    func(context.Context) error
-	period time.Duration
+type Task struct {
+	Desc   string
+	Fun    func(context.Context) error
+	Period time.Duration
 }
 
-var tasks = []task{
-	{PersistAndStat, 10 * time.Second},
-	{DataRetention, 1 * time.Hour},
-	{renewACME, 2 * time.Hour},
-	{vacuumDeleted, 12 * time.Hour},
-	{cancelPlan, 12 * time.Hour},
-	{oldExports, 1 * time.Hour},
-	{sessions, 1 * time.Minute},
-	{reportUsage, 12 * time.Hour},
+func (t Task) ID() string {
+	return strings.Replace(zruntime.FuncName(t.Fun), "zgo.at/goatcounter/v2/cron.", "", 1)
+}
+
+var Tasks = []Task{
+	{"persist hits", PersistAndStat, 10 * time.Second},
+	{"vacuum pageviews (data retention)", DataRetention, 1 * time.Hour},
+	{"renew ACME certs", renewACME, 2 * time.Hour},
+	{"vacuum soft-deleted sites", vacuumDeleted, 12 * time.Hour},
+	{"process scheduled plan changes", cancelPlan, 12 * time.Hour},
+	{"rm old exports", oldExports, 1 * time.Hour},
+	{"cycle sessions", sessions, 1 * time.Minute},
+	{"report usage", reportUsage, 12 * time.Hour},
 }
 
 var stopped = zsync.NewAtomicInt(0)
@@ -55,20 +60,20 @@ func RunBackground(ctx context.Context) {
 		}
 	}()
 
-	for _, t := range tasks {
-		go func(t task) {
+	for _, t := range Tasks {
+		go func(t Task) {
 			defer zlog.Recover()
 
 			for {
-				time.Sleep(t.period)
+				time.Sleep(t.Period)
 				if stopped.Value() == 1 {
 					return
 				}
 
-				f := strings.Replace(zruntime.FuncName(t.fun), "zgo.at/goatcounter/v2/cron.", "", 1)
+				f := t.ID()
 				bgrun.RunNoDuplicates("cron:"+f, func() {
 					done := timeout(f, 10*time.Second)
-					err := t.fun(ctx)
+					err := t.Fun(ctx)
 					if err != nil {
 						l.Error(err)
 					}

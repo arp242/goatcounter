@@ -4,23 +4,22 @@
 <h2 id="setting">Server management</h2>
 
 <pre>
-Version:           {{.Version}}
-Go:                {{.Go}} {{.GOOS}}/{{.GOARCH}} (race={{.Race}} cgo={{.Cgo}})
-Database:          {{.Database}}
-Uptime:            {{.Uptime}}
-Last persisted at: {{.LastPersistedAt}}
+Version:            {{.Version}}
+Go:                 {{.Go}} {{.GOOS}}/{{.GOARCH}} (race={{.Race}} cgo={{.Cgo}})
+Database:           {{.Database}}
+Uptime:             {{.Uptime}}
+Last persisted at:  {{.LastPersistedAt}}
 </pre>
 
+<style>li >a { display: inline-block; width: 9em; }</style>
 <p>Various special pages for server management; these pages are available only
 to users with “server mangagement” access set.</p>
 <ul>
-<li><a href="/bosmang/cache">Cache</a> – in-memory cache information.</li>
-<li><a href="/bosmang/bgrun">Background jobs</a> – background jobs GoatCounter runs.</li>
-<li><a href="/bosmang/metrics">Metrics</a> – Some basic performance metrics GoatCounter keeps track of.</li>
-<li><a href="/bosmang/profile">Profile</a> – various Go internal performance metrics (pprof).</li>
-{{if .GoatcounterCom}}
-<li><a href="/bosmang/sites">Sites</a></li>
-{{end}}
+	<li><a href="/bosmang/cache"   >Cache</a>            – View contents of caches.</li>
+	<li><a href="/bosmang/bgrun"   >Background tasks</a> – View and manage background tasks.</li>
+	<li><a href="/bosmang/metrics" >Metrics</a>          – Some performance metrics.</li>
+	<li><a href="/bosmang/profile" >Profile</a>          – Go internal performance metrics (pprof).</li>
+	<li><a href="/bosmang/sites"   >Sites</a>            – Overview of all sites and usage (PostgreSQL only).</li>
 </ul>
 
 {{template "_backend_bottom.gohtml" .}}

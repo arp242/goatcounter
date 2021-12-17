@@ -16,6 +16,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/bgrun"
+	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -39,6 +40,7 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 
 	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
 	a.Get("/bosmang/bgrun", zhttp.Wrap(h.bgrun))
+	a.Post("/bosmang/bgrun/{task}", zhttp.Wrap(h.runTask))
 	a.Get("/bosmang/metrics", zhttp.Wrap(h.metrics))
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
 
@@ -75,10 +77,29 @@ func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "bosmang_bgrun.gohtml", struct {
 		Globals
+		Tasks   []cron.Task
 		Jobs    []bgrun.Job
 		History []bgrun.Job
 		Metrics map[string]ztime.Durations
-	}{newGlobals(w, r), bgrun.List(), hist, metrics})
+	}{newGlobals(w, r), cron.Tasks, bgrun.List(), hist, metrics})
+}
+
+func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	taskID := v.Integer("task", chi.URLParam(r, "task"))
+	v.Range("task", taskID, 0, int64(len(cron.Tasks)-1))
+	if v.HasErrors() {
+		return v
+	}
+
+	t := cron.Tasks[taskID]
+	id := t.ID()
+	bgrun.Run("manual:"+id, func() {
+		t.Fun(r.Context())
+	})
+
+	zhttp.Flash(w, "Task %q started", id)
+	return zhttp.SeeOther(w, "/bosmang/bgrun")
 }
 
 func (h bosmang) metrics(w http.ResponseWriter, r *http.Request) error {
