@@ -137,8 +137,8 @@ zgo.at/zli v0.0.0-20211215141047-76dae1509b03/go.mod h1:pWkBHZ5qoEmvSDbFYdQMAKaR
 zgo.at/zlog v0.0.0-20201213081304-1dc74ce06e5f/go.mod h1:YkLAQZjLsp1RqWHn8SJokHzXyYU+6FZjM4GNY64IKME=
 zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9 h1:4Ot1ETCZQjEjISFiE+SjhwykNvUTLJfyK/BCoJJidnk=
 zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9/go.mod h1:2Pa5cqKA/6S9FrMFeNowtHPd7JEzqwooLXcxU6Wk7Hc=
-zgo.at/zprof v0.0.0-20211017223351-20543d9cf990 h1:TmMLKgMuco8pkdfG+ZqpF5vdUORzYxtpWlT6C8sPrjE=
-zgo.at/zprof v0.0.0-20211017223351-20543d9cf990/go.mod h1:JqClLxeT9Uui3apqyN3U6KryFanocqM7E3X4Gle2FAU=
+zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0 h1:nUshmGDnI3+N1OeU265xaqR6weTN2xgrqls8nrkGzbA=
+zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0/go.mod h1:JqClLxeT9Uui3apqyN3U6KryFanocqM7E3X4Gle2FAU=
 zgo.at/zstd v0.0.0-20210310054817-c39eb9b7df25/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
 zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstd v0.0.0-20210512041107-8951517febd3/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=

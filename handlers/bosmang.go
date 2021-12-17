@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -22,6 +23,7 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zprof"
 	"zgo.at/zstd/znet"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
@@ -32,6 +34,7 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a.Get("/bosmang", zhttp.Wrap(h.index))
 
 	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
+	a.Get("/bosmang/bgrun", zhttp.Wrap(h.bgrun))
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
 
 	a.Get("/bosmang/sites", zhttp.Wrap(h.sites))
@@ -53,6 +56,28 @@ func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
 			Items map[string]string
 		}
 	}{newGlobals(w, r), cache})
+}
+
+func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
+	hist := bgrun.History()
+
+	metrics := make(map[string]ztime.Durations)
+	for _, h := range hist {
+		x, ok := metrics[h.Name]
+		if !ok {
+			x = ztime.NewDurations(0)
+			x.Grow(32)
+		}
+		x.Append(h.Finished.Sub(h.Started))
+		metrics[h.Name] = x
+	}
+
+	return zhttp.Template(w, "bosmang_bgrun.gohtml", struct {
+		Globals
+		Jobs    []bgrun.Job
+		History []bgrun.Job
+		Metrics map[string]ztime.Durations
+	}{newGlobals(w, r), bgrun.List(), hist, metrics})
 }
 
 func (h bosmang) sites(w http.ResponseWriter, r *http.Request) error {

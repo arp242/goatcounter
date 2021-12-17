@@ -29,6 +29,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztime"
 	"zgo.at/ztpl"
 	"zgo.at/ztpl/tplfunc"
 	"zgo.at/zvalidate"
@@ -43,9 +44,53 @@ func init() {
 	tplfunc.Add("concat", func(sep string, strs ...string) string {
 		return strings.Join(strs, sep)
 	})
-
 	tplfunc.Add("percentage", func(n, total int) float64 {
 		return float64(n) / float64(total) * 100
+	})
+	tplfunc.Add("ago", func(t time.Time) time.Duration {
+		return time.Now().Sub(t).Round(time.Second)
+	})
+
+	tplfunc.Add("round_duration", func(d time.Duration) time.Duration {
+		if d < time.Millisecond {
+			return d
+		}
+		if d < time.Second*10 {
+			return d.Round(time.Millisecond)
+		}
+		return d.Round(time.Second)
+	})
+
+	tplfunc.Add("distribute_durations", func(times ztime.Durations, n int) template.HTML {
+		p := func(d time.Duration) string {
+			return ztime.DurationAs(d.Round(time.Millisecond), time.Millisecond)
+		}
+		b := new(strings.Builder)
+
+		fmt.Fprintln(b, "\nDistribution:")
+		dist := times.Distrubute(n)
+		var (
+			widthDur, widthNum int
+			widthBar           = 100.0
+		)
+		for _, d := range dist {
+			if l := len(p(d.Min())); l > widthDur {
+				widthDur = l
+			}
+			if l := len(strconv.Itoa(d.Len())); l > widthNum {
+				widthNum = l
+			}
+		}
+
+		format := fmt.Sprintf("    ≤ %%%ds ms → %%%dd  %%s %%.1f%%%%\n", widthDur, widthNum)
+		l := float64(times.Len())
+		for _, h := range dist {
+			r := int(widthBar / (l / float64(h.Len())))
+			perc := float64(h.Len()) / l * 100
+			fmt.Fprintf(b, format, p(h.Max()), h.Len(), strings.Repeat("▬", r), perc)
+		}
+
+		return template.HTML(b.String())
 	})
 
 	tplfunc.Add("ord", func(n int) template.HTML {
