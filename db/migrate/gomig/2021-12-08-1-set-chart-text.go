@@ -11,7 +11,7 @@ import (
 
 func KeepAsText(ctx context.Context) error {
 	// Not implemented for SQLite.
-	if zdb.Driver(ctx) == zdb.DriverSQLite {
+	if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 		return nil
 	}
 

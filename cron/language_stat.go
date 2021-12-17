@@ -47,7 +47,7 @@ func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := zdb.NewBulkInsert(ctx, "language_stats", []string{"site_id", "day",
 			"path_id", "language", "count", "count_unique"})
-		if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
+		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 			ins.OnConflict(`on conflict on constraint "language_stats#site_id#path_id#day#language" do update set
 				count        = language_stats.count        + excluded.count,
 				count_unique = language_stats.count_unique + excluded.count_unique`)

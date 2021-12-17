@@ -36,7 +36,7 @@ func TestWebsiteTpl(t *testing.T) {
 		// rdr
 		// {"/api", "Backend integration"},
 
-		{"/help", "I don’t see my pageviews?"},
+		//{"/help", "I don’t see my pageviews?"},
 		{"/help/gdpr", "consult a lawyer"},
 		{"/contact", "Send message"},
 		{"/contribute", "One-time donation"},

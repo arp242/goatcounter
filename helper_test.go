@@ -25,7 +25,7 @@ func TestEmbed(t *testing.T) {
 
 func TestSQLiteJSON(t *testing.T) {
 	ctx := zdb.StartTest(t)
-	if zdb.Driver(ctx) != zdb.DriverSQLite {
+	if zdb.SQLDialect(ctx) != zdb.DialectSQLite {
 		return
 	}
 

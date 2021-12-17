@@ -489,8 +489,8 @@ func GetMax(ctx context.Context, rng ztime.Range, pathFilter []int64, daily bool
 			"end":    rng.End,
 			"tz":     user.Settings.Timezone.OffsetRFC3339(),
 			"filter": pathFilter,
-			"pgsql":  zdb.Driver(ctx) == zdb.DriverPostgreSQL,
-			"sqlite": zdb.Driver(ctx) == zdb.DriverSQLite,
+			"pgsql":  zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL,
+			"sqlite": zdb.SQLDialect(ctx) == zdb.DialectSQLite,
 		}
 	} else {
 		query = "load:hit_list.GetMax-hourly"

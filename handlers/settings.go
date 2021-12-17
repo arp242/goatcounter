@@ -923,7 +923,7 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) bosmang(w http.ResponseWriter, r *http.Request) error {
-	dbVersion, _ := zdb.MustGetDB(r.Context()).Version(r.Context())
+	info, _ := zdb.Info(r.Context())
 	return zhttp.Template(w, "settings_server.gohtml", struct {
 		Globals
 		Uptime          string
@@ -939,7 +939,7 @@ func (h settings) bosmang(w http.ResponseWriter, r *http.Request) error {
 		ztime.Now().Sub(Started).Round(time.Second).String(),
 		goatcounter.Version,
 		cron.LastMemstore.Get().Round(time.Second).Format(time.RFC3339),
-		zdb.Driver(r.Context()).String() + " " + string(dbVersion),
+		zdb.SQLDialect(r.Context()).String() + " " + string(info.Version),
 		runtime.Version(),
 		runtime.GOOS,
 		runtime.GOARCH,

@@ -442,11 +442,11 @@ func cmdDBSchema(cmd string) error {
 	if err != nil {
 		return err
 	}
-	driver := zdb.DriverSQLite
+	driver := zdb.DialectSQLite
 	if cmd == "schema-pgsql" {
-		driver = zdb.DriverPostgreSQL
+		driver = zdb.DialectPostgreSQL
 	}
-	d, err = zdb.SchemaTemplate(driver, string(d))
+	d, err = zdb.Template(driver, string(d))
 	if err != nil {
 		return err
 	}
@@ -472,12 +472,7 @@ func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
 
 	ctx := zdb.WithDB(context.Background(), db)
 
-	err = db.Ping(ctx)
-	if err != nil {
-		return err
-	}
-
-	version, err := db.Version(ctx)
+	info, err := db.Info(ctx)
 	if err != nil {
 		return err
 	}
@@ -489,7 +484,7 @@ func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
 	}
 	if print {
 		fmt.Fprintf(zli.Stdout, "DB at %q seems okay; %s version %s\n",
-			*dbConnect, db.DriverName(), version)
+			*dbConnect, info.DriverName, info.Version)
 	}
 	return nil
 }
@@ -517,7 +512,7 @@ func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 	}
 	defer db.Close()
 
-	q, err := db.Load(ctx, "db.query."+query[0]+".sql")
+	q, err := zdb.Load(db, "db.query."+query[0]+".sql")
 	if err != nil {
 		q = strings.Join(query, " ")
 	}

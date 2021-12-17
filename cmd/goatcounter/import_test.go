@@ -103,7 +103,7 @@ func runImportClean(ctx context.Context, t *testing.T) func() {
 			t.Fatal(err)
 		}
 
-		if zdb.Driver(ctx) == zdb.DriverSQLite {
+		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 			err = zdb.Exec(ctx, `update sqlite_sequence set seq = 0 where name in ('hits', 'paths', 'user_agents')`)
 			if err != nil {
 				t.Fatal(err)

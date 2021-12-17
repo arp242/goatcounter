@@ -102,7 +102,7 @@ func db(t testing.TB, storeFile bool) context.Context {
 	t.Cleanup(func() {
 		goatcounter.Memstore.Reset()
 		db.Close()
-		if db.Driver() == zdb.DriverPostgreSQL {
+		if db.SQLDialect() == zdb.DialectPostgreSQL {
 			exec.Command("dropdb", dbname).Run()
 		}
 	})

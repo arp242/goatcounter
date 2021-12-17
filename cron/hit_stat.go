@@ -43,7 +43,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.count = make([]int, 24)
 				v.countUnique = make([]int, 24)
 
-				if zdb.Driver(ctx) == zdb.DriverSQLite && !isReindex {
+				if zdb.SQLDialect(ctx) == zdb.DialectSQLite && !isReindex {
 					var err error
 					v.count, v.countUnique, err = existingHitStats(ctx, h.Site, day, v.pathID)
 					if err != nil {
@@ -63,7 +63,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "day", "path_id",
 			"stats", "stats_unique"})
-		if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
+		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 			ins.OnConflict(`on conflict on constraint "hit_stats#site_id#path_id#day" do update set
 				stats = (
 					with x as (

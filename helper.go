@@ -64,7 +64,7 @@ func init() {
 
 // TODO: Move to zdb
 func interval(ctx context.Context, days int) string {
-	if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
+	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 		return fmt.Sprintf(" now() - interval '%d days' ", days)
 	}
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)

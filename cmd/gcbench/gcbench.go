@@ -159,7 +159,7 @@ func main() {
 
 	fmt.Println("Using the following databases:")
 	for _, r := range runs {
-		fmt.Println(zdb.MustGetDB(r.ctx).DriverName(), "\t", r.dbname)
+		fmt.Println(zdb.MustGetDB(r.ctx).SQLDialect(), "\t", r.dbname)
 	}
 	fmt.Println()
 
@@ -252,7 +252,7 @@ func insert(r run) error {
 	if err != nil {
 		return err
 	}
-	if zdb.MustGetDB(r.ctx).Driver() == zdb.DriverPostgreSQL {
+	if zdb.MustGetDB(r.ctx).SQLDialect() == zdb.DialectPostgreSQL {
 		return zdb.Exec(r.ctx, "checkpoint")
 	}
 	return zdb.Exec(r.ctx, "pragma wal_checkpoint")

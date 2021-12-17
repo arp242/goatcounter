@@ -322,7 +322,7 @@ func (u *User) ByResetToken(ctx context.Context, key string) error {
 	}
 
 	query := `select * from users where login_request=$1 and site_id=$2 and `
-	if zdb.Driver(ctx) == zdb.DriverPostgreSQL {
+	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 		query += fmt.Sprintf(`reset_at + interval '%s' > now()`, timeout)
 	} else {
 		query += fmt.Sprintf(`datetime(reset_at, '+%s') > datetime()`, timeout)

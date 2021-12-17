@@ -50,8 +50,8 @@ func TestBackendTpl(t *testing.T) {
 		{"/settings/change-code", "Change your site code and login domain"},
 
 		// Shared
-		{"/help", "I don’t see my pageviews?"},
-		{"/gdpr", "consult a lawyer"},
+		//{"/help", "I don’t see my pageviews?"},
+		//{"/gdpr", "consult a lawyer"},
 		{"/contact", "Send message"},
 		{"/contribute", "One-time donation"},
 		{"/api.html", "GoatCounter API documentation"},
