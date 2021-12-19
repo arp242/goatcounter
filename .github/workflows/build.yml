@@ -1,0 +1,71 @@
+# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Build
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ 'master' ]
+
+env:
+  PROJECT_NAME: 'goatcounter'
+
+jobs:
+
+  test-linux:
+    runs-on: ubuntu-latest
+    container: golang:1-bullseye
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /go/pkg
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+      - name: Run Tests
+        run: go test
+
+  build-linux:
+    if: ${{ github.ref == 'refs/heads/master' }}
+    needs: test-linux
+    runs-on: ubuntu-latest
+    container: golang:1-bullseye
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /go/pkg
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Build GoatCounter on Ubuntu
+        run: | 
+          pwd
+          go build -tags osusergo,netgo,sqlite_omit_load_extension \
+            -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static"\
+            ./cmd/goatcounter
+          ls
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: goatcounter-linux
+          path: ${{ github.workspace }}/goatcounter
+  
+  build-container:
+    if: ${{ github.ref == 'refs/heads/master' }}
+    needs: test-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /go/pkg
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Configure env
+        run: | 
+          export IMAGE_NAME=$(if [ $GITHUB_REF_NAME == "master" ]; then echo "latest"; else echo ${GITHUB_REF_NAME}; fi;);
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+      - name: Build Docker Container
+        run: |
+          docker build -t "$PROJECT_NAME:${{ env.IMAGE_NAME }}" .
