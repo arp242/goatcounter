@@ -22,6 +22,10 @@ import (
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
+
+	"zgo.at/zdb/drivers"
+	_ "zgo.at/zdb/drivers/go-sqlite3"
+	_ "zgo.at/zdb/drivers/pq"
 )
 
 func init() {
@@ -144,18 +148,31 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 }
 
 func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
+	if strings.Contains(connect, "://") && !strings.Contains(connect, "+") {
+		connect = strings.Replace(connect, "://", "+", 1)
+		zlog.Errorf(`WARNING: the connection string for -db changed from "engine://connectString" to "engine+connectString"; the ://-variant will work for now, but will be removed in a future release`)
+	}
+
 	fsys, err := zfs.EmbedOrDir(goatcounter.DB, "db", dev)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	db, err := zdb.Connect(zdb.ConnectOptions{
+	// TODO: need to actually use this. Maybe adding a "sqlite.ConnectHook"
+	// isn't such a bad idea after all, so we don't need to muck about with any
+	// of this.
+	//
+	// We don't actually use it for now, so not a big deal as such.
+	// sql.Register("sqlite3-goatcounter", &sqlite3.SQLiteDriver{
+	// 	ConnectHook: goatcounter.SQLiteHook,
+	// })
+
+	db, err := zdb.Connect(context.Background(), zdb.ConnectOptions{
 		Connect:      connect,
 		Files:        fsys,
 		Migrate:      migrate,
 		GoMigrations: gomig.Migrations,
 		Create:       create,
-		SQLiteHook:   goatcounter.SQLiteHook,
 		MigrateLog:   func(name string) { zlog.Printf("running migration %q", name) },
 	})
 	var pErr *zdb.PendingMigrationsError
@@ -165,7 +182,7 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 	}
 
 	// TODO: maybe ask for confirmation here?
-	var cErr *zdb.NotExistError
+	var cErr *drivers.NotExistError
 	if errors.As(err, &cErr) {
 		if cErr.DB == "" {
 			err = fmt.Errorf("%s database at %q exists but is empty.\n"+

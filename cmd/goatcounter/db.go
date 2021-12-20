@@ -14,6 +14,7 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/zdb"
+	"zgo.at/zdb/drivers"
 	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
@@ -46,9 +47,9 @@ Some common examples:
 
 Flags accepted by all commands:
 
-  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+  -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
+               sqlite+/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
   -createdb    Create the database if it doesn't exist yet.
 
@@ -234,8 +235,8 @@ Detailed documentation on the -db flag:
     GoatCounter can use SQLite and PostgreSQL. All commands accept the -db flag
     to customize the database connection string.
 
-    You can select a database engine by using "sqlite://[..]" for SQLite, or
-    "postgresql://[..]" (or "postgres://[..]") for PostgreSQL.
+    You can select a database engine by using "sqlite+[..]" for SQLite, or
+    "postgresql+[..]" (or "postgres+[..]") for PostgreSQL.
 
     There are no plans to support other database engines such as MySQL/MariaDB.
 
@@ -256,7 +257,7 @@ SQLite notes:
     The SQLite connection string is usually just a filename, optionally prefixed
     with "file:". Parameters can be added as a URL query string after a ?:
 
-        -db 'sqlite://mydb.sqlite?param=value&other=value'
+        -db 'sqlite+mydb.sqlite?param=value&other=value'
 
     See the go-sqlite3 documentation for a list of supported parameters:
     https://github.com/mattn/go-sqlite3/#connection-string
@@ -273,15 +274,15 @@ PostgreSQL notes:
     The PostgreSQL connection string can either be as "key=value" or as an URL;
     the following are identical:
 
-        -db 'postgresql://user=pqgotest dbname=pqgotest sslmode=verify-full'
-        -db 'postgresql://pqgotest:password@localhost/pqgotest?sslmode=verify-full'
+        -db 'postgresql+user=pqgotest dbname=pqgotest sslmode=verify-full'
+        -db 'postgresql+postgres://pqgotest:password@localhost/pqgotest?sslmode=verify-full'
 
     See the pq documentation for a list of supported parameters:
     https://pkg.go.dev/github.com/lib/pq?tab=doc#hdr-Connection_String_Parameters
 
     You can also use the standard PG* environment variables:
 
-        PGDATABASE=goatcounter DBHOST=/var/run goatcounter -db 'postgresql://'
+        PGDATABASE=goatcounter DBHOST=/var/run goatcounter -db 'postgresql'
 
     You may want to consider lowering the "seq_page_cost" parameter; the query
     planner tends to prefer seq scans instead of index scans for some operations
@@ -328,7 +329,7 @@ func cmdDB(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	defer func() { ready <- struct{}{} }()
 
 	var (
-		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		dbConnect = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		createdb  = f.Bool(false, "createdb").Pointer()
 	)
@@ -384,7 +385,7 @@ start:
 			return guru.Errorf(2, "database at %q already exists", *dbConnect)
 		}
 
-		var cErr *zdb.NotExistError
+		var cErr *drivers.NotExistError
 		if !errors.As(err, &cErr) {
 			return err
 		}
@@ -464,7 +465,7 @@ func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
 		return errors.New("must add -db flag")
 	}
 	zlog.Config.SetDebug(*debug)
-	db, err := zdb.Connect(zdb.ConnectOptions{Connect: *dbConnect})
+	db, err := zdb.Connect(context.Background(), zdb.ConnectOptions{Connect: *dbConnect})
 	if err != nil {
 		return err
 	}

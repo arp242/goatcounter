@@ -20,9 +20,9 @@ log if it's 0.
 
 Flags:
 
-  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+  -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
+               sqlite+/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
                See "goatcounter help debug" for a list of modules.
@@ -39,7 +39,7 @@ Flags:
 
 func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
-		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		dbConnect = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		period    = f.Int(120, "period").Pointer()
 		once      = f.Bool(false, "once").Pointer()

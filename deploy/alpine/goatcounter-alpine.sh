@@ -93,7 +93,7 @@ description="GoatCounter web analytics"
 
 command=/home/goatcounter/bin/goatcounter
 directory=/home/goatcounter
-command_args="serve -listen \${GOATCOUNTER_LISTEN:-:443} -db \${GOATCOUNTER_DB:-sqlite://./db/goatcounter.sqlite3} \${GOATCOUNTER_OPTS:--automigrate}"
+command_args="serve -listen \${GOATCOUNTER_LISTEN:-:443} -db \${GOATCOUNTER_DB:-sqlite+./db/goatcounter.sqlite3} \${GOATCOUNTER_OPTS:--automigrate}"
 command_user="goatcounter:goatcounter"
 command_background="yes"
 pidfile="/run/\${RC_SVCNAME}.pid"
@@ -120,11 +120,11 @@ cat << EOF > /etc/conf.d/goatcounter
 
 # Location of SQLite3 database file or PostgreSQL connection. GoatCounter is
 # started from /home/goatcounter.
-#GOATCOUNTER_DB="sqlite://./db/goatcounter.sqlite3"
+#GOATCOUNTER_DB="sqlite+./db/goatcounter.sqlite3"
 
 # If you use PostgreSQL then URI-type connector is recommended, as OpenRC can't
 # deal well with spaces; for example:
-#GOATCOUNTER_DB="postgresql:///run/postgresql/goatcounter?sslmode=disable"
+#GOATCOUNTER_DB="postgresql+/run/postgresql/goatcounter?sslmode=disable"
 
 
 # Other flags to add. See "goatcounter help serve".

@@ -43,7 +43,7 @@ func TestDBTest(t *testing.T) {
 	}
 	out.Reset()
 
-	runCmd(t, exit, "db", "test", "-db=sqlite://yeah_nah_doesnt_exist")
+	runCmd(t, exit, "db", "test", "-db=sqlite+yeah_nah_doesnt_exist")
 	wantExit(t, exit, out, 1)
 	if !strings.Contains(out.String(), `doesn't exist`) {
 		t.Error(out.String())
@@ -93,7 +93,7 @@ func TestDBNewDB(t *testing.T) {
 	wantExit(t, exit, out, 2)
 
 	tmp := t.TempDir()
-	dbc = "sqlite3://" + tmp + "/new"
+	dbc = "sqlite3+" + tmp + "/new"
 
 	runCmd(t, exit, "db", "newdb", "-db="+dbc)
 	wantExit(t, exit, out, 0)

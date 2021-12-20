@@ -7,12 +7,10 @@ package gctest
 
 import (
 	"context"
-	"database/sql"
 	"os"
 	"os/exec"
 	"testing"
 
-	"github.com/mattn/go-sqlite3"
 	"golang.org/x/text/language"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
@@ -27,9 +25,10 @@ import (
 var pgSQL = false
 
 func init() {
-	sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
-		ConnectHook: goatcounter.SQLiteHook,
-	})
+	// TODO
+	// sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
+	// 	ConnectHook: goatcounter.SQLiteHook,
+	// })
 	goatcounter.InitGeoDB("")
 }
 
@@ -73,23 +72,22 @@ func db(t testing.TB, storeFile bool) context.Context {
 
 	dbname := "goatcounter_test_" + zcrypto.Secret64()
 
-	conn := "sqlite3://:memory:?cache=shared"
+	conn := "sqlite3+:memory:?cache=shared"
 	if storeFile {
-		conn = "sqlite://" + t.TempDir() + "/goatcounter.sqlite3"
+		conn = "sqlite+" + t.TempDir() + "/goatcounter.sqlite3"
 	}
 	if pgSQL {
 		os.Setenv("PGDATABASE", dbname)
-		conn = "postgresql://"
+		conn = "postgresql+"
 	}
 	os.Setenv("GCTEST_CONNECT", conn)
 
-	db, err := zdb.Connect(zdb.ConnectOptions{
+	db, err := zdb.Connect(context.Background(), zdb.ConnectOptions{
 		Connect:      conn,
 		Files:        os.DirFS(zgo.ModuleRoot()),
 		Migrate:      []string{"all"},
 		GoMigrations: gomig.Migrations,
 		Create:       true,
-		SQLiteHook:   goatcounter.SQLiteHook,
 	})
 	if err != nil {
 		t.Fatalf("connect to DB: %s", err)

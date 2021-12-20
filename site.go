@@ -6,7 +6,6 @@ package goatcounter
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"path"
 	"strconv"
@@ -462,7 +461,7 @@ func (s Site) Exists(ctx context.Context) (int64, error) {
 	}
 
 	err := zdb.Get(ctx, &id, query, params...)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && !zdb.ErrNoRows(err) {
 		return 0, fmt.Errorf("Site.Exists: %w", err)
 	}
 	return id, nil

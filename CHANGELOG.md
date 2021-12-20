@@ -7,6 +7,19 @@ latest master.
 
 Unreleased
 ----------
+- The database connection string changed; you now need to use `-db
+  engine+connect string` rather than `engine://connect string`:
+
+      -db sqlite+[sqlite connection string]
+      -db postgresql+[sqlite connection string]
+
+  Various aliases such a `sqlite3`, `postgres` also work.
+
+  The previous "url-like" strings conflicted with PostgreSQL's URL connection
+  strings, causing confusion.
+
+  `://`-type strings without a `+` will be rewritten, but will issue a warning.
+
 - GoatCounter can now collect language statistics as well, from the
   `Accept-Language` HTTP header.
 

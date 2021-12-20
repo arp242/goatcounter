@@ -77,9 +77,9 @@ Flags:
   -generate-key  Create a new secret key. This will invalidate any previously
                  generated key.
 
-  -db          Database connection: "sqlite://<file>" or "postgres://<connect>"
+  -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite://db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
+               sqlite+/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
                Only needed for -generate-key
 
@@ -114,7 +114,7 @@ func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	)
 
 	var (
-		dbConnect = f.String("sqlite://db/goatcounter.sqlite3", "db").Pointer()
+		dbConnect = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		listen    = f.String("localhost:8082", "listen").Pointer()
 		backend   = f.String("https://localhost", "backend").Pointer()

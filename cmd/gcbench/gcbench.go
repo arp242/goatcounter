@@ -61,8 +61,8 @@ This will use SQLite, insert 1 million pageviews, spread out over 500 paths, and
 
 You can also use an existing database by using a connect flag; for example:
 
-    sqlite:///home/martin/.cache/gcbench/gcbench_20210323T164251_2000_1_1.sqlite3
-    postgres://dbname=gcbench_20210323T164251_2000_1_1
+    sqlite+/home/martin/.cache/gcbench/gcbench_20210323T164251_2000_1_1.sqlite3
+    postgres+dbname=gcbench_20210323T164251_2000_1_1
 
 This won't insert any pageviews and will just re-run the ports. This assumes the
 pageviews are on site_id=1.
@@ -119,13 +119,13 @@ func main() {
 			zli.F(errors.New("unknown db: " + dbConnect))
 		case "sqlite":
 			r.dbname = tmpdir.String() + "/" + r.dbname + ".sqlite3"
-			r.dbConnect = "sqlite://" + r.dbname
+			r.dbConnect = "sqlite+" + r.dbname
 		case "postgres":
-			r.dbConnect = "postgres://dbname=" + r.dbname
+			r.dbConnect = "postgres+dbname=" + r.dbname
 		}
 
 		var err error
-		r.db, err = zdb.Connect(zdb.ConnectOptions{
+		r.db, err = zdb.Connect(context.Background(), zdb.ConnectOptions{
 			Connect:      r.dbConnect,
 			Create:       true,
 			GoMigrations: gomig.Migrations,

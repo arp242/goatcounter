@@ -216,13 +216,13 @@ Use `goatcounter migrate pending` to get a list of pending migrations, or
 ### PostgreSQL
 To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
 
-    $ goatcounter serve -db 'postgresql://dbname=goatcounter'
-    $ goatcounter serve -db 'postgresql://host=/run/postgresql dbname=goatcounter sslmode=disable'
+    $ goatcounter serve -db 'postgresql+dbname=goatcounter'
+    $ goatcounter serve -db 'postgresql+host=/run/postgresql dbname=goatcounter sslmode=disable'
 
 This follows the format in the `psql` CLI; you can also use the `PG*`
 environment variables:
 
-   $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql://'
+   $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
 
 See `goatcounter help db` and the [pq docs][pq] for more details.
 
