@@ -2,7 +2,7 @@
 
 <h2>Sites</h2>
 
-<form method="post" action="/bosmang/{{.Stat.Account.ID}}/update-billing" class="vertical">
+<form method="post" action="/bosmang/sites/{{.Stat.Account.ID}}/update-billing" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>
 		<legend>Set plan</legend>
@@ -62,7 +62,7 @@
 	</fieldset>
 </form>
 
-<form method="post" action="/bosmang/login/{{.Stat.Account.ID}}" class="vertical">
+<form method="post" action="/bosmang/sites/login/{{.Stat.Account.ID}}" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>
 		<legend>Admin access</legend>
