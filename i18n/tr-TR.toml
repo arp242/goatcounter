@@ -1222,6 +1222,7 @@ eşleşmeleri için kullanın.
   default = "Sayfa grafikleriyle hizalanması için sola kenar boşluğu ekleyin"
 
 ["widget-setting/help/chart-style"]
+  default = "Grafiklerin nasıl çizileceği"
 
 ["widget-setting/help/no-events"]
   default = "Toplam görünümde etkinleri dahil etme"
@@ -1239,6 +1240,7 @@ eşleşmeleri için kullanın.
   default = "Sayfalarla hizala"
 
 ["widget-setting/label/chart-style"]
+  default = "Grafik stili"
 
 ["widget-setting/label/no-events"]
   default = "Etkinlikleri hariç tut"
@@ -1253,11 +1255,13 @@ eşleşmeleri için kullanın.
   default = "Bölgeleri göster"
 
 ["widget-settings/bar-chart"]
+  default = "Çubuk grafiği"
 
 ["widget-settings/line-chart"]
+  default = "Çizgi grafiği"
 
 ["widget-settings/text-chart"]
+  default = "Metin tablosu"
 
 ["y-scale"]
   default = "Y ekseni ölçeği"
-
