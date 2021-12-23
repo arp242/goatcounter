@@ -455,19 +455,20 @@ type TotalCount struct {
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
 func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64, noEvents bool) (TotalCount, error) {
-	site := MustGetSite(ctx)
-	user := MustGetUser(ctx)
+	file := "load:hit_list.GetTotalCount"
+	if noEvents {
+		file += "-noEvents"
+	}
 
 	var t TotalCount
-	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", zdb.P{
-		"site":      site.ID,
+	err := zdb.Get(ctx, &t, file, zdb.P{
+		"sqlite":    zdb.SQLDialect(ctx) == zdb.DialectSQLite,
+		"site":      MustGetSite(ctx).ID,
 		"start":     rng.Start,
 		"end":       rng.End,
-		"start_utc": rng.Start.In(user.Settings.Timezone.Location),
-		"end_utc":   rng.End.In(user.Settings.Timezone.Location),
 		"filter":    pathFilter,
+		"tz":        MustGetUser(ctx).Settings.Timezone.Offset(),
 		"no_events": noEvents,
-		"tz":        user.Settings.Timezone.Offset(),
 	})
 	return t, errors.Wrap(err, "GetTotalCount")
 }

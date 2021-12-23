@@ -142,6 +142,9 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("data widget", w).FieldsRequest(r) })
 				defer wg.Done()
 
+				m := metrics.Start("dashboard." + w.Name())
+				defer m.Done()
+
 				// Create context for every goroutine, so we know which timed out.
 				ctx, cancel := context.WithTimeout(goatcounter.CopyContextValues(r.Context()),
 					time.Duration(h.dashTimeout)*time.Second)
