@@ -334,7 +334,7 @@ insert into version values
 	('2021-04-01-1-store-warn'),
 	('2021-04-02-1-cluster-paths'),
 	('2021-04-07-1-billing-anchor'),
-	('2021-11-15-1-user-role'),
-	('2021-06-27-1-public');
+	('2021-06-27-1-public'),
+	('2021-11-15-1-user-role');
 
 -- vim:ft=sql:tw=0
