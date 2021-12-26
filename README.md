@@ -85,6 +85,9 @@ There are three ways:
 
 Running your own
 ----------------
+**Note this README is for the latest master and may be inaccurate for the latest
+released version; use the [`release-2.1`][latest] branch for the 2.1 README.**
+
 The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
 are statically compiled, contain everything you need, and should work in pretty
 much any Linux environment. The only other thing you need is somewhere to store
@@ -93,9 +96,6 @@ a SQLite database file or a PostgreSQL connection.
 GoatCounter should run on any platform supported by Go, but there are no
 binaries for them (yet) as cross-compiling SQLite is somewhat complex. You'll
 have to build from source if you want to run it on e.g. FreeBSD or macOS.
-
-Note this README is for the latest master; use the [`release-2.1`][latest]
-branch for the 2.1 README.
 
 Generally speaking only the latest release is supported, although critical fixes
 (security, data loss, etc.) may get backported to previous releases.
