@@ -17,10 +17,11 @@ import (
 )
 
 type Pages struct {
-	id   int
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	id     int
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Ref                    string
 	Style                  string
@@ -40,6 +41,7 @@ func (w *Pages) SetHTML(h template.HTML)             { w.html = h }
 func (w Pages) HTML() template.HTML                  { return w.html }
 func (w *Pages) SetErr(h error)                      { w.err = h }
 func (w Pages) Err() error                           { return w.err }
+func (w Pages) ID() int                              { return w.id }
 func (w Pages) Settings() goatcounter.WidgetSettings { return w.s }
 
 func (w *Pages) SetSettings(s goatcounter.WidgetSettings) {
@@ -82,6 +84,7 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	errs.Append(err)
 
 	wg.Wait()
+	w.loaded = true
 	return w.More, errs.ErrorOrNil()
 }
 
@@ -92,11 +95,12 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 			Site    *goatcounter.Site
 			User    *goatcounter.User
 			ID      int
+			Loaded  bool
 			Err     error
 
 			Refs        goatcounter.HitStats
 			CountUnique int
-		}{ctx, shared.Site, shared.User, w.id, w.err,
+		}{ctx, shared.Site, shared.User, w.id, w.loaded, w.err,
 			w.Refs, shared.TotalUnique}
 	}
 
@@ -149,6 +153,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		User    *goatcounter.User
 
 		ID          int
+		Loaded      bool
 		Err         error
 		Pages       goatcounter.HitLists
 		Period      ztime.Range
@@ -171,7 +176,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		ShowRefs string
 	}{
 		ctx, shared.Site, shared.User,
-		w.id, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
+		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, w.Max, w.Display,
 		w.UniqueDisplay, shared.Total, shared.TotalUnique, shared.TotalEvents, shared.TotalEventsUnique,
 		w.More, w.Style, w.Refs, shared.Args.ShowRefs,

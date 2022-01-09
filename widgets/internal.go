@@ -12,9 +12,10 @@ import (
 )
 
 type Max struct {
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Max int
 }
@@ -26,20 +27,23 @@ func (w *Max) SetHTML(h template.HTML)                                     {}
 func (w Max) HTML() template.HTML                                          { return w.html }
 func (w *Max) SetErr(h error)                                              { w.err = h }
 func (w Max) Err() error                                                   { return w.err }
+func (w Max) ID() int                                                      { return 0 }
 func (w Max) Settings() goatcounter.WidgetSettings                         { return w.s }
 func (w *Max) SetSettings(s goatcounter.WidgetSettings)                    { w.s = s }
 func (w Max) RenderHTML(context.Context, SharedData) (string, interface{}) { return "", nil }
 func (w *Max) GetData(ctx context.Context, a Args) (more bool, err error) {
 	w.Max, err = goatcounter.GetMax(ctx, a.Rng, a.PathFilter, a.Daily)
+	w.loaded = true
 	return false, err
 }
 
 type TotalCount struct {
 	goatcounter.TotalCount
 
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	NoEvents bool
 }
@@ -51,11 +55,13 @@ func (w *TotalCount) SetHTML(h template.HTML)                                   
 func (w TotalCount) HTML() template.HTML                                          { return w.html }
 func (w *TotalCount) SetErr(h error)                                              { w.err = h }
 func (w TotalCount) Err() error                                                   { return w.err }
+func (w TotalCount) ID() int                                                      { return 0 }
 func (w TotalCount) Settings() goatcounter.WidgetSettings                         { return w.s }
 func (w *TotalCount) SetSettings(s goatcounter.WidgetSettings)                    { w.s = s }
 func (w TotalCount) RenderHTML(context.Context, SharedData) (string, interface{}) { return "", nil }
 
 func (w *TotalCount) GetData(ctx context.Context, a Args) (more bool, err error) {
 	w.TotalCount, err = goatcounter.GetTotalCount(ctx, a.Rng, a.PathFilter, w.NoEvents)
+	w.loaded = true
 	return false, err
 }

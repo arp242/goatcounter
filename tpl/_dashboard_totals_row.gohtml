@@ -2,8 +2,12 @@
 	{{if .Align}}<td class="col-count"></td><td class="col-path hide-mobile"></td>{{end}}
 	<td>
 		<div class="chart chart-{{$.Style}}" data-max="{{.Max}}" data-stats="{{.Page.Stats | json}}" data-daily="{{.Daily}}">
-			<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.User}}</small></span>
-			<canvas></canvas>
+			{{if .Loaded}}
+				<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.User}}</small></span>
+				<canvas></canvas>
+			{{else}}
+				{{t $.Context "dashboard/loading|Loading…"}}
+			{{end}}
 		</div>
 	</td>
 </tr></tbody>

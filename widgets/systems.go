@@ -13,10 +13,11 @@ import (
 )
 
 type Systems struct {
-	id   int
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	id     int
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Limit  int
 	Detail string
@@ -32,6 +33,7 @@ func (w *Systems) SetHTML(h template.HTML)             { w.html = h }
 func (w Systems) HTML() template.HTML                  { return w.html }
 func (w *Systems) SetErr(h error)                      { w.err = h }
 func (w Systems) Err() error                           { return w.err }
+func (w Systems) ID() int                              { return w.id }
 func (w Systems) Settings() goatcounter.WidgetSettings { return w.s }
 
 func (w *Systems) SetSettings(s goatcounter.WidgetSettings) {
@@ -50,6 +52,7 @@ func (w *Systems) GetData(ctx context.Context, a Args) (more bool, err error) {
 	} else {
 		err = w.Stats.ListSystems(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
 	}
+	w.loaded = true
 	return w.Stats.More, err
 }
 
@@ -59,13 +62,14 @@ func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, int
 		ID             int
 		RowsOnly       bool
 		HasSubMenu     bool
+		Loaded         bool
 		Err            error
 		IsCollected    bool
 		Header         string
 		TotalUniqueUTC int
 		Stats          goatcounter.HitStats
 		Detail         string
-	}{ctx, w.id, shared.RowsOnly, true, w.err, isCol(ctx, goatcounter.CollectUserAgent),
+	}{ctx, w.id, shared.RowsOnly, true, w.loaded, w.err, isCol(ctx, goatcounter.CollectUserAgent),
 		z18n.T(ctx, "header/systems|Systems"),
 		shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

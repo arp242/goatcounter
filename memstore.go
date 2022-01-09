@@ -16,7 +16,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -393,19 +392,7 @@ func (m *ms) SessionID() zint.Uint128 {
 		TestSeqSession[1]++
 		return TestSeqSession
 	}
-
-	u, err := uuid.NewRandom()
-	if err != nil {
-		// Only failure here is if reading random failed.
-		panic(fmt.Sprintf("Memstore.SessionID: uuid.NewRandom: %s", err))
-	}
-
-	i, err := zint.NewUint128(u[:])
-	if err != nil {
-		panic(fmt.Sprintf("Memstore.SessionID: %s", err))
-	}
-
-	return i
+	return UUID()
 }
 
 func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {

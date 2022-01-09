@@ -13,10 +13,11 @@ import (
 )
 
 type Locations struct {
-	id   int
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	id     int
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Limit  int
 	Detail string
@@ -32,6 +33,7 @@ func (w *Locations) SetHTML(h template.HTML)             { w.html = h }
 func (w Locations) HTML() template.HTML                  { return w.html }
 func (w *Locations) SetErr(h error)                      { w.err = h }
 func (w Locations) Err() error                           { return w.err }
+func (w Locations) ID() int                              { return w.id }
 func (w Locations) Settings() goatcounter.WidgetSettings { return w.s }
 
 func (w *Locations) SetSettings(s goatcounter.WidgetSettings) {
@@ -50,6 +52,7 @@ func (w *Locations) GetData(ctx context.Context, a Args) (more bool, err error) 
 	} else {
 		err = w.Stats.ListLocations(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
 	}
+	w.loaded = true
 	return w.Stats.More, err
 }
 
@@ -69,12 +72,13 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, i
 		ID             int
 		RowsOnly       bool
 		HasSubMenu     bool
+		Loaded         bool
 		Err            error
 		IsCollected    bool
 		Header         string
 		TotalUniqueUTC int
 		Stats          goatcounter.HitStats
 		Detail         string
-	}{ctx, w.id, shared.RowsOnly, true, w.err, isCol(ctx, goatcounter.CollectLocation),
+	}{ctx, w.id, shared.RowsOnly, true, w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
 		header, shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

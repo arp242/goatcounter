@@ -129,41 +129,61 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// Load widgets data from the database.
 	wid := widgets.FromSiteWidgets(r.Context(), user.Settings.Widgets, 0)
+	shared := widgets.SharedData{Args: args, Site: site, User: user}
 
 	for _, w := range wid.Get("totalpages") {
 		wid.GetOne("totalcount").(*widgets.TotalCount).NoEvents = w.Settings()["no-events"].Value.(bool)
 	}
 
+	initial, lazy := wid.InitialAndLazy()
+
+	getData := func(w widgets.Widget) {
+		m := metrics.Start("dashboard:" + w.Name())
+		defer m.Done()
+
+		// Create context for every goroutine, so we know which timed out.
+		ctx, cancel := context.WithTimeout(goatcounter.CopyContextValues(r.Context()),
+			time.Duration(h.dashTimeout)*time.Second)
+		defer cancel()
+
+		l := zlog.Module("dashboard")
+		_, err := w.GetData(ctx, args)
+		if err != nil {
+			l.FieldsRequest(r).Error(err)
+			_, err = zhttp.UserError(err)
+			w.SetErr(err)
+		}
+		l.Since(w.Name())
+	}
+	getHTML := func(w widgets.Widget) {
+		tplName, tplData := w.RenderHTML(r.Context(), shared)
+		if tplName == "" { // Some data doesn't have a template.
+			return
+		}
+		tpl, err := ztpl.ExecuteString(tplName, tplData)
+		if err != nil {
+			zlog.Module("dashboard").FieldsRequest(r).Error(err)
+			w.SetHTML(template.HTML("template rendering error: " + template.HTMLEscapeString(err.Error())))
+			return
+		}
+
+		w.SetHTML(template.HTML(tpl))
+	}
+
 	func() {
 		var wg sync.WaitGroup
-		for _, w := range wid {
+		for _, w := range initial {
 			wg.Add(1)
 			go func(w widgets.Widget) {
-				m := metrics.Start("dashboard:" + w.Name())
 				defer wg.Done()
-				defer m.Done()
 				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("data widget", w).FieldsRequest(r) })
-
-				// Create context for every goroutine, so we know which timed out.
-				ctx, cancel := context.WithTimeout(goatcounter.CopyContextValues(r.Context()),
-					time.Duration(h.dashTimeout)*time.Second)
-				defer cancel()
-
-				l := zlog.Module("dashboard")
-				_, err := w.GetData(ctx, args)
-				if err != nil {
-					l.FieldsRequest(r).Error(err)
-					_, err = zhttp.UserError(err)
-					w.SetErr(err)
-				}
-				l.Since(w.Name())
+				getData(w)
 			}(w)
 		}
 		zsync.Wait(r.Context(), &wg)
 	}()
 
 	// Set shared params.
-	shared := widgets.SharedData{Args: args, Site: site, User: user}
 	tc := wid.GetOne("totalcount").(*widgets.TotalCount)
 	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEvents, shared.TotalEventsUnique =
 		tc.Total, tc.TotalUnique, tc.TotalUniqueUTC, tc.TotalEvents, tc.TotalEventsUnique
@@ -186,18 +206,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("tpl widget", w).FieldsRequest(r) })
 				defer wg.Done()
 
-				tplName, tplData := w.RenderHTML(r.Context(), shared)
-				if tplName == "" { // Some data doesn't have a template.
-					return
-				}
-				tpl, err := ztpl.ExecuteString(tplName, tplData)
-				if err != nil {
-					zlog.Module("dashboard").FieldsRequest(r).Error(err)
-					w.SetHTML(template.HTML("template rendering error: " + template.HTMLEscapeString(err.Error())))
-					return
-				}
-
-				w.SetHTML(template.HTML(tpl))
+				getHTML(w)
 			}(w)
 		}
 		zsync.Wait(r.Context(), &wg)
@@ -231,6 +240,26 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
+	connectID := goatcounter.UUID()
+	loader.register(connectID)
+
+	go func() {
+		run := zsync.NewAtMost(2)
+		for _, w := range lazy {
+			go func(w widgets.Widget) {
+				run.Run(func() {
+					getData(w)
+					getHTML(w)
+					loader.sendJSON(connectID, map[string]interface{}{
+						"id":   w.ID(),
+						"html": w.HTML(),
+					})
+				})
+			}(w)
+		}
+		run.Wait()
+	}()
+
 	return zhttp.Template(w, "dashboard.gohtml", struct {
 		Globals
 		CountDomain    string
@@ -243,8 +272,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		View           goatcounter.View
 		TotalUnique    int
 		TotalUniqueUTC int
+		ConnectID      zint.Uint128
 	}{newGlobals(w, r), cd, subs, showRefs, rng,
-		args.PathFilter, forcedDaily, wid, view, shared.TotalUnique, shared.TotalUniqueUTC})
+		args.PathFilter, forcedDaily, wid, view, shared.TotalUnique, shared.TotalUniqueUTC,
+		connectID})
 }
 
 func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {

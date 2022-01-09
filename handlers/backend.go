@@ -126,13 +126,16 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 			ds = append(ds, domainStatic)
 		}
 		header.SetCSP(headers, header.CSPArgs{
-			header.CSPDefaultSrc:  {header.CSPSourceNone},
-			header.CSPImgSrc:      append(ds, "data:"),
-			header.CSPScriptSrc:   append(ds, "https://js.stripe.com"),
-			header.CSPStyleSrc:    append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
-			header.CSPFontSrc:     ds,
-			header.CSPFormAction:  {header.CSPSourceSelf, "https://billing.stripe.com"},
-			header.CSPConnectSrc:  {header.CSPSourceSelf, "https://api.stripe.com"},
+			header.CSPDefaultSrc: {header.CSPSourceNone},
+			header.CSPImgSrc:     append(ds, "data:"),
+			header.CSPScriptSrc:  append(ds, "https://js.stripe.com"),
+			header.CSPStyleSrc:   append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
+			header.CSPFontSrc:    ds,
+			header.CSPFormAction: {header.CSPSourceSelf, "https://billing.stripe.com"},
+			// 'self' does not include websockets, and we need to use
+			// "wss://domain.com"; this is difficult because of custom domains
+			// and such, so just allow all websockets.
+			header.CSPConnectSrc:  {header.CSPSourceSelf, "wss:", "https://api.stripe.com"},
 			header.CSPFrameSrc:    {header.CSPSourceSelf, "https://js.stripe.com", "https://hooks.stripe.com"},
 			header.CSPManifestSrc: ds,
 			// Too much noise: header.CSPReportURI:  {"/csp"},
@@ -148,6 +151,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		{
 			ap := a.With(loggedInOrPublic, addz18n())
 			ap.Get("/", zhttp.Wrap(h.dashboard))
+			ap.Get("/loader", zhttp.Wrap(h.loader))
 			ap.Get("/load-widget", zhttp.Wrap(h.loadWidget))
 		}
 		{

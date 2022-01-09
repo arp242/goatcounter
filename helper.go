@@ -13,10 +13,12 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/mattn/go-sqlite3"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
+	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
 
@@ -124,6 +126,20 @@ func LoadBufferKey(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("LoadBufferKey: %w", err)
 	}
 	return key, nil
+}
+
+// UUID created a new UUID v4.
+func UUID() zint.Uint128 {
+	u, err := uuid.NewRandom()
+	if err != nil {
+		panic(fmt.Sprintf("uuid.NewRandom: %s", err))
+	}
+	i, err := zint.NewUint128(u[:])
+	if err != nil {
+		panic(err)
+	}
+
+	return i
 }
 
 func splitIntStr(ident []string) ([]int64, []string) {

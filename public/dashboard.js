@@ -13,7 +13,18 @@
 
 	// Set up all the dashboard widget contents (but not the header).
 	var dashboard_widgets = function() {
-		;[draw_all_charts, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale].forEach((f) => f.call())
+		;[draw_all_charts, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale, dashboard_loader].forEach((f) => f.call())
+	}
+
+	// Open websocket for the dashboard loader.
+	var dashboard_loader = function() {
+		let cid  = $('#js-connect-id').text(),
+			conn = new WebSocket('wss://' + document.location.host + '/loader?id=' + cid)
+		conn.onmessage = function(e) {
+			let msg = JSON.parse(e.data)
+			$(`#dash-widgets div[data-widget=${msg.id}]`).html(msg.html)
+			draw_all_charts()
+		}
 	}
 
 	// Get the Y-axis scale.
@@ -354,13 +365,16 @@
 
 	// Draw this chart
 	var draw_chart = function(c) {
-		var canvas  = $(c).find('canvas')[0]
-		if (canvas.dataset.done === 't')
+		let canvas = $(c).find('canvas')[0]
+		if (!canvas || canvas.dataset.done === 't')
 			return
 		canvas.dataset.done = 't'
 
-		var ctx     = canvas.getContext('2d', {alpha: false}),
-			stats   = JSON.parse(c.dataset.stats),
+		let stats = JSON.parse(c.dataset.stats)
+		if (!stats)
+			return
+
+		let ctx     = canvas.getContext('2d', {alpha: false}),
 			max     = Math.max(10, parseInt(c.dataset.max, 10)),
 			scale   = parseInt($(c).closest('.count-list-pages').attr('data-scale'), 0),
 			daily   = c.dataset.daily === 'true',
