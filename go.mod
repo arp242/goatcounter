@@ -10,6 +10,7 @@ require (
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
+	github.com/gorilla/websocket v1.4.2
 	github.com/mattn/go-sqlite3 v1.14.9
 	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0

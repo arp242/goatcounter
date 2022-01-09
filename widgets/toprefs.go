@@ -13,10 +13,11 @@ import (
 )
 
 type TopRefs struct {
-	id   int
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	id     int
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Limit   int
 	Ref     string
@@ -30,6 +31,7 @@ func (w *TopRefs) SetHTML(h template.HTML)             { w.html = h }
 func (w TopRefs) HTML() template.HTML                  { return w.html }
 func (w *TopRefs) SetErr(h error)                      { w.err = h }
 func (w TopRefs) Err() error                           { return w.err }
+func (w TopRefs) ID() int                              { return w.id }
 func (w TopRefs) Settings() goatcounter.WidgetSettings { return w.s }
 
 func (w *TopRefs) SetSettings(s goatcounter.WidgetSettings) {
@@ -48,6 +50,7 @@ func (w *TopRefs) GetData(ctx context.Context, a Args) (more bool, err error) {
 	} else {
 		err = w.TopRefs.ListTopRefs(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
 	}
+	w.loaded = true
 	return w.TopRefs.More, err
 }
 
@@ -56,11 +59,12 @@ func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, int
 		Context     context.Context
 		ID          int
 		RowsOnly    bool
+		Loaded      bool
 		Err         error
 		IsCollected bool
 		TotalUnique int
 		Stats       goatcounter.HitStats
 		Ref         string
-	}{ctx, w.id, shared.RowsOnly, w.err, isCol(ctx, goatcounter.CollectReferrer),
+	}{ctx, w.id, shared.RowsOnly, w.loaded, w.err, isCol(ctx, goatcounter.CollectReferrer),
 		shared.TotalUnique, w.TopRefs, w.Ref}
 }

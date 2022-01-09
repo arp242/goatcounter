@@ -14,10 +14,11 @@ import (
 )
 
 type TotalPages struct {
-	id   int
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	id     int
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Align, NoEvents bool
 	Style           string
@@ -34,6 +35,7 @@ func (w *TotalPages) SetHTML(h template.HTML)             { w.html = h }
 func (w TotalPages) HTML() template.HTML                  { return w.html }
 func (w *TotalPages) SetErr(h error)                      { w.err = h }
 func (w TotalPages) Err() error                           { return w.err }
+func (w TotalPages) ID() int                              { return w.id }
 func (w TotalPages) Settings() goatcounter.WidgetSettings { return w.s }
 
 func (w *TotalPages) SetSettings(s goatcounter.WidgetSettings) {
@@ -51,6 +53,7 @@ func (w *TotalPages) SetSettings(s goatcounter.WidgetSettings) {
 
 func (w *TotalPages) GetData(ctx context.Context, a Args) (more bool, err error) {
 	w.Max, err = w.Total.Totals(ctx, a.Rng, a.PathFilter, a.Daily, w.NoEvents)
+	w.loaded = true
 	return false, err
 }
 
@@ -78,6 +81,7 @@ func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, 
 		Site    *goatcounter.Site
 		User    *goatcounter.User
 		ID      int
+		Loaded  bool
 		Err     error
 
 		Align             bool
@@ -90,7 +94,7 @@ func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, 
 		TotalEvents       int
 		TotalEventsUnique int
 		Style             string
-	}{ctx, shared.Site, shared.User, w.id, w.err,
+	}{ctx, shared.Site, shared.User, w.id, w.loaded, w.err,
 		w.Align, w.NoEvents,
 		w.Total, shared.Args.Daily, w.Max, shared.Total, shared.TotalUnique, shared.TotalEvents, shared.TotalEventsUnique,
 		w.Style}

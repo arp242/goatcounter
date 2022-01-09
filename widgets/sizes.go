@@ -13,10 +13,11 @@ import (
 )
 
 type Sizes struct {
-	id   int
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	id     int
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Limit  int
 	Detail string
@@ -30,6 +31,7 @@ func (w *Sizes) SetHTML(h template.HTML)             { w.html = h }
 func (w Sizes) HTML() template.HTML                  { return w.html }
 func (w *Sizes) SetErr(h error)                      { w.err = h }
 func (w Sizes) Err() error                           { return w.err }
+func (w Sizes) ID() int                              { return w.id }
 func (w Sizes) Settings() goatcounter.WidgetSettings { return w.s }
 
 func (w *Sizes) SetSettings(s goatcounter.WidgetSettings) {
@@ -45,6 +47,7 @@ func (w *Sizes) GetData(ctx context.Context, a Args) (more bool, err error) {
 	} else {
 		err = w.Stats.ListSizes(ctx, a.Rng, a.PathFilter)
 	}
+	w.loaded = true
 	return w.Stats.More, err
 }
 
@@ -54,13 +57,14 @@ func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		ID             int
 		RowsOnly       bool
 		HasSubMenu     bool
+		Loaded         bool
 		Err            error
 		IsCollected    bool
 		Header         string
 		TotalUniqueUTC int
 		Stats          goatcounter.HitStats
 		Detail         string
-	}{ctx, w.id, shared.RowsOnly, true, w.err, isCol(ctx, goatcounter.CollectScreenSize),
+	}{ctx, w.id, shared.RowsOnly, true, w.loaded, w.err, isCol(ctx, goatcounter.CollectScreenSize),
 		z18n.T(ctx, "header/sizes|Sizes"),
 		shared.TotalUniqueUTC, w.Stats, w.Detail}
 }

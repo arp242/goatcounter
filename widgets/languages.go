@@ -13,10 +13,11 @@ import (
 )
 
 type Languages struct {
-	id   int
-	err  error
-	html template.HTML
-	s    goatcounter.WidgetSettings
+	id     int
+	loaded bool
+	err    error
+	html   template.HTML
+	s      goatcounter.WidgetSettings
 
 	Limit int
 	Stats goatcounter.HitStats
@@ -31,6 +32,7 @@ func (w *Languages) SetHTML(h template.HTML)             { w.html = h }
 func (w Languages) HTML() template.HTML                  { return w.html }
 func (w *Languages) SetErr(h error)                      { w.err = h }
 func (w Languages) Err() error                           { return w.err }
+func (w Languages) ID() int                              { return w.id }
 func (w Languages) Settings() goatcounter.WidgetSettings { return w.s }
 
 func (w *Languages) SetSettings(s goatcounter.WidgetSettings) {
@@ -42,6 +44,7 @@ func (w *Languages) SetSettings(s goatcounter.WidgetSettings) {
 
 func (w *Languages) GetData(ctx context.Context, a Args) (more bool, err error) {
 	err = w.Stats.ListLanguages(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
+	w.loaded = true
 	return w.Stats.More, err
 }
 
@@ -53,11 +56,12 @@ func (w Languages) RenderHTML(ctx context.Context, shared SharedData) (string, i
 		ID             int
 		RowsOnly       bool
 		HasSubMenu     bool
+		Loaded         bool
 		Err            error
 		IsCollected    bool
 		Header         string
 		TotalUniqueUTC int
 		Stats          goatcounter.HitStats
-	}{ctx, w.id, shared.RowsOnly, false, w.err, isCol(ctx, goatcounter.CollectLanguage),
+	}{ctx, w.id, shared.RowsOnly, false, w.loaded, w.err, isCol(ctx, goatcounter.CollectLanguage),
 		header, shared.TotalUniqueUTC, w.Stats}
 }

@@ -148,6 +148,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		{
 			ap := a.With(loggedInOrPublic, addz18n())
 			ap.Get("/", zhttp.Wrap(h.dashboard))
+			ap.Get("/loader", zhttp.Wrap(h.loader))
 			ap.Get("/load-widget", zhttp.Wrap(h.loadWidget))
 		}
 		{

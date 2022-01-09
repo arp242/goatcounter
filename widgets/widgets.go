@@ -25,6 +25,7 @@ type (
 		Err() error
 		SetSettings(goatcounter.WidgetSettings)
 		Settings() goatcounter.WidgetSettings
+		ID() int
 
 		Name() string
 		Type() string // "full-width", "hchart"
@@ -110,7 +111,7 @@ func (l List) GetOne(name string) Widget {
 }
 
 // Get all widgets from the list by name.
-func (l List) Get(name string) []Widget {
+func (l List) Get(name string) List {
 	list := make([]Widget, 0, 1)
 	for _, w := range l {
 		if w.Name() == name {
@@ -118,6 +119,28 @@ func (l List) Get(name string) []Widget {
 		}
 	}
 	return list
+}
+
+// Initial gets all widgets that should be loaded on the initial pageview (all
+// internal widgets + the first one).
+func (l List) InitialAndLazy() (initial List, lazy List) {
+	first := true
+	initial = make(List, 0, 3)
+	lazy = make(List, 0, len(l)-3)
+	for _, w := range l {
+		switch w.Name() {
+		case "max", "totalcount":
+			initial = append(initial, w)
+		default:
+			if first {
+				initial = append(initial, w)
+				first = false
+			} else {
+				lazy = append(lazy, w)
+			}
+		}
+	}
+	return initial, lazy
 }
 
 // ListAllWidgets returns a static list of all widgets that this user can add.
