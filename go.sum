@@ -9,8 +9,8 @@ github.com/andybalholm/cascadia v1.3.1 h1:nhxRkql1kdYCc8Snf7D5/D3spOX+dBgjA6u8x0
 github.com/andybalholm/cascadia v1.3.1/go.mod h1:R4bJ1UQfqADjvDa4P6HZHLh/3OxWWEqc0Sk8XGwHqvA=
 github.com/arp242/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06 h1:rixtl++vUTZD/Y7USpx72TZopIdbScrTuRnEuDoMMR4=
 github.com/arp242/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06/go.mod h1:G1gi89KVrG9jLzIPvR7hk/0pg0zfzp+FeRWnYzyF9c0=
-github.com/arp242/go-sqlite3 v1.13.1-0.20211128201706-eea7f4911537 h1:hv2ouc/MMi656ixM1yWzKZXRcCDzCUOOYHZfGFAmy8g=
-github.com/arp242/go-sqlite3 v1.13.1-0.20211128201706-eea7f4911537/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
+github.com/arp242/go-sqlite3 v1.13.1-0.20220110230139-61304ade21a9 h1:DFcDVmUIvl67siiXYx0OwtsteLnQEeks07fGRRXc5rE=
+github.com/arp242/go-sqlite3 v1.13.1-0.20220110230139-61304ade21a9/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664 h1:dmj4nhkeg9oq8UpM8XmcCrDEOEdak8zMzobLJ2LGUEY=
 github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664/go.mod h1:RXZtst0N6+FY/3qCNmZMBApR19cdQj43/NM9VkrNAis=
 github.com/bmatcuk/doublestar/v3 v3.0.0 h1:TQtVPlDnAYwcrVNB2JiGuMc++H5qzWZd9PhkNo5WyHI=
@@ -127,8 +127,8 @@ zgo.at/z18n v0.0.0-20211201221236-c1ccdacc3808 h1:M3ayjYZ0Qubr6ldGt64ONlx8m5SgsY
 zgo.at/z18n v0.0.0-20211201221236-c1ccdacc3808/go.mod h1:7/jQw/L0ng1iFUikdkYC9meSdeUkhXYfbtdm5OB1KHA=
 zgo.at/zcache v1.0.1-0.20210412145246-76039d792310 h1:lJ2j+bNqtRmn8TOJDZXqeaTuG856QzYGxXghRPw2iH8=
 zgo.at/zcache v1.0.1-0.20210412145246-76039d792310/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
-zgo.at/zdb v0.0.0-20211219230426-6e98e566cd33 h1:Ty0PpvVtJtYXNIHYMK+jJS3wAAvdt+zvpRxs0B9tdRg=
-zgo.at/zdb v0.0.0-20211219230426-6e98e566cd33/go.mod h1:wVJNyiTOPRf777oWPGj0vw6IugBDZ8IjDX7nZObYEe4=
+zgo.at/zdb v0.0.0-20211220131133-266f09fed56d h1:M6YOrZZEmm9oDYNVvJGd5KfUc/FCTxx56tMSKy/mBKg=
+zgo.at/zdb v0.0.0-20211220131133-266f09fed56d/go.mod h1:yeN/Y52Q32mnn31mvT65RxoDJn/x6uEeBnDFA8/T/NE=
 zgo.at/zhttp v0.0.0-20211213094732-dd554e63f604 h1:AkGFJhI2zTNIykhEmSpe3/qcvV//h162wW9C7NUT5Io=
 zgo.at/zhttp v0.0.0-20211213094732-dd554e63f604/go.mod h1:sc+IC0Mtp4c2zqPTGP09dEJugbj66aqoi58WGGhyVDg=
 zgo.at/zli v0.0.0-20211017231103-84f8e371c324/go.mod h1:pWkBHZ5qoEmvSDbFYdQMAKaRMEuAtdUKb21k/OOYOJw=
@@ -144,9 +144,8 @@ zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8
 zgo.at/zstd v0.0.0-20210512041107-8951517febd3/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstd v0.0.0-20211017205211-017273d7d29c/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstd v0.0.0-20211201154120-0e6864ea6110/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
-zgo.at/zstd v0.0.0-20211216130506-7c4b52c7ab64/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
-zgo.at/zstd v0.0.0-20211217083914-b098b0aa0d66 h1:9m+fSe1q2tptS5bFDwLQImMqZujkATQj5SrYQ585/TM=
-zgo.at/zstd v0.0.0-20211217083914-b098b0aa0d66/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
+zgo.at/zstd v0.0.0-20211220090423-fa07dcab58f8 h1:abnHztdyE684SC5ctbWuJh0UQV6aumkFMS1T4/5rla8=
+zgo.at/zstd v0.0.0-20211220090423-fa07dcab58f8/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08 h1:c5+QSfo9AQfeigy/GsUGu+cq5JHJ8qo9KiNRoLeqhX4=
 zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08/go.mod h1:bIBaT9rsnc+uWMSf+6UXjDHhlwxLgcU7jahxUMU+j+k=
 zgo.at/ztpl v0.0.0-20211017232908-7dce3dc79277/go.mod h1:mhjSF7+pfwMjNhDgmw9Ywr1CixzeVWuvMjF7gLJT8Uw=

@@ -556,7 +556,7 @@ func (ss *UserSettings) Validate(ctx context.Context) error {
 	}
 
 	if _, i := ss.Views.Get("default"); i == -1 || len(ss.Views) != 1 {
-		v.Append("views", "view not set")
+		v.Append("views", z18n.T(ctx, "view not set"))
 	}
 
 	return v.ErrorOrNil()

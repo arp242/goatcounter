@@ -17,15 +17,14 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
 	"zgo.at/zdb"
+	"zgo.at/zdb/drivers"
+	"zgo.at/zdb/drivers/go-sqlite3"
+	_ "zgo.at/zdb/drivers/pq"
 	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
-
-	"zgo.at/zdb/drivers"
-	_ "zgo.at/zdb/drivers/go-sqlite3"
-	_ "zgo.at/zdb/drivers/pq"
 )
 
 func init() {
@@ -158,14 +157,7 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 		return nil, nil, err
 	}
 
-	// TODO: need to actually use this. Maybe adding a "sqlite.ConnectHook"
-	// isn't such a bad idea after all, so we don't need to muck about with any
-	// of this.
-	//
-	// We don't actually use it for now, so not a big deal as such.
-	// sql.Register("sqlite3-goatcounter", &sqlite3.SQLiteDriver{
-	// 	ConnectHook: goatcounter.SQLiteHook,
-	// })
+	sqlite3.DefaultHook(goatcounter.SQLiteHook)
 
 	db, err := zdb.Connect(context.Background(), zdb.ConnectOptions{
 		Connect:      connect,

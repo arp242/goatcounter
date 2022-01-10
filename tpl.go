@@ -212,8 +212,6 @@ func init() {
 			{href: "translating", label: "Translating GoatCounter"}}},
 		{label: "Legal", items: []x{
 			{href: "gdpr", label: "GDPR consent notices"},
-
-			// TODO: goatcounter.com only
 			{href: "terms", label: "Terms of use", gcCom: true},
 			{href: "privacy", label: "Privacy policy", gcCom: true},
 		}},

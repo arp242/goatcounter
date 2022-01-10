@@ -54,7 +54,7 @@ var SQLiteHook = func(c *sqlite3.SQLiteConn) error {
 		if start == 0 {
 			return math.Inf(0)
 		}
-		return float64(float64((final-start)/start) * 100)
+		return (float64(final - start)) / float64(start) * 100.0
 	}, true)
 }
 

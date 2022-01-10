@@ -69,20 +69,20 @@ func TestMain(m *testing.M) {
 	os.Exit(ztpl.TestTemplateExecution(m,
 		// Don't need tests.
 		"", "bosmang.gohtml", "bosmang_site.gohtml", "bosmang_cache.gohtml",
+		"bosmang_bgrun.gohtml", "bosmang_metrics.gohtml", "bosmang_sites.gohtml",
 		"i18n_list.gohtml", "i18n_show.gohtml",
 
 		// Tested in tpl_test.go
-		"email_export_done.gotxt", "email_forgot_site.gotxt", "email_import_done.gotxt",
-		"email_import_error.gotxt", "email_password_reset.gotxt", "email_verify.gotxt",
-		"email_adduser.gotxt",
+		"email_export_done.gotxt", "email_forgot_site.gotxt",
+		"email_import_done.gotxt", "email_import_error.gotxt",
+		"email_password_reset.gotxt", "email_verify.gotxt",
+		"email_adduser.gotxt", "_email_bottom.gohtml", "email_report.gohtml",
+		"email_report.gotxt",
 
 		// TODO
 		"_dashboard_pages_refs.gohtml",
 		"_dashboard_pages_text.gohtml",
 		"_dashboard_pages_text_rows.gohtml",
-		"bosmang_sites.gohtml",
-		"bosmang_bgrun.gohtml",
-		"bosmang_metrics.gohtml",
 		"settings_server.gohtml",
 
 		// TODO: hard to test; requires a browser as the JS generates secret

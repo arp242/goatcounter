@@ -17,6 +17,7 @@ import (
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
+	"zgo.at/zdb/drivers/go-sqlite3"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zgo"
 	"zgo.at/zstd/zstring"
@@ -25,10 +26,7 @@ import (
 var pgSQL = false
 
 func init() {
-	// TODO
-	// sql.Register("sqlite3_zdb", &sqlite3.SQLiteDriver{
-	// 	ConnectHook: goatcounter.SQLiteHook,
-	// })
+	sqlite3.DefaultHook(goatcounter.SQLiteHook)
 	goatcounter.InitGeoDB("")
 }
 
