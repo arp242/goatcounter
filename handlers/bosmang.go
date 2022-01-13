@@ -24,6 +24,7 @@ import (
 	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zprof"
+	"zgo.at/zstd/zcontext"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
@@ -95,7 +96,7 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 	t := cron.Tasks[taskID]
 	id := t.ID()
 	bgrun.Run("manual:"+id, func() {
-		t.Fun(r.Context())
+		t.Fun(zcontext.WithoutTimeout(r.Context()))
 	})
 
 	zhttp.Flash(w, "Task %q started", id)
