@@ -1,0 +1,17 @@
+alter table users          drop constraint users_site_id_fkey;
+alter table api_tokens     drop constraint api_tokens_site_id_fkey;
+alter table api_tokens     drop constraint api_tokens_user_id_fkey;
+alter table paths          drop constraint paths_site_id_fkey;
+alter table exports        drop constraint exports_site_id_fkey;
+alter table user_agents    drop constraint user_agents_browser_id_fkey;
+alter table user_agents    drop constraint user_agents_system_id_fkey;
+alter table hit_counts     drop constraint hit_counts_site_id_fkey;
+alter table ref_counts     drop constraint ref_counts_site_id_fkey;
+alter table hit_stats      drop constraint hit_stats_site_id_fkey;
+alter table location_stats drop constraint location_stats_site_id_fkey;
+alter table size_stats     drop constraint size_stats_site_id_fkey;
+alter table language_stats drop constraint language_stats_site_id_fkey;
+alter table browser_stats  drop constraint browser_stats_site_id_fkey;
+alter table browser_stats  drop constraint browser_stats_browser_id_fkey;
+alter table system_stats   drop constraint system_stats_site_id_fkey;
+alter table system_stats   drop constraint system_stats_system_id_fkey;

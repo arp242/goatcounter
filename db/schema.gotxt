@@ -44,26 +44,24 @@ create table users (
 	user_id        {{auto_increment}},
 	site_id        integer        not null,
 
-	email          varchar        not null                 check(length(email) > 5 and length(email) <= 255),
+	email          varchar        not null,
 	email_verified integer        not null default 0,
 	password       {{blob}}       default null,
 	totp_enabled   integer        not null default 0,
 	totp_secret    {{blob}},
 	access         {{jsonb}}      not null default '{"all":"a"}',
-	login_at       timestamp      null                     {{check_timestamp "login_at"}},
+	login_at       timestamp      null,
 	login_request  varchar        null,
 	login_token    varchar        null,
 	csrf_token     varchar        null,
 	email_token    varchar        null,
-	seen_updates_at timestamp     not null default current_timestamp {{check_timestamp "seen_updates_at"}},
+	seen_updates_at timestamp     not null default current_timestamp,
 	reset_at       timestamp      null,
 	settings       {{jsonb}}      not null default '{}',
 	last_report_at timestamp      not null default current_timestamp,
 
-	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
-	updated_at     timestamp                               {{check_timestamp "updated_at"}},
-
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
+	created_at     timestamp      not null,
+	updated_at     timestamp
 );
 create        index "users#site_id"       on users(site_id);
 create unique index "users#site_id#email" on users(site_id, lower(email));
@@ -76,10 +74,7 @@ create table api_tokens (
 	name           varchar        not null,
 	token          varchar        not null                 check(length(token) > 10),
 	permissions    {{jsonb}}      not null,
-	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
-
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
-	foreign key (user_id) references users(user_id) on delete restrict on update restrict
+	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
 );
 create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
 
@@ -109,9 +104,7 @@ create table paths (
 
 	path           varchar        not null,
 	title          varchar        not null default '',
-	event          integer        default 0,
-
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
+	event          integer        default 0
 );
 create unique index "paths#site_id#path" on paths(site_id, lower(path));
 create        index "paths#path#title"   on paths(lower(path), lower(title));
@@ -137,10 +130,7 @@ create table user_agents (
 	system_id      integer        not null,
 
 	ua             varchar        not null,
-	isbot          integer        not null,
-
-	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
-	foreign key (system_id)  references systems(system_id)   on delete restrict on update restrict
+	isbot          integer        not null
 );
 create unique index "user_agents#ua" on user_agents(ua);
 
@@ -152,7 +142,6 @@ create table hit_counts (
 	total          integer        not null,
 	total_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) {{sqlite "on conflict replace"}}
 );
 create index "hit_counts#site_id#hour" on hit_counts(site_id, hour desc);
@@ -169,7 +158,6 @@ create table ref_counts (
 	total          integer        not null,
 	total_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) {{sqlite "on conflict replace"}}
 );
 create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
@@ -184,7 +172,6 @@ create table hit_stats (
 	stats          varchar        not null,
 	stats_unique   varchar        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) {{sqlite "on conflict replace"}}
 );
 create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
@@ -200,8 +187,6 @@ create table browser_stats (
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id)    references sites(site_id)       on delete restrict on update restrict,
-	foreign key (browser_id) references browsers(browser_id) on delete restrict on update restrict,
 	constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) {{sqlite "on conflict replace"}}
 );
 create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, browser_id, day desc);
@@ -217,8 +202,6 @@ create table system_stats (
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id)   references sites(site_id)     on delete restrict on update restrict,
-	foreign key (system_id) references systems(system_id) on delete restrict on update restrict,
 	constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) {{sqlite "on conflict replace"}}
 );
 create index "system_stats#site_id#system_id#day" on system_stats(site_id, system_id, day desc);
@@ -234,7 +217,6 @@ create table location_stats (
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) {{sqlite "on conflict replace"}}
 );
 create index "location_stats#site_id#day" on location_stats(site_id, day desc);
@@ -250,7 +232,6 @@ create table size_stats (
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) {{sqlite "on conflict replace"}}
 );
 create index "size_stats#site_id#day" on size_stats(site_id, day desc);
@@ -266,7 +247,6 @@ create table language_stats (
 	count          integer        not null,
 	count_unique   integer        not null,
 
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
 	constraint "language_stats#site_id#path_id#day#language" unique(site_id, path_id, day, language) {{sqlite "on conflict replace"}}
 );
 create index "language_stats#site_id#day" on language_stats(site_id, day desc);
@@ -296,9 +276,7 @@ create table exports (
 	num_rows       integer,
 	size           varchar,
 	hash           varchar,
-	error          varchar,
-
-	foreign key (site_id) references sites(site_id) on delete restrict on update restrict
+	error          varchar
 );
 create index "exports#site_id#created_at" on exports(site_id, created_at);
 
@@ -372,6 +350,7 @@ insert into version values
 	('2021-12-08-1-set-chart-text'),
 	('2021-12-09-1-email-reports'),
 	('2021-12-13-2-superuser'),
-	('2021-12-13-1-drop-role');
+	('2021-12-13-1-drop-role'),
+	('2022-01-13-1-unfk');
 
 -- vim:ft=sql:tw=0
