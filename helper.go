@@ -21,8 +21,8 @@ import (
 )
 
 // DB contains all files in db/*
-//
 //go:embed db/schema.gotxt
+//go:embed db/languages.sql
 //go:embed db/migrate/*.sql
 //go:embed db/query/*.sql
 var DB embed.FS

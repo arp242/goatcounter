@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"runtime"
 	"strings"
@@ -189,6 +190,24 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// Load languages.
+	var c int
+	err = db.Get(context.Background(), &c, `select count(*) from languages`)
+	if err != nil {
+		return nil, nil, err
+	}
+	if c == 0 {
+		langs, err := fs.ReadFile(goatcounter.DB, "db/languages.sql")
+		if err != nil {
+			return nil, nil, err
+		}
+		err = db.Exec(context.Background(), string(langs))
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	return db, goatcounter.NewContext(db), nil
 }
 

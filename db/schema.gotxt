@@ -1,3 +1,13 @@
+{{psql `
+create function percent_diff(start float4, final float4) returns float4 as $$
+begin
+	return case
+		when start=0 then float4 '+infinity'
+		else              (final - start) / start * 100
+	end;
+end; $$ language plpgsql immutable strict;
+`}}
+
 create table sites (
 	site_id        {{auto_increment}},
 	parent         integer        null,
@@ -39,7 +49,6 @@ create table users (
 	password       {{blob}}       default null,
 	totp_enabled   integer        not null default 0,
 	totp_secret    {{blob}},
-	role           varchar        not null default '',
 	access         {{jsonb}}      not null default '{"all":"a"}',
 	login_at       timestamp      null                     {{check_timestamp "login_at"}},
 	login_request  varchar        null,
@@ -49,6 +58,7 @@ create table users (
 	seen_updates_at timestamp     not null default current_timestamp {{check_timestamp "seen_updates_at"}},
 	reset_at       timestamp      null,
 	settings       {{jsonb}}      not null default '{}',
+	last_report_at timestamp      not null default current_timestamp,
 
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
 	updated_at     timestamp                               {{check_timestamp "updated_at"}},
@@ -75,8 +85,6 @@ create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
 
 create table hits (
 	hit_id         {{auto_increment}},
-	-- No foreign keys on this as checking them for every insert is
-	-- comparatively expensive.
 	site_id        integer        not null                 check(site_id > 0),
 	path_id        integer        not null                 check(path_id > 0),
 	user_agent_id  integer        null                     check(user_agent_id != 0),
@@ -137,7 +145,7 @@ create unique index "user_agents#ua" on user_agents(ua);
 
 create table hit_counts (
 	site_id        integer        not null,
-	path_id        integer        not null,  -- No FK for performance.
+	path_id        integer        not null,
 
 	hour           timestamp      not null                 {{check_timestamp "hour"}},
 	total          integer        not null,
@@ -152,7 +160,7 @@ create index "hit_counts#site_id#hour" on hit_counts(site_id, hour desc);
 
 create table ref_counts (
 	site_id        integer        not null,
-	path_id        integer        not null,  -- No FK for performance.
+	path_id        integer        not null,
 
 	ref            varchar        not null,
 	ref_scheme     varchar        null,
@@ -169,7 +177,7 @@ create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
 
 create table hit_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,  -- No FK for performance.
+	path_id        integer        not null,
 
 	day            date           not null                 {{check_date "day"}},
 	stats          varchar        not null,
@@ -184,7 +192,7 @@ create index "hit_stats#site_id#day" on hit_stats(site_id, day desc);
 
 create table browser_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,  -- No FK for performance.
+	path_id        integer        not null,
 	browser_id     integer        not null,
 
 	day            date           not null                 {{check_date "day"}},
@@ -201,7 +209,7 @@ create index "browser_stats#site_id#browser_id#day" on browser_stats(site_id, br
 
 create table system_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,  -- No FK for performance.
+	path_id        integer        not null,
 	system_id      integer        not null,
 
 	day            date           not null                 {{check_date "day"}},
@@ -218,7 +226,7 @@ create index "system_stats#site_id#system_id#day" on system_stats(site_id, syste
 
 create table location_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,  -- No FK for performance.
+	path_id        integer        not null,
 
 	day            date           not null                 {{check_date "day"}},
 	location       varchar        not null,
@@ -234,7 +242,7 @@ create index "location_stats#site_id#day" on location_stats(site_id, day desc);
 
 create table size_stats (
 	site_id        integer        not null,
-	path_id        integer        not null,  -- No FK for performance.
+	path_id        integer        not null,
 
 	day            date           not null                 {{check_date "day"}},
 	width          integer        not null,
@@ -247,6 +255,22 @@ create table size_stats (
 create index "size_stats#site_id#day" on size_stats(site_id, day desc);
 {{cluster "size_stats" "size_stats#site_id#day"}}
 {{replica "size_stats" "size_stats#site_id#path_id#day#width"}}
+
+create table language_stats (
+	site_id        integer        not null,
+	path_id        integer        not null,
+
+	day            date           not null                 {{check_date "day"}},
+	language       varchar        not null,
+	count          integer        not null,
+	count_unique   integer        not null,
+
+	foreign key (site_id) references sites(site_id) on delete restrict on update restrict,
+	constraint "language_stats#site_id#path_id#day#language" unique(site_id, path_id, day, language) {{sqlite "on conflict replace"}}
+);
+create index "language_stats#site_id#day" on language_stats(site_id, day desc);
+{{cluster "language_stats" "language_stats#site_id#day"}}
+{{replica "language_stats" "language_stats#site_id#path_id#day#language"}}
 
 create table updates (
 	id             {{auto_increment}},
@@ -289,6 +313,12 @@ create table locations (
 create unique index "locations#iso_3166_2" on locations(iso_3166_2);
 insert into locations (country, country_name, region, region_name) values ('', '(unknown)', '', ''); -- id=1 is special.
 
+create table languages (
+	iso_639_3      varchar        not null,
+	name           varchar        not null
+);
+create unique index "languages#iso_639_3" on languages(iso_639_3);
+insert into languages (iso_639_3, name) values ('', '(unknown)'); -- id=1 is special.
 
 create table store (
 	key            varchar        not null,
@@ -328,13 +358,19 @@ insert into version values
 	('2021-03-17-1-collect-session'),
 	('2021-03-18-1-usersettings'),
 	('2021-03-20-1-tokens'),
-
 	-- 2.1
 	('2021-03-29-1-widgets'),
 	('2021-04-01-1-store-warn'),
 	('2021-04-02-1-cluster-paths'),
 	('2021-04-07-1-billing-anchor'),
 	('2021-06-27-1-public'),
-	('2021-11-15-1-user-role');
+	('2021-11-15-1-user-role'),
+	-- 2.2
+	('2021-12-02-1-languages'),
+	('2021-12-02-2-language-enable'),
+	('2021-12-08-1-set-chart-text'),
+	('2021-12-09-1-email-reports'),
+	('2021-12-13-2-superuser'),
+	('2021-12-13-1-drop-role');
 
 -- vim:ft=sql:tw=0

@@ -1,4 +1,4 @@
-alter table users add column last_report_at timestamp not null default now();
+alter table users add column last_report_at timestamp not null default current_timestamp;
 
 create or replace function percent_diff(start float4, final float4) returns float4 as $$
 begin
