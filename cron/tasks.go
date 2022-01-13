@@ -338,7 +338,6 @@ func reportUsage(ctx context.Context) error {
 		}
 
 		if usage.Plan.MonthlyHits > usage.Total.ThisPeriod {
-			fmt.Println("C", usage.Plan.MonthlyHits, usage.Total.ThisPeriod)
 			continue
 		}
 

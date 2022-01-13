@@ -95,6 +95,7 @@ create table hits (
 	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
 	size           varchar        not null default '',
 	location       varchar        not null default '',
+	language       varchar,
 	first_visit    integer        default 0,
 
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
