@@ -38,7 +38,7 @@ create table sites (
 );
 create unique index "sites#code"   on sites(lower(code));
 create unique index "sites#cname"  on sites(lower(cname));
-create        index "sites#parent" on sites(parent) where state='a';
+create        index "sites#parent" on sites(parent);
 
 create table users (
 	user_id        {{auto_increment}},
@@ -351,6 +351,7 @@ insert into version values
 	('2021-12-09-1-email-reports'),
 	('2021-12-13-2-superuser'),
 	('2021-12-13-1-drop-role'),
-	('2022-01-13-1-unfk');
+	('2022-01-13-1-unfk'),
+	('2022-01-14-1-idx');
 
 -- vim:ft=sql:tw=0
