@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"sort"
 
@@ -91,6 +92,67 @@ func (h settings) userDashboardWidget(w http.ResponseWriter, r *http.Request) er
 	}{newGlobals(w, r),
 		widgets.List{widgets.FromSiteWidget(r.Context(), goatcounter.NewWidget(chi.URLParam(r, "name")))},
 		nil})
+}
+
+func (h settings) userDashboardID(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	id := int(v.Integer("id", chi.URLParam(r, "id")))
+	if v.HasErrors() {
+		return v
+	}
+
+	wid := widgets.FromSiteWidget(r.Context(), User(r.Context()).Settings.Widgets.ByID(id))
+
+	return zhttp.Template(w, "_dashboard_configure_widget.gohtml", struct {
+		Globals
+		Validate *zvalidate.Validator
+		Widget   widgets.Widget
+		I        int
+	}{newGlobals(w, r), nil, wid, 0})
+}
+
+func (h settings) userDashboardIDSave(w http.ResponseWriter, r *http.Request) error {
+	v := zvalidate.New()
+	id := int(v.Integer("id", chi.URLParam(r, "id")))
+	if v.HasErrors() {
+		return v
+	}
+
+	var args struct {
+		Widgets []struct {
+			Name  string            `json:"name"`
+			Index int               `json:"index"`
+			S     map[string]string `json:"s"`
+		} `json:"widgets"`
+	}
+	_, err := zhttp.Decode(r, &args)
+	if err != nil {
+		return err
+	}
+
+	user := User(r.Context())
+
+	if len(args.Widgets) != 1 {
+		return fmt.Errorf("invalid number of widgets: %d", len(args.Widgets))
+	}
+	if id > len(user.Settings.Widgets)-1 {
+		return fmt.Errorf("invalid widget ID: %d", id)
+	}
+
+	// TODO: name is blank?
+	for kk, vv := range args.Widgets[0].S {
+		err := user.Settings.Widgets[id].SetSetting(r.Context(), args.Widgets[0].Name, kk, vv)
+		if err != nil {
+			return err
+		}
+	}
+	err = user.Update(r.Context(), false)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, map[string]string{})
+
 }
 
 func (h settings) userDashboard(verr *zvalidate.Validator) zhttp.HandlerFunc {

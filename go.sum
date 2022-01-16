@@ -1,8 +1,9 @@
 code.soquee.net/otp v0.0.1 h1:sPALeimyp/DAj4MXMjj94QDdYN/y2+dSoMXQCxttpvw=
 code.soquee.net/otp v0.0.1/go.mod h1:sv1t9zLujoOZ8T14ty2ffdj6y+fjScwX7m76G+dzrm0=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/BurntSushi/toml v0.4.1 h1:GaI7EiDXDRfa8VshkTj7Fym7ha+y8/XxIgD2okUIjLw=
 github.com/BurntSushi/toml v0.4.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
+github.com/BurntSushi/toml v1.0.0 h1:dtDWrepsVPfW9H/4y7dDgFc2MBUSeJhlaDtK13CxFlU=
+github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0gta/U=
 github.com/PuerkitoBio/goquery v1.8.0/go.mod h1:ypIiRMtY7COPGk+I/YbZLbxsxn9g5ejnI2HSMtkjZvI=
 github.com/andybalholm/cascadia v1.3.1 h1:nhxRkql1kdYCc8Snf7D5/D3spOX+dBgjA6u8x004T2c=
@@ -13,6 +14,8 @@ github.com/arp242/go-sqlite3 v1.13.1-0.20220110230139-61304ade21a9 h1:DFcDVmUIvl
 github.com/arp242/go-sqlite3 v1.13.1-0.20220110230139-61304ade21a9/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664 h1:dmj4nhkeg9oq8UpM8XmcCrDEOEdak8zMzobLJ2LGUEY=
 github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664/go.mod h1:RXZtst0N6+FY/3qCNmZMBApR19cdQj43/NM9VkrNAis=
+github.com/arp242/reload v1.4.1-0.20220116060443-b28a54916036 h1:/6FPkO3Ct5N4f2SxUIjy0AWE7/aGL4F8OzPYxnOqU0s=
+github.com/arp242/reload v1.4.1-0.20220116060443-b28a54916036/go.mod h1:xR3BcLHeCmLBX/2jKDG2vWOLTcql3+aah4puN18lmTo=
 github.com/bmatcuk/doublestar/v3 v3.0.0 h1:TQtVPlDnAYwcrVNB2JiGuMc++H5qzWZd9PhkNo5WyHI=
 github.com/bmatcuk/doublestar/v3 v3.0.0/go.mod h1:6PcTVMw80pCY1RVuoqu3V++99uQB3vsSYKPTd8AWA0k=
 github.com/boombuler/barcode v1.0.1 h1:NDBbPmhS+EqABEs5Kg3n/5ZNjy73Pz7SIV+KCeqyXcs=
@@ -40,8 +43,6 @@ github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQD
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/teamwork/reload v1.3.2 h1:Cfo305GjPi859SWLzh728H/4ovl1qkDndv48QFRjLLA=
-github.com/teamwork/reload v1.3.2/go.mod h1:xR3BcLHeCmLBX/2jKDG2vWOLTcql3+aah4puN18lmTo=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=

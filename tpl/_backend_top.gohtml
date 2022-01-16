@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/backend.css?v={{.Version}}">
+	<style>{{if not .User.ID}}.logged-in { display: none !important; }{{end}}</style>
 </head>
 
 <body id="page-{{.Path | path_id}}">

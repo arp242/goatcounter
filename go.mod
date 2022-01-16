@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	code.soquee.net/otp v0.0.1
-	github.com/BurntSushi/toml v0.4.1
+	github.com/BurntSushi/toml v1.0.0
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/boombuler/barcode v1.0.1
@@ -15,7 +15,7 @@ require (
 	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/teamwork/reload v1.3.2
+	github.com/teamwork/reload v1.4.0
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
@@ -55,6 +55,9 @@ require (
 	golang.org/x/term v0.0.0-20210317153231-de623e64d2a6 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
+
+// https://github.com/Teamwork/reload/pull/12
+replace github.com/teamwork/reload => github.com/arp242/reload v1.4.1-0.20220116060443-b28a54916036
 
 // "Fork" of go-sqlite3 which removes the sqlite_json build constraint so it
 // compiles with JSON support without having to specify a build tag.

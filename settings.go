@@ -521,6 +521,11 @@ func (w Widgets) Get(name string) Widgets {
 	return r
 }
 
+// ByID gets this widget by the position/ID.
+func (w Widgets) ByID(id int) Widget {
+	return w[id]
+}
+
 // Get a view for this site by name and returns the view and index.
 // Returns -1 if this view doesn't exist.
 func (v Views) Get(name string) (View, int) {

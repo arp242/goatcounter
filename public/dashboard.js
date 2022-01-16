@@ -7,13 +7,14 @@
 
 	// Set up the entire dashboard page.
 	var page_dashboard = function() {
-		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views, hdr_sites, translate_locations].forEach((f) => f.call())
+		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views, hdr_sites, translate_locations, dashboard_loader,
+			configure_widgets].forEach((f) => f.call())
 	}
 	window.page_dashboard = page_dashboard  // Directly setting window loses the name attr 🤷
 
 	// Set up all the dashboard widget contents (but not the header).
 	var dashboard_widgets = function() {
-		;[draw_all_charts, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale, dashboard_loader].forEach((f) => f.call())
+		;[draw_all_charts, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale].forEach((f) => f.call())
 	}
 
 	// Open websocket for the dashboard loader.
@@ -27,11 +28,78 @@
 		}
 	}
 
+	// Setup the configure widgets buttons.
+	var configure_widgets = function() {
+		$('#dash-widgets').on('click', '.configure-widget', function(e) {
+			e.preventDefault()
+
+			let pop,
+				btn    = $(this),
+				pos    = btn.offset(),
+				wid    = btn.closest('[data-widget]').attr('data-widget'),
+				url    = '/user/dashboard/' + wid,
+				remove = function() {
+					pop.remove()
+					$(document.body).off('.unpop')
+				},
+				save = function(e) {
+					e.preventDefault()
+					remove()
+					jQuery.ajax({
+						url:  url,
+						type: 'post',
+						data: `${pop.serialize()}&csrf=${encodeURIComponent(CSRF)}`,
+						success: function(data) {
+							reload_dashboard()
+							// TODO: fix reload_widget(); has some odd behaviour.
+							//reload_widget(wid, {}, null)
+						}
+					})
+				}
+
+			jQuery.ajax({
+				url:     url,
+				success: function(data) {
+					pop = $(data).css({left: pos.left + 'px', top: (pos.top + 10) + 'px'}).on('submit', save)
+					$(document.body).append(pop).on('click.unpop', function(e) {
+						if ($(e.target).closest('.widget-settings').length)
+							return
+						remove()
+					})
+				},
+			})
+		})
+	}
+
 	// Get the Y-axis scale.
 	var get_original_scale = function(current) { return $('.count-list-pages').attr('data-max') }
 	var get_current_scale  = function(current) { return $('.count-list-pages').attr('data-scale') }
 
-	// Reload the widgets on the dashboard.
+	// Reload a single widget.
+	var reload_widget = function(wid, data, done) {
+		data = data || {}
+		data['widget'] = wid
+		data['daily']  = $('#daily').is(':checked')
+		data['max']    = get_original_scale()
+		data['total']  = $('.js-total-unique-utc').text()
+
+		jQuery.ajax({
+			url:  '/load-widget',
+			type: 'get',
+			data: append_period(data),
+			success: function(data) {
+				if (done)
+					done()
+				else {
+					$(`[data-widget="${wid}"]`).html(data.html)
+					dashboard_widgets()
+					highlight_filter($('#filter-paths').val())
+				}
+			},
+		})
+	}
+
+	// Reload all widgets on the dashboard.
 	var reload_dashboard = function(done) {
 		jQuery.ajax({
 			url:     '/',
@@ -39,6 +107,7 @@
 				daily:     $('#daily').is(':checked'),
 				max:       get_original_scale(),
 				reload:    't',
+				connectID: $('#js-connect-id').text(),
 			}),
 			success: function(data) {
 				$('#dash-widgets').html(data.widgets)

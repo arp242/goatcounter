@@ -89,8 +89,6 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 		}
 		if c == nil {
 			// Probably a bot or the like which doesn't support WebSockets.
-			c.Lock()
-			defer c.Unlock()
 			l.unregister(id)
 			return
 		}

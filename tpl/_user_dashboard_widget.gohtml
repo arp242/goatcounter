@@ -1,0 +1,29 @@
+<input type="hidden" name="widgets[{{.I}}].index" value="{{.I}}" class="index">
+<input type="hidden" name="widgets[{{.I}}].name" value="{{.Widget.Name}}">
+
+<!-- this is a widgets.Widget, rather than goatcounter.Widget -->
+{{range $k, $v := .Widget.Settings}}
+	{{if not $v.Hidden}}
+		{{$id := (print "widgets_" $.I "_s_" $k)}}
+		{{$n  := (print "widgets[" $.I "].s." $k)}}
+
+		{{if eq $v.Type "checkbox"}}
+			<label>{{checkbox $v.Value $n}} {{$v.Label}}</label>
+		{{else if eq $v.Type "select"}}
+			{{$x := $v.Value}}{{if not $x}}{{$x = ""}}{{end}}
+			{{$opt := $v.Options}}{{if $v.OptionsFunc}}{{$opt = (call $v.OptionsFunc $.Context)}}{{end}}
+			<label for="{{$id}}">{{$v.Label}}</label>
+			<select type="{{$v.Type}}" name="{{$n}}" id="{{$id}}">
+				{{range $o := $opt}}
+					<option value="{{index $o 0}}" {{if eq (index $o 0) $x}}selected{{end}}>{{index $o 1}}</option>
+				{{end}}
+			</select>
+		{{else}}
+			<label for="{{$id}}">{{$v.Label}}</label>
+			<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}">
+		{{end}}
+		<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
+		{{if $.Validate}}{{validate (print "settings.widgets[" $.I "]." $k) $.Validate}}{{end}}
+		<br>
+	{{end}}
+{{end}}

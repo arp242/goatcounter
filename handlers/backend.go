@@ -129,7 +129,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 			header.CSPDefaultSrc: {header.CSPSourceNone},
 			header.CSPImgSrc:     append(ds, "data:"),
 			header.CSPScriptSrc:  append(ds, "https://js.stripe.com"),
-			header.CSPStyleSrc:   append(ds, header.CSPSourceUnsafeInline), // style="height: " on the charts.
+			header.CSPStyleSrc:   append(ds, header.CSPSourceUnsafeInline),
 			header.CSPFontSrc:    ds,
 			header.CSPFormAction: {header.CSPSourceSelf, "https://billing.stripe.com"},
 			// 'self' does not include websockets, and we need to use

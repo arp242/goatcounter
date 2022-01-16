@@ -212,6 +212,37 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		zsync.Wait(r.Context(), &wg)
 	}()
 
+	// Load the rest in the background and send over websocket.
+	var connectID zint.Uint128
+	if c := q.Get("connectID"); c != "" {
+		var err error
+		connectID, err = zint.ParseUint128(c, 16)
+		if err != nil {
+			return err
+		}
+	} else {
+		connectID = goatcounter.UUID()
+		loader.register(connectID)
+	}
+
+	go func() {
+		defer zlog.Recover()
+		run := zsync.NewAtMost(2)
+		for _, w := range lazy {
+			func(w widgets.Widget) {
+				run.Run(func() {
+					getData(w)
+					getHTML(w)
+					loader.sendJSON(r, connectID, map[string]interface{}{
+						"id":   w.ID(),
+						"html": w.HTML(),
+					})
+				})
+			}(w)
+		}
+		run.Wait()
+	}()
+
 	rng = rng.In(user.Settings.Timezone.Loc()).Locale(ztime.RangeLocale{
 		Today:     func() string { return T(r.Context(), "dashboard/today|Today") },
 		Yesterday: func() string { return T(r.Context(), "dashboard/yesterday|Yesterday") },
@@ -239,26 +270,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			"timerange": rng.String(),
 		})
 	}
-
-	connectID := goatcounter.UUID()
-	loader.register(connectID)
-
-	go func() {
-		run := zsync.NewAtMost(2)
-		for _, w := range lazy {
-			go func(w widgets.Widget) {
-				run.Run(func() {
-					getData(w)
-					getHTML(w)
-					loader.sendJSON(r, connectID, map[string]interface{}{
-						"id":   w.ID(),
-						"html": w.HTML(),
-					})
-				})
-			}(w)
-		}
-		run.Wait()
-	}()
 
 	return zhttp.Template(w, "dashboard.gohtml", struct {
 		Globals

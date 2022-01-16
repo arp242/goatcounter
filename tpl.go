@@ -6,6 +6,7 @@ package goatcounter
 
 import (
 	"bytes"
+
 	"context"
 	"encoding/base32"
 	"encoding/base64"

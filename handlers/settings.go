@@ -52,6 +52,8 @@ func (h settings) mount(r chi.Router) {
 
 		r.Get("/user/dashboard", zhttp.Wrap(h.userDashboard(nil)))
 		r.Get("/user/dashboard/widget/{name}", zhttp.Wrap(h.userDashboardWidget))
+		r.Get("/user/dashboard/{id}", zhttp.Wrap(h.userDashboardID))
+		r.Post("/user/dashboard/{id}", zhttp.Wrap(h.userDashboardIDSave))
 		r.Post("/user/dashboard", zhttp.Wrap(h.userDashboardSave))
 		r.Post("/user/view", zhttp.Wrap(h.userViewSave))
 

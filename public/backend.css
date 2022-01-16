@@ -4,10 +4,10 @@
 
 /*** Generic stuff and layout
  ****************************/
-.page    { padding: 1em; }
-footer   { padding: 1em; text-align: center; display: flex; justify-content: space-between;
-	       background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
-footer a { font-weight: bold; color: #252525; margin: 0 .5em; }
+.page      { padding: 1em; }
+footer     { padding: 1em; text-align: center; display: flex; justify-content: space-between;
+	         background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
+footer a   { font-weight: bold; color: #252525; margin: 0 .5em; }
 
 @media (max-width: 54em) {
 	footer      { text-align: left; justify-content: space-around; }
@@ -283,6 +283,15 @@ tr.target .chart-left { display: block; }
 	text-decoration: underline;
 }
 
+/* Widget settings button for every widget. */
+.widget-header          { position: relative; margin-left: -1em; padding-left: 1em; }
+.widget-header:hover .configure-widget { display: block; }
+.configure-widget       { position: absolute; font-size: 14px; left: .1rem; top: 0; display: none; color: inherit; }
+.configure-widget:hover { color: inherit; opacity: .7; text-decoration: none; }
+.pages-list .configure-widget, .totals .configure-widget { left: .4rem; }
+#page-dashboard .widget-settings { position: absolute; z-index: 2; padding: .5em;
+	background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
+
 /*** Tooltip
  ************/
 #tooltip { position: absolute; left: 0; top: 0; padding: .2em .5em; font-size: 14px;
@@ -314,10 +323,13 @@ tr.target .chart-left { display: block; }
 .widget .show-s         { display: inline-block; width: 2em; text-align: center; }
 .widget-save            { display: flex; justify-content: space-between; }
 .widget-settings label  { display: inline-block; min-width: 9em; margin-bottom: 1em; }
-.widget-settings        { display: none; margin-top: .5em; margin-left: 2em; }
+.widget-settings button { margin-left: 0; }
+.widget-settings select, .widget-settings input:not([type="checkbox"]) { background-color: #fff; width: 14em; }
+.widget-settings        { margin-top: .5em; margin-left: 2em; }
 .widget-settings .help  { margin-left: 1em;  }
 .widget-settings br:last-child { display: none; }
 .widget-add-new         { margin: 1em 0 1.5em 2.1em; }
+#page-user-dashboard .widget-settings { display: none; }
 
 @media (max-width: 46rem) {
 	.widget-settings label { display: block; margin-bottom: 0; }

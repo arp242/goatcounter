@@ -25,7 +25,7 @@
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return
-			var msg = T("error/load-url", settings.url, err)
+			var msg = T("error/load-url", {url: settings.url, error: err})
 			console.error(msg)
 			on_error(`ajaxError: ${msg}`, settings.url)
 			alert(msg)
