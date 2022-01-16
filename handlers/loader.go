@@ -49,12 +49,16 @@ func (l *loaderT) unregister(id zint.Uint128) {
 	defer l.mu.Unlock()
 	delete(l.conns, id)
 }
-func (l *loaderT) connect(id zint.Uint128, c *websocket.Conn) {
+func (l *loaderT) connect(r *http.Request, id zint.Uint128, c *websocket.Conn) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
 	if check, ok := l.conns[id]; !ok || check != nil {
-		zlog.Errorf("loader.connect: already have a connection for %s", id)
+		zlog.Fields(zlog.F{
+			"connectID": id,
+			"siteID":    Site(r.Context()).ID,
+			"userID":    User(r.Context()).ID,
+		}).FieldsRequest(r).Errorf("loader.connect: already have a connection")
 	}
 	c.SetCloseHandler(func(code int, text string) error {
 		l.unregister(id)
@@ -63,10 +67,14 @@ func (l *loaderT) connect(id zint.Uint128, c *websocket.Conn) {
 	l.conns[id] = &loaderClient{conn: c}
 }
 
-func (l *loaderT) sendJSON(id zint.Uint128, data interface{}) {
+func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 	c, ok := l.conns[id]
 	if !ok {
-		zlog.Errorf("loader.send: not registered: %s", id)
+		zlog.Fields(zlog.F{
+			"connectID": id,
+			"siteID":    Site(r.Context()).ID,
+			"userID":    User(r.Context()).ID,
+		}).FieldsRequest(r).Errorf("loader.send: not registered")
 		return
 	}
 	if c == nil {
@@ -80,7 +88,10 @@ func (l *loaderT) sendJSON(id zint.Uint128, data interface{}) {
 			}
 		}
 		if c == nil {
-			zlog.Errorf("loader.send: no connection yet: %s", id)
+			// Probably a bot or the like which doesn't support WebSockets.
+			c.Lock()
+			defer c.Unlock()
+			l.unregister(id)
 			return
 		}
 	}
@@ -90,20 +101,32 @@ func (l *loaderT) sendJSON(id zint.Uint128, data interface{}) {
 	w, err := c.conn.NextWriter(websocket.TextMessage)
 	if err != nil {
 		w.Close()
-		zlog.Errorf("loader.send: %s: NextWriter: %s", id, err)
+		zlog.Fields(zlog.F{
+			"connectID": id,
+			"siteID":    Site(r.Context()).ID,
+			"userID":    User(r.Context()).ID,
+		}).FieldsRequest(r).Errorf("loader.send: NextWriter: %s", err)
 		return
 	}
 
 	j, err := json.Marshal(data)
 	if err != nil {
-		zlog.Errorf("loader.send: %s: %s", id, err)
+		zlog.Fields(zlog.F{
+			"connectID": id,
+			"siteID":    Site(r.Context()).ID,
+			"userID":    User(r.Context()).ID,
+		}).FieldsRequest(r).Errorf("loader.send: %s", err)
 		return
 	}
 
 	_, err = w.Write(j)
 	w.Close()
 	if err != nil {
-		zlog.Errorf("loader.send: %s: Write: %s", id, err)
+		zlog.Fields(zlog.F{
+			"connectID": id,
+			"siteID":    Site(r.Context()).ID,
+			"userID":    User(r.Context()).ID,
+		}).FieldsRequest(r).Errorf("loader.send: Write: %s", err)
 		return
 	}
 }
@@ -134,7 +157,7 @@ func (h backend) loader(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	loader.connect(id, c)
+	loader.connect(r, id, c)
 
 	// Read messages.
 	go func() {

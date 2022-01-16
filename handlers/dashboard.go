@@ -250,7 +250,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 				run.Run(func() {
 					getData(w)
 					getHTML(w)
-					loader.sendJSON(connectID, map[string]interface{}{
+					loader.sendJSON(r, connectID, map[string]interface{}{
 						"id":   w.ID(),
 						"html": w.HTML(),
 					})
