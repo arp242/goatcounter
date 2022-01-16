@@ -70,13 +70,13 @@ func (l *loaderT) sendJSON(id zint.Uint128, data interface{}) {
 		return
 	}
 	if c == nil {
+		// Wait for connection in cases where we send data before the frontend
+		// established a connection.
 		for i := 0; i < 1500; i++ {
-			if c == nil {
-				time.Sleep(10 * time.Millisecond)
-				c = l.conns[id]
-				if c != nil {
-					break
-				}
+			time.Sleep(10 * time.Millisecond)
+			c = l.conns[id]
+			if c != nil {
+				break
 			}
 		}
 		if c == nil {
