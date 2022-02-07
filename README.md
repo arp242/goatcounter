@@ -218,6 +218,7 @@ To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
 
     $ goatcounter serve -db 'postgresql+dbname=goatcounter'
     $ goatcounter serve -db 'postgresql+host=/run/postgresql dbname=goatcounter sslmode=disable'
+	$ goatcounter serve -db 'postgresql://USER:PASS@example.org:PORT/goatcounter?sslmode=require'
 
 This follows the format in the `psql` CLI; you can also use the `PG*`
 environment variables:
