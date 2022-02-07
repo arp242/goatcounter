@@ -214,19 +214,29 @@ Use `goatcounter migrate pending` to get a list of pending migrations, or
 `goatcounter migrate list` to show all migrations.
 
 ### PostgreSQL
-To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
+To use PostgreSQL, first create the database; for example:
+
+	$ createuser --interactive --pwprompt goatcounter
+	$ createdb --owner goatcounter goatcounter
+	
+Configure the [HBA][hba] and reload the RDBMS. You can then import the schema; for example:
+
+	$ goatcounter db schema-pgsql | psql --user=goatcounter --dbname=goatcounter
+
+Then run GoatCounter with a custom `-db` flag; for example:
 
     $ goatcounter serve -db 'postgresql+dbname=goatcounter'
     $ goatcounter serve -db 'postgresql+host=/run/postgresql dbname=goatcounter sslmode=disable'
-	$ goatcounter serve -db 'postgresql://USER:PASS@example.org:PORT/goatcounter?sslmode=require'
+	$ goatcounter serve -db 'postgresql://USER:PASS@example.org:PORT/goatcounter?sslmode=require' # if remote
 
 This follows the format in the `psql` CLI; you can also use the `PG*`
 environment variables:
 
-   $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
+    $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
 
 See `goatcounter help db` and the [pq docs][pq] for more details.
 
+[hba]: https://www.postgresql.org/docs/current/auth-pg-hba-conf.html
 [pq]: https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters
 
 ### Development/testing
