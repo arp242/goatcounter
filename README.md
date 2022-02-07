@@ -222,7 +222,17 @@ To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
 This follows the format in the `psql` CLI; you can also use the `PG*`
 environment variables:
 
-   $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
+    $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
+
+The database will be created automatically if possible; if you want to create it
+for a specific user you can use:
+
+    $ createuser --interactive --pwprompt goatcounter
+    $ createdb --owner goatcounter goatcounter
+
+You can manually import the schema with:
+
+    $ goatcounter db schema-pgsql | psql --user=goatcounter --dbname=goatcounter
 
 See `goatcounter help db` and the [pq docs][pq] for more details.
 
