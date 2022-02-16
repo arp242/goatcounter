@@ -296,6 +296,21 @@ func (ss *UserSettings) Scan(v interface{}) error {
 	}
 }
 
+// This exists as a work-around because a migration set this column wrong >_<
+//
+// https://github.com/arp242/goatcounter/issues/569#issuecomment-1042013488
+func (w *Widgets) UnmarshalJSON(d []byte) error {
+	type alias Widgets
+	ww := alias(*w)
+	err := json.Unmarshal(d, &ww)
+	*w = Widgets(ww)
+
+	if err != nil {
+		*w = defaultWidgets(context.Background())
+	}
+	return nil
+}
+
 func (ss *SiteSettings) Defaults(ctx context.Context) {
 	if ss.Campaigns == nil {
 		ss.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
