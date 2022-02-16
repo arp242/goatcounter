@@ -5,8 +5,8 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-Unreleased
-----------
+2022-02-16 v2.2.0
+-----------------
 - The database connection string changed; you now need to use `-db
   engine+connect string` rather than `engine://connect string`:
 
@@ -21,7 +21,8 @@ Unreleased
   `://`-type strings without a `+` will be rewritten, but will issue a warning.
 
 - GoatCounter can now collect language statistics as well, from the
-  `Accept-Language` HTTP header.
+  `Accept-Language` HTTP header. This is disabled by default, but can be enabled
+  in the site settings.
 
 - Charts are now drawn as a line chart by default; you can choose to use bar
   charts in the widget settings menu by selecting the "chart style" for the
@@ -35,6 +36,12 @@ Unreleased
   section mentioned above; this checkbox was added before the configurable
   dashboard feature, and especially now that you can set a chart style it makes
   more sense to set it there.
+
+- Data is now sent over a WebSocket, rather than rendering everything. The
+  upshot of this is that the perceived performance is better: it only needs to
+  calculate the data that's initially visible, and it's okay to wait a bit for
+  the data that's not. The downside is that you need JavaScript, but that was
+  already the case to render the charts.
 
 - There is a "server management" tab in the settings which allows viewing and
   editing some server internals. This page is only available to users with the
