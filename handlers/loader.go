@@ -99,6 +99,9 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 	defer c.Unlock()
 	w, err := c.conn.NextWriter(websocket.TextMessage)
 	if err != nil {
+		if w != nil {
+			w.Close()
+		}
 		zlog.Fields(zlog.F{
 			"connectID": id,
 			"siteID":    Site(r.Context()).ID,
@@ -106,7 +109,6 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 		}).FieldsRequest(r).Errorf("loader.send: NextWriter: %s", err)
 		return
 	}
-	defer w.Close()
 
 	j, err := json.Marshal(data)
 	if err != nil {
@@ -119,6 +121,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 	}
 
 	_, err = w.Write(j)
+	w.Close()
 	if err != nil {
 		zlog.Fields(zlog.F{
 			"connectID": id,
