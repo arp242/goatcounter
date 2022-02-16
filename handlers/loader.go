@@ -70,11 +70,12 @@ func (l *loaderT) connect(r *http.Request, id zint.Uint128, c *websocket.Conn) {
 func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 	c, ok := l.conns[id]
 	if !ok {
-		zlog.Fields(zlog.F{
-			"connectID": id,
-			"siteID":    Site(r.Context()).ID,
-			"userID":    User(r.Context()).ID,
-		}).FieldsRequest(r).Errorf("loader.send: not registered")
+		// No connection yet; this shouldn't happen, but does happen quite a lot
+		// for bot requests and the like: they get the HTML, background stuff
+		// starts spinning up, but don't run JS and will never establish a
+		// websocket connection.
+		//
+		// So just ignore it; logging here will produce a ton of errors.
 		return
 	}
 	if c == nil {
@@ -98,7 +99,6 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 	defer c.Unlock()
 	w, err := c.conn.NextWriter(websocket.TextMessage)
 	if err != nil {
-		w.Close()
 		zlog.Fields(zlog.F{
 			"connectID": id,
 			"siteID":    Site(r.Context()).ID,
@@ -106,6 +106,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 		}).FieldsRequest(r).Errorf("loader.send: NextWriter: %s", err)
 		return
 	}
+	defer w.Close()
 
 	j, err := json.Marshal(data)
 	if err != nil {
@@ -118,7 +119,6 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 	}
 
 	_, err = w.Write(j)
-	w.Close()
 	if err != nil {
 		zlog.Fields(zlog.F{
 			"connectID": id,
