@@ -7,7 +7,7 @@ create table users2 (
 	password       blob           default null,
 	totp_enabled   integer        not null default 0,
 	totp_secret    blob,
-	access         varchar      not null default '{"all":"a"}',
+	access         varchar        not null default '{"all":"a"}',
 	login_at       timestamp      null                     check(login_at = strftime('%Y-%m-%d %H:%M:%S', login_at)),
 	login_request  varchar        null,
 	login_token    varchar        null,
