@@ -63,7 +63,7 @@
 
 			{{if .GoatcounterCom}}
 				<label for="cname">{{.T "label/custom-domain|Custom domain"}}</label>
-				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}" disabled>
+				<input type="text" name="cname" id="cname" value="{{if .Site.Cname}}{{.Site.Cname}}{{end}}">
 				<span>{{.T `help/custom-domain|
 					Custom domain, e.g. <em>“stats.example.com”</em>.
 					<strong>Note:</strong> This <em>won’t</em> prevent most
