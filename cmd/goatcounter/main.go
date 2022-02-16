@@ -194,10 +194,11 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 	// Load languages.
 	var c int
 	err = db.Get(context.Background(), &c, `select count(*) from languages`)
-	if err != nil {
-		return nil, nil, err
-	}
-	if c == 0 {
+	// Ignore the error intentionally; not being able to select from the
+	// languages table here to populate it (usually because it doesn't exist
+	// yet) shouldn't be a fatal error. If there's some other error then the
+	// query error will show that one anyway.
+	if err == nil && c == 0 {
 		langs, err := fs.ReadFile(goatcounter.DB, "db/languages.sql")
 		if err != nil {
 			return nil, nil, err
