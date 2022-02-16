@@ -14,7 +14,6 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
@@ -122,7 +121,8 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 	if user.Settings.EmailReports != goatcounter.EmailReportDaily {
 		args.DisplayDate += " – " + rng.Start.Format(user.Settings.DateFormat)
 	}
-	subject = z18n.T(ctx, "email/report-subject|Your GoatCounter report for %(time-period)", args.DisplayDate)
+	// TODO: no locale on context here.
+	subject = fmt.Sprintf("Your GoatCounter report for %s", args.DisplayDate)
 
 	{ // Get overview of paths.
 		_, _, _, err := args.Pages.List(ctx, rng, nil, nil, 10, true)
