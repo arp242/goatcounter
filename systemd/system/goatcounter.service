@@ -1,0 +1,19 @@
+[Unit]
+Description=GoatCounter - Easy web analytics. No tracking of personal data.
+After=network.target
+
+[Service]
+User=goatcounter
+Group=goatcounter
+WorkingDirectory=/usr/local/goatcounter
+ExecStart=/usr/local/bin/goatcounter serve \
+    -listen 127.0.0.1:8111 \
+    -db "sqlite+/usr/local/goatcounter/goatcounter.sqlite3" \
+    -tls none \
+    -automigrate
+SuccessExitStatus=0
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

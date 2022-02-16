@@ -250,3 +250,40 @@ read directly from the filesystem, and a few other minor changes.
 
 See [.github/CONTRIBUTING.markdown](/.github/CONTRIBUTING.markdown) for more
 details on how to run a development server, write patches, etc.
+
+### Running behind Apache Reverse Proxy
+Enable the following Apache2 mods:
+
+    a2enmod proxy rewrite proxy_http proxy_wstunnel
+
+Add a vhost with TLS support to your Apache config and add the following lines:
+
+    ProxyPreserveHost On
+    ProxyPass / "http://localhost:8111/"
+    ProxyPassReverse / "http://localhost:8111/"
+
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^/?(.*) "ws://localhost:8111/$1" [P,L]
+
+Start goatcounter without TLS listening only on localhost:
+
+    goatcounter serve -listen 127.0.0.1:8111 -tls none
+
+### Starting goatcounter via systemd
+You can use the template [systemd/system/goatcounter.service][template]
+and adjust it to your needs.
+On my System /usr/local/bin/goatcounter is a symbolic link to the latest binary.
+Upgrading goatcounter is just like wget, gunzip and chmod new binary from [releases][ghrel],
+stop goatcounter, replace symlink, start goatcounter
+
+    wget https://...
+    gunzip goatcounter*.gz
+    chmod +x goatcounter-XXX
+    systemctl stop goatcounter
+    ln -sf goatcounter-XXX goatcounter
+    systemctl start goatcounter
+    systemctl status goatcounter
+
+[template]: /systemd/system/goatcounter.service
+[ghrel]: https://github.com/arp242/goatcounter/releases
