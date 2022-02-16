@@ -107,9 +107,6 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		noBranding = r.URL.Query().Get("no_branding") != ""
 		style      = r.URL.Query().Get("style")
 	)
-	if !site.PlanCustomDomain(r.Context()) {
-		noBranding = false
-	}
 
 	var (
 		rng ztime.Range

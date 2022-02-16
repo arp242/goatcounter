@@ -49,8 +49,6 @@ Then update the GoatCounter settings with your custom domain. It might take a
 few hours for everything to work. <code>mine.{{.Domain}}</code> will continue to
 work.<br><br>
 
-You will need a Business plan to set up a custom domain.<br><br>
-
 <em>Note that Custom domains will not prevent adblockers from recognizing
 GoatCounter; it’s only intended as a “vanity domain”.</em>
 </dd>

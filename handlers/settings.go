@@ -172,9 +172,6 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	site := Site(r.Context())
 	site.Settings = args.Settings
 	site.LinkDomain = args.LinkDomain
-	if args.Cname != "" && !site.PlanCustomDomain(r.Context()) {
-		return guru.New(http.StatusForbidden, T(r.Context(), "notify/need-business-plan-custom-domain|need a business plan to set custom domain"))
-	}
 
 	makecert := false
 	if args.Cname == "" {

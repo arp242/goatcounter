@@ -614,12 +614,6 @@ func (s Site) LinkDomainURL(withProto bool, paths ...string) string {
 	return strings.TrimRight(s.LinkDomain, "/") + path.Join(paths...)
 }
 
-// PlanCustomDomain reports if this site's plan allows custom domains.
-func (s Site) PlanCustomDomain(ctx context.Context) bool {
-	account := MustGetAccount(ctx)
-	return account.Plan == PlanStarter || account.Plan == PlanBusiness || account.Plan == PlanBusinessPlus
-}
-
 // IDOrParent gets this site's ID or the parent ID if that's set.
 func (s Site) IDOrParent() int64 {
 	if s.Parent != nil {
