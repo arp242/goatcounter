@@ -1,7 +1,7 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
-{{$link := (tag "a" (printf `href="//%s.%s"` .Rm.Code .Domain) (.Rm.Domain .Context))}}
+{{$link := (tag "a" (printf `href="//%s.%s"` .Rm.Code .Domain) (.Rm.Display .Context))}}
 {{if eq .Rm.ID .Site.ID}}
 	<p>{{.T `p/remove-site-confirm-current|
 		Are you sure you want to remove the site %(sitename)?<br>
