@@ -87,7 +87,7 @@
 			// a function to reset to the previous value.
 			draw: (x, y, width, height, cb) => {
 				x *= Math.max(window.devicePixelRatio, 1)
-				let save = ctx.getImageData(x-4, y-4, width+8, height+8)
+				let save = ctx.getImageData(x-4, y-4, width+8*window.devicePixelRatio, height+8)
 				cb()
 				return {x: x, y: y, f: () => ctx.putImageData(save, x-4, y-4)}
 			},
