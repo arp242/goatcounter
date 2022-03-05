@@ -135,7 +135,11 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		wid.GetOne("totalcount").(*widgets.TotalCount).NoEvents = w.Settings()["no-events"].Value.(bool)
 	}
 
-	initial, lazy := wid.InitialAndLazy()
+	initial := wid
+	var lazy widgets.List
+	if h.websocket {
+		initial, lazy = wid.InitialAndLazy()
+	}
 
 	getData := func(w widgets.Widget) {
 		m := metrics.Start("dashboard:" + w.Name())

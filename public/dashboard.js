@@ -19,6 +19,8 @@
 
 	// Open websocket for the dashboard loader.
 	var dashboard_loader = function() {
+		if (!window.WEBSOCKET)
+			return
 		let cid  = $('#js-connect-id').text(),
 			conn = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + document.location.host + '/loader?id=' + cid)
 		conn.onmessage = function(e) {

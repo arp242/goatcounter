@@ -120,6 +120,13 @@ Flags:
                value; for example "-ratelimit export:3/3600,api:100/1" will use
                the default for "count", "login", etc.
 
+  -websocket   Use a websocket to send data. The advantage of this is that the
+               perceived performance is quite a bit better, especially with a
+               lot of data, since things can be loaded "lazily". The downside is
+               that it doesn't work out-of-the-box with a proxy setup (e.g.
+               nginx, Apache, Varnish, etc.) and requires special configuration,
+               which is why it's disabled by default.
+
   -dev         Start in "dev mode".
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
@@ -140,7 +147,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		port         = f.Int(0, "public-port", "port").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
-	dbConnect, dev, automigrate, listen, flagTLS, from, err := flagsServe(f, &v)
+	dbConnect, dev, automigrate, listen, flagTLS, from, websocket, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -181,10 +188,11 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		c.Dev = dev
 		c.URLStatic = urlStatic
 		c.DomainCount = domainCount
+		c.Websocket = websocket
 
 		// Set up HTTP handler and servers.
 		hosts := map[string]http.Handler{
-			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic, 60),
+			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, websocket, c.DomainStatic, 60),
 		}
 		if domainStatic != "" {
 			// May not be needed, but just in case the DomainStatic isn't an
@@ -255,7 +263,7 @@ func doServe(ctx context.Context, db zdb.DB,
 	return nil
 }
 
-func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string, string, string, error) {
+func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string, string, string, bool, error) {
 	var (
 		dbConnect   = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
 		debug       = f.String("", "debug").Pointer()
@@ -268,6 +276,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 		from        = f.String("", "email-from").Pointer()
 		geodb       = f.String("", "geodb").Pointer()
 		ratelimit   = f.String("", "ratelimit").Pointer()
+		websocket   = f.Bool(false, "websocket").Pointer()
 	)
 	err := f.Parse()
 
@@ -304,7 +313,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 			r := v.Integer("requests", reqs)
 			s := v.Integer("seconds", secs)
 			if v.HasErrors() {
-				return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from,
+				return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, *websocket,
 					fmt.Errorf("invalid -ratelimit flag: %q: %w", *ratelimit, v)
 			}
 
@@ -312,7 +321,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 		}
 	}
 
-	return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, err
+	return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, err
 }
 
 func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {

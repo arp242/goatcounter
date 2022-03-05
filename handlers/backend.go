@@ -23,9 +23,9 @@ import (
 	"zgo.at/zstripe"
 )
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, domainStatic string, dashTimeout int) chi.Router {
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool, domainStatic string, dashTimeout int) chi.Router {
 	r := chi.NewRouter()
-	backend{dashTimeout}.Mount(r, db, dev, domainStatic, dashTimeout)
+	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout)
 
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
@@ -38,7 +38,10 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool, dom
 	return r
 }
 
-type backend struct{ dashTimeout int }
+type backend struct {
+	dashTimeout int
+	websocket   bool
+}
 
 func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout int) {
 	if dev {
@@ -151,7 +154,9 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		{
 			ap := a.With(loggedInOrPublic, addz18n())
 			ap.Get("/", zhttp.Wrap(h.dashboard))
-			ap.Get("/loader", zhttp.Wrap(h.loader))
+			if h.websocket {
+				ap.Get("/loader", zhttp.Wrap(h.loader))
+			}
 			ap.Get("/load-widget", zhttp.Wrap(h.loadWidget))
 		}
 		{

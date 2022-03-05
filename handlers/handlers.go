@@ -71,6 +71,7 @@ type Globals struct {
 	GoatcounterCom bool
 	Dev            bool
 	Port           string
+	Websocket      bool
 	JSTranslations map[string]string
 }
 
@@ -93,6 +94,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		GoatcounterCom: goatcounter.Config(ctx).GoatcounterCom,
 		Dev:            goatcounter.Config(ctx).Dev,
 		Port:           goatcounter.Config(ctx).Port,
+		Websocket:      goatcounter.Config(ctx).Websocket,
 		JSTranslations: map[string]string{
 			"error/date-future":           T(ctx, "error/date-future|That would be in the future"),
 			"error/date-past":             T(ctx, "error/date-past|That would be before the site’s creation; GoatCounter is not *that* good ;-)"),
