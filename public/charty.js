@@ -6,9 +6,14 @@
 	'use strict';
 
 	window.charty = function(ctx, data, opt) {
-		// Width and height attributes need to be set explicitly as attributes.
-		ctx.canvas.width  = ctx.canvas.clientWidth
-		ctx.canvas.height = ctx.canvas.clientHeight
+		// Width and height attributes need to be set explicitly as attributes;
+		// one "CSS pixel" may not correspond with one "physical pixe", for
+		// example when zooming (either in browser or OS, e.g. for high-DPI
+		// displays), so account for that with devicePixelRatio.
+		let dpr = Math.max(1, window.devicePixelRatio || 1)
+		ctx.canvas.width  = ctx.canvas.clientWidth  * dpr
+		ctx.canvas.height = ctx.canvas.clientHeight * dpr
+		ctx.scale(dpr, dpr)
 
 		opt.line = Object.assign({width: 2, color: '#f00', fill: '#fdd'}, opt.line)
 		opt.bar  = Object.assign({color: '#f00'}, opt.bar)
@@ -18,8 +23,8 @@
 			opt.max = data.reduce((a, b) => b > a ? b : a)
 		let relData = data.map((n) => n / opt.max * 100)
 
-		let pad      = opt.pad + 1.5,  // .5 for alignment, and 1 for border.
-			barWidth = (ctx.canvas.width - pad) / relData.length
+		let pad      = (opt.pad + 1.5) / dpr,  // .5 for alignment, and 1 for border.
+			barWidth = (ctx.canvas.width - pad) / dpr / relData.length
 		if (opt.mode === 'line')
 			barWidth += barWidth / relData.length - pad*1.5 / relData.length
 		else
@@ -30,12 +35,15 @@
 		ctx.fillStyle = opt.background
 		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
+		let cWidth  = ctx.canvas.width  / dpr,
+			cHeight = ctx.canvas.height / dpr
+
 		if (opt.grid)
-			draw_grid(ctx, ctx.canvas.width, ctx.canvas.height, pad, opt.grid)
+			draw_grid(ctx, cWidth, cHeight, pad, opt.grid)
 		if (opt.mode === 'bar')
-			draw_barchart(ctx, relData, barWidth, ctx.canvas.width, ctx.canvas.height, pad, opt.bar)
+			draw_barchart(ctx, relData, barWidth, cWidth, cHeight, pad, opt.bar)
 		else
-			draw_linechart(ctx, relData, barWidth, ctx.canvas.width, ctx.canvas.height, pad, opt.line)
+			draw_linechart(ctx, relData, barWidth, cWidth, cHeight, pad, opt.line)
 
 		let self = {}
 
@@ -78,6 +86,7 @@
 			// Draw something at the given coördinates in the callback, returns
 			// a function to reset to the previous value.
 			draw: (x, y, width, height, cb) => {
+				x *= Math.max(window.devicePixelRatio, 1)
 				let save = ctx.getImageData(x-4, y-4, width+8, height+8)
 				cb()
 				return {x: x, y: y, f: () => ctx.putImageData(save, x-4, y-4)}

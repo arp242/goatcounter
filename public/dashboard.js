@@ -14,7 +14,7 @@
 
 	// Set up all the dashboard widget contents (but not the header).
 	var dashboard_widgets = function() {
-		;[draw_all_charts, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale].forEach((f) => f.call())
+		;[init_charts, paginate_pages, load_refs, hchart_detail, ref_pages, bind_scale].forEach((f) => f.call())
 	}
 
 	// Open websocket for the dashboard loader.
@@ -418,6 +418,20 @@
 		})
 	}
 
+	var init_charts = function() {
+		$(window).on('resize', function() {
+			$('#tooltip').remove()
+			charts.forEach((c) => {
+				c.ctx().canvas.dataset.done = ''
+				c.stop()
+			})
+			charts = []
+			draw_all_charts()
+		})
+
+		draw_all_charts()
+	}
+
 	// Draw all charts.
 	var draw_all_charts = function() {
 		$('.chart-line, .chart-bar').each(function(i, chart) {
@@ -479,12 +493,13 @@
 				let last   = stats[stats.length - 1].Day + (daily ? '' : ' 23:59:59'),
 					future = last > format_date_ymd(new Date()) + (daily ? '' : ' 23:59:59')
 				if (future) {
-					let width  = chart.barWidth() * ((get_date(last) - new Date()) / ((daily ? 86400 : 3600) * 1000))
-					futureFrom = canvas.width - width - chart.pad()
+					let dpr   = Math.max(1, window.devicePixelRatio || 1),
+						width = chart.barWidth() * ((get_date(last) - new Date()) / ((daily ? 86400 : 3600) * 1000))
+					futureFrom = canvas.width/dpr - width - chart.pad()
 
 					ctx.fillStyle = '#ddd'
 					ctx.beginPath()
-					ctx.fillRect(futureFrom, chart.pad()-1, width, canvas.height - chart.pad()*2+2)
+					ctx.fillRect(futureFrom, (chart.pad()-1), width, canvas.height/dpr - chart.pad()*2 + 2)
 				}
 			},
 		})
@@ -503,7 +518,8 @@
 			else if (x === reset.x)
 				return
 
-			var day    = daily ? stats[i] : stats[Math.floor(i / 24)],
+			let dpr    = Math.max(1, window.devicePixelRatio || 1),
+				day    = daily ? stats[i] : stats[Math.floor(i / 24)],
 				start  = (i % 24) + ':00',
 				end    = (i % 24) + ':59',
 				visits = daily ? day.DailyUnique : day.HourlyUnique[i%24],
