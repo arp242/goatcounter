@@ -61,10 +61,6 @@ var SQLiteHook = func(c *sqlite3.SQLiteConn) error {
 	}, true)
 }
 
-func init() {
-	sqlite3.SQLiteTimestampFormats = []string{"2006-01-02 15:04:05", "2006-01-02"}
-}
-
 // TODO: Move to zdb
 func interval(ctx context.Context, days int) string {
 	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {

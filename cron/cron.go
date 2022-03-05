@@ -50,7 +50,7 @@ func RunBackground(ctx context.Context) {
 	go func() {
 		for {
 			<-goatcounter.PersistRunner.Run
-			bgrun.RunNoDuplicates("cron:PersistAndStat", func() {
+			bgrun.Run("cron:PersistAndStat", func() {
 				done := timeout("PersistAndStat", 10*time.Second)
 				err := PersistAndStat(ctx)
 				if err != nil {
@@ -72,7 +72,7 @@ func RunBackground(ctx context.Context) {
 				}
 
 				f := t.ID()
-				bgrun.RunNoDuplicates("cron:"+f, func() {
+				bgrun.Run("cron:"+f, func() {
 					done := timeout(f, 10*time.Second)
 					err := t.Fun(ctx)
 					if err != nil {
