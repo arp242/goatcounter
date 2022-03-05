@@ -19,11 +19,14 @@
 
 	// Open websocket for the dashboard loader.
 	var dashboard_loader = function() {
-		if (!window.WEBSOCKET)
+		if (!window.USE_WEBSOCKET)
 			return
-		let cid  = $('#js-connect-id').text(),
-			conn = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + document.location.host + '/loader?id=' + cid)
-		conn.onmessage = function(e) {
+		if (window.WEBSOCKET && window.WEBSOCKET.readyState <= 1)
+			return
+
+		let cid  = $('#js-connect-id').text()
+		window.WEBSOCKET = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + document.location.host + '/loader?id=' + cid)
+		window.WEBSOCKET.onmessage = function(e) {
 			let msg = JSON.parse(e.data)
 			$(`#dash-widgets div[data-widget=${msg.id}]`).html(msg.html)
 			draw_all_charts()
