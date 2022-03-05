@@ -317,7 +317,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 		User:           User(r.Context()),
 		TotalUniqueUTC: total,
 		TotalUnique:    total,
-		RowsOnly:       key != "",
+		RowsOnly:       key != "" || offset > 0,
 		Args: widgets.Args{
 			Rng:        rng,
 			PathFilter: pathFilter,
