@@ -325,7 +325,7 @@ func (ss *SiteSettings) Defaults(ctx context.Context) {
 		ss.Collect |= CollectLocation
 	}
 	if ss.CollectRegions == nil {
-		ss.CollectRegions = []string{"US", "RU", "CH"}
+		ss.CollectRegions = []string{"US", "RU", "CN"}
 	}
 }
 
