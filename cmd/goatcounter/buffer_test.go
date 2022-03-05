@@ -1,6 +1,6 @@
-// Copyright © 2019 Martin Tournoij <martin@arp242.net>
-// This file is part of GoatCounter and published under the terms of the EUPL
-// v1.2, which can be found in the LICENSE file or at http://eupl12.zgo.at
+// Copyright © Martin Tournoij – This file is part of GoatCounter and published
+// under the terms of a slightly modified EUPL v1.2 license, which can be found
+// in the LICENSE file or at https://license.goatcounter.com
 
 package main
 
@@ -52,7 +52,7 @@ func TestBuffer(t *testing.T) {
 	var backend string
 	{
 		i := zsync.NewAtomicInt(0)
-		handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil, false, false, "", 15)
+		handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil, false, false, false, "", 15)
 		goatcounter.Memstore.TestInit(zdb.MustGetDB(ctx))
 
 		s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

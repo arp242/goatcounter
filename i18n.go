@@ -1,3 +1,7 @@
+// Copyright © Martin Tournoij – This file is part of GoatCounter and published
+// under the terms of a slightly modified EUPL v1.2 license, which can be found
+// in the LICENSE file or at https://license.goatcounter.com
+
 package goatcounter
 
 import (
@@ -45,7 +49,7 @@ func Translations(ctx context.Context) fs.FS {
 }
 
 var defaultBundle = func() *z18n.Bundle {
-	b, err := newBundle(Translations(nil))
+	b, err := newBundle(Translations(context.TODO()))
 	if err != nil {
 		panic(err)
 	}
