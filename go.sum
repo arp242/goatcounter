@@ -134,8 +134,8 @@ zgo.at/zcache v1.0.1-0.20210412145246-76039d792310 h1:lJ2j+bNqtRmn8TOJDZXqeaTuG8
 zgo.at/zcache v1.0.1-0.20210412145246-76039d792310/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
 zgo.at/zdb v0.0.0-20220305202237-4742bea134e5 h1:qb5RS5aFvokpI8UZdFvT/w22kOErzU2PoEtJz30X9bc=
 zgo.at/zdb v0.0.0-20220305202237-4742bea134e5/go.mod h1:btLfiemw1WfWa2aIz6htEWPTQfA3xAgixnD+Tuc9PsE=
-zgo.at/zhttp v0.0.0-20211213094732-dd554e63f604 h1:AkGFJhI2zTNIykhEmSpe3/qcvV//h162wW9C7NUT5Io=
-zgo.at/zhttp v0.0.0-20211213094732-dd554e63f604/go.mod h1:sc+IC0Mtp4c2zqPTGP09dEJugbj66aqoi58WGGhyVDg=
+zgo.at/zhttp v0.0.0-20220306174538-ede1552bdf7c h1:VD7y4zGpHOH3hWfh9oGjU08IP7/posKrh22Ifn+qxLg=
+zgo.at/zhttp v0.0.0-20220306174538-ede1552bdf7c/go.mod h1:lURXM+k9Lcb0W3RSOL0nrnFnPBKC+5ibmb8LhjqL0Mo=
 zgo.at/zli v0.0.0-20211017231103-84f8e371c324/go.mod h1:pWkBHZ5qoEmvSDbFYdQMAKaRMEuAtdUKb21k/OOYOJw=
 zgo.at/zli v0.0.0-20211215141047-76dae1509b03 h1:x8eqGxlYcqFkwd7zk77uZ9JoEiS6cxSWQbqFb8PqoW4=
 zgo.at/zli v0.0.0-20211215141047-76dae1509b03/go.mod h1:pWkBHZ5qoEmvSDbFYdQMAKaRMEuAtdUKb21k/OOYOJw=
@@ -147,10 +147,10 @@ zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0/go.mod h1:JqClLxeT9Uui3apqyN3U6K
 zgo.at/zstd v0.0.0-20210310054817-c39eb9b7df25/go.mod h1:bQqcOgaRPCBT7lZ52Ksg9GF1xwi0L97E3AyvW3oGJYE=
 zgo.at/zstd v0.0.0-20210320020631-01ce6df76a58/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstd v0.0.0-20210512041107-8951517febd3/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
-zgo.at/zstd v0.0.0-20211017205211-017273d7d29c/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstd v0.0.0-20211201154120-0e6864ea6110/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
-zgo.at/zstd v0.0.0-20211220090423-fa07dcab58f8 h1:abnHztdyE684SC5ctbWuJh0UQV6aumkFMS1T4/5rla8=
 zgo.at/zstd v0.0.0-20211220090423-fa07dcab58f8/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
+zgo.at/zstd v0.0.0-20220306174247-aa79e904bd64 h1:HAVMPWihLj5efVqidp9roItAE1qLKKlJeyQA7OLMheY=
+zgo.at/zstd v0.0.0-20220306174247-aa79e904bd64/go.mod h1:sQqrTxBwKW0nlwcOg9RxXB8ikY+NBciJnJRPOq/gEuY=
 zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08 h1:c5+QSfo9AQfeigy/GsUGu+cq5JHJ8qo9KiNRoLeqhX4=
 zgo.at/zstripe v1.1.1-0.20210407063143-62ac9deebc08/go.mod h1:bIBaT9rsnc+uWMSf+6UXjDHhlwxLgcU7jahxUMU+j+k=
 zgo.at/ztpl v0.0.0-20211017232908-7dce3dc79277/go.mod h1:mhjSF7+pfwMjNhDgmw9Ywr1CixzeVWuvMjF7gLJT8Uw=

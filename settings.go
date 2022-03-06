@@ -118,7 +118,7 @@ type (
 func defaultWidgets(ctx context.Context) Widgets {
 	s := defaultWidgetSettings(ctx)
 	w := Widgets{}
-	for _, n := range []string{"pages", "totalpages", "toprefs", "browsers", "systems", "sizes", "locations", "languages"} {
+	for _, n := range []string{"pages", "totalpages", "toprefs", "campaigns", "browsers", "systems", "locations", "languages", "sizes"} {
 		w = append(w, map[string]interface{}{"n": n, "s": s[n].getMap()})
 	}
 	return w
@@ -268,6 +268,18 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				},
 			},
 		},
+		"campaigns": map[string]WidgetSetting{
+			"limit": WidgetSetting{
+				Type:  "number",
+				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
+				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
+				Value: float64(6),
+				Validate: func(v *zvalidate.Validator, val interface{}) {
+					v.Range("limit", int64(val.(float64)), 1, 20)
+				},
+			},
+			"key": WidgetSetting{Hidden: true},
+		},
 	}
 }
 
@@ -313,7 +325,7 @@ func (w *Widgets) UnmarshalJSON(d []byte) error {
 
 func (ss *SiteSettings) Defaults(ctx context.Context) {
 	if ss.Campaigns == nil {
-		ss.Campaigns = []string{"utm_campaign", "utm_source", "ref"}
+		ss.Campaigns = []string{"utm_source", "ref", "src", "source"}
 	}
 	if ss.Public == "" {
 		ss.Public = "private"

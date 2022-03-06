@@ -51,7 +51,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 	r.Use(
 		mware.RealIP(),
 		mware.WrapWriter(),
-		mware.Unpanic(),
+		mware.Unpanic("zgo.at/goatcounter/v2/handlers.add"),
 		addctx(db, true, dashTimeout),
 		middleware.RedirectSlashes,
 		mware.NoStore())

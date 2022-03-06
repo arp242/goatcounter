@@ -402,7 +402,7 @@ func textChart(ctx context.Context, stats []HitListStat, max int, daily bool) te
 }
 
 func HorizontalChart(ctx context.Context, stats HitStats, total int, link, paginate bool) template.HTML {
-	if total == 0 {
+	if total == 0 || len(stats.Stats) == 0 {
 		return template.HTML("<em>" + z18n.T(ctx, "dashboard/nothing-to-display|Nothing to display") + "</em>")
 	}
 

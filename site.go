@@ -665,7 +665,7 @@ func (s Site) PayExternal() string {
 // user intact.
 func (s Site) DeleteAll(ctx context.Context) error {
 	return zdb.TX(ctx, func(ctx context.Context) error {
-		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
+		for _, t := range append(statTables, "campaign_stats", "hit_counts", "ref_counts", "hits", "paths") {
 			err := zdb.Exec(ctx, `delete from `+t+` where site_id=:id`, zdb.P{"id": s.ID})
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteAll: delete "+t)
@@ -692,7 +692,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 			return errors.Wrap(err, "Site.DeleteOlderThan: get paths")
 		}
 
-		for _, t := range statTables {
+		for _, t := range append(statTables, "campaign_stats") {
 			err := zdb.Exec(ctx, `delete from `+t+` where site_id=$1 and day < `+ival, s.ID)
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan: delete "+t)

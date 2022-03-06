@@ -178,6 +178,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	q.Del("utm_medium")
 	q.Del("utm_campaign")
 	q.Del("utm_term")
+	q.Del("utm_content")
 
 	q.Del("__cf_chl_captcha_tk__") // Cloudflare
 	q.Del("__cf_chl_jschl_tk__")

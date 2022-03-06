@@ -31,6 +31,7 @@ type Hit struct {
 	Site        int64        `db:"site_id" json:"-"`
 	PathID      int64        `db:"path_id" json:"-"`
 	UserAgentID *int64       `db:"user_agent_id" json:"-"`
+	CampaignID  *int64       `db:"campaign" json:"-"`
 	Session     zint.Uint128 `db:"session" json:"-"`
 
 	Path  string     `db:"-" json:"p,omitempty"`
@@ -195,12 +196,31 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 		q := u.Query()
 
 		for _, c := range site.Settings.Campaigns {
+			if c == "utm_campaign" { // Ignore as we track this as the campaign name.
+				continue
+			}
 			if _, ok := q[c]; ok {
 				h.Ref = q.Get(c)
 				h.RefURL = nil
 				h.RefScheme = RefSchemeCampaign
 				break
 			}
+		}
+
+		if q.Has("utm_campaign") {
+			c := Campaign{Name: q.Get("utm_campaign")}
+			err := c.ByName(ctx, c.Name)
+			if err != nil && !zdb.ErrNoRows(err) {
+				return errors.Wrap(err, "Hit.Defaults")
+			}
+
+			if zdb.ErrNoRows(err) {
+				err := c.Insert(ctx)
+				if err != nil {
+					return errors.Wrap(err, "Hit.Defaults")
+				}
+			}
+			h.CampaignID = &c.ID
 		}
 	}
 
@@ -331,7 +351,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 	return nil
 }
 
-// Purge all paths.
+// Purge the given paths.
 func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 	query := `/* Hits.Purge */
 		delete from %s where site_id=? and path_id in (?)`

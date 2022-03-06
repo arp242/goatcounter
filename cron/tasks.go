@@ -158,6 +158,7 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 		updateLocationStats,
 		updateLanguageStats,
 		updateSizeStats,
+		updateCampaignStats,
 	}
 
 	for _, f := range funs {
@@ -226,7 +227,7 @@ func vacuumDeleted(ctx context.Context) error {
 			for _, t := range []string{"hits", "paths",
 				"hit_counts", "ref_counts",
 				"browser_stats", "system_stats", "hit_stats", "location_stats", "language_stats", "size_stats",
-				"exports", "api_tokens", "users", "sites"} {
+				"campaign_stats", "exports", "api_tokens", "users", "sites"} {
 
 				err := zdb.Exec(ctx, fmt.Sprintf(`delete from %s where site_id=%d`, t, s.ID))
 				if err != nil {

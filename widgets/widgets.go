@@ -153,6 +153,7 @@ func ListAllWidgets() List {
 		NewWidget("sizes", 0),
 		NewWidget("systems", 0),
 		NewWidget("toprefs", 0),
+		NewWidget("campaigns", 0),
 		NewWidget("totalpages", 0),
 	}
 }
@@ -170,6 +171,8 @@ func NewWidget(name string, id int) Widget {
 		return &TotalPages{id: id}
 	case "toprefs":
 		return &TopRefs{id: id}
+	case "campaigns":
+		return &Campaigns{id: id}
 	case "browsers":
 		return &Browsers{id: id}
 	case "systems":

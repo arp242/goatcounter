@@ -93,7 +93,7 @@ func TestSettingsPurge(t *testing.T) {
 				t.Fatal(err)
 			}
 			if len(hits) != 1 {
-				t.Errorf("%d hits in DB; expected 1:\n%v", len(hits), hits)
+				t.Errorf("%d hits in DB; expected 1:\n%v", len(hits), zdb.DumpString(r.Context(), `select * from hits`))
 			}
 		})
 	}

@@ -5,6 +5,17 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+unreleased v2.3.0
+-----------------
+- Expand campaigns: the `utm_campaign` parameter now is tracked separately.
+  There's a new dashboard panel for this too. Old data isn't backfilled as this
+  information wasn't stored.
+
+- WebSockets are now disabled by default, as it turned out a lot of people had
+  trouble proxying them. You can enable it with `goatcounter serve -websocket`.
+
+- Assortment of small bugfixes.
+
 2022-02-16 v2.2.0
 -----------------
 - The database connection string changed; you now need to use `-db
