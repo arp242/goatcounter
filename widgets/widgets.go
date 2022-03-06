@@ -6,10 +6,10 @@ package widgets
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 
 	"zgo.at/goatcounter/v2"
+	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
 )
@@ -181,7 +181,8 @@ func NewWidget(name string, id int) Widget {
 	case "languages":
 		return &Languages{id: id}
 	}
-	panic(fmt.Errorf("unknown widget: %q", name))
+	zlog.Errorf("unknown widget: %q", name)
+	return &Dummy{}
 }
 
 func isCol(ctx context.Context, flag zint.Bitflag16) bool {
