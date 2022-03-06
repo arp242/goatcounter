@@ -106,6 +106,10 @@ These only work in `-dev` mode:
   EXPLAIN. If this is an empty string everything will be printed, and if it's
   non-empty only queries containing the given string will be printed.
 
+- Set `debug-dump` to automatically print all queries and the results (but not
+  the EXPLAIN). Like `debug-explain`, an empty string will print everything and
+  a non-empty string prints on the queries containing the given string.
+
 Pro-tip: setting cookies in the debugger tools is a bit of a pain; I tend to
 just set these cookies once, and set the path to `/asdasd` to "disable" then,
 and back to `/` if I want to enable it again :-)

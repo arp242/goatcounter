@@ -148,6 +148,10 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewLogDB(zdb.MustGetDB(ctx),
 						os.Stderr, zdb.DumpQuery|zdb.DumpExplain, c.Value)))
 				}
+				if c, _ := r.Cookie("debug-dump"); c != nil {
+					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewLogDB(zdb.MustGetDB(ctx),
+						os.Stderr, zdb.DumpQuery|zdb.DumpResult, c.Value)))
+				}
 			}
 
 			// Load site from domain.
