@@ -87,7 +87,9 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 		// established a connection.
 		for i := 0; i < 1500; i++ {
 			time.Sleep(10 * time.Millisecond)
+			l.mu.Lock()
 			c = l.conns[id]
+			l.mu.Unlock()
 			if c != nil {
 				break
 			}

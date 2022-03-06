@@ -512,6 +512,9 @@ func (w Widget) GetSetting(ctx context.Context, n string) interface{} {
 // GetSettings gets all setting for this widget.
 func (w Widget) GetSettings(ctx context.Context) WidgetSettings {
 	def := defaultWidgetSettings(ctx)[w.Name()]
+	if def == nil {
+		def = make(WidgetSettings)
+	}
 	s, ok := w["s"]
 	if ok {
 		for k, v := range s.(map[string]interface{}) {
