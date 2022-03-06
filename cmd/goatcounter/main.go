@@ -71,8 +71,6 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 
 	case "db", "database":
 		run = cmdDB
-	case "reindex":
-		run = cmdReindex
 	case "serve":
 		run = cmdServe
 	case "saas":

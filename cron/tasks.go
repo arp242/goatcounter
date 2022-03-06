@@ -176,49 +176,6 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits
 	return nil
 }
 
-// ReindexStats re-indexes all the statistics for the given tables; this is
-// intended to be run by the "goatcounter reindex" command.
-func ReindexStats(ctx context.Context, site goatcounter.Site, hits []goatcounter.Hit, tables []string) error {
-	if site.State != goatcounter.StateActive {
-		return nil
-	}
-	if len(hits) == 0 {
-		return nil
-	}
-
-	ctx = goatcounter.WithSite(ctx, &site)
-	for _, t := range tables {
-		var err error
-		switch t {
-		case "all":
-			err = UpdateStats(ctx, &site, site.ID, hits)
-
-		case "hit_counts":
-			err = updateHitCounts(ctx, hits)
-		case "ref_counts":
-			err = updateRefCounts(ctx, hits)
-
-		case "hit_stats":
-			err = updateHitStats(ctx, hits)
-		case "browser_stats":
-			err = updateBrowserStats(ctx, hits)
-		case "system_stats":
-			err = updateSystemStats(ctx, hits)
-		case "location_stats":
-			err = updateLocationStats(ctx, hits)
-		case "language_stats":
-			err = updateLanguageStats(ctx, hits)
-		case "size_stats":
-			err = updateSizeStats(ctx, hits)
-		}
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func renewACME(ctx context.Context) error {
 	if !acme.Enabled() {
 		return nil

@@ -6,18 +6,15 @@ package cron
 
 import (
 	"context"
-	"os"
 	"strconv"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
-	"zgo.at/zstd/zstring"
 )
 
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
-	isReindex := zstring.Contains(os.Args, "reindex")
 	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count       []int
@@ -43,7 +40,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 				v.count = make([]int, 24)
 				v.countUnique = make([]int, 24)
 
-				if zdb.SQLDialect(ctx) == zdb.DialectSQLite && !isReindex {
+				if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 					var err error
 					v.count, v.countUnique, err = existingHitStats(ctx, h.Site, day, v.pathID)
 					if err != nil {

@@ -33,8 +33,8 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			continue
 		}
 		if a == "all" {
-			topics = []string{"help", "version", "serve", "reindex", "buffer",
-				"monitor", "db", "listen", "logfile", "debug"}
+			topics = []string{"help", "version", "serve", "buffer", "monitor",
+				"db", "listen", "logfile", "debug"}
 			break
 		}
 		topics = append(topics, strings.ToLower(a))
@@ -72,7 +72,6 @@ var usage = map[string]string{
 	"help":    usageHelp,
 	"serve":   usageServe,
 	"saas":    usageSaas,
-	"reindex": usageReindex,
 	"monitor": usageMonitor,
 	"import":  usageImport,
 	"buffer":  usageBuffer,
@@ -107,7 +106,6 @@ Commands:
   import       Import pageviews from an export or logfile.
 
   db           Modify the database and print database info.
-  reindex      Recreate the index tables (*_stats, *_count) from the hits.
   buffer       Buffer pageview requests until backend is available.
   monitor      Monitor for pageviews.
 
