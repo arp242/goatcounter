@@ -57,28 +57,31 @@ func Widgets(ctx context.Context) error {
 			}
 
 			{ // Update user defaults on site.
-				var site struct {
+				var sites []struct {
 					ID           int                      `db:"site_id"`
 					UserDefaults goatcounter.UserSettings `db:"user_defaults"`
 				}
-				err = zdb.Get(ctx, &site, `select site_id, user_defaults from sites where site_id = ?`, u.Site)
+				err = zdb.Select(ctx, &sites, `select site_id, user_defaults from sites where site_id = ? or parent=?`,
+					u.Site, u.Site)
 				if err != nil {
 					return err
 				}
 
-				var wid goatcounter.Widgets
-				for _, v := range site.UserDefaults.Widgets {
-					w := goatcounter.Widget{"n": v["name"]}
-					if v["s"] != nil && len(v["s"].(map[string]interface{})) > 0 {
-						w["s"] = v["s"]
+				for _, site := range sites {
+					var wid goatcounter.Widgets
+					for _, v := range site.UserDefaults.Widgets {
+						w := goatcounter.Widget{"n": v["name"]}
+						if v["s"] != nil && len(v["s"].(map[string]interface{})) > 0 {
+							w["s"] = v["s"]
+						}
+						wid = append(wid, w)
 					}
-					wid = append(wid, w)
-				}
-				site.UserDefaults.Widgets = wid
+					site.UserDefaults.Widgets = wid
 
-				err = zdb.Exec(ctx, `update sites set user_defaults=? where site_id=?`, site.UserDefaults, site.ID)
-				if err != nil {
-					return err
+					err = zdb.Exec(ctx, `update sites set user_defaults=? where site_id=?`, site.UserDefaults, site.ID)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
