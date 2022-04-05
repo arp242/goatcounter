@@ -34,7 +34,7 @@ footer a                { font-weight: bold; color: #252525; margin: 0 .5em; }
 #home-top        { padding: 0 1em; margin-bottom: 3rem; }
 
 /* Intro text */
-#home-intro        { margin: 1em 0; text-align: center; max-width: 40em; margin: 0 auto; margin-bottom: 4em; }
+#home-intro        { text-align: center; max-width: 40em; margin: 0 auto; margin-bottom: 4em; }
 #home-intro strong { font-weight: normal; font-size: 1.8em; line-height: 1.5em; }
 #home-intro em     { box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
 #home-intro a      { font-size: 1rem; margin-top: -2em; }
