@@ -7,8 +7,9 @@
 
 	// Set up the entire dashboard page.
 	var page_dashboard = function() {
-		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views, hdr_sites, translate_locations, dashboard_loader,
-			configure_widgets].forEach((f) => f.call())
+		;[dashboard_widgets, hdr_select_period, hdr_datepicker, hdr_filter, hdr_views, hdr_sites,
+			translate_locations, dashboard_loader, configure_widgets,
+		].forEach((f) => f.call())
 	}
 	window.page_dashboard = page_dashboard  // Directly setting window loses the name attr 🤷
 
@@ -27,9 +28,13 @@
 		let cid  = $('#js-connect-id').text()
 		window.WEBSOCKET = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + document.location.host + '/loader?id=' + cid)
 		window.WEBSOCKET.onmessage = function(e) {
-			let msg = JSON.parse(e.data)
-			$(`#dash-widgets div[data-widget=${msg.id}]`).html(msg.html)
+			let msg = JSON.parse(e.data),
+				wid = $(`#dash-widgets div[data-widget=${msg.id}]`)
+			wid.html(msg.html)
 			draw_all_charts()
+
+			if (wid.hasClass('pages-list'))
+				dashboard_widgets()
 		}
 	}
 
