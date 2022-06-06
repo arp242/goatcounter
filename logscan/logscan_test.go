@@ -62,6 +62,19 @@ func TestNew(t *testing.T) {
 			"referrer":    "",
 			"user_agent":  "",
 		},
+		{
+			"_lineno":     "3",
+			"datetime":    "10/Oct/2000:13:55:36 -0700",
+			"host":        "example.com",
+			"http":        "HTTP/2.0",
+			"method":      "GET",
+			"path":        "/dash-size",
+			"remote_addr": "127.0.0.1",
+			"size":        "",
+			"status":      "200",
+			"referrer":    "",
+			"user_agent":  "",
+		},
 	}
 
 	for _, f := range files {

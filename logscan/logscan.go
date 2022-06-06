@@ -99,7 +99,7 @@ func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string,
 		case "timing_milli", "timing_micro":
 			p = `\d+`
 		case "size":
-			p = `\d+`
+			p = `(?:\d+|-)`
 		}
 		return "(?P<" + m + ">" + p + ")"
 	})

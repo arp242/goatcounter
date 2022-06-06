@@ -9,7 +9,7 @@ notification of this to everyone who has generated an API key.
 Authentication
 --------------
 To use the API create a key in your account (`User → API`); send the API key in
-the `Authorization` header as `Authorization: bearer [token]`.
+the `Authorization` header as `Authorization: Bearer [token]`.
 
 You will need to use `Content-Type: application/json`; all requests return JSON
 unless noted otherwise.
