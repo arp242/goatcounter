@@ -105,6 +105,8 @@ zgo.at/z18n v0.0.0-20220606095325-513ddb98b28f h1:EFYfkKvD7X1Yka3NSL3vc+wooc3AWZ
 zgo.at/z18n v0.0.0-20220606095325-513ddb98b28f/go.mod h1:7/jQw/L0ng1iFUikdkYC9meSdeUkhXYfbtdm5OB1KHA=
 zgo.at/zcache v1.2.0 h1:++0dNWOrmUBa10WSja+eHx5bEO2PzZLRY6MJlBD47yk=
 zgo.at/zcache v1.2.0/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
+zgo.at/zcache/v2 v2.1.0 h1:USo+ubK+R4vtjw4viGzTe/zjXyPw6R7SK/RL3epBBxs=
+zgo.at/zcache/v2 v2.1.0/go.mod h1:gyCeoLVo01QjDZynjime8xUGHHMbsLiPyUTBpDGd4Gk=
 zgo.at/zdb v0.0.0-20220606122939-5f47d7a24eaa h1:uNNlR9TJAwbkHy4t2x5hKVmKIn/fL5qboWwFUTqOGKg=
 zgo.at/zdb v0.0.0-20220606122939-5f47d7a24eaa/go.mod h1:n2uLPL5WwB3LK+Eur9R571xduF1DrCyJwkci4D59Ex0=
 zgo.at/zhttp v0.0.0-20220306174538-ede1552bdf7c h1:VD7y4zGpHOH3hWfh9oGjU08IP7/posKrh22Ifn+qxLg=

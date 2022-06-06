@@ -12,6 +12,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"zgo.at/json"
+	zcache2 "zgo.at/zcache/v2"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 )
@@ -34,8 +35,11 @@ import (
 // we can't use just the connection itself as an ID. We also can't use the
 // userID because a user can have two tabs open. So, we need a connection ID.
 type loaderT struct {
-	mu    *sync.Mutex
-	conns map[zint.Uint128]*loaderClient
+	conns *zcache2.Cache[zint.Uint128, *loaderClient]
+}
+
+var loader = loaderT{
+	conns: zcache2.New[zint.Uint128, *loaderClient](zcache2.DefaultExpiration, zcache2.NoExpiration),
 }
 
 type loaderClient struct {
@@ -43,36 +47,19 @@ type loaderClient struct {
 	conn *websocket.Conn
 }
 
-func (l *loaderT) register(id zint.Uint128) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.conns[id] = nil
-}
-func (l *loaderT) unregister(id zint.Uint128) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	delete(l.conns, id)
-}
-func (l *loaderT) connect(r *http.Request, id zint.Uint128, c *websocket.Conn) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+func (l *loaderT) register(id zint.Uint128)   { l.conns.Set(id, nil) }
+func (l *loaderT) unregister(id zint.Uint128) { l.conns.Delete(id) }
 
-	if check, ok := l.conns[id]; !ok || check != nil {
-		zlog.Fields(zlog.F{
-			"connectID": id,
-			"siteID":    Site(r.Context()).ID,
-			"userID":    User(r.Context()).ID,
-		}).FieldsRequest(r).Errorf("loader.connect: already have a connection")
-	}
+func (l *loaderT) connect(r *http.Request, id zint.Uint128, c *websocket.Conn) {
 	c.SetCloseHandler(func(code int, text string) error {
 		l.unregister(id)
 		return nil
 	})
-	l.conns[id] = &loaderClient{conn: c}
+	l.conns.Set(id, &loaderClient{conn: c})
 }
 
 func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
-	c, ok := l.conns[id]
+	c, ok := l.conns.Get(id)
 	if !ok {
 		// No connection yet; this shouldn't happen, but does happen quite a lot
 		// for bot requests and the like: they get the HTML, background stuff
@@ -87,9 +74,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 		// established a connection.
 		for i := 0; i < 1500; i++ {
 			time.Sleep(10 * time.Millisecond)
-			l.mu.Lock()
-			c = l.conns[id]
-			l.mu.Unlock()
+			c, _ = l.conns.Get(id)
 			if c != nil {
 				break
 			}
@@ -136,11 +121,6 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 		}).FieldsRequest(r).Errorf("loader.send: Write: %s", err)
 		return
 	}
-}
-
-var loader = loaderT{
-	mu:    new(sync.Mutex),
-	conns: make(map[zint.Uint128]*loaderClient),
 }
 
 func (h backend) loader(w http.ResponseWriter, r *http.Request) error {

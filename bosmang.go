@@ -123,6 +123,7 @@ func ListCache(ctx context.Context) map[string]struct {
 		"paths":          cachePaths,
 		"loc":            cacheLoc,
 		"changed_titles": cacheChangedTitles,
+		//"loader":         handler.loader.conns,
 	}
 
 	for name, f := range caches {
