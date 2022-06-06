@@ -407,7 +407,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 			}
 
 			bgrun.Run("email:error", func() {
-				err := blackmail.Send("GoatCounter Error",
+				err := blackmail.Send(fmt.Sprintf("GoatCounter Error: %s", zstring.GetLine(l.Msg, 1)),
 					blackmail.From("", from),
 					blackmail.To(to),
 					blackmail.BodyText([]byte(zlog.Config.Format(l))))
