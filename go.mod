@@ -32,7 +32,7 @@ require (
 	zgo.at/tz v0.0.0-20211017223207-006eae99adf6
 	zgo.at/z18n v0.0.0-20220606095325-513ddb98b28f
 	zgo.at/zcache v1.2.0
-	zgo.at/zdb v0.0.0-20220409200746-018582f47c20
+	zgo.at/zdb v0.0.0-20220606103947-474e1d44e110
 	zgo.at/zhttp v0.0.0-20220306174538-ede1552bdf7c
 	zgo.at/zli v0.0.0-20220603144944-094944de19e6
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
@@ -46,8 +46,7 @@ require (
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
-	github.com/lib/pq v1.10.4 // indirect
+	github.com/lib/pq v1.10.6 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
