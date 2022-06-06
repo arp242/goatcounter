@@ -40,6 +40,7 @@ Flags:
 func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		dbConnect = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
+		dbConn    = f.String("16,4", "dbconn").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		period    = f.Int(120, "period").Pointer()
 		once      = f.Bool(false, "once").Pointer()
@@ -50,10 +51,10 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return err
 	}
 
-	return func(dbConnect, debug string, period, site int, once bool) error {
+	return func(dbConnect, dbConn, debug string, period, site int, once bool) error {
 		zlog.Config.SetDebug(debug)
 
-		db, ctx, err := connectDB(dbConnect, []string{"pending"}, false, false)
+		db, ctx, err := connectDB(dbConnect, dbConn, []string{"pending"}, false, false)
 		if err != nil {
 			return err
 		}
@@ -100,5 +101,5 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				return nil
 			}
 		}
-	}(*dbConnect, *debug, *period, *site, *once)
+	}(*dbConnect, *dbConn, *debug, *period, *site, *once)
 }

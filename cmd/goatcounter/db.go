@@ -397,7 +397,7 @@ start:
 			return err
 		}
 
-		db, _, err := connectDB(*dbConnect, []string{"pending"}, true, false)
+		db, _, err := connectDB(*dbConnect, "", []string{"pending"}, true, false)
 		if err != nil {
 			return err
 		}
@@ -518,7 +518,7 @@ func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 
 	zlog.Config.SetDebug(*debug)
 
-	db, ctx, err := connectDB(*dbConnect, nil, *createdb, false)
+	db, ctx, err := connectDB(*dbConnect, "", nil, *createdb, false)
 	if err != nil {
 		return err
 	}
@@ -568,7 +568,7 @@ func dbParseFlag(f zli.Flags, dbConnect, debug *string, createdb *bool) (zdb.DB,
 	}
 	zlog.Config.SetDebug(*debug)
 
-	db, _, err := connectDB(*dbConnect, []string{"pending"}, *createdb, false)
+	db, _, err := connectDB(*dbConnect, "", []string{"pending"}, *createdb, false)
 	if err != nil {
 		return nil, nil, err
 	}

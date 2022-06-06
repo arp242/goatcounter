@@ -54,6 +54,11 @@ Flags:
                See "goatcounter help db" for detailed documentation. Default:
                sqlite+/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
 
+  -dbconn      Set maximum number of connections, as max_open,max_idle
+
+               There is no maximum if max_open is -1, and idle connections are
+               not retained if max_idle is -1 The default is 16,4.
+
   -listen      Address to listen on. Default: "*:443", or "localhost:8081" with
                -dev. See "goatcounter help listen" for detailed documentation.
 
@@ -147,7 +152,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		port         = f.Int(0, "public-port", "port").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
-	dbConnect, dev, automigrate, listen, flagTLS, from, websocket, err := flagsServe(f, &v)
+	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -174,7 +179,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return v
 		}
 
-		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dev, flagTLS, automigrate)
+		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dbConn, dev, flagTLS, automigrate)
 		if err != nil {
 			return err
 		}
@@ -263,9 +268,10 @@ func doServe(ctx context.Context, db zdb.DB,
 	return nil
 }
 
-func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string, string, string, bool, error) {
+func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, error) {
 	var (
 		dbConnect   = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
+		dbConn      = f.String("16,4", "dbconn").Pointer()
 		debug       = f.String("", "debug").Pointer()
 		dev         = f.Bool(false, "dev").Pointer()
 		automigrate = f.Bool(false, "automigrate").Pointer()
@@ -313,7 +319,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 			r := v.Integer("requests", reqs)
 			s := v.Integer("seconds", secs)
 			if v.HasErrors() {
-				return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, *websocket,
+				return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket,
 					fmt.Errorf("invalid -ratelimit flag: %q: %w", *ratelimit, v)
 			}
 
@@ -321,15 +327,15 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, bool, bool, string
 		}
 	}
 
-	return *dbConnect, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, err
+	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, err
 }
 
-func setupServe(dbConnect string, dev bool, flagTLS string, automigrate bool) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {
+func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate bool) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {
 	if dev {
 		setupReload()
 	}
 
-	db, ctx, err := connectDB(dbConnect, map[bool][]string{true: {"all"}, false: {"pending"}}[automigrate], true, dev)
+	db, ctx, err := connectDB(dbConnect, dbConn, map[bool][]string{true: {"all"}, false: {"pending"}}[automigrate], true, dev)
 	if err != nil {
 		return nil, nil, nil, nil, 0, err
 	}

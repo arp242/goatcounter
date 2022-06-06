@@ -16,6 +16,11 @@ unreleased v2.3.0
 
 - Assortment of small bugfixes.
 
+- Add `-dbconn` flag for `serve` to allow setting the maximum number of
+  connections.
+
+  The default is also lowered from 25 to 16 for PostgreSQL.:w
+
 2022-02-16 v2.2.0
 -----------------
 - The database connection string changed; you now need to use `-db

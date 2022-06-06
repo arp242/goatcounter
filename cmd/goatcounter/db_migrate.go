@@ -35,7 +35,7 @@ func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 	return func(dbConnect, debug string, createdb, dev, test bool) error {
 		zlog.Config.SetDebug(debug)
 
-		db, _, err := connectDB(dbConnect, nil, createdb, false)
+		db, _, err := connectDB(dbConnect, "", nil, createdb, false)
 		if err != nil {
 			return err
 		}

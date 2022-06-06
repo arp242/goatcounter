@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	_ "time/tzdata"
@@ -150,10 +151,27 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	zli.Exit(0)
 }
 
-func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
+func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
 	if strings.Contains(connect, "://") && !strings.Contains(connect, "+") {
 		connect = strings.Replace(connect, "://", "+", 1)
 		zlog.Errorf(`WARNING: the connection string for -db changed from "engine://connectString" to "engine+connectString"; the ://-variant will work for now, but will be removed in a future release`)
+	}
+
+	var open, idle int
+	if dbConn != "" {
+		openS, idleS, ok := strings.Cut(dbConn, ",")
+		if !ok {
+			return nil, nil, errors.New("-dbconn flag: must be as max_open,max_idle")
+		}
+		var err error
+		open, err = strconv.Atoi(openS)
+		if err != nil {
+			return nil, nil, fmt.Errorf("-dbconn flag: %w", err)
+		}
+		idle, err = strconv.Atoi(idleS)
+		if err != nil {
+			return nil, nil, fmt.Errorf("-dbconn flag: %w", err)
+		}
 	}
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.DB, "db", dev)
@@ -169,6 +187,8 @@ func connectDB(connect string, migrate []string, create, dev bool) (zdb.DB, cont
 		Migrate:      migrate,
 		GoMigrations: gomig.Migrations,
 		Create:       create,
+		MaxOpenConns: open,
+		MaxIdleConns: idle,
 		MigrateLog:   func(name string) { zlog.Printf("running migration %q", name) },
 	})
 	var pErr *zdb.PendingMigrationsError
