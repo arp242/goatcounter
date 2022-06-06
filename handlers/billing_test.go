@@ -15,9 +15,9 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 	"zgo.at/zstripe"
 )
 
@@ -61,9 +61,9 @@ func TestSettingsBilling(t *testing.T) {
 			"personal",
 			&goatcounter.Site{
 				Plan:          goatcounter.PlanPersonal,
-				Stripe:        zstring.NewPtr("cus_asd").P,
-				BillingAmount: zstring.NewPtr("EUR 2").P,
-				BillingAnchor: tp(ztime.New("2020-06-18")),
+				Stripe:        ztype.Ptr("cus_asd"),
+				BillingAmount: ztype.Ptr("EUR 2"),
+				BillingAnchor: tp(ztime.FromString("2020-06-18")),
 			},
 			[]string{
 				"Currently using the Personal plan; the limits for this are",
@@ -78,9 +78,9 @@ func TestSettingsBilling(t *testing.T) {
 			"starter subscription",
 			&goatcounter.Site{
 				Plan:          goatcounter.PlanStarter,
-				Stripe:        zstring.NewPtr("cus_abc").P,
-				BillingAmount: zstring.NewPtr("EUR 5").P,
-				BillingAnchor: tp(ztime.New("2020-06-18")),
+				Stripe:        ztype.Ptr("cus_abc"),
+				BillingAmount: ztype.Ptr("EUR 5"),
+				BillingAnchor: tp(ztime.FromString("2020-06-18")),
 			},
 			[]string{
 				"Currently using the Starter plan; the limits for this are",
@@ -96,10 +96,10 @@ func TestSettingsBilling(t *testing.T) {
 			"scheduled cancel",
 			&goatcounter.Site{
 				Plan:          goatcounter.PlanStarter,
-				Stripe:        zstring.NewPtr("cus_abc").P,
-				BillingAmount: zstring.NewPtr("EUR 5").P,
-				BillingAnchor: tp(ztime.New("2020-06-18")),
-				PlanCancelAt:  tp(ztime.New("2020-07-18")),
+				Stripe:        ztype.Ptr("cus_abc"),
+				BillingAmount: ztype.Ptr("EUR 5"),
+				BillingAnchor: tp(ztime.FromString("2020-06-18")),
+				PlanCancelAt:  tp(ztime.FromString("2020-07-18")),
 			},
 			[]string{
 				"Currently using the Starter plan; the limits for this are",
@@ -115,7 +115,7 @@ func TestSettingsBilling(t *testing.T) {
 		{
 			"cancelled",
 			&goatcounter.Site{
-				Stripe: zstring.NewPtr("cus_abc").P,
+				Stripe: ztype.Ptr("cus_abc"),
 			},
 			[]string{
 				"Currently using the Free plan; the limits for this are",

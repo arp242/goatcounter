@@ -45,9 +45,9 @@ func UserAgents(ctx context.Context) error {
 		}
 
 		if strings.ContainsRune(u.UserAgent, '~') {
-			u.UserAgent = gadget.Unshorten(u.UserAgent)
+			u.UserAgent = gadget.UnshortenUA(u.UserAgent)
 		} else {
-			u.UserAgent = gadget.Shorten(u.UserAgent)
+			u.UserAgent = gadget.ShortenUA(u.UserAgent)
 		}
 
 		var dupes []int64
@@ -84,10 +84,10 @@ func UserAgents(ctx context.Context) error {
 		}
 
 		if strings.ContainsRune(u.UserAgent, '~') {
-			u.UserAgent = gadget.Unshorten(u.UserAgent)
+			u.UserAgent = gadget.UnshortenUA(u.UserAgent)
 		}
 
-		ua := gadget.Parse(u.UserAgent)
+		ua := gadget.ParseUA(u.UserAgent)
 
 		var browser goatcounter.Browser
 		err := browser.GetOrInsert(ctx, ua.BrowserName, ua.BrowserVersion)
@@ -106,7 +106,7 @@ func UserAgents(ctx context.Context) error {
 		bot := isbot.UserAgent(u.UserAgent)
 		err = zdb.Exec(ctx, `update user_agents
 				set browser_id=$1, system_id=$2, ua=$3, isbot=$4 where user_agent_id=$5`,
-			browser.ID, system.ID, gadget.Shorten(u.UserAgent), bot, u.ID)
+			browser.ID, system.ID, gadget.ShortenUA(u.UserAgent), bot, u.ID)
 		errs.Append(errors.Wrapf(err, "update user_agent %d", u.ID))
 	}
 	if errs.Len() > 0 {

@@ -20,6 +20,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -335,7 +336,11 @@ func cmdDB(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	)
 
 start:
-	cmd := f.ShiftCommand()
+	cmd, err := f.ShiftCommand()
+	if err != nil && !errors.Is(err, zli.ErrCommandNoneGiven{}) {
+		return err
+	}
+
 	switch cmd {
 	default:
 		// Be forgiving if someone reverses the order of "create" and "site".
@@ -346,7 +351,7 @@ start:
 		}
 
 		return errors.Errorf("unknown command for \"db\": %q\n%s", cmd, helpDBShort)
-	case "", zli.CommandNoneGiven:
+	case "": //, zli.CommandNoneGiven:
 		return errors.New("\"db\" needs a subcommand\n" + helpDBShort)
 	case "help":
 		zli.WantColor = true
@@ -399,11 +404,15 @@ start:
 }
 
 func getTable(f *zli.Flags, cmd string) (string, error) {
-	tbl := f.ShiftCommand()
+	tbl, err := f.ShiftCommand()
+	if err != nil && !errors.Is(err, zli.ErrCommandNoneGiven{}) {
+		return "", err
+	}
+
 	switch tbl {
 	default:
 		return "", errors.Errorf("unknown table %q\n%s", tbl, helpDBShort)
-	case "", zli.CommandNoneGiven:
+	case "":
 		return "", errors.Errorf("%q commands needs a table name\n%s", cmd, helpDBShort)
 	case "help":
 		zli.WantColor = true
@@ -749,7 +758,7 @@ func cmdDBSiteUpdate(ctx context.Context, find []string,
 			}
 
 			if vhost.Set() {
-				s.Cname = zstring.NewPtr(vhost.String()).P
+				s.Cname = ztype.Ptr(vhost.String())
 				err := s.Update(ctx)
 				if err != nil {
 					return err

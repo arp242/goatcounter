@@ -24,6 +24,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 const totpSecretLen = 16
@@ -73,7 +74,7 @@ func (u *User) Defaults(ctx context.Context) {
 	}
 
 	if !u.EmailVerified {
-		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
+		u.EmailToken = ztype.Ptr[string](zcrypto.Secret192())
 	}
 
 	u.Settings.Defaults(ctx)
@@ -205,7 +206,7 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 
 	if emailChanged && Config(ctx).GoatcounterCom {
 		u.EmailVerified = false
-		u.EmailToken = zstring.NewPtr(zcrypto.Secret192()).P
+		u.EmailToken = ztype.Ptr(zcrypto.Secret192())
 	}
 
 	account, err := GetAccount(ctx)
@@ -365,7 +366,7 @@ func (u *User) ByTokenAndSite(ctx context.Context, token string) error {
 // RequestReset generates a new password reset key.
 func (u *User) RequestReset(ctx context.Context) error {
 	// TODO: rename this, as it's now used for password resets.
-	u.LoginRequest = zstring.NewPtr(zcrypto.Secret128()).P
+	u.LoginRequest = ztype.Ptr(zcrypto.Secret128())
 	err := zdb.Exec(ctx, `update users set
 		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
@@ -373,7 +374,7 @@ func (u *User) RequestReset(ctx context.Context) error {
 }
 
 func (u *User) InviteToken(ctx context.Context) error {
-	u.LoginRequest = zstring.NewPtr("invite-" + zcrypto.Secret128()).P
+	u.LoginRequest = ztype.Ptr("invite-" + zcrypto.Secret128())
 	err := zdb.Exec(ctx, `update users set
 		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
@@ -412,7 +413,7 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
-	u.Token = zstring.NewPtr(zcrypto.Secret256()).P
+	u.Token = ztype.Ptr(zcrypto.Secret256())
 	if u.LoginToken == nil || *u.LoginToken == "" {
 		s := ztime.Now().Format("20060102") + "-" + zcrypto.Secret256()
 		u.LoginToken = &s
@@ -493,7 +494,7 @@ func (u User) EmailReportRange() ztime.Range {
 		start, end = lastReport.StartOf(ztime.Day), lastReport.EndOf(ztime.Day)
 
 	case EmailReportBiWeekly:
-		start, end = lastReport.StartOf(week), lastReport.EndOf(week).Add(1, week)
+		start, end = lastReport.StartOf(week), lastReport.EndOf(week).AddPeriod(1, week)
 
 	case EmailReportMonthly:
 		start, end = lastReport.StartOf(ztime.Month), lastReport.EndOf(ztime.Month)

@@ -16,7 +16,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
-	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztype"
 )
 
 type BosmangStat struct {
@@ -45,7 +45,7 @@ func (a *BosmangStats) List(ctx context.Context) error {
 	aa := *a
 	for i := range aa {
 		if aa[i].BillingAmount != nil {
-			aa[i].BillingAmount = zstring.NewPtr(curr.Replace(*aa[i].BillingAmount)).P
+			aa[i].BillingAmount = ztype.Ptr[string](curr.Replace(*aa[i].BillingAmount))
 		}
 	}
 	return nil

@@ -47,7 +47,7 @@ func (p *UserAgent) Update(ctx context.Context) error {
 
 	var (
 		changed = false
-		ua      = gadget.Parse(p.UserAgent)
+		ua      = gadget.ParseUA(p.UserAgent)
 		browser Browser
 		system  System
 	)
@@ -86,12 +86,12 @@ func (p *UserAgent) Update(ctx context.Context) error {
 		return errors.Wrap(err, "UserAgent.Update")
 	}
 
-	cacheUA(ctx).Delete(gadget.Shorten(p.UserAgent))
+	cacheUA(ctx).Delete(gadget.ShortenUA(p.UserAgent))
 	return nil
 }
 
 func (p *UserAgent) GetOrInsert(ctx context.Context) error {
-	shortUA := gadget.Shorten(p.UserAgent)
+	shortUA := gadget.ShortenUA(p.UserAgent)
 
 	c, ok := cacheUA(ctx).Get(shortUA)
 	if ok {
@@ -117,7 +117,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	}
 
 	var (
-		ua      = gadget.Parse(p.UserAgent)
+		ua      = gadget.ParseUA(p.UserAgent)
 		browser Browser
 		system  System
 	)

@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bmatcuk/doublestar/v3"
+	"github.com/bmatcuk/doublestar/v4"
 	"zgo.at/errors"
 	"zgo.at/follow"
 	"zgo.at/zlog"

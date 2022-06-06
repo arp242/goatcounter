@@ -22,9 +22,9 @@ import (
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -445,12 +445,12 @@ func TestAPISitesCreate(t *testing.T) {
 	}{
 		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = zint.NewPtr64(1).P
+			s.Parent = ztype.Ptr(int64(1))
 			s.Plan = "child"
 		}},
 		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
-			s.Cname = zstring.NewPtr("apitest.localhost").P
-			s.Parent = zint.NewPtr64(1).P
+			s.Cname = ztype.Ptr("apitest.localhost")
+			s.Parent = ztype.Ptr(int64(1))
 			s.Plan = "child"
 			s.CnameSetupAt = &now
 		}},
@@ -458,12 +458,12 @@ func TestAPISitesCreate(t *testing.T) {
 		// Ignore plan.
 		{false, `{"code":"apitest","plan":"personal"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = zint.NewPtr64(1).P
+			s.Parent = ztype.Ptr(int64(1))
 			s.Plan = "child"
 		}},
 		{true, `{"cname":"apitest.localhost","plan":"personal"}`, 200, func(s *goatcounter.Site) {
-			s.Cname = zstring.NewPtr("apitest.localhost").P
-			s.Parent = zint.NewPtr64(1).P
+			s.Cname = ztype.Ptr("apitest.localhost")
+			s.Parent = ztype.Ptr(int64(1))
 			s.Plan = "child"
 			s.CnameSetupAt = &now
 		}},
@@ -522,12 +522,12 @@ func TestAPISitesUpdate(t *testing.T) {
 	}{
 		{false, "PATCH", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
-			s.Cname = zstring.NewPtr("gctest.localhost").P
+			s.Cname = ztype.Ptr("gctest.localhost")
 			s.Plan = goatcounter.PlanFree
 		}},
 		{false, "POST", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
-			//s.Cname = zstring.NewPtr("gctest.localhost").P
+			//s.Cname = ztype.Ptr("gctest.localhost")
 			s.Plan = goatcounter.PlanFree
 		}},
 	}

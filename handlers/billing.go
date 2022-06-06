@@ -31,6 +31,7 @@ import (
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 	"zgo.at/zstripe"
 )
 
@@ -86,7 +87,7 @@ func (h billing) index(w http.ResponseWriter, r *http.Request) error {
 			zhttp.Flash(w, T(r.Context(), "notify/payment-processing|The payment processor reported success, but we're still processing the payment"))
 			zlog.Fields(zlog.F{
 				"siteID":   account.ID,
-				"stripeID": zstring.Ptr{account.Stripe}.String(),
+				"stripeID": ztype.Ptr(account.Stripe),
 			}).Errorf("stripe not processed")
 		} else {
 			bgrun.Run("email:subscription", func() {
@@ -375,7 +376,7 @@ func (h billing) whSubscriptionUpdated(event zstripe.Event, w http.ResponseWrite
 		site.Stripe = &s.Customer
 	}
 	site.Plan = plan
-	site.BillingAmount = zstring.NewPtr(fmt.Sprintf("%s %d", currency, amount)).P
+	site.BillingAmount = ztype.Ptr(fmt.Sprintf("%s %d", currency, amount))
 	if s.BillingCycleAnchor.IsZero() {
 		site.BillingAnchor = nil
 	} else {
@@ -423,7 +424,7 @@ func (h billing) whCheckout(event zstripe.Event, w http.ResponseWriter, r *http.
 
 	n := ztime.Now()
 	site.Stripe = &s.Customer
-	site.BillingAmount = zstring.NewPtr(fmt.Sprintf("%s %d", strings.ToUpper(s.Currency), s.AmountTotal/100)).P
+	site.BillingAmount = ztype.Ptr(fmt.Sprintf("%s %d", strings.ToUpper(s.Currency), s.AmountTotal/100))
 	site.BillingAnchor = &n
 	site.Plan = *site.PlanPending
 	site.PlanPending = nil

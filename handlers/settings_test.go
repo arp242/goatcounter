@@ -15,8 +15,7 @@ import (
 	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
-	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/ztype"
 )
 
 func TestSettingsTpl(t *testing.T) {
@@ -121,8 +120,8 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "already exists for this account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Parent: zint.NewPtr64(1).P,
-					Cname:  zstring.NewPtr("add.example.com").P,
+					Parent: ztype.Ptr(int64(1)),
+					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
 					Plan:   goatcounter.PlanChild,
 				}
@@ -147,7 +146,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "already exists on other account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Cname: zstring.NewPtr("add.example.com").P,
+					Cname: ztype.Ptr("add.example.com"),
 					Code:  "add",
 					Plan:  goatcounter.PlanPersonal,
 				}
@@ -172,8 +171,8 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "undelete",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Parent: zint.NewPtr64(1).P,
-					Cname:  zstring.NewPtr("add.example.com").P,
+					Parent: ztype.Ptr(int64(1)),
+					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
 					Plan:   goatcounter.PlanChild,
 				}
@@ -201,7 +200,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "undelete other account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Cname: zstring.NewPtr("add.example.com").P,
+					Cname: ztype.Ptr("add.example.com"),
 					Code:  "add",
 					Plan:  goatcounter.PlanPersonal,
 				}
@@ -246,8 +245,8 @@ func TestSettingsSitesRemove(t *testing.T) {
 			name: "remove",
 			setup: func(ctx context.Context, t *testing.T) {
 				err := (&goatcounter.Site{
-					Parent: zint.NewPtr64(1).P,
-					Cname:  zstring.NewPtr("add.example.com").P,
+					Parent: ztype.Ptr(int64(1)),
+					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
 					Plan:   goatcounter.PlanChild,
 				}).Insert(ctx)
@@ -283,7 +282,7 @@ func TestSettingsSitesRemove(t *testing.T) {
 			name: "remove other account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Cname: zstring.NewPtr("add.example.com").P,
+					Cname: ztype.Ptr("add.example.com"),
 					Code:  "add",
 					Plan:  goatcounter.PlanPersonal,
 				}

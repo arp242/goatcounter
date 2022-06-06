@@ -462,7 +462,7 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 
 	hh := *h
 	for i := range hh {
-		hh[i].UserAgent = gadget.Unshorten(hh[i].UserAgent)
+		hh[i].UserAgent = gadget.UnshortenUA(hh[i].UserAgent)
 	}
 	*h = hh
 

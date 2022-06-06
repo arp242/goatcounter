@@ -49,10 +49,16 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	mainDone.Add(1)
 	defer mainDone.Done()
 
-	cmd := f.ShiftCommand()
+	cmd, err := f.ShiftCommand()
 	if zstring.ContainsAny(f.Args, "-h", "-help", "--help") {
 		f.Args = append([]string{cmd}, f.Args...)
 		cmd = "help"
+	}
+	if err != nil && !errors.Is(err, zli.ErrCommandNoneGiven{}) {
+		zli.Errorf(usage[""])
+		zli.Errorf("%s", err)
+		zli.Exit(1)
+		return
 	}
 
 	var run command
@@ -61,8 +67,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 		zli.Errorf(usage[""])
 		zli.Errorf("unknown command: %q", cmd)
 		zli.Exit(1)
-		return
-	case "", "help", zli.CommandNoneGiven:
+	case "", "help":
 		run = cmdHelp
 	case "version":
 		fmt.Fprintln(zli.Stdout, getVersion())
@@ -108,7 +113,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 		return
 	}
 
-	err := run(f, ready, stop)
+	err = run(f, ready, stop)
 	if err != nil {
 		if !zstring.Contains(zlog.Config.Debug, "cli-trace") {
 			for {

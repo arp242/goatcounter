@@ -744,24 +744,24 @@ func (s Site) BillingAnchorDay() int {
 
 func (s Site) NextInvoice() time.Time {
 	if s.BillingAnchor == nil {
-		return ztime.Time{ztime.Now()}.Add(1, ztime.Month).StartOf(ztime.Month).Time
+		return ztime.Time{ztime.Now()}.AddPeriod(1, ztime.Month).StartOf(ztime.Month).Time
 	}
 
 	diff := ztime.NewRange(*s.BillingAnchor).To(ztime.Now()).Diff(ztime.Month)
 	if ztime.Now().Day() > s.BillingAnchor.Day() {
 		diff.Months++
 	}
-	n := ztime.Add(*s.BillingAnchor, diff.Months, ztime.Month)
+	n := ztime.AddPeriod(*s.BillingAnchor, diff.Months, ztime.Month)
 	return ztime.StartOf(n, ztime.Day)
 }
 
 func (s Site) ThisBillingPeriod() ztime.Range {
-	return ztime.NewRange(ztime.Add(s.NextInvoice(), -1, ztime.Month)).To(ztime.Now())
+	return ztime.NewRange(ztime.AddPeriod(s.NextInvoice(), -1, ztime.Month)).To(ztime.Now())
 }
 
 func (s Site) PreviousBillingPeriod() ztime.Range {
 	c := s.ThisBillingPeriod()
-	return ztime.NewRange(ztime.Add(c.Start, -1, ztime.Month)).To(ztime.EndOf(c.Start.AddDate(0, 0, -1), ztime.Day))
+	return ztime.NewRange(ztime.AddPeriod(c.Start, -1, ztime.Month)).To(ztime.EndOf(c.Start.AddDate(0, 0, -1), ztime.Day))
 }
 
 // Sites is a list of sites.
@@ -973,8 +973,8 @@ func (a *AccountUsage) Get(ctx context.Context) error {
 		return errors.Wrap(err, "AccountUsage.Get")
 	}
 
-	a.ThisStart = ztime.Add(account.NextInvoice(), -1, ztime.Month)
-	a.PrevStart = ztime.Add(a.ThisStart, -1, ztime.Month)
+	a.ThisStart = ztime.AddPeriod(account.NextInvoice(), -1, ztime.Month)
+	a.PrevStart = ztime.AddPeriod(a.ThisStart, -1, ztime.Month)
 	a.PrevEnd = ztime.EndOf(a.ThisStart.AddDate(0, 0, -1), ztime.Day)
 	var query []string
 	for _, s := range sites {

@@ -10,8 +10,8 @@ import (
 
 	. "zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztype"
 )
 
 func dayStat(days map[int]int) []int {
@@ -79,9 +79,9 @@ func TestHitDefaultsRef(t *testing.T) {
 				t.Fatalf("wrong Ref\nout:  %#v\nwant: %#v\n",
 					h.Ref, tt.wantRef)
 			}
-			if (zstring.Ptr{h.RefScheme}).Val() != tt.wantScheme {
+			if ztype.Deref(h.RefScheme, "") != tt.wantScheme {
 				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n",
-					zstring.Ptr{h.RefScheme}.String(), tt.wantScheme)
+					ztype.Deref(h.RefScheme, ""), tt.wantScheme)
 			}
 		})
 	}

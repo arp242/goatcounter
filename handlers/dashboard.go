@@ -410,7 +410,7 @@ func timeRange(r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
 			zlog.Field("rng", r).Error(errors.Errorf("timeRange: %w", err))
 			return timeRange("week", tz, sundayStartsWeek)
 		}
-		rng.Start = ztime.Add(rng.Start, -days, ztime.Day)
+		rng.Start = ztime.AddPeriod(rng.Start, -days, ztime.Day)
 	}
 	return rng.UTC()
 }

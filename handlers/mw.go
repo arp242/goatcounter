@@ -17,6 +17,7 @@ import (
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/guru"
 	"zgo.at/json"
+	"zgo.at/termtext"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -24,7 +25,6 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 )
 
@@ -170,11 +170,12 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 						err = nil
 
 						if r.URL.Path == "/" {
-							zlog.Printf(zstring.WordWrap(fmt.Sprintf(""+
+							txt := fmt.Sprintf(""+
 								"accessing the site on domain %q, but the configured domain is %q; "+
 								"this will work fine as long as you only have one site, but you *need* to use the "+
 								"configured domain if you add a second site so GoatCounter will know which site to use.",
-								znet.RemovePort(r.Host), *s.Cname), strings.Repeat(" ", 25), 55))
+								znet.RemovePort(r.Host), *s.Cname)
+							zlog.Printf(termtext.WordWrap(txt, 55, strings.Repeat(" ", 25)))
 						}
 					}
 					if err2 == nil && len(sites) == 0 {
