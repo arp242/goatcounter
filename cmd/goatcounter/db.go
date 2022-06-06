@@ -10,9 +10,11 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/text/language"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
+	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zdb/drivers"
 	"zgo.at/zli"
@@ -38,7 +40,7 @@ Some common examples:
 
     Create a new API key:
 
-        $ goatcounter db create apitoken -site stats.example.com -perm count
+        $ goatcounter db create apitoken -name 'My token' -user 1 -perm count
 
     Run database migrations:
 
@@ -572,6 +574,7 @@ func dbParseFlag(f zli.Flags, dbConnect, debug *string, createdb *bool) (zdb.DB,
 	}
 
 	ctx := goatcounter.NewContext(db)
+	ctx = z18n.With(ctx, z18n.NewBundle(language.English).Locale("en"))
 	return db, ctx, nil
 }
 
