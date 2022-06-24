@@ -406,10 +406,16 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 			}
 
 			bgrun.Run("email:error", func() {
-				err := blackmail.Send(fmt.Sprintf("GoatCounter Error: %s", zstring.GetLine(l.Msg, 1)),
+				msg := zlog.Config.Format(l)
+				subject := zstring.GetLine(msg, 1)
+				if i := strings.Index(subject, "ERROR: "); i > -1 {
+					subject = subject[i+7:]
+				}
+
+				err := blackmail.Send(fmt.Sprintf("GoatCounter Error: %s", subject),
 					blackmail.From("", from),
 					blackmail.To(to),
-					blackmail.BodyText([]byte(zlog.Config.Format(l))))
+					blackmail.BodyText([]byte(msg)))
 				if err != nil {
 					// Just output to stderr I guess, can't really do much more if
 					// zlog fails.
