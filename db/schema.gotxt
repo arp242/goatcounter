@@ -340,6 +340,7 @@ insert into version values
 	('2021-12-13-2-superuser'),
 	('2021-12-13-1-drop-role'),
 	('2022-01-13-1-unfk'),
-	('2022-01-14-1-idx');
+	('2022-01-14-1-idx'),
+	('2022-02-16-1-rm-billing');
 
 -- vim:ft=sql:tw=0
