@@ -16,9 +16,9 @@ require (
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.4.1
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
-	golang.org/x/image v0.0.0-20220601225756-64ec528b34cd
-	golang.org/x/net v0.0.0-20220531201128-c960675eff93
+	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
+	golang.org/x/image v0.0.0-20220617043117-41969df76e82
+	golang.org/x/net v0.0.0-20220622184535-263ec571b305
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	golang.org/x/text v0.3.7
 	zgo.at/blackmail v0.0.0-20211212060815-1f8e8a94692b
@@ -38,7 +38,7 @@ require (
 	zgo.at/zli v0.0.0-20220603144944-094944de19e6
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
-	zgo.at/zstd v0.0.0-20220606095932-df1f8a2ae661
+	zgo.at/zstd v0.0.0-20220622111728-4a78555db760
 	zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4
 	zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62
 )
