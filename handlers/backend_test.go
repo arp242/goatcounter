@@ -53,7 +53,7 @@ func TestBackendTpl(t *testing.T) {
 		//{"/help", "I don’t see my pageviews?"},
 		//{"/gdpr", "consult a lawyer"},
 		{"/contact", "Send message"},
-		{"/contribute", "One-time donation"},
+		{"/contribute", "Contribute"},
 		{"/api.html", "GoatCounter API documentation"},
 		{"/api2.html", "<rapi-doc"},
 		{"/api.json", `"description": "API for GoatCounter"`},

@@ -131,8 +131,8 @@ create and update commands:
         -access*    Access to give this user:
 
                         readonly    Can't change any settings.
-						settings    Can change settings, except site/user
-									management.
+                        settings    Can change settings, except site/user
+                                    management.
                         admin       Full access.
                         superuser   Full access, including the "server
                                     management" page.
