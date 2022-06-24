@@ -15,11 +15,9 @@ the *"why?"* of this project.
 
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
-Please consider [contributing financially][sponsor] if you're self-hosting
-GoatCounter so I can pay my rent :-) GoatCounter is sponsored by a grant from
-[NLnet's NGI Zero PET fund][nlnet].
+Please consider [contributing financially][sponsor] if you're using
+goatcounter.com to pay for the server costs.
 
-[nlnet]: https://nlnet.nl/project/GoatCounter/
 [sponsor]: http://www.goatcounter.com/contribute
 [www]: https://www.goatcounter.com
 

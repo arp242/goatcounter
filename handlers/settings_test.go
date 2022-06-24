@@ -42,7 +42,6 @@ func TestSettingsTpl(t *testing.T) {
 				ss := goatcounter.Site{
 					Code:   "subsite",
 					Parent: &one,
-					Plan:   goatcounter.PlanChild,
 				}
 				err := ss.Insert(ctx)
 				if err != nil {
@@ -112,9 +111,9 @@ func TestSettingsSitesAdd(t *testing.T) {
 			auth:         true,
 			wantFormCode: 303,
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    a
-				2        serve  add.example.com   child     1       a`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    a
+				2        serve  add.example.com   1       a`,
 		},
 		{
 			name: "already exists for this account",
@@ -123,7 +122,6 @@ func TestSettingsSitesAdd(t *testing.T) {
 					Parent: ztype.Ptr(int64(1)),
 					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
-					Plan:   goatcounter.PlanChild,
 				}
 				err := s.Insert(ctx)
 				if err != nil {
@@ -138,9 +136,9 @@ func TestSettingsSitesAdd(t *testing.T) {
 			wantFormCode: 400,
 			wantFormBody: "already exists",
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    a
-				2        serve  add.example.com   child     1       a`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    a
+				2        serve  add.example.com   1       a`,
 		},
 		{
 			name: "already exists on other account",
@@ -148,7 +146,6 @@ func TestSettingsSitesAdd(t *testing.T) {
 				s := goatcounter.Site{
 					Cname: ztype.Ptr("add.example.com"),
 					Code:  "add",
-					Plan:  goatcounter.PlanPersonal,
 				}
 				err := s.Insert(ctx)
 				if err != nil {
@@ -163,9 +160,9 @@ func TestSettingsSitesAdd(t *testing.T) {
 			wantFormCode: 400,
 			wantFormBody: "already exists",
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    a
-				2        serve  add.example.com   personal  NULL    a`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    a
+				2        serve  add.example.com   NULL    a`,
 		},
 		{
 			name: "undelete",
@@ -174,7 +171,6 @@ func TestSettingsSitesAdd(t *testing.T) {
 					Parent: ztype.Ptr(int64(1)),
 					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
-					Plan:   goatcounter.PlanChild,
 				}
 				err := s.Insert(ctx)
 				if err != nil {
@@ -192,9 +188,9 @@ func TestSettingsSitesAdd(t *testing.T) {
 			auth:         true,
 			wantFormCode: 303,
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    a
-				2        serve  add.example.com   child     1       a`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    a
+				2        serve  add.example.com   1       a`,
 		},
 		{
 			name: "undelete other account",
@@ -202,7 +198,6 @@ func TestSettingsSitesAdd(t *testing.T) {
 				s := goatcounter.Site{
 					Cname: ztype.Ptr("add.example.com"),
 					Code:  "add",
-					Plan:  goatcounter.PlanPersonal,
 				}
 				err := s.Insert(ctx)
 				if err != nil {
@@ -221,15 +216,15 @@ func TestSettingsSitesAdd(t *testing.T) {
 			wantFormCode: 400,
 			wantFormBody: "already exists",
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    a
-				2        serve  add.example.com   personal  NULL    d`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    a
+				2        serve  add.example.com   NULL    d`,
 		},
 	}
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
+			have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, parent, state from sites`)
 			if d := zdb.Diff(have, tt.want); d != "" {
 				t.Error(d)
 			}
@@ -248,7 +243,6 @@ func TestSettingsSitesRemove(t *testing.T) {
 					Parent: ztype.Ptr(int64(1)),
 					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
-					Plan:   goatcounter.PlanChild,
 				}).Insert(ctx)
 				if err != nil {
 					t.Fatal(err)
@@ -261,9 +255,9 @@ func TestSettingsSitesRemove(t *testing.T) {
 			auth:         true,
 			wantFormCode: 303,
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    a
-				2        serve  add.example.com   child     1       d`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    a
+				2        serve  add.example.com   1       d`,
 		},
 		{
 			name:         "remove self",
@@ -275,8 +269,8 @@ func TestSettingsSitesRemove(t *testing.T) {
 			auth:         true,
 			wantFormCode: 303,
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    d`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    d`,
 		},
 		{
 			name: "remove other account",
@@ -284,7 +278,6 @@ func TestSettingsSitesRemove(t *testing.T) {
 				s := goatcounter.Site{
 					Cname: ztype.Ptr("add.example.com"),
 					Code:  "add",
-					Plan:  goatcounter.PlanPersonal,
 				}
 				err := s.Insert(ctx)
 				if err != nil {
@@ -298,15 +291,15 @@ func TestSettingsSitesRemove(t *testing.T) {
 			auth:         true,
 			wantFormCode: 404,
 			want: `
-				site_id  code   cname             plan      parent  state
-				1        gctes  gctest.localhost  personal  NULL    a
-				2        serve  add.example.com   personal  NULL    a`,
+				site_id  code   cname             parent  state
+				1        gctes  gctest.localhost  NULL    a
+				2        serve  add.example.com   NULL    a`,
 		},
 	}
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, plan, parent, state from sites`)
+			have := zdb.DumpString(r.Context(), `select site_id, substr(code, 0, 6) as code, cname, parent, state from sites`)
 			if d := zdb.Diff(have, tt.want); d != "" {
 				t.Error(d)
 			}

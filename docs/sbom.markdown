@@ -41,7 +41,6 @@ Direct dependencies:
 | zgo.at/zli                           | MIT          | CLI conveniences                                      |
 | zgo.at/zlog                          | MIT          | Logging library.                                      |
 | zgo.at/zstd                          | MIT          | Extensions to stdlib.                                 |
-| zgo.at/zstripe                       | MIT          | Stripe integration                                    |
 | zgo.at/zvalidate                     | MIT          | Validate values                                       |
 
 Testing dependencies:

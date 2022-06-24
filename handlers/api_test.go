@@ -445,26 +445,22 @@ func TestAPISitesCreate(t *testing.T) {
 	}{
 		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = ztype.Ptr(int64(1))
-			s.Plan = "child"
+			s.Parent = zint.NewPtr64(1).P
 		}},
 		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
-			s.Cname = ztype.Ptr("apitest.localhost")
-			s.Parent = ztype.Ptr(int64(1))
-			s.Plan = "child"
+			s.Cname = ztype.Ptr("apitest.localhost").P
+			s.Parent = zint.NewPtr64(1).P
 			s.CnameSetupAt = &now
 		}},
 
 		// Ignore plan.
-		{false, `{"code":"apitest","plan":"personal"}`, 200, func(s *goatcounter.Site) {
+		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = ztype.Ptr(int64(1))
-			s.Plan = "child"
+			s.Parent = zint.NewPtr64(1).P
 		}},
-		{true, `{"cname":"apitest.localhost","plan":"personal"}`, 200, func(s *goatcounter.Site) {
-			s.Cname = ztype.Ptr("apitest.localhost")
-			s.Parent = ztype.Ptr(int64(1))
-			s.Plan = "child"
+		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
+			s.Cname = ztype.Ptr("apitest.localhost").P
+			s.Parent = zint.NewPtr64(1).P
 			s.CnameSetupAt = &now
 		}},
 	}
@@ -522,13 +518,11 @@ func TestAPISitesUpdate(t *testing.T) {
 	}{
 		{false, "PATCH", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
-			s.Cname = ztype.Ptr("gctest.localhost")
-			s.Plan = goatcounter.PlanFree
+			s.Cname = ztype.Ptr("gctest.localhost").P
 		}},
 		{false, "POST", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
-			//s.Cname = ztype.Ptr("gctest.localhost")
-			s.Plan = goatcounter.PlanFree
+			//s.Cname = ztype.Ptr("gctest.localhost").P
 		}},
 	}
 

@@ -665,7 +665,6 @@ func (h api) siteCreate(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site.Parent = &Site(r.Context()).ID
-	site.Plan = goatcounter.PlanChild
 	err = site.Insert(r.Context())
 	if err != nil {
 		return err

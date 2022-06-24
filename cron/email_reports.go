@@ -139,7 +139,9 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 			return nil, nil, "", err
 		}
 
-		diffs, err := args.Pages.DiffTotal(ctx, rng)
+		d := -rng.End.Sub(rng.Start)
+		prev := ztime.NewRange(rng.Start.Add(d)).To(rng.End.Add(d))
+		diffs, err := args.Pages.Diff(ctx, rng, prev)
 		if err != nil {
 			return nil, nil, "", err
 		}

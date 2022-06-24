@@ -19,18 +19,6 @@ create table sites (
 	settings       {{jsonb}}      not null,
 	user_defaults  {{jsonb}}      not null default '{}',
 	received_data  integer        not null default 0,
-
-	-- Billing related stuff.
-	plan                varchar        not null,
-	plan_pending        varchar        null,
-	plan_cancel_at      timestamp,
-	stripe              varchar        null,
-	billing_amount      varchar,
-	billing_anchor      timestamp,
-	notes               text           not null default '',
-	extra_pageviews     int,
-	extra_pageviews_sub varchar,
-
 	state          varchar        not null default 'a'     check(state in ('a', 'd')),
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
 	updated_at     timestamp                               {{check_timestamp "updated_at"}},

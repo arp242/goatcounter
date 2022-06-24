@@ -86,10 +86,6 @@ func TestMain(m *testing.M) {
 		"settings_server.gohtml",
 		"_dashboard_configure_widget.gohtml",
 		"_user_dashboard_widget.gohtml",
-
-		// TODO: hard to test; requires a browser as the JS generates secret
-		// Stripe stuff in JS.
-		"billing.gohtml",
 	))
 }
 

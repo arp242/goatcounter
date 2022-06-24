@@ -17,7 +17,6 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
-	"zgo.at/zstripe"
 )
 
 var rateLimits = struct {
@@ -67,7 +66,6 @@ type Globals struct {
 	StaticDomain   string
 	Domain         string
 	Version        string
-	Billing        bool
 	GoatcounterCom bool
 	Dev            bool
 	Port           string
@@ -90,7 +88,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Static:         goatcounter.Config(ctx).URLStatic,
 		Domain:         goatcounter.Config(ctx).Domain,
 		Version:        goatcounter.Version,
-		Billing:        zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "",
 		GoatcounterCom: goatcounter.Config(ctx).GoatcounterCom,
 		Dev:            goatcounter.Config(ctx).Dev,
 		Port:           goatcounter.Config(ctx).Port,

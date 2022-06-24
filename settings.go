@@ -54,7 +54,7 @@ var EmailReports = []int{EmailReportNever, EmailReportDaily, EmailReportWeekly,
 
 type (
 	// SiteSettings contains all the user-configurable settings for a site, with
-	// the exception of the domain and billing settings.
+	// the exception of the domain settings.
 	//
 	// This is stored as JSON in the database.
 	SiteSettings struct {
@@ -146,6 +146,18 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
 				},
 			},
+			// "compare": WidgetSetting{
+			// 	Type:  "select",
+			// 	Value: "none",
+			// 	Label: z18n.T(ctx, "widget-setting/label/compare|Compare"),
+			// 	Help:  z18n.T(ctx, "widget-setting/help/compare|Show comparison"),
+			// 	Options: [][2]string{
+			// 		[2]string{"none", z18n.T(ctx, "widget-settings/none|None")},
+			// 		[2]string{"period", z18n.T(ctx, "widget-settings/previous-period|Previous period")},
+			// 		[2]string{"quarter", z18n.T(ctx, "widget-settings/previous-quarter|Previous quarter")},
+			// 		[2]string{"year", z18n.T(ctx, "widget-settings/pervious-year|Previous year")},
+			// 	},
+			// },
 			"style": WidgetSetting{
 				Type:  "select",
 				Label: z18n.T(ctx, "widget-setting/label/chart-style|Chart style"),

@@ -1,0 +1,9 @@
+alter table sites drop column if exists plan;
+alter table sites drop column if exists plan_pending;
+alter table sites drop column if exists plan_cancel_at;
+alter table sites drop column if exists stripe;
+alter table sites drop column if exists billing_amount;
+alter table sites drop column if exists billing_anchor;
+alter table sites drop column if exists extra_pageviews;
+alter table sites drop column if exists extra_pageviews_sub;
+alter table sites drop column if exists notes;

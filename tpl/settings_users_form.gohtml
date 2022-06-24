@@ -6,7 +6,7 @@
 	<label><input type="radio" name="access[{{.site}}]" value="r" {{if eq .v "r"}}checked{{end}}>
 		{{t .Context "label/read-only|Read only"}}</label>
 	<label><input type="radio" name="access[{{.site}}]" value="s" {{if eq .v "s"}}checked{{end}}>
-		{{t .Context "label/change-settings-limited|Can change settings, except billing and site/user management"}}</label>
+		{{t .Context "label/change-settings-limited|Can change settings, except site/user management"}}</label>
 	{{if $all}}
 	<label><input type="radio" name="access[{{.site}}]" value="a" {{if eq .v "a"}}checked{{end}}>
 		{{t .Context "label/full-access|Full access"}}</label>

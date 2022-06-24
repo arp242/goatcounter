@@ -57,9 +57,6 @@ func TestBackendTpl(t *testing.T) {
 		{"/api.html", "GoatCounter API documentation"},
 		{"/api2.html", "<rapi-doc"},
 		{"/api.json", `"description": "API for GoatCounter"`},
-
-		// TODO: Not found, as it's not running in "saas mode".
-		//{"/billing", "XXXX"},
 	}
 
 	for _, tt := range tests {

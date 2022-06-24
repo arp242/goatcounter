@@ -32,10 +32,8 @@ var Tasks = []Task{
 	{"vacuum pageviews (data retention)", DataRetention, 1 * time.Hour},
 	{"renew ACME certs", renewACME, 2 * time.Hour},
 	{"vacuum soft-deleted sites", vacuumDeleted, 12 * time.Hour},
-	{"process scheduled plan changes", cancelPlan, 12 * time.Hour},
 	{"rm old exports", oldExports, 1 * time.Hour},
 	{"cycle sessions", sessions, 1 * time.Minute},
-	{"report usage", reportUsage, 12 * time.Hour},
 	{"send email reports", EmailReports, 1 * time.Hour},
 }
 

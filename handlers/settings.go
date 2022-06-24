@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -32,10 +31,8 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
 
@@ -308,7 +305,6 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 
 	// Create new site.
 	newSite.Parent = &account.ID
-	newSite.Plan = goatcounter.PlanChild
 	newSite.Settings = Site(r.Context()).Settings
 	err = zdb.TX(r.Context(), func(ctx context.Context) error {
 		err = newSite.Insert(ctx)
@@ -653,18 +649,6 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 
 	account := Account(r.Context())
 
-	has, err := hasPlan(r.Context(), account)
-	if err != nil {
-		return err
-	}
-	if has {
-		zhttp.FlashError(w, T(r.Context(), "error/account-has-stripe-subscription|This account still has a Stripe subscription; cancel that first on the billing page."))
-		q := url.Values{}
-		q.Set("reason", args.Reason)
-		q.Set("contact_me", fmt.Sprintf("%t", args.ContactMe))
-		return zhttp.SeeOther(w, "/settings/delete?"+q.Encode())
-	}
-
 	if args.Reason != "" {
 		bgrun.Run("email:deletion", func() {
 			contact := "false"
@@ -686,39 +670,6 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
-}
-
-func hasPlan(ctx context.Context, site *goatcounter.Site) (bool, error) {
-	if !goatcounter.Config(ctx).GoatcounterCom || site.Plan == goatcounter.PlanChild || !site.StripeCustomer() {
-		return false, nil
-	}
-
-	var customer struct {
-		Subscriptions struct {
-			Data []struct {
-				CancelAtPeriodEnd bool            `json:"cancel_at_period_end"`
-				CurrentPeriodEnd  zjson.Timestamp `json:"current_period_end"`
-				Plan              struct {
-					Quantity int `json:"quantity"`
-				} `json:"plan"`
-			} `json:"data"`
-		} `json:"subscriptions"`
-	}
-	_, err := zstripe.Request(&customer, "GET",
-		fmt.Sprintf("/v1/customers/%s", *site.Stripe), "")
-	if err != nil {
-		return false, err
-	}
-
-	if len(customer.Subscriptions.Data) == 0 {
-		return false, nil
-	}
-
-	if customer.Subscriptions.Data[0].CancelAtPeriodEnd {
-		return false, nil
-	}
-
-	return true, nil
 }
 
 func (h settings) users(verr *zvalidate.Validator) zhttp.HandlerFunc {

@@ -20,7 +20,6 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zstring"
-	"zgo.at/zstripe"
 )
 
 func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool, domainStatic string, dashTimeout int) chi.Router {
@@ -123,7 +122,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 			"X-Content-Type-Options":    []string{"nosniff"},
 		}
 
-		// https://stripe.com/docs/security#content-security-policy
 		ds := []string{header.CSPSourceSelf}
 		if domainStatic != "" {
 			ds = append(ds, domainStatic)
@@ -131,15 +129,15 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		header.SetCSP(headers, header.CSPArgs{
 			header.CSPDefaultSrc: {header.CSPSourceNone},
 			header.CSPImgSrc:     append(ds, "data:"),
-			header.CSPScriptSrc:  append(ds, "https://js.stripe.com"),
+			header.CSPScriptSrc:  ds,
 			header.CSPStyleSrc:   append(ds, header.CSPSourceUnsafeInline),
 			header.CSPFontSrc:    ds,
-			header.CSPFormAction: {header.CSPSourceSelf, "https://billing.stripe.com"},
+			header.CSPFormAction: {header.CSPSourceSelf},
 			// 'self' does not include websockets, and we need to use
 			// "wss://domain.com"; this is difficult because of custom domains
 			// and such, so just allow all websockets.
-			header.CSPConnectSrc:  {header.CSPSourceSelf, "wss:", "https://api.stripe.com"},
-			header.CSPFrameSrc:    {header.CSPSourceSelf, "https://js.stripe.com", "https://hooks.stripe.com"},
+			header.CSPConnectSrc:  {header.CSPSourceSelf, "wss:"},
+			header.CSPFrameSrc:    {header.CSPSourceSelf},
 			header.CSPManifestSrc: ds,
 			// Too much noise: header.CSPReportURI:  {"/csp"},
 		})
@@ -161,9 +159,6 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		}
 		{
 			af := a.With(loggedIn, addz18n())
-			if zstripe.SecretKey != "" && zstripe.SignSecret != "" && zstripe.PublicKey != "" {
-				billing{}.mount(a, af)
-			}
 			af.Get("/updates", zhttp.Wrap(h.updates))
 			settings{}.mount(af)
 

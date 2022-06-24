@@ -6,9 +6,6 @@
 	{{if .User.AccessAdmin}}
 	<a class="{{if has_prefix .Path "/settings/users"}}active{{end}}"  href="/settings/users">{{.T "link/users|Users"}}</a>
 	<a class="{{if has_prefix .Path "/settings/sites"}}active{{end}}"  href="/settings/sites">{{.T "link/sites|Sites"}}</a>
-		{{if .Billing}}
-		<a class="{{if has_prefix .Path "/billing"}}active{{end}}"     href="/billing">{{.T "link/billing|Billing"}}</a>
-		{{end}}
 		{{if .GoatcounterCom}}
 		<a class="{{if has_prefix .Path "/settings/delete-account"}}active{{end}}" href="/settings/delete-account">{{.T "link/rm-account|Delete account"}}</a>
 		{{end}}

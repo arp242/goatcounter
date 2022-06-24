@@ -15,8 +15,6 @@ import (
 	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
-	"zgo.at/zstd/zstring"
-	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
 
@@ -41,19 +39,17 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 	var (
 		domain = f.String("goatcounter.localhost:8081,static.goatcounter.localhost:8081", "domain").Pointer()
-		stripe = f.String("", "stripe").Pointer()
 	)
 	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
 
-	return func(domain, stripe string) error {
+	return func(domain string) error {
 		if flagTLS == "" {
 			flagTLS = map[bool]string{true: "http", false: "acme"}[dev]
 		}
 
-		flagStripe(stripe, &v)
 		domain, domainStatic, domainCount, urlStatic := flagDomain(domain, &v)
 		from = flagFrom(from, domain, &v)
 		if !dev && domain != "goatcounter.com" {
@@ -94,41 +90,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			zlog.Printf("serving %q on %q; dev=%t", domain, listen, dev)
 			ready <- struct{}{}
 		})
-	}(*domain, *stripe)
-}
-
-func flagStripe(stripe string, v *zvalidate.Validator) {
-	if stripe == "" {
-		v.Required("-stripe", stripe)
-		return
-	}
-
-	if zstring.ContainsAny(zlog.Config.Debug, "stripe", "all") {
-		zstripe.DebugURL = true
-		zstripe.DebugRespBody = true
-		zstripe.DebugReqBody = true
-	}
-
-	zstripe.StripeVersion = "2020-08-27"
-	for _, k := range zstring.Fields(stripe, ":") {
-		switch {
-		case strings.HasPrefix(k, "sk_"):
-			zstripe.SecretKey = k
-		case strings.HasPrefix(k, "pk_"):
-			zstripe.PublicKey = k
-		case strings.HasPrefix(k, "whsec_"):
-			zstripe.SignSecret = k
-		}
-	}
-	if zstripe.SecretKey == "" {
-		v.Append("-stripe", "missing secret key (sk_)")
-	}
-	if zstripe.PublicKey == "" {
-		v.Append("-stripe", "missing public key (pk_)")
-	}
-	if zstripe.SignSecret == "" {
-		v.Append("-stripe", "missing signing secret (whsec_)")
-	}
+	}(*domain)
 }
 
 func flagDomain(domain string, v *zvalidate.Validator) (string, string, string, string) {

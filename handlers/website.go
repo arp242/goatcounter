@@ -30,7 +30,6 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
-	"zgo.at/zstripe"
 	"zgo.at/zvalidate"
 )
 
@@ -293,7 +292,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain, Plan: goatcounter.PlanTrial}
+	site := goatcounter.Site{Code: args.Code, LinkDomain: args.LinkDomain}
 	user := goatcounter.User{Email: args.Email, Password: []byte(args.Password),
 		Access: goatcounter.UserAccesses{"all": goatcounter.AccessAdmin}}
 
@@ -535,11 +534,8 @@ func (h website) help(w http.ResponseWriter, r *http.Request) error {
 func (h website) contribute(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.Template(w, "contribute.gohtml", struct {
 		Globals
-		Page            string
-		MetaDesc        string
-		StripePublicKey string
-		SKU             string
-		FromWWW         bool
-	}{newGlobals(w, r), "contribute", "Contribute – GoatCounter",
-		zstripe.PublicKey, stripePlans[goatcounter.Config(r.Context()).Dev]["donate"], h.fromWWW})
+		Page     string
+		MetaDesc string
+		FromWWW  bool
+	}{newGlobals(w, r), "contribute", "Contribute – GoatCounter", h.fromWWW})
 }

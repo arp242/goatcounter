@@ -12,13 +12,11 @@ input    { float: right; padding: .4em !important; }
 .c       { white-space: normal; }
 .s a     { display: block; text-align: right; }
 </style>
-<style>.plan-free { background-color: #eaeaea; }</style>
 
 <h2>Signups</h2>
 <div class="chart chart-bar" data-stats="{{.Signups}}" data-max="{{.MaxSignups}}">
 	<canvas></canvas>
 </div>
-{{/* <h2>Income</h2> <p>${{.TotalUSD}} GitHub + €{{.TotalEUR}} Stripe + $24 Patreon ≈ €{{.TotalEarnings}}</p> */}}
 
 <h2>Sites</h2>
 <table class="sort">
@@ -28,28 +26,15 @@ input    { float: right; padding: .4em !important; }
 	<th class="n" style="width: 6em">Avg.</th>
 	<th class="s n">Site</th>
 	<th>Codes</th>
-	<th>Plan</th>
-	<th class="n">€</th>
 	<th>Created at</th>
 </tr></thead>
 <tbody>{{range $s := .Stats}}
-	<tr id="{{$s.ID}}" class="plan-{{$s.Plan}}">
+	<tr id="{{$s.ID}}">
 		<td class="n">{{nformat $s.Total $.User}}</td>
 		<td class="n">{{nformat $s.LastMonth $.User}}</td>
 		<td class="n">{{nformat $s.Avg $.User}}</td>
 		<td class="s n"><a href="/bosmang/sites/{{$s.ID}}">{{$s.ID}}</a></td>
 		<td class="c">{{$s.Codes}}</td>
-		<td>
-			{{- if $s.Stripe -}}
-				{{- if has_prefix $s.Stripe "cus_github" -}}
-					<a href="https://github.com/{{substr $s.Stripe 11 -1}}">
-				{{- else if $s.Stripe -}}
-					<a href="https://dashboard.stripe.com/customers/{{$s.Stripe}}">
-				{{- end -}}
-			{{- end -}}
-			{{- if eq $s.Plan "free" -}}z{{end}}{{$s.Plan}}{{if $s.Stripe}}</a>{{end}}
-		</td>
-		<td class="n">{{if $s.BillingAmount}}{{$s.BillingAmount}}{{end}}</td>
 		<td>{{tformat $s.CreatedAt "" $.User}}</td>
 	</tr>
 {{end}}</tbody>

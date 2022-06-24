@@ -25,10 +25,6 @@ other methods.
 <p>No information is shared with third parties.</p>
 
 <h2>Using the GoatCounter.com service</h2>
-<p>Billing is handled by <a href="https://stripe.com">Stripe</a>, and all
-billing information is stored and handled by Stripe. See the
-<a href="https://stripe.com/ie/privacy" target="_blank" rel="noopener">Stripe Privacy Policy</a>.</p>
-
 <p>An email address is required to use the GoatCounter.com service. We also use cookies to:</p>
 <ul>
 <li>remember that you’re logged in to your account between visits;</li>

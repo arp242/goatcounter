@@ -16,20 +16,16 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
-	"zgo.at/zstd/ztype"
 )
 
 type BosmangStat struct {
-	ID            int64     `db:"site_id"`
-	Codes         string    `db:"codes"`
-	Stripe        *string   `db:"stripe"`
-	BillingAmount *string   `db:"billing_amount"`
-	Email         string    `db:"email"`
-	CreatedAt     time.Time `db:"created_at"`
-	Plan          string    `db:"plan"`
-	LastMonth     int       `db:"last_month"`
-	Total         int       `db:"total"`
-	Avg           int       `db:"avg"`
+	ID        int64     `db:"site_id"`
+	Codes     string    `db:"codes"`
+	Email     string    `db:"email"`
+	CreatedAt time.Time `db:"created_at"`
+	LastMonth int       `db:"last_month"`
+	Total     int       `db:"total"`
+	Avg       int       `db:"avg"`
 }
 
 type BosmangStats []BosmangStat
@@ -40,14 +36,6 @@ func (a *BosmangStats) List(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "BosmangStats.List")
 	}
-
-	curr := strings.NewReplacer("EUR ", "€", "USD ", "$")
-	aa := *a
-	for i := range aa {
-		if aa[i].BillingAmount != nil {
-			aa[i].BillingAmount = ztype.Ptr[string](curr.Replace(*aa[i].BillingAmount))
-		}
-	}
 	return nil
 }
 
@@ -55,7 +43,6 @@ type BosmangSiteStat struct {
 	Account Site
 	Sites   Sites
 	Users   Users
-	Usage   AccountUsage
 }
 
 // ByID gets stats for a single site.
@@ -80,7 +67,6 @@ func (a *BosmangSiteStat) ByID(ctx context.Context, id int64) error {
 		return errors.Wrap(err, "BosmangSiteStats.ByID")
 	}
 
-	err = a.Usage.Get(WithSite(ctx, &a.Account))
 	return errors.Wrap(err, "BosmangSiteStats.ByID")
 }
 

@@ -1,51 +1,9 @@
 {{template "_top.gohtml" .}}
 
 <h1>Contribute financially</h1>
-<p>I encourage everyone to self-host GoatCounter if they have the inclination to
-do so, which is why it's 100% Open Source (or “Free”) software.</p>
-
-<p>I work on this full-time: it's not a side-project I work on in spare time,
-it's my means of living. Please consider making a financial contribution if this
-is useful for you to ensure the long-term viability.</p>
-
-<p>Thank you :-)</p>
-
-<p>Ways to contribute:</p>
-
-<ul>
-	<li><a href="https://github.com/sponsors/arp242">GitHub sponsor</a> – includes a one-time donation option.</li>
-	<li>Subscribe to a plan on www.goatcounter.com</li>
-</ul>
-
-<h2 id="donate">One-time donation</h2>
-
-{{if .FromWWW}}
-<p>You can also send a one-time donation with the form below; the payments are
-processed by Stripe (you will need a Credit Card). You can also use
-<a href="https://github.com/sponsors/arp242">GitHub sponsors</a> to make a
-one-time donation.</p>
-
-<script src="https://js.stripe.com/v3"></script>
-<form method="get" action="" id="donate-form" data-key="{{.StripePublicKey}}" data-sku="{{.SKU}}" >
-	<div id="stripe-error"></div>
-	<div class="buttons">
-		<button class="amount" name="btn" value="five">€5</button>
-		<button class="amount" name="btn" value="ten">€10</button>
-		<button class="amount" name="btn" value="twenty">€20</button>
-		<button class="amount" name="btn" value="fourty">€40</button>
-	</div>
-
-	<div class="custom">
-		<label for="quantity">Custom amount:</label>
-		<span title="Euro">€</span> <input type="number" id="quantity" value="5" min="5" step="5">
-		<button name="btn" value="custom" class="continue">Continue</button>
-		<span>(in increments of €5)</span>
-	</div>
-</form>
-{{else}}
-<p>You can use the form at
-	<a href="https://www.goatcounter.com/contribute">goatcounter.com/contribute</a> or
-	<a href="https://github.com/sponsors/arp242">GitHub sponsors</a> to make a one-time donation.</p>
-{{end}}
+<p>Servers aren't free, and running goatcounter.com isn't free either. Please
+consider contributing on <a href="https://github.com/sponsors/arp242">GitHub
+sponsor</a>. You can do a one-time contribution or set up a recurring monthly
+contribution.</p>
 
 {{template "_bottom.gohtml" .}}

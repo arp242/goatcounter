@@ -194,10 +194,13 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// Copy max and refs to pages; they're in separate "widgets" so they can run
 	// in parallel.
+	//
 	if pages := wid.Get("pages"); len(pages) > 0 {
-		max := wid.GetOne("max").(*widgets.Max)
-		for _, p := range pages {
-			p.(*widgets.Pages).Max = max.Max
+		if m := wid.GetOne("max"); m != nil {
+			max := m.(*widgets.Max)
+			for _, p := range pages {
+				p.(*widgets.Pages).Max = max.Max
+			}
 		}
 	}
 

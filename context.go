@@ -69,8 +69,8 @@ func MustGetSite(ctx context.Context) *Site {
 	return s
 }
 
-// GetAccount gets this site's "account site" on which the users, billing, etc.
-// are stored.
+// GetAccount gets this site's "account site" on which the users, etc. are
+// stored.
 func GetAccount(ctx context.Context) (*Site, error) {
 	s := MustGetSite(ctx)
 	if s.Parent == nil {

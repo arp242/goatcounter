@@ -211,7 +211,6 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 
 		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
-			banner()
 			startupMsg(db)
 			zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
 				len(cnames), listen, dev, strings.Join(cnames, ", "))
@@ -463,20 +462,6 @@ func lsSites(ctx context.Context) ([]string, error) {
 	}
 
 	return cnames, nil
-}
-
-func banner() {
-	fmt.Fprint(zli.Stdout, `
-┏━━━━━━━━━━━━━━━━━━━━━ Thank you for using GoatCounter! ━━━━━━━━━━━━━━━━━━━━━━┓
-┃                                                                             ┃
-┃ Great you're choosing to self-host GoatCounter! Please consider making a    ┃
-┃ financial contribution according to your means if this is useful for you to ┃
-┃ ensure the long-term viability. Thank you :-)                               ┃
-┃                                                                             ┃
-┃                   https://www.goatcounter.com/contribute                    ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-`)
 }
 
 func startupMsg(db zdb.DB) {

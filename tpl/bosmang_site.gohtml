@@ -2,66 +2,6 @@
 
 <h2>Sites</h2>
 
-<form method="post" action="/bosmang/sites/{{.Stat.Account.ID}}/update-billing" class="vertical">
-	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-	<fieldset>
-		<legend>Set plan</legend>
-
-		{{if .Stat.Account.Stripe}}
-			{{- if has_prefix .Stat.Account.Stripe "cus_github" -}}
-				<a href="https://github.com/{{substr .Stat.Account.Stripe 11 -1}}">GitHub</a>
-			{{- else -}}
-				<a href="https://dashboard.stripe.com/customers/{{.Stat.Account.Stripe}}">Stripe</a>
-			{{end}}
-		{{end}}
-
-		<label for="stripe">Stripe customer (GitHub: <code>cus_github_[user]</code>)</label>
-		<input type="text" name="stripe" id="stripe" value="{{if .Stat.Account.Stripe}}{{.Stat.Account.Stripe}}{{end}}">
-
-		<label for="currency">Amount (as "EUR 5"; USD for GitHub, EUR otherwise)</label>
-		<input type="text" name="amount" id="amount" value="{{if .Stat.Account.BillingAmount}}{{.Stat.Account.BillingAmount}}{{end}}">
-
-		<label for="plan">Plan</label>
-		<select name="plan" id="plan">
-			<option {{option_value .Stat.Account.Plan "trial"}}>trial</option>
-			<option {{option_value .Stat.Account.Plan "free"}}>free</option>
-			<option {{option_value .Stat.Account.Plan "personal"}}>personal</option>
-			<option {{option_value .Stat.Account.Plan "starter"}}>starter</option>
-			<option {{option_value .Stat.Account.Plan "business"}}>business</option>
-			<option {{option_value .Stat.Account.Plan "businessplus"}}>businessplus</option>
-		</select>
-
-		<label for="plan_pending">Plan pending</label>
-		<select name="plan_pending" id="plan_pending">
-			{{if .Stat.Account.PlanPending}}
-				<option {{option_value .Stat.Account.PlanPending ""}}>nil</option>
-				<option {{option_value .Stat.Account.PlanPending "personal"}}>personal</option>
-				<option {{option_value .Stat.Account.PlanPending "starter"}}>starter</option>
-				<option {{option_value .Stat.Account.PlanPending "business"}}>business</option>
-				<option {{option_value .Stat.Account.PlanPending "businessplus"}}>businessplus</option>
-			{{else}}
-				<option value="">nil</option>
-				<option value="personal">personal</option>
-				<option value="starter">starter</option>
-				<option value="business">business</option>
-				<option value="businessplus">businessplus</option>
-			{{end}}
-		</select>
-
-		<label for="extra_pageviews">Extra pageviews</label>
-		<input disabled type="text" name="extra_pageviews" id="extra_pageviews"
-			value="{{if .Stat.Account.ExtraPageviews}}{{.Stat.Account.ExtraPageviews}} / {{.Stat.Account.ExtraPageviewsSub}}{{end}}">
-		<label for="plan_cancel_at">Cancel at</label>
-		<input type="text" name="plan_cancel_at" id="plan_cancel_at" value="{{if .Stat.Account.PlanCancelAt}}{{.Stat.Account.PlanCancelAt.Format "2006-01-02 15:04:05"}}{{end}}">
-
-		<label for="notes">Notes</label>
-		<textarea id="notes" name="notes" style="max-width: 50em; height: 5em;">{{.Stat.Account.Notes}}</textarea>
-
-		<br>
-		<button type="submit">Update</button>
-	</fieldset>
-</form>
-
 <form method="post" action="/bosmang/sites/login/{{.Stat.Account.ID}}" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<fieldset>

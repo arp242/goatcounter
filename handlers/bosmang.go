@@ -5,8 +5,6 @@
 package handlers
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 	"sort"
 	"sync"
@@ -47,7 +45,6 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 
 	a.Get("/bosmang/sites", zhttp.Wrap(h.sites))
 	a.Get("/bosmang/sites/{id}", zhttp.Wrap(h.site))
-	a.Post("/bosmang/sites/{id}/update-billing", zhttp.Wrap(h.updateBilling))
 	a.Post("/bosmang/sites/login/{id}", zhttp.Wrap(h.login))
 }
 
@@ -181,67 +178,6 @@ func (h bosmang) site(w http.ResponseWriter, r *http.Request) error {
 		Globals
 		Stat goatcounter.BosmangSiteStat
 	}{newGlobals(w, r), a})
-}
-
-func (h bosmang) updateBilling(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
-	id := v.Integer("id", chi.URLParam(r, "id"))
-
-	var args struct {
-		Stripe       string `json:"stripe"`
-		Amount       string `json:"amount"`
-		Plan         string `json:"plan"`
-		PlanPending  string `json:"plan_pending"`
-		PlanCancelAt string `json:"plan_cancel_at"`
-		Notes        string `json:"notes"`
-	}
-	_, err := zhttp.Decode(r, &args)
-	if err != nil {
-		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
-	}
-
-	var site goatcounter.Site
-	err = site.ByID(r.Context(), id)
-	if err != nil {
-		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
-	}
-
-	site.Stripe, site.BillingAmount, site.PlanPending, site.PlanCancelAt = nil, nil, nil, nil
-
-	site.Plan = args.Plan
-	if args.Stripe != "" {
-		site.Stripe = &args.Stripe
-	}
-	if args.Amount != "" {
-		site.BillingAmount = &args.Amount
-	}
-	if args.PlanPending != "" {
-		site.PlanPending = &args.PlanPending
-	}
-	if args.PlanCancelAt != "" {
-		t, err := time.Parse("2006-01-02 15:04:05", args.PlanCancelAt)
-		if err != nil {
-			return err
-		}
-		site.PlanCancelAt = &t
-	}
-
-	ctx := goatcounter.WithSite(goatcounter.CopyContextValues(r.Context()), &site)
-	err = zdb.TX(ctx, func(ctx context.Context) error {
-		err := site.UpdateStripe(ctx)
-		if err != nil {
-			return err
-		}
-		return zdb.Exec(ctx, `update sites set notes=? where site_id=?`, args.Notes, site.ID)
-	})
-	if err != nil {
-		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
-	}
-
-	return zhttp.SeeOther(w, fmt.Sprintf("/bosmang/%d", id))
 }
 
 func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {

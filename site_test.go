@@ -23,7 +23,7 @@ func TestGetAccount(t *testing.T) {
 		t.Fatal()
 	}
 
-	ctx2 := gctest.Site(ctx, t, &Site{Plan: PlanChild, Parent: &MustGetSite(ctx).ID}, nil)
+	ctx2 := gctest.Site(ctx, t, &Site{Parent: &MustGetSite(ctx).ID}, nil)
 	a2 := MustGetAccount(ctx2)
 	if a2.ID != MustGetSite(ctx).ID {
 		t.Fatal()
@@ -37,7 +37,7 @@ func TestGetAccount(t *testing.T) {
 func TestSiteInsert(t *testing.T) {
 	ctx := gctest.DB(t)
 
-	s := Site{Code: "the-code", Plan: PlanPersonal}
+	s := Site{Code: "the-code"}
 	err := s.Insert(ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -55,24 +55,24 @@ func TestSiteValidate(t *testing.T) {
 		want  map[string][]string
 	}{
 		{
-			Site{Code: "hello-0", State: StateActive, Plan: PlanPersonal},
+			Site{Code: "hello-0", State: StateActive},
 			nil,
 			nil,
 		},
 		{
-			Site{Code: "h€llo", State: StateActive, Plan: PlanPersonal},
+			Site{Code: "h€llo", State: StateActive},
 			nil,
 			map[string][]string{"code": {"must be a valid hostname: invalid character: '€'"}},
 		},
 		{
-			Site{Code: "hel_lo", State: StateActive, Plan: PlanPersonal},
+			Site{Code: "hel_lo", State: StateActive},
 			nil,
 			map[string][]string{"code": {"must be a valid hostname: invalid character: '_'"}},
 		},
 		{
-			Site{Code: "hello", State: StateActive, Plan: PlanPersonal},
+			Site{Code: "hello", State: StateActive},
 			func(ctx context.Context) {
-				s := Site{Code: "hello", State: StateActive, Plan: PlanPersonal}
+				s := Site{Code: "hello", State: StateActive}
 				err := s.Insert(ctx)
 				if err != nil {
 					panic(err)

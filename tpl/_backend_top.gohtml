@@ -47,8 +47,6 @@
 					<strong id="back"><a href="/settings/sites">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else if has_prefix .Path "/settings/purge/confirm"}}
 					<strong id="back"><a href="/settings/purge">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
-				{{else if has_prefix .Path "/billing/"}}
-					<strong id="back"><a href="/billing">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else if has_prefix .Path "/i18n/"}}
 					<strong id="back"><a href="/i18n">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else if has_prefix .Path "/bosmang/"}}

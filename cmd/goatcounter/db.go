@@ -131,8 +131,8 @@ create and update commands:
         -access*    Access to give this user:
 
                         readonly    Can't change any settings.
-                        settings    Can change settings, except billing and
-                                    site/user management.
+						settings    Can change settings, except site/user
+									management.
                         admin       Full access.
                         superuser   Full access, including the "server
                                     management" page.
@@ -701,11 +701,9 @@ func cmdDBSiteCreate(ctx context.Context, vhost, email, link, pwd string) error 
 		s := goatcounter.Site{
 			Code:  "serve-" + zcrypto.Secret64(),
 			Cname: &vhost,
-			Plan:  goatcounter.PlanBusinessPlus,
 		}
 		if account.ID > 0 {
-			s.Parent, s.Settings, s.UserDefaults, s.Plan =
-				&account.ID, account.Settings, account.UserDefaults, goatcounter.PlanChild
+			s.Parent, s.Settings, s.UserDefaults = &account.ID, account.Settings, account.UserDefaults
 		}
 		err := s.Insert(ctx)
 		if err != nil {

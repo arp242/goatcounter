@@ -359,7 +359,6 @@ noscript p { margin: .5em; }
  *************/
 #billing-form fieldset legend+p     { margin-top: 0; }
 #billing-form fieldset p:last-child { margin-bottom: 0; }
-#stripe-error                       { color: red; }
 
 #billing-form center { margin-top: 2em; }
 #home-pricing        { border: none; padding: 0; }

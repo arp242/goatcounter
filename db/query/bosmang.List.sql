@@ -30,9 +30,6 @@ select
 	grouped.total,
 	grouped.codes,
 	created_at,
-	billing_amount,
-	plan,
-	stripe,
 	grouped.last_month,
 	(coalesce(total, 0) / greatest(extract('days' from now() - created_at), 1) * 30.5)::int as avg
 from grouped

@@ -22,19 +22,6 @@ import (
 	"zgo.at/zstd/ztime"
 )
 
-// Plan column values.
-const (
-	PlanTrial        = "trial"
-	PlanFree         = "free"
-	PlanPersonal     = "personal"
-	PlanStarter      = "starter"
-	PlanBusiness     = "business"
-	PlanBusinessPlus = "businessplus"
-	PlanChild        = "child"
-)
-
-var PlanCodes = []string{PlanTrial, PlanFree, PlanPersonal, PlanStarter, PlanBusiness, PlanBusinessPlus}
-
 var reserved = []string{
 	"www", "mail", "smtp", "imap", "static",
 	"admin", "ns1", "ns2", "m", "mobile", "api",
@@ -63,34 +50,6 @@ type Site struct {
 
 	// Site domain for linking (www.arp242.net).
 	LinkDomain string `db:"link_domain" json:"link_domain"`
-
-	// Plan currently subscribed to.
-	Plan string `db:"plan" json:"plan,readonly"`
-
-	// Plan this site tried to subscribe to, but payment hasn't been verified
-	// yet.
-	PlanPending *string `db:"plan_pending" json:"plan_pending,readonly"`
-
-	// Stripe customer ID.
-	Stripe *string `db:"stripe" json:"stripe,readonly"`
-
-	// When this plan is scheduled to be cancelled.
-	PlanCancelAt *time.Time `db:"plan_cancel_at" json:"plan_cancel_at,readonly"`
-
-	// Amount is being paid for the plan.
-	BillingAmount *string `db:"billing_amount" json:"billing_amount,readonly"`
-
-	// Maximum number of extra pageviews to charge for.
-	ExtraPageviews *int `db:"extra_pageviews" json:"extra_pageviews,readonly"`
-
-	// subscription_item in Stripe for extra pageviews (si_ ...)
-	ExtraPageviewsSub *string `db:"extra_pageviews_sub" json:"-"`
-
-	// "Anchor" for the billing period.
-	//
-	// This is the time someone subscribed to a plan; and their billing period
-	// will start on this day.
-	BillingAnchor *time.Time `db:"billing_anchor" json:"billing_anchor,readonly"`
 
 	Settings     SiteSettings `db:"settings" json:"setttings"`
 	UserDefaults UserSettings `db:"user_defaults" json:"user_defaults"`
@@ -153,7 +112,6 @@ func (s *Site) Validate(ctx context.Context) error {
 	v := NewValidate(ctx)
 
 	if Config(ctx).GoatcounterCom {
-		v.Required("plan", s.Plan)
 		v.Required("code", s.Code)
 		v.Len("code", s.Code, 2, 50)
 		v.Exclude("code", s.Code, reserved)
@@ -163,19 +121,6 @@ func (s *Site) Validate(ctx context.Context) error {
 
 	v.Required("state", s.State)
 	v.Include("state", s.State, States)
-	if s.Parent == nil {
-		v.Include("plan", s.Plan, PlanCodes)
-	} else {
-		v.Include("plan", s.Plan, []string{PlanChild})
-	}
-
-	if s.PlanPending != nil {
-		v.Include("plan_pending", *s.PlanPending, PlanCodes)
-		if s.Parent != nil {
-			v.Append("plan_pending", "can't be set if there's a parent")
-		}
-	}
-
 	v.URL("link_domain", s.LinkDomain)
 
 	v.Sub("settings", "", s.Settings.Validate(ctx))
@@ -198,10 +143,6 @@ func (s *Site) Validate(ctx context.Context) error {
 		if len(labels) > 1 {
 			v.Append("code", "cannot contain '.'")
 		}
-	}
-
-	if s.Stripe != nil && !strings.HasPrefix(*s.Stripe, "cus_") {
-		v.Append("stripe", "not a valid Stripe customer ID")
 	}
 
 	if s.Cname != nil {
@@ -241,8 +182,8 @@ func (s *Site) Insert(ctx context.Context) error {
 	}
 
 	s.ID, err = zdb.InsertID(ctx, "site_id", `insert into sites (
-		parent, code, cname, link_domain, settings, user_defaults, plan, created_at, first_hit_at, cname_setup_at) values (?)`,
-		zdb.L{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.UserDefaults, s.Plan, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
+		parent, code, cname, link_domain, settings, user_defaults, created_at, first_hit_at, cname_setup_at) values (?)`,
+		zdb.L{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.UserDefaults, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
@@ -271,38 +212,12 @@ func (s *Site) Update(ctx context.Context) error {
 	return nil
 }
 
-// UpdateStripe sets the billing info.
-func (s *Site) UpdateStripe(ctx context.Context) error {
-	if s.ID == 0 {
-		return errors.New("ID == 0")
-	}
-	s.Defaults(ctx)
-	err := s.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = zdb.Exec(ctx, `update sites
-		set stripe=?, plan=?, plan_pending=?, billing_amount=?, extra_pageviews=?, extra_pageviews_sub=?, billing_anchor=?, plan_cancel_at=?, updated_at=?
-		where site_id=?`,
-		s.Stripe, s.Plan, s.PlanPending, s.BillingAmount, s.ExtraPageviews, s.ExtraPageviewsSub, s.BillingAnchor, s.PlanCancelAt, s.UpdatedAt, s.ID)
-	if err != nil {
-		return errors.Wrap(err, "Site.UpdateStripe")
-	}
-
-	s.ClearCache(ctx, false)
-	return nil
-}
-
 func (s *Site) UpdateParent(ctx context.Context, newParent *int64) error {
 	if s.ID == 0 {
 		return errors.New("ID == 0")
 	}
 
 	s.Parent = newParent
-	if newParent != nil {
-		s.Plan = PlanChild
-	}
 
 	s.Defaults(ctx)
 	err := s.Validate(ctx)
@@ -326,8 +241,8 @@ func (s *Site) UpdateParent(ctx context.Context, newParent *int64) error {
 		}
 
 		return zdb.Exec(ctx,
-			`update sites set parent=?, plan=?, updated_at=? where site_id=?`,
-			s.Parent, s.Plan, s.UpdatedAt, s.ID)
+			`update sites set parent=?, updated_at=? where site_id=?`,
+			s.Parent, s.UpdatedAt, s.ID)
 	})
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateParent")
@@ -495,12 +410,6 @@ func (s *Site) ByIDState(ctx context.Context, id int64, state string) error {
 	return nil
 }
 
-// ByStripe gets a site by the Stripe customer ID.
-func (s *Site) ByStripe(ctx context.Context, stripe string) error {
-	err := zdb.Get(ctx, s, `select * from sites where stripe=$1`, stripe)
-	return errors.Wrapf(err, "Site.ByStripe %s", stripe)
-}
-
 // ByCode gets a site by code.
 func (s *Site) ByCode(ctx context.Context, code string) error {
 	return errors.Wrapf(zdb.Get(ctx, s,
@@ -622,45 +531,6 @@ func (s Site) IDOrParent() int64 {
 	return s.ID
 }
 
-//lint:ignore U1001 used in template (via ShowPayBanner)
-var trialPeriod = time.Hour * 24 * 14
-
-// ShowPayBanner determines if we should show a "please pay" banner for the
-// customer.
-//
-//lint:ignore U1001 used in template.
-func (s Site) ShowPayBanner(ctx context.Context) bool {
-	account := MustGetAccount(ctx)
-	return account.Plan == PlanTrial && -ztime.Now().Sub(account.CreatedAt.Add(trialPeriod)) < 0
-}
-
-// StripeCustomer reports if this Stripe column refers to a Stripe customer.
-func (s Site) StripeCustomer() bool {
-	return s.Stripe != nil && !zstring.HasPrefixes(*s.Stripe, "cus_github", "cus_patreon_")
-}
-
-// Subscribed reports if this customer is currently a paying customer subscribed
-// to a plan. This may be payed outside of GoatCounter (e.g. GitHub).
-func (s Site) Subscribed() bool {
-	return s.BillingAmount != nil
-}
-
-// PayExternal gets the external payment name, or an empty string if there is
-// none.
-func (s Site) PayExternal() string {
-	if s.Stripe == nil {
-		return ""
-	}
-
-	if strings.HasPrefix(*s.Stripe, "cus_github_") {
-		return "GitHub Sponsors"
-	}
-	if strings.HasPrefix(*s.Stripe, "cus_patreon_") {
-		return "Patreon"
-	}
-	return ""
-}
-
 // DeleteAll deletes all pageviews for this site, keeping the site itself and
 // user intact.
 func (s Site) DeleteAll(ctx context.Context) error {
@@ -735,35 +605,6 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	})
 }
 
-func (s Site) BillingAnchorDay() int {
-	if s.BillingAnchor == nil {
-		return 1
-	}
-	return s.BillingAnchor.Day()
-}
-
-func (s Site) NextInvoice() time.Time {
-	if s.BillingAnchor == nil {
-		return ztime.Time{ztime.Now()}.AddPeriod(1, ztime.Month).StartOf(ztime.Month).Time
-	}
-
-	diff := ztime.NewRange(*s.BillingAnchor).To(ztime.Now()).Diff(ztime.Month)
-	if ztime.Now().Day() > s.BillingAnchor.Day() {
-		diff.Months++
-	}
-	n := ztime.AddPeriod(*s.BillingAnchor, diff.Months, ztime.Month)
-	return ztime.StartOf(n, ztime.Day)
-}
-
-func (s Site) ThisBillingPeriod() ztime.Range {
-	return ztime.NewRange(ztime.AddPeriod(s.NextInvoice(), -1, ztime.Month)).To(ztime.Now())
-}
-
-func (s Site) PreviousBillingPeriod() ztime.Range {
-	c := s.ThisBillingPeriod()
-	return ztime.NewRange(ztime.AddPeriod(c.Start, -1, ztime.Month)).To(ztime.EndOf(c.Start.AddDate(0, 0, -1), ztime.Day))
-}
-
 // Sites is a list of sites.
 type Sites []Site
 
@@ -833,13 +674,6 @@ func (s *Sites) OldSoftDeleted(ctx context.Context) error {
 		StateDeleted), "Sites.OldSoftDeleted")
 }
 
-// ExpiredPlans finds all sites which have a plan that's expired.
-func (s *Sites) ExpiredPlans(ctx context.Context) error {
-	err := zdb.Select(ctx, s, `/* Sites.ExpiredPlans */
-		select * from sites where ? > plan_cancel_at`, ztime.Now())
-	return errors.Wrap(err, "Sites.ExpiredPlans")
-}
-
 // Find sites: by ID if ident is a number, or by host if it's not.
 func (s *Sites) Find(ctx context.Context, ident []string) error {
 	ids, strs := splitIntStr(ident)
@@ -884,122 +718,4 @@ func (s *Sites) ListIDs(ctx context.Context, ids ...int64) error {
 		`select * from sites where state=? and site_id in (?) order by created_at desc`,
 		StateActive, ids)
 	return errors.Wrap(err, "Sites.ListIDs")
-}
-
-// Plan represents a plan people can subscribe to.
-type Plan struct {
-	Code        string
-	Name        string
-	Price       int
-	MaxHits     int
-	MonthlyHits int
-}
-
-type Plans []Plan
-
-func (p Plans) Find(s Site) Plan {
-	for _, pp := range p {
-		if pp.Code == s.Plan {
-			return pp
-		}
-	}
-	return Plan{}
-}
-
-var planDetails = Plans{
-	{
-		Code:        PlanTrial,
-		Name:        "Free",
-		MaxHits:     2_400_000,
-		MonthlyHits: 100_000,
-	}, {
-		Code:        PlanFree,
-		Name:        "Free",
-		MaxHits:     2_400_000,
-		MonthlyHits: 100_000,
-	}, {
-		Code:        PlanPersonal,
-		Name:        "Personal",
-		MaxHits:     2_400_000,
-		MonthlyHits: 100_000,
-	}, {
-		Code:        PlanStarter,
-		Name:        "Starter",
-		MaxHits:     4_800_000,
-		MonthlyHits: 100_000,
-		Price:       500,
-	}, {
-		Code:        PlanBusiness,
-		Name:        "Business",
-		MaxHits:     24_000_000,
-		MonthlyHits: 500_000,
-		Price:       1500,
-	}, {
-		Code:        PlanBusinessPlus,
-		Name:        "Business plus",
-		MaxHits:     0,
-		MonthlyHits: 1_000_000,
-		Price:       3000,
-	}, {
-		Code: PlanChild,
-		Name: "Child",
-	},
-}
-
-type AccountUsage struct {
-	Plan                          Plan
-	ThisStart, PrevStart, PrevEnd time.Time
-	Stats                         []AccountUsageStats
-	Total                         AccountUsageStats
-}
-
-type AccountUsageStats struct {
-	Code       string `db:"code"`
-	Total      int    `db:"total"`
-	ThisPeriod int    `db:"this_period"`
-	PrevPeriod int    `db:"prev_period"`
-}
-
-func (a *AccountUsage) Get(ctx context.Context) error {
-	account, err := GetAccount(ctx)
-	if err != nil {
-		return fmt.Errorf("AccountUsage: %w", err)
-	}
-	a.Plan = planDetails.Find(*account)
-
-	var sites Sites
-	err = sites.ForThisAccount(WithSite(ctx, account), false)
-	if err != nil {
-		return errors.Wrap(err, "AccountUsage.Get")
-	}
-
-	a.ThisStart = ztime.AddPeriod(account.NextInvoice(), -1, ztime.Month)
-	a.PrevStart = ztime.AddPeriod(a.ThisStart, -1, ztime.Month)
-	a.PrevEnd = ztime.EndOf(a.ThisStart.AddDate(0, 0, -1), ztime.Day)
-	var query []string
-	for _, s := range sites {
-		query = append(query, fmt.Sprintf(`select
-			(select code from sites where site_id=%[1]d) as code,
-			(select coalesce(sum(total), 0) from hit_counts where site_id=%[1]d)                                     as total,
-			(select coalesce(sum(total), 0) from hit_counts where site_id=%[1]d and hour>='%[2]s')                   as this_period,
-			(select coalesce(sum(total), 0) from hit_counts where site_id=%[1]d and hour>='%[3]s' and hour<'%[4]s')  as prev_period`,
-			s.ID,
-			a.ThisStart.Format("2006-01-02 15:04:05"),
-			a.PrevStart.Format("2006-01-02 15:04:05"),
-			a.PrevEnd.Format("2006-01-02 15:04:05"),
-		))
-	}
-
-	err = zdb.Select(ctx, &a.Stats,
-		"/* AccountUsage.Get */\n"+strings.Join(query, "\nunion ")+"\norder by code asc")
-	if err != nil {
-		return errors.Wrap(err, "AccountUsage.Get")
-	}
-
-	for _, s := range a.Stats {
-		a.Total.PrevPeriod += s.PrevPeriod
-		a.Total.ThisPeriod += s.ThisPeriod
-		a.Total.Total += s.Total
-	}
-	return nil
 }

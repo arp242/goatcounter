@@ -17,7 +17,7 @@
 			USER_SETTINGS.language = 'en'
 
 		;[report_errors, bind_tooltip, bind_confirm, translate_calendar].forEach((f) => f.call())
-		;[page_dashboard, page_billing, page_settings_main, page_user_pref, page_user_dashboard, page_bosmang]
+		;[page_dashboard, page_settings_main, page_user_pref, page_user_dashboard, page_bosmang]
 			.forEach((f) => document.body.id === f.name.replace(/_/g, '-') && f.call())
 	})
 
@@ -150,81 +150,6 @@
 
 			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 			$(`#timezone [value$="${zone}"]`).prop('selected', true)
-		})
-	}
-
-	var page_billing = function() {
-		// Pricing FAQ
-		$('#home-pricing-faq dt').on('click', function(e) {
-			var dd = $(e.target).next().addClass('cbox')
-			if (dd[0].style.height === 'auto')
-				dd.css({padding: '0', height: '0', marginBottom: '0'})
-			else
-				dd.css({padding: '.3em 1em', height: 'auto', marginBottom: '1em'})
-		})
-
-		// Extra pageviews.
-		$('#allow_extra').on('change', function(e) {
-			$('#extra-limit').css('display', this.checked ? '' : 'none')
-			$('#max_extra').trigger('change')
-		}).trigger('change')
-		$('#max_extra').on('change', function(e) {
-			var p  = $('#n-pageviews'),
-				n  = parseInt($(this).val(), 10) * 50000,
-				pv = {business: 500_000, businessplus: 1_000_000}[p.attr('data-plan')] || 100_000,
-				pn = {personal: 'Personal', personalplus: 'Starter', business: 'Business', businessplus: 'Business plus'}[p.attr('data-plan')]
-
-			var t = $('#allow_extra').is(':checked') ? 'There is no limit on the number of pageviews.' : ''
-			if (n)
-				t = `Your limit will be <strong>${format_int(pv+n)}</strong> pageviews (${format_int(pv)} from the ${pn} plan, plus ${format_int(n)} extra).`
-			p.html(t)
-		}).trigger('change')
-
-		// Show/hide donation options.
-		$('.plan input').on('change', function() {
-			$('.free').css('display', $('input[name="plan"]:checked').val() === 'personal' ? '' : 'none')
-		}).trigger('change')
-
-		var form     = $('#billing-form'),
-			nodonate = false
-		form.find('button').on('click', function() { nodonate = this.id === 'nodonate' })
-
-		// Create new Stripe subscription.
-		form.on('submit', function(e) {
-			e.preventDefault()
-
-			if (typeof(Stripe) === 'undefined') {
-				alert('Stripe JavaScript failed to load from "https://js.stripe.com/v3"; ' +
-					'ensure this domain is allowed to load JavaScript and reload the page to try again.')
-				return
-			}
-
-			var err      = function(e) { $('#stripe-error').text(e); },
-				plan     = $('input[name="plan"]:checked').val(),
-				quantity = (plan === 'personal' ? (parseInt($('#quantity').val(), 10) || 0) : 1)
-
-			if (!plan)
-				return alert('You need to select a plan')
-
-			form.find('button[type="submit"]').attr('disabled', true).text('Redirecting...')
-			jQuery.ajax({
-				url:    '/billing/start',
-				method: 'POST',
-				data:    {csrf: CSRF, plan: plan, quantity: quantity, nodonate: nodonate},
-				success: function(data) {
-					if (data.no_stripe)
-						return location.reload()
-					Stripe(form.attr('data-key')).redirectToCheckout({sessionId: data.id}).
-						then(function(result) { err(result.error ? result.error.message : '') })
-				},
-				error: function(xhr, settings, e) {
-					err(err)
-					on_error(`/billing/start: csrf: ${csrf}; plan: ${plan}; q: ${quantity}; xhr: ${xhr}`)
-				},
-				complete: function() {
-					form.find('button[type="submit"]').attr('disabled', false).text('Continue')
-				},
-			})
 		})
 	}
 
