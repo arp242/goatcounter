@@ -66,8 +66,6 @@ func TestBuffer(t *testing.T) {
 
 			if ii < 5 {
 				t.Fatalf("sent while down; ii: %d; URL: %s", ii, r.URL)
-				w.WriteHeader(500)
-				return
 			}
 
 			*r = *r.WithContext(ctx)
