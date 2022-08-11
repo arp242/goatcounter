@@ -119,7 +119,7 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 	// and "last week"; this is nice in some cases, but not so nice in others
 	// (such as here). Should have two functions for this.
 	if user.Settings.EmailReports != goatcounter.EmailReportDaily {
-		args.DisplayDate += " – " + rng.Start.Format(user.Settings.DateFormat)
+		args.DisplayDate += " – " + rng.End.Format(user.Settings.DateFormat)
 	}
 	// TODO: no locale on context here.
 	subject = fmt.Sprintf("Your GoatCounter report for %s", args.DisplayDate)
