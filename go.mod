@@ -4,22 +4,22 @@ go 1.18
 
 require (
 	code.soquee.net/otp v0.0.1
-	github.com/BurntSushi/toml v1.1.0
+	github.com/BurntSushi/toml v1.2.0
 	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/bmatcuk/doublestar/v4 v4.0.2
+	github.com/bmatcuk/doublestar/v4 v4.2.0
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/mattn/go-sqlite3 v1.14.13
+	github.com/mattn/go-sqlite3 v1.14.14
 	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.4.1
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
-	golang.org/x/image v0.0.0-20220617043117-41969df76e82
-	golang.org/x/net v0.0.0-20220622184535-263ec571b305
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
+	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
+	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539
+	golang.org/x/net v0.0.0-20220811182439-13a9a731de15
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	golang.org/x/text v0.3.7
 	zgo.at/blackmail v0.0.0-20211212060815-1f8e8a94692b
 	zgo.at/errors v1.1.0
@@ -33,9 +33,9 @@ require (
 	zgo.at/z18n v0.0.0-20220606095325-513ddb98b28f
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
-	zgo.at/zdb v0.0.0-20220606122939-5f47d7a24eaa
+	zgo.at/zdb v0.0.0-20220812005534-4cdbf350c347
 	zgo.at/zhttp v0.0.0-20220306174538-ede1552bdf7c
-	zgo.at/zli v0.0.0-20220603144944-094944de19e6
+	zgo.at/zli v0.0.0-20220707072716-d3aefb87935e
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20220622111728-4a78555db760
@@ -51,7 +51,7 @@ require (
 	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/tools v0.1.11-0.20220513221640-090b14e8501f // indirect
 )
