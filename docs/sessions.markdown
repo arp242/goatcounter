@@ -1,6 +1,17 @@
 Session tracking
 ================
 
+*2022 preface*: this document mostly served as a design document for when I
+wrote the session tracking code back in 2019. It's not intended as an overview
+of "all possible techniques one could use in $current_year"; the examination of
+existing solutions is likely incomplete, and sometimes probably outdated as
+platforms evolve.
+
+In short: I don't keep it updated.
+
+---
+
+
 "Session tracking" allows more advanced tracking than just the "pageview"
 counter we have now. A "session" is a single browsing session people have on a
 website.

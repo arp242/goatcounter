@@ -1,14 +1,10 @@
-[![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
+GoatCounter is an open source web analytics platform available as a (free)
+hosted service or self-hosted app. It aims to offer easy to use and meaningful
+privacy-friendly web analytics as an alternative to Google Analytics or Matomo.
 
-GoatCounter is an open source web analytics platform available as a hosted
-service (free for non-commercial use) or self-hosted app. It aims to offer easy
-to use and meaningful privacy-friendly web analytics as an alternative to Google
-Analytics or Matomo.
-
-There are two ways to run this: as **hosted service** on [goatcounter.com][www],
-*free* for non-commercial use, or run it on your own server. The source code is
-completely Open Source/Free Software, and it can be self-hosted without
-restrictions.
+There are two ways to run this: as hosted service on [goatcounter.com][www], or
+run it on your own server. The source code is completely Open Source/Free
+Software, and it can be self-hosted without restrictions.
 
 See [docs/rationale.markdown](docs/rationale.markdown) for some more details on
 the *"why?"* of this project.
