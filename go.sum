@@ -1,5 +1,5 @@
-code.soquee.net/otp v0.0.1 h1:sPALeimyp/DAj4MXMjj94QDdYN/y2+dSoMXQCxttpvw=
-code.soquee.net/otp v0.0.1/go.mod h1:sv1t9zLujoOZ8T14ty2ffdj6y+fjScwX7m76G+dzrm0=
+code.soquee.net/otp v0.0.4 h1:ANxYY0VMAkjx7LhCBOQo7yoYRCFbJWD+T1Q9cjZqP5I=
+code.soquee.net/otp v0.0.4/go.mod h1:uRGadR4aJxaHpudNJxmCad1v8IBzdWGwnYXU9STqTqk=
 github.com/BurntSushi/toml v1.2.0 h1:Rt8g24XnyGTyglgET/PRUNlrUeu9F5L+7FilkXfZgs0=
 github.com/BurntSushi/toml v1.2.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0gta/U=

@@ -3,7 +3,7 @@ module zgo.at/goatcounter/v2
 go 1.18
 
 require (
-	code.soquee.net/otp v0.0.1
+	code.soquee.net/otp v0.0.4
 	github.com/BurntSushi/toml v1.2.0
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/bmatcuk/doublestar/v4 v4.2.0
