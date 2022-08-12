@@ -132,6 +132,10 @@ Flags:
                nginx, Apache, Varnish, etc.) and requires special configuration,
                which is why it's disabled by default.
 
+  -store-every How often to persist pageviews to the database, in seconds.
+               Higher values will give better performance, but it will take a
+               bit longer for pageviews to show. The default is 10 seconds.
+
   -dev         Start in "dev mode".
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
@@ -281,6 +285,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		from        = f.String("", "email-from").Pointer()
 		geodb       = f.String("", "geodb").Pointer()
 		ratelimit   = f.String("", "ratelimit").Pointer()
+		storeEvery  = f.Int(10, "store-every").Pointer()
 		websocket   = f.Bool(false, "websocket").Pointer()
 	)
 	err := f.Parse()
@@ -302,6 +307,9 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		v.URLLocal("-smtp", *smtp)
 	}
 	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
+
+	v.Range("-store-every", int64(*storeEvery), 1, 0)
+	cron.PersistInterval(time.Duration(*storeEvery) * time.Second)
 
 	goatcounter.InitGeoDB(*geodb)
 

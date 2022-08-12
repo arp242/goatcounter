@@ -19,7 +19,10 @@ unreleased v2.3.0
 - Add `-dbconn` flag for `serve` to allow setting the maximum number of
   connections.
 
-  The default is also lowered from 25 to 16 for PostgreSQL.:w
+  The default is also lowered from 25 to 16 for PostgreSQL.
+
+- Add `-store-every` flag to control how often to persist pageviews to the
+  database.
 
 2022-02-16 v2.2.0
 -----------------

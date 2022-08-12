@@ -28,7 +28,6 @@ func (t Task) ID() string {
 }
 
 var Tasks = []Task{
-	{"persist hits", PersistAndStat, 10 * time.Second},
 	{"vacuum pageviews (data retention)", DataRetention, 1 * time.Hour},
 	{"renew ACME certs", renewACME, 2 * time.Hour},
 	{"vacuum soft-deleted sites", vacuumDeleted, 12 * time.Hour},
@@ -37,10 +36,27 @@ var Tasks = []Task{
 	{"send email reports", EmailReports, 1 * time.Hour},
 }
 
-var stopped = zsync.NewAtomicInt(0)
+var (
+	stopped = zsync.NewAtomicInt(0)
+	started = zsync.NewAtomicInt(0)
+)
+
+func PersistInterval(d time.Duration) {
+	if started.Value() == 1 {
+		panic("cron.PersistInterval: cron already started")
+	}
+
+	Tasks = append(Tasks, Task{
+		Desc:   "persist hits",
+		Fun:    PersistAndStat,
+		Period: d,
+	})
+}
 
 // RunBackground runs tasks in the background according to the given schedule.
 func RunBackground(ctx context.Context) {
+	started.Set(1)
+
 	l := zlog.Module("cron")
 
 	// TODO: should rewrite cron to always respond to channels, and then have
