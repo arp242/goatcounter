@@ -187,8 +187,13 @@ func (u *User) Delete(ctx context.Context, lastAdmin bool) error {
 		}
 	}
 
-	err := zdb.Exec(ctx, `delete from users where user_id=? and site_id=?`,
-		u.ID, MustGetSite(ctx).ID)
+	account, err := GetAccount(ctx)
+	if err != nil {
+		return errors.Wrap(err, "User.Delete")
+	}
+
+	err = zdb.Exec(ctx, `delete from users where user_id=? and site_id=?`,
+		u.ID, account.ID)
 	return errors.Wrap(err, "User.Delete")
 }
 
