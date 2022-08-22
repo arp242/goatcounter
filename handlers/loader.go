@@ -7,6 +7,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -93,32 +94,38 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
 		if w != nil {
 			w.Close()
 		}
-		zlog.Fields(zlog.F{
-			"connectID": id,
-			"siteID":    Site(r.Context()).ID,
-			"userID":    User(r.Context()).ID,
-		}).FieldsRequest(r).Errorf("loader.send: NextWriter: %s", err)
+		if !strings.Contains(err.Error(), "use of closed network connection") {
+			zlog.Fields(zlog.F{
+				"connectID": id,
+				"siteID":    Site(r.Context()).ID,
+				"userID":    User(r.Context()).ID,
+			}).FieldsRequest(r).Errorf("loader.send: NextWriter: %s", err)
+		}
 		return
 	}
 
 	j, err := json.Marshal(data)
 	if err != nil {
-		zlog.Fields(zlog.F{
-			"connectID": id,
-			"siteID":    Site(r.Context()).ID,
-			"userID":    User(r.Context()).ID,
-		}).FieldsRequest(r).Errorf("loader.send: %s", err)
+		if !strings.Contains(err.Error(), "use of closed network connection") {
+			zlog.Fields(zlog.F{
+				"connectID": id,
+				"siteID":    Site(r.Context()).ID,
+				"userID":    User(r.Context()).ID,
+			}).FieldsRequest(r).Errorf("loader.send: %s", err)
+		}
 		return
 	}
 
 	_, err = w.Write(j)
 	w.Close()
 	if err != nil {
-		zlog.Fields(zlog.F{
-			"connectID": id,
-			"siteID":    Site(r.Context()).ID,
-			"userID":    User(r.Context()).ID,
-		}).FieldsRequest(r).Errorf("loader.send: Write: %s", err)
+		if !strings.Contains(err.Error(), "use of closed network connection") {
+			zlog.Fields(zlog.F{
+				"connectID": id,
+				"siteID":    Site(r.Context()).ID,
+				"userID":    User(r.Context()).ID,
+			}).FieldsRequest(r).Errorf("loader.send: Write: %s", err)
+		}
 		return
 	}
 }
