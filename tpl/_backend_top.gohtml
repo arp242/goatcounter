@@ -65,7 +65,7 @@
 					<button class="link">{{.T "top-nav/sign-out|Sign out"}}</button>
 				</form>
 			</div>
-		{{else if .Site.Settings.IsPublic}}
+		{{else if and (.Site.Settings.IsPublic) (not .HideUI)}}
 			<div style="margin-left: .3em;">
 				{{if .Site.LinkDomain -}}
 					{{.T "top-nav/public-link|Analytics for %(domain)."

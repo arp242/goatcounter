@@ -71,6 +71,7 @@ type Globals struct {
 	Port           string
 	Websocket      bool
 	JSTranslations map[string]string
+	HideUI         bool
 }
 
 func (g Globals) T(msg string, data ...interface{}) template.HTML {
@@ -92,6 +93,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		Dev:            goatcounter.Config(ctx).Dev,
 		Port:           goatcounter.Config(ctx).Port,
 		Websocket:      goatcounter.Config(ctx).Websocket,
+		HideUI:         r.URL.Query().Get("hideui") != "",
 		JSTranslations: map[string]string{
 			"error/date-future":           T(ctx, "error/date-future|That would be in the future"),
 			"error/date-past":             T(ctx, "error/date-past|That would be before the site’s creation; GoatCounter is not *that* good ;-)"),

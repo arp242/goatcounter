@@ -297,6 +297,17 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		zhttp.CookieSecure = false
 	}
 
+	// Set SameSite=None to allow embedding GoatCounter in a frame and allowing
+	// login; there is no way to make this work with Lax or Strict as far as I
+	// can find (there is no way to add exceptions for trusted sites).
+	//
+	// This is not a huge problem because every POST/DELETE/etc. request already
+	// has a CSRF token in the request, which protects against the same thing as
+	// SameSite does. We could enable it only for sites that have "embed
+	// GoatCounter" enabled (which aren't that many sites), but then people need
+	// to logout and login again to reset the cookie, which isn't ideal.
+	zhttp.CookieSameSite = http.SameSiteNoneMode
+
 	if !*dev {
 		zlog.Config.SetFmtTime("Jan _2 15:04:05 ")
 	}

@@ -22,6 +22,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
+	"zgo.at/zhttp/header"
 	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
@@ -218,6 +219,48 @@ func addz18n() func(http.Handler) http.Handler {
 				userLang = u.Settings.Language
 			}
 			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.GetBundle(r.Context()).Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+var defaultFrameAncestors = []string{header.CSPSourceNone}
+
+func addcsp(domainStatic string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ds := []string{header.CSPSourceSelf}
+			if domainStatic != "" {
+				ds = append(ds, domainStatic)
+			}
+
+			var frame []string
+			if s := goatcounter.GetSite(r.Context()); s != nil && len(s.Settings.AllowEmbed) > 0 {
+				frame = make([]string, 0, len(s.Settings.AllowEmbed))
+				for _, d := range s.Settings.AllowEmbed {
+					frame = append(frame, d)
+				}
+			} else {
+				frame = defaultFrameAncestors
+			}
+
+			header.SetCSP(w.Header(), header.CSPArgs{
+				header.CSPFrameAncestors: frame,
+				header.CSPFrameSrc:       {header.CSPSourceSelf},
+				header.CSPDefaultSrc:     {header.CSPSourceNone},
+				header.CSPImgSrc:         append(ds, "data:"),
+				header.CSPScriptSrc:      ds,
+				header.CSPStyleSrc:       append(ds, header.CSPSourceUnsafeInline),
+				header.CSPFontSrc:        ds,
+				header.CSPFormAction:     {header.CSPSourceSelf},
+				header.CSPManifestSrc:    ds,
+
+				// 'self' does not include websockets, and we need to use
+				// "wss://domain.com"; this is difficult because of custom
+				// domains and such, so just allow all websockets.
+				header.CSPConnectSrc: {header.CSPSourceSelf, "wss:"},
+			})
+
 			next.ServeHTTP(w, r)
 		})
 	}

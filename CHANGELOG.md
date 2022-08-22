@@ -24,6 +24,12 @@ unreleased v2.3.0
 - Add `-store-every` flag to control how often to persist pageviews to the
   database.
 
+- Add "Sites that can embed GoatCounter" setting to allow embedding GoatCounter
+  in a frame.
+
+- Add "Hide UI for public view" setting to allow hiding the UI chrome and
+  display only the charts.
+
 2022-02-16 v2.2.0
 -----------------
 - The database connection string changed; you now need to use `-db

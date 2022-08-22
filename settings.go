@@ -67,6 +67,7 @@ type (
 		IgnoreIPs      Strings        `json:"ignore_ips"`
 		Collect        zint.Bitflag16 `json:"collect"`
 		CollectRegions Strings        `json:"collect_regions"`
+		AllowEmbed     Strings        `json:"allow_embed"`
 	}
 
 	// UserSettings are all user preferences.
@@ -369,6 +370,15 @@ func (ss *SiteSettings) Validate(ctx context.Context) error {
 	if len(ss.IgnoreIPs) > 0 {
 		for _, ip := range ss.IgnoreIPs {
 			v.IP("ignore_ips", ip)
+		}
+	}
+	if len(ss.AllowEmbed) > 0 {
+		for _, d := range ss.AllowEmbed {
+			if d == "*" {
+				v.Append("allow_embed", "'*' is not allowed")
+			} else {
+				v.URL("allow_embed", d)
+			}
 		}
 	}
 

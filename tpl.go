@@ -203,7 +203,8 @@ func init() {
 			{href: "spa", label: "Add GoatCounter to a SPA?"},
 			{href: "beacon", label: "Use navigator.sendBeacon?"},
 			{href: "countjs-versions", label: "count.js versions and SRI"},
-			{href: "countjs-host", label: "Host count.js somewhere else?"}}},
+			{href: "countjs-host", label: "Host count.js somewhere else?"},
+			{href: "frame", label: "Embed GoatCounter in a frame?"}}},
 		{label: "Other", items: []x{
 			// TODO: add "adblock" page
 			// TODO: add "campiagns page"; link in "settings_main".

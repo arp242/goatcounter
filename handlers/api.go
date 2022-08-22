@@ -66,7 +66,8 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 				}
 				return rateLimits.api(r)
 			},
-		}))
+		}),
+	)
 
 	a.Get("/api/v0/test", zhttp.Wrap(h.test))
 	a.Post("/api/v0/test", zhttp.Wrap(h.test))

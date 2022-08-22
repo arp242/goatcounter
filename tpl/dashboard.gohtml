@@ -39,6 +39,15 @@
 	{{end}}
 {{end}} {{/* .User.ID */}}
 
+{{/* Hide in CSS as the JavaScript uses a number of the elements to render the charts. */}}
+{{if and (not .User.ID) (.HideUI)}}
+	<style>
+		#dash-form, nav.center { display: none; }
+		.page                  { max-width: unset; box-shadow: unset; margin: 0; padding: 0; }
+		html                   { background-color: unset; }
+	</style>
+{{end}}
+
 <form id="dash-form">
 	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 	<button type="submit" tabindex="-1" class="hide-btn" aria-label="{{.T "button/submit|Submit"}}"></button>

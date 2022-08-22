@@ -15,7 +15,6 @@ import (
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/header"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
@@ -52,6 +51,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		mware.WrapWriter(),
 		mware.Unpanic("zgo.at/goatcounter/v2/handlers.add"),
 		addctx(db, true, dashTimeout),
+		addcsp(domainStatic),
 		middleware.RedirectSlashes,
 		mware.NoStore())
 	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
@@ -118,29 +118,9 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 	{
 		headers := http.Header{
 			"Strict-Transport-Security": []string{"max-age=7776000"},
-			"X-Frame-Options":           []string{"deny"},
 			"X-Content-Type-Options":    []string{"nosniff"},
+			"X-Frame-Options":           []string{},
 		}
-
-		ds := []string{header.CSPSourceSelf}
-		if domainStatic != "" {
-			ds = append(ds, domainStatic)
-		}
-		header.SetCSP(headers, header.CSPArgs{
-			header.CSPDefaultSrc: {header.CSPSourceNone},
-			header.CSPImgSrc:     append(ds, "data:"),
-			header.CSPScriptSrc:  ds,
-			header.CSPStyleSrc:   append(ds, header.CSPSourceUnsafeInline),
-			header.CSPFontSrc:    ds,
-			header.CSPFormAction: {header.CSPSourceSelf},
-			// 'self' does not include websockets, and we need to use
-			// "wss://domain.com"; this is difficult because of custom domains
-			// and such, so just allow all websockets.
-			header.CSPConnectSrc:  {header.CSPSourceSelf, "wss:"},
-			header.CSPFrameSrc:    {header.CSPSourceSelf},
-			header.CSPManifestSrc: ds,
-			// Too much noise: header.CSPReportURI:  {"/csp"},
-		})
 
 		{
 			af := r.With(keyAuth, loggedIn, addz18n())

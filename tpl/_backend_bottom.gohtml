@@ -1,5 +1,9 @@
 	</div> {{- /* .page */}}
-	{{template "_bottom_links.gohtml" .}}
+
+	{{if or (.User.ID) (not .HideUI)}}
+		{{template "_bottom_links.gohtml" .}}
+	{{end}}
+
 	<span id="js-settings"
 		data-offset="{{.User.Settings.Timezone.Offset}}"
 		data-first-hit-at="{{.Site.FirstHitAt.Unix}}"
