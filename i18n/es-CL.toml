@@ -1190,6 +1190,7 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
   default = "Añadir margen a la izquierda para que el gráfico quede alineado con los gráficos de las páginas"
 
 ["widget-setting/help/chart-style"]
+  default = "Cómo dibujar los gráficos"
 
 ["widget-setting/help/no-events"]
   default = "No incluir eventos en el gráfico de visitas totales"
@@ -1207,6 +1208,7 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
   default = "Alinear con páginas"
 
 ["widget-setting/label/chart-style"]
+  default = "Estilo del gráfico"
 
 ["widget-setting/label/no-events"]
   default = "Excluir eventos"
@@ -1221,11 +1223,13 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
   default = "Mostrar regiones"
 
 ["widget-settings/bar-chart"]
+  default = "Gráfico de barras"
 
 ["widget-settings/line-chart"]
+  default = "Gráfico de lineas"
 
 ["widget-settings/text-chart"]
+  default = "Tabla de texto"
 
 ["y-scale"]
   default = "Escala del eje Y"
-

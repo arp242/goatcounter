@@ -1,0 +1,1221 @@
+[__meta__]
+  comments = ""
+  generated = 2021-11-29T19:38:18Z
+  language = "ja-JP"
+  maintainers = [""]
+
+["button/add-new"]
+  default = "新規追加"
+
+["button/add-user"]
+  default = "新規ユーザー追加"
+
+["button/cfg-dashboard"]
+  default = "ダッシュボードレイアウトを設定"
+
+["button/change"]
+  default = "変更"
+
+["button/change-passwd"]
+  default = "パスワード変更"
+
+["button/copy"]
+  default = "コピー"
+
+["button/delete"]
+  default = "削除"
+
+["button/delete-account"]
+  default = "アカウント・すべてのサイト・すべてのデータを削除"
+
+["button/delete-all"]
+  default = "はい、すべてを削除します！"
+
+["button/delete-everything"]
+  default = "はい、すべてを削除します"
+
+["button/disable-mfa"]
+  default = "MFA を無効化"
+
+["button/edit"]
+  default = "編集"
+
+["button/enable-mfa"]
+  default = "MFA を有効化"
+
+["button/forgot-password"]
+  default = "パスワードをお忘れですか？"
+
+["button/remove"]
+  default = "削除"
+
+["button/request-reset"]
+  default = "パスワードリセットをリクエスト"
+
+["button/resend-email"]
+  default = "メールを再送"
+
+["button/reset-defaults"]
+  default = "デフォルトにリセット"
+
+["button/reset-password"]
+  default = "パスワードリセット"
+
+["button/rm-hits"]
+  default = "ページビューを削除"
+
+["button/save"]
+  default = "保存"
+
+["button/save-default-view"]
+  default = "デフォルトビューを保存"
+
+["button/send-login-url"]
+  default = "ログイン URL を送信"
+
+["button/sign-in"]
+  default = "サインイン"
+
+["button/start-export"]
+  default = "エクスポート開始"
+
+["button/start-import"]
+  default = "インポート開始"
+
+["button/submit"]
+  default = "送信"
+
+["confirm/delete-user"]
+  default = "%(email) を削除しますか？"
+
+["dashboard/day-ago"]
+  default = "%(n) 日前"
+
+["dashboard/future"]
+  default = "未来"
+
+["dashboard/month-ago"]
+  default = "%(n) か月前"
+
+["dashboard/nothing-to-display"]
+  default = "表示するものがありません"
+
+["dashboard/pages/header"]
+  default = "ページ"
+
+["dashboard/pages/num-visits"]
+  default = "%(total-visits) 回の訪問のうち %(num-visits) 回を表示"
+
+["dashboard/pages/pageviews"]
+  default = "ページビュー"
+
+["dashboard/pages/path"]
+  default = "パス"
+
+["dashboard/pages/stats"]
+  default = "統計"
+
+["dashboard/pages/stats-tooltip"]
+  default = "各バーは選択された表示期間の 1/12 を表します"
+
+["dashboard/pages/title"]
+  default = "タイトル"
+
+["dashboard/pages/views"]
+  default = "ビュー"
+
+["dashboard/pages/visits"]
+  default = "訪問"
+
+["dashboard/today"]
+  default = "今日"
+
+["dashboard/tooltip-event"]
+  default = "%(unique) 回のクリック、%(clicks) 回の合計クリック"
+
+["dashboard/totals/header"]
+  default = "合計"
+
+["dashboard/totals/num-visits"]
+  default = "%(num-visits) 回の訪問; %(num-views) ページビュー"
+
+["dashboard/week-ago"]
+  default = "%(n) 週間前"
+
+["dashboard/yesterday"]
+  default = "昨日"
+
+["data-collect/help/country"]
+  default = "国名 (例: Belgium、Indonesia など)"
+
+["data-collect/help/language"]
+  default = "Accept-Languageで対応可能な言語"
+
+["data-collect/help/referrer"]
+  default = "Referer ヘッダと Campaign パラメータ"
+
+["data-collect/help/region"]
+  default = "地域 (例: Texas、Bali など)、詳細は国によって異なります。"
+
+["data-collect/help/sessions"]
+  default = "ユニーク訪問者を最大 8 時間追跡します。この機能を無効にすると、例えば F5 キーを押してページを再読み込みした場合、1 ページビューではなく、2 ページビューとして表示されます。"
+
+["data-collect/help/size"]
+  default = "スクリーンサイズ"
+
+["data-collect/help/user-agent"]
+  default = "User-Agent ヘッダで、ブラウザとシステムの名前とバージョンを取得します。"
+
+["data-collect/label/country"]
+  default = "国"
+
+["data-collect/label/language"]
+  default = "言語"
+
+["data-collect/label/referrer"]
+  default = "Referrer"
+
+["data-collect/label/region"]
+  default = "地域"
+
+["data-collect/label/sessions"]
+  default = "セッション"
+
+["data-collect/label/size"]
+  default = "サイズ"
+
+["data-collect/label/user-agent"]
+  default = "User-Agent"
+
+["datepicker/keyboard"]
+  default = "矢印キーで日付を選ぶ"
+
+["datepicker/month-next"]
+  default = "次の月"
+
+["datepicker/month-prev"]
+  default = "前の月"
+
+["email/header"]
+  default = "こんにちは、"
+
+["email/password-reset"]
+  default = """
+誰か (おそらくあなた) が GoatCounter アカウントのパスワードリセットをリクエストしました。
+
+リンクはこちらです:
+%(link)
+"""
+
+["email/reset-user-email-subject"]
+  default = "%(domain) のパスワードリセット"
+
+["email/signature"]
+  default = """
+何らかの問題・質問・コメントなどがある場合は、このメールに返信してください。
+
+よろしくお願いします。
+
+Martin
+"""
+
+["error/account-has-stripe-subscription"]
+  default = "このアカウントには、Stripe サブスクリプションがあるので、まず課金ページでそれをキャンセルしてください。"
+
+["error/address-exists"]
+  default = "%(addr) はすでに存在します"
+
+["error/could-not-read"]
+  default = "gzip として読み込めませんでした: %(err)"
+
+["error/date-future"]
+  default = "これは未来です"
+
+["error/date-mismatch"]
+  default = "終了日が開始日より前です"
+
+["error/date-past"]
+  default = "これはサイトの作成前です"
+
+["error/delete-main-site"]
+  default = "メインサイトは削除できません"
+
+["error/export-expired"]
+  default = "まだエクスポートが行われていないか、エクスポートの有効期限が切れているようです。"
+
+["error/incorrect-password"]
+  default = "現在のパスワードが正しくありません。"
+
+["error/invalid-end-date"]
+  default = "無効な終了日: %(date)"
+
+["error/invalid-start-date"]
+  default = "無効な開始日: %(date)"
+
+["error/load-url"]
+  default = "%(url) を読み込めませんでした: %(error)"
+
+["error/login-invalid"]
+  default = "無効なログインです"
+
+["error/login-no-password"]
+  default = "%(email) にパスワードが設定されていません。リセットしてください。"
+
+["error/login-not-found"]
+  default = "ユーザー %(email) が見つかりません"
+
+["error/login-token-expired"]
+  default = "指定されたトークンのユーザーが見つかりませんでした。有効期限切れまたはすでに使用されていませんか？"
+
+["error/login-wrong-pwd"]
+  default = "%(email) のパスワードが間違っています"
+
+["error/not-found"]
+  default = "見つかりません"
+
+["error/password-does-not-match"]
+  default = "パスワードの確認が一致していません。"
+
+["error/payment-cancelled"]
+  default = "支払いがキャンセルされました。"
+
+["error/reset-user-no-account"]
+  default = "このサイトのアカウントではありません: %(email)"
+
+["error/token-already-used"]
+  default = "不明なトークンです。すでに使用されていませんか？"
+
+["error/wrong-verification-key"]
+  default = "検証キーが間違っています。"
+
+["event"]
+  default = "イベント"
+
+["forgot-domain-help"]
+  default = "メールアドレスに関連付けられているすべてのドメインの一覧をメールで送信します。"
+
+["header/access"]
+  default = "アクセス"
+
+["header/add-new-user"]
+  default = "新規ユーザー追加"
+
+["header/allow-access"]
+  default = "許可するアクセス"
+
+["header/api"]
+  default = "API"
+
+["header/api-tokens"]
+  default = "API トークン"
+
+["header/browsers"]
+  default = "ブラウザ"
+
+["header/change-code"]
+  default = "サイトコード変更"
+
+["header/change-passwd"]
+  default = "パスワード変更"
+
+["header/code"]
+  default = "コード"
+
+["header/copy-settings"]
+  default = "設定をコピー"
+
+["header/created-at"]
+  default = "作成:"
+
+["header/dashboard"]
+  default = "ダッシュボード"
+
+["header/data-collection"]
+  default = "収集する情報"
+
+["header/delete-account"]
+  default = "アカウント削除"
+
+["header/domain"]
+  default = "ドメイン"
+
+["header/domain-settings"]
+  default = "ドメイン設定"
+
+["header/edit-user"]
+  default = "ユーザー %(email) を編集"
+
+["header/email"]
+  default = "メールアドレス"
+
+["header/export"]
+  default = "エクスポート"
+
+["header/export-or-import"]
+  default = "インポート/エクスポート"
+
+["header/finished"]
+  default = "完了"
+
+["header/forgot-domain"]
+  default = "ドメインを忘れました"
+
+["header/forgot-password"]
+  default = "パスワードを忘れました"
+
+["header/hash"]
+  default = "ハッシュ"
+
+["header/import"]
+  default = "インポート"
+
+["header/l10n"]
+  default = "ローカライゼーション"
+
+["header/languages"]
+  default = "言語"
+
+["header/last-10-exports"]
+  default = "過去 10 回のエクスポート"
+
+["header/locations"]
+  default = "位置"
+
+["header/locations-for"]
+  default = "%(country) の位置"
+
+["header/mfa"]
+  default = "多要素認証"
+
+["header/n-hits"]
+  default = "# ヒット数"
+
+["header/name"]
+  default = "名前"
+
+["header/new"]
+  default = "新規"
+
+["header/pagination-cursor"]
+  default = "ページネーションカーソル"
+
+["header/passwd-mfa"]
+  default = "パスワードと MFA"
+
+["header/path"]
+  default = "パス"
+
+["header/permissions"]
+  default = "権限"
+
+["header/preferences"]
+  default = "設定"
+
+["header/reset-password"]
+  default = "%(site-name) の %(email) のパスワードをリセット"
+
+["header/rm-hits"]
+  default = "ページビューを削除"
+
+["header/settings"]
+  default = "設定"
+
+["header/sign-in-at"]
+  default = "%(name) でサインイン"
+
+["header/site-settings"]
+  default = "サイト設定"
+
+["header/sites"]
+  default = "サイト"
+
+["header/size"]
+  default = "サイズ"
+
+["header/sizes"]
+  default = "サイズ"
+
+["header/start-pagination-cursor"]
+  default = "開始地点のページネーションカーソル"
+
+["header/started"]
+  default = "開始"
+
+["header/systems"]
+  default = "システム"
+
+["header/title"]
+  default = "タイトル"
+
+["header/token"]
+  default = "トークン"
+
+["header/toprefs"]
+  default = "上位の Referrer"
+
+["header/tracking"]
+  default = "トラッキング"
+
+["header/updated"]
+  default = "更新"
+
+["header/user-info"]
+  default = "ユーザー情報"
+
+["header/user-information"]
+  default = "ユーザー情報"
+
+["header/users"]
+  default = "ユーザー"
+
+["help/allow-visitor-counts"]
+  default = "使い方の詳細は%[ドキュメント]をご覧ください。"
+
+["help/campaign-parameters"]
+  default = "「Campaign」としてカウントするパラメータ一覧です。設定された場合、その値が Referrer として設定され Referer ヘッダが上書きされます。"
+
+["help/cfg-dashboard"]
+  default = "ダッシュボードに表示する内容や順番を変更します。"
+
+["help/code-access"]
+  default = "https://<em>[コード]</em>.%(domain) からアクセスします。"
+
+["help/custom-domain"]
+  default = "カスタムドメイン (例: <em>stats.example.com</em>)。<strong>注意:</strong> この機能を使用してもほとんどの広告ブロッカーによる GoatCounter のブロックは阻止<em>できません</em>。この機能は「バニティドメイン」としての使用を意図しています。"
+
+["help/custom-domain-cname"]
+  default = "<code>%(domain)</code> への CNAME レコードを設定します。 – %[%docs 詳細情報]"
+
+["help/custom-domain-error"]
+  default = """
+%[%error 未検証]。<code>%(domain)</code> への CNAME レコードを設定します。 – %[%docs 詳細情報]
+検証は 2 時間ごとに実行されます。
+"""
+
+["help/custom-domain-plan"]
+  default = "Personal Plus または Business プランが必要です (あなたは現在 %(plan) プランです、%[%link 課金])。"
+
+["help/custom-domain-verified"]
+  default = "ドメインの検証と設定です (注意: 証明書が機能するまでに 1 時間程度かかる場合があります)。"
+
+["help/data-retention"]
+  default = "ページビューと関連するすべてのデータは指定された日数経過後に完全に削除されます。<code>0</code> に設定すると永久に削除されません。"
+
+["help/domain-access"]
+  default = "このサイトにアクセスするためのドメインです。"
+
+["help/drag-reorder"]
+  default = "ドラッグして並び替え"
+
+["help/for-the-following-countries"]
+  default = "国名コードの一覧 (%[一覧]、alpha-2 コードを使用)。空白のままにすると、すべての国について収集します (有効な場合)。"
+
+["help/goatcounter-domain"]
+  default = "あなたの GoatCounter インストールドメイン (例: <em>stats.example.com</em>)。"
+
+["help/ignore-ips"]
+  default = "ここで指定した IP アドレスからのリクエストをカウントしません。カンマで区切ります。完全一致にのみ対応します。%[現在の IP を追加]。"
+
+["help/ignore-ips-2"]
+  default = "または、%[このブラウザでは無効にする] (もう一度クリックすると有効に戻ります)。"
+
+["help/new-user-email"]
+  default = "ログインに使用するメールです。"
+
+["help/new-user-email-confirm"]
+  default = "ログインに使用するメールです。確認する必要があります。"
+
+["help/no-undo"]
+  default = "これは破壊的な操作であり、元には戻せません！"
+
+["help/password-edit"]
+  default = "空欄のままにすると、変更されません。"
+
+["help/password-new-user"]
+  default = "パスワードリセットのメールを送信する場合は、空白にしてください。"
+
+["help/public"]
+  default = "ダッシュボードを閲覧可能な人を設定します。"
+
+["help/rm-hits"]
+  default = "削除前にプレビューが表示されます"
+
+["help/save-default-view"]
+  default = "現在のビュー (黄色のボックス内のすべての設定) を未選択時に読み込むデフォルトとして保存します。"
+
+["help/turing-test"]
+  default = "あなたが人間であることのちょっとした確認です"
+
+["help/your-email"]
+  default = "アドレスを変更した場合は、再度検証が必要です。"
+
+["label/24-hour-clock"]
+  default = "24 時間表示 (13:00)"
+
+["label/add-new"]
+  default = "新規追加"
+
+["label/all-sites"]
+  default = "すべてのサイト"
+
+["label/allow-admin-access"]
+  default = "管理者アクセスを許可"
+
+["label/allow-visitor-counts"]
+  default = "ウェブサイトへの訪問者カウントの追加を許可"
+
+["label/browser-stats"]
+  default = "ブラウザ統計"
+
+["label/campaign-parameters"]
+  default = "Campaign パラメータ"
+
+["label/change-code"]
+  default = "https://<em>[コード]</em>.%(domain) からアカウントにアクセスします。 – %[%link 変更]"
+
+["label/clear-pageviews"]
+  default = "既存のページビューをすべて削除"
+
+["label/code"]
+  default = "コード"
+
+["label/collected-since"]
+  default = "2021 年 12 月 2 日以降に収集"
+
+["label/csv-compress-format"]
+  default = "CSV ファイル (gzip 圧縮も可)"
+
+["label/current-passwd"]
+  default = "現在のパスワード"
+
+["label/custom-domain"]
+  default = "カスタムドメイン"
+
+["label/dashboard-public"]
+  default = "ダッシュボードを閲覧可能な人"
+
+["label/data-retention"]
+  default = "データの保持日数"
+
+["label/date-fmt"]
+  default = "日付の形式"
+
+["label/delete-account-confirmation"]
+  default = "アカウント全体を削除してよろしいですか？"
+
+["label/delete-account-contact"]
+  default = "ここにチェック入れると、フォローアップの質問やコメントで連絡するかもしれません。私は通信事業者ではないのであなたを説得したりはしませんが、いくつか質問をしたり、不足している機能に関する将来の計画を説明したりする場合があります。"
+
+["label/delete-account-follow-up"]
+  default = "フォローアップを許可"
+
+["label/delete-account-reason"]
+  default = "GoatCounter に足りないもの、またはアカウントを削除したい理由をお教えいただけると幸いです。これは完全に任意です。"
+
+["label/delete-account-reason-placeholder"]
+  default = "削除の理由 (任意)"
+
+["label/email"]
+  default = "メールアドレス"
+
+["label/email-address"]
+  default = "メールアドレス"
+
+["label/for-following-countries"]
+  default = "以下の国のみ対象:"
+
+["label/goatcounter-domain"]
+  default = "GoatCounter ドメイン"
+
+["label/ignore-ips"]
+  default = "無視する IP"
+
+["label/lang"]
+  default = "言語"
+
+["label/language-stats"]
+  default = "言語統計"
+
+["label/loc-stats"]
+  default = "位置統計"
+
+["label/mark-current"]
+  default = "(現在)"
+
+["label/match-title"]
+  default = "タイトルも含める"
+
+["label/mfa-token"]
+  default = "MFA トークン"
+
+["label/new-code"]
+  default = "新規コード"
+
+["label/new-password"]
+  default = "新規パスワード"
+
+["label/new-password-confirm"]
+  default = "新規パスワード (確認)"
+
+["label/pagination-cursor"]
+  default = "ページネーションカーソル"
+
+["label/password"]
+  default = "パスワード"
+
+["label/paths"]
+  default = "パス概要"
+
+["label/public-anyone"]
+  default = "誰でも"
+
+["label/public-private"]
+  default = "ログインユーザーのみ"
+
+["label/public-token"]
+  default = "ログインユーザーまたはシークレットトークンを知っている人"
+
+["label/secret"]
+  default = "シークレット"
+
+["label/secret-access"]
+  default = "シークレットアクセス URL:"
+
+["label/secret-token"]
+  default = "シークレットトークン"
+
+["label/set-default"]
+  default = "新規ユーザーとパブリックビュー (有効な場合) のデフォルトとして設定"
+
+["label/size-desktop"]
+  default = "コンピュータモニター"
+
+["label/size-desktophd"]
+  default = "HD より大きいコンピュータモニター"
+
+["label/size-largephones"]
+  default = "大きな携帯電話・小さなタブレット"
+
+["label/size-phones"]
+  default = "携帯電話"
+
+["label/size-stats"]
+  default = "サイズ統計"
+
+["label/size-tablets"]
+  default = "タブレット・小さなラップトップ"
+
+["label/system-stats"]
+  default = "システム統計"
+
+["label/thousand-separator"]
+  default = "区切り文字"
+
+["label/timezone"]
+  default = "タイムゾーン"
+
+["label/topref"]
+  default = "上位の Referral"
+
+["label/total-pageviews"]
+  default = "合計サイトページビュー"
+
+["label/turing-test"]
+  default = "ここに 9 を入力してください"
+
+["label/verifictation-token"]
+  default = "検証トークン"
+
+["label/week-start"]
+  default = "週はじめを日曜日にする"
+
+["label/your-email"]
+  default = "あなたのメールアドレス"
+
+["label/your-site"]
+  default = "あなたのサイト"
+
+["link/add-translation"]
+  default = "翻訳を追加・更新"
+
+["link/api"]
+  default = "API"
+
+["link/api-docs"]
+  default = "API ドキュメント"
+
+["link/billing"]
+  default = "課金"
+
+["link/dashboard"]
+  default = "ダッシュボード"
+
+["link/generate-random"]
+  default = "ランダムなシークレットを生成"
+
+["link/goto-path"]
+  default = "%(path) を開く"
+
+["link/import"]
+  default = "インポート"
+
+["link/passwd-mfa"]
+  default = "パスワードと MFA"
+
+["link/preferences"]
+  default = "設定"
+
+["link/rm-account"]
+  default = "アカウント削除"
+
+["link/rm-views"]
+  default = "ページビュー削除"
+
+["link/set-from-browser"]
+  default = "ブラウザから設定"
+
+["link/settings"]
+  default = "設定"
+
+["link/show-more"]
+  default = "さらに表示"
+
+["link/sites"]
+  default = "サイト"
+
+["link/users"]
+  default = "ユーザー"
+
+["nav-bot/contact"]
+  default = "連絡先"
+
+["nav-bot/contribute"]
+  default = "貢献"
+
+["nav-bot/docs"]
+  default = "ドキュメント"
+
+["nav-bot/home"]
+  default = "ホーム"
+
+["nav-bot/src"]
+  default = "ソースコード"
+
+["nav-dash/back"]
+  default = "戻る"
+
+["nav-dash/by-day"]
+  default = "日別で表示"
+
+["nav-dash/current"]
+  default = "この"
+
+["nav-dash/day"]
+  default = "1 日"
+
+["nav-dash/end-date"]
+  default = "表示期間の終了日"
+
+["nav-dash/filter"]
+  default = "パスで絞り込む"
+
+["nav-dash/filter-tooltip"]
+  default = "パスとタイトルを大文字小文字の区別なしで絞り込みます"
+
+["nav-dash/forced-daily"]
+  default = "表示期間が 90 日を超える場合、時刻は表示できません"
+
+["nav-dash/forward"]
+  default = "進む"
+
+["nav-dash/half-year"]
+  default = "半年"
+
+["nav-dash/last"]
+  default = "過去"
+
+["nav-dash/month"]
+  default = "1 か月"
+
+["nav-dash/quarter"]
+  default = "3 か月"
+
+["nav-dash/start-date"]
+  default = "表示期間の開始日"
+
+["nav-dash/week"]
+  default = "1 週間"
+
+["nav-dash/year"]
+  default = "1 年"
+
+["no-title"]
+  default = "タイトルなし"
+
+["notify/add-one-thing"]
+  default = "少なくとも 1 つは追加する必要があります。でないと、ダッシュボードに表示するものがありません。"
+
+["notify/api-token-created"]
+  default = "API トークンが作成されました。"
+
+["notify/api-token-removed"]
+  default = "API トークンが削除されました。"
+
+["notify/disabled-multi-factor-auth"]
+  default = "多要素認証が無効になりました。"
+
+["notify/email-already-verified"]
+  default = "%(email) は検証されました。"
+
+["notify/export-started-in-background"]
+  default = "バックグラウンドでエクスポートが開始されました。完了すると、ダウンロードリンクが記載されたメールが届きます。"
+
+["notify/import-started-in-background"]
+  default = "バックグラウンドでインポートが開始されました。完了すると、メールが届きます。"
+
+["notify/login-after-password-reset"]
+  default = "パスワードがリセットされました。新しいパスワードでログインしてください。"
+
+["notify/multi-factor-auth-enabled"]
+  default = "多要素認証が有効になりました。"
+
+["notify/need-business-plan-custom-domain"]
+  default = "カスタムドメインを設定するには Business プランが必要です"
+
+["notify/need-email-verification-for-api"]
+  default = "API を利用する前に、メールアドレスの検証が必要です。"
+
+["notify/no-user-for-token"]
+  default = "指定されたトークンのユーザーが見つかりました。有効期限切れまたはすでに使用されていませんか？"
+
+["notify/not-found"]
+  default = "見つかりません"
+
+["notify/password-changed"]
+  default = "パスワードが変更されました。"
+
+["notify/payment-processed"]
+  default = "支払いプロセスが正常に完了しました。"
+
+["notify/payment-processing"]
+  default = "支払い処理業者から成功の報告を受けましたが、まだ支払い処理中です"
+
+["notify/reset-to-default"]
+  default = "デフォルトにリセットしました"
+
+["notify/reset-user-sent"]
+  default = "%(email) にメールを送信します"
+
+["notify/restored-previously-deleted-site"]
+  default = "「%(url)」は以前削除されましたが、すべてのデータとともにサイトを復元しました。"
+
+["notify/saved"]
+  default = "保存されました"
+
+["notify/sent-to-email"]
+  default = "%(email) に送信します。"
+
+["notify/settings-copied-to-site"]
+  default = "選択したサイトに設定がコピーされました。"
+
+["notify/site-added"]
+  default = "サイト「%(url)」が追加されました。"
+
+["notify/site-removed"]
+  default = "サイト「%(url)」が削除されました。"
+
+["notify/started-background-process"]
+  default = "バックグラウンドで起動します。完全に処理されるまでに 10-20 秒程度かかる場合があります。"
+
+["notify/user-added"]
+  default = "ユーザー「%(email)」が追加されました。"
+
+["notify/user-removed"]
+  default = "ユーザー「%(email)」が削除されました。"
+
+["notify/users-edited"]
+  default = "ユーザー「%(email)」が編集されました。"
+
+["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>新規サイトを作成し、複数のウェブサイトに GoatCounter を追加します。すべてのサイトは同じプラン、ユーザー、ログインを共有しますが、それ以外は完全に分離されます。作成時に現在のサイトの設定がコピーされますが、その後はそれぞれが独立した設定となります。</p>
+
+<p>追加する数に制限はありません。</p>
+"""
+
+["p/additional-errors"]
+  default = "その他のエラー"
+
+["p/api-intro"]
+  default = "GoatCounter には限られた API が付属しています。現在、あなたは API からページビューのカウント、サイトの作成、サイトの削除、サイトの編集、エクスポートの作成が行えます。"
+
+["p/change-code-request"]
+  default = """
+<p>サイトコードとログインドメインを変更します。</p>
+
+<p><strong>警告:</strong> これは、<strong>即座に</strong>適用され古いコードは誰でも再登録できます。使用中のサイトでは、速やかに変更するか、一時的に 2 つのインテグレーションコード (古いコードと新しいコード) を追加してページビューの損失を防いでください。</p>
+
+<p>現在のコード: <code>%(current-code)</code> (%(current-url))</p>
+"""
+
+["p/change-email"]
+  default = "%[設定] でメールアドレスを変更します。"
+
+["p/collect-disabled"]
+  default = "現在、この情報の収集は%[設定で無効]になっています。"
+
+["p/copy-settings-from-current-site"]
+  default = "ドメイン名を除くすべての設定を現在のサイトからコピーします。"
+
+["p/csv-file-format"]
+  default = "CSV ファイルの形式については%[こちらのドキュメント]をご覧ください。"
+
+["p/delete-account-multi-site"]
+  default = "サイトと関連するすべてのサイトは削除されたとマークされアクセスできなくなりますが、データは即座には削除されません。7 日後に、すべてのデータは完全に削除されます。"
+
+["p/delete-account-one-site"]
+  default = "サイトは削除されたとマークされアクセスできなくなりますが、データは即座には削除されません。7 日後に、すべてのデータは完全に削除されます。"
+
+["p/disable-mfa"]
+  default = "このアカウントでは、現在 MFA が有効です。"
+
+["p/enable-mfa"]
+  default = "TOTP ベースの多要素認証 (MFA) を有効にするには、認証アプリでコードをスキャンするかシークレットを手動で入力してください。"
+
+["p/error"]
+  default = "エラー: %(error-message)"
+
+["p/export-process"]
+  default = """
+<p>プロセスを開始し、完了後にダウンロードリンクをメールで送信します。この操作は 1 時間に 1 回のみ可能で、以前のバックアップは上書きされます。</p>
+
+<p>これには、概要には表示されない「ボット」とマークされたものを含むすべてのページビューが含まれます。</p>
+"""
+
+["p/have-mfa"]
+  default = "このアカウントは多要素認証で保護されています。認証アプリに表示されているコードを入力してください。"
+
+["p/last-user"]
+  default = "唯一の管理者ユーザーのため削除・編集できません"
+
+["p/no-data"]
+  default = """
+<p>%[%bold データ未受信] – GoatCounter はまだデータを受信していません。<br>
+使い方はとても簡単で、以下の JavaScript をページ上の任意の場所に追加するだけです:</p>
+
+%[%pre %(js_code)]
+
+<p>ページビューが表示されない場合は、広告ブロッカーが GoatCounter をブロックしていないか確認してください (%(domain) および/または gc.zgo.at ドメイン)。</p>
+
+<p>このメッセージは、データを受信すると消えます。詳細なドキュメントと既存のインテグレーションについては%[%link_docs サイトコード]をご覧ください。</p>
+"""
+
+["p/no-matches"]
+  default = "%(query) に一致するものはありません。"
+
+["p/notify-immediate-change"]
+  default = "即座に適用されます"
+
+["p/notify-pagination-cursor"]
+  default = "メールには「ページネーションカーソル」という項目がありますが、ここにそれを入力すると、前回のエクスポートの後に記録されたページビューのみエクスポートされます。"
+
+["p/notify-site-deletion"]
+  default = "%(number) 件のサイトが削除されます"
+
+["p/remove-site-confirm"]
+  default = """
+サイト %(sitename) を削除してよろしいですか？<br>
+これにより、<strong>関連するすべてのデータが削除されます</strong>。
+"""
+
+["p/remove-site-confirm-contact"]
+  default = "他のサイトへの統合や、新しいアカウントへの切り離しなどの操作を行いたい場合は%[ご連絡]ください。"
+
+["p/remove-site-confirm-current"]
+  default = """
+サイト %(sitename) を削除してよろしいですか？<br>
+これにより、<strong>関連するすべてのデータ</strong>と<strong>現在のサイトが削除されます</strong>。
+"""
+
+["p/request-data-recovery"]
+  default = "気が変わりデータの復元を希望する場合は 7 日以内に%[ご連絡]ください。"
+
+["p/rm-hits"]
+  default = "特定ページのページビューをすべて削除します。"
+
+["p/rm-hits-help"]
+  default = "大文字と小文字は区別されません。ワイルドカードとして <code>%</code> に対応しています (例: <code>/page%.html</code> は <code>/page</code> で始まり <code>.html</code> で終わるものすべてに一致します)。<code>_</code> は任意の文字に一致します (例: <code>_.html</code> は <code>a.html</code> や <code>b.html</code> に一致します)。特別な意味を持たない文字列としては <code>\\%</code> や <code>\\_</code> を使用できます。"
+
+["p/rm-pageview-match"]
+  default = "以下のパスが %(query) に一致します:"
+
+["p/setting-recovery-disabled-information"]
+  default = "無効に設定した項目の情報はページビュー記録後に破棄されます。復元する方法はありません。"
+
+["p/settings-all-sites"]
+  default = "これらの設定は、あなたがアクセスできるすべてのサイトに対して有効になります。"
+
+["p/site-domain-link-to-page"]
+  default = "あなたのサイトのドメイン (例: <em>www.example.com</em>) を設定してください。概要でページのリンクに使用されます。"
+
+["p/text-data-retention"]
+  default = "これには、データの保持と収集の設定も含まれます。"
+
+["p/verify-email"]
+  default = "%(email) に送信されるリンクをクリックし、メールを検証してください。%[%sup (なぜ？)]"
+
+["page-ranking"]
+  default = "ページランキング"
+
+["restricted-admin-access"]
+  default = "通常、管理者はあなたのサイトに「ログイン」できませんが、これを有効にすると「ログイン」できるようになります。サポートのために、これを有効にするよう求められる場合があります。"
+
+["scale-y"]
+  default = "Y 軸のスケールを最大にする"
+
+["top-nav/back"]
+  default = "戻る"
+
+["top-nav/dashboard"]
+  default = "ダッシュボード"
+
+["top-nav/need-js"]
+  default = "GoatCounter を正しく機能させるには JavaScript を有効にする必要があります。%(domain) による JavaScript の実行を許可してください。"
+
+["top-nav/public-link"]
+  default = "%(domain) の分析結果です。"
+
+["top-nav/public-time"]
+  default = "パブリックビューは 1 時間に 1 回更新されます。時刻はすべて %(timezone-name) (%(timezone-offset)) で表示されます。"
+
+["top-nav/settings"]
+  default = "設定"
+
+["top-nav/sign-in"]
+  default = "サインイン"
+
+["top-nav/sign-out"]
+  default = "サインアウト"
+
+["top-nav/site-code"]
+  default = "サイトコード"
+
+["top-nav/sites"]
+  default = "サイト:"
+
+["top-nav/updates"]
+  default = "更新"
+
+["top-nav/user"]
+  default = "ユーザー"
+
+["unknown"]
+  default = "(不明)"
+
+["validate/bool"]
+  default = "ブール型である必要があります"
+
+["validate/color"]
+  default = "有効なカラーコードである必要があります"
+
+["validate/contains"]
+  default = "%s という文字列を含めることはできません"
+
+["validate/date"]
+  default = "「%s」のような日付である必要があります"
+
+["validate/domain"]
+  default = "有効なドメインである必要があります"
+
+["validate/email"]
+  default = "有効なメールアドレスである必要があります"
+
+["validate/exclude"]
+  default = "「%s」できません"
+
+["validate/hostname"]
+  default = "有効なホスト名である必要があります"
+
+["validate/include"]
+  default = "「%s」のうちの 1 つである必要があります"
+
+["validate/int"]
+  default = "整数である必要があります"
+
+["validate/ip"]
+  default = "有効な IPv4 または IPv6 である必要があります"
+
+["validate/ipv4"]
+  default = "有効な IPv4 である必要があります"
+
+["validate/len-longer"]
+  default = "%d より長い必要があります"
+
+["validate/len-shorter"]
+  default = "%d より短い必要があります"
+
+["validate/phone"]
+  default = "有効な電話番号である必要があります"
+
+["validate/range-higher"]
+  default = "%d 以上である必要があります"
+
+["validate/range-lower"]
+  default = "%d 以下である必要があります"
+
+["validate/required"]
+  default = "設定する必要があります"
+
+["validate/url"]
+  default = "有効な URL である必要があります"
+
+["validate/utf8"]
+  default = "UTF-8 である必要があります"
+
+["widget-setting/help/align"]
+  default = "ページのグラフと揃うように左側に余白を追加します"
+
+["widget-setting/help/chart-style"]
+  default = "グラフの表示形式"
+
+["widget-setting/help/no-events"]
+  default = "合計の概要にイベントを含めません"
+
+["widget-setting/help/page-size"]
+  default = "表示するページの数"
+
+["widget-setting/help/ref-page-size"]
+  default = "パスをクリックしたときに読み込む Referrer の数"
+
+["widget-setting/help/regions"]
+  default = "国一覧の代わりに、国の地域を表示する"
+
+["widget-setting/label/align"]
+  default = "ページと合わせる"
+
+["widget-setting/label/chart-style"]
+  default = "グラフ形式"
+
+["widget-setting/label/no-events"]
+  default = "イベントを除外"
+
+["widget-setting/label/page-size"]
+  default = "ページサイズ"
+
+["widget-setting/label/ref-page-size"]
+  default = "Referrer ページサイズ"
+
+["widget-setting/label/regions"]
+  default = "表示地域"
+
+["widget-settings/bar-chart"]
+  default = "棒グラフ"
+
+["widget-settings/line-chart"]
+  default = "折れ線グラフ"
+
+["widget-settings/text-chart"]
+  default = "テキストテーブル"
+
+["y-scale"]
+  default = "Y 軸スケール"
