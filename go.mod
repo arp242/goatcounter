@@ -1,6 +1,6 @@
 module zgo.at/goatcounter/v2
 
-go 1.18
+go 1.19
 
 require (
 	code.soquee.net/otp v0.0.4
@@ -11,7 +11,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/mattn/go-sqlite3 v1.14.14
+	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -33,7 +33,7 @@ require (
 	zgo.at/z18n v0.0.0-20220606095325-513ddb98b28f
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
-	zgo.at/zdb v0.0.0-20220812005534-4cdbf350c347
+	zgo.at/zdb v0.0.0-20220822042559-7b1209555166
 	zgo.at/zhttp v0.0.0-20220306174538-ede1552bdf7c
 	zgo.at/zli v0.0.0-20220707072716-d3aefb87935e
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
