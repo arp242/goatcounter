@@ -1,13 +1,6 @@
-Anyone can load your site with any query parameters, for example if you have
-`http://example.com/page` then people can load this as
-`http://example.com?page?hello`, and this will show as two different paths in
-the dashboard: `/page` and `/page?hello`.
-
-There is no way for GoatCounter to know if `?hello` is a meaningful query
-parameter, as it may be used for navigation.
-
-In practice, a lot of crawlers and scripts load the page with extra query
-parameters. GoatCounter automatically strips the most common ones.
+Sometimes you want to send a different path to GoatCounter than what appears in
+the browser's URL bar; removing one or more query parameters are a common
+scenario.
 
 Using a canonical URL
 ---------------------
@@ -32,9 +25,21 @@ Be sure to understand the potential SEO effects before adding a canonical URL;
 if you use query parameters for navigation then you probably *don’t* want to do
 this.
 
-Remove all query parameters
----------------------------
-Alternatively you can send a custom `path` without the query parameters:
+Using data-goatcounter-settings
+--------------------------------
+You can use `data-goatcounter-settings` on the script tag to set the path; this
+must be valid JSON:
+
+    <script data-goatcounter="{{.SiteURL}}/count"
+            data-goatcounter-settings='{"path": "/hello"}'
+            async src="//zgo.at/count.js"></script>
+
+You can also set the `title`, `referrer`, and `event` in here.
+
+Using window.goatcounter
+------------------------
+Alternatively you can send a custom `path` by setting `window.goatcounter`
+*before* the `count.js` script loads:
 
     <script>
         window.goatcounter = {
@@ -43,7 +48,8 @@ Alternatively you can send a custom `path` without the query parameters:
     </script>
     {{template "code" .}}
 
-You can add individual query parameters with `goatcounter.get_query()`:
+This is useful if you want some more complex logic, for example to add some
+individual query parameters with `goatcounter.get_query()`:
 
     <script>
         window.goatcounter = {
@@ -57,4 +63,4 @@ You can add individual query parameters with `goatcounter.get_query()`:
 Note this example uses a callback, since `goatcouner.get_query()` won't be
 defined yet if we just used an object.
 
-The the [JavaScript API](/code/js) page for more details JS API.
+See the [JavaScript API](/code/js) page for more details JS API.

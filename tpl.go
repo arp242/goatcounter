@@ -198,7 +198,7 @@ func init() {
 		{label: "How can I…", items: []x{
 			{href: "skip-dev", label: "Prevent tracking my own pageviews?"},
 			{href: "path", label: "Control the path that's sent to GoatCounter?"},
-			{href: "modify", label: "Change data before it's send to GoatCounter?"},
+			{href: "modify", label: "Change data before it's sent to GoatCounter?"},
 			{href: "domains", label: "Track multiple domains/sites?"},
 			{href: "spa", label: "Add GoatCounter to a SPA?"},
 			{href: "beacon", label: "Use navigator.sendBeacon?"},

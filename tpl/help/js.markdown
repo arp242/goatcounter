@@ -73,7 +73,7 @@ as the path:
 
     <script data-goatcounter="{{.SiteURL}}/count"
             data-goatcounter-settings='{"path": "/hello"}'
-            async src="//static.goatcounter.localhost:8081/count.js"></script>
+            async src="//zgo.at/count.js"></script>
 
 <!-- -->
 
@@ -82,7 +82,7 @@ as the path:
     </script>
     {{template "code" .}}
 
-A few more advanced examples are listed in [Change data before it's send to
+A few more advanced examples are listed in [Change data before it's sent to
 GoatCounter](/code/modify).
 
 Methods
