@@ -1,0 +1,1239 @@
+[__meta__]
+  comments = ""
+  generated = 2021-11-29T19:38:18Z
+  language = "id-ID"
+
+["button/add-new"]
+  default = "Tambahkan baru"
+
+["button/add-user"]
+  default = "Tambahkan pengguna baru"
+
+["button/cfg-dashboard"]
+  default = "Konfigurasi tata letak dasbor"
+
+["button/change"]
+  default = "Ubah"
+
+["button/change-passwd"]
+  default = "Ubah kata sandi"
+
+["button/copy"]
+  default = "Salin"
+
+["button/delete"]
+  default = "hapus"
+
+["button/delete-account"]
+  default = "Hapus akun, semua situs, dan semua data"
+
+["button/delete-all"]
+  default = "Iya, hapus semuanya!"
+
+["button/delete-everything"]
+  default = "Iya, hapus semuanya"
+
+["button/disable-mfa"]
+  default = "Nonaktifkan otentikasi multi-faktor"
+
+["button/edit"]
+  default = "Edit"
+
+["button/enable-mfa"]
+  default = "Aktifkan otentikasi multi-faktor"
+
+["button/forgot-password"]
+  default = "Lupa kata sandi?"
+
+["button/remove"]
+  default = "Hapus"
+
+["button/request-reset"]
+  default = "Minta pengaturan ulang kata sandi"
+
+["button/resend-email"]
+  default = "Kirim ulang email"
+
+["button/reset-defaults"]
+  default = "Atur ulang ke bawaan"
+
+["button/reset-password"]
+  default = "Atur ulang kata sandi"
+
+["button/rm-hits"]
+  default = "Hapus tampilan laman"
+
+["button/save"]
+  default = "Simpan"
+
+["button/save-default-view"]
+  default = "Simpan tampilan bawaan"
+
+["button/send-login-url"]
+  default = "Kirim URL login"
+
+["button/sign-in"]
+  default = "Masuk"
+
+["button/start-export"]
+  default = "Mulai pengeksporan"
+
+["button/start-import"]
+  default = "Mulai pengimporan"
+
+["button/submit"]
+  default = "Kirim"
+
+["confirm/delete-user"]
+  default = "Hapus %(email)?"
+
+["dashboard/day-ago"]
+  default = "%(n) hari yang lalu"
+  zero    = "%(n) hari yang lalu"
+  one     = "%(n) hari yang lalu"
+  two     = "%(n) hari yang lalu"
+  few     = "%(n) hari yang lalu"
+  many    = "%(n) hari yang lalu"
+
+["dashboard/future"]
+  default = "masa depan"
+
+["dashboard/month-ago"]
+  default = "%(n) bulan yang lalu"
+  zero    = "%(n) bulan yang lalu"
+  one     = "%(n) bulan yang lalu"
+  two     = "%(n) bulan yang lalu"
+  few     = "%(n) bulan yang lalu"
+  many    = "%(n) bulan yang lalu"
+
+["dashboard/nothing-to-display"]
+  default = "Tidak ada yang ditampilkan"
+
+["dashboard/pages/header"]
+  default = "Laman"
+
+["dashboard/pages/num-visits"]
+  default = "%(num-visits) dari %(total-visits) tampilan diperlihatkan"
+
+["dashboard/pages/pageviews"]
+  default = "Tampilan laman"
+
+["dashboard/pages/path"]
+  default = "Jalur"
+
+["dashboard/pages/stats"]
+  default = "Statistik"
+
+["dashboard/pages/stats-tooltip"]
+  default = "Setiap bilah menunjukkan 1/12 dari rentang waktu yang dipilih"
+
+["dashboard/pages/title"]
+  default = "Judul"
+
+["dashboard/pages/views"]
+  default = "Tampilan"
+
+["dashboard/pages/visits"]
+  default = "Kunjungan"
+
+["dashboard/today"]
+  default = "Hari ini"
+
+["dashboard/tooltip-event"]
+  default = "%(unique) klik; %(clicks) jumlah klik"
+
+["dashboard/totals/header"]
+  default = "Jumlah"
+
+["dashboard/totals/num-visits"]
+  default = "%(num-visits) kunjungan; %(num-views) tampilan laman"
+
+["dashboard/week-ago"]
+  default = "%(n) minggu yang lalu"
+  zero    = "%(n) minggu yang lalu"
+  one     = "%(n) minggu yang lalu"
+  two     = "%(n) minggu yang lalu"
+  few     = "%(n) minggu yang lalu"
+  many    = "%(n) minggu yang lalu"
+
+["dashboard/yesterday"]
+  default = "Kemarin"
+
+["data-collect/help/country"]
+  default = "Nama negara, misalnya Belgia, Indonesia, dll."
+
+["data-collect/help/language"]
+  default = "Bahasa yang didukung dari Accept-Language"
+
+["data-collect/help/referrer"]
+  default = "Tajuk pengarah dan parameter kampanye."
+
+["data-collect/help/region"]
+  default = "Wilayah, misalnya Texas, Bali, dll. Rincian untuk ini berbeda per negara."
+
+["data-collect/help/sessions"]
+  default = "Lacak pengunjung unik sampai 8 jam; jika Anda menonaktifkan ini seseorang yang menekan mis. F5 untuk memuat ulang laman akan ditampilkan sebagai 2 tampilan laman daripada hanya 1"
+
+["data-collect/help/size"]
+  default = "Ukuran layar."
+
+["data-collect/help/user-agent"]
+  default = "Tajuk User-Agent (Agen Pengguna) untuk mendapatkan peramban dan nama sistem dan versi."
+
+["data-collect/label/country"]
+  default = "Negara"
+
+["data-collect/label/language"]
+  default = "Bahasa"
+
+["data-collect/label/referrer"]
+  default = "Pengarah"
+
+["data-collect/label/region"]
+  default = "Wilayah"
+
+["data-collect/label/sessions"]
+  default = "Sesi"
+
+["data-collect/label/size"]
+  default = "Ukuran"
+
+["data-collect/label/user-agent"]
+  default = "Agen Pengguna"
+
+["datepicker/keyboard"]
+  default = "Gunakan tombol panah untuk memilih sebuah tanggal"
+
+["datepicker/month-next"]
+  default = "Bulan berikutnya"
+
+["datepicker/month-prev"]
+  default = "Bulan sebelumnya"
+
+["email/header"]
+  default = "Halo,"
+
+["email/password-reset"]
+  default = "Seseorang (sepertinya Anda) telah meminta mengatur ulang kata sandi pada akun GoatCounter Anda."
+
+["email/reset-user-email-subject"]
+  default = """
+Anda dapat melakukannya di sini:
+%(link)
+"""
+
+["email/signature"]
+  default = """
+Masalah, pertanyaan, komentar, atau hal yang lain untuk diberitahukan kepada saya? Balas saja ke email ini.
+
+Semangat,
+Martin
+"""
+
+["error/account-has-stripe-subscription"]
+  default = "Akun ini masih memiliki langganan Stripe; batalkan itu dulu pada laman penagihan."
+
+["error/address-exists"]
+  default = "%(addr) sudah ada"
+
+["error/could-not-read"]
+  default = "Tidak dapat membaca sebagai gzip: %(err)"
+
+["error/date-future"]
+  default = "Itu seharusnya di masa depan"
+
+["error/date-mismatch"]
+  default = "tanggal akhirnya sebelum tanggal mulai"
+
+["error/date-past"]
+  default = "Itu seharusnya sebelum pembuatan situsnya; GoatCounter *belum* sebaik itu ;-)"
+
+["error/delete-main-site"]
+  default = "Tidak dapat menghapus situs utama"
+
+["error/export-expired"]
+  default = "Sepertinya belum ada pengeksporan atau eksporan telah kedaluwarsa."
+
+["error/incorrect-password"]
+  default = "Kata sandi saat ini tidak benar."
+
+["error/invalid-end-date"]
+  default = "Tanggal akhir tidak absah: %(date)"
+
+["error/invalid-start-date"]
+  default = "Tanggal mulai tidak absah: %(date)"
+
+["error/load-url"]
+  default = "Tidak dapat memuat %(url): %(error)"
+
+["error/login-invalid"]
+  default = "Pemasukan tidak absah"
+
+["error/login-no-password"]
+  default = "Tidak ada kata sandi yang diatur untuk %(email); mohon atur ulang"
+
+["error/login-not-found"]
+  default = "Pengguna %(email) tidak ditemukan"
+
+["error/login-token-expired"]
+  default = "Tidak dapat menemukan pengguna untuk token yang diberikan; mungkin sudah kedaluwarsa atau sudah digunakan?"
+
+["error/login-wrong-pwd"]
+  default = "Kata sandi salah untuk %(email)"
+
+["error/not-found"]
+  default = "Tidak Ditemukan"
+
+["error/password-does-not-match"]
+  default = "Konfirmasi kata sandi tidak cocok."
+
+["error/payment-cancelled"]
+  default = "Pembayaran dibatalkan."
+
+["error/reset-user-no-account"]
+  default = "Bukan sebuah akun di situs ini: %(email)"
+
+["error/token-already-used"]
+  default = "Token tidak diketahui; mungkin sudah digunakan?"
+
+["error/wrong-verification-key"]
+  default = "Kunci verifikasi salah."
+
+["event"]
+  default = "peristiwa"
+
+["forgot-domain-help"]
+  default = "Kirim email dengan daftar semua domain yang tertaut dengan sebuah alamat email."
+
+["header/access"]
+  default = "Akses"
+
+["header/add-new-user"]
+  default = "Tambahkan pengguna baru"
+
+["header/allow-access"]
+  default = "Perbolehkan akses"
+
+["header/api"]
+  default = "API"
+
+["header/api-tokens"]
+  default = "Token API"
+
+["header/browsers"]
+  default = "Peramban"
+
+["header/change-code"]
+  default = "Ubah kode situs"
+
+["header/change-passwd"]
+  default = "Ubah kata sandi"
+
+["header/code"]
+  default = "Kode"
+
+["header/copy-settings"]
+  default = "Salin pengaturan"
+
+["header/created-at"]
+  default = "Dibuat pada"
+
+["header/dashboard"]
+  default = "Dasbor"
+
+["header/data-collection"]
+  default = "Pengumpulan data"
+
+["header/delete-account"]
+  default = "Hapus akun"
+
+["header/domain"]
+  default = "Domain"
+
+["header/domain-settings"]
+  default = "Pengaturan domain"
+
+["header/edit-user"]
+  default = "Edit pengguna %(email)"
+
+["header/email"]
+  default = "Email"
+
+["header/export"]
+  default = "Ekspor"
+
+["header/export-or-import"]
+  default = "Ekspor/Impor"
+
+["header/finished"]
+  default = "Selesai"
+
+["header/forgot-domain"]
+  default = "Lupa domain"
+
+["header/forgot-password"]
+  default = "Lupa kata sandi"
+
+["header/hash"]
+  default = "Hash"
+
+["header/import"]
+  default = "Impor"
+
+["header/l10n"]
+  default = "Lokalisasi"
+
+["header/languages"]
+  default = "Bahasa"
+
+["header/last-10-exports"]
+  default = "10 ekspor terakhir"
+
+["header/locations"]
+  default = "Lokasi"
+
+["header/locations-for"]
+  default = "Lokasi untuk %(country)"
+
+["header/mfa"]
+  default = "Otentikasi multi-faktor"
+
+["header/n-hits"]
+  default = "Jumlah tabrakan"
+
+["header/name"]
+  default = "Nama"
+
+["header/new"]
+  default = "Baru"
+
+["header/pagination-cursor"]
+  default = "Kursor paginasi"
+
+["header/passwd-mfa"]
+  default = "Kata sandi & otentikasi multi-faktor"
+
+["header/path"]
+  default = "Jalur"
+
+["header/permissions"]
+  default = "Perizinan"
+
+["header/preferences"]
+  default = "Preferensi"
+
+["header/reset-password"]
+  default = "Atur ulang kata sandi untuk %(email) di %(site-name)"
+
+["header/rm-hits"]
+  default = "Hapus tampilan laman"
+
+["header/settings"]
+  default = "Pengaturan"
+
+["header/sign-in-at"]
+  default = "Masuk di %(name)"
+
+["header/site-settings"]
+  default = "Pengaturan situs"
+
+["header/sites"]
+  default = "Situs"
+
+["header/size"]
+  default = "Ukuran"
+
+["header/sizes"]
+  default = "Ukuran"
+
+["header/start-pagination-cursor"]
+  default = "Dimulai dari kursor paginasi"
+
+["header/started"]
+  default = "Dimulai"
+
+["header/systems"]
+  default = "Sistem"
+
+["header/title"]
+  default = "Judul"
+
+["header/token"]
+  default = "Token"
+
+["header/toprefs"]
+  default = "Pengarah teratas"
+
+["header/tracking"]
+  default = "Pelacakan"
+
+["header/updated"]
+  default = "Pembaruan"
+
+["header/user-info"]
+  default = "Informasi pengguna"
+
+["header/user-information"]
+  default = "Informasi pengguna"
+
+["header/users"]
+  default = "Pengguna"
+
+["help/allow-visitor-counts"]
+  default = "Lihat %[dokumentasinya] untuk rincian cara penggunaan."
+
+["help/campaign-parameters"]
+  default = "Daftar parameter untuk dihitung sebagai ‘kampanye’; jika ditetapkan nilai akan ditetapkan sebagai pengarah utama, dan tidak mengutamakan tajuk Pengarah apa pun."
+
+["help/cfg-dashboard"]
+  default = "Ubah apa yang ditampilkan pada dasbor dan urutannya."
+
+["help/code-access"]
+  default = "Anda akan mengakses situs Anda di https://<em>[kode-saya]</em>.%(domain)."
+
+["help/custom-domain"]
+  default = """
+Domain khusus, mis. <em>“statistik.contoh.com”</em>.
+<strong>Catatan:</strong> Ini <em>tidak</em> akan mencegah banyak pemblokir iklan memblokir GoatCounter, dan hanya dimaksudkan sebagai “domain khusus”.
+"""
+
+["help/custom-domain-cname"]
+  default = "Tetapkan sebuah catatan CNAME ke <code>%(domain)</code> – %[%docs petunjuk rinci]."
+
+["help/custom-domain-error"]
+  default = """
+%[%error Belum diverifikasi]; tetapkan sebuah catatan CNAME ke <code>%(domain)</code> – %[%docs petunjuk rinci].
+Verifikasi akan dijalankan setiap 2 jam.
+"""
+
+["help/custom-domain-plan"]
+  default = "Membutuhkan langganan Personal Plus atau Bisnis (Anda berada di langganan %(plan); lihat %[%link penagihan])."
+
+["help/custom-domain-verified"]
+  default = "Domain sudah diverifikasi dan sudah disiapkan (catatan: mungkin membutuhkan sampai satu jam supaya sertifikat dapat digunakan)"
+
+["help/data-retention"]
+  default = "Tampilan laman dan semua data terkait akan dihapus secara permanen setelah hari berikut ini. Tetapkan ke <code>0</code> untuk tidak pernah hapus."
+
+["help/domain-access"]
+  default = "Domain untuk mengakses situs ini."
+
+["help/drag-reorder"]
+  default = "Tarik untuk mengurutkan ulang"
+
+["help/for-the-following-countries"]
+  default = "Daftar kode negara (%[daftar]; gunakan kode alpha-2); tinggalkan kosong untuk mengumpulkan semua negara (jika diaktifkan)."
+
+["help/goatcounter-domain"]
+  default = "Domain pemasangan GoatCounter, misalnya <em>“statistik.contoh.com”</em>."
+
+["help/ignore-ips"]
+  default = "Jangan pernah hitung permintaan berasal dari alamat IP berikut. Dipisahkan dengan koma. Hanya mendukung pencocokan akurat. %[Tambahkan IP Anda saat ini]."
+
+["help/ignore-ips-2"]
+  default = "Secara alternatif, %[nonaktifkan untuk peramban ini] (klik lagi untuk mengaktifkan)."
+
+["help/new-user-email"]
+  default = "Email untuk masuk."
+
+["help/new-user-email-confirm"]
+  default = "Email untuk masuk; harus dikonfirmasi."
+
+["help/no-undo"]
+  default = "Ini adalah tindakan yang dapat merusak, dan tidak dapat diurungkan!"
+
+["help/password-edit"]
+  default = "Tinggalkan kosong supaya tidak diubah."
+
+["help/password-new-user"]
+  default = "Dapat dikosongkan untuk mengirim sebuah email pengaturan ulang kata sandi."
+
+["help/public"]
+  default = "Kendali siapa yang dapat melihat dasbor."
+
+["help/rm-hits"]
+  default = "Anda akan melihat tampilan pencocokan sebelum apa pun dihapus"
+
+["help/save-default-view"]
+  default = "Simpan tampilan saat ini (yaitu semua pengaturan dalam kotak kuning) sebagai bawaan untuk dimuat ketika belum memilih apa pun."
+
+["help/turing-test"]
+  default = "Hanya verifikasi kecil untuk membuktikan bahwa Anda manusia :-)"
+
+["help/your-email"]
+  default = "Anda harus memverifikasi ulang alamat yang baru jika Anda mengubahnya."
+
+["label/24-hour-clock"]
+  default = "24 jam (13.00)"
+
+["label/add-new"]
+  default = "Tambahkan baru"
+
+["label/all-sites"]
+  default = "Semua situs"
+
+["label/allow-admin-access"]
+  default = "Perbolehkan pengaksesan admin"
+
+["label/allow-visitor-counts"]
+  default = "Perbolehkan menambahkan hitungan pengunjung di situs web Anda"
+
+["label/browser-stats"]
+  default = "Statistik peramban"
+
+["label/campaign-parameters"]
+  default = "Parameter kampanye"
+
+["label/change-code"]
+  default = "Anda akan mengakses akun Anda di https://<em>[kode-saya]</em>.%(domain) – %[%link ubah]."
+
+["label/clear-pageviews"]
+  default = "Hapus semua tampilan lama yang ada."
+
+["label/code"]
+  default = "Kode"
+
+["label/collected-since"]
+  default = "Dikumpulkan sejak 2 Des 2021"
+
+["label/csv-compress-format"]
+  default = "Berkas CSV; dapat dikecilkan dengan gzip"
+
+["label/current-passwd"]
+  default = "Kata sandi saat ini"
+
+["label/custom-domain"]
+  default = "Domain khusus"
+
+["label/dashboard-public"]
+  default = "Dasbor dapat dilihat oleh"
+
+["label/data-retention"]
+  default = "Penyimpanan data dalam berapa hari"
+
+["label/date-fmt"]
+  default = "Format tanggal"
+
+["label/delete-account-confirmation"]
+  default = "Apakah Anda yakin ingin menghapus seluruh akun Anda?"
+
+["label/delete-account-contact"]
+  default = "Saya mungkin menghubungi Anda dengan pertanyaan lanjutan atau komentar jika Anda mencentang ini. Saya tidak akan coba untuk meyakinkan Anda untuk tetap tinggal (saya bukan telekom), tetapi saya mungkin mengajukan beberapa pertanyaan, atau memberitahu rencana masa depan jika Anda membutuhkan fitur yang belum ada."
+
+["label/delete-account-follow-up"]
+  default = "Tidak apa-apa untuk menindaklanjuti"
+
+["label/delete-account-reason"]
+  default = "Ini akan diapresiasikan jika Anda dapat memberitahu saya jika ada sesuatu yang belum ada di GoatCounter, atau alasan penghapusan akun lain yang Anda punya. Ini sepenuhnya opsional."
+
+["label/delete-account-reason-placeholder"]
+  default = "Alasan opsional untuk penghapusan"
+
+["label/email"]
+  default = "Email"
+
+["label/email-address"]
+  default = "Alamat email"
+
+["label/for-following-countries"]
+  default = "Hanya untuk negara berikut"
+
+["label/goatcounter-domain"]
+  default = "Domain GoatCounter"
+
+["label/ignore-ips"]
+  default = "Abaikan IP"
+
+["label/lang"]
+  default = "Bahasa"
+
+["label/language-stats"]
+  default = "Statistik bahasa"
+
+["label/loc-stats"]
+  default = "Statistik lokasi"
+
+["label/mark-current"]
+  default = "(saat ini)"
+
+["label/match-title"]
+  default = "Juga cocokkan dengan judul"
+
+["label/mfa-token"]
+  default = "Token Otentikasi Multi-Faktor"
+
+["label/new-code"]
+  default = "Kode baru"
+
+["label/new-password"]
+  default = "Kata sandi baru"
+
+["label/new-password-confirm"]
+  default = "Kata sandi baru (konfirmasi)"
+
+["label/pagination-cursor"]
+  default = "Kursor paginasi"
+
+["label/password"]
+  default = "Kata sandi"
+
+["label/paths"]
+  default = "Ikhtisar jalur"
+
+["label/public-anyone"]
+  default = "Siapa pun"
+
+["label/public-private"]
+  default = "Hanya pengguna yang masuk"
+
+["label/public-token"]
+  default = "Pengguna yang masuk atau dengan token rahasia"
+
+["label/secret"]
+  default = "Rahasia"
+
+["label/secret-access"]
+  default = "URL pengaksesan rahasia:"
+
+["label/secret-token"]
+  default = "Token rahasia"
+
+["label/set-default"]
+  default = "Juga tetapkan sebagai bawaan untuk pengguna baru dan tampilan publik (jika diaktifkan)."
+
+["label/size-desktop"]
+  default = "Monitor komputer"
+
+["label/size-desktophd"]
+  default = "Monitor komputer lebih besar dari HD"
+
+["label/size-largephones"]
+  default = "Ponsel besar, tablet kecil"
+
+["label/size-phones"]
+  default = "Ponsel"
+
+["label/size-stats"]
+  default = "Statistik ukuran"
+
+["label/size-tablets"]
+  default = "Tablet dan laptop kecil"
+
+["label/system-stats"]
+  default = "Statistik sistem"
+
+["label/thousand-separator"]
+  default = "Pemisah ribuan"
+
+["label/timezone"]
+  default = "Zona waktu"
+
+["label/topref"]
+  default = "Pengarah teratas"
+
+["label/total-pageviews"]
+  default = "Jumlah tampilan laman situs"
+
+["label/turing-test"]
+  default = "Isi 9 di sini"
+
+["label/verifictation-token"]
+  default = "Token verifikasi"
+
+["label/week-start"]
+  default = "Pekan dimulai pada Minggu"
+
+["label/your-email"]
+  default = "Email Anda"
+
+["label/your-site"]
+  default = "Situs Anda"
+
+["link/add-translation"]
+  default = "Tambahkan atau perbarui terjemahan"
+
+["link/api"]
+  default = "API"
+
+["link/api-docs"]
+  default = "Dokumentasi API"
+
+["link/billing"]
+  default = "Penagihan"
+
+["link/dashboard"]
+  default = "Dasbor"
+
+["link/generate-random"]
+  default = "Buat rahasia acak."
+
+["link/goto-path"]
+  default = "Pergi ke %(path)"
+
+["link/import"]
+  default = "Impor"
+
+["link/passwd-mfa"]
+  default = "Kata sandi & otentikasi multi-faktor"
+
+["link/preferences"]
+  default = "Preferensi"
+
+["link/rm-account"]
+  default = "Hapus akun"
+
+["link/rm-views"]
+  default = "Hapus tampilan laman"
+
+["link/set-from-browser"]
+  default = "Tetapkan dari peramban"
+
+["link/settings"]
+  default = "pengaturan"
+
+["link/show-more"]
+  default = "Tampilkan lebih banyak"
+
+["link/sites"]
+  default = "Situs"
+
+["link/users"]
+  default = "Pengguna"
+
+["nav-bot/contact"]
+  default = "Kontak"
+
+["nav-bot/contribute"]
+  default = "Berkontribusi"
+
+["nav-bot/docs"]
+  default = "Dokumentasi"
+
+["nav-bot/home"]
+  default = "Beranda"
+
+["nav-bot/src"]
+  default = "Kode sumber"
+
+["nav-dash/back"]
+  default = "sebelumnya"
+
+["nav-dash/by-day"]
+  default = "Tampilkan berdasarkan hari"
+
+["nav-dash/current"]
+  default = "Saat ini"
+
+["nav-dash/day"]
+  default = "hari"
+
+["nav-dash/end-date"]
+  default = "Akhir rentang tanggal untuk ditampilkan"
+
+["nav-dash/filter"]
+  default = "Saring jalur"
+
+["nav-dash/filter-tooltip"]
+  default = "Saring daftar jalur; tidak berpengaruh oleh huruf besar/kecil dan dicocokkan pada jalur dan judul"
+
+["nav-dash/forced-daily"]
+  default = "Tidak dapat menggunakan tampilan per jam untuk jangka waktu lebih dari 90 hari"
+
+["nav-dash/forward"]
+  default = "berikutnya"
+
+["nav-dash/half-year"]
+  default = "setengah tahun"
+
+["nav-dash/last"]
+  default = "Terakhir"
+
+["nav-dash/month"]
+  default = "bulan"
+
+["nav-dash/quarter"]
+  default = "seperempat"
+
+["nav-dash/start-date"]
+  default = "Mulai jangka waktu untuk ditampilkan"
+
+["nav-dash/week"]
+  default = "pekan"
+
+["nav-dash/year"]
+  default = "tahun"
+
+["no-title"]
+  default = "tidak ada judul"
+
+["notify/add-one-thing"]
+  default = "Harus ditambahkan satu hal; sebuah dasbor kosong tidak ada gunanya, bukan?"
+
+["notify/api-token-created"]
+  default = "Token API dibuat."
+
+["notify/api-token-removed"]
+  default = "Token API dihapus."
+
+["notify/disabled-multi-factor-auth"]
+  default = "Otentikasi multi-faktor dinonaktifkan."
+
+["notify/email-already-verified"]
+  default = "%(email) sudah diverifikasi."
+
+["notify/export-started-in-background"]
+  default = "Pengeksporan dimulai di latar belakang; Anda akan mendapatkan sebuah email dengan tautan pengunduhan ketika sudah selesai."
+
+["notify/import-started-in-background"]
+  default = "Pengimporan dimulai di latar belakakng; Anda akan mendapatkan sebuah email ketika sudah selesai."
+
+["notify/login-after-password-reset"]
+  default = "Kata sandi diatur ulang; gunakan kata sandi Anda yang baru untuk masuk."
+
+["notify/multi-factor-auth-enabled"]
+  default = "Otentikasi multi-faktor diaktifkan."
+
+["notify/need-business-plan-custom-domain"]
+  default = "membutuhkan langganan bisnis untuk dapat menetapkan domain khusus"
+
+["notify/need-email-verification-for-api"]
+  default = "Anda harus memverifikasi email Anda sebelum Anda dapat menggunakan API."
+
+["notify/no-user-for-token"]
+  default = "tidak dapat menemukan pengguna untuk token yang diberikan; mungkin sudah kedaluwarsa atau telah digunakan?"
+
+["notify/not-found"]
+  default = "Tidak Ditemukan"
+
+["notify/password-changed"]
+  default = "Kata sandi diubah."
+
+["notify/payment-processed"]
+  default = "Pembayaran berhasil diproses!"
+
+["notify/payment-processing"]
+  default = "Pemroses pembayaran melaporkan berhasil, tetapi kami masih memroses pembayarannya"
+
+["notify/reset-to-default"]
+  default = "Atur ulang ke bawaan!"
+
+["notify/reset-user-sent"]
+  default = "Email dikirim ke %(email)"
+
+["notify/restored-previously-deleted-site"]
+  default = "Situs ‘%(url)’ telah dihapus sebelumnya; situs dipulihkan dengan semua data."
+
+["notify/saved"]
+  default = "Disimpan!"
+
+["notify/sent-to-email"]
+  default = "Dikirim ke %(email)."
+
+["notify/settings-copied-to-site"]
+  default = "Pengaturan disalin ke situs yang dipilih."
+
+["notify/site-added"]
+  default = "Situs ‘%(url)’ ditambahkan."
+
+["notify/site-removed"]
+  default = "Situs ‘%(url)’ dihapus."
+
+["notify/started-background-process"]
+  default = "Dimulai pada latar belakang; mungkin membutuhkan 10-20 detik untuk diproses secara penuh."
+
+["notify/user-added"]
+  default = "Pengguna ‘%(email)’ ditambahkan."
+
+["notify/user-removed"]
+  default = "Pengguna ‘%(email)’ dihapus."
+
+["notify/users-edited"]
+  default = "Pengguna ‘%(email)’ diedit."
+
+["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>Tambahkan GoatCounter ke beberapa situs web dengan membuat situs baru. Semua situs terbagi dengan langganan, pengguna, dan pemasukan yang sama, tetapi seluruhnya terpisah. Situs saat ini disalin pada pembuatan, tetapi tersendiri setelah itu.</p>
+
+<p>Anda dapat menambahkan sebanyak yang Anda ingin.</p>
+"""
+
+["p/additional-errors"]
+  default = "Kesalahan tambahan"
+
+["p/api-intro"]
+  default = "GoatCounter memiliki API terbatas; saat ini Anda dapat menghitung tampilan laman dari API, buat, hapus, dan edit situs, dan buat akun."
+
+["p/change-code-request"]
+  default = """
+<p>Ubah kode situs Anda dan domain pemasukan.</p>
+
+<p><strong>PENGATURAN:</strong> ini akan diterapkan <strong>secara langsung</strong> dan kode lama dapat didaftarkan ulang oleh siapa pun; jika Anda sudah menggunakannya pada sebuah situs ubah dengan segera, atau tambahkan dua integrasi kode (dengan kode lama dan baru) untuk mencegah kehilangan tampilan laman.</p>
+
+<p>Kode saat ini <code>%(current-code)</code> (%(current-url))</p>
+"""
+
+["p/change-email"]
+  default = "Ubah alamat email dalam %[pengaturan]."
+
+["p/collect-disabled"]
+  default = "Mengumpulkan informasi ini saat ini %[dinonaktifkan dalam pengaturan]."
+
+["p/copy-settings-from-current-site"]
+  default = "Salin semua pengaturan dari situs saat ini kecuali nama domain."
+
+["p/csv-file-format"]
+  default = "Format berkas CSV %[didokumentasikan di sini]."
+
+["p/delete-account-multi-site"]
+  default = "Situs dan situs yang terkait akan ditandai sebagai dihapus dan tidak akan lagi tersedia, tetapi tidak ada data yang dihapus. Setelah 7 hari semua data akan dihapus secara permanen."
+
+["p/delete-account-one-site"]
+  default = "Situs ini akan ditandai sebagai dihapus dan tidak akan lagi tersedia, tetapi tidak ada data yang dihapus. Setelah 7 hari semua data akan dihapus secara permanen."
+
+["p/disable-mfa"]
+  default = "Otentikasi multi-faktor saat ini diaktifkan untuk akun ini."
+
+["p/enable-mfa"]
+  default = "Aktifkan otentikasi multi-faktor berbasis TOTP dengan memindai kode dalam aplikasi otentikasi atau mengisi rahasia secara manual."
+
+["p/error"]
+  default = "Kesalahan: %(error-message)"
+
+["p/export-process"]
+  default = """
+<p>Mulai proses dan kirim email kepada Anda sebuah tautan pengunduhan ketika selesai. Anda hanya dapat melakukan ini sekali setiap jam dan akan diutamakan daripada cadangan sebelumnya yang Anda mungkin punya.</p>
+
+<p>Ini termasuk semua tampilan laman, termasuk yang ditandai sebagai \"bot\", yang tidak ditampilkan di ikhtisar.</p>
+"""
+
+["p/have-mfa"]
+  default = "Akun ini dilindungi oleh otentikasi multi-faktor; silakan masukkan kode dari aplikasi otentikasi Anda."
+
+["p/last-user"]
+  default = "Tidak dapat menghapus atau mengedit pengguna admin terakhir"
+
+["p/no-data"]
+  default = """
+<p>
+%[%bold Belum ada data yang diterima] – GoatCounter belum menerima data apa pun.<br>
+Tinggal tambahkan JavaScript berikut ini di mana pun pada laman:</p>
+
+%[%pre %(js_code)]
+
+<p>Periksa jika pemblokir iklan Anda memblokir GoatCounter jika Anda tidak melihat tampilan laman (%(domain) dan/atau domain gc.zgo.at).</p>
+
+<p>Pesan ini akan hilang ketika kami menerima data; lihat %[%link_docs Kode situs] dalam menu atas untuk dokumentasi lanjut dan integrasi yang siap untuk digunakan.</p>
+"""
+
+["p/no-matches"]
+  default = "Tidak ada yang cocok dengan %(query)."
+
+["p/notify-immediate-change"]
+  default = "Akan diterapkan secara langsung"
+
+["p/notify-pagination-cursor"]
+  default = "Akan ada ‘kursor paginasi’ dalam email, jika Anda isi ini di sini itu akan hanya mengekspor tampilan laman yang telah direkam setelah pengeksporan sebelumnya."
+
+["p/notify-site-deletion"]
+  default = "%(number) situs akan dihapus"
+
+["p/remove-site-confirm"]
+  default = """
+Apakah Anda yakin ingin menghapus situs %(sitename)?<br>
+Ini akan <strong>menghapus semua data terkait</strong>.
+"""
+
+["p/remove-site-confirm-contact"]
+  default = "%[Hubungi] jika Anda ingin melakukan hal yang lain, seperti menggabungkan ke situs lain, atau memindahkan ke akun yang baru."
+
+["p/remove-site-confirm-current"]
+  default = """
+Apakah Anda yakin ingin menghapus situs %(sitename)?<br>
+Ini akan <strong>menghapus semua data terkait</strong> dan <strong>ini adalah situs saat ini</strong>.
+"""
+
+["p/request-data-recovery"]
+  default = "%[Hubungi] dalam 7 hari jika Anda berubah pikiran dan ingin memulihkan data Anda."
+
+["p/rm-hits"]
+  default = "Hapus semua tampilan laman untuk sebuah laman."
+
+["p/rm-hits-help"]
+  default = """
+Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> sebagai kartu liar; misalnya
+<code>/page%.html</code> mencocokkan semuanya yang mulai dengan <code>/page</code> dan berakhir dengan <code>.html</code>. <code>_</code> mencocokkan dengan karakter apa pun; misalnya <code>_.html</code> mencocokkan <code>a.html</code> dan <code>b.html</code>. Gunakan <code>\\%</code> dan <code>\\_</code> untuk karakter harfiah tanpa arti yang khusus.
+"""
+
+["p/rm-pageview-match"]
+  default = "Jalur berikut ini cocok dengan %(query):"
+
+["p/setting-recovery-disabled-information"]
+  default = "Jika sebuah pengaturan dinonaktifkan tidak ada cara lagi untuk memulihkan informasi ini setelah tampilan laman direkam, ini tidak akan disimpan."
+
+["p/settings-all-sites"]
+  default = "Pengaturan ini diterapkan pada semua situs yang Anda bisa akses."
+
+["p/site-domain-link-to-page"]
+  default = "Domain situs Anda, misalnya <em>“www.contoh.com”</em>, digunakan untuk tautan ke laman di ikhtisar."
+
+["p/text-data-retention"]
+  default = "Ini termasuk pengaturan penyimpanan dan pengumpulan data!"
+
+["p/verify-email"]
+  default = "Mohon verifikasi email Anda dengan mengeklik tautan yang dikirim ke %(email). %[%sup (Mengapa?)]"
+
+["page-ranking"]
+  default = "Peringkatan laman"
+
+["restricted-admin-access"]
+  default = "Biasanya administrator tidak dapat “masuk” ke situs Anda, tetapi jika ini diaktifkan mereka dapat mengakses situs ini. Anda mungkin ditanyakan untuk mengaktifkan ini untuk permintaan dukungan."
+
+["scale-y"]
+  default = "Skalakan axis Y ke maks"
+
+["top-nav/back"]
+  default = "Kembali"
+
+["top-nav/dashboard"]
+  default = "Dasbor"
+
+["top-nav/need-js"]
+  default = "GoatCounter membutuhkan JavaScript aktif untuk berfungsi dengan baik; mohon perbolehkan JavaScript untuk berjalan dari %(domain)."
+
+["top-nav/public-link"]
+  default = "Analitik untuk %(domain)."
+
+["top-nav/public-time"]
+  default = "Tampilan publik diperbarui setiap jam; semua waktu dalam %(timezone-name) (%(timezone-offset))."
+
+["top-nav/settings"]
+  default = "Pengaturan"
+
+["top-nav/sign-in"]
+  default = "Masuk"
+
+["top-nav/sign-out"]
+  default = "Keluar"
+
+["top-nav/site-code"]
+  default = "Kode situs"
+
+["top-nav/sites"]
+  default = "Situs:"
+
+["top-nav/updates"]
+  default = "Pembaruan"
+
+["top-nav/user"]
+  default = "Pengguna"
+
+["unknown"]
+  default = "(tidak diketahui)"
+
+["validate/bool"]
+  default = "harus sebuah boolean"
+
+["validate/color"]
+  default = "harus sebuah kode warna absah"
+
+["validate/contains"]
+  default = "tidak dapat berisi karakter %s"
+
+["validate/date"]
+  default = "harus sebuah tanggal seperti ‘%s’"
+
+["validate/domain"]
+  default = "harus domain yang absah"
+
+["validate/email"]
+  default = "harus alamat email yang absah"
+
+["validate/exclude"]
+  default = "‘%s’ tidak bisa"
+
+["validate/hostname"]
+  default = "harus sebuah nama host yang absah"
+
+["validate/include"]
+  default = "harus salah satu dari ‘%s’"
+
+["validate/int"]
+  default = "harus sebuah bilangan bulat"
+
+["validate/ip"]
+  default = "harus sebuah alamat IPv4 atau IPv6 yang absah"
+
+["validate/ipv4"]
+  default = "harus sebuah alamat IPv4 yang absah"
+
+["validate/len-longer"]
+  default = "harus lebih panjang dari %d karakter"
+
+["validate/len-shorter"]
+  default = "harus lebih pendek dari %d karakter"
+
+["validate/phone"]
+  default = "harus nomor telepon yang absah"
+
+["validate/range-higher"]
+  default = "harus %d atau lebih"
+
+["validate/range-lower"]
+  default = "harus %d atau rendah"
+
+["validate/required"]
+  default = "harus ditetapkan"
+
+["validate/url"]
+  default = "harus sebuah URL yang absah"
+
+["validate/utf8"]
+  default = "harus UTF-8"
+
+["widget-setting/help/align"]
+  default = "Tambahkan batasan ke kiri supaya sejajar dengan grafik laman"
+
+["widget-setting/help/chart-style"]
+  default = "Cara menggambar grafik"
+
+["widget-setting/help/no-events"]
+  default = "Jangan tampilkan peristiwa di ikhtisar Jumlah"
+
+["widget-setting/help/page-size"]
+  default = "Jumlah laman untuk dimuat"
+
+["widget-setting/help/ref-page-size"]
+  default = "Jumlah pengarah untuk dimuat ketika mengeklik pada sebuah jalur"
+
+["widget-setting/help/regions"]
+  default = "Tampilkan wilayah untuk negara ini daripada sebuah daftar negara"
+
+["widget-setting/label/align"]
+  default = "Sejajarkan dengan laman"
+
+["widget-setting/label/chart-style"]
+  default = "Gaya grafik"
+
+["widget-setting/label/no-events"]
+  default = "Kecualikan peristiwa"
+
+["widget-setting/label/page-size"]
+  default = "Ukuran laman"
+
+["widget-setting/label/ref-page-size"]
+  default = "Ukuran laman pengarah"
+
+["widget-setting/label/regions"]
+  default = "Tampilkan wilayah"
+
+["widget-settings/bar-chart"]
+  default = "Grafik bilah"
+
+["widget-settings/line-chart"]
+  default = "Grafik garis"
+
+["widget-settings/text-chart"]
+  default = "Tabel teks"
+
+["y-scale"]
+  default = "Skala axis Y"
