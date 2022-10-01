@@ -4,10 +4,11 @@ package goatcounter
 
 /*
 curl -s https://raw.githubusercontent.com/matomo-org/referrer-spam-list/master/spammers.txt |
-        sort -u |
-        sed 's!.*!\t"\0": {},!' |
-        sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%%/{//!d}' refspam.go |
-		gofmt > x && mv -f x refspam.go
+
+	        sort -u |
+	        sed 's!.*!\t"\0": {},!' |
+	        sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%%/{//!d}' refspam.go |
+			gofmt > x && mv -f x refspam.go
 */
 var refspam = map[string]struct{}{
 	// Not spam, but we never really want to accept requests from localhost.
@@ -317,7 +318,8 @@ var refspam = map[string]struct{}{
 	"bot-traffic.xyz":                      {},
 	"botamycos.fr":                         {},
 	"bottraffic.live":                      {},
-	"bottraffic143.xyz ":                   {},
+	"bottraffic143.xyz":                    {},
+	"bottraffic329.xyz":                    {},
 	"bottraffic4free.club":                 {},
 	"bottraffic4free.host":                 {},
 	"bottraffic999.xyz":                    {},
@@ -783,6 +785,7 @@ var refspam = map[string]struct{}{
 	"get-your-social-buttons.info":         {},
 	"getaadsincome.info":                   {},
 	"getadsincomely.info":                  {},
+	"getbottraffic4free.xyz":               {},
 	"getfy-click.info":                     {},
 	"getlamborghini.ga":                    {},
 	"getpy-click.info":                     {},
@@ -818,6 +821,7 @@ var refspam = map[string]struct{}{
 	"googlemare.com":                       {},
 	"googlsucks.com":                       {},
 	"gorgaz.info":                          {},
+	"goyua.xyz":                            {},
 	"grafaman.ru":                          {},
 	"greatblog.top":                        {},
 	"greentechsy.com":                      {},
@@ -868,6 +872,7 @@ var refspam = map[string]struct{}{
 	"howopen.ru":                           {},
 	"howtostopreferralspam.eu":             {},
 	"hoztorg-opt.ru":                       {},
+	"hrtonline.xyz":                        {},
 	"hseipaa.kz":                           {},
 	"hsoutdoor.com":                        {},
 	"hulfingtonpost.com":                   {},
@@ -1250,6 +1255,7 @@ var refspam = map[string]struct{}{
 	"mrbojikobi4.biz":                      {},
 	"mrt-info.ru":                          {},
 	"msk-sprawka.com":                      {},
+	"mtras.xyz":                            {},
 	"mtsguru.ru":                           {},
 	"mukis.ru":                             {},
 	"muscle-factory.com.ua":                {},
@@ -1267,10 +1273,12 @@ var refspam = map[string]struct{}{
 	"myplaycity.com":                       {},
 	"mysexpics.ru":                         {},
 	"mytherealshop.com":                    {},
+	"mytraffic.shop":                       {},
 	"nachalka21.ru":                        {},
 	"nakozhe.com":                          {},
 	"nancyblog.top":                        {},
 	"nanochskazki.ru":                      {},
+	"nanwar.xyz":                           {},
 	"naobumium.info":                       {},
 	"narkomaniya-stop.ru":                  {},
 	"narosty.com":                          {},
@@ -1485,6 +1493,7 @@ var refspam = map[string]struct{}{
 	"purchasepillsnorx.com":                {},
 	"puzzleweb.ru":                         {},
 	"qoinex.top":                           {},
+	"qtrstar.xyz":                          {},
 	"qualitymarketzone.com":                {},
 	"quickchange.cc":                       {},
 	"quit-smoking.ga":                      {},
@@ -1776,6 +1785,7 @@ var refspam = map[string]struct{}{
 	"superslots-cazino.site":               {},
 	"superslotz-casino.site":               {},
 	"superslotz-cazino.site":               {},
+	"supertraffic.xyz":                     {},
 	"supervesti.ru":                        {},
 	"suzanneboswell.top":                   {},
 	"svadba-teplohod.ru":                   {},
@@ -1857,6 +1867,7 @@ var refspam = map[string]struct{}{
 	"traffic2money.com":                    {},
 	"trafficbot.life":                      {},
 	"trafficbot4free.xyz":                  {},
+	"trafficdrive.club":                    {},
 	"trafficgenius.xyz":                    {},
 	"trafficmonetize.org":                  {},
 	"trafficmonetizer.org":                 {},
@@ -1879,6 +1890,7 @@ var refspam = map[string]struct{}{
 	"ua.tc":                                {},
 	"uasb.ru":                              {},
 	"ucanfly.ru":                           {},
+	"ucban.xyz":                            {},
 	"ucoz.ru":                              {},
 	"udav.net":                             {},
 	"ufolabs.net":                          {},
