@@ -253,7 +253,8 @@
 		if (is_mobile()) {
 			return $('#period-start, #period-end').
 				attr('type', 'date').
-				css('width', 'auto');  // Make sure there's room for UI chrome.
+				css('width', 'auto').  // Make sure there's room for UI chrome.
+				on('change', () => { $('#dash-form').trigger('submit') })
 		}
 
 		var opts = {
