@@ -99,6 +99,12 @@ func RunBackground(ctx context.Context) {
 	}
 }
 
+func Stop(ctx context.Context) error {
+	stopped.Set(1)
+	started.Set(0)
+	return bgrun.Wait(ctx)
+}
+
 func timeout(f string, d time.Duration) chan struct{} {
 	done := make(chan struct{})
 	go func() {

@@ -204,7 +204,7 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 
 			h.Ref = v
 			h.RefURL = nil
-			h.RefScheme = RefSchemeOther
+			h.RefScheme = RefSchemeCampaign
 			break
 		}
 

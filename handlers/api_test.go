@@ -360,7 +360,7 @@ func TestAPICount(t *testing.T) {
 		},
 		{
 			APICountRequest{NoSessions: true, Filter: []string{}, Hits: []APICountRequestHit{
-				{Path: "/foo", IP: "1.1.1.1"},
+				{Path: "/foo", IP: "1.2.3.4"},
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  ua  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at

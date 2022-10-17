@@ -15,6 +15,7 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zli"
 	"zgo.at/zlog"
@@ -63,6 +64,7 @@ func startTest(t *testing.T) (
 
 func runCmdStop(t *testing.T, exit *zli.TestExit, ready chan<- struct{}, stop chan struct{}, cmd string, args ...string) {
 	defer exit.Recover()
+	defer cron.Stop(context.Background())
 	cmdMain(zli.NewFlags(append([]string{"goatcounter", cmd}, args...)), ready, stop)
 }
 
