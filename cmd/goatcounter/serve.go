@@ -306,7 +306,12 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 	// SameSite does. We could enable it only for sites that have "embed
 	// GoatCounter" enabled (which aren't that many sites), but then people need
 	// to logout and login again to reset the cookie, which isn't ideal.
-	zhttp.CookieSameSite = http.SameSiteNoneMode
+	//
+	// Don't do this in dev mode as Google Chrome developers silently rejects
+	// these cookies if there's no TLS.
+	if !*dev {
+		zhttp.CookieSameSite = http.SameSiteNoneMode
+	}
 
 	if !*dev {
 		zlog.Config.SetFmtTime("Jan _2 15:04:05 ")
