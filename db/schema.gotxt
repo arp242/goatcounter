@@ -71,6 +71,7 @@ create table hits (
 	site_id        integer        not null                 check(site_id > 0),
 	path_id        integer        not null                 check(path_id > 0),
 	user_agent_id  integer        null                     check(user_agent_id != 0),
+	campaign       integer        default null,
 
 	session        {{blob}}       default null,
 	bot            integer        default 0,
@@ -97,6 +98,12 @@ create table paths (
 create unique index "paths#site_id#path" on paths(site_id, lower(path));
 create        index "paths#path#title"   on paths(lower(path), lower(title));
 {{cluster "paths" "paths#site_id#path"}}
+
+create table campaigns (
+	campaign_id    {{auto_increment}},
+	site_id        integer        not null,
+	name           varchar        not null
+);
 
 create table browsers (
 	browser_id     {{auto_increment}},
@@ -241,6 +248,21 @@ create index "language_stats#site_id#day" on language_stats(site_id, day desc);
 {{cluster "language_stats" "language_stats#site_id#day"}}
 {{replica "language_stats" "language_stats#site_id#path_id#day#language"}}
 
+create table campaign_stats (
+	site_id        integer        not null,
+
+	day            date           not null,
+	campaign_id    integer        not null,
+	ref            varchar        not null,
+	count          integer        not null,
+	count_unique   integer        not null,
+
+	constraint "campaign_stats#site_id#campaign_id#ref#day" unique(site_id, campaign_id, ref, day) {{sqlite "on conflict replace"}}
+);
+create index "campaign_stats#site_id#day" on campaign_stats(site_id, day desc);
+{{cluster "campaign_stats" "campaign_stats#site_id#day"}}
+{{replica "campaign_stats" "campaign_stats#site_id#campaign_id#ref#day"}}
+
 create table updates (
 	id             {{auto_increment}},
 	subject        varchar        not null,
@@ -341,6 +363,9 @@ insert into version values
 	('2021-12-13-1-drop-role'),
 	('2022-01-13-1-unfk'),
 	('2022-01-14-1-idx'),
-	('2022-02-16-1-rm-billing');
+	-- 2.3
+	('2022-02-16-1-rm-billing'),
+	('2022-03-06-1-campaigns'),
+	('2022-10-17-1-campaigns');
 
 -- vim:ft=sql:tw=0
