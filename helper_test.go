@@ -13,7 +13,7 @@ import (
 )
 
 func TestEmbed(t *testing.T) {
-	err := fstest.TestFS(DB, "db/schema.gotxt", "db/migrate/2020-08-28-1-paths-tables-sqlite.sql")
+	err := fstest.TestFS(DB, "db/schema.gotxt", "db/migrate/2022-10-17-1-campaigns.gotxt")
 	if err != nil {
 		t.Fatal(err)
 	}
