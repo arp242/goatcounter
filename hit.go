@@ -195,20 +195,27 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 		}
 		q := u.Query()
 
-		for _, c := range site.Settings.Campaigns {
-			if c == "utm_campaign" { // Ignore as we track this as the campaign name.
+		// Get referral from query
+		for _, c := range []string{"utm_source", "ref", "src", "source"} {
+			v := strings.TrimSpace(q.Get(c))
+			if v == "" {
 				continue
 			}
-			if _, ok := q[c]; ok {
-				h.Ref = q.Get(c)
-				h.RefURL = nil
-				h.RefScheme = RefSchemeCampaign
-				break
-			}
+
+			h.Ref = v
+			h.RefURL = nil
+			h.RefScheme = RefSchemeOther
+			break
 		}
 
-		if q.Has("utm_campaign") {
-			c := Campaign{Name: q.Get("utm_campaign")}
+		// Get campaign.
+		for _, c := range []string{"utm_campaign", "campaign"} {
+			v := strings.TrimSpace(q.Get(c))
+			if v == "" {
+				continue
+			}
+
+			c := Campaign{Name: v}
 			err := c.ByName(ctx, c.Name)
 			if err != nil && !zdb.ErrNoRows(err) {
 				return errors.Wrap(err, "Hit.Defaults")
@@ -221,6 +228,7 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 				}
 			}
 			h.CampaignID = &c.ID
+			h.RefScheme = RefSchemeCampaign
 		}
 	}
 

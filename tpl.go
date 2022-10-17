@@ -201,6 +201,7 @@ func init() {
 			{href: "modify", label: "Change data before it's sent to GoatCounter?"},
 			{href: "domains", label: "Track multiple domains/sites?"},
 			{href: "spa", label: "Add GoatCounter to a SPA?"},
+			{href: "campaigns", label: "Track campaigns?"},
 			{href: "beacon", label: "Use navigator.sendBeacon?"},
 			{href: "countjs-versions", label: "count.js versions and SRI"},
 			{href: "countjs-host", label: "Host count.js somewhere else?"},

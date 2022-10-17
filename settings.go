@@ -63,7 +63,7 @@ type (
 		AllowCounter   bool           `json:"allow_counter"`
 		AllowBosmang   bool           `json:"allow_bosmang"`
 		DataRetention  int            `json:"data_retention"`
-		Campaigns      Strings        `json:"campaigns"`
+		Campaigns      Strings        `json:"-"`
 		IgnoreIPs      Strings        `json:"ignore_ips"`
 		Collect        zint.Bitflag16 `json:"collect"`
 		CollectRegions Strings        `json:"collect_regions"`
@@ -337,9 +337,6 @@ func (w *Widgets) UnmarshalJSON(d []byte) error {
 }
 
 func (ss *SiteSettings) Defaults(ctx context.Context) {
-	if ss.Campaigns == nil {
-		ss.Campaigns = []string{"utm_source", "ref", "src", "source"}
-	}
 	if ss.Public == "" {
 		ss.Public = "private"
 	}

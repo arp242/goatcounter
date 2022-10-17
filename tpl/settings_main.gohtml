@@ -113,12 +113,6 @@
 						(tag "a" (printf `target="_blank" href="%s#toggle-goatcounter"` (.Site.LinkDomainURL true)))}}
 				{{end}}
 			</span>
-
-			<label>{{.T "label/campaign-parameters|Referral parameters"}}</label>
-			<input type="text" name="settings.campaigns" value="{{.Site.Settings.Campaigns}}">
-			{{validate "site.settings.campaigns" .Validate}}
-			<span>{{.T `help/campaign-parameters|List of parameters to use as the ‘referal’; will use the Referal HTTP header if none are set.`}}
-			</span>
 		</fieldset>
 
 		<fieldset id="section-collect">

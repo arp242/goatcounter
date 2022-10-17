@@ -1,0 +1,17 @@
+drop table campaign_stats; -- Wasn't correct before, so just drop it.
+
+create table campaign_stats (
+	site_id        integer        not null,
+	path_id        integer        not null,
+
+	day            date           not null,
+	campaign_id    integer        not null,
+	ref            varchar        not null,
+	count          integer        not null,
+	count_unique   integer        not null,
+
+	constraint "campaign_stats#site_id#path_id#campaign_id#ref#day" unique(site_id, path_id, campaign_id, ref, day) {{sqlite "on conflict replace"}}
+);
+create index "campaign_stats#site_id#day" on campaign_stats(site_id, day desc);
+{{cluster "campaign_stats" "campaign_stats#site_id#day"}}
+{{replica "campaign_stats" "campaign_stats#site_id#path_id#campaign_id#ref#day"}}

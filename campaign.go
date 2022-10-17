@@ -37,7 +37,8 @@ func (c *Campaign) Insert(ctx context.Context) error {
 		return errors.Wrap(err, "Campaign.Insert")
 	}
 
-	err = zdb.Exec(ctx, `insert into campaigns (site_id, name) values (?, ?)`, MustGetSite(ctx).ID, c.Name)
+	c.ID, err = zdb.InsertID(ctx, "campaign_id",
+		`insert into campaigns (site_id, name) values (?, ?)`, MustGetSite(ctx).ID, c.Name)
 	if err != nil {
 		return errors.Wrap(err, "Campaign.Insert")
 	}
@@ -51,7 +52,7 @@ func (c *Campaign) ByName(ctx context.Context, name string) error {
 		return nil
 	}
 
-	err := zdb.Get(ctx, c, `select * from campaigns where site_id=? and name=?`,
+	err := zdb.Get(ctx, c, `select * from campaigns where site_id=? and lower(name)=lower(?)`,
 		MustGetSite(ctx).ID, name)
 	if err != nil {
 		return errors.Wrap(err, "Campaign.ByName")
