@@ -15,12 +15,12 @@ require (
 	github.com/monoculum/formam v3.5.5+incompatible
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/teamwork/reload v1.4.1
-	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
-	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539
-	golang.org/x/net v0.0.0-20220811182439-13a9a731de15
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
-	golang.org/x/text v0.3.7
+	github.com/teamwork/reload v1.4.2
+	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a
+	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b
+	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
+	golang.org/x/text v0.3.8
 	zgo.at/blackmail v0.0.0-20211212060815-1f8e8a94692b
 	zgo.at/errors v1.1.0
 	zgo.at/follow v0.0.0-20211017230838-112008350298
@@ -35,25 +35,25 @@ require (
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20220822042559-7b1209555166
 	zgo.at/zhttp v0.0.0-20221001220656-a9e60fe5f8e3
-	zgo.at/zli v0.0.0-20220707072716-d3aefb87935e
+	zgo.at/zli v0.0.0-20221012220610-d6a5a841b943
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
-	zgo.at/zstd v0.0.0-20220622111728-4a78555db760
+	zgo.at/zstd v0.0.0-20221013104704-16fa49fadc62
 	zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4
 	zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62
 )
 
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
-	golang.org/x/tools v0.1.11-0.20220513221640-090b14e8501f // indirect
+	golang.org/x/tools v0.1.12 // indirect
 )
 
 // https://github.com/oschwald/maxminddb-golang/pull/75

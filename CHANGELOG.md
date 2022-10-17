@@ -7,19 +7,19 @@ latest master.
 
 unreleased v2.3.0
 -----------------
-- Expand campaigns: the `utm_campaign` parameter now is tracked separately.
-  There's a new dashboard panel for this too. Old data isn't backfilled as this
-  information wasn't stored.
+- Expand campaigns: the `utm_campaign` or `campaign` parameter now is tracked
+  separately, and add a dashboard panel for campaigns. See:
+  https://www.goatcounter.com/help/campaigns
+
+  Old data isn't backfilled as this information wasn't stored.
+
+- There are now binaries for Windows, macOS, {Free,Open}BSD, and illumos.
 
 - WebSockets are now disabled by default, as it turned out a lot of people had
   trouble proxying them. You can enable it with `goatcounter serve -websocket`.
 
-- Assortment of small bugfixes.
-
 - Add `-dbconn` flag for `serve` to allow setting the maximum number of
-  connections.
-
-  The default is also lowered from 25 to 16 for PostgreSQL.
+  connections. The default is also lowered from 25 to 16 for PostgreSQL.
 
 - Add `-store-every` flag to control how often to persist pageviews to the
   database.
@@ -29,6 +29,8 @@ unreleased v2.3.0
 
 - Add "Hide UI for public view" setting to allow hiding the UI chrome and
   display only the charts.
+
+- Quite a few bugfixes and minor additions.
 
 2022-02-16 v2.2.0
 -----------------
