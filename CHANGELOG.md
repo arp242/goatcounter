@@ -5,6 +5,10 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+unreleased
+----------
+- Can now merge paths instead of just deleting them.
+
 2022-10-17 v2.3.0
 -----------------
 - Expand campaigns: the `utm_campaign` or `campaign` parameter now is tracked

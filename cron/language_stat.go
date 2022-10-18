@@ -11,6 +11,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
+	"zgo.at/zstd/ztype"
 )
 
 func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
@@ -29,11 +30,11 @@ func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + h.Language + strconv.FormatInt(h.PathID, 10)
+			k := day + ztype.Deref(h.Language, "") + strconv.FormatInt(h.PathID, 10)
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day
-				v.language = h.Language
+				v.language = ztype.Deref(h.Language, "")
 				v.pathID = h.PathID
 			}
 

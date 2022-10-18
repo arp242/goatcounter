@@ -169,9 +169,9 @@ func TestHitListsList(t *testing.T) {
 			var stats HitLists
 			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, 2, false)
 
-			got := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
-			if got != tt.wantReturn {
-				t.Errorf("wrong return\nout:  %s\nwant: %s\n", got, tt.wantReturn)
+			have := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
+			if have != tt.wantReturn {
+				t.Errorf("wrong return\nhave: %s\nwant: %s\n", have, tt.wantReturn)
 				zdb.Dump(ctx, os.Stdout, "select * from paths")
 				zdb.Dump(ctx, os.Stdout, "select * from hit_counts")
 				zdb.Dump(ctx, os.Stdout, "select * from hit_stats")
@@ -210,13 +210,13 @@ func TestGetMax(t *testing.T) {
 	t.Run("hourly", func(t *testing.T) {
 		want := []int{10, 10, 10, 10}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			got, err := GetMax(ctx, rng, filter, false)
+			have, err := GetMax(ctx, rng, filter, false)
 			if err != nil {
 				t.Fatal(err)
 			}
 			w := want[i]
-			if got != w {
-				t.Errorf("got %d; want %d (filter=%v)", got, w, filter)
+			if have != w {
+				t.Errorf("have %d; want %d (filter=%v)", have, w, filter)
 			}
 		}
 	})
@@ -224,13 +224,13 @@ func TestGetMax(t *testing.T) {
 	t.Run("daily", func(t *testing.T) {
 		want := []int{10, 10, 10, 10}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			got, err := GetMax(ctx, rng, filter, true)
+			have, err := GetMax(ctx, rng, filter, true)
 			if err != nil {
 				t.Fatal(err)
 			}
 			w := want[i]
-			if got != w {
-				t.Errorf("got %d; want %d (filter=%v)", got, w, filter)
+			if have != w {
+				t.Errorf("have %d; want %d (filter=%v)", have, w, filter)
 			}
 		}
 	})
@@ -255,9 +255,9 @@ func TestGetTotalCount(t *testing.T) {
 			t.Fatal(err)
 		}
 		want := "{5 3 3 2 1}"
-		got := fmt.Sprintf("%v", tt)
-		if want != got {
-			t.Errorf("\nwant: %s\ngot:  %s", want, got)
+		have := fmt.Sprintf("%v", tt)
+		if want != have {
+			t.Errorf("\nwant: %s\nhave: %s", want, have)
 		}
 	}
 }
@@ -285,16 +285,16 @@ func TestHitListTotals(t *testing.T) {
 		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 		want := []string{
-			`12 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
+			`10 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
 				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
 
-			`11 {"Count":11,"CountUnique":1,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
+			`10 {"Count":11,"CountUnique":1,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
 				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
 
 			`10 {"Count":1,"CountUnique":1,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
 				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
 
-			`12 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
+			`10 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
 				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
 		}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
@@ -304,10 +304,10 @@ func TestHitListTotals(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			got := fmt.Sprintf("%d %s", count, zjson.MustMarshal(hs))
+			have := fmt.Sprintf("%d %s", count, zjson.MustMarshal(hs))
 			w := want[i]
-			if got != w {
-				t.Errorf("\nwant: %s\ngot:  %v\nfilter: %v", w, got, filter)
+			if have != w {
+				t.Errorf("\nwant: %s\nhave: %v\nfilter: %v", w, have, filter)
 			}
 		}
 	})
@@ -336,10 +336,10 @@ func TestHitListTotals(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			got := fmt.Sprintf("%d %s", count, zjson.MustMarshal(hs))
+			have := fmt.Sprintf("%d %s", count, zjson.MustMarshal(hs))
 			w := want[i]
-			if got != w {
-				t.Errorf("\nwant: %s\ngot:  %v\nfilter: %v", w, got, filter)
+			if have != w {
+				t.Errorf("\nwant: %s\nhave: %v\nfilter: %v", w, have, filter)
 			}
 		}
 	})

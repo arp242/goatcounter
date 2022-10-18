@@ -1,6 +1,6 @@
 <nav class="tab-nav">
 	<a class="{{if has_prefix .Path "/settings/main"}}active{{end}}"   href="/settings/main">{{.T "link/settings|Settings"}}</a>
-	<a class="{{if has_prefix .Path "/settings/purge"}}active{{end}}"  href="/settings/purge">{{.T "link/rm-views|Delete pageviews"}}</a>
+	<a class="{{if has_prefix .Path "/settings/purge"}}active{{end}}"  href="/settings/purge">{{.T "link/manage-pageviews|Manage pageviews"}}</a>
 	<a class="{{if has_prefix .Path "/settings/export"}}active{{end}}" href="/settings/export">{{.T "link/import|Import"}}</a>
 
 	{{if .User.AccessAdmin}}

@@ -1,0 +1,20 @@
+with x as (
+	select path_id, path, title from paths
+	where site_id = :site and (
+		{{if .match_case}}
+			path like :search
+			{{if .match_title}}or title like :search{{end}}
+		{{else}}
+			lower(path) like lower(:search)
+			{{if .match_title}}or lower(title) like lower(:search){{end}}
+		{{end}}
+	)
+)
+select
+	path_id, path, title,
+	sum(total) as count
+from hit_counts
+join x using(path_id)
+where site_id = :site
+group by path_id, path, title
+order by count desc

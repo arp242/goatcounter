@@ -72,11 +72,12 @@ func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
 type HitLists []HitList
 
 // ListPathsLike lists all paths matching the like pattern.
-func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle bool) error {
+func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle, matchCase bool) error {
 	err := zdb.Select(ctx, h, "load:hit_list.ListPathsLike", zdb.P{
 		"site":        MustGetSite(ctx).ID,
 		"search":      search,
 		"match_title": matchTitle,
+		"match_case":  matchCase,
 	})
 	return errors.Wrap(err, "Hits.ListPathsLike")
 }

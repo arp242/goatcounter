@@ -20,7 +20,7 @@ require (
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b
 	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
-	golang.org/x/text v0.3.8
+	golang.org/x/text v0.4.0
 	zgo.at/blackmail v0.0.0-20211212060815-1f8e8a94692b
 	zgo.at/errors v1.1.0
 	zgo.at/follow v0.0.0-20211017230838-112008350298
@@ -30,23 +30,23 @@ require (
 	zgo.at/json v0.0.0-20211017213340-cc8bf51df08c
 	zgo.at/termtext v1.1.0
 	zgo.at/tz v0.0.0-20211017223207-006eae99adf6
-	zgo.at/z18n v0.0.0-20220606095325-513ddb98b28f
+	zgo.at/z18n v0.0.0-20221018165830-c235ed037573
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
-	zgo.at/zdb v0.0.0-20220822042559-7b1209555166
+	zgo.at/zdb v0.0.0-20221018164415-44f0726b1ff7
 	zgo.at/zhttp v0.0.0-20221001220656-a9e60fe5f8e3
 	zgo.at/zli v0.0.0-20221012220610-d6a5a841b943
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20221013104704-16fa49fadc62
-	zgo.at/ztpl v0.0.0-20211128061406-6ff34b1256c4
+	zgo.at/ztpl v0.0.0-20221018165743-cbd2a654b6af
 	zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62
 )
 
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/lib/pq v1.10.6 // indirect
+	github.com/lib/pq v1.10.7 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect

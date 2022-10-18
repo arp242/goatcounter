@@ -45,7 +45,7 @@ type Hit struct {
 	RefScheme       *string    `db:"ref_scheme" json:"-"`
 	UserAgentHeader string     `db:"-" json:"-"`
 	Location        string     `db:"location" json:"-"`
-	Language        string     `db:"language" json:"-"`
+	Language        *string    `db:"language" json:"-"`
 	FirstVisit      zbool.Bool `db:"first_visit" json:"-"`
 	CreatedAt       time.Time  `db:"created_at" json:"-"`
 
@@ -57,6 +57,9 @@ type Hit struct {
 	UserSessionID string `db:"-" json:"-"`
 	BrowserID     int64  `db:"-" json:"-"`
 	SystemID      int64  `db:"-" json:"-"`
+
+	// Don't process in memstore; for merging paths.
+	noProcess bool `db:"-" json:"-"`
 }
 
 func (h *Hit) Ignore() bool {
@@ -377,4 +380,35 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 		MustGetSite(ctx).ClearCache(ctx, true)
 		return nil
 	})
+}
+
+// Merge the given paths.
+func (h *Hits) Merge(ctx context.Context, dst int64, pathIDs []int64) error {
+	site := MustGetSite(ctx).ID
+
+	err := (&Path{}).ByID(ctx, dst) // Ensure this site owns the path.
+	if err != nil {
+		return errors.Wrap(err, "Hits.Merge")
+	}
+
+	// Push back to lot to memstore to re-add it again, and then just call
+	// Purge() to delete the old ones.
+	err = zdb.Select(ctx, h, `select * from hits where site_id=? and path_id in (?)`, site, pathIDs)
+	if err != nil {
+		return errors.Wrap(err, "Hits.Merge")
+	}
+	hh := *h
+	for i := range hh {
+		hh[i].PathID = dst
+		hh[i].noProcess = true
+	}
+
+	err = errors.Wrap(h.Purge(ctx, pathIDs), "Hits.Merge")
+	if err != nil {
+		return errors.Wrap(err, "Hits.Merge")
+	}
+
+	// Only push back if delete worked.
+	Memstore.Append(hh...)
+	return nil
 }

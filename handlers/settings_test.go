@@ -30,7 +30,7 @@ func TestSettingsTpl(t *testing.T) {
 				}...)
 			},
 			router:   newBackend,
-			path:     "/settings/purge/confirm?path=/asd",
+			path:     "/settings/purge?path=/asd",
 			auth:     true,
 			wantCode: 200,
 			wantBody: "<tr><td>2</td><td>/asd</td><td>AAA</td></tr>",

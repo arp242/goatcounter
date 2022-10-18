@@ -72,11 +72,9 @@ func (h settings) mount(r chi.Router) {
 		set.Get("/settings/change-code", zhttp.Wrap(h.changeCode))
 		set.Post("/settings/change-code", zhttp.Wrap(h.changeCode))
 
-		set.Get("/settings/purge", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-			return h.purge(nil)(w, r)
-		}))
-		set.Get("/settings/purge/confirm", zhttp.Wrap(h.purgeConfirm))
+		set.Get("/settings/purge", zhttp.Wrap(h.purge))
 		set.Post("/settings/purge", zhttp.Wrap(h.purgeDo))
+		set.Post("/settings/merge", zhttp.Wrap(h.merge))
 
 		set.Get("/settings/export", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
 			return h.export(nil)(w, r)
@@ -427,30 +425,35 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
-func (h settings) purge(verr *zvalidate.Validator) zhttp.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) error {
-		return zhttp.Template(w, "settings_purge.gohtml", struct {
-			Globals
-			Validate *zvalidate.Validator
-		}{newGlobals(w, r), verr})
+func (h settings) purge(w http.ResponseWriter, r *http.Request) error {
+	var (
+		path       = strings.TrimSpace(r.URL.Query().Get("path"))
+		matchTitle = r.URL.Query().Get("match-title") == "on"
+		matchCase  = r.URL.Query().Get("match-case") == "on"
+		list       goatcounter.HitLists
+		paths      goatcounter.Paths
+	)
+
+	if path != "" {
+		err := list.ListPathsLike(r.Context(), path, matchTitle, matchCase)
+		if err != nil {
+			return err
+		}
+
+		err = paths.List(r.Context(), goatcounter.MustGetSite(r.Context()).ID)
+		if err != nil {
+			return err
+		}
 	}
-}
 
-func (h settings) purgeConfirm(w http.ResponseWriter, r *http.Request) error {
-	path := strings.TrimSpace(r.URL.Query().Get("path"))
-	title := r.URL.Query().Get("match-title") == "on"
-
-	var list goatcounter.HitLists
-	err := list.ListPathsLike(r.Context(), path, title)
-	if err != nil {
-		return err
-	}
-
-	return zhttp.Template(w, "settings_purge_confirm.gohtml", struct {
+	return zhttp.Template(w, "settings_purge.gohtml", struct {
 		Globals
-		PurgePath string
-		List      goatcounter.HitLists
-	}{newGlobals(w, r), path, list})
+		PurgePath  string
+		MatchTitle bool
+		MatchCase  bool
+		List       goatcounter.HitLists
+		AllPaths   goatcounter.Paths
+	}{newGlobals(w, r), path, matchTitle, matchCase, list, paths})
 }
 
 func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
@@ -463,6 +466,31 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 	bgrun.Run(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
 		err := list.Purge(ctx, paths)
+		if err != nil {
+			zlog.Error(err)
+		}
+	})
+
+	zhttp.Flash(w, T(r.Context(), "notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
+	return zhttp.SeeOther(w, "/settings/purge")
+}
+
+func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
+	paths, err := zint.Split(r.Form.Get("paths"), ",")
+	if err != nil {
+		return err
+	}
+
+	v := goatcounter.NewValidate(r.Context())
+	dst := v.Integer("merge_with", r.Form.Get("merge_with"))
+	if v.HasErrors() {
+		return v
+	}
+
+	ctx := goatcounter.CopyContextValues(r.Context())
+	bgrun.Run(fmt.Sprintf("merge:%d", Site(ctx).ID), func() {
+		var list goatcounter.Hits
+		err := list.Merge(ctx, dst, paths)
 		if err != nil {
 			zlog.Error(err)
 		}

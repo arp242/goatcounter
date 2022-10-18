@@ -68,7 +68,8 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		if len(tags) > 0 {
 			base, c := tags[0].Base()
 			if c == language.Exact || c == language.High {
-				hit.Language = base.ISO3()
+				l := base.ISO3()
+				hit.Language = &l
 			}
 		}
 	}

@@ -1,9 +1,9 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
-<h2 id="purge">{{.T "header/rm-hits|Delete pageviews"}}</h2>
+<h2 id="purge">{{.T "header/manage-pageviews|Manage pageviews"}}</h2>
 
-<p>{{.T "p/rm-hits|Remove all pageviews for a page."}}</p>
+<p>{{.T "p/manage-hits|Remove or merge pageviews."}}</p>
 
 <p>{{.T `p/rm-hits-help|
 	Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
@@ -14,11 +14,66 @@
 	meaning.
 `}}</p>
 
-<form method="get" action="/settings/purge/confirm">
-	<input type="text" name="path" placeholder="Path" required autocomplete="off">
-	<button type="submit">{{.T "button/rm-hits|Delete pageviews"}}</button>
-	<span>{{.T "help/rm-hits|You will see a preview of matches before anything is deleted"}}</span><br>
-	<label><input type="checkbox" name="match-title"> {{.T "label/match-title|Match title as well"}}</label>
+<form method="get" action="/settings/purge">
+	<input type="text" name="path" placeholder="Path" value="{{.PurgePath}}" required autocomplete="off">
+	<button type="submit">{{.T "button/search|Search"}}</button><br>
+	<label>{{checkbox .MatchTitle "match-title"}} {{.T "label/match-title|Match title as well"}}</label>
+	<label>{{checkbox .MatchCase  "match-case"}}  {{.T "label/match-case|Match case-sensitive"}}</label>
 </form>
+
+{{if .PurgePath}}
+	{{if eq (len .List) 0}}
+		<p class="flash flash-e">{{.T "p/no-matches|Nothing matches %(query)." (tag "code" "" .PurgePath)}}</p>
+	{{else}}
+		<br><br>
+		<p><strong>{{.T "p/rm-pageview-match|The following paths match %(query):" (tag "code" "" .PurgePath)}}</strong></p>
+		<table>
+			<thead><tr>
+				<th style="width: 10em">{{.T "header/n-hits|# of hits"}}</th>
+				<th style="text-align: left">{{.T "header/path|Path"}}</th>
+				<th>{{.T "header/title|Title"}}</th>
+			</tr></thead></thead>
+			<tbody>
+				{{range $s := .List}}
+					<tr><td>{{nformat $s.Count $.User}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
+				{{end}}
+			</tbody>
+		</table>
+
+		<div style="
+			display: flex;
+			justify-content: space-between;
+			align-items: end;
+			margin-top: 2em;
+		">
+			<form method="post" action="/settings/merge"
+				data-confirm="{{.T "help/no-undo|This cannot be undone!"}}"
+			>
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+				<input type="hidden" name="paths" value="{{range $s := .List}}{{$s.PathID}},{{end}}">
+
+				<label for="merge_with">{{.T "label/merge-to|Merge all the paths to"}}</label><br>
+				<select id="merge_with" name="merge_with">
+					{{range $p := .AllPaths}}
+						<option value="{{$p.ID}}">{{elide $p.Path 40}}
+						{{if $p.Event}}({{t $.Context "event|event"}}){{end}}</option>
+					{{end}}
+				</select>
+				<button>{{.T "button/merge|Merge"}}</button>
+				<br>
+				<strong>{{.T "help/no-undo|This cannot be undone!"}}</strong><br>
+			</form>
+			<form method="post" action="/settings/purge"
+				data-confirm="{{.T "help/no-undo|This cannot be undone!"}}"
+				style="text-align: right;"
+			>
+				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+				<input type="hidden" name="paths" value="{{range $s := .List}}{{$s.PathID}},{{end}}">
+				<button>{{.T "button/delete-pageviews|Delete pageviews"}}</button><br>
+				<strong>{{.T "help/no-undo|This cannot be undone!"}}</strong>
+			</form>
+		</div>
+	{{end}}
+{{end}}
 
 {{template "_backend_bottom.gohtml" .}}
