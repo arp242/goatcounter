@@ -251,7 +251,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 	for _, v := range stats {
 		totalst.Stats = append(totalst.Stats, v)
 		if !daily {
-			for _, x := range v.Hourly {
+			for _, x := range v.HourlyUnique {
 				if x > max {
 					max = x
 				}
@@ -275,7 +275,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 			for _, n := range hh[0].Stats[i].HourlyUnique {
 				hh[0].Stats[i].DailyUnique += n
 			}
-			if daily && hh[0].Stats[i].Daily > max {
+			if daily && hh[0].Stats[i].DailyUnique > max {
 				max = hh[0].Stats[i].Daily
 			}
 		}
