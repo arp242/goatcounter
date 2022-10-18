@@ -37,6 +37,12 @@ func (p *Path) Validate(ctx context.Context) error {
 	return v.ErrorOrNil()
 }
 
+func (p *Path) ByID(ctx context.Context, id int64) error {
+	return errors.Wrapf(zdb.Get(ctx, p,
+		`/* Path.ByID */ select * from paths where path_id=? and site_id=?`,
+		id, MustGetSite(ctx).ID), "Path.ByID %d", id)
+}
+
 func (p *Path) GetOrInsert(ctx context.Context) error {
 	site := MustGetSite(ctx)
 	title := p.Title
@@ -130,6 +136,14 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 	}
 
 	return nil
+}
+
+type Paths []Path
+
+// List all paths for a site.
+func (u *Paths) List(ctx context.Context, siteID int64) error {
+	return errors.Wrap(zdb.Select(ctx, u,
+		`select * from paths where site_id=$1`, siteID), "Paths.List")
 }
 
 // PathFilter returns a list of IDs matching the path name.

@@ -524,7 +524,7 @@ func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 	}
 	defer db.Close()
 
-	q, err := zdb.Load(db, "db.query."+query[0]+".sql")
+	q, _, err := zdb.Load(db, "db.query."+query[0]+".sql")
 	if err != nil {
 		q = strings.Join(query, " ")
 	}

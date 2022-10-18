@@ -19,6 +19,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/teamwork/reload"
+	"golang.org/x/text/language"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
@@ -26,6 +27,7 @@ import (
 	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/handlers"
+	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zli"
@@ -362,6 +364,8 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 	if err != nil {
 		return nil, nil, nil, nil, 0, err
 	}
+
+	ctx = z18n.With(ctx, z18n.NewBundle(language.English).Locale("en"))
 
 	if dev && (!zio.Exists("db/migrate") || !zio.Exists("tpl") || !zio.Exists("public")) {
 		return nil, nil, nil, nil, 0, errors.New("-dev flag was given but this doesn't seem like a GoatCounter source directory")

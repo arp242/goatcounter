@@ -269,6 +269,10 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 
 	l := zlog.Module("memstore")
 
+	if h.noProcess {
+		return true
+	}
+
 	// Ignore spammers.
 	h.RefURL, _ = url.Parse(h.Ref)
 	if h.RefURL != nil {
@@ -281,14 +285,14 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	var site Site
 	err := site.ByID(ctx, h.Site)
 	if err != nil {
-		l.Field("hit", h).Error(err)
+		l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
 		return false
 	}
 	ctx = WithSite(ctx, &site)
 
 	err = h.Defaults(ctx, false)
 	if err != nil {
-		l.Field("hit", h).Error(err)
+		l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
 		return false
 	}
 
@@ -314,7 +318,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 		h.UserAgentID = nil
 	}
 	if !site.Settings.Collect.Has(CollectLanguage) {
-		h.Language = ""
+		h.Language = nil
 	}
 	if !site.Settings.Collect.Has(CollectLocation) {
 		h.Location = ""
@@ -340,7 +344,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 
 	err = h.Validate(ctx, false)
 	if err != nil {
-		l.Field("hit", h).Error(err)
+		l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
 		return false
 	}
 
