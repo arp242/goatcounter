@@ -110,11 +110,11 @@ func TestBackendPagesMore(t *testing.T) {
 
 	haveHTML := grep("tr id=", string(body["html"].(string)))
 	wantHTML := `
-        <tr id="/10" data-id="10" class=" ">
-        <tr id="/9" data-id="9" class=" ">
-        <tr id="/8" data-id="8" class=" ">
-        <tr id="/7" data-id="7" class=" ">
-        <tr id="/6" data-id="6" class=" ">`
+        <tr id="/10" data-id="10" data-count="1"
+        <tr id="/9" data-id="9" data-count="1"
+        <tr id="/8" data-id="8" data-count="1"
+        <tr id="/7" data-id="7" data-count="1"
+        <tr id="/6" data-id="6" data-count="1"`
 
 	delete(body, "html")
 	haveJSON := string(zjson.MustMarshalIndent(body, "", "\t"))
