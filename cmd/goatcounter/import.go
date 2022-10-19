@@ -249,7 +249,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return errors.New("GOATCOUNTER_API_KEY must be set")
 		}
 
-		err = checkSite(url, key)
+		err = checkSite(url, key, goatcounter.APIPermCount)
 		if err != nil {
 			return err
 		}
@@ -492,47 +492,5 @@ retry:
 			time.Sleep(1 * time.Second)
 		}
 	}
-	return nil
-}
-
-func newRequest(method, url, key string, body io.Reader) (*http.Request, error) {
-	r, err := http.NewRequest(method, url, body)
-	if err != nil {
-		return nil, err
-	}
-	r.Header.Set("Content-Type", "application/json")
-	r.Header.Set("Authorization", "Bearer "+key)
-	return r, nil
-}
-
-// Verify that the site is live and that we've got the correct permissions.
-func checkSite(url, key string) error {
-	r, err := newRequest("GET", url+"/api/v0/me", key, nil)
-	if err != nil {
-		return err
-	}
-
-	resp, err := importClient.Do(r)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	b, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("%s: %s: %s", url+"/api/v0/me",
-			resp.Status, zstring.ElideLeft(string(b), 200))
-	}
-
-	var perm struct {
-		Token goatcounter.APIToken `json:"token"`
-	}
-	err = json.Unmarshal(b, &perm)
-	if err != nil {
-		return err
-	}
-	if !perm.Token.Permissions.Has(goatcounter.APIPermCount) {
-		return fmt.Errorf("the API token %q is missing the 'count' permission", perm.Token.Name)
-	}
-
 	return nil
 }

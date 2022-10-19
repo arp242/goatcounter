@@ -1,6 +1,5 @@
 # Mark as generated so it won't show up in diffs etc.
-pack/*.go                     linguist-generated=true
-tpl/_backend_sitecode.gohtml  linguist-generated=true
-/go.sum                       linguist-generated=true
-/docs/api.html                linguist-generated=true
-/docs/api.json                linguist-generated=true
+/go.sum       linguist-generated=true
+/tpl/api.html linguist-generated=true
+/tpl/api.json linguist-generated=true
+/refspam.go   linguist-generated=true

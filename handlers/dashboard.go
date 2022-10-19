@@ -369,6 +369,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 	case "pages":
 		ret["total_unique_display"] = wid.(*widgets.Pages).UniqueDisplay
 	}
+
 	return zhttp.JSON(w, ret)
 }
 

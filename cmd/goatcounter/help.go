@@ -33,8 +33,9 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			continue
 		}
 		if a == "all" {
-			topics = []string{"help", "version", "serve", "buffer", "monitor",
-				"db", "listen", "logfile", "debug"}
+			topics = []string{"help", "version", "serve", "import",
+				"dashboard", "db", "buffer", "monitor",
+				"listen", "logfile", "debug"}
 			break
 		}
 		topics = append(topics, strings.ToLower(a))
@@ -68,31 +69,24 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 }
 
 var usage = map[string]string{
-	"":        usageTop,
-	"help":    usageHelp,
-	"serve":   usageServe,
-	"saas":    usageSaas,
-	"monitor": usageMonitor,
-	"import":  usageImport,
-	"buffer":  usageBuffer,
-	"db":      helpDB,
-	"listen":  helpListen,
-	"logfile": helpLogfile,
-	"debug":   helpDebug,
+	"":          usageTop,
+	"help":      usageHelp,
+	"serve":     usageServe,
+	"saas":      usageSaas,
+	"monitor":   usageMonitor,
+	"import":    usageImport,
+	"dashboard": usageDashboard,
+	"buffer":    usageBuffer,
+	"db":        helpDB,
+	"listen":    helpListen,
+	"logfile":   helpLogfile,
+	"debug":     helpDebug,
 
 	"version": `
 Show version and build information. This is printed as key=value, separated by
 semicolons.
 `,
 }
-
-var usageTopics = func() []string {
-	t := make([]string, 0, len(usage))
-	for k := range usage {
-		t = append(t, k)
-	}
-	return t
-}()
 
 const usageTop = `Usage: goatcounter [command] [flags]
 
@@ -105,6 +99,7 @@ Commands:
   serve        Start HTTP server.
   import       Import pageviews from an export or logfile.
 
+  dashboard    Show dashboard statistics in the terminal.
   db           Modify the database and print database info.
   buffer       Buffer pageview requests until backend is available.
   monitor      Monitor for pageviews.

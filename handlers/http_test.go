@@ -94,6 +94,7 @@ func runTest(
 	tt handlerTest,
 	fun func(*testing.T, *httptest.ResponseRecorder, *http.Request),
 ) {
+	t.Helper()
 	if tt.method == "" {
 		tt.method = "GET"
 	}
@@ -193,12 +194,6 @@ func login(t *testing.T, r *http.Request) {
 	r.Form.Set("csrf", *u.Token)
 
 	r.Header.Set("Cookie", "key="+*u.LoginToken)
-}
-
-func newLoginTest(t *testing.T, ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {
-	r, rr := newTest(ctx, method, path, body)
-	login(t, r)
-	return r, rr
 }
 
 func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Request, *httptest.ResponseRecorder) {

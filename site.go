@@ -16,8 +16,8 @@ import (
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
-	"zgo.at/zstd/zint"
 	"zgo.at/zstd/znet"
+	"zgo.at/zstd/zslice"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 )
@@ -592,7 +592,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 				return errors.Wrap(err, "Site.DeleteOlderThan")
 			}
 
-			diff := zint.Difference(pathIDs, remainPath)
+			diff := zslice.Difference(pathIDs, remainPath)
 			if len(diff) > 0 {
 				err = zdb.Exec(ctx, `delete from paths where site_id=? and path_id in (?)`, s.ID, diff)
 				if err != nil {

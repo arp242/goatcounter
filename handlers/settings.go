@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/monoculum/formam"
+	"github.com/monoculum/formam/v3"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
@@ -440,7 +440,7 @@ func (h settings) purge(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		err = paths.List(r.Context(), goatcounter.MustGetSite(r.Context()).ID)
+		_, err = paths.List(r.Context(), goatcounter.MustGetSite(r.Context()).ID, 0, 0)
 		if err != nil {
 			return err
 		}

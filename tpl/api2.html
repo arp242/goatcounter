@@ -1,11 +1,22 @@
 <!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-</head>
-<body>
-  Loading RapiDoc…
-  <rapi-doc spec-url=""></rapi-doc>
-</body>
-</html>
+<html><head>
+	<meta charset="utf-8">
+	<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+	<title>GoatCounter API reference</title>
+	<link rel="icon" type="image/png" sizes="32x32" href="https://static.zgo.at/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="https://static.zgo.at/favicon/favicon-16x16.png">
+</head><body>
+<style>
+	/* Scrollbars are rendered ridiculously thin; just use the OS defaults. */
+	rapi-doc::part(textarea)             { scrollbar-width: unset; scrollbar-color: unset; }
+	rapi-doc::part(section-main-content) { scrollbar-width: unset; scrollbar-color: unset; }
+</style>
+<rapi-doc spec-url="/api.json"
+	show-header="false"
+	render-style="view"
+	load-fonts="false"
+	nav-bg-color="#f7f7f7"
+	nav-text-color="#252525"
+>
+</rapi-doc>
+</body></html>

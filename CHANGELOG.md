@@ -7,7 +7,20 @@ latest master.
 
 unreleased
 ----------
-- Can now merge paths instead of just deleting them.
+- Add a more fully-featured API that can also retrieve the dashboard statistics.
+  See https://www.goatcounter.com/help/api for documentation.
+
+- Default API ratelimit is now 4 requests/second, rather than 4 requests/10
+  seconds. You can use the `-ratelimit` flag to configure this.
+
+- Can now also merge paths instead of just deleting them.
+
+- Add `goatcounter dashboard`, which uses the new API to display the dashboard
+  in the terminal (only a basic non-interactive overview for now).
+
+- Add a "Show fewer numbers" user setting; this is intended to still give a
+  reasonably useful overview of what happens on your site but prevent an
+  “obsession” over the exact number of visitors and stats.
 
 2022-10-17 v2.3.0
 -----------------

@@ -43,7 +43,7 @@ func TestHitStats(t *testing.T) {
 		for _, s := range stats {
 			got += string(zjson.MustMarshalIndent(s, "\t\t\t", "\t"))
 		}
-		if d := ztest.Diff(got, want); d != "" {
+		if d := ztest.Diff(got, want, ztest.DiffVerbose); d != "" {
 			t.Error(d)
 		}
 	}
@@ -62,32 +62,26 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			cmp(t, `{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "",
-						"Name": "Firefox",
-						"Count": 3,
-						"CountUnique": 2,
-						"RefScheme": null
+						"name": "Firefox",
+						"count": 3,
+						"count_unique": 2
 					}
 				]
 			}{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "",
-						"Name": "Firefox 79",
-						"Count": 1,
-						"CountUnique": 1,
-						"RefScheme": null
+						"name": "Firefox 79",
+						"count": 1,
+						"count_unique": 1
 					},
 					{
-						"ID": "",
-						"Name": "Firefox 81",
-						"Count": 2,
-						"CountUnique": 1,
-						"RefScheme": null
+						"name": "Firefox 81",
+						"count": 2,
+						"count_unique": 1
 					}
 				]
 			}`, list, get)
@@ -106,32 +100,26 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			cmp(t, `{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "",
-						"Name": "Linux",
-						"Count": 3,
-						"CountUnique": 2,
-						"RefScheme": null
+						"name": "Linux",
+						"count": 3,
+						"count_unique": 2
 					}
 				]
 			}{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "",
-						"Name": "Linux",
-						"Count": 2,
-						"CountUnique": 1,
-						"RefScheme": null
+						"name": "Linux",
+						"count": 2,
+						"count_unique": 1
 					},
 					{
-						"ID": "",
-						"Name": "Linux Ubuntu",
-						"Count": 1,
-						"CountUnique": 1,
-						"RefScheme": null
+						"name": "Linux Ubuntu",
+						"count": 1,
+						"count_unique": 1
 					}
 				]
 			}`, list, get)
@@ -150,60 +138,52 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			cmp(t, strings.ReplaceAll(`{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "phone",
-						"Name": "",
-						"Count": 0,
-						"CountUnique": 0,
-						"RefScheme": null
+						"id": "phone",
+						"name": "Phones",
+						"count": 0,
+						"count_unique": 0
 					},
 					{
-						"ID": "largephone",
-						"Name": "",
-						"Count": 1,
-						"CountUnique": 1,
-						"RefScheme": null
+						"id": "largephone",
+						"name": "Large phones, small tablets",
+						"count": 1,
+						"count_unique": 1
 					},
 					{
-						"ID": "tablet",
-						"Name": "",
-						"Count": 0,
-						"CountUnique": 0,
-						"RefScheme": null
+						"id": "tablet",
+						"name": "Tablets and small laptops",
+						"count": 0,
+						"count_unique": 0
 					},
 					{
-						"ID": "desktop",
-						"Name": "",
-						"Count": 2,
-						"CountUnique": 1,
-						"RefScheme": null
+						"id": "desktop",
+						"name": "Computer monitors",
+						"count": 2,
+						"count_unique": 1
 					},
 					{
-						"ID": "desktophd",
-						"Name": "",
-						"Count": 0,
-						"CountUnique": 0,
-						"RefScheme": null
+						"id": "desktophd",
+						"name": "Computer monitors larger than HD",
+						"count": 0,
+						"count_unique": 0
 					},
 					{
-						"ID": "unknown",
-						"Name": "",
-						"Count": 0,
-						"CountUnique": 0,
-						"RefScheme": null
+						"id": "unknown",
+						"name": "(unknown)",
+						"count": 0,
+						"count_unique": 0
 					}
 				]
 			}{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "",
-						"Name": "↔\ufe0e 1920px",
-						"Count": 2,
-						"CountUnique": 1,
-						"RefScheme": null
+						"name": "↔\ufe0e 1920px",
+						"count": 2,
+						"count_unique": 1
 					}
 				]
 			}`, `\ufe0e`, "\ufe0e"), list, get)
@@ -234,44 +214,39 @@ func TestHitStats(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+
 			cmp(t, `{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "ID",
-						"Name": "Indonesia",
-						"Count": 1,
-						"CountUnique": 1,
-						"RefScheme": null
+						"id": "ID",
+						"name": "Indonesia",
+						"count": 1,
+						"count_unique": 1
 					},
 					{
-						"ID": "NL",
-						"Name": "Netherlands",
-						"Count": 2,
-						"CountUnique": 1,
-						"RefScheme": null
+						"id": "NL",
+						"name": "Netherlands",
+						"count": 2,
+						"count_unique": 1
 					}
 				]
 			}{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "",
-						"Name": "",
-						"Count": 1,
-						"CountUnique": 1,
-						"RefScheme": null
+						"name": "",
+						"count": 1,
+						"count_unique": 1
 					}
 				]
 			}{
-				"More": false,
-				"Stats": [
+				"more": false,
+				"stats": [
 					{
-						"ID": "",
-						"Name": "Bali",
-						"Count": 1,
-						"CountUnique": 1,
-						"RefScheme": null
+						"name": "Bali",
+						"count": 1,
+						"count_unique": 1
 					}
 				]
 			}`, list, get, getRegion)
@@ -327,49 +302,43 @@ func TestListSizes(t *testing.T) {
 
 		got := string(zjson.MustMarshalIndent(s, "\t\t", "\t"))
 		want := `{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "phone",
-					"Name": "",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"id": "phone",
+					"name": "Phones",
+					"count": 2,
+					"count_unique": 1
 				},
 				{
-					"ID": "largephone",
-					"Name": "",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"id": "largephone",
+					"name": "Large phones, small tablets",
+					"count": 2,
+					"count_unique": 1
 				},
 				{
-					"ID": "tablet",
-					"Name": "",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"id": "tablet",
+					"name": "Tablets and small laptops",
+					"count": 2,
+					"count_unique": 1
 				},
 				{
-					"ID": "desktop",
-					"Name": "",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"id": "desktop",
+					"name": "Computer monitors",
+					"count": 2,
+					"count_unique": 1
 				},
 				{
-					"ID": "desktophd",
-					"Name": "",
-					"Count": 6,
-					"CountUnique": 3,
-					"RefScheme": null
+					"id": "desktophd",
+					"name": "Computer monitors larger than HD",
+					"count": 6,
+					"count_unique": 3
 				},
 				{
-					"ID": "unknown",
-					"Name": "",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"id": "unknown",
+					"name": "(unknown)",
+					"count": 2,
+					"count_unique": 1
 				}
 			]
 		}`
@@ -391,87 +360,71 @@ func TestListSizes(t *testing.T) {
 		}
 
 		want := strings.ReplaceAll(`{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 0px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 0px",
+					"count": 2,
+					"count_unique": 1
 				}
 			]
 		}{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 300px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 300px",
+					"count": 2,
+					"count_unique": 1
 				}
 			]
 		}{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 1000px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 1000px",
+					"count": 2,
+					"count_unique": 1
 				}
 			]
 		}{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 1100px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 1100px",
+					"count": 2,
+					"count_unique": 1
 				}
 			]
 		}{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 1920px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 1920px",
+					"count": 2,
+					"count_unique": 1
 				}
 			]
 		}{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 3000px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 3000px",
+					"count": 2,
+					"count_unique": 1
 				},
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 4000px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 4000px",
+					"count": 2,
+					"count_unique": 1
 				},
 				{
-					"ID": "",
-					"Name": "↔\ufe0e 4200px",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": null
+					"name": "↔\ufe0e 4200px",
+					"count": 2,
+					"count_unique": 1
 				}
 			]
 		}`, `\ufe0e`, "\ufe0e")
-		if d := ztest.Diff(got, want); d != "" {
+		if d := ztest.Diff(got, want, ztest.DiffVerbose); d != "" {
 			t.Error(d)
 		}
 	})

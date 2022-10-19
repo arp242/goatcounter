@@ -482,9 +482,9 @@
 
 		var data
 		if (daily)
-			data = stats.map((s) => [s.DailyUnique]).reduce((a, b) => a.concat(b))
+			data = stats.map((s) => [s.daily_unique]).reduce((a, b) => a.concat(b))
 		else
-			data = stats.map((s) => s.HourlyUnique).reduce((a, b) => a.concat(b))
+			data = stats.map((s) => s.hourly_unique).reduce((a, b) => a.concat(b))
 
 		let futureFrom = 0
 		var chart = charty(ctx, data, {
@@ -499,7 +499,7 @@
 			bar:  {color: '#9a15a4'},
 			done: (chart) => {
 				// Show future as greyed out.
-				let last   = stats[stats.length - 1].Day + (daily ? '' : ' 23:59:59'),
+				let last   = stats[stats.length - 1].day + (daily ? '' : ' 23:59:59'),
 					future = last > format_date_ymd(new Date()) + (daily ? '' : ' 23:59:59')
 				if (future) {
 					let dpr   = Math.max(1, window.devicePixelRatio || 1),
@@ -531,15 +531,15 @@
 				day    = daily ? stats[i] : stats[Math.floor(i / 24)],
 				start  = (i % 24) + ':00',
 				end    = (i % 24) + ':59',
-				visits = daily ? day.DailyUnique : day.HourlyUnique[i%24],
-				views  = daily ? day.Daily       : day.Hourly[i%24]
+				visits = daily ? day.daily_unique : day.hourly_unique[i%24],
+				views  = daily ? day.daily       : day.hourly[i%24]
 
 			let title = ''
 			let future = futureFrom && x >= futureFrom - 1
 			if (daily)
-				title = `${format_date(day.Day)}`
+				title = `${format_date(day.day)}`
 			else
-				title = `${format_date(day.Day)} ${un24(start)} – ${un24(end)}`
+				title = `${format_date(day.day)} ${un24(start)} – ${un24(end)}`
 			if (future)
 				title += '; ' + T('dashboard/future')
 			if (!future && !USER_SETTINGS.fewer_numbers) {

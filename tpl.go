@@ -160,12 +160,12 @@ func init() {
 		t = template.Must(t.New("code").Parse(`&lt;script data-goatcounter="{{.SiteURL}}/count"` + "\n" +
 			`        async src="//{{.CountDomain}}/count.js"&gt;&lt;/script&gt;`))
 		t = template.Must(t.New("sh_header").Parse(`#!/bin/sh` + "\n" +
-			`token=\[your api token]` + "\n" +
-			`api=https://\[my code].goatcounter.com/api/v0` + "\n" +
+			`token="[your api token]"` + "\n" +
+			`api="https://[my code].goatcounter.com/api/v0"` + "\n" +
 			`curl() {` + "\n" +
-			`    \command curl \` + "\n" +
-			`        -H 'Content-Type: application/json' \` + "\n" +
-			`        -H "Authorization: Bearer $token" \` + "\n" +
+			`    \command curl --silent \` + "\n" +
+			`        --header 'Content-Type: application/json' \` + "\n" +
+			`        --header "Authorization: Bearer $token" \` + "\n" +
 			`        "$@"` + "\n" +
 			`}`))
 

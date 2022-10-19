@@ -17,7 +17,7 @@ import (
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/zdb"
 	"zgo.at/zli"
-	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/zslice"
 	"zgo.at/zstd/ztest"
 )
 
@@ -160,7 +160,7 @@ func TestImport(t *testing.T) {
 			1       1        1        1              00112233445566778899aabbccddef03  0                    NULL        1280,768,1   AR        1            2020-12-01 00:07:10
 			2       1        2        1              00112233445566778899aabbccddef03  0                    NULL        1280,768,1   AR        1            2020-12-01 00:07:44
 			3       1        3        2              00112233445566778899aabbccddef04  0    www.reddit.com  o           1680,1050,2  RO        1            2020-12-27 00:37:37`
-		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace); d != "" {
+		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace|ztest.DiffVerbose); d != "" {
 			t.Error(d)
 		}
 	})
@@ -173,7 +173,7 @@ func TestImport(t *testing.T) {
 			hit_id  site_id  path_id  user_agent_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at
 			1       1        1        1              00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           1            2000-10-10 20:55:36
 			2       1        1        1              00112233445566778899aabbccddef01  0                                NULL                        0            2000-10-10 20:55:36`
-		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace); d != "" {
+		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace|ztest.DiffVerbose); d != "" {
 			t.Error(d)
 		}
 	})
@@ -183,7 +183,7 @@ func TestImport(t *testing.T) {
 		stop, clean := runImportBg(ctx, t, exit, "-format=combined", "-follow", fp.Name())
 		defer clean()
 
-		writeLines(t, fp, zstring.Repeat(
+		writeLines(t, fp, zslice.Repeat(
 			`127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] "GET /test.html HTTP/1.1" 200 2326 "http://www.example.com/start.html" "Mozilla/5.0"`,
 			4)...)
 		stop <- struct{}{}
@@ -205,7 +205,7 @@ func TestImport(t *testing.T) {
 				want = strings.Replace(want, "0            ", "1            ", 1)
 			}
 		}
-		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace); d != "" {
+		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace|ztest.DiffVerbose); d != "" {
 			t.Error(d)
 		}
 	})
@@ -215,7 +215,7 @@ func TestImport(t *testing.T) {
 		stop, clean := runImportBg(ctx, t, exit, "-format=combined", "-follow", fp.Name())
 		defer clean()
 
-		writeLines(t, fp, zstring.Repeat(
+		writeLines(t, fp, zslice.Repeat(
 			`127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] "GET /test.html HTTP/1.1" 200 2326 "http://www.example.com/start.html" "Mozilla/5.0"`,
 			100)...)
 		stop <- struct{}{}
@@ -236,7 +236,7 @@ func TestImport(t *testing.T) {
 				want = strings.Replace(want, "0            ", "1            ", 1)
 			}
 		}
-		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace); d != "" {
+		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace|ztest.DiffVerbose); d != "" {
 			t.Error(d)
 		}
 	})

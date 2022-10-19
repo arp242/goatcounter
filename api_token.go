@@ -26,6 +26,7 @@ const (
 	APIPermSiteRead                  // 8
 	APIPermSiteCreate                // 16
 	APIPermSiteUpdate                // 32
+	APIPermStats                     // 64
 )
 
 type APIToken struct {
@@ -58,6 +59,11 @@ func (t APIToken) PermissionFlags(only ...zint.Bitflag64) []PermissionFlag {
 			Label: "Record pageviews",
 			Help:  "Record pageviews with /api/v0/count",
 			Flag:  APIPermCount,
+		},
+		{
+			Label: "Read statistics",
+			Help:  "Get statistics out of GoatCounter",
+			Flag:  APIPermStats,
 		},
 		{
 			Label: "Export",

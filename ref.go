@@ -190,6 +190,9 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 }
 
 // ListRefsByPath lists all references for a path.
+//
+// TODO: refactor frontend so we don't need this any more; we have the path_id
+//       now and can use the simpler and faster ListRefsByPathID().
 func (h *HitStats) ListRefsByPath(ctx context.Context, path string, rng ztime.Range, limit, offset int) error {
 	err := zdb.Select(ctx, &h.Stats, "load:ref.ListRefsByPath.sql", zdb.P{
 		"site":   MustGetSite(ctx).ID,
@@ -205,4 +208,22 @@ func (h *HitStats) ListRefsByPath(ctx context.Context, path string, rng ztime.Ra
 		h.Stats = h.Stats[:len(h.Stats)-1]
 	}
 	return errors.Wrap(err, "HitStats.ListRefsByPath")
+}
+
+// ListRefsByPath lists all references for a pathID.
+func (h *HitStats) ListRefsByPathID(ctx context.Context, pathID int64, rng ztime.Range, limit, offset int) error {
+	err := zdb.Select(ctx, &h.Stats, "load:ref.ListRefsByPathID.sql", zdb.P{
+		"site":   MustGetSite(ctx).ID,
+		"start":  rng.Start,
+		"end":    rng.End,
+		"path":   pathID,
+		"limit":  limit + 1,
+		"offset": offset,
+	})
+
+	if len(h.Stats) > limit {
+		h.More = true
+		h.Stats = h.Stats[:len(h.Stats)-1]
+	}
+	return errors.Wrap(err, "HitStats.ListRefsByPathID")
 }

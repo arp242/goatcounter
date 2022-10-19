@@ -15,6 +15,7 @@ import (
 	"sync"
 	_ "time/tzdata"
 
+	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
@@ -26,7 +27,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zruntime"
-	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/zslice"
 )
 
 func init() {
@@ -50,8 +51,10 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	mainDone.Add(1)
 	defer mainDone.Done()
 
-	cmd, err := f.ShiftCommand()
-	if zstring.ContainsAny(f.Args, "-h", "-help", "--help") {
+	cmd, err := f.ShiftCommand("help", "version", "serve", "import",
+		"dashboard", "db", "buffer", "monitor",
+		"saas", "goat")
+	if zslice.ContainsAny(f.Args, "-h", "-help", "--help") {
 		f.Args = append([]string{cmd}, f.Args...)
 		cmd = "help"
 	}
@@ -87,16 +90,20 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 		run = cmdImport
 	case "buffer":
 		run = cmdBuffer
+	case "dashboard":
+		// Wrap as this also doubles as an example, and these flags just obscure
+		// things.
+		run = func(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+			defer func() { ready <- struct{}{} }()
+			return cmdDashboard(f)
+		}
+	case "goat":
+		run = func(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+			defer func() { ready <- struct{}{} }()
+			fmt.Print(goat[1:])
+			return nil
+		}
 
-	// Old commands; print some guidance instead of just "command doesn't
-	// exist".
-	// TODO: remove in 2.1 or 2.2
-	case "migrate":
-		fmt.Fprintf(zli.Stderr,
-			"The migrate command is moved to \"goatcounter db migrate\"\n\n\t$ goatcounter db migrate %s\n",
-			strings.Join(os.Args[2:], " "))
-		zli.Exit(5)
-		return
 	case "create":
 		flags := os.Args[2:]
 		for i, ff := range flags {
@@ -116,7 +123,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 
 	err = run(f, ready, stop)
 	if err != nil {
-		if !zstring.Contains(zlog.Config.Debug, "cli-trace") {
+		if !slices.Contains(zlog.Config.Debug, "cli-trace") {
 			for {
 				var s *errors.StackErr
 				if !errors.As(err, &s) {

@@ -12,35 +12,36 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/mattn/go-sqlite3 v1.14.15
-	github.com/monoculum/formam v3.5.5+incompatible
+	github.com/monoculum/formam/v3 v3.6.1-0.20221019142301-7634f9dcc123
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.4.2
-	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a
-	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
-	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b
-	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
+	golang.org/x/crypto v0.1.0
+	golang.org/x/exp v0.0.0-20221019170559-20944726eadf
+	golang.org/x/image v0.1.0
+	golang.org/x/net v0.1.0
+	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.4.0
-	zgo.at/blackmail v0.0.0-20211212060815-1f8e8a94692b
+	zgo.at/blackmail v0.0.0-20221021025740-b3fdfc32a1aa
 	zgo.at/errors v1.1.0
-	zgo.at/follow v0.0.0-20211017230838-112008350298
+	zgo.at/follow v0.0.0-20221021024812-dd647d64b369
 	zgo.at/gadget v1.0.0
 	zgo.at/guru v1.1.0
 	zgo.at/isbot v1.0.0
-	zgo.at/json v0.0.0-20211017213340-cc8bf51df08c
+	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
 	zgo.at/termtext v1.1.0
 	zgo.at/tz v0.0.0-20211017223207-006eae99adf6
-	zgo.at/z18n v0.0.0-20221018165830-c235ed037573
+	zgo.at/z18n v0.0.0-20221020022658-4ea64eeb51d9
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20221019034256-08e748db3a42
-	zgo.at/zhttp v0.0.0-20221001220656-a9e60fe5f8e3
+	zgo.at/zhttp v0.0.0-20221021071853-2fea7a3c1367
 	zgo.at/zli v0.0.0-20221012220610-d6a5a841b943
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
-	zgo.at/zstd v0.0.0-20221013104704-16fa49fadc62
-	zgo.at/ztpl v0.0.0-20221018165743-cbd2a654b6af
-	zgo.at/zvalidate v0.0.0-20211128195927-d13b18611e62
+	zgo.at/zstd v0.0.0-20221020020100-2da7bd798a12
+	zgo.at/ztpl v0.0.0-20221020022020-7d727686f6a2
+	zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade
 )
 
 require (
@@ -48,16 +49,16 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
+	github.com/oschwald/maxminddb-golang v1.10.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
-	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/term v0.1.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 )
 
 // https://github.com/oschwald/maxminddb-golang/pull/75
-replace github.com/oschwald/maxminddb-golang => github.com/arp242/maxminddb-golang v1.8.1-0.20201227124339-dc03187a9664
+replace github.com/oschwald/maxminddb-golang => github.com/arp242/maxminddb-golang v1.8.1-0.20221021031716-eb1bbbb3fc5d
 
 // https://github.com/oschwald/geoip2-golang/pull/68
-replace github.com/oschwald/geoip2-golang => github.com/arp242/geoip2-golang v1.4.1-0.20201227124715-9eb17ed0da06
+replace github.com/oschwald/geoip2-golang => github.com/arp242/geoip2-golang v1.4.1-0.20220825052315-37df63691c60

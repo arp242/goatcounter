@@ -29,9 +29,10 @@
 			font-size: 1.5em;
 			position: relative;
 			margin-top: 1rem;
-			margin-bottom: -1px;
+			margin-bottom: 0;
 			padding: .2rem;
 			padding-left: .5rem;
+			margin-bottom: -1px;
 		}
 
 		h3.js-expand {
@@ -51,7 +52,7 @@
 			font-weight: normal;
 			color: rgb(0, 0, 238);
 
-
+			 
 			width: 1.5em;
 			display: inline-block;
 			text-align: center;
@@ -116,12 +117,12 @@
 <body>
 	<h1>GoatCounter API documentation 0.1</h1>
 
+	
 
-
-
+	
 
 	<h2>Endpoints</h2>
-
+	
 			</div><div>
 			<h3 id="count" class="js-expand">count
 				<a class="permalink" href="#count">§</a></h3>
@@ -152,6 +153,10 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 								<a href="#handlers.apiError">handlers.apiError</a>
 							<sup>(application/json)</sup>
 					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
 					<li><code class="param-name">403 Forbidden</code>
 								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
@@ -174,11 +179,15 @@ listed have been processed and shouldn&#39;t be sent again.</p>
 				<h4>Responses</h4>
 				<ul>
 					<li><code class="param-name">200 OK</code>
-								<a href="#goatcounter.Export">goatcounter.Export</a>
+								<a href="#v2.Export">v2.Export</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">400 Bad Request</code>
 								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">403 Forbidden</code>
@@ -213,6 +222,10 @@ return a 400 Gone status code if the export has been deleted.</p>
 								<a href="#handlers.apiError">handlers.apiError</a>
 							<sup>(application/json)</sup>
 					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
 					<li><code class="param-name">403 Forbidden</code>
 								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
@@ -237,11 +250,15 @@ return a 400 Gone status code if the export has been deleted.</p>
 				<h4>Responses</h4>
 				<ul>
 					<li><code class="param-name">202 Accepted</code>
-								<a href="#goatcounter.Export">goatcounter.Export</a>
+								<a href="#v2.Export">v2.Export</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">400 Bad Request</code>
 								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">403 Forbidden</code>
@@ -273,6 +290,10 @@ return a 400 Gone status code if the export has been deleted.</p>
 								<a href="#handlers.apiError">handlers.apiError</a>
 							<sup>(application/json)</sup>
 					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
 					<li><code class="param-name">403 Forbidden</code>
 								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
@@ -297,6 +318,10 @@ return a 400 Gone status code if the export has been deleted.</p>
 					</li>
 					<li><code class="param-name">400 Bad Request</code>
 								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">403 Forbidden</code>
@@ -332,6 +357,10 @@ fields that are sent.</p>
 								<a href="#handlers.apiError">handlers.apiError</a>
 							<sup>(application/json)</sup>
 					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
 					<li><code class="param-name">403 Forbidden</code>
 								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
@@ -365,6 +394,10 @@ fields that are sent.</p>
 								<a href="#handlers.apiError">handlers.apiError</a>
 							<sup>(application/json)</sup>
 					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
 					<li><code class="param-name">403 Forbidden</code>
 								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
@@ -396,6 +429,10 @@ fields that are sent.</p>
 								<a href="#handlers.apiError">handlers.apiError</a>
 							<sup>(application/json)</sup>
 					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
 					<li><code class="param-name">403 Forbidden</code>
 								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
@@ -403,8 +440,206 @@ fields that are sent.</p>
 			</div>
 		</div>
 			</div><div>
-			<h3 id="user" class="js-expand">user
-				<a class="permalink" href="#user">§</a></h3>
+			<h3 id="stats" class="js-expand">stats
+				<a class="permalink" href="#stats">§</a></h3>
+
+		<div class="endpoint" id="GET-/api/v0/stats/hits">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/stats/hits</code>
+				Get an overview of pageviews.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fstats%2fhits">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+					<h4>Query parameters</h4>
+					
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiHitsResponse">handlers.apiHitsResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/stats/hits/{path_id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/stats/hits/{path_id}</code>
+				Get an overview of referral information for a path.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fstats%2fhits%2f%7bpath_id%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+					<h4>Query parameters</h4>
+					
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiRefsResponse">handlers.apiRefsResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/stats/paths">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/stats/paths</code>
+				Get an overview of paths on this site (without statistics).
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fstats%2fpaths">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+					<h4>Query parameters</h4>
+					
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiPathsResponse">handlers.apiPathsResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/stats/total">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/stats/total</code>
+				Count total number of pageviews for a date range.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fstats%2ftotal">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>This is mostly useful to display things like browser stats as a percentage of
+the total; the /api/v0/pages endpoint only counts the pageviews until it&#39;s
+paginated.</p>
+					<h4>Query parameters</h4>
+					
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#goatcounter.TotalCount">goatcounter.TotalCount</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/stats/{page}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/stats/{page}</code>
+				Get browser/system/etc. stats.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fstats%2f%7bpage%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>Page can be: browsers, systems, locations, languages, sizes, campaigns,
+toprefs.</p>
+					<h4>Query parameters</h4>
+					
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiStatsResponse">handlers.apiStatsResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+
+		<div class="endpoint" id="GET-/api/v0/stats/{page}/{id}">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/stats/{page}/{id}</code>
+				Get detailed stats for an ID.
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fstats%2f%7bpage%7d%2f%7bid%7d">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p>Page can be: browsers, systems, locations, sizes, campaigns, toprefs.</p>
+					<h4>Query parameters</h4>
+					
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiStatsResponse">handlers.apiStatsResponse</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+			</div><div>
+			<h3 id="users" class="js-expand">users
+				<a class="permalink" href="#users">§</a></h3>
 
 		<div class="endpoint" id="GET-/api/v0/me">
 			<div class="endpoint-top">
@@ -425,6 +660,10 @@ fields that are sent.</p>
 								<a href="#handlers.apiError">handlers.apiError</a>
 							<sup>(application/json)</sup>
 					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
 					<li><code class="param-name">403 Forbidden</code>
 								<a href="#handlers.authError">handlers.authError</a>
 							<sup>(application/json)</sup>
@@ -433,7 +672,7 @@ fields that are sent.</p>
 		</div>
 
 	<h2>Models</h2>
-
+	
 		<h3 id="goatcounter.APIToken">goatcounter.APIToken <a class="permalink" href="#goatcounter.APIToken">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
@@ -443,29 +682,78 @@ fields that are sent.</p>
 <p></p>
 
 		</div>
-		<h3 id="goatcounter.Export">goatcounter.Export <a class="permalink" href="#goatcounter.Export">§</a></h3>
+		<h3 id="goatcounter.HitList">goatcounter.HitList <a class="permalink" href="#goatcounter.HitList">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
-			<h4>id <sup>integer [readonly]</sup></h4>
-<p></p>
-<h4>site_id <sup>integer [readonly]</sup></h4>
-<p></p>
-<h4>start_from_hit_id <sup>integer</sup></h4>
-<p>The hit ID this export was started from.</p>
-<h4>last_hit_id <sup>integer [readonly]</sup></h4>
-<p>Last hit ID that was exported; can be used as start_from_hit_id.</p>
-<h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
-<p></p>
-<h4>finished_at <sup>string [format: date-time] [readonly]</sup></h4>
-<p></p>
-<h4>num_rows <sup>integer [readonly]</sup></h4>
-<p></p>
-<h4>size <sup>string [readonly]</sup></h4>
-<p>File size in MB.</p>
-<h4>hash <sup>string [readonly]</sup></h4>
-<p>SHA256 hash.</p>
-<h4>error <sup>string [readonly]</sup></h4>
-<p>Any errors that may have occured.</p>
+			<h4>count <sup>integer</sup></h4>
+<p>Number of pageviews for the selected date range.</p>
+<h4>count_unique <sup>integer</sup></h4>
+<p>Number of visitors for the selected date range.</p>
+<h4>path_id <sup>integer</sup></h4>
+<p>Path ID</p>
+<h4>path <sup>string</sup></h4>
+<p>Path name (e.g. /hello.html).</p>
+<h4>event <sup>boolean</sup></h4>
+<p>Is this an event?</p>
+<h4>title <sup>string</sup></h4>
+<p>Page title.</p>
+<h4>max <sup>integer</sup></h4>
+<p>Highest visitors per hour or day (depending on daily being set).</p>
+<h4>stats <sup>array [type: <a href="#goatcounter.HitListStat">goatcounter.HitListStat</a>]</sup></h4>
+<p>Statistics by day and hour.</p>
+<h4>ref_scheme <sup>string [enum: "enum:", "h", "g", "c", "o"]</sup></h4>
+<p>What kind of referral this is; only set when retrieving referrals .</p><p> h HTTP Referal header.
+ g Generated; for example are Google domains (google.com, google.nl,
+ google.co.nz, etc.) are grouped as the generated referral &#34;Google&#34;.
+ c Campaign (via query parameter)
+ o Other</p>
+
+		</div>
+		<h3 id="goatcounter.HitListStat">goatcounter.HitListStat <a class="permalink" href="#goatcounter.HitListStat">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>day <sup>string [format: date]</sup></h4>
+<p>Day these statistics are for.</p>
+<h4>hourly <sup>array [type: integer]</sup></h4>
+<p>Pageviews per hour.</p>
+<h4>hourly_unique <sup>array [type: integer]</sup></h4>
+<p>Visitors per hour.</p>
+<h4>daily <sup>integer</sup></h4>
+<p>Total pageviews for this day.</p>
+<h4>daily_unique <sup>integer</sup></h4>
+<p>Total visitors for this day.</p>
+
+		</div>
+		<h3 id="goatcounter.HitStat">goatcounter.HitStat <a class="permalink" href="#goatcounter.HitStat">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>id <sup>string</sup></h4>
+<p>ID for selecting more details; not present in the detail view.</p>
+<h4>name <sup>string</sup></h4>
+<p>Display name.</p>
+<h4>count <sup>integer</sup></h4>
+<p>Number of pageviews.</p>
+<h4>count_unique <sup>integer</sup></h4>
+<p>Number of visitors.</p>
+<h4>ref_scheme <sup>string [enum: "enum:", "h", "g", "c", "o"]</sup></h4>
+<p>What kind of referral this is; only set when retrieving referrals .</p><p> h HTTP Referal header.
+ g Generated; for example are Google domains (google.com, google.nl,
+ google.co.nz, etc.) are grouped as the generated referral &#34;Google&#34;.
+ c Campaign (via query parameter)
+ o Other</p>
+
+		</div>
+		<h3 id="goatcounter.Path">goatcounter.Path <a class="permalink" href="#goatcounter.Path">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>id <sup>integer</sup></h4>
+<p>Path ID</p>
+<h4>path <sup>string</sup></h4>
+<p>Path name</p>
+<h4>title <sup>string</sup></h4>
+<p>Page title</p>
+<h4>event <sup>boolean</sup></h4>
+<p>Is this an event?</p>
 
 		</div>
 		<h3 id="goatcounter.Site">goatcounter.Site <a class="permalink" href="#goatcounter.Site">§</a></h3>
@@ -484,22 +772,6 @@ fields that are sent.</p>
 used for goatcounter.com and not when self-hosting.</p>
 <h4>link_domain <sup>string</sup></h4>
 <p>Site domain for linking (www.arp242.net).</p>
-<h4>plan <sup>string [readonly]</sup></h4>
-<p>Plan currently subscribed to.</p>
-<h4>plan_pending <sup>string [readonly]</sup></h4>
-<p>Plan this site tried to subscribe to, but payment hasn&#39;t been verified
-yet.</p>
-<h4>stripe <sup>string [readonly]</sup></h4>
-<p>Stripe customer ID.</p>
-<h4>plan_cancel_at <sup>string [format: date-time] [readonly]</sup></h4>
-<p>When this plan is scheduled to be cancelled.</p>
-<h4>billing_amount <sup>string [readonly]</sup></h4>
-<p>Amount is being paid for the plan.</p>
-<h4>extra_pageviews <sup>integer [readonly]</sup></h4>
-<p>Maximum number of extra pageviews to charge for.</p>
-<h4>billing_anchor <sup>string [format: date-time] [readonly]</sup></h4>
-<p>&#34;Anchor&#34; for the billing period.</p><p>This is the time someone subscribed to a plan; and their billing period
-will start on this day.</p>
 <h4>setttings <sup></sup></h4>
 <p></p>
 <h4>user_defaults <sup></sup></h4>
@@ -520,10 +792,12 @@ pageview.</p>
 		<h3 id="goatcounter.SiteSettings">goatcounter.SiteSettings <a class="permalink" href="#goatcounter.SiteSettings">§</a></h3>
 		<div class="endpoint model">
 			<p class="info">SiteSettings contains all the user-configurable settings for a site, with
-the exception of the domain and billing settings.
+the exception of the domain settings.
 
 This is stored as JSON in the database.</p>
-			<h4>public <sup>boolean</sup></h4>
+			<h4>public <sup>string</sup></h4>
+<p></p>
+<h4>secret <sup>string</sup></h4>
 <p></p>
 <h4>allow_counter <sup>boolean</sup></h4>
 <p></p>
@@ -531,14 +805,30 @@ This is stored as JSON in the database.</p>
 <p></p>
 <h4>data_retention <sup>integer</sup></h4>
 <p></p>
-<h4>campaigns <sup>array [type: string]</sup></h4>
-<p></p>
 <h4>ignore_ips <sup>array [type: string]</sup></h4>
 <p></p>
 <h4>collect <sup>integer</sup></h4>
 <p></p>
 <h4>collect_regions <sup>array [type: string]</sup></h4>
 <p></p>
+<h4>allow_embed <sup>array [type: string]</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="goatcounter.TotalCount">goatcounter.TotalCount <a class="permalink" href="#goatcounter.TotalCount">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>total <sup>integer</sup></h4>
+<p>Total number of pageviews (including events).</p>
+<h4>total_unique <sup>integer</sup></h4>
+<p>Total number of visitors (including events).</p>
+<h4>total_events <sup>integer</sup></h4>
+<p>Total number of events.</p>
+<h4>total_events_unique <sup>integer</sup></h4>
+<p>Total number of visitors for events.</p>
+<h4>total_unique_utc <sup>integer</sup></h4>
+<p>Total number of visitors in UTC. The browser, system, etc, stats are
+always in UTC.</p>
 
 		</div>
 		<h3 id="goatcounter.User">goatcounter.User <a class="permalink" href="#goatcounter.User">§</a></h3>
@@ -562,11 +852,18 @@ This is stored as JSON in the database.</p>
 <p></p>
 <h4>settings <sup></sup></h4>
 <p></p>
+<h4>last_report_at <sup>string [format: date-time]</sup></h4>
+<p>Keep track when the last email report was sent, so we don&#39;t double-send them.</p>
 <h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p></p>
 <h4>updated_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p></p>
 
+		</div>
+		<h3 id="goatcounter.UserAccess">goatcounter.UserAccess <a class="permalink" href="#goatcounter.UserAccess">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			
 		</div>
 		<h3 id="goatcounter.UserSettings">goatcounter.UserSettings <a class="permalink" href="#goatcounter.UserSettings">§</a></h3>
 		<div class="endpoint model">
@@ -574,6 +871,8 @@ This is stored as JSON in the database.</p>
 			<h4>twenty_four_hours <sup>boolean</sup></h4>
 <p></p>
 <h4>sunday_starts_week <sup>boolean</sup></h4>
+<p></p>
+<h4>language <sup>string</sup></h4>
 <p></p>
 <h4>date_format <sup>string</sup></h4>
 <p></p>
@@ -584,6 +883,12 @@ This is stored as JSON in the database.</p>
 <h4>widgets <sup>array [type: <a href="#goatcounter.Widget">goatcounter.Widget</a>]</sup></h4>
 <p></p>
 <h4>views <sup>array [type: <a href="#goatcounter.View">goatcounter.View</a>]</sup></h4>
+<p></p>
+<h4>email_reports <sup>integer</sup></h4>
+<p></p>
+<h4>fewer_numbers <sup>boolean</sup></h4>
+<p></p>
+<h4>fewer_numbers_lock_until <sup>string [format: date-time]</sup></h4>
 <p></p>
 
 		</div>
@@ -603,7 +908,7 @@ This is stored as JSON in the database.</p>
 		<h3 id="goatcounter.Widget">goatcounter.Widget <a class="permalink" href="#goatcounter.Widget">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
-
+			
 		</div>
 		<h3 id="handlers.APICountRequest">handlers.APICountRequest <a class="permalink" href="#handlers.APICountRequest">§</a></h3>
 		<div class="endpoint model">
@@ -659,9 +964,21 @@ along. Note these will not be stored in the database as the sessionID
 identifier.</p>
 
 		</div>
-		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>
+		<h3 id="handlers.apiCountTotalRequest">handlers.apiCountTotalRequest <a class="permalink" href="#handlers.apiCountTotalRequest">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
+			<h4>start <sup>string [format: date-time] [default: one week ago]</sup></h4>
+<p>Start time, should be rounded to the hour.</p>
+<h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
+<p>End time, should be rounded to the hour.</p>
+<h4>include_paths <sup>array [type: integer]</sup></h4>
+<p>Include only these paths; default is to include everything.</p>
+
+		</div>
+		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">Generic API error. An error will have either the &#34;error&#34; or &#34;errors&#34;
+field set, but not both.</p>
 			<h4>error <sup>string</sup></h4>
 <p></p>
 <h4>errors <sup><a href="#"></a></sup></h4>
@@ -673,6 +990,76 @@ identifier.</p>
 			<p class="info"></p>
 			<h4>start_from_hit_id <sup>integer</sup></h4>
 <p>Pagination cursor; only export hits with an ID greater than this.</p>
+
+		</div>
+		<h3 id="handlers.apiHitsRequest">handlers.apiHitsRequest <a class="permalink" href="#handlers.apiHitsRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>start <sup>string [format: date-time] [default: one week ago]</sup></h4>
+<p>Start time, should be rounded to the hour.</p>
+<h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
+<p>End time, should be rounded to the hour.</p>
+<h4>daily <sup>boolean</sup></h4>
+<p>Group by day, rather than by hour.</p>
+<h4>include_paths <sup>array [type: integer]</sup></h4>
+<p>Include only these paths; default is to include everything.</p>
+<h4>exclude_paths <sup>array [type: integer]</sup></h4>
+<p>Exclude these paths, for pagination.</p>
+<h4>limit <sup>integer [default: 20] [range: 1-100]</sup></h4>
+<p>Maximum number of pages to get.</p>
+
+		</div>
+		<h3 id="handlers.apiHitsResponse">handlers.apiHitsResponse <a class="permalink" href="#handlers.apiHitsResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>hits <sup>array [type: <a href="#goatcounter.HitList">goatcounter.HitList</a>]</sup></h4>
+<p>Sorted list of paths with their visitor and pageview count.</p>
+<h4>total <sup>integer</sup></h4>
+<p>Total number of pageviews in the returned result.</p>
+<h4>total_unique <sup>integer</sup></h4>
+<p>Total number of visitors in the returned result.</p>
+<h4>more <sup>boolean</sup></h4>
+<p>More hits after this?</p>
+
+		</div>
+		<h3 id="handlers.apiPathsRequest">handlers.apiPathsRequest <a class="permalink" href="#handlers.apiPathsRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>Limit <sup>integer [default: 20] [range: 1-200]</sup></h4>
+<p>Limit number of returned results</p>
+<h4>After <sup>integer</sup></h4>
+<p>Only select paths after this ID, for pagination.</p>
+
+		</div>
+		<h3 id="handlers.apiPathsResponse">handlers.apiPathsResponse <a class="permalink" href="#handlers.apiPathsResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>paths <sup>array [type: <a href="#goatcounter.Path">goatcounter.Path</a>]</sup></h4>
+<p>List of paths, sorted by ID.</p>
+<h4>more <sup>boolean</sup></h4>
+<p>True if there are more paths.</p>
+
+		</div>
+		<h3 id="handlers.apiRefsRequest">handlers.apiRefsRequest <a class="permalink" href="#handlers.apiRefsRequest">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>start <sup>string [format: date-time] [default: one week ago]</sup></h4>
+<p>Start time, should be rounded to the hour.</p>
+<h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
+<p>End time, should be rounded to the hour.</p>
+<h4>limit <sup>integer [default: 20] [range: 1-100]</sup></h4>
+<p>Maximum number of pages to get.</p>
+<h4>offset <sup>integer</sup></h4>
+<p>Offset for pagination.</p>
+
+		</div>
+		<h3 id="handlers.apiRefsResponse">handlers.apiRefsResponse <a class="permalink" href="#handlers.apiRefsResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>refs <sup>array [type: <a href="#goatcounter.HitStat">goatcounter.HitStat</a>]</sup></h4>
+<p></p>
+<h4>more <sup>boolean</sup></h4>
+<p></p>
 
 		</div>
 		<h3 id="handlers.apiSiteUpdateRequest">handlers.apiSiteUpdateRequest <a class="permalink" href="#handlers.apiSiteUpdateRequest">§</a></h3>
@@ -693,9 +1080,33 @@ identifier.</p>
 <p></p>
 
 		</div>
-		<h3 id="handlers.authError">handlers.authError <a class="permalink" href="#handlers.authError">§</a></h3>
+		<h3 id="handlers.apiStatsRequest">handlers.apiStatsRequest <a class="permalink" href="#handlers.apiStatsRequest">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
+			<h4>start <sup>string [format: date-time] [default: one week ago]</sup></h4>
+<p>Start time, should be rounded to the hour.</p>
+<h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
+<p>End time, should be rounded to the hour.</p>
+<h4>include_paths <sup>array [type: integer]</sup></h4>
+<p>Include only these paths; default is to include everything.</p>
+<h4>limit <sup>integer [default: 20] [range: 1-100]</sup></h4>
+<p>Maximum number of pages to get.</p>
+<h4>offset <sup>integer</sup></h4>
+<p>Offset for pagination.</p>
+
+		</div>
+		<h3 id="handlers.apiStatsResponse">handlers.apiStatsResponse <a class="permalink" href="#handlers.apiStatsResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>stats <sup>array [type: <a href="#goatcounter.HitStat">goatcounter.HitStat</a>]</sup></h4>
+<p>Sorted list of paths with their visitor and pageview count.</p>
+<h4>more <sup>boolean</sup></h4>
+<p></p>
+
+		</div>
+		<h3 id="handlers.authError">handlers.authError <a class="permalink" href="#handlers.authError">§</a></h3>
+		<div class="endpoint model">
+			<p class="info">Authentication error: the API key was not provided or incorrect.</p>
 			<h4>Error <sup>string</sup></h4>
 <p></p>
 
@@ -715,7 +1126,7 @@ identifier.</p>
 Typically, the Location represents the collection of time offsets
 in use in a geographical area. For many Locations the time offset varies
 depending on whether daylight savings time is in use at the time instant.</p>
-
+			
 		</div>
 		<h3 id="tz.Zone">tz.Zone <a class="permalink" href="#tz.Zone">§</a></h3>
 		<div class="endpoint model">
@@ -732,33 +1143,60 @@ depending on whether daylight savings time is in use at the time instant.</p>
 <p>Borneo (east, south); Sulawesi/Celebes, Bali, Nusa Tengarra; Timor (west)</p>
 
 		</div>
+		<h3 id="v2.Export">v2.Export <a class="permalink" href="#v2.Export">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>site_id <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>start_from_hit_id <sup>integer</sup></h4>
+<p>The hit ID this export was started from.</p>
+<h4>last_hit_id <sup>integer [readonly]</sup></h4>
+<p>Last hit ID that was exported; can be used as start_from_hit_id.</p>
+<h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>finished_at <sup>string [format: date-time] [readonly]</sup></h4>
+<p></p>
+<h4>num_rows <sup>integer [readonly]</sup></h4>
+<p></p>
+<h4>size <sup>string [readonly]</sup></h4>
+<p>File size in MB.</p>
+<h4>hash <sup>string [readonly]</sup></h4>
+<p>SHA256 hash.</p>
+<h4>error <sup>string [readonly]</sup></h4>
+<p>Any errors that may have occured.</p>
+
+		</div>
 
 	<script>
 		var add = function(endpoint) {
+			
+			var topLine = endpoint.getElementsByClassName('endpoint-top')[0],
+			    info    = endpoint.getElementsByClassName('endpoint-info')[0]
+			if (topLine) {
+				topLine.addEventListener('click', function(e) {
+					if (e.target.className === 'permalink')
+						return
 
-			var topLine = endpoint.getElementsByClassName('endpoint-top')[0]
-			var info = endpoint.getElementsByClassName('endpoint-info')[0]
-			topLine.addEventListener('click', function(e) {
-				if (e.target.className === 'permalink')
-					return
+					e.preventDefault()
+					
+					info.style.display = info.style.display === 'block' ? '' : 'block'
+				})
+			}
 
-				e.preventDefault()
-
-				info.style.display = info.style.display === 'block' ? '' : 'block'
-			})
-
-
-
-
-
-
+			
+			
+			
+			
+			
 		}
 
 		var ep = document.getElementsByClassName('endpoint')
 		for (var i = 0; i < ep.length; i++)
 			add(ep[i])
 
-
+		
 		document.addEventListener('click', function(e) {
 			if (e.target.className !== 'js-expand')
 				return

@@ -254,7 +254,7 @@ func TestGetTotalCount(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := "{5 3 3 2 1}"
+		want := "{5 3 2 1 3}"
 		have := fmt.Sprintf("%v", tt)
 		if want != have {
 			t.Errorf("\nwant: %s\nhave: %s", want, have)
@@ -285,17 +285,17 @@ func TestHitListTotals(t *testing.T) {
 		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 		want := []string{
-			`10 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
+			`10 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
 
-			`10 {"Count":11,"CountUnique":1,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
+			`10 {"count":11,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
 
-			`10 {"Count":1,"CountUnique":1,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
+			`10 {"count":1,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
 
-			`10 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"Daily":0,"DailyUnique":0}]}`,
+			`10 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
 		}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			var hs HitList
@@ -316,17 +316,17 @@ func TestHitListTotals(t *testing.T) {
 		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
 		want := []string{
-			`12 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"Daily":12,"DailyUnique":2}]}`,
+			`12 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":12,"daily_unique":2}]}`,
 
-			`11 {"Count":11,"CountUnique":1,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"Daily":11,"DailyUnique":1}]}`,
+			`11 {"count":11,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":11,"daily_unique":1}]}`,
 
-			`10 {"Count":1,"CountUnique":1,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":1}]}`,
+			`10 {"count":1,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":1,"daily_unique":1}]}`,
 
-			`12 {"Count":12,"CountUnique":2,"PathID":0,"Path":"TOTAL ","Event":false,"Title":"","RefScheme":null,"Max":0,"Stats":[` +
-				`{"Day":"2020-06-18","Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"Daily":12,"DailyUnique":2}]}`,
+			`12 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
+				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":12,"daily_unique":2}]}`,
 		}
 
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
@@ -367,10 +367,10 @@ func TestHitListsPathCount(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{6 5 0 / false  <nil> 0 []}`
+		want := `{6 5 0 / false  0 [] <nil>}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
-			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+			t.Errorf("\nhave: %s\nwant: %s", have, want)
 		}
 	}
 
@@ -382,7 +382,7 @@ func TestHitListsPathCount(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{2 2 0 / false  <nil> 0 []}`
+		want := `{2 2 0 / false  0 [] <nil>}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
@@ -412,7 +412,7 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{8 7 0  false  <nil> 0 []}`
+		want := `{8 7 0  false  0 [] <nil>}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
@@ -427,7 +427,7 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{3 3 0  false  <nil> 0 []}`
+		want := `{3 3 0  false  0 [] <nil>}`
 		have := fmt.Sprintf("%v", hl)
 		if have != want {
 			t.Errorf("\nhave: %#v\nwant: %#v", have, want)

@@ -5,17 +5,21 @@
 package handlers
 
 import (
+	"context"
 	"crypto/subtle"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/bgrun"
@@ -30,18 +34,21 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/zslice"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
 
 type (
+	// Generic API error. An error will have either the "error" or "errors"
+	// field set, but not both.
 	apiError struct {
 		Error  string              `json:"error,omitempty"`
 		Errors map[string][]string `json:"errors,omitempty"`
 	}
+	// Authentication error: the API key was not provided or incorrect.
 	authError struct {
-		Error string `json:"error"`
+		Error string `json:"error,omitempty"`
 	}
 )
 
@@ -56,7 +63,12 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 			Client: mware.RatelimitIP,
 			Store:  mware.NewRatelimitMemory(),
 			Limit: func(r *http.Request) (int, int64) {
-				if r.URL.Path == "/api/v0/count" {
+				switch r.URL.Path {
+				default:
+					return rateLimits.api(r)
+				case "/api/v0/export":
+					return rateLimits.export(r)
+				case "/api/v0/count":
 					// Memstore is taking a while to persist; don't add to it.
 					l := ztime.Now().Sub(cron.LastMemstore.Get())
 					if l > 20*time.Second {
@@ -64,7 +76,6 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 					}
 					return rateLimits.apiCount(r)
 				}
-				return rateLimits.api(r)
 			},
 		}),
 	)
@@ -80,6 +91,13 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 
 	a.Post("/api/v0/count", zhttp.Wrap(h.count))
 
+	a.Get("/api/v0/stats/paths", zhttp.Wrap(h.paths))
+	a.Get("/api/v0/stats/total", zhttp.Wrap(h.countTotal))
+	a.Get("/api/v0/stats/hits", zhttp.Wrap(h.hits))
+	a.Get("/api/v0/stats/hits/{path_id}", zhttp.Wrap(h.refs))
+	a.Get("/api/v0/stats/{page}", zhttp.Wrap(h.stats))
+	a.Get("/api/v0/stats/{page}/{id}", zhttp.Wrap(h.statsDetail))
+
 	// Note: DELETE not supported for sites and users intentionally, since it's
 	// such a dangerous operation.
 	a.Get("/api/v0/sites", zhttp.Wrap(h.siteList))
@@ -89,16 +107,32 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 	a.Patch("/api/v0/sites/{id}", zhttp.Wrap(h.siteUpdate)) // Update just fields given
 }
 
-func tokenFromHeader(r *http.Request) (string, error) {
+func tokenFromHeader(r *http.Request, w http.ResponseWriter) (string, error) {
 	auth := r.Header.Get("Authorization")
 	if auth == "" {
-		return "", guru.New(http.StatusForbidden, "no Authorization header")
+		return "", guru.New(http.StatusUnauthorized, "no Authorization header")
 	}
+
 	b := strings.Fields(auth)
-	if len(b) != 2 || b[0] != "Bearer" {
-		return "", guru.New(http.StatusForbidden, "wrong format for Authorization header")
+	if len(b) != 2 {
+		return "", guru.New(http.StatusUnauthorized, "wrong format for Authorization header")
 	}
-	return b[1], nil
+	switch b[0] {
+	case "Bearer":
+		return b[1], nil
+	case "Basic":
+		k, err := base64.StdEncoding.DecodeString(b[1])
+		if err != nil {
+			return "", guru.Wrap(http.StatusUnauthorized, err, "wrong format for Authorization header")
+		}
+		_, key, ok := strings.Cut(string(k), ":")
+		if !ok || key == "" {
+			return "", guru.Wrap(http.StatusUnauthorized, err, "wrong format for Authorization header")
+		}
+		return key, nil
+	default:
+		return "", guru.New(http.StatusUnauthorized, "wrong format for Authorization header")
+	}
 }
 
 var (
@@ -112,9 +146,10 @@ func ResetBufferKey() {
 	bufferKey = []byte{}
 }
 
-func (h api) auth(r *http.Request, require zint.Bitflag64) error {
-	key, err := tokenFromHeader(r)
+func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64) error {
+	key, err := tokenFromHeader(r, w)
 	if err != nil {
+		w.Header().Set("WWW-Authenticate", "Basic realm=GoatCounter")
 		return err
 	}
 
@@ -127,7 +162,7 @@ func (h api) auth(r *http.Request, require zint.Bitflag64) error {
 			}
 		})
 		if subtle.ConstantTimeCompare(bufferKey, []byte(key)) == 0 {
-			return guru.New(http.StatusForbidden, "unknown buffer token")
+			return guru.New(http.StatusUnauthorized, "unknown buffer token")
 		}
 		return nil
 	}
@@ -136,7 +171,7 @@ func (h api) auth(r *http.Request, require zint.Bitflag64) error {
 	var token goatcounter.APIToken
 	err = token.ByToken(r.Context(), key)
 	if zdb.ErrNoRows(err) {
-		return guru.New(http.StatusForbidden, "unknown token")
+		return guru.New(http.StatusUnauthorized, "unknown token")
 	}
 	if err != nil {
 		return err
@@ -186,7 +221,7 @@ func (h api) test(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	err = h.auth(r, args.Perm)
+	err = h.auth(r, w, args.Perm)
 	if err != nil {
 		return err
 	}
@@ -224,17 +259,17 @@ type meResponse struct {
 	Token goatcounter.APIToken `json:"token"`
 }
 
-// GET /api/v0/me user
+// GET /api/v0/me users
 // Get information about the current user and API key.
 //
 // Response 200: meResponse
 func (h api) me(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, 0)
+	err := h.auth(r, w, 0)
 	if err != nil {
 		return err
 	}
 
-	key, err := tokenFromHeader(r)
+	key, err := tokenFromHeader(r, w)
 	if err != nil {
 		return err
 	}
@@ -251,12 +286,13 @@ func (h api) me(w http.ResponseWriter, r *http.Request) error {
 // POST /api/v0/export export
 // Start a new export in the background.
 //
-// This starts a new export in the background.
+// This starts a new export in the background; this can only be done once an
+// hour.
 //
 // Request body: apiExportRequest
-// Response 202: zgo.at/goatcounter.Export
+// Response 202: zgo.at/goatcounter/v2.Export
 func (h api) export(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APIPermExport)
+	err := h.auth(r, w, goatcounter.APIPermExport)
 	if err != nil {
 		return err
 	}
@@ -283,9 +319,9 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 // GET /api/v0/export/{id} export
 // Get details about an export.
 //
-// Response 200: zgo.at/goatcounter.Export
+// Response 200: zgo.at/goatcounter/v2.Export
 func (h api) exportGet(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APIPermExport)
+	err := h.auth(r, w, goatcounter.APIPermExport)
 	if err != nil {
 		return err
 	}
@@ -315,10 +351,10 @@ func (h api) exportGet(w http.ResponseWriter, r *http.Request) error {
 // return a 400 Gone status code if the export has been deleted.
 //
 // Response 200 (text/csv): {data}
-// Response 202: zgo.at/goatcounter/handlers.apiError
-// Response 400: zgo.at/goatcounter/handlers.apiError
+// Response 202: zgo.at/goatcounter/v2/handlers.apiError
+// Response 400: zgo.at/goatcounter/v2/handlers.apiError
 func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APIPermExport)
+	err := h.auth(r, w, goatcounter.APIPermExport)
 	if err != nil {
 		return err
 	}
@@ -471,7 +507,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	m := metrics.Start("/api/v0/count")
 	defer m.Done()
 
-	err := h.auth(r, goatcounter.APIPermCount)
+	err := h.auth(r, w, goatcounter.APIPermCount)
 	if err != nil {
 		return err
 	}
@@ -493,7 +529,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	if args.Filter == nil {
 		args.Filter = []string{"ip"}
 	}
-	filterIP := zstring.Remove(&args.Filter, "ip")
+	filterIP := zslice.Remove(&args.Filter, "ip")
 	if len(args.Filter) > 0 {
 		return zhttp.JSON(w, apiError{Error: fmt.Sprintf("unknown value in Filter: %v", args.Filter)})
 	}
@@ -505,7 +541,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		site       = Site(r.Context())
 	)
 	for i, a := range args.Hits {
-		if filterIP && a.IP != "" && zstring.Contains(site.Settings.IgnoreIPs, a.IP) {
+		if filterIP && a.IP != "" && slices.Contains(site.Settings.IgnoreIPs, a.IP) {
 			filter = append(filter, i)
 			continue
 		}
@@ -594,7 +630,7 @@ type apiSitesResponse struct {
 //
 // Response 200: apiSitesResponse
 func (h api) siteList(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APIPermSiteRead)
+	err := h.auth(r, w, goatcounter.APIPermSiteRead)
 	if err != nil {
 		return err
 	}
@@ -636,7 +672,7 @@ func (h api) siteFind(r *http.Request) (*goatcounter.Site, error) {
 //
 // Response 200: goatcounter.Site
 func (h api) siteGet(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APIPermSiteRead)
+	err := h.auth(r, w, goatcounter.APIPermSiteRead)
 	if err != nil {
 		return err
 	}
@@ -654,7 +690,7 @@ func (h api) siteGet(w http.ResponseWriter, r *http.Request) error {
 // Request body: goatcounter.Site
 // Response 200: goatcounter.Site
 func (h api) siteCreate(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APIPermSiteCreate)
+	err := h.auth(r, w, goatcounter.APIPermSiteCreate)
 	if err != nil {
 		return err
 	}
@@ -691,7 +727,7 @@ type apiSiteUpdateRequest struct {
 // Request body: apiSiteUpdateRequest
 // Response 200: goatcounter.Site
 func (h api) siteUpdate(w http.ResponseWriter, r *http.Request) error {
-	err := h.auth(r, goatcounter.APIPermSiteUpdate)
+	err := h.auth(r, w, goatcounter.APIPermSiteUpdate)
 	if err != nil {
 		return err
 	}
@@ -722,4 +758,422 @@ func (h api) siteUpdate(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, site)
+}
+
+type (
+	apiPathsRequest struct {
+		// Limit number of returned results {range: 1-200, default: 20}
+		Limit int `json:"limit"`
+
+		// Only select paths after this ID, for pagination.
+		After int64 `json:"after"`
+	}
+	apiPathsResponse struct {
+		// List of paths, sorted by ID.
+		Paths goatcounter.Paths `json:"paths"`
+
+		// True if there are more paths.
+		More bool `json:"more"`
+	}
+)
+
+// GET /api/v0/stats/paths stats
+// Get an overview of paths on this site (without statistics).
+//
+// Query: apiPathsRequest
+// Response 200: apiPathsResponse
+func (h api) paths(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, w, goatcounter.APIPermStats)
+	if err != nil {
+		return err
+	}
+
+	args := apiPathsRequest{Limit: 20}
+	if _, err := zhttp.Decode(r, &args); err != nil {
+		return err
+	}
+	if args.Limit > 200 {
+		args.Limit = 200
+	}
+	if args.Limit < 1 {
+		args.Limit = 1
+	}
+
+	var p goatcounter.Paths
+	more, err := p.List(r.Context(), goatcounter.MustGetSite(r.Context()).ID, args.After, args.Limit)
+	if err != nil {
+		return err
+	}
+	return zhttp.JSON(w, apiPathsResponse{Paths: p, More: more})
+}
+
+type (
+	apiHitsRequest struct {
+		// Start time, should be rounded to the hour {datetime, default: one week ago}.
+		Start time.Time `json:"start" query:"start"`
+
+		// End time, should be rounded to the hour {datetime, default: current time}.
+		End time.Time `json:"end" query:"end"`
+
+		// Group by day, rather than by hour. This only affects the Hits.Max
+		// value: if enabled it's set to the highest value for that day, rather
+		// than the highest value for the hour.
+		Daily bool `json:"daily" query:"daily"`
+
+		// Include only these paths; default is to include everything.
+		IncludePaths goatcounter.Ints `json:"include_paths" query:"include_paths"`
+
+		// Exclude these paths, for pagination.
+		ExcludePaths goatcounter.Ints `json:"exclude_paths" query:"exclude_paths"`
+
+		// Maximum number of pages to get {range: 1-100, default: 20}.
+		Limit int `json:"limit" query:"limit"`
+	}
+	apiHitsResponse struct {
+		// Sorted list of paths with their visitor and pageview count.
+		Hits goatcounter.HitLists `json:"hits"`
+
+		// Total number of pageviews in the returned result.
+		Total int `json:"total"`
+
+		// Total number of visitors in the returned result.
+		TotalUnique int `json:"total_unique"`
+
+		// More hits after this?
+		More bool `json:"more"`
+	}
+)
+
+// GET /api/v0/stats/hits stats
+// Get an overview of pageviews.
+//
+// Query: apiHitsRequest
+// Response 200: apiHitsResponse
+func (h api) hits(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, w, goatcounter.APIPermStats)
+	if err != nil {
+		return err
+	}
+
+	args := apiHitsRequest{Limit: 20}
+	if _, err := zhttp.Decode(r, &args); err != nil {
+		return err
+	}
+	if args.Limit > 100 {
+		args.Limit = 100
+	}
+	if args.Limit < 1 {
+		args.Limit = 1
+	}
+	if args.Start.IsZero() {
+		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+	}
+	if args.End.IsZero() {
+		args.End = ztime.Now()
+	}
+
+	var pages goatcounter.HitLists
+	td, tdu, more, err := pages.List(r.Context(), ztime.NewRange(args.Start).To(args.End),
+		args.IncludePaths, args.ExcludePaths, args.Limit, args.Daily)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, apiHitsResponse{
+		Total:       td,
+		TotalUnique: tdu,
+		Hits:        pages,
+		More:        more,
+	})
+}
+
+type (
+	apiRefsRequest struct {
+		// Start time, should be rounded to the hour {datetime, default: one week ago}.
+		Start time.Time `json:"start" query:"start"`
+
+		// End time, should be rounded to the hour {datetime, default: current time}.
+		End time.Time `json:"end" query:"end"`
+
+		// Maximum number of pages to get {range: 1-100, default: 20}.
+		Limit int `json:"limit" query:"limit"`
+
+		// Offset for pagination.
+		Offset int `json:"offset" query:"offset"`
+	}
+	apiRefsResponse struct {
+		Refs []goatcounter.HitStat `json:"refs"`
+		More bool                  `json:"more"`
+	}
+)
+
+// GET /api/v0/stats/hits/{path_id} stats
+// Get an overview of referral information for a path.
+//
+// Query: apiRefsRequest
+// Response 200: apiRefsResponse
+func (h api) refs(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, w, goatcounter.APIPermStats)
+	if err != nil {
+		return err
+	}
+
+	v := zvalidate.New()
+	path := v.Integer("path_id", chi.URLParam(r, "path_id"))
+	if v.HasErrors() {
+		return v
+	}
+
+	args := apiRefsRequest{Limit: 20}
+	if _, err := zhttp.Decode(r, &args); err != nil {
+		return err
+	}
+	if args.Limit > 100 {
+		args.Limit = 100
+	}
+	if args.Limit < 1 {
+		args.Limit = 1
+	}
+	if args.Start.IsZero() {
+		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+	}
+	if args.End.IsZero() {
+		args.End = ztime.Now()
+	}
+
+	var refs goatcounter.HitStats
+	err = refs.ListRefsByPathID(r.Context(), path, ztime.NewRange(args.Start).To(args.End),
+		args.Limit, args.Offset)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, apiRefsResponse{
+		Refs: refs.Stats,
+		More: refs.More,
+	})
+}
+
+type (
+	apiCountTotalRequest struct {
+		// Start time, should be rounded to the hour {datetime, default: one week ago}.
+		Start time.Time `json:"start" query:"start"`
+
+		// End time, should be rounded to the hour {datetime, default: current time}.
+		End time.Time `json:"end" query:"end"`
+
+		// Include only these paths; default is to include everything.
+		IncludePaths goatcounter.Ints `json:"include_paths" query:"include_paths"`
+	}
+)
+
+// GET /api/v0/stats/total stats
+// Count total number of pageviews for a date range.
+//
+// This is mostly useful to display things like browser stats as a percentage of
+// the total; the /api/v0/pages endpoint only counts the pageviews until it's
+// paginated.
+//
+// Query: apiCountTotalRequest
+// Response 200: goatcounter.TotalCount
+func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
+	err := h.auth(r, w, goatcounter.APIPermStats)
+	if err != nil {
+		return err
+	}
+
+	var args apiCountTotalRequest
+	if _, err := zhttp.Decode(r, &args); err != nil {
+		return err
+	}
+	if args.Start.IsZero() {
+		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+	}
+	if args.End.IsZero() {
+		args.End = ztime.Now()
+	}
+
+	tc, err := goatcounter.GetTotalCount(r.Context(), ztime.NewRange(args.Start).To(args.End),
+		args.IncludePaths, false)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, tc)
+}
+
+type (
+	apiStatsRequest struct {
+		// Start time, should be rounded to the hour {datetime, default: one week ago}.
+		Start time.Time `json:"start" query:"start"`
+
+		// End time, should be rounded to the hour {datetime, default: current time}.
+		End time.Time `json:"end" query:"end"`
+
+		// Include only these paths; default is to include everything.
+		IncludePaths goatcounter.Ints `json:"include_paths" query:"include_paths"`
+
+		// Maximum number of pages to get {range: 1-100, default: 20}.
+		Limit int `json:"limit" query:"limit"`
+
+		// Offset for pagination.
+		Offset int `json:"offset" query:"offset"`
+	}
+	apiStatsResponse struct {
+		// Sorted list of paths with their visitor and pageview count.
+		Stats []goatcounter.HitStat `json:"stats"`
+		More  bool                  `json:"more"`
+	}
+)
+
+// GET /api/v0/stats/{page} stats
+// Get browser/system/etc. stats.
+//
+// Page can be: browsers, systems, locations, languages, sizes, campaigns,
+// toprefs.
+//
+// Query: apiStatsRequest
+// Response 200: apiStatsResponse
+func (h api) stats(w http.ResponseWriter, r *http.Request) error {
+	v := goatcounter.NewValidate(r.Context())
+	page := v.Include("page", chi.URLParam(r, "page"), []string{
+		"browsers", "systems", "locations", "languages", "sizes", "campaigns", "toprefs"})
+	if v.HasErrors() {
+		return v
+	}
+
+	err := h.auth(r, w, goatcounter.APIPermStats)
+	if err != nil {
+		return err
+	}
+
+	args := apiStatsRequest{Limit: 20}
+	if _, err := zhttp.Decode(r, &args); err != nil {
+		return err
+	}
+	if args.Limit > 100 {
+		args.Limit = 100
+	}
+	if args.Limit < 1 {
+		args.Limit = 1
+	}
+	if args.Start.IsZero() {
+		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+	}
+	if args.End.IsZero() {
+		args.End = ztime.Now()
+	}
+
+	var (
+		stats goatcounter.HitStats
+		f     func(ctx context.Context, rng ztime.Range, pathFilter []int64, limit, offset int) error
+	)
+	switch page {
+	case "browsers":
+		f = stats.ListBrowsers
+	case "systems":
+		f = stats.ListSystems
+	case "locations":
+		f = stats.ListLocations
+	case "languages":
+		f = stats.ListLanguages
+	case "sizes":
+		f = func(ctx context.Context, rng ztime.Range, pathFilter []int64, _, _ int) error {
+			return stats.ListSizes(ctx, rng, pathFilter)
+		}
+	case "campaigns":
+		f = stats.ListCampaigns
+	case "toprefs":
+		f = stats.ListTopRefs
+	}
+	err = f(r.Context(), ztime.NewRange(args.Start).To(args.End), args.IncludePaths, args.Limit, args.Offset)
+	if err != nil {
+		return err
+	}
+
+	// Name is used as ID for some; setting it here makes for a nicer API.
+	// TODO: should probably use the "real" ID now that we have tables for that.
+	for i := range stats.Stats {
+		if stats.Stats[i].ID == "" {
+			stats.Stats[i].ID = stats.Stats[i].Name
+		}
+	}
+
+	return zhttp.JSON(w, apiStatsResponse{
+		Stats: stats.Stats,
+		More:  stats.More,
+	})
+}
+
+// GET /api/v0/stats/{page}/{id} stats
+// Get detailed stats for an ID.
+//
+// Page can be: browsers, systems, locations, sizes, campaigns, toprefs.
+//
+// Query: apiStatsRequest
+// Response 200: apiStatsResponse
+func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
+	v := goatcounter.NewValidate(r.Context())
+	page := v.Include("page", chi.URLParam(r, "page"), []string{
+		"browsers", "systems", "locations", "sizes", "campaigns", "toprefs"})
+	if v.HasErrors() {
+		return v
+	}
+
+	err := h.auth(r, w, goatcounter.APIPermStats)
+	if err != nil {
+		return err
+	}
+
+	args := apiStatsRequest{Limit: 20}
+	if _, err := zhttp.Decode(r, &args); err != nil {
+		return err
+	}
+	if args.Limit > 100 {
+		args.Limit = 100
+	}
+	if args.Limit < 1 {
+		args.Limit = 1
+	}
+	if args.Start.IsZero() {
+		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+	}
+	if args.End.IsZero() {
+		args.End = ztime.Now()
+	}
+
+	var (
+		stats goatcounter.HitStats
+		f     func(ctx context.Context, id string, rng ztime.Range, pathFilter []int64, limit, offset int) error
+	)
+	switch page {
+	case "browsers":
+		f = stats.ListBrowser
+	case "systems":
+		f = stats.ListSystem
+	case "locations":
+		f = stats.ListLocation
+	case "sizes":
+		f = stats.ListSize
+	case "toprefs":
+		f = stats.ListTopRef
+	case "campaigns":
+		f = func(ctx context.Context, id string, rng ztime.Range, pathFilter []int64, limit, offset int) error {
+			n, err := strconv.ParseInt(id, 0, 64)
+			if err != nil {
+				return err
+			}
+			return stats.ListCampaign(ctx, n, rng, pathFilter, limit, offset)
+		}
+	}
+	err = f(r.Context(), chi.URLParam(r, "id"), ztime.NewRange(args.Start).To(args.End),
+		args.IncludePaths, args.Limit, args.Offset)
+	if err != nil {
+		return err
+	}
+
+	return zhttp.JSON(w, apiStatsResponse{
+		Stats: stats.Stats,
+		More:  stats.More,
+	})
 }

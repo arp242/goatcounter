@@ -23,7 +23,7 @@ var rateLimits = struct {
 	count, api, apiCount, export, login func(*http.Request) (int, int64)
 }{
 	count:    mware.RatelimitLimit(4, 1),
-	api:      mware.RatelimitLimit(4, 10),
+	api:      mware.RatelimitLimit(4, 1),
 	apiCount: mware.RatelimitLimit(60, 120),
 	export:   mware.RatelimitLimit(1, 3600),
 	login:    mware.RatelimitLimit(20, 60),

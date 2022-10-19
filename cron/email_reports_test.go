@@ -168,7 +168,7 @@ func TestEmailReports(t *testing.T) {
 			have = regexp.MustCompile(`(?m)^\s+`).ReplaceAllString(have, "")
 
 			tt.want = ztest.NormalizeIndent(tt.want)
-			if d := ztest.Diff(have, tt.want); d != "" {
+			if d := ztest.Diff(have, tt.want, ztest.DiffVerbose); d != "" {
 				t.Error(d + "\n\n" + have)
 			}
 		})

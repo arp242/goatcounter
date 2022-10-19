@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/exp/slices"
 	"golang.org/x/text/language"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
@@ -347,7 +348,7 @@ start:
 	default:
 		// Be forgiving if someone reverses the order of "create" and "site".
 		maybeCmd := f.Shift()
-		if zstring.Contains([]string{"create", "update", "delete", "show"}, maybeCmd) {
+		if slices.Contains([]string{"create", "update", "delete", "show"}, maybeCmd) {
 			f.Args = append([]string{maybeCmd, cmd}, f.Args...)
 			goto start
 		}

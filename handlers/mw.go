@@ -244,6 +244,17 @@ func addcsp(domainStatic string) func(http.Handler) http.Handler {
 				frame = defaultFrameAncestors
 			}
 
+			if r.URL.Path == "/api2.html" {
+				// Allow RapiDoc, and allow static.zgo.at because we don't have
+				// access to the {{.Static}} variable in here.
+				// TODO: can fix that, actually.
+				// TODO: maybe don't load from unpkg?
+				ds = append(ds, "https://unpkg.com/rapidoc/dist/rapidoc-min.js", "https://static.zgo.at")
+			}
+			if r.URL.Path == "/api.html" {
+				ds = append(ds, header.CSPSourceUnsafeInline)
+			}
+
 			header.SetCSP(w.Header(), header.CSPArgs{
 				header.CSPFrameAncestors: frame,
 				header.CSPFrameSrc:       {header.CSPSourceSelf},

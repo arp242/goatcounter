@@ -17,8 +17,8 @@ import (
 // Ints stores a slice of []int64 as a comma-separated string.
 type Ints []int64
 
-func (l Ints) String() string                { return zint.Join64(l, ", ") }
-func (l Ints) Value() (driver.Value, error)  { return zint.Join64(l, ","), nil }
+func (l Ints) String() string                { return zint.Join(l, ", ") }
+func (l Ints) Value() (driver.Value, error)  { return zint.Join(l, ","), nil }
 func (l *Ints) UnmarshalText(v []byte) error { return l.Scan(v) }
 
 func (l *Ints) Scan(v interface{}) error {
