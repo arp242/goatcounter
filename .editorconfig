@@ -11,5 +11,5 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
-[*.markdown]
+[*.{css,markdown,md}]
 indent_style = space
