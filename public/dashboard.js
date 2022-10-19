@@ -535,23 +535,26 @@
 				views  = daily ? day.Daily       : day.Hourly[i%24]
 
 			let title = ''
+			let future = futureFrom && x >= futureFrom - 1
 			if (daily)
-				title = `${format_date(day.Day)}, `
+				title = `${format_date(day.Day)}`
 			else
-				title = `${format_date(day.Day)} ${un24(start)} – ${un24(end)}; `
-			if (futureFrom && x >= futureFrom - 1)
-				title += T('dashboard/future')
-			else if (isEvent) {
-				title += T('dashboard/tooltip-event', {
-					unique: format_int(visits),
-					clicks: `<span class="views">${format_int(views)}`,
-				}) + '</span>'
-			}
-			else {
-				title += T('dashboard/totals/num-visits', {
-					'num-visits': format_int(visits),
-					'num-views':  `<span class="views">${format_int(views)}`,
-				}) + '</span>'
+				title = `${format_date(day.Day)} ${un24(start)} – ${un24(end)}`
+			if (future)
+				title += '; ' + T('dashboard/future')
+			if (!future && !USER_SETTINGS.fewer_numbers) {
+				if (isEvent) {
+					title += '; ' + T('dashboard/tooltip-event', {
+						unique: format_int(visits),
+						clicks: `<span class="views">${format_int(views)}`,
+					}) + '</span>'
+				}
+				else {
+					title += '; ' + T('dashboard/totals/num-visits', {
+						'num-visits': format_int(visits),
+						'num-views':  `<span class="views">${format_int(views)}`,
+					}) + '</span>'
+				}
 			}
 
 			tip.remove()
@@ -693,7 +696,7 @@
 					data: append_period({
 						widget: widget,
 						key:    path,
-						total:  row.find('>.col-count').text().replace(/[^0-9]+/g, ''),
+						total:  row.attr('data-count'),
 						offset: row.find('.refs .rows>div').length,
 					}),
 					success: function(data) {

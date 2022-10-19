@@ -68,6 +68,41 @@
 			<span><a href="#_" id="set-local-tz">{{.T "link/set-from-browser|Set from browser"}}</a></span>
 		</fieldset>
 
+		<fieldset id="section-fewer-numbers">
+			<legend>{{.T "header/fewer-number|Show fewer numbers"}}</legend>
+
+			<label>
+				<input type="checkbox" name="user.settings.fewer_numbers" id="user.settings.fewer_numbers"
+					{{if .User.Settings.FewerNumbers}}checked{{end}}
+					{{if .FewerNumbersLocked}}disabled{{end}}
+				>
+				<input type="hidden" name="user.settings.fewer_numbers" value="{{if .FewerNumbersLocked}}on{{else}}off{{end}}">
+				{{.T "label/fewer-numbers|Show fewer numbers"}}
+			</label>
+				<span>{{.T `help/fewer-numbers|
+					Don’t show numbers on the dashboard. This is intended to
+					still give a reasonably useful overview of what happens on
+					your site but prevent an “obsession” over the exact number
+					of visitors and stats.
+				`}}</span>
+
+			<div id="lock-settings">
+				{{if .FewerNumbersLocked}}
+					<br>
+					{{.T "help/locked-until|Locked until %(date)"
+						(.User.Settings.FewerNumbersLockUntil.Format .User.Settings.DateFormat)}}
+				{{else}}
+					<label for="fewer-numbers-lock">{{.T "label/lock-setting|Lock setting"}}</label>
+					<select id="fewer-numbers-lock" name="fewer_numbers_lock">
+						<option value="">{{.T "dont-lock|Don’t lock"}}</option>
+						<option value="week">{{(.T "nav-dash/week|week") | string|ucfirst}}</option>
+						<option value="month">{{(.T "nav-dash/month|month") | string|ucfirst}}</option>
+					<select>
+					<span>{{.T "help/fewer-numbers-lock|You won’t be able to disable this setting for the given time period."}}</span>
+				{{end}}
+			</div>
+		</fieldset>
+
 		<fieldset id="section-email-reports">
 			<legend>{{.T "header/email-reports|Email reports"}}</legend>
 			<label for="email_reports">{{.T "label/email-reports|Send email reports"}}</label>

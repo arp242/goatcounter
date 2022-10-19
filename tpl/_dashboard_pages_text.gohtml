@@ -1,11 +1,13 @@
 <div class="pages-list pages-list-text {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	<div class="widget-header">
 		<h2 class="full-width">{{t .Context "dashboard/pages/header|Pages"}}
-			<small>{{t .Context `dashboard/pages/num-visits|%(num-visits) out of %(total-visits) visits shown`
-				(map
-					"num-visits"   (tag "span" `class="total-unique-display"` (nformat .TotalUniqueDisplay $.User))
-					"total-visits" (tag "span" `class="total-unique"`         (nformat .TotalUnique $.User))
-				)}}</small>
+			{{if not $.User.Settings.FewerNumbers}}
+				<small>{{t .Context `dashboard/pages/num-visits|%(num-visits) out of %(total-visits) visits shown`
+					(map
+						"num-visits"   (tag "span" `class="total-unique-display"` (nformat .TotalUniqueDisplay $.User))
+						"total-visits" (tag "span" `class="total-unique"`         (nformat .TotalUnique $.User))
+					)}}</small>
+			{{end}}
 		</h2>
 		<a href="#" class="logged-in configure-widget" aria-label="{{t $.Context "button/cfg-dashboard|Configure"}}">⚙&#xfe0f;</a>
 	</div>
@@ -13,8 +15,10 @@
 	<table class="count-list count-list-pages count-list-text" data-max="{{.Max}}">
 		<thead><tr>
 			<th class="col-idx"></th>
-			<th class="col-n">{{t .Context "dashboard/pages/visits|Visits"}}</th>
-			<th class="col-n" title="{{t .Context "dashboard/pages/pageviews|Pageviews"}}">{{t .Context "dashboard/pages/views|Views"}}</th>
+			{{if not $.User.Settings.FewerNumbers}}
+				<th class="col-n">{{t .Context "dashboard/pages/visits|Visits"}}</th>
+				<th class="col-n" title="{{t .Context "dashboard/pages/pageviews|Pageviews"}}">{{t .Context "dashboard/pages/views|Views"}}</th>
+			{{end}}
 			<th class="col-p">{{t .Context "dashboard/pages/path|Path"}}</th>
 			<th class="col-t">{{t .Context "dashboard/pages/title|Title"}}</th>
 			<th class="col-d" title="{{t .Context "dashboard/pages/stats-tooltip|Every bar represents 1/12th of the selected time range"}}">{{t .Context "dashboard/pages/stats|Stats"}}</th>

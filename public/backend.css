@@ -6,13 +6,13 @@
  ****************************/
 .page      { padding: 1em; }
 footer     { padding: 1em; text-align: center; display: flex; justify-content: space-between;
-	         background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
+             background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
 footer a   { font-weight: bold; color: #252525; margin: 0 .5em; }
 
 @media (max-width: 54em) {
-	footer      { text-align: left; justify-content: space-around; }
-	footer a    { display: block; padding: .5em 0; }
-	footer span { display: none; }
+    footer      { text-align: left; justify-content: space-around; }
+    footer a    { display: block; padding: .5em 0; }
+    footer span { display: none; }
 }
 
 /* Don't make various explanatory texts too wide. */
@@ -21,7 +21,7 @@ footer a   { font-weight: bold; color: #252525; margin: 0 .5em; }
 .page > ol, .page > div > ol,
 .page > table,
 .form-max-width label, .form-max-width textarea, .form-max-width input {
-	max-width: 50em;
+    max-width: 50em;
 }
 .form-max-width label { display: inline-block; }
 
@@ -32,11 +32,11 @@ footer a   { font-weight: bold; color: #252525; margin: 0 .5em; }
 
 
 .page, .center {
-	/* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
-	 * width. .page has a 1em padding on either side.
-	 * The last 10mm is needede because magic (1mm will work, this just looks
-	 * more even). */
-	max-width: calc((1em * 2) + (86mm * 4) + 10mm);
+    /* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
+     * width. .page has a 1em padding on either side.
+     * The last 10mm is needede because magic (1mm will work, this just looks
+     * more even). */
+    max-width: calc((1em * 2) + (86mm * 4) + 10mm);
 }
 
 nav                    { display: flex; justify-content: space-between; padding-right: .5em; }
@@ -47,14 +47,14 @@ nav #back              { white-space: nowrap; margin-right: 1em; }
 nav .sites-list        { position: absolute; visibility: hidden; }
 nav .sites-list-select { display: none; padding: 0 .6em; background-color: #fff; }
 @media (max-width: 87rem) {
-	nav { padding-left: .5em; }
+    nav { padding-left: .5em; }
 }
 
 
 h2            { margin-bottom: .4em; }
 h2 small      { font-size: .9rem; font-weight: normal; margin-right: .1em; line-height: 1rem; }
 h2.full-width { margin-left: .4em; margin-right: .4em; padding-right: .2em;
-				display: flex; justify-content: space-between; align-items: flex-end; }
+                display: flex; justify-content: space-between; align-items: flex-end; }
 
 h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
@@ -67,38 +67,38 @@ input.red { border: 1px solid red !important; }
 
 /* TODO: replace with .side-by-side? */
 @media (min-width: 55rem) {
-	.form-wrap form          { display: flex; flex-wrap: wrap; }
-	.form-wrap form fieldset { width: 48%; }
+    .form-wrap form          { display: flex; flex-wrap: wrap; }
+    .form-wrap form fieldset { width: 48%; }
 
-	.flex-form          { display: flex; flex-wrap: wrap; }
-	.flex-form form     { width: 48%; }
-	.flex-form fieldset { height: 100%; }
+    .flex-form          { display: flex; flex-wrap: wrap; }
+    .flex-form form     { width: 48%; }
+    .flex-form fieldset { height: 100%; }
 }
 
 .flash {
-	text-align: center;
-	padding: 10px;
-	border-radius: 2px;
-	border: 2px solid #fff;
-	margin-bottom: 1em;
+    text-align: center;
+    padding: 10px;
+    border-radius: 2px;
+    border: 2px solid #fff;
+    margin-bottom: 1em;
 }
 .flash p   { max-width: none !important; }
 .flash pre { text-align: left; margin: 0 auto; display: inline-block; }
 .flash-i {
-	background-color: #c9f0ff;
-	border-color: #a1a1ff;
+    background-color: #c9f0ff;
+    border-color: #a1a1ff;
 }
 .flash-e {
-	background-color: #fff0f0;
-	border-color: #f00;
+    background-color: #fff0f0;
+    border-color: #f00;
 }
 
 .screen-reader { display: none; }
 .hide          { display: none; }
 .show-mobile   { display: none; }
 @media (max-width: 55rem) {
-	.hide-mobile { display: none; }
-	.show-mobile { display: block; }
+    .hide-mobile { display: none; }
+    .show-mobile { display: block; }
 }
 
 /* Using display: none means it's ignored by Safary when pressing Enter. */
@@ -141,8 +141,8 @@ small.go           { display: none; }
 .count-list .col-path    { width: 20rem; }
 .label-event             { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
 .count-list td[colspan="3"] {  /* "nothing to display" */
-	text-align: left;
-	width: auto;
+    text-align: left;
+    width: auto;
 }
 .pages-list:not(.pages-list-text) >.load-more { display: block; margin-top: -.7em; width: max-content; }
 
@@ -160,8 +160,8 @@ tr.target small.go                { display: inline-block; }
 .chart { position: relative; border: 1px solid #ccc; height: 50px; width: 100%; margin: 5px 0; margin-bottom: 1em; }
 
 .chart-left {
-	position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
-	display: none; margin-right: 0;
+    position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+    display: none; margin-right: 0;
 }
 .chart-left a:hover { text-decoration: none; }
 
@@ -169,7 +169,7 @@ tr:hover .chart-left,
 tr.target .chart-left { display: block; }
 
 .chart-right { position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem;
-			   line-height: 1; text-align: center; background-color: #fff; }
+               line-height: 1; text-align: center; background-color: #fff; }
 .page-n      { color: #555; font-size: .8em; }
 
 .chart-line canvas { display: block; height: 50px; width: 100%; }
@@ -186,20 +186,21 @@ tr.target .chart-left { display: block; }
 .count-list-text tbody tr           { border-bottom: 1px solid #eaeaea; border-top: 1px solid #eaeaea; }
 .count-list-text tr:nth-child(even) { background-color: #fafafa; }
 
-.count-list-text .col-idx { width: 1em; color: #555; }
-.count-list-text .col-n   { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
-.count-list-text .col-d   { width: 12em; font-size: 1.2em; padding: 0; vertical-align: middle; text-align: center; }
-.count-list-text .col-d span { padding-top: 2px; border-radius: 2px; border: 1px solid #e9e9e9;
-							   color: #9a15a4; background-color: #f9f9f9; }
-
+.count-list-text .col-idx    { width: 1em; color: #555; }
+.count-list-text .col-n      { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
+.count-list-text .col-d      { width: 12em; font-size: 1.2em; padding: 0; text-align: center; }
+.count-list-text .col-d      { vertical-align: top; }
+.count-list-text .col-d span { display: inline-block; margin-top: .8em; padding-top: 2px; line-height: 1em;
+                               font-family: monospace; letter-spacing: 3px; padding-right: 3px;
+                               border: 1px solid #c9c9c9; border-radius: 2px; color: #9a15a4; background-color: #f9f9f9; }
 
 /*** Horizontal charts
  ********************/
 .hcharts            { display: flex; flex-wrap: wrap; justify-content: space-between; }
 .hcharts > div      { width: 49%; }
 @media (max-width: 45rem) {
-	.hcharts       { display: block; }
-	.hcharts > div { width: auto; }
+    .hcharts       { display: block; }
+    .hcharts > div { width: auto; }
 }
 
 .hchart .rows >div   { position: relative; margin-bottom: .8em; }
@@ -226,14 +227,14 @@ tr.target .chart-left { display: block; }
 
 #dash-saved-views       { position: absolute; top: .2em; right: .3em; z-index: 5; max-width: 30em; text-align: right; }
 #dash-saved-views >span { font-size: 20px; padding: .2em; cursor: pointer;
-	                      user-select: none; -webkit-user-select: none; color: #00f; transition: opacity .2s; }
+                          user-select: none; -webkit-user-select: none; color: #00f; transition: opacity .2s; }
 #dash-saved-views >div  { display: none; margin-right: .5em; padding: .5em; text-align: left;
-						  background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
+                          background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
 #dash-saved-views >span:hover { opacity: .5; }
 
 @media (max-width: 36.5rem) {
-	#dash-move span           { display: block; }
-	#dash-move div:last-child { display: flex; flex-direction: column-reverse; text-align: right; align-items: end; }
+    #dash-move span           { display: block; }
+    #dash-move div:last-child { display: flex; flex-direction: column-reverse; text-align: right; align-items: end; }
 }
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
@@ -252,23 +253,23 @@ tr.target .chart-left { display: block; }
 #dash-select-period span+span { margin-left: .5em; }
 
 #dash-timerange { background-color: #f8f8d9; border: 1px solid #dede89; text-align: center;
-	              padding: 0 .4em; padding-top: 2px; border-top: 0; margin-top: -4px;
-	              border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
+                  padding: 0 .4em; padding-top: 2px; border-top: 0; margin-top: -4px;
+                  border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
 
 @media (max-width: 56.5rem) {
-	/* Break "current [..]" to new line to make more space. */
-	#dash-select-period span+span { display: block; margin-left: 0em; }
-	#dash-main label              { display: block; }
+    /* Break "current [..]" to new line to make more space. */
+    #dash-select-period span+span { display: block; margin-left: 0em; }
+    #dash-main label              { display: block; }
 }
 
 @media (max-width: 41rem) {
-	#filter-paths  { width: 10em;  }
+    #filter-paths  { width: 10em;  }
 }
 
 @media (max-width: 33.5rem) {
-	#dash-main       { display: block; }
-	#filter-paths    { width: 100%; margin-top: .5em; }
-	#dash-main label { text-align: left; }
+    #dash-main       { display: block; }
+    #filter-paths    { width: 100%; margin-top: .5em; }
+    #dash-main label { text-align: left; }
 }
 
 .period-day [value=day],
@@ -279,8 +280,8 @@ tr.target .chart-left { display: block; }
 .period-year [value=year],
 .period-week-cur [value=week-cur],
 .period-month-cur [value=month-cur] {
-	font-weight: bold;
-	text-decoration: underline;
+    font-weight: bold;
+    text-decoration: underline;
 }
 
 /* Widget settings button for every widget. */
@@ -290,25 +291,25 @@ tr.target .chart-left { display: block; }
 .configure-widget:hover { color: inherit; opacity: .7; text-decoration: none; }
 .pages-list .configure-widget, .totals .configure-widget { left: .4rem; }
 #page-dashboard .widget-settings { position: absolute; z-index: 2; padding: .5em;
-	background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
+    background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
 
 /*** Tooltip
  ************/
 #tooltip { position: absolute; left: 0; top: 0; padding: .2em .5em; font-size: 14px;
-		   font-family: sans-serif; color: #000; background-color: #f6f6f6; box-shadow: 0 0 2px #aaa; }
+           font-family: sans-serif; color: #000; background-color: #f6f6f6; box-shadow: 0 0 2px #aaa; }
 #tooltip .views { color: #7a7a7a; } /* Grey out "pageviews" in tooltip. */
 
 
 /*** Settings tabs
  ******************/
 .tab-nav               { padding: 1em; justify-content: left; border-radius: 2px;
-						 background-color: #f8f8d9; border: 1px solid #dede89; }
+                         background-color: #f8f8d9; border: 1px solid #dede89; }
 .tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
 @media (max-width: 40rem) {
-	.tab-nav   { flex-wrap: wrap; justify-content: center; }
-	.tab-nav a { line-height: 2.5em; }
+    .tab-nav   { flex-wrap: wrap; justify-content: center; }
+    .tab-nav a { line-height: 2.5em; }
 }
 
 /*** Settings page
@@ -332,12 +333,12 @@ tr.target .chart-left { display: block; }
 #page-user-dashboard .widget-settings { display: none; }
 
 @media (max-width: 46rem) {
-	.widget-settings label { display: block; margin-bottom: 0; }
-	.widget-settings .help { display: block; margin-left: .2em; }
+    .widget-settings label { display: block; margin-bottom: 0; }
+    .widget-settings .help { display: block; margin-left: .2em; }
 }
 
 .drag-handle {
-	position: absolute; top: 0; left: 0; width: 2em; height: 100%; cursor: move; text-align: center; margin-left: 0;
+    position: absolute; top: 0; left: 0; width: 2em; height: 100%; cursor: move; text-align: center; margin-left: 0;
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi2r9//38gYGAEESAAEGAAasgJOgzOKCoAAAAASUVORK5CYII=);
 }
 .drag-handle:hover { background-color: #ddd; }
@@ -376,15 +377,15 @@ noscript p { margin: .5em; }
 #home-pricing-custom { text-align: center; margin-top: 1em; }
 
 @media (max-width: 50rem) {
-	#home-pricing >span { flex-wrap: wrap; justify-content: center; }
-	#home-pricing label { width: 45%; margin: 1em; }
+    #home-pricing >span { flex-wrap: wrap; justify-content: center; }
+    #home-pricing label { width: 45%; margin: 1em; }
 }
 @media (max-width: 37rem) {
-	#home-pricing label        { margin-bottom: 1em; width: 100%; }
-	#home-pricing label .empty { display: none; }
-	#home-pricing ul           { line-height: 2em; }
-	#home-pricing h3           { padding-top: .5em; }
-	#home-signup a             { width: auto; }
+    #home-pricing label        { margin-bottom: 1em; width: 100%; }
+    #home-pricing label .empty { display: none; }
+    #home-pricing ul           { line-height: 2em; }
+    #home-pricing h3           { padding-top: .5em; }
+    #home-signup a             { width: auto; }
 }
 
 #home-pricing-faq      { font-size: .9rem; }
@@ -395,7 +396,7 @@ noscript p { margin: .5em; }
 #home-pricing-faq dt:hover { text-decoration: underline; color: #6491ff; }
 #home-pricing-faq dd   { background-color: #fff; padding: .4em 1em; padding: 0; margin: 0; overflow: hidden; height: 0; text-align: left; }
 @media (max-width: 37rem) {
-	#home-pricing-faq dt { margin: .5em 0; }
+    #home-pricing-faq dt { margin: .5em 0; }
 }
 
 /* End copy */
@@ -433,16 +434,16 @@ h3 + h4                   { margin-top: .3em; }
  * super annoying and 100% pointless.
  * https://stackoverflow.com/a/16255670/660921 */
 @supports (-webkit-overflow-scrolling: touch) {
-	input, select, textarea { font-size: 16px !important; }
+    input, select, textarea { font-size: 16px !important; }
 }
 
 #usage .total strong { display: inline-block; width: 14em; }
 #usage .total .perc  { display: inline-block; width: 2em; text-align: right; margin-right: 1em; }
 
 @media (min-width: 55rem) {
-	.side-by-side          { display: flex; flex-wrap: wrap; justify-content: space-between; }
-	.side-by-side >*       { width: 49%; }
-	.side-by-side.boxed >* { width: 49.8%; }
+    .side-by-side          { display: flex; flex-wrap: wrap; justify-content: space-between; }
+    .side-by-side >*       { width: 49%; }
+    .side-by-side.boxed >* { width: 49.8%; }
 }
 
 .side-by-side.boxed        { margin-top: 1em; }
@@ -454,7 +455,7 @@ h3 + h4                   { margin-top: .3em; }
 .side-by-side.boxed >* >h5
 .side-by-side.boxed >* >h6,
 .fset-header >strong       { position: absolute; top: -.5em; left: .5em; font-size: 1rem; line-height: 1;
-						     padding: 0 .2em; margin: 0; border: 0; background-color: #fff; }
+                             padding: 0 .2em; margin: 0; border: 0; background-color: #fff; }
 .fset-header               { position: relative; margin: 0 -.75em; margin-top: 2em; border-top: 1px solid #666; }
 
 dl { max-width: 50em; }

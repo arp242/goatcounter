@@ -151,6 +151,11 @@
 			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 			$(`#timezone [value$="${zone}"]`).prop('selected', true)
 		})
+
+		// Lock "fewer numbers"
+		$('[id="user.settings.fewer_numbers"]').on('change', function(e) {
+			$('#lock-settings').css('display', $(this).is(':checked') ? 'block' : 'none')
+		}).trigger('change')
 	}
 
 	var page_user_dashboard = function() {

@@ -2,11 +2,13 @@
 <div class="pages-list {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	<div class="widget-header">
 		<h2 class="full-width">{{t .Context "dashboard/pages/header|Pages"}}
-		<small>{{t .Context `dashboard/pages/num-visits|%(num-visits) out of %(total-visits) visits shown`
-			(map
-				"num-visits"   (tag "span" `class="total-unique-display"` (nformat .TotalUniqueDisplay $.User))
-				"total-visits" (tag "span" `class="total-unique"`         (nformat .TotalUnique $.User))
-			)}}</small>
+		{{if not $.User.Settings.FewerNumbers}}
+			<small>{{t .Context `dashboard/pages/num-visits|%(num-visits) out of %(total-visits) visits shown`
+				(map
+					"num-visits"   (tag "span" `class="total-unique-display"` (nformat .TotalUniqueDisplay $.User))
+					"total-visits" (tag "span" `class="total-unique"`         (nformat .TotalUnique $.User))
+				)}}</small>
+		{{end}}
 		</h2>
 		<a href="#" class="logged-in configure-widget" aria-label="{{t $.Context "button/cfg-dashboard|Configure"}}">⚙&#xfe0f;</a>
 	</div>
