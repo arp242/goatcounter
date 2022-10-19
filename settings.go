@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"zgo.at/json"
@@ -72,15 +73,17 @@ type (
 
 	// UserSettings are all user preferences.
 	UserSettings struct {
-		TwentyFourHours  bool     `json:"twenty_four_hours"`
-		SundayStartsWeek bool     `json:"sunday_starts_week"`
-		Language         string   `json:"language"`
-		DateFormat       string   `json:"date_format"`
-		NumberFormat     rune     `json:"number_format"`
-		Timezone         *tz.Zone `json:"timezone"`
-		Widgets          Widgets  `json:"widgets"`
-		Views            Views    `json:"views"`
-		EmailReports     zint.Int `json:"email_reports"`
+		TwentyFourHours       bool      `json:"twenty_four_hours"`
+		SundayStartsWeek      bool      `json:"sunday_starts_week"`
+		Language              string    `json:"language"`
+		DateFormat            string    `json:"date_format"`
+		NumberFormat          rune      `json:"number_format"`
+		Timezone              *tz.Zone  `json:"timezone"`
+		Widgets               Widgets   `json:"widgets"`
+		Views                 Views     `json:"views"`
+		EmailReports          zint.Int  `json:"email_reports"`
+		FewerNumbers          bool      `json:"fewer_numbers"`
+		FewerNumbersLockUntil time.Time `json:"fewer_numbers_lock_until"`
 	}
 
 	// Widgets is a list of widgets to be printed, in order.

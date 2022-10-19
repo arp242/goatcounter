@@ -1,8 +1,10 @@
 {{range $i, $h := .Pages}}
 	<tr id="{{$h.Path}}" data-id="{{$h.PathID}}" class="{{if eq $h.Path $.ShowRefs}}target{{end}} {{if $h.Event}}event{{end}}">
 		<td class="col-idx">{{sum $.Offset $i}}</td>
-		<td class="col-n col-count">{{nformat $h.CountUnique $.User}}</td>
-		<td class="col-n">{{nformat $h.Count $.User}}</td>
+		{{if not $.User.Settings.FewerNumbers}}
+			<td class="col-n col-count">{{nformat $h.CountUnique $.User}}</td>
+			<td class="col-n">{{nformat $h.Count $.User}}</td>
+		{{end}}
 		<td class="col-p">
 			<a class="load-refs rlink" href="#">{{$h.Path}}</a>
 

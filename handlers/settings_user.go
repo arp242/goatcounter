@@ -26,31 +26,47 @@ func (h settings) userPref(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Template(w, "user_pref.gohtml", struct {
 			Globals
-			Validate  *zvalidate.Validator
-			Timezones []*tz.Zone
-		}{newGlobals(w, r), verr, tz.Zones})
+			Validate           *zvalidate.Validator
+			Timezones          []*tz.Zone
+			FewerNumbersLocked bool
+		}{newGlobals(w, r), verr, tz.Zones,
+			goatcounter.MustGetUser(r.Context()).Settings.FewerNumbersLockUntil.After(ztime.Now())})
 	}
 }
 
 func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 	args := struct {
-		User    goatcounter.User `json:"user"`
-		SetSite bool             `json:"set_site"`
-	}{*User(r.Context()), false}
+		User             goatcounter.User `json:"user"`
+		SetSite          bool             `json:"set_site"`
+		FewerNumbersLock string           `json:"fewer_numbers_lock"`
+	}{*User(r.Context()), false, ""}
 	var (
-		oldEmail   = args.User.Email
-		oldReports = args.User.Settings.EmailReports
+		oldEmail     = args.User.Email
+		oldReports   = args.User.Settings.EmailReports
+		oldFewerNums = args.User.Settings.FewerNumbers
 	)
 	_, err := zhttp.Decode(r, &args)
 	if err != nil {
 		return err
 	}
 
+	if oldFewerNums && !args.User.Settings.FewerNumbers && args.User.Settings.FewerNumbersLockUntil.After(ztime.Now()) {
+		zhttp.FlashError(w, "Nice try")
+		return zhttp.SeeOther(w, "/user/pref")
+	}
+
+	if args.FewerNumbersLock != "" {
+		args.User.Settings.FewerNumbersLockUntil = ztime.Time{ztime.Now()}.
+			In(args.User.Settings.Timezone.Location).
+			AddPeriod(1, map[string]ztime.Period{"week": ztime.WeekMonday, "month": ztime.Month}[args.FewerNumbersLock]).
+			StartOf(ztime.Day).
+			Time
+	}
+
 	var (
 		emailChanged     = goatcounter.Config(r.Context()).GoatcounterCom && oldEmail != args.User.Email
 		reportingChanged = goatcounter.Config(r.Context()).GoatcounterCom && oldReports != args.User.Settings.EmailReports
 	)
-
 	if reportingChanged {
 		args.User.LastReportAt = ztime.Now()
 	}

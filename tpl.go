@@ -409,6 +409,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 	}
 
 	var (
+		user      = MustGetUser(ctx)
 		displayed int
 		b         = new(strings.Builder)
 	)
@@ -480,6 +481,11 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 				`<span class="bar-c"><span class="cutoff">%s</span> %s</span>`, perc, ename, visit)
 		}
 
+		ncol := ""
+		if !user.Settings.FewerNumbers {
+			ncol = tplfunc.Number(s.CountUnique, user.Settings.NumberFormat)
+		}
+
 		id := s.ID
 		if id == "" {
 			id = name
@@ -490,9 +496,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 				<span class="col-name">%[4]s</span>
 				<span class="col-count">%[5]s</span>
 			</div>`,
-			class, id, perc, ref,
-			tplfunc.Number(s.CountUnique, MustGetUser(ctx).Settings.NumberFormat),
-		)
+			class, id, perc, ref, ncol)
 	}
 	b.WriteString(`</div>`)
 
