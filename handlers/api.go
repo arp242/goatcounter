@@ -791,6 +791,9 @@ type (
 // Query: apiPathsRequest
 // Response 200: apiPathsResponse
 func (h api) paths(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/api/v0/stats/*")
+	defer m.Done()
+
 	err := h.auth(r, w, goatcounter.APIPermStats)
 	if err != nil {
 		return err
@@ -858,6 +861,9 @@ type (
 // Query: apiHitsRequest
 // Response 200: apiHitsResponse
 func (h api) hits(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/api/v0/stats/*")
+	defer m.Done()
+
 	err := h.auth(r, w, goatcounter.APIPermStats)
 	if err != nil {
 		return err
@@ -921,6 +927,9 @@ type (
 // Query: apiRefsRequest
 // Response 200: apiRefsResponse
 func (h api) refs(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/api/v0/stats/*")
+	defer m.Done()
+
 	err := h.auth(r, w, goatcounter.APIPermStats)
 	if err != nil {
 		return err
@@ -985,6 +994,9 @@ type (
 // Query: apiCountTotalRequest
 // Response 200: goatcounter.TotalCount
 func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/api/v0/stats/*")
+	defer m.Done()
+
 	err := h.auth(r, w, goatcounter.APIPermStats)
 	if err != nil {
 		return err
@@ -1043,6 +1055,9 @@ type (
 // Query: apiStatsRequest
 // Response 200: apiStatsResponse
 func (h api) stats(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/api/v0/stats/*")
+	defer m.Done()
+
 	v := goatcounter.NewValidate(r.Context())
 	page := v.Include("page", chi.URLParam(r, "page"), []string{
 		"browsers", "systems", "locations", "languages", "sizes", "campaigns", "toprefs"})
@@ -1121,6 +1136,9 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 // Query: apiStatsRequest
 // Response 200: apiStatsResponse
 func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
+	m := metrics.Start("/api/v0/stats/*")
+	defer m.Done()
+
 	v := goatcounter.NewValidate(r.Context())
 	page := v.Include("page", chi.URLParam(r, "page"), []string{
 		"browsers", "systems", "locations", "sizes", "campaigns", "toprefs"})
