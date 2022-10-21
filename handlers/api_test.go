@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/json"
 	"zgo.at/zdb"
+	"zgo.at/zhttp"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
@@ -28,34 +30,12 @@ import (
 	"zgo.at/zvalidate"
 )
 
-func jsonCmp(a, b string) bool {
-	var aj, bj json.RawMessage
-	err := json.Unmarshal([]byte(a), &aj)
-	if err != nil {
-		panic(err)
-	}
-	err = json.Unmarshal([]byte(b), &bj)
-	if err != nil {
-		panic(err)
-	}
-
-	aout, err := json.Marshal(aj)
-	if err != nil {
-		panic(err)
-	}
-	bout, err := json.Marshal(bj)
-	if err != nil {
-		panic(err)
-	}
-
-	return string(aout) == string(bout)
-}
-
 func newAPITest(ctx context.Context, t *testing.T,
 	method, path string, body io.Reader,
 	perm zint.Bitflag64,
 ) (*http.Request, *httptest.ResponseRecorder) {
 
+	zhttp.LogUnknownFields = true
 	token := goatcounter.APIToken{
 		SiteID:      Site(ctx).ID,
 		UserID:      User(ctx).ID,
@@ -80,7 +60,7 @@ func TestAPIBasics(t *testing.T) {
 
 			delete(r.Header, "Authorization")
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
-			ztest.Code(t, rr, 403)
+			ztest.Code(t, rr, 401)
 
 			want := `{"error":"no Authorization header"}`
 			if rr.Body.String() != want {
@@ -94,7 +74,7 @@ func TestAPIBasics(t *testing.T) {
 
 			r.Header.Set("Authorization", r.Header.Get("Authorization")+"x")
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
-			ztest.Code(t, rr, 403)
+			ztest.Code(t, rr, 401)
 
 			want := `{"error":"unknown token"}`
 			if rr.Body.String() != want {
@@ -387,7 +367,7 @@ func TestAPICount(t *testing.T) {
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
-			if !jsonCmp(rr.Body.String(), tt.wantRet) {
+			if d := ztest.Diff(rr.Body.String(), tt.wantRet, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
 				t.Errorf("\nout:  %s\nwant: %s", rr.Body.String(), tt.wantRet)
 			}
 
@@ -508,7 +488,6 @@ func TestAPISitesCreate(t *testing.T) {
 
 func TestAPISitesUpdate(t *testing.T) {
 	ztime.SetNow(t, "2020-06-18 12:13:14")
-	now := ztime.Now()
 
 	tests := []struct {
 		serve        bool
@@ -525,8 +504,6 @@ func TestAPISitesUpdate(t *testing.T) {
 			//s.Cname = ztype.Ptr("gctest.localhost")
 		}},
 	}
-
-	_ = now
 
 	perm := goatcounter.APIPermSiteCreate | goatcounter.APIPermSiteRead | goatcounter.APIPermSiteUpdate
 	for _, tt := range tests {
@@ -562,6 +539,556 @@ func TestAPISitesUpdate(t *testing.T) {
 			got := string(zjson.MustMarshalIndent(retSite, "", "  "))
 			want := string(zjson.MustMarshalIndent(w, "", "  "))
 			if d := ztest.Diff(got, want); d != "" {
+				t.Error(d)
+			}
+		})
+	}
+}
+
+func TestAPIPaths(t *testing.T) {
+	ztime.SetNow(t, "2020-06-18 12:13:14")
+
+	many := func(ctx context.Context, t *testing.T) {
+		p := make(goatcounter.Paths, 50)
+		for i := range p {
+			c := strconv.Itoa(i + 1)
+			p[i].Site = 1
+			p[i].Path = "/" + c
+			p[i].Title = c + " - " + c
+			err := p[i].GetOrInsert(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+
+	tests := []struct {
+		name     string
+		setup    func(context.Context, *testing.T)
+		query    string
+		wantCode int
+		want     string
+	}{
+		{"no paths",
+			nil, "", 200, `{"more": false, "paths": []}`},
+
+		{"works",
+			func(ctx context.Context, t *testing.T) {
+				for _, p := range []goatcounter.Path{
+					{Site: 1, Path: "/a", Title: "Hello"},
+				} {
+					err := p.GetOrInsert(ctx)
+					if err != nil {
+						t.Fatal(err)
+					}
+				}
+			}, "", 200, `{
+            "more": false,
+            "paths": [
+                {"event": false, "id": 1, "path": "/a", "title": "Hello"}
+            ]}`,
+		},
+
+		{"paginates",
+			func(ctx context.Context, t *testing.T) {
+				many(ctx, t)
+			}, "", 200, `{
+			"more": true,
+			"paths": [
+				{"event": false, "id": 1, "path": "/1", "title": "1 - 1"},
+				{"event": false, "id": 2, "path": "/2", "title": "2 - 2"},
+				{"event": false, "id": 3, "path": "/3", "title": "3 - 3"},
+				{"event": false, "id": 4, "path": "/4", "title": "4 - 4"},
+				{"event": false, "id": 5, "path": "/5", "title": "5 - 5"},
+				{"event": false, "id": 6, "path": "/6", "title": "6 - 6"},
+				{"event": false, "id": 7, "path": "/7", "title": "7 - 7"},
+				{"event": false, "id": 8, "path": "/8", "title": "8 - 8"},
+				{"event": false, "id": 9, "path": "/9", "title": "9 - 9"},
+				{"event": false, "id": 10, "path": "/10", "title": "10 - 10"},
+				{"event": false, "id": 11, "path": "/11", "title": "11 - 11"},
+				{"event": false, "id": 12, "path": "/12", "title": "12 - 12"},
+				{"event": false, "id": 13, "path": "/13", "title": "13 - 13"},
+				{"event": false, "id": 14, "path": "/14", "title": "14 - 14"},
+				{"event": false, "id": 15, "path": "/15", "title": "15 - 15"},
+				{"event": false, "id": 16, "path": "/16", "title": "16 - 16"},
+				{"event": false, "id": 17, "path": "/17", "title": "17 - 17"},
+				{"event": false, "id": 18, "path": "/18", "title": "18 - 18"},
+				{"event": false, "id": 19, "path": "/19", "title": "19 - 19"},
+				{"event": false, "id": 20, "path": "/20", "title": "20 - 20"}
+			]}`,
+		},
+
+		{"paginates",
+			func(ctx context.Context, t *testing.T) {
+				many(ctx, t)
+			}, "after=19&limit=5", 200, `{
+			"more": true,
+			"paths": [
+				{"event": false, "id": 20, "path": "/20", "title": "20 - 20"},
+				{"event": false, "id": 21, "path": "/21", "title": "21 - 21"},
+				{"event": false, "id": 22, "path": "/22", "title": "22 - 22"},
+				{"event": false, "id": 23, "path": "/23", "title": "23 - 23"},
+				{"event": false, "id": 24, "path": "/24", "title": "24 - 24"}
+			]}`,
+		},
+
+		{"paginates at end",
+			func(ctx context.Context, t *testing.T) {
+				many(ctx, t)
+			}, "after=45&limit=5", 200, `{
+			"more": false,
+			"paths": [
+				{"event": false, "id": 46, "path": "/46", "title": "46 - 46"},
+				{"event": false, "id": 47, "path": "/47", "title": "47 - 47"},
+				{"event": false, "id": 48, "path": "/48", "title": "48 - 48"},
+				{"event": false, "id": 49, "path": "/49", "title": "49 - 49"},
+				{"event": false, "id": 50, "path": "/50", "title": "50 - 50"}
+			]}`,
+		},
+
+		{"after higher than result",
+			func(ctx context.Context, t *testing.T) {
+				many(ctx, t)
+			}, "after=50&limit=5", 200, `{
+			"more": false,
+			"paths": []}`,
+		},
+	}
+
+	perm := goatcounter.APIPermStats
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := gctest.DB(t)
+			if tt.setup != nil {
+				tt.setup(ctx, t)
+			}
+
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/paths?"+tt.query, nil, perm)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+				t.Error(d)
+			}
+		})
+	}
+}
+
+func TestAPIHits(t *testing.T) {
+	ztime.SetNow(t, "2020-06-18 12:13:14")
+
+	many := func(ctx context.Context, t *testing.T) {
+		h := make(goatcounter.Hits, 50)
+		for i := range h {
+			c := strconv.Itoa(i + 1)
+			h[i].Path = "/" + c
+			h[i].Site = 1
+			h[i].Title = "title - " + c
+			h[i].FirstVisit = true
+		}
+
+		gctest.StoreHits(ctx, t, false, h...)
+	}
+
+	tests := []struct {
+		name     string
+		query    string
+		wantCode int
+		setup    func(context.Context, *testing.T)
+		want     string
+	}{
+		{"no hits", "", 200, nil, `{"more": false, "total": 0, "total_unique": 0, "hits": []}`},
+
+		{"works", "limit=3", 200,
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
+			"more": true,
+			"total": 3,
+			"total_unique": 3,
+			"hits": [{
+				"count":         1,
+				"count_unique":  1,
+				"event":         false,
+				"max":           1,
+				"path":          "/50",
+				"path_id":       50,
+				"title":         "title - 50",
+				"stats": [{
+					"daily":          0,
+					"daily_unique":   0,
+					"day":            "2020-06-11",
+					"hourly":         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique":  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+						"daily": 0,
+						"daily_unique": 0,
+						"day": "2020-06-12",
+						"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+						"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-13",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-14",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-15",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-16",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-17",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 1,
+					"daily_unique": 1,
+					"day": "2020-06-18",
+					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}]
+			}, {
+				"count": 1,
+				"count_unique": 1,
+				"event": false,
+				"max": 1,
+				"path": "/49",
+				"path_id": 49,
+				"title": "title - 49",
+				"stats": [{
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-11",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-12",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-13",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-14",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-15",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-16",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-17",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 1,
+					"daily_unique": 1,
+					"day": "2020-06-18",
+					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}]
+			}, {
+				"count": 1,
+				"count_unique": 1,
+				"event": false,
+				"max": 1,
+				"path": "/48",
+				"path_id": 48,
+				"title": "title - 48",
+				"stats": [{
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-11",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-12",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-13",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-14",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-15",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-16",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-17",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 1,
+					"daily_unique": 1,
+					"day": "2020-06-18",
+					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}]
+			}]
+		}`},
+
+		{"exclude", "limit=1&exclude_paths=50,49&daily=true&start=2020-06-17&end=2020-06-19", 200,
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
+			"more": true,
+			"total": 1,
+			"total_unique": 1,
+			"hits": [{
+				"count": 1,
+				"count_unique": 1,
+				"event": false,
+				"max": 1,
+				"path": "/48",
+				"path_id": 48,
+				"title": "title - 48",
+				"stats": [{
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-17",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 1,
+					"daily_unique": 1,
+					"day": "2020-06-18",
+					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-19",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}]
+			}]
+		}`},
+
+		{"include", "limit=1&exclude_paths=&include_paths=10&daily=true&start=2020-06-17&end=2020-06-19", 200,
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
+			"more": false,
+			"total": 1,
+			"total_unique": 1,
+			"hits": [{
+				"count": 1,
+				"count_unique": 1,
+				"event": false,
+				"max": 1,
+				"path": "/10",
+				"path_id": 10,
+				"title": "title - 10",
+				"stats": [{
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-17",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 1,
+					"daily_unique": 1,
+					"day": "2020-06-18",
+					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"daily_unique": 0,
+					"day": "2020-06-19",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}]
+			}]
+		}`},
+	}
+
+	perm := goatcounter.APIPermStats
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := gctest.DB(t)
+			if tt.setup != nil {
+				tt.setup(ctx, t)
+			}
+
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/hits?"+tt.query, nil, perm)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+				t.Error(d)
+			}
+		})
+	}
+}
+
+func TestAPIStats(t *testing.T) {
+	ztime.SetNow(t, "2020-06-18 12:13:14")
+
+	many := func(ctx context.Context, t *testing.T) {
+		h := make(goatcounter.Hits, 50)
+		for i := range h {
+			c := strconv.Itoa(i + 1)
+			h[i].Path = "/" + c
+			h[i].Site = 1
+			h[i].Title = "title - " + c
+			h[i].FirstVisit = true
+			if i < 20 || i%2 == 0 {
+				h[i].UserAgentHeader = fmt.Sprintf(
+					"Mozilla/5.0 (X11; Linux x86_64; rv:%[1]d.0) Gecko/20100101 Firefox/%[1]d.0", i)
+			} else {
+				h[i].UserAgentHeader = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+					"(KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
+			}
+		}
+
+		gctest.StoreHits(ctx, t, false, h...)
+	}
+
+	tests := []struct {
+		name     string
+		page     string
+		query    string
+		wantCode int
+		setup    func(context.Context, *testing.T)
+		want     string
+	}{
+		{"no hits", "browsers", "", 200, nil, `{"more": false, "stats": []}`},
+
+		{"works", "browsers", "", 200,
+			func(ctx context.Context, t *testing.T) { many(ctx, t) },
+			`{
+				"more": false,
+				"stats": [
+					{"count": 35, "count_unique": 35, "id": "Firefox", "name": "Firefox"},
+					{"count": 15, "count_unique": 15, "id": "Chrome", "name": "Chrome"}
+				]
+			}`},
+	}
+
+	perm := goatcounter.APIPermStats
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := gctest.DB(t)
+			if tt.setup != nil {
+				tt.setup(ctx, t)
+			}
+
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/"+tt.page+"?"+tt.query, nil, perm)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+				t.Error(d)
+			}
+		})
+	}
+}
+
+func TestAPIStatsDetail(t *testing.T) {
+	ztime.SetNow(t, "2020-06-18 12:13:14")
+
+	many := func(ctx context.Context, t *testing.T) {
+		h := make(goatcounter.Hits, 50)
+		for i := range h {
+			c := strconv.Itoa(i + 1)
+			h[i].Path = "/" + c
+			h[i].Site = 1
+			h[i].Title = "title - " + c
+			h[i].FirstVisit = true
+			if i < 20 || i%2 == 0 {
+				h[i].UserAgentHeader = fmt.Sprintf(
+					"Mozilla/5.0 (X11; Linux x86_64; rv:%[1]d.0) Gecko/20100101 Firefox/%[1]d.0", i)
+			} else {
+				h[i].UserAgentHeader = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+					"(KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
+			}
+		}
+
+		gctest.StoreHits(ctx, t, false, h...)
+	}
+
+	tests := []struct {
+		name     string
+		page     string
+		query    string
+		wantCode int
+		setup    func(context.Context, *testing.T)
+		want     string
+	}{
+		{"no hits", "browsers/Firefox", "", 200, nil, `{"more": false, "stats": []}`},
+
+		{"works", "browsers/Firefox", "limit=3", 200,
+			func(ctx context.Context, t *testing.T) { many(ctx, t) },
+			`{
+				"more": true,
+				"stats": [
+					{"count": 1, "count_unique": 1, "name": "Firefox 0"},
+					{"count": 1, "count_unique": 1, "name": "Firefox 1"},
+					{"count": 1, "count_unique": 1, "name": "Firefox 10"}
+				]
+			}`},
+	}
+
+	perm := goatcounter.APIPermStats
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := gctest.DB(t)
+			if tt.setup != nil {
+				tt.setup(ctx, t)
+			}
+
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/"+tt.page+"?"+tt.query, nil, perm)
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
 				t.Error(d)
 			}
 		})

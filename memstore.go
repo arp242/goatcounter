@@ -16,13 +16,13 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/exp/slices"
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 )
 
@@ -326,7 +326,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	if strings.ContainsRune(h.Location, '-') {
 		trim := !site.Settings.Collect.Has(CollectLocationRegion)
 		if !trim && len(site.Settings.CollectRegions) > 0 {
-			trim = !zstring.Contains(site.Settings.CollectRegions, h.Location[:2])
+			trim = !slices.Contains(site.Settings.CollectRegions, h.Location[:2])
 		}
 		if trim {
 			var l Location

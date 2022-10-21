@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"golang.org/x/exp/slices"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -18,7 +19,6 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
-	"zgo.at/zstd/zstring"
 )
 
 func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool, domainStatic string, dashTimeout int) chi.Router {
@@ -54,7 +54,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		addcsp(domainStatic),
 		middleware.RedirectSlashes,
 		mware.NoStore())
-	if zstring.Contains(zlog.Config.Debug, "req") || zstring.Contains(zlog.Config.Debug, "all") {
+	if slices.Contains(zlog.Config.Debug, "req") || slices.Contains(zlog.Config.Debug, "all") {
 		r.Use(mware.RequestLog(nil, "/count"))
 	}
 	if true {

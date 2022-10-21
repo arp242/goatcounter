@@ -1,0 +1,2 @@
+alter table api_tokens
+	add column last_used_at timestamp {{check_timestamp "created_at"}};

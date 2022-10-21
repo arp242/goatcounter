@@ -16,16 +16,25 @@ import (
 )
 
 type HitStat struct {
-	ID          string  `db:"id"`
-	Name        string  `db:"name"`
-	Count       int     `db:"count"`
-	CountUnique int     `db:"count_unique"`
-	RefScheme   *string `db:"ref_scheme"`
+	// ID for selecting more details; not present in the detail view.
+	ID          string `db:"id" json:"id,omitempty"`
+	Name        string `db:"name" json:"name"`                 // Display name.
+	Count       int    `db:"count" json:"count"`               // Number of pageviews.
+	CountUnique int    `db:"count_unique" json:"count_unique"` // Number of visitors.
+
+	// What kind of referral this is; only set when retrieving referrals {enum: h g c o}.
+	//
+	//  h   HTTP Referal header.
+	//  g   Generated; for example are Google domains (google.com, google.nl,
+	//      google.co.nz, etc.) are grouped as the generated referral "Google".
+	//  c   Campaign (via query parameter)
+	//  o   Other
+	RefScheme *string `db:"ref_scheme" json:"ref_scheme,omitempty"`
 }
 
 type HitStats struct {
-	More  bool
-	Stats []HitStat
+	More  bool      `json:"more"`
+	Stats []HitStat `json:"stats"`
 }
 
 func asUTCDate(u *User, t time.Time) string {
@@ -176,12 +185,12 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 
 	// Group a bit more user-friendly.
 	ns := []HitStat{
-		{ID: sizePhones, Count: 0, CountUnique: 0},
-		{ID: sizeLargePhones, Count: 0, CountUnique: 0},
-		{ID: sizeTablets, Count: 0, CountUnique: 0},
-		{ID: sizeDesktop, Count: 0, CountUnique: 0},
-		{ID: sizeDesktopHD, Count: 0, CountUnique: 0},
-		{ID: sizeUnknown, Count: 0, CountUnique: 0},
+		{Name: "Phones", ID: sizePhones, Count: 0, CountUnique: 0},
+		{Name: "Large phones, small tablets", ID: sizeLargePhones, Count: 0, CountUnique: 0},
+		{Name: "Tablets and small laptops", ID: sizeTablets, Count: 0, CountUnique: 0},
+		{Name: "Computer monitors", ID: sizeDesktop, Count: 0, CountUnique: 0},
+		{Name: "Computer monitors larger than HD", ID: sizeDesktopHD, Count: 0, CountUnique: 0},
+		{Name: "(unknown)", ID: sizeUnknown, Count: 0, CountUnique: 0},
 	}
 
 	for i := range h.Stats {

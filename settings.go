@@ -14,6 +14,7 @@ import (
 	"time"
 	"unicode"
 
+	"golang.org/x/exp/slices"
 	"zgo.at/json"
 	"zgo.at/tz"
 	"zgo.at/z18n"
@@ -629,7 +630,7 @@ func (ss *UserSettings) Validate(ctx context.Context) error {
 		v.Append("views", z18n.T(ctx, "view not set"))
 	}
 
-	if !zint.Contains(EmailReports, ss.EmailReports.Int()) {
+	if !slices.Contains(EmailReports, ss.EmailReports.Int()) {
 		v.Append("email_reports", "invalid value")
 	}
 

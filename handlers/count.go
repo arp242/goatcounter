@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/monoculum/formam"
+	"github.com/monoculum/formam/v3"
 	"golang.org/x/text/language"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/metrics"

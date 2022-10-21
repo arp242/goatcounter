@@ -16,12 +16,11 @@ import (
 )
 
 type Path struct {
-	ID   int64 `db:"path_id"`
-	Site int64 `db:"site_id"`
-
-	Path  string     `db:"path"`
-	Title string     `db:"title"`
-	Event zbool.Bool `db:"event"`
+	ID    int64      `db:"path_id" json:"id"` // Path ID
+	Site  int64      `db:"site_id" json:"-"`
+	Path  string     `db:"path" json:"path"`   // Path name
+	Title string     `db:"title" json:"title"` // Page title
+	Event zbool.Bool `db:"event" json:"event"` // Is this an event?
 }
 
 func (p *Path) Defaults(ctx context.Context) {}
@@ -141,9 +140,23 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 type Paths []Path
 
 // List all paths for a site.
-func (u *Paths) List(ctx context.Context, siteID int64) error {
-	return errors.Wrap(zdb.Select(ctx, u,
-		`select * from paths where site_id=$1`, siteID), "Paths.List")
+func (p *Paths) List(ctx context.Context, siteID, after int64, limit int) (bool, error) {
+	err := zdb.Select(ctx, p, "load:paths.List", zdb.P{
+		"site":  siteID,
+		"after": after,
+		"limit": limit + 1,
+	})
+	if err != nil {
+		return false, errors.Wrap(err, "Paths.List")
+	}
+
+	more := len(*p) > limit
+	if more {
+		pp := *p
+		pp = pp[:len(pp)-1]
+		*p = pp
+	}
+	return more, nil
 }
 
 // PathFilter returns a list of IDs matching the path name.

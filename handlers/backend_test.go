@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter/v2"
@@ -54,9 +53,9 @@ func TestBackendTpl(t *testing.T) {
 		//{"/gdpr", "consult a lawyer"},
 		{"/contact", "Send message"},
 		{"/contribute", "Contribute"},
-		{"/api.html", "GoatCounter API documentation"},
+		{"/api.html", "Endpoints"},
 		{"/api2.html", "<rapi-doc"},
-		{"/api.json", `"description": "API for GoatCounter"`},
+		{"/api.json", `"consumes"`},
 	}
 
 	for _, tt := range tests {
@@ -161,14 +160,6 @@ func BenchmarkCount(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		handler(rr, r)
 	}
-}
-
-func date(s string, tz *time.Location) time.Time {
-	d, err := time.ParseInLocation("2006-01-02 15:04", s, tz)
-	if err != nil {
-		panic(err)
-	}
-	return d
 }
 
 func newBackend(db zdb.DB) chi.Router {

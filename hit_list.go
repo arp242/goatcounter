@@ -19,23 +19,46 @@ import (
 )
 
 type HitList struct {
-	Count       int        `db:"count"`
-	CountUnique int        `db:"count_unique"`
-	PathID      int64      `db:"path_id"`
-	Path        string     `db:"path"`
-	Event       zbool.Bool `db:"event"`
-	Title       string     `db:"title"`
-	RefScheme   *string    `db:"ref_scheme"`
-	Max         int
-	Stats       []HitListStat
+	// Number of pageviews for the selected date range.
+	Count int `db:"count" json:"count"`
+
+	// Number of visitors for the selected date range.
+	CountUnique int `db:"count_unique" json:"count_unique"`
+
+	// Path ID
+	PathID int64 `db:"path_id" json:"path_id"`
+
+	// Path name (e.g. /hello.html).
+	Path string `db:"path" json:"path"`
+
+	// Is this an event?
+	Event zbool.Bool `db:"event" json:"event"`
+
+	// Page title.
+	Title string `db:"title" json:"title"`
+
+	// Highest visitors per hour or day (depending on daily being set).
+	Max int `json:"max"`
+
+	// Statistics by day and hour.
+	Stats []HitListStat `json:"stats"`
+
+	// What kind of referral this is; only set when retrieving referrals {enum: h g c o}.
+	//
+	//  h   HTTP Referal header.
+	//  g   Generated; for example are Google domains (google.com, google.nl,
+	//      google.co.nz, etc.) are grouped as the generated referral "Google".
+	//  c   Campaign (via query parameter)
+	//  o   Other
+	RefScheme *string `db:"ref_scheme" json:"ref_scheme,omitempty"`
 }
 
 type HitListStat struct {
-	Day          string
-	Hourly       []int
-	HourlyUnique []int
-	Daily        int
-	DailyUnique  int
+	Day          string `json:"day"`           // Day these statistics are for {date}.
+	Hourly       []int  `json:"hourly"`        // Pageviews per hour.
+	HourlyUnique []int  `json:"hourly_unique"` // Visitors per hour.
+	Daily        int    `json:"daily"`         // Total pageviews for this day.
+	DailyUnique  int    `json:"daily_unique"`  // Total visitors for this day.
 }
 
 // PathCount gets the total and total_unique for one path.
@@ -441,11 +464,13 @@ func addTotals(hh HitLists, daily bool, totalDisplay, totalUniqueDisplay *int) {
 }
 
 type TotalCount struct {
-	Total             int `db:"total"`
-	TotalUnique       int `db:"total_unique"`
-	TotalUniqueUTC    int `db:"total_unique_utc"`
-	TotalEvents       int `db:"total_events"`
-	TotalEventsUnique int `db:"total_events_unique"`
+	Total             int `db:"total" json:"total"`                             // Total number of pageviews (including events).
+	TotalUnique       int `db:"total_unique" json:"total_unique"`               // Total number of visitors (including events).
+	TotalEvents       int `db:"total_events" json:"total_events"`               // Total number of events.
+	TotalEventsUnique int `db:"total_events_unique" json:"total_events_unique"` // Total number of visitors for events.
+	// Total number of visitors in UTC. The browser, system, etc, stats are
+	// always in UTC.
+	TotalUniqueUTC int `db:"total_unique_utc" json:"total_unique_utc"`
 }
 
 // GetTotalCount gets the total number of pageviews for the selected timeview in

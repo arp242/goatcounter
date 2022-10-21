@@ -118,8 +118,8 @@ Flags:
                a comma. The defaults are:
 
                    count:4/1            4 requests / second
-                   api:4/10             4 requests / 10 seconds
-                   api-count:60,120    60 requests / 2 minutes
+                   api:4/1              4 requests / seconds
+                   api-count:60/120    60 requests / 2 minutes
                    export:1/3600        1 requests / hour
                    login:20/60         20 requests / minute
 

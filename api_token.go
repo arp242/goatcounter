@@ -14,6 +14,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 // APIToken permissions.
@@ -26,6 +27,7 @@ const (
 	APIPermSiteRead                  // 8
 	APIPermSiteCreate                // 16
 	APIPermSiteUpdate                // 32
+	APIPermStats                     // 64
 )
 
 type APIToken struct {
@@ -37,7 +39,8 @@ type APIToken struct {
 	Token       string         `db:"token" json:"-"`
 	Permissions zint.Bitflag64 `db:"permissions" json:"permissions"`
 
-	CreatedAt time.Time `db:"created_at" json:"-"`
+	CreatedAt  time.Time  `db:"created_at" json:"-"`
+	LastUsedAt *time.Time `db:"last_used_at" json:"-"`
 }
 
 type PermissionFlag struct {
@@ -58,6 +61,11 @@ func (t APIToken) PermissionFlags(only ...zint.Bitflag64) []PermissionFlag {
 			Label: "Record pageviews",
 			Help:  "Record pageviews with /api/v0/count",
 			Flag:  APIPermCount,
+		},
+		{
+			Label: "Read statistics",
+			Help:  "Get statistics out of GoatCounter",
+			Flag:  APIPermStats,
 		},
 		{
 			Label: "Export",
@@ -164,6 +172,24 @@ func (t *APIToken) Update(ctx context.Context) error {
 	err = zdb.Exec(ctx, `update api_tokens set name=?, permissions=? where api_token_id=?`,
 		t.Name, t.Permissions, t.ID)
 	return errors.Wrap(err, "APIToken.Update")
+}
+
+// UpdateLastUsed sets the last used time to the current time.
+func (t *APIToken) UpdateLastUsed(ctx context.Context) error {
+	if t.ID == 0 {
+		return errors.New("ID == 0")
+	}
+
+	t.Defaults(ctx)
+	err := t.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	t.LastUsedAt = ztype.Ptr(ztime.Now())
+	err = zdb.Exec(ctx, `update api_tokens set last_used_at=? where api_token_id=?`,
+		t.LastUsedAt, t.ID)
+	return errors.Wrap(err, "APIToken.UpdateLastUsed")
 }
 
 func (t *APIToken) ByID(ctx context.Context, id int64) error {

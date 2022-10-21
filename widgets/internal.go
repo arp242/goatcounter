@@ -11,6 +11,10 @@ import (
 	"zgo.at/goatcounter/v2"
 )
 
+// TODO: do we actually need this? Seems to me we can just use the "max" from
+//       the pages overview? If pagination adds new pages with more stuff we can
+//       always recalc the lot. I don't know why I did it like this; may be a
+//       reason...
 type Max struct {
 	loaded bool
 	err    error

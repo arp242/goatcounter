@@ -2,14 +2,24 @@
   "swagger": "2.0",
   "info": {
     "title": "GoatCounter",
-    "description": "API for GoatCounter",
+    "description": "\u003cp\u003eReference documentation for the \u003ca href=\"https://www.goatcounter.com\"\u003eGoatCounter\u003c/a\u003e API.\u003c/p\u003e \u003cp\u003eSee \u003ca href=\"/help/api\"\u003e/help/api\u003c/a\u003e for a more general introduction and a few examples.\u003c/p\u003e \u003cp\u003eViewing this documentation at https://[my-code].goatcounter.com/api2.html (rather than using the www.goatcounter.com) enables the \"try\" feature.\u003c/p\u003e",
     "version": "0.1",
     "contact": {
       "name": "Martin Tournoij",
-      "url": "https://www.goatcounter.com/api",
+      "url": "https://www.goatcounter.com/help/api",
       "email": "support@goatcounter.com"
     }
   },
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
   "consumes": [
     "application/json"
   ],
@@ -27,7 +37,10 @@
       "name": "sites"
     },
     {
-      "name": "user"
+      "name": "stats"
+    },
+    {
+      "name": "users"
     }
   ],
   "paths": {
@@ -59,6 +72,12 @@
             "description": "400 Bad Request",
             "schema": {
               "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
             }
           },
           "403": {
@@ -98,13 +117,19 @@
           "202": {
             "description": "202 Accepted",
             "schema": {
-              "$ref": "#/definitions/goatcounter.Export"
+              "$ref": "#/definitions/v2.Export"
             }
           },
           "400": {
             "description": "400 Bad Request",
             "schema": {
               "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
             }
           },
           "403": {
@@ -138,13 +163,19 @@
           "200": {
             "description": "200 OK",
             "schema": {
-              "$ref": "#/definitions/goatcounter.Export"
+              "$ref": "#/definitions/v2.Export"
             }
           },
           "400": {
             "description": "400 Bad Request",
             "schema": {
               "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
             }
           },
           "403": {
@@ -192,6 +223,12 @@
               "$ref": "#/definitions/handlers.apiError"
             }
           },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
           "403": {
             "description": "403 Forbidden",
             "schema": {
@@ -224,6 +261,12 @@
               "$ref": "#/definitions/handlers.apiError"
             }
           },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
           "403": {
             "description": "403 Forbidden",
             "schema": {
@@ -233,7 +276,7 @@
         },
         "summary": "Get information about the current user and API key.",
         "tags": [
-          "user"
+          "users"
         ]
       }
     },
@@ -254,6 +297,12 @@
             "description": "400 Bad Request",
             "schema": {
               "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
             }
           },
           "403": {
@@ -299,6 +348,12 @@
               "$ref": "#/definitions/handlers.apiError"
             }
           },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
           "403": {
             "description": "403 Forbidden",
             "schema": {
@@ -338,6 +393,12 @@
             "description": "400 Bad Request",
             "schema": {
               "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
             }
           },
           "403": {
@@ -390,6 +451,12 @@
               "$ref": "#/definitions/handlers.apiError"
             }
           },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
           "403": {
             "description": "403 Forbidden",
             "schema": {
@@ -440,6 +507,12 @@
               "$ref": "#/definitions/handlers.apiError"
             }
           },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
           "403": {
             "description": "403 Forbidden",
             "schema": {
@@ -450,6 +523,473 @@
         "summary": "Update a site.",
         "tags": [
           "sites"
+        ]
+      }
+    },
+    "/api/v0/stats/hits": {
+      "get": {
+        "operationId": "GET_api_v0_stats_hits",
+        "parameters": [
+          {
+            "default": "one week ago",
+            "description": "Start time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "start",
+            "type": "string"
+          },
+          {
+            "default": "current time",
+            "description": "End time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "end",
+            "type": "string"
+          },
+          {
+            "default": "20",
+            "description": "Maximum number of pages to get.",
+            "in": "query",
+            "maximum": 100,
+            "minimum": 1,
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Group by day, rather than by hour.",
+            "in": "query",
+            "name": "daily",
+            "type": "boolean"
+          },
+          {
+            "description": "Include only these paths; default is to include everything.",
+            "in": "query",
+            "items": {
+              "type": "integer"
+            },
+            "name": "include_paths",
+            "type": "array"
+          },
+          {
+            "description": "Exclude these paths, for pagination.",
+            "in": "query",
+            "items": {
+              "type": "integer"
+            },
+            "name": "exclude_paths",
+            "type": "array"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiHitsResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get an overview of pageviews.",
+        "tags": [
+          "stats"
+        ]
+      }
+    },
+    "/api/v0/stats/hits/{path_id}": {
+      "get": {
+        "operationId": "GET_api_v0_stats_hits_{path_id}",
+        "parameters": [
+          {
+            "default": "one week ago",
+            "description": "Start time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "start",
+            "type": "string"
+          },
+          {
+            "default": "current time",
+            "description": "End time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "end",
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "path_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Offset for pagination.",
+            "in": "query",
+            "name": "offset",
+            "type": "integer"
+          },
+          {
+            "default": "20",
+            "description": "Maximum number of pages to get.",
+            "in": "query",
+            "maximum": 100,
+            "minimum": 1,
+            "name": "limit",
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiRefsResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get an overview of referral information for a path.",
+        "tags": [
+          "stats"
+        ]
+      }
+    },
+    "/api/v0/stats/paths": {
+      "get": {
+        "operationId": "GET_api_v0_stats_paths",
+        "parameters": [
+          {
+            "default": "20",
+            "description": "Limit number of returned results",
+            "in": "query",
+            "maximum": 200,
+            "minimum": 1,
+            "name": "Limit",
+            "type": "integer"
+          },
+          {
+            "description": "Only select paths after this ID, for pagination.",
+            "in": "query",
+            "name": "After",
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiPathsResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get an overview of paths on this site (without statistics).",
+        "tags": [
+          "stats"
+        ]
+      }
+    },
+    "/api/v0/stats/total": {
+      "get": {
+        "description": "This is mostly useful to display things like browser stats as a percentage of\nthe total; the /api/v0/pages endpoint only counts the pageviews until it's\npaginated.",
+        "operationId": "GET_api_v0_stats_total",
+        "parameters": [
+          {
+            "default": "one week ago",
+            "description": "Start time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "start",
+            "type": "string"
+          },
+          {
+            "default": "current time",
+            "description": "End time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "end",
+            "type": "string"
+          },
+          {
+            "description": "Include only these paths; default is to include everything.",
+            "in": "query",
+            "items": {
+              "type": "integer"
+            },
+            "name": "include_paths",
+            "type": "array"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/goatcounter.TotalCount"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Count total number of pageviews for a date range.",
+        "tags": [
+          "stats"
+        ]
+      }
+    },
+    "/api/v0/stats/{page}": {
+      "get": {
+        "description": "Page can be: browsers, systems, locations, languages, sizes, campaigns,\ntoprefs.",
+        "operationId": "GET_api_v0_stats_{page}",
+        "parameters": [
+          {
+            "default": "one week ago",
+            "description": "Start time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "start",
+            "type": "string"
+          },
+          {
+            "default": "current time",
+            "description": "End time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "end",
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "page",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Offset for pagination.",
+            "in": "query",
+            "name": "offset",
+            "type": "integer"
+          },
+          {
+            "default": "20",
+            "description": "Maximum number of pages to get.",
+            "in": "query",
+            "maximum": 100,
+            "minimum": 1,
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Include only these paths; default is to include everything.",
+            "in": "query",
+            "items": {
+              "type": "integer"
+            },
+            "name": "include_paths",
+            "type": "array"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiStatsResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get browser/system/etc. stats.",
+        "tags": [
+          "stats"
+        ]
+      }
+    },
+    "/api/v0/stats/{page}/{id}": {
+      "get": {
+        "description": "Page can be: browsers, systems, locations, sizes, campaigns, toprefs.",
+        "operationId": "GET_api_v0_stats_{page}_{id}",
+        "parameters": [
+          {
+            "default": "one week ago",
+            "description": "Start time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "start",
+            "type": "string"
+          },
+          {
+            "default": "current time",
+            "description": "End time, should be rounded to the hour.",
+            "format": "date-time",
+            "in": "query",
+            "name": "end",
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "page",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Offset for pagination.",
+            "in": "query",
+            "name": "offset",
+            "type": "integer"
+          },
+          {
+            "default": "20",
+            "description": "Maximum number of pages to get.",
+            "in": "query",
+            "maximum": 100,
+            "minimum": 1,
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Include only these paths; default is to include everything.",
+            "in": "query",
+            "items": {
+              "type": "integer"
+            },
+            "name": "include_paths",
+            "type": "array"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiStatsResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get detailed stats for an ID.",
+        "tags": [
+          "stats"
         ]
       }
     }
@@ -467,55 +1007,143 @@
         }
       }
     },
-    "goatcounter.Export": {
-      "title": "Export",
+    "goatcounter.HitList": {
+      "title": "HitList",
       "type": "object",
       "properties": {
-        "created_at": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
+        "count": {
+          "description": "Number of pageviews for the selected date range.",
+          "type": "integer"
         },
-        "error": {
-          "description": "Any errors that may have occured.",
-          "type": "string",
-          "readOnly": true
+        "count_unique": {
+          "description": "Number of visitors for the selected date range.",
+          "type": "integer"
         },
-        "finished_at": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
+        "event": {
+          "description": "Is this an event?",
+          "type": "boolean"
         },
-        "hash": {
-          "description": "SHA256 hash.",
+        "max": {
+          "description": "Highest visitors per hour or day (depending on daily being set).",
+          "type": "integer"
+        },
+        "path": {
+          "description": "Path name (e.g. /hello.html).",
+          "type": "string"
+        },
+        "path_id": {
+          "description": "Path ID",
+          "type": "integer"
+        },
+        "ref_scheme": {
+          "description": "What kind of referral this is; only set when retrieving referrals .\n\n h HTTP Referal header.\n g Generated; for example are Google domains (google.com, google.nl,\n google.co.nz, etc.) are grouped as the generated referral \"Google\".\n c Campaign (via query parameter)\n o Other",
           "type": "string",
-          "readOnly": true
+          "enum": [
+            "enum:",
+            "h",
+            "g",
+            "c",
+            "o"
+          ]
+        },
+        "stats": {
+          "description": "Statistics by day and hour.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.HitListStat"
+          }
+        },
+        "title": {
+          "description": "Page title.",
+          "type": "string"
+        }
+      }
+    },
+    "goatcounter.HitListStat": {
+      "title": "HitListStat",
+      "type": "object",
+      "properties": {
+        "daily": {
+          "description": "Total pageviews for this day.",
+          "type": "integer"
+        },
+        "daily_unique": {
+          "description": "Total visitors for this day.",
+          "type": "integer"
+        },
+        "day": {
+          "description": "Day these statistics are for.",
+          "type": "string",
+          "format": "date"
+        },
+        "hourly": {
+          "description": "Pageviews per hour.",
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "hourly_unique": {
+          "description": "Visitors per hour.",
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "goatcounter.HitStat": {
+      "title": "HitStat",
+      "type": "object",
+      "properties": {
+        "count": {
+          "description": "Number of pageviews.",
+          "type": "integer"
+        },
+        "count_unique": {
+          "description": "Number of visitors.",
+          "type": "integer"
         },
         "id": {
-          "type": "integer",
-          "readOnly": true
+          "description": "ID for selecting more details; not present in the detail view.",
+          "type": "string"
         },
-        "last_hit_id": {
-          "description": "Last hit ID that was exported; can be used as start_from_hit_id.",
-          "type": "integer",
-          "readOnly": true
+        "name": {
+          "description": "Display name.",
+          "type": "string"
         },
-        "num_rows": {
-          "type": "integer",
-          "readOnly": true
-        },
-        "site_id": {
-          "type": "integer",
-          "readOnly": true
-        },
-        "size": {
-          "description": "File size in MB.",
+        "ref_scheme": {
+          "description": "What kind of referral this is; only set when retrieving referrals .\n\n h HTTP Referal header.\n g Generated; for example are Google domains (google.com, google.nl,\n google.co.nz, etc.) are grouped as the generated referral \"Google\".\n c Campaign (via query parameter)\n o Other",
           "type": "string",
-          "readOnly": true
+          "enum": [
+            "enum:",
+            "h",
+            "g",
+            "c",
+            "o"
+          ]
+        }
+      }
+    },
+    "goatcounter.Path": {
+      "title": "Path",
+      "type": "object",
+      "properties": {
+        "event": {
+          "description": "Is this an event?",
+          "type": "boolean"
         },
-        "start_from_hit_id": {
-          "description": "The hit ID this export was started from.",
+        "id": {
+          "description": "Path ID",
           "type": "integer"
+        },
+        "path": {
+          "description": "Path name",
+          "type": "string"
+        },
+        "title": {
+          "description": "Page title",
+          "type": "string"
         }
       }
     },
@@ -523,17 +1151,6 @@
       "title": "Site",
       "type": "object",
       "properties": {
-        "billing_amount": {
-          "description": "Amount is being paid for the plan.",
-          "type": "string",
-          "readOnly": true
-        },
-        "billing_anchor": {
-          "description": "\"Anchor\" for the billing period.\n\nThis is the time someone subscribed to a plan; and their billing period\nwill start on this day.",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "cname": {
           "description": "Custom domain, e.g. \"stats.example.com\".\n\nWhen self-hosting this is the domain/vhost your site is accessible at.",
           "type": "string"
@@ -552,11 +1169,6 @@
           "type": "string",
           "format": "date-time"
         },
-        "extra_pageviews": {
-          "description": "Maximum number of extra pageviews to charge for.",
-          "type": "integer",
-          "readOnly": true
-        },
         "first_hit_at": {
           "type": "string",
           "format": "date-time"
@@ -573,22 +1185,6 @@
           "type": "integer",
           "readOnly": true
         },
-        "plan": {
-          "description": "Plan currently subscribed to.",
-          "type": "string",
-          "readOnly": true
-        },
-        "plan_cancel_at": {
-          "description": "When this plan is scheduled to be cancelled.",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "plan_pending": {
-          "description": "Plan this site tried to subscribe to, but payment hasn't been verified\nyet.",
-          "type": "string",
-          "readOnly": true
-        },
         "received_data": {
           "description": "Whether this site has received any data; will be true after the first\npageview.",
           "type": "boolean"
@@ -598,11 +1194,6 @@
         },
         "state": {
           "type": "string"
-        },
-        "stripe": {
-          "description": "Stripe customer ID.",
-          "type": "string",
-          "readOnly": true
         },
         "updated_at": {
           "type": "string",
@@ -615,7 +1206,7 @@
     },
     "goatcounter.SiteSettings": {
       "title": "SiteSettings",
-      "description": "SiteSettings contains all the user-configurable settings for a site, with\nthe exception of the domain and billing settings.\n\nThis is stored as JSON in the database.",
+      "description": "SiteSettings contains all the user-configurable settings for a site, with\nthe exception of the domain settings.\n\nThis is stored as JSON in the database.",
       "type": "object",
       "properties": {
         "allow_bosmang": {
@@ -624,7 +1215,7 @@
         "allow_counter": {
           "type": "boolean"
         },
-        "campaigns": {
+        "allow_embed": {
           "type": "array",
           "items": {
             "type": "string"
@@ -649,7 +1240,36 @@
           }
         },
         "public": {
-          "type": "boolean"
+          "type": "string"
+        },
+        "secret": {
+          "type": "string"
+        }
+      }
+    },
+    "goatcounter.TotalCount": {
+      "title": "TotalCount",
+      "type": "object",
+      "properties": {
+        "total": {
+          "description": "Total number of pageviews (including events).",
+          "type": "integer"
+        },
+        "total_events": {
+          "description": "Total number of events.",
+          "type": "integer"
+        },
+        "total_events_unique": {
+          "description": "Total number of visitors for events.",
+          "type": "integer"
+        },
+        "total_unique": {
+          "description": "Total number of visitors (including events).",
+          "type": "integer"
+        },
+        "total_unique_utc": {
+          "description": "Total number of visitors in UTC. The browser, system, etc, stats are\nalways in UTC.",
+          "type": "integer"
         }
       }
     },
@@ -681,6 +1301,11 @@
           "type": "integer",
           "readOnly": true
         },
+        "last_report_at": {
+          "description": "Keep track when the last email report was sent, so we don't double-send them.",
+          "type": "string",
+          "format": "date-time"
+        },
         "login_at": {
           "type": "string",
           "format": "date-time",
@@ -709,12 +1334,29 @@
         }
       }
     },
+    "goatcounter.UserAccess": {
+      "title": "UserAccess",
+      "type": "object"
+    },
     "goatcounter.UserSettings": {
       "title": "UserSettings",
       "description": "UserSettings are all user preferences.",
       "type": "object",
       "properties": {
         "date_format": {
+          "type": "string"
+        },
+        "email_reports": {
+          "type": "integer"
+        },
+        "fewer_numbers": {
+          "type": "boolean"
+        },
+        "fewer_numbers_lock_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "language": {
           "type": "string"
         },
         "number_format": {
@@ -853,6 +1495,7 @@
     },
     "handlers.apiError": {
       "title": "apiError",
+      "description": "Generic API error. An error will have either the \"error\" or \"errors\"\nfield set, but not both.",
       "type": "object",
       "properties": {
         "error": {
@@ -870,6 +1513,63 @@
         "start_from_hit_id": {
           "description": "Pagination cursor; only export hits with an ID greater than this.",
           "type": "integer"
+        }
+      }
+    },
+    "handlers.apiHitsResponse": {
+      "title": "apiHitsResponse",
+      "type": "object",
+      "properties": {
+        "hits": {
+          "description": "Sorted list of paths with their visitor and pageview count.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.HitList"
+          }
+        },
+        "more": {
+          "description": "More hits after this?",
+          "type": "boolean"
+        },
+        "total": {
+          "description": "Total number of pageviews in the returned result.",
+          "type": "integer"
+        },
+        "total_unique": {
+          "description": "Total number of visitors in the returned result.",
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.apiPathsResponse": {
+      "title": "apiPathsResponse",
+      "type": "object",
+      "properties": {
+        "more": {
+          "description": "True if there are more paths.",
+          "type": "boolean"
+        },
+        "paths": {
+          "description": "List of paths, sorted by ID.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.Path"
+          }
+        }
+      }
+    },
+    "handlers.apiRefsResponse": {
+      "title": "apiRefsResponse",
+      "type": "object",
+      "properties": {
+        "more": {
+          "type": "boolean"
+        },
+        "refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.HitStat"
+          }
         }
       }
     },
@@ -900,8 +1600,25 @@
         }
       }
     },
+    "handlers.apiStatsResponse": {
+      "title": "apiStatsResponse",
+      "type": "object",
+      "properties": {
+        "more": {
+          "type": "boolean"
+        },
+        "stats": {
+          "description": "Sorted list of paths with their visitor and pageview count.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/goatcounter.HitStat"
+          }
+        }
+      }
+    },
     "handlers.authError": {
       "title": "authError",
+      "description": "Authentication error: the API key was not provided or incorrect.",
       "type": "object",
       "properties": {
         "Error": {
@@ -948,6 +1665,58 @@
         "Zone": {
           "description": "Asia/Makassar",
           "type": "string"
+        }
+      }
+    },
+    "v2.Export": {
+      "title": "Export",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "error": {
+          "description": "Any errors that may have occured.",
+          "type": "string",
+          "readOnly": true
+        },
+        "finished_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "hash": {
+          "description": "SHA256 hash.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "last_hit_id": {
+          "description": "Last hit ID that was exported; can be used as start_from_hit_id.",
+          "type": "integer",
+          "readOnly": true
+        },
+        "num_rows": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "site_id": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "size": {
+          "description": "File size in MB.",
+          "type": "string",
+          "readOnly": true
+        },
+        "start_from_hit_id": {
+          "description": "The hit ID this export was started from.",
+          "type": "integer"
         }
       }
     }

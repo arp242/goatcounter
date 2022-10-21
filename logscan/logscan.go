@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/bmatcuk/doublestar/v4"
+	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/follow"
 	"zgo.at/zlog"
@@ -148,7 +149,7 @@ func processExcludes(exclude []string) ([]excludePattern, error) {
 		}
 
 		p.field, p.pattern = zstring.Split2(e, ":")
-		if !zstring.Contains(fields, p.field) {
+		if !slices.Contains(fields, p.field) {
 			return nil, fmt.Errorf("invalid field %q in exclude pattern %q", p.field, e)
 		}
 		if p.pattern == "" {

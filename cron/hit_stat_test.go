@@ -58,14 +58,14 @@ func TestHitStats(t *testing.T) {
 	}
 
 	check("3 1 false",
-		`{"Count":2,"CountUnique":1,"PathID":1,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Max":2,`+
-			`"Stats":[{"Day":"2019-08-31",`+
-			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],`+
-			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"Daily":2,"DailyUnique":1}]}`,
-		`{"Count":1,"CountUnique":0,"PathID":2,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Max":1,`+
-			`"Stats":[{"Day":"2019-08-31",`+
-			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
-			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`,
+		`{"count":2,"count_unique":1,"path_id":1,"path":"/asd","event":false,"title":"aSd","max":2,`+
+			`"stats":[{"day":"2019-08-31",`+
+			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],`+
+			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"daily":2,"daily_unique":1}]}`,
+		`{"count":1,"count_unique":0,"path_id":2,"path":"/zxc","event":false,"title":"","max":1,`+
+			`"stats":[{"day":"2019-08-31",`+
+			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
+			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"daily":1,"daily_unique":0}]}`,
 	)
 
 	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
@@ -74,13 +74,13 @@ func TestHitStats(t *testing.T) {
 	}...)
 
 	check("5 2 false",
-		`{"Count":4,"CountUnique":2,"PathID":1,"Path":"/asd","Event":false,"Title":"aSd","RefScheme":null,"Max":2,`+
-			`"Stats":[{"Day":"2019-08-31",`+
-			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0],`+
-			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],"Daily":4,"DailyUnique":2}]}`,
-		`{"Count":1,"CountUnique":0,"PathID":2,"Path":"/zxc","Event":false,"Title":"","RefScheme":null,"Max":1,`+
-			`"Stats":[{"Day":"2019-08-31",`+
-			`"Hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
-			`"HourlyUnique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"Daily":1,"DailyUnique":0}]}`,
+		`{"count":4,"count_unique":2,"path_id":1,"path":"/asd","event":false,"title":"aSd","max":2,`+
+			`"stats":[{"day":"2019-08-31",`+
+			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0],`+
+			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],"daily":4,"daily_unique":2}]}`,
+		`{"count":1,"count_unique":0,"path_id":2,"path":"/zxc","event":false,"title":"","max":1,`+
+			`"stats":[{"day":"2019-08-31",`+
+			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
+			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"daily":1,"daily_unique":0}]}`,
 	)
 }

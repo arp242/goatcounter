@@ -12,7 +12,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/monoculum/formam"
+	"github.com/monoculum/formam/v3"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/handlers"

@@ -125,16 +125,18 @@ Generally speaking only the latest release is supported, although critical fixes
 
 
 ### Building from source
-You need Go 1.17 or newer and a C compiler (for SQLite). If you compile it with
+You need Go 1.18 or newer and a C compiler (for SQLite). If you compile it with
 `CGO_ENABLED=0` you don't need a C compiler but can only use PostgreSQL.
 
-Compile from source with:
+You can install from source to $GOBIN (`go env GOBIN`) with:
 
-    $ git clone -b release-2.3 https://github.com/arp242/goatcounter.git
-    $ cd goatcounter
-    $ go build -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
+    % go install zgo.at/goatcounter/v2@latest
 
-You'll now have a `goatcounter` binary in the current directory.
+Or from a git checkout, also setting the version string:
+
+    % go build -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
+
+Which will produce a `goatcounter` binary in the current directory.
 
 The `-ldflags=[..]` sets the version; this isn't *strictly* required as such,
 but it's recommended as it's used to "bust" the cache for static files and may
@@ -144,7 +146,7 @@ follow any particular format, you can also set this to the current date or
 
 To build a fully statically linked binary:
 
-    $ go build -tags osusergo,netgo,sqlite_omit_load_extension \
+    % go build -tags osusergo,netgo,sqlite_omit_load_extension \
         -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static" \
         ./cmd/goatcounter
 
@@ -156,7 +158,7 @@ to surprises.
 You can compile goatcounter without cgo if you're planning to use PostgreSQL and
 don't use SQLite:
 
-    $ CGO_ENABLED=0 go build \
+    % CGO_ENABLED=0 go build \
         -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI')" \
         ./cmd/goatcounter
 
@@ -166,7 +168,7 @@ faster as it won't require a C compiler.
 ### Running
 You can start a server with:
 
-    $ goatcounter serve
+    % goatcounter serve
 
 The default is to use an SQLite database at `./db/goatcounter.sqlite3`, which
 will be created if it doesn't exist yet. See the `-db` flag and `goatcounter
@@ -180,14 +182,14 @@ expect from SQLite and PostgreSQL.
 GoatCounter will listen on port `*:80` and `*:443` by default. You don't need
 to run it as root and can grant the appropriate permissions on Linux with:
 
-    $ setcap 'cap_net_bind_service=+ep' goatcounter
+    % setcap 'cap_net_bind_service=+ep' goatcounter
 
 Listening on a different port can be a bit tricky due to the ACME/Let's Encrypt
 certificate generation; `goatcounter help listen` documents this in depth.
 
 You can create new sites with the `db create site` command:
 
-    $ goatcounter db create site -vhost stats.example.com -user.email me@example.com
+    % goatcounter db create site -vhost stats.example.com -user.email me@example.com
 
 This will ask for a password for your new account; you can also add a password
 on the commandline with `-password`. You must also pass the `-db` flag here if
@@ -210,23 +212,23 @@ Use `goatcounter migrate pending` to get a list of pending migrations, or
 ### PostgreSQL
 To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
 
-    $ goatcounter serve -db 'postgresql+dbname=goatcounter'
-    $ goatcounter serve -db 'postgresql+host=/run/postgresql dbname=goatcounter sslmode=disable'
+    % goatcounter serve -db 'postgresql+dbname=goatcounter'
+    % goatcounter serve -db 'postgresql+host=/run/postgresql dbname=goatcounter sslmode=disable'
 
 This follows the format in the `psql` CLI; you can also use the `PG*`
 environment variables:
 
-    $ PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
+    % PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
 
 The database will be created automatically if possible; if you want to create it
 for a specific user you can use:
 
-    $ createuser --interactive --pwprompt goatcounter
-    $ createdb --owner goatcounter goatcounter
+    % createuser --interactive --pwprompt goatcounter
+    % createdb --owner goatcounter goatcounter
 
 You can manually import the schema with:
 
-    $ goatcounter db schema-pgsql | psql --user=goatcounter --dbname=goatcounter
+    % goatcounter db schema-pgsql | psql --user=goatcounter --dbname=goatcounter
 
 See `goatcounter help db` and the [pq docs][pq] for more details.
 
@@ -235,7 +237,7 @@ See `goatcounter help db` and the [pq docs][pq] for more details.
 ### Development/testing
 You can start a test/development server with:
 
-    $ goatcounter serve -dev
+    % goatcounter serve -dev
 
 The `-dev` flag makes some small things a bit more convenient for development;
 TLS is disabled by default, it will listen on localhost:8081, the application

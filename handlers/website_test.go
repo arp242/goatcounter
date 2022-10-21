@@ -40,9 +40,9 @@ func TestWebsiteTpl(t *testing.T) {
 		{"/help/gdpr", "consult a lawyer"},
 		{"/contact", "Send message"},
 		{"/contribute", "Contribute"},
-		{"/api.html", "GoatCounter API documentation"},
+		{"/api.html", "Endpoints"},
 		{"/api2.html", "<rapi-doc"},
-		{"/api.json", `"description": "API for GoatCounter"`},
+		{"/api.json", `"consumes"`},
 	}
 
 	for _, tt := range tests {

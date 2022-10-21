@@ -65,25 +65,23 @@ func TestListTopRefs(t *testing.T) {
 		got := string(zjson.MustMarshalIndent(s, "\t\t", "\t"))
 		want := `
 		{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "example.com",
-					"Count": 2,
-					"CountUnique": 1,
-					"RefScheme": "h"
+					"name": "example.com",
+					"count": 2,
+					"count_unique": 1,
+					"ref_scheme": "h"
 				},
 				{
-					"ID": "",
-					"Name": "example.org",
-					"Count": 3,
-					"CountUnique": 1,
-					"RefScheme": "h"
+					"name": "example.org",
+					"count": 3,
+					"count_unique": 1,
+					"ref_scheme": "h"
 				}
 			]
 		}`
-		if d := ztest.Diff(got, want); d != "" {
+		if d := ztest.Diff(got, want, ztest.DiffVerbose); d != "" {
 			t.Error(d)
 		}
 	}
@@ -98,14 +96,13 @@ func TestListTopRefs(t *testing.T) {
 		got := string(zjson.MustMarshalIndent(s, "\t\t", "\t"))
 		want := `
 		{
-			"More": false,
-			"Stats": [
+			"more": false,
+			"stats": [
 				{
-					"ID": "",
-					"Name": "example.org",
-					"Count": 1,
-					"CountUnique": 1,
-					"RefScheme": "h"
+					"name": "example.org",
+					"count": 1,
+					"count_unique": 1,
+					"ref_scheme": "h"
 				}
 			]
 		}`

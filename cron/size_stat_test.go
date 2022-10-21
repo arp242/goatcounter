@@ -12,6 +12,7 @@ import (
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
+	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
 )
 
@@ -35,15 +36,15 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `{false [{phone  0 0 <nil>}
-{largephone  1 0 <nil>}
-{tablet  0 0 <nil>}
-{desktop  2 1 <nil>}
-{desktophd  0 0 <nil>}
-{unknown  2 0 <nil>}]}`
+	want := `{false [{phone Phones 0 0 <nil>}
+{largephone Large phones, small tablets 1 0 <nil>}
+{tablet Tablets and small laptops 0 0 <nil>}
+{desktop Computer monitors 2 1 <nil>}
+{desktophd Computer monitors larger than HD 0 0 <nil>}
+{unknown (unknown) 2 0 <nil>}]}`
 	out := strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
-		t.Errorf("\nwant:\n%s\nhave:\n%s", want, out)
+		t.Error(ztest.Diff(out, want, ztest.DiffVerbose))
 	}
 
 	// Update existing.
@@ -62,14 +63,14 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{phone  1 0 <nil>}
-{largephone  3 0 <nil>}
-{tablet  0 0 <nil>}
-{desktop  4 2 <nil>}
-{desktophd  0 0 <nil>}
-{unknown  3 1 <nil>}]}`
+	want = `{false [{phone Phones 1 0 <nil>}
+{largephone Large phones, small tablets 3 0 <nil>}
+{tablet Tablets and small laptops 0 0 <nil>}
+{desktop Computer monitors 4 2 <nil>}
+{desktophd Computer monitors larger than HD 0 0 <nil>}
+{unknown (unknown) 3 1 <nil>}]}`
 	out = strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
-		t.Errorf("\nwant:\n%s\nhave:\n%s", want, out)
+		t.Error(ztest.Diff(out, want, ztest.DiffVerbose))
 	}
 }

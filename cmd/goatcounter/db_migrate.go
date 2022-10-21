@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
@@ -15,7 +16,7 @@ import (
 	"zgo.at/zli"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
-	"zgo.at/zstd/zstring"
+	"zgo.at/zstd/zslice"
 )
 
 func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
@@ -52,20 +53,20 @@ func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 
 		m.Test(test)
 
-		if zstring.ContainsAny(f.Args, "pending", "list") {
+		if zslice.ContainsAny(f.Args, "pending", "list") {
 			have, ran, err := m.List()
 			if err != nil {
 				return err
 			}
-			diff := zstring.Difference(have, ran)
+			diff := zslice.Difference(have, ran)
 			pending := "no pending migrations"
 			if len(diff) > 0 {
 				pending = fmt.Sprintf("pending migrations:\n\t%s", strings.Join(diff, "\n\t"))
 			}
 
-			if zstring.Contains(f.Args, "list") {
+			if slices.Contains(f.Args, "list") {
 				for i := range have {
-					if zstring.Contains(diff, have[i]) {
+					if slices.Contains(diff, have[i]) {
 						have[i] = "pending: " + have[i]
 					}
 				}

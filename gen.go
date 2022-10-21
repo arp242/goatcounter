@@ -8,6 +8,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -33,7 +34,8 @@ func main() {
 // TODO: would be better to just generate this on the first request, but it
 // takes about 10s now so that's a bit too slow :-/
 func kommentaar() error {
-	if !zio.ChangedFrom("./handlers/api.go", "./tpl/api.json") {
+	if !zio.ChangedFrom("./handlers/api.go", "./tpl/api.json") &&
+		!zio.ChangedFrom("./kommentaar.conf", "./tpl/api.json") {
 		return nil
 	}
 
@@ -43,12 +45,15 @@ func kommentaar() error {
 	}
 
 	for file, args := range commands {
+		stderr := new(bytes.Buffer)
 		cmd := exec.Command("kommentaar", args...)
 		cmd.Dir = "./handlers"
+		cmd.Stderr = stderr
 
-		fmt.Println(cmd.Args)
+		fmt.Println("running", cmd.Args)
 		out, err := cmd.Output()
 		if err != nil {
+			out = stderr.Bytes()
 			return errors.Errorf("running kommentaar: %s\n%s", err, out)
 		}
 
