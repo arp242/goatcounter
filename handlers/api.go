@@ -177,6 +177,14 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 		return err
 	}
 
+	// Update once a day at the most.
+	if token.LastUsedAt == nil || token.LastUsedAt.Before(ztime.Now().Add(-24*time.Hour)) {
+		err := token.UpdateLastUsed(r.Context())
+		if err != nil {
+			zlog.Error(err)
+		}
+	}
+
 	var user goatcounter.User
 	err = user.ByID(r.Context(), token.UserID)
 	if err != nil {

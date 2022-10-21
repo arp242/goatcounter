@@ -19,10 +19,16 @@
 		<legend>{{.T "header/api-tokens|API tokens"}}</legend>
 
 		<table class="auto">
-			<thead><tr><th>{{.T "header/name|Name"}}</th><th>{{.T "header/permissions|Permissions"}}</th><th>{{.T "header/token|Token"}}</th><th>{{.T "header/created-at|Created at"}}</th><th></th></tr></thead>
+			<thead><tr>
+				<th>{{.T "header/name|Name"}}</th>
+				<th>{{.T "header/permissions|Permissions"}}</th>
+				<th>{{.T "header/token|Token"}}</th>
+				<th>{{.T "header/created-at|Created at"}}</th>
+				<th>{{.T "header/last-used-at|Last used"}}</th>
+				<th></th>
+			</tr></thead>
 
 			<tbody>
-				{{/* TODO: add last used as well */}}
 				{{range $t := .APITokens}}<tr>
 					<td>{{$t.Name}}</td>
 					<td>
@@ -32,6 +38,11 @@
 					</td>
 					<td>{{$t.Token}}</td>
 					<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
+					<td>{{if $t.LastUsedAt}}
+						{{$t.LastUsedAt.UTC.Format "2006-01-02 (UTC)"}}
+					{{else}}
+						-
+					{{end}}</td>
 
 					<td>
 						<form method="post" action="/user/api-token/remove/{{$t.ID}}" data-confirm="Delete token {{$t.Name}}?">
