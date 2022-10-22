@@ -22,7 +22,7 @@ Flags:
 
   -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite+/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
+               sqlite+/db/goatcounter.sqlite3
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
                See "goatcounter help debug" for a list of modules.

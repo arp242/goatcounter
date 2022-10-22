@@ -53,7 +53,7 @@ Flags accepted by all commands:
 
   -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite+/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared
+               sqlite+/db/goatcounter.sqlite3
 
   -createdb    Create the database if it doesn't exist yet.
 
@@ -266,9 +266,18 @@ SQLite notes:
     See the go-sqlite3 documentation for a list of supported parameters:
     https://github.com/mattn/go-sqlite3/#connection-string
 
-    _journal_mode=wal is always added unless explicitly overridden. Usually the
-    Write Ahead Log is more suitable for GoatCounter than the default DELETE
-    journaling.
+    A few parameters are different from the SQLite defaults:
+
+        _journal_mode=wal          Almost always faster with better concurrency,
+                                   with little drawbacks for most use cases.
+        _busy_timeout=200          Wait 200ms for locks instead of immediately
+                                   throwing an error.
+        _cache_size=-20000         20M cache size, instead of 2M. Can be a
+                                   significant performance improvement.
+
+    But you can change them if you wish; for example to use the SQLite defaults:
+
+        -db 'sqlite+mydb.sqlite?_journal_mode=delete&_busy_timeout=0&_cache_size=-2000'
 
 PostgreSQL notes:
 
