@@ -18,6 +18,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/monoculum/formam/v3"
+	"golang.org/x/exp/slices"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
@@ -323,6 +324,26 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
+func (h settings) getSite(ctx context.Context, id int64) (*goatcounter.Site, error) {
+	var s goatcounter.Site
+	err := s.ByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var account goatcounter.Sites
+	err = account.ForThisAccount(ctx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	if !slices.Contains(account.IDs(), s.ID) {
+		return nil, guru.New(404, T(ctx, "error/not-found|Not Found"))
+	}
+
+	return &s, nil
+}
+
 func (h settings) sitesRemoveConfirm(w http.ResponseWriter, r *http.Request) error {
 	v := goatcounter.NewValidate(r.Context())
 	id := v.Integer("id", chi.URLParam(r, "id"))
@@ -330,15 +351,14 @@ func (h settings) sitesRemoveConfirm(w http.ResponseWriter, r *http.Request) err
 		return v
 	}
 
-	var s goatcounter.Site
-	err := s.ByID(r.Context(), id)
+	s, err := h.getSite(r.Context(), id)
 	if err != nil {
 		return err
 	}
 
 	return zhttp.Template(w, "settings_sites_rm_confirm.gohtml", struct {
 		Globals
-		Rm goatcounter.Site
+		Rm *goatcounter.Site
 	}{newGlobals(w, r), s})
 }
 
@@ -349,15 +369,9 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		return v
 	}
 
-	var s goatcounter.Site
-	err := s.ByID(r.Context(), id)
+	s, err := h.getSite(r.Context(), id)
 	if err != nil {
 		return err
-	}
-
-	site := Site(r.Context())
-	if !(s.ID == site.ID || (s.Parent != nil && *s.Parent == site.ID)) {
-		return guru.New(404, T(r.Context(), "error/not-found|Not Found"))
 	}
 
 	sID := s.ID

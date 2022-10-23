@@ -28,10 +28,10 @@ with
 select
 	grouped.site_id,
 	grouped.total,
-	grouped.codes,
 	created_at,
 	grouped.last_month,
-	(coalesce(total, 0) / greatest(extract('days' from now() - created_at), 1) * 30.5)::int as avg
+	(coalesce(total, 0) / greatest(extract('days' from now() - created_at), 1) * 30.5)::int as avg,
+	grouped.codes
 from grouped
 join sites using (site_id)
-where last_month > 10000 or total > 500000 or billing_amount is not null
+where last_month > 10000 or total > 500000

@@ -29,33 +29,9 @@ responsibility to ensure that all local laws regarding data collection are
 followed (e.g. GDPR).
 
 <h2 id="commercial">Commercial use</h2>
-The service is free for personal use, but all commercial users must purchase a
-plan after the initial 14-day trial or stop using the service until a plan is
-purchased. A website is considered “commercial” if the primary goal is to sell
-or advertise paid products or services.
-
-There is a large amount of grey area between strictly ‘personal’ and
-‘commercial’; for example selling a service as a side-project which provides
-just a little bit of pocket money is ‘commercial’, but also ‘personal’. As a
-rule, things like “pocket-money side-projects” are considered personal,
-especially if they’re open source.
-
-Just get in touch if you’re unsure and I’ll tell you if it’s considered
-personal.
-
-<p>Also see the <a href="/help#charity">note on charities</a>.</p>
-
-Payments
---------
-You are billed immediately for the displayed term. These services will be
-remitted to you at the displayed price, which will not change during the payment
-term. If you authorize us to automatically renew your service at the end of the
-term, you will be notified at least 1 week in advance of renewal when the price
-has changed during the previous payment term.
-
-No refunds are given for partial service or when you request your services to be
-downgraded. In the event that your services are downgraded, you are billed the
-reduced price at the start of the next billing term.</p>
+GoatCounter.com is currently offered for free for reasonable public usage.
+Running your personal website or small-to-medium business on it is fine, but
+sending millions of pageviews/day isn’t.
 
 Limitation of liability
 -----------------------
