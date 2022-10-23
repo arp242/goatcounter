@@ -4,6 +4,8 @@
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
+	<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/backend.css?v={{.Version}}">

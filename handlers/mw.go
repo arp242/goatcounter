@@ -100,6 +100,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
+			// Intercept /status here so it works everywhere.
 			if r.URL.Path == "/status" {
 				info, _ := zdb.Info(ctx)
 				j, err := json.Marshal(map[string]interface{}{

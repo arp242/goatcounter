@@ -6,8 +6,8 @@
  ****************************/
 .page      { padding: 1em; }
 footer     { padding: 1em; text-align: center; display: flex; justify-content: space-between;
-             background-color: #f6f3da; box-shadow: 0 0 4px #cdc8a4; }
-footer a   { font-weight: bold; color: #252525; margin: 0 .5em; }
+             background-color: var(--nav-bg); box-shadow: 0 0 4px var(--footer-shadow); }
+footer a   { font-weight: bold; color: var(--text); margin: 0 .5em; }
 
 @media (max-width: 54em) {
     footer      { text-align: left; justify-content: space-around; }
@@ -25,9 +25,6 @@ footer a   { font-weight: bold; color: #252525; margin: 0 .5em; }
 }
 .form-max-width label { display: inline-block; }
 
-#trial-expired { position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
-                 background-color: #fff0f0; border-top: 1px solid #f00; z-index: 1; }
-
 #js-settings, #js-csrf, #js-i18n { display: none; }
 
 
@@ -41,11 +38,11 @@ footer a   { font-weight: bold; color: #252525; margin: 0 .5em; }
 
 nav                    { display: flex; justify-content: space-between; padding-right: .5em; }
 nav #usermenu          { text-align: right; min-width: 21em; }
-nav .updates           { font-weight: bold; background-color: yellow; }
+nav .updates           { font-weight: bold; background-color: var(--target-bg); }
 nav #signin            { white-space: nowrap; margin-left: 1em; }
 nav #back              { white-space: nowrap; margin-right: 1em; }
 nav .sites-list        { position: absolute; visibility: hidden; }
-nav .sites-list-select { display: none; padding: 0 .6em; background-color: #fff; }
+nav .sites-list-select { display: none; padding: 0 .6em; background-color: var(--bg); }
 @media (max-width: 87rem) {
     nav { padding-left: .5em; }
 }
@@ -60,10 +57,10 @@ h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
 h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
 
-form .err  { color: red; display: block; }
+form .err  { color: var(--form-error-text); display: block; }
 
-span.red  { color: red; }
-input.red { border: 1px solid red !important; }
+span.red  { color: var(--form-error-text); }
+input.red { border: 1px solid var(--input-error-border) !important; }
 
 /* TODO: replace with .side-by-side? */
 @media (min-width: 55rem) {
@@ -75,23 +72,11 @@ input.red { border: 1px solid red !important; }
     .flex-form fieldset { height: 100%; }
 }
 
-.flash {
-    text-align: center;
-    padding: 10px;
-    border-radius: 2px;
-    border: 2px solid #fff;
-    margin-bottom: 1em;
-}
+.flash     { margin-bottom: 1em; padding: 10px; text-align: center; border-radius: 2px; border: 2px solid var(--bg); }
 .flash p   { max-width: none !important; }
 .flash pre { text-align: left; margin: 0 auto; display: inline-block; }
-.flash-i {
-    background-color: #c9f0ff;
-    border-color: #a1a1ff;
-}
-.flash-e {
-    background-color: #fff0f0;
-    border-color: #f00;
-}
+.flash-i   { background-color: var(--info-bg); border-color: var(--info-border); }
+.flash-e   { background-color: var(--error-bg); border-color: var(--error-border); }
 
 .screen-reader { display: none; }
 .hide          { display: none; }
@@ -104,9 +89,9 @@ input.red { border: 1px solid red !important; }
 /* Using display: none means it's ignored by Safary when pressing Enter. */
 button.hide-btn { overflow: visible; height: 0; width: 0; margin: 0; border: 0; padding: 0; display: block; }
 
-fieldset               { margin-bottom: 1em; border: 1px solid #666; }
+fieldset               { margin-bottom: 1em; border: 1px solid var(--fieldset-border); }
 legend                 { font-weight: bold; }
-fieldset:target legend { background-color: yellow; }
+fieldset:target legend { background-color: var(--target-bg); }
 
 select#timezone { max-width: 20rem; }
 
@@ -123,8 +108,8 @@ table.auto { width: auto; }
 .rlink { display: inline-block; overflow: hidden;
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
-.page-title b, .rlink b { background-color: yellow; }
-input.value             { background-color: yellow; }
+.page-title b, .rlink b { background-color: var(--target-bg); }
+input.value             { background-color: var(--target-bg); }
 
 /* Hide "Go to [..]" link unless we loaded the page details. */
 small.go           { display: none; }
@@ -139,7 +124,7 @@ small.go           { display: none; }
 .count-list th           { text-align: left; }
 .count-list .col-count   { width: 5rem; text-align: right; }
 .count-list .col-path    { width: 20rem; }
-.label-event             { background-color: #f6f3da; border-radius: 1em; padding: .1em .3em; }
+.label-event             { background-color: var(--event-bg); border-radius: 1em; padding: .1em .3em; }
 .count-list td[colspan="3"] {  /* "nothing to display" */
     text-align: left;
     width: auto;
@@ -149,7 +134,7 @@ small.go           { display: none; }
 .count-list tr:target,
 .count-list tr.target             { background-color: inherit; }
 .count-list tr:target .load-refs,
-.count-list tr.target .load-refs  { font-weight: bold; border-bottom: 4px solid yellow; }
+.count-list tr.target .load-refs  { font-weight: bold; border-bottom: 4px solid var(--target-bg); }
 tr.target small.go                { display: inline-block; }
 
 /* Border doesn't affect layout. */
@@ -157,10 +142,10 @@ tr.target small.go                { display: inline-block; }
 
 .count-list-text .refs { margin-top: 1em; }
 
-.chart { position: relative; border: 1px solid #ccc; height: 50px; width: 100%; margin: 5px 0; margin-bottom: 1em; }
+.chart { position: relative; height: 50px; width: 100%; margin: 5px 0; margin-bottom: 1em; }
 
 .chart-left {
-    position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center; background-color: #fff;
+    position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
     display: none; margin-right: 0;
 }
 .chart-left a:hover { text-decoration: none; }
@@ -169,7 +154,7 @@ tr:hover .chart-left,
 tr.target .chart-left { display: block; }
 
 .chart-right { position: absolute; right: .4em; top: -.8em; padding: 0 .1em; font-size: 1.2rem;
-               line-height: 1; text-align: center; background-color: #fff; }
+               line-height: 1; text-align: center; }
 .page-n      { color: #555; font-size: .8em; }
 
 .chart-line canvas { display: block; height: 50px; width: 100%; }
@@ -183,16 +168,16 @@ tr.target .chart-left { display: block; }
 .count-list-text .rlink { white-space: normal; overflow: inherit; }
 .count-list-text td     { padding: .5em; }
 
-.count-list-text tbody tr           { border-bottom: 1px solid #eaeaea; border-top: 1px solid #eaeaea; }
-.count-list-text tr:nth-child(even) { background-color: #fafafa; }
+.count-list-text tbody tr           { border-bottom: 1px solid var(--text-table-border); border-top: 1px solid var(--text-table-border); }
+.count-list-text tr:nth-child(even) { background-color: var(--text-table-even-bg); }
 
-.count-list-text .col-idx    { width: 1em; color: #555; }
+.count-list-text .col-idx    { width: 1em; color: var(--text-table-rank-text); }
 .count-list-text .col-n      { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
 .count-list-text .col-d      { width: 12em; font-size: 1.2em; padding: 0; text-align: center; }
 .count-list-text .col-d      { vertical-align: top; }
 .count-list-text .col-d span { display: inline-block; margin-top: .8em; padding-top: 2px; line-height: 1em;
                                font-family: monospace; letter-spacing: 3px; padding-right: 3px;
-                               border: 1px solid #c9c9c9; border-radius: 2px; color: #9a15a4; background-color: #f9f9f9; }
+                               border: 1px solid var(--text-table-chart-border); border-radius: 2px; color: var(--chart-line); background-color: var(--text-table-chart-bg); }
 
 /*** Horizontal charts
  ********************/
@@ -207,15 +192,15 @@ tr.target .chart-left { display: block; }
 .hchart .generated .col-name { font-style: italic; }
 .hchart .col-name    { display: inline-block; width: calc(100% - 8.5rem); position: relative; }
 .hchart .cutoff      { word-break: break-all; max-width: calc(100% - 2em); }
-.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: #fbc7ff; }
+.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: var(--chart-fill); }
 .hchart .bar-c       { position: relative; z-index: 1; padding-left: .5rem; display: block; }
 .hchart .col-count   { display: inline-block; width: 4.5rem; text-align: right; vertical-align: top; }
 .hchart .col-perc    { width: 2.5em; margin-right: .5rem; vertical-align: top; }
 .hchart .load-more   { display: inline-block; margin-left: .2em; margin-top: .2em; }
-.hchart .load-detail { display: block; color: #252525; }
+.hchart .load-detail { display: block; color: var(--text); }
 .hchart .detail      { padding: 0 3em; border-bottom: 1px solid #bbb; }
-.load-detail:hover      { text-decoration: none; background-color: #eee; }
-.load-detail:hover .bar { background-color: #ebb7ef; }
+.load-detail:hover      { text-decoration: none; background-color: var(--hchart-hover); }
+.load-detail:hover .bar { background-color: var(--hchart-hover-bar); }
 .hchart .not-collected { text-align: center; padding-bottom: .4em; font-style: italic; }
 
 
@@ -227,9 +212,10 @@ tr.target .chart-left { display: block; }
 
 #dash-saved-views       { position: absolute; top: .2em; right: .3em; z-index: 5; max-width: 30em; text-align: right; }
 #dash-saved-views >span { font-size: 20px; padding: .2em; cursor: pointer;
-                          user-select: none; -webkit-user-select: none; color: #00f; transition: opacity .2s; }
+                          user-select: none; -webkit-user-select: none; color: var(--link-text); transition: opacity .2s; }
 #dash-saved-views >div  { display: none; margin-right: .5em; padding: .5em; text-align: left;
-                          background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
+                          background-color: var(--tooltip-bg); color: var(--tooltip-text);
+                          border: 1px solid var(--tooltip-border); box-shadow: 0 0 2px var(--tooltip-shadow); }
 #dash-saved-views >span:hover { opacity: .5; }
 
 @media (max-width: 36.5rem) {
@@ -238,7 +224,7 @@ tr.target .chart-left { display: block; }
 }
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
-             background-color: #f8f8d9; border: 1px solid #dede89; border-radius: 2px; }
+             background-color: var(--nav-bg); border: 1px solid var(--nav-border); border-radius: 2px; }
 #dash-main input[type="text"]     { padding: .3em; }
 #dash-main input[type="checkbox"] { vertical-align: middle; }
 #filter-paths                     { width: 18.5em; display: block; margin-left: auto; }
@@ -252,7 +238,7 @@ tr.target .chart-left { display: block; }
 #dash-select-period           { display: block; padding-left: .3em; }
 #dash-select-period span+span { margin-left: .5em; }
 
-#dash-timerange { background-color: #f8f8d9; border: 1px solid #dede89; text-align: center;
+#dash-timerange { background-color: var(--nav-bg); border: 1px solid var(--nav-border); text-align: center;
                   padding: 0 .4em; padding-top: 2px; border-top: 0; margin-top: -4px;
                   border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
 
@@ -291,19 +277,20 @@ tr.target .chart-left { display: block; }
 .configure-widget:hover { color: inherit; opacity: .7; text-decoration: none; }
 .pages-list .configure-widget, .totals .configure-widget { left: .4rem; }
 #page-dashboard .widget-settings { position: absolute; z-index: 2; padding: .5em;
-    background-color: #f6f6f6; color: #000; border: 1px solid #ddd; box-shadow: 0 0 2px #aaa; }
+    background-color: var(--tooltip-bg); color: var(--tooltip-text);
+    border: 1px solid var(--tooltip-border); box-shadow: 0 0 2px var(--tooltip-shadow); }
 
 /*** Tooltip
  ************/
 #tooltip { position: absolute; left: 0; top: 0; padding: .2em .5em; font-size: 14px;
-           font-family: sans-serif; color: #000; background-color: #f6f6f6; box-shadow: 0 0 2px #aaa; }
-#tooltip .views { color: #7a7a7a; } /* Grey out "pageviews" in tooltip. */
+           font-family: sans-serif; color: var(--tooltip-text); background-color: var(--tooltip-bg); box-shadow: 0 0 2px var(--tooltip-shadow); }
+#tooltip .views { color: var(--pageviews-text); } /* Grey out "pageviews" in tooltip. */
 
 
 /*** Settings tabs
  ******************/
 .tab-nav               { padding: 1em; justify-content: left; border-radius: 2px;
-                         background-color: #f8f8d9; border: 1px solid #dede89; }
+                         background-color: var(--nav-bg); border: 1px solid var(--nav-border); }
 .tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }
@@ -318,14 +305,14 @@ tr.target .chart-left { display: block; }
 
 /*** Widget settings
  *******************/
-.widget                 { position: relative; margin-bottom: .5em; padding-left: 2em; border-top: 1px solid #e6e6e6; box-shadow: 2px 2px 2px rgba(0,0,0,.2); }
+.widget                 { position: relative; margin-bottom: .5em; padding-left: 2em; border-top: 1px solid var(--widget-border); box-shadow: 2px 2px 2px rgba(0,0,0,.2); }
 .widget .header         { display: flex; justify-content: space-between; padding: .5em; }
 .widget .header strong  { display: inline-block; width: 12em; }
 .widget .show-s         { display: inline-block; width: 2em; text-align: center; }
 .widget-save            { display: flex; justify-content: space-between; }
 .widget-settings label  { display: inline-block; min-width: 9em; margin-bottom: 1em; }
 .widget-settings button { margin-left: 0; }
-.widget-settings select, .widget-settings input:not([type="checkbox"]) { background-color: #fff; width: 14em; }
+.widget-settings select, .widget-settings input:not([type="checkbox"]) { background-color: var(--bg); width: 14em; }
 .widget-settings        { margin-top: .5em; margin-left: 2em; }
 .widget-settings .help  { margin-left: 1em;  }
 .widget-settings br:last-child { display: none; }
@@ -339,15 +326,15 @@ tr.target .chart-left { display: block; }
 
 .drag-handle {
     position: absolute; top: 0; left: 0; width: 2em; height: 100%; cursor: move; text-align: center; margin-left: 0;
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi2r9//38gYGAEESAAEGAAasgJOgzOKCoAAAAASUVORK5CYII=);
+    background: var(--widget-handle-bg);
 }
-.drag-handle:hover { background-color: #ddd; }
+.drag-handle:hover { background-color: var(--widget-handle-hover-bg); }
 
 /* Dragula */
 .gu-mirror       { position: fixed !important; z-index: 9999 !important; opacity: 0 !important; }
 .gu-hide         { display: none !important; }
 .gu-unselectable { user-select: none; -webkit-user-select: none; }
-.gu-transit      { outline: 3px dashed yellow; background-color: lightyellow; }
+.gu-transit      { outline: 3px dashed var(--widget-dragging-border); background-color: var(--widget-dragging-bg); }
 
 
 /*** noscript
@@ -355,62 +342,14 @@ tr.target .chart-left { display: block; }
 noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
 noscript p { margin: .5em; }
 
-
-/*** Billing
- *************/
-#billing-form fieldset legend+p     { margin-top: 0; }
-#billing-form fieldset p:last-child { margin-bottom: 0; }
-
-#billing-form center { margin-top: 2em; }
-#home-pricing        { border: none; padding: 0; }
-#home-pricing input  { display: none; }
-#home-pricing input:checked+label { background-color: #f7f7f7; }
-
-/* Copy from style.css */
-.cbox                { box-shadow: 0 0 4px #cdc8a4; background-color: #f6f3da; color: #252525; }
-#home-pricing >span  { display: flex; justify-content: space-between; text-align: center; align-items: flex-start; }
-#home-pricing label  { box-shadow: 0 0 4px #aaa; background-color: #fff; width: calc(25% - .5em); }
-#home-pricing h3     { margin: .5em 0; }
-#home-pricing ul     { list-style: none; padding: 0; line-height: 2.5em; }
-#home-signup         { text-align: center; margin-top: 2em; }
-#home-signup a       { padding: 1em; display: block; width: 30%; margin: auto; }
-#home-pricing-custom { text-align: center; margin-top: 1em; }
-
-@media (max-width: 50rem) {
-    #home-pricing >span { flex-wrap: wrap; justify-content: center; }
-    #home-pricing label { width: 45%; margin: 1em; }
-}
-@media (max-width: 37rem) {
-    #home-pricing label        { margin-bottom: 1em; width: 100%; }
-    #home-pricing label .empty { display: none; }
-    #home-pricing ul           { line-height: 2em; }
-    #home-pricing h3           { padding-top: .5em; }
-    #home-signup a             { width: auto; }
-}
-
-#home-pricing-faq      { font-size: .9rem; }
-#home-pricing-faq h3   { margin-bottom: 0; text-align: center; }
-#home-pricing-faq dl   { max-width: 50em; margin: 0 auto; text-align: center; }
-#home-pricing-faq dt   { text-align: center; margin: .2em 0; font-weight: normal; color: #00f; transition: color .2s; cursor: pointer; }
-#home-pricing-faq dt a { display: none; }
-#home-pricing-faq dt:hover { text-decoration: underline; color: #6491ff; }
-#home-pricing-faq dd   { background-color: #fff; padding: .4em 1em; padding: 0; margin: 0; overflow: hidden; height: 0; text-align: left; }
-@media (max-width: 37rem) {
-    #home-pricing-faq dt { margin: .5em 0; }
-}
-
-/* End copy */
-
-
-
 /*** Updates overview
  **********************/
-#page-updates .page       { background-color: #eee; box-shadow: none; }
-.update, #page-updates h1 { margin: 0 0 1em 0; padding: .5em; background-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,.2); }
+#page-updates .page       { background-color: var(--backdrop); box-shadow: none; }
+.update, #page-updates h1 { margin: 0 0 1em 0; padding: .5em; background-color: var(--bg); box-shadow: 0 0 6px rgba(0,0,0,.2); }
 .update p                 { margin-left: 2em; }
 .update > em + p, .update > em + strong + p { margin-top: .5em; }
 .update pre               { max-width: 50em; margin-left: 2em; }
-.update-new               { background-color: yellow; padding: 0 .3em; }
+.update-new               { background-color: var(--target-bg); padding: 0 .3em; }
 h3 + h4                   { margin-top: .3em; }
 .reftable                 { margin-top: 1em; }
 .update hr                { border-top: 1px solid #ddd; max-width: 50em; font-size: 1rem; margin: 0; }
@@ -425,10 +364,9 @@ h3 + h4                   { margin-top: .3em; }
   100% { content: "..."; }
 }
 /* TODO: See if we can have it sit in the margin */
-.loading        { color: #777; }
-.loading:hover  { color: #777; text-decoration: none; }
+.loading        { color: var(--loading-text); }
+.loading:hover  { color: var(--loading-text); text-decoration: none; }
 .loading::after { content: ""; animation: loading 500ms linear infinite; }
-
 
 /* Force inputs to be 16px, so that iPhone won't zoom on select, which is
  * super annoying and 100% pointless.
@@ -436,27 +374,6 @@ h3 + h4                   { margin-top: .3em; }
 @supports (-webkit-overflow-scrolling: touch) {
     input, select, textarea { font-size: 16px !important; }
 }
-
-#usage .total strong { display: inline-block; width: 14em; }
-#usage .total .perc  { display: inline-block; width: 2em; text-align: right; margin-right: 1em; }
-
-@media (min-width: 55rem) {
-    .side-by-side          { display: flex; flex-wrap: wrap; justify-content: space-between; }
-    .side-by-side >*       { width: 49%; }
-    .side-by-side.boxed >* { width: 49.8%; }
-}
-
-.side-by-side.boxed        { margin-top: 1em; }
-.side-by-side.boxed >*     { position: relative; padding: .25em .75em; margin-bottom: 1em; border: 1px solid #666; }
-
-.side-by-side.boxed >* >h2,
-.side-by-side.boxed >* >h3,
-.side-by-side.boxed >* >h4
-.side-by-side.boxed >* >h5
-.side-by-side.boxed >* >h6,
-.fset-header >strong       { position: absolute; top: -.5em; left: .5em; font-size: 1rem; line-height: 1;
-                             padding: 0 .2em; margin: 0; border: 0; background-color: #fff; }
-.fset-header               { position: relative; margin: 0 -.75em; margin-top: 2em; border-top: 1px solid #666; }
 
 dl { max-width: 50em; }
 dt { font-weight: bold; margin-top: 1em; }

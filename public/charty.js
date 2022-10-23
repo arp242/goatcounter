@@ -17,7 +17,7 @@
 
 		opt.line = Object.assign({width: 2, color: '#f00', fill: '#fdd'}, opt.line)
 		opt.bar  = Object.assign({color: '#f00'}, opt.bar)
-		opt      = Object.assign({mode: 'line', max: 0, pad: 2, background: '#fff', grid: [2.5, 22.5, 47.5]}, opt)
+		opt      = Object.assign({mode: 'line', max: 0, pad: 2, background: style('bg'), grid: [2.5, 22.5, 47.5]}, opt)
 
 		if (opt.max === 0)
 			opt.max = data.reduce((a, b) => b > a ? b : a)
@@ -143,7 +143,7 @@
 	// Draw gridlines and borders.
 	let draw_grid = function(ctx, cWidth, cHeight, pad, grid) {
 		ctx.lineWidth   = 1
-		ctx.strokeStyle = '#ddd'
+		ctx.strokeStyle = style('chart-grid')
 
 		grid.forEach((g) => {
 			ctx.beginPath()

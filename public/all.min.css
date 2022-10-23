@@ -1,27 +1,3 @@
-
-/* FILE: ./aside.css */
-aside {
-  hyphens: auto;
-}
-aside {
-  position: absolute;
-  left: -15em;
-  width: 14em;
-  text-align: right;
-  font-size: .9em;
-}
-@media (max-width: 83em) {
-  aside {
-    position: static;
-    width: auto;
-    text-align: left;
-    background-color: #f7f7f7;
-    padding: .4em 2em;
-    border: 1px solid #aaa;
-    hyphens: none;
-  }
-}
-
 /* FILE: ./base.css */
 @font-face {
 	font-family: 'Lato';
@@ -76,11 +52,11 @@ h1, h2, h3, h4, h5, h6 {
   box-sizing: border-box;
 }
 *:target {
-  background-color: #ff6;
+  background-color: var(--target-bg);
 }
 html {
-  background-color: #eee;
-  color: #252525;
+  background-color: var(--backdrop);
+  color: var(--text);
        tab-size: 4;
   -moz-tab-size: 4;
 }
@@ -94,7 +70,7 @@ html, body {
 }
 .page {
   padding: 1rem 4rem;
-  background-color: #fff;
+  background-color: var(--bg);
   box-shadow: 0 0 6px rgba(0,0,0,.2);
 }
 @media (max-width: 54em) {
@@ -131,16 +107,16 @@ html, body {
 a,
 a code,
 .link {
-  color: #00f;
+  color: var(--link);
   text-decoration: none;
   transition: color .2s;
 }
 a:hover, .link:hover {
   text-decoration: underline;
-  color: #6491ff;
+  color: var(--link-hover);
 }
 a:hover code  {
-  color: #6491ff;
+  color: var(--link-hover);
 }
 form {
   display: inline;
@@ -166,7 +142,7 @@ h1 {
   font-size: 1.7em;
 }
 h2 {
-  border-bottom: 1px solid #252525;
+  border-bottom: 1px solid var(--header-border);
   padding-bottom: .2em;
   font-size: 1.5em;
 }
@@ -205,16 +181,16 @@ figure.border {
   }
 }
 code, pre, kbd, samp {
-  background-color: #f5f5f5;
-  color: #000;
+  background-color: var(--code-bg);
+  color: var(--code-text);
 }
 pre {
   overflow: auto;
   max-height: 500px;
   padding: .5em 1em;
   border-radius: 2px;
-  border-top: 1px solid #d5d5d5;
-  border-bottom: 1px solid #d5d5d5;
+  border-top: 1px solid var(--pre-border);
+  border-bottom: 1px solid var(--pre-border);
 }
 @media (min-width: 54em) {
   pre.full {
@@ -290,27 +266,11 @@ hr {
   border: none;
   text-align: center;
   font-size: 60px;
-  color: #252525;
+  color: var(--text);
   opacity: .9;
 }
 hr:before {
   content: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMC4yIDkuMiIgaGVpZ2h0PSIzNC44IiB3aWR0aD0iMTE0LjMiPjxwYXRoIGQ9Ik0xMy4yIDBxMS4xIDAgMS4zIDEuMiAwIDEtLjcgMS4yLTEuOC40LTIgLjggMi42LjMgMy4yIDMuMWguMmwuMi44LS40LjFxLS4yIDEuOC0xLjggMS45LTEgMC0xLjMtMSAwLS44LjItLjguMi40LjguNC44IDAgMS0uOFExMSA2LjEgMTEgMy43cS0xLjQgMC0yLjEgMSAxLjQuNyAxLjQgMS44LS4xIDIuNS0zLjYgMi43US41IDkuMiAwIDUuNXEwLS42LjctLjcuNSAwIC42LjV2LjJsLS4xLjRxMCAxIDEuMSAxIDEgMCAxLS43UTQgMS4yIDcgMXEyIC4xIDIgMS43di4xcTAgLjQtLjQgMS41IDEtLjggMi0xIC42IDAgLjYtLjQuOC0xIDEuNi0xLjMuNi0uNC42LS44bC0uMi0uNHEtLjItLjMgMC0uNHptLTEuNiAzLjd2LjFxMCAxLjQgMi4zIDIuMi0uMy0yLTIuMy0yLjN6Ii8+PHBhdGggZD0iTTE3IDBxLTEgMC0xLjMgMS4yIDAgMSAuOCAxLjIgMS44LjQgMiAuOC0yLjcuMy0zLjIgMy4xSDE1bC0uMi44LjUuMXEuMiAxLjggMS44IDEuOSAxIDAgMS4yLTEgMC0uOC0uMi0uOC0uMS40LS43LjQtLjkgMC0xLS44IDIuNy0uOCAyLjgtMy4yIDEuNCAwIDIgMS0xLjMuNy0xLjMgMS44IDAgMi41IDMuNSAyLjcgNi40IDAgNi44LTMuNyAwLS42LS42LS43LS42IDAtLjcuNXYuMmwuMi40cTAgMS0xLjIgMS0uOSAwLTEtLjctLjYtNS0zLjctNS4yLTIgLjEtMiAxLjd2LjFxMCAuNC40IDEuNS0xLS44LTItMS0uNiAwLS42LS40LS43LTEtMS41LTEuMy0uNi0uNC0uNi0uOGwuMi0uNHEuMi0uMyAwLS40em0xLjcgMy43di4xcTAgMS40LTIuNCAyLjIuMy0yIDIuNC0yLjN6Ii8+PC9zdmc+);
-}
-
-/* FILE: ./blockquote.css */
-blockquote {
-  font-style: italic;
-  position: relative;
-}
-blockquote:before  {
-  position: absolute;
-  color: #dbdbdb;
-  font-size: 5em;
-}
-blockquote:before {
-  content: "“";
-  left: -.6em;
-  top: .25em;
 }
 
 /* FILE: ./form.css */
@@ -330,13 +290,15 @@ input[type="number"],
 textarea,
 select {
   font: 1em/100% 'Lato', sans-serif;
+  color: var(--input-text);
+  background-color: var(--input-bg);
 }
 textarea,
 button:not(.link),
 select,
 input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]) {
   padding: .6em;
-  border: 1px solid #bbb;
+  border: 1px solid var(--input-border);
   border-radius: 3px;
 }
 textarea {
@@ -345,38 +307,38 @@ textarea {
   line-height: 130%;
 }
 button:not(.link), input[type="submit"]:not(.link) {
-  color: #000;
   cursor: pointer;
   margin-left: .5em;
   padding: .6em 1.5em;
-  background-color: #f6f5f4;
-  background: linear-gradient(#f6f5f4, #edebe9);
-  border: 1px outset #e9e9e9;
+  color: var(--btn-text);
+  background: var(--btn-bg);
+  border: 1px outset var(--btn-border);
   border-radius: 3px;
-  border-top-color: #ccc;
-  border-left-color: #ccc;
+  border-top-color: var(--btn-border-outset);
+  border-left-color: var(--btn-border-outset);
 }
 select {
-  background-color: inherit;
+  /* This breaks "dark mode" on Chromium; works fine in Firefox though.
+   * Not sure why I put "inherit" here in the first place, but removing it fixes
+   * it.
+  background-color: inherit; */
 }
 input:not(.link):focus,
 button:not(.link):focus,
 textarea:focus,
 select:focus {
-  outline: 1px solid #00f;
-  box-shadow: 0 0 .2em #00f;
-  color: #000;
+  outline: 1px solid var(--input-focus);
+  box-shadow: 0 0 .2em var(--input-focus);
+  color: var(--text);
   cursor: pointer;
 }
 button:not(.link):hover,
 input[type="submit"]:not(.link):hover {
-  background-color: #f0f0f0;
-  background: linear-gradient(#f0f0f0, #d0cecc);
+  background: var(--btn-hover-bg);
 }
 button:not(.link):active,
 input[type="submit"]:not(.link):active {
-  background-color: #d0cecc;
-  background: linear-gradient(#d0cecc, #f0f0f0);
+  background: var(--btn-active-bg);
   border-style: inset;
 }
 form > strong, fieldset > strong {
@@ -387,7 +349,7 @@ form span {
   margin-left: .2em;
 }
 fieldset {
-  border: 1px solid #aaa;
+  border: 1px solid var(--fieldset-border);
 }
 fieldset legend+p     { margin-top: 0; }
 .vertical input[type="text"],
@@ -445,36 +407,4 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 }
 h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after {
   content: "§";
-}
-
-/* FILE: ./postscript.css */
-.postscript {
-  margin-top: 3em;
-  border-top: 1px solid #aaa;
-  font-size: .9em;
-  position: relative;
-}
-.postscript + .postscript {
-  margin-top: 2em;
-}
-.postscript > strong {
-  font-style: normal;
-  position: absolute;
-  top: -1em;
-  left: 1em;
-  background-color: #fff;
-  padding: 0 .5em;
-}
-.postscript > p {
-  margin: 1em 2em
-}
-@media (min-width: 54rem) {
-  .postscript {
-    margin-left: -4em;
-    width: calc(100% + 8em);
-    padding: 0 4em;
-  }
-  .postscript > strong {
-    left: 6em;
-  }
 }

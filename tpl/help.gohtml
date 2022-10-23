@@ -5,6 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="{{.MetaDesc}}">
 	<title>GoatCounter documentation</title>
+	<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/all.min.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
 	<link rel="canonical" href="https://{{.Domain}}/{{.Page}}/{{.CodePage}}">
@@ -16,14 +18,14 @@ nav.center          { max-width: 80em; padding-left: 19em; }
 .code-wrap          { display: flex; max-width: 80em; }
 .code-wrap >div     { overflow: hidden; padding: 6px; margin: -6px; margin-right: 6px; }
 .code-nav           { flex-shrink: 0; width: 18em; height: 100%; padding: .5em; margin-right: .6em;
-				      background-color: #f6f3da; color: #252525; box-shadow: 0 0 4px #cdc8a4; }
+				      background-color: var(--nav-bg); color: var(--text); box-shadow: 0 0 4px var(--box-shadow); }
 .code-nav select    { display: none; }
 .code-nav ul        { list-style: none; margin: 0; padding: 0; }
 .code-nav a         { display: block; margin: .3em 0; padding-left: .3em; border-left: 3px solid transparent; }
 .code-nav li >ul a  { margin-left: .5em; }
 .code-nav .active a { border-left-color: #999; }
 .code-nav strong    { font-size: .9rem; }
-.page-code          { padding: 1em; background-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,.2); }
+.page-code          { padding: 1em; background-color: var(--bg); box-shadow: 0 0 6px rgba(0,0,0,.2); }
 h3                  { margin-bottom: .2em; }
 h3 + p              { margin-top: 0; }
 h4                  { margin-bottom: .2em; }
@@ -47,7 +49,7 @@ hr                  { margin: 0; }
 	.code-wrap >div  { margin: 0; padding: 0; }
 	.code-nav        { position: sticky; top: 0; z-index: 10; width: auto; margin-bottom: 1em; }
 	.code-nav ul     { display: none; }
-	.code-nav select { display: block; background-color: #fff; width: 100%; }
+	.code-nav select { display: block;  width: 100%; }
 }
 </style>
 </head>

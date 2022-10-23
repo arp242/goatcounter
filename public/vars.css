@@ -1,0 +1,81 @@
+:root {
+    --text:              #252525;
+    --bg:                #fff;
+    --header-border:     var(--text);                      /* Border below some headers */
+    --backdrop:          #eee;
+    --target-bg:         #ff6;                             /* :target; for highlighting search results and headers in the documentation. */
+    --loading-text:      #777;                             /* Little … that appears if something takes more than ~300ms to load */
+
+    --link:              #00f;                             /* <a> */
+    --link-hover:        #6491ff;
+
+    --input-text:        var(--text);                      /* <input>, <select> */
+    --input-bg:          var(--bg);
+    --input-border:      #bbb;
+    --input-focus:       #00f;                             /* Outline for focused inputs etc. */
+    --fieldset-border:   #666;                             /* Border around setting boxes on the settings page */
+    --form-error-text:   red;
+    --input-error-border: red;
+
+    --btn-text:          var(--text);                      /* <button> */
+    --btn-bg:            linear-gradient(#f6f5f4, #edebe9);
+    --btn-border:        #e9e9e9;                          /* Default border style */
+    --btn-border-outset: #ccc;                             /* Top and left styles for "3D" effect */
+    --btn-hover-bg:      linear-gradient(#f0f0f0, #d0cecc);
+    --btn-active-bg:     linear-gradient(#d0cecc, #f0f0f0);
+
+    --code-text:         #000;                             /* <code>, <pre>, etc. */
+    --code-bg:           #f5f5f5;
+    --code-border:       #d5d5d5;                          /* <pre> only */
+
+    --tooltip-text:      #000;                             /* Tooltips in the charts, some help text, "configure" button */
+    --tooltip-bg:        #f6f6f6;
+    --tooltip-border:    #ddd;
+    --tooltip-shadow:    #aaa;
+
+    --chart-line:        #9a15a4;                          /* Charts on the dashboard */
+    --chart-fill:        #fbc7ff;
+    --chart-grid:        #ddd;
+    --hchart-hover:      #eee;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
+    --hchart-hover-bar:  #ebb7ef;
+
+    --nav-bg:            #f8f8d9;                          /* Navigation at dashboard, settings, and footer */
+    --nav-border:        #dede89;
+    --footer-shadow:     #cdc8a4;
+
+    --info-bg:           #c9f0ff;                          /* Flash messages */
+    --info-border:       #a1a1ff;
+    --error-bg:          #fff0f0;
+    --error-border:      #f00;
+
+    --event-bg:          #f6f3da;                          /* "Event" label in paths overview */
+    --pageviews-text:    #7a7a7a;                          /* Grey out "pageviews" in tooltip. */
+
+    --datepicker-border:             #ccc;                 /* Datepicker on dashboard (non-mobile only). */
+    --datepicker-shadow:             rgba(0,0,0,.5);
+    --datepicker-dayname-text:       #999;
+    --datepicker-day-text:           #666;
+    --datepicker-day-bg:             #f5f5f5;
+    --datepicker-day-hover-bg:       #ff8000;
+    --datepicker-today-text:         #33aaff;
+    --datepicker-selected-shadow:    #178fe5;
+    --datepicker-selected-text:      #33aaff;
+    --datepicker-future-text:        #999;
+    --datepicker-future-bg:          #d5e9f7;
+    --datepicker-outside-month-text: #999;
+
+    --text-table-even-bg:      #fafafa;                    /* Styles for pages overview with the chart style set to "text" */
+    --text-table-border:       #eaeaea;
+    --text-table-rank-text:    #555;
+    --text-table-chart-bg:     #f9f9f9;
+    --text-table-chart-border: #c9c9c9;
+
+    --widget-border:           #e6e6e6;                    /* "Widget settings" page */
+    --widget-dragging-border:  yellow;
+    --widget-dragging-bg:      lightyellow;
+    --widget-handle-bg:        url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi2r9//38gYGAEESAAEGAAasgJOgzOKCoAAAAASUVORK5CYII=);
+    --widget-handle-hover-bg:  #ddd;
+
+    --box-bg:                  #f6f3da;                    /* Signup box on the homepage, footer */
+    --box-shadow:              #cdc8a4;                    /* box-shadow on most boxes on the homepage, /help page navigation, etc. */
+}

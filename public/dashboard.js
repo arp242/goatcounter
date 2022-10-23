@@ -427,18 +427,25 @@
 		})
 	}
 
-	var init_charts = function() {
-		$(window).on('resize', function() {
-			$('#tooltip').remove()
-			charts.forEach((c) => {
-				c.ctx().canvas.dataset.done = ''
-				c.stop()
-			})
-			charts = []
-			draw_all_charts()
+	var redraw_all_charts = function() {
+		$('#tooltip').remove()
+		charts.forEach((c) => {
+			c.ctx().canvas.dataset.done = ''
+			c.stop()
 		})
-
+		charts = []
 		draw_all_charts()
+	}
+
+	var init_charts = function() {
+		$(window).on('resize', redraw_all_charts)
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redraw_all_charts)
+
+		// force-dark manually added or removed.
+		new MutationObserver(function(muts, observer) {
+			muts.forEach((m) => m.type === 'attributes' && m.attributeName === 'class' && redraw_all_charts())
+		}).observe($('html')[0], {attributes: true})
+
 	}
 
 	// Draw all charts.
@@ -491,12 +498,11 @@
 			mode: isBar ? 'bar' : 'line',
 			max:  max,
 			line: {
-				color: '#9a15a4',
-				//fill: '#fbc7ff',
-				fill: '#fdecfe',
+				color: style('chart-line'),
+				fill:  style('chart-fill'),
 				width: daily || ndays <= 14 ? 2 : 1
 			},
-			bar:  {color: '#9a15a4'},
+			bar:  {color: style('chart-line')},
 			done: (chart) => {
 				// Show future as greyed out.
 				let last   = stats[stats.length - 1].day + (daily ? '' : ' 23:59:59'),

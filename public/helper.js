@@ -132,3 +132,7 @@ var T = function(id, params) {
 		params['__one__'] = params
 	return str.replace(/%\((.+?)\)/g, (_, varname) => params[varname] !== 'undefined' ?  params[varname] : params['__one__'])
 }
+
+var style = function(name) {
+	return getComputedStyle(document.documentElement).getPropertyValue(`--${name}`)
+}

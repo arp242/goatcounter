@@ -34,8 +34,16 @@
 				{{end}}
 				<canvas height="50"></canvas>
 				<span class="chart-right">{{$n := sum $.Offset $i}}
-					{{- if and (eq $i 0) (not $.User.Settings.FewerNumbers)}}<small class="scale" title="{{t $.Context "y-scale|Y-axis scale"}}">{{nformat $.Max $.User}}</small>
-					{{- else if ge $n 11}}<span class="page-n" title="{{t $.Context "page-ranking|Page ranking"}}">#{{$n}}</span>{{end -}}
+					{{- if eq $i 0}}
+						{{if not $.User.Settings.FewerNumbers}}
+							<small class="scale" title="{{t $.Context "y-scale|Y-axis scale"}}">{{nformat $.Max $.User}}</small>
+						{{end}}
+					{{- else if ge $n 11}}
+						{{/* TODO: this is broken, probably sice I added websocket
+						support at the start of 2022. Guess we can just remove it? No
+						one has complained */}}
+						<span class="page-n" title="{{t $.Context "page-ranking|Page ranking"}}">#{{$n}}</span>
+					{{end -}}
 				</span>
 			</div>
 			<div class="hchart refs">
