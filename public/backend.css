@@ -282,7 +282,7 @@ tr.target .chart-left { display: block; }
 
 /*** Tooltip
  ************/
-#tooltip { position: absolute; left: 0; top: 0; padding: .2em .5em; font-size: 14px;
+#tooltip { position: absolute; left: 0; top: 0; padding: .2em .5em; font-size: 14px; z-index: 100;
            font-family: sans-serif; color: var(--tooltip-text); background-color: var(--tooltip-bg); box-shadow: 0 0 2px var(--tooltip-shadow); }
 #tooltip .views { color: var(--pageviews-text); } /* Grey out "pageviews" in tooltip. */
 

@@ -1,4 +1,4 @@
-.pika-single { z-index: 9999; display: block; position: relative;
+.pika-single { z-index: 10; display: block; position: relative;
                color: var(--text); background: var(--bg); border: 1px solid var(--datepicker-border); }
 
 /* Clear child float (pika-lendar), using the famous micro clearfix hack
@@ -13,16 +13,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/ */
 
 .pika-label { display: inline-block; position: relative; z-index: 9999; overflow: hidden;
               margin: 0; padding: 5px 3px; font-size: 16px; line-height: 20px;
-              font-weight: bold; background-color: var(--bg); }
+              font-weight: bold; background-color: var(--bg); color: var(--link); transition: color .2s; }
+.pika-label:hover { text-decoration: underline; color: var(--link-hover); }
 
-.pika-title select { z-index: 9998; position: absolute; left: 0; top: 5px; margin: 0;
+.pika-title select { z-index: 9; position: absolute; left: 0; top: 5px; margin: 0;
                      opacity: 0; cursor: pointer; }
 
-.pika-prev, .pika-next { display: block; position: relative; width: 20px; height: 30px; padding: 0;
-                         outline: none; border: 0; opacity: .5; cursor: pointer; background-color: transparent;
-                         background-position: center center; background-repeat: no-repeat; background-size: 75% 75%; }
-
-.pika-prev:hover, .pika-next:hover             { opacity: 1; }
+.pika-prev, .pika-next { display: block; position: relative; width: 30px; height: 30px; padding: 0;
+                         opacity: .5; cursor: pointer; border-radius: 5px; }
+.pika-prev:hover, .pika-next:hover             { opacity: 1; text-decoration: none; transition: background-color .2s;
+                                                 background-color: var(--hchart-hover); color: var(--link); }
 .pika-prev, .is-rtl .pika-next                 { float: left; }
 .pika-next, .is-rtl .pika-prev                 { float: right; }
 .pika-prev.is-disabled, .pika-next.is-disabled { cursor: default; opacity: .2; }
@@ -34,7 +34,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/ */
 .pika-table th                 { color: var(--datepicker-dayname-text); font-size: 14px; line-height: 25px; font-weight: bold; text-align: center; }
 
 .pika-button { display: block; margin: 0; padding: 5px; width: 100%; font-size: 13px; line-height: 15px;
-               border: 0; text-align: center; outline: none; color: var(--datepicker-day-text); background: var(--datepicker-day-bg); cursor: pointer; }
+               border: 0; text-align: center; color: var(--datepicker-day-text); background: var(--datepicker-day-bg); cursor: pointer; }
 .pika-button:hover { box-shadow: none; border-radius: 3px; color: var(--bg); background: var(--datepicker-day-hover-bg); }
 
 .is-today .pika-button    { color: var(--datepicker-today-text); font-weight: bold; }

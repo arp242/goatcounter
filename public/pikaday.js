@@ -15,7 +15,7 @@
     isArray  = function(obj)    { return (/Array/).test(Object.prototype.toString.call(obj)) },
     isDate   = function(obj)    { return (/Date/).test(Object.prototype.toString.call(obj)) && !isNaN(obj.getTime()) },
 
-	leapYear        = function(year)         { return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 },
+	leapYear        = function(year)        { return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 },
     getDaysInMonth  = function(year, month) { return [31,(leapYear(year)?29:28),31,30,31,30,31,31,30,31,30,31][month] },
     setToStartOfDay = function(date)        { if (isDate(date)) date.setHours(0,0,0,0) },
     compareDates    = function(a, b)        { return a.getTime() === b.getTime() },
@@ -133,24 +133,19 @@
     },
 
     renderTitle = function(instance, c, year, month, refYear, randId) {
-        var i, j, arr,
+        var i, j,
             opts = instance._o,
             isMinYear = year === opts.minYear,
             isMaxYear = year === opts.maxYear,
-            html = '<div id="' + randId + '" class="pika-title" role="heading" aria-live="assertive">',
-            monthHtml,
-            yearHtml,
-            prev = true,
-            next = true;
+            html = '<div id="' + randId + '" class="pika-title" role="heading" aria-live="assertive">';
 
-        for (arr = [], i = 0; i < 12; i++) {
-            arr.push('<option value="' + (year === refYear ? i - c : 12 + i - c) + '"' +
+		let months = []
+        for (let i = 0; i < 12; i++) {
+            months.push('<option value="' + (year === refYear ? i - c : 12 + i - c) + '"' +
                 (i === month ? ' selected="selected"': '') +
                 ((isMinYear && i < opts.minMonth) || (isMaxYear && i > opts.maxMonth) ? ' disabled="disabled"' : '') + '>' +
                 opts.i18n.months[i] + '</option>');
         }
-
-        monthHtml = '<div class="pika-label">' + opts.i18n.months[month] + '<select class="pika-select pika-select-month" tabindex="-1">' + arr.join('') + '</select></div>';
 
         if (isArray(opts.yearRange)) {
             i = opts.yearRange[0];
@@ -160,31 +155,45 @@
             j = 1 + year + opts.yearRange;
         }
 
-        for (arr = []; i < j && i <= opts.maxYear; i++) {
+		let years = []
+        for (; i < j && i <= opts.maxYear; i++) {
             if (i >= opts.minYear) {
-                arr.push('<option value="' + i + '"' + (i === year ? ' selected="selected"': '') + '>' + (i) + '</option>');
+                years.push('<option value="' + i + '"' + (i === year ? ' selected="selected"': '') + '>' + (i) + '</option>');
             }
         }
-        yearHtml = '<div class="pika-label">' + year + '<select class="pika-select pika-select-year" tabindex="-1">' + arr.join('') + '</select></div>';
 
-		html += monthHtml + yearHtml;
+		html += `
+			<div class="pika-label">
+				${opts.i18n.months[month]}
+				<select class="pika-select pika-select-month" tabindex="-1">${months.join('')}</select>
+			</div>
+			<div class="pika-label">
+				${year}
+				<select class="pika-select pika-select-year" tabindex="-1">${years.join('')}</select>
+			</div>`
 
+		let prev = true
         if (isMinYear && (month === 0 || opts.minMonth >= month))
             prev = false;
 
+		let next = true
         if (isMaxYear && (month === 11 || opts.maxMonth <= month))
             next = false;
 
         if (c === 0) {
-            html += '<button class="pika-prev link' + (prev ? '' : ' is-disabled') + '" type="button" ' +
-                'title="' + opts.i18n.previousMonth + '">◀</button>';
+            html += `<button type="button"
+					class="pika-prev link ${prev ? '' : ' is-disabled'}"
+					title="${opts.i18n.previousMonth}"
+                >◀</button>`
         }
         if (c === (instance._o.numberOfMonths - 1) ) {
-            html += '<button class="pika-next link' + (next ? '' : ' is-disabled') + '" type="button" ' +
-                'title="' + opts.i18n.nextMonth + '">▶</button>';
+            html += `<button type="button"
+					class="pika-next link ${next ? '' : ' is-disabled'}"
+					title="${opts.i18n.nextMonth}"
+				>▶</button>`
         }
 
-        return html += '</div>';
+        return html += '</div>'
     },
 
     renderTable = function(opts, data, randId) {
