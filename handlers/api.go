@@ -91,7 +91,7 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 
 	a.Post("/api/v0/count", zhttp.Wrap(h.count))
 
-	a.Get("/api/v0/stats/paths", zhttp.Wrap(h.paths))
+	a.Get("/api/v0/paths", zhttp.Wrap(h.paths))
 	a.Get("/api/v0/stats/total", zhttp.Wrap(h.countTotal))
 	a.Get("/api/v0/stats/hits", zhttp.Wrap(h.hits))
 	a.Get("/api/v0/stats/hits/{path_id}", zhttp.Wrap(h.refs))
@@ -785,7 +785,7 @@ type (
 	}
 )
 
-// GET /api/v0/stats/paths stats
+// GET /api/v0/paths paths
 // Get an overview of paths on this site (without statistics).
 //
 // Query: apiPathsRequest

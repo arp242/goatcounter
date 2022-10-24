@@ -240,7 +240,8 @@ return a 400 Gone status code if the export has been deleted.</p>
 				<a class="permalink" href="#POST-%2fapi%2fv0%2fexport">§</a>
 			</div>
 			<div class="endpoint-info">
-				<p>This starts a new export in the background.</p>
+				<p>This starts a new export in the background; this can only be done once an
+hour.</p>
 					<h4>Request body</h4>
 					<ul>
 						<li><a href="#handlers.apiExportRequest">handlers.apiExportRequest</a>
@@ -251,6 +252,41 @@ return a 400 Gone status code if the export has been deleted.</p>
 				<ul>
 					<li><code class="param-name">202 Accepted</code>
 								<a href="#v2.Export">v2.Export</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">400 Bad Request</code>
+								<a href="#handlers.apiError">handlers.apiError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">401 Unauthorized</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li>
+					<li><code class="param-name">403 Forbidden</code>
+								<a href="#handlers.authError">handlers.authError</a>
+							<sup>(application/json)</sup>
+					</li></ul>
+			</div>
+		</div>
+			</div><div>
+			<h3 id="paths" class="js-expand">paths
+				<a class="permalink" href="#paths">§</a></h3>
+
+		<div class="endpoint" id="GET-/api/v0/paths">
+			<div class="endpoint-top">
+				<code class="resource"><span class="method">GET</span> /api/v0/paths</code>
+				Get an overview of paths on this site (without statistics).
+				<a class="permalink" href="#GET-%2fapi%2fv0%2fpaths">§</a>
+			</div>
+			<div class="endpoint-info">
+				<p></p>
+					<h4>Query parameters</h4>
+					
+
+				<h4>Responses</h4>
+				<ul>
+					<li><code class="param-name">200 OK</code>
+								<a href="#handlers.apiPathsResponse">handlers.apiPathsResponse</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">400 Bad Request</code>
@@ -490,38 +526,6 @@ fields that are sent.</p>
 				<ul>
 					<li><code class="param-name">200 OK</code>
 								<a href="#handlers.apiRefsResponse">handlers.apiRefsResponse</a>
-							<sup>(application/json)</sup>
-					</li>
-					<li><code class="param-name">400 Bad Request</code>
-								<a href="#handlers.apiError">handlers.apiError</a>
-							<sup>(application/json)</sup>
-					</li>
-					<li><code class="param-name">401 Unauthorized</code>
-								<a href="#handlers.authError">handlers.authError</a>
-							<sup>(application/json)</sup>
-					</li>
-					<li><code class="param-name">403 Forbidden</code>
-								<a href="#handlers.authError">handlers.authError</a>
-							<sup>(application/json)</sup>
-					</li></ul>
-			</div>
-		</div>
-
-		<div class="endpoint" id="GET-/api/v0/stats/paths">
-			<div class="endpoint-top">
-				<code class="resource"><span class="method">GET</span> /api/v0/stats/paths</code>
-				Get an overview of paths on this site (without statistics).
-				<a class="permalink" href="#GET-%2fapi%2fv0%2fstats%2fpaths">§</a>
-			</div>
-			<div class="endpoint-info">
-				<p></p>
-					<h4>Query parameters</h4>
-					
-
-				<h4>Responses</h4>
-				<ul>
-					<li><code class="param-name">200 OK</code>
-								<a href="#handlers.apiPathsResponse">handlers.apiPathsResponse</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">400 Bad Request</code>
@@ -1000,7 +1004,9 @@ field set, but not both.</p>
 <h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
 <p>End time, should be rounded to the hour.</p>
 <h4>daily <sup>boolean</sup></h4>
-<p>Group by day, rather than by hour.</p>
+<p>Group by day, rather than by hour. This only affects the Hits.Max
+value: if enabled it&#39;s set to the highest value for that day, rather
+than the highest value for the hour.</p>
 <h4>include_paths <sup>array [type: integer]</sup></h4>
 <p>Include only these paths; default is to include everything.</p>
 <h4>exclude_paths <sup>array [type: integer]</sup></h4>

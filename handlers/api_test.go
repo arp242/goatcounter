@@ -663,7 +663,7 @@ func TestAPIPaths(t *testing.T) {
 				tt.setup(ctx, t)
 			}
 
-			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/paths?"+tt.query, nil, perm)
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/paths?"+tt.query, nil, perm)
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 

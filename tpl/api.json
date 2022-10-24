@@ -34,6 +34,9 @@
       "name": "export"
     },
     {
+      "name": "paths"
+    },
+    {
       "name": "sites"
     },
     {
@@ -98,7 +101,7 @@
         "consumes": [
           "application/json"
         ],
-        "description": "This starts a new export in the background.",
+        "description": "This starts a new export in the background; this can only be done once an\nhour.",
         "operationId": "POST_api_v0_export",
         "parameters": [
           {
@@ -277,6 +280,61 @@
         "summary": "Get information about the current user and API key.",
         "tags": [
           "users"
+        ]
+      }
+    },
+    "/api/v0/paths": {
+      "get": {
+        "operationId": "GET_api_v0_paths",
+        "parameters": [
+          {
+            "default": "20",
+            "description": "Limit number of returned results",
+            "in": "query",
+            "maximum": 200,
+            "minimum": 1,
+            "name": "Limit",
+            "type": "integer"
+          },
+          {
+            "description": "Only select paths after this ID, for pagination.",
+            "in": "query",
+            "name": "After",
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiPathsResponse"
+            }
+          },
+          "400": {
+            "description": "400 Bad Request",
+            "schema": {
+              "$ref": "#/definitions/handlers.apiError"
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "schema": {
+              "$ref": "#/definitions/handlers.authError"
+            }
+          }
+        },
+        "summary": "Get an overview of paths on this site (without statistics).",
+        "tags": [
+          "paths"
         ]
       }
     },
@@ -556,7 +614,7 @@
             "type": "integer"
           },
           {
-            "description": "Group by day, rather than by hour.",
+            "description": "Group by day, rather than by hour. This only affects the Hits.Max\nvalue: if enabled it's set to the highest value for that day, rather\nthan the highest value for the hour.",
             "in": "query",
             "name": "daily",
             "type": "boolean"
@@ -687,61 +745,6 @@
           }
         },
         "summary": "Get an overview of referral information for a path.",
-        "tags": [
-          "stats"
-        ]
-      }
-    },
-    "/api/v0/stats/paths": {
-      "get": {
-        "operationId": "GET_api_v0_stats_paths",
-        "parameters": [
-          {
-            "default": "20",
-            "description": "Limit number of returned results",
-            "in": "query",
-            "maximum": 200,
-            "minimum": 1,
-            "name": "Limit",
-            "type": "integer"
-          },
-          {
-            "description": "Only select paths after this ID, for pagination.",
-            "in": "query",
-            "name": "After",
-            "type": "integer"
-          }
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "200 OK",
-            "schema": {
-              "$ref": "#/definitions/handlers.apiPathsResponse"
-            }
-          },
-          "400": {
-            "description": "400 Bad Request",
-            "schema": {
-              "$ref": "#/definitions/handlers.apiError"
-            }
-          },
-          "401": {
-            "description": "401 Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/handlers.authError"
-            }
-          },
-          "403": {
-            "description": "403 Forbidden",
-            "schema": {
-              "$ref": "#/definitions/handlers.authError"
-            }
-          }
-        },
-        "summary": "Get an overview of paths on this site (without statistics).",
         "tags": [
           "stats"
         ]

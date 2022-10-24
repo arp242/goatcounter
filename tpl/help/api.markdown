@@ -82,7 +82,6 @@ A quick overview of all the endpoints:
 | `GET   /api/v0/export/{id}`          | Get information about a CSV export     |
 | `GET   /api/v0/export/{id}/download` | Download CSV export                    |
 | **Statistics**                       |                                        |
-| `GET   /api/v0/stats/paths`          | Get an overview of all paths           |
 | `GET   /api/v0/stats/total`          | List total pageview counts             |
 | `GET   /api/v0/stats/hits`           | Get pageview and visitor statistics    |
 | `GET   /api/v0/stats/hits/{path_id}` | Get referral stats for a path          |
@@ -96,6 +95,8 @@ A quick overview of all the endpoints:
 | `PATCH /api/v0/sites/{id}`           | Update a site                          |
 | **Users**                            |                                        |
 | `GET   /api/v0/me`                   | Get information about the current user |
+| **Paths**                            |                                        |
+| `GET   /api/v0/paths`                | Get an overview of all paths           |
 
 <style>table code { white-space: pre-wrap; background-color: inherit; }</style>
 
