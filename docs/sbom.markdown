@@ -45,6 +45,8 @@ Direct dependencies:
 
 Testing dependencies:
 
+| Name                           | License      | Why?                            |
+| ----                           | -------      | -----                           |
 | github.com/PuerkitoBio/goquery | BSD 3-Clause | Used in tests to check the HTML |
 | golang.org/x/tools             | BSD-3-Clause | Linting tools. |
 | honnef.co/go/tools             | MIT          | Linting tools. |
