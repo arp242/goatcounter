@@ -4,6 +4,10 @@
 
 /*** Generic stuff and layout
  ****************************/
+/* Always display a scrollbar; this prevents the layout from jumping around when
+ * you expand or collapse something that makes a scrollbar appear. */
+body       { overflow-y: scroll; }
+
 .page      { padding: 1em; }
 footer     { padding: 1em; text-align: center; display: flex; justify-content: space-between;
              background-color: var(--nav-bg); box-shadow: 0 0 4px var(--footer-shadow); }
