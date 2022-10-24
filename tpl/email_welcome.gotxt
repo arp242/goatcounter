@@ -1,5 +1,4 @@
 {{template "_email_top.gotxt" .}}
-
 Welcome to your GoatCounter account!
 
 Please go here to verify your email address:

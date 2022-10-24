@@ -1,5 +1,4 @@
 {{template "_email_top.gotxt" .}}
-
 The GoatCounter export you’ve requested is finished, go here to download it:
 {{.Site.URL .Context}}/settings/export/{{.Export.ID}}
 

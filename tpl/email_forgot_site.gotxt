@@ -1,5 +1,4 @@
 {{template "_email_top.gotxt" .}}
-
 You requested a list of GoatCounter sites associated with ‘{{.Email}}’:
 {{range $s := .Sites}}
 - {{$s.URL $.Context}}

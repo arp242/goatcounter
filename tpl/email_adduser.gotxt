@@ -1,5 +1,4 @@
 {{template "_email_top.gotxt" .}}
-
 {{.AddedBy}} created an account for you at {{.Site.URL .Context}}
 
 {{if not .NewUser.Password}}Please go here to set a password{{if not .NewUser.EmailVerified}} and verify your email address.{{end}}:

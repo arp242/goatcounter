@@ -1,5 +1,4 @@
 {{template "_email_top.gotxt" .}}
-
 Please go here to verify your GoatCounter email address:
 {{.Site.URL .Context}}/user/verify/{{.User.EmailToken}}
 
