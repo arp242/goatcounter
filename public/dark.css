@@ -70,10 +70,11 @@ html.force-dark {
     --text-table-chart-bg:     #3d3d3d;
     --text-table-chart-border: #686868;
 
-    --widget-border:           #e6e6e6;                    /* "Widget settings" page */
+    --widget-border:           #a4a4a4;                    /* "Widget settings" page */
     --widget-dragging-border:  yellow;
-    --widget-dragging-bg:      lightyellow;
+    --widget-dragging-bg:      #000;
     --widget-handle-bg:        #808080;
+    --widget-handle-text:      #bcbcbc;
     --widget-handle-hover-bg:  #898989;
 
     --box-bg:                  #666;                       /* Signup box on the homepage, footer */

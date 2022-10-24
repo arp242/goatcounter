@@ -73,7 +73,8 @@
     --widget-border:           #e6e6e6;                    /* "Widget settings" page */
     --widget-dragging-border:  yellow;
     --widget-dragging-bg:      lightyellow;
-    --widget-handle-bg:        url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi2r9//38gYGAEESAAEGAAasgJOgzOKCoAAAAASUVORK5CYII=);
+    --widget-handle-bg:        #eee;
+    --widget-handle-text:      #666;
     --widget-handle-hover-bg:  #ddd;
 
     --box-bg:                  #f6f3da;                    /* Signup box on the homepage, footer */

@@ -328,17 +328,18 @@ tr.target .chart-left { display: block; }
     .widget-settings .help { display: block; margin-left: .2em; }
 }
 
-.drag-handle {
-    position: absolute; top: 0; left: 0; width: 2em; height: 100%; cursor: move; text-align: center; margin-left: 0;
-    background: var(--widget-handle-bg);
-}
-.drag-handle:hover { background-color: var(--widget-handle-hover-bg); }
-
 /* Dragula */
 .gu-mirror       { position: fixed !important; z-index: 9999 !important; opacity: 0 !important; }
 .gu-hide         { display: none !important; }
 .gu-unselectable { user-select: none; -webkit-user-select: none; }
 .gu-transit      { outline: 3px dashed var(--widget-dragging-border); background-color: var(--widget-dragging-bg); }
+
+.drag-handle        { position: absolute; top: 0; left: 0; width: 2em; height: 100%; padding: 4px 0 0 2px;
+                      font-size: 12px; font-weight: bold; line-height: 6px; letter-spacing: 3px; margin-left: 0;
+                      content: '....'; text-align: center; cursor: move;
+                      background-color: var(--widget-handle-bg); color: var(--widget-handle-text); }
+.drag-handle::after { content: '··· ··· ··· ··· ···'; }
+.drag-handle:hover  { background-color: var(--widget-handle-hover-bg); }
 
 
 /*** noscript
