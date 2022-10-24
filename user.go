@@ -514,6 +514,14 @@ func (u User) EmailReportRange() ztime.Range {
 	return ztime.NewRange(start.Time.Truncate(time.Second)).To(end.Time.Truncate(time.Second))
 }
 
+func (u User) EmailShort() string {
+	local, _, ok := strings.Cut(u.Email, "@")
+	if ok {
+		return local + "@"
+	}
+	return u.Email
+}
+
 type Users []User
 
 // List all users for a site.

@@ -41,12 +41,12 @@ footer a   { font-weight: bold; color: var(--text); margin: 0 .5em; }
 }
 
 nav                    { display: flex; justify-content: space-between; padding-right: .5em; }
-nav #usermenu          { text-align: right; min-width: 21em; }
+nav #usermenu          { text-align: right; min-width: 20.5em; }
 nav .updates           { font-weight: bold; background-color: var(--target-bg); }
 nav #signin            { white-space: nowrap; margin-left: 1em; }
 nav #back              { white-space: nowrap; margin-right: 1em; }
 nav .sites-list        { position: absolute; visibility: hidden; }
-nav .sites-list-select { display: none; padding: 0 .6em; background-color: var(--bg); }
+nav .sites-list-select { display: none; padding: 0; background-color: var(--bg); }
 @media (max-width: 87rem) {
     nav { padding-left: .5em; }
 }
