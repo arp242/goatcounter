@@ -37,8 +37,9 @@ var Tasks = []Task{
 }
 
 var (
-	stopped = zsync.NewAtomicInt(0)
-	started = zsync.NewAtomicInt(0)
+	stopped         = zsync.NewAtomicInt(0)
+	started         = zsync.NewAtomicInt(0)
+	persistInterval = 10 * time.Second
 )
 
 func PersistInterval(d time.Duration) {
@@ -46,6 +47,7 @@ func PersistInterval(d time.Duration) {
 		panic("cron.PersistInterval: cron already started")
 	}
 
+	persistInterval = d
 	Tasks = append(Tasks, Task{
 		Desc:   "persist hits",
 		Fun:    PersistAndStat,
@@ -65,7 +67,7 @@ func RunBackground(ctx context.Context) {
 		for {
 			<-goatcounter.PersistRunner.Run
 			bgrun.Run("cron:PersistAndStat", func() {
-				done := timeout("PersistAndStat", 10*time.Second)
+				done := timeout("PersistAndStat", persistInterval)
 				err := PersistAndStat(ctx)
 				if err != nil {
 					l.Error(err)
@@ -87,7 +89,7 @@ func RunBackground(ctx context.Context) {
 
 				f := t.ID()
 				bgrun.Run("cron:"+f, func() {
-					done := timeout(f, 10*time.Second)
+					done := timeout(f, persistInterval)
 					err := t.Fun(ctx)
 					if err != nil {
 						l.Error(err)
