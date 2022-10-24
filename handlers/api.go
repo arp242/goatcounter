@@ -171,6 +171,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 	var token goatcounter.APIToken
 	err = token.ByToken(r.Context(), key)
 	if zdb.ErrNoRows(err) {
+		w.Header().Set("WWW-Authenticate", "Basic realm=GoatCounter")
 		return guru.New(http.StatusUnauthorized, "unknown token")
 	}
 	if err != nil {
@@ -194,7 +195,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 	// API is only for admins at the moment; other users shouldn't be able to
 	// create an API key, but just in case.
 	if !user.AccessAdmin() {
-		return guru.New(401, "only admins can create/use API keys")
+		return guru.New(401, "only admins can create and use API keys")
 	}
 
 	*r = *r.WithContext(goatcounter.WithUser(r.Context(), &user))
