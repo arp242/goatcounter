@@ -123,6 +123,7 @@
 				$('#dash-widgets').html(data.widgets)
 				$('#dash-timerange').html(data.timerange)
 				dashboard_widgets()
+				redraw_all_charts()
 				highlight_filter($('#filter-paths').val())
 				if (done)
 					done()
