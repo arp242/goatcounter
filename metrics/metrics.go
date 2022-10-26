@@ -86,13 +86,13 @@ func (t *Metric) Done() {
 
 // AddTag adds another part to this metric's tag, for example:
 //
-//   m := Start("hello")
-//   defer m.Done()
+//	m := Start("hello")
+//	defer m.Done()
 //
-//   if isCached {
-//       m.AddTag("cached")
-//       return cachedItem
-//   }
+//	if isCached {
+//	    m.AddTag("cached")
+//	    return cachedItem
+//	}
 //
 // This will record the cached entries as "hello.cached", separate from the
 // regular "hello" entries.

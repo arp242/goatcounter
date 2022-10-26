@@ -138,9 +138,9 @@ func WaitProgressAndLog(ctx context.Context) {
 
 // Run the function in a goroutine.
 //
-//   bgrun.Run(func() {
-//       // Do work...
-//   })
+//	bgrun.Run(func() {
+//	    // Do work...
+//	})
 func Run(name string, f func()) {
 	done := add(name, false)
 	go func() {
@@ -168,11 +168,11 @@ func RunNoDuplicates(name string, f func()) {
 
 // Add a new function to the waitgroup and return the done.
 //
-//    done := bgrun.Add()
-//    go func() {
-//       defer done()
-//       defer zlog.Recover()
-//    }()
+//	done := bgrun.Add()
+//	go func() {
+//	   defer done()
+//	   defer zlog.Recover()
+//	}()
 func add(name string, nodup bool) func() {
 	wg.Add(1)
 	func() {

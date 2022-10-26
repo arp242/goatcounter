@@ -64,7 +64,8 @@ func DBFile(t testing.TB) context.Context {
 // TODO: this should use zdb.StartTest(); need to be able to pass in some
 // zdb.ConnectOptions{} to that though.
 // TODO: we can create unlogged tables in PostgreSQL, which should be faster:
-//   create unlogged table foo [..]
+//
+//	create unlogged table foo [..]
 func db(t testing.TB, storeFile bool) context.Context {
 	t.Helper()
 

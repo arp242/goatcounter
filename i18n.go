@@ -23,6 +23,7 @@ import (
 )
 
 // Translations contains all translation messages.
+//
 //go:embed i18n/*
 var translations embed.FS
 

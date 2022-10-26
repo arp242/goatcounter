@@ -21,16 +21,16 @@ import (
 // On dashboard view we generate a unique ID we send to the frontend, and
 // register a new loader:
 //
-// 	loader.register(someUnqiueID)
+//	loader.register(someUnqiueID)
 //
 // The frontend initiatsed a WS connection, and we create a new connection here
 // too:
 //
-// 	loader.connect(someUniqueID)
+//	loader.connect(someUniqueID)
 //
 // When we want to send a message:
 //
-// 	loader.send(someUniqueID, msg)
+//	loader.send(someUniqueID, msg)
 //
 // Because we want to start rendering the charts *before* we send out any data,
 // we can't use just the connection itself as an ID. We also can't use the

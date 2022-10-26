@@ -23,6 +23,7 @@ import (
 )
 
 // DB contains all files in db/*
+//
 //go:embed db/schema.gotxt
 //go:embed db/languages.sql
 //go:embed db/migrate/*.sql
@@ -31,10 +32,12 @@ import (
 var DB embed.FS
 
 // Static contains all the static files to serve.
+//
 //go:embed public/*
 var Static embed.FS
 
 // Templates contains all templates.
+//
 //go:embed tpl/*
 var Templates embed.FS
 
