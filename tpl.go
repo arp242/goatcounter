@@ -86,6 +86,9 @@ func init() {
 		format := fmt.Sprintf("    ≤ %%%ds ms → %%%dd  %%s %%.1f%%%%\n", widthDur, widthNum)
 		l := float64(times.Len())
 		for _, h := range dist {
+			if h.Len() == 0 {
+				continue
+			}
 			r := int(widthBar / (l / float64(h.Len())))
 			perc := float64(h.Len()) / l * 100
 			fmt.Fprintf(b, format, p(h.Max()), h.Len(), strings.Repeat("▬", r), perc)

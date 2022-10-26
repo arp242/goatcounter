@@ -18,7 +18,7 @@
 
 		;[report_errors, bind_tooltip, bind_confirm, translate_calendar].forEach((f) => f.call())
 		;[page_dashboard, page_settings_main, page_user_pref, page_user_dashboard, page_bosmang]
-			.forEach((f) => document.body.id === f.name.replace(/_/g, '-') && f.call())
+			.forEach((f) => document.body.id.match(new RegExp('^' + f.name.replace(/_/g, '-'))) && f.call())
 	})
 
 	// Set up error reporting.
@@ -240,6 +240,17 @@
 			tbody.html('').html(rows)
 			th.closest('table').find('th').attr('data-sort', '0')
 			th.attr('data-sort', is_sort ? '0' : '1')
+		})
+
+		$('.show-cache').on('click', function(e) {
+			e.preventDefault()
+
+			let btn = $(this),
+				tbl = btn.closest('li').find('table'),
+				vis = tbl.css('display') !== 'none'
+
+			btn.text(vis ? 'show' : 'hide')
+			tbl.css('display', vis ? 'none' : 'table')
 		})
 	}
 })();

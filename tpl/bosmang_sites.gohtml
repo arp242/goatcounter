@@ -13,11 +13,6 @@ input    { float: right; padding: .4em !important; }
 .s a     { display: block; text-align: right; }
 </style>
 
-<h2>Signups</h2>
-<div class="chart chart-bar" data-stats="{{.Signups}}" data-max="{{.MaxSignups}}">
-	<canvas></canvas>
-</div>
-
 <h2>Sites</h2>
 <table class="sort">
 <thead><tr>
@@ -33,7 +28,7 @@ input    { float: right; padding: .4em !important; }
 		<td class="n">{{nformat $s.Total $.User}}</td>
 		<td class="n">{{nformat $s.LastMonth $.User}}</td>
 		<td class="n">{{nformat $s.Avg $.User}}</td>
-		<td class="s n"><a href="/bosmang/sites/{{$s.ID}}">{{$s.ID}}</a></td>
+		<td class="s n">{{$s.ID}}</td>
 		<td class="c">{{$s.Codes}}</td>
 		<td>{{tformat $s.CreatedAt "" $.User}}</td>
 	</tr>

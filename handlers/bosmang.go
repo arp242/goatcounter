@@ -6,12 +6,9 @@ package handlers
 
 import (
 	"net/http"
-	"sort"
-	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/cron"
@@ -44,7 +41,6 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
 
 	a.Get("/bosmang/sites", zhttp.Wrap(h.sites))
-	a.Get("/bosmang/sites/{id}", zhttp.Wrap(h.site))
 	a.Post("/bosmang/sites/login/{id}", zhttp.Wrap(h.login))
 }
 
@@ -101,82 +97,27 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h bosmang) metrics(w http.ResponseWriter, r *http.Request) error {
+	by := "sum"
+	if b := r.URL.Query().Get("by"); b != "" {
+		by = b
+	}
 	return zhttp.Template(w, "bosmang_metrics.gohtml", struct {
 		Globals
 		Metrics metrics.Metrics
-	}{newGlobals(w, r), metrics.List()})
+		By      string
+	}{newGlobals(w, r), metrics.List().Sort(by), by})
 }
 
 func (h bosmang) sites(w http.ResponseWriter, r *http.Request) error {
-	var (
-		wg         sync.WaitGroup
-		signups    []goatcounter.HitListStat
-		maxSignups int
-		bgErr      = errors.NewGroup(20)
-	)
-	go func() {
-		var sites goatcounter.Sites
-		err := sites.UnscopedList(r.Context())
-		if bgErr.Append(err) {
-			return
-		}
-		grouped := make(map[string]int) // day → count
-		cutoff := time.Now().Add(-365 * 24 * time.Hour)
-		for _, s := range sites {
-			if s.Parent != nil {
-				continue
-			}
-			if s.CreatedAt.Before(cutoff) {
-				continue
-			}
-			grouped[s.CreatedAt.Format("2006-01-02")]++
-		}
-
-		for k, v := range grouped {
-			if v > maxSignups {
-				maxSignups = v
-			}
-			signups = append(signups, goatcounter.HitListStat{
-				Day:          k,
-				Hourly:       []int{v},
-				HourlyUnique: []int{v},
-			})
-		}
-		sort.Slice(signups, func(i, j int) bool { return signups[i].Day < signups[j].Day })
-	}()
-
 	var a goatcounter.BosmangStats
 	err := a.List(r.Context())
 	if err != nil {
 		return err
 	}
 
-	wg.Wait()
-	if bgErr.Len() > 0 {
-		return bgErr
-	}
-
 	return zhttp.Template(w, "bosmang_sites.gohtml", struct {
 		Globals
-		Stats      goatcounter.BosmangStats
-		Signups    []goatcounter.HitListStat
-		MaxSignups int
-	}{newGlobals(w, r), a, signups, maxSignups})
-}
-
-func (h bosmang) site(w http.ResponseWriter, r *http.Request) error {
-	var a goatcounter.BosmangSiteStat
-	err := a.Find(r.Context(), chi.URLParam(r, "id"))
-	if err != nil {
-		if zdb.ErrNoRows(err) {
-			return guru.New(404, "no such site")
-		}
-		return err
-	}
-
-	return zhttp.Template(w, "bosmang_site.gohtml", struct {
-		Globals
-		Stat goatcounter.BosmangSiteStat
+		Stats goatcounter.BosmangStats
 	}{newGlobals(w, r), a})
 }
 

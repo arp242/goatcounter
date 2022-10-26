@@ -7,8 +7,6 @@ package goatcounter
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
 	"zgo.at/errors"
@@ -37,59 +35,6 @@ func (a *BosmangStats) List(ctx context.Context) error {
 		return errors.Wrap(err, "BosmangStats.List")
 	}
 	return nil
-}
-
-type BosmangSiteStat struct {
-	Account Site
-	Sites   Sites
-	Users   Users
-}
-
-// ByID gets stats for a single site.
-func (a *BosmangSiteStat) ByID(ctx context.Context, id int64) error {
-	var s Site
-	err := s.ByID(ctx, id)
-	if err != nil {
-		return errors.Wrap(err, "BosmangSiteStats.ByID")
-	}
-
-	acc, err := GetAccount(WithSite(ctx, &s))
-	if err != nil {
-		return errors.Wrap(err, "BosmangSiteStats.ByID")
-	}
-	a.Account = *acc
-	err = a.Sites.ForThisAccount(WithSite(ctx, &a.Account), false)
-	if err != nil {
-		return errors.Wrap(err, "BosmangSiteStats.ByID")
-	}
-	err = a.Users.List(ctx, id)
-	if err != nil {
-		return errors.Wrap(err, "BosmangSiteStats.ByID")
-	}
-
-	return errors.Wrap(err, "BosmangSiteStats.ByID")
-}
-
-// Find gets stats for a single site.
-func (a *BosmangSiteStat) Find(ctx context.Context, ident string) error {
-	id, err := strconv.ParseInt(ident, 10, 64)
-	switch {
-	case id > 0:
-		// Do nothing
-	case strings.ContainsRune(ident, '@'):
-		var u User
-		err = zdb.Get(ctx, &u, `select * from users where lower(email) = lower(?)`, ident)
-		id = u.Site
-	default:
-		var s Site
-		err = s.ByCode(ctx, ident)
-		id = s.ID
-	}
-	if err != nil {
-		return err
-	}
-
-	return a.ByID(ctx, id)
 }
 
 func ListCache(ctx context.Context) map[string]struct {

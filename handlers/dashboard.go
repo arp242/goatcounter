@@ -33,6 +33,7 @@ const DailyView = 90
 
 func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	m := metrics.Start("dashboard")
+	m.AddTag(r.Host)
 	defer m.Done()
 
 	site := Site(r.Context())
@@ -143,6 +144,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	getData := func(w widgets.Widget) {
 		m := metrics.Start("dashboard:" + w.Name())
+		m.AddTag(r.Host)
 		defer m.Done()
 
 		// Create context for every goroutine, so we know which timed out.

@@ -1,17 +1,26 @@
 {{template "_backend_top.gohtml" .}}
 
 <h1>Metrics</h1>
+<p>Sort by:
+	<a {{if eq .By "sum"}}class="active"{{end}}    href="?by=sum">Total</a> ·
+	<a {{if eq .By "mean"}}class="active"{{end}}   href="?by=mean">Mean</a> ·
+	<a {{if eq .By "median"}}class="active"{{end}} href="?by=median">Median</a> ·
+	<a {{if eq .By "min"}}class="active"{{end}}    href="?by=min">Min</a> ·
+	<a {{if eq .By "max"}}class="active"{{end}}    href="?by=max">Max</a> ·
+	<a {{if eq .By "len"}}class="active"{{end}}    href="?by=len">Num calls</a>
+</p>
 
 {{range $v := .Metrics}}
-<pre>{{$v.Tag}} (over last {{$v.Times.Len}} invocations)
-	Total:  {{$v.Times.Sum | round_duration}}
+<div style="border-top: 1px solid #000; margin-top: 2em; padding-top: 2em;">
+	<strong>{{$v.Tag}}</strong> (over last {{$v.Times.Len}} invocations)</div>
+<pre style="margin-top: 0; background-color: unset;">Total:  {{$v.Times.Sum | round_duration}}
 	Min:    {{$v.Times.Min | round_duration}}
 	Max:    {{$v.Times.Max | round_duration}}
 	Median: {{$v.Times.Median | round_duration}}
 	Mean:   {{$v.Times.Mean | round_duration}}
     {{distribute_durations $v.Times 10}}</pre>
 {{else}}
-	Nothing recorded yet.
+	<p>Nothing recorded yet.</p>
 {{end}}
 
 {{template "_backend_bottom.gohtml" .}}

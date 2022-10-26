@@ -48,7 +48,7 @@ var (
 	}
 )
 
-const maxHist = 10_000
+const maxHist = 1_000
 
 // Wait for all goroutines to finish for a maximum of maxWait.
 func Wait(ctx context.Context) error {
@@ -229,7 +229,7 @@ func List() []Job {
 	return l
 }
 
-// History gets the last 10,000 jobs that ran.
+// History gets the last 1,000 jobs that ran.
 func History() []Job {
 	hist.Lock()
 	defer hist.Unlock()

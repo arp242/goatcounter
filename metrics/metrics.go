@@ -6,6 +6,7 @@
 package metrics
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 	"time"
@@ -41,6 +42,31 @@ type Metrics []struct {
 	Times ztime.Durations
 }
 
+// Sort returns a copy sorted by the given metric.
+func (m Metrics) Sort(metric string) Metrics {
+	var f func(i, j int) bool
+	switch metric {
+	case "sum", "total":
+		f = func(i, j int) bool { return m[i].Times.Sum() > m[j].Times.Sum() }
+	case "mean":
+		f = func(i, j int) bool { return m[i].Times.Mean() > m[j].Times.Mean() }
+	case "median":
+		f = func(i, j int) bool { return m[i].Times.Median() > m[j].Times.Median() }
+	case "min":
+		f = func(i, j int) bool { return m[i].Times.Min() > m[j].Times.Min() }
+	case "max":
+		f = func(i, j int) bool { return m[i].Times.Max() > m[j].Times.Max() }
+	case "len":
+		f = func(i, j int) bool { return m[i].Times.Len() > m[j].Times.Len() }
+	default:
+		panic(fmt.Sprintf("Metrics.Sort: unknown column: %q", metric))
+	}
+
+	sort.Slice(m, f)
+	return m
+}
+
+// List metrics, sorted by name.
 func List() Metrics {
 	collected.mu.Lock()
 	defer collected.mu.Unlock()
@@ -97,5 +123,5 @@ func (t *Metric) Done() {
 // This will record the cached entries as "hello.cached", separate from the
 // regular "hello" entries.
 func (t *Metric) AddTag(tag string) {
-	t.tag += "." + tag
+	t.tag += "·" + tag
 }

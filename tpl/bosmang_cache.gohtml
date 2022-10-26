@@ -2,6 +2,7 @@
 
 <style>
 td              { vertical-align: top; }
+.page           { max-width: unset; }
 .page >table    { max-width: none; }
 pre             { max-height: 4em; margin: 0; border: none; }
 pre:hover       { max-height: none; }
@@ -11,26 +12,15 @@ Caches:
 <ul>
 {{range $k, $v := .Cache}}
 	<li>
-		<span style="display: inline-block; min-width: 9em;">{{$k}}</span> {{len $v.Items}} items · {{$v.Size}}K · <a href="#" class="show-cache">show</a>
+		<span style="display: inline-block; min-width: 9em;">{{$k}}</span>
+		<span style="display: inline-block; min-width: 7em;">{{len $v.Items}} items</span>
+		<span style="display: inline-block; min-width: 7em;">{{$v.Size}}K</span>
+		<a href="#" class="show-cache">show</a>
 		<table style="display: none;"><tbody>
 			{{range $k2, $v2 := $v.Items}}<tr><td><code>{{$k2}}</code> → </td><td><pre>{{$v2}}</pre></td></tr>{{end}}
 		</tbody></table>
 	</li>
 {{end}}
 </ul>
-
-<script crossorigin="anonymous" src="{{.Static}}/jquery.js?v={{.Version}}"></script>
-<script>
-	$('.show-cache').on('click', function(e) {
-		e.preventDefault()
-
-		let btn = $(this),
-			tbl = btn.closest('li').find('table'),
-			vis = tbl.css('display') !== 'none'
-
-		btn.text(vis ? 'show' : 'hide')
-		tbl.css('display', vis ? 'none' : 'table')
-	})
-</script>
 
 {{template "_backend_bottom.gohtml" .}}
