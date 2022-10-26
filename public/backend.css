@@ -210,11 +210,11 @@ tr.target .chart-left { display: block; }
 
 /*** Dashboard form (filter, time period select, etc.)
  ******************************************************/
-#dash-move        { display: flex; justify-content: space-between; align-items: start; padding: .2em; }
-#dash-form        { display: block; padding-bottom: .4em; }
+#dash-move        { display: flex; justify-content: space-between; align-items: start; padding: .2em; margin: 0 1em; }
+#dash-form        { display: block; padding-bottom: .4em; margin: -1em; margin-bottom: 1em; }
 #dash-form span   { margin-left: 0; } /* Reset from hello-css */
 
-#dash-saved-views       { position: absolute; top: .2em; right: .3em; z-index: 5; max-width: 30em; text-align: right; }
+#dash-saved-views       { position: absolute; top: 0em; right: -1em; z-index: 5; max-width: 30em; text-align: right; }
 #dash-saved-views >span { font-size: 20px; padding: .2em; cursor: pointer;
                           user-select: none; -webkit-user-select: none; color: var(--link-text); transition: opacity .2s; }
 #dash-saved-views >div  { display: none; margin-right: .5em; padding: .5em; text-align: left;
@@ -228,7 +228,7 @@ tr.target .chart-left { display: block; }
 }
 
 #dash-main { display: flex; justify-content: space-between; padding: .5em 1em;
-             background-color: var(--nav-bg); border: 1px solid var(--nav-border); border-radius: 2px; }
+             background-color: var(--nav-bg); border-bottom: 1px solid var(--nav-border); border-radius: 2px; }
 #dash-main input[type="text"]     { padding: .3em; }
 #dash-main input[type="checkbox"] { vertical-align: middle; }
 #filter-paths                     { width: 18.5em; display: block; margin-left: auto; }
@@ -293,8 +293,8 @@ tr.target .chart-left { display: block; }
 
 /*** Settings tabs
  ******************/
-.tab-nav               { padding: 1em; justify-content: left; border-radius: 2px;
-                         background-color: var(--nav-bg); border: 1px solid var(--nav-border); }
+.tab-nav               { padding: 1em; margin: -1em; margin-bottom: 1em; justify-content: left; border-radius: 2px;
+                         background-color: var(--nav-bg); border-bottom: 1px solid var(--nav-border); }
 .tab-nav a             { padding: 0 .9em; border-right: 1px solid #aaa; }
 .tab-nav a:first-child { padding-left: 0; }
 .tab-nav a:last-child  { border-right: none; padding-right: 0; }

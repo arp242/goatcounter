@@ -1,7 +1,7 @@
 html.force-dark {
     --text:              #fff;
     --bg:                #252525;
-    --header-border:     #ccc;                             /* Border below some headers */
+    --header-border:     #888;                             /* Border below some headers */
     --backdrop:          #444;
     --target-bg:         #b78c1d;                          /* :target; mostly for headers in the documentation. */
     --loading-text:      #777;                             /* Little … that appears if something takes more than ~300ms to load */
