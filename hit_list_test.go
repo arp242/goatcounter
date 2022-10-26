@@ -186,56 +186,6 @@ func TestHitListsList(t *testing.T) {
 	}
 }
 
-func TestGetMax(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:00:00")
-	ctx := gctest.DB(t)
-
-	rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
-
-	gctest.StoreHits(ctx, t, false,
-		Hit{Path: "/a"},
-		Hit{Path: "/b"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-		Hit{Path: "/a"},
-	)
-
-	t.Run("hourly", func(t *testing.T) {
-		want := []int{10, 10, 10, 10}
-		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			have, err := GetMax(ctx, rng, filter, false)
-			if err != nil {
-				t.Fatal(err)
-			}
-			w := want[i]
-			if have != w {
-				t.Errorf("have %d; want %d (filter=%v)", have, w, filter)
-			}
-		}
-	})
-
-	t.Run("daily", func(t *testing.T) {
-		want := []int{10, 10, 10, 10}
-		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			have, err := GetMax(ctx, rng, filter, true)
-			if err != nil {
-				t.Fatal(err)
-			}
-			w := want[i]
-			if have != w {
-				t.Errorf("have %d; want %d (filter=%v)", have, w, filter)
-			}
-		}
-	})
-}
-
 func TestGetTotalCount(t *testing.T) {
 	ztime.SetNow(t, "2020-06-18 12:00:00")
 	ctx := gctest.DB(t)

@@ -82,8 +82,8 @@
 	}
 
 	// Get the Y-axis scale.
-	var get_original_scale = function(current) { return $('.count-list-pages').attr('data-max') }
-	var get_current_scale  = function(current) { return $('.count-list-pages').attr('data-scale') }
+	var get_original_scale = function() { return parseInt($('.count-list-pages').attr('data-max'), 0) }
+	var get_current_scale  = function() { return parseInt($('.count-list-pages').attr('data-scale'), 0) }
 
 	// Reload a single widget.
 	var reload_widget = function(wid, data, done) {
@@ -478,7 +478,7 @@
 
 		let ctx     = canvas.getContext('2d', {alpha: false}),
 			max     = Math.max(10, parseInt(c.dataset.max, 10)),
-			scale   = parseInt($(c).closest('.count-list-pages').attr('data-scale'), 0),
+			scale   = get_current_scale(),
 			daily   = c.dataset.daily === 'true',
 			isBar   = $(c).is('.chart-bar'),
 			isEvent = $(c).closest('tr').hasClass('event'),
@@ -655,6 +655,14 @@
 					}),
 					success: function(data) {
 						pages.find('.count-list-pages >tbody.pages').append(data.html)
+
+						// Update scale in case it's higher than the previous maximum value.
+						if (data.max > get_original_scale()) {
+							$('.count-list-pages').attr('data-max', data.max)
+							$('.count-list-pages').attr('data-scale', data.max)
+							$('.count-list-pages .scale').text(data.max)
+						}
+
 						draw_all_charts()
 
 						highlight_filter($('#filter-paths').val())

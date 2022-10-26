@@ -192,18 +192,6 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEvents, shared.TotalEventsUnique =
 		tc.Total, tc.TotalUnique, tc.TotalUniqueUTC, tc.TotalEvents, tc.TotalEventsUnique
 
-	// Copy max and refs to pages; they're in separate "widgets" so they can run
-	// in parallel.
-	//
-	if pages := wid.Get("pages"); len(pages) > 0 {
-		if m := wid.GetOne("max"); m != nil {
-			max := m.(*widgets.Max)
-			for _, p := range pages {
-				p.(*widgets.Pages).Max = max.Max
-			}
-		}
-	}
-
 	// Render widget templates.
 	func() {
 		var wg sync.WaitGroup
@@ -367,7 +355,9 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 	}
 	switch wid.Name() {
 	case "pages":
-		ret["total_unique_display"] = wid.(*widgets.Pages).UniqueDisplay
+		p := wid.(*widgets.Pages)
+		ret["total_unique_display"] = p.UniqueDisplay
+		ret["max"] = p.Max
 	}
 
 	return zhttp.JSON(w, ret)
@@ -381,15 +371,15 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 //
 // Values for rng:
 //
-//   week, month, quarter, half-year, year
-//      The start date is set to exactly this period ago. The end date is set to
-//      the end of the current day.
+//	week, month, quarter, half-year, year
+//	   The start date is set to exactly this period ago. The end date is set to
+//	   the end of the current day.
 //
-//   week-cur, month-cur
-//      The current week or month; both the start and return are modified.
+//	week-cur, month-cur
+//	   The current week or month; both the start and return are modified.
 //
-//   Any digit
-//      Last n days.
+//	Any digit
+//	   Last n days.
 func timeRange(r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
 	rng := ztime.NewRange(ztime.Now().In(tz)).Current(ztime.Day)
 	switch r {

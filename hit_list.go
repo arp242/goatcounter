@@ -319,23 +319,23 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 // Let's say we have two days with an offset of UTC+2, this means we
 // need to transform this:
 //
-//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
-//    2019-12-06 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
-//    2019-12-07 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//	2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
+//	2019-12-06 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
+//	2019-12-07 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 //
 // To:
 //
-//    2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
-//    2019-12-06 → [1,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
-//    2019-12-07 → [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//	2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
+//	2019-12-06 → [1,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
+//	2019-12-07 → [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 //
 // And skip the first 2 hours of the first day.
 //
 // Or, for UTC-2:
 //
-//    2019-12-04 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-//    2019-12-05 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
-//    2019-12-06 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
+//	2019-12-04 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+//	2019-12-05 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
+//	2019-12-06 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
 //
 // And skip the last 2 hours of the last day.
 //
@@ -434,15 +434,15 @@ func addTotals(hh HitLists, daily bool, totalDisplay, totalUniqueDisplay *int) {
 			for k := range hh[i].Stats[j].Hourly {
 				hh[i].Stats[j].Daily += hh[i].Stats[j].Hourly[k]
 				hh[i].Stats[j].DailyUnique += hh[i].Stats[j].HourlyUnique[k]
-				if !daily && hh[i].Stats[j].Hourly[k] > hh[i].Max {
-					hh[i].Max = hh[i].Stats[j].Hourly[k]
+				if !daily && hh[i].Stats[j].HourlyUnique[k] > hh[i].Max {
+					hh[i].Max = hh[i].Stats[j].HourlyUnique[k]
 				}
 			}
 
 			hh[i].Count += hh[i].Stats[j].Daily
 			hh[i].CountUnique += hh[i].Stats[j].DailyUnique
-			if daily && hh[i].Stats[j].Daily > hh[i].Max {
-				hh[i].Max = hh[i].Stats[j].Daily
+			if daily && hh[i].Stats[j].DailyUnique > hh[i].Max {
+				hh[i].Max = hh[i].Stats[j].DailyUnique
 			}
 		}
 
@@ -496,48 +496,6 @@ func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64, noE
 		"tz":        user.Settings.Timezone.Offset(),
 	})
 	return t, errors.Wrap(err, "GetTotalCount")
-}
-
-// GetMax gets the path with the higest number of pageviews per hour or day for
-// this date range.
-func GetMax(ctx context.Context, rng ztime.Range, pathFilter []int64, daily bool) (int, error) {
-	site := MustGetSite(ctx)
-	user := MustGetUser(ctx)
-	var (
-		query  string
-		params zdb.P
-	)
-	if daily {
-		query = "load:hit_list.GetMax-daily"
-		params = zdb.P{
-			"site":   site.ID,
-			"start":  rng.Start,
-			"end":    rng.End,
-			"tz":     user.Settings.Timezone.OffsetRFC3339(),
-			"filter": pathFilter,
-			"pgsql":  zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL,
-			"sqlite": zdb.SQLDialect(ctx) == zdb.DialectSQLite,
-		}
-	} else {
-		query = "load:hit_list.GetMax-hourly"
-		params = zdb.P{
-			"site":   site.ID,
-			"start":  rng.Start,
-			"end":    rng.End,
-			"filter": pathFilter,
-		}
-	}
-
-	var max int
-	err := zdb.Get(ctx, &max, query, params)
-	if err != nil && !zdb.ErrNoRows(err) {
-		return 0, errors.Wrap(err, "getMax")
-	}
-
-	if max < 10 {
-		max = 10
-	}
-	return max, nil
 }
 
 // Diff gets the difference in percentage of all paths in this HitList.

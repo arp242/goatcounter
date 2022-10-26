@@ -78,19 +78,6 @@ func FromSiteWidgets(ctx context.Context, www goatcounter.Widgets, params zint.B
 	for i, w := range www {
 		ww := NewWidget(w.Name(), i)
 		ww.SetSettings(w.GetSettings(ctx))
-
-		switch w.Name() {
-		case "pages":
-			if !params.Has(FilterInternal) {
-				widgetList = append(widgetList, NewWidget("max", 0))
-			}
-			// XXX
-			// if params.Has(ShowRefs) {
-			// 	r := NewWidget("refs", 0).(*Refs)
-			// 	r.Limit = int(w.GetSetting("limit_refs").(float64))
-			// 	widgetList = append(widgetList, r)
-			// }
-		}
 		widgetList = append(widgetList, ww)
 	}
 
@@ -129,7 +116,7 @@ func (l List) InitialAndLazy() (initial List, lazy List) {
 	lazy = make(List, 0, len(l)-3)
 	for _, w := range l {
 		switch w.Name() {
-		case "max", "totalcount":
+		case "totalcount":
 			initial = append(initial, w)
 		default:
 			if first {
@@ -162,8 +149,6 @@ func NewWidget(name string, id int) Widget {
 	switch name {
 	case "totalcount":
 		return &TotalCount{}
-	case "max":
-		return &Max{}
 
 	case "pages":
 		return &Pages{id: id}

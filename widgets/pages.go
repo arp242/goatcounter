@@ -84,6 +84,13 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	errs.Append(err)
 
 	wg.Wait()
+
+	for _, p := range w.Pages {
+		if p.Max > w.Max {
+			w.Max = p.Max
+		}
+	}
+
 	w.loaded = true
 	return w.More, errs.ErrorOrNil()
 }
@@ -142,9 +149,6 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 				w.Pages[i].Stats[j].HourlyUnique = w.Pages[i].Stats[j].HourlyUnique[:hour+1]
 			}
 		}
-	}
-	if w.Max == 0 {
-		w.Max = 10
 	}
 
 	return t, struct {
