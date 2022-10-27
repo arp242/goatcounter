@@ -300,7 +300,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 				hh[0].Stats[i].DailyUnique += n
 			}
 			if daily && hh[0].Stats[i].DailyUnique > max {
-				max = hh[0].Stats[i].Daily
+				max = hh[0].Stats[i].DailyUnique
 			}
 		}
 	}
