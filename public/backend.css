@@ -196,7 +196,7 @@ tr.target .chart-left { display: block; }
 .hchart .generated .col-name { font-style: italic; }
 .hchart .col-name    { display: inline-block; width: calc(100% - 8.5rem); position: relative; }
 .hchart .cutoff      { word-break: break-all; max-width: calc(100% - 2em); }
-.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: var(--chart-fill); }
+.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: var(--hchart-bar); }
 .hchart .bar-c       { position: relative; z-index: 1; padding-left: .5rem; display: block; }
 .hchart .col-count   { display: inline-block; width: 4.5rem; text-align: right; vertical-align: top; }
 .hchart .col-perc    { width: 2.5em; margin-right: .5rem; vertical-align: top; }
@@ -204,7 +204,7 @@ tr.target .chart-left { display: block; }
 .hchart .load-detail { display: block; color: var(--text); }
 .hchart .detail      { padding: 0 3em; border-bottom: 1px solid #bbb; }
 .load-detail:hover      { text-decoration: none; background-color: var(--hchart-hover); }
-.load-detail:hover .bar { background-color: var(--hchart-hover-bar); }
+.load-detail:hover .bar { background-color: var(--hchart-bar-hover); }
 .hchart .not-collected { text-align: center; padding-bottom: .4em; font-style: italic; }
 
 

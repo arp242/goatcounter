@@ -37,7 +37,8 @@ html.force-dark {
     --chart-fill:        #ca56d3;
     --chart-grid:        #555;
     --hchart-hover:      #666;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
-    --hchart-hover-bar:  #ebb7ef;
+    --hchart-bar:        #ebb7ef;
+    --hchart-bar-hover:  #f9cffc;
 
     --nav-bg:            #1b093c;                          /* Navigation at dashboard, settings, and footer */
     --nav-border:        #3f1887;

@@ -37,7 +37,8 @@
     --chart-fill:        #fdecfe;
     --chart-grid:        #ddd;
     --hchart-hover:      #eee;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
-    --hchart-hover-bar:  #ebb7ef;
+    --hchart-bar:        #ebb7ef;
+    --hchart-bar-hover:  #f9cffc;
 
     --nav-bg:            #f8f8d9;                          /* Navigation at dashboard, settings, and footer */
     --nav-border:        #dede89;
