@@ -39,7 +39,7 @@ func TestMetrics(t *testing.T) {
 
 	want := `
 test	30ms	10ms	20ms
-test.x	15ms	15ms	15ms
+test·x	15ms	15ms	15ms
 `[1:]
 
 	if want != have {

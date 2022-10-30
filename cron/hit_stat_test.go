@@ -30,6 +30,8 @@ func TestHitStats(t *testing.T) {
 	}...)
 
 	check := func(wantT, want0, want1 string) {
+		t.Helper()
+
 		var stats goatcounter.HitLists
 		display, displayUnique, more, err := stats.List(ctx,
 			ztime.NewRange(now.Add(-1*time.Hour)).To(now.Add(1*time.Hour)),
@@ -40,7 +42,7 @@ func TestHitStats(t *testing.T) {
 
 		gotT := fmt.Sprintf("%d %d %t", display, displayUnique, more)
 		if wantT != gotT {
-			t.Fatalf("wrong totals\ngot:  %s\nwant: %s", gotT, wantT)
+			t.Fatalf("wrong totals\nhave: %s\nwant: %s", gotT, wantT)
 		}
 		if len(stats) != 2 {
 			t.Fatalf("len(stats) is not 2: %d", len(stats))
@@ -48,21 +50,21 @@ func TestHitStats(t *testing.T) {
 
 		got0 := string(zjson.MustMarshal(stats[0]))
 		if got0 != want0 {
-			t.Errorf("first wrong\ngot:  %s\nwant: %s", got0, want0)
+			t.Errorf("first wrong\nhave: %s\nwant: %s", got0, want0)
 		}
 
 		got1 := string(zjson.MustMarshal(stats[1]))
 		if got1 != want1 {
-			t.Errorf("second wrong\ngot:  %s\nwant: %s", got1, want1)
+			t.Errorf("second wrong\nhave: %s\nwant: %s", got1, want1)
 		}
 	}
 
 	check("3 1 false",
-		`{"count":2,"count_unique":1,"path_id":1,"path":"/asd","event":false,"title":"aSd","max":2,`+
+		`{"count":2,"count_unique":1,"path_id":1,"path":"/asd","event":false,"title":"aSd","max":1,`+
 			`"stats":[{"day":"2019-08-31",`+
 			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],`+
 			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"daily":2,"daily_unique":1}]}`,
-		`{"count":1,"count_unique":0,"path_id":2,"path":"/zxc","event":false,"title":"","max":1,`+
+		`{"count":1,"count_unique":0,"path_id":2,"path":"/zxc","event":false,"title":"","max":0,`+
 			`"stats":[{"day":"2019-08-31",`+
 			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
 			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"daily":1,"daily_unique":0}]}`,
@@ -74,11 +76,11 @@ func TestHitStats(t *testing.T) {
 	}...)
 
 	check("5 2 false",
-		`{"count":4,"count_unique":2,"path_id":1,"path":"/asd","event":false,"title":"aSd","max":2,`+
+		`{"count":4,"count_unique":2,"path_id":1,"path":"/asd","event":false,"title":"aSd","max":1,`+
 			`"stats":[{"day":"2019-08-31",`+
 			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0],`+
 			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],"daily":4,"daily_unique":2}]}`,
-		`{"count":1,"count_unique":0,"path_id":2,"path":"/zxc","event":false,"title":"","max":1,`+
+		`{"count":1,"count_unique":0,"path_id":2,"path":"/zxc","event":false,"title":"","max":0,`+
 			`"stats":[{"day":"2019-08-31",`+
 			`"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],`+
 			`"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"daily":1,"daily_unique":0}]}`,

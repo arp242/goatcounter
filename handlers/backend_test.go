@@ -118,6 +118,7 @@ func TestBackendPagesMore(t *testing.T) {
 	delete(body, "html")
 	haveJSON := string(zjson.MustMarshalIndent(body, "", "\t"))
 	wantJSON := `{
+		"max": 10,
 		"more": false,
 		"total_unique_display": 0
 	}`

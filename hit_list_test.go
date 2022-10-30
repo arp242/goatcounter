@@ -7,6 +7,7 @@ package goatcounter_test
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -234,63 +235,157 @@ func TestHitListTotals(t *testing.T) {
 	t.Run("hourly", func(t *testing.T) {
 		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
-		want := []string{
-			`10 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
+		want := [][]string{
+			{`10`, `{
+				"count":12,
+				"count_unique":2,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}
+				]}`},
 
-			`10 {"count":11,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
+			{`10`, `{
+				"count":11,
+				"count_unique":1,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0
+				}]}`},
 
-			`10 {"count":1,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
+			{`10`, `{
+				"count":1,
+				"count_unique":1,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0
+				}]}`},
 
-			`10 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}]}`,
+			{`10`, `{
+				"count":12,
+				"count_unique":2,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}
+				]}`},
 		}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			var hs HitList
-			count, err := hs.Totals(ctx, rng, filter, false, false)
-			if err != nil {
-				t.Fatal(err)
-			}
+			t.Run("", func(t *testing.T) {
+				var hs HitList
+				count, err := hs.Totals(ctx, rng, filter, false, false)
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			have := fmt.Sprintf("%d %s", count, zjson.MustMarshal(hs))
-			w := want[i]
-			if have != w {
-				t.Errorf("\nwant: %s\nhave: %v\nfilter: %v", w, have, filter)
-			}
+				if strconv.Itoa(count) != want[i][0] {
+					t.Errorf("count wrong\nhave: %d\nwant: %s", count, want[i][0])
+				}
+				if d := ztest.Diff(zjson.MustMarshalString(hs), want[i][1], ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+					t.Error(d)
+				}
+			})
 		}
 	})
 
 	t.Run("daily", func(t *testing.T) {
 		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
 
-		want := []string{
-			`12 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":12,"daily_unique":2}]}`,
+		want := [][]string{
+			{`10`, `{
+				"count":12,
+				"count_unique":2,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18",
+					"hourly":       [0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],
+					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+					"daily":12,
+					"daily_unique":2}
+				]}`},
 
-			`11 {"count":11,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":11,"daily_unique":1}]}`,
+			{`10`, `{
+				"count":11,
+				"count_unique":1,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18",
+					"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],
+					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+					"daily":11,
+					"daily_unique":1
+				}]}`},
 
-			`10 {"count":1,"count_unique":1,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":1,"daily_unique":1}]}`,
+			{`10`, `{
+				"count":1,
+				"count_unique":1,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18",
+					"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+					"daily":1,
+					"daily_unique":1
+				}]}`},
 
-			`12 {"count":12,"count_unique":2,"path_id":0,"path":"TOTAL ","event":false,"title":"","max":0,"stats":[` +
-				`{"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":12,"daily_unique":2}]}`,
+			{`10`, `{
+				"count":12,
+				"count_unique":2,
+				"path_id":0,
+				"path":"TOTAL ",
+				"event":false,
+				"title":"",
+				"max":0,
+				"stats":[{
+					"day":"2020-06-18",
+					"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],
+					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+					"daily":12,
+					"daily_unique":2
+				}]}`},
 		}
 
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
-			var hs HitList
-			count, err := hs.Totals(ctx, rng, filter, true, false)
-			if err != nil {
-				t.Fatal(err)
-			}
+			t.Run("", func(t *testing.T) {
+				var hs HitList
+				count, err := hs.Totals(ctx, rng, filter, true, false)
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			have := fmt.Sprintf("%d %s", count, zjson.MustMarshal(hs))
-			w := want[i]
-			if have != w {
-				t.Errorf("\nwant: %s\nhave: %v\nfilter: %v", w, have, filter)
-			}
+				if strconv.Itoa(count) != want[i][0] {
+					t.Errorf("count wrong\nhave: %d\nwant: %s", count, want[i][0])
+				}
+				if d := ztest.Diff(zjson.MustMarshalString(hs), want[i][1], ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+					t.Error(d)
+				}
+			})
 		}
 	})
 }
