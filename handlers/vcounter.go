@@ -24,6 +24,7 @@ import (
 	"golang.org/x/image/math/fixed"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zfilepath"
 	"zgo.at/zstd/zfs"
@@ -141,8 +142,11 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	} else {
 		err = hl.PathCount(r.Context(), path, rng)
 	}
-	if err != nil {
+	if err != nil && !zdb.ErrNoRows(err) {
 		return err
+	}
+	if zdb.ErrNoRows(err) {
+		w.WriteHeader(404)
 	}
 	count := tplfunc.Number(hl.CountUnique, site.UserDefaults.NumberFormat)
 
