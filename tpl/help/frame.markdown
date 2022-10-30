@@ -17,10 +17,17 @@ will need to add the token to the frame's `src`; for example:
 
     <iframe src="{{.SiteURL}}?access-token=TOKEN"></iframe>
 
+### Hiding the user interface
 You can hide the UI chrome ("sign in" button, footer, date selector) by adding
 `hideui=1` in the URL:
 
+For public view:
+
     <iframe src="{{.SiteURL}}?hideui=1"></iframe>
+
+Or with an access token:
+
+    <iframe src="{{.SiteURL}}?access-token=TOKEN&hideui=1"></iframe>
 
 This also removes some of the padding, max-width, and background colour, making
 it easier to embed things in an iframe. If you're logged in no UI is removed.
