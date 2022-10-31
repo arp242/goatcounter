@@ -295,7 +295,7 @@ func TestHitListTotals(t *testing.T) {
 				if strconv.Itoa(count) != want[i][0] {
 					t.Errorf("count wrong\nhave: %d\nwant: %s", count, want[i][0])
 				}
-				if d := ztest.Diff(zjson.MustMarshalString(hs), want[i][1], ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+				if d := ztest.Diff(zjson.MustMarshalString(hs), want[i][1], ztest.DiffJSON); d != "" {
 					t.Error(d)
 				}
 			})
@@ -382,7 +382,7 @@ func TestHitListTotals(t *testing.T) {
 				if strconv.Itoa(count) != want[i][0] {
 					t.Errorf("count wrong\nhave: %d\nwant: %s", count, want[i][0])
 				}
-				if d := ztest.Diff(zjson.MustMarshalString(hs), want[i][1], ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+				if d := ztest.Diff(zjson.MustMarshalString(hs), want[i][1], ztest.DiffJSON); d != "" {
 					t.Error(d)
 				}
 			})

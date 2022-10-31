@@ -367,7 +367,7 @@ func TestAPICount(t *testing.T) {
 
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
-			if d := ztest.Diff(rr.Body.String(), tt.wantRet, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+			if d := ztest.Diff(rr.Body.String(), tt.wantRet, ztest.DiffJSON); d != "" {
 				t.Errorf("\nout:  %s\nwant: %s", rr.Body.String(), tt.wantRet)
 			}
 
@@ -667,7 +667,7 @@ func TestAPIPaths(t *testing.T) {
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
-			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
 				t.Error(d)
 			}
 		})
@@ -961,7 +961,7 @@ func TestAPIHits(t *testing.T) {
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
-			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
 				t.Error(d)
 			}
 		})
@@ -1024,7 +1024,7 @@ func TestAPIStats(t *testing.T) {
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
-			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
 				t.Error(d)
 			}
 		})
@@ -1088,7 +1088,7 @@ func TestAPIStatsDetail(t *testing.T) {
 			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
-			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON, ztest.DiffVerbose); d != "" {
+			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
 				t.Error(d)
 			}
 		})

@@ -81,7 +81,7 @@ func TestListTopRefs(t *testing.T) {
 				}
 			]
 		}`
-		if d := ztest.Diff(got, want, ztest.DiffVerbose); d != "" {
+		if d := ztest.Diff(got, want); d != "" {
 			t.Error(d)
 		}
 	}

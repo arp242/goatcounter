@@ -44,7 +44,7 @@ func TestSizeStats(t *testing.T) {
 {unknown (unknown) 2 0 <nil>}]}`
 	out := strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
-		t.Error(ztest.Diff(out, want, ztest.DiffVerbose))
+		t.Error(ztest.Diff(out, want))
 	}
 
 	// Update existing.
@@ -71,6 +71,6 @@ func TestSizeStats(t *testing.T) {
 {unknown (unknown) 3 1 <nil>}]}`
 	out = strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
-		t.Error(ztest.Diff(out, want, ztest.DiffVerbose))
+		t.Error(ztest.Diff(out, want))
 	}
 }

@@ -43,7 +43,7 @@ func TestHitStats(t *testing.T) {
 		for _, s := range stats {
 			got += string(zjson.MustMarshalIndent(s, "\t\t\t", "\t"))
 		}
-		if d := ztest.Diff(got, want, ztest.DiffVerbose); d != "" {
+		if d := ztest.Diff(got, want); d != "" {
 			t.Error(d)
 		}
 	}
@@ -424,7 +424,7 @@ func TestListSizes(t *testing.T) {
 				}
 			]
 		}`, `\ufe0e`, "\ufe0e")
-		if d := ztest.Diff(got, want, ztest.DiffVerbose); d != "" {
+		if d := ztest.Diff(got, want); d != "" {
 			t.Error(d)
 		}
 	})
