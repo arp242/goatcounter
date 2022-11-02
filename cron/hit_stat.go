@@ -78,11 +78,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 					)
 					select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
 				) `)
-
-			err := zdb.Exec(ctx, `lock table hit_stats in exclusive mode`)
-			if err != nil {
-				return err
-			}
 		}
 		// } else {
 		// TODO: merge the arrays here and get rid of existingHitStats();

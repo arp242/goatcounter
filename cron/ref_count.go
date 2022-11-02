@@ -54,11 +54,6 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			ins.OnConflict(`on conflict on constraint "ref_counts#site_id#path_id#ref#hour" do update set
 				total        = ref_counts.total        + excluded.total,
 				total_unique = ref_counts.total_unique + excluded.total_unique`)
-
-			err := zdb.Exec(ctx, `lock table ref_counts in exclusive mode`)
-			if err != nil {
-				return err
-			}
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, ref, hour) do update set
 				total        = ref_counts.total        + excluded.total,

@@ -52,11 +52,6 @@ func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
 			ins.OnConflict(`on conflict on constraint "language_stats#site_id#path_id#day#language" do update set
 				count        = language_stats.count        + excluded.count,
 				count_unique = language_stats.count_unique + excluded.count_unique`)
-
-			err := zdb.Exec(ctx, `lock table language_stats in exclusive mode`)
-			if err != nil {
-				return err
-			}
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, day, language) do update set
 				count        = language_stats.count        + excluded.count,

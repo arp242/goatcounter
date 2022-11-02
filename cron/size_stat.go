@@ -56,11 +56,6 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			ins.OnConflict(`on conflict on constraint "size_stats#site_id#path_id#day#width" do update set
 				count        = size_stats.count        + excluded.count,
 				count_unique = size_stats.count_unique + excluded.count_unique`)
-
-			err := zdb.Exec(ctx, `lock table size_stats in exclusive mode`)
-			if err != nil {
-				return err
-			}
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, day, width) do update set
 				count        = size_stats.count        + excluded.count,
