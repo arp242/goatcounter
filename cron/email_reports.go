@@ -81,13 +81,19 @@ func EmailReports(ctx context.Context) error {
 
 // Get list of all users to send reports for.
 func reportUsers(ctx context.Context) (goatcounter.Users, error) {
-	query := `select * from users where json_extract(settings, '$.email_reports') != ?`
+	query := `
+		select users.* from users
+		join sites using(site_id)
+		where json_extract(users.settings, '$.email_reports') != ? and sites.state = ?`
 	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
-		query = `select * from users where settings->>'email_reports'::varchar != ?`
+		query = `
+			select users.* from users
+			join sites using(site_id)
+			where users.settings->>'email_reports'::text != ? and sites.state = ?`
 	}
 
 	var users goatcounter.Users
-	err := zdb.Select(ctx, &users, query, goatcounter.EmailReportNever)
+	err := zdb.Select(ctx, &users, query, goatcounter.EmailReportNever, goatcounter.StateActive)
 	return users, errors.Wrap(err, "get users")
 }
 
