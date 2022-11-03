@@ -106,31 +106,17 @@ func (h *HitLists) List(
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
-	// List the pages for this page; this gets the path_id, path, title.
+	// List the pages for this time period; this gets the path_id, path, title.
 	var more bool
 	{
-		err := zdb.Select(ctx, h, `/* HitLists.List */
-			with x as (
-				select path_id from hit_counts
-				where
-					hit_counts.site_id = :site and
-					{{:exclude path_id not in (:exclude) and}}
-					{{:filter path_id in (:filter) and}}
-					hour>=:start and hour<=:end
-				group by path_id
-				order by sum(total) desc, path_id desc
-				limit :limit
-			)
-			select path_id, paths.path, paths.title, paths.event from x
-			join paths using (path_id)`,
-			zdb.P{
-				"site":    site.ID,
-				"start":   rng.Start,
-				"end":     rng.End,
-				"filter":  pathFilter,
-				"limit":   limit + 1,
-				"exclude": exclude,
-			})
+		err := zdb.Select(ctx, h, "load:hit_list.List-counts", zdb.P{
+			"site":    site.ID,
+			"start":   rng.Start,
+			"end":     rng.End,
+			"filter":  pathFilter,
+			"limit":   limit + 1,
+			"exclude": exclude,
+		}, zdb.DumpQuery|zdb.DumpResult)
 		if err != nil {
 			return 0, false, errors.Wrap(err, "HitLists.List hit_counts")
 		}
@@ -161,20 +147,12 @@ func (h *HitLists) List(
 			paths[i] = hh[i].PathID
 		}
 
-		err := zdb.Select(ctx, &st, `/* HitLists.List */
-			select path_id, day, stats
-			from hit_stats
-			where
-				hit_stats.site_id = :site and
-				path_id in (:paths) and
-				day >= :start and day <= :end
-			order by day asc`,
-			zdb.P{
-				"site":  site.ID,
-				"start": rng.Start.Format("2006-01-02"),
-				"end":   rng.End.Format("2006-01-02"),
-				"paths": paths,
-			})
+		err := zdb.Select(ctx, &st, "load:hit_list.List-stats", zdb.P{
+			"site":  site.ID,
+			"start": rng.Start.Format("2006-01-02"),
+			"end":   rng.End.Format("2006-01-02"),
+			"paths": paths,
+		}, zdb.DumpQuery|zdb.DumpResult)
 		if err != nil {
 			return 0, false, errors.Wrap(err, "HitLists.List hit_stats")
 		}

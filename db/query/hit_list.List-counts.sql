@@ -1,0 +1,13 @@
+with x as (
+	select path_id from hit_counts
+	where
+		hit_counts.site_id = :site and
+		{{:exclude path_id not in (:exclude) and}}
+		{{:filter path_id in (:filter) and}}
+		hour>=:start and hour<=:end
+	group by path_id
+	order by sum(total) desc, path_id desc
+	limit :limit
+)
+select path_id, paths.path, paths.title, paths.event from x
+join paths using (path_id)
