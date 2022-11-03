@@ -1,0 +1,9 @@
+alter table hit_counts     rename column total_unique to total;
+alter table ref_counts     rename column total_unique to total;
+alter table hit_stats      rename column stats_unique to stats;
+alter table browser_stats  rename column count_unique to count;
+alter table system_stats   rename column count_unique to count;
+alter table location_stats rename column count_unique to count;
+alter table size_stats     rename column count_unique to count;
+alter table language_stats rename column count_unique to count;
+alter table campaign_stats rename column count_unique to count;

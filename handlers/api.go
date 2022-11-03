@@ -845,11 +845,8 @@ type (
 		// Sorted list of paths with their visitor and pageview count.
 		Hits goatcounter.HitLists `json:"hits"`
 
-		// Total number of pageviews in the returned result.
-		Total int `json:"total"`
-
 		// Total number of visitors in the returned result.
-		TotalUnique int `json:"total_unique"`
+		Total int `json:"total"`
 
 		// More hits after this?
 		More bool `json:"more"`
@@ -888,17 +885,16 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var pages goatcounter.HitLists
-	td, tdu, more, err := pages.List(r.Context(), ztime.NewRange(args.Start).To(args.End),
+	tdu, more, err := pages.List(r.Context(), ztime.NewRange(args.Start).To(args.End),
 		args.IncludePaths, args.ExcludePaths, args.Limit, args.Daily)
 	if err != nil {
 		return err
 	}
 
 	return zhttp.JSON(w, apiHitsResponse{
-		Total:       td,
-		TotalUnique: tdu,
-		Hits:        pages,
-		More:        more,
+		Total: tdu,
+		Hits:  pages,
+		More:  more,
 	})
 }
 

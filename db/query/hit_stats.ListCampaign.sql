@@ -1,7 +1,6 @@
 select
 	ref               as name,
-	sum(count)        as count,
-	sum(count_unique) as count_unique
+	sum(count) as count
 from campaign_stats
 join campaigns using (campaign_id)
 where
@@ -9,5 +8,5 @@ where
 	{{:filter path_id in (:filter) and}}
 	campaign_id = :campaign
 group by campaign_id, ref
-order by count_unique desc, ref asc
+order by count desc, ref asc
 limit :limit offset :offset

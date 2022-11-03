@@ -418,10 +418,10 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 	)
 	b.WriteString(`<div class="rows">`)
 	for _, s := range stats.Stats {
-		displayed += s.CountUnique
+		displayed += s.Count
 
 		var (
-			p    = float64(s.CountUnique) / float64(total) * 100
+			p    = float64(s.Count) / float64(total) * 100
 			perc string
 		)
 		switch {
@@ -486,7 +486,7 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 
 		ncol := ""
 		if !user.Settings.FewerNumbers {
-			ncol = tplfunc.Number(s.CountUnique, user.Settings.NumberFormat)
+			ncol = tplfunc.Number(s.Count, user.Settings.NumberFormat)
 		}
 
 		id := s.ID

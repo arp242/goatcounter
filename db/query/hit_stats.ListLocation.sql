@@ -1,7 +1,6 @@
 select
 	coalesce(region_name, '(unknown)') as name,
-	sum(count)                         as count,
-	sum(count_unique)                  as count_unique
+	sum(count)                  as count
 from location_stats
 join locations on location = iso_3166_2
 where
@@ -9,5 +8,5 @@ where
 	{{:filter path_id in (:filter) and}}
 	country = :country
 group by iso_3166_2, name
-order by count_unique desc, name asc
+order by count desc, name asc
 limit :limit offset :offset

@@ -85,7 +85,7 @@ func ChunkStat(stats []HitListStat) (int, []int) {
 		n         = 0
 	)
 	for _, stat := range stats {
-		for _, h := range stat.HourlyUnique {
+		for _, h := range stat.Hourly {
 			i++
 			chunk += h
 			if i == chunkSize {

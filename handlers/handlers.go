@@ -102,7 +102,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 			"notify/saved":                T(ctx, "notify/saved|Saved!"),
 			"dashboard/future":            T(ctx, "dashboard/future|future"),
 			"dashboard/tooltip-event":     T(ctx, "dashboard/tooltip-event|%(unique) clicks; %(clicks) total clicks", z18n.P{"unique": "%(unique)", "clicks": "%(clicks)"}),
-			"dashboard/totals/num-visits": T(ctx, "dashboard/totals/num-visits|%(num-visits) visits; %(num-views) pageviews", z18n.P{"num-visits": "%(num-visits)", "num-views": "%(num-views)"}),
+			"dashboard/totals/num-visits": T(ctx, "dashboard/totals/num-visits|%(num-visits) visits", z18n.P{"num-visits": "%(num-visits)"}),
 			"datepicker/keyboard":         T(ctx, "datepicker/keyboard|Use the arrow keys to pick a date"),
 			"datepicker/month-prev":       T(ctx, "datepicker/month-prev|Previous month"),
 			"datepicker/month-next":       T(ctx, "datepicker/month-next|Next month"),

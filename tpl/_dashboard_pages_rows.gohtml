@@ -4,7 +4,7 @@
 	>
 		{{if not $.User.Settings.FewerNumbers}}
 			<td class="col-count">
-				<span title="{{nformat $h.Count $.User}} {{if $h.Event}}total clicks{{else}}pageviews{{end}}">{{nformat $h.CountUnique $.User}}</span>
+				<span>{{nformat $h.Count $.User}}</span>
 			</td>
 		{{end}}
 		<td class="col-path hide-mobile">
@@ -48,7 +48,7 @@
 			</div>
 			<div class="hchart refs">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "CountUnique" $h.CountUnique)}}
+					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "Count" $h.Count)}}
 				{{end}}
 			</div>
 		</td>

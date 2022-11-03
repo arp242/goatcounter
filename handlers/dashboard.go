@@ -191,8 +191,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// Set shared params.
 	tc := wid.GetOne("totalcount").(*widgets.TotalCount)
-	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEvents, shared.TotalEventsUnique =
-		tc.Total, tc.TotalUnique, tc.TotalUniqueUTC, tc.TotalEvents, tc.TotalEventsUnique
+	shared.Total, shared.TotalUTC, shared.TotalEvents = tc.Total, tc.TotalUTC, tc.TotalEvents
 
 	// Render widget templates.
 	func() {
@@ -270,19 +269,19 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "dashboard.gohtml", struct {
 		Globals
-		CountDomain    string
-		SubSites       []string
-		ShowRefs       string
-		Period         ztime.Range
-		PathFilter     []int64
-		ForcedDaily    bool
-		Widgets        widgets.List
-		View           goatcounter.View
-		TotalUnique    int
-		TotalUniqueUTC int
-		ConnectID      zint.Uint128
+		CountDomain string
+		SubSites    []string
+		ShowRefs    string
+		Period      ztime.Range
+		PathFilter  []int64
+		ForcedDaily bool
+		Widgets     widgets.List
+		View        goatcounter.View
+		Total       int
+		TotalUTC    int
+		ConnectID   zint.Uint128
 	}{newGlobals(w, r), cd, subs, showRefs, rng,
-		args.PathFilter, forcedDaily, wid, view, shared.TotalUnique, shared.TotalUniqueUTC,
+		args.PathFilter, forcedDaily, wid, view, shared.Total, shared.TotalUTC,
 		connectID})
 }
 
@@ -306,11 +305,11 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := widgets.SharedData{
-		Site:           Site(r.Context()),
-		User:           User(r.Context()),
-		TotalUniqueUTC: total,
-		TotalUnique:    total,
-		RowsOnly:       key != "" || offset > 0,
+		Site:     Site(r.Context()),
+		User:     User(r.Context()),
+		TotalUTC: total,
+		Total:    total,
+		RowsOnly: key != "" || offset > 0,
 		Args: widgets.Args{
 			Rng:        rng,
 			PathFilter: pathFilter,
@@ -358,7 +357,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 	switch wid.Name() {
 	case "pages":
 		p := wid.(*widgets.Pages)
-		ret["total_unique_display"] = p.UniqueDisplay
+		ret["total_display"] = p.Display
 		ret["max"] = p.Max
 	}
 

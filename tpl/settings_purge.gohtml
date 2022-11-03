@@ -54,10 +54,9 @@
 
 				<label for="merge_with">{{.T "label/merge-to|Merge all the paths to"}}</label><br>
 				<select id="merge_with" name="merge_with">
-					{{range $p := .AllPaths}}
-						<option value="{{$p.ID}}">{{elide $p.Path 40}}
-						{{if $p.Event}}({{t $.Context "event|event"}}){{end}}</option>
-					{{end}}
+					{{range $p := .AllPaths -}}
+						<option value="{{$p.ID}}">{{elide $p.Path 40}}{{if $p.Event}} ({{t $.Context "event|event"}}){{end}}</option>
+					{{- end}}
 				</select>
 				<button>{{.T "button/merge|Merge"}}</button>
 				<br>

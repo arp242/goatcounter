@@ -4,8 +4,7 @@ with x as (
 )
 select
 	x.path,
-	coalesce(sum(total), 0)        as count,
-	coalesce(sum(total_unique), 0) as count_unique
+	coalesce(sum(total), 0) as count
 from hit_counts
 join x using (path_id)
 where

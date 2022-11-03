@@ -14,7 +14,7 @@
 <tbody>
 {{range $i, $p := .Pages}}<tr style="border-top: 1px solid #333">
 	<td style="padding: .5em;">{{$p.Path}}{{if $p.Event}} <sup>event</sup>{{end}}</td>
-	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $p.CountUnique $.User}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $p.Count $.User}}</td>
 	<td style="padding: .5em; text-align: right; width: 7em;">{{index $.Diffs $i}}</td>
 </tr>{{end}}
 </tbody>
@@ -29,7 +29,7 @@
 <tbody>
 {{range $r := .Refs.Stats}}<tr style="border-top: 1px solid #333">
 	<td style="padding: .5em;">{{if $r.Name}}{{$r.Name}}{{else}}(no data){{end}}</td>
-	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $r.CountUnique $.User}}</td>
+	<td style="padding: .5em; text-align: right; width: 7em;">{{nformat $r.Count $.User}}</td>
 </tr>{{end}}
 </tbody>
 </table>

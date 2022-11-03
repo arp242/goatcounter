@@ -4,8 +4,8 @@
 			{{if not $.User.Settings.FewerNumbers}}
 				<small>{{t .Context `dashboard/pages/num-visits|%(num-visits) out of %(total-visits) visits shown`
 					(map
-						"num-visits"   (tag "span" `class="total-unique-display"` (nformat .TotalUniqueDisplay $.User))
-						"total-visits" (tag "span" `class="total-unique"`         (nformat .TotalUnique $.User))
+						"num-visits"   (tag "span" `class="total-display"` (nformat .TotalDisplay $.User))
+						"total-visits" (tag "span" `class="total"`         (nformat .Total $.User))
 					)}}</small>
 			{{end}}
 		</h2>
@@ -17,7 +17,6 @@
 			<th class="col-idx"></th>
 			{{if not $.User.Settings.FewerNumbers}}
 				<th class="col-n">{{t .Context "dashboard/pages/visits|Visits"}}</th>
-				<th class="col-n" title="{{t .Context "dashboard/pages/pageviews|Pageviews"}}">{{t .Context "dashboard/pages/views|Views"}}</th>
 			{{end}}
 			<th class="col-p">{{t .Context "dashboard/pages/path|Path"}}</th>
 			<th class="col-t">{{t .Context "dashboard/pages/title|Title"}}</th>

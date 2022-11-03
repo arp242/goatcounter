@@ -24,9 +24,9 @@ func TestSettingsTpl(t *testing.T) {
 			setup: func(ctx context.Context, t *testing.T) {
 				now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
 				gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
-					{Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
-					{Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
-					{Site: 1, Path: "/zxc", Title: "BBB", CreatedAt: now},
+					{FirstVisit: true, Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
+					{FirstVisit: true, Site: 1, Path: "/asd", Title: "AAA", CreatedAt: now},
+					{FirstVisit: true, Site: 1, Path: "/zxc", Title: "BBB", CreatedAt: now},
 				}...)
 			},
 			router:   newBackend,

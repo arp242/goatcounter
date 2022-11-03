@@ -1,7 +1,6 @@
 select
 	trim(name || ' ' || version) as name,
-	sum(count)                   as count,
-	sum(count_unique)            as count_unique
+	sum(count)            as count
 from browser_stats
 join browsers using (browser_id)
 where
@@ -9,5 +8,5 @@ where
 	{{:filter path_id in (:filter) and}}
 	lower(name) = lower(:browser)
 group by name, version
-order by count_unique desc, name asc
+order by count desc, name asc
 limit :limit offset :offset

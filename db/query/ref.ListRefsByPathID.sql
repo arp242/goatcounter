@@ -1,6 +1,5 @@
 select
-	coalesce(sum(total), 0)        as count,
-	coalesce(sum(total_unique), 0) as count_unique,
+	coalesce(sum(total), 0) as count,
 	max(ref_scheme)                as ref_scheme,
 	ref                            as name
 from ref_counts
@@ -9,6 +8,6 @@ where
 	path_id = :path and
 	hour >= :start and hour <= :end
 group by ref
-order by count_unique desc, ref desc
+order by count desc, ref desc
 limit :limit offset :offset
 

@@ -148,7 +148,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	if zdb.ErrNoRows(err) {
 		w.WriteHeader(404)
 	}
-	count := tplfunc.Number(hl.CountUnique, site.UserDefaults.NumberFormat)
+	count := tplfunc.Number(hl.Count, site.UserDefaults.NumberFormat)
 
 	switch ext {
 	default:
@@ -157,7 +157,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		return zhttp.JSON(w, map[string]string{
 			"count_unique": count,
-			"count":        tplfunc.Number(hl.Count, site.UserDefaults.NumberFormat),
+			"count":        count,
 		})
 	case "html":
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")

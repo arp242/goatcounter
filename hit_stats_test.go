@@ -5,7 +5,6 @@
 package goatcounter_test
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -66,8 +65,7 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"name": "Firefox",
-						"count": 3,
-						"count_unique": 2
+						"count": 2
 					}
 				]
 			}{
@@ -75,13 +73,11 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"name": "Firefox 79",
-						"count": 1,
-						"count_unique": 1
+						"count": 1
 					},
 					{
 						"name": "Firefox 81",
-						"count": 2,
-						"count_unique": 1
+						"count": 1
 					}
 				]
 			}`, list, get)
@@ -104,8 +100,7 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"name": "Linux",
-						"count": 3,
-						"count_unique": 2
+						"count": 2
 					}
 				]
 			}{
@@ -113,13 +108,11 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"name": "Linux",
-						"count": 2,
-						"count_unique": 1
+						"count": 1
 					},
 					{
 						"name": "Linux Ubuntu",
-						"count": 1,
-						"count_unique": 1
+						"count": 1
 					}
 				]
 			}`, list, get)
@@ -143,38 +136,32 @@ func TestHitStats(t *testing.T) {
 					{
 						"id": "phone",
 						"name": "Phones",
-						"count": 0,
-						"count_unique": 0
+						"count": 0
 					},
 					{
 						"id": "largephone",
 						"name": "Large phones, small tablets",
-						"count": 1,
-						"count_unique": 1
+						"count": 1
 					},
 					{
 						"id": "tablet",
 						"name": "Tablets and small laptops",
-						"count": 0,
-						"count_unique": 0
+						"count": 0
 					},
 					{
 						"id": "desktop",
 						"name": "Computer monitors",
-						"count": 2,
-						"count_unique": 1
+						"count": 1
 					},
 					{
 						"id": "desktophd",
 						"name": "Computer monitors larger than HD",
-						"count": 0,
-						"count_unique": 0
+						"count": 0
 					},
 					{
 						"id": "unknown",
 						"name": "(unknown)",
-						"count": 0,
-						"count_unique": 0
+						"count": 0
 					}
 				]
 			}{
@@ -182,8 +169,7 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"name": "↔\ufe0e 1920px",
-						"count": 2,
-						"count_unique": 1
+						"count": 1
 					}
 				]
 			}`, `\ufe0e`, "\ufe0e"), list, get)
@@ -221,14 +207,12 @@ func TestHitStats(t *testing.T) {
 					{
 						"id": "ID",
 						"name": "Indonesia",
-						"count": 1,
-						"count_unique": 1
+						"count": 1
 					},
 					{
 						"id": "NL",
 						"name": "Netherlands",
-						"count": 2,
-						"count_unique": 1
+						"count": 1
 					}
 				]
 			}{
@@ -236,8 +220,7 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"name": "",
-						"count": 1,
-						"count_unique": 1
+						"count": 1
 					}
 				]
 			}{
@@ -245,8 +228,7 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"name": "Bali",
-						"count": 1,
-						"count_unique": 1
+						"count": 1
 					}
 				]
 			}`, list, get, getRegion)
@@ -307,38 +289,32 @@ func TestListSizes(t *testing.T) {
 				{
 					"id": "phone",
 					"name": "Phones",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				},
 				{
 					"id": "largephone",
 					"name": "Large phones, small tablets",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				},
 				{
 					"id": "tablet",
 					"name": "Tablets and small laptops",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				},
 				{
 					"id": "desktop",
 					"name": "Computer monitors",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				},
 				{
 					"id": "desktophd",
 					"name": "Computer monitors larger than HD",
-					"count": 6,
-					"count_unique": 3
+					"count": 3
 				},
 				{
 					"id": "unknown",
 					"name": "(unknown)",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				}
 			]
 		}`
@@ -364,8 +340,7 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"name": "↔\ufe0e 0px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				}
 			]
 		}{
@@ -373,8 +348,7 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"name": "↔\ufe0e 300px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				}
 			]
 		}{
@@ -382,8 +356,7 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"name": "↔\ufe0e 1000px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				}
 			]
 		}{
@@ -391,8 +364,7 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"name": "↔\ufe0e 1100px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				}
 			]
 		}{
@@ -400,8 +372,7 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"name": "↔\ufe0e 1920px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				}
 			]
 		}{
@@ -409,18 +380,15 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"name": "↔\ufe0e 3000px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				},
 				{
 					"name": "↔\ufe0e 4000px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				},
 				{
 					"name": "↔\ufe0e 4200px",
-					"count": 2,
-					"count_unique": 1
+					"count": 1
 				}
 			]
 		}`, `\ufe0e`, "\ufe0e")
@@ -438,16 +406,21 @@ func TestStatsByRef(t *testing.T) {
 		Hit{Path: "/b", Ref: "https://example.com"},
 		Hit{Path: "/a", Ref: "https://example.org"})
 
-	var s HitStats
-	err := s.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)),
+	var have HitStats
+	err := have.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)),
 		[]int64{1}, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := `{false [{ /a 1 0 <nil>}]}`
-	got := fmt.Sprintf("%v", s)
-	if got != want {
-		t.Fatalf("\nout:  %v\nwant: %v\n", got, want)
+	want := `{
+		"more": false,
+		"stats": [{
+			"count": 0,
+			"name": "/a"
+		}]
+	}`
+	if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+		t.Error(d)
 	}
 }

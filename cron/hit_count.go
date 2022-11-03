@@ -17,10 +17,9 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		// Group by day + pathID
 		type gt struct {
-			total       int
-			totalUnique int
-			hour        string
-			pathID      int64
+			total  int
+			hour   string
+			pathID int64
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -36,28 +35,25 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 				v.pathID = h.PathID
 			}
 
-			v.total += 1
 			if h.FirstVisit {
-				v.totalUnique += 1
+				v.total += 1
 			}
 			grouped[k] = v
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
 		ins := zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id",
-			"hour", "total", "total_unique"})
+			"hour", "total"})
 		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 			ins.OnConflict(`on conflict on constraint "hit_counts#site_id#path_id#hour" do update set
-				total        = hit_counts.total        + excluded.total,
-				total_unique = hit_counts.total_unique + excluded.total_unique`)
+				total = hit_counts.total + excluded.total`)
 		} else {
 			ins.OnConflict(`on conflict(site_id, path_id, hour) do update set
-				total        = hit_counts.total        + excluded.total,
-				total_unique = hit_counts.total_unique + excluded.total_unique`)
+				total = hit_counts.total + excluded.total`)
 		}
 
 		for _, v := range grouped {
-			ins.Values(siteID, v.pathID, v.hour, v.total, v.totalUnique)
+			ins.Values(siteID, v.pathID, v.hour, v.total)
 		}
 		return ins.Finish()
 	}), "cron.updateHitCounts")

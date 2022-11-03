@@ -5,8 +5,8 @@
 		{{if not $.User.Settings.FewerNumbers}}
 			<small>{{t .Context `dashboard/pages/num-visits|%(num-visits) out of %(total-visits) visits shown`
 				(map
-					"num-visits"   (tag "span" `class="total-unique-display"` (nformat .TotalUniqueDisplay $.User))
-					"total-visits" (tag "span" `class="total-unique"`         (nformat .TotalUnique $.User))
+					"num-visits"   (tag "span" `class="total-display"` (nformat .TotalDisplay $.User))
+					"total-visits" (tag "span" `class="total"`         (nformat .Total $.User))
 				)}}</small>
 		{{end}}
 		</h2>

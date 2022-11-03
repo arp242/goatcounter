@@ -83,16 +83,16 @@ func TestBackendPagesMore(t *testing.T) {
 	now := ztime.Now()
 
 	gctest.StoreHits(ctx, t, false,
-		goatcounter.Hit{Path: "/1"},
-		goatcounter.Hit{Path: "/2"},
-		goatcounter.Hit{Path: "/3"},
-		goatcounter.Hit{Path: "/4"},
-		goatcounter.Hit{Path: "/5"},
-		goatcounter.Hit{Path: "/6"},
-		goatcounter.Hit{Path: "/7"},
-		goatcounter.Hit{Path: "/8"},
-		goatcounter.Hit{Path: "/9"},
-		goatcounter.Hit{Path: "/10"},
+		goatcounter.Hit{FirstVisit: true, Path: "/1"},
+		goatcounter.Hit{FirstVisit: true, Path: "/2"},
+		goatcounter.Hit{FirstVisit: true, Path: "/3"},
+		goatcounter.Hit{FirstVisit: true, Path: "/4"},
+		goatcounter.Hit{FirstVisit: true, Path: "/5"},
+		goatcounter.Hit{FirstVisit: true, Path: "/6"},
+		goatcounter.Hit{FirstVisit: true, Path: "/7"},
+		goatcounter.Hit{FirstVisit: true, Path: "/8"},
+		goatcounter.Hit{FirstVisit: true, Path: "/9"},
+		goatcounter.Hit{FirstVisit: true, Path: "/10"},
 	)
 	url := fmt.Sprintf(
 		"/load-widget?widget=0&exclude=1,2,3,4,5&max=10&period-start=%s&period-end=%s",
@@ -120,7 +120,7 @@ func TestBackendPagesMore(t *testing.T) {
 	wantJSON := `{
 		"max": 10,
 		"more": false,
-		"total_unique_display": 0
+		"total_display": 5
 	}`
 
 	if d := ztest.Diff(haveHTML, wantHTML, ztest.DiffNormalizeWhitespace); d != "" {

@@ -146,7 +146,7 @@
   default = "Jumlah"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) kunjungan; %(num-views) tampilan laman"
+  default = "%(num-visits) kunjungan"
 
 ["dashboard/week-ago"]
   default = "%(n) minggu yang lalu"

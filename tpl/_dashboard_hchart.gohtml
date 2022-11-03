@@ -1,5 +1,5 @@
 {{- $x := (t $.Context "dashboard/loading|Loading…") -}}
-{{- if $.Loaded -}}{{- $x = horizontal_chart .Context .Stats .TotalUniqueUTC (and (not .RowsOnly) .HasSubMenu) true -}}{{- end -}}
+{{- if $.Loaded -}}{{- $x = horizontal_chart .Context .Stats .TotalUTC (and (not .RowsOnly) .HasSubMenu) true -}}{{- end -}}
 {{- if .RowsOnly -}}
 	{{- $x -}}
 {{- else -}}

@@ -1015,10 +1015,6 @@
       "type": "object",
       "properties": {
         "count": {
-          "description": "Number of pageviews for the selected date range.",
-          "type": "integer"
-        },
-        "count_unique": {
           "description": "Number of visitors for the selected date range.",
           "type": "integer"
         },
@@ -1067,10 +1063,6 @@
       "type": "object",
       "properties": {
         "daily": {
-          "description": "Total pageviews for this day.",
-          "type": "integer"
-        },
-        "daily_unique": {
           "description": "Total visitors for this day.",
           "type": "integer"
         },
@@ -1080,13 +1072,6 @@
           "format": "date"
         },
         "hourly": {
-          "description": "Pageviews per hour.",
-          "type": "array",
-          "items": {
-            "type": "integer"
-          }
-        },
-        "hourly_unique": {
           "description": "Visitors per hour.",
           "type": "array",
           "items": {
@@ -1100,10 +1085,6 @@
       "type": "object",
       "properties": {
         "count": {
-          "description": "Number of pageviews.",
-          "type": "integer"
-        },
-        "count_unique": {
           "description": "Number of visitors.",
           "type": "integer"
         },
@@ -1255,22 +1236,14 @@
       "type": "object",
       "properties": {
         "total": {
-          "description": "Total number of pageviews (including events).",
-          "type": "integer"
-        },
-        "total_events": {
-          "description": "Total number of events.",
-          "type": "integer"
-        },
-        "total_events_unique": {
-          "description": "Total number of visitors for events.",
-          "type": "integer"
-        },
-        "total_unique": {
           "description": "Total number of visitors (including events).",
           "type": "integer"
         },
-        "total_unique_utc": {
+        "total_events": {
+          "description": "Total number of visitors for events.",
+          "type": "integer"
+        },
+        "total_utc": {
           "description": "Total number of visitors in UTC. The browser, system, etc, stats are\nalways in UTC.",
           "type": "integer"
         }
@@ -1535,10 +1508,6 @@
           "type": "boolean"
         },
         "total": {
-          "description": "Total number of pageviews in the returned result.",
-          "type": "integer"
-        },
-        "total_unique": {
           "description": "Total number of visitors in the returned result.",
           "type": "integer"
         }
