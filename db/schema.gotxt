@@ -62,7 +62,8 @@ create table api_tokens (
 	name           varchar        not null,
 	token          varchar        not null                 check(length(token) > 10),
 	permissions    {{jsonb}}      not null,
-	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
+	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
+	last_used_at   timestamp                               {{check_timestamp "created_at"}}
 );
 create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
 
@@ -135,7 +136,6 @@ create table hit_counts (
 
 	hour           timestamp      not null                 {{check_timestamp "hour"}},
 	total          integer        not null,
-	total_unique   integer        not null,
 
 	constraint "hit_counts#site_id#path_id#hour" unique(site_id, path_id, hour) {{sqlite "on conflict replace"}}
 );
@@ -151,7 +151,6 @@ create table ref_counts (
 	ref_scheme     varchar        null,
 	hour           timestamp      not null                 {{check_timestamp "hour"}},
 	total          integer        not null,
-	total_unique   integer        not null,
 
 	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) {{sqlite "on conflict replace"}}
 );
@@ -165,7 +164,6 @@ create table hit_stats (
 
 	day            date           not null                 {{check_date "day"}},
 	stats          varchar        not null,
-	stats_unique   varchar        not null,
 
 	constraint "hit_stats#site_id#path_id#day" unique(site_id, path_id, day) {{sqlite "on conflict replace"}}
 );
@@ -180,7 +178,6 @@ create table browser_stats (
 
 	day            date           not null                 {{check_date "day"}},
 	count          integer        not null,
-	count_unique   integer        not null,
 
 	constraint "browser_stats#site_id#path_id#day#browser_id" unique(site_id, path_id, day, browser_id) {{sqlite "on conflict replace"}}
 );
@@ -195,7 +192,6 @@ create table system_stats (
 
 	day            date           not null                 {{check_date "day"}},
 	count          integer        not null,
-	count_unique   integer        not null,
 
 	constraint "system_stats#site_id#path_id#day#system_id" unique(site_id, path_id, day, system_id) {{sqlite "on conflict replace"}}
 );
@@ -210,7 +206,6 @@ create table location_stats (
 	day            date           not null                 {{check_date "day"}},
 	location       varchar        not null,
 	count          integer        not null,
-	count_unique   integer        not null,
 
 	constraint "location_stats#site_id#path_id#day#location" unique(site_id, path_id, day, location) {{sqlite "on conflict replace"}}
 );
@@ -225,7 +220,6 @@ create table size_stats (
 	day            date           not null                 {{check_date "day"}},
 	width          integer        not null,
 	count          integer        not null,
-	count_unique   integer        not null,
 
 	constraint "size_stats#site_id#path_id#day#width" unique(site_id, path_id, day, width) {{sqlite "on conflict replace"}}
 );
@@ -240,7 +234,6 @@ create table language_stats (
 	day            date           not null                 {{check_date "day"}},
 	language       varchar        not null,
 	count          integer        not null,
-	count_unique   integer        not null,
 
 	constraint "language_stats#site_id#path_id#day#language" unique(site_id, path_id, day, language) {{sqlite "on conflict replace"}}
 );
@@ -255,7 +248,6 @@ create table campaign_stats (
 	campaign_id    integer        not null,
 	ref            varchar        not null,
 	count          integer        not null,
-	count_unique   integer        not null,
 
 	constraint "campaign_stats#site_id#campaign_id#ref#day" unique(site_id, campaign_id, ref, day) {{sqlite "on conflict replace"}}
 );
@@ -345,6 +337,9 @@ insert into version values
 	-- 2.3
 	('2022-02-16-1-rm-billing'),
 	('2022-03-06-1-campaigns'),
-	('2022-10-17-1-campaigns');
+	('2022-10-17-1-campaigns'),
+	('2022-10-21-1-apitoken-lastused'),
+	('2022-11-03-1-uncount'),
+	('2022-11-03-2-ununique');
 
 -- vim:ft=sql:tw=0
