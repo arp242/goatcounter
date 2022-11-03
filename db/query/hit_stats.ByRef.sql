@@ -1,7 +1,6 @@
 with x as (
 	select
 		path_id,
-		coalesce(sum(total), 0)        as count,
 		coalesce(sum(total_unique), 0) as count_unique
 	from ref_counts
 	where
@@ -14,7 +13,6 @@ with x as (
 )
 select
 	paths.path as name,
-	x.count,
 	x.count_unique
 from x
 join paths using(path_id)

@@ -1,7 +1,6 @@
 with x as (
 	select
 		system_id,
-		sum(count)        as count,
 		sum(count_unique) as count_unique
 	from system_stats
 	where
@@ -12,7 +11,6 @@ with x as (
 )
 select
 	systems.name,
-	sum(x.count)        as count,
 	sum(x.count_unique) as count_unique
 from x
 join systems using (system_id)

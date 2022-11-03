@@ -191,8 +191,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// Set shared params.
 	tc := wid.GetOne("totalcount").(*widgets.TotalCount)
-	shared.Total, shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEvents, shared.TotalEventsUnique =
-		tc.Total, tc.TotalUnique, tc.TotalUniqueUTC, tc.TotalEvents, tc.TotalEventsUnique
+	shared.TotalUnique, shared.TotalUniqueUTC, shared.TotalEventsUnique = tc.TotalUnique, tc.TotalUniqueUTC, tc.TotalEventsUnique
 
 	// Render widget templates.
 	func() {

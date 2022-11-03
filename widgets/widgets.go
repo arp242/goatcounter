@@ -48,10 +48,8 @@ type (
 		Args Args
 
 		RowsOnly          bool
-		Total             int
 		TotalUnique       int
 		TotalUniqueUTC    int
-		TotalEvents       int
 		TotalEventsUnique int
 	}
 )

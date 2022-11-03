@@ -1,6 +1,5 @@
 with x as (
 	select
-		coalesce(sum(total), 0)        as total,
 		coalesce(sum(total_unique), 0) as total_unique
 	from hit_counts
 	where
@@ -8,7 +7,6 @@ with x as (
 		{{:filter and path_id in (:filter)}}
 ), y as (
 	select
-		coalesce(sum(total), 0)        as total_events,
 		coalesce(sum(total_unique), 0) as total_events_unique
 	from hit_counts
 	join paths using (site_id, path_id)

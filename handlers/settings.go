@@ -454,7 +454,7 @@ func (h settings) purge(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		_, err = paths.List(r.Context(), goatcounter.MustGetSite(r.Context()).ID, 0, 0)
+		_, err = paths.List(r.Context(), goatcounter.MustGetSite(r.Context()).ID, 0, 5_000)
 		if err != nil {
 			return err
 		}

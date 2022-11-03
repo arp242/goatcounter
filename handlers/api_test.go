@@ -697,15 +697,13 @@ func TestAPIHits(t *testing.T) {
 		setup    func(context.Context, *testing.T)
 		want     string
 	}{
-		{"no hits", "", 200, nil, `{"more": false, "total": 0, "total_unique": 0, "hits": []}`},
+		{"no hits", "", 200, nil, `{"more": false, "total_unique": 0, "hits": []}`},
 
 		{"works", "limit=3", 200,
 			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
 			"more": true,
-			"total": 3,
 			"total_unique": 3,
 			"hits": [{
-				"count":         1,
 				"count_unique":  1,
 				"event":         false,
 				"max":           1,
@@ -713,56 +711,39 @@ func TestAPIHits(t *testing.T) {
 				"path_id":       50,
 				"title":         "title - 50",
 				"stats": [{
-					"daily":          0,
 					"daily_unique":   0,
 					"day":            "2020-06-11",
-					"hourly":         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique":  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-						"daily": 0,
-						"daily_unique": 0,
-						"day": "2020-06-12",
-						"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-						"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+					"daily_unique": 0,
+					"day": "2020-06-12",
+					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-13",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-14",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-15",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-16",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 1,
 					"daily_unique": 1,
 					"day": "2020-06-18",
-					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}]
 			}, {
-				"count": 1,
 				"count_unique": 1,
 				"event": false,
 				"max": 1,
@@ -770,56 +751,39 @@ func TestAPIHits(t *testing.T) {
 				"path_id": 49,
 				"title": "title - 49",
 				"stats": [{
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-11",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-12",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-13",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-14",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-15",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-16",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 1,
 					"daily_unique": 1,
 					"day": "2020-06-18",
-					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}]
 			}, {
-				"count": 1,
 				"count_unique": 1,
 				"event": false,
 				"max": 1,
@@ -827,52 +791,36 @@ func TestAPIHits(t *testing.T) {
 				"path_id": 48,
 				"title": "title - 48",
 				"stats": [{
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-11",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-12",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-13",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-14",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-15",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-16",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 1,
 					"daily_unique": 1,
 					"day": "2020-06-18",
-					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}]
 			}]
@@ -881,10 +829,8 @@ func TestAPIHits(t *testing.T) {
 		{"exclude", "limit=1&exclude_paths=50,49&daily=true&start=2020-06-17&end=2020-06-19", 200,
 			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
 			"more": true,
-			"total": 1,
 			"total_unique": 1,
 			"hits": [{
-				"count": 1,
 				"count_unique": 1,
 				"event": false,
 				"max": 1,
@@ -892,22 +838,16 @@ func TestAPIHits(t *testing.T) {
 				"path_id": 48,
 				"title": "title - 48",
 				"stats": [{
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 1,
 					"daily_unique": 1,
 					"day": "2020-06-18",
-					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-19",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}]
 			}]
@@ -916,10 +856,8 @@ func TestAPIHits(t *testing.T) {
 		{"include", "limit=1&exclude_paths=&include_paths=10&daily=true&start=2020-06-17&end=2020-06-19", 200,
 			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
 			"more": false,
-			"total": 1,
 			"total_unique": 1,
 			"hits": [{
-				"count": 1,
 				"count_unique": 1,
 				"event": false,
 				"max": 1,
@@ -927,22 +865,16 @@ func TestAPIHits(t *testing.T) {
 				"path_id": 10,
 				"title": "title - 10",
 				"stats": [{
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 1,
 					"daily_unique": 1,
 					"day": "2020-06-18",
-					"hourly":        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}, {
-					"daily": 0,
 					"daily_unique": 0,
 					"day": "2020-06-19",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					"hourly_unique": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 				}]
 			}]
@@ -1006,8 +938,8 @@ func TestAPIStats(t *testing.T) {
 			`{
 				"more": false,
 				"stats": [
-					{"count": 35, "count_unique": 35, "id": "Firefox", "name": "Firefox"},
-					{"count": 15, "count_unique": 15, "id": "Chrome", "name": "Chrome"}
+					{"count_unique": 35, "id": "Firefox", "name": "Firefox"},
+					{"count_unique": 15, "id": "Chrome", "name": "Chrome"}
 				]
 			}`},
 	}
@@ -1069,9 +1001,9 @@ func TestAPIStatsDetail(t *testing.T) {
 			`{
 				"more": true,
 				"stats": [
-					{"count": 1, "count_unique": 1, "name": "Firefox 0"},
-					{"count": 1, "count_unique": 1, "name": "Firefox 1"},
-					{"count": 1, "count_unique": 1, "name": "Firefox 10"}
+					{"count_unique": 1, "name": "Firefox 0"},
+					{"count_unique": 1, "name": "Firefox 1"},
+					{"count_unique": 1, "name": "Firefox 10"}
 				]
 			}`},
 	}

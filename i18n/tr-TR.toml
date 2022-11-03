@@ -138,7 +138,7 @@
   default = "Toplam"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) ziyaret; %(num-views) sayfa görüntüleme"
+  default = "%(num-visits) ziyaret"
 
 ["dashboard/week-ago"]
   default = "%(n) hafta önce"

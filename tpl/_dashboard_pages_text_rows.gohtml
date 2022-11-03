@@ -5,7 +5,6 @@
 		<td class="col-idx">{{sum $.Offset $i}}</td>
 		{{if not $.User.Settings.FewerNumbers}}
 			<td class="col-n col-count">{{nformat $h.CountUnique $.User}}</td>
-			<td class="col-n">{{nformat $h.Count $.User}}</td>
 		{{end}}
 		<td class="col-p">
 			<a class="load-refs rlink" href="#">{{$h.Path}}</a>

@@ -1014,10 +1014,6 @@
       "title": "HitList",
       "type": "object",
       "properties": {
-        "count": {
-          "description": "Number of pageviews for the selected date range.",
-          "type": "integer"
-        },
         "count_unique": {
           "description": "Number of visitors for the selected date range.",
           "type": "integer"
@@ -1066,10 +1062,6 @@
       "title": "HitListStat",
       "type": "object",
       "properties": {
-        "daily": {
-          "description": "Total pageviews for this day.",
-          "type": "integer"
-        },
         "daily_unique": {
           "description": "Total visitors for this day.",
           "type": "integer"
@@ -1078,13 +1070,6 @@
           "description": "Day these statistics are for.",
           "type": "string",
           "format": "date"
-        },
-        "hourly": {
-          "description": "Pageviews per hour.",
-          "type": "array",
-          "items": {
-            "type": "integer"
-          }
         },
         "hourly_unique": {
           "description": "Visitors per hour.",
@@ -1099,10 +1084,6 @@
       "title": "HitStat",
       "type": "object",
       "properties": {
-        "count": {
-          "description": "Number of pageviews.",
-          "type": "integer"
-        },
         "count_unique": {
           "description": "Number of visitors.",
           "type": "integer"
@@ -1254,14 +1235,6 @@
       "title": "TotalCount",
       "type": "object",
       "properties": {
-        "total": {
-          "description": "Total number of pageviews (including events).",
-          "type": "integer"
-        },
-        "total_events": {
-          "description": "Total number of events.",
-          "type": "integer"
-        },
         "total_events_unique": {
           "description": "Total number of visitors for events.",
           "type": "integer"
@@ -1533,10 +1506,6 @@
         "more": {
           "description": "More hits after this?",
           "type": "boolean"
-        },
-        "total": {
-          "description": "Total number of pageviews in the returned result.",
-          "type": "integer"
         },
         "total_unique": {
           "description": "Total number of visitors in the returned result.",

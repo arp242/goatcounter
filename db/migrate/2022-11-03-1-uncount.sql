@@ -1,0 +1,9 @@
+alter table hit_counts     drop column total;
+alter table ref_counts     drop column total;
+alter table hit_stats      drop column stats;
+alter table browser_stats  drop column count;
+alter table system_stats   drop column count;
+alter table location_stats drop column count;
+alter table size_stats     drop column count;
+alter table language_stats drop column count;
+alter table campaign_stats drop column count;

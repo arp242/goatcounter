@@ -1,7 +1,6 @@
 with x as (
 	select
 		campaign_id,
-		sum(count)        as count,
 		sum(count_unique) as count_unique
 	from campaign_stats
 	where
@@ -14,7 +13,6 @@ with x as (
 select
 	campaign_id     as id,
 	campaigns.name  as name,
-	x.count         as count,
 	x.count_unique  as count_unique
 from x
 join campaigns using (campaign_id)

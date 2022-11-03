@@ -51,15 +51,15 @@ func TestDataRetention(t *testing.T) {
 	}
 
 	var stats goatcounter.HitLists
-	display, displayUnique, more, err := stats.List(ctx,
+	displayUnique, more, err := stats.List(ctx,
 		ztime.NewRange(past.Add(-1*24*time.Hour)).To(now),
 		nil, nil, 10, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	out := fmt.Sprintf("%d %d %t %v", display, displayUnique, more, err)
-	want := `2 1 false <nil>`
+	out := fmt.Sprintf("%d %t %v", displayUnique, more, err)
+	want := `1 false <nil>`
 	if out != want {
 		t.Errorf("\ngot:  %s\nwant: %s", out, want)
 	}

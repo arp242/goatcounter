@@ -1,7 +1,6 @@
 with x as (
 	select
 		browser_id,
-		sum(count)        as count,
 		sum(count_unique) as count_unique
 	from browser_stats
 	where
@@ -12,7 +11,6 @@ with x as (
 )
 select
 	browsers.name,
-	sum(x.count) as count,
 	sum(x.count_unique) as count_unique
 from x
 join browsers using (browser_id)

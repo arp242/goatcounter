@@ -80,7 +80,7 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	}
 
 	var err error
-	w.Display, w.UniqueDisplay, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Daily)
+	w.UniqueDisplay, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Daily)
 	errs.Append(err)
 
 	wg.Wait()
@@ -145,7 +145,6 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		if w.Pages[0].Stats[len(w.Pages[0].Stats)-1].Day == today {
 			for i := range w.Pages {
 				j := len(w.Pages[i].Stats) - 1
-				w.Pages[i].Stats[j].Hourly = w.Pages[i].Stats[j].Hourly[:hour+1]
 				w.Pages[i].Stats[j].HourlyUnique = w.Pages[i].Stats[j].HourlyUnique[:hour+1]
 			}
 		}
@@ -166,14 +165,10 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		Offset      int
 		Max         int
 
-		TotalDisplay       int
 		TotalUniqueDisplay int
-
-		Total             int
-		TotalUnique       int
-		TotalEvents       int
-		TotalEventsUnique int
-		MorePages         bool
+		TotalUnique        int
+		TotalEventsUnique  int
+		MorePages          bool
 
 		Style    string
 		Refs     goatcounter.HitStats
@@ -181,8 +176,8 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 	}{
 		ctx, shared.Site, shared.User,
 		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
-		shared.Args.ForcedDaily, 1, w.Max, w.Display,
-		w.UniqueDisplay, shared.Total, shared.TotalUnique, shared.TotalEvents, shared.TotalEventsUnique,
-		w.More, w.Style, w.Refs, shared.Args.ShowRefs,
+		shared.Args.ForcedDaily, 1, w.Max,
+		w.UniqueDisplay, shared.TotalUnique, shared.TotalEventsUnique, w.More,
+		w.Style, w.Refs, shared.Args.ShowRefs,
 	}
 }

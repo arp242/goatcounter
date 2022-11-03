@@ -1,6 +1,5 @@
 select
 	coalesce(region_name, '(unknown)') as name,
-	sum(count)                         as count,
 	sum(count_unique)                  as count_unique
 from location_stats
 join locations on location = iso_3166_2

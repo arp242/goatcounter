@@ -137,7 +137,7 @@
   default = "合計"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) 回の訪問; %(num-views) ページビュー"
+  default = "%(num-visits) 回の訪問"
 
 ["dashboard/week-ago"]
   default = "%(n) 週間前"

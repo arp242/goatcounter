@@ -34,116 +34,116 @@ func TestHitListsList(t *testing.T) {
 	}{
 		{
 			in: []Hit{
-				{CreatedAt: hit, Path: "/asd"},
-				{CreatedAt: hit.Add(40 * time.Hour), Path: "/asd/"},
-				{CreatedAt: hit.Add(100 * time.Hour), Path: "/zxc"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/asd"},
+				{FirstVisit: true, CreatedAt: hit.Add(40 * time.Hour), Path: "/asd/"},
+				{FirstVisit: true, CreatedAt: hit.Add(100 * time.Hour), Path: "/zxc"},
 			},
-			wantReturn: "3 0 false <nil>",
+			wantReturn: "3 false <nil>",
 			wantStats: HitLists{
-				HitList{Count: 2, Path: "/asd", RefScheme: nil, Stats: []HitListStat{
-					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
-					{Day: "2019-08-11", Hourly: dayStat(nil)},
-					{Day: "2019-08-12", Hourly: dayStat(map[int]int{6: 1})},
-					{Day: "2019-08-13", Hourly: dayStat(nil)},
-					{Day: "2019-08-14", Hourly: dayStat(nil)},
-					{Day: "2019-08-15", Hourly: dayStat(nil)},
-					{Day: "2019-08-16", Hourly: dayStat(nil)},
-					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				HitList{CountUnique: 2, Path: "/asd", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", HourlyUnique: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-12", HourlyUnique: dayStat(map[int]int{6: 1})},
+					{Day: "2019-08-13", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-14", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-15", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-16", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-17", HourlyUnique: dayStat(nil)},
 				}},
-				HitList{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []HitListStat{
-					{Day: "2019-08-10", Hourly: dayStat(nil)},
-					{Day: "2019-08-11", Hourly: dayStat(nil)},
-					{Day: "2019-08-12", Hourly: dayStat(nil)},
-					{Day: "2019-08-13", Hourly: dayStat(nil)},
-					{Day: "2019-08-14", Hourly: dayStat(map[int]int{18: 1})},
-					{Day: "2019-08-15", Hourly: dayStat(nil)},
-					{Day: "2019-08-16", Hourly: dayStat(nil)},
-					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				HitList{CountUnique: 1, Path: "/zxc", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-11", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-12", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-13", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-14", HourlyUnique: dayStat(map[int]int{18: 1})},
+					{Day: "2019-08-15", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-16", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-17", HourlyUnique: dayStat(nil)},
 				}},
 			},
 		},
 		{
 			in: []Hit{
-				{CreatedAt: hit, Path: "/asd"},
-				{CreatedAt: hit, Path: "/zxc"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/asd"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/zxc"},
 			},
 			inFilter:   "x",
-			wantReturn: "1 0 false <nil>",
+			wantReturn: "1 false <nil>",
 			wantStats: HitLists{
-				HitList{Count: 1, Path: "/zxc", RefScheme: nil, Stats: []HitListStat{
-					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
-					{Day: "2019-08-11", Hourly: dayStat(nil)},
-					{Day: "2019-08-12", Hourly: dayStat(nil)},
-					{Day: "2019-08-13", Hourly: dayStat(nil)},
-					{Day: "2019-08-14", Hourly: dayStat(nil)},
-					{Day: "2019-08-15", Hourly: dayStat(nil)},
-					{Day: "2019-08-16", Hourly: dayStat(nil)},
-					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				HitList{CountUnique: 1, Path: "/zxc", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", HourlyUnique: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-12", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-13", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-14", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-15", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-16", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-17", HourlyUnique: dayStat(nil)},
 				}},
 			},
 		},
 		{
 			in: []Hit{
-				{CreatedAt: hit, Path: "/a"},
-				{CreatedAt: hit, Path: "/aa"},
-				{CreatedAt: hit, Path: "/aaa"},
-				{CreatedAt: hit, Path: "/aaaa"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/a"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/aa"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/aaa"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/aaaa"},
 			},
 			inFilter:   "a",
-			wantReturn: "2 0 true <nil>",
+			wantReturn: "2 true <nil>",
 			wantStats: HitLists{
-				HitList{Count: 1, Path: "/aaaa", RefScheme: nil, Stats: []HitListStat{
-					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
-					{Day: "2019-08-11", Hourly: dayStat(nil)},
-					{Day: "2019-08-12", Hourly: dayStat(nil)},
-					{Day: "2019-08-13", Hourly: dayStat(nil)},
-					{Day: "2019-08-14", Hourly: dayStat(nil)},
-					{Day: "2019-08-15", Hourly: dayStat(nil)},
-					{Day: "2019-08-16", Hourly: dayStat(nil)},
-					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				HitList{CountUnique: 1, Path: "/aaaa", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", HourlyUnique: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-12", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-13", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-14", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-15", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-16", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-17", HourlyUnique: dayStat(nil)},
 				}},
-				HitList{Count: 1, Path: "/aaa", RefScheme: nil, Stats: []HitListStat{
-					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
-					{Day: "2019-08-11", Hourly: dayStat(nil)},
-					{Day: "2019-08-12", Hourly: dayStat(nil)},
-					{Day: "2019-08-13", Hourly: dayStat(nil)},
-					{Day: "2019-08-14", Hourly: dayStat(nil)},
-					{Day: "2019-08-15", Hourly: dayStat(nil)},
-					{Day: "2019-08-16", Hourly: dayStat(nil)},
-					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				HitList{CountUnique: 1, Path: "/aaa", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", HourlyUnique: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-12", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-13", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-14", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-15", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-16", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-17", HourlyUnique: dayStat(nil)},
 				}},
 			},
 		},
 		{
 			in: []Hit{
-				{CreatedAt: hit, Path: "/a"},
-				{CreatedAt: hit, Path: "/aa"},
-				{CreatedAt: hit, Path: "/aaa"},
-				{CreatedAt: hit, Path: "/aaaa"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/a"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/aa"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/aaa"},
+				{FirstVisit: true, CreatedAt: hit, Path: "/aaaa"},
 			},
 			inFilter:   "a",
 			inExclude:  []int64{4, 3},
-			wantReturn: "2 0 false <nil>",
+			wantReturn: "2 false <nil>",
 			wantStats: HitLists{
-				HitList{Count: 1, Path: "/aa", RefScheme: nil, Stats: []HitListStat{
-					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
-					{Day: "2019-08-11", Hourly: dayStat(nil)},
-					{Day: "2019-08-12", Hourly: dayStat(nil)},
-					{Day: "2019-08-13", Hourly: dayStat(nil)},
-					{Day: "2019-08-14", Hourly: dayStat(nil)},
-					{Day: "2019-08-15", Hourly: dayStat(nil)},
-					{Day: "2019-08-16", Hourly: dayStat(nil)},
-					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				HitList{CountUnique: 1, Path: "/aa", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", HourlyUnique: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-12", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-13", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-14", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-15", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-16", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-17", HourlyUnique: dayStat(nil)},
 				}},
-				HitList{Count: 1, Path: "/a", RefScheme: nil, Stats: []HitListStat{
-					{Day: "2019-08-10", Hourly: dayStat(map[int]int{14: 1})},
-					{Day: "2019-08-11", Hourly: dayStat(nil)},
-					{Day: "2019-08-12", Hourly: dayStat(nil)},
-					{Day: "2019-08-13", Hourly: dayStat(nil)},
-					{Day: "2019-08-14", Hourly: dayStat(nil)},
-					{Day: "2019-08-15", Hourly: dayStat(nil)},
-					{Day: "2019-08-16", Hourly: dayStat(nil)},
-					{Day: "2019-08-17", Hourly: dayStat(nil)},
+				HitList{CountUnique: 1, Path: "/a", RefScheme: nil, Stats: []HitListStat{
+					{Day: "2019-08-10", HourlyUnique: dayStat(map[int]int{14: 1})},
+					{Day: "2019-08-11", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-12", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-13", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-14", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-15", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-16", HourlyUnique: dayStat(nil)},
+					{Day: "2019-08-17", HourlyUnique: dayStat(nil)},
 				}},
 			},
 		},
@@ -168,9 +168,9 @@ func TestHitListsList(t *testing.T) {
 			}
 
 			var stats HitLists
-			totalDisplay, uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, 2, false)
+			uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, 2, false)
 
-			have := fmt.Sprintf("%d %d %t %v", totalDisplay, uniqueDisplay, more, err)
+			have := fmt.Sprintf("%d %t %v", uniqueDisplay, more, err)
 			if have != tt.wantReturn {
 				t.Errorf("wrong return\nhave: %s\nwant: %s\n", have, tt.wantReturn)
 				zdb.Dump(ctx, os.Stdout, "select * from paths")
@@ -201,14 +201,18 @@ func TestGetTotalCount(t *testing.T) {
 		Hit{Path: "ev", FirstVisit: false, Event: true})
 
 	{
-		tt, err := GetTotalCount(ctx, rng, nil, false)
+		have, err := GetTotalCount(ctx, rng, nil, false)
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := "{5 3 2 1 3}"
-		have := fmt.Sprintf("%v", tt)
-		if want != have {
-			t.Errorf("\nwant: %s\nhave: %s", want, have)
+
+		want := `{
+			"total_unique": 3,
+			"total_events_unique": 1,
+			"total_unique_utc": 3
+		}`
+		if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+			t.Error(d)
 		}
 	}
 }
@@ -237,52 +241,56 @@ func TestHitListTotals(t *testing.T) {
 
 		want := [][]string{
 			{`10`, `{
-				"count":12,
-				"count_unique":2,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
+				"count_unique":  2,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
 				"stats":[{
-					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}
-				]}`},
-
-			{`10`, `{
-				"count":11,
-				"count_unique":1,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
-				"stats":[{
-					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   0
 				}]}`},
 
 			{`10`, `{
-				"count":1,
-				"count_unique":1,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
+				"count_unique":  1,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
 				"stats":[{
-					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   0
 				}]}`},
 
 			{`10`, `{
-				"count":12,
-				"count_unique":2,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
+				"count_unique":  1,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
 				"stats":[{
-					"day":"2020-06-18","hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],"daily":0,"daily_unique":0}
-				]}`},
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   0
+				}]}`},
+
+			{`10`, `{
+				"count_unique":  2,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
+				"stats":[{
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   0
+				}]}`},
 		}
 		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
 			t.Run("", func(t *testing.T) {
@@ -307,67 +315,55 @@ func TestHitListTotals(t *testing.T) {
 
 		want := [][]string{
 			{`10`, `{
-				"count":12,
-				"count_unique":2,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
+				"count_unique":  2,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
 				"stats":[{
-					"day":"2020-06-18",
-					"hourly":       [0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],
-					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
-					"daily":12,
-					"daily_unique":2}
-				]}`},
-
-			{`10`, `{
-				"count":11,
-				"count_unique":1,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
-				"stats":[{
-					"day":"2020-06-18",
-					"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0],
-					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-					"daily":11,
-					"daily_unique":1
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   2
 				}]}`},
 
 			{`10`, `{
-				"count":1,
-				"count_unique":1,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
+				"count_unique":  1,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
 				"stats":[{
-					"day":"2020-06-18",
-					"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-					"daily":1,
-					"daily_unique":1
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   1
 				}]}`},
 
 			{`10`, `{
-				"count":12,
-				"count_unique":2,
-				"path_id":0,
-				"path":"TOTAL ",
-				"event":false,
-				"title":"",
-				"max":0,
+				"count_unique":  1,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
 				"stats":[{
-					"day":"2020-06-18",
-					"hourly":[0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0],
-					"hourly_unique":[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
-					"daily":12,
-					"daily_unique":2
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   1
+				}]}`},
+
+			{`10`, `{
+				"count_unique":  2,
+				"path_id":       0,
+				"path":          "TOTAL ",
+				"event":         false,
+				"title":         "",
+				"max":           0,
+				"stats":[{
+					"day":            "2020-06-18",
+					"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+					"daily_unique":   2
 				}]}`},
 		}
 
@@ -407,30 +403,46 @@ func TestHitListsPathCount(t *testing.T) {
 	)
 
 	{
-		var hl HitList
-		err := hl.PathCount(ctx, "/", ztime.Range{})
+		var have HitList
+		err := have.PathCount(ctx, "/", ztime.Range{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{6 5 0 / false  0 [] <nil>}`
-		have := fmt.Sprintf("%v", hl)
-		if have != want {
-			t.Errorf("\nhave: %s\nwant: %s", have, want)
+
+		want := `{
+			"count_unique":  5,
+			"event":         false,
+			"max":           0,
+			"path":          "/",
+			"path_id":       0,
+			"stats":         null,
+			"title":         ""
+		}`
+		if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+			t.Error(d)
 		}
 	}
 
 	{
-		var hl HitList
-		err := hl.PathCount(ctx, "/", ztime.NewRange(
+		var have HitList
+		err := have.PathCount(ctx, "/", ztime.NewRange(
 			ztime.Now().Add(-8*24*time.Hour)).
 			To(ztime.Now().Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{2 2 0 / false  0 [] <nil>}`
-		have := fmt.Sprintf("%v", hl)
-		if have != want {
-			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+
+		want := `{
+			"count_unique":  2,
+			"event":         false,
+			"max":           0,
+			"path":          "/",
+			"path_id":       0,
+			"stats":         null,
+			"title":         ""
+		}`
+		if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+			t.Error(d)
 		}
 	}
 }
@@ -452,30 +464,46 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 	)
 
 	{
-		var hl HitList
-		err := hl.SiteTotalUTC(ctx, ztime.Range{})
+		var have HitList
+		err := have.SiteTotalUTC(ctx, ztime.Range{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{8 7 0  false  0 [] <nil>}`
-		have := fmt.Sprintf("%v", hl)
-		if have != want {
-			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+
+		want := `{
+			"count_unique":  7,
+			"event":         false,
+			"max":           0,
+			"path":          "",
+			"path_id":       0,
+			"stats":         null,
+			"title":         ""
+		}`
+		if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+			t.Error(d)
 		}
 	}
 
 	{
-		var hl HitList
-		err := hl.SiteTotalUTC(ctx, ztime.NewRange(
+		var have HitList
+		err := have.SiteTotalUTC(ctx, ztime.NewRange(
 			ztime.Now().Add(-8*24*time.Hour)).
 			To(ztime.Now().Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := `{3 3 0  false  0 [] <nil>}`
-		have := fmt.Sprintf("%v", hl)
-		if have != want {
-			t.Errorf("\nhave: %#v\nwant: %#v", have, want)
+
+		want := `{
+			"count_unique":  3,
+			"event":         false,
+			"max":           0,
+			"path":          "",
+			"path_id":       0,
+			"stats":         null,
+			"title":         ""
+		}`
+		if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+			t.Error(d)
 		}
 	}
 }

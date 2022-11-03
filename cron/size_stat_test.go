@@ -36,12 +36,12 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `{false [{phone Phones 0 0 <nil>}
-{largephone Large phones, small tablets 1 0 <nil>}
-{tablet Tablets and small laptops 0 0 <nil>}
-{desktop Computer monitors 2 1 <nil>}
-{desktophd Computer monitors larger than HD 0 0 <nil>}
-{unknown (unknown) 2 0 <nil>}]}`
+	want := `{false [{phone Phones 0 <nil>}
+{largephone Large phones, small tablets 0 <nil>}
+{tablet Tablets and small laptops 0 <nil>}
+{desktop Computer monitors 1 <nil>}
+{desktophd Computer monitors larger than HD 0 <nil>}
+{unknown (unknown) 0 <nil>}]}`
 	out := strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
 		t.Error(ztest.Diff(out, want))
@@ -63,12 +63,12 @@ func TestSizeStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{phone Phones 1 0 <nil>}
-{largephone Large phones, small tablets 3 0 <nil>}
-{tablet Tablets and small laptops 0 0 <nil>}
-{desktop Computer monitors 4 2 <nil>}
-{desktophd Computer monitors larger than HD 0 0 <nil>}
-{unknown (unknown) 3 1 <nil>}]}`
+	want = `{false [{phone Phones 0 <nil>}
+{largephone Large phones, small tablets 0 <nil>}
+{tablet Tablets and small laptops 0 <nil>}
+{desktop Computer monitors 2 <nil>}
+{desktophd Computer monitors larger than HD 0 <nil>}
+{unknown (unknown) 1 <nil>}]}`
 	out = strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
 	if want != out {
 		t.Error(ztest.Diff(out, want))

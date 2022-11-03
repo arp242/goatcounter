@@ -219,7 +219,7 @@
     "tpl/_dashboard_totals.gohtml:4",
     "tpl/_dashboard_totals.gohtml:10",
   ]
-  default = "%(num-visits) visits; %(num-views) pageviews"
+  default = "%(num-visits) visits"
 
 ["dashboard/week-ago"]
   loc     = ["handlers/dashboard.go:202"]

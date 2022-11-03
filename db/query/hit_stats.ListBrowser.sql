@@ -1,6 +1,5 @@
 select
 	trim(name || ' ' || version) as name,
-	sum(count)                   as count,
 	sum(count_unique)            as count_unique
 from browser_stats
 join browsers using (browser_id)

@@ -559,7 +559,6 @@
 				else {
 					title += '; ' + T('dashboard/totals/num-visits', {
 						'num-visits': format_int(visits),
-						'num-views':  `<span class="views">${format_int(views)}`,
 					}) + '</span>'
 				}
 			}

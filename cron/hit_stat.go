@@ -17,7 +17,6 @@ import (
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
-			count       []int
 			countUnique []int
 			day         string
 			hour        string
@@ -33,16 +32,15 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			dayHour := h.CreatedAt.Format("2006-01-02 15:00:00")
 			k := day + strconv.FormatInt(h.PathID, 10)
 			v := grouped[k]
-			if len(v.count) == 0 {
+			if len(v.countUnique) == 0 {
 				v.day = day
 				v.hour = dayHour
 				v.pathID = h.PathID
-				v.count = make([]int, 24)
 				v.countUnique = make([]int, 24)
 
 				if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 					var err error
-					v.count, v.countUnique, err = existingHitStats(ctx, h.Site, day, v.pathID)
+					v.countUnique, err = existingHitStats(ctx, h.Site, day, v.pathID)
 					if err != nil {
 						return err
 					}
@@ -50,7 +48,6 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			hour, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
-			v.count[hour] += 1
 			if h.FirstVisit {
 				v.countUnique[hour] += 1
 			}
@@ -58,18 +55,9 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "day", "path_id",
-			"stats", "stats_unique"})
+		ins := zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "day", "path_id", "stats_unique"})
 		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 			ins.OnConflict(`on conflict on constraint "hit_stats#site_id#path_id#day" do update set
-				stats = (
-					with x as (
-						select
-							unnest(string_to_array(trim(hit_stats.stats, '[]'), ',')::int[]) as orig,
-							unnest(string_to_array(trim(excluded.stats,  '[]'), ',')::int[]) as new
-					)
-					select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
-				),
 				stats_unique = (
 					with x as (
 						select
@@ -84,49 +72,44 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		// it's kinda tricky with SQLite :-/
 		//
 		// ins.OnConflict(`on conflict(site_id, path_id, day) do update set
-		// 	stats        = excluded.stats,
 		// 	stats_unique = excluded.stats_unique
 		// `)
 		// }
 
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.pathID,
-				zjson.MustMarshal(v.count),
-				zjson.MustMarshal(v.countUnique))
+			ins.Values(siteID, v.day, v.pathID, zjson.MustMarshal(v.countUnique))
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
 	}), "cron.updateHitStats")
 }
 
-func existingHitStats(ctx context.Context, siteID int64, day string, pathID int64) ([]int, []int, error) {
+func existingHitStats(ctx context.Context, siteID int64, day string, pathID int64) ([]int, error) {
 
 	var ex []struct {
-		Stats       []byte `db:"stats"`
 		StatsUnique []byte `db:"stats_unique"`
 	}
 	err := zdb.Select(ctx, &ex, `/* existingHitStats */
-		select stats, stats_unique from hit_stats
+		select stats_unique from hit_stats
 		where site_id=$1 and day=$2 and path_id=$3 limit 1`,
 		siteID, day, pathID)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "existingHitStats")
+		return nil, errors.Wrap(err, "existingHitStats")
 	}
 	if len(ex) == 0 {
-		return make([]int, 24), make([]int, 24), nil
+		return make([]int, 24), nil
 	}
 
 	err = zdb.Exec(ctx, `delete from hit_stats where
 		site_id=$1 and day=$2 and path_id=$3`,
 		siteID, day, pathID)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "delete")
+		return nil, errors.Wrap(err, "delete")
 	}
 
-	var r, ru []int
-	if ex[0].Stats != nil {
-		zjson.MustUnmarshal(ex[0].Stats, &r)
+	var ru []int
+	if ex[0].StatsUnique != nil {
 		zjson.MustUnmarshal(ex[0].StatsUnique, &ru)
 	}
 
-	return r, ru, nil
+	return ru, nil
 }
