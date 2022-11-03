@@ -116,7 +116,7 @@ func (h *HitLists) List(
 			"filter":  pathFilter,
 			"limit":   limit + 1,
 			"exclude": exclude,
-		}, zdb.DumpQuery|zdb.DumpResult)
+		})
 		if err != nil {
 			return 0, false, errors.Wrap(err, "HitLists.List hit_counts")
 		}
@@ -152,7 +152,7 @@ func (h *HitLists) List(
 			"start": rng.Start.Format("2006-01-02"),
 			"end":   rng.End.Format("2006-01-02"),
 			"paths": paths,
-		}, zdb.DumpQuery|zdb.DumpResult)
+		})
 		if err != nil {
 			return 0, false, errors.Wrap(err, "HitLists.List hit_stats")
 		}
