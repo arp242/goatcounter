@@ -689,7 +689,7 @@ toprefs.</p>
 		<h3 id="goatcounter.HitList">goatcounter.HitList <a class="permalink" href="#goatcounter.HitList">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
-			<h4>count_unique <sup>integer</sup></h4>
+			<h4>count <sup>integer</sup></h4>
 <p>Number of visitors for the selected date range.</p>
 <h4>path_id <sup>integer</sup></h4>
 <p>Path ID</p>
@@ -716,9 +716,9 @@ toprefs.</p>
 			<p class="info"></p>
 			<h4>day <sup>string [format: date]</sup></h4>
 <p>Day these statistics are for.</p>
-<h4>hourly_unique <sup>array [type: integer]</sup></h4>
+<h4>hourly <sup>array [type: integer]</sup></h4>
 <p>Visitors per hour.</p>
-<h4>daily_unique <sup>integer</sup></h4>
+<h4>daily <sup>integer</sup></h4>
 <p>Total visitors for this day.</p>
 
 		</div>
@@ -729,7 +729,7 @@ toprefs.</p>
 <p>ID for selecting more details; not present in the detail view.</p>
 <h4>name <sup>string</sup></h4>
 <p>Display name.</p>
-<h4>count_unique <sup>integer</sup></h4>
+<h4>count <sup>integer</sup></h4>
 <p>Number of visitors.</p>
 <h4>ref_scheme <sup>string [enum: "enum:", "h", "g", "c", "o"]</sup></h4>
 <p>What kind of referral this is; only set when retrieving referrals .</p><p> h HTTP Referal header.
@@ -814,11 +814,11 @@ This is stored as JSON in the database.</p>
 		<h3 id="goatcounter.TotalCount">goatcounter.TotalCount <a class="permalink" href="#goatcounter.TotalCount">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
-			<h4>total_unique <sup>integer</sup></h4>
+			<h4>total <sup>integer</sup></h4>
 <p>Total number of visitors (including events).</p>
-<h4>total_events_unique <sup>integer</sup></h4>
+<h4>total_events <sup>integer</sup></h4>
 <p>Total number of visitors for events.</p>
-<h4>total_unique_utc <sup>integer</sup></h4>
+<h4>total_utc <sup>integer</sup></h4>
 <p>Total number of visitors in UTC. The browser, system, etc, stats are
 always in UTC.</p>
 
@@ -1008,7 +1008,7 @@ than the highest value for the hour.</p>
 			<p class="info"></p>
 			<h4>hits <sup>array [type: <a href="#goatcounter.HitList">goatcounter.HitList</a>]</sup></h4>
 <p>Sorted list of paths with their visitor and pageview count.</p>
-<h4>total_unique <sup>integer</sup></h4>
+<h4>total <sup>integer</sup></h4>
 <p>Total number of visitors in the returned result.</p>
 <h4>more <sup>boolean</sup></h4>
 <p>More hits after this?</p>

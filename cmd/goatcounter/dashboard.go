@@ -236,7 +236,7 @@ func dash(url, key string, rng ztime.Range) error {
 	})
 	for _, path := range data.hits.Hits {
 		left = append(left,
-			nr(fmt.Sprintf("%-6d  %-38s", path.CountUnique, zli.Colorize(zstring.ElideCenter(path.Path, 37), zli.Bold))),
+			nr(fmt.Sprintf("%-6d  %-38s", path.Count, zli.Colorize(zstring.ElideCenter(path.Path, 37), zli.Bold))),
 			nr(fmt.Sprintf("        %-38s", zstring.ElideLeft(path.Title, 37))),
 			nr(""),
 		)
@@ -259,7 +259,7 @@ func dash(url, key string, rng ztime.Range) error {
 				stat.Name = "(unknown)"
 			}
 			var (
-				p    = float64(stat.CountUnique) / float64(data.total.TotalUniqueUTC) * 100
+				p    = float64(stat.Count) / float64(data.total.TotalUTC) * 100
 				perc string
 			)
 			switch {
@@ -289,7 +289,7 @@ func dash(url, key string, rng ztime.Range) error {
 
 	// Combine the two columns
 	fmt.Printf("%s\n", zli.Colorize(zstring.AlignCenter(fmt.Sprintf(
-		"%s – %d of %d visits shown", rng.String(), data.hits.TotalUnique, data.total.TotalUnique),
+		"%s – %d of %d visits shown", rng.String(), data.hits.Total, data.total.Total),
 		78), zli.Bold))
 	fmt.Printf("┌%s┬%s┐\n", strings.Repeat("─", 48), strings.Repeat("─", 30))
 	m := zint.Max(len(left), len(right))
@@ -322,10 +322,9 @@ type (
 	dashboardData struct {
 		total goatcounter.TotalCount
 		hits  struct {
-			Hits        goatcounter.HitLists `json:"hits"`
-			Total       int                  `json:"total"`
-			TotalUnique int                  `json:"total_unique"`
-			More        bool                 `json:"more"`
+			Hits  goatcounter.HitLists `json:"hits"`
+			Total int                  `json:"total"`
+			More  bool                 `json:"more"`
 		}
 		stats map[string]stats
 	}

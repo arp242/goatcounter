@@ -20,7 +20,7 @@ import (
 
 type HitList struct {
 	// Number of visitors for the selected date range.
-	CountUnique int `db:"count_unique" json:"count_unique"`
+	Count int `db:"count" json:"count"`
 
 	// Path ID
 	PathID int64 `db:"path_id" json:"path_id"`
@@ -51,12 +51,12 @@ type HitList struct {
 }
 
 type HitListStat struct {
-	Day          string `json:"day"`           // Day these statistics are for {date}.
-	HourlyUnique []int  `json:"hourly_unique"` // Visitors per hour.
-	DailyUnique  int    `json:"daily_unique"`  // Total visitors for this day.
+	Day    string `json:"day"`    // Day these statistics are for {date}.
+	Hourly []int  `json:"hourly"` // Visitors per hour.
+	Daily  int    `json:"daily"`  // Total visitors for this day.
 }
 
-// PathCount gets the total and total_unique for one path.
+// PathCount gets the visit count for one path.
 func (h *HitList) PathCount(ctx context.Context, path string, rng ztime.Range) error {
 	err := zdb.Get(ctx, h, "load:hit_list.PathCount", zdb.P{
 		"site":  MustGetSite(ctx).ID,
@@ -67,13 +67,11 @@ func (h *HitList) PathCount(ctx context.Context, path string, rng ztime.Range) e
 	return errors.Wrap(err, "HitList.PathCount")
 }
 
-// SiteTotal gets the total counts for all paths.
-//
-// This always uses UTC.
+// SiteTotal gets the total counts for all paths. This always uses UTC.
 func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
 	err := zdb.Get(ctx, h, `/* *HitList.SiteTotalUTC */
 			select
-				coalesce(sum(total_unique), 0) as count_unique
+				coalesce(sum(total), 0) as count
 			from hit_counts
 			where site_id = :site
 			{{:start and hour >= :start}}
@@ -120,7 +118,7 @@ func (h *HitLists) List(
 					{{:filter path_id in (:filter) and}}
 					hour>=:start and hour<=:end
 				group by path_id
-				order by sum(total_unique) desc, path_id desc
+				order by sum(total) desc, path_id desc
 				limit :limit
 			)
 			select path_id, paths.path, paths.title, paths.event from x
@@ -153,9 +151,9 @@ func (h *HitLists) List(
 	// Get stats for every page.
 	hh := *h
 	var st []struct {
-		PathID      int64     `db:"path_id"`
-		Day         time.Time `db:"day"`
-		StatsUnique []byte    `db:"stats_unique"`
+		PathID int64     `db:"path_id"`
+		Day    time.Time `db:"day"`
+		Stats  []byte    `db:"stats"`
 	}
 	{
 		paths := make([]int64, len(hh))
@@ -164,7 +162,7 @@ func (h *HitLists) List(
 		}
 
 		err := zdb.Select(ctx, &st, `/* HitLists.List */
-			select path_id, day, stats_unique
+			select path_id, day, stats
 			from hit_stats
 			where
 				hit_stats.site_id = :site and
@@ -188,10 +186,10 @@ func (h *HitLists) List(
 			for _, s := range st {
 				if s.PathID == hh[i].PathID {
 					var y []int
-					zjson.MustUnmarshal(s.StatsUnique, &y)
+					zjson.MustUnmarshal(s.Stats, &y)
 					hh[i].Stats = append(hh[i].Stats, HitListStat{
-						Day:          s.Day.Format("2006-01-02"),
-						HourlyUnique: y,
+						Day:    s.Day.Format("2006-01-02"),
+						Hourly: y,
 					})
 				}
 			}
@@ -205,10 +203,10 @@ func (h *HitLists) List(
 	applyOffset(hh, user.Settings.Timezone)
 
 	// Add total and max.
-	var totalUniqueDisplay int
-	addTotals(hh, daily, &totalUniqueDisplay)
+	var totalDisplay int
+	addTotals(hh, daily, &totalDisplay)
 
-	return totalUniqueDisplay, more, nil
+	return totalDisplay, more, nil
 }
 
 // PathTotals is a special path to indicate this is the "total" overview.
@@ -222,8 +220,8 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 	user := MustGetUser(ctx)
 
 	var tc []struct {
-		Hour        time.Time `db:"hour"`
-		TotalUnique int       `db:"total_unique"`
+		Hour  time.Time `db:"hour"`
+		Total int       `db:"total"`
 	}
 	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", zdb.P{
 		"site":      site.ID,
@@ -247,13 +245,13 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 		s, ok := stats[d]
 		if !ok {
 			s = HitListStat{
-				Day:          d,
-				HourlyUnique: make([]int, 24),
+				Day:    d,
+				Hourly: make([]int, 24),
 			}
 		}
 
-		s.HourlyUnique[hour] += t.TotalUnique
-		totalst.CountUnique += t.TotalUnique
+		s.Hourly[hour] += t.Total
+		totalst.Count += t.Total
 
 		stats[d] = s
 	}
@@ -262,7 +260,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 	for _, v := range stats {
 		totalst.Stats = append(totalst.Stats, v)
 		if !daily {
-			for _, x := range v.HourlyUnique {
+			for _, x := range v.Hourly {
 				if x > max {
 					max = x
 				}
@@ -280,11 +278,11 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 
 	if daily {
 		for i := range hh[0].Stats {
-			for _, n := range hh[0].Stats[i].HourlyUnique {
-				hh[0].Stats[i].DailyUnique += n
+			for _, n := range hh[0].Stats[i].Hourly {
+				hh[0].Stats[i].Daily += n
 			}
-			if daily && hh[0].Stats[i].DailyUnique > max {
-				max = hh[0].Stats[i].DailyUnique
+			if daily && hh[0].Stats[i].Daily > max {
+				max = hh[0].Stats[i].Daily
 			}
 		}
 	}
@@ -343,10 +341,10 @@ func applyOffset(hh HitLists, tz *tz.Zone) {
 
 			popped := make([]int, offset)
 			for i := range stats {
-				stats[i].HourlyUnique = append(popped, stats[i].HourlyUnique...)
-				o := len(stats[i].HourlyUnique) - offset
-				popped = stats[i].HourlyUnique[o:]
-				stats[i].HourlyUnique = stats[i].HourlyUnique[:o]
+				stats[i].Hourly = append(popped, stats[i].Hourly...)
+				o := len(stats[i].Hourly) - offset
+				popped = stats[i].Hourly[o:]
+				stats[i].Hourly = stats[i].Hourly[:o]
 			}
 			hh[i].Stats = stats[1:] // Overselect a day to get the stats for it, remove it.
 		}
@@ -359,9 +357,9 @@ func applyOffset(hh HitLists, tz *tz.Zone) {
 
 			popped := make([]int, offset)
 			for i := len(stats) - 1; i >= 0; i-- {
-				stats[i].HourlyUnique = append(stats[i].HourlyUnique, popped...)
-				popped = stats[i].HourlyUnique[:offset]
-				stats[i].HourlyUnique = stats[i].HourlyUnique[offset:]
+				stats[i].Hourly = append(stats[i].Hourly, popped...)
+				popped = stats[i].Hourly[:offset]
+				stats[i].Hourly = stats[i].Hourly[offset:]
 			}
 			hh[i].Stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
 		}
@@ -391,7 +389,7 @@ func fillBlankDays(hh HitLists, rng ztime.Range) {
 				newStat = append(newStat, hh[i].Stats[j])
 				j++
 			} else {
-				newStat = append(newStat, HitListStat{Day: dayFmt, HourlyUnique: allDays})
+				newStat = append(newStat, HitListStat{Day: dayFmt, Hourly: allDays})
 			}
 			if dayFmt == endFmt {
 				break
@@ -402,23 +400,23 @@ func fillBlankDays(hh HitLists, rng ztime.Range) {
 	}
 }
 
-func addTotals(hh HitLists, daily bool, totalUniqueDisplay *int) {
+func addTotals(hh HitLists, daily bool, totalDisplay *int) {
 	for i := range hh {
 		for j := range hh[i].Stats {
-			for k := range hh[i].Stats[j].HourlyUnique {
-				hh[i].Stats[j].DailyUnique += hh[i].Stats[j].HourlyUnique[k]
-				if !daily && hh[i].Stats[j].HourlyUnique[k] > hh[i].Max {
-					hh[i].Max = hh[i].Stats[j].HourlyUnique[k]
+			for k := range hh[i].Stats[j].Hourly {
+				hh[i].Stats[j].Daily += hh[i].Stats[j].Hourly[k]
+				if !daily && hh[i].Stats[j].Hourly[k] > hh[i].Max {
+					hh[i].Max = hh[i].Stats[j].Hourly[k]
 				}
 			}
 
-			hh[i].CountUnique += hh[i].Stats[j].DailyUnique
-			if daily && hh[i].Stats[j].DailyUnique > hh[i].Max {
-				hh[i].Max = hh[i].Stats[j].DailyUnique
+			hh[i].Count += hh[i].Stats[j].Daily
+			if daily && hh[i].Stats[j].Daily > hh[i].Max {
+				hh[i].Max = hh[i].Stats[j].Daily
 			}
 		}
 
-		*totalUniqueDisplay += hh[i].CountUnique
+		*totalDisplay += hh[i].Count
 	}
 
 	// We sort in SQL, but this is not always 100% correct after applying
@@ -431,15 +429,15 @@ func addTotals(hh HitLists, daily bool, totalUniqueDisplay *int) {
 	// configured TZ, but that would make changing the TZ expensive, I'm not
 	// 100% sure yet what a good solution here is. For now, this is "good
 	// enough".
-	sort.Slice(hh, func(i, j int) bool { return hh[i].CountUnique > hh[j].CountUnique })
+	sort.Slice(hh, func(i, j int) bool { return hh[i].Count > hh[j].Count })
 }
 
 type TotalCount struct {
-	TotalUnique       int `db:"total_unique" json:"total_unique"`               // Total number of visitors (including events).
-	TotalEventsUnique int `db:"total_events_unique" json:"total_events_unique"` // Total number of visitors for events.
+	Total       int `db:"total" json:"total"`               // Total number of visitors (including events).
+	TotalEvents int `db:"total_events" json:"total_events"` // Total number of visitors for events.
 	// Total number of visitors in UTC. The browser, system, etc, stats are
 	// always in UTC.
-	TotalUniqueUTC int `db:"total_unique_utc" json:"total_unique_utc"`
+	TotalUTC int `db:"total_utc" json:"total_utc"`
 }
 
 // GetTotalCount gets the total number of pageviews for the selected timeview in

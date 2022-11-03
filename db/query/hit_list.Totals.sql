@@ -1,6 +1,6 @@
 select
 	hour,
-	sum(total_unique) as total_unique
+	sum(total) as total
 from hit_counts
 {{:no_events join paths using (path_id)}}
 where

@@ -117,9 +117,11 @@ The `.json` extension will return the pageview count in JSON; you can't use this
 with a HTML tag but it can be used if you want to build your own counter in
 JavaScript.
 
-It returns an Object with two values: `count`, which contains the total number
-of pageviews, and `count_unique`, which contains the unique visitor count. Both
-are a formatted string with thousands separators.
+It returns an Object with `count`, containing the total number of visitors
+as a formatted string with thousands separators.
+
+There is also a `count_unique` field for backwards compatibility; the value is
+identical to `count`. This should not be used for new code.
 
 A simple example usage:
 
@@ -128,7 +130,7 @@ A simple example usage:
     <script>
         var r = new XMLHttpRequest();
         r.addEventListener('load', function() {
-            document.querySelector('#stats').innerText = JSON.parse(this.responseText).count_unique
+            document.querySelector('#stats').innerText = JSON.parse(this.responseText).count
         })
         r.open('GET', '{{.SiteURL}}/counter/' + encodeURIComponent(location.pathname) + '.json')
         r.send()

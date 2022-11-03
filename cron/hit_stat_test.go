@@ -34,14 +34,14 @@ func TestHitStats(t *testing.T) {
 		t.Helper()
 
 		var stats goatcounter.HitLists
-		displayUnique, more, err := stats.List(ctx,
+		display, more, err := stats.List(ctx,
 			ztime.NewRange(now.Add(-1*time.Hour)).To(now.Add(1*time.Hour)),
 			nil, nil, 10, false)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		gotT := fmt.Sprintf("%d %t", displayUnique, more)
+		gotT := fmt.Sprintf("%d %t", display, more)
 		if wantT != gotT {
 			t.Fatalf("wrong totals\nhave: %s\nwant: %s", gotT, wantT)
 		}
@@ -59,7 +59,7 @@ func TestHitStats(t *testing.T) {
 	}
 
 	check("1 false", `{
-			"count_unique": 1,
+			"count": 1,
 			"path_id":      1,
 			"path":         "/asd",
 			"event":        false,
@@ -67,12 +67,12 @@ func TestHitStats(t *testing.T) {
 			"max":          1,
 			"stats": [{
 				"day":           "2019-08-31",
-				"hourly_unique": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-				"daily_unique":  1
+				"hourly": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+				"daily":  1
 			}]}
 		`,
 		`{
-			"count_unique":  0,
+			"count":  0,
 			"path_id":       2,
 			"path":          "/zxc",
 			"event":         false,
@@ -80,8 +80,8 @@ func TestHitStats(t *testing.T) {
 			"max":           0,
 			"stats": [{
 				"day":           "2019-08-31",
-				"hourly_unique": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-				"daily_unique":  0
+				"hourly": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				"daily":  0
 			}]}`,
 	)
 
@@ -91,7 +91,7 @@ func TestHitStats(t *testing.T) {
 	}...)
 
 	check("2 false", `{
-			"count_unique":  2,
+			"count":  2,
 			"path_id":       1,
 			"path":          "/asd",
 			"event":         false,
@@ -99,11 +99,11 @@ func TestHitStats(t *testing.T) {
 			"max":           1,
 			"stats":[{
 				"day":            "2019-08-31",
-				"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
-				"daily_unique":   2
+				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
+				"daily":   2
 		}]}`,
 		`{
-			"count_unique":  0,
+			"count":  0,
 			"path_id":       2,
 			"path":          "/zxc",
 			"event":         false,
@@ -111,8 +111,8 @@ func TestHitStats(t *testing.T) {
 			"max":           0,
 			"stats":[{
 				"day":            "2019-08-31",
-				"hourly_unique":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-				"daily_unique":   0
+				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				"daily":   0
 		}]}`,
 	)
 }

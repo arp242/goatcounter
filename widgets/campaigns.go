@@ -58,18 +58,18 @@ func (w *Campaigns) GetData(ctx context.Context, a Args) (more bool, err error) 
 func (w Campaigns) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
 	//return "_dashboard_campaigns.gohtml", struct {
 	return "_dashboard_hchart.gohtml", struct {
-		Context        context.Context
-		ID             int
-		RowsOnly       bool
-		HasSubMenu     bool
-		Loaded         bool
-		Err            error
-		IsCollected    bool
-		Header         string
-		TotalUniqueUTC int
+		Context     context.Context
+		ID          int
+		RowsOnly    bool
+		HasSubMenu  bool
+		Loaded      bool
+		Err         error
+		IsCollected bool
+		Header      string
+		TotalUTC    int
 
 		Stats    goatcounter.HitStats
 		Campaign int64
 	}{ctx, w.id, shared.RowsOnly, true, w.loaded, w.err, isCol(ctx, goatcounter.CollectReferrer), w.Label(ctx),
-		shared.TotalUniqueUTC, w.Stats, w.Campaign}
+		shared.TotalUTC, w.Stats, w.Campaign}
 }

@@ -35,7 +35,7 @@
 			</tr></thead></thead>
 			<tbody>
 				{{range $s := .List}}
-					<tr><td>{{nformat $s.CountUnique $.User}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
+					<tr><td>{{nformat $s.Count $.User}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
 				{{end}}
 			</tbody>
 		</table>

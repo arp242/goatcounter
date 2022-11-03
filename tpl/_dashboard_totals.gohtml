@@ -5,12 +5,12 @@
 				{{if .NoEvents}}
 					<small>{{t .Context `dashboard/totals/num-visits|%(num-visits) visits; excluding events`
 						(map
-							"num-visits" (tag "span" `` (nformat (sub .TotalUnique .TotalEventsUnique) $.User))
+							"num-visits" (tag "span" `` (nformat (sub .Total .TotalEvents) $.User))
 						)}}</small>
 				{{else}}
 					<small>{{t .Context `dashboard/totals/num-visits|%(num-visits) visits`
 						(map
-							"num-visits" (tag "span" `` (nformat .TotalUnique $.User))
+							"num-visits" (tag "span" `` (nformat .Total $.User))
 						)}}</small>
 				{{end}}
 			{{end}}

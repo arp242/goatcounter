@@ -91,7 +91,7 @@
 		data['widget'] = wid
 		data['daily']  = $('#daily').is(':checked')
 		data['max']    = get_original_scale()
-		data['total']  = $('.js-total-unique-utc').text()
+		data['total']  = $('.js-total-utc').text()
 
 		jQuery.ajax({
 			url:  '/load-widget',
@@ -490,9 +490,9 @@
 
 		var data
 		if (daily)
-			data = stats.map((s) => [s.daily_unique]).reduce((a, b) => a.concat(b))
+			data = stats.map((s) => [s.daily]).reduce((a, b) => a.concat(b))
 		else
-			data = stats.map((s) => s.hourly_unique).reduce((a, b) => a.concat(b))
+			data = stats.map((s) => s.hourly).reduce((a, b) => a.concat(b))
 
 		let futureFrom = 0
 		var chart = charty(ctx, data, {
@@ -538,8 +538,8 @@
 				day    = daily ? stats[i] : stats[Math.floor(i / 24)],
 				start  = (i % 24) + ':00',
 				end    = (i % 24) + ':59',
-				visits = daily ? day.daily_unique : day.hourly_unique[i%24],
-				views  = daily ? day.daily       : day.hourly[i%24]
+				visits = daily ? day.daily : day.hourly[i%24],
+				views  = daily ? day.daily : day.hourly[i%24]
 
 			let title = ''
 			let future = futureFrom && x >= futureFrom - 1
@@ -667,8 +667,8 @@
 						highlight_filter($('#filter-paths').val())
 						btn.css('display', data.more ? 'inline-block' : 'none')
 
-						pages.find('.total-unique-display').each((_, t) => {
-							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_unique_display))
+						pages.find('.total-display').each((_, t) => {
+							$(t).text(format_int(parseInt($(t).text().replace(/[^0-9]/, ''), 10) + data.total_display))
 						})
 
 						done()
@@ -735,7 +735,7 @@
 
 	// Paginate and show details for the horizontal charts.
 	var hchart_detail = function() {
-		var get_total = () => $('.js-total-unique-utc').text()
+		var get_total = () => $('.js-total-utc').text()
 
 		// Paginate the horizontal charts.
 		$('.hcharts').on('click', '.load-more', function(e) {

@@ -1,6 +1,6 @@
 select
 	trim(name || ' ' || version) as name,
-	sum(count_unique)            as count_unique
+	sum(count)            as count
 from system_stats
 join systems using (system_id)
 where
@@ -8,5 +8,5 @@ where
 	{{:filter path_id in (:filter) and}}
 	lower(name) = lower(:system)
 group by name, version
-order by count_unique desc, name asc
+order by count desc, name asc
 limit :limit offset :offset

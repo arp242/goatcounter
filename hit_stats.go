@@ -17,9 +17,9 @@ import (
 
 type HitStat struct {
 	// ID for selecting more details; not present in the detail view.
-	ID          string `db:"id" json:"id,omitempty"`
-	Name        string `db:"name" json:"name"`                 // Display name.
-	CountUnique int    `db:"count_unique" json:"count_unique"` // Number of visitors.
+	ID    string `db:"id" json:"id,omitempty"`
+	Name  string `db:"name" json:"name"`   // Display name.
+	Count int    `db:"count" json:"count"` // Number of visitors.
 
 	// What kind of referral this is; only set when retrieving referrals {enum: h g c o}.
 	//
@@ -184,29 +184,29 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 
 	// Group a bit more user-friendly.
 	ns := []HitStat{
-		{Name: "Phones", ID: sizePhones, CountUnique: 0},
-		{Name: "Large phones, small tablets", ID: sizeLargePhones, CountUnique: 0},
-		{Name: "Tablets and small laptops", ID: sizeTablets, CountUnique: 0},
-		{Name: "Computer monitors", ID: sizeDesktop, CountUnique: 0},
-		{Name: "Computer monitors larger than HD", ID: sizeDesktopHD, CountUnique: 0},
-		{Name: "(unknown)", ID: sizeUnknown, CountUnique: 0},
+		{Name: "Phones", ID: sizePhones, Count: 0},
+		{Name: "Large phones, small tablets", ID: sizeLargePhones, Count: 0},
+		{Name: "Tablets and small laptops", ID: sizeTablets, Count: 0},
+		{Name: "Computer monitors", ID: sizeDesktop, Count: 0},
+		{Name: "Computer monitors larger than HD", ID: sizeDesktopHD, Count: 0},
+		{Name: "(unknown)", ID: sizeUnknown, Count: 0},
 	}
 
 	for i := range h.Stats {
 		x, _ := strconv.ParseInt(h.Stats[i].Name, 10, 16)
 		switch {
 		case x == 0:
-			ns[5].CountUnique += h.Stats[i].CountUnique
+			ns[5].Count += h.Stats[i].Count
 		case x <= 384:
-			ns[0].CountUnique += h.Stats[i].CountUnique
+			ns[0].Count += h.Stats[i].Count
 		case x <= 1024:
-			ns[1].CountUnique += h.Stats[i].CountUnique
+			ns[1].Count += h.Stats[i].Count
 		case x <= 1440:
-			ns[2].CountUnique += h.Stats[i].CountUnique
+			ns[2].Count += h.Stats[i].Count
 		case x <= 1920:
-			ns[3].CountUnique += h.Stats[i].CountUnique
+			ns[3].Count += h.Stats[i].Count
 		default:
-			ns[4].CountUnique += h.Stats[i].CountUnique
+			ns[4].Count += h.Stats[i].Count
 		}
 	}
 	h.Stats = ns

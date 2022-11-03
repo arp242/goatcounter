@@ -120,7 +120,7 @@ func TestBackendPagesMore(t *testing.T) {
 	wantJSON := `{
 		"max": 10,
 		"more": false,
-		"total_unique_display": 5
+		"total_display": 5
 	}`
 
 	if d := ztest.Diff(haveHTML, wantHTML, ztest.DiffNormalizeWhitespace); d != "" {

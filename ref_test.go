@@ -35,11 +35,11 @@ func TestListRefsByPath(t *testing.T) {
 	want := `{
 		"more": false,
 		"stats": [{
-			"count_unique": 0,
+			"count": 0,
 			"name": "example.org",
 			"ref_scheme": "h"
 			}, {
-			"count_unique": 0,
+			"count": 0,
 			"name": "example.com",
 			"ref_scheme": "h"
 		}]}`
@@ -71,11 +71,11 @@ func TestListTopRefs(t *testing.T) {
 			"more": false,
 			"stats": [{
 				"name": "example.com",
-				"count_unique": 1,
+				"count": 1,
 				"ref_scheme": "h"
 			}, {
 				"name": "example.org",
-				"count_unique": 1,
+				"count": 1,
 				"ref_scheme": "h"
 			}]
 		}`
@@ -95,7 +95,7 @@ func TestListTopRefs(t *testing.T) {
 			"more": false,
 			"stats": [{
 				"name": "example.org",
-				"count_unique": 1,
+				"count": 1,
 				"ref_scheme": "h"
 			}]
 		}`

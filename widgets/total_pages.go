@@ -72,7 +72,7 @@ func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, 
 	)
 	if len(w.Total.Stats) > 0 && w.Total.Stats[len(w.Total.Stats)-1].Day == today {
 		j := len(w.Total.Stats) - 1
-		w.Total.Stats[j].HourlyUnique = w.Total.Stats[j].HourlyUnique[:hour+1]
+		w.Total.Stats[j].Hourly = w.Total.Stats[j].Hourly[:hour+1]
 	}
 
 	return "_dashboard_totals.gohtml", struct {
@@ -89,13 +89,13 @@ func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, 
 		Daily    bool
 		Max      int
 
-		TotalUnique       int
-		TotalEventsUnique int
+		Total       int
+		TotalEvents int
 
 		Style string
 	}{ctx, shared.Site, shared.User, w.id, w.loaded, w.err,
 		w.Align, w.NoEvents,
 		w.Total, shared.Args.Daily, w.Max,
-		shared.TotalUnique, shared.TotalEventsUnique,
+		shared.Total, shared.TotalEvents,
 		w.Style}
 }

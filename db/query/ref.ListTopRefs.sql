@@ -1,5 +1,5 @@
 select
-	coalesce(sum(total_unique), 0) as count_unique,
+	coalesce(sum(total), 0) as count,
 	max(ref_scheme)                as ref_scheme,
 	ref                            as name
 from ref_counts
@@ -8,5 +8,5 @@ where
 	{{:filter     and path_id in (:filter)}}
 	{{:has_domain and ref not like :ref}}
 group by ref
-order by count_unique desc, ref
+order by count desc, ref
 limit :limit offset :offset

@@ -1,10 +1,10 @@
 {{range $i, $h := .Pages}}
-	<tr id="{{$h.Path}}" data-id="{{$h.PathID}}" data-count="{{$h.CountUnique}}"
+	<tr id="{{$h.Path}}" data-id="{{$h.PathID}}" data-count="{{$h.Count}}"
 		class="{{if eq $h.Path $.ShowRefs}}target{{end}} {{if $h.Event}}event{{end}}"
 	>
 		{{if not $.User.Settings.FewerNumbers}}
 			<td class="col-count">
-				<span>{{nformat $h.CountUnique $.User}}</span>
+				<span>{{nformat $h.Count $.User}}</span>
 			</td>
 		{{end}}
 		<td class="col-path hide-mobile">
@@ -48,7 +48,7 @@
 			</div>
 			<div class="hchart refs">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "CountUnique" $h.CountUnique)}}
+					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "Count" $h.Count)}}
 				{{end}}
 			</div>
 		</td>

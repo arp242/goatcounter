@@ -846,7 +846,7 @@ type (
 		Hits goatcounter.HitLists `json:"hits"`
 
 		// Total number of visitors in the returned result.
-		TotalUnique int `json:"total_unique"`
+		Total int `json:"total"`
 
 		// More hits after this?
 		More bool `json:"more"`
@@ -892,9 +892,9 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return zhttp.JSON(w, apiHitsResponse{
-		TotalUnique: tdu,
-		Hits:        pages,
-		More:        more,
+		Total: tdu,
+		Hits:  pages,
+		More:  more,
 	})
 }
 

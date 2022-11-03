@@ -23,15 +23,15 @@ type Pages struct {
 	html   template.HTML
 	s      goatcounter.WidgetSettings
 
-	Ref                    string
-	Style                  string
-	Limit, LimitRefs       int
-	Display, UniqueDisplay int
-	More                   bool
-	Pages                  goatcounter.HitLists
-	Refs                   goatcounter.HitStats
-	Max                    int
-	Exclude                []int64
+	Ref              string
+	Style            string
+	Limit, LimitRefs int
+	Display          int
+	More             bool
+	Pages            goatcounter.HitLists
+	Refs             goatcounter.HitStats
+	Max              int
+	Exclude          []int64
 }
 
 func (w Pages) Name() string                         { return "pages" }
@@ -80,7 +80,7 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	}
 
 	var err error
-	w.UniqueDisplay, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Daily)
+	w.Display, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Daily)
 	errs.Append(err)
 
 	wg.Wait()
@@ -105,10 +105,10 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 			Loaded  bool
 			Err     error
 
-			Refs        goatcounter.HitStats
-			CountUnique int
+			Refs  goatcounter.HitStats
+			Count int
 		}{ctx, shared.Site, shared.User, w.id, w.loaded, w.err,
-			w.Refs, shared.TotalUnique}
+			w.Refs, shared.Total}
 	}
 
 	t := "_dashboard_pages"
@@ -145,7 +145,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		if w.Pages[0].Stats[len(w.Pages[0].Stats)-1].Day == today {
 			for i := range w.Pages {
 				j := len(w.Pages[i].Stats) - 1
-				w.Pages[i].Stats[j].HourlyUnique = w.Pages[i].Stats[j].HourlyUnique[:hour+1]
+				w.Pages[i].Stats[j].Hourly = w.Pages[i].Stats[j].Hourly[:hour+1]
 			}
 		}
 	}
@@ -165,10 +165,10 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		Offset      int
 		Max         int
 
-		TotalUniqueDisplay int
-		TotalUnique        int
-		TotalEventsUnique  int
-		MorePages          bool
+		TotalDisplay int
+		Total        int
+		TotalEvents  int
+		MorePages    bool
 
 		Style    string
 		Refs     goatcounter.HitStats
@@ -177,7 +177,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 		ctx, shared.Site, shared.User,
 		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, w.Max,
-		w.UniqueDisplay, shared.TotalUnique, shared.TotalEventsUnique, w.More,
+		w.Display, shared.Total, shared.TotalEvents, w.More,
 		w.Style, w.Refs, shared.Args.ShowRefs,
 	}
 }

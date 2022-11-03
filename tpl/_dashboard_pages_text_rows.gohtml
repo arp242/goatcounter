@@ -4,7 +4,7 @@
 	>
 		<td class="col-idx">{{sum $.Offset $i}}</td>
 		{{if not $.User.Settings.FewerNumbers}}
-			<td class="col-n col-count">{{nformat $h.CountUnique $.User}}</td>
+			<td class="col-n col-count">{{nformat $h.Count $.User}}</td>
 		{{end}}
 		<td class="col-p">
 			<a class="load-refs rlink" href="#">{{$h.Path}}</a>
@@ -17,7 +17,7 @@
 
 			<div class="refs hchart">
 				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
-					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "CountUnique" $h.CountUnique)}}
+					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "Count" $h.Count)}}
 				{{end}}
 			</div>
 		</td>

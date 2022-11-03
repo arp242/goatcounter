@@ -177,7 +177,7 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 
 			fmt.Fprintf(b, "    %-36s  %9s  %7s\n",
 				template.HTMLEscapeString(zstring.ElideLeft(path, 35)),
-				tplfunc.Number(p.CountUnique, user.Settings.NumberFormat),
+				tplfunc.Number(p.Count, user.Settings.NumberFormat),
 				diffStr[i])
 		}
 		args.TextPagesTable = template.HTML(b.String())
@@ -199,7 +199,7 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 			}
 			fmt.Fprintf(b, "    %-45s  %9s\n",
 				template.HTMLEscapeString(zstring.ElideLeft(path, 44)),
-				tplfunc.Number(r.CountUnique, user.Settings.NumberFormat))
+				tplfunc.Number(r.Count, user.Settings.NumberFormat))
 			//refs[i].Path = zstring.ElideLeft(refs[i].Path, 44)
 		}
 		args.TextRefTable = template.HTML(b.String())

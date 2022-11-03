@@ -148,7 +148,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	if zdb.ErrNoRows(err) {
 		w.WriteHeader(404)
 	}
-	count := tplfunc.Number(hl.CountUnique, site.UserDefaults.NumberFormat)
+	count := tplfunc.Number(hl.Count, site.UserDefaults.NumberFormat)
 
 	switch ext {
 	default:

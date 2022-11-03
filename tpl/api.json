@@ -1014,7 +1014,7 @@
       "title": "HitList",
       "type": "object",
       "properties": {
-        "count_unique": {
+        "count": {
           "description": "Number of visitors for the selected date range.",
           "type": "integer"
         },
@@ -1062,7 +1062,7 @@
       "title": "HitListStat",
       "type": "object",
       "properties": {
-        "daily_unique": {
+        "daily": {
           "description": "Total visitors for this day.",
           "type": "integer"
         },
@@ -1071,7 +1071,7 @@
           "type": "string",
           "format": "date"
         },
-        "hourly_unique": {
+        "hourly": {
           "description": "Visitors per hour.",
           "type": "array",
           "items": {
@@ -1084,7 +1084,7 @@
       "title": "HitStat",
       "type": "object",
       "properties": {
-        "count_unique": {
+        "count": {
           "description": "Number of visitors.",
           "type": "integer"
         },
@@ -1235,15 +1235,15 @@
       "title": "TotalCount",
       "type": "object",
       "properties": {
-        "total_events_unique": {
-          "description": "Total number of visitors for events.",
-          "type": "integer"
-        },
-        "total_unique": {
+        "total": {
           "description": "Total number of visitors (including events).",
           "type": "integer"
         },
-        "total_unique_utc": {
+        "total_events": {
+          "description": "Total number of visitors for events.",
+          "type": "integer"
+        },
+        "total_utc": {
           "description": "Total number of visitors in UTC. The browser, system, etc, stats are\nalways in UTC.",
           "type": "integer"
         }
@@ -1507,7 +1507,7 @@
           "description": "More hits after this?",
           "type": "boolean"
         },
-        "total_unique": {
+        "total": {
           "description": "Total number of visitors in the returned result.",
           "type": "integer"
         }

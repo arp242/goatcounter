@@ -47,10 +47,10 @@ type (
 		User *goatcounter.User
 		Args Args
 
-		RowsOnly          bool
-		TotalUnique       int
-		TotalUniqueUTC    int
-		TotalEventsUnique int
+		RowsOnly    bool
+		Total       int
+		TotalUTC    int
+		TotalEvents int
 	}
 )
 
