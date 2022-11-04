@@ -164,26 +164,11 @@ func (p *Paths) List(ctx context.Context, siteID, after int64, limit int) (bool,
 // if matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
 	var paths []int64
-
-	// The limit is here because that's the limit in SQL parameters; the
-	// returned []int64 is passed as parameters later on.
-	//
-	// Having (and scrolling!) more than 65k pages is a rather curious usage
-	// pattern: it has happened, but this was just because they were sending
-	// data with many unique IDs in the URL which really ought to be removed.
-	err := zdb.Select(ctx, &paths, `/* PathFilter */
-		select path_id from paths
-		where
-			site_id = :site and (
-				lower(path) like lower(:filter)
-				{{:match_title or lower(title) like lower(:filter)}}
-			)
-		limit 65500`,
-		zdb.P{
-			"site":        MustGetSite(ctx).ID,
-			"filter":      "%" + filter + "%",
-			"match_title": matchTitle,
-		})
+	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", zdb.P{
+		"site":        MustGetSite(ctx).ID,
+		"filter":      "%" + filter + "%",
+		"match_title": matchTitle,
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "PathFilter")
 	}
