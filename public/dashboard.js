@@ -687,10 +687,10 @@
 				btn    = $(this),
 				row    = btn.closest('tr'),
 				widget = row.closest('.pages-list').attr('data-widget'),
-				path   = row.attr('id'),
+				path   = row.attr('data-id'),
 				init   = btn .is('.load-refs'),
 				close  = function() {
-					var t = $(document.getElementById(params['showrefs']))
+					var t = $(`tr[data-id=${params['showrefs']}]`)
 					t.removeClass('target')
 					t.closest('tr').find('.refs').html('')
 				}

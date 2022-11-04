@@ -38,7 +38,7 @@ type (
 		PathFilter  []int64
 		Daily       bool
 		ForcedDaily bool
-		ShowRefs    string
+		ShowRefs    int64
 	}
 
 	// SharedData gets passed to every widget.

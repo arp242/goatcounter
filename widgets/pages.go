@@ -7,6 +7,7 @@ package widgets
 import (
 	"context"
 	"html/template"
+	"strconv"
 	"sync"
 
 	"zgo.at/errors"
@@ -23,7 +24,7 @@ type Pages struct {
 	html   template.HTML
 	s      goatcounter.WidgetSettings
 
-	Ref              string
+	RefsForPath      int64
 	Style            string
 	Limit, LimitRefs int
 	Display          int
@@ -53,7 +54,7 @@ func (w *Pages) SetSettings(s goatcounter.WidgetSettings) {
 		w.LimitRefs = int(x.(float64))
 	}
 	if x := s["key"].Value; x != nil {
-		w.Ref = x.(string)
+		w.RefsForPath, _ = strconv.ParseInt(x.(string), 10, 64)
 	}
 	if x := s["style"].Value; x != nil {
 		w.Style = x.(string)
@@ -61,8 +62,8 @@ func (w *Pages) SetSettings(s goatcounter.WidgetSettings) {
 }
 
 func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
-	if w.Ref != "" {
-		err := w.Refs.ListRefsByPath(ctx, w.Ref, a.Rng, w.LimitRefs, a.Offset)
+	if w.RefsForPath > 0 {
+		err := w.Refs.ListRefsByPathID(ctx, w.RefsForPath, a.Rng, w.LimitRefs, a.Offset)
 		return w.Refs.More, err
 	}
 
@@ -70,12 +71,12 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 		wg   sync.WaitGroup
 		errs = errors.NewGroup(2)
 	)
-	if a.ShowRefs != "" {
+	if a.ShowRefs > 0 {
 		wg.Add(1)
 		go func() {
 			defer zlog.Recover()
 			defer wg.Done()
-			errs.Append(w.Refs.ListRefsByPath(ctx, a.ShowRefs, a.Rng, w.LimitRefs, a.Offset))
+			errs.Append(w.Refs.ListRefsByPathID(ctx, a.ShowRefs, a.Rng, w.LimitRefs, a.Offset))
 		}()
 	}
 
@@ -96,7 +97,7 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 }
 
 func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
-	if w.Ref != "" {
+	if w.RefsForPath > 0 {
 		return "_dashboard_pages_refs.gohtml", struct {
 			Context context.Context
 			Site    *goatcounter.Site
@@ -172,7 +173,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, inter
 
 		Style    string
 		Refs     goatcounter.HitStats
-		ShowRefs string
+		ShowRefs int64
 	}{
 		ctx, shared.Site, shared.User,
 		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,

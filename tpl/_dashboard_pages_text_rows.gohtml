@@ -1,6 +1,6 @@
 {{range $i, $h := .Pages}}
 	<tr id="{{$h.Path}}" data-id="{{$h.PathID}}" data-count="{{$h.Count}}"
-		class="{{if eq $h.Path $.ShowRefs}}target{{end}} {{if $h.Event}}event{{end}}"
+		class="{{if eq $h.PathID $.ShowRefs}}target{{end}} {{if $h.Event}}event{{end}}"
 	>
 		<td class="col-idx">{{sum $.Offset $i}}</td>
 		{{if not $.User.Settings.FewerNumbers}}
@@ -16,7 +16,7 @@
 			{{end}}
 
 			<div class="refs hchart">
-				{{if and $.Refs (eq $.ShowRefs $h.Path)}}
+				{{if and $.Refs (eq $.ShowRefs $h.PathID)}}
 					{{template "_dashboard_pages_refs.gohtml" (map "Context" $.Context "Refs" $.Refs "Count" $h.Count)}}
 				{{end}}
 			</div>

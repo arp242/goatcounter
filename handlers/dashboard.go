@@ -64,7 +64,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		view.Period = q.Get("hl-period")
 	}
 
-	showRefs := q.Get("showrefs")
+	showRefs, _ := strconv.ParseInt(q.Get("showrefs"), 10, 64)
 	if _, ok := q["filter"]; ok {
 		view.Filter = q.Get("filter")
 	}
@@ -271,7 +271,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		Globals
 		CountDomain string
 		SubSites    []string
-		ShowRefs    string
+		ShowRefs    int64
 		Period      ztime.Range
 		PathFilter  []int64
 		ForcedDaily bool
@@ -333,7 +333,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 		args.Args.Daily, args.Args.ForcedDaily = getDaily(r, rng)
 
 		if key != "" {
-			p.Ref = key
+			p.RefsForPath, _ = strconv.ParseInt(key, 10, 64)
 		} else {
 			p.Max, err = strconv.Atoi(r.URL.Query().Get("max"))
 			if err != nil {

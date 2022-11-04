@@ -15,7 +15,7 @@ import (
 	"zgo.at/zstd/ztime"
 )
 
-func TestListRefsByPath(t *testing.T) {
+func TestListRefsByPathID(t *testing.T) {
 	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
@@ -27,7 +27,7 @@ func TestListRefsByPath(t *testing.T) {
 	rng := ztime.NewRange(ztime.Now().Add(-1 * time.Hour)).To(ztime.Now().Add(1 * time.Hour))
 
 	var have HitStats
-	err := have.ListRefsByPath(ctx, "/x", rng, 10, 0)
+	err := have.ListRefsByPathID(ctx, 1, rng, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
