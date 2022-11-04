@@ -33,7 +33,7 @@ func TestMemstore(t *testing.T) {
 		t.Fatal(err)
 	}
 	if count != 2000 {
-		t.Errorf("wrong count; wanted 2000 but got %d", count)
+		t.Errorf("wrong count; wanted 2000 but have %d", count)
 	}
 }
 
@@ -57,24 +57,24 @@ func TestNextUUID(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		gctest.DB(t)
 
-		got := Memstore.SessionID().Format(16) + "\n" +
+		have := Memstore.SessionID().Format(16) + "\n" +
 			Memstore.SessionID().Format(16) + "\n" +
 			Memstore.SessionID().Format(16) + "\n" +
 			TestSession.Format(16)
-		if got != want {
-			t.Errorf("wrong:\n%s", got)
+		if have != want {
+			t.Errorf("wrong:\n%s", have)
 		}
 	})
 
 	t.Run("", func(t *testing.T) {
 		gctest.DB(t)
 
-		got := Memstore.SessionID().Format(16) + "\n" +
+		have := Memstore.SessionID().Format(16) + "\n" +
 			Memstore.SessionID().Format(16) + "\n" +
 			Memstore.SessionID().Format(16) + "\n" +
 			TestSession.Format(16)
-		if got != want {
-			t.Errorf("wrong after reset:\n%s", got)
+		if have != want {
+			t.Errorf("wrong after reset:\n%s", have)
 		}
 	})
 }
@@ -92,32 +92,32 @@ func TestMemstoreCollect(t *testing.T) {
 		want           string
 	}{
 		{all, Strings{}, `
-			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
-			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
-			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID-BA     1
+			session                           bot  path    ref          ref_scheme  size     location  first_visit
+			00112233445566778899aabbccddeeff  0    /test   example.com  h           5,6,7.0  NL        0
+			00112233445566778899aabbccddeeff  0    /other  xxx          c           5,6,7.0  ID-BA     1
 		`},
 
 		{CollectNothing, Strings{}, `
-			user_agent_id  session                           bot  ref  ref_scheme  size  location  first_visit
-			NULL           00000000000000000000000000000000  0         NULL                        1
-			NULL           00000000000000000000000000000000  0         NULL                        1
+			session                           bot  path    ref  ref_scheme  size  location  first_visit
+			00000000000000000000000000000000  0    /test                    NULL            1
+			00000000000000000000000000000000  0    /other                   NULL            1
 		`},
 
 		{all ^ CollectLocationRegion, Strings{}, `
-			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
-			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
-			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID        1
+			session                           bot  path    ref          ref_scheme  size     location  first_visit
+			00112233445566778899aabbccddeeff  0    /test   example.com  h           5,6,7.0  NL        0
+			00112233445566778899aabbccddeeff  0    /other  xxx          c           5,6,7.0  ID        1
 		`},
 
 		{all, Strings{"US"}, `
-			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
-			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
-			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID        1
+			session                           bot  path    ref          ref_scheme  size     location  first_visit
+			00112233445566778899aabbccddeeff  0    /test   example.com  h           5,6,7.0  NL        0
+			00112233445566778899aabbccddeeff  0    /other  xxx          c           5,6,7.0  ID        1
 		`},
 		{all, Strings{"ID"}, `
-			user_agent_id  session                           bot  ref          ref_scheme  size   location  first_visit
-			1              00112233445566778899aabbccddeeff  0    example.com  h           5,6,7  NL        0
-			1              00112233445566778899aabbccddeeff  0    xxx          c           5,6,7  ID-BA     1
+			session                           bot  path    ref          ref_scheme  size     location  first_visit
+			00112233445566778899aabbccddeeff  0    /test   example.com  h           5,6,7.0  NL        0
+			00112233445566778899aabbccddeeff  0    /other  xxx          c           5,6,7.0  ID-BA     1
 		`},
 	}
 
@@ -147,8 +147,14 @@ func TestMemstoreCollect(t *testing.T) {
 				FirstVisit: true,
 			})
 
-			got := zdb.DumpString(ctx, `select user_agent_id, session, bot, ref, ref_scheme, size, location, first_visit from hits`)
-			if d := zdb.Diff(got, tt.want); d != "" {
+			have := zdb.DumpString(ctx, `
+				select session, bot, paths.path, refs.ref, refs.ref_scheme, sizes.size, location, first_visit
+				from hits
+				join paths using (path_id)
+				left join refs  using (ref_id)
+				left join sizes using (size_id)
+			`)
+			if d := zdb.Diff(have, tt.want); d != "" {
 				t.Error(d)
 			}
 		})

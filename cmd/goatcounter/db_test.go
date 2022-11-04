@@ -69,21 +69,6 @@ func TestDBQuery(t *testing.T) {
 		FirstVisit:      true,
 		UserAgentHeader: "Mozilla/5.0 (X11; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0",
 	})
-
-	runCmd(t, exit, "db", "query", "-db="+dbc, "ua")
-	wantExit(t, exit, out, 0)
-
-	want = `
-		count  first_seen  browser_name  browser_version  system_name  system_version  ua
-		1      2020-06-18  Firefox       79               Linux                        ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0`
-	if pgSQL { // TODO: don't know why the date is printed different.
-		want = `
-		count  first_seen           browser_name  browser_version  system_name  system_version  ua
-		1      2020-06-18 00:00:00  Firefox       79               Linux                        ~Z (X11; ~L x86_64; rv:79.0) ~g20100101 ~f79.0`
-	}
-	if d := zdb.Diff(out.String(), want); d != "" {
-		t.Error(d)
-	}
 }
 
 func TestDBNewDB(t *testing.T) {

@@ -18,27 +18,22 @@ import (
 	"zgo.at/zstd/ztime"
 )
 
-func ptr(s string) *string { return &s }
-func unref(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
 type Hit struct {
-	ID          int64        `db:"hit_id" json:"-"`
-	Site        int64        `db:"site_id" json:"-"`
-	PathID      int64        `db:"path_id" json:"-"`
-	UserAgentID *int64       `db:"user_agent_id" json:"-"`
-	CampaignID  *int64       `db:"campaign" json:"-"`
-	Session     zint.Uint128 `db:"session" json:"-"`
+	ID         int64        `db:"hit_id" json:"-"`
+	Site       int64        `db:"site_id" json:"-"`
+	PathID     int64        `db:"path_id" json:"-"`
+	RefID      int64        `db:"ref_id" json:"-"`
+	SizeID     *int64       `db:"size_id" json:"-"`
+	BrowserID  int64        `db:"browser_id" json:"-"`
+	SystemID   int64        `db:"system_id" json:"-"`
+	CampaignID *int64       `db:"campaign" json:"-"`
+	Session    zint.Uint128 `db:"session" json:"-"`
 
 	Path  string     `db:"-" json:"p,omitempty"`
 	Title string     `db:"-" json:"t,omitempty"`
-	Ref   string     `db:"ref" json:"r,omitempty"`
+	Ref   string     `db:"-" json:"r,omitempty"`
 	Event zbool.Bool `db:"-" json:"e,omitempty"`
-	Size  Floats     `db:"size" json:"s,omitempty"`
+	Size  Floats     `db:"-" json:"s,omitempty"`
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"bot" json:"b,omitempty"`
 
@@ -55,8 +50,6 @@ type Hit struct {
 	// Some values we need to pass from the HTTP handler to memstore
 	RemoteAddr    string `db:"-" json:"-"`
 	UserSessionID string `db:"-" json:"-"`
-	BrowserID     int64  `db:"-" json:"-"`
-	SystemID      int64  `db:"-" json:"-"`
 
 	// Don't process in memstore; for merging paths.
 	noProcess bool `db:"-" json:"-"`
@@ -262,14 +255,31 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 	}
 	h.PathID = path.ID
 
-	// Get or insert user_agent
+	// Get or insert ref.
+	ref := Ref{Ref: h.Ref, RefScheme: h.RefScheme}
+	err = ref.GetOrInsert(ctx)
+	if err != nil {
+		return errors.Wrap(err, "Hit.Defaults")
+	}
+	h.RefID = ref.ID
+
+	// Get or insert size.
+	if site.Settings.Collect.Has(CollectScreenSize) {
+		var size Size
+		err = size.GetOrInsert(ctx, h.Size)
+		if err != nil {
+			return errors.Wrap(err, "Hit.Defaults")
+		}
+		h.SizeID = &size.ID
+	}
+
+	// Get or insert browser and system.
 	if site.Settings.Collect.Has(CollectUserAgent) {
 		ua := UserAgent{UserAgent: h.UserAgentHeader}
 		err = ua.GetOrInsert(ctx)
 		if err != nil {
 			return errors.Wrap(err, "Hit.Defaults")
 		}
-		h.UserAgentID = &ua.ID
 		h.BrowserID = ua.BrowserID
 		h.SystemID = ua.SystemID
 	}
@@ -304,7 +314,6 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 		v.Required("path_id", h.PathID)
 
 		if MustGetSite(ctx).Settings.Collect.Has(CollectUserAgent) {
-			v.Required("user_agent_id", h.UserAgentID)
 			v.Required("browser_id", h.BrowserID)
 			v.Required("system_id", h.SystemID)
 		}
@@ -322,24 +331,29 @@ type Hits []Hit
 func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 	var hh []struct {
 		Hit
-		B int64      `db:"browser_id"`
-		S int64      `db:"system_id"`
-		P string     `db:"path"`
-		T string     `db:"title"`
-		E zbool.Bool `db:"event"`
+		B    int64      `db:"browser_id"`
+		S    int64      `db:"system_id"`
+		P    string     `db:"path"`
+		T    string     `db:"title"`
+		E    zbool.Bool `db:"event"`
+		R    string     `db:"ref"`
+		Size Floats     `db:"size"`
 	}
 
 	err := zdb.Select(ctx, &hh, `/* Hits.TestList */
 		select
 			hits.*,
-			user_agents.browser_id,
-			user_agents.system_id,
+			browser_id,
+			system_id,
 			paths.path,
 			paths.title,
-			paths.event
+			paths.event,
+			refs.ref,
+			sizes.size
 		from hits
-		join user_agents using (user_agent_id)
 		join paths using (path_id)
+		left join refs  using (ref_id)
+		left join sizes using (size_id)
 		{{:site_only where hits.site_id = :site}}
 		order by hit_id asc`,
 		zdb.P{
@@ -356,6 +370,8 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		x.Hit.Path = x.P
 		x.Hit.Title = x.T
 		x.Hit.Event = x.E
+		x.Hit.Ref = x.R
+		x.Hit.Size = x.Size
 
 		*h = append(*h, x.Hit)
 	}

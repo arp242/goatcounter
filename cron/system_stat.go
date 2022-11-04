@@ -26,12 +26,8 @@ func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 			if h.Bot > 0 {
 				continue
 			}
-			if h.UserAgentID == nil {
-				continue
-			}
-
 			if h.SystemID == 0 {
-				_, h.SystemID = getUA(ctx, *h.UserAgentID)
+				continue
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")

@@ -242,9 +242,9 @@ func TestAPICount(t *testing.T) {
 				{Path: "/bar", CreatedAt: time.Date(2020, 1, 18, 14, 42, 0, 0, time.UTC)},
 			}},
 			202, respOK, `
-			hit_id  site_id  path  title  event  ua  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                           00112233445566778899aabbccddef01  0         NULL              1      2020-06-18 14:42:00
-			2       1        /bar         0                           00112233445566778899aabbccddef01  0         NULL              1      2020-01-18 14:42:00
+			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
+			2       1        /bar         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-01-18 14:42:00
 			`,
 		},
 
@@ -254,8 +254,8 @@ func TestAPICount(t *testing.T) {
 				{Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: goatcounter.Floats{42, 666, 2}},
 			}},
 			202, respOK, `
-			hit_id  site_id  path  title  event  ua           browser    system  session                           bot  ref  ref_s  size      loc  first  created_at
-			1       1        /foo  A      0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0    y    o      42,666,2  ET   1      2020-06-18 14:42:00
+			hit_id  site_id  path  title  event  browser    system  session                           bot  ref  ref_s  size        loc  first  created_at
+			1       1        /foo  A      0      Firefox 1  Linux   00112233445566778899aabbccddef01  0    y    o      42,666,2.0  ET   1      2020-06-18 14:42:00
 			`,
 		},
 
@@ -265,8 +265,8 @@ func TestAPICount(t *testing.T) {
 				{Event: zbool.Bool(true), Path: "/foo", Title: "A", Ref: "y", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", Location: "ET", Size: goatcounter.Floats{42, 666, 2}},
 			}},
 			202, respOK, `
-			hit_id  site_id  path  title  event  ua           browser    system  session                           bot  ref  ref_s  size      loc  first  created_at
-			1       1        foo   A      1      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0    y    o      42,666,2  ET   1      2020-06-18 14:42:00
+			hit_id  site_id  path  title  event  browser    system  session                           bot  ref  ref_s  size        loc  first  created_at
+			1       1        foo   A      1      Firefox 1  Linux   00112233445566778899aabbccddef01  0    y    o      42,666,2.0  ET   1      2020-06-18 14:42:00
 			`,
 		},
 
@@ -278,10 +278,10 @@ func TestAPICount(t *testing.T) {
 				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "66.66.66.66"},
 			}},
 			202, respOK, `
-			hit_id  site_id  path  title  event  ua           browser    system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         NL   1      2020-06-18 14:42:00
-			2       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef02  0         NULL         US   1      2020-06-18 14:42:00
-			3       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         NL   0      2020-06-18 14:42:00
+			hit_id  site_id  path  title  event  browser    system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef01  0                NULL  NL   1      2020-06-18 14:42:00
+			2       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef02  0                NULL  US   1      2020-06-18 14:42:00
+			3       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef01  0                NULL  NL   0      2020-06-18 14:42:00
 			`,
 		},
 
@@ -293,10 +293,10 @@ func TestAPICount(t *testing.T) {
 				{Path: "/foo", Session: "a"},
 			}},
 			202, respOK, `
-			hit_id  site_id  path  title  event  ua  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                           00112233445566778899aabbccddef01  0         NULL              1      2020-06-18 14:42:00
-			2       1        /foo         0                           00112233445566778899aabbccddef02  0         NULL              1      2020-06-18 14:42:00
-			3       1        /foo         0                           00112233445566778899aabbccddef01  0         NULL              0      2020-06-18 14:42:00
+			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
+			2       1        /foo         0                       00112233445566778899aabbccddef02  0                NULL       1      2020-06-18 14:42:00
+			3       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       0      2020-06-18 14:42:00
 			`,
 		},
 
@@ -307,8 +307,8 @@ func TestAPICount(t *testing.T) {
 				{Path: "/foo"},
 			}},
 			400, `{"errors":{"1":"session or browser/IP not set; use no_sessions if you don't want to track unique visits"}}`, `
-			hit_id  site_id  path  title  event  ua  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                           00112233445566778899aabbccddef01  0         NULL              1      2020-06-18 14:42:00
+			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
 			`,
 		},
 
@@ -319,9 +319,9 @@ func TestAPICount(t *testing.T) {
 				{Path: "/foo", UserAgent: "curl/7.8"},
 			}},
 			202, respOK, `
-			hit_id  site_id  path  title  event  ua        browser   system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                                  00112233445566778899aabbccddef01  0         NULL              1      2020-06-18 14:42:00
-			2       1        /foo         0      curl/7.8  curl 7.8          00112233445566778899aabbccddef02  7         NULL              1      2020-06-18 14:42:00
+			hit_id  site_id  path  title  event  browser   system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0                        00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
+			2       1        /foo         0      curl 7.8          00112233445566778899aabbccddef02  7                NULL       1      2020-06-18 14:42:00
 			`,
 		},
 
@@ -343,8 +343,8 @@ func TestAPICount(t *testing.T) {
 				{Path: "/foo", IP: "1.2.3.4"},
 			}},
 			202, respOK, `
-			hit_id  site_id  path  title  event  ua  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                           00112233445566778899aabbccddef01  0         NULL         AU   1      2020-06-18 14:42:00
+			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL  AU   1      2020-06-18 14:42:00
 			`,
 		},
 	}
@@ -374,7 +374,7 @@ func TestAPICount(t *testing.T) {
 			gctest.StoreHits(ctx, t, false)
 
 			tt.want = strings.TrimSpace(strings.ReplaceAll(tt.want, "\t", ""))
-			got := strings.TrimSpace(zdb.DumpString(ctx, `
+			have := strings.TrimSpace(zdb.DumpString(ctx, `
 				select
 					hits.hit_id,
 					hits.site_id,
@@ -383,30 +383,29 @@ func TestAPICount(t *testing.T) {
 					paths.title,
 					paths.event,
 
-					user_agents.ua,
 					browsers.name || ' ' || browsers.version as browser,
 					systems.name  || ' ' || systems.version  as system,
 
 					hits.session,
 					hits.bot,
-					hits.ref,
-					hits.ref_scheme as ref_s,
-					hits.size,
+					refs.ref,
+					refs.ref_scheme as ref_s,
+					sizes.size,
 					hits.location as loc,
 					hits.first_visit as first,
 					hits.created_at
 				from hits
-				join paths       using (path_id)
-				join user_agents using (user_agent_id)
-				join browsers    using (browser_id)
-				join systems     using (system_id)
+				join paths          using (path_id)
+				left join refs      using (ref_id)
+				left join sizes     using (size_id)
+				join browsers using (browser_id)
+				join systems  using (system_id)
 				order by hit_id asc`))
-
-			if strings.Count(got, "\n") == 0 { // No data, only the header.
-				got = ""
+			if strings.Count(have, "\n") == 0 { // No data, only the header.
+				have = ""
 			}
 
-			if d := ztest.Diff(got, tt.want); d != "" {
+			if d := ztest.Diff(have, tt.want); d != "" {
 				t.Errorf(d)
 			}
 		})

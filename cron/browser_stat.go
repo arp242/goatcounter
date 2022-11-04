@@ -7,12 +7,10 @@ package cron
 import (
 	"context"
 	"strconv"
-	"sync"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 )
 
 func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
@@ -28,12 +26,8 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 			if h.Bot > 0 {
 				continue
 			}
-			if h.UserAgentID == nil {
-				continue
-			}
-
 			if h.BrowserID == 0 {
-				h.BrowserID, _ = getUA(ctx, *h.UserAgentID)
+				continue
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
@@ -69,45 +63,4 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 		return ins.Finish()
 	}), "cron.updateBrowserStats")
-}
-
-var (
-	userAgentMap map[int64][2]int64
-	getUAOnce    sync.Once
-)
-
-func getUA(ctx context.Context, uaID int64) (browser, system int64) {
-	// Load all the user_agents in memory; this speeds up things quite a bit,
-	// and the IDs never change. This is about 4M for 500k rows.
-	getUAOnce.Do(func() {
-		var ua []struct {
-			UserAgentID int64 `db:"user_agent_id"`
-			BrowserID   int64 `db:"browser_id"`
-			SystemID    int64 `db:"system_id"`
-		}
-		err := zdb.Select(ctx, &ua,
-			`select user_agent_id, browser_id, system_id from user_agents`)
-		if err != nil {
-			panic(err)
-		}
-
-		userAgentMap = make(map[int64][2]int64, len(ua))
-		for _, u := range ua {
-			userAgentMap[u.UserAgentID] = [2]int64{u.BrowserID, u.SystemID}
-		}
-	})
-
-	ua, ok := userAgentMap[uaID]
-	if !ok {
-		var u goatcounter.UserAgent
-		err := u.ByID(ctx, uaID)
-		if err != nil {
-			zlog.Field("uaID", uaID).Error(err)
-			return 0, 0
-		}
-		ua = [2]int64{u.BrowserID, u.SystemID}
-		userAgentMap[uaID] = ua
-	}
-
-	return ua[0], ua[1]
 }

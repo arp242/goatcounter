@@ -172,7 +172,7 @@ func TestBackendCount(t *testing.T) {
 				tt.hit.UserAgentHeader = "GoatCounter test runner/1.0"
 			}
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
-			if d := ztest.Diff(string(zjson.MustMarshal(h)), string(zjson.MustMarshal(tt.hit))); d != "" {
+			if d := ztest.Diff(string(zjson.MustMarshal(h)), string(zjson.MustMarshal(tt.hit)), ztest.DiffJSON); d != "" {
 				t.Error(d)
 			}
 		})

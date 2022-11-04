@@ -10,16 +10,18 @@ import (
 	"strings"
 
 	"zgo.at/errors"
+	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 // ref_scheme column
 var (
-	RefSchemeHTTP      = ptr("h")
-	RefSchemeOther     = ptr("o")
-	RefSchemeGenerated = ptr("g")
-	RefSchemeCampaign  = ptr("c")
+	RefSchemeHTTP      = ztype.Ptr("h")
+	RefSchemeOther     = ztype.Ptr("o")
+	RefSchemeGenerated = ztype.Ptr("g")
+	RefSchemeCampaign  = ztype.Ptr("c")
 )
 
 var groups = map[string]string{
@@ -73,8 +75,6 @@ var groups = map[string]string{
 	"www.baidu.com":     "Baidu",
 }
 
-// update
-
 var hostAlias = map[string]string{
 	"en.m.wikipedia.org": "en.wikipedia.org",
 	"m.facebook.com":     "www.facebook.com",
@@ -83,6 +83,71 @@ var hostAlias = map[string]string{
 	"i.reddit.com":       "www.reddit.com",
 	"np.reddit.com":      "www.reddit.com",
 	"fr.reddit.com":      "www.reddit.com",
+}
+
+type Ref struct {
+	ID        int64   `db:"ref_id"`
+	Ref       string  `db:"ref"`
+	RefScheme *string `db:"ref_scheme"`
+}
+
+func (r *Ref) Defaults(ctx context.Context) {}
+
+func (r *Ref) Validate(ctx context.Context) error {
+	v := NewValidate(ctx)
+
+	//v.Required("ref", r.Ref)
+	//v.Required("ref_scheme", r.RefScheme)
+
+	v.UTF8("ref", r.Ref)
+	v.Len("ref", r.Ref, 0, 2048)
+
+	return v.ErrorOrNil()
+}
+
+func (r *Ref) GetOrInsert(ctx context.Context) error {
+	k := r.Ref
+	if r.RefScheme != nil {
+		k += string(*r.RefScheme)
+	}
+	if r.Ref == "" && r.RefScheme == nil {
+		r.ID = 1
+		return nil
+	}
+	c, ok := cacheRefs(ctx).Get(k)
+	if ok {
+		*r = c.(Ref)
+		cacheRefs(ctx).Touch(k, zcache.DefaultExpiration)
+		return nil
+	}
+
+	r.Defaults(ctx)
+	err := r.Validate(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = zdb.Get(ctx, r, `/* Ref.GetOrInsert */
+		select * from refs
+		where lower(ref) = lower(?) and ref_scheme = ?
+		limit 1`, r.Ref, r.RefScheme)
+	if err == nil {
+		cacheRefs(ctx).SetDefault(k, *r)
+		return nil
+	}
+	if !zdb.ErrNoRows(err) {
+		return errors.Wrap(err, "Ref.GetOrInsert get")
+	}
+
+	r.ID, err = zdb.InsertID(ctx, "ref_id",
+		`insert into refs (ref, ref_scheme) values (?, ?)`,
+		r.Ref, r.RefScheme)
+	if err != nil {
+		return errors.Wrap(err, "Ref.GetOrInsert insert")
+	}
+
+	cacheRefs(ctx).SetDefault(k, *r)
+	return nil
 }
 
 func cleanRefURL(ref string, refURL *url.URL) (string, bool) {

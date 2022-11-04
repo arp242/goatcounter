@@ -27,6 +27,8 @@ var (
 	keyCacheBrowsers   = &struct{ n string }{""}
 	keyCacheSystems    = &struct{ n string }{""}
 	keyCachePaths      = &struct{ n string }{""}
+	keyCacheRefs       = &struct{ n string }{""}
+	keyCacheSizes      = &struct{ n string }{""}
 	keyCacheLoc        = &struct{ n string }{""}
 	keyCacheCampaigns  = &struct{ n string }{""}
 	keyChangedTitles   = &struct{ n string }{""}
@@ -141,6 +143,12 @@ func CopyContextValues(ctx context.Context) context.Context {
 	if c := ctx.Value(keyCachePaths); c != nil {
 		n = context.WithValue(n, keyCachePaths, c.(*zcache.Cache))
 	}
+	if c := ctx.Value(keyCacheRefs); c != nil {
+		n = context.WithValue(n, keyCacheRefs, c.(*zcache.Cache))
+	}
+	if c := ctx.Value(keyCacheSizes); c != nil {
+		n = context.WithValue(n, keyCacheSizes, c.(*zcache.Cache))
+	}
 	if c := ctx.Value(keyCacheLoc); c != nil {
 		n = context.WithValue(n, keyCacheLoc, c.(*zcache.Cache))
 	}
@@ -188,6 +196,8 @@ func NewCache(ctx context.Context) context.Context {
 	ctx = context.WithValue(ctx, keyCacheBrowsers, zcache.New(1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheSystems, zcache.New(1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCachePaths, zcache.New(1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheRefs, zcache.New(1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheSizes, zcache.New(1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheLoc, zcache.New(zcache.NoExpiration, zcache.NoExpiration))
 	ctx = context.WithValue(ctx, keyCacheCampaigns, zcache.New(24*time.Hour, 15*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheI18n, zcache.New(zcache.NoExpiration, zcache.NoExpiration))
@@ -232,6 +242,18 @@ func cacheSystems(ctx context.Context) *zcache.Cache {
 }
 func cachePaths(ctx context.Context) *zcache.Cache {
 	if c := ctx.Value(keyCachePaths); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
+}
+func cacheRefs(ctx context.Context) *zcache.Cache {
+	if c := ctx.Value(keyCacheRefs); c != nil {
+		return c.(*zcache.Cache)
+	}
+	return zcache.New(0, 0)
+}
+func cacheSizes(ctx context.Context) *zcache.Cache {
+	if c := ctx.Value(keyCacheSizes); c != nil {
 		return c.(*zcache.Cache)
 	}
 	return zcache.New(0, 0)

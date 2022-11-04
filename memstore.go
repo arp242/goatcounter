@@ -118,8 +118,7 @@ func (m *ms) Init(db zdb.DB) error {
 	}()
 
 	var s []byte
-	err := db.Get(context.Background(), &s,
-		`select value from store where key='session'`)
+	err := db.Get(context.Background(), &s, `select value from store where key='session'`)
 	if err != nil {
 		if zdb.ErrNoRows(err) {
 			return nil
@@ -240,8 +239,8 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hitMu.Unlock()
 
 	newHits := make([]Hit, 0, len(hits))
-	ins := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref",
-		"ref_scheme", "user_agent_id", "size", "location", "language", "created_at", "bot",
+	ins := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref_id",
+		"browser_id", "system_id", "size_id", "location", "language", "created_at", "bot",
 		"session", "first_visit"})
 	for _, h := range hits {
 		if m.processHit(ctx, &h) {
@@ -249,7 +248,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			// insert them.
 			newHits = append(newHits, h)
 
-			ins.Values(h.Site, h.PathID, h.Ref, h.RefScheme, h.UserAgentID, h.Size,
+			ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, h.SizeID,
 				h.Location, h.Language, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
 		}
 	}
@@ -283,6 +282,13 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	}
 	ctx = WithSite(ctx, &site)
 
+	if !site.Settings.Collect.Has(CollectReferrer) {
+		h.Query = ""
+		h.Ref = ""
+		h.RefScheme = nil
+		h.RefURL = nil
+	}
+
 	err = h.Defaults(ctx, false)
 	if err != nil {
 		l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
@@ -298,17 +304,13 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 		h.FirstVisit = true
 	}
 
-	if !site.Settings.Collect.Has(CollectReferrer) {
-		h.Query = ""
-		h.Ref = ""
-		h.RefScheme = nil
-	}
 	if !site.Settings.Collect.Has(CollectScreenSize) {
 		h.Size = nil
 	}
 	if !site.Settings.Collect.Has(CollectUserAgent) {
 		h.UserAgentHeader = ""
-		h.UserAgentID = nil
+		h.BrowserID = 0
+		h.SystemID = 0
 	}
 	if !site.Settings.Collect.Has(CollectLanguage) {
 		h.Language = nil

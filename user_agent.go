@@ -15,114 +15,28 @@ import (
 )
 
 type UserAgent struct {
-	ID        int64  `db:"user_agent_id"`
-	UserAgent string `db:"ua"`
-
-	Isbot     uint8 `db:"isbot"`
-	BrowserID int64 `db:"browser_id"`
-	SystemID  int64 `db:"system_id"`
-}
-
-func (p *UserAgent) Defaults(ctx context.Context) {
-}
-
-func (p *UserAgent) Validate(ctx context.Context) error {
-	v := NewValidate(ctx)
-	// UserAgent may be an empty string, as some browsers send that.
-	v.UTF8("user_agent", p.UserAgent)
-	return v.ErrorOrNil()
-}
-
-func (p *UserAgent) ByID(ctx context.Context, id int64) error {
-	err := zdb.Get(ctx, p, `/* UserAgent.ByID */
-		select * from user_agents where user_agent_id=$1`, id)
-	return errors.Wrapf(err, "UserAgent.ByID %d", id)
-}
-
-// Update this useragent; re-parse it and set the new Browser/System (if any).
-func (p *UserAgent) Update(ctx context.Context) error {
-	if p.ID == 0 {
-		panic("ID is 0")
-	}
-
-	var (
-		changed = false
-		ua      = gadget.ParseUA(p.UserAgent)
-		browser Browser
-		system  System
-	)
-	err := browser.GetOrInsert(ctx, ua.BrowserName, ua.BrowserVersion)
-	if err != nil {
-		return errors.Wrap(err, "UserAgent.Update")
-	}
-	if p.BrowserID != browser.ID {
-		changed = true
-		p.BrowserID = browser.ID
-	}
-
-	err = system.GetOrInsert(ctx, ua.OSName, ua.OSVersion)
-	if err != nil {
-		return errors.Wrap(err, "UserAgent.Update")
-	}
-	if p.SystemID != system.ID {
-		changed = true
-		p.SystemID = system.ID
-	}
-
-	bot := isbot.UserAgent(p.UserAgent)
-	if uint8(bot) != p.Isbot {
-		changed = true
-		p.Isbot = uint8(bot)
-	}
-
-	if !changed {
-		return nil
-	}
-
-	err = zdb.Exec(ctx,
-		`update user_agents set isbot=$1, browser_id=$2, system_id=$3 where user_agent_id=$4`,
-		p.Isbot, p.BrowserID, p.SystemID, p.ID)
-	if err != nil {
-		return errors.Wrap(err, "UserAgent.Update")
-	}
-
-	cacheUA(ctx).Delete(gadget.ShortenUA(p.UserAgent))
-	return nil
+	UserAgent string
+	Isbot     uint8
+	BrowserID int64
+	SystemID  int64
 }
 
 func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	shortUA := gadget.ShortenUA(p.UserAgent)
-
-	c, ok := cacheUA(ctx).Get(shortUA)
+	c, ok := cacheUA(ctx).Get(p.UserAgent)
 	if ok {
 		*p = c.(UserAgent)
 		cacheUA(ctx).Touch(shortUA, zcache.DefaultExpiration)
 		return nil
 	}
 
-	p.Defaults(ctx)
-	err := p.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = zdb.Get(ctx, p, `/* UserAgent.GetOrInsert */
-		select * from user_agents where ua = $1 limit 1`, shortUA)
-	if err != nil && !zdb.ErrNoRows(err) {
-		return errors.Errorf("UserAgent.GetOrInsert select: %w", err)
-	}
-	if err == nil {
-		cacheUA(ctx).SetDefault(shortUA, *p)
-		return nil // Got a row already, no need for a new one.
-	}
-
 	var (
 		ua      = gadget.ParseUA(p.UserAgent)
 		browser Browser
 		system  System
 	)
 
-	err = browser.GetOrInsert(ctx, ua.BrowserName, ua.BrowserVersion)
+	err := browser.GetOrInsert(ctx, ua.BrowserName, ua.BrowserVersion)
 	if err != nil {
 		return errors.Wrap(err, "UserAgent.GetOrInsert")
 	}
@@ -134,14 +48,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	}
 	p.SystemID = system.ID
 
-	// Insert new row.
 	p.Isbot = uint8(isbot.UserAgent(p.UserAgent))
-	p.ID, err = zdb.InsertID(ctx, "user_agent_id",
-		`insert into user_agents (ua, isbot, browser_id, system_id) values (?, ?, ?, ?)`,
-		shortUA, p.Isbot, p.BrowserID, p.SystemID)
-	if err != nil {
-		return errors.Wrap(err, "UserAgent.GetOrInsert insert")
-	}
 
 	cacheUA(ctx).SetDefault(shortUA, *p)
 	return nil

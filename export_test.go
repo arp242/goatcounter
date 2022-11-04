@@ -32,7 +32,6 @@ func TestExport(t *testing.T) {
 			paths.title,
 			paths.event,
 
-			user_agents.ua,
 			browsers.name || ' ' || browsers.version as browser,
 			systems.name  || ' ' || systems.version  as system,
 
@@ -46,7 +45,6 @@ func TestExport(t *testing.T) {
 			hits.created_at
 		from hits
 		join paths       using (path_id)
-		join user_agents using (user_agent_id)
 		join browsers    using (browser_id)
 		join systems     using (system_id)
 		order by hit_id asc`)
@@ -97,7 +95,7 @@ func TestExport(t *testing.T) {
 			"finished_at": null,
 			"num_rows": 5,
 			"size": "0.1",
-			"hash": "sha256-8a34b87e1ae93292e61984f723fbe6cda8a95dbefc0762ac2864bc98a1a13bc1",
+			"hash": "sha256-7fb7060000c3e8a1e05bc9f6156fc5571218a234b0a62b4ad6d67a529ad13707",
 			"error": null
 		}`, "\t", "")
 		got := string(zjson.MustMarshalIndent(export, "", ""))

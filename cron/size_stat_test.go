@@ -5,13 +5,12 @@
 package cron_test
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 	"time"
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
 )
@@ -26,25 +25,31 @@ func TestSizeStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}, FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1920, 1080, 1}},
 		{Site: site.ID, CreatedAt: now, Size: []float64{1024, 768, 1}},
+		{Site: site.ID, CreatedAt: now, Size: []float64{1708.6443250402808, 872.214019395411, 1}, FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Size: []float64{}},
 		{Site: site.ID, CreatedAt: now, Size: nil},
 	}...)
 
-	var stats goatcounter.HitStats
-	err := stats.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
+	var have goatcounter.HitStats
+	err := have.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := `{false [{phone Phones 0 <nil>}
-{largephone Large phones, small tablets 0 <nil>}
-{tablet Tablets and small laptops 0 <nil>}
-{desktop Computer monitors 1 <nil>}
-{desktophd Computer monitors larger than HD 0 <nil>}
-{unknown (unknown) 0 <nil>}]}`
-	out := strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
-	if want != out {
-		t.Error(ztest.Diff(out, want))
+	want := `{
+		"more": false,
+		"stats": [
+			{"count": 0, "id": "phone", "name": "Phones"},
+			{"count": 0, "id": "largephone", "name": "Large phones, small tablets" },
+			{"count": 0, "id": "tablet", "name": "Tablets and small laptops"},
+			{"count": 2, "id": "desktop", "name": "Computer monitors"},
+			{"count": 0, "id": "desktophd", "name": "Computer monitors larger than HD"},
+			{"count": 0, "id": "unknown", "name": "(unknown)"}
+		]
+	}`
+
+	if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+		t.Error(d)
 	}
 
 	// Update existing.
@@ -57,20 +62,24 @@ func TestSizeStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Size: nil, FirstVisit: true},
 	}...)
 
-	stats = goatcounter.HitStats{}
-	err = stats.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
+	have = goatcounter.HitStats{}
+	err = have.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want = `{false [{phone Phones 0 <nil>}
-{largephone Large phones, small tablets 0 <nil>}
-{tablet Tablets and small laptops 0 <nil>}
-{desktop Computer monitors 2 <nil>}
-{desktophd Computer monitors larger than HD 0 <nil>}
-{unknown (unknown) 1 <nil>}]}`
-	out = strings.ReplaceAll(fmt.Sprintf("%v", stats), "} ", "}\n")
-	if want != out {
-		t.Error(ztest.Diff(out, want))
+	want = `{
+		"more": false,
+		"stats": [
+			{"count": 0, "id": "phone", "name": "Phones"},
+			{"count": 0, "id": "largephone", "name": "Large phones, small tablets" },
+			{"count": 0, "id": "tablet", "name": "Tablets and small laptops"},
+			{"count": 3, "id": "desktop", "name": "Computer monitors"},
+			{"count": 0, "id": "desktophd", "name": "Computer monitors larger than HD"},
+			{"count": 1, "id": "unknown", "name": "(unknown)"}
+		]
+	}`
+	if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {
+		t.Error(d)
 	}
 }

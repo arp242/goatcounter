@@ -47,6 +47,7 @@ create table users (
 	reset_at       timestamp      null,
 	settings       {{jsonb}}      not null default '{}',
 	last_report_at timestamp      not null default current_timestamp,
+	open_at        timestamp      null,
 
 	created_at     timestamp      not null,
 	updated_at     timestamp
@@ -68,20 +69,21 @@ create table api_tokens (
 create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
 
 create table hits (
-	hit_id         {{auto_increment}},
-	site_id        integer        not null                 check(site_id > 0),
-	path_id        integer        not null                 check(path_id > 0),
-	user_agent_id  integer        null                     check(user_agent_id != 0),
-	campaign       integer        default null,
+	hit_id         {{auto_increment true}},
+	site_id        integer        not null,
+	path_id        integer        not null,
+	ref_id         integer        not null default 1,
 
 	session        {{blob}}       default null,
+	first_visit    integer        default 0,
 	bot            integer        default 0,
-	ref            varchar        not null,
-	ref_scheme     varchar        null                     check(ref_scheme in ('h', 'g', 'o', 'c')),
-	size           varchar        not null default '',
+
+	browser_id     integer        not null,
+	system_id      integer        not null,
+	campaign       integer        default null,
+	size_id        integer        null,
 	location       varchar        not null default '',
 	language       varchar,
-	first_visit    integer        default 0,
 
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
 );
@@ -120,15 +122,27 @@ create table systems (
 	version        varchar
 );
 
-create table user_agents (
-	user_agent_id  {{auto_increment}},
-	browser_id     integer        not null,
-	system_id      integer        not null,
-
-	ua             varchar        not null,
-	isbot          integer        not null
+create table refs (
+	ref_id         {{auto_increment}},
+	ref            varchar        not null,
+	ref_scheme     varchar        null
 );
-create unique index "user_agents#ua" on user_agents(ua);
+insert into refs (ref, ref_scheme) values ('', null);
+create unique index "refs#ref#ref_scheme" on refs(lower(ref), ref_scheme);
+{{psql `alter table refs cluster on "refs#ref#ref_scheme";`}}
+
+create table sizes (
+	size_id        {{auto_increment}},
+	width          integer          not null,
+	height         integer          not null,
+	scale          double precision not null,
+
+	size           varchar          generated always as (
+		{{psql   `width::text || ',' || height::text || ',' || scale::text`}}
+		{{sqlite `width || ',' || height || ',' || scale`}}
+	) stored
+);
+insert into sizes (width, height, scale) values (0, 0, 0);
 
 create table hit_counts (
 	site_id        integer        not null,
@@ -147,16 +161,15 @@ create table ref_counts (
 	site_id        integer        not null,
 	path_id        integer        not null,
 
-	ref            varchar        not null,
-	ref_scheme     varchar        null,
+	ref_id         integer        not null,
 	hour           timestamp      not null                 {{check_timestamp "hour"}},
 	total          integer        not null,
 
-	constraint "ref_counts#site_id#path_id#ref#hour" unique(site_id, path_id, ref, hour) {{sqlite "on conflict replace"}}
+	constraint "ref_counts#site_id#path_id#ref_id#hour" unique(site_id, path_id, ref_id, hour) {{sqlite "on conflict replace"}}
 );
-create index "ref_counts#site_id#hour" on ref_counts(site_id, hour desc);
+create index "ref_counts#site_id#hour" on ref_counts(site_id, hour asc);
 {{cluster "ref_counts" "ref_counts#site_id#hour"}}
-{{replica "ref_counts" "ref_counts#site_id#path_id#ref#hour"}}
+{{replica "ref_counts" "ref_counts#site_id#path_id#ref_id#hour"}}
 
 create table hit_stats (
 	site_id        integer        not null,
@@ -342,6 +355,9 @@ insert into version values
 	('2022-10-21-1-apitoken-lastused'),
 	('2022-11-03-1-uncount'),
 	('2022-11-03-2-ununique'),
-	('2022-11-05-1-paths-title');
+	('2022-11-05-1-paths-title'),
+	('2022-11-15-1-correct-hit-stats'),
+	('2022-11-17-1-open-at'),
+	('2023-05-16-1-hits');
 
 -- vim:ft=sql:tw=0

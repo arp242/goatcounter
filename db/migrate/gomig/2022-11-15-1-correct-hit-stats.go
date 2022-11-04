@@ -6,12 +6,16 @@ package gomig
 
 import (
 	"context"
+	"net/url"
 	"strconv"
+	"time"
 
 	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zbool"
+	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zjson"
 )
 
@@ -34,7 +38,7 @@ func CorrectHitStats(ctx context.Context) error {
 		}
 
 		for _, s := range sites {
-			var hits goatcounter.Hits
+			var hits []Hit
 			err = zdb.Select(ctx, &hits, `select * from hits where
 				created_at >= '2022-11-08 00:00:00' and first_visit=1 and bot in (0, 1)`)
 			if err != nil {
@@ -59,7 +63,7 @@ func CorrectHitStats(ctx context.Context) error {
 
 var empty = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
+func updateHitStats(ctx context.Context, hits []Hit) error {
 	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count  []int
@@ -159,4 +163,40 @@ func existingHitStats(ctx context.Context, siteID int64, day string, pathID int6
 	}
 
 	return ru, nil
+}
+
+type Hit struct {
+	ID          int64        `db:"hit_id" json:"-"`
+	Site        int64        `db:"site_id" json:"-"`
+	PathID      int64        `db:"path_id" json:"-"`
+	UserAgentID *int64       `db:"user_agent_id" json:"-"`
+	CampaignID  *int64       `db:"campaign" json:"-"`
+	Session     zint.Uint128 `db:"session" json:"-"`
+
+	Path  string             `db:"-" json:"p,omitempty"`
+	Title string             `db:"-" json:"t,omitempty"`
+	Ref   string             `db:"ref" json:"r,omitempty"`
+	Event zbool.Bool         `db:"-" json:"e,omitempty"`
+	Size  goatcounter.Floats `db:"size" json:"s,omitempty"`
+	Query string             `db:"-" json:"q,omitempty"`
+	Bot   int                `db:"bot" json:"b,omitempty"`
+
+	RefScheme       *string    `db:"ref_scheme" json:"-"`
+	UserAgentHeader string     `db:"-" json:"-"`
+	Location        string     `db:"location" json:"-"`
+	Language        *string    `db:"language" json:"-"`
+	FirstVisit      zbool.Bool `db:"first_visit" json:"-"`
+	CreatedAt       time.Time  `db:"created_at" json:"-"`
+
+	RefURL *url.URL `db:"-" json:"-"`   // Parsed Ref
+	Random string   `db:"-" json:"rnd"` // Browser cache buster, as they don't always listen to Cache-Control
+
+	// Some values we need to pass from the HTTP handler to memstore
+	RemoteAddr    string `db:"-" json:"-"`
+	UserSessionID string `db:"-" json:"-"`
+	BrowserID     int64  `db:"-" json:"-"`
+	SystemID      int64  `db:"-" json:"-"`
+
+	// Don't process in memstore; for merging paths.
+	noProcess bool `db:"-" json:"-"`
 }

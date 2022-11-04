@@ -166,6 +166,8 @@ migrate command:
                     committing it. Useful to test if migrations will run
                     correctly without actually altering the database.
 
+        -show       Only show the SQL it would execute, but don't run anything.
+
     Positional arguments are names of the migration, either as just the name
     ("2020-01-05-2-x") or as the file path ("./db/migrate/2020-01-05-2-x.sql").
 

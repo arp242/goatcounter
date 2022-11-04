@@ -17,7 +17,6 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/errors"
-	"zgo.at/gadget"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
@@ -123,7 +122,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		for _, hit := range hits {
 			c.Write([]string{hit.Path, hit.Title, hit.Event, hit.UserAgent,
 				hit.Browser, hit.System, hit.Session.String(), hit.Bot, hit.Ref,
-				unref(hit.RefScheme), hit.Size, hit.Location, hit.FirstVisit,
+				hit.RefScheme, hit.Size, hit.Location, hit.FirstVisit,
 				hit.CreatedAt})
 		}
 
@@ -358,7 +357,7 @@ type ExportRow struct { // Fields in order!
 	Session    zint.Uint128 `db:"session"`
 	Bot        string       `db:"bot"`
 	Ref        string       `db:"ref"`
-	RefScheme  *string      `db:"ref_s"`
+	RefScheme  string       `db:"ref_s"`
 	Size       string       `db:"size"`
 	Location   string       `db:"loc"`
 	FirstVisit string       `db:"first"`
@@ -410,10 +409,12 @@ func (row ExportRow) Hit(ctx context.Context, siteID int64) (Hit, error) {
 	hit.FirstVisit = zbool.Bool(v.Boolean("firstVisit", row.FirstVisit))
 	hit.CreatedAt = v.Date("createdAt", row.CreatedAt, time.RFC3339)
 
-	if unref(row.RefScheme) != "" {
-		v.Include("refScheme", *row.RefScheme,
+	if row.RefScheme != "" {
+		v.Include("refScheme", row.RefScheme,
 			[]string{*RefSchemeHTTP, *RefSchemeOther, *RefSchemeGenerated, *RefSchemeCampaign})
-		hit.RefScheme = row.RefScheme
+		if row.RefScheme != "" {
+			hit.RefScheme = &row.RefScheme
+		}
 	}
 
 	if row.Size != "" {
@@ -441,33 +442,27 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 			paths.title,
 			paths.event,
 
-			user_agents.ua,
 			browsers.name || ' ' || browsers.version as browser,
 			systems.name  || ' ' || systems.version  as system,
 
 			hits.session,
 			hits.bot,
-			hits.ref,
-			hits.ref_scheme as ref_s,
-			hits.size,
-			hits.location as loc,
-			hits.first_visit as first,
+			coalesce(refs.ref, '')        as ref,
+			coalesce(refs.ref_scheme, '') as ref_s,
+			coalesce(sizes.size, '')      as size,
+			hits.location                 as loc,
+			hits.first_visit              as first,
 			hits.created_at
 		from hits
-		join paths       using (path_id)
-		join user_agents using (user_agent_id)
-		join browsers    using (browser_id)
-		join systems     using (system_id)
+		join paths         using (path_id)
+		left join refs     using (ref_id)
+		left join sizes    using (size_id)
+		left join browsers using (browser_id)
+		left join systems  using (system_id)
 		where hits.site_id=$1 and hit_id>$2
 		order by hit_id asc
 		limit $3`,
 		MustGetSite(ctx).ID, paginate, limit)
-
-	hh := *h
-	for i := range hh {
-		hh[i].UserAgent = gadget.UnshortenUA(hh[i].UserAgent)
-	}
-	*h = hh
 
 	last := paginate
 	if len(*h) > 0 {

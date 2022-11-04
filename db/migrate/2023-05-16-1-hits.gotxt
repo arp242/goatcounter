@@ -1,0 +1,165 @@
+---------------------------------------
+---- Create and populate new refs table
+---------------------------------------
+create table refs (
+	ref_id         {{auto_increment}},
+	ref            varchar        not null,
+	ref_scheme     varchar        null
+);
+insert into refs (ref, ref_scheme) values ('', null);
+insert into refs (ref, ref_scheme)
+	select min(ref), ref_scheme from hits where ref != '' group by lower(ref), ref_scheme order by min(ref);
+create unique index "refs#ref#ref_scheme" on refs(lower(ref), ref_scheme);
+{{psql `alter table refs cluster on "refs#ref#ref_scheme";`}}
+analyze refs;
+
+----------------------------------------
+---- Create and populate new sizes table
+----------------------------------------
+create table sizes (
+	size_id        {{auto_increment}},
+	width          integer          not null,
+	height         integer          not null,
+	scale          double precision not null,
+
+	size           varchar          generated always as (
+		{{psql   `width::text || ',' || height::text || ',' || scale::text`}}
+		{{sqlite `width || ',' || height || ',' || scale`}}
+	) stored
+);
+insert into sizes (width, height, scale) values (0, 0, 0);
+insert into sizes (width, height, scale)
+	with sizes as (
+		select replace(size, ' ',  '') as size from hits
+		where size like '%,%,%' -- Filter out some odd values like "0" and rows w/o size
+		group by replace(size, ' ',  '')
+	)
+	{{psql `
+		select
+			-- Cast to float first and then to int, because some hits have
+			-- values like '1708.6443250402808, 872.214019395411, 1'.
+			cast(split_part(size, ',', 1) as float)::int       as width,
+			cast(split_part(size, ',', 2) as float)::int       as height,
+			cast(split_part(size, ',', 3) as double precision) as scale
+		from sizes
+		order by width asc;
+	`}}
+	{{sqlite `
+		, y as (
+			select
+				cast(substr(size, 1, instr(size, ',') - 1) as integer) as width,
+				substr(size,    instr(size, ',') + 1)                  as height
+			from sizes
+			group by size
+		)
+		select
+			width,
+			cast(substr(height, 1, instr(height, ',') - 1) as integer) as height,
+			substr(height,    instr(height, ',') + 1)                  as scale
+		from y;
+	`}}
+
+create unique index sizes_tmp on sizes(size asc);
+analyze sizes;
+
+----------------------
+---- Update ref_counts
+----------------------
+create table ref_counts_new (
+	site_id        integer        not null,
+	path_id        integer        not null,
+
+	ref_id         integer        not null,
+	hour           timestamp      not null,
+	total          integer        not null,
+
+	constraint "ref_counts#site_id#path_id#ref_id#hour" unique(site_id, path_id, ref_id, hour) {{sqlite "on conflict replace"}}
+);
+
+insert into ref_counts_new (site_id, path_id, ref_id, hour, total)
+	select
+		site_id,
+		path_id,
+		refs.ref_id,
+		hour,
+		sum(total)
+	from ref_counts
+	join refs on lower(refs.ref) = lower(ref_counts.ref) and refs.ref_scheme is not distinct from ref_counts.ref_scheme
+	group by lower(ref_counts.ref), site_id, path_id, hour, refs.ref_id
+	order by hour asc;
+
+drop table ref_counts;
+alter table ref_counts_new rename to ref_counts;
+create index "ref_counts#site_id#hour" on ref_counts(site_id, hour asc);
+{{psql `alter table ref_counts cluster on "ref_counts#site_id#hour";`}}
+{{replica "ref_counts" "ref_counts#site_id#path_id#ref_id#hour"}}
+
+
+----------------------------------------------------------------
+---- Update hits with new ref_id and s/user_agent_id/browser_id/
+----------------------------------------------------------------
+create table hits_new (
+	hit_id         {{auto_increment true}},
+	site_id        integer        not null,
+	path_id        integer        not null,
+	ref_id         integer        not null default 1,
+
+	session        {{blob}}       default null,
+	first_visit    integer        default 0,
+	bot            integer        default 0,
+
+	browser_id     integer        not null,
+	system_id      integer        not null,
+	campaign       integer        default null,
+	size_id        integer        null,
+	location       varchar        not null default '',
+	language       varchar,
+
+	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
+);
+
+create index hits_tmp on hits(size);
+analyze hits;
+insert into hits_new (
+	hit_id, site_id, path_id, ref_id,
+	session, first_visit, bot,
+	browser_id, system_id, campaign, size_id, location, language, created_at
+)
+	select
+		hit_id,
+		site_id,
+		path_id,
+		refs.ref_id,
+		session,
+		first_visit,
+		bot,
+		user_agents.browser_id,
+		user_agents.system_id,
+		campaign,
+		sizes.size_id,
+		location,
+		language,
+		created_at
+	from hits
+	join refs        on lower(refs.ref) = lower(hits.ref) and refs.ref_scheme is not distinct from hits.ref_scheme
+	join user_agents using (user_agent_id)
+	join sizes       on sizes.size = replace(hits.size, ' ', '')
+	order by created_at asc;
+
+{{psql `select pg_catalog.setval('hits_new_hit_id_seq', (select max(hit_id) from hits_new), true);`}}
+
+drop table hits;
+alter table hits_new      rename to hits;
+
+create index "hits#site_id#created_at" on hits(site_id, created_at asc);
+{{psql `
+	alter index hits_new_pkey rename to hits_pkey;
+	alter table hits cluster on "hits#site_id#created_at";
+	alter sequence hits_new_hit_id_seq rename to hits_hit_id_seq;
+`}}
+
+----------------------------------
+---- Drop stuff we no longer need
+----------------------------------
+drop table user_agents;
+drop index sizes_tmp;

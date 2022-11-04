@@ -36,11 +36,11 @@ func TestListRefsByPathID(t *testing.T) {
 		"more": false,
 		"stats": [{
 			"count": 0,
-			"name": "example.org",
-			"ref_scheme": "h"
-			}, {
-			"count": 0,
 			"name": "example.com",
+			"ref_scheme": "h"
+		}, {
+			"count": 0,
+			"name": "example.org",
 			"ref_scheme": "h"
 		}]}`
 	if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {

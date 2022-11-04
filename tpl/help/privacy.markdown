@@ -1,16 +1,18 @@
 *8 March 2021*
 
-The following information can be collected:
+The following information can be stored:
 
 - URL of the visited page.
 - `Referer` header.
-- `User-Agent` header.
+- Browser and system information (derived from `User-Agent` header or HTTP
+  client hints; the original headers are not stored).
 - Screen size.
-- Country and region name based on IP address.
-- A hash of the IP address, User-Agent, and random number.
+- Country and region name derived from the IP address.
+- The browser language derived from the `Accept-Language` header.
 
 There is a setting to disable collecting any of this data and the collected data
-may differ per hosted site, but the default is to collect all of the above.
+may differ per hosted site, but the default is to collect all of the above
+except the language.
 
 No personal information (such as IP address) is collected; a hash of the IP
 address, User-Agent, and a random number (“salt”) is kept in the process memory

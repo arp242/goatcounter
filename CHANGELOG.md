@@ -4,6 +4,27 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+Unreleased
+----------
+This release rewrites quite a few tables to a more efficient format. For
+small-to-medium instances this will take a few minutes at the most, but if you
+have very large instances this may take a few hours. It also requires enough
+free disk space to rewrite the `hits` table.
+
+If you want, you can show the migration to run with:
+
+    % goatcounter db migrate -show 2022-11-06-1-hits
+
+Or if you use PostgreSQL:
+
+    % goatcounter db migrate -show -db postgresql+dbname=goatcounter 2022-11-06-1-hits
+
+- UA Client hints are now used to get the browser and system name (if present).
+
+- The `User-Agent` header is no longer stored; only the browser and system
+  parsed out of there. It's pretty reliable, and especially mobile browser
+  User-Agents are ridiculously unique.
+
 2022-11-15 v2.4.1
 -----------------
 - Fix regression that caused the charts for SQLite to be off.

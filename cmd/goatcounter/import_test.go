@@ -104,13 +104,12 @@ func runImportClean(ctx context.Context, t *testing.T) func() {
 		}
 
 		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
-			err = zdb.Exec(ctx, `update sqlite_sequence set seq = 0 where name in ('hits', 'paths', 'user_agents')`)
+			err = zdb.Exec(ctx, `update sqlite_sequence set seq = 0 where name in ('hits', 'paths')`)
 			if err != nil {
 				t.Fatal(err)
 			}
-			err = zdb.Exec(ctx, `delete from user_agents`)
 		} else {
-			err = zdb.Exec(ctx, `truncate hits, paths, user_agents`)
+			err = zdb.Exec(ctx, `truncate hits, paths`)
 		}
 		if err != nil {
 			t.Fatal(err)
@@ -156,10 +155,10 @@ func TestImport(t *testing.T) {
 
 		got := zdb.DumpString(ctx, `select * from hits`)
 		want := `
-			hit_id  site_id  path_id  user_agent_id  session                           bot  ref             ref_scheme  size         location  first_visit  created_at
-			1       1        1        1              00112233445566778899aabbccddef03  0                    NULL        1280,768,1   AR        1            2020-12-01 00:07:10
-			2       1        2        1              00112233445566778899aabbccddef03  0                    NULL        1280,768,1   AR        1            2020-12-01 00:07:44
-			3       1        3        2              00112233445566778899aabbccddef04  0    www.reddit.com  o           1680,1050,2  RO        1            2020-12-27 00:37:37`
+			hit_id  site_id  path_id  session                           bot  ref             ref_scheme  size         location  first_visit  created_at
+			1       1        1        00112233445566778899aabbccddef03  0                    NULL        1280,768,1   AR        1            2020-12-01 00:07:10
+			2       1        2        00112233445566778899aabbccddef03  0                    NULL        1280,768,1   AR        1            2020-12-01 00:07:44
+			3       1        3        00112233445566778899aabbccddef04  0    www.reddit.com  o           1680,1050,2  RO        1            2020-12-27 00:37:37`
 		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace); d != "" {
 			t.Error(d)
 		}
@@ -170,9 +169,9 @@ func TestImport(t *testing.T) {
 
 		got := zdb.DumpString(ctx, `select * from hits`)
 		want := `
-			hit_id  site_id  path_id  user_agent_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at
-			1       1        1        1              00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           1            2000-10-10 20:55:36
-			2       1        1        1              00112233445566778899aabbccddef01  0                                NULL                        0            2000-10-10 20:55:36`
+			hit_id  site_id  path_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at
+			1       1        1        00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           1            2000-10-10 20:55:36
+			2       1        1        00112233445566778899aabbccddef01  0                                NULL                        0            2000-10-10 20:55:36`
 		if d := ztest.Diff(got, want, ztest.DiffNormalizeWhitespace); d != "" {
 			t.Error(d)
 		}
@@ -195,10 +194,10 @@ func TestImport(t *testing.T) {
 
 		got := zdb.DumpString(ctx, `select * from hits`)
 
-		want := "hit_id  site_id  path_id  user_agent_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at\n"
+		want := "hit_id  site_id  path_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at\n"
 		for i := 1; i < 5; i++ {
 			want += fmt.Sprintf(
-				"%-3d     1        1        1              00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           0            2000-10-10 20:55:36\n",
+				"%-3d     1        1        00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           0            2000-10-10 20:55:36\n",
 				i)
 
 			if i == 1 { // first_visit
@@ -226,10 +225,10 @@ func TestImport(t *testing.T) {
 		}
 
 		got := zdb.DumpString(ctx, `select * from hits`)
-		want := "hit_id  site_id  path_id  user_agent_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at\n"
+		want := "hit_id  site_id  path_id  session                           bot  ref                         ref_scheme  size  location  first_visit  created_at\n"
 		for i := 1; i < 101; i++ {
 			want += fmt.Sprintf(
-				"%-3d     1        1        1              00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           0            2000-10-10 20:55:36\n",
+				"%-3d     1        1        00112233445566778899aabbccddef01  0    www.example.com/start.html  h                           0            2000-10-10 20:55:36\n",
 				i)
 
 			if i == 1 { // first_visit

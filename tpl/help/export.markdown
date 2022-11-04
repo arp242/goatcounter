@@ -22,7 +22,7 @@ The first line is a header with the field names. The fields, in order, are:
     with the version export format (see versioning below).</td></tr>
 <tr><th>Title</th><td>Page title that was sent.</td></tr>
 <tr><th>Event</th><td>If this is an event; <code>true</code> or <code>false</code>.</td></tr>
-<tr><th>User-Agent</th><td><code>User-Agent</code> header.</td></tr>
+<tr><th>User-Agent</th><td>Always blank since the User-Agent is no longer stored.</td></tr>
 <tr><th>Browser</th><td>Browser name and version.</td></tr>
 <tr><th>System</th><td>System name and version.</td></tr>
 <tr><th>Session</th><td>The session ID, to track unique visitors.</td>

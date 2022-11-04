@@ -7,6 +7,7 @@ package gctest
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"testing"
@@ -101,8 +102,22 @@ func db(t testing.TB, storeFile bool) context.Context {
 		goatcounter.Memstore.Reset()
 		cron.Stop()
 		db.Close()
-		if db.SQLDialect() == zdb.DialectPostgreSQL {
-			exec.Command("dropdb", dbname).Run()
+
+		_, keepdb := os.LookupEnv("KEEPDB")
+		switch db.SQLDialect() {
+		case zdb.DialectPostgreSQL:
+			db.Close()
+			if keepdb {
+				fmt.Println("KEPT DATABASE")
+				fmt.Println("    psql", dbname)
+			} else {
+				exec.Command("dropdb", dbname).Run()
+			}
+		default:
+			if keepdb {
+				fmt.Println("KEEPDB not supported for this SQL dialect")
+			}
+			db.Close()
 		}
 	})
 
