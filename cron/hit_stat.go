@@ -18,6 +18,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count  []int
+			total  int
 			day    string
 			hour   string
 			pathID int64
@@ -50,6 +51,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			hour, _ := strconv.ParseInt(h.CreatedAt.Format("15"), 10, 8)
 			if h.FirstVisit {
 				v.count[hour] += 1
+				v.total += 1
 			}
 			grouped[k] = v
 		}
@@ -77,7 +79,9 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 		// }
 
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.pathID, zjson.MustMarshal(v.count))
+			if v.total > 0 {
+				ins.Values(siteID, v.day, v.pathID, zjson.MustMarshal(v.count))
+			}
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
 	}), "cron.updateHitStats")

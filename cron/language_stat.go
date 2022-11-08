@@ -54,7 +54,9 @@ func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 
 		for _, v := range grouped {
-			ins.Values(siteID, v.day, v.pathID, v.language, v.count)
+			if v.count > 0 {
+				ins.Values(siteID, v.day, v.pathID, v.language, v.count)
+			}
 		}
 		return ins.Finish()
 	}), "cron.updateLanguageStats")

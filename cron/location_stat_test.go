@@ -32,7 +32,7 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `{false [{ET Ethiopia 1 <nil>} {ID Indonesia 0 <nil>}]}`
+	want := `{false [{ET Ethiopia 1 <nil>}]}`
 	out := fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -41,12 +41,12 @@ func TestLocationStats(t *testing.T) {
 	// Update existing.
 	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now, Location: "ID"},
-		{Site: site.ID, CreatedAt: now, Location: "ID"},
+		{Site: site.ID, CreatedAt: now, Location: "ID", FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},
 		{Site: site.ID, CreatedAt: now, Location: "ET", FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Location: "ET", FirstVisit: true},
 		{Site: site.ID, CreatedAt: now, Location: "ET"},
-		{Site: site.ID, CreatedAt: now, Location: "NZ"},
+		{Site: site.ID, CreatedAt: now, Location: "NZ", FirstVisit: true},
 	}...)
 
 	stats = goatcounter.HitStats{}
@@ -55,7 +55,7 @@ func TestLocationStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{ET Ethiopia 3 <nil>} {ID Indonesia 0 <nil>} {NZ New Zealand 0 <nil>}]}`
+	want = `{false [{ET Ethiopia 3 <nil>} {ID Indonesia 1 <nil>} {NZ New Zealand 1 <nil>}]}`
 	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)

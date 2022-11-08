@@ -33,7 +33,7 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `{false [{ Firefox 1 <nil>} { Chrome 0 <nil>}]}`
+	want := `{false [{ Firefox 1 <nil>}]}`
 	out := fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -45,6 +45,7 @@ func TestBrowserStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/69.0"},
 		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/70.0"},
 		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Firefox/70.0"},
+		{Site: site.ID, CreatedAt: now, UserAgentHeader: "Chrome/77.0.123.666", FirstVisit: true},
 	}...)
 
 	stats = goatcounter.HitStats{}
@@ -53,7 +54,7 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{ Firefox 2 <nil>} { Chrome 0 <nil>}]}`
+	want = `{false [{ Firefox 2 <nil>} { Chrome 1 <nil>}]}`
 	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
@@ -66,7 +67,7 @@ func TestBrowserStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want = `{false [{ Firefox 68 1 <nil>} { Firefox 69 1 <nil>} { Firefox 70 0 <nil>}]}`
+	want = `{false [{ Firefox 68 1 <nil>} { Firefox 69 1 <nil>}]}`
 	out = fmt.Sprintf("%v", stats)
 	if want != out {
 		t.Errorf("\nwant: %s\nout:  %s", want, out)
