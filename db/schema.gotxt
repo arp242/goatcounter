@@ -97,7 +97,7 @@ create table paths (
 	event          integer        default 0
 );
 create unique index "paths#site_id#path" on paths(site_id, lower(path));
-create        index "paths#path#title"   on paths(lower(path), lower(title));
+create index        "paths#title"        on paths(lower(title));
 {{cluster "paths" "paths#site_id#path"}}
 
 create table campaigns (
@@ -243,17 +243,18 @@ create index "language_stats#site_id#day" on language_stats(site_id, day desc);
 
 create table campaign_stats (
 	site_id        integer        not null,
+	path_id        integer        not null,
 
 	day            date           not null,
 	campaign_id    integer        not null,
 	ref            varchar        not null,
 	count          integer        not null,
 
-	constraint "campaign_stats#site_id#campaign_id#ref#day" unique(site_id, campaign_id, ref, day) {{sqlite "on conflict replace"}}
+	constraint "campaign_stats#site_id#path_id#campaign_id#ref#day" unique(site_id, path_id, campaign_id, ref, day) {{sqlite "on conflict replace"}}
 );
 create index "campaign_stats#site_id#day" on campaign_stats(site_id, day desc);
 {{cluster "campaign_stats" "campaign_stats#site_id#day"}}
-{{replica "campaign_stats" "campaign_stats#site_id#campaign_id#ref#day"}}
+{{replica "campaign_stats" "campaign_stats#site_id#path_id#campaign_id#ref#day"}}
 
 create table updates (
 	id             {{auto_increment}},
@@ -340,6 +341,7 @@ insert into version values
 	('2022-10-17-1-campaigns'),
 	('2022-10-21-1-apitoken-lastused'),
 	('2022-11-03-1-uncount'),
-	('2022-11-03-2-ununique');
+	('2022-11-03-2-ununique'),
+	('2022-11-05-1-paths-title');
 
 -- vim:ft=sql:tw=0
