@@ -80,7 +80,7 @@ There are three ways:
 Running your own
 ----------------
 **Note this README is for the latest master and may be inaccurate for the latest
-released version; use the [`release-2.3`][latest] branch for the 2.1 README.**
+released version; use the [`release-2.4`][latest] branch for the 2.4 README.**
 
 The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
 are statically compiled, contain everything you need, and should work in pretty
@@ -95,7 +95,7 @@ Generally speaking only the latest release is supported, although critical fixes
 (security, data loss, etc.) may get backported to previous releases.
 
 [releases]: https://github.com/arp242/goatcounter/releases
-[latest]: https://github.com/arp242/goatcounter/tree/release-2.3
+[latest]: https://github.com/arp242/goatcounter/tree/release-2.4
 
 ### Deploy scripts and such
 - ["StackScript" for Linode][stackscript]; Alpine Linux VPS; you can also use

@@ -1,19 +1,21 @@
 ChangeLog for GoatCounter
 =========================
-
 This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-unreleased
-----------
+2022-11-08 v2.4.0
+-----------------
 - Add a more fully-featured API that can also retrieve the dashboard statistics.
   See https://www.goatcounter.com/help/api for documentation.
+
+  This is still as "v0" because some details may still change.
 
 - Default API ratelimit is now 4 requests/second, rather than 4 requests/10
   seconds. You can use the `-ratelimit` flag to configure this.
 
-- Can now also merge paths instead of just deleting them.
+- Can now also merge paths instead of just deleting them (the "Settings → Delete
+  pageviews" tab was changed to "Manage pageviews").
 
 - Add `goatcounter dashboard`, which uses the new API to display the dashboard
   in the terminal (only a basic non-interactive overview for now).
@@ -21,6 +23,21 @@ unreleased
 - Add a "Show fewer numbers" user setting; this is intended to still give a
   reasonably useful overview of what happens on your site but prevent an
   “obsession” over the exact number of visitors and stats.
+
+- No longer store or display "pageviews": always store and display "visitors"
+  instead.
+
+  The visitor count is the only thing that's interesting in pretty much all
+  cases; the "raw" pageviews are still stored for some future purposes (such as
+  "time on page"), but are no longer stored in most other contexts.
+
+- Add infrastructure for "dark mode".
+
+  This is not yet enabled by default because all "dark mode" themes look "bad"
+  on my eyes, and I'm not really sure what works well for people who do like it.
+
+  So some help is needed here. See:
+  https://github.com/arp242/goatcounter/issues/586#issuecomment-1287995673
 
 2022-10-17 v2.3.0
 -----------------

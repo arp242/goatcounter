@@ -4,11 +4,10 @@ package goatcounter
 
 /*
 curl -s https://raw.githubusercontent.com/matomo-org/referrer-spam-list/master/spammers.txt |
-
-	        sort -u |
-	        sed 's!.*!\t"\0": {},!' |
-	        sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%%/{//!d}' refspam.go |
-			gofmt > x && mv -f x refspam.go
+sort -u |
+sed 's!.*!\t"\0": {},!' |
+sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%%/{//!d}' refspam.go |
+gofmt > x && mv -f x refspam.go
 */
 var refspam = map[string]struct{}{
 	// Not spam, but we never really want to accept requests from localhost.

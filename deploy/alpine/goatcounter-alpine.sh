@@ -2,13 +2,13 @@
 # <UDF name="goatcounter_domain"   label="Domain you'll be hosting GoatCounter on" example="stats.example.com" />
 # <UDF name="goatcounter_email"    label="Your email address"                      example="me@example.com" />
 # <UDF name="goatcounter_password" label="Password to access GoatCounter"          example="Password 1234 :-)" />
-# <UDF name="goatcounter_version"  label="GoatCounter version"                     default="v2.3.0" />
+# <UDF name="goatcounter_version"  label="GoatCounter version"                     default="v2.4.0" />
 #
 # This will set up an Alpine Linux machine; environment variables:
 #    GOATCOUNTER_DOMAIN      Domain you'll be hosting GoatCounter on
 #    GOATCOUNTER_EMAIL       Your email address
 #    GOATCOUNTER_PASSWORD    Password to access GoatCounter
-#    GOATCOUNTER_VERSION     GoatCounter version (default: v2.3.0).
+#    GOATCOUNTER_VERSION     GoatCounter version (default: v2.4.0).
 #
 # This is available as a "StackScript" to deploy GoatCounter on a Linode VPS:
 # https://cloud.linode.com/stackscripts/659823
@@ -36,7 +36,7 @@
 #
 
 # GoatCounter version to set up.
-v=${GOATCOUNTER_VERSION:-"v2.3.0"}
+v=${GOATCOUNTER_VERSION:-"v2.4.0"}
 
 
 set -eu
