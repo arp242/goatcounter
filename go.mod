@@ -2,11 +2,13 @@ module zgo.at/goatcounter/v2
 
 go 1.19
 
+replace zgo.at/bgrun => ../Golib/bgrun
+
 require (
 	code.soquee.net/otp v0.0.4
 	github.com/BurntSushi/toml v1.2.1
 	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/bmatcuk/doublestar/v4 v4.2.0
+	github.com/bmatcuk/doublestar/v4 v4.4.0
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
@@ -16,10 +18,10 @@ require (
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.4.2
-	golang.org/x/crypto v0.1.0
-	golang.org/x/exp v0.0.0-20221019170559-20944726eadf
+	golang.org/x/crypto v0.2.0
+	golang.org/x/exp v0.0.0-20221111204811-129d8d6c17ab
 	golang.org/x/image v0.1.0
-	golang.org/x/net v0.1.0
+	golang.org/x/net v0.2.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.4.0
 	zgo.at/blackmail v0.0.0-20221021025740-b3fdfc32a1aa
@@ -34,12 +36,12 @@ require (
 	zgo.at/z18n v0.0.0-20221020022658-4ea64eeb51d9
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
-	zgo.at/zdb v0.0.0-20221026193338-d7af3d85e31a
+	zgo.at/zdb v0.0.0-20221105060706-d862504dc723
 	zgo.at/zhttp v0.0.0-20221020124111-c3011d53484c
 	zgo.at/zli v0.0.0-20221012220610-d6a5a841b943
 	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
-	zgo.at/zstd v0.0.0-20221031120442-2f4b628d1acb
+	zgo.at/zstd v0.0.0-20221107175747-9855306d942d
 	zgo.at/ztpl v0.0.0-20221020022020-7d727686f6a2
 	zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade
 )
@@ -57,8 +59,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/oschwald/maxminddb-golang v1.10.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/term v0.1.0 // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/mod v0.6.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/term v0.2.0 // indirect
+	golang.org/x/tools v0.2.0 // indirect
 )

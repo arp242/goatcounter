@@ -21,6 +21,7 @@ import (
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 func TestBackendCount(t *testing.T) {
@@ -56,38 +57,38 @@ func TestBackendCount(t *testing.T) {
 		{"ref", url.Values{"p": {"/foo.html"}, "r": {"https://example.com"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
-			RefScheme: ztest.SP("h"),
+			RefScheme: ztype.Ptr("h"),
 		}},
 
 		{"str ref", url.Values{"p": {"/foo.html"}, "r": {"example"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example",
-			RefScheme: ztest.SP("o"),
+			RefScheme: ztype.Ptr("o"),
 		}},
 
 		{"ref params", url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
-			RefScheme: ztest.SP("h"),
+			RefScheme: ztype.Ptr("h"),
 		}},
 
 		{"full", url.Values{"p": {"/foo.html"}, "t": {"XX"}, "r": {"https://example.com?p=x"}, "s": {"40,50,1"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Title:     "XX",
 			Ref:       "example.com",
-			RefScheme: ztest.SP("h"),
+			RefScheme: ztype.Ptr("h"),
 			Size:      goatcounter.Floats{40, 50, 1},
 		}},
 
-		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=XXX"}}, nil, 200, goatcounter.Hit{
+		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=AAA"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
-			Ref:       "XXX",
-			RefScheme: ztest.SP("c"),
+			Ref:       "AAA",
+			RefScheme: ztype.Ptr("c"),
 		}},
-		{"campaign_override", url.Values{"p": {"/foo.html?ref=AAA"}, "q": {"ref=XXX"}}, nil, 200, goatcounter.Hit{
+		{"campaign_override", url.Values{"p": {"/foo.html?ref=AAA"}, "q": {"ref=AAA"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
-			Ref:       "XXX",
-			RefScheme: ztest.SP("c"),
+			Ref:       "AAA",
+			RefScheme: ztype.Ptr("c"),
 		}},
 
 		{"bot", url.Values{"p": {"/a"}, "b": {"150"}}, nil, 200, goatcounter.Hit{

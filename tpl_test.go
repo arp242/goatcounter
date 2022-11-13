@@ -57,7 +57,7 @@ func TestTpl(t *testing.T) {
 			NumRows:   ip(42),
 			Size:      sp("42"),
 			LastHitID: i64p(642051),
-			Hash:      sp("sha256-XXX"),
+			Hash:      sp("sha256-AAA"),
 		}}},
 	}
 

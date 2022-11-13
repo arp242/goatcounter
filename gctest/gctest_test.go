@@ -64,14 +64,14 @@ func TestSite(t *testing.T) {
 	}
 
 	{
-		s := goatcounter.Site{Cname: ztype.Ptr("XXX.XXX")}
-		u := goatcounter.User{Email: "XXX@XXX.XXX"}
+		s := goatcounter.Site{Cname: ztype.Ptr("AAA.AAA")}
+		u := goatcounter.User{Email: "AAA@AAA.AAA"}
 		Site(ctx, t, &s, &u)
 
-		if s.ID == 0 || *s.Cname != "XXX.XXX" {
+		if s.ID == 0 || *s.Cname != "AAA.AAA" {
 			t.Error()
 		}
-		if u.ID == 0 || u.Email != "XXX@XXX.XXX" {
+		if u.ID == 0 || u.Email != "AAA@AAA.AAA" {
 			t.Error()
 		}
 
@@ -81,11 +81,11 @@ func TestSite(t *testing.T) {
 			site_id  cname
 			1        gctest.localhost
 			2        NULL
-			3        XXX.XXX
+			3        AAA.AAA
 			user_id  site_id  email
 			1        1        test@gctest.localhost
 			2        2        test@example.com
-			3        3        XXX@XXX.XXX`
+			3        3        AAA@AAA.AAA`
 		if d := zdb.Diff(got, want); d != "" {
 			t.Error(d)
 		}
@@ -99,12 +99,12 @@ func TestSite(t *testing.T) {
 			site_id  cname
 			1        gctest.localhost
 			2        NULL
-			3        XXX.XXX
+			3        AAA.AAA
 			4        NULL
 			user_id  site_id  email
 			1        1        test@gctest.localhost
 			2        2        test@example.com
-			3        3        XXX@XXX.XXX
+			3        3        AAA@AAA.AAA
 			4        4        test@example.com`
 		if d := zdb.Diff(got, want); d != "" {
 			t.Error(d)

@@ -619,7 +619,7 @@ func (u *UserAccesses) Scan(v interface{}) error {
 	case string:
 		return json.Unmarshal([]byte(vv), u)
 	default:
-		return fmt.Errorf("XXX.Scan: unsupported type: %T", v)
+		return fmt.Errorf("UserAccesses.Scan: unsupported type: %T", v)
 	}
 }
 

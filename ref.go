@@ -135,7 +135,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	// getpocket.com/a/read/2580004052
 	// getpocket.com/recommendations
 	// getpocket.com/redirect
-	// getpocket.com/users/XXX/feed/read
+	// getpocket.com/users/AAA/feed/read
 	if refURL.Host == "getpocket.com" || refURL.Host == "app.getpocket.com" {
 		return "getpocket.com", false
 	}
