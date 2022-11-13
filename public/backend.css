@@ -76,7 +76,7 @@ input.red { border: 1px solid var(--input-error-border) !important; }
     .flex-form fieldset { height: 100%; }
 }
 
-.flash     { margin-bottom: 1em; padding: 10px; text-align: center; border-radius: 2px; border: 2px solid var(--bg); }
+.flash     { padding: 10px; text-align: center; border: 2px solid var(--bg); margin: calc(-1em - 2px); margin-bottom: 1em; }
 .flash p   { max-width: none !important; }
 .flash pre { text-align: left; margin: 0 auto; display: inline-block; }
 .flash-i   { background-color: var(--info-bg); border-color: var(--info-border); }
