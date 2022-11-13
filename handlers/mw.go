@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/termtext"
@@ -104,15 +103,14 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 			if r.URL.Path == "/status" {
 				info, _ := zdb.Info(ctx)
 				j, err := json.Marshal(map[string]interface{}{
-					"uptime":            ztime.Now().Sub(Started).Round(time.Second).String(),
-					"version":           goatcounter.Version,
-					"last_persisted_at": cron.LastMemstore.Get().Round(time.Second).Format(time.RFC3339),
-					"database":          zdb.SQLDialect(ctx).String() + " " + string(info.Version),
-					"go":                runtime.Version(),
-					"GOOS":              runtime.GOOS,
-					"GOARCH":            runtime.GOARCH,
-					"race":              zruntime.Race,
-					"cgo":               zruntime.CGO,
+					"uptime":   ztime.Now().Sub(Started).Round(time.Second).String(),
+					"version":  goatcounter.Version,
+					"database": zdb.SQLDialect(ctx).String() + " " + string(info.Version),
+					"go":       runtime.Version(),
+					"GOOS":     runtime.GOOS,
+					"GOARCH":   runtime.GOARCH,
+					"race":     zruntime.Race,
+					"cgo":      zruntime.CGO,
 				})
 				if err != nil {
 					http.Error(w, err.Error(), 500)

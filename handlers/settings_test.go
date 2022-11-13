@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"zgo.at/bgrun"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztype"
@@ -83,7 +83,7 @@ func TestSettingsPurge(t *testing.T) {
 
 	for _, tt := range tests {
 		runTest(t, tt, func(t *testing.T, rr *httptest.ResponseRecorder, r *http.Request) {
-			bgrun.Wait(context.Background())
+			bgrun.Wait("")
 
 			var hits goatcounter.Hits
 			err := hits.TestList(r.Context(), false)

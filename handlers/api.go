@@ -20,9 +20,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"golang.org/x/exp/slices"
+	"zgo.at/bgrun"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/guru"
@@ -69,11 +69,6 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 				case "/api/v0/export":
 					return rateLimits.export(r)
 				case "/api/v0/count":
-					// Memstore is taking a while to persist; don't add to it.
-					l := ztime.Now().Sub(cron.LastMemstore.Get())
-					if l > 20*time.Second {
-						return 0, 5
-					}
 					return rateLimits.apiCount(r)
 				}
 			},
@@ -319,7 +314,7 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run(fmt.Sprintf("export api:%d", export.SiteID), func() { export.Run(ctx, fp, false) })
+	bgrun.MustRunFunction(fmt.Sprintf("export api:%d", export.SiteID), func() { export.Run(ctx, fp, false) })
 
 	w.WriteHeader(http.StatusAccepted)
 	return zhttp.JSON(w, export)
@@ -613,7 +608,11 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if goatcounter.Memstore.Len() >= 5000 {
-		goatcounter.PersistRunner.Run <- struct{}{}
+		err := cron.TaskPersistAndStat()
+		if err != nil {
+			zlog.Error(err)
+		}
+		cron.WaitPersistAndStat()
 	}
 
 	if firstHitAt != nil {

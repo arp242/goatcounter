@@ -54,6 +54,7 @@ func TestBuffer(t *testing.T) {
 		i := zsync.NewAtomicInt(0)
 		handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil, false, false, false, "", 15)
 		goatcounter.Memstore.TestInit(zdb.MustGetDB(ctx))
+		cron.Start(ctx)
 
 		s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ii := i.Add(1)
@@ -72,6 +73,11 @@ func TestBuffer(t *testing.T) {
 
 			*r = *r.WithContext(ctx)
 			handle.ServeHTTP(w, r)
+			err := cron.TaskPersistAndStat()
+			if err != nil {
+				t.Error(err)
+			}
+			cron.WaitPersistAndStat()
 		}))
 		backend = s.URL
 	}
@@ -121,7 +127,6 @@ func TestBuffer(t *testing.T) {
 	}
 
 	time.Sleep(bufSendTime * 2)
-	cron.PersistAndStat(ctx)
 
 	{
 		var got int

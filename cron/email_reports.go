@@ -25,10 +25,10 @@ import (
 var el = zlog.Module("email-report")
 
 // EmailReports sends email reports for sites that have this configured.
-func EmailReports(ctx context.Context) error {
+func emailReports(ctx context.Context) error {
 	users, err := reportUsers(ctx)
 	if err != nil {
-		return errors.Errorf("cron.EmailReports: %w", err)
+		return errors.Errorf("cron.emailReports: %w", err)
 	}
 
 	now := ztime.Now().UTC()
@@ -41,10 +41,10 @@ func EmailReports(ctx context.Context) error {
 		}
 
 		if user.LastReportAt.IsZero() {
-			return fmt.Errorf("cron.EmailReports: user=%d: LastReportAt is zero; this should never happen", user.ID)
+			return fmt.Errorf("cron.emailReports: user=%d: LastReportAt is zero; this should never happen", user.ID)
 		}
 		if user.LastReportAt.After(now) {
-			return fmt.Errorf("cron.EmailReports: user=%d: LastReportAt is after the current time; this should never happen", user.ID)
+			return fmt.Errorf("cron.emailReports: user=%d: LastReportAt is after the current time; this should never happen", user.ID)
 		}
 
 		rng := user.EmailReportRange().UTC()
@@ -54,7 +54,7 @@ func EmailReports(ctx context.Context) error {
 
 		text, html, subject, err := reportText(ctx, site, user)
 		if err != nil {
-			return fmt.Errorf("cron.EmailReports: user=%d: %w", user.ID, err)
+			return fmt.Errorf("cron.emailReports: user=%d: %w", user.ID, err)
 		}
 		if text == nil {
 			el.Debug("no text: bailing")

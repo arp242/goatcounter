@@ -8,10 +8,10 @@ package cron
 import (
 	"context"
 	"strings"
+	"sync/atomic"
 	"time"
 
-	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/bgrun"
+	"zgo.at/bgrun"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zsync"
@@ -28,95 +28,93 @@ func (t Task) ID() string {
 }
 
 var Tasks = []Task{
-	{"vacuum pageviews (data retention)", DataRetention, 1 * time.Hour},
+	{"vacuum pageviews (data retention)", dataRetention, 1 * time.Hour},
 	{"renew ACME certs", renewACME, 2 * time.Hour},
 	{"vacuum soft-deleted sites", vacuumDeleted, 12 * time.Hour},
 	{"rm old exports", oldExports, 1 * time.Hour},
 	{"cycle sessions", sessions, 1 * time.Minute},
-	{"send email reports", EmailReports, 1 * time.Hour},
+	{"send email reports", emailReports, 1 * time.Hour},
+	{"persist hits", persistAndStat, time.Duration(persistInterval.Load())},
 }
 
 var (
 	stopped         = zsync.NewAtomicInt(0)
 	started         = zsync.NewAtomicInt(0)
-	persistInterval = 10 * time.Second
+	persistInterval = func() atomic.Int64 {
+		var d atomic.Int64
+		d.Store(int64(10 * time.Second))
+		return d
+	}()
 )
 
-func PersistInterval(d time.Duration) {
-	if started.Value() == 1 {
-		panic("cron.PersistInterval: cron already started")
-	}
-
-	persistInterval = d
-	Tasks = append(Tasks, Task{
-		Desc:   "persist hits",
-		Fun:    PersistAndStat,
-		Period: d,
-	})
+func SetPersistInterval(d time.Duration) {
+	persistInterval.Store(int64(d))
 }
 
-// RunBackground runs tasks in the background according to the given schedule.
-func RunBackground(ctx context.Context) {
+// Start running tasks in the background.
+func Start(ctx context.Context) {
+	if started.Value() == 1 {
+		return
+	}
 	started.Set(1)
 
 	l := zlog.Module("cron")
 
-	// TODO: should rewrite cron to always respond to channels, and then have
-	// the cron package send those periodically.
-	go func() {
-		for {
-			<-goatcounter.PersistRunner.Run
-			bgrun.Run("cron:PersistAndStat", func() {
-				done := timeout("PersistAndStat", persistInterval)
-				err := PersistAndStat(ctx)
-				if err != nil {
-					l.Error(err)
-				}
-				done <- struct{}{}
-			})
-		}
-	}()
+	for _, t := range Tasks {
+		t := t
+		f := t.ID()
+		bgrun.NewTask("cron:"+f, 1, func(context.Context) error {
+			err := t.Fun(ctx)
+			if err != nil {
+				l.Error(err)
+			}
+			return nil
+		})
+	}
 
 	for _, t := range Tasks {
 		go func(t Task) {
 			defer zlog.Recover()
+			id := t.ID()
 
 			for {
-				time.Sleep(t.Period)
+				if id == "persistAndStat" {
+					time.Sleep(time.Duration(persistInterval.Load()))
+				} else {
+					time.Sleep(t.Period)
+				}
 				if stopped.Value() == 1 {
 					return
 				}
 
-				f := t.ID()
-				bgrun.Run("cron:"+f, func() {
-					done := timeout(f, persistInterval)
-					err := t.Fun(ctx)
-					if err != nil {
-						l.Error(err)
-					}
-					done <- struct{}{}
-				})
+				err := bgrun.RunTask("cron:" + id)
+				if err != nil {
+					zlog.Error(err)
+				}
 			}
 		}(t)
 	}
 }
 
-func Stop(ctx context.Context) error {
+func Stop() error {
 	stopped.Set(1)
 	started.Set(0)
-	return bgrun.Wait(ctx)
+	bgrun.Wait("")
+	bgrun.Reset()
+	return nil
 }
 
-func timeout(f string, d time.Duration) chan struct{} {
-	done := make(chan struct{})
-	go func() {
-		t := time.NewTimer(d)
-		select {
-		case <-t.C:
-			zlog.Errorf("cron task %s is taking longer than %s", f, d)
-		case <-done:
-			t.Stop()
-		}
-	}()
-	return done
-}
+func TaskOldExports() error     { return bgrun.RunTask("cron:oldExports") }
+func TaskDataRetention() error  { return bgrun.RunTask("cron:dataRetention") }
+func TaskVacuumOldSites() error { return bgrun.RunTask("cron:vacuumDeleted") }
+func TaskACME() error           { return bgrun.RunTask("cron:renewACME") }
+func TaskSessions() error       { return bgrun.RunTask("cron:sessions") }
+func TaskEmailReports() error   { return bgrun.RunTask("cron:emailReports") }
+func TaskPersistAndStat() error { return bgrun.RunTask("cron:persistAndStat") }
+func WaitOldExports()           { bgrun.Wait("cron:oldExports") }
+func WaitDataRetention()        { bgrun.Wait("cron:dataRetention") }
+func WaitVacuumOldSites()       { bgrun.Wait("cron:vacuumDeleted") }
+func WaitACME()                 { bgrun.Wait("cron:renewACME") }
+func WaitSessions()             { bgrun.Wait("cron:sessions") }
+func WaitEmailReports()         { bgrun.Wait("cron:emailReports") }
+func WaitPersistAndStat()       { bgrun.Wait("cron:persistAndStat") }

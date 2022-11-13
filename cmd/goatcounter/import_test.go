@@ -63,7 +63,7 @@ func runImport(ctx context.Context, t *testing.T, exit *zli.TestExit, args ...st
 		"-site=http://test.localhost:9876",
 		"-debug=all"}, args...)...)
 
-	err := cron.PersistAndStat(ctx)
+	err := cron.TaskPersistAndStat()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +188,7 @@ func TestImport(t *testing.T) {
 			4)...)
 		stop <- struct{}{}
 		time.Sleep(1000 * time.Millisecond)
-		err := cron.PersistAndStat(ctx)
+		err := cron.TaskPersistAndStat()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -220,7 +220,7 @@ func TestImport(t *testing.T) {
 			100)...)
 		stop <- struct{}{}
 		time.Sleep(1000 * time.Millisecond)
-		err := cron.PersistAndStat(ctx)
+		err := cron.TaskPersistAndStat()
 		if err != nil {
 			t.Fatal(err)
 		}

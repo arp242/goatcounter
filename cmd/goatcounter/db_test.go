@@ -328,11 +328,11 @@ func TestDBUser(t *testing.T) {
 			"-db="+dbc,
 			"-find=1", "-find=new@new.new")
 		wantExit(t, exit, out, 0)
-		if !grep(out.String(), `user_id +1`) {
-			t.Error(out.String())
+		if r := `user_id +1`; !grep(out.String(), r) {
+			t.Errorf("user 1 not found in output (via regexp %q):\n%s", r, out.String())
 		}
-		if !grep(out.String(), `user_id +2`) {
-			t.Error(out.String())
+		if r := `user_id +2`; !grep(out.String(), r) {
+			t.Errorf("user 2 not found in output (via regexp %q):\n%s", r, out.String())
 		}
 		out.Reset()
 	}

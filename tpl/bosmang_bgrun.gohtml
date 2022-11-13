@@ -30,15 +30,13 @@
 <thead><tr>
 	<th>Job</th>
 	<th>Started from</th>
-	<th>No duplicates</th>
 	<th>Started at</th>
 </tr></thead>
 <tbody>
 	{{range $j := .Jobs}}
 		<tr>
-			<td>{{$j.Name}}</td>
+			<td>{{$j.Task}}</td>
 			<td>{{$j.From}}</td>
-			<td>{{$j.NoDuplicates}}</td>
 			<td>{{$j.Started | ago}} ago</td>
 		</tr>
 	{{else}}
@@ -74,11 +72,10 @@
 	{{range $i, $_ := .History}}
 		{{$j := index $.History (sub (len $.History) $i 1)}}
 		<tr>
-			<td>{{$j.Name}}</td>
+			<td>{{$j.Task}}</td>
 			<td>{{$j.From}}</td>
-			<td>{{$j.NoDuplicates}}</td>
 			<td>{{$j.Started.Format "2006-01-02 15:04:05"}}</td>
-			<td>{{round_duration ($j.Finished.Sub $j.Started)}}</td>
+			<td>{{round_duration $j.Took}}</td>
 		</tr>
 	{{else}}
 		<tr><td colspan="5">No history.</td></tr>

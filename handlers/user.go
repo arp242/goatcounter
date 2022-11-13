@@ -19,9 +19,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/xsrftoken"
+	"zgo.at/bgrun"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -130,7 +130,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 
 	site := Site(r.Context())
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run("email:password", func() {
+	bgrun.RunFunction("email:password", func() {
 		err := blackmail.Send(
 			T(ctx, "email/reset-user-email-subject|Password reset for %(domain)", site.Domain(ctx)),
 			blackmail.From("GoatCounter login", goatcounter.Config(ctx).EmailFrom),
@@ -497,7 +497,7 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 
 func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcounter.User, emailFrom string) {
 	ctx = goatcounter.CopyContextValues(ctx)
-	bgrun.Run("email:verify", func() {
+	bgrun.RunFunction("email:verify", func() {
 		err := blackmail.Send("Verify your email",
 			mail.Address{Name: "GoatCounter", Address: emailFrom},
 			blackmail.To(user.Email),

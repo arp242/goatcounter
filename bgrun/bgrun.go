@@ -1,240 +1,332 @@
-// Copyright © Martin Tournoij – This file is part of GoatCounter and published
-// under the terms of a slightly modified EUPL v1.2 license, which can be found
-// in the LICENSE file or at https://license.goatcounter.com
-
 // Package bgrun runs jobs in the background.
-//
-// This is mostly intended for "fire and forget" type of goroutines like sending
-// an email. They typically don't really need any synchronisation as such but
-// you do want to wait for them to finish before the program exits, or you want
-// to wait for them in tests.
 package bgrun
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"os"
+	"runtime"
 	"sort"
-	"strings"
 	"sync"
 	"time"
-
-	"zgo.at/errors"
-	"zgo.at/zli"
-	"zgo.at/zlog"
-	"zgo.at/zstd/zdebug"
-	"zgo.at/zstd/zsync"
 )
 
-type Job struct {
-	Name         string
-	From         string
-	NoDuplicates bool
-	Started      time.Time
-	Finished     time.Time
-}
-
-var (
-	wg = new(sync.WaitGroup)
-
-	working struct {
-		sync.Mutex
-		m map[string]Job
+type (
+	task struct {
+		name   string
+		maxPar int
+		fun    func(context.Context) error
 	}
-
-	hist struct {
-		sync.Mutex
-		l []Job
+	job struct {
+		task      task
+		wg        sync.WaitGroup
+		num       int
+		instances []*jobInstance
+	}
+	jobInstance struct {
+		from    string
+		started time.Time
+	}
+	Job struct {
+		Task    string        // Task name
+		Started time.Time     // When the job was started.
+		Took    time.Duration // How long the job took to run.
+		From    string        // Location where the job was started from.
+	}
+	Runner struct {
+		ctx     context.Context
+		cancel  context.CancelFunc
+		maxHist int
+		depth   int
+		mu      sync.Mutex
+		tasks   map[string]task
+		jobs    map[string]*job
+		hist    []Job
+		logger  func(task string, err error)
 	}
 )
 
-const maxHist = 1_000
-
-// Wait for all goroutines to finish for a maximum of maxWait.
-func Wait(ctx context.Context) error {
-	// TODO: this won't actually kill the goroutines that are still running.
-	return errors.Wrap(zsync.Wait(ctx, wg), "bgrun.Wait")
+type ErrTooManyJobs struct {
+	Task string
+	Num  int
 }
 
-// WaitProgress calls Wait() and prints which tasks it's waiting for.
-func WaitProgress(ctx context.Context) error {
-	term := zli.IsTerminal(os.Stdout.Fd())
+func (e ErrTooManyJobs) Error() string {
+	return fmt.Sprintf("bgrun.Run: task %q has %d jobs already", e.Task, e.Num)
+}
 
+func NewRunner(logErr func(task string, err error)) *Runner {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &Runner{
+		ctx:     ctx,
+		cancel:  cancel,
+		maxHist: 100,
+		depth:   2,
+		tasks:   make(map[string]task),
+		jobs:    make(map[string]*job),
+		hist:    make([]Job, 0, 100),
+		logger:  logErr,
+	}
+}
+
+// NewTask registers a new task.
+func (r *Runner) NewTask(name string, maxPar int, f func(context.Context) error) {
+	if maxPar < 1 {
+		maxPar = 1
+	}
+	if name == "" {
+		panic("bgrun.New: name cannot be an empty string")
+	}
+	if f == nil {
+		panic("bgrun.New: function cannot be nil")
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if _, ok := r.tasks[name]; ok {
+		panic(fmt.Sprintf("bgrun.New: task %q already exists", name))
+	}
+	r.tasks[name] = task{
+		name:   name,
+		maxPar: maxPar,
+		fun:    f,
+	}
+}
+
+func (r *Runner) Reset() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	r.maxHist = 100
+	r.tasks = make(map[string]task)
+	r.jobs = make(map[string]*job)
+	r.hist = make([]Job, 0, r.maxHist)
+}
+
+// Run a new job.
+func (r *Runner) Run(name string, fun func(context.Context) error) error {
+	return r.run(name, fun)
+}
+
+// MustRun behaves like [Run], but will panic on errors.
+func (r *Runner) MustRun(name string, fun func(context.Context) error) {
+	if err := r.run(name, fun); err != nil {
+		panic(err)
+	}
+}
+
+// RunFunction is like [Run], but the function doesn't support cancellation
+// through context or error logging.
+func (r *Runner) RunFunction(name string, fun func()) error {
+	return r.Run(name, func(context.Context) error { fun(); return nil })
+}
+
+// MustRunFunction is like [RunFunction], but will panic on errors.
+func (r *Runner) MustRunFunction(name string, fun func()) {
+	if err := r.RunFunction(name, fun); err != nil {
+		panic(err)
+	}
+}
+
+// MustRunTask behaves like [RunTask], but will panic on errors.
+func (r *Runner) MustRunTask(name string) {
+	if err := r.run(name, nil); err != nil {
+		panic(err)
+	}
+}
+
+// RunTask runs a registered task.
+func (r *Runner) RunTask(name string) error {
+	return r.run(name, nil)
+}
+
+// Always call this function from both RunTask() and MustRunTask() so the stack
+// trace is always identical.
+func (r *Runner) run(name string, fun func(context.Context) error) error {
+	isTask := fun == nil
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	t, ok := r.tasks[name]
+	if !ok && isTask {
+		return fmt.Errorf("bgrun.Run: no task %q", name)
+	}
+
+	j, ok := r.jobs[name]
+	if isTask {
+		if ok && j.num >= t.maxPar {
+			return &ErrTooManyJobs{Task: name, Num: j.num}
+		}
+		fun = t.fun
+	} else {
+		t = task{name: name}
+	}
+	if !ok {
+		j = &job{task: t}
+		r.jobs[name] = j
+	}
+
+	i := len(j.instances)
+	inst := jobInstance{
+		started: time.Now(),
+		from:    loc(r.depth),
+	}
+	j.instances = append(j.instances, &inst)
+
+	j.wg.Add(1)
 	go func() {
-		func() {
-			working.Lock()
-			defer working.Unlock()
-			if len(working.m) == 0 {
-				return
+		defer func() {
+			rec := recover()
+
+			r.mu.Lock()
+			r.hist = append(r.hist, Job{
+				Task:    j.task.name,
+				From:    inst.from,
+				Started: inst.started,
+				Took:    time.Now().Sub(inst.started),
+			})
+			if len(r.hist) > r.maxHist {
+				r.hist = r.hist[len(r.hist)-r.maxHist:]
+			}
+
+			j.instances[i] = nil
+			j.num--
+			r.mu.Unlock()
+			j.wg.Done()
+
+			if rec != nil {
+				switch rr := rec.(type) {
+				case error:
+					r.logger(name, rr)
+				case string:
+					r.logger(name, errors.New(rr))
+				default:
+					r.logger(name, fmt.Errorf("%s", rr))
+				}
 			}
 		}()
 
-		for {
-			if term {
-				zli.EraseLine()
-			}
-
-			func() {
-				working.Lock()
-				defer working.Unlock()
-				if len(working.m) == 0 {
-					if term {
-						fmt.Println()
-					}
-					return
-				}
-
-				if term {
-					fmt.Printf("%d tasks: ", len(working.m))
-				}
-				l := make([]string, 0, len(working.m))
-				for k := range working.m {
-					l = append(l, k)
-				}
-				sort.Strings(l)
-				if term {
-					fmt.Print(strings.Join(l, ", "), " ")
-				}
-			}()
-
-			time.Sleep(100 * time.Millisecond)
-			func() {
-				working.Lock()
-				defer working.Unlock()
-				if len(working.m) == 0 {
-					if term {
-						fmt.Println()
-					}
-					return
-				}
-			}()
+		err := fun(r.ctx)
+		if err != nil {
+			r.logger(name, err)
 		}
 	}()
-
-	err := Wait(ctx)
-	if term {
-		zli.EraseLine()
-		fmt.Print(" done \n")
-	}
-	return err
+	return nil
 }
 
-// WaitAndLog calls Wait() and logs any errors.
-func WaitAndLog(ctx context.Context) {
-	err := Wait(ctx)
-	if err != nil {
-		zlog.Error(err)
-	}
-}
-
-// WaitProgressAndLog calls Wait(), prints which tasks it's waiting for, and
-// logs any errors.
-func WaitProgressAndLog(ctx context.Context) {
-	err := WaitProgress(ctx)
-	if err != nil {
-		zlog.Error(err)
-	}
-}
-
-// Run the function in a goroutine.
+// Wait for all running jobs for the task to finish.
 //
-//	bgrun.Run(func() {
-//	    // Do work...
-//	})
-func Run(name string, f func()) {
-	done := add(name, false)
-	go func() {
-		defer zlog.Recover()
-		defer done()
-		f()
-	}()
-}
-
-// RunNoDuplicates is like Run(), but only allows one instance of this name.
-//
-// It will do nothing if there's already something running with this name.
-func RunNoDuplicates(name string, f func()) {
-	if Running(name) {
+// If name is an empty string it will wait for jobs for all tasks.
+func (r *Runner) Wait(name string) {
+	if name == "" {
+		r.mu.Lock()
+		var wg sync.WaitGroup
+		wg.Add(len(r.jobs))
+		for _, j := range r.jobs {
+			j := j
+			go func() {
+				defer wg.Done()
+				j.wg.Wait()
+			}()
+		}
+		r.mu.Unlock()
+		wg.Wait()
 		return
 	}
 
-	done := add(name, true)
+	r.mu.Lock()
+	j, ok := r.jobs[name]
+	r.mu.Unlock()
+	if ok {
+		j.wg.Wait()
+	}
+}
+
+func (r *Runner) WaitFor(d time.Duration, name string) error {
+	var (
+		t    = time.NewTimer(d)
+		done = make(chan struct{})
+	)
 	go func() {
-		defer zlog.Recover()
-		defer done()
-		f()
+		r.Wait(name)
+		t.Stop()
+		close(done)
 	}()
+
+	select {
+	case <-t.C:
+		r.cancel()
+		return fmt.Errorf("bgrun.WaitFor: %w", context.DeadlineExceeded)
+	case <-done:
+		return nil
+	}
 }
 
-// Add a new function to the waitgroup and return the done.
+// History gets the history. Only jobs that are finished running are added to
+// the history.
 //
-//	done := bgrun.Add()
-//	go func() {
-//	   defer done()
-//	   defer zlog.Recover()
-//	}()
-func add(name string, nodup bool) func() {
-	wg.Add(1)
-	func() {
-		working.Lock()
-		defer working.Unlock()
-		if working.m == nil {
-			working.m = make(map[string]Job)
-		}
-		working.m[name] = Job{
-			Name:         name,
-			Started:      time.Now(),
-			From:         zdebug.Loc(3),
-			NoDuplicates: nodup,
-		}
-	}()
+// If newSize is >0 then it also sets the new history size (the default is 100).
+// if newSize <0 history will be disabled.
+func (r *Runner) History(newSize int) []Job {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	return func() {
-		wg.Done()
-		func() {
-			working.Lock()
-			defer working.Unlock()
-			hist.Lock()
-			defer hist.Unlock()
+	cpy := make([]Job, len(r.hist))
+	copy(cpy, r.hist)
 
-			hist.l = append(hist.l, working.m[name])
-			hist.l[len(hist.l)-1].Finished = time.Now()
-			if len(hist.l) > maxHist {
-				hist.l = hist.l[len(hist.l)-maxHist:]
+	if newSize > 0 {
+		r.maxHist = newSize
+		if newSize < len(r.hist) {
+			r.hist = make([]Job, newSize)
+			copy(r.hist, cpy)
+		}
+	}
+	if newSize < 0 {
+		r.maxHist = 0
+		r.hist = nil
+	}
+
+	return cpy
+}
+
+// Running returns all running jobs.
+func (r *Runner) Running() []Job {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	l := make([]Job, 0, len(r.jobs))
+	for _, j := range r.jobs {
+		for _, inst := range j.instances {
+			if inst != nil {
+				l = append(l, Job{
+					Task:    j.task.name,
+					Started: inst.started,
+					From:    inst.from,
+				})
 			}
-
-			delete(working.m, name)
-		}()
+		}
 	}
-}
-
-// Running reports if a function by this name is already running.
-func Running(name string) bool {
-	working.Lock()
-	defer working.Unlock()
-	_, ok := working.m[name]
-	return ok
-}
-
-// List returns all running functions.
-func List() []Job {
-	working.Lock()
-	defer working.Unlock()
-
-	l := make([]Job, 0, len(working.m))
-	for _, j := range working.m {
-		l = append(l, j)
-	}
-	sort.Slice(l, func(i, j int) bool { return l[i].Name < l[j].Name })
+	sort.Slice(l, func(i, j int) bool { return l[i].Started.Before(l[j].Started) })
 	return l
 }
 
-// History gets the last 1,000 jobs that ran.
-func History() []Job {
-	hist.Lock()
-	defer hist.Unlock()
+// loc gets a location in the stack trace. Use 0 for the current location; 1 for
+// one up, etc.
+func loc(n int) string {
+	_, file, line, ok := runtime.Caller(n + 1)
+	if !ok {
+		file = "???"
+		line = 0
+	}
 
-	cpy := make([]Job, len(hist.l))
-	copy(cpy, hist.l)
-	return cpy
+	short := file
+	for i := len(file) - 1; i > 0; i-- {
+		if file[i] == '/' {
+			short = file[i+1:]
+			break
+		}
+	}
+	file = short
+
+	return fmt.Sprintf("%v:%v", file, line)
 }

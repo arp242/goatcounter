@@ -36,10 +36,11 @@ func TestDataRetention(t *testing.T) {
 		{Site: site.ID, CreatedAt: past, Path: "/a", FirstVisit: zbool.Bool(false)},
 	}...)
 
-	err = cron.DataRetention(ctx)
+	err = cron.TaskDataRetention()
 	if err != nil {
 		t.Fatal(err)
 	}
+	cron.WaitDataRetention()
 
 	var hits goatcounter.Hits
 	err = hits.TestList(ctx, false)

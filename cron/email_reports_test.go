@@ -145,10 +145,11 @@ func TestEmailReports(t *testing.T) {
 			buf := new(bytes.Buffer)
 			blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter, blackmail.MailerOut(buf))
 
-			err := cron.EmailReports(ctx)
+			err := cron.TaskEmailReports()
 			if err != nil {
 				t.Fatal(err)
 			}
+			cron.WaitEmailReports()
 
 			if tt.want == "" {
 				if buf.String() != "" {

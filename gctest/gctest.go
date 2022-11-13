@@ -95,9 +95,11 @@ func db(t testing.TB, storeFile bool) context.Context {
 	ctx := Context(db)
 	goatcounter.Memstore.TestInit(db)
 	ctx = initData(ctx, db, t)
+	cron.Start(ctx)
 
 	t.Cleanup(func() {
 		goatcounter.Memstore.Reset()
+		cron.Stop()
 		db.Close()
 		if db.SQLDialect() == zdb.DialectPostgreSQL {
 			exec.Command("dropdb", dbname).Run()

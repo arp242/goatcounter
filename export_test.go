@@ -13,7 +13,6 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
@@ -129,7 +128,6 @@ func TestExport(t *testing.T) {
 		}
 		defer gzfp.Close()
 
-		cron.RunBackground(ctx)
 		goatcounter.Import(ctx, gzfp, true, false, func(hit goatcounter.Hit, final bool) {
 			if !final {
 				goatcounter.Memstore.Append(hit)

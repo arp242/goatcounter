@@ -19,11 +19,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/monoculum/formam/v3"
 	"golang.org/x/exp/slices"
+	"zgo.at/bgrun"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/acme"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -194,7 +194,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 
 	if makecert {
 		ctx := goatcounter.CopyContextValues(r.Context())
-		bgrun.Run(fmt.Sprintf("acme.Make:%s", args.Cname), func() {
+		bgrun.RunFunction(fmt.Sprintf("acme.Make:%s", args.Cname), func() {
 			err := acme.Make(ctx, args.Cname)
 			if err != nil {
 				zlog.Field("domain", args.Cname).Error(err)
@@ -477,7 +477,7 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
+	bgrun.RunFunction(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
 		err := list.Purge(ctx, paths)
 		if err != nil {
@@ -502,7 +502,7 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run(fmt.Sprintf("merge:%d", Site(ctx).ID), func() {
+	bgrun.RunFunction(fmt.Sprintf("merge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
 		err := list.Merge(ctx, dst, paths)
 		if err != nil {
@@ -591,7 +591,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	user := User(r.Context())
 	ctx := goatcounter.CopyContextValues(r.Context())
 	n := 0
-	bgrun.Run(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
+	bgrun.RunFunction(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
 		firstHitAt, err := goatcounter.Import(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
 			if final {
 				return
@@ -602,10 +602,11 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 
 			// Spread out the load a bit.
 			if n%5000 == 0 {
-				goatcounter.PersistRunner.Run <- struct{}{}
-				for bgrun.Running("cron:PersistAndStat") {
-					time.Sleep(250 * time.Millisecond)
+				err := cron.TaskPersistAndStat()
+				if err != nil {
+					zlog.Error(err)
 				}
+				cron.WaitPersistAndStat()
 			}
 		})
 		if err != nil {
@@ -650,7 +651,7 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run(fmt.Sprintf("export web:%d", Site(ctx).ID),
+	bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
 		func() { export.Run(ctx, fp, true) })
 
 	zhttp.Flash(w, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
@@ -692,7 +693,7 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 	account := Account(r.Context())
 
 	if args.Reason != "" {
-		bgrun.Run("email:deletion", func() {
+		bgrun.RunFunction("email:deletion", func() {
 			contact := "false"
 			if args.ContactMe {
 				u := goatcounter.GetUser(r.Context())
@@ -815,7 +816,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run(fmt.Sprintf("adduser:%d", newUser.ID), func() {
+	bgrun.RunFunction(fmt.Sprintf("adduser:%d", newUser.ID), func() {
 		err := blackmail.Send(fmt.Sprintf("A GoatCounter account was created for you at %s", account.Display(ctx)),
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(newUser.Email),
@@ -920,19 +921,17 @@ func (h settings) bosmang(w http.ResponseWriter, r *http.Request) error {
 	info, _ := zdb.Info(r.Context())
 	return zhttp.Template(w, "settings_server.gohtml", struct {
 		Globals
-		Uptime          string
-		Version         string
-		LastPersistedAt string
-		Database        string
-		Go              string
-		GOOS            string
-		GOARCH          string
-		Race            bool
-		Cgo             bool
+		Uptime   string
+		Version  string
+		Database string
+		Go       string
+		GOOS     string
+		GOARCH   string
+		Race     bool
+		Cgo      bool
 	}{newGlobals(w, r),
 		ztime.Now().Sub(Started).Round(time.Second).String(),
 		goatcounter.Version,
-		cron.LastMemstore.Get().Round(time.Second).Format(time.RFC3339),
 		zdb.SQLDialect(r.Context()).String() + " " + string(info.Version),
 		runtime.Version(),
 		runtime.GOOS,

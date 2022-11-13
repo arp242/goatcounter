@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"zgo.at/bgrun"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/guru"
@@ -18,6 +18,7 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/mware"
+	"zgo.at/zlog"
 	"zgo.at/zprof"
 	"zgo.at/zstd/zcontext"
 	"zgo.at/zstd/znet"
@@ -56,17 +57,17 @@ func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
-	hist := bgrun.History()
+	hist := bgrun.History(0)
 
 	metrics := make(map[string]ztime.Durations)
 	for _, h := range hist {
-		x, ok := metrics[h.Name]
+		x, ok := metrics[h.Task]
 		if !ok {
 			x = ztime.NewDurations(0)
 			x.Grow(32)
 		}
-		x.Append(h.Finished.Sub(h.Started))
-		metrics[h.Name] = x
+		x.Append(h.Took)
+		metrics[h.Task] = x
 	}
 
 	return zhttp.Template(w, "bosmang_bgrun.gohtml", struct {
@@ -75,7 +76,7 @@ func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
 		Jobs    []bgrun.Job
 		History []bgrun.Job
 		Metrics map[string]ztime.Durations
-	}{newGlobals(w, r), cron.Tasks, bgrun.List(), hist, metrics})
+	}{newGlobals(w, r), cron.Tasks, bgrun.Running(), hist, metrics})
 }
 
 func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
@@ -88,8 +89,11 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 
 	t := cron.Tasks[taskID]
 	id := t.ID()
-	bgrun.Run("manual:"+id, func() {
-		t.Fun(zcontext.WithoutTimeout(r.Context()))
+	bgrun.RunFunction("manual:"+id, func() {
+		err := t.Fun(zcontext.WithoutTimeout(r.Context()))
+		if err != nil {
+			zlog.Error(err)
+		}
 	})
 
 	zhttp.Flash(w, "Task %q started", id)

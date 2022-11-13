@@ -9,13 +9,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/acme"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/ztime"
@@ -57,7 +55,7 @@ func oldExports(ctx context.Context) error {
 	return nil
 }
 
-func DataRetention(ctx context.Context) error {
+func dataRetention(ctx context.Context) error {
 	var sites goatcounter.Sites
 	err := sites.UnscopedList(ctx)
 	if err != nil {
@@ -78,32 +76,9 @@ func DataRetention(ctx context.Context) error {
 	return nil
 }
 
-type lastMemstore struct {
-	mu sync.Mutex
-	t  time.Time
-}
-
-func (l *lastMemstore) Get() time.Time {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return l.t
-}
-
-func (l *lastMemstore) Set(t time.Time) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.t = t
-}
-
-var LastMemstore = func() *lastMemstore {
-	l := &lastMemstore{}
-	l.Set(ztime.Now())
-	return l
-}()
-
-func PersistAndStat(ctx context.Context) error {
+func persistAndStat(ctx context.Context) error {
 	l := zlog.Module("cron")
-	l.Debug("PersistAndStat started")
+	l.Debug("persistAndStat started")
 
 	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {
@@ -133,10 +108,12 @@ func PersistAndStat(ctx context.Context) error {
 	if len(hits) > 0 {
 		l.Since("stats").FieldsSince().Debugf("persisted %d hits", len(hits))
 	}
-	LastMemstore.Set(ztime.Now())
 	return err
 }
 
+// UpdateStats updates all the stats tables.
+//
+// Exported for tests.
 func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits []goatcounter.Hit) error {
 	if site == nil {
 		site = new(goatcounter.Site)
@@ -192,20 +169,17 @@ func renewACME(ctx context.Context) error {
 	}
 
 	for _, s := range sites {
-		func(ctx context.Context, s goatcounter.Site) {
-			bgrun.Run("renewACME:"+*s.Cname, func() {
-				err := acme.Make(ctx, *s.Cname)
-				if err != nil {
-					zlog.Module("cron-acme").Error(err)
-					return
-				}
+		err := acme.Make(ctx, *s.Cname)
+		if err != nil {
+			zlog.Module("cron-acme").Field("cname", *s.Cname).Error(err)
+			continue
+		}
 
-				err = s.UpdateCnameSetupAt(ctx)
-				if err != nil {
-					zlog.Module("cron-acme").Error(err)
-				}
-			})
-		}(ctx, s)
+		err = s.UpdateCnameSetupAt(ctx)
+		if err != nil {
+			zlog.Module("cron-acme").Field("cname", *s.Cname).Error(err)
+			continue
+		}
 	}
 
 	return nil

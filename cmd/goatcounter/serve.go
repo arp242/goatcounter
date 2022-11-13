@@ -20,11 +20,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/teamwork/reload"
 	"golang.org/x/text/language"
+	"zgo.at/bgrun"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/acme"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/handlers"
 	"zgo.at/z18n"
@@ -258,16 +258,33 @@ func doServe(ctx context.Context, db zdb.DB,
 		os.Exit(99) // TODO: zli.Exit?
 	}()
 
-	bgrun.Run("shutdown", func() {
-		err := cron.PersistAndStat(goatcounter.CopyContextValues(ctx))
+	bgrun.RunFunction("shutdown", func() {
+		err := cron.TaskPersistAndStat()
 		if err != nil {
 			zlog.Error(err)
 		}
 		goatcounter.Memstore.StoreSessions(db)
 	})
-	zlog.Print("Waiting for background tasks to finish; send HUP, TERM, or INT twice to force kill (may lose data!)")
-	time.Sleep(10 * time.Millisecond)
-	bgrun.WaitProgressAndLog(context.Background())
+
+	time.Sleep(200 * time.Millisecond) // Only show message if it doesn't exit in 200ms.
+
+	first := true
+	for r := bgrun.Running(); len(r) > 0; r = bgrun.Running() {
+		if first {
+			zlog.Print("Waiting for background tasks; send HUP, TERM, or INT twice to force kill")
+			first = false
+		}
+		time.Sleep(100 * time.Millisecond)
+
+		zli.EraseLine()
+		fmt.Fprintf(zli.Stdout, "%d tasks: ", len(r))
+		for i, t := range r {
+			if i > 0 {
+				fmt.Fprint(zli.Stdout, ", ")
+			}
+			fmt.Fprintf(zli.Stdout, "%s (%s)", t.Task, time.Now().Sub(t.Started).Round(time.Second))
+		}
+	}
 
 	db.Close()
 	return nil
@@ -327,7 +344,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 	blackmail.DefaultMailer = blackmail.NewMailer(*smtp)
 
 	v.Range("-store-every", int64(*storeEvery), 1, 0)
-	cron.PersistInterval(time.Duration(*storeEvery) * time.Second)
+	cron.SetPersistInterval(time.Duration(*storeEvery) * time.Second)
 
 	goatcounter.InitGeoDB(*geodb)
 
@@ -390,7 +407,7 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 		return nil, nil, nil, nil, 0, err
 	}
 
-	cron.RunBackground(goatcounter.CopyContextValues(ctx))
+	cron.Start(goatcounter.CopyContextValues(ctx))
 	return db, ctx, tlsc, acmeh, listenTLS, nil
 }
 
@@ -433,7 +450,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				return
 			}
 
-			bgrun.Run("email:error", func() {
+			bgrun.RunFunction("email:error", func() {
 				msg := zlog.Config.Format(l)
 				subject := zstring.GetLine(msg, 1)
 				if i := strings.Index(subject, "ERROR: "); i > -1 {

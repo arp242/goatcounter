@@ -18,10 +18,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"zgo.at/bgrun"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/bgrun"
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
@@ -383,7 +383,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run("welcome email", func() {
+	bgrun.RunFunction("welcome email", func() {
 		err := blackmail.Send("Welcome to GoatCounter!",
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(user.Email),
@@ -458,7 +458,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.Run("email:sites", func() {
+	bgrun.RunFunction("email:sites", func() {
 		defer zlog.Recover()
 		err := blackmail.Send("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: goatcounter.Config(ctx).EmailFrom},

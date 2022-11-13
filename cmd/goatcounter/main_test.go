@@ -45,12 +45,9 @@ func startTest(t *testing.T) (
 
 	// TODO: should really have helper function in zlog.
 	mu.Lock()
+	logout := zli.Stdout
 	zlog.Config.SetOutputs(func(l zlog.Log) {
-		out := zli.Stdout
-		if l.Level == zlog.LevelErr {
-			out = zli.Stderr
-		}
-		fmt.Fprintln(out, zlog.Config.Format(l))
+		fmt.Fprintln(logout, zlog.Config.Format(l))
 	})
 	mu.Unlock()
 
@@ -64,7 +61,7 @@ func startTest(t *testing.T) (
 
 func runCmdStop(t *testing.T, exit *zli.TestExit, ready chan<- struct{}, stop chan struct{}, cmd string, args ...string) {
 	defer exit.Recover()
-	defer cron.Stop(context.Background())
+	defer cron.Stop()
 	cmdMain(zli.NewFlags(append([]string{"goatcounter", cmd}, args...)), ready, stop)
 }
 

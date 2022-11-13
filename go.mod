@@ -2,8 +2,6 @@ module zgo.at/goatcounter/v2
 
 go 1.19
 
-replace zgo.at/bgrun => ../Golib/bgrun
-
 require (
 	code.soquee.net/otp v0.0.4
 	github.com/BurntSushi/toml v1.2.1
@@ -24,6 +22,7 @@ require (
 	golang.org/x/net v0.2.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.4.0
+	zgo.at/bgrun v0.0.0-00010101000000-000000000000
 	zgo.at/blackmail v0.0.0-20221021025740-b3fdfc32a1aa
 	zgo.at/errors v1.1.0
 	zgo.at/follow v0.0.0-20221021024812-dd647d64b369
@@ -39,12 +38,15 @@ require (
 	zgo.at/zdb v0.0.0-20221105060706-d862504dc723
 	zgo.at/zhttp v0.0.0-20221020124111-c3011d53484c
 	zgo.at/zli v0.0.0-20221012220610-d6a5a841b943
-	zgo.at/zlog v0.0.0-20211008102840-46c1167bf2a9
+	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20221107175747-9855306d942d
 	zgo.at/ztpl v0.0.0-20221020022020-7d727686f6a2
 	zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade
 )
+
+// Need to finish this and put it in its own repo.
+replace zgo.at/bgrun => ./bgrun
 
 // https://github.com/oschwald/maxminddb-golang/pull/75
 replace github.com/oschwald/maxminddb-golang => github.com/arp242/maxminddb-golang v1.8.1-0.20221021031716-eb1bbbb3fc5d
