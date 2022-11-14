@@ -74,11 +74,11 @@
 		<div>
 			<span>
 				<input type="text" class="date-input" autocomplete="off" id="period-start" name="period-start"
-					title="{{.T "nav-dash/start-date|Start of date range to display"}}"
+					title="{{.T "nav-dash/start-date|First day to display"}}"
 					value="{{tformat .Period.Start "" .User}}"
 				>–{{- "" -}}
 				<input type="text" class="date-input" autocomplete="off" id="period-end" name="period-end"
-					title="{{.T "nav-dash/end-date|End of date range to display"}}"
+					title="{{.T "nav-dash/end-date|Last day to display"}}"
 					value="{{tformat .Period.End "" .User}}"
 				>{{- "" -}}
 			</span>
