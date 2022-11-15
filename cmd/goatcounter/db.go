@@ -299,11 +299,30 @@ PostgreSQL notes:
 
     You may want to consider lowering the "seq_page_cost" parameter; the query
     planner tends to prefer seq scans instead of index scans for some operations
-    with the default of 4, which is much slower. I found that 0.5 is a fairly
+    with the default of 4, which is much slower. I found that 1.1 is a fairly
     good setting, you can set it in your postgresql.conf file, or just for one
     database with:
 
-        alter database goatcounter set seq_page_cost=.5
+        alter database goatcounter set seq_page_cost=1.1
+
+Converting from SQLite to PostgreSQL:
+
+    You can use pgloader (https://pgloader.io) to convert from a SQLite to
+    PostgreSQL database; to do this you must first create the PostgreSQL schema
+    manually (pgloader doesn't create it properly), remove the data from the
+    locations and languages tables as they will conflict.
+
+    For example:
+
+        # Create new PostgreSQL database
+        $ createdb --owner goatcounter
+        $ goatcounter db migrate all -createdb -db postgresql+dbname=goatcounter
+
+        # Remove data from languages and locations tables
+        $ psql goatcounter -c 'delete from locations; delete from languages;'
+
+        # Convert data with pgloader
+        $ pgloader --with 'create no tables' ./db/goatcounter.sqlite3 postgresql:///goatcounter
 `
 
 const helpDBCommands = `List of commands:
