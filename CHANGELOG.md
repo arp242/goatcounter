@@ -4,6 +4,10 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+2022-11-15 v2.4.1
+-----------------
+- Fix regression that caused the charts for SQLite to be off.
+
 2022-11-08 v2.4.0
 -----------------
 - Add a more fully-featured API that can also retrieve the dashboard statistics.

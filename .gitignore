@@ -21,3 +21,6 @@
 # Coverage reports
 /coverage
 /coverage.*
+
+# Dev log
+/.dev.log

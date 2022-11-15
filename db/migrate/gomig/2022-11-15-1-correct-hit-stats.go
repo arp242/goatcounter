@@ -2,7 +2,7 @@
 // under the terms of a slightly modified EUPL v1.2 license, which can be found
 // in the LICENSE file or at https://license.goatcounter.com
 
-package cron
+package gomig
 
 import (
 	"context"
@@ -14,6 +14,48 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 )
+
+func CorrectHitStats(ctx context.Context) error {
+	// Only for SQLite
+	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
+		return nil
+	}
+
+	err := zdb.TX(goatcounter.NewCache(goatcounter.NewConfig(ctx)), func(ctx context.Context) error {
+		err := zdb.Exec(ctx, `delete from hit_stats where day >= '2022-11-08'`)
+		if err != nil {
+			return err
+		}
+
+		var sites goatcounter.Sites
+		err = sites.UnscopedList(ctx)
+		if err != nil {
+			return err
+		}
+
+		for _, s := range sites {
+			var hits goatcounter.Hits
+			err = zdb.Select(ctx, &hits, `select * from hits where
+				created_at >= '2022-11-08 00:00:00' and first_visit=1 and bot in (0, 1)`)
+			if err != nil {
+				return err
+			}
+
+			err = updateHitStats(goatcounter.WithSite(ctx, &s), hits)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err == nil {
+		err = zdb.Exec(ctx, `insert into version values ('2022-11-15-1-correct-hit-stats')`)
+	}
+	return err
+}
+
+// below is a copy of cron/hit_stat.go
 
 var empty = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
