@@ -125,7 +125,7 @@ Generally speaking only the latest release is supported, although critical fixes
 
 
 ### Building from source
-You need Go 1.18 or newer and a C compiler (for SQLite). If you compile it with
+You need Go 1.19 or newer and a C compiler (for SQLite). If you compile it with
 `CGO_ENABLED=0` you don't need a C compiler but can only use PostgreSQL.
 
 You can install from source to $GOBIN (`go env GOBIN`) with:
