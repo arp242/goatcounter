@@ -1,0 +1,152 @@
+/*** Fonts ***/
+@font-face {
+	font-family: 'Lato'; font-style: normal; font-weight: 400; font-display: fallback;
+	src: local('Lato'), local('Lato Regular'),
+		url('/fonts/latolatin.woff2') format('woff2'),
+		url('./fonts/latolatin.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'Lato'; font-style: normal; font-weight: 700; font-display: fallback;
+	src: local('Lato Bold'), local('Lato Bold'),
+		url('/fonts/latolatin-bold.woff2') format('woff2'),
+		url('./fonts/latolatin-bold.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'Lato'; font-style: italic; font-weight: 400; font-display: fallback;
+	src: local('Lato Italic'), local('Lato Italic'),
+		url('/fonts/latolatin-italic.woff2') format('woff2'),
+		url('./fonts/latolatin-italic.woff2') format('woff2');
+}
+
+html { font: 16px/150% 'Lato', sans-serif; text-size-adjust: none; -webkit-text-size-adjust: none;
+       background-color: var(--backdrop); color: var(--text); tab-size: 4; }
+html, body { margin: 0; }
+@media (max-width: 54em) { html { font-size: 14px; line-height: 160%; } }
+@media (max-width: 26em) { html { font-size: 12px; line-height: 150%; } }
+
+*        { box-sizing: border-box; }
+*:target { background-color: var(--target-bg); }
+
+.center, .page { max-width: 54rem; margin: .5rem auto; position: relative; }
+.page          { padding: 1rem 4rem; background-color: var(--bg); box-shadow: 0 0 6px rgba(0,0,0,.2); }
+@media (max-width: 54em) {
+  .page, .center { max-width: 100%; padding: .5rem 1rem; }
+}
+
+a, a code, .link     { color: var(--link); text-decoration: none; transition: color .2s; }
+a:hover, .link:hover { text-decoration: underline; color: var(--link-hover); }
+a:hover code         { color: var(--link-hover); }
+.link                { background: transparent; border: none; outline: none; margin: 0; padding: 0; cursor: pointer;
+                       font: inherit; line-height: 1rem; display: inline; -moz-user-select: inherit; -webkit-appearance: none; }
+
+h1     { text-align: center; padding: .5em 0; font-size: 1.7em; }
+h2     { border-bottom: 1px solid var(--header-border); padding-bottom: .2em; font-size: 1.5em; }
+h3     { font-size: 1.3em; }
+h4     { font-size: 1.1em; }
+h5, h6 { font-size: 1em; }
+img    { max-width: 100%; }
+figure { text-align: center; margin: 1rem 0; }
+
+pre, code            { font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', monospace; }
+code, pre, kbd, samp { background-color: var(--code-bg); color: var(--code-text); }
+code, kbd, samp      { padding: 1px 2px; }
+pre                  { font-size: 14px; line-height: 130%; overflow: auto; max-height: 500px; padding: .5em 1em;
+                       border-radius: 2px; border-top: 1px solid var(--pre-border); border-bottom: 1px solid var(--pre-border); }
+pre > code           { padding: 0; box-shadow: none; border: none; }
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { background-color: transparent; box-shadow: none; color: inherit; }
+
+sup, sub, .sup, .sub { height: 0; line-height: 1; vertical-align: baseline; position: relative; font-size: smaller; }
+sup, .sup            { bottom: 1ex; }
+sub, .sub            { top: .5ex; }
+
+/*** Tables ***/
+table        { border-collapse: collapse; width: 100%; }
+table +table { margin-top: 2em; }
+caption      { font-weight: bold; }
+tr           { border-bottom: 1px solid #ddd; }
+td, th       { padding: .2em .5em; hyphens: none; text-align: left; }
+td.right     { font-feature-settings: 'tnum' on; font-variant-numeric: tabular-nums; font-family: sans-serif; }
+td.right, th.right { text-align: right; }
+table > tr:last-child, tbody tr:last-child, tfoot tr:last-child { border-bottom: none; }
+tfoot tr:first-child { border-top: 1px solid #ddd; }
+
+/*** HR ***/
+hr { border: none; text-align: center; font-size: 60px; color: var(--text); opacity: .9; }
+hr:before {
+  content: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMC4yIDkuMiIgaGVpZ2h0PSIzNC44IiB3aWR0aD0iMTE0LjMiPjxwYXRoIGQ9Ik0xMy4yIDBxMS4xIDAgMS4zIDEuMiAwIDEtLjcgMS4yLTEuOC40LTIgLjggMi42LjMgMy4yIDMuMWguMmwuMi44LS40LjFxLS4yIDEuOC0xLjggMS45LTEgMC0xLjMtMSAwLS44LjItLjguMi40LjguNC44IDAgMS0uOFExMSA2LjEgMTEgMy43cS0xLjQgMC0yLjEgMSAxLjQuNyAxLjQgMS44LS4xIDIuNS0zLjYgMi43US41IDkuMiAwIDUuNXEwLS42LjctLjcuNSAwIC42LjV2LjJsLS4xLjRxMCAxIDEuMSAxIDEgMCAxLS43UTQgMS4yIDcgMXEyIC4xIDIgMS43di4xcTAgLjQtLjQgMS41IDEtLjggMi0xIC42IDAgLjYtLjQuOC0xIDEuNi0xLjMuNi0uNC42LS44bC0uMi0uNHEtLjItLjMgMC0uNHptLTEuNiAzLjd2LjFxMCAxLjQgMi4zIDIuMi0uMy0yLTIuMy0yLjN6Ii8+PHBhdGggZD0iTTE3IDBxLTEgMC0xLjMgMS4yIDAgMSAuOCAxLjIgMS44LjQgMiAuOC0yLjcuMy0zLjIgMy4xSDE1bC0uMi44LjUuMXEuMiAxLjggMS44IDEuOSAxIDAgMS4yLTEgMC0uOC0uMi0uOC0uMS40LS43LjQtLjkgMC0xLS44IDIuNy0uOCAyLjgtMy4yIDEuNCAwIDIgMS0xLjMuNy0xLjMgMS44IDAgMi41IDMuNSAyLjcgNi40IDAgNi44LTMuNyAwLS42LS42LS43LS42IDAtLjcuNXYuMmwuMi40cTAgMS0xLjIgMS0uOSAwLTEtLjctLjYtNS0zLjctNS4yLTIgLjEtMiAxLjd2LjFxMCAuNC40IDEuNS0xLS44LTItMS0uNiAwLS42LS40LS43LTEtMS41LTEuMy0uNi0uNC0uNi0uOGwuMi0uNHEuMi0uMyAwLS40em0xLjcgMy43di4xcTAgMS40LTIuNCAyLjIuMy0yIDIuNC0yLjN6Ii8+PC9zdmc+);
+}
+
+/*** Forms ***/
+form { display: inline; margin: 0; padding: 0; }
+input[type="text"], input[type="search"], input[type="tel"], input[type="url"],
+input[type="email"], input[type="password"], input[type="date"], input[type="month"],
+input[type="week"], input[type="time"], input[type="datetime-local"], input[type="range"],
+input[type="number"], textarea, select {
+    font: 1em/100% 'Lato', sans-serif; color: var(--input-text); background-color: var(--input-bg); }
+
+textarea, button:not(.link), select,
+input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]) {
+  padding: .6em;
+  border: 1px solid var(--input-border);
+  border-radius: 3px; }
+
+textarea { width: 100%; height: 10rem; line-height: 130%; }
+button:not(.link), input[type="submit"]:not(.link) {
+  cursor: pointer; margin-left: .5em; padding: .6em 1.5em; color: var(--btn-text); background: var(--btn-bg);
+  border-radius: 3px; border: 1px outset var(--btn-border);
+  border-top-color: var(--btn-border-outset); border-left-color: var(--btn-border-outset); }
+
+select {
+  /* This breaks "dark mode" on Chromium; works fine in Firefox though.
+   * Not sure why I put "inherit" here in the first place, but removing it fixes
+   * it.
+  background-color: inherit; */
+}
+input:not(.link):focus,
+button:not(.link):focus,
+textarea:focus,
+select:focus {
+  outline: 1px solid var(--input-focus);
+  box-shadow: 0 0 .2em var(--input-focus);
+  color: var(--text);
+  cursor: pointer;
+}
+button:not(.link):hover,
+input[type="submit"]:not(.link):hover {
+  background: var(--btn-hover-bg);
+}
+button:not(.link):active,
+input[type="submit"]:not(.link):active {
+  background: var(--btn-active-bg);
+  border-style: inset;
+}
+form > strong, fieldset > strong {
+  display: inline-block; margin-top: .5em;
+}
+form span { margin-left: .2em; }
+fieldset  { border: 1px solid var(--fieldset-border); }
+fieldset legend+p     { margin-top: 0; }
+.vertical input[type="text"],
+.vertical input[type="search"],
+.vertical input[type="tel"],
+.vertical input[type="url"],
+.vertical input[type="email"],
+.vertical input[type="password"],
+.vertical input[type="date"],
+.vertical input[type="month"],
+.vertical input[type="week"],
+.vertical input[type="time"],
+.vertical input[type="datetime-local"],
+.vertical input[type="range"],
+.vertical input[type="number"],
+.vertical textarea,
+.vertical select {
+  display: block;
+  min-width: 20rem;
+}
+.vertical input[type="number"] { min-width: 10rem; width: 10rem; }
+.vertical label                { display: block; margin-top: .5em; }
+
+/*** Permalinks in headers ***/
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { font-size: .7em; line-height: 0; color: #999; }
+h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after { content: "§"; }
