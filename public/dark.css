@@ -36,7 +36,7 @@ html.force-dark {
     --chart-line:        #6c0a73;                          /* Charts on the dashboard */
     --chart-fill:        #ca56d3;
     --chart-grid:        #555;
-    --hchart-hover:      #666;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
+    --hchart-border:     #666;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
     --hchart-bar:        #ebb7ef;
     --hchart-bar-hover:  #f9cffc;
 

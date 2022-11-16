@@ -36,7 +36,7 @@
     --chart-line:        #9a15a4;                          /* Charts on the dashboard */
     --chart-fill:        #fdecfe;
     --chart-grid:        #ddd;
-    --hchart-hover:      #eee;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
+    --hchart-border:     #f5aafb;                          /* Colour when you hover the Browsers, Systems, etc. chart bar */
     --hchart-bar:        #ebb7ef;
     --hchart-bar-hover:  #f9cffc;
 

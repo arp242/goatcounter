@@ -501,7 +501,7 @@
 			line: {
 				color: style('chart-line'),
 				fill:  style('chart-fill'),
-				width: daily || ndays <= 14 ? 2 : 1
+				width: daily || ndays <= 14 ? 1.5 : 1
 			},
 			bar:  {color: style('chart-line')},
 			done: (chart) => {

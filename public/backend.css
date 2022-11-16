@@ -123,6 +123,7 @@ small.go           { display: none; }
 /*** Pages and totals list/charts
  ********************************/
 .pages-list h2           { margin-top: .5em; }
+.count-list              { margin-top: 15px; }
 .count-list tr           { border: none; }
 .count-list td           { vertical-align: top; }
 .count-list th           { text-align: left; }
@@ -146,7 +147,7 @@ tr.target small.go                { display: inline-block; }
 
 .count-list-text .refs { margin-top: 1em; }
 
-.chart { position: relative; height: 50px; width: 100%; margin: 5px 0; margin-bottom: 1em; }
+.chart { position: relative; height: 50px; width: 100%; margin-bottom: 1em; }
 
 .chart-left {
     position: absolute; left: -1.2em; top: -.1em; padding: 0 .1em; font-size: 1.2rem; text-align: center;
@@ -196,16 +197,17 @@ tr.target .chart-left { display: block; }
 .hchart .generated .col-name { font-style: italic; }
 .hchart .col-name    { display: inline-block; width: calc(100% - 8.5rem); position: relative; }
 .hchart .cutoff      { word-break: break-all; max-width: calc(100% - 2em); }
-.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: var(--hchart-bar); }
+.hchart .bar         { position: absolute; top: 0; bottom: 0; background-color: var(--chart-fill);
+                       border: 1px solid var(--hchart-border); border-radius: 5px; transition: background-color .2s; }
 .hchart .bar-c       { position: relative; z-index: 1; padding-left: .5rem; display: block; }
 .hchart .col-count   { display: inline-block; width: 4.5rem; text-align: right; vertical-align: top; }
 .hchart .col-perc    { width: 2.5em; margin-right: .5rem; vertical-align: top; }
 .hchart .load-more   { display: inline-block; margin-left: .2em; margin-top: .2em; }
 .hchart .load-detail { display: block; color: var(--text); }
 .hchart .detail      { padding: 0 3em; border-bottom: 1px solid #bbb; }
-.load-detail:hover      { text-decoration: none; background-color: var(--hchart-hover); }
+.load-detail:hover      { text-decoration: none; color: var(--link); }
 .load-detail:hover .bar { background-color: var(--hchart-bar-hover); }
-.hchart .not-collected { text-align: center; padding-bottom: .4em; font-style: italic; }
+.hchart .not-collected  { text-align: center; padding-bottom: .4em; font-style: italic; }
 
 
 /*** Dashboard form (filter, time period select, etc.)
