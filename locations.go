@@ -10,12 +10,12 @@ import (
 	"context"
 	"io"
 	"net"
+	"strings"
 
 	"github.com/oschwald/geoip2-golang"
 	"zgo.at/errors"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zstring"
 )
 
 var geodb *geoip2.Reader
@@ -74,7 +74,7 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 	err := zdb.Get(ctx, l, `select * from locations where iso_3166_2 = $1`, code)
 	if zdb.ErrNoRows(err) {
 		l.ISO3166_2 = code
-		l.Country, l.Region = zstring.Split2(code, "-")
+		l.Country, l.Region, _ = strings.Cut(code, "-")
 		l.CountryName, l.RegionName = findGeoName(l.Country, l.Region)
 		err = l.insert(ctx)
 	}

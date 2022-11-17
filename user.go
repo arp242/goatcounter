@@ -22,7 +22,6 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
-	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
 )
@@ -314,7 +313,7 @@ func (u *User) Find(ctx context.Context, ident string) error {
 		return errors.Wrap(u.ByID(ctx, id), "User.Find")
 	}
 
-	s, email := zstring.Split2(ident, ",")
+	s, email, _ := strings.Cut(ident, ",")
 
 	var site Site
 	err = site.Find(ctx, s)

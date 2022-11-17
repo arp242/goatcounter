@@ -7,7 +7,6 @@ package logscan
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"reflect"
@@ -31,7 +30,7 @@ func TestErrors(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	files, err := ioutil.ReadDir("./testdata")
+	files, err := os.ReadDir("./testdata")
 	if err != nil {
 		t.Fatal(err)
 	}

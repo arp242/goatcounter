@@ -19,7 +19,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/follow"
 	"zgo.at/zlog"
-	"zgo.at/zstd/zstring"
 )
 
 var reFormat = regexp.MustCompile(`\\\$[\w-_]+`)
@@ -148,7 +147,7 @@ func processExcludes(exclude []string) ([]excludePattern, error) {
 			e = e[1:]
 		}
 
-		p.field, p.pattern = zstring.Split2(e, ":")
+		p.field, p.pattern, _ = strings.Cut(e, ":")
 		if !slices.Contains(fields, p.field) {
 			return nil, fmt.Errorf("invalid field %q in exclude pattern %q", p.field, e)
 		}

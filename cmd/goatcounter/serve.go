@@ -282,7 +282,7 @@ func doServe(ctx context.Context, db zdb.DB,
 			if i > 0 {
 				fmt.Fprint(zli.Stdout, ", ")
 			}
-			fmt.Fprintf(zli.Stdout, "%s (%s)", t.Task, time.Now().Sub(t.Started).Round(time.Second))
+			fmt.Fprintf(zli.Stdout, "%s (%s)", t.Task, time.Since(t.Started).Round(time.Second))
 		}
 	}
 
@@ -350,8 +350,8 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 
 	if *ratelimit != "" {
 		for _, r := range strings.Split(*ratelimit, ",") {
-			name, spec := zstring.Split2(r, ":")
-			reqs, secs := zstring.Split2(spec, "/")
+			name, spec, _ := strings.Cut(r, ":")
+			reqs, secs, _ := strings.Cut(spec, "/")
 
 			v := zvalidate.New()
 			v.Required("name", name)
