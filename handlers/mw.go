@@ -40,6 +40,10 @@ var (
 	loggedIn = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		u := goatcounter.GetUser(r.Context())
 		if u != nil && u.ID > 0 {
+			err := u.UpdateOpenAt(r.Context())
+			if err != nil {
+				zlog.Error(err)
+			}
 			return nil
 		}
 		return redirect(w, r)
@@ -48,6 +52,10 @@ var (
 	loggedInOrPublic = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
 		u := goatcounter.GetUser(r.Context())
 		if u != nil && u.ID > 0 {
+			err := u.UpdateOpenAt(r.Context())
+			if err != nil {
+				zlog.Error(err)
+			}
 			return nil
 		}
 		s := Site(r.Context())
@@ -217,7 +225,8 @@ func addz18n() func(http.Handler) http.Handler {
 			if u := goatcounter.GetUser(r.Context()); u != nil {
 				userLang = u.Settings.Language
 			}
-			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.GetBundle(r.Context()).Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
+			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.GetBundle(r.Context()).
+				Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
 			next.ServeHTTP(w, r)
 		})
 	}

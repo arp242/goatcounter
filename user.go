@@ -41,6 +41,7 @@ type User struct {
 	TOTPSecret    []byte       `db:"totp_secret" json:"-"`
 	Access        UserAccesses `db:"access" json:"access,readonly"`
 	LoginAt       *time.Time   `db:"login_at" json:"login_at,readonly"`
+	OpenAt        *time.Time   `db:"open_at" json:"open_at,readonly"`
 	ResetAt       *time.Time   `db:"reset_at" json:"reset_at,readonly"`
 	LoginRequest  *string      `db:"login_request" json:"-"`
 	LoginToken    *string      `db:"login_token" json:"-"`
@@ -418,21 +419,48 @@ func (u *User) DisableTOTP(ctx context.Context) error {
 
 // Login a user; create a new key, CSRF token, and reset the request date.
 func (u *User) Login(ctx context.Context) error {
+	if u.ID == 0 {
+		return errors.New("u.ID == 0")
+	}
+
 	u.Token = ztype.Ptr(zcrypto.Secret256())
 	if u.LoginToken == nil || *u.LoginToken == "" {
 		s := ztime.Now().Format("20060102") + "-" + zcrypto.Secret256()
 		u.LoginToken = &s
 	}
 
+	u.LoginAt = ztype.Ptr(ztime.Now())
+	u.OpenAt = ztype.Ptr(ztime.Now())
 	err := zdb.Exec(ctx, `update users set
-			login_request=null, login_token=$1, csrf_token=$2
-			where user_id=$3 and site_id=$4`,
-		u.LoginToken, u.Token, u.ID, MustGetSite(ctx).IDOrParent())
+			login_request=null, login_token=?, csrf_token=?, login_at=?, open_at=?
+			where user_id = ? and site_id = ?`,
+		u.LoginToken, u.Token, u.LoginAt, u.OpenAt,
+		u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.Login")
+}
+
+func (u *User) UpdateOpenAt(ctx context.Context) error {
+	if u.ID == 0 {
+		return errors.New("u.ID == 0")
+	}
+
+	// Update once a day at the most.
+	if u.OpenAt != nil && u.OpenAt.After(ztime.Now().Add(-24*time.Hour)) {
+		return nil
+	}
+
+	u.OpenAt = ztype.Ptr(ztime.Now())
+	err := zdb.Exec(ctx, `update users set open_at = ? where user_id = ? and site_id = ?`,
+		u.OpenAt, u.ID, MustGetSite(ctx).IDOrParent())
+	return errors.Wrap(err, "User.UpdateOpenAt")
 }
 
 // Logout a user.
 func (u *User) Logout(ctx context.Context) error {
+	if u.ID == 0 {
+		return errors.New("u.ID == 0")
+	}
+
 	u.LoginToken = nil
 	u.LoginRequest = nil
 	u.LoginAt = nil
