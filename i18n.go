@@ -57,6 +57,10 @@ var defaultBundle = func() *z18n.Bundle {
 	return b
 }()
 
+func DefaultLocale() *z18n.Locale {
+	return defaultBundle.Locale("en")
+}
+
 func GetBundle(ctx context.Context) *z18n.Bundle {
 	if ctx == nil || GetUser(ctx) == nil {
 		return defaultBundle

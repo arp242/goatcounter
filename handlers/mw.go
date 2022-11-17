@@ -207,8 +207,9 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 				*r = *r.WithContext(goatcounter.WithSite(r.Context(), &s))
 			}
 
-			// Make sure there's always a z18n object.
-			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.GetBundle(r.Context()).Locale(r.Header.Get("Accept-Language"))))
+			// Make sure there's always a z18n object; will get overriden by
+			// addz18n() later for endpoints where it matters.
+			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.DefaultLocale()))
 
 			next.ServeHTTP(w, r)
 		})
