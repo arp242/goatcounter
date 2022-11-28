@@ -22,5 +22,5 @@ COPY entrypoint.sh /entrypoint.sh
 VOLUME ["/goatcounter/db"]
 EXPOSE 8080
 
-ENTRYPOINT ["./entrypoint.sh"]
-CMD ["./goatcounter.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/goatcounter/goatcounter.sh"]
