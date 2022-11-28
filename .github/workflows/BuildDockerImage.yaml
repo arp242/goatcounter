@@ -1,0 +1,51 @@
+name: BuildDockerImage
+
+on:
+  workflow_dispatch: # To have the ability to run the workflow manually
+
+  push:
+    branches: [docker] #TODO Change to main
+
+env:
+  NAME: ./Docker/
+  CONTAINER-NAME: goat-counter
+  DOCKER-NAME: lnadev
+
+jobs:
+  ReleaseVersion:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ env.DOCKER-NAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build the Docker image
+        run: docker build . --file ./${{ env.NAME }}/Dockerfile --tag ${{ env.DOCKER-NAME }}/${{ env.CONTAINER-NAME }}:${{ github.run_number }}
+
+      - name: Push the image to dockerhub
+        run: docker push ${{ env.DOCKER-NAME }}/${{ env.CONTAINER-NAME }}:${{ github.run_number }}
+
+  ReleaseLatest:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build the Docker image
+        run: docker build . --file ./${{ env.NAME }}/Dockerfile --tag ${{ env.DOCKER-NAME }}/${{ env.CONTAINER-NAME }}:latest
+
+      - name: Push the image to dockerhub
+        run: docker push ${{ env.DOCKER-NAME }}/${{ env.CONTAINER-NAME }}:latest
