@@ -28,7 +28,7 @@ The following settings are supported:
 | `allow_frame` | Allow requests when the page is loaded in a frame or iframe.                                                 |
 | `endpoint`    | Customize the endpoint for sending pageviews to (overrides the URL in `data-goatcounter`). Only useful if you have `no_onload`. |
 
-For examaple, to allow requests from local sources with:
+For example, to allow requests from local sources with:
 `data-goatcounter-settings`:
 
     <script data-goatcounter="{{.SiteURL}}/count"
@@ -89,7 +89,7 @@ Methods
 -------
 
 The following methods are available on `window.goatcounter` after it finished
-loading. Since it's loaded as `async` by default it may not be loaded yet whwen
+loading. Since it's loaded as `async` by default it may not be loaded yet when
 your script runs. Either remove the `async` or use a little `setInterval()`
 callback:
 
