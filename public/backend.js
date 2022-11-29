@@ -42,7 +42,7 @@
 
 		// I don't what kind of shitty thing is spamming me with this, but I've
 		// gotten a lot of them and I'm getting tired of it.
-		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen"))
+		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1)
 			return
 
 		jQuery.ajax({
