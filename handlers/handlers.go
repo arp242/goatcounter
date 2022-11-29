@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter/v2"
@@ -32,12 +33,12 @@ var rateLimits = struct {
 // Set the rate limits.
 func SetRateLimit(name string, reqs int, secs int64) {
 	r := mware.RatelimitLimit(reqs, secs)
-	switch name {
+	switch strings.ToLower(name) {
 	case "count":
 		rateLimits.count = r
 	case "api":
 		rateLimits.api = r
-	case "apiCount":
+	case "apicount", "api-count":
 		rateLimits.apiCount = r
 	case "export":
 		rateLimits.export = r
