@@ -817,7 +817,7 @@
 		var s = [];
 		for (var k in obj)
 			s.push(k + '=' + encodeURIComponent(obj[k]));
-		return (s.length === 0 ? '/' : ('?' + s.join('&')));
+		return (s.length === 0 ? location.pathname : ('?' + s.join('&')));
 	}
 
 	// Set one query parameter – leaving the others alone – and push to history.
