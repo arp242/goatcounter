@@ -2,6 +2,7 @@ FROM debian:bookworm-slim
 
 WORKDIR /goatcounter
 
+# Update GOATCOUNTER_VERSION if a newer version is available
 ENV GOATCOUNTER_VERSION 'v2.4.1'
 ENV GOATCOUNTER_LISTEN '0.0.0.0:8080'
 ENV GOATCOUNTER_DB 'sqlite:///goatcounter/db/goatcounter.sqlite3'
