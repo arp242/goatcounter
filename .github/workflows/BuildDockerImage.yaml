@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # To have the ability to run the workflow manually
 
   push:
-    branches: [main]
+    branches: [master]
 
 env:
   NAME: ./Docker/
