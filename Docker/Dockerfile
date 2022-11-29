@@ -17,8 +17,8 @@ RUN wget "https://github.com/zgoat/goatcounter/releases/download/$GOATCOUNTER_VE
   && mv "goatcounter-$GOATCOUNTER_VERSION-linux-amd64" /usr/bin/goatcounter \
   && chmod +x /usr/bin/goatcounter
 
-COPY ./goatcounter.sh ./
-COPY ./entrypoint.sh /entrypoint.sh
+COPY /Docker/goatcounter.sh ./
+COPY /Docker/entrypoint.sh /entrypoint.sh
 
 VOLUME ["/goatcounter/db"]
 EXPOSE 8080
