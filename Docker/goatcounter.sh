@@ -10,12 +10,12 @@ OPTS="$OPTS -tls none"
 OPTS="$OPTS -email-from $GOATCOUNTER_EMAIL"
 OPTS="$OPTS -db $GOATCOUNTER_DB"
 
-if [ -n "$" ]; then
+if [ -n "$GOATCOUNTER_SMTP" ]; then
   OPTS="$OPTS -smtp $GOATCOUNTER_SMTP"
 fi
 
 if [ -n "$GOATCOUNTER_DEBUG" ]; then
   OPTS="$OPTS -debug all"
-fiGOATCOUNTER_SMTP
+fi
 
 goatcounter serve $OPTS
