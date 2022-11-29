@@ -119,7 +119,7 @@ Flags:
 
                    count:4/1            4 requests / second
                    api:4/1              4 requests / seconds
-                   api-count:60/120    60 requests / 2 minutes
+                   apiCount:60/120     60 requests / 2 minutes
                    export:1/3600        1 requests / hour
                    login:20/60         20 requests / minute
 
@@ -357,7 +357,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 			v.Required("name", name)
 			v.Required("requests", reqs)
 			v.Required("seconds", secs)
-			name = v.Include("name", name, []string{"count", "api", "api-count", "export", "login"})
+			name = v.Include("name", name, []string{"count", "api", "apiCount", "export", "login"})
 			r := v.Integer("requests", reqs)
 			s := v.Integer("seconds", secs)
 			if v.HasErrors() {
