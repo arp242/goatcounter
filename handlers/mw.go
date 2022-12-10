@@ -238,7 +238,7 @@ var defaultFrameAncestors = []string{header.CSPSourceNone}
 func addcsp(domainStatic string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ds := []string{header.CSPSourceSelf}
+			ds := []string{header.CSPSourceSelf, "https://gc.zgo.at"}
 			if domainStatic != "" {
 				ds = append(ds, domainStatic)
 			}
