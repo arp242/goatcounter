@@ -129,7 +129,7 @@ verification server.
 This is why GoatCounter listens on port 80 by default, which should work well
 for most people.
 
-listen and tls flags:
+The -listen and -tls flags:
 
     You can change the main port GoatCounter listens on with the -listen flag.
     This works like most applications, for example:
@@ -144,9 +144,12 @@ listen and tls flags:
         http        Don't serve any TLS; you can still generate ACME
                     certificates though.
 
+        proxy       Don't serve any TLS similar to "http", but hint that TLS
+                    will be handled by a proxy (such as Hitch, Nginx, etc.)
+
         tls         Accept TLS connections on -listen. This is always done
-                    unless "http" is added so this is never needed, but can be
-                    useful to clarify that TLS is used.
+                    unless "http" or "proxy" are added so this is never needed,
+                    but can be useful to clarify that TLS is used.
 
         rdr         Redirect port 80 to the -listen port; as mentioned it's
                     required for Let's Encrypt to be available on port 80. You

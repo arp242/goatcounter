@@ -56,19 +56,20 @@ func (d cache) Put(ctx context.Context, key string, data []byte) error {
 
 // Setup returns a tls.Config and http-01 verification based on the value of the
 // -tls cmdline flag.
-func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uint8) {
+func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uint8, bool) {
 	if flag == "" {
-		return nil, nil, 0
+		return nil, nil, 0, false
 	}
 
 	s := strings.Split(flag, ",")
 	if len(s) == 0 {
-		return nil, nil, 0
+		return nil, nil, 0, false
 	}
 
 	var (
 		listen    uint8
 		listenTLS = true
+		secure    = true
 		certs     []tls.Certificate
 	)
 	for _, f := range s {
@@ -78,6 +79,9 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 		case f == "":
 			panic(fmt.Sprintf("wrong value for -tls: %q", flag))
 		case f == "http" || f == "none": // TODO(depr): none is for compat with <2.0
+			listenTLS = false
+			secure = false
+		case f == "proxy":
 			listenTLS = false
 		case f == "tls":
 			// TODO(depr): for compat with <2.0; doesn't do anything as "acme"
@@ -137,7 +141,7 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 
 	if manager == nil {
 		if !listenTLS {
-			return nil, nil, listen
+			return nil, nil, listen, secure
 		}
 		if len(certs) == 0 {
 			panic("-tls: no acme and no certificates")
@@ -146,7 +150,7 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 			PreferServerCipherSuites: true,
 			MinVersion:               tls.VersionTLS12,
 			Certificates:             certs,
-		}, nil, listen
+		}, nil, listen, secure
 	}
 
 	var tlsc *tls.Config
@@ -172,7 +176,7 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 		}
 	}
 
-	return tlsc, manager.HTTPHandler(nil).ServeHTTP, listen
+	return tlsc, manager.HTTPHandler(nil).ServeHTTP, listen, secure
 }
 
 // Enabled reports if ACME is enabled.

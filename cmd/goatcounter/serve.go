@@ -311,26 +311,6 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 
 	zlog.Config.SetDebug(*debug)
 	zhttp.LogUnknownFields = *dev
-	zhttp.CookieSecure = !*dev
-	if *flagTLS == "http" {
-		zhttp.CookieSecure = false
-	}
-
-	// Set SameSite=None to allow embedding GoatCounter in a frame and allowing
-	// login; there is no way to make this work with Lax or Strict as far as I
-	// can find (there is no way to add exceptions for trusted sites).
-	//
-	// This is not a huge problem because every POST/DELETE/etc. request already
-	// has a CSRF token in the request, which protects against the same thing as
-	// SameSite does. We could enable it only for sites that have "embed
-	// GoatCounter" enabled (which aren't that many sites), but then people need
-	// to logout and login again to reset the cookie, which isn't ideal.
-	//
-	// Don't do this in dev mode as Google Chrome developers silently rejects
-	// these cookies if there's no TLS.
-	if !*dev {
-		zhttp.CookieSameSite = http.SameSiteNoneMode
-	}
 
 	if !*dev {
 		zlog.Config.SetFmtTime("Jan _2 15:04:05 ")
@@ -400,7 +380,25 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 		zlog.Error(err)
 	}
 
-	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS, dev)
+	tlsc, acmeh, listenTLS, secure := acme.Setup(db, flagTLS, dev)
+
+	zhttp.CookieSecure = secure
+
+	// Set SameSite=None to allow embedding GoatCounter in a frame and allowing
+	// login; there is no way to make this work with Lax or Strict as far as I
+	// can find (there is no way to add exceptions for trusted sites).
+	//
+	// This is not a huge problem because every POST/DELETE/etc. request already
+	// has a CSRF token in the request, which protects against the same thing as
+	// SameSite does. We could enable it only for sites that have "embed
+	// GoatCounter" enabled (which aren't that many sites), but then people need
+	// to logout and login again to reset the cookie, which isn't ideal.
+	//
+	// Only do this for secure connections, as Google Chrome developers decided
+	// to silently reject these cookies if there's no TLS.
+	if secure {
+		zhttp.CookieSameSite = http.SameSiteNoneMode
+	}
 
 	err = goatcounter.Memstore.Init(db)
 	if err != nil {
