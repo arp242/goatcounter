@@ -38,7 +38,7 @@ These parameters are guaranteed to be stable; any future incompatible changes
 will use a new endpoint. Building your own JavaScript integration should be
 safe, although you may need to modify it if new features get added.
 
-`rnd` is useful as sometimes browsers and procies have their own opinion about
+`rnd` is useful as sometimes browsers and proxies have their own opinion about
 what can or can't be cached in spite of what the cache headers say.
 
 The `b` accepts an integer constant from the [zgo.at/isbot][isbot] library and
