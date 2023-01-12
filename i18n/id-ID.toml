@@ -34,13 +34,13 @@
   default = "Iya, hapus semuanya"
 
 ["button/disable-mfa"]
-  default = "Nonaktifkan otentikasi multi-faktor"
+  default = "Nonaktifkan autentikasi multifaktor"
 
 ["button/edit"]
-  default = "Edit"
+  default = "Sunting"
 
 ["button/enable-mfa"]
-  default = "Aktifkan otentikasi multi-faktor"
+  default = "Aktifkan autentikasi multifaktor"
 
 ["button/forgot-password"]
   default = "Lupa kata sandi?"
@@ -231,7 +231,7 @@ Martin
 """
 
 ["error/account-has-stripe-subscription"]
-  default = "Akun ini masih memiliki langganan Stripe; batalkan itu dulu pada laman penagihan."
+  default = "Akun ini masih memiliki langganan Stripe; batalkan itu dahulu pada laman penagihan."
 
 ["error/address-exists"]
   default = "%(addr) sudah ada"
@@ -246,7 +246,7 @@ Martin
   default = "tanggal akhirnya sebelum tanggal mulai"
 
 ["error/date-past"]
-  default = "Itu seharusnya sebelum pembuatan situsnya; GoatCounter *belum* sebaik itu ;-)"
+  default = "Itu seharusnya sebelum pembuatan situsnya; GoatCounter *belum* sebaik itu ;-)"
 
 ["error/delete-main-site"]
   default = "Tidak dapat menghapus situs utama"
@@ -354,7 +354,7 @@ Martin
   default = "Pengaturan domain"
 
 ["header/edit-user"]
-  default = "Edit pengguna %(email)"
+  default = "Sunting pengguna %(email)"
 
 ["header/email"]
   default = "Email"
@@ -396,7 +396,7 @@ Martin
   default = "Lokasi untuk %(country)"
 
 ["header/mfa"]
-  default = "Otentikasi multi-faktor"
+  default = "Autentikasi multifaktor"
 
 ["header/n-hits"]
   default = "Jumlah tabrakan"
@@ -411,7 +411,7 @@ Martin
   default = "Kursor paginasi"
 
 ["header/passwd-mfa"]
-  default = "Kata sandi & otentikasi multi-faktor"
+  default = "Kata sandi & autentikasi multifaktor"
 
 ["header/path"]
   default = "Jalur"
@@ -660,7 +660,7 @@ Verifikasi akan dijalankan setiap 2 jam.
   default = "Juga cocokkan dengan judul"
 
 ["label/mfa-token"]
-  default = "Token Otentikasi Multi-Faktor"
+  default = "Token Autentikasi Multifaktor"
 
 ["label/new-code"]
   default = "Kode baru"
@@ -774,7 +774,7 @@ Verifikasi akan dijalankan setiap 2 jam.
   default = "Impor"
 
 ["link/passwd-mfa"]
-  default = "Kata sandi & otentikasi multi-faktor"
+  default = "Kata sandi & autentikasi multifaktor"
 
 ["link/preferences"]
   default = "Preferensi"
@@ -876,7 +876,7 @@ Verifikasi akan dijalankan setiap 2 jam.
   default = "Token API dihapus."
 
 ["notify/disabled-multi-factor-auth"]
-  default = "Otentikasi multi-faktor dinonaktifkan."
+  default = "Autentikasi multifaktor dinonaktifkan."
 
 ["notify/email-already-verified"]
   default = "%(email) sudah diverifikasi."
@@ -891,7 +891,7 @@ Verifikasi akan dijalankan setiap 2 jam.
   default = "Kata sandi diatur ulang; gunakan kata sandi Anda yang baru untuk masuk."
 
 ["notify/multi-factor-auth-enabled"]
-  default = "Otentikasi multi-faktor diaktifkan."
+  default = "Autentikasi multifaktor diaktifkan."
 
 ["notify/need-business-plan-custom-domain"]
   default = "membutuhkan langganan bisnis untuk dapat menetapkan domain khusus"
@@ -948,7 +948,7 @@ Verifikasi akan dijalankan setiap 2 jam.
   default = "Pengguna ‘%(email)’ dihapus."
 
 ["notify/users-edited"]
-  default = "Pengguna ‘%(email)’ diedit."
+  default = "Pengguna ‘%(email)’ disunting."
 
 ["p/add-goatcounter-to-multiple-websites"]
   default = """
@@ -961,7 +961,7 @@ Verifikasi akan dijalankan setiap 2 jam.
   default = "Kesalahan tambahan"
 
 ["p/api-intro"]
-  default = "GoatCounter memiliki API terbatas; saat ini Anda dapat menghitung tampilan laman dari API, buat, hapus, dan edit situs, dan buat akun."
+  default = "GoatCounter memiliki API terbatas; saat ini Anda dapat menghitung tampilan laman dari API, buat, hapus, dan sunting situs, dan buat pengeksporan."
 
 ["p/change-code-request"]
   default = """
@@ -991,10 +991,10 @@ Verifikasi akan dijalankan setiap 2 jam.
   default = "Situs ini akan ditandai sebagai dihapus dan tidak akan lagi tersedia, tetapi tidak ada data yang dihapus. Setelah 7 hari semua data akan dihapus secara permanen."
 
 ["p/disable-mfa"]
-  default = "Otentikasi multi-faktor saat ini diaktifkan untuk akun ini."
+  default = "Autentikasi multifaktor saat ini diaktifkan untuk akun ini."
 
 ["p/enable-mfa"]
-  default = "Aktifkan otentikasi multi-faktor berbasis TOTP dengan memindai kode dalam aplikasi otentikasi atau mengisi rahasia secara manual."
+  default = "Aktifkan autentikasi multifaktor berbasis TOTP dengan memindai kode dalam aplikasi autentikasi atau mengisi rahasia secara manual."
 
 ["p/error"]
   default = "Kesalahan: %(error-message)"
@@ -1007,10 +1007,10 @@ Verifikasi akan dijalankan setiap 2 jam.
 """
 
 ["p/have-mfa"]
-  default = "Akun ini dilindungi oleh otentikasi multi-faktor; silakan masukkan kode dari aplikasi otentikasi Anda."
+  default = "Akun ini dilindungi oleh autentikasi multifaktor; silakan memasukkan kode dari aplikasi autentikasi Anda."
 
 ["p/last-user"]
-  default = "Tidak dapat menghapus atau mengedit pengguna admin terakhir"
+  default = "Tidak dapat menghapus atau menyunting pengguna admin terakhir"
 
 ["p/no-data"]
   default = """
