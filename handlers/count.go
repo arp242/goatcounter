@@ -6,7 +6,9 @@ package handlers
 
 import (
 	"fmt"
+	"net"
 	"net/http"
+	"strings"
 
 	"github.com/monoculum/formam/v3"
 	"golang.org/x/text/language"
@@ -14,6 +16,7 @@ import (
 	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/isbot"
 	"zgo.at/zhttp"
+	"zgo.at/zstd/znet"
 	"zgo.at/zstd/ztime"
 )
 
@@ -43,9 +46,20 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 
+	remoteAddr := r.RemoteAddr
+	xff := r.Header.Get("X-Forwarded-For")
+	if xff != "" {
+		xffSplit := strings.Split(xff, ",")
+		for i := len(xffSplit) - 1; i >= 0; i-- {
+			if !znet.PrivateIP(net.ParseIP(xffSplit[i])) {
+				remoteAddr = znet.RemovePort(strings.TrimSpace(xffSplit[i]))
+				break
+			}
+		}
+	}
 	site := Site(r.Context())
 	for _, ip := range site.Settings.IgnoreIPs {
-		if ip == r.RemoteAddr {
+		if ip == remoteAddr {
 			w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because %q is in the IP ignore list", ip))
 			w.WriteHeader(http.StatusAccepted)
 			return zhttp.Bytes(w, gif)
@@ -56,11 +70,11 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		Site:            site.ID,
 		UserAgentHeader: r.UserAgent(),
 		CreatedAt:       ztime.Now(),
-		RemoteAddr:      r.RemoteAddr,
+		RemoteAddr:      remoteAddr,
 	}
 	if site.Settings.Collect.Has(goatcounter.CollectLocation) {
 		var l goatcounter.Location
-		hit.Location = l.LookupIP(r.Context(), r.RemoteAddr)
+		hit.Location = l.LookupIP(r.Context(), remoteAddr)
 	}
 
 	if site.Settings.Collect.Has(goatcounter.CollectLanguage) {
