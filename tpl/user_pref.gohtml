@@ -105,7 +105,17 @@
 		</fieldset>
 
 		<fieldset id="section-email-reports">
-			<legend>{{.T "header/email-reports|Email reports"}}</legend>
+			<legend>{{.T "header/preferences|Preferences"}}</legend>
+
+			<label for="theme">{{.T "Theme"}}</label>
+			<select id="theme" name="theme">
+				{{/*
+				<option {{option_value .User.Settings.Theme ""}}>{{.T "theme/system|Use system setting"}}</option>
+				*/}}
+				<option {{option_value .User.Settings.Theme ""}}>{{.T "theme/dark|Light"}}</option>
+				<option {{option_value .User.Settings.Theme "dark"}}>{{.T "theme/dark|Dark"}}</option>
+			</select>
+
 			<label for="email_reports">{{.T "label/email-reports|Send email reports"}}</label>
 			<select name="user.settings.email_reports" id="email_reports">
 				<option {{option_value .User.Settings.EmailReports.String "0"}}>{{.T "email-report/never|Never"}}</option>

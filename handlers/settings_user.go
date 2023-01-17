@@ -39,7 +39,8 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 		User             goatcounter.User `json:"user"`
 		SetSite          bool             `json:"set_site"`
 		FewerNumbersLock string           `json:"fewer_numbers_lock"`
-	}{*User(r.Context()), false, ""}
+		Theme            string           `json:"theme"`
+	}{*User(r.Context()), false, "", ""}
 	var (
 		oldEmail     = args.User.Email
 		oldReports   = args.User.Settings.EmailReports
@@ -49,6 +50,8 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	args.User.Settings.Theme = args.Theme
 
 	if oldFewerNums && !args.User.Settings.FewerNumbers && args.User.Settings.FewerNumbersLockUntil.After(ztime.Now()) {
 		zhttp.FlashError(w, "Nice try")

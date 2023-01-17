@@ -85,6 +85,7 @@ type (
 		EmailReports          zint.Int  `json:"email_reports"`
 		FewerNumbers          bool      `json:"fewer_numbers"`
 		FewerNumbersLockUntil time.Time `json:"fewer_numbers_lock_until"`
+		Theme                 string    `json:"theme"`
 	}
 
 	// Widgets is a list of widgets to be printed, in order.
@@ -633,6 +634,8 @@ func (ss *UserSettings) Validate(ctx context.Context) error {
 	if !slices.Contains(EmailReports, ss.EmailReports.Int()) {
 		v.Append("email_reports", "invalid value")
 	}
+
+	v.Include("theme", ss.Theme, []string{"", "light", "dark"})
 
 	return v.ErrorOrNil()
 }

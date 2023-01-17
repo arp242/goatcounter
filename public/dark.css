@@ -1,4 +1,4 @@
-html.force-dark {
+:root {
     --text:              #fff;
     --bg:                #252525;
     --header-border:     #888;                             /* Border below some headers */
