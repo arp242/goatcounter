@@ -313,7 +313,7 @@ func init() {
 		}
 		return t.In(u.Settings.Timezone.Loc()).Format(fmt)
 	})
-	tplfunc.Add("nformat", func(n int, u User) string {
+	tplfunc.Add("nformat", func(n any, u User) string {
 		return tplfunc.Number(n, u.Settings.NumberFormat)
 	})
 
