@@ -7,6 +7,7 @@ package handlers
 import (
 	"context"
 	"html/template"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -400,12 +401,15 @@ func timeRange(r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
 	case "year":
 		rng = rng.Last(ztime.Year)
 	default:
-		days, err := strconv.Atoi(r)
+		// Sometimes the frontend sends something like "54.958333333333336"
+		// presumably due to to JS numbers always being a float. Not entirely
+		// sure where this happens, so just deal with it here.
+		days, err := strconv.ParseFloat(r, 32)
 		if err != nil {
 			zlog.Field("rng", r).Error(errors.Errorf("timeRange: %w", err))
 			return timeRange("week", tz, sundayStartsWeek)
 		}
-		rng.Start = ztime.AddPeriod(rng.Start, -days, ztime.Day)
+		rng.Start = ztime.AddPeriod(rng.Start, -int(math.Round(days)), ztime.Day)
 	}
 	return rng.UTC()
 }
