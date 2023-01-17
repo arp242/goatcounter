@@ -221,7 +221,7 @@ func Make(ctx context.Context, domain string) error {
 var resolveSelf singleflight.Group
 
 func validForwarding(ctx context.Context, domain string) bool {
-	x, _, _ := resolveSelf.Do("resolveSelf", func() (interface{}, error) {
+	x, _, _ := resolveSelf.Do("resolveSelf", func() (any, error) {
 		// For "serve" we don't know what the end destination will be, so always
 		// check.
 		if !goatcounter.Config(ctx).GoatcounterCom {

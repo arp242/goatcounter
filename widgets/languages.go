@@ -48,7 +48,7 @@ func (w *Languages) GetData(ctx context.Context, a Args) (more bool, err error) 
 	return w.Stats.More, err
 }
 
-func (w Languages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Languages) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	header := z18n.T(ctx, "header/languages|Languages")
 
 	return "_dashboard_hchart.gohtml", struct {

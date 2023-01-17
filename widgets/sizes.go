@@ -51,7 +51,7 @@ func (w *Sizes) GetData(ctx context.Context, a Args) (more bool, err error) {
 	return w.Stats.More, err
 }
 
-func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	return "_dashboard_hchart.gohtml", struct {
 		Context     context.Context
 		ID          int

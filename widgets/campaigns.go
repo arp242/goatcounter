@@ -55,7 +55,7 @@ func (w *Campaigns) GetData(ctx context.Context, a Args) (more bool, err error) 
 	return w.Stats.More, err
 }
 
-func (w Campaigns) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Campaigns) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	//return "_dashboard_campaigns.gohtml", struct {
 	return "_dashboard_hchart.gohtml", struct {
 		Context     context.Context

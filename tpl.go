@@ -134,7 +134,7 @@ func init() {
 	tplfunc.Add("text_chart", textChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
 
-	tplfunc.Add("markdown", func(file string, scope interface{}) template.HTML {
+	tplfunc.Add("markdown", func(file string, scope any) template.HTML {
 		ctx := reflect.ValueOf(scope).FieldByName("Context").Elem().Interface().(context.Context)
 		fsys, err := zfs.EmbedOrDir(Templates, "tpl", Config(ctx).Dev)
 		if err != nil {

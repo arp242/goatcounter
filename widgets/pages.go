@@ -96,7 +96,7 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	return w.More, errs.ErrorOrNil()
 }
 
-func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	if w.RefsForPath > 0 {
 		return "_dashboard_pages_refs.gohtml", struct {
 			Context context.Context

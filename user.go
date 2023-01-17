@@ -639,7 +639,7 @@ func (u UserAccess) String() string {
 func (u UserAccesses) Value() (driver.Value, error) { return json.Marshal(u) }
 
 // Scan converts the data returned from the DB into the struct.
-func (u *UserAccesses) Scan(v interface{}) error {
+func (u *UserAccesses) Scan(v any) error {
 	switch vv := v.(type) {
 	case []byte:
 		return json.Unmarshal(vv, u)

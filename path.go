@@ -111,7 +111,7 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 	}
 
 	var titles []string
-	cacheChangedTitles(ctx).Modify(k, func(v interface{}) interface{} {
+	cacheChangedTitles(ctx).Modify(k, func(v any) any {
 		vv := v.([]string)
 		vv = append(vv, newTitle)
 		titles = vv

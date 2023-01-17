@@ -20,19 +20,19 @@ func KeepAsText(ctx context.Context) error {
 	}
 
 	set := func(settings []byte) (string, error) {
-		var s map[string]interface{}
+		var s map[string]any
 		err := json.Unmarshal(settings, &s)
 		if err != nil {
 			return "", err
 		}
 
-		wid := s["widgets"].([]interface{})
+		wid := s["widgets"].([]any)
 		for i, w := range wid {
-			ww := w.(map[string]interface{})
+			ww := w.(map[string]any)
 			if ww["n"].(string) == "pages" {
-				s, ok := ww["s"].(map[string]interface{})
+				s, ok := ww["s"].(map[string]any)
 				if !ok {
-					s = make(map[string]interface{})
+					s = make(map[string]any)
 				}
 				s["style"] = "text"
 				ww["s"] = s

@@ -660,7 +660,7 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 
 func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		del := map[string]interface{}{
+		del := map[string]any{
 			"ContactMe": r.URL.Query().Get("contact_me") == "true",
 			"Reason":    r.URL.Query().Get("reason"),
 		}
@@ -675,7 +675,7 @@ func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			Globals
 			Sites    goatcounter.Sites
 			Validate *zvalidate.Validator
-			Delete   map[string]interface{}
+			Delete   map[string]any
 		}{newGlobals(w, r), sites, verr, del})
 	}
 }

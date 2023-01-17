@@ -248,7 +248,7 @@ func (h api) test(w http.ResponseWriter, r *http.Request) error {
 
 	if args.Context {
 		info, _ := zdb.Info(r.Context())
-		return zhttp.JSON(w, map[string]interface{}{
+		return zhttp.JSON(w, map[string]any{
 			"site_id": Site(r.Context()).ID,
 			"serve":   !goatcounter.Config(r.Context()).GoatcounterCom,
 			"db":      info.Version,
@@ -602,7 +602,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	}
 	if len(errs) > 0 {
 		w.WriteHeader(400)
-		return zhttp.JSON(w, map[string]interface{}{
+		return zhttp.JSON(w, map[string]any{
 			"errors": errs,
 		})
 	}

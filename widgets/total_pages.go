@@ -57,7 +57,7 @@ func (w *TotalPages) GetData(ctx context.Context, a Args) (more bool, err error)
 	return false, err
 }
 
-func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	// Set days in the future to -1; we filter this in the JS when rendering
 	// the chart.
 	// It's easier to do this here because JavaScript Date() has piss-poor

@@ -83,7 +83,7 @@ func TestAPIBasics(t *testing.T) {
 		})
 
 		t.Run("no-perm", func(t *testing.T) {
-			body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
+			body := bytes.NewReader(zjson.MustMarshal(map[string]any{
 				"perm": goatcounter.APIPermExport | goatcounter.APIPermCount,
 			}))
 			ctx := gctest.DB(t)
@@ -178,7 +178,7 @@ func TestAPIBasics(t *testing.T) {
 
 			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
-				bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
+				bytes.NewReader(zjson.MustMarshal(map[string]any{
 					"validate": v,
 				})),
 				0)
@@ -196,7 +196,7 @@ func TestAPIBasics(t *testing.T) {
 	t.Run("context", func(t *testing.T) {
 		ctx := gctest.DB(t)
 		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
-			bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
+			bytes.NewReader(zjson.MustMarshal(map[string]any{
 				"context": true,
 			})),
 			0)
@@ -216,7 +216,7 @@ func TestAPIBasics(t *testing.T) {
 	t.Run("check-perm", func(t *testing.T) {
 		ctx := gctest.DB(t)
 
-		body := bytes.NewReader(zjson.MustMarshal(map[string]interface{}{
+		body := bytes.NewReader(zjson.MustMarshal(map[string]any{
 			"perm": goatcounter.APIPermExport | goatcounter.APIPermCount,
 		}))
 		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body,

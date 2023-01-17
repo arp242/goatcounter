@@ -56,7 +56,7 @@ func (w *Locations) GetData(ctx context.Context, a Args) (more bool, err error) 
 	return w.Stats.More, err
 }
 
-func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	header := z18n.T(ctx, "header/locations|Locations")
 	if w.err == nil && w.Detail != "" {
 		var l goatcounter.Location

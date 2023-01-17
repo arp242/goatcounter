@@ -90,7 +90,7 @@ type (
 
 	// Widgets is a list of widgets to be printed, in order.
 	Widgets []Widget
-	Widget  map[string]interface{}
+	Widget  map[string]any
 
 	WidgetSettings map[string]WidgetSetting
 	WidgetSetting  struct {
@@ -100,8 +100,8 @@ type (
 		Help        string
 		Options     [][2]string
 		OptionsFunc func(context.Context) [][2]string
-		Validate    func(*zvalidate.Validator, interface{})
-		Value       interface{}
+		Validate    func(*zvalidate.Validator, any)
+		Value       any
 	}
 
 	// Views for the dashboard; these settings apply to all widget and are
@@ -125,7 +125,7 @@ func defaultWidgets(ctx context.Context) Widgets {
 	s := defaultWidgetSettings(ctx)
 	w := Widgets{}
 	for _, n := range []string{"pages", "totalpages", "toprefs", "campaigns", "browsers", "systems", "locations", "languages", "sizes"} {
-		w = append(w, map[string]interface{}{"n": n, "s": s[n].getMap()})
+		w = append(w, map[string]any{"n": n, "s": s[n].getMap()})
 	}
 	return w
 }
@@ -139,7 +139,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(10),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
 				},
 			},
@@ -148,7 +148,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/ref-page-size|Referrers page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/ref-page-size|Number of referrers to load when clicking on a path"),
 				Value: float64(10),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
 				},
 			},
@@ -174,7 +174,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 					[2]string{"bar", z18n.T(ctx, "widget-settings/bar-chart|Bar chart")},
 					[2]string{"text", z18n.T(ctx, "widget-settings/text-chart|Text table")},
 				},
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Include("style", val.(string), []string{"line", "bar", "text"})
 				},
 			},
@@ -201,7 +201,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 					[2]string{"line", z18n.T(ctx, "widget-settings/line-chart|Line chart")},
 					[2]string{"bar", z18n.T(ctx, "widget-settings/bar-chart|Bar chart")},
 				},
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Include("style", val.(string), []string{"line", "bar"})
 				},
 			},
@@ -212,7 +212,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
 			},
@@ -224,7 +224,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
 			},
@@ -236,7 +236,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
 			},
@@ -251,7 +251,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
 			},
@@ -281,7 +281,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
 			},
@@ -292,7 +292,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
-				Validate: func(v *zvalidate.Validator, val interface{}) {
+				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
 			},
@@ -303,7 +303,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 
 func (ss SiteSettings) String() string               { return string(zjson.MustMarshal(ss)) }
 func (ss SiteSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
-func (ss *SiteSettings) Scan(v interface{}) error {
+func (ss *SiteSettings) Scan(v any) error {
 	switch vv := v.(type) {
 	case []byte:
 		return json.Unmarshal(vv, ss)
@@ -315,7 +315,7 @@ func (ss *SiteSettings) Scan(v interface{}) error {
 }
 func (ss UserSettings) String() string               { return string(zjson.MustMarshal(ss)) }
 func (ss UserSettings) Value() (driver.Value, error) { return json.Marshal(ss) }
-func (ss *UserSettings) Scan(v interface{}) error {
+func (ss *UserSettings) Scan(v any) error {
 	switch vv := v.(type) {
 	case []byte:
 		return json.Unmarshal(vv, ss)
@@ -441,15 +441,15 @@ func (ss SiteSettings) CollectFlags(ctx context.Context) []CollectFlag {
 	}
 }
 
-func (s *WidgetSettings) Set(k string, v interface{}) {
+func (s *WidgetSettings) Set(k string, v any) {
 	ss := *s
 	m := ss[k]
 	m.Value = v
 	ss[k] = m
 }
 
-func (s WidgetSettings) getMap() map[string]interface{} {
-	m := make(map[string]interface{})
+func (s WidgetSettings) getMap() map[string]any {
+	m := make(map[string]any)
 	for k, v := range s {
 		m[k] = v.Value
 	}
@@ -513,9 +513,9 @@ func (w Widget) SetSetting(ctx context.Context, widget, setting, value string) e
 		return fmt.Errorf("Widget.SetSetting: no such setting %q for widget %q", setting, widget)
 	}
 
-	s, ok := w["s"].(map[string]interface{})
+	s, ok := w["s"].(map[string]any)
 	if !ok {
-		s = make(map[string]interface{})
+		s = make(map[string]any)
 	}
 	switch def.Type {
 	case "number":
@@ -536,7 +536,7 @@ func (w Widget) SetSetting(ctx context.Context, widget, setting, value string) e
 // Name gets this widget's name.
 func (w Widget) Name() string { return w["n"].(string) }
 
-func (w Widget) GetSetting(ctx context.Context, n string) interface{} {
+func (w Widget) GetSetting(ctx context.Context, n string) any {
 	for k, v := range w.GetSettings(ctx) {
 		if k == n {
 			return v.Value
@@ -553,7 +553,7 @@ func (w Widget) GetSettings(ctx context.Context) WidgetSettings {
 	}
 	s, ok := w["s"]
 	if ok {
-		for k, v := range s.(map[string]interface{}) {
+		for k, v := range s.(map[string]any) {
 			if v != nil {
 				d := def[k]
 				d.Value = v

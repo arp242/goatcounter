@@ -104,7 +104,7 @@ func TestBackendPagesMore(t *testing.T) {
 	newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 	ztest.Code(t, rr, 200)
 
-	var body map[string]interface{}
+	var body map[string]any
 	zjson.MustUnmarshal(rr.Body.Bytes(), &body)
 
 	haveHTML := grep("tr id=", string(body["html"].(string)))

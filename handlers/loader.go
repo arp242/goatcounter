@@ -59,7 +59,7 @@ func (l *loaderT) connect(r *http.Request, id zint.Uint128, c *websocket.Conn) {
 	l.conns.Set(id, &loaderClient{conn: c})
 }
 
-func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data interface{}) {
+func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 	c, ok := l.conns.Get(id)
 	if !ok {
 		// No connection yet; this shouldn't happen, but does happen quite a lot

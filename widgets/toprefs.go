@@ -54,7 +54,7 @@ func (w *TopRefs) GetData(ctx context.Context, a Args) (more bool, err error) {
 	return w.TopRefs.More, err
 }
 
-func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, interface{}) {
+func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	return "_dashboard_toprefs.gohtml", struct {
 		Context     context.Context
 		ID          int

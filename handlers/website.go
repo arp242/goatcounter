@@ -259,7 +259,7 @@ func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
 
 		// For the message form
 		Validate *zvalidate.Validator
-		Args     interface{}
+		Args     any
 	}{newGlobals(w, r), t, metaDesc[t], loggedIn, nil, nil})
 }
 
@@ -525,7 +525,7 @@ func (h website) help(w http.ResponseWriter, r *http.Request) error {
 
 		// For the message form
 		Validate *zvalidate.Validator
-		Args     interface{}
+		Args     any
 	}{newGlobals(w, r), "help", cp, "Documentation – GoatCounter",
 		dc, site.URL(r.Context()), site.Domain(r.Context()), h.fromWWW,
 		nil, nil})

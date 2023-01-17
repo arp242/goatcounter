@@ -110,7 +110,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 			// Intercept /status here so it works everywhere.
 			if r.URL.Path == "/status" {
 				info, _ := zdb.Info(ctx)
-				j, err := json.Marshal(map[string]interface{}{
+				j, err := json.Marshal(map[string]any{
 					"uptime":   ztime.Now().Sub(Started).Round(time.Second).String(),
 					"version":  goatcounter.Version,
 					"database": zdb.SQLDialect(ctx).String() + " " + string(info.Version),

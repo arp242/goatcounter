@@ -38,7 +38,7 @@ type handlerTest struct {
 	path         string
 	method       string
 	auth         bool
-	body         interface{}
+	body         any
 	wantCode     int
 	wantFormCode int
 	wantBody     string
@@ -209,7 +209,7 @@ func newTest(ctx context.Context, method, path string, body io.Reader) (*http.Re
 // Use github.com/teamwork/test.Multipart for a multipart form.
 //
 // Note: this is primitive, but enough for now.
-func formBody(i interface{}) string {
+func formBody(i any) string {
 	var m map[string]string
 	zjson.MustUnmarshal(zjson.MustMarshal(i), &m)
 

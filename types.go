@@ -21,7 +21,7 @@ func (l Ints) String() string                { return zint.Join(l, ", ") }
 func (l Ints) Value() (driver.Value, error)  { return zint.Join(l, ","), nil }
 func (l *Ints) UnmarshalText(v []byte) error { return l.Scan(v) }
 
-func (l *Ints) Scan(v interface{}) error {
+func (l *Ints) Scan(v any) error {
 	if v == nil {
 		return nil
 	}
@@ -43,7 +43,7 @@ func (l Floats) String() string                { return zfloat.Join(l, ", ") }
 func (l Floats) Value() (driver.Value, error)  { return zfloat.Join(l, ","), nil }
 func (l *Floats) UnmarshalText(v []byte) error { return l.Scan(v) }
 
-func (l *Floats) Scan(v interface{}) error {
+func (l *Floats) Scan(v any) error {
 	if v == nil {
 		return nil
 	}
@@ -91,7 +91,7 @@ func splitAny(s string, seps ...string) []string {
 	return split
 }
 
-func (l *Strings) Scan(v interface{}) error {
+func (l *Strings) Scan(v any) error {
 	if v == nil {
 		return nil
 	}

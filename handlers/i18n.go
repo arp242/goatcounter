@@ -197,7 +197,7 @@ func (h i18n) save(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return zhttp.JSON(w, map[string]interface{}{"success": true})
+	return zhttp.JSON(w, map[string]any{"success": true})
 }
 
 func (h i18n) set(w http.ResponseWriter, r *http.Request) error {

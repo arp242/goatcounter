@@ -17,7 +17,7 @@ import (
 type (
 	Widget interface {
 		GetData(context.Context, Args) (bool, error)
-		RenderHTML(context.Context, SharedData) (string, interface{})
+		RenderHTML(context.Context, SharedData) (string, any)
 
 		SetHTML(template.HTML)
 		HTML() template.HTML

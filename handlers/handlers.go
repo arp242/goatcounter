@@ -75,7 +75,7 @@ type Globals struct {
 	HideUI         bool
 }
 
-func (g Globals) T(msg string, data ...interface{}) template.HTML {
+func (g Globals) T(msg string, data ...any) template.HTML {
 	return template.HTML(z18n.T(g.Context, msg, data...))
 }
 
