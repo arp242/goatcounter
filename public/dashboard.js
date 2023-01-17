@@ -624,7 +624,7 @@
 				var r = chart.find('.rows')[0]
 				if (r) {
 					var obs = new MutationObserver((mut) => {
-						if (mut[0].addedNodes.length === 0 || mut[0].addedNodes[0].className !== 'rows')
+						if (mut[0].addedNodes.length === 0 || mut[0].addedNodes[0].classList.contains('detail'))
 							return
 						obs.disconnect()  // Not strictly needed, but just in case to prevent infinite looping.
 						set(chart)

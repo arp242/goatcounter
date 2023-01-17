@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
 )
@@ -184,12 +185,12 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 
 	// Group a bit more user-friendly.
 	ns := []HitStat{
-		{Name: "Phones", ID: sizePhones, Count: 0},
-		{Name: "Large phones, small tablets", ID: sizeLargePhones, Count: 0},
-		{Name: "Tablets and small laptops", ID: sizeTablets, Count: 0},
-		{Name: "Computer monitors", ID: sizeDesktop, Count: 0},
-		{Name: "Computer monitors larger than HD", ID: sizeDesktopHD, Count: 0},
-		{Name: "(unknown)", ID: sizeUnknown, Count: 0},
+		{Name: z18n.T(ctx, "label/phones|Phones"), ID: sizePhones, Count: 0},
+		{Name: z18n.T(ctx, "label/large-phones|Large phones, small tablets"), ID: sizeLargePhones, Count: 0},
+		{Name: z18n.T(ctx, "label/tablets|Tablets and small laptops"), ID: sizeTablets, Count: 0},
+		{Name: z18n.T(ctx, "label/desktops|Computer monitors"), ID: sizeDesktop, Count: 0},
+		{Name: z18n.T(ctx, "label/desktops-hd|Computer monitors larger than HD"), ID: sizeDesktopHD, Count: 0},
+		{Name: z18n.T(ctx, "unknown|(unknown)"), ID: sizeUnknown, Count: 0},
 	}
 
 	for i := range h.Stats {

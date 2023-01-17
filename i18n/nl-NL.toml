@@ -1266,3 +1266,17 @@ betekenis.
 ["y-scale"]
   default = "Y-as schaal"
 
+["label/phones"]
+  default = "Telefoons"
+
+["label/large-phones"]
+  default = "Grote telefoons, kleine tablets"
+
+["label/tablets"]
+  default = "Tablets en kleine laptops"
+
+["label/desktops"]
+  default = "Computerschermen"
+
+["label/desktops-hd"]
+  default = "Computerschermen groter dan HD"

@@ -181,7 +181,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 			zhttp.FlashError(w, T(r.Context(), "error/login-wrong-pwd|Wrong password for %(email)", args.Email))
 		} else {
 			zhttp.FlashError(w, "Something went wrong :-( An error has been logged for investigation.") // TODO: should be more generic
-			zlog.Error(err)
+			zlog.FieldsRequest(r).Error(err)
 		}
 		return zhttp.SeeOther(w, "/user/new?email="+url.QueryEscape(args.Email))
 	}

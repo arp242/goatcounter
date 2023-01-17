@@ -1,5 +1,5 @@
 {{- $x := (t $.Context "dashboard/loading|Loading…") -}}
-{{- if .Loaded -}}{{- $x = horizontal_chart .Context .Stats .Total (not .RowsOnly) true -}}{{- end -}}
+{{- if .Loaded -}}{{- $x = horizontal_chart .Context .Stats .Total true true -}}{{- end -}}
 {{- if .RowsOnly -}}
 	{{- $x -}}
 {{- else -}}
