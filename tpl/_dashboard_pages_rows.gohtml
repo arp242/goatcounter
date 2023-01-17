@@ -38,7 +38,7 @@
 						{{if not $.User.Settings.FewerNumbers}}
 							<small class="scale" title="{{t $.Context "y-scale|Y-axis scale"}}">{{nformat $.Max $.User}}</small>
 						{{end}}
-					{{- else if ge $n 11}}
+					{{- else if ge $n 11.0}}
 						{{/* TODO: this is broken, probably sice I added websocket
 						support at the start of 2022. Guess we can just remove it? No
 						one has complained */}}
