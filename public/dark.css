@@ -1,83 +1,114 @@
-html {
-    --text:              #fff;
-    --bg:                #252525;
-    --header-border:     #888;                             /* Border below some headers */
-    --backdrop:          #444;
-    --target-bg:         #b78c1d;                          /* :target; mostly for headers in the documentation. */
-    --loading-text:      #777;                             /* Little … that appears if something takes more than ~300ms to load */
+:root {
+    --rosewater: #f5e0dc;
+    --flamingo: #f2cdcd;
+    --pink: #f5c2e7;
+    --mauve: #cba6f7;
+    --red: #f38ba8;
+    --maroon: #eba0ac;
+    --peach: #fab387;
+    --yellow: #f9e2af;
+    --green: #a6e3a1;
+    --teal: #94e2d5;
+    --sky: #89dceb;
+    --sapphire: #74c7ec;
+    --blue: #89b4fa;
+    --lavender: #b4befe;
+    --text: #cdd6f4;
+    --subtext-1: #bac2de;
+    --subtext-0: #a6adc8;
+    --overlay-2: #9399b2;
+    --overlay-1: #7f849c;
+    --overlay-0: #6c7086;
+    --surface-2: #585b70;
+    --surface-1: #45475a;
+    --surface-0: #313244;
+    --base: #1e1e2e;
+    --mantle: #181825;
+    --crust: #11111b;
 
-    --link:              #8edff8;                          /* <a> */
-    --link-hover:        #7acee9;
+    --bg:                 var(--crust);
+    --header-border:      var(--overlay-1);              /* Border below some headers */
+    --backdrop:           var(--surface-1);
+    --target-bg:          var(--peach);                  /* :target; mostly for headers in the documentation. */
+    --loading-text:       var(--lavender);               /* Little … that appears if something takes more than ~300ms to load */
 
-    --input-text:        var(--text);                      /* <input>, <select> */
-    --input-bg:          var(--bg);
-    --input-border:      #444;
-    --input-focus:       var(--link);                      /* Outline for focused inputs etc. */
-    --fieldset-border:   #666;                             /* Border around setting boxes on the settings page */
-    --form-error-text:   #ff8f8f;
-    --input-error-border: red;
+    --link:               var(--blue);                   /* <a> */
+    --link-hover:         var(--sky);
 
-    --btn-text:          var(--text);                      /* <button> */
-    --btn-bg:            linear-gradient(#7e7d7d, #404040);
-    --btn-border:        #b0b0b0;                          /* Default border style */
-    --btn-border-outset: #b8b8b8;                          /* Top and left styles for "3D" effect */
-    --btn-hover-bg:      linear-gradient(#656565, #2d2d2d);
-    --btn-active-bg:     linear-gradient(#2d2d2d, #656565);
+    --input-text:         var(--text);                   /* <input>, <select> */
+    --input-bg:           var(--bg);
+    --input-border:       var(--overlay-1);
+    --input-focus:        var(--link);                   /* Outline for focused inputs etc. */
+    --fieldset-border:    var(--surface-2);              /* Border around setting boxes on the settings page */
+    --form-error-text:    var(--red);
+    --input-error-border: var(--maroon);
 
-    --code-text:         #fff;                             /* <code>, <pre>, etc. */
-    --code-bg:           #000;
-    --code-border:       #d5d5d5;                          /* <pre> only */
+    --btn-text:          var(--text);                    /* <button> */
+    --btn-bg:            linear-gradient(var(--surface-2), var(--surface-0));
+    --btn-border:        var(--overlay-2);               /* Default border style */
+    --btn-border-outset: var(--overlay-1);               /* Top and left styles for "3D" effect */
+    --btn-hover-bg:      linear-gradient(var(--surface-0), var(--surface-2));
+    --btn-active-bg:     linear-gradient(var(--surface-1), var(--surface-2));
 
-    --tooltip-text:      #fff;                             /* Tooltips in the charts, some help text, "configure" button */
-    --tooltip-bg:        #060606;
-    --tooltip-border:    #ddd;
-    --tooltip-shadow:    #aaa;
+    --code-text:         var(--text);                    /* <code>, <pre>, etc. */
+    --code-bg:           var(--mantle);
+    --code-border:       var(--surface-2);               /* <pre> only */
 
-    --chart-line:        #6c0a73;                          /* Charts on the dashboard */
-    --chart-fill:        #ca56d3;
-    --chart-grid:        #555;
-    --hchart-border:     #666;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
-    --hchart-bar:        #ebb7ef;
-    --hchart-bar-hover:  #f9cffc;
+    --tooltip-text:      var(--text);                    /* Tooltips in the charts, some help text, "configure" button */
+    --tooltip-bg:        var(--base);
+    --tooltip-border:    var(--surface-0);
+    --tooltip-shadow:    var(--base);
 
-    --nav-bg:            #1b093c;                          /* Navigation at dashboard, settings, and footer */
-    --nav-border:        #3f1887;
-    --footer-shadow:     #09042e;
+    --chart-line:        var(--mauve);                   /* Charts on the dashboard */
+    --chart-fill:        var(--lavender);
+    --chart-grid:        var(--overlay-1);
+    --hchart-border:     var(--overlay-1);               /* Colour when you hover the Browsers, Systems, etc. chart bar */
+    --hchart-bar:        var(--maroon);
+    --hchart-bar-hover:  var(--pink);
 
-    --info-bg:           #226883;                          /* Flash messages */
-    --info-border:       #242683;
-    --error-bg:          #790707;
-    --error-border:      #b10606;
+    --nav-bg:            var(--mantle);                  /* Navigation at dashboard, settings, and footer */
+    --nav-border:        var(--surface-0);
+    --footer-shadow:     var(--base);
 
-    --event-bg:          #393774;                          /* "Event" label in paths overview */
-    --pageviews-text:    #7a7a7a;                          /* Grey out "pageviews" in tooltip. */
+    --info-bg:           var(--base);                    /* Flash messages */
+    --info-border:       var(--sapphire);
+    --error-bg:          var(--red);
+    --error-border:      var(--maroon);
 
-    --datapicker-border:             #626262;              /* Datepicker on dashboard (non-mobile only). */
-    --datepicker-shadow:             rgba(0,0,0,.5);
-    --datepicker-dayname-text:       #999;
-    --datepicker-day-text:           #ddd;
-    --datepicker-day-bg:             #666;
-    --datepicker-day-hover-bg:       #ff8000;
-    --datepicker-today-text:         #33aaff;
-    --datepicker-selected-shadow:    #178fe5;
-    --datepicker-selected-text:      #33aaff;
-    --datepicker-future-text:        #999;
-    --datepicker-future-bg:          #d5e9f7;
-    --datepicker-outside-month-text: #fff;
+    --event-bg:          var(--base);                    /* "Event" label in paths overview */
+    --pageviews-text:    var(--subtext-1);               /* Grey out "pageviews" in tooltip. */
 
-    --text-table-even-bg:      #000;                       /* Styles for pages overview with the chart style set to "text" */
-    --text-table-border:       #5e5e5e;
-    --text-table-rank-text:    #a5a5a5;
-    --text-table-chart-bg:     #3d3d3d;
-    --text-table-chart-border: #686868;
+    --datapicker-border:             var(--surface-0);   /* Datepicker on dashboard (non-mobile only). */
+    --datepicker-shadow:             var(--base);
+    --datepicker-dayname-text:       var(--overlay-0);
+    --datepicker-day-text:           var(--subtext-1);
+    --datepicker-day-bg:             var(--surface-2);
+    --datepicker-day-hover-bg:       var(--peach);
+    --datepicker-today-text:         var(--sky);
+    --datepicker-selected-shadow:    var(--sapphire);
+    --datepicker-selected-text:      var(--blue);
+    --datepicker-future-text:        var(--crust);
+    --datepicker-future-bg:          var(--subtext-1);
+    --datepicker-outside-month-text: var(--crust);
 
-    --widget-border:           #a4a4a4;                    /* "Widget settings" page */
-    --widget-dragging-border:  yellow;
-    --widget-dragging-bg:      #000;
-    --widget-handle-bg:        #808080;
-    --widget-handle-text:      #bcbcbc;
-    --widget-handle-hover-bg:  #898989;
+    --text-table-even-bg:      var(--mantle);            /* Styles for pages overview with the chart style set to "text" */
+    --text-table-border:       var(--overlay-0);
+    --text-table-rank-text:    var(--subtext-0);
+    --text-table-chart-bg:     var(--base);
+    --text-table-chart-border: var(--overlay-0);
 
-    --box-bg:                  #666;                       /* Signup box on the homepage, footer */
-    --box-shadow:              #cdc8a4;                    /* box-shadow on most boxes on the homepage, /help page navigation, etc. */
+    --widget-border:           var(--overlay-0);         /* "Widget settings" page */
+    --widget-dragging-border:  var(--yellow);
+    --widget-dragging-bg:      var(--mantle);
+    --widget-handle-bg:        var(--overlay-2);
+    --widget-handle-text:      var(--subtext-1);
+    --widget-handle-hover-bg:  var(--surface-0);
+
+    --box-bg:                  var(--surface-2);         /* Signup box on the homepage, footer */
+    --box-shadow:              var(--overlay-0);         /* box-shadow on most boxes on the homepage, /help page navigation, etc. */
 }
+
+.hchart .bar-c {
+  color: var(--mantle);
+}
+
