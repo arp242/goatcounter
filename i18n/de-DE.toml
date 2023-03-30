@@ -8,10 +8,10 @@
   default = "Hinzufügen"
 
 ["button/add-user"]
-  default = "User hinzufügen"
+  default = "Benutzer hinzufügen"
 
 ["button/cfg-dashboard"]
-  default = "Dashboard Layout konfigurieren"
+  default = "Dashboard-Layout konfigurieren"
 
 ["button/change"]
   default = "Ändern"
@@ -26,10 +26,10 @@
   default = "löschen"
 
 ["button/delete-account"]
-  default = "Account, alle Sites, alle Daten löschen"
+  default = "Konto, alle Websites, alle Daten löschen"
 
 ["button/delete-all"]
-  default = "Ja, wirklich alles löschen"
+  default = "Ja, wirklich alles löschen!"
 
 ["button/delete-everything"]
   default = "Ja, alles löschen"
@@ -56,13 +56,13 @@
   default = "E-Mail erneut senden"
 
 ["button/reset-defaults"]
-  default = "Standard Einstellungen wiederherstellen"
+  default = "Standard-Einstellungen wiederherstellen"
 
 ["button/reset-password"]
   default = "Passwort neu setzen"
 
 ["button/rm-hits"]
-  default = "Pgeviews löschen"
+  default = "Seitenaufrufe löschen"
 
 ["button/save"]
   default = "Speichern"
@@ -71,7 +71,7 @@
   default = "Standardansicht speichern"
 
 ["button/send-login-url"]
-  default = "Login URL senden"
+  default = "Login-URL senden"
 
 ["button/sign-in"]
   default = "Anmelden"
@@ -114,7 +114,7 @@
   default = "Seiten"
 
 ["dashboard/pages/num-visits"]
-  default = "%(num-visits) von %(total-visits) Visits angezeigt"
+  default = "%(num-visits) von %(total-visits) Besuchen angezeigt"
 
 ["dashboard/pages/pageviews"]
   default = "PageViews"
@@ -126,7 +126,7 @@
   default = "Statistiken"
 
 ["dashboard/pages/stats-tooltip"]
-  default = "Jeder Balken repräsentiert 1/12el des gewählten Zeitraums"
+  default = "Jeder Balken repräsentiert ein Zwölftel des gewählten Zeitraums"
 
 ["dashboard/pages/title"]
   default = "Titel"
@@ -135,19 +135,19 @@
   default = "Views"
 
 ["dashboard/pages/visits"]
-  default = "Visits"
+  default = "Besuche"
 
 ["dashboard/today"]
   default = "Heute"
 
 ["dashboard/tooltip-event"]
-  default = "%(unique) Clicks; %(clicks) clicks insgesamt"
+  default = "%(unique) Klicks; %(clicks) Klicks insgesamt"
 
 ["dashboard/totals/header"]
   default = "Gesamt"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) Visits"
+  default = "%(num-visits) Besuche"
 
 ["dashboard/week-ago"]
   default = "Vor %(n) Wochen"
@@ -167,19 +167,19 @@
   default = "Unterstützte Sprachen von Accept-Language"
 
 ["data-collect/help/referrer"]
-  default = "Referer Header und Campaign Parameter"
+  default = "Referrer-Header und Kampagnen-Parameter"
 
 ["data-collect/help/region"]
-  default = "Region oder Bundesland, z.B. Texas, Bayern, etc. Je nach Land Unterschiede möglich"
+  default = "Region oder Bundesland, z.B. Texas, Bayern, etc. Je nach Land sind Unterschiede möglich"
 
 ["data-collect/help/sessions"]
-  default = "Einzelne Besucher tracken für bis zu 8 Stunden. Wenn abgeschaltet, wird z.B. ein neu laden der Seite mit F5 als 2 Pageviews gezählt, sonst als 1"
+  default = "Einzelne Besucher tracken für bis zu 8 Stunden. Wenn abgeschaltet, wird z.B. ein Neuladen der Seite mit F5 als zwei Besuche gezählt, sonst als einer"
 
 ["data-collect/help/size"]
   default = "Bildschirmgröße"
 
 ["data-collect/help/user-agent"]
-  default = "User-Agent Header um Browser-, System- und Versionsdaten zu erhalten"
+  default = "User-Agent-Header, um Browser-, System- und Versionsdaten zu erhalten"
 
 ["data-collect/label/country"]
   default = "Land"
@@ -216,7 +216,7 @@
 
 ["email/password-reset"]
   default = """
-Jemand (hoffentlich Sie) haben einen Passwort Reset für ihren Goatcounter Account angefordert.
+Jemand (hoffentlich Sie) hat eine Zurücksetzung des Passworts für Ihren Goatcounter Account angefordert.
 
 Hier ist der entsprechende Link:
 %(link)
@@ -226,10 +226,10 @@ Hier ist der entsprechende Link:
   default = "Passwort neu setzen für %(domain)"
 
 ["email/signature"]
-  default = "Haben Sie Fragen, Probleme, Kommentare oder etwas anderes, was sie mir mitteilen wollen? Antworten sie einfach auf diese e-mail."
+  default = "Haben Sie Fragen, Probleme, Kommentare oder etwas anderes, was sie mir mitteilen wollen? Antworten Sie einfach auf diese e-mail."
 
 ["error/account-has-stripe-subscription"]
-  default = "Dieser Account hat noch eine Stripe Subscription. Bitte diese zuerst auf der Abrechnungsseite entfernen."
+  default = "Dieses Konto hat noch ein Stripe-Abonnement. Dieses bitte zuerst auf der Abrechnungsseite entfernen."
 
 ["error/address-exists"]
   default = "%(addr) bereits vergeben"
@@ -244,13 +244,13 @@ Hier ist der entsprechende Link:
   default = "Enddatum vor Startdatum"
 
 ["error/date-past"]
-  default = "Das wäre bevor die Site angelegt wurde. Goatcounter ist nicht *so* fortschrittlich :-)"
+  default = "Das wäre, bevor die Website angelegt wurde. Goatcounter ist nicht *so* fortschrittlich :-)"
 
 ["error/delete-main-site"]
-  default = "Kann die Haupt Site nicht löschen"
+  default = "Kann die Hauptwebsite nicht löschen"
 
 ["error/export-expired"]
-  default = "Es scheint kein Export vorhanden zu sein oder der Export ist abgelaufen."
+  default = "Es scheint kein Export vorhanden zu sein, oder der Export ist abgelaufen."
 
 ["error/incorrect-password"]
   default = "Gesetztes Passwort ist inkorrekt"
@@ -268,13 +268,13 @@ Hier ist der entsprechende Link:
   default = "Ungültiges Login"
 
 ["error/login-no-password"]
-  default = "Es wurde kein Passwort für %(email) gesetzt. Bitte Passwort Reset anfordern."
+  default = "Es wurde kein Passwort für %(email) gesetzt. Bitte Zurücksetzung des Passworts anfordern."
 
 ["error/login-not-found"]
   default = "Benutzer %(email) nicht gefunden"
 
 ["error/login-token-expired"]
-  default = "Konnte den zum Token passenden Benutzer nicht finden. Wurde Token bereits verwendet oder ist Gültigkeit abgelaufen?"
+  default = "Konnte den zum Token passenden Benutzer nicht finden. Wurde das Token bereits verwendet, oder ist die Gültigkeit abgelaufen?"
 
 ["error/login-wrong-pwd"]
   default = "Falsches Passwort für %(email)"
@@ -283,13 +283,13 @@ Hier ist der entsprechende Link:
   default = "Nicht gefunden"
 
 ["error/password-does-not-match"]
-  default = "Passwort Bestätigung stimmt nicht überein"
+  default = "Passwörter stimmen nicht überein"
 
 ["error/payment-cancelled"]
   default = "Zahlungen entfernt"
 
 ["error/reset-user-no-account"]
-  default = "Kein Benutzer auf dieser website: %(email)"
+  default = "Kein Benutzer auf dieser Website: %(email)"
 
 ["error/token-already-used"]
   default = "Unbekanntes Token: Wurde es eventuell schon verwendet?"
@@ -301,7 +301,7 @@ Hier ist der entsprechende Link:
   default = "Ereignis"
 
 ["forgot-domain-help"]
-  default = "Eine Liste aller Domains, die mit einer e-mail Adresse verknüpft sind."
+  default = "Eine Liste aller Domains, die mit einer E-Mail-Adresse verknüpft sind."
 
 ["header/access"]
   default = "Zugang"
@@ -316,13 +316,13 @@ Hier ist der entsprechende Link:
   default = "API"
 
 ["header/api-tokens"]
-  default = "API Tokens"
+  default = "API-Tokens"
 
 ["header/browsers"]
-  default = "Browsers"
+  default = "Browser"
 
 ["header/change-code"]
-  default = "Site Code ändern"
+  default = "Website-Code ändern"
 
 ["header/change-passwd"]
   default = "Passwort ändern"
@@ -343,13 +343,13 @@ Hier ist der entsprechende Link:
   default = "Datensammlung"
 
 ["header/delete-account"]
-  default = "Account löschen"
+  default = "Konto löschen"
 
 ["header/domain"]
   default = "Domain"
 
 ["header/domain-settings"]
-  default = "Domain Einstellungen"
+  default = "Domain-Einstellungen"
 
 ["header/edit-user"]
   default = "User %(email) bearbeiten"
@@ -379,25 +379,25 @@ Hier ist der entsprechende Link:
   default = "Import"
 
 ["header/l10n"]
-  default = "Lokalisierung"
+  default = "Übersetzung"
 
 ["header/languages"]
   default = "Sprachen"
 
 ["header/last-10-exports"]
-  default = "Letzten 10 Exporte"
+  default = "Letzte 10 Exporte"
 
 ["header/locations"]
-  default = "Lokationen"
+  default = "Orte"
 
 ["header/locations-for"]
-  default = "Lokationen für %(country)"
+  default = "Orte für %(country)"
 
 ["header/mfa"]
-  default = "Multi-Faktor Authentifizierung"
+  default = "Multi-Faktor-Authentifizierung"
 
 ["header/n-hits"]
-  default = "# der Zugriffe"
+  default = "Zahl der Zugriffe"
 
 ["header/name"]
   default = "Name"
@@ -415,7 +415,7 @@ Hier ist der entsprechende Link:
   default = "Pfad"
 
 ["header/permissions"]
-  default = "Erlaubbnisse"
+  default = "Erlaubnisse"
 
 ["header/preferences"]
   default = "Einstellungen"
@@ -424,7 +424,7 @@ Hier ist der entsprechende Link:
   default = "Passwort für %(email) auf %(site-name) neu setzen"
 
 ["header/rm-hits"]
-  default = "Pageviews löschen"
+  default = "Seitenaufrufe löschen"
 
 ["header/settings"]
   default = "Einstellungen"
@@ -433,10 +433,10 @@ Hier ist der entsprechende Link:
   default = "Anmelden bei %(name)"
 
 ["header/site-settings"]
-  default = "Site Einstellungen"
+  default = "Website-Einstellungen"
 
 ["header/sites"]
-  default = "Sites"
+  default = "Websites"
 
 ["header/size"]
   default = "Größe"
@@ -460,7 +460,7 @@ Hier ist der entsprechende Link:
   default = "Token"
 
 ["header/toprefs"]
-  default = "Top Referrer"
+  default = "Top-Referrer"
 
 ["header/tracking"]
   default = "Tracking"
@@ -481,49 +481,49 @@ Hier ist der entsprechende Link:
   default = "Bitte die %(the documentation) lesen für Details zur Benutzung"
 
 ["help/campaign-parameters"]
-  default = "Parameterliste  für Campaigns, wenn gesetzt, wird dieser Wert als Referrer behandelt und andere Referrer Header werden ignoriert."
+  default = "Liste der Parameter, die als „Kampagnen“ gezählt werden sollen. Wenn gesetzt, wird der Wert als Referrer behandelt und andere Referrer-Header ignoriert."
 
 ["help/cfg-dashboard"]
-  default = "Inhalt und Reihenfolge der Dashboard Anzeige ändern."
+  default = "Inhalt und Reihenfolge der Dashboard-Anzeige ändern."
 
 ["help/code-access"]
-  default = "Ihre Site wird unter  https://<em>[my-code]</em>.%(domain) zur Verfügung stehen."
+  default = "Ihre Website wird unter  https://<em>[my-code]</em>.%(domain) zur Verfügung stehen."
 
 ["help/custom-domain"]
   default = """
-Custom Domain, z.B. <em>“stats.example.com”</em>.
-<strong>Hinweis:</strong> Damit wird <em>nicht</em> verhindert, daß die Site durch die meisten adblocker blockiert wird. Es dient lediglich als Weiterleitung unter einem \"schöneren\" Namen.
+Eigene Domain, z.B. <em>„stats.example.com“</em>.
+<strong>Hinweis:</strong> Damit wird <em>nicht</em> verhindert, dass die Website durch die meisten Adblocker blockiert wird. Es dient lediglich als Weiterleitung unter einem „schöneren“ Namen.
 """
 
 ["help/custom-domain-cname"]
-  default = "Erstellen sie einen CNAME Eintrag für <code>%(domain)</code> – %[%docs detaillierte Anweisungen]."
+  default = "Erstellen sie einen CNAME-Eintrag für <code>%(domain)</code> – %[%docs detaillierte Anweisungen]."
 
 ["help/custom-domain-error"]
-  default = "%[%error Noch nicht verifiziert]; Erstellen sie einen CNAME Eintrag für <code>%(domain)</code> – %[%docs detaillierte Anweisungen]. Die Überprüfung findet alle 2 Stunden statt."
+  default = "%[%error Noch nicht verifiziert]; Erstellen sie einen CNAME-Eintrag für <code>%(domain)</code> – %[%docs detaillierte Anweisungen]. Die Überprüfung findet alle 2 Stunden statt."
 
 ["help/custom-domain-plan"]
-  default = "Benötigt Personal Plus oder Business Plan (sie haben momentan %(plan); Siehe  %[%link Abrechnung])."
+  default = "Benötigt Personal-Plus- oder Business-Plan (Sie haben momentan %(plan); Siehe  %[%link Abrechnung])."
 
 ["help/custom-domain-verified"]
-  default = "Domain verifiziert und eingerichtet (Hinweis: bis Zertifikat installiert ist kann bis zu einer Stunde dauern)."
+  default = "Domain verifiziert und eingerichtet (Hinweis: bis das Zertifikat installiert ist, kann bis zu eine Stunde vergehen)."
 
 ["help/data-retention"]
-  default = "Pageviews und damit verknüpfte Daten werden unwiderruflich gelöscht nach den hier eingestellten Tagen. 0 bedeutet Daten werden nie gelöscht."
+  default = "Seitenaufrufe und damit verknüpfte Daten werden unwiderruflich nach den hier eingestellten Tagen gelöscht. 0 bedeutet: Daten werden nie gelöscht."
 
 ["help/domain-access"]
-  default = "Domain von dem aus Zugriff auf diese Site erfolgt."
+  default = "Domain, von der aus Zugriff auf diese Website erfolgt."
 
 ["help/drag-reorder"]
   default = "Reihenfolge durch Verschieben ändern"
 
 ["help/for-the-following-countries"]
-  default = "Liste der Länderkürzel (%[list]: 2 Buchstaben Kürzel verwenden): Leer lassen um alle Länder zu erfassen (wenn ausgewählt)."
+  default = "Liste der Länderkürzel (%[list]: 2 Buchstaben Kürzel verwenden): Leer lassen, um alle Länder zu erfassen (wenn ausgewählt)."
 
 ["help/goatcounter-domain"]
-  default = "Ihre GoatCounter Installationsdomain, z.B. <em>“stats.example.com”</em>."
+  default = "Ihre GoatCounter-Installationsdomain, z.B. <em>„stats.example.com“</em>."
 
 ["help/ignore-ips"]
-  default = "Requests von dieser/diesen IP-Addresse(n) nicht auswerten. Durch Komma getrennt. Nur gerne Treffer werden berücksichtigt. %[Momentane IP Adresse hinzufügen]."
+  default = "Anfragen von dieser/diesen IP-Addresse(n) nicht auswerten. Durch Komma getrennt. Nur exakte Treffer werden berücksichtigt. %[Momentane IP Adresse hinzufügen]."
 
 ["help/ignore-ips-2"]
   default = "Alternativ - %[für diesen Browser deaktivieren] (zum erneuten Aktivieren nochmal anklicken)."
@@ -538,52 +538,52 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Dieser Schritt kann nicht rückgängig gemacht werden."
 
 ["help/password-edit"]
-  default = "Leer lassen um jetzigen Wert beizubehalten"
+  default = "Leer lassen, um jetzigen Wert beizubehalten"
 
 ["help/password-new-user"]
-  default = "Wenn leer, wird Passwort Erneuern E-Mail versendet."
+  default = "Wenn leer, wird E-Mail zur Passworterneuerung versendet."
 
 ["help/public"]
   default = "Zugriff auf Dashboard einstellen."
 
 ["help/rm-hits"]
-  default = "Bevor gelöscht wird, wird Vorschau für die Matches angezeigt"
+  default = "Vor dem Löschen wird eine Vorschau der Treffer angezeigt werden."
 
 ["help/save-default-view"]
   default = "Diese Einstellungen (alles in der gelben Box) als Voreinstellung speichern."
 
 ["help/turing-test"]
-  default = "Nur um sicher zu sein, daß sie ein echter Mensch sind ;-)"
+  default = "Nur um sicherzugehen, dass Sie ein echter Mensch sind ;-)"
 
 ["help/your-email"]
-  default = "nach Änderung ist neue Bestätigung erforderlich"
+  default = "Nach Änderung ist neue Bestätigung erforderlich."
 
 ["label/24-hour-clock"]
-  default = "24 Stunden Format (13:00)"
+  default = "24-Stunden-Format (13:00)"
 
 ["label/add-new"]
   default = "Hinzufügen"
 
 ["label/all-sites"]
-  default = "Alle Sites"
+  default = "Alle Websites"
 
 ["label/allow-admin-access"]
-  default = "Admin Zugriff erlauben"
+  default = "Admin-Zugriff erlauben"
 
 ["label/allow-visitor-counts"]
   default = "Besucherzähler auf ihrer Website zulassen"
 
 ["label/browser-stats"]
-  default = "Browser Statistiken"
+  default = "Browser-Statistiken"
 
 ["label/campaign-parameters"]
-  default = "Campaign Parameter"
+  default = "Kampagnen-Parameter"
 
 ["label/change-code"]
-  default = "Ihr Accountzugriff erfolgt unter https://<em>[mein-code]</em>.%(domain) – %[%link ändern]."
+  default = "Ihr Kontozugriff erfolgt unter https://<em>[mein-code]</em>.%(domain) – %[%link ändern]."
 
 ["label/clear-pageviews"]
-  default = "Alle Pageviews löschen"
+  default = "Alle Seitenaufrufe löschen"
 
 ["label/code"]
   default = "Code"
@@ -598,28 +598,28 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Aktuelles Passwort"
 
 ["label/custom-domain"]
-  default = "Custom Domain"
+  default = "Eigene Domain"
 
 ["label/dashboard-public"]
   default = "Dashboard sichtbar für"
 
 ["label/data-retention"]
-  default = "Tage, for die Daten gesammelt werden"
+  default = "Tage, für die Daten gesammelt werden"
 
 ["label/date-fmt"]
   default = "Datumsformat"
 
 ["label/delete-account-confirmation"]
-  default = "Sind sie sicher, daß sie den gesamten Account löschen wollen?"
+  default = "Sind Sie sicher, dass Sie das gesamte Konto löschen wollen?"
 
 ["label/delete-account-contact"]
-  default = "Ich könnte Ihnen ein. paar Fragen stellen oder einen Kommentar senden, wenn sie mir das erlauben. Ich werde sie nicht überreden wollen doch hier zu bleiben (ich bin kein Telekom-Anbieter) aber hoffe mit ein paar Fragen besser verstehen zu können wie ich GoatCounter verbessern kann."
+  default = "Ich könnte Ihnen ein paar Fragen stellen oder einen Kommentar senden, wenn Sie mir das erlauben. Ich werde Sie nicht überreden wollen, doch hier zu bleiben (ich bin kein Telekomm-Anbieter), aber hoffe, mit ein paar Fragen besser verstehen zu können, wie ich GoatCounter verbessern kann."
 
 ["label/delete-account-follow-up"]
-  default = "Einverständnis für ein Follow Up"
+  default = "Einverständnis für Nachbefragung"
 
 ["label/delete-account-reason"]
-  default = "Es würde mich freuen zu erfahren ob sie etwas Spezielles in GoatCounter vermissen oder aus welchen anderen Gründen sie beschlossen haben den Account zu löschen. Selbstverständlich alles freiwillig."
+  default = "Es würde mich freuen zu erfahren, ob Sie etwas Spezielles in GoatCounter vermissen oder aus welchen anderen Gründen Sie beschlossen haben, das Konto zu löschen. Selbstverständlich alles freiwillig."
 
 ["label/delete-account-reason-placeholder"]
   default = "Optionaler Grund für die Löschung"
@@ -628,13 +628,13 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "E-Mail"
 
 ["label/email-address"]
-  default = "E-Mail Address"
+  default = "E-Mail-Adresse"
 
 ["label/for-following-countries"]
   default = "Nur für diese Länder:"
 
 ["label/goatcounter-domain"]
-  default = "GoatCounter Domain"
+  default = "GoatCounter-Domain"
 
 ["label/ignore-ips"]
   default = "IPs ignorieren"
@@ -643,19 +643,19 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Sprache"
 
 ["label/language-stats"]
-  default = "Statistiken Sprache"
+  default = "Sprachen-Statistik"
 
 ["label/loc-stats"]
-  default = "Statistiken Lokation"
+  default = "Standort-Statistik"
 
 ["label/mark-current"]
   default = "(aktuell)"
 
 ["label/match-title"]
-  default = "Auch Titel Matchen"
+  default = "Auch Titel abgleichen"
 
 ["label/mfa-token"]
-  default = "MFA Token"
+  default = "MFA-Token"
 
 ["label/new-code"]
   default = "Neuer Code"
@@ -673,7 +673,7 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Passwort"
 
 ["label/paths"]
-  default = "Paths Übersicht"
+  default = "Pfad-Übersicht"
 
 ["label/public-anyone"]
   default = "Jeder"
@@ -688,19 +688,19 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Secret"
 
 ["label/secret-access"]
-  default = "URL für Zugriff mit Secret"
+  default = "URL für Zugriff mit Geheimnis"
 
 ["label/secret-token"]
-  default = "Secret Token"
+  default = "Geheimnis-Token"
 
 ["label/set-default"]
   default = "Auch als Standard für neue Benutzer und öffentliche Ansicht (wenn aktiviert)."
 
 ["label/size-desktop"]
-  default = "Computer Bildschirme"
+  default = "Computer-Bildschirme"
 
 ["label/size-desktophd"]
-  default = "Computer Bildschirme größer als HD"
+  default = "Computer-Bildschirme größer als HD"
 
 ["label/size-largephones"]
   default = "Große Mobiltelefone, kleine Tablets"
@@ -727,10 +727,10 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Spitzenreferrer"
 
 ["label/total-pageviews"]
-  default = "Pageviews Gesamt"
+  default = "Seitenaufrufe gesamt"
 
 ["label/turing-test"]
-  default = "Hier bitt 9 eintragen"
+  default = "Hier bitte 9 eintragen"
 
 ["label/verifictation-token"]
   default = "Verifizierungstoken"
@@ -751,7 +751,7 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "API"
 
 ["link/api-docs"]
-  default = "API Dokumentation"
+  default = "API-Dokumentation"
 
 ["link/billing"]
   default = "Abrechnung"
@@ -760,7 +760,7 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Dashboard"
 
 ["link/generate-random"]
-  default = "Zufalssecret erstellen."
+  default = "Zufälliges Geheimnis erstellen."
 
 ["link/goto-path"]
   default = "Zu %(path) gehen"
@@ -775,7 +775,7 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Voreinstellungen"
 
 ["link/rm-account"]
-  default = "Account löschen"
+  default = "Konto löschen"
 
 ["link/rm-views"]
   default = "Pageviews löschen"
@@ -790,7 +790,7 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Mehr anzeigen"
 
 ["link/sites"]
-  default = "Sites"
+  default = "Websites"
 
 ["link/users"]
   default = "Benutzer"
@@ -805,7 +805,7 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Dokumentation"
 
 ["nav-bot/home"]
-  default = "Home"
+  default = "Start"
 
 ["nav-bot/src"]
   default = "Quellcode"
@@ -865,13 +865,13 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Zumindest eine Angabe erforderlich. Ein leeres Dashboard ist ein wenig unsinnig, oder?"
 
 ["notify/api-token-created"]
-  default = "API Token erstellt"
+  default = "API-Token erstellt"
 
 ["notify/api-token-removed"]
-  default = "Api Token gelöscht"
+  default = "API-Token gelöscht"
 
 ["notify/disabled-multi-factor-auth"]
-  default = "Multi-Faktor Authentifizierung deaktiviert"
+  default = "Multi-Faktor-Authentifizierung deaktiviert"
 
 ["notify/email-already-verified"]
   default = "%(email) ist bereits verifiziert."
@@ -883,19 +883,19 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Import im Hintergrund gestartet. Nach Fertigstellung erhalten sie eine E-Mail"
 
 ["notify/login-after-password-reset"]
-  default = "Passwort wurde neu gesetzt; Bitte mit dem neuen Passwort anmelden"
+  default = "Passwort wurde neu gesetzt; bitte mit dem neuen Passwort anmelden"
 
 ["notify/multi-factor-auth-enabled"]
-  default = "Multi-Faktor Athentifizierung aktiviert."
+  default = "Multi-Faktor-Authentifizierung aktiviert."
 
 ["notify/need-business-plan-custom-domain"]
-  default = "Eine Custom Domain benötigt den Business Plan"
+  default = "Eine eigene Domain benötigt den Business-Plan"
 
 ["notify/need-email-verification-for-api"]
-  default = "Ihre E-Mail Adresse muss verifiziert werden bevor sie die API benutzen können."
+  default = "Ihre E-Mail-Adresse muss verifiziert werden, bevor Sie die API benutzen können."
 
 ["notify/no-user-for-token"]
-  default = "Konnte Benutzer für angegebenes Token nicht finden. Wurde das Token bereits verwendet oder ist die Gültigkeit abgelaufen?"
+  default = "Konnte Benutzer für angegebenes Token nicht finden. Wurde das Token bereits verwendet, oder ist die Gültigkeit abgelaufen?"
 
 ["notify/not-found"]
   default = "Nicht gefunden"
@@ -916,7 +916,7 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "E-Mail an %(email) verschickt"
 
 ["notify/restored-previously-deleted-site"]
-  default = "Die Site %(url) wurde vorher gelöscht. Site wurde mit allen Daten wiederhergestellt."
+  default = "Die Website %(url) wurde vorher gelöscht. Website wurde mit allen Daten wiederhergestellt."
 
 ["notify/saved"]
   default = "Gespeichert."
@@ -925,16 +925,16 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "An %(email) verschickt"
 
 ["notify/settings-copied-to-site"]
-  default = "Einstellungen für ausgewählte Sites wurden übernommen."
+  default = "Einstellungen für ausgewählte Websites wurden übernommen."
 
 ["notify/site-added"]
-  default = "Die Site %(url) wurde hinzugefügt."
+  default = "Die Website %(url) wurde hinzugefügt."
 
 ["notify/site-removed"]
-  default = "Die Site %(url) wurde entfernt."
+  default = "Die Website %(url) wurde entfernt."
 
 ["notify/started-background-process"]
-  default = "Im Hintergrund gestartet. Kann 10-20 Sekunden dauern."
+  default = "Im Hintergrund gestartet. Kann 10 bis 20 Sekunden dauern."
 
 ["notify/user-added"]
   default = "Benutzer '%(email)' hinzugefügt."
@@ -947,28 +947,28 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
 
 ["p/add-goatcounter-to-multiple-websites"]
   default = """
-<p>GoatCounter zu mehreren Websites hinzufügen indem neue Sites hier angelegt werden. Alle Sites verwenden den gleichen Plan, Benutzer und Logins, verhalten sich darüber hinaus aber als eigenständige Sites. Bei der Erstellung werden die momentanen Einstellungen kopiert, können aber nachträglich geändert werden.</p>
+<p>GoatCounter zu mehreren Websites hinzufügen, indem neue Websites hier angelegt werden. Alle Websites verwenden den gleichen Plan, Benutzer und Logins, verhalten sich darüber hinaus aber als eigenständige Websites. Bei der Erstellung werden die momentanen Einstellungen kopiert, können aber nachträglich geändert werden.</p>
 
-<p>Sie können beliebig viele Sites anlegen.</p>
+<p>Sie können beliebig viele Websites anlegen.</p>
 """
 
 ["p/additional-errors"]
   default = "Weitere Fehler"
 
 ["p/api-intro"]
-  default = "GoatCounter hat eine eingeschränkte API. Sie können über die API Pageviews zählen, Sites anlegen, löschen und bearbeiten und Exporte initiieren."
+  default = "GoatCounter hat eine eingeschränkte API. Sie können über die API Seitenaufrufe zählen, Websites anlegen, löschen und bearbeiten und Exporte initiieren."
 
 ["p/change-code-request"]
   default = """
-<p>Site Code und Login Domain ändern</p>
+<p>Website-Code und Login-Domain ändern</p>
 
-<p><strong>ACHTUNG:</strong> diese Änderung wird <strong>sofort</strong> aktiviert un der bisherige Code kann von jemand anderem wieder verwendet werden. Stellen sie sicher, daß der alte Code nicht mehr auf ihren Seiten verwendet wird oder benutzen sie zum Übergang beide Codes gleichzeitig damit keine Pageviews verloren gehen.</p>
+<p><strong>ACHTUNG:</strong> diese Änderung wird <strong>sofort</strong> aktiviert, und der bisherige Code kann von jemand anderem wiederverwendet werden. Stellen Sie sicher, dass der alte Code nicht mehr auf Ihren Seiten verwendet wird, oder benutzen Sie zum Übergang beide Codes gleichzeitig, damit keine Seitenaufrufe verloren gehen.</p>
 
 <p>Aktueller Code: <code>%(current-code)</code> (%(current-url))</p>
 """
 
 ["p/change-email"]
-  default = "E-Mail Adresse in den %[Einstellungen] ändern."
+  default = "E-Mail-Adresse in den %[Einstellungen] ändern."
 
 ["p/collect-disabled"]
   default = "Die Sammlung dieser Daten ist momentan %[in den Einstellungen deaktiviert]"
@@ -977,45 +977,45 @@ Custom Domain, z.B. <em>“stats.example.com”</em>.
   default = "Bis auf den Domainnamen alle Einstellungen übernehmen."
 
 ["p/csv-file-format"]
-  default = "Das Format der CSV Datei ist %[hier dokumentiert]"
+  default = "Das Format der CSV-Datei ist %[hier dokumentiert]"
 
 ["p/delete-account-multi-site"]
-  default = "Diese Site und alle verbundenen Sites werden als Gelöscht markiert und es ist kein Zugriff mehr möglich. Nach 7 Tagen werden alle zugehörigen Daten endgültig gelöscht."
+  default = "Diese Website und alle verbundenen Websites werden als gelöscht markiert, und es ist kein Zugriff mehr möglich. Nach 7 Tagen werden alle zugehörigen Daten endgültig gelöscht."
 
 ["p/delete-account-one-site"]
-  default = "Diese Site wird als Gelöscht markiert und es ist kein Zugriff mehr möglich. Nach 7 Tagen werden alle zugehörigen Daten endgültig gelöscht."
+  default = "Diese Website wird als gelöscht markiert, und es ist kein Zugriff mehr möglich. Nach 7 Tagen werden alle zugehörigen Daten endgültig gelöscht."
 
 ["p/disable-mfa"]
   default = "Für diesen Account ist MFA aktiviert."
 
 ["p/enable-mfa"]
-  default = "TOTP-basierte Multi-Faktor Authentifizierung für diesen Account aktivieren indem der Code mit ihrer Authentifizerungsapp gescannt wird oder das Secret manuell eingegeben wird."
+  default = "TOTP-basierte Multi-Faktor-Authentifizierung für diesen Account aktivieren, indem der Code mit ihrer Authentifizerungsapp gescannt wird oder das Geheimnis manuell eingegeben wird."
 
 ["p/error"]
   default = "Fehler: %(error-message)"
 
 ["p/export-process"]
   default = """
-<p>Den Prozess starten und E-Mail mit Link versenden sobald der Prozess beendet wurde. Dies kann nur einmal pro Stunde gestartet werden und überschreibt all eventuell vorhandenen Backups.</p>
+<p>Den Prozess starten und E-Mail mit Link versenden, sobald der Prozess beendet wurde. Dies kann nur einmal pro Stunde gestartet werden und überschreibt alle eventuell vorhandenen Backups.</p>
 
-<p>Es sind alle Pageviews enthalten, auch die, die als \"bot\" markiert wurden. Diese werden in der Übersicht nicht berücksichtigt.</p>
+<p>Es sind alle Pageviews enthalten, auch jene, die als \"bot\" markiert wurden. Diese werden in der Übersicht nicht berücksichtigt.</p>
 """
 
 ["p/have-mfa"]
-  default = "Dieser Account verwendet Multi-Faktor Authentifizierung. Bitte geben sie den Code aus ihrer Authentifzierungsapp ein."
+  default = "Dieser Account verwendet Multi-Faktor-Authentifizierung. Bitte geben Sie den Code aus Ihrer Authentifzierungsapp ein."
 
 ["p/last-user"]
-  default = "Der letzte Admin User kann nicht gelöscht oder verändert werden"
+  default = "Der letzte Admin-Benutzer kann nicht gelöscht oder verändert werden"
 
 ["p/no-data"]
   default = """
 <p>
-%[%bold Noch keine Daten empfangen] – Bislang wurden keine Daten von GoatCounter empfangen.<br>
-Es geht aber schnell und einfach indem sie den folgenden JavaScript Code irgendwo auf ihrer Seite einfügen:</p>
+%[%bold Noch keine Daten empfangen] – bislang wurden keine Daten von GoatCounter empfangen.<br>
+Es geht aber schnell und einfach, indem Sie den folgenden JavaScript-Code irgendwo auf Ihrer Seite einfügen:</p>
 
 %[%pre %(js_code)]
 
-<p>Prüfen sie bitte auch ob sie einen Abblocken verwenden, der Zugriffe auf GoatCounter und/oder gc.zgo.at verhindert.</p>
+<p>Prüfen Sie bitte auch, ob Sie einen Adblocker verwenden, der Zugriffe auf GoatCounter und/oder gc.zgo.at verhindert.</p>
 
 <p>Sobald die ersten Zugriffe verzeichnet werden, verschwindet dieser Text, siehe %[%link_docs Site code] im Menü oben für Dokumentation und Integrationen.</p>
 """
@@ -1027,64 +1027,64 @@ Es geht aber schnell und einfach indem sie den folgenden JavaScript Code irgendw
   default = "Wird sofort aktiviert"
 
 ["p/notify-pagination-cursor"]
-  default = "In der E-Mail wird ein Paginationscursor genannt. Wenn sie den hier eintragen werden nur die Pageviews die später erfolgten exportiert."
+  default = "In der E-Mail wird ein Paginationscursor genannt. Wenn Sie den hier eintragen, werden nur die Seitenaufrufe, die später erfolgten, exportiert."
 
 ["p/notify-site-deletion"]
-  default = "%(number) Sites werden gelöscht"
+  default = "%(number) Websites werden gelöscht"
 
 ["p/remove-site-confirm"]
   default = """
-Sind sie sicher, daß sie Site %(sitename) löschen wollen?
+Sind Sie sich sicher, dass Sie die Website %(sitename) löschen wollen?
 <br>
 Dadurch werden <strong>alle verknüpften Daten</strong> gelöscht.
 """
 
 ["p/remove-site-confirm-contact"]
-  default = "%[Kontakt] wenn sie etwas anderes machen wollen, wie mit einer anderen Site zusammenlegen oder in einen neuen Account aufsplittern."
+  default = "%[Kontakt] wenn Sie etwas anderes machen wollen, wie z.B. mit einer anderen Website zusammenführen oder in einen neuen Account überführen."
 
 ["p/remove-site-confirm-current"]
   default = """
-Sind sie sicher, daß sie Site %(site name) löschen wollen?
+Sind Sie sicher, dass Sie die Website %(site name) löschen wollen?
 <br>
-Dadurch werden <strong>alle mit der Site verknüpften Daten</strong> gelöscht. Ausserdem ist es die <strong>aktuell verwendete Site</strong>.
+Dadurch werden <strong>alle mit der Website verknüpften Daten</strong> gelöscht. Außerdem ist es die <strong>aktuell verwendete Website</strong>.
 """
 
 ["p/request-data-recovery"]
-  default = "%[Kontaktieren sie] innerhalb von maximal 7 Tagen wenn sie die Entscheidung rückgängig machen wollen und die Daten wiederhergestellt werden sollen."
+  default = "%[Kontaktieren Sie uns] innerhalb von maximal 7 Tagen, wenn Sie die Entscheidung rückgängig machen wollen und die Daten wiederhergestellt werden sollen."
 
 ["p/rm-hits"]
-  default = "Alle Pageviews für diese Seite entfernen."
+  default = "Alle Seitenaufrufe für diese Seite entfernen."
 
 ["p/rm-hits-help"]
   default = """
-Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> wird als Wildcard verwendet, z.B. <code>/page%.html</code> matched alle Einträge, die mit <code>/page</code> anfangen und mit <code>.html</code> enden. <code>_</code> matched genau ein beliebiges Zeichen, z.B. 
-<code>_.html</code> matched <code>a.html</code> and <code>b.html</code>. Mit
-<code>\\%</code> und <code>\\_</code> können sie diese Zeichen ohne diese Bedeutungen suchen.
+Treffer sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> wird als Wildcard verwendet, z.B. <code>/page%.html</code> findet alle Einträge, die mit <code>/page</code> anfangen und mit <code>.html</code> enden. <code>_</code> findet genau ein beliebiges Zeichen, z.B. 
+findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</code>. Mit
+<code>\\%</code> und <code>\\_</code> können Sie diese Zeichen ohne diese Bedeutungen suchen.
 """
 
 ["p/rm-pageview-match"]
-  default = "Diese Pfade werden von %(query) gematcht:"
+  default = "Diese Pfade werden von %(query) geprüft:"
 
 ["p/setting-recovery-disabled-information"]
-  default = "Wenn eine der Einstellungen deaktiviert wird, gibt es keine Möglichkeit diese Daten wiederherzustellen nachdem ein PageView registriert wurde, da nichts gespeichert wurde."
+  default = "Wenn eine der Einstellungen deaktiviert wird, gibt es keine Möglichkeit, diese Daten wiederherzustellen, nachdem ein Seitenaufruf registriert wurde, da nichts gespeichert wurde."
 
 ["p/settings-all-sites"]
-  default = "Diese Einstellungen gelten für alle Sites auf denen Sie Zugriff haben."
+  default = "Diese Einstellungen gelten für alle Websites, auf welche Sie Zugriff haben."
 
 ["p/site-domain-link-to-page"]
-  default = 'Der Domainname, z.B. <em>"www.example.com"</em> der für die Verlinkung in der Übersicht verwendet wird.'
+  default = 'Der Domainname, z.B. <em>"www.example.com"</em>, der für die Verlinkung in der Übersicht verwendet wird.'
 
 ["p/text-data-retention"]
   default = "Dies beinhaltet die Datenspeicherungs- und Datensammlungseinstellungen."
 
 ["p/verify-email"]
-  default = "Bitte verifizieren sie ihre E-Mail Adresse, indem sie den Link anklicken, den wir an %(email) geschickt haben. %[%sup (Warum?)]"
+  default = "Bitte verifizieren Sie Ihre E-Mail-Adresse, indem Sie den Link anklicken, den wir an %(email) geschickt haben. %[%sup (Warum?)]"
 
 ["page-ranking"]
-  default = "Page Ranking"
+  default = "Seiten-Ranking"
 
 ["restricted-admin-access"]
-  default = "Standardmäßig können sich Admins nicht nicht bei ihrer Site anmelden. Wenn sie dieses aktivieren, dann schon. Für manche Support Anfragen kann dies angefragt werden."
+  default = "Standardmäßig können sich Admins nicht nicht bei Ihrer Website anmelden. Wenn Sie dies aktivieren, dann schon. Für manche Hilfeanfragen kann darum gebeten werden."
 
 ["scale-y"]
   default = "Y-Achse bis Maximum skalieren"
@@ -1096,10 +1096,10 @@ Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> 
   default = "Dashboard"
 
 ["top-nav/need-js"]
-  default = "Goatcounter braucht JavaScript für vollständige Funktion. Bitte JavaScript für %(domain) erlauben."
+  default = "Goatcounter braucht JavaScript für vollständige Funktionalität. Bitte JavaScript für %(domain) erlauben."
 
 ["top-nav/public-link"]
-  default = "Analytic für %(domain)"
+  default = "Statistiken für %(domain)"
 
 ["top-nav/public-time"]
   default = "Die öffentliche Ansicht wird stündlich aktualisiert. Alle Zeiten in %(timezone-name) (%(timezone-offset))."
@@ -1114,10 +1114,10 @@ Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> 
   default = "Abmelden"
 
 ["top-nav/site-code"]
-  default = "Site Code:"
+  default = "Website-Code:"
 
 ["top-nav/sites"]
-  default = "Sites:"
+  default = "Websites:"
 
 ["top-nav/updates"]
   default = "Aktualisierungen"
@@ -1129,7 +1129,7 @@ Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> 
   default = "(unbekannt)"
 
 ["validate/bool"]
-  default = "muss Boolean sein"
+  default = "muss boolescher Wert sein (wahr/falsch)"
 
 ["validate/color"]
   default = "muss gültiger Farbcode sein"
@@ -1144,7 +1144,7 @@ Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> 
   default = "muss gültige Domain sein"
 
 ["validate/email"]
-  default = "muss gültige E-Mail Adresse sein"
+  default = "muss gültige E-Mail-Adresse sein"
 
 ["validate/exclude"]
   default = "darf nicht '%s' sein"
@@ -1159,10 +1159,10 @@ Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> 
   default = "muss eine ganze Zahl sein"
 
 ["validate/ip"]
-  default = "muss gültige IPv4 oder IPv6 Adresse sein"
+  default = "muss gültige IPv4- oder IPv6-Adresse sein"
 
 ["validate/ipv4"]
-  default = "muss gültige IPv4 Adresse sein"
+  default = "muss gültige IPv4-Adresse sein"
 
 ["validate/len-longer"]
   default = "muss länger als %d Zeichen sein"
@@ -1189,19 +1189,19 @@ Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> 
   default = "muss UTF-8 sein"
 
 ["widget-setting/help/align"]
-  default = "Linken Rand hinzufügen um mit den Graphen bündig zu sein"
+  default = "Linken Rand hinzufügen, um mit den Graphen bündig zu sein"
 
 ["widget-setting/help/chart-style"]
   default = "Wie die Graphen zu zeichnen sind"
 
 ["widget-setting/help/no-events"]
-  default = "Events nicht in der Gesamtübersicht aufnehmen"
+  default = "Ereignisse nicht in der Gesamtübersicht aufnehmen"
 
 ["widget-setting/help/page-size"]
   default = "Zahl der Seiten, die geladen werden soll"
 
 ["widget-setting/help/ref-page-size"]
-  default = "Zahl der Referrer, die geladen werden sollen wenn Path angeclickt"
+  default = "Zahl der Referrer, die geladen werden sollen, wenn ein Pfad angeklickt wird"
 
 ["widget-setting/help/regions"]
   default = "Regionen/Bundesländer für dieses Land statt der Länderliste anzeigen"
@@ -1219,19 +1219,19 @@ Matches sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> 
   default = "Größe Seite"
 
 ["widget-setting/label/ref-page-size"]
-  default = "Größe Referrer Seite"
+  default = "Größe der Referrer-Seite"
 
 ["widget-setting/label/regions"]
   default = "Regionen zeigen"
 
 ["widget-settings/bar-chart"]
-  default = "Balkengrafik"
+  default = "Säulendiagramm"
 
 ["widget-settings/line-chart"]
-  default = "Liniengrafik"
+  default = "Liniendiagramm"
 
 ["widget-settings/text-chart"]
   default = "Tabelle mit Text"
 
 ["y-scale"]
-  default = "Skalierung Y-Achse"
+  default = "Skala der Y-Achse"
