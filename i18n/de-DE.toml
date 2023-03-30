@@ -117,7 +117,7 @@
   default = "%(num-visits) von %(total-visits) Besuchen angezeigt"
 
 ["dashboard/pages/pageviews"]
-  default = "PageViews"
+  default = "Seitenaufrufe"
 
 ["dashboard/pages/path"]
   default = "Pfad"
@@ -132,7 +132,7 @@
   default = "Titel"
 
 ["dashboard/pages/views"]
-  default = "Views"
+  default = "Aufrufe"
 
 ["dashboard/pages/visits"]
   default = "Besuche"
@@ -523,7 +523,7 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
   default = "Ihre GoatCounter-Installationsdomain, z.B. <em>„stats.example.com“</em>."
 
 ["help/ignore-ips"]
-  default = "Anfragen von dieser/diesen IP-Addresse(n) nicht auswerten. Durch Komma getrennt. Nur exakte Treffer werden berücksichtigt. %[Momentane IP Adresse hinzufügen]."
+  default = "Anfragen von dieser/diesen IP-Adresse(n) nicht auswerten. Durch Komma getrennt. Nur exakte Treffer werden berücksichtigt. %[Momentane IP Adresse hinzufügen]."
 
 ["help/ignore-ips-2"]
   default = "Alternativ - %[für diesen Browser deaktivieren] (zum erneuten Aktivieren nochmal anklicken)."
