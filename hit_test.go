@@ -60,6 +60,8 @@ func TestHitDefaultsRef(t *testing.T) {
 		{"https://np.reddit.com/r/programming/.compact", "www.reddit.com/r/programming", nil, set, "h"},
 
 		{"android-app://com.example.android", "com.example.android", nil, nil, "o"},
+
+		{"/?fbclid=PAAaa9RPz6YNKOc1LT4OzcjmuQpMiQl214kJ5YluqNF77eDp8JZQJOazM_GQc", "", nil, nil, "o"},
 	}
 
 	ctx := gctest.DB(t)

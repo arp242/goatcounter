@@ -183,10 +183,11 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	q.Del("__cf_chl_captcha_tk__") // Cloudflare
 	q.Del("__cf_chl_jschl_tk__")
 
-	if len(q) == 0 {
-		return refURL.String()[2:], false
+	s := refURL.String()
+	if len(s) > 1 {
+		return s[2:], false
 	}
-	return refURL.String()[2:], false
+	return "/", false
 }
 
 // ListRefsByPath lists all references for a pathID.
