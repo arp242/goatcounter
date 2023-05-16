@@ -70,6 +70,6 @@ func (w Campaigns) RenderHTML(ctx context.Context, shared SharedData) (string, a
 
 		Stats    goatcounter.HitStats
 		Campaign int64
-	}{ctx, w.id, shared.RowsOnly, true, w.loaded, w.err, isCol(ctx, goatcounter.CollectReferrer), w.Label(ctx),
+	}{ctx, w.id, shared.RowsOnly, w.Campaign == 0, w.loaded, w.err, isCol(ctx, goatcounter.CollectReferrer), w.Label(ctx),
 		shared.TotalUTC, w.Stats, w.Campaign}
 }

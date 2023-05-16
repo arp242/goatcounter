@@ -79,6 +79,6 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, a
 		TotalUTC    int
 		Stats       goatcounter.HitStats
 		Detail      string
-	}{ctx, w.id, shared.RowsOnly, true, w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
+	}{ctx, w.id, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
 		header, shared.TotalUTC, w.Stats, w.Detail}
 }

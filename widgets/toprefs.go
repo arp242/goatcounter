@@ -59,12 +59,13 @@ func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, any
 		Context     context.Context
 		ID          int
 		RowsOnly    bool
+		HasSubMenu  bool
 		Loaded      bool
 		Err         error
 		IsCollected bool
 		Total       int
 		Stats       goatcounter.HitStats
 		Ref         string
-	}{ctx, w.id, shared.RowsOnly, w.loaded, w.err, isCol(ctx, goatcounter.CollectReferrer),
+	}{ctx, w.id, shared.RowsOnly, w.Ref == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectReferrer),
 		shared.Total, w.TopRefs, w.Ref}
 }

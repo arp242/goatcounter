@@ -69,7 +69,7 @@ func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, any
 		TotalUTC    int
 		Stats       goatcounter.HitStats
 		Detail      string
-	}{ctx, w.id, shared.RowsOnly, true, w.loaded, w.err, isCol(ctx, goatcounter.CollectUserAgent),
+	}{ctx, w.id, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectUserAgent),
 		z18n.T(ctx, "header/systems|Systems"),
 		shared.TotalUTC, w.Stats, w.Detail}
 }
