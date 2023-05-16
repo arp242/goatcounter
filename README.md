@@ -130,10 +130,8 @@ You need Go 1.19 or newer and a C compiler (for SQLite). If you compile it with
 
 You can install from source to $GOBIN (`go env GOBIN`) with:
 
-    % go install zgo.at/goatcounter/v2@latest
-
-Or from a git checkout, also setting the version string:
-
+    % git clone --branch=release-2.4 https://github.com/arp242/goatcounter.git
+    % cd goatcounter
     % go build -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
 Which will produce a `goatcounter` binary in the current directory.
@@ -143,6 +141,8 @@ but it's recommended as it's used to "bust" the cache for static files and may
 also be useful later when reporting bugs. This can be any string and doesn't
 follow any particular format, you can also set this to the current date or
 `banana` or anything you want really.
+
+To use the latest development version switch to the `master` branch.
 
 To build a fully statically linked binary:
 
