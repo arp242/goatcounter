@@ -686,18 +686,18 @@
             "type": "string"
           },
           {
+            "in": "path",
+            "name": "path_id",
+            "required": true,
+            "type": "string"
+          },
+          {
             "default": "current time",
             "description": "End time, should be rounded to the hour.",
             "format": "date-time",
             "in": "query",
             "name": "end",
             "type": "string"
-          },
-          {
-            "in": "path",
-            "name": "path_id",
-            "required": true,
-            "type": "integer"
           },
           {
             "description": "Offset for pagination.",
@@ -830,18 +830,18 @@
             "type": "string"
           },
           {
+            "in": "path",
+            "name": "page",
+            "required": true,
+            "type": "string"
+          },
+          {
             "default": "current time",
             "description": "End time, should be rounded to the hour.",
             "format": "date-time",
             "in": "query",
             "name": "end",
             "type": "string"
-          },
-          {
-            "in": "path",
-            "name": "page",
-            "required": true,
-            "type": "integer"
           },
           {
             "description": "Offset for pagination.",
@@ -917,18 +917,18 @@
             "type": "string"
           },
           {
+            "in": "path",
+            "name": "page",
+            "required": true,
+            "type": "string"
+          },
+          {
             "default": "current time",
             "description": "End time, should be rounded to the hour.",
             "format": "date-time",
             "in": "query",
             "name": "end",
             "type": "string"
-          },
-          {
-            "in": "path",
-            "name": "page",
-            "required": true,
-            "type": "integer"
           },
           {
             "description": "Offset for pagination.",
@@ -1287,6 +1287,11 @@
           "format": "date-time",
           "readOnly": true
         },
+        "open_at": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "reset_at": {
           "type": "string",
           "format": "date-time",
@@ -1340,6 +1345,9 @@
         },
         "sunday_starts_week": {
           "type": "boolean"
+        },
+        "theme": {
+          "type": "string"
         },
         "timezone": {
           "$ref": "#/definitions/tz.Zone"
