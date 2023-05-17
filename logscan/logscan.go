@@ -89,17 +89,16 @@ func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string,
 			p = `HTTP/[\d.]+`
 		case "path":
 			p = `/.*?`
-		case "query":
-		case "referrer":
-		case "user_agent":
-		case "content_type":
-
 		case "timing_sec":
 			p = `[\d.]+`
 		case "timing_milli", "timing_micro":
 			p = `\d+`
 		case "size":
 			p = `(?:\d+|-)`
+		case "referrer", "user_agent":
+			p = `.*?`
+		case "query", "content_type":
+			// Default
 		}
 		return "(?P<" + m + ">" + p + ")"
 	})
