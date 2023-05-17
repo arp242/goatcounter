@@ -88,6 +88,12 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(400)
 		return zhttp.Bytes(w, gif)
 	}
+	if len(hit.Path) > 2048 {
+		w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because path is longer than 2048 bytes (%d bytes)",
+			len(r.RequestURI)))
+		w.WriteHeader(http.StatusRequestURITooLong)
+		return zhttp.Bytes(w, gif)
+	}
 
 	if isbot.Is(bot) { // Prefer the backend detection.
 		hit.Bot = int(bot)
