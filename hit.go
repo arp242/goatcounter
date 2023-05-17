@@ -285,7 +285,7 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 	//v.Required("session", h.Session)
 	v.Required("created_at", h.CreatedAt)
 	v.UTF8("ref", h.Ref)
-	v.Len("ref", h.Ref, 0, 8192)
+	v.Len("ref", h.Ref, 0, 2048)
 
 	// Small margin as client's clocks may not be 100% accurate.
 	if h.CreatedAt.After(ztime.Now().Add(5 * time.Second)) {
@@ -297,7 +297,7 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 		v.UTF8("path", h.Path)
 		v.UTF8("title", h.Title)
 		v.UTF8("user_agent_header", h.UserAgentHeader)
-		v.Len("path", h.Path, 1, 8192)
+		v.Len("path", h.Path, 1, 2048)
 		v.Len("title", h.Title, 0, 1024)
 		v.Len("user_agent_header", h.UserAgentHeader, 0, 512)
 	} else {
