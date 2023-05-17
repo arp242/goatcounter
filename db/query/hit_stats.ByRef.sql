@@ -16,3 +16,4 @@ select
 	x.count
 from x
 join paths using(path_id)
+order by count desc
