@@ -13,7 +13,7 @@ This is your GoatCounter report for {{.DisplayDate}} for the site {{.Site.URL .C
 This is the text version and best viewed with a monospace font.
 View the HTML version if the alignment is off.
 
-This is email is sent because it’s enabled in your settings.
+This email is sent because it’s enabled in your settings.
 Disable it in your settings if you want to stop receiving it:
 {{.Site.URL .Context}}/user/pref#section-email-reports
 
