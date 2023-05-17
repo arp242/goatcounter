@@ -295,7 +295,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 
 	if !site.Settings.Collect.Has(CollectSession) {
 		h.Session = zint.Uint128{}
-		h.FirstVisit = false
+		h.FirstVisit = true
 	}
 
 	if !site.Settings.Collect.Has(CollectReferrer) {
