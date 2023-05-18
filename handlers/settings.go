@@ -623,7 +623,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 			}
 		}
 
-		if firstHitAt != nil {
+		if firstHitAt != nil && !firstHitAt.IsZero() {
 			err := Site(ctx).UpdateFirstHitAt(ctx, *firstHitAt)
 			if err != nil {
 				zlog.Error(err)

@@ -268,7 +268,7 @@ func Import(
 		sessions   = make(map[zint.Uint128]zint.Uint128)
 		n          = 0
 		errs       = errors.NewGroup(50)
-		firstHitAt time.Time
+		firstHitAt = site.FirstHitAt
 	)
 	for {
 		line, err := c.Read()
@@ -289,7 +289,7 @@ func Import(
 		if errs.Append(err) {
 			continue
 		}
-		if hit.CreatedAt.Before(site.FirstHitAt) {
+		if hit.CreatedAt.Before(firstHitAt) {
 			firstHitAt = hit.CreatedAt
 		}
 
@@ -324,6 +324,9 @@ func Import(
 		}
 	}
 
+	if firstHitAt.Equal(site.FirstHitAt) {
+		return nil, nil
+	}
 	return &firstHitAt, nil
 }
 
