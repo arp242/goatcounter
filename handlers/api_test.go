@@ -279,9 +279,9 @@ func TestAPICount(t *testing.T) {
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  ua           browser    system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         US   1      2020-06-18 14:42:00
+			1       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         NL   1      2020-06-18 14:42:00
 			2       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef02  0         NULL         US   1      2020-06-18 14:42:00
-			3       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         US   0      2020-06-18 14:42:00
+			3       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         NL   0      2020-06-18 14:42:00
 			`,
 		},
 

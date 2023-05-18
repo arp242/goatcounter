@@ -5,7 +5,7 @@ go 1.19
 require (
 	code.soquee.net/otp v0.0.4
 	github.com/BurntSushi/toml v1.2.1
-	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/bmatcuk/doublestar/v4 v4.6.0
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.8
@@ -16,12 +16,12 @@ require (
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.4.2
-	golang.org/x/crypto v0.5.0
-	golang.org/x/exp v0.0.0-20230113213754-f9f960f08ad4
-	golang.org/x/image v0.3.0
-	golang.org/x/net v0.5.0
-	golang.org/x/sync v0.1.0
-	golang.org/x/text v0.6.0
+	golang.org/x/crypto v0.9.0
+	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc
+	golang.org/x/image v0.7.0
+	golang.org/x/net v0.10.0
+	golang.org/x/sync v0.2.0
+	golang.org/x/text v0.9.0
 	zgo.at/bgrun v0.0.0-00010101000000-000000000000
 	zgo.at/blackmail v0.0.0-20221021025740-b3fdfc32a1aa
 	zgo.at/errors v1.2.0
@@ -41,7 +41,7 @@ require (
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20230518015225-0920e0f78cb1
-	zgo.at/ztpl v0.0.0-20221123113745-a7d69d18ddbe
+	zgo.at/ztpl v0.0.0-20230518031629-dd2227d96ecd
 	zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade
 )
 
@@ -61,8 +61,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/oschwald/maxminddb-golang v1.10.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/mod v0.6.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/term v0.4.0 // indirect
-	golang.org/x/tools v0.2.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/term v0.8.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 )

@@ -26,7 +26,7 @@ func TestLocations(t *testing.T) {
 			}
 
 			out := fmt.Sprintf("%#v", l)
-			want := `goatcounter.Location{ID:2, Country:"US", Region:"", CountryName:"United States", RegionName:"", ISO3166_2:"US"}`
+			want := `goatcounter.Location{ID:2, Country:"NL", Region:"", CountryName:"Netherlands", RegionName:"", ISO3166_2:"NL"}`
 			if out != want {
 				t.Error(out)
 			}
@@ -49,8 +49,9 @@ func TestLocations(t *testing.T) {
 		want := `
 			location_id  iso_3166_2  country  region  country_name   region_name
 			1                                         (unknown)
-			2            US          US               United States
-			3            US-TX       US       TX      United States`
+			2            NL          NL               Netherlands
+			3            US-TX       US       TX      United States
+			4            US          US               United States`
 		if d := ztest.Diff(out, want, ztest.DiffNormalizeWhitespace); d != "" {
 			t.Error(d)
 		}

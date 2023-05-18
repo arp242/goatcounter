@@ -70,7 +70,7 @@
 </tr></thead>
 <tbody>
 	{{range $i, $_ := .History}}
-		{{$j := index $.History (sub (len $.History) $i 1)}}
+		{{$j := index $.History (int (sub (len $.History) $i 1))}}
 		<tr>
 			<td>{{$j.Task}}</td>
 			<td>{{$j.From}}</td>
