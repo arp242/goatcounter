@@ -450,6 +450,10 @@ func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64, noE
 //
 // The return value is in the same order as paths.
 func (h HitLists) Diff(ctx context.Context, rng, prev ztime.Range) ([]float64, error) {
+	if len(h) == 0 {
+		return nil, nil
+	}
+
 	d := -rng.End.Sub(rng.Start)
 	prev = ztime.NewRange(rng.Start.Add(d)).To(rng.End.Add(d))
 

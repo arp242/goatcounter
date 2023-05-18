@@ -128,6 +128,7 @@ small.go           { display: none; }
 .count-list td           { vertical-align: top; }
 .count-list th           { text-align: left; }
 .count-list .col-count   { width: 5rem; text-align: right; }
+.count-list .col-count-diff { font-size:.9rem; }
 .count-list .col-path    { width: 20rem; }
 .label-event             { background-color: var(--event-bg); border-radius: 1em; padding: .1em .3em; }
 .count-list td[colspan="3"] {  /* "nothing to display" */
@@ -135,6 +136,8 @@ small.go           { display: none; }
     width: auto;
 }
 .pages-list:not(.pages-list-text) >.load-more { display: block; margin-top: -.7em; width: max-content; }
+.plus  { color: var(--plus); }
+.minus { color: var(--minus); }
 
 .count-list tr:target,
 .count-list tr.target             { background-color: inherit; }
@@ -178,6 +181,7 @@ tr.target .chart-left { display: block; }
 
 .count-list-text .col-idx    { width: 1em; color: var(--text-table-rank-text); }
 .count-list-text .col-n      { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
+.count-list-text .col-diff   { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
 .count-list-text .col-d      { width: 12em; font-size: 1.2em; padding: 0; text-align: center; }
 .count-list-text .col-d      { vertical-align: top; }
 .count-list-text .col-d span { display: inline-block; margin-top: .8em; padding-top: 2px; line-height: 1em;

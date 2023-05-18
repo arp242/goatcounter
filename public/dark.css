@@ -80,4 +80,7 @@
 
     --box-bg:                  #666;                       /* Signup box on the homepage, footer */
     --box-shadow:              #cdc8a4;                    /* box-shadow on most boxes on the homepage, /help page navigation, etc. */
+
+    --plus:                    #008837;                    /* Positive numbers (+5%) */
+    --minus:                   #ac3ad3;                    /* Negative numbers (-5%) */
 }

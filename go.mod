@@ -41,7 +41,7 @@ require (
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20230518015225-0920e0f78cb1
-	zgo.at/ztpl v0.0.0-20230518031629-dd2227d96ecd
+	zgo.at/ztpl v0.0.0-20230518214526-3f09e105c03c
 	zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade
 )
 

@@ -33,6 +33,7 @@ type Pages struct {
 	Refs             goatcounter.HitStats
 	Max              int
 	Exclude          []int64
+	Diff             []float64
 }
 
 func (w Pages) Name() string                         { return "pages" }
@@ -83,6 +84,11 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	var err error
 	w.Display, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Daily)
 	errs.Append(err)
+
+	if !goatcounter.MustGetUser(ctx).Settings.FewerNumbers {
+		w.Diff, err = w.Pages.Diff(ctx, a.Rng, a.Rng)
+		errs.Append(err)
+	}
 
 	wg.Wait()
 
@@ -174,11 +180,13 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 		Style    string
 		Refs     goatcounter.HitStats
 		ShowRefs int64
+		Diff     []float64
 	}{
 		ctx, shared.Site, shared.User,
 		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
 		shared.Args.ForcedDaily, 1, w.Max,
 		w.Display, shared.Total, shared.TotalEvents, w.More,
 		w.Style, w.Refs, shared.Args.ShowRefs,
+		w.Diff,
 	}
 }

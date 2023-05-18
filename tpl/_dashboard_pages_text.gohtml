@@ -18,6 +18,7 @@
 			{{if not $.User.Settings.FewerNumbers}}
 				<th class="col-n">{{t .Context "dashboard/pages/visits|Visits"}}</th>
 			{{end}}
+			<th class="col-diff">{{t .Context "dashboard/pages/change|Change"}}</th>
 			<th class="col-p">{{t .Context "dashboard/pages/path|Path"}}</th>
 			<th class="col-t">{{t .Context "dashboard/pages/title|Title"}}</th>
 			<th class="col-d" title="{{t .Context "dashboard/pages/stats-tooltip|Every bar represents 1/12th of the selected time range"}}">{{t .Context "dashboard/pages/stats|Stats"}}</th>
