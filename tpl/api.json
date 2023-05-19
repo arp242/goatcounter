@@ -686,18 +686,18 @@
             "type": "string"
           },
           {
-            "in": "path",
-            "name": "path_id",
-            "required": true,
-            "type": "string"
-          },
-          {
             "default": "current time",
             "description": "End time, should be rounded to the hour.",
             "format": "date-time",
             "in": "query",
             "name": "end",
             "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "path_id",
+            "required": true,
+            "type": "integer"
           },
           {
             "description": "Offset for pagination.",
