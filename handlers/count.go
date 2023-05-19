@@ -29,6 +29,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "image/gif")
+	w.Header().Set("Cross-Origin-Resource-Policy", "cross-origin")
 
 	// Note this works in both HTTP/1.1 and HTTP/2, as the Go HTTP/2 server
 	// picks up on this and sends the GOAWAY frame.
