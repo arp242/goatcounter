@@ -14,10 +14,14 @@ Integrations
 <span style="color: #999">You’ll need to copy this to the integration settings</span>
 
 <style>
-.integrations         { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1em; margin-bottom: 2em; }
-.integrations a img   { float: left; }
-.integrations a       { line-height: 40px; padding: 10px; width: 10em; margin: 1em; box-shadow: 0 0 4px #cdc8a4; }
-.integrations a:hover { text-decoration: none; color: #00f; background-color: #f7f7f7; }
+.integrations          { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1em; margin-bottom: 2em; }
+.integrations a img    { float: left; }
+.integrations a        { line-height: 40px; padding: 10px; width: 10em; margin: 1em; box-shadow: 0 0 4px #cdc8a4; }
+.integrations a:hover  { text-decoration: none; color: #00f; background-color: #f7f7f7; }
+.integrations a.active { background: linear-gradient(#d0cecc, #f0f0f0); }
+
+.popbox    { display: none; padding: 1em; margin: 3em; margin-top: -2em;
+             box-shadow: 0 0 4px var(--box-shadow); background-color: var(--bg); }
 </style>
 
 <div class="integrations">
@@ -27,7 +31,19 @@ Integrations
     <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg"> Gatsby</a>
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">
     <img width="40" height="40" src="{{.Static}}/int-logo/schlix.png"> schlix</a>
+<a href="" class="expand" data-expand=".write-as">
+    <img width="40" height="40" src="{{.Static}}/int-logo/write-as.svg"> Write.as</a>
 </div>
+</div>
+
+<div class="popbox write-as">
+Paste the following in <em>Custom Javascript</em> in the <em>Customize</em> page:
+
+<pre>const script = document.createElement('script');
+script.setAttribute('defer', true);
+script.setAttribute('src', 'https://{{.CountDomain}}/count.js');
+script.setAttribute('data-goatcounter', '{{.SiteURL}}/count');
+document.body.appendChild(script);</pre>
 </div>
 
 

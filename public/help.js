@@ -7,6 +7,21 @@ document.querySelector('.show-contact').addEventListener('click', function(e) {
 	this.parentNode.removeChild(this)
 	window.location.hash = '#scroll-target'
 })
+document.querySelector('.expand').addEventListener('click', function(e) {
+	e.preventDefault()
+	let a = this,
+		d = a.dataset.expand
+	if (d)
+		document.querySelectorAll(d).forEach((elem) => {
+			if (elem.style.display === 'block') {
+				elem.style.display = 'none'
+				a.classList.remove('active')
+				return
+			}
+			elem.style.display = 'block'
+			a.classList.add('active')
+		})
+})
 
 if (window.location.pathname === '/help/visitor-counter') {
 	var t = setInterval(function() {
