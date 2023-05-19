@@ -144,7 +144,7 @@ The -listen and -tls flags:
         http        Don't serve any TLS; you can still generate ACME
                     certificates though.
 
-        proxy       Don't serve any TLS similar to "http", but hint that TLS
+        proxy       Don't serve any TLS. Similar to "http" but hint that TLS
                     will be handled by a proxy (such as Hitch, Nginx, etc.)
 
         tls         Accept TLS connections on -listen. This is always done
@@ -194,7 +194,7 @@ Proxy Setup:
     If you want to serve GoatCounter behind a proxy (HAproxy, Varnish, Hitch,
     nginx, Caddy, whatnot) then you'll want to use something like:
 
-        goatcounter serve -listen localhost:8081 -tls http
+        goatcounter serve -listen localhost:8081 -tls proxy
 
     And then forward requests on port 80 and 443 for your domain to
     localhost:8081. This assumes that the proxy will take care of the TLS
@@ -202,7 +202,7 @@ Proxy Setup:
 
     You can still use GoatCounter's ACME if you want:
 
-        goatcounter serve -listen localhost:8081 -tls http,acme
+        goatcounter serve -listen localhost:8081 -tls proxy,acme
 
     You will have to make the proxy reads the *.pem files from the acme cache
     directory. You may have to reload or restart the proxy for it to pick up new
