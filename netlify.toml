@@ -7,6 +7,11 @@
 		Cache-Control = "public, max-age=7776000"  # 90 days
 		Access-Control-Allow-Origin = "*"
 
+[[headers]]
+	for = "/count.js"
+	[headers.values]
+		Cross-Origin-Resource-Policy = "cross-origin"
+
 # count.min.js no longer exists, so redirect to count.js
 [[redirects]]
   from = "/count.min.js"

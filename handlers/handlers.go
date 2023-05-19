@@ -140,6 +140,10 @@ func NewStatic(r chi.Router, dev, goatcounterCom bool) chi.Router {
 		panic(err)
 	}
 
-	r.Get("/*", zhttp.NewStatic("*", fsys, cache).ServeHTTP)
+	s := zhttp.NewStatic("*", fsys, cache)
+	s.Header("/count.js", map[string]string{
+		"Cross-Origin-Resource-Policy": "cross-origin",
+	})
+	r.Get("/*", s.ServeHTTP)
 	return r
 }

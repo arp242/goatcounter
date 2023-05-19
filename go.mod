@@ -36,7 +36,7 @@ require (
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20221105060706-d862504dc723
-	zgo.at/zhttp v0.0.0-20221020124111-c3011d53484c
+	zgo.at/zhttp v0.0.0-20230519035853-555ee38c9e12
 	zgo.at/zli v0.0.0-20221012220610-d6a5a841b943
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
