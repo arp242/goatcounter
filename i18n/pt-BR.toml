@@ -1,0 +1,938 @@
+[__meta__]
+  comments = "|user|"
+  generated = 2021-11-29T19:38:18Z
+  language = "pt-BR"
+  maintainers = []
+
+["button/add-new"]
+  default = "Adicionar novo"
+
+["button/add-user"]
+  default = "Adicionar novo usuário"
+
+["button/cfg-dashboard"]
+  default = "Configurar aparência do painel"
+
+["button/change"]
+  default = "Alterar"
+
+["button/change-passwd"]
+  default = "Alterar senha"
+
+["button/copy"]
+  default = "Copiar"
+
+["button/delete"]
+  default = "excluir"
+
+["button/delete-account"]
+  default = "Excluir conta, todos os sites, e todos os dados"
+
+["button/delete-all"]
+  default = "Sim, exclua todos eles!"
+
+["button/delete-everything"]
+  default = "Sim, exclua tudo"
+
+["button/disable-mfa"]
+  default = "Desabilitar MFA"
+
+["button/edit"]
+  default = "Editar"
+
+["button/enable-mfa"]
+  default = "Habilitar MFA"
+
+["button/forgot-password"]
+  default = "Esqueceu a senha?"
+
+["button/remove"]
+  default = "Remover"
+
+["button/request-reset"]
+  default = "Solicitar nova senha"
+
+["button/resend-email"]
+  default = "Reenviar e-mail"
+
+["button/reset-defaults"]
+  default = "Redefinir padrões"
+
+["button/reset-password"]
+  default = "Redefinir senha"
+
+["button/rm-hits"]
+  default = "Excluir visualizações"
+
+["button/save"]
+  default = "Salvar"
+
+["button/save-default-view"]
+  default = "Salvar visão padrão"
+
+["button/send-login-url"]
+  default = "Enviar URL de login"
+
+["button/sign-in"]
+  default = "Entrar"
+
+["button/start-export"]
+  default = "Iniciar exportação"
+
+["button/start-import"]
+  default = "Iniciar importação"
+
+["button/submit"]
+  default = "Enviar"
+
+["confirm/delete-user"]
+  default = "Excluir %(email)?"
+
+["dashboard/day-ago"]
+
+["dashboard/future"]
+
+["dashboard/month-ago"]
+
+["dashboard/nothing-to-display"]
+  default = "Nada para mostrar"
+
+["dashboard/pages/header"]
+  default = "Páginas"
+
+["dashboard/pages/num-visits"]
+
+["dashboard/pages/pageviews"]
+  default = "Visualizações de página"
+
+["dashboard/pages/path"]
+  default = "Caminho"
+
+["dashboard/pages/stats"]
+  default = "Estatísticas"
+
+["dashboard/pages/stats-tooltip"]
+
+["dashboard/pages/title"]
+  default = "Título"
+
+["dashboard/pages/views"]
+  default = "Visualizações"
+
+["dashboard/pages/visits"]
+  default = "Visitas"
+
+["dashboard/today"]
+  default = "Hoje"
+
+["dashboard/tooltip-event"]
+
+["dashboard/totals/header"]
+  default = "Totais"
+
+["dashboard/totals/num-visits"]
+
+["dashboard/week-ago"]
+
+["dashboard/yesterday"]
+  default = "Ontem"
+
+["data-collect/help/country"]
+
+["data-collect/help/language"]
+
+["data-collect/help/referrer"]
+
+["data-collect/help/region"]
+
+["data-collect/help/sessions"]
+
+["data-collect/help/size"]
+
+["data-collect/help/user-agent"]
+
+["data-collect/label/country"]
+  default = "País"
+
+["data-collect/label/language"]
+  default = "Idioma"
+
+["data-collect/label/referrer"]
+  default = "Indicador"
+
+["data-collect/label/region"]
+  default = "Região"
+
+["data-collect/label/sessions"]
+  default = "Sessões"
+
+["data-collect/label/size"]
+  default = "Tamanho"
+
+["data-collect/label/user-agent"]
+
+["datepicker/keyboard"]
+
+["datepicker/month-next"]
+  default = "Próximo mês"
+
+["datepicker/month-prev"]
+  default = "Mês anterior"
+
+["email/header"]
+  default = "Olá,"
+
+["email/password-reset"]
+
+["email/reset-user-email-subject"]
+
+["email/signature"]
+
+["error/account-has-stripe-subscription"]
+
+["error/address-exists"]
+
+["error/could-not-read"]
+
+["error/date-future"]
+
+["error/date-mismatch"]
+
+["error/date-past"]
+
+["error/delete-main-site"]
+
+["error/export-expired"]
+
+["error/incorrect-password"]
+
+["error/invalid-end-date"]
+
+["error/invalid-start-date"]
+
+["error/load-url"]
+
+["error/login-invalid"]
+
+["error/login-no-password"]
+
+["error/login-not-found"]
+
+["error/login-token-expired"]
+
+["error/login-wrong-pwd"]
+  default = "Senha errada para %(email)"
+
+["error/not-found"]
+  default = "Não encontrado"
+
+["error/password-does-not-match"]
+  default = "Confirmação de senha não combina."
+
+["error/payment-cancelled"]
+  default = "Pagamento cancelado."
+
+["error/reset-user-no-account"]
+
+["error/token-already-used"]
+
+["error/wrong-verification-key"]
+
+["event"]
+  default = "evento"
+
+["forgot-domain-help"]
+
+["header/access"]
+  default = "Acesso"
+
+["header/add-new-user"]
+  default = "Adiciona um novo usuário"
+
+["header/allow-access"]
+  default = "Permitir acesso"
+
+["header/api"]
+  default = "API"
+
+["header/api-tokens"]
+  default = "Tokens de API"
+
+["header/browsers"]
+  default = "Navegadores"
+
+["header/change-code"]
+  default = "Alterar código do site"
+
+["header/change-passwd"]
+  default = "Alterar senha"
+
+["header/code"]
+  default = "Código"
+
+["header/copy-settings"]
+  default = "Copiar configurações"
+
+["header/created-at"]
+  default = "Criado em"
+
+["header/dashboard"]
+  default = "Painel"
+
+["header/data-collection"]
+
+["header/delete-account"]
+  default = "Excluir conta"
+
+["header/domain"]
+  default = "Domínio"
+
+["header/domain-settings"]
+  default = "Configurações de domínio"
+
+["header/edit-user"]
+  default = "Editar usuário %(email)"
+
+["header/email"]
+  default = "E-mail"
+
+["header/export"]
+  default = "Exportar"
+
+["header/export-or-import"]
+  default = "Exportar/Importar"
+
+["header/finished"]
+  default = "Terminado"
+
+["header/forgot-domain"]
+  default = "Esqueci o domínio"
+
+["header/forgot-password"]
+  default = "Esqueci a senha"
+
+["header/hash"]
+
+["header/import"]
+  default = "Importar"
+
+["header/l10n"]
+  default = "Localização"
+
+["header/languages"]
+  default = "Idiomas"
+
+["header/last-10-exports"]
+  default = "Últimas 10 exportações"
+
+["header/locations"]
+  default = "Localidades"
+
+["header/locations-for"]
+  default = "Localidades para %(country)"
+
+["header/mfa"]
+  default = "Autenticação Multi-Fator (MFA)"
+
+["header/n-hits"]
+
+["header/name"]
+  default = "Nome"
+
+["header/new"]
+  default = "Novo"
+
+["header/pagination-cursor"]
+
+["header/passwd-mfa"]
+  default = "Senha & MFA"
+
+["header/path"]
+  default = "Caminho"
+
+["header/permissions"]
+  default = "Permissões"
+
+["header/preferences"]
+  default = "Preferências"
+
+["header/reset-password"]
+
+["header/rm-hits"]
+  default = "Excluir visualizações de página"
+
+["header/settings"]
+  default = "Configurações"
+
+["header/sign-in-at"]
+  default = "Entrar em %(name)"
+
+["header/site-settings"]
+  default = "Configurações do site"
+
+["header/sites"]
+  default = "Sites"
+
+["header/size"]
+  default = "Tamanho"
+
+["header/sizes"]
+  default = "Tamanhos"
+
+["header/start-pagination-cursor"]
+
+["header/started"]
+  default = "Iniciado"
+
+["header/systems"]
+  default = "Sistemas"
+
+["header/title"]
+  default = "Título"
+
+["header/token"]
+  default = "Token"
+
+["header/toprefs"]
+  default = "Top indicadores"
+
+["header/tracking"]
+  default = "Rastreamento"
+
+["header/updated"]
+  default = "Atualizações"
+
+["header/user-info"]
+  default = "Informações de usuário"
+
+["header/user-information"]
+  default = "Informações de usuário"
+
+["header/users"]
+  default = "Usuários"
+
+["help/allow-visitor-counts"]
+
+["help/campaign-parameters"]
+
+["help/cfg-dashboard"]
+
+["help/code-access"]
+
+["help/custom-domain"]
+
+["help/custom-domain-cname"]
+
+["help/custom-domain-error"]
+
+["help/custom-domain-plan"]
+
+["help/custom-domain-verified"]
+
+["help/data-retention"]
+
+["help/domain-access"]
+
+["help/drag-reorder"]
+
+["help/for-the-following-countries"]
+
+["help/goatcounter-domain"]
+
+["help/ignore-ips"]
+
+["help/ignore-ips-2"]
+
+["help/new-user-email"]
+
+["help/new-user-email-confirm"]
+
+["help/no-undo"]
+
+["help/password-edit"]
+
+["help/password-new-user"]
+
+["help/public"]
+
+["help/rm-hits"]
+
+["help/save-default-view"]
+
+["help/turing-test"]
+
+["help/your-email"]
+
+["label/24-hour-clock"]
+
+["label/add-new"]
+
+["label/all-sites"]
+
+["label/allow-admin-access"]
+
+["label/allow-visitor-counts"]
+
+["label/browser-stats"]
+
+["label/campaign-parameters"]
+
+["label/change-code"]
+
+["label/clear-pageviews"]
+
+["label/code"]
+
+["label/collected-since"]
+
+["label/csv-compress-format"]
+
+["label/current-passwd"]
+
+["label/custom-domain"]
+
+["label/dashboard-public"]
+
+["label/data-retention"]
+
+["label/date-fmt"]
+
+["label/delete-account-confirmation"]
+
+["label/delete-account-contact"]
+
+["label/delete-account-follow-up"]
+
+["label/delete-account-reason"]
+
+["label/delete-account-reason-placeholder"]
+
+["label/email"]
+
+["label/email-address"]
+
+["label/for-following-countries"]
+
+["label/goatcounter-domain"]
+
+["label/ignore-ips"]
+
+["label/lang"]
+
+["label/language-stats"]
+
+["label/loc-stats"]
+
+["label/mark-current"]
+
+["label/match-title"]
+
+["label/mfa-token"]
+
+["label/new-code"]
+
+["label/new-password"]
+
+["label/new-password-confirm"]
+
+["label/pagination-cursor"]
+
+["label/password"]
+
+["label/paths"]
+
+["label/public-anyone"]
+
+["label/public-private"]
+
+["label/public-token"]
+
+["label/secret"]
+
+["label/secret-access"]
+
+["label/secret-token"]
+
+["label/set-default"]
+
+["label/size-desktop"]
+
+["label/size-desktophd"]
+
+["label/size-largephones"]
+
+["label/size-phones"]
+
+["label/size-stats"]
+
+["label/size-tablets"]
+
+["label/system-stats"]
+
+["label/thousand-separator"]
+
+["label/timezone"]
+
+["label/topref"]
+
+["label/total-pageviews"]
+
+["label/turing-test"]
+
+["label/verifictation-token"]
+
+["label/week-start"]
+
+["label/your-email"]
+
+["label/your-site"]
+
+["link/add-translation"]
+
+["link/api"]
+
+["link/api-docs"]
+
+["link/billing"]
+
+["link/dashboard"]
+
+["link/generate-random"]
+
+["link/goto-path"]
+  default = "Ir para %(path)"
+
+["link/import"]
+  default = "Importar"
+
+["link/passwd-mfa"]
+  default = "Senha & MFA"
+
+["link/preferences"]
+  default = "Preferências"
+
+["link/rm-account"]
+  default = "Excluir conta"
+
+["link/rm-views"]
+  default = "Excluir visualizações de página"
+
+["link/set-from-browser"]
+
+["link/settings"]
+  default = "configurações"
+
+["link/show-more"]
+  default = "Mostrar mais"
+
+["link/sites"]
+  default = "Sites"
+
+["link/users"]
+  default = "Usuários"
+
+["nav-bot/contact"]
+  default = "Contato"
+
+["nav-bot/contribute"]
+  default = "Contribua"
+
+["nav-bot/docs"]
+  default = "Documentação"
+
+["nav-bot/home"]
+  default = "Início"
+
+["nav-bot/src"]
+  default = "Código fonte"
+
+["nav-dash/back"]
+  default = "atrás"
+
+["nav-dash/by-day"]
+  default = "Ver por dia"
+
+["nav-dash/current"]
+  default = "Atual"
+
+["nav-dash/day"]
+  default = "dia"
+
+["nav-dash/end-date"]
+
+["nav-dash/filter"]
+
+["nav-dash/filter-tooltip"]
+
+["nav-dash/forced-daily"]
+
+["nav-dash/forward"]
+  default = "adiante"
+
+["nav-dash/half-year"]
+  default = "meio ano"
+
+["nav-dash/last"]
+  default = "Último"
+
+["nav-dash/month"]
+  default = "mês"
+
+["nav-dash/quarter"]
+  default = "trimestre"
+
+["nav-dash/start-date"]
+
+["nav-dash/week"]
+  default = "semana"
+
+["nav-dash/year"]
+  default = "ano"
+
+["no-title"]
+  default = "sem título"
+
+["notify/add-one-thing"]
+
+["notify/api-token-created"]
+
+["notify/api-token-removed"]
+
+["notify/disabled-multi-factor-auth"]
+
+["notify/email-already-verified"]
+
+["notify/export-started-in-background"]
+
+["notify/import-started-in-background"]
+
+["notify/login-after-password-reset"]
+
+["notify/multi-factor-auth-enabled"]
+
+["notify/need-business-plan-custom-domain"]
+
+["notify/need-email-verification-for-api"]
+
+["notify/no-user-for-token"]
+
+["notify/not-found"]
+
+["notify/password-changed"]
+
+["notify/payment-processed"]
+
+["notify/payment-processing"]
+
+["notify/reset-to-default"]
+
+["notify/reset-user-sent"]
+
+["notify/restored-previously-deleted-site"]
+
+["notify/saved"]
+  default = "Salvo!"
+
+["notify/sent-to-email"]
+
+["notify/settings-copied-to-site"]
+
+["notify/site-added"]
+
+["notify/site-removed"]
+
+["notify/started-background-process"]
+
+["notify/user-added"]
+
+["notify/user-removed"]
+
+["notify/users-edited"]
+
+["p/add-goatcounter-to-multiple-websites"]
+
+["p/additional-errors"]
+  default = "Erros adicionais"
+
+["p/api-intro"]
+
+["p/change-code-request"]
+
+["p/change-email"]
+
+["p/collect-disabled"]
+
+["p/copy-settings-from-current-site"]
+
+["p/csv-file-format"]
+
+["p/delete-account-multi-site"]
+
+["p/delete-account-one-site"]
+
+["p/disable-mfa"]
+
+["p/enable-mfa"]
+
+["p/error"]
+
+["p/export-process"]
+
+["p/have-mfa"]
+
+["p/last-user"]
+
+["p/no-data"]
+
+["p/no-matches"]
+
+["p/notify-immediate-change"]
+
+["p/notify-pagination-cursor"]
+
+["p/notify-site-deletion"]
+
+["p/remove-site-confirm"]
+
+["p/remove-site-confirm-contact"]
+
+["p/remove-site-confirm-current"]
+
+["p/request-data-recovery"]
+
+["p/rm-hits"]
+
+["p/rm-hits-help"]
+
+["p/rm-pageview-match"]
+
+["p/setting-recovery-disabled-information"]
+
+["p/settings-all-sites"]
+
+["p/site-domain-link-to-page"]
+
+["p/text-data-retention"]
+
+["p/verify-email"]
+
+["page-ranking"]
+
+["restricted-admin-access"]
+
+["scale-y"]
+
+["top-nav/back"]
+
+["top-nav/dashboard"]
+
+["top-nav/need-js"]
+
+["top-nav/public-link"]
+
+["top-nav/public-time"]
+
+["top-nav/settings"]
+
+["top-nav/sign-in"]
+  default = "Entrar"
+
+["top-nav/sign-out"]
+  default = "Sair"
+
+["top-nav/site-code"]
+  default = "Código do site"
+
+["top-nav/sites"]
+  default = "Sites:"
+
+["top-nav/updates"]
+  default = "Atualizações"
+
+["top-nav/user"]
+  default = "Usuário"
+
+["unknown"]
+  default = "(desconhecido)"
+
+["validate/bool"]
+
+["validate/color"]
+
+["validate/contains"]
+
+["validate/date"]
+
+["validate/domain"]
+
+["validate/email"]
+
+["validate/exclude"]
+
+["validate/hostname"]
+
+["validate/include"]
+
+["validate/int"]
+
+["validate/ip"]
+
+["validate/ipv4"]
+
+["validate/len-longer"]
+
+["validate/len-shorter"]
+
+["validate/phone"]
+
+["validate/range-higher"]
+
+["validate/range-lower"]
+
+["validate/required"]
+
+["validate/url"]
+
+["validate/utf8"]
+  default = "Precisa ser UTF-8"
+
+["widget-setting/help/align"]
+
+["widget-setting/help/chart-style"]
+
+["widget-setting/help/no-events"]
+
+["widget-setting/help/page-size"]
+
+["widget-setting/help/ref-page-size"]
+
+["widget-setting/help/regions"]
+
+["widget-setting/label/align"]
+
+["widget-setting/label/chart-style"]
+  default = "Estilo de gráfico"
+
+["widget-setting/label/no-events"]
+  default = "Desconsiderar eventos"
+
+["widget-setting/label/page-size"]
+  default = "Tamanho da página"
+
+["widget-setting/label/ref-page-size"]
+  default = "Tamanho da página do indicador"
+
+["widget-setting/label/regions"]
+  default = "Mostrar regiões"
+
+["widget-settings/bar-chart"]
+  default = "Gráfico de barra"
+
+["widget-settings/line-chart"]
+  default = "Gráfico de linha"
+
+["widget-settings/text-chart"]
+  default = "Tabela de texto"
+
+["y-scale"]
+  default = "Escala do eixo Y"
