@@ -52,6 +52,11 @@ Overview:
 
         $ goatcounter import -site=.. -follow /var/log/nginx/access.log
 
+    If you're self-hosting GoatCounter it may be useful to (temporarily)
+    increase the ratelimit when importing large files:
+
+        $ goatcounter serve -ratelimit api-count:500/5 ...
+
 Flags:
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
@@ -425,14 +430,14 @@ func importSend(url, key string, silent, follow bool, hits []handlers.APICountRe
 		return err
 	}
 
+	i := 0
+retry:
 	r, err := newRequest("POST", url+"/api/v0/count", key, bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
 	r.Header.Set("X-Goatcounter-Import", "yes")
 
-	i := 0
-retry:
 	zlog.Module("import-api").Debugf("POST %s with %d hits", url, len(hits))
 	resp, err := importClient.Do(r)
 	if err != nil {
@@ -477,6 +482,9 @@ retry:
 		// Success, do nothing.
 	case http.StatusTooManyRequests:
 		s, _ := strconv.Atoi(resp.Header.Get("X-Rate-Limit-Reset"))
+		if !silent {
+			fmt.Fprintf(zli.Stdout, "\nwaiting %d seconds for the ratelimiter\n", s+1)
+		}
 		time.Sleep((time.Duration(s) + 1) * time.Second)
 		return importSend(url, key, silent, follow, hits)
 	case 400:

@@ -541,8 +541,8 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	var (
 		errs       = make(map[int]string)
 		filter     []int
-		firstHitAt *time.Time
 		site       = Site(r.Context())
+		firstHitAt = site.FirstHitAt
 	)
 	for i, a := range args.Hits {
 		if filterIP && a.IP != "" && slices.Contains(site.Settings.IgnoreIPs, a.IP) {
@@ -591,8 +591,8 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			continue
 		}
 
-		if hit.CreatedAt.Before(site.CreatedAt) {
-			firstHitAt = &hit.CreatedAt
+		if hit.CreatedAt.Before(firstHitAt) {
+			firstHitAt = hit.CreatedAt
 		}
 		goatcounter.Memstore.Append(hit)
 	}
@@ -612,11 +612,10 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			zlog.Error(err)
 		}
-		cron.WaitPersistAndStat()
 	}
 
-	if firstHitAt != nil {
-		err := site.UpdateFirstHitAt(r.Context(), *firstHitAt)
+	if !firstHitAt.Equal(site.FirstHitAt) {
+		err := site.UpdateFirstHitAt(r.Context(), firstHitAt)
 		if err != nil {
 			zlog.Module("api-import").Fields(zlog.F{
 				"site":       site.ID,
