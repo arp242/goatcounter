@@ -55,7 +55,7 @@ Overview:
     If you're self-hosting GoatCounter it may be useful to (temporarily)
     increase the ratelimit when importing large files:
 
-        $ goatcounter serve -ratelimit api-count:500/5 ...
+        $ goatcounter serve -ratelimit api-count:1000/1 ...
 
 Flags:
 
