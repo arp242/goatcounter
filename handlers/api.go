@@ -608,6 +608,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if goatcounter.Memstore.Len() >= 5000 {
+		cron.WaitPersistAndStat()
 		err := cron.TaskPersistAndStat()
 		if err != nil {
 			zlog.Error(err)

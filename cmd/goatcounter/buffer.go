@@ -114,7 +114,7 @@ func cmdBuffer(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	)
 
 	var (
-		dbConnect = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
+		dbConnect = f.String(defaultDB, "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		listen    = f.String("localhost:8082", "listen").Pointer()
 		backend   = f.String("https://localhost", "backend").Pointer()

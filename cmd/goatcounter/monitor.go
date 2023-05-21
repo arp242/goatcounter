@@ -39,7 +39,7 @@ Flags:
 
 func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
-		dbConnect = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
+		dbConnect = f.String(defaultDB, "db").Pointer()
 		dbConn    = f.String("16,4", "dbconn").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		period    = f.Int(120, "period").Pointer()

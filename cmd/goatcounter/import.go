@@ -355,12 +355,14 @@ func importLog(
 
 	defer persistLog(hits, url, key, silent, follow)
 	ready <- struct{}{}
+	n := 0
 	for {
 		line, err := scan.Line(ctx)
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
+			fmt.Fprintln(zli.Stdout)
 			return err
 		}
 
@@ -394,8 +396,12 @@ func importLog(
 
 		hits <- hit
 		if len(hits) >= cap(hits) {
+			n += len(hits)
 			t.Reset(d)
 			persistLog(hits, url, key, silent, follow)
+			if !silent && !follow {
+				zli.ReplaceLinef("Imported %d rows", n)
+			}
 		}
 	}
 	return nil
@@ -483,22 +489,14 @@ retry:
 	case http.StatusTooManyRequests:
 		s, _ := strconv.Atoi(resp.Header.Get("X-Rate-Limit-Reset"))
 		if !silent {
-			fmt.Fprintf(zli.Stdout, "\nwaiting %d seconds for the ratelimiter\n", s+1)
+			fmt.Fprintf(zli.Stdout, "\nwaiting %d seconds for the ratelimiter\n", s)
 		}
-		time.Sleep((time.Duration(s) + 1) * time.Second)
+		time.Sleep(time.Duration(s) * time.Second)
 		return importSend(url, key, silent, follow, hits)
 	case 400:
 		return showError(false)
 	default:
 		return showError(true)
-	}
-
-	// Give the server's memstore a second to do its job;
-	nSent += int64(len(hits))
-	if !follow {
-		if nSent%5000 == 0 {
-			time.Sleep(1 * time.Second)
-		}
 	}
 	return nil
 }

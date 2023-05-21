@@ -221,7 +221,12 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
 				len(cnames), listen, dev, strings.Join(cnames, ", "))
 			if len(cnames) == 0 {
-				zlog.Errorf("No sites yet; create a new site with:\n    goatcounter db create site -vhost=.. -user.email=..")
+				dbFlag := ""
+				if dbConnect != defaultDB {
+					dbFlag = ` -db="` + strings.ReplaceAll(dbConnect, `"`, `\"`) + `" `
+				}
+				zlog.Errorf("No sites yet; create a new site with:\n"+
+					"    goatcounter db%screate site -vhost=.. -user.email=..", dbFlag)
 			}
 			ready <- struct{}{}
 		})
@@ -290,9 +295,11 @@ func doServe(ctx context.Context, db zdb.DB,
 	return nil
 }
 
+const defaultDB = "sqlite+db/goatcounter.sqlite3"
+
 func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, error) {
 	var (
-		dbConnect   = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
+		dbConnect   = f.String(defaultDB, "db").Pointer()
 		dbConn      = f.String("16,4", "dbconn").Pointer()
 		debug       = f.String("", "debug").Pointer()
 		dev         = f.Bool(false, "dev").Pointer()

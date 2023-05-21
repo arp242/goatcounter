@@ -361,7 +361,7 @@ func cmdDB(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	defer func() { ready <- struct{}{} }()
 
 	var (
-		dbConnect = f.String("sqlite+db/goatcounter.sqlite3", "db").Pointer()
+		dbConnect = f.String(defaultDB, "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		createdb  = f.Bool(false, "createdb").Pointer()
 	)
