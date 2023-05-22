@@ -462,7 +462,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 					subject = subject[i+7:]
 				}
 
-				err := blackmail.Send(fmt.Sprintf("GoatCounter Error: %s", subject),
+				err := blackmail.Send(fmt.Sprintf(subject),
 					blackmail.From("", from),
 					blackmail.To(to),
 					blackmail.BodyText([]byte(msg)))
