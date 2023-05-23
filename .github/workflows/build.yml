@@ -1,0 +1,48 @@
+name: 'build'
+on:
+  push:         {branches: ['main'], tags: ['v*']}
+  pull_request: {}
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    # TODO: only run if tests passed.
+    #
+    # This doesn't work, as jobs is "For reusable workflows only, contains
+    # outputs of jobs from the reusable workflow" and is not available here.
+    #if:      ${{ jobs.test.result == 'success' }}
+    #
+    # Hmm, this also doesn't work: The workflow is not valid.
+    # .github/workflows/build.yml (Line: 7, Col: 3): The workflow must contain
+    # at least one job with no dependencies.
+    #
+    # Guess it all needs to be put in the same workflow?
+    #needs: 'test'
+
+    steps:
+      - uses: 'actions/checkout@v4'
+      - uses: 'docker/setup-buildx-action@v3'
+      - uses: 'docker/login-action@v3'
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: 'docker/metadata-action@v5'
+        id: 'meta'
+        with:
+          images: 'arp242/goatcounter'
+          tags:   "type=semver,pattern={{version}}\ntype=semver,pattern={{major}}.{{minor}}\ntype=sha"
+      - uses: 'docker/build-push-action@v6'
+        with:
+          context:    '.'
+          file:       './Dockerfile'
+          # TODO: this is quite slow (~10 min, instead of ~1 min). Look at
+          # running on GitHub actions arm64 to make it faster:
+          # https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
+          #
+          # Seems quite complex though, so this is okay for now.
+          platforms:  'linux/amd64,linux/arm64'
+          tags:       ${{ steps.meta.outputs.tags }}
+          labels:     ${{ steps.meta.outputs.labels }}
+          push:       ${{ github.event_name != 'pull_request' }}
+          cache-from: 'type=registry,ref=arp242/goatcounter:latest'
+          cache-to:   'type=inline'

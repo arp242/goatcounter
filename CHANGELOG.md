@@ -4,6 +4,111 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+unreleased, v2.6.0
+------------------
+This release changes a number of default values. In most cases this shouldn't
+break anything, but be sure to read the section.
+
+This release requires Go 1.21.
+
+### Changes in defaults
+
+- The default values for the `-listen` and `-tls` flags have changed from
+  `-listen=:443 -tls=tls,rdr,acme` to `-listen=:8080 -tls=none`.
+
+  The previous defaults were "production ready", but in practice many people
+  don't use the built-in TLS and ACME certificate generation but a proxy like
+  nginx or Caddy. In addition, it's also easier to get started with.
+
+- The default db location changed from `./db/goatcounter.sqlite3` to
+  `./goatcounter-data/db.sqlite`. The old file will still be used as a default
+  if it exists, so this shouldn't break any existing setups.
+
+- The default ACME secrets location changed from `./acme-secrets` to
+  `./goatcounter-data/acme-secrets`. The old directory will still be used as a
+  default if it exists, so shouldn't break any existing setups.
+
+- No longer check for `window.goatcounter.vars` in `count.js`. This was changed
+  a week or so after the initial release over five years ago. AFAIK no one is
+  using it. If you do, then use `window.goatcounter` instead of
+  `window.goatcounter.vars` (or `data-goatcounter-settings`).
+
+- No longer store individual pageviews in the `hits` table by default.
+
+  The pageviews in the `hits` table are never used for displaying the dashboard,
+  only for the CSV export. Not storing it has two advantages:
+
+  - More privacy-friendly; we only store aggregate data, not exact data.
+  - Uses less disk space, potentially a lot less for larger sites.
+
+  The downsides are:
+
+  - It may make debugging a bit harder in some cases.
+  - Exporting pageviews won't be possible, because this data no longer exist.
+    You can still use the API to get aggregate data.
+
+  Storing individual pageviews in the `hits` table can be enabled from *Settings
+  → Data Collection → Individual pageviews*. Existing sites with recent exports
+  should have it enabled automatically.
+
+  Existing data isn't removed, so you will have to manually run `truncate hits`
+  or `delete from hits` if you want to free up some disk space.
+
+### Features
+
+- Include Dockerfile and publish images on DockerHub. See README for details.
+
+- Take default values of CLI flags from environment variables as
+  `GOATCOUNTER_«FLAG»`, where «FLAG» is identical to the CLI flag name. The CLI
+  always takes precedence.
+
+- Automatically load GeoIP database from `./goatcounter-data/` directory if it
+  exists; it automatically loads the first .mmdb file.
+
+- Add `bunny` log format, add `unixsec` and `unixmilli` to `-datetime`, and
+  support `$url` format specifier.
+
+- Improve dark theme, and enable by default if set in browser/system
+  preferences.
+
+- Add translations for Chinese, Korean.
+
+- Add HTTP2 Cleartext (h2c) handler to improve compatibility with some proxies.
+
+- Add `-base-path` flag to allow running GoatCounter under a different path such
+  as `example.com/stats`.
+
+- Allow importing Google Analytics reports. Google Analytics doesn't really
+  offer a meaningful export, but does allow exporting "reports" with the totals
+  per path. We can't show anything useful on the dashboard, but we can use it to
+  show correct totals on the visitor counter.
+
+- Sites are no longer soft-deleted. The deletion is still as a background job as
+  it may take a while.
+
+### Fixes
+
+- Better print styling.
+
+- Use img-based fallback if sendBeacon fails in count.js. This helps with some
+  sites that forbid using connect-src from the CSP (e.g. neocities).
+
+- Disable keyboard input on datepicker. Previously the arrow keys would move the
+  date, but this was more annoying than anything else and prevented manually
+  twiddling the text.
+
+- Set CORS on the visitor counter (`/counter/[..].json)` in case of errors. It
+  would only set `Access-Control-Allow-Origin` if the operation succeeded, but
+  not on errors so you'd never see the error.
+
+- Strip trailing slash from visitor counter. Trailing slashes are always
+  stripped for paths in the dashboard, so do it in the visitor counter as well.
+
+- Better error if SQLite DB directory isn't writable when creating a new
+  database. SQLite doesn't try to create the file until the first SQL command,
+  which happens to be the the version check. This would fail with a confusing
+  `requires SQLite 3.35.0 or newer; have ""` error.
+
 2023-12-10 v2.5.0
 -----------------
 This release requires Go 1.21.

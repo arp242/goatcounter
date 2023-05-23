@@ -1,34 +1,21 @@
-You can get in touch on GitHub issues or the [Telegram group][t] if you have any
-questions or problems.
+You can get in touch on GitHub issues if you have any questions or problems.
 
 Don't be afraid to just ask if you're struggling with something. Chances are
 that I can quickly give you an answer or point you in the right direction by
 spending just a few minutes.
 
-[t]: https://t.me/goatcounter
+Running
+-------
+You can start a test/development server with:
 
-Starting it
------------
+    % goatcounter serve -dev
 
-1. Various files like static assets and templates are loaded from the filesystem
-   if they exist; you should run GoatCounter from the goatcounter source
-   directory on development.
-
-2. Running `goatcounter serve -dev` will run a development environment on
-   http://goatcounter.localhost:8081
-
-3. You can sign up your new site at http://www.goatcounter.localhost:8081, which
-   can then be accessed at http://[code].goatcounter.localhost:8081
-
-   Note: some systems require `/etc/hosts` entries `*.goatcounter.localhost`,
-   whereas others work fine without. If you can't connect try adding this:
-
-       127.0.0.1 goatcounter.localhost www.goatcounter.localhost static.goatcounter.localhost code.goatcounter.localhost
-
+The `-dev` flag makes some small things a bit more convenient for development:
+the application will automatically restart on recompiles, templates and static
+files will be read directly from the filesystem, and a few other minor changes.
 
 General notes
 -------------
-
 - It's probably best to create an issue first for non-trivial patches. This
   might prevent you from wasting time on a wrong approach, or from working on
   something that will never be merged.
@@ -37,7 +24,7 @@ General notes
     large dependency trees. So it's probably best to communicate in the issue if
     you're planning to do that.
 
-- Use `-debug <mod>` to enable debug logs for specific modules, or `-debug all`
+- Use `-debug=<mod>` to enable debug logs for specific modules, or `-debug=all`
   to enable it for all modules.
 
 - Automatic reload is managed with github.com/teamwork/reload. Basically it will
@@ -49,30 +36,25 @@ General notes
   ./...`. You can use the standard `PG*` environment variables to control the
   connection (e.g. `PGHOST`, `PGPORT`).
 
-- Use `go run ./cmd/check ./...` to run some various linters and the like, such
-  as `go vet` and some others.
-
 - Keep lines under 80 characters if possible, but don't bend over backwards to
-  do so: it's usually okay for a function definition or call to be 85 characters
-  or whatnot. Comments should pretty much always be wrapped to 80 characters
+  do so: it's usually okay for a function definition or call to be 90 or even
+  100 characters. Comments should pretty much always be wrapped to 80 characters
   though.
-
 
 Code design
 -----------
-
 Some notes about the code; most of it should – hopefully – be fairly
 straightforward
 
-- cmd/goatcounter is the `main` package which starts everything.
+- ./cmd/goatcounter/ is the `main` package which starts everything.
 
-- The "models" are contained in /site.go, /hit.go, etc. [site.go](/site.go) is
-  probably the best place to look at to get an overview of the patterns used.
+- The "models" are contained in ./site.go, ./hit.go, etc. [site.go](./site.go)
+  is probably the best place to look at to get an overview of the patterns used.
   Most of this is fairly straight-forward and uncomplicated.
 
-- HTTP handlers go in /handlers.
+- HTTP handlers go in ./handlers/
 
-- `/count` – which records pageviews – is dealt different than most other
+- The `/count` endpoint to records pageviews is dealt different than most other
   requests: instead of persisting to the DB immediately it's added to memstore
   first. The cron package will persist that to DB every 10 seconds, which also
   regenerates various cached stats.
@@ -92,10 +74,8 @@ straightforward
 - The frontend is in /public. It's all simple basic CSS with simple jQuery-based
   JavaScript.
 
-
 Special cookies
 ---------------
-
 These only work in `-dev` mode:
 
 - Set the `debug-delay` cookie to a numerical value to delay the response of

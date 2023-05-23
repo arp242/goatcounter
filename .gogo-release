@@ -1,9 +1,11 @@
+tmp=./goatcounter-data/dist
+
 matrix="
 linux amd64
 linux arm   CC=armv7l-linux-musleabihf-gcc
 linux arm64 CC=aarch64-linux-musl-gcc
 "
 
-build_flags="-trimpath -ldflags='-extldflags=-static -w -s -X zgo.at/goatcounter/v2.Version=$tag' -tags osusergo,netgo,sqlite_omit_load_extension ./cmd/goatcounter"
+build_flags="-trimpath -ldflags='-extldflags=-static -w -s -X zgo.at/goatcounter/v2.Version=$tag' -tags=osusergo,netgo,sqlite_omit_load_extension ./cmd/goatcounter"
 
 export CGO_ENABLED=1
