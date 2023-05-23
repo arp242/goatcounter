@@ -223,10 +223,10 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			if len(cnames) == 0 {
 				dbFlag := ""
 				if dbConnect != defaultDB {
-					dbFlag = ` -db="` + strings.ReplaceAll(dbConnect, `"`, `\"`) + `" `
+					dbFlag = `-db="` + strings.ReplaceAll(dbConnect, `"`, `\"`) + `" `
 				}
 				zlog.Errorf("No sites yet; create a new site with:\n"+
-					"    goatcounter db%screate site -vhost=.. -user.email=..", dbFlag)
+					"    goatcounter db %screate site -vhost=.. -user.email=..", dbFlag)
 			}
 			ready <- struct{}{}
 		})

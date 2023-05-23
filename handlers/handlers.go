@@ -113,7 +113,12 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		g.User = &goatcounter.User{}
 	}
 	if goatcounter.Config(r.Context()).DomainStatic == "" {
-		g.StaticDomain = goatcounter.GetSite(r.Context()).Domain(r.Context())
+		s := goatcounter.GetSite(r.Context())
+		if s != nil {
+			g.StaticDomain = s.Domain(r.Context())
+		} else {
+			g.StaticDomain = "/"
+		}
 	} else {
 		g.StaticDomain = goatcounter.Config(r.Context()).DomainStatic
 	}

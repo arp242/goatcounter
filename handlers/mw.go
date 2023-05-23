@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/json"
@@ -26,6 +27,7 @@ import (
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zvalidate"
 )
 
 // Started is set when the server is started.
@@ -187,9 +189,8 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 						}
 					}
 					if err2 == nil && len(sites) == 0 {
-						err = guru.Errorf(400, ""+
-							`no sites created yet; create a new site from the commandline with `+
-							`"goatcounter db create site -vhost=.. -user.email=.."`)
+						noSites(db, w, r)
+						return
 					}
 				}
 
@@ -213,6 +214,95 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+func noSites(db zdb.DB, w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		w.Header().Set("Location", "/")
+		w.WriteHeader(307)
+		return
+	}
+
+	var (
+		tplErr error
+		v      = zvalidate.New()
+		args   struct {
+			Email     string `json:"email"`
+			Password  string `json:"password"`
+			Password2 string `json:"password2"`
+			Cname     string `json:"vhost"`
+		}
+	)
+	if r.Method == "POST" {
+		tplErr = zdb.TX(zdb.WithDB(r.Context(), db), func(ctx context.Context) error {
+			if _, err := zhttp.Decode(r, &args); err != nil {
+				return err
+			}
+
+			v.Required("email", args.Email)
+			v.Email("email", args.Email)
+			v.Required("password", args.Password)
+			v.Required("password_verify", args.Password2)
+			v.Len("password", args.Password, 8, 0)
+			v.Domain("vhost", args.Cname)
+			if args.Password != args.Password2 {
+				v.Append("password", "passwords don't match")
+			}
+			if v.HasErrors() {
+				return nil
+			}
+
+			cn := args.Cname
+			if cn == "" {
+				cn = "goatcounter.localhost"
+			}
+			s := goatcounter.Site{Cname: &cn}
+			err := s.Insert(ctx)
+			if err != nil {
+				return err
+			}
+			ctx = goatcounter.WithSite(ctx, &s)
+
+			u := goatcounter.User{
+				Site:          s.ID,
+				Email:         args.Email,
+				EmailVerified: true,
+				Settings:      s.UserDefaults,
+				Password:      []byte(args.Password),
+				Access:        goatcounter.UserAccesses{"all": goatcounter.AccessSuperuser},
+			}
+			err = u.Insert(ctx, false)
+			if err != nil {
+				return err
+			}
+
+			err = u.Login(ctx)
+			if err != nil {
+				return err
+			}
+
+			auth.SetCookie(w, *u.LoginToken, cookieDomain(&s, r))
+			return nil
+		})
+		if tplErr != nil {
+			tplErr = errors.Unwrap(tplErr) // Remove "zdb.TX fn: "
+		}
+		zhttp.SeeOther(w, "/")
+	}
+
+	if r.Method == "GET" {
+		args.Cname = znet.RemovePort(r.Host)
+	}
+
+	err := zhttp.Template(w, "serve_newsite.gohtml", struct {
+		Validate *zvalidate.Validator
+		Error    error
+		Email    string
+		Cname    string
+	}{&v, tplErr, args.Email, args.Cname})
+	if err != nil {
+		zlog.Error(err)
 	}
 }
 
