@@ -150,19 +150,23 @@
 		if (!url)
 			return warn('not counting because path callback returned null')
 
-		var img = document.createElement('img')
-		img.src = url
-		img.style.position = 'absolute'  // Affect layout less.
-		img.style.bottom = '0px'
-		img.style.width = '1px'
-		img.style.height = '1px'
-		img.loading = 'eager'
-		img.setAttribute('alt', '')
-		img.setAttribute('aria-hidden', 'true')
+		if (navigator.sendBeacon)
+			navigator.sendBeacon(url)
+		else {  // Fallback for (very) old browsers.
+			var img = document.createElement('img')
+			img.src = url
+			img.style.position = 'absolute'  // Affect layout less.
+			img.style.bottom = '0px'
+			img.style.width = '1px'
+			img.style.height = '1px'
+			img.loading = 'eager'
+			img.setAttribute('alt', '')
+			img.setAttribute('aria-hidden', 'true')
 
-		var rm = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
-		img.addEventListener('load', rm, false)
-		document.body.appendChild(img)
+			var rm = function() { if (img && img.parentNode) img.parentNode.removeChild(img) }
+			img.addEventListener('load', rm, false)
+			document.body.appendChild(img)
+		}
 	}
 
 	// Get a query parameter.
