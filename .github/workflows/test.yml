@@ -1,4 +1,4 @@
-name: 'test backend'
+name: 'test'
 on:   ['push', 'pull_request']
 
 jobs:

@@ -11,8 +11,7 @@ of this project.
 
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
-Please consider [contributing financially][sponsor] if you're using
-goatcounter.com to pay for the server costs.
+Please consider [contributing financially][sponsor].
 
 [sponsor]: http://www.goatcounter.com/contribute
 [www]: https://www.goatcounter.com
@@ -68,9 +67,9 @@ There are three ways:
    method. Detailed documentation for this is available at
    https://www.goatcounter.com/code
 
-2. Integrate in your middleware; send data to GoatCounter by calling the API
-   from your backend server middleware. Detailed documentation for this is
-   available at https://www.goatcounter.com/api#backend-integration
+2. Use the HTTP/REST API, for example from your backend server middleware.
+   Detailed documentation for this is available at
+   https://www.goatcounter.com/api#backend-integration
 
 3. Parse logfiles. GoatCounter can parse logfiles from nginx, Apache,
    CloudFront, or any other HTTP middleware or proxy. See `goatcounter help
@@ -96,33 +95,6 @@ Generally speaking only the latest release is supported, although critical fixes
 
 [releases]: https://github.com/arp242/goatcounter/releases
 [latest]: https://github.com/arp242/goatcounter/tree/release-2.5
-
-### Deploy scripts and such
-- ["StackScript" for Linode][stackscript]; Alpine Linux VPS; you can also use
-  this for other Alpine Linux machines.
-
-  If you don't have a Linode account yet then consider using my [referral
-  URL][linode] and I'll get some kickback from Linode :-)
-
-  [stackscript]: https://cloud.linode.com/stackscripts/659823
-  [linode]: https://www.linode.com/?r=7acaf75737436d859e785dd5c9abe1ae99b4387e
-
-- Some people have created Dockerfiles. You don't really need Docker since
-  GoatCounter has no external dependencies; it probably [creates more problems
-  than it solves][docker] IMHO. At any rate, here are some that seem alright at
-  a glance if you must:
-
-  - https://github.com/baethon/docker-goatcounter (https://hub.docker.com/r/baethon/goatcounter)
-  - https://github.com/sent-hil/dokku-gocounter
-  - https://github.com/anarcat/goatcounter/blob/Dockerfile/Dockerfile
-
-  [docker]: https://www.youtube.com/watch?v=PivpCKEiQOQ
-
-- Some other guides people have written:
-  - [Replacing Google Analytics with GoatCounter](https://rgth.co/blog/replacing-google-analytics-with-goatcounter/) (Ubuntu)
-  - [GoatCounter self-hosted setup on a VPS](https://actually.fyi/posts/goatcounter-vps/) (Arch Linux)
-  - [GoatCounter server setup on OpenBSD](https://daulton.ca/2021/01/openbsd-goatcounter-server/)
-
 
 ### Building from source
 You need Go 1.21 or newer and a C compiler (for SQLite). If you compile it with
@@ -188,6 +160,40 @@ on the commandline with `-password`. You must also pass the `-db` flag here if
 you use something other than the default.
 
 [bench]: https://github.com/arp242/goatcounter/blob/master/docs/benchmark.md
+
+### Running with Docker
+GoatCounter is available on DockerHub at [arp242/goatcounter].
+
+To run a new container, you can use:
+
+    % docker run \
+        -p 8080:8080 \
+        -v goatcounter-data:/home/goatcounter/goatcounter-data \
+        arp242/goatcounter
+
+This uses a named volume, which is recommended as this stores the SQLite
+database and ACME certificates (when using ACME) and anonymous volumes can be
+easy to accidentally delete.
+
+To create the first site, use the wizard on http://localhost:8080 or the CLI
+with:
+
+    % docker container exec -it .. goatcounter db create site -vhost=.. -user.email=..
+
+To set any options you can use `GOATCOUNTER_..` environment variables. For
+example to enable TLS and automatic certificate generation:
+
+    % docker run \
+        -p 8080:8080 \
+        -v goatcounter-data:/home/goatcounter/goatcounter-data \
+        -e GOATCOUNTER_LISTEN=:443 \
+        -e GOATCOUNTER_TLS=tls,rdr,acme \
+        arp242/goatcounter
+
+See `goatcounter help serve` (or: `docker run --rm arp242/goatcounter help serve`)
+for all options.
+
+[arp242/goatcounter]: https://hub.docker.com/r/arp242/goatcounter
 
 ### Updating
 You may need to run the database migrations when updating. Use  `goatcounter
