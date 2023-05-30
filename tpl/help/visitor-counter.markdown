@@ -52,7 +52,7 @@ options:
 | `append`      | HTML selector to append to, can use CSS selectors as accepted by `querySelector()`. Default is `body`.            |
 | `type`        | Type to add: `html`, `svg`, or `png`. Default is `html`.                                                          |
 | `path`        | Path to display; normally this is detected from the URL, but you can override it.                                 |
-| `no_branding` | Don't display “by GoatCounter” branding; requires a paid account and has no effect on free accounts.              |
+| `no_branding` | Don't display “by GoatCounter” branding                                                                           |
 | `attr`        | HTML attributes to set or override for the element, only when `type` is `html`.                                   |
 | `style`       | Extra CSS styling for HTML or SVG; only when `type` is `html` or `svg`.                                           |
 | `start`       | Start date; default is to include everything. As `year-month-day` or `week`, `month`, `year` for this period ago. |
