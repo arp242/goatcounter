@@ -216,9 +216,9 @@ To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
     % goatcounter serve -db 'postgresql+host=/run/postgresql dbname=goatcounter sslmode=disable'
 
 This follows the format in the `psql` CLI; you can also use the `PG*`
-environment variables:
+[environment variables](https://www.postgresql.org/docs/current/libpq-envars.html):
 
-    % PGDATABASE=goatcounter DBHOST=/run/postgresql goatcounter serve -db 'postgresql'
+    % PGDATABASE=goatcounter PGHOST=/run/postgresql goatcounter serve -db 'postgresql'
 
 The database will be created automatically if possible; if you want to create it
 for a specific user you can use:

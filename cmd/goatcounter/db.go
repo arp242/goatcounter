@@ -295,7 +295,7 @@ PostgreSQL notes:
 
     You can also use the standard PG* environment variables:
 
-        PGDATABASE=goatcounter DBHOST=/var/run goatcounter -db 'postgresql'
+        PGDATABASE=goatcounter PGHOST=/var/run goatcounter -db 'postgresql'
 
     You may want to consider lowering the "seq_page_cost" parameter; the query
     planner tends to prefer seq scans instead of index scans for some operations
