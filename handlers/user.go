@@ -170,7 +170,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	if user.Password == nil {
+	if user.Password == nil || len(user.Password) == 0 {
 		zhttp.FlashError(w, T(r.Context(), "error/login-no-password|There is no password set for %(email); please reset it", args.Email))
 		return zhttp.SeeOther(w, "/user/forgot?email="+url.QueryEscape(args.Email))
 	}
