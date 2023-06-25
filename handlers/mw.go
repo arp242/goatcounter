@@ -288,11 +288,16 @@ func noSites(db zdb.DB, w http.ResponseWriter, r *http.Request) {
 		if tplErr != nil {
 			tplErr = errors.Unwrap(tplErr) // Remove "zdb.TX fn: "
 		}
-		zhttp.SeeOther(w, "/")
+		if tplErr == nil && !v.HasErrors() {
+			zhttp.SeeOther(w, "/")
+		}
 	}
 
 	if r.Method == "GET" {
 		args.Cname = znet.RemovePort(r.Host)
+		if args.Cname == "localhost" {
+			args.Cname = ""
+		}
 	}
 
 	err := zhttp.Template(w, "serve_newsite.gohtml", struct {

@@ -5,6 +5,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -129,6 +130,92 @@ func TestBackendPagesMore(t *testing.T) {
 	if d := ztest.Diff(haveJSON, wantJSON, ztest.DiffNormalizeWhitespace); d != "" {
 		t.Error(d)
 	}
+}
+
+func TestServeNewSite(t *testing.T) {
+	emptySite := func(t *testing.T) context.Context {
+		ctx := gctest.DB(t)
+		if err := zdb.Exec(ctx, `delete from sites`); err != nil {
+			t.Fatal(err)
+		}
+		if err := zdb.Exec(ctx, `delete from users`); err != nil {
+			t.Fatal(err)
+		}
+		return ctx
+	}
+
+	t.Run("form serve", func(t *testing.T) {
+		ctx := emptySite(t)
+		goatcounter.Config(ctx).GoatcounterCom = false
+
+		r, rr := newTest(ctx, "GET", "/", nil)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 200)
+
+		if !strings.Contains(rr.Body.String(), `Create your first site and user`) {
+			t.Errorf("wrong body:\n\n%s", rr.Body)
+		}
+	})
+	t.Run("form saas", func(t *testing.T) {
+		ctx := emptySite(t)
+
+		r, rr := newTest(ctx, "GET", "/", nil)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 400)
+
+		if !strings.Contains(rr.Body.String(), `no site at this domain`) {
+			t.Errorf("wrong body:\n\n%s", rr.Body)
+		}
+	})
+
+	t.Run("submit serve", func(t *testing.T) {
+		ctx := emptySite(t)
+		goatcounter.Config(ctx).GoatcounterCom = false
+
+		body, contentType, err := ztest.MultipartForm(map[string]string{
+			"email":     "new@example.com",
+			"password":  "secretsecret",
+			"password2": "secretsecret",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		r, rr := newTest(ctx, "POST", "/", body)
+		r.Header.Set("Content-Type", contentType)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 303)
+
+		have := zdb.DumpString(ctx, `select site_id, cname from sites`)
+		want := "site_id  cname\n2        goatcounter.localhost\n"
+		if have != want {
+			t.Errorf("\nhave:\n%s\nwant:\n%s", have, want)
+		}
+	})
+
+	t.Run("submit saas", func(t *testing.T) {
+		ctx := emptySite(t)
+
+		body, contentType, err := ztest.MultipartForm(map[string]string{
+			"email":     "new@example.com",
+			"password":  "secretsecret",
+			"password2": "secretsecret",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		r, rr := newTest(ctx, "POST", "/", body)
+		r.Header.Set("Content-Type", contentType)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 303)
+
+		have := zdb.DumpString(ctx, `select site_id, cname from sites`)
+		want := "site_id  cname\n"
+		if have != want {
+			t.Errorf("\nhave:\n%s\nwant:\n%s", have, want)
+		}
+	})
 }
 
 func grep(pat, lines string) string {
