@@ -457,6 +457,12 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 
 			bgrun.RunFunction("email:error", func() {
 				msg := zlog.Config.Format(l)
+				// Silence spurious errors from some bot.
+				if strings.Contains(msg, `ReferenceError: "Pikaday" is not defined.`) &&
+					strings.Contains(msg, `Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36`) {
+					return
+				}
+
 				subject := zstring.GetLine(msg, 1)
 				if i := strings.Index(subject, "ERROR: "); i > -1 {
 					subject = subject[i+7:]
