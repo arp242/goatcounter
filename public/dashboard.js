@@ -604,34 +604,37 @@
 			return;
 
 		USER_SETTINGS.widgets.forEach((w, i) => {
-			if (w.n === 'locations' || w.n === 'languages') {
-				var names = new Intl.DisplayNames([USER_SETTINGS.language], {
-					type: (w.n === 'locations' ? 'region' : 'language'),
+			if (w.n !== 'locations' && w.n !== 'languages')
+				return
+			if (w.s && w.s.key) // Skip "Locations" for a specific region.
+				return;
+
+			var names = new Intl.DisplayNames([USER_SETTINGS.language], {
+				type: (w.n === 'locations' ? 'region' : 'language'),
+			})
+			var set = function(chart) {
+				chart.find('div[data-key]').each((_, e) => {
+					if (e.dataset.key.substr(0, 1) === '(') // Skip "(unknown)"
+						return
+					var n = names.of(e.dataset.key)
+					if (n)
+						$(e).find('.col-name .bar-c .cutoff').text(n)
 				})
-				var set = function(chart) {
-					chart.find('div[data-key]').each((_, e) => {
-						if (e.dataset.key.substr(0, 1) === '(') // Skip "(unknown)"
-							return
-						var n = names.of(e.dataset.key)
-						if (n)
-							$(e).find('.col-name .bar-c .cutoff').text(n)
-					})
-				}
+			}
 
-				var chart = $(`.hchart[data-widget=${i}]`)
-				set(chart)
+			var chart = $(`.hchart[data-widget=${i}]`)
+			set(chart)
 
-				var r = chart.find('.rows')[0]
-				if (r) {
-					var obs = new MutationObserver((mut) => {
-						if (mut[0].addedNodes.length === 0 || mut[0].addedNodes[0].classList.contains('detail'))
-							return
-						obs.disconnect()  // Not strictly needed, but just in case to prevent infinite looping.
-						set(chart)
-						obs.observe(chart.find('.rows')[0], {childList: true})
-					})
-					obs.observe(r, {childList: true})
-				}
+			var r = chart.find('.rows')[0]
+			if (r) {
+				var obs = new MutationObserver((mut) => {
+					if (mut[0].addedNodes.length === 0 || mut[0].addedNodes[0].classList.contains('detail'))
+						return
+					obs.disconnect()  // Not strictly needed, but just in case to prevent infinite looping.
+					set(chart)
+					obs.observe(chart.find('.rows')[0], {childList: true})
+				})
+				obs.observe(r, {childList: true})
 			}
 		})
 	}
