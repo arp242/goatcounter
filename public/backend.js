@@ -45,6 +45,10 @@
 		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1)
 			return
 
+		// Don't log errors from extensions.
+		if (url.startsWith('chrome-extension://'))
+			return
+
 		jQuery.ajax({
 			url:    '/jserr',
 			method: 'POST',
