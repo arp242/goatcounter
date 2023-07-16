@@ -56,12 +56,12 @@
 
 			<label for="number_format">{{.T "label/thousand-separator|Thousands separator"}}</label>
 			<select name="user.settings.number_format" id="number_format">
-				<option {{option_value (printf "%s" .User.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
-				<option {{option_value (printf "%s" .User.Settings.NumberFormat) "160"}}>Space (42 123)</option>
-				<option {{option_value (printf "%s" .User.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
-				<option {{option_value (printf "%s" .User.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
-				<option {{option_value (printf "%s" .User.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
-				<option {{option_value (printf "%s" .User.Settings.NumberFormat) "1"}}>None (42123)</option>
+				<option {{option_value (printf "%d" .User.Settings.NumberFormat) "8239"}}>Thin space (42 123)</option>
+				<option {{option_value (printf "%d" .User.Settings.NumberFormat) "160"}}>Space (42 123)</option>
+				<option {{option_value (printf "%d" .User.Settings.NumberFormat) "44"}}>Comma (42,123)</option>
+				<option {{option_value (printf "%d" .User.Settings.NumberFormat) "46"}}>Dot (42.123)</option>
+				<option {{option_value (printf "%d" .User.Settings.NumberFormat) "39"}}>Apostrophe (42'123)</option>
+				<option {{option_value (printf "%d" .User.Settings.NumberFormat) "1"}}>None (42123)</option>
 			</select>
 			{{validate "settings.number_format" .Validate}}
 
