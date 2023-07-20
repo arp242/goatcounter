@@ -44,7 +44,7 @@
   default = "Włącz MFA"
 
 ["button/forgot-password"]
-  default = "Zapomniałeś hasło?"
+  default = "Zapomniałeś hasła?"
 
 ["button/remove"]
   default = "Usuń"
@@ -62,7 +62,7 @@
   default = "Resetuj hasło"
 
 ["button/rm-hits"]
-  default = "Usuń odsłony"
+  default = "Usuń liczbę odsłon"
 
 ["button/save"]
   default = "Zapisz"
@@ -71,7 +71,7 @@
   default = "Zapisz domyślny widok"
 
 ["button/send-login-url"]
-  default = "Wyślij login URL"
+  default = "Wyślij URL logowania"
 
 ["button/sign-in"]
   default = "Zaloguj się"
@@ -164,16 +164,16 @@
   default = "Nazwa kraju, na przykład Belgia, Indonezja, itd."
 
 ["data-collect/help/language"]
-  default = "Wspierane języki z Accept-Language"
+  default = "Obsługiwane języki z Accept-Language"
 
 ["data-collect/help/referrer"]
   default = "Nagłówek Referer i parametr kampanii"
 
 ["data-collect/help/region"]
-  default = "Region, na przykład Texas, Balic, id. Szczegóły różnią się w zależności od kraju."
+  default = "Region, na przykład Texas, Balic, itd. Szczegóły różnią się w zależności od kraju."
 
 ["data-collect/help/sessions"]
-  default = "Śledź unikalnych odwiedzających do 8 godzin; jeśli to wyłączysz, to ktoś wciskając np. F5, aby ponownie załadować stronę, pokaże się jako 2 odsłony zamiast 1"
+  default = "Śledź pojedynczych odwiedzających do 8 godzin; jeśli wyłączysz tę funkcję, to ktoś wciskając np. F5, aby ponownie załadować stronę, zostanie policzony jako 2 odsłony zamiast 1"
 
 ["data-collect/help/size"]
   default = "Rozmiar ekranu."
@@ -229,12 +229,12 @@ Możesz to zrobić tutaj:
   default = """
 Masz jakieś problemy, pytania, komentarze lub coś innego do powiedzenia? Po prostu odpowiedz na tego e-maila.
 
-Twoje zdrowie,
+Dzięki,
 Martin
 """
 
 ["error/account-has-stripe-subscription"]
-  default = "To konto nadal ma subskrypcję Stripe; anuluj to najpierw na stronie rozliczeń."
+  default = "To konto nadal ma subskrypcję Stripe; anuluj ją najpierw na stronie rozliczeń."
 
 ["error/address-exists"]
   default = "%(addr) już istnieje"
@@ -282,7 +282,7 @@ Martin
   default = "Nie można znaleźć użytkownika dla podanego tokena; może wygasł lub był już używany?"
 
 ["error/login-wrong-pwd"]
-  default = "Złe hasło dla %(email)"
+  default = "Niepoprawne hasło dla %(email)"
 
 ["error/not-found"]
   default = "Nie znaleziono"
@@ -562,10 +562,10 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Zapisz bieżący widok (tj. wszystkie ustawienia w żółtym polu) jako domyślny do wczytania gdy nic nie jest jeszcze wybrane."
 
 ["help/turing-test"]
-  default = "Tylko mała weryfikacja że jesteś człowiekiem :-)"
+  default = "Tylko mała weryfikacja, że jesteś człowiekiem :-)"
 
 ["help/your-email"]
-  default = "Jeśli zmienisz adres, będziesz musiał ponownie zweryfikować go."
+  default = "Jeśli zmienisz adres e-mail, będziesz musiał go ponownie zweryfikować."
 
 ["label/24-hour-clock"]
   default = "zegar 24-godzinny (13:00)"
@@ -589,6 +589,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Parametry kampanii"
 
 ["label/change-code"]
+  default = "KoOnto jest dostępne pod adresem https://<em>[mój-kod]</em>.%(domain) – %[%link change]."
 
 ["label/clear-pageviews"]
   default = "Wyczyść wszystkie istniejące odsłony."
@@ -621,6 +622,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Czy na pewno chcesz usunąć całe konto?"
 
 ["label/delete-account-contact"]
+  default = "Jeśli zaznaczysz, mogę się z Tobą skontaktować w razie dodatkowych pytań lub komentarzy. Nie będę Cię przekonywał do pozostawienia konta (nie jestem telekomem), ale mogę zadać jedno lub dwa pytania lub nakreślić plany na przyszłość, jeśli zabrakło Ci kokretnej funkcji."
 
 ["label/delete-account-follow-up"]
   default = "Kontakt jest w porządku"
