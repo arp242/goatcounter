@@ -12,6 +12,20 @@
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/backend.css?v={{.Version}}">
 	<style>{{if not .User.ID}}.logged-in { display: none !important; }{{end}}</style>
+
+	{{/* Set up highlight.io to try and track down some frontend errors I just can't seem to
+	     repro/fix */}}
+	<script src="https://unpkg.com/highlight.run"></script>
+	<script>
+        H.init('xdnjpmg0', {
+            environment: 'production',
+			version:     'commit:{{.Version}}',
+            networkRecording: {
+                enabled:              true,
+                recordHeadersAndBody: true,
+            },
+        });
+	</script>
 </head>
 
 <body id="page-{{.Path | path_id}}">
