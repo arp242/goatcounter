@@ -114,7 +114,7 @@
   default = "Strony"
 
 ["dashboard/pages/num-visits"]
-  default = "%(num-visits) z %(total-visits) pokazanych wizyt"
+  default = "wyświetlono %(num-visits) ze wszystkich %(total-visits) wizyt"
 
 ["dashboard/pages/pageviews"]
   default = "Odsłony"
@@ -132,7 +132,7 @@
   default = "Tytuł"
 
 ["dashboard/pages/views"]
-  default = "Wyświetlenia"
+  default = "Odsłony"
 
 ["dashboard/pages/visits"]
   default = "Wizyty"
@@ -141,13 +141,13 @@
   default = "Dzisiaj"
 
 ["dashboard/tooltip-event"]
-  default = "%(unique) kliknięć; %(clicks) łącznych kliknięć"
+  default = "%(unique) kliknięć; %(clicks) kliknięć łącznie"
 
 ["dashboard/totals/header"]
   default = "Sumy"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) wizyt; %(num-views) odsłon"
+  default = "%(num-visits) wizyt"
 
 ["dashboard/week-ago"]
   default = "%(n) tygodni temu"
@@ -170,7 +170,7 @@
   default = "Nagłówek Referer i parametr kampanii"
 
 ["data-collect/help/region"]
-  default = "Region, na przykład Texas, Balic, itd. Szczegóły różnią się w zależności od kraju."
+  default = "Region, na przykład Texas, Bali, itd. Szczegóły różnią się w zależności od kraju."
 
 ["data-collect/help/sessions"]
   default = "Śledź pojedynczych odwiedzających do 8 godzin; jeśli wyłączysz tę funkcję, to ktoś wciskając np. F5, aby ponownie załadować stronę, zostanie policzony jako 2 odsłony zamiast 1"
@@ -179,7 +179,7 @@
   default = "Rozmiar ekranu."
 
 ["data-collect/help/user-agent"]
-  default = "Nagłówek User-Agent aby pobrać nazwę i wersję przeglądarki oraz systemu."
+  default = "Nagłówek User-Agent do zapisywania nazwy i wersji przeglądarki oraz systemu."
 
 ["data-collect/label/country"]
   default = "Kraj"
@@ -188,7 +188,7 @@
   default = "Język"
 
 ["data-collect/label/referrer"]
-  default = "Referrer"
+  default = "Strona polecająca"
 
 ["data-collect/label/region"]
   default = "Region"
@@ -300,7 +300,7 @@ Martin
   default = "Nieznany token; może był już używany?"
 
 ["error/wrong-verification-key"]
-  default = "Zły klucz weryfikacyjny."
+  default = "Niepoprawny klucz weryfikacyjny."
 
 ["event"]
   default = "wydarzenie"
@@ -393,7 +393,7 @@ Martin
   default = "Ostatnie 10 eksportów"
 
 ["header/locations"]
-  default = "Lokalizacje"
+  default = "Kraje"
 
 ["header/locations-for"]
   default = "Lokalizacje dla %(country)"
@@ -456,7 +456,7 @@ Martin
   default = "Rozpoczęto"
 
 ["header/systems"]
-  default = "Systemy"
+  default = "Systemy operacyjne"
 
 ["header/title"]
   default = "Tytuł"
@@ -465,7 +465,7 @@ Martin
   default = "Token"
 
 ["header/toprefs"]
-  default = "Top polecający"
+  default = "Najwięcej odwiedzających trafiło z:"
 
 ["header/tracking"]
   default = "Śledzenie"
@@ -483,10 +483,10 @@ Martin
   default = "Użytkownicy"
 
 ["help/allow-visitor-counts"]
-  default = "Zobacz %[dokumentację] aby dowiedzieć się jak używać."
+  default = "Sprawdź %[dokumentację], aby wiedzieć, jak używać."
 
 ["help/campaign-parameters"]
-  default = "Lista parametrów liczonych jako ‘kampanie’; jeśli jest ustawiona, ta wartość zostanie ustawiona jako referrer, zastępując dowolny nagłówek Referer."
+  default = "Lista parametrów liczonych jako „kampanie”; jeśli jest ustawiona, ta wartość zostanie ustawiona jako referrer, zastępując dowolny nagłówek Referer."
 
 ["help/cfg-dashboard"]
   default = "Zmień co ma być wyświetlane na pulpicie i w jakiej kolejności."
@@ -496,10 +496,10 @@ Martin
 
 ["help/custom-domain"]
   default = """
-Domena niestandardowa, np. <em>“stats.example.com”</em>.
+Domena niestandardowa, np. <em>„stats.example.com”</em>.
 <strong>Uwaga:</strong> to <em>nie</em> zapobiegnie większości
-adblockerów przed blokowaniem GoatCounter i jest po prostu przeznaczone
-jako fajna “ładna domena”.
+adblockerów przed blokowaniem GoatCounter i jest po prostu zamierzone
+jako domena „ozdobnik”.
 """
 
 ["help/custom-domain-cname"]
@@ -512,7 +512,7 @@ Weryfikacja odbywa się co 2 godziny.
 """
 
 ["help/custom-domain-plan"]
-  default = "Wymaga planu Personal Plus lub Business (korzystasz z planu %(plan); zobacz %[%link billing])."
+  default = "Wymaga planu Personal Plus lub Business (korzystasz z planu %(plan); zobacz %[%link rachunek])."
 
 ["help/custom-domain-verified"]
   default = "Zweryfikowano i skonfigurowano domenę (uwaga: zadziałanie certyfikatu może potrwać do godziny)."
@@ -527,12 +527,13 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Przeciągnij aby zmienić kolejność"
 
 ["help/for-the-following-countries"]
-  default = "Lista kodów krajowych (%[list]; użyj kodu alfa-2); pozostaw puste, aby zebrać dla wszystkich krajów (jeśli jest włączone)."
+  default = "Lista kodów kraju (%[list]; użyj kodu dwuliterowego); pozostaw puste, aby zbierać ze wszystkich krajów (jeśli jest włączone)."
 
 ["help/goatcounter-domain"]
-  default = "Domena Twojej instalacji GoatCounter, np. <em>“stats.example.com”</em>."
+  default = "Domena Twojej instalacji GoatCounter, np. <em>„stats.example.com”</em>."
 
 ["help/ignore-ips"]
+  default = "Zawsze pomijaj zapytania z tych adresów IP. Oddzielone przecinkiem. Wymaga dokładnego dopasowania. %[Dodaj swój obecny IP]."
 
 ["help/ignore-ips-2"]
   default = "Alternatywnie, %[wyłącz dla tej przeglądarki] (kliknij ponownie, aby włączyć)."
@@ -589,7 +590,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Parametry kampanii"
 
 ["label/change-code"]
-  default = "KoOnto jest dostępne pod adresem https://<em>[mój-kod]</em>.%(domain) – %[%link change]."
+  default = "Konto jest dostępne pod adresem https://<em>[mój-kod]</em>.%(domain) – %[%link change]."
 
 ["label/clear-pageviews"]
   default = "Wyczyść wszystkie istniejące odsłony."
@@ -628,7 +629,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Kontakt jest w porządku"
 
 ["label/delete-account-reason"]
-  default = "Byłbym wdzięczny, gdybyś dał(a) mi znać, czy jest coś co w w szczególności brakuje Ci w GoatCounter lub jakikolwiek z innych powodów na chęć usunięcia konta. Jest to całkowicie opcjonalne."
+  default = "Byłbym wdzięczny za informację, czy czegoś konkretnego brakuje Ci w GoatCounter lub czy istnieje inny powód usunięcia konta. Jest to całkowicie opcjonalne."
 
 ["label/delete-account-reason-placeholder"]
   default = "Opcjonalny powód usunięcia"
@@ -655,7 +656,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Statystyki języka"
 
 ["label/loc-stats"]
-  default = "Statystyki lokalizacji"
+  default = "Statystyki krajów"
 
 ["label/mark-current"]
   default = "(obecna)"
@@ -703,6 +704,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Sekretny token"
 
 ["label/set-default"]
+  default = "Ustaw też jako domyślny dla nowych użytkowników i widoku ogólnodostępnego (jeśli został włączony)."
 
 ["label/size-desktop"]
   default = "Monitory komputerowe"
@@ -726,23 +728,31 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Statystyki systemowe"
 
 ["label/thousand-separator"]
+  default = "Separator tysięcy"
 
 ["label/timezone"]
   default = "Strefa czasowa"
 
 ["label/topref"]
+  default = "Najczęściej polecający"
 
 ["label/total-pageviews"]
+  default = "Razem odsłon"
 
 ["label/turing-test"]
+  default = "Wpisz tu dziewiątkę."
 
 ["label/verifictation-token"]
+  default = "Token weryfikacyjny"
 
 ["label/week-start"]
+  default = "Pierwszy dzień tygodnia w niedzielę"
 
 ["label/your-email"]
+  default = "Twój adres e-mail"
 
 ["label/your-site"]
+  default = "Twoja witryna"
 
 ["link/add-translation"]
   default = "Dodaj lub zaktualizuj"
@@ -751,24 +761,34 @@ Weryfikacja odbywa się co 2 godziny.
   default = "API"
 
 ["link/api-docs"]
+  default = "Dokumentacja API"
 
 ["link/billing"]
+  default = "Rachunki"
 
 ["link/dashboard"]
+  default = "Pulpit"
 
 ["link/generate-random"]
+  default = "Utwórz losowy kod"
 
 ["link/goto-path"]
+  default = "Przejdź do %(path)"
 
 ["link/import"]
+  default = "Importuj"
 
 ["link/passwd-mfa"]
+  default = "Hasło i MFA"
 
 ["link/preferences"]
+  default = "Preferencje"
 
 ["link/rm-account"]
+  default = "Usuń konto"
 
 ["link/rm-views"]
+  default = "Usuń liczbę odsłon"
 
 ["link/set-from-browser"]
   default = "Ustaw z przeglądarki"
@@ -789,7 +809,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Kontakt"
 
 ["nav-bot/contribute"]
-  default = "Udziel się"
+  default = "Twórzmy wspólnie"
 
 ["nav-bot/docs"]
   default = "Dokumentacja"
@@ -801,25 +821,28 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Kod źródłowy"
 
 ["nav-dash/back"]
-  default = "do tyłu"
+  default = "wstecz"
 
 ["nav-dash/by-day"]
-  default = "Zobacz według dnia"
+  default = "Wyświetl według dnia"
 
 ["nav-dash/current"]
-  default = "Aktualne"
+  default = "Aktualny"
 
 ["nav-dash/day"]
   default = "dzień"
 
 ["nav-dash/end-date"]
+  default = "Końcowa data wyświetlanego okresu"
 
 ["nav-dash/filter"]
   default = "Filtruj ścieżki"
 
 ["nav-dash/filter-tooltip"]
+  default = "Filtruj listę ścieżek; uwzględniaj wielkość liter ścieżek i tytułów"
 
 ["nav-dash/forced-daily"]
+  default = "Widok godzinny niedostępny dla zakresu dat powyżej 90 dni"
 
 ["nav-dash/forward"]
   default = "naprzód"
@@ -858,103 +881,187 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Token API usunięty"
 
 ["notify/disabled-multi-factor-auth"]
+  default = "MFA wyłączone."
 
 ["notify/email-already-verified"]
+  default = "%(email) został już zweryfikowany."
 
 ["notify/export-started-in-background"]
+  default = "Eksport rozpoczęto w tle; po zakończeniu otrzymasz e-mailem link do ściągnięcia wyników."
 
 ["notify/import-started-in-background"]
+  default = "Import rozpoczęto w tle; po zakończeniu otrzymasz e-mailem link do ściągnięcia wyników."
 
 ["notify/login-after-password-reset"]
+  default = "Hasło zresetowano; użyj nowego do zalgowania"
 
 ["notify/multi-factor-auth-enabled"]
+  default = "MFA włączone."
 
 ["notify/need-business-plan-custom-domain"]
+  default = "potrzebuję biznesplanu do ustawienia własnej domeny"
 
 ["notify/need-email-verification-for-api"]
+  default = "Do korzystania z API wymagana jest weryfikacja adresu e-mail."
 
 ["notify/no-user-for-token"]
+  default = "znaleziono użytkownika podanego tokenu; może wygasł lub został już wykorzystany?"
 
 ["notify/not-found"]
+  default = "Nie znaleziono"
 
 ["notify/password-changed"]
+  default = "Hasło zmienione."
 
 ["notify/payment-processed"]
+  default = "Płatność przetworzona prawidłowo!"
 
 ["notify/payment-processing"]
+  default = "Płatność zakończyła się powodzeniem, ale przetwarzanie się nie zakończyło."
 
 ["notify/reset-to-default"]
+  default = "Zresetowano do domyślnych!"
 
 ["notify/reset-user-sent"]
+  default = "E-mail wysłano do %(email)"
 
 ["notify/restored-previously-deleted-site"]
+  default = 'Witryna "%(url)" została wcześniej usunięta; teraz przywrócono ją wraz z danymi.'
 
 ["notify/saved"]
+  default = "Zapisano!"
 
 ["notify/sent-to-email"]
+  default = "Wysłano do %(email)."
 
 ["notify/settings-copied-to-site"]
+  default = "Ustawienia zastosowano do wybranych witryn."
 
 ["notify/site-added"]
+  default = "Witryna „%(url)” dodana."
 
 ["notify/site-removed"]
+  default = "Witryna „%(url)” usunięta."
 
 ["notify/started-background-process"]
+  default = "Rozpoczęto w tle; pełne przetwarzanie może potrwać 10 do 20 sekund."
 
 ["notify/user-added"]
+  default = "Użytkownik „%(email)” został dodany."
 
 ["notify/user-removed"]
+  default = "Użytkownik „%(email)” został usunięty."
 
 ["notify/users-edited"]
+  default = "Użytkownik „%(email)” został zmodyfikowany."
 
 ["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>Dodaj GoatCounter do wielu witryn, dopisując nowe witryny. Wszystkie witryny
+będą dzielić ten sam plan, użytkowników i loginy, ale poza tym są całkowicie
+oddzielny. Ustawienia bieżącej witryny są kopiowane podczas tworzenia, ale są później można je indywidualnie dopasować.</p>
+
+<p>Można dodać dowolną ilość witryn.</p>
+"""
 
 ["p/additional-errors"]
+  default = "Dodatkowe błędy"
 
 ["p/api-intro"]
+  default = "GoatCounter jest dostarczany z ograniczonym interfejsem API; obecnie można zliczać odsłony z interfejsu API, tworzyć, usuwać i edytować witryny oraz eksportować dane."
 
 ["p/change-code-request"]
+  default = """
+<p>Zmień kod witryny i domenę logowania.</p>
+
+<p><strong>OSTRZEŻENIE:</strong> zmiana zacznie obowiązywać <strong>natychmiast</strong>
+a stary kod może zarejestrować ponownie każdy; jeśli już go używasz
+na stronie, zmień go jak najszybciej lub tymczasowo dodaj obydwa
+kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.</p>
+
+<p>Obecny kod: <code>%(current-code)</code>  (%(current-url))</p>
+"""
 
 ["p/change-email"]
+  default = "Zmień adres e-mail w %[ustawieniach]."
 
 ["p/collect-disabled"]
+  default = "Zbieranie tych informacji jest obecnie %[wyłączone w ustawieniach]."
 
 ["p/copy-settings-from-current-site"]
+  default = "Skopiuj ustawienia z bieżącej strony (oprócz nazwy domeny)."
 
 ["p/csv-file-format"]
+  default = "Format pliku CSV jest %[udokumentowany tutaj]."
 
 ["p/delete-account-multi-site"]
+  default = "Witryna i inne z nią powiązane zostaną oznaczone jako usunięte i staną się niedostępne, ale dane zostaną zachowane przez 7 dni."
 
 ["p/delete-account-one-site"]
+  default = "Witryna zostanie oznaczona jako usunięta i stanie się niedostępna, ale dane zostaną zachowane przez 7 dni."
 
 ["p/disable-mfa"]
+  default = "MFA jest aktualnie włączone dla tego konta"
 
 ["p/enable-mfa"]
+  default = "Włącz weryfikację MFA opartą o TOTP za pomocą skanowania kodu w aplikacji uwierzytelniającej lub wprowadzając kod ręcznie."
 
 ["p/error"]
+  default = "Błąd: %(error-message)"
 
 ["p/export-process"]
+  default = """
+<p>Rozpoczyna proces przetwarzania i wysyła e-mailem link do pobrania po zakończeniu. Można powtarzać raz na godzinę nadpisując poprzednie kopie zapasowe, które utworzono.</p>
+
+<p>Dotyczy to wszystkich odsłon, w tym oznaczonych jako „bot”,
+które nie są wyświetlane w przeglądzie.</p>
+"""
 
 ["p/have-mfa"]
+  default = "To konto jest chronione za pomocą uwierzytelniania wieloskładnikowego MFA; wprowadź kod z aplikacji uwierzytelniającej."
 
 ["p/last-user"]
+  default = "Nie można usuwać ani zmieniać ostatniego administratora."
 
 ["p/no-data"]
+  default = """
+<p>
+%[%bold Nie otrzymano żadnych danych] – GoatCounter nie otrzymał jeszcze żadnych danych.<br>
+Rozpoczęcie pracy jest dość łatwe, wystarczy dodać następujący kod JavaScript w dowolnym miejscu na stronie:</p>
+
+%[%pre %(js_code)]
+
+<p>Jeśli nie widzisz żadnych odsłon (%(domain) i/lub gc.zgo.at), sprawdź, czy Twój program blokujący reklamy nie blokuje GoatCounter.</p>
+
+<p>Ta wiadomość zniknie, gdy otrzymamy dane; kliknij %[%link_docs Kod witryny] w górnym menu, aby przeczytać dokumentację i przykładowe zastosowania.</p>
+"""
 
 ["p/no-matches"]
+  default = "Brak dopasowań do %(query)"
 
 ["p/notify-immediate-change"]
-  default = "Wejdzie w życie natychmiast"
+  default = "Zostanie zastosowane natychmiast"
 
 ["p/notify-pagination-cursor"]
+  default = "W e-mailu pojawi się „kursor stronicowania”. Jeśli wstawisz go tutaj, wyeksportowane zostaną tylko odsłony zarejestrowane po poprzednim eksporcie."
 
 ["p/notify-site-deletion"]
+  default = "Nastąpi usunięcie %(number) witryn(y)."
 
 ["p/remove-site-confirm"]
+  default = """
+Czy na pewno chcesz usunąć witrynę %(sitename)?<br>
+Spowoduje to <strong>usuniecie wszystkich powiązanych danych</strong>.
+"""
 
 ["p/remove-site-confirm-contact"]
+  default = "%[Kontakt], jeśli chcesz zrobić coś innego, na przykład połączyć go z inną witryną lub oddzielić od nowego konta."
 
 ["p/remove-site-confirm-current"]
+  default = """
+Czy na pewno chcesz usunąć witrynę %(sitename)?<br>
+Spowoduje to <strong>usuniecie wszystkich powiązanych danych</strong> i dotyczy <strong>aktualnie wyświetlanej witryny</strong>.
+"""
 
 ["p/request-data-recovery"]
   default = "%[Skontaktuj się] w ciągu 7 dni, jeśli zmieniłeś zdanie i chcesz odzyskać swoje dane."
@@ -964,7 +1071,7 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["p/rm-hits-help"]
   default = """
-W dopasowaniu nie jest rozróżniana wielkość liter. Obsługuje <code>%</code> jako symbol wieloznaczny; np.
+W dopasowaniu nie jest rozróżniana wielkość liter. <code>%</code> dział jako wieloznaczny <i>wildcard</i>; np.
 <code>/page%.html</code> pasuje do wszystkiego, co zaczyna się od <code>/page</code> i
 kończąc na <code>.html</code>. <code>_</code> pasuje do dowolnego znaku; np.
 <code>_.html</code> pasuje do <code>a.html</code> i <code>b.html</code>. Użyj
@@ -982,10 +1089,10 @@ znaczeń.
   default = "Te ustawienia obowiązują we wszystkich witrynach, do których masz dostęp."
 
 ["p/site-domain-link-to-page"]
-  default = 'Domena Twojej witryny, np. <em>"www.example.com”</em>, używany do tworzenia linków do strony w podsumowaniu.'
+  default = 'Domena Twojej witryny, np. <em>"www.example.com”</em>, używana do tworzenia linków do strony w podsumowaniu.'
 
 ["p/text-data-retention"]
-  default = "Obejmuje to ustawienia przechowywania i gromadzenia danych!"
+  default = "Dotyczy też ustawień przechowywania i gromadzenia danych!"
 
 ["p/verify-email"]
   default = "Zweryfikuj swój adres e-mail klikając link wysłany do %(email). %[%sup (dlaczego?)]"
@@ -994,7 +1101,7 @@ znaczeń.
   default = "Ranking stron"
 
 ["restricted-admin-access"]
-  default = "Zwykle administratorzy nie mogą “zalogować się” do Twojej witryny, ale jeśli jest to włączone, mogą. Możesz zostać poproszony o włączenie tej opcji w przypadku próśb o pomoc."
+  default = "Zwykle administratorzy nie mogą „zalogować się” do Twojej witryny, ale jeśli jest to włączone, mogą. Możesz zostać poproszony o włączenie tej opcji w przypadku próśb o pomoc."
 
 ["scale-y"]
   default = "Skaluj oś Y do maksimum"
@@ -1057,13 +1164,13 @@ znaczeń.
   default = "musi być poprawnym adresem e-mail"
 
 ["validate/exclude"]
-  default = "nie może być ‘%s’"
+  default = "nie może być „%s”"
 
 ["validate/hostname"]
   default = "musi być prawidłową nazwą hosta"
 
 ["validate/include"]
-  default = "musi być jednym z ‘%s’"
+  default = "musi być jednym z „%s”"
 
 ["validate/int"]
   default = "musi być liczbą całkowitą"
@@ -1114,10 +1221,10 @@ znaczeń.
   default = "Liczba stron odsyłających do załadowania po kliknięciu ścieżki"
 
 ["widget-setting/help/regions"]
-  default = "Pokaż regiony dla tego kraju zamiast listy krajów"
+  default = "Pokaż regiony tego kraju zamiast listy krajów"
 
 ["widget-setting/label/align"]
-  default = "Wyrównaj ze stronami"
+  default = "Wyrównaj do stron"
 
 ["widget-setting/label/chart-style"]
   default = "Styl wykresów"
