@@ -237,7 +237,7 @@ const helpDebug = `
 List of debug modules for the -debug flag; you can add multiple separated by
 commas.
 
-    all            How debug logs for all of the below.
+    all            Show debug logs for all of the below.
 
     acme           ACME certificate creation.
     cron           Background "cron" jobs.
