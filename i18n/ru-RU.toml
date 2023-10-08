@@ -147,7 +147,7 @@
   default = "Итоги"
 
 ["dashboard/totals/num-visits"]
-  default = "Визитов %(num-visits); просмотров страниц %(num-views)"
+  default = "Визитов %(num-visits)"
 
 ["dashboard/week-ago"]
   default = "%(n) недель назад"
