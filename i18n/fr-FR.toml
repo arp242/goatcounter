@@ -147,7 +147,7 @@
   default = "Totaux"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) visites; %(num-views) pages vues"
+  default = "%(num-visits) visites"
 
 ["dashboard/week-ago"]
   default = "il y a %(n) semaines"

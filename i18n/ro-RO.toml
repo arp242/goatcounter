@@ -147,7 +147,7 @@
   default = "Totaluri"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) vizite; %(num-views) vizualizari"
+  default = "%(num-visits) vizite"
 
 ["dashboard/week-ago"]
   default = "Acum %(n) saptamani"
