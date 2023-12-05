@@ -1039,7 +1039,7 @@ Il s'agit du <strong>site en cours</strong> et cela va supprimer <strong>toutes 
 Les correspondances ne dépendent pas de la casse (majuscule/minuscule)<br>
 * Accepte <code>%</code> comme joker => <code>/page%.html</code> renvoie tout ce qui commence par <code>/page</code> et se termine par <code>.html</code>.<br>
 * <code>_</code> correspond à n'importe quel caractère => <code>_.html</code> renverra <code>a.html</code> et <code>b.html</code>.<br>
-Utilisez <code>\\\%</code> et <code>\\\_</code> pour indiquer la présence d'un % ou d'un _.
+Utilisez <code>\\%</code> et <code>\\_</code> pour indiquer la présence d'un % ou d'un _.
 """
 
 ["p/rm-pageview-match"]
