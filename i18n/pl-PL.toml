@@ -1075,7 +1075,7 @@ W dopasowaniu nie jest rozróżniana wielkość liter. <code>%</code> dział jak
 <code>/page%.html</code> pasuje do wszystkiego, co zaczyna się od <code>/page</code> i
 kończąc na <code>.html</code>. <code>_</code> pasuje do dowolnego znaku; np.
 <code>_.html</code> pasuje do <code>a.html</code> i <code>b.html</code>. Użyj
-<code>\\\\%</code> i <code>\\\\_</code> dla dosłownych znaków bez specjalnych
+<code>\\%</code> i <code>\\_</code> dla dosłownych znaków bez specjalnych
 znaczeń.
 """
 

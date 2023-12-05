@@ -306,6 +306,7 @@ Martin
   default = "évènement"
 
 ["forgot-domain-help"]
+  default = "Envoyer par courrier électronique une liste de tous les domaines associés à une adresse électronique."
 
 ["header/access"]
   default = "Accès"
@@ -449,6 +450,7 @@ Martin
 ["header/start-pagination-cursor"]
 
 ["header/started"]
+  default = "Démarré"
 
 ["header/systems"]
   default = "Systèmes"
@@ -460,7 +462,7 @@ Martin
   default = "Token"
 
 ["header/toprefs"]
-  default = "Principaux referers"
+  default = "Principaux referrers"
 
 ["header/tracking"]
   default = "Suivi"
@@ -478,11 +480,11 @@ Martin
   default = "Utilisateurs"
 
 ["help/allow-visitor-counts"]
-  default = "Reportez vous à la %[documentation] pour plus d'explications"
+  default = "Reportez-vous à la %[documentation] pour plus d'explications"
 
 ["help/campaign-parameters"]
   default = """
-Liste des paramètres à compter en tant que \\"campagnes\\" ; si elle est définie, la valeur sera considérée comme le \\"referer\\" et remplacera l'en-tête Referer.
+Liste des paramètres à compter en tant que \\"campagnes\\" ; si elle est définie, la valeur sera considérée comme le \\"referrer\\" et remplacera l'en-tête Referrer.
 """
 
 ["help/cfg-dashboard"]
@@ -520,6 +522,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Utilisez le drag & drop pour trier"
 
 ["help/for-the-following-countries"]
+  default = "Liste des codes pays (%[list]; utilisez la codification alpha-2); laissez en blanc pour avoir tous les pays (si activé)."
 
 ["help/goatcounter-domain"]
   default = 'Le domaine de votre installation GoatCounter, par exemple <em>"stats.example.com"</em>.'
@@ -563,6 +566,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Système horaire sur 24 heures (13:00)"
 
 ["label/add-new"]
+  default = "Ajouter un nouveau"
 
 ["label/all-sites"]
   default = "Tous les sites"
@@ -583,6 +587,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Vous accéderez à votre compte à l'adresse https://<em>[my-code]</em>.%(domain) – %[%link modifier ce code]."
 
 ["label/clear-pageviews"]
+  default = "Effacer toutes les pages vues existantes."
 
 ["label/code"]
   default = "Code"
@@ -618,7 +623,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "J'accepte d'être éventuellement recontacté"
 
 ["label/delete-account-reason"]
-  default = "Pourriez vous m'indiquer si quelque chose en particulier vous manque dans GoatCounter, ou toute autre raison pour laquelle vous souhaitez supprimer votre compte. <em>Ceci est entièrement facultatif.</em>"
+  default = "Pourriez-vous m'indiquer si quelque chose en particulier vous manque dans GoatCounter, ou toute autre raison pour laquelle vous souhaitez supprimer votre compte. <em>Ceci est entièrement facultatif.</em>"
 
 ["label/delete-account-reason-placeholder"]
   default = "Raison de la suppression (facultatif)"
@@ -630,8 +635,10 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Adresse mél"
 
 ["label/for-following-countries"]
+  default = "Pour les pays suivants seulement"
 
 ["label/goatcounter-domain"]
+  default = "Domaine GoatCounter"
 
 ["label/ignore-ips"]
   default = "Adresses IP à ignorer"
@@ -640,8 +647,10 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Langue"
 
 ["label/language-stats"]
+  default = "Statistiques de langues"
 
 ["label/loc-stats"]
+  default = "Statistiques de localisation"
 
 ["label/mark-current"]
   default = "(courant)"
@@ -662,11 +671,13 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Nouveau mot de passe (confirmation)"
 
 ["label/pagination-cursor"]
+  default = "Curseur de pagination"
 
 ["label/password"]
   default = "Mot de passe"
 
 ["label/paths"]
+  default = "Aperçu des chemins"
 
 ["label/public-anyone"]
   default = "Tout le monde"
@@ -681,11 +692,13 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Secret"
 
 ["label/secret-access"]
+  default = "URL d'accès secret"
 
 ["label/secret-token"]
   default = "Jeton secret"
 
 ["label/set-default"]
+  default = "Également défini par défaut pour les nouveaux utilisateurs et la vue publique (si activé)."
 
 ["label/size-desktop"]
   default = "Écrans d'ordinateur"
@@ -723,6 +736,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Saisir le chiffre 9"
 
 ["label/verifictation-token"]
+  default = "Jeton de vérification"
 
 ["label/week-start"]
   default = "Semaine démarre le Dimanche"
@@ -749,6 +763,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Tableau de bord"
 
 ["link/generate-random"]
+  default = "Générer un code secret aléatoire."
 
 ["link/goto-path"]
   default = "Aller à %(path)"
@@ -769,6 +784,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Supprimer les pages vues"
 
 ["link/set-from-browser"]
+  default = "Défini depuis le navigateur"
 
 ["link/settings"]
   default = "Paramètres"
@@ -864,8 +880,10 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "%(email) est déjà validé."
 
 ["notify/export-started-in-background"]
+  default = "L'exportation a commencé en arrière-plan ; vous recevrez un courriel contenant un lien de téléchargement lorsque l'opération sera terminée."
 
 ["notify/import-started-in-background"]
+  default = "L'importation a commencé en arrière-plan ; vous recevrez un courriel contenant un lien de téléchargement lorsque l'opération sera terminée."
 
 ["notify/login-after-password-reset"]
   default = "Le mot de passe a été réinitialisé ; utilisez votre nouveau mot de passe pour vous connecter."
@@ -880,6 +898,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Vous devez valider votre adresse mél avant de pouvoir utiliser l'API."
 
 ["notify/no-user-for-token"]
+  default = "n'a pas pu trouver l'utilisateur pour le jeton donné ; peut-être a-t-il expiré ou a-t-il déjà été utilisé ?"
 
 ["notify/not-found"]
   default = "Non trouvé"
@@ -891,6 +910,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Le paiement a été traité avec succès !"
 
 ["notify/payment-processing"]
+  default = "Le processeur de paiement a signalé un succès de l'opération, mais nous sommes toujours en train de traiter le paiement."
 
 ["notify/reset-to-default"]
   default = "Réinitialisation des valeurs par défaut !"
@@ -917,6 +937,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Site ‘%(url)’ supprimé."
 
 ["notify/started-background-process"]
+  default = "Démarrage en arrière-plan ; le traitement complet peut prendre de 10 à 20 secondes."
 
 ["notify/user-added"]
   default = "Utilisateur ‘%(email)’ ajouté."
@@ -938,6 +959,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Autres erreurs"
 
 ["p/api-intro"]
+  default = "GoatCounter est livré avec une API limitée ; actuellement, vous pouvez compter les pages vues à partir de l'API, créer, supprimer et modifier des sites, et créer des exportations."
 
 ["p/change-code-request"]
 
@@ -963,11 +985,13 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "L'authentification MFA est activée pour ce compte."
 
 ["p/enable-mfa"]
+  default = "Activez l'authentification multifactorielle basée sur TOTP en scannant le code dans votre application d'authentification ou en saisissant le code secret manuellement."
 
 ["p/error"]
   default = "Erreur : %(error-message)"
 
 ["p/export-process"]
+  default = "<p>Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir.</p>"
 
 ["p/have-mfa"]
   default = "Ce compte est protégé par une authentification multi-facteurs (MFA) ; veuillez saisir le code de votre application d'authentification."
@@ -1015,7 +1039,7 @@ Il s'agit du <strong>site en cours</strong> et cela va supprimer <strong>toutes 
 Les correspondances ne dépendent pas de la casse (majuscule/minuscule)<br>
 * Accepte <code>%</code> comme joker => <code>/page%.html</code> renvoie tout ce qui commence par <code>/page</code> et se termine par <code>.html</code>.<br>
 * <code>_</code> correspond à n'importe quel caractère => <code>_.html</code> renverra <code>a.html</code> et <code>b.html</code>.<br>
-Utilisez <code>\\\\%</code> et <code>\\\\_</code> pour indiquer la présence d'un % ou d'un _.
+Utilisez <code>\\\%</code> et <code>\\\_</code> pour indiquer la présence d'un % ou d'un _.
 """
 
 ["p/rm-pageview-match"]
@@ -1195,6 +1219,3 @@ Normalement, les administrateurs ne peuvent pas se \\"connecter\\" à votre site
 
 ["y-scale"]
   default = "Échelle de l'axe Y"
-
-
-
