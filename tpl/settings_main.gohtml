@@ -79,11 +79,11 @@
 								"domain" ""
 								"error" (tag "span" `style="color: red;"`)
 								"docs"  (tag "a"
-								`href="https://www.goatcounter.com/help#custom-domain" target="_blank"`)
+								`href="https://www.goatcounter.com/help/faq#custom-domain" target="_blank"`)
 						)}}
 					{{else}}
 						{{.T `help/custom-domain-cname|Set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions].` (map
-							"docs"   (tag "a" `href="https://www.goatcounter.com/help#custom-domain" target="_blank"`)
+							"docs"   (tag "a" `href="https://www.goatcounter.com/help/faq#custom-domain" target="_blank"`)
 							"domain" (printf "%s.%s" .Site.Code .Domain))}}
 					{{end}}
 				</span>
