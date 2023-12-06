@@ -36,6 +36,7 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	}))
 
 	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
+	a.Get("/bosmang/error", zhttp.Wrap(h.error))
 	a.Get("/bosmang/bgrun", zhttp.Wrap(h.bgrun))
 	a.Post("/bosmang/bgrun/{task}", zhttp.Wrap(h.runTask))
 	a.Get("/bosmang/metrics", zhttp.Wrap(h.metrics))
@@ -163,4 +164,8 @@ func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	return zhttp.SeeOther(w, site.URL(r.Context()))
+}
+
+func (h bosmang) error(w http.ResponseWriter, r *http.Request) error {
+	return guru.New(500, "test error")
 }

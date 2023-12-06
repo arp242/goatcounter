@@ -26,6 +26,7 @@ import (
 	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
+	"zgo.at/zstd/zslice"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
@@ -368,9 +369,9 @@ func addcsp(domainStatic string) func(http.Handler) http.Handler {
 				header.CSPFrameAncestors: frame,
 				header.CSPFrameSrc:       {header.CSPSourceSelf},
 				header.CSPDefaultSrc:     {header.CSPSourceNone},
-				header.CSPImgSrc:         append(ds, "data:"),
+				header.CSPImgSrc:         zslice.AppendCopy(ds, "data:"),
 				header.CSPScriptSrc:      ds,
-				header.CSPStyleSrc:       append(ds, header.CSPSourceUnsafeInline),
+				header.CSPStyleSrc:       zslice.AppendCopy(ds, header.CSPSourceUnsafeInline),
 				header.CSPFontSrc:        ds,
 				header.CSPFormAction:     {header.CSPSourceSelf},
 				header.CSPManifestSrc:    ds,
