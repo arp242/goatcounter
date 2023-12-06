@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -384,6 +385,9 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 
 // Merge the given paths.
 func (h *Hits) Merge(ctx context.Context, dst int64, pathIDs []int64) error {
+	// Shouldn't happen, but just in case.
+	pathIDs = slices.DeleteFunc(pathIDs, func(p int64) bool { return p == dst })
+
 	site := MustGetSite(ctx).ID
 
 	err := (&Path{}).ByID(ctx, dst) // Ensure this site owns the path.

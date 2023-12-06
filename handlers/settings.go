@@ -500,6 +500,7 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 	if v.HasErrors() {
 		return v
 	}
+	paths = slices.DeleteFunc(paths, func(p int64) bool { return p == dst })
 
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("merge:%d", Site(ctx).ID), func() {
