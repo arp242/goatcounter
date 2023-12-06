@@ -211,7 +211,7 @@ func TestHitStats(t *testing.T) {
 					},
 					{
 						"id": "NL",
-						"name": "Netherlands",
+						"name": "The Netherlands",
 						"count": 1
 					}
 				]

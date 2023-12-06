@@ -273,15 +273,15 @@ func TestAPICount(t *testing.T) {
 		// Calculate session from IP+UserAgent
 		{
 			APICountRequest{Hits: []APICountRequestHit{
-				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "66.66.66.66"},
+				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "51.171.91.33"},
 				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "66.66.66.67"},
-				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "66.66.66.66"},
+				{Path: "/foo", UserAgent: "Mozilla/5.0 (Linux) Firefox/1", IP: "51.171.91.33"},
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  ua           browser    system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         NL   1      2020-06-18 14:42:00
+			1       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         IE   1      2020-06-18 14:42:00
 			2       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef02  0         NULL         US   1      2020-06-18 14:42:00
-			3       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         NL   0      2020-06-18 14:42:00
+			3       1        /foo         0      ~Z (~L) ~f1  Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         IE   0      2020-06-18 14:42:00
 			`,
 		},
 
