@@ -144,7 +144,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		f, err := fs.ReadFile(fsys, file+".markdown")
+		f, err := fs.ReadFile(fsys, file+".md")
 		if err != nil {
 			panic(err)
 		}

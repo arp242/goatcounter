@@ -525,7 +525,7 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
   GoatCounter now tracks unique visits (without using cookies).
 
   Technical documentation about the implementation is in
-  [doc/sessions.markdown](doc/sessions.markdown).
+  [doc/sessions.md](doc/sessions.md).
 
   There are two ways to display the older stats:
 

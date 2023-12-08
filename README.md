@@ -6,8 +6,8 @@ There are two ways to run this: as hosted service on [goatcounter.com][www], or
 run it on your own server. The source code is completely Open Source/Free
 Software, and it can be self-hosted without restrictions.
 
-See [docs/rationale.markdown](docs/rationale.markdown) for some more details on
-the *"why?"* of this project.
+See [docs/rationale.md](docs/rationale.md) for some more details on the *"why?"*
+of this project.
 
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
@@ -57,7 +57,7 @@ Features
 
 [privacy]: https://www.goatcounter.com/privacy
 [gdpr]: https://www.goatcounter.com/gdpr
-[sessions]: https://github.com/arp242/goatcounter/blob/master/docs/sessions.markdown
+[sessions]: https://github.com/arp242/goatcounter/blob/master/docs/sessions.md
 
 
 Getting data in to GoatCounter
@@ -195,7 +195,7 @@ This will ask for a password for your new account; you can also add a password
 on the commandline with `-password`. You must also pass the `-db` flag here if
 you use something other than the default.
 
-[bench]: https://github.com/arp242/goatcounter/blob/master/docs/benchmark.markdown
+[bench]: https://github.com/arp242/goatcounter/blob/master/docs/benchmark.md
 
 ### Updating
 You may need to run the database migrations when updating. Use  `goatcounter
@@ -244,5 +244,5 @@ TLS is disabled by default, it will listen on localhost:8081, the application
 will automatically restart on recompiles, templates and static files will be
 read directly from the filesystem, and a few other minor changes.
 
-See [.github/CONTRIBUTING.markdown](/.github/CONTRIBUTING.markdown) for more
-details on how to run a development server, write patches, etc.
+See [.github/CONTRIBUTING.md](/.github/CONTRIBUTING.md) for more details on how
+to run a development server, write patches, etc.
