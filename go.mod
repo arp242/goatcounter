@@ -12,12 +12,11 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.18
-	github.com/monoculum/formam/v3 v3.6.1-0.20221019142301-7634f9dcc123
+	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/teamwork/reload v1.4.2
 	golang.org/x/crypto v0.16.0
-	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 	golang.org/x/image v0.14.0
 	golang.org/x/net v0.19.0
 	golang.org/x/sync v0.5.0
@@ -36,12 +35,12 @@ require (
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20230818141326-8a736d26f78a
-	zgo.at/zhttp v0.0.0-20230625130145-b6058b7d5c54
+	zgo.at/zhttp v0.0.0-20230814193423-dab96c397850
 	zgo.at/zli v0.0.0-20231124215953-c6675b0b020a
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20231206020926-f20b0b1e56be
-	zgo.at/ztpl v0.0.0-20230614191641-fc02754e9558
+	zgo.at/ztpl v0.0.0-20230904144500-0a6f6e91304c
 	zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade
 )
 

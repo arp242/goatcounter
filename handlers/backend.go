@@ -7,11 +7,11 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"golang.org/x/exp/slices"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/zdb"

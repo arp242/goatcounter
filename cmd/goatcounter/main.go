@@ -10,12 +10,12 @@ import (
 	"io/fs"
 	"os"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
 	_ "time/tzdata"
 
-	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"

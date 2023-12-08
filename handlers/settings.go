@@ -13,12 +13,12 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/monoculum/formam/v3"
-	"golang.org/x/exp/slices"
 	"zgo.at/bgrun"
 	"zgo.at/blackmail"
 	"zgo.at/errors"

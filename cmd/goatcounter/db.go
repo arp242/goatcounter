@@ -7,10 +7,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
-	"golang.org/x/exp/slices"
 	"golang.org/x/text/language"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
