@@ -200,6 +200,7 @@ func init() {
 			{href: "backend", label: "From app backend or other sources"}}},
 		{label: "How can I…", items: []x{
 			{href: "skip-dev", label: "Prevent tracking my own pageviews?"},
+			{href: "skip-path", label: "Prevent tracking specific paths?"},
 			{href: "path", label: "Control the path that's sent to GoatCounter?"},
 			{href: "modify", label: "Change data before it's sent to GoatCounter?"},
 			{href: "domains", label: "Track multiple domains/sites?"},
