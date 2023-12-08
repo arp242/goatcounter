@@ -11,6 +11,15 @@ Latest
 ------
 No changes
 
+v4 (8 Dec 2023)
+---------------
+    <script data-goatcounter="{{.SiteURL}}/count"
+            async src="//{{.CountDomain}}/count.v4.js"
+            crossorigin="anonymous"
+            integrity="sha384-nRw6qfbWyJha9LhsOtSb2YJDyZdKvvCFh0fJYlkquSFjUxp9FVNugbfy8q1jdxI+"></script>
+
+- Use `navigator.sendBeacon` when available.
+
 v3 (1 Dec 2021)
 ---------------
     <script data-goatcounter="{{.SiteURL}}/count"
