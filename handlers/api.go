@@ -54,9 +54,19 @@ type (
 
 const respOK = `{"status":"ok"}`
 
-type api struct{}
+type api struct {
+	apiMax, apiMaxPaths int
+}
 
 func (h api) mount(r chi.Router, db zdb.DB) {
+	h.apiMaxPaths = h.apiMax
+	if h.apiMax == 0 {
+		h.apiMax = 100
+	}
+	if h.apiMaxPaths == 0 {
+		h.apiMaxPaths = 200
+	}
+
 	a := r.With(
 		middleware.AllowContentType("application/json"),
 		mware.Ratelimit(mware.RatelimitOptions{
@@ -803,8 +813,8 @@ func (h api) paths(w http.ResponseWriter, r *http.Request) error {
 	if _, err := zhttp.Decode(r, &args); err != nil {
 		return err
 	}
-	if args.Limit > 200 {
-		args.Limit = 200
+	if h.apiMaxPaths > 0 && args.Limit > h.apiMaxPaths {
+		args.Limit = h.apiMaxPaths
 	}
 	if args.Limit < 1 {
 		args.Limit = 1
@@ -870,8 +880,8 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 	if _, err := zhttp.Decode(r, &args); err != nil {
 		return err
 	}
-	if args.Limit > 100 {
-		args.Limit = 100
+	if h.apiMax > 0 && args.Limit > h.apiMax {
+		args.Limit = h.apiMax
 	}
 	if args.Limit < 1 {
 		args.Limit = 1
@@ -941,8 +951,8 @@ func (h api) refs(w http.ResponseWriter, r *http.Request) error {
 	if _, err := zhttp.Decode(r, &args); err != nil {
 		return err
 	}
-	if args.Limit > 100 {
-		args.Limit = 100
+	if h.apiMax > 0 && args.Limit > h.apiMax {
+		args.Limit = h.apiMax
 	}
 	if args.Limit < 1 {
 		args.Limit = 1
@@ -1070,8 +1080,8 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 	if _, err := zhttp.Decode(r, &args); err != nil {
 		return err
 	}
-	if args.Limit > 100 {
-		args.Limit = 100
+	if h.apiMax > 0 && args.Limit > h.apiMax {
+		args.Limit = h.apiMax
 	}
 	if args.Limit < 1 {
 		args.Limit = 1
@@ -1151,8 +1161,8 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 	if _, err := zhttp.Decode(r, &args); err != nil {
 		return err
 	}
-	if args.Limit > 100 {
-		args.Limit = 100
+	if h.apiMax > 0 && args.Limit > h.apiMax {
+		args.Limit = h.apiMax
 	}
 	if args.Limit < 1 {
 		args.Limit = 1

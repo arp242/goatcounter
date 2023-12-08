@@ -21,9 +21,9 @@ import (
 	"zgo.at/zstd/zfs"
 )
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool, domainStatic string, dashTimeout int) chi.Router {
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool, domainStatic string, dashTimeout, apiMax int) chi.Router {
 	r := chi.NewRouter()
-	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout)
+	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax)
 
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
@@ -41,7 +41,7 @@ type backend struct {
 	websocket   bool
 }
 
-func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout int) {
+func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout, apiMax int) {
 	if dev {
 		r.Use(mware.Delay(0))
 	}
@@ -71,7 +71,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 	}
 
 	website{fsys, false}.MountShared(r)
-	api{}.mount(r, db)
+	api{apiMax: apiMax}.mount(r, db)
 	vcounter{static}.mount(r)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
