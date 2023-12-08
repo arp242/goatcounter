@@ -6,8 +6,8 @@ Please go here to verify your email address:
 
 Getting started is pretty easy, just add the following JavaScript anywhere on the page:
 
-	<script data-goatcounter="{{.Site.URL .Context}}/count"
-			async src="//{{.CountDomain}}/count.js"></script>
+    <script data-goatcounter="{{.Site.URL .Context}}/count"
+            async src="//{{.CountDomain}}/count.js"></script>
 
 Don’t see any pageviews in your testing? This is probably because your adblocker is blocking GoatCounter – not much can (or should) be done about that on GoatCounter’s end.
 
