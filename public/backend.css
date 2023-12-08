@@ -312,6 +312,7 @@ tr.target .chart-left { display: block; }
 /*** Settings page
  *******************/
 #page-settings-main #secret { display: none; margin-left: 1em; padding-left: 1em; border-left: 1px solid #aaa; }
+.purge-err                  { margin-left:1em; margin-top:1em; }
 
 /*** Widget settings
  *******************/

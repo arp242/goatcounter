@@ -137,7 +137,7 @@
   default = "योग"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) विज़िट; %(num-views) पेज व्यू"
+  default = "%(num-visits) विज़िट"
 
 ["dashboard/week-ago"]
   default = "%(n) सप्ताह पहले"

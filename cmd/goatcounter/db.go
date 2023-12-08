@@ -7,10 +7,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
-	"golang.org/x/exp/slices"
 	"golang.org/x/text/language"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
@@ -249,7 +249,7 @@ Detailed documentation on the -db flag:
     SQLite should work fine for most smaller site like blogs and such, but for
     more serious usage PostgreSQL is recommended. Some basic benchmarks
     comparing the two can be found here:
-    https://github.com/arp242/goatcounter/blob/master/docs/benchmark.markdown
+    https://github.com/arp242/goatcounter/blob/master/docs/benchmark.md
 
     The database is automatically created for the "serve" command, but you need
     to add -createdb to any other commands to create the database. This is to

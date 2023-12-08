@@ -7,10 +7,10 @@ package gomig
 import (
 	"context"
 	"net/url"
+	"slices"
 	"strconv"
 	"time"
 
-	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/zdb"

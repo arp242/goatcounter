@@ -4,6 +4,7 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+<<<<<<< HEAD
 Unreleased
 ----------
 This release rewrites quite a few tables to a more efficient format. For
@@ -24,6 +25,43 @@ Or if you use PostgreSQL:
 - The `User-Agent` header is no longer stored; only the browser and system
   parsed out of there. It's pretty reliable, and especially mobile browser
   User-Agents are ridiculously unique.
+=======
+Unreleased v2.5.0
+-----------------
+This release requires Go 1.21.
+
+Features:
+
+- Add `proxy` option in `serve -tls` flag –  to give a hint that a secure
+  connection will be used, so we know what value to use for the cookie
+  secure/samesite flags.
+
+- Add *experimental* "dark mode"; this needs to be enabled explicitly in the
+  user settings.
+
+  I need help to make this decent:
+  https://github.com/arp242/goatcounter/issues/586#issuecomment-1287995673
+
+- Show difference of pageviews compared to previous period on the dashboard.
+
+- Make setup of a new installation a bit easier: instead of telling people to
+  use the CLI, display a form when the database is 100% empty.
+
+Fixes:
+
+- Collecting stats was broken when "sessions" was disabled in the site settings.
+
+- Use navigator.sendBeacon by default in count.js. This will allow using click
+  events on things like PDF files and external URLs:
+
+      <a href="file.pdf" data-goatcounter-event="file.pdf">
+      <a href="http://example.com" data-goatcounter-event="ext-example.com">
+
+- Sometimes the order of pages was wrong when using PostgreSQL.
+
+- Few smaller bugfixes.
+
+>>>>>>> master
 
 2022-11-15 v2.4.1
 -----------------
@@ -546,7 +584,7 @@ when updating. Also see: https://www.arp242.net/goatcounter-1.2.html
   GoatCounter now tracks unique visits (without using cookies).
 
   Technical documentation about the implementation is in
-  [doc/sessions.markdown](doc/sessions.markdown).
+  [doc/sessions.md](doc/sessions.md).
 
   There are two ways to display the older stats:
 

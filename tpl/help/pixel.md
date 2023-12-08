@@ -1,23 +1,28 @@
-The endpoint returns a small 1×1 GIF image. You don't need to use the JavaScript
-integration and can load this directly:
+The `/count` endpoint returns a small 1×1 GIF image on GET requests. You don't
+need to use the JavaScript integration and can load this directly:
 
     <img src="{{.SiteURL}}/count?p=/test">
 
 Or you can build your own JavaScript integration if you want. Use the
-[API](/code/backend) if you want to send data from a script; `/count` is only
+[API](/code/backend) if you want to send data from the backend; `/count` is only
 intended to be loaded by the visitor's browser.
 
 The tracking pixel won’t allow recording the referrer or screen size, and may
-also increase the number of bot requests (we do our best to filter this out, but
-it’s hard to get all of them, since many spam scrapers and such disguise
-themselves as regular browsers).
+also increase the number of bot requests (it's harder to filter them out with
+just the backend code).
 
 Wrap in a `<noscript>` tag to use this only for people without JavaScript:
 
     {{template "code" .}}
     <noscript>
-        <img src="{{.SiteURL}}/count?p=/test-noscript">
+        <img src="{{.SiteURL}}/count?p=/INSERT-PAGE-HERE">
     </noscript>
+
+You'll have to set the correct page in the HTML source.
+
+If you have a `Content-Security-Policy` then you'll have to add:
+
+    img-src {{.SiteURL}}/count
 
 ---
 

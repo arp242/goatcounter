@@ -111,7 +111,7 @@ func (l List) Get(name string) List {
 func (l List) InitialAndLazy() (initial List, lazy List) {
 	first := true
 	initial = make(List, 0, 3)
-	lazy = make(List, 0, len(l)-3)
+	lazy = make(List, 0, max(len(l), len(l)-3))
 	for _, w := range l {
 		switch w.Name() {
 		case "totalcount":

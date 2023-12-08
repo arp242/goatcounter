@@ -10,12 +10,12 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bmatcuk/doublestar/v4"
-	"golang.org/x/exp/slices"
 	"zgo.at/errors"
 	"zgo.at/follow"
 	"zgo.at/zlog"

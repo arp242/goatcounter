@@ -23,7 +23,7 @@
 
 {{if .PurgePath}}
 	{{if eq (len .List) 0}}
-		<p class="flash flash-e">{{.T "p/no-matches|Nothing matches %(query)." (tag "code" "" .PurgePath)}}</p>
+		<p class="flash flash-e purge-err">{{.T "p/no-matches|Nothing matches %(query)." (tag "code" "" .PurgePath)}}</p>
 	{{else}}
 		<br><br>
 		<p><strong>{{.T "p/rm-pageview-match|The following paths match %(query):" (tag "code" "" .PurgePath)}}</strong></p>

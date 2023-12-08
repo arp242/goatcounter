@@ -5,7 +5,7 @@
 		<div class="flash flash-i">
 			{{.T "p/verify-email|Please verify your email by clicking the link sent to %(email). %[%sup (Why?)]" (map
 				"email" .User.Email
-				"sup"   (tag "a" `class="sup" href="https://www.goatcounter.com/help#verify-email" target="_blank"`)
+				"sup"   (tag "a" `class="sup" href="https://www.goatcounter.com/help/faq#verify-email" target="_blank"`)
 			)}}<br>
 
 			{{.T "p/change-email|Change the email address in the %[settings]." (tag "a" `href="/user"`)}}

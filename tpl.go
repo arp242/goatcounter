@@ -144,7 +144,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		f, err := fs.ReadFile(fsys, file+".markdown")
+		f, err := fs.ReadFile(fsys, file+".md")
 		if err != nil {
 			panic(err)
 		}
@@ -200,12 +200,12 @@ func init() {
 			{href: "backend", label: "From app backend or other sources"}}},
 		{label: "How can I…", items: []x{
 			{href: "skip-dev", label: "Prevent tracking my own pageviews?"},
+			{href: "skip-path", label: "Prevent tracking specific paths?"},
 			{href: "path", label: "Control the path that's sent to GoatCounter?"},
 			{href: "modify", label: "Change data before it's sent to GoatCounter?"},
 			{href: "domains", label: "Track multiple domains/sites?"},
 			{href: "spa", label: "Add GoatCounter to a SPA?"},
 			{href: "campaigns", label: "Track campaigns?"},
-			{href: "beacon", label: "Use navigator.sendBeacon?"},
 			{href: "countjs-versions", label: "count.js versions and SRI"},
 			{href: "countjs-host", label: "Host count.js somewhere else?"},
 			{href: "frame", label: "Embed GoatCounter in a frame?"}}},

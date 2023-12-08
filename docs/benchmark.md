@@ -122,7 +122,7 @@ I used [hey][hey] to run the actual benchmarks with a simple script:
 
     #!/bin/sh
     #
-    # https://github.com/arp242/goatcounter/blob/master/docs/benchmark.markdown
+    # https://github.com/arp242/goatcounter/blob/master/docs/benchmark.md
     # Requires "hey": https://github.com/rakyll/hey
 
     url=https://gcbench.arp242.net

@@ -503,7 +503,7 @@ func (h website) help(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		_, err = fs.Stat(fsys, cp+".markdown")
+		_, err = fs.Stat(fsys, cp+".md")
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
 				return err
