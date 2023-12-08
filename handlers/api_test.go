@@ -243,8 +243,8 @@ func TestAPICount(t *testing.T) {
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
-			2       1        /bar         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-01-18 14:42:00
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0         NULL   NULL       1      2020-06-18 14:42:00
+			2       1        /bar         0                       00112233445566778899aabbccddef01  0         NULL   NULL       1      2020-01-18 14:42:00
 			`,
 		},
 
@@ -279,9 +279,9 @@ func TestAPICount(t *testing.T) {
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  browser    system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         IE   1      2020-06-18 14:42:00
-			2       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef02  0         NULL         US   1      2020-06-18 14:42:00
-			3       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL         IE   0      2020-06-18 14:42:00
+			1       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL   NULL  IE   1      2020-06-18 14:42:00
+			2       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef02  0         NULL   NULL  US   1      2020-06-18 14:42:00
+			3       1        /foo         0      Firefox 1  Linux   00112233445566778899aabbccddef01  0         NULL   NULL  IE   0      2020-06-18 14:42:00
 			`,
 		},
 
@@ -294,9 +294,9 @@ func TestAPICount(t *testing.T) {
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
-			2       1        /foo         0                       00112233445566778899aabbccddef02  0                NULL       1      2020-06-18 14:42:00
-			3       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       0      2020-06-18 14:42:00
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0         NULL   NULL       1      2020-06-18 14:42:00
+			2       1        /foo         0                       00112233445566778899aabbccddef02  0         NULL   NULL       1      2020-06-18 14:42:00
+			3       1        /foo         0                       00112233445566778899aabbccddef01  0         NULL   NULL       0      2020-06-18 14:42:00
 			`,
 		},
 
@@ -308,7 +308,7 @@ func TestAPICount(t *testing.T) {
 			}},
 			400, `{"errors":{"1":"session or browser/IP not set; use no_sessions if you don't want to track unique visits"}}`, `
 			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0         NULL   NULL       1      2020-06-18 14:42:00
 			`,
 		},
 
@@ -320,8 +320,8 @@ func TestAPICount(t *testing.T) {
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  browser   system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                        00112233445566778899aabbccddef01  0                NULL       1      2020-06-18 14:42:00
-			2       1        /foo         0      curl 7.8          00112233445566778899aabbccddef02  7                NULL       1      2020-06-18 14:42:00
+			1       1        /foo         0                        00112233445566778899aabbccddef01  0         NULL   NULL       1      2020-06-18 14:42:00
+			2       1        /foo         0      curl 7.8          00112233445566778899aabbccddef02  7         NULL   NULL       1      2020-06-18 14:42:00
 			`,
 		},
 
@@ -344,7 +344,7 @@ func TestAPICount(t *testing.T) {
 			}},
 			202, respOK, `
 			hit_id  site_id  path  title  event  browser  system  session                           bot  ref  ref_s  size  loc  first  created_at
-			1       1        /foo         0                       00112233445566778899aabbccddef01  0                NULL  AU   1      2020-06-18 14:42:00
+			1       1        /foo         0                       00112233445566778899aabbccddef01  0         NULL   NULL  AU   1      2020-06-18 14:42:00
 			`,
 		},
 	}

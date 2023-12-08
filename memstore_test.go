@@ -99,8 +99,8 @@ func TestMemstoreCollect(t *testing.T) {
 
 		{CollectNothing, Strings{}, `
 			session                           bot  path    ref  ref_scheme  size  location  first_visit
-			00000000000000000000000000000000  0    /test                    NULL            1
-			00000000000000000000000000000000  0    /other                   NULL            1
+			00000000000000000000000000000000  0    /test        NULL        NULL            1
+			00000000000000000000000000000000  0    /other       NULL        NULL            1
 		`},
 
 		{all ^ CollectLocationRegion, Strings{}, `
