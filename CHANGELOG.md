@@ -4,33 +4,30 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-<<<<<<< HEAD
-Unreleased
-----------
-This release rewrites quite a few tables to a more efficient format. For
-small-to-medium instances this will take a few minutes at the most, but if you
-have very large instances this may take a few hours. It also requires enough
-free disk space to rewrite the `hits` table.
+Unreleased v2.5.0
+-----------------
+This release requires Go 1.21.
 
-If you want, you can show the migration to run with:
+Features:
 
-    % goatcounter db migrate -show 2022-11-06-1-hits
+- Quite a few tables are rewritten to a more efficient format. For
+  small-to-medium instances this will take a few minutes at the most, but if you
+  have very large instances this may take a few hours. It also requires enough
+  free disk space to rewrite the `hits` table.
 
-Or if you use PostgreSQL:
+  If you want to run steps manually, then you can view the migratio with:
 
-    % goatcounter db migrate -show -db postgresql+dbname=goatcounter 2022-11-06-1-hits
+      % goatcounter db migrate -show 2023-05-16-1-hits
+
+  Or if you use PostgreSQL:
+
+      % goatcounter db migrate -show -db postgresql+dbname=goatcounter 2023-05-16-1-hits
 
 - UA Client hints are now used to get the browser and system name (if present).
 
 - The `User-Agent` header is no longer stored; only the browser and system
   parsed out of there. It's pretty reliable, and especially mobile browser
   User-Agents are ridiculously unique.
-=======
-Unreleased v2.5.0
------------------
-This release requires Go 1.21.
-
-Features:
 
 - Add `proxy` option in `serve -tls` flag –  to give a hint that a secure
   connection will be used, so we know what value to use for the cookie
@@ -60,8 +57,6 @@ Fixes:
 - Sometimes the order of pages was wrong when using PostgreSQL.
 
 - Few smaller bugfixes.
-
->>>>>>> master
 
 2022-11-15 v2.4.1
 -----------------
