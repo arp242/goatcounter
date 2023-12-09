@@ -52,7 +52,7 @@ func TestBuffer(t *testing.T) {
 	var backend string
 	{
 		i := zsync.NewAtomicInt(0)
-		handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil, false, false, false, "", 15)
+		handle := handlers.NewBackend(zdb.MustGetDB(ctx), nil, false, false, false, "", 15, 0)
 		goatcounter.Memstore.TestInit(zdb.MustGetDB(ctx))
 		cron.Start(ctx)
 

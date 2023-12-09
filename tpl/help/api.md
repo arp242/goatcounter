@@ -15,7 +15,7 @@ otherwise.
 
 Example:
 
-    curl -X POST https://example.goatcounter.com/api/v0/me \
+    curl https://example.goatcounter.com/api/v0/me \
         -H 'Content-Type: application/json' \
         -H 'Authorization: Bearer 2q2snk7clgqs63tr4xc5bwseajlw88qzilr8fq157jz3qxwwmz5'
 
