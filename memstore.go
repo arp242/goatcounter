@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/url"
 	"slices"
@@ -24,6 +25,8 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
+	"zgo.at/zvalidate"
 )
 
 var (
@@ -291,7 +294,11 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 
 	err = h.Defaults(ctx, false)
 	if err != nil {
-		l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
+		if errors.As(err, ztype.Ptr(&zvalidate.Validator{})) {
+			l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
+		} else {
+			l.Field("hit", fmt.Sprintf("%#v", h)).Debug(err)
+		}
 		return false
 	}
 
