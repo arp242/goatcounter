@@ -4,18 +4,18 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-Unreleased v2.5.0
+2023-12-10 v2.5.0
 -----------------
 This release requires Go 1.21.
 
 Features:
 
-- Quite a few tables are rewritten to a more efficient format. For
-  small-to-medium instances this will take a few minutes at the most, but if you
-  have very large instances this may take a few hours. It also requires enough
-  free disk space to rewrite the `hits` table.
+- Quite a few tables are rewritten to a more efficient format. For small to
+  medium instances this will take a few minutes at the most, but if you have
+  very large instances this may take a few hours. It also requires enough free
+  disk space to rewrite the `hits` table.
 
-  If you want to run steps manually, then you can view the migratio with:
+  If you want to run steps manually then you can view the migration with:
 
       % goatcounter db migrate -show 2023-05-16-1-hits
 
@@ -23,20 +23,17 @@ Features:
 
       % goatcounter db migrate -show -db postgresql+dbname=goatcounter 2023-05-16-1-hits
 
-- UA Client hints are now used to get the browser and system name (if present).
-
 - The `User-Agent` header is no longer stored; only the browser and system
   parsed out of there. It's pretty reliable, and especially mobile browser
-  User-Agents are ridiculously unique.
+  User-Agents are ridiculously unique. It was always stored only "in case the
+  detection got it horribly wrong", but this has never been needed.
 
-- Add `proxy` option in `serve -tls` flag –  to give a hint that a secure
+- Add `proxy` option in `serve -tls` flag,  to give a hint that a secure
   connection will be used, so we know what value to use for the cookie
   secure/samesite flags.
 
 - Add *experimental* "dark mode"; this needs to be enabled explicitly in the
-  user settings.
-
-  I need help to make this decent:
+  user settings. I need help to make this decent:
   https://github.com/arp242/goatcounter/issues/586#issuecomment-1287995673
 
 - Show difference of pageviews compared to previous period on the dashboard.

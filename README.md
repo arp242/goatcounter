@@ -80,7 +80,7 @@ There are three ways:
 Running your own
 ----------------
 **Note this README is for the latest master and may be inaccurate for the latest
-released version; use the [`release-2.4`][latest] branch for the 2.4 README.**
+released version; use the [`release-2.5`][latest] branch for the 2.5 README.**
 
 The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
 are statically compiled, contain everything you need, and should work in pretty
@@ -95,7 +95,7 @@ Generally speaking only the latest release is supported, although critical fixes
 (security, data loss, etc.) may get backported to previous releases.
 
 [releases]: https://github.com/arp242/goatcounter/releases
-[latest]: https://github.com/arp242/goatcounter/tree/release-2.4
+[latest]: https://github.com/arp242/goatcounter/tree/release-2.5
 
 ### Deploy scripts and such
 - ["StackScript" for Linode][stackscript]; Alpine Linux VPS; you can also use
@@ -125,12 +125,12 @@ Generally speaking only the latest release is supported, although critical fixes
 
 
 ### Building from source
-You need Go 1.19 or newer and a C compiler (for SQLite). If you compile it with
+You need Go 1.21 or newer and a C compiler (for SQLite). If you compile it with
 `CGO_ENABLED=0` you don't need a C compiler but can only use PostgreSQL.
 
 You can install from source to $GOBIN (`go env GOBIN`) with:
 
-    % git clone --branch=release-2.4 https://github.com/arp242/goatcounter.git
+    % git clone --branch=release-2.5 https://github.com/arp242/goatcounter.git
     % cd goatcounter
     % go build -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
 
