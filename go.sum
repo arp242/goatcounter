@@ -139,7 +139,7 @@ zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0 h1:nUshmGDnI3+N1OeU265xaqR6weTN2
 zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0/go.mod h1:JqClLxeT9Uui3apqyN3U6KryFanocqM7E3X4Gle2FAU=
 zgo.at/zstd v0.0.0-20231206020926-f20b0b1e56be h1:uCoZKZS+BrGcxNefHdxEVczvYcfb1hnRKss2l0/7zHQ=
 zgo.at/zstd v0.0.0-20231206020926-f20b0b1e56be/go.mod h1:o/Q8+EtSahHnfkbB3t8wXE0FnoDTmJ0sBDlzezv9XeM=
-zgo.at/ztpl v0.0.0-20230904144500-0a6f6e91304c h1:9+NBwLu3ol7vfMH/raooiFqKqv3f+R5AlYW8hR1xMVU=
-zgo.at/ztpl v0.0.0-20230904144500-0a6f6e91304c/go.mod h1:6txfOkQuGYf3SOZ1qufjSxBMopsF3BVZrgC+EHY66oE=
+zgo.at/ztpl v0.0.0-20231210165448-05891fb9a4df h1:Vrg1oQ+EhmxsSvGkm1am1D+T9ipR2l2YpRR7qolJelU=
+zgo.at/ztpl v0.0.0-20231210165448-05891fb9a4df/go.mod h1:6txfOkQuGYf3SOZ1qufjSxBMopsF3BVZrgC+EHY66oE=
 zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade h1:eT6K9Iv+U3IPAmJVDCoRMbkbXL4NVeB0HaFob5J/hE0=
 zgo.at/zvalidate v0.0.0-20221021025449-cb54fa8efade/go.mod h1:E0pwS0q26cQtyWOOyzc7hEIMQgmtRC0xDIpEnrYct/8=
