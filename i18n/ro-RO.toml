@@ -175,9 +175,6 @@
 ["data-collect/help/size"]
   default = "Marimea ecranului."
 
-["data-collect/help/user-agent"]
-  default = "Antet User-Agent pentru a obtine numele browser-ului, al sistemului, si versiunea."
-
 ["data-collect/label/country"]
   default = "Tara"
 

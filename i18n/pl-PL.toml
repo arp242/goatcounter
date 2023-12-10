@@ -178,9 +178,6 @@
 ["data-collect/help/size"]
   default = "Rozmiar ekranu."
 
-["data-collect/help/user-agent"]
-  default = "Nagłówek User-Agent do zapisywania nazwy i wersji przeglądarki oraz systemu."
-
 ["data-collect/label/country"]
   default = "Kraj"
 

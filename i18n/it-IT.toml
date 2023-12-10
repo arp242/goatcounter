@@ -178,9 +178,6 @@
 ["data-collect/help/size"]
   default = "Dimensione schermo"
 
-["data-collect/help/user-agent"]
-  default = "Header User-Agent per conoscere il browser, il nome del sistema e la versione"
-
 ["data-collect/label/country"]
   default = "Paese"
 

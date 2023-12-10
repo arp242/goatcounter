@@ -178,9 +178,6 @@
 ["data-collect/help/size"]
   default = "Размер экрана."
 
-["data-collect/help/user-agent"]
-  default = "Агент пользователя для получения браузера, названия и версии операционной системы."
-
 ["data-collect/label/country"]
   default = "Страна"
 

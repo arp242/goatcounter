@@ -415,7 +415,7 @@ func (ss SiteSettings) CollectFlags(ctx context.Context) []CollectFlag {
 		},
 		{
 			Label: z18n.T(ctx, "data-collect/label/user-agent|User-Agent"),
-			Help:  z18n.T(ctx, "data-collect/help/user-agent|User-Agent header to get the browser and system name and version."),
+			Help:  z18n.T(ctx, "data-collect/help/user-agent|Browser and system name derived from the User-Agent header (the header itself is not stored)."),
 			Flag:  CollectUserAgent,
 		},
 		{

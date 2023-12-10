@@ -165,9 +165,6 @@
 ["data-collect/help/size"]
   default = "Scrermformaat."
 
-["data-collect/help/user-agent"]
-  default = "User-Agent header om de browser en het systeem op te halen."
-
 ["data-collect/label/country"]
   default = "Land"
 

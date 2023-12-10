@@ -165,9 +165,6 @@
 ["data-collect/help/size"]
   default = "Ekran boyutu."
 
-["data-collect/help/user-agent"]
-  default = "Tarayıcı, sistem adı ve sürümünü almak için User-Agent üstbilgisi"
-
 ["data-collect/label/country"]
   default = "Ülke"
 

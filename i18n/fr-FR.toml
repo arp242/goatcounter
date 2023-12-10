@@ -178,9 +178,6 @@
 ["data-collect/help/size"]
   default = "Taille écran"
 
-["data-collect/help/user-agent"]
-  default = 'En-tête "User-Agent" pour obtenir le nom et la version du navigateur et du système.'
-
 ["data-collect/label/country"]
   default = "Pays"
 

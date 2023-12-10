@@ -149,8 +149,6 @@
 
 ["data-collect/help/size"]
 
-["data-collect/help/user-agent"]
-
 ["data-collect/label/country"]
   default = "País"
 

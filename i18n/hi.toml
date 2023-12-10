@@ -163,9 +163,6 @@
 ["data-collect/help/size"]
   default = "स्क्रीन साईज़"
 
-["data-collect/help/user-agent"]
-  default = "ब्राउज़र और सिस्टम का नाम और संस्करण प्राप्त करने के लिए User-Agent शीर्षलेख।"
-
 ["data-collect/label/country"]
   default = "देश"
 

@@ -177,9 +177,6 @@
 ["data-collect/help/size"]
   default = "Ukuran layar."
 
-["data-collect/help/user-agent"]
-  default = "Tajuk User-Agent (Agen Pengguna) untuk mendapatkan peramban dan nama sistem dan versi."
-
 ["data-collect/label/country"]
   default = "Negara"
 

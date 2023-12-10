@@ -254,10 +254,6 @@
   loc     = ["settings.go:359"]
   default = "Screen size."
 
-["data-collect/help/user-agent"]
-  loc     = ["settings.go:354"]
-  default = "User-Agent header to get the browser and system name and version."
-
 ["data-collect/label/country"]
   loc     = ["settings.go:363"]
   default = "Country"

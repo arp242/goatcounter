@@ -229,7 +229,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				if dbConnect != defaultDB {
 					dbFlag = `-db="` + strings.ReplaceAll(dbConnect, `"`, `\"`) + `" `
 				}
-				zlog.Errorf("No sites yet; create a new site with:\n"+
+				zlog.Errorf("No sites yet; access the web interface or use the CLI to create one:\n"+
 					"    goatcounter db %screate site -vhost=.. -user.email=..", dbFlag)
 			}
 			ready <- struct{}{}
