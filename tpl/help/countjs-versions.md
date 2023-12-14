@@ -9,7 +9,7 @@ but you may need to update it in the future for new features.
 
 Latest
 ------
-No changes
+- Only use `navigator.sendBeacon`, removing the `<img>`-based fallback.
 
 v4 (8 Dec 2023)
 ---------------
