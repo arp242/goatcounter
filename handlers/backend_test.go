@@ -25,8 +25,6 @@ func TestBackendTpl(t *testing.T) {
 	tests := []struct {
 		page, want string
 	}{
-		{"/updates", "Updates"},
-
 		{"/help/start", "Getting started"},
 
 		// rdr

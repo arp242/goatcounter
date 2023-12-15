@@ -43,7 +43,6 @@ create table users (
 	login_token    varchar        null,
 	csrf_token     varchar        null,
 	email_token    varchar        null,
-	seen_updates_at timestamp     not null default current_timestamp,
 	reset_at       timestamp      null,
 	settings       {{jsonb}}      not null default '{}',
 	last_report_at timestamp      not null default current_timestamp,
@@ -352,12 +351,17 @@ insert into version values
 	('2022-02-16-1-rm-billing'),
 	('2022-03-06-1-campaigns'),
 	('2022-10-17-1-campaigns'),
+	-- 2.4
 	('2022-10-21-1-apitoken-lastused'),
 	('2022-11-03-1-uncount'),
 	('2022-11-03-2-ununique'),
 	('2022-11-05-1-paths-title'),
+	-- 2.4.1
 	('2022-11-15-1-correct-hit-stats'),
+	-- 2.5
 	('2022-11-17-1-open-at'),
-	('2023-05-16-1-hits');
+	('2023-05-16-1-hits'),
+	-- 2.6
+	('2023-12-15-1-rm-updates');
 
 -- vim:ft=sql:tw=0
