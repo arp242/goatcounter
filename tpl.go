@@ -505,8 +505,11 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 
 	// Add pagination link.
 	if paginate && stats.More {
-		b.WriteString(`<a href="#", class="load-more">`)
+		b.WriteString(`<a href="#" class="load-more">`)
 		b.WriteString(z18n.T(ctx, "link/show-more|Show more"))
+		b.WriteString("</a>")
+		b.WriteString(`<a href="#" class="load-less">`)
+		b.WriteString(z18n.T(ctx, "link/show-less|(show less)"))
 		b.WriteString("</a>")
 	}
 

@@ -19,6 +19,9 @@
 		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 			<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>
 		</table>
-		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>{{t .Context "link/show-more|Show more"}}</a>
+		<div class="load-btns">
+			<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>{{t .Context "link/show-more|Show more"}}</a>
+			{{if .MorePages}}<a href="#" class="load-less">{{t .Context "link/show-less|(show less)"}}</a>{{end}}
+		</div>
 	{{end}}
 </div>

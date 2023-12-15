@@ -134,9 +134,10 @@ small.go           { display: none; }
     text-align: left;
     width: auto;
 }
-.pages-list:not(.pages-list-text) >.load-more { display: block; margin-top: -.7em; width: max-content; }
-.plus  { color: var(--plus); }
-.minus { color: var(--minus); }
+.pages-list >.load-btns  { display:block; margin-top:-.7em; width:max-content; }
+.plus      { color: var(--plus); }
+.minus     { color: var(--minus); }
+.load-less { display:none; margin-left: 1rem; }
 
 .count-list tr:target,
 .count-list tr.target             { background-color: inherit; }

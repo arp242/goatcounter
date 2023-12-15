@@ -641,12 +641,21 @@
 
 	// Paginate the main path overview.
 	var paginate_pages = function() {
-		$('.pages-list >.load-more').on('click', function(e) {
+		let sz = $('.pages-list tbody >tr').length
+		$('.pages-list >.load-btns .load-less').on('click', function(e) {
+			e.preventDefault()
+			$(`.pages-list tbody >tr:gt(${sz - 1})`).remove()
+			$(this).css('display', 'none')
+			$(this).prev('.load-more').css('display', 'inline')
+		})
+
+		$('.pages-list >.load-btns .load-more').on('click', function(e) {
 			e.preventDefault()
 
-			var btn   = $(this),
+			let btn   = $(this),
+				less  = $(this).next('.load-less'),
 				pages = $(this).closest('.pages-list')
-			var done = paginate_button(btn, () => {
+			let done = paginate_button(btn, () => {
 				jQuery.ajax({
 					url:  '/load-widget',
 					data: append_period({
@@ -656,6 +665,7 @@
 						max:       get_original_scale(),
 					}),
 					success: function(data) {
+						less.css('display', 'inline')
 						pages.find('.count-list-pages >tbody.pages').append(data.html)
 
 						// Update scale in case it's higher than the previous maximum value.
@@ -683,12 +693,23 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
+		$('.count-list-pages').on('click', '.load-refs, .hchart .load-less', function(e) {
+			e.preventDefault()
+			let rows = $(this).closest('.hchart').find('.rows'),
+				sz   = rows.data('pagesize') || 10
+			rows.find(`>div:gt(${sz - 1})`).remove()
+			$(this).css('display', 'none')
+			$(this).prev('.load-more').css('display', 'inline')
+		})
+
 		$('.count-list-pages').on('click', '.load-refs, .hchart .load-more', function(e) {
 			e.preventDefault()
 
-			var params = split_query(location.search),
+			let params = split_query(location.search),
 				btn    = $(this),
+				less   = btn.next('.load-less'),
 				row    = btn.closest('tr'),
+				rows   = row.find('.refs .rows'),
 				widget = row.closest('.pages-list').attr('data-widget'),
 				path   = row.attr('data-id'),
 				init   = btn .is('.load-refs'),
@@ -697,6 +718,8 @@
 					t.removeClass('target')
 					t.closest('tr').find('.refs').html('')
 				}
+			if (!rows.data('pagesize'))
+				rows.data('pagesize', rows.children().length)
 
 			// Clicked on row that's already open, so close and stop. Don't
 			// close anything yet if we're going to load another path, since
@@ -707,7 +730,7 @@
 			}
 
 			push_query({showrefs: path})
-			var done = paginate_button(btn , () => {
+			let done = paginate_button(btn , () => {
 				jQuery.ajax({
 					url:   '/load-widget',
 					data: append_period({
@@ -717,6 +740,7 @@
 						offset: row.find('.refs .rows>div').length,
 					}),
 					success: function(data) {
+						less.css('display', 'inline')
 						row.addClass('target')
 
 						if (init) {
@@ -725,7 +749,7 @@
 							row.find('.refs').html(data.html)
 						}
 						else {
-							row.find('.refs .rows').append($(data.html).find('>div'))
+							rows.append($(data.html).find('>div'))
 							if (!data.more)
 								btn.css('display', 'none')
 						}
@@ -738,17 +762,29 @@
 
 	// Paginate and show details for the horizontal charts.
 	var hchart_detail = function() {
-		var get_total = () => $('.js-total-utc').text()
+		let get_total = () => $('.js-total-utc').text()
 
 		// Paginate the horizontal charts.
+		$('.hcharts').on('click', '.load-less', function(e) {
+			e.preventDefault()
+			let rows = $(this).closest('.hchart').find('.rows'),
+				sz   = rows.data('pagesize') || 6
+			rows.find(`>div:gt(${sz - 1})`).remove()
+			$(this).css('display', 'none')
+			$(this).prev('.load-more').css('display', 'inline')
+		})
+
 		$('.hcharts').on('click', '.load-more', function(e) {
 			e.preventDefault();
 
-			var btn   = $(this),
+			let btn   = $(this),
+				less  = btn.next('.load-less'),
 				chart = btn.closest('.hchart'),
 				key   = chart.attr('data-key'),
 				rows  = chart.find('>.rows')
-			var done = paginate_button($(this), () => {
+			if (!rows.data('pagesize'))
+				rows.data('pagesize', rows.children().length)
+			let done = paginate_button($(this), () => {
 				jQuery.ajax({
 					url:  '/load-widget',
 					data: append_period({
@@ -758,6 +794,7 @@
 						offset: rows.find('div:not(.hchart)').length,
 					}),
 					success: function(data) {
+						less.css('display', 'inline')
 						rows.append($(data.html).find('>div'))
 						if (!data.more)
 							btn.css('display', 'none')
