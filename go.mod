@@ -9,9 +9,9 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/gorilla/websocket v1.5.1
-	github.com/mattn/go-sqlite3 v1.14.18
+	github.com/mattn/go-sqlite3 v1.14.19
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -34,7 +34,7 @@ require (
 	zgo.at/z18n v0.0.0-20221020022658-4ea64eeb51d9
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
-	zgo.at/zdb v0.0.0-20230818141326-8a736d26f78a
+	zgo.at/zdb v0.0.0-20231215032724-5a11cacffebe
 	zgo.at/zhttp v0.0.0-20231210062529-b3f6ad8384d3
 	zgo.at/zli v0.0.0-20231124215953-c6675b0b020a
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
