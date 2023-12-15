@@ -46,7 +46,6 @@ type User struct {
 	LoginToken    *string      `db:"login_token" json:"-"`
 	Token         *string      `db:"csrf_token" json:"-"`
 	EmailToken    *string      `db:"email_token" json:"-"`
-	SeenUpdatesAt time.Time    `db:"seen_updates_at" json:"-"`
 	Settings      UserSettings `db:"settings" json:"settings"`
 
 	// Keep track when the last email report was sent, so we don't double-send them.
@@ -475,14 +474,6 @@ func (u *User) CSRFToken() string {
 		return ""
 	}
 	return *u.Token
-}
-
-// SeenUpdates marks this user as having seen all updates up until now.
-func (u *User) SeenUpdates(ctx context.Context) error {
-	u.SeenUpdatesAt = ztime.Now()
-	err := zdb.Exec(ctx,
-		`update users set seen_updates_at=$1 where user_id=$2`, u.SeenUpdatesAt, u.ID)
-	return errors.Wrap(err, "User.SeenUpdatesAt")
 }
 
 // HasAccess checks if this user has access to this site for the permission.

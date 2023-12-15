@@ -16,7 +16,6 @@ import (
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 )
 
@@ -60,7 +59,6 @@ type Globals struct {
 	Context        context.Context
 	User           *goatcounter.User
 	Site           *goatcounter.Site
-	HasUpdates     bool
 	Path           string
 	Flash          *zhttp.FlashMessage
 	Static         string
@@ -121,12 +119,6 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		}
 	} else {
 		g.StaticDomain = goatcounter.Config(r.Context()).DomainStatic
-	}
-
-	var err error
-	g.HasUpdates, err = (new(goatcounter.Updates)).HasSince(r.Context(), g.User.SeenUpdatesAt)
-	if err != nil {
-		zlog.FieldsRequest(r).Error(err)
 	}
 
 	return g

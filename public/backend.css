@@ -42,7 +42,6 @@ footer a   { font-weight: bold; color: var(--text); margin: 0 .5em; }
 
 nav                    { display: flex; justify-content: space-between; padding-right: .5em; }
 nav #usermenu          { text-align: right; min-width: 20.5em; }
-nav .updates           { font-weight: bold; background-color: var(--target-bg); }
 nav #signin            { white-space: nowrap; margin-left: 1em; }
 nav #back              { white-space: nowrap; margin-right: 1em; }
 nav .sites-list        { position: absolute; visibility: hidden; }
@@ -353,19 +352,6 @@ tr.target .chart-left { display: block; }
  *************/
 noscript   { display: block; padding: .4em; text-align: center; background-color: #ffcfcf; border-bottom: 1px solid #f88; }
 noscript p { margin: .5em; }
-
-/*** Updates overview
- **********************/
-#page-updates .page       { background-color: var(--backdrop); box-shadow: none; }
-.update, #page-updates h1 { margin: 0 0 1em 0; padding: .5em; background-color: var(--bg); box-shadow: 0 0 6px rgba(0,0,0,.2); }
-.update p                 { margin-left: 2em; }
-.update > em + p, .update > em + strong + p { margin-top: .5em; }
-.update pre               { max-width: 50em; margin-left: 2em; }
-.update-new               { background-color: var(--target-bg); padding: 0 .3em; }
-h3 + h4                   { margin-top: .3em; }
-.reftable                 { margin-top: 1em; }
-.update hr                { border-top: 1px solid #ddd; max-width: 50em; font-size: 1rem; margin: 0; }
-.update hr:before         { content: ""; }
 
 
 /*** Loading indicator

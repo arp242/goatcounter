@@ -5,10 +5,8 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"slices"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -139,32 +137,9 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		}
 		{
 			af := a.With(loggedIn, addz18n())
-			af.Get("/updates", zhttp.Wrap(h.updates))
 			settings{}.mount(af)
 
 			Newi18n().mount(af)
 		}
 	}
-}
-
-func (h backend) updates(w http.ResponseWriter, r *http.Request) error {
-	u := User(r.Context())
-
-	var up goatcounter.Updates
-	err := up.List(r.Context(), u.SeenUpdatesAt)
-	if err != nil {
-		return err
-	}
-
-	seenat := u.SeenUpdatesAt
-	err = u.SeenUpdates(r.Context())
-	if err != nil {
-		zlog.Field("user", fmt.Sprintf("%d", u.ID)).Error(err)
-	}
-
-	return zhttp.Template(w, "backend_updates.gohtml", struct {
-		Globals
-		Updates goatcounter.Updates
-		SeenAt  time.Time
-	}{newGlobals(w, r), up, seenat})
 }

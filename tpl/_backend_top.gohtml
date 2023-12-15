@@ -60,7 +60,6 @@
 				{{end}}
 			</div>
 			<div id="usermenu">
-				{{if .GoatcounterCom}}<a href="/updates" class="{{if .HasUpdates}}updates{{end}} {{if eq .Path "/updates"}}active{{end}}">{{.T "top-nav/updates|Updates"}}</a> |{{end}}
 				<a {{if eq .Path "/help"}}class="active" {{end}}href="/help">{{.T "top-nav/documentation|Help"}}</a> |
 				{{if .User.AccessSettings}}<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">{{.T "top-nav/settings|Settings"}}</a> |{{end}}
 				<a {{if has_prefix .Path "/user"}}class="active" {{end}}href="/user">{{.User.EmailShort}}</a> |
