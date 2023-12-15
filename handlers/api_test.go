@@ -35,7 +35,7 @@ func newAPITest(ctx context.Context, t *testing.T,
 	perm zint.Bitflag64,
 ) (*http.Request, *httptest.ResponseRecorder) {
 
-	zhttp.LogUnknownFields = true
+	zhttp.DefaultDecoder = zhttp.NewDecoder(true, false)
 	token := goatcounter.APIToken{
 		SiteID:      Site(ctx).ID,
 		UserID:      User(ctx).ID,
@@ -191,6 +191,32 @@ func TestAPIBasics(t *testing.T) {
 				t.Errorf("\nwant: %s\ngot:  %s\n", want, rr.Body.String())
 			}
 		})
+
+		t.Run("unknown JSON", func(t *testing.T) {
+			ctx := gctest.DB(t)
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
+				strings.NewReader(`{"unknown":"aa"}`), 0)
+
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, 400)
+
+			want := `{"error":"unknown parameter: \"unknown\""}`
+			if rr.Body.String() != want {
+				t.Errorf("\nwant: %s\ngot:  %s\n", want, rr.Body.String())
+			}
+		})
+		t.Run("unknown query", func(t *testing.T) {
+			ctx := gctest.DB(t)
+			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test?unknown=1", nil, 0)
+
+			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			ztest.Code(t, rr, 400)
+
+			want := `{"error":"unknown parameter: \"unknown\""}`
+			if rr.Body.String() != want {
+				t.Errorf("\nwant: %s\ngot:  %s\n", want, rr.Body.String())
+			}
+		})
 	})
 
 	t.Run("context", func(t *testing.T) {
@@ -225,6 +251,7 @@ func TestAPIBasics(t *testing.T) {
 		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 	})
+
 }
 
 func TestAPICount(t *testing.T) {

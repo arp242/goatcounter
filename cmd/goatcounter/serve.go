@@ -322,7 +322,9 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 	err := f.Parse()
 
 	zlog.Config.SetDebug(*debug)
-	zhttp.LogUnknownFields = *dev
+	if *dev {
+		zhttp.DefaultDecoder = zhttp.NewDecoder(true, false)
+	}
 
 	if !*dev {
 		zlog.Config.SetFmtTime("Jan _2 15:04:05 ")

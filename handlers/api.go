@@ -56,6 +56,11 @@ const respOK = `{"status":"ok"}`
 
 type api struct {
 	apiMax, apiMaxPaths int
+	dec                 zhttp.Decoder
+}
+
+func newAPI(apiMax int) api {
+	return api{apiMax: apiMax, dec: zhttp.NewDecoder(false, true)}
 }
 
 func (h api) mount(r chi.Router, db zdb.DB) {
@@ -230,7 +235,7 @@ func (h api) test(w http.ResponseWriter, r *http.Request) error {
 		Context  bool                `json:"context"`
 	}
 
-	_, err := zhttp.Decode(r, &args)
+	_, err := h.dec.Decode(r, &args)
 	if err != nil {
 		return err
 	}
@@ -312,7 +317,7 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var req apiExportRequest
-	_, err = zhttp.Decode(r, &req)
+	_, err = h.dec.Decode(r, &req)
 	if err != nil {
 		return err
 	}
@@ -527,7 +532,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var args APICountRequest
-	_, err = zhttp.Decode(r, &args)
+	_, err = h.dec.Decode(r, &args)
 	if err != nil {
 		return err
 	}
@@ -714,7 +719,7 @@ func (h api) siteCreate(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var site goatcounter.Site
-	_, err = zhttp.Decode(r, &site)
+	_, err = h.dec.Decode(r, &site)
 	if err != nil {
 		return err
 	}
@@ -762,7 +767,7 @@ func (h api) siteUpdate(w http.ResponseWriter, r *http.Request) error {
 		args.Settings = site.Settings
 	}
 
-	_, err = zhttp.Decode(r, &args)
+	_, err = h.dec.Decode(r, &args)
 	if err != nil {
 		return err
 	}
@@ -810,9 +815,10 @@ func (h api) paths(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := apiPathsRequest{Limit: 20}
-	if _, err := zhttp.Decode(r, &args); err != nil {
+	if _, err := h.dec.Decode(r, &args); err != nil {
 		return err
 	}
+
 	if h.apiMaxPaths > 0 && args.Limit > h.apiMaxPaths {
 		args.Limit = h.apiMaxPaths
 	}
@@ -877,7 +883,7 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := apiHitsRequest{Limit: 20}
-	if _, err := zhttp.Decode(r, &args); err != nil {
+	if _, err := h.dec.Decode(r, &args); err != nil {
 		return err
 	}
 	if h.apiMax > 0 && args.Limit > h.apiMax {
@@ -948,7 +954,7 @@ func (h api) refs(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := apiRefsRequest{Limit: 20}
-	if _, err := zhttp.Decode(r, &args); err != nil {
+	if _, err := h.dec.Decode(r, &args); err != nil {
 		return err
 	}
 	if h.apiMax > 0 && args.Limit > h.apiMax {
@@ -1009,7 +1015,7 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var args apiCountTotalRequest
-	if _, err := zhttp.Decode(r, &args); err != nil {
+	if _, err := h.dec.Decode(r, &args); err != nil {
 		return err
 	}
 	if args.Start.IsZero() {
@@ -1077,7 +1083,7 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := apiStatsRequest{Limit: 20}
-	if _, err := zhttp.Decode(r, &args); err != nil {
+	if _, err := h.dec.Decode(r, &args); err != nil {
 		return err
 	}
 	if h.apiMax > 0 && args.Limit > h.apiMax {
@@ -1158,7 +1164,7 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	args := apiStatsRequest{Limit: 20}
-	if _, err := zhttp.Decode(r, &args); err != nil {
+	if _, err := h.dec.Decode(r, &args); err != nil {
 		return err
 	}
 	if h.apiMax > 0 && args.Limit > h.apiMax {

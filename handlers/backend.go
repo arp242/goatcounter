@@ -69,7 +69,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 	}
 
 	website{fsys, false}.MountShared(r)
-	api{apiMax: apiMax}.mount(r, db)
+	newAPI(apiMax).mount(r, db)
 	vcounter{static}.mount(r)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
