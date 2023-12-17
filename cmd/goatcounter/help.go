@@ -34,8 +34,7 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 		if a == "all" {
 			topics = []string{"help", "version", "serve", "import",
-				"dashboard", "db", "buffer", "monitor",
-				"listen", "logfile", "debug"}
+				"dashboard", "db", "monitor", "listen", "logfile", "debug"}
 			break
 		}
 		topics = append(topics, strings.ToLower(a))
@@ -76,7 +75,6 @@ var usage = map[string]string{
 	"monitor":   usageMonitor,
 	"import":    usageImport,
 	"dashboard": usageDashboard,
-	"buffer":    usageBuffer,
 	"db":        helpDB,
 	"listen":    helpListen,
 	"logfile":   helpLogfile,
@@ -101,7 +99,6 @@ Commands:
 
   dashboard    Show dashboard statistics in the terminal.
   db           Modify the database and print database info.
-  buffer       Buffer pageview requests until backend is available.
   monitor      Monitor for pageviews.
 
 Extra help topics:
