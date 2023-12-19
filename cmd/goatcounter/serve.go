@@ -11,8 +11,10 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"os/user"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
@@ -378,8 +380,29 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 
 	ctx = z18n.With(ctx, z18n.NewBundle(language.English).Locale("en"))
 
-	if dev && (!zio.Exists("db/migrate") || !zio.Exists("tpl") || !zio.Exists("public")) {
-		return nil, nil, nil, nil, 0, errors.New("-dev flag was given but this doesn't seem like a GoatCounter source directory")
+	if dev {
+		if !zio.Exists("db/migrate") || !zio.Exists("tpl") || !zio.Exists("public") {
+			return nil, nil, nil, nil, 0, errors.New("-dev flag was given but this doesn't seem like a GoatCounter source directory")
+		}
+		if _, err := exec.LookPath("git"); err == nil {
+			rev := ""
+			b, ok := debug.ReadBuildInfo()
+			if ok {
+				for _, s := range b.Settings {
+					if s.Key == "vcs.revision" {
+						rev = s.Value
+					}
+				}
+			}
+			if rev != "" {
+				have, err := exec.Command("git", "log", "-n1", "--pretty=format:%H").CombinedOutput()
+				if err == nil {
+					if h := strings.TrimSpace(string(have)); rev != h {
+						zlog.Errorf("goatcounter was built from revision %s but source directory has revision %s", rev[:7], h[:7])
+					}
+				}
+			}
+		}
 	}
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "tpl", dev)
