@@ -202,12 +202,12 @@ You may need to run the database migrations when updating. Use  `goatcounter
 serve -automigrate` to always run all pending migrations on startup. This is the
 easiest way, although arguably not the "best" way.
 
-Use `goatcounter migrate <file>` or `goatcounter migrate all` to manually run
+Use `goatcounter db migrate <file>` or `goatcounter db migrate all` to manually run
 migrations; generally you want to upload the new version, run migrations while
 the old one is still running, and then restart so the new version takes effect.
 
-Use `goatcounter migrate pending` to get a list of pending migrations, or
-`goatcounter migrate list` to show all migrations.
+Use `goatcounter db migrate pending` to get a list of pending migrations, or
+`goatcounter db migrate list` to show all migrations.
 
 ### PostgreSQL
 To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
