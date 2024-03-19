@@ -23,7 +23,7 @@ other methods.
 
 Also see the [GDPR consent notices].
 
-[GDPR consent notices]: /help/gdpr.html
+[GDPR consent notices]: /help/gdpr
 
 Sharing with third parties
 --------------------------
