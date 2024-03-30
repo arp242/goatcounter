@@ -1,0 +1,42 @@
+{
+  "level": "info",
+  "ts": 1706794321.6563592,
+  "logger": "http.log.access.log1",
+  "msg": "handled request",
+  "common_log": "1.2.3.4 - - [01/Feb/2024:14:32:01 +0100] \"GET /absolute_uri.html HTTP/1.1\" 200 2803",
+  "duration": 0.001234567,
+  "size": 2803,
+  "status": 200,
+  "request": {
+    "remote_addr": "1.2.3.4:5678",
+    "proto": "HTTP/1.1",
+    "method": "GET",
+    "host": "host.example.com",
+    "uri": "/absolute_uri.html?queryparam=value",
+    "headers": {
+      "Connection": ["Close"],
+      "User-Agent": ["This is the user agent"],
+      "Accept-Language": ["en"],
+      "Referer": ["https://another.example.com/"],
+      "Accept-Encoding": ["gzip, deflate"],
+      "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"]
+    },
+    "tls": {
+      "resumed": false,
+      "version": 772,
+      "cipher_suite": 4865,
+      "proto": "",
+      "proto_mutual": true,
+      "server_name": "host.example.com"
+    }
+  },
+  "resp_headers": {
+    "Content-Encoding": ["gzip"],
+    "Vary": ["Accept-Encoding"],
+    "Server": ["Caddy"],
+    "Etag": ["\"s0rqswb68\""],
+    "Content-Type": ["text/html; charset=utf-8"],
+    "Last-Modified": ["Sun, 10 Sep 2023 12:02:56 GMT"]
+  }
+}
+

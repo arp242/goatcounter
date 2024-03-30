@@ -68,8 +68,14 @@ This release requires Go 1.21.
 - Automatically load GeoIP database from `./goatcounter-data/` directory if it
   exists; it automatically loads the first .mmdb file.
 
-- Add `bunny` log format, add `unixsec` and `unixmilli` to `-datetime`, and
-  support `$url` format specifier.
+- Improve log parsing:
+
+  - Add more formats for `-datetime`: `unix_sec`, `unix_milli`, `unix_nano`,
+    `unix_sec_float`, and `unixmilli_float`.
+
+  - Add `$url` format specifier.
+
+  - Add `bunny` and `caddy` log formats.
 
 - Improve dark theme, and enable by default if set in browser/system
   preferences.

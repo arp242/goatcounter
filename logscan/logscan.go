@@ -5,10 +5,14 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"regexp"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/bmatcuk/doublestar/v4"
 	"zgo.at/errors"
 	"zgo.at/follow"
 	"zgo.at/goatcounter/v2/log"
@@ -16,10 +20,26 @@ import (
 
 var reFormat = regexp.MustCompile(`\\\$[\w-_]+`)
 
-var fields = []string{"ignore", "time", "date", "datetime", "remote_addr",
-	"xff", "method", "status", "http", "path", "query", "referrer",
-	"user_agent", "host", "content_type", "timing_sec", "timing_milli",
-	"timing_micro", "size"}
+const (
+	fieldAcceptLanguage = "accept_language"
+	fieldContentType    = "content_type"
+	fieldHost           = "host"
+	fieldHTTP           = "http"
+	fieldMethod         = "method"
+	fieldPath           = "path"
+	fieldQuery          = "query"
+	fieldReferrer       = "referrer"
+	fieldRemoteAddr     = "remote_addr"
+	fieldSize           = "size"
+	fieldStatus         = "status"
+	fieldUserAgent      = "user_agent"
+	fieldXff            = "xff"
+)
+
+var fields = []string{"ignore", "time", "date", "datetime", fieldRemoteAddr,
+	fieldXff, fieldMethod, fieldStatus, fieldHTTP, fieldPath, fieldQuery, fieldReferrer,
+	fieldUserAgent, fieldHost, fieldContentType, "timing_sec", "timing_milli",
+	"timing_micro", fieldSize}
 
 const (
 	excludeContains = 0
@@ -46,8 +66,8 @@ type Line interface {
 	Size() int
 	Language() string
 
-	Timing() time.Duration
-	Datetime(scan *Scanner) (time.Time, error)
+	Timing() (time.Duration, error)
+	Datetime(lp LineParser) (time.Time, error)
 }
 
 const (
@@ -85,7 +105,7 @@ func getFormat(format, date, time, datetime string) (string, string, string, str
 	case "common-vhost":
 		return CommonVhost, "", "", "02/Jan/2006:15:04:05 -0700"
 	case "bunny", "bunny-extended":
-		return Bunny, "", "", "unixmilli"
+		return Bunny, "", "", "unix_milli"
 	default:
 		return "", "", "", ""
 	}
@@ -136,14 +156,21 @@ func NewFollow(ctx context.Context, file, format, date, tyme, datetime string, e
 }
 
 func makeNew(format, date, tyme, datetime string, exclude []string) (*Scanner, error) {
-	p, err := newRegexParser(format, date, tyme, datetime, exclude)
+	excludePatt, err := processExcludes(exclude)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Scanner{
-		lp: p,
-	}, nil
+	var p LineParser
+	if format == "caddy" {
+		p, err = newCaddyParser(datetime, excludePatt)
+	} else {
+		p, err = newRegexParser(format, date, tyme, datetime, excludePatt)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &Scanner{lp: p}, nil
 }
 
 // Line processes a single line.
@@ -173,4 +200,123 @@ start:
 	}
 
 	return parsed, line, s.lineno, nil
+}
+
+func (s *Scanner) Datetime(l Line) (time.Time, error) {
+	return l.Datetime(s.lp)
+}
+
+type excludePattern struct {
+	kind    int            // exclude* constant
+	negate  bool           // ! present
+	field   string         // "path", "content_type"
+	pattern string         // ".gif", "*.gif"
+	re      *regexp.Regexp // only if kind=excludeRe
+}
+
+func processExcludes(exclude []string) ([]excludePattern, error) {
+	// "static" needs to expand to two values.
+	for i, e := range exclude {
+		switch e {
+		case "static":
+			// Note: maybe check if using glob patterns is faster?
+			exclude[i] = `path:re:.*\.(:?js|css|gif|jpe?g|png|svg|ico|web[mp]|mp[34])$`
+			exclude = append(exclude, `content_type:re:^(?:text/(?:css|javascript)|image/(?:png|gif|jpeg|svg\+xml|webp)).*?`)
+		case "html":
+			exclude[i] = "content_type:^text/html.*?"
+		case "redirect":
+			exclude[i] = "status:glob:30[0123]"
+		}
+	}
+
+	patterns := make([]excludePattern, 0, len(exclude))
+	for _, e := range exclude {
+		var p excludePattern
+		if strings.HasPrefix(e, "!") {
+			p.negate = true
+			e = e[1:]
+		}
+
+		p.field, p.pattern, _ = strings.Cut(e, ":")
+		if !slices.Contains(fields, p.field) {
+			return nil, fmt.Errorf("invalid field %q in exclude pattern %q", p.field, e)
+		}
+		if p.pattern == "" {
+			return nil, fmt.Errorf("no pattern in %q", e)
+		}
+
+		var err error
+		switch {
+		case strings.HasPrefix(p.pattern, "glob:"):
+			p.kind, p.pattern = excludeGlob, p.pattern[5:]
+			_, err = doublestar.Match(p.pattern, "")
+		case strings.HasPrefix(p.pattern, "re:"):
+			p.kind, p.pattern = excludeRe, p.pattern[3:]
+			p.re, err = regexp.Compile(p.pattern)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("invalid exclude pattern: %q: %w", e, err)
+		}
+		patterns = append(patterns, p)
+	}
+
+	return patterns, nil
+}
+
+func matchesPattern(e excludePattern, v string) bool {
+	var m bool
+	switch e.kind {
+	default:
+		m = strings.Contains(v, e.pattern)
+	case excludeGlob:
+		// We use doublestar instead of filepath.Match() because the latter
+		// doesn't support "**" and "{a,b}" patterns, both of which are very
+		// useful here.
+		m, _ = doublestar.Match(e.pattern, v)
+	case excludeRe:
+		m = e.re.MatchString(v)
+	}
+	if e.negate {
+		return !m
+	}
+	return m
+}
+
+func parseDatetime(format, s string, f float64) (time.Time, error) {
+	var (
+		t   time.Time
+		n   int64
+		err error
+	)
+	switch format {
+	case "unix_sec":
+		n, err = strconv.ParseInt(s, 10, 64)
+		t = time.Unix(n, 0)
+	case "unix_milli":
+		n, err = strconv.ParseInt(s, 10, 64)
+		t = time.UnixMilli(n)
+	case "unix_nano":
+		if f == 0 {
+			n, err = strconv.ParseInt(s, 10, 64)
+		} else {
+			n = int64(f)
+		}
+		s := n / 1e9
+		t = time.Unix(s, n-s*1e9)
+	case "unix_sec_float":
+		if f == 0 {
+			f, err = strconv.ParseFloat(s, 64)
+		}
+		sec, dec := math.Modf(f)
+		t = time.Unix(int64(sec), int64(dec*1e9))
+	case "unix_milli_float":
+		if f == 0 {
+			f, err = strconv.ParseFloat(s, 64)
+		}
+		sec, dec := math.Modf(f / 1000)
+		t = time.Unix(int64(sec), int64(dec*1e9))
+	default:
+		t, err = time.Parse(format, s)
+	}
+	return t.UTC(), err
 }

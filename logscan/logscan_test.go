@@ -13,6 +13,13 @@ import (
 	"zgo.at/zstd/ztest"
 )
 
+var (
+	_ LineParser = RegexParser{}
+	_ Line       = RegexLine{}
+	_ LineParser = CaddyParser{}
+	_ Line       = CaddyLogEntry{}
+)
+
 func TestErrors(t *testing.T) {
 	_, err := New(strings.NewReader(""), "log:$xxx", "", "", "", nil)
 	if !ztest.ErrorContains(err, "unknown format specifier: $xxx") {
@@ -82,6 +89,9 @@ func TestNew(t *testing.T) {
 	}
 
 	for _, f := range files {
+		if f.IsDir() {
+			continue
+		}
 		t.Run(f.Name(), func(t *testing.T) {
 			fp, err := os.Open("./testdata/" + f.Name())
 			if err != nil {
@@ -122,7 +132,7 @@ func TestNew(t *testing.T) {
 					delete(w, "method")
 				}
 
-				dt, err := data.Datetime(scan)
+				dt, err := data.Datetime(scan.lp)
 				if err != nil {
 					t.Logf("%q %q %q", w["date"], w["time"], w["datetime"])
 					t.Errorf("parsing datetime: %v", err)
