@@ -357,7 +357,7 @@ func importLog(
 	ready <- struct{}{}
 	n := 0
 	for {
-		line, err := scan.Line(ctx)
+		line, raw, lineno, err := scan.Line(ctx)
 		if err == io.EOF {
 			break
 		}
@@ -367,8 +367,8 @@ func importLog(
 		}
 
 		hit := handlers.APICountRequestHit{
-			Line:      line.Line(),
-			LineNo:    line.LineNo(),
+			Line:      raw,
+			LineNo:    lineno,
 			Path:      line.Path(),
 			Ref:       line.Referrer(),
 			Query:     line.Query(),
