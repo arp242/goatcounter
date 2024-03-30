@@ -88,6 +88,7 @@ Flags:
                    common          Common Log Format (CLF)
                    common-vhost    Common Log Format (CLF) with virtual host
                    bunny           Bunny CDN log format
+                   caddy           Caddy JSON logs
                    log:[fmt]       Custom log format; see "goatcounter help
                                    logfile" for details.
 
@@ -194,17 +195,20 @@ Date and time parsing:
 
     You can give the following pre-defined values:
 
-        ansic          Mon Jan _2 15:04:05 2006
-        unix           Mon Jan _2 15:04:05 MST 2006
-        unixmilli      1746644937044
-        unixsec        1746644937
-        rfc822         02 Jan 06 15:04 MST
-        rfc822z        02 Jan 06 15:04 -0700
-        rfc850         Monday, 02-Jan-06 15:04:05 MST
-        rfc1123        Mon, 02 Jan 2006 15:04:05 MST
-        rfc1123z       Mon, 02 Jan 2006 15:04:05 -0700
-        rfc3339        2006-01-02T15:04:05Z07:00
-        rfc3339nano    2006-01-02T15:04:05.999999999Z07:00
+        ansic            Mon Jan _2 15:04:05 2006
+        unix             Mon Jan _2 15:04:05 MST 2006
+        rfc822           02 Jan 06 15:04 MST
+        rfc822z          02 Jan 06 15:04 -0700
+        rfc850           Monday, 02-Jan-06 15:04:05 MST
+        rfc1123          Mon, 02 Jan 2006 15:04:05 MST
+        rfc1123z         Mon, 02 Jan 2006 15:04:05 -0700
+        rfc3339          2006-01-02T15:04:05Z07:00
+        rfc3339nano      2006-01-02T15:04:05.999999999Z07:00
+        unix_sec         1748882749
+        unix_milli       1748882749120
+        unix_nano        1748882749120576768
+        unix_sec_float   1748882749.120576768
+        unix_milli_float 1748882749120.576768
 
     The full documentation is available at https://pkg.go.dev/time
 `
@@ -386,7 +390,7 @@ func importLog(
 			UserAgent: line.UserAgent(),
 		}
 
-		hit.CreatedAt, err = line.Datetime(scan)
+		hit.CreatedAt, err = scan.Datetime(line)
 		if err != nil {
 			log.Error(ctx, err)
 			continue
