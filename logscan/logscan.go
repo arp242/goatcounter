@@ -28,87 +28,6 @@ var fields = []string{"ignore", "time", "date", "datetime", "remote_addr",
 	"user_agent", "host", "content_type", "timing_sec", "timing_milli",
 	"timing_micro", "size"}
 
-func processFormat(format, date, tyme, datetime string) (*regexp.Regexp, string, string, string, error) {
-	of := format
-	format, date, tyme, datetime = getFormat(format, date, tyme, datetime)
-	if format == "" {
-		return nil, "", "", "", errors.Errorf("unknown format: %s", of)
-	}
-
-	var err error
-	pat := reFormat.ReplaceAllStringFunc(regexp.QuoteMeta(format), func(m string) string {
-		m = m[2:]
-
-		p := ".+?"
-		switch m {
-		default:
-			err = fmt.Errorf("unknown format specifier: $%s", m)
-		case "ignore":
-			return ".*?"
-
-		case "date":
-			if date == "" {
-				err = errors.New("$date used but -date value is empty")
-			} else {
-				_, err = time.Parse(date, date)
-				if err != nil {
-					err = errors.Errorf("invalid -date format: %s", err)
-				}
-			}
-		case "time":
-			if tyme == "" {
-				err = errors.New("$time used but -time value is empty")
-			} else {
-				_, err = time.Parse(tyme, tyme)
-				if err != nil {
-					err = errors.Errorf("invalid -time format: %s", err)
-				}
-			}
-		case "datetime":
-			if datetime == "" {
-				err = errors.New("$datetime used but -datetime value is empty")
-			} else {
-				_, err = time.Parse(datetime, datetime)
-				if err != nil {
-					err = errors.Errorf("invalid -datetime format: %s", err)
-				}
-			}
-
-		case "host":
-			p = `(?:xn--)?[a-zA-Z0-9.-]+`
-		case "remote_addr":
-			p = `[0-9a-fA-F:.]+`
-		case "xff":
-			p = `[0-9a-fA-F:. ,]+`
-
-		case "method":
-			p = `[A-Z]{3,10}`
-		case "status":
-			p = `\d{3}`
-		case "http":
-			p = `HTTP/[\d.]+`
-		case "path":
-			p = `/.*?`
-		case "timing_sec":
-			p = `[\d.]+`
-		case "timing_milli", "timing_micro":
-			p = `\d+`
-		case "size":
-			p = `(?:\d+|-)`
-		case "referrer", "user_agent":
-			p = `.*?`
-		case "query", "content_type":
-			// Default
-		}
-		return "(?P<" + m + ">" + p + ")"
-	})
-	if err != nil {
-		return nil, "", "", "", fmt.Errorf("invalid -format value: %w", err)
-	}
-	re, err := regexp.Compile("^" + pat + "$")
-	return re, date, tyme, datetime, err
-}
-
 const (
 	excludeContains = 0
 	excludeGlob     = 1
@@ -209,13 +128,8 @@ func getFormat(format, date, time, datetime string) (string, string, string, str
 
 type Scanner struct {
 	read   chan follow.Data
-	re     *regexp.Regexp
-	names  []string
 	lineno uint64
-
-	date, time, datetime string
-
-	exclude []excludePattern
+	lp     LineParser
 }
 
 // New processes all the lines in the reader.
@@ -257,27 +171,14 @@ func NewFollow(ctx context.Context, file, format, date, tyme, datetime string, e
 }
 
 func makeNew(format, date, tyme, datetime string, exclude []string) (*Scanner, error) {
-	re, date, tyme, datetime, err := processFormat(format, date, tyme, datetime)
-	if err != nil {
-		return nil, err
-	}
-	excludePatt, err := processExcludes(exclude)
+	p, err := newRegexParser(format, date, tyme, datetime, exclude)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Scanner{
-		re:       re,
-		names:    re.SubexpNames(),
-		date:     date,
-		time:     tyme,
-		datetime: datetime,
-		exclude:  excludePatt,
+		lp: p,
 	}, nil
-}
-
-func (s Scanner) DateFormats() (date, time, datetime string) {
-	return s.date, s.time, s.datetime
 }
 
 // Line processes a single line.
@@ -295,36 +196,20 @@ start:
 		s.lineno++
 	}
 
-	parsed := make(Line, len(s.names)+2)
-	parsed["_line"] = line
-	parsed["_lineno"] = strconv.FormatUint(s.lineno, 10)
-	for _, sub := range s.re.FindAllStringSubmatchIndex(line, -1) {
-		for i := 2; i < len(sub); i += 2 {
-			v := line[sub[i]:sub[i+1]]
-			if v == "-" { // Using - is common to indicate a blank value.
-				v = ""
-			}
-			parsed[s.names[i/2]] = v
-		}
+	parsed, excluded, err := s.lp.Parse(line)
+	if err != nil {
+		return nil, err
 	}
-
-	if s.MatchExcludes(parsed) {
-		// Could use "return Line(ctx) as well, but if many lines are excluded
-		// that will run out of stack space. So just restart the function from
-		// the top waiting for the s.read channel.
+	// Could use "return Line(ctx) as well, but if many lines are excluded
+	// that will run out of stack space. So just restart the function from
+	// the top waiting for the s.read channel.
+	if excluded {
 		goto start
 	}
+	parsed["_line"] = line
+	parsed["_lineno"] = strconv.FormatUint(s.lineno, 10)
 
 	return parsed, nil
-}
-
-func (s Scanner) MatchExcludes(line Line) bool {
-	for _, e := range s.exclude {
-		if line.exclude(e) {
-			return true
-		}
-	}
-	return false
 }
 
 func (l Line) exclude(e excludePattern) bool {
