@@ -4,10 +4,15 @@
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
-	<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
-	{{if eq .User.Settings.Theme "dark"}}
+	{{if eq .User.Settings.Theme "light"}}
+		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
+	{{else if eq .User.Settings.Theme "dark"}}
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}">
+	{{else}}
+		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
+		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}" media="(prefers-color-scheme: dark)">
 	{{end}}
+
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/backend.css?v={{.Version}}">
