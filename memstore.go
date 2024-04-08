@@ -295,9 +295,9 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	err = h.Defaults(ctx, false)
 	if err != nil {
 		if errors.As(err, ztype.Ptr(&zvalidate.Validator{})) {
-			l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
-		} else {
 			l.Field("hit", fmt.Sprintf("%#v", h)).Debug(err)
+		} else {
+			l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
 		}
 		return false
 	}

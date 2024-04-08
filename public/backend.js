@@ -27,6 +27,8 @@
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
 				return
+			if (settings.url === '/load-widget')
+				return
 			var msg = T("error/load-url", {url: settings.url, error: err})
 			console.error(msg)
 			on_error(`ajaxError: ${msg}`, settings.url)
@@ -37,14 +39,14 @@
 	// Report an error.
 	var on_error = function(msg, url, line, column, err) {
 		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
-		if (msg === 'Script error.' && navigator.vendor && navigator.vendor.indexOf('Apple') > -1)
+		if (msg === 'Script error.')
 			return
-
 		// I don't what kind of shitty thing is spamming me with this, but I've
-		// gotten a lot of them and I'm getting tired of it.
-		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1)
+		// gotten a lot of these and I'm getting tired of it.
+		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1 ||
+			msg.match(/Cannot redefine property: (googletag|ethereum)/) !== null
+		)
 			return
-
 		// Don't log errors from extensions.
 		if (url.startsWith('chrome-extension://'))
 			return
