@@ -693,7 +693,7 @@
 
 	// Load references as an AJAX request.
 	var load_refs = function() {
-		$('.count-list-pages').on('click', '.load-refs, .hchart .load-less', function(e) {
+		$('.count-list-pages').on('click', '.hchart .load-less', function(e) {
 			e.preventDefault()
 			let rows = $(this).closest('.hchart').find('.rows'),
 				sz   = rows.data('pagesize') || 10
