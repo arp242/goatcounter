@@ -174,10 +174,7 @@ func (h *HitLists) List(
 		}
 	}
 
-	// Fill in blank days.
 	fillBlankDays(hh, rng)
-
-	// Apply TZ offset.
 	applyOffset(hh, user.Settings.Timezone)
 
 	// Add total and max.
@@ -324,7 +321,9 @@ func applyOffset(hh HitLists, tz *tz.Zone) {
 				popped = stats[i].Hourly[o:]
 				stats[i].Hourly = stats[i].Hourly[:o]
 			}
-			hh[i].Stats = stats[1:] // Overselect a day to get the stats for it, remove it.
+			if len(hh[i].Stats) > 1 {
+				hh[i].Stats = stats[1:] // Overselect a day to get the stats for it, remove it.
+			}
 		}
 
 	case offset < 0:
