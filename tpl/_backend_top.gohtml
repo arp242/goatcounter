@@ -12,7 +12,6 @@
 		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}" media="(prefers-color-scheme: dark)">
 	{{end}}
-
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/backend.css?v={{.Version}}">
@@ -91,3 +90,12 @@
 
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
+
+	{{if and .User.ID (before .Site.CreatedAt "2024-04-07")}}
+		<div class="flash flash-i onetime onetime-dark">
+			The default theme colours are now set from your system; you can change it back to the
+			previous by changing it in <a href="/user/pref#section-email-reports">your user settings</a>
+			–
+			<a href="" class="close">don’t show again</a>
+		</div>
+	{{end}}

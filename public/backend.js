@@ -16,7 +16,7 @@
 		if (!USER_SETTINGS.language)
 			USER_SETTINGS.language = 'en'
 
-		;[report_errors, bind_tooltip, bind_confirm, translate_calendar].forEach((f) => f.call())
+		;[report_errors, bind_tooltip, bind_confirm, translate_calendar, onetime].forEach((f) => f.call())
 		;[page_dashboard, page_settings_main, page_user_pref, page_user_dashboard, page_bosmang]
 			.forEach((f) => document.body.id.match(new RegExp('^' + f.name.replace(/_/g, '-'))) && f.call())
 	})
@@ -93,6 +93,26 @@
 
 			t.attr('data-title', title).removeAttr('title')
 			display(e, t)
+		})
+	}
+
+	// One-time messages.
+	let onetime = function() {
+		$('.onetime').each((_, elem) => {
+			elem = $(elem)
+			let n = elem.attr('class').split(' ').filter((v) => v.match(/^onetime-/))[0]
+			if (localStorage.getItem(n) ||
+				// People who don't have a dark theme won't see any change, so
+				// don't bother showing it to then.
+				(n === 'onetime-dark' && !window.matchMedia("(prefers-color-scheme: dark)").matches))
+				return
+
+			elem.css('display', 'block')
+			elem.find('.close').on('click', (e) => {
+				e.preventDefault()
+				elem.css('display', 'none')
+				localStorage.setItem(n, '1')
+			})
 		})
 	}
 
