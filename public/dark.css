@@ -1,8 +1,8 @@
 :root {
     --text:              #fff;
-    --bg:                #252525;
+    --bg:                rgba(0,0,0,0);
     --header-border:     #888;                             /* Border below some headers */
-    --backdrop:          #444;
+    --backdrop:          #0e1011;
     --target-bg:         #b78c1d;                          /* :target; mostly for headers in the documentation. */
     --loading-text:      #777;                             /* Little … that appears if something takes more than ~300ms to load */
 
@@ -33,12 +33,12 @@
     --tooltip-border:    #ddd;
     --tooltip-shadow:    #aaa;
 
-    --chart-line:        #6c0a73;                          /* Charts on the dashboard */
-    --chart-fill:        #ca56d3;
+    --chart-line:        #003996;                          /* Charts on the dashboard */
+    --chart-fill:        #003996;
     --chart-grid:        #555;
     --hchart-border:     #666;                             /* Colour when you hover the Browsers, Systems, etc. chart bar */
-    --hchart-bar:        #ebb7ef;
-    --hchart-bar-hover:  #f9cffc;
+    --hchart-bar:        #1e2123;
+    --hchart-bar-hover:  #0549b6;
 
     --nav-bg:            #1b093c;                          /* Navigation at dashboard, settings, and footer */
     --nav-border:        #3f1887;

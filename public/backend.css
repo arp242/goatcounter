@@ -80,6 +80,7 @@ input.red { border: 1px solid var(--input-error-border) !important; }
 .flash pre { text-align: left; margin: 0 auto; display: inline-block; }
 .flash-i   { background-color: var(--info-bg); border-color: var(--info-border); }
 .flash-e   { background-color: var(--error-bg); border-color: var(--error-border); }
+.onetime   { display:none; }
 
 .screen-reader { display: none; }
 .hide          { display: none; }

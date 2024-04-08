@@ -115,10 +115,8 @@
 
 			<label for="theme">{{.T "label/theme|Theme"}}</label>
 			<select id="theme" name="theme">
-				{{/*
 				<option {{option_value .User.Settings.Theme ""}}>{{.T "theme/system|Use system setting"}}</option>
-				*/}}
-				<option {{option_value .User.Settings.Theme ""}}>{{.T "theme/light|Light"}}</option>
+				<option {{option_value .User.Settings.Theme "light"}}>{{.T "theme/light|Light"}}</option>
 				<option {{option_value .User.Settings.Theme "dark"}}>{{.T "theme/dark|Dark"}}</option>
 			</select>
 

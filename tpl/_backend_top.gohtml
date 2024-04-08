@@ -4,9 +4,13 @@
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{if .GoatcounterCom}}{{.Site.Code}} – {{end}}GoatCounter</title>
-	<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
-	{{if eq .User.Settings.Theme "dark"}}
+	{{if eq .User.Settings.Theme "light"}}
+		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
+	{{else if eq .User.Settings.Theme "dark"}}
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}">
+	{{else}}
+		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
+		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}" media="(prefers-color-scheme: dark)">
 	{{end}}
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
@@ -86,3 +90,12 @@
 
 	<div class="page">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}
+
+	{{if and .User.ID (before .Site.CreatedAt "2024-04-07")}}
+		<div class="flash flash-i onetime onetime-dark">
+			The default theme colours are now set from your system; you can change it back to the
+			previous by changing it in <a href="/user/pref#section-email-reports">your user settings</a>
+			–
+			<a href="" class="close">don’t show again</a>
+		</div>
+	{{end}}
