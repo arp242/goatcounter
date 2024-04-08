@@ -34,9 +34,8 @@ func TestNew(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []Line{
+	want := []RegexLine{
 		{
-			"_lineno":     "1",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -49,7 +48,6 @@ func TestNew(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "2",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -62,7 +60,6 @@ func TestNew(t *testing.T) {
 			"user_agent":  "",
 		},
 		{
-			"_lineno":     "3",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/2.0",
@@ -75,7 +72,6 @@ func TestNew(t *testing.T) {
 			"user_agent":  "",
 		},
 		{
-			"_lineno":     "4",
 			"datetime":    "15/May/2023:00:00:54 +0000",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -103,7 +99,7 @@ func TestNew(t *testing.T) {
 
 			i := 0
 			for {
-				data, err := scan.Line(context.Background())
+				data, _, _, err := scan.Line(context.Background())
 				if err == io.EOF {
 					break
 				}
@@ -111,7 +107,7 @@ func TestNew(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				w := make(Line)
+				w := make(RegexLine)
 				for k, v := range want[i] {
 					w[k] = v
 				}
@@ -126,8 +122,6 @@ func TestNew(t *testing.T) {
 					delete(w, "referrer")
 					delete(w, "user_agent")
 				}
-
-				delete(data, "_line")
 
 				if !reflect.DeepEqual(data, w) {
 					t.Errorf("\nwant: %v\ngot:  %v", w, data)
@@ -202,9 +196,9 @@ func TestNewFollow(t *testing.T) {
 		stop()
 	}()
 
-	data := []Line{}
+	data := []RegexLine{}
 	for {
-		line, err := scan.Line(ctx)
+		line, _, _, err := scan.Line(ctx)
 		if err == io.EOF {
 			break
 		}
@@ -212,16 +206,15 @@ func TestNewFollow(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		data = append(data, line)
+		data = append(data, line.(RegexLine))
 	}
 
 	if len(data) != 8 {
 		t.Fatalf("len(data) = %d instead of 8", len(data))
 	}
 
-	want := []Line{
+	want := []RegexLine{
 		{
-			"_lineno":     "1",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -234,7 +227,6 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "2",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -247,7 +239,6 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "3",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -260,7 +251,6 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "4",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.org",
 			"http":        "HTTP/1.1",
@@ -273,7 +263,6 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "5",
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -286,7 +275,6 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "6",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -299,7 +287,6 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "7",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -312,7 +299,6 @@ func TestNewFollow(t *testing.T) {
 			"user_agent":  "Mozilla/5.0",
 		},
 		{
-			"_lineno":     "8",
 			"datetime":    "10/Oct/2001:13:55:36 -0700",
 			"host":        "example.org",
 			"http":        "HTTP/1.1",
@@ -402,7 +388,7 @@ func TestExclude(t *testing.T) {
 
 			var got []string
 			for {
-				data, err := scan.Line(context.Background())
+				data, _, _, err := scan.Line(context.Background())
 				if err == io.EOF {
 					break
 				}
