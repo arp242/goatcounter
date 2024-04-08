@@ -25,12 +25,14 @@ Integrations
 </style>
 
 <div class="integrations">
-<a href="https://github.com/arp242/goatcounter-wordpress">
-    <img width="40" height="40" src="{{.Static}}/int-logo/wp.png"> WordPress</a>
 <a href="https://www.npmjs.com/package/gatsby-plugin-goatcounter">
     <img width="40" height="40" src="{{.Static}}/int-logo/gatsby.svg"> Gatsby</a>
+<a href="https://github.com/htejera/publii-goatcounter-analytics-plugin">
+    <img width="40" height="40" src="{{.Static}}/int-logo/publii.svg"> publii</a>
 <a href="https://www.schlix.com/extensions/analytics/goatcounter.html">
     <img width="40" height="40" src="{{.Static}}/int-logo/schlix.png"> schlix</a>
+<a href="https://github.com/arp242/goatcounter-wordpress">
+    <img width="40" height="40" src="{{.Static}}/int-logo/wp.png"> WordPress</a>
 <a href="" class="expand" data-expand=".write-as">
     <img width="40" height="40" src="{{.Static}}/int-logo/write-as.svg"> Write.as</a>
 </div>
