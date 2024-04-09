@@ -1,5 +1,9 @@
 {{- template "_backend_top.gohtml" . -}}
 
+<div id="print-header">
+	GoatCounter report for {{tformat .Period.Start "" .User}} to {{tformat .Period.End "" .User}}
+</div>
+
 {{if .User.ID}}
 	{{if not .User.EmailVerified}}
 		<div class="flash flash-i">

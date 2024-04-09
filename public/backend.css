@@ -50,7 +50,6 @@ nav .sites-list-select { display: none; padding: 0; background-color: var(--bg);
     nav { padding-left: .5em; }
 }
 
-
 h2            { margin-bottom: .4em; }
 h2 small      { font-size: .9rem; font-weight: normal; margin-right: .1em; line-height: 1rem; }
 h2.full-width { margin-left: .4em; margin-right: .4em; padding-right: .2em;
@@ -391,3 +390,19 @@ dt { font-weight: bold; margin-top: 1em; }
  * going to bother writing a JS thing.
  * https://github.com/arp242/goatcounter/issues/529 */
 input:user-invalid { outline: 1px solid #f00 !important; box-shadow: 0 0 .2em #f00 !important; background-color: #feeaea; }
+
+/* Basic print styles, for dashboard only. */
+#print-header { display:none; }
+@media print {
+    nav,
+    #dash-main,
+    #dash-move,
+    #dash-saved-views,
+    footer,
+    .load-more    { display:none !important; }
+    html, .page   { background:transparent; }
+    .page         { max-width:unset; box-shadow:unset; margin:0; }
+    #print-header { display:block; text-align:center; font-size:1.2rem; font-weight:bold; }
+    /* Print background colours for charts */
+    canvas, .hchart .bar { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+}
