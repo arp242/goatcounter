@@ -1424,20 +1424,9 @@ codes (with the old and new code) to prevent the loss of any pageviews.</p>
   loc     = ["tpl/settings_export.gohtml:6"]
   default = "The format of the CSV file is %[documented over here]."
 
-["p/delete-account-multi-site"]
+["p/delete-account"]
   loc     = ["tpl/settings_delete.gohtml:7"]
-  default = """
-The site and all associated sites will be marked as deleted and will no
-longer be accessible, but no data is removed. After 7 days all data will be
-permanently removed.
-"""
-
-["p/delete-account-one-site"]
-  loc     = ["tpl/settings_delete.gohtml:13"]
-  default = """
-The site will be marked as deleted and will no longer be accessible, but no
-data is removed. After 7 days all data will be permanently removed.
-"""
+  default = "The site and all associated data will be permanently removed with no possibility of recovery."
 
 ["p/disable-mfa"]
   loc     = ["tpl/user_auth.gohtml:34"]

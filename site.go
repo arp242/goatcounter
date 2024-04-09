@@ -334,10 +334,14 @@ func (s *Site) Delete(ctx context.Context, deleteChildren bool) error {
 		}
 	}
 
+	// Update the site code so people can delete a site and then immediatly
+	// re-create a new site with the same name.
+	q := `update sites set state=$1, updated_at=$2, code=random() where site_id=$3 or parent=$3`
+	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
+		q = `update sites set state=$1, updated_at=$2, code=gen_random_uuid() where site_id=$3 or parent=$3`
+	}
 	t := ztime.Now()
-	err := zdb.Exec(ctx,
-		`update sites set state=$1, updated_at=$2 where site_id=$3 or parent=$3`,
-		StateDeleted, t, s.ID)
+	err := zdb.Exec(ctx, q, StateDeleted, t, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Delete")
 	}
@@ -669,9 +673,8 @@ func (s *Sites) ContainsCNAME(ctx context.Context, cname string) (bool, error) {
 // OldSoftDeleted finds all sites which have been soft-deleted more than a week
 // ago.
 func (s *Sites) OldSoftDeleted(ctx context.Context) error {
-	return errors.Wrap(zdb.Select(ctx, s, fmt.Sprintf(`/* Sites.OldSoftDeleted */
-		select * from sites where state=$1 and updated_at < %s`, interval(ctx, 7)),
-		StateDeleted), "Sites.OldSoftDeleted")
+	err := zdb.Select(ctx, s, `select * from sites where state=$1`, StateDeleted)
+	return errors.Wrap(err, "Sites.OldSoftDeleted")
 }
 
 // Find sites: by ID if ident is a number, or by host if it's not.

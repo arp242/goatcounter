@@ -990,12 +990,6 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
 ["p/csv-file-format"]
   default = "Il formato del file CSV è %[documentato qui]."
 
-["p/delete-account-multi-site"]
-  default = "Il sito e tutti i siti associati saranno marcati come cancellati e non saranno più accessibili, ma nessun dato verrà rimosso. Dopo 7 giorni tutti i dati verranno cancellati permanentemente."
-
-["p/delete-account-one-site"]
-  default = "Il sito sarò marcato come cancellato e non sarà più accessibile, ma nessun dato verrà rimosso. Dopo 7 giorni tutti i dati verranno cancellati permanentemente."
-
 ["p/disable-mfa"]
   default = "MFA abilitata per questo account."
 

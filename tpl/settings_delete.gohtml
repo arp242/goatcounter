@@ -2,19 +2,12 @@
 {{template "_settings_nav.gohtml" .}}
 
 <h2 id="delete">{{.T "header/delete-account|Delete account"}}</h2>
-
-{{if gt (len .Sites) 1}}
-	<p>{{.T `p/delete-account-multi-site|
-		The site and all associated sites will be marked as deleted and will no
-		longer be accessible, but no data is removed. After 7 days all data will be
-		permanently removed.
-	`}}</p>
-{{else}}
-	<p>{{.T `p/delete-account-one-site|
-		The site will be marked as deleted and will no longer be accessible, but no
-		data is removed. After 7 days all data will be permanently removed.
-	`}}</p>
-{{end}}
+<br>
+<div class="flash flash-e">
+<p><strong>{{.T `p/delete-account|
+	The site and all associated data will be permanently removed with no possibility of recovery.
+`}}</strong></p>
+</div>
 
 {{if gt (len .Sites) 1}}
 	<div class="flash flash-e" style="text-align: left;">
@@ -46,8 +39,5 @@
 
 	<button type="submit">{{.T "button/delete-account|Delete account, all sites, and all data"}}</button>
 </form>
-{{.T "p/request-data-recovery|%[Contact] within 7 days if you changed your mind and want to recover your data."
-	(tag "a" `href="/contact"`)
-}}</p>
 
 {{template "_backend_bottom.gohtml" .}}

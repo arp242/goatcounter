@@ -989,20 +989,6 @@ site (de oude en nieuwe code) om te voorkomen dat pageviews verloren gaan.</p>
 ["p/csv-file-format"]
   default = "Het CSV-formaat is %[hier gedocumenteerd]."
 
-["p/delete-account-multi-site"]
-  default = """
-De site en alle data wordt gemarkeerd als verwijderd en is niet meer
-toegankelijk, maar er wordt nog nog niks daadwerkelijk verwijderd. Na 7 dagen
-wordt alle data permanent verwijderd.
-"""
-
-["p/delete-account-one-site"]
-  default = """
-De site en alle data wordt gemarkeerd als verwijderd en is niet meer
-toegankelijk, maar er wordt nog nog niks daadwerkelijk verwijderd. Na 7 dagen
-wordt alle data permanent verwijderd.
-"""
-
 ["p/disable-mfa"]
   default = "MFA is aan voor deze account."
 

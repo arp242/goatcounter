@@ -972,12 +972,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["p/csv-file-format"]
   default = "Le format du fichier CSV est %[documenté ici]."
 
-["p/delete-account-multi-site"]
-  default = "Le site et tous les sites associés seront marqués comme supprimé et ne seront plus accessibles, mais aucune donnée ne sera réellement supprimée dans l'immédiat. Attention : après 7 jours, toutes les données seront définitivement supprimées."
-
-["p/delete-account-one-site"]
-  default = "Le site sera marqué comme supprimé et ne sera plus accessible, mais aucune donnée ne sera réellement supprimée dans l'immédiat. Attention : après 7 jours, toutes les données seront <strong>définitivement</strong> supprimées."
-
 ["p/disable-mfa"]
   default = "L'authentification MFA est activée pour ce compte."
 

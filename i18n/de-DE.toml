@@ -976,12 +976,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["p/csv-file-format"]
   default = "Das Format der CSV-Datei ist %[hier dokumentiert]"
 
-["p/delete-account-multi-site"]
-  default = "Diese Website und alle verbundenen Websites werden als gelöscht markiert, und es ist kein Zugriff mehr möglich. Nach 7 Tagen werden alle zugehörigen Daten endgültig gelöscht."
-
-["p/delete-account-one-site"]
-  default = "Diese Website wird als gelöscht markiert, und es ist kein Zugriff mehr möglich. Nach 7 Tagen werden alle zugehörigen Daten endgültig gelöscht."
-
 ["p/disable-mfa"]
   default = "Für diesen Account ist MFA aktiviert."
 

@@ -990,19 +990,6 @@ geçici bir süreliğine iki tane kod (eski ve yeniyi beraber) kullanın.</p>
 ["p/csv-file-format"]
   default = "CSV dosyasının formatı %[burada belgelenmiştir] şeklindedir."
 
-["p/delete-account-multi-site"]
-  default = """
-Bu site ve tüm ilişkili siteler silinmiş olarak işaretlenecek
-ve erişilmez olacaktır, ancak hiçbir veri silinmeyecektir.
-7 gün sonra tüm veriler tamamen silinecektir.
-"""
-
-["p/delete-account-one-site"]
-  default = """
-Bu site silinmiş olarak işaretlenecek ve erişilmez olacaktır, ancak hiçbir
-veri silinmeyecektir. 7 gün sonra tüm veriler tamamen silinecektir.
-"""
-
 ["p/disable-mfa"]
   default = "ÇFKD şu anda bu hesap için etkin."
 

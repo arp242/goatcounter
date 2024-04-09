@@ -44,7 +44,7 @@ func TestBackendTpl(t *testing.T) {
 		{"/settings/users/1", "Password"},
 		{"/settings/purge", "Remove or merge pageviews"},
 		{"/settings/export", "includes all pageviews"},
-		{"/settings/delete-account", "The site will be marked as deleted"},
+		{"/settings/delete-account", "The site and all associated data will be permanently removed"},
 		{"/settings/change-code", "Change your site code and login domain"},
 
 		// Shared

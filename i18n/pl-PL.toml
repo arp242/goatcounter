@@ -991,12 +991,6 @@ kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.<
 ["p/csv-file-format"]
   default = "Format pliku CSV jest %[udokumentowany tutaj]."
 
-["p/delete-account-multi-site"]
-  default = "Witryna i inne z nią powiązane zostaną oznaczone jako usunięte i staną się niedostępne, ale dane zostaną zachowane przez 7 dni."
-
-["p/delete-account-one-site"]
-  default = "Witryna zostanie oznaczona jako usunięta i stanie się niedostępna, ale dane zostaną zachowane przez 7 dni."
-
 ["p/disable-mfa"]
   default = "MFA jest aktualnie włączone dla tego konta"
 

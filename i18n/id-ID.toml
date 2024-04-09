@@ -981,12 +981,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["p/csv-file-format"]
   default = "Format berkas CSV %[didokumentasikan di sini]."
 
-["p/delete-account-multi-site"]
-  default = "Situs dan situs yang terkait akan ditandai sebagai dihapus dan tidak akan lagi tersedia, tetapi tidak ada data yang dihapus. Setelah 7 hari semua data akan dihapus secara permanen."
-
-["p/delete-account-one-site"]
-  default = "Situs ini akan ditandai sebagai dihapus dan tidak akan lagi tersedia, tetapi tidak ada data yang dihapus. Setelah 7 hari semua data akan dihapus secara permanen."
-
 ["p/disable-mfa"]
   default = "Autentikasi multifaktor saat ini diaktifkan untuk akun ini."
 

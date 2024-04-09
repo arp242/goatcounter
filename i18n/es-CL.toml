@@ -982,12 +982,6 @@ Martin
 ["p/csv-file-format"]
   default = "El formato del CSV está %[documentado aquí]."
 
-["p/delete-account-multi-site"]
-  default = "El sitio y todos los sitios asociados serán marcados para ser eliminados y no tendrán acceso, pero ningún dato se va a eliminar. Después de 7 días todos los datos serán permanentemente eliminados."
-
-["p/delete-account-one-site"]
-  default = "Este sitio será marcado para ser eliminado y no tendrá más acceso, pero ningún dato se va a eliminar aún. Después de 7 días todos los datos serán permanentemente eliminados."
-
 ["p/disable-mfa"]
   default = "MFA está activado para esta cuenta."
 
