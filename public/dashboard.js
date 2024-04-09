@@ -599,35 +599,44 @@
 
 	// Translate country and language names; we do this in JavaScript with Intl,
 	// which works fairly well and keeps the backend/database a lot simpler.
-	var translate_locations = function() {
+	let translate_locations = function() {
 		if (!window.Intl || !window.Intl.DisplayNames)
-			return;
+			return
 
 		USER_SETTINGS.widgets.forEach((w, i) => {
 			if (w.n !== 'locations' && w.n !== 'languages')
 				return
 			if (w.s && w.s.key) // Skip "Locations" for a specific region.
-				return;
+				return
 
-			var names = new Intl.DisplayNames([USER_SETTINGS.language], {
+			let names = new Intl.DisplayNames([USER_SETTINGS.language], {
 				type: (w.n === 'locations' ? 'region' : 'language'),
 			})
-			var set = function(chart) {
+			let set = function(chart) {
 				chart.find('div[data-key]').each((_, e) => {
 					if (e.dataset.key.substr(0, 1) === '(') // Skip "(unknown)"
 						return
-					var n = names.of(e.dataset.key)
+					let n = names.of(e.dataset.key)
 					if (n)
 						$(e).find('.col-name .bar-c .cutoff').text(n)
 				})
 			}
 
-			var chart = $(`.hchart[data-widget=${i}]`)
+			let chart = $(`.hchart[data-widget=${i}]`)
 			set(chart)
 
-			var r = chart.find('.rows')[0]
-			if (r) {
-				var obs = new MutationObserver((mut) => {
+			let j = 0
+			let t = setInterval(() => {
+				j += 1
+				if (j > 10)
+					clearInterval(t)
+				let r = chart.find('.rows')[0]
+				if (!r)
+					return
+
+				clearInterval(t)
+				set(chart)
+				let obs = new MutationObserver((mut) => {
 					if (mut[0].addedNodes.length === 0 || mut[0].addedNodes[0].classList.contains('detail'))
 						return
 					obs.disconnect()  // Not strictly needed, but just in case to prevent infinite looping.
@@ -635,7 +644,7 @@
 					obs.observe(chart.find('.rows')[0], {childList: true})
 				})
 				obs.observe(r, {childList: true})
-			}
+			}, 100)
 		})
 	}
 
