@@ -5,7 +5,7 @@
   maintainers = []
 
 ["button/add-new"]
-  default = "Adicionar novo"
+  default = "Adicionar"
 
 ["button/add-user"]
   default = "Adicionar novo usuário"
@@ -26,22 +26,22 @@
   default = "excluir"
 
 ["button/delete-account"]
-  default = "Excluir conta, todos os sites, e todos os dados"
+  default = "Excluir a conta, todos os sites e todos os dados"
 
 ["button/delete-all"]
-  default = "Sim, exclua todos eles!"
+  default = "Sim, pode excluir tudo!"
 
 ["button/delete-everything"]
-  default = "Sim, exclua tudo"
+  default = "Sim, excluir tudo"
 
 ["button/disable-mfa"]
-  default = "Desabilitar MFA"
+  default = "Desativar MFA"
 
 ["button/edit"]
   default = "Editar"
 
 ["button/enable-mfa"]
-  default = "Habilitar MFA"
+  default = "Ativar MFA"
 
 ["button/forgot-password"]
   default = "Esqueceu a senha?"
@@ -91,6 +91,7 @@
 ["dashboard/day-ago"]
 
 ["dashboard/future"]
+  default = "futuro"
 
 ["dashboard/month-ago"]
 
@@ -101,6 +102,7 @@
   default = "Páginas"
 
 ["dashboard/pages/num-visits"]
+  default = "%(num-visits) de %(total-visits) de acessos exibidos"
 
 ["dashboard/pages/pageviews"]
   default = "Visualizações de página"
@@ -112,6 +114,7 @@
   default = "Estatísticas"
 
 ["dashboard/pages/stats-tooltip"]
+  default = "Cada barra representa 1/12 do período de tempo selecionado"
 
 ["dashboard/pages/title"]
   default = "Título"
@@ -120,17 +123,19 @@
   default = "Visualizações"
 
 ["dashboard/pages/visits"]
-  default = "Visitas"
+  default = "Acessos"
 
 ["dashboard/today"]
   default = "Hoje"
 
 ["dashboard/tooltip-event"]
+  default = "%(unique) cliques; %(clicks) total de cliques"
 
 ["dashboard/totals/header"]
   default = "Totais"
 
 ["dashboard/totals/num-visits"]
+  default = "%(num-visits) acessos"
 
 ["dashboard/week-ago"]
 
@@ -138,16 +143,22 @@
   default = "Ontem"
 
 ["data-collect/help/country"]
+  default = "Nome do país - por exemplo, Bélgica, Indonésia etc."
 
 ["data-collect/help/language"]
+  default = "Idiomas aceitos em Accept-Language"
 
 ["data-collect/help/referrer"]
 
 ["data-collect/help/region"]
+  default = "Região - por exemplo, Texas, Bali etc. Os detalhes podem variar conforme o país."
 
 ["data-collect/help/sessions"]
 
 ["data-collect/help/size"]
+  default = "Tamanho da tela."
+
+["data-collect/help/user-agent"]
 
 ["data-collect/label/country"]
   default = "País"
@@ -168,8 +179,10 @@
   default = "Tamanho"
 
 ["data-collect/label/user-agent"]
+  default = "User-Agent"
 
 ["datepicker/keyboard"]
+  default = "Use as teclas de seta para selecionar uma data"
 
 ["datepicker/month-next"]
   default = "Próximo mês"
@@ -181,10 +194,23 @@
   default = "Olá,"
 
 ["email/password-reset"]
+  default = """
+Alguém (esperamos que tenha sido você) solicitou uma redefinição da senha da sua conta do GoatCounter.
+
+Você pode fazer isso aqui:
+%(link)
+"""
 
 ["email/reset-user-email-subject"]
+  default = "Redefinição de senha para %(domain)"
 
 ["email/signature"]
+  default = """
+Se você tiver algum problema, perguntas, comentários ou algo mais para me dizer, basta responder a este e-mail. (Em inglês, se possível.)
+
+Atenciosamente,
+Martin
+"""
 
 ["error/account-has-stripe-subscription"]
 
@@ -199,42 +225,51 @@
 ["error/date-past"]
 
 ["error/delete-main-site"]
+  default = "Não é possível excluir o site principal"
 
 ["error/export-expired"]
 
 ["error/incorrect-password"]
+  default = "A senha atual está incorreta."
 
 ["error/invalid-end-date"]
+  default = "Data final inválida: %(date)"
 
 ["error/invalid-start-date"]
+  default = "Data inicial inválida: %(date)"
 
 ["error/load-url"]
+  default = "Não foi possível carregar %(url): %(error)"
 
 ["error/login-invalid"]
 
 ["error/login-no-password"]
 
 ["error/login-not-found"]
+  default = "Usuário %(e-mail) não encontrado"
 
 ["error/login-token-expired"]
 
 ["error/login-wrong-pwd"]
-  default = "Senha errada para %(email)"
+  default = "Senha incorreta para %(email)"
 
 ["error/not-found"]
   default = "Não encontrado"
 
 ["error/password-does-not-match"]
-  default = "Confirmação de senha não combina."
+  default = "A confirmação da senha não corresponde."
 
 ["error/payment-cancelled"]
   default = "Pagamento cancelado."
 
 ["error/reset-user-no-account"]
+  default = "Não é uma conta neste site: %(email)"
 
 ["error/token-already-used"]
+  default = "Token desconhecido; talvez já tenha sido usado?"
 
 ["error/wrong-verification-key"]
+  default = "Chave de verificação incorreta."
 
 ["event"]
   default = "evento"
@@ -242,19 +277,19 @@
 ["forgot-domain-help"]
 
 ["header/access"]
-  default = "Acesso"
+  default = "Nível de acesso"
 
 ["header/add-new-user"]
-  default = "Adiciona um novo usuário"
+  default = "Adicionar novo usuário"
 
 ["header/allow-access"]
-  default = "Permitir acesso"
+  default = "Nível de acesso"
 
 ["header/api"]
   default = "API"
 
 ["header/api-tokens"]
-  default = "Tokens de API"
+  default = "Tokens da API"
 
 ["header/browsers"]
   default = "Navegadores"
@@ -278,6 +313,7 @@
   default = "Painel"
 
 ["header/data-collection"]
+  default = "Coleta de dados"
 
 ["header/delete-account"]
   default = "Excluir conta"
@@ -286,7 +322,7 @@
   default = "Domínio"
 
 ["header/domain-settings"]
-  default = "Configurações de domínio"
+  default = "Configurações do domínio"
 
 ["header/edit-user"]
   default = "Editar usuário %(email)"
@@ -310,6 +346,7 @@
   default = "Esqueci a senha"
 
 ["header/hash"]
+  default = "Hash"
 
 ["header/import"]
   default = "Importar"
@@ -343,7 +380,7 @@
 ["header/pagination-cursor"]
 
 ["header/passwd-mfa"]
-  default = "Senha & MFA"
+  default = "Senha e MFA"
 
 ["header/path"]
   default = "Caminho"
@@ -410,48 +447,68 @@
   default = "Usuários"
 
 ["help/allow-visitor-counts"]
+  default = "Consulte %[a documentação] para mais detalhes."
 
 ["help/campaign-parameters"]
 
 ["help/cfg-dashboard"]
 
 ["help/code-access"]
+  default = "Você acessará o seu site em https://<em>[meu-código]</em>.%(domain)."
 
 ["help/custom-domain"]
+  default = 'Domínio personalizado, por exemplo <em>“estatísticas.exemplo.com.br”</em>. <strong>Observação:</strong> isto <em>não</em> impedirá que a maioria dos bloqueadores de anúncios bloqueie o GoatCounter. É apenas um "domínio bonitinho".'
 
 ["help/custom-domain-cname"]
+  default = "Defina um registro CNAME para <code>%(domain)</code> - %[%docs instruções detalhadas]."
 
 ["help/custom-domain-error"]
+  default = """
+%[%error Ainda não verificado]; defina um registro CNAME para <code>%(domain)</code> – %[%docs instruções detalhadas].
+A verificação é executada a cada 2 horas.
+"""
 
 ["help/custom-domain-plan"]
+  default = "Requer o plano Personal Plus ou Business (você está no plano %(plan); consulte %[%link faturamento])."
 
 ["help/custom-domain-verified"]
+  default = "Domínio verificado e configurado (observação: pode levar até uma hora para que o certificado funcione)."
 
 ["help/data-retention"]
 
 ["help/domain-access"]
 
 ["help/drag-reorder"]
+  default = "Arraste para reordenar"
 
 ["help/for-the-following-countries"]
 
 ["help/goatcounter-domain"]
+  default = 'O domínio de sua instalação do GoatCounter, por exemplo, <em>"estatísticas.exemplo.com.br"</em>.'
 
 ["help/ignore-ips"]
+  default = "Nunca processar solicitações vindas desses endereços de IP (separados por vírgulas). Apenas correspondências exatas. %[Clique aqui para adicionar o seu IP atual]."
 
 ["help/ignore-ips-2"]
+  default = "... ou %[desative este navegador] (clique novamente para ativar)."
 
 ["help/new-user-email"]
+  default = "E-mail para fazer login."
 
 ["help/new-user-email-confirm"]
+  default = "E-mail para fazer login; deve ser confirmado."
 
 ["help/no-undo"]
+  default = "Esta ação é irreversível e não pode ser desfeita!"
 
 ["help/password-edit"]
+  default = "Deixe este campo em branco para manter inalterado."
 
 ["help/password-new-user"]
+  default = "Deixe em branco para enviar um e-mail de redefinição de senha."
 
 ["help/public"]
+  default = "Define quem pode acessar o painel."
 
 ["help/rm-hits"]
 
@@ -460,42 +517,60 @@
 ["help/turing-test"]
 
 ["help/your-email"]
+  default = "Você precisará verificar novamente o novo endereço caso o altere."
 
 ["label/24-hour-clock"]
+  default = "Relógio de 24 horas (13:00)"
 
 ["label/add-new"]
+  default = "Adicionar"
 
 ["label/all-sites"]
+  default = "Todos os sites"
 
 ["label/allow-admin-access"]
+  default = "Permitir acesso de administrador"
 
 ["label/allow-visitor-counts"]
+  default = "Permitir a inclusão de contagem de visitantes no seu site"
 
 ["label/browser-stats"]
+  default = "Estatísticas de navegadores"
 
 ["label/campaign-parameters"]
 
 ["label/change-code"]
+  default = "Você acessará a sua conta em https://<em>[meu-código]</em>.%(domain) - %[%link alterar]."
 
 ["label/clear-pageviews"]
+  default = "Limpar todas as visualizações de página existentes."
 
 ["label/code"]
+  default = "Código"
 
 ["label/collected-since"]
+  default = "Coletado desde 2 de dezembro de 2021"
 
 ["label/csv-compress-format"]
+  default = "Arquivo CSV; pode ser compactado com gzip"
 
 ["label/current-passwd"]
+  default = "Senha atual"
 
 ["label/custom-domain"]
+  default = "Domínio personalizado"
 
 ["label/dashboard-public"]
+  default = "Visibilidade do painel"
 
 ["label/data-retention"]
+  default = "Retenção de dados em dias"
 
 ["label/date-fmt"]
+  default = "Formato da data"
 
 ["label/delete-account-confirmation"]
+  default = "Tem certeza de que deseja excluir a sua conta?"
 
 ["label/delete-account-contact"]
 
@@ -506,96 +581,135 @@
 ["label/delete-account-reason-placeholder"]
 
 ["label/email"]
+  default = "E-mail"
 
 ["label/email-address"]
+  default = "Endereço de e-mail"
 
 ["label/for-following-countries"]
+  default = "Restringir a apenas os seguintes países:"
 
 ["label/goatcounter-domain"]
+  default = "Domínio do GoatCounter"
 
 ["label/ignore-ips"]
+  default = "IPs ignorados"
 
 ["label/lang"]
+  default = "Idioma"
 
 ["label/language-stats"]
+  default = "Estatísticas de idioma"
 
 ["label/loc-stats"]
+  default = "Estatísticas de localização"
 
 ["label/mark-current"]
+  default = "(atual)"
 
 ["label/match-title"]
 
 ["label/mfa-token"]
+  default = "Token MFA"
 
 ["label/new-code"]
+  default = "Novo código"
 
 ["label/new-password"]
+  default = "Nova senha"
 
 ["label/new-password-confirm"]
+  default = "Nova senha (confirmação)"
 
 ["label/pagination-cursor"]
 
 ["label/password"]
+  default = "Senha"
 
 ["label/paths"]
 
 ["label/public-anyone"]
+  default = "Todos"
 
 ["label/public-private"]
+  default = "Apenas usuários com conta"
 
 ["label/public-token"]
+  default = "Usuários com conta ou com um segredo"
 
 ["label/secret"]
+  default = "Segredo"
 
 ["label/secret-access"]
+  default = "URL de acesso:"
 
 ["label/secret-token"]
+  default = "Segredo"
 
 ["label/set-default"]
+  default = "Também definir como padrão para novos usuários e para a exibição pública (se ativada)."
 
 ["label/size-desktop"]
+  default = "Monitores de computador"
 
 ["label/size-desktophd"]
+  default = "Monitores de computador maiores que HD"
 
 ["label/size-largephones"]
+  default = "Telefones grandes e tablets pequenos"
 
 ["label/size-phones"]
+  default = "Telefones"
 
 ["label/size-stats"]
 
 ["label/size-tablets"]
+  default = "Tablets e laptops pequenos"
 
 ["label/system-stats"]
 
 ["label/thousand-separator"]
+  default = "Separador de milhares"
 
 ["label/timezone"]
+  default = "Fuso horário"
 
 ["label/topref"]
 
 ["label/total-pageviews"]
+  default = "Total de visualizações de páginas do site"
 
 ["label/turing-test"]
 
 ["label/verifictation-token"]
+  default = "Token de verificação"
 
 ["label/week-start"]
+  default = "A semana começa no domingo"
 
 ["label/your-email"]
+  default = "Seu e-mail"
 
 ["label/your-site"]
+  default = "Seu site"
 
 ["link/add-translation"]
+  default = "Adicionar ou atualizar traduções"
 
 ["link/api"]
+  default = "API"
 
 ["link/api-docs"]
+  default = "Documentação da API"
 
 ["link/billing"]
+  default = "Cobrança"
 
 ["link/dashboard"]
+  default = "Painel"
 
 ["link/generate-random"]
+  default = "Gerar segredo aleatório."
 
 ["link/goto-path"]
   default = "Ir para %(path)"
@@ -604,7 +718,7 @@
   default = "Importar"
 
 ["link/passwd-mfa"]
-  default = "Senha & MFA"
+  default = "Senha e MFA"
 
 ["link/preferences"]
   default = "Preferências"
@@ -616,12 +730,13 @@
   default = "Excluir visualizações de página"
 
 ["link/set-from-browser"]
+  default = "Definir a partir do navegador"
 
 ["link/settings"]
   default = "configurações"
 
 ["link/show-more"]
-  default = "Mostrar mais"
+  default = "Exibir mais"
 
 ["link/sites"]
   default = "Sites"
@@ -642,7 +757,7 @@
   default = "Início"
 
 ["nav-bot/src"]
-  default = "Código fonte"
+  default = "Código-fonte"
 
 ["nav-dash/back"]
   default = "atrás"
@@ -657,12 +772,16 @@
   default = "dia"
 
 ["nav-dash/end-date"]
+  default = "Final do intervalo de datas a ser exibido."
 
 ["nav-dash/filter"]
+  default = "Filtrar caminhos"
 
 ["nav-dash/filter-tooltip"]
+  default = "Filtrar a lista de caminhos sem diferenciação entre maiúsculas e minúsculas no título e no caminho."
 
 ["nav-dash/forced-daily"]
+  default = "A visualização por hora não pode ser usada em um período de tempo superior a 90 dias."
 
 ["nav-dash/forward"]
   default = "adiante"
@@ -680,6 +799,7 @@
   default = "trimestre"
 
 ["nav-dash/start-date"]
+  default = "Início do período a ser exibido"
 
 ["nav-dash/week"]
   default = "semana"
@@ -699,6 +819,7 @@
 ["notify/disabled-multi-factor-auth"]
 
 ["notify/email-already-verified"]
+  default = "%(email) já foi verificado."
 
 ["notify/export-started-in-background"]
 
@@ -711,20 +832,25 @@
 ["notify/need-business-plan-custom-domain"]
 
 ["notify/need-email-verification-for-api"]
+  default = "É necessário verificar o seu endereço de e-mail antes de usar a API."
 
 ["notify/no-user-for-token"]
 
 ["notify/not-found"]
+  default = "Não encontrado"
 
 ["notify/password-changed"]
+  default = "Senha alterada."
 
 ["notify/payment-processed"]
+  default = "O pagamento foi processado com sucesso!"
 
 ["notify/payment-processing"]
 
 ["notify/reset-to-default"]
 
 ["notify/reset-user-sent"]
+  default = "E-mail enviado para %(e-mail)"
 
 ["notify/restored-previously-deleted-site"]
 
@@ -732,20 +858,27 @@
   default = "Salvo!"
 
 ["notify/sent-to-email"]
+  default = "Enviado para %(e-mail)."
 
 ["notify/settings-copied-to-site"]
+  default = "Configurações copiadas para os sites selecionados."
 
 ["notify/site-added"]
+  default = 'Site "%(url)" adicionado.'
 
 ["notify/site-removed"]
+  default = 'Site "%(url)" removido.'
 
 ["notify/started-background-process"]
 
 ["notify/user-added"]
+  default = 'Usuário "%(email)" adicionado.'
 
 ["notify/user-removed"]
+  default = 'Usuário "%(email)" removido.'
 
 ["notify/users-edited"]
+  default = 'Usuário "%(email)" editado.'
 
 ["p/add-goatcounter-to-multiple-websites"]
 
@@ -779,6 +912,7 @@
 ["p/have-mfa"]
 
 ["p/last-user"]
+  default = "Não é possível excluir ou editar o único administrador"
 
 ["p/no-data"]
 
@@ -789,6 +923,7 @@
 ["p/notify-pagination-cursor"]
 
 ["p/notify-site-deletion"]
+  default = "%(number) sites serão excluídos"
 
 ["p/remove-site-confirm"]
 
@@ -807,8 +942,10 @@
 ["p/setting-recovery-disabled-information"]
 
 ["p/settings-all-sites"]
+  default = "Estas configurações serão aplicadas a todos os sites aos quais você tem acesso."
 
 ["p/site-domain-link-to-page"]
+  default = 'O domínio do seu site, por exemplo, <em>"www.exemplo.com.br"</em>, usado para criar links na página de visão geral.'
 
 ["p/text-data-retention"]
 
@@ -819,18 +956,25 @@
 ["restricted-admin-access"]
 
 ["scale-y"]
+  default = "Dimensionar o eixo Y para o máximo"
 
 ["top-nav/back"]
+  default = "Voltar"
 
 ["top-nav/dashboard"]
+  default = "Painel"
 
 ["top-nav/need-js"]
+  default = "O GoatCounter requer JavaScript ativado para funcionar; permita a execução de JavaScript no domínio %(domain)."
 
 ["top-nav/public-link"]
+  default = "Análises para %(domain)."
 
 ["top-nav/public-time"]
+  default = "A exibição pública é atualizada uma vez por hora; todos os horários estão em %(timezone-name) (%(timezone-offset))."
 
 ["top-nav/settings"]
+  default = "Configurações"
 
 ["top-nav/sign-in"]
   default = "Entrar"
@@ -854,62 +998,87 @@
   default = "(desconhecido)"
 
 ["validate/bool"]
+  default = "deve ser um booleano"
 
 ["validate/color"]
+  default = "deve ser um código de cor válido"
 
 ["validate/contains"]
+  default = "não pode conter os caracteres %s"
 
 ["validate/date"]
+  default = 'deve ser uma data como "%s"'
 
 ["validate/domain"]
+  default = "deve ser um domínio válido"
 
 ["validate/email"]
+  default = "deve ser um endereço de e-mail válido"
 
 ["validate/exclude"]
+  default = 'não pode ser "%s"'
 
 ["validate/hostname"]
+  default = "deve ser um nome de host válido"
 
 ["validate/include"]
+  default = 'deve ser um de "%s"'
 
 ["validate/int"]
+  default = "deve ser um número inteiro"
 
 ["validate/ip"]
+  default = "deve ser um endereço IPv4 ou IPv6 válido"
 
 ["validate/ipv4"]
+  default = "deve ser um endereço IPv4 válido"
 
 ["validate/len-longer"]
+  default = "deve ser maior que %d caracteres"
 
 ["validate/len-shorter"]
+  default = "deve ser menor que %d caracteres"
 
 ["validate/phone"]
+  default = "deve ser um número de telefone válido"
 
 ["validate/range-higher"]
+  default = "deve ser %d ou maior"
 
 ["validate/range-lower"]
+  default = "deve ser %d ou menor"
 
 ["validate/required"]
+  default = "deve ser definido"
 
 ["validate/url"]
+  default = "deve ser um url válido"
 
 ["validate/utf8"]
-  default = "Precisa ser UTF-8"
+  default = "deve ser UTF-8"
 
 ["widget-setting/help/align"]
+  default = "Adicionar margem à esquerda para alinhar com os gráficos das páginas"
 
 ["widget-setting/help/chart-style"]
+  default = "Como o gráfico deve ser desenhado"
 
 ["widget-setting/help/no-events"]
+  default = "Não incluir eventos na visão geral"
 
 ["widget-setting/help/page-size"]
+  default = "Total de páginas a serem carregadas"
 
 ["widget-setting/help/ref-page-size"]
 
 ["widget-setting/help/regions"]
+  default = "Exibir as regiões correspondentes a este país em vez de uma lista de países"
 
 ["widget-setting/label/align"]
+  default = "Alinhar com as páginas"
 
 ["widget-setting/label/chart-style"]
-  default = "Estilo de gráfico"
+  default = "Estilo do gráfico"
 
 ["widget-setting/label/no-events"]
   default = "Desconsiderar eventos"
@@ -921,7 +1090,7 @@
   default = "Tamanho da página do indicador"
 
 ["widget-setting/label/regions"]
-  default = "Mostrar regiões"
+  default = "Exibir regiões"
 
 ["widget-settings/bar-chart"]
   default = "Gráfico de barra"

@@ -94,6 +94,7 @@ type OverrideTranslation struct {
 	Name    string       `json:"name"`
 	Updated string       `json:"updated"`
 	File    msgfile.File `json:"file"`
+	Diff    string       `json:"diff"`
 }
 
 type OverrideTranslations []OverrideTranslation
@@ -122,7 +123,7 @@ func (o OverrideTranslations) encode() (string, error) {
 	return string(j), err
 }
 
-func (o *OverrideTranslations) decode(data string) error {
+func (o *OverrideTranslations) Decode(data string) error {
 	var w wrap
 	err := json.Unmarshal([]byte(data), &w)
 	if err != nil {
@@ -148,7 +149,6 @@ func (o *OverrideTranslations) decode(data string) error {
 	return nil
 }
 
-// Insert new.
 func (o *OverrideTranslations) Insert(ctx context.Context) error {
 	t, err := o.encode()
 	if err != nil {
@@ -195,7 +195,7 @@ func (o *OverrideTranslations) Get(ctx context.Context, insert bool) error {
 		return errors.Wrap(err, "OverrideTranslations.Get")
 	}
 
-	err = o.decode(string(data))
+	err = o.Decode(string(data))
 	if err != nil {
 		return errors.Wrap(err, "OverrideTranslations.List")
 	}

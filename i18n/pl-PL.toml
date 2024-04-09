@@ -86,7 +86,7 @@
   default = "Zatwierdź"
 
 ["confirm/delete-user"]
-  default = "Usuń %(email)?"
+  default = "Usunąć %(email)?"
 
 ["dashboard/day-ago"]
   default = "%(n) dni temu"
@@ -170,13 +170,16 @@
   default = "Nagłówek Referer i parametr kampanii"
 
 ["data-collect/help/region"]
-  default = "Region, na przykład Texas, Bali, itd. Szczegóły różnią się w zależności od kraju."
+  default = "Region, na przykład Texas, Bali, itd. Poziom szczegółowości różnią się w zależności od kraju."
 
 ["data-collect/help/sessions"]
-  default = "Śledź pojedynczych odwiedzających do 8 godzin; jeśli wyłączysz tę funkcję, to ktoś wciskając np. F5, aby ponownie załadować stronę, zostanie policzony jako 2 odsłony zamiast 1"
+  default = "Grupuj odsłony pojedynczego odwiedzającego na przestrzeni 8 godzin; jeśli wyłączysz tę funkcję, to ktoś wciskając np. F5, aby ponownie załadować stronę, zostanie policzony jako 2 odsłony zamiast 1"
 
 ["data-collect/help/size"]
   default = "Rozmiar ekranu."
+
+["data-collect/help/user-agent"]
+  default = "Nagłówek User-Agent do zapisywania nazwy i wersji przeglądarki oraz systemu."
 
 ["data-collect/label/country"]
   default = "Kraj"
@@ -342,7 +345,7 @@ Martin
   default = "Pulpit"
 
 ["header/data-collection"]
-  default = "Zbieranie danych"
+  default = "Zbierane dane"
 
 ["header/delete-account"]
   default = "Usuń konto"
@@ -393,7 +396,7 @@ Martin
   default = "Kraje"
 
 ["header/locations-for"]
-  default = "Lokalizacje dla %(country)"
+  default = "%(country), regiony:"
 
 ["header/mfa"]
   default = "Uwierzytelnianie wieloskładnikowe"
@@ -791,7 +794,7 @@ Weryfikacja odbywa się co 2 godziny.
   default = "Ustaw z przeglądarki"
 
 ["link/settings"]
-  default = "ustawienia"
+  default = "Ustawienia"
 
 ["link/show-more"]
   default = "Pokaż więcej"

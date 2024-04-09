@@ -178,6 +178,9 @@
 ["data-collect/help/size"]
   default = "Taille écran"
 
+["data-collect/help/user-agent"]
+  default = 'En-tête "User-Agent" pour obtenir le nom et la version du navigateur et du système.'
+
 ["data-collect/label/country"]
   default = "Pays"
 
@@ -393,6 +396,7 @@ Martin
   default = "Pays"
 
 ["header/locations-for"]
+  default = "Emplacements pour: %(country)"
 
 ["header/mfa"]
   default = "Authentification multi-facteur"
@@ -407,6 +411,7 @@ Martin
   default = "Nouveau"
 
 ["header/pagination-cursor"]
+  default = "Curseur de pagination"
 
 ["header/passwd-mfa"]
   default = "Mot de passe & MFA"
@@ -459,7 +464,7 @@ Martin
   default = "Token"
 
 ["header/toprefs"]
-  default = "Principaux referrers"
+  default = "Principaux referers"
 
 ["header/tracking"]
   default = "Suivi"
@@ -811,7 +816,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Code source"
 
 ["nav-dash/back"]
-  default = "avant"
+  default = "reculer"
 
 ["nav-dash/by-day"]
   default = "Vue par jour"
@@ -835,7 +840,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Impossible d'utiliser la vue horaire pour une période de plus de 90 jours"
 
 ["nav-dash/forward"]
-  default = "après"
+  default = "avancer"
 
 ["nav-dash/half-year"]
   default = "semestre"
@@ -934,7 +939,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Site ‘%(url)’ supprimé."
 
 ["notify/started-background-process"]
-  default = "Démarrage en arrière-plan ; le traitement complet peut prendre de 10 à 20 secondes."
+  default = "Démarré en arrière-plan. Le traitement peut prendre 10-20 secondes avant de terminer."
 
 ["notify/user-added"]
   default = "Utilisateur ‘%(email)’ ajouté."
@@ -956,7 +961,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Autres erreurs"
 
 ["p/api-intro"]
-  default = "GoatCounter est livré avec une API limitée ; actuellement, vous pouvez compter les pages vues à partir de l'API, créer, supprimer et modifier des sites, et créer des exportations."
+  default = "GoatCounter inclut un API limité. Présentement, vous pouvez l'utiliser pour compter les pages vues, pour créer, supprimer et éditer vos sites, et pour exporter des données."
 
 ["p/change-code-request"]
 

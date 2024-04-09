@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -17,10 +18,13 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/z18n/msgfile"
+	"zgo.at/zdb"
 	"zgo.at/zhttp"
+	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zfilepath"
 	"zgo.at/zstd/zfs"
+	"zgo.at/zstd/ztest"
 )
 
 type i18n struct {
@@ -42,6 +46,49 @@ func (h i18n) mount(r chi.Router) {
 	r.Post("/i18n", zhttp.Wrap(h.new))
 	r.Post("/i18n/set/{file}", zhttp.Wrap(h.set))
 	r.Post("/i18n/submit/{file}", zhttp.Wrap(h.submit))
+
+	a := r.With(mware.RequestLog(nil), requireAccess(goatcounter.AccessSuperuser))
+	a.Get("/i18n/manage", zhttp.Wrap(h.manage))
+}
+
+func (h i18n) manage(w http.ResponseWriter, r *http.Request) error {
+	var str []string
+	err := zdb.Select(r.Context(), &str, `select value from store where key like 'i18n-%'`)
+	if err != nil {
+		return err
+	}
+
+	all := make(goatcounter.OverrideTranslations, 0, len(str))
+	for _, a := range str {
+		var aa goatcounter.OverrideTranslations
+		err := aa.Decode(a)
+		if err != nil {
+			return err
+		}
+
+		for i, d := range aa {
+			t, err := d.File.TOML()
+			if err != nil {
+				return err
+			}
+			file, err := fs.ReadFile(goatcounter.Translations(r.Context()), d.Name)
+			aa[i].Diff = ztest.Diff(string(file), t)
+			if err != nil {
+				aa[i].Diff = fmt.Sprintf("%q doesn't exist", "i18n/"+d.Name)
+			}
+			aa[i].Diff = strings.ReplaceAll(aa[i].Diff, "-have ", "-cur  ")
+			aa[i].Diff = strings.ReplaceAll(aa[i].Diff, "+want ", "+new  ")
+		}
+
+		all = append(all, aa...)
+	}
+	slices.SortFunc(all, func(a, b goatcounter.OverrideTranslation) int { return strings.Compare(b.Updated, a.Updated) })
+	slices.SortFunc(all, func(a, b goatcounter.OverrideTranslation) int { return strings.Compare(a.Name, b.Name) })
+
+	return zhttp.Template(w, "i18n_manage.gohtml", struct {
+		Globals
+		Files goatcounter.OverrideTranslations
+	}{newGlobals(w, r), all})
 }
 
 func (h i18n) list(w http.ResponseWriter, r *http.Request) error {

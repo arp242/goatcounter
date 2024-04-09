@@ -26,7 +26,7 @@
   default = "löschen"
 
 ["button/delete-account"]
-  default = "Konto, alle Websites, alle Daten löschen"
+  default = "Konto, alle Websites und alle Daten löschen"
 
 ["button/delete-all"]
   default = "Ja, wirklich alles löschen!"

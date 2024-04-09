@@ -35,6 +35,8 @@
 				<option {{option_value .User.Settings.Language "ro-RO"}}>Românește</option>
 				<option {{option_value .User.Settings.Language "ru-RU"}}>Русский</option>
 				<option {{option_value .User.Settings.Language "tr-TR"}}>Türkçe</option>
+				<option {{option_value .User.Settings.Language "zh-CN"}}>简体中文</option>
+				<option {{option_value .User.Settings.Language "zh-TW"}}>中国</option>
 			</select>
 			{{validate "settings.language" .Validate}}
 			<span><a href="/i18n">{{.T "link/add-translation|Add or update translations"}}</a></span>
