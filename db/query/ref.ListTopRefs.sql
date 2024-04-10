@@ -10,7 +10,7 @@ with x as (
 	order by count desc, ref_id
 	-- Over-select quite a bit here since we may filter on the refs.ref below;
 	-- even with the over-select a CTE is quite a bit faster.
-	limit :limit2 offset :offset
+	limit :limit2
 )
 select
 	x.count,
@@ -19,4 +19,4 @@ select
 from x
 left join refs using (ref_id)
 {{:has_domain where refs.ref not like :ref}}
-limit :limit
+limit :limit offset :offset
