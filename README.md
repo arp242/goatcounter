@@ -57,7 +57,7 @@ Features
 
 [privacy]: https://www.goatcounter.com/privacy
 [gdpr]: https://www.goatcounter.com/gdpr
-[sessions]: https://github.com/arp242/goatcounter/blob/master/docs/sessions.md
+[sessions]: http://www.goatcounter.com/help/sessions
 
 
 Getting data in to GoatCounter

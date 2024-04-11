@@ -39,12 +39,12 @@ func TestSizeStats(t *testing.T) {
 	want := `{
 		"more": false,
 		"stats": [
-			{"count": 0, "id": "phone", "name": "Phones"},
-			{"count": 0, "id": "largephone", "name": "Large phones, small tablets" },
-			{"count": 0, "id": "tablet", "name": "Tablets and small laptops"},
-			{"count": 2, "id": "desktop", "name": "Computer monitors"},
-			{"count": 0, "id": "desktophd", "name": "Computer monitors larger than HD"},
-			{"count": 0, "id": "unknown", "name": "(unknown)"}
+			{"count": 0, "id": "phone", "name": ""},
+			{"count": 0, "id": "largephone", "name": "" },
+			{"count": 0, "id": "tablet", "name": ""},
+			{"count": 2, "id": "desktop", "name": ""},
+			{"count": 0, "id": "desktophd", "name": ""},
+			{"count": 0, "id": "unknown", "name": ""}
 		]
 	}`
 
@@ -71,12 +71,12 @@ func TestSizeStats(t *testing.T) {
 	want = `{
 		"more": false,
 		"stats": [
-			{"count": 0, "id": "phone", "name": "Phones"},
-			{"count": 0, "id": "largephone", "name": "Large phones, small tablets" },
-			{"count": 0, "id": "tablet", "name": "Tablets and small laptops"},
-			{"count": 3, "id": "desktop", "name": "Computer monitors"},
-			{"count": 0, "id": "desktophd", "name": "Computer monitors larger than HD"},
-			{"count": 1, "id": "unknown", "name": "(unknown)"}
+			{"count": 0, "id": "phone", "name": ""},
+			{"count": 0, "id": "largephone", "name": "" },
+			{"count": 0, "id": "tablet", "name": ""},
+			{"count": 3, "id": "desktop", "name": ""},
+			{"count": 0, "id": "desktophd", "name": ""},
+			{"count": 1, "id": "unknown", "name": ""}
 		]
 	}`
 	if d := ztest.Diff(zjson.MustMarshalString(have), want, ztest.DiffJSON); d != "" {

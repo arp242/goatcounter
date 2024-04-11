@@ -206,13 +206,14 @@ func init() {
 			{href: "domains", label: "Track multiple domains/sites?"},
 			{href: "spa", label: "Add GoatCounter to a SPA?"},
 			{href: "campaigns", label: "Track campaigns?"},
-			{href: "countjs-versions", label: "count.js versions and SRI"},
+			{href: "countjs-versions", label: "Use SRI with count.js?"},
 			{href: "countjs-host", label: "Host count.js somewhere else?"},
 			{href: "frame", label: "Embed GoatCounter in a frame?"}}},
 		{label: "Other", items: []x{
 			// TODO: add "adblock" page
 			// TODO: add "campiagns page"; link in "settings_main".
 			{href: "export", label: "Export format"},
+			{href: "sessions", label: "Sessions and visitors"},
 			{href: "api", label: "API"},
 			{href: "faq", label: "FAQ"},
 			{href: "translating", label: "Translating GoatCounter"}}},

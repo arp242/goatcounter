@@ -6,14 +6,10 @@ package goatcounter
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/url"
 	"slices"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -22,7 +18,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
-	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
@@ -35,40 +30,17 @@ var (
 	TestSeqSession = zint.Uint128{TestSession[0], TestSession[1] + 1}
 )
 
-// The json encoder doesn't like binary data, so base64 it; need struct as it'll
-// ignore MarshalText on "type hash string" (but not UnmarshalText? Hmm)
-type hash struct{ v string }
-
-var (
-	_ encoding.TextMarshaler   = hash{}
-	_ encoding.TextUnmarshaler = &hash{}
-)
-
-// MarshalText converts the data to a human readable representation.
-func (h hash) MarshalText() ([]byte, error) {
-	b := base64.StdEncoding.EncodeToString([]byte(h.v))
-	return []byte(b), nil
-}
-
-// UnmarshalText parses text in to the Go data structure.
-func (h *hash) UnmarshalText(v []byte) error {
-	b, err := base64.StdEncoding.DecodeString(string(v))
-	h.v = string(b)
-	return err
-}
+type sessionKey string
 
 type ms struct {
 	hitMu sync.RWMutex
 	hits  []Hit
 
 	sessionMu     sync.RWMutex
-	sessions      map[hash]zint.Uint128               // Hash → sessionID
-	sessionHashes map[zint.Uint128]hash               // sessionID → hash
+	sessions      map[sessionKey]zint.Uint128         // sessionKey → sessionID
+	sessionHashes map[zint.Uint128]sessionKey         // sessionID → sessionKey
 	sessionPaths  map[zint.Uint128]map[int64]struct{} // SessionID → path_id
 	sessionSeen   map[zint.Uint128]int64              // SessionID → lastseen
-	curSalt       []byte
-	prevSalt      []byte
-	saltRotated   time.Time
 
 	testHook bool
 }
@@ -76,26 +48,20 @@ type ms struct {
 var Memstore ms
 
 type storedSession struct {
-	Sessions    map[hash]zint.Uint128               `json:"sessions"`
-	Hashes      map[zint.Uint128]hash               `json:"hashes"`
-	Paths       map[zint.Uint128]map[int64]struct{} `json:"paths"`
-	Seen        map[zint.Uint128]int64              `json:"seen"`
-	CurSalt     []byte                              `json:"cur_salt"`
-	PrevSalt    []byte                              `json:"prev_salt"`
-	SaltRotated time.Time                           `json:"salt_rotated"`
+	Sessions map[sessionKey]zint.Uint128         `json:"sessions"`
+	Hashes   map[zint.Uint128]sessionKey         `json:"hashes"`
+	Paths    map[zint.Uint128]map[int64]struct{} `json:"paths"`
+	Seen     map[zint.Uint128]int64              `json:"seen"`
 }
 
 func (m *ms) Reset() {
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	m.sessions = make(map[hash]zint.Uint128)
-	m.sessionHashes = make(map[zint.Uint128]hash)
+	m.sessions = make(map[sessionKey]zint.Uint128)
+	m.sessionHashes = make(map[zint.Uint128]sessionKey)
 	m.sessionPaths = make(map[zint.Uint128]map[int64]struct{})
 	m.sessionSeen = make(map[zint.Uint128]int64)
-	m.curSalt = []byte(zcrypto.Secret256())
-	m.prevSalt = []byte(zcrypto.Secret256())
-	m.saltRotated = ztime.Now()
 	TestSeqSession = zint.Uint128{TestSession[0], TestSession[1] + 1}
 }
 
@@ -149,16 +115,6 @@ func (m *ms) Init(db zdb.DB) error {
 	if stored.Seen != nil {
 		m.sessionSeen = stored.Seen
 	}
-	if len(stored.CurSalt) > 0 {
-		m.curSalt = stored.CurSalt
-	}
-	if len(stored.PrevSalt) > 0 {
-		m.prevSalt = stored.PrevSalt
-	}
-	if !stored.SaltRotated.IsZero() {
-		m.saltRotated = stored.SaltRotated
-	}
-
 	return nil
 }
 
@@ -167,13 +123,10 @@ func (m *ms) StoreSessions(db zdb.DB) {
 	defer m.sessionMu.Unlock()
 
 	d, err := json.Marshal(storedSession{
-		Sessions:    m.sessions,
-		Paths:       m.sessionPaths,
-		Seen:        m.sessionSeen,
-		Hashes:      m.sessionHashes,
-		CurSalt:     m.curSalt,
-		PrevSalt:    m.prevSalt,
-		SaltRotated: m.saltRotated,
+		Sessions: m.sessions,
+		Paths:    m.sessionPaths,
+		Seen:     m.sessionSeen,
+		Hashes:   m.sessionHashes,
 	})
 	if err != nil {
 		zlog.Error(err)
@@ -353,23 +306,8 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	return true
 }
 
-func (m *ms) GetSalt() (cur []byte, prev []byte) {
-	m.sessionMu.Lock()
-	defer m.sessionMu.Unlock()
-	return m.curSalt, m.prevSalt
-}
-
-func (m *ms) RefreshSalt() {
-	m.sessionMu.Lock()
-	defer m.sessionMu.Unlock()
-
-	if m.saltRotated.Add(4 * time.Hour).After(ztime.Now()) {
-		return
-	}
-
-	m.prevSalt = m.curSalt[:]
-	m.curSalt = []byte(zcrypto.Secret256())
-}
+// Maximum length of sessions; exported here for tests.
+var SessionTime = 8 * time.Hour
 
 // For 10k sessions this takes about 5ms on my laptop; that's a small enough
 // delay to not overly worry about (there are rarely more than a few hundred
@@ -378,17 +316,24 @@ func (m *ms) EvictSessions() {
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	ev := ztime.Now().Add(-4 * time.Hour).Unix()
-	for sID, seen := range m.sessionSeen {
+	ev := ztime.Now().Add(-SessionTime).Unix()
+	for id, seen := range m.sessionSeen {
 		if seen > ev {
 			continue
 		}
 
-		hash := m.sessionHashes[sID]
-		delete(m.sessions, hash)
-		delete(m.sessionPaths, sID)
-		delete(m.sessionSeen, sID)
-		delete(m.sessionHashes, sID)
+		sk := m.sessionHashes[id]
+
+		sessLog.Fields(zlog.F{
+			"session-id":  id,
+			"last-seen":   seen,
+			"session-key": sk,
+		}).Debug("evicting session")
+
+		delete(m.sessions, sk)
+		delete(m.sessionPaths, id)
+		delete(m.sessionSeen, id)
+		delete(m.sessionHashes, id)
 	}
 }
 
@@ -401,43 +346,45 @@ func (m *ms) SessionID() zint.Uint128 {
 	return UUID()
 }
 
-func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
-	sessionHash := hash{userSessionID}
+var sessLog = zlog.Module("session")
 
+func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
+	sk := sessionKey(userSessionID)
 	if userSessionID == "" {
-		h := sha256.New()
-		h.Write(append(append(append(m.curSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
-		sessionHash = hash{string(h.Sum(nil))}
+		sk = sessionKey(fmt.Sprintf("%s-%s-%d", ua, remoteAddr, siteID))
 	}
 
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	id, ok := m.sessions[sessionHash]
-	if !ok && userSessionID == "" { // Try previous hash
-		h := sha256.New()
-		h.Write(append(append(append(m.prevSalt, ua...), remoteAddr...), strconv.FormatInt(siteID, 10)...))
-		prev := hash{string(h.Sum(nil))}
-		id, ok = m.sessions[prev]
-		if ok {
-			sessionHash = prev
-		}
-	}
-
+	id, ok := m.sessions[sk]
 	if ok { // Existing session
 		m.sessionSeen[id] = ztime.Now().Unix()
 		_, seenPath := m.sessionPaths[id][pathID]
 		if !seenPath {
 			m.sessionPaths[id][pathID] = struct{}{}
 		}
+
+		sessLog.Fields(zlog.F{
+			"session-key": sk,
+			"session-id":  id,
+			"path":        pathID,
+			"seen-path":   seenPath,
+		}).Debug("HIT")
 		return id, zbool.Bool(!seenPath)
 	}
 
 	// New session
 	id = m.SessionID()
-	m.sessions[sessionHash] = id
+	m.sessions[sk] = id
 	m.sessionPaths[id] = map[int64]struct{}{pathID: struct{}{}}
 	m.sessionSeen[id] = ztime.Now().Unix()
-	m.sessionHashes[id] = sessionHash
+	m.sessionHashes[id] = sk
+
+	sessLog.Fields(zlog.F{
+		"session-key": sk,
+		"session-id":  id,
+		"path":        pathID,
+	}).Debug("MISS: created new")
 	return id, true
 }

@@ -217,6 +217,5 @@ func vacuumDeleted(ctx context.Context) error {
 
 func sessions(ctx context.Context) error {
 	goatcounter.Memstore.EvictSessions()
-	goatcounter.Memstore.RefreshSalt()
 	return nil
 }

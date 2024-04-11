@@ -270,30 +270,6 @@ func TestBackendCountSessions(t *testing.T) {
 		}
 	}
 
-	rotate := func(ctx context.Context) {
-		now = now.Add(12 * time.Hour)
-		oldCur, _ := goatcounter.Memstore.GetSalt()
-
-		goatcounter.Memstore.RefreshSalt()
-
-		_, prev := goatcounter.Memstore.GetSalt()
-		if string(prev) != string(oldCur) {
-			t.Fatalf("salts not cycled?\noldCur: %s\nprev:   %s\n", string(oldCur), string(prev))
-		}
-	}
-
-	// Ensure salts aren't cycled before they should.
-	beforeCur, beforePrev := goatcounter.Memstore.GetSalt()
-	now = now.Add(1 * time.Hour)
-	goatcounter.Memstore.RefreshSalt()
-	afterCur, afterPrev := goatcounter.Memstore.GetSalt()
-
-	before := string(beforeCur) + " → " + string(beforePrev)
-	after := string(afterCur) + " → " + string(afterPrev)
-	if before != after {
-		t.Fatalf("salts cycled too soon\nbefore: %s\nafter: %s", before, after)
-	}
-
 	send(ctx1, "test")
 	send(ctx1, "test")
 	send(ctx1, "other")
@@ -308,8 +284,9 @@ func TestBackendCountSessions(t *testing.T) {
 	want := []int{1, 1, 2, 3, 3, 1, 2}
 	checkSess(append(hits1, hits2...), want)
 
-	// Rotate, should still use the same sessions.
-	rotate(ctx1)
+	// Should still use the same sessions.
+	goatcounter.SessionTime = 1 * time.Second
+	goatcounter.Memstore.EvictSessions()
 	send(ctx1, "test")
 	send(ctx2, "test")
 	hits1 = checkHits(ctx1, 6)
@@ -317,8 +294,9 @@ func TestBackendCountSessions(t *testing.T) {
 	want = []int{1, 1, 2, 3, 3, 1, 2, 1, 3}
 	checkSess(append(hits1, hits2...), want)
 
-	// Rotate again, should use new sessions from now on.
-	rotate(ctx1)
+	// Should use new sessions from now on.
+	now = time.Date(2019, 6, 18, 14, 42, 2, 0, time.UTC)
+	goatcounter.Memstore.EvictSessions()
 	send(ctx1, "test")
 	send(ctx2, "test")
 	hits1 = checkHits(ctx1, 7)

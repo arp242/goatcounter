@@ -237,6 +237,7 @@ commas.
     all            Show debug logs for all of the below.
 
     acme           ACME certificate creation.
+    cli-trace      Show stack traces in errors on the CLI.
     cron           Background "cron" jobs.
     cron-acme      Cron jobs for ACME certificate creations.
     dashboard      Dashboard view.
@@ -245,7 +246,7 @@ commas.
     import-api     Imports from the API.
     memstore       Storing of pageviews in the database.
     monitor        Additional logs in "goatcounter monitor" .
-    cli-trace      Show stack traces in errors on the CLI.
+    session        Internal "session" generation to track visitors .
     startup        Some additional logs during startup.
     vacuum         Deletion of old deleted sites and old pageviews.
 `

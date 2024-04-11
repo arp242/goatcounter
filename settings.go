@@ -405,7 +405,7 @@ func (ss SiteSettings) CollectFlags(ctx context.Context) []CollectFlag {
 	return []CollectFlag{
 		{
 			Label: z18n.T(ctx, "data-collect/label/sessions|Sessions"),
-			Help:  z18n.T(ctx, "data-collect/help/sessions|Track unique visitors for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1"),
+			Help:  z18n.T(ctx, "data-collect/help/sessions|%[Track unique visitors] for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1.", z18n.Tag("a", `href="/help/sessions"`)),
 			Flag:  CollectSession,
 		},
 		{
@@ -435,7 +435,7 @@ func (ss SiteSettings) CollectFlags(ctx context.Context) []CollectFlag {
 		},
 		{
 			Label: z18n.T(ctx, "data-collect/label/language|Language"),
-			Help:  z18n.T(ctx, "data-collect/help/language|Supported languages from Accept-Language"),
+			Help:  z18n.T(ctx, "data-collect/help/language|Supported languages from Accept-Language."),
 			Flag:  CollectLanguage,
 		},
 	}

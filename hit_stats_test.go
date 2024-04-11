@@ -135,32 +135,32 @@ func TestHitStats(t *testing.T) {
 				"stats": [
 					{
 						"id": "phone",
-						"name": "Phones",
+						"name": "",
 						"count": 0
 					},
 					{
 						"id": "largephone",
-						"name": "Large phones, small tablets",
+						"name": "",
 						"count": 1
 					},
 					{
 						"id": "tablet",
-						"name": "Tablets and small laptops",
+						"name": "",
 						"count": 0
 					},
 					{
 						"id": "desktop",
-						"name": "Computer monitors",
+						"name": "",
 						"count": 1
 					},
 					{
 						"id": "desktophd",
-						"name": "Computer monitors larger than HD",
+						"name": "",
 						"count": 0
 					},
 					{
 						"id": "unknown",
-						"name": "(unknown)",
+						"name": "",
 						"count": 0
 					}
 				]
@@ -288,32 +288,32 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"id": "phone",
-					"name": "Phones",
+					"name": "",
 					"count": 1
 				},
 				{
 					"id": "largephone",
-					"name": "Large phones, small tablets",
+					"name": "",
 					"count": 1
 				},
 				{
 					"id": "tablet",
-					"name": "Tablets and small laptops",
+					"name": "",
 					"count": 1
 				},
 				{
 					"id": "desktop",
-					"name": "Computer monitors",
+					"name": "",
 					"count": 1
 				},
 				{
 					"id": "desktophd",
-					"name": "Computer monitors larger than HD",
+					"name": "",
 					"count": 3
 				},
 				{
 					"id": "unknown",
-					"name": "(unknown)",
+					"name": "",
 					"count": 1
 				}
 			]
