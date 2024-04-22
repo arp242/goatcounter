@@ -21,6 +21,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/teamwork/reload"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"golang.org/x/text/language"
 	"zgo.at/bgrun"
 	"zgo.at/blackmail"
@@ -248,7 +250,7 @@ func doServe(ctx context.Context, db zdb.DB,
 	zlog.Module("startup").Debug(getVersion())
 	ch, err := zhttp.Serve(listenTLS, stop, &http.Server{
 		Addr:        listen,
-		Handler:     zhttp.HostRoute(hosts),
+		Handler:     h2c.NewHandler(zhttp.HostRoute(hosts), &http2.Server{}),
 		TLSConfig:   tlsc,
 		BaseContext: func(net.Listener) context.Context { return ctx },
 	})
