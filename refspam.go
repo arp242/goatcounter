@@ -10,8 +10,8 @@ sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%
 gofmt > x && mv -f x refspam.go
 */
 var refspam = map[string]struct{}{
-	// Not spam, but we never really want to accept requests from localhost.
-	"localhost": {},
+	"localhost":        {}, // Not spam, but we never really want to accept requests from localhost.
+	"livingsimply.com": {}, // https://github.com/matomo-org/referrer-spam-list/pull/1400
 
 	// %%START%%
 	"0-0.fr":                               {},
