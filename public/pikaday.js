@@ -59,13 +59,6 @@
         minDate:       null,        // the minimum/earliest date that can be selected
         maxDate:       new Date(),  // the maximum/latest date that can be selected
         yearRange:     10,          // number of years either side, or array of upper/lower range
-        keyboardInput: true,        // Enable keyboard input
-        numberOfMonths: 1,          // how many months are visible
-
-		// when numberOfMonths is used, this will help you to choose where the
-		// main calendar will be (default `left`, can be set to `right`)
-        // only used for the first display or when a selected date is not visible
-        mainCalendar: 'left',
 
         // internationalization
         isRTL: false,
@@ -83,7 +76,6 @@
         maxYear: 9999,
         minMonth: undefined,
         maxMonth: undefined,
-
     },
 
 	// Templating functions to abstract HTML rendering
@@ -126,13 +118,12 @@
 
     renderHead = function(opts) {
         var i, arr = [];
-        for (i = 0; i < 7; i++) {
-            arr.push('<th scope="col"><abbr title="' + renderDayName(opts, i) + '">' + renderDayName(opts, i, true) + '</abbr></th>');
-        }
+        for (i = 0; i < 7; i++)
+            arr.push(`<th scope="col"><abbr title="${renderDayName(opts, i)}">${renderDayName(opts, i, true)}</abbr></th>`)
         return '<thead><tr>' + (opts.isRTL ? arr.reverse() : arr).join('') + '</tr></thead>';
     },
 
-    renderTitle = function(instance, c, year, month, refYear, randId) {
+    renderTitle = function(instance, year, month, refYear, randId) {
         var i, j,
             opts = instance._o,
             isMinYear = year === opts.minYear,
@@ -141,7 +132,7 @@
 
 		let months = []
         for (let i = 0; i < 12; i++) {
-            months.push('<option value="' + (year === refYear ? i - c : 12 + i - c) + '"' +
+            months.push('<option value="' + (year === refYear ? i : 12+i) + '"' +
                 (i === month ? ' selected="selected"': '') +
                 ((isMinYear && i < opts.minMonth) || (isMaxYear && i > opts.maxMonth) ? ' disabled="disabled"' : '') + '>' +
                 opts.i18n.months[i] + '</option>');
@@ -180,20 +171,16 @@
         if (isMaxYear && (month === 11 || opts.maxMonth <= month))
             next = false;
 
-        if (c === 0) {
-            html += `<button type="button"
-					class="pika-prev link ${prev ? '' : ' is-disabled'}"
-					title="${opts.i18n.previousMonth}"
-                >◀</button>`
-        }
-        if (c === (instance._o.numberOfMonths - 1) ) {
-            html += `<button type="button"
-					class="pika-next link ${next ? '' : ' is-disabled'}"
-					title="${opts.i18n.nextMonth}"
-				>▶</button>`
-        }
-
-        return html += '</div>'
+		return html + `
+			<button type="button"
+				class="pika-prev link ${prev ? '' : ' is-disabled'}"
+				title="${opts.i18n.previousMonth}"
+			>◀</button>
+			<button type="button"
+				class="pika-next link ${next ? '' : ' is-disabled'}"
+				title="${opts.i18n.nextMonth}"
+			>▶</button>
+		</div>`
     },
 
     renderTable = function(opts, data, randId) {
@@ -254,30 +241,6 @@
                 self.gotoMonth(target.value)
             else if (hasClass(target, 'pika-select-year'))
                 self.gotoYear(target.value)
-        };
-
-        self._onKeyChange = function(e) {
-            if (!self.isVisible())
-                return;
-
-            switch (e.keyCode) {
-                case 13:  // <Enter>
-                case 27:  // <Esc>
-					opts.field.blur()
-                    break
-                case 37:  // <Left>
-                    self.adjustDate('subtract', 1)
-                    break
-                case 38:  // <Up>
-                    self.adjustDate('subtract', 7);
-                    break;
-                case 39:  // <Right>
-                    self.adjustDate('add', 1);
-                    break;
-                case 40:  // <Down>
-                    self.adjustDate('add', 7);
-                    break;
-            }
         };
 
         self._parseFieldValue = function() {
@@ -344,8 +307,10 @@
         addEvent(self.el, 'touchend', self._onMouseDown, true);
         addEvent(self.el, 'change', self._onChange);
 
-        if (opts.keyboardInput)
-            addEvent(document, 'keydown', self._onKeyChange)
+		addEvent(document, 'keydown', function(e) {
+			if (self.isVisible() && e.keyCode === 27)
+				opts.field.blur()
+		})
 
 		document.body.appendChild(self.el)
 		addEvent(opts.field, 'change', self._onInputChange);
@@ -371,9 +336,6 @@
             if (!this._o)
                 this._o = extend({}, defaults)
             var opts = extend(this._o, options)
-
-            var nom = parseInt(opts.numberOfMonths, 10) || 1;
-            opts.numberOfMonths = nom > 4 ? 4 : nom;
 
             if (opts.minDate)
                 this.setMinDate(opts.minDate);
@@ -449,15 +411,8 @@
                 newCalendar = (visibleDate < firstVisibleDate.getTime() || lastVisibleDate.getTime() < visibleDate);
             }
 
-            if (newCalendar) {
-                this.calendars = [{
-                    month: date.getMonth(),
-                    year: date.getFullYear()
-                }];
-                if (this._o.mainCalendar === 'right') {
-                    this.calendars[0].month += 1 - this._o.numberOfMonths;
-                }
-            }
+            if (newCalendar)
+                this.calendars = [{month: date.getMonth(), year: date.getFullYear()}];
 
             this.adjustCalendars();
         },
@@ -479,12 +434,10 @@
 
         adjustCalendars: function() {
             this.calendars[0] = adjustCalendar(this.calendars[0]);
-            for (var c = 1; c < this._o.numberOfMonths; c++) {
-                this.calendars[c] = adjustCalendar({
-                    month: this.calendars[0].month + c,
-                    year: this.calendars[0].year
-                });
-            }
+			this.calendars[1] = adjustCalendar({
+				month: this.calendars[0].month + 1,
+				year:  this.calendars[0].year,
+			});
             this.draw();
         },
 
@@ -520,13 +473,12 @@
 
         // change the minDate
         setMinDate: function(value) {
-            if(value instanceof Date) {
+            if (value instanceof Date) {
                 setToStartOfDay(value);
                 this._o.minDate = value;
                 this._o.minYear  = value.getFullYear();
                 this._o.minMonth = value.getMonth();
-            }
-			else {
+            } else {
                 this._o.minDate = defaults.minDate;
                 this._o.minYear  = defaults.minYear;
                 this._o.minMonth = defaults.minMonth;
@@ -537,7 +489,7 @@
 
         // change the maxDate
         setMaxDate: function(value) {
-            if(value instanceof Date) {
+            if (value instanceof Date) {
                 setToStartOfDay(value);
                 this._o.maxDate = value;
                 this._o.maxYear = value.getFullYear();
@@ -575,10 +527,11 @@
                     this._m = maxMonth;
             }
 
-            for (var c = 0; c < opts.numberOfMonths; c++) {
-                randId = 'pika-title-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
-                html += '<div class="pika-lendar">' + renderTitle(this, c, this.calendars[c].year, this.calendars[c].month, this.calendars[0].year, randId) + this.render(this.calendars[c].year, this.calendars[c].month, randId) + '</div>';
-            }
+			randId = 'pika-title-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
+			html += `<div class="pika-lendar">
+				${renderTitle(this, this.calendars[0].year, this.calendars[0].month, this.calendars[0].year, randId)}
+				${this.render(this.calendars[0].year, this.calendars[0].month, randId)}
+			</div>`
 
             this.el.innerHTML = html;
 
