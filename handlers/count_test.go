@@ -122,9 +122,11 @@ func TestBackendCount(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := gctest.DB(t)
 
-			site := goatcounter.Site{
-				CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
-			}
+			var site goatcounter.Site
+			site.Defaults(ctx)
+
+			site.CreatedAt = time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC)
+			site.Settings.Collect.Set(goatcounter.CollectHits)
 			ctx = gctest.Site(ctx, t, &site, nil)
 
 			r, rr := newTest(ctx, "GET", "/count?"+tt.query.Encode(), nil)
@@ -186,11 +188,17 @@ func TestBackendCountSessions(t *testing.T) {
 
 	ctx := gctest.DB(t)
 
+	var set goatcounter.SiteSettings
+	set.Defaults(ctx)
+	set.Collect.Set(goatcounter.CollectHits)
+
 	ctx1 := gctest.Site(ctx, t, &goatcounter.Site{
 		CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+		Settings:  set,
 	}, nil)
 	ctx2 := gctest.Site(ctx, t, &goatcounter.Site{
 		CreatedAt: time.Date(2019, 01, 01, 0, 0, 0, 0, time.UTC),
+		Settings:  set,
 	}, nil)
 
 	send := func(ctx context.Context, ua string) {

@@ -43,7 +43,7 @@ func TestBackendTpl(t *testing.T) {
 		{"/settings/users/add", "Password"},
 		{"/settings/users/1", "Password"},
 		{"/settings/purge", "Remove or merge pageviews"},
-		{"/settings/export", "includes all pageviews"},
+		{"/settings/export", "format of the CSV file"},
 		{"/settings/delete-account", "The site and all associated data will be permanently removed"},
 		{"/settings/change-code", "Change your site code and login domain"},
 

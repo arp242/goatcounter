@@ -383,6 +383,7 @@ func TestAPICount(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
 			site := Site(ctx)
+			site.Settings.Collect.Set(goatcounter.CollectHits)
 			site.Settings.IgnoreIPs = []string{"1.1.1.1"}
 			err := site.Update(ctx)
 			if err != nil {

@@ -47,7 +47,7 @@ func TestDataRetention(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(hits) != 2 {
+	if len(hits) != 0 {
 		t.Errorf("len(hits) is %d\n%v", len(hits), hits)
 	}
 

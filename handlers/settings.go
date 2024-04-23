@@ -523,11 +523,13 @@ func (h settings) export(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			return err
 		}
 
+		ch := goatcounter.MustGetSite(r.Context()).Settings.Collect.Has(goatcounter.CollectHits)
 		return zhttp.Template(w, "settings_export.gohtml", struct {
 			Globals
-			Validate *zvalidate.Validator
-			Exports  goatcounter.Exports
-		}{newGlobals(w, r), verr, exports})
+			Validate    *zvalidate.Validator
+			CollectHits bool
+			Exports     goatcounter.Exports
+		}{newGlobals(w, r), verr, ch, exports})
 	}
 }
 

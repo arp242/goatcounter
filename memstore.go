@@ -204,8 +204,10 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			// insert them.
 			newHits = append(newHits, h)
 
-			ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, h.SizeID,
-				h.Location, h.Language, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
+			if !h.NoStore {
+				ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, h.SizeID,
+					h.Location, h.Language, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
+			}
 		}
 	}
 
@@ -237,6 +239,9 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 		return false
 	}
 	ctx = WithSite(ctx, &site)
+	if !site.Settings.Collect.Has(CollectHits) && h.Bot == 0 {
+		h.NoStore = true
+	}
 
 	if !site.Settings.Collect.Has(CollectReferrer) {
 		h.Query = ""

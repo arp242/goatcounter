@@ -76,6 +76,15 @@ func dataRetention(ctx context.Context) error {
 	return nil
 }
 
+func oldBot(ctx context.Context) error {
+	ival := goatcounter.Interval(ctx, 30)
+	err := zdb.Exec(ctx, `delete from hits where bot > 0 and created_at < `+ival)
+	if err != nil {
+		zlog.Module("cron").Error(err)
+	}
+	return nil
+}
+
 func persistAndStat(ctx context.Context) error {
 	l := zlog.Module("cron")
 	l.Debug("persistAndStat started")

@@ -153,12 +153,16 @@ func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
 func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcounter.Hit) []goatcounter.Hit {
 	t.Helper()
 
+	siteID := int64(1)
+	if s := goatcounter.GetSite(ctx); s != nil {
+		siteID = s.ID
+	}
 	for i := range hits {
 		if hits[i].Session.IsZero() {
 			hits[i].Session = goatcounter.TestSession
 		}
 		if hits[i].Site == 0 {
-			hits[i].Site = 1
+			hits[i].Site = siteID
 		}
 		if hits[i].Path == "" {
 			hits[i].Path = "/"
@@ -192,7 +196,7 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 // Site creates a new user/site pair.
 //
 // You can set values for the site by passing the sute or user parameters, but
-// they may be nul to just set them to some sensible defaults.
+// they may be nil to just set them to some sensible defaults.
 func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatcounter.User) context.Context {
 	if site == nil {
 		site = &goatcounter.Site{}

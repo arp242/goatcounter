@@ -17,6 +17,11 @@ import (
 
 func TestMemstore(t *testing.T) {
 	ctx := gctest.DB(t)
+	var site Site
+	site.Defaults(ctx)
+	site.Settings.Collect.Set(CollectHits)
+	ctx = gctest.Site(ctx, t, &site, nil)
+	ctx = WithSite(ctx, &site)
 
 	for i := 0; i < 2000; i++ {
 		Memstore.Append(gen(ctx))
@@ -83,6 +88,7 @@ func TestMemstoreCollect(t *testing.T) {
 	all := func() zint.Bitflag16 {
 		s := SiteSettings{}
 		s.Defaults(context.Background())
+		s.Collect.Set(CollectHits)
 		return s.Collect
 	}()
 
@@ -98,9 +104,7 @@ func TestMemstoreCollect(t *testing.T) {
 		`},
 
 		{CollectNothing, Strings{}, `
-			session                           bot  path    ref  ref_scheme  size  location  first_visit
-			00000000000000000000000000000000  0    /test        NULL        NULL            1
-			00000000000000000000000000000000  0    /other       NULL        NULL            1
+			session  bot  path  ref  ref_scheme  size  location  first_visit
 		`},
 
 		{all ^ CollectLocationRegion, Strings{}, `

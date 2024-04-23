@@ -23,6 +23,13 @@ func TestExport(t *testing.T) {
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 	ctx := gctest.DB(t)
 
+	var site goatcounter.Site
+	site.Defaults(ctx)
+	site.Code = "gctest2"
+	site.Settings.Collect.Set(goatcounter.CollectHits)
+	ctx = gctest.Site(ctx, t, &site, nil)
+	ctx = goatcounter.WithSite(ctx, &site)
+
 	dump := func() string {
 		return zdb.DumpString(ctx, `
 		select
@@ -87,10 +94,10 @@ func TestExport(t *testing.T) {
 
 		want := strings.ReplaceAll(`{
 			"id": 1,
-			"site_id": 1,
+			"site_id": 2,
 			"start_from_hit_id": 0,
 			"last_hit_id": 5,
-			"path": "%(ANY)goatcounter-export-gctest-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
+			"path": "%(ANY)goatcounter-export-gctest2-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
 			"created_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
 			"finished_at": null,
 			"num_rows": 5,

@@ -40,6 +40,7 @@ const (
 	CollectLocationRegion                // 32
 	CollectLanguage                      // 64
 	CollectSession                       // 128
+	CollectHits                          // 256
 )
 
 // UserSettings.EmailReport values.
@@ -403,6 +404,11 @@ type CollectFlag struct {
 // CollectFlags returns a list of all flags we know for the Collect settings.
 func (ss SiteSettings) CollectFlags(ctx context.Context) []CollectFlag {
 	return []CollectFlag{
+		{
+			Label: z18n.T(ctx, "data-collect/label/hits|Individual pageviews"),
+			Help:  z18n.T(ctx, "data-collect/help/hits|Store individual pageviews for exports. This doesn’t affect anything else. The API can still be used to export aggregate data."),
+			Flag:  CollectHits,
+		},
 		{
 			Label: z18n.T(ctx, "data-collect/label/sessions|Sessions"),
 			Help:  z18n.T(ctx, "data-collect/help/sessions|%[Track unique visitors] for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1.", z18n.Tag("a", fmt.Sprintf(`href="%s/help/sessions"`, Config(ctx).BasePath))),

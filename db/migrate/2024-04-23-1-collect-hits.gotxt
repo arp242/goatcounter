@@ -1,0 +1,11 @@
+-- Enable collecting hits for any site that's done an export in the last year
+-- *and* has data for the last month.
+update sites set settings =
+	{{psql   `jsonb_set(settings, '{collect}', to_jsonb(cast(settings->'collect' as int) | 256))`}}
+	{{sqlite `json_replace(settings, '$.collect', json_extract(settings, '$.collect') | 256)`}}
+where site_id in (
+	with x as (
+		select site_id from exports where exports.created_at >= '2023-05-01' group by site_id
+	)
+	select x.site_id from x where (select max(hour) from hit_counts where site_id=x.site_id) >= '2024-04-01'
+);

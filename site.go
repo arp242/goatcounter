@@ -584,7 +584,7 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 	}
 
 	return zdb.TX(ctx, func(ctx context.Context) error {
-		ival := interval(ctx, days)
+		ival := Interval(ctx, days)
 
 		var pathIDs []int64
 		err := zdb.Select(ctx, &pathIDs, `/* Site.DeleteOlderThan */
