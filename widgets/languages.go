@@ -52,16 +52,17 @@ func (w Languages) RenderHTML(ctx context.Context, shared SharedData) (string, a
 	header := z18n.T(ctx, "header/languages|Languages")
 
 	return "_dashboard_hchart.gohtml", struct {
-		Context     context.Context
-		ID          int
-		RowsOnly    bool
-		HasSubMenu  bool
-		Loaded      bool
-		Err         error
-		IsCollected bool
-		Header      string
-		TotalUTC    int
-		Stats       goatcounter.HitStats
-	}{ctx, w.id, shared.RowsOnly, false, w.loaded, w.err, isCol(ctx, goatcounter.CollectLanguage),
+		Context      context.Context
+		ID           int
+		CanConfigure bool
+		RowsOnly     bool
+		HasSubMenu   bool
+		Loaded       bool
+		Err          error
+		IsCollected  bool
+		Header       string
+		TotalUTC     int
+		Stats        goatcounter.HitStats
+	}{ctx, w.id, true, shared.RowsOnly, false, w.loaded, w.err, isCol(ctx, goatcounter.CollectLanguage),
 		header, shared.TotalUTC, w.Stats}
 }

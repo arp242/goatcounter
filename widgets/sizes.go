@@ -53,18 +53,19 @@ func (w *Sizes) GetData(ctx context.Context, a Args) (more bool, err error) {
 
 func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	return "_dashboard_hchart.gohtml", struct {
-		Context     context.Context
-		ID          int
-		RowsOnly    bool
-		HasSubMenu  bool
-		Loaded      bool
-		Err         error
-		IsCollected bool
-		Header      string
-		TotalUTC    int
-		Stats       goatcounter.HitStats
-		Detail      string
-	}{ctx, w.id, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectScreenSize),
+		Context      context.Context
+		ID           int
+		CanConfigure bool
+		RowsOnly     bool
+		HasSubMenu   bool
+		Loaded       bool
+		Err          error
+		IsCollected  bool
+		Header       string
+		TotalUTC     int
+		Stats        goatcounter.HitStats
+		Detail       string
+	}{ctx, w.id, false, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectScreenSize),
 		z18n.T(ctx, "header/sizes|Sizes"),
 		shared.TotalUTC, w.Stats, w.Detail}
 }

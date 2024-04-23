@@ -68,17 +68,18 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, a
 	}
 
 	return "_dashboard_hchart.gohtml", struct {
-		Context     context.Context
-		ID          int
-		RowsOnly    bool
-		HasSubMenu  bool
-		Loaded      bool
-		Err         error
-		IsCollected bool
-		Header      string
-		TotalUTC    int
-		Stats       goatcounter.HitStats
-		Detail      string
-	}{ctx, w.id, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
+		Context      context.Context
+		ID           int
+		CanConfigure bool
+		RowsOnly     bool
+		HasSubMenu   bool
+		Loaded       bool
+		Err          error
+		IsCollected  bool
+		Header       string
+		TotalUTC     int
+		Stats        goatcounter.HitStats
+		Detail       string
+	}{ctx, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
 		header, shared.TotalUTC, w.Stats, w.Detail}
 }
