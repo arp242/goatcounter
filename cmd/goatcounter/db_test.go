@@ -191,18 +191,18 @@ func TestDBSite(t *testing.T) {
 			"-db="+dbc,
 			"-find=1",
 		)
-		wantExit(t, exit, out, 1)
+		wantExit(t, exit, out, 0)
 
 		have := zdb.DumpString(ctx, `select site_id, parent, cname, state from sites order by site_id`) +
 			zdb.DumpString(ctx, `select user_id, site_id, email from users order by user_id`)
 		want := `
 			site_id  parent  cname               state
-			1        NULL    gctest.localhost    a
-			2        1       update.example.com  a
-			3        1       stats2.stats        a
+			1        NULL    gctest.localhost    d
+			2        NULL    update.example.com  a
+			3        2       stats2.stats        a
 			user_id  site_id  email
-			1        1        test@gctest.localhost
-			2        1        foo@foo.foo`
+			1        2        test@gctest.localhost
+			2        2        foo@foo.foo`
 		if d := zdb.Diff(have, want); d != "" {
 			t.Error(d)
 		}
@@ -220,35 +220,12 @@ func TestDBSite(t *testing.T) {
 			zdb.DumpString(ctx, `select user_id, site_id, email from users order by user_id`)
 		want := `
 			site_id  parent  cname               state
-			1        NULL    gctest.localhost    a
-			2        1       update.example.com  a
-			3        1       stats2.stats        d
-			user_id  site_id  email
-			1        1        test@gctest.localhost
-			2        1        foo@foo.foo`
-		if d := zdb.Diff(have, want); d != "" {
-			t.Error(d)
-		}
-	}
-
-	{ // Force delete
-		runCmd(t, exit, "db", "delete", "site",
-			"-db="+dbc,
-			"-find=1",
-			"-force",
-		)
-		wantExit(t, exit, out, 0)
-
-		have := zdb.DumpString(ctx, `select site_id, parent, cname, state from sites order by site_id`) +
-			zdb.DumpString(ctx, `select user_id, site_id, email from users order by user_id`)
-		want := `
-			site_id  parent  cname               state
 			1        NULL    gctest.localhost    d
-			2        1       update.example.com  d
-			3        1       stats2.stats        d
+			2        NULL    update.example.com  a
+			3        2       stats2.stats        d
 			user_id  site_id  email
-			1        1        test@gctest.localhost
-			2        1        foo@foo.foo`
+			1        2        test@gctest.localhost
+			2        2        foo@foo.foo`
 		if d := zdb.Diff(have, want); d != "" {
 			t.Error(d)
 		}
