@@ -618,9 +618,17 @@
 				chart.find('div[data-key]').each((_, e) => {
 					if (e.dataset.key.substr(0, 1) === '(') // Skip "(unknown)"
 						return
-					let n = names.of(e.dataset.key)
-					if (n)
-						$(e).find('.col-name .bar-c .cutoff').text(n)
+					try {
+						let n = names.of(e.dataset.key)
+						if (n)
+							$(e).find('.col-name .bar-c .cutoff').text(n)
+					} catch (exc) {
+						// This errors out with a RangeError sometimes, but
+						// without details and can't reproduce. Add some more
+						// info to see what's going on.
+						exc.message = `${exc.message} for type=${w.n}; key=${e.dataset.key}; content=${$(e).find('.col-name .bar-c .cutoff').text()}`
+						throw exc
+					}
 				})
 			}
 
