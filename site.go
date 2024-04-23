@@ -49,7 +49,8 @@ type Site struct {
 	// used for goatcounter.com and not when self-hosting.
 	Code string `db:"code" json:"code"`
 
-	// Site domain for linking (www.arp242.net).
+	// Site domain for linking (www.arp242.net). Note this can be a full URL and
+	// is a bit misnamed.
 	LinkDomain string `db:"link_domain" json:"link_domain"`
 
 	Settings     SiteSettings `db:"settings" json:"setttings"`
@@ -101,6 +102,8 @@ func (s *Site) Defaults(ctx context.Context) {
 	if s.FirstHitAt.IsZero() {
 		s.FirstHitAt = n
 	}
+
+	s.LinkDomain = strings.TrimRight(s.LinkDomain, "/")
 
 	s.Settings.Defaults(ctx)
 	s.UserDefaults.Defaults(ctx)

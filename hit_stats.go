@@ -52,7 +52,7 @@ func (h *HitStats) ListTopRefs(ctx context.Context, rng ztime.Range, pathFilter 
 		"start":      rng.Start,
 		"end":        rng.End,
 		"filter":     pathFilter,
-		"ref":        site.LinkDomain + "%",
+		"ref":        site.LinkDomainURL(false) + "%",
 		"limit":      limit + 1,
 		"limit2":     limit + (limit * 3),
 		"offset":     offset,
