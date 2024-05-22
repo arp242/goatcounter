@@ -289,7 +289,7 @@ func doServe(ctx context.Context, db zdb.DB,
 		}
 		time.Sleep(100 * time.Millisecond)
 
-		zli.EraseLine()
+		zli.Erase()
 		fmt.Fprintf(zli.Stdout, "%d tasks: ", len(r))
 		for i, t := range r {
 			if i > 0 {

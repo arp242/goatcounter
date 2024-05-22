@@ -7,11 +7,11 @@ package goatcounter
 import (
 	"database/sql/driver"
 	"fmt"
+	"slices"
 	"strings"
 
 	"zgo.at/zstd/zfloat"
 	"zgo.at/zstd/zint"
-	"zgo.at/zstd/zstring"
 )
 
 // Ints stores a slice of []int64 as a comma-separated string.
@@ -63,7 +63,7 @@ type Strings []string
 
 func (l Strings) String() string { return strings.Join(l, ", ") }
 func (l Strings) Value() (driver.Value, error) {
-	return strings.Join(zstring.Filter(l, zstring.FilterEmpty), ","), nil
+	return strings.Join(slices.DeleteFunc(l, func(s string) bool { return s == "" }), ","), nil
 }
 func (l *Strings) UnmarshalText(v []byte) error { return l.Scan(v) }
 

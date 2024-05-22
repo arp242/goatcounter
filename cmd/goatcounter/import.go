@@ -305,7 +305,7 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 
 			n += len(hits)
 			if !silent {
-				zli.ReplaceLinef("Imported %d rows", n)
+				zli.Replacef("Imported %d rows", n)
 			}
 
 			hits = make([]handlers.APICountRequestHit, 0, 500)
@@ -400,7 +400,7 @@ func importLog(
 			t.Reset(d)
 			persistLog(hits, url, key, silent, follow)
 			if !silent && !follow {
-				zli.ReplaceLinef("Imported %d rows", n)
+				zli.Replacef("Imported %d rows", n)
 			}
 		}
 	}

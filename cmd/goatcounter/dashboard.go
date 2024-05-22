@@ -292,7 +292,7 @@ func dash(url, key string, rng ztime.Range) error {
 		"%s – %d of %d visits shown", rng.String(), data.hits.Total, data.total.Total),
 		78), zli.Bold))
 	fmt.Printf("┌%s┬%s┐\n", strings.Repeat("─", 48), strings.Repeat("─", 30))
-	m := zint.Max(len(left), len(right))
+	m := max(len(left), len(right))
 	for i := 0; i < m; i++ {
 		l, r := row{}, row{}
 		if i < len(right) {
