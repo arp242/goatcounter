@@ -764,9 +764,6 @@ Martin
 ["link/goto-path"]
   default = "Visitar %(path)"
 
-["link/import"]
-  default = "Importar"
-
 ["link/passwd-mfa"]
   default = "Contraseña y MFA"
 

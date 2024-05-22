@@ -1096,7 +1096,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["link/import"]
   loc     = ["tpl/_settings_nav.gohtml:4"]
-  default = "Import"
+  default = "Import/Export"
 
 ["link/passwd-mfa"]
   loc     = ["tpl/_user_nav.gohtml:4"]

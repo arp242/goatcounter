@@ -766,7 +766,7 @@ of een andere reden. Dit is compleet optioneel.
   default = "Ga naar %(path)"
 
 ["link/import"]
-  default = "Import"
+  default = "Import/Export"
 
 ["link/passwd-mfa"]
   default = "Wachtwoord & MFA"

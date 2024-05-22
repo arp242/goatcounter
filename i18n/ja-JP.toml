@@ -753,9 +753,6 @@ Martin
 ["link/goto-path"]
   default = "%(path) を開く"
 
-["link/import"]
-  default = "インポート"
-
 ["link/passwd-mfa"]
   default = "パスワードと MFA"
 

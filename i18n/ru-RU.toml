@@ -756,9 +756,6 @@
 ["link/goto-path"]
   default = "Перейти к %(path)"
 
-["link/import"]
-  default = "Импорт"
-
 ["link/passwd-mfa"]
   default = "Пароль и MFA"
 

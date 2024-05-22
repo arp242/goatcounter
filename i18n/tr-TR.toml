@@ -765,9 +765,6 @@ bana bildirirseniz çok memnun olurum. Bu tamamen isteğe bağlıdır.
 ["link/goto-path"]
   default = "%(path) adresine git"
 
-["link/import"]
-  default = "İçe aktar"
-
 ["link/passwd-mfa"]
   default = "Parola & ÇFKD"
 

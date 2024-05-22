@@ -770,9 +770,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["link/goto-path"]
   default = "Aller à %(path)"
 
-["link/import"]
-  default = "Importer"
-
 ["link/passwd-mfa"]
   default = "Mot de passe et MFA"
 

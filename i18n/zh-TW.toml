@@ -668,9 +668,6 @@
 
 ["link/goto-path"]
 
-["link/import"]
-  default = "匯入"
-
 ["link/passwd-mfa"]
   default = "密碼和多重要素驗證"
 

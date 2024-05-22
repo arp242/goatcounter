@@ -767,9 +767,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["link/goto-path"]
   default = "Pergi ke %(path)"
 
-["link/import"]
-  default = "Impor"
-
 ["link/passwd-mfa"]
   default = "Kata sandi & autentikasi multifaktor"
 

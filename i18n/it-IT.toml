@@ -769,9 +769,6 @@ La verifica è effettuata ogni 2 ore.
 ["link/goto-path"]
   default = "Vai a %(path)"
 
-["link/import"]
-  default = "Importa"
-
 ["link/passwd-mfa"]
   default = "Password & MFA"
 

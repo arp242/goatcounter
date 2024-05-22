@@ -769,9 +769,6 @@ Martin
 ["link/goto-path"]
   default = "前往 %(path)"
 
-["link/import"]
-  default = "导入"
-
 ["link/passwd-mfa"]
   default = "密码与多重身份验证"
 

@@ -775,9 +775,6 @@ Weryfikacja odbywa się co 2 godziny.
 ["link/goto-path"]
   default = "Przejdź do %(path)"
 
-["link/import"]
-  default = "Importuj"
-
 ["link/passwd-mfa"]
   default = "Hasło i MFA"
 
