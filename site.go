@@ -357,9 +357,9 @@ func (s *Site) Delete(ctx context.Context, deleteChildren bool) error {
 
 		// Update the site code so people can delete a site and then immediately
 		// re-create a new site with the same name.
-		q := `update sites set state=$1, updated_at=$2, code=random() where site_id=$3 or parent=$3`
+		q := `update sites set state=$1, updated_at=$2, code=random(), cname=null where site_id=$3 or parent=$3`
 		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
-			q = `update sites set state=$1, updated_at=$2, code=gen_random_uuid() where site_id=$3 or parent=$3`
+			q = `update sites set state=$1, updated_at=$2, code=gen_random_uuid(), cname=null where site_id=$3 or parent=$3`
 		}
 		t := ztime.Now()
 		err := zdb.Exec(ctx, q, StateDeleted, t, s.ID)
