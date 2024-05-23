@@ -224,18 +224,20 @@
 				$(w).css('display', 'block')
 		})
 
-		// Set of drag & drop.
+		// Setup drag & drop for Dashboard settings.
 		//
-		// TODO: my iPhone selects text on dragging. I can't get it to stop doing
-		// that no matter what; it always re-selects afterwards.
+		// TODO: my iPhone selects text on dragging. I can't get it to stop
+		// doing that no matter what; it always re-selects afterwards.
 		// https://github.com/bevacqua/dragula/issues/306
 		// ... okay?
 		var w = $('#widget-settings')
-		dragula(w.toArray(), {
-			moves: (el, source, handle, sibling) => handle.className === 'drag-handle',
-		}).on('drop', () => {
-			$('#widget-settings .widget').each((i, el) => { $(el).find('.index').val(i) })
-		})
+		if (w.length) {
+			dragula(w.toArray(), {
+				moves: (el, source, handle, sibling) => handle.className === 'drag-handle',
+			}).on('drop', () => {
+				$('#widget-settings .widget').each((i, el) => { $(el).find('.index').val(i) })
+			})
+		}
 
 		// Reset to defaults.
 		w.find('.widgets-reset').on('click', function(e) {
