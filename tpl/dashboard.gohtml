@@ -77,12 +77,12 @@
 	<div id="dash-main">
 		<div>
 			<span>
-				<input type="date" class="date-input" autocomplete="off" id="period-start" name="period-start"
+				<input type="text" class="date-input" autocomplete="off" id="period-start" name="period-start"
 					min="{{.Site.FirstHitAt.Format "2006-01-02"}}" max="{{time "now" "2006-01-02"}}"
 					title="{{.T "nav-dash/start-date|First day to display"}}"
 					value="{{tformat .Period.Start "" .User}}"
 				>–{{- "" -}}
-				<input type="date" class="date-input" autocomplete="off" id="period-end" name="period-end"
+				<input type="text" class="date-input" autocomplete="off" id="period-end" name="period-end"
 					min="{{.Site.FirstHitAt.Format "2006-01-02"}}" max="{{time "now" "2006-01-02"}}"
 					title="{{.T "nav-dash/end-date|Last day to display"}}"
 					value="{{tformat .Period.End "" .User}}"
