@@ -66,31 +66,36 @@ var translate_calendar = function() {
 }
 
 // Format a date according to user configuration.
-var format_date = function(date) {
+var format_date = function(date, no_year_if_current) {
 	if (typeof(date) === 'string')
 		date = get_date(date)
 
-	var m        = date.getMonth() + 1,
-		d        = date.getDate(),
-		items    = USER_SETTINGS.date_format.split(/[-/\s]/),
-		new_date = []
+	let m         = date.getMonth() + 1,
+		d         = date.getDate(),
+		items     = USER_SETTINGS.date_format.split(/[-/\s]/),
+		new_date  = [],
+		skip_year = no_year_if_current && date.getFullYear() === (new Date()).getFullYear()
 
 	// Simple implementation of Go's time format. We only offer the current
 	// formatters, so that's all we support:
-	//   "2006-01-02", "02-01-2006", "01/02/06", "2 Jan 06", "Mon Jan 2 2006"
-	for (var i = 0; i < items.length; i++) {
+	//   "2006-01-02", "02-01-2006", "01/02/06", "2 Jan ’06", "Mon Jan 2 2006"
+	for (let i = 0; i < items.length; i++) {
+		if (!skip_year)
+			switch (items[i]) {
+				case '2006': new_date.push(date.getFullYear());                        break;
+				case '’06':  new_date.push('’' + (date.getFullYear() + '').substr(2)); break;
+				case '06':   new_date.push((date.getFullYear() + '').substr(2));       break;
+			}
 		switch (items[i]) {
-			case '2006': new_date.push(date.getFullYear());                  break;
-			case '06':   new_date.push((date.getFullYear() + '').substr(2)); break;
-			case '01':   new_date.push(m >= 10 ? m : ('0' + m));             break;
-			case '02':   new_date.push(d >= 10 ? d : ('0' + d));             break;
-			case '2':    new_date.push(d);                                   break;
-			case 'Jan':  new_date.push(monthsShort[date.getMonth()]);        break;
-			case 'Mon':  new_date.push(daysShort[date.getDay()]);            break;
+			case '01':   new_date.push(m >= 10 ? m : ('0' + m));                   break;
+			case '02':   new_date.push(d >= 10 ? d : ('0' + d));                   break;
+			case '2':    new_date.push(d);                                         break;
+			case 'Jan':  new_date.push(monthsShort[date.getMonth()]);              break;
+			case 'Mon':  new_date.push(daysShort[date.getDay()]);                  break;
 		}
 	}
 
-	var joiner = '-'
+	let joiner = '-'
 	if (USER_SETTINGS.date_format.indexOf('/') > -1)
 		joiner = '/'
 	else if (USER_SETTINGS.date_format.indexOf(' ') > -1)
