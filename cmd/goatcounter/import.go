@@ -42,7 +42,8 @@ Overview:
         $ goatcounter import -site=https://stats.example.com export.csv.gz
 
     You can create an API key with "goatcounter db create apikey -count", or
-    from the web interface in "User → API" from the top-right menu.
+    from the web interface in "[Username in top menu] → API" from the top-right
+    menu.
 
     You must give one filename to import; use - to read from stdin:
 
