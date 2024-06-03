@@ -9,7 +9,8 @@ but you may need to update it in the future for new features.
 
 Latest
 ------
-- Only use `navigator.sendBeacon`, removing the `<img>`-based fallback.
+- Use `<img>`-based fallback if `navigator.sendBeacon` fails, for example due to
+  Content-Security-Policy errors.
 
 v4 (8 Dec 2023)
 ---------------
