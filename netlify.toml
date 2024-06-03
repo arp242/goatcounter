@@ -1,15 +1,24 @@
 [[headers]]
 	for = "/*"
 	[headers.values]
-		# Netlify sets cache to 0 to allow rollbacks, but this content isn't
-		# going to change and we use "cache buster" query parameters anyway, so
-		# set a Cache-Control header which prevents cache revalidation requests.
+		# Netlify sets cache to 0 to allow rollbacks, but we use "cache buster"
+		# query parameters for the backend, so we can just cache this.
 		Cache-Control = "public, max-age=7776000"  # 90 days
 		Access-Control-Allow-Origin = "*"
 
 [[headers]]
 	for = "/count.js"
 	[headers.values]
+		# Don't cache count.js too aggressively so changes don't take too long
+		# to show up, but it's okay to cache for a few days.
+		Cache-Control = "public, max-age=604800"  # 7 days
+		Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+	for = "/count.v*.js"
+	[headers.values]
+		# The versioned count.js never change; we can cache very aggressively.
+		Cache-Control = "public, max-age=31968000"  # 1 year
 		Cross-Origin-Resource-Policy = "cross-origin"
 
 # count.min.js no longer exists, so redirect to count.js
