@@ -63,7 +63,7 @@ API reference
 -------------
 API reference docs are available at:
 
-- [/api.json](/api.json) – OpenAPI 2.0 JSON file.
+- [/api.json]({{.Base}}/api.json) – OpenAPI 2.0 JSON file.
 - Online viewer: [RapiDoc][1], [SwaggerHub][2] <!-- too broken for now  [simple HTML][3] -->
 
 [1]: /api2.html

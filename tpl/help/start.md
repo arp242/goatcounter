@@ -54,8 +54,8 @@ After setup
 
 Here are some things you may want to look at after setting up the above:
 
-- Make sure GoatCounter is allowed in the [Content-Security-Policy](/code/csp)
-  if you're using it.
+- Make sure GoatCounter is allowed in the
+  [Content-Security-Policy]({{.Base}}/code/csp) if you're using it.
 
 - If you're not seeing any pageviews then chances are your browser's adblocker
   is blocking it. Disable it and check again. It can take about 10 seconds for
@@ -65,7 +65,8 @@ Here are some things you may want to look at after setting up the above:
 
         <link rel="canonical" href="https://example.com/path.html">
 
-    See [Control the path that's sent to GoatCounter](/code/path) for more details.
+    See [Control the path that's sent to GoatCounter]({{.Base}}/code/path) for
+    more details.
 
-- [Prevent tracking my own pageviews?](/code/skip-dev) documents some ways you
-  can ignore your own pageviews from showing up in the dashboard.
+- [Prevent tracking my own pageviews?]({{.Base}}/code/skip-dev) documents some
+  ways you can ignore your own pageviews from showing up in the dashboard.

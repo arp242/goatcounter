@@ -11,4 +11,4 @@ The `script-src` is needed to load the `count.js` script, and the `connect-src`
 is needed to send pageviews to GoatCounter via `navigator.sendBeacon`.
 
 Alternatively you can host the `count.js` script anywhere you want, or include
-it directly in your page. See [count.js hosting](/code/countjs-host).
+it directly in your page. See [count.js hosting]({{.Base}}/code/countjs-host).

@@ -12,8 +12,8 @@ Or with CSS:
     </style>
 
 Or you can build your own JavaScript integration if you want. Use the
-[API](/code/backend) if you want to send data from the backend; `/count` is only
-intended to be loaded by the visitor's browser.
+[API]({{.Base}}/code/backend) if you want to send data from the backend;
+`/count` is only intended to be loaded by the visitor's browser.
 
 The tracking pixel won’t allow recording the referrer or screen size, and may
 also increase the number of bot requests (it's harder to filter them out with

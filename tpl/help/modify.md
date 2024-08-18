@@ -1,6 +1,6 @@
 A few examples on how to modify various parameters in the [JavaScript
-API](/code/js). Also see [Control the path that's sent to
-GoatCounter](/code/path).
+API]({{.Base}}/code/js). Also see [Control the path that's sent to
+GoatCounter]({{.Base}}/code/path).
 
 Custom path and referrer
 ------------------------
