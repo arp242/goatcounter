@@ -519,11 +519,10 @@ func (w Widget) SetSetting(ctx context.Context, widget, setting, value string) e
 	}
 	switch def.Type {
 	case "number":
-		n, err := strconv.Atoi(value)
-		if err != nil {
-			return fmt.Errorf("Widget.SetSetting: setting %q for widget %q: %w", setting, widget, err)
+		n, _ := strconv.Atoi(value)
+		if n > 0 {
+			s[setting] = float64(n)
 		}
-		s[setting] = float64(n)
 	case "checkbox":
 		s[setting] = value == "on"
 	case "text", "select":
