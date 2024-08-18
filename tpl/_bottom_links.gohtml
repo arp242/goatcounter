@@ -1,9 +1,9 @@
 <footer class="center cbox">
 	<div>
 		<a {{if .Site}}target="_blank" rel="noopener"{{end}} href="https://www.goatcounter.com">{{.T "nav-bot/home|Home"}}</a><span> |</span>
-		<a href="/contact"   >{{.T "nav-bot/contact|Contact"}}</a><span> |</span>
-		<a href="/help"      >{{.T "nav-bot/docs|Documentation"}}</a><span> |</span>
-		<a href="/contribute">{{.T "nav-bot/contribute|Contribute"}}</a>
+		<a href="{{.Base}}/contact"   >{{.T "nav-bot/contact|Contact"}}</a><span> |</span>
+		<a href="{{.Base}}/help"      >{{.T "nav-bot/docs|Documentation"}}</a><span> |</span>
+		<a href="{{.Base}}/contribute">{{.T "nav-bot/contribute|Contribute"}}</a>
 	</div>
 	<div>
 		<a href="https://github.com/arp242/goatcounter"                target="_blank" rel="noopener">{{.T "nav-bot/src|Source code"}}</a><span> |</span>

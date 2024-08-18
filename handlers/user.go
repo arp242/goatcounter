@@ -54,7 +54,7 @@ func (h user) mount(r chi.Router) {
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
 	r.Get("/user/requestlogin", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Redirect, as panic()s and such can end up here.
-		zhttp.SeeOther(w, "/user/new")
+		SeeOther(w, r, "/user/new")
 	}))
 	rate.Post("/user/totplogin", zhttp.Wrap(h.totpLogin))
 	rate.Get("/user/reset/{key}", zhttp.Wrap(h.reset))
@@ -76,7 +76,7 @@ func (h user) mount(r chi.Router) {
 func (h user) login(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
 	if u != nil && u.ID > 0 {
-		return zhttp.SeeOther(w, "/")
+		return SeeOther(w, r, "/")
 	}
 
 	return zhttp.Template(w, "user.gohtml", struct {
@@ -88,7 +88,7 @@ func (h user) login(w http.ResponseWriter, r *http.Request) error {
 func (h user) forgot(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
 	if u != nil && u.ID > 0 {
-		return zhttp.SeeOther(w, "/")
+		return SeeOther(w, r, "/")
 	}
 
 	return zhttp.Template(w, "user_forgot_pw.gohtml", struct {
@@ -102,7 +102,7 @@ func (h user) forgot(w http.ResponseWriter, r *http.Request) error {
 func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
 	if u != nil && u.ID > 0 {
-		return zhttp.SeeOther(w, "/")
+		return SeeOther(w, r, "/")
 	}
 
 	// Legacy email flow.
@@ -118,7 +118,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		if zdb.ErrNoRows(err) {
 			zhttp.FlashError(w, T(r.Context(), "error/reset-user-no-account|Not an account on this site: %(email)", args.Email))
-			return zhttp.SeeOther(w, fmt.Sprintf("/user/new?email=%s", url.QueryEscape(args.Email)))
+			return SeeOther(w, r, fmt.Sprintf("/user/new?email=%s", url.QueryEscape(args.Email)))
 		}
 		return err
 	}
@@ -142,13 +142,13 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	zhttp.Flash(w, T(r.Context(), "notify/reset-user-sent|Email sent to %(email)", args.Email))
-	return zhttp.SeeOther(w, "/user/forgot")
+	return SeeOther(w, r, "/user/forgot")
 }
 
 func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
 	if u != nil && u.ID > 0 { // Already logged in.
-		return zhttp.SeeOther(w, "/")
+		return SeeOther(w, r, "/")
 	}
 
 	args := struct {
@@ -165,14 +165,14 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		if zdb.ErrNoRows(err) {
 			zhttp.FlashError(w, T(r.Context(), "error/login-not-found|User %(email) not found", args.Email))
-			return zhttp.SeeOther(w, "/user/new")
+			return SeeOther(w, r, "/user/new")
 		}
 		return err
 	}
 
 	if user.Password == nil || len(user.Password) == 0 {
 		zhttp.FlashError(w, T(r.Context(), "error/login-no-password|There is no password set for %(email); please reset it", args.Email))
-		return zhttp.SeeOther(w, "/user/forgot?email="+url.QueryEscape(args.Email))
+		return SeeOther(w, r, "/user/forgot?email="+url.QueryEscape(args.Email))
 	}
 
 	err = bcrypt.CompareHashAndPassword(user.Password, []byte(args.Password))
@@ -183,7 +183,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 			zhttp.FlashError(w, "Something went wrong :-( An error has been logged for investigation.") // TODO: should be more generic
 			zlog.FieldsRequest(r).Error(err)
 		}
-		return zhttp.SeeOther(w, "/user/new?email="+url.QueryEscape(args.Email))
+		return SeeOther(w, r, "/user/new?email="+url.QueryEscape(args.Email))
 	}
 
 	err = user.Login(r.Context())
@@ -197,7 +197,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	auth.SetCookie(w, *user.LoginToken, cookieDomain(Site(r.Context()), r))
-	return zhttp.SeeOther(w, "/")
+	return SeeOther(w, r, "/")
 }
 
 func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
@@ -223,7 +223,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 	if !valid {
 		zhttp.Flash(w, T(r.Context(), "error/login-invalid|Invalid login"))
-		return zhttp.SeeOther(w, "/user/new")
+		return SeeOther(w, r, "/user/new")
 	}
 
 	tokInt, err := strconv.ParseInt(args.Token, 10, 32)
@@ -243,7 +243,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	auth.SetCookie(w, *u.LoginToken, cookieDomain(Site(r.Context()), r))
-	return zhttp.SeeOther(w, "/")
+	return SeeOther(w, r, "/")
 }
 
 func (h user) totpForm(w http.ResponseWriter, r *http.Request, loginToken, loginMAC string) error {
@@ -297,7 +297,7 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 
 	if args.Password != args.Password2 {
 		zhttp.FlashError(w, T(r.Context(), "error/password-does-not-match|Password confirmation doesn’t match."))
-		return zhttp.SeeOther(w, "/user/new")
+		return SeeOther(w, r, "/user/new")
 	}
 
 	err = zdb.TX(r.Context(), func(ctx context.Context) error {
@@ -317,13 +317,13 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 		var vErr *zvalidate.Validator
 		if errors.As(err, &vErr) {
 			zhttp.FlashError(w, fmt.Sprintf("%s", err))
-			return zhttp.SeeOther(w, "/user/new")
+			return SeeOther(w, r, "/user/new")
 		}
 		return err
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/login-after-password-reset|Password reset; use your new password to login."))
-	return zhttp.SeeOther(w, "/user/new")
+	return SeeOther(w, r, "/user/new")
 }
 
 func (h user) logout(w http.ResponseWriter, r *http.Request) error {
@@ -337,7 +337,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 		}
 		if isBosmang {
 			auth.ClearCookie(w, Site(r.Context()).Domain(r.Context()))
-			return zhttp.SeeOther(w, "https://www.goatcounter.com")
+			return SeeOther(w, r, "https://www.goatcounter.com")
 		}
 	}
 
@@ -348,7 +348,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	auth.ClearCookie(w, Site(r.Context()).Domain(r.Context()))
-	return zhttp.SeeOther(w, "/")
+	return SeeOther(w, r, "/")
 }
 
 func (h user) disableTOTP(w http.ResponseWriter, r *http.Request) error {
@@ -359,7 +359,7 @@ func (h user) disableTOTP(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/disabled-multi-factor-auth|Multi-factor authentication disabled."))
-	return zhttp.SeeOther(w, "/user/auth")
+	return SeeOther(w, r, "/user/auth")
 }
 
 func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
@@ -385,7 +385,7 @@ func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
 		tokGen(-1, nil) != int32(tokInt) &&
 		tokGen(1, nil) != int32(tokInt) {
 		zhttp.FlashError(w, mfaError)
-		return zhttp.SeeOther(w, "/user/auth")
+		return SeeOther(w, r, "/user/auth")
 	}
 
 	err = u.EnableTOTP(r.Context())
@@ -394,7 +394,7 @@ func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/multi-factor-auth-enabled|Multi-factor authentication enabled."))
-	return zhttp.SeeOther(w, "/user/auth")
+	return SeeOther(w, r, "/user/auth")
 }
 
 func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
@@ -416,13 +416,13 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		}
 		if !ok {
 			zhttp.FlashError(w, T(r.Context(), "error/incorrect-password|Current password is incorrect."))
-			return zhttp.SeeOther(w, "/user/auth")
+			return SeeOther(w, r, "/user/auth")
 		}
 	}
 
 	if args.Password != args.Password2 {
 		zhttp.FlashError(w, T(r.Context(), "error/password-does-not-match|Password confirmation doesn’t match."))
-		return zhttp.SeeOther(w, "/user/auth")
+		return SeeOther(w, r, "/user/auth")
 	}
 
 	err = u.UpdatePassword(r.Context(), args.Password)
@@ -430,32 +430,32 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		var vErr *zvalidate.Validator
 		if errors.As(err, &vErr) {
 			zhttp.FlashError(w, fmt.Sprintf("%s", err))
-			return zhttp.SeeOther(w, "/user/auth")
+			return SeeOther(w, r, "/user/auth")
 		}
 		return err
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/password-changed|Password changed."))
-	return zhttp.SeeOther(w, "/user/auth")
+	return SeeOther(w, r, "/user/auth")
 }
 
 func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 	user := User(r.Context())
 	if user.EmailVerified {
 		zhttp.Flash(w, T(r.Context(), "notify/email-already-verified|%(email) is already verified.", user.Email))
-		return zhttp.SeeOther(w, "/")
+		return SeeOther(w, r, "/")
 	}
 
 	sendEmailVerify(r.Context(), Site(r.Context()), user, goatcounter.Config(r.Context()).EmailFrom)
 	zhttp.Flash(w, T(r.Context(), "notify/sent-to-email|Sent to %(email).", user.Email))
-	return zhttp.SeeOther(w, "/")
+	return SeeOther(w, r, "/")
 }
 
 func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 	user := User(r.Context())
 	if !user.EmailVerified {
 		zhttp.Flash(w, T(r.Context(), "notify/need-email-verification-for-api|You need to verify your email before you can use the API."))
-		return zhttp.SeeOther(w, "/user/auth")
+		return SeeOther(w, r, "/user/auth")
 	}
 
 	var token goatcounter.APIToken
@@ -470,7 +470,7 @@ func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/api-token-created|API token created."))
-	return zhttp.SeeOther(w, "/user/api")
+	return SeeOther(w, r, "/user/api")
 }
 
 func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
@@ -492,7 +492,7 @@ func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/api-token-removed|API token removed."))
-	return zhttp.SeeOther(w, "/user/api")
+	return SeeOther(w, r, "/user/api")
 }
 
 func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcounter.User, emailFrom string) {
@@ -521,12 +521,12 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 
 	if user.EmailVerified {
 		zhttp.Flash(w, T(r.Context(), "notify/email-already-verified|%(email) is already verified.", user.Email))
-		return zhttp.SeeOther(w, "/")
+		return SeeOther(w, r, "/")
 	}
 
 	if key != *user.EmailToken {
 		zhttp.FlashError(w, T(r.Context(), "error/wrong-verification-key|Wrong verification key."))
-		return zhttp.SeeOther(w, "/")
+		return SeeOther(w, r, "/")
 	}
 
 	err = user.VerifyEmail(r.Context())
@@ -535,10 +535,10 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "%q verified", user.Email)
-	return zhttp.SeeOther(w, "/")
+	return SeeOther(w, r, "/")
 }
 
-// Make sure to use the currect cookie, since both "custom.example.com" and
+// Make sure to use the correct cookie, since both "custom.example.com" and
 // "example.goatcounter.com" will work if you're using a custom domain.
 func cookieDomain(site *goatcounter.Site, r *http.Request) string {
 	if r.Host == site.Domain(r.Context()) {

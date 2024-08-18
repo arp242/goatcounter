@@ -42,7 +42,7 @@ type settings struct{}
 func (h settings) mount(r chi.Router) {
 	{ // User settings.
 		r.Get("/user", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			zhttp.SeeOther(w, "/user/pref")
+			SeeOther(w, r, "/user/pref")
 		}))
 
 		r.Get("/user/pref", zhttp.Wrap(h.userPref(nil)))
@@ -63,7 +63,7 @@ func (h settings) mount(r chi.Router) {
 		set := r.With(requireAccess(goatcounter.AccessSettings))
 
 		set.Get("/settings", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			zhttp.SeeOther(w, "/settings/main")
+			SeeOther(w, r, "/settings/main")
 		}))
 		set.Get("/settings/main", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
 			return h.main(nil)(w, r)
@@ -209,7 +209,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
-	return zhttp.SeeOther(w, "/settings")
+	return SeeOther(w, r, "/settings")
 }
 
 func (h settings) changeCode(w http.ResponseWriter, r *http.Request) error {
@@ -299,7 +299,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		zhttp.Flash(w, T(r.Context(), "notify/restored-previously-deleted-site|Site ‘%(url)’ was previously deleted; restored site with all data.", newSite.URL(r.Context())))
-		return zhttp.SeeOther(w, "/settings/sites")
+		return SeeOther(w, r, "/settings/sites")
 	}
 
 	// Create new site.
@@ -317,11 +317,11 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 	})
 	if err != nil {
 		zhttp.FlashError(w, err.Error())
-		return zhttp.SeeOther(w, "/settings/sites")
+		return SeeOther(w, r, "/settings/sites")
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/site-added|Site ‘%(url)’ added.", newSite.URL(r.Context())))
-	return zhttp.SeeOther(w, "/settings/sites")
+	return SeeOther(w, r, "/settings/sites")
 }
 
 func (h settings) getSite(ctx context.Context, id int64) (*goatcounter.Site, error) {
@@ -388,11 +388,11 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		err = parent.ByID(r.Context(), *s.Parent)
 		if err != nil {
 			zlog.Error(err)
-			return zhttp.SeeOther(w, "/")
+			return SeeOther(w, r, "/")
 		}
-		return zhttp.SeeOther(w, parent.URL(r.Context()))
+		return SeeOther(w, r, parent.URL(r.Context()))
 	}
-	return zhttp.SeeOther(w, "/settings/sites")
+	return SeeOther(w, r, "/settings/sites")
 }
 
 func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) error {
@@ -436,7 +436,7 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/settings-copied-to-site|Settings copied to the selected sites."))
-	return zhttp.SeeOther(w, "/settings/sites")
+	return SeeOther(w, r, "/settings/sites")
 }
 
 func (h settings) purge(w http.ResponseWriter, r *http.Request) error {
@@ -486,7 +486,7 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	zhttp.Flash(w, T(r.Context(), "notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
-	return zhttp.SeeOther(w, "/settings/purge")
+	return SeeOther(w, r, "/settings/purge")
 }
 
 func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
@@ -512,7 +512,7 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	zhttp.Flash(w, T(r.Context(), "notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
-	return zhttp.SeeOther(w, "/settings/purge")
+	return SeeOther(w, r, "/settings/purge")
 }
 
 func (h settings) export(verr *zvalidate.Validator) zhttp.HandlerFunc {
@@ -548,7 +548,7 @@ func (h settings) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			zhttp.FlashError(w, T(r.Context(), "error/export-expired|It looks like there is no export yet or the export has expired."))
-			return zhttp.SeeOther(w, "/settings/export")
+			return SeeOther(w, r, "/settings/export")
 		}
 
 		return err
@@ -633,7 +633,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	zhttp.Flash(w, T(r.Context(), "notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done."))
-	return zhttp.SeeOther(w, "/settings/export")
+	return SeeOther(w, r, "/settings/export")
 }
 
 func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
@@ -656,7 +656,7 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 		func() { export.Run(ctx, fp, true) })
 
 	zhttp.Flash(w, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
-	return zhttp.SeeOther(w, "/settings/export")
+	return SeeOther(w, r, "/settings/export")
 }
 
 func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
@@ -713,7 +713,7 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
+	return SeeOther(w, r, "https://"+goatcounter.Config(r.Context()).Domain)
 }
 
 func (h settings) users(verr *zvalidate.Validator) zhttp.HandlerFunc {
@@ -829,7 +829,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	zhttp.Flash(w, T(r.Context(), "notify/user-added|User ‘%(email)’ added.", newUser.Email))
-	return zhttp.SeeOther(w, "/settings/users")
+	return SeeOther(w, r, "/settings/users")
 }
 
 func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
@@ -887,7 +887,7 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/users-edited|User ‘%(email)’ edited.", editUser.Email))
-	return zhttp.SeeOther(w, "/settings/users")
+	return SeeOther(w, r, "/settings/users")
 }
 
 func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
@@ -915,7 +915,7 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/user-removed|User ‘%(email)’ removed.", user.Email))
-	return zhttp.SeeOther(w, "/settings/users")
+	return SeeOther(w, r, "/settings/users")
 }
 
 func (h settings) bosmang(w http.ResponseWriter, r *http.Request) error {

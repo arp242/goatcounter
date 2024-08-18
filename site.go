@@ -523,17 +523,22 @@ func (s Site) Display(ctx context.Context) string {
 	return fmt.Sprintf("%s.%s", s.Code, znet.RemovePort(Config(ctx).Domain))
 }
 
-// URL to this site.
-func (s Site) URL(ctx context.Context) string {
+// URL to this site, without the scheme.
+func (s Site) SchemelessURL(ctx context.Context) string {
 	if s.Cname != nil && s.CnameSetupAt != nil {
-		return fmt.Sprintf("http%s://%s%s",
-			map[bool]string{true: "", false: "s"}[Config(ctx).Dev],
-			*s.Cname, Config(ctx).Port)
+		return *s.Cname + Config(ctx).Port + Config(ctx).BasePath
 	}
 
-	return fmt.Sprintf("http%s://%s.%s%s",
-		map[bool]string{true: "", false: "s"}[Config(ctx).Dev],
-		s.Code, Config(ctx).Domain, Config(ctx).Port)
+	return fmt.Sprintf("%s.%s%s%s",
+		s.Code, Config(ctx).Domain, Config(ctx).Port, Config(ctx).BasePath)
+}
+
+// URL to this site.
+func (s Site) URL(ctx context.Context) string {
+	if Config(ctx).Dev {
+		return "http://" + s.SchemelessURL(ctx)
+	}
+	return "https://" + s.SchemelessURL(ctx)
 }
 
 // LinkDomainURL creates a valid url to the configured LinkDomain.

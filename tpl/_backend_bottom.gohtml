@@ -8,6 +8,7 @@
 		data-offset="{{.User.Settings.Timezone.Offset}}"
 		data-first-hit-at="{{.Site.FirstHitAt.Unix}}"
 		data-websocket="{{.Websocket}}"
+		{{if .Base}}data-base-path="{{.Base}}"{{end}}
 		{{if .User.ID}}data-csrf="{{.User.CSRFToken}}"{{end}}
 	>
 		{{- .User.Settings.String | unsafe_js -}}

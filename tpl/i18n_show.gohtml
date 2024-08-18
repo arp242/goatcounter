@@ -55,7 +55,7 @@
 		- Merge from template
 		- Delete
 		*/}}
-		<form method="POST" action="/i18n/submit/{{.TOMLFile}}">
+		<form method="POST" action="{{.Base}}/i18n/submit/{{.TOMLFile}}">
 			<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
 			<button>Send changes<br><small>Changes are saved automatically; use this when you're finished</small></button>
 		</form>
@@ -63,7 +63,7 @@
 </div>
 
 {{range $e := .File.Strings}}
-	{{$o := index $.Base.Strings $e.ID}}
+	{{$o := index $.BaseFile.Strings $e.ID}}
 	{{$status := ""}}
 	{{if not $e.Default}}              {{$status = "untrans"}}
 	{{else if eq $e.Updated "unused"}} {{$status = "unused"}}

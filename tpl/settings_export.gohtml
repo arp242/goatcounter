@@ -4,10 +4,10 @@
 <h2 id="export">{{.T "header/export-or-import|Export/Import"}}</h2>
 
 <p>{{.T "p/csv-file-format|The format of the CSV file is %[documented over here]."
-	(tag "a" `href="/help/export"`)}}</p>
+	(tag "a" (printf `href="%s/help/export"` .Base))}}</p>
 
 <div class="flex-form">
-	<form method="post" action="/settings/export" class="vertical">
+	<form method="post" action="{{.Base}}/settings/export" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
@@ -33,7 +33,7 @@
 		</fieldset>
 	</form>
 
-	<form method="post" action="/settings/export/import" enctype="multipart/form-data" class="vertical">
+	<form method="post" action="{{.Base}}/settings/export/import" enctype="multipart/form-data" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
@@ -75,7 +75,7 @@
 			<td class="hash"><input style="width: 8em" value="{{$e.Hash}}"></td>
 			<td>
 				{{if and $e.Exists $e.FinishedAt}}
-					<a href="/settings/export/{{$e.ID}}">download</a>
+					<a href="{{$.Base}}/settings/export/{{$e.ID}}">download</a>
 				{{else}}
 					<em>{{if $e.FinishedAt}}expired{{else}}not yet ready{{end}}</em>
 				{{end}}

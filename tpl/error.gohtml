@@ -121,6 +121,7 @@ sub {
 </head>
 
 <body>
+  {{/* We should use href="{{.Base}}/" below, but it's not accessible with zhttp.DefaultErrPage. */}}
 	{{if ne .Path "/"}}<nav class="center"><strong><a href="/">← Home</a></strong></nav>{{end}}
 	<div class="page">
 		{{if eq .Code 404}}

@@ -5,7 +5,7 @@
 
 <p>{{.T "forgot-domain-help|Email a list of all domains associated with an email address."}}</p>
 
-<form method="post" action="/user/forgot" class="vertical">
+<form method="post" action="{{.Base}}/user/forgot" class="vertical">
 	<label for="email">{{.T "label/email-address|Email address"}}</label>
 	<input type="email" name="email" id="email" value="{{.Email}}" required>
 	{{validate "email" .Validate}}

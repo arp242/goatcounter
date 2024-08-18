@@ -59,6 +59,7 @@ func (w *Systems) GetData(ctx context.Context, a Args) (more bool, err error) {
 func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
 	return "_dashboard_hchart.gohtml", struct {
 		Context      context.Context
+		Base         string
 		ID           int
 		CanConfigure bool
 		RowsOnly     bool
@@ -70,7 +71,7 @@ func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, any
 		TotalUTC     int
 		Stats        goatcounter.HitStats
 		Detail       string
-	}{ctx, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectUserAgent),
+	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectUserAgent),
 		z18n.T(ctx, "header/systems|Systems"),
 		shared.TotalUTC, w.Stats, w.Detail}
 }

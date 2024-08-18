@@ -2,7 +2,7 @@
 
 <h1>{{.T "header/forgot-password|Forgot password"}}</h1>
 
-<form method="post" action="/user/request-reset" class="vertical">
+<form method="post" action="{{.Base}}/user/request-reset" class="vertical">
 	<label for="email">{{.T "label/email-address|Email address"}}</label>
 	<input type="email" name="email" id="email" value="{{.Email}}" required><br>
 

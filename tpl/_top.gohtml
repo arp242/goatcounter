@@ -8,12 +8,12 @@
 	<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
-	<link rel="canonical" href="https://{{.Domain}}{{if ne .Page "home"}}/{{.Page}}{{end}}">
+	<link rel="canonical" href="https://{{.Domain}}{{.Base}}/{{if ne .Page "home"}}{{.Page}}{{end}}">
 </head>
 
 <body>
 	{{if ne .Page "home"}}<nav class="center">
-		<strong id="back"><a href="/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
+		<strong id="back"><a href="{{.Base}}/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
 	</nav>{{end}}
 	<div class="page page-{{.Page}}">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}

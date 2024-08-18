@@ -60,6 +60,7 @@ type Globals struct {
 	User           *goatcounter.User
 	Site           *goatcounter.Site
 	Path           string
+	Base           string
 	Flash          *zhttp.FlashMessage
 	Static         string
 	StaticDomain   string
@@ -84,6 +85,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		User:           goatcounter.GetUser(ctx),
 		Site:           goatcounter.GetSite(ctx),
 		Path:           r.URL.Path,
+		Base:           goatcounter.Config(ctx).BasePath,
 		Flash:          zhttp.ReadFlash(w, r),
 		Static:         goatcounter.Config(ctx).URLStatic,
 		Domain:         goatcounter.Config(ctx).Domain,

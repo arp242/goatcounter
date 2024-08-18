@@ -8,6 +8,7 @@
 	$(document).ready(function() {
 		window.I18N              = JSON.parse($('#js-i18n').text())
 		window.USER_SETTINGS     = JSON.parse($('#js-settings').text())
+		window.BASE_PATH         = $('#js-settings').attr('data-base-path') || ""
 		window.CSRF              = $('#js-settings').attr('data-csrf')
 		window.TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		window.SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
@@ -25,9 +26,9 @@
 	var report_errors = function() {
 		window.onerror = on_error
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
-			if (settings.url === '/jserr')  // Just in case, otherwise we'll be stuck.
+			if (settings.url === BASE_PATH + '/jserr')  // Just in case, otherwise we'll be stuck.
 				return
-			if (settings.url === '/load-widget')
+			if (settings.url === BASE_PATH + '/load-widget')
 				return
 			var msg = T("error/load-url", {url: settings.url, error: err})
 			console.error(msg)
@@ -52,7 +53,7 @@
 			return
 
 		jQuery.ajax({
-			url:    '/jserr',
+			url:    BASE_PATH + '/jserr',
 			method: 'POST',
 			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
 		})
@@ -124,7 +125,7 @@
 			e.preventDefault()
 
 			jQuery.ajax({
-				url:     '/settings/main/ip',
+				url:     BASE_PATH + '/settings/main/ip',
 				success: function(data) {
 					var input   = $('[name="settings.ignore_ips"]'),
 						current = input.val().split(',').
@@ -192,7 +193,7 @@
 				return
 
 			jQuery.ajax({
-				url:     '/user/dashboard/widget/' + this.selectedOptions[0].value,
+				url:     BASE_PATH + '/user/dashboard/widget/' + this.selectedOptions[0].value,
 				success: function(data) {
 					var i    = 1 + $('.index').toArray().map((e) => parseInt(e.value, 10)).sort().pop(),
 						html = $(data.replace(/widgets([\[_])0([\]_])/g, `widgets$1${i}$2`))

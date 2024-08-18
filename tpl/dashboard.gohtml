@@ -12,9 +12,9 @@
 				"sup"   (tag "a" `class="sup" href="https://www.goatcounter.com/help/faq#verify-email" target="_blank"`)
 			)}}<br>
 
-			{{.T "p/change-email|Change the email address in the %[settings]." (tag "a" `href="/user"`)}}
+			{{.T "p/change-email|Change the email address in the %[settings]." (tag "a" (printf `href="%s/user"` .Base))}}
 
-			<form method="post" action="/user/resend-verify">
+			<form method="post" action="{{.Base}}/user/resend-verify">
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 				<button class="link">{{.T "button/resend-email|Resend email"}}</button>.
 			</form>
@@ -36,7 +36,7 @@
 				"bold"      (tag "strong" "")
 				"pre"       (tag "pre" "")
 				"domain"    (.Site.Domain .Context)
-				"link_docs" (tag "a" `href="/help"`)
+				"link_docs" (tag "a" (printf `href="%s/help"` .Base))
 				"js_code"   (printf "<script data-goatcounter=\"%s/count\"\n        async src=\"//%s/count.js\"></script>" (.Site.URL .Context) .CountDomain)
 			)}}
 		</div>
@@ -68,7 +68,7 @@
 				{{/* TODO: it might be better to load the settings page "inline"
 				here, instead of a settings tab; would also declutter that a bit
 				since we can remove it there. */}}
-				<a href="/user/dashboard">{{.T "button/cfg-dashboard|Configure dashboard layout"}}</a><br>
+				<a href="{{.Base}}/user/dashboard">{{.T "button/cfg-dashboard|Configure dashboard layout"}}</a><br>
 				<small>{{.T "help/cfg-dashboard|Change what to display on the dashboard and in what order."}}</small>
 			</div>
 		</div>

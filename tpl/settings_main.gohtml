@@ -4,7 +4,7 @@
 <h2 id="setting">{{.T "header/settings|Settings"}}</h2>
 
 <div class="form-wrap">
-	<form method="post" action="/settings/main" class="vertical">
+	<form method="post" action="{{.Base}}/settings/main" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset id="section-site">
@@ -18,7 +18,7 @@
 			<label>{{checkbox .Site.Settings.AllowCounter "settings.allow_counter"}}
 				{{.T "label/allow-visitor-counts|Allow adding visitor counts on your website"}}</label>
 			<span>{{.T "help/allow-visitor-counts|See %[the documentation] for details on how to use."
-				(tag "a" `href="/help/visitor-counter"`)}}</span>
+				(tag "a" (printf `href="%s/help/visitor-counter"` .Base))}}</span>
 
 			<label for="settings-allow-embed">{{.T "label/dashboard-allow-embed|Sites that can embed GoatCounter"}}</label>
 			<input type="text" name="settings.allow_embed" id="settings-allow-embed" value="{{.Site.Settings.AllowEmbed}}"></input>
@@ -56,7 +56,7 @@
 				{{.T `label/change-code|You will access your account at https://<em>[my-code]</em>.%(domain) – %[%link change].`
 					(map
 						"domain" .Domain
-						"link"   (tag "a" `href="/settings/change-code"`)
+						"link"   (tag "a" (printf `href="%s/settings/change-code"` .Base))
 					)}}
 				</span>
 			{{end}}

@@ -140,7 +140,7 @@ func (h i18n) show(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "i18n_show.gohtml", struct {
 		Globals
-		Base       msgfile.File
+		BaseFile   msgfile.File
 		File       msgfile.File
 		TOMLFile   string
 		FormatLink func(string) string
@@ -187,7 +187,7 @@ func (h i18n) new(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "%q added", args.Language)
-	return zhttp.SeeOther(w, "/i18n")
+	return SeeOther(w, r, "/i18n")
 }
 
 func (h i18n) save(w http.ResponseWriter, r *http.Request) error {
@@ -266,7 +266,7 @@ func (h i18n) set(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "language set to %q", lang)
-	return zhttp.SeeOther(w, "/i18n")
+	return SeeOther(w, r, "/i18n")
 }
 
 func (h i18n) submit(w http.ResponseWriter, r *http.Request) error {
@@ -294,5 +294,5 @@ func (h i18n) submit(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	zhttp.Flash(w, "email sent to support@goatcounter.com; I'll take a look as soon as possible.")
-	return zhttp.SeeOther(w, "/i18n/"+file)
+	return SeeOther(w, r, "/i18n/"+file)
 }

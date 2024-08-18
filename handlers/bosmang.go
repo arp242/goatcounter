@@ -32,7 +32,7 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a := r.With(mware.RequestLog(nil), requireAccess(goatcounter.AccessSuperuser))
 
 	r.Get("/bosmang", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return zhttp.MovedPermanently(w, "/settings/server")
+		return MovedPermanently(w, r, "/settings/server")
 	}))
 
 	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
@@ -98,7 +98,7 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	zhttp.Flash(w, "Task %q started", id)
-	return zhttp.SeeOther(w, "/bosmang/bgrun")
+	return SeeOther(w, r, "/bosmang/bgrun")
 }
 
 func (h bosmang) metrics(w http.ResponseWriter, r *http.Request) error {

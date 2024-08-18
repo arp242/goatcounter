@@ -81,6 +81,11 @@ Flags:
   -public-port Port your site is publicly accessible on. Only needed if it's
                not 80 or 443.
 
+  -base-path   Base path to use in URLs sent back to the client. Default: "/".
+               You need this if you are reverse proxying GoatCounter into a
+               subdirectory of your website. This does not affect routing, since
+               it is assumed the reverse proxy will strip off the base path.
+
   -automigrate Automatically run all pending migrations on startup.
 
   -smtp        SMTP relay server, as URL (e.g. "smtp://user:pass@server").
@@ -164,6 +169,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		// TODO(depr): -port is for compat with <2.0
 		port         = f.Int(0, "public-port", "port").Pointer()
+		basePath     = f.String("/", "base-path").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
 	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, err := flagsServe(f, &v)
@@ -171,9 +177,16 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return err
 	}
 
-	return func(port int, domainStatic string) error {
+	return func(port int, basePath, domainStatic string) error {
 		if flagTLS == "" {
 			flagTLS = map[bool]string{true: "http", false: "acme,rdr"}[dev]
+		}
+
+		if !strings.HasPrefix(basePath, "/") {
+			return fmt.Errorf("invalid -base-path flag: %q: must start with a slash", basePath)
+		}
+		if i := len(basePath) - 1; basePath[i] == '/' {
+			basePath = basePath[:i]
 		}
 
 		var domainCount, urlStatic string
@@ -185,6 +198,8 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			}
 			urlStatic = "//" + domainStatic
 			domainCount = domainStatic
+		} else {
+			urlStatic = basePath
 		}
 
 		//from := flagFrom(from, "cfg.Domain", &v)
@@ -206,6 +221,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		c.DomainStatic = domainStatic
 		c.Dev = dev
 		c.URLStatic = urlStatic
+		c.BasePath = basePath
 		c.DomainCount = domainCount
 		c.Websocket = websocket
 
@@ -238,7 +254,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			}
 			ready <- struct{}{}
 		})
-	}(*port, *domainStatic)
+	}(*port, *basePath, *domainStatic)
 }
 
 func doServe(ctx context.Context, db zdb.DB,

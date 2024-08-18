@@ -1,16 +1,16 @@
 <nav class="tab-nav">
-	<a class="{{if has_prefix .Path "/settings/main"}}active{{end}}"   href="/settings/main">{{.T "link/settings|Settings"}}</a>
-	<a class="{{if has_prefix .Path "/settings/purge"}}active{{end}}"  href="/settings/purge">{{.T "link/manage-pageviews|Manage pageviews"}}</a>
-	<a class="{{if has_prefix .Path "/settings/export"}}active{{end}}" href="/settings/export">{{.T "link/import|Import/Export"}}</a>
+	<a class="{{if has_prefix .Path "/settings/main"}}active{{end}}"   href="{{.Base}}/settings/main">{{.T "link/settings|Settings"}}</a>
+	<a class="{{if has_prefix .Path "/settings/purge"}}active{{end}}"  href="{{.Base}}/settings/purge">{{.T "link/manage-pageviews|Manage pageviews"}}</a>
+	<a class="{{if has_prefix .Path "/settings/export"}}active{{end}}" href="{{.Base}}/settings/export">{{.T "link/import|Import/Export"}}</a>
 
 	{{if .User.AccessAdmin}}
-	<a class="{{if has_prefix .Path "/settings/users"}}active{{end}}"  href="/settings/users">{{.T "link/users|Users"}}</a>
-	<a class="{{if has_prefix .Path "/settings/sites"}}active{{end}}"  href="/settings/sites">{{.T "link/sites|Sites"}}</a>
+	<a class="{{if has_prefix .Path "/settings/users"}}active{{end}}"  href="{{.Base}}/settings/users">{{.T "link/users|Users"}}</a>
+	<a class="{{if has_prefix .Path "/settings/sites"}}active{{end}}"  href="{{.Base}}/settings/sites">{{.T "link/sites|Sites"}}</a>
 		{{if .GoatcounterCom}}
-		<a class="{{if has_prefix .Path "/settings/delete-account"}}active{{end}}" href="/settings/delete-account">{{.T "link/rm-account|Delete account"}}</a>
+		<a class="{{if has_prefix .Path "/settings/delete-account"}}active{{end}}" href="{{.Base}}/settings/delete-account">{{.T "link/rm-account|Delete account"}}</a>
 		{{end}}
 	{{end}}
 	{{if .User.AccessSuperuser}}
-		<a class="{{if has_prefix .Path "/settings/server"}}active{{end}}"  href="/settings/server">Server management</a>
+		<a class="{{if has_prefix .Path "/settings/server"}}active{{end}}"  href="{{.Base}}/settings/server">Server management</a>
 	{{end}}
 </nav>

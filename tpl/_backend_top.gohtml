@@ -52,22 +52,22 @@
 						</div>
 					{{- end -}}
 				{{else if has_prefix .Path "/settings/sites/remove/"}}
-					<strong id="back"><a href="/settings/sites">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
+					<strong id="back"><a href="{{.Base}}/settings/sites">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else if has_prefix .Path "/settings/purge/confirm"}}
-					<strong id="back"><a href="/settings/purge">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
+					<strong id="back"><a href="{{.Base}}/settings/purge">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else if has_prefix .Path "/i18n/"}}
-					<strong id="back"><a href="/i18n">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
+					<strong id="back"><a href="{{.Base}}/i18n">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else if has_prefix .Path "/bosmang/"}}
-					<strong id="back"><a href="/settings/server">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
+					<strong id="back"><a href="{{.Base}}/settings/server">←&#xfe0e; {{.T "top-nav/back|Back"}}</a></strong>
 				{{else}}
-					<strong id="back"><a href="/">←&#xfe0e; {{.T "top-nav/dashboard|Dashboard"}}</a></strong>
+					<strong id="back"><a href="{{.Base}}/">←&#xfe0e; {{.T "top-nav/dashboard|Dashboard"}}</a></strong>
 				{{end}}
 			</div>
 			<div id="usermenu">
-				<a {{if eq .Path "/help"}}class="active" {{end}}href="/help">{{.T "top-nav/documentation|Help"}}</a> |
-				{{if .User.AccessSettings}}<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="/settings">{{.T "top-nav/settings|Settings"}}</a> |{{end}}
-				<a {{if has_prefix .Path "/user"}}class="active" {{end}}href="/user">{{.User.EmailShort}}</a> |
-				<form method="post" action="/user/logout">
+				<a {{if eq .Path "/help"}}class="active" {{end}}href="{{.Base}}/help">{{.T "top-nav/documentation|Help"}}</a> |
+				{{if .User.AccessSettings}}<a {{if has_prefix .Path "/settings"}}class="active" {{end}}href="{{.Base}}/settings">{{.T "top-nav/settings|Settings"}}</a> |{{end}}
+				<a {{if has_prefix .Path "/user"}}class="active" {{end}}href="{{.Base}}/user">{{.User.EmailShort}}</a> |
+				<form method="post" action="{{.Base}}/user/logout">
 					<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 					<button class="link">{{.T "top-nav/sign-out|Sign out"}}</button>
 				</form>
@@ -84,7 +84,7 @@
 					"timezone-offset" .User.Settings.Timezone.OffsetDisplay
 				)}}
 			</div>
-			<div id="signin"><a href="/user/new">{{.T "top-nav/sign-in|Sign in"}}</a></div>
+			<div id="signin"><a href="{{.Base}}/user/new">{{.T "top-nav/sign-in|Sign in"}}</a></div>
 		{{- end -}}
 	</nav>
 
@@ -94,7 +94,7 @@
 	{{if and .User.ID (before .Site.CreatedAt "2024-04-07")}}
 		<div class="flash flash-i onetime onetime-dark">
 			The default theme colours are now set from your system; you can change it back to the
-			previous by changing it in <a href="/user/pref#section-email-reports">your user settings</a>
+			previous by changing it in <a href="{{.Base}}/user/pref#section-email-reports">your user settings</a>
 			–
 			<a href="" class="close">don’t show again</a>
 		</div>

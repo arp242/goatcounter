@@ -4,7 +4,7 @@
 <h2 id="dashboard">{{.T "header/dashboard|Dashboard"}}</h2>
 
 <script crossorigin="anonymous" src="{{.Static}}/dragula.js?v={{.Version}}"></script>
-<form method="post" action="/user/dashboard" id="widget-settings">
+<form method="post" action="{{.Base}}/user/dashboard" id="widget-settings">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<input type="hidden" name="reset" value="">
 

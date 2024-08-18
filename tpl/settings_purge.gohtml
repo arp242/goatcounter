@@ -14,7 +14,7 @@
 	meaning.
 `}}</p>
 
-<form method="get" action="/settings/purge">
+<form method="get" action="{{.Base}}/settings/purge">
 	<input type="text" name="path" placeholder="Path" value="{{.PurgePath}}" required autocomplete="off">
 	<button type="submit">{{.T "button/search|Search"}}</button><br>
 	<label>{{checkbox .MatchTitle "match-title"}} {{.T "label/match-title|Match title as well"}}</label>
@@ -46,7 +46,7 @@
 			align-items: end;
 			margin-top: 2em;
 		">
-			<form method="post" action="/settings/merge"
+			<form method="post" action="{{.Base}}/settings/merge"
 				data-confirm="{{.T "help/no-undo|This cannot be undone!"}}"
 			>
 				<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -62,7 +62,7 @@
 				<br>
 				<strong>{{.T "help/no-undo|This cannot be undone!"}}</strong><br>
 			</form>
-			<form method="post" action="/settings/purge"
+			<form method="post" action="{{.Base}}/settings/purge"
 				data-confirm="{{.T "help/no-undo|This cannot be undone!"}}"
 				style="text-align: right;"
 			>

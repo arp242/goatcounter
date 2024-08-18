@@ -58,7 +58,7 @@ hr                  { margin: 0; }
 
 <body>
 	<nav class="center">
-		<strong id="back"><a href="/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
+		<strong id="back"><a href="{{.Base}}/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
 	</nav>
 
 	<div class="center code-wrap">
@@ -81,7 +81,7 @@ hr                  { margin: 0; }
 
 				<p>Ways to contact me: <a href="#" class="show-contact">show</a> </p>
 				<div style="display: none;" class="contact">
-					{{template "_contact.gohtml" (map "v" .Validate "r" (printf "/help/%s" .CodePage) "a" .Args)}}
+					{{template "_contact.gohtml" (map "v" .Validate "r" (printf "/help/%s" .CodePage) "a" .Args "Base" .Base)}}
 				</div>
 			</div>
 		</div>
