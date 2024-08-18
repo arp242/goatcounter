@@ -10,8 +10,7 @@ sed -e '/^\t\/\/ %%START%%/r /dev/stdin' -e '/^\t\/\/ %%START%%/,/^\t\/\/ %%END%
 gofmt > x && mv -f x refspam.go
 */
 var refspam = map[string]struct{}{
-	"localhost":        {}, // Not spam, but we never really want to accept requests from localhost.
-	"livingsimply.com": {}, // https://github.com/matomo-org/referrer-spam-list/pull/1400
+	"localhost": {}, // Not spam, but we never really want to accept requests from localhost.
 
 	// %%START%%
 	"0-0.fr":                               {},
@@ -700,6 +699,7 @@ var refspam = map[string]struct{}{
 	"epcpolo.com":                          {},
 	"epicdiving.com":                       {},
 	"eraglass.com":                         {},
+	"erias.xyz":                            {},
 	"eric-artem.com":                       {},
 	"ericshome.store":                      {},
 	"erinhome.xyz":                         {},
@@ -874,6 +874,7 @@ var refspam = map[string]struct{}{
 	"googlsucks.com":                       {},
 	"gorgaz.info":                          {},
 	"goyua.xyz":                            {},
+	"graceonline.shop":                     {},
 	"grafaman.ru":                          {},
 	"greatblog.top":                        {},
 	"greentechsy.com":                      {},
@@ -1208,6 +1209,7 @@ var refspam = map[string]struct{}{
 	"livejournal.top":                      {},
 	"livia-pache.ru":                       {},
 	"livingroomdecoratingideas.website":    {},
+	"livingsimply.com":                     {},
 	"lk-gosuslugi.ru":                      {},
 	"lk-lk-rt.ru":                          {},
 	"local-seo-for-multiple-locations.com": {},
@@ -1228,7 +1230,7 @@ var refspam = map[string]struct{}{
 	"luton-invest.ru":                      {},
 	"luxup.ru":                             {},
 	"luxurybet.ru":                         {},
-	"madisonclothingny.com ":               {},
+	"madisonclothingny.com":                {},
 	"madjonline.xyz":                       {},
 	"magicart.store":                       {},
 	"magicdiet.gq":                         {},
@@ -1976,6 +1978,7 @@ var refspam = map[string]struct{}{
 	"tocan.com.ua":                         {},
 	"tokshow.online":                       {},
 	"tomck.com":                            {},
+	"tommysautomotivecare.com":             {},
 	"top-gan.ru":                           {},
 	"top-instagram.info":                   {},
 	"top-kasyna.com":                       {},
@@ -1983,6 +1986,7 @@ var refspam = map[string]struct{}{
 	"top1-seo-service.com":                 {},
 	"top10-online-games.com":               {},
 	"top10-way.com":                        {},
+	"topgurudeals.com":                     {},
 	"topmebeltorg.ru":                      {},
 	"toposvita.com":                        {},
 	"topquality.cf":                        {},
@@ -2052,6 +2056,7 @@ var refspam = map[string]struct{}{
 	"uptime-eu.net":                        {},
 	"uptime-us.net":                        {},
 	"uptimechecker.com":                    {},
+	"urbanblog.shop":                       {},
 	"urblog.xyz":                           {},
 	"urlumbrella.com":                      {},
 	"uruto.ru":                             {},
@@ -2244,6 +2249,9 @@ var refspam = map[string]struct{}{
 	"xrp-ripple.info":                                                  {},
 	"xtraffic.plus":                                                    {},
 	"xtrafficplus.com":                                                 {},
+	"xtrafficplus.online":                                              {},
+	"xtrafficplus.shop":                                                {},
+	"xtrafficplus.xyz":                                                 {},
 	"xxxhamster.me":                                                    {},
 	"xxxvideochat.ru":                                                  {},
 	"xz618.com":                                                        {},
