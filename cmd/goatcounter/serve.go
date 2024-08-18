@@ -81,10 +81,11 @@ Flags:
   -public-port Port your site is publicly accessible on. Only needed if it's
                not 80 or 443.
 
-  -base-path   Base path to use in URLs sent back to the client. Default: "/".
-               You need this if you are reverse proxying GoatCounter into a
-               subdirectory of your website. This does not affect routing, since
-               it is assumed the reverse proxy will strip off the base path.
+  -base-path   Path under which GoatCounter is available. Usually GoatCounter
+               runs on its own domain or subdomain ("stats.example.com"), but in
+               some cases it's useful to run GoatCounter under a path
+               ("example.com/stats"), in which case you'll beed to set this to
+               "/stats".
 
   -automigrate Automatically run all pending migrations on startup.
 
@@ -182,13 +183,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			flagTLS = map[bool]string{true: "http", false: "acme,rdr"}[dev]
 		}
 
-		if !strings.HasPrefix(basePath, "/") {
-			return fmt.Errorf("invalid -base-path flag: %q: must start with a slash", basePath)
-		}
-		if i := len(basePath) - 1; basePath[i] == '/' {
-			basePath = basePath[:i]
-		}
-
+		basePath = "/" + strings.Trim(basePath, "/")
 		var domainCount, urlStatic string
 		if domainStatic != "" {
 			if p := strings.Index(domainStatic, ":"); p > -1 {

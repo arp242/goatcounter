@@ -28,7 +28,7 @@ if (expand)
 			})
 	})
 
-if (window.location.pathname == basePath + '/help/visitor-counter') {
+if (window.location.pathname === basePath + '/help/visitor-counter') {
 	var t = setInterval(function() {
 		if (window.goatcounter && window.goatcounter.visit_count) {
 			clearInterval(t)
