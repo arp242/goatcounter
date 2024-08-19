@@ -1,0 +1,14 @@
+name: 'goatcounter'
+
+volumes:
+  postgres-data: {}
+
+services:
+  postgres:
+    image:   'postgres:16-alpine'
+    ports:   ['127.0.0.1:5433:5432']  # 5433 instead of default 5432
+    volumes: ['postgres-data:/var/lib/postgresql/data']
+    environment:
+      'POSTGRES_USER':     'goatcounter'
+      'POSTGRES_PASSWORD': 'goatcounter'
+      'POSTGRES_DATABASE': 'goatcounter'

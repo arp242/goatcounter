@@ -58,7 +58,7 @@ type HitListStat struct {
 
 // PathCount gets the visit count for one path.
 func (h *HitList) PathCount(ctx context.Context, path string, rng ztime.Range) error {
-	err := zdb.Get(ctx, h, "load:hit_list.PathCount", zdb.P{
+	err := zdb.Get(ctx, h, "load:hit_list.PathCount", map[string]any{
 		"site":  MustGetSite(ctx).ID,
 		"path":  path,
 		"start": rng.Start,
@@ -76,7 +76,7 @@ func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
 			where site_id = :site
 			{{:start and hour >= :start}}
 			{{:end   and hour <= :end}}
-		`, zdb.P{
+		`, map[string]any{
 		"site":  MustGetSite(ctx).ID,
 		"start": rng.Start,
 		"end":   rng.End,
@@ -88,7 +88,7 @@ type HitLists []HitList
 
 // ListPathsLike lists all paths matching the like pattern.
 func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle, matchCase bool) error {
-	err := zdb.Select(ctx, h, "load:hit_list.ListPathsLike", zdb.P{
+	err := zdb.Select(ctx, h, "load:hit_list.ListPathsLike", map[string]any{
 		"site":        MustGetSite(ctx).ID,
 		"search":      search,
 		"match_title": matchTitle,
@@ -109,7 +109,7 @@ func (h *HitLists) List(
 	// List the pages for this time period; this gets the path_id, path, title.
 	var more bool
 	{
-		err := zdb.Select(ctx, h, "load:hit_list.List-counts", zdb.P{
+		err := zdb.Select(ctx, h, "load:hit_list.List-counts", map[string]any{
 			"site":    site.ID,
 			"start":   rng.Start,
 			"end":     rng.End,
@@ -147,7 +147,7 @@ func (h *HitLists) List(
 			paths[i] = hh[i].PathID
 		}
 
-		err := zdb.Select(ctx, &st, "load:hit_list.List-stats", zdb.P{
+		err := zdb.Select(ctx, &st, "load:hit_list.List-stats", map[string]any{
 			"site":  site.ID,
 			"start": rng.Start.Format("2006-01-02"),
 			"end":   rng.End.Format("2006-01-02"),
@@ -198,7 +198,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 		Hour  time.Time `db:"hour"`
 		Total int       `db:"total"`
 	}
-	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", zdb.P{
+	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", map[string]any{
 		"site":      site.ID,
 		"start":     rng.Start,
 		"end":       rng.End,
@@ -429,7 +429,7 @@ func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64, noE
 	user := MustGetUser(ctx)
 
 	var t TotalCount
-	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", zdb.P{
+	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", map[string]any{
 		"site":      site.ID,
 		"start":     rng.Start,
 		"end":       rng.End,
@@ -462,7 +462,7 @@ func (h HitLists) Diff(ctx context.Context, rng, prev ztime.Range) ([]float64, e
 	}
 
 	var diffs []float64
-	err := zdb.Select(ctx, &diffs, "load:hit_list.DiffTotal", zdb.P{
+	err := zdb.Select(ctx, &diffs, "load:hit_list.DiffTotal", map[string]any{
 		"site":      MustGetSite(ctx).ID,
 		"start":     rng.Start,
 		"end":       rng.End,

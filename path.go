@@ -141,7 +141,7 @@ type Paths []Path
 
 // List all paths for a site.
 func (p *Paths) List(ctx context.Context, siteID, after int64, limit int) (bool, error) {
-	err := zdb.Select(ctx, p, "load:paths.List", zdb.P{
+	err := zdb.Select(ctx, p, "load:paths.List", map[string]any{
 		"site":  siteID,
 		"after": after,
 		"limit": limit + 1,
@@ -164,7 +164,7 @@ func (p *Paths) List(ctx context.Context, siteID, after int64, limit int) (bool,
 // if matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
 	var paths []int64
-	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", zdb.P{
+	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", map[string]any{
 		"site":        MustGetSite(ctx).ID,
 		"filter":      "%" + filter + "%",
 		"match_title": matchTitle,

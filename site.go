@@ -187,7 +187,7 @@ func (s *Site) Insert(ctx context.Context) error {
 
 	s.ID, err = zdb.InsertID(ctx, "site_id", `insert into sites (
 		parent, code, cname, link_domain, settings, user_defaults, created_at, first_hit_at, cname_setup_at) values (?)`,
-		zdb.L{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.UserDefaults, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
+		[]any{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.UserDefaults, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
 	if err != nil && zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
@@ -394,11 +394,11 @@ func (s Site) Exists(ctx context.Context) (int64, error) {
 	var (
 		id     int64
 		query  = `select site_id from sites where lower(code) = lower($1) and site_id != $2 limit 1`
-		params = zdb.L{s.Code, s.ID}
+		params = []any{s.Code, s.ID}
 	)
 	if s.Cname != nil {
 		query = `select site_id from sites where lower(cname) = lower($1) and site_id != $2 limit 1`
-		params = zdb.L{s.Cname, s.ID}
+		params = []any{s.Cname, s.ID}
 	}
 
 	err := zdb.Get(ctx, &id, query, params...)
@@ -562,7 +562,7 @@ func (s Site) IDOrParent() int64 {
 func (s Site) DeleteAll(ctx context.Context) error {
 	return zdb.TX(ctx, func(ctx context.Context) error {
 		for _, t := range append(statTables, "campaign_stats", "hit_counts", "ref_counts", "hits", "paths") {
-			err := zdb.Exec(ctx, `delete from `+t+` where site_id=:id`, zdb.P{"id": s.ID})
+			err := zdb.Exec(ctx, `delete from `+t+` where site_id=:id`, map[string]any{"id": s.ID})
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteAll: delete "+t)
 			}
@@ -706,7 +706,7 @@ func (s *Sites) Find(ctx context.Context, ident []string) error {
 		{{:ids site_id in (:ids) or}}
 		{{:strs! 0=1}}
 		{{:strs cname in (:strs)}}`,
-		zdb.P{"ids": ids, "strs": strs})
+		map[string]any{"ids": ids, "strs": strs})
 	return errors.Wrap(err, "Sites.Find")
 }
 

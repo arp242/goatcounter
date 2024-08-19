@@ -306,7 +306,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	return true
 }
 
-// Maximum length of sessions; exported here for tests.
+// SessionTime is the maximum length of sessions; exported here for tests.
 var SessionTime = 8 * time.Hour
 
 // For 10k sessions this takes about 5ms on my laptop; that's a small enough

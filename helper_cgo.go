@@ -3,7 +3,6 @@
 // in the LICENSE file or at https://license.goatcounter.com
 
 //go:build cgo
-// +build cgo
 
 package goatcounter
 

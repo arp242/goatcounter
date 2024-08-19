@@ -50,7 +50,7 @@ func TestSetup(t *testing.T) {
 			haveACME := acmeH != nil
 
 			if tlsC != nil {
-				t.Logf(zruntime.FuncName(tlsC.GetCertificate))
+				t.Log(zruntime.FuncName(tlsC.GetCertificate))
 			}
 			if haveTLS != tt.wantTLS {
 				t.Errorf("have TLS %t; want %t", haveTLS, tt.wantTLS)

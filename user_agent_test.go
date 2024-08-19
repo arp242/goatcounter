@@ -31,7 +31,7 @@ func TestUserAgentGetOrInsert(t *testing.T) {
 			zdb.DumpString(ctx, `select systems.name  || ' ' || systems.version  as system  from systems;`)
 		out = strings.ReplaceAll(out, " \n", "\n") // TODO: fix in zdb
 		if d := ztest.Diff(out, want); d != "" {
-			t.Errorf(d)
+			t.Error(d)
 		}
 	}
 

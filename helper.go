@@ -110,7 +110,7 @@ func NewBufferKey(ctx context.Context) (string, error) {
 			return err
 		}
 
-		err = zdb.Exec(ctx, `insert into store (key, value) values ('buffer-secret', :s)`, zdb.P{"s": secret})
+		err = zdb.Exec(ctx, `insert into store (key, value) values ('buffer-secret', :s)`, map[string]any{"s": secret})
 		return err
 	})
 	if err != nil {

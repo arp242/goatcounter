@@ -153,7 +153,7 @@ func (t *APIToken) Insert(ctx context.Context) error {
 
 	t.ID, err = zdb.InsertID(ctx, "api_token_id",
 		`insert into api_tokens (site_id, user_id, name, token, permissions, created_at) values (?)`,
-		zdb.L{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt})
+		[]any{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt})
 	return errors.Wrap(err, "APIToken.Insert")
 }
 
@@ -226,7 +226,7 @@ func (t *APITokens) Find(ctx context.Context, ident []string) error {
 		{{:ids api_token_id in (:ids) or}}
 		{{:strs! 0=1}}
 		{{:strs token in (:strs)}}`,
-		zdb.P{"ids": ids, "strs": strs})
+		map[string]any{"ids": ids, "strs": strs})
 	return errors.Wrap(err, "APITokens.Find")
 }
 

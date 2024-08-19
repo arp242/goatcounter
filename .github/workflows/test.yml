@@ -1,0 +1,44 @@
+name: 'test backend'
+on:
+  push:
+    paths: ['**.go', 'go.mod', '.github/workflows/*']
+  pull_request:
+    paths: ['**.go', 'go.mod', '.github/workflows/*']
+
+jobs:
+  # Uncomment to get a debug shell.
+  # debug: {runs-on: 'ubuntu-latest', steps: [{uses: 'actions/checkout@v4'}, {uses: 'mxschmitt/action-tmate@v3'}]}
+
+  test:
+    name:    'test (linux)'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: 'actions/checkout@v4'
+      - name: 'test (linux)'
+        run: |
+          # Quick exit on compile errors.
+          go build -race ./cmd/goatcounter || exit 1
+
+          # Make sure it at least compiles on macOS, Windows, and arm64
+          GOARCH=arm64              go build ./cmd/goatcounter
+          GOARCH=arm64 GOOS=darwin  go build ./cmd/goatcounter
+          GOOS=windows              go build ./cmd/goatcounter
+
+          go test -race -timeout=3m ./...
+
+          docker compose up -d --wait
+          export PGHOST=localhost
+          export PGPORT=5433
+          export PGDATABASE=goatcounter
+          export PGUSER=goatcounter
+          export PGPASSWORD=goatcounter
+          export PGSSLMODE=disable
+          go test -race -timeout=3m -tags pgsql ./...
+
+  staticcheck:
+    name:    'staticcheck'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: 'actions/checkout@v4'
+      - uses: 'dominikh/staticcheck-action@v1.3.1'
+        with: {version: '2024.1'}
