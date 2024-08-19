@@ -252,10 +252,6 @@ func toI64(s string) int64 {
 	n, _ := strconv.ParseInt(s, 10, 64)
 	return n
 }
-func toUi64(s string) uint64 {
-	n, _ := strconv.ParseUint(s, 10, 64)
-	return n
-}
 
 var _ Line = RegexLine{}
 

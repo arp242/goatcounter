@@ -426,10 +426,7 @@ func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent
 	}
 }
 
-var (
-	importClient = http.Client{Timeout: 5 * time.Second}
-	nSent        int64
-)
+var importClient = http.Client{Timeout: 5 * time.Second}
 
 func importSend(url, key string, silent, follow bool, hits []handlers.APICountRequestHit) error {
 	body, err := json.Marshal(handlers.APICountRequest{NoSessions: true, Hits: hits})

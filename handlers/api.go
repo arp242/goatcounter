@@ -47,6 +47,7 @@ type (
 		Errors map[string][]string `json:"errors,omitempty"`
 	}
 	// Authentication error: the API key was not provided or incorrect.
+	//lint:ignore U1000 referenced from Kommentaar.
 	authError struct {
 		Error string `json:"error,omitempty"`
 	}

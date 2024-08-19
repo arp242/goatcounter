@@ -217,20 +217,20 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 // ListSize lists all sizes for one grouping.
 func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pathFilter []int64, limit, offset int) error {
 	var (
-		min_size, max_size int
-		empty              bool
+		minSize, maxSize int
+		empty            bool
 	)
 	switch id {
 	case sizePhones:
-		max_size = 384
+		maxSize = 384
 	case sizeLargePhones:
-		min_size, max_size = 384, 1024
+		minSize, maxSize = 384, 1024
 	case sizeTablets:
-		min_size, max_size = 1024, 1440
+		minSize, maxSize = 1024, 1440
 	case sizeDesktop:
-		min_size, max_size = 1440, 1920
+		minSize, maxSize = 1440, 1920
 	case sizeDesktopHD:
-		min_size, max_size = 1920, 99999
+		minSize, maxSize = 1920, 99999
 	case sizeUnknown:
 		empty = true
 	default:
@@ -243,8 +243,8 @@ func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pat
 		"start":    asUTCDate(user, rng.Start),
 		"end":      asUTCDate(user, rng.End),
 		"filter":   pathFilter,
-		"min_size": min_size,
-		"max_size": max_size,
+		"min_size": minSize,
+		"max_size": maxSize,
 		"empty":    empty,
 		"limit":    limit + 1,
 		"offset":   offset,

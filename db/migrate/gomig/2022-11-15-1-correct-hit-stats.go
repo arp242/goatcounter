@@ -198,5 +198,5 @@ type Hit struct {
 	SystemID      int64  `db:"-" json:"-"`
 
 	// Don't process in memstore; for merging paths.
-	noProcess bool `db:"-" json:"-"`
+	//noProcess bool `db:"-" json:"-"`
 }
