@@ -183,7 +183,10 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			flagTLS = map[bool]string{true: "http", false: "acme,rdr"}[dev]
 		}
 
-		basePath = "/" + strings.Trim(basePath, "/")
+		basePath = strings.Trim(basePath, "/")
+		if basePath != "" {
+			basePath = "/" + basePath
+		}
 		zhttp.BasePath = basePath
 
 		var domainCount, urlStatic string

@@ -19,7 +19,9 @@ import (
 	"zgo.at/zstd/zfs"
 )
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool, domainStatic string, basePath string, dashTimeout, apiMax int) chi.Router {
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool,
+	domainStatic string, basePath string, dashTimeout, apiMax int,
+) chi.Router {
 	root := chi.NewRouter()
 	r := root
 	if basePath != "" {
