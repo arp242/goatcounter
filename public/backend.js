@@ -162,7 +162,7 @@
 
 		// Update redirect link.
 		$('#settings-secret').on('change', function(e) {
-			$('#secret-url').val(`${location.protocol}//${location.host}?access-token=${this.value}`)
+			$('#secret-url').val(`${location.protocol}//${location.host}${BASE_PATH}?access-token=${this.value}`)
 		}).trigger('change')
 	}
 
