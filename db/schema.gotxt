@@ -141,6 +141,7 @@ create table sizes (
 		{{sqlite `width || ',' || height || ',' || scale`}}
 	) stored
 );
+create index "sizes#size" on sizes(size);
 insert into sizes (width, height, scale) values (0, 0, 0);
 
 create table hit_counts (
@@ -268,16 +269,6 @@ create index "campaign_stats#site_id#day" on campaign_stats(site_id, day desc);
 {{cluster "campaign_stats" "campaign_stats#site_id#day"}}
 {{replica "campaign_stats" "campaign_stats#site_id#path_id#campaign_id#ref#day"}}
 
-create table updates (
-	id             {{auto_increment}},
-	subject        varchar        not null,
-	body           varchar        not null,
-
-	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
-	show_at        timestamp      not null                 {{check_timestamp "show_at"}}
-);
-create index "updates#show_at" on updates(show_at);
-
 create table exports (
 	export_id      {{auto_increment}},
 	site_id        integer        not null,
@@ -362,6 +353,8 @@ insert into version values
 	('2022-11-17-1-open-at'),
 	('2023-05-16-1-hits'),
 	-- 2.6
-	('2023-12-15-1-rm-updates');
+	('2023-12-15-1-rm-updates'),
+	('2024-08-19-1-sizes-idx'),
+	('2024-08-19-2-rm-updates2');
 
 -- vim:ft=sql:tw=0
