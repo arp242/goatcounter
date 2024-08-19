@@ -66,7 +66,7 @@ func (w Sizes) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 		TotalUTC     int
 		Stats        goatcounter.HitStats
 		Detail       string
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, false, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectScreenSize),
-		z18n.T(ctx, "header/sizes|Sizes"),
+	}{ctx, goatcounter.Config(ctx).BasePath, w.id, false, shared.RowsOnly, w.Detail == "", w.loaded, w.err,
+		isCol(ctx, goatcounter.CollectScreenSize), z18n.T(ctx, "header/sizes|Sizes"),
 		shared.TotalUTC, w.Stats, w.Detail}
 }

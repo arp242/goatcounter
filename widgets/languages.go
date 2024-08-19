@@ -64,6 +64,7 @@ func (w Languages) RenderHTML(ctx context.Context, shared SharedData) (string, a
 		Header       string
 		TotalUTC     int
 		Stats        goatcounter.HitStats
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, false, w.loaded, w.err, isCol(ctx, goatcounter.CollectLanguage),
+	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, false, w.loaded, w.err,
+		isCol(ctx, goatcounter.CollectLanguage),
 		header, shared.TotalUTC, w.Stats}
 }

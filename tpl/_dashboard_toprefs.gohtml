@@ -9,7 +9,7 @@
 			<a href="#" class="logged-in configure-widget" aria-label="{{t $.Context "button/cfg-dashboard|Configure"}}">⚙&#xfe0f;</a>
 		</div>
 
-		{{template "_dashboard_warn_collect.gohtml" (map "IsCollected" .IsCollected "Context" .Context)}}
+		{{template "_dashboard_warn_collect.gohtml" (map "IsCollected" .IsCollected "Context" .Context "Base" .Base)}}
 		{{if .Err}}
 			<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>
 		{{else}}

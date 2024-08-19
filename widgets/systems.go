@@ -71,7 +71,7 @@ func (w Systems) RenderHTML(ctx context.Context, shared SharedData) (string, any
 		TotalUTC     int
 		Stats        goatcounter.HitStats
 		Detail       string
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectUserAgent),
-		z18n.T(ctx, "header/systems|Systems"),
+	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err,
+		isCol(ctx, goatcounter.CollectUserAgent), z18n.T(ctx, "header/systems|Systems"),
 		shared.TotalUTC, w.Stats, w.Detail}
 }

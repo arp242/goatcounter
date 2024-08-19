@@ -81,6 +81,6 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, a
 		TotalUTC     int
 		Stats        goatcounter.HitStats
 		Detail       string
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
-		header, shared.TotalUTC, w.Stats, w.Detail}
+	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err,
+		isCol(ctx, goatcounter.CollectLocation), header, shared.TotalUTC, w.Stats, w.Detail}
 }

@@ -71,7 +71,7 @@ func (w Browsers) RenderHTML(ctx context.Context, shared SharedData) (string, an
 		TotalUTC     int
 		Stats        goatcounter.HitStats
 		Detail       string
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectUserAgent),
-		z18n.T(ctx, "header/browsers|Browsers"),
+	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err,
+		isCol(ctx, goatcounter.CollectUserAgent), z18n.T(ctx, "header/browsers|Browsers"),
 		shared.TotalUTC, w.Stats, w.Detail}
 }
