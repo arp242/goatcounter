@@ -62,7 +62,7 @@
 								{{range $i, $s := .SubSites -}}
 									{{- if gt $i 0 -}}|{{- end -}}
 									{{if $.GoatcounterCom}} <a{{if eq $s $.Site.Code}} class="active"{{end}} href="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</a>
-									{{else}} <a{{if eq $s (deref $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}">{{$s}}</a>
+									{{else}} <a{{if eq $s (deref $.Site.Cname)}} class="active"{{end}} href="//{{$s}}{{$.Port}}{{$.Base}}">{{$s}}</a>
 									{{end -}}
 								{{end}}
 							</span>
