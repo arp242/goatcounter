@@ -84,7 +84,7 @@ Flags:
   -base-path   Path under which GoatCounter is available. Usually GoatCounter
                runs on its own domain or subdomain ("stats.example.com"), but in
                some cases it's useful to run GoatCounter under a path
-               ("example.com/stats"), in which case you'll beed to set this to
+               ("example.com/stats"), in which case you'll need to set this to
                "/stats".
 
   -automigrate Automatically run all pending migrations on startup.
