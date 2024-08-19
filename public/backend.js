@@ -45,7 +45,8 @@
 		// I don't what kind of shitty thing is spamming me with this, but I've
 		// gotten a lot of these and I'm getting tired of it.
 		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1 ||
-			msg.match(/Cannot redefine property: (googletag|ethereum)/) !== null
+			msg.match(/Cannot redefine property: (googletag|ethereum)/) !== null ||
+			msg.indexOf('Exception invoking lineTo') !== -1 // Only from bot, never any details.
 		)
 			return
 		// Don't log errors from extensions.
