@@ -80,12 +80,13 @@ func (g Globals) T(msg string, data ...any) template.HTML {
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	ctx := r.Context()
+	base := goatcounter.Config(ctx).BasePath
 	g := Globals{
 		Context:        ctx,
 		User:           goatcounter.GetUser(ctx),
 		Site:           goatcounter.GetSite(ctx),
-		Path:           r.URL.Path,
-		Base:           goatcounter.Config(ctx).BasePath,
+		Path:           strings.TrimPrefix(r.URL.Path, base),
+		Base:           base,
 		Flash:          zhttp.ReadFlash(w, r),
 		Static:         goatcounter.Config(ctx).URLStatic,
 		Domain:         goatcounter.Config(ctx).Domain,
