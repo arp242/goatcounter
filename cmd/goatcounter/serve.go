@@ -184,6 +184,8 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 
 		basePath = "/" + strings.Trim(basePath, "/")
+		zhttp.BasePath = basePath
+
 		var domainCount, urlStatic string
 		if domainStatic != "" {
 			if p := strings.Index(domainStatic, ":"); p > -1 {
@@ -222,12 +224,12 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 		// Set up HTTP handler and servers.
 		hosts := map[string]http.Handler{
-			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, websocket, c.DomainStatic, 60, apiMax),
+			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, websocket, c.DomainStatic, c.BasePath, 60, apiMax),
 		}
 		if domainStatic != "" {
 			// May not be needed, but just in case the DomainStatic isn't an
 			// external CDN.
-			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev, false)
+			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev, false, c.BasePath)
 		}
 
 		cnames, err := lsSites(ctx)

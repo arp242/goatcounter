@@ -290,7 +290,7 @@ func noSites(db zdb.DB, w http.ResponseWriter, r *http.Request) {
 			tplErr = errors.Unwrap(tplErr) // Remove "zdb.TX fn: "
 		}
 		if tplErr == nil && !v.HasErrors() {
-			SeeOther(w, r, "/")
+			zhttp.SeeOther(w, "/")
 		}
 	}
 

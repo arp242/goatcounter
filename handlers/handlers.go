@@ -126,7 +126,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	return g
 }
 
-func NewStatic(r chi.Router, dev, goatcounterCom bool) chi.Router {
+func NewStatic(r chi.Router, dev, goatcounterCom bool, basePath string) chi.Router {
 	var cache map[string]int
 	if !dev {
 		cache = map[string]int{
@@ -143,6 +143,9 @@ func NewStatic(r chi.Router, dev, goatcounterCom bool) chi.Router {
 	s.Header("/count.js", map[string]string{
 		"Cross-Origin-Resource-Policy": "cross-origin",
 	})
-	r.Get("/*", s.ServeHTTP)
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, basePath)
+		s.ServeHTTP(w, r)
+	})
 	return r
 }

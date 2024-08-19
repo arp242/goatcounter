@@ -55,7 +55,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 
 	if oldFewerNums && !args.User.Settings.FewerNumbers && args.User.Settings.FewerNumbersLockUntil.After(ztime.Now()) {
 		zhttp.FlashError(w, "Nice try")
-		return SeeOther(w, r, "/user/pref")
+		return zhttp.SeeOther(w, "/user/pref")
 	}
 
 	if args.FewerNumbersLock != "" {
@@ -99,7 +99,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
-	return SeeOther(w, r, "/user/pref")
+	return zhttp.SeeOther(w, "/user/pref")
 }
 
 func (h settings) userDashboardWidget(w http.ResponseWriter, r *http.Request) error {
@@ -213,7 +213,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 			return err
 		}
 		zhttp.Flash(w, T(r.Context(), "notify/reset-to-default|Reset to defaults!"))
-		return SeeOther(w, r, "/user/dashboard")
+		return zhttp.SeeOther(w, "/user/dashboard")
 	}
 
 	if len(args.Widgets) == 0 {
@@ -257,7 +257,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 	}
 
 	zhttp.Flash(w, "Saved!")
-	return SeeOther(w, r, "/user/dashboard")
+	return zhttp.SeeOther(w, "/user/dashboard")
 }
 
 func (h settings) userAuth(verr *zvalidate.Validator) zhttp.HandlerFunc {

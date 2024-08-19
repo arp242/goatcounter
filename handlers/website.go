@@ -92,7 +92,7 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 	}
 
 	r.Get("/translating", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return MovedPermanently(w, r, "/help/translating")
+		return zhttp.MovedPermanently(w, "/help/translating")
 	}))
 }
 
@@ -108,22 +108,22 @@ func (h website) MountShared(r chi.Router) {
 	r.Get("/contact", zhttp.Wrap(h.tpl))
 
 	r.Get("/terms", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return MovedPermanently(w, r, "/help/terms")
+		return zhttp.MovedPermanently(w, "/help/terms")
 	}))
 	r.Get("/privacy", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return MovedPermanently(w, r, "/help/privacy")
+		return zhttp.MovedPermanently(w, "/help/privacy")
 	}))
 	r.Get("/gdpr", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return MovedPermanently(w, r, "/help/gdpr")
+		return zhttp.MovedPermanently(w, "/help/gdpr")
 	}))
 	r.Get("/api", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return MovedPermanently(w, r, "/help/api")
+		return zhttp.MovedPermanently(w, "/help/api")
 	}))
 	r.Get("/code", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return MovedPermanently(w, r, "/help")
+		return zhttp.MovedPermanently(w, "/help")
 	}))
 	r.Get("/code/*", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-		return MovedPermanently(w, r, "/help/"+chi.URLParam(r, "*"))
+		return zhttp.MovedPermanently(w, "/help/"+chi.URLParam(r, "*"))
 	}))
 }
 
@@ -199,7 +199,7 @@ func (h website) contact(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	zhttp.Flash(w, "Message sent!")
-	return SeeOther(w, r, args.Return)
+	return zhttp.SeeOther(w, args.Return)
 }
 
 func (h website) openAPI(w http.ResponseWriter, r *http.Request) error {
@@ -470,7 +470,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
-	return SeeOther(w, r, "/user/forgot")
+	return zhttp.SeeOther(w, "/user/forgot")
 }
 
 func (h website) help(w http.ResponseWriter, r *http.Request) error {
@@ -486,7 +486,7 @@ func (h website) help(w http.ResponseWriter, r *http.Request) error {
 
 	cp := chi.URLParam(r, "*")
 	if cp == "" {
-		return MovedPermanently(w, r, "/help/start")
+		return zhttp.MovedPermanently(w, "/help/start")
 	}
 
 	{
