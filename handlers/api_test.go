@@ -433,7 +433,7 @@ func TestAPICount(t *testing.T) {
 			}
 
 			if d := ztest.Diff(have, tt.want); d != "" {
-				t.Errorf(d)
+				t.Error(d)
 			}
 		})
 	}

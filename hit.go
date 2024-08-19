@@ -365,7 +365,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		left join sizes using (size_id)
 		{{:site_only where hits.site_id = :site}}
 		order by hit_id asc`,
-		zdb.P{
+		map[string]any{
 			"site":      MustGetSite(ctx).ID,
 			"site_only": siteOnly,
 		})

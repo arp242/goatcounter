@@ -3,7 +3,6 @@
 // in the LICENSE file or at https://license.goatcounter.com
 
 //go:build go_run_only
-// +build go_run_only
 
 package main
 

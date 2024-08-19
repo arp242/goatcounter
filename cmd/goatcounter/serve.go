@@ -516,7 +516,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 					subject = subject[i+7:]
 				}
 
-				err := blackmail.Send(fmt.Sprintf(subject),
+				err := blackmail.Send(subject,
 					blackmail.From("", from),
 					blackmail.To(to),
 					blackmail.BodyText([]byte(msg)))

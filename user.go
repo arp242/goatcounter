@@ -153,7 +153,7 @@ func (u *User) Insert(ctx context.Context, allowBlankPassword bool) error {
 	}
 
 	query := `insert into users `
-	args := zdb.L{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.Access, u.CreatedAt, u.LastReportAt}
+	args := []any{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.Access, u.CreatedAt, u.LastReportAt}
 	if u.EmailVerified {
 		query += ` (site_id, email, password, totp_secret, settings, access, created_at, last_report_at, email_verified) values (?)`
 		args = append(args, 1)
@@ -585,7 +585,7 @@ func (u *Users) Find(ctx context.Context, ident []string) error {
 		{{:ids user_id in (:ids) or}}
 		{{:strs! 0=1}}
 		{{:strs email in (:strs)}}`,
-		zdb.P{"ids": ids, "strs": strs})
+		map[string]any{"ids": ids, "strs": strs})
 	return errors.Wrap(err, "Users.Find")
 }
 
