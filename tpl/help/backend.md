@@ -11,4 +11,4 @@ A simple example from `curl`:
         -H "Authorization: Bearer $token" \
         --data '{"no_sessions": true, "hits": [{"path": "/one"}, {"path": "/two"}]}'
 
-The [API documentation](/api) contains detailed information and more examples.
+The [API documentation]({{.Base}}/api) contains detailed information and more examples.

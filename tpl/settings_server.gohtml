@@ -14,12 +14,12 @@ Uptime:    {{.Uptime}}
 <p>Various special pages for server management; these pages are available only
 to users with “server mangagement” access set.</p>
 <ul>
-	<li><a href="/bosmang/cache"   >Cache</a>            – View contents of caches.</li>
-	<li><a href="/bosmang/bgrun"   >Background tasks</a> – View and manage background tasks.</li>
-	<li><a href="/bosmang/metrics" >Metrics</a>          – Some performance metrics.</li>
-	<li><a href="/bosmang/profile" >Profile</a>          – Go internal performance metrics (pprof).</li>
-	<li><a href="/bosmang/sites"   >Sites</a>            – Overview of all sites and usage (PostgreSQL only).</li>
-	<li><a href="/bosmang/error"   >Error</a>            – Generate an error; for testing logs and -errors flag.</li>
+	<li><a href="{{.Base}}/bosmang/cache"   >Cache</a>            – View contents of caches.</li>
+	<li><a href="{{.Base}}/bosmang/bgrun"   >Background tasks</a> – View and manage background tasks.</li>
+	<li><a href="{{.Base}}/bosmang/metrics" >Metrics</a>          – Some performance metrics.</li>
+	<li><a href="{{.Base}}/bosmang/profile" >Profile</a>          – Go internal performance metrics (pprof).</li>
+	<li><a href="{{.Base}}/bosmang/sites"   >Sites</a>            – Overview of all sites and usage (PostgreSQL only).</li>
+	<li><a href="{{.Base}}/bosmang/error"   >Error</a>            – Generate an error; for testing logs and -errors flag.</li>
 </ul>
 
 {{template "_backend_bottom.gohtml" .}}

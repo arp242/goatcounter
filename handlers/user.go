@@ -536,7 +536,7 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, "/")
 }
 
-// Make sure to use the currect cookie, since both "custom.example.com" and
+// Make sure to use the correct cookie, since both "custom.example.com" and
 // "example.goatcounter.com" will work if you're using a custom domain.
 func cookieDomain(site *goatcounter.Site, r *http.Request) string {
 	if r.Host == site.Domain(r.Context()) {

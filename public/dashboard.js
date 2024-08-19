@@ -26,7 +26,7 @@
 			return
 
 		let cid  = $('#js-connect-id').text()
-		window.WEBSOCKET = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + document.location.host + '/loader?id=' + cid)
+		window.WEBSOCKET = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + document.location.host + BASE_PATH + '/loader?id=' + cid)
 		window.WEBSOCKET.onmessage = function(e) {
 			let msg = JSON.parse(e.data),
 				wid = $(`#dash-widgets div[data-widget=${msg.id}]`)
@@ -47,7 +47,7 @@
 				btn    = $(this),
 				pos    = btn.offset(),
 				wid    = btn.closest('[data-widget]').attr('data-widget'),
-				url    = '/user/dashboard/' + wid,
+				url    = BASE_PATH + '/user/dashboard/' + wid,
 				remove = function() {
 					pop.remove()
 					$(document.body).off('.unpop')
@@ -94,7 +94,7 @@
 		data['total']  = $('.js-total-utc').text()
 
 		jQuery.ajax({
-			url:  '/load-widget',
+			url:  BASE_PATH + '/load-widget',
 			type: 'get',
 			data: append_period(data),
 			success: function(data) {
@@ -112,7 +112,7 @@
 	// Reload all widgets on the dashboard.
 	var reload_dashboard = function(done) {
 		jQuery.ajax({
-			url:     '/',
+			url:     BASE_PATH + '/',
 			data:    append_period({
 				daily:     $('#daily').is(':checked'),
 				max:       get_original_scale(),
@@ -326,7 +326,7 @@
 
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:    '/user/view',
+					url:    BASE_PATH + '/user/view',
 					method: 'POST',
 					data: {
 						csrf:      CSRF,
@@ -387,7 +387,7 @@
 			$('.list-ref-pages').remove()
 			var done = paginate_button(btn, () => {
 				jQuery.ajax({
-					url: '/pages-by-ref',
+					url: BASE_PATH + '/pages-by-ref',
 					data: append_period({name: btn.text()}),
 					success: function(data) {
 						p.append(data.html)
@@ -677,7 +677,7 @@
 				pages = $(this).closest('.pages-list')
 			let done = paginate_button(btn, () => {
 				jQuery.ajax({
-					url:  '/load-widget',
+					url:  BASE_PATH + '/load-widget',
 					data: append_period({
 						widget:    pages.attr('data-widget'),
 						daily:     $('#daily').is(':checked'),
@@ -752,7 +752,7 @@
 			push_query({showrefs: path})
 			let done = paginate_button(btn , () => {
 				jQuery.ajax({
-					url:   '/load-widget',
+					url:   BASE_PATH + '/load-widget',
 					data: append_period({
 						widget: widget,
 						key:    path,
@@ -806,7 +806,7 @@
 				rows.data('pagesize', rows.children().length)
 			let done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:  '/load-widget',
+					url:  BASE_PATH + '/load-widget',
 					data: append_period({
 						widget: chart.attr('data-widget'),
 						total:  get_total(),
@@ -840,7 +840,7 @@
 			l.addClass('loading')
 			var done = paginate_button(l, () => {
 				jQuery.ajax({
-					url:     '/load-widget',
+					url:     BASE_PATH + '/load-widget',
 					data:    append_period({
 						widget: widget,
 						key:    key,

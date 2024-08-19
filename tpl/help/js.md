@@ -3,8 +3,9 @@ is by far the easiest way to integrate GoatCounter, but other options are
 available too.
 
 The script is located at http://gc.zgo.at/count.js; although you can [host it
-somewhere else](/code/countjs-host) if you want, and there are a [stable
-versions](/code/countjs-versions) that can use subresource integrity.
+somewhere else]({{.Base}}/code/countjs-host) if you want, and there are a
+[stable versions]({{.Base}}/code/countjs-versions) that can use subresource
+integrity.
 
 This script is served unminified by design so it can be easily examined. It's
 not very large (~3.2K), and minifying would reduce it by just ~1K so you're not
@@ -83,7 +84,7 @@ as the path:
     {{template "code" .}}
 
 A few more advanced examples are listed in [Change data before it's sent to
-GoatCounter](/code/modify).
+GoatCounter]({{.Base}}/code/modify).
 
 Methods
 -------
@@ -133,7 +134,7 @@ Bind a click event to every element with `data-goatcounter-click`. Called on
 page load unless `no_onload` or `no_events` is set. You may need to call this
 manually if you insert elements after the page loads.
 
-See [Events](/code/events) for more details about events.
+See [Events]({{.Base}}/code/events) for more details about events.
 
 ### `get_query(name)`
 Get a single query parameter from the current page’s URL; returns `undefined` if

@@ -8,7 +8,7 @@
 		<a href="mailto:support@goatcounter.com">support@goatcounter.com</a>.</li>
 </ul>
 
-<form method="post" action="/contact" class="contact-form">
+<form method="post" action="{{.Base}}/contact" class="contact-form">
 	<input type="hidden" name="return" value="{{if .a}}{{.a.Return}}{{else}}{{.r}}{{end}}">
 
 	<strong>Send message</strong>

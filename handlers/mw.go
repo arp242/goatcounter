@@ -37,7 +37,7 @@ var Started time.Time
 var (
 	redirect = func(w http.ResponseWriter, r *http.Request) error {
 		zhttp.Flash(w, "Need to log in")
-		return guru.Errorf(303, "/user/new")
+		return guru.Errorf(303, goatcounter.Config(r.Context()).BasePath+"/user/new")
 	}
 
 	loggedIn = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
@@ -76,7 +76,7 @@ var (
 				Secure:   zhttp.CookieSecure,
 				SameSite: zhttp.CookieSameSite,
 			})
-			return guru.Errorf(303, "/")
+			return guru.Errorf(303, goatcounter.Config(r.Context()).BasePath+"/")
 		}
 		if c, err := r.Cookie("access-token"); err == nil && s.Settings.CanView(c.Value) {
 			return nil
@@ -220,7 +220,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 
 func noSites(db zdb.DB, w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		w.Header().Set("Location", "/")
+		w.Header().Set("Location", goatcounter.Config(r.Context()).BasePath+"/")
 		w.WriteHeader(307)
 		return
 	}
@@ -302,11 +302,12 @@ func noSites(db zdb.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := zhttp.Template(w, "serve_newsite.gohtml", struct {
+		Globals
 		Validate *zvalidate.Validator
 		Error    error
 		Email    string
 		Cname    string
-	}{&v, tplErr, args.Email, args.Cname})
+	}{newGlobals(w, r), &v, tplErr, args.Email, args.Cname})
 	if err != nil {
 		zlog.Error(err)
 	}

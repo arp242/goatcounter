@@ -4,7 +4,7 @@
 	"email"     .User.Email
 	"site-name" (.Site.Display .Context)
 )}}</h1>
-<form method="post" action="/user/reset/{{.Key}}" class="vertical">
+<form method="post" action="{{.Base}}/user/reset/{{.Key}}" class="vertical">
 	<label for="password">{{.T "label/new-password|New password"}}</label>
 	<input type="password" name="password" id="password" autocomplete="new-password" required><br>
 

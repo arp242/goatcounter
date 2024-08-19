@@ -19,8 +19,17 @@ import (
 	"zgo.at/zstd/zfs"
 )
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool, domainStatic string, dashTimeout, apiMax int) chi.Router {
-	r := chi.NewRouter()
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool,
+	domainStatic string, basePath string, dashTimeout, apiMax int,
+) chi.Router {
+
+	root := chi.NewRouter()
+	r := root
+	if basePath != "" {
+		r = chi.NewRouter()
+		root.Mount(basePath, r)
+	}
+
 	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax)
 
 	if acmeh != nil {
@@ -28,10 +37,10 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocke
 	}
 
 	if !goatcounterCom {
-		NewStatic(r, dev, goatcounterCom)
+		NewStatic(r, dev, goatcounterCom, basePath)
 	}
 
-	return r
+	return root
 }
 
 type backend struct {

@@ -394,7 +394,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	return zhttp.SeeOther(w, fmt.Sprintf("%s/user/new", site.URL(r.Context())))
+	return zhttp.SeeOther(w, site.URL(r.Context())+"/user/new")
 }
 
 func (h website) forgot(err error, email, turingTest string) zhttp.HandlerFunc {
@@ -481,11 +481,7 @@ func (h website) help(w http.ResponseWriter, r *http.Request) error {
 
 	dc := goatcounter.Config(r.Context()).DomainCount
 	if dc == "" {
-		dc = Site(r.Context()).Domain(r.Context())
-		port := goatcounter.Config(r.Context()).Port
-		if port != "" {
-			dc += port
-		}
+		dc = Site(r.Context()).SchemelessURL(r.Context())
 	}
 
 	cp := chi.URLParam(r, "*")

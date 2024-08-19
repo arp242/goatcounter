@@ -6,7 +6,7 @@ image.
 in your site settings; this defaults to *off* to prevent unintentional leaking of data.
 {{else}}
 **Note**: you will need to enable “Allow adding visitor counts on your website”
-in your <a href="/settings/main#section-site">site settings</a>; this defaults to
+in your <a href="{{.Base}}/settings/main#section-site">site settings</a>; this defaults to
 *off* to prevent unintentional leaking of data.
 {{end}}
 

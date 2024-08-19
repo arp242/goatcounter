@@ -22,8 +22,8 @@
 <h2>Edit translations</h2>
 <ul>
 	{{range $f := .Files}}
-		<li><a style="display: inline-block; width: 10em;" href="/i18n/{{index $f 0}}">{{index $f 1}}</a> –
-			<form method="post" action="/i18n/set/{{index $f 0}}">
+		<li><a style="display: inline-block; width: 10em;" href="{{$.Base}}/i18n/{{index $f 0}}">{{index $f 1}}</a> –
+			<form method="post" action="{{$.Base}}/i18n/set/{{index $f 0}}">
 				<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
 				<input type="hidden" name="language" value="{{index $f 0}}">
 				<button class="link">set as active</button>
@@ -33,7 +33,7 @@
 </ul>
 
 <h2>Create new</h2>
-<form method="post" action="/i18n" class="vertical">
+<form method="post" action="{{.Base}}/i18n" class="vertical">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 	<label for="language">Language</label>

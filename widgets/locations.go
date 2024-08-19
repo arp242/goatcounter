@@ -69,6 +69,7 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, a
 
 	return "_dashboard_hchart.gohtml", struct {
 		Context      context.Context
+		Base         string
 		ID           int
 		CanConfigure bool
 		RowsOnly     bool
@@ -80,6 +81,6 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, a
 		TotalUTC     int
 		Stats        goatcounter.HitStats
 		Detail       string
-	}{ctx, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
+	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err, isCol(ctx, goatcounter.CollectLocation),
 		header, shared.TotalUTC, w.Stats, w.Detail}
 }

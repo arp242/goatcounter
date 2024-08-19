@@ -1,4 +1,4 @@
-<form method="post" action="/user/requestlogin" class="vertical">
+<form method="post" action="{{.Base}}/user/requestlogin" class="vertical">
 	<label for="email">{{.T "label/email-address|Email address"}}</label>
 	<input type="email" name="email" id="email" value="{{.Email}}" autofocus required><br>
 
@@ -7,4 +7,4 @@
 	<button>{{.T "button/sign-in|Sign in"}}</button>
 </form>
 
-<p><a href="/user/forgot">{{.T "button/forgot-password|Forgot password?"}}</a></p>
+<p><a href="{{.Base}}/user/forgot">{{.T "button/forgot-password|Forgot password?"}}</a></p>

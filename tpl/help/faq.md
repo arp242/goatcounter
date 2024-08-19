@@ -40,7 +40,7 @@ window.goatcounter = {
 </dd>
 
 <dt id="gdpr">What about GDPR consent notices? <a href="#gdpr">§</a></dt>
-<dd>You probably don’t need them. The <a href="/gdpr">the GDPR page</a> goes in to some detail about this.</dd>
+<dd>You probably don’t need them. The <a href="{{.Base}}/gdpr">the GDPR page</a> goes in to some detail about this.</dd>
 
 <dt id="custom-domain">How do I set up a custom domain? <a href="#custom-domain">§</a></dt>
 <dd>
@@ -72,7 +72,7 @@ That said, there are some options:
 goatcounter.com or associated domains, and adblockers will not block it.</li>
 <li>Import pageviews from logfiles; GoatCounter can import pageviews
 from web server logfiles; you can send this data to
-goatcounter.com. See <a href="/help/logfile">the documentation for details</a>.</li>
+goatcounter.com. See <a href="{{.Base}}/help/logfile">the documentation for details</a>.</li>
 </ol>
 </dd>
 
@@ -86,7 +86,7 @@ title you can filter by it. Also see
 <dt id="track-email">Can I use GoatCounter to track if someone opened an email? <a href="#track-email">§</a></dt>
 <dd>
 Kind of but not really. You can include the tracking pixel in the email as an
-image <a href="/help/pixel">as described here</a>.
+image <a href="{{.Base}}/help/pixel">as described here</a>.
 
 But this doesn't really work because almost all email clients block external
 images by default exactly to prevent this sort of thing from working. All email

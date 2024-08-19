@@ -1,4 +1,4 @@
-<form class="widget-settings" method="post" action="/user/dashboard/{{.I}}">
+<form class="widget-settings" method="post" action="{{.Base}}/user/dashboard/{{.I}}">
 	{{template "_user_dashboard_widget.gohtml" .}}
 	<button>{{.T "button/save|Save"}}</button>
 </form>

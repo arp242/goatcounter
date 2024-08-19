@@ -24,4 +24,4 @@ This might be improved at some point in the future; the options right now are:
    identifying the source.
 
 
-Also see [setting the endpoint in JavaScript](/code/modify#setting-the-endpoint-in-javascript-4).
+Also see [setting the endpoint in JavaScript]({{.Base}}/code/modify#setting-the-endpoint-in-javascript-4).

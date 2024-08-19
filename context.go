@@ -42,6 +42,7 @@ type GlobalConfig struct {
 	Domain         string
 	DomainStatic   string
 	DomainCount    string
+	BasePath       string
 	URLStatic      string
 	Dev            bool
 	GoatcounterCom bool

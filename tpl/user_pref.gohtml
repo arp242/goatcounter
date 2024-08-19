@@ -3,7 +3,7 @@
 
 <h2 id="setting">{{.T "header/preferences|Preferences"}}</h2>
 <div class="form-wrap">
-	<form method="post" action="/user/pref" class="vertical">
+	<form method="post" action="{{.Base}}/user/pref" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
@@ -39,7 +39,7 @@
 				<option {{option_value .User.Settings.Language "zh-TW"}}>中国</option>
 			</select>
 			{{validate "settings.language" .Validate}}
-			<span><a href="/i18n">{{.T "link/add-translation|Add or update translations"}}</a></span>
+			<span><a href="{{.Base}}/i18n">{{.T "link/add-translation|Add or update translations"}}</a></span>
 
 			<label for="date_format">{{.T "label/date-fmt|Date format"}}</label>
 			<select name="user.settings.date_format" id="date_format">

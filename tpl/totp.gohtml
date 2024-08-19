@@ -3,7 +3,7 @@
 <h1>Multi-factor auth</h1>
 <p>{{.T "p/have-mfa|This account is protected with multi-factor auth; please enter the code from your authenticator app."}}</p>
 
-<form method="post" action="/user/totplogin" class="vertical">
+<form method="post" action="{{.Base}}/user/totplogin" class="vertical">
 	<input type="hidden" name="loginmac" value="{{.LoginMAC}}">
 	<input type="hidden" name="user_logintoken" value="{{.LoginToken}}">
 

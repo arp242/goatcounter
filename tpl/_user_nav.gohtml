@@ -1,9 +1,9 @@
 <nav class="tab-nav">
-	<a class="{{if has_prefix .Path "/user/pref"}}active{{end}}"      href="/user/pref">{{.T "link/preferences|Preferences"}}</a>
-	<a class="{{if has_prefix .Path "/user/dashboard"}}active{{end}}" href="/user/dashboard">{{.T "link/dashboard|Dashboard"}}</a>
-	<a class="{{if has_prefix .Path "/user/auth"}}active{{end}}"      href="/user/auth">{{.T "link/passwd-mfa|Password & MFA"}}</a>
+	<a class="{{if has_prefix .Path "/user/pref"}}active{{end}}"      href="{{.Base}}/user/pref">{{.T "link/preferences|Preferences"}}</a>
+	<a class="{{if has_prefix .Path "/user/dashboard"}}active{{end}}" href="{{.Base}}/user/dashboard">{{.T "link/dashboard|Dashboard"}}</a>
+	<a class="{{if has_prefix .Path "/user/auth"}}active{{end}}"      href="{{.Base}}/user/auth">{{.T "link/passwd-mfa|Password & MFA"}}</a>
 	{{if .User.AccessAdmin}}
-	<a class="{{if has_prefix .Path "/user/api"}}active{{end}}"       href="/user/api">{{.T "link/api|API"}}</a>
+	<a class="{{if has_prefix .Path "/user/api"}}active{{end}}"       href="{{.Base}}/user/api">{{.T "link/api|API"}}</a>
 	{{end}}
 </nav>
 <p>{{.T "p/settings-all-sites|These settings take effect for all the sites you have access to."}}</p>

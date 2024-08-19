@@ -1,5 +1,7 @@
+let helpIndex = window.location.pathname.lastIndexOf('/help');
+let basePath = window.location.pathname.slice(0, helpIndex === -1 ? 0 : helpIndex)
 document.querySelector('select').addEventListener('change', function(e) {
-	window.location = '/code/' + this.value
+	window.location = basePath + '/help/' + this.value
 })
 document.querySelector('.show-contact').addEventListener('click', function(e) {
 	e.preventDefault()
@@ -26,7 +28,7 @@ if (expand)
 			})
 	})
 
-if (window.location.pathname === '/help/visitor-counter') {
+if (window.location.pathname === basePath + '/help/visitor-counter') {
 	var t = setInterval(function() {
 		if (window.goatcounter && window.goatcounter.visit_count) {
 			clearInterval(t)

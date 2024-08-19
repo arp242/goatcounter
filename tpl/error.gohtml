@@ -121,7 +121,7 @@ sub {
 </head>
 
 <body>
-	{{if ne .Path "/"}}<nav class="center"><strong><a href="/">← Home</a></strong></nav>{{end}}
+	{{if ne .Path (printf "%s/" .Base) }}<nav class="center"><strong><a href="{{.Base}}/">← Home</a></strong></nav>{{end}}
 	<div class="page">
 		{{if eq .Code 404}}
 			<h1>Not found</h1>

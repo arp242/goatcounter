@@ -118,7 +118,7 @@
 
 {{if or .Error .Validate.HasErrors}}<div class="flash flash-e">{{.Validate.HTML}}{{.Error}}</div>{{end}}
 
-<form method="POST" action="/">
+<form method="POST" action="{{.Base}}/">
 	<fieldset>
 	<label for="email">Email</label>
 	<input type="email" name="email" id="email" value="{{.Email}}">

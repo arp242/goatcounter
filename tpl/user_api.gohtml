@@ -5,15 +5,15 @@
 {{if not .User.EmailVerified}}
 	<p>You need to verify your email before you can use the API; a link was sent to {{.User.Email}}.</p>
 
-	Change the email address in the <a href="/user/pref">{{.T "link/settings|settings"}}</a> –
-	<form method="post" action="/user/resend-verify">
+	Change the email address in the <a href="{{.Base}}/user/pref">{{.T "link/settings|settings"}}</a> –
+	<form method="post" action="{{.Base}}/user/resend-verify">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 		<button class="link">{{.T "button/resend-email|Resend email"}}</button>.
 	</form>
 </div>
 {{else}}
 	<p>{{.T "p/api-intro|GoatCounter comes with an API to count pageviews, read statistics, create exports, and manage sites and users."}}</p>
-	<p><a href="/api">{{.T "link/api-docs|API documentation"}}</a></p>
+	<p><a href="{{.Base}}/api">{{.T "link/api-docs|API documentation"}}</a></p>
 
 	<fieldset>
 		<legend>{{.T "header/api-tokens|API tokens"}}</legend>
@@ -45,7 +45,7 @@
 					{{end}}</td>
 
 					<td>
-						<form method="post" action="/user/api-token/remove/{{$t.ID}}" data-confirm="Delete token {{$t.Name}}?">
+						<form method="post" action="{{$.Base}}/user/api-token/remove/{{$t.ID}}" data-confirm="Delete token {{$t.Name}}?">
 							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
 							<button class="link">{{$.T "button/delete|delete"}}</button>
 						</form>
@@ -53,7 +53,7 @@
 				</tr>{{end}}
 
 				<tr>
-					<form method="post" action="/user/api-token">
+					<form method="post" action="{{.Base}}/user/api-token">
 						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
 
 						<td>

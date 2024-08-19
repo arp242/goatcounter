@@ -12,8 +12,8 @@
 				{{if and $.GoatcounterCom (eq (len $.Users.Admins) 1) $u.AccessAdmin}}
 					{{$.T "p/last-user|Can’t delete or edit last admin user"}}
 				{{else}}
-					<a href="/settings/users/{{$u.ID}}">{{$.T "button/edit|edit"}}</a> |
-					<form method="post" action="/settings/users/remove/{{$u.ID}}"
+					<a href="{{$.Base}}/settings/users/{{$u.ID}}">{{$.T "button/edit|edit"}}</a> |
+					<form method="post" action="{{$.Base}}/settings/users/remove/{{$u.ID}}"
 						data-confirm="{{$.T "confirm/delete-user|Delete %(email)?" $u.Email}}"
 					>
 						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
@@ -26,6 +26,6 @@
 </tbody></table>
 <br>
 
-<a href="/settings/users/add">{{.T "button/add-user|Add new user"}}</a>
+<a href="{{.Base}}/settings/users/add">{{.T "button/add-user|Add new user"}}</a>
 
 {{template "_backend_bottom.gohtml" .}}

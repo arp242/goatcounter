@@ -9,6 +9,23 @@
 	{{if eq .User.Settings.Theme "dark"}}
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}">
 	{{end}}
+	<style>
+		@font-face {
+			font-family: 'Lato'; font-style: normal; font-weight: 400; font-display: fallback;
+			src: local('Lato'), local('Lato Regular'),
+				url('{{.Static}}/fonts/latolatin.woff2') format('woff2');
+		}
+		@font-face {
+			font-family: 'Lato'; font-style: normal; font-weight: 700; font-display: fallback;
+			src: local('Lato Bold'), local('Lato Bold'),
+				url('{{.Static}}/fonts/latolatin-bold.woff2') format('woff2');
+		}
+		@font-face {
+			font-family: 'Lato'; font-style: italic; font-weight: 400; font-display: fallback;
+			src: local('Lato Italic'), local('Lato Italic'),
+				url('{{.Static}}/fonts/latolatin-italic.woff2') format('woff2');
+		}
+	</style>
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
 	<link rel="canonical" href="https://{{.Domain}}/{{.Page}}/{{.CodePage}}">
@@ -58,7 +75,7 @@ hr                  { margin: 0; }
 
 <body>
 	<nav class="center">
-		<strong id="back"><a href="/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
+		<strong id="back"><a href="{{.Base}}/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
 	</nav>
 
 	<div class="center code-wrap">
@@ -81,7 +98,7 @@ hr                  { margin: 0; }
 
 				<p>Ways to contact me: <a href="#" class="show-contact">show</a> </p>
 				<div style="display: none;" class="contact">
-					{{template "_contact.gohtml" (map "v" .Validate "r" (printf "/help/%s" .CodePage) "a" .Args)}}
+					{{template "_contact.gohtml" (map "v" .Validate "r" (printf "/help/%s" .CodePage) "a" .Args "Base" .Base)}}
 				</div>
 			</div>
 		</div>

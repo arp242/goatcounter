@@ -12,7 +12,7 @@
 	<p>You can add as many as you want.</p>
 `}}
 
-<form method="post" action="/settings/sites/add">
+<form method="post" action="{{.Base}}/settings/sites/add">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<table class="auto">
 		<thead><tr><th>{{if .GoatcounterCom}}{{.T "header/code|Code"}}{{else}}{{.T "header/domain|Domain"}}{{end}}</th><th></th></tr></thead>
@@ -27,7 +27,7 @@
 					{{if and $.GoatcounterCom (not $s.Parent)}}
 						{{$.T "error/delete-main-site|Can’t delete main site"}}
 					{{else}}
-						<a href="/settings/sites/remove/{{$s.ID}}">{{$.T "button/delete|delete"}}</a>
+						<a href="{{$.Base}}/settings/sites/remove/{{$s.ID}}">{{$.T "button/delete|delete"}}</a>
 					{{end}}
 					{{if eq $s.ID $.Site.ID}}&nbsp;&nbsp;&nbsp;{{$.T "label/mark-current|(current)"}}{{end}}
 				</td>
@@ -54,7 +54,7 @@
 
 <p><strong>{{.T "p/text-data-retention|This includes the data retention and collection settings!"}}</strong></p>
 
-<form method="post" action="/settings/sites/copy-settings">
+<form method="post" action="{{.Base}}/settings/sites/copy-settings">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	{{range $s := .SubSites}}<tr>
 		{{if ne $s.ID $.Site.ID}}

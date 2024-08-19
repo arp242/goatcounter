@@ -3,7 +3,7 @@
 
 <h2 id="auth">{{.T "header/passwd-mfa|Password & MFA"}}</h2>
 <div class="flex-form">
-	<form method="post" action="/user/change-password" class="vertical">
+	<form method="post" action="{{.Base}}/user/change-password" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
@@ -25,7 +25,7 @@
 	</form>
 
 	{{if .User.TOTPEnabled}}
-		<form method="post" action="/user/disable-totp" class="vertical">
+		<form method="post" action="{{.Base}}/user/disable-totp" class="vertical">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			<fieldset>
@@ -36,7 +36,7 @@
 			</fieldset>
 		</form>
 	{{else}}
-		<form method="post" action="/user/enable-totp">
+		<form method="post" action="{{.Base}}/user/enable-totp">
 			<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 			<fieldset>

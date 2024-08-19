@@ -16,7 +16,7 @@
 			<td>{{$t.Period}}</td>
 			<td>{{$t.ID}}</td>
 			<td>{{$t.Desc}}</td>
-			<td><form method="post" action="/bosmang/bgrun/{{$i}}">
+			<td><form method="post" action="{{$.Base}}/bosmang/bgrun/{{$i}}">
 				<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
 				<button class="link" title="Run the task now; this won't reset the timer for the scheduled task">Run now</button>
 			</form></td>

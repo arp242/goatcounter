@@ -81,6 +81,12 @@ Flags:
   -public-port Port your site is publicly accessible on. Only needed if it's
                not 80 or 443.
 
+  -base-path   Path under which GoatCounter is available. Usually GoatCounter
+               runs on its own domain or subdomain ("stats.example.com"), but in
+               some cases it's useful to run GoatCounter under a path
+               ("example.com/stats"), in which case you'll need to set this to
+               "/stats".
+
   -automigrate Automatically run all pending migrations on startup.
 
   -smtp        SMTP relay server, as URL (e.g. "smtp://user:pass@server").
@@ -164,6 +170,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		// TODO(depr): -port is for compat with <2.0
 		port         = f.Int(0, "public-port", "port").Pointer()
+		basePath     = f.String("/", "base-path").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
 	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, err := flagsServe(f, &v)
@@ -171,10 +178,16 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return err
 	}
 
-	return func(port int, domainStatic string) error {
+	return func(port int, basePath, domainStatic string) error {
 		if flagTLS == "" {
 			flagTLS = map[bool]string{true: "http", false: "acme,rdr"}[dev]
 		}
+
+		basePath = strings.Trim(basePath, "/")
+		if basePath != "" {
+			basePath = "/" + basePath
+		}
+		zhttp.BasePath = basePath
 
 		var domainCount, urlStatic string
 		if domainStatic != "" {
@@ -185,6 +198,8 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			}
 			urlStatic = "//" + domainStatic
 			domainCount = domainStatic
+		} else {
+			urlStatic = basePath
 		}
 
 		//from := flagFrom(from, "cfg.Domain", &v)
@@ -206,17 +221,18 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		c.DomainStatic = domainStatic
 		c.Dev = dev
 		c.URLStatic = urlStatic
+		c.BasePath = basePath
 		c.DomainCount = domainCount
 		c.Websocket = websocket
 
 		// Set up HTTP handler and servers.
 		hosts := map[string]http.Handler{
-			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, websocket, c.DomainStatic, 60, apiMax),
+			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, websocket, c.DomainStatic, c.BasePath, 60, apiMax),
 		}
 		if domainStatic != "" {
 			// May not be needed, but just in case the DomainStatic isn't an
 			// external CDN.
-			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev, false)
+			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev, false, c.BasePath)
 		}
 
 		cnames, err := lsSites(ctx)
@@ -238,7 +254,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			}
 			ready <- struct{}{}
 		})
-	}(*port, *domainStatic)
+	}(*port, *basePath, *domainStatic)
 }
 
 func doServe(ctx context.Context, db zdb.DB,

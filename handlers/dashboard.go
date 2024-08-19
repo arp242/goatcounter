@@ -110,10 +110,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	cd := goatcounter.Config(r.Context()).DomainCount
 	if cd == "" {
-		cd = Site(r.Context()).Domain(r.Context())
-		if goatcounter.Config(r.Context()).Port != "" {
-			cd += ":" + goatcounter.Config(r.Context()).Port
-		}
+		cd = Site(r.Context()).SchemelessURL(r.Context())
 	}
 
 	args := widgets.Args{

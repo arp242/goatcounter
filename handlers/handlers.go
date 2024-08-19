@@ -60,6 +60,7 @@ type Globals struct {
 	User           *goatcounter.User
 	Site           *goatcounter.Site
 	Path           string
+	Base           string
 	Flash          *zhttp.FlashMessage
 	Static         string
 	StaticDomain   string
@@ -79,11 +80,17 @@ func (g Globals) T(msg string, data ...any) template.HTML {
 
 func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	ctx := r.Context()
+	base := goatcounter.Config(ctx).BasePath
+	path := strings.TrimPrefix(r.URL.Path, base)
+	if path == "" {
+		path = "/"
+	}
 	g := Globals{
 		Context:        ctx,
 		User:           goatcounter.GetUser(ctx),
 		Site:           goatcounter.GetSite(ctx),
-		Path:           r.URL.Path,
+		Path:           path,
+		Base:           base,
 		Flash:          zhttp.ReadFlash(w, r),
 		Static:         goatcounter.Config(ctx).URLStatic,
 		Domain:         goatcounter.Config(ctx).Domain,
@@ -124,7 +131,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 	return g
 }
 
-func NewStatic(r chi.Router, dev, goatcounterCom bool) chi.Router {
+func NewStatic(r chi.Router, dev, goatcounterCom bool, basePath string) chi.Router {
 	var cache map[string]int
 	if !dev {
 		cache = map[string]int{
@@ -141,6 +148,9 @@ func NewStatic(r chi.Router, dev, goatcounterCom bool) chi.Router {
 	s.Header("/count.js", map[string]string{
 		"Cross-Origin-Resource-Policy": "cross-origin",
 	})
-	r.Get("/*", s.ServeHTTP)
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, basePath)
+		s.ServeHTTP(w, r)
+	})
 	return r
 }

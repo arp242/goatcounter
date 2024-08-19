@@ -6,14 +6,31 @@
 	<meta name="description" content="{{.MetaDesc}}">
 	<title>GoatCounter – open source web analytics</title>
 	<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
+	<style>
+		@font-face {
+			font-family: 'Lato'; font-style: normal; font-weight: 400; font-display: fallback;
+			src: local('Lato'), local('Lato Regular'),
+				url('{{.Static}}/fonts/latolatin.woff2') format('woff2');
+		}
+		@font-face {
+			font-family: 'Lato'; font-style: normal; font-weight: 700; font-display: fallback;
+			src: local('Lato Bold'), local('Lato Bold'),
+				url('{{.Static}}/fonts/latolatin-bold.woff2') format('woff2');
+		}
+		@font-face {
+			font-family: 'Lato'; font-style: italic; font-weight: 400; font-display: fallback;
+			src: local('Lato Italic'), local('Lato Italic'),
+				url('{{.Static}}/fonts/latolatin-italic.woff2') format('woff2');
+		}
+	</style>
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
-	<link rel="canonical" href="https://{{.Domain}}{{if ne .Page "home"}}/{{.Page}}{{end}}">
+	<link rel="canonical" href="https://{{.Domain}}{{.Base}}/{{if ne .Page "home"}}{{.Page}}{{end}}">
 </head>
 
 <body>
 	{{if ne .Page "home"}}<nav class="center">
-		<strong id="back"><a href="/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
+		<strong id="back"><a href="{{.Base}}/">←&#xfe0e; {{if .Site}}Dashboard{{else}}Home{{end}}</a></strong>
 	</nav>{{end}}
 	<div class="page page-{{.Page}}">
 	{{- if .Flash}}<div class="flash flash-{{.Flash.Level}}">{{.Flash.Message}}</div>{{end -}}

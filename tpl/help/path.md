@@ -63,4 +63,4 @@ individual query parameters with `goatcounter.get_query()`:
 Note this example uses a callback, since `goatcounter.get_query()` won't be
 defined yet if we just used an object.
 
-See the [JavaScript API](/code/js) page for more details JS API.
+See the [JavaScript API]({{.Base}}/code/js) page for more details JS API.

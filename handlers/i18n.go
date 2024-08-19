@@ -140,7 +140,7 @@ func (h i18n) show(w http.ResponseWriter, r *http.Request) error {
 
 	return zhttp.Template(w, "i18n_show.gohtml", struct {
 		Globals
-		Base       msgfile.File
+		BaseFile   msgfile.File
 		File       msgfile.File
 		TOMLFile   string
 		FormatLink func(string) string
