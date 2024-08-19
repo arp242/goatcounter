@@ -1,23 +1,4 @@
 /*** Fonts ***/
-@font-face {
-	font-family: 'Lato'; font-style: normal; font-weight: 400; font-display: fallback;
-	src: local('Lato'), local('Lato Regular'),
-		url('/fonts/latolatin.woff2') format('woff2'),
-		url('./fonts/latolatin.woff2') format('woff2');
-}
-@font-face {
-	font-family: 'Lato'; font-style: normal; font-weight: 700; font-display: fallback;
-	src: local('Lato Bold'), local('Lato Bold'),
-		url('/fonts/latolatin-bold.woff2') format('woff2'),
-		url('./fonts/latolatin-bold.woff2') format('woff2');
-}
-@font-face {
-	font-family: 'Lato'; font-style: italic; font-weight: 400; font-display: fallback;
-	src: local('Lato Italic'), local('Lato Italic'),
-		url('/fonts/latolatin-italic.woff2') format('woff2'),
-		url('./fonts/latolatin-italic.woff2') format('woff2');
-}
-
 html { font: 16px/150% 'Lato', sans-serif; text-size-adjust: none; -webkit-text-size-adjust: none;
        background-color: var(--backdrop); color: var(--text); tab-size: 4; }
 html, body { margin: 0; }
