@@ -22,11 +22,12 @@ import (
 func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool,
 	domainStatic string, basePath string, dashTimeout, apiMax int,
 ) chi.Router {
+
 	root := chi.NewRouter()
 	r := root
 	if basePath != "" {
 		r = chi.NewRouter()
-		root.Mount(basePath+"/", r)
+		root.Mount(basePath, r)
 	}
 
 	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax)
