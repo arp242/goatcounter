@@ -197,7 +197,7 @@ func TestDBSite(t *testing.T) {
 			zdb.DumpString(ctx, `select user_id, site_id, email from users order by user_id`)
 		want := `
 			site_id  parent  cname               state
-			1        NULL    gctest.localhost    d
+			1        NULL    NULL                d
 			2        NULL    update.example.com  a
 			3        2       stats2.stats        a
 			user_id  site_id  email
@@ -220,9 +220,9 @@ func TestDBSite(t *testing.T) {
 			zdb.DumpString(ctx, `select user_id, site_id, email from users order by user_id`)
 		want := `
 			site_id  parent  cname               state
-			1        NULL    gctest.localhost    d
+			1        NULL    NULL                d
 			2        NULL    update.example.com  a
-			3        2       stats2.stats        d
+			3        2       NULL                d
 			user_id  site_id  email
 			1        2        test@gctest.localhost
 			2        2        foo@foo.foo`
