@@ -57,7 +57,7 @@ func init() {
 			return d
 		}
 		if d < time.Second*10 {
-			return d.Round(time.Millisecond)
+			return d.Round(time.Millisecond * 100)
 		}
 		return d.Round(time.Second)
 	})
