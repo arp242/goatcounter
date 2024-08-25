@@ -355,6 +355,7 @@ insert into version values
 	-- 2.6
 	('2023-12-15-1-rm-updates'),
 	('2024-08-19-1-sizes-idx'),
-	('2024-08-19-2-rm-updates2');
+	('2024-08-19-1-rm-updates2'),
+	('2024-04-23-1-collect-hits');
 
 -- vim:ft=sql:tw=0
