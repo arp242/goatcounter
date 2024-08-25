@@ -306,7 +306,7 @@ func doServe(ctx context.Context, db zdb.DB,
 		time.Sleep(100 * time.Millisecond)
 
 		zli.Erase()
-		fmt.Fprintf(zli.Stdout, "%d tasks: ", len(r))
+		fmt.Fprintf(zli.Stdout, "\r%d tasks: ", len(r))
 		for i, t := range r {
 			if i > 0 {
 				fmt.Fprint(zli.Stdout, ", ")
@@ -314,7 +314,7 @@ func doServe(ctx context.Context, db zdb.DB,
 			fmt.Fprintf(zli.Stdout, "%s (%s)", t.Task, time.Since(t.Started).Round(time.Second))
 		}
 	}
-
+	fmt.Fprintln(zli.Stdout)
 	db.Close()
 	return nil
 }
