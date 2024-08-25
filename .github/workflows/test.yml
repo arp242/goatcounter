@@ -1,9 +1,5 @@
 name: 'test backend'
-on:
-  push:
-    paths: ['**.go', 'go.mod', '.github/workflows/*']
-  pull_request:
-    paths: ['**.go', 'go.mod', '.github/workflows/*']
+on:   ['push', 'pull_request']
 
 jobs:
   # Uncomment to get a debug shell.

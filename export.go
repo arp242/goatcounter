@@ -442,15 +442,15 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 			paths.title,
 			paths.event,
 
-			browsers.name || ' ' || browsers.version as browser,
-			systems.name  || ' ' || systems.version  as system,
+			coalesce(browsers.name || ' ' || browsers.version, '') as browser,
+			coalesce(systems.name  || ' ' || systems.version, '')  as system,
 
 			hits.session,
 			hits.bot,
 			coalesce(refs.ref, '')        as ref,
 			coalesce(refs.ref_scheme, '') as ref_s,
 			coalesce(sizes.size, '')      as size,
-			hits.location                 as loc,
+			coalesce(hits.location, '')   as loc,
 			hits.first_visit              as first,
 			hits.created_at
 		from hits

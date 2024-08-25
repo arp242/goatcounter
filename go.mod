@@ -26,7 +26,7 @@ require (
 	zgo.at/errors v1.3.0
 	zgo.at/follow v0.0.0-20240522232612-673fb184d32f
 	zgo.at/gadget v1.0.0
-	zgo.at/guru v1.1.0
+	zgo.at/guru v1.2.0
 	zgo.at/isbot v1.0.0
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
 	zgo.at/termtext v1.5.0
@@ -34,7 +34,7 @@ require (
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
-	zgo.at/zdb v0.0.0-20240818155550-1a862f98cab0
+	zgo.at/zdb v0.0.0-20240820041039-abefdffc704f
 	zgo.at/zhttp v0.0.0-20240819012318-b761c83c740e
 	zgo.at/zli v0.0.0-20240614180544-47534b1ce136
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
