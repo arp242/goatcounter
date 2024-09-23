@@ -3,6 +3,7 @@ package goatcounter
 import (
 	"context"
 	"fmt"
+	"runtime/debug"
 	"time"
 
 	"zgo.at/z18n"
@@ -13,9 +14,42 @@ import (
 
 // Version of GoatCounter; set at compile-time with:
 //
-//   -ldflags="-X zgo.at/goatcounter/v2.Version=…"
-
+//	-ldflags="-X zgo.at/goatcounter/v2.Version=…"
 var Version = "dev"
+
+func getCommit() (string, time.Time, bool) {
+	var (
+		rev     string
+		last    time.Time
+		dirty   bool
+		info, _ = debug.ReadBuildInfo()
+	)
+	for _, kv := range info.Settings {
+		switch kv.Key {
+		case "vcs.revision":
+			rev = kv.Value
+		case "vcs.time":
+			last, _ = time.Parse(time.RFC3339, kv.Value)
+		case "vcs.modified":
+			dirty = kv.Value == "true"
+		}
+	}
+	return rev, last, dirty
+}
+
+func init() {
+	if Version == "" || Version == "dev" {
+		// Only calculate the version if not explicitly overridden with:
+		//	-ldflags="-X zgo.at/goatcounter/v2.Version=$tag"
+		// which is done for release builds.
+		if rev, last, dirty := getCommit(); rev != "" {
+			Version = rev[:12] + "_" + last.Format("2006-01-02T15:04:05Z0700")
+			if dirty {
+				Version += "-dev"
+			}
+		}
+	}
+}
 
 var (
 	keyCacheSites      = &struct{ n string }{""}
