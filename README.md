@@ -132,22 +132,16 @@ You can install from source to $GOBIN (`go env GOBIN`) with:
 
     % git clone --branch=release-2.5 https://github.com/arp242/goatcounter.git
     % cd goatcounter
-    % go build -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI')" ./cmd/goatcounter
+    % go build ./cmd/goatcounter
 
 Which will produce a `goatcounter` binary in the current directory.
-
-The `-ldflags=[..]` sets the version; this isn't *strictly* required as such,
-but it's recommended as it's used to "bust" the cache for static files and may
-also be useful later when reporting bugs. This can be any string and doesn't
-follow any particular format, you can also set this to the current date or
-`banana` or anything you want really.
 
 To use the latest development version switch to the `master` branch.
 
 To build a fully statically linked binary:
 
     % go build -tags osusergo,netgo,sqlite_omit_load_extension \
-        -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static" \
+        -extldflags=-static" \
         ./cmd/goatcounter
 
 It's recommended to use the latest release as in the above command. The master
@@ -158,9 +152,7 @@ to surprises.
 You can compile goatcounter without cgo if you're planning to use PostgreSQL and
 don't use SQLite:
 
-    % CGO_ENABLED=0 go build \
-        -ldflags="-X zgo.at/goatcounter.Version=$(git log -n1 --format='%h_%cI')" \
-        ./cmd/goatcounter
+    % CGO_ENABLED=0 go build ./cmd/goatcounter
 
 Functionally it doesn't matter too much, but builds will be a bit easier and
 faster as it won't require a C compiler.
