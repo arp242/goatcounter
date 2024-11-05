@@ -664,11 +664,6 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 
 func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		del := map[string]any{
-			"ContactMe": r.URL.Query().Get("contact_me") == "true",
-			"Reason":    r.URL.Query().Get("reason"),
-		}
-
 		var sites goatcounter.Sites
 		err := sites.ForThisAccount(r.Context(), false)
 		if err != nil {
@@ -679,40 +674,13 @@ func (h settings) delete(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			Globals
 			Sites    goatcounter.Sites
 			Validate *zvalidate.Validator
-			Delete   map[string]any
-		}{newGlobals(w, r), sites, verr, del})
+		}{newGlobals(w, r), sites, verr})
 	}
 }
 
 func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
-	var args struct {
-		Reason    string `json:"reason"`
-		ContactMe bool   `json:"contact_me"`
-	}
-	_, err := zhttp.Decode(r, &args)
-	if err != nil {
-		zlog.Error(err)
-	}
-
 	account := Account(r.Context())
-
-	if args.Reason != "" {
-		bgrun.RunFunction("email:deletion", func() {
-			contact := "false"
-			if args.ContactMe {
-				u := goatcounter.GetUser(r.Context())
-				contact = u.Email
-			}
-
-			blackmail.Send("GoatCounter deletion",
-				blackmail.From("GoatCounter deletion", goatcounter.Config(r.Context()).EmailFrom),
-				blackmail.To(goatcounter.Config(r.Context()).EmailFrom),
-				blackmail.Bodyf(`Deleted: %s (%d): contact_me: %s; reason: %s`,
-					account.Code, account.ID, contact, args.Reason))
-		})
-	}
-
-	err = account.Delete(r.Context(), true)
+	err := account.Delete(r.Context(), true)
 	if err != nil {
 		return err
 	}
