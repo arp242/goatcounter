@@ -135,6 +135,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 			T(ctx, "email/reset-user-email-subject|Password reset for %(domain)", site.Domain(ctx)),
 			blackmail.From("GoatCounter login", goatcounter.Config(ctx).EmailFrom),
 			blackmail.To(u.Email),
+			blackmail.HeadersAutoreply(),
 			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render))
 		if err != nil {
 			zlog.Errorf("password reset: %s", err)

@@ -620,6 +620,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 			sendErr := blackmail.Send("GoatCounter import error",
 				blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
 				blackmail.To(user.Email),
+				blackmail.HeadersAutoreply(),
 				blackmail.BodyMustText(goatcounter.TplEmailImportError{r.Context(), err}.Render))
 			if sendErr != nil {
 				zlog.Error(sendErr)

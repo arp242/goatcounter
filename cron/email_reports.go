@@ -64,6 +64,7 @@ func emailReports(ctx context.Context) error {
 		err = blackmail.Send(subject,
 			blackmail.From("GoatCounter reports", goatcounter.Config(ctx).EmailFrom),
 			blackmail.To(user.Email),
+			blackmail.HeadersAutoreply(),
 			blackmail.BodyText(text),
 			blackmail.BodyHTML(html))
 		if err != nil {

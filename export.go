@@ -203,6 +203,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		err = blackmail.Send("GoatCounter export ready",
 			blackmail.From("GoatCounter export", Config(ctx).EmailFrom),
 			blackmail.To(user.Email),
+			blackmail.HeadersAutoreply(),
 			blackmail.BodyMustText(TplEmailExportDone{ctx, *site, *user, *e}.Render))
 		if err != nil {
 			l.Error(err)
