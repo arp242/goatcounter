@@ -65,7 +65,8 @@ var groups = map[string]string{
 
 	"org.telegram.messenger": "Telegram Messenger",
 
-	"com.Slack": "Slack Chat",
+	// Slack
+	"com.slack": "Slack Chat",
 
 	// Baidu
 	"baidu.com":         "Baidu",
@@ -176,10 +177,10 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 		return "Yahoo", true
 	}
 
-	if g, ok := groups[refURL.Host]; ok {
+	if g, ok := groups[strings.ToLower(refURL.Host)]; ok {
 		return g, true
 	}
-	if g, ok := groups[ref]; ok {
+	if g, ok := groups[strings.ToLower(ref)]; ok {
 		return g, true
 	}
 
