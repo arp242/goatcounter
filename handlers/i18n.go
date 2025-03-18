@@ -47,7 +47,7 @@ func (h i18n) mount(r chi.Router) {
 	r.Post("/i18n/set/{file}", zhttp.Wrap(h.set))
 	r.Post("/i18n/submit/{file}", zhttp.Wrap(h.submit))
 
-	a := r.With(mware.RequestLog(nil), requireAccess(goatcounter.AccessSuperuser))
+	a := r.With(mware.RequestLog(nil, nil), requireAccess(goatcounter.AccessSuperuser))
 	a.Get("/i18n/manage", zhttp.Wrap(h.manage))
 }
 

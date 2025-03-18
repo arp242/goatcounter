@@ -135,7 +135,7 @@ func (s *Site) Validate(ctx context.Context) error {
 	if !s.CreatedAt.IsZero() && s.CreatedAt.Before(noUnderscore) {
 		for _, c := range s.Code {
 			if !(c == '-' || c == '_' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z')) {
-				v.Append("code", fmt.Sprintf("%q not allowed; characters are limited to '_', '-', a to z, and numbers", c))
+				v.Appendf("code", "%q not allowed; characters are limited to '_', '-', a to z, and numbers", c)
 				break
 			}
 		}
@@ -147,13 +147,16 @@ func (s *Site) Validate(ctx context.Context) error {
 		if len(labels) > 1 {
 			v.Append("code", "cannot contain '.'")
 		}
+		if len(labels) == 1 && strings.Contains(labels[0], "_") {
+			v.Append("code", "cannot contain '_'")
+		}
 	}
 
 	if s.Cname != nil {
 		v.Len("cname", *s.Cname, 4, 255)
 		v.Domain("cname", *s.Cname)
 		if Config(ctx).GoatcounterCom && strings.HasSuffix(*s.Cname, Config(ctx).Domain) {
-			v.Append("cname", "cannot end with %q", Config(ctx).Domain)
+			v.Appendf("cname", "cannot end with %q", Config(ctx).Domain)
 		}
 	}
 

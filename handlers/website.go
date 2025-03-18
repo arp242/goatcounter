@@ -59,7 +59,7 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 		mware.WrapWriter(),
 		mware.Headers(nil))
 	if dev {
-		mware.RequestLog(nil)
+		mware.RequestLog(nil, nil)
 	}
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

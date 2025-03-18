@@ -371,7 +371,8 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 			v.Required("name", name)
 			v.Required("requests", reqs)
 			v.Required("seconds", secs)
-			name = v.Include("name", name, []string{"count", "api", "api-count", "export", "login"})
+			nn := v.Include("name", name, []string{"count", "api", "api-count", "export", "login"})
+			name = nn.(string)
 			r := v.Integer("requests", reqs)
 			s := v.Integer("seconds", secs)
 			if v.HasErrors() {

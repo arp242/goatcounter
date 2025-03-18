@@ -62,7 +62,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		middleware.RedirectSlashes,
 		mware.NoStore())
 	if slices.Contains(zlog.Config.Debug, "req") || slices.Contains(zlog.Config.Debug, "all") {
-		r.Use(mware.RequestLog(nil, "/count"))
+		r.Use(mware.RequestLog(nil, nil, "/count"))
 	}
 	if true {
 		r.Use(middleware.NewCompressor(5).Handler)

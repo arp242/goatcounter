@@ -6,7 +6,6 @@ package goatcounter_test
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -67,7 +66,7 @@ func TestSiteValidate(t *testing.T) {
 		{
 			Site{Code: "hel_lo", State: StateActive},
 			nil,
-			map[string][]string{"code": {"must be a valid hostname: invalid character: '_'"}},
+			map[string][]string{"code": {"cannot contain '_'"}},
 		},
 		{
 			Site{Code: "hello", State: StateActive},
@@ -82,8 +81,8 @@ func TestSiteValidate(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
 
 			if tt.prefn != nil {
