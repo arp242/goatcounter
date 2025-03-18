@@ -10,9 +10,11 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/sethvargo/go-limiter"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
@@ -382,6 +384,52 @@ func addcsp(domainStatic string) func(http.Handler) http.Handler {
 				// domains and such, so just allow all websockets.
 				header.CSPConnectSrc: {header.CSPSourceSelf, "wss:"},
 			})
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func Ratelimit(withUA bool, getStore func(r *http.Request) (limiter.Store, string)) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			store, msg := getStore(r)
+			key := r.RemoteAddr
+			if withUA {
+				// Add in the User-Agent for some endpoints to reduce the
+				// problem of multiple people in the same building hitting the
+				// limit.
+				key += r.UserAgent()
+			}
+			tokens, remaining, reset, ok, err := store.Take(r.Context(), key)
+			if err != nil {
+				// The memorystore only returns an error if Close() was called.
+				// But log just to be sure.
+				zlog.Module("ratelimit").Field("key", key).Error(err)
+				ok = false
+			}
+
+			t := time.Unix(0, int64(reset))
+			exp := -time.Since(t)
+			retryAfter := strconv.FormatFloat(exp.Seconds(), 'f', 0, 64)
+			w.Header().Set("X-Rate-Limit-Limit", strconv.FormatUint(tokens, 10))
+			w.Header().Set("X-Rate-Limit-Remaining", strconv.FormatUint(remaining, 10))
+			w.Header().Set("X-Rate-Limit-Reset", retryAfter)
+
+			if !ok {
+				w.Header().Set("Retry-After", retryAfter)
+				w.WriteHeader(http.StatusTooManyRequests)
+
+				if msg == "" {
+					msg = fmt.Sprintf("rate limited exceeded; try again in %s", exp)
+				}
+				if strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "application/json") {
+					fmt.Fprintf(w, `{"error": %q}`, msg)
+				} else {
+					fmt.Fprintf(w, "%s\n", msg)
+				}
+				return
+			}
 
 			next.ServeHTTP(w, r)
 		})

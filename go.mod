@@ -15,6 +15,7 @@ require (
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/oschwald/geoip2-golang v1.4.0
 	github.com/russross/blackfriday/v2 v2.1.0
+	github.com/sethvargo/go-limiter v1.0.0
 	github.com/teamwork/reload v1.4.2
 	golang.org/x/crypto v0.36.0
 	golang.org/x/image v0.25.0
@@ -35,7 +36,7 @@ require (
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20250211163505-a3191f81fff2
-	zgo.at/zhttp v0.0.0-20250310163736-912f462a789f
+	zgo.at/zhttp v0.0.0-20250318065518-155261be7202
 	zgo.at/zli v0.0.0-20241220135549-7a37675fadfd
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0

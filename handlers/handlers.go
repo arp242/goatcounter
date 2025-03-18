@@ -10,39 +10,54 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/sethvargo/go-limiter"
+	"github.com/sethvargo/go-limiter/memorystore"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/mware"
 	"zgo.at/zstd/zfs"
 )
 
-var rateLimits = struct {
-	count, api, apiCount, export, login func(*http.Request) (int, int64)
-}{
-	count:    mware.RatelimitLimit(4, 1),
-	api:      mware.RatelimitLimit(4, 1),
-	apiCount: mware.RatelimitLimit(60, 120),
-	export:   mware.RatelimitLimit(1, 3600),
-	login:    mware.RatelimitLimit(20, 60),
+func mustNewMem(tokens uint64, interval time.Duration) limiter.Store {
+	s, err := memorystore.New(&memorystore.Config{Tokens: tokens, Interval: interval})
+	if err != nil {
+		// memorystore.New never returns an error, but just in case.
+		panic(err)
+	}
+	return s
 }
 
-// Set the rate limits.
-func SetRateLimit(name string, reqs int, secs int64) {
-	r := mware.RatelimitLimit(reqs, secs)
+type Ratelimits struct {
+	Count, API, APICount, Export, Login limiter.Store
+}
+
+func NewRatelimits() Ratelimits {
+	return Ratelimits{
+		Count:    mustNewMem(4, time.Second),
+		API:      mustNewMem(4, time.Second),
+		APICount: mustNewMem(60, 120*time.Second),
+		Export:   mustNewMem(1, 3600*time.Second),
+		Login:    mustNewMem(20, 60*time.Second),
+	}
+}
+
+// Set the rate limits for name.
+func (r *Ratelimits) Set(name string, tokens int, secs int64) {
+	l := mustNewMem(uint64(tokens), time.Duration(secs)*time.Second)
 	switch strings.ToLower(name) {
 	case "count":
-		rateLimits.count = r
+		r.Count = l
 	case "api":
-		rateLimits.api = r
+		r.API = l
 	case "apicount", "api-count":
-		rateLimits.apiCount = r
+		r.APICount = l
 	case "export":
-		rateLimits.export = r
+		r.Export = l
 	case "login":
-		rateLimits.login = r
+		r.Login = l
 	default:
 		panic(fmt.Sprintf("handlers.SetRateLimit: invalid name: %q", name))
 	}

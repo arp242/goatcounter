@@ -20,6 +20,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sethvargo/go-limiter"
 	"zgo.at/bgrun"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
@@ -30,7 +31,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
-	"zgo.at/zhttp/mware"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
@@ -64,7 +64,7 @@ func newAPI(apiMax int) api {
 	return api{apiMax: apiMax, dec: zhttp.NewDecoder(false, true)}
 }
 
-func (h api) mount(r chi.Router, db zdb.DB) {
+func (h api) mount(r chi.Router, db zdb.DB, ratelimits Ratelimits) {
 	h.apiMaxPaths = h.apiMax
 	if h.apiMax == 0 {
 		h.apiMax = 100
@@ -75,19 +75,15 @@ func (h api) mount(r chi.Router, db zdb.DB) {
 
 	a := r.With(
 		middleware.AllowContentType("application/json"),
-		mware.Ratelimit(mware.RatelimitOptions{
-			Client: mware.RatelimitIP,
-			Store:  mware.NewRatelimitMemory(),
-			Limit: func(r *http.Request) (int, int64) {
-				switch r.URL.Path {
-				default:
-					return rateLimits.api(r)
-				case "/api/v0/export":
-					return rateLimits.export(r)
-				case "/api/v0/count":
-					return rateLimits.apiCount(r)
-				}
-			},
+		Ratelimit(false, func(r *http.Request) (limiter.Store, string) {
+			switch r.URL.Path {
+			default:
+				return ratelimits.API, ""
+			case "/api/v0/export":
+				return ratelimits.Export, ""
+			case "/api/v0/count":
+				return ratelimits.APICount, ""
+			}
 		}),
 	)
 

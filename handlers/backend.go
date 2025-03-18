@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sethvargo/go-limiter"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -20,7 +21,7 @@ import (
 )
 
 func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool,
-	domainStatic string, basePath string, dashTimeout, apiMax int,
+	domainStatic string, basePath string, dashTimeout, apiMax int, ratelimits Ratelimits,
 ) chi.Router {
 
 	root := chi.NewRouter()
@@ -30,7 +31,7 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocke
 		root.Mount(basePath, r)
 	}
 
-	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax)
+	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax, ratelimits)
 
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
@@ -48,7 +49,7 @@ type backend struct {
 	websocket   bool
 }
 
-func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout, apiMax int) {
+func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout, apiMax int, ratelimits Ratelimits) {
 	if dev {
 		r.Use(mware.Delay(0))
 	}
@@ -78,7 +79,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 	}
 
 	website{fsys, false}.MountShared(r)
-	newAPI(apiMax).mount(r, db)
+	newAPI(apiMax).mount(r, db, ratelimits)
 	vcounter{static}.mount(r)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
@@ -98,25 +99,17 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		rr.Post("/csp", zhttp.HandlerCSP())
 
 		// 4 pageviews/second should be more than enough.
-		rate := rr.With(mware.Ratelimit(mware.RatelimitOptions{
-			Client: func(r *http.Request) string {
-				// Add in the User-Agent to reduce the problem of multiple
-				// people in the same building hitting the limit.
-				return r.RemoteAddr + r.UserAgent()
-			},
-			Store: mware.NewRatelimitMemory(),
-			Limit: func(r *http.Request) (int, int64) {
-				if dev {
-					return 1 << 30, 1
-				}
-				// From httpbuf
-				// TODO: in some setups this may always be true, e.g. when proxy
-				// through nginx without settings this properly. Need to check.
-				if r.RemoteAddr == "127.0.0.1" {
-					return 1 << 14, 1
-				}
-				return rateLimits.count(r)
-			},
+		rate := rr.With(Ratelimit(true, func(r *http.Request) (limiter.Store, string) {
+			if dev {
+				return mustNewMem(1<<30, 1), ""
+			}
+			// From httpbuf
+			// TODO: in some setups this may always be true, e.g. when proxy
+			// through nginx without settings this properly. Need to check.
+			if r.RemoteAddr == "127.0.0.1" {
+				return mustNewMem(1<<14, 1), ""
+			}
+			return ratelimits.Count, ""
 		}))
 		rate.Get("/count", zhttp.Wrap(h.count))
 		rate.Post("/count", zhttp.Wrap(h.count)) // to support navigator.sendBeacon (JS)
@@ -135,7 +128,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		}
 
 		a := r.With(mware.Headers(headers), keyAuth, addz18n())
-		user{}.mount(a)
+		user{}.mount(a, ratelimits)
 		{
 			ap := a.With(loggedInOrPublic, addz18n())
 			ap.Get("/", zhttp.Wrap(h.dashboard))
@@ -146,7 +139,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		}
 		{
 			af := a.With(loggedIn, addz18n())
-			settings{}.mount(af)
+			settings{}.mount(af, ratelimits)
 
 			Newi18n().mount(af)
 		}
