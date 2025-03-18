@@ -1,6 +1,6 @@
 :root {
     --text:              #fff;
-    --bg:                rgba(0,0,0,0);
+    --bg:                #000;
     --header-border:     #888;                             /* Border below some headers */
     --backdrop:          #0e1011;
     --target-bg:         #b78c1d;                          /* :target; mostly for headers in the documentation. */
@@ -9,15 +9,15 @@
     --link:              #8edff8;                          /* <a> */
     --link-hover:        #7acee9;
 
-    --input-text:        var(--text);                      /* <input>, <select> */
-    --input-bg:          var(--bg);
+    --input-text:        #fff;                             /* <input>, <select> */
+    --input-bg:          #000;
     --input-border:      #444;
-    --input-focus:       var(--link);                      /* Outline for focused inputs etc. */
+    --input-focus:       #8edff8;                          /* Outline for focused inputs etc. */
     --fieldset-border:   #666;                             /* Border around setting boxes on the settings page */
     --form-error-text:   #ff8f8f;
     --input-error-border: red;
 
-    --btn-text:          var(--text);                      /* <button> */
+    --btn-text:          #fff;                             /* <button> */
     --btn-bg:            linear-gradient(#7e7d7d, #404040);
     --btn-border:        #b0b0b0;                          /* Default border style */
     --btn-border-outset: #b8b8b8;                          /* Top and left styles for "3D" effect */
