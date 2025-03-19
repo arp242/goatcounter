@@ -73,6 +73,7 @@ Flags:
                    combined-vhost  NCSA Combined Log with virtual host
                    common          Common Log Format (CLF)
                    common-vhost    Common Log Format (CLF) with virtual host
+                   caddy           Caddy JSON logs
                    log:[fmt]       Custom log format; see "goatcounter help
                                    logfile" for details.
 
@@ -192,6 +193,9 @@ Date and time parsing:
         rfc3339nano    2006-01-02T15:04:05.999999999Z07:00
 
     The full documentation is available at https://pkg.go.dev/time
+
+    The 'caddy' format _also_ accepts:
+       'unix_seconds_float', 'unix_milli_float' and 'unix_nano' for datetime
 `
 
 func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
@@ -372,7 +376,7 @@ func importLog(
 			UserAgent: line.UserAgent(),
 		}
 
-		hit.CreatedAt, err = line.Datetime(scan)
+		hit.CreatedAt, err = scan.Datetime(line)
 		if err != nil {
 			zlog.Error(err)
 			continue
