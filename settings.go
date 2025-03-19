@@ -363,7 +363,7 @@ func (ss *SiteSettings) Validate(ctx context.Context) error {
 	}
 
 	if ss.DataRetention > 0 {
-		v.Range("data_retention", int64(ss.DataRetention), 31, 0)
+		v.Range("data_retention", int64(ss.DataRetention), 31, 365*5)
 	}
 
 	if len(ss.IgnoreIPs) > 0 {
