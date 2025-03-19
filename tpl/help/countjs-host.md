@@ -5,7 +5,7 @@ inside `<script>` tags. You won’t get any new features or other updates, but t
 `/count/v2`).
 
 To host `count.js` somewhere else just copy it from https://gc.zgo.at/count.js
-and adjust the URL in `data-goatcounter`.
+and adjust the URL in `src`.
 
 If you include it in the page's body then be sure to include the
 `data-goatcounter` attribute on the script tag, or set `goatcounter.endpoint` so
