@@ -122,13 +122,13 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 			rng.Start, err = time.Parse("2006-01-02", startArg)
 		}
 		if err != nil {
-			return err
+			return guru.WithCode(400, err)
 		}
 	}
 	if s := r.URL.Query().Get("end"); s != "" {
 		rng.End, err = time.Parse("2006-01-02", s)
 		if err != nil {
-			return err
+			return guru.WithCode(400, err)
 		}
 	}
 
