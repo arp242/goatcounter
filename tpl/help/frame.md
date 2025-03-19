@@ -1,4 +1,4 @@
-Sometimes it may be useful to embed GoatCounter in a frame; by default ebedding
+Sometimes it may be useful to embed GoatCounter in a frame; by default embedding
 GoatCounter in a frame is disallowed, but in *Settings → Sites that can embed
 GoatCounter* you can add a list of domains or URLs that are allowed to embed
 GoatCounter.
