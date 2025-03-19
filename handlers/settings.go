@@ -277,12 +277,12 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		err := newSite.ByIDState(r.Context(), id, goatcounter.StateDeleted)
 		if err != nil {
 			if zdb.ErrNoRows(err) {
-				return guru.Errorf(400, T(r.Context(), "error/address-exists|%(addr) already exists", addr))
+				return guru.New(400, T(r.Context(), "error/address-exists|%(addr) already exists", addr))
 			}
 			return err
 		}
 		if newSite.Parent == nil || *newSite.Parent != account.ID {
-			return guru.Errorf(400, T(r.Context(), "error/address-exists|%(addr) already exists", addr))
+			return guru.New(400, T(r.Context(), "error/address-exists|%(addr) already exists", addr))
 		}
 
 		err = newSite.Undelete(r.Context(), newSite.ID)
@@ -578,7 +578,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	if strings.HasSuffix(head.Filename, ".gz") {
 		fp, err = gzip.NewReader(file)
 		if err != nil {
-			return guru.Errorf(400, T(r.Context(), "error/could-not-read|Could not read as gzip: %(err)", err))
+			return guru.New(400, T(r.Context(), "error/could-not-read|Could not read as gzip: %(err)", err))
 		}
 	}
 	defer fp.Close()

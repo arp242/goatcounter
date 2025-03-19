@@ -527,7 +527,7 @@ func (h user) verify(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "%q verified", user.Email)
+	zhttp.Flash(w, fmt.Sprintf("%q verified", user.Email))
 	return zhttp.SeeOther(w, "/")
 }
 

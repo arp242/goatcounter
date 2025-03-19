@@ -465,7 +465,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, "List of login URLs mailed to %s", args.Email)
+	zhttp.Flash(w, fmt.Sprintf("List of login URLs mailed to %s", args.Email))
 	return zhttp.SeeOther(w, "/user/forgot")
 }
 

@@ -35,7 +35,7 @@ var Started time.Time
 var (
 	redirect = func(w http.ResponseWriter, r *http.Request) error {
 		zhttp.Flash(w, "Need to log in")
-		return guru.Errorf(303, goatcounter.Config(r.Context()).BasePath+"/user/new")
+		return guru.New(303, goatcounter.Config(r.Context()).BasePath+"/user/new")
 	}
 
 	loggedIn = auth.Filter(func(w http.ResponseWriter, r *http.Request) error {
@@ -74,7 +74,7 @@ var (
 				Secure:   zhttp.CookieSecure,
 				SameSite: zhttp.CookieSameSite,
 			})
-			return guru.Errorf(303, goatcounter.Config(r.Context()).BasePath+"/")
+			return guru.New(303, goatcounter.Config(r.Context()).BasePath+"/")
 		}
 		if c, err := r.Cookie("access-token"); err == nil && s.Settings.CanView(c.Value) {
 			return nil
@@ -184,7 +184,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 								"this will work fine as long as you only have one site, but you *need* to use the "+
 								"configured domain if you add a second site so GoatCounter will know which site to use.",
 								znet.RemovePort(r.Host), *s.Cname)
-							zlog.Printf(termtext.WordWrap(txt, 55, strings.Repeat(" ", 25)))
+							zlog.Print(termtext.WordWrap(txt, 55, strings.Repeat(" ", 25)))
 						}
 					}
 					if err2 == nil && len(sites) == 0 {

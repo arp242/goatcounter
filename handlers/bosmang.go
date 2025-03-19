@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -93,7 +94,7 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, "Task %q started", id)
+	zhttp.Flash(w, fmt.Sprintf("Task %q started", id))
 	return zhttp.SeeOther(w, "/bosmang/bgrun")
 }
 

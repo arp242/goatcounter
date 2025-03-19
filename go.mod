@@ -1,6 +1,6 @@
 module zgo.at/goatcounter/v2
 
-go 1.23.0
+go 1.24.1
 
 require (
 	code.soquee.net/otp v0.0.4
@@ -36,7 +36,7 @@ require (
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20250211163505-a3191f81fff2
-	zgo.at/zhttp v0.0.0-20250318065518-155261be7202
+	zgo.at/zhttp v0.0.0-20250319003001-8a233272ce7e
 	zgo.at/zli v0.0.0-20241220135549-7a37675fadfd
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0

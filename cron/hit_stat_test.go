@@ -46,11 +46,11 @@ func TestHitStats(t *testing.T) {
 		}
 
 		if d := ztest.Diff(string(zjson.MustMarshal(stats[0])), want0, ztest.DiffJSON); d != "" {
-			t.Errorf("first wrong\n" + d)
+			t.Error("first wrong\n" + d)
 		}
 
 		if d := ztest.Diff(string(zjson.MustMarshal(stats[1])), want1, ztest.DiffJSON); d != "" {
-			t.Errorf("second wrong\n" + d)
+			t.Error("second wrong\n" + d)
 		}
 	}
 
@@ -151,11 +151,11 @@ func TestHitStatsNoCollect(t *testing.T) {
 		}
 
 		if d := ztest.Diff(string(zjson.MustMarshal(stats[0])), want0, ztest.DiffJSON); d != "" {
-			t.Errorf("first wrong\n" + d)
+			t.Error("first wrong\n" + d)
 		}
 
 		if d := ztest.Diff(string(zjson.MustMarshal(stats[1])), want1, ztest.DiffJSON); d != "" {
-			t.Errorf("second wrong\n" + d)
+			t.Error("second wrong\n" + d)
 		}
 	}
 

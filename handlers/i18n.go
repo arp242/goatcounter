@@ -182,7 +182,7 @@ func (h i18n) new(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "%q added", args.Language)
+	zhttp.Flash(w, fmt.Sprintf("%q added", args.Language))
 	return zhttp.SeeOther(w, "/i18n")
 }
 
@@ -261,7 +261,7 @@ func (h i18n) set(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, "language set to %q", lang)
+	zhttp.Flash(w, fmt.Sprintf("language set to %q", lang))
 	return zhttp.SeeOther(w, "/i18n")
 }
 
