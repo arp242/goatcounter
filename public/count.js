@@ -21,7 +21,8 @@
 	var enc = encodeURIComponent
 
 	// Get all data we're going to send off to the counter endpoint.
-	var get_data = function(vars) {
+	window.goatcounter.get_data = function(vars) {
+		vars = vars || {}
 		var data = {
 			p: (vars.path     === undefined ? goatcounter.path     : vars.path),
 			r: (vars.referrer === undefined ? goatcounter.referrer : vars.referrer),
@@ -111,7 +112,7 @@
 	}
 
 	// Filter some requests that we (probably) don't want to count.
-	goatcounter.filter = function() {
+	window.goatcounter.filter = function() {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
 			return 'visibilityState'
 		if (!goatcounter.allow_frame && location !== parent.location)
@@ -127,7 +128,7 @@
 
 	// Get URL to send to GoatCounter.
 	window.goatcounter.url = function(vars) {
-		var data = get_data(vars || {})
+		var data = window.goatcounter.get_data(vars || {})
 		if (data.p === null)  // null from user callback.
 			return
 		data.rnd = Math.random().toString(36).substr(2, 5)  // Browsers don't always listen to Cache-Control.
