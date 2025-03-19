@@ -1,7 +1,3 @@
-/* Copyright © 2019 Martin Tournoij – This file is part of GoatCounter and
-   published under the terms of a slightly modified EUPL v1.2 license, which can
-   be found in the LICENSE file or at https://license.goatcounter.com */
-
 .page, .center { max-width: 60em; }
 hr             { margin: 1em 0; }
 u              { text-decoration: none; box-shadow: inset 0 -.175em yellow, inset 0 -.2em #eee; }
