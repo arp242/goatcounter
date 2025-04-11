@@ -38,8 +38,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 		}
 
 		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id",
-			"hour", "total"})
+		ins := zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id", "hour", "total"})
 		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 			ins.OnConflict(`on conflict on constraint "hit_counts#site_id#path_id#hour" do update set
 				total = hit_counts.total + excluded.total`)

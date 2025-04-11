@@ -78,6 +78,7 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 		}))
 		set.Get("/settings/export/{id}", zhttp.Wrap(h.exportDownload))
 		set.Post("/settings/export/import", zhttp.Wrap(h.exportImport))
+		set.Post("/settings/export/import-ga", zhttp.Wrap(h.exportImportGA))
 		set.With(Ratelimit(false, func(*http.Request) (limiter.Store, string) {
 			// TODO(i18n): this should be translated.
 			return ratelimits.Export, "you can request only one export per hour"
@@ -290,7 +291,9 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		zhttp.Flash(w, T(r.Context(), "notify/restored-previously-deleted-site|Site ‘%(url)’ was previously deleted; restored site with all data.", newSite.URL(r.Context())))
+		zhttp.Flash(w, T(r.Context(),
+			"notify/restored-previously-deleted-site|Site ‘%(url)’ was previously deleted; restored site with all data.",
+			newSite.URL(r.Context())))
 		return zhttp.SeeOther(w, "/settings/sites")
 	}
 
@@ -477,7 +480,8 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(), "notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
+	zhttp.Flash(w, T(r.Context(),
+		"notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
 	return zhttp.SeeOther(w, "/settings/purge")
 }
 
@@ -503,7 +507,8 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(), "notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
+	zhttp.Flash(w, T(r.Context(),
+		"notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
 	return zhttp.SeeOther(w, "/settings/purge")
 }
 
@@ -627,7 +632,33 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(), "notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done."))
+	zhttp.Flash(w, T(r.Context(),
+		"notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done."))
+	return zhttp.SeeOther(w, "/settings/export")
+}
+
+func (h settings) exportImportGA(w http.ResponseWriter, r *http.Request) error {
+	file, head, err := r.FormFile("csv")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var fp io.ReadCloser = file
+	if strings.HasSuffix(head.Filename, ".gz") {
+		fp, err = gzip.NewReader(file)
+		if err != nil {
+			return guru.New(400, T(r.Context(), "error/could-not-read|Could not read as gzip: %(err)", err))
+		}
+	}
+	defer fp.Close()
+
+	err = goatcounter.ImportGA(r.Context(), fp)
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, T(r.Context(), "notify/import-ga-okay|Data processed successfully."))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 

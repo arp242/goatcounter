@@ -11,9 +11,9 @@
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
-			<legend>{{.T "header/export|Export"}}</legend>
+			<legend>{{.T "header/export|Export to CSV"}}</legend>
 			{{if not .CollectHits}}
-			{{.T `x|
+			{{.T `p/export-csv|
 				<p>CSV exports requires that collection of pageviews to enabled
 				in the %[%setting site settings], but it’s currently disabled.</p>
 
@@ -46,11 +46,39 @@
 		</fieldset>
 	</form>
 
+	<form method="post" action="{{.Base}}/settings/export/import-ga" enctype="multipart/form-data" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset>
+			<legend>{{.T "header/import|Totals from Google Analytics"}}</legend>
+			<p>{{.T `p/import-ga|
+				Google Analytics does not offer meaningful exports; it only
+				offers %[%ga exporting “reports”]. This gives an overview of
+				totals per path, not broken down by date. It’s not enough data
+				for GoatCounter to display, but you can “import” this and it
+				will be added to the totals in the %[%vc Visitor Counter].
+				<br><br>
+				It may take up to 30 minutes for the numbers on the visitor
+				counter to be updated.
+			` (map
+				"ga" (tag "a" `target="_blank" href="https://support.google.com/analytics/answer/9317657?hl=en"`)
+				"vc" (tag "a" `href="/help/visitor-counter"`)
+			)}}
+			</p>
+
+			<label for="file">{{.T "label/csv-compress-format|Google Analytics CSV file"}}</label>
+			<input type="file" name="csv" required accept=".csv,.csv.gz">
+			<br><br>
+
+			<button type="submit">{{.T "button/upload-ga-import|Upload"}}</button><br>
+		</fieldset>
+	</form>
+
 	<form method="post" action="{{.Base}}/settings/export/import" enctype="multipart/form-data" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
-			<legend>{{.T "header/import|Import"}}</legend>
+			<legend>{{.T "header/import|Import from CSV"}}</legend>
 
 			<label for="file">{{.T "label/csv-compress-format|CSV file; may be compressed with gzip"}}</label>
 			<input type="file" name="csv" required accept=".csv,.csv.gz">
