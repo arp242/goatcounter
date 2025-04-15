@@ -3,12 +3,9 @@ package logscan
 import (
 	"fmt"
 	"regexp"
-	"slices"
 	"strconv"
-	"strings"
 	"time"
 
-	"github.com/bmatcuk/doublestar/v4"
 	"zgo.at/errors"
 )
 
@@ -33,7 +30,7 @@ func (p RegexParser) Parse(line string) (Line, bool, error) {
 		}
 	}
 	for _, e := range p.exclude {
-		if parsed.exclude(e) {
+		if parsed.matchesPattern(e) {
 			return nil, true, nil
 		}
 	}
@@ -41,20 +38,14 @@ func (p RegexParser) Parse(line string) (Line, bool, error) {
 	return parsed, false, nil
 }
 
-var _ LineParser = RegexParser{}
-
-func newRegexParser(format, date, tyme, datetime string, exclude []string) (*RegexParser, error) {
+func newRegexParser(format, date, tyme, datetime string, exclude []excludePattern) (*RegexParser, error) {
 	of := format
 	format, date, tyme, datetime = getFormat(format, date, tyme, datetime)
 	if format == "" {
 		return nil, errors.Errorf("unknown format: %s", of)
 	}
 
-	excludePatt, err := processExcludes(exclude)
-	if err != nil {
-		return nil, err
-	}
-
+	var err error
 	pat := reFormat.ReplaceAllStringFunc(regexp.QuoteMeta(format), func(m string) string {
 		m = m[2:]
 
@@ -93,30 +84,29 @@ func newRegexParser(format, date, tyme, datetime string, exclude []string) (*Reg
 				}
 			}
 
-		case "host":
+		case fieldHost:
 			p = `(?:xn--)?[a-zA-Z0-9.-]+`
-		case "remote_addr":
+		case fieldRemoteAddr:
 			p = `[0-9a-fA-F:.]+`
-		case "xff":
+		case fieldXff:
 			p = `[0-9a-fA-F:. ,]+`
-
-		case "method":
+		case fieldMethod:
 			p = `[A-Z]{3,10}`
-		case "status":
+		case fieldStatus:
 			p = `\d{3}`
-		case "http":
+		case fieldHTTP:
 			p = `HTTP/[\d.]+`
-		case "path":
+		case fieldPath:
 			p = `/.*?`
 		case "timing_sec":
 			p = `[\d.]+`
 		case "timing_milli", "timing_micro":
 			p = `\d+`
-		case "size":
+		case fieldSize:
 			p = `(?:\d+|-)`
-		case "referrer", "user_agent":
+		case fieldReferrer, fieldUserAgent:
 			p = `.*?`
-		case "query", "content_type":
+		case fieldQuery, fieldContentType:
 			// Default
 		}
 		return "(?P<" + m + ">" + p + ")"
@@ -131,82 +121,25 @@ func newRegexParser(format, date, tyme, datetime string, exclude []string) (*Reg
 		date:     date,
 		time:     tyme,
 		datetime: datetime,
-		exclude:  excludePatt,
+		exclude:  exclude,
 	}, nil
-}
-
-type excludePattern struct {
-	kind    int            // exclude* constant
-	negate  bool           // ! present
-	field   string         // "path", "content_type"
-	pattern string         // ".gif", "*.gif"
-	re      *regexp.Regexp // only if kind=excludeRe
-}
-
-func processExcludes(exclude []string) ([]excludePattern, error) {
-	// "static" needs to expand to two values.
-	for i, e := range exclude {
-		switch e {
-		case "static":
-			// Note: maybe check if using glob patterns is faster?
-			exclude[i] = `path:re:.*\.(:?js|css|gif|jpe?g|png|svg|ico|web[mp]|mp[34])$`
-			exclude = append(exclude, `content_type:re:^(?:text/(?:css|javascript)|image/(?:png|gif|jpeg|svg\+xml|webp)).*?`)
-		case "html":
-			exclude[i] = "content_type:^text/html.*?"
-		case "redirect":
-			exclude[i] = "status:glob:30[0123]"
-		}
-	}
-
-	patterns := make([]excludePattern, 0, len(exclude))
-	for _, e := range exclude {
-		var p excludePattern
-		if strings.HasPrefix(e, "!") {
-			p.negate = true
-			e = e[1:]
-		}
-
-		p.field, p.pattern, _ = strings.Cut(e, ":")
-		if !slices.Contains(fields, p.field) {
-			return nil, fmt.Errorf("invalid field %q in exclude pattern %q", p.field, e)
-		}
-		if p.pattern == "" {
-			return nil, fmt.Errorf("no pattern in %q", e)
-		}
-
-		var err error
-		switch {
-		case strings.HasPrefix(p.pattern, "glob:"):
-			p.kind, p.pattern = excludeGlob, p.pattern[5:]
-			_, err = doublestar.Match(p.pattern, "")
-		case strings.HasPrefix(p.pattern, "re:"):
-			p.kind, p.pattern = excludeRe, p.pattern[3:]
-			p.re, err = regexp.Compile(p.pattern)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("invalid exclude pattern: %q: %w", e, err)
-		}
-		patterns = append(patterns, p)
-	}
-
-	return patterns, nil
 }
 
 type RegexLine map[string]string
 
-func (l RegexLine) Host() string          { return l["host"] }
-func (l RegexLine) RemoteAddr() string    { return l["remote_addr"] }
-func (l RegexLine) XForwardedFor() string { return l["xff"] }
-func (l RegexLine) Method() string        { return l["method"] }
-func (l RegexLine) HTTP() string          { return l["http"] }
-func (l RegexLine) Path() string          { return l["path"] }
-func (l RegexLine) Query() string         { return l["query"] }
-func (l RegexLine) Referrer() string      { return l["referrer"] }
-func (l RegexLine) UserAgent() string     { return l["user_agent"] }
-func (l RegexLine) ContentType() string   { return l["content_type"] }
-func (l RegexLine) Status() int           { return toI(l["status"]) }
-func (l RegexLine) Size() int             { return toI(l["size"]) }
-func (l RegexLine) Language() string      { return l["accept_language"] }
+func (l RegexLine) Host() string          { return l[fieldHost] }
+func (l RegexLine) RemoteAddr() string    { return l[fieldRemoteAddr] }
+func (l RegexLine) XForwardedFor() string { return l[fieldXff] }
+func (l RegexLine) Method() string        { return l[fieldMethod] }
+func (l RegexLine) HTTP() string          { return l[fieldHTTP] }
+func (l RegexLine) Path() string          { return l[fieldPath] }
+func (l RegexLine) Query() string         { return l[fieldQuery] }
+func (l RegexLine) Referrer() string      { return l[fieldReferrer] }
+func (l RegexLine) UserAgent() string     { return l[fieldUserAgent] }
+func (l RegexLine) ContentType() string   { return l[fieldContentType] }
+func (l RegexLine) Status() int           { return toI(l[fieldStatus]) }
+func (l RegexLine) Size() int             { return toI(l[fieldSize]) }
+func (l RegexLine) Language() string      { return l[fieldAcceptLanguage] }
 
 func (l RegexLine) Timing() time.Duration {
 	s, ok := l["timing_sec"]
@@ -224,8 +157,8 @@ func (l RegexLine) Timing() time.Duration {
 	return 0
 }
 
-func (l RegexLine) Datetime(scan *Scanner) (time.Time, error) {
-	parser := scan.lp.(*RegexParser)
+func (l RegexLine) Datetime(lp LineParser) (time.Time, error) {
+	parser := lp.(*RegexParser)
 	s, ok := l["date"]
 	if ok {
 		t, err := time.Parse(parser.date, s)
@@ -253,23 +186,6 @@ func toI64(s string) int64 {
 	return n
 }
 
-var _ Line = RegexLine{}
-
-func (l RegexLine) exclude(e excludePattern) bool {
-	var m bool
-	switch e.kind {
-	default:
-		m = strings.Contains(l[e.field], e.pattern)
-	case excludeGlob:
-		// We use doublestar instead of filepath.Match() because the latter
-		// doesn't support "**" and "{a,b}" patterns, both of which are very
-		// useful here.
-		m, _ = doublestar.Match(e.pattern, l[e.field])
-	case excludeRe:
-		m = e.re.MatchString(l[e.field])
-	}
-	if e.negate {
-		return !m
-	}
-	return m
+func (l RegexLine) matchesPattern(e excludePattern) bool {
+	return matchesPattern(e, l[e.field])
 }
