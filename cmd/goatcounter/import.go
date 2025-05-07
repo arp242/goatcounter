@@ -193,6 +193,8 @@ Date and time parsing:
 
         ansic          Mon Jan _2 15:04:05 2006
         unix           Mon Jan _2 15:04:05 MST 2006
+        unixmilli      1746644937044
+        unixsec        1746644937
         rfc822         02 Jan 06 15:04 MST
         rfc822z        02 Jan 06 15:04 -0700
         rfc850         Monday, 02-Jan-06 15:04:05 MST

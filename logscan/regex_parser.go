@@ -238,7 +238,24 @@ func (l RegexLine) Datetime(scan *Scanner) (time.Time, error) {
 	}
 	s, ok = l["datetime"]
 	if ok {
-		t, err := time.Parse(parser.datetime, s)
+		var t time.Time
+		var err error
+		switch parser.datetime {
+		case "unixmilli":
+			i, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return t.UTC(), err
+			}
+			t = time.UnixMilli(i)
+		case "unixsec":
+			i, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return t.UTC(), err
+			}
+			t = time.Unix(i, 0)
+		default:
+			t, err = time.Parse(parser.datetime, s)
+		}
 		return t.UTC(), err
 	}
 	return time.Time{}, nil
