@@ -1,31 +1,31 @@
 module zgo.at/goatcounter/v2
 
-go 1.24.1
+go 1.24.3
 
 require (
 	code.soquee.net/otp v0.0.4
 	github.com/BurntSushi/toml v1.5.0
-	github.com/PuerkitoBio/goquery v1.10.2
+	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/bmatcuk/doublestar/v4 v4.8.1
 	github.com/boombuler/barcode v1.0.2
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/mattn/go-sqlite3 v1.14.27
+	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
-	github.com/oschwald/geoip2-golang v1.4.0
+	github.com/oschwald/geoip2-golang v1.11.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/teamwork/reload v1.4.2
-	golang.org/x/crypto v0.37.0
-	golang.org/x/image v0.26.0
-	golang.org/x/net v0.39.0
-	golang.org/x/sync v0.13.0
-	golang.org/x/text v0.24.0
+	golang.org/x/crypto v0.38.0
+	golang.org/x/image v0.27.0
+	golang.org/x/net v0.40.0
+	golang.org/x/sync v0.14.0
+	golang.org/x/text v0.25.0
 	zgo.at/bgrun v0.0.0-00010101000000-000000000000
 	zgo.at/blackmail v0.0.0-20241118175226-9a8f9442bb0d
 	zgo.at/errors v1.4.0
-	zgo.at/follow v0.0.0-20240522232612-673fb184d32f
+	zgo.at/follow v0.0.0-20250412000721-fecf5127a123
 	zgo.at/gadget v1.0.0
 	zgo.at/guru v1.2.0
 	zgo.at/isbot v1.0.0
@@ -35,7 +35,7 @@ require (
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
-	zgo.at/zdb v0.0.0-20250411114515-6b9bac09e91c
+	zgo.at/zdb v0.0.0-20250411114835-98f201430043
 	zgo.at/zhttp v0.0.0-20250319003001-8a233272ce7e
 	zgo.at/zli v0.0.0-20241220135549-7a37675fadfd
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
@@ -56,12 +56,12 @@ replace github.com/oschwald/geoip2-golang => github.com/arp242/geoip2-golang v1.
 
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
-	github.com/oschwald/maxminddb-golang v1.10.0 // indirect
+	github.com/oschwald/maxminddb-golang v1.13.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/sys v0.32.0 // indirect
-	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/tools v0.33.0 // indirect
 	zgo.at/runewidth v0.1.0 // indirect
 )
