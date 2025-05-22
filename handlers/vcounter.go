@@ -104,6 +104,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		noBranding = r.URL.Query().Get("no_branding") != ""
 		style      = r.URL.Query().Get("style")
 	)
+	path = "/" + strings.Trim(path, "/")
 
 	if ext == "json" {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
