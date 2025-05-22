@@ -2,6 +2,7 @@ package goatcounter
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"path"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/guru"
+	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/znet"
@@ -29,7 +31,61 @@ var reserved = []string{
 var statTables = []string{"hit_stats", "system_stats", "browser_stats",
 	"location_stats", "language_stats", "size_stats"}
 
-type SiteID int32
+type (
+	SiteID  int32
+	SiteIDs []SiteID
+)
+
+// func (s SiteIDs) MarshalText() ([]byte, error) { return json.Marshal(s) }
+func (s *SiteIDs) UnmarshalText(v []byte) error {
+	n, err := zstrconv.ParseInt[SiteID](string(v), 10)
+	if err != nil {
+		return err
+	}
+	*s = append(*s, n)
+	return nil
+}
+func (s SiteIDs) Value() (driver.Value, error) { return json.Marshal(s) }
+func (s *SiteIDs) Scan(v any) error {
+	var (
+		x   []SiteID
+		err error
+	)
+	switch vv := v.(type) {
+	case []byte:
+		err = json.Unmarshal(vv, &x)
+	case string:
+		err = json.Unmarshal([]byte(vv), &x)
+	default:
+		return errors.Errorf("JSON.Scan: unsupported type: %T", v)
+	}
+	*s = x
+	return err
+}
+func (s SiteIDs) All() bool {
+	return len(s) == 1 && s[0] == -1
+}
+func (s SiteIDs) Has(siteID SiteID) bool {
+	if s.All() {
+		return true
+	}
+	for _, ss := range s {
+		if ss == siteID {
+			return true
+		}
+	}
+	return false
+}
+func (s SiteIDs) List(ctx context.Context) Sites {
+	var sites Sites
+	_ = zdb.Select(ctx, &sites,
+		`select * from sites where site_id in (:sites) and (site_id=:site_id or parent=:site_id)`,
+		map[string]any{
+			"sites":   []SiteID(s),
+			"site_id": MustGetAccount(ctx).ID,
+		})
+	return sites
+}
 
 type Site struct {
 	ID     SiteID  `db:"site_id" json:"id,readonly"`

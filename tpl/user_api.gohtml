@@ -18,10 +18,11 @@
 	<fieldset>
 		<legend>{{.T "header/api-tokens|API tokens"}}</legend>
 
-		<table class="auto">
+		<table class="user-api-key">
 			<thead><tr>
 				<th>{{.T "header/name|Name"}}</th>
 				<th>{{.T "header/permissions|Permissions"}}</th>
+				<th>{{.T "header/sites|Sites"}}</th>
 				<th>{{.T "header/token|Token"}}</th>
 				<th>{{.T "header/created-at|Created at"}}</th>
 				<th>{{.T "header/last-used-at|Last used"}}</th>
@@ -29,50 +30,81 @@
 			</tr></thead>
 
 			<tbody>
-				{{range $t := .APITokens}}<tr>
-					<td>{{$t.Name}}</td>
-					<td>
-						{{range $pf := $.Empty.PermissionFlags $t.Permissions}}
-						{{$pf.Label}}<br>
-						{{end}}
-					</td>
-					<td>{{$t.Token}}</td>
-					<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
-					<td>{{if $t.LastUsedAt}}
-						{{$t.LastUsedAt.UTC.Format "2006-01-02 (UTC)"}}
-					{{else}}
-						-
-					{{end}}</td>
-
-					<td>
-						<form method="post" action="{{$.Base}}/user/api-token/remove/{{$t.ID}}" data-confirm="Delete token {{$t.Name}}?">
-							<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-							<button class="link">{{$.T "button/delete|delete"}}</button>
-						</form>
-					</td>
-				</tr>{{end}}
-
-				<tr>
-					<form method="post" action="{{.Base}}/user/api-token">
-						<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-
+				{{range $t := .APITokens}}
+					<tr>
+						<td>{{$t.Name}}</td>
 						<td>
-							<input type="text" id="name" name="name" placeholder="Name">
+							<ul>{{range $pf := $.NewToken.PermissionFlags $t.Permissions}}
+								<li>{{$pf.Label}}</li>
+							{{end}}</ul>
 						</td>
 						<td>
-							<input type="hidden" name="permissions[]" value="1">
-							{{range $pf := .Empty.PermissionFlags}}
-								<label {{if $pf.Help}}title="{{$pf.Help}}"{{end}}>
-									<input type="checkbox" name="permissions[]" value="{{$pf.Flag}}">
-									{{$pf.Label}}</label><br>
+							{{if $t.Sites.All}}
+								<em>{{$.T "label/all-sites|All sites"}}</em>
+							{{else}}
+								<ul>{{range $s := $t.Sites.List $.Context}}
+									<li>{{$s.Display $.Context}}</li>
+								{{end}}</ul>
 							{{end}}
 						</td>
-						<td><button type="submit">{{$.T "button/add-new|Add new"}}</button></td>
-					</form>
-				</tr>
+						<td><a href="#" data-show="{{$t.Token}}">{{$.T `button/show|show`}}</a></td>
+						<td>{{$t.CreatedAt.UTC.Format "2006-01-02 (UTC)"}}</td>
+						<td>{{if $t.LastUsedAt}}
+							{{$t.LastUsedAt.UTC.Format "2006-01-02 (UTC)"}}
+						{{else}}
+							-
+						{{end}}</td>
+
+						<td>
+							<form method="post" action="{{$.Base}}/user/api-token/remove/{{$t.ID}}" data-confirm="Delete token {{$t.Name}}?">
+								<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+								<button class="link">{{$.T "button/delete|delete"}}</button>
+							</form>
+						</td>
+					</tr>
+				{{else}}
+					<tr><td colspan="6"><em>{{t $.Context "dashboard/nothing-to-display|Nothing to display"}}</em></td></tr>
+				{{end}}
 			</tbody>
 		</table>
 	</fieldset>
 {{end}}
+
+<form class="vertical" method="post" action="{{.Base}}/user/api-token">
+	<fieldset>
+		<legend>{{.T "header/add-api-token|Add new API Token"}}</legend>
+		<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+		<label for="name">{{.T "header/name|Name"}}</label>
+		<input type="text" id="name" name="name" value="{{.NewToken.Name}}">
+		{{validate "name" .Validate}}<br>
+
+		<label>{{.T "header/permissions|Permissions"}}</label>
+		<input type="hidden" name="permissions[]" value="1">
+		{{range $pf := .NewToken.PermissionFlags}}
+			<label class="inline" {{if $pf.Help}}title="{{$pf.Help}}"{{end}}>
+				<input type="checkbox" name="permissions[]" value="{{$pf.Flag}}"
+					{{if $.NewToken.Permissions.Has $pf.Flag}}checked{{end}}>
+				{{$pf.Label}}</label><br>
+		{{end}}
+		{{validate "permissions" .Validate}}
+
+		<label>{{.T "label/access-to-sites|Access to sites"}}</label>
+
+		<label class="inline allsites">
+			<input type="checkbox" name="sites[]" value="-1"
+				{{if eq (len $.NewToken.Sites) 0}}checked{{end}}>
+				{{.T "p/all-sites|All sites, including those created in the future"}}</label><br>
+		{{validate "sites" .Validate}}
+		{{range $s := .Sites}}
+			<label class="inline site">
+				<input type="checkbox" name="sites[]" value="{{$s.ID}}"
+					{{if $.NewToken.Sites.Has $s.ID}}checked{{end}}>
+				{{$s.Display $.Context}}</label><br>
+		{{end}}
+
+		<br><button type="submit">{{$.T "button/add-new|Add new"}}</button>
+	</fieldset>
+</form>
 
 {{template "_backend_bottom.gohtml" .}}

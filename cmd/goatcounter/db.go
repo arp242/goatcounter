@@ -998,6 +998,7 @@ func cmdDBAPITokenCreate(ctx context.Context,
 		UserID:      user.ID,
 		Name:        name,
 		Permissions: perm,
+		Sites:       goatcounter.SiteIDs{siteID},
 	}).Insert(ctx)
 }
 

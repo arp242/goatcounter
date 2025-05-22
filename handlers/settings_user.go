@@ -265,10 +265,16 @@ func (h settings) userAuth(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	}
 }
 
-func (h settings) userAPI(verr *zvalidate.Validator) zhttp.HandlerFunc {
+func (h settings) userAPI(verr *zvalidate.Validator, newToken goatcounter.APIToken) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		var tokens goatcounter.APITokens
 		err := tokens.List(r.Context())
+		if err != nil {
+			return err
+		}
+
+		var sites goatcounter.Sites
+		err = sites.ForThisAccount(r.Context(), false)
 		if err != nil {
 			return err
 		}
@@ -277,9 +283,58 @@ func (h settings) userAPI(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			Globals
 			Validate  *zvalidate.Validator
 			APITokens goatcounter.APITokens
-			Empty     goatcounter.APIToken
-		}{newGlobals(w, r), verr, tokens, goatcounter.APIToken{}})
+			Sites     goatcounter.Sites
+			NewToken  goatcounter.APIToken
+		}{newGlobals(w, r), verr, tokens, sites, newToken})
 	}
+}
+
+func (h settings) newAPIToken(w http.ResponseWriter, r *http.Request) error {
+	user := User(r.Context())
+	if !user.EmailVerified {
+		zhttp.Flash(w, r, T(r.Context(), "notify/need-email-verification-for-api|You need to verify your email before you can use the API."))
+		return zhttp.SeeOther(w, "/user/auth")
+	}
+
+	var token goatcounter.APIToken
+	_, err := zhttp.Decode(r, &token)
+	if err != nil {
+		return err
+	}
+
+	err = token.Insert(r.Context())
+	if err != nil {
+		var vErr *zvalidate.Validator
+		if errors.As(err, &vErr) {
+			return h.userAPI(vErr, token)(w, r)
+		}
+		return err
+	}
+
+	zhttp.Flash(w, r, T(r.Context(), "notify/api-token-created|API token created."))
+	return zhttp.SeeOther(w, "/user/api")
+}
+
+func (h settings) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
+	v := goatcounter.NewValidate(r.Context())
+	id := goatcounter.APITokenID(v.Integer32("id", chi.URLParam(r, "id")))
+	if v.HasErrors() {
+		return v
+	}
+
+	var token goatcounter.APIToken
+	err := token.ByID(r.Context(), id)
+	if err != nil {
+		return err
+	}
+
+	err = token.Delete(r.Context())
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, r, T(r.Context(), "notify/api-token-removed|API token removed."))
+	return zhttp.SeeOther(w, "/user/api")
 }
 
 func (h settings) userViewSave(w http.ResponseWriter, r *http.Request) error {

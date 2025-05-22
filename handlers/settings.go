@@ -90,8 +90,10 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 		admin := r.With(requireAccess(goatcounter.AccessAdmin))
 
 		admin.Get("/user/api", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-			return h.userAPI(nil)(w, r)
+			return h.userAPI(nil, goatcounter.APIToken{})(w, r)
 		}))
+		admin.Post("/user/api-token", zhttp.Wrap(h.newAPIToken))
+		admin.Post("/user/api-token/remove/{id}", zhttp.Wrap(h.deleteAPIToken))
 
 		admin.Get("/settings/sites", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
 			return h.sites(nil)(w, r)
@@ -104,7 +106,6 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 		admin.Get("/settings/users", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
 			return h.users(nil)(w, r)
 		}))
-
 		admin.Get("/settings/users/add", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
 			return h.usersForm(nil, nil)(w, r)
 		}))

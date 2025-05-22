@@ -61,10 +61,6 @@ func (h user) mount(r chi.Router, ratelimits Ratelimits) {
 	auth.Post("/user/disable-totp", zhttp.Wrap(h.disableTOTP))
 	auth.Post("/user/enable-totp", zhttp.Wrap(h.enableTOTP))
 	auth.Post("/user/resend-verify", zhttp.Wrap(h.resendVerify))
-
-	admin := auth.With(requireAccess(goatcounter.AccessAdmin))
-	admin.Post("/user/api-token", zhttp.Wrap(h.newAPIToken))
-	admin.Post("/user/api-token/remove/{id}", zhttp.Wrap(h.deleteAPIToken))
 }
 
 func (h user) login(w http.ResponseWriter, r *http.Request) error {
@@ -426,50 +422,6 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 	sendEmailVerify(r.Context(), Site(r.Context()), user, goatcounter.Config(r.Context()).EmailFrom)
 	zhttp.Flash(w, r, T(r.Context(), "notify/sent-to-email|Sent to %(email).", user.Email))
 	return zhttp.SeeOther(w, "/")
-}
-
-func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
-	user := User(r.Context())
-	if !user.EmailVerified {
-		zhttp.Flash(w, r, T(r.Context(), "notify/need-email-verification-for-api|You need to verify your email before you can use the API."))
-		return zhttp.SeeOther(w, "/user/auth")
-	}
-
-	var token goatcounter.APIToken
-	_, err := zhttp.Decode(r, &token)
-	if err != nil {
-		return err
-	}
-
-	err = token.Insert(r.Context())
-	if err != nil {
-		return err
-	}
-
-	zhttp.Flash(w, r, T(r.Context(), "notify/api-token-created|API token created."))
-	return zhttp.SeeOther(w, "/user/api")
-}
-
-func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
-	v := goatcounter.NewValidate(r.Context())
-	id := goatcounter.APITokenID(v.Integer32("id", chi.URLParam(r, "id")))
-	if v.HasErrors() {
-		return v
-	}
-
-	var token goatcounter.APIToken
-	err := token.ByID(r.Context(), id)
-	if err != nil {
-		return err
-	}
-
-	err = token.Delete(r.Context())
-	if err != nil {
-		return err
-	}
-
-	zhttp.Flash(w, r, T(r.Context(), "notify/api-token-removed|API token removed."))
-	return zhttp.SeeOther(w, "/user/api")
 }
 
 func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcounter.User, emailFrom string) {

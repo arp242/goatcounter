@@ -23,7 +23,8 @@ footer a   { font-weight: bold; color: var(--text); margin: 0 .5em; }
 .form-max-width label, .form-max-width textarea, .form-max-width input {
     max-width: 50em;
 }
-.form-max-width label { display: inline-block; }
+.form-max-width label { display:inline-block; }
+label.inline          { display:inline; }
 
 #js-settings, #js-csrf, #js-i18n { display: none; }
 
@@ -318,8 +319,11 @@ tr.target .chart-left { display: block; }
 
 /*** Settings page
  *******************/
-#page-settings-main #secret { display: none; margin-left: 1em; padding-left: 1em; border-left: 1px solid #aaa; }
+#page-settings-main #secret { display:none; margin-left:1em; padding-left:1em; border-left:1px solid #aaa; }
 .purge-err                  { margin-left:1em; margin-top:1em; }
+.user-api-key               { width:100%; }
+.user-api-key td            { vertical-align:top; }
+.user-api-key ul            { margin:0; padding-left:1em; }
 
 /*** Widget settings
  *******************/

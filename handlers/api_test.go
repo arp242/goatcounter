@@ -37,6 +37,7 @@ func newAPITest(ctx context.Context, t *testing.T,
 		UserID:      User(ctx).ID,
 		Name:        "test",
 		Permissions: perm,
+		Sites:       goatcounter.SiteIDs{-1},
 	}
 	err := token.Insert(ctx)
 	if err != nil {

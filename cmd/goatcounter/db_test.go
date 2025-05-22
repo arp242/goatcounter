@@ -374,10 +374,13 @@ func TestDBAPIToken(t *testing.T) {
 			"-perm=count,export,site_read,site_create,site_update")
 		wantExit(t, exit, out, 0)
 
-		have := zdb.DumpString(ctx, `select api_token_id, site_id, user_id, name, permissions from api_tokens order by api_token_id`)
+		have := zdb.DumpString(ctx, `
+			select api_token_id, site_id, user_id, name, permissions, sites
+			from api_tokens order by api_token_id
+		`)
 		want := `
-			api_token_id  site_id  user_id  name     permissions
-			1             1        1        abc def  62`
+			api_token_id  site_id  user_id  name     permissions  sites
+			1             1        1        abc def  62           [1]`
 		if d := zdb.Diff(have, want); d != "" {
 			t.Error(d)
 		}
@@ -392,10 +395,13 @@ func TestDBAPIToken(t *testing.T) {
 			"-perm=count")
 		wantExit(t, exit, out, 0)
 
-		have := zdb.DumpString(ctx, `select api_token_id, site_id, user_id, name, permissions from api_tokens order by api_token_id`)
+		have := zdb.DumpString(ctx, `
+			select api_token_id, site_id, user_id, name, permissions, sites
+			from api_tokens order by api_token_id
+		`)
 		want := `
-			api_token_id  site_id  user_id  name  permissions
-			1             1        1        new   2`
+			api_token_id  site_id  user_id  name  permissions  sites
+			1             1        1        new   2            [1]`
 		if d := zdb.Diff(have, want); d != "" {
 			t.Error(d)
 		}

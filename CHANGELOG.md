@@ -42,6 +42,8 @@ unreleased
 - WebSocket support is now detected automatically, without the need to set the
   `-websocket` flag (which is now a no-op).
 
+- API Tokens are now shared between all sites.
+
 ### Fixes
 
 - Adjust screen size categories for more modern devices.
