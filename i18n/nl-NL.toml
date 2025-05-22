@@ -280,12 +280,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "Geen gebruiker op deze site: %(email)"
 
-["error/token-already-used"]
-  default = "Onbekend token; wellicht dat het al gebruikt is?"
-
-["error/wrong-verification-key"]
-  default = "Wrong verification key."
-
 ["event"]
   default = "event"
 

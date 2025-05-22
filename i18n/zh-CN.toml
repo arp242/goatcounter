@@ -292,12 +292,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "不存在账号 %(email)"
 
-["error/token-already-used"]
-  default = "未知令牌；或许它已被使用？"
-
-["error/wrong-verification-key"]
-  default = "验证密钥错误。"
-
 ["event"]
   default = "事件"
 

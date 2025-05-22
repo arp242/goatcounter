@@ -414,14 +414,6 @@ Martin
   loc     = ["handlers/user.go:120"]
   default = "Not an account on this site: %(email)"
 
-["error/token-already-used"]
-  loc     = ["handlers/user.go:517"]
-  default = "Unknown token; perhaps it was already used?"
-
-["error/wrong-verification-key"]
-  loc     = ["handlers/user.go:528"]
-  default = "Wrong verification key."
-
 ["event"]
   loc = [
     "tpl/_dashboard_pages_rows.gohtml:9",

@@ -292,12 +292,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "%(email) non corrisponde a un account su questo sito"
 
-["error/token-already-used"]
-  default = "Token sconosciuto; forse è stato già utilizzato?"
-
-["error/wrong-verification-key"]
-  default = "Chiave di verifica errata."
-
 ["event"]
   default = "evento"
 

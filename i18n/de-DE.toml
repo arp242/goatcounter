@@ -288,12 +288,6 @@ Hier ist der entsprechende Link:
 ["error/reset-user-no-account"]
   default = "Kein Benutzer auf dieser Website: %(email)"
 
-["error/token-already-used"]
-  default = "Unbekanntes Token: Wurde es eventuell schon verwendet?"
-
-["error/wrong-verification-key"]
-  default = "Falscher Verifikationsschlüssel"
-
 ["event"]
   default = "Ereignis"
 

@@ -293,12 +293,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "Não é uma conta neste site: %(email)"
 
-["error/token-already-used"]
-  default = "Token desconhecido; talvez já tenha sido usado?"
-
-["error/wrong-verification-key"]
-  default = "Chave de verificação incorreta."
-
 ["event"]
   default = "evento"
 

@@ -179,7 +179,7 @@ zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0 h1:nUshmGDnI3+N1OeU265xaqR6weTN2
 zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0/go.mod h1:JqClLxeT9Uui3apqyN3U6KryFanocqM7E3X4Gle2FAU=
 zgo.at/zstd v0.0.0-20250313035723-1ece53b5d53e h1:2n3jXeSzFXdz/w0tlQjPshpI5xkEeMCfCrA/SS1HznY=
 zgo.at/zstd v0.0.0-20250313035723-1ece53b5d53e/go.mod h1:iM1Z8Uk7YwHuvDGG3AmeFT+5F9taplO/dnLiVUP1F/s=
-zgo.at/ztpl v0.0.0-20240522225602-574aca1079e7 h1:opHnftGXVqUubaE2RRZ2InOoeMFRhdOH6PiTDBqqvNs=
-zgo.at/ztpl v0.0.0-20240522225602-574aca1079e7/go.mod h1:p1QiGvNPY5YJ3DAXzZtgAga+SG+19Ycr+TLzvGo2xZo=
+zgo.at/ztpl v0.0.0-20250522073924-f73b178f1791 h1:NV9X4n4Ionv4glyvOneXm/BovSc1MiNIr4jCypegnXo=
+zgo.at/ztpl v0.0.0-20250522073924-f73b178f1791/go.mod h1:p1QiGvNPY5YJ3DAXzZtgAga+SG+19Ycr+TLzvGo2xZo=
 zgo.at/zvalidate v0.0.0-20250318041547-3c1bd3bca262 h1:J7sfcE1Uz4B0IR0aUxkYHJ38A+/FkwJ9BHjz55XX8dI=
 zgo.at/zvalidate v0.0.0-20250318041547-3c1bd3bca262/go.mod h1:G57wdSfSAU5yckkFJW81QGmbWQDtli6eIKYC8gqjHsY=

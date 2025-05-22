@@ -279,12 +279,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "このサイトのアカウントではありません: %(email)"
 
-["error/token-already-used"]
-  default = "不明なトークンです。すでに使用されていませんか？"
-
-["error/wrong-verification-key"]
-  default = "検証キーが間違っています。"
-
 ["event"]
   default = "イベント"
 

@@ -502,31 +502,31 @@ func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcoun
 }
 
 func (h user) verify(w http.ResponseWriter, r *http.Request) error {
-	key := chi.URLParam(r, "key")
-	var user goatcounter.User
+	var (
+		key  = chi.URLParam(r, "key")
+		user goatcounter.User
+	)
 	err := user.ByEmailToken(r.Context(), key)
+	// It's not a problem if the user exists and is already activated. Usually
+	// happens because browser "prefetches" the URL, or people accidentally
+	// opening the link twice, or something like that.
+	if err != nil && zdb.ErrNoRows(err) && r.URL.Query().Get("email") != "" {
+		_ = user.ByEmail(r.Context(), r.URL.Query().Get("email"))
+		if user.EmailVerified {
+			err = nil
+		}
+	}
 	if err != nil {
 		if zdb.ErrNoRows(err) {
-			return guru.New(400, T(r.Context(), "error/token-already-used|Unknown token; perhaps it was already used?"))
+			return guru.New(400, T(r.Context(), "error/unknown-activation-token|Unknown activation token"))
 		}
 		return err
-	}
-
-	if user.EmailVerified {
-		zhttp.Flash(w, T(r.Context(), "notify/email-already-verified|%(email) is already verified.", user.Email))
-		return zhttp.SeeOther(w, "/")
-	}
-
-	if key != *user.EmailToken {
-		zhttp.FlashError(w, T(r.Context(), "error/wrong-verification-key|Wrong verification key."))
-		return zhttp.SeeOther(w, "/")
 	}
 
 	err = user.VerifyEmail(r.Context())
 	if err != nil {
 		return err
 	}
-
 	zhttp.Flash(w, fmt.Sprintf("%q verified", user.Email))
 	return zhttp.SeeOther(w, "/")
 }

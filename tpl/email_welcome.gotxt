@@ -2,7 +2,7 @@
 Welcome to your GoatCounter account!
 
 Please go here to verify your email address:
-{{.Site.URL .Context}}/user/verify/{{.User.EmailToken}}
+{{.Site.URL .Context}}/user/verify/{{.User.EmailToken}}?email={{.User.Email | query_escape}}
 
 Getting started is pretty easy, just add the following JavaScript anywhere on the page:
 

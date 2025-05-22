@@ -280,12 +280,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "Bu sitede bir hesap yok: %(email)"
 
-["error/token-already-used"]
-  default = "Bilinmeyen belirteç; belki de çoktan kullanılmıştır?"
-
-["error/wrong-verification-key"]
-  default = "Yanlış doğrulama anahtarı."
-
 ["event"]
   default = "etkinlik"
 
