@@ -152,10 +152,12 @@ The -listen and -tls flags:
         acme[:dir]  Create TLS certificates with ACME.
 
                     This can optionally followed by a : and a cache directory
-                    path (default: ./acme-secrets) where the certificates and
-                    your account key will be stored. The directory will be
-                    created if it doesn't exist yet. As indicated by the name,
-                    the contents of this directory should be kept *secret*.
+                    path where the certificates and your account key will be
+                    stored. The directory will be created if it doesn't exist
+                    yet. As indicated by the name, the contents of this
+                    directory should be kept *secret*. The detault is
+                    "./acme-secrets" if it exists, or
+                    "./goatcounter-data/acme-secrets" if it doesn't.
 
         file.pem    TLS certificate and keyfile, in one file. This can be used
                     as an alternative to Let's Encrypt if you already have a

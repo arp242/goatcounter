@@ -49,7 +49,8 @@ Flags accepted by all commands:
 
   -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite+/db/goatcounter.sqlite3
+               sqlite+./db/goatcounter.sqlite3 if that database file exists, or
+               sqlite+./goatcounter-data/db.sqlite3 if it doesn't.
 
   -createdb    Create the database if it doesn't exist yet.
 
@@ -320,7 +321,7 @@ Converting from SQLite to PostgreSQL:
         $ psql goatcounter -c 'delete from locations; delete from languages;'
 
         # Convert data with pgloader
-        $ pgloader --with 'create no tables' ./db/goatcounter.sqlite3 postgresql:///goatcounter
+        $ pgloader --with 'create no tables' ./goatcounter-data/db.sqlite3 postgresql:///goatcounter
 `
 
 const helpDBCommands = `List of commands:
@@ -359,7 +360,7 @@ func cmdDB(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	defer func() { ready <- struct{}{} }()
 
 	var (
-		dbConnect = f.String(defaultDB, "db").Pointer()
+		dbConnect = f.String(defaultDB(), "db").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		createdb  = f.Bool(false, "createdb").Pointer()
 	)

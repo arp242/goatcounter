@@ -54,7 +54,8 @@ Flags:
 
   -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite+/db/goatcounter.sqlite3
+               sqlite+./db/goatcounter.sqlite3 if that database file exists, or
+               sqlite+./goatcounter-data/db.sqlite3 if it doesn't.
 
   -dbconn      Set maximum number of connections, as max_open,max_idle
 
@@ -242,9 +243,9 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				len(cnames), listen, dev, strings.Join(cnames, ", "))
 			if len(cnames) == 0 {
 				dbFlag := ""
-				if dbConnect != defaultDB {
-					dbFlag = `-db="` + strings.ReplaceAll(dbConnect, `"`, `\"`) + `" `
-				}
+				//if dbConnect != defaultDB {
+				//	dbFlag = `-db="` + strings.ReplaceAll(dbConnect, `"`, `\"`) + `" `
+				//}
 				zlog.Errorf("No sites yet; access the web interface or use the CLI to create one:\n"+
 					"    goatcounter db %screate site -vhost=.. -user.email=..", dbFlag)
 			}
@@ -315,11 +316,16 @@ func doServe(ctx context.Context, db zdb.DB,
 	return nil
 }
 
-const defaultDB = "sqlite+db/goatcounter.sqlite3"
+func defaultDB() string {
+	if _, err := os.Stat("./db/goatcounter.sqlite3"); err == nil {
+		return "sqlite+./db/goatcounter.sqlite3"
+	}
+	return "sqlite+./goatcounter-data/db.sqlite3"
+}
 
 func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, int, handlers.Ratelimits, error) {
 	var (
-		dbConnect   = f.String(defaultDB, "db").Pointer()
+		dbConnect   = f.String(defaultDB(), "db").Pointer()
 		dbConn      = f.String("16,4", "dbconn").Pointer()
 		debug       = f.String("", "debug").Pointer()
 		dev         = f.Bool(false, "dev").Pointer()

@@ -14,13 +14,3 @@
 
 # Never store certificates.
 *.pem
-
-# Default acme-secrets.
-/acme-secrets
-
-# Coverage reports
-/coverage
-/coverage.*
-
-# Dev log
-/.dev.log
