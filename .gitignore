@@ -24,3 +24,6 @@
 
 # Dev log
 /.dev.log
+
+# npm manifest
+package-lock.json

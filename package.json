@@ -3,15 +3,15 @@
   "version": "4.0.0",
   "description": "Easy web analytics. No tracking of personal data.",
   "keywords": [
-	"go",
-	"golang",
-	"analytics"
+    "go",
+    "golang",
+    "analytics"
   ],
   "main": "public/count.js",
   "types": "count.d.ts",
   "scripts": {
     "prepack": "cp README.md git.README.md && mv README.npm.md README.md",
-	"postpack": "mv README.md README.npm.md && mv git.README.md README.md"
+    "postpack": "mv README.md README.npm.md && mv git.README.md README.md"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   },
   "homepage": "https://www.goatcounter.com",
   "files": [
-	"public/count.js",
-	"count.d.ts"
+    "public/count.js",
+    "count.d.ts"
   ]
 }
