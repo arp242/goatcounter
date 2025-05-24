@@ -283,12 +283,6 @@
 ["error/reset-user-no-account"]
   default = "%(email)은(는) 이 사이트에 등록된 계정이 아닙니다."
 
-["error/token-already-used"]
-  default = "알 수 없는 토큰입니다. (이미 사용되었을 수 있습니다.)"
-
-["error/wrong-verification-key"]
-  default = "잘못된 인증 키"
-
 ["event"]
   default = "이벤트"
 

@@ -285,12 +285,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "Contul: %(email) nu poate accesa acest site."
 
-["error/token-already-used"]
-  default = "Token necunoscut; probabil a fost deja folosit?"
-
-["error/wrong-verification-key"]
-  default = "Cheia de verificare este eronata."
-
 ["event"]
   default = "eveniment"
 

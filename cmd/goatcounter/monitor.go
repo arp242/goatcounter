@@ -18,7 +18,8 @@ Flags:
 
   -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
                See "goatcounter help db" for detailed documentation. Default:
-               sqlite+/db/goatcounter.sqlite3
+               sqlite+./db/goatcounter.sqlite3 if that database file exists, or
+               sqlite+./goatcounter-data/db.sqlite3 if it doesn't.
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
                See "goatcounter help debug" for a list of modules.
@@ -35,7 +36,7 @@ Flags:
 
 func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
-		dbConnect = f.String(defaultDB, "db").Pointer()
+		dbConnect = f.String(defaultDB(), "db").Pointer()
 		dbConn    = f.String("16,4", "dbconn").Pointer()
 		debug     = f.String("", "debug").Pointer()
 		period    = f.Int(120, "period").Pointer()

@@ -89,11 +89,23 @@
   default = "Excluir %(email)?"
 
 ["dashboard/day-ago"]
+  default = "%(n) dias atrás"
+  zero    = "%(n) dias atrás"
+  one     = "%(n) dia atrás"
+  two     = "%(n) dias atrás"
+  few     = "%(n) dias atrás"
+  many    = "%(n) dias atrás"
 
 ["dashboard/future"]
   default = "futuro"
 
 ["dashboard/month-ago"]
+  default = "%(n) meses atrás"
+  zero    = "%(n) meses atrás"
+  one     = "%(n) mês atrás"
+  two     = "%(n) meses atrás"
+  few     = "%(n) meses atrás"
+  many    = "%(n) meses atrás"
 
 ["dashboard/nothing-to-display"]
   default = "Nada para mostrar"
@@ -138,6 +150,12 @@
   default = "%(num-visits) acessos"
 
 ["dashboard/week-ago"]
+  default = "%(n) semanas atrás"
+  zero    = "%(n) semanas atrás"
+  one     = "%(n) semana atrás"
+  two     = "%(n) semanas atrás"
+  few     = "%(n) semanas atrás"
+  many    = "%(n) semanas atrás"
 
 ["dashboard/yesterday"]
   default = "Ontem"
@@ -213,21 +231,28 @@ Martin
 """
 
 ["error/account-has-stripe-subscription"]
+  default = "Esta conta ainda tem uma assinatura Stripe; cancele primeiro na página de cobrança."
 
 ["error/address-exists"]
+  default = "%(addr) já existe"
 
 ["error/could-not-read"]
+  default = "Não foi possível ler como gzip: %(err)"
 
 ["error/date-future"]
+  default = "Isso seria no futuro"
 
 ["error/date-mismatch"]
+  default = "data final é antes da data inicial"
 
 ["error/date-past"]
+  default = "Isso seria antes de criação do site; GoarCount não é *tão* bom ;-)"
 
 ["error/delete-main-site"]
   default = "Não é possível excluir o site principal"
 
 ["error/export-expired"]
+  default = "Parece que ainda não há nenhuma exportação ou a exportação está expirada."
 
 ["error/incorrect-password"]
   default = "A senha atual está incorreta."
@@ -242,13 +267,16 @@ Martin
   default = "Não foi possível carregar %(url): %(error)"
 
 ["error/login-invalid"]
+  default = "Login inválido"
 
 ["error/login-no-password"]
+  default = "Não há senha definida para %(email); por favor altere"
 
 ["error/login-not-found"]
   default = "Usuário %(e-mail) não encontrado"
 
 ["error/login-token-expired"]
+  default = "Usuário não pode ser encontrado para o token especificado; Talvez esteja expirado ou já utilizado?"
 
 ["error/login-wrong-pwd"]
   default = "Senha incorreta para %(email)"
@@ -264,12 +292,6 @@ Martin
 
 ["error/reset-user-no-account"]
   default = "Não é uma conta neste site: %(email)"
-
-["error/token-already-used"]
-  default = "Token desconhecido; talvez já tenha sido usado?"
-
-["error/wrong-verification-key"]
-  default = "Chave de verificação incorreta."
 
 ["event"]
   default = "evento"
@@ -370,6 +392,7 @@ Martin
   default = "Autenticação Multi-Fator (MFA)"
 
 ["header/n-hits"]
+  default = "# de hits"
 
 ["header/name"]
   default = "Nome"
@@ -378,6 +401,7 @@ Martin
   default = "Novo"
 
 ["header/pagination-cursor"]
+  default = "Cursor de paginação"
 
 ["header/passwd-mfa"]
   default = "Senha e MFA"
@@ -392,6 +416,7 @@ Martin
   default = "Preferências"
 
 ["header/reset-password"]
+  default = "Alterar senha para %(email) em %(site-name)"
 
 ["header/rm-hits"]
   default = "Excluir visualizações de página"
@@ -415,6 +440,7 @@ Martin
   default = "Tamanhos"
 
 ["header/start-pagination-cursor"]
+  default = "Iniciado do cursor de paginação"
 
 ["header/started"]
   default = "Iniciado"
@@ -450,8 +476,10 @@ Martin
   default = "Consulte %[a documentação] para mais detalhes."
 
 ["help/campaign-parameters"]
+  default = "Lista de parametros para contar como 'campanhas'; se definido, o valor será definido como referenciador, substituindo qualquer cabeçalho Referer."
 
 ["help/cfg-dashboard"]
+  default = "Mude o que mostrar no dashboard e em qual ordem."
 
 ["help/code-access"]
   default = "Você acessará o seu site em https://<em>[meu-código]</em>.%(domain)."
@@ -475,13 +503,16 @@ A verificação é executada a cada 2 horas.
   default = "Domínio verificado e configurado (observação: pode levar até uma hora para que o certificado funcione)."
 
 ["help/data-retention"]
+  default = "Visualizações de páginas e todos os dados associados serão permanentemente deletados depois desta quantidade de dias. Defina para <code>0</code> para nunca deletar."
 
 ["help/domain-access"]
+  default = "Domínio de onde acessar este site."
 
 ["help/drag-reorder"]
   default = "Arraste para reordenar"
 
 ["help/for-the-following-countries"]
+  default = "Lista de códigos de países (%[list]; use o código alpha-2); deixe em branco para coletar todos os países (se habilitado)."
 
 ["help/goatcounter-domain"]
   default = 'O domínio de sua instalação do GoatCounter, por exemplo, <em>"estatísticas.exemplo.com.br"</em>.'
@@ -511,10 +542,13 @@ A verificação é executada a cada 2 horas.
   default = "Define quem pode acessar o painel."
 
 ["help/rm-hits"]
+  default = "Você verá uma prévia de correspondências antes de qualquer coisa ser deletada"
 
 ["help/save-default-view"]
+  default = "Salve a visualização atual (ex: todas as configurações na caixa amarela) como a padrão ao carregar quando nada estiver selecionado ainda."
 
 ["help/turing-test"]
+  default = "Apenas uma pequena verificação de que você é humano :-)"
 
 ["help/your-email"]
   default = "Você precisará verificar novamente o novo endereço caso o altere."
@@ -538,6 +572,7 @@ A verificação é executada a cada 2 horas.
   default = "Estatísticas de navegadores"
 
 ["label/campaign-parameters"]
+  default = "Parametros de campanha"
 
 ["label/change-code"]
   default = "Você acessará a sua conta em https://<em>[meu-código]</em>.%(domain) - %[%link alterar]."
@@ -573,12 +608,16 @@ A verificação é executada a cada 2 horas.
   default = "Tem certeza de que deseja excluir a sua conta?"
 
 ["label/delete-account-contact"]
+  default = "Eu devo contatar você com algumas perguntas de acompanhamento ou comentários se você marcar isso. Não tentarei te convencer a ficar (eu não sou uma empresa de telecom), mas eu devo fazer uma pergunta ou duas, ou alinhar planos futuros se você estiver sentindo falta de algum recurso específico."
 
 ["label/delete-account-follow-up"]
+  default = "Tudo bem me acompanhar"
 
 ["label/delete-account-reason"]
+  default = "Eu agradeceria se você pudesse me dizer se existe algo em particular que você sente falta no GoatCounter, ou qualquer outra razão pela qual você quer deletar sua conta. Isso é totalmente opcional."
 
 ["label/delete-account-reason-placeholder"]
+  default = "Rezão opcional para deleção"
 
 ["label/email"]
   default = "E-mail"
@@ -622,11 +661,13 @@ A verificação é executada a cada 2 horas.
   default = "Nova senha (confirmação)"
 
 ["label/pagination-cursor"]
+  default = "Cursor de paginação"
 
 ["label/password"]
   default = "Senha"
 
 ["label/paths"]
+  default = "Visualização geral de caminhos"
 
 ["label/public-anyone"]
   default = "Todos"
@@ -662,11 +703,13 @@ A verificação é executada a cada 2 horas.
   default = "Telefones"
 
 ["label/size-stats"]
+  default = "Estatísticas de tamanho"
 
 ["label/size-tablets"]
   default = "Tablets e laptops pequenos"
 
 ["label/system-stats"]
+  default = "Estatísticas de sistema"
 
 ["label/thousand-separator"]
   default = "Separador de milhares"
@@ -680,6 +723,7 @@ A verificação é executada a cada 2 horas.
   default = "Total de visualizações de páginas do site"
 
 ["label/turing-test"]
+  default = "Preencha com 9 aqui"
 
 ["label/verifictation-token"]
   default = "Token de verificação"
@@ -808,25 +852,34 @@ A verificação é executada a cada 2 horas.
   default = "sem título"
 
 ["notify/add-one-thing"]
+  default = "Necessário adicionar pelo menos uma coisa; um dashboard vazio é um pouco sem sentido, não?"
 
 ["notify/api-token-created"]
+  default = "Token de API criado."
 
 ["notify/api-token-removed"]
+  default = "Token de API removido."
 
 ["notify/disabled-multi-factor-auth"]
+  default = "Autenticação multi-fator desabilitada."
 
 ["notify/email-already-verified"]
   default = "%(email) já foi verificado."
 
 ["notify/export-started-in-background"]
+  default = "Exportação iniciada em segundo plano; você receberá um email com um link para baixar assim que finalizar."
 
 ["notify/import-started-in-background"]
+  default = "Importação iniciada em segundo plano; você receberá um email assim que finalizar."
 
 ["notify/login-after-password-reset"]
+  default = "Senha redefinida; utilize sua nova senha para entrar."
 
 ["notify/multi-factor-auth-enabled"]
+  default = "Autenticação multi-fato habilitada."
 
 ["notify/need-business-plan-custom-domain"]
+  default = "plano business necessário para definir um domínio customizado"
 
 ["notify/need-email-verification-for-api"]
   default = "É necessário verificar o seu endereço de e-mail antes de usar a API."
@@ -843,13 +896,16 @@ A verificação é executada a cada 2 horas.
   default = "O pagamento foi processado com sucesso!"
 
 ["notify/payment-processing"]
+  default = "O processo de pagamento foi um sucesso, mas ainda estamos processando seu pagamento"
 
 ["notify/reset-to-default"]
+  default = "Redefinir para padrões!"
 
 ["notify/reset-user-sent"]
   default = "E-mail enviado para %(e-mail)"
 
 ["notify/restored-previously-deleted-site"]
+  default = "O site ‘%(url)’ foi deletado previamente; O site e todo seu conteúdo foi restaurado."
 
 ["notify/saved"]
   default = "Salvo!"
@@ -867,6 +923,7 @@ A verificação é executada a cada 2 horas.
   default = 'Site "%(url)" removido.'
 
 ["notify/started-background-process"]
+  default = "Iniciado em segundo plano; deve levar aproximadamente 10-20 segundos para finalizar completamente."
 
 ["notify/user-added"]
   default = 'Usuário "%(email)" adicionado.'
@@ -887,10 +944,13 @@ A verificação é executada a cada 2 horas.
 ["p/change-code-request"]
 
 ["p/change-email"]
+  default = "Altere o endereço de email em %[settings]."
 
 ["p/collect-disabled"]
+  default = "Coletar esta informção está atualmente %[disabled in settings]."
 
 ["p/copy-settings-from-current-site"]
+  default = "Copie todas as configurações do site atual exceto o nome de domínio."
 
 ["p/csv-file-format"]
 
@@ -901,12 +961,15 @@ A verificação é executada a cada 2 horas.
 ["p/disable-mfa"]
 
 ["p/enable-mfa"]
+  default = "Habilitar autenticação multi-fator baseada em TOTP escaneando o código no seu aplicativo de autenticação ou adicionando a secret manualmente."
 
 ["p/error"]
+  default = "Erro: %(error-message)"
 
 ["p/export-process"]
 
 ["p/have-mfa"]
+  default = "Esta conta é protegida com autenticação multi-fato; por favor entre com o código do seu aplicativo de autenticação."
 
 ["p/last-user"]
   default = "Não é possível excluir ou editar o único administrador"
@@ -945,8 +1008,10 @@ A verificação é executada a cada 2 horas.
   default = 'O domínio do seu site, por exemplo, <em>"www.exemplo.com.br"</em>, usado para criar links na página de visão geral.'
 
 ["p/text-data-retention"]
+  default = "Isso inclui a retenção de dados e configurações de coleta!"
 
 ["p/verify-email"]
+  default = "Por favor verifique seu email clicando no link enviado para %(email). %[%sup (Por que?)]"
 
 ["page-ranking"]
 

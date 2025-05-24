@@ -265,12 +265,6 @@
 ["error/reset-user-no-account"]
   default = "此網站無此帳號：%(email)"
 
-["error/token-already-used"]
-  default = "未知的令牌；可能已經被使用？"
-
-["error/wrong-verification-key"]
-  default = "驗證碼錯誤。"
-
 ["event"]
   default = "活動"
 

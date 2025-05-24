@@ -290,12 +290,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "Bukan sebuah akun di situs ini: %(email)"
 
-["error/token-already-used"]
-  default = "Token tidak diketahui; mungkin sudah digunakan?"
-
-["error/wrong-verification-key"]
-  default = "Kunci verifikasi salah."
-
 ["event"]
   default = "peristiwa"
 

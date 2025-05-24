@@ -278,12 +278,6 @@
 ["error/reset-user-no-account"]
   default = "इस साइट पर यह खाता नहीं है: %(email)"
 
-["error/token-already-used"]
-  default = "अज्ञात टोकन; शायद उसे पहले ही इस्तेमाल किया जा चुका है?"
-
-["error/wrong-verification-key"]
-  default = "गलत सत्यापन कुंजी।"
-
 ["event"]
 
 ["forgot-domain-help"]

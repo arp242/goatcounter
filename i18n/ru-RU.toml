@@ -296,12 +296,6 @@
 ["error/reset-user-no-account"]
   default = "Аккаунта %(email) нет на этом сайте"
 
-["error/token-already-used"]
-  default = "Неизвестный токен; возможно он уже был использован?"
-
-["error/wrong-verification-key"]
-  default = "Неправильный ключ верификации."
-
 ["event"]
   default = "событие"
 

@@ -232,7 +232,7 @@
 
 			var p = document.querySelector(opt.append)
 			if (!p)
-				return warn('visit_count: append not found: ' + opt.append)
+				return warn('visit_count: element to append to not found: ' + opt.append)
 			p.appendChild(d)
 		})
 	}

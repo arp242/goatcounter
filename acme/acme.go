@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 
 	crypto_acme "golang.org/x/crypto/acme"
@@ -103,9 +104,17 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 			cert.Leaf = leaf
 			certs = append(certs, cert)
 		case strings.HasPrefix(f, "acme"):
-			dir := "acme-secrets"
+			var (
+				dir      = "goatcounter-data/acme-secrets"
+				cacheSet bool
+			)
 			if c := strings.Index(f, ":"); c > -1 {
-				dir = f[c+1:]
+				dir, cacheSet = f[c+1:], true
+			}
+			if !cacheSet {
+				if _, err := os.Stat("acme-secrets"); err == nil {
+					dir = "acme-secrets"
+				}
 			}
 
 			c := &crypto_acme.Client{DirectoryURL: autocert.DefaultACMEDirectory}

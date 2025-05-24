@@ -162,9 +162,9 @@ You can start a server with:
 
     % goatcounter serve
 
-The default is to use an SQLite database at `./db/goatcounter.sqlite3`, which
-will be created if it doesn't exist yet. See the `-db` flag and `goatcounter
-help db` to customize this.
+The default is to use an SQLite database at `./goatcounter-data/db.sqlite3`,
+which will be created if it doesn't exist yet. See the `-db` flag and
+`goatcounter help db` to customize this.
 
 Both SQLite and PostgreSQL are supported. SQLite should work well for most
 smaller sites, but PostgreSQL gives better performance. There are [some

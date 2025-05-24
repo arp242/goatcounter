@@ -296,12 +296,6 @@ Martin
 ["error/reset-user-no-account"]
   default = "Pas un compte pour ce site : %(email)"
 
-["error/token-already-used"]
-  default = "Jeton inconnu ; peut-être a-t-il déjà été utilisé ?"
-
-["error/wrong-verification-key"]
-  default = "Clé de vérification incorrecte."
-
 ["event"]
   default = "évènement"
 
