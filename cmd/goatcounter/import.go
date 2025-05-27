@@ -87,6 +87,7 @@ Flags:
                    combined-vhost  NCSA Combined Log with virtual host
                    common          Common Log Format (CLF)
                    common-vhost    Common Log Format (CLF) with virtual host
+                   bunny           Bunny CDN log format
                    log:[fmt]       Custom log format; see "goatcounter help
                                    logfile" for details.
 

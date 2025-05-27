@@ -250,21 +250,18 @@ func (l RegexLine) Datetime(scan *Scanner) (time.Time, error) {
 	}
 	s, ok = l["datetime"]
 	if ok {
-		var t time.Time
-		var err error
+		var (
+			t   time.Time
+			n   int64
+			err error
+		)
 		switch parser.datetime {
 		case "unixmilli":
-			i, err := strconv.ParseInt(s, 10, 64)
-			if err != nil {
-				return t.UTC(), err
-			}
-			t = time.UnixMilli(i)
+			n, err = strconv.ParseInt(s, 10, 64)
+			t = time.UnixMilli(n)
 		case "unixsec":
-			i, err := strconv.ParseInt(s, 10, 64)
-			if err != nil {
-				return t.UTC(), err
-			}
-			t = time.Unix(i, 0)
+			n, err = strconv.ParseInt(s, 10, 64)
+			t = time.Unix(n, 0)
 		default:
 			t, err = time.Parse(parser.datetime, s)
 		}
@@ -273,14 +270,9 @@ func (l RegexLine) Datetime(scan *Scanner) (time.Time, error) {
 	return time.Time{}, nil
 }
 
-func toI(s string) int {
-	n, _ := strconv.Atoi(s) // Regexp only captures \d, so safe to ignore.
-	return n
-}
-func toI64(s string) int64 {
-	n, _ := strconv.ParseInt(s, 10, 64)
-	return n
-}
+// Regexp only captures \d, so safe to ignore errors here.
+func toI(s string) int     { n, _ := strconv.Atoi(s); return n }
+func toI64(s string) int64 { n, _ := strconv.ParseInt(s, 10, 64); return n }
 
 var _ Line = RegexLine{}
 

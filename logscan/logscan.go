@@ -64,6 +64,10 @@ const (
 	// $remote_addr $ignore [$datetime]                  "$method $path $http"    $status $size`
 	Common      = `$remote_addr $ignore [$datetime] "$method $path $http" $status $size`
 	CommonVhost = `$host:` + Common
+
+	// Bunny; works for both the regular and "extended" format.
+	// https://docs.bunny.net/docs/cdn-log-format
+	Bunny = `$ignore|$status|$datetime|$size|$host|$remote_addr|$referrer|$url|$ignore|$user_agent|$ignore|$ignore`
 )
 
 func getFormat(format, date, time, datetime string) (string, string, string, string) {
@@ -80,6 +84,8 @@ func getFormat(format, date, time, datetime string) (string, string, string, str
 		return Common, "", "", "02/Jan/2006:15:04:05 -0700"
 	case "common-vhost":
 		return CommonVhost, "", "", "02/Jan/2006:15:04:05 -0700"
+	case "bunny", "bunny-extended":
+		return Bunny, "", "", "unixmilli"
 	default:
 		return "", "", "", ""
 	}

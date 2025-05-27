@@ -117,20 +117,36 @@ func TestNew(t *testing.T) {
 				case "common-vhost":
 					delete(w, "referrer")
 					delete(w, "user_agent")
-				}
-
-				if !reflect.DeepEqual(data, w) {
-					t.Errorf("\nwant: %v\ngot:  %v", w, data)
+				case "bunny", "bunny-extended":
+					delete(w, "http")
+					delete(w, "method")
 				}
 
 				dt, err := data.Datetime(scan)
 				if err != nil {
 					t.Logf("%q %q %q", w["date"], w["time"], w["datetime"])
+					t.Errorf("parsing datetime: %v", err)
+				}
+				wantdt, err := time.Parse("02/Jan/2006:15:04:05 -0700", w["datetime"])
+				if err != nil {
 					t.Fatal(err)
 				}
+				if !dt.Equal(wantdt) {
+					t.Errorf("parsing datetime:\nhave: %s\nwant: %s", dt, wantdt)
+				}
 
-				_ = dt
-				//fmt.Println(dt)
+				delete(w, "datetime")
+				delete(w, "date")
+				delete(w, "time")
+				m := data.(RegexLine)
+				delete(m, "datetime")
+				delete(m, "date")
+				delete(m, "time")
+
+				if !reflect.DeepEqual(data, w) {
+					t.Errorf("\nwant: %v\nhave: %v", w, data)
+				}
+
 				i++
 			}
 		})
@@ -311,7 +327,7 @@ func TestNewFollow(t *testing.T) {
 	for i := range data {
 		delete(data[i], "_line")
 		if !reflect.DeepEqual(data[i], want[i]) {
-			t.Errorf("line %d\nwant: %#v\ngot:  %#v", i, want[i], data[i])
+			t.Errorf("line %d\nwant: %#v\nhave: %#v", i, want[i], data[i])
 		}
 	}
 }
@@ -382,7 +398,7 @@ func TestExclude(t *testing.T) {
 				return
 			}
 
-			var got []string
+			var have []string
 			for {
 				data, _, _, err := scan.Line(context.Background())
 				if err == io.EOF {
@@ -391,11 +407,11 @@ func TestExclude(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				got = append(got, data.Path())
+				have = append(have, data.Path())
 			}
 
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("\ngot:  %#v\nwant: %#v", got, tt.want)
+			if !reflect.DeepEqual(have, tt.want) {
+				t.Errorf("\nhave: %#v\nwant: %#v", have, tt.want)
 			}
 		})
 	}
