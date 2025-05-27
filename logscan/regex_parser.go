@@ -10,6 +10,7 @@ import (
 
 	"github.com/bmatcuk/doublestar/v4"
 	"zgo.at/errors"
+	"zgo.at/zstd/zstring"
 )
 
 type RegexParser struct {
@@ -37,7 +38,16 @@ func (p RegexParser) Parse(line string) (Line, bool, error) {
 			return nil, true, nil
 		}
 	}
-
+	// Normalize url/path
+	if u, ok := parsed["url"]; ok {
+		u = zstring.TrimPrefixes(u, "https://", "http://")
+		if i := strings.IndexByte(u, '/'); i == -1 {
+			parsed["host"], parsed["path"] = u, "/"
+		} else {
+			parsed["host"], parsed["path"] = u[:i], u[i:]
+		}
+		delete(parsed, "url")
+	}
 	return parsed, false, nil
 }
 
@@ -108,6 +118,8 @@ func newRegexParser(format, date, tyme, datetime string, exclude []string) (*Reg
 			p = `HTTP/[\d.]+`
 		case "path":
 			p = `/.*?`
+		case "url":
+			p = `https?://(?:xn--)?[a-zA-Z0-9.-]+(?:$|/.*?)`
 		case "timing_sec":
 			p = `[\d.]+`
 		case "timing_milli", "timing_micro":

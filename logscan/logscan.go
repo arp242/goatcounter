@@ -67,7 +67,7 @@ const (
 
 	// Bunny; works for both the regular and "extended" format.
 	// https://docs.bunny.net/docs/cdn-log-format
-	Bunny = `$ignore|$status|$datetime|$size|$host|$remote_addr|$referrer|$ignore://$host$path|$ignore|$user_agent|$ignore|$ignore`
+	Bunny = `$ignore|$status|$datetime|$size|$host|$remote_addr|$referrer|$url|$ignore|$user_agent|$ignore|$ignore`
 )
 
 func getFormat(format, date, time, datetime string) (string, string, string, string) {
