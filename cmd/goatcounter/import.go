@@ -160,8 +160,10 @@ List of format specifiers:
     method         Request method.
     status         Status code sent to the client.
     http           HTTP request protocol (i.e. HTTP/1.1).
-    path           URL path; this may contain the query string.
-    query          Query string; only needed if not included in $path.
+    path           Path (e.g. "/mypage.html"). May contain the query string.
+    url            Full URL (e.g. "https://example.com/mypage.html"). Takes
+                   precedence over $host and $path.
+    query          Query string; only needed if not included in $path or $url.
     referrer       "Referrer" request header.
     user_agent     User-Agent request header.
 
