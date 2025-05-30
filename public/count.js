@@ -3,10 +3,7 @@
 ;(function() {
 	'use strict';
 
-	if (window.goatcounter && window.goatcounter.vars)  // Compatibility with very old version; do not use.
-		window.goatcounter = window.goatcounter.vars
-	else
-		window.goatcounter = window.goatcounter || {}
+	window.goatcounter = window.goatcounter || {}
 
 	// Load settings from data-goatcounter-settings.
 	var s = document.querySelector('script[data-goatcounter]')
