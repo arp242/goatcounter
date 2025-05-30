@@ -181,7 +181,11 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 		}
 	}
 
-	return tlsc, manager.HTTPHandler(nil).ServeHTTP, listen, secure
+	acmeh := func(w http.ResponseWriter, r *http.Request) {
+		l.Debugf("handler request: %q", r.RequestURI)
+		manager.HTTPHandler(nil).ServeHTTP(w, r)
+	}
+	return tlsc, acmeh, listen, secure
 }
 
 // Enabled reports if ACME is enabled.
