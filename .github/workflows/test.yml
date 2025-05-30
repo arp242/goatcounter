@@ -24,7 +24,7 @@ jobs:
 
           docker compose up -d --wait
           export PGHOST=localhost
-          export PGPORT=5433
+          export PGPORT=5432
           export PGDATABASE=goatcounter
           export PGUSER=goatcounter
           export PGPASSWORD=goatcounter
