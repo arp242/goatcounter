@@ -54,6 +54,20 @@ Overview:
 
         $ goatcounter serve -ratelimit api-count:1000/1 ...
 
+Environment:
+
+  All of the flags take the defaults from $GOATCOUNTER_«FLAG», where «FLAG» is
+  the flag name. The commandline flag will override the environment variable.
+
+  For example:
+
+    GOATCOUNTER_FORMAT=combined
+    GOATCOUNTER_SILENT=
+
+  Additional environment variables:
+
+	GOATCOUNTER_API_KEY   API key; requires "Record pageviews" permission.
+
 Flags:
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
@@ -124,10 +138,6 @@ Flags:
                        -exclude '!method:GET' \
                        -exclude 'path:glob:/private/**' \
                        access_log
-
-Environment:
-
-  GOATCOUNTER_API_KEY   API key; requires "Record pageviews" permission.
 `
 
 const helpLogfile = `
@@ -206,8 +216,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		follow   = f.Bool(false, "follow").Pointer()
 		exclude  = f.StringList(nil, "exclude").Pointer()
 	)
-	err := f.Parse()
-	if err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
 		return err
 	}
 
@@ -251,7 +260,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return errors.New("GOATCOUNTER_API_KEY must be set")
 		}
 
-		err = checkSite(url, key, goatcounter.APIPermCount)
+		err := checkSite(url, key, goatcounter.APIPermCount)
 		if err != nil {
 			return err
 		}

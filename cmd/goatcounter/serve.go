@@ -50,6 +50,23 @@ Static files and templates are compiled in the binary and aren't needed to run
 GoatCounter. But they're loaded from the filesystem if GoatCounter is started
 with -dev.
 
+Environment:
+
+  All of the flags take the defaults from $GOATCOUNTER_«FLAG», where «FLAG» is
+  the flag name. The commandline flag will override the environment variable.
+
+  For example:
+
+    GOATCOUNTER_LISTEN=:8081
+    GOATCOUNTER_STORE_EVERY=60
+    GOATCOUNTER_WEBSOCKET=
+
+  Additional environment variables:
+
+    TMPDIR       Directory for temporary files; only used to store CSV exports
+                 at the moment. On Windows it will use the first non-empty value
+                 of %TMP%, %TEMP%, and %USERPROFILE%.
+
 Flags:
 
   -db          Database connection: "sqlite+<file>" or "postgres+<connect>"
@@ -153,12 +170,6 @@ Flags:
 
   -debug       Modules to debug, comma-separated or 'all' for all modules.
                See "goatcounter help debug" for a list of modules.
-
-Environment:
-
-  TMPDIR       Directory for temporary files; only used to store CSV exports at
-               the moment. On Windows it will use the first non-empty value of
-               %TMP%, %TEMP%, and %USERPROFILE%.
 `
 
 func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
@@ -341,7 +352,9 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		storeEvery  = f.Int(10, "store-every").Pointer()
 		websocket   = f.Bool(false, "websocket").Pointer()
 	)
-	err := f.Parse()
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
+		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, err
+	}
 
 	zlog.Config.SetDebug(*debug)
 	if *dev {
@@ -386,7 +399,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		}
 	}
 
-	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, ratelimits, err
+	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, ratelimits, nil
 }
 
 func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate bool) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {

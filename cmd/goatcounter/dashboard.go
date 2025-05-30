@@ -28,6 +28,11 @@ permissions.
 
 This is fairly simple for the time being.
 
+Environment:
+
+  GOATCOUNTER_API_KEY   API key; requires "read sites" and "read statistics"
+                        permissions.
+
 Flags:
 
   -site        Site to user, as an URL (e.g. "https://stats.example.com")
@@ -38,11 +43,6 @@ Flags:
                    "2022-01-01:2022-01-31"   Explicit start and end date
 
   Day to show, as year-month-day; default is the current day.
-
-Environment:
-
-  GOATCOUNTER_API_KEY   API key; requires "read sites" and "read statistics"
-                        permissions.
 `
 
 var dashClient = http.Client{Timeout: 15 * time.Second}
@@ -59,8 +59,7 @@ func cmdDashboard(f zli.Flags) error {
 		site      = f.String("", "site")
 		rangeFlag = f.String("", "range")
 	)
-	err := f.Parse()
-	if err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
 		return err
 	}
 

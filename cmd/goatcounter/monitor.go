@@ -43,8 +43,7 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		once      = f.Bool(false, "once").Pointer()
 		site      = f.Int(0, "site").Pointer()
 	)
-	err := f.Parse()
-	if err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
 		return err
 	}
 

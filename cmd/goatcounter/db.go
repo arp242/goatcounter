@@ -495,8 +495,7 @@ func cmdDBSchema(cmd string) error {
 }
 
 func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
-	err := f.Parse()
-	if err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
 		return err
 	}
 
@@ -530,9 +529,10 @@ func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
 }
 
 func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
-	var format = f.String("table", "format")
-	err := f.Parse()
-	if err != nil {
+	var (
+		format = f.String("table", "format")
+	)
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
 		return err
 	}
 
@@ -590,8 +590,7 @@ func getManyFinder(ctx context.Context, f *zli.Flags, cmd string, find []string)
 }
 
 func dbParseFlag(f zli.Flags, dbConnect, debug *string, createdb *bool) (zdb.DB, context.Context, error) {
-	err := f.Parse()
-	if err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
 		return nil, nil, err
 	}
 	zlog.Config.SetDebug(*debug)
