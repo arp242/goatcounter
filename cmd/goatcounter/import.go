@@ -66,7 +66,7 @@ Environment:
 
   Additional environment variables:
 
-	GOATCOUNTER_API_KEY   API key; requires "Record pageviews" permission.
+    GOATCOUNTER_API_KEY   API key; requires "Record pageviews" permission.
 
 Flags:
 
