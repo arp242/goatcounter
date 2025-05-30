@@ -57,7 +57,7 @@ Environment:
 
   For example:
 
-    GOATCOUNTER_LISTEN=:8081
+    GOATCOUNTER_LISTEN=:80
     GOATCOUNTER_STORE_EVERY=60
     GOATCOUNTER_WEBSOCKET=
 
@@ -79,18 +79,17 @@ Flags:
                There is no maximum if max_open is -1, and idle connections are
                not retained if max_idle is -1 The default is 16,4.
 
-  -listen      Address to listen on. Default: "*:443", or "localhost:8081" with
-               -dev. See "goatcounter help listen" for detailed documentation.
+  -listen      Address to listen on. Default: "*:8080". See "goatcounter help
+               listen" for detailed documentation.
 
   -tls         Serve over tls. This is a comma-separated list with any of:
 
-                 http                   Don't serve any TLS
+                 http                   Don't serve any TLS (default)
                  path/to/file.pem       TLS certificate and keyfile, in one file
                  acme[:cache]           Create TLS certificates with ACME
                  rdr                    Redirect port 80 to the -listen port
 
-               Default: "acme,rdr", or "http" when -dev is given.
-               See "goatcounter help listen" for more detailed documentation.
+               See "goatcounter help listen" for detailed documentation.
 
   -public-port Port your site is publicly accessible on. Only needed if it's
                not 80 or 443.
@@ -187,10 +186,6 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	}
 
 	return func(port int, basePath, domainStatic string) error {
-		if flagTLS == "" {
-			flagTLS = map[bool]string{true: "http", false: "acme,rdr"}[dev]
-		}
-
 		basePath = strings.Trim(basePath, "/")
 		if basePath != "" {
 			basePath = "/" + basePath
@@ -341,9 +336,9 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		debug       = f.String("", "debug").Pointer()
 		dev         = f.Bool(false, "dev").Pointer()
 		automigrate = f.Bool(false, "automigrate").Pointer()
-		listen      = f.String(":443", "listen").Pointer()
+		listen      = f.String(":8080", "listen").Pointer()
 		smtp        = f.String(blackmail.ConnectWriter, "smtp").Pointer()
-		flagTLS     = f.String("", "tls").Pointer()
+		flagTLS     = f.String("http", "tls").Pointer()
 		errors      = f.String("", "errors").Pointer()
 		from        = f.String("", "email-from").Pointer()
 		geodb       = f.String("", "geodb").Pointer()

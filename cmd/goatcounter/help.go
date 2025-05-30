@@ -109,80 +109,67 @@ all" to display everything.
 `
 
 const helpListen = `
-GoatCounter is designed to work well "out-of-the-box" for most people, but there
-are some complexities surrounding the ACME/Let's Encrypt certificate creation
-that can make things a bit complex.
+You can change the main port GoatCounter listens on with the -listen flag. This
+works like most applications, for example:
 
-In order for Let's Encrypt to work GoatCounter *needs* to be publicly accessible
-on port 80 because Let's Encrypt must verify that you actually own the domain by
-accessing http://example.com/.well-known/acme-challenge/[secret]; GoatCounter
-handles all of this for you, but it does need to be reachable by Let's Encrypt's
-verification server.
+    -listen localhost:8081     Listen on localhost:8081
+    -listen :8081              Listen on :8081 for all addresses
 
-This is why GoatCounter listens on port 80 by default, which should work well
-for most people.
+The -tls flag controls the TLS setup, as well as redirecting port 80 to the
+-listen port with a 301. The flag accepts a bunch of different options as a
+comma-separated list with any combination of:
 
-The -listen and -tls flags:
+    http        Don't serve any TLS; you can still generate ACME certificates
+                though. This is the default.
 
-    You can change the main port GoatCounter listens on with the -listen flag.
-    This works like most applications, for example:
+    proxy       Don't serve any TLS. Similar to "http" but hint that TLS will be
+                handled by a proxy (such as Hitch, Nginx, etc.) so that cookies
+                will be set with the "secure" attribute.
 
-        -listen localhost:8081     Listen on localhost:8081
-        -listen :8081              Listen on :8081 for all addresses
+    tls         Accept TLS connections on -listen.
 
-    The -tls flag controls the TLS setup, as well as redirecting port 80 to the
-    -listen port with a 301. The flag accepts a bunch of different options as a
-    comma-separated list with any combination of:
+    rdr         Redirect port 80 to the -listen port.
 
-        http        Don't serve any TLS; you can still generate ACME
-                    certificates though.
+    acme[:dir]  Create TLS certificates with ACME.
 
-        proxy       Don't serve any TLS. Similar to "http" but hint that TLS
-                    will be handled by a proxy (such as Hitch, Nginx, etc.)
+                This can optionally followed by a : and a cache directory path
+                where the certificates and your account key will be stored. The
+                directory will be created if it doesn't exist yet. As indicated
+                by the name, the contents of this directory should be kept
+                *secret*. The detault is "./acme-secrets" if it exists, or
+                "./goatcounter-data/acme-secrets" if it doesn't.
 
-        tls         Accept TLS connections on -listen. This is always done
-                    unless "http" or "proxy" are added so this is never needed,
-                    but can be useful to clarify that TLS is used.
+                In order for Let's Encrypt to work GoatCounter *needs* to be
+                publicly accessible on port 80 because Let's Encrypt must verify
+                that you actually own the domain by accessing
+                http://example.com/.well-known/acme-challenge/[secret];
+                GoatCounter handles all of this for you, but it does need to be
+                reachable by Let's Encrypt's verification server.
 
-        rdr         Redirect port 80 to the -listen port; as mentioned it's
-                    required for Let's Encrypt to be available on port 80. You
-                    can also use a proxy in front of GoatCounter (documented in
-                    more detail below).
+    file.pem    TLS certificate and keyfile, in one file. This can be used as an
+                alternative to Let's Encrypt if you already have a certificate
+                from your domain from a CA. This can use used multiple times
+                (e.g. "-tls file1.pem,file2.pem").
 
-        acme[:dir]  Create TLS certificates with ACME.
+                This can also be combined with the acme option: GoatCounter will
+                try to use a certificate file for the domain first, and if this
+                doesn't exist it will try to create a certificate with ACME.
 
-                    This can optionally followed by a : and a cache directory
-                    path where the certificates and your account key will be
-                    stored. The directory will be created if it doesn't exist
-                    yet. As indicated by the name, the contents of this
-                    directory should be kept *secret*. The detault is
-                    "./acme-secrets" if it exists, or
-                    "./goatcounter-data/acme-secrets" if it doesn't.
+Some common examples:
 
-        file.pem    TLS certificate and keyfile, in one file. This can be used
-                    as an alternative to Let's Encrypt if you already have a
-                    certificate from your domain from a CA. This can use used
-                    multiple times (e.g. "-tls file1.pem,file2.pem").
+    -listen :443 -tls tls,rdr,acme
+        Serve on TLS on port 443, redirect port 80, and generate ACME
+        certificates.
 
-                    This can also be combined with the acme option: GoatCounter
-                    will try to use a certificate file for the domain first, and
-                    if this doesn't exist it will try to create a certificate
-                    with ACME.
+    -listen :443 -tls tls,rdr,acme:/home/gc/.acme
+        The same, but with a different cache directory.
 
-    Some common examples:
+    -listen :443 -tls tls,rdr,/etc/tls/stats.example.com.pem
+        Don't use ACME, but use a certificate from a CA. No port 80 redirect.
 
-        -tls acme,rdr
-            This is the default setting: serve on TLS, redirect port 80, and
-            generate ACME certificates.
-
-        -tls rdr,acme:/home/gc/.acme
-            The default setting, but with a different cache directory.
-
-        -tls /etc/tls/stats.example.com.pem
-            Don't use ACME, but use a certificate from a CA. No port 80 redirect.
-
-        -tls http
-            Don't serve over TLS, but use regular unencrypted HTTP.
+    -tls http
+        Don't serve over TLS, but use regular unencrypted HTTP. This is the
+        default.
 
 Proxy Setup:
 
