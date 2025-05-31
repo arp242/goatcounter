@@ -252,8 +252,16 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				if dbConnect != defaultDB() {
 					dbFlag = `-db="` + strings.ReplaceAll(dbConnect, `"`, `\"`) + `" `
 				}
+				// Adjust command for Docker or Podman
+				cmd := "goatcounter"
+				if _, err := os.Stat("/.dockerenv"); err == nil && os.Getenv("HOSTNAME") != "" {
+					cmd = "docker exec -it " + os.Getenv("HOSTNAME") + " goatcounter"
+				}
+				if _, err := os.Stat("/run/.containerenv"); err == nil && os.Getenv("HOSTNAME") != "" {
+					cmd = "podman exec -it " + os.Getenv("HOSTNAME") + " goatcounter"
+				}
 				zlog.Errorf("No sites yet; access the web interface or use the CLI to create one:\n"+
-					"    goatcounter db %screate site -vhost=.. -user.email=..", dbFlag)
+					"    %s db %screate site -vhost=.. -user.email=..", cmd, dbFlag)
 			}
 			ready <- struct{}{}
 		})
