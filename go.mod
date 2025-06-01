@@ -14,6 +14,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/oschwald/geoip2-golang v1.11.0
+	github.com/oschwald/maxminddb-golang v1.13.1
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/teamwork/reload v1.4.2
@@ -37,7 +38,7 @@ require (
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20250528164418-859852b74fef
 	zgo.at/zhttp v0.0.0-20250530180048-3d90a6eb4d99
-	zgo.at/zli v0.0.0-20250530135755-d902f6179aef
+	zgo.at/zli v0.0.0-20250601161843-debde58580f1
 	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20250313035723-1ece53b5d53e
@@ -58,7 +59,6 @@ require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
-	github.com/oschwald/maxminddb-golang v1.13.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect

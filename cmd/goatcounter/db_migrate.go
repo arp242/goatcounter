@@ -21,7 +21,7 @@ func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 		test = f.Bool(false, "test")
 		show = f.Bool(false, "show")
 	)
-	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil && !errors.As(err, &zli.ErrUnknownEnv{}) {
 		return err
 	}
 

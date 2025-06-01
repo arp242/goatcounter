@@ -59,7 +59,7 @@ func cmdDashboard(f zli.Flags) error {
 		site      = f.String("", "site")
 		rangeFlag = f.String("", "range")
 	)
-	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil && !errors.As(err, &zli.ErrUnknownEnv{}) {
 		return err
 	}
 

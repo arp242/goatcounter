@@ -216,7 +216,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		follow   = f.Bool(false, "follow").Pointer()
 		exclude  = f.StringList(nil, "exclude").Pointer()
 	)
-	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil && !errors.As(err, &zli.ErrUnknownEnv{}) {
 		return err
 	}
 

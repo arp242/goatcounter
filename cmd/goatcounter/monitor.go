@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -43,7 +44,7 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		once      = f.Bool(false, "once").Pointer()
 		site      = f.Int(0, "site").Pointer()
 	)
-	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
+	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil && !errors.As(err, &zli.ErrUnknownEnv{}) {
 		return err
 	}
 
