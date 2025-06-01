@@ -37,6 +37,7 @@ import (
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zstring"
 	"zgo.at/ztpl"
+	"zgo.at/ztpl/tplfunc"
 	"zgo.at/zvalidate"
 )
 
@@ -132,8 +133,12 @@ Flags:
                version, but regional information is only recorded with the City
                version.
 
-               This parameter is optional; GoatCounter comes with a Countries
-               version built-in; you only need this if you want to use a
+               GoatCounter will automatically use the first .mmdb file in
+               ./goatcounter-data, if any exists.
+
+               GoatCounter comes with a Countries version built-in, and will use
+               that if this flag isn't given and there is no file in
+               ./goatcounter-data. You only need this if you want to use a
                newer/different version, or if you want to record regions.
 
   -ratelimit   Set rate limits for various actions; the syntax is
@@ -378,7 +383,30 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 	v.Range("-store-every", int64(*storeEvery), 1, 0)
 	cron.SetPersistInterval(time.Duration(*storeEvery) * time.Second)
 
-	goatcounter.InitGeoDB(*geodb)
+	if *geodb == "" {
+		ls, _ := os.ReadDir("goatcounter-data")
+		for _, f := range ls {
+			if strings.HasSuffix(f.Name(), ".mmdb") {
+				*geodb = "goatcounter-data/" + f.Name()
+				break
+			}
+		}
+	}
+	geomd, err := goatcounter.InitGeoDB(*geodb)
+	if err != nil {
+		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{},
+			fmt.Errorf("loading GeoIP database: %w", err)
+	}
+	if *geodb == "" {
+		*geodb = "(builtin)"
+	}
+	zlog.Module("startup").Printf("GeoIP DB: path=%s; build=%s; type=%s; description=%s; nodes=%s",
+		*geodb,
+		time.Unix(int64(geomd.BuildEpoch), 0).UTC().Format("2006-01-02 15:04:05"),
+		geomd.DatabaseType,
+		geomd.Description["en"],
+		tplfunc.Number(geomd.NodeCount, ','),
+	)
 
 	ratelimits := handlers.NewRatelimits()
 	if *ratelimit != "" {

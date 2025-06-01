@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/oschwald/geoip2-golang"
+	"github.com/oschwald/maxminddb-golang"
 	"zgo.at/errors"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
@@ -21,30 +22,30 @@ var geodb *geoip2.Reader
 // The database can be the "Countries" or "Cities" version.
 //
 // It will use the embeded "Countries" database if path is an empty string.
-func InitGeoDB(path string) {
-	var err error
-
+func InitGeoDB(path string) (maxminddb.Metadata, error) {
 	if path != "" {
+		var err error
 		geodb, err = geoip2.Open(path)
 		if err != nil {
-			panic(err)
+			return maxminddb.Metadata{}, err
 		}
 		GeoDB = nil // Save some memory.
-		return
+		return geodb.DB().Metadata, nil
 	}
 
 	gz, err := gzip.NewReader(bytes.NewReader(GeoDB))
 	if err != nil {
-		panic(err)
+		return maxminddb.Metadata{}, err
 	}
 	d, err := io.ReadAll(gz)
 	if err != nil {
-		panic(err)
+		return maxminddb.Metadata{}, err
 	}
 	geodb, err = geoip2.FromBytes(d)
 	if err != nil {
-		panic(err)
+		return maxminddb.Metadata{}, err
 	}
+	return geodb.DB().Metadata, nil
 }
 
 type Location struct {
