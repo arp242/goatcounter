@@ -232,6 +232,5 @@ commas.
     memstore       Storing of pageviews in the database.
     monitor        Additional logs in "goatcounter monitor" .
     session        Internal "session" generation to track visitors .
-    startup        Some additional logs during startup.
     vacuum         Deletion of old deleted sites and old pageviews.
 `

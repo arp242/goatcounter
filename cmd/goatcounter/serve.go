@@ -279,7 +279,7 @@ func doServe(ctx context.Context, db zdb.DB,
 ) error {
 
 	var sig = make(chan os.Signal, 1)
-	zlog.Module("startup").Debug(getVersion())
+	zlog.Module("startup").Print(getVersion())
 	ch, err := zhttp.Serve(listenTLS, stop, &http.Server{
 		Addr:        listen,
 		Handler:     h2c.NewHandler(zhttp.HostRoute(hosts), &http2.Server{}),
@@ -517,7 +517,7 @@ func setupReload() {
 	}
 
 	go func() {
-		err := reload.Do(zlog.Module("startup").Debugf, reload.Dir("./tpl", func() {
+		err := reload.Do(zlog.Module("startup").Printf, reload.Dir("./tpl", func() {
 			if err := ztpl.Reload("./tpl"); err != nil {
 				zlog.Error(err)
 			}
