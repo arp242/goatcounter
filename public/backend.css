@@ -130,7 +130,8 @@ small.go           { display: none; }
     text-align: left;
     width: auto;
 }
-.pages-list >.load-btns  { display:block; margin-top:-.7em; width:max-content; }
+.pages-list >.load-btns                  { display:block; margin-top:-.7em; width:max-content; }
+.pages-list.pages-list-text >.load-btns  { margin-top:0; }
 .plus      { color: var(--plus); }
 .minus     { color: var(--minus); }
 .load-less { display:none; margin-left: 1rem; }

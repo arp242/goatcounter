@@ -25,5 +25,7 @@
 		</tr></thead>
 		<tbody class="pages">{{template "_dashboard_pages_text_rows.gohtml" .}}</tbody>
 	</table>
-	<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>{{t .Context "link/show-more|Show more"}}</a>
+	<div class="load-btns">
+		<a href="#" class="load-more" {{if not .MorePages}}style="display: none"{{end}}>{{t .Context "link/show-more|Show more"}}</a>
+	</div>
 </div>
