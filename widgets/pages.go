@@ -125,7 +125,6 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 
 	// Correct max for chunked data in text view.
 	if w.Style == "text" {
-		w.Max = 0
 		for _, p := range w.Pages {
 			m, _ := goatcounter.ChunkStat(p.Stats)
 			if m > w.Max {
