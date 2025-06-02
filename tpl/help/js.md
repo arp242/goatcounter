@@ -157,3 +157,22 @@ Note there is also a *Campaign Parameters* setting, which is probably easier for
 most people. This is just if you want to get the campaign on only some pages, or
 want to do some more advanced filtering (such as only including your own
 campaigns).
+
+TypeScript
+----------
+
+An [npm package](https://www.npmjs.com/package/goatcounter) contains `count.js` and its corresponding TypeScript definitions.
+
+To extend the global `Window` interface with a typed `goatcounter` property:
+
+1. Install package:
+
+        npm install goatcounter
+
+2. Configure TSConfig [`types`](https://www.typescriptlang.org/tsconfig/#types):
+
+        {
+            "compilerOptions": {
+                "types": ["goatcounter"]
+            }
+        }

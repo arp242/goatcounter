@@ -1,0 +1,30 @@
+{
+  "name": "goatcounter",
+  "version": "4.0.0",
+  "description": "Easy web analytics. No tracking of personal data.",
+  "keywords": [
+    "go",
+    "golang",
+    "analytics"
+  ],
+  "main": "public/count.js",
+  "types": "count.d.ts",
+  "scripts": {
+    "prepack": "cp README.md git.README.md && mv README.npm.md README.md",
+    "postpack": "mv README.md README.npm.md && mv git.README.md README.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arp242/goatcounter.git"
+  },
+  "author": "Martin Tournoij <martin@arp242.net>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arp242/goatcounter/issues"
+  },
+  "homepage": "https://www.goatcounter.com",
+  "files": [
+    "public/count.js",
+    "count.d.ts"
+  ]
+}
