@@ -404,6 +404,10 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 }
 
 // Merge the given paths.
+//
+// TODO: this no longer works for many sites since pageviews/hits are no longer
+// stored by default. This should operate on the counts and stats tables rather
+// than hits.
 func (h *Hits) Merge(ctx context.Context, dst int64, pathIDs []int64) error {
 	// Shouldn't happen, but just in case.
 	pathIDs = slices.DeleteFunc(pathIDs, func(p int64) bool { return p == dst })
@@ -427,7 +431,7 @@ func (h *Hits) Merge(ctx context.Context, dst int64, pathIDs []int64) error {
 		hh[i].noProcess = true
 	}
 
-	err = errors.Wrap(h.Purge(ctx, pathIDs), "Hits.Merge")
+	err = h.Purge(ctx, pathIDs)
 	if err != nil {
 		return errors.Wrap(err, "Hits.Merge")
 	}
