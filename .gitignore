@@ -1,16 +1,4 @@
-# "go build" binary.
 /goatcounter
-/goatcounter.*
-/goatcounter-*
-
-# UPX creates temporary files.
-*.upx
-
-# dist directory from gogo-release
-/dist
-
-# SQLite3 database; may also store journal hence last *.
-*.sqlite3*
-
-# Never store certificates.
-*.pem
+/goatcounter.test
+/goatcounter.exe
+/goatcounter-data

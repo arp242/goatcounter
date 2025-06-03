@@ -11,8 +11,7 @@ of this project.
 
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
-Please consider [contributing financially][sponsor] if you're using
-goatcounter.com to pay for the server costs.
+Please consider [contributing financially][sponsor].
 
 [sponsor]: http://www.goatcounter.com/contribute
 [www]: https://www.goatcounter.com
@@ -68,141 +67,59 @@ There are three ways:
    method. Detailed documentation for this is available at
    https://www.goatcounter.com/code
 
-2. Integrate in your middleware; send data to GoatCounter by calling the API
-   from your backend server middleware. Detailed documentation for this is
-   available at https://www.goatcounter.com/api#backend-integration
+2. Use the HTTP/REST API, for example from your backend server middleware.
+   Detailed documentation for this is available at
+   https://www.goatcounter.com/api#backend-integration
 
-3. Parse logfiles. GoatCounter can parse logfiles from nginx, Apache,
-   CloudFront, or any other HTTP middleware or proxy. See `goatcounter help
-   import` for detailed documentation on this.
+3. Parse logfiles of nginx, Apache, Caddy, CloudFront, or any other HTTP server
+   or proxy. See `goatcounter help import` for detailed documentation on this
+   (this works both for the self-hosted version and goatcounter.com).
 
-
-Running your own
-----------------
-**Note this README is for the latest master and may be inaccurate for the latest
-released version; use the [`release-2.5`][latest] branch for the 2.5 README.**
-
-The [release page][releases] has binaries for Linux amd64, arm, and arm64. These
-are statically compiled, contain everything you need, and should work in pretty
-much any Linux environment. The only other thing you need is somewhere to store
-a SQLite database file or a PostgreSQL connection.
-
-GoatCounter should run on any platform supported by Go, but there are no
-binaries for them (yet) as cross-compiling SQLite is somewhat complex. You'll
-have to build from source if you want to run it on e.g. FreeBSD or macOS.
-
-Generally speaking only the latest release is supported, although critical fixes
-(security, data loss, etc.) may get backported to previous releases.
+Self-hosting GoatCounter
+------------------------
+The [release page][releases] has binaries for several platforms. These are
+statically compiled and contain everything you need. These should work in pretty
+much any environment. The only dependency is somewhere to store a SQLite
+database file or a PostgreSQL connection. Alternatively you can use Docker, as
+documented in the section below.
 
 [releases]: https://github.com/arp242/goatcounter/releases
 [latest]: https://github.com/arp242/goatcounter/tree/release-2.5
-
-### Deploy scripts and such
-- ["StackScript" for Linode][stackscript]; Alpine Linux VPS; you can also use
-  this for other Alpine Linux machines.
-
-  If you don't have a Linode account yet then consider using my [referral
-  URL][linode] and I'll get some kickback from Linode :-)
-
-  [stackscript]: https://cloud.linode.com/stackscripts/659823
-  [linode]: https://www.linode.com/?r=7acaf75737436d859e785dd5c9abe1ae99b4387e
-
-- Some people have created Dockerfiles. You don't really need Docker since
-  GoatCounter has no external dependencies; it probably [creates more problems
-  than it solves][docker] IMHO. At any rate, here are some that seem alright at
-  a glance if you must:
-
-  - https://github.com/baethon/docker-goatcounter (https://hub.docker.com/r/baethon/goatcounter)
-  - https://github.com/sent-hil/dokku-gocounter
-  - https://github.com/anarcat/goatcounter/blob/Dockerfile/Dockerfile
-
-  [docker]: https://www.youtube.com/watch?v=PivpCKEiQOQ
-
-- Some other guides people have written:
-  - [Replacing Google Analytics with GoatCounter](https://rgth.co/blog/replacing-google-analytics-with-goatcounter/) (Ubuntu)
-  - [GoatCounter self-hosted setup on a VPS](https://actually.fyi/posts/goatcounter-vps/) (Arch Linux)
-  - [GoatCounter server setup on OpenBSD](https://daulton.ca/2021/01/openbsd-goatcounter-server/)
-
-
-### Building from source
-You need Go 1.21 or newer and a C compiler (for SQLite). If you compile it with
-`CGO_ENABLED=0` you don't need a C compiler but can only use PostgreSQL.
-
-You can install from source to $GOBIN (`go env GOBIN`) with:
-
-    % git clone --branch=release-2.5 https://github.com/arp242/goatcounter.git
-    % cd goatcounter
-    % go build ./cmd/goatcounter
-
-Which will produce a `goatcounter` binary in the current directory.
-
-To use the latest development version switch to the `master` branch.
-
-To build a fully statically linked binary:
-
-    % go build -tags osusergo,netgo,sqlite_omit_load_extension \
-        -extldflags=-static" \
-        ./cmd/goatcounter
-
-It's recommended to use the latest release as in the above command. The master
-branch should be reasonably stable but no guarantees, and sometimes I don't
-write detailed release/upgrade notes until the actual release so you may run in
-to surprises.
-
-You can compile goatcounter without cgo if you're planning to use PostgreSQL and
-don't use SQLite:
-
-    % CGO_ENABLED=0 go build ./cmd/goatcounter
-
-Functionally it doesn't matter too much, but builds will be a bit easier and
-faster as it won't require a C compiler.
 
 ### Running
 You can start a server with:
 
     % goatcounter serve
 
-The default is to use an SQLite database at `./goatcounter-data/db.sqlite3`,
-which will be created if it doesn't exist yet. See the `-db` flag and
-`goatcounter help db` to customize this.
+This will start a server on `*:8080`. The default is to use an SQLite database
+at `./goatcounter-data/db.sqlite3`, which will be created if it doesn't exist
+yet.
 
 Both SQLite and PostgreSQL are supported. SQLite should work well for most
-smaller sites, but PostgreSQL gives better performance. There are [some
-benchmarks over here][bench] to give some indication of what performance to
-expect from SQLite and PostgreSQL.
+smaller sites, but PostgreSQL gives better performance especially for larger
+sites. There are [some benchmarks over here][bench] to give some indication of
+what performance to expect from SQLite and PostgreSQL.
 
-GoatCounter will listen on port `*:80` and `*:443` by default. You don't need
-to run it as root and can grant the appropriate permissions on Linux with:
+To create the first site, use the wizard on http://localhost:8080 or the CLI
+with:
 
-    % setcap 'cap_net_bind_service=+ep' goatcounter
+    % goatcounter db create site -vhost=stats.example.com -user.email=me@example.com
 
-Listening on a different port can be a bit tricky due to the ACME/Let's Encrypt
-certificate generation; `goatcounter help listen` documents this in depth.
+This will ask for a password; you can also add a password on the commandline
+with `-password`. You must also pass the `-db` flag here if you use something
+other than the default.
 
-You can create new sites with the `db create site` command:
+GoatCounter includes TLS and automatic ACME certificate generation; to run in
+production you probably want something like:
 
-    % goatcounter db create site -vhost stats.example.com -user.email me@example.com
+    % goatcounter serve -listen=:443 -tls=tls,rdr,acme
 
-This will ask for a password for your new account; you can also add a password
-on the commandline with `-password`. You must also pass the `-db` flag here if
-you use something other than the default.
+See `goatcounter help serve` for details.
 
-[bench]: https://github.com/arp242/goatcounter/blob/master/docs/benchmark.md
-
-### Updating
-You may need to run the database migrations when updating. Use  `goatcounter
-serve -automigrate` to always run all pending migrations on startup. This is the
-easiest way, although arguably not the "best" way.
-
-Use `goatcounter db migrate <file>` or `goatcounter db migrate all` to manually run
-migrations; generally you want to upload the new version, run migrations while
-the old one is still running, and then restart so the new version takes effect.
-
-Use `goatcounter db migrate pending` to get a list of pending migrations, or
-`goatcounter db migrate list` to show all migrations.
+[bench]: https://github.com/arp242/goatcounter/blob/main/docs/benchmark.md
 
 ### PostgreSQL
-To use PostgreSQL run GoatCounter with a custom `-db` flag; for example:
+To use PostgreSQL, run GoatCounter with a custom `-db` flag. For example:
 
     % goatcounter serve -db 'postgresql+dbname=goatcounter'
     % goatcounter serve -db 'postgresql+host=/run/postgresql dbname=goatcounter sslmode=disable'
@@ -226,15 +143,113 @@ See `goatcounter help db` and the [pq docs][pq] for more details.
 
 [pq]: https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters
 
+
+### Running with Docker
+GoatCounter is available on DockerHub at [arp242/goatcounter].
+
+Example to run a new container:
+
+    % docker run \
+        -p 8080:8080 \
+        -v goatcounter-data:/home/goatcounter/goatcounter-data \
+        arp242/goatcounter
+
+This uses a named volume, which is recommended as this stores the SQLite
+database and ACME certificates (when using ACME) and anonymous volumes can be
+easy to accidentally delete.
+
+To create the first site, use the wizard on http://localhost:8080 or the CLI
+with:
+
+    % docker exec -it [..] goatcounter db create site -vhost=stats.example.com -user.email=me@example.com
+
+To set options you can use `GOATCOUNTER_..` environment variables. For example
+to enable TLS and automatic certificate generation:
+
+    % docker run \
+        -p 80:80 \
+        -p 443:443 \
+        -v goatcounter-data:/home/goatcounter/goatcounter-data \
+        -e GOATCOUNTER_LISTEN=:443 \
+        -e GOATCOUNTER_TLS=tls,rdr,acme \
+        arp242/goatcounter
+
+Set `GOATCOUNTER_DB` to use PostgreSQL. For example:
+
+    % docker run \
+        -p 8080:8080 \
+        -v goatcounter-data:/home/goatcounter/goatcounter-data \
+        -e GOATCOUNTER_DB='postgresql+postgresql://goatcounter:goatcounter@postgres:5432/goatcounter?sslmode=disable' \
+        arp242/goatcounter
+
+See `goatcounter help serve` (or: `docker run --rm arp242/goatcounter help serve`)
+for all options.
+
+All of the above should also work with Podman.
+
+You can also run GoatCounter from compose.yaml with `docker compose`. For a
+basic SQLite setup:
+
+    % docker compose up -d goatcounter-sqlite
+
+Or PostgreSQL (also starts PostgreSQL from compose.yaml):
+
+    % docker compose up -d goatcounter-postgres
+
+[arp242/goatcounter]: https://hub.docker.com/r/arp242/goatcounter
+
+### Updating
+You may need to run the database migrations when updating. Use  `goatcounter
+serve -automigrate` to always run all pending migrations on startup.
+
+Use `goatcounter db migrate <file>` or `goatcounter db migrate all` to manually run
+migrations.
+
+Use `goatcounter db migrate pending` to get a list of pending migrations, or
+`goatcounter db migrate list` to show all migrations.
+
+### Building from source
+You need Go 1.21 or newer and a C compiler. If you compile it with
+`CGO_ENABLED=0` you don't need a C compiler but can only use PostgreSQL.
+
+You can build from source with:
+
+    % git clone --branch=release-2.5 https://github.com/arp242/goatcounter
+    % cd goatcounter
+    % go build ./cmd/goatcounter
+
+Which will produce a `goatcounter` binary in the current directory.
+
+To use the latest development version switch to the `main` branch.
+
+To build a fully statically linked binary:
+
+    % go build -trimpath -ldflags='-s -w -extldflags=-static' \
+        -tags='osusergo,netgo,sqlite_omit_load_extension' \
+        ./cmd/goatcounter
+
+It's recommended to use the latest release as in the above command. The main
+branch should be reasonably stable but no guarantees, and sometimes I don't
+write detailed release/upgrade notes until the actual release so you may run in
+to surprises.
+
+You can compile goatcounter without cgo if you're planning to use PostgreSQL and
+don't use SQLite:
+
+    % CGO_ENABLED=0 go build ./cmd/goatcounter
+
+This will create a statically linked binary by default; no extra flags needed.
+Functionally it doesn't matter too much, but builds will be a bit easier and
+faster as you won't need a C compiler.
+
 ### Development/testing
 You can start a test/development server with:
 
     % goatcounter serve -dev
 
-The `-dev` flag makes some small things a bit more convenient for development;
-TLS is disabled by default, it will listen on localhost:8081, the application
-will automatically restart on recompiles, templates and static files will be
-read directly from the filesystem, and a few other minor changes.
+The `-dev` flag makes some small things a bit more convenient for development:
+the application will automatically restart on recompiles, templates and static
+files will be read directly from the filesystem, and a few other minor changes.
 
 See [.github/CONTRIBUTING.md](/.github/CONTRIBUTING.md) for more details on how
 to run a development server, write patches, etc.

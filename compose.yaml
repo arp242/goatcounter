@@ -1,9 +1,11 @@
 name: 'goatcounter'
 
 volumes:
-  postgres-data: {}
+  postgres-data:    {}
+  goatcounter-data: {}
 
 services:
+  # PostgreSQL, suitable for running the tests or GoatCounter.
   postgres:
     image:   'postgres:16-alpine'
     ports:   ['127.0.0.1:5432:5432']
@@ -12,3 +14,24 @@ services:
       'POSTGRES_USER':     'goatcounter'
       'POSTGRES_PASSWORD': 'goatcounter'
       'POSTGRES_DATABASE': 'goatcounter'
+
+  # Don't start GoatCounter by default, but only if asked for with:
+  #   docker compose up -d goatcounter-sqlite
+  goatcounter-sqlite:
+    profiles:   ['goatcounter-sqlite']
+    build:      {context: '.'}
+    image:      'arp242/goatcounter:latest'
+    ports:      ['127.0.0.1:8080:8080']
+    volumes:    ['goatcounter-data:/home/goatcounter/goatcounter-data']
+
+  # PostgreSQL version, start with:
+  #   docker compose up -d goatcounter-postgres
+  goatcounter-postgres:
+    profiles:   ['goatcounter-postgres']
+    build:      {context: '.'}
+    image:      'arp242/goatcounter:latest'
+    depends_on: ['postgres']
+    ports:      ['127.0.0.1:8080:8080']
+    volumes:    ['goatcounter-data:/home/goatcounter/goatcounter-data']
+    environment:
+      'GOATCOUNTER_DB': 'postgresql+postgresql://goatcounter:goatcounter@postgres:5432/goatcounter?sslmode=disable'
