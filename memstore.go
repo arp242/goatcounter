@@ -235,7 +235,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 		return false
 	}
 	ctx = WithSite(ctx, &site)
-	if !site.Settings.Collect.Has(CollectHits) && h.Bot == 0 {
+	if !site.Settings.Collect.Has(CollectHits) {
 		h.NoStore = true
 	}
 
