@@ -10,7 +10,6 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/guru"
-	"zgo.at/zdb"
 )
 
 func ImportGA(ctx context.Context, fp io.Reader) error {
@@ -91,14 +90,7 @@ func ImportGA(ctx context.Context, fp io.Reader) error {
 		paths[p] = pp.ID
 	}
 
-	ins := zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id", "hour", "total"})
-	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
-		ins.OnConflict(`on conflict on constraint "hit_counts#site_id#path_id#hour" do update set
-			total = hit_counts.total + excluded.total`)
-	} else {
-		ins.OnConflict(`on conflict(site_id, path_id, hour) do update set
-			total = hit_counts.total + excluded.total`)
-	}
+	ins := Tables.HitCounts.Bulk(ctx)
 	for k, v := range pages {
 		ins.Values(siteID, paths[k], "1980-01-01 00:00:00", v)
 	}

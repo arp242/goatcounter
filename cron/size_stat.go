@@ -10,7 +10,7 @@ import (
 )
 
 func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
-	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
+	err := zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count  int
 			day    string
@@ -42,23 +42,16 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 			grouped[k] = v
 		}
-
-		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := zdb.NewBulkInsert(ctx, "size_stats", []string{"site_id", "day",
-			"path_id", "width", "count"})
-		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
-			ins.OnConflict(`on conflict on constraint "size_stats#site_id#path_id#day#width" do update set
-				count = size_stats.count + excluded.count`)
-		} else {
-			ins.OnConflict(`on conflict(site_id, path_id, day, width) do update set
-				count = size_stats.count + excluded.count`)
-		}
-
+		var (
+			siteID = goatcounter.MustGetSite(ctx).ID
+			ins    = goatcounter.Tables.SizeStats.Bulk(ctx)
+		)
 		for _, v := range grouped {
 			if v.count > 0 {
-				ins.Values(siteID, v.day, v.pathID, v.width, v.count)
+				ins.Values(siteID, v.pathID, v.day, v.width, v.count)
 			}
 		}
 		return ins.Finish()
-	}), "cron.updateSizeStats")
+	})
+	return errors.Wrap(err, "cron.updateSizeStats")
 }

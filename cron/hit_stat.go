@@ -14,7 +14,7 @@ import (
 var empty = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
-	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
+	err := zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count  []int
 			day    string
@@ -53,36 +53,24 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			grouped[k] = v
 		}
 
-		siteID := goatcounter.MustGetSite(ctx).ID
-		ins := zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "day", "path_id", "stats"})
-		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
-			ins.OnConflict(`on conflict on constraint "hit_stats#site_id#path_id#day" do update set
-				stats = (
-					with x as (
-						select
-							unnest(string_to_array(trim(hit_stats.stats, '[]'), ',')::int[]) as orig,
-							unnest(string_to_array(trim(excluded.stats,  '[]'), ',')::int[]) as new
-					)
-					select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
-				) `)
+		var (
+			siteID = goatcounter.MustGetSite(ctx).ID
+			ins    = goatcounter.Tables.HitStats.Bulk(ctx)
+		)
+		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+			// TODO: merge the arrays here and get rid of existingHitStats();
+			// it's kinda tricky with SQLite :-/
+			ins = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
 		}
-		// } else {
-		// TODO: merge the arrays here and get rid of existingHitStats();
-		// it's kinda tricky with SQLite :-/
-		//
-		// ins.OnConflict(`on conflict(site_id, path_id, day) do update set
-		// 	stats = excluded.stats
-		// `)
-		// }
-
 		for _, v := range grouped {
 			if slices.Equal(v.count, empty) {
 				continue
 			}
-			ins.Values(siteID, v.day, v.pathID, zjson.MustMarshal(v.count))
+			ins.Values(siteID, v.pathID, v.day, zjson.MustMarshal(v.count))
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
-	}), "cron.updateHitStats")
+	})
+	return errors.Wrap(err, "cron.updateHitStats")
 }
 
 func existingHitStats(ctx context.Context, siteID int64, day string, pathID int64) ([]int, error) {

@@ -486,22 +486,33 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
-	paths, err := zint.Split(r.Form.Get("paths"), ",")
+	v := goatcounter.NewValidate(r.Context())
+	pathID := v.Integer("merge_with", r.Form.Get("merge_with"))
+	if v.HasErrors() {
+		return v
+	}
+	var p goatcounter.Path
+	err := p.ByID(r.Context(), pathID)
 	if err != nil {
 		return err
 	}
 
-	v := goatcounter.NewValidate(r.Context())
-	dst := v.Integer("merge_with", r.Form.Get("merge_with"))
-	if v.HasErrors() {
-		return v
+	mergeIDs, err := zint.Split(r.Form.Get("paths"), ",")
+	if err != nil {
+		return err
 	}
-	paths = slices.DeleteFunc(paths, func(p int64) bool { return p == dst })
+	mergeIDs = slices.DeleteFunc(mergeIDs, func(p int64) bool { return p == pathID })
+	merge := make(goatcounter.Paths, len(mergeIDs))
+	for i := range mergeIDs {
+		err := merge[i].ByID(r.Context(), mergeIDs[i])
+		if err != nil {
+			return err
+		}
+	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("merge:%d", Site(ctx).ID), func() {
-		var list goatcounter.Hits
-		err := list.Merge(ctx, dst, paths)
+		err := p.Merge(ctx, merge)
 		if err != nil {
 			zlog.Error(err)
 		}

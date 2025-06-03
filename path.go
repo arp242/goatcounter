@@ -2,13 +2,17 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
+	"slices"
 	"strconv"
+	"strings"
 
 	"zgo.at/errors"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
+	"zgo.at/zstd/zreflect"
 )
 
 type Path struct {
@@ -131,6 +135,51 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 	}
 
 	return nil
+}
+
+// Merge the given paths in to this one.
+func (p Path) Merge(ctx context.Context, paths Paths) error {
+	pathIDs := make([]int64, 0, len(paths))
+	for _, pp := range paths {
+		if pp.ID == p.ID { // Shouldn't happen, but just in case.
+			return fmt.Errorf("Path.Merge: destination ID %d also in paths to merge", p.ID)
+		}
+		pathIDs = append(pathIDs, pp.ID)
+	}
+
+	siteID := MustGetSite(ctx).ID
+	err := zdb.TX(ctx, func(ctx context.Context) error {
+		for _, tt := range zreflect.Values(Tables, "", "") {
+			t := tt.(tbl)
+
+			sel := append([]string{}, t.Columns...)
+			sel[slices.Index(sel, "path_id")] = ":path_id"
+			q := fmt.Sprintf(`
+				insert into %[1]s (%[2]s)
+					select %[3]s from %[1]s
+					where site_id = :site_id and path_id in (:paths)
+				%[4]s`,
+				t.Table, strings.Join(t.Columns, ", "),
+				strings.Join(sel, ", "), t.OnConflict(ctx))
+
+			err := zdb.Exec(ctx, q, map[string]any{
+				"path_id": p.ID,
+				"site_id": siteID,
+				"paths":   pathIDs,
+			})
+			if err != nil {
+				return err
+			}
+		}
+
+		err := zdb.Exec(ctx, `update hits set path_id = ? where site_id = ? and path_id in (?)`,
+			p.ID, siteID, pathIDs)
+		if err != nil {
+			return err
+		}
+		return zdb.Exec(ctx, `delete from paths where site_id = ? and path_id in (?)`, siteID, pathIDs)
+	})
+	return errors.Wrap(err, "Path.Merge")
 }
 
 type Paths []Path

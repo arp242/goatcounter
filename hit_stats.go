@@ -2,6 +2,7 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -10,6 +11,103 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
 )
+
+type tbl struct {
+	Table      string
+	Columns    []string
+	Constraint string
+	Update     string
+
+	onConflict string
+}
+
+func (t tbl) OnConflict(ctx context.Context) string {
+	if t.onConflict == "" {
+		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
+			t.onConflict = fmt.Sprintf("on conflict on constraint \"%s#%s\" do update set\n\t%s",
+				t.Table, t.Constraint, t.Update)
+		} else {
+			t.onConflict = fmt.Sprintf("on conflict(%s) do update set\n\t%s",
+				strings.ReplaceAll(t.Constraint, "#", ","), t.Update)
+		}
+	}
+	return t.onConflict
+}
+
+func (t tbl) Bulk(ctx context.Context) zdb.BulkInsert {
+	ins := zdb.NewBulkInsert(ctx, t.Table, t.Columns)
+	ins.OnConflict(t.OnConflict(ctx))
+	return ins
+}
+
+var Tables = struct {
+	HitCounts, RefCounts, HitStats              tbl
+	BrowserStats, SystemStats, SizeStats        tbl
+	LocationStats, LanguageStats, CampaignStats tbl
+}{
+	HitCounts: tbl{
+		Table:      "hit_counts",
+		Columns:    []string{"site_id", "path_id", "hour", "total"},
+		Constraint: "site_id#path_id#hour",
+		Update:     `total = hit_counts.total + excluded.total`,
+	},
+	RefCounts: tbl{
+		Table:      "ref_counts",
+		Columns:    []string{"site_id", "path_id", "hour", "ref_id", "total"},
+		Constraint: "site_id#path_id#ref_id#hour",
+		Update:     `total = ref_counts.total + excluded.total`,
+	},
+	BrowserStats: tbl{
+		Table:      "browser_stats",
+		Columns:    []string{"site_id", "path_id", "day", "browser_id", "count"},
+		Constraint: "site_id#path_id#day#browser_id",
+		Update:     `count = browser_stats.count + excluded.count`,
+	},
+	SystemStats: tbl{
+		Table:      "system_stats",
+		Columns:    []string{"site_id", "path_id", "day", "system_id", "count"},
+		Constraint: "site_id#path_id#day#system_id",
+		Update:     `count = system_stats.count + excluded.count`,
+	},
+	LocationStats: tbl{
+		Table:      "location_stats",
+		Columns:    []string{"site_id", "path_id", "day", "location", "count"},
+		Constraint: "site_id#path_id#day#location",
+		Update:     `count = location_stats.count + excluded.count`,
+	},
+	SizeStats: tbl{
+		Table:      "size_stats",
+		Columns:    []string{"site_id", "path_id", "day", "width", "count"},
+		Constraint: "site_id#path_id#day#width",
+		Update:     `count = size_stats.count + excluded.count`,
+	},
+	LanguageStats: tbl{
+		Table:      "language_stats",
+		Columns:    []string{"site_id", "path_id", "day", "language", "count"},
+		Constraint: "site_id#path_id#day#language",
+		Update:     `count = language_stats.count + excluded.count`,
+	},
+	CampaignStats: tbl{
+		Table:      "campaign_stats",
+		Columns:    []string{"site_id", "path_id", "day", "campaign_id", "ref", "count"},
+		Constraint: "site_id#path_id#campaign_id#ref#day",
+		Update:     `count = campaign_stats.count + excluded.count`,
+	},
+	HitStats: tbl{
+		Table:      "hit_stats",
+		Columns:    []string{"site_id", "path_id", "day", "stats"},
+		Constraint: "site_id#path_id#day",
+		Update: `
+			stats = (
+				with x as (
+					select
+						unnest(string_to_array(trim(hit_stats.stats, '[]'), ',')::int[]) as orig,
+						unnest(string_to_array(trim(excluded.stats,  '[]'), ',')::int[]) as new
+				)
+				select '[' || array_to_string(array_agg(orig + new), ',') || ']' from x
+			) `,
+	},
+}
 
 type HitStat struct {
 	// ID for selecting more details; not present in the detail view.

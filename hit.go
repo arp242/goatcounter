@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"slices"
 	"strings"
 	"time"
 
@@ -401,42 +400,4 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
 		MustGetSite(ctx).ClearCache(ctx, true)
 		return nil
 	})
-}
-
-// Merge the given paths.
-//
-// TODO: this no longer works for many sites since pageviews/hits are no longer
-// stored by default. This should operate on the counts and stats tables rather
-// than hits.
-func (h *Hits) Merge(ctx context.Context, dst int64, pathIDs []int64) error {
-	// Shouldn't happen, but just in case.
-	pathIDs = slices.DeleteFunc(pathIDs, func(p int64) bool { return p == dst })
-
-	site := MustGetSite(ctx).ID
-
-	err := (&Path{}).ByID(ctx, dst) // Ensure this site owns the path.
-	if err != nil {
-		return errors.Wrap(err, "Hits.Merge")
-	}
-
-	// Push back to lot to memstore to re-add it again, and then just call
-	// Purge() to delete the old ones.
-	err = zdb.Select(ctx, h, `select * from hits where site_id=? and path_id in (?)`, site, pathIDs)
-	if err != nil {
-		return errors.Wrap(err, "Hits.Merge")
-	}
-	hh := *h
-	for i := range hh {
-		hh[i].PathID = dst
-		hh[i].noProcess = true
-	}
-
-	err = h.Purge(ctx, pathIDs)
-	if err != nil {
-		return errors.Wrap(err, "Hits.Merge")
-	}
-
-	// Only push back if delete worked.
-	Memstore.Append(hh...)
-	return nil
 }
