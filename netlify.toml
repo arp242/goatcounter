@@ -5,6 +5,7 @@
 		# query parameters for the backend, so we can just cache this.
 		Cache-Control = "public, max-age=7776000"  # 90 days
 		Access-Control-Allow-Origin = "*"
+		X-Content-Type-Options = "nosniff"
 
 [[headers]]
 	for = "/count.js"
