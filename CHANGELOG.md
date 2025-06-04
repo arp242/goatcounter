@@ -28,10 +28,13 @@ This release requires Go 1.21.
   `./goatcounter-data/acme-secrets`. The old directory will still be used as a
   default if it exists, so shouldn't break any existing setups.
 
-- No longer check for `window.goatcounter.vars` in `count.js`. This was changed
-  a week or so after the initial release over five years ago. AFAIK no one is
-  using it. If you do, then use `window.goatcounter` instead of
-  `window.goatcounter.vars` (or `data-goatcounter-settings`).
+- No longer check for `window.goatcounter.vars` and `window.counter` in
+  `count.js`. These were changed a week or so after the initial release over
+  five years ago. AFAIK no one is using them.
+
+  If you do, then use `window.goatcounter` (or `data-goatcounter-settings`)
+  instead of `window.goatcounter.vars` and `data-goatcounter="url"` on the
+  script tag instead of `window.counter`.
 
 - No longer store individual pageviews in the `hits` table by default.
 

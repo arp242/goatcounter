@@ -82,9 +82,7 @@
 	// Get the endpoint to send requests to.
 	var get_endpoint = function() {
 		var s = document.querySelector('script[data-goatcounter]')
-		if (s && s.dataset.goatcounter)
-			return s.dataset.goatcounter
-		return (goatcounter.endpoint || window.counter)  // counter is for compat; don't use.
+		return (s && s.dataset.goatcounter) ? s.dataset.goatcounter : goatcounter.endpoint
 	}
 
 	// Get current path.
