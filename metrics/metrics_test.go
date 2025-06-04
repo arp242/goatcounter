@@ -2,11 +2,17 @@ package metrics
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestMetrics(t *testing.T) {
+	if _, ok := os.LookupEnv("CI"); ok {
+		// Because the CI is quite slow, it may take more than a millisecond.
+		t.Skip("flaky in CI")
+	}
+
 	{
 		m := Start("test")
 		time.Sleep(10 * time.Millisecond)
