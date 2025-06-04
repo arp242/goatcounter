@@ -30,7 +30,11 @@ jobs:
         id: 'meta'
         with:
           images: 'arp242/goatcounter'
-          tags:   "type=semver,pattern={{version}}\ntype=semver,pattern={{major}}.{{minor}}\ntype=sha"
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=ref,event=push,branch=main
       - uses: 'docker/build-push-action@v6'
         with:
           context:    '.'
