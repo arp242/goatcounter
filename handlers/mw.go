@@ -364,7 +364,7 @@ func addcsp(domainStatic string) func(http.Handler) http.Handler {
 				frame = allFrameAncestors
 			}
 
-			header.SetCSP(w.Header(), header.CSPArgs{
+			csp := header.CSPArgs{
 				header.CSPFrameAncestors: frame,
 				header.CSPFrameSrc:       {header.CSPSourceSelf},
 				header.CSPDefaultSrc:     {header.CSPSourceNone},
@@ -379,8 +379,17 @@ func addcsp(domainStatic string) func(http.Handler) http.Handler {
 				// "wss://domain.com"; this is difficult because of custom
 				// domains and such, so just allow all websockets.
 				header.CSPConnectSrc: {header.CSPSourceSelf, "wss:"},
-			})
+			}
 
+			// Make the visitor counter examples work everywhere (e.g.
+			// somecode.goatcounter.com).
+			if strings.HasSuffix(r.URL.Path, "/help/visitor-counter") {
+				csp[header.CSPConnectSrc] = append(csp[header.CSPConnectSrc], "https://goatcounter.goatcounter.com")
+				csp[header.CSPImgSrc] = append(csp[header.CSPImgSrc], "https://goatcounter.goatcounter.com")
+				csp[header.CSPFrameSrc] = append(csp[header.CSPFrameSrc], "https://goatcounter.goatcounter.com")
+			}
+
+			header.SetCSP(w.Header(), csp)
 			next.ServeHTTP(w, r)
 		})
 	}
