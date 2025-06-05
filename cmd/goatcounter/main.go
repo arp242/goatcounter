@@ -217,7 +217,7 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 
 	// Load languages.
 	var c int
-	err = db.Get(context.Background(), &c, `select count(*) from languages`)
+	err = db.Get(context.Background(), &c, `select count(*) from languages where NOT (iso_639_3 = "" AND name = "(unknown)")`)
 	// Ignore the error intentionally; not being able to select from the
 	// languages table here to populate it (usually because it doesn't exist
 	// yet) shouldn't be a fatal error. If there's some other error then the
