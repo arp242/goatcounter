@@ -20,8 +20,8 @@
 				<p>You can still use the API to get the aggegrate statistics
 				used on the dashboard; see %[%api API docs].</p>
 				` (map
-					"setting" (tag "a" `href="/settings/main#section-collect"`)
-					"api"     (tag "a" `href="/help/api"`)
+					"setting" (tag "a" (printf `href="%s/settings/main#section-collect"` .Base))
+					"api"     (tag "a" (printf `href="%s/help/api"` .Base))
 				)}}
 			{{else}}
 				{{.T `p/export-process|
@@ -62,7 +62,7 @@
 				counter to be updated.
 			` (map
 				"ga" (tag "a" `target="_blank" href="https://support.google.com/analytics/answer/9317657?hl=en"`)
-				"vc" (tag "a" `href="/help/visitor-counter"`)
+				"vc" (tag "a" (printf `href="%s/help/visitor-counter"` .Base))
 			)}}
 			</p>
 
