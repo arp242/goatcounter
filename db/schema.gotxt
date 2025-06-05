@@ -303,7 +303,7 @@ create table languages (
 	name           varchar        not null
 );
 create unique index "languages#iso_639_3" on languages(iso_639_3);
-insert into languages (iso_639_3, name) values ('', '(unknown)'); -- id=1 is special.
+insert into languages (iso_639_3, name) values ('', '(unknown)');
 
 create table store (
 	key            varchar        not null,

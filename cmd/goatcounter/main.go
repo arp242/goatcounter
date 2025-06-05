@@ -215,24 +215,26 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 		return nil, nil, err
 	}
 
-	// Load languages.
-	var c int
-	err = db.Get(context.Background(), &c, `select count(*) from languages`)
-	// Ignore the error intentionally; not being able to select from the
-	// languages table here to populate it (usually because it doesn't exist
-	// yet) shouldn't be a fatal error. If there's some other error then the
-	// query error will show that one anyway.
-	if err == nil && c == 0 {
+	// Insert/update languages. For PostgreSQL this adds ~120ms startup time,
+	// which isn't huge but just large enough to be a tad annoying on dev. So do
+	// it in the background as this data isn't critical. For SQLite we don't
+	// need to do this as it's just ~7ms there (also harder to do fully correct
+	// due to SQLite's concurrency limitations).
+	ins := func() {
 		langs, err := fs.ReadFile(goatcounter.DB, "db/languages.sql")
 		if err != nil {
-			return nil, nil, err
+			zlog.Errorf("unable to populate languages: %s", err)
 		}
 		err = db.Exec(context.Background(), string(langs))
 		if err != nil {
-			return nil, nil, err
+			zlog.Errorf("unable to populate languages: %s", err)
 		}
 	}
-
+	if db.SQLDialect() == zdb.DialectPostgreSQL {
+		go ins()
+	} else {
+		ins()
+	}
 	return db, goatcounter.NewContext(db), nil
 }
 

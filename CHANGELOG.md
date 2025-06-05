@@ -109,8 +109,11 @@ This release requires Go 1.21.
 
 - Better error if SQLite DB directory isn't writable when creating a new
   database. SQLite doesn't try to create the file until the first SQL command,
-  which happens to be the the version check. This would fail with a confusing
+  which happens to be the version check. This would fail with a confusing
   `requires SQLite 3.35.0 or newer; have ""` error.
+
+- Correctly populate the `languages` table when creating a new database.
+  Previously collecting language statistics didn't work correct due to this.
 
 2023-12-10 v2.5.0
 -----------------
