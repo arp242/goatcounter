@@ -25,7 +25,7 @@
 			{{validate "site.settings.allow_embed" .Validate}}
 			<span>{{.T `help/allow-embed|
 				Comma-separated list of domains or URLs that can embed GoatCounter in a frame; %[full documentation].`
-				(tag "a" "href=/help/frame")}}
+				(tag "a" "href=%s/help/frame")}}
 			</span>
 
 			<label for="settings.public">{{.T "label/dashboard-public|Dashboard viewable by"}}</label>
